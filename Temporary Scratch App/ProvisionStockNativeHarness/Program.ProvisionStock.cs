@@ -140,7 +140,7 @@ internal static partial class GNHProgram
 			Console.WriteLine($"PROVISION-refusal=passed key:{spell.StockIdentity} reason:{reason} before-payment-operation-item-lifecycle-unchanged");
 		}
 		void Terrain(string name) { var terrain = new Mock<MudSharp.Construction.ITerrain>(); terrain.SetupGet(x => x.Type).Returns(ProgVariableTypes.Terrain); terrain.SetupGet(x => x.GetObject).Returns(terrain.Object); terrain.Setup(x => x.GetProperty("name")).Returns(new MudSharp.FutureProg.Variables.TextVariable(name));
-			var cell = Mock.Get(actor.Location); cell.SetupGet(x => x.Type).Returns(ProgVariableTypes.Location); cell.SetupGet(x => x.GetObject).Returns(actor.Location); cell.Setup(x => x.GetProperty("terrain")).Returns(terrain.Object); }
+			var room = Mock.Get(actor.Location); room.SetupGet(x => x.Type).Returns(ProgVariableTypes.Location); room.SetupGet(x => x.GetObject).Returns(actor.Location); room.Setup(x => x.GetProperty("terrain")).Returns(terrain.Object); }
 		Terrain("Desert");
 		VerifyProvisionSeededFood(food, native, trait, pool.Select(x => x.Id).ToArray());
 		var room = actor.Location; SetPrivateMember(actor, "Location", null!);
@@ -153,7 +153,7 @@ internal static partial class GNHProgram
 			admission.SetupGet(x => x.Id).Returns(id); admission.SetupGet(x => x.Name).Returns("Provision final " + callback);
 			admission.SetupGet(x => x.ReturnType).Returns(callback == "eligibility" ? ProgVariableTypes.Boolean : ProgVariableTypes.Number);
 			admission.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
-			void Mutate() { if (++calls != 3) return; if (callback == "eligibility") Terrain("Silt"); else SetPrivateMember(actor, "Location", Mock.Of<MudSharp.Construction.ICell>(x => x.Gameworld == world)); }
+			void Mutate() { if (++calls != 3) return; if (callback == "eligibility") Terrain("Silt"); else SetPrivateMember(actor, "Location", Mock.Of<MudSharp.Construction.IRoom>(x => x.Gameworld == world)); }
 			admission.Setup(x => x.ExecuteBool(It.IsAny<object[]>())).Returns(() => { Mutate(); return true; });
 			admission.Setup(x => x.ExecuteDouble(It.IsAny<object[]>())).Returns(() => { Mutate(); return 1.0; }); progs.Add(admission.Object);
 			Require(food.BuildingCommand(actor, new StringStack($"effect 1 {callback} {id}")), "Authored admission callback fixture");
@@ -207,7 +207,7 @@ internal static partial class GNHProgram
 		Console.WriteLine("PROVISION-partial=passed paid-native-first-output second-create-fault durable-NeedsReview origin-retry-no-replay-no-refund staff-acknowledgement exact-owned-removal");
 		var foreign = New("gear"); FlushCasting(native);
 		using (var db = NewIndependentContext(database.ConnectionString)) {
-			foreach (var item in host.Items.Where(x => !x.Deleted && x.InInventoryOf is null && x.ContainedIn is null)) if (!db.CellsGameItems.Any(x => x.GameItemId == item.Id)) db.CellsGameItems.Add(new() { CellId = fixture.CellId, GameItemId = item.Id }); db.SaveChanges();
+			foreach (var item in host.Items.Where(x => !x.Deleted && x.InInventoryOf is null && x.ContainedIn is null)) if (!db.RoomsGameItems.Any(x => x.GameItemId == item.Id)) db.RoomsGameItems.Add(new() { RoomId = fixture.RoomId, GameItemId = item.Id }); db.SaveChanges();
 		}
 		var input = new ProvisionReader(database.Name, fixture, RuntimeClock.UtcNow, all.Select(x => x.Id).ToArray(), high.Select(x => x.Id).ToArray(), consumed.Id, partial.Id,
 			high.Select(x => x.SpellCreationOrigin!.LifecycleId).ToArray(), vessel.Id, container.LiquidVolume, actor.NeedsModel.FoodSatiatedHours, actor.NeedsModel.AlcoholLitres,
@@ -247,7 +247,7 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString)) {
 			foreach (var model in db.FutureProgs.Include(x => x.FutureProgsParameters).AsNoTracking().Where(x => x.Subcategory == "Provision Stock" || x.Subcategory == "Draw Wine")) { var prog = new FutureProg(model, world); Require(prog.Compile(), prog.CompileError); if (!world.FutureProgs.Has(prog.Id)) ((All<IFutureProg>)world.FutureProgs).Add(prog); }
 			native.Body.LoadInventory(db.Bodies.Include(x => x.BodiesGameItems).Single(x => x.Id == native.Body.Id));
-			foreach (var id in db.CellsGameItems.Where(x => x.CellId == input.Fixture.CellId).Select(x => x.GameItemId).ToArray()) { var item = world.TryGetItem(id, true)!; if (item.InInventoryOf is null && item.ContainedIn is null) native.Actor.Location.Insert(item, true); }
+			foreach (var id in db.RoomsGameItems.Where(x => x.RoomId == input.Fixture.RoomId).Select(x => x.GameItemId).ToArray()) { var item = world.TryGetItem(id, true)!; if (item.InInventoryOf is null && item.ContainedIn is null) native.Actor.Location.Insert(item, true); }
 			Require(!db.GameItems.Any(x => x.Id == input.Consumed), "Consumed provision food recreated");
 		}
 		foreach (var item in host.Items.ToArray()) item.FinaliseLoadTimeTasks();

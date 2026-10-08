@@ -11,7 +11,7 @@ public class LatchGameItemComponent : GameItemComponent, ILock
 {
     private LatchGameItemComponentProto _prototype;
     public IExit InstalledExit { get; set; }
-    public ICell LatchSideCell { get; set; }
+    public IRoom LatchSideRoom { get; set; }
     public override IGameItemComponentProto Prototype => _prototype;
 
     public override IGameItemComponent Copy(IGameItem newParent, bool temporary = false)
@@ -40,13 +40,13 @@ public class LatchGameItemComponent : GameItemComponent, ILock
         }
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         LatchGameItemComponent newItemLatch = newItem?.GetItemType<LatchGameItemComponent>();
         if (newItemLatch != null)
         {
             newItemLatch.InstalledExit = InstalledExit;
-            newItemLatch.LatchSideCell = LatchSideCell;
+            newItemLatch.LatchSideRoom = LatchSideRoom;
             newItemLatch._isLocked = IsLocked;
         }
 
@@ -61,7 +61,7 @@ public class LatchGameItemComponent : GameItemComponent, ILock
     protected override string SaveToXml()
     {
         return new XElement("Definition",
-            new XElement("LatchSideCell", LatchSideCell?.Id ?? 0),
+            new XElement("LatchSideCell", LatchSideRoom?.Id ?? 0),
             new XElement("InstalledExit", InstalledExit?.Id ?? 0),
             new XElement("IsLocked", IsLocked)
         ).ToString();
@@ -95,7 +95,7 @@ public class LatchGameItemComponent : GameItemComponent, ILock
         element = root.Element("LatchSideCell");
         if (element != null)
         {
-            LatchSideCell = Gameworld.Cells.Get(long.Parse(element.Value));
+            LatchSideRoom = Gameworld.Rooms.Get(long.Parse(element.Value));
         }
 
         element = root.Element("InstalledExit");
@@ -135,7 +135,7 @@ public class LatchGameItemComponent : GameItemComponent, ILock
             return false;
         }
 
-        return InstalledExit == null || LatchSideCell == null || actor.Location == LatchSideCell;
+        return InstalledExit == null || LatchSideRoom == null || actor.Location == LatchSideRoom;
     }
 
     public bool Unlock(ICharacter actor, IKey key, IPerceivable containingPerceivable, IEmote playerEmote)
@@ -154,7 +154,7 @@ public class LatchGameItemComponent : GameItemComponent, ILock
         actor.OutputHandler.Handle(
             new MixedEmoteOutput(new Emote(_prototype.UnlockEmote, actor, actor, Parent, containingPerceivable),
                 flags: OutputFlags.SuppressObscured).Append(playerEmote));
-        InstalledExit?.Cells.Except(LatchSideCell)
+        InstalledExit?.Rooms.Except(LatchSideRoom)
                      .Single()
                      .Handle(
                          new EmoteOutput(new Emote(_prototype.UnlockEmoteOtherSide, actor, actor, Parent,
@@ -180,7 +180,7 @@ public class LatchGameItemComponent : GameItemComponent, ILock
             return false;
         }
 
-        return InstalledExit == null || LatchSideCell == null || actor.Location == LatchSideCell;
+        return InstalledExit == null || LatchSideRoom == null || actor.Location == LatchSideRoom;
     }
 
     public bool Lock(ICharacter actor, IKey key, IPerceivable containingPerceivable, IEmote playerEmote)
@@ -199,7 +199,7 @@ public class LatchGameItemComponent : GameItemComponent, ILock
         actor.OutputHandler.Handle(
             new MixedEmoteOutput(new Emote(_prototype.LockEmote, actor, actor, Parent, containingPerceivable),
                 flags: OutputFlags.SuppressObscured).Append(playerEmote));
-        InstalledExit?.Cells.Except(LatchSideCell)
+        InstalledExit?.Rooms.Except(LatchSideRoom)
                      .Single()
                      .Handle(
                          new EmoteOutput(new Emote(_prototype.LockEmoteOtherSide, actor, actor, Parent,
@@ -244,10 +244,10 @@ public class LatchGameItemComponent : GameItemComponent, ILock
 
     public string LockType => string.Empty;
 
-    public void InstallLock(ILockable lockable, IExit exit, ICell installLocation)
+    public void InstallLock(ILockable lockable, IExit exit, IRoom installLocation)
     {
         InstalledExit = exit;
-        LatchSideCell = installLocation;
+        LatchSideRoom = installLocation;
         Changed = true;
     }
 

@@ -16,13 +16,13 @@ internal static class ArenaSideIndexUtilities
         return ToDisplayIndex(sideIndex).ToString(formatProvider);
     }
 
-    public static IReadOnlyDictionary<int, int> ResolveEvenlySpacedStartCells(
+    public static IReadOnlyDictionary<int, int> ResolveEvenlySpacedStartRooms(
         IReadOnlyList<int>? orderedSideIndices,
-        int arenaCellCount,
+        int arenaRoomCount,
         int rotationOffset)
     {
         Dictionary<int, int> result = new();
-        if (orderedSideIndices is null || arenaCellCount <= 0)
+        if (orderedSideIndices is null || arenaRoomCount <= 0)
         {
             return result;
         }
@@ -35,16 +35,16 @@ internal static class ArenaSideIndexUtilities
             return result;
         }
 
-        int normalisedRotation = rotationOffset % arenaCellCount;
+        int normalisedRotation = rotationOffset % arenaRoomCount;
         if (normalisedRotation < 0)
         {
-            normalisedRotation += arenaCellCount;
+            normalisedRotation += arenaRoomCount;
         }
 
         for (int i = 0; i < sides.Count; i++)
         {
-            int baseIndex = i * arenaCellCount / sides.Count;
-            result[sides[i]] = (baseIndex + normalisedRotation) % arenaCellCount;
+            int baseIndex = i * arenaRoomCount / sides.Count;
+            result[sides[i]] = (baseIndex + normalisedRotation) % arenaRoomCount;
         }
 
         return result;

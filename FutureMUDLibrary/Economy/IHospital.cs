@@ -173,13 +173,13 @@ public interface IHospitalServiceRequest : IFrameworkItem, ISaveable
 	decimal DebtCharged { get; }
 	Guid? EmploymentTaskId { get; set; }
 	long? AssignedEmployeeId { get; set; }
-	long? OperatingTheatreCellId { get; set; }
+	long? OperatingTheatreRoomId { get; set; }
 	bool UsedInPlaceFallback { get; set; }
 	bool SupplyPrepared { get; set; }
 	long? PreparedByEmployeeId { get; set; }
 	DateTimeOffset? PreparedAt { get; set; }
-	long? RecoveryRoomCellId { get; set; }
-	long? ReturnCellId { get; set; }
+	long? RecoveryRoomId { get; set; }
+	long? ReturnRoomId { get; set; }
 	DateTimeOffset CreatedAt { get; }
 	DateTimeOffset LastUpdatedAt { get; }
 	DateTimeOffset? CompletedAt { get; }
@@ -203,12 +203,12 @@ public interface IHospital : IFrameworkItem, ISaveable, IKeywordedItem, IEmploym
 	bool IsTrading { get; set; }
 	bool IsReadyToDoBusiness { get; }
 	decimal DefaultMaximumDebt { get; set; }
-	IEnumerable<ICell> WaitingRooms { get; }
-	IEnumerable<ICell> OperatingTheatres { get; }
-	IEnumerable<ICell> SupplyRooms { get; }
-	IEnumerable<ICell> RecoveryRooms { get; }
-	IEnumerable<ICell> StaffRooms { get; }
-	IEnumerable<ICell> Locations { get; }
+	IEnumerable<IRoom> WaitingRooms { get; }
+	IEnumerable<IRoom> OperatingTheatres { get; }
+	IEnumerable<IRoom> SupplyRooms { get; }
+	IEnumerable<IRoom> RecoveryRooms { get; }
+	IEnumerable<IRoom> StaffRooms { get; }
+	IEnumerable<IRoom> Locations { get; }
 	IEnumerable<IHospitalService> Services { get; }
 	IEnumerable<IHospitalService> ActiveServices { get; }
 	IEnumerable<IHospitalServiceRequest> ServiceRequests { get; }
@@ -218,10 +218,10 @@ public interface IHospital : IFrameworkItem, ISaveable, IKeywordedItem, IEmploym
 	bool IsEmployee(ICharacter actor);
 	bool IsManager(ICharacter actor);
 	bool IsProprietor(ICharacter actor);
-	bool HasLocationRole(ICell cell, HospitalLocationRole role);
-	IEnumerable<HospitalLocationRole> LocationRoles(ICell cell);
-	void AddLocation(ICell cell, HospitalLocationRole role);
-	void RemoveLocation(ICell cell, HospitalLocationRole role);
+	bool HasLocationRole(IRoom room, HospitalLocationRole role);
+	IEnumerable<HospitalLocationRole> LocationRoles(IRoom room);
+	void AddLocation(IRoom room, HospitalLocationRole role);
+	void RemoveLocation(IRoom room, HospitalLocationRole role);
 	IHospitalService? ServiceByIdOrName(string text);
 	void AddService(IHospitalService service);
 	void RemoveService(IHospitalService service);

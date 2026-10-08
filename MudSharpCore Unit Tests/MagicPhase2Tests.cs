@@ -64,11 +64,11 @@ public class MagicPhase2Tests
 	public void CastingTriggerExit_DoTriggerCast_ResolvesLocalExitAndSuppliesExitParameter()
 	{
 		Mock<ICharacter> actor = CreateActor();
-		Mock<ICellExit> exit = CreateExit("north");
+		Mock<IRoomExit> exit = CreateExit("north");
 		Mock<IExit> sharedExit = new();
 		exit.SetupGet(x => x.Exit).Returns(sharedExit.Object);
 
-		Mock<ICell> location = new();
+		Mock<IRoom> location = new();
 		location.Setup(x => x.GetExitKeyword("north", actor.Object)).Returns(exit.Object);
 		actor.SetupGet(x => x.Location).Returns(location.Object);
 
@@ -94,9 +94,9 @@ public class MagicPhase2Tests
 	{
 		Mock<ICharacter> actor = CreateActor();
 		Mock<ICharacter> targetCharacter = CreateActor();
-		Mock<ICellExit> exit = CreateExit("north");
+		Mock<IRoomExit> exit = CreateExit("north");
 
-		Mock<ICell> location = new();
+		Mock<IRoom> location = new();
 		location.Setup(x => x.GetExitKeyword("north", actor.Object)).Returns(exit.Object);
 		actor.SetupGet(x => x.Location).Returns(location.Object);
 		actor.Setup(x => x.TargetActorOrCorpse("bob")).Returns(targetCharacter.Object);
@@ -122,7 +122,7 @@ public class MagicPhase2Tests
 	{
 		Mock<ICharacter> actor = CreateActor();
 		Mock<ICharacter> targetCharacter = CreateActor();
-		Mock<ICell> room = new();
+		Mock<IRoom> room = new();
 		Mock<IFutureProg> targetProg = CreateProgMock(1L, ProgVariableTypes.Character, targetCharacter.Object);
 		Mock<IFutureProg> roomProg = CreateProgMock(2L, ProgVariableTypes.Location, room.Object);
 
@@ -153,7 +153,7 @@ public class MagicPhase2Tests
 	public void CastingTriggerProgItemRoom_DoTriggerCast_AllowsNullTargetAndStillSuppliesRoom()
 	{
 		Mock<ICharacter> actor = CreateActor();
-		Mock<ICell> room = new();
+		Mock<IRoom> room = new();
 		Mock<IFutureProg> targetProg = CreateProgMock(1L, ProgVariableTypes.Item, null);
 		Mock<IFutureProg> roomProg = CreateProgMock(2L, ProgVariableTypes.Location, room.Object);
 
@@ -189,7 +189,7 @@ public class MagicPhase2Tests
 		Assert.AreEqual(string.Empty, error);
 
 		Mock<ICharacter> target = CreateActor();
-		Mock<ICellExit> exit = CreateExit("north");
+		Mock<IRoomExit> exit = CreateExit("north");
 		target.Setup(x => x.CanMove(exit.Object,
 			CanMoveFlags.IgnoreWhetherExitCanBeCrossed |
 			CanMoveFlags.IgnoreCancellableActionBlockers |
@@ -224,7 +224,7 @@ public class MagicPhase2Tests
 		Assert.AreEqual(string.Empty, error);
 
 		Mock<ICharacter> target = CreateActor();
-		Mock<ICellExit> exit = CreateExit("north");
+		Mock<IRoomExit> exit = CreateExit("north");
 		target.Setup(x => x.CanMove(exit.Object,
 			CanMoveFlags.IgnoreWhetherExitCanBeCrossed |
 			CanMoveFlags.IgnoreCancellableActionBlockers |
@@ -246,7 +246,7 @@ public class MagicPhase2Tests
 			[new SpellAdditionalParameter { ParameterName = "exit", Item = exit.Object }]
 		);
 
-		target.Verify(x => x.Move(It.IsAny<ICellExit>(), It.IsAny<IEmote>(), It.IsAny<bool>()), Times.Never);
+		target.Verify(x => x.Move(It.IsAny<IRoomExit>(), It.IsAny<IEmote>(), It.IsAny<bool>()), Times.Never);
 	}
 
 	[TestMethod]
@@ -255,7 +255,7 @@ public class MagicPhase2Tests
 		Mock<IMagicSchool> school = CreateSchool();
 		Mock<ICharacter> source = CreateActor();
 		Mock<IPerceivable> target = CreatePerceivable(null);
-		Mock<ICell> room = CreateCell();
+		Mock<IRoom> room = CreateRoom();
 		Mock<IMagicInterdictionEffect> ward = CreateInterdictionEffect(MagicInterdictionCoverage.Incoming,
 			MagicInterdictionMode.Fail, true);
 
@@ -358,11 +358,11 @@ public class MagicPhase2Tests
 		actor.Setup(x => x.HasDubFor(It.IsAny<IKeyworded>(), It.IsAny<IEnumerable<string>>())).Returns(false);
 		actor.Setup(x => x.EffectsOfType<IMagicInterdictionEffect>(It.IsAny<Predicate<IMagicInterdictionEffect>>()))
 		     .Returns([]);
-		actor.SetupGet(x => x.Location).Returns((ICell)null!);
+		actor.SetupGet(x => x.Location).Returns((IRoom)null!);
 		return actor;
 	}
 
-	private static Mock<IPerceivable> CreatePerceivable(ICell? location)
+	private static Mock<IPerceivable> CreatePerceivable(IRoom? location)
 	{
 		Mock<IPerceivable> perceivable = new();
 		perceivable.SetupGet(x => x.Location).Returns(location!);
@@ -371,17 +371,17 @@ public class MagicPhase2Tests
 		return perceivable;
 	}
 
-	private static Mock<ICell> CreateCell()
+	private static Mock<IRoom> CreateRoom()
 	{
-		Mock<ICell> cell = new();
-		cell.Setup(x => x.EffectsOfType<IMagicInterdictionEffect>(It.IsAny<Predicate<IMagicInterdictionEffect>>()))
+		Mock<IRoom> room = new();
+		room.Setup(x => x.EffectsOfType<IMagicInterdictionEffect>(It.IsAny<Predicate<IMagicInterdictionEffect>>()))
 		    .Returns([]);
-		return cell;
+		return room;
 	}
 
-	private static Mock<ICellExit> CreateExit(params string[] keywords)
+	private static Mock<IRoomExit> CreateExit(params string[] keywords)
 	{
-		Mock<ICellExit> exit = new();
+		Mock<IRoomExit> exit = new();
 		exit.SetupGet(x => x.Keywords).Returns(keywords);
 		exit.Setup(x => x.GetKeywordsFor(It.IsAny<IPerceiver>())).Returns(keywords);
 		exit.Setup(x => x.HasKeyword(It.IsAny<string>(), It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<bool>()))
@@ -416,7 +416,7 @@ public class MagicPhase2Tests
 		prog.SetupGet(x => x.Parameters).Returns([]);
 		prog.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(false);
 		prog.Setup(x => x.Execute<IPerceivable?>(It.IsAny<object[]>())).Returns(result as IPerceivable);
-		prog.Setup(x => x.Execute<ICell?>(It.IsAny<object[]>())).Returns(result as ICell);
+		prog.Setup(x => x.Execute<IRoom?>(It.IsAny<object[]>())).Returns(result as IRoom);
 		prog.Setup(x => x.ExecuteBool(It.IsAny<object[]>())).Returns(result as bool? ?? false);
 		prog.Setup(x => x.ExecuteBool(It.IsAny<bool>(), It.IsAny<object[]>())).Returns(result as bool? ?? false);
 		return prog;

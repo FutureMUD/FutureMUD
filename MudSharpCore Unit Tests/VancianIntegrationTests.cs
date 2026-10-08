@@ -176,7 +176,7 @@ public class VancianIntegrationTests
 	{
 		var items = new VancianItemTests.ItemFixture(); var f = items.F;
 		var spell = VancianSnapshotTests.Spell(f, "<Effect type='forcedexitmovement'/>", triggerType: "characterexit", triggerContent: "<TargetFilterProg>0</TargetFilterProg><CanTargetSelf>true</CanTargetSelf>");
-		var room = new Mock<ICell>(); var exit = new Mock<ICellExit>(); var target = new Mock<ICharacter> { DefaultValue = DefaultValue.Mock };
+		var room = new Mock<IRoom>(); var exit = new Mock<IRoomExit>(); var target = new Mock<ICharacter> { DefaultValue = DefaultValue.Mock };
 		f.Actor.SetupGet(x => x.Location).Returns(room.Object); room.Setup(x => x.GetExitKeyword("north", f.Actor.Object)).Returns(exit.Object);
 		f.Actor.Setup(x => x.TargetActorOrCorpse(It.IsAny<string>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(() => null!);
 		f.Actor.Setup(x => x.TargetActorOrCorpse("friend", It.IsAny<PerceiveIgnoreFlags>())).Returns(target.Object);

@@ -18,7 +18,7 @@ public class MindConnectedToEffect : Effect, IMagicEffect
     }
 
     private void CharacterOwner_OnLocationChanged(Form.Shape.ILocateable locatable,
-        Construction.Boundary.ICellExit exit)
+        Construction.Boundary.IRoomExit exit)
     {
         OriginatorEffect.CharacterOwner_OnLocationChanged(locatable, exit);
     }

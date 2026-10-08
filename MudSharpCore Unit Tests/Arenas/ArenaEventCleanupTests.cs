@@ -197,8 +197,8 @@ public class ArenaEventCleanupTests
         futureProgs.Setup(x => x.Get(It.IsAny<long>())).Returns((IFutureProg?)null);
         Mock<IUneditableAll<IRandomNameProfile>> randomNameProfiles = new();
         randomNameProfiles.Setup(x => x.Get(It.IsAny<long>())).Returns((IRandomNameProfile?)null);
-        Mock<IUneditableAll<ICell>> cells = new();
-        cells.Setup(x => x.Get(It.IsAny<long>())).Returns((ICell?)null);
+        Mock<IUneditableAll<IRoom>> rooms = new();
+        rooms.Setup(x => x.Get(It.IsAny<long>())).Returns((IRoom?)null);
         Mock<IArenaScheduler> arenaScheduler = new();
         Mock<IArenaParticipationService> participationService = new();
         Mock<ISaveManager> saveManager = new();
@@ -208,7 +208,7 @@ public class ArenaEventCleanupTests
         gameworld.SetupGet(x => x.BankAccounts).Returns(bankAccounts.Object);
         gameworld.SetupGet(x => x.FutureProgs).Returns(futureProgs.Object);
         gameworld.SetupGet(x => x.RandomNameProfiles).Returns(randomNameProfiles.Object);
-        gameworld.SetupGet(x => x.Cells).Returns(cells.Object);
+        gameworld.SetupGet(x => x.Rooms).Returns(rooms.Object);
         gameworld.SetupGet(x => x.ArenaScheduler).Returns(arenaScheduler.Object);
         gameworld.SetupGet(x => x.ArenaParticipationService).Returns(participationService.Object);
         gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);

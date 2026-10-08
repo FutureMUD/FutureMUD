@@ -14,23 +14,23 @@ public partial class FuturemudDatabaseContext
 			entity.ToTable("LandRejuvenationTreatments");
 			entity.HasKey(x => x.Id).HasName("PRIMARY");
 			entity.Property(x => x.Id).ValueGeneratedNever();
-			entity.Property(x => x.CellId).HasColumnType("bigint(20)");
+			entity.Property(x => x.RoomId).HasColumnType("bigint(20)");
 			entity.Property(x => x.Revision).HasColumnType("bigint(20)").IsConcurrencyToken();
 			entity.Property(x => x.Status).HasMaxLength(40).IsRequired();
 			entity.Property(x => x.Checkpoint).HasColumnType("longtext").HasCharSet("utf8mb4")
 				.UseCollation("utf8mb4_unicode_ci").IsRequired();
-			entity.HasIndex(x => new { x.CellId, x.Status }).HasDatabaseName("IX_LandRejuvenationTreatments_CellId_Status");
+			entity.HasIndex(x => new { x.RoomId, x.Status }).HasDatabaseName("IX_LandRejuvenationTreatments_RoomId_Status");
 			// Retain terminal/pending evidence after deletion of its originating spell, caster or cell.
 		});
 
-		modelBuilder.Entity<Cell>(entity =>
+		modelBuilder.Entity<Room>(entity =>
 		{
 			entity.Property(x => x.EnvironmentalMagicBindingMode)
 				.HasColumnType("int(11)")
 				.HasDefaultValue(0);
 			entity.Property(x => x.EnvironmentalMagicProfileId).HasColumnType("bigint(20)");
 			entity.HasIndex(x => x.EnvironmentalMagicProfileId)
-				.HasDatabaseName("IX_Cells_EnvironmentalMagicProfileId");
+				.HasDatabaseName("IX_Rooms_EnvironmentalMagicProfileId");
 		});
 
 		modelBuilder.Entity<Terrain>(entity =>
@@ -40,16 +40,16 @@ public partial class FuturemudDatabaseContext
 				.HasDatabaseName("IX_Terrains_EnvironmentalMagicProfileId");
 		});
 
-		modelBuilder.Entity<CellEnvironmentalState>(entity =>
+		modelBuilder.Entity<RoomEnvironmentalState>(entity =>
 		{
-			entity.ToTable("CellEnvironmentalStates", table =>
+			entity.ToTable("RoomEnvironmentalStates", table =>
 			{
-				table.HasCheckConstraint("CK_CellEnvironmentalStates_Versions", "`SchemaVersion` >= 1 AND `Revision` >= 0");
-				table.HasCheckConstraint("CK_CellEnvironmentalStates_ScarDamage", "`ScarDamage` >= 0");
-				table.HasCheckConstraint("CK_CellEnvironmentalStates_Pressure", "`RecentPressure` >= 0 AND `PressureHalfLifeSeconds` > 0");
+				table.HasCheckConstraint("CK_RoomEnvironmentalStates_Versions", "`SchemaVersion` >= 1 AND `Revision` >= 0");
+				table.HasCheckConstraint("CK_RoomEnvironmentalStates_ScarDamage", "`ScarDamage` >= 0");
+				table.HasCheckConstraint("CK_RoomEnvironmentalStates_Pressure", "`RecentPressure` >= 0 AND `PressureHalfLifeSeconds` > 0");
 			});
-			entity.HasKey(x => x.CellId).HasName("PRIMARY");
-			entity.Property(x => x.CellId).HasColumnType("bigint(20)").ValueGeneratedNever();
+			entity.HasKey(x => x.RoomId).HasName("PRIMARY");
+			entity.Property(x => x.RoomId).HasColumnType("bigint(20)").ValueGeneratedNever();
 			entity.Property(x => x.SchemaVersion).HasColumnType("int(11)").HasDefaultValue(1);
 			entity.Property(x => x.Revision).HasColumnType("bigint(20)").HasDefaultValue(0L).IsConcurrencyToken();
 			entity.Property(x => x.ScarDamage).HasDefaultValue(0.0);
@@ -59,11 +59,11 @@ public partial class FuturemudDatabaseContext
 			entity.Property(x => x.PressureDecayAnchor).HasDefaultValue(0.0);
 			entity.Property(x => x.LastDefileUtc).HasColumnType("datetime(6)");
 			entity.Property(x => x.PressureReferenceUtc).HasColumnType("datetime(6)");
-			entity.HasOne(x => x.Cell)
+			entity.HasOne(x => x.Room)
 				.WithOne(x => x.EnvironmentalState)
-				.HasForeignKey<CellEnvironmentalState>(x => x.CellId)
+				.HasForeignKey<RoomEnvironmentalState>(x => x.RoomId)
 				.OnDelete(DeleteBehavior.Cascade)
-				.HasConstraintName("FK_CellEnvironmentalStates_Cells");
+				.HasConstraintName("FK_RoomEnvironmentalStates_Rooms");
 		});
 
 		modelBuilder.Entity<EnvironmentalMagicOperation>(entity =>
@@ -71,7 +71,7 @@ public partial class FuturemudDatabaseContext
 			entity.ToTable("EnvironmentalMagicOperations");
 			entity.HasKey(x => x.Id).HasName("PRIMARY");
 			entity.Property(x => x.Id).ValueGeneratedNever();
-			entity.Property(x => x.CellId).HasColumnType("bigint(20)");
+			entity.Property(x => x.RoomId).HasColumnType("bigint(20)");
 			entity.Property(x => x.ActorId).HasColumnType("bigint(20)");
 			entity.Property(x => x.Kind).HasMaxLength(40).IsRequired();
 			entity.Property(x => x.Status).HasMaxLength(40).IsRequired();
@@ -86,8 +86,8 @@ public partial class FuturemudDatabaseContext
 				.HasCharSet("utf8mb4")
 				.UseCollation("utf8mb4_unicode_ci")
 				.IsRequired();
-			entity.HasIndex(x => new { x.CellId, x.AtUtc })
-				.HasDatabaseName("IX_EnvironmentalMagicOperations_CellId_AtUtc");
+			entity.HasIndex(x => new { x.RoomId, x.AtUtc })
+				.HasDatabaseName("IX_EnvironmentalMagicOperations_RoomId_AtUtc");
 			// Keep identity and diagnostic evidence after deletion of the cell, actor, or profile.
 			// The operation key must continue to reject replay even when those objects no longer exist.
 		});

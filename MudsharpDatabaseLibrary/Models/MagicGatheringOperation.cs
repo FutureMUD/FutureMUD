@@ -16,7 +16,7 @@ public class MagicGatheringOperation
 	public long MagicCapabilityId { get; set; }
 	public Guid MethodKey { get; set; }
 	public int MethodVersion { get; set; }
-	public long? CellId { get; set; }
+	public long? RoomId { get; set; }
 	public long? SourceProfileId { get; set; }
 	public long? SourceProfileRevision { get; set; }
 	public long? SourceResourceId { get; set; }

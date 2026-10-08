@@ -79,7 +79,7 @@ public class PileGameItemComponent : GameItemComponent, IContainer
         return false;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         foreach (IGameItem item in Contents.ToList())
         {
@@ -388,7 +388,7 @@ public class PileGameItemComponent : GameItemComponent, IContainer
             }
         }
 
-        ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
+        IRoom location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         _contents.Clear();
         if (emptier is not null)

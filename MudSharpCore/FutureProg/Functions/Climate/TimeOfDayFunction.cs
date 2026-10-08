@@ -37,9 +37,9 @@ internal class TimeOfDayFunction : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        if (result is ICell cell)
+        if (result is IRoom room)
         {
-            Result = new TextVariable(cell.CurrentTimeOfDay.Describe());
+            Result = new TextVariable(room.CurrentTimeOfDay.Describe());
             return StatementResult.Normal;
         }
 

@@ -217,7 +217,7 @@ public sealed class RoomTagWardEffect : TagWardSpellEffectBase
 
 	protected override IMagicSpellEffect? CreateWardEffect(IPerceivable target, IMagicSpellEffectParent parent)
 	{
-		return target is ICell ? new SpellRoomTagWardEffect(target, parent, Tag, Value, MatchValue, Mode, Coverage, Prog) : null;
+		return target is IRoom ? new SpellRoomTagWardEffect(target, parent, Tag, Value, MatchValue, Mode, Coverage, Prog) : null;
 	}
 
 	protected override IMagicSpellEffectTemplate CloneEffect(XElement root, IMagicSpell spell)

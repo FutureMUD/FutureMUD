@@ -123,7 +123,7 @@ public class RpiShopConversionTests
 		return new FutureMudShopBaselineCatalog
 		{
 			DefaultEconomicZone = new FutureMudEconomicZoneReference(1, "Default Economy", 10),
-			CellIds = cellIds,
+			RoomIds = cellIds,
 			ItemProtosByLegacyVnum = itemProtosByVnum,
 			ExistingShopKeys = existingShopKeys ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase),
 			ExistingShopNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase),

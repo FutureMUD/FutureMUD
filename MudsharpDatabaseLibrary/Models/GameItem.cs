@@ -10,7 +10,7 @@ namespace MudSharp.Models
             BodiesGameItems = new HashSet<BodiesGameItems>();
             BodiesImplants = new HashSet<BodiesImplants>();
             BodiesProsthetics = new HashSet<BodiesProsthetics>();
-            CellsGameItems = new HashSet<CellsGameItems>();
+            RoomsGameItems = new HashSet<RoomsGameItems>();
             GameItemComponents = new HashSet<GameItemComponent>();
             GameItemsMagicResources = new HashSet<GameItemMagicResource>();
             HooksPerceivables = new HashSet<HooksPerceivable>();
@@ -47,7 +47,7 @@ namespace MudSharp.Models
         public virtual ICollection<BodiesGameItems> BodiesGameItems { get; set; }
         public virtual ICollection<BodiesImplants> BodiesImplants { get; set; }
         public virtual ICollection<BodiesProsthetics> BodiesProsthetics { get; set; }
-        public virtual ICollection<CellsGameItems> CellsGameItems { get; set; }
+        public virtual ICollection<RoomsGameItems> RoomsGameItems { get; set; }
         public virtual ICollection<GameItemComponent> GameItemComponents { get; set; }
         public virtual ICollection<GameItemMagicResource> GameItemsMagicResources { get; set; }
         public virtual ICollection<HooksPerceivable> HooksPerceivables { get; set; }

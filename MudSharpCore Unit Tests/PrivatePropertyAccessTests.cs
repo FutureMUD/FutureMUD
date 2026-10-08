@@ -21,7 +21,7 @@ public class PrivatePropertyAccessTests
 	public void Evaluate_ActiveHostEmployee_IsAuthorised()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var cell = CreateCell(gameworld.Object);
+		var room = CreateRoom(gameworld.Object);
 		var actor = CreateCharacter(10L);
 		var contract = new Mock<IEmploymentContract>();
 		contract.SetupGet(x => x.Employee).Returns(actor.Object);
@@ -31,9 +31,9 @@ public class PrivatePropertyAccessTests
 		host.SetupGet(x => x.Name).Returns("Test Shop");
 		host.SetupGet(x => x.FrameworkItemType).Returns("Shop");
 		host.SetupGet(x => x.EmploymentContracts).Returns([contract.Object]);
-		ApplyEffect(cell, host.Object);
+		ApplyEffect(room, host.Object);
 
-		var result = PrivatePropertyAccessService.Evaluate(cell.Object, actor.Object);
+		var result = PrivatePropertyAccessService.Evaluate(room.Object, actor.Object);
 
 		Assert.IsTrue(result.IsPrivateProperty);
 		Assert.IsTrue(result.IsAuthorised);
@@ -44,7 +44,7 @@ public class PrivatePropertyAccessTests
 	public void Evaluate_TrustedAllyOfPropertyOwner_IsAuthorised()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var cell = CreateCell(gameworld.Object);
+		var room = CreateRoom(gameworld.Object);
 		var actor = CreateCharacter(10L);
 		var owner = CreateCharacter(11L);
 		owner.Setup(x => x.IsTrustedAlly(actor.Object)).Returns(true);
@@ -57,10 +57,10 @@ public class PrivatePropertyAccessTests
 		property.SetupGet(x => x.PropertyOwners).Returns([propertyOwner.Object]);
 		property.Setup(x => x.IsAuthorisedOwner(actor.Object)).Returns(false);
 		property.Setup(x => x.IsAuthorisedLeaseHolder(actor.Object)).Returns(false);
-		property.Setup(x => x.HotelRoomForCell(cell.Object)).Returns((IHotelRoom)null!);
-		ApplyEffect(cell, property.Object);
+		property.Setup(x => x.HotelRoomForRoom(room.Object)).Returns((IHotelRoom)null!);
+		ApplyEffect(room, property.Object);
 
-		var result = PrivatePropertyAccessService.Evaluate(cell.Object, actor.Object);
+		var result = PrivatePropertyAccessService.Evaluate(room.Object, actor.Object);
 
 		Assert.IsTrue(result.IsAuthorised);
 		Assert.AreEqual(PrivatePropertyAccessReason.TrustedAlly, result.Reason);
@@ -70,30 +70,30 @@ public class PrivatePropertyAccessTests
 	public void Evaluate_NoRelationship_WouldTrespass()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var cell = CreateCell(gameworld.Object);
+		var room = CreateRoom(gameworld.Object);
 		var actor = CreateCharacter(10L);
 		var host = new Mock<IEmploymentHost>();
 		host.SetupGet(x => x.Id).Returns(20L);
 		host.SetupGet(x => x.Name).Returns("Test Shop");
 		host.SetupGet(x => x.FrameworkItemType).Returns("Shop");
 		host.SetupGet(x => x.EmploymentContracts).Returns(Array.Empty<IEmploymentContract>());
-		ApplyEffect(cell, host.Object);
+		ApplyEffect(room, host.Object);
 
-		var result = PrivatePropertyAccessService.Evaluate(cell.Object, actor.Object);
+		var result = PrivatePropertyAccessService.Evaluate(room.Object, actor.Object);
 
 		Assert.IsTrue(result.IsPrivateProperty);
 		Assert.IsFalse(result.IsAuthorised);
 		Assert.AreEqual(PrivatePropertyAccessReason.Unauthorised, result.Reason);
 	}
 
-	private static Mock<ICell> CreateCell(IFuturemud gameworld)
+	private static Mock<IRoom> CreateRoom(IFuturemud gameworld)
 	{
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(1L);
-		cell.SetupGet(x => x.Name).Returns("Private Cell");
-		cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld);
-		return cell;
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(1L);
+		room.SetupGet(x => x.Name).Returns("Private Cell");
+		room.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+		room.SetupGet(x => x.Gameworld).Returns(gameworld);
+		return room;
 	}
 
 	private static Mock<ICharacter> CreateCharacter(long id)
@@ -107,10 +107,10 @@ public class PrivatePropertyAccessTests
 		return actor;
 	}
 
-	private static void ApplyEffect(Mock<ICell> cell, IFrameworkItem controller)
+	private static void ApplyEffect(Mock<IRoom> room, IFrameworkItem controller)
 	{
-		var effect = new PrivatePropertyEffect(cell.Object, controller);
-		cell.Setup(x => x.EffectsOfType<PrivatePropertyEffect>(It.IsAny<Predicate<PrivatePropertyEffect>>()))
+		var effect = new PrivatePropertyEffect(room.Object, controller);
+		room.Setup(x => x.EffectsOfType<PrivatePropertyEffect>(It.IsAny<Predicate<PrivatePropertyEffect>>()))
 		    .Returns([effect]);
 	}
 }

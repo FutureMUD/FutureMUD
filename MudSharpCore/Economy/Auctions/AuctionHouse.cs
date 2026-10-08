@@ -41,13 +41,13 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
         );
     }
 
-    public AuctionHouse(IEconomicZone zone, string name, ICell cell, IBankAccount? account)
+    public AuctionHouse(IEconomicZone zone, string name, IRoom room, IBankAccount? account)
     {
         Gameworld = zone.Gameworld;
         EconomicZone = zone;
         _name = name;
-        AuctionHouseCell = cell;
-        cell.CellProposedForDeletion += Cell_CellProposedForDeletion;
+        AuctionHouseRoom = room;
+        room.RoomProposedForDeletion += Room_RoomProposedForDeletion;
         ProfitsBankAccount = account;
         AuctionListingFeeFlat = Gameworld.GetStaticDecimal("DefaultAuctionHouseListingFeeFlat");
         AuctionListingFeeRate = Gameworld.GetStaticDecimal("DefaultAuctionHouseListingFeeRate");
@@ -61,7 +61,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
                 ProfitsBankAccountId = account?.Id,
                 AuctionListingFeeFlat = AuctionListingFeeFlat,
                 AuctionListingFeeRate = AuctionListingFeeRate,
-                AuctionHouseCellId = cell.Id,
+                AuctionHouseRoomId = room.Id,
                 DefaultListingTime = DefaultListingTime.TotalSeconds,
                 Definition = SaveDefinition().ToString()
             };
@@ -73,7 +73,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
         Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += AuctionTick;
     }
 
-    private void Cell_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+    private void Room_RoomProposedForDeletion(IRoom room, ProposalRejectionResponse response)
     {
         response.RejectWithReason($"That room is the auction house location for auction house #{Id:N0} ({Name.ColourName()})");
     }
@@ -408,18 +408,18 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
         {
             BidderRefundsOwed[winningBid.BidderId] += winningBid.Bid;
             Changed = true;
-            AuctionHouseCell.Handle(
+            AuctionHouseRoom.Handle(
                 $"The auctioneers announce that the auction for {DescribeLotPlain(item)} cannot be completed because the listed ownership share is no longer available, and the winning bid has been refunded.");
             winningBid = null;
         }
         else if (winningBid == null)
         {
-            AuctionHouseCell.Handle(
+            AuctionHouseRoom.Handle(
                 $"The auctioneers announce that the auction for {DescribeLotPlain(item)} has ended without any bids.");
         }
         else
         {
-            AuctionHouseCell.Handle(
+            AuctionHouseRoom.Handle(
                 $"The auctioneers announce that the auction for {DescribeLotPlain(item)} has ended with a winning bid of {EconomicZone.Currency.Describe(winningBid.Bid, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}.");
         }
 
@@ -507,8 +507,8 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
         EconomicZone = Gameworld.EconomicZones.Get(dbitem.EconomicZoneId);
         _id = dbitem.Id;
         _name = dbitem.Name;
-        AuctionHouseCell = Gameworld.Cells.Get(dbitem.AuctionHouseCellId);
-        AuctionHouseCell.CellProposedForDeletion += Cell_CellProposedForDeletion;
+        AuctionHouseRoom = Gameworld.Rooms.Get(dbitem.AuctionHouseRoomId);
+        AuctionHouseRoom.RoomProposedForDeletion += Room_RoomProposedForDeletion;
         ProfitsBankAccount = Gameworld.BankAccounts.Get(dbitem.ProfitsBankAccountId ?? 0L);
         AuctionListingFeeFlat = dbitem.AuctionListingFeeFlat;
         AuctionListingFeeRate = dbitem.AuctionListingFeeRate;
@@ -619,7 +619,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
         Models.AuctionHouse dbitem = FMDB.Context.AuctionHouses.Find(Id);
         dbitem.Name = Name;
         dbitem.EconomicZoneId = EconomicZone.Id;
-        dbitem.AuctionHouseCellId = AuctionHouseCell.Id;
+        dbitem.AuctionHouseRoomId = AuctionHouseRoom.Id;
         dbitem.AuctionListingFeeFlat = AuctionListingFeeFlat;
         dbitem.AuctionListingFeeRate = AuctionListingFeeRate;
         dbitem.ProfitsBankAccountId = ProfitsBankAccount?.Id;
@@ -644,7 +644,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
     #region Implementation of IAuctionHouse
 
     public IEconomicZone EconomicZone { get; set; }
-    public ICell AuctionHouseCell { get; set; }
+    public IRoom AuctionHouseRoom { get; set; }
     public IBankAccount ProfitsBankAccount { get; set; }
     public decimal CashBalance => VirtualCashLedger.Balance(this, EconomicZone.Currency);
     public decimal AvailableFunds => VirtualCashLedger.AvailableFunds(this, EconomicZone.Currency, ProfitsBankAccount);
@@ -816,7 +816,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
   #3auction set withdraw <amount>#0 - withdraws from virtual cash and bank fallback
   #3auction set ledger [count]#0 - reviews the auction house cash ledger
   #3auction set time <time period>#0 - sets the amount of time auctions run for
-  #3auction set location#0 - changes the location of the auction house to the current cell".SubstituteANSIColour());
+  #3auction set location#0 - changes the location of the auction house to the current room".SubstituteANSIColour());
         return false;
     }
 
@@ -1090,17 +1090,17 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
 
     private bool BuildingCommandLocation(ICharacter actor, StringStack command)
     {
-        if (Gameworld.AuctionHouses.Any(x => x.AuctionHouseCell == actor.Location))
+        if (Gameworld.AuctionHouses.Any(x => x.AuctionHouseRoom == actor.Location))
         {
             actor.OutputHandler.Send(
                 "There is already an auction house in this location. Only one auction house may be in a room at any time.");
             return false;
         }
 
-        AuctionHouseCell.CellProposedForDeletion -= Cell_CellProposedForDeletion;
-        AuctionHouseCell = actor.Location;
-        AuctionHouseCell.CellProposedForDeletion -= Cell_CellProposedForDeletion;
-        AuctionHouseCell.CellProposedForDeletion += Cell_CellProposedForDeletion;
+        AuctionHouseRoom.RoomProposedForDeletion -= Room_RoomProposedForDeletion;
+        AuctionHouseRoom = actor.Location;
+        AuctionHouseRoom.RoomProposedForDeletion -= Room_RoomProposedForDeletion;
+        AuctionHouseRoom.RoomProposedForDeletion += Room_RoomProposedForDeletion;
         Changed = true;
         actor.OutputHandler.Send("This auction house is now based in your current location.");
         return true;
@@ -1112,7 +1112,7 @@ public partial class AuctionHouse : SaveableItem, IAuctionHouse, IPostCharacterL
         sb.AppendLine($"Auction House {Name.ColourName()} (#{Id.ToString("N0", actor)})");
         sb.AppendLine($"Economic Zone: {EconomicZone.Name.ColourValue()}");
         sb.AppendLine(
-            $"Location: {AuctionHouseCell.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} (#{AuctionHouseCell.Id.ToString("N0", actor)})");
+            $"Location: {AuctionHouseRoom.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreCanSee)} (#{AuctionHouseRoom.Id.ToString("N0", actor)})");
         sb.AppendLine(
             $"Bank Account: {(ProfitsBankAccount is null ? "None".ColourError() : $"{ProfitsBankAccount.AccountNumber.ToString("F0", actor).ColourValue()} with {ProfitsBankAccount.Bank.Code.ColourName()}")}");
         sb.AppendLine(

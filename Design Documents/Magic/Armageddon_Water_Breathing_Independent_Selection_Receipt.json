@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "entry_key": "arm.spell.water_breathing",
+  "scope": "Independent immutable duration selection and explicit fluid scope only",
+  "source_commit": "cb59ffafaf098b0b89c860b747bcc9f65cc1f13a",
+  "base_checkpoint": "9603af8120cd1d6b82347f617bff2811bef93d34",
+  "branch": "codex/armageddon-five-stock-spells",
+  "worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock",
+  "independent_source_values_verified": true,
+  "adapter_wired": false,
+  "stock_implemented": false,
+  "shared_allocation_pending": true,
+  "repeated_service_preparation_verified": false,
+  "native_strategy_consumption_verified": false,
+  "paid_adapter_verified": false,
+  "persistence_expiry_or_dispel_verified": false,
+  "completion_clear": false,
+  "independent_review_pending": true,
+  "unit": {
+    "status": "PASS",
+    "run_id": "20261005T153707Z-2135e8ab2068",
+    "counts": {
+      "executed": 110,
+      "passed": 110,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 110
+    },
+    "project": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~WaterBreathingSourceSelectionTests|FullyQualifiedName~EmotionalSpellPolicyTests|FullyQualifiedName~EmotionalStaminaLifecycleTests|FullyQualifiedName~DetectInvisibleLifetimeTests|FullyQualifiedName~DetectInvisibleOperationTests|FullyQualifiedName~PierceConcealmentStockTests",
+    "sdk": "10.0.401",
+    "execution_complete": true,
+    "counts_complete": true,
+    "source_stable": true,
+    "source_start": "041d822b6d546063861da6b1fa92bb62b80a338cb36954be3e37af82f5428bb4",
+    "source_end": "041d822b6d546063861da6b1fa92bb62b80a338cb36954be3e37af82f5428bb4",
+    "new_cases": 19,
+    "existing_emotional_and_pierce_cases": 91,
+    "summary": {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/summary.json",
+      "sha256": "44bfd088b46f516b8d2b563c9a719347d4b14f0b28a554afbcdcf8f3137254a7"
+    },
+    "water_cases": [
+      {
+        "name": "Selection_InvalidPowerOrPolicy_RefusesWithoutDrawing",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.Selection_InvalidPowerOrPolicy_RefusesWithoutDrawing",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "FluidScope_EmptyUnresolvedOrDuplicateIds_Refuses",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.FluidScope_EmptyUnresolvedOrDuplicateIds_Refuses",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "Selection_OutOfRangeSampler_RefusesWithoutClampingInvalidValues (7,22)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.Selection_OutOfRangeSampler_RefusesWithoutClampingInvalidValues",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw (3,1,9,1,9)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw (7,3,21,3,21)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw (4,2,12,2,12)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw (6,3,18,3,18)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "Selection_InvalidGrade_RefusesWithoutDrawing (0)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.Selection_InvalidGrade_RefusesWithoutDrawing",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw (1,0,3,1,3)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "FluidScope_InputMutationOrCatalogueReplacement_DoesNotBroadenCapturedGrant",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.FluidScope_InputMutationOrCatalogueReplacement_DoesNotBroadenCapturedGrant",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "Selection_OutOfRangeSampler_RefusesWithoutClampingInvalidValues (1,-1)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.Selection_OutOfRangeSampler_RefusesWithoutClampingInvalidValues",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "Selection_OutOfRangeSampler_RefusesWithoutClampingInvalidValues (1,4)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.Selection_OutOfRangeSampler_RefusesWithoutClampingInvalidValues",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "SourceDraw_GradeOne_ZeroAndOneClampToOneButBothDraw",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.SourceDraw_GradeOne_ZeroAndOneClampToOneButBothDraw",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "FluidScope_OnlyExplicitWaterReferences_AreGrantedWithoutGasOrAliasFallback",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.FluidScope_OnlyExplicitWaterReferences_AreGrantedWithoutGasOrAliasFallback",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "Selection_RepeatedReadsAndBindingChecks_DoNotRedrawOrDerivePower",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.Selection_RepeatedReadsAndBindingChecks_DoNotRedrawOrDerivePower",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw (5,2,15,2,15)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "Selection_OutOfRangeSampler_RefusesWithoutClampingInvalidValues (7,2)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.Selection_OutOfRangeSampler_RefusesWithoutClampingInvalidValues",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw (2,1,6,1,6)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.SourceDraw_AllGrades_UsesInclusiveBoundsAndClampsOnlyAfterDraw",
+        "outcome": "PASSED"
+      },
+      {
+        "name": "Selection_InvalidGrade_RefusesWithoutDrawing (8)",
+        "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingSourceSelectionTests.Selection_InvalidGrade_RefusesWithoutDrawing",
+        "outcome": "PASSED"
+      }
+    ]
+  },
+  "source_files": [
+    {
+      "path": "MudSharpCore/Magic/WaterBreathing/WaterBreathingDurationSelection.cs",
+      "sha256": "3ff734f30db695c2f91769d35a2f59d22ad466db35a2650ca7aac70e0464c3d6",
+      "git_blob_sha1": "d2d730686b63e72d8099c44e2d535ebb1764d310"
+    },
+    {
+      "path": "MudSharpCore/Magic/WaterBreathing/WaterBreathingFluidScope.cs",
+      "sha256": "82295ea40b4e0e4da5fc7988202ca4654089a63a86ab5b828fd4bf61ab2b9667",
+      "git_blob_sha1": "c4fd7db2679fe3b0c49cae464fd8af22cbe06721"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/WaterBreathingSourceSelectionTests.cs",
+      "sha256": "843c8a858bf86b1d3f641b4b2199c7864cdd94c9dd5796aaf3bbe8f83034b1ae",
+      "git_blob_sha1": "6c7db960b757f0f3c6016493021a60861c8ab9f9"
+    }
+  ],
+  "executed_assemblies": [
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "4cd431406d87717521395cdadde2b41dd643c95fa40a075c5c6dfd033dfe0cfc"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharpCore Unit Tests.dll",
+      "sha256": "c5c9b355e83400329a7506c3e4d821fa78839780c6a2caf0aa871688bb1ed86c"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "187e9ac6b3e72507ae1b829433628b6414a62d7d0d7567b893767396ada91b6e"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/run.json",
+      "sha256": "0e468619a9f36ff5b9bf05fd07e6df57f68e92b60a441b9bb051d7cc45622e2b"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/source-end.json",
+      "sha256": "447d846920feb6c71b2f60212fd28a3c521a00f7b8397ef17deeaf0b1f9280fc"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/source-start.json",
+      "sha256": "6a36ef60d933570ebe8790198fe675d6833e726a8348135b3b6b94dbf1fbab38"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/summary.json",
+      "sha256": "44bfd088b46f516b8d2b563c9a719347d4b14f0b28a554afbcdcf8f3137254a7"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/summary.txt",
+      "sha256": "ce3f63371aafbe18f1cb4a0b6a16a09ca222c0ed06fb9584dffb51e161023992"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/test-results.json",
+      "sha256": "e7ac0cdd0fd35d5399aed14710b7781bdb6131b7db22969b43b0cda205e93fb7"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "573943798d55440fc10458b9b1ad3dd3feaedd4639d2c5bf3d9750d8bf1900e3"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "998c3b75ecfec8117ad04a47f38046ec2ceda63632914b4af024b6581bc0c1ed"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "282b1ece44b38adec48f04a54d43b633d234b57d0b478fdc168a840b168a8527"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/water-breathing-independent-selection-01/20261005T153707Z-2135e8ab2068/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    }
+  ],
+  "unallocated_shared_files_unchanged": [
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/StandaloneSpellStatusEffects.cs",
+      "sha256": "18b8396a3f6e8f098c9184c103940e211d6d30215bafb82756440ab0453dcb60",
+      "git_blob_sha1": "b961cec8b9aa8f0f3d2c5331cd75c999740addeb"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.Lifetime.cs",
+      "sha256": "bab4e0fa54aef1dbde273c8053514c6cd9749e3ff5c9924ba148c316f278e72c",
+      "git_blob_sha1": "6d7f389ca4561b3a83ce7b2d75db7272ac26ceb6"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/BreathingStrategyHelper.cs",
+      "sha256": "06245d4a3269786ac534a657c1cb3d12c0254dbec1ce3fc68e893a84bcb8db32",
+      "git_blob_sha1": "c0e6ac00c70e1846aa2b3efad1d413fbc93e5d1c"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/LungBreather.cs",
+      "sha256": "e2902691a44e7de7abea9c9a6129ba12eaaec8a3c8f699ba7fc975c6c539e9c8",
+      "git_blob_sha1": "a2c217665137820d1efbd9e1c6cb0d8a9fcf5420"
+    }
+  ],
+  "proposal": {
+    "path": "Design Documents/Magic/Armageddon_Water_Breathing_Adapter_Ownership_Proposal.md",
+    "sha256": "e0745f62866220880943bbe7492da0091864a3934389afc1af3f3ca9cbfc1cb0"
+  },
+  "proposal_refinement_after_source_run": "Only documentation clarified the shared predicate virtual modifier and exact-fluid mapping; tested production/test files unchanged",
+  "public_interface_changes": "None proposed. Reuse current operation, prepared-selection, lifetime and additional-fluid interfaces.",
+  "limitations": [
+    "Read-only value reuse is not proof of repeated service preparation/payment",
+    "Scope constructor receives explicit test liquids; no production world catalogue admission yet",
+    "No source adapter/template/child registration, native breather helper hook or lifetime family extension implemented",
+    "No test database/process or native harness run created",
+    "Legacy unconfigured adapter remains untouched and is not source-qualified"
+  ]
+}

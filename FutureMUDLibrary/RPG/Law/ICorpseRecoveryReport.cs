@@ -21,8 +21,8 @@ public interface ICorpseRecoveryReport : IFrameworkItem, ISaveable
     ILegalAuthority LegalAuthority { get; }
     IEconomicZone EconomicZone { get; }
     IGameItem Corpse { get; }
-    ICell SourceCell { get; }
-    ICell DestinationCell { get; }
+    IRoom SourceRoom { get; }
+    IRoom DestinationRoom { get; }
     ICharacter Reporter { get; }
     CorpseRecoveryReportStatus Status { get; set; }
     IPatrol AssignedPatrol { get; }

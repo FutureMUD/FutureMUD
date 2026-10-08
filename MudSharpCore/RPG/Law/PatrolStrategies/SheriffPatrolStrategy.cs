@@ -56,7 +56,7 @@ public class SheriffPatrolStrategy : PatrolStrategyBase
 
             if (criminal.AffectedBy<OnBail>(authority) ||
                 criminal.AffectedBy<InCustodyOfEnforcer>() ||
-                !authority.IsInRemandCell(criminal))
+                !authority.IsInRemandRoom(criminal))
             {
                 continue;
             }
@@ -128,7 +128,7 @@ public class SheriffPatrolStrategy : PatrolStrategyBase
                 return;
             }
 
-            List<ICellExit> path = patrol.PatrolLeader
+            List<IRoomExit> path = patrol.PatrolLeader
                              .PathBetween(patrol.NextMajorNode, 20,
                                  PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader))
                              .ToList();

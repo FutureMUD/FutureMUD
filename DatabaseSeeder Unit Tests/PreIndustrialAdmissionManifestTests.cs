@@ -172,24 +172,24 @@ public class PreIndustrialAdmissionManifestTests
 				continue;
 			}
 
-			var cells = line
+			var rooms = line
 				.Split('|')
 				.Skip(1)
 				.SkipLast(1)
 				.Select(x => x.Trim().Trim('`'))
 				.ToArray();
-			Assert.AreEqual(9, cells.Length, $"Malformed admission row: {line}");
+			Assert.AreEqual(9, rooms.Length, $"Malformed admission row: {line}");
 
 			var record = new ManifestRecord(
-				cells[0],
-				cells[1],
-				cells[2],
-				cells[3],
-				cells[4],
-				cells[5],
-				cells[6],
-				cells[7],
-				cells[8]);
+				rooms[0],
+				rooms[1],
+				rooms[2],
+				rooms[3],
+				rooms[4],
+				rooms[5],
+				rooms[6],
+				rooms[7],
+				rooms[8]);
 			Assert.IsTrue(records.TryAdd(record.StableReference, record),
 				$"Duplicate admission row for {record.StableReference}.");
 		}

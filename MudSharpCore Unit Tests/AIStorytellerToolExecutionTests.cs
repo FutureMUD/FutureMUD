@@ -278,9 +278,9 @@ public class AIStorytellerToolExecutionTests
     {
         Mock<ICharacter> character = new();
         character.SetupGet(x => x.Id).Returns(1L);
-        Mock<ICell> room = new();
+        Mock<IRoom> room = new();
         room.SetupGet(x => x.Id).Returns(2L);
-        AIStoryteller storyteller = CreateStoryteller(characters: [character.Object], cells: [room.Object]);
+        AIStoryteller storyteller = CreateStoryteller(characters: [character.Object], rooms: [room.Object]);
         AIStoryteller.ToolExecutionResult result = storyteller.ExecuteFunctionCall("CreateSituation",
             """{"Title":"Ambush","Description":"Bandits gather at dusk.","CharacterId":1,"RoomId":2}""",
             includeEchoTools: false);
@@ -428,10 +428,10 @@ public class AIStorytellerToolExecutionTests
     [TestMethod]
     public void ExecuteFunctionCall_UpdateSituation_WithRoomScope_InvokesScopeUpdate()
     {
-        Mock<ICell> room = new();
+        Mock<IRoom> room = new();
         room.SetupGet(x => x.Id).Returns(401L);
 
-        AIStoryteller storyteller = CreateStoryteller(cells: [room.Object]);
+        AIStoryteller storyteller = CreateStoryteller(rooms: [room.Object]);
         Mock<IAIStorytellerSituation> situation = new();
         situation.SetupGet(x => x.Id).Returns(27L);
         situation.SetupGet(x => x.Name).Returns("Scope test");
@@ -921,9 +921,9 @@ public class AIStorytellerToolExecutionTests
     [TestMethod]
     public void ExecuteFunctionCall_PathBetweenRooms_ReturnsDirectionsPayload()
     {
-        Mock<ICell> room = new();
+        Mock<IRoom> room = new();
         room.SetupGet(x => x.Id).Returns(100L);
-        AIStoryteller storyteller = CreateStoryteller(cells: [room.Object]);
+        AIStoryteller storyteller = CreateStoryteller(rooms: [room.Object]);
 
         AIStoryteller.ToolExecutionResult result = storyteller.ExecuteFunctionCall("PathBetweenRooms",
             """{"OriginRoomId":100,"DestinationRoomId":100,"PathSearchFunction":"IgnorePresenceOfDoors"}""",
@@ -939,12 +939,12 @@ public class AIStorytellerToolExecutionTests
     [TestMethod]
     public void ExecuteFunctionCall_PathFromCharacterToRoom_ReturnsDirectionsPayload()
     {
-        Mock<ICell> room = new();
+        Mock<IRoom> room = new();
         room.SetupGet(x => x.Id).Returns(101L);
         Mock<ICharacter> character = new();
         character.SetupGet(x => x.Id).Returns(1L);
         character.SetupGet(x => x.Location).Returns(room.Object);
-        AIStoryteller storyteller = CreateStoryteller(characters: [character.Object], cells: [room.Object]);
+        AIStoryteller storyteller = CreateStoryteller(characters: [character.Object], rooms: [room.Object]);
 
         AIStoryteller.ToolExecutionResult result = storyteller.ExecuteFunctionCall("PathFromCharacterToRoom",
             """{"OriginCharacterId":1,"DestinationRoomId":101,"PathSearchFunction":"PathIncludeUnlockableDoors"}""",
@@ -960,7 +960,7 @@ public class AIStorytellerToolExecutionTests
     [TestMethod]
     public void ExecuteFunctionCall_PathBetweenCharacters_ReturnsDirectionsPayload()
     {
-        Mock<ICell> room = new();
+        Mock<IRoom> room = new();
         room.SetupGet(x => x.Id).Returns(102L);
         Mock<ICharacter> origin = new();
         origin.SetupGet(x => x.Id).Returns(11L);
@@ -968,7 +968,7 @@ public class AIStorytellerToolExecutionTests
         Mock<ICharacter> destination = new();
         destination.SetupGet(x => x.Id).Returns(12L);
         destination.SetupGet(x => x.Location).Returns(room.Object);
-        AIStoryteller storyteller = CreateStoryteller(characters: [origin.Object, destination.Object], cells: [room.Object]);
+        AIStoryteller storyteller = CreateStoryteller(characters: [origin.Object, destination.Object], rooms: [room.Object]);
 
         AIStoryteller.ToolExecutionResult result = storyteller.ExecuteFunctionCall("PathBetweenCharacters",
             """{"OriginCharacterId":11,"DestinationCharacterId":12,"PathSearchFunction":"PathIgnoreDoors"}""",
@@ -1048,16 +1048,16 @@ public class AIStorytellerToolExecutionTests
         calendar.SetupGet(x => x.Id).Returns(41L);
         calendar.SetupGet(x => x.FeedClock).Returns(clock.Object);
 
-        Mock<ICell> roomOne = new();
+        Mock<IRoom> roomOne = new();
         roomOne.SetupGet(x => x.Id).Returns(401L);
         roomOne.SetupGet(x => x.Calendars).Returns([calendar.Object]);
         roomOne.Setup(x => x.TimeZone(clock.Object)).Returns(timezoneOne.Object);
-        Mock<ICell> roomTwo = new();
+        Mock<IRoom> roomTwo = new();
         roomTwo.SetupGet(x => x.Id).Returns(402L);
         roomTwo.SetupGet(x => x.Calendars).Returns([calendar.Object]);
         roomTwo.Setup(x => x.TimeZone(clock.Object)).Returns(timezoneTwo.Object);
 
-        AIStoryteller storyteller = CreateStoryteller(cells: [roomOne.Object, roomTwo.Object]);
+        AIStoryteller storyteller = CreateStoryteller(rooms: [roomOne.Object, roomTwo.Object]);
         AIStoryteller.ToolExecutionResult result = storyteller.ExecuteFunctionCall("CurrentDateTime", "{}", includeEchoTools: false);
         JsonElement payload = JsonDocument.Parse(result.OutputJson).RootElement;
 
@@ -1087,7 +1087,7 @@ public class AIStorytellerToolExecutionTests
         calendar.Setup(x => x.DisplayDate(It.IsAny<MudDate>(), CalendarDisplayMode.Long)).Returns("3rd Rainfall 1200");
         calendar.Setup(x => x.DisplayDate(It.IsAny<MudDate>(), CalendarDisplayMode.Short)).Returns("3-RF-1200");
 
-        Mock<ICell> room = new();
+        Mock<IRoom> room = new();
         room.SetupGet(x => x.Id).Returns(403L);
         room.SetupGet(x => x.Calendars).Returns([calendar.Object]);
         room.Setup(x => x.TimeZone(clock.Object)).Returns(timezone.Object);
@@ -1105,7 +1105,7 @@ public class AIStorytellerToolExecutionTests
         character.SetupGet(x => x.Location).Returns(room.Object);
         character.SetupGet(x => x.PersonalName).Returns(personalName.Object);
 
-        AIStoryteller storyteller = CreateStoryteller(characters: [character.Object], cells: [room.Object]);
+        AIStoryteller storyteller = CreateStoryteller(characters: [character.Object], rooms: [room.Object]);
         AIStoryteller.ToolExecutionResult result = storyteller.ExecuteFunctionCall("DateTimeForTarget", """{"CharacterId":501}""",
             includeEchoTools: false);
         JsonElement payload = JsonDocument.Parse(result.OutputJson).RootElement;
@@ -1138,7 +1138,7 @@ public class AIStorytellerToolExecutionTests
         calendar.Setup(x => x.DisplayDate(It.IsAny<MudDate>(), CalendarDisplayMode.Long)).Returns("3rd Rainfall 1200");
         calendar.Setup(x => x.DisplayDate(It.IsAny<MudDate>(), CalendarDisplayMode.Short)).Returns("3-RF-1200");
 
-        Mock<ICell> characterRoom = new();
+        Mock<IRoom> characterRoom = new();
         characterRoom.SetupGet(x => x.Id).Returns(405L);
         characterRoom.SetupGet(x => x.Calendars).Returns([calendar.Object]);
         characterRoom.Setup(x => x.TimeZone(clock.Object)).Returns(timezone.Object);
@@ -1148,7 +1148,7 @@ public class AIStorytellerToolExecutionTests
                 It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>()))
             .Returns("Market Square");
 
-        Mock<ICell> otherRoom = new();
+        Mock<IRoom> otherRoom = new();
         otherRoom.SetupGet(x => x.Id).Returns(406L);
         otherRoom.SetupGet(x => x.Calendars).Returns([calendar.Object]);
         otherRoom.Setup(x => x.TimeZone(clock.Object)).Returns(timezone.Object);
@@ -1166,7 +1166,7 @@ public class AIStorytellerToolExecutionTests
         character.SetupGet(x => x.Location).Returns(characterRoom.Object);
         character.SetupGet(x => x.PersonalName).Returns(personalName.Object);
 
-        AIStoryteller storyteller = CreateStoryteller(characters: [character.Object], cells: [characterRoom.Object, otherRoom.Object]);
+        AIStoryteller storyteller = CreateStoryteller(characters: [character.Object], rooms: [characterRoom.Object, otherRoom.Object]);
         AIStoryteller.ToolExecutionResult result = storyteller.ExecuteFunctionCall("DateTimeForTarget", """{"CharacterId":502,"RoomId":406}""",
             includeEchoTools: false);
         JsonElement payload = JsonDocument.Parse(result.OutputJson).RootElement;
@@ -1196,7 +1196,7 @@ public class AIStorytellerToolExecutionTests
         calendar.Setup(x => x.DisplayDate(It.IsAny<MudDate>(), CalendarDisplayMode.Long)).Returns("3rd Rainfall 1200");
         calendar.Setup(x => x.DisplayDate(It.IsAny<MudDate>(), CalendarDisplayMode.Short)).Returns("3-RF-1200");
 
-        Mock<ICell> room = new();
+        Mock<IRoom> room = new();
         room.SetupGet(x => x.Id).Returns(407L);
         room.SetupGet(x => x.Calendars).Returns([calendar.Object]);
         room.Setup(x => x.TimeZone(clock.Object)).Returns(timezone.Object);
@@ -1206,7 +1206,7 @@ public class AIStorytellerToolExecutionTests
                 It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>()))
             .Returns("Docks");
 
-        AIStoryteller storyteller = CreateStoryteller(cells: [room.Object]);
+        AIStoryteller storyteller = CreateStoryteller(rooms: [room.Object]);
         AIStoryteller.ToolExecutionResult result = storyteller.ExecuteFunctionCall("DateTimeForTarget", """{"CharacterId":0,"RoomId":407}""",
             includeEchoTools: false);
         JsonElement payload = JsonDocument.Parse(result.OutputJson).RootElement;
@@ -1276,18 +1276,18 @@ public class AIStorytellerToolExecutionTests
     }
 
     [TestMethod]
-    public void CellOnRoomEchoForTesting_MissingApiKey_DoesNotParseEcho()
+    public void RoomOnRoomEchoForTesting_MissingApiKey_DoesNotParseEcho()
     {
         (Futuremud? runtimeGame, bool disposeRuntimeGame) = EnsureRuntimeGameWithMissingApiKey();
         try
         {
             AIStoryteller storyteller = CreateStoryteller();
-            Mock<ICell> cell = new();
+            Mock<IRoom> room = new();
             Mock<IEmoteOutput> emote = new();
             emote.Setup(x => x.ParseFor(It.IsAny<IPerceiver>()))
                 .Throws(new AssertFailedException("Echo parse should not execute without API key."));
 
-            storyteller.CellOnRoomEchoForTesting(cell.Object, emote.Object);
+            storyteller.RoomOnRoomEchoForTesting(room.Object, emote.Object);
 
             emote.Verify(x => x.ParseFor(It.IsAny<IPerceiver>()), Times.Never);
         }
@@ -1388,11 +1388,11 @@ public class AIStorytellerToolExecutionTests
     }
 
     private static AIStoryteller CreateStoryteller(IEnumerable<IFutureProg>? progs = null,
-        IEnumerable<ICharacter>? characters = null, IEnumerable<ICell>? cells = null,
+        IEnumerable<ICharacter>? characters = null, IEnumerable<IRoom>? rooms = null,
         IEnumerable<ICalendar>? calendars = null)
     {
         Mock<IFuturemud> gameworld = CreateGameworld(progs ?? Array.Empty<IFutureProg>(), characters ?? Array.Empty<ICharacter>(),
-            cells ?? Array.Empty<ICell>(), calendars ?? Array.Empty<ICalendar>());
+            rooms ?? Array.Empty<IRoom>(), calendars ?? Array.Empty<ICalendar>());
         return new AIStoryteller(CreateModel(), gameworld.Object);
     }
 
@@ -1424,23 +1424,23 @@ public class AIStorytellerToolExecutionTests
     }
 
     private static Mock<IFuturemud> CreateGameworld(IEnumerable<IFutureProg> progs, IEnumerable<ICharacter> characters,
-        IEnumerable<ICell>? cells = null, IEnumerable<ICalendar>? calendars = null)
+        IEnumerable<IRoom>? rooms = null, IEnumerable<ICalendar>? calendars = null)
     {
         List<IFutureProg> progList = progs.ToList();
         List<ICharacter> characterList = characters.ToList();
-        List<ICell> cellList = (cells ?? Array.Empty<ICell>()).ToList();
+        List<IRoom> cellList = (rooms ?? Array.Empty<IRoom>()).ToList();
         List<ICalendar> calendarList = (calendars ?? Array.Empty<ICalendar>()).ToList();
 
         Mock<IUneditableAll<IFutureProg>> progRepo = BuildRepository(progList);
         Mock<IUneditableAll<ICharacter>> characterRepo = BuildRepository(characterList);
-        Mock<IUneditableAll<ICell>> cellRepo = BuildRepository(cellList);
+        Mock<IUneditableAll<IRoom>> cellRepo = BuildRepository(cellList);
         Mock<IUneditableAll<ICalendar>> calendarRepo = BuildRepository(calendarList);
         Mock<ISaveManager> saveManager = new();
 
         Mock<IFuturemud> gameworld = new();
         gameworld.SetupGet(x => x.FutureProgs).Returns(progRepo.Object);
         gameworld.SetupGet(x => x.Characters).Returns(characterRepo.Object);
-        gameworld.SetupGet(x => x.Cells).Returns(cellRepo.Object);
+        gameworld.SetupGet(x => x.Rooms).Returns(cellRepo.Object);
         gameworld.SetupGet(x => x.Calendars).Returns(calendarRepo.Object);
         gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
         gameworld.Setup(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>()))

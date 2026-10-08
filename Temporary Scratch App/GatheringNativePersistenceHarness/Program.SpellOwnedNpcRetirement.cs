@@ -68,8 +68,8 @@ internal static partial class GNHProgram
 		native.WorldMock.Setup(x => x.Destroy(It.IsAny<IGameItem>())).Callback<IGameItem>(x => items.Remove(x));
 		native.WorldMock.Setup(x => x.Add(It.IsAny<ICharacter>(), It.IsAny<bool>())).Callback<ICharacter, bool>(roots.Add);
 		native.WorldMock.Setup(x => x.Add(It.IsAny<IBody>())).Callback<IBody>(roots.Add);
-		var cell = native.Actor.Location; var cellItems = new List<IGameItem>();
-		var cellMock = Mock.Get(cell);
+		var room = native.Actor.Location; var cellItems = new List<IGameItem>();
+		var cellMock = Mock.Get(room);
 		cellMock.SetupGet(x => x.GameItems).Returns(cellItems);
 		cellMock.As<ICustodyRollbackLocation>().Setup(x => x.CaptureCustodyMembershipRollback(It.IsAny<IReadOnlyCollection<IGameItem>>()))
 			.Returns<IReadOnlyCollection<IGameItem>>(graph =>
@@ -84,13 +84,13 @@ internal static partial class GNHProgram
 		cellMock.Setup(x => x.CanGetAccess(It.IsAny<IGameItem>(), It.IsAny<ICharacter>())).Returns(true);
 		cellMock.Setup(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>())).Callback<IGameItem, bool>((item, _) =>
 		{
-			ForeignCustodyTransferContext.EnsureCell(cell, item);
+			ForeignCustodyTransferContext.EnsureRoom(room, item);
 			if (!cellItems.Contains(item)) cellItems.Add(item);
-			item.Drop(cell);
+			item.Drop(room);
 		});
 		cellMock.Setup(x => x.Extract(It.IsAny<IGameItem>())).Callback<IGameItem>(x => cellItems.Remove(x));
 		var terrain = Mock.Of<ITerrain>();
-		cellMock.SetupGet(x => x.CurrentOverlay).Returns(Mock.Of<ICellOverlay>(x => x.Terrain == terrain));
+		cellMock.SetupGet(x => x.CurrentOverlay).Returns(Mock.Of<IRoomOverlay>(x => x.Terrain == terrain));
 		var templates = new Mock<IUneditableRevisableAll<INPCTemplate>>();
 		templates.Setup(x => x.GetEnumerator()).Returns(() => Enumerable.Empty<INPCTemplate>().GetEnumerator());
 		templates.Setup(x => x.Get(It.IsAny<long>(), It.IsAny<int>())).Returns<long, int>((id, _) => Mock.Of<INPCTemplate>(x => x.Id == id));
@@ -320,7 +320,7 @@ internal static partial class GNHProgram
 		Require(early.Body.AllItems.Contains(bag), "Native body refused foreign bag fixture."); native.World.SaveManager.Flush();
 		var foreign = new[] { bag.Id, belt.Id, goods.Id, installedLock.Id };
 		var corpse = early.Die()!; native.World.SaveManager.Flush();
-		using (var db = NewIndependentContext(database.ConnectionString)) { db.CellsGameItems.Add(new() { CellId = fixture.CellId, GameItemId = corpse.Id }); db.SaveChanges(); }
+		using (var db = NewIndependentContext(database.ConnectionString)) { db.RoomsGameItems.Add(new() { RoomId = fixture.RoomId, GameItemId = corpse.Id }); db.SaveChanges(); }
 		var earlyLife = Life(early); clock.Advance(TimeSpan.FromSeconds(61)); host.Service.ReconcileRetirements(RuntimeClock.UtcNow);
 		Require(earlyDeaths == 1 && !corpse.Deleted && Life(early).RemainsItemId == corpse.Id && early.Body.AllItems.Any(x => x.Id == bag.Id), "Original expiry killed again or discarded configured remains/custody.");
 		native.World.SaveManager.Flush();
@@ -334,7 +334,7 @@ internal static partial class GNHProgram
 		host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Completed(early);
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			Require(earlyDeaths == 1 && foreign.All(id => db.GameItems.Any(x => x.Id == id)) && db.CellsGameItems.Count(x => x.GameItemId == bag.Id && x.CellId == fixture.CellId) == 1 &&
+			Require(earlyDeaths == 1 && foreign.All(id => db.GameItems.Any(x => x.Id == id)) && db.RoomsGameItems.Count(x => x.GameItemId == bag.Id && x.RoomId == fixture.RoomId) == 1 &&
 				!db.BodiesGameItems.Any(x => x.BodyId == early.Body.Id) && !db.GameItems.Any(x => x.Id == corpse.Id), "Restart retirement lost or duplicated foreign custody.");
 		}
 		Console.WriteLine("ARM03B2B-early-death=passed actual-native-NPC-Die configured-remains-kept-across-original-expiry native-Quit-old-host-cache-exit separate-process-native-body-and-items-reload positive-corpse-minute-decay actual-scheduled-morph-to-nothing-and-Delete nested-container-installed-lock-belt-attachment-conserved exact-IDs one-OnDeath");
@@ -346,7 +346,7 @@ internal static partial class GNHProgram
 		host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Completed(earlyDefault);
 		clock.Advance(TimeSpan.FromSeconds(61)); host.Service.ReconcileRetirements(RuntimeClock.UtcNow);
 		using (var db = NewIndependentContext(database.ConnectionString))
-			Require(defaultDeaths == 1 && db.GameItems.Any(x => x.Id == defaultForeign.Id) && db.CellsGameItems.Count(x => x.GameItemId == defaultForeign.Id) == 1,
+			Require(defaultDeaths == 1 && db.GameItems.Any(x => x.Id == defaultForeign.Id) && db.RoomsGameItems.Count(x => x.GameItemId == defaultForeign.Id) == 1,
 				"Default early-death/expiry replay lost foreign goods or repeated death.");
 		Console.WriteLine("ARM03B2B-default-early-death=passed actual-native-Die suppressed-corpse foreign-item-conserved before-original-expiry later-deadline-no-redeath-or-recreation-or-removal");
 		var noDestination = Create(SpellLifecycleMode.TemporaryCleanup); var heldForeign = New("goods");
@@ -358,7 +358,7 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString))
 			Require(noDestinationDeaths == 0 && !noDestination.State.HasFlag(CharacterState.Dead) && noDestination.Body.AllItems.Contains(heldForeign) &&
 				Life(noDestination).Diagnostic.Contains("no validated persisted destination") && db.BodiesGameItems.Any(x => x.BodyId == noDestination.Body.Id && x.GameItemId == heldForeign.Id) &&
-				!db.CellsGameItems.Any(x => x.GameItemId == heldForeign.Id) && !heldForeign.Deleted,
+				!db.RoomsGameItems.Any(x => x.GameItemId == heldForeign.Id) && !heldForeign.Deleted,
 				"Missing evacuation destination changed native death, foreign custody or recoverability.");
 		locationProperty.SetValue(noDestination, native.Actor.Location);
 		host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Completed(noDestination);
@@ -399,7 +399,7 @@ internal static partial class GNHProgram
 			Completed(removalNpc);
 			Require(removalDeaths == 1 && removalNotifications == 1, "Removal retry repeated native death or deletion notification.");
 			using (var db = NewIndependentContext(database.ConnectionString))
-				Require(db.GameItems.Any(x => x.Id == removalForeign.Id) && db.CellsGameItems.Count(x => x.GameItemId == removalForeign.Id) == 1 &&
+				Require(db.GameItems.Any(x => x.Id == removalForeign.Id) && db.RoomsGameItems.Count(x => x.GameItemId == removalForeign.Id) == 1 &&
 					!db.BodiesGameItems.Any(x => x.GameItemId == removalForeign.Id) && !removalForeign.Deleted,
 					"Durable removal retry lost or duplicated exact foreign custody.");
 			Console.WriteLine("ARM03B2C-removal-provider-" + (restartRemoval ? "restart" : "same-process") + "=passed final-GameItems-DELETE-provider-refusal ordinary-save-flush exact-durable-removal-and-observer-journal native-reconciliation exact-foreign-conservation no-death-or-callback-replay");
@@ -437,11 +437,11 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			var persisted = db.GameItemComponents.Where(x => topologyIds.Contains(x.GameItemId)).ToDictionary(x => x.Id, x => x.Definition);
-			Console.WriteLine($"ARM03B2B-topology-observed=state:{Life(topologyNpc).State} deaths:{topologyDeaths} callbacks:{topologyCallbacks} callback-cleared-flags:{callbackClearedFlags} body-joins:{db.BodiesGameItems.Count(x => x.BodyId == topologyNpc.Body.Id)} cell-joins:{db.CellsGameItems.Count(x => x.GameItemId == outerBag.Id)} original-XML:{originalDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value)}");
+			Console.WriteLine($"ARM03B2B-topology-observed=state:{Life(topologyNpc).State} deaths:{topologyDeaths} callbacks:{topologyCallbacks} callback-cleared-flags:{callbackClearedFlags} body-joins:{db.BodiesGameItems.Count(x => x.BodyId == topologyNpc.Body.Id)} cell-joins:{db.RoomsGameItems.Count(x => x.GameItemId == outerBag.Id)} original-XML:{originalDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value)}");
 			Require(topologyCallbacks == 1 && callbackClearedFlags && topologyDeaths == 0 && !topologyNpc.State.HasFlag(CharacterState.Dead) &&
 				Life(topologyNpc).State == SpellLifecycleState.Retiring && Life(topologyNpc).Diagnostic.Contains("callback changed custody") &&
 				db.BodiesGameItems.Any(x => x.BodyId == topologyNpc.Body.Id && x.GameItemId == outerBag.Id) &&
-				!db.CellsGameItems.Any(x => x.GameItemId == outerBag.Id) && db.GameItems.Find(innerBag.Id)!.ContainerId == outerBag.Id &&
+				!db.RoomsGameItems.Any(x => x.GameItemId == outerBag.Id) && db.GameItems.Find(innerBag.Id)!.ContainerId == outerBag.Id &&
 				db.GameItems.Find(nestedGoods.Id)!.ContainerId == innerBag.Id && originalDefinitions.Count == persisted.Count &&
 				originalDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value) && innerContainer.Changed && outerContainer.Changed,
 				"Same-ID native reparenting committed partial custody, entered death or lost its recoverable structural hold.");
@@ -450,9 +450,9 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			var persisted = db.GameItemComponents.Where(x => topologyIds.Contains(x.GameItemId)).ToDictionary(x => x.Id, x => x.Definition);
-			Console.WriteLine($"ARM03B2C-custody-flush-observed=body-joins:{db.BodiesGameItems.Count(x => x.BodyId == topologyNpc.Body.Id)} cell-joins:{db.CellsGameItems.Count(x => x.GameItemId == outerBag.Id)} original-XML:{originalDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value)} runtime-original-child:{innerContainer.Contents.Contains(nestedGoods)}");
+			Console.WriteLine($"ARM03B2C-custody-flush-observed=body-joins:{db.BodiesGameItems.Count(x => x.BodyId == topologyNpc.Body.Id)} cell-joins:{db.RoomsGameItems.Count(x => x.GameItemId == outerBag.Id)} original-XML:{originalDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value)} runtime-original-child:{innerContainer.Contents.Contains(nestedGoods)}");
 			Require(db.BodiesGameItems.Any(x => x.BodyId == topologyNpc.Body.Id && x.GameItemId == outerBag.Id) &&
-				!db.CellsGameItems.Any(x => x.GameItemId == outerBag.Id) && db.GameItems.Find(nestedGoods.Id)!.ContainerId == innerBag.Id &&
+				!db.RoomsGameItems.Any(x => x.GameItemId == outerBag.Id) && db.GameItems.Find(nestedGoods.Id)!.ContainerId == innerBag.Id &&
 				originalDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value) && innerContainer.Contents.Contains(nestedGoods) && topologyNpc.PositionState == PositionStanding.Instance && topologyNpc.Body.PositionState == PositionStanding.Instance &&
 				db.Bodies.Find(topologyNpc.Body.Id)!.Position == PositionStanding.Instance.Id,
 				"Ordinary save flush persisted rejected foreign topology or runtime custody was not restored.");
@@ -475,8 +475,8 @@ internal static partial class GNHProgram
 			// join explicitly before attempting the callback acquisition.
 			using (var db = NewIndependentContext(database.ConnectionString))
 			{
-				db.CellsGameItems.Add(new() { CellId = fixture.CellId, GameItemId = roomGoods.Id }); db.SaveChanges();
-				Require(db.CellsGameItems.Count(x => x.GameItemId == roomGoods.Id) == 1, "External room goods fixture was not persisted before the guarded callback.");
+				db.RoomsGameItems.Add(new() { RoomId = fixture.RoomId, GameItemId = roomGoods.Id }); db.SaveChanges();
+				Require(db.RoomsGameItems.Count(x => x.GameItemId == roomGoods.Id) == 1, "External room goods fixture was not persisted before the guarded callback.");
 			}
 			var guardedIds = new[] { guardedBag.Id, guardedChild.Id };
 			Dictionary<long, string> guardedDefinitions;
@@ -507,12 +507,12 @@ internal static partial class GNHProgram
 			using (var db = NewIndependentContext(database.ConnectionString))
 			{
 				var persisted = db.GameItemComponents.Where(x => guardedIds.Contains(x.GameItemId)).ToDictionary(x => x.Id, x => x.Definition);
-				Console.WriteLine($"ARM03B2C-guard-observed={mutation} callbacks:{guardedCallbacks} deaths:{guardedDeaths} child-notifications:{childNotifications} root-held:{guardedNpc.Body.AllItems.Contains(guardedBag)} child-contained:{guardedContainer.Contents.Contains(guardedChild)} external-held:{roomGoods.InInventoryOf is not null} root-body-joins:{db.BodiesGameItems.Count(x => x.GameItemId == guardedBag.Id)} root-cell-joins:{db.CellsGameItems.Count(x => x.GameItemId == guardedBag.Id)} external-cell-joins:{db.CellsGameItems.Count(x => x.GameItemId == roomGoods.Id)} XML-original:{guardedDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value)} item-rows:{db.GameItems.Count()} original-rows:{originalItemRows}");
+				Console.WriteLine($"ARM03B2C-guard-observed={mutation} callbacks:{guardedCallbacks} deaths:{guardedDeaths} child-notifications:{childNotifications} root-held:{guardedNpc.Body.AllItems.Contains(guardedBag)} child-contained:{guardedContainer.Contents.Contains(guardedChild)} external-held:{roomGoods.InInventoryOf is not null} root-body-joins:{db.BodiesGameItems.Count(x => x.GameItemId == guardedBag.Id)} root-cell-joins:{db.RoomsGameItems.Count(x => x.GameItemId == guardedBag.Id)} external-cell-joins:{db.RoomsGameItems.Count(x => x.GameItemId == roomGoods.Id)} XML-original:{guardedDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value)} item-rows:{db.GameItems.Count()} original-rows:{originalItemRows}");
 				Require(guardedCallbacks == 1 && guardedDeaths == 0 && childNotifications == 0 && !guardedChild.Deleted &&
 					guardedNpc.Body.AllItems.Contains(guardedBag) && guardedContainer.Contents.Contains(guardedChild) &&
 					ReferenceEquals(guardedChild.ContainedIn, guardedBag) && roomGoods.InInventoryOf is null && roomGoods.Location == native.Actor.Location &&
 					db.BodiesGameItems.Count(x => x.BodyId == guardedNpc.Body.Id && x.GameItemId == guardedBag.Id) == 1 &&
-					!db.CellsGameItems.Any(x => x.GameItemId == guardedBag.Id) && db.CellsGameItems.Count(x => x.GameItemId == roomGoods.Id) == 1 &&
+					!db.RoomsGameItems.Any(x => x.GameItemId == guardedBag.Id) && db.RoomsGameItems.Count(x => x.GameItemId == roomGoods.Id) == 1 &&
 					!db.BodiesGameItems.Any(x => x.GameItemId == roomGoods.Id) && db.GameItems.Find(guardedChild.Id)!.ContainerId == guardedBag.Id &&
 					guardedDefinitions.All(x => persisted.GetValueOrDefault(x.Key) == x.Value) &&
 					(mutation != "partial-stack" || guardedChild.Quantity == 7 && db.GameItems.Count() == originalItemRows),
@@ -548,7 +548,7 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			db.BodiesGameItems.RemoveRange(db.BodiesGameItems.Where(x => x.BodyId == callbackNpc.Body.Id));
-			db.CellsGameItems.Add(new() { CellId = fixture.CellId, GameItemId = callbackForeign!.Id }); db.SaveChanges();
+			db.RoomsGameItems.Add(new() { RoomId = fixture.RoomId, GameItemId = callbackForeign!.Id }); db.SaveChanges();
 		}
 		callbackCorpse.Delete(); host.Service.ReconcileRetirements(RuntimeClock.UtcNow); Completed(callbackNpc);
 		Require(callbackCount == 1 && callbackCorpse.Deleted && !callbackForeign!.Deleted, "Native deletion retry replayed notification or destroyed foreign recovery goods.");
@@ -604,7 +604,7 @@ internal static partial class GNHProgram
 			finally { faulted.Body.OnInventoryChange -= savePending; using var db = NewIndependentContext(database.ConnectionString); db.Database.ExecuteSqlRaw("DROP TRIGGER arm03b2b_evacuation_refusal"); }
 			using (var db = NewIndependentContext(database.ConnectionString))
 				Require(!faulted.State.HasFlag(CharacterState.Dead) && Life(faulted).State == SpellLifecycleState.Retiring && db.BodiesGameItems.Any(x => x.BodyId == faulted.Body.Id && x.GameItemId == faultForeign.Id) &&
-					!db.CellsGameItems.Any(x => x.GameItemId == faultForeign.Id), "Failed foreign transfer did not retain durable intent and rolled-back native custody before death.");
+					!db.RoomsGameItems.Any(x => x.GameItemId == faultForeign.Id), "Failed foreign transfer did not retain durable intent and rolled-back native custody before death.");
 			Require(bodyFlags.All(flag => (bool)GetPrivateField(nativeBody, flag)!) && itemFlags.All(flag => (bool)GetPrivateField(faultForeign, flag)!) &&
 				(int)GetPrivateField(nativeBody, "_needsChangedCount")! == expectedNeedsCount && callbackSavesCount == (callbackSaves ? 1 : 0),
 				"Provider rollback did not rearm every consumed section flag or preserve needs batching progress.");
@@ -613,7 +613,7 @@ internal static partial class GNHProgram
 			{
 				Require(faulted.Body.AllItems.Contains(faultForeign) && ReferenceEquals(faultForeign.InInventoryOf, faulted.Body) &&
 					db.BodiesGameItems.Count(x => x.BodyId == faulted.Body.Id && x.GameItemId == faultForeign.Id) == 1 &&
-					!db.CellsGameItems.Any(x => x.GameItemId == faultForeign.Id), "Provider-refused evacuation leaked through an ordinary save flush.");
+					!db.RoomsGameItems.Any(x => x.GameItemId == faultForeign.Id), "Provider-refused evacuation leaked through an ordinary save flush.");
 				var resource = db.GameItemsMagicResources.Single(x => x.GameItemId == faultForeign.Id && x.MagicResourceId == native.Resource.Id).Amount;
 				var stamina = db.Bodies.Find(faulted.Body.Id)!.CurrentStamina;
 				Console.WriteLine($"ARM03B2D-dirty-observed=runtime-resource:{faultForeign.MagicResourceAmounts[native.Resource]} persisted-resource:{resource} runtime-stamina:{faulted.Body.CurrentStamina} persisted-stamina:{stamina} original-custody:true");
@@ -700,7 +700,7 @@ internal static partial class GNHProgram
 				dirtyDb.GameItemsMagicResources.Single(x => x.GameItemId == root.Id && x.MagicResourceId == host.Native.Resource.Id).Amount == input.ExpectedResource &&
 				dirtyDb.Bodies.Find(npc.Body.Id)!.CurrentStamina == input.ExpectedStamina && ReferenceEquals(root.InInventoryOf, npc.Body) &&
 				dirtyDb.BodiesGameItems.Count(x => x.BodyId == npc.Body.Id && x.GameItemId == root.Id) == 1 &&
-				!dirtyDb.CellsGameItems.Any(x => x.GameItemId == root.Id) && !npc.State.HasFlag(CharacterState.Dead),
+				!dirtyDb.RoomsGameItems.Any(x => x.GameItemId == root.Id) && !npc.State.HasFlag(CharacterState.Dead),
 				"Fresh native process lost pending balances or restored custody after rollback and ordinary Flush.");
 			Console.WriteLine("ARM03B2D-reader-dirty-custody=passed native-item-resource-and-body-stamina-reloaded original-held-custody independent-owned-process");
 			return 0;
@@ -714,7 +714,7 @@ internal static partial class GNHProgram
 			using var topologyDb = NewIndependentContext(database.ConnectionString);
 			Require(input.Foreign.All(id => topologyDb.GameItems.Any(x => x.Id == id)) &&
 				topologyDb.BodiesGameItems.Count(x => x.BodyId == npc.Body.Id && x.GameItemId == root.Id) == 1 &&
-				!topologyDb.CellsGameItems.Any(x => x.GameItemId == root.Id) && !npc.State.HasFlag(CharacterState.Dead),
+				!topologyDb.RoomsGameItems.Any(x => x.GameItemId == root.Id) && !npc.State.HasFlag(CharacterState.Dead),
 				"Read-only restart inspection lost original held custody after ordinary flush.");
 			Console.WriteLine("ARM03B2B-reader-topology=passed separate-owned-process original-A-to-B-to-child-loaded-after-ordinary-save-flush exact-native-edges-and-IDs-and-original-body-join no-death-or-retirement-in-inspection-reader");
 			return 0;
@@ -725,10 +725,10 @@ internal static partial class GNHProgram
 			var external = host.Native.World.TryGetItem(input.ExternalItem, true);
 			using var guardedDb = NewIndependentContext(database.ConnectionString);
 			Require(child.Id == input.Foreign[1] && !child.Deleted && ReferenceEquals(child.ContainedIn, root) &&
-				external.InInventoryOf is null && guardedDb.CellsGameItems.Count(x => x.GameItemId == input.ExternalItem) == 1 &&
+				external.InInventoryOf is null && guardedDb.RoomsGameItems.Count(x => x.GameItemId == input.ExternalItem) == 1 &&
 				!guardedDb.BodiesGameItems.Any(x => x.GameItemId == input.ExternalItem) &&
 				guardedDb.BodiesGameItems.Count(x => x.BodyId == npc.Body.Id && x.GameItemId == root.Id) == 1 &&
-				!guardedDb.CellsGameItems.Any(x => x.GameItemId == root.Id), "Restarted guarded custody did not retain original body, child and external room goods.");
+				!guardedDb.RoomsGameItems.Any(x => x.GameItemId == root.Id), "Restarted guarded custody did not retain original body, child and external room goods.");
 			Console.WriteLine("ARM03B2C-reader-guard-custody=passed separate-owned-process exact-original-body-child-and-unacquired-room-item-reloaded-after-ordinary-flush");
 			return 0;
 		}
@@ -742,7 +742,7 @@ internal static partial class GNHProgram
 			using var removalDb = NewIndependentContext(database.ConnectionString);
 			Require(life.State == SpellLifecycleState.Completed && deaths == 0 && notifications == 0 && !removalDb.GameItems.Any(x => x.Id == input.Corpse) &&
 				input.Foreign.All(id => removalDb.GameItems.Any(x => x.Id == id)) &&
-				removalDb.CellsGameItems.Count(x => x.GameItemId == input.Foreign[0]) == 1 && !removalDb.Bodies.Any(x => x.Id == npc.Body.Id),
+				removalDb.RoomsGameItems.Count(x => x.GameItemId == input.Foreign[0]) == 1 && !removalDb.Bodies.Any(x => x.Id == npc.Body.Id),
 				"Restarted admitted remains removal failed idempotent completion or repeated native callbacks: " + life.Diagnostic);
 			Console.WriteLine("ARM03B2C-reader-removal=passed separate-owned-process pending-final-DELETE-durable-journal native-deletion-and-canonical-archive exact-foreign-conservation zero-native-death-and-observer-replay");
 			return 0;
@@ -756,7 +756,7 @@ internal static partial class GNHProgram
 			finally { using var trigger = NewIndependentContext(database.ConnectionString); trigger.Database.ExecuteSqlRaw("DROP TRIGGER arm03b2b_completion_refusal"); }
 			using var completed = NewIndependentContext(database.ConnectionString); life = host.Store.Find(input.Lifecycle)!;
 			Require(deaths == 1 && life.State == SpellLifecycleState.RemainsPending && completed.CharacterArchives.Any(x => x.LifecycleId == input.Lifecycle) && input.Foreign.All(id => completed.GameItems.Any(x => x.Id == id)) &&
-				completed.CellsGameItems.Count(x => x.GameItemId == input.Foreign[0]) == 1 && !completed.Bodies.Any(x => x.Id == npc.Body.Id),
+				completed.RoomsGameItems.Count(x => x.GameItemId == input.Foreign[0]) == 1 && !completed.Bodies.Any(x => x.Id == npc.Body.Id),
 				"Restart did not resume committed retirement intent with exact conserved custody: " + life.Diagnostic);
 			Console.WriteLine((input.Action == "retire-dirty" ? "ARM03B2D-reader-late-dirty-retry" : "ARM03B2B-reader-retry") + "=passed separate-owned-process actual-native-live-NPC-and-foreign-item-reload persisted-intent-resumed exact-one-Die no-corpse foreign-cell-join-once real-Quit canonical-archive committed-archive-with-completion-update-provider-refused-and-left-pending-for-crash-retry");
 			return 0;
@@ -785,7 +785,7 @@ internal static partial class GNHProgram
 		life = host.Store.Find(input.Lifecycle)!;
 		using var db = NewIndependentContext(database.ConnectionString);
 		Require(life.State == SpellLifecycleState.Completed && input.Foreign.All(id => db.GameItems.Any(x => x.Id == id)) &&
-			db.GameItems.Find(input.Foreign[1])!.ContainerId == input.Foreign[0] && db.CellsGameItems.Count(x => x.GameItemId == input.Foreign[0]) == 1 &&
+			db.GameItems.Find(input.Foreign[1])!.ContainerId == input.Foreign[0] && db.RoomsGameItems.Count(x => x.GameItemId == input.Foreign[0]) == 1 &&
 			!db.Bodies.Any(x => x.Id == npc.Body.Id) && !db.GameItems.Any(x => x.Id == input.Corpse), "Native restarted retirement did not conserve and retire its exact graph: " + life.Diagnostic);
 		var bag = host.Native.World.TryGetItem(input.Foreign[0], true); var belt = bag.GetItemType<IContainer>()!.Contents.Single();
 		Require(bag.GetItemType<ILockable>()!.Locks.Single().Parent.Id == input.Foreign[3] && belt.GetItemType<IBelt>()!.ConnectedItems.Single().Parent.Id == input.Foreign[2], "Foreign native lock or belt attachment was changed.");

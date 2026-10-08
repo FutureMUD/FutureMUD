@@ -716,7 +716,7 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
             }
         }
 
-        List<ICharacter> stableNpcs = arena.NpcStablesCells
+        List<ICharacter> stableNpcs = arena.NpcStablesRooms
             .SelectMany(x => x.Characters)
             .Where(x => !x.IsPlayerCharacter)
             .GroupBy(x => x.Id)
@@ -724,7 +724,7 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
             .ToList();
         if (!stableNpcs.Any())
         {
-            actor.OutputHandler.Send("There are no NPCs currently in the stable cells for that arena.".ColourError());
+            actor.OutputHandler.Send("There are no NPCs currently in the stable rooms for that arena.".ColourError());
             return;
         }
 
@@ -1062,13 +1062,13 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
 
     private static void ArenaObserveList(ICharacter actor)
     {
-        if (actor.Location is not ICell cell)
+        if (actor.Location is not IRoom room)
         {
             actor.OutputHandler.Send("You must be in a room to observe arena events.".ColourError());
             return;
         }
 
-        List<ICombatArena> arenas = actor.Gameworld.CombatArenas.Where(x => x.ObservationCells.Contains(cell)).ToList();
+        List<ICombatArena> arenas = actor.Gameworld.CombatArenas.Where(x => x.ObservationRooms.Contains(room)).ToList();
         if (!arenas.Any())
         {
             actor.OutputHandler.Send("This location is not an arena observation room.".ColourError());
@@ -1100,7 +1100,7 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
 
     private static void ArenaObserveEnter(ICharacter actor, StringStack ss)
     {
-        if (actor.Location is not ICell cell)
+        if (actor.Location is not IRoom room)
         {
             actor.OutputHandler.Send("You must be in a room to observe an event.".ColourError());
             return;
@@ -1127,7 +1127,7 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
             return;
         }
 
-        actor.Gameworld.ArenaObservationService.StartObserving(actor, arenaEvent, cell);
+        actor.Gameworld.ArenaObservationService.StartObserving(actor, arenaEvent, room);
         actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ begin|begins observing the $1 event.", actor, actor, new DummyPerceivable(arenaEvent.Name.ColourName()))));
     }
 
@@ -1892,19 +1892,19 @@ Use #3arena tasks actions#0 and #3arena tasks conditions#0 for the full task act
 
     private static ICombatArena? GetArenaFromLocation(ICharacter actor)
     {
-        if (actor.Location is not ICell cell)
+        if (actor.Location is not IRoom room)
         {
             return null;
         }
 
         return actor.Gameworld.CombatArenas
             .FirstOrDefault(arena =>
-                arena.WaitingCells.Contains(cell) ||
-                arena.ArenaCells.Contains(cell) ||
-                arena.ObservationCells.Contains(cell) ||
-                arena.InfirmaryCells.Contains(cell) ||
-                    arena.AfterFightCells.Contains(cell) ||
-                    arena.NpcStablesCells.Contains(cell));
+                arena.WaitingRooms.Contains(room) ||
+                arena.ArenaRooms.Contains(room) ||
+                arena.ObservationRooms.Contains(room) ||
+                arena.InfirmaryRooms.Contains(room) ||
+                    arena.AfterFightRooms.Contains(room) ||
+                    arena.NpcStablesRooms.Contains(room));
     }
 
     private static ICombatArena? ResolveOptionalArenaArgument(ICharacter actor, StringStack ss, params string[] optionKeywords)

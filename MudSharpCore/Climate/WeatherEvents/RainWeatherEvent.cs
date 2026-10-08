@@ -113,7 +113,7 @@ namespace MudSharp.Climate.WeatherEvents
 
         public ILiquid RainLiquid { get; protected set; }
 
-        public override void OnFiveSecondEvent(ICell cell)
+        public override void OnFiveSecondEvent(IRoom room)
         {
             // Rain exposure is resolved lazily by the room/item/body surface-liquid APIs.
         }

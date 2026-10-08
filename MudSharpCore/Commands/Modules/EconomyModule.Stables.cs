@@ -417,7 +417,7 @@ Administrators can also use:
 					st.IsTrading.ToString(actor),
 					st.ActiveStays.Count().ToString("N0", actor)
 				},
-				new[] { "#", "Name", "Zone", "Cell", "Open", "Active" },
+				new[] { "#", "Name", "Zone", "Room", "Open", "Active" },
 				actor.LineFormatLength,
 				colour: Telnet.Yellow,
 				unicodeTable: actor.Account.UseUnicode));

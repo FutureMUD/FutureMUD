@@ -13,38 +13,38 @@ namespace MudSharp_Unit_Tests;
 public class RouteLegacyVicinityTests
 {
 	[TestMethod]
-	public void CellsInVicinity_SourceRouteCell_DoesNotFlattenRouteIntoOneRoom()
+	public void RoomsInVicinity_SourceRouteRoom_DoesNotFlattenRouteIntoOneRoom()
 	{
-		var route = new Mock<ICell>();
-		var definition = new Mock<IRouteCellDefinition>();
-		var ordinary = new Mock<ICell>();
-		var exit = new Mock<ICellExit>();
+		var route = new Mock<IRoom>();
+		var definition = new Mock<IRouteRoomDefinition>();
+		var ordinary = new Mock<IRoom>();
+		var exit = new Mock<IRoomExit>();
 		route.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
 		route.Setup(x => x.ExitsFor(null!, true)).Returns([exit.Object]);
 		exit.SetupGet(x => x.Destination).Returns(ordinary.Object);
 		var source = new Mock<IPerceivable>();
 		source.SetupGet(x => x.Location).Returns(route.Object);
 
-		var cells = source.Object.CellsInVicinity(10, false, false).ToArray();
+		var rooms = source.Object.RoomsInVicinity(10, false, false).ToArray();
 
-		CollectionAssert.AreEqual(new[] { route.Object }, cells);
+		CollectionAssert.AreEqual(new[] { route.Object }, rooms);
 	}
 
 	[TestMethod]
-	public void CellsInVicinity_OrdinarySource_DoesNotEnterRouteCellShortcut()
+	public void RoomsInVicinity_OrdinarySource_DoesNotEnterRouteRoomShortcut()
 	{
-		var ordinary = new Mock<ICell>();
-		var route = new Mock<ICell>();
-		var definition = new Mock<IRouteCellDefinition>();
-		var exit = new Mock<ICellExit>();
+		var ordinary = new Mock<IRoom>();
+		var route = new Mock<IRoom>();
+		var definition = new Mock<IRouteRoomDefinition>();
+		var exit = new Mock<IRoomExit>();
 		route.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
 		ordinary.Setup(x => x.ExitsFor(null!, true)).Returns([exit.Object]);
 		exit.SetupGet(x => x.Destination).Returns(route.Object);
 		var source = new Mock<IPerceivable>();
 		source.SetupGet(x => x.Location).Returns(ordinary.Object);
 
-		var cells = source.Object.CellsInVicinity(10, false, false).ToArray();
+		var rooms = source.Object.RoomsInVicinity(10, false, false).ToArray();
 
-		CollectionAssert.AreEqual(new[] { ordinary.Object }, cells);
+		CollectionAssert.AreEqual(new[] { ordinary.Object }, rooms);
 	}
 }

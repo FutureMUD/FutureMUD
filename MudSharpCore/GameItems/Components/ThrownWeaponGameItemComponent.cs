@@ -272,14 +272,14 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
             if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishDetachedThrow(); return; }
             actor.Aim = null;
             if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) { FinishDetachedThrow(); return; }
-            IEnumerable<ICellExit> path = actor.PathBetween(target, 10, false, false, true);
+            IEnumerable<IRoomExit> path = actor.PathBetween(target, 10, false, false, true);
             string dirDesc = path.Select(x => x.OutboundDirection).DescribeDirection();
             string oppDirDesc = path.Select(x => x.OutboundDirection).DescribeOppositeDirection();
-            foreach (ICell cell in actor.CellsUnderneathFlight(target, 10).ToArray())
+            foreach (IRoom room in actor.RoomsUnderneathFlight(target, 10).ToArray())
             {
                 if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !completion.IsUnclaimed) return;
-                cell.Handle(
-                    cell.OutdoorsType(null) == CellOutdoorsType.Outdoors
+                room.Handle(
+                    room.OutdoorsType(null) == RoomOutdoorsType.Outdoors
                         ? new EmoteOutput(new Emote(
                             $"@ fly|flies overhead from the {oppDirDesc} towards the {dirDesc}", Parent))
                         : new EmoteOutput(

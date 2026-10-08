@@ -67,7 +67,7 @@ public class ProvisionFoodAdmissionCastingTests
         var eligibility = callback.StartsWith("eligibility");
         admission.SetupGet(x => x.ReturnType).Returns(eligibility ? ProgVariableTypes.Boolean : ProgVariableTypes.Number);
         admission.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
-        void Mutate() { if (++callbackCalls != 3) return; if (eligibility) firstMatch = true; else f.Actor.SetupGet(x => x.Location).Returns(Mock.Of<ICell>()); }
+        void Mutate() { if (++callbackCalls != 3) return; if (eligibility) firstMatch = true; else f.Actor.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>()); }
         admission.Setup(x => x.ExecuteBool(It.IsAny<object[]>())).Returns(() => { Mutate(); return true; });
         admission.Setup(x => x.ExecuteDouble(It.IsAny<object[]>())).Returns(() => { Mutate(); return 1.0; });
         var known = new Mock<IFutureProg>(); known.SetupGet(x => x.Id).Returns(1); known.Setup(x => x.Execute<bool?>(It.IsAny<object[]>())).Returns(true);
@@ -122,7 +122,7 @@ public class ProvisionFoodAdmissionCastingTests
                 if (scenario == "selection-balance") f.Balances[reserve] = 80;
                 if (scenario == "selection-cap-definition") reserve.ResourceCapProg = Mock.Of<IFutureProg>();
                 if (scenario == "selection-trait") f.Skills[1] = 5;
-                if (scenario == "selection-location") f.Actor.SetupGet(x => x.Location).Returns(Mock.Of<ICell>());
+                if (scenario == "selection-location") f.Actor.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>());
                 if (scenario == "selection-device-custody") device!.Held.Clear();
                 if (scenario == "selection-device-definition") Assert.IsTrue(device!.Proto.BuildingCommand(f.Actor.Object, new StringStack("capacity 6")));
             }

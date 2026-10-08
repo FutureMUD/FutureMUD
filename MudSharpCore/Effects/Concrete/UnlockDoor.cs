@@ -7,11 +7,11 @@ namespace MudSharp.Effects.Concrete;
 public class UnlockDoor : Effect, IEffectSubtype
 {
     public IDoor Door { get; set; }
-    public ICellExit Exit { get; set; }
+    public IRoomExit Exit { get; set; }
 
     public ICharacter Character { get; set; }
 
-    public UnlockDoor(ICharacter actor, IDoor door, ICellExit exit) : base(actor)
+    public UnlockDoor(ICharacter actor, IDoor door, IRoomExit exit) : base(actor)
     {
         Character = actor;
         Door = door;

@@ -380,9 +380,9 @@ The syntax is:
             missingLocations.Add("courtroom");
         }
 
-        if (!legal.CellLocations.Any())
+        if (!legal.RoomLocations.Any())
         {
-            missingLocations.Add("holding cells");
+            missingLocations.Add("holding rooms");
         }
 
         if (missingLocations.Any())
@@ -517,10 +517,10 @@ The syntax is:
         foreach (IPatrolRoute route in legal.PatrolRoutes.Where(x => x.PatrolStrategy is ExecutionPatrolStrategy))
         {
             ExecutionPatrolStrategy strategy = (ExecutionPatrolStrategy)route.PatrolStrategy;
-            ICell equipment = strategy.EquipmentLocationId > 0
-                ? actor.Gameworld.Cells.Get(strategy.EquipmentLocationId)
+            IRoom equipment = strategy.EquipmentLocationId > 0
+                ? actor.Gameworld.Rooms.Get(strategy.EquipmentLocationId)
                 : legal.PreparingLocation;
-            ICell executionLocation = route.PatrolNodes.FirstOrDefault();
+            IRoom executionLocation = route.PatrolNodes.FirstOrDefault();
             string routeLabel = RouteLabel(route, actor, detailed);
 
             if (equipment is null)
@@ -533,7 +533,7 @@ The syntax is:
             switch (strategy.Method)
             {
                 case ExecutionPatrolExecutionMethod.CoupDeGraceWithWeapon:
-                    if (!ItemsInCell(equipment, actor).Any(IsExecutionMeleeWeapon))
+                    if (!ItemsInRoom(equipment, actor).Any(IsExecutionMeleeWeapon))
                     {
                         yield return new LegalSetupIssue("Problem", "Execution Equipment",
                             $"{routeLabel} uses coup de grace but no suitable melee execution weapon is stocked{LocationSuffix(equipment, actor, detailed)}.");
@@ -547,7 +547,7 @@ The syntax is:
                             $"{routeLabel} uses administered drugs but has no valid drug configured.");
                     }
 
-                    if (!ComponentsInCell<IInject>(equipment, actor).Any())
+                    if (!ComponentsInRoom<IInject>(equipment, actor).Any())
                     {
                         yield return new LegalSetupIssue("Problem", "Execution Equipment",
                             $"{routeLabel} uses administered drugs but no injector item is stocked{LocationSuffix(equipment, actor, detailed)}.");
@@ -555,7 +555,7 @@ The syntax is:
 
                     break;
                 case ExecutionPatrolExecutionMethod.FiringSquad:
-                    if (!ComponentsInCell<IRangedWeapon>(equipment, actor).Any())
+                    if (!ComponentsInRoom<IRangedWeapon>(equipment, actor).Any())
                     {
                         yield return new LegalSetupIssue("Problem", "Execution Equipment",
                             $"{routeLabel} uses firing squad but no ranged weapons are stocked{LocationSuffix(equipment, actor, detailed)}.");
@@ -564,7 +564,7 @@ The syntax is:
                     break;
             }
 
-            if (!ComponentsInCell<IRestraint>(equipment, actor).Concat(ComponentsInCell<IRestraint>(executionLocation, actor)).Any())
+            if (!ComponentsInRoom<IRestraint>(equipment, actor).Concat(ComponentsInRoom<IRestraint>(executionLocation, actor)).Any())
             {
                 yield return new LegalSetupIssue("Warning", "Execution Equipment",
                     $"{routeLabel} has no restraint items stocked in the equipment or execution room; guards will need a helpless or submitted prisoner to proceed.");
@@ -581,18 +581,18 @@ The syntax is:
     }
 
     private static IEnumerable<LegalSetupIssue> ExecutionRetrievalKeyIssues(ICharacter actor, ILegalAuthority legal,
-        IPatrolRoute route, ICell equipment, bool detailed)
+        IPatrolRoute route, IRoom equipment, bool detailed)
     {
-        List<ICell> prisonerCells = legal.CellLocations.Concat(legal.JailLocations).Distinct().ToList();
-        if (!prisonerCells.Any())
+        List<IRoom> prisonerRooms = legal.RoomLocations.Concat(legal.JailLocations).Distinct().ToList();
+        if (!prisonerRooms.Any())
         {
             yield return new LegalSetupIssue("Problem", "Execution Keys",
                 $"{RouteLabel(route, actor, detailed)} requires retrieval keys but no prisoner cell or jail locations are configured.");
             yield break;
         }
 
-        List<ILock> locks = DoorLocksForCells(prisonerCells)
-                           .Concat(DoorLocksForPaths(equipment, prisonerCells))
+        List<ILock> locks = DoorLocksForRooms(prisonerRooms)
+                           .Concat(DoorLocksForPaths(equipment, prisonerRooms))
                            .Distinct()
                            .ToList();
         if (!locks.Any())
@@ -600,7 +600,7 @@ The syntax is:
             yield break;
         }
 
-        List<ILock> missingLocks = LocksMissingKeys(locks, KeysInCell(equipment, actor)).ToList();
+        List<ILock> missingLocks = LocksMissingKeys(locks, KeysInRoom(equipment, actor)).ToList();
         if (missingLocks.Any())
         {
             yield return new LegalSetupIssue("Problem", "Execution Keys",
@@ -613,13 +613,13 @@ The syntax is:
     {
         foreach (IPatrolRoute route in legal.PatrolRoutes.Where(x => x.PatrolStrategy.Name.Equals("DoorDuties", StringComparison.OrdinalIgnoreCase)))
         {
-            ICell dutyLocation = route.PatrolNodes.FirstOrDefault();
+            IRoom dutyLocation = route.PatrolNodes.FirstOrDefault();
             if (dutyLocation is null || legal.PreparingLocation is null)
             {
                 continue;
             }
 
-            List<ILock> locks = DoorLocksForCells(new[] { dutyLocation }).ToList();
+            List<ILock> locks = DoorLocksForRooms(new[] { dutyLocation }).ToList();
             if (!locks.Any())
             {
                 yield return new LegalSetupIssue("Info", "Door Duties",
@@ -627,7 +627,7 @@ The syntax is:
                 continue;
             }
 
-            List<ILock> missingLocks = LocksMissingKeys(locks, KeysInCell(legal.PreparingLocation, actor)).ToList();
+            List<ILock> missingLocks = LocksMissingKeys(locks, KeysInRoom(legal.PreparingLocation, actor)).ToList();
             if (missingLocks.Any())
             {
                 yield return new LegalSetupIssue("Problem", "Door Duties",
@@ -636,9 +636,9 @@ The syntax is:
         }
     }
 
-    private static IEnumerable<IGameItem> ItemsInCell(ICell cell, ICharacter accessor)
+    private static IEnumerable<IGameItem> ItemsInRoom(IRoom room, ICharacter accessor)
     {
-        return cell?.GameItems.SelectMany(x => AccessibleStockItems(x, accessor)).Distinct() ??
+        return room?.GameItems.SelectMany(x => AccessibleStockItems(x, accessor)).Distinct() ??
                Enumerable.Empty<IGameItem>();
     }
 
@@ -664,14 +664,14 @@ The syntax is:
         }
     }
 
-    private static IEnumerable<T> ComponentsInCell<T>(ICell cell, ICharacter accessor) where T : class, IGameItemComponent
+    private static IEnumerable<T> ComponentsInRoom<T>(IRoom room, ICharacter accessor) where T : class, IGameItemComponent
     {
-        return ItemsInCell(cell, accessor).SelectNotNull(x => x.GetItemType<T>());
+        return ItemsInRoom(room, accessor).SelectNotNull(x => x.GetItemType<T>());
     }
 
-    private static IEnumerable<IKey> KeysInCell(ICell cell, ICharacter accessor)
+    private static IEnumerable<IKey> KeysInRoom(IRoom room, ICharacter accessor)
     {
-        return ComponentsInCell<IKey>(cell, accessor);
+        return ComponentsInRoom<IKey>(room, accessor);
     }
 
     private static bool IsExecutionMeleeWeapon(IGameItem item)
@@ -679,9 +679,9 @@ The syntax is:
         return item.GetItemType<IMeleeWeapon>()?.WeaponType.Attacks.OfType<IFixedBodypartWeaponAttack>().Any() == true;
     }
 
-    private static IEnumerable<ILock> DoorLocksForCells(IEnumerable<ICell> cells)
+    private static IEnumerable<ILock> DoorLocksForRooms(IEnumerable<IRoom> rooms)
     {
-        return cells
+        return rooms
                .Where(x => x is not null)
                .SelectMany(x => x.ExitsFor(null, true))
                .Where(x => x.Exit.Door?.Locks.Any() == true)
@@ -690,7 +690,7 @@ The syntax is:
                .Distinct();
     }
 
-    private static IEnumerable<ILock> DoorLocksForPaths(ICell origin, IEnumerable<ICell> destinations)
+    private static IEnumerable<ILock> DoorLocksForPaths(IRoom origin, IEnumerable<IRoom> destinations)
     {
         if (origin is null)
         {
@@ -712,7 +712,7 @@ The syntax is:
         return locks.Where(x => keyList.All(y => !y.Unlocks(x.LockType, x.Pattern)));
     }
 
-    private static string LocationSuffix(ICell location, ICharacter actor, bool detailed)
+    private static string LocationSuffix(IRoom location, ICharacter actor, bool detailed)
     {
         return detailed && location is not null
             ? $" in {location.GetFriendlyReference(actor)}"

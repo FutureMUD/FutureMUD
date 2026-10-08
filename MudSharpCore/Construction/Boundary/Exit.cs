@@ -7,9 +7,9 @@ namespace MudSharp.Construction.Boundary;
 
 public class Exit : PerceivedItem, IExit
 {
-    private readonly List<ICell> _cells = new();
+    private readonly List<IRoom> _rooms = new();
 
-    private readonly ICellExit[] CellExits = new ICellExit[2];
+    private readonly IRoomExit[] RoomExits = new IRoomExit[2];
 
     /// <summary>
     ///     Constructs an Exit from information pertaining to a Non-Cardinal Exit
@@ -23,7 +23,7 @@ public class Exit : PerceivedItem, IExit
     /// <param name="inboundTarget"></param>
     /// <param name="outboundKeyword"></param>
     /// <param name="inboundKeyword"></param>
-    public Exit(IFuturemud gameworld, ICell origin, ICell destination, double timeMultiplier,
+    public Exit(IFuturemud gameworld, IRoom origin, IRoom destination, double timeMultiplier,
         INonCardinalExitTemplate template, string outboundKeyword, string inboundKeyword, string outboundTarget,
         string inboundTarget)
     {
@@ -32,8 +32,8 @@ public class Exit : PerceivedItem, IExit
         {
             Models.Exit dbexit = new()
             {
-                CellId1 = origin.Id,
-                CellId2 = destination.Id,
+                RoomId1 = origin.Id,
+                RoomId2 = destination.Id,
                 Direction1 = (int)CardinalDirection.Unknown,
                 Direction2 = (int)CardinalDirection.Unknown,
                 TimeMultiplier = timeMultiplier,
@@ -83,13 +83,13 @@ public class Exit : PerceivedItem, IExit
     {
         Models.Exit dbexit = new()
         {
-            CellId1 = _cells[0].Id,
-            CellId2 = _cells[1].Id
+            RoomId1 = _rooms[0].Id,
+            RoomId2 = _rooms[1].Id
         };
-        dbexit.CellId1 = CellExits[0].Origin.Id;
-        dbexit.CellId2 = CellExits[1].Origin.Id;
-        dbexit.Direction1 = (int)CellExits[0].OutboundDirection;
-        dbexit.Direction2 = (int)CellExits[1].OutboundDirection;
+        dbexit.RoomId1 = RoomExits[0].Origin.Id;
+        dbexit.RoomId2 = RoomExits[1].Origin.Id;
+        dbexit.Direction1 = (int)RoomExits[0].OutboundDirection;
+        dbexit.Direction2 = (int)RoomExits[1].OutboundDirection;
         dbexit.TimeMultiplier = TimeMultiplier;
         dbexit.AcceptsDoor = AcceptsDoor;
         dbexit.DoorSize = AcceptsDoor ? (int)DoorSize : (int?)null;
@@ -99,9 +99,9 @@ public class Exit : PerceivedItem, IExit
         dbexit.IsClimbExit = IsClimbExit;
         dbexit.BlockedLayers = BlockedLayers.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues();
         FMDB.Context.Exits.Add(dbexit);
-        if (CellExits[0] is NonCardinalCellExit nexit1)
+        if (RoomExits[0] is NonCardinalRoomExit nexit1)
         {
-            NonCardinalCellExit nexit2 = (NonCardinalCellExit)CellExits[1];
+            NonCardinalRoomExit nexit2 = (NonCardinalRoomExit)RoomExits[1];
             dbexit.InboundDescription1 = nexit1.InboundDescription;
             dbexit.InboundDescription2 = nexit2.InboundDescription;
             dbexit.OutboundDescription1 = nexit1.OutboundDescription;
@@ -133,7 +133,7 @@ public class Exit : PerceivedItem, IExit
         return dbexit;
     }
 
-    public Exit(IFuturemud gameworld, ICell origin, ICell destination, Exit otherExit)
+    public Exit(IFuturemud gameworld, IRoom origin, IRoom destination, Exit otherExit)
     {
         Gameworld = gameworld;
         _noSave = true;
@@ -141,19 +141,19 @@ public class Exit : PerceivedItem, IExit
 
         AcceptsDoor = otherExit.AcceptsDoor;
         DoorSize = otherExit.DoorSize;
-        _cells.Add(origin);
-        _cells.Add(destination);
+        _rooms.Add(origin);
+        _rooms.Add(destination);
 
-        if (otherExit.CellExits[0] is NonCardinalCellExit exit)
+        if (otherExit.RoomExits[0] is NonCardinalRoomExit exit)
         {
-            CellExits[0] = new NonCardinalCellExit(this, exit, origin, destination);
-            CellExits[1] =
-                new NonCardinalCellExit(this, (NonCardinalCellExit)otherExit.CellExits[1], destination, origin);
+            RoomExits[0] = new NonCardinalRoomExit(this, exit, origin, destination);
+            RoomExits[1] =
+                new NonCardinalRoomExit(this, (NonCardinalRoomExit)otherExit.RoomExits[1], destination, origin);
         }
         else
         {
-            CellExits[0] = new CellExit(this, otherExit.CellExits[0], origin, destination);
-            CellExits[1] = new CellExit(this, otherExit.CellExits[1], destination, origin);
+            RoomExits[0] = new RoomExit(this, otherExit.RoomExits[0], origin, destination);
+            RoomExits[1] = new RoomExit(this, otherExit.RoomExits[1], destination, origin);
         }
 
         MaximumSizeToEnter = otherExit.MaximumSizeToEnter;
@@ -171,7 +171,7 @@ public class Exit : PerceivedItem, IExit
     /// <param name="outboundDirection"></param>
     /// <param name="inboundDirection"></param>
     /// <param name="timeMultiplier"></param>
-    public Exit(IFuturemud gameworld, ICell origin, ICell destination, CardinalDirection outboundDirection,
+    public Exit(IFuturemud gameworld, IRoom origin, IRoom destination, CardinalDirection outboundDirection,
         CardinalDirection inboundDirection, double timeMultiplier)
     {
         Gameworld = gameworld;
@@ -179,8 +179,8 @@ public class Exit : PerceivedItem, IExit
         {
             Models.Exit dbexit = new()
             {
-                CellId1 = origin.Id,
-                CellId2 = destination.Id,
+                RoomId1 = origin.Id,
+                RoomId2 = destination.Id,
                 Direction1 = (int)outboundDirection,
                 Direction2 = (int)inboundDirection,
                 TimeMultiplier = timeMultiplier,
@@ -206,12 +206,12 @@ public class Exit : PerceivedItem, IExit
         Gameworld = rhs.Gameworld;
         using (new FMDB())
         {
-            ICellExit exit1 = rhs.CellExits[0];
-            ICellExit exit2 = rhs.CellExits[1];
+            IRoomExit exit1 = rhs.RoomExits[0];
+            IRoomExit exit2 = rhs.RoomExits[1];
             Models.Exit dbexit = new()
             {
-                CellId1 = exit1.Origin.Id,
-                CellId2 = exit2.Origin.Id,
+                RoomId1 = exit1.Origin.Id,
+                RoomId2 = exit2.Origin.Id,
                 Direction1 = (int)exit1.OutboundDirection,
                 Direction2 = (int)exit2.OutboundDirection,
                 TimeMultiplier = rhs.TimeMultiplier,
@@ -221,14 +221,14 @@ public class Exit : PerceivedItem, IExit
                 MaximumSizeToEnterUpright = (int)rhs.MaximumSizeToEnterUpright,
                 BlockedLayers = rhs.BlockedLayers.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues(),
                 ClimbDifficulty = (int)rhs.ClimbDifficulty,
-                FallCell = rhs.FallCell?.Id,
+                FallRoom = rhs.FallRoom?.Id,
                 IsClimbExit = rhs.IsClimbExit
             };
 
-            if (exit1 is NonCardinalCellExit)
+            if (exit1 is NonCardinalRoomExit)
             {
-                NonCardinalCellExit nexit1 = exit1 as NonCardinalCellExit;
-                NonCardinalCellExit nexit2 = exit2 as NonCardinalCellExit;
+                NonCardinalRoomExit nexit1 = exit1 as NonCardinalRoomExit;
+                NonCardinalRoomExit nexit2 = exit2 as NonCardinalRoomExit;
                 dbexit.InboundDescription1 = nexit1.InboundDescription;
                 dbexit.InboundDescription2 = nexit2.InboundDescription;
                 dbexit.OutboundDescription1 = nexit1.OutboundDescription;
@@ -265,7 +265,7 @@ public class Exit : PerceivedItem, IExit
 
     public override string ToString()
     {
-        return $"Exit {Id:N0} from {_cells[0].Name} ({_cells[0].Id:N0}) to {_cells[1].Name} ({_cells[1].Id})";
+        return $"Exit {Id:N0} from {_rooms[0].Name} ({_rooms[0].Id:N0}) to {_rooms[1].Name} ({_rooms[1].Id})";
     }
 
     public override string FrameworkItemType => "Exit";
@@ -276,11 +276,11 @@ public class Exit : PerceivedItem, IExit
 
     #endregion
 
-    public IEnumerable<ICell> Cells => _cells;
+    public IEnumerable<IRoom> Rooms => _rooms;
 
     #region Overrides of PerceivedItem
 
-    public override ICell Location => CellExits[0].Origin;
+    public override IRoom Location => RoomExits[0].Origin;
 
     #endregion
 
@@ -289,7 +289,7 @@ public class Exit : PerceivedItem, IExit
     public IDoor Door { get; set; }
     public double TimeMultiplier { get; set; }
 
-    public ICell FallCell { get; set; }
+    public IRoom FallRoom { get; set; }
     public bool IsClimbExit { get; set; }
     public Difficulty ClimbDifficulty { get; set; }
 
@@ -297,24 +297,24 @@ public class Exit : PerceivedItem, IExit
 
     public SizeCategory MaximumSizeToEnter { get; set; }
 
-    public ICell Opposite(ICell cell)
+    public IRoom Opposite(IRoom room)
     {
-        return CellExitFor(cell)?.Destination;
+        return RoomExitFor(room)?.Destination;
     }
 
-    public ICellExit CellExitFor(ICell cell)
+    public IRoomExit RoomExitFor(IRoom room)
     {
-        return CellExits.FirstOrDefault(x => x.Origin == cell);
+        return RoomExits.FirstOrDefault(x => x.Origin == room);
     }
 
-    public bool IsExit(ICell cell, string verb)
+    public bool IsExit(IRoom room, string verb)
     {
-        return CellExitFor(cell).IsExit(verb);
+        return RoomExitFor(room).IsExit(verb);
     }
 
-    public bool IsExitKeyword(ICell cell, string keyword)
+    public bool IsExitKeyword(IRoom room, string keyword)
     {
-        return CellExitFor(cell).IsExitKeyword(keyword);
+        return RoomExitFor(room).IsExitKeyword(keyword);
     }
 
     private readonly List<RoomLayer> _blockedLayers = new();
@@ -374,7 +374,7 @@ public class Exit : PerceivedItem, IExit
             dbexit.MaximumSizeToEnterUpright = (int)MaximumSizeToEnterUpright;
             dbexit.IsClimbExit = IsClimbExit;
             dbexit.ClimbDifficulty = (int)ClimbDifficulty;
-            dbexit.FallCell = FallCell?.Id;
+            dbexit.FallRoom = FallRoom?.Id;
             dbexit.BlockedLayers = BlockedLayers.Select(x => ((int)x).ToString("F0")).ListToCommaSeparatedValues();
             FMDB.Context.SaveChanges();
             // TODO - saving cellExit changes too?
@@ -416,26 +416,26 @@ public class Exit : PerceivedItem, IExit
 
         AcceptsDoor = exit.AcceptsDoor;
         DoorSize = (SizeCategory)(exit.DoorSize ?? 0);
-        _cells.Add(Gameworld.Cells.Get(exit.CellId1));
-        _cells.Add(Gameworld.Cells.Get(exit.CellId2));
+        _rooms.Add(Gameworld.Rooms.Get(exit.RoomId1));
+        _rooms.Add(Gameworld.Rooms.Get(exit.RoomId2));
 
         if (!string.IsNullOrEmpty(exit.Verb1))
         {
-            CellExits[0] = new NonCardinalCellExit(this, exit, true);
-            CellExits[1] = new NonCardinalCellExit(this, exit, false);
+            RoomExits[0] = new NonCardinalRoomExit(this, exit, true);
+            RoomExits[1] = new NonCardinalRoomExit(this, exit, false);
         }
         else
         {
-            CellExits[0] = new CellExit(this, exit, true);
-            CellExits[1] = new CellExit(this, exit, false);
+            RoomExits[0] = new RoomExit(this, exit, true);
+            RoomExits[1] = new RoomExit(this, exit, false);
         }
 
         MaximumSizeToEnter = (SizeCategory)exit.MaximumSizeToEnter;
         MaximumSizeToEnterUpright = (SizeCategory)exit.MaximumSizeToEnterUpright;
         ClimbDifficulty = (Difficulty)exit.ClimbDifficulty;
-        if (exit.FallCell.HasValue)
+        if (exit.FallRoom.HasValue)
         {
-            FallCell = _cells.First(x => x.Id == exit.FallCell);
+            FallRoom = _rooms.First(x => x.Id == exit.FallRoom);
         }
 
         IsClimbExit = exit.IsClimbExit;

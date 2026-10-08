@@ -54,11 +54,11 @@ namespace MudSharp.Economy
         MudTimeSpan EstateClaimPeriodLength { get; }
         IAuctionHouse EstateAuctionHouse { get; }
 
-        IEnumerable<ICell> ConveyancingCells { get; }
-        IEnumerable<ICell> JobFindingCells { get; }
-        IEnumerable<ICell> ProbateOfficeCells { get; }
-        ICell MorgueOfficeCell { get; }
-        ICell MorgueStorageCell { get; }
+        IEnumerable<IRoom> ConveyancingRooms { get; }
+        IEnumerable<IRoom> JobFindingRooms { get; }
+        IEnumerable<IRoom> ProbateOfficeRooms { get; }
+        IRoom MorgueOfficeRoom { get; }
+        IRoom MorgueStorageRoom { get; }
 
         bool BuildingCommandFromClanCommand(ICharacter actor, StringStack command);
         IEconomicZone Clone(string newName);

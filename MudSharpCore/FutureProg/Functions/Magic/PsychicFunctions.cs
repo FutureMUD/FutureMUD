@@ -20,7 +20,7 @@ internal sealed class PsychicQueryFunction : BuiltInFunction
 		Register("psychicdisposition", [ProgVariableTypes.Character, ProgVariableTypes.Character], ProgVariableTypes.Number,
 			["character", "subject"], "Returns the current psychic affinity or aversion towards a subject. This grants no authority or privileges.");
 		Register("psychometricimpressions", [ProgVariableTypes.Perceivable], ProgVariableTypes.Text | ProgVariableTypes.Collection,
-			["owner"], "Returns recorded item/cell impression text, including authored clues, or an empty collection when the world feature is disabled.");
+			["owner"], "Returns recorded item/room impression text, including authored clues, or an empty collection when the world feature is disabled.");
 	}
 	private static void Register(string name, ProgVariableTypes[] parameters, ProgVariableTypes result, string[] names, string help) =>
 		FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation(name, parameters,
@@ -41,7 +41,7 @@ internal sealed class PsychicQueryFunction : BuiltInFunction
 				break;
 			default:
 				var owner = ParameterFunctions[0].Result?.GetObject as IPerceivable;
-				var texts = owner is MudSharp.GameItems.IGameItem or MudSharp.Construction.ICell
+				var texts = owner is MudSharp.GameItems.IGameItem or MudSharp.Construction.IRoom
 					? PsychometricRecorder.Read(owner)?.Impressions.Select(x => new TextVariable(x.Text)).ToList() ?? [] : [];
 				Result = new CollectionVariable(texts, ProgVariableTypes.Text);
 				break;

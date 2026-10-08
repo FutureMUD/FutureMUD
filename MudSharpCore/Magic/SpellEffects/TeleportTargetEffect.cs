@@ -80,12 +80,12 @@ public class TeleportTargetEffect : IMagicSpellEffectTemplate
             return null;
         }
 
-        if (additionalParameters.FirstOrDefault()?.Item is not ICell cell)
+        if (additionalParameters.FirstOrDefault()?.Item is not IRoom room)
         {
             return null;
         }
 
-        tch.Teleport(cell, PreserveLayer ? tch.RoomLayer : TargetLayer, TeleportParty, true);
+        tch.Teleport(room, PreserveLayer ? tch.RoomLayer : TargetLayer, TeleportParty, true);
         return null;
     }
 

@@ -169,7 +169,7 @@ public class SyringeGameItemComponent : GameItemComponent, ILiquidContainer, IIn
                0.0;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         if (LiquidMixture == null)
         {

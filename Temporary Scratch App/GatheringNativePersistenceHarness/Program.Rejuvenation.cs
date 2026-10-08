@@ -53,9 +53,9 @@ internal static partial class GNHProgram
 		var profileId = RunOrganicProfileAuthoringAndClone(database.ConnectionString, fixture.EnvironmentalResourceId);
 		using (var binding = NewIndependentContext(database.ConnectionString))
 		{
-			var cell = binding.Cells.Single(x => x.Id == fixture.CoordinatorActorFixture.CellId);
-			cell.EnvironmentalMagicBindingMode = (int)EnvironmentalMagicBindingMode.Explicit;
-			cell.EnvironmentalMagicProfileId = profileId;
+			var room = binding.Rooms.Single(x => x.Id == fixture.CoordinatorActorFixture.RoomId);
+			room.EnvironmentalMagicBindingMode = (int)EnvironmentalMagicBindingMode.Explicit;
+			room.EnvironmentalMagicProfileId = profileId;
 			binding.SaveChanges();
 		}
 		RunLandActionPersistenceProbe(database.Name, database.ConnectionString, fixture.CoordinatorActorFixture,
@@ -162,14 +162,14 @@ internal static partial class GNHProgram
 	}
 
 	private static void RunRejuvenationCheckpointDeadlineProbe(NativeRuntime runtime, string connectionString,
-		Cell cell, MagicSpell spell, EnvironmentalMagicCoordinator coordinator, HarnessClock clock)
+		Room room, MagicSpell spell, EnvironmentalMagicCoordinator coordinator, HarnessClock clock)
 	{
 		var template = (RejuvenateLandEffect)spell.SpellEffects.Single();
 		Require(template.BuildingCommand(runtime.Actor, new StringStack("rate 1")), "J-C-native could not set the captured rate.");
-		Require(cell.EnvironmentState.ScarDamage == 20 && coordinator.ActiveTreatmentCount == 0,
+		Require(room.EnvironmentState.ScarDamage == 20 && coordinator.ActiveTreatmentCount == 0,
 			"J-C-native requires twenty scars and no active treatment.");
 		MagicModule.MagicGeneric(runtime.Actor, $"{spell.School.SchoolVerb} cast \"{spell.Name}\" standard");
-		var child = cell.Effects.OfType<SpellRejuvenateLandEffect>().Single();
+		var child = room.Effects.OfType<SpellRejuvenateLandEffect>().Single();
 		var parent = (MagicSpellParent)child.ParentEffect;
 		var attribution = $"Land rejuvenation {child.TreatmentId},";
 		for (var second = 1; second <= 120; second++)
@@ -177,34 +177,34 @@ internal static partial class GNHProgram
 			clock.Advance(TimeSpan.FromSeconds(1));
 			if (second % 30 == 0)
 			{
-				var scarBeforeSave = cell.EnvironmentState.ScarDamage;
+				var scarBeforeSave = room.EnvironmentState.ScarDamage;
 				// Persist only this cell through its real effect serializer. No world flush or repair call.
 				using (new FMDB())
 				{
-					cell.EffectsChanged = true;
-					cell.Save();
+					room.EffectsChanged = true;
+					room.Save();
 					FMDB.Context.SaveChanges();
 				}
 				using var saved = NewIndependentContext(connectionString);
 				var checkpoint = JsonSerializer.Deserialize<LandRejuvenationProgress>(saved.LandRejuvenationTreatments
 					.AsNoTracking().Single(x => x.Id == child.TreatmentId).Checkpoint)!;
-				var xml = XElement.Parse(saved.Cells.AsNoTracking().Single(x => x.Id == cell.Id).EffectData);
+				var xml = XElement.Parse(saved.Rooms.AsNoTracking().Single(x => x.Id == room.Id).EffectData);
 				Require(xml.Descendants("Identity").Any(x => x.Value == parent.Identity.ToString()) &&
 					xml.Descendants("Type").Any(x => x.Value == "SpellRejuvenateLand") &&
 					checkpoint.ParentId == parent.Identity && checkpoint.Rate == 1 && checkpoint.RemainingSeconds == 600 - second &&
-					cell.EnvironmentState.ScarDamage == scarBeforeSave &&
-					saved.CellEnvironmentalStates.AsNoTracking().Single(x => x.CellId == cell.Id).ScarDamage == scarBeforeSave &&
+					room.EnvironmentState.ScarDamage == scarBeforeSave &&
+					saved.RoomEnvironmentalStates.AsNoTracking().Single(x => x.RoomId == room.Id).ScarDamage == scarBeforeSave &&
 					coordinator.ActiveTreatmentCount == 1, $"J-C-native save at t={second} repaired, extended or replaced the treatment.");
 			}
 			// Ordinary bounded pump slices, including immediately after every actual effect save.
 			for (var i = 0; i < 10; i++) coordinator.Pump();
 			if (second % 60 != 0) continue;
 			using var independent = NewIndependentContext(connectionString);
-			var state = independent.CellEnvironmentalStates.AsNoTracking().Single(x => x.CellId == cell.Id);
+			var state = independent.RoomEnvironmentalStates.AsNoTracking().Single(x => x.RoomId == room.Id);
 			var progress = JsonSerializer.Deserialize<LandRejuvenationProgress>(independent.LandRejuvenationTreatments
 				.AsNoTracking().Single(x => x.Id == child.TreatmentId).Checkpoint)!;
 			var receipts = independent.EnvironmentalMagicOperations.AsNoTracking()
-				.Where(x => x.CellId == cell.Id && x.Attribution.StartsWith(attribution)).ToArray();
+				.Where(x => x.RoomId == room.Id && x.Attribution.StartsWith(attribution)).ToArray();
 			var repaired = second / 60;
 			Require(state.ScarDamage == 20 - repaired && progress.RemainingBudget == 12 - repaired &&
 				progress.TotalRepaired == repaired && progress.Sequence == repaired && progress.AcknowledgedSequence == repaired &&
@@ -213,15 +213,15 @@ internal static partial class GNHProgram
 				$"J-C-native t={second} did not persist timely repair, exact sequence/budget and elapsed lifetime before a rescue flush.");
 			Console.WriteLine($"J-C-native=passed t:{second} treatment:{progress.Id} scar:{state.ScarDamage} budget:{progress.RemainingBudget} sequence:{progress.Sequence} acknowledged:{progress.AcknowledgedSequence} remaining-seconds:{progress.RemainingSeconds} receipts:{receipts.Length} independent-read:True rescue-flush:False");
 		}
-		cell.RemoveEffect(parent, true);
+		room.RemoveEffect(parent, true);
 		// Restore the opening fixture only after both independent observations, for the existing R-P probes.
-		Require(coordinator.ApplyOperation(cell, new(Guid.NewGuid(), runtime.Actor.Id, "J-C-native fixture reset", Damage: 2)).Success,
+		Require(coordinator.ApplyOperation(room, new(Guid.NewGuid(), runtime.Actor.Id, "J-C-native fixture reset", Damage: 2)).Success,
 			"J-C-native could not restore the following probes' opening scars.");
 		Require(template.BuildingCommand(runtime.Actor, new StringStack("rate 2")), "Could not restore the existing probe rate.");
 	}
 
 	private static void RunRejuvenationSpellProbes(string databaseName, string connectionString, FixtureIds fixture,
-		NativeRuntime runtime, Cell cell, AgricultureField field, EnvironmentalMagicGenerator profile,
+		NativeRuntime runtime, Room room, AgricultureField field, EnvironmentalMagicGenerator profile,
 		EnvironmentalMagicCoordinator coordinator, HarnessClock clock, RejuvenationAcceptanceStore store, Guid landOperation)
 	{
 		var actor = runtime.Actor;
@@ -235,47 +235,47 @@ internal static partial class GNHProgram
 		runtime.World.SaveManager.Flush();
 		coordinator.Pump();
 		var ambient = profile.Outputs.Single().Resource!;
-		Require(coordinator.TryMutateResource(cell, ambient, EnvironmentalResourceMutation.Set, 30, out var set) && set,
+		Require(coordinator.TryMutateResource(room, ambient, EnvironmentalResourceMutation.Set, 30, out var set) && set,
 			"Unable to set the acceptance ambient balance.");
 		actor.AddResource(runtime.Resource, 20.0);
 		runtime.World.SaveManager.Flush();
-		RunRejuvenationCheckpointDeadlineProbe(runtime, connectionString, cell, spell, coordinator, clock);
+		RunRejuvenationCheckpointDeadlineProbe(runtime, connectionString, room, spell, coordinator, clock);
 		var nativeBefore = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
-		var forageBefore = cell.GetForagableYield("herbs");
-		var beforeState = cell.EnvironmentState;
-		var ambientBefore = cell.MagicResourceAmounts.ToDictionary(x => x.Key.Id, x => x.Value);
+		var forageBefore = room.GetForagableYield("herbs");
+		var beforeState = room.EnvironmentState;
+		var ambientBefore = room.MagicResourceAmounts.ToDictionary(x => x.Key.Id, x => x.Value);
 		Require(beforeState.ScarDamage == 20.0, "R-P02 native Land did not create twenty scars.");
 		SpellRejuvenateLandEffect Cast()
 		{
 			MagicModule.MagicGeneric(actor, $"{spell.School.SchoolVerb} cast \"{spell.Name}\" standard");
-			return cell.Effects.OfType<SpellRejuvenateLandEffect>().Single();
+			return room.Effects.OfType<SpellRejuvenateLandEffect>().Single();
 		}
 		void Tick(double seconds) { clock.Advance(TimeSpan.FromSeconds(seconds)); for (var i = 0; i < 10; i++) coordinator.Pump(); }
 		LandRejuvenationProgress Read(Guid id) => store.FindTreatment(id) ?? throw new InvalidOperationException("Missing durable treatment.");
 		var mana = actor.MagicResourceAmounts[runtime.Resource];
 		var child = Cast();
-		Require(actor.MagicResourceAmounts[runtime.Resource] == mana - 0.25 && cell.EnvironmentState.ScarDamage == 20,
+		Require(actor.MagicResourceAmounts[runtime.Resource] == mana - 0.25 && room.EnvironmentState.ScarDamage == 20,
 			"R-P01 legacy cast did not pay once or repaired during installation.");
 		runtime.World.SaveManager.Flush(); // Save parent before work. Later repair proofs deliberately have no flush.
 		Tick(60);
 		var progress = Read(child.TreatmentId);
 		using (var independent = NewIndependentContext(connectionString))
 		{
-			var state = independent.CellEnvironmentalStates.AsNoTracking().Single(x => x.CellId == cell.Id);
+			var state = independent.RoomEnvironmentalStates.AsNoTracking().Single(x => x.RoomId == room.Id);
 			var receipt = independent.EnvironmentalMagicOperations.AsNoTracking().Single(x => x.Id == progress.LastOperationId);
 			Require(state.ScarDamage == 19 && progress.RemainingBudget == 11 && progress.TotalRepaired == 1 &&
 				progress.AcknowledgedSequence == 1 && receipt.AppliedRepair == 1, "R-P02 atomic repair/checkpoint was not independently visible.");
 		}
 		var nativeAfter = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
 		Require(nativeAfter.NativeStock == nativeBefore.NativeStock && nativeAfter.PrepaidFraction == nativeBefore.PrepaidFraction &&
-			nativeAfter.RecoveryRemainders == nativeBefore.RecoveryRemainders && nativeAfter.Lifecycle == nativeBefore.Lifecycle && cell.GetForagableYield("herbs") == forageBefore &&
-			cell.EnvironmentState.LastDefileUtc == beforeState.LastDefileUtc && ambientBefore.All(x => cell.MagicResourceAmounts.Single(y => y.Key.Id == x.Key).Value == x.Value),
+			nativeAfter.RecoveryRemainders == nativeBefore.RecoveryRemainders && nativeAfter.Lifecycle == nativeBefore.Lifecycle && room.GetForagableYield("herbs") == forageBefore &&
+			room.EnvironmentState.LastDefileUtc == beforeState.LastDefileUtc && ambientBefore.All(x => room.MagicResourceAmounts.Single(y => y.Key.Id == x.Key).Value == x.Value),
 			"R-P02 repair changed native stock, prepaid credit, mana or destructive history.");
-		Require(coordinator.Inspect(cell).Outputs.Single().Maximum == 81 && cell.MagicResourceAmounts[ambient] == 30,
+		Require(coordinator.Inspect(room).Outputs.Single().Maximum == 81 && room.MagicResourceAmounts[ambient] == 30,
 			"R-P06 repaired capacity granted immediate mana.");
-		var nativeTick = typeof(Cell).GetMethod("YieldTick", BindingFlags.NonPublic | BindingFlags.Instance)!;
-		nativeTick.Invoke(cell, null);
-		var recoveredForage = cell.GetForagableYield("herbs");
+		var nativeTick = typeof(Room).GetMethod("YieldTick", BindingFlags.NonPublic | BindingFlags.Instance)!;
+		nativeTick.Invoke(room, null);
+		var recoveredForage = room.GetForagableYield("herbs");
 		Require(recoveredForage > forageBefore, "R-P06 later native recovery did not improve after scar repair.");
 		Console.WriteLine($"R-P06-recovery=passed capacity:80->81 mana:30->30 immediate-yield:{forageBefore} later-native-yield:{recoveredForage} native-crop-unchanged:True");
 		Console.WriteLine($"R-P02=passed land:{landOperation} treatment:{child.TreatmentId} repair:{progress.LastOperationId} scar:20->19 budget:12->11 repaired:1 native-stock:{nativeBefore.NativeStock} prepaid:{nativeBefore.PrepaidFraction} no-saving-shutdown:True");
@@ -284,15 +284,15 @@ internal static partial class GNHProgram
 		var otherSpell = new MagicSpell(spell, "Other Restoration");
 		((All<IMagicSpell>)runtime.World.MagicSpells).Add(otherSpell);
 		MagicModule.MagicGeneric(actor, $"{spell.School.SchoolVerb} cast \"{otherSpell.Name}\" standard");
-		Require(ReferenceEquals(cell.Effects.OfType<SpellRejuvenateLandEffect>().Single().ParentEffect, originalParent),
+		Require(ReferenceEquals(room.Effects.OfType<SpellRejuvenateLandEffect>().Single().ParentEffect, originalParent),
 			"R-P05 a different source spell replaced or stacked the treatment.");
 		clock.Advance(TimeSpan.FromSeconds(30));
 		var dispel = SpellEffectFactory.LoadEffectFromBuilderInput("dispelmagic", new StringStack(""), spell).Trigger;
-		dispel.GetOrApplyEffect(actor, cell, OpposedOutcomeDegree.Moderate, SpellPower.Standard,
-			new MagicSpellParent(cell, spell, actor), []);
-		Require(cell.EnvironmentState.ScarDamage == 19 && Read(child.TreatmentId).CancellationRequested,
+		dispel.GetOrApplyEffect(actor, room, OpposedOutcomeDegree.Moderate, SpellPower.Standard,
+			new MagicSpellParent(room, spell, actor), []);
+		Require(room.EnvironmentState.ScarDamage == 19 && Read(child.TreatmentId).CancellationRequested,
 			"R-P05 dispel applied a burst or failed to persist cancellation.");
-		RunRejuvenationReaderProcess(new(databaseName, fixture, cell.Id, field.Id, profile.Id, spell.Id, child.TreatmentId,
+		RunRejuvenationReaderProcess(new(databaseName, fixture, room.Id, field.Id, profile.Id, spell.Id, child.TreatmentId,
 			19, 11, 1, Read(child.TreatmentId).RemainingSeconds, nativeBefore.NativeStock, nativeBefore.PrepaidFraction, false));
 		child = Cast();
 		using (var connection = new MySqlConnection(connectionString))
@@ -306,38 +306,38 @@ internal static partial class GNHProgram
 		}
 		progress = Read(child.TreatmentId);
 		var prepared = progress.PendingRequest ?? throw new InvalidOperationException("R-P04 rollback lost its prepared request.");
-		Require(progress.RemainingBudget == 12 && store.Find(prepared.OperationId) is null && cell.EnvironmentState.ScarDamage == 19,
+		Require(progress.RemainingBudget == 12 && store.Find(prepared.OperationId) is null && room.EnvironmentState.ScarDamage == 19,
 			"R-P04 rollback partially committed the scar, receipt or budget.");
 		using (var rejected = NewIndependentContext(connectionString))
-			Require(rejected.CellEnvironmentalStates.AsNoTracking().Single(x => x.CellId == cell.Id).ScarDamage == 19 &&
+			Require(rejected.RoomEnvironmentalStates.AsNoTracking().Single(x => x.RoomId == room.Id).ScarDamage == 19 &&
 				!rejected.EnvironmentalMagicOperations.Any(x => x.Id == prepared.OperationId) &&
 				JsonSerializer.Deserialize<LandRejuvenationProgress>(rejected.LandRejuvenationTreatments.AsNoTracking().Single(x => x.Id == progress.Id).Checkpoint)!.RemainingBudget == 12,
 				"R-P04 fresh context did not observe the complete provider rollback.");
-		Require(coordinator.ConfirmTreatment(cell, child.TreatmentId, out var confirmation), confirmation ?? "Confirmation failed.");
-		Require(cell.EnvironmentState.ScarDamage == 19, "R-P04 staff confirmation applied repair.");
+		Require(coordinator.ConfirmTreatment(room, child.TreatmentId, out var confirmation), confirmation ?? "Confirmation failed.");
+		Require(room.EnvironmentState.ScarDamage == 19, "R-P04 staff confirmation applied repair.");
 		Tick(60);
 		progress = Read(child.TreatmentId);
-		Require(progress.LastOperationId == prepared.OperationId && progress.RemainingBudget == 11 && cell.EnvironmentState.ScarDamage == 18,
+		Require(progress.LastOperationId == prepared.OperationId && progress.RemainingBudget == 11 && room.EnvironmentState.ScarDamage == 18,
 			"R-P04 retry did not use the exact rolled-back identity once.");
 		store.LoseNextAcknowledgement = true;
 		Tick(60);
 		progress = Read(child.TreatmentId);
-		Require(progress.TotalRepaired == 2 && progress.RemainingBudget == 10 && cell.EnvironmentState.ScarDamage == 18,
+		Require(progress.TotalRepaired == 2 && progress.RemainingBudget == 10 && room.EnvironmentState.ScarDamage == 18,
 			"R-P04 lost acknowledgement did not leave a committed authoritative checkpoint and quarantined runtime.");
 		using (var acknowledged = NewIndependentContext(connectionString))
-			Require(acknowledged.CellEnvironmentalStates.AsNoTracking().Single(x => x.CellId == cell.Id).ScarDamage == 17 &&
+			Require(acknowledged.RoomEnvironmentalStates.AsNoTracking().Single(x => x.RoomId == room.Id).ScarDamage == 17 &&
 				acknowledged.EnvironmentalMagicOperations.Single(x => x.Id == progress.LastOperationId).AppliedRepair == 1 &&
 				JsonSerializer.Deserialize<LandRejuvenationProgress>(acknowledged.LandRejuvenationTreatments.AsNoTracking().Single(x => x.Id == progress.Id).Checkpoint)!.RemainingBudget == 10,
 				"R-P04 fresh context did not observe the committed lost-response boundary.");
-		cell.RemoveEffect(child.ParentEffect, true);
-		Require(coordinator.ConfirmTreatment(cell, child.TreatmentId, out confirmation), confirmation ?? "Confirmation failed.");
-		Require(cell.EnvironmentState.ScarDamage == 17 && Read(child.TreatmentId).CancellationRequested,
+		room.RemoveEffect(child.ParentEffect, true);
+		Require(coordinator.ConfirmTreatment(room, child.TreatmentId, out confirmation), confirmation ?? "Confirmation failed.");
+		Require(room.EnvironmentState.ScarDamage == 17 && Read(child.TreatmentId).CancellationRequested,
 			"R-P05 uncertain dispel did not settle the old durable repair without resurrecting work.");
 		Console.WriteLine($"R-P04=passed provider-rollback:{prepared.OperationId} exact-retry:True response-lost-after-commit:{progress.LastOperationId} independently-read:True scar:19->18->17 terminal-cancellation:True");
-		RunRejuvenationVancianProbe(runtime, connectionString, cell, spell, clock, coordinator);
+		RunRejuvenationVancianProbe(runtime, connectionString, room, spell, clock, coordinator);
 		child = Cast();
 		var endedId = child.TreatmentId;
-		Require(coordinator.ApplyOperation(cell, new(Guid.NewGuid(), actor.Id, "R-P05 explicit zero boundary", Repair: 100)).Success,
+		Require(coordinator.ApplyOperation(room, new(Guid.NewGuid(), actor.Id, "R-P05 explicit zero boundary", Repair: 100)).Success,
 			"R-P05 could not reach zero scars through the native ecological boundary.");
 		var gathering = new MudSharp.Magic.Gathering.MagicGatheringService(runtime.World, clock: clock);
 		var begun = gathering.Begin(actor, runtime.Capability, "draw", 1);
@@ -346,14 +346,14 @@ internal static partial class GNHProgram
 		var gathered = gathering.Complete(actor, begun.OperationId!.Value);
 		Require(gathered.Success, gathered.Message);
 		Tick(60);
-		Require(cell.EnvironmentState.ScarDamage == 20 && Read(endedId).IsTerminal && !cell.Effects.OfType<SpellRejuvenateLandEffect>().Any(),
+		Require(room.EnvironmentState.ScarDamage == 20 && Read(endedId).IsTerminal && !room.Effects.OfType<SpellRejuvenateLandEffect>().Any(),
 			"R-P05 zero-scar treatment revived to repair later native Land damage.");
 		var template = (RejuvenateLandEffect)spell.SpellEffects.Single();
 		Require(template.BuildingCommand(actor, new StringStack("local on")), "Could not author presence-dependent mode.");
 		child = Cast();
 		((All<ICharacter>)runtime.World.Actors).Remove(actor);
 		Tick(60);
-		Require(Read(child.TreatmentId).IsTerminal && cell.EnvironmentState.ScarDamage == 20,
+		Require(Read(child.TreatmentId).IsTerminal && room.EnvironmentState.ScarDamage == 20,
 			"R-P06 local treatment continued without its original active instance.");
 		((All<ICharacter>)runtime.World.Actors).Add(actor);
 		Require(template.BuildingCommand(actor, new StringStack("local off")), "Could not restore independent mode.");
@@ -362,15 +362,15 @@ internal static partial class GNHProgram
 		runtime.World.SaveManager.Flush();
 		Tick(60);
 		progress = Read(child.TreatmentId);
-		Require(cell.EnvironmentState.ScarDamage == 19 && progress.RemainingBudget == 11, "R-P03 reload staging failed.");
+		Require(room.EnvironmentState.ScarDamage == 19 && progress.RemainingBudget == 11, "R-P03 reload staging failed.");
 		// Parent XML still precedes the last commit. A separate process must use the checkpoint, not stale XML.
 		var finalNative = field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
-		RunRejuvenationReaderProcess(new(databaseName, fixture, cell.Id, field.Id, profile.Id, spell.Id, child.TreatmentId,
+		RunRejuvenationReaderProcess(new(databaseName, fixture, room.Id, field.Id, profile.Id, spell.Id, child.TreatmentId,
 			19, 11, 1, 540, finalNative.NativeStock, finalNative.PrepaidFraction, true));
 		runtime.WorldMock.Verify(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>()), Times.Never);
 	}
 
-	private sealed record RejuvenationReaderInput(string Database, FixtureIds Fixture, long CellId, long FieldId,
+	private sealed record RejuvenationReaderInput(string Database, FixtureIds Fixture, long RoomId, long FieldId,
 		long ProfileId, long SpellId, Guid TreatmentId, double Scar, double Budget, double Total, double Seconds,
 		double Stock, decimal Prepaid, bool Active);
 
@@ -403,36 +403,35 @@ internal static partial class GNHProgram
 		using var coordinator = new EnvironmentalMagicCoordinator(runtime.World, clock);
 		runtime.WorldMock.SetupGet(x => x.EnvironmentalMagic).Returns(coordinator);
 		using var read = NewIndependentContext(database.ConnectionString);
-		var model = read.Cells.Include(x => x.CellOverlays).Include(x => x.CellsMagicResources).Include(x => x.EnvironmentalState)
-			.Include(x => x.CellsForagableYields).AsNoTracking().Single(x => x.Id == input.CellId);
+		var model = read.Rooms.Include(x => x.RoomOverlays).Include(x => x.RoomsMagicResources).Include(x => x.EnvironmentalState)
+			.Include(x => x.RoomsForagableYields).AsNoTracking().Single(x => x.Id == input.RoomId);
 		var resources = (All<IMagicResource>)runtime.World.MagicResources;
 		foreach (var resource in read.MagicResources.AsNoTracking().Where(x => x.Id != runtime.Resource.Id)) resources.Add(new CappedSimpleMagicResource(resource, runtime.World));
 		var profile = new EnvironmentalMagicGenerator(read.MagicGenerators.AsNoTracking().Single(x => x.Id == input.ProfileId), runtime.World);
 		((All<IMagicResourceRegenerator>)runtime.World.MagicResourceRegenerators).Add(profile);
 		var terrains = new All<ITerrain>();
-		terrains.Add(new Terrain(read.Terrains.AsNoTracking().Single(x => x.Id == model.CellOverlays.Single().TerrainId), runtime.World));
+		terrains.Add(new Terrain(read.Terrains.AsNoTracking().Single(x => x.Id == model.RoomOverlays.Single().TerrainId), runtime.World));
 		runtime.WorldMock.SetupGet(x => x.Terrains).Returns(terrains);
-		var package = new Mock<ICellOverlayPackage>();
-		package.SetupGet(x => x.Id).Returns(model.CellOverlays.Single().CellOverlayPackageId);
+		var package = new Mock<IRoomOverlayPackage>();
+		package.SetupGet(x => x.Id).Returns(model.RoomOverlays.Single().RoomOverlayPackageId);
 		package.SetupGet(x => x.RevisionNumber).Returns(1);
 		package.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
-		var packages = new RevisableAll<ICellOverlayPackage>(); packages.Add(package.Object);
-		runtime.WorldMock.SetupGet(x => x.CellOverlayPackages).Returns(packages);
+		var packages = new RevisableAll<IRoomOverlayPackage>(); packages.Add(package.Object);
+		runtime.WorldMock.SetupGet(x => x.RoomOverlayPackages).Returns(packages);
 		var forages = new RevisableAll<IForagableProfile>();
 		forages.Add(new ForagableProfile(read.ForagableProfiles.Include(x => x.EditableItem).Include(x => x.ForagableProfilesMaximumYields)
 			.Include(x => x.ForagableProfilesHourlyYieldGains).AsNoTracking().Single(x => x.Id == model.ForagableProfileId), runtime.World));
 		runtime.WorldMock.SetupGet(x => x.ForagableProfiles).Returns(forages);
-		var room = new Mock<IRoom>();
-		room.SetupGet(x => x.Gameworld).Returns(runtime.World); room.SetupGet(x => x.Id).Returns(model.RoomId);
-		room.SetupGet(x => x.Areas).Returns(Array.Empty<IArea>()); room.SetupGet(x => x.Zone).Returns(Mock.Of<IZone>());
-		var cell = new Cell(model, room.Object);
-		var cells = new All<ICell>(); cells.Add(cell); runtime.WorldMock.SetupGet(x => x.Cells).Returns(cells);
-		cell.PostLoadTasks(model);
-		coordinator.Register(cell);
+		var zone = new Mock<IZone>(); zone.SetupGet(x => x.Gameworld).Returns(runtime.World);
+		zone.SetupGet(x => x.Id).Returns(model.ZoneId);
+		var room = new Room(model, zone.Object);
+		var rooms = new All<IRoom>(); rooms.Add(room); runtime.WorldMock.SetupGet(x => x.Rooms).Returns(rooms);
+		room.PostLoadTasks(model);
+		coordinator.Register(room);
 		for (var i = 0; i < 10; i++) coordinator.Pump();
 		var store = new DatabaseEnvironmentalMagicOperationStore();
 		var p = store.FindTreatment(input.TreatmentId)!;
-		Require(cell.EnvironmentState.ScarDamage == input.Scar && p.RemainingBudget == input.Budget && p.TotalRepaired == input.Total &&
+		Require(room.EnvironmentState.ScarDamage == input.Scar && p.RemainingBudget == input.Budget && p.TotalRepaired == input.Total &&
 			p.RemainingSeconds == input.Seconds && coordinator.ActiveTreatmentCount == (input.Active ? 1 : 0), "R-P03 load advanced repair, reset budget, or lost the parent/child.");
 		var native = NativeOrganicRuntime.Load(database.ConnectionString, input.FieldId).Field.InspectNativeOrganicSource(NativeOrganicSourceKind.Crop);
 		Require(native.NativeStock == input.Stock && native.PrepaidFraction == input.Prepaid, "R-P03 reload rewrote native accounting.");
@@ -442,10 +441,10 @@ internal static partial class GNHProgram
 		for (var i = 0; i < 10; i++) coordinator.Pump();
 		p = store.FindTreatment(input.TreatmentId)!;
 		var expectedRepair = input.Active ? 1 : 0;
-		Require(p.RemainingBudget == input.Budget - expectedRepair && p.TotalRepaired == input.Total + expectedRepair && cell.EnvironmentState.ScarDamage == input.Scar - expectedRepair,
-			$"R-P03 fresh online interval did not respect resumed/terminated state: scar {cell.EnvironmentState.ScarDamage}, budget {p.RemainingBudget}, repaired {p.TotalRepaired}, status {p.Status}, visits {coordinator.TreatmentVisits}, diagnostic {coordinator.InspectTreatment(cell, p.Id)?.Diagnostic}.");
+		Require(p.RemainingBudget == input.Budget - expectedRepair && p.TotalRepaired == input.Total + expectedRepair && room.EnvironmentState.ScarDamage == input.Scar - expectedRepair,
+			$"R-P03 fresh online interval did not respect resumed/terminated state: scar {room.EnvironmentState.ScarDamage}, budget {p.RemainingBudget}, repaired {p.TotalRepaired}, status {p.Status}, visits {coordinator.TreatmentVisits}, diagnostic {coordinator.InspectTreatment(room, p.Id)?.Diagnostic}.");
 		runtime.WorldMock.Verify(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>()), Times.Never);
-		Console.WriteLine($"R-P03=passed separate-process:True active:{input.Active} stale-parent-XML:True caster-absent:True load-scar:{input.Scar} load-budget:{input.Budget} resumed-scar:{cell.EnvironmentState.ScarDamage} resumed-budget:{p.RemainingBudget} no-saving-shutdown:True");
+		Console.WriteLine($"R-P03=passed separate-process:True active:{input.Active} stale-parent-XML:True caster-absent:True load-scar:{input.Scar} load-budget:{input.Budget} resumed-scar:{room.EnvironmentState.ScarDamage} resumed-budget:{p.RemainingBudget} no-saving-shutdown:True");
 		return 0;
 	}
 
@@ -457,15 +456,15 @@ internal static partial class GNHProgram
 		public IReadOnlyList<LandRejuvenationProgress> TreatmentsFor(long cellId) => _inner.TreatmentsFor(cellId);
 		public void SaveTreatment(LandRejuvenationProgress progress, long? revision) => _inner.SaveTreatment(progress, revision);
 		public StoredEnvironmentalMagicOperation? Find(Guid id) => _inner.Find(id);
-		public StoredEnvironmentalMagicState Load(Cell cell) => _inner.Load(cell);
-		public void Commit(Cell cell, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
+		public StoredEnvironmentalMagicState Load(Room room) => _inner.Load(room);
+		public void Commit(Room room, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
 			EnvironmentalMagicState state, DateTimeOffset utc, IReadOnlyDictionary<IMagicResource, double>? balances = null)
-			=> _inner.Commit(cell, request, result, state, utc, balances);
-		public void CommitRepair(Cell cell, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
+			=> _inner.Commit(room, request, result, state, utc, balances);
+		public void CommitRepair(Room room, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
 			EnvironmentalMagicState state, DateTimeOffset utc, IReadOnlyDictionary<IMagicResource, double> balances,
 			LandRejuvenationProgress progress, long revision)
 		{
-			_inner.CommitRepair(cell, request, result, state, utc, balances, progress, revision);
+			_inner.CommitRepair(room, request, result, state, utc, balances, progress, revision);
 			if (!LoseNextAcknowledgement) return;
 			LoseNextAcknowledgement = false;
 			throw new IOException("Owned acceptance probe: repair committed, response lost.");

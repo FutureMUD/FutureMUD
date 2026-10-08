@@ -265,7 +265,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
         {
             if (Target == null)
             {
-                var aim = new AimInformation(null, actor, Enumerable.Empty<ICellExit>(), Weapon);
+                var aim = new AimInformation(null, actor, Enumerable.Empty<IRoomExit>(), Weapon);
                 if (!CommandExecutionScope.TryContinue(actor)) { aim.ReleaseEvents(); return null; }
                 actor.Aim = aim;
                 return new AimRangedWeaponMove(actor, null, Weapon);
@@ -275,13 +275,13 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
             {
                 if (actor.Location == Target.Location)
                 {
-                    var aim = new AimInformation(Target, actor, Enumerable.Empty<ICellExit>(), Weapon);
+                    var aim = new AimInformation(Target, actor, Enumerable.Empty<IRoomExit>(), Weapon);
                     if (!CommandExecutionScope.TryContinue(actor)) { aim.ReleaseEvents(); return null; }
                     actor.Aim = aim;
                 }
                 else
                 {
-                    List<ICellExit> path = actor.PathBetween(Target,
+                    List<IRoomExit> path = actor.PathBetween(Target,
                         Weapon.WeaponType.DefaultRangeInRooms,
                         false, false, true).ToList();
                     if (!path.Any())
@@ -434,7 +434,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
         public IMeleeWeapon Weapon { get; init; }
         public INaturalAttack NaturalAttack { get; init; }
         public ForcedMovementVerbs Verb { get; init; }
-        public ICellExit Exit { get; init; }
+        public IRoomExit Exit { get; init; }
         public RoomLayer? Layer { get; init; }
 
         public override ICombatMove GetCombatMove(ICharacter actor)
@@ -659,7 +659,7 @@ public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
     }
 
     public static SelectedCombatAction GetEffectForcedMovementExit(
-        ICharacter actor, ICharacter target, IForcedMovementAttack attack, ForcedMovementVerbs verb, ICellExit exit,
+        ICharacter actor, ICharacter target, IForcedMovementAttack attack, ForcedMovementVerbs verb, IRoomExit exit,
         IMeleeWeapon weapon, INaturalAttack naturalAttack)
     {
         return new SelectedCombatAction(actor, new ForcedMovementAction

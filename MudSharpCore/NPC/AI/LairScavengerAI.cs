@@ -189,7 +189,7 @@ public class LairScavengerAI : PathingAIBase
         switch (type)
         {
             case EventType.CharacterEntersGame:
-            case EventType.CharacterEnterCellFinish:
+            case EventType.CharacterEnterRoomFinish:
             case EventType.CharacterStopMovement:
             case EventType.CharacterStopMovementClosedDoor:
             case EventType.LeaveCombat:
@@ -209,7 +209,7 @@ public class LairScavengerAI : PathingAIBase
             switch (type)
             {
                 case EventType.CharacterEntersGame:
-                case EventType.CharacterEnterCellFinish:
+                case EventType.CharacterEnterRoomFinish:
                 case EventType.CharacterStopMovement:
                 case EventType.CharacterStopMovementClosedDoor:
                 case EventType.LeaveCombat:
@@ -246,15 +246,15 @@ public class LairScavengerAI : PathingAIBase
     private NpcHomeBaseEffect ResolveHomeBase(ICharacter character)
     {
         NpcHomeBaseEffect home = NpcHomeBaseEffect.GetOrCreate(character);
-        if (home.HomeCell is not null || HomeLocationProg is null)
+        if (home.HomeRoom is not null || HomeLocationProg is null)
         {
             return home;
         }
 
-        ICell? location = HomeLocationProg.Execute<ICell?>(character);
+        IRoom? location = HomeLocationProg.Execute<IRoom?>(character);
         if (location is not null)
         {
-            home.SetHomeCell(location);
+            home.SetHomeRoom(location);
         }
 
         return home;
@@ -275,12 +275,12 @@ public class LairScavengerAI : PathingAIBase
         List<IGameItem> carriedLoot = GetScavengedItems(character, WillScavengeItemProg).ToList();
         if (carriedLoot.Any())
         {
-            if (home.HomeCell is null)
+            if (home.HomeRoom is null)
             {
                 return;
             }
 
-            if (!ReferenceEquals(character.Location, home.HomeCell))
+            if (!ReferenceEquals(character.Location, home.HomeRoom))
             {
                 CheckPathingEffect(character, true);
                 return;
@@ -294,7 +294,7 @@ public class LairScavengerAI : PathingAIBase
         if (targetItem is not null)
         {
             character.Body.Get(targetItem, silent: true);
-            if (home.HomeCell is not null && !ReferenceEquals(character.Location, home.HomeCell))
+            if (home.HomeRoom is not null && !ReferenceEquals(character.Location, home.HomeRoom))
             {
                 CheckPathingEffect(character, true);
             }
@@ -340,7 +340,7 @@ public class LairScavengerAI : PathingAIBase
         bool carriedLoot = GetScavengedItems(ch, WillScavengeItemProg).Any();
         if (carriedLoot)
         {
-            return home.HomeCell is not null && !ReferenceEquals(ch.Location, home.HomeCell);
+            return home.HomeRoom is not null && !ReferenceEquals(ch.Location, home.HomeRoom);
         }
 
         if (FindVisibleScavengeItem(ch, WillScavengeItemProg, home.AnchorItem) is not null)
@@ -351,23 +351,23 @@ public class LairScavengerAI : PathingAIBase
         return true;
     }
 
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
         NpcHomeBaseEffect home = ResolveHomeBase(ch);
         if (GetScavengedItems(ch, WillScavengeItemProg).Any())
         {
-            if (home.HomeCell is null || ReferenceEquals(ch.Location, home.HomeCell))
+            if (home.HomeRoom is null || ReferenceEquals(ch.Location, home.HomeRoom))
             {
-                return (null, Enumerable.Empty<ICellExit>());
+                return (null, Enumerable.Empty<IRoomExit>());
             }
 
-            List<ICellExit> homePath = ch.PathBetween(home.HomeCell, 20, GetSuitabilityFunction(ch)).ToList();
+            List<IRoomExit> homePath = ch.PathBetween(home.HomeRoom, 20, GetSuitabilityFunction(ch)).ToList();
             return homePath.Any()
-                ? (home.HomeCell, homePath)
-                : (null, Enumerable.Empty<ICellExit>());
+                ? (home.HomeRoom, homePath)
+                : (null, Enumerable.Empty<IRoomExit>());
         }
 
-        Tuple<IPerceivable, IEnumerable<ICellExit>> target = ch.AcquireTargetAndPath(
+        Tuple<IPerceivable, IEnumerable<IRoomExit>> target = ch.AcquireTargetAndPath(
             x => x is IGameItem item &&
                  item != home.AnchorItem &&
                  WillScavengeItemProg.ExecuteBool(false, ch, item),
@@ -375,6 +375,6 @@ public class LairScavengerAI : PathingAIBase
             GetSuitabilityFunction(ch));
         return target.Item1?.Location is not null && target.Item2.Any()
             ? (target.Item1.Location, target.Item2)
-            : (null, Enumerable.Empty<ICellExit>());
+            : (null, Enumerable.Empty<IRoomExit>());
     }
 }

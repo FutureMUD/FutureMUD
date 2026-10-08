@@ -25,15 +25,15 @@ internal static class RouteCommandUtilities
 
 	public static bool TryResolveRoutePosition(
 		ICharacter actor,
-		ICell cell,
+		IRoom room,
 		string text,
 		out double positionMetres,
 		out string error)
 	{
 		positionMetres = 0.0;
-		if (cell.RouteDefinition is not { } route)
+		if (room.RouteDefinition is not { } route)
 		{
-			error = "That destination is an ordinary cell and does not accept a route coordinate.";
+			error = "That destination is an ordinary room and does not accept a route coordinate.";
 			return false;
 		}
 
@@ -48,7 +48,7 @@ internal static class RouteCommandUtilities
 
 		if (!actor.Gameworld.UnitManager.TryGetBaseUnits(text, UnitType.Length, actor, out var baseUnits))
 		{
-			error = "Specify a valid distance or RouteCell landmark after AT.";
+			error = "Specify a valid distance or RouteRoom landmark after AT.";
 			return false;
 		}
 

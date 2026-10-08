@@ -29,7 +29,7 @@ internal class FlyingWanderer : PathingAIBase
         TargetRestingLayer = RoomLayer.HighInTrees;
         WanderTimeDiceExpression = "1d200+300";
         IsWanderingProg = Gameworld.AlwaysTrueProg;
-        WillWanderIntoCellProg = Gameworld.AlwaysTrueProg;
+        WillWanderIntoRoomProg = Gameworld.AlwaysTrueProg;
         EmoteText = string.Empty;
         OpenDoors = false;
         UseKeys = false;
@@ -43,7 +43,7 @@ internal class FlyingWanderer : PathingAIBase
     protected override void LoadFromXML(XElement root)
     {
         base.LoadFromXML(root);
-        WillWanderIntoCellProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FutureProg")?.Value ?? "0"));
+        WillWanderIntoRoomProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("FutureProg")?.Value ?? "0"));
         IsWanderingProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("IsWanderingProg")?.Value ?? "0")) ?? Gameworld.AlwaysTrueProg;
         WanderTimeDiceExpression = root.Element("WanderTimeDiceExpression")?.Value ?? "1d200+300";
         EmoteText = root.Element("EmoteText")?.Value;
@@ -54,7 +54,7 @@ internal class FlyingWanderer : PathingAIBase
     protected override string SaveToXml()
     {
         return new XElement("Definition",
-            new XElement("FutureProg", WillWanderIntoCellProg?.Id ?? 0),
+            new XElement("FutureProg", WillWanderIntoRoomProg?.Id ?? 0),
             new XElement("WanderTimeDiceExpression", new XCData(WanderTimeDiceExpression)),
             new XElement("EmoteText", new XCData(EmoteText)),
             new XElement("TargetRestingLayer", (int)TargetRestingLayer),
@@ -75,23 +75,23 @@ internal class FlyingWanderer : PathingAIBase
     }
 
     protected string WanderTimeDiceExpression;
-    protected IFutureProg WillWanderIntoCellProg;
+    protected IFutureProg WillWanderIntoRoomProg;
     protected IFutureProg IsWanderingProg;
     protected string EmoteText;
     protected RoomLayer TargetFlyingLayer;
     protected RoomLayer TargetRestingLayer;
 
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
-        IEnumerable<(ICell Cell, int Distance)> vicinity = ch.CellsAndDistancesInVicinity(10,
+        IEnumerable<(IRoom Room, int Distance)> vicinity = ch.RoomsAndDistancesInVicinity(10,
             GetSuitabilityFunction(ch, true),
-            cell => WillWanderIntoCellProg?.ExecuteBool(false, ch, cell, ch.Location) == true);
-        ICell target = vicinity.GetWeightedRandom(x => Math.Sqrt(x.Distance)).Cell;
+            room => WillWanderIntoRoomProg?.ExecuteBool(false, ch, room, ch.Location) == true);
+        IRoom target = vicinity.GetWeightedRandom(x => Math.Sqrt(x.Distance)).Room;
         if (target is null)
         {
             return (null, []);
         }
-        List<ICellExit> path = ch.PathBetween(target, 10, GetSuitabilityFunction(ch, true)).ToList();
+        List<IRoomExit> path = ch.PathBetween(target, 10, GetSuitabilityFunction(ch, true)).ToList();
         if (path.Count == 0)
         {
             return (null, []);
@@ -188,7 +188,7 @@ internal class FlyingWanderer : PathingAIBase
 
         switch (type)
         {
-            case EventType.CharacterEnterCellFinish:
+            case EventType.CharacterEnterRoomFinish:
             case EventType.CharacterStopMovement:
             case EventType.CharacterStopMovementClosedDoor:
             case EventType.CharacterCannotMove:
@@ -229,7 +229,7 @@ internal class FlyingWanderer : PathingAIBase
     #region Overrides of PathingAIBase
 
     /// <inheritdoc />
-    protected override FollowingPath CreatePathingEffect(ICharacter ch, IEnumerable<ICellExit> path)
+    protected override FollowingPath CreatePathingEffect(ICharacter ch, IEnumerable<IRoomExit> path)
     {
         return new FollowingMultiLayerPath(ch, path, TargetFlyingLayer, TargetRestingLayer);
     }
@@ -242,7 +242,7 @@ internal class FlyingWanderer : PathingAIBase
         {
             switch (type)
             {
-                case EventType.CharacterEnterCellFinish:
+                case EventType.CharacterEnterRoomFinish:
                 case EventType.CharacterStopMovement:
                 case EventType.CharacterStopMovementClosedDoor:
                 case EventType.CharacterCannotMove:
@@ -266,7 +266,7 @@ internal class FlyingWanderer : PathingAIBase
     {
         StringBuilder sb = new(base.Show(actor));
         sb.AppendLine($"Is Enabled: {IsWanderingProg.MXPClickableFunctionName()}");
-        sb.AppendLine($"Will Wander Room: {WillWanderIntoCellProg.MXPClickableFunctionName()}");
+        sb.AppendLine($"Will Wander Room: {WillWanderIntoRoomProg.MXPClickableFunctionName()}");
         sb.AppendLine($"Target Resting Layer: {TargetRestingLayer.DescribeEnum().ColourValue()}");
         sb.AppendLine($"Target Flying Layer: {TargetFlyingLayer.DescribeEnum().ColourValue()}");
         sb.AppendLine($"Wander Time Dice: {WanderTimeDiceExpression.ColourValue()} seconds");
@@ -406,7 +406,7 @@ internal class FlyingWanderer : PathingAIBase
             return false;
         }
 
-        WillWanderIntoCellProg = prog;
+        WillWanderIntoRoomProg = prog;
         Changed = true;
         actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to determine whether rooms are suitable for wandering.");
         return true;

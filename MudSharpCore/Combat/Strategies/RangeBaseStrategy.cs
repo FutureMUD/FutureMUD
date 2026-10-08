@@ -478,7 +478,7 @@ public abstract class RangeBaseStrategy : StrategyBase
         return null;
     }
 
-    public Func<ICellExit, bool> GetPathFunction(ICharacter ch)
+    public Func<IRoomExit, bool> GetPathFunction(ICharacter ch)
     {
         return exit =>
         {
@@ -490,15 +490,15 @@ public abstract class RangeBaseStrategy : StrategyBase
                 }
             }
 
-            (CellMovementTransition transition, RoomLayer layer) = exit.MovementTransition(ch);
+            (RoomMovementTransition transition, RoomLayer layer) = exit.MovementTransition(ch);
             switch (transition)
             {
-                case CellMovementTransition.NoViableTransition:
-                case CellMovementTransition.FallExit:
+                case RoomMovementTransition.NoViableTransition:
+                case RoomMovementTransition.FallExit:
                     return false;
-                case CellMovementTransition.FlyOnly:
+                case RoomMovementTransition.FlyOnly:
                     return ch.PositionState == PositionFlying.Instance || ch.CanFly().Truth;
-                case CellMovementTransition.SwimOnly:
+                case RoomMovementTransition.SwimOnly:
                     return !ch.Gameworld.GetCheck(CheckType.SwimStayAfloatCheck).WouldBeAbjectFailure(ch);
             }
 

@@ -58,7 +58,7 @@ internal class ReviseOverlay : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICellOverlayPackage overlay = (ICellOverlayPackage)ParameterFunctions[0].Result?.GetObject;
+        IRoomOverlayPackage overlay = (IRoomOverlayPackage)ParameterFunctions[0].Result?.GetObject;
         if (overlay == null)
         {
             Result = null;
@@ -78,7 +78,7 @@ internal class ReviseOverlay : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        ICellOverlayPackage newOverlay = (ICellOverlayPackage)overlay.CreateNewRevision(builder);
+        IRoomOverlayPackage newOverlay = (IRoomOverlayPackage)overlay.CreateNewRevision(builder);
         Result = newOverlay;
         return StatementResult.Normal;
     }

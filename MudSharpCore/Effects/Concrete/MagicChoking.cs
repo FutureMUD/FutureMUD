@@ -39,7 +39,7 @@ public class MagicChoking : ConcentrationConsumingEffect, IMagicEffect, ICheckBo
         return base.Applies(target);
     }
 
-    public void CharacterOwner_OnLocationChanged(Form.Shape.ILocateable locatable, Construction.Boundary.ICellExit exit)
+    public void CharacterOwner_OnLocationChanged(Form.Shape.ILocateable locatable, Construction.Boundary.IRoomExit exit)
     {
         if (!Power.TargetIsInRange(CharacterOwner, CharacterTarget, Power.PowerDistance))
         {

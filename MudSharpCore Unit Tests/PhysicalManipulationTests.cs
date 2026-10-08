@@ -97,8 +97,8 @@ public class PhysicalManipulationTests
 	[TestMethod]
 	public void Reach_NestedClosedContainer_IsRejectedBeforeRoomAccess()
 	{
-		var (actor, _, cell, world) = ActorWithHand();
-		var outer = Item(world, cell);
+		var (actor, _, room, world) = ActorWithHand();
+		var outer = Item(world, room);
 		var inner = Item(world);
 		var item = Item(world);
 		inner.SetupGet(x => x.ContainedIn).Returns(outer.Object);
@@ -117,26 +117,26 @@ public class PhysicalManipulationTests
 	[TestMethod]
 	public void Reach_GuardedAncestor_IsRejected()
 	{
-		var (actor, _, cell, world) = ActorWithHand();
-		var outer = Item(world, cell);
+		var (actor, _, room, world) = ActorWithHand();
+		var outer = Item(world, room);
 		var item = Item(world);
 		item.SetupGet(x => x.ContainedIn).Returns(outer.Object);
-		cell.Setup(x => x.CanGetAccess(outer.Object, actor.Object)).Returns(false);
-		cell.Setup(x => x.WhyCannotGetAccess(outer.Object, actor.Object)).Returns("The guard prevents access.");
+		room.Setup(x => x.CanGetAccess(outer.Object, actor.Object)).Returns(false);
+		room.Setup(x => x.WhyCannotGetAccess(outer.Object, actor.Object)).Returns("The guard prevents access.");
 		Assert.AreEqual((false, "The guard prevents access."), actor.Object.CanReachItem(item.Object));
 	}
 
 	[TestMethod]
 	public void Reach_ClosedDoorExternalLock_RemainsReachableFromEitherSide()
 	{
-		var (actor, _, cell, world) = ActorWithHand();
-		var farSide = new Mock<ICell>();
+		var (actor, _, room, world) = ActorWithHand();
+		var farSide = new Mock<IRoom>();
 		farSide.Setup(x => x.CanGetAccess(It.IsAny<IGameItem>(), actor.Object)).Returns(true);
-		var door = Item(world, cell);
+		var door = Item(world, room);
 		var lockItem = Item(world);
 		lockItem.SetupGet(x => x.ContainedIn).Returns(door.Object);
 		var exit = new Mock<IExit>();
-		exit.SetupGet(x => x.Cells).Returns([cell.Object, farSide.Object]);
+		exit.SetupGet(x => x.Rooms).Returns([room.Object, farSide.Object]);
 		var doorComponent = new Mock<IDoor>();
 		doorComponent.SetupGet(x => x.InstalledExit).Returns(exit.Object);
 		doorComponent.SetupGet(x => x.IsOpen).Returns(false);
@@ -150,30 +150,30 @@ public class PhysicalManipulationTests
 	[TestMethod]
 	public void Reach_OtherInventory_RequiresPermissionAndProximity()
 	{
-		var (actor, _, cell, world) = ActorWithHand();
+		var (actor, _, room, world) = ActorWithHand();
 		var (owner, ownerBody, _, _) = ActorWithHand();
-		owner.SetupGet(x => x.Location).Returns(cell.Object);
+		owner.SetupGet(x => x.Location).Returns(room.Object);
 		var item = Item(world);
 		item.SetupGet(x => x.InInventoryOf).Returns(ownerBody.Object);
 		Assert.IsFalse(actor.Object.CanReachItem(item.Object).Truth);
 		Assert.IsTrue(actor.Object.CanReachItem(item.Object, requireInventoryPermission: false).Truth);
 		owner.Setup(x => x.WillingToPermitInventoryManipulation(actor.Object)).Returns(true);
 		Assert.IsTrue(actor.Object.CanReachItem(item.Object).Truth);
-		owner.SetupGet(x => x.Location).Returns(Mock.Of<ICell>());
+		owner.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>());
 		Assert.IsFalse(actor.Object.CanReachItem(item.Object, requireInventoryPermission: false).Truth);
 	}
 
 	[TestMethod]
 	[Timeout(3000)]
-	public void Reach_DifferentLayerOrCell_AndContainmentCycle_AreRejected()
+	public void Reach_DifferentLayerOrRoom_AndContainmentCycle_AreRejected()
 	{
-		var (actor, _, cell, world) = ActorWithHand();
-		var item = Item(world, cell);
+		var (actor, _, room, world) = ActorWithHand();
+		var item = Item(world, room);
 		Assert.IsTrue(actor.Object.CanReachItem(item.Object).Truth);
 		item.SetupGet(x => x.RoomLayer).Returns(RoomLayer.InAir);
 		Assert.IsFalse(actor.Object.CanReachItem(item.Object).Truth);
 		item.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
-		item.SetupGet(x => x.Location).Returns(Mock.Of<ICell>());
+		item.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>());
 		Assert.IsFalse(actor.Object.CanReachItem(item.Object).Truth);
 		item.SetupGet(x => x.ContainedIn).Returns(item.Object);
 		Assert.IsFalse(actor.Object.CanReachItem(item.Object).Truth);
@@ -206,8 +206,8 @@ public class PhysicalManipulationTests
 	[TestMethod]
 	public void Reach_MountedModule_RequiresAccessibleHousingAndHostLocation()
 	{
-		var (actor, _, cell, world) = ActorWithHand();
-		var hostItem = Item(world, cell);
+		var (actor, _, room, world) = ActorWithHand();
+		var hostItem = Item(world, room);
 		var moduleItem = Item(world);
 		var host = new Mock<IAutomationMountHost>();
 		host.SetupGet(x => x.Parent).Returns(hostItem.Object);
@@ -219,7 +219,7 @@ public class PhysicalManipulationTests
 		Assert.AreEqual((false, error), actor.Object.CanReachItem(moduleItem.Object));
 		host.Setup(x => x.CanAccessMounts(actor.Object, out error)).Returns(true);
 		Assert.IsTrue(actor.Object.CanReachItem(moduleItem.Object).Truth);
-		hostItem.SetupGet(x => x.Location).Returns(Mock.Of<ICell>());
+		hostItem.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>());
 		Assert.IsFalse(actor.Object.CanReachItem(moduleItem.Object).Truth);
 	}
 
@@ -236,10 +236,10 @@ public class PhysicalManipulationTests
 	[TestMethod]
 	public void Inventory_WeightRetrieval_DeniedSourceNeverSplitsOrTakes()
 	{
-		var (actor, _, cell, world) = ActorWithHand();
+		var (actor, _, room, world) = ActorWithHand();
 		var body = EmptyBody();
 		body.Actor = actor.Object;
-		var source = Item(world, cell);
+		var source = Item(world, room);
 		var item = Item(world);
 		var container = new Mock<IContainer>();
 		container.SetupGet(x => x.Contents).Returns([item.Object]);
@@ -255,11 +255,11 @@ public class PhysicalManipulationTests
 	[TestMethod]
 	public void Inventory_RoomWeightRetrieval_GuardedSourceNeverSplits()
 	{
-		var (actor, _, cell, world) = ActorWithHand();
+		var (actor, _, room, world) = ActorWithHand();
 		var body = EmptyBody();
 		body.Actor = actor.Object;
-		var item = Item(world, cell);
-		cell.Setup(x => x.CanGetAccess(item.Object, actor.Object)).Returns(false);
+		var item = Item(world, room);
+		room.Setup(x => x.CanGetAccess(item.Object, actor.Object)).Returns(false);
 		Assert.IsFalse(body.CanGetByWeight(item.Object, 1.0));
 		body.GetByWeight(item.Object, 1.0, silent: true);
 		item.Verify(x => x.PeekSplitByWeight(It.IsAny<double>()), Times.Never);
@@ -271,22 +271,22 @@ public class PhysicalManipulationTests
 	[DataRow(true)]
 	public void CurrencyRetrieval_OriginalPilePickupRestriction_PreventsConsumption(bool fromContainer)
 	{
-		var (actor, _, cell, world) = ActorWithHand();
+		var (actor, _, room, world) = ActorWithHand();
 		var body = EmptyBody();
 		body.Actor = actor.Object;
 		var hand = Mock.Of<IGrab>();
 		SetField(body, "_holdlocs", new List<IGrab> { hand });
 		SetField(body, "_bodyparts", new HashSet<IBodypart> { hand });
 		typeof(Body).GetProperty(nameof(Body.EffectHandler))!.SetValue(body, Mock.Of<IEffectHandler>());
-		var item = Item(world, fromContainer ? null : cell);
+		var item = Item(world, fromContainer ? null : room);
 		item.Setup(x => x.CanGet(0, It.IsAny<ItemCanGetIgnore>())).Returns(ItemGetResponse.NoGetEffect);
 		var pile = new Mock<ICurrencyPile>();
 		pile.SetupGet(x => x.Parent).Returns(item.Object);
 		item.Setup(x => x.GetItemType<ICurrencyPile>()).Returns(pile.Object);
 		item.Setup(x => x.IsItemType<ICurrencyPile>()).Returns(true);
-		cell.Setup(x => x.LayerGameItems(It.IsAny<RoomLayer>())).Returns([item.Object]);
-		cell.Setup(x => x.CanGet(item.Object, actor.Object)).Returns(true);
-		var containerItem = Item(world, cell);
+		room.Setup(x => x.LayerGameItems(It.IsAny<RoomLayer>())).Returns([item.Object]);
+		room.Setup(x => x.CanGet(item.Object, actor.Object)).Returns(true);
+		var containerItem = Item(world, room);
 		var container = new Mock<IContainer>();
 		container.SetupGet(x => x.Parent).Returns(containerItem.Object);
 		container.SetupGet(x => x.Contents).Returns([item.Object]);
@@ -319,19 +319,19 @@ public class PhysicalManipulationTests
 	[TestMethod]
 	public void Inventory_QuantityRetrieval_PreviewCannotBypassOriginalPickupRestriction()
 	{
-		var (actor, _, cell, world) = ActorWithHand();
+		var (actor, _, room, world) = ActorWithHand();
 		var body = EmptyBody();
 		body.Actor = actor.Object;
 		var hand = Mock.Of<IGrab>();
 		SetField(body, "_holdlocs", new List<IGrab> { hand });
 		SetField(body, "_bodyparts", new HashSet<IBodypart> { hand });
 		typeof(Body).GetProperty(nameof(Body.EffectHandler))!.SetValue(body, Mock.Of<IEffectHandler>());
-		var item = Item(world, cell);
+		var item = Item(world, room);
 		var preview = Item(world);
 		item.Setup(x => x.CanGet(1, It.IsAny<ItemCanGetIgnore>())).Returns(ItemGetResponse.NoGetEffect);
 		item.Setup(x => x.PeekSplit(1)).Returns(preview.Object);
 		preview.Setup(x => x.CanGet(It.IsAny<int>(), It.IsAny<ItemCanGetIgnore>())).Returns(ItemGetResponse.CanGet);
-		cell.Setup(x => x.CanGet(item.Object, actor.Object)).Returns(true);
+		room.Setup(x => x.CanGet(item.Object, actor.Object)).Returns(true);
 
 		Assert.IsFalse(body.CanGet(item.Object, 1));
 		body.Get(item.Object, 1, null, true);
@@ -343,12 +343,12 @@ public class PhysicalManipulationTests
 	[TestMethod]
 	public void Blowgun_HandlessActorCanFireButAnUnusableMouthCannot()
 	{
-		var (actor, body, cell, world) = ActorWithHand();
+		var (actor, body, room, world) = ActorWithHand();
 		body.SetupGet(x => x.HoldLocs).Returns([]);
 		var mouth = TestObjectFactory.CreateUninitialized<MouthProto>();
 		body.SetupGet(x => x.Bodyparts).Returns([mouth]);
 		body.SetupGet(x => x.IsBreathing).Returns(true);
-		var item = Item(world, cell);
+		var item = Item(world, room);
 		var weapon = new BlowgunGameItemComponent(
 			TestObjectFactory.CreateUninitialized<BlowgunGameItemComponentProto>(), item.Object, true)
 		{
@@ -364,8 +364,8 @@ public class PhysicalManipulationTests
 	[TestMethod]
 	public void Switch_DirectRuntimeCall_RejectsHandLossAndLostAccessWithoutMutation()
 	{
-		var (actor, body, cell, world) = ActorWithHand();
-		var item = Item(world, cell);
+		var (actor, body, room, world) = ActorWithHand();
+		var item = Item(world, room);
 		actor.Setup(x => x.CanManipulateItem(item.Object)).Returns(() => actor.Object.CanReachItem(item.Object));
 		var component = new ToggleSwitchGameItemComponent(
 			TestObjectFactory.CreateUninitialized<ToggleSwitchGameItemComponentProto>(), item.Object, true);
@@ -374,10 +374,10 @@ public class PhysicalManipulationTests
 		Assert.IsFalse(component.Switch(actor.Object, "on"));
 		Assert.IsFalse(component.SwitchedOn);
 		body.SetupGet(x => x.HoldLocs).Returns([Mock.Of<IGrab>()]);
-		item.SetupGet(x => x.Location).Returns(Mock.Of<ICell>());
+		item.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>());
 		Assert.IsFalse(component.Switch(actor.Object, "on"));
 		Assert.IsFalse(component.SwitchedOn);
-		item.SetupGet(x => x.Location).Returns(cell.Object);
+		item.SetupGet(x => x.Location).Returns(room.Object);
 		Assert.IsTrue(component.Switch(actor.Object, "on"));
 		Assert.IsTrue(component.SwitchedOn);
 	}
@@ -385,9 +385,9 @@ public class PhysicalManipulationTests
 	[TestMethod]
 	public void Telekinesis_BypassesHandsOnlyInsideEligibleOperation_AndRechecksBeforeExecution()
 	{
-		var (actor, body, cell, world) = ActorWithHand();
+		var (actor, body, room, world) = ActorWithHand();
 		body.SetupGet(x => x.HoldLocs).Returns([]);
-		var item = Item(world, cell);
+		var item = Item(world, room);
 		var component = new ToggleSwitchGameItemComponent(
 			TestObjectFactory.CreateUninitialized<ToggleSwitchGameItemComponentProto>(), item.Object, true);
 		item.Setup(x => x.GetItemTypes<ISwitchable>()).Returns([component]);
@@ -416,33 +416,33 @@ public class PhysicalManipulationTests
 		actor.Verify(x => x.RemoveEffect(effect, true), Times.Once);
 	}
 
-	private static (Mock<ICharacter> Actor, Mock<IBody> Body, Mock<ICell> Cell, Mock<IFuturemud> World) ActorWithHand()
+	private static (Mock<ICharacter> Actor, Mock<IBody> Body, Mock<IRoom> Room, Mock<IFuturemud> World) ActorWithHand()
 	{
 		var actor = new Mock<ICharacter>();
 		var body = new Mock<IBody>();
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		var world = new Mock<IFuturemud>();
 		body.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1));
 		body.SetupGet(x => x.HoldLocs).Returns([Mock.Of<IGrab>()]);
 		body.Setup(x => x.CanUseBodypart(It.IsAny<IBodypart>())).Returns(CanUseBodypartResult.CanUse);
 		body.SetupGet(x => x.Actor).Returns(actor.Object);
 		actor.SetupGet(x => x.Body).Returns(body.Object);
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		actor.SetupGet(x => x.Gameworld).Returns(world.Object);
 		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
 		actor.Setup(x => x.ColocatedWith(It.IsAny<IPerceivable>()))
 			.Returns<IPerceivable>(other => actor.Object.Location == other.Location && actor.Object.RoomLayer == other.RoomLayer);
-		cell.Setup(x => x.CanGetAccess(It.IsAny<IGameItem>(), actor.Object)).Returns(true);
-		return (actor, body, cell, world);
+		room.Setup(x => x.CanGetAccess(It.IsAny<IGameItem>(), actor.Object)).Returns(true);
+		return (actor, body, room, world);
 	}
 
-	private static Mock<IGameItem> Item(Mock<IFuturemud> world, Mock<ICell>? cell = null)
+	private static Mock<IGameItem> Item(Mock<IFuturemud> world, Mock<IRoom>? room = null)
 	{
 		var item = new Mock<IGameItem>();
 		item.Setup(x => x.Equals(It.IsAny<IGameItem>())).Returns<IGameItem>(other => ReferenceEquals(item.Object, other));
 		item.SetupGet(x => x.Gameworld).Returns(world.Object);
 		item.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1));
-		item.SetupGet(x => x.Location).Returns(cell?.Object!);
+		item.SetupGet(x => x.Location).Returns(room?.Object!);
 		return item;
 	}
 

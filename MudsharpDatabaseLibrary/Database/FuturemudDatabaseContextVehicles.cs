@@ -488,8 +488,8 @@ public partial class FuturemudDatabaseContext
 			entity.HasKey(e => e.Id).HasName("PRIMARY");
 			entity.HasIndex(e => new { e.VehicleProtoId, e.VehicleProtoRevision }).HasDatabaseName("FK_Vehicles_VehicleProtos_idx");
 			entity.HasIndex(e => e.ExteriorItemId).IsUnique().HasDatabaseName("FK_Vehicles_GameItems_Exterior_idx");
-			entity.HasIndex(e => e.CurrentCellId).HasDatabaseName("FK_Vehicles_Cells_Current_idx");
-			entity.HasIndex(e => e.DestinationCellId).HasDatabaseName("FK_Vehicles_Cells_Destination_idx");
+			entity.HasIndex(e => e.CurrentRoomId).HasDatabaseName("FK_Vehicles_Rooms_Current_idx");
+			entity.HasIndex(e => e.DestinationRoomId).HasDatabaseName("FK_Vehicles_Rooms_Destination_idx");
 			entity.HasIndex(e => e.CurrentExitId).HasDatabaseName("FK_Vehicles_Exits_idx");
 			entity.HasIndex(e => e.MovementProfileProtoId).HasDatabaseName("FK_Vehicles_MovementProfileProtos_idx");
 			entity.HasIndex(e => e.ActivePropulsionProfileProtoId).HasDatabaseName("FK_Vehicles_PropulsionProfileProtos_idx");
@@ -500,11 +500,11 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.Name).IsRequired().HasColumnType("varchar(200)").HasCharSet("utf8").UseCollation("utf8_general_ci");
 			entity.Property(e => e.ExteriorItemId).HasColumnType("bigint(20)");
 			entity.Property(e => e.LocationType).HasColumnType("int(11)");
-			entity.Property(e => e.CurrentCellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.CurrentRoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.CurrentRoomLayer).HasColumnType("int(11)");
 			entity.Property(e => e.MovementStatus).HasColumnType("int(11)");
 			entity.Property(e => e.CurrentExitId).HasColumnType("bigint(20)");
-			entity.Property(e => e.DestinationCellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.DestinationRoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.MovementProfileProtoId).HasColumnType("bigint(20)");
 			entity.Property(e => e.ActivePropulsionProfileProtoId).HasColumnType("bigint(20)");
 			entity.Property(e => e.CreatedDateTime).HasColumnType("datetime");
@@ -521,17 +521,17 @@ public partial class FuturemudDatabaseContext
 			      .OnDelete(DeleteBehavior.SetNull)
 			      .HasConstraintName("FK_Vehicles_GameItems_Exterior");
 
-			entity.HasOne(d => d.CurrentCell)
+			entity.HasOne(d => d.CurrentRoom)
 			      .WithMany()
-			      .HasForeignKey(d => d.CurrentCellId)
+			      .HasForeignKey(d => d.CurrentRoomId)
 			      .OnDelete(DeleteBehavior.SetNull)
-			      .HasConstraintName("FK_Vehicles_Cells_Current");
+			      .HasConstraintName("FK_Vehicles_Rooms_Current");
 
-			entity.HasOne(d => d.DestinationCell)
+			entity.HasOne(d => d.DestinationRoom)
 			      .WithMany()
-			      .HasForeignKey(d => d.DestinationCellId)
+			      .HasForeignKey(d => d.DestinationRoomId)
 			      .OnDelete(DeleteBehavior.SetNull)
-			      .HasConstraintName("FK_Vehicles_Cells_Destination");
+			      .HasConstraintName("FK_Vehicles_Rooms_Destination");
 
 			entity.HasOne(d => d.CurrentExit)
 			      .WithMany()

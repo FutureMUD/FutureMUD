@@ -1,4 +1,4 @@
-﻿
+
 namespace MudSharp.Effects.Concrete;
 
 #nullable enable
@@ -51,7 +51,7 @@ public class OverrideSDescFromProg : Effect, IEffect, IOverrideDescEffect
         ModifiedDescription = modifiedDescription;
         Tag = tag;
         _fixedPerceiverId = fixedPerceiver?.Id;
-        _fixedPerceiverType = fixedPerceiver?.FrameworkItemType;
+        _fixedPerceiverType = fixedPerceiver?.GetPersistedReferenceType();
         _fixedPerceiver = fixedPerceiver;
     }
 

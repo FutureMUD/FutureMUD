@@ -299,7 +299,7 @@ public class RadioDetonatorTransmitterGameItemComponent : GameItemComponent, ICo
                     playerEmote));
         }
 
-        List<ICell> vicinity = character.Location.CellsInVicinity((uint)_prototype.DetonationRange, x => true, x => true)
+        List<IRoom> vicinity = character.Location.RoomsInVicinity((uint)_prototype.DetonationRange, x => true, x => true)
                                 .ToList();
         List<IReceive> items = vicinity
                     .SelectMany(x => x.GameItems)

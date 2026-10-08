@@ -11,5 +11,5 @@ public interface IZeroGravityTetherEffect : IEffectSubtype
 	IPerceivable Anchor { get; }
 	IGameItem? PhysicalTether { get; }
 	int MaximumRooms { get; }
-	bool BlocksMovementTo(ICell destination);
+	bool BlocksMovementTo(IRoom destination);
 }

@@ -131,7 +131,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         Gameworld = gameworld;
         using var capacityRestoration = DeferCastingCapacityReconciliation(false);
         Account = template.Account;
-        Location = Gameworld.Cells.Get(template.SelectedStartingLocation?.Id ?? 0);
+        Location = Gameworld.Rooms.Get(template.SelectedStartingLocation?.Id ?? 0);
         Culture = template.SelectedCulture;
         Currency = Gameworld.Currencies.Get(Gameworld.GetStaticLong("DefaultCurrencyID"));
         Birthday = template.SelectedBirthday;
@@ -546,7 +546,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     #endregion
 
-    public override void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false)
+    public override void MoveTo(IRoom location, RoomLayer layer, IRoomExit exit = null, bool noSave = false)
     {
         base.MoveTo(location, layer, exit);
         if (!noSave)
@@ -1659,7 +1659,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
         _clanMemberships.AddRange(Gameworld.Clans.SelectMany(x => x.Memberships.Where(y => y.MemberId == Id)));
 
-        Location = Gameworld.Cells.Get(character.Location) ?? Gameworld.Cells.First();
+        Location = Gameworld.Rooms.Get(character.Location) ?? Gameworld.Rooms.First();
         _dubs = character.Dubs.Select(x => (IDub)new Dub(x, this, Gameworld)).ToList();
 
 
@@ -1886,7 +1886,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         return IlluminationSightDifficulty(Location);
     }
 
-    public Difficulty IlluminationSightDifficulty(ICell location)
+    public Difficulty IlluminationSightDifficulty(IRoom location)
     {
         Difficulty difficulty = Gameworld.LightModel.GetSightDifficulty(
             location.CurrentIllumination(this) *
@@ -2243,10 +2243,10 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
             }
         }
 
-        // Special overrides for non-cardinal cell exits
+        // Special overrides for non-cardinal room exits
         if (!ss.IsFinished)
         {
-            ICellExit nonCardinalExit = Location.GetExit(cmd, ss.PeekSpeech(), this);
+            IRoomExit nonCardinalExit = Location.GetExit(cmd, ss.PeekSpeech(), this);
             if (nonCardinalExit != null && CanSee(Location, nonCardinalExit))
             {
                 string commandName = "north";

@@ -119,13 +119,13 @@ public sealed class DangerSensePower : PsionicSustainedSelfPowerBase
 
 	public bool CheckNearbyThreats(ICharacter actor)
 	{
-		var cells = actor.Location.CellsInVicinity(ThreatRange, RespectDoors, RespectCorners);
+		var rooms = actor.Location.RoomsInVicinity(ThreatRange, RespectDoors, RespectCorners);
 		if (!IncludeCurrentLocation)
 		{
-			cells = cells.Except(actor.Location);
+			rooms = rooms.Except(actor.Location);
 		}
 
-		var threats = cells
+		var threats = rooms
 		              .SelectMany(x => x.Characters)
 		              .Where(x => x != actor)
 		              .Where(x => !OnlyNPCs || x is INPC)

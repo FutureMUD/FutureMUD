@@ -201,7 +201,7 @@ public interface IEmploymentActionStep
 
 public interface IEmploymentActionStepLocationHint
 {
-	IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor);
+	IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor);
 }
 
 public sealed record EmploymentActionStepOperationalState(
@@ -567,22 +567,22 @@ public interface IEmploymentTaskContext
 	void AuthorisePaymentFor(IEmploymentActionStep step, ICharacter? actor = null, Guid? correlationId = null,
 		bool recordRegister = true);
 	bool CommandAllowed(string commandName);
-	bool CanPath(ICharacter actor, ICell? destination);
-	IReadOnlyCollection<IGameItem> AvailableItems(ICell location);
+	bool CanPath(ICharacter actor, IRoom? destination);
+	IReadOnlyCollection<IGameItem> AvailableItems(IRoom location);
 	IReadOnlyCollection<IGameItem> CarriedTaskItems(ICharacter actor);
 	bool ItemHasTag(IGameItem item, string tagName);
 	double CommodityWeight(IGameItem item, string materialName, string? tagName,
 		IReadOnlyDictionary<string, string> characteristics);
-	bool TryCollectTaskItem(ICharacter actor, IGameItem item, ICell source, out string reason);
-	bool TryCollectTaskItems(ICharacter actor, IReadOnlyCollection<(IGameItem Item, ICell Source)> items,
+	bool TryCollectTaskItem(ICharacter actor, IGameItem item, IRoom source, out string reason);
+	bool TryCollectTaskItems(ICharacter actor, IReadOnlyCollection<(IGameItem Item, IRoom Source)> items,
 		out string reason);
-	bool TryDeliverTaskItems(ICharacter actor, ICell destination, IGameItem? container, string? containerTag,
+	bool TryDeliverTaskItems(ICharacter actor, IRoom destination, IGameItem? container, string? containerTag,
 		out string reason);
 	bool TryLoadCarriedTaskItems(ICharacter actor, IGameItem targetContainer, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
 	bool TryUnloadTaskItems(ICharacter actor, IGameItem sourceContainer, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
-	bool TryReturnContainer(ICharacter actor, IGameItem container, ICell destination, IGameItem? destinationContainer,
+	bool TryReturnContainer(ICharacter actor, IGameItem container, IRoom destination, IGameItem? destinationContainer,
 		string? destinationContainerTag, out string reason,
 		out EmploymentActionStepOperationalState operationalState);
 	IReadOnlyCollection<IGameItem> LoadedTaskItems(ICharacter actor, IGameItem container);

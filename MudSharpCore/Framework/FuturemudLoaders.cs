@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
@@ -84,8 +84,8 @@ using AmmunitionType = MudSharp.Combat.AmmunitionType;
 using ArmourType = MudSharp.Combat.ArmourType;
 using BodypartShape = MudSharp.Form.Shape.BodypartShape;
 using Calendar = MudSharp.TimeAndDate.Date.Calendar;
-using Cell = MudSharp.Construction.Cell;
-using CellOverlayPackage = MudSharp.Construction.CellOverlayPackage;
+using Room = MudSharp.Construction.Room;
+using RoomOverlayPackage = MudSharp.Construction.RoomOverlayPackage;
 using Channel = MudSharp.Communication.Channel;
 using CharacteristicDefinition = MudSharp.Form.Characteristics.CharacteristicDefinition;
 using CharacteristicProfile = MudSharp.Form.Characteristics.CharacteristicProfile;
@@ -131,7 +131,6 @@ using ProgSchedule = MudSharp.FutureProg.ProgSchedule;
 using Race = MudSharp.Character.Heritage.Race;
 using RaceButcheryProfile = MudSharp.Work.Butchering.RaceButcheryProfile;
 using RangedCover = MudSharp.Combat.RangedCover;
-using Room = MudSharp.Construction.Room;
 using Script = MudSharp.Communication.Language.Script;
 using Shard = MudSharp.Construction.Shard;
 using ShieldType = MudSharp.Combat.ShieldType;
@@ -334,7 +333,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
             game.LoadCelestials();
 
             game.LoadHearingProfiles(); // must come before LoadWorld(), and after LoadClocks() / LoadCalendars()
-            game.LoadCellOverlayPackages();
+            game.LoadRoomOverlayPackages();
             game.LoadCover(); // Must come before LoadTerrains
             game.LoadTerrains();
             game.LoadNonCardinalExitTemplates();
@@ -374,7 +373,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
             game.LoadGameItemGroups(); // Depends on LoadWorld
             game.LoadGameItemProtos(); // Depends on LoadHealthStrategies, LoadGameItemComponentProtos and LoadGameItemGroups
             game.LoadVehiclePrototypes(); // Depends on LoadGameItemProtos and Vehicle Exterior item components
-			game.LoadVehicleRoutes(); // Depends on world cells/exits and vehicle access-point prototypes
+			game.LoadVehicleRoutes(); // Depends on world rooms/exits and vehicle access-point prototypes
             game.LoadGameItemSkins();
             game.LoadOutfitTemplates();
 
@@ -409,7 +408,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
 
 
             game.LoadProjects(); // Needs to come before LoadNPCs
-            game.LoadAgriculture(); // Needs projects and world cells loaded
+            game.LoadAgriculture(); // Needs projects and world rooms loaded
 
             Character.Character.InitialiseCharacterClass(this);
             LightModel = PerceptionEngine.Light.LightModel.LoadLightModel(this);
@@ -424,13 +423,13 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
 			DatabaseRouteMotionPersistence.FreezeInterruptedCharacterMotions();
 			DatabaseVehicleRouteMotionPersistence.FreezeInterruptedVehicleMotions();
             game.LoadWorldItems(); // Depends on LoadWorld and LoadGameItemProtos and LoadRaces
-			InitialiseCellTrapEffects(); // Needs trap templates and bound world items to be loaded
+			InitialiseRoomTrapEffects(); // Needs trap templates and bound world items to be loaded
             SetCharacterMaterialisationBootPhase(CharacterMaterialisationBootPhase.Allowed);
             game.LoadNPCs(); // Needs to come after InitialiseCharacterClass and LightModel loading
             game.LoadVehicles(); // Needs world items and characters available for exterior/occupant recovery
             game.LoadVehicleHitchLinks(); // Needs vehicles, world items and NPCs available for endpoint recovery
 			game.LoadVehicleOperations(); // Needs routes, vehicles and hitch links before recovery/scheduling
-            game.LoadMagicPortalTopology(); // Needs world items and cells available before exit pathing preload
+            game.LoadMagicPortalTopology(); // Needs world items and rooms available before exit pathing preload
 			ReconcileTransientExitTrapEffects(); // Needs every reboot-surviving transient exit source to be rebuilt
             FinalisePostCharacterLoadObjects();
             game.LoadGroupAIs(); // Needs to come after LoadNPCs
@@ -449,13 +448,13 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
 
             SaveManager.MudBootingMode = false;
 
-            // Cells need to do a few things that have to happen outside the boot order. Todo - use reflection to solve problems like this
-            ConsoleUtilities.WriteLine("#EFinalising Cells...#0");
-            var cells = FMDB.Context.Cells.Include(x => x.CellsForagableYields).ToDictionary(x => x.Id);
-            foreach (ICell cell in _cells)
+            // Rooms need to do a few things that have to happen outside the boot order. Todo - use reflection to solve problems like this
+            ConsoleUtilities.WriteLine("#EFinalising Rooms...#0");
+            var rooms = FMDB.Context.Rooms.Include(x => x.RoomsForagableYields).ToDictionary(x => x.Id);
+            foreach (IRoom room in _rooms)
             {
-                cell.PostLoadTasks(cells.GetValueOrDefault(cell.Id));
-				(cell as Cell)?.CompleteMagicLoad();
+                room.PostLoadTasks(rooms.GetValueOrDefault(room.Id));
+				(room as Room)?.CompleteMagicLoad();
             }
 			if (EnvironmentalMagic is MudSharp.Magic.Environment.EnvironmentalMagicCoordinator environment)
 			{
@@ -467,7 +466,7 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
 			}
 			EnvironmentalMagic?.Initialise();
 
-            ConsoleUtilities.WriteLine("#ADone Finalising Cells.#0");
+            ConsoleUtilities.WriteLine("#ADone Finalising Rooms.#0");
             ConsoleUtilities.WriteLine("#ELoading Statistics...#0");
             GameStatistics.LoadStatistics(game);
             ConsoleUtilities.WriteLine("#ADone Loading Statistics.#0");
@@ -614,10 +613,10 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
         ConsoleUtilities.WriteLine("\n#ECreating listening server thread...#0");
     }
 
-	private void InitialiseCellTrapEffects()
+	private void InitialiseRoomTrapEffects()
 	{
-		ConsoleUtilities.WriteLine("#EInitialising Cell Traps...#0");
-		var traps = _cells
+		ConsoleUtilities.WriteLine("#EInitialising Room Traps...#0");
+		var traps = _rooms
 			.SelectMany(x => x.EffectsOfType<TrapEffect>())
 			.ToList();
 		foreach (var trap in traps)
@@ -625,14 +624,14 @@ public sealed partial class Futuremud : IFuturemudLoader, IFuturemud, ICombatSim
 			trap.InitialiseAfterWorldItems();
 		}
 
-		ConsoleUtilities.WriteLine("Initialised #2{0:N0}#0 cell {1}.", traps.Count,
+		ConsoleUtilities.WriteLine("Initialised #2{0:N0}#0 room {1}.", traps.Count,
 			traps.Count == 1 ? "trap" : "traps");
 	}
 
 	private void ReconcileTransientExitTrapEffects()
 	{
 		ConsoleUtilities.WriteLine("#EReconciling Transient Exit Traps...#0");
-		var traps = _cells
+		var traps = _rooms
 			.SelectMany(x => x.EffectsOfType<TrapEffect>())
 			.Where(x => x.BoundTransientExitKey is not null || x.BoundExitId < 0)
 			.ToList();
@@ -825,10 +824,10 @@ For information on the syntax to use in emotes (such as those included in bracke
         ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Track" : "Tracks");
 
         ConsoleUtilities.WriteLine("\n#EInitialising Tracks...#0");
-        IReadOnlyCollectionDictionary<ICell, ITrack> trackDictionary = _tracks.AsEnumerable().Select(x => (x.Cell, x)).ToCollectionDictionary().AsReadOnlyCollectionDictionary();
-        foreach (ICell cell in _cells)
+        IReadOnlyCollectionDictionary<IRoom, ITrack> trackDictionary = _tracks.AsEnumerable().Select(x => (x.Room, x)).ToCollectionDictionary().AsReadOnlyCollectionDictionary();
+        foreach (IRoom room in _rooms)
         {
-            cell.InitialiseTracks(trackDictionary);
+            room.InitialiseTracks(trackDictionary);
         }
         ConsoleUtilities.WriteLine("#ADone.#0");
     }
@@ -986,8 +985,8 @@ For information on the syntax to use in emotes (such as those included in bracke
                               .ThenInclude(x => x.TimesOfDay)
                               .Include(x => x.Patrols)
                               .ThenInclude(x => x.PatrolMembers)
-                              .Include(x => x.LegalAuthorityCells)
-                              .Include(x => x.LegalAuthorityJailCells)
+                              .Include(x => x.LegalAuthorityRooms)
+                              .Include(x => x.LegalAuthorityJailRooms)
                               .Include(x => x.Fines)
                               .Include(x => x.CorpseRecoveryReports)
                               .AsSplitQuery()
@@ -1131,7 +1130,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 #endif
         List<Arena> combatArenas = FMDB.Context.Arenas
                                      .Include(x => x.ArenaManagers)
-                                     .Include(x => x.ArenaCells)
+                                     .Include(x => x.ArenaRooms)
                                      .Include(x => x.ArenaCombatantClasses)
                                      .Include(x => x.ArenaEventTypes)
                                      .ThenInclude(x => x.ArenaEventTypeSides)
@@ -1222,11 +1221,11 @@ For information on the syntax to use in emotes (such as those included in bracke
                         .Include(x => x.Merchandises)
                         .Include(x => x.ShopTransactionRecords)
                         .Include(x => x.ShopsTills)
-                        .Include(x => x.ShopsStoreroomCells)
+                        .Include(x => x.ShopsStoreroomRooms)
                         .Include(x => x.LineOfCreditAccounts)
                         .ThenInclude(x => x.AccountUsers)
                         .Include(x => x.Restaurant)
-                        .ThenInclude(x => x.Cells)
+                        .ThenInclude(x => x.Rooms)
                         .Include(x => x.Restaurant)
                         .ThenInclude(x => x.Tables)
                         .Include(x => x.Restaurant)
@@ -2436,18 +2435,18 @@ For information on the syntax to use in emotes (such as those included in bracke
 #if DEBUG
         //FMDB.Context.Database.Log = ConsoleUtilities.WriteLine;
 #endif
-        List<IGrouping<Models.Cell, GameItem>> cellItems = _bootTimeCachedGameItems.Values
-                                                .GroupBy(x => x.CellsGameItems.FirstOrDefault()?.Cell)
+        List<IGrouping<Models.Room, GameItem>> roomItems = _bootTimeCachedGameItems.Values
+                                                .GroupBy(x => x.RoomsGameItems.FirstOrDefault()?.Room)
                                                 .Where(x => x.Key is not null)
                                                 .ToList();
         int count = 0;
-        foreach (IGrouping<Models.Cell, GameItem> cell in cellItems)
+        foreach (IGrouping<Models.Room, GameItem> room in roomItems)
         {
-            ICell gcell = _cells.Get(cell.Key.Id);
-            count += gcell?.LoadItems(cell) ?? 0;
+            IRoom gameRoom = _rooms.Get(room.Key.Id);
+            count += gameRoom?.LoadItems(room) ?? 0;
         }
 
-		// Components can materialise independent connected items which have no direct cell row of their own.
+		// Components can materialise independent connected items which have no direct room row of their own.
 		// Finalise every item that entered the world-item graph, including items discovered while finalising it.
 		// GameItem.FinaliseLoadTimeTasks is deliberately idempotent to make nested and cyclic graphs safe.
 		FinaliseWorldItemGraph(() => _items.ToList());
@@ -2458,7 +2457,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 #if DEBUG
         //FMDB.Context.Database.Log = null;
 #endif
-        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1} in #2{2}#0 {3}.", count, count == 1 ? "Item" : "Items", cellItems.Count, cellItems.Count == 1 ? "Room" : "Rooms");
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1} in #2{2}#0 {3}.", count, count == 1 ? "Item" : "Items", roomItems.Count, roomItems.Count == 1 ? "Room" : "Rooms");
 
         // Initialise all the grids after the items are definitely loaded and in game
         ConsoleUtilities.WriteLine("#EInitialising Grids...#0");
@@ -2995,11 +2994,11 @@ For information on the syntax to use in emotes (such as those included in bracke
             Add(newNpc, true);
             if (newNpc.Location != null)
             {
-                (newNpc.Location as Cell)?.Login(newNpc);
+                (newNpc.Location as Room)?.Login(newNpc);
             }
             else
             {
-                Cells.First().Login(newNpc);
+                Rooms.First().Login(newNpc);
             }
         }
 #if DEBUG
@@ -3228,29 +3227,29 @@ For information on the syntax to use in emotes (such as those included in bracke
         ConsoleUtilities.WriteLine("Loaded #2{0}#0 Entity Description Pattern{1}.", count, count == 1 ? "" : "s");
     }
 
-    void IFuturemudLoader.LoadCellOverlayPackages()
+    void IFuturemudLoader.LoadRoomOverlayPackages()
     {
         ConsoleUtilities.WriteLine("\nLoading #5Cell Overlay Packages#0...");
 #if DEBUG
         Stopwatch sw = new();
         sw.Start();
 #endif
-        List<Models.CellOverlayPackage> packages = (from package in FMDB.Context.CellOverlayPackages
+        List<Models.RoomOverlayPackage> packages = (from package in FMDB.Context.RoomOverlayPackages
                                             .Include(x => x.EditableItem)
-                                            .Include(x => x.CellOverlays)
+                                            .Include(x => x.RoomOverlays)
                                             .AsNoTracking()
                                                     select package).ToList();
 
-        foreach (Models.CellOverlayPackage package in packages)
+        foreach (Models.RoomOverlayPackage package in packages)
         {
-            _cellOverlayPackages.Add(new CellOverlayPackage(package, this));
+            _roomOverlayPackages.Add(new RoomOverlayPackage(package, this));
         }
 #if DEBUG
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
         int count = packages.Count;
-        ConsoleUtilities.WriteLine("Loaded #2{0}#0 Cell Overlay Package{1}.", count, count == 1 ? "" : "s");
+        ConsoleUtilities.WriteLine("Loaded #2{0}#0 Room Overlay Package{1}.", count, count == 1 ? "" : "s");
     }
 
     void IFuturemudLoader.LoadHelpFiles()
@@ -3716,69 +3715,51 @@ For information on the syntax to use in emotes (such as those included in bracke
 
         // ------------------------------------------------------------------- //
 
-        ConsoleUtilities.WriteLine("\nLoading #5Rooms#0...");
+        ConsoleUtilities.WriteLine("\nLoading #5Cells#0...");
 #if DEBUG
         sw.Restart();
 #endif
-        List<Models.Room> rooms = (from room in FMDB.Context.Rooms.AsNoTracking()
+        List<Models.Room> rooms = (from room in
+                         FMDB.Context.Rooms
+                             .Include(x => x.RoomOverlays)
+                             .ThenInclude(x => x.RoomOverlaysExits)
+                             .Include(x => x.RoomsForagableYields)
+                             .Include(x => x.RoomsGameItems)
+                             .Include(x => x.RoomsMagicResources)
+							 .Include(x => x.EnvironmentalState)
+                             .Include(x => x.RoomsRangedCovers)
+                             .Include(x => x.RoomsTags)
+                             .Include(x => x.HooksPerceivables)
+							 .Include(x => x.RouteRoom)
+							 .ThenInclude(x => x.Landmarks)
+							 .Include(x => x.RouteRoom)
+							 .ThenInclude(x => x.ExitAnchors)
+                             .AsSplitQuery()
+                             .AsNoTracking()
                                    select room).ToList();
+        Dictionary<Models.Room, Room> loadedRooms = new();
+		Room.ValidatePersistedUniqueNames(rooms);
         foreach (Models.Room room in rooms)
         {
-            _rooms.Add(new Room(room, _zones.FirstOrDefault(x => x.Id == room.ZoneId)));
+            Room newRoom = new(room, _zones.Get(room.ZoneId));
+            loadedRooms[room] = newRoom;
+            _rooms.Add(newRoom);
         }
 #if DEBUG
         sw.Stop();
         ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
 #endif
         count = rooms.Count;
-        ConsoleUtilities.WriteLine("Loaded #2{0}#0 {1}.", count, count == 1 ? "Room" : "Rooms");
-
-        // ------------------------------------------------------------------- //
-
-        ConsoleUtilities.WriteLine("\nLoading #5Cells#0...");
-#if DEBUG
-        sw.Restart();
-#endif
-        List<Models.Cell> cells = (from cell in
-                         FMDB.Context.Cells
-                             .Include(x => x.CellOverlays)
-                             .ThenInclude(x => x.CellOverlaysExits)
-                             .Include(x => x.CellsForagableYields)
-                             .Include(x => x.CellsGameItems)
-                             .Include(x => x.CellsMagicResources)
-							 .Include(x => x.EnvironmentalState)
-                             .Include(x => x.CellsRangedCovers)
-                             .Include(x => x.CellsTags)
-                             .Include(x => x.HooksPerceivables)
-							 .Include(x => x.RouteCell)
-							 .ThenInclude(x => x.Landmarks)
-							 .Include(x => x.RouteCell)
-							 .ThenInclude(x => x.ExitAnchors)
-                             .AsSplitQuery()
-                             .AsNoTracking()
-                                   select cell).ToList();
-        Dictionary<Models.Cell, Cell> loadedCells = new();
-        foreach (Models.Cell cell in cells)
-        {
-            Cell newCell = new(cell, _rooms.FirstOrDefault(x => x.Id == cell.RoomId));
-            loadedCells[cell] = newCell;
-            _cells.Add(newCell);
-        }
-#if DEBUG
-        sw.Stop();
-        ConsoleUtilities.WriteLine($"Duration: #2{sw.ElapsedMilliseconds}ms#0");
-#endif
-        count = cells.Count;
-        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Cell" : "Cells");
+        ConsoleUtilities.WriteLine("Loaded #2{0:N0}#0 {1}.", count, count == 1 ? "Room" : "Rooms");
 
         ConsoleUtilities.WriteLine("\nLoading #5Areas#0...");
 #if DEBUG
         sw.Restart();
 #endif
-        List<Areas> areas = (from cell in FMDB.Context.Areas
+        List<Areas> areas = (from room in FMDB.Context.Areas
                                       .Include(x => x.AreasRooms)
                                       .AsNoTracking()
-                             select cell).ToList();
+                             select room).ToList();
         foreach (Areas area in areas)
         {
             _areas.Add(new Construction.Area(area, this));
@@ -3793,7 +3774,7 @@ For information on the syntax to use in emotes (such as those included in bracke
         // ------------------------------------------------------------------- //
 
 
-        ConsoleUtilities.WriteLine("\n#ELoading Exit Manager and Preloading Critical Cell Exits...#0");
+        ConsoleUtilities.WriteLine("\n#ELoading Exit Manager and Preloading Critical Room Exits...#0");
 #if DEBUG
         sw.Restart();
 #endif
@@ -4041,9 +4022,9 @@ For information on the syntax to use in emotes (such as those included in bracke
         sw.Start();
 #endif
         List<Clan> clans = (from clan in FMDB.Context.Clans
-                                      .Include(x => x.ClansAdministrationCells)
-                                      .Include(x => x.ClansHallCells)
-                                      .Include(x => x.ClansTreasuryCells)
+                                      .Include(x => x.ClansAdministrationRooms)
+                                      .Include(x => x.ClansHallRooms)
+                                      .Include(x => x.ClansTreasuryRooms)
                                       .Include(x => x.Ranks)
                                       .ThenInclude(x => x.RanksAbbreviations)
                                       .Include(x => x.Ranks)
@@ -4375,13 +4356,13 @@ For information on the syntax to use in emotes (such as those included in bracke
 
 			if (newVehicle.Prototype.Scale == VehicleScale.RoomScale)
 			{
-				foreach (var compartment in newVehicle.Compartments.Where(x => x.InteriorCell is null))
+				foreach (var compartment in newVehicle.Compartments.Where(x => x.InteriorRoom is null))
 				{
-					var missingCell = compartment.InteriorCellId is null
-						? "has no hosted interior cell assigned"
-						: $"points to missing hosted cell #{compartment.InteriorCellId:N0}";
+					var missingRoom = compartment.InteriorRoomId is null
+						? "has no hosted interior room assigned"
+						: $"points to missing hosted room #{compartment.InteriorRoomId:N0}";
 					ConsoleUtilities.WriteLine(
-						$"#1Warning: Vehicle #{newVehicle.Id:N0} ({newVehicle.Name}) compartment {compartment.Name} {missingCell}. Normal load did not create a replacement; use vehicle audit {newVehicle.Id:N0} interior and vehicle recover {newVehicle.Id:N0} interior fix.#0");
+						$"#1Warning: Vehicle #{newVehicle.Id:N0} ({newVehicle.Name}) compartment {compartment.Name} {missingRoom}. Normal load did not create a replacement; use vehicle audit {newVehicle.Id:N0} interior and vehicle recover {newVehicle.Id:N0} interior fix.#0");
 				}
 			}
 
@@ -4820,8 +4801,8 @@ For information on the syntax to use in emotes (such as those included in bracke
                         .Include(x => x.GameItemComponents)
                         .Include(x => x.HooksPerceivables)
                         .Include(x => x.GameItemsMagicResources)
-                        .Include(x => x.CellsGameItems)
-                        .ThenInclude(x => x.Cell)
+                        .Include(x => x.RoomsGameItems)
+                        .ThenInclude(x => x.Room)
                         .AsSplitQuery()
                         .OrderBy(x => x.Id);
         foreach (GameItem item in query)

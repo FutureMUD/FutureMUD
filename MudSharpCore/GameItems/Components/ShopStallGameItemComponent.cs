@@ -310,7 +310,7 @@ namespace MudSharp.GameItems.Components
             return false;
         }
 
-        public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+        public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
         {
             Shop?.CurrentStall = null;
             Shop = null;
@@ -564,7 +564,7 @@ namespace MudSharp.GameItems.Components
                 }
             }
 
-            ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
+            IRoom location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
             List<IGameItem> contents = Contents.ToList();
             _contents.Clear();
             if (emptier is not null)
@@ -749,7 +749,7 @@ namespace MudSharp.GameItems.Components
 
         public bool CanBeInstalled => false;
 
-        public void InstallLock(ILockable lockable, IExit exit, ICell installLocation)
+        public void InstallLock(ILockable lockable, IExit exit, IRoom installLocation)
         {
             // Do nothing
         }
@@ -816,9 +816,9 @@ namespace MudSharp.GameItems.Components
             }
             else
             {
-                foreach (ICell cell in Parent.TrueLocations)
+                foreach (IRoom room in Parent.TrueLocations)
                 {
-                    cell.Handle(
+                    room.Handle(
                         new EmoteOutput(new Emote(_prototype.UnlockEmoteNoActor, Parent, Parent)));
                 }
             }
@@ -863,9 +863,9 @@ namespace MudSharp.GameItems.Components
             }
             else
             {
-                foreach (ICell cell in Parent.TrueLocations)
+                foreach (IRoom room in Parent.TrueLocations)
                 {
-                    cell.Handle(
+                    room.Handle(
                         new EmoteOutput(new Emote(_prototype.LockEmoteNoActor, Parent, Parent)));
                 }
             }

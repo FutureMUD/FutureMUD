@@ -7,7 +7,7 @@ namespace MudSharp.Effects.Concrete;
 
 public sealed class NpcHomeBaseEffect : Effect
 {
-    private long _homeCellId;
+    private long _homeRoomId;
     private long _anchorItemId;
 
     public NpcHomeBaseEffect(ICharacter owner)
@@ -19,7 +19,7 @@ public sealed class NpcHomeBaseEffect : Effect
         : base(root, owner)
     {
         XElement effect = root.Element("Effect") ?? throw new ArgumentException("Invalid NPC home-base effect definition.");
-        _homeCellId = long.Parse(effect.Attribute("HomeCellId")?.Value ?? "0");
+        _homeRoomId = long.Parse(effect.Attribute("HomeCellId")?.Value ?? "0");
         _anchorItemId = long.Parse(effect.Attribute("AnchorItemId")?.Value ?? "0");
     }
 
@@ -41,20 +41,20 @@ public sealed class NpcHomeBaseEffect : Effect
         return existing;
     }
 
-    public ICell? HomeCell => _homeCellId > 0 ? Gameworld.Cells.Get(_homeCellId) : null;
+    public IRoom? HomeRoom => _homeRoomId > 0 ? Gameworld.Rooms.Get(_homeRoomId) : null;
     public IGameItem? AnchorItem => _anchorItemId > 0 ? Gameworld.TryGetItem(_anchorItemId, true) : null;
-    public bool HasHome => HomeCell is not null;
+    public bool HasHome => HomeRoom is not null;
     public bool HasAnchor => AnchorItem is not null;
 
-    public void SetHomeCell(ICell? cell)
+    public void SetHomeRoom(IRoom? room)
     {
-        long newId = cell?.Id ?? 0L;
-        if (_homeCellId == newId)
+        long newId = room?.Id ?? 0L;
+        if (_homeRoomId == newId)
         {
             return;
         }
 
-        _homeCellId = newId;
+        _homeRoomId = newId;
         Changed = true;
     }
 
@@ -78,13 +78,13 @@ public sealed class NpcHomeBaseEffect : Effect
     protected override XElement SaveDefinition()
     {
         return new XElement("Effect",
-            new XAttribute("HomeCellId", _homeCellId),
+            new XAttribute("HomeCellId", _homeRoomId),
             new XAttribute("AnchorItemId", _anchorItemId));
     }
 
     public override string Describe(IPerceiver voyeur)
     {
-        string home = HomeCell?.HowSeen(voyeur) ?? "no home";
+        string home = HomeRoom?.HowSeen(voyeur) ?? "no home";
         string anchor = AnchorItem?.HowSeen(voyeur) ?? "no anchor";
         return $"NPC home base at {home}, anchor {anchor}.";
     }

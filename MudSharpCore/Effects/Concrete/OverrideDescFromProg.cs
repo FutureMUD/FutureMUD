@@ -1,4 +1,4 @@
-﻿
+
 #nullable enable
 #nullable disable warnings
 
@@ -53,7 +53,7 @@ public class OverrideDescFromProg : Effect, IEffect, IOverrideDescEffect
         ModifiedDescription = modifiedDescription;
         Tag = tag;
         _fixedPerceiverId = fixedPerceiver?.Id;
-        _fixedPerceiverType = fixedPerceiver?.FrameworkItemType;
+        _fixedPerceiverType = fixedPerceiver?.GetPersistedReferenceType();
         _fixedPerceiver = fixedPerceiver;
     }
 

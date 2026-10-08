@@ -44,13 +44,13 @@ public partial class MagicCastingAreaTests
 		public AreaFixture(string policy = "earthquake", MagicCastingFixture? fixture = null)
 		{
 			F = fixture ?? new(); F.Acquire();
-			var cell = Mock.Get(F.Actor.Object.Location);
-			cell.SetupGet(x => x.Id).Returns(1);
-			cell.SetupGet(x => x.RouteDefinition).Returns(() => null!);
-			cell.SetupGet(x => x.Characters).Returns(() => Members);
-			cell.SetupGet(x => x.Perceivables).Returns(() => Members.Cast<IPerceivable>());
-			cell.SetupGet(x => x.GameItems).Returns([]);
-			cell.Setup(x => x.LayerCharacters(It.IsAny<RoomLayer>())).Returns<RoomLayer>(layer => Members.Where(x => x.RoomLayer == layer));
+			var room = Mock.Get(F.Actor.Object.Location);
+			room.SetupGet(x => x.Id).Returns(1);
+			room.SetupGet(x => x.RouteDefinition).Returns(() => null!);
+			room.SetupGet(x => x.Characters).Returns(() => Members);
+			room.SetupGet(x => x.Perceivables).Returns(() => Members.Cast<IPerceivable>());
+			room.SetupGet(x => x.GameItems).Returns([]);
+			room.Setup(x => x.LayerCharacters(It.IsAny<RoomLayer>())).Returns<RoomLayer>(layer => Members.Where(x => x.RoomLayer == layer));
 			F.Actor.SetupGet(x => x.PositionState).Returns(PositionStanding.Instance);
 			Members.Add(F.Actor.Object); TrackDamage(F.Actor);
 			Build("trigger new character"); Build("grades scalar remove target 0");
@@ -196,7 +196,7 @@ public partial class MagicCastingAreaTests
 		{
 			if (!ReferenceEquals(target, a.F.Actor.Object)) return;
 			a.Members.RemoveAll(x => ReferenceEquals(x, removed.Object)); a.Members.Add(added.Object);
-			moved.SetupGet(x => x.Location).Returns(new Mock<ICell>().Object);
+			moved.SetupGet(x => x.Location).Returns(new Mock<IRoom>().Object);
 		};
 		Assert.AreEqual(MagicCastingStatus.Succeeded, a.Service.Cast(a.Intent()).Status);
 		Assert.AreEqual(2, a.Damage.Count); Assert.AreSame(unaffected.Object, a.Damage.Last().Target);
@@ -261,7 +261,7 @@ public partial class MagicCastingAreaTests
 		var checks = new Mock<ICheck>();
 		checks.Setup(x => x.CheckAgainstAllDifficulties(It.IsAny<IPerceivableHaveTraits>(), It.IsAny<Difficulty>(), It.IsAny<ITraitDefinition>(),
 			It.IsAny<IPerceivable>(), It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()))
-			.Returns(() => { target.SetupGet(x => x.Location).Returns(new Mock<ICell>().Object); return Enum.GetValues<Difficulty>().ToDictionary(d => d,
+			.Returns(() => { target.SetupGet(x => x.Location).Returns(new Mock<IRoom>().Object); return Enum.GetValues<Difficulty>().ToDictionary(d => d,
 				_ => CheckOutcome.SimpleOutcome(CheckType.ResistMagicSpellCheck, Outcome.MajorFail)); });
 		a.F.World.Setup(x => x.GetCheck(CheckType.ResistMagicSpellCheck)).Returns(checks.Object);
 		Assert.AreEqual(MagicCastingStatus.Failed, a.Service.Cast(a.Intent()).Status); Assert.AreEqual(0, a.Damage.Count);
@@ -368,7 +368,7 @@ public partial class MagicCastingAreaTests
 		var children = new List<IEffect>(); MagicSpellParent? parent = null; TimeSpan? duration = null;
 		target.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback<IEffect>(effect =>
 		{
-			children.Add(effect); target.SetupGet(x => x.Location).Returns(new Mock<ICell>().Object);
+			children.Add(effect); target.SetupGet(x => x.Location).Returns(new Mock<IRoom>().Object);
 		});
 		target.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>())).Callback<IEffect, TimeSpan>((effect, delay) =>
 		{
@@ -415,10 +415,10 @@ public partial class MagicCastingAreaTests
 	[TestMethod]
 	public void WholeRoomScopeRefusesSpatialRoute_ImmediateScopeIsSeparatelyAuthored()
 	{
-		var a = new AreaFixture(); var cell = Mock.Get(a.F.Actor.Object.Location);
-		cell.SetupGet(x => x.RouteDefinition).Returns(new Mock<IRouteCellDefinition>().Object);
-		var quote = a.Service.Quote(a.Intent()); Assert.IsFalse(quote.Allowed); StringAssert.Contains(quote.Reason, "RouteCell");
-		cell.SetupGet(x => x.RouteDefinition).Returns(() => null!); a.Build("grades area scope ImmediateCharacters"); a.Target();
+		var a = new AreaFixture(); var room = Mock.Get(a.F.Actor.Object.Location);
+		room.SetupGet(x => x.RouteDefinition).Returns(new Mock<IRouteRoomDefinition>().Object);
+		var quote = a.Service.Quote(a.Intent()); Assert.IsFalse(quote.Allowed); StringAssert.Contains(quote.Reason, "RouteRoom");
+		room.SetupGet(x => x.RouteDefinition).Returns(() => null!); a.Build("grades area scope ImmediateCharacters"); a.Target();
 		var result = a.Service.Cast(a.Intent()); Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
 		Assert.AreEqual(2, a.Damage.Count); Assert.AreEqual(SpellAreaScope.ImmediateCharacters, a.Service.Quote(a.Intent() with { Overreach = false }).Invocation!.Area!.Scope);
 	}

@@ -7,7 +7,7 @@ namespace MudSharp.GameItems.Groups;
 public abstract class GameItemGroupForm : SaveableItem, IGameItemGroupForm
 {
     private readonly IGameItemGroup _parent;
-    protected readonly List<ICell> Cells = new();
+    protected readonly List<IRoom> Rooms = new();
     public sealed override string FrameworkItemType => "GameItemGroupForm";
 
     protected GameItemGroupForm(IGameItemGroup parent)
@@ -28,19 +28,19 @@ public abstract class GameItemGroupForm : SaveableItem, IGameItemGroupForm
 
     #region IGameItemGroupForm Members
 
-    public bool Applies(ICell cell)
+    public bool Applies(IRoom room)
     {
-        return !Cells.Any() || Cells.Contains(cell);
+        return !Rooms.Any() || Rooms.Contains(room);
     }
 
     public bool Applies(long cellId)
     {
-        return !Cells.Any() || Cells.Any(x => x.Id == cellId);
+        return !Rooms.Any() || Rooms.Any(x => x.Id == cellId);
     }
 
     public bool SpecialFormFor(long cellId)
     {
-        return Cells.Any(x => x.Id == cellId);
+        return Rooms.Any(x => x.Id == cellId);
     }
 
     public abstract string Describe(IPerceiver voyeur, IEnumerable<IGameItem> items);
@@ -52,7 +52,7 @@ public abstract class GameItemGroupForm : SaveableItem, IGameItemGroupForm
             case "cell":
             case "room":
             case "location":
-                BuildingCommandCell(actor, command);
+                BuildingCommandRoom(actor, command);
                 break;
             default:
                 actor.Send("That is not a valid option for editing Item Group Forms.");
@@ -60,43 +60,43 @@ public abstract class GameItemGroupForm : SaveableItem, IGameItemGroupForm
         }
     }
 
-    private void BuildingCommandCell(ICharacter actor, StringStack command)
+    private void BuildingCommandRoom(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
         {
-            actor.Send("Which cell do you want to add to or remove from this Item Group Form?");
+            actor.Send("Which room do you want to add to or remove from this Item Group Form?");
             return;
         }
 
         if (!long.TryParse(command.PopSpeech(), out long value))
         {
             actor.Send(
-                "What is the ID number of the cell that you wish to add to or remove from this Item Group Form?");
+                "What is the ID number of the room that you wish to add to or remove from this Item Group Form?");
             return;
         }
 
-        ICell cell = Gameworld.Cells.Get(value);
-        if (cell == null)
+        IRoom room = Gameworld.Rooms.Get(value);
+        if (room == null)
         {
-            actor.Send("There is no such cell.");
+            actor.Send("There is no such room.");
             return;
         }
 
-        if (Cells.Contains(cell))
+        if (Rooms.Contains(room))
         {
-            Cells.Remove(cell);
+            Rooms.Remove(room);
             Changed = true;
-            actor.Send("The Cell {0} (#{1:N0}) will no longer use that Item Group Form.", cell.Name, cell.Id);
+            actor.Send("The Room {0} (#{1:N0}) will no longer use that Item Group Form.", room.Name, room.Id);
             return;
         }
 
-        Cells.Add(cell);
-        actor.Send("The cell {0} (#{1:N0}) will now use this Item Group Form.", cell.Name, cell.Id);
-        foreach (GameItemGroupForm form in _parent.Forms.Except(this).Where(x => x.Applies(cell)).Cast<GameItemGroupForm>())
+        Rooms.Add(room);
+        actor.Send("The room {0} (#{1:N0}) will now use this Item Group Form.", room.Name, room.Id);
+        foreach (GameItemGroupForm form in _parent.Forms.Except(this).Where(x => x.Applies(room)).Cast<GameItemGroupForm>())
         {
-            form.Cells.Remove(cell);
+            form.Rooms.Remove(room);
             form.Changed = true;
-            actor.Send("The cell was removed from form {0:N0}.", form.Id);
+            actor.Send("The room was removed from form {0:N0}.", form.Id);
         }
 
         Changed = true;

@@ -75,7 +75,7 @@ Each guide lists the exact metadata prerequisite descriptions and points to lega
 - ItemSeeder consumes Useful components/tags and Animal mounted-gear components, then checks the selected domains. Industrial menu availability is not proof of the food readiness gate.
 - Creature packages require concrete body, race, health, characteristic and combat identities; their source preflight lists are more detailed than the graph.
 - Culture historical toolkit validates native bindings/era immutability before owned writes; legacy packs retain separate paths.
-- EnvironmentalExposureSeeder deliberately follows many available domain seeders so it can audit installed materials/fluids; it does not turn exposure on or create hazardous cells.
+- EnvironmentalExposureSeeder deliberately follows many available domain seeders so it can audit installed materials/fluids; it does not turn exposure on or create hazardous rooms.
 - ArmageddonMagicSeeder is excluded from Release; Debug opt-in installs separate prepared-world modules with independent commits. PrimaryProductionSeeder remains disabled even though definitions and ordering metadata exist.
 
 See [shared execution contract](README.md#shared-execution-contract), [coverage](Coverage_and_Evidence.md), and [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md).

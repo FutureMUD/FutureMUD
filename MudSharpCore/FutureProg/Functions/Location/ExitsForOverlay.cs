@@ -58,25 +58,25 @@ internal class ExitsForOverlay : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICell cell = (ICell)ParameterFunctions[0].Result?.GetObject;
-        if (cell is null)
+        IRoom room = (IRoom)ParameterFunctions[0].Result?.GetObject;
+        if (room is null)
         {
-            Result = new CollectionVariable(new List<ICellExit>(), ProgVariableTypes.Exit);
+            Result = new CollectionVariable(new List<IRoomExit>(), ProgVariableTypes.Exit);
             return StatementResult.Normal;
         }
 
-        ICellOverlayPackage package = (ICellOverlayPackage)ParameterFunctions[1].Result?.GetObject;
+        IRoomOverlayPackage package = (IRoomOverlayPackage)ParameterFunctions[1].Result?.GetObject;
         if (package is null)
         {
-            package = cell.CurrentOverlay.Package;
+            package = room.CurrentOverlay.Package;
             if (package is null)
             {
-                Result = new CollectionVariable(new List<ICellExit>(), ProgVariableTypes.Exit);
+                Result = new CollectionVariable(new List<IRoomExit>(), ProgVariableTypes.Exit);
                 return StatementResult.Normal;
             }
         }
 
-        Result = new CollectionVariable(Gameworld.ExitManager.GetExitsFor(cell, package).ToList(),
+        Result = new CollectionVariable(Gameworld.ExitManager.GetExitsFor(room, package).ToList(),
             ProgVariableTypes.Exit);
         return StatementResult.Normal;
     }

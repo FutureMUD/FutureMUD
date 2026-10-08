@@ -118,7 +118,7 @@ public interface IStable : IFrameworkItem, ISaveable, IKeywordedItem, IEmploymen
 {
 	IEconomicZone EconomicZone { get; set; }
 	ICurrency Currency { get; }
-	ICell Location { get; set; }
+	IRoom Location { get; set; }
 	IBankAccount? BankAccount { get; set; }
 	decimal CashBalance { get; }
 	decimal AvailableFunds { get; }

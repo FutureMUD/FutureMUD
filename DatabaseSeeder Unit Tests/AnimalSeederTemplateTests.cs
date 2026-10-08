@@ -726,7 +726,7 @@ public class AnimalSeederTemplateTests
             XElement ecology = root.Element("Ecology") ?? new XElement("Ecology");
             bool ecologyNesting = bool.Parse(ecology.Element("NestingEnabled")?.Value ?? "false");
             bool ecologyParenting = bool.Parse(ecology.Element("ParentingEnabled")?.Value ?? "false");
-            bool hasWaterCellProg = long.Parse(root.Element("Movement")?.Element("AmphibiousWaterCellProg")?.Value ?? "0") > 0;
+            bool hasWaterRoomProg = long.Parse(root.Element("Movement")?.Element("AmphibiousWaterCellProg")?.Value ?? "0") > 0;
             bool hasNestSiteProg = long.Parse(ecology.Element("NestSiteProg")?.Value ?? "0") > 0;
             bool hasProtectProg = long.Parse(ecology.Element("ProtectProg")?.Value ?? "0") > 0;
             AnimalAwarenessStrategyType awareness =
@@ -764,7 +764,7 @@ public class AnimalSeederTemplateTests
                 activity,
                 ActiveTimesFor(activity, root),
                 waterStrategy,
-                hasWaterCellProg,
+                hasWaterRoomProg,
                 awareness,
                 ecologyNesting,
                 hasNestSiteProg,

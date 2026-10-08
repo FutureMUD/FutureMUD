@@ -197,7 +197,7 @@ public abstract class PathingAIWithProgTargetsBase : PathingAIBase
         WayPointsProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("WayPointsProg")?.Value ?? "0"));
     }
 
-    protected override void OnBeginPathing(ICharacter ch, ICell target, IEnumerable<ICellExit> exits)
+    protected override void OnBeginPathing(ICharacter ch, IRoom target, IEnumerable<IRoomExit> exits)
     {
         OnStartToPathProg?.Execute(ch, target, exits);
     }

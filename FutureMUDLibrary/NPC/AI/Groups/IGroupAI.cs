@@ -44,7 +44,7 @@ namespace MudSharp.NPC.AI.Groups
         GroupAction CurrentAction { get; set; }
         IGroupTypeData Data { get; set; }
         Dictionary<ICharacter, GroupRole> GroupRoles { get; }
-        bool AvoidCell(ICell cell, GroupAlertness alertness);
+        bool AvoidRoom(IRoom room, GroupAlertness alertness);
         bool ConsidersThreat(ICharacter ch, GroupAlertness alertness);
         IEnumerable<IGroupEmote> GroupEmotes { get; }
         string Show(ICharacter actor);

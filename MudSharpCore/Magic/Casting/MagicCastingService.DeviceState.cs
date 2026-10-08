@@ -19,11 +19,11 @@ public sealed partial class MagicCastingService
 {
 	private sealed record DeviceFocusUse(ChargedMagicDeviceGameItemComponent Device, ICharacter Actor, IBody? Body,
 		ICharacter Owner, long ActorId, long BodyId, long OwnerId, IGameItemComponentProto Prototype,
-		string Configuration, ICell? Location, RoomLayer Layer, IMerit[] Merits, IEffect[] CapabilityEffects)
+		string Configuration, IRoom? Location, RoomLayer Layer, IMerit[] Merits, IEffect[] CapabilityEffects)
 	{
 		public DeviceTargetState[]? Targets { get; set; }
 	}
-	private sealed record DeviceTargetState(IPerceivable Target, ICell? Location, RoomLayer Layer, IBody? Body);
+	private sealed record DeviceTargetState(IPerceivable Target, IRoom? Location, RoomLayer Layer, IBody? Body);
 	private static DeviceFocusUse CaptureDeviceUse(ICharacter actor, ChargedMagicDeviceGameItemComponent device) =>
 		new(device, actor, actor.Body, Owner(actor), actor.InstanceId, actor.Body?.Id ?? 0, Owner(actor).Id,
 			device.Prototype, ((ChargedMagicDeviceGameItemComponentProto)device.Prototype).Configuration, actor.Location,

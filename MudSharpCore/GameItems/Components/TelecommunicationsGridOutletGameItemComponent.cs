@@ -463,7 +463,7 @@ public class TelecommunicationsGridOutletGameItemComponent : GameItemComponent, 
         _powerUsers.Clear();
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         TelecommunicationsGrid = null;
         if (!_connectedItems.Any())

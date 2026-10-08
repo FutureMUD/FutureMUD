@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -43,8 +43,8 @@ public class MovementTests
 	[TestMethod]
 	public void CreateMovement_ForcedSafeMovement_UsesIgnoreSafeMovementFlag()
 	{
-		var exit = new Mock<ICellExit>();
-		var destination = new Mock<ICell>();
+		var exit = new Mock<IRoomExit>();
+		var destination = new Mock<IRoom>();
 		exit.SetupGet(x => x.Destination).Returns(destination.Object);
 		var mover = CreateMoverMock(new Queue<string>());
 		mover.Setup(x => x.CanMove(exit.Object, CanMoveFlags.None))
@@ -62,10 +62,10 @@ public class MovementTests
 	[TestMethod]
 	public void IntermediateStep_ForcedSafeMovement_PreservesConfirmationDuringRevalidation()
 	{
-		var origin = new Mock<ICell>();
-		var destination = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
+		var destination = new Mock<IRoom>();
 		destination.SetupGet(x => x.Characters).Returns([]);
-		var exit = new Mock<ICellExit>();
+		var exit = new Mock<IRoomExit>();
 		exit.SetupGet(x => x.Origin).Returns(origin.Object);
 		exit.SetupGet(x => x.Destination).Returns(destination.Object);
 		var mover = CreateMoverMock(new Queue<string>());
@@ -104,7 +104,7 @@ public class MovementTests
 		var executeMoveStart = movementSource.IndexOf("public void ExecuteMove(IMovement movement",
 			StringComparison.Ordinal);
 		Assert.IsTrue(executeMoveStart >= 0, "Character.ExecuteMove should exist.");
-		var transitionStart = movementSource.IndexOf("case CellMovementTransition.SwimToLand:",
+		var transitionStart = movementSource.IndexOf("case RoomMovementTransition.SwimToLand:",
 			executeMoveStart, StringComparison.Ordinal);
 		Assert.IsTrue(transitionStart >= 0, "ExecuteMove should handle SwimToLand transitions.");
 		var transitionEnd = movementSource.IndexOf("break;", transitionStart, StringComparison.Ordinal);
@@ -121,7 +121,7 @@ public class MovementTests
 	public void Immwalk_UsesOnlyTopologyValidationAndPreservesNonSwimmingPosture()
 	{
 		var movementSource = File.ReadAllText(GetCoreSourcePath("Character", "CharacterMovement.cs"));
-		int canMoveStart = movementSource.IndexOf("public CanMoveResponse CanMove(ICellExit exit",
+		int canMoveStart = movementSource.IndexOf("public CanMoveResponse CanMove(IRoomExit exit",
 			StringComparison.Ordinal);
 		int couldMoveStart = movementSource.IndexOf("public (bool Success, IPositionState MovingState, IMoveSpeed Speed) CouldMove",
 			StringComparison.Ordinal);
@@ -136,7 +136,7 @@ public class MovementTests
 		string startMove = movementSource[startMoveStart..canMoveStart];
 		string executeMove = movementSource[executeMoveStart..];
 
-		int topologyGuard = canMove.IndexOf("CellMovementTransition.NoViableTransition", StringComparison.Ordinal);
+		int topologyGuard = canMove.IndexOf("RoomMovementTransition.NoViableTransition", StringComparison.Ordinal);
 		int immwalkBypass = canMove.IndexOf("EffectsOfType<IImmwalkEffect>().Any()", StringComparison.Ordinal);
 		Assert.IsTrue(topologyGuard >= 0 && immwalkBypass > topologyGuard,
 			"Immwalk must retain exit and layer topology validation before bypassing physical movement checks.");
@@ -166,7 +166,7 @@ public class MovementTests
     [TestMethod]
     public void FinalStep_SoloMoverWithQueuedCommand_ExecutesQueuedMove()
     {
-        (Movement? movement, Mock<ICharacter>? mover, Mock<ICellExit> _, Mock<ICell>? destination, Queue<string>? queuedCommands) = CreateMovementWithMover();
+        (Movement? movement, Mock<ICharacter>? mover, Mock<IRoomExit> _, Mock<IRoom>? destination, Queue<string>? queuedCommands) = CreateMovementWithMover();
 
         movement.FinalStep();
 
@@ -187,7 +187,7 @@ public class MovementTests
         party.SetupGet(x => x.Leader).Returns(leader.Object);
         party.SetupProperty(x => x.Movement);
 
-        (Movement? movement, Mock<ICharacter>? mover, Mock<ICellExit> _, Mock<ICell> _, Queue<string>? queuedCommands) = CreateMovementWithMover(party.Object);
+        (Movement? movement, Mock<ICharacter>? mover, Mock<IRoomExit> _, Mock<IRoom> _, Queue<string>? queuedCommands) = CreateMovementWithMover(party.Object);
         party.Object.Movement = movement;
 
         movement.FinalStep();
@@ -203,11 +203,11 @@ public class MovementTests
     public void CharacterMove_MountedRiderDelegatesToMountAuthorizationBeforeCreatingMovement()
     {
         string movementSource = File.ReadAllText(GetCoreSourcePath("Character", "CharacterMovement.cs"));
-        int moveStart = movementSource.IndexOf("public bool Move(ICellExit exit", StringComparison.Ordinal);
+        int moveStart = movementSource.IndexOf("public bool Move(IRoomExit exit", StringComparison.Ordinal);
         int staminaStart = movementSource.IndexOf("protected double StaminaForMovement", StringComparison.Ordinal);
 
-        Assert.IsTrue(moveStart >= 0, "Character.Move(ICellExit) should exist.");
-        Assert.IsTrue(staminaStart > moveStart, "Character.Move(ICellExit) should appear before StaminaForMovement.");
+        Assert.IsTrue(moveStart >= 0, "Character.Move(IRoomExit) should exist.");
+        Assert.IsTrue(staminaStart > moveStart, "Character.Move(IRoomExit) should appear before StaminaForMovement.");
 
         string moveMethod = movementSource[moveStart..staminaStart];
         int mountedGuard = moveMethod.IndexOf("if (RidingMount is not null)", StringComparison.Ordinal);
@@ -222,7 +222,7 @@ public class MovementTests
     [TestMethod]
     public void EvaluateCharacterForAdditionToMovement_MountedRiderKeepsRiderInMovementSet()
     {
-        var exit = new Mock<ICellExit>();
+        var exit = new Mock<IRoomExit>();
         var rider = CreateMountedCharacterMock("rider");
         var mount = CreateMountedCharacterMock("mount");
         rider.SetupGet(x => x.RidingMount).Returns(mount.Object);
@@ -275,7 +275,7 @@ public class MovementTests
         target.Setup(x => x.HowSeen(voyeur.Object, false, DescriptionType.Short, true, PerceiveIgnoreFlags.None))
               .Returns("the prisoner");
 
-        Mock<ICellExit> exit = new();
+        Mock<IRoomExit> exit = new();
         exit.SetupGet(x => x.OutboundMovementSuffix).Returns("towards the north");
         Dragging dragging = new(dragger.Object, null!, target.Object);
         Movement movement = new(
@@ -299,7 +299,7 @@ public class MovementTests
     [TestMethod]
     public void FinalStep_ZeroGravityMoverStartsDrift()
     {
-        (Movement? movement, Mock<ICharacter>? mover, Mock<ICellExit>? exit, Mock<ICell>? destination, Queue<string>? queuedCommands) = CreateMovementWithMover();
+        (Movement? movement, Mock<ICharacter>? mover, Mock<IRoomExit>? exit, Mock<IRoom>? destination, Queue<string>? queuedCommands) = CreateMovementWithMover();
         queuedCommands.Clear();
 
         Mock<ITerrain> terrain = new();
@@ -319,12 +319,12 @@ public class MovementTests
         mover.Verify(x => x.AddEffect(It.IsAny<ZeroGravityDrift>(), It.IsAny<TimeSpan>()), Times.Once);
     }
 
-    private static (Movement Movement, Mock<ICharacter> Mover, Mock<ICellExit> Exit, Mock<ICell> Destination, Queue<string> QueuedCommands) CreateMovementWithMover(IParty? party = null)
+    private static (Movement Movement, Mock<ICharacter> Mover, Mock<IRoomExit> Exit, Mock<IRoom> Destination, Queue<string> QueuedCommands) CreateMovementWithMover(IParty? party = null)
     {
-        Mock<ICell> destination = new();
+        Mock<IRoom> destination = new();
         destination.Setup(x => x.ResolveMovement(It.IsAny<IMovement>()));
 
-        Mock<ICellExit> exit = new();
+        Mock<IRoomExit> exit = new();
         exit.SetupGet(x => x.Destination).Returns(destination.Object);
 
         Queue<string> queuedCommands = new(["north"]);
@@ -370,7 +370,7 @@ public class MovementTests
         mover.Setup(x => x.EffectsOfType<ISneakEffect>(It.IsAny<Predicate<ISneakEffect>>()))
             .Returns(Enumerable.Empty<ISneakEffect>());
         mover.Setup(x => x.AffectedBy<Immwalk>()).Returns(false);
-        mover.Setup(x => x.MoveSpeed(It.IsAny<ICellExit>())).Returns(0.0);
+        mover.Setup(x => x.MoveSpeed(It.IsAny<IRoomExit>())).Returns(0.0);
         mover.SetupGet(x => x.RidingMount).Returns((ICharacter?)null);
         mover.SetupGet(x => x.QueuedMoveCommands).Returns(queuedCommands);
         mover.SetupProperty(x => x.Movement);

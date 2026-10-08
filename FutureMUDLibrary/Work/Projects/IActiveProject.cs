@@ -12,7 +12,7 @@ namespace MudSharp.Work.Projects
         ICharacter CharacterOwner { get; }
         IProject ProjectDefinition { get; }
         IProjectPhase CurrentPhase { get; }
-        ICell Location { get; }
+        IRoom Location { get; }
         IReadOnlyDictionary<IProjectLabourRequirement, double> LabourProgress { get; }
         IReadOnlyDictionary<IProjectMaterialRequirement, double> MaterialProgress { get; }
         ICurrency PaymentCurrency { get; }

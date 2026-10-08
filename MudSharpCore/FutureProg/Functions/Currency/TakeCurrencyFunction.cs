@@ -261,7 +261,7 @@ internal class TakeCurrencyFunction : BuiltInFunction
             targetPiles = gameitem.RecursiveGetItems<ICurrencyPile>(respectGetRules);
         }
 
-        ICell location = parameter1 as ICell;
+        IRoom location = parameter1 as IRoom;
         if (location != null)
         {
             targetPiles = location.GameItems.RecursiveGetItems<ICurrencyPile>(respectGetRules);

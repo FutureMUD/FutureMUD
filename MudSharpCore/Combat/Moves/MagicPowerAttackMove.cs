@@ -41,12 +41,14 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 	{
 		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		using var hostileAttempt = HostileAttackAdmission.BeginAttempt(Assailant, PrimaryCharacterTarget);
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		var target = PrimaryCharacterTarget;
 		if (_committed || target is null) return CombatMoveResult.Irrelevant;
 		var permitted = AttackPower.CanInvokePower(Assailant, target);
 		if (!CanContinueCommand() || !permitted) return CombatMoveResult.Irrelevant;
+		if (!HostileAttackAdmission.TryNotify(Assailant, target, CanContinueCommand)) return CombatMoveResult.Irrelevant;
 		_committed = true;
 		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
 		AttackPower.UseAttackPower(this);

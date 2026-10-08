@@ -52,18 +52,18 @@ public class SpellRoomGravityEffect : MagicSpellEffectBase, IDescriptionAddition
 
 	public override void InitialEffect()
 	{
-		if (Owner is ICell cell)
+		if (Owner is IRoom room)
 		{
-			cell.CheckFallExitStatus();
+			room.CheckFallExitStatus();
 		}
 	}
 
 	public override void RemovalEffect()
 	{
 		base.RemovalEffect();
-		if (Owner is ICell cell)
+		if (Owner is IRoom room)
 		{
-			cell.CheckFallExitStatus();
+			room.CheckFallExitStatus();
 		}
 	}
 

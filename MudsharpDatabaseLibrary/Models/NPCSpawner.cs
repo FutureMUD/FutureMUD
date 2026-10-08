@@ -10,7 +10,7 @@ namespace MudSharp.Models
     {
         public NPCSpawner()
         {
-            Cells = new HashSet<NPCSpawnerCell>();
+            Rooms = new HashSet<NPCSpawnerRoom>();
             Zones = new HashSet<NPCSpawnerZone>();
         }
 
@@ -27,7 +27,7 @@ namespace MudSharp.Models
         public virtual FutureProg OnSpawnProg { get; set; }
         public virtual FutureProg CountsAsProg { get; set; }
         public virtual FutureProg IsActiveProg { get; set; }
-        public virtual ICollection<NPCSpawnerCell> Cells { get; set; }
+        public virtual ICollection<NPCSpawnerRoom> Rooms { get; set; }
         public virtual ICollection<NPCSpawnerZone> Zones { get; set; }
     }
 }

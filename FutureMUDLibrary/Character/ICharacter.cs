@@ -197,7 +197,7 @@ namespace MudSharp.Character
     {
         void CheckHealthStatus();
         IGameItem Die();
-        ICharacter Resurrect(ICell location);
+        ICharacter Resurrect(IRoom location);
         event PerceivableEvent OnDeath;
     }
 
@@ -230,10 +230,10 @@ namespace MudSharp.Character
     {
 		/// <summary>
 		/// Estimates traversal of a prospective path edge using the character's current body and movement state,
-		/// without requiring the edge's origin to be the character's present cell. This does not authorise movement;
+		/// without requiring the edge's origin to be the character's present room. This does not authorise movement;
 		/// every executed step must still pass ordinary CanMove and CanCross checks at its actual origin.
 		/// </summary>
-		CanMoveResponse CanMoveForPathPlanning(ICellExit exit, CanMoveFlags flags = CanMoveFlags.None);
+		CanMoveResponse CanMoveForPathPlanning(IRoomExit exit, CanMoveFlags flags = CanMoveFlags.None);
 
         bool CanMovePosition(IPositionState whichPosition, PositionModifier whichModifier, IPerceivable target,
             bool ignorePositionTargetChangeRestrictions = false, bool ignoreMovement = false);
@@ -422,16 +422,16 @@ namespace MudSharp.Character
 
         double MaximumDragWeight { get; }
 
-        void TransferTo(ICell target, RoomLayer layer);
+        void TransferTo(IRoom target, RoomLayer layer);
 
 		void TransferTo(SpatialLocation target)
 		{
-			TransferTo(target.Cell, target.Layer);
+			TransferTo(target.Room, target.Layer);
 			SetRoutePosition(target.RoutePositionMetres);
 		}
 
         /// <summary>
-        /// This function should be the preferred way of teleporting a character from one cell to another, handling all the consequences
+        /// This function should be the preferred way of teleporting a character from one room to another, handling all the consequences
         /// </summary>
         /// <param name="target">The target location</param>
         /// <param name="layer">The target layer</param>
@@ -444,7 +444,7 @@ namespace MudSharp.Character
         /// <param name="followerEchoArrive"></param>
         /// <param name="followerEchoSelf"></param>
         void Teleport(
-            ICell target,
+            IRoom target,
             RoomLayer layer,
             bool includeFollowers,
             bool echo,
@@ -456,7 +456,7 @@ namespace MudSharp.Character
             string followerEchoSelf = "");
 
 		void Teleport(
-			ICell target,
+			IRoom target,
 			RoomLayer layer,
 			bool includeFollowers,
 			bool echo,
@@ -531,7 +531,7 @@ namespace MudSharp.Character
         IEnumerable<INameCulture> NameCultures { get; }
         INameCulture NameCultureForGender(Gender gender);
         Difficulty IlluminationSightDifficulty();
-        Difficulty IlluminationSightDifficulty(ICell location);
+        Difficulty IlluminationSightDifficulty(IRoom location);
 #nullable enable
         ICharacter? RidingMount { get; set; }
 #nullable restore

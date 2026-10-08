@@ -37,7 +37,7 @@ public interface IVehicleCompartmentPrototype : IFrameworkItem
 #nullable enable annotations
 	ITerrain? InteriorTerrain => null;
 #nullable restore annotations
-	CellOutdoorsType InteriorOutdoorsType => CellOutdoorsType.Indoors;
+	RoomOutdoorsType InteriorOutdoorsType => RoomOutdoorsType.Indoors;
 }
 
 public interface IVehicleCompartmentLinkPrototype : IFrameworkItem

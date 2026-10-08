@@ -51,13 +51,13 @@ internal static class AutobuilderRectangleTopology
 		}
 	}
 
-	internal static void ConnectCells(ICharacter builder, ICellOverlayPackage package, ICell[,] cells,
+	internal static void ConnectRooms(ICharacter builder, IRoomOverlayPackage package, IRoom[,] rooms,
 		bool connectDiagonals)
 	{
-		foreach (var connection in GetConnections(cells.GetLength(0), cells.GetLength(1), connectDiagonals))
+		foreach (var connection in GetConnections(rooms.GetLength(0), rooms.GetLength(1), connectDiagonals))
 		{
-			var origin = cells[connection.OriginX, connection.OriginY];
-			var destination = cells[connection.DestinationX, connection.DestinationY];
+			var origin = rooms[connection.OriginX, connection.OriginY];
+			var destination = rooms[connection.DestinationX, connection.DestinationY];
 			if (origin == null || destination == null)
 			{
 				continue;

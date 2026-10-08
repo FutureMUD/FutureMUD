@@ -109,7 +109,7 @@ The syntax is:
 		}
 		else
 		{
-			sb.AppendLine("Cell-exit readiness: take control from a driver slot to perform a full preflight check.".Colour(Telnet.Yellow));
+			sb.AppendLine("Room-exit readiness: take control from a driver slot to perform a full preflight check.".Colour(Telnet.Yellow));
 		}
 
 		actor.OutputHandler.Send(sb.ToString());
@@ -138,19 +138,19 @@ The syntax is:
 					0.0,
 					TimeSpan.Zero,
 					ContinuingMovement: continuingMovement));
-			sb.AppendLine($"RouteCell readiness: {(readiness.CanMove ? "ready".Colour(Telnet.Green) : readiness.Reason.ColourError())}");
+			sb.AppendLine($"RouteRoom readiness: {(readiness.CanMove ? "ready".Colour(Telnet.Green) : readiness.Reason.ColourError())}");
 			return;
 		}
 
 		var cellExitReadiness = readinessService.BuildMovementReadiness(
 			new VehicleMovementReadinessRequest(vehicle, actor, null));
-		sb.AppendLine($"Cell-exit readiness: {(cellExitReadiness.CanMove ? "ready".Colour(Telnet.Green) : cellExitReadiness.Reason.ColourError())}");
+		sb.AppendLine($"Room-exit readiness: {(cellExitReadiness.CanMove ? "ready".Colour(Telnet.Green) : cellExitReadiness.Reason.ColourError())}");
 	}
 
 	internal static void AppendActiveJourneyStatus(StringBuilder sb, ICharacter actor, IVehicleJourney journey)
 	{
 		var platforms = journey.CurrentStop?.PlatformBindings
-			.Select(x => x.PlatformCell.HowSeen(actor))
+			.Select(x => x.PlatformRoom.HowSeen(actor))
 			.ToList() ?? [];
 		sb.AppendLine($"Journey: {journey.State.DescribeEnum().ColourName()} on {journey.Service.Name.ColourName()}");
 		sb.AppendLine($"Timetable: scheduled {journey.ScheduledDeparture.ToString().ColourValue()}, expected {journey.ExpectedDeparture.ToString().ColourValue()}, delay {journey.Delay.Describe(actor).ColourValue()}");

@@ -13,8 +13,8 @@ namespace MudSharp.Models
             LegalClasses = new HashSet<LegalClass>();
             WitnessProfilesCooperatingAuthorities = new HashSet<WitnessProfilesCooperatingAuthorities>();
             PatrolRoutes = new HashSet<PatrolRoute>();
-            LegalAuthorityCells = new HashSet<LegalAuthorityCells>();
-            LegalAuthorityJailCells = new HashSet<LegalAuthorityJailCell>();
+            LegalAuthorityRooms = new HashSet<LegalAuthorityRooms>();
+            LegalAuthorityJailRooms = new HashSet<LegalAuthorityJailRoom>();
             Patrols = new HashSet<Patrol>();
             Fines = new HashSet<LegalAuthorityFine>();
             CorpseRecoveryReports = new HashSet<CorpseRecoveryReport>();
@@ -48,19 +48,19 @@ namespace MudSharp.Models
         public virtual ICollection<LegalClass> LegalClasses { get; set; }
         public virtual ICollection<WitnessProfilesCooperatingAuthorities> WitnessProfilesCooperatingAuthorities { get; set; }
         public virtual ICollection<PatrolRoute> PatrolRoutes { get; set; }
-        public virtual ICollection<LegalAuthorityCells> LegalAuthorityCells { get; set; }
-        public virtual ICollection<LegalAuthorityJailCell> LegalAuthorityJailCells { get; set; }
+        public virtual ICollection<LegalAuthorityRooms> LegalAuthorityRooms { get; set; }
+        public virtual ICollection<LegalAuthorityJailRoom> LegalAuthorityJailRooms { get; set; }
         public virtual ICollection<Patrol> Patrols { get; set; }
         public virtual ICollection<LegalAuthorityFine> Fines { get; set; }
         public virtual ICollection<CorpseRecoveryReport> CorpseRecoveryReports { get; set; }
-        public virtual Cell PreparingLocation { get; set; }
-        public virtual Cell MarshallingLocation { get; set; }
-        public virtual Cell EnforcerStowingLocation { get; set; }
-        public virtual Cell PrisonLocation { get; set; }
-        public virtual Cell PrisonReleaseLocation { get; set; }
-        public virtual Cell PrisonBelongingsLocation { get; set; }
-        public virtual Cell JailLocation { get; set; }
-        public virtual Cell CourtLocation { get; set; }
+        public virtual Room PreparingLocation { get; set; }
+        public virtual Room MarshallingLocation { get; set; }
+        public virtual Room EnforcerStowingLocation { get; set; }
+        public virtual Room PrisonLocation { get; set; }
+        public virtual Room PrisonReleaseLocation { get; set; }
+        public virtual Room PrisonBelongingsLocation { get; set; }
+        public virtual Room JailLocation { get; set; }
+        public virtual Room CourtLocation { get; set; }
         public virtual FutureProg OnReleaseProg { get; set; }
         public virtual FutureProg OnImprisonProg { get; set; }
         public virtual FutureProg OnHoldProg { get; set; }

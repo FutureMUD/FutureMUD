@@ -21,10 +21,10 @@ public class RoutePersistenceLoadValidationTests
 		var row = new DB.Track
 		{
 			Id = 7L,
-			CellId = 42L,
+			RoomId = 42L,
 			CharacterId = 1L,
 			RoutePosition = 10_001.0m,
-			RouteDirection = (int)RouteCellDirection.Positive,
+			RouteDirection = (int)RouteRoomDirection.Positive,
 			MudDateTime = "invalid"
 		};
 
@@ -34,7 +34,7 @@ public class RoutePersistenceLoadValidationTests
 	}
 
 	[TestMethod]
-	public void VehicleLoad_RouteCellWithNullCoordinate_ThrowsRecoveryDiagnostic()
+	public void VehicleLoad_RouteRoomWithNullCoordinate_ThrowsRecoveryDiagnostic()
 	{
 		var gameworld = CreateRouteGameworld(42L, 10_000.0);
 		var row = new DB.Vehicle
@@ -44,7 +44,7 @@ public class RoutePersistenceLoadValidationTests
 			VehicleProtoId = 1L,
 			VehicleProtoRevision = 0,
 			LocationType = (int)VehicleLocationType.Route,
-			CurrentCellId = 42L,
+			CurrentRoomId = 42L,
 			CurrentRoomLayer = (int)RoomLayer.GroundLevel,
 			MovementStatus = (int)VehicleMovementStatus.Stationary,
 			CurrentRoutePosition = null
@@ -57,16 +57,16 @@ public class RoutePersistenceLoadValidationTests
 
 	private static Mock<IFuturemud> CreateRouteGameworld(long cellId, double lengthMetres)
 	{
-		var cell = new Mock<ICell>();
-		var definition = new Mock<IRouteCellDefinition>();
-		cell.SetupGet(x => x.Id).Returns(cellId);
-		cell.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
-		definition.SetupGet(x => x.Cell).Returns(cell.Object);
+		var room = new Mock<IRoom>();
+		var definition = new Mock<IRouteRoomDefinition>();
+		room.SetupGet(x => x.Id).Returns(cellId);
+		room.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
+		definition.SetupGet(x => x.Room).Returns(room.Object);
 		definition.SetupGet(x => x.LengthMetres).Returns(lengthMetres);
-		var cells = new Mock<IUneditableAll<ICell>>();
-		cells.Setup(x => x.Get(cellId)).Returns(cell.Object);
+		var rooms = new Mock<IUneditableAll<IRoom>>();
+		rooms.Setup(x => x.Get(cellId)).Returns(room.Object);
 		var gameworld = new Mock<IFuturemud>();
-		gameworld.SetupGet(x => x.Cells).Returns(cells.Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms.Object);
 		return gameworld;
 	}
 }

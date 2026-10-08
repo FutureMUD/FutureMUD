@@ -10,7 +10,7 @@ namespace MudSharp.Construction;
 
 /// <summary>
 /// Maintains locality indexes for the comparatively small set of perceivables that have opted in to proximity
-/// change events. Moving ordinary characters therefore queries listeners, not every object in their cell.
+/// change events. Moving ordinary characters therefore queries listeners, not every object in their room.
 /// </summary>
 public sealed class ProximityEventService : IProximityEventService
 {
@@ -19,9 +19,9 @@ public sealed class ProximityEventService : IProximityEventService
 		new(ReferenceEqualityComparer.Instance);
 	private readonly Dictionary<IPerceivable, HashSet<Registration>> _registrationsByEffectiveHost =
 		new(ReferenceEqualityComparer.Instance);
-	private readonly Dictionary<ICell, Dictionary<RoomLayer, HashSet<Registration>>> _ordinaryCellIndex =
+	private readonly Dictionary<IRoom, Dictionary<RoomLayer, HashSet<Registration>>> _ordinaryRoomIndex =
 		new(ReferenceEqualityComparer.Instance);
-	private readonly Dictionary<ICell, Dictionary<RoomLayer, RouteReceiverBucket>> _routeCellIndex =
+	private readonly Dictionary<IRoom, Dictionary<RoomLayer, RouteReceiverBucket>> _routeRoomIndex =
 		new(ReferenceEqualityComparer.Instance);
 
 	public IProximityEventRegistration Register(IPerceivable receiver,
@@ -146,23 +146,23 @@ public sealed class ProximityEventService : IProximityEventService
 
 	private IEnumerable<Registration> CandidateRegistrationsFor(IPerceivable subject)
 	{
-		if (EffectiveLocation(subject) is not { Cell: not null } location)
+		if (EffectiveLocation(subject) is not { Room: not null } location)
 		{
 			return [];
 		}
 
-		if (location.Cell.RouteDefinition is null)
+		if (location.Room.RouteDefinition is null)
 		{
-			return _ordinaryCellIndex.TryGetValue(location.Cell, out var layers) &&
+			return _ordinaryRoomIndex.TryGetValue(location.Room, out var layers) &&
 			       layers.TryGetValue(location.Layer, out var registrations)
 				? registrations.ToList()
 				: [];
 		}
 
 		var configuration = RouteSpatialConfiguration.FromGameworld(subject.Gameworld);
-		var position = location.RoutePositionMetres ?? location.Cell.RouteDefinition.DefaultPositionMetres;
+		var position = location.RoutePositionMetres ?? location.Room.RouteDefinition.DefaultPositionMetres;
 		var results = new HashSet<Registration>();
-		if (!_routeCellIndex.TryGetValue(location.Cell, out var routeLayers))
+		if (!_routeRoomIndex.TryGetValue(location.Room, out var routeLayers))
 		{
 			return results;
 		}
@@ -185,14 +185,14 @@ public sealed class ProximityEventService : IProximityEventService
 	private IEnumerable<IPerceivable> CounterpartsForRegisteredReceiver(Registration registration)
 	{
 		var receiver = registration.Receiver;
-		if (EffectiveLocation(receiver) is not { Cell: not null } location)
+		if (EffectiveLocation(receiver) is not { Room: not null } location)
 		{
 			return [];
 		}
 
-		if (location.Cell.RouteDefinition is null)
+		if (location.Room.RouteDefinition is null)
 		{
-			return location.Cell.Perceivables
+			return location.Room.Perceivables
 				.Where(x => x.RoomLayer == location.Layer && !ReferenceEquals(x, receiver))
 				.ToList();
 		}
@@ -233,7 +233,7 @@ public sealed class ProximityEventService : IProximityEventService
 	private void Index(Registration registration)
 	{
 		var host = EffectiveHost(registration.Receiver);
-		if (EffectiveLocation(registration.Receiver) is not { Cell: not null } location)
+		if (EffectiveLocation(registration.Receiver) is not { Room: not null } location)
 		{
 			return;
 		}
@@ -246,12 +246,12 @@ public sealed class ProximityEventService : IProximityEventService
 			_registrationsByEffectiveHost[host] = hostedRegistrations;
 		}
 		hostedRegistrations.Add(registration);
-		if (location.Cell.RouteDefinition is null)
+		if (location.Room.RouteDefinition is null)
 		{
-			if (!_ordinaryCellIndex.TryGetValue(location.Cell, out var layers))
+			if (!_ordinaryRoomIndex.TryGetValue(location.Room, out var layers))
 			{
 				layers = new Dictionary<RoomLayer, HashSet<Registration>>();
-				_ordinaryCellIndex[location.Cell] = layers;
+				_ordinaryRoomIndex[location.Room] = layers;
 			}
 
 			if (!layers.TryGetValue(location.Layer, out var registrations))
@@ -264,10 +264,10 @@ public sealed class ProximityEventService : IProximityEventService
 			return;
 		}
 
-		if (!_routeCellIndex.TryGetValue(location.Cell, out var routeLayers))
+		if (!_routeRoomIndex.TryGetValue(location.Room, out var routeLayers))
 		{
 			routeLayers = new Dictionary<RoomLayer, RouteReceiverBucket>();
-			_routeCellIndex[location.Cell] = routeLayers;
+			_routeRoomIndex[location.Room] = routeLayers;
 		}
 
 		if (!routeLayers.TryGetValue(location.Layer, out var bucket))
@@ -276,7 +276,7 @@ public sealed class ProximityEventService : IProximityEventService
 			routeLayers[location.Layer] = bucket;
 		}
 
-		bucket.Add(registration, location.RoutePositionMetres ?? location.Cell.RouteDefinition.DefaultPositionMetres);
+		bucket.Add(registration, location.RoutePositionMetres ?? location.Room.RouteDefinition.DefaultPositionMetres);
 	}
 
 	private void Unindex(Registration registration)
@@ -291,14 +291,14 @@ public sealed class ProximityEventService : IProximityEventService
 		}
 		registration.Host = null;
 
-		if (registration.Location?.Cell is not { } cell)
+		if (registration.Location?.Room is not { } room)
 		{
 			return;
 		}
 
-		if (cell.RouteDefinition is null)
+		if (room.RouteDefinition is null)
 		{
-			if (_ordinaryCellIndex.TryGetValue(cell, out var layers) &&
+			if (_ordinaryRoomIndex.TryGetValue(room, out var layers) &&
 				layers.TryGetValue(registration.Location.Value.Layer, out var registrations))
 			{
 				registrations.Remove(registration);
@@ -308,11 +308,11 @@ public sealed class ProximityEventService : IProximityEventService
 				}
 				if (layers.Count == 0)
 				{
-					_ordinaryCellIndex.Remove(cell);
+					_ordinaryRoomIndex.Remove(room);
 				}
 			}
 		}
-		else if (_routeCellIndex.TryGetValue(cell, out var routeLayers) &&
+		else if (_routeRoomIndex.TryGetValue(room, out var routeLayers) &&
 		         routeLayers.TryGetValue(registration.Location.Value.Layer, out var bucket))
 		{
 			bucket.Remove(registration);
@@ -322,7 +322,7 @@ public sealed class ProximityEventService : IProximityEventService
 			}
 			if (routeLayers.Count == 0)
 			{
-				_routeCellIndex.Remove(cell);
+				_routeRoomIndex.Remove(room);
 			}
 		}
 

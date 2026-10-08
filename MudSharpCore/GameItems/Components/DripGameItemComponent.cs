@@ -164,7 +164,7 @@ public class DripGameItemComponent : GameItemComponent, IDrip, ISelectable
         _pendingDependentLoadTimeConnections.Clear();
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         foreach (Tuple<ConnectorType, IConnectable> connectable in ConnectedItems.ToList())
         {

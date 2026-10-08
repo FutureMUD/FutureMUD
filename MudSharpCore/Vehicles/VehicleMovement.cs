@@ -131,18 +131,18 @@ internal static class VehicleMovementCommand
 
 public class VehicleMovement : IMovement
 {
-	private readonly CellExitVehicleMovementStrategy _strategy = new();
+	private readonly RoomExitVehicleMovementStrategy _strategy = new();
 	private readonly VehicleMotiveCohortService _motiveCohortService = new();
 	private readonly IVehicle _vehicle;
 	private readonly ICharacter _originalMover;
 	private readonly List<ICharacter> _characterMovers;
 	private IReadOnlyList<IVehicle> _towTrain = [];
-	private (CellMovementTransition TransitionType, RoomLayer TargetLayer) _transition;
+	private (RoomMovementTransition TransitionType, RoomLayer TargetLayer) _transition;
 	private VehicleMovementReadinessResult _readiness;
 	private VehiclePropulsionMovePlan _propulsionPlan;
 	private VehicleMotiveCohort _motiveCohort;
 
-	public VehicleMovement(IVehicle vehicle, ICharacter originalMover, ICellExit exit)
+	public VehicleMovement(IVehicle vehicle, ICharacter originalMover, IRoomExit exit)
 	{
 		_vehicle = vehicle;
 		_originalMover = originalMover;
@@ -170,7 +170,7 @@ public class VehicleMovement : IMovement
 
 	public bool Cancelled { get; private set; }
 	public bool CanBeVoluntarilyCancelled => Phase == MovementPhase.OriginalRoom;
-	public ICellExit Exit { get; }
+	public IRoomExit Exit { get; }
 	public MovementPhase Phase { get; private set; }
 	public IEnumerable<ICharacter> CharacterMovers => _characterMovers.ToArray();
 	public IParty Party { get; }

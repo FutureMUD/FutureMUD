@@ -32,7 +32,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		public required string ZoneName { get; init; }
 		public required IReadOnlyList<SpatialZoneDefinition> Zones { get; init; }
 		public required IReadOnlyDictionary<string, string> ZoneNames { get; init; }
-		public required ICellOverlayPackage OverlayPackage { get; init; }
+		public required IRoomOverlayPackage OverlayPackage { get; init; }
 		public required IReadOnlyDictionary<string, ITerrain> Terrains { get; init; }
 		public required IReadOnlyDictionary<string, IHearingProfile> HearingProfiles { get; init; }
 		public required IReadOnlyDictionary<string, IFluid> Fluids { get; init; }
@@ -88,8 +88,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 			PackagePath = preflight.PackagePath,
 			Diagnostics = preflight.Diagnostics,
 			ZoneCount = zoneNames.Count,
-			RoomCount = PackagedRoomCount(preflight.Package),
-			CellCount = preflight.Package.Cells.Count,
+			RoomCount = preflight.Package.Rooms.Count,
 			ExitCount = preflight.Package.Exits.Count,
 			OmittedItems = PackageOmissions(preflight)
 		};
@@ -112,270 +111,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 			return failure!;
 		}
 
-		if (preflight.Package.Version >= 2)
-		{
-			return ImportVersion2(actor, targetShard, preflight);
-		}
-
-		var package = preflight.Package;
-		var gameworld = actor.Gameworld;
-		Models.Zone? dbZone = null;
-		var dbRooms = new Dictionary<string, Models.Room>(StringComparer.Ordinal);
-		var dbCells = new Dictionary<string, Models.Cell>(StringComparer.Ordinal);
-		var databaseCommitted = false;
-		try
-		{
-			using (new FMDB())
-			using (var transaction = FMDB.Context.Database.BeginTransaction(IsolationLevel.Serializable))
-			{
-				if (FMDB.Context.Zones.Any(x => x.Name == preflight.ZoneName))
-				{
-					return Failure(
-						$"A zone named '{preflight.ZoneName}' was created after validation. Nothing was imported.",
-						preflight.Diagnostics,
-						"zone-name-collision");
-				}
-
-				dbZone = new Models.Zone
-				{
-					Name = preflight.ZoneName,
-					ShardId = targetShard.Id,
-					Latitude = package.Zone.LatitudeRadians,
-					Longitude = package.Zone.LongitudeRadians,
-					Elevation = package.Zone.ElevationMetres,
-					AmbientLightPollution = package.Zone.AmbientLightPollution,
-					ForagableProfileId = package.Zone.ForagableProfile is null
-						? null
-						: preflight.ForagableProfiles[package.Zone.ForagableProfile.Name].Id,
-					WeatherControllerId = preflight.WeatherController?.Id
-				};
-				FMDB.Context.Zones.Add(dbZone);
-
-				foreach (var resolvedTimeZone in preflight.TimeZones.Values)
-				{
-					dbZone.ZonesTimezones.Add(new ZonesTimezones
-					{
-						Zone = dbZone,
-						ClockId = resolvedTimeZone.Clock.Id,
-						TimezoneId = resolvedTimeZone.TimeZone.Id
-					});
-				}
-
-				var importedRoomKeys = package.Cells
-					.Select(x => x.RoomKey)
-					.ToHashSet(StringComparer.Ordinal);
-				foreach (var room in package.Rooms.Where(x => importedRoomKeys.Contains(x.Key)))
-				{
-					var dbRoom = new Models.Room
-					{
-						Zone = dbZone,
-						X = room.X,
-						Y = room.Y,
-						Z = room.Z
-					};
-					dbRooms.Add(room.Key, dbRoom);
-					FMDB.Context.Rooms.Add(dbRoom);
-				}
-
-				FMDB.Context.SaveChanges();
-
-				foreach (var cell in package.Cells)
-				{
-					var dbCell = new Models.Cell
-					{
-						Room = dbRooms[cell.RoomKey],
-						Temporary = false,
-						EffectData = "<Effects/>",
-						ForagableProfileId = cell.ForagableProfile is null
-							? null
-							: preflight.ForagableProfiles[cell.ForagableProfile.Name].Id
-					};
-					dbCells.Add(cell.Key, dbCell);
-					FMDB.Context.Cells.Add(dbCell);
-				}
-
-				FMDB.Context.SaveChanges();
-
-				var dbOverlays = new Dictionary<string, Models.CellOverlay>(StringComparer.Ordinal);
-				foreach (var cell in package.Cells)
-				{
-					var overlay = cell.Overlay;
-					var dbOverlay = new Models.CellOverlay
-					{
-						Cell = dbCells[cell.Key],
-						Name = preflight.OverlayPackage.Name,
-						CellName = overlay.CellName,
-						CellDescription = overlay.CellDescription,
-						CellOverlayPackageId = preflight.OverlayPackage.Id,
-						CellOverlayPackageRevisionNumber = preflight.OverlayPackage.RevisionNumber,
-						TerrainId = preflight.Terrains[overlay.Terrain.Name].Id,
-						HearingProfileId = overlay.HearingProfile is null
-							? null
-							: preflight.HearingProfiles[overlay.HearingProfile.Name].Id,
-						OutdoorsType = overlay.OutdoorsType,
-						AmbientLightFactor = overlay.AmbientLightFactor,
-						AddedLight = overlay.AddedLight,
-						AtmosphereId = overlay.Atmosphere is null
-							? null
-							: preflight.Fluids[FluidKey(overlay.Atmosphere)].Id,
-						AtmosphereType = overlay.Atmosphere?.Kind,
-						SafeQuit = overlay.SafeQuit
-					};
-					dbCells[cell.Key].CellOverlays.Add(dbOverlay);
-					dbOverlays.Add(cell.Key, dbOverlay);
-					FMDB.Context.CellOverlays.Add(dbOverlay);
-				}
-
-				FMDB.Context.SaveChanges();
-
-				foreach (var cell in package.Cells)
-				{
-					dbCells[cell.Key].CurrentOverlay = dbOverlays[cell.Key];
-					foreach (var tag in cell.Tags)
-					{
-						dbCells[cell.Key].CellsTags.Add(new CellsTags
-						{
-							Cell = dbCells[cell.Key],
-							TagId = preflight.Tags[tag.Name].Id
-						});
-					}
-
-					foreach (var cover in cell.RangedCovers)
-					{
-						dbCells[cell.Key].CellsRangedCovers.Add(new CellsRangedCovers
-						{
-							Cell = dbCells[cell.Key],
-							RangedCoverId = preflight.RangedCovers[cover.Name].Id
-						});
-					}
-
-					foreach (var resource in cell.MagicResources)
-					{
-						dbCells[cell.Key].CellsMagicResources.Add(new CellMagicResource
-						{
-							Cell = dbCells[cell.Key],
-							MagicResourceId = preflight.MagicResources[resource.Resource.Name].Id,
-							Amount = resource.Amount
-						});
-					}
-				}
-
-				var dbExits = new Dictionary<string, Models.Exit>(StringComparer.Ordinal);
-				foreach (var exit in package.Exits)
-				{
-					var dbExit = new Models.Exit
-					{
-						CellId1 = dbCells[exit.Cell1Key].Id,
-						CellId2 = dbCells[exit.Cell2Key].Id,
-						Direction1 = exit.Side1.Direction,
-						Direction2 = exit.Side2.Direction,
-						TimeMultiplier = exit.TimeMultiplier,
-						AcceptsDoor = exit.AcceptsDoor,
-						DoorSize = exit.AcceptsDoor ? exit.DoorSize : null,
-						MaximumSizeToEnter = exit.MaximumSizeToEnter,
-						MaximumSizeToEnterUpright = exit.MaximumSizeToEnterUpright,
-						FallCell = exit.FallCellKey is null ? null : dbCells[exit.FallCellKey].Id,
-						IsClimbExit = exit.IsClimbExit,
-						ClimbDifficulty = exit.ClimbDifficulty,
-						BlockedLayers = string.Join(",", exit.BlockedLayers),
-						Keywords1 = exit.Side1.Keywords,
-						Keywords2 = exit.Side2.Keywords,
-						InboundDescription1 = exit.Side1.InboundDescription,
-						InboundDescription2 = exit.Side2.InboundDescription,
-						OutboundDescription1 = exit.Side1.OutboundDescription,
-						OutboundDescription2 = exit.Side2.OutboundDescription,
-						InboundTarget1 = exit.Side1.InboundTarget,
-						InboundTarget2 = exit.Side2.InboundTarget,
-						OutboundTarget1 = exit.Side1.OutboundTarget,
-						OutboundTarget2 = exit.Side2.OutboundTarget,
-						Verb1 = exit.Side1.Verb,
-						Verb2 = exit.Side2.Verb,
-						PrimaryKeyword1 = exit.Side1.PrimaryKeyword,
-						PrimaryKeyword2 = exit.Side2.PrimaryKeyword
-					};
-					dbExits.Add(exit.Key, dbExit);
-					FMDB.Context.Exits.Add(dbExit);
-				}
-
-				FMDB.Context.SaveChanges();
-
-				foreach (var cell in package.Cells)
-				{
-					foreach (var exitKey in cell.Overlay.ExitKeys)
-					{
-						dbOverlays[cell.Key].CellOverlaysExits.Add(new CellOverlayExit
-						{
-							CellOverlay = dbOverlays[cell.Key],
-							Exit = dbExits[exitKey]
-						});
-					}
-				}
-
-				dbZone.DefaultCell = dbCells[package.Zone.DefaultCellKey];
-				FMDB.Context.SaveChanges();
-				transaction.Commit();
-				databaseCommitted = true;
-			}
-
-			var newZone = new Zone(dbZone, gameworld);
-			gameworld.Add(newZone);
-			foreach (var roomDefinition in package.Rooms.Where(x => dbRooms.ContainsKey(x.Key)))
-			{
-				var newRoom = new Room(dbRooms[roomDefinition.Key], newZone);
-				gameworld.Add(newRoom);
-				foreach (var cellDefinition in package.Cells.Where(x => x.RoomKey == roomDefinition.Key))
-				{
-					var newCell = new Cell(dbCells[cellDefinition.Key], newRoom);
-					gameworld.Add(newCell);
-				}
-			}
-
-			newZone.PostLoadSetup();
-
-			return new SpatialAreaTransferResult
-			{
-				Success = true,
-				Summary =
-					$"Imported package as new zone '{preflight.ZoneName}' (#{newZone.Id:N0}). Existing spatial content was not modified.",
-				PackagePath = preflight.PackagePath,
-				ImportedZoneId = newZone.Id,
-				ImportedZoneIds = [newZone.Id],
-				ZoneCount = 1,
-				Diagnostics = preflight.Diagnostics,
-				RoomCount = PackagedRoomCount(package),
-				CellCount = package.Cells.Count,
-				ExitCount = package.Exits.Count,
-				OmittedItems = PackageOmissions(preflight)
-			};
-		}
-		catch (Exception ex)
-		{
-			if (databaseCommitted && dbZone is not null)
-			{
-				var committedDiagnostics = preflight.Diagnostics.ToList();
-				committedDiagnostics.Add(Error("runtime-load-failed",
-					$"The database import committed as zone #{dbZone.Id:N0}, but the live server could not register it: {ex.Message}"));
-				return new SpatialAreaTransferResult
-				{
-					Summary =
-						$"The new zone was persisted as #{dbZone.Id:N0}, but is not fully available in memory. Restart the server before retrying or editing it; do not re-import the package.",
-					PackagePath = preflight.PackagePath,
-					ImportedZoneId = dbZone.Id,
-					ImportedZoneIds = [dbZone.Id],
-					ZoneCount = 1,
-					Diagnostics = committedDiagnostics,
-					RoomCount = PackagedRoomCount(package),
-					CellCount = package.Cells.Count,
-					ExitCount = package.Exits.Count,
-					OmittedItems = PackageOmissions(preflight)
-				};
-			}
-
-			return Failure(
-				$"Import failed before commit: {ex.Message}. The database transaction was rolled back.",
-				preflight.Diagnostics,
-				"import-failed");
-		}
+		return ImportVersion4(actor, targetShard, preflight);
 	}
 
 	private ImportPreflight? PreflightImport(
@@ -391,7 +127,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		    actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
 		{
 			failure = Failure(
-				"You must be editing an under-design cell overlay package before validating or importing a spatial package.",
+				"You must be editing an under-design room overlay package before validating or importing a spatial package.",
 				diagnostics,
 				"overlay-package-required");
 			return null;
@@ -487,12 +223,12 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		ValidateEnums(package, diagnostics);
 
 		var terrains = ResolveReferences(
-			package.Cells.Select(x => x.Overlay.Terrain),
+			package.Rooms.Select(x => x.Overlay.Terrain),
 			actor.Gameworld.Terrains,
 			"terrain",
 			diagnostics);
 		var hearingProfiles = ResolveReferences(
-			package.Cells
+			package.Rooms
 				.Select(x => x.Overlay.HearingProfile)
 				.Where(x => x is not null)
 				.Select(x => x!),
@@ -500,7 +236,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 			"hearing-profile",
 			diagnostics);
 		var foragableProfiles = ResolveReferences(
-			package.Cells.Select(x => x.ForagableProfile)
+			package.Rooms.Select(x => x.ForagableProfile)
 				.Concat(zones.Select(x => x.ForagableProfile))
 				.Where(x => x is not null)
 				.Select(x => x!),
@@ -508,23 +244,23 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 			"foragable-profile",
 			diagnostics);
 		var tags = ResolveReferences(
-			package.Cells.SelectMany(x => x.Tags),
+			package.Rooms.SelectMany(x => x.Tags),
 			actor.Gameworld.Tags,
 			"tag",
 			diagnostics);
 		var covers = ResolveReferences(
-			package.Cells.SelectMany(x => x.RangedCovers),
+			package.Rooms.SelectMany(x => x.RangedCovers),
 			actor.Gameworld.RangedCovers,
 			"ranged-cover",
 			diagnostics);
 		var magicResources = ResolveReferences(
-			package.Cells.SelectMany(x => x.MagicResources).Select(x => x.Resource),
+			package.Rooms.SelectMany(x => x.MagicResources).Select(x => x.Resource),
 			actor.Gameworld.MagicResources,
 			"magic-resource",
 			diagnostics);
 
 		var fluids = new Dictionary<string, IFluid>(StringComparer.InvariantCultureIgnoreCase);
-		foreach (var fluidReference in package.Cells
+		foreach (var fluidReference in package.Rooms
 			         .Select(x => x.Overlay.Atmosphere)
 			         .Where(x => x is not null)
 			         .Select(x => x!)
@@ -606,8 +342,7 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 				PackagePath = packagePath,
 				Diagnostics = diagnostics,
 				ZoneCount = zones.Count,
-				RoomCount = PackagedRoomCount(package),
-				CellCount = package.Cells.Count,
+				RoomCount = package.Rooms.Count,
 				ExitCount = package.Exits.Count,
 				OmittedItems = package.Omissions?.Select(x => x.Message).ToList() ?? []
 			};
@@ -639,9 +374,9 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		return preflight;
 	}
 
-	private static SpatialExitSideDefinition BuildExitSide(ICellExit side)
+	private static SpatialExitSideDefinition BuildExitSide(IRoomExit side)
 	{
-		if (side is not INonCardinalCellExit nonCardinal)
+		if (side is not INonCardinalRoomExit nonCardinal)
 		{
 			return new SpatialExitSideDefinition { Direction = (int)side.OutboundDirection };
 		}
@@ -659,67 +394,67 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		};
 	}
 
-	private static IReadOnlyList<SpatialAreaTransferDiagnostic> ValidateExportableCells(
-		IReadOnlyCollection<ICell> cells)
+	private static IReadOnlyList<SpatialAreaTransferDiagnostic> ValidateExportableRooms(
+		IReadOnlyCollection<IRoom> rooms)
 	{
 		var diagnostics = new List<SpatialAreaTransferDiagnostic>();
 		using (new FMDB())
 		{
-			var ids = cells.Select(x => x.Id).ToList();
-			var persistedCells = FMDB.Context.Cells
+			var ids = rooms.Select(x => x.Id).ToList();
+			var persistedRooms = FMDB.Context.Rooms
 				.Where(x => ids.Contains(x.Id))
 				.ToDictionary(x => x.Id);
-			foreach (var cell in cells)
+			foreach (var room in rooms)
 			{
-				if (cell.Temporary)
+				if (room.Temporary)
 				{
 					diagnostics.Add(Error("temporary-cell",
-						$"Cell #{cell.Id:N0} is temporary and cannot be faithfully imported."));
+						$"Room #{room.Id:N0} is temporary and cannot be faithfully imported."));
 				}
 
-				if (cell is Cell concreteCell &&
-				    (concreteCell.HostedVehicleId.HasValue || concreteCell.HostedVehicleCompartmentId.HasValue))
+				if (room is Room concreteRoom &&
+				    (concreteRoom.HostedVehicleId.HasValue || concreteRoom.HostedVehicleCompartmentId.HasValue))
 				{
 					diagnostics.Add(Error("hosted-vehicle-cell",
-						$"Cell #{cell.Id:N0} is a hosted vehicle interior and cannot be detached from its vehicle."));
+						$"Room #{room.Id:N0} is a hosted vehicle interior and cannot be detached from its vehicle."));
 				}
 
-				if (cell.AgricultureField is not null)
+				if (room.AgricultureField is not null)
 				{
 					diagnostics.Add(Error("agriculture-field",
-						$"Cell #{cell.Id:N0} has an agriculture field, which spatial packages do not carry."));
+						$"Room #{room.Id:N0} has an agriculture field, which spatial packages do not carry."));
 				}
 
-				if (persistedCells.TryGetValue(cell.Id, out var dbCell))
+				if (persistedRooms.TryGetValue(room.Id, out var dbRoom))
 				{
-					if (HasPersistedEffects(dbCell.EffectData))
+					if (HasPersistedEffects(dbRoom.EffectData))
 					{
 						diagnostics.Add(Error("persisted-cell-effects",
-							$"Cell #{cell.Id:N0} has persisted effects. Spatial packages refuse to discard effect state."));
+							$"Room #{room.Id:N0} has persisted effects. Spatial packages refuse to discard effect state."));
 					}
 
-					if (HasSurfaceLiquid(dbCell.SurfaceLiquidData))
+					if (HasSurfaceLiquid(dbRoom.SurfaceLiquidData))
 					{
 						diagnostics.Add(Error("surface-liquid",
-							$"Cell #{cell.Id:N0} has persistent surface-liquid state, which spatial packages do not carry."));
+							$"Room #{room.Id:N0} has persistent surface-liquid state, which spatial packages do not carry."));
 					}
 				}
 			}
 		}
 
-		var characterCount = cells.Sum(x => x.Characters.Count());
-		var itemCount = cells.Sum(x => x.GameItems.Count());
+		var characterCount = rooms.Sum(x => x.Characters.Count());
+		var itemCount = rooms.Sum(x => x.GameItems.Count());
 		if (characterCount > 0 || itemCount > 0)
 		{
 			diagnostics.Add(Warning("contents-omitted",
 				$"The source contains {characterCount:N0} character(s) and {itemCount:N0} item(s). Spatial packages never move live contents."));
 		}
 
-		var hookCount = cells.Sum(x => x.Hooks.Count());
+		var hookCount = rooms.Sum(x => x.Hooks.Count());
 		if (hookCount > 0)
 		{
 			diagnostics.Add(Warning("hooks-omitted",
-				$"{hookCount:N0} installed cell hook reference(s) are not spatial topology and are not included in package version {SpatialAreaPackage.CurrentVersion:N0}."));
+				$"{hookCount:N0} installed room hook reference(s) are not spatial topology and are not included in package version {SpatialAreaPackage.CurrentVersion:N0}."));
 		}
 
 		return diagnostics;
@@ -860,19 +595,19 @@ public sealed partial class SpatialAreaTransferService : ISpatialAreaTransferSer
 		SpatialAreaPackage package,
 		ICollection<SpatialAreaTransferDiagnostic> diagnostics)
 	{
-		foreach (var cell in package.Cells)
+		foreach (var room in package.Rooms)
 		{
-			if (!Enum.IsDefined((CellOutdoorsType)cell.Overlay.OutdoorsType))
+			if (!Enum.IsDefined((RoomOutdoorsType)room.Overlay.OutdoorsType))
 			{
 				diagnostics.Add(Error("invalid-outdoors-type",
-					$"Cell '{cell.Key}' has an unknown outdoors type."));
+					$"Room '{room.Key}' has an unknown outdoors type."));
 			}
 
-			foreach (var resource in cell.MagicResources.Where(x =>
+			foreach (var resource in room.MagicResources.Where(x =>
 				         !double.IsFinite(x.Amount) || x.Amount < 0.0))
 			{
 				diagnostics.Add(Error("invalid-magic-resource",
-					$"Cell '{cell.Key}' has an invalid amount for magic resource '{resource.Resource.Name}'."));
+					$"Room '{room.Key}' has an invalid amount for magic resource '{resource.Resource.Name}'."));
 			}
 		}
 

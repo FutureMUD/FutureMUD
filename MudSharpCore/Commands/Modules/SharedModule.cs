@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
@@ -191,11 +191,12 @@ The syntax is:
 There are several different ways you can use this command, as per below:
 
 	#3goto <roomnumber>#0 - Go to a particular room identified by number
+	#3goto <room unique name>#0 - Go to an exact global room identifier (characters retain precedence)
 	#3goto <character name>#0 - Go to the location of a particular named character
 	#3goto <character keywords>#0 - Go to the location of a character by keywords
-	#3goto #<room keywords>#0 - Override for room descriptions when there is a clash with a character
+	#3goto #<room id|unique name|keywords>#0 - Force a room target when there is a clash with a character
 	#3goto @<number>#0 - Go to a recently created room. See below for explanation:
-	#3goto <destination> at <distance|landmark>#0 - Go to an exact coordinate in a RouteCell
+	#3goto <destination> at <distance|landmark>#0 - Go to an exact coordinate in a RouteRoom
 
 #6For example, @1 is the most recently created new room, @2 is the 2nd most recently created room etc.
 This only works for rooms created since the last reboot.
@@ -223,14 +224,16 @@ This command is useful when you write-up a bunch of room creation commands in a 
         string rawCommand = ss.SafeRemainingArgument;
 		RouteCommandUtilities.TrySplitAtClause(rawCommand, out var cmd, out var routePositionText);
         RoomLayer destinationLayer = actor.RoomLayer;
-        ICharacter target = actor.Gameworld.Actors
+		var forceRoom = cmd.Length > 1 && cmd[0] == '#';
+		if (forceRoom) cmd = cmd[1..];
+        ICharacter target = forceRoom || long.TryParse(cmd, out _) ? null : actor.Gameworld.Actors
                           .Where(x => !x.State.HasFlag(CharacterState.Dead))
                           .OrderByDescending(x => x.IsPlayerCharacter)
                           .GetFromItemListByKeywordIncludingNames(cmd, actor);
-        ICell destination;
+        IRoom destination;
         if (long.TryParse(cmd, out long roomid))
         {
-            destination = actor.Gameworld.Cells.Get(roomid);
+            destination = actor.Gameworld.Rooms.Get(roomid);
             if (destination == null)
             {
 
@@ -242,12 +245,7 @@ This command is useful when you write-up a bunch of room creation commands in a 
         {
             if (target is null)
             {
-                if (cmd.Length > 1 && cmd[0] == '#')
-                {
-                    cmd = cmd[1..];
-                }
-
-                destination = RoomBuilderModule.LookupCell(actor.Gameworld, cmd);
+                destination = RoomBuilderModule.LookupRoom(actor, cmd);
                 if (destination == null)
                 {
 
@@ -451,7 +449,7 @@ The syntax is:
 
         actor.Send("Echoing to zone...");
         string message = echo.SubstituteANSIColour().ProperSentences();
-        foreach (ICharacter perceiver in actor.Location.Room.Zone.Characters)
+        foreach (ICharacter perceiver in actor.Location.OwningZone.Characters)
         {
             perceiver.Send(message);
         }

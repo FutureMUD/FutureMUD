@@ -112,7 +112,7 @@ public class PsychicWitnessReportingTests
 		scheduler.Setup(x => x.AddSchedule(It.IsAny<ISchedule>())).Callback<ISchedule>(pending.Add);
 		world = new Mock<IFuturemud>();
 		world.SetupGet(x => x.Scheduler).Returns(scheduler.Object);
-		world.SetupGet(x => x.Cells).Returns(new All<ICell>());
+		world.SetupGet(x => x.Rooms).Returns(new All<IRoom>());
 		world.SetupGet(x => x.SaveManager).Returns(new Mock<ISaveManager>().Object);
 		var law = new Mock<ILaw>();
 		law.SetupGet(x => x.Gameworld).Returns(world.Object);

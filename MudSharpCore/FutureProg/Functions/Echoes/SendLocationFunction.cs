@@ -30,7 +30,7 @@ internal class SendLocationFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
-        if (ParameterFunctions[0].Result is not ICell target)
+        if (ParameterFunctions[0].Result is not IRoom target)
         {
             Result = new BooleanVariable(false);
             return StatementResult.Normal;

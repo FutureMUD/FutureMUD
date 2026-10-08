@@ -26,16 +26,16 @@ public class TransientShop : Shop, ITransientShop
         // Do nothing
     }
 
-    public override IEnumerable<ICell> CurrentLocations
+    public override IEnumerable<IRoom> CurrentLocations
     {
         get
         {
             if (CurrentStall is null)
             {
-                return Enumerable.Empty<ICell>();
+                return Enumerable.Empty<IRoom>();
             }
 
-            return new List<ICell> { CurrentStall.Parent.TrueLocations.First() };
+            return new List<IRoom> { CurrentStall.Parent.TrueLocations.First() };
         }
     }
 

@@ -56,7 +56,7 @@ public class StackableGameItemComponent : GameItemComponent, IStackable
 
     public override double ComponentWeightMultiplier => Math.Max(1.0, Quantity);
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         StackableGameItemComponent newItemStackable = newItem?.GetItemType<StackableGameItemComponent>();
         if (newItemStackable == null)

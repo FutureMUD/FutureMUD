@@ -99,7 +99,7 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 			: Candidate(false, engine.WhyNotRunning.IfNullOrWhiteSpace("the engine is not running"));
 	}
 
-	public VehiclePropulsionReadinessResult BuildReadiness(IVehicle vehicle, ICharacter actor, ICellExit? exit)
+	public VehiclePropulsionReadinessResult BuildReadiness(IVehicle vehicle, ICharacter actor, IRoomExit? exit)
 	{
 		VehiclePropulsionReadinessResult Fail(string reason,
 			IVehiclePropulsionProfilePrototype? profile = null,
@@ -144,7 +144,7 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 	}
 
 	private static VehiclePropulsionReadinessResult RiderPoweredReadiness(IVehicle vehicle, ICharacter actor,
-		ICellExit? exit, IVehiclePropulsionProfilePrototype profile)
+		IRoomExit? exit, IVehiclePropulsionProfilePrototype profile)
 	{
 		if (!actor.State.IsAble())
 		{
@@ -176,7 +176,7 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 			riderStaminaMultiplier: riderMultiplier);
 	}
 
-	private VehiclePropulsionReadinessResult EngineReadiness(IVehicle vehicle, ICharacter actor, ICellExit? exit,
+	private VehiclePropulsionReadinessResult EngineReadiness(IVehicle vehicle, ICharacter actor, IRoomExit? exit,
 		IVehiclePropulsionProfilePrototype profile)
 	{
 		var readiness = BuildEngineReadiness(vehicle, vehicle.MovementProfile.MinimumEnginePowerInWatts);
@@ -187,7 +187,7 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 	}
 
 	private static VehiclePropulsionReadinessResult SelfPoweredReadiness(IVehicle vehicle, ICharacter actor,
-		ICellExit? exit, IVehiclePropulsionProfilePrototype profile)
+		IRoomExit? exit, IVehiclePropulsionProfilePrototype profile)
 	{
 		if (profile.PropulsionTrait is null)
 		{
@@ -215,7 +215,7 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 	}
 
 	private static VehiclePropulsionReadinessResult RowedReadiness(IVehicle vehicle, ICharacter actor,
-		ICellExit? exit, IVehiclePropulsionProfilePrototype profile)
+		IRoomExit? exit, IVehiclePropulsionProfilePrototype profile)
 	{
 		if (profile.PropulsionTrait is null)
 		{
@@ -261,7 +261,7 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 	}
 
 	private static VehiclePropulsionReadinessResult SailReadiness(IVehicle vehicle, ICharacter actor,
-		ICellExit? exit, IVehiclePropulsionProfilePrototype profile)
+		IRoomExit? exit, IVehiclePropulsionProfilePrototype profile)
 	{
 		var wind = (exit?.Origin ?? vehicle.Location)?.CurrentWeather(null)?.Wind ?? WindLevel.None;
 		if (wind <= WindLevel.Still)
@@ -273,7 +273,7 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 	}
 
 	private static VehiclePropulsionReadinessResult MotorReadiness(IVehicle vehicle, ICharacter actor,
-		ICellExit? exit, IVehiclePropulsionProfilePrototype profile)
+		IRoomExit? exit, IVehiclePropulsionProfilePrototype profile)
 	{
 		var motors = vehicle.Installations
 			.Select(BuildMotorCandidate)
@@ -657,7 +657,7 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 		return depth;
 	}
 
-	private static VehiclePropulsionReadinessResult Ready(IVehicle vehicle, ICharacter actor, ICellExit? exit,
+	private static VehiclePropulsionReadinessResult Ready(IVehicle vehicle, ICharacter actor, IRoomExit? exit,
 		IVehiclePropulsionProfilePrototype profile, IReadOnlyList<VehiclePropulsionContributor> contributors,
 		IReadOnlyList<VehiclePropulsionMotorCandidate> motors, WindLevel wind, double riderStaminaCost = 0.0,
 		double riderStaminaMultiplier = 1.0)
@@ -667,7 +667,7 @@ public class VehiclePropulsionService : IVehiclePropulsionService
 			RiderStaminaMultiplier: riderStaminaMultiplier);
 	}
 
-	private static VehiclePropulsionReadinessResult Failed(IVehicle vehicle, ICharacter actor, ICellExit? exit,
+	private static VehiclePropulsionReadinessResult Failed(IVehicle vehicle, ICharacter actor, IRoomExit? exit,
 		IVehiclePropulsionProfilePrototype profile, string reason,
 		IReadOnlyList<VehiclePropulsionContributor>? contributors = null,
 		IReadOnlyList<VehiclePropulsionMotorCandidate>? motors = null,

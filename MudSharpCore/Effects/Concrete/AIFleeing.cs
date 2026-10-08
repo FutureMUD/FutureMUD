@@ -4,11 +4,11 @@ namespace MudSharp.Effects.Concrete;
 
 public class AIFleeing : Effect, IEffectSubtype
 {
-    public List<ICell> PotentialFleeLocations { get; }
+    public List<IRoom> PotentialFleeLocations { get; }
 
-    public AIFleeing(ICharacter owner, IEnumerable<ICell> fleelocations) : base(owner)
+    public AIFleeing(ICharacter owner, IEnumerable<IRoom> fleelocations) : base(owner)
     {
-        PotentialFleeLocations = new List<ICell>(fleelocations);
+        PotentialFleeLocations = new List<IRoom>(fleelocations);
     }
 
     protected override string SpecificEffectType => "AIFleeing";

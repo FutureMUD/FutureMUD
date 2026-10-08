@@ -8,43 +8,43 @@ public sealed partial class EnvironmentalMagicCoordinator
 {
 	public const double MaximumRecentPressure = 1.0e12;
 
-	public EnvironmentalMagicOperationResult ApplyOperation(ICell cell, EnvironmentalMagicOperationRequest request)
-		=> ApplyOperationCore(cell, request, null);
+	public EnvironmentalMagicOperationResult ApplyOperation(IRoom room, EnvironmentalMagicOperationRequest request)
+		=> ApplyOperationCore(room, request, null);
 
 	private readonly HashSet<long> _ecologicalMutations = [];
 
-	private void ResetRecoveredEnvironment(Cell cell, bool notifyScarChange = true)
+	private void ResetRecoveredEnvironment(Room room, bool notifyScarChange = true)
 	{
-		Register(cell);
-		if (_registered.TryGetValue(cell.Id, out var recovered))
+		Register(room);
+		if (_registered.TryGetValue(room.Id, out var recovered))
 		{
 			recovered.SampleAt = Now;
 			recovered.Sample = Array.Empty<EnvironmentalResourceSnapshot>();
 			recovered.RepairRate = 0.0;
 			Recheck(recovered, Now);
 		}
-		if (notifyScarChange) ScarStateChanged(cell);
+		if (notifyScarChange) ScarStateChanged(room);
 	}
 
-	private EnvironmentalMagicOperationResult ApplyOperationCore(ICell cell, EnvironmentalMagicOperationRequest request,
+	private EnvironmentalMagicOperationResult ApplyOperationCore(IRoom room, EnvironmentalMagicOperationRequest request,
 		LandRejuvenationProgress? treatment)
 	{
 		EnvironmentalMagicOperationResult Fail(string error) => new(request.OperationId, false, false, 0.0, 0.0, 0.0, error);
-		if (_disposed || cell is not Cell concrete || cell.Id <= 0 || !ReferenceEquals(cell.Gameworld, _world) || request.OperationId == Guid.Empty ||
+		if (_disposed || room is not Room concrete || room.Id <= 0 || !ReferenceEquals(room.Gameworld, _world) || request.OperationId == Guid.Empty ||
 			string.IsNullOrWhiteSpace(request.Attribution) || request.Attribution.Length > 500 ||
 			!double.IsFinite(request.Damage) || request.Damage < 0.0 || !double.IsFinite(request.Pressure) || request.Pressure < 0.0 ||
 			!double.IsFinite(request.Repair) || request.Repair < 0.0 || request.Repair > 0.0 && (request.Damage > 0.0 || request.Pressure > 0.0))
-			return Fail("A physical cell, unique operation ID, attribution and finite non-negative damage/pressure or repair are required.");
-		if (_evaluating.Contains(cell.Id)) { _recursive.Add(cell.Id); return Fail("Environmental input progs must be read-only."); }
+			return Fail("A physical room, unique operation ID, attribution and finite non-negative damage/pressure or repair are required.");
+		if (_evaluating.Contains(room.Id)) { _recursive.Add(room.Id); return Fail("Environmental input progs must be read-only."); }
 		if (concrete.PendingEnvironmentalOperationId is { } pending && pending != request.OperationId)
 			return Fail($"Operation {pending} must be confirmed before another environmental operation can be applied.");
-		if (!_ecologicalMutations.Add(cell.Id)) return Fail("This cell already has an ecological mutation in progress.");
+		if (!_ecologicalMutations.Add(room.Id)) return Fail("This room already has an ecological mutation in progress.");
 		try
 		{
 			var previous = _operations.Find(request.OperationId);
 			if (previous is not null)
 			{
-				if (previous.CellId != cell.Id || previous.Request != request)
+				if (previous.RoomId != room.Id || previous.Request != request)
 					return Fail("That operation ID has already been used with a different request.");
 				if (concrete.PendingEnvironmentalOperationId == request.OperationId)
 				{
@@ -55,11 +55,11 @@ public sealed partial class EnvironmentalMagicCoordinator
 			}
 			if (concrete.PendingEnvironmentalOperationId == request.OperationId)
 				concrete.CancelUncommittedEnvironment(request.OperationId);
-			Register(cell);
-			_registered.TryGetValue(cell.Id, out var registration);
+			Register(room);
+			_registered.TryGetValue(room.Id, out var registration);
 			var now = Now;
 			var utcNow = UtcNow;
-			var plan = registration is null || !Inspect(cell, utcNow).IsValid
+			var plan = registration is null || !Inspect(room, utcNow).IsValid
 				? new AdvancePlan(new(), concrete.EnvironmentState) : ProjectSettlement(registration, now);
 			var state = plan.State;
 			if (state.SchemaVersion != 1 || !double.IsFinite(state.ScarDamage) || state.ScarDamage < 0.0)
@@ -90,7 +90,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			else _operations.CommitRepair(concrete, request, result, updated, utcNow, plan.Balances,
 				ConfirmProgress(treatment, repaired, remainingScar), treatment.Revision);
 			concrete.AdoptCommittedEnvironment(request.OperationId, updated, plan.Balances);
-			if (treatment is null) ScarStateChanged(cell);
+			if (treatment is null) ScarStateChanged(room);
 			CountWrite();
 			if (registration is not null)
 			{
@@ -103,9 +103,9 @@ public sealed partial class EnvironmentalMagicCoordinator
 		catch (Exception ex)
 		{
 			var error = $"Operation {request.OperationId} could not be confirmed: {ex.Message}. Retry only with the same ID; no automatic replay was attempted.";
-			if (_registered.TryGetValue(cell.Id, out var registration)) Fault(registration, error, Now);
+			if (_registered.TryGetValue(room.Id, out var registration)) Fault(registration, error, Now);
 			return Fail(error);
 		}
-		finally { _ecologicalMutations.Remove(cell.Id); }
+		finally { _ecologicalMutations.Remove(room.Id); }
 	}
 }

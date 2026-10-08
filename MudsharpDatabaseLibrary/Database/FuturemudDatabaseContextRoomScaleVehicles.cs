@@ -88,48 +88,48 @@ public partial class FuturemudDatabaseContext
 
 		modelBuilder.Entity<VehicleCompartment>(entity =>
 		{
-			entity.HasIndex(e => e.InteriorCellId)
+			entity.HasIndex(e => e.InteriorRoomId)
 			      .IsUnique()
-			      .HasDatabaseName("UX_VehicleCompartments_InteriorCell");
+			      .HasDatabaseName("UX_VehicleCompartments_InteriorRoom");
 
-			entity.Property(e => e.InteriorCellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.InteriorRoomId).HasColumnType("bigint(20)");
 
-			entity.HasOne(d => d.InteriorCell)
+			entity.HasOne(d => d.InteriorRoom)
 			      .WithMany()
-			      .HasForeignKey(d => d.InteriorCellId)
+			      .HasForeignKey(d => d.InteriorRoomId)
 			      .OnDelete(DeleteBehavior.Restrict)
-			      .HasConstraintName("FK_VehicleCompartments_InteriorCells");
+			      .HasConstraintName("FK_VehicleCompartments_InteriorRooms");
 		});
 
-		modelBuilder.Entity<Cell>(entity =>
+		modelBuilder.Entity<Room>(entity =>
 		{
-			entity.ToTable("Cells", table =>
+			entity.ToTable("Rooms", table =>
 			{
-				table.HasCheckConstraint("CK_Cells_HostedVehicleOwnership",
+				table.HasCheckConstraint("CK_Rooms_HostedVehicleOwnership",
 					"(`HostedVehicleId` IS NULL AND `HostedVehicleCompartmentId` IS NULL) OR " +
 					"(`HostedVehicleId` IS NOT NULL AND `HostedVehicleCompartmentId` IS NOT NULL)");
 			});
 
 			entity.HasIndex(e => e.HostedVehicleId)
-			      .HasDatabaseName("FK_Cells_HostedVehicles_idx");
+			      .HasDatabaseName("FK_Rooms_HostedVehicles_idx");
 			entity.HasIndex(e => e.HostedVehicleCompartmentId)
 			      .IsUnique()
-			      .HasDatabaseName("UX_Cells_HostedVehicleCompartments");
+			      .HasDatabaseName("UX_Rooms_HostedVehicleCompartments");
 
 			entity.Property(e => e.HostedVehicleId).HasColumnType("bigint(20)");
 			entity.Property(e => e.HostedVehicleCompartmentId).HasColumnType("bigint(20)");
 
 			entity.HasOne(d => d.HostedVehicle)
-			      .WithMany(p => p.HostedCells)
+			      .WithMany(p => p.HostedRooms)
 			      .HasForeignKey(d => d.HostedVehicleId)
 			      .OnDelete(DeleteBehavior.Restrict)
-			      .HasConstraintName("FK_Cells_HostedVehicles");
+			      .HasConstraintName("FK_Rooms_HostedVehicles");
 
 			entity.HasOne(d => d.HostedVehicleCompartment)
 			      .WithMany()
 			      .HasForeignKey(d => d.HostedVehicleCompartmentId)
 			      .OnDelete(DeleteBehavior.Restrict)
-			      .HasConstraintName("FK_Cells_HostedVehicleCompartments");
+			      .HasConstraintName("FK_Rooms_HostedVehicleCompartments");
 		});
 
 		modelBuilder.Entity<VehicleDocking>(entity =>
@@ -144,14 +144,14 @@ public partial class FuturemudDatabaseContext
 			      .HasDatabaseName("IX_VehicleDockings_Vehicle_State");
 			entity.HasIndex(e => e.VehicleCompartmentId)
 			      .HasDatabaseName("FK_VehicleDockings_Compartments_idx");
-			entity.HasIndex(e => new { e.ExteriorCellId, e.ExteriorRoomLayer })
-			      .HasDatabaseName("IX_VehicleDockings_ExteriorCell_Layer");
+			entity.HasIndex(e => new { e.ExteriorRoomId, e.ExteriorRoomLayer })
+			      .HasDatabaseName("IX_VehicleDockings_ExteriorRoom_Layer");
 
 			entity.Property(e => e.Id).HasColumnType("bigint(20)");
 			entity.Property(e => e.VehicleId).HasColumnType("bigint(20)");
 			entity.Property(e => e.VehicleAccessPointId).HasColumnType("bigint(20)");
 			entity.Property(e => e.VehicleCompartmentId).HasColumnType("bigint(20)");
-			entity.Property(e => e.ExteriorCellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.ExteriorRoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.ExteriorRoomLayer).HasColumnType("int(11)");
 			entity.Property(e => e.State)
 			      .HasColumnType("int(11)")
@@ -175,11 +175,11 @@ public partial class FuturemudDatabaseContext
 			      .OnDelete(DeleteBehavior.Restrict)
 			      .HasConstraintName("FK_VehicleDockings_Compartments");
 
-			entity.HasOne(d => d.ExteriorCell)
+			entity.HasOne(d => d.ExteriorRoom)
 			      .WithMany(p => p.VehicleDockings)
-			      .HasForeignKey(d => d.ExteriorCellId)
+			      .HasForeignKey(d => d.ExteriorRoomId)
 			      .OnDelete(DeleteBehavior.Restrict)
-			      .HasConstraintName("FK_VehicleDockings_ExteriorCells");
+			      .HasConstraintName("FK_VehicleDockings_ExteriorRooms");
 		});
 	}
 }

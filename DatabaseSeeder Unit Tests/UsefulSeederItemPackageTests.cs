@@ -221,7 +221,7 @@ public class UsefulSeederItemPackageTests
 			MovementRate = 1,
 			ForagableProfileId = 0,
 			AtmosphereType = "Gas",
-			DefaultCellOutdoorsType = 0,
+			DefaultRoomOutdoorsType = 0,
 			GravityModel = 0,
 			TerrainEditorText = name[..Math.Min(2, name.Length)],
 			CanHaveTracks = false,

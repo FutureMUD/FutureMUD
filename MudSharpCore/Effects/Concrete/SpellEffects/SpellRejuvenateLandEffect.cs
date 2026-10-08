@@ -22,8 +22,8 @@ public sealed class SpellRejuvenateLandEffect : MagicSpellEffectBase, ILandRejuv
 
 	public static void InitialiseEffectType() => RegisterFactory("SpellRejuvenateLand", (xml, owner) => new SpellRejuvenateLandEffect(xml, owner));
 
-	public SpellRejuvenateLandEffect(ICell cell, IMagicSpellEffectParent parent, ICharacter caster,
-		LandRejuvenationProgress initial, string description, ANSIColour colour) : base(cell, parent, null!)
+	public SpellRejuvenateLandEffect(IRoom room, IMagicSpellEffectParent parent, ICharacter caster,
+		LandRejuvenationProgress initial, string description, ANSIColour colour) : base(room, parent, null!)
 	{
 		_initial = initial;
 		TreatmentId = initial.Id;
@@ -48,11 +48,11 @@ public sealed class SpellRejuvenateLandEffect : MagicSpellEffectBase, ILandRejuv
 
 	public Guid TreatmentId { get; }
 	public Guid ParentIdentity => (ParentEffect as MagicSpellParent)?.Identity ?? Guid.Empty;
-	public ICell TreatmentCell => (ICell)Owner;
-	public bool IsAttached => !_ended && Owner is ICell && ParentEffect is MagicSpellParent parent &&
+	public IRoom TreatmentRoom => (IRoom)Owner;
+	public bool IsAttached => !_ended && Owner is IRoom && ParentEffect is MagicSpellParent parent &&
 		Owner.Effects.Contains(parent) && Owner.Effects.Contains(this) && parent.SpellEffects.Contains(this) &&
 		parent.Spell is not null && Gameworld.MagicSpells.Get(parent.Spell.Id) is not null;
-	private LandRejuvenationProgress? Progress => Gameworld.EnvironmentalMagic?.InspectTreatment(TreatmentCell, TreatmentId) ?? _initial;
+	private LandRejuvenationProgress? Progress => Gameworld.EnvironmentalMagic?.InspectTreatment(TreatmentRoom, TreatmentId) ?? _initial;
 
 	public void ActivateTreatment()
 	{
@@ -90,11 +90,11 @@ public sealed class SpellRejuvenateLandEffect : MagicSpellEffectBase, ILandRejuv
 		if (p.ContinuationProgId is not { } id) return true;
 		var prog = Gameworld.FutureProgs.Get(id);
 		if (!RejuvenateLandEffect.ValidPolicy(prog)) { error = "Continuation policy is missing or invalid."; return false; }
-		return Gameworld.EnvironmentalMagic!.EvaluateRepairPolicy(TreatmentCell, caster, prog!, out error);
+		return Gameworld.EnvironmentalMagic!.EvaluateRepairPolicy(TreatmentRoom, caster, prog!, out error);
 	}
 
-	private void CasterUnavailable(IPerceivable _) => Gameworld.EnvironmentalMagic?.CancelTreatment(TreatmentCell, TreatmentId, "The required original caster became unavailable.");
-	private void CasterLocationChanged(ILocateable _, ICellExit exit)
+	private void CasterUnavailable(IPerceivable _) => Gameworld.EnvironmentalMagic?.CancelTreatment(TreatmentRoom, TreatmentId, "The required original caster became unavailable.");
+	private void CasterLocationChanged(ILocateable _, IRoomExit exit)
 	{
 		if (Progress is { RequiresPresence: true } p && _actingCaster is { } caster &&
 			(!ReferenceEquals(caster.Location, Owner) || (int)caster.RoomLayer != p.Layer)) CasterUnavailable(caster);
@@ -114,8 +114,8 @@ public sealed class SpellRejuvenateLandEffect : MagicSpellEffectBase, ILandRejuv
 		_subscribed = false;
 	}
 
-	public void ExpireTreatment() => Gameworld.EnvironmentalMagic?.ExpireTreatment(TreatmentCell, TreatmentId);
-	public void CheckpointTreatment() => Gameworld.EnvironmentalMagic?.CheckpointTreatment(TreatmentCell, TreatmentId);
+	public void ExpireTreatment() => Gameworld.EnvironmentalMagic?.ExpireTreatment(TreatmentRoom, TreatmentId);
+	public void CheckpointTreatment() => Gameworld.EnvironmentalMagic?.CheckpointTreatment(TreatmentRoom, TreatmentId);
 	public void TreatmentEnded(string diagnostic)
 	{
 		_diagnostic = diagnostic;
@@ -129,7 +129,7 @@ public sealed class SpellRejuvenateLandEffect : MagicSpellEffectBase, ILandRejuv
 		if (!_ended)
 		{
 			_ended = true;
-			Gameworld.EnvironmentalMagic?.CancelTreatment(TreatmentCell, TreatmentId, "The spell treatment was removed; uncommitted elapsed work was discarded.");
+			Gameworld.EnvironmentalMagic?.CancelTreatment(TreatmentRoom, TreatmentId, "The spell treatment was removed; uncommitted elapsed work was discarded.");
 		}
 		base.RemovalEffect();
 	}
@@ -139,10 +139,10 @@ public sealed class SpellRejuvenateLandEffect : MagicSpellEffectBase, ILandRejuv
 		new XElement("TreatmentId", TreatmentId), new XElement("Description", new XCData(_description)), new XElement("Colour", _colour.Name));
 	public override string Describe(IPerceiver voyeur)
 	{
-		var p = Owner is ICell ? Progress : null;
+		var p = Owner is IRoom ? Progress : null;
 		return p is null ? $"Land rejuvenation {TreatmentId}: {_diagnostic ?? "missing authoritative progress"}" :
 			$"Land rejuvenation {p.Id}: spell #{p.SpellId}, caster #{p.CasterId}, instance #{p.ActingInstanceId}; " +
-			$"{p.Status}, rate {p.Rate.ToString("G", voyeur)}/minute, ceiling {Gameworld.EnvironmentalMagic!.InspectRepairPolicy(TreatmentCell).Ceiling?.ToString("G", voyeur) ?? "none"}, " +
+			$"{p.Status}, rate {p.Rate.ToString("G", voyeur)}/minute, ceiling {Gameworld.EnvironmentalMagic!.InspectRepairPolicy(TreatmentRoom).Ceiling?.ToString("G", voyeur) ?? "none"}, " +
 			$"budget {p.RemainingBudget.ToString("G", voyeur)}/{p.InitialBudget.ToString("G", voyeur)}, repaired {p.TotalRepaired.ToString("G", voyeur)}, " +
 			$"lifetime {TimeSpan.FromSeconds(p.RemainingSeconds).Describe(voyeur)}, step {p.Sequence}/{p.AcknowledgedSequence}, pending {p.PendingRequest?.OperationId.ToString() ?? "none"}. {p.Diagnostic}";
 	}

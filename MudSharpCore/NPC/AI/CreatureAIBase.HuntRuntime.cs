@@ -49,10 +49,10 @@ public abstract partial class CreatureAIBase
 	{
 		if (Hunting.Opening == AnimalHuntOpening.Direct) return false;
 		if (Hunting.Opening == AnimalHuntOpening.TrapWait &&
-		    ResolveHomeBase(actor).HomeCell is { } homeCell && !ReferenceEquals(homeCell, actor.Location) &&
+		    ResolveHomeBase(actor).HomeRoom is { } homeRoom && !ReferenceEquals(homeRoom, actor.Location) &&
 		    !IsGroupControlled(actor, GroupAIControlScope.Movement))
 		{
-			// A completed or abandoned pursuit must not turn the retreat cell into a new waiting site.
+			// A completed or abandoned pursuit must not turn the retreat room into a new waiting site.
 			CheckPathingEffect(actor, true);
 			return true;
 		}
@@ -83,7 +83,7 @@ public abstract partial class CreatureAIBase
 
 	protected bool HuntExpired(ICharacter actor, CreaturePursuitEffect hunt)
 	{
-		var origin = Gameworld.Cells.Get(hunt.OriginCellId);
+		var origin = Gameworld.Rooms.Get(hunt.OriginRoomId);
 		return RuntimeClock.UtcNow >= hunt.Deadline || RuntimeClock.UtcNow - hunt.LastSeen > Hunting.LostTimeout ||
 		       origin is null || actor.DistanceBetween(origin, (uint)Hunting.PursuitRange) < 0 ||
 		       HuntPolicyExpired(actor, hunt);
@@ -167,21 +167,21 @@ public abstract partial class CreatureAIBase
 
 	protected virtual bool FollowHuntObservation(ICharacter actor, CreaturePursuitEffect hunt)
 	{
-		var cell = Gameworld.Cells.Get(hunt.LastCellId);
-		if (cell is not null && cell != actor.Location)
+		var room = Gameworld.Rooms.Get(hunt.LastRoomId);
+		if (room is not null && room != actor.Location)
 		{
-			var path = actor.PathBetween(cell, (uint)Hunting.PursuitRange, GetAnimalSuitabilityFunction(actor)).ToList();
+			var path = actor.PathBetween(room, (uint)Hunting.PursuitRange, GetAnimalSuitabilityFunction(actor)).ToList();
 			return path.Count > 0 && actor.CanMove(path[0]) && actor.Move(path[0]);
 		}
 		// Use the same physical track checks as a player search, only at the last observed site.
-		// Route-cell tracks require an exact-coordinate path and are deliberately not reduced to an exit.
+		// Route-room tracks require an exact-coordinate path and are deliberately not reduced to an exit.
 		if (actor.Location.RouteDefinition is not null) return false;
 		var vision = Gameworld.GetCheck(CheckType.SearchForTracksCheck).CheckAgainstAllDifficulties(actor, Difficulty.Normal, null);
 		var smell = Gameworld.GetCheck(CheckType.SearchForTracksByScentScheck).CheckAgainstAllDifficulties(actor, Difficulty.Normal, null);
 		var exits = actor.Location.Tracks.Where(x => !x.Deleted && x.RoomLayer == actor.RoomLayer && !x.TurnedAround &&
-			        x.ToCellExit is not null && (vision[x.VisualTrackDifficulty(actor)].Outcome == Outcome.MajorPass || smell[x.OlfactoryTrackDifficulty(actor)].IsPass()))
+			        x.ToRoomExit is not null && (vision[x.VisualTrackDifficulty(actor)].Outcome == Outcome.MajorPass || smell[x.OlfactoryTrackDifficulty(actor)].IsPass()))
 			// Those outcomes reveal race, not exact identity. Ambiguous same-race trails must not reveal the prey's route.
-			.Where(x => x.Character?.Race.Id == hunt.LastRaceId).Select(x => x.ToCellExit!).Distinct().ToList();
+			.Where(x => x.Character?.Race.Id == hunt.LastRaceId).Select(x => x.ToRoomExit!).Distinct().ToList();
 		if (exits.Count != 1) return false;
 		var exit = exits[0];
 		if (!GetAnimalSuitabilityFunction(actor)(exit) || !actor.CanMove(exit)) return false;

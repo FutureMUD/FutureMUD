@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Arenas;
 using MudSharp.Body;
@@ -220,7 +220,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 
     public T GetPerceivable<T>(long id) where T : class, IPerceivable
     {
-        return (T)_perceivableTypeDictionary[typeof(T).Name](id);
+        var type = typeof(T).Name == "Room" ? PersistedFrameworkItemReference.RoomType : typeof(T).Name;
+        return (T)_perceivableTypeDictionary[type](id);
     }
 
     public void RegisterPerceivableType(string type, Func<long, IPerceivable> func)
@@ -1341,16 +1342,16 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         _outfitTemplates.Add(template);
     }
 
-    public void Add(ICell cell)
-    {
-        _cells.Add(cell);
-		EnvironmentalMagic?.Register(cell);
-    }
-
     public void Add(IRoom room)
     {
+		var conflict = _rooms.GetUniqueNameConflict(room.UniqueName, room.Id);
+		if (conflict is not null)
+			throw new InvalidOperationException($"Cannot register room #{room.Id}: unique name '{room.UniqueName}' is already used by room #{conflict.Id}.");
         _rooms.Add(room);
+		EnvironmentalMagic?.Register(room);
     }
+
+
 
     public void Add(IZone zone)
     {
@@ -1459,9 +1460,9 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
 		MudSharp.Form.Material.EnvironmentalExposureService.TrackExisting(this, item);
     }
 
-    public void Add(ICellOverlayPackage package)
+    public void Add(IRoomOverlayPackage package)
     {
-        _cellOverlayPackages.Add(package);
+        _roomOverlayPackages.Add(package);
     }
 
     public void Add(IGameItemProto proto)
@@ -2453,9 +2454,9 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         _nonCardinalExitTemplates.Remove(template);
     }
 
-    public void Destroy(ICellOverlayPackage package)
+    public void Destroy(IRoomOverlayPackage package)
     {
-        _cellOverlayPackages.Remove(package);
+        _roomOverlayPackages.Remove(package);
     }
 
     public void Destroy(ICharacteristicDefinition definition)
@@ -2559,19 +2560,15 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         _accounts.Remove(account);
     }
 
-    public void Destroy(ICell cell)
-    {
-		EnvironmentalMagic?.Unregister(cell);
-        cell.Room.Destroy(cell);
-        _cells.Remove(cell);
-        DestroyListeners(cell);
-    }
-
     public void Destroy(IRoom room)
     {
+		EnvironmentalMagic?.Unregister(room);
+        room.OwningZone.Unregister(room);
         _rooms.Remove(room);
         DestroyListeners(room);
     }
+
+
 
     public void Destroy(IZone zone)
     {

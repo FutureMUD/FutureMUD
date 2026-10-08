@@ -31,8 +31,8 @@ public class EnvironmentalMagicModelTests
 		var migration = new EnvironmentalMagic();
 		var columns = migration.UpOperations.OfType<AddColumnOperation>().ToArray();
 		Assert.AreEqual(3, columns.Length);
-		Assert.AreEqual(0, columns.Single(x => x.Name == nameof(Cell.EnvironmentalMagicBindingMode)).DefaultValue);
-		Assert.IsTrue(columns.Where(x => x.Name == nameof(Cell.EnvironmentalMagicProfileId)).All(x => x.IsNullable));
+		Assert.AreEqual(0, columns.Single(x => x.Name == nameof(Room.EnvironmentalMagicBindingMode)).DefaultValue);
+		Assert.IsTrue(columns.Where(x => x.Name == nameof(Room.EnvironmentalMagicProfileId)).All(x => x.IsNullable));
 		CollectionAssert.AreEquivalent(new[] { "CellEnvironmentalStates", "EnvironmentalMagicOperations" },
 			migration.UpOperations.OfType<CreateTableOperation>().Select(x => x.Name).ToArray());
 		Assert.AreEqual(0, migration.UpOperations.OfType<InsertDataOperation>().Count());
@@ -48,16 +48,16 @@ public class EnvironmentalMagicModelTests
 	{
 		using var context = CreateContext();
 		var model = context.GetService<IDesignTimeModel>().Model;
-		var cell = model.FindEntityType(typeof(Cell))!;
+		var room = model.FindEntityType(typeof(Room))!;
 		var terrain = model.FindEntityType(typeof(Terrain))!;
 
-		Assert.AreEqual(0, cell.FindProperty(nameof(Cell.EnvironmentalMagicBindingMode))!.GetDefaultValue());
-		Assert.IsTrue(cell.FindProperty(nameof(Cell.EnvironmentalMagicProfileId))!.IsNullable);
+		Assert.AreEqual(0, room.FindProperty(nameof(Room.EnvironmentalMagicBindingMode))!.GetDefaultValue());
+		Assert.IsTrue(room.FindProperty(nameof(Room.EnvironmentalMagicProfileId))!.IsNullable);
 		Assert.IsTrue(terrain.FindProperty(nameof(Terrain.EnvironmentalMagicProfileId))!.IsNullable);
-		Assert.AreEqual(0, new Cell().EnvironmentalMagicBindingMode);
-		Assert.IsNull(new Cell().EnvironmentalMagicProfileId);
+		Assert.AreEqual(0, new Room().EnvironmentalMagicBindingMode);
+		Assert.IsNull(new Room().EnvironmentalMagicProfileId);
 		Assert.IsNull(new Terrain().EnvironmentalMagicProfileId);
-		Assert.IsNull(new Cell().EnvironmentalState);
+		Assert.IsNull(new Room().EnvironmentalState);
 	}
 
 	[TestMethod]
@@ -65,52 +65,52 @@ public class EnvironmentalMagicModelTests
 	{
 		using var context = CreateContext();
 		var model = context.GetService<IDesignTimeModel>().Model;
-		foreach (var ownerType in new[] { typeof(Cell), typeof(Terrain) })
+		foreach (var ownerType in new[] { typeof(Room), typeof(Terrain) })
 		{
 			var owner = model.FindEntityType(ownerType)!;
 			Assert.IsFalse(owner.GetForeignKeys()
-				.Any(x => x.Properties.Any(p => p.Name == nameof(Cell.EnvironmentalMagicProfileId))));
+				.Any(x => x.Properties.Any(p => p.Name == nameof(Room.EnvironmentalMagicProfileId))));
 			Assert.IsTrue(owner.GetIndexes()
-				.Any(x => x.Properties.Select(p => p.Name).SequenceEqual(new[] { nameof(Cell.EnvironmentalMagicProfileId) })));
+				.Any(x => x.Properties.Select(p => p.Name).SequenceEqual(new[] { nameof(Room.EnvironmentalMagicProfileId) })));
 		}
 	}
 
 	[TestMethod]
-	public void EnvironmentalState_UsesOnePhysicalCellKeyAndOptimisticConcurrency()
+	public void EnvironmentalState_UsesOnePhysicalRoomKeyAndOptimisticConcurrency()
 	{
 		using var context = CreateContext();
-		var state = context.GetService<IDesignTimeModel>().Model.FindEntityType(typeof(CellEnvironmentalState))!;
-		CollectionAssert.AreEqual(new[] { nameof(CellEnvironmentalState.CellId) },
+		var state = context.GetService<IDesignTimeModel>().Model.FindEntityType(typeof(RoomEnvironmentalState))!;
+		CollectionAssert.AreEqual(new[] { nameof(RoomEnvironmentalState.RoomId) },
 			state.FindPrimaryKey()!.Properties.Select(x => x.Name).ToArray());
-		Assert.AreEqual(ValueGenerated.Never, state.FindProperty(nameof(CellEnvironmentalState.CellId))!.ValueGenerated);
-		Assert.IsTrue(state.FindProperty(nameof(CellEnvironmentalState.Revision))!.IsConcurrencyToken);
+		Assert.AreEqual(ValueGenerated.Never, state.FindProperty(nameof(RoomEnvironmentalState.RoomId))!.ValueGenerated);
+		Assert.IsTrue(state.FindProperty(nameof(RoomEnvironmentalState.Revision))!.IsConcurrencyToken);
 		var owner = state.GetForeignKeys().Single();
-		Assert.AreEqual(typeof(Cell), owner.PrincipalEntityType.ClrType);
+		Assert.AreEqual(typeof(Room), owner.PrincipalEntityType.ClrType);
 		Assert.AreEqual(DeleteBehavior.Cascade, owner.DeleteBehavior);
 		Assert.IsTrue(owner.IsUnique);
 		Assert.IsTrue(owner.IsRequired);
-		Assert.AreEqual(nameof(Cell.EnvironmentalState), owner.PrincipalToDependent!.Name);
+		Assert.AreEqual(nameof(Room.EnvironmentalState), owner.PrincipalToDependent!.Name);
 	}
 
 	[TestMethod]
 	public void EnvironmentalState_DefaultsPreserveNoDamageAndNoDestructiveHistory()
 	{
 		using var context = CreateContext();
-		var state = context.GetService<IDesignTimeModel>().Model.FindEntityType(typeof(CellEnvironmentalState))!;
-		Assert.AreEqual(1, state.FindProperty(nameof(CellEnvironmentalState.SchemaVersion))!.GetDefaultValue());
-		Assert.AreEqual(0L, state.FindProperty(nameof(CellEnvironmentalState.Revision))!.GetDefaultValue());
-		Assert.AreEqual(0.0, state.FindProperty(nameof(CellEnvironmentalState.ScarDamage))!.GetDefaultValue());
-		Assert.AreEqual(0.0, state.FindProperty(nameof(CellEnvironmentalState.RecentPressure))!.GetDefaultValue());
-		Assert.AreEqual(3600.0, state.FindProperty(nameof(CellEnvironmentalState.PressureHalfLifeSeconds))!.GetDefaultValue());
-		Assert.AreEqual(0.0, state.FindProperty(nameof(CellEnvironmentalState.PressureDecayAnchor))!.GetDefaultValue());
-		Assert.IsTrue(state.FindProperty(nameof(CellEnvironmentalState.PressureProfileId))!.IsNullable);
-		foreach (var property in new[] { nameof(CellEnvironmentalState.LastDefileUtc), nameof(CellEnvironmentalState.PressureReferenceUtc) })
+		var state = context.GetService<IDesignTimeModel>().Model.FindEntityType(typeof(RoomEnvironmentalState))!;
+		Assert.AreEqual(1, state.FindProperty(nameof(RoomEnvironmentalState.SchemaVersion))!.GetDefaultValue());
+		Assert.AreEqual(0L, state.FindProperty(nameof(RoomEnvironmentalState.Revision))!.GetDefaultValue());
+		Assert.AreEqual(0.0, state.FindProperty(nameof(RoomEnvironmentalState.ScarDamage))!.GetDefaultValue());
+		Assert.AreEqual(0.0, state.FindProperty(nameof(RoomEnvironmentalState.RecentPressure))!.GetDefaultValue());
+		Assert.AreEqual(3600.0, state.FindProperty(nameof(RoomEnvironmentalState.PressureHalfLifeSeconds))!.GetDefaultValue());
+		Assert.AreEqual(0.0, state.FindProperty(nameof(RoomEnvironmentalState.PressureDecayAnchor))!.GetDefaultValue());
+		Assert.IsTrue(state.FindProperty(nameof(RoomEnvironmentalState.PressureProfileId))!.IsNullable);
+		foreach (var property in new[] { nameof(RoomEnvironmentalState.LastDefileUtc), nameof(RoomEnvironmentalState.PressureReferenceUtc) })
 		{
 			Assert.IsTrue(state.FindProperty(property)!.IsNullable);
 			Assert.AreEqual("datetime(6)", state.FindProperty(property)!.GetColumnType());
 		}
 
-		var record = new CellEnvironmentalState();
+		var record = new RoomEnvironmentalState();
 		Assert.AreEqual(1, record.SchemaVersion);
 		Assert.AreEqual(3600.0, record.PressureHalfLifeSeconds);
 		Assert.IsNull(record.LastDefileUtc);
@@ -129,7 +129,7 @@ public class EnvironmentalMagicModelTests
 		Assert.AreEqual(0, operation.GetForeignKeys().Count());
 		Assert.AreEqual("datetime(6)", operation.FindProperty(nameof(EnvironmentalMagicOperation.AtUtc))!.GetColumnType());
 		Assert.IsTrue(operation.FindProperty(nameof(EnvironmentalMagicOperation.ActorId))!.IsNullable);
-		CollectionAssert.AreEqual(new[] { nameof(EnvironmentalMagicOperation.CellId), nameof(EnvironmentalMagicOperation.AtUtc) },
+		CollectionAssert.AreEqual(new[] { nameof(EnvironmentalMagicOperation.RoomId), nameof(EnvironmentalMagicOperation.AtUtc) },
 			operation.GetIndexes().Single().Properties.Select(x => x.Name).ToArray());
 	}
 
@@ -138,8 +138,8 @@ public class EnvironmentalMagicModelTests
 	{
 		using var context = CreateContext();
 		var operationId = Guid.NewGuid();
-		context.EnvironmentalMagicOperations.Add(new EnvironmentalMagicOperation { Id = operationId, CellId = 1 });
+		context.EnvironmentalMagicOperations.Add(new EnvironmentalMagicOperation { Id = operationId, RoomId = 1 });
 		Assert.ThrowsException<InvalidOperationException>(() => context.EnvironmentalMagicOperations.Add(
-			new EnvironmentalMagicOperation { Id = operationId, CellId = 2 }));
+			new EnvironmentalMagicOperation { Id = operationId, RoomId = 2 }));
 	}
 }

@@ -15,6 +15,6 @@ public interface IVehicleTowService
 	bool CanHitch(ICharacter actor, IVehicle sourceVehicle, IVehicleTowPointPrototype sourceTowPoint,
 		IVehicle targetVehicle, IVehicleTowPointPrototype targetTowPoint, IGameItem? hitchItem, out string reason);
 	bool ValidateLink(IVehicleTowLink link, out string reason);
-	bool CanMoveTowTrain(IVehicle root, ICellExit exit, out IReadOnlyList<IVehicle> towTrain, out string reason);
+	bool CanMoveTowTrain(IVehicle root, IRoomExit exit, out IReadOnlyList<IVehicle> towTrain, out string reason);
 	bool IsTowPointInUse(IVehicle vehicle, IVehicleTowPointPrototype towPoint, IVehicleTowLink? exceptLink = null);
 }

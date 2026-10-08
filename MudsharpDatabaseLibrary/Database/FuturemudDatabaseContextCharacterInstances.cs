@@ -36,7 +36,7 @@ public partial class FuturemudDatabaseContext
 			      .HasDatabaseName("UQ_CharacterInstances_PrimaryCharacter");
 
 			entity.HasIndex(e => e.LocationId)
-			      .HasDatabaseName("FK_CharacterInstances_Cells_idx");
+			      .HasDatabaseName("FK_CharacterInstances_Rooms_idx");
 
 			entity.HasIndex(e => new { e.LocationId, e.RoomLayer })
 			      .HasDatabaseName("IX_CharacterInstances_Location_Layer");
@@ -132,7 +132,7 @@ public partial class FuturemudDatabaseContext
 			      .WithMany(p => p.CharacterInstances)
 			      .HasForeignKey(d => d.LocationId)
 			      .OnDelete(DeleteBehavior.SetNull)
-			      .HasConstraintName("FK_CharacterInstances_Cells");
+			      .HasConstraintName("FK_CharacterInstances_Rooms");
 		});
 	}
 }

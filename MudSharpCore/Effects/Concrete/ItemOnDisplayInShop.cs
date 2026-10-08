@@ -181,9 +181,9 @@ public class ItemOnDisplayInShop : Effect, IDescriptionAdditionEffect, IHandleEv
     {
         switch (type)
         {
-            case EventType.CharacterLeaveCellItems:
+            case EventType.CharacterLeaveRoomItems:
                 ICharacter ch = (ICharacter)arguments[0];
-                ICellExit exit = (ICellExit)arguments[2];
+                IRoomExit exit = (IRoomExit)arguments[2];
                 if (exit is null)
                 {
                     return false;
@@ -212,6 +212,6 @@ public class ItemOnDisplayInShop : Effect, IDescriptionAdditionEffect, IHandleEv
     /// <inheritdoc />
     public bool HandlesEvent(params EventType[] types)
     {
-        return types.Contains(EventType.CharacterLeaveCellItems);
+        return types.Contains(EventType.CharacterLeaveRoomItems);
     }
 }

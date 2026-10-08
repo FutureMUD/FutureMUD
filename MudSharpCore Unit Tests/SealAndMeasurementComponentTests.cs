@@ -215,7 +215,7 @@ public class SealAndMeasurementComponentTests
 				new XElement("FailureEmote", "@ fail|fails to play $1."),
 				new XElement("StopEmote", "@ stop|stops playing $1.")).ToString()));
 		var parent = CreateParent(gameworld.Object, 621L, "lyre");
-		var (actor, _, cell) = CreateInstrumentActor(gameworld.Object, parent);
+		var (actor, _, room) = CreateInstrumentActor(gameworld.Object, parent);
 		var component = (InstrumentGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
 		PlayingInstrument? playingEffect = null;
 		actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
@@ -231,13 +231,13 @@ public class SealAndMeasurementComponentTests
 		Assert.IsNotNull(playingEffect);
 		Assert.AreEqual(Outcome.Pass, component.CurrentOutcome);
 		actor.Verify(x => x.SpendStamina(2.0), Times.Once);
-		cell.Verify(x => x.HandleAudioEcho("You hear music {0}.",
+		room.Verify(x => x.HandleAudioEcho("You hear music {0}.",
 			MudSharp.Form.Audio.AudioVolume.Decent, parent.Object, It.IsAny<RoomLayer>(), true, "instrument"),
 			Times.Once);
 
 		component.PerformTick();
 		actor.Verify(x => x.SpendStamina(1.0), Times.Once);
-		cell.Verify(x => x.HandleAudioEcho("You hear music {0}.",
+		room.Verify(x => x.HandleAudioEcho("You hear music {0}.",
 			MudSharp.Form.Audio.AudioVolume.Decent, parent.Object, It.IsAny<RoomLayer>(), true, "instrument"),
 			Times.Exactly(2));
 
@@ -368,7 +368,7 @@ public class SealAndMeasurementComponentTests
 						new XElement("Distant", "You hear a rally {0}."),
 						new XElement("Failure", "@ sound|sounds a garbled call on $1.")))).ToString()));
 		var parent = CreateParent(gameworld.Object, 631L, "drum");
-		var (actor, _, cell) = CreateInstrumentActor(gameworld.Object, parent);
+		var (actor, _, room) = CreateInstrumentActor(gameworld.Object, parent);
 		var component = (SignalInstrumentGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
 		SignalInstrumentCooldown? cooldown = null;
 		actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
@@ -382,7 +382,7 @@ public class SealAndMeasurementComponentTests
 		Assert.IsFalse(component.Signal(actor.Object, "rally"));
 		Assert.IsNotNull(cooldown);
 		actor.Verify(x => x.SpendStamina(5.0), Times.Once);
-		cell.Verify(x => x.HandleAudioEcho(
+		room.Verify(x => x.HandleAudioEcho(
 			It.Is<string>(text => text.Contains("unrecognisable", StringComparison.OrdinalIgnoreCase)),
 			MudSharp.Form.Audio.AudioVolume.Loud, parent.Object, It.IsAny<RoomLayer>(), true, "signal"), Times.Once);
 		onSignal.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Never);
@@ -1137,13 +1137,13 @@ public class SealAndMeasurementComponentTests
 		return actor;
 	}
 
-	private static (Mock<ICharacter> Actor, Mock<IBody> Body, Mock<ICell> Cell) CreateInstrumentActor(
+	private static (Mock<ICharacter> Actor, Mock<IBody> Body, Mock<IRoom> Room) CreateInstrumentActor(
 		IFuturemud gameworld, Mock<IGameItem> instrument)
 	{
 		var actor = CreateActor(gameworld, instrument.Object.Id + 100);
 		var body = PhysicalManipulationTestHelper.SetUpUsableHands(actor);
-		var cell = new Mock<ICell>();
-		cell.Setup(x => x.CanGetAccess(It.IsAny<IGameItem>(), actor.Object)).Returns(true);
+		var room = new Mock<IRoom>();
+		room.Setup(x => x.CanGetAccess(It.IsAny<IGameItem>(), actor.Object)).Returns(true);
 		instrument.SetupGet(x => x.BasePlanarPresence).Returns(MudSharp.Planes.PlanarPresenceDefinition.DefaultMaterial(1));
 		var position = new Mock<IPositionState>();
 		var output = new Mock<IOutputHandler>();
@@ -1158,21 +1158,21 @@ public class SealAndMeasurementComponentTests
 		body.Setup(x => x.HeldItemsFor(It.IsAny<IBodypart>())).Returns(Array.Empty<IGameItem>());
 		body.Setup(x => x.HeldItemsFor(inventory.Object)).Returns([instrument.Object]);
 		body.Setup(x => x.WieldedItemsFor(It.IsAny<IBodypart>())).Returns(Array.Empty<IGameItem>());
-		instrument.SetupGet(x => x.Location).Returns(cell.Object);
+		instrument.SetupGet(x => x.Location).Returns(room.Object);
 		instrument.SetupGet(x => x.InInventoryOf).Returns((IBody)null!);
 		instrument.SetupGet(x => x.ContainedIn).Returns((IGameItem)null!);
 		actor.SetupGet(x => x.Body).Returns(body.Object);
 		actor.SetupGet(x => x.State).Returns(CharacterState.Able);
 		actor.SetupGet(x => x.Combat).Returns((ICombat)null!);
 		actor.SetupGet(x => x.PositionState).Returns(position.Object);
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
 		actor.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns(true);
 		actor.SetupGet(x => x.Effects).Returns([]);
 		actor.Setup(x => x.EffectsOfType<PlayingInstrument>(It.IsAny<Predicate<PlayingInstrument>>()))
 		     .Returns([]);
 		position.SetupGet(x => x.Name).Returns("standing");
-		return (actor, body, cell);
+		return (actor, body, room);
 	}
 
 	private static Mock<ITag> CreateTag(long id, string name)

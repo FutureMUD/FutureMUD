@@ -443,18 +443,18 @@ public sealed class SpellDeadSpeakEffect : SimpleSpellStatusEffectBase, IDeadSpe
 			ApplicabilityProg));
 	}
 
-	private void RestoreCorpseItem(ICharacter? animated, ICell? animatedLocation, RoomLayer? animatedLayer)
+	private void RestoreCorpseItem(ICharacter? animated, IRoom? animatedLocation, RoomLayer? animatedLayer)
 	{
 		if (Owner is not IGameItem corpse || corpse.Location is not null)
 		{
 			return;
 		}
 
-		var location = animatedLocation ?? Gameworld.Cells.Get(OriginalLocationId);
+		var location = animatedLocation ?? Gameworld.Rooms.Get(OriginalLocationId);
 		if (location is null)
 		{
 			Gameworld.SystemMessage(
-				$"Could not restore corpse item #{CorpseItemId.ToString("N0")} after dead speak: cell #{OriginalLocationId.ToString("N0")} could not be resolved.",
+				$"Could not restore corpse item #{CorpseItemId.ToString("N0")} after dead speak: room #{OriginalLocationId.ToString("N0")} could not be resolved.",
 				true);
 			return;
 		}

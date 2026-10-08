@@ -56,12 +56,12 @@ public class DNATestProduct : BaseProduct
             // Do nothing
         }
 
-        public void ReleaseProducts(ICell location, RoomLayer layer)
+        public void ReleaseProducts(IRoom location, RoomLayer layer)
 		{
 			ReleaseProductsTo(location.LayerCharacters(layer));
 		}
 
-		public void ReleaseProducts(ILocateable source, ICell location, RoomLayer layer)
+		public void ReleaseProducts(ILocateable source, IRoom location, RoomLayer layer)
 		{
 			ReleaseProductsTo(location.CharactersInImmediateVicinity(source)
 				.Where(x => x.RoomLayer == layer));

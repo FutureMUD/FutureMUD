@@ -290,7 +290,7 @@ Economic zone manager commands:
 	{
 		if (ss.IsFinished)
 		{
-			var currentRoom = property.HotelRoomForCell(actor.Location);
+			var currentRoom = property.HotelRoomForRoom(actor.Location);
 			if (currentRoom != null)
 			{
 				return currentRoom;
@@ -303,7 +303,7 @@ Economic zone manager commands:
 		var text = ss.PopSpeech();
 		if (text.EqualTo("here"))
 		{
-			var currentRoom = property.HotelRoomForCell(actor.Location);
+			var currentRoom = property.HotelRoomForRoom(actor.Location);
 			if (currentRoom != null)
 			{
 				return currentRoom;
@@ -612,7 +612,7 @@ Economic zone manager commands:
 		if (ss.IsFinished)
 		{
 			property = CurrentProperty(actor);
-			room = property?.HotelRoomForCell(actor.Location);
+			room = property?.HotelRoomForRoom(actor.Location);
 			if (room?.ActiveRental?.GuestId != actorIdentityId)
 			{
 				var rentals = actor.Gameworld.Properties
@@ -808,14 +808,14 @@ Economic zone manager commands:
 			property.HotelRooms.Select(room => new List<string>
 			{
 				room.Name,
-				room.Cell.GetFriendlyReference(actor),
+				room.Room.GetFriendlyReference(actor),
 				room.Listed.ToColouredString(),
 				property.EconomicZone.Currency.Describe(room.PricePerDay, CurrencyDescriptionPatternType.Short),
 				property.EconomicZone.Currency.Describe(room.SecurityDeposit, CurrencyDescriptionPatternType.Short),
 				$"{room.MinimumDuration.Describe(actor)} to {room.MaximumDuration.Describe(actor)}",
 				HotelRoomAvailability(room)
 			}),
-			new List<string> { "Room", "Cell", "Listed", "Daily", "Deposit", "Duration", "Available" },
+			new List<string> { "Room", "Location", "Listed", "Daily", "Deposit", "Duration", "Available" },
 			actor.LineFormatLength,
 			colour: Telnet.Green,
 			unicodeTable: actor.Account.UseUnicode));
@@ -1208,7 +1208,7 @@ Economic zone manager commands:
 			property.HotelRooms.Select(room => new List<string>
 			{
 				room.Name,
-				room.Cell.GetFriendlyReference(actor),
+				room.Room.GetFriendlyReference(actor),
 				room.Listed.ToColouredString(),
 				property.EconomicZone.Currency.Describe(room.PricePerDay, CurrencyDescriptionPatternType.Short),
 				property.EconomicZone.Currency.Describe(room.SecurityDeposit, CurrencyDescriptionPatternType.Short),
@@ -1216,7 +1216,7 @@ Economic zone manager commands:
 				room.Keys.Select(x => x.Name).ListToString(),
 				room.Furnishings.Count().ToString("N0", actor)
 			}),
-			new List<string> { "Room", "Cell", "Listed", "Daily", "Deposit", "Duration", "Keys", "Furnishings" },
+			new List<string> { "Room", "Location", "Listed", "Daily", "Deposit", "Duration", "Keys", "Furnishings" },
 			actor.LineFormatLength,
 			colour: Telnet.Green,
 			unicodeTable: actor.Account.UseUnicode));
@@ -1236,7 +1236,7 @@ Economic zone manager commands:
 			return;
 		}
 
-		if (property.HotelRoomForCell(actor.Location) != null)
+		if (property.HotelRoomForRoom(actor.Location) != null)
 		{
 			actor.OutputHandler.Send("This room is already configured as a hotel room.");
 			return;
@@ -1607,7 +1607,7 @@ Economic zone manager commands:
 			return;
 		}
 
-		if (!item.TrueLocations.Contains(room.Cell))
+		if (!item.TrueLocations.Contains(room.Room))
 		{
 			actor.OutputHandler.Send($"That item is not in {room.Name.ColourName()}.");
 			return;

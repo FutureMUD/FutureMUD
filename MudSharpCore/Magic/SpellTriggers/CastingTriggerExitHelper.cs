@@ -6,7 +6,7 @@ namespace MudSharp.Magic.SpellTriggers;
 
 internal static class CastingTriggerExitHelper
 {
-	public static ICellExit? ResolveExit(ICharacter actor, string text)
+	public static IRoomExit? ResolveExit(ICharacter actor, string text)
 	{
 		return actor.Location.GetExitKeyword(text, actor);
 	}

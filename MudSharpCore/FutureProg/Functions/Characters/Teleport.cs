@@ -250,7 +250,7 @@ internal class Teleport : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        if (ParameterFunctions[1].Result is not ICell location)
+        if (ParameterFunctions[1].Result is not IRoom location)
         {
             Result = new BooleanVariable(false);
             return StatementResult.Normal;

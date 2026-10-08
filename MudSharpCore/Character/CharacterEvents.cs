@@ -39,15 +39,15 @@ public partial class Character
             case EventType.CharacterDoorKnockedSameSide:
             case EventType.CharacterDroppedItemWitness:
             case EventType.CharacterEatWitness:
-            case EventType.CharacterEnterCellFinishWitness:
-            case EventType.CharacterEnterCellWitness:
+            case EventType.CharacterEnterRoomFinishWitness:
+            case EventType.CharacterEnterRoomWitness:
             case EventType.CharacterGiveItemWitness:
             case EventType.CharacterGotItemContainerWitness:
             case EventType.CharacterGotItemWitness:
             case EventType.CharacterHidesWitness:
             case EventType.CharacterAlertHeard:
             case EventType.CharacterIncapacitatedWitness:
-            case EventType.CharacterLeaveCellWitness:
+            case EventType.CharacterLeaveRoomWitness:
             case EventType.CharacterMountedWitness:
             case EventType.CharacterOpenedItemWitness:
             case EventType.CharacterPutItemContainerWitness:
@@ -76,16 +76,16 @@ public partial class Character
                 }
 
                 break;
-            case EventType.CharacterLeaveCell:
+            case EventType.CharacterLeaveRoom:
                 foreach (IGameItem item in Body.ExternalItems)
                 {
-                    result = result || item.HandleEvent(EventType.CharacterLeaveCellItems, arguments[0], arguments[1], arguments[2], item);
+                    result = result || item.HandleEvent(EventType.CharacterLeaveRoomItems, arguments[0], arguments[1], arguments[2], item);
                 }
                 break;
-            case EventType.CharacterEnterCell:
+            case EventType.CharacterEnterRoom:
                 foreach (IGameItem item in Body.ExternalItems)
                 {
-                    result = result || item.HandleEvent(EventType.CharacterEnterCellItems, arguments[0], arguments[1], arguments[2], item);
+                    result = result || item.HandleEvent(EventType.CharacterEnterRoomItems, arguments[0], arguments[1], arguments[2], item);
                 }
                 break;
             case EventType.CharacterBeginMovement:

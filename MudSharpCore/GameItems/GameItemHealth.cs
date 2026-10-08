@@ -618,7 +618,7 @@ public partial class GameItem : IHaveWounds
         GameItem newItem = Prototype.LoadDestroyedItem(this) as GameItem;
         newItem?.CopyOwnerFrom(this);
         // Component.Die can affect TrueLocation, so save it beforehand
-        ICell originalTrueLocation = TrueLocations.FirstOrDefault();
+        IRoom originalTrueLocation = TrueLocations.FirstOrDefault();
 		var originalSpatialLocation = originalTrueLocation is null
 			? (SpatialLocation?)null
 			: CaptureComponentLifecycleSpatialLocation(originalTrueLocation);
@@ -634,8 +634,8 @@ public partial class GameItem : IHaveWounds
 			if (remaining is not null)
 			{
 				if (newItem is not null) newItem.SurfaceLiquidState.AddLiquid(remaining);
-				else if (originalTrueLocation is MudSharp.Construction.Cell cell && originalSpatialLocation is { } point)
-					cell.AddLiquidToSurfaceAt(remaining, point.Layer, point.RoutePositionMetres);
+				else if (originalTrueLocation is MudSharp.Construction.Room room && originalSpatialLocation is { } point)
+					room.AddLiquidToSurfaceAt(remaining, point.Layer, point.RoutePositionMetres);
 				else originalTrueLocation?.AddLiquidToSurface(remaining, RoomLayer, LocationLevelPerceivable);
 			}
 		}
@@ -685,7 +685,7 @@ public partial class GameItem : IHaveWounds
         return newItem;
     }
 
-    public ICharacter Resurrect(ICell location)
+    public ICharacter Resurrect(IRoom location)
     {
         return null;
     }

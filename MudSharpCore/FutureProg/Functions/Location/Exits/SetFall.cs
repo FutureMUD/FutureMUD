@@ -55,14 +55,14 @@ internal class SetFall : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICellExit exit = (ICellExit)ParameterFunctions[0].Result?.GetObject;
+        IRoomExit exit = (IRoomExit)ParameterFunctions[0].Result?.GetObject;
         if (exit == null)
         {
             Result = null;
             return StatementResult.Normal;
         }
 
-        ICellOverlayPackage package = (ICellOverlayPackage)ParameterFunctions[1].Result?.GetObject;
+        IRoomOverlayPackage package = (IRoomOverlayPackage)ParameterFunctions[1].Result?.GetObject;
         if (package == null)
         {
             Result = null;
@@ -77,8 +77,8 @@ internal class SetFall : BuiltInFunction
 
         exit = GetOrCopyExit.GetOrCopy(exit, package);
 
-        ICell fallto = (ICell)ParameterFunctions[2].Result?.GetObject;
-        exit.Exit.FallCell = fallto;
+        IRoom fallto = (IRoom)ParameterFunctions[2].Result?.GetObject;
+        exit.Exit.FallRoom = fallto;
         exit.Exit.Changed = true;
         Result = exit;
         return StatementResult.Normal;

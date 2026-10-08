@@ -46,7 +46,7 @@ public class WarnedByEnforcer : Effect, INoQuitEffect
         CharacterOwner.OnMovedConsensually -= Owner_OnMovedConsensually;
     }
 
-    private void Owner_OnLocationChanged(Form.Shape.ILocateable locatable, Construction.Boundary.ICellExit exit)
+    private void Owner_OnLocationChanged(Form.Shape.ILocateable locatable, Construction.Boundary.IRoomExit exit)
     {
         CharacterOwner.RemoveEffect(this, true);
     }

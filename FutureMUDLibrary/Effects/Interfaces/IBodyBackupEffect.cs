@@ -9,8 +9,8 @@ namespace MudSharp.Effects.Interfaces;
 public interface IBodyBackupEffect : IEffectSubtype
 {
 	long BackupBodyId { get; }
-	long DestinationCellId { get; }
-	ICell? DestinationCell { get; }
+	long DestinationRoomId { get; }
+	IRoom? DestinationRoom { get; }
 	RoomLayer DestinationLayer { get; }
 	int Priority { get; }
 	BodyRemainsContext RemainsContext { get; }

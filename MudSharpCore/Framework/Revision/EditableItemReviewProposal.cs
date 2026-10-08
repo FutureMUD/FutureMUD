@@ -33,9 +33,9 @@ public class EditableItemReviewProposal<T> : Proposal, IProposal where T : IEdit
             return _proponent.Gameworld.ItemComponentProtos;
         }
 
-        if (typeof(T) == typeof(ICellOverlayPackage))
+        if (typeof(T) == typeof(IRoomOverlayPackage))
         {
-            return _proponent.Gameworld.CellOverlayPackages;
+            return _proponent.Gameworld.RoomOverlayPackages;
         }
 
         if (typeof(T) == typeof(INPCTemplate))

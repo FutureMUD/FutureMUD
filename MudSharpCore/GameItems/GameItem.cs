@@ -67,7 +67,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 		.OfType<IProvideItemSpatialHostEffect>()
 		.FirstOrDefault(x => x.SpatialHost is not null && !ReferenceEquals(x.SpatialHost, this));
 	private IPerceivable? EffectSpatialHost => EffectSpatialHostProvider?.SpatialHost;
-	private ICell? EffectSpatialHostLocation => EffectSpatialHost as ICell ?? EffectSpatialHost?.Location;
+	private IRoom? EffectSpatialHostLocation => EffectSpatialHost as IRoom ?? EffectSpatialHost?.Location;
 	private bool HasEffectiveSpatialHost => IsSpatiallyHosted || EffectSpatialHost is not null;
 	private double? PersistedRoutePositionMetres => HasEffectiveSpatialHost ? null : RoutePositionMetres;
 
@@ -237,9 +237,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
 		if (!Nullable.Equals(previousPosition, RoutePositionMetres))
 		{
-			// Longitudinal movement is real movement even though the containing cell does not change.
+			// Longitudinal movement is real movement even though the containing room does not change.
 			// Independent cables, hoses and other ordinary connectors must therefore revalidate and
-			// disconnect just as they do for a cell transition.
+			// disconnect just as they do for a room transition.
 			ForceMove();
 		}
 
@@ -913,7 +913,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     }
 
     // The original database containment is evidence for component reconstruction before
-    // another root has loaded this child's hand or cell membership.
+    // another root has loaded this child's hand or room membership.
     internal bool LoadedFromDatabase { get; }
     internal long? ContainerIdAtLoad { get; }
 
@@ -1530,11 +1530,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 			var version = ++_containmentMutationVersion;
 			var originalContainer = _containedIn;
 			var originalBody = InInventoryOf;
-			var originalCell = base.Location;
+			var originalRoom = base.Location;
 			var originalBelt = GetItemType<IBeltable>()?.ConnectedTo;
 			bool OriginalCustody() => _containmentMutationVersion == version && !Deleted && !Destroyed &&
 				ReferenceEquals(_containedIn, originalContainer) && ReferenceEquals(InInventoryOf, originalBody) &&
-				ReferenceEquals(base.Location, originalCell) && ReferenceEquals(GetItemType<IBeltable>()?.ConnectedTo, originalBelt);
+				ReferenceEquals(base.Location, originalRoom) && ReferenceEquals(GetItemType<IBeltable>()?.ConnectedTo, originalBelt);
 			var timeSensitiveItems = DeepItems.ToList();
 			if (!OriginalCustody()) return false;
 			foreach (var item in timeSensitiveItems)
@@ -1651,14 +1651,14 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     #region Overrides of PerceivedItem
 
-    public override ICell Location
+    public override IRoom Location
     {
 		get => SpatialHost?.Location ?? EffectSpatialHostLocation ?? base.Location ?? TrueLocations?.FirstOrDefault();
         protected set => base.Location = value;
     }
 
 	// Custody checks must distinguish a spatial record from location inherited through a holder/container.
-	internal ICell DirectLocation => base.Location;
+	internal IRoom DirectLocation => base.Location;
 
 	public override RoomLayer RoomLayer
 	{
@@ -1672,7 +1672,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 
     #endregion
 
-    public IEnumerable<ICell> TrueLocationsExcept(List<IGameItem> itemsConsidered)
+    public IEnumerable<IRoom> TrueLocationsExcept(List<IGameItem> itemsConsidered)
     {
 		var spatialHost = SpatialHost;
 		if (spatialHost is not null && !itemsConsidered.Contains(spatialHost))
@@ -1686,9 +1686,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 			itemsConsidered.Add(effectHostItem);
 			return effectHostItem.TrueLocationsExcept(itemsConsidered);
 		}
-		if (effectSpatialHost is ICell effectHostCell)
+		if (effectSpatialHost is IRoom effectHostRoom)
 		{
-			return [effectHostCell];
+			return [effectHostRoom];
 		}
 		if (effectSpatialHost?.Location is { } effectHostLocation)
 		{
@@ -1716,7 +1716,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         if (mountable?.MountHost != null && !itemsConsidered.Contains(mountable.MountHost.Parent))
         {
             itemsConsidered.Add(mountable.MountHost.Parent);
-            List<ICell> location = mountable.MountHost.Parent.TrueLocationsExcept(itemsConsidered).ToList();
+            List<IRoom> location = mountable.MountHost.Parent.TrueLocationsExcept(itemsConsidered).ToList();
             if (location.Any())
             {
                 return location;
@@ -1729,7 +1729,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             foreach (Tuple<ConnectorType, IConnectable> item in connectable.ConnectedItems.Where(x => !itemsConsidered.Contains(x.Item2.Parent)))
             {
                 itemsConsidered.Add(item.Item2.Parent);
-                List<ICell> location = item.Item2.Parent.TrueLocationsExcept(itemsConsidered).ToList();
+                List<IRoom> location = item.Item2.Parent.TrueLocationsExcept(itemsConsidered).ToList();
                 if (location.Any())
                 {
                     return location;
@@ -1740,7 +1740,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         IDoor door = GetItemType<IDoor>();
         if (door?.InstalledExit != null)
         {
-            return door.InstalledExit.Cells;
+            return door.InstalledExit.Rooms;
         }
 
         if (InInventoryOf?.Location != null)
@@ -1748,10 +1748,10 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             return new[] { InInventoryOf.Location };
         }
 
-        return ContainedIn?.TrueLocations ?? Enumerable.Empty<ICell>();
+        return ContainedIn?.TrueLocations ?? Enumerable.Empty<IRoom>();
     }
 
-    public IEnumerable<ICell> TrueLocations
+    public IEnumerable<IRoom> TrueLocations
     {
         get
         {
@@ -1765,9 +1765,9 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 			{
 				return effectHostItem.TrueLocationsExcept([this, effectHostItem]);
 			}
-			if (effectSpatialHost is ICell effectHostCell)
+			if (effectSpatialHost is IRoom effectHostRoom)
 			{
-				return [effectHostCell];
+				return [effectHostRoom];
 			}
 			if (effectSpatialHost?.Location is { } effectHostLocation)
 			{
@@ -1794,7 +1794,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             IAutomationMountable mountable = GetItemType<IAutomationMountable>();
             if (mountable?.MountHost != null)
             {
-                List<ICell> location = mountable.MountHost.Parent.TrueLocationsExcept(new List<IGameItem> { this }).ToList();
+                List<IRoom> location = mountable.MountHost.Parent.TrueLocationsExcept(new List<IGameItem> { this }).ToList();
                 if (location.Any())
                 {
                     return location;
@@ -1804,7 +1804,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             IConnectable connectable = GetItemType<IConnectable>();
             if (connectable?.ConnectedItems.Any() ?? false)
             {
-                List<ICell> location = connectable.Parent.TrueLocationsExcept(new List<IGameItem> { this }).ToList();
+                List<IRoom> location = connectable.Parent.TrueLocationsExcept(new List<IGameItem> { this }).ToList();
                 if (location.Any())
                 {
                     return location;
@@ -1820,7 +1820,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
             IDoor door = GetItemType<IDoor>();
             if (door?.InstalledExit != null)
             {
-                return door.InstalledExit.Cells;
+                return door.InstalledExit.Rooms;
             }
 
             if (InInventoryOf?.Location != null)
@@ -1828,7 +1828,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
                 return new[] { InInventoryOf.Location };
             }
 
-            return ContainedIn?.TrueLocations ?? Enumerable.Empty<ICell>();
+            return ContainedIn?.TrueLocations ?? Enumerable.Empty<IRoom>();
         }
     }
 
@@ -1837,35 +1837,35 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         switch (range)
         {
             case OutputRange.Local:
-                foreach (ICell location in TrueLocations)
+                foreach (IRoom location in TrueLocations)
                 {
 					location.HandleLocal(this, RoomLayer, text);
                 }
 
                 break;
             case OutputRange.Room:
-                foreach (ICell location in TrueLocations)
+                foreach (IRoom location in TrueLocations)
                 {
-                    location.Room.Handle(text);
+                    location.Handle(text);
                 }
 
                 break;
             case OutputRange.Shard:
-                foreach (ICell location in TrueLocations)
+                foreach (IRoom location in TrueLocations)
                 {
                     location.Shard.Handle(text);
                 }
 
                 break;
             case OutputRange.Zone:
-                foreach (ICell location in TrueLocations)
+                foreach (IRoom location in TrueLocations)
                 {
                     location.Zone.Handle(text);
                 }
 
                 break;
             case OutputRange.Surrounds:
-                foreach (ICell location in TrueLocations.SelectMany(x => x.Surrounds).Except(TrueLocations))
+                foreach (IRoom location in TrueLocations.SelectMany(x => x.Surrounds).Except(TrueLocations))
                 {
                     location.Handle(text);
                 }
@@ -1882,35 +1882,35 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         switch (range)
         {
             case OutputRange.Local:
-                foreach (ICell location in TrueLocations)
+                foreach (IRoom location in TrueLocations)
                 {
 					location.HandleLocal(this, RoomLayer, output);
                 }
 
                 break;
             case OutputRange.Room:
-                foreach (ICell location in TrueLocations)
+                foreach (IRoom location in TrueLocations)
                 {
-                    location.Room.Handle(output);
+                    location.Handle(output);
                 }
 
                 break;
             case OutputRange.Shard:
-                foreach (ICell location in TrueLocations)
+                foreach (IRoom location in TrueLocations)
                 {
-                    location.Room.Zone.Shard.Handle(output);
+                    location.OwningZone.Shard.Handle(output);
                 }
 
                 break;
             case OutputRange.Zone:
-                foreach (ICell location in TrueLocations)
+                foreach (IRoom location in TrueLocations)
                 {
-                    location.Room.Zone.Handle(output);
+                    location.OwningZone.Handle(output);
                 }
 
                 break;
             case OutputRange.Surrounds:
-                foreach (ICell location in TrueLocations.SelectMany(x => x.Surrounds).Except(TrueLocations))
+                foreach (IRoom location in TrueLocations.SelectMany(x => x.Surrounds).Except(TrueLocations))
                 {
                     location.Handle(output);
                 }
@@ -2701,18 +2701,18 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         return stackable == null || stackable.DropsWhole(quantity);
     }
 
-    public IGameItem Drop(ICell location)
+    public IGameItem Drop(IRoom location)
     {
 		DropCore(location, null);
 		return this;
     }
 
-	internal bool TryDropPrepared(SpatialLocation destination) => DropCore(destination.Cell, destination);
+	internal bool TryDropPrepared(SpatialLocation destination) => DropCore(destination.Room, destination);
 
-	private bool DropCore(ICell location, SpatialLocation? destination)
+	private bool DropCore(IRoom location, SpatialLocation? destination)
     {
 		ForeignCustodyTransferContext.EnsureItem(this);
-		if (location is not null) ForeignCustodyTransferContext.EnsureCell(location, this);
+		if (location is not null) ForeignCustodyTransferContext.EnsureRoom(location, this);
         var sourceLocation = base.Location;
         var sourceContainer = ContainedIn;
         var holdable = GetItemType<IHoldable>();
@@ -2735,11 +2735,11 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 		}
 
 		Location = location;
-		if (destination is { } point) RestoreInterruptedNativePosition(point.Cell, point.Layer, point.RoutePositionMetres);
+		if (destination is { } point) RestoreInterruptedNativePosition(point.Room, point.Layer, point.RoutePositionMetres);
 		return true;
     }
 
-    public IGameItem Drop(ICell location, int quantity)
+    public IGameItem Drop(IRoom location, int quantity)
     {
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: true);
         IStackable stackable = GetItemType<IStackable>();
@@ -2770,7 +2770,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         return true;
     }
 
-    public IGameItem DropByWeight(ICell location, double weight)
+    public IGameItem DropByWeight(IRoom location, double weight)
     {
 		if (!DropsWholeByWeight(weight)) SpellOwnedItemValuePolicy.RequireOrdinaryValue(this, "splitting");
 		ForeignCustodyTransferContext.EnsureItem(this, destructive: !DropsWholeByWeight(weight));
@@ -3176,7 +3176,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedNpcs?.TryPrepareRemainsRemoval(this, out _, morphing: true) == false) return;
 		if (GetItemType<ICorpse>() is not null && Gameworld.SpellOwnedCorpseAnimations?.IsBorrowedCorpse(Id) == true) return;
         IGameItem newItem = Prototype.LoadMorphedItem(this);
-        ICell location = TrueLocations.FirstOrDefault();
+        IRoom location = TrueLocations.FirstOrDefault();
 		var originalSpatialLocation = location is null
 			? (SpatialLocation?)null
 			: CaptureComponentLifecycleSpatialLocation(location);
@@ -3222,30 +3222,30 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         Delete();
     }
 
-	private SpatialLocation CaptureComponentLifecycleSpatialLocation(ICell selectedCell)
+	private SpatialLocation CaptureComponentLifecycleSpatialLocation(IRoom selectedRoom)
 	{
 		var spatialService = RouteSpatialService.Instance;
 		var currentLocation = spatialService.GetEffectiveLocation(LocationLevelPerceivable);
-		if (ReferenceEquals(currentLocation.Cell, selectedCell) &&
+		if (ReferenceEquals(currentLocation.Room, selectedRoom) &&
 			spatialService.TryValidateLocation(currentLocation, out _))
 		{
 			return currentLocation;
 		}
 
 		var installedExit = GetItemType<IDoor>()?.InstalledExit;
-		var selectedExit = installedExit?.CellExitFor(selectedCell);
-		if (selectedCell.RouteDefinition is not null &&
+		var selectedExit = installedExit?.RoomExitFor(selectedRoom);
+		if (selectedRoom.RouteDefinition is not null &&
 			selectedExit is not null &&
-			spatialService.TryGetExitAnchor(selectedExit, selectedCell, out var anchor) &&
+			spatialService.TryGetExitAnchor(selectedExit, selectedRoom, out var anchor) &&
 			anchor is not null)
 		{
-			return new SpatialLocation(selectedCell, RoomLayer, anchor.ArrivalPositionMetres);
+			return new SpatialLocation(selectedRoom, RoomLayer, anchor.ArrivalPositionMetres);
 		}
 
 		spatialService.TryValidateLocation(currentLocation, out var error);
 		throw new InvalidOperationException(
-			$"Cannot capture the destruction or morph position of item #{Id:N0} in Cell #{selectedCell.Id:N0}: " +
-			$"{error} Installed RouteCell doors require an anchor on the selected exit side.");
+			$"Cannot capture the destruction or morph position of item #{Id:N0} in Room #{selectedRoom.Id:N0}: " +
+			$"{error} Installed RouteRoom doors require an anchor on the selected exit side.");
 	}
 
     #endregion
@@ -3272,7 +3272,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     {
 		var effectiveLocation = RouteSpatialService.Instance.GetEffectiveLocation(this);
 		IEnumerable<IPerceivable> candidates;
-		if (effectiveLocation.Cell?.RouteDefinition is null)
+		if (effectiveLocation.Room?.RouteDefinition is null)
 		{
 			candidates = TrueLocations.SelectMany(x => x.Perceivables);
 		}

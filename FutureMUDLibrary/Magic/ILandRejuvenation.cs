@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using MudSharp.Construction;
 
 namespace MudSharp.Magic.Environment;
@@ -21,7 +22,8 @@ public sealed record LandRejuvenationProgress
 	public int Version { get; init; } = 1;
 	public Guid Id { get; init; }
 	public Guid ParentId { get; init; }
-	public long CellId { get; init; }
+	[JsonPropertyName("CellId")]
+	public long RoomId { get; init; }
 	public long SpellId { get; init; }
 	public long CasterId { get; init; }
 	public long ActingInstanceId { get; init; }
@@ -57,7 +59,7 @@ public interface ILandRejuvenationEffect
 {
 	Guid TreatmentId { get; }
 	Guid ParentIdentity { get; }
-	ICell TreatmentCell { get; }
+	IRoom TreatmentRoom { get; }
 	bool IsAttached { get; }
 	bool CheckMaintenance(out string? error);
 	void ActivateTreatment();

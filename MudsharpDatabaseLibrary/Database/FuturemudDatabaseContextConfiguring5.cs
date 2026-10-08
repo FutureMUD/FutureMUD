@@ -120,7 +120,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.CharacterId).HasColumnType("bigint(20)").IsRequired(false);
                 entity.Property(e => e.BodyPrototypeId).HasColumnType("bigint(20)").IsRequired(false);
                 entity.Property(e => e.VehicleId).HasColumnType("bigint(20)").IsRequired(false);
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
                 entity.Property(e => e.FromDirectionExitId).HasColumnType("bigint(20)").IsRequired(false);
                 entity.Property(e => e.ToDirectionExitId).HasColumnType("bigint(20)").IsRequired(false);
                 entity.Property(e => e.FromMoveSpeedId).HasColumnType("bigint(20)").IsRequired(false);
@@ -139,10 +139,10 @@ namespace MudSharp.Database
                 entity.HasIndex(e => e.VehicleId).HasDatabaseName("FK_Tracks_Vehicles_idx");
 
                 entity
-                    .HasOne(e => e.Cell)
+                    .HasOne(e => e.Room)
                     .WithMany(x => x.Tracks)
-                    .HasForeignKey(e => e.CellId)
-                    .HasConstraintName("FK_Tracks_Cells")
+                    .HasForeignKey(e => e.RoomId)
+                    .HasConstraintName("FK_Tracks_Rooms")
                     .OnDelete(DeleteBehavior.Cascade);
 
                 entity

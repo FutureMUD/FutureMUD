@@ -41,7 +41,7 @@ public class LiquidProductTests
 		container.Verify(x => x.MergeLiquid(It.Is<LiquidMixture>(m => Math.Abs(m.TotalVolume - 3.0) < 0.0001), null, "craft"), Times.Once);
 		item.Verify(x => x.HandleEvent(EventType.ItemFinishedLoading, item.Object), Times.Never);
 
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		data.ReleaseProducts(location.Object, RoomLayer.GroundLevel);
 
 		item.Verify(x => x.HandleEvent(EventType.ItemFinishedLoading, item.Object), Times.Once);

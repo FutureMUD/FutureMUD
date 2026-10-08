@@ -10,12 +10,12 @@ namespace MudSharp.Models
         public long? BodyId { get; set; }
         public long? CharacterId { get; set; }
         public long? GameItemId { get; set; }
-        public long? CellId { get; set; }
+        public long? RoomId { get; set; }
         public long? ZoneId { get; set; }
         public long? ShardId { get; set; }
 
         public virtual Body Body { get; set; }
-        public virtual Cell Cell { get; set; }
+        public virtual Room Room { get; set; }
         public virtual Character Character { get; set; }
         public virtual GameItem GameItem { get; set; }
         public virtual Hooks Hook { get; set; }

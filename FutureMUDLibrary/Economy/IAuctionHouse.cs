@@ -190,7 +190,7 @@ namespace MudSharp.Economy
     public interface IAuctionHouse : ISaveable, IEditableItem, IEmploymentHost
     {
         IEconomicZone EconomicZone { get; }
-        ICell AuctionHouseCell { get; }
+        IRoom AuctionHouseRoom { get; }
         IBankAccount? ProfitsBankAccount { get; }
         decimal CashBalance { get; }
         decimal AvailableFunds { get; }

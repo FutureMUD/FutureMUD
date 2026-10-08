@@ -43,7 +43,7 @@ public class HotelFurnishing : IHotelFurnishing
 	public decimal CurrentDepositClaim(IHotelRoom room)
 	{
 		var item = GameItem;
-		if (item is null || item.Deleted || item.Destroyed || !room.Cell.GameItems.SelectMany(x => x.DeepItems).Contains(item))
+		if (item is null || item.Deleted || item.Destroyed || !room.Room.GameItems.SelectMany(x => x.DeepItems).Contains(item))
 		{
 			return ReplacementValue;
 		}
@@ -185,8 +185,8 @@ public class HotelRoom : IHotelRoom
 	private readonly Property _property;
 	private readonly List<long> _keyIds = new();
 	private readonly List<IHotelFurnishing> _furnishings = new();
-	private long _cellId;
-	private ICell _cell;
+	private long _roomId;
+	private IRoom _room;
 	private string _name;
 	private bool _listed;
 	private decimal _pricePerDay;
@@ -200,7 +200,7 @@ public class HotelRoom : IHotelRoom
 	{
 		_property = property;
 		DatabaseId = record.Id;
-		_cellId = record.CellId;
+		_roomId = record.RoomId;
 		_name = NormaliseName(record.Name);
 		_listed = record.Listed;
 		_pricePerDay = Math.Max(0.0M, record.PricePerDay);
@@ -219,12 +219,12 @@ public class HotelRoom : IHotelRoom
 		}
 	}
 
-	public HotelRoom(Property property, ICell cell, string name, decimal pricePerDay, decimal securityDeposit,
+	public HotelRoom(Property property, IRoom room, string name, decimal pricePerDay, decimal securityDeposit,
 		TimeSpan minimumDuration, TimeSpan maximumDuration)
 	{
 		_property = property;
-		_cell = cell;
-		_cellId = cell.Id;
+		_room = room;
+		_roomId = room.Id;
 		_name = NormaliseName(name);
 		_listed = true;
 		_pricePerDay = Math.Max(0.0M, pricePerDay);
@@ -234,7 +234,7 @@ public class HotelRoom : IHotelRoom
 	}
 
 	public IProperty Property => _property;
-	public ICell Cell => _cell ??= Property.Gameworld.Cells.Get(_cellId);
+	public IRoom Room => _room ??= Property.Gameworld.Rooms.Get(_roomId);
 
 	public string Name
 	{
@@ -350,7 +350,7 @@ public class HotelRoom : IHotelRoom
 		}
 	}
 
-	public IEnumerable<string> Keywords => new ExplodedString(Name).Words.Append(Cell.Id.ToString());
+	public IEnumerable<string> Keywords => new ExplodedString(Name).Words.Append(Room.Id.ToString());
 
 	private static string NormaliseName(string name)
 	{

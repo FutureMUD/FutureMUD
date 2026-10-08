@@ -1702,7 +1702,7 @@ public partial class Body
 		return GetInternal(item, 0, null, silent, ItemCanGetIgnore.None, null, false, triggerEvents);
 	}
 
-	private sealed record PreparedGet(IGrab? Hand, IGameItem? Merge, MudSharp.Character.ICharacter Executor, ICell? Fallback, RoomLayer Layer)
+	private sealed record PreparedGet(IGrab? Hand, IGameItem? Merge, MudSharp.Character.ICharacter Executor, IRoom? Fallback, RoomLayer Layer)
 	{
 		public double? RoutePosition { get; init; }
 	}
@@ -1890,7 +1890,7 @@ public partial class Body
 			}
 		}
 		// A callback may invalidate the prepared destination. Preserve actual relocation/deletion,
-		// otherwise leave this item safely at the captured cell rather than inventing another hand.
+		// otherwise leave this item safely at the captured room rather than inventing another hand.
 		item.RoomLayer = placement.Layer;
 		item.Drop(placement.Fallback);
 		if (!item.Deleted && !item.Destroyed && ReferenceEquals(item.Location, placement.Fallback) &&
@@ -1958,7 +1958,7 @@ public partial class Body
 			edges.Add((current, current.ContainedIn));
 		}
 		var nodes = new List<(IGameItem Item, IGameItem? Parent, IBody? Body, MudSharp.Character.ICharacter? Actor,
-			ICell? Cell, RoomLayer Layer, double? Position, IOpenable? Openable, bool? Open)>();
+			IRoom? Room, RoomLayer Layer, double? Position, IOpenable? Openable, bool? Open)>();
 		foreach (var (current, parent) in edges)
 		{
 			var body = current.InInventoryOf;
@@ -1968,7 +1968,7 @@ public partial class Body
 		}
 		return () => edges.All(x => ReferenceEquals(x.Item.ContainedIn, x.Parent)) &&
 			nodes.All(x => !x.Item.Deleted && !x.Item.Destroyed && ReferenceEquals(x.Item.InInventoryOf, x.Body) &&
-			ReferenceEquals(x.Body?.Actor, x.Actor) && ReferenceEquals(x.Item.Location, x.Cell) &&
+			ReferenceEquals(x.Body?.Actor, x.Actor) && ReferenceEquals(x.Item.Location, x.Room) &&
 			x.Item.RoomLayer == x.Layer && x.Item.RoutePositionMetres == x.Position &&
 			ReferenceEquals(x.Item.GetItemType<IOpenable>(), x.Openable) && x.Openable?.IsOpen == x.Open);
 	}
@@ -2623,10 +2623,10 @@ public partial class Body
 		var receiver = target;
 		var receiverExecutor = receiver.Actor;
 		var receiverCurrentBody = receiverExecutor.Body;
-		var receiverCell = receiverExecutor.Location;
+		var receiverRoom = receiverExecutor.Location;
 		var receiverLayer = receiverExecutor.RoomLayer;
 		var receiverPosition = receiverExecutor.RoutePositionMetres;
-		bool ReceiverUnchanged() => ReferenceEquals(receiverExecutor.Body, receiverCurrentBody) && ReferenceEquals(receiverExecutor.Location, receiverCell) &&
+		bool ReceiverUnchanged() => ReferenceEquals(receiverExecutor.Body, receiverCurrentBody) && ReferenceEquals(receiverExecutor.Location, receiverRoom) &&
 			receiverExecutor.RoomLayer == receiverLayer && receiverExecutor.RoutePositionMetres == receiverPosition;
 		var whole = quantity == 0 || item.DropsWhole(quantity);
         if (!CanGive(item, target, quantity))
@@ -2747,15 +2747,15 @@ public partial class Body
 		var corpse = target.Parent;
 		var reachUnchanged = PrepareItemReachSnapshot(corpse);
 		if (reachUnchanged is null) return;
-		var corpseCell = corpse.Location;
+		var corpseRoom = corpse.Location;
 		var corpseLayer = corpse.RoomLayer;
 		var corpsePosition = corpse.RoutePositionMetres;
-		var receiverCell = receiverExecutor.Location;
+		var receiverRoom = receiverExecutor.Location;
 		var receiverLayer = receiverExecutor.RoomLayer;
 		var receiverPosition = receiverExecutor.RoutePositionMetres;
 		bool ReceiverUnchanged() => reachUnchanged() && ReferenceEquals(target.Body, receiver) && ReferenceEquals(target.Parent, corpse) &&
-			ReferenceEquals(corpse.Location, corpseCell) && corpse.RoomLayer == corpseLayer && corpse.RoutePositionMetres == corpsePosition &&
-			ReferenceEquals(receiverExecutor.Location, receiverCell) && receiverExecutor.RoomLayer == receiverLayer &&
+			ReferenceEquals(corpse.Location, corpseRoom) && corpse.RoomLayer == corpseLayer && corpse.RoutePositionMetres == corpsePosition &&
+			ReferenceEquals(receiverExecutor.Location, receiverRoom) && receiverExecutor.RoomLayer == receiverLayer &&
 			receiverExecutor.RoutePositionMetres == receiverPosition;
 		var whole = quantity == 0 || item.DropsWhole(quantity);
         if (!CanGive(item, target, quantity))

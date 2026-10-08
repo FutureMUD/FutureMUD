@@ -25,7 +25,7 @@ public class AutobuilderAreaRectangleDiagonals : AutobuilderAreaRectangle
 
     #region Overrides of AutobuilderAreaRectangle
 
-    public override bool ConnectCellsWithDiagonalExits => true;
+    public override bool ConnectRoomsWithDiagonalExits => true;
 
 
     public override IAutobuilderArea Clone(string newName)

@@ -38,7 +38,7 @@ namespace MudSharp.Construction
         IEnumerable<RoomLayer> TerrainLayers { get; }
         string RoomNameForLayer(string baseRoomName, RoomLayer layer);
         IFluid WaterFluid { get; }
-        CellOutdoorsType DefaultCellOutdoorsType { get; }
+        RoomOutdoorsType DefaultRoomOutdoorsType { get; }
         string TerrainBehaviourString { get; }
         string TerrainEditorColour { get; }
         string TerrainEditorText { get; }

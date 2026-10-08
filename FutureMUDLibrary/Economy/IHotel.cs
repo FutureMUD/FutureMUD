@@ -16,8 +16,8 @@ public interface IHotel : IEmploymentHost
 	IBankAccount? BankAccount { get; }
 	decimal CashBalance { get; }
 	decimal AvailableFunds { get; }
-	IEnumerable<ICell> Locations { get; }
+	IEnumerable<IRoom> Locations { get; }
 	IEnumerable<IHotelRoom> Rooms { get; }
 	bool IsApprovedHotel { get; }
-	bool CanAccessHotelLocation(ICell cell);
+	bool CanAccessHotelLocation(IRoom room);
 }

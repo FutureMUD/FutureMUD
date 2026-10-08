@@ -11,9 +11,9 @@ namespace MudSharp_Unit_Tests.Arenas;
 public class ArenaSideIndexUtilitiesTests
 {
     [TestMethod]
-    public void ResolveEvenlySpacedStartCells_TwoSidesAcrossNineCells_KeepsSidesFarApart()
+    public void ResolveEvenlySpacedStartRooms_TwoSidesAcrossNineRooms_KeepsSidesFarApart()
     {
-        IReadOnlyDictionary<int, int> starts = ArenaSideIndexUtilities.ResolveEvenlySpacedStartCells(
+        IReadOnlyDictionary<int, int> starts = ArenaSideIndexUtilities.ResolveEvenlySpacedStartRooms(
             new List<int> { 0, 1 },
             9,
             2);
@@ -27,9 +27,9 @@ public class ArenaSideIndexUtilitiesTests
     }
 
     [TestMethod]
-    public void ResolveEvenlySpacedStartCells_NormalisesRotationAndDeduplicatesSides()
+    public void ResolveEvenlySpacedStartRooms_NormalisesRotationAndDeduplicatesSides()
     {
-        IReadOnlyDictionary<int, int> starts = ArenaSideIndexUtilities.ResolveEvenlySpacedStartCells(
+        IReadOnlyDictionary<int, int> starts = ArenaSideIndexUtilities.ResolveEvenlySpacedStartRooms(
             new List<int> { 3, 3, 7, 9 },
             9,
             12);

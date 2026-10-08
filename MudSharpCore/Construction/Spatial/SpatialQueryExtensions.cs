@@ -19,26 +19,26 @@ public static class SpatialQueryExtensions
 	/// their historical same-layer behaviour; RouteCells use the configured Immediate threshold.
 	/// </summary>
 	public static IEnumerable<IPerceivable> PerceivablesInImmediateVicinity(
-		this ICell cell,
+		this IRoom room,
 		ILocateable source,
 		bool sameLayerOnly = true)
 	{
-		ArgumentNullException.ThrowIfNull(cell);
+		ArgumentNullException.ThrowIfNull(room);
 		ArgumentNullException.ThrowIfNull(source);
 
-		if (cell.RouteDefinition is null)
+		if (room.RouteDefinition is null)
 		{
 			// Merge the long-standing typed collections with the aggregate projection. Concrete
 			// Cells populate both, while legacy implementations and lightweight consumers may
 			// intentionally expose only one view.
 			var typedPerceivables = sameLayerOnly
-				? cell.LayerCharacters(source.RoomLayer)
+				? room.LayerCharacters(source.RoomLayer)
 					.Cast<IPerceivable>()
-					.Concat(cell.LayerGameItems(source.RoomLayer))
-				: cell.Characters
+					.Concat(room.LayerGameItems(source.RoomLayer))
+				: room.Characters
 					.Cast<IPerceivable>()
-					.Concat(cell.GameItems);
-			var aggregatePerceivables = cell.Perceivables
+					.Concat(room.GameItems);
+			var aggregatePerceivables = room.Perceivables
 				.Where(x => !sameLayerOnly || x.RoomLayer == source.RoomLayer);
 			return typedPerceivables
 				.Concat(aggregatePerceivables)
@@ -47,28 +47,28 @@ public static class SpatialQueryExtensions
 
 		var configuration = RouteSpatialConfiguration.FromGameworld(
 			source is IHaveFuturemud haveFuturemud ? haveFuturemud.Gameworld : null);
-		return cell.PerceivablesInSpatialVicinity(
+		return room.PerceivablesInSpatialVicinity(
 			source,
 			sameLayerOnly,
 			configuration.ImmediateDistanceMetres);
 	}
 
 	public static IEnumerable<ICharacter> CharactersInImmediateVicinity(
-		this ICell cell,
+		this IRoom room,
 		ILocateable source,
 		bool sameLayerOnly = true)
 	{
-		return cell
+		return room
 			.PerceivablesInImmediateVicinity(source, sameLayerOnly)
 			.OfType<ICharacter>();
 	}
 
 	public static IEnumerable<IGameItem> GameItemsInImmediateVicinity(
-		this ICell cell,
+		this IRoom room,
 		ILocateable source,
 		bool sameLayerOnly = true)
 	{
-		return cell
+		return room
 			.PerceivablesInImmediateVicinity(source, sameLayerOnly)
 			.OfType<IGameItem>();
 	}
@@ -112,27 +112,27 @@ public static class SpatialQueryExtensions
 	}
 
 	public static IEnumerable<IPerceivable> PerceivablesInSpatialVicinity(
-		this ICell cell,
+		this IRoom room,
 		ILocateable source,
 		bool sameLayerOnly = true,
 		double? maximumDistanceMetres = null)
 	{
-		ArgumentNullException.ThrowIfNull(cell);
+		ArgumentNullException.ThrowIfNull(room);
 		ArgumentNullException.ThrowIfNull(source);
 
-		if (cell.RouteDefinition is null)
+		if (room.RouteDefinition is null)
 		{
-			// ILocation.Perceivables is the convenient concrete Cell projection, but the older
+			// ILocation.Perceivables is the convenient concrete Room projection, but the older
 			// contract exposes characters and game items independently. Merge both surfaces so
 			// ordinary-cell implementations and existing builders keep their historical results.
 			var legacyPerceivables = sameLayerOnly
-				? (cell.LayerCharacters(source.RoomLayer) ?? [])
+				? (room.LayerCharacters(source.RoomLayer) ?? [])
 					.Cast<IPerceivable>()
-					.Concat((cell.LayerGameItems(source.RoomLayer) ?? []).Cast<IPerceivable>())
-				: (cell.Characters ?? [])
+					.Concat((room.LayerGameItems(source.RoomLayer) ?? []).Cast<IPerceivable>())
+				: (room.Characters ?? [])
 					.Cast<IPerceivable>()
-					.Concat((cell.GameItems ?? []).Cast<IPerceivable>());
-			var projectedPerceivables = (cell.Perceivables ?? [])
+					.Concat((room.GameItems ?? []).Cast<IPerceivable>());
+			var projectedPerceivables = (room.Perceivables ?? [])
 				.Where(x => !sameLayerOnly || x.RoomLayer == source.RoomLayer);
 			return legacyPerceivables
 				.Concat(projectedPerceivables)
@@ -140,7 +140,7 @@ public static class SpatialQueryExtensions
 		}
 
 		var origin = RouteSpatialService.Instance.GetEffectiveLocation(source);
-		if (!ReferenceEquals(origin.Cell, cell) || !origin.RoutePositionMetres.HasValue)
+		if (!ReferenceEquals(origin.Room, room) || !origin.RoutePositionMetres.HasValue)
 		{
 			return Array.Empty<IPerceivable>();
 		}
@@ -160,23 +160,23 @@ public static class SpatialQueryExtensions
 	}
 
 	public static IEnumerable<ICharacter> CharactersInSpatialVicinity(
-		this ICell cell,
+		this IRoom room,
 		ILocateable source,
 		bool sameLayerOnly = true,
 		double? maximumDistanceMetres = null)
 	{
-		return cell
+		return room
 			.PerceivablesInSpatialVicinity(source, sameLayerOnly, maximumDistanceMetres)
 			.OfType<ICharacter>();
 	}
 
 	public static IEnumerable<IGameItem> GameItemsInSpatialVicinity(
-		this ICell cell,
+		this IRoom room,
 		ILocateable source,
 		bool sameLayerOnly = true,
 		double? maximumDistanceMetres = null)
 	{
-		return cell
+		return room
 			.PerceivablesInSpatialVicinity(source, sameLayerOnly, maximumDistanceMetres)
 			.OfType<IGameItem>();
 	}

@@ -134,8 +134,8 @@ public sealed class VehicleMotiveCohortService
 		foreach (var locateable in locateables)
 		{
 			var location = _spatialService.GetEffectiveLocation(locateable);
-			var closeEnough = ReferenceEquals(location.Cell, origin.Cell) && location.Layer == origin.Layer &&
-			                  (origin.Cell.RouteDefinition is null ||
+			var closeEnough = ReferenceEquals(location.Room, origin.Room) && location.Layer == origin.Layer &&
+			                  (origin.Room.RouteDefinition is null ||
 			                   location.RoutePositionMetres.HasValue && origin.RoutePositionMetres.HasValue &&
 			                   Math.Abs(location.RoutePositionMetres.Value - origin.RoutePositionMetres.Value) <=
 			                   immediate);
@@ -157,7 +157,7 @@ public sealed class VehicleMotiveCohortService
 	}
 
 	public static bool CanTraverseExit(VehicleMotiveCohort cohort, VehicleHitchGraphMovePlan movePlan,
-		ICellExit exit, ICharacter voyeur, out string reason)
+		IRoomExit exit, ICharacter voyeur, out string reason)
 	{
 		var vehicleOccupants = movePlan.Vehicles
 			.SelectMany(x => x.Occupants)
@@ -171,7 +171,7 @@ public sealed class VehicleMotiveCohortService
 				continue;
 			}
 
-			if (exit.MovementTransition(character).TransitionType == CellMovementTransition.NoViableTransition)
+			if (exit.MovementTransition(character).TransitionType == RoomMovementTransition.NoViableTransition)
 			{
 				reason = $"{character.HowSeen(voyeur, true)} cannot use that exit.";
 				return false;
@@ -191,7 +191,7 @@ public sealed class VehicleMotiveCohortService
 	}
 
 	public static void MoveAcrossExit(VehicleMotiveCohort cohort, VehicleHitchGraphMovePlan movePlan,
-		ICellExit exit, IMovement movement)
+		IRoomExit exit, IMovement movement)
 	{
 		var vehicleOccupants = movePlan.Vehicles
 			.SelectMany(x => x.Occupants)
@@ -225,7 +225,7 @@ public sealed class VehicleMotiveCohortService
 	}
 
 	public static void MoveExtraItemsAcrossExit(VehicleMotiveCohort cohort, VehicleHitchGraphMovePlan movePlan,
-		ICellExit exit, RoomLayer targetLayer)
+		IRoomExit exit, RoomLayer targetLayer)
 	{
 		var graphItems = movePlan.Vehicles
 			.Select(x => x.ExteriorItem)

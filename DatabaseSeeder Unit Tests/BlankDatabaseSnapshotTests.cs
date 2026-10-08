@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 using DatabaseSeeder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
@@ -12,6 +12,21 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BlankDatabaseSnapshotTests
 {
+	[TestMethod]
+	public void CommittedBlankSnapshot_HasDirectRoomOwnershipAndImmutableSpatialProvenance()
+	{
+		var snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory()));
+		var room = ReadTableDeclaration(snapshot, "rooms");
+		Assert.IsFalse(room.Contains("`RoomId`", StringComparison.Ordinal));
+		StringAssert.Contains(room, "`ZoneId` bigint NOT NULL");
+		foreach (var coordinate in new[] { "X", "Y", "Z" }) StringAssert.Contains(room, $"`{coordinate}` int NOT NULL");
+		Assert.IsFalse(snapshot.Contains("CREATE TABLE `cells`", StringComparison.Ordinal));
+		Assert.IsFalse(snapshot.Contains("CREATE TABLE `areas_cells`", StringComparison.Ordinal));
+		StringAssert.Contains(ReadTableDeclaration(snapshot, "areas_rooms"), "PRIMARY KEY (`AreaId`,`RoomId`)");
+		foreach (var table in new[] { "roomspatialmigrationledger", "roomspatialareamigrationledger", "roomspatialcontractionledger", "roomspatialareacontractionledger" })
+			Assert.IsFalse(ReadTableDeclaration(snapshot, table).Contains("FOREIGN KEY", StringComparison.Ordinal), "Historical identities must survive later deletion: " + table);
+	}
+
 	[TestMethod]
 	public void CommittedBlankSnapshot_CelestialsSupportDenseSources()
 	{
@@ -67,7 +82,7 @@ public class BlankDatabaseSnapshotTests
 			         "VehicleMovementProfileProtos", "VehiclePropulsionProfileProtos",
 			         "CharacterCombatSettings", "TraitDefinitions", "RangedCovers", "LootTables",
 			         "EditableItems", "OutfitTemplateItems", "MagicSpells", "CharacterMagicCapabilityStates", "VancianMagicOperations",
-			         "CellEnvironmentalStates", "EnvironmentalMagicOperations", "MagicGatheringOperations"
+			         "RoomEnvironmentalStates", "EnvironmentalMagicOperations", "MagicGatheringOperations"
 		         })
 		{
 			Assert.IsFalse(deltas.Contains($"`{table}`", StringComparison.Ordinal),
@@ -80,9 +95,9 @@ public class BlankDatabaseSnapshotTests
 	{
 		var snapshotPath = BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory());
 		var snapshot = File.ReadAllText(snapshotPath);
-		var stateTable = ReadTableDeclaration(snapshot, "cellenvironmentalstates");
-		StringAssert.Contains(stateTable, "PRIMARY KEY (`CellId`)");
-		StringAssert.Contains(stateTable, "REFERENCES `cells` (`Id`) ON DELETE CASCADE");
+		var stateTable = ReadTableDeclaration(snapshot, "roomenvironmentalstates");
+		StringAssert.Contains(stateTable, "PRIMARY KEY (`RoomId`)");
+		StringAssert.Contains(stateTable, "REFERENCES `rooms` (`Id`) ON DELETE CASCADE");
 		foreach (var column in new[]
 		         {
 			         "SchemaVersion", "Revision", "ScarDamage", "LastDefileUtc", "RecentPressure",

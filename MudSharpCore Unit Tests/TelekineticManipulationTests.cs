@@ -74,10 +74,10 @@ public class TelekineticManipulationTests
 		var actor = new Mock<ICharacter>();
 		var source = new Mock<IGameItem>();
 		var destination = new Mock<IGameItem>();
-		var cell = new Mock<ICell>();
-		source.SetupGet(x => x.Location).Returns(cell.Object);
+		var room = new Mock<IRoom>();
+		source.SetupGet(x => x.Location).Returns(room.Object);
 		source.Setup(x => x.CanGet(0)).Returns(ItemGetResponse.CanGet);
-		cell.Setup(x => x.CanGet(source.Object, actor.Object)).Returns(true);
+		room.Setup(x => x.CanGet(source.Object, actor.Object)).Returns(true);
 		actor.Setup(x => x.TargetLocalItem("cup")).Returns(destination.Object);
 		var from = new Mock<ILiquidContainer>();
 		var to = new Mock<ILiquidContainer>();

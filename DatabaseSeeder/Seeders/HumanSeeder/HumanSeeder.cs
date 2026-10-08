@@ -726,7 +726,7 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
             Status = 2,
             State = 1,
             Gender = (short)Gender.Male,
-            Location = _context.Cells.First().Id,
+            Location = _context.Rooms.First().Id,
             Culture = culture,
             EffectData = @"<Effects>
   <Effect>
@@ -1798,8 +1798,8 @@ $?hairstyle[&he has &?a_an[$haircolour $hairstyle]][&he is completely bald].$?fa
 
         _context.Terrains.First().AtmosphereId = air.Id;
         _context.Terrains.First().AtmosphereType = "Gas";
-        _context.CellOverlays.First().AtmosphereId = air.Id;
-        _context.CellOverlays.First().AtmosphereType = "Gas";
+        _context.RoomOverlays.First().AtmosphereId = air.Id;
+        _context.RoomOverlays.First().AtmosphereType = "Gas";
 
         #endregion
 

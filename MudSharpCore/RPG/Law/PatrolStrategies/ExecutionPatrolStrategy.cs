@@ -199,14 +199,14 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		return Method != ExecutionPatrolExecutionMethod.AdministerDrug || DrugId > 0;
 	}
 
-	private ICell GetEquipmentLocation(IPatrolRoute patrol)
+	private IRoom GetEquipmentLocation(IPatrolRoute patrol)
 	{
 		return EquipmentLocationId > 0
-			? Gameworld.Cells.Get(EquipmentLocationId)
+			? Gameworld.Rooms.Get(EquipmentLocationId)
 			: patrol.LegalAuthority.PreparingLocation;
 	}
 
-	private ICell GetExecutionLocation(IPatrolRoute patrol)
+	private IRoom GetExecutionLocation(IPatrolRoute patrol)
 	{
 		return patrol.PatrolNodes.FirstOrDefault();
 	}
@@ -345,7 +345,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		_lastAction = DateTime.MinValue;
 	}
 
-	private bool MoveCharacterTo(ICharacter character, ICell target, int maximumDistance = 50)
+	private bool MoveCharacterTo(ICharacter character, IRoom target, int maximumDistance = 50)
 	{
 		if (HasReachedPatrolDestination(character, target))
 		{
@@ -411,7 +411,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			SetStage(ExecutionPatrolStage.PreparingEquipment);
 		}
 
-		ICell equipment = GetEquipmentLocation(patrol.PatrolRoute);
+		IRoom equipment = GetEquipmentLocation(patrol.PatrolRoute);
 		if (equipment is null)
 		{
 			AbortExecution(patrol);
@@ -500,14 +500,14 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		PrepareInventoryPlan(member, _restraintTemplate);
 	}
 
-	private IEnumerable<ICellExit> RetrievalKeyExitsFor(ICharacter member)
+	private IEnumerable<IRoomExit> RetrievalKeyExitsFor(ICharacter member)
 	{
 		if (_condemned is null)
 		{
-			return Enumerable.Empty<ICellExit>();
+			return Enumerable.Empty<IRoomExit>();
 		}
 
-		IEnumerable<ICellExit> pathExits = Enumerable.Empty<ICellExit>();
+		IEnumerable<IRoomExit> pathExits = Enumerable.Empty<IRoomExit>();
 		if (TryCreatePatrolPath(
 				member,
 				_condemned,
@@ -521,7 +521,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		}
 
 		return pathExits
-		       .Concat(_condemned.Location?.ExitsFor(member, true) ?? Enumerable.Empty<ICellExit>())
+		       .Concat(_condemned.Location?.ExitsFor(member, true) ?? Enumerable.Empty<IRoomExit>())
 		       .Where(x => x.Exit.Door?.Locks.Any() == true)
 		       .DistinctBy(x => x.Exit)
 		       .ToList();
@@ -750,7 +750,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 	private void HandleTakingToExecutionRoom(IPatrol patrol)
 	{
-		ICell executionLocation = GetExecutionLocation(patrol.PatrolRoute);
+		IRoom executionLocation = GetExecutionLocation(patrol.PatrolRoute);
 		if (executionLocation is null)
 		{
 			AbortExecution(patrol);
@@ -798,7 +798,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 	private void HandleRestrainingPrisoner(IPatrol patrol)
 	{
-		ICell executionLocation = GetExecutionLocation(patrol.PatrolRoute);
+		IRoom executionLocation = GetExecutionLocation(patrol.PatrolRoute);
 		if (!HasReachedPatrolDestination(_condemned, executionLocation) ||
 		    !patrol.PatrolLeader.ColocatedWith(_condemned))
 		{
@@ -908,7 +908,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 	private bool CondemnedReadyForExecution(IPatrol patrol)
 	{
-		ICell executionLocation = GetExecutionLocation(patrol.PatrolRoute);
+		IRoom executionLocation = GetExecutionLocation(patrol.PatrolRoute);
 		if (executionLocation is null)
 		{
 			AbortExecution(patrol);
@@ -1199,7 +1199,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			ReleaseCondemnedFromPatrolDrag(patrol);
 			_condemned.RemoveAllEffects<ExecutionPatrolNoQuit>(x => x.Patrol == patrol, fireRemovalAction: true);
 			DelayAwaitingExecution(patrol.LegalAuthority);
-			patrol.LegalAuthority.SendCharacterToHoldingCell(_condemned);
+			patrol.LegalAuthority.SendCharacterToHoldingRoom(_condemned);
 		}
 
 		ResetRuntimeState();
@@ -1382,7 +1382,7 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 			return false;
 		}
 
-		ICell location = Gameworld.Cells.Get(value);
+		IRoom location = Gameworld.Rooms.Get(value);
 		if (location is null)
 		{
 			actor.OutputHandler.Send("There is no such room.");
@@ -1652,8 +1652,8 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 	public string ShowConfiguration(ICharacter actor, IPatrolRoute patrol)
 	{
 		StringBuilder sb = new();
-		ICell equipment = GetEquipmentLocation(patrol);
-		ICell execution = GetExecutionLocation(patrol);
+		IRoom equipment = GetEquipmentLocation(patrol);
+		IRoom execution = GetExecutionLocation(patrol);
 		IDrug drug = Gameworld.Drugs.Get(DrugId);
 		sb.AppendLine("Execution Patrol Configuration".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine($"Execution Location: {execution?.GetFriendlyReference(actor) ?? "None".ColourError()}");

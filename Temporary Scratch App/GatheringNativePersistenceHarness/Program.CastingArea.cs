@@ -48,9 +48,9 @@ internal static partial class GNHProgram
 		Mock.Get(native.Body.Race).SetupGet(x => x.CommunicationStrategy).Returns(HumanoidCommunicationStrategy.Instance);
 		native.Body.CalculateOrganFunctions(true);
 		var language = ConfigureSpeechLanguage(native, database.ConnectionString, true); PrepareSpeechActor(actor, language);
-		var cell = CreateAreaCell(native, database.ConnectionString, fixture.CellId, create: true);
-		SetPrivateMember(actor, "Location", cell);
-		var members = (List<ICharacter>)cell.Characters; members.Add(actor);
+		var room = CreateAreaRoom(native, database.ConnectionString, fixture.RoomId, create: true);
+		SetPrivateMember(actor, "Location", room);
+		var members = (List<ICharacter>)room.Characters; members.Add(actor);
 		var participants = new List<NativeHarnessCharacter> { actor };
 		SetPrivateField(actor, "_allyIDs", new HashSet<long>()); SetPrivateField(actor, "_trustedAllyIDs", new HashSet<long>());
 		var utterances = new List<SpokenLanguageInfo>(); var texts = new List<string>();
@@ -63,7 +63,7 @@ internal static partial class GNHProgram
 			using var db = NewIndependentContext(database.ConnectionString);
 			var body = db.Bodies.Find(target.Body.Id)!; body.BodyPrototypeId = native.Body.Prototype.Id;
 			body.RaceId = native.Body.Race.Id; body.EthnicityId = native.Body.Ethnicity.Id;
-			db.Characters.Find(target.Id)!.Location = cell.Id; db.SaveChanges();
+			db.Characters.Find(target.Id)!.Location = room.Id; db.SaveChanges();
 			return target;
 		}
 		var ally = Target("ally"); actor.SetAlly(ally);
@@ -182,7 +182,7 @@ internal static partial class GNHProgram
 				BodyId = sibling.Body.Id, EmbodiedBodyId = sibling.Body.Id, InstanceName = "Area distinct physical body",
 				InstanceKind = (int)CharacterInstanceKind.PhysicalClone, ControlPolicy = (int)CharacterInstanceControlPolicy.PlayerFocusable,
 				PersistencePolicy = (int)CharacterInstancePersistencePolicy.Persistent, IsEmbodied = true, IsControllable = true,
-				LocationId = cell.Id, State = (int)CharacterState.Awake, PositionId = (int)PositionStanding.Instance.Id,
+				LocationId = room.Id, State = (int)CharacterState.Awake, PositionId = (int)PositionStanding.Instance.Id,
 				PositionTargetType = "", PositionEmote = "", CreatedBySourceKey = "Area isolated acceptance", CreatedDateTime = now, EffectData = "<Effects/>" });
 			db.SaveChanges();
 		}
@@ -246,31 +246,31 @@ internal static partial class GNHProgram
 	private static AreaWound AreaWounds(MudSharp.Body.IBody body) => new(body.Id, body.Wounds.Sum(x => x.CurrentDamage), body.Wounds.Sum(x => x.CurrentPain), body.Wounds.Sum(x => x.CurrentStun));
 	private static double AreaDelta(ICharacter actor, IReadOnlyDictionary<long, AreaWound> before) => actor.Wounds.Sum(x => x.CurrentDamage) - before[actor.Body.Id].Damage;
 
-	private static Cell CreateAreaCell(NativeRuntime native, string connection, long cellId, bool create)
+	private static Room CreateAreaRoom(NativeRuntime native, string connection, long cellId, bool create)
 	{
 		RecentSpeechContextEffect.InitialiseEffectType();
 		using var db = NewIndependentContext(connection);
 		if (create)
 		{
-			var package = new Db.CellOverlayPackage { Id = 930001, Name = "Area fixture overlay", RevisionNumber = 1,
+			var package = new Db.RoomOverlayPackage { Id = 930001, Name = "Area fixture overlay", RevisionNumber = 1,
 				EditableItem = new Db.EditableItem { RevisionNumber = 1, RevisionStatus = (int)RevisionStatus.Current, BuilderAccountId = 1, BuilderDate = DateTime.UtcNow } };
 			var terrain = new Db.Terrain { Id = 930001, Name = "Area fixture terrain", TerrainBehaviourMode = "outdoors", MovementRate = 1 };
-			db.CellOverlayPackages.Add(package); db.Terrains.Add(terrain); db.SaveChanges();
-			var overlay = new Db.CellOverlay { Id = 930001, Name = "Area fixture", CellName = "A disposable area acceptance cell",
-				CellDescription = "An isolated test cell.", CellId = cellId, CellOverlayPackageId = package.Id, CellOverlayPackageRevisionNumber = 1,
+			db.RoomOverlayPackages.Add(package); db.Terrains.Add(terrain); db.SaveChanges();
+			var overlay = new Db.RoomOverlay { Id = 930001, Name = "Area fixture", RoomName = "A disposable area acceptance cell",
+				RoomDescription = "An isolated test cell.", RoomId = cellId, RoomOverlayPackageId = package.Id, RoomOverlayPackageRevisionNumber = 1,
 				TerrainId = terrain.Id, AmbientLightFactor = 1, SafeQuit = true };
-			db.CellOverlays.Add(overlay); db.SaveChanges(); db.Cells.Find(cellId)!.CurrentOverlayId = overlay.Id; db.SaveChanges();
+			db.RoomOverlays.Add(overlay); db.SaveChanges(); db.Rooms.Find(cellId)!.CurrentOverlayId = overlay.Id; db.SaveChanges();
 		}
-		var model = db.Cells.Include(x => x.CellOverlays).Include(x => x.CellsMagicResources).AsNoTracking().Single(x => x.Id == cellId);
-		var terrains = new All<ITerrain>(); terrains.Add(new Terrain(db.Terrains.AsNoTracking().Single(x => x.Id == model.CellOverlays.Single().TerrainId), native.World));
+		var model = db.Rooms.Include(x => x.RoomOverlays).Include(x => x.RoomsMagicResources).AsNoTracking().Single(x => x.Id == cellId);
+		var terrains = new All<ITerrain>(); terrains.Add(new Terrain(db.Terrains.AsNoTracking().Single(x => x.Id == model.RoomOverlays.Single().TerrainId), native.World));
 		native.WorldMock.SetupGet(x => x.Terrains).Returns(terrains);
-		var overlayPackage = new Mock<ICellOverlayPackage>(); overlayPackage.SetupGet(x => x.Id).Returns(model.CellOverlays.Single().CellOverlayPackageId);
+		var overlayPackage = new Mock<IRoomOverlayPackage>(); overlayPackage.SetupGet(x => x.Id).Returns(model.RoomOverlays.Single().RoomOverlayPackageId);
 		overlayPackage.SetupGet(x => x.RevisionNumber).Returns(1); overlayPackage.SetupGet(x => x.Status).Returns(RevisionStatus.Current);
-		var packages = new RevisableAll<ICellOverlayPackage>(); packages.Add(overlayPackage.Object); native.WorldMock.SetupGet(x => x.CellOverlayPackages).Returns(packages);
-		var room = new Mock<IRoom>(); room.SetupGet(x => x.Gameworld).Returns(native.World); room.SetupGet(x => x.Id).Returns(model.RoomId);
-		room.SetupGet(x => x.Areas).Returns(Array.Empty<IArea>()); room.SetupGet(x => x.Zone).Returns(Mock.Of<IZone>());
-		var cell = new Cell(model, room.Object); var cells = new All<ICell>(); cells.Add(cell); native.WorldMock.SetupGet(x => x.Cells).Returns(cells); cell.PostLoadTasks(model);
-		return cell;
+		var packages = new RevisableAll<IRoomOverlayPackage>(); packages.Add(overlayPackage.Object); native.WorldMock.SetupGet(x => x.RoomOverlayPackages).Returns(packages);
+		var zone = new Mock<IZone>(); zone.SetupGet(x => x.Gameworld).Returns(native.World);
+		zone.SetupGet(x => x.Id).Returns(model.ZoneId);
+		var room = new Room(model, zone.Object); var rooms = new All<IRoom>(); rooms.Add(room); native.WorldMock.SetupGet(x => x.Rooms).Returns(rooms); room.PostLoadTasks(model);
+		return room;
 	}
 
 	private static void RunAreaReaderProcess(AreaReader input)
@@ -288,7 +288,7 @@ internal static partial class GNHProgram
 		using var database = TestDatabase.OpenExistingOwned(input.Database); ConfigureNativeDatabase(database.ConnectionString);
 		var native = NativeRuntime.Load(input.Fixture, database.ConnectionString, true, vocalAnatomy: true); ConfigureCastingWorld(native, database.ConnectionString, false);
 		var language = ConfigureSpeechLanguage(native, database.ConnectionString, false); PrepareSpeechActor(native.Actor, language);
-		var cell = CreateAreaCell(native, database.ConnectionString, input.Fixture.CellId, create: false); SetPrivateMember(native.Actor, "Location", cell);
+		var room = CreateAreaRoom(native, database.ConnectionString, input.Fixture.RoomId, create: false); SetPrivateMember(native.Actor, "Location", room);
 		var service = new MagicCastingService(native.World, flush: () => throw new InvalidOperationException("Restart replay flushed"), areaRandom: _ => throw new InvalidOperationException("Restart replay selected again"));
 		native.WorldMock.SetupGet(x => x.MagicCasting).Returns(service); var store = new MagicCastingStateStore();
 		Require(native.Actor.MagicResourceAmounts[native.Resource] == input.Balance && store.Opportunity(native.Actor.Id, input.Trait)!.NextUtc == input.SkillDeadline, "Area balance/deadline changed on reload.");
@@ -305,7 +305,7 @@ internal static partial class GNHProgram
 		{
 			var model = db.Bodies.Include(x => x.Wounds).ThenInclude(x => x.Infections).AsNoTracking().Single(x => x.Id == expected.Body);
 			var actor = expected.Body == native.Body.Id ? native.Actor : NativeHarnessCharacter.Create(native.World,
-				db.Characters.AsNoTracking().Single(x => x.BodyId == expected.Body).Id, cell, native.Actor.Culture);
+				db.Characters.AsNoTracking().Single(x => x.BodyId == expected.Body).Id, room, native.Actor.Culture);
 			var body = expected.Body == native.Body.Id ? native.Body : new Body(model, native.World, actor); actor.AttachBody(body);
 			var actual = AreaWounds(body); Require(Same(actual.Damage, expected.Damage) && Same(actual.Pain, expected.Pain) && Same(actual.Stun, expected.Stun), "Area native body/wound reconstruction drifted.");
 		}

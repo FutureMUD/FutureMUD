@@ -68,11 +68,11 @@ internal class SendTerrainLangFunction : BuiltInFunction
 
         EmoteOutput output = new(new FixedLanguageEmote(text, perceivables.ElementAtOrDefault(0) as IPerceiver, language, accent, perceivables.ToArray()),
             flags: OutputFlags.IgnoreWatchers);
-        foreach (ICell cell in Gameworld.Cells)
+        foreach (IRoom room in Gameworld.Rooms)
         {
-            if (cell.Terrain(null) == target)
+            if (room.Terrain(null) == target)
             {
-                cell.Handle(output);
+                room.Handle(output);
             }
         }
 

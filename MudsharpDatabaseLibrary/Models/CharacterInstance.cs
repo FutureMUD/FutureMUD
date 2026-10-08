@@ -49,7 +49,7 @@ public partial class CharacterInstance
 
 	public virtual Character Character { get; set; }
 	public virtual Body Body { get; set; }
-	public virtual Cell Location { get; set; }
+	public virtual Room Location { get; set; }
 	public virtual CharacterInstance AnchorInstance { get; set; }
 	public virtual ICollection<CharacterInstance> AnchoredInstances { get; set; }
 	public virtual ICollection<ProjectLabourQueue> ClaimedProjectLabourQueues { get; set; }

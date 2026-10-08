@@ -61,7 +61,7 @@ internal static class MagicPowerSpatialTargeting
 
 		if (owner.Location?.RouteDefinition is null && target.Location?.RouteDefinition is null)
 		{
-			return owner.Location.CellsInVicinity(1, static _ => true, static _ => true)
+			return owner.Location.RoomsInVicinity(1, static _ => true, static _ => true)
 				.Any(x => ReferenceEquals(x, target.Location));
 		}
 

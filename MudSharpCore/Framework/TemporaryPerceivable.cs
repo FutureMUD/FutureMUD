@@ -55,7 +55,7 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
         return false;
     }
 
-    public void MoveTo(ICell location, RoomLayer layer, ICellExit exit = null, bool noSave = false)
+    public void MoveTo(IRoom location, RoomLayer layer, IRoomExit exit = null, bool noSave = false)
     {
         // Do nothing
     }
@@ -76,7 +76,7 @@ public abstract class TemporaryPerceivable : FrameworkItem, IPerceivable
 
     public Gendering Gender => Gendering.Get(Form.Shape.Gender.Indeterminate);
 
-    public abstract ICell Location { get; }
+    public abstract IRoom Location { get; }
 
     #pragma warning disable CS0067 // Temporary perceivables do not move through real locations.
     public event LocatableEvent OnLocationChanged;

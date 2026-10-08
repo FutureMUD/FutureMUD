@@ -9,7 +9,7 @@ public sealed class PrivatePropertyEffect : Effect
 	private readonly FrameworkItemReference _controllerReference;
 	private IFrameworkItem? _controller;
 
-	public PrivatePropertyEffect(ICell owner, IFrameworkItem controller) : base(owner)
+	public PrivatePropertyEffect(IRoom owner, IFrameworkItem controller) : base(owner)
 	{
 		_controller = controller;
 		_controllerReference = new FrameworkItemReference(controller.Id, controller.FrameworkItemType, owner.Gameworld);

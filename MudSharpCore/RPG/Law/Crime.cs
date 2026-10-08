@@ -25,7 +25,7 @@ public partial class Crime : LateInitialisingItem, ICrime
     }
 
     public Crime(ICharacter criminal, ICharacter? victim, IEnumerable<ICharacter> witnesses, ILaw law,
-        IFrameworkItem? thirdparty = null, string? additionalInformation = null, ICell? crimeLocation = null)
+        IFrameworkItem? thirdparty = null, string? additionalInformation = null, IRoom? crimeLocation = null)
     {
         Gameworld = criminal.Gameworld;
         var resolvedCrimeLocation = crimeLocation ?? criminal.Location;
@@ -39,7 +39,7 @@ public partial class Crime : LateInitialisingItem, ICrime
 		InitialiseWitnessMemories(null);
         Law = law;
         ThirdPartyId = thirdparty is null ? null : CharacterInstanceIdentityComparer.FrameworkItemId(thirdparty);
-        ThirdPartyFrameworkItemType = thirdparty?.FrameworkItemType;
+        ThirdPartyFrameworkItemType = thirdparty?.GetPersistedReferenceType();
         AdditionalInformation = additionalInformation;
         CriminalShortDescription = criminal.HowSeen(criminal,
             flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf);
@@ -56,9 +56,11 @@ public partial class Crime : LateInitialisingItem, ICrime
         IdInitialised = true;
         CriminalId = dbitem.CriminalId;
         VictimId = dbitem.VictimId;
+		ThirdPartyId = dbitem.ThirdPartyId;
+		ThirdPartyFrameworkItemType = dbitem.ThirdPartyIItemType;
         AccuserId = dbitem.AccuserId;
         RealTimeOfCrime = dbitem.RealTimeOfCrime;
-        CrimeLocation = Gameworld.Cells.Get(dbitem.LocationId ?? 0);
+        CrimeLocation = Gameworld.Rooms.Get(dbitem.LocationId ?? 0);
         TimeOfCrime = MudDateTime.FromStoredStringOrFallback(dbitem.TimeOfCrime, Gameworld,
             StoredMudDateTimeFallback.CurrentDateTime, "Crime", dbitem.Id, null, "TimeOfCrime");
         TimeOfReport = string.IsNullOrEmpty(dbitem.TimeOfReport)
@@ -346,7 +348,7 @@ public partial class Crime : LateInitialisingItem, ICrime
     private decimal _calculatedBail;
     private decimal _fineRecorded;
     private TimeSpan _custodialSentenceLength;
-    private ICell? _crimeLocation;
+    private IRoom? _crimeLocation;
 
     public IEnumerable<long> WitnessIds => _witnessIds;
 
@@ -410,30 +412,30 @@ public partial class Crime : LateInitialisingItem, ICrime
         }
     }
 
-    public ICell? CrimeLocation
+    public IRoom? CrimeLocation
     {
         get => _crimeLocation; init
         {
-            _crimeLocation?.CellRequestsDeletion -= CrimeLocation_CellRequestsDeletion;
+            _crimeLocation?.RoomRequestsDeletion -= CrimeLocation_RoomRequestsDeletion;
             _crimeLocation = value;
             if (_crimeLocation is not null)
             {
-                _crimeLocation.CellRequestsDeletion -= CrimeLocation_CellRequestsDeletion;
-                _crimeLocation.CellRequestsDeletion += CrimeLocation_CellRequestsDeletion;
+                _crimeLocation.RoomRequestsDeletion -= CrimeLocation_RoomRequestsDeletion;
+                _crimeLocation.RoomRequestsDeletion += CrimeLocation_RoomRequestsDeletion;
             }
         }
     }
 
-    private void CrimeLocation_CellRequestsDeletion(object? sender, EventArgs e)
+    private void CrimeLocation_RoomRequestsDeletion(object? sender, EventArgs e)
     {
-        if (sender is not ICell cell)
+        if (sender is not IRoom room)
         {
             return;
         }
 
         _crimeLocation = null;
         Changed = true;
-        cell.CellRequestsDeletion -= CrimeLocation_CellRequestsDeletion;
+        room.RoomRequestsDeletion -= CrimeLocation_RoomRequestsDeletion;
     }
 
     public string? CriminalShortDescription { get; set; }
@@ -696,7 +698,7 @@ public partial class Crime : LateInitialisingItem, ICrime
             Gameworld.CharacterArchives?.Find(VictimId ?? 0)?.DisplayName ?? "an unnamed victim";
         string locationAddendum =
             CrimeLocation != null ?
-                $" at {CrimeLocation.CurrentOverlay.CellName}" :
+                $" at {CrimeLocation.CurrentOverlay.RoomName}" :
                 "";
         string thirdPartyDesc = ThirdParty?.HowSeen(voyeur, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "an unidentified thing";
         return
@@ -715,7 +717,7 @@ public partial class Crime : LateInitialisingItem, ICrime
         string victimDesc = Victim?.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee) ??
                          Gameworld.CharacterArchives?.Find(VictimId ?? 0)?.ShortDescription ??
                          "unnamed victims".ColourCharacter();
-        string locationAddendum = CrimeLocation != null ? $" at {CrimeLocation.CurrentOverlay.CellName.ColourRoom()}" : "";
+        string locationAddendum = CrimeLocation != null ? $" at {CrimeLocation.CurrentOverlay.RoomName.ColourRoom()}" : "";
         string thirdPartyDesc = ThirdParty?.HowSeen(voyeur, flags: PerceiveIgnoreFlags.IgnoreCanSee) ?? "an unidentified thing".ColourObject();
         return DescribeCrimeInternal(voyeur, victimDesc, locationAddendum, thirdPartyDesc);
     }

@@ -56,14 +56,14 @@ internal class SetExitSize : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICellExit exit = (ICellExit)ParameterFunctions[0].Result?.GetObject;
+        IRoomExit exit = (IRoomExit)ParameterFunctions[0].Result?.GetObject;
         if (exit == null)
         {
             Result = null;
             return StatementResult.Normal;
         }
 
-        ICellOverlayPackage package = (ICellOverlayPackage)ParameterFunctions[1].Result?.GetObject;
+        IRoomOverlayPackage package = (IRoomOverlayPackage)ParameterFunctions[1].Result?.GetObject;
         if (package == null)
         {
             Result = null;

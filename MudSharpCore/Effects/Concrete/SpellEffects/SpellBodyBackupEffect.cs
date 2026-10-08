@@ -13,13 +13,13 @@ public class SpellBodyBackupEffect : SimpleSpellStatusEffectBase, IBodyBackupEff
 	}
 
 	public SpellBodyBackupEffect(IPerceivable owner, IMagicSpellEffectParent parent, string formKey, long backupBodyId,
-		long destinationCellId, RoomLayer destinationLayer, int priority, BodyRemainsContext remainsContext,
+		long destinationRoomId, RoomLayer destinationLayer, int priority, BodyRemainsContext remainsContext,
 		string oldLocationEcho, string newLocationEcho, string selfEcho, bool consumeOnUse, IFutureProg? prog = null)
 		: base(owner, parent, prog)
 	{
 		FormKey = formKey;
 		BackupBodyId = backupBodyId;
-		DestinationCellId = destinationCellId;
+		DestinationRoomId = destinationRoomId;
 		DestinationLayer = destinationLayer;
 		Priority = priority;
 		RemainsContext = BodyBackupEffect.NormaliseBackupRemainsContext(remainsContext);
@@ -35,7 +35,7 @@ public class SpellBodyBackupEffect : SimpleSpellStatusEffectBase, IBodyBackupEff
 		var trueRoot = root.Element("Effect");
 		FormKey = trueRoot?.Element("FormKey")?.Value ?? string.Empty;
 		BackupBodyId = long.Parse(trueRoot?.Element("BackupBodyId")?.Value ?? "0");
-		DestinationCellId = long.Parse(trueRoot?.Element("DestinationCellId")?.Value ?? "0");
+		DestinationRoomId = long.Parse(trueRoot?.Element("DestinationCellId")?.Value ?? "0");
 		DestinationLayer = (RoomLayer)int.Parse(trueRoot?.Element("DestinationLayer")?.Value ?? "0");
 		Priority = int.Parse(trueRoot?.Element("Priority")?.Value ?? "0");
 		RemainsContext =
@@ -48,8 +48,8 @@ public class SpellBodyBackupEffect : SimpleSpellStatusEffectBase, IBodyBackupEff
 
 	public string FormKey { get; }
 	public long BackupBodyId { get; }
-	public long DestinationCellId { get; }
-	public ICell? DestinationCell => Gameworld.Cells.Get(DestinationCellId);
+	public long DestinationRoomId { get; }
+	public IRoom? DestinationRoom => Gameworld.Rooms.Get(DestinationRoomId);
 	public RoomLayer DestinationLayer { get; }
 	public int Priority { get; }
 	public BodyRemainsContext RemainsContext { get; }
@@ -74,7 +74,7 @@ public class SpellBodyBackupEffect : SimpleSpellStatusEffectBase, IBodyBackupEff
 		return SimpleSaveDefinition(
 			new XElement("FormKey", FormKey),
 			new XElement("BackupBodyId", BackupBodyId),
-			new XElement("DestinationCellId", DestinationCellId),
+			new XElement("DestinationCellId", DestinationRoomId),
 			new XElement("DestinationLayer", (int)DestinationLayer),
 			new XElement("Priority", Priority),
 			new XElement("RemainsContext", (int)RemainsContext),

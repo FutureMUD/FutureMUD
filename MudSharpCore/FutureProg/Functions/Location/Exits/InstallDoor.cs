@@ -55,7 +55,7 @@ internal class InstallDoor : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICellExit exit = (ICellExit)ParameterFunctions[0].Result?.GetObject;
+        IRoomExit exit = (IRoomExit)ParameterFunctions[0].Result?.GetObject;
         if (exit == null)
         {
             Result = new BooleanVariable(false);
@@ -82,13 +82,13 @@ internal class InstallDoor : BuiltInFunction
             return StatementResult.Normal;
         }
 
-        ICell hingecell = (ICell)ParameterFunctions[2].Result?.GetObject;
+        IRoom hingecell = (IRoom)ParameterFunctions[2].Result?.GetObject;
         if (hingecell == null)
         {
             hingecell = exit.Origin;
         }
 
-        ICell opencell = (ICell)ParameterFunctions[3].Result?.GetObject;
+        IRoom opencell = (IRoom)ParameterFunctions[3].Result?.GetObject;
         if (opencell == null)
         {
             opencell = exit.Destination;
@@ -99,16 +99,16 @@ internal class InstallDoor : BuiltInFunction
             IExit otherExit = door.InstalledExit;
             otherExit.Door = null;
             otherExit.Changed = true;
-            door.OpenDirectionCell = null;
-            door.HingeCell = null;
+            door.OpenDirectionRoom = null;
+            door.HingeRoom = null;
             door.State = DoorState.Uninstalled;
             door.InstalledExit = null;
         }
 
         door.Parent.Get(null);
         door.InstalledExit = exit.Exit;
-        door.HingeCell = hingecell;
-        door.OpenDirectionCell = opencell;
+        door.HingeRoom = hingecell;
+        door.OpenDirectionRoom = opencell;
         door.State = DoorState.Open;
         exit.Exit.Door = door;
         exit.Exit.Changed = true;

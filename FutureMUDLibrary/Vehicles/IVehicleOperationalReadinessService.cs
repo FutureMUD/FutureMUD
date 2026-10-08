@@ -109,7 +109,7 @@ public sealed record VehicleResourceReadinessPlan(
 public sealed record VehicleMovementReadinessRequest(
 	IVehicle Vehicle,
 	ICharacter? Actor,
-	ICellExit? Exit,
+	IRoomExit? Exit,
 	IVehicleMovementProfilePrototype? MovementProfile = null,
 	VehiclePropulsionMovePlan? CommittedPropulsionPlan = null,
 	IReadOnlyCollection<ICharacter>? ExternalPullers = null,

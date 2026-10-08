@@ -194,7 +194,7 @@ public class EmploymentCommandServiceTests
 	public void HospitalCommand_InfoPreservesLiteralRoomIds()
 	{
 		var gameworld = Gameworld();
-		var foyer = Cell(370, "A Hospital Foyer").Object;
+		var foyer = Room(370, "A Hospital Foyer").Object;
 		var hospital = HospitalHost(1, "Easy Street Hospital", [foyer]);
 		hospital.Setup(x => x.Show(It.IsAny<ICharacter>()))
 		        .Returns("Waiting Rooms: #370 A Hospital Foyer");
@@ -215,9 +215,9 @@ public class EmploymentCommandServiceTests
 	public void HospitalCommand_RoomAddUsesDirectionalTarget()
 	{
 		var gameworld = Gameworld();
-		var foyer = Cell(371, "A Hospital Foyer");
-		var theatre = Cell(372, "An Operating Theatre");
-		var exit = new Mock<ICellExit>();
+		var foyer = Room(371, "A Hospital Foyer");
+		var theatre = Room(372, "An Operating Theatre");
+		var exit = new Mock<IRoomExit>();
 		exit.SetupGet(x => x.Destination).Returns(theatre.Object);
 		foyer.Setup(x => x.GetExit(CardinalDirection.East, It.IsAny<IPerceiver>())).Returns(exit.Object);
 		var hospital = HospitalHost(2, "Easy Street Hospital", [foyer.Object]);
@@ -236,8 +236,8 @@ public class EmploymentCommandServiceTests
 	public void HospitalCommand_RoomAddHereUsesAdjacentHospitalWhenOutsideExistingRooms()
 	{
 		var gameworld = Gameworld();
-		var foyer = Cell(375, "A Hospital Foyer");
-		var recovery = Cell(376, "A Recovery Room");
+		var foyer = Room(375, "A Hospital Foyer");
+		var recovery = Room(376, "A Recovery Room");
 		foyer.SetupGet(x => x.Surrounds).Returns([recovery.Object]);
 		recovery.SetupGet(x => x.Surrounds).Returns([foyer.Object]);
 		var hospital = HospitalHost(4, "Easy Street Hospital", [foyer.Object]);
@@ -252,15 +252,15 @@ public class EmploymentCommandServiceTests
 	}
 
 	[TestMethod]
-	public void HospitalCommand_RoomAddUsesExplicitCellIdTarget()
+	public void HospitalCommand_RoomAddUsesExplicitRoomIdTarget()
 	{
 		var gameworld = Gameworld();
-		var foyer = Cell(373, "A Hospital Foyer").Object;
-		var supply = Cell(374, "A Supply Room").Object;
-		var cells = new All<ICell>();
-		cells.Add(foyer);
-		cells.Add(supply);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var foyer = Room(373, "A Hospital Foyer").Object;
+		var supply = Room(374, "A Supply Room").Object;
+		var rooms = new All<IRoom>();
+		rooms.Add(foyer);
+		rooms.Add(supply);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		var hospital = HospitalHost(3, "Easy Street Hospital", [foyer]);
 		var hospitals = new All<IHospital>();
 		hospitals.Add(hospital.Object);
@@ -277,12 +277,12 @@ public class EmploymentCommandServiceTests
 	public void HospitalCommand_RoomAddSupportsStaffRoomRole()
 	{
 		var gameworld = Gameworld();
-		var foyer = Cell(377, "A Hospital Foyer").Object;
-		var staffRoom = Cell(378, "A Staff Room").Object;
-		var cells = new All<ICell>();
-		cells.Add(foyer);
-		cells.Add(staffRoom);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var foyer = Room(377, "A Hospital Foyer").Object;
+		var staffRoom = Room(378, "A Staff Room").Object;
+		var rooms = new All<IRoom>();
+		rooms.Add(foyer);
+		rooms.Add(staffRoom);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		var hospital = HospitalHost(5, "Easy Street Hospital", [foyer]);
 		var hospitals = new All<IHospital>();
 		hospitals.Add(hospital.Object);
@@ -298,7 +298,7 @@ public class EmploymentCommandServiceTests
 	public void HospitalCommand_BloodstockSetAllTargetsEveryBloodtype()
 	{
 		var gameworld = Gameworld();
-		var foyer = Cell(379, "A Hospital Foyer").Object;
+		var foyer = Room(379, "A Hospital Foyer").Object;
 		var hospital = HospitalHost(6, "Easy Street Hospital", [foyer]);
 		var hospitals = new All<IHospital>();
 		hospitals.Add(hospital.Object);
@@ -327,11 +327,11 @@ public class EmploymentCommandServiceTests
 	public void HospitalCommand_OperationsShowsTheatreRequestBlockersAndResources()
 	{
 		var gameworld = Gameworld();
-		var foyer = Cell(380, "A Hospital Foyer");
-		var waiting = Cell(381, "Waiting Ward");
-		var theatre = Cell(382, "Theatre One");
-		var supply = Cell(383, "Supply Store");
-		var staff = Cell(384, "Staff Room");
+		var foyer = Room(380, "A Hospital Foyer");
+		var waiting = Room(381, "Waiting Ward");
+		var theatre = Room(382, "Theatre One");
+		var supply = Room(383, "Supply Store");
+		var staff = Room(384, "Staff Room");
 		var patient = Character(201, "Patient", gameworld: gameworld.Object, location: waiting.Object);
 		var doctor = Character(202, "Doctor", gameworld: gameworld.Object, location: staff.Object);
 		waiting.SetupGet(x => x.Characters).Returns([patient.Object]);
@@ -357,7 +357,7 @@ public class EmploymentCommandServiceTests
 		request.SetupGet(x => x.PatientName).Returns("Patient");
 		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Assigned);
 		request.SetupGet(x => x.SupplyPrepared).Returns(false);
-		request.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		request.SetupGet(x => x.OperatingTheatreRoomId).Returns(theatre.Object.Id);
 		request.SetupGet(x => x.EmploymentTaskId).Returns(() => taskId);
 		request.SetupGet(x => x.AssignedEmployeeId).Returns(doctor.Object.Id);
 		request.SetupGet(x => x.CreatedAt).Returns(DateTimeOffset.UtcNow.AddMinutes(-5));
@@ -419,7 +419,7 @@ public class EmploymentCommandServiceTests
 	public void HospitalCommand_CancelCancelsOwnedRequestAndLinkedTaskWithoutRefund()
 	{
 		var gameworld = Gameworld();
-		var foyer = Cell(385, "A Hospital Foyer").Object;
+		var foyer = Room(385, "A Hospital Foyer").Object;
 		var hospital = HospitalHost(8, "Easy Street Hospital", [foyer]);
 		hospital.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Hospital);
 		hospital.SetupGet(x => x.Market).Returns((IMarket?)null);
@@ -489,8 +489,8 @@ public class EmploymentCommandServiceTests
 	public void HospitalCommand_OperationsAndFailureLogShowTerminalServiceReason()
 	{
 		var gameworld = Gameworld();
-		var foyer = Cell(605, "Hospital Foyer");
-		var theatre = Cell(606, "Operating Theatre");
+		var foyer = Room(605, "Hospital Foyer");
+		var theatre = Room(606, "Operating Theatre");
 		var patient = Character(607, "Patient", gameworld: gameworld.Object, location: theatre.Object);
 		var doctor = Character(608, "Doctor", gameworld: gameworld.Object, location: theatre.Object);
 		theatre.SetupGet(x => x.Characters).Returns([patient.Object, doctor.Object]);
@@ -512,7 +512,7 @@ public class EmploymentCommandServiceTests
 		request.SetupGet(x => x.Patient).Returns(patient.Object);
 		request.SetupGet(x => x.PatientName).Returns("Patient");
 		request.SetupGet(x => x.Status).Returns(HospitalServiceRequestStatus.Failed);
-		request.SetupGet(x => x.OperatingTheatreCellId).Returns(theatre.Object.Id);
+		request.SetupGet(x => x.OperatingTheatreRoomId).Returns(theatre.Object.Id);
 		request.SetupGet(x => x.AssignedEmployeeId).Returns(doctor.Object.Id);
 		request.SetupGet(x => x.LastUpdatedAt).Returns(DateTimeOffset.UtcNow.AddMinutes(-1));
 		request.SetupGet(x => x.CompletedAt).Returns(DateTimeOffset.UtcNow.AddMinutes(-1));
@@ -558,7 +558,7 @@ public class EmploymentCommandServiceTests
 	public void HospitalCommand_RequestRejectsSecondActiveRequestForSamePatient()
 	{
 		var gameworld = Gameworld();
-		var foyer = Cell(610, "Hospital Foyer").Object;
+		var foyer = Room(610, "Hospital Foyer").Object;
 		var hospital = HospitalHost(611, "Easy Street Hospital", [foyer]);
 		hospital.SetupGet(x => x.IsTrading).Returns(true);
 		var service = new Mock<IHospitalService>();
@@ -1614,10 +1614,10 @@ public class EmploymentCommandServiceTests
 	{
 		var currency = Currency();
 		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
-		var cell = Cell(690, "stockroom").Object;
+		var room = Room(690, "stockroom").Object;
 		var gameworld = Gameworld();
 		gameworld.SetupGet(x => x.ItemProtos).Returns(ItemProtos(ItemProto(500, "a pair of leather gloves").Object).Object);
-		var manager = Character(69, "Manager", gameworld: gameworld.Object, location: cell).Object;
+		var manager = Character(69, "Manager", gameworld: gameworld.Object, location: room).Object;
 		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
 			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
 		var authoring = new EmploymentTaskAuthoringService();
@@ -1636,17 +1636,17 @@ public class EmploymentCommandServiceTests
 	{
 		var currency = Currency();
 		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
-		var cell = Cell(691, "stockroom").Object;
+		var room = Room(691, "stockroom").Object;
 		var prototype = ItemProto(500, "a cargo crate").Object;
-		var liveItem = Item(700, "a battered crate", prototype, [cell]).Object;
-		var keywordItem = Item(701, "a labelled crate", prototype, [cell]).Object;
+		var liveItem = Item(700, "a battered crate", prototype, [room]).Object;
+		var keywordItem = Item(701, "a labelled crate", prototype, [room]).Object;
 		var cargoTag = Tag(800, "cargo").Object;
 		var gameworld = Gameworld();
 		gameworld.SetupGet(x => x.ItemProtos).Returns(ItemProtos(prototype).Object);
 		gameworld.SetupGet(x => x.Tags).Returns(Tags(cargoTag));
 		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
 		         .Returns((long id, bool _) => id == liveItem.Id ? liveItem : id == keywordItem.Id ? keywordItem : null!);
-		var manager = Character(70, "Manager", gameworld: gameworld.Object, location: cell).Object;
+		var manager = Character(70, "Manager", gameworld: gameworld.Object, location: room).Object;
 		Mock.Get(manager).Setup(x => x.TargetLocalOrHeldItem("labelled")).Returns(keywordItem);
 		host.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
 			EmploymentAuthority.AssignTasks | EmploymentAuthority.ManageDeliveryRoutes), null);
@@ -1892,16 +1892,16 @@ public class EmploymentCommandServiceTests
 	{
 		var currency = Currency();
 		var gameworld = Gameworld();
-		var sourceStockroom = Cell(80, "source stockroom").Object;
-		var sourceShopfront = Cell(81, "source shopfront").Object;
-		var targetStockroom = Cell(82, "target stockroom").Object;
-		var targetShopfront = Cell(83, "target shopfront").Object;
-		var cells = new All<ICell>();
-		cells.Add(sourceStockroom);
-		cells.Add(sourceShopfront);
-		cells.Add(targetStockroom);
-		cells.Add(targetShopfront);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var sourceStockroom = Room(80, "source stockroom").Object;
+		var sourceShopfront = Room(81, "source shopfront").Object;
+		var targetStockroom = Room(82, "target stockroom").Object;
+		var targetShopfront = Room(83, "target shopfront").Object;
+		var rooms = new All<IRoom>();
+		rooms.Add(sourceStockroom);
+		rooms.Add(sourceShopfront);
+		rooms.Add(targetStockroom);
+		rooms.Add(targetShopfront);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		var manager = Character(80, "Manager", gameworld: gameworld.Object, location: sourceStockroom).Object;
 		var sourceMerchandise = new Mock<IMerchandise>();
 		sourceMerchandise.SetupGet(x => x.Id).Returns(801);
@@ -1943,10 +1943,10 @@ public class EmploymentCommandServiceTests
 	{
 		var currency = Currency();
 		var gameworld = Gameworld();
-		var auctionCell = Cell(90, "auction floor").Object;
-		var cells = new All<ICell>();
-		cells.Add(auctionCell);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var auctionRoom = Room(90, "auction floor").Object;
+		var rooms = new All<IRoom>();
+		rooms.Add(auctionRoom);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		var prototype = ItemProto(900, "a brass urn").Object;
 		gameworld.SetupGet(x => x.ItemProtos).Returns(ItemProtos(prototype).Object);
 
@@ -1960,7 +1960,7 @@ public class EmploymentCommandServiceTests
 		auction.SetupGet(x => x.FrameworkItemType).Returns("AuctionHouse");
 		auction.SetupGet(x => x.EmploymentHostName).Returns("central auction");
 		auction.SetupGet(x => x.EconomicZone).Returns(zone.Object);
-		auction.SetupGet(x => x.AuctionHouseCell).Returns(auctionCell);
+		auction.SetupGet(x => x.AuctionHouseRoom).Returns(auctionRoom);
 		auction.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
 		       .Returns((ICharacter actor, EmploymentAuthority authority) => state.HasAuthority(actor, authority));
 
@@ -1997,7 +1997,7 @@ public class EmploymentCommandServiceTests
 		auctions.Add(auction.Object);
 		gameworld.SetupGet(x => x.AuctionHouses).Returns(auctions);
 
-		var manager = Character(90, "Manager", gameworld: gameworld.Object, location: auctionCell).Object;
+		var manager = Character(90, "Manager", gameworld: gameworld.Object, location: auctionRoom).Object;
 		state.Hire(manager, Offer(currency.Object, EmploymentRole.Manager,
 			EmploymentAuthority.AssignTasks |
 			EmploymentAuthority.ManageStockRules |
@@ -2078,12 +2078,12 @@ public class EmploymentCommandServiceTests
 	{
 		var currency = Currency();
 		var gameworld = Gameworld();
-		var branchA = Cell(701, "north branch").Object;
-		var branchB = Cell(702, "south branch").Object;
-		var cells = new All<ICell>();
-		cells.Add(branchA);
-		cells.Add(branchB);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var branchA = Room(701, "north branch").Object;
+		var branchB = Room(702, "south branch").Object;
+		var rooms = new All<IRoom>();
+		rooms.Add(branchA);
+		rooms.Add(branchB);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		var bank = EmploymentHostMock<IBank>(96, "central bank", EmploymentHostType.Bank,
 			out var state);
 		bank.SetupGet(x => x.FrameworkItemType).Returns("Bank");
@@ -2138,14 +2138,14 @@ public class EmploymentCommandServiceTests
 	public void EmploymentCommandService_TaskDraftParsesStableAndHotelAdministrationActions()
 	{
 		var currency = Currency();
-		var stableCell = Cell(801, "stable stall").Object;
-		var roomCell = Cell(981, "blue room").Object;
+		var stableRoom = Room(801, "stable stall").Object;
+		var roomRoom = Room(981, "blue room").Object;
 		var stable = EmploymentHostMock<IStable>(97, "east stable", EmploymentHostType.Stable,
 			out var stableState);
 		stable.SetupGet(x => x.FrameworkItemType).Returns("Stable");
 		stable.SetupGet(x => x.EmploymentHostName).Returns("east stable");
 		stable.SetupGet(x => x.Currency).Returns(currency.Object);
-		stable.SetupGet(x => x.Location).Returns(stableCell);
+		stable.SetupGet(x => x.Location).Returns(stableRoom);
 		stable.Setup(x => x.HasAuthority(It.IsAny<ICharacter>(), It.IsAny<EmploymentAuthority>()))
 		      .Returns((ICharacter actor, EmploymentAuthority authority) => stableState.HasAuthority(actor, authority));
 		var stay = new Mock<IStableStay>();
@@ -2164,7 +2164,7 @@ public class EmploymentCommandServiceTests
 		stable.Setup(x => x.AccountByName(It.IsAny<string>()))
 		      .Returns<string>(text => text.EqualTo("account1") ? account.Object : null!);
 
-		var stableManager = Character(97, "Stable Manager", location: stableCell).Object;
+		var stableManager = Character(97, "Stable Manager", location: stableRoom).Object;
 		stableState.Hire(stableManager, Offer(currency.Object, EmploymentRole.Manager,
 			EmploymentAuthority.AssignTasks |
 			EmploymentAuthority.ManageDeliveryRoutes |
@@ -2204,7 +2204,7 @@ public class EmploymentCommandServiceTests
 		property.SetupGet(x => x.Hotel).Returns(hotel.Object);
 		var room = new Mock<IHotelRoom>();
 		room.SetupGet(x => x.Name).Returns("blue room");
-		room.SetupGet(x => x.Cell).Returns(roomCell);
+		room.SetupGet(x => x.Room).Returns(roomRoom);
 		hotel.SetupGet(x => x.Rooms).Returns([room.Object]);
 		var lost = new Mock<IHotelLostProperty>();
 		lost.SetupGet(x => x.BundleId).Returns(990);
@@ -2216,7 +2216,7 @@ public class EmploymentCommandServiceTests
 		property.SetupGet(x => x.HotelLostProperties).Returns([lost.Object]);
 		property.SetupGet(x => x.HotelPatronBalances).Returns([balance.Object]);
 
-		var hotelManager = Character(98, "Hotel Manager", location: roomCell).Object;
+		var hotelManager = Character(98, "Hotel Manager", location: roomRoom).Object;
 		hotelState.Hire(hotelManager, Offer(currency.Object, EmploymentRole.Manager,
 			EmploymentAuthority.AssignTasks |
 			EmploymentAuthority.ManageDeliveryRoutes |
@@ -2890,13 +2890,13 @@ public class EmploymentCommandServiceTests
 		{
 			PrimeFMDB(context);
 			var currency = Currency();
-			var cell = Cell(100, "stockroom");
-			var manager = Character(61, "Manager", gameworld: null, location: cell.Object).Object;
+			var room = Room(100, "stockroom");
+			var manager = Character(61, "Manager", gameworld: null, location: room.Object).Object;
 			var gameworld = Gameworld();
 			SetupBoardPersistence(gameworld);
-			var cells = new All<ICell>();
-			cells.Add(cell.Object);
-			gameworld.SetupGet(x => x.Cells).Returns(cells);
+			var rooms = new All<IRoom>();
+			rooms.Add(room.Object);
+			gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 			gameworld.SetupGet(x => x.Tags).Returns(Tags(Tag(1, "apple").Object, Tag(2, "display").Object));
 			var currencies = new All<ICurrency>();
 			currencies.Add(currency.Object);
@@ -3038,8 +3038,8 @@ public class EmploymentCommandServiceTests
 	{
 		var currency = Currency();
 		IEmploymentHost host = new TestEmploymentHost(1, "market shop", currency.Object);
-		var stockroom = Cell(660, "stockroom").Object;
-		var shopfront = Cell(661, "shopfront").Object;
+		var stockroom = Room(660, "stockroom").Object;
+		var shopfront = Room(661, "shopfront").Object;
 		var gameworld = Gameworld();
 		gameworld.SetupGet(x => x.ItemProtos).Returns(ItemProtos(ItemProto(500, "a pair of leather gloves").Object).Object);
 		var manager = Character(65, "Manager", gameworld: gameworld.Object, location: stockroom).Object;
@@ -3189,15 +3189,15 @@ public class EmploymentCommandServiceTests
 	public void EmploymentScheduledRuleAuthoring_ParsesNewConditionFamilies()
 	{
 		var currency = Currency();
-		var stockroom = Cell(7000, "stockroom").Object;
+		var stockroom = Room(7000, "stockroom").Object;
 		var crateProto = ItemProto(360, "crate").Object;
 		var nailsTag = Tag(1000, "Nails").Object;
 		var gameworld = Gameworld();
-		var cells = new All<ICell>();
-		cells.Add(stockroom);
+		var rooms = new All<IRoom>();
+		rooms.Add(stockroom);
 		var itemProtos = ItemProtos(crateProto);
 		var shops = new All<IShop>();
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		gameworld.SetupGet(x => x.ItemProtos).Returns(itemProtos.Object);
 		gameworld.SetupGet(x => x.Shops).Returns(shops);
 		gameworld.SetupGet(x => x.Tags).Returns(Tags(nailsTag));
@@ -3243,7 +3243,7 @@ public class EmploymentCommandServiceTests
 	public void EmploymentScheduledRuleConditions_EvaluateInventoryFloatAccountsAndWeather()
 	{
 		var currency = Currency();
-		var stockroom = Cell(7100, "stockroom");
+		var stockroom = Room(7100, "stockroom");
 		var controller = new Mock<IWeatherController>();
 		var weather = new Mock<IWeatherEvent>();
 		weather.SetupGet(x => x.Precipitation).Returns(PrecipitationLevel.Rain);
@@ -3291,7 +3291,7 @@ public class EmploymentCommandServiceTests
 		var host = EmploymentHostMock<IPermanentShop>(10, "market shop", EmploymentHostType.Shop, out _);
 		host.SetupGet(x => x.Currency).Returns(currency.Object);
 		host.SetupGet(x => x.CurrentLocations).Returns([stockroom.Object]);
-		host.SetupGet(x => x.AllShopCells).Returns([stockroom.Object]);
+		host.SetupGet(x => x.AllShopRooms).Returns([stockroom.Object]);
 		host.SetupGet(x => x.TillItems).Returns([till.Object]);
 		host.SetupGet(x => x.LineOfCreditAccounts).Returns([account.Object]);
 		var context = new EmploymentTaskContext(host.Object);
@@ -4063,7 +4063,7 @@ public class EmploymentCommandServiceTests
 		return host;
 	}
 
-	private static Mock<IHospital> HospitalHost(long id, string name, IEnumerable<ICell> locations)
+	private static Mock<IHospital> HospitalHost(long id, string name, IEnumerable<IRoom> locations)
 	{
 		var hospital = new Mock<IHospital>();
 		hospital.SetupGet(x => x.Id).Returns(id);
@@ -4149,30 +4149,30 @@ public class EmploymentCommandServiceTests
 		return (shop, state);
 	}
 
-	private static void SetupPermanentShop(Mock<IPermanentShop> shop, ICurrency currency, ICell stockroom,
-		IEnumerable<ICell> shopfronts, IEnumerable<IMerchandise> merchandises)
+	private static void SetupPermanentShop(Mock<IPermanentShop> shop, ICurrency currency, IRoom stockroom,
+		IEnumerable<IRoom> shopfronts, IEnumerable<IMerchandise> merchandises)
 	{
 		var shopfrontList = shopfronts.ToList();
 		var merchandiseList = merchandises.ToList();
 		shop.SetupGet(x => x.FrameworkItemType).Returns("PermanentShop");
 		shop.SetupGet(x => x.EmploymentHostName).Returns(shop.Object.Name);
 		shop.SetupGet(x => x.Currency).Returns(currency);
-		shop.SetupGet(x => x.StockroomCell).Returns(stockroom);
-		shop.SetupGet(x => x.ShopfrontCells).Returns(shopfrontList);
-		shop.SetupGet(x => x.AllShopCells).Returns(() => shopfrontList.Concat(new[] { stockroom }).DistinctBy(x => x.Id).ToList());
+		shop.SetupGet(x => x.StockroomRoom).Returns(stockroom);
+		shop.SetupGet(x => x.ShopfrontRooms).Returns(shopfrontList);
+		shop.SetupGet(x => x.AllShopRooms).Returns(() => shopfrontList.Concat(new[] { stockroom }).DistinctBy(x => x.Id).ToList());
 		shop.SetupGet(x => x.DisplayContainers).Returns([]);
 		shop.SetupGet(x => x.Merchandises).Returns(merchandiseList);
 	}
 
-	private static Mock<ICell> Cell(long id, string name)
+	private static Mock<IRoom> Room(long id, string name)
 	{
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.SetupGet(x => x.Name).Returns(name);
-		cell.SetupGet(x => x.Location).Returns(cell.Object);
-		cell.SetupGet(x => x.GameItems).Returns(Array.Empty<IGameItem>());
-		cell.Setup(x => x.GetFriendlyReference(It.IsAny<IPerceiver>())).Returns(name);
-		return cell;
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.SetupGet(x => x.Name).Returns(name);
+		room.SetupGet(x => x.Location).Returns(room.Object);
+		room.SetupGet(x => x.GameItems).Returns(Array.Empty<IGameItem>());
+		room.Setup(x => x.GetFriendlyReference(It.IsAny<IPerceiver>())).Returns(name);
+		return room;
 	}
 
 	private static Mock<IBloodtype> Bloodtype(long id, string name)
@@ -4192,7 +4192,7 @@ public class EmploymentCommandServiceTests
 		return proto;
 	}
 
-	private static Mock<IGameItem> Item(long id, string name, IGameItemProto prototype, IEnumerable<ICell>? trueLocations = null)
+	private static Mock<IGameItem> Item(long id, string name, IGameItemProto prototype, IEnumerable<IRoom>? trueLocations = null)
 	{
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(id);
@@ -4239,13 +4239,13 @@ public class EmploymentCommandServiceTests
 	}
 
 	private static Mock<ICharacter> Character(long id, string name, bool administrator = false,
-		IFuturemud? gameworld = null, ICell? location = null)
+		IFuturemud? gameworld = null, IRoom? location = null)
 	{
 		var personalName = new Mock<IPersonalName>();
 		personalName.Setup(x => x.GetName(It.IsAny<NameStyle>())).Returns(name);
 		var body = new Mock<IBody>();
 		body.Setup(x => x.LookText(It.IsAny<IPerceivable>(), It.IsAny<bool>())).Returns(name);
-		var currentLocation = location ?? Cell(id * 10, $"{name} location").Object;
+		var currentLocation = location ?? Room(id * 10, $"{name} location").Object;
 		var character = new Mock<ICharacter>();
 		var output = new Mock<IOutputHandler>();
 		var account = new Mock<IAccount>();

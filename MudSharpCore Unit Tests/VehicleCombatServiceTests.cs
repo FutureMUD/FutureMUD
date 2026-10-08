@@ -45,10 +45,10 @@ public class VehicleCombatServiceTests
 	}
 
 	[TestMethod]
-	public void Direction_SurfaceSwimmerInRemoteWaterCell_IsBelow()
+	public void Direction_SurfaceSwimmerInRemoteWaterRoom_IsBelow()
 	{
 		var harness = CreateHarness();
-		var remoteWater = new Mock<ICell>();
+		var remoteWater = new Mock<IRoom>();
 		remoteWater.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
 		harness.Attacker.SetupGet(x => x.Location).Returns(remoteWater.Object);
 
@@ -270,14 +270,14 @@ public class VehicleCombatServiceTests
 
 		Assert.IsFalse(moved);
 		StringAssert.Contains(reason, "keeps their footing aboard");
-		harness.Target.Verify(x => x.Teleport(It.IsAny<ICell>(), It.IsAny<RoomLayer>(), It.IsAny<bool>(),
+		harness.Target.Verify(x => x.Teleport(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<bool>(),
 			It.IsAny<bool>()), Times.Never);
 		harness.Vehicle.Verify(x => x.ForceDisembark(harness.Target.Object, It.IsAny<bool>()), Times.Never);
 	}
 
 	private static Harness CreateHarness(RoomLayer attackerLayer = RoomLayer.GroundLevel)
 	{
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(true);
 		var movement = new Mock<IVehicleMovementProfilePrototype>();
 		movement.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.SurfaceWater);
@@ -325,5 +325,5 @@ public class VehicleCombatServiceTests
 
 	private sealed record Harness(Mock<ICharacter> Attacker, Mock<ICharacter> Target, Mock<IVehicle> Vehicle,
 		Mock<IGameItem> Exterior, Mock<IRangedCover> BelowCover, Mock<IVehicleOccupantSlotPrototype> Slot,
-		Mock<IFuturemud> Gameworld, Mock<ICell> Location);
+		Mock<IFuturemud> Gameworld, Mock<IRoom> Location);
 }

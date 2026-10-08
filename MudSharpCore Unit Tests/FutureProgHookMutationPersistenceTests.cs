@@ -20,7 +20,7 @@ public class FutureProgHookMutationPersistenceTests
 	{
 		AssertSuccessfulMutation(new Mock<ICharacter>(), "addhook", useName: false);
 		AssertSuccessfulMutation(new Mock<IGameItem>(), "addhook", useName: true);
-		AssertSuccessfulMutation(new Mock<ICell>(), "addhook", useName: false);
+		AssertSuccessfulMutation(new Mock<IRoom>(), "addhook", useName: false);
 	}
 
 	[TestMethod]
@@ -28,7 +28,7 @@ public class FutureProgHookMutationPersistenceTests
 	{
 		AssertSuccessfulMutation(new Mock<ICharacter>(), "removehook", useName: true);
 		AssertSuccessfulMutation(new Mock<IGameItem>(), "removehook", useName: false);
-		AssertSuccessfulMutation(new Mock<ICell>(), "removehook", useName: true);
+		AssertSuccessfulMutation(new Mock<IRoom>(), "removehook", useName: true);
 	}
 
 	[TestMethod]

@@ -50,20 +50,20 @@ public partial class FuturemudDatabaseContext
 				  .HasConstraintName("FK_RestaurantStorageContainers_Restaurants");
 		});
 
-		modelBuilder.Entity<RestaurantCell>(entity =>
+		modelBuilder.Entity<RestaurantRoom>(entity =>
 		{
-			entity.ToTable("RestaurantCells");
-			entity.HasKey(e => new { e.RestaurantShopId, e.CellId, e.Role }).HasName("PRIMARY");
-			entity.HasIndex(e => e.CellId).HasDatabaseName("IX_RestaurantCells_Cell");
-			entity.HasIndex(e => new { e.RestaurantShopId, e.Role }).HasDatabaseName("IX_RestaurantCells_Restaurant_Role");
+			entity.ToTable("RestaurantRooms");
+			entity.HasKey(e => new { e.RestaurantShopId, e.RoomId, e.Role }).HasName("PRIMARY");
+			entity.HasIndex(e => e.RoomId).HasDatabaseName("IX_RestaurantRooms_Room");
+			entity.HasIndex(e => new { e.RestaurantShopId, e.Role }).HasDatabaseName("IX_RestaurantRooms_Restaurant_Role");
 			entity.Property(e => e.RestaurantShopId).HasColumnType("bigint(20)");
-			entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.Role).HasColumnType("int(11)");
 			entity.HasOne(e => e.Restaurant)
-			      .WithMany(e => e.Cells)
+			      .WithMany(e => e.Rooms)
 			      .HasForeignKey(e => e.RestaurantShopId)
 			      .OnDelete(DeleteBehavior.Cascade)
-			      .HasConstraintName("FK_RestaurantCells_Restaurants");
+			      .HasConstraintName("FK_RestaurantRooms_Restaurants");
 		});
 
 		modelBuilder.Entity<RestaurantTable>(entity =>

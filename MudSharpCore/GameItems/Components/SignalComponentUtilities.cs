@@ -110,12 +110,12 @@ public static class SignalComponentUtilities
 			: item;
 	}
 
-	public static IEnumerable<ICell> EnumerateSignalAccessibilityCells(IGameItem item)
+	public static IEnumerable<IRoom> EnumerateSignalAccessibilityRooms(IGameItem item)
 	{
 		var anchorItem = ResolveSignalSearchAnchorItem(item);
 		return anchorItem.TrueLocations
-			.OfType<ICell>()
-			.Concat(item.TrueLocations.OfType<ICell>())
+			.OfType<IRoom>()
+			.Concat(item.TrueLocations.OfType<IRoom>())
 			.Distinct();
 	}
 
@@ -138,11 +138,11 @@ public static class SignalComponentUtilities
 			.Select(x => x.RoomLayer)
 			.Distinct()
 			.ToList();
-		foreach (var cell in EnumerateSignalAccessibilityCells(parent))
+		foreach (var room in EnumerateSignalAccessibilityRooms(parent))
 		{
 			foreach (var roomLayer in roomLayers)
 			{
-				rootItems.AddRange(cell.LayerGameItems(roomLayer));
+				rootItems.AddRange(room.LayerGameItems(roomLayer));
 			}
 		}
 
@@ -162,10 +162,10 @@ public static class SignalComponentUtilities
 			return true;
 		}
 
-		var originCells = EnumerateSignalAccessibilityCells(origin).ToList();
-		var targetCells = EnumerateSignalAccessibilityCells(target).ToList();
-		return originCells.Any(originCell => targetCells.Any(targetCell =>
-			ReferenceEquals(originCell, targetCell) || originCell.Id > 0 && originCell.Id == targetCell.Id));
+		var originRooms = EnumerateSignalAccessibilityRooms(origin).ToList();
+		var targetRooms = EnumerateSignalAccessibilityRooms(target).ToList();
+		return originRooms.Any(originRoom => targetRooms.Any(targetRoom =>
+			ReferenceEquals(originRoom, targetRoom) || originRoom.Id > 0 && originRoom.Id == targetRoom.Id));
 	}
 
 	private static bool SameRuntimeItem(IGameItem lhs, IGameItem rhs)

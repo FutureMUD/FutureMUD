@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MoreLinq.Extensions;
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
@@ -52,10 +52,10 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
         DefaultInfo = new AutobuilderRoomInfo
         {
             DefaultTerrain = gameworld.Terrains.First(x => x.DefaultTerrain),
-            CellName = "An Undescribed Location",
-            CellDescription = "This location does not have any description",
+            RoomName = "An Undescribed Location",
+            RoomDescription = "This location does not have any description",
             AmbientLightFactor = 1.0,
-            OutdoorsType = gameworld.Terrains.First(x => x.DefaultTerrain).DefaultCellOutdoorsType
+            OutdoorsType = gameworld.Terrains.First(x => x.DefaultTerrain).DefaultRoomOutdoorsType
         };
         ApplyAutobuilderTagsAsFrameworkTags = true;
 
@@ -113,35 +113,34 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
 
     private readonly Regex _terrainInfoRegex = new("\\$terrain", RegexOptions.IgnoreCase);
 
-    public override ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+    public override IRoom CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         params string[] tags)
     {
         return CreateRoomCore(builder, specifiedTerrain, deferDescription, [], tags);
     }
 
-    public override ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+    public override IRoom CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         IReadOnlyCollection<ITag> frameworkTags, params string[] tags)
     {
         return CreateRoomCore(builder, specifiedTerrain, deferDescription, frameworkTags, tags);
     }
 
-    private ICell CreateRoomCore(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+    private IRoom CreateRoomCore(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         IReadOnlyCollection<ITag> frameworkTags, string[] tags)
     {
-        Room room = new(builder, builder.CurrentOverlayPackage);
-        ICell cell = room.Cells.First();
-        IEditableCellOverlay overlay = cell.GetOrCreateOverlay(builder.CurrentOverlayPackage);
+        IRoom room = new Room(builder.CurrentOverlayPackage, builder.Location.OwningZone);
+        IEditableRoomOverlay overlay = room.GetOrCreateOverlay(builder.CurrentOverlayPackage);
         AutobuilderRoomInfo info = specifiedTerrain != null && TerrainInfos.ContainsKey(specifiedTerrain)
             ? TerrainInfos[specifiedTerrain]
             : DefaultInfo;
-        overlay.CellName = _terrainInfoRegex.Replace(info.CellName, match => info.DefaultTerrain.Name);
-        overlay.CellDescription = _terrainInfoRegex.Replace(info.CellDescription, match => info.DefaultTerrain.Name);
+        overlay.RoomName = _terrainInfoRegex.Replace(info.RoomName, match => info.DefaultTerrain.Name);
+        overlay.RoomDescription = _terrainInfoRegex.Replace(info.RoomDescription, match => info.DefaultTerrain.Name);
         overlay.AmbientLightFactor = info.AmbientLightFactor;
         overlay.OutdoorsType = info.OutdoorsType;
         overlay.Terrain = specifiedTerrain ?? info.DefaultTerrain;
-        cell.ForagableProfile = info.ForagableProfile;
-        ApplyTagsToCell(cell, frameworkTags, tags);
-        return cell;
+        room.ForagableProfile = info.ForagableProfile;
+        ApplyTagsToRoom(room, frameworkTags, tags);
+        return room;
     }
 
     protected override string SubtypeHelpText => @" #3roomname <name>#0 - the default name of the generated room
@@ -183,21 +182,21 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
             case "outdoor":
             case "outdoors":
             case "outside":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.Outdoors);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.Outdoors);
             case "cave":
             case "nolight":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.IndoorsNoLight);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.IndoorsNoLight);
             case "windows":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.IndoorsWithWindows);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.IndoorsWithWindows);
             case "indoors":
             case "indoor":
             case "inside":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.Indoors);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.Indoors);
             case "shelter":
             case "climate":
             case "sheltered":
             case "exposed":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.IndoorsClimateExposed);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.IndoorsClimateExposed);
             case "terrain":
                 return BuildingCommandTerrain(actor, command);
             default:
@@ -265,14 +264,14 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
                 AutobuilderRoomInfo info = TerrainInfos[terrain];
                 StringBuilder sb = new();
                 sb.AppendLine($"Info for the {terrain.Name.ColourValue()} terrain:");
-                sb.AppendLine($"Room Name: {info.CellName.Colour(Telnet.Cyan)}");
+                sb.AppendLine($"Room Name: {info.RoomName.Colour(Telnet.Cyan)}");
                 sb.AppendLine($"Behaviour: {info.OutdoorsType.Describe().ColourValue()}");
                 sb.AppendLine($"Light Multiplier: {info.AmbientLightFactor.ToString("P3", actor).ColourValue()}");
                 sb.AppendLine(
                     $"Foragable Profile: {info.ForagableProfile?.Name.ColourValue() ?? "None".Colour(Telnet.Red)}");
                 sb.AppendLine("Description:");
                 sb.AppendLine();
-                sb.AppendLine(info.CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
+                sb.AppendLine(info.RoomDescription.Wrap(actor.InnerLineFormatLength, "\t"));
                 actor.OutputHandler.Send(sb.ToString());
                 return true;
             }
@@ -292,21 +291,21 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
             case "outdoor":
             case "outdoors":
             case "outside":
-                return BuildingCommandTerrainOutdoorType(actor, terrain, CellOutdoorsType.Outdoors);
+                return BuildingCommandTerrainOutdoorType(actor, terrain, RoomOutdoorsType.Outdoors);
             case "cave":
             case "nolight":
-                return BuildingCommandTerrainOutdoorType(actor, terrain, CellOutdoorsType.IndoorsNoLight);
+                return BuildingCommandTerrainOutdoorType(actor, terrain, RoomOutdoorsType.IndoorsNoLight);
             case "windows":
-                return BuildingCommandTerrainOutdoorType(actor, terrain, CellOutdoorsType.IndoorsWithWindows);
+                return BuildingCommandTerrainOutdoorType(actor, terrain, RoomOutdoorsType.IndoorsWithWindows);
             case "indoors":
             case "indoor":
             case "inside":
-                return BuildingCommandTerrainOutdoorType(actor, terrain, CellOutdoorsType.Indoors);
+                return BuildingCommandTerrainOutdoorType(actor, terrain, RoomOutdoorsType.Indoors);
             case "shelter":
             case "climate":
             case "sheltered":
             case "exposed":
-                return BuildingCommandTerrainOutdoorType(actor, terrain, CellOutdoorsType.IndoorsClimateExposed);
+                return BuildingCommandTerrainOutdoorType(actor, terrain, RoomOutdoorsType.IndoorsClimateExposed);
             case "remove":
             case "rem":
             case "delete":
@@ -381,9 +380,9 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
             TerrainInfos[terrain] = new AutobuilderRoomInfo
             {
                 DefaultTerrain = terrain,
-                CellName = "An Undescribed Room",
-                CellDescription = "An undescribed room.",
-                OutdoorsType = CellOutdoorsType.Outdoors,
+                RoomName = "An Undescribed Room",
+                RoomDescription = "An undescribed room.",
+                OutdoorsType = RoomOutdoorsType.Outdoors,
                 AmbientLightFactor = 1.0,
                 ForagableProfile = fp
             };
@@ -404,7 +403,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
         return true;
     }
 
-    private bool BuildingCommandOutdoorType(ICharacter actor, CellOutdoorsType outdoors)
+    private bool BuildingCommandOutdoorType(ICharacter actor, RoomOutdoorsType outdoors)
     {
         DefaultInfo = DefaultInfo with { OutdoorsType = outdoors };
         Changed = true;
@@ -429,7 +428,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
             return false;
         }
 
-        DefaultInfo = DefaultInfo with { DefaultTerrain = terrain, OutdoorsType = terrain.DefaultCellOutdoorsType };
+        DefaultInfo = DefaultInfo with { DefaultTerrain = terrain, OutdoorsType = terrain.DefaultRoomOutdoorsType };
         Changed = true;
         actor.OutputHandler.Send(
             $"When no terrain is specified, this room template will now use the {terrain.Name.ColourValue()} terrain as a fallback.");
@@ -460,10 +459,10 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
 
     private bool BuildingCommandDescription(ICharacter actor, StringStack command)
     {
-        if (!string.IsNullOrEmpty(DefaultInfo.CellDescription))
+        if (!string.IsNullOrEmpty(DefaultInfo.RoomDescription))
         {
             actor.OutputHandler.Send("Replacing:\n" +
-                                     DefaultInfo.CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
+                                     DefaultInfo.RoomDescription.Wrap(actor.InnerLineFormatLength, "\t"));
         }
 
         actor.OutputHandler.Send(
@@ -479,7 +478,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
 
     private void PostDefaultDescription(string arg1, IOutputHandler arg2, object[] arg3)
     {
-        DefaultInfo = DefaultInfo with { CellDescription = arg1.Trim().ProperSentences().Fullstop() };
+        DefaultInfo = DefaultInfo with { RoomDescription = arg1.Trim().ProperSentences().Fullstop() };
         Changed = true;
         arg2.Send("You change the default room description.");
     }
@@ -493,14 +492,14 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
             return false;
         }
 
-        DefaultInfo = DefaultInfo with { CellName = command.SafeRemainingArgument.TitleCase() };
+        DefaultInfo = DefaultInfo with { RoomName = command.SafeRemainingArgument.TitleCase() };
         Changed = true;
         actor.OutputHandler.Send(
-            $"The default rooms will now use the room name {DefaultInfo.CellName.Colour(Telnet.Cyan)}.");
+            $"The default rooms will now use the room name {DefaultInfo.RoomName.Colour(Telnet.Cyan)}.");
         return true;
     }
 
-    private bool BuildingCommandTerrainOutdoorType(ICharacter actor, ITerrain terrain, CellOutdoorsType outdoors)
+    private bool BuildingCommandTerrainOutdoorType(ICharacter actor, ITerrain terrain, RoomOutdoorsType outdoors)
     {
         if (TerrainInfos.ContainsKey(terrain))
         {
@@ -511,8 +510,8 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
             TerrainInfos[terrain] = new AutobuilderRoomInfo
             {
                 DefaultTerrain = terrain,
-                CellName = "An Undescribed Room",
-                CellDescription = "An undescribed room.",
+                RoomName = "An Undescribed Room",
+                RoomDescription = "An undescribed room.",
                 OutdoorsType = outdoors,
                 AmbientLightFactor = 1.0
             };
@@ -548,9 +547,9 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
             TerrainInfos[terrain] = new AutobuilderRoomInfo
             {
                 DefaultTerrain = terrain,
-                CellName = "An Undescribed Room",
-                CellDescription = "An undescribed room.",
-                OutdoorsType = terrain.DefaultCellOutdoorsType,
+                RoomName = "An Undescribed Room",
+                RoomDescription = "An undescribed room.",
+                OutdoorsType = terrain.DefaultRoomOutdoorsType,
                 AmbientLightFactor = percentage
             };
         }
@@ -566,7 +565,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
         if (TerrainInfos.ContainsKey(terrain))
         {
             actor.OutputHandler.Send("Replacing:\n" +
-                                     TerrainInfos[terrain].CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
+                                     TerrainInfos[terrain].RoomDescription.Wrap(actor.InnerLineFormatLength, "\t"));
         }
 
 		actor.OutputHandler.Send(
@@ -589,7 +588,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
         {
             TerrainInfos[terrain] = TerrainInfos[terrain] with
             {
-                CellDescription = arg1.Trim().ProperSentences().Fullstop()
+                RoomDescription = arg1.Trim().ProperSentences().Fullstop()
             };
         }
         else
@@ -597,9 +596,9 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
             TerrainInfos[terrain] = new AutobuilderRoomInfo
             {
                 DefaultTerrain = terrain,
-                CellName = "An Undescribed Room",
-                CellDescription = arg1.Trim().ProperSentences().Fullstop(),
-                OutdoorsType = terrain.DefaultCellOutdoorsType,
+                RoomName = "An Undescribed Room",
+                RoomDescription = arg1.Trim().ProperSentences().Fullstop(),
+                OutdoorsType = terrain.DefaultRoomOutdoorsType,
                 AmbientLightFactor = 1.0
             };
         }
@@ -619,30 +618,30 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
 
         if (TerrainInfos.ContainsKey(terrain))
         {
-            TerrainInfos[terrain] = TerrainInfos[terrain] with { CellName = command.SafeRemainingArgument.TitleCase() };
+            TerrainInfos[terrain] = TerrainInfos[terrain] with { RoomName = command.SafeRemainingArgument.TitleCase() };
         }
         else
         {
             TerrainInfos[terrain] = new AutobuilderRoomInfo
             {
                 DefaultTerrain = terrain,
-                CellName = command.SafeRemainingArgument.TitleCase(),
-                CellDescription = "An undescribed room.",
-                OutdoorsType = terrain.DefaultCellOutdoorsType,
+                RoomName = command.SafeRemainingArgument.TitleCase(),
+                RoomDescription = "An undescribed room.",
+                OutdoorsType = terrain.DefaultRoomOutdoorsType,
                 AmbientLightFactor = 1.0
             };
         }
 
         Changed = true;
         actor.OutputHandler.Send(
-            $"The rooms of the {terrain.Name.ColourValue()} type will now use the room name {TerrainInfos[terrain].CellName.Colour(Telnet.Cyan)}.");
+            $"The rooms of the {terrain.Name.ColourValue()} type will now use the room name {TerrainInfos[terrain].RoomName.Colour(Telnet.Cyan)}.");
         return true;
     }
 
     public override string Show(ICharacter builder)
     {
         return
-            $"{$"Autobuilder Room Template #{Id.ToString("N0", builder)} ({Name})".Colour(Telnet.Cyan)}\n\nThis template will create the same cell for each terrain. This particular template has specific cell information set up for the terrain types {TerrainInfos.Select(x => x.Key.Name.Colour(Telnet.Green)).ListToString()}.";
+            $"{$"Autobuilder Room Template #{Id.ToString("N0", builder)} ({Name})".Colour(Telnet.Cyan)}\n\nThis template will create the same room for each terrain. This particular template has specific room information set up for the terrain types {TerrainInfos.Select(x => x.Key.Name.Colour(Telnet.Green)).ListToString()}.";
     }
 
     #endregion

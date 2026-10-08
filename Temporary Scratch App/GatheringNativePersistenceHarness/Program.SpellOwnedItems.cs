@@ -324,7 +324,7 @@ internal static partial class GNHProgram
 
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			foreach (var item in new[] { foreignBag, permanent }) if (!db.CellsGameItems.Any(x => x.GameItemId == item.Id)) db.CellsGameItems.Add(new() { CellId = fixture.CellId, GameItemId = item.Id });
+			foreach (var item in new[] { foreignBag, permanent }) if (!db.RoomsGameItems.Any(x => x.GameItemId == item.Id)) db.RoomsGameItems.Add(new() { RoomId = fixture.RoomId, GameItemId = item.Id });
 			db.SaveChanges();
 		}
 		RunItemReaderProcess(new ItemReader(database.Name, fixture, RuntimeClock.UtcNow, timed.Id, permanent.Id, timedLife.Origin.Id, permanentLife.Origin.Id,

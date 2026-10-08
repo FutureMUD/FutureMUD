@@ -74,7 +74,7 @@ public class FamilyPredatorGroup : PredatorGroupBase
     protected class FamilyPredatorData : PredatorGroupData
     {
         public List<IRace> UntrustedRaces { get; } = new();
-        public ICell HomeLocation { get; set; }
+        public IRoom HomeLocation { get; set; }
 
         public FamilyPredatorData(IFuturemud gameworld) : base(gameworld)
         {
@@ -94,7 +94,7 @@ public class FamilyPredatorGroup : PredatorGroupBase
             }
 
 			long homeLocationId = long.Parse(root.Element("HomeLocation")?.Value ?? "0");
-			HomeLocation = homeLocationId > 0 ? gameworld.Cells.Get(homeLocationId) : null;
+			HomeLocation = homeLocationId > 0 ? gameworld.Rooms.Get(homeLocationId) : null;
         }
 
         public override XElement SaveToXml()
@@ -184,7 +184,7 @@ Home Location: {HomeLocation?.GetFriendlyReference(voyeur).ColourName() ?? "None
             return;
         }
 
-        (ICell Location, RoomLayer RoomLayer) targetLocation = (main.First().Location, main.First().RoomLayer);
+        (IRoom Location, RoomLayer RoomLayer) targetLocation = (main.First().Location, main.First().RoomLayer);
         foreach (ICharacter ch in stragglers)
         {
             if (!ch.CouldMove(false, null).Success)
@@ -258,7 +258,7 @@ Home Location: {HomeLocation?.GetFriendlyReference(voyeur).ColourName() ?? "None
         if (leader.CouldMove(false, null).Success)
         {
             AdjacentToExit recent = leader.EffectsOfType<AdjacentToExit>().FirstOrDefault();
-            ICellExit random = leader.Location.ExitsFor(leader)
+            IRoomExit random = leader.Location.ExitsFor(leader)
                                      .Where(x => CanMoveExitFunctionFor(leader, group).Invoke(x))
                                      .GetWeightedRandom(x => recent?.Exit == x ? 1.0 : 100.0);
             if (random != null && leader.CanMove(random))
@@ -380,7 +380,7 @@ Home Location: {HomeLocation?.GetFriendlyReference(voyeur).ColourName() ?? "None
 
         ICharacter leader = main.FirstOrDefault(x => group.GroupRoles[x] == GroupRole.Leader) ?? main.FirstOrDefault();
         HandleAvoidThreatForSubgroup(group, data, threats, main, leader);
-        foreach (IGrouping<(ICell Location, RoomLayer RoomLayer), ICharacter> vg in vulnerable.GroupBy(x => (x.Location, x.RoomLayer)))
+        foreach (IGrouping<(IRoom Location, RoomLayer RoomLayer), ICharacter> vg in vulnerable.GroupBy(x => (x.Location, x.RoomLayer)))
         {
             HandleAvoidThreatForSubgroup(group, data, threats, vg, vg.GetRandomElement());
         }
@@ -389,35 +389,35 @@ Home Location: {HomeLocation?.GetFriendlyReference(voyeur).ColourName() ?? "None
     private void HandleAvoidThreatForSubgroup(IGroupAI group, PredatorGroupData data, IEnumerable<ICharacter> threats,
             IEnumerable<ICharacter> characters, ICharacter leader)
     {
-        List<(ICharacter Character, IEnumerable<ICellExit> Path)> threatPaths = threats
+        List<(ICharacter Character, IEnumerable<IRoomExit> Path)> threatPaths = threats
                                   .Select(x => (Character: x, Path: leader.PathBetween(x, 5, PathSearch.RespectClosedDoors)))
                                   .ToList();
         List<CardinalDirection> threatDirections = threatPaths.Select(x => x.Path)
-                                          .CountTotalDirections<IEnumerable<IEnumerable<ICellExit>>, IEnumerable<ICellExit>>()
+                                          .CountTotalDirections<IEnumerable<IEnumerable<IRoomExit>>, IEnumerable<IRoomExit>>()
                                           .ContainedDirections();
-        List<ICellExit> allExitsIncludingLayers = leader.Location
+        List<IRoomExit> allExitsIncludingLayers = leader.Location
                                                     .ExitsFor(leader, true)
                                                     .Where(x => !x.MovementTransition(leader).TransitionType.In(
-                                                            CellMovementTransition.FlyOnly,
-                                                            CellMovementTransition.NoViableTransition))
+                                                            RoomMovementTransition.FlyOnly,
+                                                            RoomMovementTransition.NoViableTransition))
                                                     .ToList();
-        List<ICellExit> allExits = leader.Location
+        List<IRoomExit> allExits = leader.Location
                                      .ExitsFor(leader)
-                                     .Where(x => !x.MovementTransition(leader).TransitionType.In(CellMovementTransition.FlyOnly,
-                                             CellMovementTransition.NoViableTransition))
+                                     .Where(x => !x.MovementTransition(leader).TransitionType.In(RoomMovementTransition.FlyOnly,
+                                             RoomMovementTransition.NoViableTransition))
                                      .ToList();
-        List<ICellExit> preferredExits = allExits
+        List<IRoomExit> preferredExits = allExits
                                      .Where(x =>
                                              !threatDirections.Contains(x.OutboundDirection) &&
-                                             !group.AvoidCell(x.Destination, group.Alertness) &&
+                                             !group.AvoidRoom(x.Destination, group.Alertness) &&
                                              !x.MovementTransition(leader).TransitionType
-                                               .In(CellMovementTransition.FallExit, CellMovementTransition.SwimOnly)
+                                               .In(RoomMovementTransition.FallExit, RoomMovementTransition.SwimOnly)
                                      )
                                      .ToList();
 
         if (preferredExits.Any())
         {
-            ICellExit targetExit = preferredExits.GetRandomElement();
+            IRoomExit targetExit = preferredExits.GetRandomElement();
             foreach (ICharacter ch in characters)
             {
                 if (!ch.CanMove(targetExit, CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement))
@@ -433,7 +433,7 @@ Home Location: {HomeLocation?.GetFriendlyReference(voyeur).ColourName() ?? "None
 
         if (allExits.Any())
         {
-            ICellExit targetExit = allExits.GetRandomElement();
+            IRoomExit targetExit = allExits.GetRandomElement();
             foreach (ICharacter ch in characters)
             {
                 if (!ch.CanMove(targetExit, CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement))

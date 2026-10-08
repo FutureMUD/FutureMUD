@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 
 namespace MudSharp.Effects.Concrete;
 
@@ -38,11 +38,11 @@ public class Empathy : Effect, IEffectSubtype, ITelepathyEffect
 
     public override bool Applies(object target)
     {
-        ICell location = (target as ILocateable)?.Location;
+        IRoom location = (target as ILocateable)?.Location;
         return location != null &&
                (location.ExitsFor(null).Any(x =>
-                    x.Destination == Owner.Location || x.Destination.Room == Owner.Location.Room) ||
-                location == Owner.Location || location.Room == Owner.Location.Room);
+                    x.Destination == Owner.Location) ||
+                location == Owner.Location);
     }
 
     #endregion
@@ -52,7 +52,7 @@ public class Empathy : Effect, IEffectSubtype, ITelepathyEffect
     public bool ShowDescription(ICharacter thinker)
     {
         return ((ICharacter)Owner).CanSee(thinker) &&
-               (thinker.Location == Owner.Location || thinker.Location.Room == Owner.Location.Room);
+               (thinker.Location == Owner.Location);
     }
 
     public bool ShowName(ICharacter thinker)
@@ -62,7 +62,7 @@ public class Empathy : Effect, IEffectSubtype, ITelepathyEffect
 
     public bool ShowThinkEmote(ICharacter thinker)
     {
-        return thinker.Location == Owner.Location || thinker.Location.Room == Owner.Location.Room;
+        return thinker.Location == Owner.Location;
     }
 
     public bool ShowThinks => false;

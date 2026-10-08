@@ -68,7 +68,7 @@ public partial class Character
 		private readonly Gendering _gender;
 		private readonly bool _isSelf;
 
-		public BodyFormEchoSnapshot(string shortDescription, IPerceivable self, Gendering gender, bool isSelf, ICell? location,
+		public BodyFormEchoSnapshot(string shortDescription, IPerceivable self, Gendering gender, bool isSelf, IRoom? location,
 			RoomLayer roomLayer) : base(shortDescription, location: location, sentient: true)
 		{
 			_self = self;

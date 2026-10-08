@@ -10,7 +10,7 @@ public class DummyPerceivable : TemporaryPerceivable
     public Func<IPerceiver, string> FDescFunc { get; set; }
     public ANSIColour CustomColour { get; set; }
 
-    public DummyPerceivable(string sdesc = "a thing", string fdesc = "it is a thing", ICell location = null,
+    public DummyPerceivable(string sdesc = "a thing", string fdesc = "it is a thing", IRoom location = null,
         bool sentient = false, double illumination = 0.0, ANSIColour customColour = null)
     {
         SDesc = sdesc;
@@ -22,7 +22,7 @@ public class DummyPerceivable : TemporaryPerceivable
     }
 
     public DummyPerceivable(Func<IPerceiver, string> sdescFunc, Func<IPerceiver, string> fdescFunc = null,
-        ICell location = null, bool sentient = false, double illumination = 0.0, ANSIColour customColour = null)
+        IRoom location = null, bool sentient = false, double illumination = 0.0, ANSIColour customColour = null)
     {
         SDescFunc = sdescFunc;
         FDescFunc = fdescFunc ?? (voyeur => "it is a thing");
@@ -66,8 +66,8 @@ public class DummyPerceivable : TemporaryPerceivable
         return "";
     }
 
-    private ICell _location;
-    public override ICell Location => _location;
+    private IRoom _location;
+    public override IRoom Location => _location;
 
     #region Overrides of TemporaryPerceivable
 

@@ -64,8 +64,8 @@ public partial class FuturemudDatabaseContext
 			entity.HasIndex(e => new { e.VehicleRouteId, e.VehicleRouteRevision, e.Sequence })
 			      .IsUnique()
 			      .HasDatabaseName("UX_VehicleRouteStops_Route_Sequence");
-			entity.HasIndex(e => e.CellId)
-			      .HasDatabaseName("FK_VehicleRouteStops_Cells_idx");
+			entity.HasIndex(e => e.RoomId)
+			      .HasDatabaseName("FK_VehicleRouteStops_Rooms_idx");
 
 			entity.Property(e => e.Id).HasColumnType("bigint(20)");
 			entity.Property(e => e.VehicleRouteId).HasColumnType("bigint(20)");
@@ -76,7 +76,7 @@ public partial class FuturemudDatabaseContext
 			      .HasCharSet("utf8mb4")
 			      .UseCollation("utf8mb4_unicode_ci");
 			entity.Property(e => e.Sequence).HasColumnType("int(11)");
-			entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.RoomLayer).HasColumnType("int(11)");
 			entity.Property(e => e.RoutePositionMetres).HasColumnType("decimal(18,3)");
 			entity.Property(e => e.DwellDurationMilliseconds)
@@ -89,11 +89,11 @@ public partial class FuturemudDatabaseContext
 			      .OnDelete(DeleteBehavior.Cascade)
 			      .HasConstraintName("FK_VehicleRouteStops_VehicleRoutes");
 
-			entity.HasOne(d => d.Cell)
+			entity.HasOne(d => d.Room)
 			      .WithMany()
-			      .HasForeignKey(d => d.CellId)
+			      .HasForeignKey(d => d.RoomId)
 			      .OnDelete(DeleteBehavior.Restrict)
-			      .HasConstraintName("FK_VehicleRouteStops_Cells");
+			      .HasConstraintName("FK_VehicleRouteStops_Rooms");
 		});
 
 		modelBuilder.Entity<VehicleRoutePlatformBinding>(entity =>
@@ -108,19 +108,19 @@ public partial class FuturemudDatabaseContext
 			entity.HasIndex(e => new
 				{
 					e.VehicleRouteStopId,
-					e.PlatformCellId,
+					e.PlatformRoomId,
 					e.VehicleAccessPointProtoId
 				})
 			      .IsUnique()
 			      .HasDatabaseName("UX_VehicleRoutePlatformBindings_Stop_Platform_AccessPoint");
-			entity.HasIndex(e => e.PlatformCellId)
-			      .HasDatabaseName("FK_VehicleRoutePlatformBindings_Cells_idx");
+			entity.HasIndex(e => e.PlatformRoomId)
+			      .HasDatabaseName("FK_VehicleRoutePlatformBindings_Rooms_idx");
 			entity.HasIndex(e => e.VehicleAccessPointProtoId)
 			      .HasDatabaseName("FK_VehicleRoutePlatformBindings_AccessPointProtos_idx");
 
 			entity.Property(e => e.Id).HasColumnType("bigint(20)");
 			entity.Property(e => e.VehicleRouteStopId).HasColumnType("bigint(20)");
-			entity.Property(e => e.PlatformCellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.PlatformRoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.VehicleAccessPointProtoId).HasColumnType("bigint(20)");
 			entity.Property(e => e.DockingToleranceMetres)
 			      .HasColumnType("decimal(18,3)")
@@ -132,11 +132,11 @@ public partial class FuturemudDatabaseContext
 			      .OnDelete(DeleteBehavior.Cascade)
 			      .HasConstraintName("FK_VehicleRoutePlatformBindings_VehicleRouteStops");
 
-			entity.HasOne(d => d.PlatformCell)
+			entity.HasOne(d => d.PlatformRoom)
 			      .WithMany()
-			      .HasForeignKey(d => d.PlatformCellId)
+			      .HasForeignKey(d => d.PlatformRoomId)
 			      .OnDelete(DeleteBehavior.Restrict)
-			      .HasConstraintName("FK_VehicleRoutePlatformBindings_Cells");
+			      .HasConstraintName("FK_VehicleRoutePlatformBindings_Rooms");
 
 			entity.HasOne(d => d.VehicleAccessPointProto)
 			      .WithMany()
@@ -152,14 +152,14 @@ public partial class FuturemudDatabaseContext
 				table.HasCheckConstraint("CK_VehicleRouteTopologyPins_Version", "`TopologyVersion` >= 1");
 			});
 
-			entity.HasKey(e => new { e.VehicleRouteId, e.VehicleRouteRevision, e.RouteCellId })
+			entity.HasKey(e => new { e.VehicleRouteId, e.VehicleRouteRevision, e.RouteRoomId })
 			      .HasName("PRIMARY");
-			entity.HasIndex(e => e.RouteCellId)
-			      .HasDatabaseName("FK_VehicleRouteTopologyPins_RouteCells_idx");
+			entity.HasIndex(e => e.RouteRoomId)
+			      .HasDatabaseName("FK_VehicleRouteTopologyPins_RouteRooms_idx");
 
 			entity.Property(e => e.VehicleRouteId).HasColumnType("bigint(20)");
 			entity.Property(e => e.VehicleRouteRevision).HasColumnType("int(11)");
-			entity.Property(e => e.RouteCellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.RouteRoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.TopologyVersion).HasColumnType("bigint(20)");
 
 			entity.HasOne(d => d.VehicleRoute)
@@ -168,11 +168,11 @@ public partial class FuturemudDatabaseContext
 			      .OnDelete(DeleteBehavior.Cascade)
 			      .HasConstraintName("FK_VehicleRouteTopologyPins_VehicleRoutes");
 
-			entity.HasOne(d => d.RouteCell)
+			entity.HasOne(d => d.RouteRoom)
 			      .WithMany()
-			      .HasForeignKey(d => d.RouteCellId)
+			      .HasForeignKey(d => d.RouteRoomId)
 			      .OnDelete(DeleteBehavior.Restrict)
-			      .HasConstraintName("FK_VehicleRouteTopologyPins_RouteCells");
+			      .HasConstraintName("FK_VehicleRouteTopologyPins_RouteRooms");
 		});
 
 		modelBuilder.Entity<VehicleRouteLeg>(entity =>
@@ -242,7 +242,7 @@ public partial class FuturemudDatabaseContext
 					"`PinnedTopologyVersion` IS NOT NULL AND `DestinationTopologyVersion` = `PinnedTopologyVersion` AND " +
 					"`DistanceMetres` IS NOT NULL AND `DistanceMetres` >= 0 AND " +
 					"`OriginRoutePositionMetres` IS NOT NULL AND `DestinationRoutePositionMetres` IS NOT NULL AND " +
-					"`OriginCellId` = `DestinationCellId` AND `OriginRoomLayer` = `DestinationRoomLayer`) OR " +
+					"`OriginRoomId` = `DestinationRoomId` AND `OriginRoomLayer` = `DestinationRoomLayer`) OR " +
 					"(`StepType` = 1 AND `ExitId` IS NOT NULL AND `Direction` IS NULL AND " +
 					"`DistanceMetres` IS NULL)");
 			});
@@ -251,10 +251,10 @@ public partial class FuturemudDatabaseContext
 			entity.HasIndex(e => new { e.VehicleRouteLegId, e.Sequence })
 			      .IsUnique()
 			      .HasDatabaseName("UX_VehicleRouteSteps_Leg_Sequence");
-			entity.HasIndex(e => e.OriginCellId)
-			      .HasDatabaseName("FK_VehicleRouteSteps_OriginCells_idx");
-			entity.HasIndex(e => e.DestinationCellId)
-			      .HasDatabaseName("FK_VehicleRouteSteps_DestinationCells_idx");
+			entity.HasIndex(e => e.OriginRoomId)
+			      .HasDatabaseName("FK_VehicleRouteSteps_OriginRooms_idx");
+			entity.HasIndex(e => e.DestinationRoomId)
+			      .HasDatabaseName("FK_VehicleRouteSteps_DestinationRooms_idx");
 			entity.HasIndex(e => e.ExitId)
 			      .HasDatabaseName("FK_VehicleRouteSteps_Exits_idx");
 
@@ -262,10 +262,10 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.VehicleRouteLegId).HasColumnType("bigint(20)");
 			entity.Property(e => e.Sequence).HasColumnType("int(11)");
 			entity.Property(e => e.StepType).HasColumnType("int(11)");
-			entity.Property(e => e.OriginCellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.OriginRoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.OriginRoomLayer).HasColumnType("int(11)");
 			entity.Property(e => e.OriginRoutePositionMetres).HasColumnType("decimal(18,3)");
-			entity.Property(e => e.DestinationCellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.DestinationRoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.DestinationRoomLayer).HasColumnType("int(11)");
 			entity.Property(e => e.DestinationRoutePositionMetres).HasColumnType("decimal(18,3)");
 			entity.Property(e => e.DistanceMetres).HasColumnType("decimal(18,3)");
@@ -281,17 +281,17 @@ public partial class FuturemudDatabaseContext
 			      .OnDelete(DeleteBehavior.Cascade)
 			      .HasConstraintName("FK_VehicleRouteSteps_VehicleRouteLegs");
 
-			entity.HasOne(d => d.OriginCell)
+			entity.HasOne(d => d.OriginRoom)
 			      .WithMany()
-			      .HasForeignKey(d => d.OriginCellId)
+			      .HasForeignKey(d => d.OriginRoomId)
 			      .OnDelete(DeleteBehavior.Restrict)
-			      .HasConstraintName("FK_VehicleRouteSteps_OriginCells");
+			      .HasConstraintName("FK_VehicleRouteSteps_OriginRooms");
 
-			entity.HasOne(d => d.DestinationCell)
+			entity.HasOne(d => d.DestinationRoom)
 			      .WithMany()
-			      .HasForeignKey(d => d.DestinationCellId)
+			      .HasForeignKey(d => d.DestinationRoomId)
 			      .OnDelete(DeleteBehavior.Restrict)
-			      .HasConstraintName("FK_VehicleRouteSteps_DestinationCells");
+			      .HasConstraintName("FK_VehicleRouteSteps_DestinationRooms");
 
 			entity.HasOne(d => d.Exit)
 			      .WithMany()

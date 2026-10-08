@@ -80,7 +80,7 @@ public interface IRangedWeapon : IRangedWeaponPlatform, IWieldable
 }
 
 /// <summary>
-/// A handheld-profile ranged weapon that must be physically set in a cell before use.
+/// A handheld-profile ranged weapon that must be physically set in a room before use.
 /// Wall crossbows use this instead of inheriting the crew-served artillery contract.
 /// </summary>
 public interface IEmplaceableRangedWeapon : IRangedWeapon

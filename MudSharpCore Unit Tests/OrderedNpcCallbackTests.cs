@@ -46,12 +46,12 @@ public partial class QueuedCommandAuthorityTests
 		prototype.SetupGet(x => x.Gameworld).Returns(world.Object);
 		prototype.SetupGet(x => x.Components).Returns([]);
 		var item = new GameItem(prototype.Object);
-		var source = new Mock<MudSharp.Construction.ICell>();
+		var source = new Mock<MudSharp.Construction.IRoom>();
 		var sourceItems = new List<IGameItem>();
 		source.SetupGet(x => x.GameItems).Returns(sourceItems);
 		var locationProperty = typeof(GameItem).GetProperty(nameof(GameItem.Location))!;
 		locationProperty.SetValue(item, source.Object);
-		var otherCell = Mock.Of<MudSharp.Construction.ICell>();
+		var otherRoom = Mock.Of<MudSharp.Construction.IRoom>();
 		var foreign = Mock.Of<IGameItem>();
 		var destination = new Mock<IGameItem>();
 		destination.SetupGet(x => x.Gameworld).Returns(world.Object);
@@ -60,7 +60,7 @@ public partial class QueuedCommandAuthorityTests
 		survivor.Setup(x => x.CanMerge(item)).Callback(() =>
 		{
 			if (change == "reacquired") sourceItems.Add(item);
-			if (change == "relocated") locationProperty.SetValue(item, otherCell);
+			if (change == "relocated") locationProperty.SetValue(item, otherRoom);
 			if (change == "expire") f.Grant = null;
 		}).Returns(true);
 		survivor.Setup(x => x.Merge(item)).Callback(() =>
@@ -80,7 +80,7 @@ public partial class QueuedCommandAuthorityTests
 		CollectionAssert.AreEqual(new[] { survivor.Object }, contents.ToArray());
 		Assert.AreEqual(change == "valid", item.Deleted);
 		Assert.AreSame(change == "after-claim" ? foreign : null, item.ContainedIn);
-		Assert.AreSame(accepted ? null : change == "relocated" ? otherCell : source.Object, item.DirectLocation);
+		Assert.AreSame(accepted ? null : change == "relocated" ? otherRoom : source.Object, item.DirectLocation);
 		Assert.AreEqual(change == "reacquired", sourceItems.Contains(item));
 	}
 
@@ -94,7 +94,7 @@ public partial class QueuedCommandAuthorityTests
 	[DataRow("relocated", false)]
 	[DataRow("expire", false)]
 	[DataRow("holder", false)]
-	public void NativeContainerPut_ExtractedCellPointerIsAdoptedOnlyWhileExactSourceRemainsUnclaimed(string change, bool allowMerge)
+	public void NativeContainerPut_ExtractedRoomPointerIsAdoptedOnlyWhileExactSourceRemainsUnclaimed(string change, bool allowMerge)
 	{
 		var f = new Fixture();
 		var world = new Mock<IFuturemud> { DefaultValue = DefaultValue.Mock };
@@ -102,7 +102,7 @@ public partial class QueuedCommandAuthorityTests
 		prototype.SetupGet(x => x.Gameworld).Returns(world.Object);
 		prototype.SetupGet(x => x.Components).Returns([TestObjectFactory.CreateUninitialized<HoldableGameItemComponentProto>()]);
 		var item = new GameItem(prototype.Object);
-		var source = new Mock<MudSharp.Construction.ICell>();
+		var source = new Mock<MudSharp.Construction.IRoom>();
 		var sourceItems = new List<IGameItem>();
 		source.SetupGet(x => x.GameItems).Returns(sourceItems);
 		var locationProperty = typeof(GameItem).GetProperty(nameof(GameItem.Location))!;
@@ -115,7 +115,7 @@ public partial class QueuedCommandAuthorityTests
 		var contents = new List<IGameItem>();
 		Set(container, "_contents", contents);
 		typeof(ContainerGameItemComponent).GetProperty("Parent")!.SetValue(container, destination.Object);
-		var otherCell = Mock.Of<MudSharp.Construction.ICell>();
+		var otherRoom = Mock.Of<MudSharp.Construction.IRoom>();
 		var holder = Mock.Of<IBody>();
 		var proximity = new Mock<MudSharp.Construction.IProximityEventService>();
 		var batch = new Mock<MudSharp.Construction.IProximityChangeBatch>();
@@ -124,7 +124,7 @@ public partial class QueuedCommandAuthorityTests
 			.Callback(() =>
 			{
 				if (change == "reacquired") sourceItems.Add(item);
-				if (change == "relocated") locationProperty.SetValue(item, otherCell);
+				if (change == "relocated") locationProperty.SetValue(item, otherRoom);
 				if (change == "expire") f.Grant = null;
 				if (change == "holder") item.GetItemType<IHoldable>().HeldBy = holder;
 			}).Returns(batch.Object);
@@ -134,7 +134,7 @@ public partial class QueuedCommandAuthorityTests
 		var accepted = change is "valid" or "ordinary" or "held-destination";
 		Assert.AreEqual(accepted ? 1 : 0, contents.Count);
 		Assert.AreSame(accepted ? destination.Object : null, item.ContainedIn);
-		Assert.AreSame(accepted ? null : change == "relocated" ? otherCell : source.Object, item.DirectLocation);
+		Assert.AreSame(accepted ? null : change == "relocated" ? otherRoom : source.Object, item.DirectLocation);
 		Assert.AreSame(change == "holder" ? holder : null, item.GetItemType<IHoldable>().HeldBy);
 		Assert.AreSame(change == "held-destination" ? f.Body.Object : change == "holder" ? holder : null, item.InInventoryOf);
 		Assert.AreEqual(change is "still-member" or "reacquired", sourceItems.Contains(item));

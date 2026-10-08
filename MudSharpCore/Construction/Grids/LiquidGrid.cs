@@ -17,7 +17,7 @@ public class LiquidGrid : GridBase, ILiquidGrid
         }
     }
 
-    public LiquidGrid(IFuturemud gameworld, ICell? initialLocation) : base(gameworld, initialLocation)
+    public LiquidGrid(IFuturemud gameworld, IRoom? initialLocation) : base(gameworld, initialLocation)
     {
     }
 

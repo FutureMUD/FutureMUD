@@ -154,12 +154,12 @@ public class CommodityOutputProjectAction : BaseAction
 			roomLayer);
 	}
 
-	private static ICell? ResolveProjectLocation(IActiveProject project)
+	private static IRoom? ResolveProjectLocation(IActiveProject project)
 	{
 		return (project as MudSharp.Work.Projects.ConcreteTypes.ActiveProject)?.Location ?? project.CharacterOwner?.Location;
 	}
 
-	private static RoomLayer ResolveRoomLayer(IActiveProject project, ICell location)
+	private static RoomLayer ResolveRoomLayer(IActiveProject project, IRoom location)
 	{
 		if (project is ILocalProject localProject)
 		{
@@ -174,7 +174,7 @@ public class CommodityOutputProjectAction : BaseAction
 		       RoomLayer.GroundLevel;
 	}
 
-	private static void HandleProjectEcho(IActiveProject project, ICell location, string text, RoomLayer layer)
+	private static void HandleProjectEcho(IActiveProject project, IRoom location, string text, RoomLayer layer)
 	{
 		if (project is not ILocalProject localProject || location.RouteDefinition is null)
 		{

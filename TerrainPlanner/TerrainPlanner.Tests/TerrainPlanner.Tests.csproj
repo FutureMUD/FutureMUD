@@ -15,6 +15,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Compile Include="..\TerrainPlanner.Client\Services\BrowserStorage.cs" Link="Client\BrowserStorage.cs" />
 		<ProjectReference Include="..\TerrainPlanner.Contracts\TerrainPlanner.Contracts.csproj" />
 		<ProjectReference Include="..\TerrainPlanner.Deployment\TerrainPlanner.Deployment.csproj" />
 		<ProjectReference Include="..\TerrainPlanner.Server\TerrainPlanner.Server.csproj" />

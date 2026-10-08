@@ -119,13 +119,13 @@ public static class AgriculturePlantingWindowExtensions
 			return true;
 		}
 
-		if (field?.Cell == null)
+		if (field?.Room == null)
 		{
 			reason = $"The {crop.Name} crop has planting season restrictions, but there is no field location to check.";
 			return false;
 		}
 
-		var currentSeason = field.Cell.CurrentSeason(null);
+		var currentSeason = field.Room.CurrentSeason(null);
 		if (currentSeason != null)
 		{
 			if (crop.PlantingWindows.Any(x => MatchesCurrentSeason(x, currentSeason)))
@@ -260,7 +260,7 @@ public static class AgriculturePlantingWindowExtensions
 	private static bool TryCurrentYearFraction(IAgricultureField field, out double fraction)
 	{
 		fraction = 0.0;
-		var celestial = field.Cell.WeatherController?.Celestial ?? field.Gameworld.CelestialObjects.FirstOrDefault();
+		var celestial = field.Room.WeatherController?.Celestial ?? field.Gameworld.CelestialObjects.FirstOrDefault();
 		if (celestial == null || celestial.CelestialDaysPerYear <= 0.0)
 		{
 			return false;

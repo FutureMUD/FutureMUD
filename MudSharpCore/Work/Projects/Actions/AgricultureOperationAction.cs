@@ -53,20 +53,20 @@ public class AgricultureOperationAction : BaseAction
 
 			var actor = ResolveCompletionActor(project, context);
 			var outcome = AgricultureProjectSkillTracker.OutcomeFor(context.Definition);
-			var existingItems = new HashSet<IGameItem>(field.Cell.GameItems, ReferenceEqualityComparer.Instance);
+			var existingItems = new HashSet<IGameItem>(field.Room.GameItems, ReferenceEqualityComparer.Instance);
 			if (field.ApplyOperation(operation, target, actor, false, outcome, out var result))
 			{
 				if (project.CharacterOwner is not null)
 				{
 					ItemOwnershipService.AssignOwner(
-						field.Cell.GameItems.Where(x => !existingItems.Contains(x)),
+						field.Room.GameItems.Where(x => !existingItems.Contains(x)),
 						project.CharacterOwner);
 				}
-				HandleCompletionOutput(project, field.Cell, result);
+				HandleCompletionOutput(project, field.Room, result);
 			}
 			else
 			{
-				HandleCompletionOutput(project, field.Cell,
+				HandleCompletionOutput(project, field.Room,
 					$"The {operation.Name.ColourName()} agriculture operation could not be applied: {result}");
 			}
 
@@ -75,7 +75,7 @@ public class AgricultureOperationAction : BaseAction
 		}
 	}
 
-	private static void HandleCompletionOutput(IActiveProject project, ICell fieldCell, string text)
+	private static void HandleCompletionOutput(IActiveProject project, IRoom fieldRoom, string text)
 	{
 		if (project is ILocalProject localProject)
 		{
@@ -83,7 +83,7 @@ public class AgricultureOperationAction : BaseAction
 			return;
 		}
 
-		fieldCell.Handle(text);
+		fieldRoom.Handle(text);
 	}
 
 	private ICharacter ResolveCompletionActor(IActiveProject project, AgricultureProjectContext context)

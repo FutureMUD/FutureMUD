@@ -22,24 +22,24 @@ public class SpreadScatterStrategy : IRangedScatterStrategy
     }
 
     public RangedScatterResult? GetScatterTarget(ICharacter shooter, IPerceiver originalTarget,
-        IEnumerable<ICellExit> path)
+        IEnumerable<IRoomExit> path)
     {
         if (originalTarget.Location == null)
         {
             return null;
         }
 
-        List<(CellScatterInfo Info, double Weight)> cells = ScatterStrategyUtilities.GetCellInfos(originalTarget, 0, true)
+        List<(RoomScatterInfo Info, double Weight)> rooms = ScatterStrategyUtilities.GetRoomInfos(originalTarget, 0, true)
             .Select(info => (Info: info, Weight: info.Distance == 0 ? 1.0 : 0.0))
             .Where(x => x.Weight > 0)
             .ToList();
 
-        if (!cells.Any())
+        if (!rooms.Any())
         {
             return null;
         }
 
-        (CellScatterInfo Info, double Weight) chosen = cells.GetWeightedRandom(x => x.Weight);
+        (RoomScatterInfo Info, double Weight) chosen = rooms.GetWeightedRandom(x => x.Weight);
 		List<IPerceiver> candidates = ScatterStrategyUtilities
 			.GetCandidatesAtImpact(chosen.Info, originalTarget, false)
             .Where(x => !x.Equals(shooter) && !x.Equals(originalTarget))

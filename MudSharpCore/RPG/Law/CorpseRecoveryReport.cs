@@ -12,8 +12,8 @@ public class CorpseRecoveryReport : SaveableItem, ICorpseRecoveryReport
     private readonly long _legalAuthorityId;
     private readonly long _economicZoneId;
     private readonly long _corpseId;
-    private readonly long _sourceCellId;
-    private readonly long _destinationCellId;
+    private readonly long _sourceRoomId;
+    private readonly long _destinationRoomId;
     private readonly long? _reporterId;
     private long? _assignedPatrolId;
 
@@ -24,22 +24,22 @@ public class CorpseRecoveryReport : SaveableItem, ICorpseRecoveryReport
         _legalAuthorityId = dbitem.LegalAuthorityId;
         _economicZoneId = dbitem.EconomicZoneId;
         _corpseId = dbitem.CorpseId;
-        _sourceCellId = dbitem.SourceCellId;
-        _destinationCellId = dbitem.DestinationCellId;
+        _sourceRoomId = dbitem.SourceRoomId;
+        _destinationRoomId = dbitem.DestinationRoomId;
         _reporterId = dbitem.ReporterId;
         _assignedPatrolId = dbitem.AssignedPatrolId;
         Status = (CorpseRecoveryReportStatus)dbitem.Status;
     }
 
-    public CorpseRecoveryReport(ILegalAuthority authority, IEconomicZone economicZone, IGameItem corpse, ICell sourceCell,
+    public CorpseRecoveryReport(ILegalAuthority authority, IEconomicZone economicZone, IGameItem corpse, IRoom sourceRoom,
         ICharacter reporter)
     {
         _gameworld = authority.Gameworld;
         _legalAuthorityId = authority.Id;
         _economicZoneId = economicZone.Id;
         _corpseId = corpse.Id;
-        _sourceCellId = sourceCell.Id;
-        _destinationCellId = economicZone.MorgueStorageCell.Id;
+        _sourceRoomId = sourceRoom.Id;
+        _destinationRoomId = economicZone.MorgueStorageRoom.Id;
         _reporterId = reporter is null ? null : CharacterInstanceIdentityComparer.IdentityId(reporter);
         Status = CorpseRecoveryReportStatus.Pending;
 
@@ -50,8 +50,8 @@ public class CorpseRecoveryReport : SaveableItem, ICorpseRecoveryReport
                 LegalAuthorityId = authority.Id,
                 EconomicZoneId = economicZone.Id,
                 CorpseId = corpse.Id,
-                SourceCellId = sourceCell.Id,
-                DestinationCellId = economicZone.MorgueStorageCell.Id,
+                SourceRoomId = sourceRoom.Id,
+                DestinationRoomId = economicZone.MorgueStorageRoom.Id,
                 ReporterId = reporter is null ? null : CharacterInstanceIdentityComparer.IdentityId(reporter),
                 Status = (int)Status
             };
@@ -65,8 +65,8 @@ public class CorpseRecoveryReport : SaveableItem, ICorpseRecoveryReport
     public ILegalAuthority LegalAuthority => _gameworld.LegalAuthorities.Get(_legalAuthorityId);
     public IEconomicZone EconomicZone => _gameworld.EconomicZones.Get(_economicZoneId);
     public IGameItem Corpse => _gameworld.Items.Get(_corpseId);
-    public ICell SourceCell => _gameworld.Cells.Get(_sourceCellId);
-    public ICell DestinationCell => _gameworld.Cells.Get(_destinationCellId);
+    public IRoom SourceRoom => _gameworld.Rooms.Get(_sourceRoomId);
+    public IRoom DestinationRoom => _gameworld.Rooms.Get(_destinationRoomId);
     public ICharacter Reporter => _reporterId.HasValue ? _gameworld.TryGetCharacter(_reporterId.Value, true) : null;
     public CorpseRecoveryReportStatus Status { get; set; }
     public long? AssignedPatrolId => _assignedPatrolId;

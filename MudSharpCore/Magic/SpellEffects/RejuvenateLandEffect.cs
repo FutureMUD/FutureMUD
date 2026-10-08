@@ -14,12 +14,12 @@ namespace MudSharp.Magic.SpellEffects;
 
 public sealed class RejuvenateLandEffect : IMagicSpellEffectTemplate, IMagicSpellEffectAdmission
 {
-	public const string HelpText = @"Gradually repairs existing scars on a physical room, once per cell.
+	public const string HelpText = @"Gradually repairs existing scars on a physical room, once per room.
 	#3budget <expression>#0 - total scar repair, capped to damage at installation
 	#3rate <expression>#0 - scar units per real minute
 	#3eligibility <prog|none>#0 - NotStatic boolean (character, location) admission policy
 	#3continuation <prog|none>#0 - same signature; requires the active original caster
-	#3local <on|off>#0 - require the original conscious acting instance in its captured cell/plane/layer
+	#3local <on|off>#0 - require the original conscious acting instance in its captured room/plane/layer
 	#3desc <text|none>#0 - plain description addendum (no substitution placeholders)
 	#3colour <colour>#0 - addendum colour
 
@@ -36,7 +36,7 @@ Stored scrolls and magical substances are unsupported.";
 		SpellEffectFactory.RegisterBuilderFactory("rejuvenateland", (_, spell) =>
 			(new RejuvenateLandEffect(new XElement("Effect", new XAttribute("type", "rejuvenateland"),
 				new XAttribute("version", 1), new XElement("Budget", "1"), new XElement("Rate", "1")), spell), string.Empty),
-			"Establishes one bounded, gradual scar-repair treatment in a physical cell", HelpText, false, true,
+			"Establishes one bounded, gradual scar-repair treatment in a physical room", HelpText, false, true,
 			SpellTriggerFactory.MagicTriggerTypes.Where(x => SpellTriggerFactory.BuilderInfoForType(x).TargetTypes is "room" or "rooms").ToArray());
 	}
 
@@ -106,13 +106,13 @@ Stored scrolls and magical substances are unsupported.";
 		application = null;
 		error = DefinitionError;
 		if (error is not null) return false;
-		if (target is not ICell cell || !ReferenceEquals(cell.Gameworld, Gameworld) || !ReferenceEquals(caster.Gameworld, Gameworld))
-		{ error = "Rejuvenation requires an actual physical cell in the caster's gameworld."; return false; }
+		if (target is not IRoom room || !ReferenceEquals(room.Gameworld, Gameworld) || !ReferenceEquals(caster.Gameworld, Gameworld))
+		{ error = "Rejuvenation requires an actual physical room in the caster's gameworld."; return false; }
 		if (resolvedDuration <= TimeSpan.Zero || resolvedDuration == TimeSpan.MaxValue)
 		{ error = "Rejuvenation requires a finite positive resolved spell duration."; return false; }
 		var service = Gameworld.EnvironmentalMagic;
-		if (service is null || !service.CanInstallTreatment(cell, out error)) return false;
-		if (EligibilityProgId is { } id && !service.EvaluateRepairPolicy(cell, caster, Gameworld.FutureProgs.Get(id)!, out error)) return false;
+		if (service is null || !service.CanInstallTreatment(room, out error)) return false;
+		if (EligibilityProgId is { } id && !service.EvaluateRepairPolicy(room, caster, Gameworld.FutureProgs.Get(id)!, out error)) return false;
 		try
 		{
 			foreach (var expression in new[] { BudgetExpression, RateExpression })
@@ -127,25 +127,25 @@ Stored scrolls and magical substances are unsupported.";
 			if (!double.IsFinite(budget) || !double.IsFinite(rate) || budget < 0.0 || rate < 0.0 || !double.IsFinite(rate * (resolvedDuration.TotalSeconds / 60.0)))
 			{ error = "Repair budget/rate must be finite and non-negative, without lifetime arithmetic overflow."; return false; }
 			if (budget == 0.0 || rate == 0.0) { error = "Zero budget or rate establishes no treatment."; return false; }
-			budget = Math.Min(budget, service.InspectState(cell).State.ScarDamage);
+			budget = Math.Min(budget, service.InspectState(room).State.ScarDamage);
 			var progress = new LandRejuvenationProgress
 			{
-				Id = Guid.NewGuid(), CellId = cell.Id, SpellId = Spell.Id, CasterId = caster.Id, ActingInstanceId = caster.InstanceId,
+				Id = Guid.NewGuid(), RoomId = room.Id, SpellId = Spell.Id, CasterId = caster.Id, ActingInstanceId = caster.InstanceId,
 				PlaneIds = caster.GetPlanarPresence().PresencePlaneIds.OrderBy(x => x).ToArray(),
-				Layer = (int)caster.RoomLayer, ProfileId = service.InspectRepairPolicy(cell).ProfileId!.Value,
+				Layer = (int)caster.RoomLayer, ProfileId = service.InspectRepairPolicy(room).ProfileId!.Value,
 				RequiresPresence = RequiresPresence, ContinuationProgId = ContinuationProgId, Rate = rate,
 				InitialBudget = budget, RemainingBudget = budget, RemainingSeconds = resolvedDuration.TotalSeconds
 			};
-			application = new Application(cell, caster, progress, Description, Colour);
+			application = new Application(room, caster, progress, Description, Colour);
 			return true;
 		}
 		catch (Exception ex) { error = $"Rejuvenation evaluation failed: {ex.Message}"; return false; }
 	}
 
-	private sealed record Application(ICell Cell, ICharacter Caster, LandRejuvenationProgress Progress, string Description,
+	private sealed record Application(IRoom Room, ICharacter Caster, LandRejuvenationProgress Progress, string Description,
 		ANSIColour Colour) : IMagicSpellEffectApplication
 	{
-		public IMagicSpellEffect Create(IMagicSpellEffectParent parent) => new SpellRejuvenateLandEffect(Cell, parent, Caster,
+		public IMagicSpellEffect Create(IMagicSpellEffectParent parent) => new SpellRejuvenateLandEffect(Room, parent, Caster,
 			Progress with { ParentId = ((MagicSpellParent)parent).Identity }, Description, Colour);
 	}
 

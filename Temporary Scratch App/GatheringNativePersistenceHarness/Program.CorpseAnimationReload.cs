@@ -67,7 +67,7 @@ internal static partial class GNHProgram
 		try { Require(!host.Native.World.SpellOwnedCorpseAnimations!.TryRetire(animated.InstanceId, SpellRetirementReason.Dismissal, out _), "Completion fault did not hold the committed restoration."); }
 		finally { using var db = NewIndependentContext(database.ConnectionString); db.Database.ExecuteSqlRaw("DROP TRIGGER arm03d1p1_complete_fault"); }
 		using (var db = NewIndependentContext(database.ConnectionString))
-			Require(!db.CharacterInstances.Any(x => x.Id == animated.InstanceId) && db.CellsGameItems.Count(x => x.GameItemId == corpse.Id) == 1 &&
+			Require(!db.CharacterInstances.Any(x => x.Id == animated.InstanceId) && db.RoomsGameItems.Count(x => x.GameItemId == corpse.Id) == 1 &&
 				db.GameItems.Single(x => x.Id == corpse.Id).EffectData == paidXml && host.Store.Find(life.Origin.Id)!.State != SpellLifecycleState.Completed &&
 				host.Store.Find(life.Origin.Id)!.Diagnostic.StartsWith("<CorpseRestore"), "Restoration did not commit while retaining the genuine stale paid XML.");
 		Console.WriteLine("ARM03D1P1-restoration-committed=passed actual-restoration-transaction secondary-row-removed corpse-cell-linked completion-trigger-refusal paid-XML-still-present no-post-retirement-producer-flush");
@@ -146,24 +146,24 @@ internal static partial class GNHProgram
 			finally { constructing.Remove(id); }
 		});
 		var corpse = world.TryGetItem(input.Corpse, true)!;
-		long? placedCell;
+		long? placedRoom;
 		using (var db = NewIndependentContext(database.ConnectionString))
-			placedCell = db.CellsGameItems.Where(x => x.GameItemId == input.Corpse).Select(x => (long?)x.CellId).SingleOrDefault();
+			placedRoom = db.RoomsGameItems.Where(x => x.GameItemId == input.Corpse).Select(x => (long?)x.RoomId).SingleOrDefault();
 		// Controlled room catalogue, with the same native item Drop used by Cell.LoadItems.
-		if (placedCell.HasValue) world.Cells.Get(placedCell.Value)!.Insert(corpse, true);
+		if (placedRoom.HasValue) world.Rooms.Get(placedRoom.Value)!.Insert(corpse, true);
 		var loadedLocation = corpse.Location; var placementChanges = 0;
 		corpse.OnLocationChanged += (_, _) => placementChanges++;
 		// Boot placement above follows Cell.LoadItems (Drop). Subsequent restoration
 		// follows Cell.Insert (MoveTo), including its real location-change callback.
-		var recoveryCell = world.Cells.Get(input.Fixture.CellId)!;
-		var recoveryItems = (ICollection<IGameItem>)recoveryCell.GameItems;
+		var recoveryRoom = world.Rooms.Get(input.Fixture.RoomId)!;
+		var recoveryItems = (ICollection<IGameItem>)recoveryRoom.GameItems;
 		var restorationInsertions = 0;
-		Mock.Get(recoveryCell).Setup(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>()))
+		Mock.Get(recoveryRoom).Setup(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>()))
 			.Callback<IGameItem, bool>((item, _) =>
 			{
-				ForeignCustodyTransferContext.EnsureCell(recoveryCell, item);
+				ForeignCustodyTransferContext.EnsureRoom(recoveryRoom, item);
 				Require(!recoveryItems.Contains(item), "Recovery attempted duplicate cell insertion.");
-				item.MoveTo(recoveryCell, item.RoomLayer);
+				item.MoveTo(recoveryRoom, item.RoomLayer);
 				recoveryItems.Add(item);
 				if (ReferenceEquals(item, corpse)) restorationInsertions++;
 			});
@@ -201,7 +201,7 @@ internal static partial class GNHProgram
 		if (activeRecovery)
 		{
 			using var db = NewIndependentContext(database.ConnectionString);
-			Require(db.CharacterInstances.Any(x => x.Id == input.Instance) && !db.CellsGameItems.Any(x => x.GameItemId == input.Corpse) &&
+			Require(db.CharacterInstances.Any(x => x.Id == input.Instance) && !db.RoomsGameItems.Any(x => x.GameItemId == input.Corpse) &&
 				host.Store.Find(input.Origin)!.State == SpellLifecycleState.Active && corpse.Location is null &&
 				(input.Action.Contains("expired") ? RuntimeClock.UtcNow >= input.Deadline : RuntimeClock.UtcNow < input.Deadline),
 				"Active checkpoint was retired early, materialized, exposed, or crossed the wrong deadline.");
@@ -214,7 +214,7 @@ internal static partial class GNHProgram
 			!corpse.EffectsOfType<SpellAnimatedCorpseEffect>().Any() && !corpse.EffectsOfType<MagicSpellParent>().Any() &&
 			host.Store.Find(input.Origin)!.Origin.DeadlineUtc == input.Deadline, "Deferred saved-parent recovery lost exact state or left stale effects.");
 		AssertCorpseAnimationRestored(database, host, input.Origin, input.Instance, input.Corpse, input.Owner, input.Body, input.Foreign);
-		Require((activeRecovery ? corpse.Location?.Id == input.Fixture.CellId && placementChanges == 1 : ReferenceEquals(corpse.Location, loadedLocation) && placementChanges == 0) &&
+		Require((activeRecovery ? corpse.Location?.Id == input.Fixture.RoomId && placementChanges == 1 : ReferenceEquals(corpse.Location, loadedLocation) && placementChanges == 0) &&
 			restorationInsertions == (activeRecovery ? 1 : 0) && corpse.Location!.GameItems.Count(x => ReferenceEquals(x, corpse)) == 1,
 			$"Saved-child cleanup moved or duplicated the corpse: active={activeRecovery}, changes={placementChanges}, insertions={restorationInsertions}, location={corpse.Location?.Id}.");
 		Require(((GameItem)corpse).MorphTime == morphDeadline &&

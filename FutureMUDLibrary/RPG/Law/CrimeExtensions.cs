@@ -58,9 +58,9 @@ namespace MudSharp.RPG.Law
             }
         }
 
-        public static bool IsInRemandCell(this ILegalAuthority authority, ICharacter character)
+        public static bool IsInRemandRoom(this ILegalAuthority authority, ICharacter character)
         {
-            return character.Location is not null && authority.CellLocations.Contains(character.Location);
+            return character.Location is not null && authority.RoomLocations.Contains(character.Location);
         }
 
         public static bool IsMoralCrime(this CrimeTypes type)
@@ -130,7 +130,7 @@ namespace MudSharp.RPG.Law
             return false;
         }
 
-        public static bool CheckWouldBeACrimeAtLocation(this CrimeTypes type, ICharacter actor, ICell location,
+        public static bool CheckWouldBeACrimeAtLocation(this CrimeTypes type, ICharacter actor, IRoom location,
             ICharacter victim = null, IGameItem target = null, string additionalInformation = "")
         {
             foreach (ILegalAuthority authority in actor.Gameworld.LegalAuthorities)
@@ -164,7 +164,7 @@ namespace MudSharp.RPG.Law
 
         public static void CheckPossibleCrimeAllAuthorities(ICharacter criminal, CrimeTypes crime, ICharacter victim,
             IGameItem item, string additionalInformation, IEnumerable<ICharacter> witnesses, bool notifyVictim,
-            ICell crimeLocation)
+            IRoom crimeLocation)
         {
             foreach (ILegalAuthority authority in criminal.Gameworld.LegalAuthorities)
             {

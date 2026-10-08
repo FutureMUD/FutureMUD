@@ -22,14 +22,14 @@ public class RoomBuilderModuleExitLookupTests
 	[DataRow("northwest Normal", CardinalDirection.NorthWest, "Normal")]
 	[DataRow("north-west Normal", CardinalDirection.NorthWest, "Normal")]
 	[DataRow("north west Normal", CardinalDirection.NorthWest, "Normal")]
-	public void GetCellExitForBuilderInput_CardinalAliasTargetsExactDirection(string command,
+	public void GetRoomExitForBuilderInput_CardinalAliasTargetsExactDirection(string command,
 		CardinalDirection expectedDirection, string expectedRemainder)
 	{
 		var north = CreateExit(1, CardinalDirection.North, "North");
 		var northwest = CreateExit(2, CardinalDirection.NorthWest, "North-West");
 		var input = new StringStack(command);
 
-		var result = RoomBuilderModule.GetCellExitForBuilderInput(
+		var result = RoomBuilderModule.GetRoomExitForBuilderInput(
 			[northwest.Object, north.Object],
 			input,
 			CreatePerceiver().Object);
@@ -40,13 +40,13 @@ public class RoomBuilderModuleExitLookupTests
 	}
 
 	[TestMethod]
-	public void GetCellExitForBuilderInput_IdTargetsExitById()
+	public void GetRoomExitForBuilderInput_IdTargetsExitById()
 	{
 		var north = CreateExit(1, CardinalDirection.North, "North");
 		var northwest = CreateExit(2, CardinalDirection.NorthWest, "North-West");
 		var input = new StringStack("2 clear");
 
-		var result = RoomBuilderModule.GetCellExitForBuilderInput(
+		var result = RoomBuilderModule.GetRoomExitForBuilderInput(
 			[north.Object, northwest.Object],
 			input,
 			CreatePerceiver().Object);
@@ -56,12 +56,12 @@ public class RoomBuilderModuleExitLookupTests
 	}
 
 	[TestMethod]
-	public void GetCellExitForBuilderInput_NonCardinalKeywordRequiresExactKeyword()
+	public void GetRoomExitForBuilderInput_NonCardinalKeywordRequiresExactKeyword()
 	{
 		var gate = CreateExit(3, CardinalDirection.Unknown, "gate");
 		var input = new StringStack("gate Normal");
 
-		var result = RoomBuilderModule.GetCellExitForBuilderInput(
+		var result = RoomBuilderModule.GetRoomExitForBuilderInput(
 			[gate.Object],
 			input,
 			CreatePerceiver().Object);
@@ -71,12 +71,12 @@ public class RoomBuilderModuleExitLookupTests
 	}
 
 	[TestMethod]
-	public void GetCellExitForBuilderInput_NonCardinalKeywordDoesNotUsePrefixMatching()
+	public void GetRoomExitForBuilderInput_NonCardinalKeywordDoesNotUsePrefixMatching()
 	{
 		var gate = CreateExit(3, CardinalDirection.Unknown, "gate");
 		var input = new StringStack("ga Normal");
 
-		var result = RoomBuilderModule.GetCellExitForBuilderInput(
+		var result = RoomBuilderModule.GetRoomExitForBuilderInput(
 			[gate.Object],
 			input,
 			CreatePerceiver().Object);
@@ -85,12 +85,12 @@ public class RoomBuilderModuleExitLookupTests
 		Assert.AreEqual("Normal", input.RemainingArgument);
 	}
 
-	private static Mock<ICellExit> CreateExit(long id, CardinalDirection direction, params string[] keywords)
+	private static Mock<IRoomExit> CreateExit(long id, CardinalDirection direction, params string[] keywords)
 	{
 		var parent = new Mock<IExit>();
 		parent.SetupGet(x => x.Id).Returns(id);
 
-		var exit = new Mock<ICellExit>();
+		var exit = new Mock<IRoomExit>();
 		exit.SetupGet(x => x.Exit).Returns(parent.Object);
 		exit.SetupGet(x => x.OutboundDirection).Returns(direction);
 		exit.SetupGet(x => x.Keywords).Returns(keywords);

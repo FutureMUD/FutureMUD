@@ -88,7 +88,7 @@ public partial class AIStoryteller
                     ["OwnerType"] = new Dictionary<string, object>
                     {
                         ["type"] = "string",
-                        ["description"] = "Optional owner type (character, item, cell, zone, shard)."
+                        ["description"] = "Optional owner type (character, item, room, zone, shard)."
                     },
                     ["OwnerId"] = new Dictionary<string, object>
                     {
@@ -711,14 +711,14 @@ public partial class AIStoryteller
         {
             ProgVariableTypeCode.Character or ProgVariableTypeCode.Toon => Gameworld.TryGetCharacter(id, true),
             ProgVariableTypeCode.Item => Gameworld.Items.Get(id),
-            ProgVariableTypeCode.Location => Gameworld.Cells.Get(id),
+            ProgVariableTypeCode.Location => Gameworld.Rooms.Get(id),
             ProgVariableTypeCode.WeatherEvent => Gameworld.WeatherEvents.Get(id),
             ProgVariableTypeCode.Merchandise => Gameworld.Shops
                 .SelectMany(x => x.Merchandises)
                 .FirstOrDefault(x => x.Id == id),
             ProgVariableTypeCode.Script => Gameworld.Scripts.Get(id),
             ProgVariableTypeCode.Writing => Gameworld.Writings.Get(id),
-            ProgVariableTypeCode.OverlayPackage => Gameworld.CellOverlayPackages.Get(id),
+            ProgVariableTypeCode.OverlayPackage => Gameworld.RoomOverlayPackages.Get(id),
             ProgVariableTypeCode.Terrain => Gameworld.Terrains.Get(id),
             ProgVariableTypeCode.Solid => Gameworld.Materials.Get(id),
             ProgVariableTypeCode.Liquid => Gameworld.Liquids.Get(id),
@@ -738,11 +738,11 @@ public partial class AIStoryteller
             ProgVariableTypeCode.MarketCategory => Gameworld.MarketCategories.Get(id),
             ProgVariableTypeCode.Crime => Gameworld.Crimes.Get(id),
             ProgVariableTypeCode.Area => Gameworld.Areas.Get(id),
-            ProgVariableTypeCode.Tagged => (object?)Gameworld.Cells.Get(id) ?? (object?)Gameworld.Items.Get(id) ??
+            ProgVariableTypeCode.Tagged => (object?)Gameworld.Rooms.Get(id) ?? (object?)Gameworld.Items.Get(id) ??
                                         Gameworld.Terrains.Get(id),
             ProgVariableTypeCode.Perceivable or ProgVariableTypeCode.Perceiver or ProgVariableTypeCode.MagicResourceHaver =>
                 (object?)Gameworld.TryGetCharacter(id, true) ?? (object?)Gameworld.Items.Get(id) ??
-                Gameworld.Cells.Get(id),
+                Gameworld.Rooms.Get(id),
             _ => null
         };
 
@@ -1590,7 +1590,7 @@ public partial class AIStoryteller
             {
                 "character" or "char" or "pc" => ownerId.HasValue ? Gameworld.TryGetCharacter(ownerId.Value, true) : null,
                 "item" => ownerId.HasValue ? Gameworld.Items.Get(ownerId.Value) : null,
-                "cell" or "room" or "location" => ownerId.HasValue ? Gameworld.Cells.Get(ownerId.Value) : null,
+                "cell" or "room" or "location" => ownerId.HasValue ? Gameworld.Rooms.Get(ownerId.Value) : null,
                 "zone" => ownerId.HasValue ? Gameworld.Zones.Get(ownerId.Value) : null,
                 "shard" => ownerId.HasValue ? Gameworld.Shards.Get(ownerId.Value) : null,
                 _ => null
@@ -1604,7 +1604,7 @@ public partial class AIStoryteller
 
         return (IHaveEffects?)Gameworld.TryGetCharacter(ownerId.Value, true) ??
                (IHaveEffects?)Gameworld.Items.Get(ownerId.Value) ??
-               (IHaveEffects?)Gameworld.Cells.Get(ownerId.Value) ??
+               (IHaveEffects?)Gameworld.Rooms.Get(ownerId.Value) ??
                (IHaveEffects?)Gameworld.Zones.Get(ownerId.Value) ??
                Gameworld.Shards.Get(ownerId.Value);
     }
@@ -1614,7 +1614,7 @@ public partial class AIStoryteller
         return Gameworld.Characters
             .Cast<object>()
             .Concat(Gameworld.Items)
-            .Concat(Gameworld.Cells)
+            .Concat(Gameworld.Rooms)
             .Concat(Gameworld.Zones)
             .Concat(Gameworld.Shards)
             .OfType<IHaveEffects>();

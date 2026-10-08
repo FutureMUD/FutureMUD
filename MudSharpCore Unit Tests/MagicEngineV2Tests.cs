@@ -113,8 +113,8 @@ public class MagicEngineV2Tests
 		var caster = CreateCharacter(10);
 		var spell = CreateSpellMock(20);
 		var sourceEffect = new Mock<IEffect>();
-		var origin = CreateCell(1, "Origin", gameworld.Object);
-		var destination = CreateCell(2, "Destination", gameworld.Object);
+		var origin = CreateRoom(1, "Origin", gameworld.Object);
+		var destination = CreateRoom(2, "Destination", gameworld.Object);
 
 		var exit = new TransientExit(gameworld.Object, origin.Object, destination.Object, "enter", "gate", "gate",
 			"a bright gate", "a bright gate", "through", "through", 1.0, caster.Object, spell.Object,
@@ -138,8 +138,8 @@ public class MagicEngineV2Tests
 		var plane = CreatePlane();
 		var zone = new Mock<IZone>();
 		var caster = CreateCharacter(10);
-		var source = CreateCell(1, "Source", null, zone.Object);
-		var destination = CreateCell(2, "Destination", null, zone.Object);
+		var source = CreateRoom(1, "Source", null, zone.Object);
+		var destination = CreateRoom(2, "Destination", null, zone.Object);
 		var anchorItem = new Mock<IGameItem>();
 		var tag = new Mock<IMagicTagEffect>();
 		var gameworld = CreateGameworld([source.Object, destination.Object], [anchorItem.Object], plane.Object);
@@ -174,8 +174,8 @@ public class MagicEngineV2Tests
 			SpellPower.Insignificant, CreateParent(spell.Object, caster.Object).Object, []);
 
 		Assert.IsNotNull(portal);
-		Assert.AreEqual(source.Object.Id, portal!.SourceCellId);
-		Assert.AreEqual(destination.Object.Id, portal.DestinationCellId);
+		Assert.AreEqual(source.Object.Id, portal!.SourceRoomId);
+		Assert.AreEqual(destination.Object.Id, portal.DestinationRoomId);
 	}
 
 	[TestMethod]
@@ -184,9 +184,9 @@ public class MagicEngineV2Tests
 		var plane = CreatePlane();
 		var zone = new Mock<IZone>();
 		var caster = CreateCharacter(10);
-		var source = CreateCell(1, "Source", null, zone.Object);
-		var firstDestination = CreateCell(2, "First Destination", null, zone.Object);
-		var secondDestination = CreateCell(3, "Second Destination", null, zone.Object);
+		var source = CreateRoom(1, "Source", null, zone.Object);
+		var firstDestination = CreateRoom(2, "First Destination", null, zone.Object);
+		var secondDestination = CreateRoom(3, "Second Destination", null, zone.Object);
 		var firstAnchorItem = CreateMagicTaggedItem(5, firstDestination.Object, caster.Object, "travel-gate", "south");
 		var secondAnchorItem = CreateMagicTaggedItem(6, secondDestination.Object, caster.Object, "travel-gate", "south");
 		var gameworld = CreateGameworld(
@@ -219,8 +219,8 @@ public class MagicEngineV2Tests
 			SpellPower.Insignificant, CreateParent(spell.Object, caster.Object).Object, []);
 
 		Assert.IsNotNull(portal);
-		Assert.AreEqual(source.Object.Id, portal!.SourceCellId);
-		Assert.AreEqual(firstDestination.Object.Id, portal.DestinationCellId);
+		Assert.AreEqual(source.Object.Id, portal!.SourceRoomId);
+		Assert.AreEqual(firstDestination.Object.Id, portal.DestinationRoomId);
 	}
 
 	[TestMethod]
@@ -364,7 +364,7 @@ public class MagicEngineV2Tests
 		};
 	}
 
-	private static Mock<IGameItem> CreateMagicTaggedItem(long id, ICell location, ICharacter caster, string tagText,
+	private static Mock<IGameItem> CreateMagicTaggedItem(long id, IRoom location, ICharacter caster, string tagText,
 		string value)
 	{
 		var item = new Mock<IGameItem>();
@@ -408,26 +408,26 @@ public class MagicEngineV2Tests
 		return perceivable;
 	}
 
-	private static Mock<ICell> CreateCell(long id, string name, IFuturemud? gameworld = null, IZone? zone = null)
+	private static Mock<IRoom> CreateRoom(long id, string name, IFuturemud? gameworld = null, IZone? zone = null)
 	{
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.SetupGet(x => x.Name).Returns(name);
-		cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.SetupGet(x => x.Name).Returns(name);
+		room.SetupGet(x => x.FrameworkItemType).Returns("Cell");
 		if (gameworld is not null)
 		{
-			cell.SetupGet(x => x.Gameworld).Returns(gameworld);
+			room.SetupGet(x => x.Gameworld).Returns(gameworld);
 		}
 
 		if (zone is not null)
 		{
-			cell.SetupGet(x => x.Zone).Returns(zone);
+			room.SetupGet(x => x.Zone).Returns(zone);
 		}
 
-		cell.Setup(x => x.EffectsOfType<IMagicTagEffect>(It.IsAny<Predicate<IMagicTagEffect>>())).Returns([]);
-		cell.Setup(x => x.EffectsOfType<IPlanarOverlayEffect>(It.IsAny<Predicate<IPlanarOverlayEffect>>()))
+		room.Setup(x => x.EffectsOfType<IMagicTagEffect>(It.IsAny<Predicate<IMagicTagEffect>>())).Returns([]);
+		room.Setup(x => x.EffectsOfType<IPlanarOverlayEffect>(It.IsAny<Predicate<IPlanarOverlayEffect>>()))
 		    .Returns([]);
-		return cell;
+		return room;
 	}
 
 	private static Mock<IMagicSpellEffectParent> CreateParent(IMagicSpell? spell = null, ICharacter? caster = null)
@@ -442,7 +442,7 @@ public class MagicEngineV2Tests
 		return parent;
 	}
 
-	private static Mock<IFuturemud> CreateGameworld(IEnumerable<ICell>? cells = null,
+	private static Mock<IFuturemud> CreateGameworld(IEnumerable<IRoom>? rooms = null,
 		IEnumerable<IGameItem>? items = null,
 		IPlane? defaultPlane = null,
 		IEnumerable<IMagicSchool>? magicSchools = null,
@@ -458,7 +458,7 @@ public class MagicEngineV2Tests
 		gameworld.SetupGet(x => x.FutureProgs).Returns(CreateCollectionMock(progList).Object);
 		gameworld.SetupGet(x => x.MagicSchools).Returns(CreateCollectionMock((magicSchools ?? [CreateSchool().Object]).ToArray()).Object);
 		gameworld.SetupGet(x => x.Traits).Returns(CreateCollectionMock((traits ?? [CreateTrait().Object]).ToArray()).Object);
-		gameworld.SetupGet(x => x.Cells).Returns(CreateCollectionMock((cells ?? []).ToArray()).Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(CreateCollectionMock((rooms ?? []).ToArray()).Object);
 		gameworld.SetupGet(x => x.Items).Returns(CreateCollectionMock((items ?? []).ToArray()).Object);
 		gameworld.SetupGet(x => x.Planes).Returns(CreateCollectionMock(planeList).Object);
 		gameworld.SetupGet(x => x.DefaultPlane).Returns(resolvedDefaultPlane);

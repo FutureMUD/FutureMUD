@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Models;
 using System;
 using System.Collections.Generic;
@@ -276,27 +276,7 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_RegionalClimates_Seasons_Seasons");
             });
 
-            modelBuilder.Entity<Room>(entity =>
-            {
-                entity.HasIndex(e => e.ZoneId)
-                    .HasDatabaseName("FK_Rooms_Zones");
 
-                entity.Property(e => e.Id).HasColumnType("bigint(20)");
-
-                entity.Property(e => e.X).HasColumnType("int(11)");
-
-                entity.Property(e => e.Y).HasColumnType("int(11)");
-
-                entity.Property(e => e.Z).HasColumnType("int(11)");
-
-                entity.Property(e => e.ZoneId).HasColumnType("bigint(20)");
-
-                entity.HasOne(d => d.Zone)
-                    .WithMany(p => p.Rooms)
-                    .HasForeignKey(d => d.ZoneId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Rooms_Zones");
-            });
 
             modelBuilder.Entity<Script>(entity =>
             {
@@ -608,14 +588,14 @@ namespace MudSharp.Database
                 entity.HasIndex(e => e.EconomicZoneId)
                     .HasDatabaseName("FK_Shops_EconomicZonesa_idx");
 
-                entity.HasIndex(e => e.StockroomCellId)
-                    .HasDatabaseName("FK_Shops_Cells_Stockroom_idx");
+                entity.HasIndex(e => e.StockroomId)
+                    .HasDatabaseName("FK_Shops_Rooms_Stockroom_idx");
 
                 entity.HasIndex(e => e.WhyCannotShopProgId)
                     .HasDatabaseName("FK_Shops_FutureProgs_WhyCant_idx");
 
-                entity.HasIndex(e => e.WorkshopCellId)
-                    .HasDatabaseName("FK_Shops_Cells_Workshop_idx");
+                entity.HasIndex(e => e.WorkshopRoomId)
+                    .HasDatabaseName("FK_Shops_Rooms_Workshop_idx");
 
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
@@ -649,11 +629,11 @@ namespace MudSharp.Database
                     .UseCollation("utf8_general_ci")
                     .HasDefaultValue("Permanent");
 
-                entity.Property(e => e.StockroomCellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.StockroomId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.WhyCannotShopProgId).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.WorkshopCellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.WorkshopRoomId).HasColumnType("bigint(20)");
 
                 entity.HasOne(d => d.BankAccount)
                     .WithMany()
@@ -678,11 +658,11 @@ namespace MudSharp.Database
                     .HasForeignKey(d => d.EconomicZoneId)
                     .HasConstraintName("FK_Shops_EconomicZones");
 
-                entity.HasOne(d => d.StockroomCell)
-                    .WithMany(p => p.ShopsStockroomCell)
-                    .HasForeignKey(d => d.StockroomCellId)
+                entity.HasOne(d => d.StockroomRoom)
+                    .WithMany(p => p.ShopsStockroomRoom)
+                    .HasForeignKey(d => d.StockroomId)
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("FK_Shops_Cells_Stockroom");
+                    .HasConstraintName("FK_Shops_Rooms_Stockroom");
 
                 entity.HasOne(d => d.WhyCannotShopProg)
                     .WithMany(p => p.ShopsWhyCannotShopProg)
@@ -690,36 +670,36 @@ namespace MudSharp.Database
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK_Shops_FutureProgs_WhyCant");
 
-                entity.HasOne(d => d.WorkshopCell)
-                    .WithMany(p => p.ShopsWorkshopCell)
-                    .HasForeignKey(d => d.WorkshopCellId)
+                entity.HasOne(d => d.WorkshopRoom)
+                    .WithMany(p => p.ShopsWorkshopRoom)
+                    .HasForeignKey(d => d.WorkshopRoomId)
                     .OnDelete(DeleteBehavior.SetNull)
-                    .HasConstraintName("FK_Shops_Cells_Workshop");
+                    .HasConstraintName("FK_Shops_Rooms_Workshop");
             });
 
-            modelBuilder.Entity<ShopsStoreroomCell>(entity =>
+            modelBuilder.Entity<ShopsStoreroomRoom>(entity =>
             {
-                entity.HasKey(e => new { e.ShopId, e.CellId })
+                entity.HasKey(e => new { e.ShopId, e.RoomId })
                     .HasName("PRIMARY");
 
-                entity.ToTable("Shops_StoreroomCells");
+                entity.ToTable("Shops_StoreroomRooms");
 
-                entity.HasIndex(e => e.CellId)
-                    .HasDatabaseName("FK_Shops_StoreroomCells_Cells_idx");
+                entity.HasIndex(e => e.RoomId)
+                    .HasDatabaseName("FK_Shops_StoreroomRooms_Rooms_idx");
 
                 entity.Property(e => e.ShopId).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
-                entity.HasOne(d => d.Cell)
-                    .WithMany(p => p.ShopsStoreroomCells)
-                    .HasForeignKey(d => d.CellId)
-                    .HasConstraintName("FK_Shops_StoreroomCells_Cells");
+                entity.HasOne(d => d.Room)
+                    .WithMany(p => p.ShopsStoreroomRooms)
+                    .HasForeignKey(d => d.RoomId)
+                    .HasConstraintName("FK_Shops_StoreroomRooms_Rooms");
 
                 entity.HasOne(d => d.Shop)
-                    .WithMany(p => p.ShopsStoreroomCells)
+                    .WithMany(p => p.ShopsStoreroomRooms)
                     .HasForeignKey(d => d.ShopId)
-                    .HasConstraintName("FK_Shops_StoreroomCells_Shops");
+                    .HasConstraintName("FK_Shops_StoreroomRooms_Shops");
             });
 
             modelBuilder.Entity<ShopsTill>(entity =>
@@ -1102,7 +1082,7 @@ namespace MudSharp.Database
                 entity.Property(e => e.TrackIntensityMultiplierOlfactory).HasColumnType("double").HasDefaultValue(1.0);
                 entity.Property(e => e.GravityModel).HasColumnType("int(11)").HasDefaultValue(0);
 
-                entity.Property(e => e.DefaultCellOutdoorsType).HasColumnType("int(11)").HasDefaultValue("0");
+                entity.Property(e => e.DefaultRoomOutdoorsType).HasColumnType("int(11)").HasDefaultValue("0");
                 entity.Property(e => e.TerrainEditorText).HasColumnType("varchar(45)").IsRequired(false);
 
                 entity.Property(e => e.InfectionVirulence)
@@ -2306,8 +2286,8 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<Zone>(entity =>
             {
-                entity.HasIndex(e => e.DefaultCellId)
-                    .HasDatabaseName("FK_Zones_Cells");
+                entity.HasIndex(e => e.DefaultRoomId)
+                    .HasDatabaseName("FK_Zones_Rooms");
 
                 entity.HasIndex(e => e.ShardId)
                     .HasDatabaseName("FK_Zones_Shards");
@@ -2317,7 +2297,7 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.DefaultCellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.DefaultRoomId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.ForagableProfileId).HasColumnType("bigint(20)");
 
@@ -2331,10 +2311,10 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.WeatherControllerId).HasColumnType("bigint(20)");
 
-                entity.HasOne(d => d.DefaultCell)
+                entity.HasOne(d => d.DefaultRoom)
                     .WithMany(p => p.Zones)
-                    .HasForeignKey(d => d.DefaultCellId)
-                    .HasConstraintName("FK_Zones_Cells");
+                    .HasForeignKey(d => d.DefaultRoomId)
+                    .HasConstraintName("FK_Zones_Rooms");
 
                 entity.HasOne(d => d.Shard)
                     .WithMany(p => p.Zones)
@@ -2804,11 +2784,11 @@ namespace MudSharp.Database
             {
                 entity.ToTable("BankBranches");
                 entity.HasKey(e =>
-                    new { e.BankId, e.CellId }
+                    new { e.BankId, e.RoomId }
                 ).HasName("PRIMARY");
 
                 entity.Property(e => e.BankId).HasColumnType("bigint(20)");
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity
                     .HasOne(e => e.Bank)
@@ -2817,10 +2797,10 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_BankBranches_Banks")
                     .OnDelete(DeleteBehavior.Cascade); ;
                 entity
-                    .HasOne(e => e.Cell)
+                    .HasOne(e => e.Room)
                     .WithMany()
-                    .HasForeignKey(e => e.CellId)
-                    .HasConstraintName("FK_BankBranches_Cells")
+                    .HasForeignKey(e => e.RoomId)
+                    .HasConstraintName("FK_BankBranches_Rooms")
                     .OnDelete(DeleteBehavior.Cascade); ;
             });
 

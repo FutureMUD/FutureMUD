@@ -213,9 +213,9 @@ public partial class UsefulSeeder
 	}
 
 	private static XElement CreateRoomInfoElement(Terrain terrain, string roomName, string roomDescription,
-		CellOutdoorsType? outdoorsType = null, double? ambientLightFactor = null, long? foragableProfileId = null)
+		RoomOutdoorsType? outdoorsType = null, double? ambientLightFactor = null, long? foragableProfileId = null)
 	{
-		CellOutdoorsType outdoorType = outdoorsType ?? (CellOutdoorsType)terrain.DefaultCellOutdoorsType;
+		RoomOutdoorsType outdoorType = outdoorsType ?? (RoomOutdoorsType)terrain.DefaultRoomOutdoorsType;
 		return new XElement("Terrain",
 			new XElement("DefaultTerrain", terrain.Id),
 			new XElement("RoomName", new XCData(roomName)),
@@ -422,15 +422,15 @@ public partial class UsefulSeeder
 		);
 	}
 
-	private static double GetDefaultAmbientLightFactor(CellOutdoorsType outdoorsType)
+	private static double GetDefaultAmbientLightFactor(RoomOutdoorsType outdoorsType)
 	{
 		return outdoorsType switch
 		{
-			CellOutdoorsType.Indoors => 0.25,
-			CellOutdoorsType.IndoorsWithWindows => 0.35,
-			CellOutdoorsType.Outdoors => 1.0,
-			CellOutdoorsType.IndoorsNoLight => 0.0,
-			CellOutdoorsType.IndoorsClimateExposed => 0.9,
+			RoomOutdoorsType.Indoors => 0.25,
+			RoomOutdoorsType.IndoorsWithWindows => 0.35,
+			RoomOutdoorsType.Outdoors => 1.0,
+			RoomOutdoorsType.IndoorsNoLight => 0.0,
+			RoomOutdoorsType.IndoorsClimateExposed => 0.9,
 			_ => 1.0
 		};
 	}

@@ -75,7 +75,7 @@ public partial class Character
                 IClock clock = Location.Clocks.First();
                 deathBoard.MakeNewPost(default(IAccount),
                     $"{Id} - {PersonalName.GetName(NameStyle.FullWithNickname)} - {calendar.DisplayDate(Location.Date(calendar), CalendarDisplayMode.Short)} {clock.DisplayTime(Location.Time(clock), TimeDisplayTypes.Short)}",
-                    $"Character #{Id} ({PersonalName.GetName(NameStyle.FullWithNickname)}) died at Location #{Location.Id} ({Location.CurrentOverlay.CellName})\n\nBlood: {Body.CurrentBloodVolumeLitres / Body.TotalBloodVolumeLitres:P2}\nHad wounds from the following people:\n{Body.Wounds.Select(x => x.ActorOrigin).Where(x => x != this && x != null).Distinct().Select(x => $"  #{x.Id} ({x.PersonalName.GetName(NameStyle.FullWithNickname)})").ListToString(conjunction: "", twoItemJoiner: "\n", separator: "\n")}\n\nActive Drugs:\n{Body.ActiveDrugDosages.Select(x => $"  {x.Drug.Name} - {x.Grams:N3}g - {x.OriginalVector.Describe()}").ListToString(conjunction: "", twoItemJoiner: "\n", separator: "\n")}"
+                    $"Character #{Id} ({PersonalName.GetName(NameStyle.FullWithNickname)}) died at Location #{Location.Id} ({Location.CurrentOverlay.RoomName})\n\nBlood: {Body.CurrentBloodVolumeLitres / Body.TotalBloodVolumeLitres:P2}\nHad wounds from the following people:\n{Body.Wounds.Select(x => x.ActorOrigin).Where(x => x != this && x != null).Distinct().Select(x => $"  #{x.Id} ({x.PersonalName.GetName(NameStyle.FullWithNickname)})").ListToString(conjunction: "", twoItemJoiner: "\n", separator: "\n")}\n\nActive Drugs:\n{Body.ActiveDrugDosages.Select(x => $"  {x.Drug.Name} - {x.Grams:N3}g - {x.OriginalVector.Describe()}").ListToString(conjunction: "", twoItemJoiner: "\n", separator: "\n")}"
                 );
             }
         }
@@ -182,7 +182,7 @@ public partial class Character
         return corpse;
     }
 
-    public ICharacter Resurrect(ICell location)
+    public ICharacter Resurrect(IRoom location)
     {
         if (IsArchived) return null;
         Location?.Leave(this);

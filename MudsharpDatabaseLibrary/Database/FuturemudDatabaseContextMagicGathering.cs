@@ -20,7 +20,7 @@ public partial class FuturemudDatabaseContext
 			entity.Property(x => x.ActorId).HasColumnType("bigint(20)");
 			entity.Property(x => x.BodyId).HasColumnType("bigint(20)");
 			entity.Property(x => x.MagicCapabilityId).HasColumnType("bigint(20)");
-			entity.Property(x => x.CellId).HasColumnType("bigint(20)");
+			entity.Property(x => x.RoomId).HasColumnType("bigint(20)");
 			entity.Property(x => x.SourceProfileId).HasColumnType("bigint(20)");
 			entity.Property(x => x.SourceProfileRevision).HasColumnType("bigint(20)");
 			entity.Property(x => x.SourceResourceId).HasColumnType("bigint(20)");
@@ -33,8 +33,8 @@ public partial class FuturemudDatabaseContext
 			entity.Property(x => x.UpdatedUtc).HasColumnType("datetime(6)");
 			entity.HasIndex(x => new { x.OwnerId, x.Status })
 				.HasDatabaseName("IX_MagicGatheringOperations_OwnerId_Status");
-			entity.HasIndex(x => new { x.CellId, x.SourceResourceId, x.Status })
-				.HasDatabaseName("IX_MagicGatheringOperations_Cell_Source_Status");
+			entity.HasIndex(x => new { x.RoomId, x.SourceResourceId, x.Status })
+				.HasDatabaseName("IX_MagicGatheringOperations_Room_Source_Status");
 			entity.HasIndex(x => new { x.MagicCapabilityId, x.MethodKey })
 				.HasDatabaseName("IX_MagicGatheringOperations_Capability_Method");
 		});
@@ -43,10 +43,10 @@ public partial class FuturemudDatabaseContext
 			entity.ToTable("MagicGatheringParticipants");
 			entity.HasKey(x => new { x.OperationId, x.SourceKey }).HasName("PRIMARY");
 			entity.Property(x => x.OperationId).ValueGeneratedNever();
-			entity.Property(x => x.CellId).HasColumnType("bigint(20)");
+			entity.Property(x => x.RoomId).HasColumnType("bigint(20)");
 			entity.Property(x => x.SourceKey).HasMaxLength(150).IsRequired();
-			entity.HasIndex(x => new { x.CellId, x.SourceKey })
-				.HasDatabaseName("IX_MagicGatheringParticipants_Cell_Source");
+			entity.HasIndex(x => new { x.RoomId, x.SourceKey })
+				.HasDatabaseName("IX_MagicGatheringParticipants_Room_Source");
 		});
 	}
 }

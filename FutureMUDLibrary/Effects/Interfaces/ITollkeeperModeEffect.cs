@@ -6,8 +6,8 @@ namespace MudSharp.Effects.Interfaces
 {
 	public interface ITollkeeperModeEffect : IEffectSubtype
 	{
-		ICellExit? Exit { get; }
+		IRoomExit? Exit { get; }
 		long ExitId { get; }
-		long GuardCellId { get; }
+		long GuardRoomId { get; }
 	}
 }

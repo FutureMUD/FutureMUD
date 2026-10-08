@@ -122,7 +122,7 @@ public class CombatActionAvailabilityTests
 		typeof(MusketGameItemComponent)
 			.GetProperty(nameof(MusketGameItemComponent.MatchLit))!
 			.SetValue(musket, true);
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		location.SetupGet(x => x.Atmosphere).Returns(Mock.Of<IGas>());
 		location.Setup(x => x.CurrentWeather(It.IsAny<ICharacter>())).Returns((IWeatherEvent)null!);
 		var actor = new Mock<ICharacter>();

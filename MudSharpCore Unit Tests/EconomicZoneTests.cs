@@ -118,7 +118,7 @@ public class EconomicZoneTests
 		var currencies = new All<ICurrency>();
 		var zones = new All<IZone>();
 		var shops = new All<IShop>();
-		var cells = new All<ICell>();
+		var rooms = new All<IRoom>();
 		var capturedListeners = new List<ITemporalListener>();
 		listeners = capturedListeners;
 
@@ -128,7 +128,7 @@ public class EconomicZoneTests
 		gameworld.SetupGet(x => x.Currencies).Returns(currencies);
 		gameworld.SetupGet(x => x.Zones).Returns(zones);
 		gameworld.SetupGet(x => x.Shops).Returns(shops);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		gameworld.SetupGet(x => x.SaveManager).Returns(saveManager.Object);
 		gameworld
 			.Setup(x => x.Add(It.IsAny<ITemporalListener>()))

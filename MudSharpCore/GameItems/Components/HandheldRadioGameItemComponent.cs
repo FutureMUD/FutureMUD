@@ -1,4 +1,4 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Communication.Language;
@@ -379,7 +379,7 @@ public class HandheldRadioGameItemComponent : GameItemComponent, ITransmit, IRec
             return;
         }
 
-        Construction.ICell location = Parent.TrueLocations.FirstOrDefault();
+        Construction.IRoom location = Parent.TrueLocations.FirstOrDefault();
         if (location == null)
         {
 #if DEBUG
@@ -397,7 +397,7 @@ public class HandheldRadioGameItemComponent : GameItemComponent, ITransmit, IRec
             IReceive item in
             Gameworld.Items
                      .SelectNotNull(x => x.GetItemType<IReceive>())
-                     .Where(x => x.Parent.TrueLocations.Any(y => y != null && zones.Contains(y.Room.Zone)))
+                     .Where(x => x.Parent.TrueLocations.Any(y => y != null && zones.Contains(y.OwningZone)))
         )
         {
             item.ReceiveTransmission(Frequency, spokenLanguage, 0, this);

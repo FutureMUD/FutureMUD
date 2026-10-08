@@ -62,11 +62,11 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         PatrolStrategy = PatrolStrategyFactory.GetStrategy(route.PatrolStrategy, route.StrategyData, Gameworld);
         StartPatrolProg = Gameworld.FutureProgs.Get(route.StartPatrolProgId ?? 0);
         _patrolNodes.AddRange(route.PatrolRouteNodes.OrderBy(x => x.Order)
-                                   .SelectNotNull(x => Gameworld.Cells.Get(x.CellId)));
-        foreach (ICell node in _patrolNodes)
+                                   .SelectNotNull(x => Gameworld.Rooms.Get(x.RoomId)));
+        foreach (IRoom node in _patrolNodes)
         {
-            node.CellProposedForDeletion -= Node_CellProposedForDeletion;
-            node.CellProposedForDeletion += Node_CellProposedForDeletion;
+            node.RoomProposedForDeletion -= Node_RoomProposedForDeletion;
+            node.RoomProposedForDeletion += Node_RoomProposedForDeletion;
         }
         IsReady = route.IsReady;
         foreach (PatrolRouteNumbers number in route.PatrolRouteNumbers)
@@ -77,7 +77,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         }
     }
 
-    private void Node_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+    private void Node_RoomProposedForDeletion(IRoom room, ProposalRejectionResponse response)
     {
         response.RejectWithReason($"That room is a patrol node for patrol route #{Id:N0} ({Name.ColourName()})");
     }
@@ -97,10 +97,10 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         dbitem.IsReady = IsReady;
         FMDB.Context.PatrolRoutesNodes.RemoveRange(dbitem.PatrolRouteNodes);
         int order = 0;
-        foreach (ICell node in _patrolNodes)
+        foreach (IRoom node in _patrolNodes)
         {
             dbitem.PatrolRouteNodes.Add(new Models.PatrolRouteNode
-            { PatrolRoute = dbitem, CellId = node.Id, Order = order++ });
+            { PatrolRoute = dbitem, RoomId = node.Id, Order = order++ });
         }
 
         FMDB.Context.PatrolRoutesTimesOfDay.RemoveRange(dbitem.TimesOfDay);
@@ -121,9 +121,9 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 
     public void Delete()
     {
-        foreach (ICell node in _patrolNodes)
+        foreach (IRoom node in _patrolNodes)
         {
-            node.CellProposedForDeletion -= Node_CellProposedForDeletion;
+            node.RoomProposedForDeletion -= Node_RoomProposedForDeletion;
         }
         Gameworld.SaveManager.Abort(this);
         using (new FMDB())
@@ -140,8 +140,8 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
 
     public ILegalAuthority LegalAuthority { get; protected set; }
 
-    private readonly List<ICell> _patrolNodes = new();
-    public IEnumerable<ICell> PatrolNodes => _patrolNodes;
+    private readonly List<IRoom> _patrolNodes = new();
+    public IEnumerable<IRoom> PatrolNodes => _patrolNodes;
 
     public Counter<IEnforcementAuthority> PatrollerNumbers { get; } = new();
 
@@ -354,14 +354,14 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
             }
 
             _patrolNodes.Add(actor.Location);
-            actor.Location.CellProposedForDeletion -= Node_CellProposedForDeletion;
-            actor.Location.CellProposedForDeletion += Node_CellProposedForDeletion;
+            actor.Location.RoomProposedForDeletion -= Node_RoomProposedForDeletion;
+            actor.Location.RoomProposedForDeletion += Node_RoomProposedForDeletion;
             actor.OutputHandler.Send(
                 $"You add your current location ({actor.Location.HowSeen(actor)}) as a major node for the {Name.ColourName()} patrol.");
             if (_patrolNodes.Count >= 2)
             {
-                ICell last = _patrolNodes[^2];
-                IEnumerable<ICellExit> path = last.PathBetween(actor.Location, 50, PathSearch.PathIncludeUnlockableDoors(actor));
+                IRoom last = _patrolNodes[^2];
+                IEnumerable<IRoomExit> path = last.PathBetween(actor.Location, 50, PathSearch.PathIncludeUnlockableDoors(actor));
                 if (!path.Any())
                 {
                     actor.OutputHandler.Send(
@@ -425,8 +425,8 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         }
 
         _patrolNodes.Insert(value - 1, actor.Location);
-        actor.Location.CellProposedForDeletion -= Node_CellProposedForDeletion;
-        actor.Location.CellProposedForDeletion += Node_CellProposedForDeletion;
+        actor.Location.RoomProposedForDeletion -= Node_RoomProposedForDeletion;
+        actor.Location.RoomProposedForDeletion += Node_RoomProposedForDeletion;
         Changed = true;
         actor.OutputHandler.Send(
             $"You insert your current location ({actor.Location.HowSeen(actor)}) as a major patrol node at position #{value.ToString("N0", actor).ColourValue()}.");
@@ -472,7 +472,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         if (command.IsFinished && _patrolNodes.Contains(actor.Location))
         {
             _patrolNodes.Remove(actor.Location);
-            actor.Location.CellProposedForDeletion -= Node_CellProposedForDeletion;
+            actor.Location.RoomProposedForDeletion -= Node_RoomProposedForDeletion;
             Changed = true;
             actor.OutputHandler.Send(
                 $"You remove your current location ({actor.Location.HowSeen(actor)}) from the list of patrol nodes.");
@@ -485,7 +485,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
             return false;
         }
 
-        ICell location = Gameworld.Cells.Get(value);
+        IRoom location = Gameworld.Rooms.Get(value);
         if (location == null || !_patrolNodes.Contains(location))
         {
             actor.OutputHandler.Send("There is no such location on this patrol route.");
@@ -493,7 +493,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         }
 
         _patrolNodes.Remove(location);
-        location.CellProposedForDeletion -= Node_CellProposedForDeletion;
+        location.RoomProposedForDeletion -= Node_RoomProposedForDeletion;
         Changed = true;
         actor.OutputHandler.Send(
             $"You remove the location {location.HowSeen(actor)} from the list of patrol nodes.");
@@ -710,7 +710,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
         sb.AppendLine(
             $"Patroller Numbers: {PatrollerNumbers.Select(x => $"{x.Value.ToString("N0", actor)} {(x.Value == 1 ? x.Key.Name : x.Key.Name.Pluralise())}".ColourValue()).ListToString()}");
         sb.AppendLine("Nodes:");
-        foreach (ICell node in PatrolNodes)
+        foreach (IRoom node in PatrolNodes)
         {
             sb.AppendLine($"\t{node.Id.ToString("N0", actor)}) {node.HowSeen(actor)}");
         }
@@ -721,8 +721,8 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
             List<string> directions = new();
             for (int i = 0; i < _patrolNodes.Count; i++)
             {
-                ICell thisNode = _patrolNodes[i];
-                ICell nextNode = null;
+                IRoom thisNode = _patrolNodes[i];
+                IRoom nextNode = null;
                 if (i + 1 < _patrolNodes.Count)
                 {
                     nextNode = _patrolNodes[i + 1];
@@ -737,7 +737,7 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
                     continue;
                 }
 
-                IEnumerable<ICellExit> path = thisNode.PathBetween(nextNode, 50, PathSearch.PathIncludeUnlockableDoors(actor));
+                IEnumerable<IRoomExit> path = thisNode.PathBetween(nextNode, 50, PathSearch.PathIncludeUnlockableDoors(actor));
                 if (!path.Any())
                 {
                     directions.Add($"[Broken Path between {thisNode.HowSeen(actor)} and {nextNode.HowSeen(actor)}]"
@@ -745,9 +745,9 @@ public class PatrolRoute : SaveableItem, IPatrolRoute, IEditableItem
                     continue;
                 }
 
-                foreach (ICellExit exit in path)
+                foreach (IRoomExit exit in path)
                 {
-                    directions.Add((exit is NonCardinalCellExit ncce
+                    directions.Add((exit is NonCardinalRoomExit ncce
                         ? $"{ncce.Verb} {ncce.PrimaryKeyword}".ToLowerInvariant()
                         : exit.OutboundDirection.DescribeBrief()).Colour(Telnet.Green));
                 }

@@ -172,16 +172,16 @@ internal static partial class GNHProgram
 			Require(result.Status==MagicCastingStatus.Refused && result.OperationId is null && Rows()==before && caster.MagicResourceAmounts[native.Resource]==balance,"Prepayment conservation failed " + reason + ": " + result.Message);
 		}
 		// Admit a sandy terrain before component-specific refusals.
-		var oldCell = caster.Location;
-		var cell = CreateStormCell(native, database, fixture.CellId);
-		foreach (var item in oldCell.GameItems.ToArray()) { oldCell.Extract(item); cell.Insert(item, true); }
-		SetPrivateMember(caster, "Location", cell); ((List<ICharacter>)cell.Characters).Add(caster);
+		var oldRoom = caster.Location;
+		var room = CreateStormRoom(native, database, fixture.RoomId);
+		foreach (var item in oldRoom.GameItems.ToArray()) { oldRoom.Extract(item); room.Insert(item, true); }
+		SetPrivateMember(caster, "Location", room); ((List<ICharacter>)room.Characters).Add(caster);
 		Mock.Get(native.Body.Race).SetupGet(x => x.NaturalPerceptionTypes).Returns(PerceptionTypes.DirectVisual);
 		Mock.Get(native.Body.Prototype).SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(world));
 		var initialTerrain=(Terrain)world.Terrains.Single(); Require(initialTerrain.BuildingCommand(caster,new StringStack("name Desert")),"Initial sandy terrain failed.");
 		caster.AddResource(native.Resource,100);
 		var baselineQuote=casting.Quote(new(caster,cap.Id,spell.Id,1,false,""));
-		Require(baselineQuote.Allowed,"Sandy baseline admission failed before component-specific tests: " + baselineQuote.Reason + "; native terrain=" + cell.Terrain(caster).Name);
+		Require(baselineQuote.Allowed,"Sandy baseline admission failed before component-specific tests: " + baselineQuote.Reason + "; native terrain=" + room.Terrain(caster).Name);
 		Refused(7,"no mon component"); var lowToken=New("ARM03B2B creation token"); Carry(lowToken); Refused(7,"under-ranked wrong tag");
 		((All<ITag>)world.Tags).Remove(monTag); Refused(7,"unresolved mon tag and unrelated actual carried item");
 		Require(!lowToken.Deleted && spell.InventoryPlanTemplate.Phases.First().Actions.Single().SaveToXml().Attribute("tag")!.Value==monTag.Id.ToString(),"Missing tag consumed unrelated actual item or erased configured ID.");
@@ -208,12 +208,12 @@ internal static partial class GNHProgram
 		var templates = new RevisableAll<INPCTemplate>(); native.WorldMock.SetupGet(x => x.NpcTemplates).Returns(templates);
 		var data = new SimpleCharacterTemplate { Gameworld = world, SelectedName = new PersonalName(new XElement("Name", new XAttribute("culture", 1), new XElement("Element", new XAttribute("usage", "BirthName"), "opponent")), world),
 			SelectedRace = native.Body.Race, SelectedEthnicity = native.Body.Ethnicity, SelectedCulture = caster.Culture,
-			SelectedBirthday = world.Calendars.First().GetDate("1-month-2000"), SelectedStartingLocation = cell, SelectedGender = native.Body.Gender.Enum,
+			SelectedBirthday = world.Calendars.First().GetDate("1-month-2000"), SelectedStartingLocation = room, SelectedGender = native.Body.Gender.Enum,
 			SelectedHeight = 1.8, SelectedWeight = 80, SelectedSdesc = "an opponent", SelectedFullDesc = "A declared acceptance opponent.",
 			SelectedAccents = [], SelectedAttributes = [], SelectedCharacteristics = [], SelectedEntityDescriptionPatterns = [], SkillValues = [], SelectedRoles = [], SelectedMerits = [],
 			SelectedKnowledges = [], MissingBodyparts = [], SelectedDisfigurements = [], SelectedProstheses = [] };
 		var template = new SimpleNPCTemplate(world, DummyAccount.Instance, data, "Sand opponent"); templates.Add(template);
-		var opponent = (NPC)template.CreateNewCharacter(cell); world.Add(opponent, true); world.Add(opponent.Body); opponent.CombatSettings = caster.CombatSettings; cell.Enter(opponent);
+		var opponent = (NPC)template.CreateNewCharacter(room); world.Add(opponent, true); world.Add(opponent.Body); opponent.CombatSettings = caster.CombatSettings; room.Enter(opponent);
 		opponent.Body.Handedness = Alignment.Right;
 		void Strike(GameItem item, int grade, ICharacter? attacker = null, ICharacter? target = null)
 		{
@@ -244,24 +244,24 @@ internal static partial class GNHProgram
 		}
 		Carry(monToken); Require(!monToken.Deleted && casting.Quote(new(caster,cap.Id,spell.Id,7,false,"")).Allowed,"Mon baseline admission failed before environment refusals.");
 		TerrainName("Field"); Refused(1,"no terrain sand no storm no weather"); Refused(7,"no sand mon with actual eligible carried component");
-		Require(cell.AddTag(sandstormTag) && casting.Quote(new(caster,cap.Id,spell.Id,1,false,"")).Allowed,"Actual storm room tag not admitted.");
-		cell.RemoveTag(sandstormTag); var zone=(Zone)cell.Zone; SetPrivateField(zone, "_weather", weatherController.Object);
+		Require(room.AddTag(sandstormTag) && casting.Quote(new(caster,cap.Id,spell.Id,1,false,"")).Allowed,"Actual storm room tag not admitted.");
+		room.RemoveTag(sandstormTag); var zone=(Zone)room.Zone; SetPrivateField(zone, "_weather", weatherController.Object);
 		Require(casting.Quote(new(caster,cap.Id,spell.Id,1,false,"")).Allowed,"Selected actual native weather not admitted.");
 		weatherController.SetupGet(x=>x.CurrentWeatherEvent).Returns(otherWeather); Refused(1,"unmapped actual gale weather does not supply sand");
-		weatherController.SetupGet(x=>x.CurrentWeatherEvent).Returns(sandstorm); cell.AddTag(sandstormTag);
+		weatherController.SetupGet(x=>x.CurrentWeatherEvent).Returns(sandstorm); room.AddTag(sandstormTag);
 		foreach(var name in new[]{"Inside","City"}) { TerrainName(name); Refused(1,"blocked terrain despite room flag and weather " + name); Refused(7,"blocked mon despite both storm mappings " + name); }
-		cell.RemoveTag(sandstormTag); SetPrivateField(zone, "_weather", null!); TerrainName("Desert");
+		room.RemoveTag(sandstormTag); SetPrivateField(zone, "_weather", null!); TerrainName("Desert");
 		Require(!monToken.Deleted,"Environment refusal consumed mon component."); native.Body.Drop(monToken,silent:true);
 		Console.WriteLine("ARMSand-environment=passed five-native-terrains actual-room-storm-tag selected-native-weather null-unmapped-gale-weather-refused Inside-City-refuse-despite-both-storm-mappings no-payment controlled-controller actual-native-event-and-cell source-condition-not-inferred");
 		GameItem? restartItem=null;
 		for (var grade=1;grade<=6;grade++)
 		{
 			if(grade==2) { TerrainName("Field"); SetPrivateField(zone, "_weather", weatherController.Object); }
-			if(grade==6) { TerrainName("Shadow Plane"); cell.AddTag(sandstormTag); }
+			if(grade==6) { TerrainName("Shadow Plane"); room.AddTag(sandstormTag); }
 			var item=Cast(grade); Strike(item,grade); if(grade==2) { SetPrivateField(zone, "_weather", null!); TerrainName("Desert"); }
 			var deadline=item.SpellCreationOrigin!.DeadlineUtc!.Value;
 			Require(!item.GetItemType<ISalvageable>()!.CanSalvage(out _),"Temporary output acquired ordinary salvage value.");
-			if(grade==6) { restartItem=item; native.Body.Take(item); bag.Put(caster,item,false); cell.RemoveTag(sandstormTag); TerrainName("Desert"); break; }
+			if(grade==6) { restartItem=item; native.Body.Take(item); bag.Put(caster,item,false); room.RemoveTag(sandstormTag); TerrainName("Desert"); break; }
 			clock.Advance(deadline-RuntimeClock.UtcNow-TimeSpan.FromTicks(1)); effects.CheckSchedules(); items.ReconcileRetirements(RuntimeClock.UtcNow); Require(!item.Deleted,"Early temporary expiry.");
 			clock.Advance(TimeSpan.FromTicks(1)); items.ReconcileRetirements(RuntimeClock.UtcNow); items.ReconcileRetirements(RuntimeClock.UtcNow);
 			Require(item.Deleted && !native.Body.WieldedItems.Contains(item) && host.Store.Find(item.SpellCreationOrigin.LifecycleId)!.State==SpellLifecycleState.Completed && !foreignBag.Deleted && !lowToken.Deleted,"Temporary expiry lost exact ownership or foreign goods.");
@@ -273,11 +273,11 @@ internal static partial class GNHProgram
 		var permanent=Cast(7); Strike(permanent,7); Require(!exactSix.Deleted,"Higher component cast consumed unrelated exact-six token.");
 		Console.WriteLine("ARMSand-component-threshold=passed exact-six-prepayment-admitted higher-descendant-seven-paid-and-consumed wrong-lower-tags-refused exact-six-unrelated-preserved");
 		Require(permanent.GetItemType<ISalvageable>()!.CanSalvage(out _) && host.Store.Find(permanent.SpellCreationOrigin!.LifecycleId)!.State==SpellLifecycleState.Completed,"Permanent staff retained temporary value/retirement state.");
-		native.Body.Take(permanent); bag.Put(caster,permanent,false); var sibling=New("ARM03B2B goods"); cell.Extract(sibling); bag.Put(caster,sibling,false);
+		native.Body.Take(permanent); bag.Put(caster,permanent,false); var sibling=New("ARM03B2B goods"); room.Extract(sibling); bag.Put(caster,sibling,false);
 		world.SaveManager.Flush(); FlushCasting(native);
 		using(var db=NewIndependentContext(database.ConnectionString))
 		{
-			if(!db.CellsGameItems.Any(x=>x.GameItemId==foreignBag.Id)) db.CellsGameItems.Add(new(){CellId=fixture.CellId,GameItemId=foreignBag.Id}); db.SaveChanges();
+			if(!db.RoomsGameItems.Any(x=>x.GameItemId==foreignBag.Id)) db.RoomsGameItems.Add(new(){RoomId=fixture.RoomId,GameItemId=foreignBag.Id}); db.SaveChanges();
 			Require(db.GameItems.Find(restartItem!.Id)!.ContainerId==foreignBag.Id && db.GameItems.Find(permanent.Id)!.ContainerId==foreignBag.Id,"Foreign containment was not persisted.");
 		}
 		RunItemReaderProcess(new SandKnifeReader(database.Name,fixture,RuntimeClock.UtcNow,spell.Id,restartItem!.Id,restartItem.SpellCreationOrigin!.LifecycleId,restartItem.SpellCreationOrigin.DeadlineUtc!.Value,foreignBag.Id,sibling.Id,permanent.Id,permanent.Prototype.Id),"--sand-knife-stock-reader");

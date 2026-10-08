@@ -132,7 +132,7 @@ public static class HospitalServiceAvailability
 	}
 
 	private static bool TryGetAvailableSupplyEmployee(IHospital hospital, IHospitalService service,
-		ICharacter? patient, IReadOnlyCollection<ICell> treatmentLocations, out string reason)
+		ICharacter? patient, IReadOnlyCollection<IRoom> treatmentLocations, out string reason)
 	{
 		var contracts = hospital.EmploymentContracts ?? Array.Empty<IEmploymentContract>();
 		var activeTasks = hospital.TaskBoard?.ActiveTasks ?? Array.Empty<IEmploymentActiveTask>();
@@ -605,10 +605,10 @@ public static class HospitalServiceAvailability
 		return false;
 	}
 
-	private static IEnumerable<ICell> HospitalStockRooms(IHospital hospital)
+	private static IEnumerable<IRoom> HospitalStockRooms(IHospital hospital)
 	{
-		return (hospital.SupplyRooms ?? Enumerable.Empty<ICell>())
-		       .Concat(hospital.OperatingTheatres ?? Enumerable.Empty<ICell>())
+		return (hospital.SupplyRooms ?? Enumerable.Empty<IRoom>())
+		       .Concat(hospital.OperatingTheatres ?? Enumerable.Empty<IRoom>())
 		       .DistinctBy(x => x.Id);
 	}
 

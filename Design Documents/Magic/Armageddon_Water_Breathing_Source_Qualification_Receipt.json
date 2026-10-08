@@ -1,0 +1,362 @@
+{
+  "schema_version": 1,
+  "entry_key": "arm.spell.water_breathing",
+  "name": "Water Breathing",
+  "status": "source_qualified_adapter_gaps_block_stock_only_implementation",
+  "inspected_revision": "d936c929626936f49aa7a9bfd913efb778487ab9",
+  "runtime_code_checkpoint": "da9af18a57634cf77b92999810a9aad0102fa41c",
+  "branch": "codex/armageddon-five-stock-spells",
+  "worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock",
+  "historical_source_verified": true,
+  "stock_implemented": false,
+  "adapters_changed": false,
+  "live_casting_combat_or_breathing_hooks_changed": false,
+  "unit_tests_run": false,
+  "native_acceptance_run": false,
+  "native_acceptance_verified": false,
+  "assembly_execution": null,
+  "completion_clear": false,
+  "independent_review_pending": true,
+  "authoritative_row": {
+    "order": 32,
+    "kind": "spell",
+    "historical_name": "breathe water",
+    "key": "arm.spell.water_breathing",
+    "parent_historical_name": "create wine",
+    "parent_threshold": 80,
+    "opening": 30,
+    "raw_cap": 90,
+    "branches_at": 80,
+    "printed_minimum_mana": 20,
+    "parent_key": "arm.spell.draw_wine"
+  },
+  "provenance": {
+    "access": "Supported Library read/find; bounded native response snapshots saved to this executor and parsed as readable bytes. No full source materialization or transfer/URL bypass attempted.",
+    "brief": {
+      "library_file_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+      "file_id": "file_00000000273481fab2e542daf8801228",
+      "reported_size_bytes": 131071,
+      "total_lines": 905
+    },
+    "codedump": {
+      "library_file_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+      "file_id": "file_00000000438871faac40c5042679ce3a",
+      "reported_size_bytes": 8354060,
+      "total_lines": 242965
+    },
+    "captured_read_windows": [
+      {
+        "library_file_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+        "file_id": "file_00000000273481fab2e542daf8801228",
+        "start_line": 535,
+        "end_line": 552
+      },
+      {
+        "library_file_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+        "file_id": "file_00000000273481fab2e542daf8801228",
+        "start_line": 660,
+        "end_line": 667
+      },
+      {
+        "library_file_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+        "file_id": "file_00000000438871faac40c5042679ce3a",
+        "start_line": 82925,
+        "end_line": 82994
+      },
+      {
+        "library_file_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+        "file_id": "file_00000000438871faac40c5042679ce3a",
+        "start_line": 217138,
+        "end_line": 217178
+      },
+      {
+        "library_file_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+        "file_id": "file_00000000438871faac40c5042679ce3a",
+        "start_line": 81574,
+        "end_line": 81593
+      },
+      {
+        "library_file_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+        "file_id": "file_00000000438871faac40c5042679ce3a",
+        "start_line": 175892,
+        "end_line": 175895
+      },
+      {
+        "library_file_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+        "file_id": "file_00000000438871faac40c5042679ce3a",
+        "start_line": 172556,
+        "end_line": 172585
+      },
+      {
+        "library_file_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+        "file_id": "file_00000000438871faac40c5042679ce3a",
+        "start_line": 236270,
+        "end_line": 236281
+      },
+      {
+        "library_file_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+        "file_id": "file_00000000438871faac40c5042679ce3a",
+        "start_line": 24974,
+        "end_line": 24982
+      },
+      {
+        "library_file_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+        "file_id": "file_00000000438871faac40c5042679ce3a",
+        "start_line": 85626,
+        "end_line": 85642
+      }
+    ],
+    "additional_cross_entry_read_windows": [
+      "87130-87171 spell_firebreather refusal",
+      "91295-91324 spell_parch refusal"
+    ],
+    "read_evidence": {
+      "path": ".artifacts/test-runs/water-breathing-source-qualification-01/library-read-evidence.json",
+      "bytes": 25126,
+      "sha256": "9bed0bb86450886651b05c27e2716b2d2ac510230b56f256acf1c539d91a6770"
+    },
+    "full_dump_symbol_search": {
+      "pattern": "SPELL_BREATHE_WATER",
+      "case_sensitive": false,
+      "total_matches": 17,
+      "has_more": false,
+      "scope": "Only this symbol search is exhaustive; does not prove absence outside supplied dump"
+    }
+  },
+  "source_contract": {
+    "historical_skill_number": 443,
+    "native_element": "Water",
+    "sphere": "Abjuration",
+    "mood": "Beneficial",
+    "target": "character in room or self; ordinary missing target defaults to self; objects refused",
+    "minimum_position": "Standing",
+    "component": "none",
+    "save": "no target save in recovered effect function",
+    "active_environment_refusal": "none in recovered function; Nilaz rejection commented out",
+    "duration_units": "max(1, inclusive_number(floor(grade/2), 3*grade))",
+    "unit_seconds": 600,
+    "cap_units": 36,
+    "cap_seconds": 21600,
+    "recast": "Add existing source-type durations across casters, retain maximum source grade, replace source-type affects",
+    "grade_matrix": [
+      {
+        "grade": 1,
+        "draw_min": 0.0,
+        "draw_max": 3,
+        "duration_min_units": 1,
+        "duration_max_units": 3,
+        "unit_seconds": 600
+      },
+      {
+        "grade": 2,
+        "draw_min": 1.0,
+        "draw_max": 6,
+        "duration_min_units": 1,
+        "duration_max_units": 6,
+        "unit_seconds": 600
+      },
+      {
+        "grade": 3,
+        "draw_min": 1.0,
+        "draw_max": 9,
+        "duration_min_units": 1,
+        "duration_max_units": 9,
+        "unit_seconds": 600
+      },
+      {
+        "grade": 4,
+        "draw_min": 2.0,
+        "draw_max": 12,
+        "duration_min_units": 2,
+        "duration_max_units": 12,
+        "unit_seconds": 600
+      },
+      {
+        "grade": 5,
+        "draw_min": 2.0,
+        "draw_max": 15,
+        "duration_min_units": 2,
+        "duration_max_units": 15,
+        "unit_seconds": 600
+      },
+      {
+        "grade": 6,
+        "draw_min": 3.0,
+        "draw_max": 18,
+        "duration_min_units": 3,
+        "duration_max_units": 18,
+        "unit_seconds": 600
+      },
+      {
+        "grade": 7,
+        "draw_min": 3.0,
+        "draw_max": 21,
+        "duration_min_units": 3,
+        "duration_max_units": 21,
+        "unit_seconds": 600
+      }
+    ],
+    "offline_endpoint_mapping": "Native exact parent deadlines / ceil remaining units / saved remaining-time behavior are explicit engine adaptations, not historical offline parity",
+    "effect_scope": "Source water-plane drowning exemption; no recovered general all-fluid/organ-repair grant"
+  },
+  "superseded_catalogue": [
+    "Draw Water grade2/raw20 prerequisite",
+    "60*grade seconds duration",
+    "Energy base5; printed historical minimum is20"
+  ],
+  "proposed_mapping": {
+    "native_school": "Water under explicit native/cross-school Sorcerer route",
+    "acquisition": "Draw Wine raw80; opening30/raw cap90",
+    "energy": "Existing approved source-efficiency/grade-cost envelope with printed minimum20; no new inferred historical cost formula",
+    "fluid": "Explicit builder-selected water ILiquid(s) and declared CountsAs direction; no gases/null/unselected liquids",
+    "lifetime": "Seal selected random increment once through current prepared-selection protocol; native parent remaining duration accumulated to36*600 seconds; strongest source grade remains separate from native power",
+    "strategy": "Current grant consumer is lung only. Lung-only eligibility versus shared-strategy support needs explicit adaptation/allocation",
+    "position": "Map Standing explicitly",
+    "reporting": "Current operation interface; report actual capability/deadline/strength change, no-change or uncertainty"
+  },
+  "blockers": [
+    "Adapter has no editable/persisted fluid scope and its child accepts every non-null fluid, including gas",
+    "Adapter lacks operation reporting for configured paid application/mastery",
+    "Existing accumulated lifetime policy explicitly permits DetectInvisibleEffect/SpellDetectInvisibleEffect only, not Water Breathing; no random accumulated cap/retained-grade policy exists",
+    "Gill/blowhole/partless strategies do not consume the additional-fluid grant; strategy coverage needs explicit selection/allocation"
+  ],
+  "next_scope": "Return blocker before runtime expansion. No stock row, adapter patch, shared lifetime generalisation or harness dispatch edit is authorised by this qualification.",
+  "note": {
+    "path": "Design Documents/Magic/Armageddon_Water_Breathing_Source_Qualification.md",
+    "bytes": 12538,
+    "sha256": "911478c67b11a069d7e0e7badcbd662102112e86978bc3c322a12bafeb6f710b"
+  },
+  "inspected_file_manifest": {
+    "path": ".artifacts/test-runs/water-breathing-source-qualification-01/inspected-file-manifest.json",
+    "bytes": 3929,
+    "sha256": "390d2181a8c3c874a77bfa843fe2f90056ded7157c41c435a62038b294bdf0e3"
+  },
+  "source_files": [
+    {
+      "path": "Design Documents/Magic/Armageddon_Sorcerer_Source_Tree.json",
+      "bytes": 35285,
+      "sha256": "c87929ae6d67f138635cc7a5b8dda123a391413f0b2e7aa90ab58e6728cc0b1b",
+      "git_blob_sha1": "3ba7d20c656ef2e2992f8df6376b522d222ce971"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Completion_Progress.json",
+      "bytes": 221988,
+      "sha256": "9a8fa1a6a2d11fdf48ea9d7165aa3401a5e7eef6476044d4db831d01b635e882",
+      "git_blob_sha1": "841c10f13313f158cae79a47b9d04c1ee4bac1e6"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Repertoire.md",
+      "bytes": 674726,
+      "sha256": "c14153fd0f931bc028486863b79432cee8f7492cdad915464e5ac0a909b34f41",
+      "git_blob_sha1": "af49021b6dc177865adec91324e1c992e4cae7cc"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs",
+      "bytes": 36183,
+      "sha256": "f5f8e494198e494b80df2f9a0ebe4d8a3be03ed08cb5d0c3c9c374908ab86c94",
+      "git_blob_sha1": "eb10d91d60af5446004fbc1b552ac5301acc05ed"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/StandaloneSpellStatusEffects.cs",
+      "bytes": 17504,
+      "sha256": "18b8396a3f6e8f098c9184c103940e211d6d30215bafb82756440ab0453dcb60",
+      "git_blob_sha1": "b961cec8b9aa8f0f3d2c5331cd75c999740addeb"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/LungBreather.cs",
+      "bytes": 5620,
+      "sha256": "e2902691a44e7de7abea9c9a6129ba12eaaec8a3c8f699ba7fc975c6c539e9c8",
+      "git_blob_sha1": "a2c217665137820d1efbd9e1c6cb0d8a9fcf5420"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/GillBreather.cs",
+      "bytes": 2342,
+      "sha256": "db701ef8282ca2687030fc336539b1bbe74c4370fbb20be145822ec2609e8802",
+      "git_blob_sha1": "742891f3942962d824a0c36789c5bfd3d3029832"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/BlowholeBreather.cs",
+      "bytes": 3012,
+      "sha256": "8f44b6e02dabb255c978df82706a15e0a858afe216c8ac0fe3fb4e4d188ad7d2",
+      "git_blob_sha1": "f10131e7502f915462ead2f5916a495ae1a43a0a"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/PartlessBreather.cs",
+      "bytes": 1561,
+      "sha256": "b49d67ebfd51ddecdfbf7acba091ffd21f7fcfa7beef222d1dec51697e1915a4",
+      "git_blob_sha1": "359e4ef16e4dd72ba57fcb3a5e2b1cb8f28b3fff"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/BreathingStrategyHelper.cs",
+      "bytes": 2735,
+      "sha256": "06245d4a3269786ac534a657c1cb3d12c0254dbec1ce3fc68e893a84bcb8db32",
+      "git_blob_sha1": "c0e6ac00c70e1846aa2b3efad1d413fbc93e5d1c"
+    },
+    {
+      "path": "MudSharpCore/Body/Implementations/Body.cs",
+      "bytes": 38871,
+      "sha256": "4d82ebb869ff11f797cb7478dea84dcd7d55fa28d09c647cf2ade41cb98f9f63",
+      "git_blob_sha1": "2664080091f236f661af4b56fea2d9648e2b20f3"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.Lifetime.cs",
+      "bytes": 10503,
+      "sha256": "bab4e0fa54aef1dbde273c8053514c6cd9749e3ff5c9924ba148c316f278e72c",
+      "git_blob_sha1": "6d7f389ca4561b3a83ce7b2d75db7272ac26ceb6"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.cs",
+      "bytes": 100272,
+      "sha256": "a0b98a77494c27b46b372db352d7ac526d2659186665bd5ce36adbe3fefbbdb1",
+      "git_blob_sha1": "6d6ab01e83dcd0e8333b0aae1cf39ceca11bcbff"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonUtilityStock.cs",
+      "bytes": 6514,
+      "sha256": "3fd8c468b8b4b0c7d6b6529447e98e7c3804e5e7ce2eadead082a899c91079a8",
+      "git_blob_sha1": "1ff47ca6890fca2fd7561a1afb1538120ae36490"
+    },
+    {
+      "path": "MudSharpCore/Form/Material/Liquid.cs",
+      "bytes": 62276,
+      "sha256": "3a8153a546927db4004286b4d86ffbce95a4b9323211c84b2fa6a4fcef5deea9",
+      "git_blob_sha1": "c504510551512ed3be8ef13e825e8c1bfc49be69"
+    },
+    {
+      "path": "FutureMUDLibrary/Form/Material/IFluid.cs",
+      "bytes": 725,
+      "sha256": "09f25ff76e2309d824be2c2224452618969c250649ef1c4a574c5df70bd776ae",
+      "git_blob_sha1": "057296e4e5f35b0819b00e5b2349e3420275b1f8"
+    }
+  ],
+  "preserved_reviewed_evidence": [
+    {
+      "path": "Design Documents/Magic/Armageddon_Emotional_Stamina_Removal_Receipt.json",
+      "bytes": 37517,
+      "sha256": "bd3dbac05d47d47730e02ef7110418f67ab9d38212034bff67619b21afe6d9b6"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Emotional_Casting_Hook_Proposal.md",
+      "bytes": 12041,
+      "sha256": "07775b0f282903b9e1cd8215f0a2b9a7776243926da97dce25c52ceb5183fca1"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Emotional_Casting_Callers_Proposal.patch",
+      "bytes": 3888,
+      "sha256": "77f58b5f8a0fcf70e6965632cc83da7c9d471fa557f669f48eb0620222d779c6"
+    }
+  ],
+  "verification": {
+    "kind": "Static source/document qualification only",
+    "source_tree_row_matches": true,
+    "source_file_blobs_match": true,
+    "read_snapshot_is_readable": true,
+    "source_files_unmodified": true,
+    "code_tests_not_applicable": true,
+    "limits": [
+      "No Water Breathing stock exists in this checkpoint",
+      "No paid casts, random lifetime refresh, scoped native breathing, independent-process persistence, expiry/dispel or strategy coverage qualified",
+      "Prior7511 passing tests apply to da9af18a Fury correction, not unimplemented Water Breathing acceptance"
+    ]
+  }
+}

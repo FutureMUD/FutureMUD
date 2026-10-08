@@ -7,7 +7,7 @@ namespace MudSharp.Effects.Concrete;
 public class RestockingMerchandise : Effect
 {
     public ICharacter CharacterOwner { get; }
-    public Queue<ICellExit> CellExitQueue { get; private set; }
+    public Queue<IRoomExit> RoomExitQueue { get; private set; }
     public IMerchandise TargetMerchandise { get; set; }
     public int QuantityToRestock { get; set; }
     public List<IGameItem> CurrentGameItems { get; } = new();

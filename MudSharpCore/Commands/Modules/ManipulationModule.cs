@@ -4505,7 +4505,7 @@ The syntax is:
 
         IDoor openable = null;
 
-        ICellExit targetExit = character.Location.GetExitKeyword(ss.PopSpeech(), character);
+        IRoomExit targetExit = character.Location.GetExitKeyword(ss.PopSpeech(), character);
         if (targetExit != null)
         {
             if (targetExit.Exit.Door == null)
@@ -4525,7 +4525,7 @@ The syntax is:
             if (doorItem != null)
             {
                 openable = doorItem.GetItemType<IDoor>();
-                targetExit = openable.InstalledExit.CellExitFor(character.Location);
+                targetExit = openable.InstalledExit.RoomExitFor(character.Location);
             }
         }
 
@@ -4552,7 +4552,7 @@ The syntax is:
 
 	private const string InstallHelpText = @"The #3install#0 command is used to put compatible loose items into their working location. It can install a door into an exit, a loose lock into a lockable item or door, or a vehicle module into a compatible vehicle installation point. You must usually be holding the thing being installed, and ordinary characters take time to complete the work.
 
-Doors are installed into exits, which may be cardinal directions like #3north#0 or non-cardinal exit keywords like #3cell1#0. The exit must accept doors, must not already have one, and must be sized for the door. If you specify #3inwards#0 or #3outwards#0, that is from your current side of the exit.
+Doors are installed into exits, which may be cardinal directions like #3north#0 or non-cardinal exit keywords like #3room1#0. The exit must accept doors, must not already have one, and must be sized for the door. If you specify #3inwards#0 or #3outwards#0, that is from your current side of the exit.
 
 Locks must be loose installable lock items and must be unlocked before installation. Vehicle modules use the vehicle's own installation points and access checks. Any delayed installation can be interrupted if you move, lose the item, or the target stops being present.
 
@@ -4691,7 +4691,7 @@ The syntax is as follows:
                    x.Prototype.MountType.StartsWith(text, StringComparison.InvariantCultureIgnoreCase));
     }
 
-	private static IGameItem ResolveDoorItemFromExit(ICellExit exit)
+	private static IGameItem ResolveDoorItemFromExit(IRoomExit exit)
 	{
 		if (exit?.Exit.Door == null)
 		{
@@ -4702,7 +4702,7 @@ The syntax is as follows:
 		return exit.Exit.Door.Parent;
 	}
 
-	private static ICellExit ResolveDoorExit(ICharacter character, IDoor door, ICellExit exit = null)
+	private static IRoomExit ResolveDoorExit(ICharacter character, IDoor door, IRoomExit exit = null)
 	{
 		if (exit?.Exit.Door == door)
 		{
@@ -4710,7 +4710,7 @@ The syntax is as follows:
 			return exit;
 		}
 
-		var installedExit = door.InstalledExit?.CellExitFor(character.Location);
+		var installedExit = door.InstalledExit?.RoomExitFor(character.Location);
 		if (installedExit?.Exit.Door == door)
 		{
 			return installedExit;
@@ -4725,7 +4725,7 @@ The syntax is as follows:
 		return visibleExit;
 	}
 
-	private static void RepairDoorExitBackReference(ICellExit exit, IDoor door)
+	private static void RepairDoorExitBackReference(IRoomExit exit, IDoor door)
 	{
 		if (exit?.Exit.Door != door || door.InstalledExit == exit.Exit || door.InstalledExit != null)
 		{
@@ -4737,7 +4737,7 @@ The syntax is as follows:
 		exit.Exit.Changed = true;
 	}
 
-	private static bool TargetRemainsPresentForInstall(ICharacter character, IGameItem targetItem, ICellExit exit)
+	private static bool TargetRemainsPresentForInstall(ICharacter character, IGameItem targetItem, IRoomExit exit)
 	{
 		if (targetItem is null || !character.CanManipulateItem(targetItem).Truth)
 		{
@@ -4751,7 +4751,7 @@ The syntax is as follows:
 
 		var targetAsDoor = targetItem?.GetItemType<IDoor>();
 		return targetAsDoor != null &&
-		       ResolveDoorExit(character, targetAsDoor, exit)?.Exit.Cells.Contains(character.Location) == true;
+		       ResolveDoorExit(character, targetAsDoor, exit)?.Exit.Rooms.Contains(character.Location) == true;
 	}
 
     private static void InstallLock(ICharacter character, StringStack ss, IGameItem lockItem, ILock theLock)
@@ -4765,7 +4765,7 @@ The syntax is as follows:
         string targetText = ss.PopSpeech();
         IGameItem targetItem = null;
 
-        ICellExit exit = character.Location.GetExitKeyword(targetText, character);
+        IRoomExit exit = character.Location.GetExitKeyword(targetText, character);
         if (exit == null)
         {
             targetItem = character.TargetItem(targetText);
@@ -4865,7 +4865,7 @@ The syntax is as follows:
 
         string exitText = ss.PopSpeech();
 
-        ICellExit exit = character.Location.GetExitKeyword(exitText, character);
+        IRoomExit exit = character.Location.GetExitKeyword(exitText, character);
         if (exit == null)
         {
             character.Send("There is no exit in that direction.");
@@ -4894,7 +4894,7 @@ The syntax is as follows:
             return;
         }
 
-        ICell openDirection = null;
+        IRoom openDirection = null;
         if (!ss.IsFinished)
         {
             switch (ss.PopSpeech().ToLowerInvariant())
@@ -4916,8 +4916,8 @@ The syntax is as follows:
             if (exit.Exit.Door == null)
             {
                 door.State = DoorState.Open;
-                door.OpenDirectionCell = openDirection;
-                door.HingeCell = character.Location;
+                door.OpenDirectionRoom = openDirection;
+                door.HingeRoom = character.Location;
                 door.Changed = true;
                 door.InstalledExit = exit.Exit;
                 character.Body.Take(doorItem);
@@ -4964,7 +4964,7 @@ The syntax is as follows:
 
 	private const string UninstallHelpText = @"The #3uninstall#0 command is used to remove installed things from their working location. It can remove a door from an exit, a lock from a lockable item or door, or a vehicle module from a vehicle installation point. Ordinary characters take time to complete most removals, while administrators complete them immediately.
 
-Doors are addressed either by the door item or by the exit keyword shown in LOOK, including non-cardinal exits like #3cell1#0. Removing a door may require the door to be player-removable, may be easier or harder from the hinge side, and may require a successful check with the appropriate trait.
+Doors are addressed either by the door item or by the exit keyword shown in LOOK, including non-cardinal exits like #3room1#0. Removing a door may require the door to be player-removable, may be easier or harder from the hinge side, and may require a successful check with the appropriate trait.
 
 Locks must usually be unlocked first, and if the locked object can open it must be open before you remove its lock. Removed locks go to your hands if possible or are set down; removed doors are placed in the room. Delayed removals can be interrupted if the target disappears, closes, locks, or otherwise changes while you work.
 
@@ -4993,7 +4993,7 @@ The syntax is as follows:
 
         string targetText = ss.PopSpeech();
         IGameItem targetItem = null;
-        ICellExit exit = character.Location.GetExitKeyword(targetText, character);
+        IRoomExit exit = character.Location.GetExitKeyword(targetText, character);
         if (exit == null)
         {
             targetItem = character.TargetItem(targetText);
@@ -5203,7 +5203,7 @@ The syntax is as follows:
         }
     }
 
-    private static void UninstallDoor(ICharacter character, IGameItem doorItem, IDoor door, ICellExit exit)
+    private static void UninstallDoor(ICharacter character, IGameItem doorItem, IDoor door, IRoomExit exit)
     {
 		exit = ResolveDoorExit(character, door, exit);
 		if (exit == null || door.InstalledExit == null)
@@ -5221,9 +5221,9 @@ The syntax is as follows:
             }
 
             if ((door.UninstallDifficultyHingeSide == Difficulty.Impossible &&
-                 door.HingeCell == character.Location) ||
+                 door.HingeRoom == character.Location) ||
                 (door.UninstallDifficultyNotHingeSide == Difficulty.Impossible &&
-                 door.HingeCell != character.Location))
+                 door.HingeRoom != character.Location))
             {
                 character.Send($"You cannot think of a way to remove {doorItem.HowSeen(character)} from this side.");
                 return;
@@ -5244,7 +5244,7 @@ The syntax is as follows:
 
         CrimeExtensions.CheckPossibleCrimeAllAuthorities(character, CrimeTypes.BreakAndEnter, null, doorItem, "");
 
-        Difficulty difficulty = door.HingeCell == character.Location
+        Difficulty difficulty = door.HingeRoom == character.Location
             ? door.UninstallDifficultyHingeSide
             : door.UninstallDifficultyNotHingeSide;
 
@@ -5259,8 +5259,8 @@ The syntax is as follows:
                 {
                     exit.Exit.Door = null;
                     exit.Exit.Changed = true;
-                    door.OpenDirectionCell = null;
-                    door.HingeCell = null;
+                    door.OpenDirectionRoom = null;
+                    door.HingeRoom = null;
                     door.State = DoorState.Uninstalled;
                     door.InstalledExit = null;
                     ILockable doorAsUnlockable = door.Parent.GetItemType<ILockable>();
@@ -5478,11 +5478,11 @@ The common syntax is:
             return;
         }
 
-        IEnumerable<ICellExit> exits = actor.Location.ExitsFor(actor);
+        IEnumerable<IRoomExit> exits = actor.Location.ExitsFor(actor);
         IOpenable openable = null;
         ICharacter openableOwner = null;
-        ICellExit[] cellExits = exits as ICellExit[] ?? exits.ToArray();
-        ICellExit targetExit = actor.Location.GetExitKeyword(cmd, actor);
+        IRoomExit[] cellExits = exits as IRoomExit[] ?? exits.ToArray();
+        IRoomExit targetExit = actor.Location.GetExitKeyword(cmd, actor);
         if (targetExit != null)
         {
             if (targetExit.Exit.Door == null)
@@ -6495,12 +6495,12 @@ The common syntax is:
             return;
         }
 
-        IEnumerable<ICellExit> exits = actor.Body.Location.ExitsFor(actor.Body);
+        IEnumerable<IRoomExit> exits = actor.Body.Location.ExitsFor(actor.Body);
 
         IOpenable openable = null;
         ICharacter openableOwner = null;
-        ICellExit[] cellExits = exits as ICellExit[] ?? exits.ToArray();
-        ICellExit targetExit = actor.Body.Location.GetExitKeyword(cmd, actor.Body);
+        IRoomExit[] cellExits = exits as IRoomExit[] ?? exits.ToArray();
+        IRoomExit targetExit = actor.Body.Location.GetExitKeyword(cmd, actor.Body);
         if (targetExit != null)
         {
             if (targetExit.Exit.Door == null)
@@ -6722,7 +6722,7 @@ The syntax is as follows:
         IGameItem targetItem = null;
         ILockable lockable = null;
         ILock theLock = null;
-        ICellExit targetExit = actor.Location.GetExitKeyword(cmd, actor);
+        IRoomExit targetExit = actor.Location.GetExitKeyword(cmd, actor);
         if (targetExit != null)
         {
             if (targetExit.Exit.Door == null)
@@ -6892,7 +6892,7 @@ The syntax is as follows:
         IGameItem targetItem = null;
         ILockable lockable = null;
         ILock theLock = null;
-        ICellExit targetExit = actor.Location.GetExitKeyword(cmd, actor);
+        IRoomExit targetExit = actor.Location.GetExitKeyword(cmd, actor);
         if (targetExit != null)
         {
             if (targetExit.Exit.Door == null)
@@ -8738,7 +8738,7 @@ The syntax is:
 
         string whereText = ss.PopSpeech();
 
-        ICellExit exit = null;
+        IRoomExit exit = null;
         if (!Enum.TryParse<RoomLayer>(whereText, true, out RoomLayer layer))
         {
             exit = actor.Location.GetExitKeyword(whereText, actor);

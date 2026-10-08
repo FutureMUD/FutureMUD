@@ -18,7 +18,7 @@ namespace MudSharp.Framework
         ///     If the perceiver is returning a non-null value for this, they wish to see non-default CellOverlays as they move
         ///     around (likely as they are building)
         /// </summary>
-        ICellOverlayPackage CurrentOverlayPackage { get; set; }
+        IRoomOverlayPackage CurrentOverlayPackage { get; set; }
 
         PerceptionTypes NaturalPerceptionTypes { get; }
 

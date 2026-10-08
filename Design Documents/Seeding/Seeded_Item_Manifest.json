@@ -1,7 +1,7 @@
 {
   "manifestVersion": "2",
-  "sourceFingerprint": "b931db7b68154b290373736a335429310ffdf09fc981be329a9f51bb6df084ca",
-  "generatedAtUtc": "2026-09-12T23:31:13.278631Z",
+  "sourceFingerprint": "66d8fa1275f4a78167e4c7b331ea22a45d05157fbae66eb9d22a8faf963f4d9d",
+  "generatedAtUtc": "2026-10-07T05:37:37.603787Z",
   "entries": [
     {
       "entityType": "commodity-spoilage",
@@ -563626,7 +563626,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "11d46c3ab30cbd0f95cfb3a760ea6a03912a72ee8ae37fb38561ba38f1c338c5"
+      "fingerprint": "7860fe54b4d26b14c6e3e48259e083cc17ec9fa8d3d650a840a2c1a078f92bff"
     },
     {
       "entityType": "vehicle",
@@ -563637,7 +563637,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c5c1c77e78c0c0dbe47c884b5a064cacd911230bd5f2aaf437593e91a818a754"
+      "fingerprint": "c6bf13b1753aadbcebc7950a8d45bbf6c7e97727c5d82efc42726d00725af10c"
     },
     {
       "entityType": "vehicle",
@@ -563648,7 +563648,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "6a236b5b896d4318563f277cf6d4b67bfcd349ec92365fc35e01e5bfcef16733"
+      "fingerprint": "e60f51d7bdea0ddd6aea737660f0dcf73e0b89a6889ae76e57d383e5ae876317"
     },
     {
       "entityType": "vehicle",
@@ -563659,7 +563659,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9b0b70cd0884535b9185e11024e8710ab598ffbe4f16092ad1ab76503cb286f0"
+      "fingerprint": "e3aa4589e8eeb4c8027d131b75b9049ebe8e1b7c2e1c2b966d9534acf674ac1e"
     },
     {
       "entityType": "vehicle",
@@ -563670,7 +563670,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "28e0157c8723eca3bb51bec88e20217ad5f523d4532b0f2aa169752194bf6ac5"
+      "fingerprint": "72961782e6037317d171ff9af84ccc1a4a3cdcd7bbb8e058e83d3b4caa98e2c4"
     },
     {
       "entityType": "vehicle",
@@ -563681,7 +563681,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "534b6563d3b1677d77473c3fc8b08f29e111bc1969d6dbc4e551a43c562f457d"
+      "fingerprint": "158d4d94eb18618f360c725ea4772ecc37083463e13276376d47378d5a9a8863"
     },
     {
       "entityType": "vehicle",
@@ -563692,7 +563692,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "eb9b21ef247cf26703505d6a15140896c7be61730c0c732aaba5ec5616365bae"
+      "fingerprint": "cc6f0a0a923ee49eaacbedb4c58d6b6f19a9a7aa61716714e7b80b6c3273331e"
     },
     {
       "entityType": "vehicle",
@@ -563703,7 +563703,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "29d69f0f6836ddcee2520d0b5cf812267d7793927689174829a594650bfd86df"
+      "fingerprint": "05bcf270d14fc5523ae2c31e57d04025ebd57cc7b66fc0189af4bed3129386be"
     },
     {
       "entityType": "vehicle",
@@ -563714,7 +563714,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f3dbc57e7bd10905df25dba5af52f2c9467ef192706504c4eb7d78b39b06a429"
+      "fingerprint": "38a60112ac4a5949a4f58d7ae85a982b970bb8dffe95e101e720973e26650d81"
     },
     {
       "entityType": "vehicle",
@@ -563725,7 +563725,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "588219f6102a0ad6620d10acc15c2e65fe005f04dc6debff01088789e6df8356"
+      "fingerprint": "2efbf06dc05acfba4144b9a6ab083b3c632feda5e736a1e35229a5abd8e20dcf"
     },
     {
       "entityType": "vehicle",
@@ -563736,7 +563736,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f88ad348f14dce27dab623ef90fceac3c95b1f0b1585967d71156d23b154af35"
+      "fingerprint": "3caa5b4d0b54b302e740e79cf1dde178eca08fed22c8f29f2eb84e7d7c2eb1b2"
     },
     {
       "entityType": "vehicle",
@@ -563747,7 +563747,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1259299b17f4e6c8bcf6f6df8c1a1680bb5963284cb486fc7b32eb35146e6476"
+      "fingerprint": "dc4025ee87c8a876d67e30e04c48671413b939fce017f13b3da4b9369e8ec853"
     },
     {
       "entityType": "vehicle",
@@ -563758,7 +563758,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d09c3e652aac29ac4c9f42c63f0319782f53ec0598940dad6f49f6b7fe28577c"
+      "fingerprint": "e8e2d056ee3946c69d360b31c6e42950a085a07bc347872d61cfcb26ea098d41"
     },
     {
       "entityType": "vehicle",
@@ -563769,7 +563769,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3f06a9441cef35abc145c866906ed8b0b8074fe6a15a1e7ade92896ef49a1bf6"
+      "fingerprint": "b29bebf1286f263e26628c68903d275199611d066ffa75c9c1caf6055d5cd135"
     },
     {
       "entityType": "vehicle",
@@ -563780,7 +563780,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "4ee49cfb3f0f53b4f1761413c4771451804844c12501065ace85e122256877d9"
+      "fingerprint": "63369434245a51cf3e5937cdc8d1f71d5fdbf3abf8cf87cd787807086a25919f"
     },
     {
       "entityType": "vehicle",
@@ -563791,7 +563791,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "416441cffbca3b2e822a222bbf8c774e5cd207aed478885bf6c390dffecc0790"
+      "fingerprint": "12c060abf5466b0826eef19ee320fadac32a22d0460e986fe07f5cf6b8ea45b7"
     },
     {
       "entityType": "vehicle",
@@ -563802,7 +563802,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "767fb342badaa106702c82aa9a5f71109e5337f8cc2b0af20974a3e7dfb69fbe"
+      "fingerprint": "e62cfdc23b14c7e5daf46524566f9957201f105c53cf31e7606845961e1ecfbb"
     },
     {
       "entityType": "vehicle",
@@ -563813,7 +563813,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d441d4204d3b7929f8e6b87d75ba05a6f03eac63e2e7b8a7fea0e80cd2b358cc"
+      "fingerprint": "ddf8b09d809ca5d8439d17f7b5d61fa513ada64319b219e1dcdf7451b34c1340"
     },
     {
       "entityType": "vehicle",
@@ -563824,7 +563824,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "304565b9437e738f05fa14d6a16f43b6baf9182b3d6bc52c05ef2a52729c461e"
+      "fingerprint": "75ea05986fec87d2a22cb8fbebb680cb124b78d803f57a08d7a2a637a6ea0aa7"
     },
     {
       "entityType": "vehicle",
@@ -563835,7 +563835,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8f2cfa2391c3d083f3007b692cd535d8e7c1de0f3e75e9c425e3b767c1ca4b1d"
+      "fingerprint": "c2c7aa6a2221bb78e6b53c27a443f7823e93159f12dee26a5e61c15730970e86"
     },
     {
       "entityType": "vehicle",
@@ -563846,7 +563846,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "ddb9efce82d32f83322a823712b644697953b0d4bdb181a66a4c294b62aed806"
+      "fingerprint": "f4baf04520ee5f948668769e0a593134fb92caf4d599d77167ee108df4c829ab"
     },
     {
       "entityType": "vehicle",
@@ -563857,7 +563857,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "5550fefd18d8b9fdab2b65ea3048122fbbbb578f4a41ddc49dff38770595ea11"
+      "fingerprint": "decdf9b3fcbc9f488b4d28f4d5574bdecfadb90fca0a5dff04e69ccba3d7b8dc"
     },
     {
       "entityType": "vehicle",
@@ -563870,7 +563870,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e0c8cc003614ce1aaf1cc89e92c4b701673085f9aeb450bde820d18406e5a8a3"
+      "fingerprint": "ccac9bb6c6e71febc457ecc409ee77a1d576854d09d4aecc068649e73d29d0ac"
     },
     {
       "entityType": "vehicle",
@@ -563883,7 +563883,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a552300b82b9c77b837d3a27a1a32df4bc0e0a621137568047374a2763433471"
+      "fingerprint": "5840dabaa81903d46d7004781604e017aa15cdb24c254e62bbecca20c3092812"
     },
     {
       "entityType": "vehicle",
@@ -563894,7 +563894,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b1ed73eb4653f042b2a053e917dd6311908846d51520182344a2d23969fbc5eb"
+      "fingerprint": "6634e5b843e824103b2f6a9dbff3c8aa817fd03e69d447326b0de36684516347"
     },
     {
       "entityType": "vehicle",
@@ -563908,7 +563908,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b83ff4f72e87a531344d775d8b0e995209792c293b11647193e0a9c8745d44bb"
+      "fingerprint": "378f349543d65dab82d5e7f4c9d8b06913f8633726c5725d9611fe3b8342f371"
     },
     {
       "entityType": "vehicle",
@@ -563922,7 +563922,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "de3797d10bcf6fc36d3cb17aa62f3679cf2e9e894e2f5c9775124c0f20329990"
+      "fingerprint": "bdb12ba7ef48a61453e2a9b136426fe0b0dfd15ae2425e4956d85dfec628f021"
     },
     {
       "entityType": "vehicle",
@@ -563936,7 +563936,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "092c10c3454fbece1d7e64034a95c4b1ae287d811faba9e4322be335d7b90d62"
+      "fingerprint": "6985fd985710f91f6f00368bb9f31d263f80381e2590e04539d867ca5951601a"
     },
     {
       "entityType": "vehicle",
@@ -563950,7 +563950,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8e21d9e448e38f6aa9de4715a9afbdac7cfd4657f749c80fdd6be7d05d102a94"
+      "fingerprint": "716c5ec8f41b8ad6b36ec05d6f3f8f5132cbeee8d16532f0afe54969764d579e"
     },
     {
       "entityType": "vehicle",
@@ -563964,7 +563964,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "23e2f7cae0bf43ce73dcc5c7b9f0b98d256b62fe46fce87c7655620e57527894"
+      "fingerprint": "ce8c651a4f6401b25dba583ad2345c688ad7244b47a3fd5b1cfd3d803e9c39d8"
     },
     {
       "entityType": "vehicle",
@@ -563978,7 +563978,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "07ce09f3ebd2fd7eae929c6dd115a65a83b08b80becff2fb1596de9e5d6deee7"
+      "fingerprint": "89be64f26f3ee374245a19774638367d127b90393d172416a0c9ea9bf41c7894"
     },
     {
       "entityType": "vehicle",
@@ -563992,7 +563992,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "d40edb31bb6f749c92800060572ff99bb45bd49b89440714f4d07b7ab6ac807c"
+      "fingerprint": "d5841dc40a4fe895d9137d41e54116b97d5c9077a8093553af94ac032c1fb010"
     },
     {
       "entityType": "vehicle",
@@ -564006,7 +564006,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "149bf470f4d067153e893300ae920b8d27770b914e58b414c160e7f75aaa2397"
+      "fingerprint": "78f6af5976fe5e584a395e21341cf03418144663047a59f9b553d02b77feed2c"
     },
     {
       "entityType": "vehicle",
@@ -564018,7 +564018,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b687d1ee7017a3cd37fd5fdbb1f0e118c72a3a02dc13412bbb1a2b3d5606515f"
+      "fingerprint": "fa9c8aa3a51a31e7568401128482f3b19f360813f86c7ac32efb77cbcd0dfba6"
     },
     {
       "entityType": "vehicle",
@@ -564029,7 +564029,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8e385576ad190d87c019e555f6dfa65b5ec9dcdbe1c183f7eb3c29a8cc29f200"
+      "fingerprint": "a936b4d962ad3177cd367027f558e3a6b295badb6d7bd93fcc6c4299c0e41021"
     },
     {
       "entityType": "vehicle",
@@ -564041,7 +564041,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9fc6877578e0719a7ddca57b53c6d6914387da8038ab3fbb7f76860333afc6de"
+      "fingerprint": "1601017560a0eb721bffc7186bc53698cf5afd37a77b12057047bd41ae8e6258"
     },
     {
       "entityType": "vehicle",
@@ -564053,7 +564053,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "e853833cf0e2315945ead3e25ce9ea7d6ed6c93f3c43358abb10552b25817d0a"
+      "fingerprint": "79da945564759b21df8eaed553e30b15411ec4475598d574ec392077f2a14146"
     },
     {
       "entityType": "vehicle",
@@ -564064,7 +564064,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "f63a903928e0a72179aaa7cb002d4cb6eeca20af2a96992fcfd317101b01fa91"
+      "fingerprint": "9008a90e28650c48c0808e1c1c58f434d3f34584ffee2fa4c63e8bdf490bc54b"
     },
     {
       "entityType": "vehicle",
@@ -564076,7 +564076,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "9540dda2c5dd823d87840b7d88179824c258aed635b6bf1a95ae0c9072ae4981"
+      "fingerprint": "7ca711bad48a4b5cc1843dc02a2e79821b2458cf271e54ecb0224bdedee8a532"
     },
     {
       "entityType": "vehicle",
@@ -564087,7 +564087,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c0967f37e99c326e9b5c3c8230f01f45b81e132e6fcf8460d8760ad68d188dda"
+      "fingerprint": "e69768fe1aceeca1dd60e8b5fc8ce5cd38164dc4086bd1c8ab9c4309738e0553"
     },
     {
       "entityType": "vehicle",
@@ -564098,7 +564098,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0dd198806e0b4361ae21e4ee0ea95caa1517ebeebcc8fa0dfa6cf1353886f18e"
+      "fingerprint": "693543f1b18bdc27e945126c7216a9765249f2faa34781628582046989d2eb2d"
     },
     {
       "entityType": "vehicle",
@@ -564109,7 +564109,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "116625237469baabddb7c38dea3ceed5ab5c53e86460406ee211cae06b8d8722"
+      "fingerprint": "fe186f7d9fc7198085e029cc28a5b881d3840d74b465767c4c6d9e934a4461f1"
     },
     {
       "entityType": "vehicle",
@@ -564120,7 +564120,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a0ea9b9d959697f030cd2d027320eec6e8b12ad3f9b8a39972385439c4d72de7"
+      "fingerprint": "9823a070af98058efddbbfed1b2b3351243fc9e8a071f9e2a75c2d5d9e9646ea"
     },
     {
       "entityType": "vehicle",
@@ -564131,7 +564131,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0a3cf18f8398485c0ddcc8919e0bb769e917cdbad05ea79307004f39b7665f4d"
+      "fingerprint": "de732022c0c9560b16c8cc64185af68d73c405313265cb6d07f8747ddbb81b85"
     },
     {
       "entityType": "vehicle",
@@ -564142,7 +564142,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "a804ae46382ede42cfe2bc5f436866706db717de95e583f22110ac0ef1536e0f"
+      "fingerprint": "26d18d3280a8e4633d5e006765208f2bf36a6ba2c2c61229bd68c79cbf0a2362"
     },
     {
       "entityType": "vehicle",
@@ -564153,7 +564153,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1f579757fa0d5553bf1192c9ace2f45446da49d717b92a0a7e9dad941da17d7c"
+      "fingerprint": "52bde0d241e4fd35c2a226bef1f4b3f2fd3528fc3b2b87831e2363fba1cf642d"
     },
     {
       "entityType": "vehicle",
@@ -564164,7 +564164,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "c3cb9afc4cd2c81731dec4252c6875afe6ed25fd00fab03b7822e20cceb8ec6f"
+      "fingerprint": "e2b23196a178f87d5705901131b631802df96825bd9e82b17cdbd6723d78473c"
     },
     {
       "entityType": "vehicle",
@@ -564175,7 +564175,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "724676eba5c8726946ffdf3cc4fa68af3d98f2fd9c57ca8407e3e9612509c0c8"
+      "fingerprint": "71c652b34faf7fc39d6be1d316422933d194df4fb3a90eecd0575af06b0bc72b"
     },
     {
       "entityType": "vehicle",
@@ -564186,7 +564186,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "00f9e76fb4831a0b8ca47407fa5e85f87c42df7946a7fd09d76068cc2d0e65fd"
+      "fingerprint": "e93799e2e0ed08aee43896bd6a38bfeeba71af0e11fa4fc3c073d758a949c799"
     },
     {
       "entityType": "vehicle",
@@ -564197,7 +564197,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b0563caae49a988f6d2598d9196ba9dac3bbe7f0a6cd64bf255fd0688faeb456"
+      "fingerprint": "3712e94b952f1c26fa514e2a8b478e2d1de78fb177af746bd74af8db9ecc7acc"
     },
     {
       "entityType": "vehicle",
@@ -564208,7 +564208,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "1d73b36f5d58c14023f653b84a8e8fe33c68ff2ab153082ab722954200e6e882"
+      "fingerprint": "027ee1a57c130ccd33c5a165db838633a56a7240d1113607407dc351f16870bb"
     },
     {
       "entityType": "vehicle",
@@ -564219,7 +564219,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "df68ebe0401624306fa03410af1e0c4975cec1472bc37df2fa01f64ce799692b"
+      "fingerprint": "01f5944f033cf0508e89b9db6e1421fadfe6e1f4efa769dda8efb215d4bb374d"
     },
     {
       "entityType": "vehicle",
@@ -564230,7 +564230,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "de331a09d8b46dd70e93741de81a8c154baa8571d30754b0e185597c70c53ef0"
+      "fingerprint": "e401b3d34148e1bd4470ab7619f1ec23c4f942bd55c970193bd42132ddc1f129"
     },
     {
       "entityType": "vehicle",
@@ -564241,7 +564241,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "058867288ebc3790826a429e0af079bee41a2f100edc2fe0464ed7f30ff7a686"
+      "fingerprint": "34176bf2bcd1be792575b85c05a3d83715b5cbbca628f4ca0be863ece1d4bfb6"
     },
     {
       "entityType": "vehicle",
@@ -564252,7 +564252,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "087d3656a1c0bcd498e9039a06db16866e81d69d766cbbdea27c5eaed58c0829"
+      "fingerprint": "3f30b71a54fcfcc20d64d00cb2d6667dc1095549ad40a30048c8b03145f5f554"
     },
     {
       "entityType": "vehicle",
@@ -564263,7 +564263,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "3e8103be5e88e7ebaf9c231b7bf1b917d5aa3e30299c76672f38afac016621af"
+      "fingerprint": "e0f5126be5015d98ac19ef9807549b65c9fee0c5c7a039a960deaf35f96f4971"
     },
     {
       "entityType": "vehicle",
@@ -564274,7 +564274,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0e19bbab12772f6b8c04c43cf955766ed46ef0b7215dfc3766f74c71da1dc7a8"
+      "fingerprint": "eccd589a609911e19059391b80501e0b516baf4e063bcb4950d849750de5c8a8"
     },
     {
       "entityType": "vehicle",
@@ -564285,7 +564285,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "19faac01141de56aac71e8101a5cb0a8b113297be3d3cd8763594409776cb36a"
+      "fingerprint": "17e0c2a8a1f33e14f89588bb53d604108afa5c4e7a7b93aade44eef94b3d1653"
     },
     {
       "entityType": "vehicle",
@@ -564296,7 +564296,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "7ecae5deb1c7235f03235a06710168b1a9f7e5cd53f8bf4376d1b63bf823cd80"
+      "fingerprint": "1fb1e7ca36034c113a201525e7d6b5206f349df4f7775a7ed16ba2494e4bcaaa"
     },
     {
       "entityType": "vehicle",
@@ -564307,7 +564307,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "05342fdb1ec87cecbfd2f7670fcf8337cade2c5f2a61a1ab443d53465e88d83e"
+      "fingerprint": "7c5ceb18da332c0afeee95dcb905d92ac65c8872616b036f1f6cafe02d1a1286"
     },
     {
       "entityType": "vehicle",
@@ -564329,7 +564329,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "7850d4dc0b40c880c7d25ddbd86d8f088e2ac8362d4961c37cf78b94db447da9"
+      "fingerprint": "62b4055fcbf865739664fa9c3d44a3868cf1a3d3c27d95d05cb2cbe47f37ab11"
     },
     {
       "entityType": "vehicle",
@@ -564340,7 +564340,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "689fac61deb3b8f5d0957e7a49d15a55a3a99321553dc724c727a1f3b24f3367"
+      "fingerprint": "e670f4ccb4f4d8aa10d51efcb243392c8510fbd521b30e316df33f7140e5235e"
     },
     {
       "entityType": "vehicle",
@@ -564362,7 +564362,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "58e76549509f74836c43aa74e2ef87bb79a544b2a9a151335927356b3c8bc649"
+      "fingerprint": "4274527da8bda67335411de12e77364828ffecd1d844b59c5859617198c02786"
     },
     {
       "entityType": "vehicle",
@@ -564373,7 +564373,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "0cf8d080dbdc6276fd5004007e67f907eb8994cac34571aaf64440f0b00e72bc"
+      "fingerprint": "8934ccca8a36ff783b7724a7c8d75dccc9445ec44a7cf580703c9bf7ff0e81ae"
     },
     {
       "entityType": "vehicle",
@@ -564472,7 +564472,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "121bd1254b68b31811166e6702bea15e6cdd14830d539b2c4666a05e07baf122"
+      "fingerprint": "918d047d4e3165b697bb72b58cca704b87aa975e3055e32d1bfeb786d67d579e"
     },
     {
       "entityType": "vehicle",
@@ -564483,7 +564483,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "742c51668463c4b8fb43e6688f744474aff3597db7a329aa58eccdf98721e981"
+      "fingerprint": "2796527f095241773af5ec8fa1ffa8f4e89a446a6bb6d16494f718dafd489068"
     },
     {
       "entityType": "vehicle",
@@ -564494,7 +564494,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8308636b7caa98d7e10f9679ac98e1f0442d83e485b7b4751f7eb8b33e522aba"
+      "fingerprint": "c568d5c5208feaf9700fd99f79bc637badf59543a2f9aaaea4abe753ebb8d73d"
     },
     {
       "entityType": "vehicle",
@@ -564505,7 +564505,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "8ce2420fd88b2280eb2ab5157c5d175322eeee02dcd877cd0e665cc5908e340f"
+      "fingerprint": "1c612487d168c96f4966d60fb3ecab58c16ee4a2a23c571cdbff901d115113e9"
     },
     {
       "entityType": "vehicle",
@@ -564516,7 +564516,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "aeb3c1da560cdfb1798783c4d918a3ae73fc01eed4786d9316ac0e8cf32976aa"
+      "fingerprint": "a1ae5ee21da489bb01941331737c570526d5ade132ec27b83b2ba2f1f88d6265"
     },
     {
       "entityType": "vehicle",
@@ -564527,7 +564527,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "b0b57f41ab798dff4cffca7eebfd338549cfc8e4f94ea8d73f24fe343b88edde"
+      "fingerprint": "9080dc9b386f436cc073232a3775cd27ee259cee54d8fdd36ed8b429cbc683df"
     },
     {
       "entityType": "vehicle",
@@ -564538,7 +564538,7 @@
       ],
       "dependencies": [],
       "ownershipPolicy": "stockAggregate",
-      "fingerprint": "4ea1a2cd827a13253b578347d4c4c9aa7d9acb5cdc8ba6f0208d3657d175b2b0"
+      "fingerprint": "042136dbca90a409b760d43fac786e66559b75cece631064060138bad4c43381"
     }
   ]
 }

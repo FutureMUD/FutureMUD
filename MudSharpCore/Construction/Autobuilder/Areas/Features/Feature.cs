@@ -44,12 +44,12 @@ public class Feature
             $"{(MinimumCount == MaximumCount ? MinimumCount.ToString("N0", builder) : $"{MinimumCount.ToString("N0", builder)}-{MaximumCount.ToString("N0", builder)}")} {Name.ColourName()} - {Terrains.Select(x => x.Name.ColourValue()).DefaultIfEmpty("All".Colour(Telnet.BoldGreen)).ListToString(conjunction: "or ")}";
     }
 
-    public virtual bool CanApply(ICell cell)
+    public virtual bool CanApply(IRoom room)
     {
-        return !Terrains.Any() || Terrains.Contains(cell.Terrain(null));
+        return !Terrains.Any() || Terrains.Contains(room.Terrain(null));
     }
 
-    public virtual void ApplyFeature(ICell[,] cellMap, List<string>[,] features, int x, int y)
+    public virtual void ApplyFeature(IRoom[,] cellMap, List<string>[,] features, int x, int y)
     {
         features[x, y].Add(Name);
     }

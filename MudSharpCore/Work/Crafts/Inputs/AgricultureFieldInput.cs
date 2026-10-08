@@ -124,7 +124,7 @@ public class AgricultureFieldInput : BaseInput
 
 	public override bool IsInput(IPerceivable item)
 	{
-		return item is ICell cell && cell.AgricultureField != null && FieldMatches(cell.AgricultureField);
+		return item is IRoom room && room.AgricultureField != null && FieldMatches(room.AgricultureField);
 	}
 
 	public override void UseInput(IPerceivable item, ICraftInputData data)
@@ -133,14 +133,14 @@ public class AgricultureFieldInput : BaseInput
 
 	public override double ScoreInputDesirability(IPerceivable item)
 	{
-		return item is ICell cell && cell.AgricultureField is { } field
+		return item is IRoom room && room.AgricultureField is { } field
 			? FieldYield(field) + FieldHealth(field) + field.Condition
 			: 0.0;
 	}
 
 	public override ICraftInputData ReserveInput(IPerceivable input)
 	{
-		var field = ((ICell)input).AgricultureField;
+		var field = ((IRoom)input).AgricultureField;
 		var quality = QualityForField(field);
 		if (YieldConsumed > 0)
 		{
@@ -190,7 +190,7 @@ public class AgricultureFieldInput : BaseInput
 
 	private static bool CanActorUseField(ICharacter actor, IAgricultureField field)
 	{
-		var property = actor.Gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(field.Cell));
+		var property = actor.Gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(field.Room));
 		return property == null ||
 		       actor.IsAdministrator() ||
 		       property.IsAuthorisedOwner(actor) ||
@@ -356,7 +356,7 @@ public class AgricultureFieldInput : BaseInput
 			FieldId = long.Parse(root.Element("FieldId")?.Value ?? "0");
 			ConsumedYield = int.Parse(root.Element("ConsumedYield")?.Value ?? "0");
 			InputQuality = (ItemQuality)int.Parse(root.Element("Quality")?.Value ?? ((int)ItemQuality.Standard).ToString());
-			Perceivable = gameworld.AgricultureFields.Get(FieldId)?.Cell is IPerceivable perceivable
+			Perceivable = gameworld.AgricultureFields.Get(FieldId)?.Room is IPerceivable perceivable
 				? perceivable
 				: new DummyPerceivable("a missing agriculture field", "a missing agriculture field");
 		}
@@ -364,7 +364,7 @@ public class AgricultureFieldInput : BaseInput
 		public AgricultureFieldInputData(IAgricultureField field, ItemQuality quality, int consumedYield)
 		{
 			FieldId = field.Id;
-			Perceivable = field.Cell;
+			Perceivable = field.Room;
 			InputQuality = quality;
 			ConsumedYield = consumedYield;
 		}

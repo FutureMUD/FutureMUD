@@ -228,7 +228,7 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 		}
 
 		var sourceDescription = Parent.HowSeen(null, flags: PerceiveIgnoreFlags.IgnoreCanSee);
-		foreach (var (cell, distance) in AffectedCells(_prototype.ScentRange))
+		foreach (var (room, distance) in AffectedRooms(_prototype.ScentRange))
 		{
 			var text = distance == 0 ? _prototype.SourceScentDescription : _prototype.DistantScentDescription;
 			if (string.IsNullOrWhiteSpace(text))
@@ -237,15 +237,15 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 			}
 
 			var difficulty = _prototype.ScentDifficulty.StageUp(distance);
-			double? routePosition = cell.RouteDefinition is not null && ReferenceEquals(cell, Parent.Location)
+			double? routePosition = room.RouteDefinition is not null && ReferenceEquals(room, Parent.Location)
 				? RouteSpatialService.Instance.GetEffectiveLocation(Parent).RoutePositionMetres
 				: null;
-			double? maximumRouteDistance = cell.RouteDefinition is { } route
+			double? maximumRouteDistance = room.RouteDefinition is { } route
 				? Math.Max(
 					RouteSpatialConfiguration.FromGameworld(Gameworld).ImmediateDistanceMetres,
 					_prototype.ScentRange * route.MetresPerRoomEquivalent)
 				: null;
-			var existing = cell.EffectsOfType<IScentTrailEffect>()
+			var existing = room.EffectsOfType<IScentTrailEffect>()
 			                   .FirstOrDefault(x => x.SourceItemId == Parent.Id && x.RoomLayer == Parent.RoomLayer);
 			var duration = TimeSpan.FromSeconds(Math.Max(1.0, seconds * _prototype.LingeringMultiplier + 2.0));
 			if (existing is AmbientScent ambientScent &&
@@ -257,34 +257,34 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 			}
 
 			existing?.ExpireEffect();
-			var effect = new AmbientScent(cell, Parent.Id, sourceDescription, text, Parent.RoomLayer, distance,
+			var effect = new AmbientScent(room, Parent.Id, sourceDescription, text, Parent.RoomLayer, distance,
 				difficulty, routePositionMetres: routePosition,
 				maximumRouteDistanceMetres: maximumRouteDistance);
-			cell.AddEffect(effect, duration);
+			room.AddEffect(effect, duration);
 		}
 	}
 
-	private IEnumerable<(ICell Cell, int Distance)> AffectedCells(int range)
+	private IEnumerable<(IRoom Room, int Distance)> AffectedRooms(int range)
 	{
-		return Parent.CellsAndDistancesInVicinity((uint)Math.Max(0, range), true, false)
-		             .Where(x => x.Cell is not null);
+		return Parent.RoomsAndDistancesInVicinity((uint)Math.Max(0, range), true, false)
+		             .Where(x => x.Room is not null);
 	}
 
-	private IEnumerable<ICharacter> MagicRecipients(MudSharp.Construction.ICell cell)
+	private IEnumerable<ICharacter> MagicRecipients(MudSharp.Construction.IRoom room)
 	{
 		var range = Math.Min(_prototype.DrugRange, _prototype.ScentRange);
-		return cell.RouteDefinition is { } route && ReferenceEquals(cell, Parent.Location)
-			? cell.CharactersInSpatialVicinity(Parent, maximumDistanceMetres: Math.Max(
+		return room.RouteDefinition is { } route && ReferenceEquals(room, Parent.Location)
+			? room.CharactersInSpatialVicinity(Parent, maximumDistanceMetres: Math.Max(
 				RouteSpatialConfiguration.FromGameworld(Gameworld).ImmediateDistanceMetres, range * route.MetresPerRoomEquivalent))
-			: cell.LayerCharacters(Parent.RoomLayer);
+			: room.LayerCharacters(Parent.RoomLayer);
 	}
 	private void PulseMagic(double seconds)
 	{
 		if (_currentFuelItem is null || seconds <= 0) return;
 		var totalSeconds = _currentFuelItem.Weight * _prototype.SecondsPerUnitWeight;
 		if (totalSeconds <= 0) return;
-		foreach (var (cell, distance) in AffectedCells(Math.Min(_prototype.DrugRange, _prototype.ScentRange)))
-			foreach (var character in MagicRecipients(cell).Where(x => x.Body.IsBreathing))
+		foreach (var (room, distance) in AffectedRooms(Math.Min(_prototype.DrugRange, _prototype.ScentRange)))
+			foreach (var character in MagicRecipients(room).Where(x => x.Body.IsBreathing))
 				MudSharp.Magic.MagicalExposure.Carrier(character, MudSharp.Magic.SubstanceCarrier.Item,
 					_currentFuelItem.Prototype.Id, seconds / totalSeconds / (distance + 1.0), DrugVector.Inhaled);
 	}
@@ -306,17 +306,17 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 		}
 
 		_drugPulseSecondsElapsed = 0;
-		foreach (var (cell, distance) in AffectedCells(Math.Min(_prototype.DrugRange, _prototype.ScentRange)))
+		foreach (var (room, distance) in AffectedRooms(Math.Min(_prototype.DrugRange, _prototype.ScentRange)))
 		{
 			var dose = _prototype.GramsPerPulse / (distance + 1.0);
 			var range = Math.Min(_prototype.DrugRange, _prototype.ScentRange);
-			var recipients = cell.RouteDefinition is { } route && ReferenceEquals(cell, Parent.Location)
-				? cell.CharactersInSpatialVicinity(
+			var recipients = room.RouteDefinition is { } route && ReferenceEquals(room, Parent.Location)
+				? room.CharactersInSpatialVicinity(
 					Parent,
 					maximumDistanceMetres: Math.Max(
 						RouteSpatialConfiguration.FromGameworld(Gameworld).ImmediateDistanceMetres,
 						range * route.MetresPerRoomEquivalent))
-				: cell.LayerCharacters(Parent.RoomLayer);
+				: room.LayerCharacters(Parent.RoomLayer);
 			foreach (var character in recipients)
 			{
 				character.Body.Dose(_prototype.Drug, DrugVector.Inhaled, dose, Parent);
@@ -360,7 +360,7 @@ public class IncenseBurnerGameItemComponent : GameItemComponent, IIncenseBurner
 		return false;
 	}
 
-	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
 	{
 		var newContainer = newItem?.GetItemType<IContainer>();
 		foreach (var item in _contents.ToList())

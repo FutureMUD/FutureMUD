@@ -26,7 +26,7 @@ internal class CreateOverlay : BuiltInFunction
                     "The builder who is creating the package",
                     "The name of the package you want to create. Must be unique."
                 },
-                "Creates a new cell overlay package with the specified name and builder, as if you had done CELL PACKAGE NEW. Can return null if the name is already taken so be sure to check for that.",
+                "Creates a new room overlay package with the specified name and builder, as if you had done CELL PACKAGE NEW. Can return null if the name is already taken so be sure to check for that.",
                 "Rooms",
                 ProgVariableTypes.OverlayPackage
             )
@@ -65,13 +65,13 @@ internal class CreateOverlay : BuiltInFunction
         }
 
         string text = ParameterFunctions[1].Result?.GetObject?.ToString() ?? string.Empty;
-        if (string.IsNullOrWhiteSpace(text) || Gameworld.CellOverlayPackages.Any(x => x.Name.EqualTo(text)))
+        if (string.IsNullOrWhiteSpace(text) || Gameworld.RoomOverlayPackages.Any(x => x.Name.EqualTo(text)))
         {
             Result = null;
             return StatementResult.Normal;
         }
 
-        CellOverlayPackage overlay = new(Gameworld, character.Account, text);
+        RoomOverlayPackage overlay = new(Gameworld, character.Account, text);
         Gameworld.Add(overlay);
         Result = overlay;
         return StatementResult.Normal;

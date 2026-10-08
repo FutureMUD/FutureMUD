@@ -33,8 +33,8 @@ internal static partial class GNHProgram
 	{
 		var money = ConfigureOrderedCurrency(host, database, SeedOrderedCurrency(database, host.Native.World.Materials.First().Id), caster);
 		var world = host.Native.World;
-		var cell = (Cell)caster.Location;
-		var corpse = cell.GameItems.Select(x => x.GetItemType<ICorpse>()).Single(x => x is not null)!;
+		var room = (Room)caster.Location;
+		var corpse = room.GameItems.Select(x => x.GetItemType<ICorpse>()).Single(x => x is not null)!;
 		GameItem[] Live() => host.Items.OfType<GameItem>().Where(x => !x.Deleted && !x.Destroyed &&
 			x.GetItemType<ICurrencyPile>() is { } pile && ReferenceEquals(pile.Currency, money.Currency)).ToArray();
 		void CheckSaved(decimal expected)
@@ -53,9 +53,9 @@ internal static partial class GNHProgram
 				Require(item.GetItemType<ICurrencyPile>().Coins.All(x => map.TryGetValue(x.Item1.Id, out var count) && count == x.Item2) && map.Count == item.GetItemType<ICurrencyPile>().Coins.Count(), "Native saved denomination map mismatch.");
 				var row = db.GameItems.AsNoTracking().Single(x => x.Id == item.Id);
 				var bodyRows = db.BodiesGameItems.AsNoTracking().Where(x => x.GameItemId == item.Id).ToArray();
-				var cellRows = db.CellsGameItems.AsNoTracking().Where(x => x.GameItemId == item.Id).ToArray();
+				var cellRows = db.RoomsGameItems.AsNoTracking().Where(x => x.GameItemId == item.Id).ToArray();
 				Require(item.InInventoryOf is null ? bodyRows.Length == 0 : bodyRows.Length == 1 && bodyRows[0].BodyId == item.InInventoryOf.Id, "Native currency body joins mismatch.");
-				Require(item.DirectLocation is null ? cellRows.Length == 0 : cellRows.Length == 1 && cellRows[0].CellId == item.DirectLocation.Id, "Native currency floor joins mismatch.");
+				Require(item.DirectLocation is null ? cellRows.Length == 0 : cellRows.Length == 1 && cellRows[0].RoomId == item.DirectLocation.Id, "Native currency floor joins mismatch.");
 				Require(row.ContainerId == item.ContainedIn?.Id && (item.InInventoryOf is not null || item.ContainedIn is not null || item.DirectLocation is not null), "Currency became a saved detached orphan.");
 			}
 		}
@@ -72,14 +72,14 @@ internal static partial class GNHProgram
 			{
 				var operation = scenario.Replace("-close", string.Empty);
 				var bag = host.Prototypes.Values.Single(x => x.Name == "ARM03B2B bag").CreateNew(caster);
-				world.Add(bag); cell.Insert(bag, true);
-				var first = NewOrderedCurrencyPile(host, database, money, 3, 0, cell);
-				var second = NewOrderedCurrencyPile(host, database, money, 3, 0, cell);
+				world.Add(bag); room.Insert(bag, true);
+				var first = NewOrderedCurrencyPile(host, database, money, 3, 0, room);
+				var second = NewOrderedCurrencyPile(host, database, money, 3, 0, room);
 				var sourceIds = new[] { first.Id, second.Id };
 				var destination = bag.GetItemType<IContainer>();
 				if (operation == "get-container")
 				{
-					foreach (var item in new[] { first, second }) { cell.Extract(item); item.Drop(null); destination.Put(null, item, false); }
+					foreach (var item in new[] { first, second }) { room.Extract(item); item.Drop(null); destination.Put(null, item, false); }
 				}
 				else if (operation != "get-room")
 				{
@@ -87,7 +87,7 @@ internal static partial class GNHProgram
 					((MudSharp.Body.Implementations.Body)caster.Body).GetWithoutMerge(second);
 					Require(ReferenceEquals(first.InInventoryOf, caster.Body) && ReferenceEquals(second.InInventoryOf, caster.Body), "Native currency setup needs two actual held sources.");
 				}
-				var floorSeed = operation.StartsWith("drop-") ? NewOrderedCurrencyPile(host, database, money, 1, 0, cell) : null;
+				var floorSeed = operation.StartsWith("drop-") ? NewOrderedCurrencyPile(host, database, money, 1, 0, room) : null;
 				var expected = floorSeed is null ? 6m : 7m;
 				CheckSaved(expected);
 				CheckOrderedCurrencyPreview(host, database, money,
@@ -122,7 +122,7 @@ internal static partial class GNHProgram
 				if (!allowed && operation == "put")
 				{
 					var diagnostic = CurrencyGameItemComponentProto.CreateNewCurrencyPile(money.Currency, new[] { (money.One, 6) }, true);
-					Console.WriteLine($"ARMOrdered-currency-put-diagnostic=reach:{caster.CanReachItem(bag, false)} manual:{caster.Body.CanPerformManualAction(out var manualReason)} reason:{manualReason} access:{cell.CanGetAccess(bag, caster)} container:{destination.CanPut(diagnostic)} size:{diagnostic.Size} weight:{diagnostic.Weight} movement:{diagnostic.PreventsMovement()} mount:{caster.RidingMount?.Name} physical:{caster.Body.CanPut(diagnostic, bag, null, 0, false)} selected:{MudSharp.Body.Implementations.Body.FindCurrencyPreservingOwnership(money.Currency, caster.Body.HeldItems.Select(x => x.GetItemType<ICurrencyPile>()), 6m).Count}");
+					Console.WriteLine($"ARMOrdered-currency-put-diagnostic=reach:{caster.CanReachItem(bag, false)} manual:{caster.Body.CanPerformManualAction(out var manualReason)} reason:{manualReason} access:{room.CanGetAccess(bag, caster)} container:{destination.CanPut(diagnostic)} size:{diagnostic.Size} weight:{diagnostic.Weight} movement:{diagnostic.PreventsMovement()} mount:{caster.RidingMount?.Name} physical:{caster.Body.CanPut(diagnostic, bag, null, 0, false)} selected:{MudSharp.Body.Implementations.Body.FindCurrencyPreservingOwnership(money.Currency, caster.Body.HeldItems.Select(x => x.GetItemType<ICurrencyPile>()), 6m).Count}");
 				}
 				Require(allowed, "Native currency baseline admission refused " + operation +
 					(operation == "put" ? ": " + caster.Body.WhyCannotPut(money.Currency, bag, null, 6m, true) +
@@ -157,7 +157,7 @@ internal static partial class GNHProgram
 					"put" => ReferenceEquals(output.ContainedIn, bag) && destination.Contents.Contains(output),
 					"give-body" => ReferenceEquals(output.InInventoryOf, foe.Body),
 					"give-corpse" => ReferenceEquals(output.InInventoryOf, corpse.Body),
-					_ => ReferenceEquals(output.DirectLocation, cell) && cell.GameItems.Contains(output)
+					_ => ReferenceEquals(output.DirectLocation, room) && room.GameItems.Contains(output)
 				}, "Transfer survivor has wrong native destination custody.");
 				if (operation == "drop-new") Require(floorSeed!.GetItemType<ICurrencyPile>().TotalValue == 1m && Live().Length == 2, "newStack changed or absorbed the original floor pile.");
 				ClearMoney(); bag.Delete(); world.SaveManager.Flush();
@@ -184,12 +184,12 @@ internal static partial class GNHProgram
 			GameItem CashBag()
 			{
 				var item = (GameItem)host.Prototypes.Values.Single(x => x.Name == "ARM03B2B bag").CreateNew(caster);
-				world.Add(item); cell.Insert(item, true); world.SaveManager.Flush(); return item;
+				world.Add(item); room.Insert(item, true); world.SaveManager.Flush(); return item;
 			}
 			void CashIntoBag(IGameItem item, GameItem bag)
 			{
 				// Fixture setup only; hooks are unarmed. Real native container, no list/dictionary edits.
-				cell.Extract(item); item.Drop(null); bag.GetItemType<IContainer>().Put(null, item, false);
+				room.Extract(item); item.Drop(null); bag.GetItemType<IContainer>().Put(null, item, false);
 				world.SaveManager.Flush();
 				Require(ReferenceEquals(item.ContainedIn, bag) && bag.GetItemType<IContainer>().Contents.Any(x => ReferenceEquals(x, item)),
 					"Adversarial setup did not establish actual native container custody.");
@@ -217,13 +217,13 @@ internal static partial class GNHProgram
 			// 1. Mixed 1/5 denominations, partial retained source, real saved legal title.
 			{
 				ClearMoney();
-				var source = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 2, cell); // 13
+				var source = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 2, room); // 13
 				source.SetOwner(caster); var title = source.OwnershipReference;
 				CheckSaved(13); SavedTitle(source, title);
 				caster.Body.Get(money.Currency, 6m, true, silent: true);
 				var result = Live().Single(x => !ReferenceEquals(x, source));
 				CashMap(source, 2, 1); CashMap(result, 1, 1);
-				Require(!source.Deleted && ReferenceEquals(source.DirectLocation, cell) && cell.GameItems.Any(x => ReferenceEquals(x, source)) &&
+				Require(!source.Deleted && ReferenceEquals(source.DirectLocation, room) && room.GameItems.Any(x => ReferenceEquals(x, source)) &&
 					ReferenceEquals(result.InInventoryOf, caster.Body), "Partial denomination split lost retained source or destination custody.");
 				CheckSaved(13); SavedTitle(source, title); SavedTitle(result, title);
 				Console.WriteLine("ARMOrdered-currency-partial-title=passed exact-one-and-five residual native-floor held-split saved-legal-title");
@@ -232,8 +232,8 @@ internal static partial class GNHProgram
 
 			// 2a. Body merge must retain the actual held survivor; absorbed draft/source are not survivors.
 			{
-				var source = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 1, cell); // 8
-				var survivor = (GameItem)NewOrderedCurrencyPile(host, database, money, 1, 1, cell); // 6
+				var source = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 1, room); // 8
+				var survivor = (GameItem)NewOrderedCurrencyPile(host, database, money, 1, 1, room); // 6
 				source.SetOwner(caster); survivor.SetOwner(caster); var title = source.OwnershipReference;
 				CashHeld(source, caster.Body); CashHeld(survivor, foe.Body); CheckSaved(14);
 				caster.Body.Give(money.Currency, foe.Body, 6m, true);
@@ -248,8 +248,8 @@ internal static partial class GNHProgram
 			// 2b. Same survivor identity guarantee for a real Container merge, including saved Contents XML.
 			{
 				var bag = CashBag();
-				var source = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 1, cell);
-				var survivor = (GameItem)NewOrderedCurrencyPile(host, database, money, 1, 1, cell);
+				var source = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 1, room);
+				var survivor = (GameItem)NewOrderedCurrencyPile(host, database, money, 1, 1, room);
 				source.SetOwner(caster); survivor.SetOwner(caster); var title = source.OwnershipReference;
 				CashHeld(source, caster.Body); CashIntoBag(survivor, bag); CheckSaved(14); SavedBag(bag);
 				caster.Body.Put(money.Currency, bag, null, 6m, true, silent: true);
@@ -266,10 +266,10 @@ internal static partial class GNHProgram
 			// Two rows distinguish zero-valued relocation from a conserved refill+relocation.
 			foreach (var refill in new[] { false, true })
 			{
-				var first = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 0, cell);
-				var second = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 0, cell);
+				var first = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 0, room);
+				var second = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 0, room);
 				var bag = CashBag();
-				var reserve = (GameItem)NewOrderedCurrencyPile(host, database, money, 2, 0, cell);
+				var reserve = (GameItem)NewOrderedCurrencyPile(host, database, money, 2, 0, room);
 				CashIntoBag(reserve, bag); CheckSaved(8);
 				var notified = 0;
 				PerceivableEvent observer = _ =>
@@ -301,8 +301,8 @@ internal static partial class GNHProgram
 			// SetPrivateMember is the existing harness helper, not a production body-switch proof.
 			// A native SwitchToBody row needs an already authored form; do not seed/claim one here.
 			{
-				var first = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 0, cell);
-				var second = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 0, cell);
+				var first = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 0, room);
+				var second = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 0, room);
 				CashHeld(first, caster.Body); CashHeld(second, caster.Body); CheckSaved(6);
 				var recipientBody = foe.Body;
 				Require(!ReferenceEquals(recipientBody, caster.Body) && ReferenceEquals(recipientBody.Actor, foe) &&
@@ -338,9 +338,9 @@ internal static partial class GNHProgram
 			// report the captured committed Get after source cleanup. No second requested operation runs.
 			{
 				var actor = cast(); actor.Currency = money.Currency; var originalBody = actor.Body;
-				var first = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 0, cell);
-				var second = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 0, cell);
-				var bag = CashBag(); var reserve = (GameItem)NewOrderedCurrencyPile(host, database, money, 1, 0, cell);
+				var first = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 0, room);
+				var second = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 0, room);
+				var bag = CashBag(); var reserve = (GameItem)NewOrderedCurrencyPile(host, database, money, 1, 0, room);
 				CashIntoBag(reserve, bag); CheckSaved(7);
 				GameItem? committed = null; var loaded = 0;
 				var events = new List<(string Origin, InventoryState Old, InventoryState New, IGameItem Item)>();
@@ -396,12 +396,12 @@ internal static partial class GNHProgram
 			foreach (var change in new[] { "valid", "pre-expire", "post-expire" })
 			{
 				var actor = cast(); actor.Currency = money.Currency;
-				var first = NewOrderedCurrencyPile(host, database, money, 3, 0, cell);
-				var second = NewOrderedCurrencyPile(host, database, money, 3, 0, cell);
+				var first = NewOrderedCurrencyPile(host, database, money, 3, 0, room);
+				var second = NewOrderedCurrencyPile(host, database, money, 3, 0, room);
 				var bag = host.Prototypes.Values.Single(x => x.Name == "ARM03B2B bag").CreateNew(caster);
-				world.Add(bag); cell.Insert(bag, true);
-				var reserve = NewOrderedCurrencyPile(host, database, money, 1, 0, cell);
-				cell.Extract(reserve); reserve.Drop(null); bag.GetItemType<IContainer>().Put(null, reserve, false);
+				world.Add(bag); room.Insert(bag, true);
+				var reserve = NewOrderedCurrencyPile(host, database, money, 1, 0, room);
+				room.Extract(reserve); reserve.Drop(null); bag.GetItemType<IContainer>().Put(null, reserve, false);
 				world.SaveManager.Flush(); CheckSaved(7);
 				var before = SavedOrderedCurrencyState(database, money.Currency.Id);
 				void Expire()
@@ -448,8 +448,8 @@ internal static partial class GNHProgram
 				var actor = cast();
 				actor.Currency = money.Currency;
 				var originalLayer = actor.RoomLayer;
-				var first = NewOrderedCurrencyPile(host, database, money, 3, 0, cell);
-				var second = NewOrderedCurrencyPile(host, database, money, 3, 0, cell);
+				var first = NewOrderedCurrencyPile(host, database, money, 3, 0, room);
+				var second = NewOrderedCurrencyPile(host, database, money, 3, 0, room);
 				CheckSaved(6);
 				var before = SavedOrderedCurrencyState(database, money.Currency.Id);
 				var originalIds = Live().Select(x => x.Id).Order().ToArray();
@@ -497,7 +497,7 @@ internal static partial class GNHProgram
 					"Final policy spatial change allocated currency or notified a committed transfer.");
 				CashMap(first, 3, 0); CashMap(second, 3, 0); CheckSaved(6);
 				Require(before == SavedOrderedCurrencyState(database, money.Currency.Id) &&
-					ReferenceEquals(first.Location, cell) && ReferenceEquals(second.Location, cell) &&
+					ReferenceEquals(first.Location, room) && ReferenceEquals(second.Location, room) &&
 					!actor.Body.HeldItems.Any(x => x.GetItemType<ICurrencyPile>() is not null),
 					"Final policy spatial change debited old-layer sources or changed saved currency custody.");
 				Require(world.SpellOwnedCorpseAnimations!.TryRetire(actor.InstanceId, MudSharp.Magic.SpellRetirementReason.Dismissal, out var why), why);
@@ -506,12 +506,12 @@ internal static partial class GNHProgram
 			}
 			// Save three actual currency custodians, then reconstruct them in a fresh process.
 			var coldBag = CashBag();
-			var coldFloor = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 2, cell);
+			var coldFloor = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 2, room);
 			coldFloor.SetOwner(caster);
 			caster.Body.Get(money.Currency, 6m, true, silent: true);
-			var coldHeld = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 1, cell);
+			var coldHeld = (GameItem)NewOrderedCurrencyPile(host, database, money, 3, 1, room);
 			coldHeld.SetOwner(caster); CashHeld(coldHeld, caster.Body);
-			var coldContained = (GameItem)NewOrderedCurrencyPile(host, database, money, 1, 1, cell);
+			var coldContained = (GameItem)NewOrderedCurrencyPile(host, database, money, 1, 1, room);
 			coldContained.SetOwner(caster); CashIntoBag(coldContained, coldBag);
 			caster.Body.Put(money.Currency, coldBag, null, 6m, true, silent: true);
 			CashMap(coldFloor, 2, 1); CashMap(coldHeld, 3, 1); CashMap(coldContained, 2, 2);
@@ -596,7 +596,7 @@ internal static partial class GNHProgram
 	private static OrderedCurrencyFixture ConfigureOrderedCurrency(
 		RetirementHost host, TestDatabase database, OrderedCurrencyIds ids, ICharacter caster)
 	{
-		Require(caster.Location is Cell, "Currency Drop qualification requires the active native CreateAreaCell cell.");
+		Require(caster.Location is Room, "Currency Drop qualification requires the active native CreateAreaCell cell.");
 		var world = host.Native.World; using var db = NewIndependentContext(database.ConnectionString);
 		// The archive omits unit configuration. These are authored acceptance units,
 		// not assertions about historical game balance: one weight unit is one kg,
@@ -659,17 +659,17 @@ internal static partial class GNHProgram
 	}
 
 	private static IGameItem NewOrderedCurrencyPile(RetirementHost host, TestDatabase database,
-		OrderedCurrencyFixture money, int ones, int fives, Cell cell)
+		OrderedCurrencyFixture money, int ones, int fives, Room room)
 	{
 		var item = CurrencyGameItemComponentProto.CreateNewCurrencyPile(money.Currency,
 			new[] { (money.One, ones), (money.Five, fives) }.Where(x => x.Item2 > 0));
-		host.Native.World.Add(item); cell.Insert(item, true); host.Native.World.SaveManager.Flush();
+		host.Native.World.Add(item); room.Insert(item, true); host.Native.World.SaveManager.Flush();
 		Require(item.GetItemType<ICurrencyPile>()!.TotalValue == ones + 5m * fives,
 			"Fixture must hold real native coin maps.");
 		Require(double.IsFinite(item.Weight) && item.Weight >= 0,
 			"Currency fixture must have a finite native weight before admission checks.");
 		using var db = NewIndependentContext(database.ConnectionString);
-		Require(db.CellsGameItems.Count(x => x.GameItemId == item.Id && x.CellId == cell.Id) == 1,
+		Require(db.RoomsGameItems.Count(x => x.GameItemId == item.Id && x.RoomId == room.Id) == 1,
 			"Native Cell.Save must persist fixture floor membership without manual join repairs.");
 		return item;
 	}
@@ -686,13 +686,13 @@ internal static partial class GNHProgram
 				$"{(long)x.Attribute("Id")!}={(int)x.Attribute("Count")!}")));
 		var bodies = db.BodiesGameItems.AsNoTracking().Where(x => ids.Contains(x.GameItemId))
 			.OrderBy(x => x.GameItemId).Select(x => new { x.GameItemId, x.BodyId }).ToArray();
-		var cells = db.CellsGameItems.AsNoTracking().Where(x => ids.Contains(x.GameItemId))
-			.OrderBy(x => x.GameItemId).Select(x => new { x.GameItemId, x.CellId }).ToArray();
+		var rooms = db.RoomsGameItems.AsNoTracking().Where(x => ids.Contains(x.GameItemId))
+			.OrderBy(x => x.GameItemId).Select(x => new { x.GameItemId, x.RoomId }).ToArray();
 		var containers = db.GameItems.AsNoTracking().Where(x => ids.Contains(x.Id))
 			.OrderBy(x => x.Id).Select(x => new { x.Id, x.ContainerId }).ToArray();
 		return $"rows={db.GameItems.Count()}/{components.Length};maps=" + string.Join(";", maps) +
 			";body=" + string.Join(";", bodies.Select(x => $"{x.GameItemId}@{x.BodyId}")) +
-			";cell=" + string.Join(";", cells.Select(x => $"{x.GameItemId}@{x.CellId}")) +
+			";cell=" + string.Join(";", rooms.Select(x => $"{x.GameItemId}@{x.RoomId}")) +
 			";container=" + string.Join(";", containers.Select(x => $"{x.Id}@{x.ContainerId}"));
 	}
 

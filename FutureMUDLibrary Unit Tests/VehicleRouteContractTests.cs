@@ -14,7 +14,7 @@ namespace MudSharp_Unit_Tests;
 public class VehicleRouteContractTests
 {
 	[TestMethod]
-	public void DefaultStaticSettings_ContainLockedRouteCellDistances()
+	public void DefaultStaticSettings_ContainLockedRouteRoomDistances()
 	{
 		var settings = DefaultStaticSettings.DefaultStaticConfigurations;
 
@@ -48,7 +48,7 @@ public class VehicleRouteContractTests
 
 		Assert.IsNull(compartment.InteriorTerrainId);
 		Assert.IsNull(compartment.InteriorTerrain);
-		Assert.AreEqual(CellOutdoorsType.Indoors, compartment.InteriorOutdoorsType);
+		Assert.AreEqual(RoomOutdoorsType.Indoors, compartment.InteriorOutdoorsType);
 	}
 
 	[TestMethod]
@@ -87,7 +87,7 @@ public class VehicleRouteContractTests
 		public string Name => "movement";
 		public long Id => 1;
 		public string FrameworkItemType => "MovementProfilePrototypeStub";
-		public VehicleMovementProfileType MovementType => VehicleMovementProfileType.CellExit;
+		public VehicleMovementProfileType MovementType => VehicleMovementProfileType.RoomExit;
 		public VehicleMovementEnvironment MovementEnvironment => VehicleMovementEnvironment.Unrestricted;
 		public bool ExposesOccupantsToWater => false;
 		public bool IsDefault => true;

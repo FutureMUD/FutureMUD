@@ -15,7 +15,7 @@ public interface ISpatialMovementSegment
 {
 	SpatialLocation Origin { get; }
 	SpatialLocation Destination { get; }
-	RouteCellDirection Direction { get; }
+	RouteRoomDirection Direction { get; }
 	double DistanceMetres { get; }
 	double SpeedMetresPerSecond { get; }
 	TimeSpan Duration { get; }

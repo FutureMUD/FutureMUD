@@ -688,11 +688,11 @@ public class LootTableDefinitionTests
 		definition.Variants.Add(variant);
 		var table = LootTableMock(17, 0, definition);
 		table.SetupGet(x => x.AlgorithmVersion).Returns(LootTableDefinition.CurrentAlgorithmVersion);
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(75L);
 		item.SetupGet(x => x.Deleted).Returns(false);
-		item.SetupGet(x => x.Location).Returns(cell.Object);
+		item.SetupGet(x => x.Location).Returns(room.Object);
 		var committed = false;
 		var prototype = new Mock<IGameItemProto>();
 		prototype.SetupGet(x => x.Components).Returns(Array.Empty<IGameItemComponentProto>());
@@ -712,7 +712,7 @@ public class LootTableDefinitionTests
 		gameworld.Setup(x => x.Add(item.Object)).Callback(() => committed = true);
 		var materialiser = new LootTableMaterialiser(gameworld.Object);
 
-		var result = materialiser.Materialise(table.Object, "default", 12, cell.Object);
+		var result = materialiser.Materialise(table.Object, "default", 12, room.Object);
 
 		Assert.IsTrue(result.Success, result.Receipt);
 		StringAssert.Contains(result.Receipt, "postcommitwarnings=1");

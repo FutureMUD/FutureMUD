@@ -128,7 +128,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
         SkillValues = new();
     }
 
-    protected override ICharacterTemplate CharacterTemplate(ICell location)
+    protected override ICharacterTemplate CharacterTemplate(IRoom location)
     {
         return new SimpleCharacterTemplate
         {

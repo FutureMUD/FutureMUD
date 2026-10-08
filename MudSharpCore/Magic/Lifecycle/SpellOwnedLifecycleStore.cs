@@ -192,7 +192,7 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 		SpellOwnedEntityKind.AutonomousCharacter => !HasCompactedIdentity(entity.Id, lifecycle),
 		SpellOwnedEntityKind.CharacterInstance => FMDB.Context.CharacterInstances.Any(x => x.Id == entity.Id),
 		SpellOwnedEntityKind.Body => FMDB.Context.Bodies.Any(x => x.Id == entity.Id),
-		SpellOwnedEntityKind.Cell => FMDB.Context.Cells.Any(x => x.Id == entity.Id),
+		SpellOwnedEntityKind.Room => FMDB.Context.Rooms.Any(x => x.Id == entity.Id),
 		SpellOwnedEntityKind.Exit => FMDB.Context.Exits.Any(x => x.Id == entity.Id),
 		_ => throw new InvalidOperationException("Unknown owned entity kind; retirement is blocked.")
 	};

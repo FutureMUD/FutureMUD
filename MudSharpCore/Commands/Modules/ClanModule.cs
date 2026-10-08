@@ -152,11 +152,11 @@ The following clan sub-commands are used to interact with clans:
 	#3clan payinterval <clan> ""<every x days|weeks|months|years>"" [<date time>]#0 - sets the pay interval and the reference date time
 	#3clan view <clan>#0 - views information about a clan
 	#3clan members <clan>#0 - views the member list for a clan
-	#3clan treasury <clan> [toggle]#0 - sets your current location as a treasury cell for a clan (ADMIN ONLY)
+	#3clan treasury <clan> [toggle]#0 - sets your current location as a treasury room for a clan (ADMIN ONLY)
 	#3clan treasury <clan> balance|ledger [count]#0 - reviews the clan's virtual treasury
 	#3clan treasury <clan> deposit|withdraw <amount>#0 - moves cash into or out of the clan's virtual treasury
-	#3clan admin <clan>#0 - sets your current location as an admin cell for a clan (ADMIN ONLY)
-	#3clan hall <clan>#0 - sets your current location as a clan hall cell for a clan (ADMIN ONLY)
+	#3clan admin <clan>#0 - sets your current location as an admin room for a clan (ADMIN ONLY)
+	#3clan hall <clan>#0 - sets your current location as a clan hall room for a clan (ADMIN ONLY)
 	#3clan vassal appoint <who> <clan> <position> [<liege clan>]#0 - appoints a person to a clan appointment in a vassal clan
 	#3clan vassal dismiss <who> <clan> <position> [<liege clan>]#0 - dismisses a person from a clan appointment in a vassal clan
 	#3clan vassal control <clan> <position> <liege appointment|none> [<liege clan>]#0 - sets which liege appointment controls a vassal appointment
@@ -822,7 +822,7 @@ All of the following commands must happen with an edited clan selected:
 
     private static void ClanLease(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -985,7 +985,7 @@ All of the following commands must happen with an edited clan selected:
 
     private static void ClanBuyProperty(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send("Your current location is not a conveyancing location for any economic zones.");
@@ -1119,7 +1119,7 @@ All of the following commands must happen with an edited clan selected:
 
     private static void ClanDivestOwnership(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ConveyancingRooms.Contains(actor.Location));
         if (ez == null)
         {
             actor.OutputHandler.Send(
@@ -1850,9 +1850,9 @@ The syntax is:
             }
 
             if ((actor.IsAdministrator() || clan.NetPrivileges.HasFlag(ClanPrivilegeType.CanViewTreasury)) &&
-                clan.Clan.TreasuryCells.Any())
+                clan.Clan.TreasuryRooms.Any())
             {
-                IEnumerable<ICurrencyPile> currencyItems = clan.Clan.TreasuryCells.SelectMany(x => x.GameItems)
+                IEnumerable<ICurrencyPile> currencyItems = clan.Clan.TreasuryRooms.SelectMany(x => x.GameItems)
                                         .SelectMany(x => x.RecursiveGetItems<ICurrencyPile>());
                 List<(ICurrency Currency, decimal Total)> currencyBalances = currencyItems.GroupBy(x => x.Currency).Select(x =>
                     (Currency: x.Key, Total: x.Sum(y => y.Coins.Sum(z => z.Item2 * z.Item1.Value)))).ToList();
@@ -1893,12 +1893,12 @@ The syntax is:
 	#3payday#0", AutoHelp.HelpArg)]
     protected static void Payday(ICharacter actor, string command)
     {
-        List<IClanMembership> memberships = actor.ClanMemberships.Where(x => x.Clan.AdministrationCells.Contains(actor.Location))
+        List<IClanMembership> memberships = actor.ClanMemberships.Where(x => x.Clan.AdministrationRooms.Contains(actor.Location))
                                .ToList();
 
         if (!memberships.Any() || memberships.All(x => x.BackPayDiciontary.Sum(y => y.Value) <= 0))
         {
-            // Not in any clan's administrative cells, just show what paydays they have
+            // Not in any clan's administrative rooms, just show what paydays they have
             if (!actor.ClanMemberships.Any())
             {
                 actor.Send("You are not in any clans.");
@@ -1949,8 +1949,8 @@ Your next payday is {3}.
                             .DisplayDate(clan.Clan.NextPay.Date, CalendarDisplayMode.Long)
                             .Colour(Telnet.Green), clan.BackPayDiciontary.Any(x => x.Value > 0)
                             ? $"They owe you {clan.BackPayDiciontary.Select(x => x.Key.Describe(x.Value, CurrencyDescriptionPatternType.Short).Colour(Telnet.Green)).ListToString()} in backpay."
-                            : "They do not owe you any backpay.", clan.Clan.AdministrationCells.Any()
-                            ? $"You can collect your pay at {clan.Clan.AdministrationCells.Select(x => x.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreLayers | PerceiveIgnoreFlags.IgnoreCanSee)).ListToString(conjunction: "or ")}"
+                            : "They do not owe you any backpay.", clan.Clan.AdministrationRooms.Any()
+                            ? $"You can collect your pay at {clan.Clan.AdministrationRooms.Select(x => x.HowSeen(actor, true, flags: PerceiveIgnoreFlags.IgnoreLayers | PerceiveIgnoreFlags.IgnoreCanSee)).ListToString(conjunction: "or ")}"
                             : "You do not know where you would go to collect your payday.")
                 // TODO - not physical methods of payment e.g. bank transfer
                 );
@@ -2003,7 +2003,7 @@ Your next payday is {3}.
             }
 
             List<ICurrencyPile> currencyPiles =
-                membership.Clan.TreasuryCells.SelectMany(
+                membership.Clan.TreasuryRooms.SelectMany(
                     x => x.GameItems.SelectMany(y => y.RecursiveGetItems<ICurrencyPile>())).ToList();
 
             Dictionary<ICurrency, Dictionary<ICurrencyPile, Dictionary<ICoin, int>>> coinsToTake = new();
@@ -2125,7 +2125,7 @@ Your next payday is {3}.
                 IGameItem changeItem =
                     CurrencyGameItemComponentProto.CreateNewCurrencyPile(
                         currency.Key, currency.Value.Select(x => Tuple.Create(x.Key, x.Value)));
-                membership.Clan.TreasuryCells.First().Insert(changeItem);
+                membership.Clan.TreasuryRooms.First().Insert(changeItem);
             }
 
             foreach (KeyValuePair<ICurrency, Dictionary<ICoin, int>> currency in coinsToLoad)
@@ -3003,13 +3003,13 @@ Your next payday is {3}.
                 $"Discord Channel: {clan.DiscordChannelId?.ToString("F0", actor).ColourValue() ?? "None".ColourError()}");
             sb.AppendLine();
             sb.AppendLine(
-                $"Treasury Cells:\n{clan.TreasuryCells.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
+                $"Treasury Rooms:\n{clan.TreasuryRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
             sb.AppendLine();
             sb.AppendLine(
-                $"Administration Cells:\n{clan.AdministrationCells.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
+                $"Administration Rooms:\n{clan.AdministrationRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
             sb.AppendLine();
             sb.AppendLine(
-                $"Clan Hall Cells:\n{clan.ClanHallCells.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
+                $"Clan Hall Rooms:\n{clan.ClanHallRooms.Select(x => x.GetFriendlyReference(actor)).DefaultIfEmpty("None").ListToLines(true)}");
             sb.AppendLine();
         }
 
@@ -3328,7 +3328,7 @@ Your next payday is {3}.
             }
 
             List<(ICurrency Currency, decimal Value)> currencyPiles =
-                clan.TreasuryCells
+                clan.TreasuryRooms
                     .SelectMany(x => x.GameItems.SelectMany(y => y.RecursiveGetItems<ICurrencyPile>()))
                     .GroupBy(x => x.Currency)
                     .Select(x => (Currency: x.Key,
@@ -7380,6 +7380,7 @@ return 0",
                     ClanTreasuryLedger(actor, clan, command);
                     return;
                 case "toggle":
+                case "room":
                 case "cell":
                     break;
                 default:
@@ -7389,18 +7390,18 @@ return 0",
             }
         }
 
-        if (clan.TreasuryCells.Contains(actor.Location))
+        if (clan.TreasuryRooms.Contains(actor.Location))
         {
-            clan.RemoveTreasuryCell(actor.Location);
+            clan.RemoveTreasuryRoom(actor.Location);
             clan.Changed = true;
             actor.Send(
-                $"Your current location is no longer a treasury cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+                $"Your current location is no longer a treasury room for the {clan.FullName.Colour(Telnet.Green)} clan.");
             return;
         }
 
-        clan.AddTreasuryCell(actor.Location);
+        clan.AddTreasuryRoom(actor.Location);
         clan.Changed = true;
-        actor.Send($"Your current location is now a treasury cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+        actor.Send($"Your current location is now a treasury room for the {clan.FullName.Colour(Telnet.Green)} clan.");
     }
 
     private static bool CanViewClanTreasury(ICharacter actor, IClan clan)
@@ -7587,7 +7588,7 @@ return 0",
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("For which clan do you want to toggle an administration cell?");
+            actor.OutputHandler.Send("For which clan do you want to toggle an administration room?");
             return;
         }
 
@@ -7598,26 +7599,26 @@ return 0",
             return;
         }
 
-        if (clan.AdministrationCells.Contains(actor.Location))
+        if (clan.AdministrationRooms.Contains(actor.Location))
         {
-            clan.RemoveAdministrationCell(actor.Location);
+            clan.RemoveAdministrationRoom(actor.Location);
             clan.Changed = true;
             actor.Send(
-                $"Your current location is no longer an administration cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+                $"Your current location is no longer an administration room for the {clan.FullName.Colour(Telnet.Green)} clan.");
             return;
         }
 
-        clan.AddAdministrationCell(actor.Location);
+        clan.AddAdministrationRoom(actor.Location);
         clan.Changed = true;
         actor.Send(
-            $"Your current location is now a administration cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+            $"Your current location is now a administration room for the {clan.FullName.Colour(Telnet.Green)} clan.");
     }
 
     private static void ClanHall(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("For which clan do you want to toggle a clan hall cell?");
+            actor.OutputHandler.Send("For which clan do you want to toggle a clan hall room?");
             return;
         }
 
@@ -7628,19 +7629,19 @@ return 0",
             return;
         }
 
-        if (clan.ClanHallCells.Contains(actor.Location))
+        if (clan.ClanHallRooms.Contains(actor.Location))
         {
-            clan.RemoveClanHallCell(actor.Location);
+            clan.RemoveClanHallRoom(actor.Location);
             clan.Changed = true;
             actor.Send(
-                $"Your current location is no longer a clan hall cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+                $"Your current location is no longer a clan hall room for the {clan.FullName.Colour(Telnet.Green)} clan.");
             return;
         }
 
-        clan.AddClanHallCell(actor.Location);
+        clan.AddClanHallRoom(actor.Location);
         clan.Changed = true;
         actor.Send(
-            $"Your current location is now a clan hall cell for the {clan.FullName.Colour(Telnet.Green)} clan.");
+            $"Your current location is now a clan hall room for the {clan.FullName.Colour(Telnet.Green)} clan.");
     }
 
     private static void ClanMaxBackpay(ICharacter actor, StringStack command)

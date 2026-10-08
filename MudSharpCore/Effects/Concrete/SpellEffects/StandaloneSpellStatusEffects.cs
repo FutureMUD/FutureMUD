@@ -260,12 +260,12 @@ public class SpellWaterBreathingEffect : SimpleSpellStatusEffectBase, IAdditiona
 	{
 	}
 
-	private SpellWaterBreathingEffect(XElement root, IPerceivable owner)
+	protected SpellWaterBreathingEffect(XElement root, IPerceivable owner)
 		: base(root, owner)
 	{
 	}
 
-	public bool AppliesToFluid(IFluid fluid)
+	public virtual bool AppliesToFluid(IFluid fluid)
 	{
 		return fluid != null;
 	}

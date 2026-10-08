@@ -10,7 +10,7 @@ namespace MudSharp.Magic;
 
 public static class RemoteLookRenderer
 {
-	public static string DescribeRemoteCell(ICharacter viewer, ICell location, RoomLayer layer)
+	public static string DescribeRemoteRoom(ICharacter viewer, IRoom location, RoomLayer layer)
 	{
 		var flags = PerceiveIgnoreFlags.None;
 		var sb = new StringBuilder();

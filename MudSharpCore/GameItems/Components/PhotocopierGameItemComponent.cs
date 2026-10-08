@@ -246,7 +246,7 @@ public class PhotocopierGameItemComponent : PoweredMachineBaseGameItemComponent,
         return new PhotocopierGameItemComponent(this, newParent, temporary);
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         ILockable newItemLockable = newItem?.GetItemType<ILockable>();
         if (newItemLockable != null)
@@ -504,7 +504,7 @@ public class PhotocopierGameItemComponent : PoweredMachineBaseGameItemComponent,
             }
         }
 
-        ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
+        IRoom location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         _contents.Clear();
         if (emptier is not null)

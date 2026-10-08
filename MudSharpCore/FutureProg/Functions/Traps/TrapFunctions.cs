@@ -92,11 +92,11 @@ internal sealed class CreateTrapFunction : BuiltInFunction
 		}
 		var componentItems = suppliedItems.Append(anchor as IGameItem).Where(x => x is not null).Cast<IGameItem>()
 			.Distinct().ToList();
-		var anchorCell = anchor as MudSharp.Construction.ICell ?? anchor.Location;
+		var anchorRoom = anchor as MudSharp.Construction.IRoom ?? anchor.Location;
 		var bindings = new List<TrapComponentBinding>();
 		if (template.SourceKind == TrapSourceKind.Mechanical &&
 		    (componentItems.Any(x => x.Id <= 0 || x.Deleted || x.InInventoryOf is not null ||
-		                              !ReferenceEquals(x.Location, anchorCell) ||
+		                              !ReferenceEquals(x.Location, anchorRoom) ||
 		                              x.EffectsOfType<TrapComponentReservationEffect>().Any()) ||
 		     !TrapEffect.TryBindComponents(template, componentItems, out bindings) ||
 		     template.Triggers.Any(x => x.TriggerType == TrapTriggerType.Signal) &&

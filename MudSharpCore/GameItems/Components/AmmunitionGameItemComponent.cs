@@ -107,12 +107,12 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
             output => target.OutputHandler.Handle(output));
     }
 
-    private void HandleAmmunitionScatterToCell(ICharacter actor, SpatialLocation impactLocation, IGameItem ammo,
+    private void HandleAmmunitionScatterToRoom(ICharacter actor, SpatialLocation impactLocation, IGameItem ammo,
         IEmoteOutput emoteOnBreak = null, IEmoteOutput emoteOnFallToGround = null)
     {
         using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
         ResolveAftermath(actor, null, impactLocation, ammo, AmmoType.BreakChanceOnMiss,
-            emoteOnBreak, emoteOnFallToGround, output => impactLocation.Cell.Handle(output));
+            emoteOnBreak, emoteOnFallToGround, output => impactLocation.Room.Handle(output));
     }
 
     private void ResolveAftermath(ICharacter actor, IPerceiver positionTarget, SpatialLocation impact,
@@ -162,7 +162,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
     }
 
     private void BroadcastProjectileFlight(ICharacter actor, IPerceivable destination, IGameItem ammo,
-        IReadOnlyList<ICellExit> precomputedPath = null)
+        IReadOnlyList<IRoomExit> precomputedPath = null)
     {
         using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
 
@@ -171,8 +171,8 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
             return;
         }
 
-        IReadOnlyList<ICellExit> path = precomputedPath ?? actor.PathBetween(destination, 10, false, false, true)?.ToList() ??
-                   new List<ICellExit>();
+        IReadOnlyList<IRoomExit> path = precomputedPath ?? actor.PathBetween(destination, 10, false, false, true)?.ToList() ??
+                   new List<IRoomExit>();
         List<CardinalDirection> directions = path.Select(x => x.OutboundDirection).ToList();
         string dirDesc = directions.DescribeDirection();
         string oppDirDesc = directions.DescribeOppositeDirection();
@@ -198,11 +198,11 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
                 break;
         }
 
-        foreach (ICell cell in actor.CellsUnderneathFlight(destination, 10).ToArray())
+        foreach (IRoom room in actor.RoomsUnderneathFlight(destination, 10).ToArray())
         {
             if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
                 _projectileCompletion?.IsUnclaimed != true) return;
-            cell.Handle(
+            room.Handle(
                 new EmoteOutput(
                     new Emote($"@ {actionDescription} from the {oppDirDesc} towards the {dirDesc}", ammo),
                     style: OutputStyle.CombatMessage, flags: flags)
@@ -256,7 +256,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
     }
 
     private bool TryResolveScatter(ICharacter actor, IPerceiver originalTarget, IRangedWeaponType weaponType,
-        IGameItem ammo, IReadOnlyList<ICellExit> path, string context, RangedScatterType? scatterType = null)
+        IGameItem ammo, IReadOnlyList<IRoomExit> path, string context, RangedScatterType? scatterType = null)
     {
         using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
 
@@ -266,7 +266,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         RangedScatterResult scatterResult = (scatterType is null
                 ? RangedScatterStrategyFactory.GetStrategy(weaponType)
                 : RangedScatterStrategyFactory.GetStrategy(scatterType.Value))
-            .GetScatterTarget(actor, originalTarget, path ?? Array.Empty<ICellExit>());
+            .GetScatterTarget(actor, originalTarget, path ?? Array.Empty<IRoomExit>());
 
         if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
             _projectileCompletion?.IsUnclaimed != true) { FinishRefusedProjectile(actor, originalTarget, ammo); return true; }
@@ -308,8 +308,8 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 
             if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
                 _projectileCompletion?.IsUnclaimed != true) return;
-            List<ICellExit> scatterPath = actor.PathBetween(scatterResult.Target, 10, false, false, true)?.ToList() ??
-                              new List<ICellExit>();
+            List<IRoomExit> scatterPath = actor.PathBetween(scatterResult.Target, 10, false, false, true)?.ToList() ??
+                              new List<IRoomExit>();
             BroadcastProjectileFlight(actor, scatterResult.Target, ammo, scatterPath);
             if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
                 _projectileCompletion?.IsUnclaimed != true) return;
@@ -319,16 +319,16 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
                 new OpposedOutcome(OpposedOutcomeDirection.Proponent, OpposedOutcomeDegree.Marginal), bodypart, ammo,
                 weaponType, null);
             Gameworld.DebugMessage(
-                $"[Scatter:{context}] Ricochet struck {scatterResult.Target.HowSeen(actor)} in {scatterResult.Cell.HowSeen(actor)} after deviating{ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget)} (distance {scatterResult.DistanceFromTarget:N0}).");
+                $"[Scatter:{context}] Ricochet struck {scatterResult.Target.HowSeen(actor)} in {scatterResult.Room.HowSeen(actor)} after deviating{ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget)} (distance {scatterResult.DistanceFromTarget:N0}).");
             return;
         }
 
-        DummyPerceiver dummy = new(location: scatterResult.Cell)
+        DummyPerceiver dummy = new(location: scatterResult.Room)
         {
             RoomLayer = scatterResult.RoomLayer
         };
-        List<ICellExit> scatterCellPath = actor.PathBetween(dummy, 10, false, false, true)?.ToList() ?? new List<ICellExit>();
-        BroadcastProjectileFlight(actor, dummy, ammo, scatterCellPath);
+        List<IRoomExit> scatterRoomPath = actor.PathBetween(dummy, 10, false, false, true)?.ToList() ?? new List<IRoomExit>();
+        BroadcastProjectileFlight(actor, dummy, ammo, scatterRoomPath);
         if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) ||
             _projectileCompletion?.IsUnclaimed != true) return;
         string directionText = ScatterStrategyUtilities.DescribeFromDirection(scatterResult.DirectionFromTarget);
@@ -338,15 +338,15 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
         EmoteOutput fallOutput = new(
             new Emote($"$0 ricochets{directionText} and falls to the ground.", dummy, ammo),
             style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap);
-		HandleAmmunitionScatterToCell(actor, scatterResult.ImpactLocation, ammo, breakOutput,
+		HandleAmmunitionScatterToRoom(actor, scatterResult.ImpactLocation, ammo, breakOutput,
             fallOutput);
         Gameworld.DebugMessage(
-            $"[Scatter:{context}] Ricochet landed in {scatterResult.Cell.HowSeen(actor)}{directionText} without hitting a new target.");
+            $"[Scatter:{context}] Ricochet landed in {scatterResult.Room.HowSeen(actor)}{directionText} without hitting a new target.");
     }
 
     private bool TryResolveCoverInterception(ICharacter actor, IPerceiver target, Outcome shotOutcome,
         Outcome coverOutcome, OpposedOutcome defenseOutcome, IBodypart bodypart, IGameItem ammo,
-        IRangedWeaponType weaponType, IReadOnlyList<ICellExit> path)
+        IRangedWeaponType weaponType, IReadOnlyList<IRoomExit> path)
     {
         using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
 
@@ -411,7 +411,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
 
     private bool TryResolveMiss(ICharacter actor, IPerceiver target, Outcome shotOutcome, Outcome coverOutcome,
         OpposedOutcome defenseOutcome, IGameItem ammo, IRangedWeaponType weaponType, IEmoteOutput defenseEmote,
-        IReadOnlyList<ICellExit> path)
+        IReadOnlyList<IRoomExit> path)
     {
         using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
 
@@ -460,7 +460,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
     }
 
     private bool TryResolveObstruction(ICharacter actor, IPerceiver target, IGameItem ammo,
-        IRangedWeaponType weaponType, OpposedOutcome defenseOutcome, IBodypart bodypart, IReadOnlyList<ICellExit> path)
+        IRangedWeaponType weaponType, OpposedOutcome defenseOutcome, IBodypart bodypart, IReadOnlyList<IRoomExit> path)
     {
         using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
 
@@ -490,8 +490,8 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
             $"[Ranged] Obstruction: {actorText}'s shot at {targetText} intercepted by {obstructionText}.");
         if (obstructionPerceiver != null)
         {
-            List<ICellExit> obstructionPath = actor.PathBetween(obstructionPerceiver, 10, false, false, true)?.ToList() ??
-                                  new List<ICellExit>();
+            List<IRoomExit> obstructionPath = actor.PathBetween(obstructionPerceiver, 10, false, false, true)?.ToList() ??
+                                  new List<IRoomExit>();
             BroadcastProjectileFlight(actor, obstructionPerceiver, ammo, obstructionPath);
         }
         else
@@ -753,7 +753,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
             if (target == null)
             {
                 // Fired at sky
-                if (actor.Location.CurrentOverlay.OutdoorsType != CellOutdoorsType.Outdoors)
+                if (actor.Location.CurrentOverlay.OutdoorsType != RoomOutdoorsType.Outdoors)
                 {
                     HandleAmmunitionAftermath(actor, actor, ammo, true,
                         new EmoteOutput(new Emote("$1 $1|hit|hits the ceiling and shatters!", actor, actor, ammo)),
@@ -765,7 +765,7 @@ public class AmmunitionGameItemComponent : GameItemComponent, IAmmo
                 return;
             }
 
-            List<ICellExit> pathToTarget = actor.PathBetween(target, 10, false, false, true)?.ToList() ?? new List<ICellExit>();
+            List<IRoomExit> pathToTarget = actor.PathBetween(target, 10, false, false, true)?.ToList() ?? new List<IRoomExit>();
 
             // Cover checks run first – they may absorb the shot or trigger a ricochet.
             if (TryResolveCoverInterception(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, ammo,
@@ -861,7 +861,7 @@ internal sealed class ProjectileCustodyCompletion
 
     internal void PlaceAt(SpatialLocation point, bool allowMerge = false)
     {
-        if (!IsUnclaimed || point.Cell == null) return;
+        if (!IsUnclaimed || point.Room == null) return;
         if (!RouteSpatialService.Instance.TryValidateLocation(point, out var error))
             throw new InvalidOperationException(error);
 
@@ -869,7 +869,7 @@ internal sealed class ProjectileCustodyCompletion
         _used = true;
         Projectile.RoomLayer = point.Layer;
         if (!ComponentItemTransfer.IsDetached(Projectile)) return;
-        if (point.Cell.RouteDefinition != null)
+        if (point.Room.RouteDefinition != null)
         {
             Projectile.MoveTo(point);
             if (!IsAt(point)) return;
@@ -877,21 +877,21 @@ internal sealed class ProjectileCustodyCompletion
 
         // Ordered completion must never merge into a different stack after authority has expired.
         // Normal direct/foreign fire retains the ordinary merge path where requested.
-        point.Cell.Insert(Projectile, _ordered || !allowMerge);
+        point.Room.Insert(Projectile, _ordered || !allowMerge);
     }
 
     internal bool IsAt(SpatialLocation point) =>
         !Projectile.Deleted && !Projectile.Destroyed &&
         Projectile.InInventoryOf == null && Projectile.ContainedIn == null &&
         Projectile.GetItemType<MudSharp.GameItems.Interfaces.IBeltable>()?.ConnectedTo == null &&
-        ReferenceEquals(ComponentItemTransfer.DirectLocationOf(Projectile), point.Cell) &&
+        ReferenceEquals(ComponentItemTransfer.DirectLocationOf(Projectile), point.Room) &&
         Projectile.RoomLayer == point.Layer &&
-        (point.Cell.RouteDefinition == null || Projectile.RoutePositionMetres == point.RoutePositionMetres);
+        (point.Room.RouteDefinition == null || Projectile.RoutePositionMetres == point.RoutePositionMetres);
 
     internal static bool SourceIsAt(IPerceiver target, SpatialLocation point)
     {
         var current = RouteSpatialService.Instance.GetEffectiveLocation(target);
-        return ReferenceEquals(current.Cell, point.Cell) && current.Layer == point.Layer &&
+        return ReferenceEquals(current.Room, point.Room) && current.Layer == point.Layer &&
                current.RoutePositionMetres == point.RoutePositionMetres;
     }
 }

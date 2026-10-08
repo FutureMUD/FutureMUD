@@ -5,8 +5,8 @@ using System;
 namespace MudSharp.Economy;
 
 /// <summary>
-/// The purpose for which a cell belongs to a restaurant. Service and internal cells are both
-/// within the restaurant boundary; kitchen cells are also a useful builder-facing distinction.
+/// The purpose for which a room belongs to a restaurant. Service and internal rooms are both
+/// within the restaurant boundary; kitchen rooms are also a useful builder-facing distinction.
 /// </summary>
 [Flags]
 public enum RestaurantStorageRole
@@ -19,7 +19,7 @@ public enum RestaurantStorageRole
 	TakeawayBags = 16
 }
 
-public enum RestaurantCellRole
+public enum RestaurantRoomRole
 {
 	Service,
 	Internal,

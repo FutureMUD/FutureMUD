@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction.Autobuilder.Areas;
+using MudSharp.Construction.Autobuilder.Areas;
 using MudSharp.Database;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Revision;
@@ -17,9 +17,9 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
             (gameworld, name) => new AutobuilderRoomSimple(gameworld, name));
     }
 
-    public string CellName { get; protected set; }
-    public string CellDescription { get; protected set; }
-    public CellOutdoorsType OutdoorsType { get; protected set; }
+    public string RoomName { get; protected set; }
+    public string RoomDescription { get; protected set; }
+    public RoomOutdoorsType OutdoorsType { get; protected set; }
     public double AmbientLightFactor { get; protected set; }
     public ITerrain DefaultTerrain { get; protected set; }
     public IForagableProfile ForagableProfile { get; protected set; }
@@ -28,10 +28,10 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
 	{
 		ShowCommandByline = "A Simple Room Template";
         DefaultTerrain = gameworld.Terrains.First(x => x.DefaultTerrain);
-        CellName = "An Undescribed Location";
-        CellDescription = "This location does not have any description";
+        RoomName = "An Undescribed Location";
+        RoomDescription = "This location does not have any description";
         AmbientLightFactor = 1.0;
-        OutdoorsType = DefaultTerrain.DefaultCellOutdoorsType;
+        OutdoorsType = DefaultTerrain.DefaultRoomOutdoorsType;
         ApplyAutobuilderTagsAsFrameworkTags = true;
 
         using (new FMDB())
@@ -51,8 +51,8 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
     public AutobuilderRoomSimple(AutobuilderRoomSimple rhs, string newName) : base(rhs.Gameworld, newName)
     {
         Gameworld = rhs.Gameworld;
-        CellName = rhs.CellName;
-        CellDescription = rhs.CellDescription;
+        RoomName = rhs.RoomName;
+        RoomDescription = rhs.RoomDescription;
         OutdoorsType = rhs.OutdoorsType;
         AmbientLightFactor = rhs.AmbientLightFactor;
         DefaultTerrain = rhs.DefaultTerrain;
@@ -82,11 +82,11 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
 
     protected override void LoadFromXml(XElement root)
     {
-        CellName = root.Element("RoomName")?.Value ?? "An Unnamed Room";
-        CellDescription = root.Element("RoomDescription")?.Value ?? "An undescribed room";
+        RoomName = root.Element("RoomName")?.Value ?? "An Unnamed Room";
+        RoomDescription = root.Element("RoomDescription")?.Value ?? "An undescribed room";
         OutdoorsType =
-            (CellOutdoorsType)int.Parse(root.Element("OutdoorsType")?.Value ??
-                                        ((int)CellOutdoorsType.Outdoors).ToString());
+            (RoomOutdoorsType)int.Parse(root.Element("OutdoorsType")?.Value ??
+                                        ((int)RoomOutdoorsType.Outdoors).ToString());
         AmbientLightFactor = double.Parse(root.Element("CellLightMultiplier")?.Value ?? "1.0");
         DefaultTerrain = Gameworld.Terrains.Get(long.Parse(root.Element("DefaultTerrain")?.Value ?? "0")) ??
                          Gameworld.Terrains.FirstOrDefault(x => x.DefaultTerrain);
@@ -100,8 +100,8 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
     {
         return new XElement("Template",
             new XElement("DefaultTerrain", DefaultTerrain?.Id ?? 0),
-            new XElement("RoomName", new XCData(CellName)),
-            new XElement("RoomDescription", new XCData(CellDescription)),
+            new XElement("RoomName", new XCData(RoomName)),
+            new XElement("RoomDescription", new XCData(RoomDescription)),
             new XElement("OutdoorsType", (int)OutdoorsType),
             new XElement("CellLightMultiplier", AmbientLightFactor),
             new XElement("ForagableProfile", ForagableProfile?.Id ?? 0),
@@ -115,32 +115,31 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
 		return new AutobuilderRoomSimple(this, newName);
 	}
 
-    public override ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+    public override IRoom CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         params string[] tags)
     {
         return CreateRoomCore(builder, specifiedTerrain, deferDescription, [], tags);
     }
 
-    public override ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+    public override IRoom CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         IReadOnlyCollection<ITag> frameworkTags, params string[] tags)
     {
         return CreateRoomCore(builder, specifiedTerrain, deferDescription, frameworkTags, tags);
     }
 
-    private ICell CreateRoomCore(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+    private IRoom CreateRoomCore(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         IReadOnlyCollection<ITag> frameworkTags, string[] tags)
     {
-        Room room = new(builder, builder.CurrentOverlayPackage);
-        ICell cell = room.Cells.First();
-        IEditableCellOverlay overlay = cell.GetOrCreateOverlay(builder.CurrentOverlayPackage);
-        overlay.CellName = CellName;
-        overlay.CellDescription = CellDescription;
+        IRoom room = new Room(builder.CurrentOverlayPackage, builder.Location.OwningZone);
+        IEditableRoomOverlay overlay = room.GetOrCreateOverlay(builder.CurrentOverlayPackage);
+        overlay.RoomName = RoomName;
+        overlay.RoomDescription = RoomDescription;
         overlay.AmbientLightFactor = AmbientLightFactor;
         overlay.OutdoorsType = OutdoorsType;
         overlay.Terrain = specifiedTerrain ?? DefaultTerrain;
-        cell.ForagableProfile = ForagableProfile;
-        ApplyTagsToCell(cell, frameworkTags, tags);
-        return cell;
+        room.ForagableProfile = ForagableProfile;
+        ApplyTagsToRoom(room, frameworkTags, tags);
+        return room;
     }
 
     protected override string SubtypeHelpText => @" #3roomname <name>#0 - the name of the generated room
@@ -154,7 +153,7 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
 	public override string Show(ICharacter builder)
 	{
 		return
-			$"{$"Autobuilder Room Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\nThis template will create the same cell every time. This particular template creates cells with terrain type {DefaultTerrain.Name.Colour(Telnet.Green)}, outdoors type {OutdoorsType.Describe().Colour(Telnet.Green)} and Ambient Light Factor {AmbientLightFactor:N3}. {(ForagableProfile == null ? "It does not have a foragable profile set." : $"It will use the {ForagableProfile.Name.Colour(Telnet.Green)} foragable profile.")}\n\nCell Name: {CellName}\nCell Description:\n\n{CellDescription.Wrap(builder.InnerLineFormatLength, "\t")}";
+			$"{$"Autobuilder Room Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\nThis template will create the same room every time. This particular template creates rooms with terrain type {DefaultTerrain.Name.Colour(Telnet.Green)}, outdoors type {OutdoorsType.Describe().Colour(Telnet.Green)} and Ambient Light Factor {AmbientLightFactor:N3}. {(ForagableProfile == null ? "It does not have a foragable profile set." : $"It will use the {ForagableProfile.Name.Colour(Telnet.Green)} foragable profile.")}\n\nCell Name: {RoomName}\nCell Description:\n\n{RoomDescription.Wrap(builder.InnerLineFormatLength, "\t")}";
 	}
 
     public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -181,21 +180,21 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
             case "outdoor":
             case "outdoors":
             case "outside":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.Outdoors);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.Outdoors);
             case "cave":
             case "nolight":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.IndoorsNoLight);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.IndoorsNoLight);
             case "windows":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.IndoorsWithWindows);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.IndoorsWithWindows);
             case "indoors":
             case "indoor":
             case "inside":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.Indoors);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.Indoors);
             case "shelter":
             case "climate":
             case "sheltered":
             case "exposed":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.IndoorsClimateExposed);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.IndoorsClimateExposed);
             default:
                 return base.BuildingCommand(actor, command.GetUndo());
         }
@@ -239,7 +238,7 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
         return true;
     }
 
-    private bool BuildingCommandOutdoorType(ICharacter actor, CellOutdoorsType outdoors)
+    private bool BuildingCommandOutdoorType(ICharacter actor, RoomOutdoorsType outdoors)
     {
         OutdoorsType = outdoors;
         Changed = true;
@@ -264,7 +263,7 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
         }
 
         DefaultTerrain = terrain;
-        OutdoorsType = terrain.DefaultCellOutdoorsType;
+        OutdoorsType = terrain.DefaultRoomOutdoorsType;
         Changed = true;
         actor.OutputHandler.Send(
             $"When no terrain is specified, this room template will now use the {terrain.Name.ColourValue()} terrain as a fallback.");
@@ -294,9 +293,9 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
 
     private bool BuildingCommandDescription(ICharacter actor, StringStack command)
     {
-        if (!string.IsNullOrEmpty(CellDescription))
+        if (!string.IsNullOrEmpty(RoomDescription))
         {
-            actor.OutputHandler.Send("Replacing:\n" + CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
+            actor.OutputHandler.Send("Replacing:\n" + RoomDescription.Wrap(actor.InnerLineFormatLength, "\t"));
         }
 
         actor.OutputHandler.Send(
@@ -312,7 +311,7 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
 
     private void PostDefaultDescription(string arg1, IOutputHandler arg2, object[] arg3)
     {
-        CellDescription = arg1.Trim().ProperSentences().Fullstop();
+        RoomDescription = arg1.Trim().ProperSentences().Fullstop();
         Changed = true;
         arg2.Send("You change the room description.");
     }
@@ -326,9 +325,9 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
             return false;
         }
 
-        CellName = command.SafeRemainingArgument.TitleCase();
+        RoomName = command.SafeRemainingArgument.TitleCase();
         Changed = true;
-        actor.OutputHandler.Send($"The default rooms will now use the room name {CellName.Colour(Telnet.Cyan)}.");
+        actor.OutputHandler.Send($"The default rooms will now use the room name {RoomName.Colour(Telnet.Cyan)}.");
         return true;
     }
 

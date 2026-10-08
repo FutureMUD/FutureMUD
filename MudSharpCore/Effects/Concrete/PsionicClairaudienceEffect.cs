@@ -64,13 +64,13 @@ public sealed class PsionicClairaudienceEffect : Effect, IMagicEffect, IRemoteOb
 
 	public bool Observes(SpatialLocation source)
 	{
-		if (source.Cell.RouteDefinition is null)
+		if (source.Room.RouteDefinition is null)
 		{
 			return true;
 		}
 
 		var target = RouteSpatialService.Instance.GetEffectiveLocation(TargetCharacter);
-		if (!ReferenceEquals(source.Cell, target.Cell) ||
+		if (!ReferenceEquals(source.Room, target.Room) ||
 		    source.Layer != target.Layer ||
 		    !source.RoutePositionMetres.HasValue ||
 		    !target.RoutePositionMetres.HasValue)

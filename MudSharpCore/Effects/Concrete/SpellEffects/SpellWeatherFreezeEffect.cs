@@ -20,7 +20,7 @@ public class SpellWeatherFreezeEffect : MagicSpellEffectBase
     public SpellWeatherFreezeEffect(IPerceivable owner, IMagicSpellEffectParent parent, IFutureProg prog, IWeatherEvent? weatherEvent = null, bool nextTransition = false) : base(owner, parent, prog)
     {
         WeatherEvent = weatherEvent;
-        _controller = (owner as ICell)?.WeatherController ?? (owner as IZone)?.WeatherController;
+        _controller = (owner as IRoom)?.WeatherController ?? (owner as IZone)?.WeatherController;
         if (_controller == null)
         {
             return;
@@ -41,7 +41,7 @@ public class SpellWeatherFreezeEffect : MagicSpellEffectBase
         XElement tr = root.Element("Effect");
         long id = long.Parse(tr.Element("WeatherEventId")?.Value ?? "0");
         WeatherEvent = id != 0 ? Gameworld.WeatherEvents.Get(id) : null;
-        _controller = (owner as ICell)?.WeatherController ?? (owner as IZone)?.WeatherController;
+        _controller = (owner as IRoom)?.WeatherController ?? (owner as IZone)?.WeatherController;
         if (_controller != null)
         {
             ApplyFreeze();

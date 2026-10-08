@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -71,7 +71,7 @@ public class ScanTargetAcquisitionTests
 	}
 
 	[TestMethod]
-	public void ScanTargetAcquisition_UsesBoundedDoorAndCornerAwareTraversalForOrdinaryCells()
+	public void ScanTargetAcquisition_UsesBoundedDoorAndCornerAwareTraversalForOrdinaryRooms()
 	{
 		string source = System.IO.File.ReadAllText(System.IO.Path.GetFullPath(System.IO.Path.Combine(
 			AppContext.BaseDirectory, "..", "..", "..", "..", "MudSharpCore", "PerceptionEngine",
@@ -79,33 +79,33 @@ public class ScanTargetAcquisitionTests
 		string creatureAiSource = System.IO.File.ReadAllText(System.IO.Path.GetFullPath(System.IO.Path.Combine(
 			AppContext.BaseDirectory, "..", "..", "..", "..", "MudSharpCore", "NPC", "AI", "CreatureAIBase.cs")));
 
-		StringAssert.Contains(source, "CellsAndDistancesInVicinity(maximumRange, true, true)");
+		StringAssert.Contains(source, "RoomsAndDistancesInVicinity(maximumRange, true, true)");
 		StringAssert.Contains(creatureAiSource,
 			"Math.Min(Math.Max(0, EffectiveAwarenessRange), (int)character.MaximumPerceptionRange)");
-		StringAssert.Contains(source, "candidate.Cell.SpotDifficulty(observer)");
+		StringAssert.Contains(source, "candidate.Room.SpotDifficulty(observer)");
 		StringAssert.Contains(source, "candidate.Target.RoomLayer.CanBeSeenFromLayer(observer.RoomLayer)");
 		StringAssert.Contains(source, "GetPerceivablesWithinAcrossLayers");
 	}
 
 	private static ScanFixture CreateFixture(Outcome outcome, SizeCategory targetSize, RoomLayer targetLayer)
 	{
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		var observer = new Mock<ICharacter>();
 		var target = new Mock<ICharacter>();
 		var check = new Mock<ICheck>();
 		var gameworld = new Mock<IFuturemud>();
 
-		cell.SetupGet(x => x.Characters).Returns([target.Object]);
-		cell.Setup(x => x.ExitsFor(null!, true)).Returns([]);
-		cell.Setup(x => x.SpotDifficulty(observer.Object)).Returns(Difficulty.Normal);
-		observer.SetupGet(x => x.Location).Returns(cell.Object);
+		room.SetupGet(x => x.Characters).Returns([target.Object]);
+		room.Setup(x => x.ExitsFor(null!, true)).Returns([]);
+		room.Setup(x => x.SpotDifficulty(observer.Object)).Returns(Difficulty.Normal);
+		observer.SetupGet(x => x.Location).Returns(room.Object);
 		observer.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		observer.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		observer.SetupGet(x => x.SeenTargets).Returns([]);
 		observer.Setup(x => x.CanSee((IPerceivable)target.Object,
 			PerceiveIgnoreFlags.IgnoreObscured)).Returns(true);
 		observer.Setup(x => x.CurrentContextualSize(SizeContext.None)).Returns(SizeCategory.Normal);
-		target.SetupGet(x => x.Location).Returns(cell.Object);
+		target.SetupGet(x => x.Location).Returns(room.Object);
 		target.SetupGet(x => x.RoomLayer).Returns(targetLayer);
 		target.Setup(x => x.CurrentContextualSize(SizeContext.Scan)).Returns(targetSize);
 		check.Setup(x => x.CheckAgainstAllDifficulties(It.IsAny<IPerceivableHaveTraits>(), It.IsAny<Difficulty>(),

@@ -129,7 +129,7 @@ public class ConsumableHeaterCoolerGameItemComponent : ThermalSourceGameItemComp
 
         IGameItem newItem = _prototype.SpentItemProto.CreateNew();
         newItem.CopyOwnerFrom(Parent);
-        ICell? location = Parent.TrueLocations.FirstOrDefault();
+        IRoom? location = Parent.TrueLocations.FirstOrDefault();
 		var originalSpatialLocation = location is null
 			? (SpatialLocation?)null
 			: RouteSpatialService.Instance.GetEffectiveLocation(Parent.LocationLevelPerceivable ?? Parent);

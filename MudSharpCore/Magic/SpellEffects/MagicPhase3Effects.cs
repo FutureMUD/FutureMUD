@@ -1146,13 +1146,13 @@ public class CorpseSpawnEffect : IMagicSpellEffectTemplate
 			return null;
 		}
 
-		var cell = item.TrueLocations.FirstOrDefault() ?? caster.Location;
+		var room = item.TrueLocations.FirstOrDefault() ?? caster.Location;
 		if (NPCPrototypeId > 0 && Gameworld.NpcTemplates.Get(NPCPrototypeId) is INPCTemplate template)
 		{
 			var sourceLocation = RouteSpatialService.Instance.GetEffectiveLocation(item.LocationLevelPerceivable);
-			var spawnLocation = ReferenceEquals(sourceLocation.Cell, cell)
-				? new SpatialLocation(cell, item.RoomLayer, sourceLocation.RoutePositionMetres)
-				: CharacterInstanceService.CreateDefaultSpawnLocation(cell, item.RoomLayer);
+			var spawnLocation = ReferenceEquals(sourceLocation.Room, room)
+				? new SpatialLocation(room, item.RoomLayer, sourceLocation.RoutePositionMetres)
+				: CharacterInstanceService.CreateDefaultSpawnLocation(room, item.RoomLayer);
 			var ch = template.CreateNewCharacter(spawnLocation);
 			Gameworld.Add(ch, true);
 			template.ApplyTemplateLoadAdditions(ch);
@@ -1368,8 +1368,8 @@ public class PortalSpellEffect : IMagicSpellEffectTemplate
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		var source = caster.Location;
-		var destination = target as ICell ??
-		                  additionalParameters.FirstOrDefault(x => x.ParameterName.EqualTo("room"))?.Item as ICell ??
+		var destination = target as IRoom ??
+		                  additionalParameters.FirstOrDefault(x => x.ParameterName.EqualTo("room"))?.Item as IRoom ??
 		                  AnchorDestination(caster);
 		if (source is null || destination is null || ReferenceEquals(source, destination))
 		{
@@ -1395,9 +1395,9 @@ public class PortalSpellEffect : IMagicSpellEffectTemplate
 			OutboundTarget, InboundTarget, OutboundDescription, InboundDescription, TimeMultiplier);
 	}
 
-	private ICell? AnchorDestination(ICharacter caster)
+	private IRoom? AnchorDestination(ICharacter caster)
 	{
-		var roomAnchor = Gameworld.Cells
+		var roomAnchor = Gameworld.Rooms
 			.Where(x => x != caster.Location)
 			.Where(x => x.EffectsOfType<IMagicTagEffect>(tag =>
 				tag.Caster?.Id == caster.Id &&
@@ -1994,8 +1994,8 @@ public class PhantomIllusionEffect : IMagicSpellEffectTemplate
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
-		return target is ICell cell
-			? new SpellPhantomIllusionEffect(cell, parent, Text, AudienceScope, caster.Id, cell.Id, ClanId, null,
+		return target is IRoom room
+			? new SpellPhantomIllusionEffect(room, parent, Text, AudienceScope, caster.Id, room.Id, ClanId, null,
 				ViewerProg, Priority, IllusionKey, Colour)
 			: null;
 	}

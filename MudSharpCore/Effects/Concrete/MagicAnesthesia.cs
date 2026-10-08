@@ -19,7 +19,7 @@ public class BeingMagicallyAnesthetised : Effect, ICauseDrugEffect
     }
 
     private void CharacterOwner_OnLocationChanged(Form.Shape.ILocateable locatable,
-        Construction.Boundary.ICellExit exit)
+        Construction.Boundary.IRoomExit exit)
     {
         OriginatorEffect.CharacterOwner_OnLocationChanged(locatable, exit);
     }
@@ -104,7 +104,7 @@ public class MagicAnesthesia : ConcentrationConsumingEffect, IMagicEffect, IChec
             $"Magically anesthetizing {CharacterTarget.HowSeen(voyeur)} @ intensity {CurrentIntensity.ToString("N2", voyeur).ColourValue()}/{TargetIntensity.ToString("N2", voyeur).ColourValue()} through the {AnesthesiaPower.Name.ColourValue()} power.";
     }
 
-    public void CharacterOwner_OnLocationChanged(Form.Shape.ILocateable locatable, Construction.Boundary.ICellExit exit)
+    public void CharacterOwner_OnLocationChanged(Form.Shape.ILocateable locatable, Construction.Boundary.IRoomExit exit)
     {
         if (!AnesthesiaPower.TargetIsInRange(CharacterOwner, CharacterTarget, AnesthesiaPower.PowerDistance))
         {

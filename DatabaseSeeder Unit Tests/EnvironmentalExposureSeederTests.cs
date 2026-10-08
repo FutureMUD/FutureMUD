@@ -104,7 +104,7 @@ public class EnvironmentalExposureSeederTests
 		var spells = context.MagicSpells.ToList().Select(x => XElement.Parse(x.Definition)).ToArray();
 		Assert.IsTrue(spells.Any(x => (string?)x.Element("Trigger")?.Attribute("type") == "substanceitem"));
 		Assert.IsTrue(spells.Any(x => (int?)x.Element("Effects")?.Element("Effect")?.Element("Routes") == (int)ExposureRoute.Inhalation));
-		Assert.AreEqual(0, context.MagicCapabilities.Count()); Assert.AreEqual(0, context.Cells.Count());
+		Assert.AreEqual(0, context.MagicCapabilities.Count()); Assert.AreEqual(0, context.Rooms.Count());
 		Assert.AreEqual(5, context.MagicalSubstances.Count());
 	}
 	[TestMethod]

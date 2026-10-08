@@ -329,7 +329,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
             }
 
             // Move to prison
-            List<ICellExit> path = patrol.PatrolLeader.PathBetween(patrol.LegalAuthority.PrisonLocation, 50,
+            List<IRoomExit> path = patrol.PatrolLeader.PathBetween(patrol.LegalAuthority.PrisonLocation, 50,
                 PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader)).ToList();
             // If we can't find a path, try to get closer at least
             if (path.Count == 0)
@@ -511,7 +511,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         return AccessibleKeys(member).Any(x => KeyWorksForLock(member, theLock, x));
     }
 
-    protected static IEnumerable<ILock> DoorLocksForExits(IEnumerable<ICellExit> exits)
+    protected static IEnumerable<ILock> DoorLocksForExits(IEnumerable<IRoomExit> exits)
     {
         return exits
                .SelectNotNull(x => x.Exit.Door)
@@ -519,9 +519,9 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
                .Distinct();
     }
 
-    protected static IEnumerable<ICellExit> DoorExitsForCells(ICharacter member, IEnumerable<ICell> cells)
+    protected static IEnumerable<IRoomExit> DoorExitsForRooms(ICharacter member, IEnumerable<IRoom> rooms)
     {
-        return cells
+        return rooms
                .SelectMany(x => x.ExitsFor(member, true))
                .Where(x => x.Exit.Door?.Locks.Any() == true)
                .DistinctBy(x => x.Exit);
@@ -532,14 +532,14 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         return locks.Distinct().All(x => HasKeyForLock(member, x));
     }
 
-    protected static bool HasKeysForExits(ICharacter member, IEnumerable<ICellExit> exits)
+    protected static bool HasKeysForExits(ICharacter member, IEnumerable<IRoomExit> exits)
     {
         return HasKeysForLocks(member, DoorLocksForExits(exits));
     }
 
-    protected static bool HasKeysForCells(ICharacter member, IEnumerable<ICell> cells)
+    protected static bool HasKeysForRooms(ICharacter member, IEnumerable<IRoom> rooms)
     {
-        return HasKeysForExits(member, DoorExitsForCells(member, cells));
+        return HasKeysForExits(member, DoorExitsForRooms(member, rooms));
     }
 
     protected static bool PrepareKeysForLocks(ICharacter member, IEnumerable<ILock> locks)
@@ -566,14 +566,14 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         return HasKeysForLocks(member, requiredLocks);
     }
 
-    protected static bool PrepareKeysForExits(ICharacter member, IEnumerable<ICellExit> exits)
+    protected static bool PrepareKeysForExits(ICharacter member, IEnumerable<IRoomExit> exits)
     {
         return PrepareKeysForLocks(member, DoorLocksForExits(exits));
     }
 
-    protected static bool PrepareKeysForCells(ICharacter member, IEnumerable<ICell> cells)
+    protected static bool PrepareKeysForRooms(ICharacter member, IEnumerable<IRoom> rooms)
     {
-        return PrepareKeysForExits(member, DoorExitsForCells(member, cells));
+        return PrepareKeysForExits(member, DoorExitsForRooms(member, rooms));
     }
 
     protected static void FormParty(IPatrol patrol)
@@ -601,7 +601,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
         }
     }
 
-	protected static FollowingPath CreatePatrolPath(ICharacter member, IEnumerable<ICellExit> path)
+	protected static FollowingPath CreatePatrolPath(ICharacter member, IEnumerable<IRoomExit> path)
 	{
 		return FollowingPath.CreateFullFriendlyPath(member, path, closeDoorsBehind: true);
 	}
@@ -609,7 +609,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 	protected static FollowingPath CreatePatrolPath(
 		ICharacter member,
 		ISpatialPath path,
-		Func<ICellExit, bool> suitabilityFunction)
+		Func<IRoomExit, bool> suitabilityFunction)
 	{
 		return FollowingPath.CreateFullFriendlyPath(
 			member,
@@ -618,7 +618,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 			closeDoorsBehind: true);
 	}
 
-	protected static void BeginPatrolPath(ICharacter member, IEnumerable<ICellExit> path)
+	protected static void BeginPatrolPath(ICharacter member, IEnumerable<IRoomExit> path)
 	{
 		FollowingPath fp = CreatePatrolPath(member, path);
 		member.AddEffect(fp);
@@ -627,9 +627,9 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 
 	internal static bool TryCreatePatrolPath(
 		ICharacter member,
-		ICell target,
+		IRoom target,
 		double maximumRoomEquivalentCost,
-		Func<ICellExit, bool> suitabilityFunction,
+		Func<IRoomExit, bool> suitabilityFunction,
 		out FollowingPath path)
 	{
 		path = null;
@@ -653,7 +653,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 
 	internal static bool TryResolvePatrolDestination(
 		ICharacter member,
-		ICell target,
+		IRoom target,
 		out SpatialLocation destination)
 	{
 		destination = default;
@@ -670,7 +670,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 		return RouteSpatialService.Instance.TryValidateLocation(destination, out _);
 	}
 
-	internal static bool HasReachedPatrolDestination(ICharacter member, ICell target)
+	internal static bool HasReachedPatrolDestination(ICharacter member, IRoom target)
 	{
 		if (member?.Location is null || target is null || !ReferenceEquals(member.Location, target))
 		{
@@ -701,7 +701,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 		ICharacter member,
 		IPerceivable target,
 		double maximumRoomEquivalentCost,
-		Func<ICellExit, bool> suitabilityFunction,
+		Func<IRoomExit, bool> suitabilityFunction,
 		out FollowingPath path)
 	{
 		path = null;
@@ -722,11 +722,11 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 		ICharacter member,
 		SpatialLocation destination,
 		double maximumRoomEquivalentCost,
-		Func<ICellExit, bool> suitabilityFunction,
+		Func<IRoomExit, bool> suitabilityFunction,
 		out FollowingPath path)
 	{
 		path = null;
-		if (member?.Location is null || destination.Cell is null ||
+		if (member?.Location is null || destination.Room is null ||
 			!double.IsFinite(maximumRoomEquivalentCost) || maximumRoomEquivalentCost <= 0.0)
 		{
 			return false;
@@ -737,10 +737,10 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 		}
 
 		var ordinaryExits = member
-			.PathBetween(destination.Cell, (uint)Math.Ceiling(maximumRoomEquivalentCost), suitabilityFunction)
+			.PathBetween(destination.Room, (uint)Math.Ceiling(maximumRoomEquivalentCost), suitabilityFunction)
 			.ToList();
 		if (member.Location.RouteDefinition is null &&
-			destination.Cell.RouteDefinition is null &&
+			destination.Room.RouteDefinition is null &&
 			ordinaryExits.Count > 0)
 		{
 			path = CreatePatrolPath(member, ordinaryExits);
@@ -778,9 +778,9 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 
 	protected static bool TryBeginPatrolPath(
 		ICharacter member,
-		ICell target,
+		IRoom target,
 		double maximumRoomEquivalentCost,
-		Func<ICellExit, bool> suitabilityFunction)
+		Func<IRoomExit, bool> suitabilityFunction)
 	{
 		if (!TryCreatePatrolPath(
 				member,
@@ -801,7 +801,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 		ICharacter member,
 		IPerceivable target,
 		double maximumRoomEquivalentCost,
-		Func<ICellExit, bool> suitabilityFunction)
+		Func<IRoomExit, bool> suitabilityFunction)
 	{
 		if (!TryCreatePatrolPath(
 				member,
@@ -822,7 +822,7 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 		ICharacter member,
 		SpatialLocation target,
 		double maximumRoomEquivalentCost,
-		Func<ICellExit, bool> suitabilityFunction)
+		Func<IRoomExit, bool> suitabilityFunction)
 	{
 		if (!TryCreatePatrolPath(
 				member,
@@ -841,8 +841,8 @@ public abstract class PatrolStrategyBase : IPatrolStrategy
 
 	private static bool RequiresSpatialFollowing(ISpatialPath path)
 	{
-		return path.Origin.Cell.RouteDefinition is not null ||
-		       path.Destination.Cell.RouteDefinition is not null ||
+		return path.Origin.Room.RouteDefinition is not null ||
+		       path.Destination.Room.RouteDefinition is not null ||
 		       path.Steps.Any(x => x is ILinearRoutePathStep);
 	}
 

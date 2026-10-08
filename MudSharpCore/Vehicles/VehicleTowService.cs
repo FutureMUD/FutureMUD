@@ -79,7 +79,7 @@ public class VehicleTowService : IVehicleTowService
 			link), out reason);
 	}
 
-	public bool CanMoveTowTrain(IVehicle root, ICellExit exit, out IReadOnlyList<IVehicle> towTrain, out string reason)
+	public bool CanMoveTowTrain(IVehicle root, IRoomExit exit, out IReadOnlyList<IVehicle> towTrain, out string reason)
 	{
 		if (root is null)
 		{

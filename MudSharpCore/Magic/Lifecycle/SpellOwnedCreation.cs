@@ -71,7 +71,7 @@ public sealed partial class SpellOwnedCreation
 		SpellOwnedEntityKind.AutonomousCharacter => row is Models.Character,
 		SpellOwnedEntityKind.CharacterInstance => row is Models.CharacterInstance,
 		SpellOwnedEntityKind.Body => row is Models.Body,
-		SpellOwnedEntityKind.Cell => row is Cell,
+		SpellOwnedEntityKind.Room => row is Room,
 		SpellOwnedEntityKind.Exit => row is Exit,
 		_ => false
 	};
@@ -79,7 +79,7 @@ public sealed partial class SpellOwnedCreation
 	private static long Id(object row) => row switch
 	{
 		GameItem x => x.Id, Models.Character x => x.Id, Models.CharacterInstance x => x.Id,
-		Models.Body x => x.Id, Cell x => x.Id, Exit x => x.Id,
+		Models.Body x => x.Id, Room x => x.Id, Exit x => x.Id,
 		_ => throw new InvalidOperationException("Unsupported owned entity row.")
 	};
 }

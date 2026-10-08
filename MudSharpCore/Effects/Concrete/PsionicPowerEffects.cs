@@ -225,7 +225,7 @@ public sealed class PsionicSensitivityEffect : PsionicSustainedPowerEffectBase<S
 			return;
 		}
 
-		if (!CharacterOwner.Location.CellsInVicinity(Power.ActivityRange, true, true).Contains(activity.Source.Location))
+		if (!CharacterOwner.Location.RoomsInVicinity(Power.ActivityRange, true, true).Contains(activity.Source.Location))
 		{
 			return;
 		}

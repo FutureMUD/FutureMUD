@@ -69,7 +69,7 @@ public abstract partial class Shop : SaveableItem, IShop
         }
     }
 
-    protected Shop(IEconomicZone zone, ICell originalShopFront, string name, string type)
+    protected Shop(IEconomicZone zone, IRoom originalShopFront, string name, string type)
     {
         Gameworld = zone.Gameworld;
         Currency = zone.Currency;
@@ -90,7 +90,7 @@ public abstract partial class Shop : SaveableItem, IShop
             dbitem.EmployeeRecords = "<Employees/>";
             if (originalShopFront is not null)
             {
-                dbitem.ShopsStoreroomCells.Add(new ShopsStoreroomCell { Shop = dbitem, CellId = originalShopFront.Id });
+                dbitem.ShopsStoreroomRooms.Add(new ShopsStoreroomRoom { Shop = dbitem, RoomId = originalShopFront.Id });
             }
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
@@ -304,7 +304,7 @@ public abstract partial class Shop : SaveableItem, IShop
 
     private readonly List<IEmployeeRecord> _employeeRecords = new();
     public IEnumerable<IEmployeeRecord> EmployeeRecords => _employeeRecords;
-    public abstract IEnumerable<ICell> CurrentLocations { get; }
+    public abstract IEnumerable<IRoom> CurrentLocations { get; }
     public bool IsEmployee(ICharacter actor)
     {
         return this.HasActiveEmploymentContract(actor);
@@ -2185,7 +2185,7 @@ public abstract partial class Shop : SaveableItem, IShop
             case "merchandise":
                 return new CollectionVariable(Merchandises.ToList(), ProgVariableTypes.Merchandise);
             case "shopfront":
-                return new CollectionVariable(new List<ICell>(), ProgVariableTypes.Location);
+                return new CollectionVariable(new List<IRoom>(), ProgVariableTypes.Location);
             case "storeroom":
                 return new NullVariable(ProgVariableTypes.Location);
             case "workshop":

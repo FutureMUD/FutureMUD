@@ -37,14 +37,14 @@ public class ThermalSourceComponentTests
         target.Setup(x => x.GetProximity(sameLayerItem.Object)).Returns(Proximity.Immediate);
         target.Setup(x => x.GetProximity(otherLayerItem.Object)).Returns(Proximity.VeryDistant);
 
-        Mock<ICell> cell = new();
-        cell.SetupGet(x => x.GameItems).Returns([sameLayerItem.Object, otherLayerItem.Object]);
-        cell.SetupGet(x => x.Characters).Returns(Enumerable.Empty<ICharacter>());
+        Mock<IRoom> room = new();
+        room.SetupGet(x => x.GameItems).Returns([sameLayerItem.Object, otherLayerItem.Object]);
+        room.SetupGet(x => x.Characters).Returns(Enumerable.Empty<ICharacter>());
 
-        Assert.AreEqual(20.0, ThermalSourceTemperatureModel.AmbientHeatForCell(cell.Object, CellOutdoorsType.Indoors), 0.0001);
-        Assert.AreEqual(10.0, ThermalSourceTemperatureModel.AmbientHeatForCell(cell.Object, CellOutdoorsType.IndoorsClimateExposed), 0.0001);
-        Assert.AreEqual(0.0, ThermalSourceTemperatureModel.AmbientHeatForCell(cell.Object, CellOutdoorsType.Outdoors), 0.0001);
-        Assert.AreEqual(5.0, ThermalSourceTemperatureModel.ProximityHeatForTarget(cell.Object, target.Object), 0.0001);
+        Assert.AreEqual(20.0, ThermalSourceTemperatureModel.AmbientHeatForRoom(room.Object, RoomOutdoorsType.Indoors), 0.0001);
+        Assert.AreEqual(10.0, ThermalSourceTemperatureModel.AmbientHeatForRoom(room.Object, RoomOutdoorsType.IndoorsClimateExposed), 0.0001);
+        Assert.AreEqual(0.0, ThermalSourceTemperatureModel.AmbientHeatForRoom(room.Object, RoomOutdoorsType.Outdoors), 0.0001);
+        Assert.AreEqual(5.0, ThermalSourceTemperatureModel.ProximityHeatForTarget(room.Object, target.Object), 0.0001);
     }
 
     [TestMethod]
@@ -189,7 +189,7 @@ public class ThermalSourceComponentTests
     {
         Mock<IGameItem> parent = new();
         parent.SetupGet(x => x.Gameworld).Returns(gameworld);
-        parent.SetupGet(x => x.TrueLocations).Returns(Enumerable.Empty<ICell>());
+        parent.SetupGet(x => x.TrueLocations).Returns(Enumerable.Empty<IRoom>());
         parent.SetupGet(x => x.Effects).Returns(Enumerable.Empty<IEffect>());
         parent.SetupGet(x => x.Components).Returns(Enumerable.Empty<IGameItemComponent>());
         parent.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);

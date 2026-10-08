@@ -2309,7 +2309,7 @@ Administrators can also use:
 			foreach (var theatre in theatres)
 			{
 				var theatreRequests = requests
-				                      .Where(x => x.OperatingTheatreCellId == theatre.Id)
+				                      .Where(x => x.OperatingTheatreRoomId == theatre.Id)
 				                      .OrderBy(x => x.Id)
 				                      .ToList();
 				AppendHospitalBlock(sb, actor, $"Theatre - {theatre.GetFriendlyReference(actor)}",
@@ -2469,7 +2469,7 @@ Administrators can also use:
 			               HospitalServiceRequestStatus.Declined));
 	}
 
-	private static IEnumerable<ICell> HospitalOperationsRooms(IHospital hospital)
+	private static IEnumerable<IRoom> HospitalOperationsRooms(IHospital hospital)
 	{
 		return hospital.Locations
 		               .Concat(hospital.WaitingRooms)
@@ -2505,7 +2505,7 @@ Administrators can also use:
 		}));
 	}
 
-	private static string DescribeHospitalTheatreState(IHospital hospital, ICell theatre,
+	private static string DescribeHospitalTheatreState(IHospital hospital, IRoom theatre,
 		IReadOnlyCollection<IHospitalServiceRequest> requests)
 	{
 		if (requests.Any())
@@ -2535,7 +2535,7 @@ Administrators can also use:
 		       .ListToString();
 	}
 
-	private static string DescribeHospitalTheatrePatients(ICharacter actor, IHospital hospital, ICell theatre,
+	private static string DescribeHospitalTheatrePatients(ICharacter actor, IHospital hospital, IRoom theatre,
 		IReadOnlyCollection<IHospitalServiceRequest> requests)
 	{
 		var patients = requests
@@ -2554,7 +2554,7 @@ Administrators can also use:
 		return HospitalListToStringOrNone(patients.Distinct(StringComparer.InvariantCultureIgnoreCase));
 	}
 
-	private static string DescribeHospitalTheatreStaff(ICharacter actor, IHospital hospital, ICell theatre,
+	private static string DescribeHospitalTheatreStaff(ICharacter actor, IHospital hospital, IRoom theatre,
 		IReadOnlyCollection<IHospitalServiceRequest> requests)
 	{
 		var staff = HospitalRoomCharacters(theatre)
@@ -2577,7 +2577,7 @@ Administrators can also use:
 		return HospitalListToStringOrNone(actions);
 	}
 
-	private static string DescribeHospitalTheatreIssues(ICharacter actor, IHospital hospital, ICell theatre,
+	private static string DescribeHospitalTheatreIssues(ICharacter actor, IHospital hospital, IRoom theatre,
 		IReadOnlyCollection<IHospitalServiceRequest> requests)
 	{
 		var issues = new List<string>();
@@ -2603,7 +2603,7 @@ Administrators can also use:
 		return HospitalListToStringOrNone(issues.Distinct(StringComparer.InvariantCultureIgnoreCase));
 	}
 
-	private static string DescribeHospitalRoomRoles(IHospital hospital, ICell room)
+	private static string DescribeHospitalRoomRoles(IHospital hospital, IRoom room)
 	{
 		var roles = new List<HospitalLocationRole>();
 		if (hospital.WaitingRooms.Any(x => x.Id == room.Id))
@@ -2636,7 +2636,7 @@ Administrators can also use:
 			: "none".ColourError();
 	}
 
-	private static string DescribeHospitalRoomStaff(ICharacter actor, IHospital hospital, ICell room)
+	private static string DescribeHospitalRoomStaff(ICharacter actor, IHospital hospital, IRoom room)
 	{
 		return HospitalListToStringOrNone(HospitalRoomCharacters(room)
 		                                  .Where(hospital.IsEmployee)
@@ -2645,17 +2645,17 @@ Administrators can also use:
 	}
 
 	private static string DescribeHospitalRoomPatients(ICharacter actor, IReadOnlyCollection<IHospitalServiceRequest> requests,
-		ICell room)
+		IRoom room)
 	{
 		var patients = requests
-		               .Where(x => x.Patient?.Location?.Id == room.Id || x.OperatingTheatreCellId == room.Id)
+		               .Where(x => x.Patient?.Location?.Id == room.Id || x.OperatingTheatreRoomId == room.Id)
 		               .Select(x => $"#{x.Id.ToString("N0", actor)} {DescribeHospitalRequestPatient(actor, x)}")
 		               .Distinct(StringComparer.InvariantCultureIgnoreCase)
 		               .ToList();
 		return HospitalListToStringOrNone(patients);
 	}
 
-	private static string DescribeHospitalRoomInventory(ICharacter actor, ICell room)
+	private static string DescribeHospitalRoomInventory(ICharacter actor, IRoom room)
 	{
 		var itemCount = (room.GameItems ?? []).Count();
 		return itemCount == 0
@@ -2671,9 +2671,9 @@ Administrators can also use:
 	private static string DescribeHospitalRequestLocation(ICharacter actor, IHospital hospital,
 		IHospitalServiceRequest request)
 	{
-		if (request.OperatingTheatreCellId is { } theatreId)
+		if (request.OperatingTheatreRoomId is { } theatreId)
 		{
-			var theatre = DescribeHospitalCellById(actor, hospital, theatreId);
+			var theatre = DescribeHospitalRoomById(actor, hospital, theatreId);
 			return request.Patient?.Location is { } patientLocation && patientLocation.Id != theatreId
 				? $"{theatre} (patient at {patientLocation.GetFriendlyReference(actor)})"
 				: theatre;
@@ -2732,7 +2732,7 @@ Administrators can also use:
 		}
 
 		if (request.Service.PreferOperatingTheatre && request.Status is HospitalServiceRequestStatus.Assigned or HospitalServiceRequestStatus.InProgress &&
-		    request.OperatingTheatreCellId is null)
+		    request.OperatingTheatreRoomId is null)
 		{
 			issues.Add("no theatre reserved");
 		}
@@ -2808,13 +2808,13 @@ Administrators can also use:
 		return -1;
 	}
 
-	private static string DescribeHospitalCellById(ICharacter actor, IHospital hospital, long id)
+	private static string DescribeHospitalRoomById(ICharacter actor, IHospital hospital, long id)
 	{
-		var cell = HospitalOperationsRooms(hospital).FirstOrDefault(x => x.Id == id);
-		return cell?.GetFriendlyReference(actor) ?? $"#{id.ToString("N0", actor)}";
+		var room = HospitalOperationsRooms(hospital).FirstOrDefault(x => x.Id == id);
+		return room?.GetFriendlyReference(actor) ?? $"#{id.ToString("N0", actor)}";
 	}
 
-	private static IEnumerable<ICharacter> HospitalRoomCharacters(ICell room)
+	private static IEnumerable<ICharacter> HospitalRoomCharacters(IRoom room)
 	{
 		return room.Characters ?? [];
 	}
@@ -2920,7 +2920,7 @@ Administrators can also use:
 			return;
 		}
 
-		if (!TryResolveHospitalRoomTarget(actor, ss.SafeRemainingArgument, out var cell, out var error))
+		if (!TryResolveHospitalRoomTarget(actor, ss.SafeRemainingArgument, out var room, out var error))
 		{
 			actor.OutputHandler.Send(error);
 			return;
@@ -2928,7 +2928,7 @@ Administrators can also use:
 
 		var hospital = CurrentHospital(actor);
 		var hospitalError = string.Empty;
-		hospital ??= FindHospitalForRoomTarget(actor, cell, out hospitalError);
+		hospital ??= FindHospitalForRoomTarget(actor, room, out hospitalError);
 		if (hospital is null)
 		{
 			actor.OutputHandler.Send(hospitalError);
@@ -2942,20 +2942,20 @@ Administrators can also use:
 
 		if (action.EqualTo("add"))
 		{
-			hospital.AddLocation(cell, role);
-			actor.OutputHandler.Send($"You flag {cell.GetFriendlyReference(actor).ColourName()} as a {role.DescribeEnum().ColourValue()} for {hospital.Name.ColourName()}.");
+			hospital.AddLocation(room, role);
+			actor.OutputHandler.Send($"You flag {room.GetFriendlyReference(actor).ColourName()} as a {role.DescribeEnum().ColourValue()} for {hospital.Name.ColourName()}.");
 			return;
 		}
 
-		hospital.RemoveLocation(cell, role);
-		actor.OutputHandler.Send($"You remove {cell.GetFriendlyReference(actor).ColourName()}'s {role.DescribeEnum().ColourValue()} role for {hospital.Name.ColourName()}.");
+		hospital.RemoveLocation(room, role);
+		actor.OutputHandler.Send($"You remove {room.GetFriendlyReference(actor).ColourName()}'s {role.DescribeEnum().ColourValue()} role for {hospital.Name.ColourName()}.");
 	}
 
-	private static IHospital? FindHospitalForRoomTarget(ICharacter actor, ICell targetCell, out string error)
+	private static IHospital? FindHospitalForRoomTarget(ICharacter actor, IRoom targetRoom, out string error)
 	{
 		error = string.Empty;
 		var hospitals = actor.Gameworld.Hospitals
-		                     .Where(x => x.Locations.Any(y => CellsAreSameOrAdjacent(y, targetCell)))
+		                     .Where(x => x.Locations.Any(y => RoomsAreSameOrAdjacent(y, targetRoom)))
 		                     .GroupBy(x => x.Id)
 		                     .Select(x => x.First())
 		                     .ToList();
@@ -2974,16 +2974,16 @@ Administrators can also use:
 		return null;
 	}
 
-	private static bool CellsAreSameOrAdjacent(ICell first, ICell second)
+	private static bool RoomsAreSameOrAdjacent(IRoom first, IRoom second)
 	{
 		return first.Id == second.Id ||
 		       first.Surrounds.Any(x => x.Id == second.Id) ||
 		       second.Surrounds.Any(x => x.Id == first.Id);
 	}
 
-	private static bool TryResolveHospitalRoomTarget(ICharacter actor, string target, out ICell cell, out string error)
+	private static bool TryResolveHospitalRoomTarget(ICharacter actor, string target, out IRoom room, out string error)
 	{
-		cell = null!;
+		room = null!;
 		error = string.Empty;
 		var location = actor.Location;
 		var targetText = target.Trim();
@@ -2995,7 +2995,7 @@ Administrators can also use:
 				return false;
 			}
 
-			cell = location;
+			room = location;
 			return true;
 		}
 
@@ -3012,27 +3012,27 @@ Administrators can also use:
 					return false;
 				}
 
-				cell = exit.Destination;
+				room = exit.Destination;
 				return true;
 			}
 
 			var keywordExit = location.GetExitKeyword(targetText, actor);
 			if (keywordExit is not null)
 			{
-				cell = keywordExit.Destination;
+				room = keywordExit.Destination;
 				return true;
 			}
 		}
 
 		var idOrName = targetText.TrimStart('#');
-		var targetCell = actor.Gameworld.Cells.GetByIdOrName(idOrName);
-		if (targetCell is null)
+		var targetRoom = actor.Gameworld.Rooms.GetByIdOrUniqueNameOrName(idOrName);
+		if (targetRoom is null)
 		{
 			error = $"There is no room matching {targetText.ColourCommand()}.";
 			return false;
 		}
 
-		cell = targetCell;
+		room = targetRoom;
 		return true;
 	}
 

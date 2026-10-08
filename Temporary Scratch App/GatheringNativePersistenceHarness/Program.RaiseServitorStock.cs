@@ -64,7 +64,7 @@ internal static partial class GNHProgram
 		Console.WriteLine("ARM03D1Stock-reader=passed fresh-process durable-control-query persisted-stock-identity-formula-and-animation-deadline no-actor-materialization-or-replay");
 		return 0;
 	}
-	private static int RunRaiseServitorStockChecks(bool queuedAuthorityOnly = false, bool queuedCallbackOnly = false, bool orderedCallbacks = false, bool checkLearningOnly = false, bool regressionP2Only = false, bool stackMergeOnly = false, bool selectedMeleeCheckOnly = false, bool firearmAuthorityOnly = false, bool countershotAuthorityOnly = false, bool defendedMeleeOnly = false, bool custodyMergeOnly = false, bool loadOutputOnly = false, bool ammoConservationOnly = false, bool ammoDetachRecoveryOnly = false, bool nativeBoardingOnly = false, bool productionRestartOnly = false)
+	private static int RunRaiseServitorStockChecks(bool queuedAuthorityOnly = false, bool queuedCallbackOnly = false, bool orderedCallbacks = false, bool checkLearningOnly = false, bool regressionP2Only = false, bool stackMergeOnly = false, bool selectedMeleeCheckOnly = false, bool firearmAuthorityOnly = false, bool countershotAuthorityOnly = false, bool defendedMeleeOnly = false, bool custodyMergeOnly = false, bool loadOutputOnly = false, bool ammoConservationOnly = false, bool ammoDetachRecoveryOnly = false, bool nativeBoardingOnly = false, bool productionRestartOnly = false, bool emotionalCessationOnly = false)
 	{
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		var fixture = FixtureSeed.Create(database, "arm03d1_stock", true);
@@ -129,9 +129,9 @@ internal static partial class GNHProgram
 		// This disposable cell has no exits; recursive world defaults otherwise fabricate a door target.
 		native.WorldMock.SetupGet(x => x.ExitManager).Returns(Mock.Of<IExitManager>());
 		native.WorldMock.SetupGet(x => x.HearingProfiles).Returns(new All<IHearingProfile>());
-		var cell = CreateAreaCell(native, database.ConnectionString, fixture.CellId, create: true);
-		Mock.Get(cell.CurrentOverlay.Package).SetupGet(x => x.Name).Returns("Stock acceptance overlay");
-		SetPrivateMember(caster, "Location", cell); ((List<ICharacter>)cell.Characters).Add(caster);
+		var room = CreateAreaRoom(native, database.ConnectionString, fixture.RoomId, create: true);
+		Mock.Get(room.CurrentOverlay.Package).SetupGet(x => x.Name).Returns("Stock acceptance overlay");
+		SetPrivateMember(caster, "Location", room); ((List<ICharacter>)room.Characters).Add(caster);
 		var combatSettings = new CharacterCombatSettings(caster, "Stock acceptance combat");
 		caster.CombatSettings = combatSettings;
 		var templates = new RevisableAll<INPCTemplate>(); native.WorldMock.SetupGet(x => x.NpcTemplates).Returns(templates);
@@ -141,15 +141,15 @@ internal static partial class GNHProgram
 			{
 				Gameworld = world, SelectedName = new PersonalName(new XElement("Name", new XAttribute("culture", 1), new XElement("Element", new XAttribute("usage", "BirthName"), name)), world),
 				SelectedRace = native.Body.Race, SelectedEthnicity = native.Body.Ethnicity, SelectedCulture = caster.Culture,
-				SelectedBirthday = world.Calendars.First().GetDate("1-month-2000"), SelectedStartingLocation = cell,
+				SelectedBirthday = world.Calendars.First().GetDate("1-month-2000"), SelectedStartingLocation = room,
 				SelectedGender = native.Body.Gender.Enum, SelectedHeight = 1.8, SelectedWeight = 80, SelectedSdesc = "a " + name, SelectedFullDesc = "An ordinary native body.",
 				SelectedAccents = [], SelectedAttributes = [], SelectedCharacteristics = [], SelectedEntityDescriptionPatterns = [], SkillValues = [], SelectedRoles = [], SelectedMerits = [],
 				SelectedKnowledges = [], MissingBodyparts = [], SelectedDisfigurements = [], SelectedProstheses = []
 			};
 			var template = new SimpleNPCTemplate(world, DummyAccount.Instance, data, "Stock acceptance " + name);
 			templates.Add(template);
-			var person = (RuntimeNpc)template.CreateNewCharacter(cell); world.Add(person, true); world.Add(person.Body);
-			person.CombatSettings = combatSettings; cell.Enter(person); world.SaveManager.Flush(); return person;
+			var person = (RuntimeNpc)template.CreateNewCharacter(room); world.Add(person, true); world.Add(person.Body);
+			person.CombatSettings = combatSettings; room.Enter(person); world.SaveManager.Flush(); return person;
 		}
 		var owner = Person("remains"); var foe = Person("opponent");
 		var foreign = host.Prototypes.Values.Single(x => x.Name == "ARM03B2B goods").CreateNew(caster); world.Add(foreign);
@@ -157,7 +157,7 @@ internal static partial class GNHProgram
 		var corpse = owner.Die() ?? throw new InvalidOperationException("Stock source death produced no corpse.");
 		world.SaveManager.Flush();
 		using (var db = NewIndependentContext(database.ConnectionString))
-			Require(db.CellsGameItems.Count(x => x.CellId == cell.Id && x.GameItemId == corpse.Id) == 1 && cell.GameItems.Contains(corpse),
+			Require(db.RoomsGameItems.Count(x => x.RoomId == room.Id && x.GameItemId == corpse.Id) == 1 && room.GameItems.Contains(corpse),
 				"Native death/Cell.Insert/Cell.Save did not persist the source corpse.");
 		var cap = (SkillLevelBasedMagicCapability)native.Capability; var trait = world.Traits.GetByName("ARM02 Earth Proficiency")!;
 		EditableItemHelper.MagicSpellHelper.EditableNewAction(caster, new StringStack($"stock raise-servitor {cap.School.Id} {trait.Id} {native.Resource.Id}"));
@@ -209,7 +209,7 @@ internal static partial class GNHProgram
 				"Stock casting changed timing, canonical custody, payment or following.");
 			world.SaveManager.Flush();
 			using var db = NewIndependentContext(database.ConnectionString);
-			Require(!db.CellsGameItems.Any(x => x.GameItemId == corpse.Id) && !cell.GameItems.Contains(corpse), "Deferred native Cell.Save resurrected a borrowed corpse.");
+			Require(!db.RoomsGameItems.Any(x => x.GameItemId == corpse.Id) && !room.GameItems.Contains(corpse), "Deferred native Cell.Save resurrected a borrowed corpse.");
 			return animation;
 		}
 		void Restored(ScriptedAiCharacterInstance animation)
@@ -217,8 +217,8 @@ internal static partial class GNHProgram
 			world.SaveManager.Flush();
 			AssertCorpseAnimationRestored(database, host, ReadCorpseAnimationLife(database, animation.InstanceId).Origin.Id,
 				animation.InstanceId, corpse.Id, owner.Id, owner.Body.Id, foreign.Id);
-			Require(cell.GameItems.Count(x => x.Id == corpse.Id) == 1 && animation.Following is null && animation.QueuedMoveCommands.Count == 0 &&
-				animation.Combat is null && !cell.Characters.ContainsPhysicalInstance(animation), $"Stock retirement retained native runtime roots: corpse-count={cell.GameItems.Count(x => x.Id == corpse.Id)} following={animation.Following?.Id} queued={animation.QueuedMoveCommands.Count} combat={animation.Combat?.GetType().Name} cell-characters={string.Join(',', cell.Characters.Select(x => $"{x.Id}/{x.InstanceId}/{ReferenceEquals(x, animation)}"))}.");
+			Require(room.GameItems.Count(x => x.Id == corpse.Id) == 1 && animation.Following is null && animation.QueuedMoveCommands.Count == 0 &&
+				animation.Combat is null && !room.Characters.ContainsPhysicalInstance(animation), $"Stock retirement retained native runtime roots: corpse-count={room.GameItems.Count(x => x.Id == corpse.Id)} following={animation.Following?.Id} queued={animation.QueuedMoveCommands.Count} combat={animation.Combat?.GetType().Name} cell-characters={string.Join(',', room.Characters.Select(x => $"{x.Id}/{x.InstanceId}/{ReferenceEquals(x, animation)}"))}.");
 		}
 		void Order(ScriptedAiCharacterInstance animation, ICharacter issuer, string command) =>
 			Require(animation.HandleEvent(EventType.CommandIssuedToCharacter, animation, issuer, command), "Stock command event was not handled.");
@@ -235,10 +235,11 @@ internal static partial class GNHProgram
 			return RunLoadOutputCustody(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture);
 		if (countershotAuthorityOnly)
 			return RunCountershotAuthority(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture);
+		if (emotionalCessationOnly) return RunEmotionalCessation(world, Person);
 		if (firearmAuthorityOnly)
 			return RunFirearmAuthority(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture);
 		if (selectedMeleeCheckOnly)
-			return RunSelectedMeleeCheck(database, host, clock, animated, caster, foe, Cast, Restored, Order, defendedMeleeOnly);
+			return RunSelectedMeleeCheck(database, host, clock, animated, caster, foe, Cast, Restored, Order, defendedMeleeOnly, Person);
 		if (custodyMergeOnly)
 			return RunCustodyMerge(database, host, clock, animated, caster, foe, Cast, Restored, Order, fixture);
 		if (regressionP2Only)
@@ -264,7 +265,7 @@ internal static partial class GNHProgram
 		var ongoingCombat = animated.Combat!; ongoingCombat.JoinCombat(third);
 		third.CombatTarget = foe; foe.CombatTarget = third;
 		animated.Body.Drop(foreign, silent: true);
-		Require(foreign.InInventoryOf is null && cell.GameItems.Contains(foreign), "Native combat inventory setup failed to drop the exact foreign item.");
+		Require(foreign.InInventoryOf is null && room.GameItems.Contains(foreign), "Native combat inventory setup failed to drop the exact foreign item.");
 		var queuedAction = SelectedCombatAction.GetEffectGetItem(animated, foreign, null);
 		Require(animated.TakeOrQueueCombatAction(queuedAction) && animated.Effects.Contains(queuedAction), "Native selected combat action was not queued.");
 		bool Subscribed(string name) => ((Delegate?)typeof(CombatBase).GetField(name, BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(ongoingCombat))?
@@ -274,7 +275,7 @@ internal static partial class GNHProgram
 		Require(selectedMove is MudSharp.Combat.Moves.RetrieveItemMove && !animated.Effects.Contains(queuedAction) &&
 			!Subscribed("CombatEnds") && !Subscribed("CombatMerged"), "Native strategy consumed an action without releasing its combat subscriptions.");
 		Require(selectedMove.ResolveMove(null).MoveWasSuccessful && animated.Body.ExternalItems.Contains(foreign) &&
-			!cell.GameItems.Contains(foreign), "Native selected retrieve action did not execute in the ongoing combat.");
+			!room.GameItems.Contains(foreign), "Native selected retrieve action did not execute in the ongoing combat.");
 		queuedAction = SelectedCombatAction.GetEffectGetItem(animated, foreign, null);
 		Require(animated.TakeOrQueueCombatAction(queuedAction) && Subscribed("CombatEnds") && Subscribed("CombatMerged"), "Second native selected action was not queued.");
 		var delayed = 0;
@@ -300,20 +301,20 @@ internal static partial class GNHProgram
 		clock.Advance(TimeSpan.FromSeconds(2400)); effects.CheckSchedules(); Restored(animated);
 		Console.WriteLine("ARM03D1Stock-two-deadlines=passed grade3-control-5399s animation-7799s real-affect-seconds independent-follow-link paid-parent-effect-scheduler-expiry same-corpse");
 
-		var normalTerrain = cell.CurrentOverlay.Terrain;
+		var normalTerrain = room.CurrentOverlay.Terrain;
 		foreach (var name in new[] { "Silt", "Shallows" })
 		{
 			using (var db = NewIndependentContext(database.ConnectionString))
 			{
 				var row = new Db.Terrain { Name = name, TerrainBehaviourMode = "outdoors", MovementRate = 1 }; db.Terrains.Add(row); db.SaveChanges();
-				var terrain = new Terrain(row, world); ((All<ITerrain>)world.Terrains).Add(terrain); ((IEditableCellOverlay)cell.CurrentOverlay).Terrain = terrain;
+				var terrain = new Terrain(row, world); ((All<ITerrain>)world.Terrains).Add(terrain); ((IEditableRoomOverlay)room.CurrentOverlay).Terrain = terrain;
 			}
 			animated = Cast();
 			Require(!service.CanCommand(animated.InstanceId, caster.Id) && animated.Following == caster, "Source excluded terrain granted charm or omitted its independent follower link.");
 			Order(animated, caster, "fol self"); Require(animated.Following == caster, "Excluded terrain accepted a creator order.");
 			Require(service.TryRetire(animated.InstanceId, SpellRetirementReason.Dismissal, out diagnostic), diagnostic); Restored(animated);
 		}
-		((IEditableCellOverlay)cell.CurrentOverlay).Terrain = normalTerrain;
+		((IEditableRoomOverlay)room.CurrentOverlay).Terrain = normalTerrain;
 		Console.WriteLine("ARM03D1Stock-terrain=passed compiled-stock-prog actual-Silt-and-Shallows-terrains no-command-grant independent-native-follow-link");
 
 		animated = Cast(); var heldLife = ReadCorpseAnimationLife(database, animated.InstanceId);
@@ -334,7 +335,7 @@ internal static partial class GNHProgram
 				"Held retirement executed work or accepted another order.");
 			world.SaveManager.Flush();
 			using var db = NewIndependentContext(database.ConnectionString);
-			Require(db.CharacterInstances.Any(x => x.Id == animated.InstanceId) && !db.CellsGameItems.Any(x => x.GameItemId == corpse.Id), "Held restoration leaked a corpse or removed its recoverable secondary.");
+			Require(db.CharacterInstances.Any(x => x.Id == animated.InstanceId) && !db.RoomsGameItems.Any(x => x.GameItemId == corpse.Id), "Held restoration leaked a corpse or removed its recoverable secondary.");
 			RunItemReaderProcess(new StockAnimationReader(database.Name, heldLife.Origin.Id, animated.InstanceId, caster.Id,
 				RuntimeClock.UtcNow, spell.Id, heldLife.Origin.DeadlineUtc!.Value, false), "--raise-servitor-stock-reader");
 		}

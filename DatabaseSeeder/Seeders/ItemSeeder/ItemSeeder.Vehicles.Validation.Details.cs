@@ -52,7 +52,7 @@ public partial class ItemSeeder
 			throw VehicleValidation(owner, $"non-route profile {movement.Key} cannot use route-only values");
 		}
 
-		if (movement.MovementType == VehicleMovementProfileType.CellExit)
+		if (movement.MovementType == VehicleMovementProfileType.RoomExit)
 		{
 			if (movement.PropulsionProfiles.Count == 0 || movement.PropulsionProfiles.Count(x => x.IsDefault) != 1)
 			{

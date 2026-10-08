@@ -24,7 +24,7 @@ public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable, IProgVari
 	IVehiclePropulsionProfilePrototype ActivePropulsionProfile { get; }
 	IVehicleMovementState MovementState { get; }
 	VehicleLocationType LocationType { get; }
-	ICell Location { get; }
+	IRoom Location { get; }
 	RoomLayer RoomLayer { get; }
 	double? RoutePositionMetres => MovementState.RoutePositionMetres;
 	SpatialLocation SpatialLocation => new(Location, RoomLayer, RoutePositionMetres);
@@ -58,13 +58,13 @@ public interface IVehicle : IFrameworkItem, IHaveFuturemud, ISaveable, IProgVari
 	bool ReleaseControl(ICharacter actor);
 	bool CanLeave(ICharacter actor, out string reason);
 	bool Leave(ICharacter actor);
-	bool CanMove(ICharacter actor, ICellExit exit, out string reason);
-	bool Move(ICharacter actor, ICellExit exit);
+	bool CanMove(ICharacter actor, IRoomExit exit, out string reason);
+	bool Move(ICharacter actor, IRoomExit exit);
 	bool SetActivePropulsionProfile(IVehiclePropulsionProfilePrototype profile, out string reason);
-	void BeginMoveToCell(ICell destination, RoomLayer layer, ICellExit exit);
+	void BeginMoveToRoom(IRoom destination, RoomLayer layer, IRoomExit exit);
 	void BeginMoveAlongRoute(double destinationMetres);
 	void MaterialiseRoutePosition(double positionMetres, bool stationary = false);
-	void MoveToCell(ICell destination, RoomLayer layer, ICellExit exit, IMovement movement = null);
+	void MoveToRoom(IRoom destination, RoomLayer layer, IRoomExit exit, IMovement movement = null);
 	void RecoverInterruptedMovement();
 	void HandleExteriorItemForceMoved();
 	void ForceDisembark(ICharacter actor, bool cancelMovement = true);
@@ -91,11 +91,11 @@ public interface IVehicleOccupancy : IFrameworkItem
 public interface IVehicleMovementState
 {
 	VehicleLocationType LocationType { get; }
-	ICell Location { get; }
+	IRoom Location { get; }
 	RoomLayer RoomLayer { get; }
 	VehicleMovementStatus MovementStatus { get; }
 	long? CurrentExitId { get; }
-	long? DestinationCellId { get; }
+	long? DestinationRoomId { get; }
 	double? RoutePositionMetres => null;
 	double? DestinationRoutePositionMetres => null;
 }
@@ -104,9 +104,9 @@ public interface IVehicleCompartment : IFrameworkItem
 {
 	IVehicle Vehicle { get; }
 	IVehicleCompartmentPrototype Prototype { get; }
-	long? InteriorCellId { get; }
+	long? InteriorRoomId { get; }
 #nullable enable annotations
-	ICell? InteriorCell { get; }
+	IRoom? InteriorRoom { get; }
 #nullable restore annotations
 	IEnumerable<IVehicleCompartmentLink> Links { get; }
 }

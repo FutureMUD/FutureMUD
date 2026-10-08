@@ -1244,7 +1244,7 @@ With each of the emotes, you can use the following tokens:
             return false;
         }
 
-		Construction.ICell court = trialEffect.LegalAuthority.CourtLocation;
+		Construction.IRoom court = trialEffect.LegalAuthority.CourtLocation;
 		EnsureAutomatedProsecutor(defendant, trialEffect);
 
 		if (trialEffect.Defender is null)
@@ -1369,8 +1369,8 @@ With each of the emotes, you can use the following tokens:
                     defendant
                 )));
 
-                // Transfer back to holding cell
-                trialEffect.LegalAuthority.SendCharacterToHoldingCell(defendant);
+                // Transfer back to holding room
+                trialEffect.LegalAuthority.SendCharacterToHoldingRoom(defendant);
             }
             else if (defendant.EffectsOfType<ServingCustodialSentence>(x => x.LegalAuthority == trialEffect.LegalAuthority).Any())
             {

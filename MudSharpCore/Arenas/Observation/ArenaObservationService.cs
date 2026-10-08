@@ -50,13 +50,13 @@ public class ArenaObservationService : IArenaObservationService
             return (false, "Participants cannot observe the event from the observation rooms.");
         }
 
-        List<ICell> observationCells = arenaEvent.Arena.ObservationCells.ToList();
-        if (!observationCells.Any())
+        List<IRoom> observationRooms = arenaEvent.Arena.ObservationRooms.ToList();
+        if (!observationRooms.Any())
         {
             return (false, $"{arenaEvent.Arena.Name} does not have any observation rooms configured.");
         }
 
-        if (observer.Location is not ICell currentCell || !observationCells.Contains(currentCell))
+        if (observer.Location is not IRoom currentRoom || !observationRooms.Contains(currentRoom))
         {
             return (false, "You must be in one of the arena's observation rooms to observe the event.");
         }
@@ -64,7 +64,7 @@ public class ArenaObservationService : IArenaObservationService
         return (true, string.Empty);
     }
 
-    public void StartObserving(ICharacter observer, IArenaEvent arenaEvent, ICell observationCell)
+    public void StartObserving(ICharacter observer, IArenaEvent arenaEvent, IRoom observationRoom)
     {
         if (observer is null)
         {
@@ -76,28 +76,28 @@ public class ArenaObservationService : IArenaObservationService
             throw new ArgumentNullException(nameof(arenaEvent));
         }
 
-        if (observationCell is null)
+        if (observationRoom is null)
         {
-            throw new ArgumentNullException(nameof(observationCell));
+            throw new ArgumentNullException(nameof(observationRoom));
         }
 
-        if (!arenaEvent.Arena.ObservationCells.Contains(observationCell))
+        if (!arenaEvent.Arena.ObservationRooms.Contains(observationRoom))
         {
-            throw new InvalidOperationException("The specified cell is not configured as an observation room for this arena.");
+            throw new InvalidOperationException("The specified room is not configured as an observation room for this arena.");
         }
 
-        foreach (ICell cell in arenaEvent.Arena.ArenaCells)
+        foreach (IRoom room in arenaEvent.Arena.ArenaRooms)
         {
-            ArenaWatcherEffect? effect = cell.EffectsOfType<ArenaWatcherEffect>()
+            ArenaWatcherEffect? effect = room.EffectsOfType<ArenaWatcherEffect>()
                 .FirstOrDefault(x => ReferenceEquals(x.ArenaEvent, arenaEvent));
 
             if (effect is null)
             {
-                effect = new ArenaWatcherEffect(cell, arenaEvent);
-                cell.AddEffect(effect);
+                effect = new ArenaWatcherEffect(room, arenaEvent);
+                room.AddEffect(effect);
             }
 
-            effect.AddWatcher(observer, observationCell);
+            effect.AddWatcher(observer, observationRoom);
         }
     }
 
@@ -108,9 +108,9 @@ public class ArenaObservationService : IArenaObservationService
             return;
         }
 
-        foreach (ICell cell in arenaEvent.Arena.ArenaCells)
+        foreach (IRoom room in arenaEvent.Arena.ArenaRooms)
         {
-            foreach (ArenaWatcherEffect? effect in cell.EffectsOfType<ArenaWatcherEffect>()
+            foreach (ArenaWatcherEffect? effect in room.EffectsOfType<ArenaWatcherEffect>()
                 .Where(x => ReferenceEquals(x.ArenaEvent, arenaEvent))
                 .ToList())
             {

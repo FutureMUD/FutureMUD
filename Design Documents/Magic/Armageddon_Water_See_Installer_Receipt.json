@@ -1,0 +1,772 @@
+{
+  "schema": 1,
+  "status": "PASS",
+  "bounded_scope": "Optional reviewed-water-see installer module only; local review checkpoint",
+  "base": "56b3427916987e7f6650216f89caae88dab87c55",
+  "branch": "codex/armageddon-water-see-installer-20261006",
+  "worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02",
+  "production_and_test_checkpoint": "2110aa7d1badac3f1ff17d793a7d61013789297b",
+  "final_native_checkpoint": "289aa4b4b5953f28aa510a06f43b9b979470b1ad",
+  "dependency": {
+    "source_commits": [
+      "caf7072e329f3704e9e7ac15e0fd45e71f3c9abf",
+      "9f25c134315cf7e4005bfb50b5a866e437ce3d65"
+    ],
+    "local_commits": [
+      "39ae702bdbbe6395065664774ff270970a205595",
+      "59f66acb8ae38bd887e67902dfe344d8822c5bc7"
+    ],
+    "clearance": "Parent explicitly confirmed independent clearance of both exact factory commits before final qualification"
+  },
+  "lane_commits": [
+    "ebe7c0e4606742914058da33561ceaa24d8fe18b",
+    "2110aa7d1badac3f1ff17d793a7d61013789297b",
+    "289aa4b4b5953f28aa510a06f43b9b979470b1ad"
+  ],
+  "result": {
+    "module": "reviewed-water-see",
+    "module_owned_records": 8,
+    "total_managed_records": 211,
+    "payload_definitions": 10,
+    "unedited_source_admissions_per_variant": 9,
+    "unavailable_source_spells": 73,
+    "source_roster": 82,
+    "player_mutation": "No acquisition/mastery/enrolment/refills or item/charge creation by installer",
+    "release_enabled": false
+  },
+  "aggregate": {
+    "receipt": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-aggregate-final01-evidence.json",
+      "sha256": "BFC621181D142B8905F3C25AC286A61055E537FA0F5CF5181B204E72B5D4873F",
+      "bytes": 49090
+    },
+    "status": "PASS",
+    "counts": {
+      "executed": 8208,
+      "passed": 8208,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 8208
+    },
+    "command": [
+      "pwsh",
+      "-NoProfile",
+      "-File",
+      "scripts/test-unit.ps1",
+      "-Configuration",
+      "Debug",
+      "-OutputMode",
+      "Compact",
+      "-ResultsRoot",
+      "../water-see-installer02-aggregate-final01",
+      "-FailOnSkipped",
+      "-TimeoutSeconds",
+      "1800"
+    ],
+    "source_stable": true,
+    "source_head": "2110aa7d1badac3f1ff17d793a7d61013789297b",
+    "principal_assemblies": [
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll",
+        "sha256": "B21BCBD9D9D60BEDC1B8FD88812A426FC98C2D98F5CD21024D8883ABBC6989A7",
+        "bytes": 31242240
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\DatabaseSeeder\\bin\\Debug\\net10.0\\DatabaseSeeder.dll",
+        "sha256": "A9D4D736BF29B54A8FCD6B0860A14D8181F9B4AF87B6E8A6CE8D33F1FFCEDEE3",
+        "bytes": 37010944
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\FutureMUDLibrary\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll",
+        "sha256": "C2C78A70891A655ADD386120FF4396AA14D4914D34FBE0C7C7C1F0AF8871BF72",
+        "bytes": 2915328
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\MudsharpDatabaseLibrary\\bin\\Debug\\net10.0\\MudsharpDatabaseLibrary.dll",
+        "sha256": "BD9A5B27815C9274E4B50C080568853F2EA939E9A13B0B826CCE4CEAB41278E4",
+        "bytes": 89015808
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\FutureMUD.Web\\bin\\Debug\\net10.0\\FutureMUD.Web.dll",
+        "sha256": "45C6CD81C272C4A908570C8EECF7F9A009A734EACDDBA9DF0F200A8CB26F2743",
+        "bytes": 282112
+      }
+    ],
+    "retained_inventory": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-aggregate-final01-retained.json",
+      "sha256": "12EA96B5B4E1996125437AEF633B24600B93588BF7BAF48A2F743371889C8EC2",
+      "bytes": 1415264
+    },
+    "retained_files": 2710,
+    "source_delta_to_native_checkpoint": [
+      "tests/ArmageddonWaterSeeInstallerNativeHarness/Program.WaterSeeInstaller.cs",
+      "tests/ArmageddonWaterSeeInstallerNativeHarness/Run-IsolatedWaterSeeInstaller.ps1"
+    ],
+    "production_and_unit_test_sources_identical": true,
+    "environment_restored_flag": false,
+    "environment_limit": "Canonical wrapper recorded false. Configuration was inherited process-only exact safe.directory; wrapper exited. No global Git configuration changed. Do not interpret this as an environment restoration pass."
+  },
+  "focused": {
+    "passed": 41,
+    "failed": 0,
+    "skipped": 0,
+    "evidence_kind": "Exact WaterSee-prefixed result projection of final aggregate Seeder TRX, not a separate final filtered invocation",
+    "trx": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-aggregate-final01\\20261006T120359Z-7abc50db5b9a\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\results.trx",
+      "sha256": "1DB4FF02CA9BF943BBB2D9E28D8F63FD6EA48EEBA315B2111FDF93395EF262A4",
+      "bytes": 2268149
+    },
+    "cases": [
+      {
+        "name": "WaterSeeAfterCommitLostAcknowledgementKeepsPreviousPolicyAndResumesSameEightIds",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (duplicate-water)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (missing-tag)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (missing-shadow)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeOwnedDamageBlocksSelectedAndNullWithoutRepairOrResurrection (deleted)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (missing-water)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeModulePreservesBuilderPayloadDurationCostEligibilityAndUnownedCopies",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (missing-ancestor)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeComposerFreezesCallerMappingsBeforeEarlierModuleCallbacks",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeOwnedDamageBlocksSelectedAndNullWithoutRepairOrResurrection (foreign)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (null-tags)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeNullPreservesOwnedContentAndCarriesAdmissionsWithoutReconcilingMappings",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeTransitiveRankAncestryAndSameTerrainMappingRemainSupported",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (negative-water)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (empty-water)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeOwnedDamageBlocksSelectedAndNullWithoutRepairOrResurrection (version)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeStandaloneRequiresOwnedSourceSkillsAndCompleteLegitimatePrerequisites (wine-retired)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (cycle)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeStandaloneRequiresOwnedSourceSkillsAndCompleteLegitimatePrerequisites (skill-version)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeStandaloneRequiresOwnedSourceSkillsAndCompleteLegitimatePrerequisites (wine-version)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeOwnedDamageBlocksSelectedAndNullWithoutRepairOrResurrection (missing-record)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeStandaloneRequiresOwnedSourceSkillsAndCompleteLegitimatePrerequisites (false-prog)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeDeclineNeedsNoDatabaseAndTrackedContextRefuses",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeBuilderAdmissionRemovalSurvivesSelectedAndNullReruns (preserver,arm.spell.water_breathing)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeExplicitSelectionClosesNineAdmissionsOnceWithoutPlayerMutation",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeStandaloneRequiresOwnedSourceSkillsAndCompleteLegitimatePrerequisites (wrong-owner-scope)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (duplicate-tag)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeOwnedDamageBlocksSelectedAndNullWithoutRepairOrResurrection (retired)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeBuilderAdmissionRemovalSurvivesSelectedAndNullReruns (defiler,arm.spell.see_the_unbodied)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeOldBindingJsonRemainsCompatibleAndNewSelectionRemainsStrict",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeStandaloneRequiresOwnedSourceSkillsAndCompleteLegitimatePrerequisites (wine-incomplete)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeStandaloneRequiresOwnedSourceSkillsAndCompleteLegitimatePrerequisites (unowned-skill)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeStandaloneRefusesRetainedStockIdentityDamageWithoutRepair (missing)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (missing-silt)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeStandaloneRefusesRetainedStockIdentityDamageWithoutRepair (changed)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (wrong-rank-order)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeBuilderAdmissionRemovalSurvivesSelectedAndNullReruns (sorcerer,arm.spell.water_breathing)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeOwnedDamageBlocksSelectedAndNullWithoutRepairOrResurrection (identity)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeAbsentWineBlocksBeforeAnyModuleWriteWithoutAdoptingUnownedContent",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeInvalidNativeMappingsRefuseBeforeCompositionWrites (null-water)",
+        "outcome": "Passed"
+      },
+      {
+        "name": "WaterSeeStandaloneRequiresOwnedSourceSkillsAndCompleteLegitimatePrerequisites (foreign-skill-claim)",
+        "outcome": "Passed"
+      }
+    ]
+  },
+  "release": {
+    "gates_passed": 6,
+    "gates_failed": 0,
+    "gates_skipped": 0,
+    "trx": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-release-gates01\\release-gates01.trx",
+      "sha256": "0EFB6F145DD5C22A731A996F978E3A53631B6C8C11CA505050D2DDEFB50BEE31",
+      "bytes": 9327
+    },
+    "build": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-release-build01.log",
+      "sha256": "E44499E2A2749A4F7ED51A774C10D07C8CF96AE3465AF6C730A995059D265C19",
+      "bytes": 103255
+    },
+    "gate_log": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-release-gates01.log",
+      "sha256": "EA64CF8982E8617B084B5CCA027D2F0397DF9CDA7DFE3C1439A603CB8F189C44",
+      "bytes": 2787
+    },
+    "status": "Release Seeder build exit 0, 144 warnings, zero errors; Release gate tests exit 0; Release capability remains disabled",
+    "assemblies": [
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\DatabaseSeeder\\bin\\Release\\net10.0\\DatabaseSeeder.dll",
+        "sha256": "D65E6E949B9499DD4F19D51719894704FF8F0EC0FBAAE3AD12593390379A0D67",
+        "bytes": 36696064,
+        "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\D65E6E949B9499DD4F19D51719894704FF8F0EC0FBAAE3AD12593390379A0D67\\DatabaseSeeder.dll"
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\DatabaseSeeder Unit Tests\\bin\\Release\\net10.0\\DatabaseSeeder Unit Tests.dll",
+        "sha256": "C45B43E5A62FA81DB219680D97792D972F2E71CB668E2FC463F5A18BE45E178E",
+        "bytes": 2300928,
+        "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\C45B43E5A62FA81DB219680D97792D972F2E71CB668E2FC463F5A18BE45E178E\\DatabaseSeeder Unit Tests.dll"
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\MudSharpCore\\bin\\Release\\net10.0\\MudSharp.dll",
+        "sha256": "E73B20EA491534D2DADEE7BA97E26C4931339CF7B074DC7BC6A8C3686359DF62",
+        "bytes": 29719040,
+        "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\E73B20EA491534D2DADEE7BA97E26C4931339CF7B074DC7BC6A8C3686359DF62\\MudSharp.dll"
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\FutureMUDLibrary\\bin\\Release\\net10.0\\FutureMUDLibrary.dll",
+        "sha256": "54E2C6D3BC5B4FCBCC7117463C612829A6D2BFEA99917CC5A9589F8474C43D4A",
+        "bytes": 2829312,
+        "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\54E2C6D3BC5B4FCBCC7117463C612829A6D2BFEA99917CC5A9589F8474C43D4A\\FutureMUDLibrary.dll"
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\MudsharpDatabaseLibrary\\bin\\Release\\net10.0\\MudsharpDatabaseLibrary.dll",
+        "sha256": "A4CFBD19AAFFB236CDC78F2517DD9EB8E80F10A6112DB393C8EA5F7DA2FC35F4",
+        "bytes": 88601600,
+        "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\A4CFBD19AAFFB236CDC78F2517DD9EB8E80F10A6112DB393C8EA5F7DA2FC35F4\\MudsharpDatabaseLibrary.dll"
+      }
+    ]
+  },
+  "native_build": {
+    "log": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-native-build06.log",
+      "sha256": "57A45EC7CB92FAAA7FF0BFAF09031DF66FA5759F5182DC5AAB0E28E0668DFA04",
+      "bytes": 32544
+    },
+    "checkpoint": "289aa4b4b5953f28aa510a06f43b9b979470b1ad",
+    "exit": 0,
+    "warnings": 37,
+    "errors": 0,
+    "project_references": "BuildProjectReferences=false; copied production DLL hashes match tested aggregate"
+  },
+  "native": [
+    {
+      "mode": "water-see",
+      "status": "PASS",
+      "summary": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-native-final03\\20261006T121639Z_be03ed520f4741cfbe89e2abf33f8f84\\summary.json",
+        "sha256": "4DCB9DF9C549C70F37D7DE12047E3D544017C130ED23B191E02EF00EC14DBC4D",
+        "bytes": 891
+      },
+      "result": {
+        "native_exit": 0,
+        "assemblies_end": "25BBDBD20AFF320474259FF86A13C69757BE9D904417FCF2D7DF7CE7FEE6214E",
+        "mode": "water-see",
+        "revision": "289aa4b4b5953f28aa510a06f43b9b979470b1ad",
+        "owned_port": 54332,
+        "source_stable": true,
+        "limits": "Installer SQL rollback/restart and actual loaded spell/acquisition/payment with native Character/Body/item/database; controlled surrounding terrain/check catalogue, no installed-world Telnet certificate.",
+        "process_root": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-watersee-installer-mysql_d2dd4e63ffdf4d6682cc8abdceabca5c",
+        "assemblies_stable": true,
+        "source_end": "381EB33DF0786EF1CF59BBF82C0C8DCCBC1670A37F4431154F29BD71F51074B3",
+        "assemblies_start": "25BBDBD20AFF320474259FF86A13C69757BE9D904417FCF2D7DF7CE7FEE6214E",
+        "source_start": "381EB33DF0786EF1CF59BBF82C0C8DCCBC1670A37F4431154F29BD71F51074B3"
+      },
+      "log": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-native-final03.log",
+        "sha256": "C7CCCEE26B8C564BD5572FB20943610BA9770A81A611F3496B2290395486BCDF",
+        "bytes": 1394981
+      },
+      "source_start": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-native-final03\\20261006T121639Z_be03ed520f4741cfbe89e2abf33f8f84\\source-start.json",
+        "sha256": "381EB33DF0786EF1CF59BBF82C0C8DCCBC1670A37F4431154F29BD71F51074B3",
+        "bytes": 1126802
+      },
+      "source_end": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-native-final03\\20261006T121639Z_be03ed520f4741cfbe89e2abf33f8f84\\source-end.json",
+        "sha256": "381EB33DF0786EF1CF59BBF82C0C8DCCBC1670A37F4431154F29BD71F51074B3",
+        "bytes": 1126802
+      },
+      "assemblies_before": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-native-final03\\20261006T121639Z_be03ed520f4741cfbe89e2abf33f8f84\\assemblies-before.json",
+        "sha256": "25BBDBD20AFF320474259FF86A13C69757BE9D904417FCF2D7DF7CE7FEE6214E",
+        "bytes": 2306
+      },
+      "assemblies_after": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-native-final03\\20261006T121639Z_be03ed520f4741cfbe89e2abf33f8f84\\assemblies-after.json",
+        "sha256": "25BBDBD20AFF320474259FF86A13C69757BE9D904417FCF2D7DF7CE7FEE6214E",
+        "bytes": 2306
+      },
+      "retained_assemblies": [
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\GatheringNativePersistenceHarness.dll",
+          "sha256": "331124F765A31B8EA6B09D7AEA0DD7EEA1919615BB943AB161DF83F46A8D15CE",
+          "bytes": 2269184,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\331124F765A31B8EA6B09D7AEA0DD7EEA1919615BB943AB161DF83F46A8D15CE\\GatheringNativePersistenceHarness.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\GatheringNativePersistenceHarness.deps.json",
+          "sha256": "033EACC982F83AB10D33058BF31FA1D31DCDC9CBA2422F045CE5291484906F97",
+          "bytes": 85782,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\033EACC982F83AB10D33058BF31FA1D31DCDC9CBA2422F045CE5291484906F97\\GatheringNativePersistenceHarness.deps.json"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\GatheringNativePersistenceHarness.runtimeconfig.json",
+          "sha256": "99B3B87037CC9002BDFB6251465F17A7F7079B18A0AAED46DDBCDBDC1652B433",
+          "bytes": 339,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\99B3B87037CC9002BDFB6251465F17A7F7079B18A0AAED46DDBCDBDC1652B433\\GatheringNativePersistenceHarness.runtimeconfig.json"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\MudSharp.dll",
+          "sha256": "B21BCBD9D9D60BEDC1B8FD88812A426FC98C2D98F5CD21024D8883ABBC6989A7",
+          "bytes": 31242240,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\B21BCBD9D9D60BEDC1B8FD88812A426FC98C2D98F5CD21024D8883ABBC6989A7\\MudSharp.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll",
+          "sha256": "C2C78A70891A655ADD386120FF4396AA14D4914D34FBE0C7C7C1F0AF8871BF72",
+          "bytes": 2915328,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\C2C78A70891A655ADD386120FF4396AA14D4914D34FBE0C7C7C1F0AF8871BF72\\FutureMUDLibrary.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\MudsharpDatabaseLibrary.dll",
+          "sha256": "BD9A5B27815C9274E4B50C080568853F2EA939E9A13B0B826CCE4CEAB41278E4",
+          "bytes": 89015808,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\BD9A5B27815C9274E4B50C080568853F2EA939E9A13B0B826CCE4CEAB41278E4\\MudsharpDatabaseLibrary.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\ExpressionEngine.dll",
+          "sha256": "3C0742D64B7D9FB760065084912B9F23146E81E8DE405E33C536A22781FD96C9",
+          "bytes": 15872,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\3C0742D64B7D9FB760065084912B9F23146E81E8DE405E33C536A22781FD96C9\\ExpressionEngine.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\DatabaseSeeder.dll",
+          "sha256": "A9D4D736BF29B54A8FCD6B0860A14D8181F9B4AF87B6E8A6CE8D33F1FFCEDEE3",
+          "bytes": 37010944,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\A9D4D736BF29B54A8FCD6B0860A14D8181F9B4AF87B6E8A6CE8D33F1FFCEDEE3\\DatabaseSeeder.dll"
+        }
+      ],
+      "cleanup": "Owned database drop verified; exact instance gracefully stopped and owned temporary directory deleted",
+      "acceptance_markers": [
+        "WATERSEE-rollback=passed boundary:ContentCreated earlier203 intact",
+        "WATERSEE-rollback=passed boundary:BeforeCommit earlier203 intact",
+        "WATERSEE-install=passed eight-records211 nine-source-admissions no-player-refresh null-preservation lost-ack same-identities",
+        "WATERSEE-paid=passed spell:arm.spell.water_breathing grade:1 cost:50",
+        "WATERSEE-paid=passed spell:arm.spell.see_the_unbodied grade:1 cost:50",
+        "WATER-STOCK-native-breathing=passed actual-body-character-combined-effects partless mapped-grant:True unmapped-refused racial-compatibility-preserved",
+        "WATERSEE-paid=passed spell:arm.spell.water_breathing grade:7 cost:50",
+        "WATERSEE-paid=passed spell:arm.spell.see_the_unbodied grade:7 cost:50",
+        "WATERSEE-paid=passed spell:arm.spell.see_the_unbodied grade:1 cost:7",
+        "WATER-STOCK-native-breathing=passed actual-body-character-combined-effects partless mapped-grant:True unmapped-refused racial-compatibility-preserved",
+        "WATERSEE-reader=passed fresh-process211 nine-admissions preserved-players typed-child exact-parent grade7 deadline quantity reserve no-reroll",
+        "WATERSEE-native=passed actual-installed-SQL normal-MagicSpell-load native-payment source-acquisition low-high scoped-water ethereal-components Silt-Shadow cold-process"
+      ]
+    },
+    {
+      "mode": "water-breathing-stock",
+      "status": "PASS",
+      "summary": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-water-stock-final02\\20261006T121710Z_7a89d3d893374c9bad5cea50733ff484\\summary.json",
+        "sha256": "9083B7674582F7A9FBA7FC811EB5A31C69A240A303D08E36F3F603679B91125B",
+        "bytes": 903
+      },
+      "result": {
+        "assemblies_start": "25BBDBD20AFF320474259FF86A13C69757BE9D904417FCF2D7DF7CE7FEE6214E",
+        "assemblies_end": "25BBDBD20AFF320474259FF86A13C69757BE9D904417FCF2D7DF7CE7FEE6214E",
+        "assemblies_stable": true,
+        "limits": "Installer SQL rollback/restart and actual loaded spell/acquisition/payment with native Character/Body/item/database; controlled surrounding terrain/check catalogue, no installed-world Telnet certificate.",
+        "process_root": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-watersee-installer-mysql_0607d681983b4c2ba33fd8ac147f0389",
+        "native_exit": 0,
+        "source_stable": true,
+        "source_start": "381EB33DF0786EF1CF59BBF82C0C8DCCBC1670A37F4431154F29BD71F51074B3",
+        "mode": "water-breathing-stock",
+        "revision": "289aa4b4b5953f28aa510a06f43b9b979470b1ad",
+        "source_end": "381EB33DF0786EF1CF59BBF82C0C8DCCBC1670A37F4431154F29BD71F51074B3",
+        "owned_port": 50353
+      },
+      "log": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-water-stock-final02.log",
+        "sha256": "5C44AE09E1C39C0F532DA6045F865594019D6A665FAFDEC5C500454C99D22E77",
+        "bytes": 1295552
+      },
+      "source_start": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-water-stock-final02\\20261006T121710Z_7a89d3d893374c9bad5cea50733ff484\\source-start.json",
+        "sha256": "381EB33DF0786EF1CF59BBF82C0C8DCCBC1670A37F4431154F29BD71F51074B3",
+        "bytes": 1126802
+      },
+      "source_end": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-water-stock-final02\\20261006T121710Z_7a89d3d893374c9bad5cea50733ff484\\source-end.json",
+        "sha256": "381EB33DF0786EF1CF59BBF82C0C8DCCBC1670A37F4431154F29BD71F51074B3",
+        "bytes": 1126802
+      },
+      "assemblies_before": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-water-stock-final02\\20261006T121710Z_7a89d3d893374c9bad5cea50733ff484\\assemblies-before.json",
+        "sha256": "25BBDBD20AFF320474259FF86A13C69757BE9D904417FCF2D7DF7CE7FEE6214E",
+        "bytes": 2306
+      },
+      "assemblies_after": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-water-stock-final02\\20261006T121710Z_7a89d3d893374c9bad5cea50733ff484\\assemblies-after.json",
+        "sha256": "25BBDBD20AFF320474259FF86A13C69757BE9D904417FCF2D7DF7CE7FEE6214E",
+        "bytes": 2306
+      },
+      "retained_assemblies": [
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\GatheringNativePersistenceHarness.dll",
+          "sha256": "331124F765A31B8EA6B09D7AEA0DD7EEA1919615BB943AB161DF83F46A8D15CE",
+          "bytes": 2269184,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\331124F765A31B8EA6B09D7AEA0DD7EEA1919615BB943AB161DF83F46A8D15CE\\GatheringNativePersistenceHarness.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\GatheringNativePersistenceHarness.deps.json",
+          "sha256": "033EACC982F83AB10D33058BF31FA1D31DCDC9CBA2422F045CE5291484906F97",
+          "bytes": 85782,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\033EACC982F83AB10D33058BF31FA1D31DCDC9CBA2422F045CE5291484906F97\\GatheringNativePersistenceHarness.deps.json"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\GatheringNativePersistenceHarness.runtimeconfig.json",
+          "sha256": "99B3B87037CC9002BDFB6251465F17A7F7079B18A0AAED46DDBCDBDC1652B433",
+          "bytes": 339,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\99B3B87037CC9002BDFB6251465F17A7F7079B18A0AAED46DDBCDBDC1652B433\\GatheringNativePersistenceHarness.runtimeconfig.json"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\MudSharp.dll",
+          "sha256": "B21BCBD9D9D60BEDC1B8FD88812A426FC98C2D98F5CD21024D8883ABBC6989A7",
+          "bytes": 31242240,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\B21BCBD9D9D60BEDC1B8FD88812A426FC98C2D98F5CD21024D8883ABBC6989A7\\MudSharp.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll",
+          "sha256": "C2C78A70891A655ADD386120FF4396AA14D4914D34FBE0C7C7C1F0AF8871BF72",
+          "bytes": 2915328,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\C2C78A70891A655ADD386120FF4396AA14D4914D34FBE0C7C7C1F0AF8871BF72\\FutureMUDLibrary.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\MudsharpDatabaseLibrary.dll",
+          "sha256": "BD9A5B27815C9274E4B50C080568853F2EA939E9A13B0B826CCE4CEAB41278E4",
+          "bytes": 89015808,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\BD9A5B27815C9274E4B50C080568853F2EA939E9A13B0B826CCE4CEAB41278E4\\MudsharpDatabaseLibrary.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\ExpressionEngine.dll",
+          "sha256": "3C0742D64B7D9FB760065084912B9F23146E81E8DE405E33C536A22781FD96C9",
+          "bytes": 15872,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\3C0742D64B7D9FB760065084912B9F23146E81E8DE405E33C536A22781FD96C9\\ExpressionEngine.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\DatabaseSeeder.dll",
+          "sha256": "A9D4D736BF29B54A8FCD6B0860A14D8181F9B4AF87B6E8A6CE8D33F1FFCEDEE3",
+          "bytes": 37010944,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\A9D4D736BF29B54A8FCD6B0860A14D8181F9B4AF87B6E8A6CE8D33F1FFCEDEE3\\DatabaseSeeder.dll"
+        }
+      ],
+      "cleanup": "Owned database drop verified; exact instance gracefully stopped and owned temporary directory deleted",
+      "acceptance_markers": [
+        "WATER-STOCK-acquisition=passed real-Draw-Wine-content distinct-native-skill raw79-refused raw80-grants opening30 cap90 relative no-invented-grade-gate fixture-policy-only",
+        "WATER-STOCK-refusal=passed missing character no-payment no-operation no-source-draw",
+        "WATER-STOCK-refusal=passed source Standing caster policy no-payment no-operation no-source-draw",
+        "WATER-STOCK-minimum-position=passed standing-variants leaning squatting flying swimming riding climbing hanging floating native-common-gates-preserved",
+        "WATER-STOCK-refusal=passed unconfigured native water scope no-payment no-operation no-source-draw",
+        "WATER-STOCK-refusal=passed later invalidated configured eligibility no-payment no-operation no-source-draw",
+        "WATER-STOCK-refusal=passed missing nonzero eligibility after database reload no-payment no-operation no-source-draw",
+        "WATER-STOCK-refusal=passed null policy result no-payment no-operation no-source-draw",
+        "WATER-STOCK-refusal=passed failed policy execution no-payment no-operation no-source-draw",
+        "WATER-STOCK-terrain=passed no-authored-Nilaz-Silt-Fire-underwater-only-filter native-reach-policy-preserved",
+        "WATER-STOCK-native-breathing=passed actual-body-character-combined-effects partless mapped-grant:False unmapped-refused racial-compatibility-preserved",
+        "WATER-STOCK-paid=passed grade:1 duration-draw:0 draws:1 cost:20 applied:True",
+        "WATER-STOCK-native-breathing=passed actual-body-character-combined-effects partless mapped-grant:True unmapped-refused racial-compatibility-preserved",
+        "WATER-STOCK-paid=passed grade:7 duration-draw:21 draws:1 cost:50 applied:True",
+        "WATER-STOCK-paid=passed grade:7 duration-draw:21 draws:1 cost:50 applied:True",
+        "WATER-STOCK-paid=passed grade:2 duration-draw:1 draws:1 cost:112.5 applied:False",
+        "WATER-STOCK-callback=passed BeforePayment exact-cohort no-replacement no-redraw no-refund",
+        "WATER-STOCK-callback=passed Committed exact-cohort no-replacement no-redraw no-refund",
+        "WATER-STOCK-generic-removal=passed existing-removal-adapter scoped-subtype parent-child-schedule-clean no-refund",
+        "WATER-STOCK-practice=passed grade:1 raw:40 cap:90 native-skill paid-once effect-free accelerated-clock",
+        "WATER-STOCK-practice=passed grade:2 raw:50 cap:90 native-skill paid-once effect-free accelerated-clock",
+        "WATER-STOCK-practice=passed grade:3 raw:60 cap:90 native-skill paid-once effect-free accelerated-clock",
+        "WATER-STOCK-practice=passed grade:4 raw:70 cap:90 native-skill paid-once effect-free accelerated-clock",
+        "WATER-STOCK-practice=passed grade:5 raw:80 cap:90 native-skill paid-once effect-free accelerated-clock",
+        "WATER-STOCK-practice=passed grade:6 raw:90 cap:90 native-skill paid-once effect-free accelerated-clock",
+        "WATER-STOCK-practice=passed grade:7 raw:90 cap:90 native-skill paid-once effect-free accelerated-clock",
+        "WATER-STOCK-paid=passed grade:7 duration-draw:21 draws:1 cost:50 applied:True",
+        "WATER-STOCK-native-breathing=passed actual-body-character-combined-effects partless mapped-grant:True unmapped-refused racial-compatibility-preserved",
+        "WATER-STOCK-native-breathing=passed actual-body-character-combined-effects partless mapped-grant:False unmapped-refused racial-compatibility-preserved",
+        "WATER-STOCK-reader=passed fresh-process native-liquid-identities policy-grade7 exact-deadline no-replay no-refund expiry-removes-parent-child-grant",
+        "WATER-STOCK-acceptance=passed ordinary-stock-builder database-reload raw80-acquisition opening30 cap90 grade7-practice Standing-filter low-high-paid one-source-draw cap36 strongest-grade no-change-no-mastery callback-drift native-breathing fresh-reader expiry"
+      ]
+    },
+    {
+      "mode": "see-unbodied-stock",
+      "status": "PASS",
+      "summary": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-see-stock-final02\\20261006T121652Z_7438abde0d32423d8c544cc23435d561\\summary.json",
+        "sha256": "8C7BE1D4C88EA93E7CABAA8727316E80D4BBC68E3E94D21C7FBCBF2A91C1AE94",
+        "bytes": 900
+      },
+      "result": {
+        "assemblies_stable": true,
+        "mode": "see-unbodied-stock",
+        "assemblies_end": "25BBDBD20AFF320474259FF86A13C69757BE9D904417FCF2D7DF7CE7FEE6214E",
+        "revision": "289aa4b4b5953f28aa510a06f43b9b979470b1ad",
+        "source_end": "381EB33DF0786EF1CF59BBF82C0C8DCCBC1670A37F4431154F29BD71F51074B3",
+        "owned_port": 59478,
+        "source_start": "381EB33DF0786EF1CF59BBF82C0C8DCCBC1670A37F4431154F29BD71F51074B3",
+        "assemblies_start": "25BBDBD20AFF320474259FF86A13C69757BE9D904417FCF2D7DF7CE7FEE6214E",
+        "limits": "Installer SQL rollback/restart and actual loaded spell/acquisition/payment with native Character/Body/item/database; controlled surrounding terrain/check catalogue, no installed-world Telnet certificate.",
+        "source_stable": true,
+        "native_exit": 0,
+        "process_root": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-watersee-installer-mysql_e9aa618e4a784186ac0e570cba61805d"
+      },
+      "log": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-see-stock-final02.log",
+        "sha256": "A665F6C472BD8B8B37B5AFE6F0591CBCC3BEB40C6E7E7C593BA2D876C6FA7397",
+        "bytes": 1867583
+      },
+      "source_start": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-see-stock-final02\\20261006T121652Z_7438abde0d32423d8c544cc23435d561\\source-start.json",
+        "sha256": "381EB33DF0786EF1CF59BBF82C0C8DCCBC1670A37F4431154F29BD71F51074B3",
+        "bytes": 1126802
+      },
+      "source_end": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-see-stock-final02\\20261006T121652Z_7438abde0d32423d8c544cc23435d561\\source-end.json",
+        "sha256": "381EB33DF0786EF1CF59BBF82C0C8DCCBC1670A37F4431154F29BD71F51074B3",
+        "bytes": 1126802
+      },
+      "assemblies_before": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-see-stock-final02\\20261006T121652Z_7438abde0d32423d8c544cc23435d561\\assemblies-before.json",
+        "sha256": "25BBDBD20AFF320474259FF86A13C69757BE9D904417FCF2D7DF7CE7FEE6214E",
+        "bytes": 2306
+      },
+      "assemblies_after": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-see-stock-final02\\20261006T121652Z_7438abde0d32423d8c544cc23435d561\\assemblies-after.json",
+        "sha256": "25BBDBD20AFF320474259FF86A13C69757BE9D904417FCF2D7DF7CE7FEE6214E",
+        "bytes": 2306
+      },
+      "retained_assemblies": [
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\GatheringNativePersistenceHarness.dll",
+          "sha256": "331124F765A31B8EA6B09D7AEA0DD7EEA1919615BB943AB161DF83F46A8D15CE",
+          "bytes": 2269184,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\331124F765A31B8EA6B09D7AEA0DD7EEA1919615BB943AB161DF83F46A8D15CE\\GatheringNativePersistenceHarness.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\GatheringNativePersistenceHarness.deps.json",
+          "sha256": "033EACC982F83AB10D33058BF31FA1D31DCDC9CBA2422F045CE5291484906F97",
+          "bytes": 85782,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\033EACC982F83AB10D33058BF31FA1D31DCDC9CBA2422F045CE5291484906F97\\GatheringNativePersistenceHarness.deps.json"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\GatheringNativePersistenceHarness.runtimeconfig.json",
+          "sha256": "99B3B87037CC9002BDFB6251465F17A7F7079B18A0AAED46DDBCDBDC1652B433",
+          "bytes": 339,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\99B3B87037CC9002BDFB6251465F17A7F7079B18A0AAED46DDBCDBDC1652B433\\GatheringNativePersistenceHarness.runtimeconfig.json"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\MudSharp.dll",
+          "sha256": "B21BCBD9D9D60BEDC1B8FD88812A426FC98C2D98F5CD21024D8883ABBC6989A7",
+          "bytes": 31242240,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\B21BCBD9D9D60BEDC1B8FD88812A426FC98C2D98F5CD21024D8883ABBC6989A7\\MudSharp.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll",
+          "sha256": "C2C78A70891A655ADD386120FF4396AA14D4914D34FBE0C7C7C1F0AF8871BF72",
+          "bytes": 2915328,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\C2C78A70891A655ADD386120FF4396AA14D4914D34FBE0C7C7C1F0AF8871BF72\\FutureMUDLibrary.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\MudsharpDatabaseLibrary.dll",
+          "sha256": "BD9A5B27815C9274E4B50C080568853F2EA939E9A13B0B826CCE4CEAB41278E4",
+          "bytes": 89015808,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\BD9A5B27815C9274E4B50C080568853F2EA939E9A13B0B826CCE4CEAB41278E4\\MudsharpDatabaseLibrary.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\ExpressionEngine.dll",
+          "sha256": "3C0742D64B7D9FB760065084912B9F23146E81E8DE405E33C536A22781FD96C9",
+          "bytes": 15872,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\3C0742D64B7D9FB760065084912B9F23146E81E8DE405E33C536A22781FD96C9\\ExpressionEngine.dll"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02\\tests\\ArmageddonWaterSeeInstallerNativeHarness\\bin\\Debug\\net10.0\\DatabaseSeeder.dll",
+          "sha256": "A9D4D736BF29B54A8FCD6B0860A14D8181F9B4AF87B6E8A6CE8D33F1FFCEDEE3",
+          "bytes": 37010944,
+          "retained_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\wsi02-retained-binaries\\A9D4D736BF29B54A8FCD6B0860A14D8181F9B4AF87B6E8A6CE8D33F1FFCEDEE3\\DatabaseSeeder.dll"
+        }
+      ],
+      "cleanup": "Owned database drop verified; exact instance gracefully stopped and owned temporary directory deleted",
+      "acceptance_markers": [
+        "SEE-STOCK-acquisition=passed real-Pierce-content distinct-skill raw79-refusal raw80-opening30 cap90 relative fixture-capability-policy",
+        "SEE-STOCK-refusal=passed missing target",
+        "SEE-STOCK-refusal=passed later invalidated configured eligibility",
+        "SEE-STOCK-refusal=passed missing nonzero eligibility after database reload",
+        "SEE-STOCK-refusal=passed null policy result",
+        "SEE-STOCK-refusal=passed failed policy execution",
+        "SEE-STOCK-refusal=passed minimum Standing",
+        "SEE-STOCK-refusal=passed missing carried component",
+        "SEE-STOCK-paid=passed grade:1 cost:7 applied:True",
+        "SEE-STOCK-paid=passed grade:7 cost:50 applied:True",
+        "SEE-STOCK-paid=passed grade:7 cost:50 applied:True",
+        "SEE-STOCK-paid=passed grade:1 cost:7 applied:False",
+        "SEE-STOCK-paid=passed grade:2 cost:8 applied:False",
+        "SEE-STOCK-paid=passed grade:3 cost:10 applied:False",
+        "SEE-STOCK-paid=passed grade:4 cost:12 applied:False",
+        "SEE-STOCK-paid=passed grade:5 cost:16 applied:False",
+        "SEE-STOCK-paid=passed grade:6 cost:25 applied:False",
+        "SEE-STOCK-paid=passed grade:7 cost:50 applied:False",
+        "SEE-STOCK-paid=passed grade:1 cost:7 applied:False",
+        "SEE-STOCK-paid=passed grade:2 cost:112.5 applied:False",
+        "SEE-STOCK-reader-quarantine=passed fresh-process exact-quantity paid-reserve old-cohort no-replay no-consume no-refund no-mastery",
+        "SEE-STOCK-reader-quarantine=passed fresh-process exact-quantity paid-reserve old-cohort no-replay no-consume no-refund no-mastery",
+        "SEE-STOCK-whole-item=passed native-quantity-one Delete catalogue-body-database-disappearance",
+        "SEE-STOCK-practice=passed grade:1 raw:40 cap:90 paid-once effect-free no-component-consumption accelerated-clock",
+        "SEE-STOCK-practice=passed grade:2 raw:50 cap:90 paid-once effect-free no-component-consumption accelerated-clock",
+        "SEE-STOCK-practice=passed grade:3 raw:60 cap:90 paid-once effect-free no-component-consumption accelerated-clock",
+        "SEE-STOCK-practice=passed grade:4 raw:70 cap:90 paid-once effect-free no-component-consumption accelerated-clock",
+        "SEE-STOCK-practice=passed grade:5 raw:80 cap:90 paid-once effect-free no-component-consumption accelerated-clock",
+        "SEE-STOCK-practice=passed grade:6 raw:90 cap:90 paid-once effect-free no-component-consumption accelerated-clock",
+        "SEE-STOCK-practice=passed grade:7 raw:90 cap:90 paid-once effect-free no-component-consumption accelerated-clock",
+        "SEE-STOCK-paid=passed grade:7 cost:50 applied:True",
+        "SEE-STOCK-reader=passed fresh-process native-typed-child identity grade7 policy exact-deadline no-replay no-refund expiry-removes-parent-child-perception",
+        "SEE-STOCK-acceptance=passed normal-stock-builder editable-reload Pierce80-opening30-cap90 grade7-paid-practice mapped-Standing self-filter low-high-paid cap36 strongest-grade nochange-no-mastery source-component-custody uncertainty fresh-reader expiry; full-world-and-hidden-target-visibility-unqualified"
+      ]
+    }
+  ],
+  "review": [
+    {
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-fm-review-ec2a8d60.json",
+        "sha256": "71A16844EF02892BB0FE41A71E12C573D13079E55B3B3E7E005CC8C9CB2AEC54",
+        "bytes": 3925
+      },
+      "result": "One P2 standalone retained StockIdentity refusal gap identified"
+    },
+    {
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-3\\water-see-installer02-fm-review-followup-a1d7458b.json",
+        "sha256": "765E970F47E30845CAD47DDDD2F5864B362B63C42550D970A48ABE0E7AB75735",
+        "bytes": 1476
+      },
+      "result": "Independent narrow follow-up confirms P2 corrected at production checkpoint; no remaining scoped finding"
+    }
+  ],
+  "retained_unsuccessful_trials": [
+    "focused01: default sandbox compiler CS2012 DLL write access; scoped elevated compilation used thereafter",
+    "focused02: ambiguous test MagicSpell type; test alias fixed before focused03 39-pass run",
+    "native trial01: missing Armageddon Spell trait group in cold loader; fixed only dedicated harness",
+    "native final01/build04: coordinator started native before rebuild completed, causing locked files and stale harness; disqualified entirely as final proof",
+    "native final02: cold loader registered generic rather than scoped water effect; fixed only dedicated harness",
+    "See stock final01: incorrect dispatch spelling, exit2 and no stock assertions; fixed mode to existing see-unbodied-stock entrypoint",
+    "Earlier failed native runs retained with verified owned database/server cleanup; final successful runs use fresh paths and databases"
+  ],
+  "limits": [
+    "Installed payloads tested through SQL, real Character/Body/item, source acquisition, normal MagicSpell loaders and real payment; surrounding account/terrain/check catalogue controlled. No installed-world login/Telnet certificate.",
+    "Installed high-grade gameplay explicitly authored grade7 fixture, not earned practice claim. Water and See stock regressions independently exercised paid practice through grade7.",
+    "Precommit and postcommit acknowledgement faults injected; no physical network interruption inside COMMIT.",
+    "See stock receipt leaves full-world and hidden-target visibility unqualified.",
+    "Native manifests fingerprint eight principal assembly/deps/runtime files and retain their exact bytes; framework remains environment-owned. Aggregate retained 2710 application/dependency inventory rows.",
+    "Aggregate tested production checkpoint211; only two dedicated harness files changed at289. This receipt commit is documentation-only and does not claim whole-repository aggregate execution after documentation commit.",
+    "Central ledger, disposition tables and shared native dispatch untouched. No schema/payment/lifecycle changes; no merge, push, PR, deployment or next module."
+  ],
+  "integration": "Parent should independently review this branch and carry verified counts/limits into central ledger. No main-worktree merge performed by lane.",
+  "remaining_blockers": []
+}

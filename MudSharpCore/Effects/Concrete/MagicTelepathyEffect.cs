@@ -1,4 +1,4 @@
-﻿using MudSharp.Magic;
+using MudSharp.Magic;
 using MudSharp.Magic.Powers;
 using MudSharp.Models;
 using MudSharp.Planes;
@@ -58,17 +58,17 @@ public class MagicTelepathyEffect : ConcentrationConsumingEffect, IMagicEffect, 
 
                 break;
             case MagicPowerDistance.SameLocationOnly:
-                if (CharacterOwner.Location != tch.Location && CharacterOwner.Location.Room != tch.Location.Room)
+                if (CharacterOwner.Location != tch.Location && CharacterOwner.Location != tch.Location)
                 {
                     return false;
                 }
 
                 break;
             case MagicPowerDistance.AdjacentLocationsOnly:
-                if (CharacterOwner.Location != tch.Location && CharacterOwner.Location.Room != tch.Location.Room && tch
+                if (CharacterOwner.Location != tch.Location && CharacterOwner.Location != tch.Location && tch
                         .Location.ExitsFor(null).Any(x =>
                             x.Destination == CharacterOwner.Location ||
-                            x.Destination.Room == CharacterOwner.Location.Room))
+                            x.Destination == CharacterOwner.Location))
                 {
                     return false;
                 }

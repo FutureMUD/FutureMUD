@@ -86,8 +86,8 @@ public class ResourceDiscoveryProjectActionTests
 
 		Assert.AreEqual(RoomLayer.InTrees, marker.Object.RoomLayer);
 		fixture.Gameworld.Verify(x => x.Add(marker.Object), Times.Once);
-		fixture.Cell.Verify(x => x.Insert(marker.Object, true), Times.Once);
-		fixture.Cell.Verify(x => x.HandleRoomEcho("Ore signs break the surface.", RoomLayer.InTrees), Times.Once);
+		fixture.Room.Verify(x => x.Insert(marker.Object, true), Times.Once);
+		fixture.Room.Verify(x => x.HandleRoomEcho("Ore signs break the surface.", RoomLayer.InTrees), Times.Once);
 	}
 
 	[TestMethod]
@@ -97,7 +97,7 @@ public class ResourceDiscoveryProjectActionTests
 		var action = new ResourceDiscoveryProjectAction(CreateConfiguredModel(), fixture.Gameworld.Object);
 		var existing = new Mock<IGameItem>();
 		existing.Setup(x => x.IsA(fixture.DuplicateTag.Object)).Returns(true);
-		fixture.Cell.SetupGet(x => x.GameItems).Returns(new[] { existing.Object });
+		fixture.Room.SetupGet(x => x.GameItems).Returns(new[] { existing.Object });
 
 		var project = CreateProject(fixture);
 
@@ -105,14 +105,14 @@ public class ResourceDiscoveryProjectActionTests
 
 		fixture.OutputPrototype.Verify(x => x.CreateNew(It.IsAny<ICharacter?>()), Times.Never);
 		fixture.Gameworld.Verify(x => x.Add(It.IsAny<IGameItem>()), Times.Never);
-		fixture.Cell.Verify(x => x.HandleRoomEcho("The vein is already marked.", RoomLayer.InTrees), Times.Once);
+		fixture.Room.Verify(x => x.HandleRoomEcho("The vein is already marked.", RoomLayer.InTrees), Times.Once);
 	}
 
 	[TestMethod]
 	public void CompleteAction_WhenLocationLacksRequiredTag_DoesNotCreateMarker()
 	{
 		var fixture = CreateConfiguredFixture();
-		fixture.Cell.Setup(x => x.IsA(fixture.RequiredTag.Object)).Returns(false);
+		fixture.Room.Setup(x => x.IsA(fixture.RequiredTag.Object)).Returns(false);
 		var action = new ResourceDiscoveryProjectAction(CreateConfiguredModel(), fixture.Gameworld.Object);
 		var project = CreateProject(fixture);
 
@@ -120,7 +120,7 @@ public class ResourceDiscoveryProjectActionTests
 
 		fixture.OutputPrototype.Verify(x => x.CreateNew(It.IsAny<ICharacter?>()), Times.Never);
 		fixture.Gameworld.Verify(x => x.Add(It.IsAny<IGameItem>()), Times.Never);
-		fixture.Cell.Verify(x => x.HandleRoomEcho("No workable sign is found.", RoomLayer.InTrees), Times.Once);
+		fixture.Room.Verify(x => x.HandleRoomEcho("No workable sign is found.", RoomLayer.InTrees), Times.Once);
 	}
 
 	private static ProjectActionModel CreateConfiguredModel()
@@ -175,17 +175,17 @@ public class ResourceDiscoveryProjectActionTests
 		gameworld.SetupGet(x => x.Tags).Returns(tags);
 		gameworld.SetupGet(x => x.ItemProtos).Returns(itemProtos.Object);
 
-		var cell = new Mock<ICell>();
-		cell.Setup(x => x.IsA(requiredTag.Object)).Returns(true);
-		cell.SetupGet(x => x.GameItems).Returns([]);
+		var room = new Mock<IRoom>();
+		room.Setup(x => x.IsA(requiredTag.Object)).Returns(true);
+		room.SetupGet(x => x.GameItems).Returns([]);
 		var owner = new Mock<ICharacter>();
-		owner.SetupGet(x => x.Location).Returns(cell.Object);
+		owner.SetupGet(x => x.Location).Returns(room.Object);
 		owner.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		var worker = new Mock<ICharacter>();
-		worker.SetupGet(x => x.Location).Returns(cell.Object);
+		worker.SetupGet(x => x.Location).Returns(room.Object);
 		worker.SetupGet(x => x.RoomLayer).Returns(RoomLayer.InTrees);
 
-		return new ResourceDiscoveryFixture(gameworld, requiredTag, duplicateTag, outputPrototype, cell, owner, worker);
+		return new ResourceDiscoveryFixture(gameworld, requiredTag, duplicateTag, outputPrototype, room, owner, worker);
 	}
 
 	private static Mock<T> MockFrameworkItem<T>(long id, string name) where T : class, IFrameworkItem
@@ -202,7 +202,7 @@ public class ResourceDiscoveryProjectActionTests
 		Mock<ITag> RequiredTag,
 		Mock<ITag> DuplicateTag,
 		Mock<IGameItemProto> OutputPrototype,
-		Mock<ICell> Cell,
+		Mock<IRoom> Room,
 		Mock<ICharacter> Owner,
 		Mock<ICharacter> Worker);
 }

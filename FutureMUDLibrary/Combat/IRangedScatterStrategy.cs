@@ -9,5 +9,5 @@ using System.Collections.Generic;
 
 public interface IRangedScatterStrategy
 {
-    RangedScatterResult? GetScatterTarget(ICharacter shooter, IPerceiver originalTarget, IEnumerable<ICellExit> path);
+    RangedScatterResult? GetScatterTarget(ICharacter shooter, IPerceiver originalTarget, IEnumerable<IRoomExit> path);
 }

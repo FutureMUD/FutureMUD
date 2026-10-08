@@ -69,24 +69,24 @@ public class SimpleFeatureGroup : TerrainFeatureGroup
 
     public IEnumerable<ITerrain> Terrains => Features.SelectMany(x => x.Terrains).Distinct();
 
-	protected bool AppliesToCell(ICell cell)
+	protected bool AppliesToRoom(IRoom room)
 	{
 		return
-			cell != null &&
+			room != null &&
 			Features.Any() &&
-			(!Terrains.Any() || Terrains.Contains(cell.CurrentOverlay?.Terrain));
+			(!Terrains.Any() || Terrains.Contains(room.CurrentOverlay?.Terrain));
 	}
 
-    public override void ApplyTerrainFeatures(ICell[,] cellMap, List<string>[,] featureMap)
+    public override void ApplyTerrainFeatures(IRoom[,] cellMap, List<string>[,] featureMap)
     {
         int width = cellMap.GetLength(0);
         int height = cellMap.GetLength(1);
-        List<ICell> cells = cellMap.Cast<ICell>().WhereNotNull(x => x).Where(AppliesToCell).ToList();
+        List<IRoom> rooms = cellMap.Cast<IRoom>().WhereNotNull(x => x).Where(AppliesToRoom).ToList();
 
 		int howMany = (int)Math.Round(RandomUtilities.DoubleRandom(MinimumFeatureDensity, MaximumFeatureDensity) *
-		                              cells.Count);
+		                              rooms.Count);
         Counter<string> counter = new(StringComparer.InvariantCultureIgnoreCase);
-        Counter<ICell> groupCounter = new();
+        Counter<IRoom> groupCounter = new();
         List<Feature> featuresInConsideration = Features.ToList();
         while (howMany > 0)
         {
@@ -106,21 +106,21 @@ public class SimpleFeatureGroup : TerrainFeatureGroup
                 }
             }
 
-			List<ICell> validCells = cells
+			List<IRoom> validRooms = rooms
 				.Where(x => feature.CanApply(x))
 				.Where(x => groupCounter.Count(x) < MaximumFeaturesPerRoom)
 				.ToList();
-			if (!validCells.Any())
+			if (!validRooms.Any())
 			{
 				featuresInConsideration.Remove(feature);
 				continue;
 			}
 
-            ICell cell = validCells.GetRandomElement();
-            (int X, int Y) = cellMap.GetCoordsOfElement(cell);
+            IRoom room = validRooms.GetRandomElement();
+            (int X, int Y) = cellMap.GetCoordsOfElement(room);
             feature.ApplyFeature(cellMap, featureMap, X, Y);
             counter.Increment(feature.Name);
-            groupCounter.Increment(cell);
+            groupCounter.Increment(room);
             howMany--;
         }
 
@@ -134,20 +134,20 @@ public class SimpleFeatureGroup : TerrainFeatureGroup
             int target = feature.MinimumCount - counter.Count(feature.Name);
             while (target > 0)
             {
-				List<ICell> validCells = cells
+				List<IRoom> validRooms = rooms
 					.Where(x => feature.CanApply(x))
 					.Where(x => groupCounter.Count(x) < MaximumFeaturesPerRoom)
 					.ToList();
-				if (!validCells.Any())
+				if (!validRooms.Any())
 				{
 					break;
 				}
 
-                ICell cell = validCells.GetRandomElement();
-                (int X, int Y) = cellMap.GetCoordsOfElement(cell);
+                IRoom room = validRooms.GetRandomElement();
+                (int X, int Y) = cellMap.GetCoordsOfElement(room);
                 feature.ApplyFeature(cellMap, featureMap, X, Y);
                 counter.Increment(feature.Name);
-                groupCounter.Increment(cell);
+                groupCounter.Increment(room);
                 target--;
             }
         }

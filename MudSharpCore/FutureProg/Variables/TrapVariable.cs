@@ -51,7 +51,7 @@ public sealed class TrapVariable(TrapEffect trap) : ProgVariable
 				["state"] = "The current trap state.",
 				["charges"] = "The number of remaining activations.",
 				["source"] = "The trap source domain.",
-				["owner"] = "The item or cell to which the trap is anchored."
+				["owner"] = "The item or room to which the trap is anchored."
 			});
 	}
 }

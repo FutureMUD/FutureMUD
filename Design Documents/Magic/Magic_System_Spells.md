@@ -330,8 +330,8 @@ Triggers can attach named `SpellAdditionalParameter` values to the cast so spell
 
 Current shared names are:
 
-- `exit` from `exit` and `characterexit`, carrying the chosen `ICellExit`
-- `room` from `progcharacterroom` and `progitemroom`, carrying the prog-resolved `ICell`
+- `exit` from `exit` and `characterexit`, carrying the chosen `IRoomExit`
+- `room` from `progcharacterroom` and `progitemroom`, carrying the prog-resolved `IRoom`
 
 ### Effect workflow
 Target-side effect authoring is:
@@ -370,7 +370,7 @@ Builder-visible status and cleanup tokens are discrete effect types:
 
 Key runtime semantics:
 
-- `teleport` now advertises compatibility with `room` / `rooms` triggers and continues to self-teleport the caster to an `ICell`. `teleporttarget` is unchanged.
+- `teleport` now advertises compatibility with `room` / `rooms` triggers and continues to self-teleport the caster to an `IRoom`. `teleporttarget` is unchanged.
 - `silence` blocks vocal speech through communication strategies but does not block telepathy or other non-vocal channels.
 - `sleep` forces `Sleep()` on apply and only stops blocking wakefulness when the last magical sleep effect is removed.
 - `fear` forces flee mode in combat while active.

@@ -148,7 +148,7 @@ public partial class CreateItemEffect
 		if (!ValidateRecipientInvocation(caster, target, out error)) return false;
 		if (LifecycleMode is null)
 		{ application = new LegacyItemCreation(this, caster, target, outcome, power); return true; }
-		if (!ReferenceEquals(caster.Gameworld, Gameworld) || !ReferenceEquals(target.Gameworld, Gameworld) || target is not (ICharacter or ICell or IGameItem))
+		if (!ReferenceEquals(caster.Gameworld, Gameworld) || !ReferenceEquals(target.Gameworld, Gameworld) || target is not (ICharacter or IRoom or IGameItem))
 		{ error = "The item recipient must be a supported target in this world."; return false; }
 		var native = (MagicSpell)Spell; var grade = native.InvocationGrade!.Value;
 		var mode = PermanentGrade == grade ? SpellLifecycleMode.Permanent : LifecycleMode!.Value;
@@ -222,8 +222,8 @@ public partial class CreateItemEffect
 		else if (target is ICharacter character && character.Body.CanGet(item, 0)) character.Body.Get(item, silent: true);
 		else if (target is IGameItem host && host.GetItemType<IContainer>() is { } container && container.CanPut(item)) container.Put(null, item, false);
 		else if (target is IGameItem sheathHost && sheathHost.GetItemType<ISheath>() is { } sheath && sheath.CanSheath(item)) sheath.Content = item.GetItemType<IWieldable>();
-		else if (target is ICell cell && !ReferenceEquals(cell, caster.Location)) cell.Insert(item, true);
-		else { item.RoomLayer = target.RoomLayer; item.InsertAtSource(target is IGameItem outputHost ? outputHost.LocationLevelPerceivable : target is ICell ? caster : target, true); }
+		else if (target is IRoom room && !ReferenceEquals(room, caster.Location)) room.Insert(item, true);
+		else { item.RoomLayer = target.RoomLayer; item.InsertAtSource(target is IGameItem outputHost ? outputHost.LocationLevelPerceivable : target is IRoom ? caster : target, true); }
 		item.HandleEvent(EventType.ItemFinishedLoading, item); item.Login();
 	}
 

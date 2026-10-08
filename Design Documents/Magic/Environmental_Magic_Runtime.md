@@ -4,6 +4,8 @@ Environmental magic is an opt-in physical-cell resource producer. Its reusable d
 
 ## Ownership and persistence
 
+The Room terminology change preserves the version-1 rejuvenation checkpoint wire field `CellId` and native-organic lifecycle JSON field `CellId`. Their CLR members are `RoomId`; existing saved treatment budgets, revisions, pending work and receipt provenance retain their original location identity.
+
 `Cell.EnvironmentBindingMode` resolves an explicit profile, explicit disabled state, or the current physical overlay's terrain default. An observer's draft overlay and room layer do not create separate pools. Assignments survive restart. Missing profiles, resources, incompatible holders, invalid definitions, and calculation failures remain diagnosable; they do not select a replacement.
 
 Balances remain in `Cell.MagicResourceAmounts` / `CellsMagicResources`. First attachment of an output starts at zero unless the cell already has that resource, including an explicitly saved zero. Removing or replacing a profile preserves balances. Environmental definitions never acquire a base-generator per-holder delegate; character and item attachment is refused. Existing `linear` and `state` scheduling and unbound resource policies retain their previous behaviour.
@@ -28,7 +30,7 @@ Definitions compile expressions and resolve references per revision. Valid profi
 
 Built-ins are `scardamage`, `pressure`, `hasdefile`, and `minutessincedefile`; each output supplies `basecapacity` and `baserate`. Only rates may use `balance` and `maximum`. An absent defile time has presence and age zero. Named forage/agriculture values have explicit scales. Agriculture scores use their raw native units (normally 0–100); absent fields/crops/woodland contribute zero, with explicit presence sources available.
 
-`ICell.TryPeekForagableYield` projects the effective forage profile without synchronising, refilling, or scheduling yields. Its richer native snapshot also captures the physical cell, normalised key, effective forage-profile identity/revisions and owner change token for compare-and-apply. A new valid key projects its profile maximum; an existing depleted key stays depleted subject to a lower maximum. An absent forage subsystem contributes zero, while a missing key in a configured profile is an error. Ordinary synchronisation remains at load/configuration/consumption/recovery boundaries.
+`IRoom.TryPeekForagableYield` projects the effective forage profile without synchronising, refilling, or scheduling yields. Its richer native snapshot also captures the physical cell, normalised key, effective forage-profile identity/revisions and owner change token for compare-and-apply. A new valid key projects its profile maximum; an existing depleted key stays depleted subject to a lower maximum. An absent forage subsystem contributes zero, while a missing key in a configured profile is an error. Ordinary synchronisation remains at load/configuration/consumption/recovery boundaries.
 
 The world-local field-by-cell index is built once and maintained on field creation, replacement, and deletion. Input evaluation does not scan all agriculture fields. Delayed deletion of an old field cannot remove its replacement.
 

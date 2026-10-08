@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MudSharp.Accounts;
 using MudSharp.Body.Traits;
 using MudSharp.Body.Traits.Subtypes;
@@ -668,9 +668,9 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
             case ProgVariableTypeCode.Item:
                 return (result as IGameItem)?.HowSeen(actor) ?? "null".Colour(Telnet.Red);
             case ProgVariableTypeCode.Location:
-                if (result is ICell cell)
+                if (result is IRoom room)
                 {
-                    return cell.GetFriendlyReference(actor).ColourName();
+                    return room.GetFriendlyReference(actor).ColourName();
                 }
                 else
                 {
@@ -739,7 +739,7 @@ A function (See PROG HELP FUNCTIONS) can also function as a statement on a line.
             case ProgVariableTypeCode.Currency:
                 return $"the {((IFrameworkItem)result).Name.ColourValue()} currency";
             case ProgVariableTypeCode.Exit:
-                return ((ICellExit)result).OutboundDirectionDescription.ColourName();
+                return ((IRoomExit)result).OutboundDirectionDescription.ColourName();
             case ProgVariableTypeCode.Language:
                 return $"the {((IFrameworkItem)result).Name.ColourValue()} language";
             case ProgVariableTypeCode.Accent:
@@ -2340,7 +2340,7 @@ You can use the following filters with #3hook list#0:
             case "room":
             case "cell":
             case "location":
-                type = "Cell";
+                type = "Room";
                 break;
             case "character":
             case "ch":
@@ -2382,7 +2382,7 @@ You can use the following filters with #3hook list#0:
             {
                 "Character" => new ProgVariableTypes[] { ProgVariableTypes.Toon },
                 "GameItem" => new ProgVariableTypes[] { ProgVariableTypes.Item },
-                "Cell" => new ProgVariableTypes[] { ProgVariableTypes.Location },
+                "Room" => new ProgVariableTypes[] { ProgVariableTypes.Location },
                 _ => new ProgVariableTypes[] { ProgVariableTypes.Error }
             }).LookupProg();
         if (prog is null)
@@ -2391,7 +2391,7 @@ You can use the following filters with #3hook list#0:
         }
 
         if (actor.Gameworld.DefaultHooks.Any(x =>
-                x.PerceivableType.EqualTo(type) && x.Hook == hook && x.EligibilityProg == prog))
+                MudSharp.Events.Hooks.DefaultHook.CanonicalCategory(x.PerceivableType).EqualTo(type) && x.Hook == hook && x.EligibilityProg == prog))
         {
             actor.OutputHandler.Send("There is already a default hook with that combination of parameters.");
             return;
@@ -2418,7 +2418,7 @@ You can use the following filters with #3hook list#0:
             case "room":
             case "cell":
             case "location":
-                type = "Cell";
+                type = "Room";
                 break;
             case "character":
             case "ch":
@@ -2459,7 +2459,7 @@ You can use the following filters with #3hook list#0:
             {
                 "Character" => new ProgVariableTypes[] { ProgVariableTypes.Toon },
                 "GameItem" => new ProgVariableTypes[] { ProgVariableTypes.Item },
-                "Cell" => new ProgVariableTypes[] { ProgVariableTypes.Location },
+                "Room" => new ProgVariableTypes[] { ProgVariableTypes.Location },
                 _ => new ProgVariableTypes[] { ProgVariableTypes.Error }
             }).LookupProg();
         if (prog is null)
@@ -2468,7 +2468,7 @@ You can use the following filters with #3hook list#0:
         }
 
         IDefaultHook defaultHook = actor.Gameworld.DefaultHooks.FirstOrDefault(x =>
-            x.PerceivableType.EqualTo(type) && x.Hook == hook && x.EligibilityProg == prog);
+            MudSharp.Events.Hooks.DefaultHook.CanonicalCategory(x.PerceivableType).EqualTo(type) && x.Hook == hook && x.EligibilityProg == prog);
         if (defaultHook is null)
         {
             actor.OutputHandler.Send("There is no default hook with that combination of parameters.");
@@ -2489,7 +2489,7 @@ You can use the following filters with #3hook list#0:
             {
                 hook.Hook.Id.ToString("N0", actor),
                 hook.Hook.Name,
-                hook.PerceivableType,
+                MudSharp.Events.Hooks.DefaultHook.CanonicalCategory(hook.PerceivableType),
                 hook.EligibilityProg.MXPClickableFunctionName()
             },
             new List<string>

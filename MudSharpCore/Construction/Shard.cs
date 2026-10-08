@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.Climate;
 using MudSharp.Database;
 using MudSharp.FutureProg.Variables;
@@ -21,8 +21,7 @@ public class Shard : Location, IEditableShard
     protected All<IZone> _zones = new();
 
     public IEnumerable<IZone> Zones => _zones;
-    public IEnumerable<IRoom> Rooms => _rooms;
-    public override IEnumerable<ICell> Cells => _rooms.SelectMany(x => x.Cells);
+    public override IEnumerable<IRoom> Rooms => _rooms;
 
     public Shard(IFuturemud game, ISkyDescriptionTemplate skyTemplate, string name) : base(game)
     {
@@ -70,16 +69,16 @@ public class Shard : Location, IEditableShard
 
     public IRoom DetermineRoomByCoordinates(int x, int y, int z)
     {
-        return (from room in Gameworld.Rooms
-                where room.X == x && room.Y == y && room.Z == z
-                select room).FirstOrDefault();
+        return (from room in Rooms
+                where room.StoredCoordinates.X == x && room.StoredCoordinates.Y == y && room.StoredCoordinates.Z == z
+                select room).Take(2).ToList() is { Count: 1 } matches ? matches[0] : null;
     }
 
     public IRoom DetermineRoomByDirection(IRoom fromRoom, CardinalDirection direction)
     {
-        int x = fromRoom.X;
-        int y = fromRoom.Y;
-        int z = fromRoom.Z;
+        int x = fromRoom.StoredCoordinates.X;
+        int y = fromRoom.StoredCoordinates.Y;
+        int z = fromRoom.StoredCoordinates.Z;
 
         switch (direction)
         {
@@ -119,9 +118,9 @@ public class Shard : Location, IEditableShard
                 break;
         }
 
-        return (from room in Gameworld.Rooms
-                where room.X == x && room.Y == y && room.Z == z
-                select room).FirstOrDefault();
+        return (from room in Rooms
+                where room.StoredCoordinates.X == x && room.StoredCoordinates.Y == y && room.StoredCoordinates.Z == z
+                select room).Take(2).ToList() is { Count: 1 } matches ? matches[0] : null;
     }
 
     public override IEnumerable<ICalendar> Calendars => _calendars;

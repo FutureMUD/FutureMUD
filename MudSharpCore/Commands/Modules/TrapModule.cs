@@ -268,7 +268,7 @@ internal class TrapModule : Module<ICharacter>
 			characters = characters.Concat(gameworld.LoadAllPlayerCharacters());
 		}
 
-		return gameworld.Cells
+		return gameworld.Rooms
 			.Cast<IPerceivable>()
 			.Concat(gameworld.Items)
 			.Concat(characters)
@@ -399,7 +399,7 @@ internal class TrapModule : Module<ICharacter>
 
 		if (!TrapEffect.IsValidAnchor(template, anchor))
 		{
-			actor.Send("Proximity traps require an item, character, or other real spatial anchor. Use a cell-entry trigger for a here trap.");
+			actor.Send("Proximity traps require an item, character, or other real spatial anchor. Use a room-entry trigger for a here trap.");
 			return;
 		}
 
@@ -878,7 +878,7 @@ internal class TrapModule : Module<ICharacter>
 		return (true, string.Empty);
 	}
 
-	private static (IPerceivable Anchor, ICellExit? Exit, List<IGameItem> Components)? ResolveAnchor(ICharacter actor, StringStack command)
+	private static (IPerceivable Anchor, IRoomExit? Exit, List<IGameItem> Components)? ResolveAnchor(ICharacter actor, StringStack command)
 	{
 		if (command.IsFinished)
 		{
@@ -902,8 +902,8 @@ internal class TrapModule : Module<ICharacter>
 		return target is null ? null : ParseSuppliedComponents(actor, command, target.Value.Anchor, target.Value.Exit);
 	}
 
-	private static (IPerceivable Anchor, ICellExit? Exit, List<IGameItem> Components)? ParseSuppliedComponents(
-		ICharacter actor, StringStack command, IPerceivable anchor, ICellExit? exit)
+	private static (IPerceivable Anchor, IRoomExit? Exit, List<IGameItem> Components)? ParseSuppliedComponents(
+		ICharacter actor, StringStack command, IPerceivable anchor, IRoomExit? exit)
 	{
 		var components = new List<IGameItem>();
 		while (!command.IsFinished)
@@ -922,7 +922,7 @@ internal class TrapModule : Module<ICharacter>
 		return (anchor, exit, components);
 	}
 
-	private static (IPerceivable Anchor, ICellExit? Exit)? ResolveAnchorText(ICharacter actor, string text)
+	private static (IPerceivable Anchor, IRoomExit? Exit)? ResolveAnchorText(ICharacter actor, string text)
 	{
 		if (text.EqualTo("here"))
 		{
@@ -939,7 +939,7 @@ internal class TrapModule : Module<ICharacter>
 		return item is null ? null : (item, null);
 	}
 
-	private static (IPerceivable Anchor, ICellExit? Exit, TrapEffect Trap)? FindTrap(ICharacter actor, string anchorText)
+	private static (IPerceivable Anchor, IRoomExit? Exit, TrapEffect Trap)? FindTrap(ICharacter actor, string anchorText)
 	{
 		if (anchorText.EqualTo("here"))
 		{
@@ -968,7 +968,7 @@ internal class TrapModule : Module<ICharacter>
 		return itemTrap is null || item is null ? null : (item, null, itemTrap);
 	}
 
-	private static IEnumerable<(IPerceivable Anchor, ICellExit? Exit, TrapEffect Trap)> EnumerateLocalTraps(ICharacter actor)
+	private static IEnumerable<(IPerceivable Anchor, IRoomExit? Exit, TrapEffect Trap)> EnumerateLocalTraps(ICharacter actor)
 	{
 		foreach (var trap in actor.Location.EffectsOfType<TrapEffect>())
 		{
@@ -987,11 +987,11 @@ internal class TrapModule : Module<ICharacter>
 		}
 	}
 
-	private static bool SameBinding(TrapEffect trap, ICellExit? exit) => exit is null
+	private static bool SameBinding(TrapEffect trap, IRoomExit? exit) => exit is null
 		? !trap.BoundExitId.HasValue
 		: trap.MatchesExit(exit);
 
-	private static bool AnchorStillAvailable(ICharacter actor, IPerceivable anchor, ICellExit? exit)
+	private static bool AnchorStillAvailable(ICharacter actor, IPerceivable anchor, IRoomExit? exit)
 	{
 		if (exit is not null)
 		{
@@ -1004,7 +1004,7 @@ internal class TrapModule : Module<ICharacter>
 		       anchor is IGameItem item && actor.Body.ItemsInHands.Any(x => ReferenceEquals(x, item));
 	}
 
-	private static string DescribeAnchor(ICharacter actor, IPerceivable anchor, ICellExit? exit) => exit is null
+	private static string DescribeAnchor(ICharacter actor, IPerceivable anchor, IRoomExit? exit) => exit is null
 		? anchor.HowSeen(actor)
 		: anchor is IGameItem
 			? $"{anchor.HowSeen(actor)} at {exit.OutboundDirectionDescription} exit"

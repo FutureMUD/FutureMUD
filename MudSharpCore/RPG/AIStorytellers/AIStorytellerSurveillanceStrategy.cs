@@ -23,36 +23,36 @@ public class AIStorytellerSurveillanceStrategy : IAIStorytellerSurveillanceStrat
         }
         foreach (XElement cellElement in root.Element("IncludedCells")?.Elements("Cell") ?? Enumerable.Empty<XElement>())
         {
-            ICell cell = gameworld.Cells.Get(long.Parse(cellElement.Value));
-            if (cell != null)
+            IRoom room = gameworld.Rooms.Get(long.Parse(cellElement.Value));
+            if (room != null)
             {
-                IncludedCells.Add(cell);
+                IncludedRooms.Add(room);
             }
         }
         foreach (XElement cellElement in root.Element("ExcludedCells")?.Elements("Cell") ?? Enumerable.Empty<XElement>())
         {
-            ICell cell = gameworld.Cells.Get(long.Parse(cellElement.Value));
-            if (cell != null)
+            IRoom room = gameworld.Rooms.Get(long.Parse(cellElement.Value));
+            if (room != null)
             {
-                ExcludedCells.Add(cell);
+                ExcludedRooms.Add(room);
             }
         }
     }
 
     public List<IZone> Zones { get; } = new();
-    public List<ICell> ExcludedCells { get; } = new();
-    public List<ICell> IncludedCells { get; } = new();
+    public List<IRoom> ExcludedRooms { get; } = new();
+    public List<IRoom> IncludedRooms { get; } = new();
 
-    public IEnumerable<ICell> GetCells(IFuturemud gameworld)
+    public IEnumerable<IRoom> GetRooms(IFuturemud gameworld)
     {
-        List<ICell> cells = new();
+        List<IRoom> rooms = new();
         foreach (IZone zone in Zones)
         {
-            cells.AddRange(zone.Cells);
+            rooms.AddRange(zone.Rooms);
         }
-        cells.AddRange(IncludedCells);
-        cells.RemoveAll(x => ExcludedCells.Contains(x));
-        return cells;
+        rooms.AddRange(IncludedRooms);
+        rooms.RemoveAll(x => ExcludedRooms.Contains(x));
+        return rooms;
     }
 
     public string SaveDefinition()
@@ -63,12 +63,12 @@ public class AIStorytellerSurveillanceStrategy : IAIStorytellerSurveillanceStrat
                 select new XElement("Zone", zone.Id)
             ),
             new XElement("IncludedCells",
-                from cell in IncludedCells
-                select new XElement("Cell", cell.Id)
+                from room in IncludedRooms
+                select new XElement("Cell", room.Id)
             ),
             new XElement("ExcludedCells",
-                from cell in ExcludedCells
-                select new XElement("Cell", cell.Id))
+                from room in ExcludedRooms
+                select new XElement("Cell", room.Id))
         )
         .ToString();
     }
@@ -129,22 +129,22 @@ public class AIStorytellerSurveillanceStrategy : IAIStorytellerSurveillanceStrat
             return false;
         }
 
-        ICell cell = RoomBuilderModule.LookupCell(actor, command.SafeRemainingArgument);
-        if (cell is null)
+        IRoom room = RoomBuilderModule.LookupRoom(actor, command.SafeRemainingArgument);
+        if (room is null)
         {
             actor.OutputHandler.Send($"There is no room identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
             return false;
         }
 
-        if (IncludedCells.Contains(cell))
+        if (IncludedRooms.Contains(room))
         {
-            IncludedCells.Remove(cell);
-            actor.OutputHandler.Send($"Surveillance of the room {cell.GetFriendlyReference(actor)} is no longer included.");
+            IncludedRooms.Remove(room);
+            actor.OutputHandler.Send($"Surveillance of the room {room.GetFriendlyReference(actor)} is no longer included.");
         }
         else
         {
-            IncludedCells.Add(cell);
-            actor.OutputHandler.Send($"Surveillance of the room {cell.GetFriendlyReference(actor)} is now included.");
+            IncludedRooms.Add(room);
+            actor.OutputHandler.Send($"Surveillance of the room {room.GetFriendlyReference(actor)} is now included.");
         }
 
         return true;
@@ -158,22 +158,22 @@ public class AIStorytellerSurveillanceStrategy : IAIStorytellerSurveillanceStrat
             return false;
         }
 
-        ICell cell = RoomBuilderModule.LookupCell(actor, command.SafeRemainingArgument);
-        if (cell is null)
+        IRoom room = RoomBuilderModule.LookupRoom(actor, command.SafeRemainingArgument);
+        if (room is null)
         {
             actor.OutputHandler.Send($"There is no room identified by the text {command.SafeRemainingArgument.ColourCommand()}.");
             return false;
         }
 
-        if (ExcludedCells.Contains(cell))
+        if (ExcludedRooms.Contains(room))
         {
-            ExcludedCells.Remove(cell);
-            actor.OutputHandler.Send($"Surveillance of the room {cell.GetFriendlyReference(actor)} is no longer excluded.");
+            ExcludedRooms.Remove(room);
+            actor.OutputHandler.Send($"Surveillance of the room {room.GetFriendlyReference(actor)} is no longer excluded.");
         }
         else
         {
-            ExcludedCells.Add(cell);
-            actor.OutputHandler.Send($"Surveillance of the room {cell.GetFriendlyReference(actor)} is now excluded.");
+            ExcludedRooms.Add(room);
+            actor.OutputHandler.Send($"Surveillance of the room {room.GetFriendlyReference(actor)} is now excluded.");
         }
 
         return true;
@@ -182,7 +182,7 @@ public class AIStorytellerSurveillanceStrategy : IAIStorytellerSurveillanceStrat
     public string Show(ICharacter actor)
     {
         StringBuilder sb = new();
-        if (!Zones.Any() && !IncludedCells.Any())
+        if (!Zones.Any() && !IncludedRooms.Any())
         {
             return "No surveillance of game world";
         }
@@ -196,7 +196,7 @@ public class AIStorytellerSurveillanceStrategy : IAIStorytellerSurveillanceStrat
             }
         }
 
-        if (IncludedCells.Any())
+        if (IncludedRooms.Any())
         {
             if (sb.Length > 0)
             {
@@ -204,13 +204,13 @@ public class AIStorytellerSurveillanceStrategy : IAIStorytellerSurveillanceStrat
             }
 
             sb.AppendLine("The following specific rooms:");
-            foreach (ICell cell in IncludedCells)
+            foreach (IRoom room in IncludedRooms)
             {
-                sb.AppendLine($"\t{cell.GetFriendlyReference(actor)}");
+                sb.AppendLine($"\t{room.GetFriendlyReference(actor)}");
             }
         }
 
-        if (ExcludedCells.Any())
+        if (ExcludedRooms.Any())
         {
             if (sb.Length > 0)
             {
@@ -218,9 +218,9 @@ public class AIStorytellerSurveillanceStrategy : IAIStorytellerSurveillanceStrat
             }
 
             sb.AppendLine("Excluding the following specific rooms:");
-            foreach (ICell cell in ExcludedCells)
+            foreach (IRoom room in ExcludedRooms)
             {
-                sb.AppendLine($"\t{cell.GetFriendlyReference(actor)}");
+                sb.AppendLine($"\t{room.GetFriendlyReference(actor)}");
             }
         }
 

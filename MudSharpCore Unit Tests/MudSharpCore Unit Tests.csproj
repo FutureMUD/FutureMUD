@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <None Update="Fixtures/authored-celestial-test-fixtures.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Update="Construction/ImportExport/Fixtures/legacy-v*.json" CopyToOutputDirectory="PreserveNewest" />
     <ProjectReference Include="..\DatabaseSeeder\DatabaseSeeder.csproj" />
     <ProjectReference Include="..\ExpressionEngine\ExpressionEngine.csproj" />
     <ProjectReference Include="..\FutureMUDLibrary\FutureMUDLibrary.csproj" />

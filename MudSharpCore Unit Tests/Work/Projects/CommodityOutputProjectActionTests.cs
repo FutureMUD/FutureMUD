@@ -137,15 +137,15 @@ public class CommodityOutputProjectActionTests
 		prototype.Setup(x => x.CreateNew(null)).Returns(item.Object);
 		CommodityGameItemComponentProto.ItemPrototype = prototype.Object;
 
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		IGameItem? insertedItem = null;
-		cell.Setup(x => x.Insert(It.IsAny<IGameItem>(), true))
+		room.Setup(x => x.Insert(It.IsAny<IGameItem>(), true))
 		    .Callback<IGameItem, bool>((createdItem, _) => insertedItem = createdItem);
 		var owner = new Mock<ICharacter>();
-		owner.SetupGet(x => x.Location).Returns(cell.Object);
+		owner.SetupGet(x => x.Location).Returns(room.Object);
 		owner.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		var worker = new Mock<ICharacter>();
-		worker.SetupGet(x => x.Location).Returns(cell.Object);
+		worker.SetupGet(x => x.Location).Returns(room.Object);
 		worker.SetupGet(x => x.RoomLayer).Returns(RoomLayer.InTrees);
 		var labour = new Mock<IProjectLabourRequirement>();
 		var project = new Mock<IActiveProject>();
@@ -170,7 +170,7 @@ public class CommodityOutputProjectActionTests
 		Assert.AreSame(item.Object, insertedItem);
 		Assert.AreEqual(RoomLayer.InTrees, item.Object.RoomLayer);
 		fixture.Gameworld.Verify(x => x.Add(item.Object), Times.Once);
-		cell.Verify(x => x.HandleRoomEcho("Ore piles slump from the completed working.", RoomLayer.InTrees), Times.Once);
+		room.Verify(x => x.HandleRoomEcho("Ore piles slump from the completed working.", RoomLayer.InTrees), Times.Once);
 	}
 
 	private static ProjectActionModel CreateConfiguredModel()

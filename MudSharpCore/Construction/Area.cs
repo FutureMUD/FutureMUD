@@ -14,83 +14,60 @@ public class Area : Location, IEditableArea
 {
     public Area(IRoom firstRoom, string name) : base(firstRoom.Gameworld)
     {
-        Gameworld = Gameworld;
         using (new FMDB())
         {
-            Areas dbitem = new();
-            FMDB.Context.Areas.Add(dbitem);
-            dbitem.Name = name;
+            Areas dbitem = new() { Name = name };
             dbitem.AreasRooms.Add(new AreasRooms { Area = dbitem, RoomId = firstRoom.Id });
+            FMDB.Context.Areas.Add(dbitem);
             FMDB.Context.SaveChanges();
             _id = dbitem.Id;
             _name = name;
-            _rooms.Add(firstRoom);
         }
-
         IdInitialised = true;
         Gameworld.Add(this);
-        firstRoom.AddArea(this);
-        foreach (ICell cell in firstRoom.Cells)
-        {
-            cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
-            cell.CellRequestsDeletion += Cell_CellRequestsDeletion;
-        }
+        Attach(firstRoom);
     }
 
-    private void Cell_CellRequestsDeletion(object sender, EventArgs e)
+    private void Attach(IRoom room)
     {
-        ICell cell = (ICell)sender;
-        _rooms.RemoveAll(x => x.Cells.Contains(cell));
-        cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
-        Changed = true;
+        _rooms.Add(room);
+        room.AddArea(this);
+        room.RoomRequestsDeletion -= Room_RoomRequestsDeletion;
+        room.RoomRequestsDeletion += Room_RoomRequestsDeletion;
+    }
+
+    private void Room_RoomRequestsDeletion(object sender, EventArgs e)
+    {
+        Remove((IRoom)sender);
     }
 
     public Area(Areas area, IFuturemud gameworld) : base(gameworld)
     {
-        Gameworld = gameworld;
         _id = area.Id;
         IdInitialised = true;
         _name = area.Name;
         _weatherController = Gameworld.WeatherControllers.Get(area.WeatherControllerId ?? 0L);
-        foreach (AreasRooms dbroom in area.AreasRooms)
+        foreach (var membership in area.AreasRooms)
         {
-            IRoom room = Gameworld.Rooms.Get(dbroom.RoomId);
-            _rooms.Add(room);
-            room.AddArea(this);
-            foreach (ICell cell in room.Cells)
-            {
-                cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
-                cell.CellRequestsDeletion += Cell_CellRequestsDeletion;
-            }
+            var room = Gameworld.Rooms.Get(membership.RoomId)
+                ?? throw new InvalidOperationException($"Area #{Id} references missing room #{membership.RoomId}.");
+            Attach(room);
         }
     }
 
     public void Add(IRoom room)
     {
-        if (!_rooms.Contains(room))
-        {
-            _rooms.Add(room);
-            Changed = true;
-            room.AddArea(this);
-            foreach (ICell cell in room.Cells)
-            {
-                cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
-                cell.CellRequestsDeletion += Cell_CellRequestsDeletion;
-            }
-        }
+        if (_rooms.Contains(room)) return;
+        Attach(room);
+        Changed = true;
     }
 
     public void Remove(IRoom room)
     {
-        if (_rooms.Remove(room))
-        {
-            Changed = true;
-            room.RemoveArea(this);
-            foreach (ICell cell in room.Cells)
-            {
-                cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
-            }
-        }
+        if (!_rooms.Remove(room)) return;
+        room.RemoveArea(this);
+        room.RoomRequestsDeletion -= Room_RoomRequestsDeletion;
+        Changed = true;
     }
 
     public override void Save()
@@ -98,12 +75,11 @@ public class Area : Location, IEditableArea
         Areas dbitem = FMDB.Context.Areas.Find(Id);
         dbitem.Name = Name;
         dbitem.WeatherControllerId = WeatherController?.Id;
-        FMDB.Context.AreasRooms.RemoveRange(dbitem.AreasRooms);
-        foreach (IRoom room in _rooms)
-        {
-            dbitem.AreasRooms.Add(new AreasRooms { Area = dbitem, RoomId = room.Id });
-        }
-
+		var desiredIds = _rooms.Select(x => x.Id).ToHashSet();
+		FMDB.Context.AreasRooms.RemoveRange(dbitem.AreasRooms.Where(x => !desiredIds.Contains(x.RoomId)).ToList());
+		var existingIds = dbitem.AreasRooms.Select(x => x.RoomId).ToHashSet();
+		foreach (var room in _rooms.Where(x => !existingIds.Contains(x.Id)))
+			dbitem.AreasRooms.Add(new AreasRooms { Area = dbitem, RoomId = room.Id });
         Changed = false;
     }
 
@@ -115,7 +91,7 @@ public class Area : Location, IEditableArea
 			if (ReferenceEquals(_weatherController, value)) return;
 			using var exposureChange = EnvironmentalExposureService.ChangingDefinitions(Gameworld);
             _weatherController = value;
-			foreach (var cell in Cells.OfType<Cell>()) cell.RefreshWeatherSubscriptions();
+			foreach (var room in Rooms.OfType<Room>()) room.RefreshWeatherSubscriptions();
             Changed = true;
         }
     }
@@ -123,10 +99,9 @@ public class Area : Location, IEditableArea
     private readonly List<IRoom> _rooms = new();
     private IWeatherController _weatherController;
 
-    public IEnumerable<IRoom> Rooms => _rooms;
 
-    public override IEnumerable<ICell> Cells => Rooms.SelectMany(x => x.Cells).Distinct();
-    public IEnumerable<IZone> Zones => Rooms.Select(x => x.Zone).Distinct();
+    public override IEnumerable<IRoom> Rooms => _rooms;
+    public IEnumerable<IZone> Zones => Rooms.Select(x => x.OwningZone).Distinct();
 
     #region Overrides of Location
 
@@ -206,13 +181,13 @@ public class Area : Location, IEditableArea
         switch (property.ToLowerInvariant())
         {
             case "rooms":
-                return new CollectionVariable(Cells.ToList(), ProgVariableTypes.Location);
+                return new CollectionVariable(Rooms.ToList(), ProgVariableTypes.Location);
             case "now":
                 return new MudDateTime(Calendars.First().CurrentDate, Calendars.First().FeedClock.CurrentTime, Calendars.First().FeedClock.PrimaryTimezone);
             case "characters":
-                return new CollectionVariable(Cells.SelectMany(x => x.Characters).ToList(), ProgVariableTypes.Character);
+                return new CollectionVariable(Rooms.SelectMany(x => x.Characters).ToList(), ProgVariableTypes.Character);
             case "items":
-                return new CollectionVariable(Cells.SelectMany(x => x.GameItems).ToList(), ProgVariableTypes.Character);
+                return new CollectionVariable(Rooms.SelectMany(x => x.GameItems).ToList(), ProgVariableTypes.Character);
             case "timeofday":
                 return new TextVariable(CurrentTimeOfDay.DescribeEnum());
             default:

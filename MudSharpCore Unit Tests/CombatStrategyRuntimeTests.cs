@@ -367,14 +367,14 @@ public class CombatStrategyRuntimeTests
 		Mock<IFuturemud> gameworld = new();
 		Mock<ICheck> swimCheck = new();
 		Mock<IExit> exitData = new();
-		Mock<ICellExit> exit = new();
+		Mock<IRoomExit> exit = new();
 
 		character.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		gameworld.Setup(x => x.GetCheck(CheckType.SwimStayAfloatCheck)).Returns(swimCheck.Object);
 		exit.SetupGet(x => x.Exit).Returns(exitData.Object);
 		exit.Setup(x => x.MovementTransition(character.Object))
-			.Returns((CellMovementTransition.SwimOnly, RoomLayer.GroundLevel));
-		Func<ICellExit, bool> predicate = StandardRangeStrategy.Instance.GetPathFunction(character.Object);
+			.Returns((RoomMovementTransition.SwimOnly, RoomLayer.GroundLevel));
+		Func<IRoomExit, bool> predicate = StandardRangeStrategy.Instance.GetPathFunction(character.Object);
 
 		swimCheck.Setup(x => x.WouldBeAbjectFailure(character.Object, null)).Returns(true);
 		Assert.IsFalse(predicate(exit.Object));
@@ -388,13 +388,13 @@ public class CombatStrategyRuntimeTests
 	{
 		Mock<ICharacter> character = new();
 		Mock<IExit> exitData = new();
-		Mock<ICellExit> exit = new();
+		Mock<IRoomExit> exit = new();
 
 		character.SetupProperty(x => x.PositionState, PositionStanding.Instance);
 		exit.SetupGet(x => x.Exit).Returns(exitData.Object);
 		exit.Setup(x => x.MovementTransition(character.Object))
-			.Returns((CellMovementTransition.FlyOnly, RoomLayer.InAir));
-		Func<ICellExit, bool> predicate = StandardRangeStrategy.Instance.GetPathFunction(character.Object);
+			.Returns((RoomMovementTransition.FlyOnly, RoomLayer.InAir));
+		Func<IRoomExit, bool> predicate = StandardRangeStrategy.Instance.GetPathFunction(character.Object);
 
 		character.Setup(x => x.CanFly()).Returns((false, "cannot fly"));
 		Assert.IsFalse(predicate(exit.Object));
@@ -466,7 +466,7 @@ public class CombatStrategyRuntimeTests
 		var gameworld = CreateGameworld();
 		gameworld.Setup(x => x.GetStaticDouble("ChargeToMeleeStaminaCost")).Returns(10.0);
 
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		var target = new Mock<ICharacter>();
 		var mount = new Mock<ICharacter>();
 		var settings = new Mock<ICharacterCombatSettings>();
@@ -579,7 +579,7 @@ public class CombatStrategyRuntimeTests
 	}
 
 	[TestMethod]
-	public void CombatForcedMovementUtilities_ApplyPushback_RouteCellDisplacesAwayAndClampsAtEndpoint()
+	public void CombatForcedMovementUtilities_ApplyPushback_RouteRoomDisplacesAwayAndClampsAtEndpoint()
 	{
 		var scheduler = new Mock<IScheduler>();
 		var gameworld = new Mock<IFuturemud>();
@@ -588,15 +588,15 @@ public class CombatStrategyRuntimeTests
 		gameworld.Setup(x => x.GetStaticDouble("PushbackCombatDelayPerDegreeSeconds")).Returns(5.0);
 		gameworld.Setup(x => x.GetStaticDouble("RouteCellPushbackMetresPerSuccessDegree")).Returns(5.0);
 
-		var cell = new Mock<ICell>();
-		var route = new Mock<IRouteCellDefinition>();
-		route.SetupGet(x => x.Cell).Returns(cell.Object);
+		var room = new Mock<IRoom>();
+		var route = new Mock<IRouteRoomDefinition>();
+		route.SetupGet(x => x.Room).Returns(room.Object);
 		route.SetupGet(x => x.LengthMetres).Returns(10_000.0);
 		route.SetupGet(x => x.DefaultPositionMetres).Returns(0.0);
 		route.SetupGet(x => x.MetresPerRoomEquivalent).Returns(100.0);
 		route.SetupGet(x => x.Landmarks).Returns([]);
 		route.SetupGet(x => x.ExitAnchors).Returns([]);
-		cell.SetupGet(x => x.RouteDefinition).Returns(route.Object);
+		room.SetupGet(x => x.RouteDefinition).Returns(route.Object);
 
 		var actorBody = new Mock<IBody>();
 		var targetBody = new Mock<IBody>();
@@ -605,20 +605,20 @@ public class CombatStrategyRuntimeTests
 		double? targetPosition = 9_998.0;
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		actor.SetupGet(x => x.Body).Returns(actorBody.Object);
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		actor.SetupGet(x => x.RoutePositionMetres).Returns(9_990.0);
 		actor.SetupGet(x => x.SpatialLocation)
-			.Returns(new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 9_990.0));
+			.Returns(new SpatialLocation(room.Object, RoomLayer.GroundLevel, 9_990.0));
 		actor.SetupProperty(x => x.MeleeRange, true);
 		actor.SetupProperty(x => x.CombatTarget, target.Object);
 		target.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		target.SetupGet(x => x.Body).Returns(targetBody.Object);
-		target.SetupGet(x => x.Location).Returns(cell.Object);
+		target.SetupGet(x => x.Location).Returns(room.Object);
 		target.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		target.SetupGet(x => x.RoutePositionMetres).Returns(() => targetPosition);
 		target.SetupGet(x => x.SpatialLocation)
-			.Returns(() => new SpatialLocation(cell.Object, RoomLayer.GroundLevel, targetPosition));
+			.Returns(() => new SpatialLocation(room.Object, RoomLayer.GroundLevel, targetPosition));
 		target.SetupProperty(x => x.MeleeRange, true);
 		target.Setup(x => x.SetRoutePosition(It.IsAny<double?>()))
 			.Callback<double?>(value => targetPosition = value);

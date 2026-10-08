@@ -75,7 +75,7 @@ public partial class QueuedCommandAuthorityTests
 			case "actor-reloaded": f.ActorInstances.Remove((ICharacterInstance)f.Actor.Object); break;
 			case "canonical-owner-replaced": f.Roots.RemoveRange(0, 1); Assert.IsFalse(f.Roots.Any(x => ReferenceEquals(x, f.Owner.Object))); break;
 			case "body-rebound": f.Body.SetupGet(x => x.Actor).Returns(f.Commander.Object); break;
-			case "cell-removed": f.CellCharacters.RemoveAll(x => ReferenceEquals(x, f.Actor.Object)); Assert.IsFalse(f.CellCharacters.Any(x => ReferenceEquals(x, f.Actor.Object))); break;
+			case "cell-removed": f.RoomCharacters.RemoveAll(x => ReferenceEquals(x, f.Actor.Object)); Assert.IsFalse(f.RoomCharacters.Any(x => ReferenceEquals(x, f.Actor.Object))); break;
 			case "policy-revoked": f.Allowed = false; break;
 			case "policy-error": f.Prog.Setup(x => x.ExecuteBool(It.IsAny<object[]>())).Throws(new InvalidOperationException("Policy unavailable")); break;
 			case "policy-replaced": Set(f.Ai, "_canCommandProg", Mock.Of<IFutureProg>()); break;
@@ -412,7 +412,7 @@ public partial class QueuedCommandAuthorityTests
 		public All<ICharacter> Roots { get; } = new();
 		public List<ICharacterInstance> ActorInstances { get; } = [];
 		public List<ICharacterInstance> CommanderInstances { get; } = [];
-		public List<ICharacter> CellCharacters { get; } = [];
+		public List<ICharacter> RoomCharacters { get; } = [];
 		public List<IArtificialIntelligence> Ais { get; } = [];
 		public CommandableAI Ai { get; }
 		public CharacterCommandManager Commands { get; } = new();
@@ -442,14 +442,14 @@ public partial class QueuedCommandAuthorityTests
 			World.SetupGet(x => x.NPCs).Returns(new All<ICharacter>());
 			World.SetupGet(x => x.CachedActors).Returns(new All<ICharacter>());
 			World.SetupGet(x => x.Scheduler).Returns(Mock.Of<IScheduler>());
-			var cell = new Mock<ICell>(); cell.SetupGet(x => x.Characters).Returns(CellCharacters);
-			CellCharacters.Add(Actor.Object); CellCharacters.Add(Commander.Object);
+			var room = new Mock<IRoom>(); room.SetupGet(x => x.Characters).Returns(RoomCharacters);
+			RoomCharacters.Add(Actor.Object); RoomCharacters.Add(Commander.Object);
 			var commanderBody = new Mock<IBody>(); commanderBody.SetupGet(x => x.Actor).Returns(Commander.Object);
 			Commander.SetupGet(x => x.Body).Returns(commanderBody.Object);
-			Commander.SetupGet(x => x.Location).Returns(cell.Object); Commander.SetupGet(x => x.State).Returns(CharacterState.Awake);
+			Commander.SetupGet(x => x.Location).Returns(room.Object); Commander.SetupGet(x => x.State).Returns(CharacterState.Awake);
 			Commander.SetupGet(x => x.Gameworld).Returns(World.Object);
 			Actor.SetupGet(x => x.Body).Returns(Body.Object); Body.SetupGet(x => x.Actor).Returns(Actor.Object);
-			Actor.SetupGet(x => x.Location).Returns(cell.Object); Actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
+			Actor.SetupGet(x => x.Location).Returns(room.Object); Actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
 			Actor.SetupGet(x => x.IsEmbodied).Returns(true); Actor.SetupGet(x => x.InstanceId).Returns(7);
 			Actor.SetupGet(x => x.Gameworld).Returns(World.Object);
 			Actor.SetupGet(x => x.PermissionLevel).Returns(PermissionLevel.NPC);

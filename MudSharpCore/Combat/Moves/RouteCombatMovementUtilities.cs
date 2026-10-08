@@ -5,7 +5,7 @@ using MudSharp.Construction;
 namespace MudSharp.Combat.Moves;
 
 /// <summary>
-/// Physical RouteCell movement rules shared by combat strategies and moves. Melee flags are
+/// Physical RouteRoom movement rules shared by combat strategies and moves. Melee flags are
 /// never allowed to substitute for longitudinal convergence or separation.
 /// </summary>
 public static class RouteCombatMovementUtilities
@@ -80,7 +80,7 @@ public static class RouteCombatMovementUtilities
 	public static bool TryRetreatAlongRoute(ICharacter mover, IEnumerable<ICharacter> threats)
 	{
 		var origin = RouteSpatialService.Instance.GetEffectiveLocation(mover);
-		var route = origin.Cell?.RouteDefinition;
+		var route = origin.Room?.RouteDefinition;
 		if (route is null || !origin.RoutePositionMetres.HasValue)
 		{
 			return false;
@@ -89,7 +89,7 @@ public static class RouteCombatMovementUtilities
 		var threatPositions = threats
 			.Where(x => !ReferenceEquals(x, mover))
 			.Select(x => RouteSpatialService.Instance.GetEffectiveLocation(x))
-			.Where(x => ReferenceEquals(x.Cell, origin.Cell) && x.Layer == origin.Layer &&
+			.Where(x => ReferenceEquals(x.Room, origin.Room) && x.Layer == origin.Layer &&
 			            x.RoutePositionMetres.HasValue)
 			.Select(x => x.RoutePositionMetres!.Value)
 			.ToArray();
@@ -137,8 +137,8 @@ public static class RouteCombatMovementUtilities
 	{
 		var firstLocation = RouteSpatialService.Instance.GetEffectiveLocation(first);
 		var secondLocation = RouteSpatialService.Instance.GetEffectiveLocation(second);
-		if (firstLocation.Cell?.RouteDefinition is null ||
-		    !ReferenceEquals(firstLocation.Cell, secondLocation.Cell) ||
+		if (firstLocation.Room?.RouteDefinition is null ||
+		    !ReferenceEquals(firstLocation.Room, secondLocation.Room) ||
 		    firstLocation.Layer != secondLocation.Layer ||
 		    !firstLocation.RoutePositionMetres.HasValue ||
 		    !secondLocation.RoutePositionMetres.HasValue)

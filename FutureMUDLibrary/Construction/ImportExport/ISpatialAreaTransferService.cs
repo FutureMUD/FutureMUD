@@ -26,7 +26,6 @@ public sealed class SpatialAreaTransferResult
 	public IReadOnlyList<long> ImportedZoneIds { get; init; } = [];
 	public int ZoneCount { get; init; }
 	public int RoomCount { get; init; }
-	public int CellCount { get; init; }
 	public int ExitCount { get; init; }
 	public IReadOnlyList<string> OmittedItems { get; init; } = [];
 	public IReadOnlyList<SpatialAreaTransferDiagnostic> Diagnostics { get; init; } =

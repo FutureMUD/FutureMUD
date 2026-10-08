@@ -389,18 +389,18 @@ public sealed class SpellCorpsePossessionEffect : SimpleSpellStatusEffectBase, I
 		RemovalEffect();
 	}
 
-	private void RestoreCorpseItem(ICharacter? animated, ICell? animatedLocation, RoomLayer? animatedLayer)
+	private void RestoreCorpseItem(ICharacter? animated, IRoom? animatedLocation, RoomLayer? animatedLayer)
 	{
 		if (Owner is not IGameItem corpse || corpse.Location is not null)
 		{
 			return;
 		}
 
-		var location = animatedLocation ?? Gameworld.Cells.Get(OriginalLocationId);
+		var location = animatedLocation ?? Gameworld.Rooms.Get(OriginalLocationId);
 		if (location is null)
 		{
 			Gameworld.SystemMessage(
-				$"Could not restore corpse item #{CorpseItemId.ToString("N0")} after possession: cell #{OriginalLocationId.ToString("N0")} could not be resolved.",
+				$"Could not restore corpse item #{CorpseItemId.ToString("N0")} after possession: room #{OriginalLocationId.ToString("N0")} could not be resolved.",
 				true);
 			return;
 		}
@@ -746,18 +746,18 @@ public sealed class SpellAnimatedCorpseEffect : SimpleSpellStatusEffectBase, IAn
 		RemovalEffect();
 	}
 
-	private void RestoreCorpseItem(ICharacter? animated, ICell? animatedLocation, RoomLayer? animatedLayer)
+	private void RestoreCorpseItem(ICharacter? animated, IRoom? animatedLocation, RoomLayer? animatedLayer)
 	{
 		if (Owner is not IGameItem corpse || corpse.Location is not null)
 		{
 			return;
 		}
 
-		var location = animatedLocation ?? Gameworld.Cells.Get(OriginalLocationId);
+		var location = animatedLocation ?? Gameworld.Rooms.Get(OriginalLocationId);
 		if (location is null)
 		{
 			Gameworld.SystemMessage(
-				$"Could not restore corpse item #{CorpseItemId.ToString("N0")} after corpse animation: cell #{OriginalLocationId.ToString("N0")} could not be resolved.",
+				$"Could not restore corpse item #{CorpseItemId.ToString("N0")} after corpse animation: room #{OriginalLocationId.ToString("N0")} could not be resolved.",
 				true);
 			return;
 		}

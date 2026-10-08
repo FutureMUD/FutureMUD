@@ -159,7 +159,7 @@ Syntax:
 	[RequiredCharacterState(CharacterState.Able)]
 	[NoMovementCommand]
 	[NoHideCommand]
-	[HelpInfo("disembark", @"The #3disembark#0 command leaves the vehicle you are aboard. For a room-scale vehicle, you must use an open docking exit from your current compartment; you appear in that docking's exterior cell.
+	[HelpInfo("disembark", @"The #3disembark#0 command leaves the vehicle you are aboard. For a room-scale vehicle, you must use an open docking exit from your current compartment; you appear in that docking's exterior room.
 
 	The syntax is:
 
@@ -209,7 +209,7 @@ Syntax:
 	private static bool DockingIsActiveAt(IVehicleDocking docking, ICharacter actor)
 	{
 		return docking.State == VehicleDockingState.BoardingOpen &&
-		       docking.ExteriorCell.Id == actor.Location.Id &&
+		       docking.ExteriorRoom.Id == actor.Location.Id &&
 		       docking.ExteriorLayer == actor.RoomLayer &&
 		       (docking is not VehicleDocking runtime || runtime.IsRegistered);
 	}
@@ -331,7 +331,7 @@ Operating an access point requires control access. Disabled access points cannot
 	[NoHideCommand]
 	[HelpInfo("drive", @"Use #3drive <direction>#0 while in a driver slot to move your vehicle through a normal exit. Ordinary movement commands like #3north#0 and #3east#0 do the same thing while you are controlling a vehicle.
 
-In a RouteCell use #3drive forward|backward [<distance>]#0, #3drive to <distance|landmark|exit|stop>#0, #3drive route <approved vehicle route>#0, or #3drive stop#0. Passing an anchored exit never traverses it automatically; drive to that exit first or use a compiled vehicle route. #3drive route#0 can resume mid-route only when the vehicle's durable location maps to exactly one step of the approved pinned revision; off-route or ambiguous positions fail closed.", AutoHelp.HelpArgOrNoArg)]
+In a RouteRoom use #3drive forward|backward [<distance>]#0, #3drive to <distance|landmark|exit|stop>#0, #3drive route <approved vehicle route>#0, or #3drive stop#0. Passing an anchored exit never traverses it automatically; drive to that exit first or use a compiled vehicle route. #3drive route#0 can resume mid-route only when the vehicle's durable location maps to exactly one step of the approved pinned revision; off-route or ambiguous positions fail closed.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Drive(ICharacter actor, string input)
 	{
 		VehicleMovementCommand.TryMoveControlledVehicle(actor, input.RemoveFirstWord(), true);
@@ -356,7 +356,7 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|engine|externallypulled
 
 		if (vehicle.MovementProfile is null)
 		{
-			actor.OutputHandler.Send("That vehicle has no cell-exit movement profile.");
+			actor.OutputHandler.Send("That vehicle has no room-exit movement profile.");
 			return;
 		}
 
@@ -1436,7 +1436,7 @@ Fleet operations perform the same inspection, recovery or access change over a s
 
 Player and crew workflow: #3embark#0, #3disembark#0, #3vehiclecontrol#0, #3vehiclestatus#0, #3vehiclepropulsion#0, #3vehicleaccess#0, #3drive#0, #3hitch#0, #3unhitch#0, #3install#0, #3uninstall#0 and #3repair#0.
 
-Builder and service workflow: #3vehicleproto#0 authors the revisioned definition; #3vehicleroute#0 authors RouteCell itineraries; #3vehicleservice#0 operates scheduled services; and #3cell set route#0 authors the RouteCell geometry that route vehicles use.";
+Builder and service workflow: #3vehicleproto#0 authors the revisioned definition; #3vehicleroute#0 authors RouteRoom itineraries; #3vehicleservice#0 operates scheduled services; and #3room set route#0 authors the RouteRoom geometry that route vehicles use.";
 
 	[PlayerCommand("Vehicle", "vehicle")]
 	[CommandPermission(PermissionLevel.Admin)]
@@ -2207,13 +2207,13 @@ Builder and service workflow: #3vehicleproto#0 authors the revisioned definition
 		sb.AppendLine($"Scale: {vehicle.Prototype.Scale.DescribeEnum().ColourValue()}");
 		sb.AppendLine($"Canonical Location: {movement.LocationType.DescribeEnum().ColourValue()} {(movement.Location is null ? "nowhere".ColourError() : movement.Location.HowSeen(actor))} [{movement.RoomLayer.DescribeEnum().ColourValue()}]");
 		sb.AppendLine($"Movement: {movement.MovementStatus.DescribeEnum().ColourValue()}");
-		sb.AppendLine($"Transit: Exit #{movement.CurrentExitId?.ToString("N0", actor) ?? "none"}, Destination #{movement.DestinationCellId?.ToString("N0", actor) ?? "none"}");
+		sb.AppendLine($"Transit: Exit #{movement.CurrentExitId?.ToString("N0", actor) ?? "none"}, Destination #{movement.DestinationRoomId?.ToString("N0", actor) ?? "none"}");
 		if (movement.Location?.RouteDefinition is { } routeDefinition)
 		{
 			var effectivePosition = vehicle.ExteriorItem is null
 				? vehicle.RoutePositionMetres
 				: RouteSpatialService.Instance.GetEffectiveLocation(vehicle.ExteriorItem).RoutePositionMetres;
-			sb.AppendLine($"RouteCell: {routeDefinition.LengthMetres.ToString("N3", actor).ColourValue()}m long, topology {routeDefinition.TopologyVersion.ToString("N0", actor).ColourValue()}, room equivalent {routeDefinition.MetresPerRoomEquivalent.ToString("N3", actor).ColourValue()}m");
+			sb.AppendLine($"RouteRoom: {routeDefinition.LengthMetres.ToString("N3", actor).ColourValue()}m long, topology {routeDefinition.TopologyVersion.ToString("N0", actor).ColourValue()}, room equivalent {routeDefinition.MetresPerRoomEquivalent.ToString("N3", actor).ColourValue()}m");
 			sb.AppendLine($"Route Position: durable {(vehicle.RoutePositionMetres?.ToString("N3", actor).ColourValue() ?? "missing".ColourError())}m; effective {(effectivePosition?.ToString("N3", actor).ColourValue() ?? "missing".ColourError())}m");
 		}
 		var routeProfiles = vehicle.Prototype.MovementProfiles
@@ -2238,12 +2238,12 @@ Builder and service workflow: #3vehicleproto#0 authors the revisioned definition
 		sb.AppendLine();
 		sb.AppendLine("Hosted Compartments:");
 		sb.AppendLine(vehicle.Compartments.Any()
-			? vehicle.Compartments.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} interior #{x.InteriorCellId?.ToString("N0", actor) ?? "missing".ColourError()} [{x.Prototype.InteriorTerrain?.Name.ColourName() ?? "terrain missing".ColourError()}, {x.Prototype.InteriorOutdoorsType.Describe().ColourValue()}] links {x.Links.Count().ToString("N0", actor).ColourValue()}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			? vehicle.Compartments.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.Name.ColourName()} interior #{x.InteriorRoomId?.ToString("N0", actor) ?? "missing".ColourError()} [{x.Prototype.InteriorTerrain?.Name.ColourName() ?? "terrain missing".ColourError()}, {x.Prototype.InteriorOutdoorsType.Describe().ColourValue()}] links {x.Links.Count().ToString("N0", actor).ColourValue()}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
 			: "\tNone");
 		sb.AppendLine();
 		sb.AppendLine("Dockings:");
 		sb.AppendLine(vehicle.Dockings.Any()
-			? vehicle.Dockings.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.AccessPoint.Name.ColourName()} -> {x.Compartment.Name.ColourName()} at cell #{x.ExteriorCell.Id.ToString("N0", actor)} [{x.ExteriorLayer.DescribeEnum().ColourValue()}] {x.State.DescribeEnum().ColourValue()}{(x is VehicleDocking runtimeDocking && runtimeDocking.IsRegistered ? $" exit #{runtimeDocking.TransientExit.Id.ToString("N0", actor)}" : " no live exit".Colour(Telnet.Yellow))}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
+			? vehicle.Dockings.Select(x => $"\t#{x.Id.ToString("N0", actor)} {x.AccessPoint.Name.ColourName()} -> {x.Compartment.Name.ColourName()} at room #{x.ExteriorRoom.Id.ToString("N0", actor)} [{x.ExteriorLayer.DescribeEnum().ColourValue()}] {x.State.DescribeEnum().ColourValue()}{(x is VehicleDocking runtimeDocking && runtimeDocking.IsRegistered ? $" exit #{runtimeDocking.TransientExit.Id.ToString("N0", actor)}" : " no live exit".Colour(Telnet.Yellow))}").ListToString(separator: "\n", conjunction: "", twoItemJoiner: "\n")
 			: "\tNone");
 		sb.AppendLine();
 		sb.AppendLine("Access Points:");
@@ -2682,11 +2682,11 @@ Creating a live vehicle is a separate final step. The factory creates its exteri
 
 #5Vehicle Scales#0
 
-#2ItemScale#0 is a small item-sized vehicle with an exterior item, slots and controls but no interior cells (for example, a bicycle or wheelchair).
+#2ItemScale#0 is a small item-sized vehicle with an exterior item, slots and controls but no interior rooms (for example, a bicycle or wheelchair).
 
-#2RoomContainer#0 is one exterior item with compartments, passenger/crew slots and stations, but occupants remain associated with that exterior rather than walking through interior cells (for example, a car, wagon or small boat).
+#2RoomContainer#0 is one exterior item with compartments, passenger/crew slots and stations, but occupants remain associated with that exterior rather than walking through interior rooms (for example, a car, wagon or small boat).
 
-#2RoomScale#0 creates persistent hosted interior cells. Compartments become physical interior locations connected by authored links, and access points become dockings. Use it for vehicles whose passengers should walk between rooms, such as trains, ships and large mobile platforms.
+#2RoomScale#0 creates persistent hosted interior rooms. Compartments become physical interior locations connected by authored links, and access points become dockings. Use it for vehicles whose passengers should walk between rooms, such as trains, ships and large mobile platforms.
 
 #5Prototype Lifecycle#0
 
@@ -2706,7 +2706,7 @@ Editing a current prototype automatically creates a new revision. Existing vehic
 	#3vehicleproto approve <exact id|quoted name> <comment>#0 - approves a valid pending revision and makes it current
 	#3vehicleproto create <id|name>#0 - creates a live vehicle at your current location from a valid prototype revision
 
-#5A Minimal Cell-Exit Vehicle#0
+#5A Minimal Room-Exit Vehicle#0
 
 The usual starting sequence is:
 
@@ -2716,7 +2716,7 @@ The usual starting sequence is:
 	#3vehicleproto set compartment add <name>#0
 	#3vehicleproto set slot add <compartment id> driver 1 <name>#0
 	#3vehicleproto set station add <slot id> <name>#0
-	#3vehicleproto set movement cell#0
+	#3vehicleproto set movement room#0
 	#3vehicleproto set movement propulsion add <movement id> <mode>#0
 	#3vehicleproto submit <comment>#0
 	#3vehicleproto approve <id> <comment>#0
@@ -2726,7 +2726,7 @@ Use #3vehicleproto show#0 after each structural step to obtain the generated com
 
 #5Related Commands#0
 
-Use #3vehicle#0 for live-instance inspection, recovery, access grants and retirement. Players use #3embark#0, #3vehiclecontrol#0, #3vehiclestatus#0, #3vehiclepropulsion#0 and #3drive#0. Use #3install#0/#3uninstall#0 for installed modules, #3hitch#0/#3unhitch#0 for tow links, and #3vehicleroute#0 plus #3vehicleservice#0 for scheduled RouteCell transport.";
+Use #3vehicle#0 for live-instance inspection, recovery, access grants and retirement. Players use #3embark#0, #3vehiclecontrol#0, #3vehiclestatus#0, #3vehiclepropulsion#0 and #3drive#0. Use #3install#0/#3uninstall#0 for installed modules, #3hitch#0/#3unhitch#0 for tow links, and #3vehicleroute#0 plus #3vehicleservice#0 for scheduled RouteRoom transport.";
 
 	[PlayerCommand("VehicleProto", "vehicleproto", "vproto")]
 	[CommandPermission(PermissionLevel.Admin)]

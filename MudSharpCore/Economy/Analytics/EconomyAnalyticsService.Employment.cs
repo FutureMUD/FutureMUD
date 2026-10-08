@@ -15,7 +15,7 @@ public sealed partial class EconomyAnalyticsService
 	{
 		return BuildEmploymentMarket(EmploymentHostDiscovery.LoadedHosts(_gameworld), _gameworld.JobListings,
 			_gameworld.NPCs, economicZoneId, character => character.Location is null
-				? null : ResolveCellZone(character.Location.Id));
+				? null : ResolveRoomZone(character.Location.Id));
 	}
 
 	internal static EconomyEmploymentMarket BuildEmploymentMarket(IEnumerable<IEmploymentHost> hosts,

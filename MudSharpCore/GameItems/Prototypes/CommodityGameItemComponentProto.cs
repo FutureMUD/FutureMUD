@@ -70,13 +70,13 @@ public class CommodityGameItemComponentProto : GameItemComponentProto, ICommodit
                     continue;
                 }
 
-                ICell location = item.Parent.TrueLocations.FirstOrDefault();
+                IRoom location = item.Parent.TrueLocations.FirstOrDefault();
                 if (location is null)
                 {
                     continue;
                 }
 
-                if (location.Terrain(item.Parent).DefaultCellOutdoorsType.In(CellOutdoorsType.Outdoors, CellOutdoorsType.IndoorsClimateExposed))
+                if (location.Terrain(item.Parent).DefaultRoomOutdoorsType.In(RoomOutdoorsType.Outdoors, RoomOutdoorsType.IndoorsClimateExposed))
                 {
                     affectedCount += 1;
                     item.Weight -= Math.Max(10, item.Weight * 0.1);

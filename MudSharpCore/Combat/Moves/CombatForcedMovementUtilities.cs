@@ -29,7 +29,7 @@ public sealed class ForcedMovementAttackChoice
 
 public static class CombatForcedMovementUtilities
 {
-	private const double DefaultRouteCellPushbackMetresPerSuccessDegree = 1.0;
+	private const double DefaultRouteRoomPushbackMetresPerSuccessDegree = 1.0;
 
 	/// <summary>Current full burden and flight anatomy, independently of the ordinary command's already-flying/melee guards.</summary>
 	public static bool CanCarryFlying(ICharacter actor, ICharacter target)
@@ -177,7 +177,7 @@ public static class CombatForcedMovementUtilities
 
 		if (!overboard.WasApplicable)
 		{
-			TryApplyRouteCellPushback(actor, target, degrees);
+			TryApplyRouteRoomPushback(actor, target, degrees);
 		}
 
 		BreakCloseContact(actor, target);
@@ -209,15 +209,15 @@ public static class CombatForcedMovementUtilities
 			TimeSpan.FromSeconds(delay * CombatBase.CombatSpeedMultiplier));
 	}
 
-	internal static bool TryApplyRouteCellPushback(ICharacter actor, ICharacter target, int degrees)
+	internal static bool TryApplyRouteRoomPushback(ICharacter actor, ICharacter target, int degrees)
 	{
 		var actorLocation = RouteSpatialService.Instance.GetEffectiveLocation(actor);
 		var targetLocation = RouteSpatialService.Instance.GetEffectiveLocation(target);
-		if (actorLocation.Cell is null ||
-			targetLocation.Cell is null ||
-			!ReferenceEquals(actorLocation.Cell, targetLocation.Cell) ||
+		if (actorLocation.Room is null ||
+			targetLocation.Room is null ||
+			!ReferenceEquals(actorLocation.Room, targetLocation.Room) ||
 			actorLocation.Layer != targetLocation.Layer ||
-			actorLocation.Cell.RouteDefinition is not { } route ||
+			actorLocation.Room.RouteDefinition is not { } route ||
 			!actorLocation.RoutePositionMetres.HasValue ||
 			!targetLocation.RoutePositionMetres.HasValue ||
 			!double.IsFinite(route.LengthMetres) ||
@@ -230,7 +230,7 @@ public static class CombatForcedMovementUtilities
 			"RouteCellPushbackMetresPerSuccessDegree") ?? 0.0;
 		if (!double.IsFinite(metresPerDegree) || metresPerDegree <= 0.0)
 		{
-			metresPerDegree = DefaultRouteCellPushbackMetresPerSuccessDegree;
+			metresPerDegree = DefaultRouteRoomPushbackMetresPerSuccessDegree;
 		}
 
 		var actorPosition = actorLocation.RoutePositionMetres.Value;
@@ -273,7 +273,7 @@ public static class CombatForcedMovementUtilities
 	public static bool TryForceExitMovement(
 		ICharacter actor,
 		ICharacter target,
-		ICellExit exit,
+		IRoomExit exit,
 		ForcedMovementVerbs verb,
 		int successDegrees,
 		out string why)
@@ -303,7 +303,7 @@ public static class CombatForcedMovementUtilities
 		}
 
 		var targetTransition = exit.MovementTransition(target);
-		if (targetTransition.TransitionType == CellMovementTransition.NoViableTransition)
+		if (targetTransition.TransitionType == RoomMovementTransition.NoViableTransition)
 		{
 			why = "The target cannot be forced through that exit from this layer.";
 			return false;
@@ -356,7 +356,7 @@ public static class CombatForcedMovementUtilities
 			}
 
 			var actorTransition = exit.MovementTransition(actor);
-			if (actorTransition.TransitionType == CellMovementTransition.NoViableTransition)
+			if (actorTransition.TransitionType == RoomMovementTransition.NoViableTransition)
 			{
 				why = "You cannot move through that exit from this layer.";
 				return false;
@@ -513,7 +513,7 @@ public static class CombatForcedMovementUtilities
 		}
 	}
 
-	private static bool CanForceThroughExit(ICharacter actor, ICharacter mover, ICellExit exit, bool victim, out string why)
+	private static bool CanForceThroughExit(ICharacter actor, ICharacter mover, IRoomExit exit, bool victim, out string why)
 	{
 		why = string.Empty;
 		var flags = CanMoveFlags.IgnoreWhetherExitCanBeCrossed | CanMoveFlags.IgnoreCancellableActionBlockers;
@@ -537,9 +537,9 @@ public static class CombatForcedMovementUtilities
 			return false;
 		}
 
-		if (exit.Exit.MaximumSizeToEnter < mover.Body.CurrentContextualSize(SizeContext.CellExit))
+		if (exit.Exit.MaximumSizeToEnter < mover.Body.CurrentContextualSize(SizeContext.RoomExit))
 		{
-			why = $"Only something of size {exit.Exit.MaximumSizeToEnter.Describe().Colour(Telnet.Green)} or smaller can use that exit, and {mover.HowSeen(actor, true)} is size {mover.Body.CurrentContextualSize(SizeContext.CellExit).Describe().Colour(Telnet.Green)}.";
+			why = $"Only something of size {exit.Exit.MaximumSizeToEnter.Describe().Colour(Telnet.Green)} or smaller can use that exit, and {mover.HowSeen(actor, true)} is size {mover.Body.CurrentContextualSize(SizeContext.RoomExit).Describe().Colour(Telnet.Green)}.";
 			return false;
 		}
 

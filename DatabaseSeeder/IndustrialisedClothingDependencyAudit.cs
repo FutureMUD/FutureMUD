@@ -113,7 +113,7 @@ internal static class IndustrialisedClothingDependencyAudit
 			foreach (var required in new[] { "IHoldable", "IWearable", "IVariable" }.Where(x => !capabilities.Contains(x)))
 				issues.Add($"missing-garment-capability:{required}");
 			foreach (var type in types.Where(x => x.ContextDependentRequirements)) issues.Add($"context-validation:{type.Name}");
-			var cells = new[]
+			var rooms = new[]
 			{
 				garment.Fields[0], reference, garment.Fields[1], string.Join(';', admissions), garment.Fields[3], row.Reused ? "true" : "false",
 				InventoryPath, garment.Line.ToString(CultureInfo.InvariantCulture), row.Source.File, row.Source.Line.ToString(CultureInfo.InvariantCulture),
@@ -125,8 +125,8 @@ internal static class IndustrialisedClothingDependencyAudit
 				JsonSerializer.Serialize(garment.Fields[6] == "-" ? Array.Empty<string>() : garment.Fields[6].Split(';', StringSplitOptions.TrimEntries)),
 				JsonSerializer.Serialize(row.OpenRequirements), "scope-reconciled;stock-names-audited;physical-unverified;production-unreviewed", fingerprint
 			};
-			if (cells.Any(x => x.IndexOfAny(['\t', '\r', '\n']) >= 0)) throw row.Source.Error("Invalid delimiter in dependency audit field.");
-			output.AppendJoin('\t', cells).Append('\n');
+			if (rooms.Any(x => x.IndexOfAny(['\t', '\r', '\n']) >= 0)) throw row.Source.Error("Invalid delimiter in dependency audit field.");
+			output.AppendJoin('\t', rooms).Append('\n');
 		}
 		return output.ToString();
 	}
@@ -149,11 +149,11 @@ internal static class IndustrialisedClothingDependencyAudit
 			var line = lines[index];
 			if (!line.StartsWith('|')) continue;
 			if (Regex.IsMatch(line, @"^\|[- :|]+$", RegexOptions.CultureInvariant)) continue;
-			var cells = line.Trim('|').Split('|', StringSplitOptions.TrimEntries);
-			if (cells.SequenceEqual(columns, StringComparer.Ordinal)) { header = true; continue; }
-			if (!header || cells.Length != columns.Length || !Regex.IsMatch(cells[0], "^[a-z][a-z0-9_]*$", RegexOptions.CultureInvariant))
+			var rooms = line.Trim('|').Split('|', StringSplitOptions.TrimEntries);
+			if (rooms.SequenceEqual(columns, StringComparer.Ordinal)) { header = true; continue; }
+			if (!header || rooms.Length != columns.Length || !Regex.IsMatch(rooms[0], "^[a-z][a-z0-9_]*$", RegexOptions.CultureInvariant))
 				throw new InvalidDataException($"{path}:{index + 1}: invalid approved planning table row or header.");
-			rows.Add(new(index + 1, cells));
+			rows.Add(new(index + 1, rooms));
 		}
 		if (!header || rows.Count == 0) throw new InvalidDataException($"{path}: approved planning table is missing or empty.");
 		return rows.ToArray();

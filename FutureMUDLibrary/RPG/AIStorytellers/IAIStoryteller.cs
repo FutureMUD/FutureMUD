@@ -31,7 +31,7 @@ public interface IAIStoryteller : IFrameworkItem, ISaveable, IEditableItem
 
 public interface IAIStorytellerSurveillanceStrategy
 {
-    IEnumerable<ICell> GetCells(IFuturemud gameworld);
+    IEnumerable<IRoom> GetRooms(IFuturemud gameworld);
     string SaveDefinition();
 
     /// <summary>

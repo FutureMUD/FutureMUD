@@ -64,7 +64,7 @@ public class JudgePatrolStrategy : PatrolStrategyBase
                 return;
             }
 
-            List<ICellExit> path = patrol.PatrolLeader
+            List<IRoomExit> path = patrol.PatrolLeader
                              .PathBetween(patrol.NextMajorNode, 50,
                                  PathSearch.PathIncludeUnlockableDoors(patrol.PatrolLeader))
                              .ToList();

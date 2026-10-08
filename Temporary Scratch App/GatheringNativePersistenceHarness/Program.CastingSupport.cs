@@ -170,7 +170,7 @@ internal static partial class GNHProgram
 			var instance = new MudSharp.Models.CharacterInstance { Id = actor.InstanceId + 100000, CharacterId = actor.Id, BodyId = second.BodyId,
 				EmbodiedBodyId = second.BodyId, InstanceName = "ARM Support Focused Body", InstanceKind = (int)CharacterInstanceKind.PhysicalClone,
 				ControlPolicy = (int)CharacterInstanceControlPolicy.PlayerFocusable, PersistencePolicy = (int)CharacterInstancePersistencePolicy.Persistent,
-				IsEmbodied = true, IsControllable = true, LocationId = second.CellId, State = (int)CharacterState.Awake,
+				IsEmbodied = true, IsControllable = true, LocationId = second.RoomId, State = (int)CharacterState.Awake,
 				PositionId = (int)MudSharp.Body.Position.PositionStates.PositionStanding.Instance.Id, PositionTargetType = "", PositionEmote = "",
 				CreatedBySourceKey = "ARM support isolated acceptance", CreatedDateTime = DateTime.UtcNow, EffectData = "<Effects/>" };
 			db.CharacterInstances.Add(instance); db.SaveChanges(); instanceId = instance.Id;

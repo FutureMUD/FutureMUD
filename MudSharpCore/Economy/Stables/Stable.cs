@@ -23,7 +23,7 @@ public partial class Stable : SavableKeywordedItem, IStable
 	private readonly List<IStableStay> _stays = new();
 	private readonly List<IStableAccount> _stableAccounts = new();
 	private IEconomicZone _economicZone;
-	private ICell _location;
+	private IRoom _location;
 	private long? _bankAccountId;
 	private IBankAccount? _bankAccount;
 	private bool _isTrading;
@@ -34,7 +34,7 @@ public partial class Stable : SavableKeywordedItem, IStable
 	private IFutureProg? _canStableProg;
 	private IFutureProg? _whyCannotStableProg;
 
-	public Stable(IEconomicZone zone, ICell location, IBankAccount? bankAccount, string name)
+	public Stable(IEconomicZone zone, IRoom location, IBankAccount? bankAccount, string name)
 	{
 		Gameworld = zone.Gameworld;
 		_name = name;
@@ -51,7 +51,7 @@ public partial class Stable : SavableKeywordedItem, IStable
 			{
 				Name = name,
 				EconomicZoneId = zone.Id,
-				CellId = location.Id,
+				RoomId = location.Id,
 				BankAccountId = bankAccount?.Id,
 				IsTrading = true,
 				LodgeFee = 0.0M,
@@ -71,7 +71,7 @@ public partial class Stable : SavableKeywordedItem, IStable
 		_name = stable.Name;
 		SetKeywordsFromSDesc(stable.Name);
 		_economicZone = gameworld.EconomicZones.Get(stable.EconomicZoneId)!;
-		_location = gameworld.Cells.Get(stable.CellId)!;
+		_location = gameworld.Rooms.Get(stable.RoomId)!;
 		_bankAccountId = stable.BankAccountId;
 		_isTrading = stable.IsTrading;
 		_lodgeFee = stable.LodgeFee;
@@ -119,7 +119,7 @@ public partial class Stable : SavableKeywordedItem, IStable
 
 	public ICurrency Currency => EconomicZone.Currency;
 
-	public ICell Location
+	public IRoom Location
 	{
 		get => _location;
 		set
@@ -236,7 +236,7 @@ public partial class Stable : SavableKeywordedItem, IStable
 
 		dbitem.Name = Name;
 		dbitem.EconomicZoneId = EconomicZone.Id;
-		dbitem.CellId = Location.Id;
+		dbitem.RoomId = Location.Id;
 		dbitem.BankAccountId = BankAccount?.Id;
 		dbitem.IsTrading = IsTrading;
 		dbitem.LodgeFee = LodgeFee;

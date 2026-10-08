@@ -37,7 +37,7 @@ public class AgricultureNativeOrganicAccountingTests
 			RecentPressure = 3.25
 		};
 		fixture.Environment
-			.Setup(x => x.InspectState(fixture.Cell.Object))
+			.Setup(x => x.InspectState(fixture.Room.Object))
 			.Returns(new EnvironmentalMagicStateSnapshot(scar, scar.RecentPressure));
 		var accounting = FieldDefinition(new XElement("Source",
 			new XAttribute("kind", "Crop"),
@@ -76,7 +76,7 @@ public class AgricultureNativeOrganicAccountingTests
 		Assert.AreEqual(1L, recreatedSnapshot.Lifecycle.Generation);
 		Assert.AreEqual(0m, recreatedSnapshot.PrepaidFraction);
 		Assert.AreEqual(NativeOrganicRecoveryRemainders.Empty, recreatedSnapshot.RecoveryRemainders);
-		Assert.AreEqual(scar, fixture.Environment.Object.InspectState(fixture.Cell.Object).State);
+		Assert.AreEqual(scar, fixture.Environment.Object.InspectState(fixture.Room.Object).State);
 	}
 
 	[TestMethod]
@@ -193,7 +193,7 @@ public class AgricultureNativeOrganicAccountingTests
 		apiary.SetupGet(x => x.PollinationStrength).Returns(100);
 		var apiaryField = new Mock<IAgricultureField>();
 		apiaryField.SetupGet(x => x.Id).Returns(99L);
-		apiaryField.SetupGet(x => x.Cell).Returns(fixture.Cell.Object);
+		apiaryField.SetupGet(x => x.Room).Returns(fixture.Room.Object);
 		apiaryField.SetupGet(x => x.HasActiveApiary).Returns(true);
 		apiaryField.SetupGet(x => x.IsApiaryHappy).Returns(true);
 		apiaryField.SetupGet(x => x.Apiary).Returns(apiary.Object);
@@ -206,10 +206,10 @@ public class AgricultureNativeOrganicAccountingTests
 		crop.DailyTick();
 		Assert.AreEqual(51, crop.CropHealth, "The +4 health contribution should be quartered once to +1.");
 		Assert.AreEqual(52, crop.CropYieldPotential, "The +4 yield contribution should be halved once to +2.");
-		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(fixture.Cell.Object,
+		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(fixture.Room.Object,
 			NativeOrganicPenaltyChannel.CropHealthRecovery,
 			It.Is<NativeOrganicPenaltyContext>(context => context.BaselineIncrease == 4.0)), Times.Once);
-		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(fixture.Cell.Object,
+		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(fixture.Room.Object,
 			NativeOrganicPenaltyChannel.CropYieldRecovery,
 			It.Is<NativeOrganicPenaltyContext>(context => context.BaselineIncrease == 4.0)), Times.Once);
 
@@ -237,7 +237,7 @@ public class AgricultureNativeOrganicAccountingTests
 		stressedWoodland.DailyTick();
 		Assert.AreEqual(48, stressedWoodland.WoodlandHealth);
 		Assert.AreEqual(50, stressedWoodland.WoodlandYieldPotential);
-		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(It.IsAny<ICell>(),
+		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(It.IsAny<IRoom>(),
 			It.IsAny<NativeOrganicPenaltyChannel>(), It.IsAny<NativeOrganicPenaltyContext>()), Times.Never);
 	}
 
@@ -351,11 +351,11 @@ public class AgricultureNativeOrganicAccountingTests
 		Assert.AreEqual(0, orchard.CropGrowthDays);
 		materials.Verify(x => x.GetByName("test produce"), Times.Once,
 			"The pre-harvest output crossed the one-unit threshold and must not receive the ecological factor again.");
-		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(fixture.Cell.Object,
+		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(fixture.Room.Object,
 			NativeOrganicPenaltyChannel.CropHealthRecovery,
 			It.Is<NativeOrganicPenaltyContext>(context => context.BaselineIncrease == outcome.CropHealthDelta)),
 			Times.Once);
-		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(fixture.Cell.Object,
+		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(fixture.Room.Object,
 			NativeOrganicPenaltyChannel.CropYieldRecovery,
 			It.Is<NativeOrganicPenaltyContext>(context => context.BaselineIncrease == outcome.CropYieldDelta)),
 			Times.Once);
@@ -430,7 +430,7 @@ public class AgricultureNativeOrganicAccountingTests
 			apiary.SetupGet(x => x.PollinationStrength).Returns(50);
 			var apiaryField = new Mock<IAgricultureField>();
 			apiaryField.SetupGet(x => x.Id).Returns(2L);
-			apiaryField.SetupGet(x => x.Cell).Returns(fixture.Cell.Object);
+			apiaryField.SetupGet(x => x.Room).Returns(fixture.Room.Object);
 			apiaryField.SetupGet(x => x.HasActiveApiary).Returns(true);
 			apiaryField.SetupGet(x => x.IsApiaryHappy).Returns(true);
 			apiaryField.SetupGet(x => x.Apiary).Returns(apiary.Object);
@@ -466,7 +466,7 @@ public class AgricultureNativeOrganicAccountingTests
 			apiary.SetupGet(x => x.PollinationStrength).Returns(50);
 			var apiaryField = new Mock<IAgricultureField>();
 			apiaryField.SetupGet(x => x.Id).Returns(2L);
-			apiaryField.SetupGet(x => x.Cell).Returns(fixture.Cell.Object);
+			apiaryField.SetupGet(x => x.Room).Returns(fixture.Room.Object);
 			apiaryField.SetupGet(x => x.HasActiveApiary).Returns(true);
 			apiaryField.SetupGet(x => x.IsApiaryHappy).Returns(true);
 			apiaryField.SetupGet(x => x.Apiary).Returns(apiary.Object);
@@ -667,9 +667,9 @@ public class AgricultureNativeOrganicAccountingTests
 		Assert.AreEqual("crop", first.Selector);
 		Assert.AreEqual(first, second);
 		Assert.IsFalse(orchard.Changed);
-		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(It.IsAny<ICell>(),
+		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(It.IsAny<IRoom>(),
 			It.IsAny<NativeOrganicPenaltyChannel>(), It.IsAny<NativeOrganicPenaltyContext>()), Times.Never);
-		fixture.Environment.Verify(x => x.MarkDirty(It.IsAny<ICell>(), It.IsAny<EnvironmentalMagicDirtyReason>()),
+		fixture.Environment.Verify(x => x.MarkDirty(It.IsAny<IRoom>(), It.IsAny<EnvironmentalMagicDirtyReason>()),
 			Times.Never);
 	}
 
@@ -944,12 +944,12 @@ public class AgricultureNativeOrganicAccountingTests
 			scoreDelta: (AgricultureScoreType.Pasture, 20));
 		Assert.AreEqual(AgricultureFieldUse.Fallow, pasture.CurrentUse);
 		Assert.AreEqual(50, pasture.Pasture);
-		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(It.IsAny<ICell>(),
+		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(It.IsAny<IRoom>(),
 			NativeOrganicPenaltyChannel.PastureInitialisation, It.IsAny<NativeOrganicPenaltyContext>()), Times.Never,
 			"A fallow field has no productive pasture lifecycle to initialise.");
 		Assert.IsTrue(pasture.ApplyOperation(establishPasture, null!, null!, false, out _));
 		Assert.AreEqual(35, pasture.Pasture);
-		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(fixture.Cell.Object,
+		fixture.Environment.Verify(x => x.EvaluateOrganicPenalty(fixture.Room.Object,
 			NativeOrganicPenaltyChannel.PastureInitialisation,
 			It.Is<NativeOrganicPenaltyContext>(context => context.BaselineIncrease == 70.0)), Times.Once,
 			"The staged default and new allocation are assessed together once.");
@@ -1087,7 +1087,7 @@ public class AgricultureNativeOrganicAccountingTests
 		var model = new MudSharp.Models.AgricultureField
 		{
 			Id = fieldId,
-			CellId = 1,
+			RoomId = 1,
 			ProfileId = 1,
 			CurrentUse = (int)use,
 			Moisture = 50,
@@ -1135,21 +1135,21 @@ public class AgricultureNativeOrganicAccountingTests
 	}
 
 	private static Fixture BuildFixture(
-		Func<ICell, NativeOrganicPenaltyChannel, NativeOrganicPenaltyContext, NativeOrganicPenaltyEvaluation>?
+		Func<IRoom, NativeOrganicPenaltyChannel, NativeOrganicPenaltyContext, NativeOrganicPenaltyEvaluation>?
 			evaluate = null)
 	{
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.SaveManager).Returns(new Mock<ISaveManager>().Object);
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(1L);
-		cell.SetupGet(x => x.Name).Returns("Test Cell");
-		cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-		cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(20.0);
-		cell.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns(default(IWeatherEvent)!);
-		var cells = new All<ICell>();
-		cells.Add(cell.Object);
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(1L);
+		room.SetupGet(x => x.Name).Returns("Test Cell");
+		room.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+		room.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(20.0);
+		room.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns(default(IWeatherEvent)!);
+		var rooms = new All<IRoom>();
+		rooms.Add(room.Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 
 		var profile = new Mock<IAgricultureFieldProfile>();
 		profile.SetupGet(x => x.Id).Returns(1L);
@@ -1193,15 +1193,15 @@ public class AgricultureNativeOrganicAccountingTests
 		gameworld.SetupGet(x => x.AgricultureFields).Returns(new All<IAgricultureField>());
 		var environment = new Mock<IEnvironmentalMagicService>();
 		environment
-			.Setup(x => x.EvaluateOrganicPenalty(It.IsAny<ICell>(), It.IsAny<NativeOrganicPenaltyChannel>(),
+			.Setup(x => x.EvaluateOrganicPenalty(It.IsAny<IRoom>(), It.IsAny<NativeOrganicPenaltyChannel>(),
 				It.IsAny<NativeOrganicPenaltyContext>()))
-			.Returns((ICell sourceCell, NativeOrganicPenaltyChannel channel, NativeOrganicPenaltyContext context) =>
-				evaluate?.Invoke(sourceCell, channel, context) ?? NativeOrganicPenaltyEvaluation.Neutral);
+			.Returns((IRoom sourceRoom, NativeOrganicPenaltyChannel channel, NativeOrganicPenaltyContext context) =>
+				evaluate?.Invoke(sourceRoom, channel, context) ?? NativeOrganicPenaltyEvaluation.Neutral);
 		gameworld.SetupGet(x => x.EnvironmentalMagic).Returns(environment.Object);
-		return new Fixture(gameworld, cell, crop, woodland, environment);
+		return new Fixture(gameworld, room, crop, woodland, environment);
 	}
 
-	private sealed record Fixture(Mock<IFuturemud> Gameworld, Mock<ICell> Cell,
+	private sealed record Fixture(Mock<IFuturemud> Gameworld, Mock<IRoom> Room,
 		Mock<IAgricultureCropDefinition> Crop, Mock<IAgricultureWoodlandDefinition> Woodland,
 		Mock<IEnvironmentalMagicService> Environment);
 }

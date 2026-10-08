@@ -33,14 +33,14 @@ internal static partial class GNHProgram
 	private static void VerifyLegacyRemainsRuntimeBoundaries(LegacyRemainsReader input, NativeRuntime native,
 		Mock<IGameItem> parent, GameItemComponent component, bool unresolved)
 	{
-		var source = new Mock<ICell>(); parent.SetupGet(x => x.Location).Returns(source.Object);
+		var source = new Mock<IRoom>(); parent.SetupGet(x => x.Location).Returns(source.Object);
 		parent.SetupGet(x => x.InInventoryOf).Returns((IBody)null!); parent.SetupGet(x => x.LocationLevelPerceivable).Returns(parent.Object);
 		parent.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1));
 		parent.SetupGet(x => x.SurfaceLiquidState).Returns(new SurfaceLiquidState(native.World));
 		var material = new Mock<ISolid>(); material.SetupGet(x => x.HeatDamagePoint).Returns(100.0);
 		parent.SetupGet(x => x.Material).Returns(material.Object); source.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(120.0);
 		native.WorldMock.Setup(x => x.GetStaticConfiguration("EnvironmentalExposureMode")).Returns("Enabled");
-		native.WorldMock.SetupGet(x => x.Actors).Returns(new All<ICharacter>()); native.WorldMock.SetupGet(x => x.Cells).Returns(new All<ICell>());
+		native.WorldMock.SetupGet(x => x.Actors).Returns(new All<ICharacter>()); native.WorldMock.SetupGet(x => x.Rooms).Returns(new All<IRoom>());
 		native.WorldMock.SetupGet(x => x.DefaultPlane).Returns((IPlane)null!);
 		var clock = new DateTime(2026, 10, 3, 0, 0, 0, DateTimeKind.Utc);
 		var exposure = new EnvironmentalExposureService(native.World, () => clock);
@@ -109,14 +109,14 @@ internal static partial class GNHProgram
 			$"persisted-part-wound-inspection:{(!input.Corpse ? "checked" : "not-applicable")}");
 	}
 
-	private static void VerifyRemainsMorgueRefusal(NativeRuntime native, Mock<IGameItem> parent, Mock<ICell> source)
+	private static void VerifyRemainsMorgueRefusal(NativeRuntime native, Mock<IGameItem> parent, Mock<IRoom> source)
 	{
 		var estateReads = native.WorldMock.Invocations.Count(x => x.Method.Name == "get_Estates");
 		var zone = new Mock<IEconomicZone>(MockBehavior.Strict);
 		Require(!MorgueService.TryIntakeCorpse(zone.Object, parent.Object, out var estate) && estate is null,
 			"Unresolved or different-body corpse was admitted to morgue custody.");
 		var report = new Mock<ICorpseRecoveryReport>(); report.SetupGet(x => x.Corpse).Returns(parent.Object);
-		report.SetupGet(x => x.SourceCell).Returns(source.Object); report.SetupGet(x => x.EconomicZone).Returns(zone.Object);
+		report.SetupGet(x => x.SourceRoom).Returns(source.Object); report.SetupGet(x => x.EconomicZone).Returns(zone.Object);
 		report.SetupProperty(x => x.Status, CorpseRecoveryReportStatus.Assigned);
 		var patrol = new Mock<IPatrol>(); var leader = new Mock<ICharacter>(); leader.Setup(x => x.ColocatedWith(parent.Object)).Returns(true);
 		patrol.SetupGet(x => x.PatrolLeader).Returns(leader.Object); patrol.SetupProperty(x => x.PatrolPhase, PatrolPhase.Patrol);

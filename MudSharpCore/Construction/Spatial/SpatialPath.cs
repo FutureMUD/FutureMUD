@@ -11,15 +11,15 @@ namespace MudSharp.Construction;
 public sealed record LinearRoutePathStep(
 	SpatialLocation Origin,
 	SpatialLocation Destination,
-	IRouteCellDefinition RouteCell,
-	RouteCellDirection Direction,
+	IRouteRoomDefinition RouteRoom,
+	RouteRoomDirection Direction,
 	double DistanceMetres,
 	double RoomEquivalentCost) : ILinearRoutePathStep;
 
 public sealed record ExitTraversalPathStep(
 	SpatialLocation Origin,
 	SpatialLocation Destination,
-	ICellExit Exit,
+	IRoomExit Exit,
 	double RoomEquivalentCost) : IExitTraversalPathStep;
 
 /// <summary>
@@ -28,7 +28,7 @@ public sealed record ExitTraversalPathStep(
 public sealed class SpatialPath : ISpatialPath
 {
 	private readonly IReadOnlyList<ISpatialPathStep> _steps;
-	private readonly IReadOnlyList<ICellExit> _traversedExits;
+	private readonly IReadOnlyList<IRoomExit> _traversedExits;
 
 	public SpatialPath(
 		SpatialLocation origin,
@@ -55,5 +55,5 @@ public sealed class SpatialPath : ISpatialPath
 	public IReadOnlyList<ISpatialPathStep> Steps => _steps;
 	public double RouteDistanceMetres { get; }
 	public double RoomEquivalentCost { get; }
-	public IReadOnlyList<ICellExit> TraversedExits => _traversedExits;
+	public IReadOnlyList<IRoomExit> TraversedExits => _traversedExits;
 }

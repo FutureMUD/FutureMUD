@@ -662,9 +662,6 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("CellId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<long?>("CharacterId")
                         .HasColumnType("bigint(20)");
 
@@ -680,6 +677,9 @@ namespace MudSharp.Migrations
                     b.Property<int>("ProjectRevisionNumber")
                         .HasColumnType("int(11)");
 
+                    b.Property<long?>("RoomId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<int>("RoomLayer")
                         .HasColumnType("int(11)");
 
@@ -688,9 +688,6 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_ActiveProjects_Cells_idx");
-
                     b.HasIndex("CharacterId")
                         .HasDatabaseName("FK_ActiveProjects_Characters_idx");
 
@@ -698,6 +695,9 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_ActiveProjects_ProjectPhases_idx");
 
                     b.HasIndex("PaymentCurrencyId");
+
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_ActiveProjects_Rooms_idx");
 
                     b.HasIndex("ProjectId", "ProjectRevisionNumber")
                         .HasDatabaseName("FK_ActiveProjects_Projects_idx");
@@ -793,7 +793,7 @@ namespace MudSharp.Migrations
                     b.Property<int>("RoomLayer")
                         .HasColumnType("int(11)");
 
-                    b.Property<long>("RouteCellId")
+                    b.Property<long>("RouteRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long?>("SelectedExitId")
@@ -834,8 +834,8 @@ namespace MudSharp.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_ActiveRouteMotions_Mover");
 
-                    b.HasIndex("RouteCellId", "RoomLayer", "Status")
-                        .HasDatabaseName("IX_ActiveRouteMotions_RouteCell_Layer_Status");
+                    b.HasIndex("RouteRoomId", "RoomLayer", "Status")
+                        .HasDatabaseName("IX_ActiveRouteMotions_RouteRoom_Layer_Status");
 
                     b.ToTable("ActiveRouteMotions", null, t =>
                         {
@@ -905,9 +905,6 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<int>("Condition")
                         .HasColumnType("int");
 
@@ -951,6 +948,9 @@ namespace MudSharp.Migrations
                     b.Property<int>("Rockiness")
                         .HasColumnType("int");
 
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<int>("Salinity")
                         .HasColumnType("int");
 
@@ -966,12 +966,12 @@ namespace MudSharp.Migrations
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId")
-                        .IsUnique()
-                        .HasDatabaseName("IX_AgricultureFields_CellId");
-
                     b.HasIndex("ProfileId")
                         .HasDatabaseName("FK_AgricultureFields_Profiles_idx");
+
+                    b.HasIndex("RoomId")
+                        .IsUnique()
+                        .HasDatabaseName("IX_AgricultureFields_RoomId");
 
                     b.ToTable("AgricultureFields", (string)null);
                 });
@@ -1644,11 +1644,9 @@ namespace MudSharp.Migrations
                     b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("AreaId", "RoomId")
-                        .HasName("PRIMARY");
+                    b.HasKey("AreaId", "RoomId");
 
-                    b.HasIndex("RoomId")
-                        .HasDatabaseName("FK_Areas_Rooms_Rooms_idx");
+                    b.HasIndex("RoomId");
 
                     b.ToTable("Areas_Rooms", (string)null);
                 });
@@ -1835,34 +1833,6 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_ArenaBetPools_ArenaEvents");
 
                     b.ToTable("ArenaBetPools", (string)null);
-                });
-
-            modelBuilder.Entity("MudSharp.Models.ArenaCell", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("ArenaId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("int(11)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ArenaId")
-                        .HasDatabaseName("FK_ArenaCells_Arenas");
-
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_ArenaCells_Cells");
-
-                    b.ToTable("ArenaCells", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ArenaCombatantClass", b =>
@@ -2425,6 +2395,34 @@ namespace MudSharp.Migrations
                     b.ToTable("ArenaReservations", (string)null);
                 });
 
+            modelBuilder.Entity("MudSharp.Models.ArenaRoom", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<long>("ArenaId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArenaId")
+                        .HasDatabaseName("FK_ArenaRooms_Arenas");
+
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_ArenaRooms_Rooms");
+
+                    b.ToTable("ArenaRooms", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.ArenaSignup", b =>
                 {
                     b.Property<long>("Id")
@@ -2572,7 +2570,7 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("AuctionHouseCellId")
+                    b.Property<long>("AuctionHouseRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<decimal>("AuctionListingFeeFlat")
@@ -2606,7 +2604,7 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AuctionHouseCellId");
+                    b.HasIndex("AuctionHouseRoomId");
 
                     b.HasIndex("EconomicZoneId");
 
@@ -3045,13 +3043,13 @@ namespace MudSharp.Migrations
                     b.Property<long>("BankId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("BankId", "CellId")
+                    b.HasKey("BankId", "RoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId");
+                    b.HasIndex("RoomId");
 
                     b.ToTable("BankBranches", (string)null);
                 });
@@ -4339,359 +4337,6 @@ namespace MudSharp.Migrations
                     b.ToTable("Celestials");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.Cell", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long?>("CurrentOverlayId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("EffectData")
-                        .IsRequired()
-                        .HasColumnType("mediumtext")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EffectData"), "utf8");
-
-                    b.Property<int>("EnvironmentalMagicBindingMode")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int(11)")
-                        .HasDefaultValue(0);
-
-                    b.Property<long?>("EnvironmentalMagicProfileId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("ForagableProfileId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("HostedVehicleCompartmentId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long?>("HostedVehicleId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("RoomId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("SurfaceLiquidData")
-                        .HasColumnType("mediumtext")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SurfaceLiquidData"), "utf8");
-
-                    b.Property<ulong>("Temporary")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit(1)")
-                        .HasDefaultValueSql("b'0'");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CurrentOverlayId")
-                        .HasDatabaseName("FK_Cells_CellOverlays");
-
-                    b.HasIndex("EnvironmentalMagicProfileId")
-                        .HasDatabaseName("IX_Cells_EnvironmentalMagicProfileId");
-
-                    b.HasIndex("HostedVehicleCompartmentId")
-                        .IsUnique()
-                        .HasDatabaseName("UX_Cells_HostedVehicleCompartments");
-
-                    b.HasIndex("HostedVehicleId")
-                        .HasDatabaseName("FK_Cells_HostedVehicles_idx");
-
-                    b.HasIndex("RoomId")
-                        .HasDatabaseName("FK_Cells_Rooms");
-
-                    b.ToTable("Cells", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_Cells_HostedVehicleOwnership", "(`HostedVehicleId` IS NULL AND `HostedVehicleCompartmentId` IS NULL) OR (`HostedVehicleId` IS NOT NULL AND `HostedVehicleCompartmentId` IS NOT NULL)");
-                        });
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellEnvironmentalState", b =>
-                {
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<DateTime?>("LastDefileUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<double>("PressureDecayAnchor")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double")
-                        .HasDefaultValue(0.0);
-
-                    b.Property<double>("PressureHalfLifeSeconds")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double")
-                        .HasDefaultValue(3600.0);
-
-                    b.Property<long?>("PressureProfileId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<DateTime?>("PressureReferenceUtc")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<double>("RecentPressure")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double")
-                        .HasDefaultValue(0.0);
-
-                    b.Property<long>("Revision")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)")
-                        .HasDefaultValue(0L);
-
-                    b.Property<double>("ScarDamage")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double")
-                        .HasDefaultValue(0.0);
-
-                    b.Property<int>("SchemaVersion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int(11)")
-                        .HasDefaultValue(1);
-
-                    b.HasKey("CellId")
-                        .HasName("PRIMARY");
-
-                    b.ToTable("CellEnvironmentalStates", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_CellEnvironmentalStates_Pressure", "`RecentPressure` >= 0 AND `PressureHalfLifeSeconds` > 0");
-
-                            t.HasCheckConstraint("CK_CellEnvironmentalStates_ScarDamage", "`ScarDamage` >= 0");
-
-                            t.HasCheckConstraint("CK_CellEnvironmentalStates_Versions", "`SchemaVersion` >= 1 AND `Revision` >= 0");
-                        });
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellMagicResource", b =>
-                {
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("MagicResourceId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<double>("Amount")
-                        .HasColumnType("double");
-
-                    b.HasKey("CellId", "MagicResourceId")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("MagicResourceId")
-                        .HasDatabaseName("FK_Cells_MagicResources_MagicResources_idx");
-
-                    b.ToTable("Cells_MagicResources", (string)null);
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellOverlay", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<double>("AddedLight")
-                        .HasColumnType("double");
-
-                    b.Property<double>("AmbientLightFactor")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("double")
-                        .HasDefaultValueSql("'1'");
-
-                    b.Property<long?>("AtmosphereId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("AtmosphereType")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("varchar(45)")
-                        .HasDefaultValueSql("'gas'")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("AtmosphereType"), "utf8");
-
-                    b.Property<string>("CellDescription")
-                        .IsRequired()
-                        .HasColumnType("varchar(4000)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CellDescription"), "utf8");
-
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("CellName")
-                        .IsRequired()
-                        .HasColumnType("varchar(4000)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("CellName"), "utf8");
-
-                    b.Property<long>("CellOverlayPackageId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<int>("CellOverlayPackageRevisionNumber")
-                        .HasColumnType("int(11)");
-
-                    b.Property<long?>("HearingProfileId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(4000)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
-
-                    b.Property<int>("OutdoorsType")
-                        .HasColumnType("int(11)");
-
-                    b.Property<ulong>("SafeQuit")
-                        .HasColumnType("bit(1)");
-
-                    b.Property<long>("TerrainId")
-                        .HasColumnType("bigint(20)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_CellOverlays_Cells");
-
-                    b.HasIndex("HearingProfileId")
-                        .HasDatabaseName("FK_CellOverlays_HearingProfiles");
-
-                    b.HasIndex("TerrainId")
-                        .HasDatabaseName("FK_CellOverlays_Terrains");
-
-                    b.HasIndex("CellOverlayPackageId", "CellOverlayPackageRevisionNumber")
-                        .HasDatabaseName("FK_CellOverlays_CellOverlayPackages");
-
-                    b.ToTable("CellOverlays");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellOverlayExit", b =>
-                {
-                    b.Property<long>("CellOverlayId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("ExitId")
-                        .HasColumnType("bigint(20)");
-
-                    b.HasKey("CellOverlayId", "ExitId")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("ExitId")
-                        .HasDatabaseName("FK_CellOverlays_Exits_Exits");
-
-                    b.ToTable("CellOverlays_Exits", (string)null);
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellOverlayPackage", b =>
-                {
-                    b.Property<long>("Id")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<int>("RevisionNumber")
-                        .HasColumnType("int(11)");
-
-                    b.Property<long>("EditableItemId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("varchar(4000)")
-                        .UseCollation("utf8_general_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
-
-                    b.HasKey("Id", "RevisionNumber")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("EditableItemId")
-                        .HasDatabaseName("FK_CellOverlayPackages_EditableItems");
-
-                    b.ToTable("CellOverlayPackages");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellsForagableYield", b =>
-                {
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<string>("ForagableType")
-                        .HasColumnType("varchar(100)")
-                        .UseCollation("utf8mb4_unicode_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ForagableType"), "utf8mb4");
-
-                    b.Property<double>("Yield")
-                        .HasColumnType("double");
-
-                    b.HasKey("CellId", "ForagableType")
-                        .HasName("PRIMARY");
-
-                    b.ToTable("Cells_ForagableYields", (string)null);
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellsGameItems", b =>
-                {
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("GameItemId")
-                        .HasColumnType("bigint(20)");
-
-                    b.HasKey("CellId", "GameItemId")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("GameItemId")
-                        .HasDatabaseName("FK_Cells_GameItems_GameItems");
-
-                    b.ToTable("Cells_GameItems", (string)null);
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellsRangedCovers", b =>
-                {
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("RangedCoverId")
-                        .HasColumnType("bigint(20)");
-
-                    b.HasKey("CellId", "RangedCoverId")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("RangedCoverId")
-                        .HasDatabaseName("FK_Cells_RangedCovers_RangedCovers_idx");
-
-                    b.ToTable("Cells_RangedCovers", (string)null);
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellsTags", b =>
-                {
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("TagId")
-                        .HasColumnType("bigint(20)");
-
-                    b.HasKey("CellId", "TagId")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("TagId")
-                        .HasDatabaseName("FK_Cells_Tags_Tags_idx");
-
-                    b.ToTable("Cells_Tags", (string)null);
-                });
-
             modelBuilder.Entity("MudSharp.Models.Channel", b =>
                 {
                     b.Property<long>("Id")
@@ -5093,7 +4738,7 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_Characters_Languages_Written_idx");
 
                     b.HasIndex("Location")
-                        .HasDatabaseName("FK_Characters_Cells");
+                        .HasDatabaseName("FK_Characters_Rooms");
 
                     b.HasIndex("NativeLanguageId");
 
@@ -5914,7 +5559,7 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("UQ_CharacterInstances_EmbodiedBody");
 
                     b.HasIndex("LocationId")
-                        .HasDatabaseName("FK_CharacterInstances_Cells_idx");
+                        .HasDatabaseName("FK_CharacterInstances_Rooms_idx");
 
                     b.HasIndex("PrimaryCharacterId")
                         .IsUnique()
@@ -6019,9 +5664,6 @@ namespace MudSharp.Migrations
                     b.Property<long?>("AccountId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint(20)");
 
@@ -6035,6 +5677,9 @@ namespace MudSharp.Migrations
                     b.Property<ulong>("IsPlayerCharacter")
                         .HasColumnType("bit(1)");
 
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<DateTime>("Time")
                         .HasColumnType("datetime");
 
@@ -6043,11 +5688,11 @@ namespace MudSharp.Migrations
                     b.HasIndex("AccountId")
                         .HasDatabaseName("FK_CharacterLog_Accounts_idx");
 
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_CharacterLog_Cells_idx");
-
                     b.HasIndex("CharacterId")
                         .HasDatabaseName("FK_CharacterLog_Characters_idx");
+
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_CharacterLog_Rooms_idx");
 
                     b.ToTable("CharacterLog", (string)null);
                 });
@@ -7220,21 +6865,21 @@ namespace MudSharp.Migrations
                     b.ToTable("Clans");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.ClanAdministrationCell", b =>
+            modelBuilder.Entity("MudSharp.Models.ClanAdministrationRoom", b =>
                 {
                     b.Property<long>("ClanId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("ClanId", "CellId")
+                    b.HasKey("ClanId", "RoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_Clans_AdministrationCells_Cells_idx");
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_Clans_AdministrationRooms_Rooms_idx");
 
-                    b.ToTable("Clans_AdministrationCells", (string)null);
+                    b.ToTable("Clans_AdministrationRooms", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ClanBudget", b =>
@@ -7394,21 +7039,21 @@ namespace MudSharp.Migrations
                     b.ToTable("ClanBudgetTransactions", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.ClanHallCell", b =>
+            modelBuilder.Entity("MudSharp.Models.ClanHallRoom", b =>
                 {
                     b.Property<long>("ClanId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("ClanId", "CellId")
+                    b.HasKey("ClanId", "RoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_Clans_HallCells_Cells_idx");
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_Clans_HallRooms_Rooms_idx");
 
-                    b.ToTable("Clans_HallCells", (string)null);
+                    b.ToTable("Clans_HallRooms", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ClanMembership", b =>
@@ -7577,21 +7222,21 @@ namespace MudSharp.Migrations
                     b.ToTable("ClanPayrollHistories", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.ClanTreasuryCell", b =>
+            modelBuilder.Entity("MudSharp.Models.ClanTreasuryRoom", b =>
                 {
                     b.Property<long>("ClanId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("ClanId", "CellId")
+                    b.HasKey("ClanId", "RoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_Clans_TreasuryCells_Cells_idx");
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_Clans_TreasuryRooms_Rooms_idx");
 
-                    b.ToTable("Clans_TreasuryCells", (string)null);
+                    b.ToTable("Clans_TreasuryRooms", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ClimateModel", b =>
@@ -8238,13 +7883,13 @@ namespace MudSharp.Migrations
                     b.Property<long>("EconomicZoneId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("EconomicZoneId", "CellId")
+                    b.HasKey("EconomicZoneId", "RoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId");
+                    b.HasIndex("RoomId");
 
                     b.ToTable("ConveyancingLocations", (string)null);
                 });
@@ -8301,7 +7946,7 @@ namespace MudSharp.Migrations
                     b.Property<long>("CorpseId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("DestinationCellId")
+                    b.Property<long>("DestinationRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long>("EconomicZoneId")
@@ -8313,7 +7958,7 @@ namespace MudSharp.Migrations
                     b.Property<long?>("ReporterId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("SourceCellId")
+                    b.Property<long>("SourceRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<int>("Status")
@@ -8325,7 +7970,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("CorpseId");
 
-                    b.HasIndex("DestinationCellId");
+                    b.HasIndex("DestinationRoomId");
 
                     b.HasIndex("EconomicZoneId");
 
@@ -8333,7 +7978,7 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("ReporterId");
 
-                    b.HasIndex("SourceCellId");
+                    b.HasIndex("SourceRoomId");
 
                     b.ToTable("CorpseRecoveryReports", (string)null);
                 });
@@ -10232,13 +9877,13 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8");
 
-                    b.Property<long?>("DestinationCellId")
+                    b.Property<long?>("DestinationRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long>("EmploymentActionPlanId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long?>("ExecutionCellId")
+                    b.Property<long?>("ExecutionRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<string>("ExistingFinancialRecord")
@@ -11483,9 +11128,6 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Attribution"), "utf8mb4");
 
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<string>("Diagnostic")
                         .IsRequired()
                         .HasColumnType("text")
@@ -11507,6 +11149,9 @@ namespace MudSharp.Migrations
                     b.Property<double>("RequestedRepair")
                         .HasColumnType("double");
 
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(40)
@@ -11515,8 +11160,8 @@ namespace MudSharp.Migrations
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId", "AtUtc")
-                        .HasDatabaseName("IX_EnvironmentalMagicOperations_CellId_AtUtc");
+                    b.HasIndex("RoomId", "AtUtc")
+                        .HasDatabaseName("IX_EnvironmentalMagicOperations_RoomId_AtUtc");
 
                     b.ToTable("EnvironmentalMagicOperations", (string)null);
                 });
@@ -11892,12 +11537,6 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("BlockedLayers"), "utf8");
 
-                    b.Property<long>("CellId1")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("CellId2")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<int>("ClimbDifficulty")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int(11)")
@@ -11915,7 +11554,7 @@ namespace MudSharp.Migrations
                     b.Property<int?>("DoorSize")
                         .HasColumnType("int(11)");
 
-                    b.Property<long?>("FallCell")
+                    b.Property<long?>("FallRoom")
                         .HasColumnType("bigint(20)");
 
                     b.Property<string>("InboundDescription1")
@@ -12004,6 +11643,12 @@ namespace MudSharp.Migrations
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PrimaryKeyword2"), "utf8");
+
+                    b.Property<long>("RoomId1")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("RoomId2")
+                        .HasColumnType("bigint(20)");
 
                     b.Property<double>("TimeMultiplier")
                         .HasColumnType("double");
@@ -13560,9 +13205,6 @@ namespace MudSharp.Migrations
                     b.Property<long?>("BodyId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long?>("CellId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<long?>("CharacterId")
                         .HasColumnType("bigint(20)");
 
@@ -13570,6 +13212,9 @@ namespace MudSharp.Migrations
                         .HasColumnType("bigint(20)");
 
                     b.Property<long>("HookId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("RoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long?>("ShardId")
@@ -13583,9 +13228,6 @@ namespace MudSharp.Migrations
                     b.HasIndex("BodyId")
                         .HasDatabaseName("FK_Hooks_Perceivables_Bodies_idx");
 
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_Hooks_Perceivables_Cells_idx");
-
                     b.HasIndex("CharacterId")
                         .HasDatabaseName("FK_Hooks_Perceivables_Characters_idx");
 
@@ -13594,6 +13236,9 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("HookId")
                         .HasDatabaseName("FK_Hooks_Perceivables_Hooks_idx");
+
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_Hooks_Perceivables_Rooms_idx");
 
                     b.HasIndex("ShardId")
                         .HasDatabaseName("FK_Hooks_Perceivables_Shards_idx");
@@ -13686,17 +13331,17 @@ namespace MudSharp.Migrations
                     b.Property<long>("HospitalId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<int>("Role")
                         .HasColumnType("int(11)");
 
-                    b.HasKey("HospitalId", "CellId", "Role")
+                    b.HasKey("HospitalId", "RoomId", "Role")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_HospitalLocations_Cells_idx");
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_HospitalLocations_Rooms_idx");
 
                     b.HasIndex("HospitalId", "Role")
                         .HasDatabaseName("IX_HospitalLocations_Hospital_Role");
@@ -13936,7 +13581,7 @@ namespace MudSharp.Migrations
                     b.Property<DateTime>("LastUpdatedAtUtc")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<long?>("OperatingTheatreCellId")
+                    b.Property<long?>("OperatingTheatreRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<string>("OperationalNotes")
@@ -13975,7 +13620,7 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ProcedureParameters"), "utf8");
 
-                    b.Property<long?>("RecoveryRoomCellId")
+                    b.Property<long?>("RecoveryRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long>("RequesterId")
@@ -13988,7 +13633,7 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RequesterName"), "utf8");
 
-                    b.Property<long?>("ReturnCellId")
+                    b.Property<long?>("ReturnRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<int>("Status")
@@ -14015,8 +13660,8 @@ namespace MudSharp.Migrations
                     b.HasIndex("HospitalServiceId")
                         .HasDatabaseName("FK_HospitalServiceRequests_HospitalServices_idx");
 
-                    b.HasIndex("OperatingTheatreCellId")
-                        .HasDatabaseName("FK_HospitalServiceRequests_Cells_Theatre_idx");
+                    b.HasIndex("OperatingTheatreRoomId")
+                        .HasDatabaseName("FK_HospitalServiceRequests_Rooms_Theatre_idx");
 
                     b.HasIndex("PatientId")
                         .HasDatabaseName("FK_HospitalServiceRequests_Characters_Patient_idx");
@@ -14024,14 +13669,14 @@ namespace MudSharp.Migrations
                     b.HasIndex("PreparedByEmployeeId")
                         .HasDatabaseName("FK_HospitalServiceRequests_Characters_PreparedBy_idx");
 
-                    b.HasIndex("RecoveryRoomCellId")
-                        .HasDatabaseName("FK_HospitalServiceRequests_Cells_Recovery_idx");
+                    b.HasIndex("RecoveryRoomId")
+                        .HasDatabaseName("FK_HospitalServiceRequests_Rooms_Recovery_idx");
 
                     b.HasIndex("RequesterId")
                         .HasDatabaseName("FK_HospitalServiceRequests_Characters_Requester_idx");
 
-                    b.HasIndex("ReturnCellId")
-                        .HasDatabaseName("FK_HospitalServiceRequests_Cells_Return_idx");
+                    b.HasIndex("ReturnRoomId")
+                        .HasDatabaseName("FK_HospitalServiceRequests_Rooms_Return_idx");
 
                     b.HasIndex("HospitalId", "Status")
                         .HasDatabaseName("IX_HospitalServiceRequests_Hospital_Status");
@@ -14197,9 +13842,6 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<long>("HotelId")
                         .HasColumnType("bigint(20)");
 
@@ -14222,21 +13864,24 @@ namespace MudSharp.Migrations
                     b.Property<decimal>("PricePerDay")
                         .HasColumnType("decimal(58,29)");
 
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<decimal>("SecurityDeposit")
                         .HasColumnType("decimal(58,29)");
 
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_HotelRooms_Cells_idx");
-
                     b.HasIndex("HotelId")
                         .HasDatabaseName("FK_HotelRooms_Hotels_idx");
 
-                    b.HasIndex("HotelId", "CellId")
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_HotelRooms_Rooms_idx");
+
+                    b.HasIndex("HotelId", "RoomId")
                         .IsUnique()
-                        .HasDatabaseName("IX_HotelRooms_Hotel_Cell");
+                        .HasDatabaseName("IX_HotelRooms_Hotel_Room");
 
                     b.ToTable("HotelRooms", (string)null);
                 });
@@ -14493,13 +14138,13 @@ namespace MudSharp.Migrations
                     b.Property<long>("EconomicZoneId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("EconomicZoneId", "CellId")
+                    b.HasKey("EconomicZoneId", "RoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId");
+                    b.HasIndex("RoomId");
 
                     b.ToTable("JobFindingLocations", (string)null);
                 });
@@ -14733,9 +14378,6 @@ namespace MudSharp.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("char(36)");
 
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<string>("Checkpoint")
                         .IsRequired()
                         .HasColumnType("longtext")
@@ -14747,6 +14389,9 @@ namespace MudSharp.Migrations
                         .IsConcurrencyToken()
                         .HasColumnType("bigint(20)");
 
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasMaxLength(40)
@@ -14755,8 +14400,8 @@ namespace MudSharp.Migrations
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId", "Status")
-                        .HasDatabaseName("IX_LandRejuvenationTreatments_CellId_Status");
+                    b.HasIndex("RoomId", "Status")
+                        .HasDatabaseName("IX_LandRejuvenationTreatments_RoomId_Status");
 
                     b.ToTable("LandRejuvenationTreatments", (string)null);
                 });
@@ -15038,12 +14683,12 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_LegalAuthorities_Currencies_idx");
 
                     b.HasIndex("EnforcerStowingLocationId")
-                        .HasDatabaseName("FK_LegalAuthorities_StowingCells_idx");
+                        .HasDatabaseName("FK_LegalAuthorities_StowingRooms_idx");
 
                     b.HasIndex("JailLocationId");
 
                     b.HasIndex("MarshallingLocationId")
-                        .HasDatabaseName("FK_LegalAuthorities_MarshallingCells_idx");
+                        .HasDatabaseName("FK_LegalAuthorities_MarshallingRooms_idx");
 
                     b.HasIndex("OnHoldProgId");
 
@@ -15054,38 +14699,18 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_LegalAuthorities_FutureprogsRelease_idx");
 
                     b.HasIndex("PreparingLocationId")
-                        .HasDatabaseName("FK_LegalAuthorities_PreparingCells_idx");
+                        .HasDatabaseName("FK_LegalAuthorities_PreparingRooms_idx");
 
                     b.HasIndex("PrisonBelongingsLocationId")
-                        .HasDatabaseName("FK_LegalAuthorities_PrisonBelongingsCells_idx");
+                        .HasDatabaseName("FK_LegalAuthorities_PrisonBelongingsRooms_idx");
 
                     b.HasIndex("PrisonLocationId")
-                        .HasDatabaseName("FK_LegalAuthorities_PrisonCells_idx");
+                        .HasDatabaseName("FK_LegalAuthorities_PrisonRooms_idx");
 
                     b.HasIndex("PrisonReleaseLocationId")
-                        .HasDatabaseName("FK_LegalAuthorities_PrisonReleaseCells_idx");
+                        .HasDatabaseName("FK_LegalAuthorities_PrisonReleaseRooms_idx");
 
                     b.ToTable("LegalAuthorities");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.LegalAuthorityCells", b =>
-                {
-                    b.Property<long>("LegalAuthorityId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
-                    b.HasKey("LegalAuthorityId", "CellId")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_LegalAuthoritiesCells_Cells_idx");
-
-                    b.HasIndex("LegalAuthorityId")
-                        .HasDatabaseName("FK_LegalAuthoritiesCells_LegalAuthorities_idx");
-
-                    b.ToTable("LegalAuthoritiyCells");
                 });
 
             modelBuilder.Entity("MudSharp.Models.LegalAuthorityFine", b =>
@@ -15114,24 +14739,44 @@ namespace MudSharp.Migrations
                     b.ToTable("LegalAuthorityFines", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.LegalAuthorityJailCell", b =>
+            modelBuilder.Entity("MudSharp.Models.LegalAuthorityJailRoom", b =>
                 {
                     b.Property<long>("LegalAuthorityId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("LegalAuthorityId", "CellId")
+                    b.HasKey("LegalAuthorityId", "RoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_LegalAuthoritiesCells_Cells_Jail_idx");
+                    b.HasIndex("LegalAuthorityId")
+                        .HasDatabaseName("FK_LegalAuthoritiesRooms_LegalAuthorities_Jail_idx");
+
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_LegalAuthoritiesRooms_Rooms_Jail_idx");
+
+                    b.ToTable("LegalAuthorityJailRooms");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.LegalAuthorityRooms", b =>
+                {
+                    b.Property<long>("LegalAuthorityId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("LegalAuthorityId", "RoomId")
+                        .HasName("PRIMARY");
 
                     b.HasIndex("LegalAuthorityId")
-                        .HasDatabaseName("FK_LegalAuthoritiesCells_LegalAuthorities_Jail_idx");
+                        .HasDatabaseName("FK_LegalAuthoritiesRooms_LegalAuthorities_idx");
 
-                    b.ToTable("LegalAuthorityJailCells");
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_LegalAuthoritiesRooms_Rooms_idx");
+
+                    b.ToTable("LegalAuthoritiyRooms");
                 });
 
             modelBuilder.Entity("MudSharp.Models.LegalClass", b =>
@@ -15798,9 +15443,6 @@ namespace MudSharp.Migrations
                     b.Property<long>("BodyId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long?>("CellId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<DateTime>("CreatedUtc")
                         .HasColumnType("datetime(6)");
 
@@ -15856,6 +15498,9 @@ namespace MudSharp.Migrations
                     b.Property<double>("RequestedAmount")
                         .HasColumnType("double");
 
+                    b.Property<long?>("RoomId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<double>("SourceDebit")
                         .HasColumnType("double");
 
@@ -15894,8 +15539,8 @@ namespace MudSharp.Migrations
                     b.HasIndex("OwnerId", "Status")
                         .HasDatabaseName("IX_MagicGatheringOperations_OwnerId_Status");
 
-                    b.HasIndex("CellId", "SourceResourceId", "Status")
-                        .HasDatabaseName("IX_MagicGatheringOperations_Cell_Source_Status");
+                    b.HasIndex("RoomId", "SourceResourceId", "Status")
+                        .HasDatabaseName("IX_MagicGatheringOperations_Room_Source_Status");
 
                     b.ToTable("MagicGatheringOperations", (string)null);
                 });
@@ -15909,14 +15554,14 @@ namespace MudSharp.Migrations
                         .HasMaxLength(150)
                         .HasColumnType("varchar(150)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
                     b.HasKey("OperationId", "SourceKey")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId", "SourceKey")
-                        .HasDatabaseName("IX_MagicGatheringParticipants_Cell_Source");
+                    b.HasIndex("RoomId", "SourceKey")
+                        .HasDatabaseName("IX_MagicGatheringParticipants_Room_Source");
 
                     b.ToTable("MagicGatheringParticipants", (string)null);
                 });
@@ -15966,9 +15611,6 @@ namespace MudSharp.Migrations
                     b.Property<int>("AnchorType")
                         .HasColumnType("int(11)");
 
-                    b.Property<long?>("CellId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<long?>("CreatedByCharacterId")
                         .HasColumnType("bigint(20)");
 
@@ -16003,11 +15645,11 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
+                    b.Property<long?>("RoomId")
+                        .HasColumnType("bigint(20)");
+
                     b.HasKey("Id")
                         .HasName("PRIMARY");
-
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_MagicPortalEndpoints_Cells_idx");
 
                     b.HasIndex("CreatedByCharacterId")
                         .HasDatabaseName("FK_MagicPortalEndpoints_Characters_idx");
@@ -16017,6 +15659,9 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("GameItemId")
                         .HasDatabaseName("FK_MagicPortalEndpoints_GameItems_idx");
+
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_MagicPortalEndpoints_Rooms_idx");
 
                     b.HasIndex("MagicPortalNetworkId", "Key")
                         .IsUnique()
@@ -17571,20 +17216,20 @@ namespace MudSharp.Migrations
                     b.ToTable("NPCSpawners", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.NPCSpawnerCell", b =>
+            modelBuilder.Entity("MudSharp.Models.NPCSpawnerRoom", b =>
                 {
                     b.Property<long>("NPCSpawnerId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("NPCSpawnerId", "CellId")
+                    b.HasKey("NPCSpawnerId", "RoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId");
+                    b.HasIndex("RoomId");
 
-                    b.ToTable("NPCSpawnerCells", (string)null);
+                    b.ToTable("NPCSpawnerRooms", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.NPCSpawnerZone", b =>
@@ -18145,20 +17790,20 @@ namespace MudSharp.Migrations
                     b.Property<long>("PatrolRouteId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<int>("Order")
                         .HasColumnType("int(11)");
 
-                    b.HasKey("PatrolRouteId", "CellId")
+                    b.HasKey("PatrolRouteId", "RoomId")
                         .HasName("PRIMARY");
-
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_PatrolRoutesNodes_Cells_idx");
 
                     b.HasIndex("PatrolRouteId")
                         .HasDatabaseName("FK_PatrolRoutesNodes_PatrolRoutes_idx");
+
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_PatrolRoutesNodes_Rooms_idx");
 
                     b.ToTable("PatrolRoutesNodes", (string)null);
                 });
@@ -18427,13 +18072,13 @@ namespace MudSharp.Migrations
                     b.Property<long>("EconomicZoneId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("EconomicZoneId", "CellId")
+                    b.HasKey("EconomicZoneId", "RoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId");
+                    b.HasIndex("RoomId");
 
                     b.ToTable("ProbateLocations", (string)null);
                 });
@@ -19195,13 +18840,13 @@ namespace MudSharp.Migrations
                     b.Property<long>("PropertyId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("PropertyId", "CellId")
+                    b.HasKey("PropertyId", "RoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId");
+                    b.HasIndex("RoomId");
 
                     b.ToTable("PropertyLocations", (string)null);
                 });
@@ -20621,29 +20266,6 @@ namespace MudSharp.Migrations
                     b.ToTable("Restaurants", (string)null);
                 });
 
-            modelBuilder.Entity("MudSharp.Models.RestaurantCell", b =>
-                {
-                    b.Property<long>("RestaurantShopId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<int>("Role")
-                        .HasColumnType("int(11)");
-
-                    b.HasKey("RestaurantShopId", "CellId", "Role")
-                        .HasName("PRIMARY");
-
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("IX_RestaurantCells_Cell");
-
-                    b.HasIndex("RestaurantShopId", "Role")
-                        .HasDatabaseName("IX_RestaurantCells_Restaurant_Role");
-
-                    b.ToTable("RestaurantCells", (string)null);
-                });
-
             modelBuilder.Entity("MudSharp.Models.RestaurantMenuItem", b =>
                 {
                     b.Property<long>("Id")
@@ -20929,6 +20551,29 @@ namespace MudSharp.Migrations
                     b.ToTable("RestaurantPayments", (string)null);
                 });
 
+            modelBuilder.Entity("MudSharp.Models.RestaurantRoom", b =>
+                {
+                    b.Property<long>("RestaurantShopId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("int(11)");
+
+                    b.HasKey("RestaurantShopId", "RoomId", "Role")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("IX_RestaurantRooms_Room");
+
+                    b.HasIndex("RestaurantShopId", "Role")
+                        .HasDatabaseName("IX_RestaurantRooms_Restaurant_Role");
+
+                    b.ToTable("RestaurantRooms", (string)null);
+                });
+
             modelBuilder.Entity("MudSharp.Models.RestaurantStorageContainer", b =>
                 {
                     b.Property<long>("RestaurantShopId")
@@ -21063,6 +20708,50 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
+                    b.Property<long?>("CurrentOverlayId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("EffectData")
+                        .IsRequired()
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("EffectData"), "utf8");
+
+                    b.Property<int>("EnvironmentalMagicBindingMode")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(0);
+
+                    b.Property<long?>("EnvironmentalMagicProfileId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("ForagableProfileId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("HostedVehicleCompartmentId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("HostedVehicleId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("SurfaceLiquidData")
+                        .HasColumnType("mediumtext")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("SurfaceLiquidData"), "utf8");
+
+                    b.Property<ulong>("Temporary")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValueSql("b'0'");
+
+                    b.Property<string>("UniqueName")
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8mb4_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("UniqueName"), "utf8mb4");
+
                     b.Property<int>("X")
                         .HasColumnType("int(11)");
 
@@ -21077,61 +20766,110 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("CurrentOverlayId")
+                        .HasDatabaseName("FK_Rooms_RoomOverlays");
+
+                    b.HasIndex("EnvironmentalMagicProfileId")
+                        .HasDatabaseName("IX_Rooms_EnvironmentalMagicProfileId");
+
+                    b.HasIndex("HostedVehicleCompartmentId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_Rooms_HostedVehicleCompartments");
+
+                    b.HasIndex("HostedVehicleId")
+                        .HasDatabaseName("FK_Rooms_HostedVehicles_idx");
+
+                    b.HasIndex("UniqueName")
+                        .HasDatabaseName("IX_Rooms_UniqueName");
+
                     b.HasIndex("ZoneId")
-                        .HasDatabaseName("FK_Rooms_Zones");
+                        .HasDatabaseName("IX_Rooms_ZoneId");
 
-                    b.ToTable("Rooms");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.RouteCell", b =>
-                {
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
-                    b.Property<decimal>("DefaultPositionMetres")
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<decimal>("LengthMetres")
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<decimal>("MetresPerRoomEquivalent")
-                        .HasColumnType("decimal(18,3)");
-
-                    b.Property<string>("NegativeDirectionName")
-                        .IsRequired()
-                        .HasColumnType("varchar(100)")
-                        .UseCollation("utf8mb4_unicode_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("NegativeDirectionName"), "utf8mb4");
-
-                    b.Property<string>("PositiveDirectionName")
-                        .IsRequired()
-                        .HasColumnType("varchar(100)")
-                        .UseCollation("utf8mb4_unicode_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PositiveDirectionName"), "utf8mb4");
-
-                    b.Property<long>("TopologyVersion")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint(20)")
-                        .HasDefaultValue(1L);
-
-                    b.HasKey("CellId")
-                        .HasName("PRIMARY");
-
-                    b.ToTable("RouteCells", null, t =>
+                    b.ToTable("Rooms", null, t =>
                         {
-                            t.HasCheckConstraint("CK_RouteCells_DefaultPosition", "`DefaultPositionMetres` >= 0 AND `DefaultPositionMetres` <= `LengthMetres`");
-
-                            t.HasCheckConstraint("CK_RouteCells_Length", "`LengthMetres` > 0");
-
-                            t.HasCheckConstraint("CK_RouteCells_RoomEquivalent", "`MetresPerRoomEquivalent` > 0");
-
-                            t.HasCheckConstraint("CK_RouteCells_TopologyVersion", "`TopologyVersion` >= 1");
+                            t.HasCheckConstraint("CK_Rooms_HostedVehicleOwnership", "(`HostedVehicleId` IS NULL AND `HostedVehicleCompartmentId` IS NULL) OR (`HostedVehicleId` IS NOT NULL AND `HostedVehicleCompartmentId` IS NOT NULL)");
                         });
                 });
 
-            modelBuilder.Entity("MudSharp.Models.RouteCellLandmark", b =>
+            modelBuilder.Entity("MudSharp.Models.RoomEnvironmentalState", b =>
+                {
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime?>("LastDefileUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<double>("PressureDecayAnchor")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(0.0);
+
+                    b.Property<double>("PressureHalfLifeSeconds")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(3600.0);
+
+                    b.Property<long?>("PressureProfileId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<DateTime?>("PressureReferenceUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<double>("RecentPressure")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(0.0);
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)")
+                        .HasDefaultValue(0L);
+
+                    b.Property<double>("ScarDamage")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValue(0.0);
+
+                    b.Property<int>("SchemaVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int(11)")
+                        .HasDefaultValue(1);
+
+                    b.HasKey("RoomId")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("RoomEnvironmentalStates", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RoomEnvironmentalStates_Pressure", "`RecentPressure` >= 0 AND `PressureHalfLifeSeconds` > 0");
+
+                            t.HasCheckConstraint("CK_RoomEnvironmentalStates_ScarDamage", "`ScarDamage` >= 0");
+
+                            t.HasCheckConstraint("CK_RoomEnvironmentalStates_Versions", "`SchemaVersion` >= 1 AND `Revision` >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomMagicResource", b =>
+                {
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("MagicResourceId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<double>("Amount")
+                        .HasColumnType("double");
+
+                    b.HasKey("RoomId", "MagicResourceId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("MagicResourceId")
+                        .HasDatabaseName("FK_Rooms_MagicResources_MagicResources_idx");
+
+                    b.ToTable("Rooms_MagicResources", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomOverlay", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -21139,46 +20877,294 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("Description")
+                    b.Property<double>("AddedLight")
+                        .HasColumnType("double");
+
+                    b.Property<double>("AmbientLightFactor")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double")
+                        .HasDefaultValueSql("'1'");
+
+                    b.Property<long?>("AtmosphereId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("AtmosphereType")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .UseCollation("utf8mb4_unicode_ci");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("varchar(45)")
+                        .HasDefaultValueSql("'gas'")
+                        .UseCollation("utf8_general_ci");
 
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8mb4");
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("AtmosphereType"), "utf8");
 
-                    b.Property<int>("DisplayOrder")
-                        .HasColumnType("int(11)");
-
-                    b.Property<string>("Keywords")
-                        .IsRequired()
-                        .HasColumnType("varchar(500)")
-                        .UseCollation("utf8mb4_unicode_ci");
-
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Keywords"), "utf8mb4");
+                    b.Property<long?>("HearingProfileId")
+                        .HasColumnType("bigint(20)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("varchar(200)")
-                        .UseCollation("utf8mb4_unicode_ci");
+                        .HasColumnType("varchar(4000)")
+                        .UseCollation("utf8_general_ci");
 
-                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8mb4");
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
-                    b.Property<decimal>("PositionMetres")
-                        .HasColumnType("decimal(18,3)");
+                    b.Property<int>("OutdoorsType")
+                        .HasColumnType("int(11)");
 
-                    b.Property<long>("RouteCellId")
+                    b.Property<string>("RoomDescription")
+                        .IsRequired()
+                        .HasColumnType("varchar(4000)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RoomDescription"), "utf8");
+
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("Id")
+                    b.Property<string>("RoomName")
+                        .IsRequired()
+                        .HasColumnType("varchar(4000)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("RoomName"), "utf8");
+
+                    b.Property<long>("RoomOverlayPackageId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("RoomOverlayPackageRevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.Property<ulong>("SafeQuit")
+                        .HasColumnType("bit(1)");
+
+                    b.Property<long>("TerrainId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HearingProfileId")
+                        .HasDatabaseName("FK_RoomOverlays_HearingProfiles");
+
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_RoomOverlays_Rooms");
+
+                    b.HasIndex("TerrainId")
+                        .HasDatabaseName("FK_RoomOverlays_Terrains");
+
+                    b.HasIndex("RoomOverlayPackageId", "RoomOverlayPackageRevisionNumber")
+                        .HasDatabaseName("FK_RoomOverlays_RoomOverlayPackages");
+
+                    b.ToTable("RoomOverlays");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomOverlayExit", b =>
+                {
+                    b.Property<long>("RoomOverlayId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("ExitId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("RoomOverlayId", "ExitId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("RouteCellId", "PositionMetres")
-                        .HasDatabaseName("IX_RouteCellLandmarks_RouteCell_Position");
+                    b.HasIndex("ExitId")
+                        .HasDatabaseName("FK_RoomOverlays_Exits_Exits");
 
-                    b.ToTable("RouteCellLandmarks", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_RouteCellLandmarks_Position", "`PositionMetres` >= 0");
-                        });
+                    b.ToTable("RoomOverlays_Exits", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomOverlayPackage", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<int>("RevisionNumber")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("EditableItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(4000)")
+                        .UseCollation("utf8_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
+
+                    b.HasKey("Id", "RevisionNumber")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("EditableItemId")
+                        .HasDatabaseName("FK_RoomOverlayPackages_EditableItems");
+
+                    b.ToTable("RoomOverlayPackages");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomSpatialAreaContractionLedger", b =>
+                {
+                    b.Property<long>("AreaId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("LegacyRoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("AreaId", "LegacyRoomId");
+
+                    b.ToTable("RoomSpatialAreaContractionLedger", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomSpatialAreaMigrationLedger", b =>
+                {
+                    b.Property<long>("AreaId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("LegacyRoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("AreaId", "LegacyRoomId");
+
+                    b.ToTable("RoomSpatialAreaMigrationLedger", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomSpatialContractionLedger", b =>
+                {
+                    b.Property<long>("LegacyRoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Warning")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8mb4_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Warning"), "utf8mb4");
+
+                    b.Property<int>("X")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("Y")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("Z")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("ZoneId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("LegacyRoomId");
+
+                    b.ToTable("RoomSpatialContractionLedger", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomSpatialMigrationLedger", b =>
+                {
+                    b.Property<long>("LegacyRoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long?>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("Warning")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)")
+                        .UseCollation("utf8mb4_general_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Warning"), "utf8mb4");
+
+                    b.Property<int>("X")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("Y")
+                        .HasColumnType("int(11)");
+
+                    b.Property<int>("Z")
+                        .HasColumnType("int(11)");
+
+                    b.Property<long>("ZoneId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("LegacyRoomId");
+
+                    b.ToTable("RoomSpatialMigrationLedger", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomsForagableYield", b =>
+                {
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<string>("ForagableType")
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ForagableType"), "utf8mb4");
+
+                    b.Property<double>("Yield")
+                        .HasColumnType("double");
+
+                    b.HasKey("RoomId", "ForagableType")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("Rooms_ForagableYields", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomsGameItems", b =>
+                {
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("GameItemId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("RoomId", "GameItemId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("GameItemId")
+                        .HasDatabaseName("FK_Rooms_GameItems_GameItems");
+
+                    b.ToTable("Rooms_GameItems", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomsRangedCovers", b =>
+                {
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("RangedCoverId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("RoomId", "RangedCoverId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RangedCoverId")
+                        .HasDatabaseName("FK_Rooms_RangedCovers_RangedCovers_idx");
+
+                    b.ToTable("Rooms_RangedCovers", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomsTags", b =>
+                {
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("TagId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("RoomId", "TagId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("TagId")
+                        .HasDatabaseName("FK_Rooms_Tags_Tags_idx");
+
+                    b.ToTable("Rooms_Tags", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.RouteExitAnchor", b =>
@@ -21186,7 +21172,7 @@ namespace MudSharp.Migrations
                     b.Property<long>("ExitId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("RouteCellId")
+                    b.Property<long>("RouteRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<decimal>("ArrivalPositionMetres")
@@ -21198,11 +21184,11 @@ namespace MudSharp.Migrations
                     b.Property<decimal>("MinimumPositionMetres")
                         .HasColumnType("decimal(18,3)");
 
-                    b.HasKey("ExitId", "RouteCellId")
+                    b.HasKey("ExitId", "RouteRoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("RouteCellId", "MinimumPositionMetres", "MaximumPositionMetres")
-                        .HasDatabaseName("IX_RouteExitAnchors_RouteCell_Band");
+                    b.HasIndex("RouteRoomId", "MinimumPositionMetres", "MaximumPositionMetres")
+                        .HasDatabaseName("IX_RouteExitAnchors_RouteRoom_Band");
 
                     b.ToTable("RouteExitAnchors", null, t =>
                         {
@@ -21282,6 +21268,104 @@ namespace MudSharp.Migrations
                             t.HasCheckConstraint("CK_RouteMotionResourceLedgers_Amounts", "`ReservedAmount` >= 0 AND `ConsumedAmount` >= 0 AND `ConsumedAmount` <= `ReservedAmount`");
 
                             t.HasCheckConstraint("CK_RouteMotionResourceLedgers_Sequence", "`CheckpointSequence` >= 0");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RouteRoom", b =>
+                {
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<decimal>("DefaultPositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("LengthMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<decimal>("MetresPerRoomEquivalent")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<string>("NegativeDirectionName")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("NegativeDirectionName"), "utf8mb4");
+
+                    b.Property<string>("PositiveDirectionName")
+                        .IsRequired()
+                        .HasColumnType("varchar(100)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("PositiveDirectionName"), "utf8mb4");
+
+                    b.Property<long>("TopologyVersion")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)")
+                        .HasDefaultValue(1L);
+
+                    b.HasKey("RoomId")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("RouteRooms", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RouteRooms_DefaultPosition", "`DefaultPositionMetres` >= 0 AND `DefaultPositionMetres` <= `LengthMetres`");
+
+                            t.HasCheckConstraint("CK_RouteRooms_Length", "`LengthMetres` > 0");
+
+                            t.HasCheckConstraint("CK_RouteRooms_RoomEquivalent", "`MetresPerRoomEquivalent` > 0");
+
+                            t.HasCheckConstraint("CK_RouteRooms_TopologyVersion", "`TopologyVersion` >= 1");
+                        });
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RouteRoomLandmark", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Description"), "utf8mb4");
+
+                    b.Property<int>("DisplayOrder")
+                        .HasColumnType("int(11)");
+
+                    b.Property<string>("Keywords")
+                        .IsRequired()
+                        .HasColumnType("varchar(500)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Keywords"), "utf8mb4");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("varchar(200)")
+                        .UseCollation("utf8mb4_unicode_ci");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8mb4");
+
+                    b.Property<decimal>("PositionMetres")
+                        .HasColumnType("decimal(18,3)");
+
+                    b.Property<long>("RouteRoomId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("RouteRoomId", "PositionMetres")
+                        .HasDatabaseName("IX_RouteRoomLandmarks_RouteRoom_Position");
+
+                    b.ToTable("RouteRoomLandmarks", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_RouteRoomLandmarks_Position", "`PositionMetres` >= 0");
                         });
                 });
 
@@ -21802,13 +21886,13 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("ShopType"), "utf8");
 
-                    b.Property<long?>("StockroomCellId")
+                    b.Property<long?>("StockroomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long?>("WhyCannotShopProgId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long?>("WorkshopCellId")
+                    b.Property<long?>("WorkshopRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.HasKey("Id");
@@ -21826,14 +21910,14 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("MarketId");
 
-                    b.HasIndex("StockroomCellId")
-                        .HasDatabaseName("FK_Shops_Cells_Stockroom_idx");
+                    b.HasIndex("StockroomId")
+                        .HasDatabaseName("FK_Shops_Rooms_Stockroom_idx");
 
                     b.HasIndex("WhyCannotShopProgId")
                         .HasDatabaseName("FK_Shops_FutureProgs_WhyCant_idx");
 
-                    b.HasIndex("WorkshopCellId")
-                        .HasDatabaseName("FK_Shops_Cells_Workshop_idx");
+                    b.HasIndex("WorkshopRoomId")
+                        .HasDatabaseName("FK_Shops_Rooms_Workshop_idx");
 
                     b.ToTable("Shops");
                 });
@@ -22058,21 +22142,21 @@ namespace MudSharp.Migrations
                     b.ToTable("ShopperLogs");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.ShopsStoreroomCell", b =>
+            modelBuilder.Entity("MudSharp.Models.ShopsStoreroomRoom", b =>
                 {
                     b.Property<long>("ShopId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
+                    b.Property<long>("RoomId")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("ShopId", "CellId")
+                    b.HasKey("ShopId", "RoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_Shops_StoreroomCells_Cells_idx");
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_Shops_StoreroomRooms_Rooms_idx");
 
-                    b.ToTable("Shops_StoreroomCells", (string)null);
+                    b.ToTable("Shops_StoreroomRooms", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.ShopsTill", b =>
@@ -22381,9 +22465,6 @@ namespace MudSharp.Migrations
                     b.Property<long?>("CanStableProgId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<decimal>("DailyFee")
                         .HasColumnType("decimal(58,29)");
 
@@ -22418,6 +22499,9 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8");
 
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<long?>("WhyCannotStableProgId")
                         .HasColumnType("bigint(20)");
 
@@ -22430,9 +22514,6 @@ namespace MudSharp.Migrations
                     b.HasIndex("CanStableProgId")
                         .HasDatabaseName("FK_Stables_FutureProgs_Can_idx");
 
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_Stables_Cells_idx");
-
                     b.HasIndex("DailyFeeProgId")
                         .HasDatabaseName("FK_Stables_FutureProgs_Daily_idx");
 
@@ -22441,6 +22522,9 @@ namespace MudSharp.Migrations
 
                     b.HasIndex("LodgeFeeProgId")
                         .HasDatabaseName("FK_Stables_FutureProgs_Lodge_idx");
+
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_Stables_Rooms_idx");
 
                     b.HasIndex("WhyCannotStableProgId")
                         .HasDatabaseName("FK_Stables_FutureProgs_Why_idx");
@@ -22946,7 +23030,7 @@ namespace MudSharp.Migrations
                     b.Property<long?>("DefaultAgricultureFieldProfileId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<int>("DefaultCellOutdoorsType")
+                    b.Property<int>("DefaultRoomOutdoorsType")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int(11)")
                         .HasDefaultValue(0);
@@ -23147,9 +23231,6 @@ namespace MudSharp.Migrations
                     b.Property<long?>("BodyPrototypeId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
-
                     b.Property<long?>("CharacterId")
                         .HasColumnType("bigint(20)");
 
@@ -23167,6 +23248,9 @@ namespace MudSharp.Migrations
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("MudDateTime"), "utf8");
+
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
 
                     b.Property<int>("RoomLayer")
                         .HasColumnType("int(11)");
@@ -23216,8 +23300,8 @@ namespace MudSharp.Migrations
                     b.HasIndex("VehicleId")
                         .HasDatabaseName("FK_Tracks_Vehicles_idx");
 
-                    b.HasIndex("CellId", "RoomLayer", "RoutePosition")
-                        .HasDatabaseName("IX_Tracks_Cell_Layer_RoutePosition");
+                    b.HasIndex("RoomId", "RoomLayer", "RoutePosition")
+                        .HasDatabaseName("IX_Tracks_Room_Layer_RoutePosition");
 
                     b.ToTable("Tracks", null, t =>
                         {
@@ -23758,10 +23842,10 @@ namespace MudSharp.Migrations
                     b.Property<DateTime>("CreatedDateTime")
                         .HasColumnType("datetime");
 
-                    b.Property<long?>("CurrentCellId")
+                    b.Property<long?>("CurrentExitId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long?>("CurrentExitId")
+                    b.Property<long?>("CurrentRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<int>("CurrentRoomLayer")
@@ -23770,7 +23854,7 @@ namespace MudSharp.Migrations
                     b.Property<decimal?>("CurrentRoutePosition")
                         .HasColumnType("decimal(18,3)");
 
-                    b.Property<long?>("DestinationCellId")
+                    b.Property<long?>("DestinationRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long?>("ExteriorItemId")
@@ -23807,14 +23891,14 @@ namespace MudSharp.Migrations
                     b.HasIndex("ActivePropulsionProfileProtoId")
                         .HasDatabaseName("FK_Vehicles_PropulsionProfileProtos_idx");
 
-                    b.HasIndex("CurrentCellId")
-                        .HasDatabaseName("FK_Vehicles_Cells_Current_idx");
-
                     b.HasIndex("CurrentExitId")
                         .HasDatabaseName("FK_Vehicles_Exits_idx");
 
-                    b.HasIndex("DestinationCellId")
-                        .HasDatabaseName("FK_Vehicles_Cells_Destination_idx");
+                    b.HasIndex("CurrentRoomId")
+                        .HasDatabaseName("FK_Vehicles_Rooms_Current_idx");
+
+                    b.HasIndex("DestinationRoomId")
+                        .HasDatabaseName("FK_Vehicles_Rooms_Destination_idx");
 
                     b.HasIndex("ExteriorItemId")
                         .IsUnique()
@@ -23826,8 +23910,8 @@ namespace MudSharp.Migrations
                     b.HasIndex("VehicleProtoId", "VehicleProtoRevision")
                         .HasDatabaseName("FK_Vehicles_VehicleProtos_idx");
 
-                    b.HasIndex("CurrentCellId", "CurrentRoomLayer", "CurrentRoutePosition")
-                        .HasDatabaseName("IX_Vehicles_Cell_Layer_RoutePosition");
+                    b.HasIndex("CurrentRoomId", "CurrentRoomLayer", "CurrentRoutePosition")
+                        .HasDatabaseName("IX_Vehicles_Room_Layer_RoutePosition");
 
                     b.ToTable("Vehicles", (string)null);
                 });
@@ -24117,7 +24201,7 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long?>("InteriorCellId")
+                    b.Property<long?>("InteriorRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<string>("Name")
@@ -24136,9 +24220,9 @@ namespace MudSharp.Migrations
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("InteriorCellId")
+                    b.HasIndex("InteriorRoomId")
                         .IsUnique()
-                        .HasDatabaseName("UX_VehicleCompartments_InteriorCell");
+                        .HasDatabaseName("UX_VehicleCompartments_InteriorRoom");
 
                     b.HasIndex("VehicleCompartmentProtoId")
                         .HasDatabaseName("FK_VehicleCompartments_Protos_idx");
@@ -24433,7 +24517,7 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("ExteriorCellId")
+                    b.Property<long>("ExteriorRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<int>("ExteriorRoomLayer")
@@ -24469,8 +24553,8 @@ namespace MudSharp.Migrations
                     b.HasIndex("VehicleRouteStopId")
                         .HasDatabaseName("FK_VehicleDockings_VehicleRouteStops_idx");
 
-                    b.HasIndex("ExteriorCellId", "ExteriorRoomLayer")
-                        .HasDatabaseName("IX_VehicleDockings_ExteriorCell_Layer");
+                    b.HasIndex("ExteriorRoomId", "ExteriorRoomLayer")
+                        .HasDatabaseName("IX_VehicleDockings_ExteriorRoom_Layer");
 
                     b.HasIndex("VehicleId", "State")
                         .HasDatabaseName("IX_VehicleDockings_Vehicle_State");
@@ -25280,7 +25364,7 @@ namespace MudSharp.Migrations
                         .HasColumnType("decimal(18,3)")
                         .HasDefaultValue(2.0m);
 
-                    b.Property<long>("PlatformCellId")
+                    b.Property<long>("PlatformRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long>("VehicleAccessPointProtoId")
@@ -25292,13 +25376,13 @@ namespace MudSharp.Migrations
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("PlatformCellId")
-                        .HasDatabaseName("FK_VehicleRoutePlatformBindings_Cells_idx");
+                    b.HasIndex("PlatformRoomId")
+                        .HasDatabaseName("FK_VehicleRoutePlatformBindings_Rooms_idx");
 
                     b.HasIndex("VehicleAccessPointProtoId")
                         .HasDatabaseName("FK_VehicleRoutePlatformBindings_AccessPointProtos_idx");
 
-                    b.HasIndex("VehicleRouteStopId", "PlatformCellId", "VehicleAccessPointProtoId")
+                    b.HasIndex("VehicleRouteStopId", "PlatformRoomId", "VehicleAccessPointProtoId")
                         .IsUnique()
                         .HasDatabaseName("UX_VehicleRoutePlatformBindings_Stop_Platform_AccessPoint");
 
@@ -25316,7 +25400,7 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("DestinationCellId")
+                    b.Property<long>("DestinationRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<int>("DestinationRoomLayer")
@@ -25337,7 +25421,7 @@ namespace MudSharp.Migrations
                     b.Property<long?>("ExitId")
                         .HasColumnType("bigint(20)");
 
-                    b.Property<long>("OriginCellId")
+                    b.Property<long>("OriginRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<int>("OriginRoomLayer")
@@ -25364,14 +25448,14 @@ namespace MudSharp.Migrations
                     b.HasKey("Id")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("DestinationCellId")
-                        .HasDatabaseName("FK_VehicleRouteSteps_DestinationCells_idx");
+                    b.HasIndex("DestinationRoomId")
+                        .HasDatabaseName("FK_VehicleRouteSteps_DestinationRooms_idx");
 
                     b.HasIndex("ExitId")
                         .HasDatabaseName("FK_VehicleRouteSteps_Exits_idx");
 
-                    b.HasIndex("OriginCellId")
-                        .HasDatabaseName("FK_VehicleRouteSteps_OriginCells_idx");
+                    b.HasIndex("OriginRoomId")
+                        .HasDatabaseName("FK_VehicleRouteSteps_OriginRooms_idx");
 
                     b.HasIndex("VehicleRouteLegId", "Sequence")
                         .IsUnique()
@@ -25385,7 +25469,7 @@ namespace MudSharp.Migrations
 
                             t.HasCheckConstraint("CK_VehicleRouteSteps_Sequence", "`Sequence` >= 0");
 
-                            t.HasCheckConstraint("CK_VehicleRouteSteps_TypedPayload", "(`StepType` = 0 AND `ExitId` IS NULL AND `Direction` IS NOT NULL AND `Direction` IN (-1, 1) AND `PinnedTopologyVersion` IS NOT NULL AND `DestinationTopologyVersion` = `PinnedTopologyVersion` AND `DistanceMetres` IS NOT NULL AND `DistanceMetres` >= 0 AND `OriginRoutePositionMetres` IS NOT NULL AND `DestinationRoutePositionMetres` IS NOT NULL AND `OriginCellId` = `DestinationCellId` AND `OriginRoomLayer` = `DestinationRoomLayer`) OR (`StepType` = 1 AND `ExitId` IS NOT NULL AND `Direction` IS NULL AND `DistanceMetres` IS NULL)");
+                            t.HasCheckConstraint("CK_VehicleRouteSteps_TypedPayload", "(`StepType` = 0 AND `ExitId` IS NULL AND `Direction` IS NOT NULL AND `Direction` IN (-1, 1) AND `PinnedTopologyVersion` IS NOT NULL AND `DestinationTopologyVersion` = `PinnedTopologyVersion` AND `DistanceMetres` IS NOT NULL AND `DistanceMetres` >= 0 AND `OriginRoutePositionMetres` IS NOT NULL AND `DestinationRoutePositionMetres` IS NOT NULL AND `OriginRoomId` = `DestinationRoomId` AND `OriginRoomLayer` = `DestinationRoomLayer`) OR (`StepType` = 1 AND `ExitId` IS NOT NULL AND `Direction` IS NULL AND `DistanceMetres` IS NULL)");
                         });
                 });
 
@@ -25396,9 +25480,6 @@ namespace MudSharp.Migrations
                         .HasColumnType("bigint(20)");
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<long>("CellId")
-                        .HasColumnType("bigint(20)");
 
                     b.Property<long>("DwellDurationMilliseconds")
                         .ValueGeneratedOnAdd()
@@ -25411,6 +25492,9 @@ namespace MudSharp.Migrations
                         .UseCollation("utf8mb4_unicode_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8mb4");
+
+                    b.Property<long>("RoomId")
+                        .HasColumnType("bigint(20)");
 
                     b.Property<int>("RoomLayer")
                         .HasColumnType("int(11)");
@@ -25433,8 +25517,8 @@ namespace MudSharp.Migrations
                     b.HasAlternateKey("Id", "VehicleRouteId", "VehicleRouteRevision")
                         .HasName("AK_VehicleRouteStops_Id_Route");
 
-                    b.HasIndex("CellId")
-                        .HasDatabaseName("FK_VehicleRouteStops_Cells_idx");
+                    b.HasIndex("RoomId")
+                        .HasDatabaseName("FK_VehicleRouteStops_Rooms_idx");
 
                     b.HasIndex("VehicleRouteId", "VehicleRouteRevision", "Sequence")
                         .IsUnique()
@@ -25458,17 +25542,17 @@ namespace MudSharp.Migrations
                     b.Property<int>("VehicleRouteRevision")
                         .HasColumnType("int(11)");
 
-                    b.Property<long>("RouteCellId")
+                    b.Property<long>("RouteRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long>("TopologyVersion")
                         .HasColumnType("bigint(20)");
 
-                    b.HasKey("VehicleRouteId", "VehicleRouteRevision", "RouteCellId")
+                    b.HasKey("VehicleRouteId", "VehicleRouteRevision", "RouteRoomId")
                         .HasName("PRIMARY");
 
-                    b.HasIndex("RouteCellId")
-                        .HasDatabaseName("FK_VehicleRouteTopologyPins_RouteCells_idx");
+                    b.HasIndex("RouteRoomId")
+                        .HasDatabaseName("FK_VehicleRouteTopologyPins_RouteRooms_idx");
 
                     b.ToTable("VehicleRouteTopologyPins", null, t =>
                         {
@@ -26832,7 +26916,7 @@ namespace MudSharp.Migrations
                     b.Property<double>("AmbientLightPollution")
                         .HasColumnType("double");
 
-                    b.Property<long?>("DefaultCellId")
+                    b.Property<long?>("DefaultRoomId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<double>("Elevation")
@@ -26862,8 +26946,8 @@ namespace MudSharp.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("DefaultCellId")
-                        .HasDatabaseName("FK_Zones_Cells");
+                    b.HasIndex("DefaultRoomId")
+                        .HasDatabaseName("FK_Zones_Rooms");
 
                     b.HasIndex("ShardId")
                         .HasDatabaseName("FK_Zones_Shards");
@@ -26995,7 +27079,7 @@ namespace MudSharp.Migrations
                         .WithMany()
                         .HasForeignKey("ScopeCharacterId");
 
-                    b.HasOne("MudSharp.Models.Cell", "ScopeRoom")
+                    b.HasOne("MudSharp.Models.Room", "ScopeRoom")
                         .WithMany()
                         .HasForeignKey("ScopeRoomId");
 
@@ -27104,11 +27188,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.ActiveProject", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("ActiveProjects")
-                        .HasForeignKey("CellId")
-                        .HasConstraintName("FK_ActiveProjects_Cells");
-
                     b.HasOne("MudSharp.Models.Character", "Character")
                         .WithMany("ActiveProjects")
                         .HasForeignKey("CharacterId")
@@ -27128,14 +27207,17 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_ActiveProjects_PaymentCurrencies");
 
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("ActiveProjects")
+                        .HasForeignKey("RoomId")
+                        .HasConstraintName("FK_ActiveProjects_Rooms");
+
                     b.HasOne("MudSharp.Models.Project", "Project")
                         .WithMany("ActiveProjects")
                         .HasForeignKey("ProjectId", "ProjectRevisionNumber")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("FK_ActiveProjects_Projects");
-
-                    b.Navigation("Cell");
 
                     b.Navigation("Character");
 
@@ -27144,6 +27226,8 @@ namespace MudSharp.Migrations
                     b.Navigation("PaymentCurrency");
 
                     b.Navigation("Project");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ActiveProjectLabour", b =>
@@ -27190,12 +27274,12 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.ActiveRouteMotion", b =>
                 {
-                    b.HasOne("MudSharp.Models.RouteCell", "RouteCell")
+                    b.HasOne("MudSharp.Models.RouteRoom", "RouteRoom")
                         .WithMany("ActiveMotions")
-                        .HasForeignKey("RouteCellId")
+                        .HasForeignKey("RouteRoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_ActiveRouteMotions_RouteCells");
+                        .HasConstraintName("FK_ActiveRouteMotions_RouteRooms");
 
                     b.HasOne("MudSharp.Models.Exit", "SelectedExit")
                         .WithMany()
@@ -27203,20 +27287,13 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_ActiveRouteMotions_Exits");
 
-                    b.Navigation("RouteCell");
+                    b.Navigation("RouteRoom");
 
                     b.Navigation("SelectedExit");
                 });
 
             modelBuilder.Entity("MudSharp.Models.AgricultureField", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithOne("AgricultureField")
-                        .HasForeignKey("MudSharp.Models.AgricultureField", "CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_AgricultureFields_Cells");
-
                     b.HasOne("MudSharp.Models.AgricultureFieldProfile", "Profile")
                         .WithMany("AgricultureFields")
                         .HasForeignKey("ProfileId")
@@ -27224,9 +27301,16 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_AgricultureFields_Profiles");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithOne("AgricultureField")
+                        .HasForeignKey("MudSharp.Models.AgricultureField", "RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_AgricultureFields_Rooms");
 
                     b.Navigation("Profile");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.AgricultureFieldCrop", b =>
@@ -27611,27 +27695,6 @@ namespace MudSharp.Migrations
                     b.Navigation("ArenaEvent");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.ArenaCell", b =>
-                {
-                    b.HasOne("MudSharp.Models.Arena", "Arena")
-                        .WithMany("ArenaCells")
-                        .HasForeignKey("ArenaId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_ArenaCells_Arenas");
-
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_ArenaCells_Cells");
-
-                    b.Navigation("Arena");
-
-                    b.Navigation("Cell");
-                });
-
             modelBuilder.Entity("MudSharp.Models.ArenaCombatantClass", b =>
                 {
                     b.HasOne("MudSharp.Models.FutureProg", "AdminNpcLoaderProg")
@@ -27930,6 +27993,27 @@ namespace MudSharp.Migrations
                     b.Navigation("Clan");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.ArenaRoom", b =>
+                {
+                    b.HasOne("MudSharp.Models.Arena", "Arena")
+                        .WithMany("ArenaRooms")
+                        .HasForeignKey("ArenaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ArenaRooms_Arenas");
+
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ArenaRooms_Rooms");
+
+                    b.Navigation("Arena");
+
+                    b.Navigation("Room");
+                });
+
             modelBuilder.Entity("MudSharp.Models.ArenaSignup", b =>
                 {
                     b.HasOne("MudSharp.Models.ArenaEvent", "ArenaEvent")
@@ -27970,12 +28054,12 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.AuctionHouse", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "AuctionHouseCell")
+                    b.HasOne("MudSharp.Models.Room", "AuctionHouseRoom")
                         .WithMany()
-                        .HasForeignKey("AuctionHouseCellId")
+                        .HasForeignKey("AuctionHouseRoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_AuctionHouses_Cells");
+                        .HasConstraintName("FK_AuctionHouses_Rooms");
 
                     b.HasOne("MudSharp.Models.EconomicZone", "EconomicZone")
                         .WithMany()
@@ -27990,7 +28074,7 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_AuctionHouses_BankAccounts");
 
-                    b.Navigation("AuctionHouseCell");
+                    b.Navigation("AuctionHouseRoom");
 
                     b.Navigation("EconomicZone");
 
@@ -28147,16 +28231,16 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_BankBranches_Banks");
 
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
+                    b.HasOne("MudSharp.Models.Room", "Room")
                         .WithMany()
-                        .HasForeignKey("CellId")
+                        .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_BankBranches_Cells");
+                        .HasConstraintName("FK_BankBranches_Rooms");
 
                     b.Navigation("Bank");
 
-                    b.Navigation("Cell");
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.BankCurrencyReserve", b =>
@@ -28794,220 +28878,6 @@ namespace MudSharp.Migrations
                     b.Navigation("ButcheryProduct");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.Cell", b =>
-                {
-                    b.HasOne("MudSharp.Models.CellOverlay", "CurrentOverlay")
-                        .WithMany("Cells")
-                        .HasForeignKey("CurrentOverlayId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_Cells_CellOverlays");
-
-                    b.HasOne("MudSharp.Models.VehicleCompartment", "HostedVehicleCompartment")
-                        .WithMany()
-                        .HasForeignKey("HostedVehicleCompartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("FK_Cells_HostedVehicleCompartments");
-
-                    b.HasOne("MudSharp.Models.Vehicle", "HostedVehicle")
-                        .WithMany("HostedCells")
-                        .HasForeignKey("HostedVehicleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("FK_Cells_HostedVehicles");
-
-                    b.HasOne("MudSharp.Models.Room", "Room")
-                        .WithMany("Cells")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Cells_Rooms");
-
-                    b.Navigation("CurrentOverlay");
-
-                    b.Navigation("HostedVehicle");
-
-                    b.Navigation("HostedVehicleCompartment");
-
-                    b.Navigation("Room");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellEnvironmentalState", b =>
-                {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithOne("EnvironmentalState")
-                        .HasForeignKey("MudSharp.Models.CellEnvironmentalState", "CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_CellEnvironmentalStates_Cells");
-
-                    b.Navigation("Cell");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellMagicResource", b =>
-                {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("CellsMagicResources")
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Cells_MagicResources_Cells");
-
-                    b.HasOne("MudSharp.Models.MagicResource", "MagicResource")
-                        .WithMany("CellsMagicResources")
-                        .HasForeignKey("MagicResourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Cells_MagicResources_MagicResources");
-
-                    b.Navigation("Cell");
-
-                    b.Navigation("MagicResource");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellOverlay", b =>
-                {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("CellOverlays")
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_CellOverlays_Cells");
-
-                    b.HasOne("MudSharp.Models.HearingProfile", "HearingProfile")
-                        .WithMany("CellOverlays")
-                        .HasForeignKey("HearingProfileId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_CellOverlays_HearingProfiles");
-
-                    b.HasOne("MudSharp.Models.Terrain", "Terrain")
-                        .WithMany("CellOverlays")
-                        .HasForeignKey("TerrainId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_CellOverlays_Terrains");
-
-                    b.HasOne("MudSharp.Models.CellOverlayPackage", "CellOverlayPackage")
-                        .WithMany("CellOverlays")
-                        .HasForeignKey("CellOverlayPackageId", "CellOverlayPackageRevisionNumber")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_CellOverlays_CellOverlayPackages");
-
-                    b.Navigation("Cell");
-
-                    b.Navigation("CellOverlayPackage");
-
-                    b.Navigation("HearingProfile");
-
-                    b.Navigation("Terrain");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellOverlayExit", b =>
-                {
-                    b.HasOne("MudSharp.Models.CellOverlay", "CellOverlay")
-                        .WithMany("CellOverlaysExits")
-                        .HasForeignKey("CellOverlayId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_CellOverlays_Exits_CellOverlays");
-
-                    b.HasOne("MudSharp.Models.Exit", "Exit")
-                        .WithMany("CellOverlaysExits")
-                        .HasForeignKey("ExitId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_CellOverlays_Exits_Exits");
-
-                    b.Navigation("CellOverlay");
-
-                    b.Navigation("Exit");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellOverlayPackage", b =>
-                {
-                    b.HasOne("MudSharp.Models.EditableItem", "EditableItem")
-                        .WithMany("CellOverlayPackages")
-                        .HasForeignKey("EditableItemId")
-                        .IsRequired()
-                        .HasConstraintName("FK_CellOverlayPackages_EditableItems");
-
-                    b.Navigation("EditableItem");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellsForagableYield", b =>
-                {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("CellsForagableYields")
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Cells_ForagableYields_Cells");
-
-                    b.Navigation("Cell");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellsGameItems", b =>
-                {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("CellsGameItems")
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Cells_GameItems_Cells");
-
-                    b.HasOne("MudSharp.Models.GameItem", "GameItem")
-                        .WithMany("CellsGameItems")
-                        .HasForeignKey("GameItemId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Cells_GameItems_GameItems");
-
-                    b.Navigation("Cell");
-
-                    b.Navigation("GameItem");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellsRangedCovers", b =>
-                {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("CellsRangedCovers")
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Cells_RangedCovers_Cells");
-
-                    b.HasOne("MudSharp.Models.RangedCover", "RangedCover")
-                        .WithMany("CellsRangedCovers")
-                        .HasForeignKey("RangedCoverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Cells_RangedCovers_RangedCovers");
-
-                    b.Navigation("Cell");
-
-                    b.Navigation("RangedCover");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellsTags", b =>
-                {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("CellsTags")
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Cells_Tags_Cells");
-
-                    b.HasOne("MudSharp.Models.Tag", "Tag")
-                        .WithMany("CellsTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Cells_Tags_Tags");
-
-                    b.Navigation("Cell");
-
-                    b.Navigation("Tag");
-                });
-
             modelBuilder.Entity("MudSharp.Models.Channel", b =>
                 {
                     b.HasOne("MudSharp.Models.FutureProg", "ChannelListenerProg")
@@ -29139,11 +29009,11 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Characters_Languages_Written");
 
-                    b.HasOne("MudSharp.Models.Cell", "LocationNavigation")
+                    b.HasOne("MudSharp.Models.Room", "LocationNavigation")
                         .WithMany("Characters")
                         .HasForeignKey("Location")
                         .IsRequired()
-                        .HasConstraintName("FK_Characters_Cells");
+                        .HasConstraintName("FK_Characters_Rooms");
 
                     b.HasOne("MudSharp.Models.Language", "NativeLanguage")
                         .WithMany()
@@ -29440,11 +29310,11 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_CharacterInstances_Characters");
 
-                    b.HasOne("MudSharp.Models.Cell", "Location")
+                    b.HasOne("MudSharp.Models.Room", "Location")
                         .WithMany("CharacterInstances")
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_CharacterInstances_Cells");
+                        .HasConstraintName("FK_CharacterInstances_Rooms");
 
                     b.Navigation("AnchorInstance");
 
@@ -29495,13 +29365,6 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_CharacterLog_Accounts");
 
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("CharacterLog")
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_CharacterLog_Cells");
-
                     b.HasOne("MudSharp.Models.Character", "Character")
                         .WithMany("CharacterLog")
                         .HasForeignKey("CharacterId")
@@ -29509,11 +29372,18 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_CharacterLog_Characters");
 
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("CharacterLog")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_CharacterLog_Rooms");
+
                     b.Navigation("Account");
 
-                    b.Navigation("Cell");
-
                     b.Navigation("Character");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CharacterMagicCapabilityState", b =>
@@ -30181,25 +30051,25 @@ namespace MudSharp.Migrations
                     b.Navigation("Paymaster");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.ClanAdministrationCell", b =>
+            modelBuilder.Entity("MudSharp.Models.ClanAdministrationRoom", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("ClansAdministrationCells")
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Clans_AdministrationCells_Cells");
-
                     b.HasOne("MudSharp.Models.Clan", "Clan")
-                        .WithMany("ClansAdministrationCells")
+                        .WithMany("ClansAdministrationRooms")
                         .HasForeignKey("ClanId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_Clans_AdministrationCells_Clans");
+                        .HasConstraintName("FK_Clans_AdministrationRooms_Clans");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("ClansAdministrationRooms")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Clans_AdministrationRooms_Rooms");
 
                     b.Navigation("Clan");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ClanBudget", b =>
@@ -30278,25 +30148,25 @@ namespace MudSharp.Migrations
                     b.Navigation("Currency");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.ClanHallCell", b =>
+            modelBuilder.Entity("MudSharp.Models.ClanHallRoom", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("ClansHallCells")
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Clans_HallCells_Cells");
-
                     b.HasOne("MudSharp.Models.Clan", "Clan")
-                        .WithMany("ClansHallCells")
+                        .WithMany("ClansHallRooms")
                         .HasForeignKey("ClanId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_Clans_HallCells_Clans");
+                        .HasConstraintName("FK_Clans_HallRooms_Clans");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("ClansHallRooms")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Clans_HallRooms_Rooms");
 
                     b.Navigation("Clan");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ClanMembership", b =>
@@ -30432,25 +30302,25 @@ namespace MudSharp.Migrations
                     b.Navigation("Rank");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.ClanTreasuryCell", b =>
+            modelBuilder.Entity("MudSharp.Models.ClanTreasuryRoom", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("ClansTreasuryCells")
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Clans_TreasuryCells_Cells");
-
                     b.HasOne("MudSharp.Models.Clan", "Clan")
-                        .WithMany("ClansTreasuryCells")
+                        .WithMany("ClansTreasuryRooms")
                         .HasForeignKey("ClanId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_Clans_TreasuryCells_Clans");
+                        .HasConstraintName("FK_Clans_TreasuryRooms_Clans");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("ClansTreasuryRooms")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Clans_TreasuryRooms_Rooms");
 
                     b.Navigation("Clan");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ClimateModelSeason", b =>
@@ -30693,13 +30563,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.ConveyancingLocation", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_ConveyancingLocations_Cells");
-
                     b.HasOne("MudSharp.Models.EconomicZone", "EconomicZone")
                         .WithMany("ConveyancingLocations")
                         .HasForeignKey("EconomicZoneId")
@@ -30707,9 +30570,16 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_ConveyancingLocations_EconomicZones");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ConveyancingLocations_Rooms");
 
                     b.Navigation("EconomicZone");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.CorpseRecoveryReport", b =>
@@ -30727,12 +30597,12 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_CorpseRecoveryReports_GameItems");
 
-                    b.HasOne("MudSharp.Models.Cell", "DestinationCell")
+                    b.HasOne("MudSharp.Models.Room", "DestinationRoom")
                         .WithMany()
-                        .HasForeignKey("DestinationCellId")
+                        .HasForeignKey("DestinationRoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_CorpseRecoveryReports_DestinationCells");
+                        .HasConstraintName("FK_CorpseRecoveryReports_DestinationRooms");
 
                     b.HasOne("MudSharp.Models.EconomicZone", "EconomicZone")
                         .WithMany()
@@ -30754,18 +30624,18 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_CorpseRecoveryReports_Characters");
 
-                    b.HasOne("MudSharp.Models.Cell", "SourceCell")
+                    b.HasOne("MudSharp.Models.Room", "SourceRoom")
                         .WithMany()
-                        .HasForeignKey("SourceCellId")
+                        .HasForeignKey("SourceRoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_CorpseRecoveryReports_SourceCells");
+                        .HasConstraintName("FK_CorpseRecoveryReports_SourceRooms");
 
                     b.Navigation("AssignedPatrol");
 
                     b.Navigation("Corpse");
 
-                    b.Navigation("DestinationCell");
+                    b.Navigation("DestinationRoom");
 
                     b.Navigation("EconomicZone");
 
@@ -30773,7 +30643,7 @@ namespace MudSharp.Migrations
 
                     b.Navigation("Reporter");
 
-                    b.Navigation("SourceCell");
+                    b.Navigation("SourceRoom");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Craft", b =>
@@ -30912,7 +30782,7 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Crimes_Laws");
 
-                    b.HasOne("MudSharp.Models.Cell", "Location")
+                    b.HasOne("MudSharp.Models.Room", "Location")
                         .WithMany("Crimes")
                         .HasForeignKey("LocationId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -31290,13 +31160,13 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_EconomicZones_EstateAuctionHouses");
 
-                    b.HasOne("MudSharp.Models.Cell", "MorgueOfficeLocation")
+                    b.HasOne("MudSharp.Models.Room", "MorgueOfficeLocation")
                         .WithMany()
                         .HasForeignKey("MorgueOfficeLocationId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_EconomicZones_MorgueOfficeLocations");
 
-                    b.HasOne("MudSharp.Models.Cell", "MorgueStorageLocation")
+                    b.HasOne("MudSharp.Models.Room", "MorgueStorageLocation")
                         .WithMany()
                         .HasForeignKey("MorgueStorageLocationId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -32487,12 +32357,6 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_Hooks_Perceivables_Bodies");
 
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("HooksPerceivables")
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .HasConstraintName("FK_Hooks_Perceivables_Cells");
-
                     b.HasOne("MudSharp.Models.Character", "Character")
                         .WithMany("HooksPerceivables")
                         .HasForeignKey("CharacterId")
@@ -32512,6 +32376,12 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Hooks_Perceivables_Hooks");
 
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("HooksPerceivables")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("FK_Hooks_Perceivables_Rooms");
+
                     b.HasOne("MudSharp.Models.Shard", "Shard")
                         .WithMany("HooksPerceivables")
                         .HasForeignKey("ShardId")
@@ -32526,13 +32396,13 @@ namespace MudSharp.Migrations
 
                     b.Navigation("Body");
 
-                    b.Navigation("Cell");
-
                     b.Navigation("Character");
 
                     b.Navigation("GameItem");
 
                     b.Navigation("Hook");
+
+                    b.Navigation("Room");
 
                     b.Navigation("Shard");
 
@@ -32582,13 +32452,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.HospitalLocation", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_HospitalLocations_Cells");
-
                     b.HasOne("MudSharp.Models.Hospital", "Hospital")
                         .WithMany("Locations")
                         .HasForeignKey("HospitalId")
@@ -32596,9 +32459,16 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_HospitalLocations_Hospitals");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_HospitalLocations_Rooms");
 
                     b.Navigation("Hospital");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.HospitalPatientDebtAccount", b =>
@@ -32704,11 +32574,11 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_HospitalServiceRequests_HospitalServices");
 
-                    b.HasOne("MudSharp.Models.Cell", "OperatingTheatreCell")
+                    b.HasOne("MudSharp.Models.Room", "OperatingTheatreRoom")
                         .WithMany()
-                        .HasForeignKey("OperatingTheatreCellId")
+                        .HasForeignKey("OperatingTheatreRoomId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_HospitalServiceRequests_Cells_Theatre");
+                        .HasConstraintName("FK_HospitalServiceRequests_Rooms_Theatre");
 
                     b.HasOne("MudSharp.Models.Character", "Patient")
                         .WithMany()
@@ -32723,11 +32593,11 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_HospitalServiceRequests_Characters_PreparedBy");
 
-                    b.HasOne("MudSharp.Models.Cell", "RecoveryRoomCell")
+                    b.HasOne("MudSharp.Models.Room", "RecoveryRoomRoom")
                         .WithMany()
-                        .HasForeignKey("RecoveryRoomCellId")
+                        .HasForeignKey("RecoveryRoomId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_HospitalServiceRequests_Cells_Recovery");
+                        .HasConstraintName("FK_HospitalServiceRequests_Rooms_Recovery");
 
                     b.HasOne("MudSharp.Models.Character", "Requester")
                         .WithMany()
@@ -32736,11 +32606,11 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_HospitalServiceRequests_Characters_Requester");
 
-                    b.HasOne("MudSharp.Models.Cell", "ReturnCell")
+                    b.HasOne("MudSharp.Models.Room", "ReturnRoom")
                         .WithMany()
-                        .HasForeignKey("ReturnCellId")
+                        .HasForeignKey("ReturnRoomId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_HospitalServiceRequests_Cells_Return");
+                        .HasConstraintName("FK_HospitalServiceRequests_Rooms_Return");
 
                     b.Navigation("AssignedEmployee");
 
@@ -32748,17 +32618,17 @@ namespace MudSharp.Migrations
 
                     b.Navigation("HospitalService");
 
-                    b.Navigation("OperatingTheatreCell");
+                    b.Navigation("OperatingTheatreRoom");
 
                     b.Navigation("Patient");
 
                     b.Navigation("PreparedByEmployee");
 
-                    b.Navigation("RecoveryRoomCell");
+                    b.Navigation("RecoveryRoomRoom");
 
                     b.Navigation("Requester");
 
-                    b.Navigation("ReturnCell");
+                    b.Navigation("ReturnRoom");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Hotel", b =>
@@ -32836,13 +32706,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.HotelRoom", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_HotelRooms_Cells");
-
                     b.HasOne("MudSharp.Models.Hotel", "Hotel")
                         .WithMany("Rooms")
                         .HasForeignKey("HotelId")
@@ -32850,9 +32713,16 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_HotelRooms_Hotels");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_HotelRooms_Rooms");
 
                     b.Navigation("Hotel");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.HotelRoomFurnishing", b =>
@@ -32942,13 +32812,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.JobFindingLocation", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_JobFindingLocations_Cells");
-
                     b.HasOne("MudSharp.Models.EconomicZone", "EconomicZone")
                         .WithMany("JobFindingLocations")
                         .HasForeignKey("EconomicZoneId")
@@ -32956,9 +32819,16 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_JobFindingLocations_EconomicZones");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_JobFindingLocations_Rooms");
 
                     b.Navigation("EconomicZone");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.JobListing", b =>
@@ -33191,10 +33061,10 @@ namespace MudSharp.Migrations
                         .WithMany()
                         .HasForeignKey("BankAccountId");
 
-                    b.HasOne("MudSharp.Models.Cell", "CourtLocation")
+                    b.HasOne("MudSharp.Models.Room", "CourtLocation")
                         .WithMany()
                         .HasForeignKey("CourtLocationId")
-                        .HasConstraintName("FK_LegalAuthorities_CourtroomCell");
+                        .HasConstraintName("FK_LegalAuthorities_CourtroomRoom");
 
                     b.HasOne("MudSharp.Models.Currency", "Currency")
                         .WithMany("LegalAuthorities")
@@ -33203,20 +33073,20 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_LegalAuthorities_Currencies");
 
-                    b.HasOne("MudSharp.Models.Cell", "EnforcerStowingLocation")
+                    b.HasOne("MudSharp.Models.Room", "EnforcerStowingLocation")
                         .WithMany()
                         .HasForeignKey("EnforcerStowingLocationId")
-                        .HasConstraintName("FK_LegalAuthorities_StowingCells");
+                        .HasConstraintName("FK_LegalAuthorities_StowingRooms");
 
-                    b.HasOne("MudSharp.Models.Cell", "JailLocation")
+                    b.HasOne("MudSharp.Models.Room", "JailLocation")
                         .WithMany()
                         .HasForeignKey("JailLocationId")
-                        .HasConstraintName("FK_LegalAuthorities_PrisonJailCells");
+                        .HasConstraintName("FK_LegalAuthorities_PrisonJailRooms");
 
-                    b.HasOne("MudSharp.Models.Cell", "MarshallingLocation")
+                    b.HasOne("MudSharp.Models.Room", "MarshallingLocation")
                         .WithMany()
                         .HasForeignKey("MarshallingLocationId")
-                        .HasConstraintName("FK_LegalAuthorities_MarshallingCells");
+                        .HasConstraintName("FK_LegalAuthorities_MarshallingRooms");
 
                     b.HasOne("MudSharp.Models.FutureProg", "OnHoldProg")
                         .WithMany()
@@ -33233,25 +33103,25 @@ namespace MudSharp.Migrations
                         .HasForeignKey("OnReleaseProgId")
                         .HasConstraintName("FK_LegalAuthorities_FutureprogsRelease");
 
-                    b.HasOne("MudSharp.Models.Cell", "PreparingLocation")
+                    b.HasOne("MudSharp.Models.Room", "PreparingLocation")
                         .WithMany()
                         .HasForeignKey("PreparingLocationId")
-                        .HasConstraintName("FK_LegalAuthorities_PreparingCells");
+                        .HasConstraintName("FK_LegalAuthorities_PreparingRooms");
 
-                    b.HasOne("MudSharp.Models.Cell", "PrisonBelongingsLocation")
+                    b.HasOne("MudSharp.Models.Room", "PrisonBelongingsLocation")
                         .WithMany()
                         .HasForeignKey("PrisonBelongingsLocationId")
-                        .HasConstraintName("FK_LegalAuthorities_PrisonBelongingsCells");
+                        .HasConstraintName("FK_LegalAuthorities_PrisonBelongingsRooms");
 
-                    b.HasOne("MudSharp.Models.Cell", "PrisonLocation")
+                    b.HasOne("MudSharp.Models.Room", "PrisonLocation")
                         .WithMany()
                         .HasForeignKey("PrisonLocationId")
-                        .HasConstraintName("FK_LegalAuthorities_PrisonCells");
+                        .HasConstraintName("FK_LegalAuthorities_PrisonRooms");
 
-                    b.HasOne("MudSharp.Models.Cell", "PrisonReleaseLocation")
+                    b.HasOne("MudSharp.Models.Room", "PrisonReleaseLocation")
                         .WithMany()
                         .HasForeignKey("PrisonReleaseLocationId")
-                        .HasConstraintName("FK_LegalAuthorities_PrisonReleaseCells");
+                        .HasConstraintName("FK_LegalAuthorities_PrisonReleaseRooms");
 
                     b.Navigation("BailCalculationProg");
 
@@ -33282,27 +33152,6 @@ namespace MudSharp.Migrations
                     b.Navigation("PrisonReleaseLocation");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.LegalAuthorityCells", b =>
-                {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_LegalAuthoritiesCells_Cells");
-
-                    b.HasOne("MudSharp.Models.LegalAuthority", "LegalAuthority")
-                        .WithMany("LegalAuthorityCells")
-                        .HasForeignKey("LegalAuthorityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_LegalAuthoritiesCells_LegalAuthorities");
-
-                    b.Navigation("Cell");
-
-                    b.Navigation("LegalAuthority");
-                });
-
             modelBuilder.Entity("MudSharp.Models.LegalAuthorityFine", b =>
                 {
                     b.HasOne("MudSharp.Models.Character", "Character")
@@ -33324,25 +33173,46 @@ namespace MudSharp.Migrations
                     b.Navigation("LegalAuthority");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.LegalAuthorityJailCell", b =>
+            modelBuilder.Entity("MudSharp.Models.LegalAuthorityJailRoom", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_LegalAuthoritiesCells_Cells_Jail");
-
                     b.HasOne("MudSharp.Models.LegalAuthority", "LegalAuthority")
-                        .WithMany("LegalAuthorityJailCells")
+                        .WithMany("LegalAuthorityJailRooms")
                         .HasForeignKey("LegalAuthorityId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_LegalAuthoritiesCells_LegalAuthorities_Jail");
+                        .HasConstraintName("FK_LegalAuthoritiesRooms_LegalAuthorities_Jail");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_LegalAuthoritiesRooms_Rooms_Jail");
 
                     b.Navigation("LegalAuthority");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.LegalAuthorityRooms", b =>
+                {
+                    b.HasOne("MudSharp.Models.LegalAuthority", "LegalAuthority")
+                        .WithMany("LegalAuthorityRooms")
+                        .HasForeignKey("LegalAuthorityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_LegalAuthoritiesRooms_LegalAuthorities");
+
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_LegalAuthoritiesRooms_Rooms");
+
+                    b.Navigation("LegalAuthority");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.LegalClass", b =>
@@ -33588,12 +33458,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.MagicPortalEndpoint", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_MagicPortalEndpoints_Cells");
-
                     b.HasOne("MudSharp.Models.Character", "CreatedByCharacter")
                         .WithMany()
                         .HasForeignKey("CreatedByCharacterId")
@@ -33619,7 +33483,11 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_MagicPortalEndpoints_MagicPortalNetworks");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_MagicPortalEndpoints_Rooms");
 
                     b.Navigation("CreatedByCharacter");
 
@@ -33628,6 +33496,8 @@ namespace MudSharp.Migrations
                     b.Navigation("GameItem");
 
                     b.Navigation("MagicPortalNetwork");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.MagicPortalLink", b =>
@@ -34062,25 +33932,25 @@ namespace MudSharp.Migrations
                     b.Navigation("OnSpawnProg");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.NPCSpawnerCell", b =>
+            modelBuilder.Entity("MudSharp.Models.NPCSpawnerRoom", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_NPCSpawnerCells_Cell");
-
                     b.HasOne("MudSharp.Models.NPCSpawner", "NPCSpawner")
-                        .WithMany("Cells")
+                        .WithMany("Rooms")
                         .HasForeignKey("NPCSpawnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_NPCSpawnerCells_NPCSpawner");
+                        .HasConstraintName("FK_NPCSpawnerRooms_NPCSpawner");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_NPCSpawnerRooms_Room");
 
                     b.Navigation("NPCSpawner");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.NPCSpawnerZone", b =>
@@ -34243,7 +34113,7 @@ namespace MudSharp.Migrations
                         .WithMany("Patrols")
                         .HasForeignKey("CharacterId");
 
-                    b.HasOne("MudSharp.Models.Cell", "LastMajorNode")
+                    b.HasOne("MudSharp.Models.Room", "LastMajorNode")
                         .WithMany()
                         .HasForeignKey("LastMajorNodeId")
                         .HasConstraintName("FK_Patrols_LastMajorNode");
@@ -34255,7 +34125,7 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Patrols_LegalAuthorities");
 
-                    b.HasOne("MudSharp.Models.Cell", "NextMajorNode")
+                    b.HasOne("MudSharp.Models.Room", "NextMajorNode")
                         .WithMany()
                         .HasForeignKey("NextMajorNodeId")
                         .HasConstraintName("FK_Patrols_NextMajorNode");
@@ -34324,13 +34194,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.PatrolRouteNode", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_PatrolRoutesNodes_Cells");
-
                     b.HasOne("MudSharp.Models.PatrolRoute", "PatrolRoute")
                         .WithMany("PatrolRouteNodes")
                         .HasForeignKey("PatrolRouteId")
@@ -34338,9 +34201,16 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_PatrolRoutesNodes_PatrolRoutes");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_PatrolRoutesNodes_Rooms");
 
                     b.Navigation("PatrolRoute");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.PatrolRouteNumbers", b =>
@@ -34447,13 +34317,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.ProbateLocation", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_ProbateLocations_Cells");
-
                     b.HasOne("MudSharp.Models.EconomicZone", "EconomicZone")
                         .WithMany("ProbateLocations")
                         .HasForeignKey("EconomicZoneId")
@@ -34461,9 +34324,16 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_ProbateLocations_EconomicZones");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_ProbateLocations_Rooms");
 
                     b.Navigation("EconomicZone");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ProgSchedule", b =>
@@ -34709,13 +34579,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.PropertyLocation", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_PropertyLocations_Cell");
-
                     b.HasOne("MudSharp.Models.Property", "Property")
                         .WithMany("PropertyLocations")
                         .HasForeignKey("PropertyId")
@@ -34723,9 +34586,16 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_PropertyLocations_Property");
 
-                    b.Navigation("Cell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_PropertyLocations_Room");
 
                     b.Navigation("Property");
+
+                    b.Navigation("Room");
                 });
 
             modelBuilder.Entity("MudSharp.Models.PropertyOwner", b =>
@@ -35396,18 +35266,6 @@ namespace MudSharp.Migrations
                     b.Navigation("Shop");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.RestaurantCell", b =>
-                {
-                    b.HasOne("MudSharp.Models.Restaurant", "Restaurant")
-                        .WithMany("Cells")
-                        .HasForeignKey("RestaurantShopId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_RestaurantCells_Restaurants");
-
-                    b.Navigation("Restaurant");
-                });
-
             modelBuilder.Entity("MudSharp.Models.RestaurantMenuItem", b =>
                 {
                     b.HasOne("MudSharp.Models.Merchandise", "Merchandise")
@@ -35482,6 +35340,18 @@ namespace MudSharp.Migrations
                     b.Navigation("Order");
                 });
 
+            modelBuilder.Entity("MudSharp.Models.RestaurantRoom", b =>
+                {
+                    b.HasOne("MudSharp.Models.Restaurant", "Restaurant")
+                        .WithMany("Rooms")
+                        .HasForeignKey("RestaurantShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RestaurantRooms_Restaurants");
+
+                    b.Navigation("Restaurant");
+                });
+
             modelBuilder.Entity("MudSharp.Models.RestaurantStorageContainer", b =>
                 {
                     b.HasOne("MudSharp.Models.Restaurant", "Restaurant")
@@ -35532,37 +35402,216 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Room", b =>
                 {
-                    b.HasOne("MudSharp.Models.Zone", "Zone")
+                    b.HasOne("MudSharp.Models.RoomOverlay", "CurrentOverlay")
                         .WithMany("Rooms")
+                        .HasForeignKey("CurrentOverlayId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Rooms_RoomOverlays");
+
+                    b.HasOne("MudSharp.Models.VehicleCompartment", "HostedVehicleCompartment")
+                        .WithMany()
+                        .HasForeignKey("HostedVehicleCompartmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Rooms_HostedVehicleCompartments");
+
+                    b.HasOne("MudSharp.Models.Vehicle", "HostedVehicle")
+                        .WithMany("HostedRooms")
+                        .HasForeignKey("HostedVehicleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Rooms_HostedVehicles");
+
+                    b.HasOne("MudSharp.Models.Zone", "Zone")
+                        .WithMany("OwnedRooms")
                         .HasForeignKey("ZoneId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_Rooms_Zones");
+                        .HasConstraintName("FK_Rooms_OwningZone");
+
+                    b.Navigation("CurrentOverlay");
+
+                    b.Navigation("HostedVehicle");
+
+                    b.Navigation("HostedVehicleCompartment");
 
                     b.Navigation("Zone");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.RouteCell", b =>
+            modelBuilder.Entity("MudSharp.Models.RoomEnvironmentalState", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithOne("RouteCell")
-                        .HasForeignKey("MudSharp.Models.RouteCell", "CellId")
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithOne("EnvironmentalState")
+                        .HasForeignKey("MudSharp.Models.RoomEnvironmentalState", "RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_RouteCells_Cells");
+                        .HasConstraintName("FK_RoomEnvironmentalStates_Rooms");
 
-                    b.Navigation("Cell");
+                    b.Navigation("Room");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.RouteCellLandmark", b =>
+            modelBuilder.Entity("MudSharp.Models.RoomMagicResource", b =>
                 {
-                    b.HasOne("MudSharp.Models.RouteCell", "RouteCell")
-                        .WithMany("Landmarks")
-                        .HasForeignKey("RouteCellId")
+                    b.HasOne("MudSharp.Models.MagicResource", "MagicResource")
+                        .WithMany("RoomsMagicResources")
+                        .HasForeignKey("MagicResourceId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_RouteCellLandmarks_RouteCells");
+                        .HasConstraintName("FK_Rooms_MagicResources_MagicResources");
 
-                    b.Navigation("RouteCell");
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("RoomsMagicResources")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Rooms_MagicResources_Rooms");
+
+                    b.Navigation("MagicResource");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomOverlay", b =>
+                {
+                    b.HasOne("MudSharp.Models.HearingProfile", "HearingProfile")
+                        .WithMany("RoomOverlays")
+                        .HasForeignKey("HearingProfileId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_RoomOverlays_HearingProfiles");
+
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("RoomOverlays")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RoomOverlays_Rooms");
+
+                    b.HasOne("MudSharp.Models.Terrain", "Terrain")
+                        .WithMany("RoomOverlays")
+                        .HasForeignKey("TerrainId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_RoomOverlays_Terrains");
+
+                    b.HasOne("MudSharp.Models.RoomOverlayPackage", "RoomOverlayPackage")
+                        .WithMany("RoomOverlays")
+                        .HasForeignKey("RoomOverlayPackageId", "RoomOverlayPackageRevisionNumber")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RoomOverlays_RoomOverlayPackages");
+
+                    b.Navigation("HearingProfile");
+
+                    b.Navigation("Room");
+
+                    b.Navigation("RoomOverlayPackage");
+
+                    b.Navigation("Terrain");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomOverlayExit", b =>
+                {
+                    b.HasOne("MudSharp.Models.Exit", "Exit")
+                        .WithMany("RoomOverlaysExits")
+                        .HasForeignKey("ExitId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RoomOverlays_Exits_Exits");
+
+                    b.HasOne("MudSharp.Models.RoomOverlay", "RoomOverlay")
+                        .WithMany("RoomOverlaysExits")
+                        .HasForeignKey("RoomOverlayId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RoomOverlays_Exits_RoomOverlays");
+
+                    b.Navigation("Exit");
+
+                    b.Navigation("RoomOverlay");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomOverlayPackage", b =>
+                {
+                    b.HasOne("MudSharp.Models.EditableItem", "EditableItem")
+                        .WithMany("RoomOverlayPackages")
+                        .HasForeignKey("EditableItemId")
+                        .IsRequired()
+                        .HasConstraintName("FK_RoomOverlayPackages_EditableItems");
+
+                    b.Navigation("EditableItem");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomsForagableYield", b =>
+                {
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("RoomsForagableYields")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Rooms_ForagableYields_Rooms");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomsGameItems", b =>
+                {
+                    b.HasOne("MudSharp.Models.GameItem", "GameItem")
+                        .WithMany("RoomsGameItems")
+                        .HasForeignKey("GameItemId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Rooms_GameItems_GameItems");
+
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("RoomsGameItems")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Rooms_GameItems_Rooms");
+
+                    b.Navigation("GameItem");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomsRangedCovers", b =>
+                {
+                    b.HasOne("MudSharp.Models.RangedCover", "RangedCover")
+                        .WithMany("RoomsRangedCovers")
+                        .HasForeignKey("RangedCoverId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Rooms_RangedCovers_RangedCovers");
+
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("RoomsRangedCovers")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Rooms_RangedCovers_Rooms");
+
+                    b.Navigation("RangedCover");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomsTags", b =>
+                {
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("RoomsTags")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Rooms_Tags_Rooms");
+
+                    b.HasOne("MudSharp.Models.Tag", "Tag")
+                        .WithMany("RoomsTags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Rooms_Tags_Tags");
+
+                    b.Navigation("Room");
+
+                    b.Navigation("Tag");
                 });
 
             modelBuilder.Entity("MudSharp.Models.RouteExitAnchor", b =>
@@ -35574,16 +35623,16 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_RouteExitAnchors_Exits");
 
-                    b.HasOne("MudSharp.Models.RouteCell", "RouteCell")
+                    b.HasOne("MudSharp.Models.RouteRoom", "RouteRoom")
                         .WithMany("ExitAnchors")
-                        .HasForeignKey("RouteCellId")
+                        .HasForeignKey("RouteRoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_RouteExitAnchors_RouteCells");
+                        .HasConstraintName("FK_RouteExitAnchors_RouteRooms");
 
                     b.Navigation("Exit");
 
-                    b.Navigation("RouteCell");
+                    b.Navigation("RouteRoom");
                 });
 
             modelBuilder.Entity("MudSharp.Models.RouteMotionResourceLedger", b =>
@@ -35596,6 +35645,30 @@ namespace MudSharp.Migrations
                         .HasConstraintName("FK_RouteMotionResourceLedgers_ActiveRouteMotions");
 
                     b.Navigation("ActiveRouteMotion");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RouteRoom", b =>
+                {
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithOne("RouteRoom")
+                        .HasForeignKey("MudSharp.Models.RouteRoom", "RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RouteRooms_Rooms");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RouteRoomLandmark", b =>
+                {
+                    b.HasOne("MudSharp.Models.RouteRoom", "RouteRoom")
+                        .WithMany("Landmarks")
+                        .HasForeignKey("RouteRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_RouteRoomLandmarks_RouteRooms");
+
+                    b.Navigation("RouteRoom");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Script", b =>
@@ -35813,11 +35886,11 @@ namespace MudSharp.Migrations
                         .WithMany("Shops")
                         .HasForeignKey("MarketId");
 
-                    b.HasOne("MudSharp.Models.Cell", "StockroomCell")
-                        .WithMany("ShopsStockroomCell")
-                        .HasForeignKey("StockroomCellId")
+                    b.HasOne("MudSharp.Models.Room", "StockroomRoom")
+                        .WithMany("ShopsStockroomRoom")
+                        .HasForeignKey("StockroomId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_Shops_Cells_Stockroom");
+                        .HasConstraintName("FK_Shops_Rooms_Stockroom");
 
                     b.HasOne("MudSharp.Models.FutureProg", "WhyCannotShopProg")
                         .WithMany("ShopsWhyCannotShopProg")
@@ -35825,11 +35898,11 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Shops_FutureProgs_WhyCant");
 
-                    b.HasOne("MudSharp.Models.Cell", "WorkshopCell")
-                        .WithMany("ShopsWorkshopCell")
-                        .HasForeignKey("WorkshopCellId")
+                    b.HasOne("MudSharp.Models.Room", "WorkshopRoom")
+                        .WithMany("ShopsWorkshopRoom")
+                        .HasForeignKey("WorkshopRoomId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_Shops_Cells_Workshop");
+                        .HasConstraintName("FK_Shops_Rooms_Workshop");
 
                     b.Navigation("BankAccount");
 
@@ -35841,11 +35914,11 @@ namespace MudSharp.Migrations
 
                     b.Navigation("Market");
 
-                    b.Navigation("StockroomCell");
+                    b.Navigation("StockroomRoom");
 
                     b.Navigation("WhyCannotShopProg");
 
-                    b.Navigation("WorkshopCell");
+                    b.Navigation("WorkshopRoom");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ShopDeal", b =>
@@ -35965,23 +36038,23 @@ namespace MudSharp.Migrations
                     b.Navigation("Shopper");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.ShopsStoreroomCell", b =>
+            modelBuilder.Entity("MudSharp.Models.ShopsStoreroomRoom", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("ShopsStoreroomCells")
-                        .HasForeignKey("CellId")
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("ShopsStoreroomRooms")
+                        .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_Shops_StoreroomCells_Cells");
+                        .HasConstraintName("FK_Shops_StoreroomRooms_Rooms");
 
                     b.HasOne("MudSharp.Models.Shop", "Shop")
-                        .WithMany("ShopsStoreroomCells")
+                        .WithMany("ShopsStoreroomRooms")
                         .HasForeignKey("ShopId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("FK_Shops_StoreroomCells_Shops");
+                        .HasConstraintName("FK_Shops_StoreroomRooms_Shops");
 
-                    b.Navigation("Cell");
+                    b.Navigation("Room");
 
                     b.Navigation("Shop");
                 });
@@ -36140,13 +36213,6 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Stables_FutureProgs_Can");
 
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany()
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Stables_Cells");
-
                     b.HasOne("MudSharp.Models.FutureProg", "DailyFeeProg")
                         .WithMany()
                         .HasForeignKey("DailyFeeProgId")
@@ -36166,6 +36232,13 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Stables_FutureProgs_Lodge");
 
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany()
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Stables_Rooms");
+
                     b.HasOne("MudSharp.Models.FutureProg", "WhyCannotStableProg")
                         .WithMany()
                         .HasForeignKey("WhyCannotStableProgId")
@@ -36176,13 +36249,13 @@ namespace MudSharp.Migrations
 
                     b.Navigation("CanStableProg");
 
-                    b.Navigation("Cell");
-
                     b.Navigation("DailyFeeProg");
 
                     b.Navigation("EconomicZone");
 
                     b.Navigation("LodgeFeeProg");
+
+                    b.Navigation("Room");
 
                     b.Navigation("WhyCannotStableProg");
                 });
@@ -36445,13 +36518,6 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_Tracks_BodyProtos");
 
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
-                        .WithMany("Tracks")
-                        .HasForeignKey("CellId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("FK_Tracks_Cells");
-
                     b.HasOne("MudSharp.Models.Character", "Character")
                         .WithMany("Tracks")
                         .HasForeignKey("CharacterId")
@@ -36469,6 +36535,13 @@ namespace MudSharp.Migrations
                         .HasForeignKey("FromMoveSpeedId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_Tracks_MoveSpeeds_From");
+
+                    b.HasOne("MudSharp.Models.Room", "Room")
+                        .WithMany("Tracks")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Tracks_Rooms");
 
                     b.HasOne("MudSharp.Models.Exit", "ToDirectionExit")
                         .WithMany()
@@ -36490,13 +36563,13 @@ namespace MudSharp.Migrations
 
                     b.Navigation("BodyPrototype");
 
-                    b.Navigation("Cell");
-
                     b.Navigation("Character");
 
                     b.Navigation("FromDirectionExit");
 
                     b.Navigation("FromMoveSpeed");
+
+                    b.Navigation("Room");
 
                     b.Navigation("ToDirectionExit");
 
@@ -36620,23 +36693,23 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Vehicles_PropulsionProfileProtos");
 
-                    b.HasOne("MudSharp.Models.Cell", "CurrentCell")
-                        .WithMany()
-                        .HasForeignKey("CurrentCellId")
-                        .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_Vehicles_Cells_Current");
-
                     b.HasOne("MudSharp.Models.Exit", "CurrentExit")
                         .WithMany()
                         .HasForeignKey("CurrentExitId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Vehicles_Exits");
 
-                    b.HasOne("MudSharp.Models.Cell", "DestinationCell")
+                    b.HasOne("MudSharp.Models.Room", "CurrentRoom")
                         .WithMany()
-                        .HasForeignKey("DestinationCellId")
+                        .HasForeignKey("CurrentRoomId")
                         .OnDelete(DeleteBehavior.SetNull)
-                        .HasConstraintName("FK_Vehicles_Cells_Destination");
+                        .HasConstraintName("FK_Vehicles_Rooms_Current");
+
+                    b.HasOne("MudSharp.Models.Room", "DestinationRoom")
+                        .WithMany()
+                        .HasForeignKey("DestinationRoomId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Vehicles_Rooms_Destination");
 
                     b.HasOne("MudSharp.Models.GameItem", "ExteriorItem")
                         .WithMany()
@@ -36659,11 +36732,11 @@ namespace MudSharp.Migrations
 
                     b.Navigation("ActivePropulsionProfileProto");
 
-                    b.Navigation("CurrentCell");
-
                     b.Navigation("CurrentExit");
 
-                    b.Navigation("DestinationCell");
+                    b.Navigation("CurrentRoom");
+
+                    b.Navigation("DestinationRoom");
 
                     b.Navigation("ExteriorItem");
 
@@ -36837,11 +36910,11 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.VehicleCompartment", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "InteriorCell")
+                    b.HasOne("MudSharp.Models.Room", "InteriorRoom")
                         .WithMany()
-                        .HasForeignKey("InteriorCellId")
+                        .HasForeignKey("InteriorRoomId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .HasConstraintName("FK_VehicleCompartments_InteriorCells");
+                        .HasConstraintName("FK_VehicleCompartments_InteriorRooms");
 
                     b.HasOne("MudSharp.Models.VehicleCompartmentProto", "VehicleCompartmentProto")
                         .WithMany()
@@ -36857,7 +36930,7 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_VehicleCompartments_Vehicles");
 
-                    b.Navigation("InteriorCell");
+                    b.Navigation("InteriorRoom");
 
                     b.Navigation("Vehicle");
 
@@ -36982,12 +37055,12 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.VehicleDocking", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "ExteriorCell")
+                    b.HasOne("MudSharp.Models.Room", "ExteriorRoom")
                         .WithMany("VehicleDockings")
-                        .HasForeignKey("ExteriorCellId")
+                        .HasForeignKey("ExteriorRoomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_VehicleDockings_ExteriorCells");
+                        .HasConstraintName("FK_VehicleDockings_ExteriorRooms");
 
                     b.HasOne("MudSharp.Models.VehicleAccessPoint", "VehicleAccessPoint")
                         .WithOne("Docking")
@@ -37016,7 +37089,7 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("FK_VehicleDockings_VehicleRouteStops");
 
-                    b.Navigation("ExteriorCell");
+                    b.Navigation("ExteriorRoom");
 
                     b.Navigation("Vehicle");
 
@@ -37396,12 +37469,12 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.VehicleRoutePlatformBinding", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "PlatformCell")
+                    b.HasOne("MudSharp.Models.Room", "PlatformRoom")
                         .WithMany()
-                        .HasForeignKey("PlatformCellId")
+                        .HasForeignKey("PlatformRoomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_VehicleRoutePlatformBindings_Cells");
+                        .HasConstraintName("FK_VehicleRoutePlatformBindings_Rooms");
 
                     b.HasOne("MudSharp.Models.VehicleAccessPointProto", "VehicleAccessPointProto")
                         .WithMany()
@@ -37417,7 +37490,7 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_VehicleRoutePlatformBindings_VehicleRouteStops");
 
-                    b.Navigation("PlatformCell");
+                    b.Navigation("PlatformRoom");
 
                     b.Navigation("VehicleAccessPointProto");
 
@@ -37426,12 +37499,12 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.VehicleRouteStep", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "DestinationCell")
+                    b.HasOne("MudSharp.Models.Room", "DestinationRoom")
                         .WithMany()
-                        .HasForeignKey("DestinationCellId")
+                        .HasForeignKey("DestinationRoomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_VehicleRouteSteps_DestinationCells");
+                        .HasConstraintName("FK_VehicleRouteSteps_DestinationRooms");
 
                     b.HasOne("MudSharp.Models.Exit", "Exit")
                         .WithMany()
@@ -37439,12 +37512,12 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("FK_VehicleRouteSteps_Exits");
 
-                    b.HasOne("MudSharp.Models.Cell", "OriginCell")
+                    b.HasOne("MudSharp.Models.Room", "OriginRoom")
                         .WithMany()
-                        .HasForeignKey("OriginCellId")
+                        .HasForeignKey("OriginRoomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_VehicleRouteSteps_OriginCells");
+                        .HasConstraintName("FK_VehicleRouteSteps_OriginRooms");
 
                     b.HasOne("MudSharp.Models.VehicleRouteLeg", "VehicleRouteLeg")
                         .WithMany("Steps")
@@ -37453,23 +37526,23 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_VehicleRouteSteps_VehicleRouteLegs");
 
-                    b.Navigation("DestinationCell");
+                    b.Navigation("DestinationRoom");
 
                     b.Navigation("Exit");
 
-                    b.Navigation("OriginCell");
+                    b.Navigation("OriginRoom");
 
                     b.Navigation("VehicleRouteLeg");
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleRouteStop", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "Cell")
+                    b.HasOne("MudSharp.Models.Room", "Room")
                         .WithMany()
-                        .HasForeignKey("CellId")
+                        .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_VehicleRouteStops_Cells");
+                        .HasConstraintName("FK_VehicleRouteStops_Rooms");
 
                     b.HasOne("MudSharp.Models.VehicleRoute", "VehicleRoute")
                         .WithMany("Stops")
@@ -37478,19 +37551,19 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_VehicleRouteStops_VehicleRoutes");
 
-                    b.Navigation("Cell");
+                    b.Navigation("Room");
 
                     b.Navigation("VehicleRoute");
                 });
 
             modelBuilder.Entity("MudSharp.Models.VehicleRouteTopologyPin", b =>
                 {
-                    b.HasOne("MudSharp.Models.RouteCell", "RouteCell")
+                    b.HasOne("MudSharp.Models.RouteRoom", "RouteRoom")
                         .WithMany()
-                        .HasForeignKey("RouteCellId")
+                        .HasForeignKey("RouteRoomId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
-                        .HasConstraintName("FK_VehicleRouteTopologyPins_RouteCells");
+                        .HasConstraintName("FK_VehicleRouteTopologyPins_RouteRooms");
 
                     b.HasOne("MudSharp.Models.VehicleRoute", "VehicleRoute")
                         .WithMany("TopologyPins")
@@ -37499,7 +37572,7 @@ namespace MudSharp.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_VehicleRouteTopologyPins_VehicleRoutes");
 
-                    b.Navigation("RouteCell");
+                    b.Navigation("RouteRoom");
 
                     b.Navigation("VehicleRoute");
                 });
@@ -37978,10 +38051,10 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Zone", b =>
                 {
-                    b.HasOne("MudSharp.Models.Cell", "DefaultCell")
+                    b.HasOne("MudSharp.Models.Room", "DefaultRoom")
                         .WithMany("Zones")
-                        .HasForeignKey("DefaultCellId")
-                        .HasConstraintName("FK_Zones_Cells");
+                        .HasForeignKey("DefaultRoomId")
+                        .HasConstraintName("FK_Zones_Rooms");
 
                     b.HasOne("MudSharp.Models.Shard", "Shard")
                         .WithMany("Zones")
@@ -37994,7 +38067,7 @@ namespace MudSharp.Migrations
                         .HasForeignKey("WeatherControllerId")
                         .HasConstraintName("FK_Zones_WeatherControllers");
 
-                    b.Navigation("DefaultCell");
+                    b.Navigation("DefaultRoom");
 
                     b.Navigation("Shard");
 
@@ -38128,8 +38201,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Arena", b =>
                 {
-                    b.Navigation("ArenaCells");
-
                     b.Navigation("ArenaCombatantClasses");
 
                     b.Navigation("ArenaEventTypes");
@@ -38141,6 +38212,8 @@ namespace MudSharp.Migrations
                     b.Navigation("ArenaManagers");
 
                     b.Navigation("ArenaRatings");
+
+                    b.Navigation("ArenaRooms");
                 });
 
             modelBuilder.Entity("MudSharp.Models.ArenaCombatantClass", b =>
@@ -38406,69 +38479,6 @@ namespace MudSharp.Migrations
                     b.Navigation("WeatherControllers");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.Cell", b =>
-                {
-                    b.Navigation("ActiveProjects");
-
-                    b.Navigation("AgricultureField");
-
-                    b.Navigation("CellOverlays");
-
-                    b.Navigation("CellsForagableYields");
-
-                    b.Navigation("CellsGameItems");
-
-                    b.Navigation("CellsMagicResources");
-
-                    b.Navigation("CellsRangedCovers");
-
-                    b.Navigation("CellsTags");
-
-                    b.Navigation("CharacterInstances");
-
-                    b.Navigation("CharacterLog");
-
-                    b.Navigation("Characters");
-
-                    b.Navigation("ClansAdministrationCells");
-
-                    b.Navigation("ClansHallCells");
-
-                    b.Navigation("ClansTreasuryCells");
-
-                    b.Navigation("Crimes");
-
-                    b.Navigation("EnvironmentalState");
-
-                    b.Navigation("HooksPerceivables");
-
-                    b.Navigation("RouteCell");
-
-                    b.Navigation("ShopsStockroomCell");
-
-                    b.Navigation("ShopsStoreroomCells");
-
-                    b.Navigation("ShopsWorkshopCell");
-
-                    b.Navigation("Tracks");
-
-                    b.Navigation("VehicleDockings");
-
-                    b.Navigation("Zones");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellOverlay", b =>
-                {
-                    b.Navigation("CellOverlaysExits");
-
-                    b.Navigation("Cells");
-                });
-
-            modelBuilder.Entity("MudSharp.Models.CellOverlayPackage", b =>
-                {
-                    b.Navigation("CellOverlays");
-                });
-
             modelBuilder.Entity("MudSharp.Models.Channel", b =>
                 {
                     b.Navigation("ChannelCommandWords");
@@ -38697,11 +38707,11 @@ namespace MudSharp.Migrations
 
                     b.Navigation("ClanPayrollHistories");
 
-                    b.Navigation("ClansAdministrationCells");
+                    b.Navigation("ClansAdministrationRooms");
 
-                    b.Navigation("ClansHallCells");
+                    b.Navigation("ClansHallRooms");
 
-                    b.Navigation("ClansTreasuryCells");
+                    b.Navigation("ClansTreasuryRooms");
 
                     b.Navigation("EconomicZones");
 
@@ -38909,8 +38919,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.EditableItem", b =>
                 {
-                    b.Navigation("CellOverlayPackages");
-
                     b.Navigation("Crafts");
 
                     b.Navigation("DisfigurementTemplates");
@@ -38928,6 +38936,8 @@ namespace MudSharp.Migrations
                     b.Navigation("Npctemplates");
 
                     b.Navigation("Projects");
+
+                    b.Navigation("RoomOverlayPackages");
 
                     b.Navigation("TrapTemplates");
                 });
@@ -39058,7 +39068,7 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Exit", b =>
                 {
-                    b.Navigation("CellOverlaysExits");
+                    b.Navigation("RoomOverlaysExits");
 
                     b.Navigation("RouteExitAnchors");
                 });
@@ -39222,8 +39232,6 @@ namespace MudSharp.Migrations
 
                     b.Navigation("BodiesProsthetics");
 
-                    b.Navigation("CellsGameItems");
-
                     b.Navigation("GameItemComponents");
 
                     b.Navigation("GameItemsMagicResources");
@@ -39233,6 +39241,8 @@ namespace MudSharp.Migrations
                     b.Navigation("InverseContainer");
 
                     b.Navigation("Merchandises");
+
+                    b.Navigation("RoomsGameItems");
 
                     b.Navigation("ShopsTills");
 
@@ -39288,7 +39298,7 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.HearingProfile", b =>
                 {
-                    b.Navigation("CellOverlays");
+                    b.Navigation("RoomOverlays");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Helpfile", b =>
@@ -39404,9 +39414,9 @@ namespace MudSharp.Migrations
 
                     b.Navigation("LegalAuthoritiesZones");
 
-                    b.Navigation("LegalAuthorityCells");
+                    b.Navigation("LegalAuthorityJailRooms");
 
-                    b.Navigation("LegalAuthorityJailCells");
+                    b.Navigation("LegalAuthorityRooms");
 
                     b.Navigation("LegalClasses");
 
@@ -39488,11 +39498,11 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.MagicResource", b =>
                 {
-                    b.Navigation("CellsMagicResources");
-
                     b.Navigation("CharactersMagicResources");
 
                     b.Navigation("GameItemsMagicResources");
+
+                    b.Navigation("RoomsMagicResources");
                 });
 
             modelBuilder.Entity("MudSharp.Models.MagicSchool", b =>
@@ -39572,7 +39582,7 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.NPCSpawner", b =>
                 {
-                    b.Navigation("Cells");
+                    b.Navigation("Rooms");
 
                     b.Navigation("Zones");
                 });
@@ -39749,7 +39759,7 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.RangedCover", b =>
                 {
-                    b.Navigation("CellsRangedCovers");
+                    b.Navigation("RoomsRangedCovers");
 
                     b.Navigation("TerrainsRangedCovers");
                 });
@@ -39776,11 +39786,11 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Restaurant", b =>
                 {
-                    b.Navigation("Cells");
-
                     b.Navigation("MenuItems");
 
                     b.Navigation("Orders");
+
+                    b.Navigation("Rooms");
 
                     b.Navigation("StorageContainers");
 
@@ -39805,12 +39815,70 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Room", b =>
                 {
+                    b.Navigation("ActiveProjects");
+
+                    b.Navigation("AgricultureField");
+
                     b.Navigation("AreasRooms");
 
-                    b.Navigation("Cells");
+                    b.Navigation("CharacterInstances");
+
+                    b.Navigation("CharacterLog");
+
+                    b.Navigation("Characters");
+
+                    b.Navigation("ClansAdministrationRooms");
+
+                    b.Navigation("ClansHallRooms");
+
+                    b.Navigation("ClansTreasuryRooms");
+
+                    b.Navigation("Crimes");
+
+                    b.Navigation("EnvironmentalState");
+
+                    b.Navigation("HooksPerceivables");
+
+                    b.Navigation("RoomOverlays");
+
+                    b.Navigation("RoomsForagableYields");
+
+                    b.Navigation("RoomsGameItems");
+
+                    b.Navigation("RoomsMagicResources");
+
+                    b.Navigation("RoomsRangedCovers");
+
+                    b.Navigation("RoomsTags");
+
+                    b.Navigation("RouteRoom");
+
+                    b.Navigation("ShopsStockroomRoom");
+
+                    b.Navigation("ShopsStoreroomRooms");
+
+                    b.Navigation("ShopsWorkshopRoom");
+
+                    b.Navigation("Tracks");
+
+                    b.Navigation("VehicleDockings");
+
+                    b.Navigation("Zones");
                 });
 
-            modelBuilder.Entity("MudSharp.Models.RouteCell", b =>
+            modelBuilder.Entity("MudSharp.Models.RoomOverlay", b =>
+                {
+                    b.Navigation("RoomOverlaysExits");
+
+                    b.Navigation("Rooms");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RoomOverlayPackage", b =>
+                {
+                    b.Navigation("RoomOverlays");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RouteRoom", b =>
                 {
                     b.Navigation("ActiveMotions");
 
@@ -39880,7 +39948,7 @@ namespace MudSharp.Migrations
 
                     b.Navigation("ShopTransactionRecords");
 
-                    b.Navigation("ShopsStoreroomCells");
+                    b.Navigation("ShopsStoreroomRooms");
 
                     b.Navigation("ShopsTills");
                 });
@@ -39948,8 +40016,6 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Tag", b =>
                 {
-                    b.Navigation("CellsTags");
-
                     b.Navigation("GameItemProtosTags");
 
                     b.Navigation("GasesTags");
@@ -39962,12 +40028,14 @@ namespace MudSharp.Migrations
 
                     b.Navigation("RaceButcheryProfiles");
 
+                    b.Navigation("RoomsTags");
+
                     b.Navigation("ShopDeals");
                 });
 
             modelBuilder.Entity("MudSharp.Models.Terrain", b =>
                 {
-                    b.Navigation("CellOverlays");
+                    b.Navigation("RoomOverlays");
 
                     b.Navigation("TerrainsRangedCovers");
                 });
@@ -40043,7 +40111,7 @@ namespace MudSharp.Migrations
 
                     b.Navigation("Dockings");
 
-                    b.Navigation("HostedCells");
+                    b.Navigation("HostedRooms");
 
                     b.Navigation("Installations");
 
@@ -40224,7 +40292,7 @@ namespace MudSharp.Migrations
 
                     b.Navigation("LegalAuthoritiesZones");
 
-                    b.Navigation("Rooms");
+                    b.Navigation("OwnedRooms");
 
                     b.Navigation("ZonesTimezones");
                 });

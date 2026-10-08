@@ -185,62 +185,62 @@ public sealed class WildlifeCatalogueSeeder : IDatabaseSeeder
 				parameters);
 		}
 
-		const string characterCell = "@cell.Terrain";
+		const string characterRoom = "@cell.Terrain";
 		Ensure(context, WildlifeCatalogue.TerrestrialHabitatProg,
 			"Allows terrestrial wildlife to stay on a tagged non-vacuum terrestrial habitat.",
-			$"return istagged({characterCell}, \"Terrestrial\") and not(istagged({characterCell}, \"Vacuum\"))",
+			$"return istagged({characterRoom}, \"Terrestrial\") and not(istagged({characterRoom}, \"Vacuum\"))",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.GrasslandHabitatProg,
 			"Selects open grassland, shrubland and agricultural habitat for grazing wildlife.",
-			$"return istagged({characterCell}, \"Grassland\") or istagged({characterCell}, \"Shrubland\") or istagged({characterCell}, \"Agricultural Land\")",
+			$"return istagged({characterRoom}, \"Grassland\") or istagged({characterRoom}, \"Shrubland\") or istagged({characterRoom}, \"Agricultural Land\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.WoodlandHabitatProg,
 			"Selects woodland, shrubland and cliff habitat for arboreal wildlife and roosting birds.",
-			$"return istagged({characterCell}, \"Woodland\") or istagged({characterCell}, \"Shrubland\") or istagged({characterCell}, \"Cliff\")",
+			$"return istagged({characterRoom}, \"Woodland\") or istagged({characterRoom}, \"Shrubland\") or istagged({characterRoom}, \"Cliff\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.HighlandHabitatProg,
 			"Selects highland, cliff, tundra and grassland habitat for mountain and polar wildlife.",
-			$"return istagged({characterCell}, \"Highland\") or istagged({characterCell}, \"Cliff\") or istagged({characterCell}, \"Tundra\") or istagged({characterCell}, \"Grassland\")",
+			$"return istagged({characterRoom}, \"Highland\") or istagged({characterRoom}, \"Cliff\") or istagged({characterRoom}, \"Tundra\") or istagged({characterRoom}, \"Grassland\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.DesertHabitatProg,
 			"Selects desert, shrubland and highland habitat for dryland wildlife.",
-			$"return istagged({characterCell}, \"Desert\") or istagged({characterCell}, \"Shrubland\") or istagged({characterCell}, \"Highland\")",
+			$"return istagged({characterRoom}, \"Desert\") or istagged({characterRoom}, \"Shrubland\") or istagged({characterRoom}, \"Highland\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.CaveHabitatProg,
 			"Selects cave and subterranean habitat for burrowing and denning wildlife.",
-			$"return istagged({characterCell}, \"Cave\") or istagged({characterCell}, \"Subterranean\")",
+			$"return istagged({characterRoom}, \"Cave\") or istagged({characterRoom}, \"Subterranean\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.WetlandHabitatProg,
 			"Selects wetland, riverine, freshwater and lake habitat for amphibious wildlife.",
-			$"return istagged({characterCell}, \"Wetland\") or istagged({characterCell}, \"Riverine\") or istagged({characterCell}, \"Freshwater\") or istagged({characterCell}, \"Lake\")",
+			$"return istagged({characterRoom}, \"Wetland\") or istagged({characterRoom}, \"Riverine\") or istagged({characterRoom}, \"Freshwater\") or istagged({characterRoom}, \"Lake\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.FreshwaterHabitatProg,
 			"Selects freshwater, lake and riverine habitat for freshwater aquatic wildlife.",
-			$"return istagged({characterCell}, \"Freshwater\") or istagged({characterCell}, \"Lake\") or istagged({characterCell}, \"Riverine\")",
+			$"return istagged({characterRoom}, \"Freshwater\") or istagged({characterRoom}, \"Lake\") or istagged({characterRoom}, \"Riverine\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.MarineHabitatProg,
 			"Selects marine, coast, open-ocean and reef habitat for saltwater wildlife.",
-			$"return istagged({characterCell}, \"Marine\") or istagged({characterCell}, \"Coast\") or istagged({characterCell}, \"Open Ocean\") or istagged({characterCell}, \"Reef\")",
+			$"return istagged({characterRoom}, \"Marine\") or istagged({characterRoom}, \"Coast\") or istagged({characterRoom}, \"Open Ocean\") or istagged({characterRoom}, \"Reef\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.AquaticHabitatProg,
 			"Selects aquatic freshwater or marine habitat for aquatic wildlife.",
-			$"return istagged({characterCell}, \"Aquatic\") or istagged({characterCell}, \"Freshwater\") or istagged({characterCell}, \"Marine\")",
+			$"return istagged({characterRoom}, \"Aquatic\") or istagged({characterRoom}, \"Freshwater\") or istagged({characterRoom}, \"Marine\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.ManagedHabitatProg,
 			"Selects rural, agricultural and other human-influenced habitat for managed animals.",
-			$"return istagged({characterCell}, \"Rural\") or istagged({characterCell}, \"Agricultural Land\") or istagged({characterCell}, \"Human Influenced\")",
+			$"return istagged({characterRoom}, \"Rural\") or istagged({characterRoom}, \"Agricultural Land\") or istagged({characterRoom}, \"Human Influenced\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.ShelterHabitatProg,
 			"Selects caves, woodland, shrubland and cliff terrain as viable shelter and den habitat.",
-			$"return istagged({characterCell}, \"Cave\") or istagged({characterCell}, \"Subterranean\") or istagged({characterCell}, \"Woodland\") or istagged({characterCell}, \"Shrubland\") or istagged({characterCell}, \"Cliff\")",
+			$"return istagged({characterRoom}, \"Cave\") or istagged({characterRoom}, \"Subterranean\") or istagged({characterRoom}, \"Woodland\") or istagged({characterRoom}, \"Shrubland\") or istagged({characterRoom}, \"Cliff\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.NestHabitatProg,
 			"Selects woodland, wetland and cliff terrain as viable nest and roost habitat.",
-			$"return istagged({characterCell}, \"Woodland\") or istagged({characterCell}, \"Wetland\") or istagged({characterCell}, \"Cliff\")",
+			$"return istagged({characterRoom}, \"Woodland\") or istagged({characterRoom}, \"Wetland\") or istagged({characterRoom}, \"Cliff\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.AvoidUrbanProg,
 			"Identifies urban terrain that ordinary wild animals avoid while selecting a path.",
-			$"return istagged({characterCell}, \"Urban\")",
+			$"return istagged({characterRoom}, \"Urban\")",
 			(ProgVariableTypes.Character, "animal"), (ProgVariableTypes.Location, "cell"));
 		Ensure(context, WildlifeCatalogue.AnimalPreyProg,
 			"Allows a predator to choose an animal target; AnimalAI excludes its own race and group before this policy runs.",
@@ -728,7 +728,7 @@ internal sealed record WildlifeAnimalProfile(
 		                 TerritoryResponse.In("Posture", "Attack") || ParentingResponse.In("Posture", "Attack");
 		long attackProg = predator ? progs.AnimalPrey : defensive ? progs.Intruder : alwaysFalseId;
 		long threatProg = Awareness == "None" ? alwaysFalseId : progs.Intruder;
-		long movementCellProg = tolerated;
+		long movementRoomProg = tolerated;
 		long descentProg = Movement == "Arboreal" ? alwaysTrueId : alwaysFalseId;
 		long ecologicalSiteProg = Nesting ? progs.Nest : shelterProg;
 
@@ -748,7 +748,7 @@ internal sealed record WildlifeAnimalProfile(
 				new XElement("WanderChancePerMinute", WanderChance),
 				new XElement("WanderEmote", new XCData(string.Empty)),
 				new XElement("MovementEnabledProg", alwaysTrueId),
-				new XElement("MovementCellProg", movementCellProg),
+				new XElement("MovementCellProg", movementRoomProg),
 				new XElement("PreferredHabitatProg", preferred),
 				new XElement("ToleratedHabitatProg", tolerated),
 				new XElement("AmphibiousLandCellProg", progs.Terrestrial),

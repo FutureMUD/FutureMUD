@@ -244,7 +244,7 @@ public class ConditionRepairInput : BaseInput
             );
         }
 
-        public void ReleaseItemsAtCraftCompletion(ICell location, RoomLayer layer)
+        public void ReleaseItemsAtCraftCompletion(IRoom location, RoomLayer layer)
         {
             foreach (IGameItem item in ConsumedItems)
             {
@@ -256,7 +256,7 @@ public class ConditionRepairInput : BaseInput
             ConsumedItems.Clear();
         }
 
-        public void ReleaseItemsAtCraftCompletion(ILocateable source, ICell location, RoomLayer layer)
+        public void ReleaseItemsAtCraftCompletion(ILocateable source, IRoom location, RoomLayer layer)
         {
             foreach (IGameItem item in ConsumedItems)
             {

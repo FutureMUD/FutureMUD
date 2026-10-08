@@ -58,9 +58,9 @@ public partial class QueuedCommandAuthorityTests
 			if (change == "foreign") round.ContainedIn = foreign;
 			throw original;
 		});
-		var cell = Mock.Get(f.Actor.Object.Location);
-		var items = new List<IGameItem>(); cell.SetupGet(x => x.GameItems).Returns(items);
-		cell.Setup(x => x.Insert(round, true)).Callback(() => { if (change == "recovery-throw") throw secondary; items.Add(round); });
+		var room = Mock.Get(f.Actor.Object.Location);
+		var items = new List<IGameItem>(); room.SetupGet(x => x.GameItems).Returns(items);
+		room.Setup(x => x.Insert(round, true)).Callback(() => { if (change == "recovery-throw") throw secondary; items.Add(round); });
 		using var execution = CommandExecutionScope.EnterDispatch(CommandExecutionAuthority.Prepare(f.Actor.Object, f.Commander.Object, "unload firearm", () => true), f.Actor.Object);
 		Exception? observed = null;
 		try
@@ -79,6 +79,6 @@ public partial class QueuedCommandAuthorityTests
 		Assert.AreSame(change == "foreign" ? foreign : null, round.ContainedIn);
 		Assert.AreSame(change == "foreign" ? null : f.Actor.Object.Location, round.DirectLocation);
 		Assert.AreEqual(change == "throw" ? 1 : 0, items.Count);
-		cell.Verify(x => x.Insert(round, true), change == "foreign" ? Times.Never : Times.Once);
+		room.Verify(x => x.Insert(round, true), change == "foreign" ? Times.Never : Times.Once);
 	}
 }

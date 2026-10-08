@@ -30,7 +30,7 @@ public enum RetainedHazardPersistence { OrdinaryDrying, UntilRemoved }
 
 /// <summary>A sample of fluid that actually entered this body's respiratory route, independent of oxygen compatibility.</summary>
 public sealed record RespiratoryExposureSample(IBody Body, IFluid Fluid, string SourceIdentity,
-	MudSharp.Construction.ICell Location, MudSharp.Construction.RoomLayer Layer, double Strength,
+	MudSharp.Construction.IRoom Location, MudSharp.Construction.RoomLayer Layer, double Strength,
 	double Seconds, bool Airflow, bool Supplied, bool WithdrawalSucceeded);
 
 /// <summary>Rates are per second of full reference surface exposure. Volumes use UnitManager base units.</summary>

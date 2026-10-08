@@ -99,7 +99,7 @@ public class LiquidContamination : Effect, ILiquidContaminationEffect, IDescript
             _contaminatingLiquid.OnLiquidMixtureChanged -= ContaminatingLiquidOnLiquidMixtureChanged;
             double difference = mixture.TotalVolume - maxAbsorbed;
             ContaminatingLiquid.SetLiquidVolume(maxAbsorbed);
-            ICell location = ownerItem.TrueLocations.FirstOrDefault();
+            IRoom location = ownerItem.TrueLocations.FirstOrDefault();
             if (location != null && ownerItem.ContainedIn == null &&
                 !ownerItem.Location.IsSwimmingLayer(ownerItem.RoomLayer))
             {

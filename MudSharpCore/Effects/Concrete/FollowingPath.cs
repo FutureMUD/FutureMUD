@@ -19,39 +19,39 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 	private const double CoordinateToleranceMetres = 0.0005;
     private readonly HashSet<IExit> _unlockedExits = new();
 	private readonly Queue<ISpatialPathStep>? _spatialSteps;
-	private readonly Func<ICellExit, bool>? _spatialExitSuitability;
-	private readonly Dictionary<ICell, RouteTopologyPin> _routeTopologyPins =
+	private readonly Func<IRoomExit, bool>? _spatialExitSuitability;
+	private readonly Dictionary<IRoom, RouteTopologyPin> _routeTopologyPins =
 		new(ReferenceEqualityComparer.Instance);
 
-    public Queue<ICellExit> Exits { get; set; }
+    public Queue<IRoomExit> Exits { get; set; }
 	public bool IsSpatialPath => _spatialSteps is not null;
 	public IReadOnlyList<ISpatialPathStep> SpatialSteps => _spatialSteps?.ToArray() ?? [];
 
-    public FollowingPath(ICharacter owner, IEnumerable<ICellExit> exits) : base(owner, null)
+    public FollowingPath(ICharacter owner, IEnumerable<IRoomExit> exits) : base(owner, null)
     {
-        Exits = new Queue<ICellExit>(exits);
+        Exits = new Queue<IRoomExit>(exits);
     }
 
 	public FollowingPath(
 		ICharacter owner,
 		ISpatialPath path,
-		Func<ICellExit, bool>? exitSuitability = null) : base(owner, null)
+		Func<IRoomExit, bool>? exitSuitability = null) : base(owner, null)
 	{
 		ArgumentNullException.ThrowIfNull(path);
 		_spatialSteps = new Queue<ISpatialPathStep>(path.Steps);
 		_spatialExitSuitability = exitSuitability ??
 			(exit => owner.CanCross(exit).Success && owner.CanMove(exit));
-		Exits = new Queue<ICellExit>(path.Steps
+		Exits = new Queue<IRoomExit>(path.Steps
 			.OfType<IExitTraversalPathStep>()
 			.Select(x => x.Exit));
 
-		foreach (var cell in path.Steps
-			.SelectMany(x => new[] { x.Origin.Cell, x.Destination.Cell })
-			.Distinct<ICell>(ReferenceEqualityComparer.Instance))
+		foreach (var room in path.Steps
+			.SelectMany(x => new[] { x.Origin.Room, x.Destination.Room })
+			.Distinct<IRoom>(ReferenceEqualityComparer.Instance))
 		{
-			if (cell.RouteDefinition is { } route)
+			if (room.RouteDefinition is { } route)
 			{
-				_routeTopologyPins[cell] = new RouteTopologyPin(route, route.TopologyVersion);
+				_routeTopologyPins[room] = new RouteTopologyPin(route, route.TopologyVersion);
 			}
 		}
 	}
@@ -70,7 +70,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 					$"{linear.Direction.DescribeEnum()} {linear.DistanceMetres.ToString("N0", voyeur)}m",
 				IExitTraversalPathStep traversal when traversal.Exit.OutboundDirection != CardinalDirection.Unknown =>
 					traversal.Exit.OutboundDirection.DescribeBrief(),
-				IExitTraversalPathStep traversal when traversal.Exit is NonCardinalCellExit nc =>
+				IExitTraversalPathStep traversal when traversal.Exit is NonCardinalRoomExit nc =>
 					$"'{nc.Verb} {nc.PrimaryKeyword}'".ToLowerInvariant(),
 				_ => "??"
 			}).Humanize();
@@ -84,7 +84,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
                 return x.OutboundDirection.DescribeBrief();
             }
 
-            return x is NonCardinalCellExit nc ? $"'{nc.Verb} {nc.PrimaryKeyword}'".ToLowerInvariant() : "??";
+            return x is NonCardinalRoomExit nc ? $"'{nc.Verb} {nc.PrimaryKeyword}'".ToLowerInvariant() : "??";
         }).Humanize();
         return $"Following a path: {exitStrings}";
     }
@@ -101,7 +101,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 	/// </summary>
 	public PathingAIBase? PathingOwner { get; internal set; }
 
-	public static FollowingPath CreateFullFriendlyPath(ICharacter owner, IEnumerable<ICellExit> exits,
+	public static FollowingPath CreateFullFriendlyPath(ICharacter owner, IEnumerable<IRoomExit> exits,
 		bool closeDoorsBehind = false)
 	{
 		return new FollowingPath(owner, exits)
@@ -116,7 +116,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 	public static FollowingPath CreateFullFriendlyPath(
 		ICharacter owner,
 		ISpatialPath path,
-		Func<ICellExit, bool> exitSuitability,
+		Func<IRoomExit, bool> exitSuitability,
 		bool closeDoorsBehind = false)
 	{
 		return new FollowingPath(owner, path, exitSuitability)
@@ -150,7 +150,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
             return;
         }
 
-        ICellExit exit = Exits.Peek();
+        IRoomExit exit = Exits.Peek();
         if (ZeroGravityMovementHelper.IsZeroGravity(ch.Location, ch.RoomLayer, ch) &&
             !ZeroGravityMovementHelper.CanManeuver(ch))
         {
@@ -337,7 +337,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		}
 	}
 
-	protected virtual MovementStrategyResult TryMoveThroughExit(ICharacter ch, ICellExit exit)
+	protected virtual MovementStrategyResult TryMoveThroughExit(ICharacter ch, IRoomExit exit)
 	{
 		if (exit.Exit.Door?.IsOpen == false &&
 		    ch.EffectsOfType<BreakDownDoor>()
@@ -398,12 +398,12 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 
 	private static bool RevalidateLinearStep(ILinearRoutePathStep step)
 	{
-		var route = step.Origin.Cell.RouteDefinition;
+		var route = step.Origin.Room.RouteDefinition;
 		if (route is null ||
-			!ReferenceEquals(route, step.RouteCell) ||
+			!ReferenceEquals(route, step.RouteRoom) ||
 			!double.IsFinite(route.LengthMetres) || route.LengthMetres <= 0.0 ||
 			!double.IsFinite(route.MetresPerRoomEquivalent) || route.MetresPerRoomEquivalent <= 0.0 ||
-			!ReferenceEquals(step.Origin.Cell, step.Destination.Cell) ||
+			!ReferenceEquals(step.Origin.Room, step.Destination.Room) ||
 			step.Origin.Layer != step.Destination.Layer ||
 			!step.Origin.RoutePositionMetres.HasValue ||
 			!step.Destination.RoutePositionMetres.HasValue)
@@ -423,30 +423,30 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		}
 
 		return destination > origin
-			? step.Direction == RouteCellDirection.Positive
-			: destination < origin && step.Direction == RouteCellDirection.Negative;
+			? step.Direction == RouteRoomDirection.Positive
+			: destination < origin && step.Direction == RouteRoomDirection.Negative;
 	}
 
 	private bool RevalidateExitStep(ICharacter ch, IExitTraversalPathStep step)
 	{
 		var exit = step.Exit;
 		if (exit is null ||
-			!ReferenceEquals(exit.Origin, step.Origin.Cell) ||
-			!ReferenceEquals(exit.Destination, step.Destination.Cell) ||
-			!step.Origin.Cell.ExitsFor(ch, true).Any(x => ExitSidesMatch(x, exit)) ||
+			!ReferenceEquals(exit.Origin, step.Origin.Room) ||
+			!ReferenceEquals(exit.Destination, step.Destination.Room) ||
+			!step.Origin.Room.ExitsFor(ch, true).Any(x => ExitSidesMatch(x, exit)) ||
 			!exit.WhichLayersExitAppears().Contains(step.Origin.Layer))
 		{
 			return false;
 		}
 
 		var transition = exit.MovementTransition(ch);
-		if (transition.TransitionType == CellMovementTransition.NoViableTransition ||
+		if (transition.TransitionType == RoomMovementTransition.NoViableTransition ||
 			transition.TargetLayer != step.Destination.Layer)
 		{
 			return false;
 		}
 
-		if (step.Origin.Cell.RouteDefinition is { } sourceRoute)
+		if (step.Origin.Room.RouteDefinition is { } sourceRoute)
 		{
 			var anchor = sourceRoute.ExitAnchors.FirstOrDefault(x => ExitSidesMatch(x.Exit, exit));
 			if (anchor is null || !step.Origin.RoutePositionMetres.HasValue ||
@@ -460,7 +460,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 			return false;
 		}
 
-		if (step.Destination.Cell.RouteDefinition is { } destinationRoute)
+		if (step.Destination.Room.RouteDefinition is { } destinationRoute)
 		{
 			var anchor = destinationRoute.ExitAnchors.FirstOrDefault(x =>
 				ReferenceEquals(x.Exit, exit.Opposite) || ExitSidesShareUnderlyingExit(x.Exit, exit));
@@ -489,7 +489,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 
 	private static bool LocationsMatch(SpatialLocation first, SpatialLocation second)
 	{
-		if (!ReferenceEquals(first.Cell, second.Cell) || first.Layer != second.Layer)
+		if (!ReferenceEquals(first.Room, second.Room) || first.Layer != second.Layer)
 		{
 			return false;
 		}
@@ -503,22 +503,22 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		       CoordinateToleranceMetres;
 	}
 
-	private static bool ExitSidesMatch(ICellExit first, ICellExit second)
+	private static bool ExitSidesMatch(IRoomExit first, IRoomExit second)
 	{
 		return ReferenceEquals(first, second) ||
 		       ReferenceEquals(first.Exit, second.Exit) && ReferenceEquals(first.Origin, second.Origin);
 	}
 
-	private static bool ExitSidesShareUnderlyingExit(ICellExit first, ICellExit second)
+	private static bool ExitSidesShareUnderlyingExit(IRoomExit first, IRoomExit second)
 	{
 		return ReferenceEquals(first.Exit, second.Exit) ||
 		       ReferenceEquals(first, second.Opposite) ||
 		       ReferenceEquals(first.Opposite, second);
 	}
 
-	private sealed record RouteTopologyPin(IRouteCellDefinition Definition, long TopologyVersion);
+	private sealed record RouteTopologyPin(IRouteRoomDefinition Definition, long TopologyVersion);
 
-	private void CloseDoorBehindAfterMovement(ICharacter ch, ICellExit exit)
+	private void CloseDoorBehindAfterMovement(ICharacter ch, IRoomExit exit)
 	{
 		if (!CloseDoorsBehind)
 		{
@@ -545,7 +545,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		}, "closing a door behind them"), delay);
 	}
 
-	public void RecordUnlockedExit(ICellExit exit)
+	public void RecordUnlockedExit(IRoomExit exit)
 	{
 		if (exit?.Exit is not null)
 		{
@@ -553,12 +553,12 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		}
 	}
 
-	private bool ConsumeUnlockedExit(ICellExit exit)
+	private bool ConsumeUnlockedExit(IRoomExit exit)
 	{
 		return exit?.Exit is not null && _unlockedExits.Remove(exit.Exit);
 	}
 
-	internal static bool HasOtherWalkers(ICharacter ch, ICellExit exit)
+	internal static bool HasOtherWalkers(ICharacter ch, IRoomExit exit)
 	{
 		if (ch is null || exit?.Exit is null)
 		{
@@ -573,7 +573,7 @@ public class FollowingPath : Effect, IEffectSubtype, IRemoveOnCombatStart
 		           .Any(x => ReferenceEquals(x.Exit.Exit, exit.Exit));
 	}
 
-	public static void CloseDoorBehind(ICharacter ch, ICellExit exit, bool useKeys, bool mustSecure = false)
+	public static void CloseDoorBehind(ICharacter ch, IRoomExit exit, bool useKeys, bool mustSecure = false)
 	{
 		var door = exit?.Exit.Door;
 		if (door is null)

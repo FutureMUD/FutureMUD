@@ -30,23 +30,23 @@ namespace MudSharp_Unit_Tests;
 public class MagicPsionicTraceTests
 {
 	[TestMethod]
-	public void DisabledImpressions_KeepCharacterTracesButNeverRecordCellHistory()
+	public void DisabledImpressions_KeepCharacterTracesButNeverRecordRoomHistory()
 	{
 		var world = CreateGameworld();
 		world.Setup(x => x.GetStaticBool(PsychometricRecorder.EnabledSetting)).Returns(false);
 		var power = MagicPowerFactory.LoadPower(CreateTracePowerModel(includeTrace: true), world.Object);
-		var cell = CreateCell(31, world.Object);
+		var room = CreateRoom(31, world.Object);
 		var traces = new List<IPsionicTraceEffect>();
 		var cellTraces = new List<IPsionicTraceEffect>();
-		var source = CreateCharacter(11, "source", world.Object, cell.Object, traces);
-		ConfigureTraceOwner(cell, cellTraces);
-		ConfigureCollections(world, [source.Object], [cell.Object], [power]);
+		var source = CreateCharacter(11, "source", world.Object, room.Object, traces);
+		ConfigureTraceOwner(room, cellTraces);
+		ConfigureCollections(world, [source.Object], [room.Object], [power]);
 		PsionicActivityNotifier.Notify(source.Object, power, "self audit", source.Object);
 		Assert.AreEqual(1, traces.Count);
 		Assert.AreEqual(0, cellTraces.Count);
-		Assert.IsNull(PsychometricRecorder.Read(cell.Object));
-		Assert.IsFalse(PsychometricRecorder.AuthorClue(cell.Object, source.Object, "a hidden clue"));
-		cell.Verify(x => x.AddEffect(It.IsAny<IEffect>()), Times.Never);
+		Assert.IsNull(PsychometricRecorder.Read(room.Object));
+		Assert.IsFalse(PsychometricRecorder.AuthorClue(room.Object, source.Object, "a hidden clue"));
+		room.Verify(x => x.AddEffect(It.IsAny<IEffect>()), Times.Never);
 	}
 	[TestInitialize]
 	public void TestInitialize()
@@ -59,14 +59,14 @@ public class MagicPsionicTraceTests
 	{
 		var gameworld = CreateGameworld();
 		var power = MagicPowerFactory.LoadPower(CreateTracePowerModel(includeTrace: true), gameworld.Object);
-		var cell = CreateCell(31, gameworld.Object);
-		var source = CreateCharacter(11, "source", gameworld.Object, cell.Object);
-		var target = CreateCharacter(12, "target", gameworld.Object, cell.Object);
-		ConfigureCollections(gameworld, [source.Object, target.Object], [cell.Object], [power]);
+		var room = CreateRoom(31, gameworld.Object);
+		var source = CreateCharacter(11, "source", gameworld.Object, room.Object);
+		var target = CreateCharacter(12, "target", gameworld.Object, room.Object);
+		ConfigureCollections(gameworld, [source.Object, target.Object], [room.Object], [power]);
 
 		var traceId = Guid.NewGuid();
 		var created = new DateTime(2026, 6, 1, 3, 0, 0, DateTimeKind.Utc);
-		var effect = new PsionicTraceEffect(source.Object, source.Object, target.Object, cell.Object, power,
+		var effect = new PsionicTraceEffect(source.Object, source.Object, target.Object, room.Object, power,
 			PsionicActivityKind.Psychic, "a suggested thought", "a veiled mind", Difficulty.Hard, 2,
 			traceId, created, TimeSpan.FromMinutes(45));
 
@@ -78,7 +78,7 @@ public class MagicPsionicTraceTests
 		Assert.AreEqual(traceId, loaded.TraceId);
 		Assert.AreEqual(source.Object.Id, loaded.SourceCharacterId);
 		Assert.AreEqual(target.Object.Id, loaded.TargetCharacterId);
-		Assert.AreEqual(cell.Object.Id, loaded.SourceCellId);
+		Assert.AreEqual(room.Object.Id, loaded.SourceRoomId);
 		Assert.AreEqual(PsionicActivityKind.Psychic, loaded.ActivityKind);
 		Assert.AreEqual("a suggested thought", loaded.ActivityDescription);
 		Assert.AreEqual("a veiled mind", loaded.UnknownIdentityDescription);
@@ -88,7 +88,7 @@ public class MagicPsionicTraceTests
 		Assert.AreEqual(TimeSpan.FromMinutes(45), loaded.TraceDuration);
 		Assert.AreSame(source.Object, loaded.SourceCharacter);
 		Assert.AreSame(target.Object, loaded.TargetCharacter);
-		Assert.AreSame(cell.Object, loaded.SourceCell);
+		Assert.AreSame(room.Object, loaded.SourceRoom);
 		Assert.IsTrue(loaded.Involves(source.Object));
 		Assert.IsTrue(loaded.Involves(target.Object));
 	}
@@ -135,19 +135,19 @@ public class MagicPsionicTraceTests
 	}
 
 	[TestMethod]
-	public void PsionicActivityNotifier_CreatesSourceTargetAndCellTracesWithOneTraceId()
+	public void PsionicActivityNotifier_CreatesSourceTargetAndRoomTracesWithOneTraceId()
 	{
 		var gameworld = CreateGameworld();
 		var power = MagicPowerFactory.LoadPower(CreateTracePowerModel(includeTrace: true,
 			durationSeconds: 600, traceDescription: "a residual suggestion"), gameworld.Object);
-		var cell = CreateCell(31, gameworld.Object);
+		var room = CreateRoom(31, gameworld.Object);
 		var sourceTraces = new List<IPsionicTraceEffect>();
 		var targetTraces = new List<IPsionicTraceEffect>();
 		var cellTraces = new List<IPsionicTraceEffect>();
-		var source = CreateCharacter(11, "source", gameworld.Object, cell.Object, sourceTraces);
-		var target = CreateCharacter(12, "target", gameworld.Object, cell.Object, targetTraces);
-		ConfigureTraceOwner(cell, cellTraces);
-		ConfigureCollections(gameworld, [source.Object, target.Object], [cell.Object], [power]);
+		var source = CreateCharacter(11, "source", gameworld.Object, room.Object, sourceTraces);
+		var target = CreateCharacter(12, "target", gameworld.Object, room.Object, targetTraces);
+		ConfigureTraceOwner(room, cellTraces);
+		ConfigureCollections(gameworld, [source.Object, target.Object], [room.Object], [power]);
 
 		PsionicActivityNotifier.Notify(source.Object, power, "a suggestion", target.Object);
 
@@ -166,12 +166,12 @@ public class MagicPsionicTraceTests
 	{
 		var gameworld = CreateGameworld();
 		var power = MagicPowerFactory.LoadPower(CreateTracePowerModel(includeTrace: true), gameworld.Object);
-		var cell = CreateCell(31, gameworld.Object);
+		var room = CreateRoom(31, gameworld.Object);
 		var sourceTraces = new List<IPsionicTraceEffect>();
 		var cellTraces = new List<IPsionicTraceEffect>();
-		var source = CreateCharacter(11, "source", gameworld.Object, cell.Object, sourceTraces);
-		ConfigureTraceOwner(cell, cellTraces);
-		ConfigureCollections(gameworld, [source.Object], [cell.Object], [power]);
+		var source = CreateCharacter(11, "source", gameworld.Object, room.Object, sourceTraces);
+		ConfigureTraceOwner(room, cellTraces);
+		ConfigureCollections(gameworld, [source.Object], [room.Object], [power]);
 
 		PsionicActivityNotifier.Notify(source.Object, power, "self scan", source.Object);
 
@@ -186,15 +186,15 @@ public class MagicPsionicTraceTests
 		var gameworld = CreateGameworld();
 		var tracePower = MagicPowerFactory.LoadPower(CreateTracePowerModel(includeTrace: true), gameworld.Object);
 		var sensitivityPower = (SensitivityPower)MagicPowerFactory.LoadPower(CreateSensitivityPowerModel(), gameworld.Object);
-		var cell = CreateCell(31, gameworld.Object);
+		var room = CreateRoom(31, gameworld.Object);
 		var sourceTraces = new List<IPsionicTraceEffect>();
-		var source = CreateCharacter(11, "source", gameworld.Object, cell.Object, sourceTraces);
-		var listener = CreateCharacter(12, "listener", gameworld.Object, cell.Object);
+		var source = CreateCharacter(11, "source", gameworld.Object, room.Object, sourceTraces);
+		var listener = CreateCharacter(12, "listener", gameworld.Object, room.Object);
 		var sensitivity = new PsionicSensitivityEffect(listener.Object, sensitivityPower);
 		listener.Setup(x => x.EffectsOfType<PsionicSensitivityEffect>(It.IsAny<Predicate<PsionicSensitivityEffect>?>()))
 		        .Returns<Predicate<PsionicSensitivityEffect>?>(predicate => predicate is null || predicate(sensitivity) ? [sensitivity] : []);
 		listener.SetupGet(x => x.OutputHandler).Returns(CreateOutputHandler(text => listenerOutput += text).Object);
-		ConfigureCollections(gameworld, [source.Object, listener.Object], [cell.Object], [tracePower, sensitivityPower]);
+		ConfigureCollections(gameworld, [source.Object, listener.Object], [room.Object], [tracePower, sensitivityPower]);
 
 		PsionicActivityNotifier.Notify(source.Object, tracePower, "a psychic disturbance");
 
@@ -207,11 +207,11 @@ public class MagicPsionicTraceTests
 	{
 		var gameworld = CreateGameworld();
 		var power = MagicPowerFactory.LoadPower(CreateTracePowerModel(includeTrace: true), gameworld.Object);
-		var cell = CreateCell(31, gameworld.Object);
+		var room = CreateRoom(31, gameworld.Object);
 		var sourceTraces = new List<IPsionicTraceEffect>();
 		var targetTraces = new List<IPsionicTraceEffect>();
-		var source = CreateCharacter(11, "source", gameworld.Object, cell.Object, sourceTraces);
-		var target = CreateCharacter(12, "target", gameworld.Object, cell.Object, targetTraces);
+		var source = CreateCharacter(11, "source", gameworld.Object, room.Object, sourceTraces);
+		var target = CreateCharacter(12, "target", gameworld.Object, room.Object, targetTraces);
 		var concealment = new Mock<IMindContactConcealmentEffect>();
 		concealment.SetupGet(x => x.UnknownIdentityDescription).Returns("a masked mind");
 		concealment.SetupGet(x => x.AuditDifficultyStages).Returns(2);
@@ -222,7 +222,7 @@ public class MagicPsionicTraceTests
 			      var effects = new[] { concealment.Object };
 			      return predicate is null ? effects : effects.Where(x => predicate(x));
 		      });
-		ConfigureCollections(gameworld, [source.Object, target.Object], [cell.Object], [power]);
+		ConfigureCollections(gameworld, [source.Object, target.Object], [room.Object], [power]);
 
 		PsionicActivityNotifier.Notify(source.Object, power, "a concealed suggestion", target.Object);
 
@@ -237,15 +237,15 @@ public class MagicPsionicTraceTests
 		var gameworld = CreateGameworld();
 		var power = MagicPowerFactory.LoadPower(CreateTracePowerModel(includeTrace: true,
 			traceDescription: "a residual touch"), gameworld.Object);
-		var cell = CreateCell(31, gameworld.Object);
+		var room = CreateRoom(31, gameworld.Object);
 		var targetTraces = new List<IPsionicTraceEffect>();
-		var actor = CreateCharacter(11, "actor", gameworld.Object, cell.Object);
-		var source = CreateCharacter(12, "source", gameworld.Object, cell.Object);
-		var target = CreateCharacter(13, "target", gameworld.Object, cell.Object, targetTraces);
+		var actor = CreateCharacter(11, "actor", gameworld.Object, room.Object);
+		var source = CreateCharacter(12, "source", gameworld.Object, room.Object);
+		var target = CreateCharacter(13, "target", gameworld.Object, room.Object, targetTraces);
 		actor.SetupGet(x => x.OutputHandler).Returns(CreateOutputHandler(text => output += text).Object);
-		cell.SetupGet(x => x.Characters).Returns([actor.Object, target.Object]);
-		ConfigureCollections(gameworld, [actor.Object, source.Object, target.Object], [cell.Object], [power]);
-		targetTraces.Add(new PsionicTraceEffect(target.Object, source.Object, target.Object, cell.Object, power,
+		room.SetupGet(x => x.Characters).Returns([actor.Object, target.Object]);
+		ConfigureCollections(gameworld, [actor.Object, source.Object, target.Object], [room.Object], [power]);
+		targetTraces.Add(new PsionicTraceEffect(target.Object, source.Object, target.Object, room.Object, power,
 			PsionicActivityKind.Psychic, "a residual touch", "an unknown mind", Difficulty.Normal, 0,
 			Guid.NewGuid(), DateTime.UtcNow - TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(30)));
 
@@ -263,13 +263,13 @@ public class MagicPsionicTraceTests
 		var gameworld = CreateGameworld(passDifficulties: difficulty => difficulty <= Difficulty.Normal);
 		var power = MagicPowerFactory.LoadPower(CreateTracePowerModel(includeTrace: true,
 			traceDescription: "a hidden touch"), gameworld.Object);
-		var cell = CreateCell(31, gameworld.Object);
+		var room = CreateRoom(31, gameworld.Object);
 		var targetTraces = new List<IPsionicTraceEffect>();
-		var actor = CreateCharacter(11, "actor", gameworld.Object, cell.Object);
-		var source = CreateCharacter(12, "source", gameworld.Object, cell.Object);
-		var target = CreateCharacter(13, "target", gameworld.Object, cell.Object, targetTraces);
+		var actor = CreateCharacter(11, "actor", gameworld.Object, room.Object);
+		var source = CreateCharacter(12, "source", gameworld.Object, room.Object);
+		var target = CreateCharacter(13, "target", gameworld.Object, room.Object, targetTraces);
 		actor.SetupGet(x => x.OutputHandler).Returns(CreateOutputHandler(text => output += text).Object);
-		cell.SetupGet(x => x.Characters).Returns([actor.Object, target.Object]);
+		room.SetupGet(x => x.Characters).Returns([actor.Object, target.Object]);
 		var concealment = new Mock<IMindContactConcealmentEffect>();
 		concealment.SetupGet(x => x.UnknownIdentityDescription).Returns("a veiled mind");
 		concealment.SetupGet(x => x.AuditDifficultyStages).Returns(2);
@@ -280,8 +280,8 @@ public class MagicPsionicTraceTests
 			      var effects = new[] { concealment.Object };
 			      return predicate is null ? effects : effects.Where(x => predicate(x));
 		      });
-		ConfigureCollections(gameworld, [actor.Object, source.Object, target.Object], [cell.Object], [power]);
-		targetTraces.Add(new PsionicTraceEffect(target.Object, source.Object, target.Object, cell.Object, power,
+		ConfigureCollections(gameworld, [actor.Object, source.Object, target.Object], [room.Object], [power]);
+		targetTraces.Add(new PsionicTraceEffect(target.Object, source.Object, target.Object, room.Object, power,
 			PsionicActivityKind.Psychic, "a hidden touch", "an unknown mind", Difficulty.Normal, 0,
 			Guid.NewGuid(), DateTime.UtcNow - TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(30)));
 
@@ -298,15 +298,15 @@ public class MagicPsionicTraceTests
 		var gameworld = CreateGameworld(passDifficulties: difficulty => difficulty <= Difficulty.Normal);
 		var power = MagicPowerFactory.LoadPower(CreateTracePowerModel(includeTrace: true,
 			traceDescription: "a hidden touch"), gameworld.Object);
-		var cell = CreateCell(31, gameworld.Object);
+		var room = CreateRoom(31, gameworld.Object);
 		var targetTraces = new List<IPsionicTraceEffect>();
-		var actor = CreateCharacter(11, "actor", gameworld.Object, cell.Object);
-		var source = CreateCharacter(12, "source", gameworld.Object, cell.Object);
-		var target = CreateCharacter(13, "target", gameworld.Object, cell.Object, targetTraces);
+		var actor = CreateCharacter(11, "actor", gameworld.Object, room.Object);
+		var source = CreateCharacter(12, "source", gameworld.Object, room.Object);
+		var target = CreateCharacter(13, "target", gameworld.Object, room.Object, targetTraces);
 		actor.SetupGet(x => x.OutputHandler).Returns(CreateOutputHandler(text => output += text).Object);
-		cell.SetupGet(x => x.Characters).Returns([actor.Object, target.Object]);
-		ConfigureCollections(gameworld, [actor.Object, source.Object, target.Object], [cell.Object], [power]);
-		targetTraces.Add(new PsionicTraceEffect(target.Object, source.Object, target.Object, cell.Object, power,
+		room.SetupGet(x => x.Characters).Returns([actor.Object, target.Object]);
+		ConfigureCollections(gameworld, [actor.Object, source.Object, target.Object], [room.Object], [power]);
+		targetTraces.Add(new PsionicTraceEffect(target.Object, source.Object, target.Object, room.Object, power,
 			PsionicActivityKind.Psychic, "a hidden touch", "a masked mind", Difficulty.Normal, 2,
 			Guid.NewGuid(), DateTime.UtcNow - TimeSpan.FromMinutes(5), TimeSpan.FromMinutes(30)));
 
@@ -323,13 +323,13 @@ public class MagicPsionicTraceTests
 		var gameworld = CreateGameworld();
 		var connectPower = (ConnectMindPower)MagicPowerFactory.LoadPower(CreateConnectMindPowerModel(), gameworld.Object);
 		var tracePower = MagicPowerFactory.LoadPower(CreateTracePowerModel(includeTrace: true), gameworld.Object);
-		var cell = CreateCell(31, gameworld.Object);
-		var actor = CreateCharacter(11, "actor", gameworld.Object, cell.Object);
-		var target = CreateCharacter(12, "target", gameworld.Object, cell.Object);
-		var linked = CreateCharacter(13, "linked", gameworld.Object, cell.Object);
+		var room = CreateRoom(31, gameworld.Object);
+		var actor = CreateCharacter(11, "actor", gameworld.Object, room.Object);
+		var target = CreateCharacter(12, "target", gameworld.Object, room.Object);
+		var linked = CreateCharacter(13, "linked", gameworld.Object, room.Object);
 		actor.SetupGet(x => x.OutputHandler).Returns(CreateOutputHandler(text => output += text).Object);
-		cell.SetupGet(x => x.Characters).Returns([actor.Object, target.Object]);
-		ConfigureCollections(gameworld, [actor.Object, target.Object, linked.Object], [cell.Object], [connectPower, tracePower]);
+		room.SetupGet(x => x.Characters).Returns([actor.Object, target.Object]);
+		ConfigureCollections(gameworld, [actor.Object, target.Object, linked.Object], [room.Object], [connectPower, tracePower]);
 		var connectEffect = new ConnectMindEffect(target.Object, linked.Object, connectPower);
 		target.Setup(x => x.EffectsOfType<ConnectMindEffect>(It.IsAny<Predicate<ConnectMindEffect>?>()))
 		      .Returns<Predicate<ConnectMindEffect>?>(predicate => predicate is null || predicate(connectEffect) ? [connectEffect] : []);
@@ -567,7 +567,7 @@ public class MagicPsionicTraceTests
 		return prog;
 	}
 
-	private static Mock<ICharacter> CreateCharacter(long id, string name, IFuturemud gameworld, ICell? location,
+	private static Mock<ICharacter> CreateCharacter(long id, string name, IFuturemud gameworld, IRoom? location,
 		List<IPsionicTraceEffect>? traceEffects = null)
 	{
 		var character = new Mock<ICharacter>();
@@ -621,20 +621,20 @@ public class MagicPsionicTraceTests
 		return character;
 	}
 
-	private static Mock<ICell> CreateCell(long id, IFuturemud gameworld)
+	private static Mock<IRoom> CreateRoom(long id, IFuturemud gameworld)
 	{
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.SetupGet(x => x.Name).Returns($"Cell {id}");
-		cell.SetupGet(x => x.FrameworkItemType).Returns("Cell");
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld);
-		cell.SetupGet(x => x.Location).Returns(cell.Object);
-		cell.SetupGet(x => x.Characters).Returns([]);
-		cell.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns([]);
-		cell.Setup(x => x.EffectsOfType<IMagicInterdictionEffect>(It.IsAny<Predicate<IMagicInterdictionEffect>?>()))
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.SetupGet(x => x.Name).Returns($"Cell {id}");
+		room.SetupGet(x => x.FrameworkItemType).Returns("Cell");
+		room.SetupGet(x => x.Gameworld).Returns(gameworld);
+		room.SetupGet(x => x.Location).Returns(room.Object);
+		room.SetupGet(x => x.Characters).Returns([]);
+		room.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns([]);
+		room.Setup(x => x.EffectsOfType<IMagicInterdictionEffect>(It.IsAny<Predicate<IMagicInterdictionEffect>?>()))
 		    .Returns([]);
-		ConfigureTraceOwner(cell, []);
-		return cell;
+		ConfigureTraceOwner(room, []);
+		return room;
 	}
 
 	private static void ConfigureTraceOwner<T>(Mock<T> owner, List<IPsionicTraceEffect> traces)
@@ -667,17 +667,17 @@ public class MagicPsionicTraceTests
 	}
 
 	private static void ConfigureCollections(Mock<IFuturemud> gameworld, IEnumerable<ICharacter> characters,
-		IEnumerable<ICell> cells, IEnumerable<IMagicPower> powers)
+		IEnumerable<IRoom> rooms, IEnumerable<IMagicPower> powers)
 	{
 		var characterList = characters.ToArray();
-		var cellList = cells.ToArray();
+		var cellList = rooms.ToArray();
 		var powerList = powers.ToArray();
 		var charactersByIdentity = characterList
 		                           .GroupBy(CharacterInstanceIdentityComparer.IdentityId)
 		                           .ToDictionary(x => x.Key, x => x.First());
 		gameworld.SetupGet(x => x.Characters).Returns(CreateCollectionMock(characterList).Object);
 		gameworld.SetupGet(x => x.Actors).Returns(CreateCollectionMock(characterList).Object);
-		gameworld.SetupGet(x => x.Cells).Returns(CreateCollectionMock(cellList).Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(CreateCollectionMock(cellList).Object);
 		gameworld.SetupGet(x => x.MagicPowers).Returns(CreateCollectionMock(powerList).Object);
 		gameworld.Setup(x => x.TryGetCharacter(It.IsAny<long>(), It.IsAny<bool>()))
 		         .Returns<long, bool>((id, _) =>

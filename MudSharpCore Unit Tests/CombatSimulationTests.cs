@@ -66,19 +66,19 @@ public class CombatSimulationTests
 	}
 
 	[TestMethod]
-	public void Validate_StagedCellsAllowCombatantsToStartInDifferentCells()
+	public void Validate_StagedRoomsAllowCombatantsToStartInDifferentRooms()
 	{
 		var request = CreateRequest("red", "blue");
-		var firstCell = new Mock<ICell>();
-		var secondCell = new Mock<ICell>();
+		var firstRoom = new Mock<IRoom>();
+		var secondRoom = new Mock<IRoom>();
 		var stagedRequest = request with
 		{
-			Scene = firstCell.Object,
-			Cells = [firstCell.Object, secondCell.Object],
+			Scene = firstRoom.Object,
+			Rooms = [firstRoom.Object, secondRoom.Object],
 			Participants =
 			[
-				request.Participants[0] with { StartingCell = firstCell.Object },
-				request.Participants[1] with { StartingCell = secondCell.Object, StartingLayer = RoomLayer.InAir }
+				request.Participants[0] with { StartingRoom = firstRoom.Object },
+				request.Participants[1] with { StartingRoom = secondRoom.Object, StartingLayer = RoomLayer.InAir }
 			]
 		};
 
@@ -88,19 +88,19 @@ public class CombatSimulationTests
 	}
 
 	[TestMethod]
-	public void Validate_CombatantOutsideStagedCells_ReturnsStructuralError()
+	public void Validate_CombatantOutsideStagedRooms_ReturnsStructuralError()
 	{
 		var request = CreateRequest("red", "blue");
-		var scene = new Mock<ICell>();
-		var unlistedCell = new Mock<ICell>();
+		var scene = new Mock<IRoom>();
+		var unlistedRoom = new Mock<IRoom>();
 		var stagedRequest = request with
 		{
 			Scene = scene.Object,
-			Cells = [scene.Object],
+			Rooms = [scene.Object],
 			Participants =
 			[
 				request.Participants[0],
-				request.Participants[1] with { StartingCell = unlistedCell.Object }
+				request.Participants[1] with { StartingRoom = unlistedRoom.Object }
 			]
 		};
 
@@ -110,17 +110,17 @@ public class CombatSimulationTests
 	}
 
 	[TestMethod]
-	public void Validate_CombatantStartingLayerUnavailableInCell_ReturnsStructuralError()
+	public void Validate_CombatantStartingLayerUnavailableInRoom_ReturnsStructuralError()
 	{
 		var request = CreateRequest("red", "blue");
 		var terrain = new Mock<ITerrain>();
 		terrain.SetupGet(x => x.TerrainLayers).Returns([RoomLayer.GroundLevel]);
-		var scene = new Mock<ICell>();
+		var scene = new Mock<IRoom>();
 		scene.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
 		var stagedRequest = request with
 		{
 			Scene = scene.Object,
-			Cells = [scene.Object],
+			Rooms = [scene.Object],
 			Participants =
 			[
 				request.Participants[0],
@@ -134,11 +134,11 @@ public class CombatSimulationTests
 	}
 
 	[TestMethod]
-	public void Validate_MetricStartOutsideRouteCell_ReturnsStructuralError()
+	public void Validate_MetricStartOutsideRouteRoom_ReturnsStructuralError()
 	{
 		var request = CreateRequest("red", "blue");
-		var scene = new Mock<ICell>();
-		var route = new Mock<IRouteCellDefinition>();
+		var scene = new Mock<IRoom>();
+		var route = new Mock<IRouteRoomDefinition>();
 		route.SetupGet(x => x.LengthMetres).Returns(100.0);
 		scene.SetupGet(x => x.RouteDefinition).Returns(route.Object);
 		var stagedRequest = request with
@@ -153,7 +153,7 @@ public class CombatSimulationTests
 
 		var messages = new CombatSimulationService().Validate(stagedRequest);
 
-		Assert.IsTrue(messages.Any(x => x.IsError && x.Message.Contains("invalid RouteCell coordinate")));
+		Assert.IsTrue(messages.Any(x => x.IsError && x.Message.Contains("invalid RouteRoom coordinate")));
 	}
 
 	[TestMethod]
@@ -361,47 +361,47 @@ public class CombatSimulationTests
 	}
 
 	[TestMethod]
-	public void CombatSimulationCell_DatabaseLocationId_UsesPersistentSourceCell()
+	public void CombatSimulationRoom_DatabaseLocationId_UsesPersistentSourceRoom()
 	{
-		var source = new Mock<ICell>();
+		var source = new Mock<IRoom>();
 		source.SetupGet(x => x.Id).Returns(42L);
 		source.SetupGet(x => x.Gameworld).Returns(new Mock<MudSharp.Framework.IFuturemud>().Object);
-		source.SetupGet(x => x.Overlays).Returns(Array.Empty<ICellOverlay>());
+		source.SetupGet(x => x.Overlays).Returns(Array.Empty<IRoomOverlay>());
 
-		var simulationCell = new Cell(source.Object, -1L);
+		var simulationRoom = new Room(source.Object, -1L);
 
-		Assert.AreEqual(-1L, simulationCell.Id);
-		Assert.AreEqual(42L, simulationCell.DatabaseLocationId);
+		Assert.AreEqual(-1L, simulationRoom.Id);
+		Assert.AreEqual(42L, simulationRoom.DatabaseLocationId);
 	}
 
 	[TestMethod]
 	public void TransientExit_CombatSimulationCopyPreservesMovementDirections()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var sourceOrigin = new Mock<ICell>();
-		var sourceDestination = new Mock<ICell>();
-		var simulationOrigin = new Mock<ICell>();
-		var simulationDestination = new Mock<ICell>();
+		var sourceOrigin = new Mock<IRoom>();
+		var sourceDestination = new Mock<IRoom>();
+		var simulationOrigin = new Mock<IRoom>();
+		var simulationDestination = new Mock<IRoom>();
 		simulationOrigin.SetupGet(x => x.Id).Returns(-1L);
 		simulationDestination.SetupGet(x => x.Id).Returns(-2L);
 		var sourceExit = new Mock<IExit>();
-		var sourceOriginExit = new Mock<ICellExit>();
-		var sourceDestinationExit = new Mock<ICellExit>();
+		var sourceOriginExit = new Mock<IRoomExit>();
+		var sourceDestinationExit = new Mock<IRoomExit>();
 		sourceOriginExit.SetupGet(x => x.Opposite).Returns(sourceDestinationExit.Object);
 		sourceOriginExit.SetupGet(x => x.Destination).Returns(sourceDestination.Object);
 		sourceOriginExit.SetupGet(x => x.OutboundDirection).Returns(CardinalDirection.North);
 		sourceOriginExit.SetupGet(x => x.InboundDirection).Returns(CardinalDirection.South);
 		sourceDestinationExit.SetupGet(x => x.OutboundDirection).Returns(CardinalDirection.South);
 		sourceDestinationExit.SetupGet(x => x.InboundDirection).Returns(CardinalDirection.North);
-		sourceExit.Setup(x => x.CellExitFor(sourceOrigin.Object)).Returns(sourceOriginExit.Object);
+		sourceExit.Setup(x => x.RoomExitFor(sourceOrigin.Object)).Returns(sourceOriginExit.Object);
 		sourceExit.SetupGet(x => x.BlockedLayers).Returns(Array.Empty<RoomLayer>());
 		sourceExit.SetupGet(x => x.TimeMultiplier).Returns(1.0);
 
 		var transientExit = new TransientExit(gameworld.Object, simulationOrigin.Object, simulationDestination.Object,
 			sourceExit.Object, sourceOrigin.Object, "combat-simulation:test");
 
-		var copiedOriginExit = transientExit.CellExitFor(simulationOrigin.Object);
-		var copiedDestinationExit = transientExit.CellExitFor(simulationDestination.Object);
+		var copiedOriginExit = transientExit.RoomExitFor(simulationOrigin.Object);
+		var copiedDestinationExit = transientExit.RoomExitFor(simulationDestination.Object);
 		Assert.IsNotNull(copiedOriginExit);
 		Assert.IsNotNull(copiedDestinationExit);
 		Assert.AreSame(simulationDestination.Object, copiedOriginExit!.Destination);
@@ -477,7 +477,7 @@ public class CombatSimulationTests
 		return new CombatSimulationRequest(
 			Guid.NewGuid(),
 			new Mock<ICharacter>().Object,
-			new Mock<ICell>().Object,
+			new Mock<IRoom>().Object,
 			[
 				new CombatSimulationParticipantRequest(1, firstTeam,
 					CombatSimulationSourceType.NpcTemplate, null, first.Object),

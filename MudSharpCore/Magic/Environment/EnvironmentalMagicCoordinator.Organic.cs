@@ -14,17 +14,17 @@ public sealed partial class EnvironmentalMagicCoordinator
 {
 	private readonly Dictionary<long, double> _lastLoggedOrganic = [];
 
-	public EnvironmentalOrganicProfileSnapshot InspectOrganicProfile(ICell cell)
+	public EnvironmentalOrganicProfileSnapshot InspectOrganicProfile(IRoom room)
 	{
-		if (cell is not Cell concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
+		if (room is not Room concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
 		{
-			return new(null, 0, false, false, ["Land gathering requires a physical cell in this gameworld."]);
+			return new(null, 0, false, false, ["Land gathering requires a physical room in this gameworld."]);
 		}
 		var profileId = EffectiveProfileId(concrete);
 		if (!profileId.HasValue)
 		{
 			return new(null, 0, false, concrete.PendingEnvironmentalOperationId.HasValue,
-				["The cell has no effective environmental profile."]);
+				["The room has no effective environmental profile."]);
 		}
 		var profile = Profile(profileId.Value);
 		if (profile is null)
@@ -36,9 +36,9 @@ public sealed partial class EnvironmentalMagicCoordinator
 			concrete.PendingEnvironmentalOperationId.HasValue, profile.OrganicValidationErrors);
 	}
 
-	public IReadOnlyList<NativeOrganicSourceSnapshot> InspectOrganicSources(ICell cell)
+	public IReadOnlyList<NativeOrganicSourceSnapshot> InspectOrganicSources(IRoom room)
 	{
-		if (cell is not Cell concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
+		if (room is not Room concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
 		{
 			return Array.Empty<NativeOrganicSourceSnapshot>();
 		}
@@ -53,32 +53,32 @@ public sealed partial class EnvironmentalMagicCoordinator
 			return Array.Empty<NativeOrganicSourceSnapshot>();
 		}
 		return profile.OrganicSources
-			.Select(source => WithOrganicConversionValidity(cell, InspectOrganicDeclaration(cell, profile, source)))
+			.Select(source => WithOrganicConversionValidity(room, InspectOrganicDeclaration(room, profile, source)))
 			.ToList().AsReadOnly();
 	}
 
-	public NativeOrganicSourceSnapshot InspectOrganicSource(ICell cell, string selector)
+	public NativeOrganicSourceSnapshot InspectOrganicSource(IRoom room, string selector)
 	{
 		if (!TryCanonicalOrganicSelector(selector, out var canonical, out var kind, out _))
 		{
-			return OrganicFailure(cell, selector, kind, NativeOrganicSourceStatus.Invalid,
+			return OrganicFailure(room, selector, kind, NativeOrganicSourceStatus.Invalid,
 				"Specify crop, woodland, pasture, or forage:<yield-key>.");
 		}
-		if (cell is not Cell concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
+		if (room is not Room concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
 		{
-			return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Indeterminate,
-				"Native organic sources require a registered physical cell in this gameworld.");
+			return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Indeterminate,
+				"Native organic sources require a registered physical room in this gameworld.");
 		}
 		var profileId = EffectiveProfileId(concrete);
 		if (!profileId.HasValue)
 		{
-			return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Unauthorised,
-				"The cell has no effective environmental profile authorising this source.");
+			return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Unauthorised,
+				"The room has no effective environmental profile authorising this source.");
 		}
 		var profile = Profile(profileId.Value);
 		if (profile is null)
 		{
-			return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Invalid,
+			return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Invalid,
 				$"Environmental profile #{profileId.Value} is missing or has the wrong type.", profileId);
 		}
 		var declarations = profile.OrganicSources.Where(x => x.Selector.EqualTo(canonical)).ToList();
@@ -87,10 +87,10 @@ public sealed partial class EnvironmentalMagicCoordinator
 		{
 			if (sourceError is not null)
 			{
-				return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Invalid, sourceError,
+				return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Invalid, sourceError,
 					profile.Id, profile.Revision);
 			}
-			return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Unauthorised,
+			return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Unauthorised,
 				$"Environmental profile #{profile.Id} does not authorise {canonical}.", profile.Id, profile.Revision);
 		}
 		if (declarations.Count > 1 || sourceError is not null)
@@ -98,13 +98,13 @@ public sealed partial class EnvironmentalMagicCoordinator
 			var diagnostic = declarations.Count > 1
 				? $"Environmental profile #{profile.Id} has duplicate {canonical} declarations."
 				: sourceError!;
-			return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Invalid, diagnostic,
+			return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Invalid, diagnostic,
 				profile.Id, profile.Revision);
 		}
-		return WithOrganicConversionValidity(cell, InspectOrganicDeclaration(cell, profile, declarations[0]));
+		return WithOrganicConversionValidity(room, InspectOrganicDeclaration(room, profile, declarations[0]));
 	}
 
-	private NativeOrganicSourceSnapshot WithOrganicConversionValidity(ICell cell,
+	private NativeOrganicSourceSnapshot WithOrganicConversionValidity(IRoom room,
 		NativeOrganicSourceSnapshot source)
 	{
 		if (!source.IsEligible)
@@ -147,7 +147,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			NativeOrganicPenaltyEvaluation evaluation;
 			try
 			{
-				evaluation = InspectOrganicPenaltyFactor(cell, source, channel);
+				evaluation = InspectOrganicPenaltyFactor(room, source, channel);
 			}
 			catch (Exception exception)
 			{
@@ -170,34 +170,34 @@ public sealed partial class EnvironmentalMagicCoordinator
 		return source;
 	}
 
-	private NativeOrganicSourceSnapshot InspectOrganicDeclaration(ICell cell, IEnvironmentalMagicProfile profile,
+	private NativeOrganicSourceSnapshot InspectOrganicDeclaration(IRoom room, IEnvironmentalMagicProfile profile,
 		NativeOrganicSourceDeclaration declaration)
 	{
 		if (!TryCanonicalOrganicSelector(declaration.Selector, out var canonical, out var kind, out var forageKey) ||
 		    kind != declaration.Kind)
 		{
-			return OrganicFailure(cell, declaration.Selector, declaration.Kind, NativeOrganicSourceStatus.Invalid,
+			return OrganicFailure(room, declaration.Selector, declaration.Kind, NativeOrganicSourceStatus.Invalid,
 				"The environmental profile contains a malformed native source declaration.", profile.Id, profile.Revision);
 		}
 		if (OrganicSourceValidationError(profile, declaration) is { } sourceError)
 		{
-			return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Invalid,
+			return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Invalid,
 				sourceError, profile.Id, profile.Revision);
 		}
 
 		if (kind == NativeOrganicSourceKind.Forage)
 		{
-			if (!cell.TryPeekForagableYield(forageKey!, out NativeForageYieldSnapshot forage))
+			if (!room.TryPeekForagableYield(forageKey!, out NativeForageYieldSnapshot forage))
 			{
-				return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Absent,
+				return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Absent,
 					$"The effective forage profile has no yield key '{forageKey}'.", profile.Id, profile.Revision);
 			}
 			if (!double.IsFinite(forage.Stock) || forage.Stock < 0.0 || !double.IsFinite(forage.Maximum) || forage.Maximum < 0.0)
 			{
-				return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Invalid,
+				return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Invalid,
 					"The native forage owner reported invalid stock or capacity.", profile.Id, profile.Revision);
 			}
-			var lifecycle = new NativeOrganicLifecycleIdentity(cell.Id, null, 0, 0, forage.ProfileId,
+			var lifecycle = new NativeOrganicLifecycleIdentity(room.Id, null, 0, 0, forage.ProfileId,
 				forage.ProfileRevision, forage.DefinitionRevision);
 			return new NativeOrganicSourceSnapshot(canonical, kind,
 				forage.Stock > 0.0 ? NativeOrganicSourceStatus.Available : NativeOrganicSourceStatus.Exhausted,
@@ -205,11 +205,11 @@ public sealed partial class EnvironmentalMagicCoordinator
 				profile.Id, profile.Revision, null, null);
 		}
 
-		var field = FieldFor(cell);
+		var field = FieldFor(room);
 		if (field is null)
 		{
-			return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Absent,
-				"This physical cell has no indexed agriculture field.", profile.Id, profile.Revision);
+			return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Absent,
+				"This physical room has no indexed agriculture field.", profile.Id, profile.Revision);
 		}
 		NativeOrganicSourceSnapshot owner;
 		try
@@ -218,20 +218,20 @@ public sealed partial class EnvironmentalMagicCoordinator
 		}
 		catch (Exception exception)
 		{
-			return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Indeterminate,
+			return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Indeterminate,
 				$"The native field source could not be inspected: {exception.Message}", profile.Id, profile.Revision);
 		}
 		if (owner.Lifecycle is { } ownerLifecycle &&
-		    (ownerLifecycle.CellId != cell.Id || ownerLifecycle.FieldId != field.Id))
+		    (ownerLifecycle.RoomId != room.Id || ownerLifecycle.FieldId != field.Id))
 		{
-			return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Invalid,
+			return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Invalid,
 				"The native field source returned a lifecycle identity for a different owner.", profile.Id, profile.Revision);
 		}
 		if (owner.Status is NativeOrganicSourceStatus.Available or NativeOrganicSourceStatus.Exhausted)
 		{
 			if (!owner.FieldUse.HasValue || owner.Lifecycle is null)
 			{
-				return OrganicFailure(cell, canonical, kind, NativeOrganicSourceStatus.Invalid,
+				return OrganicFailure(room, canonical, kind, NativeOrganicSourceStatus.Invalid,
 					"An eligible native field source did not report its use and lifecycle.", profile.Id, profile.Revision);
 			}
 			if (declaration.AllowedFieldUses.Count > 0 && !declaration.AllowedFieldUses.Contains(owner.FieldUse.Value))
@@ -266,7 +266,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		};
 	}
 
-	public bool TryPlanOrganicDebit(ICell cell, string selector, double amount, out NativeOrganicDebitPlan plan,
+	public bool TryPlanOrganicDebit(IRoom room, string selector, double amount, out NativeOrganicDebitPlan plan,
 		out string? error)
 	{
 		plan = null!;
@@ -274,7 +274,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		{
 			return false;
 		}
-		var snapshot = InspectOrganicSource(cell, selector);
+		var snapshot = InspectOrganicSource(room, selector);
 		if (!snapshot.IsEligible || snapshot.Lifecycle is null || !snapshot.EnvironmentalProfileId.HasValue)
 		{
 			error = snapshot.Diagnostic ?? $"Native source {snapshot.Selector} is {snapshot.Status.DescribeEnum()}.";
@@ -310,18 +310,18 @@ public sealed partial class EnvironmentalMagicCoordinator
 		return true;
 	}
 
-	public bool TryApplyOrganicDebit(ICell cell, NativeOrganicDebitPlan plan,
+	public bool TryApplyOrganicDebit(IRoom room, NativeOrganicDebitPlan plan,
 		out NativeOrganicSourceSnapshot result, out string? error)
 	{
-		result = InspectOrganicSource(cell, plan?.Selector ?? string.Empty);
+		result = InspectOrganicSource(room, plan?.Selector ?? string.Empty);
 		if (plan is null)
 		{
 			error = "A native organic debit plan is required.";
 			return false;
 		}
-		if (_evaluating.Contains(cell.Id))
+		if (_evaluating.Contains(room.Id))
 		{
-			_recursive.Add(cell.Id);
+			_recursive.Add(room.Id);
 			error = "Environmental input progs must be read-only.";
 			return false;
 		}
@@ -346,7 +346,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		{
 			if (plan.WholeNativeDebit != 0 || plan.ClosingPrepaidFraction != 0m || plan.OpeningPrepaidFraction != 0m ||
 			    (double)plan.RequestedAmount > result.NativeStock ||
-			    !cell.TryPeekForagableYield(plan.Selector[7..], out NativeForageYieldSnapshot forage) ||
+			    !room.TryPeekForagableYield(plan.Selector[7..], out NativeForageYieldSnapshot forage) ||
 			    forage.ProfileId != plan.Lifecycle.ForageProfileId ||
 			    forage.ProfileRevision != plan.Lifecycle.ForageProfileRevision ||
 			    forage.DefinitionRevision != plan.Lifecycle.ForageDefinitionRevision ||
@@ -355,10 +355,10 @@ public sealed partial class EnvironmentalMagicCoordinator
 				error = "The forage debit plan is no longer current or has invalid arithmetic.";
 				return false;
 			}
-			if (!cell.TryConsumeYield(forage, (double)plan.RequestedAmount, out var reason))
+			if (!room.TryConsumeYield(forage, (double)plan.RequestedAmount, out var reason))
 			{
 				error = reason;
-				result = InspectOrganicSource(cell, plan.Selector);
+				result = InspectOrganicSource(room, plan.Selector);
 				return false;
 			}
 		}
@@ -371,31 +371,31 @@ public sealed partial class EnvironmentalMagicCoordinator
 			{
 				return false;
 			}
-			var field = FieldFor(cell);
+			var field = FieldFor(room);
 			if (field is null)
 			{
 				error = "The indexed agriculture field is no longer present.";
-				result = InspectOrganicSource(cell, plan.Selector);
+				result = InspectOrganicSource(room, plan.Selector);
 				return false;
 			}
 			if (!field.TryApplyNativeOrganicDebit(plan, out var reason))
 			{
 				error = reason;
-				result = InspectOrganicSource(cell, plan.Selector);
+				result = InspectOrganicSource(room, plan.Selector);
 				return false;
 			}
 		}
 
-		result = InspectOrganicSource(cell, plan.Selector);
+		result = InspectOrganicSource(room, plan.Selector);
 		error = null;
 		return true;
 	}
 
-	public bool TryApplyOrganicDebitBatch(ICell cell, IReadOnlyList<NativeOrganicDebitPlan> plans,
+	public bool TryApplyOrganicDebitBatch(IRoom room, IReadOnlyList<NativeOrganicDebitPlan> plans,
 		out IReadOnlyList<NativeOrganicDebitPlan> applied, out string? error)
-		=> ApplyOrganicDebitBatch(cell, plans, true, out applied, out error);
+		=> ApplyOrganicDebitBatch(room, plans, true, out applied, out error);
 
-	private bool ApplyOrganicDebitBatch(ICell cell, IReadOnlyList<NativeOrganicDebitPlan> plans,
+	private bool ApplyOrganicDebitBatch(IRoom room, IReadOnlyList<NativeOrganicDebitPlan> plans,
 		bool validateCurrentPolicies, out IReadOnlyList<NativeOrganicDebitPlan> applied, out string? error)
 	{
 		applied = [];
@@ -407,7 +407,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		}
 		foreach (NativeOrganicDebitPlan plan in validateCurrentPolicies ? plans : [])
 		{
-			if (!TryPlanOrganicDebit(cell, plan.Selector, (double)plan.RequestedAmount,
+			if (!TryPlanOrganicDebit(room, plan.Selector, (double)plan.RequestedAmount,
 			    out NativeOrganicDebitPlan current, out error) || current != plan)
 			{
 				error ??= "A source changed before the complete native group could be validated.";
@@ -433,7 +433,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 				ownerReady = true;
 				foreach (NativeOrganicDebitPlan foragePlan in foragePlans)
 				{
-					if (!cell.TryPeekForagableYield(foragePlan.Selector[7..], out NativeForageYieldSnapshot snapshot) ||
+					if (!room.TryPeekForagableYield(foragePlan.Selector[7..], out NativeForageYieldSnapshot snapshot) ||
 					    snapshot.SourceRevision != foragePlan.SourceRevision ||
 					    snapshot.ProfileId != foragePlan.Lifecycle.ForageProfileId ||
 					    snapshot.ProfileRevision != foragePlan.Lifecycle.ForageProfileRevision ||
@@ -446,7 +446,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 					requests.Add(new(snapshot, (double)foragePlan.RequestedAmount));
 				}
 				string forageReason;
-				if (ownerReady) ownerReady = cell.TryConsumeYieldBatch(requests, out forageReason);
+				if (ownerReady) ownerReady = room.TryConsumeYieldBatch(requests, out forageReason);
 				else forageReason = "A forage owner changed during the validated native group.";
 				error = ownerReady ? null : forageReason;
 				if (ownerReady)
@@ -457,7 +457,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			}
 			else
 			{
-				IAgricultureField? field = FieldFor(cell);
+				IAgricultureField? field = FieldFor(room);
 				NativeOrganicSourceSnapshot? owner = field?.InspectNativeOrganicSource(original.Kind);
 				ownerReady = owner is { IsEligible: true } && owner.Lifecycle == original.Lifecycle &&
 				             owner.SourceRevision == original.SourceRevision &&
@@ -481,16 +481,16 @@ public sealed partial class EnvironmentalMagicCoordinator
 		return true;
 	}
 
-	public NativeOrganicPenaltyEvaluation EvaluateOrganicPenalty(ICell cell, NativeOrganicPenaltyChannel channel,
+	public NativeOrganicPenaltyEvaluation EvaluateOrganicPenalty(IRoom room, NativeOrganicPenaltyChannel channel,
 		NativeOrganicPenaltyContext context)
 	{
 		if (!Enum.IsDefined(channel))
 		{
 			return NativeOrganicPenaltyEvaluation.Invalid("The organic penalty channel is unknown.");
 		}
-		if (cell is not Cell concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
+		if (room is not Room concrete || concrete.Id <= 0 || !ReferenceEquals(concrete.Gameworld, _world))
 		{
-			return NativeOrganicPenaltyEvaluation.Invalid("Organic penalties require a physical cell in this gameworld.");
+			return NativeOrganicPenaltyEvaluation.Invalid("Organic penalties require a physical room in this gameworld.");
 		}
 		var profileId = EffectiveProfileId(concrete);
 		if (!profileId.HasValue)
@@ -536,7 +536,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		{
 			return OrganicPenaltyFailure(profile.Id, channel, sourceError);
 		}
-		if (!OrganicDeclarationApplies(cell, declarations[0]))
+		if (!OrganicDeclarationApplies(room, declarations[0]))
 		{
 			return NativeOrganicPenaltyEvaluation.Neutral;
 		}
@@ -545,9 +545,9 @@ public sealed partial class EnvironmentalMagicCoordinator
 		{
 			return OrganicPenaltyFailure(profile.Id, channel, penaltyError);
 		}
-		if (!_evaluating.Add(cell.Id))
+		if (!_evaluating.Add(room.Id))
 		{
-			_recursive.Add(cell.Id);
+			_recursive.Add(room.Id);
 			return OrganicPenaltyFailure(profile.Id, channel, "Recursive environmental native-penalty evaluation is not permitted.");
 		}
 		try
@@ -558,7 +558,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			if (state.SchemaVersion != 1 || !double.IsFinite(state.ScarDamage) || state.ScarDamage < 0.0 ||
 			    !double.IsFinite(pressure) || pressure < 0.0)
 			{
-				return OrganicPenaltyFailure(profile.Id, channel, "The cell's environmental scar/pressure state is invalid.");
+				return OrganicPenaltyFailure(profile.Id, channel, "The room's environmental scar/pressure state is invalid.");
 			}
 			var values = new Dictionary<string, double>(StringComparer.OrdinalIgnoreCase)
 			{
@@ -580,7 +580,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			{
 				return OrganicPenaltyFailure(profile.Id, channel, "A required native penalty input is not finite.");
 			}
-			if (!TryCollectOrganicNamedInputs(cell, profile, required, values, out var error))
+			if (!TryCollectOrganicNamedInputs(room, profile, required, values, out var error))
 			{
 				return OrganicPenaltyFailure(profile.Id, channel, error!);
 			}
@@ -591,7 +591,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 				return OrganicPenaltyFailure(profile.Id, channel,
 					evaluation.Error ?? "The configured organic penalty is invalid.");
 			}
-			if (_recursive.Contains(cell.Id))
+			if (_recursive.Contains(room.Id))
 			{
 				return OrganicPenaltyFailure(profile.Id, channel,
 					"Recursive environmental native-penalty evaluation is not permitted.");
@@ -605,29 +605,29 @@ public sealed partial class EnvironmentalMagicCoordinator
 		}
 		finally
 		{
-			_evaluating.Remove(cell.Id);
-			_recursive.Remove(cell.Id);
+			_evaluating.Remove(room.Id);
+			_recursive.Remove(room.Id);
 		}
 	}
 
-	internal NativeOrganicPenaltyEvaluation InspectOrganicPenaltyFactor(ICell cell,
+	internal NativeOrganicPenaltyEvaluation InspectOrganicPenaltyFactor(IRoom room,
 		NativeOrganicSourceSnapshot source, NativeOrganicPenaltyChannel channel)
 	{
 		if (source.Kind == NativeOrganicSourceKind.Forage &&
 		    source.Selector.StartsWith("forage:", StringComparison.Ordinal) &&
-		    cell is Cell concrete &&
-		    cell.TryPeekForagableYield(source.Selector[7..], out NativeForageYieldSnapshot forage))
+		    room is Room concrete &&
+		    room.TryPeekForagableYield(source.Selector[7..], out NativeForageYieldSnapshot forage))
 		{
-			return EvaluateOrganicPenalty(cell, channel, Cell.BuildNativeForagePenaltyContext(
+			return EvaluateOrganicPenalty(room, channel, Room.BuildNativeForagePenaltyContext(
 				source.Selector[7..], source.NativeStock, forage.Maximum,
 				concrete.PeekNativeForageHourlyProduction(source.Selector[7..])));
 		}
 
-		var context = FieldFor(cell)?.InspectCurrentOrganicRecoveryContext(channel);
-		return context == null ? NativeOrganicPenaltyEvaluation.Neutral : EvaluateOrganicPenalty(cell, channel, context);
+		var context = FieldFor(room)?.InspectCurrentOrganicRecoveryContext(channel);
+		return context == null ? NativeOrganicPenaltyEvaluation.Neutral : EvaluateOrganicPenalty(room, channel, context);
 	}
 
-	private bool TryCollectOrganicNamedInputs(ICell cell, IEnvironmentalMagicProfile profile,
+	private bool TryCollectOrganicNamedInputs(IRoom room, IEnvironmentalMagicProfile profile,
 		IReadOnlySet<string> required, Dictionary<string, double> values, out string? error)
 	{
 		error = null;
@@ -640,8 +640,8 @@ public sealed partial class EnvironmentalMagicCoordinator
 			switch (input.Kind)
 			{
 				case EnvironmentalMagicInputKind.Forage:
-					if (!cell.HasForagableProfile) value = 0.0;
-					else if (!cell.TryPeekForagableYield(input.Source, out value))
+					if (!room.HasForagableProfile) value = 0.0;
+					else if (!room.TryPeekForagableYield(input.Source, out value))
 					{
 						error = $"Forage input {input.Name} refers to missing yield '{input.Source}'.";
 						return false;
@@ -650,7 +650,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 				case EnvironmentalMagicInputKind.Agriculture:
 					if (!fieldRead)
 					{
-						field = FieldFor(cell);
+						field = FieldFor(room);
 						fieldRead = true;
 					}
 					value = AgricultureValue(field, input.Source);
@@ -664,7 +664,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 					var watch = Stopwatch.StartNew();
 					_lastProgExecutions++;
 					_totalProgExecutions++;
-					var success = input.Prog.ExecuteWithStatus(out var progResult, cell);
+					var success = input.Prog.ExecuteWithStatus(out var progResult, room);
 					if (watch.Elapsed.TotalMilliseconds >= Options.SlowProgMilliseconds)
 						RecordSlowProg(profile.Id, input.Prog.Id, watch.Elapsed.TotalMilliseconds);
 					if (!success || progResult is null)
@@ -689,7 +689,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		return true;
 	}
 
-	public bool RepairNativeOrganicAccounting(ICell cell, NativeOrganicSourceKind? kind, out string result)
+	public bool RepairNativeOrganicAccounting(IRoom room, NativeOrganicSourceKind? kind, out string result)
 	{
 		if (kind == NativeOrganicSourceKind.Forage)
 		{
@@ -701,13 +701,13 @@ public sealed partial class EnvironmentalMagicCoordinator
 			result = "Specify crop, woodland, pasture or all.";
 			return false;
 		}
-		var field = FieldFor(cell);
+		var field = FieldFor(room);
 		if (field is null)
 		{
-			result = "This physical cell has no indexed agriculture field.";
+			result = "This physical room has no indexed agriculture field.";
 			return false;
 		}
-		if (_evaluating.Contains(cell.Id))
+		if (_evaluating.Contains(room.Id))
 		{
 			result = "Environmental input progs must be read-only.";
 			return false;
@@ -763,13 +763,13 @@ public sealed partial class EnvironmentalMagicCoordinator
 		? generator.OrganicSourceValidationError(declaration)
 		: null;
 
-	private bool OrganicDeclarationApplies(ICell cell, NativeOrganicSourceDeclaration declaration)
+	private bool OrganicDeclarationApplies(IRoom room, NativeOrganicSourceDeclaration declaration)
 	{
 		if (declaration.Kind == NativeOrganicSourceKind.Forage)
 		{
 			return true;
 		}
-		var field = FieldFor(cell);
+		var field = FieldFor(room);
 		if (field is null)
 		{
 			return false;
@@ -802,7 +802,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		return declaration.DefinitionIds.Contains(definitionId);
 	}
 
-	private static NativeOrganicSourceSnapshot OrganicFailure(ICell cell, string selector,
+	private static NativeOrganicSourceSnapshot OrganicFailure(IRoom room, string selector,
 		NativeOrganicSourceKind kind, NativeOrganicSourceStatus status, string diagnostic,
 		long? profileId = null, long profileRevision = 0) => new(selector, kind, status, null, 0.0, 0m,
 		NativeOrganicRecoveryRemainders.Empty, 0, profileId, profileRevision, null, diagnostic);

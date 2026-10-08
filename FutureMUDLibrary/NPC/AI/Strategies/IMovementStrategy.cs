@@ -12,6 +12,6 @@ namespace MudSharp.NPC.AI.Strategies
 
     public interface IMovementStrategy
     {
-        MovementStrategyResult TryToMove(ICharacter character, ICellExit exit);
+        MovementStrategyResult TryToMove(ICharacter character, IRoomExit exit);
     }
 }

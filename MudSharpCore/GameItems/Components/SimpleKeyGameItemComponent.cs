@@ -13,7 +13,7 @@ public class SimpleKeyGameItemComponent : GameItemComponent, IKey
         return new SimpleKeyGameItemComponent(this, newParent, temporary);
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         SimpleKeyGameItemComponent newItemKey = newItem?.GetItemType<SimpleKeyGameItemComponent>();
         newItemKey?.Pattern = Pattern;

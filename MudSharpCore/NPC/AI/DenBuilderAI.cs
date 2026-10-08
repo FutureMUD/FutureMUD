@@ -96,7 +96,7 @@ public class DenBuilderAI : PathingAIBase
 
     protected override string TypeHelpText => $@"{base.TypeHelpText}
 	#3craft <craft>#0 - sets the craft used to build the den or nest
-	#3site <prog>#0 - sets the prog that chooses suitable den cells
+	#3site <prog>#0 - sets the prog that chooses suitable den rooms
 	#3enabled <prog>#0 - sets the prog that controls whether den building is active
 	#3defend <prog>#0 - sets the prog that decides who to attack near the den
 	#3anchor <prog>#0 - sets the prog that identifies the completed den anchor item
@@ -154,7 +154,7 @@ public class DenBuilderAI : PathingAIBase
     {
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send("Which prog should decide whether a cell is suitable for a den?");
+            actor.OutputHandler.Send("Which prog should decide whether a room is suitable for a den?");
             return false;
         }
 
@@ -302,11 +302,11 @@ public class DenBuilderAI : PathingAIBase
         }
 
         NpcHomeBaseEffect home = NpcHomeBaseEffect.GetOrCreate(character);
-        if (home.HomeCell is null)
+        if (home.HomeRoom is null)
         {
             if (DenSiteProg.ExecuteBool(false, character, character.Location))
             {
-                home.SetHomeCell(character.Location);
+                home.SetHomeRoom(character.Location);
             }
             else
             {
@@ -315,7 +315,7 @@ public class DenBuilderAI : PathingAIBase
             }
         }
 
-        if (!ReferenceEquals(home.HomeCell, character.Location))
+        if (!ReferenceEquals(home.HomeRoom, character.Location))
         {
             CheckPathingEffect(character, true);
             return;
@@ -364,7 +364,7 @@ public class DenBuilderAI : PathingAIBase
 
     private void RefreshAnchorItem(ICharacter character, NpcHomeBaseEffect home)
     {
-        if (home.AnchorItem is not null && ReferenceEquals(home.AnchorItem.Location, home.HomeCell))
+        if (home.AnchorItem is not null && ReferenceEquals(home.AnchorItem.Location, home.HomeRoom))
         {
 			if (AnchorItemProg is null)
 			{
@@ -424,28 +424,28 @@ public class DenBuilderAI : PathingAIBase
         return true;
     }
 
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
         NpcHomeBaseEffect home = NpcHomeBaseEffect.GetOrCreate(ch);
-        if (home.HomeCell is not null && !ReferenceEquals(home.HomeCell, ch.Location))
+        if (home.HomeRoom is not null && !ReferenceEquals(home.HomeRoom, ch.Location))
         {
-            List<ICellExit> homePath = ch.PathBetween(home.HomeCell, 20, GetSuitabilityFunction(ch)).ToList();
+            List<IRoomExit> homePath = ch.PathBetween(home.HomeRoom, 20, GetSuitabilityFunction(ch)).ToList();
             return homePath.Any()
-                ? (home.HomeCell, homePath)
-                : (null, Enumerable.Empty<ICellExit>());
+                ? (home.HomeRoom, homePath)
+                : (null, Enumerable.Empty<IRoomExit>());
         }
 
-        if (home.HomeCell is not null)
+        if (home.HomeRoom is not null)
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
-        Tuple<IPerceivable, IEnumerable<ICellExit>> targetPath = ch.AcquireTargetAndPath(
-            x => x is ICell cell && DenSiteProg.ExecuteBool(false, ch, cell),
+        Tuple<IPerceivable, IEnumerable<IRoomExit>> targetPath = ch.AcquireTargetAndPath(
+            x => x is IRoom room && DenSiteProg.ExecuteBool(false, ch, room),
             20,
             GetSuitabilityFunction(ch));
-        return targetPath.Item1 is ICell denCell && targetPath.Item2.Any()
-            ? (denCell, targetPath.Item2)
-            : (null, Enumerable.Empty<ICellExit>());
+        return targetPath.Item1 is IRoom denRoom && targetPath.Item2.Any()
+            ? (denRoom, targetPath.Item2)
+            : (null, Enumerable.Empty<IRoomExit>());
     }
 }

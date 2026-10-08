@@ -1,7 +1,9 @@
 [CmdletBinding()]
-param([switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$SpellOwnedItemOnly, [switch]$CreatedConsumablesOnly, [switch]$CorpseAnimationOnly, [switch]$RaiseServitorStockOnly, [switch]$StormSpearStockOnly, [switch]$FlameKnifeStockOnly, [switch]$SandKnifeStockOnly, [switch]$QueuedCommandOnly, [switch]$QueuedCallbackOnly, [switch]$OrderedNpcCallbacksOnly, [switch]$CheckLearningOnly, [switch]$RegressionP2Only, [switch]$StackMergeOnly, [switch]$CustodyMergeOnly, [switch]$LoadOutputOnly, [switch]$AmmoConservationOnly, [switch]$AmmoDetachRecoveryOnly, [switch]$NativeBoardingOnly, [switch]$ProductionRestartOnly, [switch]$SelectedMeleeCheckOnly, [switch]$FirearmAuthorityOnly, [switch]$CountershotAuthorityOnly, [switch]$DefendedMeleeOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot)
+param([switch]$EmotionalHooksOnly, [switch]$LandOnly, [switch]$RejuvenationOnly, [switch]$CastingOnly, [switch]$PracticeOnly, [switch]$SpeechOnly, [switch]$AreaOnly, [switch]$LifecycleOnly, [switch]$BodyRetirementOnly, [switch]$LegacyRemainsOnly, [switch]$NpcArchiveOnly, [switch]$NpcArchiveMaintenanceOnly, [switch]$SpellOwnedNpcOnly, [switch]$SpellOwnedRetirementOnly, [switch]$SpellOwnedItemOnly, [switch]$CreatedConsumablesOnly, [switch]$CorpseAnimationOnly, [switch]$RaiseServitorStockOnly, [switch]$StormSpearStockOnly, [switch]$FlameKnifeStockOnly, [switch]$SandKnifeStockOnly, [switch]$QueuedCommandOnly, [switch]$QueuedCallbackOnly, [switch]$OrderedNpcCallbacksOnly, [switch]$CheckLearningOnly, [switch]$RegressionP2Only, [switch]$StackMergeOnly, [switch]$CustodyMergeOnly, [switch]$LoadOutputOnly, [switch]$AmmoConservationOnly, [switch]$AmmoDetachRecoveryOnly, [switch]$NativeBoardingOnly, [switch]$ProductionRestartOnly, [switch]$SelectedMeleeCheckOnly, [switch]$FirearmAuthorityOnly, [switch]$CountershotAuthorityOnly, [switch]$DefendedMeleeOnly, [switch]$OwnershipOnly, [switch]$RefreshSnapshot, [switch]$CellUniqueNameOnly, [switch]$CellSpatialExpansionOnly, [switch]$CellSpatialContractionOnly)
 
 $ErrorActionPreference = 'Stop'
+if ($CellUniqueNameOnly -or $CellSpatialExpansionOnly -or $CellSpatialContractionOnly) { $OrderedNpcCallbacksOnly = $true }
+if ($EmotionalHooksOnly) { $OrderedNpcCallbacksOnly = $true }
 if ($CustodyMergeOnly) { $RegressionP2Only = $true }
 if ($StackMergeOnly) { $RegressionP2Only = $true }
 if ($DefendedMeleeOnly) { $SelectedMeleeCheckOnly = $true }
@@ -225,7 +227,8 @@ try {
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $RegressionP2Only) {
-		Invoke-OwnedHarness $(if ($CustodyMergeOnly) { '--custody-merge-run' } elseif ($StackMergeOnly) { '--stack-merge-run' } else { '--regression-p2-run' })
+		Invoke-OwnedHarness $(if ($EmotionalHooksOnly) { $OrderedNpcCallbacksOnly = $true }
+if ($CustodyMergeOnly) { '--custody-merge-run' } elseif ($StackMergeOnly) { '--stack-merge-run' } else { '--regression-p2-run' })
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $CheckLearningOnly) {
@@ -233,7 +236,10 @@ try {
 		$runExit = $LASTEXITCODE
 	}
 	if ($runExit -eq 0 -and $OrderedNpcCallbacksOnly) {
-		if ($ProductionRestartOnly) {
+		if ($CellSpatialContractionOnly) { Invoke-OwnedHarness '--cell-spatial-contraction-run' } elseif ($CellSpatialExpansionOnly) { Invoke-OwnedHarness '--cell-spatial-expansion-run' } elseif ($CellUniqueNameOnly) { Invoke-OwnedHarness '--cell-unique-name-run' } elseif ($EmotionalHooksOnly) {
+			$emotionalLanes = if ($FirearmAuthorityOnly) { @('firearm') } else { @('melee','firearm','countershot','cessation') }
+			foreach ($emotionalLane in $emotionalLanes) { Invoke-OwnedHarness ('--emotional-' + $emotionalLane + '-run'); if ($LASTEXITCODE -ne 0) { break } }
+		} elseif ($ProductionRestartOnly) {
             $restartCasePrevious = [Environment]::GetEnvironmentVariable('FUTUREMUD_PRODUCTION_RESTART_CASE')
             try {
                 foreach ($restartCase in @('active-future','active-overdue','pending-stale','completed-stale')) {

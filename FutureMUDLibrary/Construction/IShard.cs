@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.FutureProg;
 using MudSharp.TimeAndDate.Date;
 using MudSharp.TimeAndDate.Time;
@@ -19,8 +19,7 @@ namespace MudSharp.Construction
         void Unregister(IZone zone);
         string DescribeSky(double skyBrightness);
         IEnumerable<IZone> Zones { get; }
-        IEnumerable<IRoom> Rooms { get; }
-        new IEnumerable<ICell> Cells { get; }
+        new IEnumerable<IRoom> Rooms { get; }
     }
 
     public interface IEditableShard : IShard

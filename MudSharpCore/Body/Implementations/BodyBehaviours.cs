@@ -414,7 +414,7 @@ public partial class Body
                 new MixedEmoteOutput(new Emote("@ close|closes $0", this, openable.Parent)).Append(playerEmote));
             if (openable is IDoor door)
             {
-                IEnumerable<ICellExit> allExit = Gameworld.ExitManager.GetAllExits(Location);
+                IEnumerable<IRoomExit> allExit = Gameworld.ExitManager.GetAllExits(Location);
                 door.InstalledExit?.Opposite(Location)
                     .Handle(new EmoteOutput(new Emote("@ is closed from the other side.", door.Parent)));
             }

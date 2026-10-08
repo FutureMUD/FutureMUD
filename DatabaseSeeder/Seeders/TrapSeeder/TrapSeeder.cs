@@ -224,12 +224,12 @@ public sealed class TrapSeeder : IDatabaseSeeder
 				Payload(TrapPayloadType.DetonateItem)));
 		EnsureTemplate(context, ref nextId, accountId, now, "Pressure Plate",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Risky,
-				Trigger(TrapTriggerType.CellEntry),
+				Trigger(TrapTriggerType.RoomEntry),
 				[Component(tags["Pressure Trap Mechanism"], TrapComponentRole.TriggerAndPayload, 70.0)],
 				Payload(TrapPayloadType.DirectDamage, ("damage", "8 * quality / 5"), ("pain", "6 * quality / 5"), ("stun", "4 * quality / 5"), ("damagetype", "Crushing"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Pressure Explosive Mine",
 			Definition(TrapSourceKind.Mechanical, TrapDisarmPolicy.Risky,
-				Trigger(TrapTriggerType.CellEntry),
+				Trigger(TrapTriggerType.RoomEntry),
 				[Component(tags["Pressure Trap Mechanism"], TrapComponentRole.Trigger, 75.0), Component(tags["Explosive Trap Payload"], TrapComponentRole.Payload, 0.0)],
 				Payload(TrapPayloadType.DetonateItem)));
 		EnsureTemplate(context, ref nextId, accountId, now, "Trapped Chest Liquid Splash",
@@ -255,14 +255,14 @@ public sealed class TrapSeeder : IDatabaseSeeder
 				Payload(TrapPayloadType.Restraint, ("duration", "00:00:20"), ("description", "entangled in sticky webbing"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Magical Glyph",
 			Definition(TrapSourceKind.Magical, TrapDisarmPolicy.Dispellable,
-				Trigger(TrapTriggerType.CellEntry),
+				Trigger(TrapTriggerType.RoomEntry),
 				[],
 				spellId > 0
 					? Payload(TrapPayloadType.CastSpell, ("spell", spellId.ToString()), ("power", "Standard"))
 					: Payload(TrapPayloadType.DirectDamage, ("damage", "power"), ("pain", "power * 1.5"), ("stun", "power / 2"), ("damagetype", "Electrical"))));
 		EnsureTemplate(context, ref nextId, accountId, now, "Magical Explosion Glyph",
 			Definition(TrapSourceKind.Magical, TrapDisarmPolicy.Dispellable,
-				Trigger(TrapTriggerType.CellEntry),
+				Trigger(TrapTriggerType.RoomEntry),
 				[],
 				Payload(TrapPayloadType.ExplosiveDamage, ("damage", "power * 2"), ("pain", "damage"), ("stun", "power"),
 					("damagetype", "Shockwave"), ("explosionsize", "Normal"), ("maximumproximity", "Proximate"), ("elevation", "0"))));

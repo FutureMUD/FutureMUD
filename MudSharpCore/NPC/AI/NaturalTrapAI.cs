@@ -9,7 +9,7 @@ using MudSharp.Traps;
 namespace MudSharp.NPC.AI;
 
 /// <summary>
-/// Lets a natural NPC maintain a natural trap at its current cell. It deliberately uses a template and normal
+/// Lets a natural NPC maintain a natural trap at its current room. It deliberately uses a template and normal
 /// trap effect rather than a bespoke spider-web item, so natural hazards receive the same discovery, persistence,
 /// trigger, and payload behaviour as other domains.
 /// </summary>
@@ -142,7 +142,7 @@ public sealed class NaturalTrapAI : ArtificialIntelligenceBase, IEventObserverAI
 	protected override string TypeHelpText => @"	#3home#0 - toggles anchoring to the NPC's own shelter item
 	#3template <traptemplate>#0 - selects the current natural trap template to maintain
 	#3enabled <prog>#0 - sets a boolean prog with character parameter controlling deployment
-	#3site <prog>#0 - sets a boolean prog with character, location parameters selecting valid natural-trap cells";
+	#3site <prog>#0 - sets a boolean prog with character, location parameters selecting valid natural-trap rooms";
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
@@ -221,7 +221,7 @@ public sealed class NaturalTrapAI : ArtificialIntelligenceBase, IEventObserverAI
 
 		SiteProg = prog;
 		Changed = true;
-		actor.Send($"This AI will now use {prog.MXPClickableFunctionName()} to select natural trap cells.");
+		actor.Send($"This AI will now use {prog.MXPClickableFunctionName()} to select natural trap rooms.");
 		return true;
 	}
 }

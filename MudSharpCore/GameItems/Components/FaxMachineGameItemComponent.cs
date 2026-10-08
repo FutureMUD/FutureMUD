@@ -558,7 +558,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
             }
         }
 
-        ICell? location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
+        IRoom? location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         _contents.Clear();
         if (emptier is not null)
@@ -760,7 +760,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
         return base.HandleEvent(type, arguments);
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         ILockable? newItemLockable = newItem?.GetItemType<ILockable>();
         if (newItemLockable != null)
@@ -977,7 +977,7 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
 
     private void EjectPrintedPages(IEnumerable<IGameItem> pages)
     {
-        ICell? location = Parent.TrueLocations.FirstOrDefault();
+        IRoom? location = Parent.TrueLocations.FirstOrDefault();
         foreach (IGameItem page in pages)
         {
             if (location != null)

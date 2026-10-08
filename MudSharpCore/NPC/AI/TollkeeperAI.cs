@@ -495,11 +495,11 @@ public class TollkeeperAI : PathingAIBase
 	{
 		switch (type)
 		{
-			case EventType.CharacterEnterCellFinishWitness:
-				return HandleCharacterEnterCellFinishWitness((ICharacter)arguments[3], (ICharacter)arguments[0], (ICell)arguments[1]);
+			case EventType.CharacterEnterRoomFinishWitness:
+				return HandleCharacterEnterRoomFinishWitness((ICharacter)arguments[3], (ICharacter)arguments[0], (IRoom)arguments[1]);
 			case EventType.CharacterBeginMovementWitness:
 			case EventType.CharacterStopMovementWitness:
-				return HandleCharacterAttemptMovement((ICharacter)arguments[3], (ICharacter)arguments[0], (ICellExit)arguments[2]);
+				return HandleCharacterAttemptMovement((ICharacter)arguments[3], (ICharacter)arguments[0], (IRoomExit)arguments[2]);
 			case EventType.CharacterGiveItemReceiver:
 				return HandleCharacterGiveItemReceiver((ICharacter)arguments[1], (ICharacter)arguments[0], (IGameItem)arguments[2]);
 			case EventType.EngagedInCombat:
@@ -520,7 +520,7 @@ public class TollkeeperAI : PathingAIBase
 		{
 			switch (type)
 			{
-				case EventType.CharacterEnterCellFinishWitness:
+				case EventType.CharacterEnterRoomFinishWitness:
 				case EventType.CharacterBeginMovementWitness:
 				case EventType.CharacterStopMovementWitness:
 				case EventType.CharacterGiveItemReceiver:
@@ -532,11 +532,11 @@ public class TollkeeperAI : PathingAIBase
 		return base.HandlesEvent(types);
 	}
 
-	private bool HandleCharacterEnterCellFinishWitness(ICharacter tollkeeper, ICharacter mover, ICell cell)
+	private bool HandleCharacterEnterRoomFinishWitness(ICharacter tollkeeper, ICharacter mover, IRoom room)
 	{
 		var exit = GuardExit(tollkeeper);
 		if (!CanActAsTollkeeper(tollkeeper) || exit is null ||
-		    CharacterInstanceIdentityComparer.SamePhysicalInstance(mover, tollkeeper) || cell != exit.Origin ||
+		    CharacterInstanceIdentityComparer.SamePhysicalInstance(mover, tollkeeper) || room != exit.Origin ||
 		    tollkeeper.Location != exit.Origin)
 		{
 			return false;
@@ -565,7 +565,7 @@ public class TollkeeperAI : PathingAIBase
 		return true;
 	}
 
-	private bool HandleCharacterAttemptMovement(ICharacter tollkeeper, ICharacter mover, ICellExit exit)
+	private bool HandleCharacterAttemptMovement(ICharacter tollkeeper, ICharacter mover, IRoomExit exit)
 	{
 		var guardExit = GuardExit(tollkeeper);
 		if (!CanActAsTollkeeper(tollkeeper) || guardExit is null ||
@@ -686,19 +686,19 @@ public class TollkeeperAI : PathingAIBase
 		return tollkeeper.EffectsOfType<ITollkeeperModeEffect>().FirstOrDefault();
 	}
 
-	private ICellExit? GuardExit(ICharacter tollkeeper)
+	private IRoomExit? GuardExit(ICharacter tollkeeper)
 	{
 		return TollkeeperMode(tollkeeper)?.Exit;
 	}
 
-	private bool IsConfiguredExit(ICellExit exit, ICellExit guardExit)
+	private bool IsConfiguredExit(IRoomExit exit, IRoomExit guardExit)
 	{
 		return exit.Exit.Id == guardExit.Exit.Id && exit.Origin.Id == guardExit.Origin.Id;
 	}
 
-	private bool IsPermittedToPass(ICharacter tollkeeper, ICharacter mover, ICellExit exit)
+	private bool IsPermittedToPass(ICharacter tollkeeper, ICharacter mover, IRoomExit exit)
 	{
-		if (tollkeeper.AffectedBy<TollExitPermit>(x => x.MoveAside && x.ExitId == exit.Exit.Id && x.GuardCellId == exit.Origin.Id))
+		if (tollkeeper.AffectedBy<TollExitPermit>(x => x.MoveAside && x.ExitId == exit.Exit.Id && x.GuardRoomId == exit.Origin.Id))
 		{
 			return true;
 		}
@@ -717,7 +717,7 @@ public class TollkeeperAI : PathingAIBase
 			return null;
 		}
 
-		if (tollkeeper.AffectedBy<TollExitPermit>(x => x.MoveAside && x.ExitId == exit.Exit.Id && x.GuardCellId == exit.Origin.Id))
+		if (tollkeeper.AffectedBy<TollExitPermit>(x => x.MoveAside && x.ExitId == exit.Exit.Id && x.GuardRoomId == exit.Origin.Id))
 		{
 			return null;
 		}
@@ -735,7 +735,7 @@ public class TollkeeperAI : PathingAIBase
 		return guard;
 	}
 
-	private decimal CalculateToll(ICharacter tollkeeper, ICellExit exit, IReadOnlyCollection<ICharacter> movers)
+	private decimal CalculateToll(ICharacter tollkeeper, IRoomExit exit, IReadOnlyCollection<ICharacter> movers)
 	{
 		if (TollCostProg is null)
 		{
@@ -749,7 +749,7 @@ public class TollkeeperAI : PathingAIBase
 		return Math.Max(0.0M, toll);
 	}
 
-	private IEnumerable<ICharacter> GetProspectiveMovers(ICharacter mover, ICellExit exit)
+	private IEnumerable<ICharacter> GetProspectiveMovers(ICharacter mover, IRoomExit exit)
 	{
 		if (mover.Movement is not null)
 		{
@@ -794,7 +794,7 @@ public class TollkeeperAI : PathingAIBase
 			.ToList();
 	}
 
-	private void GrantPassage(ICharacter tollkeeper, IEnumerable<ICharacter> movers, ICellExit exit)
+	private void GrantPassage(ICharacter tollkeeper, IEnumerable<ICharacter> movers, IRoomExit exit)
 	{
 		var moverList = movers.Distinct().ToList();
 		if (!moverList.Any())
@@ -803,7 +803,7 @@ public class TollkeeperAI : PathingAIBase
 		}
 
 		var permit = tollkeeper
-			.EffectsOfType<TollExitPermit>(x => x.ExitId == exit.Exit.Id && x.GuardCellId == exit.Origin.Id && x.MoveAside == MoveAsideForPaidTraffic)
+			.EffectsOfType<TollExitPermit>(x => x.ExitId == exit.Exit.Id && x.GuardRoomId == exit.Origin.Id && x.MoveAside == MoveAsideForPaidTraffic)
 			.FirstOrDefault();
 		if (permit is null)
 		{
@@ -835,7 +835,7 @@ public class TollkeeperAI : PathingAIBase
 		}
 	}
 
-	private void ReturnPayment(ICharacter tollkeeper, ICharacter giver, IGameItem item, string emote, decimal toll, ICellExit? exit)
+	private void ReturnPayment(ICharacter tollkeeper, ICharacter giver, IGameItem item, string emote, decimal toll, IRoomExit? exit)
 	{
 		EmitEmote(tollkeeper, emote, toll, exit, tollkeeper, giver, item);
 		if (item.Deleted || item.InInventoryOf != tollkeeper.Body)
@@ -1052,12 +1052,12 @@ public class TollkeeperAI : PathingAIBase
 		return exit is not null && ch.Location != exit.Origin;
 	}
 
-	protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+	protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
 	{
 		var target = GetDesiredLocation(ch);
 		if (target is null || target == ch.Location)
 		{
-			return (null, Enumerable.Empty<ICellExit>());
+			return (null, Enumerable.Empty<IRoomExit>());
 		}
 
 		var path = ch.PathBetween(target, 12, GetSuitabilityFunction(ch)).ToList();
@@ -1075,10 +1075,10 @@ public class TollkeeperAI : PathingAIBase
 			}
 		}
 
-		return (null, Enumerable.Empty<ICellExit>());
+		return (null, Enumerable.Empty<IRoomExit>());
 	}
 
-	private ICell? GetDesiredLocation(ICharacter ch)
+	private IRoom? GetDesiredLocation(ICharacter ch)
 	{
 		if (ShouldDeposit(ch))
 		{
@@ -1098,7 +1098,7 @@ public class TollkeeperAI : PathingAIBase
 		return null;
 	}
 
-	private string PrepareEmote(string emote, decimal toll, ICellExit? exit, IFormatProvider format)
+	private string PrepareEmote(string emote, decimal toll, IRoomExit? exit, IFormatProvider format)
 	{
 		var tollText = Currency is null
 			? toll.ToString("N2", format)
@@ -1110,7 +1110,7 @@ public class TollkeeperAI : PathingAIBase
 			.Replace("{direction}", directionText, StringComparison.InvariantCultureIgnoreCase);
 	}
 
-	private void EmitEmote(ICharacter tollkeeper, string emote, decimal toll, ICellExit? exit, params IPerceivable[] perceivables)
+	private void EmitEmote(ICharacter tollkeeper, string emote, decimal toll, IRoomExit? exit, params IPerceivable[] perceivables)
 	{
 		if (string.IsNullOrWhiteSpace(emote))
 		{

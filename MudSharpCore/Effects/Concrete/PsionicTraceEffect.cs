@@ -14,7 +14,7 @@ public sealed class PsionicTraceEffect : Effect, IPsionicTraceEffect
 		RegisterFactory("PsionicTrace", (effect, owner) => new PsionicTraceEffect(effect, owner));
 	}
 
-	public PsionicTraceEffect(IPerceivable owner, ICharacter source, ICharacter? target, ICell? sourceCell,
+	public PsionicTraceEffect(IPerceivable owner, ICharacter source, ICharacter? target, IRoom? sourceRoom,
 		IMagicPower power, PsionicActivityKind activityKind, string activityDescription,
 		string unknownIdentityDescription, Difficulty readDifficulty, int concealmentDifficultyStages,
 		Guid traceId, DateTime createdUtc, TimeSpan traceDuration) : base(owner)
@@ -22,7 +22,7 @@ public sealed class PsionicTraceEffect : Effect, IPsionicTraceEffect
 		TraceId = traceId;
 		SourceCharacterId = CharacterInstanceIdentityComparer.IdentityId(source);
 		TargetCharacterId = target is null ? null : CharacterInstanceIdentityComparer.IdentityId(target);
-		SourceCellId = sourceCell?.Id;
+		SourceRoomId = sourceRoom?.Id;
 		PowerId = power.Id;
 		SchoolId = power.School.Id;
 		ActivityKind = activityKind;
@@ -43,7 +43,7 @@ public sealed class PsionicTraceEffect : Effect, IPsionicTraceEffect
 		                    targetId > 0
 			? targetId
 			: null;
-		SourceCellId = long.TryParse(trueRoot?.Element("SourceCellId")?.Value, out var cellId) && cellId > 0
+		SourceRoomId = long.TryParse(trueRoot?.Element("SourceCellId")?.Value, out var cellId) && cellId > 0
 			? cellId
 			: null;
 		PowerId = long.Parse(trueRoot?.Element("PowerId")?.Value ?? "0");
@@ -64,7 +64,7 @@ public sealed class PsionicTraceEffect : Effect, IPsionicTraceEffect
 	public Guid TraceId { get; }
 	public long SourceCharacterId { get; }
 	public long? TargetCharacterId { get; }
-	public long? SourceCellId { get; }
+	public long? SourceRoomId { get; }
 	public long PowerId { get; }
 	public long SchoolId { get; }
 	public PsionicActivityKind ActivityKind { get; }
@@ -80,7 +80,7 @@ public sealed class PsionicTraceEffect : Effect, IPsionicTraceEffect
 	public Difficulty DetectMagicDifficulty => ReadDifficulty;
 	public ICharacter? SourceCharacter => SourceCharacterId > 0 ? Gameworld.TryGetCharacter(SourceCharacterId, true) : null;
 	public ICharacter? TargetCharacter => TargetCharacterId is > 0 ? Gameworld.TryGetCharacter(TargetCharacterId.Value, true) : null;
-	public ICell? SourceCell => SourceCellId is > 0 ? Gameworld.Cells.Get(SourceCellId.Value) : null;
+	public IRoom? SourceRoom => SourceRoomId is > 0 ? Gameworld.Rooms.Get(SourceRoomId.Value) : null;
 
 	public bool Involves(ICharacter character)
 	{
@@ -99,7 +99,7 @@ public sealed class PsionicTraceEffect : Effect, IPsionicTraceEffect
 			new XElement("TraceId", TraceId),
 			new XElement("SourceCharacterId", SourceCharacterId),
 			new XElement("TargetCharacterId", TargetCharacterId ?? 0L),
-			new XElement("SourceCellId", SourceCellId ?? 0L),
+			new XElement("SourceCellId", SourceRoomId ?? 0L),
 			new XElement("PowerId", PowerId),
 			new XElement("SchoolId", SchoolId),
 			new XElement("ActivityKind", ActivityKind),

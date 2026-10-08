@@ -85,30 +85,30 @@ public static class EmploymentHostAccessExtensions
 			Telnet.Yellow);
 	}
 
-	public static IReadOnlyCollection<ICell> EmploymentHostLocations(this IEmploymentHost host)
+	public static IReadOnlyCollection<IRoom> EmploymentHostLocations(this IEmploymentHost host)
 	{
-		var locations = new List<ICell>();
+		var locations = new List<IRoom>();
 		switch (host)
 		{
 			case IPermanentShop shop:
-				AddLocations(locations, shop.AllShopCells);
-				AddLocations(locations, shop.ShopfrontCells);
-				AddLocation(locations, shop.StockroomCell);
-				AddLocation(locations, shop.WorkshopCell);
+				AddLocations(locations, shop.AllShopRooms);
+				AddLocations(locations, shop.ShopfrontRooms);
+				AddLocation(locations, shop.StockroomRoom);
+				AddLocation(locations, shop.WorkshopRoom);
 				break;
 			case IShop shop:
 				AddLocations(locations, shop.CurrentLocations);
 				break;
 			case IAuctionHouse auctionHouse:
-				AddLocation(locations, auctionHouse.AuctionHouseCell);
+				AddLocation(locations, auctionHouse.AuctionHouseRoom);
 				break;
 			case ICombatArena arena:
-				AddLocations(locations, arena.WaitingCells);
-				AddLocations(locations, arena.ArenaCells);
-				AddLocations(locations, arena.ObservationCells);
-				AddLocations(locations, arena.InfirmaryCells);
-				AddLocations(locations, arena.NpcStablesCells);
-				AddLocations(locations, arena.AfterFightCells);
+				AddLocations(locations, arena.WaitingRooms);
+				AddLocations(locations, arena.ArenaRooms);
+				AddLocations(locations, arena.ObservationRooms);
+				AddLocations(locations, arena.InfirmaryRooms);
+				AddLocations(locations, arena.NpcStablesRooms);
+				AddLocations(locations, arena.AfterFightRooms);
 				break;
 			case IBank bank:
 				AddLocations(locations, bank.BranchLocations);
@@ -134,7 +134,7 @@ public static class EmploymentHostAccessExtensions
 		return locations.DistinctBy(x => x.Id).ToList();
 	}
 
-	private static void AddClanLocations(List<ICell> locations, IClan clan)
+	private static void AddClanLocations(List<IRoom> locations, IClan clan)
 	{
 		if (clan is IHaveFuturemud { Gameworld: not null } haveFuturemud &&
 		    haveFuturemud.Gameworld.Properties is not null)
@@ -147,7 +147,7 @@ public static class EmploymentHostAccessExtensions
 				             .SelectMany(x => x.PropertyLocations));
 		}
 
-		AddLocations(locations, clan.ClanHallCells);
+		AddLocations(locations, clan.ClanHallRooms);
 	}
 
 	public static IReadOnlyCollection<ICharacter> PresentEmploymentObservers(this IEmploymentHost host)
@@ -193,24 +193,24 @@ public static class EmploymentHostAccessExtensions
 			$"[Employment] {host.EmploymentHostType.DescribeEnum()} #{host.Id:N0} {host.EmploymentHostName}: {message}");
 	}
 
-	private static void AddLocations(List<ICell> locations, IEnumerable<ICell>? cells)
+	private static void AddLocations(List<IRoom> locations, IEnumerable<IRoom>? rooms)
 	{
-		if (cells is null)
+		if (rooms is null)
 		{
 			return;
 		}
 
-		foreach (var cell in cells)
+		foreach (var room in rooms)
 		{
-			AddLocation(locations, cell);
+			AddLocation(locations, room);
 		}
 	}
 
-	private static void AddLocation(List<ICell> locations, ICell? cell)
+	private static void AddLocation(List<IRoom> locations, IRoom? room)
 	{
-		if (cell is not null)
+		if (room is not null)
 		{
-			locations.Add(cell);
+			locations.Add(room);
 		}
 	}
 }

@@ -29,12 +29,12 @@ public class BuffetingRangedAttackMove : NaturalRangedAttackMoveBase
         tch.OffensiveAdvantage += BuffetingAttack.OffensiveAdvantagePerDegree * attackOutcome.SuccessDegrees();
         tch.DefensiveAdvantage += BuffetingAttack.DefensiveAdvantagePerDegree * attackOutcome.SuccessDegrees();
 
-		ICell previousCell = Assailant.Location;
+		IRoom previousRoom = Assailant.Location;
 		for (int i = 0; i < BuffetingAttack.MaximumPushDistance; i++)
 		{
-			ICell currentCell = tch.Location;
-			ICellExit awayExit = currentCell.ExitsFor(tch)
-				.FirstOrDefault(x => x.Destination != previousCell);
+			IRoom currentRoom = tch.Location;
+			IRoomExit awayExit = currentRoom.ExitsFor(tch)
+				.FirstOrDefault(x => x.Destination != previousRoom);
 			if (awayExit is null)
 			{
 				break;
@@ -46,7 +46,7 @@ public class BuffetingRangedAttackMove : NaturalRangedAttackMoveBase
 				break;
 			}
 
-			previousCell = currentCell;
+			previousRoom = currentRoom;
 		}
 
         if (!BuffetingAttack.InflictsDamage)

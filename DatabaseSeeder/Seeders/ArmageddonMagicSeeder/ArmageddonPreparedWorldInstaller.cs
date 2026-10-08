@@ -37,7 +37,7 @@ public static partial class ArmageddonPreparedWorldInstaller
 	{
 		var receipts = new List<ArmageddonModuleReceipt>();
 		var availability = new List<ArmageddonPersistedAvailability>();
-		var messages = new List<string> { ProvisionReadiness };
+		var messages = new List<string> { ProvisionReadiness, WaterSeeReadiness };
 		var definitionsCommitted = false;
 		ArmageddonPreparedWorldInstallResult Result(ArmageddonInstallStatus status) =>
 			new(status, receipts.ToArray(), availability.ToArray(), messages.Concat(status != ArmageddonInstallStatus.Completed && receipts.Count > 0
@@ -50,6 +50,7 @@ public static partial class ArmageddonPreparedWorldInstaller
 		}
 		try
 		{
+			bindings = FreezeWaterSeeBindings(bindings);
 			using (var db = freshContext())
 			{
 				var errors = Validate(db, bindings);
@@ -63,6 +64,7 @@ public static partial class ArmageddonPreparedWorldInstaller
 			using (var db = freshContext())
 			{
 				foreach (var spell in PreservedProvisionSpells(db)) spells.Add(spell.Key, spell.Value);
+				foreach (var spell in PreservedWaterSeeSpells(db)) spells.Add(spell.Key, spell.Value);
 				messages.Add(spells.ContainsKey(ArmageddonReviewedProvisionContent.SustainMealKey) ? "Retained existing owned provision spell identities for composition." : "No existing owned provision definitions.");
 			}
 			var plan = new ArmageddonTraditionInstallPlan(true, bindings.Utilities.School, bindings.Utilities.Resource,
@@ -92,6 +94,17 @@ public static partial class ArmageddonPreparedWorldInstaller
 				x => checkpoint?.Invoke(ArmageddonPierceInstaller.Module, x));
 			if (!Record(ArmageddonPierceInstaller.Module, pierce.Status, pierce.Messages, pierce.Identities)) return Result(pierce.Status);
 			spells.Add(ArmageddonReviewedPierceContent.Key, pierce.Identities[ArmageddonReviewedPierceContent.Key]);
+			if (bindings.WaterSee is { } waterSee)
+			{
+				ArmageddonInstallResult contribution;
+				using (var db = freshContext()) contribution = ArmageddonWaterSeeInstaller.Install(db,
+					new(true, bindings.Utilities.School, bindings.Utilities.Resource, bindings.Utilities.AlwaysFalseProg,
+						traditions.Identities[ArmageddonWaterSeeInstaller.WaterBreathingKey + ".skill"],
+						traditions.Identities[ArmageddonWaterSeeInstaller.SeeTheUnbodiedKey + ".skill"], waterSee),
+					x => checkpoint?.Invoke(ArmageddonWaterSeeInstaller.Module, x));
+				if (!Record(ArmageddonWaterSeeInstaller.Module, contribution.Status, contribution.Messages, contribution.Identities)) return Result(contribution.Status);
+				foreach (var key in ArmageddonWaterSeeInstaller.SpellKeys) spells[key] = contribution.Identities[key];
+			}
 			using (var db = freshContext()) traditions = ArmageddonTraditionInstaller.Install(db, plan with { ImplementedSpells = spells },
 				x => checkpoint?.Invoke(ArmageddonTraditionInstaller.Module + ":admissions", x));
 			if (!Record(ArmageddonTraditionInstaller.Module + ":admissions", traditions.Status, traditions.Messages, traditions.Identities)) return Result(traditions.Status);

@@ -1,0 +1,475 @@
+{
+  "schema_version": 1,
+  "entry_key": "arm.spell.water_breathing",
+  "status": "BLOCKED",
+  "scope": "Draft editable stock content; no completion clearance",
+  "source_commit": "4e2453af623aa82ab316109f43debe360f64bc2a",
+  "base_checkpoint": "e3dcdc0157b1680dadf081cedfbb5b7bbdf9183e",
+  "branch": "codex/armageddon-five-stock-spells",
+  "exact_isolated_base": "1ad24d636925da64e7a82ffa858b0af470e56b0a",
+  "stock_definition_present": true,
+  "normal_builder_available": false,
+  "stock_clearance": false,
+  "native_stock_executed": false,
+  "blocker": {
+    "query": "isstanding(character)",
+    "allocated": false,
+    "required_by": "Source-qualified Standing caster requirement; user coordination requirement for shared API additions",
+    "evidence": "Assert.IsTrue failed. Normal stock construction requires its compiled Standing filter: Line 1: Return Function error: \"isstanding\" is not a valid built in function",
+    "proposed_file": "MudSharpCore/FutureProg/Functions/BuiltIn/IsStandingFunction.cs",
+    "proposed_scope": "One pure reflection-registered current native position query, false for null/unavailable characters; exact Standing semantics need allocation. No shared casting/character/interface/dispatch edit proposed."
+  },
+  "content_contract": {
+    "factory": "ArmageddonWaterBreathingStock.Create(world, school, castingSkill, resource, waterLiquids)",
+    "key": "arm.spell.water_breathing",
+    "prerequisite_key": "arm.spell.draw_wine",
+    "prerequisite_raw": 80,
+    "prerequisite_controlled_grade": 0,
+    "opening": 30,
+    "raw_cap": 90,
+    "branches_raw": 80,
+    "minimum_energy": 20,
+    "unit_seconds": 600,
+    "maximum_units": 36,
+    "source_draw": "max(1, inclusive random(floor(grade/2), 3*grade))",
+    "plane_restriction": "None authored",
+    "water_binding": "Explicit native current ILiquid identities/IDs",
+    "installer_changed": false,
+    "standing_filter": "return isstanding(@caster)",
+    "stored_scroll_delivery": "Unsupported"
+  },
+  "strict_fast": {
+    "status": "FAIL",
+    "head": "4e2453af623aa82ab316109f43debe360f64bc2a",
+    "run_id": "20261005T185730Z-1f6929655e10",
+    "counts": {
+      "executed": 7572,
+      "passed": 7571,
+      "failed": 1,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7572
+    },
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+      "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+      "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+      "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+      "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+      "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+    ],
+    "source_start": "fdd481f892b64519bfbc98b44427426b44c724803a91938fb2bbda84e3d0c155",
+    "source_end": "fdd481f892b64519bfbc98b44427426b44c724803a91938fb2bbda84e3d0c155",
+    "source_stable": true,
+    "summary": {
+      "path": ".artifacts/test-runs/water-stock-blocked-final-01/20261005T185730Z-1f6929655e10/summary.json",
+      "sha256": "ac661edc8d7fcf7b2eb21c813d9a84c074216963caae302c9aacb35924899e9b"
+    },
+    "failure": {
+      "id": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj|net10.0|1|735",
+      "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "framework": "net10.0",
+      "attempt": 1,
+      "test_id": "5d5fe9b5-b440-5bcc-f56f-474c395a3d0f",
+      "execution_id": "8a610f68-768f-43ab-848d-f633e22d9a09",
+      "name": "StockEligibility_CompilesEditableStandingFilter",
+      "fully_qualified_name": "MudSharp_Unit_Tests.WaterBreathingStockTests.StockEligibility_CompilesEditableStandingFilter",
+      "native_outcome": "Failed",
+      "outcome": "FAILED",
+      "message": "Assert.IsTrue failed. Normal stock construction requires its compiled Standing filter: Line 1: Return Function error: \"isstanding\" is not a valid built in function",
+      "stack": "   at MudSharp_Unit_Tests.WaterBreathingStockTests.StockEligibility_CompilesEditableStandingFilter() in C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock\\MudSharpCore Unit Tests\\WaterBreathingStockTests.cs:line 29\r\n   at System.RuntimeMethodHandle.InvokeMethod(ObjectHandleOnStack target, Void** arguments, ObjectHandleOnStack sig, BOOL isConstructor, ObjectHandleOnStack result)\r\n   at System.Reflection.MethodBaseInvoker.InterpretedInvoke_Method(Object obj, IntPtr* args)\r\n   at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)\r\n",
+      "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock\\.artifacts\\test-runs\\water-stock-blocked-final-01\\20261005T185730Z-1f6929655e10\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx"
+    }
+  },
+  "preliminary_focused": {
+    "passed": 63,
+    "failed": 0,
+    "skipped": 0,
+    "summary": ".artifacts/test-runs/water-stock-definition-targeted-03/20261005T185251Z-bbbe05bb3ac9/summary.json",
+    "scope": "Working draft before adding the required Standing compilation gate; passing definitions/mappings and adapter regressions only."
+  },
+  "native_build": {
+    "source_commit": "4e2453af623aa82ab316109f43debe360f64bc2a",
+    "exit_code": 0,
+    "source_stable": true,
+    "source_manifest_sha256": "0802eac992a22eb4a3f1dce5cac2765cb495d7521447b11fb7ef3e91042294ea",
+    "assemblies_recorded": true,
+    "assembly_manifest": ".artifacts/test-runs/water-stock-blocked-build-assemblies.json",
+    "assembly_manifest_sha256": "8a47013b44a2475e309320982293749d429c95fca89967db40c34ba90c114463",
+    "unit_native_core_sha256": "bad5c21b48dbdfdda88cac8ca9ed0498e10cf2a8ad4b6b4ba3fa4bd74b49c47f",
+    "log": ".artifacts/test-runs/water-stock-blocked-native-build-final-01.log",
+    "native_executed": false,
+    "qualification": "Compilation only; required Standing query unavailable; no native stock clearance"
+  },
+  "source_files": [
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Stock_Integration.md",
+      "sha256": "fb74dfe995ff10a52815918349b955c115bd24e826fc442cbf0f5d45d8d1ce17",
+      "git_blob_sha1": "8070e15451545a74b3ee93b27d6a3887c4f71cb7"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/WaterBreathingStockTests.cs",
+      "sha256": "6bf8e75e65db848056b9a56da220d05e53998037ac11be18a633cc816e8bf87f",
+      "git_blob_sha1": "abdc586b122323424ad95b883920a9892f5650d6"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.PerceptionStock.cs",
+      "sha256": "2ab759d87c3fd5b8c8891523398c8af6af513ec3e92cf52e0f0e5d929fb1b423",
+      "git_blob_sha1": "12c726a15e48f7ee210cebec3ba9b76152b8ebed"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.WaterBreathingStock.cs",
+      "sha256": "2e88f096fd6ec95d4ac15adcd6dd2e430b895a578ba91e1c0d84feb1b39c5b16",
+      "git_blob_sha1": "f927fbd37b74968cf87da0d2039c3ee5bf502e5d"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonWaterBreathingStock.cs",
+      "sha256": "325f3997d48c7a9a1b705ca9926b496a52138121b40d85be2a88bbac6bc2d718",
+      "git_blob_sha1": "1edb3a131d876c1e502075ab1a18e57512b66fda"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/Program.WaterBreathingStock.cs",
+      "sha256": "b2ae035f18fd99fe2859daaf2241b04cd64e641826edd4eff3886169e46c8008",
+      "git_blob_sha1": "2f353ad9dc25ed816eb03d9015c49dbefbad29a6"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/Run-WaterBreathingStock.ps1",
+      "sha256": "a636ff5e53f99ae68b7ee7409efe2c521b2504fea136c451d7df4f97133e55a7",
+      "git_blob_sha1": "21242ebda82c4571ecd612042481e05cab85f058"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/WaterBreathingStockEntry.cs",
+      "sha256": "96d3397c6e255954c2a3b86ab3ceb346896702f7d790dc295513efa6d5d0f0ef",
+      "git_blob_sha1": "5524ee991f4de09489d2776038495cd8c74d3cad"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/WaterBreathingStockNativeHarness.csproj",
+      "sha256": "cc4b074db34c582140a742e3e9a3d7b379685f17f06a5afb4525a30d3de0d1aa",
+      "git_blob_sha1": "150270147ea0a435365356cf8a2d66cc58b78c2e"
+    }
+  ],
+  "preserved_files": [
+    {
+      "path": "Design Documents/Magic/Armageddon_Completion_Progress.json",
+      "git_blob_sha1": "841c10f13313f158cae79a47b9d04c1ee4bac1e6"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Completion_Progress.md",
+      "git_blob_sha1": "e4d761764e41707f323cadb52fa1e466b81b7433"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Draw_Water_Stock_Receipt.json",
+      "git_blob_sha1": "a50058ae2b2cd657a5fc205fa2f2fa368031cc58"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Emotional_Groundwork_Receipt.json",
+      "git_blob_sha1": "bb794856dd9f69a3138a9aad5347d5e1921c9ece"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Emotional_Stamina_Removal_Receipt.json",
+      "git_blob_sha1": "f811c5cee6704befe68dca0104bea460f9e48133"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Five_Stock_Verification_Receipt.json",
+      "git_blob_sha1": "87e3a0ce9448cfcd360ca54085ffb63410de7fbf"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Hovering_Light_Stock_Receipt.json",
+      "git_blob_sha1": "1730964aa62be7309db9af52e78210d1a9e19227"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Mend_Flesh_Stock_Receipt.json",
+      "git_blob_sha1": "617520809e53c482fe864de8b3363a2e21f3673f"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Pierce_Concealment_Stock_Receipt.json",
+      "git_blob_sha1": "ad1dea1766611c64cf48c4b31f78cbbcdd0d1f9a"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Pierce_Lifetime_Verification_Receipt.json",
+      "git_blob_sha1": "b37f81fc46868366c27510fab19f1ee11db794a5"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Pierce_Shared_Repair_Receipt.json",
+      "git_blob_sha1": "5de9c77313d39091925b1f4b4b7e1570729a79fe"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Provision_Final_Admission_Receipt.json",
+      "git_blob_sha1": "276b2556e0df88c889d04db273e3508527e3c85c"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Provision_Verification_Receipt.json",
+      "git_blob_sha1": "837d63d717cbd7c93c4921f69afcc03844be263f"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Repertoire.json",
+      "git_blob_sha1": "0b958260b05be0ecc15a03234813536f8ff3689e"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Repertoire.md",
+      "git_blob_sha1": "af49021b6dc177865adec91324e1c992e4cae7cc"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Sense_Enchantment_Stock_Receipt.json",
+      "git_blob_sha1": "8501bfb0296c07292e833d71ec5581f853a89859"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Stock_Expiry_Reporting_Correction_Receipt.json",
+      "git_blob_sha1": "5ce02de949e580141395f59351e749f7632c3954"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Stock_Operation_Reporting_Receipt.json",
+      "git_blob_sha1": "dd782aa33fa5654a171420aefd116005b163e5d3"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Unravel_Enchantment_Stock_Receipt.json",
+      "git_blob_sha1": "7e2c25684c91ce02805fad035607d45ae751adc4"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Adapter_Receipt.json",
+      "git_blob_sha1": "3766fc3dea3bdacfae6246bb9f3c953d56eddb4d"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Compatibility_Receipt.json",
+      "git_blob_sha1": "ea859eb354592ddf8478640e35fede038a7e4cf5"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Independent_Selection_Receipt.json",
+      "git_blob_sha1": "ddf64a97ad71a1fd6265e3138aa72b93a27683bf"
+    },
+    {
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Source_Qualification_Receipt.json",
+      "git_blob_sha1": "cba61101af9380ad5931dfc5e946ca76abb8c3e6"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Stock.cs",
+      "git_blob_sha1": "c50d863c210a5452d15f4bc21b268560547839f9"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellScopedWaterBreathingEffect.cs",
+      "git_blob_sha1": "6f94932887fad09506a29c013a9850a3235737ae"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/StandaloneSpellStatusEffects.cs",
+      "git_blob_sha1": "0d6c8df4726066143df64a5cea2c64230bad6471"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/BlowholeBreather.cs",
+      "git_blob_sha1": "f10131e7502f915462ead2f5916a495ae1a43a0a"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/BreathingStrategyHelper.cs",
+      "git_blob_sha1": "2976c255f1313d02eab931e31bd856d74d9f3420"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/GillBreather.cs",
+      "git_blob_sha1": "742891f3942962d824a0c36789c5bfd3d3029832"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/LungBreather.cs",
+      "git_blob_sha1": "c1f8d99a03f85598bf59393f720e4962ce96c19e"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/NonBreather.cs",
+      "git_blob_sha1": "2ea5c996a53089b43d2641eb3ec22abc5bedb0fc"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/PartlessBreather.cs",
+      "git_blob_sha1": "359e4ef16e4dd72ba57fcb3a5e2b1cb8f28b3fff"
+    },
+    {
+      "path": "MudSharpCore/Health/Breathing/RespirationDrugEffectExtensions.cs",
+      "git_blob_sha1": "e6eee6f4e526f114f775da824425f2ea0030eb24"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonDrawWaterStock.cs",
+      "git_blob_sha1": "828fa94d0d877516ada2aa50fc52836c5f0bc9e8"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonDrawWineStock.cs",
+      "git_blob_sha1": "5a47a2ce221ddbb9c32f8402a85f853f4b525f76"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonFlameKnifeStock.cs",
+      "git_blob_sha1": "867b66908af8db0d0b0d61c7594a469ed6f7c302"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonHoveringLightStock.cs",
+      "git_blob_sha1": "6321f9516c8f15392fd9c662b68ab05d45b920dc"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonMendFleshStock.cs",
+      "git_blob_sha1": "d7c37cabfbeffadfeeda51e24bd075294741f4c6"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonPierceConcealmentStock.cs",
+      "git_blob_sha1": "87e028ae7aab37c210a8e2351f7b261c30e509ac"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonRaiseServitorStock.cs",
+      "git_blob_sha1": "d36fb1d4e24c9aaed4019dee0dec8fc18feceb3d"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSandKnifeStock.cs",
+      "git_blob_sha1": "9de7cd11864244b159909390e2368d3e3bd78e48"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSenseEnchantmentStock.cs",
+      "git_blob_sha1": "239acfa6e096af434a322f6025dc1f1496e5630f"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonStormSpearStock.cs",
+      "git_blob_sha1": "77fd47d8a60336217a4983803135d82c2dc3dd3a"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSustainMealStock.cs",
+      "git_blob_sha1": "7b9a9d0a02bcf91e41eb4c425867678d4272f734"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonUnravelEnchantmentStock.cs",
+      "git_blob_sha1": "2fe3c767996d8ff7d08e87a1cf5f1137910b16cb"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonUtilityStock.cs",
+      "git_blob_sha1": "1ff47ca6890fca2fd7561a1afb1538120ae36490"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/CastingNumerics.cs",
+      "git_blob_sha1": "1b70a61b9a701f5a094c7a0ad04e871dcb84f772"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/ConfiguredCastingExecution.cs",
+      "git_blob_sha1": "0be8ee91d90321dc5154f3d63e042d6ae1973c8a"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Acquisition.cs",
+      "git_blob_sha1": "d02d9e7e0b55af25190a590ac6289d75f72264e2"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Area.cs",
+      "git_blob_sha1": "bb747c2cffb63bb407f803a61bdbb200920f8964"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.cs",
+      "git_blob_sha1": "3a59be69720e9bb7182a09c7b30762cd53dc2397"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Devices.cs",
+      "git_blob_sha1": "b20e964d10569f1cc418d261eea10e339be3fd46"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.DeviceState.cs",
+      "git_blob_sha1": "ffe7de0f6192d10afffac5b1ce7fa44c2392a365"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Execution.cs",
+      "git_blob_sha1": "3efc3541327ee26a652db39630d2ca2c2b0e724b"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Incantation.cs",
+      "git_blob_sha1": "5bd68df74e59e9cc44fc749c615615bee2c3bf89"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Practice.cs",
+      "git_blob_sha1": "a3bb95334e4eab9a5f095f9ca7112098330626c5"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.PreparedSelection.cs",
+      "git_blob_sha1": "70fa4fa63ea113c4258a6d5920ac73a71f59da66"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Progression.cs",
+      "git_blob_sha1": "491f98b595093427be943bcd7ebaaf9f13ffa9f5"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Resources.cs",
+      "git_blob_sha1": "4e24b59796ac88c74ee3d90591e3d76d08119944"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.SelectionPayment.cs",
+      "git_blob_sha1": "319a5ee8bc19b316f1b2ce3073cc6ac71b0390fd"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingService.Support.cs",
+      "git_blob_sha1": "4c246c675c58634096bb3c1a9e268b805e7ce711"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicCastingStateStore.cs",
+      "git_blob_sha1": "f3f5f5a532d34a1fcc0bc3a247323e4ff2fc3e65"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicDeviceJournal.cs",
+      "git_blob_sha1": "a47ce3ce43d81e14b54f65776b735f78e516bd0b"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/MagicPracticeAction.cs",
+      "git_blob_sha1": "89513bc0fb19fcf4fb8c4268fad32c631120457d"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/SpellAreaDamageScope.cs",
+      "git_blob_sha1": "7a874350e36c92f56485736076b1aafdbba3ce65"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.Lifetime.cs",
+      "git_blob_sha1": "38c3e8db370e336b5e37be7afe6de810058d19a6"
+    },
+    {
+      "path": "MudSharpCore/Magic/MagicSpell.WaterBreathing.cs",
+      "git_blob_sha1": "6ceb33ae35ba1d876ac264b9b99392cac992ad8c"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/SourceWaterBreathingEffect.cs",
+      "git_blob_sha1": "5f6d7d8fac2e6855980cca254328bc6a5bde5624"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/SourceWaterBreathingEffect.Operation.cs",
+      "git_blob_sha1": "553c6adfceb123947e770b6089a1e9ef00bca8d1"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/SourceWaterBreathingEffect.Selection.cs",
+      "git_blob_sha1": "eb6634ec1a732000a923093fdc326c257b69a81a"
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+      "git_blob_sha1": "ba0b243fb1e2f8a3d5a61f64a568edb96b8de153"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/Program.WaterBreathingAdapter.cs",
+      "git_blob_sha1": "fa89a38ab4919c0eb2bd299e24415d1daf30d3d1"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/Run-WaterBreathingAdapter.ps1",
+      "git_blob_sha1": "833e8596f728a38c677ce40a88a68737896864f3"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/WaterBreathingAdapterEntry.cs",
+      "git_blob_sha1": "128e01a7eaa6a7a99ac62027cbff99e2c8a368ad"
+    },
+    {
+      "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/WaterBreathingAdapterNativeHarness.csproj",
+      "git_blob_sha1": "27ad0d3c0dfb02149139cb3481e8a2bec6247136"
+    }
+  ],
+  "preserved_installer_tree": "5fa3aa5d48a628d72c240469f7f3f5fdb89c43d8",
+  "earlier_failure_receipts": [
+    "Design Documents/Magic/Armageddon_Water_Breathing_Adapter_Receipt.json",
+    "Design Documents/Magic/Armageddon_Water_Breathing_Compatibility_Receipt.json"
+  ],
+  "development_failures": [
+    ".artifacts/test-runs/water-stock-definition-targeted-01/20261005T185011Z-2c0537ef7d61/summary.json",
+    ".artifacts/test-runs/water-stock-definition-targeted-02/20261005T185203Z-d561b909f4a3/summary.json"
+  ],
+  "verification_limits": [
+    "No paid stock or native stock assertion has executed while its required Standing query is unallocated.",
+    "The final strict suite is FAIL with the exact missing-query compile gate; it is not a passing stock checkpoint.",
+    "Native harness compilation does not establish gameplay acceptance; the separate adapter native evidence remains bound to its earlier source.",
+    "Full race physiology/login, production world boot, breathing tick/exposure, real supply depletion and non-self paid reflection remain unqualified.",
+    "Fixture-authored acquisition/practice assertions do not qualify the actual installer branch.",
+    "No new topology, charged carrier, central ledger, repertoire disposition, shared dispatch or installer edit; no push, PR, merge or deployment."
+  ]
+}

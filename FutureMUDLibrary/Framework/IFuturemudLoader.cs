@@ -7,7 +7,7 @@ namespace MudSharp.Framework
         void LoadAuthorityGroups();
         void LoadTerrains();
         void LoadNonCardinalExitTemplates();
-        void LoadCellOverlayPackages();
+        void LoadRoomOverlayPackages();
         void LoadSkyDescriptionTemplates();
         void LoadWorld();
         void LoadWorldItems();

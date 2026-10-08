@@ -197,7 +197,7 @@ public sealed class TrapTriggerDefinition : ITrapTrigger
 			[TrapTriggerType.ExitTraversal] = AllDomains,
 			[TrapTriggerType.Openable] = AllDomains,
 			[TrapTriggerType.Proximity] = AllDomains,
-			[TrapTriggerType.CellEntry] = AllDomains,
+			[TrapTriggerType.RoomEntry] = AllDomains,
 			[TrapTriggerType.Signal] = MechanicalOnly,
 			[TrapTriggerType.Manual] = AllDomains
 		};

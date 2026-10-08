@@ -111,7 +111,7 @@ public class VehicleSeederTests
 	}
 
 	[TestMethod]
-	public void TerrestrialCellExitVehicles_UseCurrentPropulsionContracts()
+	public void TerrestrialRoomExitVehicles_UseCurrentPropulsionContracts()
 	{
 		var terrestrial = ItemSeeder.VehicleExamplesForTesting
 			.Where(x => x.Domain == "Terrestrial" && !x.HasRouteMovement)

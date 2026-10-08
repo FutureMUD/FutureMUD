@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using MudSharp.Work.Agriculture;
 
 namespace MudSharp.Magic.Environment;
@@ -63,7 +64,7 @@ public sealed record NativeOrganicPenaltyDefinition(
 /// generation/definition; a field source uses FieldId, generation and vegetation definition.
 /// </summary>
 public sealed record NativeOrganicLifecycleIdentity(
-	long CellId,
+	[property: JsonPropertyName("CellId")] long RoomId,
 	long? FieldId,
 	long Generation,
 	long DefinitionId,
@@ -152,7 +153,7 @@ public sealed record NativeForageYieldSnapshot(
 	double Stock,
 	long SourceRevision);
 
-/// <summary>A bounded compare-and-apply group owned by one physical cell's forage pool.</summary>
+/// <summary>A bounded compare-and-apply group owned by one physical room's forage pool.</summary>
 public sealed record NativeForageDebitRequest(NativeForageYieldSnapshot Expected, double Amount);
 
 public static class NativeOrganicSourceSelectors

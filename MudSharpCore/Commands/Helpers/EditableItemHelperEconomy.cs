@@ -212,7 +212,7 @@ public partial class EditableItemHelper
                 return;
             }
 
-            if (actor.Gameworld.AuctionHouses.Any(x => x.AuctionHouseCell == actor.Location))
+            if (actor.Gameworld.AuctionHouses.Any(x => x.AuctionHouseRoom == actor.Location))
             {
                 actor.OutputHandler.Send(
                     "There is already an auction house in this location. Only one auction house may be in a room at any time.");

@@ -11,10 +11,10 @@ namespace MudSharp.GameItems
     public interface IGameItemGroup : IKeywordedItem, ISaveable
     {
         IEnumerable<IGameItemGroupForm> Forms { get; }
-        string Describe(IPerceiver voyeur, IEnumerable<IGameItem> items, ICell cell);
+        string Describe(IPerceiver voyeur, IEnumerable<IGameItem> items, IRoom room);
         void BuildingCommand(ICharacter actor, StringStack command);
         string Show(IPerceiver voyeur);
-        string LookDescription(IPerceiver voyeur, IEnumerable<IGameItem> items, ICell cell);
+        string LookDescription(IPerceiver voyeur, IEnumerable<IGameItem> items, IRoom room);
         void RemoveForm(IGameItemGroupForm form);
         event EventHandler OnDelete;
         void Delete();

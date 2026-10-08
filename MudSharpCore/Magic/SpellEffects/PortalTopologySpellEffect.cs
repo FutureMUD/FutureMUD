@@ -88,17 +88,17 @@ public class PortalTopologySpellEffect : IMagicSpellEffectTemplate
 			return null;
 		}
 
-		ICell? cell = null;
+		IRoom? room = null;
 		IGameItem? item = null;
-		var endpointType = MagicPortalEndpointType.Cell;
+		var endpointType = MagicPortalEndpointType.Room;
 		switch (AnchorMode)
 		{
 			case MagicPortalTopologyAnchorMode.CasterRoom:
-				cell = caster.Location;
+				room = caster.Location;
 				break;
 			case MagicPortalTopologyAnchorMode.TargetRoom:
-				cell = target as ICell ??
-				       additionalParameters.FirstOrDefault(x => x.ParameterName.EqualTo("room"))?.Item as ICell;
+				room = target as IRoom ??
+				       additionalParameters.FirstOrDefault(x => x.ParameterName.EqualTo("room"))?.Item as IRoom;
 				break;
 			case MagicPortalTopologyAnchorMode.TargetItem:
 				item = target as IGameItem;
@@ -108,7 +108,7 @@ public class PortalTopologySpellEffect : IMagicSpellEffectTemplate
 				return null;
 		}
 
-		if (endpointType == MagicPortalEndpointType.Cell && cell is null)
+		if (endpointType == MagicPortalEndpointType.Room && room is null)
 		{
 			return null;
 		}
@@ -141,7 +141,7 @@ public class PortalTopologySpellEffect : IMagicSpellEffectTemplate
 
 		var service = new MagicPortalTopologyService();
 		var endpoint = service.CreateOrUpdateEndpoint(caster, network, EndpointKey, EndpointKey.TitleCase(),
-			endpointType, cell, item, ReplaceExisting, Spell.Id, out _);
+			endpointType, room, item, ReplaceExisting, Spell.Id, out _);
 		if (endpoint is null)
 		{
 			return null;
@@ -179,7 +179,7 @@ public class PortalTopologySpellEffect : IMagicSpellEffectTemplate
 			}
 		}
 
-		var effectOwner = target ?? (IPerceivable?)cell ?? item;
+		var effectOwner = target ?? (IPerceivable?)room ?? item;
 		if (effectOwner is null)
 		{
 			return null;

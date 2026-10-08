@@ -19,8 +19,8 @@ public static class ExposureDiagnostic
 		var options = EnvironmentalExposureOptions.Read(world);
 		var body = (target as ICharacter)?.Body ?? target as IBody;
 		var subject = body ?? target;
-		var cell = subject.Location;
-		var temperature = cell?.CurrentTemperature(null) ?? 20;
+		var room = subject.Location;
+		var temperature = room?.CurrentTemperature(null) ?? 20;
 		var replenishing = kind == ExposureSourceKind.Immersion || source is IGas;
 		var sb = new StringBuilder($"Mode: {options.Mode}; source: {source.Name}; route: {route}; context: {kind}; layer: {target.RoomLayer.DescribeEnum()}.\n");
 		sb.AppendLine($"Hypothetical {seconds.ToString("N3", viewer)} seconds; {(replenishing ? "replenishing source" : $"finite source of {volume.ToString("N6", viewer)} base fluid units")}. No live source is debited.");

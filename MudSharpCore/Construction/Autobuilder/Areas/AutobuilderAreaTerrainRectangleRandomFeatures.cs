@@ -97,9 +97,9 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
 
     public List<TerrainFeatureGroup> TerrainFeatureGroups { get; } = new();
 
-    public override IEnumerable<ICell> ExecuteTemplate(ICharacter builder, IEnumerable<object> arguments)
+    public override IEnumerable<IRoom> ExecuteTemplate(ICharacter builder, IEnumerable<object> arguments)
     {
-        ICellOverlayPackage package = builder.CurrentOverlayPackage;
+        IRoomOverlayPackage package = builder.CurrentOverlayPackage;
         List<object> argList = arguments.ToList();
         int height = (int)argList.ElementAt(0);
         int width = (int)argList.ElementAt(1);
@@ -108,7 +108,7 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
 
         ITerrain[,] terrains = new ITerrain[width, height];
         List<string>[,] features = new List<string>[width, height];
-        Dictionary<ICell, (int X, int Y)> lookup = new();
+        Dictionary<IRoom, (int X, int Y)> lookup = new();
         int x = 0, y = 0;
         foreach (ITerrain terrain in terrainArg)
         {
@@ -121,8 +121,8 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
             }
         }
 
-        builder.OutputHandler.PrioritySend("Initialising the cells and exits...");
-        ICell[,] cells = new ICell[width, height];
+        builder.OutputHandler.PrioritySend("Initialising the rooms and exits...");
+        IRoom[,] rooms = new IRoom[width, height];
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
@@ -132,29 +132,29 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
                     continue;
                 }
 
-                ICell cell = roomTemplate.CreateRoom(builder, terrains[i, j], true);
-                cells[i, j] = cell;
-                lookup[cell] = (i, j);
+                IRoom room = roomTemplate.CreateRoom(builder, terrains[i, j], true);
+                rooms[i, j] = room;
+                lookup[room] = (i, j);
 
             }
         }
 
-		AutobuilderRectangleTopology.ConnectCells(builder, package, cells, ConnectCellsWithDiagonalExits);
+		AutobuilderRectangleTopology.ConnectRooms(builder, package, rooms, ConnectRoomsWithDiagonalExits);
 
-        foreach (ICell cell in cells)
+        foreach (IRoom room in rooms)
         {
-            if (cell == null)
+            if (room == null)
             {
                 continue;
             }
 
-            builder.Gameworld.ExitManager.UpdateCellOverlayExits(cell, cell.CurrentOverlay);
+            builder.Gameworld.ExitManager.UpdateRoomOverlayExits(room, room.CurrentOverlay);
         }
 
         builder.OutputHandler.PrioritySend("Applying terrain feature groups...");
         foreach (TerrainFeatureGroup group in TerrainFeatureGroups)
         {
-            group.ApplyTerrainFeatures(cells, features);
+            group.ApplyTerrainFeatures(rooms, features);
         }
 #if DEBUG
         int count = 0;
@@ -169,19 +169,19 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
         builder.OutputHandler.Send($"Applied {count.ToString("N0", builder).ColourValue()} features in total.");
 #endif
 
-		builder.OutputHandler.PrioritySend("Describing the cells...");
-		foreach (ICell cell in cells)
+		builder.OutputHandler.PrioritySend("Describing the rooms...");
+		foreach (IRoom room in rooms)
 		{
-			if (cell == null)
+			if (room == null)
 			{
 				continue;
 			}
 
-			(x, y) = lookup[cell];
-			roomTemplate.RedescribeRoom(cell, features[x, y].ToArray());
+			(x, y) = lookup[room];
+			roomTemplate.RedescribeRoom(room, features[x, y].ToArray());
 		}
 
-        return cells.OfType<ICell>().ToList();
+        return rooms.OfType<IRoom>().ToList();
     }
 
     public override string Show(ICharacter builder)
@@ -190,7 +190,7 @@ public class AutobuilderAreaTerrainRectangleRandomFeatures : AutobuilderAreaTerr
         sb.AppendLine(
             $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\n");
         sb.AppendLine(
-            $"This autobuilder template will return a rectangular area of cells with height, width, terrain and room template supplied by the builder. It {(ConnectCellsWithDiagonalExits ? "does" : "does not")} link diagonally between rooms."
+            $"This autobuilder template will return a rectangular area of rooms with height, width, terrain and room template supplied by the builder. It {(ConnectRoomsWithDiagonalExits ? "does" : "does not")} link diagonally between rooms."
                 .Wrap(builder.InnerLineFormatLength));
         sb.AppendLine();
         sb.AppendLine(

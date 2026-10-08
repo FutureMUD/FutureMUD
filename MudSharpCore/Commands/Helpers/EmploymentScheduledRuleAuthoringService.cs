@@ -1138,7 +1138,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 
 		if (input.IsFinished || !IsAny(input.PopSpeech(), "in", "at", "room"))
 		{
-			message = $"Item conditions use the syntax: {"tasks rule condition item <prototype|*item|&tag|keyword> in <here|cell id> [container <prototype|*item|&tag|keyword>] below|atleast <quantity>".ColourCommand()}";
+			message = $"Item conditions use the syntax: {"tasks rule condition item <prototype|*item|&tag|keyword> in <here|room id> [container <prototype|*item|&tag|keyword>] below|atleast <quantity>".ColourCommand()}";
 			return false;
 		}
 
@@ -1188,7 +1188,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		{
 			if (string.IsNullOrWhiteSpace(message))
 			{
-				message = $"Commodity conditions use the syntax: {"tasks rule condition commodity <material[|tag][|name=value...]> in <here|cell id> [container <prototype|*item|&tag|keyword>] below|atleast <weight>".ColourCommand()}";
+				message = $"Commodity conditions use the syntax: {"tasks rule condition commodity <material[|tag][|name=value...]> in <here|room id> [container <prototype|*item|&tag|keyword>] below|atleast <weight>".ColourCommand()}";
 			}
 
 			return false;
@@ -1196,7 +1196,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 
 		if (input.IsFinished || !IsAny(input.PopSpeech(), "in", "at", "room"))
 		{
-			message = $"Commodity conditions use the syntax: {"tasks rule condition commodity <material[|tag][|name=value...]> in <here|cell id> [container <prototype|*item|&tag|keyword>] below|atleast <weight>".ColourCommand()}";
+			message = $"Commodity conditions use the syntax: {"tasks rule condition commodity <material[|tag][|name=value...]> in <here|room id> [container <prototype|*item|&tag|keyword>] below|atleast <weight>".ColourCommand()}";
 			return false;
 		}
 
@@ -2420,7 +2420,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		return string.IsNullOrWhiteSpace(key) ? Guid.NewGuid().ToString("N") : key;
 	}
 
-	private static bool TryResolveLocation(ICharacter actor, string token, out ICell location, out string message)
+	private static bool TryResolveLocation(ICharacter actor, string token, out IRoom location, out string message)
 	{
 		location = null!;
 		if (token.EqualTo("here") || token.EqualTo("current"))
@@ -2431,8 +2431,8 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 		}
 
 		var resolved = long.TryParse(token, out var id)
-			? actor.Gameworld?.Cells.Get(id)
-			: actor.Gameworld?.Cells.GetByIdOrName(token);
+			? actor.Gameworld?.Rooms.Get(id)
+			: actor.Gameworld?.Rooms.GetByIdOrUniqueNameOrName(token);
 		if (resolved is not null)
 		{
 			location = resolved;
@@ -2440,7 +2440,7 @@ internal sealed class EmploymentScheduledRuleAuthoringService
 			return true;
 		}
 
-		message = $"There is no room/cell matching {token.ColourCommand()}.";
+		message = $"There is no room matching {token.ColourCommand()}.";
 		return false;
 	}
 

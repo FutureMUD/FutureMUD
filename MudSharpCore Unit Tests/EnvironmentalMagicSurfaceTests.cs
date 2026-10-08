@@ -28,7 +28,7 @@ public class EnvironmentalMagicSurfaceTests
 	public void FutureProgQueries_UsePureResourceAndScalarInspectionContracts()
 	{
 		var fixture = new Fixture();
-		var location = Constant(fixture.Cell.Object, ProgVariableTypes.Location);
+		var location = Constant(fixture.Room.Object, ProgVariableTypes.Location);
 		var name = Constant(new TextVariable("Test Essence"));
 		var id = Constant(new NumberVariable(1));
 		var variables = new VariableSpace();
@@ -50,9 +50,9 @@ public class EnvironmentalMagicSurfaceTests
 			Assert.AreEqual(item.Expected, function.Result.GetObject, item.Name);
 		}
 
-		fixture.Service.Verify(x => x.TryInspectResource(fixture.Cell.Object, fixture.Resource.Object,
+		fixture.Service.Verify(x => x.TryInspectResource(fixture.Room.Object, fixture.Resource.Object,
 			out It.Ref<EnvironmentalResourceSnapshot>.IsAny), Times.Exactly(3));
-		fixture.Service.Verify(x => x.InspectState(fixture.Cell.Object), Times.Exactly(4));
+		fixture.Service.Verify(x => x.InspectState(fixture.Room.Object), Times.Exactly(4));
 		fixture.Service.VerifyNoOtherCalls();
 	}
 
@@ -60,9 +60,9 @@ public class EnvironmentalMagicSurfaceTests
 	public void FutureProgLastDefile_AbsentEventReturnsDefaultDateAndFalsePresence()
 	{
 		var fixture = new Fixture();
-		fixture.Service.Setup(x => x.InspectState(fixture.Cell.Object))
+		fixture.Service.Setup(x => x.InspectState(fixture.Room.Object))
 			.Returns(new EnvironmentalMagicStateSnapshot(EnvironmentalMagicState.Empty, 0));
-		var location = Constant(fixture.Cell.Object, ProgVariableTypes.Location);
+		var location = Constant(fixture.Room.Object, ProgVariableTypes.Location);
 		var date = Compile("environmentlastdefile", fixture.World.Object, location);
 		var present = Compile("environmenthasdefile", fixture.World.Object, location);
 
@@ -79,13 +79,13 @@ public class EnvironmentalMagicSurfaceTests
 	{
 		var fixture = new Fixture();
 		var invalid = new EnvironmentalResourceSnapshot(1, "Test Essence", 10, false, 0, 0, "Missing forage key.");
-		fixture.Service.Setup(x => x.TryInspectResource(fixture.Cell.Object, fixture.Resource.Object, out invalid)).Returns(true);
+		fixture.Service.Setup(x => x.TryInspectResource(fixture.Room.Object, fixture.Resource.Object, out invalid)).Returns(true);
 		var function = Compile(name, fixture.World.Object,
-			Constant(fixture.Cell.Object, ProgVariableTypes.Location), Constant(new NumberVariable(1)));
+			Constant(fixture.Room.Object, ProgVariableTypes.Location), Constant(new NumberVariable(1)));
 
 		Assert.AreEqual(StatementResult.Error, function.Execute(new VariableSpace()));
 		Assert.AreEqual("Missing forage key.", function.ErrorMessage);
-		fixture.Service.Verify(x => x.TryInspectResource(fixture.Cell.Object, fixture.Resource.Object,
+		fixture.Service.Verify(x => x.TryInspectResource(fixture.Room.Object, fixture.Resource.Object,
 			out It.Ref<EnvironmentalResourceSnapshot>.IsAny), Times.Once);
 		fixture.Service.VerifyNoOtherCalls();
 	}
@@ -95,11 +95,11 @@ public class EnvironmentalMagicSurfaceTests
 	{
 		var fixture = new Fixture();
 		var function = Compile("invalidateenvironment", fixture.World.Object,
-			Constant(fixture.Cell.Object, ProgVariableTypes.Location));
+			Constant(fixture.Room.Object, ProgVariableTypes.Location));
 
 		Assert.AreEqual(StatementResult.Normal, function.Execute(new VariableSpace()));
 		Assert.AreEqual(true, function.Result.GetObject);
-		fixture.Service.Verify(x => x.MarkDirty(fixture.Cell.Object, EnvironmentalMagicDirtyReason.Policy), Times.Once);
+		fixture.Service.Verify(x => x.MarkDirty(fixture.Room.Object, EnvironmentalMagicDirtyReason.Policy), Times.Once);
 		fixture.Service.VerifyNoOtherCalls();
 	}
 
@@ -114,11 +114,11 @@ public class EnvironmentalMagicSurfaceTests
 		fixture.ExecuteAdmin("magic environment recheck 10");
 		fixture.ExecuteAdmin("magic environment diagnostics");
 
-		fixture.Service.Verify(x => x.SetBinding(fixture.Cell.Object, EnvironmentalMagicBindingMode.Explicit, 7L), Times.Once);
-		fixture.Service.Verify(x => x.SetBinding(fixture.Cell.Object, EnvironmentalMagicBindingMode.Inherit, null), Times.Once);
-		fixture.Service.Verify(x => x.SetBinding(fixture.Cell.Object, EnvironmentalMagicBindingMode.Disabled, null), Times.Once);
-		fixture.Service.Verify(x => x.Inspect(fixture.Cell.Object), Times.Once);
-		fixture.Service.Verify(x => x.MarkDirty(fixture.Cell.Object, EnvironmentalMagicDirtyReason.Policy), Times.Once);
+		fixture.Service.Verify(x => x.SetBinding(fixture.Room.Object, EnvironmentalMagicBindingMode.Explicit, 7L), Times.Once);
+		fixture.Service.Verify(x => x.SetBinding(fixture.Room.Object, EnvironmentalMagicBindingMode.Inherit, null), Times.Once);
+		fixture.Service.Verify(x => x.SetBinding(fixture.Room.Object, EnvironmentalMagicBindingMode.Disabled, null), Times.Once);
+		fixture.Service.Verify(x => x.Inspect(fixture.Room.Object), Times.Once);
+		fixture.Service.Verify(x => x.MarkDirty(fixture.Room.Object, EnvironmentalMagicDirtyReason.Policy), Times.Once);
 		fixture.Service.Verify(x => x.DescribeDiagnostics(), Times.Once);
 		Assert.IsTrue(fixture.Output.Any(x => x.Contains("Test Essence") && x.Contains("Recent Pressure")));
 		Assert.IsTrue(fixture.Output.Any(x => x.Contains("coordinator diagnostics")));
@@ -134,21 +134,21 @@ public class EnvironmentalMagicSurfaceTests
 			new NativeOrganicLifecycleIdentity(10, 30, 4, 99, null, 0, 0), 12.0, 0.75m,
 			new NativeOrganicRecoveryRemainders(0.25m, 0.5m, 0m), 8, 7, 3,
 			AgricultureFieldUse.Orchard, null);
-		fixture.Service.Setup(x => x.InspectOrganicSources(fixture.Cell.Object)).Returns(new[] { source });
-		fixture.Service.Setup(x => x.EvaluateOrganicPenalty(fixture.Cell.Object,
+		fixture.Service.Setup(x => x.InspectOrganicSources(fixture.Room.Object)).Returns(new[] { source });
+		fixture.Service.Setup(x => x.EvaluateOrganicPenalty(fixture.Room.Object,
 			NativeOrganicPenaltyChannel.CropYieldRecovery, It.IsAny<NativeOrganicPenaltyContext>()))
 			.Returns(new NativeOrganicPenaltyEvaluation(true, true, 0.5, null));
 		var repairResult = "Repaired crop native organic accounting; native stock was unchanged.";
-		fixture.Service.Setup(x => x.RepairNativeOrganicAccounting(fixture.Cell.Object,
+		fixture.Service.Setup(x => x.RepairNativeOrganicAccounting(fixture.Room.Object,
 			NativeOrganicSourceKind.Crop, out repairResult)).Returns(true);
 
 		fixture.ExecuteAdmin("magic environment yields here");
 		fixture.ExecuteAdmin("magic environment yields repair here crop");
 
-		fixture.Service.Verify(x => x.InspectOrganicSources(fixture.Cell.Object), Times.Once);
-		fixture.Service.Verify(x => x.EvaluateOrganicPenalty(fixture.Cell.Object,
+		fixture.Service.Verify(x => x.InspectOrganicSources(fixture.Room.Object), Times.Once);
+		fixture.Service.Verify(x => x.EvaluateOrganicPenalty(fixture.Room.Object,
 			It.IsAny<NativeOrganicPenaltyChannel>(), It.IsAny<NativeOrganicPenaltyContext>()), Times.Exactly(3));
-		fixture.Service.Verify(x => x.RepairNativeOrganicAccounting(fixture.Cell.Object,
+		fixture.Service.Verify(x => x.RepairNativeOrganicAccounting(fixture.Room.Object,
 			NativeOrganicSourceKind.Crop, out repairResult), Times.Once);
 		Assert.IsTrue(fixture.Output.Any(x => x.Contains("Native Organic Yields") && x.Contains("0.75")));
 		Assert.IsTrue(fixture.Output.Any(x => x.Contains("native stock was unchanged")));
@@ -158,7 +158,7 @@ public class EnvironmentalMagicSurfaceTests
 	public void MagicEnvironment_PendingOperationPreventsBindingWithAnActionableError()
 	{
 		var fixture = new Fixture();
-		fixture.Service.Setup(x => x.SetBinding(fixture.Cell.Object, EnvironmentalMagicBindingMode.Disabled, null))
+		fixture.Service.Setup(x => x.SetBinding(fixture.Room.Object, EnvironmentalMagicBindingMode.Disabled, null))
 			.Throws(new InvalidOperationException("Environmental operation 81c55c90-4858-4d40-ab53-bb7e3586f840 must be confirmed before changing its binding."));
 
 		fixture.ExecuteAdmin("magic environment cell here disabled");
@@ -188,8 +188,8 @@ public class EnvironmentalMagicSurfaceTests
 	{
 		var fixture = new Fixture();
 		var requests = new List<EnvironmentalMagicOperationRequest>();
-		fixture.Service.Setup(x => x.ApplyOperation(fixture.Cell.Object, It.IsAny<EnvironmentalMagicOperationRequest>()))
-			.Returns<ICell, EnvironmentalMagicOperationRequest>((_, request) =>
+		fixture.Service.Setup(x => x.ApplyOperation(fixture.Room.Object, It.IsAny<EnvironmentalMagicOperationRequest>()))
+			.Returns<IRoom, EnvironmentalMagicOperationRequest>((_, request) =>
 			{
 				requests.Add(request);
 				return new EnvironmentalMagicOperationResult(request.OperationId, true, requests.Count == 2,
@@ -279,7 +279,7 @@ public class EnvironmentalMagicSurfaceTests
 		public static readonly DateTimeOffset DefileTime = new(2026, 9, 13, 0, 0, 0, TimeSpan.Zero);
 		public Mock<IFuturemud> World { get; } = new();
 		public Mock<IEnvironmentalMagicService> Service { get; } = new();
-		public Mock<ICell> Cell { get; } = new();
+		public Mock<IRoom> Room { get; } = new();
 		public Mock<ICharacter> Actor { get; } = new();
 		public Mock<IMagicResource> Resource { get; } = new();
 		public List<string> Output { get; } = new();
@@ -293,12 +293,12 @@ public class EnvironmentalMagicSurfaceTests
 			var resources = new All<IMagicResource>();
 			resources.Add(Resource.Object);
 			World.SetupGet(x => x.MagicResources).Returns(resources);
-			Cell.SetupGet(x => x.Id).Returns(10L);
-			Cell.SetupGet(x => x.Name).Returns("Test Cell");
-			Cell.SetupGet(x => x.Gameworld).Returns(World.Object);
-			var cells = new All<ICell>();
-			cells.Add(Cell.Object);
-			World.SetupGet(x => x.Cells).Returns(cells);
+			Room.SetupGet(x => x.Id).Returns(10L);
+			Room.SetupGet(x => x.Name).Returns("Test Cell");
+			Room.SetupGet(x => x.Gameworld).Returns(World.Object);
+			var rooms = new All<IRoom>();
+			rooms.Add(Room.Object);
+			World.SetupGet(x => x.Rooms).Returns(rooms);
 			var profile = new Mock<IEnvironmentalMagicProfile>();
 			profile.SetupGet(x => x.Id).Returns(7L);
 			profile.SetupGet(x => x.Name).Returns("Test Profile");
@@ -307,7 +307,7 @@ public class EnvironmentalMagicSurfaceTests
 			World.SetupGet(x => x.MagicResourceRegenerators).Returns(generators);
 			Actor.SetupGet(x => x.Id).Returns(100L);
 			Actor.SetupGet(x => x.Gameworld).Returns(World.Object);
-			Actor.SetupGet(x => x.Location).Returns(Cell.Object);
+			Actor.SetupGet(x => x.Location).Returns(Room.Object);
 			Actor.SetupGet(x => x.Account).Returns(Mock.Of<IAccount>());
 			Actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
 			Actor.SetupGet(x => x.LineFormatLength).Returns(120);
@@ -319,11 +319,11 @@ public class EnvironmentalMagicSurfaceTests
 			Actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
 			var state = new EnvironmentalMagicState { ScarDamage = 4, LastDefileUtc = DefileTime };
 			var resourceOutput = new EnvironmentalResourceSnapshot(1, "Test Essence", 10, true, 12, 0.5, null);
-			Service.Setup(x => x.Inspect(Cell.Object)).Returns(new EnvironmentalMagicSnapshot(10,
+			Service.Setup(x => x.Inspect(Room.Object)).Returns(new EnvironmentalMagicSnapshot(10,
 				EnvironmentalMagicBindingMode.Explicit, 7, "Test Profile", state, 3,
 				new Dictionary<string, double> { ["scardamage"] = 4 }, [resourceOutput], []));
-			Service.Setup(x => x.InspectState(Cell.Object)).Returns(new EnvironmentalMagicStateSnapshot(state, 3));
-			Service.Setup(x => x.TryInspectResource(Cell.Object, Resource.Object, out resourceOutput)).Returns(true);
+			Service.Setup(x => x.InspectState(Room.Object)).Returns(new EnvironmentalMagicStateSnapshot(state, 3));
+			Service.Setup(x => x.TryInspectResource(Room.Object, Resource.Object, out resourceOutput)).Returns(true);
 			Service.Setup(x => x.DescribeDiagnostics()).Returns("Test coordinator diagnostics");
 		}
 

@@ -231,7 +231,7 @@ public class WeatherForecastTests
 		var controller = fixture.Controller;
 		var forecast = controller.GetForecast().Skip(1).Take(30).ToArray();
 		Assert.AreEqual(7, controller.ForecastHorizonDays);
-		fixture.Weather[0].Verify(x => x.OnMinuteEvent(It.IsAny<MudSharp.Construction.ICell>()), Times.Never);
+		fixture.Weather[0].Verify(x => x.OnMinuteEvent(It.IsAny<MudSharp.Construction.IRoom>()), Times.Never);
 		Assert.AreEqual(0, fixture.Time.Minutes, "Prediction must not advance the live clock.");
 		foreach (var point in forecast)
 		{
@@ -322,15 +322,15 @@ public class WeatherForecastTests
 	{
 		using var fixture = new Fixture();
 		var actor = new Mock<ICharacter>();
-		var cell = new Mock<ICell>();
+		var room = new Mock<IRoom>();
 		var output = new Mock<MudSharp.PerceptionEngine.IOutputHandler>();
 		actor.SetupGet(x => x.Gameworld).Returns(fixture.World.Object);
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
 		actor.SetupGet(x => x.Account).Returns(Mock.Of<IAccount>(x => x.InnerLineFormatLength == 100 && x.LineFormatLength == 100 && x.UnitPreference == "SI"));
-		actor.Setup(x => x.CanSee(cell.Object, PerceiveIgnoreFlags.None)).Returns(true);
-		cell.SetupGet(x => x.WeatherController).Returns(fixture.Controller);
-		cell.Setup(x => x.OutdoorsType(actor.Object)).Returns(CellOutdoorsType.Outdoors);
+		actor.Setup(x => x.CanSee(room.Object, PerceiveIgnoreFlags.None)).Returns(true);
+		room.SetupGet(x => x.WeatherController).Returns(fixture.Controller);
+		room.Setup(x => x.OutdoorsType(actor.Object)).Returns(RoomOutdoorsType.Outdoors);
 		fixture.World.SetupGet(x => x.UnitManager).Returns(Mock.Of<IUnitManager>());
 		var capability = new Mock<ICheck>();
 		capability.Setup(x => x.Check(actor.Object, Difficulty.Automatic, It.IsAny<IPerceivable>(), It.IsAny<IUseTrait>(),
@@ -351,13 +351,13 @@ public class WeatherForecastTests
 		WeatherForecastService.Show(actor.Object, true);
 		fixture.Controller.SetWeather(fixture.Weather[1].Object);
 		WeatherForecastService.Show(actor.Object, false);
-		cell.Setup(x => x.OutdoorsType(actor.Object)).Returns(CellOutdoorsType.Indoors);
+		room.Setup(x => x.OutdoorsType(actor.Object)).Returns(RoomOutdoorsType.Indoors);
 		for (var i = 0; i < 40; i++) fixture.Tick(fixture.Controller);
 		WeatherForecastService.Show(actor.Object, true);
 		Assert.AreSame(first, saved.Single());
 		check.Verify(x => x.CheckAgainstAllDifficulties(actor.Object, Difficulty.Normal, It.IsAny<ITraitDefinition>(), It.IsAny<IPerceivable>(),
 			It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()), Times.Once);
-		cell.Setup(x => x.OutdoorsType(actor.Object)).Returns(CellOutdoorsType.Outdoors);
+		room.Setup(x => x.OutdoorsType(actor.Object)).Returns(RoomOutdoorsType.Outdoors);
 		WeatherForecastService.Show(actor.Object, false);
 		Assert.AreNotSame(first, saved.Single());
 		check.Verify(x => x.CheckAgainstAllDifficulties(actor.Object, Difficulty.Normal, It.IsAny<ITraitDefinition>(), It.IsAny<IPerceivable>(),

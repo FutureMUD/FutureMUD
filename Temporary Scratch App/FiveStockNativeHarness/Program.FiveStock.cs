@@ -226,7 +226,7 @@ internal static partial class GNHProgram
 		FlushCasting(native);
 		using(var db=NewIndependentContext(database.ConnectionString)) {
 			foreach(var spell in all){using(new FMDB()){spell.Save();FMDB.Context.SaveChanges();}}
-			if(!db.CellsGameItems.Any(x=>x.GameItemId==vessel.Id))db.CellsGameItems.Add(new(){CellId=fixture.CellId,GameItemId=vessel.Id});db.SaveChanges();
+			if(!db.RoomsGameItems.Any(x=>x.GameItemId==vessel.Id))db.RoomsGameItems.Add(new(){RoomId=fixture.RoomId,GameItemId=vessel.Id});db.SaveChanges();
 		}
 		var descriptor=new FiveStockReader(database.Name,fixture,RuntimeClock.UtcNow,all.Select(x=>x.Id).ToArray(),highLight.Id,vessel.Id,container.LiquidVolume,highLight.SpellCreationOrigin!.LifecycleId,operations.ToArray(),unproven.OperationId.Value,originalExpiry.AddSeconds(-10),gear[0].Id);
 		RunItemReaderProcess(descriptor,"--five-stock-reader");
@@ -252,7 +252,7 @@ internal static partial class GNHProgram
 				if(!world.FutureProgs.Has(prog.Id))((All<IFutureProg>)world.FutureProgs).Add(prog);
 			}
 			native.Body.LoadInventory(db.Bodies.Include(x=>x.BodiesGameItems).Single(x=>x.Id==native.Body.Id));
-			foreach(var id in db.CellsGameItems.Where(x=>x.CellId==input.Fixture.CellId).Select(x=>x.GameItemId).ToArray()) {var item=world.TryGetItem(id,true)!;if(item.InInventoryOf is null && item.ContainedIn is null)native.Actor.Location.Insert(item,true);}
+			foreach(var id in db.RoomsGameItems.Where(x=>x.RoomId==input.Fixture.RoomId).Select(x=>x.GameItemId).ToArray()) {var item=world.TryGetItem(id,true)!;if(item.InInventoryOf is null && item.ContainedIn is null)native.Actor.Location.Insert(item,true);}
 			native.Actor.RestoreCastingEffects(db.Characters.AsNoTracking().Single(x=>x.Id==native.Actor.Id).EffectData);
 		}
 		// Complete the ordinary login phase: loaded timed effects are cached until scheduled.

@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net10.0</TargetFramework><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+		<AssemblyName>CellSpatialFullBootStartupHook</AssemblyName>
+		<BaselineRoot Condition="'$(BaselineRoot)' == ''">$(MSBuildThisFileDirectory)../../../</BaselineRoot>
+		<DefineConstants Condition="'$(Legacy)' == 'true'">$(DefineConstants);LEGACY</DefineConstants>
+		<OutputPath Condition="'$(Legacy)' == 'true'">bin/Legacy/</OutputPath>
+		<IntermediateOutputPath Condition="'$(Legacy)' == 'true'">obj/Legacy/$(Configuration)/$(TargetFramework)/</IntermediateOutputPath>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="$(BaselineRoot)/MudSharpCore/MudSharpCore.csproj" />
+		<Compile Include="../OwnedWorldAdmission.cs" Link="OwnedWorldAdmission.cs" />
+	</ItemGroup>
+</Project>

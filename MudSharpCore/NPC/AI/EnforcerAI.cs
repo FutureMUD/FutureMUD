@@ -217,7 +217,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
         {
             ThrowInPrisonEchoProg = null;
             Changed = true;
-            actor.OutputHandler.Send("This AI will no longer execute any actions when it throws someone in a cell.");
+            actor.OutputHandler.Send("This AI will no longer execute any actions when it throws someone in a room.");
             return true;
         }
 
@@ -245,7 +245,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
 
         ThrowInPrisonEchoProg = prog;
         Changed = true;
-        actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to return commands to execute when it throws someone in a cell.");
+        actor.OutputHandler.Send($"This AI will now use the prog {prog.MXPClickableFunctionName()} to return commands to execute when it throws someone in a room.");
         return true;
     }
 
@@ -463,7 +463,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
                 return WitnessedCrime((ICharacter)arguments[0], (ICharacter)arguments[1], ch,
                     (ICrime)arguments[3]);
             case EventType.CharacterAlertHeard:
-                return CharacterAlertHeard((ICharacter)arguments[0], ch, (ICell)arguments[2]);
+                return CharacterAlertHeard((ICharacter)arguments[0], ch, (IRoom)arguments[2]);
             case EventType.EngageInCombat:
             case EventType.EngagedInCombat:
                 return EnforcerEnteredCombat(ch);
@@ -708,7 +708,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
         return AlertUtilities.DoAlert(enforcer, echoFailure: false);
     }
 
-    private bool CharacterAlertHeard(ICharacter alerter, ICharacter enforcer, ICell origin)
+    private bool CharacterAlertHeard(ICharacter alerter, ICharacter enforcer, IRoom origin)
     {
         if (alerter == enforcer || origin is null || EnforcerEffect(enforcer) == null)
         {
@@ -831,7 +831,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
         // If not the patrol leader and not in the same place as the patrol leader, try to regroup with them
         if (patrol.PatrolLeader != enforcer && !enforcer.ColocatedWith(patrol.PatrolLeader))
         {
-            List<ICellExit> path = enforcer.PathBetween(patrol.PatrolLeader, 10, PathSearch.PathIncludeUnlockableDoors(enforcer))
+            List<IRoomExit> path = enforcer.PathBetween(patrol.PatrolLeader, 10, PathSearch.PathIncludeUnlockableDoors(enforcer))
                                .ToList();
             if (path.Any())
             {
@@ -921,7 +921,7 @@ public class EnforcerAI : ArtificialIntelligenceBase, IOverrideAlertEmote
 
         if (patrol == null && enforcer.Location != effect.LegalAuthority.EnforcerStowingLocation)
         {
-            List<ICellExit> path = enforcer.PathBetween(effect.LegalAuthority.EnforcerStowingLocation, 50,
+            List<IRoomExit> path = enforcer.PathBetween(effect.LegalAuthority.EnforcerStowingLocation, 50,
                 PathSearch.PathIncludeUnlockableDoors(enforcer)).ToList();
             if (path.Any())
             {

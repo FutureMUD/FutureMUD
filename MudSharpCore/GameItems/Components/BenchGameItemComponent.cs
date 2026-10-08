@@ -122,7 +122,7 @@ public class BenchGameItemComponent : GameItemComponent, ITable, IFlip, IProvide
 
     public override int DecorationPriority => 1000;
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         if (!Chairs.Any())
         {

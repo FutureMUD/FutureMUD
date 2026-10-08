@@ -6,10 +6,10 @@ namespace MudSharp.FutureProg.Functions.Location.Exits;
 
 internal class GetOrCopyExit : BuiltInFunction
 {
-    public static ICellExit GetOrCopy(ICellExit exit, ICellOverlayPackage package)
+    public static IRoomExit GetOrCopy(IRoomExit exit, IRoomOverlayPackage package)
     {
-        IEditableCellOverlay overlay = exit.Origin.GetOrCreateOverlay(package);
-        IEditableCellOverlay otherOverlay = exit.Destination.GetOrCreateOverlay(package);
+        IEditableRoomOverlay overlay = exit.Origin.GetOrCreateOverlay(package);
+        IEditableRoomOverlay otherOverlay = exit.Destination.GetOrCreateOverlay(package);
         if (!exit.Origin.Overlays.Except(overlay).Any(x => x.ExitIDs.Contains(exit.Exit.Id)))
         {
             return exit;
@@ -20,9 +20,9 @@ internal class GetOrCopyExit : BuiltInFunction
         overlay.AddExit(newExit);
         otherOverlay.RemoveExit(exit.Exit);
         otherOverlay.AddExit(newExit);
-        package.Gameworld.ExitManager.UpdateCellOverlayExits(exit.Origin, overlay);
-        package.Gameworld.ExitManager.UpdateCellOverlayExits(exit.Destination, otherOverlay);
-        return newExit.CellExitFor(exit.Origin);
+        package.Gameworld.ExitManager.UpdateRoomOverlayExits(exit.Origin, overlay);
+        package.Gameworld.ExitManager.UpdateRoomOverlayExits(exit.Destination, otherOverlay);
+        return newExit.RoomExitFor(exit.Origin);
     }
 
     public IFuturemud Gameworld { get; set; }
@@ -69,14 +69,14 @@ internal class GetOrCopyExit : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICellExit exit = (ICellExit)ParameterFunctions[0].Result?.GetObject;
+        IRoomExit exit = (IRoomExit)ParameterFunctions[0].Result?.GetObject;
         if (exit == null)
         {
             Result = null;
             return StatementResult.Normal;
         }
 
-        ICellOverlayPackage package = (ICellOverlayPackage)ParameterFunctions[1].Result?.GetObject;
+        IRoomOverlayPackage package = (IRoomOverlayPackage)ParameterFunctions[1].Result?.GetObject;
         if (package == null)
         {
             Result = null;

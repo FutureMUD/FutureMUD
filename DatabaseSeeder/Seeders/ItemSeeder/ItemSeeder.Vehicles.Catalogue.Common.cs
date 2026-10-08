@@ -54,7 +54,7 @@ public partial class ItemSeeder
 			Difficulty.Normal,
 			propulsionType == VehiclePropulsionType.Engine ? "power / requiredpower" : "1",
 			"0");
-		return new VehicleMovementProfileSeedSpec(key, name, VehicleMovementProfileType.CellExit,
+		return new VehicleMovementProfileSeedSpec(key, name, VehicleMovementProfileType.RoomExit,
 			VehicleMovementEnvironment.Unrestricted, false, true, 0.0, minimumEnginePower, null,
 			0.0, requiredRole, true, requiresAccessClosed, 0.0, RouteVehiclePropulsionMode.Powered, 0.0, 0.0,
 			false, [propulsion]);
@@ -86,7 +86,7 @@ public partial class ItemSeeder
 		IReadOnlyCollection<VehiclePropulsionSeedSpec> propulsion,
 		bool exposesOccupantsToWater = false)
 	{
-		return new VehicleMovementProfileSeedSpec(key, name, VehicleMovementProfileType.CellExit,
+		return new VehicleMovementProfileSeedSpec(key, name, VehicleMovementProfileType.RoomExit,
 			VehicleMovementEnvironment.SurfaceWater, exposesOccupantsToWater, true, 0.0, 0.0, null, 0.0, string.Empty,
 			true, requiresAccessClosed, 0.0, RouteVehiclePropulsionMode.Powered, 0.0, 0.0, false, propulsion);
 	}

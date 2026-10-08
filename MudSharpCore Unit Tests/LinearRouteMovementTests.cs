@@ -24,13 +24,13 @@ public class LinearRouteMovementTests
 	[TestMethod]
 	public void Segment_FakeElapsedTime_InterpolatesAndClampsExactly()
 	{
-		var (cell, _) = CreateRouteCell(1L, 10_000.0, 100.0);
+		var (room, _) = CreateRouteRoom(1L, 10_000.0, 100.0);
 		var segment = new LinearRouteMovementSegment(
-			new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 1_000.0),
-			new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 1_100.0),
+			new SpatialLocation(room.Object, RoomLayer.GroundLevel, 1_000.0),
+			new SpatialLocation(room.Object, RoomLayer.GroundLevel, 1_100.0),
 			10.0);
 
-		Assert.AreEqual(RouteCellDirection.Positive, segment.Direction);
+		Assert.AreEqual(RouteRoomDirection.Positive, segment.Direction);
 		Assert.AreEqual(100.0, segment.DistanceMetres);
 		Assert.AreEqual(TimeSpan.FromSeconds(10.0), segment.Duration);
 		Assert.AreEqual(1_000.0, segment.PositionAt(TimeSpan.FromSeconds(-1.0)).RoutePositionMetres);
@@ -41,21 +41,21 @@ public class LinearRouteMovementTests
 	[TestMethod]
 	public void Segment_BackwardAndInvalidCoordinates_UsesDirectionAndRejectsBounds()
 	{
-		var (cell, _) = CreateRouteCell(2L, 100.0, 100.0);
+		var (room, _) = CreateRouteRoom(2L, 100.0, 100.0);
 		var segment = new LinearRouteMovementSegment(
-			new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 80.0),
-			new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 20.0),
+			new SpatialLocation(room.Object, RoomLayer.GroundLevel, 80.0),
+			new SpatialLocation(room.Object, RoomLayer.GroundLevel, 20.0),
 			2.0);
 
-		Assert.AreEqual(RouteCellDirection.Negative, segment.Direction);
+		Assert.AreEqual(RouteRoomDirection.Negative, segment.Direction);
 		Assert.AreEqual(50.0, segment.PositionAt(TimeSpan.FromSeconds(15.0)).RoutePositionMetres);
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => new LinearRouteMovementSegment(
-			new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 0.0),
-			new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 101.0),
+			new SpatialLocation(room.Object, RoomLayer.GroundLevel, 0.0),
+			new SpatialLocation(room.Object, RoomLayer.GroundLevel, 101.0),
 			1.0));
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => new LinearRouteMovementSegment(
-			new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 0.0),
-			new SpatialLocation(cell.Object, RoomLayer.GroundLevel, 50.0),
+			new SpatialLocation(room.Object, RoomLayer.GroundLevel, 0.0),
+			new SpatialLocation(room.Object, RoomLayer.GroundLevel, 50.0),
 			0.0));
 	}
 
@@ -69,8 +69,8 @@ public class LinearRouteMovementTests
 		var terrain = CreateTerrain(20.0);
 		var gameworld = CreateGameworld();
 		var occupants = new List<IPerceivable>();
-		var (cell, _) = CreateRouteCell(3L, 1_000.0, 100.0, occupants, terrain.Object);
-		var root = CreateCharacter(10L, cell.Object, gameworld.Object, 0.0);
+		var (room, _) = CreateRouteRoom(3L, 1_000.0, 100.0, occupants, terrain.Object);
+		var root = CreateCharacter(10L, room.Object, gameworld.Object, 0.0);
 		occupants.Add(root.Mock.Object);
 		var store = new FakeRouteMotionPersistence();
 		var schedules = new List<(Action Action, TimeSpan Delay)>();
@@ -138,8 +138,8 @@ public class LinearRouteMovementTests
 		var terrain = CreateTerrain(20.0);
 		var gameworld = CreateGameworld();
 		var occupants = new List<IPerceivable>();
-		var (cell, _) = CreateRouteCell(32L, 1_000.0, 100.0, occupants, terrain.Object);
-		var root = CreateCharacter(12L, cell.Object, gameworld.Object, 0.0);
+		var (room, _) = CreateRouteRoom(32L, 1_000.0, 100.0, occupants, terrain.Object);
+		var root = CreateCharacter(12L, room.Object, gameworld.Object, 0.0);
 		occupants.Add(root.Mock.Object);
 		var store = new FakeRouteMotionPersistence { ThrowAfterApplyingCharges = true };
 		var schedules = new List<(Action Action, TimeSpan Delay)>();
@@ -178,8 +178,8 @@ public class LinearRouteMovementTests
 		var terrain = CreateTerrain(20.0);
 		var gameworld = CreateGameworld();
 		var occupants = new List<IPerceivable>();
-		var (cell, _) = CreateRouteCell(33L, 1_000.0, 100.0, occupants, terrain.Object);
-		var root = CreateCharacter(13L, cell.Object, gameworld.Object, 0.0);
+		var (room, _) = CreateRouteRoom(33L, 1_000.0, 100.0, occupants, terrain.Object);
+		var root = CreateCharacter(13L, room.Object, gameworld.Object, 0.0);
 		occupants.Add(root.Mock.Object);
 		var store = new FakeRouteMotionPersistence { ThrowOnComplete = true };
 		var schedules = new List<(Action Action, TimeSpan Delay)>();
@@ -258,8 +258,8 @@ public class LinearRouteMovementTests
 		var terrain = CreateTerrain(20.0);
 		var gameworld = CreateGameworld();
 		var occupants = new List<IPerceivable>();
-		var (cell, _) = CreateRouteCell(31L, 1_000.0, 100.0, occupants, terrain.Object);
-		var root = CreateCharacter(11L, cell.Object, gameworld.Object, 0.0);
+		var (room, _) = CreateRouteRoom(31L, 1_000.0, 100.0, occupants, terrain.Object);
+		var root = CreateCharacter(11L, room.Object, gameworld.Object, 0.0);
 		occupants.Add(root.Mock.Object);
 		var store = new FakeRouteMotionPersistence();
 		var schedules = new List<(Action Action, TimeSpan Delay)>();
@@ -305,20 +305,20 @@ public class LinearRouteMovementTests
 		var terrain = CreateTerrain(20.0);
 		var gameworld = CreateGameworld();
 		var occupants = new List<IPerceivable>();
-		var (cell, _) = CreateRouteCell(4L, 1_000.0, 100.0, occupants, terrain.Object);
-		var mount = CreateCharacter(20L, cell.Object, gameworld.Object, 100.0);
-		var rider = CreateCharacter(21L, cell.Object, gameworld.Object, 100.0);
+		var (room, _) = CreateRouteRoom(4L, 1_000.0, 100.0, occupants, terrain.Object);
+		var mount = CreateCharacter(20L, room.Object, gameworld.Object, 100.0);
+		var rider = CreateCharacter(21L, room.Object, gameworld.Object, 100.0);
 		rider.Mock.SetupGet(x => x.RidingMount).Returns(mount.Mock.Object);
 		mount.Mock.SetupGet(x => x.Riders).Returns([rider.Mock.Object]);
 		var wagonPosition = 100.0;
 		var wagon = new Mock<IPerceivable>();
 		wagon.SetupGet(x => x.Id).Returns(30L);
 		wagon.SetupGet(x => x.Name).Returns("wagon");
-		wagon.SetupGet(x => x.Location).Returns(cell.Object);
+		wagon.SetupGet(x => x.Location).Returns(room.Object);
 		wagon.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		wagon.SetupGet(x => x.RoutePositionMetres).Returns(() => wagonPosition);
 		wagon.SetupGet(x => x.SpatialLocation)
-			.Returns(() => new SpatialLocation(cell.Object, RoomLayer.GroundLevel, wagonPosition));
+			.Returns(() => new SpatialLocation(room.Object, RoomLayer.GroundLevel, wagonPosition));
 		wagon.Setup(x => x.SetRoutePosition(It.IsAny<double?>()))
 			.Callback((double? value) => wagonPosition = value!.Value);
 		var hitch = new CharacterHitch(mount.Mock.Object, wagon.Object, 1.0);
@@ -371,7 +371,7 @@ public class LinearRouteMovementTests
 
 	private static CharacterHarness CreateCharacter(
 		long id,
-		ICell cell,
+		IRoom room,
 		IFuturemud gameworld,
 		double initialPosition)
 	{
@@ -395,11 +395,11 @@ public class LinearRouteMovementTests
 		character.SetupGet(x => x.Name).Returns($"character {id}");
 		character.SetupGet(x => x.Gameworld).Returns(gameworld);
 		character.SetupGet(x => x.Body).Returns(body.Object);
-		character.SetupGet(x => x.Location).Returns(cell);
+		character.SetupGet(x => x.Location).Returns(room);
 		character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		character.SetupGet(x => x.RoutePositionMetres).Returns(() => position);
 		character.SetupGet(x => x.SpatialLocation)
-			.Returns(() => new SpatialLocation(cell, RoomLayer.GroundLevel, position));
+			.Returns(() => new SpatialLocation(room, RoomLayer.GroundLevel, position));
 		character.Setup(x => x.SetRoutePosition(It.IsAny<double?>()))
 			.Callback((double? value) => position = value!.Value);
 		character.SetupGet(x => x.OutputHandler).Returns(output.Object);
@@ -427,29 +427,29 @@ public class LinearRouteMovementTests
 		return new CharacterHarness(character, () => position, () => initialStamina - currentStamina, events);
 	}
 
-	private static (Mock<ICell> Cell, Mock<IRouteCellDefinition> Definition) CreateRouteCell(
+	private static (Mock<IRoom> Room, Mock<IRouteRoomDefinition> Definition) CreateRouteRoom(
 		long id,
 		double length,
 		double roomEquivalent,
 		IEnumerable<IPerceivable>? perceivables = null,
 		ITerrain? terrain = null)
 	{
-		var cell = new Mock<ICell>();
-		var definition = new Mock<IRouteCellDefinition>();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
-		cell.SetupGet(x => x.Perceivables).Returns(() => perceivables ?? []);
-		cell.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain ?? CreateTerrain(20.0).Object);
-		definition.SetupGet(x => x.Cell).Returns(cell.Object);
+		var room = new Mock<IRoom>();
+		var definition = new Mock<IRouteRoomDefinition>();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
+		room.SetupGet(x => x.Perceivables).Returns(() => perceivables ?? []);
+		room.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain ?? CreateTerrain(20.0).Object);
+		definition.SetupGet(x => x.Room).Returns(room.Object);
 		definition.SetupGet(x => x.LengthMetres).Returns(length);
 		definition.SetupGet(x => x.DefaultPositionMetres).Returns(0.0);
 		definition.SetupGet(x => x.MetresPerRoomEquivalent).Returns(roomEquivalent);
 		definition.SetupGet(x => x.PositiveDirectionName).Returns("townward");
 		definition.SetupGet(x => x.NegativeDirectionName).Returns("stationward");
 		definition.SetupGet(x => x.TopologyVersion).Returns(1L);
-		definition.SetupGet(x => x.Landmarks).Returns(Array.Empty<IRouteCellLandmark>());
+		definition.SetupGet(x => x.Landmarks).Returns(Array.Empty<IRouteRoomLandmark>());
 		definition.SetupGet(x => x.ExitAnchors).Returns(Array.Empty<IRouteExitAnchor>());
-		return (cell, definition);
+		return (room, definition);
 	}
 
 	private sealed class CharacterHarness(

@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Commands.Trees;
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
@@ -58,10 +58,10 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
         DefaultInfo = new AutobuilderRoomInfo
         {
             DefaultTerrain = gameworld.Terrains.First(x => x.DefaultTerrain),
-            CellName = "An Undescribed Location",
-            CellDescription = "This location does not have any description",
+            RoomName = "An Undescribed Location",
+            RoomDescription = "This location does not have any description",
             AmbientLightFactor = 1.0,
-            OutdoorsType = gameworld.Terrains.First(x => x.DefaultTerrain).DefaultCellOutdoorsType
+            OutdoorsType = gameworld.Terrains.First(x => x.DefaultTerrain).DefaultRoomOutdoorsType
         };
         NumberOfRandomElements = new Expression("2+1d2");
         AddToAllRoomDescriptions = string.Empty;
@@ -155,24 +155,23 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 
     #endregion
 
-    public override ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+    public override IRoom CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         params string[] tags)
     {
         return CreateRoomCore(builder, specifiedTerrain, deferDescription, [], tags);
     }
 
-    public override ICell CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+    public override IRoom CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         IReadOnlyCollection<ITag> frameworkTags, params string[] tags)
     {
         return CreateRoomCore(builder, specifiedTerrain, deferDescription, frameworkTags, tags);
     }
 
-    private ICell CreateRoomCore(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
+    private IRoom CreateRoomCore(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         IReadOnlyCollection<ITag> frameworkTags, string[] tags)
     {
-        Room room = new(builder, builder.CurrentOverlayPackage);
-        ICell cell = room.Cells.First();
-        IEditableCellOverlay overlay = cell.GetOrCreateOverlay(builder.CurrentOverlayPackage);
+        IRoom room = new Room(builder.CurrentOverlayPackage, builder.Location.OwningZone);
+        IEditableRoomOverlay overlay = room.GetOrCreateOverlay(builder.CurrentOverlayPackage);
 		(AutobuilderRoomInfo info, Expression expression) = specifiedTerrain != null && TerrainInfos.ContainsKey(specifiedTerrain)
 			? TerrainInfos[specifiedTerrain]
 			: (DefaultInfo, NumberOfRandomElements);
@@ -181,23 +180,23 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 		overlay.OutdoorsType = info.OutdoorsType;
 		overlay.AmbientLightFactor = info.AmbientLightFactor;
 
-		cell.ForagableProfile = info.ForagableProfile;
-		ApplyTagsToCell(cell, frameworkTags, tags);
+		room.ForagableProfile = info.ForagableProfile;
+		ApplyTagsToRoom(room, frameworkTags, tags);
 
         if (!deferDescription)
         {
             List<(string Name, string Text)> texts =
                 GetRandomDescriptionTexts(specifiedTerrain ?? info.DefaultTerrain, tags, expression);
 
-            overlay.CellName = string
+            overlay.RoomName = string
                                .Format(
                                    texts.Where(x => !string.IsNullOrEmpty(x.Name)).GetRandomElement().Name ??
-                                   info.CellName,
-                                   info.CellName, (specifiedTerrain ?? info.DefaultTerrain).Name).TitleCase();
+                                   info.RoomName,
+                                   info.RoomName, (specifiedTerrain ?? info.DefaultTerrain).Name).TitleCase();
             StringBuilder sb = new();
-            if (!string.IsNullOrEmpty(info.CellDescription))
+            if (!string.IsNullOrEmpty(info.RoomDescription))
             {
-                sb.Append(info.CellDescription);
+                sb.Append(info.RoomDescription);
             }
 
             foreach ((string Name, string Text) element in texts)
@@ -210,29 +209,29 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
                 sb.Append(AddToAllRoomDescriptions.LeadingSpaceIfNotEmpty().Fullstop());
             }
 
-            overlay.CellDescription = sb.ToString();
+            overlay.RoomDescription = sb.ToString();
         }
 
-        return cell;
+        return room;
     }
 
-    public override void RedescribeRoom(ICell cell, params string[] tags)
+    public override void RedescribeRoom(IRoom room, params string[] tags)
     {
-        IEditableCellOverlay overlay = (IEditableCellOverlay)cell.CurrentOverlay;
+        IEditableRoomOverlay overlay = (IEditableRoomOverlay)room.CurrentOverlay;
         ITerrain terrain = overlay.Terrain;
         (AutobuilderRoomInfo info, Expression expression) = terrain != null && TerrainInfos.ContainsKey(terrain)
             ? TerrainInfos[terrain]
             : (DefaultInfo, NumberOfRandomElements);
         List<(string Name, string Text)> texts = GetRandomDescriptionTexts(terrain, tags, expression);
 
-        overlay.CellName = string
+        overlay.RoomName = string
                            .Format(
-                               texts.Where(x => !string.IsNullOrEmpty(x.Name)).GetRandomElement().Name ?? info.CellName,
-                               info.CellName, terrain?.Name ?? "Unknown").TitleCase();
+                               texts.Where(x => !string.IsNullOrEmpty(x.Name)).GetRandomElement().Name ?? info.RoomName,
+                               info.RoomName, terrain?.Name ?? "Unknown").TitleCase();
         StringBuilder sb = new();
-        if (!string.IsNullOrEmpty(info.CellDescription))
+        if (!string.IsNullOrEmpty(info.RoomDescription))
         {
-            sb.Append(info.CellDescription);
+            sb.Append(info.RoomDescription);
         }
 
 		foreach ((string Name, string Text) element in texts)
@@ -245,8 +244,8 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
 			sb.Append(AddToAllRoomDescriptions.LeadingSpaceIfNotEmpty().Fullstop());
 		}
 
-		overlay.CellDescription = sb.ToString();
-		ApplyTagsToCell(cell, tags);
+		overlay.RoomDescription = sb.ToString();
+		ApplyTagsToRoom(room, tags);
 	}
 
 	private List<(string Name, string Text)> GetRandomDescriptionTexts(ITerrain terrain, IEnumerable<string> tags,
@@ -327,8 +326,8 @@ Commands pertaining to random description elements that get added to the base de
         sb.AppendLine($"Default Room Properties:");
         sb.AppendLine();
         sb.AppendLine($"Terrain: {DefaultInfo.DefaultTerrain.Name.ColourValue()}");
-        sb.AppendLine($"Name: {DefaultInfo.CellName.ColourCommand()}");
-        sb.AppendLine($"Text: {DefaultInfo.CellDescription.ColourCommand()}");
+        sb.AppendLine($"Name: {DefaultInfo.RoomName.ColourCommand()}");
+        sb.AppendLine($"Text: {DefaultInfo.RoomDescription.ColourCommand()}");
         sb.AppendLine($"Light Multiplier: {DefaultInfo.AmbientLightFactor.ToString("P3", builder).ColourValue()}");
         sb.AppendLine($"Behaviour: {DefaultInfo.OutdoorsType.Describe().ColourValue()}");
         sb.AppendLine(
@@ -394,21 +393,21 @@ Commands pertaining to random description elements that get added to the base de
             case "outdoor":
             case "outdoors":
             case "outside":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.Outdoors);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.Outdoors);
             case "cave":
             case "nolight":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.IndoorsNoLight);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.IndoorsNoLight);
             case "windows":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.IndoorsWithWindows);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.IndoorsWithWindows);
             case "indoors":
             case "indoor":
             case "inside":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.Indoors);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.Indoors);
             case "shelter":
             case "climate":
             case "sheltered":
             case "exposed":
-                return BuildingCommandOutdoorType(actor, CellOutdoorsType.IndoorsClimateExposed);
+                return BuildingCommandOutdoorType(actor, RoomOutdoorsType.IndoorsClimateExposed);
             case "terrain":
                 return BuildingCommandTerrain(actor, command);
 
@@ -574,14 +573,14 @@ Commands pertaining to random description elements that get added to the base de
                 StringBuilder sb = new();
                 sb.AppendLine($"Info for the {terrain.Name.ColourValue()} terrain:");
                 sb.AppendLine($"No. of Random Elements: {info.Item2.OriginalExpression.ColourCommand()}");
-                sb.AppendLine($"Room Name: {info.Item1.CellName.Colour(Telnet.Cyan)}");
+                sb.AppendLine($"Room Name: {info.Item1.RoomName.Colour(Telnet.Cyan)}");
                 sb.AppendLine($"Behaviour: {info.Item1.OutdoorsType.Describe().ColourValue()}");
                 sb.AppendLine($"Light Multiplier: {info.Item1.AmbientLightFactor.ToString("P3", actor).ColourValue()}");
                 sb.AppendLine(
                     $"Foragable Profile: {info.Item1.ForagableProfile?.Name.ColourValue() ?? "None".Colour(Telnet.Red)}");
                 sb.AppendLine("Description:");
                 sb.AppendLine();
-                sb.AppendLine(info.Item1.CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
+                sb.AppendLine(info.Item1.RoomDescription.Wrap(actor.InnerLineFormatLength, "\t"));
                 actor.OutputHandler.Send(sb.ToString());
                 return true;
             }
@@ -601,21 +600,21 @@ Commands pertaining to random description elements that get added to the base de
             case "outdoor":
             case "outdoors":
             case "outside":
-                return BuildingCommandTerrainOutdoorType(actor, terrain, CellOutdoorsType.Outdoors);
+                return BuildingCommandTerrainOutdoorType(actor, terrain, RoomOutdoorsType.Outdoors);
             case "cave":
             case "nolight":
-                return BuildingCommandTerrainOutdoorType(actor, terrain, CellOutdoorsType.IndoorsNoLight);
+                return BuildingCommandTerrainOutdoorType(actor, terrain, RoomOutdoorsType.IndoorsNoLight);
             case "windows":
-                return BuildingCommandTerrainOutdoorType(actor, terrain, CellOutdoorsType.IndoorsWithWindows);
+                return BuildingCommandTerrainOutdoorType(actor, terrain, RoomOutdoorsType.IndoorsWithWindows);
             case "indoors":
             case "indoor":
             case "inside":
-                return BuildingCommandTerrainOutdoorType(actor, terrain, CellOutdoorsType.Indoors);
+                return BuildingCommandTerrainOutdoorType(actor, terrain, RoomOutdoorsType.Indoors);
             case "shelter":
             case "climate":
             case "sheltered":
             case "exposed":
-                return BuildingCommandTerrainOutdoorType(actor, terrain, CellOutdoorsType.IndoorsClimateExposed);
+                return BuildingCommandTerrainOutdoorType(actor, terrain, RoomOutdoorsType.IndoorsClimateExposed);
             case "remove":
             case "rem":
             case "delete":
@@ -722,9 +721,9 @@ Commands pertaining to random description elements that get added to the base de
             TerrainInfos[terrain] = (new AutobuilderRoomInfo
             {
                 DefaultTerrain = terrain,
-                CellName = "An Undescribed Room",
-                CellDescription = "An undescribed room.",
-                OutdoorsType = CellOutdoorsType.Outdoors,
+                RoomName = "An Undescribed Room",
+                RoomDescription = "An undescribed room.",
+                OutdoorsType = RoomOutdoorsType.Outdoors,
                 AmbientLightFactor = 1.0,
                 ForagableProfile = fp
             }, new Expression("2+1d2"));
@@ -745,7 +744,7 @@ Commands pertaining to random description elements that get added to the base de
         return true;
     }
 
-    private bool BuildingCommandOutdoorType(ICharacter actor, CellOutdoorsType outdoors)
+    private bool BuildingCommandOutdoorType(ICharacter actor, RoomOutdoorsType outdoors)
     {
         DefaultInfo = DefaultInfo with { OutdoorsType = outdoors };
         Changed = true;
@@ -770,7 +769,7 @@ Commands pertaining to random description elements that get added to the base de
             return false;
         }
 
-        DefaultInfo = DefaultInfo with { DefaultTerrain = terrain, OutdoorsType = terrain.DefaultCellOutdoorsType };
+        DefaultInfo = DefaultInfo with { DefaultTerrain = terrain, OutdoorsType = terrain.DefaultRoomOutdoorsType };
         Changed = true;
         actor.OutputHandler.Send(
             $"When no terrain is specified, this room template will now use the {terrain.Name.ColourValue()} terrain as a fallback.");
@@ -801,10 +800,10 @@ Commands pertaining to random description elements that get added to the base de
 
     private bool BuildingCommandDescription(ICharacter actor, StringStack command)
     {
-        if (!string.IsNullOrEmpty(DefaultInfo.CellDescription))
+        if (!string.IsNullOrEmpty(DefaultInfo.RoomDescription))
         {
             actor.OutputHandler.Send("Replacing:\n" +
-                                     DefaultInfo.CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
+                                     DefaultInfo.RoomDescription.Wrap(actor.InnerLineFormatLength, "\t"));
         }
 
         actor.OutputHandler.Send(
@@ -820,7 +819,7 @@ Commands pertaining to random description elements that get added to the base de
 
     private void PostDefaultDescription(string arg1, IOutputHandler arg2, object[] arg3)
     {
-        DefaultInfo = DefaultInfo with { CellDescription = arg1.Trim().ProperSentences().Fullstop() };
+        DefaultInfo = DefaultInfo with { RoomDescription = arg1.Trim().ProperSentences().Fullstop() };
         Changed = true;
         arg2.Send("You change the default room description.");
     }
@@ -834,14 +833,14 @@ Commands pertaining to random description elements that get added to the base de
             return false;
         }
 
-        DefaultInfo = DefaultInfo with { CellName = command.SafeRemainingArgument.TitleCase() };
+        DefaultInfo = DefaultInfo with { RoomName = command.SafeRemainingArgument.TitleCase() };
         Changed = true;
         actor.OutputHandler.Send(
-            $"The default rooms will now use the room name {DefaultInfo.CellName.Colour(Telnet.Cyan)}.");
+            $"The default rooms will now use the room name {DefaultInfo.RoomName.Colour(Telnet.Cyan)}.");
         return true;
     }
 
-    private bool BuildingCommandTerrainOutdoorType(ICharacter actor, ITerrain terrain, CellOutdoorsType outdoors)
+    private bool BuildingCommandTerrainOutdoorType(ICharacter actor, ITerrain terrain, RoomOutdoorsType outdoors)
     {
         if (TerrainInfos.ContainsKey(terrain))
         {
@@ -853,8 +852,8 @@ Commands pertaining to random description elements that get added to the base de
             TerrainInfos[terrain] = (new AutobuilderRoomInfo
             {
                 DefaultTerrain = terrain,
-                CellName = "An Undescribed Room",
-                CellDescription = "An undescribed room.",
+                RoomName = "An Undescribed Room",
+                RoomDescription = "An undescribed room.",
                 OutdoorsType = outdoors,
                 AmbientLightFactor = 1.0
             }, new Expression("2+1d2"));
@@ -891,9 +890,9 @@ Commands pertaining to random description elements that get added to the base de
             TerrainInfos[terrain] = (new AutobuilderRoomInfo
             {
                 DefaultTerrain = terrain,
-                CellName = "An Undescribed Room",
-                CellDescription = "An undescribed room.",
-                OutdoorsType = terrain.DefaultCellOutdoorsType,
+                RoomName = "An Undescribed Room",
+                RoomDescription = "An undescribed room.",
+                OutdoorsType = terrain.DefaultRoomOutdoorsType,
                 AmbientLightFactor = percentage
             }, new Expression("2+1d2"));
         }
@@ -909,7 +908,7 @@ Commands pertaining to random description elements that get added to the base de
         if (TerrainInfos.ContainsKey(terrain))
         {
             actor.OutputHandler.Send("Replacing:\n" +
-                                     TerrainInfos[terrain].Item1.CellDescription
+                                     TerrainInfos[terrain].Item1.RoomDescription
                                                           .Wrap(actor.InnerLineFormatLength, "\t"));
         }
 
@@ -931,7 +930,7 @@ Commands pertaining to random description elements that get added to the base de
         if (TerrainInfos.ContainsKey(terrain))
         {
             TerrainInfos[terrain] = (
-                TerrainInfos[terrain].Item1 with { CellDescription = arg1.Trim().ProperSentences().Fullstop() },
+                TerrainInfos[terrain].Item1 with { RoomDescription = arg1.Trim().ProperSentences().Fullstop() },
                 TerrainInfos[terrain].Item2);
         }
         else
@@ -939,9 +938,9 @@ Commands pertaining to random description elements that get added to the base de
             TerrainInfos[terrain] = (new AutobuilderRoomInfo
             {
                 DefaultTerrain = terrain,
-                CellName = "An Undescribed Room",
-                CellDescription = arg1.Trim().ProperSentences().Fullstop(),
-                OutdoorsType = terrain.DefaultCellOutdoorsType,
+                RoomName = "An Undescribed Room",
+                RoomDescription = arg1.Trim().ProperSentences().Fullstop(),
+                OutdoorsType = terrain.DefaultRoomOutdoorsType,
                 AmbientLightFactor = 1.0
             }, new Expression("2+1d2"));
         }
@@ -962,7 +961,7 @@ Commands pertaining to random description elements that get added to the base de
         if (TerrainInfos.ContainsKey(terrain))
         {
             TerrainInfos[terrain] = (
-                TerrainInfos[terrain].Item1 with { CellName = command.SafeRemainingArgument.TitleCase() },
+                TerrainInfos[terrain].Item1 with { RoomName = command.SafeRemainingArgument.TitleCase() },
                 TerrainInfos[terrain].Item2);
         }
         else
@@ -970,16 +969,16 @@ Commands pertaining to random description elements that get added to the base de
             TerrainInfos[terrain] = (new AutobuilderRoomInfo
             {
                 DefaultTerrain = terrain,
-                CellName = command.SafeRemainingArgument.TitleCase(),
-                CellDescription = "An undescribed room.",
-                OutdoorsType = terrain.DefaultCellOutdoorsType,
+                RoomName = command.SafeRemainingArgument.TitleCase(),
+                RoomDescription = "An undescribed room.",
+                OutdoorsType = terrain.DefaultRoomOutdoorsType,
                 AmbientLightFactor = 1.0
             }, new Expression("2+1d2"));
         }
 
         Changed = true;
         actor.OutputHandler.Send(
-            $"The rooms of the {terrain.Name.ColourValue()} type will now use the room name {TerrainInfos[terrain].Item1.CellName.Colour(Telnet.Cyan)}.");
+            $"The rooms of the {terrain.Name.ColourValue()} type will now use the room name {TerrainInfos[terrain].Item1.RoomName.Colour(Telnet.Cyan)}.");
         return true;
     }
 }

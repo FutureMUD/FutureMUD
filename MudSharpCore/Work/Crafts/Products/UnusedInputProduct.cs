@@ -52,7 +52,7 @@ public class UnusedInputProduct : BaseProduct
             Perceivable = new PerceivableGroup(Products);
         }
 
-        public void ReleaseProducts(ICell location, RoomLayer layer)
+        public void ReleaseProducts(IRoom location, RoomLayer layer)
         {
             foreach (IGameItem item in Products)
             {
@@ -63,7 +63,7 @@ public class UnusedInputProduct : BaseProduct
             }
         }
 
-        public void ReleaseProducts(ILocateable source, ICell location, RoomLayer layer)
+        public void ReleaseProducts(ILocateable source, IRoom location, RoomLayer layer)
         {
             foreach (IGameItem item in Products)
             {

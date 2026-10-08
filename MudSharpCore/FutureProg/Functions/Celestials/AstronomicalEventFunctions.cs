@@ -132,7 +132,7 @@ internal sealed class AstronomicalEventFunction : BuiltInFunction
 		return value switch
 		{
 			IZone zone => zone,
-			ICell cell => cell.Zone,
+			IRoom room => room.Zone,
 			_ => null
 		};
 	}

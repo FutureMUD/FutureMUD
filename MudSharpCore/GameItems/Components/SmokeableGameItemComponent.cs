@@ -98,7 +98,7 @@ public class SmokeableGameItemComponent : GameItemComponent, ISmokeable
                RemainingFuel != _prototype.SecondsOfFuel || Lit;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         ILightable newItemLightable = newItem?.GetItemType<ILightable>();
         newItemLightable?.Lit = Lit;
@@ -157,7 +157,7 @@ public class SmokeableGameItemComponent : GameItemComponent, ISmokeable
             }
         }
 
-        ICell location = Parent.TrueLocations.FirstOrDefault();
+        IRoom location = Parent.TrueLocations.FirstOrDefault();
         if (location != null && Parent.ContainedIn == null &&
             !string.IsNullOrWhiteSpace(_prototype.RoomDescriptionEffectString))
         {

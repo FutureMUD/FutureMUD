@@ -69,7 +69,7 @@ public interface IHotelPatronBalance
 public interface IHotelRoom : IKeyworded
 {
 	IProperty Property { get; }
-	ICell Cell { get; }
+	IRoom Room { get; }
 	string Name { get; set; }
 	bool Listed { get; set; }
 	decimal PricePerDay { get; set; }

@@ -79,7 +79,7 @@ public class UnarmedSmashItemAttack : WeaponAttackMove
                 style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
         IExit exit = Target.GetItemType<IDoor>()?.InstalledExit;
-        if (exit != null && exit.Door?.Parent == Target && exit.Cells.Contains(Assailant.Location))
+        if (exit != null && exit.Door?.Parent == Target && exit.Rooms.Contains(Assailant.Location))
         {
             exit.Opposite(Assailant.Location).Handle(new EmoteOutput(
                 new Emote("There is a loud thud on @, as if someone is bashing on it from the other side.", Target),

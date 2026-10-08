@@ -4,7 +4,7 @@
 
 This document describes the inline markup language used in cell and room descriptions as implemented by:
 
-- `MudSharpCore/Construction/CellDescription.cs`
+- `MudSharpCore/Construction/RoomDescription.cs`
 - `FutureMUDLibrary/Framework/StringUtilities.cs`
 - `MudSharpCore/Commands/Modules/RoomBuilderModule.cs`
 

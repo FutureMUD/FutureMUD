@@ -85,11 +85,11 @@ public static class EmploymentManagerGoalCatalog
 			"Maintains shop stock levels for crafted merchandise by creating station and craft-trigger work when stock falls below target.",
 			Examples(
 				"goals condition stock merch <id|name> below <quantity>",
-				"goals condition item <prototype|*item|&tag|keyword> in <here|cell id> below <quantity>"),
+				"goals condition item <prototype|*item|&tag|keyword> in <here|room id> below <quantity>"),
 			Examples(
 				"goals step station <craft station selector|here>",
 				"goals step craft <craft id|craft name>",
-				"goals step deliver to <here|cell id> [container <selector>]"),
+				"goals step deliver to <here|room id> [container <selector>]"),
 			Aliases("craftedstock", "merchandisecraft", "stockcraft")),
 		Definition("craftmaterials", EmploymentManagerGoalCategory.Production,
 			ManagerGoalType.MaintainCraftMaterialSupply,
@@ -99,13 +99,13 @@ public static class EmploymentManagerGoalCatalog
 			EmploymentAuthority.ManageDeliveryRoutes,
 			"Maintains materials required for crafting merchandise by creating buy, retrieve, load, unload, or delivery tasks.",
 			Examples(
-				"goals condition commodity <material[|tag][|name=value...]> in <here|cell id> below <weight>",
-				"goals condition item <prototype|*item|&tag|keyword> in <here|cell id> below <quantity>"),
+				"goals condition commodity <material[|tag][|name=value...]> in <here|room id> below <weight>",
+				"goals condition item <prototype|*item|&tag|keyword> in <here|room id> below <quantity>"),
 			Examples(
 				"goals step authorise <amount> for craft materials",
 				"goals step purchase <quantity|weight> <merchandise|item|commodity> from <shop|any> [max <amount>]",
-				"goals step getid|gettag|commodity ... from <here|cell ids...>",
-				"goals step deliver to <here|cell id>"),
+				"goals step getid|gettag|commodity ... from <here|room ids...>",
+				"goals step deliver to <here|room id>"),
 			Aliases("materials", "supplies", "buymaterials", "retrievematerials")),
 		Definition("restaurantingredients", EmploymentManagerGoalCategory.Stock,
 			ManagerGoalType.MaintainRestaurantIngredientStock,

@@ -103,7 +103,7 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			// The host controls its room catalogue. Its native-item membership is persisted explicitly.
-			if (!db.CellsGameItems.Any(x => x.GameItemId == corpse.Id)) db.CellsGameItems.Add(new() { CellId = fixture.CellId, GameItemId = corpse.Id });
+			if (!db.RoomsGameItems.Any(x => x.GameItemId == corpse.Id)) db.RoomsGameItems.Add(new() { RoomId = fixture.RoomId, GameItemId = corpse.Id });
 			db.SaveChanges();
 		}
 		Require(owner.Body.ExternalItems.Contains(foreign) && corpse.GetItemType<ICorpse>().OriginalBody.Id == owner.Body.Id,
@@ -163,7 +163,7 @@ internal static partial class GNHProgram
 		CorpseAnimationReader Reader(ScriptedAiCharacterInstance actor, string action)
 		{
 			var journal = ReadCorpseAnimationLife(database, actor.InstanceId);
-			return new(database.Name, fixture, RuntimeClock.UtcNow, journal.Origin.Id, actor.InstanceId, corpse.Id, owner.Id, owner.Body.Id, foreign.Id, action, journal.Origin.DeadlineUtc!.Value, corpse.Location?.Id ?? fixture.CellId);
+			return new(database.Name, fixture, RuntimeClock.UtcNow, journal.Origin.Id, actor.InstanceId, corpse.Id, owner.Id, owner.Body.Id, foreign.Id, action, journal.Origin.DeadlineUtc!.Value, corpse.Location?.Id ?? fixture.RoomId);
 		}
 
 		var stable = Guid.NewGuid(); var duplicate = CreateDirect(stable);
@@ -187,7 +187,7 @@ internal static partial class GNHProgram
 		finally { using var db = NewIndependentContext(database.ConnectionString); db.Database.ExecuteSqlRaw("DROP TRIGGER arm03d1_claim_fault"); }
 		using (var db = NewIndependentContext(database.ConnectionString))
 			Require(claimRefused && db.CharacterInstances.Count() == beforeInstances && !db.MagicSpellLifecycles.Any(x => x.Id == failedOrigin) &&
-				db.CellsGameItems.Count(x => x.GameItemId == corpse.Id) == 1 && corpse.Location == caster.Location && owner.Instances.All(x => x.IsPrimaryInstance),
+				db.RoomsGameItems.Count(x => x.GameItemId == corpse.Id) == 1 && corpse.Location == caster.Location && owner.Instances.All(x => x.IsPrimaryInstance),
 				"Ownership claim failure did not roll back the inserted secondary and exact source cell link before exposure.");
 		Console.WriteLine("ARM03D1-creation-rollback=passed actual-MySQL-owned-claim-INSERT-refusal atomic-secondary-and-source-cell-rollback no-runtime-exposure no-owned-canonical-or-body");
 
@@ -224,7 +224,7 @@ internal static partial class GNHProgram
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			var reference = db.CharacterBodySources.Single(x => x.CharacterId == caster.Id && x.SourceKey == "ARM03D1 foreign reference");
-			Require(reference.BodyId == owner.Body.Id && db.CellsGameItems.Any(x => x.GameItemId == corpse.Id), "Foreign reference refusal mutated the source or foreign row.");
+			Require(reference.BodyId == owner.Body.Id && db.RoomsGameItems.Any(x => x.GameItemId == corpse.Id), "Foreign reference refusal mutated the source or foreign row.");
 			db.CharacterBodySources.Remove(reference); db.SaveChanges();
 		}
 		Console.WriteLine("ARM03D1-foreign-owner-refusal=passed cached-native-corpse newly-inserted-foreign-source-reference prepayment-refusal unchanged-foreign-row body-and-corpse-retained");
@@ -253,7 +253,7 @@ internal static partial class GNHProgram
 			Require(!held.HandleEvent(EventType.NoNaturalTargets, held) && owner.MagicResourceAmounts[native.Resource] == heldResource, "Retirement-held selected AI still acted.");
 			Flush();
 			using (var db = NewIndependentContext(database.ConnectionString)) Require(db.CharacterInstances.Any(x => x.Id == held.InstanceId) &&
-				!db.CellsGameItems.Any(x => x.GameItemId == corpse.Id) && db.BodiesGameItems.Any(x => x.BodyId == owner.Body.Id && x.GameItemId == foreign.Id), "Final DELETE refusal did not roll back restoration placement.");
+				!db.RoomsGameItems.Any(x => x.GameItemId == corpse.Id) && db.BodiesGameItems.Any(x => x.BodyId == owner.Body.Id && x.GameItemId == foreign.Id), "Final DELETE refusal did not roll back restoration placement.");
 			RunItemReaderProcess(Reader(held, "held"), "--corpse-animation-reader");
 		}
 		finally { using var db = NewIndependentContext(database.ConnectionString); db.Database.ExecuteSqlRaw("DROP TRIGGER arm03d1_delete_fault"); }
@@ -265,26 +265,27 @@ internal static partial class GNHProgram
 		Require(!service.TryRetire(missing.InstanceId, SpellRetirementReason.Dismissal, out var missingWhy) && missingWhy.Contains("unavailable"), "Unavailable corpse did not produce recoverable holding.");
 		native.WorldMock.Setup(x => x.TryGetItem(corpse.Id, true)).Returns(corpse);
 		Require(service.TryRetire(missing.InstanceId, SpellRetirementReason.Dismissal, out _), "Unavailable-corpse retry failed."); Restored(missing);
-		var noCell = CreateDirect(); noCell.ClearInstanceLocation(); ((All<ICell>)world.Cells).Remove(caster.Location);
-		Require(!service.TryRetire(noCell.InstanceId, SpellRetirementReason.Dismissal, out var cellWhy) && cellWhy.Contains("safe cell"), "Unavailable destination did not preserve recovery.");
-		((All<ICell>)world.Cells).Add(caster.Location);
-		Require(service.TryRetire(noCell.InstanceId, SpellRetirementReason.Dismissal, out _), "Unavailable-destination retry failed."); Restored(noCell);
+		var noRoom = CreateDirect(); noRoom.ClearInstanceLocation(); ((All<IRoom>)world.Rooms).Remove(caster.Location);
+		Require(!service.TryRetire(noRoom.InstanceId, SpellRetirementReason.Dismissal, out var cellWhy) && cellWhy.Contains("safe cell"), "Unavailable destination did not preserve recovery.");
+		((All<IRoom>)world.Rooms).Add(caster.Location);
+		Require(service.TryRetire(noRoom.InstanceId, SpellRetirementReason.Dismissal, out _), "Unavailable-destination retry failed."); Restored(noRoom);
 		Console.WriteLine("ARM03D1-missing-dependency=passed controlled-unavailable-corpse-and-cell recoverable-hold no-borrowed-deletion exact-retry original-cell-fallback");
 
 		// Same real MoveTo callback used by Cell.Insert, in the controlled host's room catalogue.
-		var placement = CreateDirect(); var originalCell = caster.Location; var placementCallbacks = 0; long finalCellId;
+		var placement = CreateDirect(); var originalRoom = caster.Location; var placementCallbacks = 0; long finalRoomId;
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
-			var newCell = new Db.Cell { RoomId = db.Cells.Single(x => x.Id == fixture.CellId).RoomId, EffectData = "<Effects/>" };
-			db.Cells.Add(newCell); db.SaveChanges(); finalCellId = newCell.Id;
+			var sourceRoom = db.Rooms.Single(x => x.Id == fixture.RoomId);
+			var newRoom = new Db.Room { ZoneId = sourceRoom.ZoneId, X = sourceRoom.X, Y = sourceRoom.Y, Z = sourceRoom.Z, EffectData = "<Effects/>" };
+			db.Rooms.Add(newRoom); db.SaveChanges(); finalRoomId = newRoom.Id;
 		}
-		var finalCell = new Mock<ICell>(); var finalItems = new List<IGameItem>();
-		finalCell.SetupGet(x => x.Id).Returns(finalCellId); finalCell.SetupGet(x => x.Gameworld).Returns(world);
-		finalCell.SetupGet(x => x.GameItems).Returns(finalItems); finalCell.Setup(x => x.Extract(It.IsAny<IGameItem>())).Callback<IGameItem>(item => finalItems.Remove(item));
-		((All<ICell>)world.Cells).Add(finalCell.Object); placement.MoveTo(finalCell.Object, placement.RoomLayer); placement.Save();
-		finalCell.Setup(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>())).Callback<IGameItem, bool>((item, _) =>
+		var finalRoom = new Mock<IRoom>(); var finalItems = new List<IGameItem>();
+		finalRoom.SetupGet(x => x.Id).Returns(finalRoomId); finalRoom.SetupGet(x => x.Gameworld).Returns(world);
+		finalRoom.SetupGet(x => x.GameItems).Returns(finalItems); finalRoom.Setup(x => x.Extract(It.IsAny<IGameItem>())).Callback<IGameItem>(item => finalItems.Remove(item));
+		((All<IRoom>)world.Rooms).Add(finalRoom.Object); placement.MoveTo(finalRoom.Object, placement.RoomLayer); placement.Save();
+		finalRoom.Setup(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>())).Callback<IGameItem, bool>((item, _) =>
 		{
-			ForeignCustodyTransferContext.EnsureCell(finalCell.Object, item); item.MoveTo(finalCell.Object, item.RoomLayer);
+			ForeignCustodyTransferContext.EnsureRoom(finalRoom.Object, item); item.MoveTo(finalRoom.Object, item.RoomLayer);
 			if (!finalItems.Contains(item)) finalItems.Add(item);
 		});
 		LocatableEvent callback = (_, _) => { placementCallbacks++; caster.Body.Get(corpse, silent: true); };
@@ -297,13 +298,13 @@ internal static partial class GNHProgram
 		Flush();
 		RunItemReaderProcess(Reader(placement, "placement"), "--corpse-animation-reader");
 		// Explicitly simulate a stale deferred cell-membership save after row deletion. The durable marker must retain the final cell.
-		using (var db = NewIndependentContext(database.ConnectionString)) { db.CellsGameItems.RemoveRange(db.CellsGameItems.Where(x => x.GameItemId == corpse.Id)); db.SaveChanges(); }
+		using (var db = NewIndependentContext(database.ConnectionString)) { db.RoomsGameItems.RemoveRange(db.RoomsGameItems.Where(x => x.GameItemId == corpse.Id)); db.SaveChanges(); }
 		Require(service.TryRetire(placement.InstanceId, SpellRetirementReason.Dismissal, out _), "Placement retry failed."); Restored(placement);
-		using (var db = NewIndependentContext(database.ConnectionString)) Require(db.CellsGameItems.Single(x => x.GameItemId == corpse.Id).CellId == finalCellId && corpse.Location.Id == finalCellId, "Retry forgot the moved actor's committed destination.");
+		using (var db = NewIndependentContext(database.ConnectionString)) Require(db.RoomsGameItems.Single(x => x.GameItemId == corpse.Id).RoomId == finalRoomId && corpse.Location.Id == finalRoomId, "Retry forgot the moved actor's committed destination.");
 		Console.WriteLine("ARM03D1-placement-guard=passed real-MoveTo-OnLocationChanged callback native-Body.Get refused-before-custody moved-actor-final-cell-checkpoint ordinary-save independent-reader explicit-stale-cell-join-loss-simulation exact-retry no-dual-custodian controlled-cell-insertion");
-		finalCell.Object.Extract(corpse); originalCell.Insert(corpse, true);
+		finalRoom.Object.Extract(corpse); originalRoom.Insert(corpse, true);
 		using (var db = NewIndependentContext(database.ConnectionString))
-		{ db.CellsGameItems.RemoveRange(db.CellsGameItems.Where(x => x.GameItemId == corpse.Id)); db.CellsGameItems.Add(new() { CellId = fixture.CellId, GameItemId = corpse.Id }); db.SaveChanges(); }
+		{ db.RoomsGameItems.RemoveRange(db.RoomsGameItems.Where(x => x.GameItemId == corpse.Id)); db.RoomsGameItems.Add(new() { RoomId = fixture.RoomId, GameItemId = corpse.Id }); db.SaveChanges(); }
 		for (var cycle = 0; cycle < 5; cycle++)
 		{
 			var repeated = CreateDirect(); Require(repeated.Quit(true), "Repeated native Quit restoration failed."); Flush(); Restored(repeated);
@@ -332,7 +333,7 @@ internal static partial class GNHProgram
 		{
 			using var db = NewIndependentContext(database.ConnectionString);
 			Require(!db.CharacterInstances.Any(x => x.Id == input.Instance) && !db.BodiesGameItems.Any(x => x.GameItemId == input.Corpse) &&
-				db.GameItems.Single(x => x.Id == input.Corpse).ContainerId is null && db.CellsGameItems.Single(x => x.GameItemId == input.Corpse).CellId == input.Destination &&
+				db.GameItems.Single(x => x.Id == input.Corpse).ContainerId is null && db.RoomsGameItems.Single(x => x.GameItemId == input.Corpse).RoomId == input.Destination &&
 				host.Store.Find(input.Origin)!.Diagnostic.Contains($"cell=\"{input.Destination}\""), "Cold inspection lost committed final destination or gained foreign corpse custody.");
 			Console.WriteLine("ARM03D1-reader-placement=passed fresh-process real-corpse-body-gear-load durable-final-cell after-callback-refusal-and-ordinary-save no-dual-custody no-owned-row-recreation");
 			return 0;
@@ -343,7 +344,7 @@ internal static partial class GNHProgram
 		{
 			using var db = NewIndependentContext(database.ConnectionString);
 			Require(host.Store.Find(input.Origin)!.State != SpellLifecycleState.Completed && db.CharacterInstances.Any(x => x.Id == input.Instance) &&
-				!db.CellsGameItems.Any(x => x.GameItemId == input.Corpse), "Cold provider-held recovery lost the exact instance or exposed the corpse.");
+				!db.RoomsGameItems.Any(x => x.GameItemId == input.Corpse), "Cold provider-held recovery lost the exact instance or exposed the corpse.");
 			Console.WriteLine("ARM03D1-reader-held=passed fresh-process actual-native-corpse-body-gear-loader no-AI-materialization durable-refusal exact-secondary-retained");
 			return 0;
 		}
@@ -366,7 +367,7 @@ internal static partial class GNHProgram
 		using var db = NewIndependentContext(database.ConnectionString); var life = host.Store.Find(origin)!;
 		Require(life.State == SpellLifecycleState.Completed && !db.CharacterInstances.Any(x => x.Id == instance) &&
 			db.Characters.Any(x => x.Id == owner && !x.IsArchived) && db.Bodies.Any(x => x.Id == body) &&
-			db.GameItems.Any(x => x.Id == corpse) && db.CellsGameItems.Count(x => x.GameItemId == corpse) == 1 &&
+			db.GameItems.Any(x => x.Id == corpse) && db.RoomsGameItems.Count(x => x.GameItemId == corpse) == 1 &&
 			db.BodiesGameItems.Any(x => x.BodyId == body && x.GameItemId == foreign) && !host.Native.World.TryGetItem(corpse, true).Deleted,
 			"Animation restoration did not retain exact borrowed state: " + life.Diagnostic);
 	}

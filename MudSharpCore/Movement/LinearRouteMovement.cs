@@ -14,7 +14,7 @@ using MudSharp.PerceptionEngine.Outputs;
 namespace MudSharp.Movement;
 
 /// <summary>
-/// Continuous character movement within a single RouteCell. The cell and layer never change;
+/// Continuous character movement within a single RouteRoom. The room and layer never change;
 /// RouteSpatialService supplies the effective lazy coordinate between durable checkpoints.
 /// </summary>
 public sealed class LinearRouteMovement : ILinearRouteMovement
@@ -84,7 +84,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		_targetMaximumMetres = targetMaximumMetres;
 		_selectedExitId = selectedExitId;
 		_createTracks = createTracks;
-		_topologyVersion = segment.Origin.Cell.RouteDefinition!.TopologyVersion;
+		_topologyVersion = segment.Origin.Room.RouteDefinition!.TopologyVersion;
 		_operationOrigin = segment.Origin;
 		_operationDuration = segment.Duration;
 		_operationDistanceMetres = segment.DistanceMetres;
@@ -92,7 +92,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		OperationId = Guid.NewGuid();
 		_hookContext = new RouteMovementHookContext(
 			OperationId,
-			segment.Origin.Cell,
+			segment.Origin.Room,
 			segment.Origin.RoutePositionMetres.Value,
 			segment.Destination.RoutePositionMetres!.Value,
 			segment.Direction,
@@ -102,7 +102,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 	public LinearRouteMovementSegment Segment { get; private set; }
 	public bool Cancelled { get; private set; }
 	public bool CanBeVoluntarilyCancelled => !_finished;
-	public ICellExit? Exit => null;
+	public IRoomExit? Exit => null;
 	public MovementPhase Phase => MovementPhase.OriginalRoom;
 	public IEnumerable<ICharacter> CharacterMovers => _characterMovers.ToArray();
 	public IParty Party => _rootMover.Party;
@@ -117,10 +117,10 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		new Dictionary<ICharacter, ISneakMoveEffect>();
 	public TimeSpan Duration => _operationDuration;
 	public double StaminaMultiplier => _operationDistanceMetres /
-	                                   Segment.Origin.Cell.RouteDefinition!.MetresPerRoomEquivalent;
+	                                   Segment.Origin.Room.RouteDefinition!.MetresPerRoomEquivalent;
 	public SpatialLocation Origin => _operationOrigin;
 	public SpatialLocation Destination => Segment.Destination;
-	public RouteCellDirection Direction => Segment.Direction;
+	public RouteRoomDirection Direction => Segment.Direction;
 	public double SpeedMetresPerSecond => Segment.SpeedMetresPerSecond;
 	public Guid OperationId { get; }
 
@@ -142,11 +142,11 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		ArgumentNullException.ThrowIfNull(rootMover);
 		spatialService ??= RouteSpatialService.Instance;
 		var origin = spatialService.GetEffectiveLocation(rootMover);
-		var route = origin.Cell.RouteDefinition;
+		var route = origin.Room.RouteDefinition;
 		if (route is null || !origin.RoutePositionMetres.HasValue)
 		{
 			movement = null;
-			error = "You can only travel longitudinally while you are in a RouteCell.";
+			error = "You can only travel longitudinally while you are in a RouteRoom.";
 			return false;
 		}
 
@@ -192,7 +192,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		{
 			segment = new LinearRouteMovementSegment(
 				origin,
-				new SpatialLocation(origin.Cell, origin.Layer, targetPositionMetres),
+				new SpatialLocation(origin.Room, origin.Layer, targetPositionMetres),
 				speed);
 		}
 		catch (ArgumentException ex)
@@ -207,13 +207,13 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		if (interval <= TimeSpan.Zero)
 		{
 			movement = null;
-			error = "The RouteCell checkpoint interval must be positive.";
+			error = "The RouteRoom checkpoint interval must be positive.";
 			return false;
 		}
 
 		persistence ??= new DatabaseRouteMotionPersistence();
 		schedule ??= (action, delay) => rootMover.Gameworld.Scheduler.AddSchedule(
-			new Schedule(action, ScheduleType.Movement, delay, "Linear RouteCell movement checkpoint"));
+			new Schedule(action, ScheduleType.Movement, delay, "Linear RouteRoom movement checkpoint"));
 
 		movement = new LinearRouteMovement(
 			rootMover,
@@ -384,7 +384,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 			return;
 		}
 
-		if (Origin.Cell.RouteDefinition?.TopologyVersion != _topologyVersion)
+		if (Origin.Room.RouteDefinition?.TopologyVersion != _topologyVersion)
 		{
 			CommitEffectivePosition();
 			if (_finished)
@@ -417,7 +417,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		}
 
 		var remainingSegment = new LinearRouteMovementSegment(
-			new SpatialLocation(Origin.Cell, Origin.Layer, _lastCheckpointPosition),
+			new SpatialLocation(Origin.Room, Origin.Layer, _lastCheckpointPosition),
 			Destination,
 			SpeedMetresPerSecond);
 		Segment = remainingSegment;
@@ -499,7 +499,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 				: $" Rollback also reported {rollbackFailures.Count:N0} error(s): {rollbackFailures[0].Message}";
 			Cancelled = true;
 			_rootMover.Gameworld.SystemMessage(
-				$"RouteCell movement {OperationId:N} stopped after checkpoint {_checkpointSequence:N0} failed: {exception.Message}{rollbackSuffix}",
+				$"RouteRoom movement {OperationId:N} stopped after checkpoint {_checkpointSequence:N0} failed: {exception.Message}{rollbackSuffix}",
 				true);
 			Finish(false, "stop|stops because the durable movement checkpoint could not be committed");
 			return;
@@ -507,7 +507,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 
 		RouteCheckpointSaveQueue.Restore(saveQueueStates, exception =>
 			_rootMover.Gameworld.SystemMessage(
-				$"RouteCell movement {OperationId:N} committed checkpoint {_checkpointSequence:N0}, but could not restore an affected save-queue entry: {exception.Message}",
+				$"RouteRoom movement {OperationId:N} committed checkpoint {_checkpointSequence:N0}, but could not restore an affected save-queue entry: {exception.Message}",
 				true));
 
 		_lastCheckpointPosition = position;
@@ -550,7 +550,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		catch (Exception exception)
 		{
 			_rootMover.Gameworld.SystemMessage(
-				$"RouteCell movement {OperationId:N} could not clear its durable motion row: {exception.Message}",
+				$"RouteRoom movement {OperationId:N} could not clear its durable motion row: {exception.Message}",
 				true);
 		}
 		foreach (var mover in _characterMovers)
@@ -599,7 +599,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 			return Array.Empty<RouteMotionResourceCharge>();
 		}
 
-		var route = Origin.Cell.RouteDefinition!;
+		var route = Origin.Room.RouteDefinition!;
 		var roomEquivalents = distanceMetres / route.MetresPerRoomEquivalent;
 		return _staminaMovers
 			.Select(character =>
@@ -622,7 +622,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 	private void CreateTracksAtCheckpoint()
 	{
 		if (!_createTracks || !_rootMover.Gameworld.GetStaticBool("TrackingEnabled") ||
-			!Origin.Cell.Terrain(_rootMover).CanHaveTracks)
+			!Origin.Room.Terrain(_rootMover).CanHaveTracks)
 		{
 			return;
 		}
@@ -632,7 +632,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 			var circumstances = _dragEffects.Any(x => ReferenceEquals(x.Target, mover))
 				? TrackCircumstances.Dragged
 				: TrackCircumstances.None;
-			if (Movement.GetTrackIntensities(mover, Origin.Cell, ref circumstances, out var visual, out var olfactory))
+			if (Movement.GetTrackIntensities(mover, Origin.Room, ref circumstances, out var visual, out var olfactory))
 			{
 				continue;
 			}
@@ -646,19 +646,19 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 				visual,
 				olfactory);
 			mover.Gameworld.Add(track);
-			Origin.Cell.AddTrack(track);
+			Origin.Room.AddTrack(track);
 		}
 	}
 
 	private string DirectionName()
 	{
-		var route = Origin.Cell.RouteDefinition!;
-		return Direction == RouteCellDirection.Positive
+		var route = Origin.Room.RouteDefinition!;
+		return Direction == RouteRoomDirection.Positive
 			? route.PositiveDirectionName
 			: route.NegativeDirectionName;
 	}
 
-	private static double ResolveCharacterSpeed(ICharacter character, IRouteCellDefinition route)
+	private static double ResolveCharacterSpeed(ICharacter character, IRouteRoomDefinition route)
 	{
 		// A normal walking gait is approximately 1.4m/s. Existing movement-speed multipliers
 		// represent relative duration, so smaller values produce faster longitudinal travel.
@@ -789,7 +789,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		foreach (var locateable in locateables)
 		{
 			var location = spatialService.GetEffectiveLocation(locateable);
-			if (!ReferenceEquals(location.Cell, origin.Cell) || location.Layer != origin.Layer ||
+			if (!ReferenceEquals(location.Room, origin.Room) || location.Layer != origin.Layer ||
 				!location.RoutePositionMetres.HasValue ||
 				Math.Abs(location.RoutePositionMetres.Value - origin.RoutePositionMetres!.Value) > immediate)
 			{

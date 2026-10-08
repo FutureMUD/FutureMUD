@@ -134,7 +134,7 @@ internal partial class EconomyModule : Module<ICharacter>
             return true;
         }
 
-        IEconomicZone zone = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ProbateOfficeCells.Contains(actor.Location));
+        IEconomicZone zone = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ProbateOfficeRooms.Contains(actor.Location));
         if (zone != null)
         {
             return true;
@@ -146,7 +146,7 @@ internal partial class EconomyModule : Module<ICharacter>
 
     private static IEconomicZone CurrentProbateOfficeZone(ICharacter actor)
     {
-        return actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ProbateOfficeCells.Contains(actor.Location));
+        return actor.Gameworld.EconomicZones.FirstOrDefault(x => x.ProbateOfficeRooms.Contains(actor.Location));
     }
 
     private static bool CanViewEstate(ICharacter actor, IEstate estate)
@@ -355,7 +355,7 @@ internal partial class EconomyModule : Module<ICharacter>
 
     private static IEconomicZone CurrentMorgueOfficeZone(ICharacter actor)
     {
-        return actor.Gameworld.EconomicZones.FirstOrDefault(x => x.MorgueOfficeCell == actor.Location);
+        return actor.Gameworld.EconomicZones.FirstOrDefault(x => x.MorgueOfficeRoom == actor.Location);
     }
 
     private static bool EnsureMorgueOffice(ICharacter actor, out IEconomicZone zone)
@@ -3155,14 +3155,14 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
-        if (shop.ShopfrontCells.Contains(actor.Location) && shop.ShopfrontCells.Count() == 1)
+        if (shop.ShopfrontRooms.Contains(actor.Location) && shop.ShopfrontRooms.Count() == 1)
         {
             actor.OutputHandler.Send(
                 "You cannot remove the last shopfront location from a shop. You must add a new one before you can remove this one.");
             return;
         }
 
-        ICell location = actor.Location;
+        IRoom location = actor.Location;
         actor.OutputHandler.Send(
             $"Are you sure you want to remove this location from the shop?\nType {"accept".ColourCommand()} to accept or {"decline".ColourCommand()} to change your mind.");
         actor.AddEffect(new Accept(actor, new GenericProposal
@@ -3171,19 +3171,19 @@ Additionally, you can use the following shop admin subcommands:
             {
                 actor.OutputHandler.Send(
                     $"You remove {location.HowSeen(actor)} from {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
-                if (location == shop.WorkshopCell)
+                if (location == shop.WorkshopRoom)
                 {
-                    shop.WorkshopCell = null;
+                    shop.WorkshopRoom = null;
                     return;
                 }
 
-                if (location == shop.StockroomCell)
+                if (location == shop.StockroomRoom)
                 {
-                    shop.StockroomCell = null;
+                    shop.StockroomRoom = null;
                     return;
                 }
 
-                shop.RemoveShopfrontCell(location);
+                shop.RemoveShopfrontRoom(location);
                 location.Shop = null;
             },
             RejectAction = text =>
@@ -3240,7 +3240,7 @@ Additionally, you can use the following shop admin subcommands:
             return;
         }
 
-        ICellExit exit = actor.Location.GetExitKeyword(command.PopSpeech(), actor);
+        IRoomExit exit = actor.Location.GetExitKeyword(command.PopSpeech(), actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit.");
@@ -3256,7 +3256,7 @@ Additionally, you can use the following shop admin subcommands:
 
         if (command.IsFinished)
         {
-            shop.AddShopfrontCell(exit.Destination);
+            shop.AddShopfrontRoom(exit.Destination);
             exit.Destination.Shop = shop;
             actor.OutputHandler.Send(
                 $"You add {exit.Destination.HowSeen(actor)} ({exit.OutboundMovementSuffix}) to the shop {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
@@ -3269,14 +3269,14 @@ Additionally, you can use the following shop admin subcommands:
             case "storeroom":
             case "stock":
             case "stockroom":
-                shop.StockroomCell = exit.Destination;
+                shop.StockroomRoom = exit.Destination;
                 exit.Destination.Shop = shop;
                 actor.OutputHandler.Send(
                     $"You set {exit.Destination.HowSeen(actor)} ({exit.OutboundMovementSuffix}) as the stockroom for shop {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
                 return;
             case "work":
             case "workshop":
-                shop.WorkshopCell = exit.Destination;
+                shop.WorkshopRoom = exit.Destination;
                 exit.Destination.Shop = shop;
                 actor.OutputHandler.Send(
                     $"You set {exit.Destination.HowSeen(actor)} ({exit.OutboundMovementSuffix}) as the workshop for shop {shop.Name.TitleCase().Colour(Telnet.Cyan)}.");
@@ -3509,7 +3509,7 @@ Additionally, you can use the following shop admin subcommands:
                 shop.IsTrading.ToString(actor),
                 shop.ActiveEmploymentContracts().Count().ToString("N0", actor),
                 shop.EmployeesOnDuty.Count().ToString("N0", actor),
-                pshop?.ShopfrontCells.Select(x =>
+                pshop?.ShopfrontRooms.Select(x =>
                     x.GetFriendlyReference(actor).FluentTagMXP("send",
                         $"href='goto {x.Id}'")).FirstOrDefault() ?? "",
                 shop.EconomicZone.Name,
@@ -6156,7 +6156,7 @@ The syntax for using this command is as follows:
 	#3auction set withdraw <amount>#0 - withdraws cash from the auction house reserve
 	#3auction set ledger [count]#0 - reviews reserve ledger entries
 	#3auction set time <time period>#0 - sets the amount of time auctions run for
-	#3auction set location#0 - changes the location of the auction house to the current cell
+	#3auction set location#0 - changes the location of the auction house to the current room
 
 There is also the player version of the command, which is used to interact with auction houses, and it must be used at a location that is an auction house. You should also see the related command AUCTIONS.
 
@@ -6244,7 +6244,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
                 return;
         }
 
-        IAuctionHouse auctionHouse = actor.Gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseCell == actor.Location);
+        IAuctionHouse auctionHouse = actor.Gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseRoom == actor.Location);
         if (auctionHouse == null)
         {
             actor.OutputHandler.Send("You are not currently at an auction house.");
@@ -6297,7 +6297,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
             return false;
         }
 
-        var auctionHouse = actor.Gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseCell == actor.Location);
+        var auctionHouse = actor.Gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseRoom == actor.Location);
         return EmploymentCommandService.CanViewManagerAliasHelp(actor, auctionHouse);
     }
 
@@ -6358,7 +6358,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
         }
 
         gameitem.RoomLayer = actor.RoomLayer;
-        auctionHouse.AuctionHouseCell.Insert(gameitem);
+        auctionHouse.AuctionHouseRoom.Insert(gameitem);
     }
 
     private static void AuctionClaim(ICharacter actor, IAuctionHouse auctionHouse, StringStack ss)
@@ -6619,7 +6619,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
 				if (!propertySale && SpellOwnedItemValuePolicy.ContainsTemporaryValue(item))
 				{ actor.OutputHandler.Send("You cannot auction temporary spell-created material."); return; }
 
-                if (actor.Location != auctionHouse.AuctionHouseCell)
+                if (actor.Location != auctionHouse.AuctionHouseRoom)
                 {
                     actor.OutputHandler.Send($"You are no longer in the auction house.");
                     return;
@@ -7050,7 +7050,7 @@ Note: Admins can use the #3auction cancel#0 subcommand on other people's items";
     [HelpInfo("auctions", AuctionsHelp, AutoHelp.HelpArgOrNoArg)]
     protected static void Auctions(ICharacter actor, string command)
     {
-        IAuctionHouse auctionHouse = actor.Gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseCell == actor.Location);
+        IAuctionHouse auctionHouse = actor.Gameworld.AuctionHouses.FirstOrDefault(x => x.AuctionHouseRoom == actor.Location);
         if (auctionHouse == null)
         {
             actor.OutputHandler.Send("You are not currently at an auction house.");
@@ -8790,7 +8790,7 @@ The syntax for this command is as follows:
 
     private static void MorgueList(ICharacter actor, IEconomicZone zone)
     {
-        ICell storage = zone.MorgueStorageCell;
+        IRoom storage = zone.MorgueStorageRoom;
         if (storage == null)
         {
             actor.OutputHandler.Send("This morgue does not have a storage room configured.");
@@ -8885,7 +8885,7 @@ The syntax for this command is as follows:
             return;
         }
 
-        List<IGameItem> corpses = zone.MorgueStorageCell?.GameItems
+        List<IGameItem> corpses = zone.MorgueStorageRoom?.GameItems
             .Where(x => x.EffectsOfType<MorgueStoredCorpse>().Any(y => y.EconomicZoneId == zone.Id))
             .ToList() ?? new List<IGameItem>();
         IGameItem corpse = long.TryParse(ss.SafeRemainingArgument, out long value)
@@ -8905,7 +8905,7 @@ The syntax for this command is as follows:
         }
 
         corpse.RemoveEffect(effect, true);
-        zone.MorgueStorageCell.Extract(corpse);
+        zone.MorgueStorageRoom.Extract(corpse);
         corpse.RoomLayer = actor.RoomLayer;
         corpse.InsertAtSource(actor, true);
         actor.OutputHandler.Send(
@@ -8920,7 +8920,7 @@ The syntax for this command is as follows:
             return;
         }
 
-        List<IGameItem> bundles = zone.MorgueStorageCell?.GameItems
+        List<IGameItem> bundles = zone.MorgueStorageRoom?.GameItems
             .Where(x => x.EffectsOfType<MorgueBelongings>().Any(y => y.EconomicZoneId == zone.Id))
             .ToList() ?? new List<IGameItem>();
         List<IGameItem> items = bundles
@@ -9013,7 +9013,7 @@ You should also see the JOB command for ways to interact with these jobs.", Auto
                 $"You are currently working at {load.ToString("P0", actor).ColourValue()} of a full time work load.");
         }
 
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingRooms.Contains(actor.Location));
         if (ez is null)
         {
             sb.AppendLine($"\nYou are not at a location where jobs can be posted or accepted.");
@@ -9174,7 +9174,7 @@ Note: There may be additional properties that can be edited depending on the typ
         }
 
         ss = ss.GetUndo();
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingRooms.Contains(actor.Location));
         if (ez is null)
         {
             actor.OutputHandler.Send($"You are not at a location where jobs can be interacted with.");
@@ -9261,7 +9261,7 @@ Note: There may be additional properties that can be edited depending on the typ
             return;
         }
 
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingRooms.Contains(actor.Location));
         if (ez is null)
         {
             string ezname = ss.PopSpeech();
@@ -9848,7 +9848,7 @@ Note: There may be additional properties that can be edited depending on the typ
 
     private static void JobApply(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingRooms.Contains(actor.Location));
         List<IJobListing> jobs = actor.Gameworld.JobListings
                         .Where(x => !x.IsArchived && x.IsReadyToBePosted && x.EconomicZone == ez)
                         .OrderByDescending(x => x.IsEligibleForJob(actor).Truth)
@@ -9930,7 +9930,7 @@ Note: There may be additional properties that can be edited depending on the typ
 
     private static void JobPreview(ICharacter actor, StringStack ss)
     {
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingRooms.Contains(actor.Location));
         List<IJobListing> jobs =
                 ez is not null
                     ? actor.Gameworld.JobListings
@@ -9972,7 +9972,7 @@ Note: There may be additional properties that can be edited depending on the typ
             return;
         }
 
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingRooms.Contains(actor.Location));
         if (ez is null)
         {
             string ezname = ss.PopSpeech();
@@ -10014,7 +10014,7 @@ Note: There may be additional properties that can be edited depending on the typ
             return;
         }
 
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingRooms.Contains(actor.Location));
         if (ez is null)
         {
             string ezname = ss.PopSpeech();
@@ -10060,7 +10060,7 @@ Note: There may be additional properties that can be edited depending on the typ
             return;
         }
 
-        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingCells.Contains(actor.Location));
+        IEconomicZone ez = actor.Gameworld.EconomicZones.FirstOrDefault(x => x.JobFindingRooms.Contains(actor.Location));
         if (ez is null)
         {
             actor.OutputHandler.Send($"You are not at a location where jobs can be posted.");

@@ -109,7 +109,7 @@ public sealed class VehicleJourney : SaveableItem, IVehicleJourney
 		if (Route is VehicleRoute route && !route.TopologyIsCurrent)
 		{
 			Transition(VehicleJourneyState.Faulted, VehicleJourneyEventType.Faulted,
-				"The pinned RouteCell topology changed; the journey failed closed.");
+				"The pinned RouteRoom topology changed; the journey failed closed.");
 			return;
 		}
 		switch (_state)
@@ -394,10 +394,10 @@ public sealed class VehicleJourney : SaveableItem, IVehicleJourney
 		"service" => Service, "route" => Route, "vehicleid" => new NumberVariable(Vehicle.Id),
 		"state" => new TextVariable(State.DescribeEnum()),
 		"currentstop" => CurrentStop is { } currentStop
-			? currentStop.Location.Cell
+			? currentStop.Location.Room
 			: new NullVariable(ProgVariableTypes.Location),
 		"nextstop" => NextStop is { } nextStop
-			? nextStop.Location.Cell
+			? nextStop.Location.Room
 			: new NullVariable(ProgVariableTypes.Location),
 		"delay" => new TimeSpanVariable(Delay), "scheduleddeparture" => ScheduledDeparture,
 		"expecteddeparture" => ExpectedDeparture, "boardingopen" => new BooleanVariable(BoardingOpen),
@@ -424,7 +424,7 @@ public sealed class VehicleJourney : SaveableItem, IVehicleJourney
 				["id"] = "The durable journey identity.", ["operationid"] = "The idempotent operation identity.",
 				["service"] = "The owning service.", ["route"] = "The pinned route revision.",
 				["vehicleid"] = "The vehicle identity.", ["state"] = "The current journey state.",
-				["currentstop"] = "The current stop cell.", ["nextstop"] = "The next stop cell.",
+				["currentstop"] = "The current stop room.", ["nextstop"] = "The next stop room.",
 				["delay"] = "The accumulated delay.", ["scheduleddeparture"] = "The scheduled departure.",
 				["expecteddeparture"] = "The delay-adjusted departure.", ["boardingopen"] = "Whether boarding is open.",
 				["statusreason"] = "The hold, cancellation, or fault reason."

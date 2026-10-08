@@ -119,11 +119,11 @@ public sealed class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicSpellEffe
             return null;
         }
 
-        ICell cell = target as ICell ?? caster.Location;
+        IRoom room = target as IRoom ?? caster.Location;
 		var casterLocation = RouteSpatialService.Instance.GetEffectiveLocation(caster);
-		var spawnLocation = ReferenceEquals(cell, casterLocation.Cell)
+		var spawnLocation = ReferenceEquals(room, casterLocation.Room)
 			? casterLocation
-			: CharacterInstanceService.CreateDefaultSpawnLocation(cell, RoomLayer.GroundLevel);
+			: CharacterInstanceService.CreateDefaultSpawnLocation(room, RoomLayer.GroundLevel);
 
 		if (LifecycleMode is not null || _loadError is not null)
 		{
@@ -171,9 +171,9 @@ public sealed class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicSpellEffe
 		if (NPCTemplate is not { } template || template.Status != RevisionStatus.Current)
 		{ error = "The NPC template is missing or not approved."; return false; }
 		var casterLocation = RouteSpatialService.Instance.GetEffectiveLocation(caster);
-		var cell = target as ICell ?? casterLocation.Cell;
-		var location = ReferenceEquals(cell, casterLocation.Cell) ? casterLocation : CharacterInstanceService.CreateDefaultSpawnLocation(cell, RoomLayer.GroundLevel);
-		if (!ReferenceEquals(caster.Gameworld, Gameworld) || !ReferenceEquals(cell.Gameworld, Gameworld) ||
+		var room = target as IRoom ?? casterLocation.Room;
+		var location = ReferenceEquals(room, casterLocation.Room) ? casterLocation : CharacterInstanceService.CreateDefaultSpawnLocation(room, RoomLayer.GroundLevel);
+		if (!ReferenceEquals(caster.Gameworld, Gameworld) || !ReferenceEquals(room.Gameworld, Gameworld) ||
 			!RouteSpatialService.Instance.TryValidateLocation(location, out error)) return false;
 		try
 		{

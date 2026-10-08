@@ -423,11 +423,11 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
                 }
             }
 
-            foreach (ICell cell in AudibleSurrounds(body))
+            foreach (IRoom room in AudibleSurrounds(body))
             {
-                foreach (ICharacter character in cell.Characters)
+                foreach (ICharacter character in room.Characters)
                 {
-                    ICellExit exit = body.Location.GetExitTo(cell, character);
+                    IRoomExit exit = body.Location.GetExitTo(room, character);
                     character.OutputHandler.Send(new EmoteOutput(new Emote(
                         $"You hear a muffled yell {(exit != null ? exit.InboundDirectionSuffix : "from somewhere unknown")}.",
                         body.Actor), flags: OutputFlags.PurelyAudible | OutputFlags.NoticeCheckRequired));
@@ -478,11 +478,11 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             }
         }
 
-        foreach (ICell cell in AudibleSurrounds(body))
+        foreach (IRoom room in AudibleSurrounds(body))
         {
-            foreach (ICharacter character in cell.Characters)
+            foreach (ICharacter character in room.Characters)
             {
-                ICellExit exit = body.Location.GetExitTo(cell, character);
+                IRoomExit exit = body.Location.GetExitTo(room, character);
                 character.OutputHandler.Send(new LanguageOutput(new Emote(
                     $"You hear a {body.Gender.GenderClass()} voice {(exit != null ? exit.InboundDirectionSuffix : "from somewhere unknown")} yell",
                     body.Actor), otherRoomLanginfo, emote));
@@ -602,11 +602,11 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
                 }
             }
 
-            foreach (ICell cell in AudibleSurrounds(body))
+            foreach (IRoom room in AudibleSurrounds(body))
             {
-                foreach (ICharacter character in cell.Characters)
+                foreach (ICharacter character in room.Characters)
                 {
-                    ICellExit exit = body.Location.GetExitTo(cell, character);
+                    IRoomExit exit = body.Location.GetExitTo(room, character);
                     character.OutputHandler.Send(new EmoteOutput(
                         new Emote(
                             $"You hear a muffled shout {(exit != null ? exit.InboundDirectionSuffix : "from somewhere unknown")}.",
@@ -663,28 +663,28 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
             }
         }
 
-        List<ICell> allCells = CellsInAudibleVicinity(body, 2).ToList();
-        List<ICell> surrounds = AudibleSurrounds(body).ToList();
-        foreach (ICell cell in allCells)
+        List<IRoom> allRooms = RoomsInAudibleVicinity(body, 2).ToList();
+        List<IRoom> surrounds = AudibleSurrounds(body).ToList();
+        foreach (IRoom room in allRooms)
         {
-            if (cell == body.Location)
+            if (room == body.Location)
             {
                 continue;
             }
 
-            foreach (ICharacter character in cell.Characters)
+            foreach (ICharacter character in room.Characters)
             {
                 string directionText = string.Empty;
                 SpokenLanguageInfo info;
-                if (surrounds.Contains(cell))
+                if (surrounds.Contains(room))
                 {
-                    directionText = body.Location.GetExitTo(cell, character)?.InboundDirectionSuffix ??
+                    directionText = body.Location.GetExitTo(room, character)?.InboundDirectionSuffix ??
                                     "from somewhere unknown";
                     info = secondRoomLanginfo;
                 }
                 else
                 {
-                    directionText = cell.PathBetween(body.Actor, 2, PathSearch.IgnorePresenceOfDoors)
+                    directionText = room.PathBetween(body.Actor, 2, PathSearch.IgnorePresenceOfDoors)
                                         .DescribeDirectionsToFrom();
                     info = thirdRoomLanginfo;
                 }
@@ -826,7 +826,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 			.Distinct();
 	}
 
-	private static IEnumerable<ICell> AudibleSurrounds(IBody body)
+	private static IEnumerable<IRoom> AudibleSurrounds(IBody body)
 	{
 		return body.Location.RouteDefinition is null
 			? body.Location.Surrounds
@@ -835,22 +835,22 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 				.Distinct();
 	}
 
-	private static IEnumerable<ICell> CellsInAudibleVicinity(IBody body, uint range)
+	private static IEnumerable<IRoom> RoomsInAudibleVicinity(IBody body, uint range)
 	{
 		if (body.Location.RouteDefinition is null)
 		{
-			return body.Location.CellsInVicinity(range, exit => true, cell => true);
+			return body.Location.RoomsInVicinity(range, exit => true, room => true);
 		}
 
-		var visited = new HashSet<ICell>(ReferenceEqualityComparer.Instance) { body.Location };
-		var frontier = new HashSet<ICell>(AudibleSurrounds(body), ReferenceEqualityComparer.Instance);
+		var visited = new HashSet<IRoom>(ReferenceEqualityComparer.Instance) { body.Location };
+		var frontier = new HashSet<IRoom>(AudibleSurrounds(body), ReferenceEqualityComparer.Instance);
 		for (var step = 0U; step < range && frontier.Count > 0; step++)
 		{
 			var current = frontier.ToArray();
 			frontier.Clear();
-			foreach (var cell in current)
+			foreach (var room in current)
 			{
-				if (!visited.Add(cell))
+				if (!visited.Add(room))
 				{
 					continue;
 				}
@@ -860,7 +860,7 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 					continue;
 				}
 
-				foreach (var adjacent in cell.Surrounds.Where(x => !visited.Contains(x)))
+				foreach (var adjacent in room.Surrounds.Where(x => !visited.Contains(x)))
 				{
 					frontier.Add(adjacent);
 				}

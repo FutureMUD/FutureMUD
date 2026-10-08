@@ -32,7 +32,7 @@ public partial class LegalAuthority
             case "jaillocation":
                 return JailLocation;
             case "celllocations":
-                return new CollectionVariable(CellLocations.ToList(), ProgVariableTypes.Location);
+                return new CollectionVariable(RoomLocations.ToList(), ProgVariableTypes.Location);
             case "jaillocations":
                 return new CollectionVariable(JailLocations.ToList(), ProgVariableTypes.Location);
             case "laws":

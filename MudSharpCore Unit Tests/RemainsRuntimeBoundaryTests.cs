@@ -37,7 +37,7 @@ public partial class RemainsRuntimeBoundaryTests
 		public Mock<IGameItem> Item { get; } = new();
 		public Mock<ICorpse> Corpse { get; } = new();
 		public Mock<ISeveredBodypart> Part { get; } = new();
-		public Mock<ICell> Source { get; } = new();
+		public Mock<IRoom> Source { get; } = new();
 		public Mock<IOutputHandler> Output { get; } = new();
 		public Mock<INeedsModel> Needs { get; } = new();
 		public RuntimeBody Eater { get; }
@@ -47,7 +47,7 @@ public partial class RemainsRuntimeBoundaryTests
 			World.Setup(x => x.GetStaticConfiguration("EnvironmentalExposureMode")).Returns("Enabled");
 			World.Setup(x => x.UnitManager.BaseFluidToLitres).Returns(1.0);
 			World.SetupGet(x => x.Actors).Returns(new All<ICharacter>());
-			World.SetupGet(x => x.Cells).Returns(new All<ICell>());
+			World.SetupGet(x => x.Rooms).Returns(new All<IRoom>());
 			World.SetupGet(x => x.Estates).Returns(new All<IEstate>());
 			var items = new All<IGameItem>();
 			Item.SetupGet(x => x.Id).Returns(1);
@@ -143,8 +143,8 @@ public partial class RemainsRuntimeBoundaryTests
 			f.Actor.SetupGet(x => x.Body).Returns(current.Object);
 		}
 		// Intake must not use the held-item body (the eater) as the corpse anatomy.
-		var zone = new Mock<IEconomicZone>(); var storage = new Mock<ICell>();
-		zone.SetupGet(x => x.MorgueStorageCell).Returns(storage.Object);
+		var zone = new Mock<IEconomicZone>(); var storage = new Mock<IRoom>();
+		zone.SetupGet(x => x.MorgueStorageRoom).Returns(storage.Object);
 		var relocations = 0; var effects = 0;
 		storage.Setup(x => x.Insert(f.Item.Object, true)).Callback(() => relocations++);
 		f.Item.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback(() => effects++);

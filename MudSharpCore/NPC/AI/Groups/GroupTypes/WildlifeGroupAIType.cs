@@ -47,8 +47,8 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 	public WildlifeGroupKind Kind { get; private set; }
 	public WildlifeGroupTactic Tactic { get; private set; }
 	public GroupAIControlScope ControlScope { get; private set; }
-	public IFutureProg PreferredCellProg { get; private set; } = null!;
-	public IFutureProg ShelterCellProg { get; private set; } = null!;
+	public IFutureProg PreferredRoomProg { get; private set; } = null!;
+	public IFutureProg ShelterRoomProg { get; private set; } = null!;
 	public int MovementRange { get; private set; }
 	public double WanderChancePerMinute { get; private set; }
 
@@ -97,8 +97,8 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 		Kind = kind;
 		Tactic = tactic;
 		ControlScope = DefaultScopeFor(tactic);
-		PreferredCellProg = gameworld.AlwaysTrueProg;
-		ShelterCellProg = gameworld.AlwaysFalseProg;
+		PreferredRoomProg = gameworld.AlwaysTrueProg;
+		ShelterRoomProg = gameworld.AlwaysFalseProg;
 		MovementRange = DefaultMovementRange;
 		WanderChancePerMinute = 0.25;
 	}
@@ -113,9 +113,9 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 			? tactic
 			: WildlifeGroupTactic.Timid;
 		ControlScope = ParseScope(root.Element("ControlScope")?.Value, DefaultScopeFor(Tactic));
-		PreferredCellProg = gameworld.FutureProgs.Get(long.Parse(root.Element("PreferredCellProg")?.Value ?? "0")) ??
+		PreferredRoomProg = gameworld.FutureProgs.Get(long.Parse(root.Element("PreferredCellProg")?.Value ?? "0")) ??
 			gameworld.AlwaysTrueProg;
-		ShelterCellProg = gameworld.FutureProgs.Get(long.Parse(root.Element("ShelterCellProg")?.Value ?? "0")) ??
+		ShelterRoomProg = gameworld.FutureProgs.Get(long.Parse(root.Element("ShelterCellProg")?.Value ?? "0")) ??
 			gameworld.AlwaysFalseProg;
 		MovementRange = Math.Max(1, int.Parse(root.Element("MovementRange")?.Value ?? DefaultMovementRange.ToString()));
 		WanderChancePerMinute = Math.Clamp(double.Parse(root.Element("WanderChancePerMinute")?.Value ?? "0.25"), 0.0, 1.0);
@@ -162,8 +162,8 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 			new XElement("Kind", Kind),
 			new XElement("Tactic", Tactic),
 			new XElement("ControlScope", ControlScope),
-			new XElement("PreferredCellProg", PreferredCellProg?.Id ?? 0),
-			new XElement("ShelterCellProg", ShelterCellProg?.Id ?? 0),
+			new XElement("PreferredCellProg", PreferredRoomProg?.Id ?? 0),
+			new XElement("ShelterCellProg", ShelterRoomProg?.Id ?? 0),
 			new XElement("MovementRange", MovementRange),
 			new XElement("WanderChancePerMinute", WanderChancePerMinute));
 	}
@@ -233,10 +233,10 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 		if ((!active || membersRequireRest) && ControlScope.HasFlag(GroupAIControlScope.Activity) && !survivalNeed)
 		{
 			SetAction(group, GroupAction.Sleep);
-			if (ControlScope.HasFlag(GroupAIControlScope.Shelter) && data.HomeCell is not null &&
-			    !ReferenceEquals(leader.Location, data.HomeCell))
+			if (ControlScope.HasFlag(GroupAIControlScope.Shelter) && data.HomeRoom is not null &&
+			    !ReferenceEquals(leader.Location, data.HomeRoom))
 			{
-				PathMemberToLocation(leader, group, data.HomeCell);
+				PathMemberToLocation(leader, group, data.HomeRoom);
 			}
 
 			return;
@@ -248,12 +248,12 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 			return;
 		}
 
-		if (ControlScope.HasFlag(GroupAIControlScope.Shelter) && data.HomeCell is null &&
+		if (ControlScope.HasFlag(GroupAIControlScope.Shelter) && data.HomeRoom is null &&
 			(Tactic.In(WildlifeGroupTactic.Territorial, WildlifeGroupTactic.Roosting) ||
 			 Kind.In(WildlifeGroupKind.Family, WildlifeGroupKind.Colony)) &&
-			ShelterCellProg.ExecuteBool(false, leader, leader.Location))
+			ShelterRoomProg.ExecuteBool(false, leader, leader.Location))
 		{
-			data.HomeCell = leader.Location;
+			data.HomeRoom = leader.Location;
 			group.Changed = true;
 		}
 
@@ -264,10 +264,10 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 			return;
 		}
 
-		IEnumerable<ICellExit> exits = leader.Location.ExitsFor(leader)
+		IEnumerable<IRoomExit> exits = leader.Location.ExitsFor(leader)
 			.Where(CanMoveExitFunctionFor(leader, group));
-		ICellExit? destination = exits
-			.Where(x => PreferredCellProg.ExecuteBool(false, leader, x.Destination))
+		IRoomExit? destination = exits
+			.Where(x => PreferredRoomProg.ExecuteBool(false, leader, x.Destination))
 			.GetRandomElement() ?? exits.GetRandomElement();
 		if (destination is not null && leader.CanMove(destination))
 		{
@@ -293,9 +293,9 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 			case "scope":
 				return SetScope(actor, command);
 			case "preferred":
-				return SetCellProg(actor, command, x => PreferredCellProg = x, "preferred wildlife habitat");
+				return SetRoomProg(actor, command, x => PreferredRoomProg = x, "preferred wildlife habitat");
 			case "shelter":
-				return SetCellProg(actor, command, x => ShelterCellProg = x, "wildlife shelter or roost");
+				return SetRoomProg(actor, command, x => ShelterRoomProg = x, "wildlife shelter or roost");
 			case "range":
 				return SetRange(actor, command);
 			case "wander":
@@ -305,13 +305,13 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 				return SetActivity(actor, command);
 		}
 
-		actor.OutputHandler.Send("You can set #3kind <kind>#0, #3tactic <tactic>#0, #3scope <scopes>#0, #3preferred <prog>#0, #3shelter <prog>#0, #3range <cells>#0, #3wander <percent>#0 or #3activity <pattern>#0.".SubstituteANSIColour());
+		actor.OutputHandler.Send("You can set #3kind <kind>#0, #3tactic <tactic>#0, #3scope <scopes>#0, #3preferred <prog>#0, #3shelter <prog>#0, #3range <rooms>#0, #3wander <percent>#0 or #3activity <pattern>#0.".SubstituteANSIColour());
 		return false;
 	}
 
 	public string Show(ICharacter actor)
 	{
-		return $"Wildlife Group Settings\n\nKind: {Kind.DescribeEnum().ColourName()}\nTactic: {Tactic.DescribeEnum().ColourName()}\nControl Scope: {ControlScope.ToString().ColourValue()}\nPreferred Habitat Prog: {PreferredCellProg.MXPClickableFunctionName()}\nShelter Prog: {ShelterCellProg.MXPClickableFunctionName()}\nMovement Range: {MovementRange.ToString("N0", actor).ColourValue()}\nWander Chance: {WanderChancePerMinute.ToString("P2", actor).ColourValue()}\nActivity: {GroupActivityTimeDescription.ColourName()}";
+		return $"Wildlife Group Settings\n\nKind: {Kind.DescribeEnum().ColourName()}\nTactic: {Tactic.DescribeEnum().ColourName()}\nControl Scope: {ControlScope.ToString().ColourValue()}\nPreferred Habitat Prog: {PreferredRoomProg.MXPClickableFunctionName()}\nShelter Prog: {ShelterRoomProg.MXPClickableFunctionName()}\nMovement Range: {MovementRange.ToString("N0", actor).ColourValue()}\nWander Chance: {WanderChancePerMinute.ToString("P2", actor).ColourValue()}\nActivity: {GroupActivityTimeDescription.ColourName()}";
 	}
 
 	/// <summary>
@@ -571,10 +571,10 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 
 	private void MoveAway(ICharacter leader, IGroupAI group, IEnumerable<ICharacter> threats)
 	{
-		HashSet<ICell> threatCells = threats.Select(x => x.Location).ToHashSet();
-		ICellExit? exit = leader.Location.ExitsFor(leader)
+		HashSet<IRoom> threatRooms = threats.Select(x => x.Location).ToHashSet();
+		IRoomExit? exit = leader.Location.ExitsFor(leader)
 			.Where(CanMoveExitFunctionFor(leader, group))
-			.Where(x => !threatCells.Contains(x.Destination))
+			.Where(x => !threatRooms.Contains(x.Destination))
 			.GetRandomElement();
 		if (exit is not null && leader.CanMove(exit))
 		{
@@ -595,9 +595,9 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 		}
 	}
 
-	private bool PathMemberToLocation(ICharacter member, IGroupAI group, ICell destination)
+	private bool PathMemberToLocation(ICharacter member, IGroupAI group, IRoom destination)
 	{
-		List<ICellExit> path = member.PathBetween(destination, (uint)MovementRange,
+		List<IRoomExit> path = member.PathBetween(destination, (uint)MovementRange,
 			CanMoveExitFunctionFor(member, group)).ToList();
 		if (!path.Any())
 		{
@@ -625,7 +625,7 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 
 	/// <summary>
 	/// Lets a group that owns Feeding consume the same live forage yields as an individual
-	/// AnimalAI. Each successful bite depletes the cell normally; when a hungry or thirsty member
+	/// AnimalAI. Each successful bite depletes the room normally; when a hungry or thirsty member
 	/// can no longer feed locally, the leader moves the group to a reachable preferred patch.
 	/// </summary>
 	private bool CoordinateForaging(IGroupAI group, IEnumerable<ICharacter> members, ICharacter leader,
@@ -665,9 +665,9 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 			return true;
 		}
 
-		ICellExit? destination = leader.Location.ExitsFor(leader)
+		IRoomExit? destination = leader.Location.ExitsFor(leader)
 			.Where(CanMoveExitFunctionFor(leader, group))
-			.Where(x => PreferredCellProg.ExecuteBool(false, leader, x.Destination))
+			.Where(x => PreferredRoomProg.ExecuteBool(false, leader, x.Destination))
 			.Where(x => !data.WasRecentlyForaged(x.Destination))
 			.Where(x => members.Any(member =>
 				ForagerAIHelpers.HasFoodOpportunity(member, x.Destination) ||
@@ -758,11 +758,11 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 		return true;
 	}
 
-	private bool SetCellProg(ICharacter actor, StringStack command, Action<IFutureProg> setter, string label)
+	private bool SetRoomProg(ICharacter actor, StringStack command, Action<IFutureProg> setter, string label)
 	{
 		if (command.IsFinished)
 		{
-			actor.OutputHandler.Send($"Which prog should identify {label} cells?");
+			actor.OutputHandler.Send($"Which prog should identify {label} rooms?");
 			return false;
 		}
 
@@ -792,7 +792,7 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 		}
 
 		MovementRange = range;
-		actor.OutputHandler.Send($"This wildlife group will now use a {range.ToString("N0", actor).ColourValue()} cell movement range.");
+		actor.OutputHandler.Send($"This wildlife group will now use a {range.ToString("N0", actor).ColourValue()} room movement range.");
 		return true;
 	}
 
@@ -827,13 +827,13 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 
 	private sealed class WildlifeGroupData : BaseGroupTypeData
 	{
-		private long _homeCellId;
-		private long _lastForageCellId;
+		private long _homeRoomId;
+		private long _lastForageRoomId;
 		private DateTime _lastForageUtc;
-		public ICell? HomeCell
+		public IRoom? HomeRoom
 		{
-			get => _homeCellId > 0 ? Gameworld.Cells.Get(_homeCellId) : null;
-			set => _homeCellId = value?.Id ?? 0;
+			get => _homeRoomId > 0 ? Gameworld.Rooms.Get(_homeRoomId) : null;
+			set => _homeRoomId = value?.Id ?? 0;
 		}
 
 		public WildlifeGroupData(IFuturemud gameworld) : base(gameworld)
@@ -843,29 +843,29 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 
 		public WildlifeGroupData(XElement root, IFuturemud gameworld) : base(root, gameworld)
 		{
-			_homeCellId = long.Parse(root.Element("HomeCellId")?.Value ?? "0");
-			_lastForageCellId = long.Parse(root.Element("LastForageCellId")?.Value ?? "0");
+			_homeRoomId = long.Parse(root.Element("HomeCellId")?.Value ?? "0");
+			_lastForageRoomId = long.Parse(root.Element("LastForageCellId")?.Value ?? "0");
 			_lastForageUtc = DateTime.TryParse(root.Element("LastForageUtc")?.Value, out DateTime parsed)
 				? parsed
 				: DateTime.MinValue;
 		}
 
-		public void RecordForage(ICell cell)
+		public void RecordForage(IRoom room)
 		{
-			_lastForageCellId = cell.Id;
+			_lastForageRoomId = room.Id;
 			_lastForageUtc = RuntimeClock.UtcNow;
 		}
 
-		public bool WasRecentlyForaged(ICell cell)
+		public bool WasRecentlyForaged(IRoom room)
 		{
-			return cell.Id == _lastForageCellId && RuntimeClock.UtcNow - _lastForageUtc < TimeSpan.FromMinutes(5);
+			return room.Id == _lastForageRoomId && RuntimeClock.UtcNow - _lastForageUtc < TimeSpan.FromMinutes(5);
 		}
 
 		public override XElement SaveToXml()
 		{
 			XElement root = base.SaveToXml();
-			root.Add(new XElement("HomeCellId", _homeCellId));
-			root.Add(new XElement("LastForageCellId", _lastForageCellId));
+			root.Add(new XElement("HomeCellId", _homeRoomId));
+			root.Add(new XElement("LastForageCellId", _lastForageRoomId));
 			root.Add(new XElement("LastForageUtc", _lastForageUtc.ToString("o")));
 			return root;
 		}
@@ -873,8 +873,8 @@ public sealed class WildlifeGroupAIType : GroupAIType, IGroupAIControlPolicy, IE
 		public override string ShowText(ICharacter voyeur)
 		{
 			return base.ShowText(voyeur) +
-			       $"Home / Roost: {HomeCell?.GetFriendlyReference(voyeur).ColourName() ?? "None".ColourError()}\n" +
-			       $"Last Forage Cell: {_lastForageCellId.ToString("N0", voyeur).ColourValue()}\n";
+			       $"Home / Roost: {HomeRoom?.GetFriendlyReference(voyeur).ColourName() ?? "None".ColourError()}\n" +
+			       $"Last Forage Room: {_lastForageRoomId.ToString("N0", voyeur).ColourValue()}\n";
 		}
 	}
 }

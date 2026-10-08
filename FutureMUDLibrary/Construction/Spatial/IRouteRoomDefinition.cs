@@ -1,0 +1,54 @@
+#nullable enable
+
+using System.Collections.Generic;
+using MudSharp.Construction.Boundary;
+using MudSharp.Framework;
+
+namespace MudSharp.Construction;
+
+/// <summary>
+/// The authored one-dimensional spatial definition attached to a linear route room.
+/// Coordinates are expressed in metres from the negative endpoint and are inclusive in
+/// the range zero through <see cref="LengthMetres"/>.
+/// </summary>
+public interface IRouteRoomDefinition
+{
+	IRoom Room { get; }
+	double LengthMetres { get; }
+	double DefaultPositionMetres { get; }
+	string PositiveDirectionName { get; }
+	string NegativeDirectionName { get; }
+	double MetresPerRoomEquivalent { get; }
+	long TopologyVersion { get; }
+	IReadOnlyList<IRouteRoomLandmark> Landmarks { get; }
+	IReadOnlyCollection<IRouteExitAnchor> ExitAnchors { get; }
+}
+
+/// <summary>
+/// A named point used for navigation and local presentation within a route room.
+/// </summary>
+public interface IRouteRoomLandmark : IFrameworkItem, IKeyworded
+{
+	IRouteRoomDefinition RouteRoom { get; }
+	double PositionMetres { get; }
+	string Description { get; }
+	int DisplayOrder { get; }
+}
+
+/// <summary>
+/// The coordinate band in which one side of an exit can be used, together with the
+/// coordinate assigned on arrival through that side of the exit.
+/// </summary>
+public interface IRouteExitAnchor
+{
+	IRoomExit Exit { get; }
+	IRoom Room { get; }
+	double MinimumPositionMetres { get; }
+	double MaximumPositionMetres { get; }
+	double ArrivalPositionMetres { get; }
+
+	bool Contains(double positionMetres)
+	{
+		return positionMetres >= MinimumPositionMetres && positionMetres <= MaximumPositionMetres;
+	}
+}

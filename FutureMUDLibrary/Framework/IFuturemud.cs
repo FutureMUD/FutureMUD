@@ -151,8 +151,8 @@ namespace MudSharp.Framework
         IUneditableAll<IRaceButcheryProfile> RaceButcheryProfiles { get; }
         IUneditableAll<ICalendar> Calendars { get; }
         IUneditableAll<ICelestialObject> CelestialObjects { get; }
-        IUneditableRevisableAll<ICellOverlayPackage> CellOverlayPackages { get; }
-        IUneditableAll<ICell> Cells { get; }
+        IUneditableRevisableAll<IRoomOverlayPackage> RoomOverlayPackages { get; }
+        IUneditableAll<IRoom> Rooms { get; }
         IUneditableAll<IChannel> Channels { get; }
         IUneditableAll<ICharacteristicProfile> CharacteristicProfiles { get; }
         IUneditableAll<ICharacteristicDefinition> Characteristics { get; }
@@ -272,7 +272,6 @@ namespace MudSharp.Framework
         IUneditableAll<IRace> Races { get; }
         IUneditableAll<IRangedCover> RangedCovers { get; }
         IUneditableAll<IRangedWeaponType> RangedWeaponTypes { get; }
-        IUneditableAll<IRoom> Rooms { get; }
         IUneditableAll<IScript> Scripts { get; }
         IUneditableAll<IScriptedEvent> ScriptedEvents { get; }
         IUneditableAll<IShard> Shards { get; }
@@ -559,7 +558,6 @@ namespace MudSharp.Framework
         void Add(IChargenRole role);
         void Add(ISkyDescriptionTemplate template);
         void Add(IMaterial material);
-        void Add(ICell cell);
         void Add(IRoom room);
         void Add(IZone zone);
         void Add(IShard shard);
@@ -576,7 +574,7 @@ namespace MudSharp.Framework
         void Add(ICharacter actor, bool isNPC);
         void Add(IGameItem item);
         void Add(IOutfitTemplate template);
-        void Add(ICellOverlayPackage package);
+        void Add(IRoomOverlayPackage package);
         void Add(IGameItemProto proto);
         void Add(IGameItemComponentProto proto);
         void Add(IVehiclePrototype proto);
@@ -721,7 +719,7 @@ namespace MudSharp.Framework
         void Destroy(IEntityDescriptionPattern pattern);
         void Destroy(IPlayerConnection connection);
         void Destroy(INonCardinalExitTemplate template);
-        void Destroy(ICellOverlayPackage package);
+        void Destroy(IRoomOverlayPackage package);
         void Destroy(ICharacteristicDefinition definition);
         void Destroy(ICharacteristicProfile profile);
         void Destroy(ICharacteristicValue value);
@@ -739,7 +737,6 @@ namespace MudSharp.Framework
 		void Destroy(IVehicleJourney journey);
         void Destroy(IMagicPortalNetwork network);
         void Destroy(IAccount account);
-        void Destroy(ICell cell);
         void Destroy(IRoom room);
         void Destroy(IZone zone);
         void Destroy(IShard plane);

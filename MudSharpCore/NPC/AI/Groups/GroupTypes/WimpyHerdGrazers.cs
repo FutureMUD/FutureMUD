@@ -231,7 +231,7 @@ public class WimpyHerdGrazers : HerdGrazers
 
         if (group.Alertness > GroupAlertness.Agitated)
         {
-            foreach (ICell location in threats.Select(x => x.Location).Distinct())
+            foreach (IRoom location in threats.Select(x => x.Location).Distinct())
             {
                 data.KnownThreatLocations[location] = RuntimeClock.UtcNow;
                 group.Changed = true;
@@ -255,7 +255,7 @@ public class WimpyHerdGrazers : HerdGrazers
 
         ICharacter leader = main.FirstOrDefault(x => group.GroupRoles[x] == GroupRole.Leader) ?? main.FirstOrDefault();
         HandleAvoidThreatForSubgroup(group, data, threats, main, leader);
-        foreach (IGrouping<(ICell Location, RoomLayer RoomLayer), ICharacter> outsidergroup in outsiders.GroupBy(x => (x.Location, x.RoomLayer)))
+        foreach (IGrouping<(IRoom Location, RoomLayer RoomLayer), ICharacter> outsidergroup in outsiders.GroupBy(x => (x.Location, x.RoomLayer)))
         {
             HandleAvoidThreatForSubgroup(group, data, threats, outsidergroup, outsidergroup.GetRandomElement());
         }
@@ -264,35 +264,35 @@ public class WimpyHerdGrazers : HerdGrazers
     private void HandleAvoidThreatForSubgroup(IGroupAI group, HerdGrazerData data, IEnumerable<ICharacter> threats,
         IEnumerable<ICharacter> characters, ICharacter leader)
     {
-        List<(ICharacter Character, IEnumerable<ICellExit> Path)> threatPaths = threats
+        List<(ICharacter Character, IEnumerable<IRoomExit> Path)> threatPaths = threats
                           .Select(x => (Character: x, Path: leader.PathBetween(x, 5, PathSearch.RespectClosedDoors)))
                           .ToList();
         List<CardinalDirection> threatDirections = threatPaths.Select(x => x.Path)
-                                          .CountTotalDirections<IEnumerable<IEnumerable<ICellExit>>,
-                                              IEnumerable<ICellExit>>().ContainedDirections();
-        List<ICellExit> allExitsIncludingLayers = leader.Location
+                                          .CountTotalDirections<IEnumerable<IEnumerable<IRoomExit>>,
+                                              IEnumerable<IRoomExit>>().ContainedDirections();
+        List<IRoomExit> allExitsIncludingLayers = leader.Location
                                             .ExitsFor(leader, true)
                                             .Where(x => !x.MovementTransition(leader).TransitionType.In(
-                                                CellMovementTransition.FlyOnly,
-                                                CellMovementTransition.NoViableTransition))
+                                                RoomMovementTransition.FlyOnly,
+                                                RoomMovementTransition.NoViableTransition))
                                             .ToList();
-        List<ICellExit> allExits = leader.Location
+        List<IRoomExit> allExits = leader.Location
                              .ExitsFor(leader)
-                             .Where(x => !x.MovementTransition(leader).TransitionType.In(CellMovementTransition.FlyOnly,
-                                 CellMovementTransition.NoViableTransition))
+                             .Where(x => !x.MovementTransition(leader).TransitionType.In(RoomMovementTransition.FlyOnly,
+                                 RoomMovementTransition.NoViableTransition))
                              .ToList();
-        List<ICellExit> preferredExits = allExits
+        List<IRoomExit> preferredExits = allExits
                              .Where(x =>
                                  !threatDirections.Contains(x.OutboundDirection) &&
-                                 !group.AvoidCell(x.Destination, group.Alertness) &&
+                                 !group.AvoidRoom(x.Destination, group.Alertness) &&
                                  !x.MovementTransition(leader).TransitionType
-                                   .In(CellMovementTransition.FallExit, CellMovementTransition.SwimOnly)
+                                   .In(RoomMovementTransition.FallExit, RoomMovementTransition.SwimOnly)
                              )
                              .ToList();
 
         if (preferredExits.Any())
         {
-            ICellExit targetExit = preferredExits.GetRandomElement();
+            IRoomExit targetExit = preferredExits.GetRandomElement();
             foreach (ICharacter ch in characters)
             {
                 if (!ch.CanMove(targetExit, CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement))
@@ -308,7 +308,7 @@ public class WimpyHerdGrazers : HerdGrazers
 
         if (allExits.Any())
         {
-            ICellExit targetExit = allExits.GetRandomElement();
+            IRoomExit targetExit = allExits.GetRandomElement();
             foreach (ICharacter ch in characters)
             {
                 if (!ch.CanMove(targetExit, CanMoveFlags.IgnoreCancellableActionBlockers | CanMoveFlags.IgnoreSafeMovement))

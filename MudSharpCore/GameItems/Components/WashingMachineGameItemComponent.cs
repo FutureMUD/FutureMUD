@@ -115,7 +115,7 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
         return truth;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         ILockable newItemLockable = newItem?.GetItemType<ILockable>();
         if (newItemLockable != null)
@@ -996,7 +996,7 @@ public class WashingMachineGameItemComponent : GameItemComponent, ILiquidContain
             }
         }
 
-        ICell location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
+        IRoom location = emptier?.Location ?? Parent.TrueLocations.FirstOrDefault();
         List<IGameItem> contents = Contents.ToList();
         _laundryContents.Clear();
         if (emptier is not null)

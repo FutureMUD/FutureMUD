@@ -121,7 +121,7 @@ public class UsefulSeederAutobuilderTests
 			MovementRate = 0,
 			ForagableProfileId = 0,
 			AtmosphereType = "Gas",
-			DefaultCellOutdoorsType = 0,
+			DefaultRoomOutdoorsType = 0,
 			TerrainEditorText = "Vo",
 			CanHaveTracks = false,
 			TrackIntensityMultiplierVisual = 1.0,

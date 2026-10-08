@@ -9,29 +9,29 @@ namespace MudSharp.Construction;
 
 /// <summary>
 /// Finds weighted paths that can mix ordinary exit traversal with exact longitudinal
-/// movement inside linear route cells.
+/// movement inside linear route rooms.
 /// </summary>
 public interface ISpatialPathfinder
 {
 	bool TryFindPath(
 		SpatialLocation origin,
 		SpatialLocation destination,
-		Func<ICellExit, bool>? suitabilityFunction,
+		Func<IRoomExit, bool>? suitabilityFunction,
 		bool ignoreLayers,
 		double maximumRoomEquivalentCost,
 		out ISpatialPath? path);
 
 	/// <summary>
 	/// Compatibility adapter for consumers that can execute only ordinary exits. Returns false
-	/// when the cheapest spatial path includes any longitudinal route-cell movement.
+	/// when the cheapest spatial path includes any longitudinal route-room movement.
 	/// </summary>
 	bool TryFindExitOnlyPath(
 		SpatialLocation origin,
 		SpatialLocation destination,
-		Func<ICellExit, bool>? suitabilityFunction,
+		Func<IRoomExit, bool>? suitabilityFunction,
 		bool ignoreLayers,
 		double maximumRoomEquivalentCost,
-		out IReadOnlyList<ICellExit> exits);
+		out IReadOnlyList<IRoomExit> exits);
 
-	void InvalidateTopology(ICell? changedCell = null);
+	void InvalidateTopology(IRoom? changedRoom = null);
 }

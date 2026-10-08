@@ -33,7 +33,7 @@ internal static class EmploymentFinanceService
 		string? KeywordFilter, IReadOnlyList<IGameItem> ExactStockItems, double? CommodityWeight = null);
 
 	internal sealed record EmploymentPurchaseTargetPreview(IShop Shop, IMerchandise Merchandise, decimal Price, int Quantity,
-		double? CommodityWeight, IReadOnlyCollection<ICell> Locations);
+		double? CommodityWeight, IReadOnlyCollection<IRoom> Locations);
 
 	private sealed class EmploymentFundsPayment : IPaymentMethod
 	{
@@ -1428,7 +1428,7 @@ internal static class EmploymentFinanceService
 			"EmploymentPayable", payable.EmployeeName));
 	}
 
-	internal static IReadOnlyCollection<ICell> PurchaseLocationHints(IEmploymentTaskContext context, ICharacter? actor,
+	internal static IReadOnlyCollection<IRoom> PurchaseLocationHints(IEmploymentTaskContext context, ICharacter? actor,
 		PurchaseActionStep purchase)
 	{
 		var gameworld = (context.Employer as IHaveFuturemud)?.Gameworld ?? actor?.Gameworld;

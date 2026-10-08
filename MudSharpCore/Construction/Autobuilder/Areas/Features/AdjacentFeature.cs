@@ -48,12 +48,12 @@ public class AdjacentFeature : Feature
         return @base;
     }
 
-    public override void ApplyFeature(ICell[,] cellMap, List<string>[,] features, int x, int y)
+    public override void ApplyFeature(IRoom[,] cellMap, List<string>[,] features, int x, int y)
     {
         base.ApplyFeature(cellMap, features, x, y);
         if (IgnoreExits)
         {
-            cellMap.ApplyActionToAdjacentsWithInfo(x, y, (cell, direction, xcoord, ycoord) =>
+            cellMap.ApplyActionToAdjacentsWithInfo(x, y, (room, direction, xcoord, ycoord) =>
             {
                 if (!string.IsNullOrEmpty(AdjacentFeatureTag))
                 {
@@ -68,9 +68,9 @@ public class AdjacentFeature : Feature
         }
         else
         {
-            cellMap.ApplyActionToAdjacentsWithInfo(x, y, (cell, direction, xcoord, ycoord) =>
+            cellMap.ApplyActionToAdjacentsWithInfo(x, y, (room, direction, xcoord, ycoord) =>
             {
-                if (cellMap[x, y].ExitsFor(null).All(item => item.Destination != cell))
+                if (cellMap[x, y].ExitsFor(null).All(item => item.Destination != room))
                 {
                     return;
                 }

@@ -243,7 +243,7 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
         //TODO: With this, AI can find you through doorways it doesn't have direct LOS into, which doesn't seem fair
         //Worth revisiting at some point.
         {
-            foreach (ICharacter tch in ch.Location.CellsInVicinity(range, true, true).Except(ch.Location)
+            foreach (ICharacter tch in ch.Location.RoomsInVicinity(range, true, true).Except(ch.Location)
                                   .SelectMany(x => x.Characters).ToList())
             {
                 if (CheckForAttack(ch, tch))
@@ -258,7 +258,7 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
 
     public override bool HandleEvent(EventType type, params dynamic[] arguments)
     {
-        ICharacter ch = (type == EventType.CharacterEnterCellWitness ?
+        ICharacter ch = (type == EventType.CharacterEnterRoomWitness ?
             arguments[3] :
             arguments[0]) as ICharacter;
         if (ch is null || ch.State.IsDead() || ch.State.IsInStatis())
@@ -270,7 +270,7 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
         {
             case EventType.TenSecondTick:
                 return CheckAllTargetsForAttack(ch);
-            case EventType.CharacterEnterCellWitness:
+            case EventType.CharacterEnterRoomWitness:
                 return CheckForAttack((ICharacter)arguments[3], (ICharacter)arguments[0]);
         }
 
@@ -284,7 +284,7 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
             switch (type)
             {
                 case EventType.TenSecondTick:
-                case EventType.CharacterEnterCellWitness:
+                case EventType.CharacterEnterRoomWitness:
                     return true;
             }
         }
@@ -409,18 +409,18 @@ public class TrackingAggressorAI : PathingAIWithProgTargetsBase
         RegisterAIBuilderInformation("trackingaggressor", (game, name) => new TrackingAggressorAI(game, name), new TrackingAggressorAI().HelpText);
     }
 
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
-        Tuple<IPerceivable, IEnumerable<ICellExit>> target = ch.AcquireTargetAndPath(GetTargetFunction(ch), MaximumRange, GetSuitabilityFunction(ch));
+        Tuple<IPerceivable, IEnumerable<IRoomExit>> target = ch.AcquireTargetAndPath(GetTargetFunction(ch), MaximumRange, GetSuitabilityFunction(ch));
         if (target.Item1 == null || !target.Item2.Any())
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
         return (target.Item1.Location, target.Item2);
     }
 
-	protected override (ICell? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
+	protected override (IRoom? Target, ISpatialPath? Path) GetSpatialPath(ICharacter ch)
 	{
 		var target = ch.AcquireTargetAndPath(
 			GetTargetFunction(ch),

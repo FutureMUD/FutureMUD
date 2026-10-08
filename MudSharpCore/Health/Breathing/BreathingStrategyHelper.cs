@@ -45,8 +45,20 @@ internal static class BreathingStrategyHelper
 			body.EffectsOfType<IInternalBleedingEffect>().Where(x => x.Organ is LungProto or TracheaProto).Sum(x => x.BloodlossTotal) <= 0.3 * tolerance;
 	}
 
-	public static bool CanBreatheFluid(IBody body, IFluid? fluid)
+	public static bool CanBreatheFluid(IBody body, IFluid? fluid, bool includeLegacyMagic = false)
 	{
-		return fluid is not null && body.Race.CanBreatheFluid(fluid).Truth;
+		if (includeLegacyMagic)
+		{
+			// Preserve the lung consumer's original evaluation order, including its
+			// legacy applicability callbacks even when racial compatibility succeeds.
+			var additional = body.CombinedEffectsOfType<IAdditionalBreathableFluidEffect>()
+				.Any(x => x.Applies() && x.AppliesToFluid(fluid!));
+			return (fluid is not null && body.Race.CanBreatheFluid(fluid).Truth) || additional;
+		}
+		if (fluid is null) return false;
+		if (body.Race.CanBreatheFluid(fluid).Truth) return true;
+		return body.CombinedEffectsOfType<IAdditionalBreathableFluidEffect>().Any(x =>
+			x is MudSharp.Effects.Concrete.SpellEffects.SpellScopedWaterBreathingEffect &&
+			x.Applies() && x.AppliesToFluid(fluid));
 	}
 }

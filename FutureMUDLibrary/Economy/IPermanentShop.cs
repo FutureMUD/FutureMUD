@@ -6,14 +6,14 @@ namespace MudSharp.Economy;
 
 public interface IPermanentShop : IShop
 {
-    IEnumerable<ICell> ShopfrontCells { get; }
-    ICell WorkshopCell { get; set; }
-    ICell StockroomCell { get; set; }
-    IEnumerable<ICell> AllShopCells { get; }
+    IEnumerable<IRoom> ShopfrontRooms { get; }
+    IRoom WorkshopRoom { get; set; }
+    IRoom StockroomRoom { get; set; }
+    IEnumerable<IRoom> AllShopRooms { get; }
     IEnumerable<IGameItem> TillItems { get; }
     IEnumerable<IGameItem> DisplayContainers { get; }
-    void AddShopfrontCell(ICell cell);
-    void RemoveShopfrontCell(ICell cell);
+    void AddShopfrontRoom(IRoom room);
+    void RemoveShopfrontRoom(IRoom room);
 
     void AddTillItem(IGameItem till);
     void RemoveTillItem(IGameItem till);

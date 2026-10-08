@@ -12,7 +12,9 @@ Spatial area transfer packages let a senior administrator export one or more sel
 - unsupported state blocks export when silently dropping it would make the result misleading;
 - every deliberate omission is retained in the package and shown in-game.
 
-The file suffix is `.fmsa.json`. Files are read and written only beneath the server's `Spatial Packages` directory. Package names cannot contain a path. Versions 1 through 3 are accepted.
+The file suffix is `.fmsa.json`. Files are read and written only beneath the server's `Spatial Packages` directory. Package names cannot contain a path. Versions 1 through 5 are accepted; new exports use version 5 with Room-named properties and the former Cell identities. Frozen readers validate each version 1–4 archive's original canonical checksum before normalization; source version/checksum remain available. No identifier values or user-authored text are rewritten by property-name conversion.
+
+An empty legacy containing Room is skipped with a warning. Its ordinary Area memberships are removed with warnings identifying the original Area and parent IDs, while the original archive retains provenance and the Area remains, possibly with an empty RoomKeys list. Missing parents and multi-child ambiguity still refuse. Current version 5 accepts an empty area-membership list; null lists and references outside the package remain invalid. Earlier format labels in the sections below describe compatibility wire records, not a second live Room layer.
 
 ## Builder Workflow
 
@@ -30,7 +32,7 @@ The multi-zone form takes the package name first, followed by one or more quoted
 On the target installation:
 
 ```text
-cell package new "Harbour Import"
+room package new "Harbour Import"
 spatialpackage validate harbour-ward "Prime Material" "Imported Harbour Ward"
 spatialpackage import harbour-ward "Prime Material" confirm "Imported Harbour Ward"
 ```
@@ -39,12 +41,22 @@ The target overlay package must be `Under Design`. The target shard must already
 
 `validate` is read-only. `import` repeats the complete preflight and also requires the literal `confirm` keyword. All selected zones and their cross-zone links use one serializable transaction, with every zone name rechecked inside the transaction.
 
-## Version 3 Payload
+## Current version 5 payload
+
+Version 5 stores `Rooms` with direct `ZoneKey` and integer `X/Y/Z`, and Areas use `RoomKeys`. Source Room IDs are the former Cell IDs; imports allocate new IDs and leave optional global unique names unset. There is no live containing Room section. Frozen versions 1–4 retain their original field names and checksums.
+
+## Historical version 4 payload
+
+Version 4 stores `ZoneKey` and integer `X/Y/Z` directly on each cell; Areas use `CellKeys`. There is no `Rooms` section, `RoomKey`, or singular `Zone` section. Source Cell IDs remain diagnostic and imports allocate fresh numeric IDs. Global cell unique names are deliberately not transferred, so imported copies cannot collide with installation-wide keys.
+
+Readers verify versions 1–3 against their frozen original canonical checksum before normalising into version 4. A Room with multiple packaged Cells is refused. A Room with no Cells warns and is skipped only when no Area refers to it; referenced empty Rooms and orphan links require explicit disposition. Numeric Room IDs are never substituted for Cell IDs. Validation precedes import writes.
+
+## Historical version 3 payload
 
 | Field | Purpose |
 | --- | --- |
 | `format` | Constant `futuremud-spatial-area`. |
-| `version` | Schema version. Versions 1 through 3 are accepted. |
+| `version` | Schema version. Versions 1 through 4 are accepted; new exports use version 4. |
 | `integritySha256` | SHA-256 of the canonical payload with this field empty. |
 | `createdUtc` | Export timestamp. |
 | `source` / `sourceZones` | Diagnostic source IDs and names for each zone, shard, and active overlay package. The singular field preserves version-1 context. Source IDs are never reused. |
@@ -101,6 +113,8 @@ The target installation supplies engine-owned dependencies. Preflight resolves t
 Clock dependencies resolve by clock alias. A timezone resolves by alias or description on that clock. A source clock absent from the target shard is an error. A clock that exists only on the target shard receives its primary timezone with a warning. Dependency source IDs are never a fallback, preventing a coincidentally reused ID from linking to the wrong target object.
 
 ## Integrity and Validation
+
+New exports use explicit CRLF formatting for indented canonical JSON on every operating system, preserving the original Windows archive form. SHA-256 covers the version-specific canonical model with `IntegritySha256` empty. Readers for versions 1 through 5 verify either historical Windows CRLF or Unix LF canonical formatting before any Room-property conversion or topology normalization; they do not hash a converted model or rewrite the input to make it pass. Only the canonical JSON's formatting whitespace differs between those two candidates. Escaped newlines inside user-authored strings remain part of the signed payload, and changing them still fails integrity verification. The frozen version 1–3 fixtures and their pinned original checksums remain unchanged.
 
 Validation occurs before any database write and checks:
 

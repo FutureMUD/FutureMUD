@@ -39,65 +39,30 @@ public sealed partial class SpatialAreaTransferService
 				"package-exists");
 		}
 
-		var allRooms = selectedZones
-			.SelectMany(x => x.Rooms)
-			.DistinctBy(x => x.Id)
-			.OrderBy(x => x.Id)
-			.ToList();
-		var temporaryCells = allRooms
-			.SelectMany(x => x.Cells)
-			.Where(x => x.Temporary)
-			.DistinctBy(x => x.Id)
-			.OrderBy(x => x.Id)
-			.ToList();
-		foreach (var temporaryCell in temporaryCells)
+		var allRooms = selectedZones.SelectMany(x => x.Rooms).DistinctBy(x => x.Id).OrderBy(x => x.Id).ToList();
+		var temporaryRooms = allRooms.Where(x => x.Temporary).ToList();
+		foreach (var temporaryRoom in temporaryRooms)
 		{
 			omissions.Add(new SpatialPackageOmission
 			{
 				Code = "temporary-cell",
-				Message = $"Temporary cell #{temporaryCell.Id:N0} ({temporaryCell.Name}) was skipped because dwelling and other temporary state is not portable."
+				Message = $"Temporary room #{temporaryRoom.Id:N0} ({temporaryRoom.Name}) was skipped because dwelling and other temporary state is not portable."
 			});
 		}
 
-		var rooms = allRooms
-			.Where(x => x.Cells.Any(cell => !cell.Temporary))
-			.ToList();
-		foreach (var emptyRoom in allRooms.Except(rooms))
-		{
-			if (emptyRoom.Cells.Any())
-			{
-				continue;
-			}
-
-			var omission = $"Room #{emptyRoom.Id:N0} at ({emptyRoom.X:N0}, {emptyRoom.Y:N0}, {emptyRoom.Z:N0}) " +
-			               $"in zone '{emptyRoom.Zone.Name}' was skipped because it contains no cells.";
-			omissions.Add(new SpatialPackageOmission { Code = "empty-room", Message = omission });
-		}
-
-		var cells = rooms
-			.SelectMany(x => x.Cells)
-			.Where(x => !x.Temporary)
-			.DistinctBy(x => x.Id)
-			.OrderBy(x => x.Id)
-			.ToList();
-		if (rooms.Count == 0 || cells.Count == 0)
-		{
-			return Failure("The selected zones do not contain any exportable rooms and cells.", diagnostics, "empty-zone");
-		}
-
-		if (rooms.Count > SpatialAreaPackageSerializer.MaximumRooms ||
-		    cells.Count > SpatialAreaPackageSerializer.MaximumCells)
-		{
+		var rooms = allRooms.Where(x => !x.Temporary).ToList();
+		if (rooms.Count == 0)
+			return Failure("The selected zones do not contain any exportable rooms.", diagnostics, "empty-zone");
+		if (rooms.Count > SpatialAreaPackageSerializer.MaximumRooms)
 			return Failure("The selected zones exceed the package safety limits.", diagnostics, "zone-too-large");
-		}
 
-		foreach (var zone in selectedZones.Where(x => !cells.Any(cell => cell.Id == x.DefaultCell.Id)))
+		foreach (var zone in selectedZones.Where(x => x.DefaultRoom is null || !rooms.Any(room => room.Id == x.DefaultRoom.Id)))
 		{
 			diagnostics.Add(Error("unexportable-default-cell",
-				$"Zone '{zone.Name}' has default cell #{zone.DefaultCell.Id:N0}, which cannot be exported."));
+				$"Zone '{zone.Name}' has default room #{zone.DefaultRoom?.Id:N0}, which cannot be exported."));
 		}
 
-		diagnostics.AddRange(ValidateExportableCells(cells));
+		diagnostics.AddRange(ValidateExportableRooms(rooms));
 		if (diagnostics.Any(x => x.Severity == SpatialAreaTransferDiagnosticSeverity.Error))
 		{
 			return new SpatialAreaTransferResult
@@ -106,7 +71,6 @@ public sealed partial class SpatialAreaTransferService
 				Diagnostics = diagnostics,
 				ZoneCount = selectedZones.Count,
 				RoomCount = rooms.Count,
-				CellCount = cells.Count,
 				OmittedItems = omissions.Select(x => x.Message).ToList()
 			};
 		}
@@ -114,21 +78,18 @@ public sealed partial class SpatialAreaTransferService
 		var zoneKeys = selectedZones
 			.Select((zone, index) => (zone.Id, Key: $"zone-{index + 1:D5}"))
 			.ToDictionary(x => x.Id, x => x.Key);
-		var roomKeys = rooms
-			.Select((room, index) => (room.Id, Key: $"room-{index + 1:D5}"))
-			.ToDictionary(x => x.Id, x => x.Key);
-		var cellKeys = cells
-			.Select((cell, index) => (cell.Id, Key: $"cell-{index + 1:D5}"))
+		var cellKeys = rooms
+			.Select((room, index) => (room.Id, Key: $"cell-{index + 1:D5}"))
 			.ToDictionary(x => x.Id, x => x.Key);
 		var cellIds = cellKeys.Keys.ToHashSet();
-		var areas = cells
-			.SelectMany(x => x.Areas)
+		var areas = rooms
+			.SelectMany(x => x.OwningAreas)
 			.DistinctBy(x => x.Id)
 			.OrderBy(x => x.Id)
-			.Where(area => area.Rooms.All(room => roomKeys.ContainsKey(room.Id)))
+			.Where(area => area.Rooms.All(room => cellKeys.ContainsKey(room.Id)))
 			.ToList();
-		foreach (var area in cells
-			         .SelectMany(x => x.Areas)
+		foreach (var area in rooms
+			         .SelectMany(x => x.OwningAreas)
 			         .DistinctBy(x => x.Id)
 			         .Except(areas))
 		{
@@ -139,13 +100,13 @@ public sealed partial class SpatialAreaTransferService
 			});
 		}
 
-		var allSeenExits = cells
-			.SelectMany(cell => cell.Gameworld.ExitManager.GetExitsFor(cell, cell.CurrentOverlay))
+		var allSeenExits = rooms
+			.SelectMany(room => room.Gameworld.ExitManager.GetExitsFor(room, room.CurrentOverlay))
 			.Select(x => x.Exit)
 			.DistinctBy(x => x.Id)
 			.OrderBy(x => x.Id)
 			.ToList();
-		var missingExitIds = cells
+		var missingExitIds = rooms
 			.SelectMany(x => x.CurrentOverlay.ExitIDs)
 			.Distinct()
 			.Except(allSeenExits.Select(x => x.Id))
@@ -164,16 +125,15 @@ public sealed partial class SpatialAreaTransferService
 				Diagnostics = diagnostics,
 				ZoneCount = selectedZones.Count,
 				RoomCount = rooms.Count,
-				CellCount = cells.Count,
 				OmittedItems = omissions.Select(x => x.Message).ToList()
 			};
 		}
 
 		var internalExits = allSeenExits
-			.Where(x => x.Cells.All(cell => cellIds.Contains(cell.Id)))
+			.Where(x => x.Rooms.All(room => cellIds.Contains(room.Id)))
 			.ToList();
 		var boundaryExits = allSeenExits
-			.Where(x => x.Cells.Any(cell => !cellIds.Contains(cell.Id)))
+			.Where(x => x.Rooms.Any(room => !cellIds.Contains(room.Id)))
 			.ToList();
 		if (internalExits.Count > SpatialAreaPackageSerializer.MaximumExits)
 		{
@@ -182,17 +142,17 @@ public sealed partial class SpatialAreaTransferService
 
 		foreach (var exit in boundaryExits)
 		{
-			foreach (var origin in exit.Cells.Where(x => cellIds.Contains(x.Id)))
+			foreach (var origin in exit.Rooms.Where(x => cellIds.Contains(x.Id)))
 			{
-				var destination = exit.Cells.First(x => x.Id != origin.Id);
-				var side = exit.CellExitFor(origin);
-				var name = side is INonCardinalCellExit nonCardinal
+				var destination = exit.Rooms.First(x => x.Id != origin.Id);
+				var side = exit.RoomExitFor(origin);
+				var name = side is INonCardinalRoomExit nonCardinal
 					? nonCardinal.Verb
 					: side.OutboundDirection.DescribeEnum().ToLowerInvariant();
 				var reason = destination.Temporary
-					? "the destination cell is temporary."
+					? "the destination room is temporary."
 					: $"destination zone '{destination.Zone.Name}' was not selected.";
-				var message = $"Exit \"{name}\" from cell #{origin.Id:N0} ({origin.Name}) to cell " +
+				var message = $"Exit \"{name}\" from room #{origin.Id:N0} ({origin.Name}) to room " +
 				              $"#{destination.Id:N0} ({destination.Name}) was skipped because {reason}";
 				omissions.Add(new SpatialPackageOmission { Code = "boundary-exit", Message = message });
 			}
@@ -209,10 +169,10 @@ public sealed partial class SpatialAreaTransferService
 				});
 			}
 
-			if (exit.FallCell is not null && !cellIds.Contains(exit.FallCell.Id))
+			if (exit.FallRoom is not null && !cellIds.Contains(exit.FallRoom.Id))
 			{
 				diagnostics.Add(Error("external-fall-cell",
-					$"Exit #{exit.Id:N0} falls to cell #{exit.FallCell.Id:N0}, which is outside the package."));
+					$"Exit #{exit.Id:N0} falls to room #{exit.FallRoom.Id:N0}, which is outside the package."));
 			}
 		}
 
@@ -224,24 +184,21 @@ public sealed partial class SpatialAreaTransferService
 				Diagnostics = diagnostics,
 				ZoneCount = selectedZones.Count,
 				RoomCount = rooms.Count,
-				CellCount = cells.Count,
 				ExitCount = internalExits.Count,
 				OmittedItems = omissions.Select(x => x.Message).ToList()
 			};
 		}
 
-		AddNonSpatialOmissions(cells, omissions);
+		AddNonSpatialOmissions(rooms, omissions);
 		var exitKeys = internalExits
 			.Select((exit, index) => (exit.Id, Key: $"exit-{index + 1:D5}"))
 			.ToDictionary(x => x.Id, x => x.Key);
-		var package = BuildPackageVersion2(
+		var package = BuildPackageVersion4(
 			selectedZones,
 			rooms,
-			cells,
 			internalExits,
 			areas,
 			zoneKeys,
-			roomKeys,
 			cellKeys,
 			exitKeys,
 			omissions,
@@ -272,33 +229,30 @@ public sealed partial class SpatialAreaTransferService
 			Diagnostics = diagnostics,
 			ZoneCount = selectedZones.Count,
 			RoomCount = rooms.Count,
-			CellCount = cells.Count,
 			ExitCount = internalExits.Count,
 			OmittedItems = omissions.Select(x => x.Message).ToList()
 		};
 	}
 
-	private static SpatialAreaPackage BuildPackageVersion2(
+	private static SpatialAreaPackage BuildPackageVersion4(
 		IReadOnlyList<IZone> zones,
 		IReadOnlyList<IRoom> rooms,
-		IReadOnlyList<ICell> cells,
 		IReadOnlyList<IExit> exits,
 		IReadOnlyList<IArea> areas,
 		IReadOnlyDictionary<long, string> zoneKeys,
-		IReadOnlyDictionary<long, string> roomKeys,
 		IReadOnlyDictionary<long, string> cellKeys,
 		IReadOnlyDictionary<long, string> exitKeys,
 		IReadOnlyList<SpatialPackageOmission> omissions,
 		ICollection<SpatialAreaTransferDiagnostic> diagnostics)
 	{
-		var overlayPackages = cells
+		var overlayPackages = rooms
 			.Select(x => x.CurrentOverlay.Package)
 			.Distinct()
 			.ToList();
 		if (overlayPackages.Count > 1)
 		{
 			diagnostics.Add(Warning("mixed-overlays",
-				$"The selection uses {overlayPackages.Count:N0} different active overlay packages. Each cell's active overlay data will be imported into the selected target package."));
+				$"The selection uses {overlayPackages.Count:N0} different active overlay packages. Each room's active overlay data will be imported into the selected target package."));
 		}
 
 		var sources = zones
@@ -325,7 +279,7 @@ public sealed partial class SpatialAreaTransferService
 				AmbientLightPollution = zone.AmbientLightPollution,
 				ForagableProfile = Reference(zone.ForagableProfile),
 				WeatherController = Reference(zone.WeatherController),
-				DefaultCellKey = cellKeys[zone.DefaultCell.Id],
+				DefaultRoomKey = cellKeys[zone.DefaultRoom.Id],
 				TimeZones = zone.GetEditableZone.TimeZones
 					.OrderBy(x => x.Key.Alias)
 					.Select(x => new SpatialTimeZoneDefinition
@@ -339,22 +293,22 @@ public sealed partial class SpatialAreaTransferService
 			.ToList();
 
 		var explicitForagableProfiles = new Dictionary<long, long?>();
-		var routeCells = new Dictionary<long, Models.RouteCell>();
+		var routeRooms = new Dictionary<long, Models.RouteRoom>();
 		using (new FMDB())
 		{
-			foreach (var dbCell in FMDB.Context.Cells
+			foreach (var dbRoom in FMDB.Context.Rooms
 				         .Where(x => cellKeys.Keys.Contains(x.Id))
 				         .Select(x => new { x.Id, x.ForagableProfileId }))
 			{
-				explicitForagableProfiles[dbCell.Id] = dbCell.ForagableProfileId;
+				explicitForagableProfiles[dbRoom.Id] = dbRoom.ForagableProfileId;
 			}
 
-			routeCells = FMDB.Context.RouteCells
+			routeRooms = FMDB.Context.RouteRooms
 				.AsNoTracking()
-				.Where(x => cellKeys.Keys.Contains(x.CellId))
+				.Where(x => cellKeys.Keys.Contains(x.RoomId))
 				.Include(x => x.Landmarks)
 				.Include(x => x.ExitAnchors)
-				.ToDictionary(x => x.CellId);
+				.ToDictionary(x => x.RoomId);
 		}
 
 		var package = new SpatialAreaPackage
@@ -362,7 +316,6 @@ public sealed partial class SpatialAreaTransferService
 			Version = SpatialAreaPackage.CurrentVersion,
 			CreatedUtc = DateTime.UtcNow,
 			Source = sources[0],
-			Zone = zoneDefinitions[0],
 			SourceZones = sources,
 			Zones = zoneDefinitions,
 			Areas = areas
@@ -374,42 +327,31 @@ public sealed partial class SpatialAreaTransferService
 					WeatherController = Reference(area.WeatherController),
 					RoomKeys = area.Rooms
 						.OrderBy(x => x.Id)
-						.Select(x => roomKeys[x.Id])
+						.Select(x => cellKeys[x.Id])
 						.ToList()
 				})
 				.ToList(),
-			Omissions = omissions.ToList(),
-			Rooms = rooms
-				.OrderBy(x => x.Id)
-				.Select(x => new SpatialRoomDefinition
-				{
-					Key = roomKeys[x.Id],
-					SourceId = x.Id,
-					ZoneKey = zoneKeys[x.Zone.Id],
-					X = x.X,
-					Y = x.Y,
-					Z = x.Z
-				})
-				.ToList()
+			Omissions = omissions.ToList()
 		};
 
-		package.Cells = cells
+		package.Rooms = rooms
 			.OrderBy(x => x.Id)
-			.Select(cell =>
+			.Select(room =>
 			{
-				var overlay = cell.CurrentOverlay;
-				var explicitForagable = explicitForagableProfiles.GetValueOrDefault(cell.Id);
-				return new SpatialCellDefinition
+				var overlay = room.CurrentOverlay;
+				var explicitForagable = explicitForagableProfiles.GetValueOrDefault(room.Id);
+				return new SpatialRoomDefinition
 				{
-					Key = cellKeys[cell.Id],
-					SourceId = cell.Id,
-					RoomKey = roomKeys[cell.Room.Id],
+					Key = cellKeys[room.Id],
+					SourceId = room.Id,
+					ZoneKey = zoneKeys[room.OwningZone.Id],
+					X = room.StoredCoordinates.X, Y = room.StoredCoordinates.Y, Z = room.StoredCoordinates.Z,
 					ForagableProfile = explicitForagable.HasValue
-						? Reference(cell.Gameworld.ForagableProfiles.Get(explicitForagable.Value))
+						? Reference(room.Gameworld.ForagableProfiles.Get(explicitForagable.Value))
 						: null,
-					Tags = cell.Tags.OrderBy(x => x.Name).Select(x => Reference(x)!).ToList(),
-					RangedCovers = cell.LocalCover.OrderBy(x => x.Name).Select(x => Reference(x)!).ToList(),
-					MagicResources = cell.MagicResourceAmounts
+					Tags = room.Tags.OrderBy(x => x.Name).Select(x => Reference(x)!).ToList(),
+					RangedCovers = room.LocalCover.OrderBy(x => x.Name).Select(x => Reference(x)!).ToList(),
+					MagicResources = room.MagicResourceAmounts
 						.OrderBy(x => x.Key.Name)
 						.Select(x => new SpatialMagicResourceDefinition
 						{
@@ -417,13 +359,13 @@ public sealed partial class SpatialAreaTransferService
 							Amount = x.Value
 						})
 						.ToList(),
-					RouteCell = routeCells.TryGetValue(cell.Id, out var route)
-						? BuildRouteCellDefinition(route, exitKeys, overlay.ExitIDs)
+					RouteRoom = routeRooms.TryGetValue(room.Id, out var route)
+						? BuildRouteRoomDefinition(route, exitKeys, overlay.ExitIDs)
 						: null,
-					Overlay = new SpatialCellOverlayDefinition
+					Overlay = new SpatialRoomOverlayDefinition
 					{
-						CellName = overlay.CellName,
-						CellDescription = overlay.CellDescription,
+						RoomName = overlay.RoomName,
+						RoomDescription = overlay.RoomDescription,
 						Terrain = Reference(overlay.Terrain)!,
 						HearingProfile = Reference(overlay.HearingProfile),
 						Atmosphere = FluidReference(overlay.Atmosphere),
@@ -444,15 +386,15 @@ public sealed partial class SpatialAreaTransferService
 		package.Exits = exits
 			.Select(exit =>
 			{
-				var endpoints = exit.Cells.ToList();
+				var endpoints = exit.Rooms.ToList();
 				return new SpatialExitDefinition
 				{
 					Key = exitKeys[exit.Id],
 					SourceId = exit.Id,
-					Cell1Key = cellKeys[endpoints[0].Id],
-					Cell2Key = cellKeys[endpoints[1].Id],
-					Side1 = BuildExitSide(exit.CellExitFor(endpoints[0])),
-					Side2 = BuildExitSide(exit.CellExitFor(endpoints[1])),
+					Room1Key = cellKeys[endpoints[0].Id],
+					Room2Key = cellKeys[endpoints[1].Id],
+					Side1 = BuildExitSide(exit.RoomExitFor(endpoints[0])),
+					Side2 = BuildExitSide(exit.RoomExitFor(endpoints[1])),
 					TimeMultiplier = exit.TimeMultiplier,
 					AcceptsDoor = exit.AcceptsDoor,
 					DoorSize = (int)exit.DoorSize,
@@ -460,7 +402,7 @@ public sealed partial class SpatialAreaTransferService
 					MaximumSizeToEnterUpright = (int)exit.MaximumSizeToEnterUpright,
 					IsClimbExit = exit.IsClimbExit,
 					ClimbDifficulty = (int)exit.ClimbDifficulty,
-					FallCellKey = exit.FallCell is null ? null : cellKeys[exit.FallCell.Id],
+					FallRoomKey = exit.FallRoom is null ? null : cellKeys[exit.FallRoom.Id],
 					BlockedLayers = exit.BlockedLayers.Select(x => (int)x).Order().ToList()
 				};
 			})
@@ -468,13 +410,13 @@ public sealed partial class SpatialAreaTransferService
 		return package;
 	}
 
-	private static SpatialRouteCellDefinition BuildRouteCellDefinition(
-		Models.RouteCell route,
+	private static SpatialRouteRoomDefinition BuildRouteRoomDefinition(
+		Models.RouteRoom route,
 		IReadOnlyDictionary<long, string> exitKeys,
 		IEnumerable<long> activeExitIds)
 	{
 		var activeExitIdSet = activeExitIds.ToHashSet();
-		return new SpatialRouteCellDefinition
+		return new SpatialRouteRoomDefinition
 		{
 			LengthMetres = (double)route.LengthMetres,
 			DefaultPositionMetres = (double)route.DefaultPositionMetres,
@@ -511,30 +453,30 @@ public sealed partial class SpatialAreaTransferService
 	}
 
 	private static void AddNonSpatialOmissions(
-		IReadOnlyCollection<ICell> cells,
+		IReadOnlyCollection<IRoom> rooms,
 		ICollection<SpatialPackageOmission> omissions)
 	{
-		foreach (var cell in cells)
+		foreach (var room in rooms)
 		{
-			var characterCount = cell.Characters.Count();
-			var itemCount = cell.GameItems.Count();
+			var characterCount = room.Characters.Count();
+			var itemCount = room.GameItems.Count();
 			if (characterCount > 0 || itemCount > 0)
 			{
 				omissions.Add(new SpatialPackageOmission
 				{
 					Code = "live-contents",
-					Message = $"Cell #{cell.Id:N0} ({cell.Name}) contains {characterCount:N0} character(s) and " +
+					Message = $"Room #{room.Id:N0} ({room.Name}) contains {characterCount:N0} character(s) and " +
 					          $"{itemCount:N0} item(s); live contents are not included."
 				});
 			}
 
-			var hookCount = cell.Hooks.Count();
+			var hookCount = room.Hooks.Count();
 			if (hookCount > 0)
 			{
 				omissions.Add(new SpatialPackageOmission
 				{
 					Code = "cell-hooks",
-					Message = $"Cell #{cell.Id:N0} ({cell.Name}) has {hookCount:N0} installed hook(s), which are not included."
+					Message = $"Room #{room.Id:N0} ({room.Name}) has {hookCount:N0} installed hook(s), which are not included."
 				});
 			}
 		}

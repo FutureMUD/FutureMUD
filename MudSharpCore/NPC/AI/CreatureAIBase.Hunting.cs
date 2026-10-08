@@ -98,7 +98,7 @@ public abstract partial class CreatureAIBase
 		var restraints = target.EffectsOfType<TrapRestraintEffect>().ToList();
 		// A one-use trap can be spent and removed before its (possibly delayed) payload fires.
 		if (target.Location == actor.Location && restraints.Any(x => x.CreatorId == actor.Id &&
-		    x.OriginCellId == actor.Location.Id)) return true;
+		    x.OriginRoomId == actor.Location.Id)) return true;
 		// Old saved restraints have no creator receipt; require the original local trap for those.
 		var legacyIds = restraints.Where(x => x.CreatorId == 0).Select(x => x.TrapInstanceId).ToHashSet();
 		return LocalOwnedTraps(actor).Any(x => legacyIds.Contains(x.InstanceId));
@@ -178,7 +178,7 @@ public abstract partial class CreatureAIBase
 		$"Hunting: {Hunting.Enabled.ToColouredString()}; people: {Hunting.People.DescribeEnum().ColourName()}; selection: {Hunting.Selection.DescribeEnum().ColourName()}\n" +
 		$"Opening: {Hunting.Opening.DescribeEnum()}; followup: {Hunting.Followup.DescribeEnum()}; layer: {Hunting.PreferredLayer?.DescribeEnum() ?? "any"}; opportunity: {Hunting.Opportunistic.ToColouredString()}\n" +
 		$"Assessment start/abandon: {Hunting.EngageThreshold.ToString("N1", voyeur)}/{Hunting.AbandonThreshold.ToString("N1", voyeur)}; starving adjustment: {Hunting.StarvationAdjustment.ToString("N1", voyeur)}; confidence: {Hunting.ConfidenceBias.ToString("N1", voyeur)}\n" +
-		$"Pursuit: {Hunting.PursuitRange.ToString("N0", voyeur)} cells, {Hunting.PursuitTimeout.Describe(voyeur)}; lost: {Hunting.LostTimeout.Describe(voyeur)}\n" +
+		$"Pursuit: {Hunting.PursuitRange.ToString("N0", voyeur)} rooms, {Hunting.PursuitTimeout.Describe(voyeur)}; lost: {Hunting.LostTimeout.Describe(voyeur)}\n" +
 		$"Size differences: {Hunting.MinimumSizeDifference?.ToString(voyeur) ?? "any"} to {Hunting.MaximumSizeDifference?.ToString(voyeur) ?? "any"}; include: {Hunting.IncludedRaces.Select(x => x.ToString(voyeur)).ListToCommaSeparatedValues()}; exclude: {Hunting.ExcludedRaces.Select(x => x.ToString(voyeur)).ListToCommaSeparatedValues()}\n" +
 		$"Preference lineages: {Hunting.PreferredRaces.Select(x => $"{x.Key}: {x.Value}").ListToCommaSeparatedValues()}; progs (classification/eligibility/preference): {Hunting.ClassificationProgId}/{Hunting.EligibilityProgId}/{Hunting.PreferenceProgId}\n" +
 		$"Weights: {Hunting.Weights.Select(x => $"{x.Key}: {x.Value.ToString("N1", voyeur)}").ListToCommaSeparatedValues()}";

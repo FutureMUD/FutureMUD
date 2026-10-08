@@ -178,7 +178,7 @@ public class MagicWindSpellEffectTests
 			new XAttribute("type", "transference"),
 			new XElement("IncludeFollowers", false),
 			new XElement("SwapLayers", true)), spell.Object);
-		var location = CreateCell(spell.Object.Gameworld);
+		var location = CreateRoom(spell.Object.Gameworld);
 		var caster = CreateCharacter(7, "Caster", spell.Object.Gameworld);
 		var target = CreateCharacter(8, "Target", spell.Object.Gameworld);
 		caster.SetupGet(x => x.Location).Returns(location.Object);
@@ -189,10 +189,10 @@ public class MagicWindSpellEffectTests
 		effect.GetOrApplyEffect(caster.Object, target.Object, OpposedOutcomeDegree.None,
 			SpellPower.Insignificant, CreateParent(spell.Object, caster.Object).Object, []);
 
-		caster.Verify(x => x.Teleport(It.IsAny<ICell>(), It.IsAny<RoomLayer>(), It.IsAny<bool>(),
+		caster.Verify(x => x.Teleport(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<bool>(),
 			It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
 			It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
-		target.Verify(x => x.Teleport(It.IsAny<ICell>(), It.IsAny<RoomLayer>(), It.IsAny<bool>(),
+		target.Verify(x => x.Teleport(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<bool>(),
 			It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
 			It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
 	}
@@ -251,11 +251,11 @@ public class MagicWindSpellEffectTests
 		return character;
 	}
 
-	private static Mock<ICell> CreateCell(IFuturemud gameworld)
+	private static Mock<IRoom> CreateRoom(IFuturemud gameworld)
 	{
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld);
-		return cell;
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Gameworld).Returns(gameworld);
+		return room;
 	}
 
 	private static Mock<IFuturemud> CreateGameworld()

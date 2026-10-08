@@ -1,0 +1,323 @@
+{
+  "schema_version": 1,
+  "baseline": "9353e2ad4b0d0e95289069dc166a52ad6db45c71",
+  "branch": "codex/fury-calm-runtime-hooks",
+  "finding": {
+    "priority": "P2",
+    "origin": "Parent independent static review; original failed wrapper behavior was not executed by reviewer",
+    "problem": "TryNotify refusal returned normally from void Fire, so RangedWeaponAttackBase could debit retained Aim and CombatBase charge attack stamina without a committed shot.",
+    "prior_qualification_gap": "Original replacement-round probe called gun.Fire directly; original424/22/31 evidence remains historical with this wrapper case unqualified."
+  },
+  "change": "Execution-local shot refusal/commit state reaches FireWeapon before Aim debit. The ranged move returns Irrelevant and rejects attack stamina only if no shot committed. Earlier committed shot work retains normal result/cost. Public weapon APIs and unrelated families stay unchanged.",
+  "managed": {
+    "run_id": "20261006T120421Z-e09c49545b2f",
+    "status": "PASS",
+    "counts": {
+      "executed": 426,
+      "passed": 426,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 426
+    },
+    "filter": "FullyQualifiedName~EmotionalCombatHooksTests|FullyQualifiedName~QueuedCommandAuthorityTests|FullyQualifiedName~OrderedNpcCheckLearningCombatCostTests|FullyQualifiedName~MultiTargetCombatMoveTests|FullyQualifiedName~NaturalRangedAttackRuntimeTests|FullyQualifiedName~MagicCombatPowerTests|FullyQualifiedName~CombatStrategyRuntimeTests|FullyQualifiedName~CombatSimulationTests|FullyQualifiedName~CombatTargetRetentionTests",
+    "source_start": "5b956a78fcd40f3a9861174d043dde3fb9bb9db257de9b0f51578082ed7d2e10",
+    "source_end": "5b956a78fcd40f3a9861174d043dde3fb9bb9db257de9b0f51578082ed7d2e10",
+    "source_stable": true,
+    "execution_complete": true,
+    "counts_complete": true
+  },
+  "managed_summary": {
+    "path": ".artifacts/test-runs/20261006T120421Z-e09c49545b2f/summary.json",
+    "sha256": "c48e4f4c78b749ad8078a1a527f1c6456dc0dc33fe21273a24e1dfb7da147ea5",
+    "bytes": 6653
+  },
+  "managed_new_cases": [
+    "RangedWrapper_AdmissionRefusalPreservesAimAndCostUnlessAnEarlierShotCommitted(False)",
+    "RangedWrapper_AdmissionRefusalPreservesAimAndCostUnlessAnEarlierShotCommitted(True)"
+  ],
+  "native": {
+    "status": "PASS",
+    "lane": "firearm",
+    "cases": 9,
+    "combat_action_cases": 7,
+    "direct_component_controls": 2,
+    "fresh_readers": 23,
+    "attack_receipts": [
+      "firearm-empty-trigger passed count:0 operation: body:3 instance:2 sibling-preserved:true",
+      "firearm-notification-replacement-ammo passed count:1 operation:97829846-f563-45ec-9f5b-27f04a7ab256 body:3 instance:2 sibling-preserved:true",
+      "firearm-ordered-valid passed count:1 operation:edefbd96-d827-4b8a-9553-e1fd2ff2df57 body:3 instance:2 sibling-preserved:true",
+      "firearm-queued-revoked passed count:0 operation: body:3 instance:2 sibling-preserved:true",
+      "firearm-component-policy-revoked passed count:0 operation: body:3 instance:2 sibling-preserved:true",
+      "firearm-postcommit-independent passed count:1 operation:5b4fd8a9-5732-4b0a-b533-d5a6f0aa476f body:3 instance:2 sibling-preserved:true",
+      "firearm-ordered-miss passed count:1 operation:ef29477f-4c05-4c37-89c4-bc6f537c78ae body:3 instance:2 sibling-preserved:true",
+      "firearm-direct-valid passed count:1 operation:ddc22f1e-45d2-4dec-9f11-b632eaea01ae body:3 instance:2 sibling-preserved:true",
+      "firearm-admission-replacement passed count:1 operation:43e0754f-31d2-4799-a2fb-a1fee50070e8 body:3 instance:2 sibling-preserved:true"
+    ],
+    "combat_action_receipts": [
+      "ordered-valid passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:3 condition:0.99 wound-delta:12 reactions:0 projectile:5 raw:40",
+      "queued-revoked passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:0 condition:1 wound-delta:0 reactions:0 projectile:8 raw:40",
+      "component-policy-revoked passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:0 condition:1 wound-delta:0 reactions:0 projectile:11 raw:40",
+      "postcommit-independent passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:3 condition:0.99 wound-delta:12 reactions:1 projectile:14 raw:60",
+      "ordered-miss passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:3 condition:0.99 wound-delta:0 reactions:0 projectile:17 raw:40",
+      "direct-valid passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:3 condition:0.99 wound-delta:12 reactions:0 projectile:20 raw:40",
+      "admission-replacement passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:0 condition:1 wound-delta:0 reactions:0 projectile:23 raw:40"
+    ],
+    "reader_receipts": [
+      "ordered-valid-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:0 raw:40 no-order-replay",
+      "ordered-valid-historical-stale-chamber passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:0 raw:40 no-order-replay",
+      "ordered-valid-loaded-chambered passed native-body-inventory firearm-XML chamber:5 magazine:1 stamina:100 condition:1 wounds:0 raw:40 no-order-replay",
+      "ordered-valid-emotional-controls-restored passed native-body-inventory firearm-XML chamber:5 magazine:1 stamina:100 condition:1 wounds:0 raw:40 no-order-replay",
+      "ordered-valid-shot-unloaded passed native-body-inventory firearm-XML chamber: magazine:0 stamina:97 condition:0.99 wounds:12 raw:40 no-order-replay",
+      "queued-revoked-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay",
+      "queued-revoked-loaded-chambered passed native-body-inventory firearm-XML chamber:8 magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay",
+      "queued-revoked-shot-unloaded passed native-body-inventory firearm-XML chamber:8 magazine:0 stamina:100 condition:1 wounds:12 raw:40 no-order-replay",
+      "component-policy-revoked-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay",
+      "component-policy-revoked-loaded-chambered passed native-body-inventory firearm-XML chamber:11 magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay",
+      "component-policy-revoked-shot-unloaded passed native-body-inventory firearm-XML chamber:11 magazine:0 stamina:100 condition:1 wounds:12 raw:40 no-order-replay",
+      "postcommit-independent-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay",
+      "postcommit-independent-loaded-chambered passed native-body-inventory firearm-XML chamber:14 magazine:1 stamina:100 condition:1 wounds:12 raw:40 no-order-replay",
+      "postcommit-independent-shot-unloaded passed native-body-inventory firearm-XML chamber: magazine:0 stamina:97 condition:0.99 wounds:24 raw:60 no-order-replay",
+      "ordered-miss-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:24 raw:40 no-order-replay",
+      "ordered-miss-loaded-chambered passed native-body-inventory firearm-XML chamber:17 magazine:1 stamina:100 condition:1 wounds:24 raw:40 no-order-replay",
+      "ordered-miss-shot-unloaded passed native-body-inventory firearm-XML chamber: magazine:0 stamina:97 condition:0.99 wounds:24 raw:40 no-order-replay",
+      "direct-valid-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:24 raw:40 no-order-replay",
+      "direct-valid-loaded-chambered passed native-body-inventory firearm-XML chamber:20 magazine:1 stamina:100 condition:1 wounds:24 raw:40 no-order-replay",
+      "direct-valid-shot-unloaded passed native-body-inventory firearm-XML chamber: magazine:0 stamina:97 condition:0.99 wounds:36 raw:40 no-order-replay",
+      "admission-replacement-unreadied passed native-body-inventory firearm-XML chamber: magazine:1 stamina:100 condition:1 wounds:36 raw:40 no-order-replay",
+      "admission-replacement-loaded-chambered passed native-body-inventory firearm-XML chamber:23 magazine:1 stamina:100 condition:1 wounds:36 raw:40 no-order-replay",
+      "admission-replacement-shot-unloaded passed native-body-inventory firearm-XML chamber:22 magazine:0 stamina:100 condition:1 wounds:36 raw:40 no-order-replay"
+    ],
+    "source_fingerprint": "4030b7b40ffba9b9bd86c3fbb2597b69ad2bab37c7ab65f663709e628e804213",
+    "source_files": 7174,
+    "aligned_runtime_roles": [
+      {
+        "assembly": "MudSharp.dll",
+        "native_sha256": "8158056d3b33c0fa1e45bc7ac85e79c813302c8166652facd54c28c7919d960d",
+        "managed_sha256": "8158056d3b33c0fa1e45bc7ac85e79c813302c8166652facd54c28c7919d960d",
+        "aligned": true
+      },
+      {
+        "assembly": "FutureMUDLibrary.dll",
+        "native_sha256": "3f4586b45ff2d86b89f38efa64602999dbb0a71f4f0afdf23e1901d66a5b3dd2",
+        "managed_sha256": "3f4586b45ff2d86b89f38efa64602999dbb0a71f4f0afdf23e1901d66a5b3dd2",
+        "aligned": true
+      },
+      {
+        "assembly": "MudsharpDatabaseLibrary.dll",
+        "native_sha256": "9ad2b7e26b605313b242e7d1653d070242e77c389d2388c2cf046d3e30cf65c7",
+        "managed_sha256": "9ad2b7e26b605313b242e7d1653d070242e77c389d2388c2cf046d3e30cf65c7",
+        "aligned": true
+      },
+      {
+        "assembly": "ExpressionEngine.dll",
+        "native_sha256": "3196ebf6148ec692c52dda1f463b822dfa8e6e9aaed9888433b6a756f64da396",
+        "managed_sha256": "3196ebf6148ec692c52dda1f463b822dfa8e6e9aaed9888433b6a756f64da396",
+        "aligned": true
+      }
+    ],
+    "capsule_files": 158,
+    "frozen_manifest": {
+      "path": ".artifacts/emotional-hooks/refusal01-frozen.json",
+      "sha256": "076b7e94ee7bfd60beb4655f4d875883dcd07f60c16e0caa2df86c268a14684b",
+      "bytes": 1451039
+    },
+    "rehash": {
+      "source_stable": true,
+      "source_fingerprint": "4030b7b40ffba9b9bd86c3fbb2597b69ad2bab37c7ab65f663709e628e804213",
+      "capsule_mismatches": [],
+      "status": "PASS"
+    },
+    "cleanup": {
+      "wrapper_cleanup": true,
+      "environment": [
+        {
+          "restored": true,
+          "name": "TEMP",
+          "originally_present": true
+        },
+        {
+          "restored": true,
+          "name": "TMP",
+          "originally_present": true
+        },
+        {
+          "restored": true,
+          "name": "GIT_CONFIG_COUNT",
+          "originally_present": false
+        },
+        {
+          "restored": true,
+          "name": "GIT_CONFIG_KEY_0",
+          "originally_present": false
+        },
+        {
+          "restored": true,
+          "name": "GIT_CONFIG_VALUE_0",
+          "originally_present": false
+        },
+        {
+          "restored": true,
+          "name": "FUTUREMUD_CAPACITY_ACCEPTANCE_OUTPUT",
+          "originally_present": false
+        },
+        {
+          "restored": true,
+          "name": "FUTUREMUD_GATHERING_TEST_CONNECTION",
+          "originally_present": false
+        },
+        {
+          "restored": true,
+          "name": "FUTUREMUD_OWNED_MYSQL_UUID",
+          "originally_present": false
+        },
+        {
+          "restored": true,
+          "name": "FUTUREMUD_OWNED_MYSQL_PORT",
+          "originally_present": false
+        },
+        {
+          "restored": true,
+          "name": "FUTUREMUD_OWNED_MYSQL_DATADIR",
+          "originally_present": false
+        },
+        {
+          "restored": true,
+          "name": "FUTUREMUD_SNAPSHOT_CONNECTION_STRING",
+          "originally_present": false
+        }
+      ],
+      "native_pass": true,
+      "new_mysql_processes_remaining": [],
+      "exit_code": 0
+    },
+    "log": {
+      "path": ".artifacts/emotional-hooks/refusal01-native.log",
+      "sha256": "4071bff5b64aea742efb8d923ee911f553bb1ab2e5e396003232f9f9d9f3ea21",
+      "bytes": 4831198
+    }
+  },
+  "builds": [
+    {
+      "path": ".artifacts/emotional-hooks/refusal-build-01.log",
+      "sha256": "3e40ffd0f956e75532cd6fc76c521b8bbf32e9dc3a441a85411efba5173d0918",
+      "bytes": 116804
+    },
+    {
+      "path": ".artifacts/emotional-hooks/refusal-harness-build-02.log",
+      "sha256": "caa85fd3e0207b0b70678e9f471a55e59630e8e557440bf47fc31d16e40c0581",
+      "bytes": 1108
+    }
+  ],
+  "post_managed_output_manifest": {
+    "path": ".artifacts/emotional-hooks/refusal-harness-build-02-outputs.json",
+    "sha256": "44c06d2880c9c29765c659f903f874f8f908358b8c12d94d8dccbc971c076a82",
+    "bytes": 27847
+  },
+  "managed_environment": [
+    {
+      "path": ".artifacts/emotional-hooks/environment-fm-emotion-399bb5bf55354843abb1d5f07f72b3cb.json",
+      "sha256": "2f5a32988822208c33c83a40e7ef10d43c2a93cfa72b9bc964e6696b9735359b",
+      "bytes": 850
+    },
+    {
+      "path": ".artifacts/emotional-hooks/refusal-harness-build-02-environment.json",
+      "sha256": "47c6b2a4ae7d471fd4cccd709842a14bbb864cb2b07a5b9c66520b7a6e3d77bf",
+      "bytes": 819
+    }
+  ],
+  "changed_executable_sources": [
+    {
+      "path": "MudSharpCore Unit Tests/EmotionalCombatHooksTests.cs",
+      "sha256": "94ae9b04ad9c3ca2e19140bc2ca385aa07a0b72be2e7a5f7cf7e4f6b7d82a6de",
+      "bytes": 16971
+    },
+    {
+      "path": "MudSharpCore/Combat/HostileAttackAdmission.cs",
+      "sha256": "f0d8fcdf295c339fd3e430ee8d70f8d4e877b1802967328f8c0b0a77dd36a1df",
+      "bytes": 6233
+    },
+    {
+      "path": "MudSharpCore/Combat/Moves/RangedWeaponAttackBase.cs",
+      "sha256": "1eee410425961825e04100a95db9598aafe34df096447d9c0bac570f1a25983d",
+      "bytes": 24573
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/FirearmBaseGameItemComponent.cs",
+      "sha256": "eb0b47ab1734e09193f4790ccb48c19b4e8ab369251b7158f402a940caf163b7",
+      "bytes": 33982
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.FirearmAuthority.cs",
+      "sha256": "4cab1fc82d7a1359d6b9d04803659332f67caad205e01e82f90caf333a60f9c7",
+      "bytes": 23122
+    },
+    {
+      "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Run-IsolatedAcceptance.ps1",
+      "sha256": "42b833a989cd7dd63680b16157d210475bbad27c84278fe491793087faf5ad13",
+      "bytes": 17102
+    }
+  ],
+  "prior_evidence_preserved": {
+    "verification": {
+      "path": "Design Documents/Magic/Armageddon_EmotionalCombatHooks_Verification.json",
+      "sha256": "200b8f12507188bc67f91879db08334374b4ee380164ce34f11faebd06d1ad99",
+      "bytes": 78620
+    },
+    "commit_receipt_sha256": "bd09b75a84460caf26539f04aa508ab06f6baf6d32797dda96426215c24bd8c0",
+    "prior_capsules": [
+      {
+        "manifest": {
+          "path": ".artifacts/emotional-hooks/native01-frozen.json",
+          "sha256": "6cc5df2a5d6d1e703fe79b2df5d08dfaa0890735f9657299bd333ef2cb734b58",
+          "bytes": 1454772
+        },
+        "capsule_files": 177,
+        "rehash": "PASS"
+      },
+      {
+        "manifest": {
+          "path": ".artifacts/emotional-hooks/native02-frozen.json",
+          "sha256": "deeaa1872bded5f5abb226a734ae5bb7543981ab84cf6ffd9a536c6c0d0b17b4",
+          "bytes": 1454772
+        },
+        "capsule_files": 177,
+        "rehash": "PASS"
+      },
+      {
+        "manifest": {
+          "path": ".artifacts/emotional-hooks/native03-frozen.json",
+          "sha256": "316103ed09564a1c5970754ae6095915787e8cfc3236c9a5c1a45a1cf9591a3a",
+          "bytes": 1454772
+        },
+        "capsule_files": 177,
+        "rehash": "PASS"
+      },
+      {
+        "manifest": {
+          "path": ".artifacts/emotional-hooks/native04-frozen.json",
+          "sha256": "d40aeb969ca6c4afaf8973405f68dbb4497776ba3afc1d8855872c5478cd68d0",
+          "bytes": 1454772
+        },
+        "capsule_files": 177,
+        "rehash": "PASS"
+      }
+    ],
+    "old_selected_receipts_helpers_unchanged": 152,
+    "old_worktree_head": "eb9295cc5f84ddece84edfcbbfc0fc8c76ad2db3"
+  },
+  "review": "Focused independent source review found no established P1/P2 in the narrow correction. Reviewer executed no checks.",
+  "limits": [
+    "Earlier-committed managed row records committed shot state and exercises real wrapper Aim/cost handling; it is not an actual native burst.",
+    "Native postcommit-independent accepted shot still retains3 stamina/0.01 condition/native damage, independent trait write and notification behavior.",
+    "Only the firearm native lane was rerun at the corrective revision. Prior melee/countershot/cessation packet remains historical; their managed dependants pass in426.",
+    "Full Fast, full server/Telnet and an exhaustive multi-round matrix are NOT_RUN. No stock catalogue activation or unrelated weapon issues are included."
+  ],
+  "checkpoint_hold": true,
+  "next_priority": "Cell/room migration after the current checkpoints; parent owns allocation",
+  "whole_plan_complete": false,
+  "package_enabled": false,
+  "published": false,
+  "shared_or_production_database_touched": false
+}

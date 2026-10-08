@@ -113,7 +113,7 @@ public class DrownerStrategy : StandardMeleeStrategy
 		var waterExit = target.Location
 		                      .ExitsFor(target, true)
 		                      .Where(x => x.Destination.Terrain(target).TerrainLayers.Any(y => y.IsUnderwater()))
-		                      .Where(x => x.MovementTransition(target).TransitionType != CellMovementTransition.NoViableTransition)
+		                      .Where(x => x.MovementTransition(target).TransitionType != RoomMovementTransition.NoViableTransition)
 		                      .GetRandomElement();
 		if (waterExit is null)
 		{
@@ -137,7 +137,7 @@ public class DrownerStrategy : StandardMeleeStrategy
 			};
 	}
 
-	private static ICombatMove TryForcedExitMove(ICharacter ch, ICharacter target, ICellExit exit, ForcedMovementVerbs verb)
+	private static ICombatMove TryForcedExitMove(ICharacter ch, ICharacter target, IRoomExit exit, ForcedMovementVerbs verb)
 	{
 		if (verb == ForcedMovementVerbs.Pull && !CombatForcedMovementUtilities.CanHaulTarget(ch, target)) return null;
 		var choice = CombatForcedMovementUtilities.FindBestForcedMovementAttack(ch, target, verb, ForcedMovementTypes.Exit);

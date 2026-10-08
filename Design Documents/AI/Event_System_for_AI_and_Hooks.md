@@ -192,7 +192,7 @@ For AI, the main path is:
 AI events do not block ordinary hooks from firing. The NPC still delegates to its base event handling path.
 
 ### Noise emission
-`NoiseEmitted` exposes mechanically meaningful sound to builders without putting any particular game's reaction logic in the engine. `ICell.HandleAudioEcho(...)` fires it once on the origin cell before propagating a non-silent audio echo. Firearms, muskets, explosions, alarms, telephones, lasers, instruments, and signal instruments use that shared path. The event payload is:
+`NoiseEmitted` exposes mechanically meaningful sound to builders without putting any particular game's reaction logic in the engine. `IRoom.HandleAudioEcho(...)` fires it once on the origin cell before propagating a non-silent audio echo. Firearms, muskets, explosions, alarms, telephones, lasers, instruments, and signal instruments use that shared path. The event payload is:
 
 1. origin cell
 2. source perceivable

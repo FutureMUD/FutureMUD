@@ -1,4 +1,4 @@
-﻿using MudSharp.Character.Heritage;
+using MudSharp.Character.Heritage;
 using MudSharp.Commands.Socials;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -16,7 +16,7 @@ public static class PathSearch
     /// </summary>
     /// <param name="exit">The exit being considered by a path search.</param>
     /// <returns><see langword="true" /> when the exit has no closed door blocking it.</returns>
-    public static bool RespectClosedDoors(ICellExit exit)
+    public static bool RespectClosedDoors(IRoomExit exit)
     {
         return exit.Exit.Door?.IsOpen != false;
     }
@@ -26,7 +26,7 @@ public static class PathSearch
     /// </summary>
     /// <param name="exit">The exit being considered by a path search.</param>
     /// <returns><see langword="true" /> when the exit is open, doorless, or its door is closed but unlocked.</returns>
-    public static bool IncludeUnlockedDoors(ICellExit exit)
+    public static bool IncludeUnlockedDoors(IRoomExit exit)
     {
         return exit.Exit.Door?.IsOpen != false || exit.Exit.Door.Locks.All(x => !x.IsLocked);
     }
@@ -36,7 +36,7 @@ public static class PathSearch
     /// </summary>
     /// <param name="exit">The exit being considered by a path search.</param>
     /// <returns><see langword="true" /> when the exit is open, doorless, or the door permits fire through it.</returns>
-    public static bool IncludeFireableDoors(ICellExit exit)
+    public static bool IncludeFireableDoors(IRoomExit exit)
     {
         return exit.Exit.Door?.IsOpen != false || exit.Exit.Door.CanFireThrough;
     }
@@ -46,7 +46,7 @@ public static class PathSearch
     /// </summary>
     /// <param name="exit">The exit being considered by a path search.</param>
     /// <returns>Always <see langword="true" />.</returns>
-    public static bool IgnorePresenceOfDoors(ICellExit exit)
+    public static bool IgnorePresenceOfDoors(IRoomExit exit)
     {
         return true;
     }
@@ -54,34 +54,34 @@ public static class PathSearch
     /// <summary>
     ///     Builds a suitability function that ignores doors but rejects exits too small for a character.
     /// </summary>
-    /// <param name="who">The character whose current cell-exit size is compared to each exit.</param>
+    /// <param name="who">The character whose current room-exit size is compared to each exit.</param>
     /// <returns>A predicate suitable for <c>PathBetween</c> overloads that accept an exit suitability function.</returns>
-    public static Func<ICellExit, bool> PathIgnoreDoors(ICharacter who)
+    public static Func<IRoomExit, bool> PathIgnoreDoors(ICharacter who)
     {
-        return exit => who.CurrentContextualSize(SizeContext.CellExit) <= exit.Exit.MaximumSizeToEnter;
+        return exit => who.CurrentContextualSize(SizeContext.RoomExit) <= exit.Exit.MaximumSizeToEnter;
     }
 
     /// <summary>
     ///     Builds a suitability function that rejects closed doors and exits too small for a character.
     /// </summary>
-    /// <param name="who">The character whose current cell-exit size is compared to each exit.</param>
+    /// <param name="who">The character whose current room-exit size is compared to each exit.</param>
     /// <returns>A predicate suitable for ordinary movement path searches.</returns>
-    public static Func<ICellExit, bool> PathRespectClosedDoors(ICharacter who)
+    public static Func<IRoomExit, bool> PathRespectClosedDoors(ICharacter who)
     {
         return exit => exit.Exit.Door?.IsOpen != false &&
-                       who.CurrentContextualSize(SizeContext.CellExit) <= exit.Exit.MaximumSizeToEnter;
+                       who.CurrentContextualSize(SizeContext.RoomExit) <= exit.Exit.MaximumSizeToEnter;
     }
 
     /// <summary>
     ///     Builds a suitability function that permits doorless/open exits, closed unlocked doors, and exits large enough
     ///     for a character.
     /// </summary>
-    /// <param name="who">The character whose current cell-exit size is compared to each exit.</param>
+    /// <param name="who">The character whose current room-exit size is compared to each exit.</param>
     /// <returns>A predicate suitable for path searches that assume the actor can open unlocked doors.</returns>
-    public static Func<ICellExit, bool> PathIncludeUnlockedDoors(ICharacter who)
+    public static Func<IRoomExit, bool> PathIncludeUnlockedDoors(ICharacter who)
     {
         return exit => (exit.Exit.Door?.IsOpen != false || exit.Exit.Door.Locks.All(x => !x.IsLocked)) &&
-                       who.CurrentContextualSize(SizeContext.CellExit) <= exit.Exit.MaximumSizeToEnter;
+                       who.CurrentContextualSize(SizeContext.RoomExit) <= exit.Exit.MaximumSizeToEnter;
     }
 
     /// <summary>
@@ -92,11 +92,11 @@ public static class PathSearch
     /// <returns>
     ///     A predicate suitable for AI and movement planning where closed doors may be passable through interaction.
     /// </returns>
-    public static Func<ICellExit, bool> PathIncludeUnlockableDoors(ICharacter who)
+    public static Func<IRoomExit, bool> PathIncludeUnlockableDoors(ICharacter who)
     {
         return exit =>
         {
-            if (who.CurrentContextualSize(SizeContext.CellExit) > exit.Exit.MaximumSizeToEnter)
+            if (who.CurrentContextualSize(SizeContext.RoomExit) > exit.Exit.MaximumSizeToEnter)
             {
                 return false;
             }
@@ -147,16 +147,16 @@ public static class PerceivedItemExtensions
 {
     private const double SameDepthHeuristicTieBreaker = 0.001;
 
-    private sealed class CellReferenceComparer : IEqualityComparer<ICell>
+    private sealed class RoomReferenceComparer : IEqualityComparer<IRoom>
     {
-        public static readonly CellReferenceComparer Instance = new();
+        public static readonly RoomReferenceComparer Instance = new();
 
-        public bool Equals(ICell x, ICell y)
+        public bool Equals(IRoom x, IRoom y)
         {
             return ReferenceEquals(x, y);
         }
 
-        public int GetHashCode(ICell obj)
+        public int GetHashCode(IRoom obj)
         {
             return obj == null ? 0 : RuntimeHelpers.GetHashCode(obj);
         }
@@ -164,25 +164,25 @@ public static class PerceivedItemExtensions
 
     private sealed class PathSearchStep
     {
-        public ICell Cell { get; init; }
-        public ICellExit Exit { get; init; }
+        public IRoom Room { get; init; }
+        public IRoomExit Exit { get; init; }
         public PathSearchStep Parent { get; init; }
         public int Distance { get; init; }
     }
 
-    private static HashSet<ICell> NewCellSet()
+    private static HashSet<IRoom> NewRoomSet()
     {
-        return new HashSet<ICell>(CellReferenceComparer.Instance);
+        return new HashSet<IRoom>(RoomReferenceComparer.Instance);
     }
 
-    private static Dictionary<ICell, int> NewCellDistanceDictionary()
+    private static Dictionary<IRoom, int> NewRoomDistanceDictionary()
     {
-        return new Dictionary<ICell, int>(CellReferenceComparer.Instance);
+        return new Dictionary<IRoom, int>(RoomReferenceComparer.Instance);
     }
 
-    private static List<ICellExit> BuildPath(PathSearchStep step)
+    private static List<IRoomExit> BuildPath(PathSearchStep step)
     {
-        List<ICellExit> path = new(step.Distance);
+        List<IRoomExit> path = new(step.Distance);
         PathSearchStep current = step;
         while (current != null)
         {
@@ -194,25 +194,25 @@ public static class PerceivedItemExtensions
         return path;
     }
 
-    private static List<ICellExit> FindShortestExitPath(ICell source, IEnumerable<ICell> targets,
-        uint maximumDistance, Func<ICellExit, bool> suitabilityFunction, bool ignoreLayers)
+    private static List<IRoomExit> FindShortestExitPath(IRoom source, IEnumerable<IRoom> targets,
+        uint maximumDistance, Func<IRoomExit, bool> suitabilityFunction, bool ignoreLayers)
     {
         if (source == null || targets == null || suitabilityFunction == null)
         {
-            return new List<ICellExit>();
+            return new List<IRoomExit>();
         }
 
-		// Exit-only paths cannot represent longitudinal travel inside a RouteCell. Failing closed here
+		// Exit-only paths cannot represent longitudinal travel inside a RouteRoom. Failing closed here
 		// prevents legacy AI, combat, range, and following callers from treating a many-kilometre cell
 		// as a single-room shortcut. Coordinate-aware callers must use ISpatialPathfinder.
 		if (source.RouteDefinition is not null)
 		{
-			return new List<ICellExit>();
+			return new List<IRoomExit>();
 		}
 
-        HashSet<ICell> targetSet = NewCellSet();
+        HashSet<IRoom> targetSet = NewRoomSet();
         List<IRoom> targetRooms = new();
-        foreach (ICell target in targets)
+        foreach (IRoom target in targets)
         {
             if (target == null)
             {
@@ -221,30 +221,30 @@ public static class PerceivedItemExtensions
 
 			if (target.RouteDefinition is not null)
 			{
-				return new List<ICellExit>();
+				return new List<IRoomExit>();
             }
 
             if (ReferenceEquals(source, target))
             {
-                return new List<ICellExit>();
+                return new List<IRoomExit>();
             }
 
-            if (targetSet.Add(target) && target.Room != null)
+            if (targetSet.Add(target) && target != null)
             {
-                targetRooms.Add(target.Room);
+                targetRooms.Add(target);
             }
         }
 
         if (targetSet.Count == 0 || maximumDistance == 0)
         {
-            return new List<ICellExit>();
+            return new List<IRoomExit>();
         }
 
-        Dictionary<ICell, int> bestDistances = NewCellDistanceDictionary();
+        Dictionary<IRoom, int> bestDistances = NewRoomDistanceDictionary();
         bestDistances[source] = 0;
 
         RandomAccessPriorityQueue<double, PathSearchStep> queue = new();
-        foreach (ICellExit exit in source.ExitsFor(null, ignoreLayers))
+        foreach (IRoomExit exit in source.ExitsFor(null, ignoreLayers))
         {
 			if (!suitabilityFunction(exit) || exit.Destination == null ||
 				exit.Destination.RouteDefinition is not null)
@@ -254,29 +254,29 @@ public static class PerceivedItemExtensions
 
             PathSearchStep step = new()
             {
-                Cell = exit.Destination,
+                Room = exit.Destination,
                 Exit = exit,
                 Distance = 1
             };
 
-            if (targetSet.Contains(step.Cell))
+            if (targetSet.Contains(step.Room))
             {
                 return BuildPath(step);
             }
 
-            if (bestDistances.TryGetValue(step.Cell, out int existingDistance) && existingDistance <= step.Distance)
+            if (bestDistances.TryGetValue(step.Room, out int existingDistance) && existingDistance <= step.Distance)
             {
                 continue;
             }
 
-            bestDistances[step.Cell] = step.Distance;
-            queue.Enqueue(SearchPriority(step.Distance, step.Cell, targetRooms), step);
+            bestDistances[step.Room] = step.Distance;
+            queue.Enqueue(SearchPriority(step.Distance, step.Room, targetRooms), step);
         }
 
         while (queue.Count > 0)
         {
             PathSearchStep next = queue.DequeueValue();
-            if (bestDistances.TryGetValue(next.Cell, out int bestDistance) && next.Distance > bestDistance)
+            if (bestDistances.TryGetValue(next.Room, out int bestDistance) && next.Distance > bestDistance)
             {
                 continue;
             }
@@ -286,7 +286,7 @@ public static class PerceivedItemExtensions
                 continue;
             }
 
-            foreach (ICellExit exit in next.Cell.ExitsFor(null, ignoreLayers))
+            foreach (IRoomExit exit in next.Room.ExitsFor(null, ignoreLayers))
             {
 				if (!suitabilityFunction(exit) || exit.Destination == null ||
 					exit.Destination.RouteDefinition is not null)
@@ -308,40 +308,40 @@ public static class PerceivedItemExtensions
 
                 PathSearchStep step = new()
                 {
-                    Cell = exit.Destination,
+                    Room = exit.Destination,
                     Exit = exit,
                     Parent = next,
                     Distance = tentativeDistance
                 };
 
-                if (targetSet.Contains(step.Cell))
+                if (targetSet.Contains(step.Room))
                 {
                     return BuildPath(step);
                 }
 
-                bestDistances[step.Cell] = step.Distance;
-                queue.Enqueue(SearchPriority(step.Distance, step.Cell, targetRooms), step);
+                bestDistances[step.Room] = step.Distance;
+                queue.Enqueue(SearchPriority(step.Distance, step.Room, targetRooms), step);
             }
         }
 
-        return new List<ICellExit>();
+        return new List<IRoomExit>();
     }
 
-    internal static List<ICellExit> FindShortestExitPathForPathfinding(ICell source, IEnumerable<ICell> targets,
-        uint maximumDistance, Func<ICellExit, bool> suitabilityFunction, bool ignoreLayers)
+    internal static List<IRoomExit> FindShortestExitPathForPathfinding(IRoom source, IEnumerable<IRoom> targets,
+        uint maximumDistance, Func<IRoomExit, bool> suitabilityFunction, bool ignoreLayers)
     {
         return FindShortestExitPath(source, targets, maximumDistance, suitabilityFunction, ignoreLayers);
     }
 
-    private static List<ICellExit> FindPath(ICell source, IReadOnlyCollection<ICell> targets,
-        uint maximumDistance, Func<ICellExit, bool> suitabilityFunction, bool ignoreLayers, PathSearchOptions options)
+    private static List<IRoomExit> FindPath(IRoom source, IReadOnlyCollection<IRoom> targets,
+        uint maximumDistance, Func<IRoomExit, bool> suitabilityFunction, bool ignoreLayers, PathSearchOptions options)
     {
 		if (source?.RouteDefinition is not null || targets?.Any(x => x?.RouteDefinition is not null) == true)
 		{
-			return new List<ICellExit>();
+			return new List<IRoomExit>();
 		}
 
-		Func<ICellExit, bool> routeSafeSuitability = exit =>
+		Func<IRoomExit, bool> routeSafeSuitability = exit =>
 			exit.Destination?.RouteDefinition is null && suitabilityFunction(exit);
         options ??= PathSearchOptions.Exact;
         if (options.Algorithm == PathSearchAlgorithm.Exact ||
@@ -353,26 +353,26 @@ public static class PerceivedItemExtensions
         IPathfindingService service = source?.Gameworld?.ExitManager?.PathfindingService;
         if (service == null)
         {
-            return new List<ICellExit>();
+            return new List<IRoomExit>();
         }
 
 		return service.TryFindLongRangePath(source, targets, maximumDistance, routeSafeSuitability, ignoreLayers,
-            options, out IReadOnlyList<ICellExit> path)
+            options, out IReadOnlyList<IRoomExit> path)
             ? path.ToList()
-            : new List<ICellExit>();
+            : new List<IRoomExit>();
     }
 
-    private static double SearchPriority(int distance, ICell cell, IReadOnlyCollection<IRoom> targetRooms)
+    private static double SearchPriority(int distance, IRoom room, IReadOnlyCollection<IRoom> targetRooms)
     {
-        if (cell?.Room == null || targetRooms == null || targetRooms.Count == 0)
+        if (room == null || targetRooms == null || targetRooms.Count == 0)
         {
             return distance;
         }
 
         double bestSquaredDistance = double.MaxValue;
-        foreach (IRoom room in targetRooms)
+        foreach (IRoom targetRoom in targetRooms)
         {
-            double squaredDistance = SquaredDistance(cell.Room, room);
+            double squaredDistance = SquaredDistance(room, targetRoom);
             if (squaredDistance < bestSquaredDistance)
             {
                 bestSquaredDistance = squaredDistance;
@@ -389,44 +389,44 @@ public static class PerceivedItemExtensions
 
     private static double SquaredDistance(IRoom room1, IRoom room2)
     {
-        double x = room2.X - room1.X;
-        double y = room2.Y - room1.Y;
-        double z = room2.Z - room1.Z;
+        double x = room2.StoredCoordinates.X - room1.StoredCoordinates.X;
+        double y = room2.StoredCoordinates.Y - room1.StoredCoordinates.Y;
+        double z = room2.StoredCoordinates.Z - room1.StoredCoordinates.Z;
         return x * x + y * y + z * z;
     }
 
-    private static List<ICell> FindCellsInVicinity(ICell source, uint maximumDistance,
-        Func<ICellExit, bool> suitabilityFunction, bool ignoreLayers)
+    private static List<IRoom> FindRoomsInVicinity(IRoom source, uint maximumDistance,
+        Func<IRoomExit, bool> suitabilityFunction, bool ignoreLayers)
     {
-        List<ICell> cells = new();
+        List<IRoom> rooms = new();
         if (source == null || suitabilityFunction == null)
         {
-            return cells;
+            return rooms;
         }
 
-        HashSet<ICell> seen = NewCellSet();
-        Queue<(ICell Cell, int Distance)> queue = new();
+        HashSet<IRoom> seen = NewRoomSet();
+        Queue<(IRoom Room, int Distance)> queue = new();
         seen.Add(source);
-        cells.Add(source);
+        rooms.Add(source);
 		// This compatibility API has no coordinate-bearing result type. It must not flatten a
-		// RouteCell into a single room or enter one as a one-room shortcut; spatial callers use
+		// RouteRoom into a single room or enter one as a one-room shortcut; spatial callers use
 		// ISpatialPathfinder instead.
 		if (source.RouteDefinition is not null)
 		{
-			return cells;
+			return rooms;
 		}
 
         queue.Enqueue((source, 0));
 
         while (queue.Count > 0)
         {
-            (ICell cell, int distance) = queue.Dequeue();
+            (IRoom room, int distance) = queue.Dequeue();
             if (distance >= maximumDistance)
             {
                 continue;
             }
 
-            foreach (ICellExit exit in cell.ExitsFor(null, ignoreLayers))
+            foreach (IRoomExit exit in room.ExitsFor(null, ignoreLayers))
             {
                 if (!suitabilityFunction(exit) || exit.Destination == null ||
 					exit.Destination.RouteDefinition is not null || !seen.Add(exit.Destination))
@@ -434,43 +434,43 @@ public static class PerceivedItemExtensions
                     continue;
                 }
 
-                cells.Add(exit.Destination);
+                rooms.Add(exit.Destination);
                 queue.Enqueue((exit.Destination, distance + 1));
             }
         }
 
-        return cells;
+        return rooms;
     }
 
-    private static List<(ICell Cell, int Distance)> FindCellsAndDistancesInVicinity(ICell source,
-        uint maximumDistance, Func<ICellExit, bool> suitabilityFunction, bool ignoreLayers)
+    private static List<(IRoom Room, int Distance)> FindRoomsAndDistancesInVicinity(IRoom source,
+        uint maximumDistance, Func<IRoomExit, bool> suitabilityFunction, bool ignoreLayers)
     {
-        List<(ICell Cell, int Distance)> cells = new();
+        List<(IRoom Room, int Distance)> rooms = new();
         if (source == null || suitabilityFunction == null)
         {
-            return cells;
+            return rooms;
         }
 
-        HashSet<ICell> seen = NewCellSet();
-        Queue<(ICell Cell, int Distance)> queue = new();
+        HashSet<IRoom> seen = NewRoomSet();
+        Queue<(IRoom Room, int Distance)> queue = new();
         seen.Add(source);
-        cells.Add((source, 0));
+        rooms.Add((source, 0));
 		if (source.RouteDefinition is not null)
 		{
-			return cells;
+			return rooms;
 		}
 
         queue.Enqueue((source, 0));
 
         while (queue.Count > 0)
         {
-            (ICell cell, int distance) = queue.Dequeue();
+            (IRoom room, int distance) = queue.Dequeue();
             if (distance >= maximumDistance)
             {
                 continue;
             }
 
-            foreach (ICellExit exit in cell.ExitsFor(null, ignoreLayers))
+            foreach (IRoomExit exit in room.ExitsFor(null, ignoreLayers))
             {
                 if (!suitabilityFunction(exit) || exit.Destination == null ||
 					exit.Destination.RouteDefinition is not null || !seen.Add(exit.Destination))
@@ -479,32 +479,32 @@ public static class PerceivedItemExtensions
                 }
 
                 int exitDistance = distance + 1;
-                cells.Add((exit.Destination, exitDistance));
+                rooms.Add((exit.Destination, exitDistance));
                 queue.Enqueue((exit.Destination, exitDistance));
             }
         }
 
-        return cells;
+        return rooms;
     }
 
-    private static IPerceivable FirstTargetInCell(ICell cell, Func<IPerceivable, bool> targetFunction)
+    private static IPerceivable FirstTargetInRoom(IRoom room, Func<IPerceivable, bool> targetFunction)
     {
-        return cell.Perceivables.FirstOrDefault(targetFunction) ??
-               (targetFunction(cell) ? cell : null);
+        return room.Perceivables.FirstOrDefault(targetFunction) ??
+               (targetFunction(room) ? room : null);
     }
 
     /// <summary>
-    ///     Determines the shortest number of cell exits between the source's current location and the target's current
+    ///     Determines the shortest number of room exits between the source's current location and the target's current
     ///     location.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="target">The perceivable whose location is the destination cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="target">The perceivable whose location is the destination room.</param>
     /// <param name="maximumDistance">
     ///     The inclusive maximum number of exits to traverse. Use small values for hot-path checks; a value of
-    ///     <c>0</c> only succeeds when both perceivables are already in the same cell.
+    ///     <c>0</c> only succeeds when both perceivables are already in the same room.
     /// </param>
     /// <returns>
-    ///     <c>0</c> when both perceivables are in the same cell, a positive exit count for the shortest route, or
+    ///     <c>0</c> when both perceivables are in the same room, a positive exit count for the shortest route, or
     ///     <c>-1</c> when either perceivable has no location or no route exists within <paramref name="maximumDistance" />.
     /// </returns>
     public static int DistanceBetween(this IPerceivable source, IPerceivable target, uint maximumDistance)
@@ -529,13 +529,13 @@ public static class PerceivedItemExtensions
 			return 0;
 		}
 
-        List<ICellExit> path = FindShortestExitPath(source.Location, [target.Location], maximumDistance, _ => true,
+        List<IRoomExit> path = FindShortestExitPath(source.Location, [target.Location], maximumDistance, _ => true,
             false);
         return path.Count == 0 ? -1 : path.Count;
     }
 
     /// <summary>
-    ///     Determines the number of cell exits between two perceivables using the supplied search options. Exact mode
+    ///     Determines the number of room exits between two perceivables using the supplied search options. Exact mode
     ///     preserves the ordinary shortest-path behaviour; automatic and hierarchical modes may use the topology index
     ///     for long routes but still validate every returned exit against live state.
     /// </summary>
@@ -562,13 +562,13 @@ public static class PerceivedItemExtensions
 			return 0;
 		}
 
-        List<ICellExit> path = FindPath(source.Location, [target.Location], maximumDistance, _ => true,
+        List<IRoomExit> path = FindPath(source.Location, [target.Location], maximumDistance, _ => true,
             false, options);
         return path.Count == 0 ? -1 : path.Count;
     }
 
 	/// <summary>
-	/// Returns the exact hybrid-path cost in room equivalents. RouteCell longitudinal edges use
+	/// Returns the exact hybrid-path cost in room equivalents. RouteRoom longitudinal edges use
 	/// their authored metres-per-room scale; ordinary exits retain their normal unit cost.
 	/// </summary>
 	public static double RoomEquivalentDistanceBetween(this IPerceivable source, IPerceivable target)
@@ -598,8 +598,8 @@ public static class PerceivedItemExtensions
     /// <summary>
     ///     Tests whether the target can be reached from the source within a maximum exit count.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="target">The perceivable whose location is the destination cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="target">The perceivable whose location is the destination room.</param>
     /// <param name="desiredDistance">The inclusive maximum number of exits that may be traversed.</param>
     /// <returns>
     ///     <see langword="true" /> when <see cref="DistanceBetween" /> finds any route within
@@ -612,46 +612,46 @@ public static class PerceivedItemExtensions
     }
 
     /// <summary>
-    ///     Finds cells underneath the broad corridor of a flight or projectile path between two perceivables.
+    ///     Finds rooms underneath the broad corridor of a flight or projectile path between two perceivables.
     /// </summary>
     /// <param name="source">The perceivable whose location is the start of the flight path.</param>
     /// <param name="target">The perceivable whose location is the end of the flight path.</param>
     /// <param name="maximumDistance">The maximum number of generations to trace before giving up.</param>
     /// <param name="permittedDirections">
-    ///     Optional outbound directions to seed the corridor. When omitted, all non-unknown exits from the source cell
+    ///     Optional outbound directions to seed the corridor. When omitted, all non-unknown exits from the source room
     ///     are used. As the search advances, directions opposing the current travel direction are dropped to keep the
     ///     corridor moving generally away from the source.
     /// </param>
     /// <returns>
-    ///     Cells under the path, excluding the source and target cells. Closed doors block the corridor unless they can
+    ///     Rooms under the path, excluding the source and target rooms. Closed doors block the corridor unless they can
     ///     be fired through. An empty collection means the target is colocated, invalid, adjacent with no intervening
-    ///     cells, or unreachable within the limit.
+    ///     rooms, or unreachable within the limit.
     /// </returns>
-    public static IEnumerable<ICell> CellsUnderneathFlight(this IPerceivable source, IPerceivable target,
+    public static IEnumerable<IRoom> RoomsUnderneathFlight(this IPerceivable source, IPerceivable target,
         uint maximumDistance, IEnumerable<CardinalDirection> permittedDirections = null)
     {
         if (Equals(source?.Location, target?.Location))
         {
-            return Enumerable.Empty<ICell>();
+            return Enumerable.Empty<IRoom>();
         }
 
         if (source == null || target == null || source.Location == null || target.Location == null)
         {
-            return Enumerable.Empty<ICell>();
+            return Enumerable.Empty<IRoom>();
         }
 
-        HashSet<ICell> locationsConsidered = NewCellSet();
+        HashSet<IRoom> locationsConsidered = NewRoomSet();
         locationsConsidered.Add(source.Location);
-        List<ICellExit> exits = source.Location.ExitsFor(null).ToList();
+        List<IRoomExit> exits = source.Location.ExitsFor(null).ToList();
         List<CardinalDirection> permittedDirectionList =
             permittedDirections?.Distinct().ToList() ??
             exits.Select(y => y.OutboundDirection).Except(CardinalDirection.Unknown).Distinct().ToList();
 
-        List<PolyNode<CellDirectionSearch>> generationExits =
+        List<PolyNode<RoomDirectionSearch>> generationExits =
             new(
                 exits
                       .Where(x => permittedDirectionList.Contains(x.OutboundDirection))
-                      .Select(x => new PolyNode<CellDirectionSearch>(new CellDirectionSearch
+                      .Select(x => new PolyNode<RoomDirectionSearch>(new RoomDirectionSearch
                       {
                           Exit = x,
                           PreviousDirection = CardinalDirection.Unknown,
@@ -661,16 +661,16 @@ public static class PerceivedItemExtensions
         int generation = 0;
         while (generation++ < maximumDistance)
         {
-            List<PolyNode<CellDirectionSearch>> thisGeneration = generationExits.ToList();
-            Dictionary<ICell, List<PolyNode<CellDirectionSearch>>> generationDictionary = new();
+            List<PolyNode<RoomDirectionSearch>> thisGeneration = generationExits.ToList();
+            Dictionary<IRoom, List<PolyNode<RoomDirectionSearch>>> generationDictionary = new();
             generationExits.Clear();
-            foreach (PolyNode<CellDirectionSearch> exit in thisGeneration)
+            foreach (PolyNode<RoomDirectionSearch> exit in thisGeneration)
             {
                 if (locationsConsidered.Contains(exit.Value.Exit.Destination))
                 {
                     if (generationDictionary.ContainsKey(exit.Value.Exit.Destination))
                     {
-                        foreach (PolyNode<CellDirectionSearch> node in generationDictionary[exit.Value.Exit.Destination])
+                        foreach (PolyNode<RoomDirectionSearch> node in generationDictionary[exit.Value.Exit.Destination])
                         {
                             if (!exit.Value.PermittedDirections.Contains(node.Value.Exit.OutboundDirection))
                             {
@@ -691,8 +691,8 @@ public static class PerceivedItemExtensions
                 }
 
                 locationsConsidered.Add(exit.Value.Exit.Destination);
-                generationDictionary[exit.Value.Exit.Destination] = new List<PolyNode<CellDirectionSearch>>();
-                foreach (ICellExit otherExit in exit.Value.Exit.Destination.ExitsFor(null))
+                generationDictionary[exit.Value.Exit.Destination] = new List<PolyNode<RoomDirectionSearch>>();
+                foreach (IRoomExit otherExit in exit.Value.Exit.Destination.ExitsFor(null))
                 {
                     if (!exit.Value.PermittedDirections.Contains(otherExit.OutboundDirection))
                     {
@@ -704,7 +704,7 @@ public static class PerceivedItemExtensions
                         continue;
                     }
 
-                    PolyNode<CellDirectionSearch> newNode = new(new CellDirectionSearch
+                    PolyNode<RoomDirectionSearch> newNode = new(new RoomDirectionSearch
                     {
                         Exit = otherExit,
                         PreviousDirection = exit.Value.Exit.OutboundDirection,
@@ -725,40 +725,40 @@ public static class PerceivedItemExtensions
                                                          .Ancestors.Select(x => x.Value.Exit.Destination)
                                                          .Except(target.Location)
                                                          .Reverse()
-                                                         .ToList() ?? Enumerable.Empty<ICell>();
+                                                         .ToList() ?? Enumerable.Empty<IRoom>();
             }
         }
 
-        return Enumerable.Empty<ICell>();
+        return Enumerable.Empty<IRoom>();
     }
 
     /// <summary>
-    ///     Returns the intermediate destination cells on the shortest route between two perceivables.
+    ///     Returns the intermediate destination rooms on the shortest route between two perceivables.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="target">The perceivable whose location is the destination cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="target">The perceivable whose location is the destination room.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <returns>
-    ///     The cells reached by each exit on the route except the final target cell. The source cell is never included.
+    ///     The rooms reached by each exit on the route except the final target room. The source room is never included.
     ///     If the target is adjacent, colocated, invalid, or unreachable within the limit, the result is empty.
     /// </returns>
-    public static IEnumerable<ICell> CellsBetween(this IPerceivable source, IPerceivable target,
+    public static IEnumerable<IRoom> RoomsBetween(this IPerceivable source, IPerceivable target,
         uint maximumDistance)
     {
         if (source?.Location == target?.Location)
         {
-            return Enumerable.Empty<ICell>();
+            return Enumerable.Empty<IRoom>();
         }
 
         if (source == null || target == null || source.Location == null || target.Location == null)
         {
-            return Enumerable.Empty<ICell>();
+            return Enumerable.Empty<IRoom>();
         }
 
-        List<ICellExit> path = FindShortestExitPath(source.Location, [target.Location], maximumDistance, _ => true,
+        List<IRoomExit> path = FindShortestExitPath(source.Location, [target.Location], maximumDistance, _ => true,
             false);
         return path.Count <= 1
-            ? Enumerable.Empty<ICell>()
+            ? Enumerable.Empty<IRoom>()
             : path.Take(path.Count - 1).Select(x => x.Destination).ToList();
     }
 
@@ -766,25 +766,25 @@ public static class PerceivedItemExtensions
     ///     Returns the shortest ordered list of exits between two perceivables without applying movement suitability
     ///     rules.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="target">The perceivable whose location is the destination cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="target">The perceivable whose location is the destination room.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <returns>
     ///     The exits to take from source to target. The result is empty when the perceivables are colocated, either
     ///     location is missing, or the target cannot be reached within <paramref name="maximumDistance" />. This helper
     ///     does not test doors, size limits, or other movement rules.
     /// </returns>
-    public static IEnumerable<ICellExit> ExitsBetween(this IPerceivable source, IPerceivable target,
+    public static IEnumerable<IRoomExit> ExitsBetween(this IPerceivable source, IPerceivable target,
         uint maximumDistance)
     {
         if (source?.Location == target?.Location)
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
         if (source == null || target == null || source.Location == null || target.Location == null)
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
         return FindShortestExitPath(source.Location, [target.Location], maximumDistance, _ => true, false);
@@ -794,25 +794,25 @@ public static class PerceivedItemExtensions
     ///     Returns an ordered exit path between two perceivables using the supplied search options. Hierarchical searches
     ///     are intended for long routes and may return a valid route that is not globally shortest.
     /// </summary>
-    public static IEnumerable<ICellExit> ExitsBetween(this IPerceivable source, IPerceivable target,
+    public static IEnumerable<IRoomExit> ExitsBetween(this IPerceivable source, IPerceivable target,
         uint maximumDistance, PathSearchOptions options)
     {
         if (source?.Location == target?.Location)
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
         if (source == null || target == null || source.Location == null || target.Location == null)
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
         return FindPath(source.Location, [target.Location], maximumDistance, _ => true, false, options);
     }
 
     /// <summary>
-    ///     Returns all cells reachable from a source within a maximum exit count while applying caller-provided exit and
-    ///     destination-cell filters.
+    ///     Returns all rooms reachable from a source within a maximum exit count while applying caller-provided exit and
+    ///     destination-room filters.
     /// </summary>
     /// <param name="source">The perceivable whose location is the centre of the vicinity search.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to radiate out from the source.</param>
@@ -821,28 +821,28 @@ public static class PerceivedItemExtensions
     ///     route.
     /// </param>
     /// <param name="cellFitnessEvaluator">
-    ///     Predicate run for the destination cell of a candidate exit. Return <see langword="false" /> to exclude that
-    ///     cell and prevent traversal through it.
+    ///     Predicate run for the destination room of a candidate exit. Return <see langword="false" /> to exclude that
+    ///     room and prevent traversal through it.
     /// </param>
     /// <returns>
-    ///     Cells in breadth-first order by distance, always including the source cell when it has a location. An invalid
+    ///     Rooms in breadth-first order by distance, always including the source room when it has a location. An invalid
     ///     source or missing evaluator returns an empty collection.
     /// </returns>
-    public static IEnumerable<ICell> CellsInVicinity(this IPerceivable source, uint maximumDistance,
-        Func<ICellExit, bool> cellExitFitnessEvaluator,
-        Func<ICell, bool> cellFitnessEvaluator)
+    public static IEnumerable<IRoom> RoomsInVicinity(this IPerceivable source, uint maximumDistance,
+        Func<IRoomExit, bool> cellExitFitnessEvaluator,
+        Func<IRoom, bool> cellFitnessEvaluator)
     {
         if (source?.Location == null || cellExitFitnessEvaluator == null || cellFitnessEvaluator == null)
         {
-            return Enumerable.Empty<ICell>();
+            return Enumerable.Empty<IRoom>();
         }
 
-        return FindCellsInVicinity(source.Location, maximumDistance,
+        return FindRoomsInVicinity(source.Location, maximumDistance,
             exit => cellExitFitnessEvaluator(exit) && cellFitnessEvaluator(exit.Destination), false);
     }
 
     /// <summary>
-    ///     Returns all cells within a maximum exit count, optionally applying line-of-effect corner logic.
+    ///     Returns all rooms within a maximum exit count, optionally applying line-of-effect corner logic.
     /// </summary>
     /// <param name="source">The perceivable whose location is the centre of the vicinity search.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to radiate out from the source.</param>
@@ -863,21 +863,21 @@ public static class PerceivedItemExtensions
     ///     when turning away from that direction.
     /// </param>
     /// <returns>
-    ///     Cells in distance order, always including the source cell when it has a location. An invalid source returns an
+    ///     Rooms in distance order, always including the source room when it has a location. An invalid source returns an
     ///     empty collection.
     /// </returns>
-    public static IEnumerable<ICell> CellsInVicinity(this IPerceivable source, uint maximumDistance,
+    public static IEnumerable<IRoom> RoomsInVicinity(this IPerceivable source, uint maximumDistance,
         bool respectDoors, bool respectCorners, IEnumerable<CardinalDirection> permittedDirections = null,
         CardinalDirection straightDirection = CardinalDirection.Unknown)
     {
         if (source?.Location == null)
         {
-            return Enumerable.Empty<ICell>();
+            return Enumerable.Empty<IRoom>();
         }
 
         if (!respectCorners)
         {
-            return FindCellsInVicinity(source.Location, maximumDistance,
+            return FindRoomsInVicinity(source.Location, maximumDistance,
                 exit => !respectDoors || exit.Exit.Door?.IsOpen != false || exit.Exit.Door.CanFireThrough, true);
         }
 
@@ -886,16 +886,16 @@ public static class PerceivedItemExtensions
 			return [source.Location];
 		}
 
-        List<ICell> locationsConsidered = new()
+        List<IRoom> locationsConsidered = new()
         { source.Location };
-        HashSet<ICell> locationsSeen = NewCellSet();
+        HashSet<IRoom> locationsSeen = NewRoomSet();
         locationsSeen.Add(source.Location);
-        List<ICellExit> exits = source.Location.ExitsFor(null, true).ToList();
+        List<IRoomExit> exits = source.Location.ExitsFor(null, true).ToList();
         List<CardinalDirection> permittedDirectionList =
             permittedDirections?.Distinct().ToList() ??
             exits.Select(y => y.OutboundDirection).Except(CardinalDirection.Unknown).Distinct().ToList();
 
-        bool ExitSuitable(ICellExit exit, IEnumerable<CardinalDirection> directions)
+        bool ExitSuitable(IRoomExit exit, IEnumerable<CardinalDirection> directions)
         {
             if (respectCorners && directions.Contains(exit.OutboundDirection) == false)
             {
@@ -917,12 +917,12 @@ public static class PerceivedItemExtensions
             return true;
         }
 
-        List<PolyNode<CellDirectionSearch>> generationExits =
+        List<PolyNode<RoomDirectionSearch>> generationExits =
             new(
                 exits
 					  .Where(x => x.Destination.RouteDefinition is null)
                       .Where(x => ExitSuitable(x, permittedDirectionList))
-                      .Select(x => new PolyNode<CellDirectionSearch>(new CellDirectionSearch
+                      .Select(x => new PolyNode<RoomDirectionSearch>(new RoomDirectionSearch
                       {
                           Exit = x,
                           PreviousDirection = CardinalDirection.Unknown,
@@ -933,16 +933,16 @@ public static class PerceivedItemExtensions
         int generation = 0;
         while (generation++ < maximumDistance)
         {
-            List<PolyNode<CellDirectionSearch>> thisGeneration = generationExits.ToList();
-            Dictionary<ICell, List<PolyNode<CellDirectionSearch>>> generationDictionary = new();
+            List<PolyNode<RoomDirectionSearch>> thisGeneration = generationExits.ToList();
+            Dictionary<IRoom, List<PolyNode<RoomDirectionSearch>>> generationDictionary = new();
             generationExits.Clear();
-            foreach (PolyNode<CellDirectionSearch> exit in thisGeneration)
+            foreach (PolyNode<RoomDirectionSearch> exit in thisGeneration)
             {
                 if (locationsSeen.Contains(exit.Value.Exit.Destination))
                 {
                     if (generationDictionary.ContainsKey(exit.Value.Exit.Destination))
                     {
-                        foreach (PolyNode<CellDirectionSearch> node in generationDictionary[exit.Value.Exit.Destination])
+                        foreach (PolyNode<RoomDirectionSearch> node in generationDictionary[exit.Value.Exit.Destination])
                         {
                             if (!ExitSuitable(exit.Value.Exit, node.Value.PermittedDirections))
                             {
@@ -963,8 +963,8 @@ public static class PerceivedItemExtensions
 
                 locationsSeen.Add(exit.Value.Exit.Destination);
                 locationsConsidered.Add(exit.Value.Exit.Destination);
-                generationDictionary[exit.Value.Exit.Destination] = new List<PolyNode<CellDirectionSearch>>();
-                foreach (ICellExit otherExit in exit.Value.Exit.Destination.ExitsFor(null))
+                generationDictionary[exit.Value.Exit.Destination] = new List<PolyNode<RoomDirectionSearch>>();
+                foreach (IRoomExit otherExit in exit.Value.Exit.Destination.ExitsFor(null))
                 {
 					if (otherExit.Destination.RouteDefinition is not null)
 					{
@@ -976,7 +976,7 @@ public static class PerceivedItemExtensions
                         continue;
                     }
 
-                    PolyNode<CellDirectionSearch> newNode = new(new CellDirectionSearch
+                    PolyNode<RoomDirectionSearch> newNode = new(new RoomDirectionSearch
                     {
                         Exit = otherExit,
                         PreviousDirection = exit.Value.Exit.OutboundDirection,
@@ -995,8 +995,8 @@ public static class PerceivedItemExtensions
     }
 
     /// <summary>
-    ///     Returns all cells reachable from a source with their shortest exit-count distance while applying
-    ///     caller-provided exit and destination-cell filters.
+    ///     Returns all rooms reachable from a source with their shortest exit-count distance while applying
+    ///     caller-provided exit and destination-room filters.
     /// </summary>
     /// <param name="source">The perceivable whose location is the centre of the vicinity search.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to radiate out from the source.</param>
@@ -1005,29 +1005,29 @@ public static class PerceivedItemExtensions
     ///     route.
     /// </param>
     /// <param name="cellFitnessEvaluator">
-    ///     Predicate run for the destination cell of a candidate exit. Return <see langword="false" /> to exclude that
-    ///     cell and prevent traversal through it.
+    ///     Predicate run for the destination room of a candidate exit. Return <see langword="false" /> to exclude that
+    ///     room and prevent traversal through it.
     /// </param>
     /// <returns>
-    ///     Tuples of cell and distance in breadth-first order, including the source cell at distance <c>0</c>. An invalid
+    ///     Tuples of room and distance in breadth-first order, including the source room at distance <c>0</c>. An invalid
     ///     source or missing evaluator returns an empty collection.
     /// </returns>
-    public static IEnumerable<(ICell Cell, int Distance)> CellsAndDistancesInVicinity(this IPerceivable source,
+    public static IEnumerable<(IRoom Room, int Distance)> RoomsAndDistancesInVicinity(this IPerceivable source,
         uint maximumDistance,
-        Func<ICellExit, bool> cellExitFitnessEvaluator,
-        Func<ICell, bool> cellFitnessEvaluator)
+        Func<IRoomExit, bool> cellExitFitnessEvaluator,
+        Func<IRoom, bool> cellFitnessEvaluator)
     {
         if (source?.Location == null || cellExitFitnessEvaluator == null || cellFitnessEvaluator == null)
         {
-            return Enumerable.Empty<(ICell Cell, int Distance)>();
+            return Enumerable.Empty<(IRoom Room, int Distance)>();
         }
 
-        return FindCellsAndDistancesInVicinity(source.Location, maximumDistance,
+        return FindRoomsAndDistancesInVicinity(source.Location, maximumDistance,
             exit => cellExitFitnessEvaluator(exit) && cellFitnessEvaluator(exit.Destination), true);
     }
 
     /// <summary>
-    ///     Returns all cells within a maximum exit count with their distances, optionally applying line-of-effect corner
+    ///     Returns all rooms within a maximum exit count with their distances, optionally applying line-of-effect corner
     ///     logic.
     /// </summary>
     /// <param name="source">The perceivable whose location is the centre of the vicinity search.</param>
@@ -1045,34 +1045,34 @@ public static class PerceivedItemExtensions
     ///     source are used.
     /// </param>
     /// <returns>
-    ///     Tuples of cell and distance in search order, including the source cell at distance <c>0</c>. An invalid source
+    ///     Tuples of room and distance in search order, including the source room at distance <c>0</c>. An invalid source
     ///     returns an empty collection.
     /// </returns>
-    public static IEnumerable<(ICell Cell, int Distance)> CellsAndDistancesInVicinity(this IPerceivable source,
+    public static IEnumerable<(IRoom Room, int Distance)> RoomsAndDistancesInVicinity(this IPerceivable source,
         uint maximumDistance,
         bool respectDoors, bool respectCorners, IEnumerable<CardinalDirection> permittedDirections = null)
     {
         if (source?.Location == null)
         {
-            return Enumerable.Empty<(ICell Cell, int Distance)>();
+            return Enumerable.Empty<(IRoom Room, int Distance)>();
         }
 
         if (!respectCorners)
         {
-            return FindCellsAndDistancesInVicinity(source.Location, maximumDistance,
+            return FindRoomsAndDistancesInVicinity(source.Location, maximumDistance,
                 exit => !respectDoors || exit.Exit.Door?.IsOpen != false || exit.Exit.Door.CanFireThrough, true);
         }
 
-        List<(ICell, int)> locationsConsidered = new()
+        List<(IRoom, int)> locationsConsidered = new()
         { (source.Location, 0) };
-        HashSet<ICell> locationsSeen = NewCellSet();
+        HashSet<IRoom> locationsSeen = NewRoomSet();
         locationsSeen.Add(source.Location);
-        List<ICellExit> exits = source.Location.ExitsFor(null, true).ToList();
+        List<IRoomExit> exits = source.Location.ExitsFor(null, true).ToList();
         List<CardinalDirection> permittedDirectionList =
             permittedDirections?.Distinct().ToList() ??
             exits.Select(y => y.OutboundDirection).Except(CardinalDirection.Unknown).Distinct().ToList();
 
-        bool ExitSuitable(ICellExit exit, IEnumerable<CardinalDirection> directions)
+        bool ExitSuitable(IRoomExit exit, IEnumerable<CardinalDirection> directions)
         {
             if (respectCorners && directions.Contains(exit.OutboundDirection) == false)
             {
@@ -1088,11 +1088,11 @@ public static class PerceivedItemExtensions
             return true;
         }
 
-        List<PolyNode<CellDirectionSearch>> generationExits =
+        List<PolyNode<RoomDirectionSearch>> generationExits =
             new(
                 exits
                       .Where(x => ExitSuitable(x, permittedDirectionList))
-                      .Select(x => new PolyNode<CellDirectionSearch>(new CellDirectionSearch
+                      .Select(x => new PolyNode<RoomDirectionSearch>(new RoomDirectionSearch
                       {
                           Exit = x,
                           PreviousDirection = CardinalDirection.Unknown,
@@ -1103,16 +1103,16 @@ public static class PerceivedItemExtensions
         int generation = 0;
         while (generation++ < maximumDistance)
         {
-            List<PolyNode<CellDirectionSearch>> thisGeneration = generationExits.ToList();
-            Dictionary<ICell, List<PolyNode<CellDirectionSearch>>> generationDictionary = new();
+            List<PolyNode<RoomDirectionSearch>> thisGeneration = generationExits.ToList();
+            Dictionary<IRoom, List<PolyNode<RoomDirectionSearch>>> generationDictionary = new();
             generationExits.Clear();
-            foreach (PolyNode<CellDirectionSearch> exit in thisGeneration)
+            foreach (PolyNode<RoomDirectionSearch> exit in thisGeneration)
             {
                 if (locationsSeen.Contains(exit.Value.Exit.Destination))
                 {
                     if (generationDictionary.ContainsKey(exit.Value.Exit.Destination))
                     {
-                        foreach (PolyNode<CellDirectionSearch> node in generationDictionary[exit.Value.Exit.Destination])
+                        foreach (PolyNode<RoomDirectionSearch> node in generationDictionary[exit.Value.Exit.Destination])
                         {
                             if (!ExitSuitable(exit.Value.Exit, node.Value.PermittedDirections))
                             {
@@ -1128,15 +1128,15 @@ public static class PerceivedItemExtensions
 
                 locationsSeen.Add(exit.Value.Exit.Destination);
                 locationsConsidered.Add((exit.Value.Exit.Destination, generation));
-                generationDictionary[exit.Value.Exit.Destination] = new List<PolyNode<CellDirectionSearch>>();
-                foreach (ICellExit otherExit in exit.Value.Exit.Destination.ExitsFor(null, true))
+                generationDictionary[exit.Value.Exit.Destination] = new List<PolyNode<RoomDirectionSearch>>();
+                foreach (IRoomExit otherExit in exit.Value.Exit.Destination.ExitsFor(null, true))
                 {
                     if (!ExitSuitable(otherExit, exit.Value.PermittedDirections))
                     {
                         continue;
                     }
 
-                    PolyNode<CellDirectionSearch> newNode = new(new CellDirectionSearch
+                    PolyNode<RoomDirectionSearch> newNode = new(new RoomDirectionSearch
                     {
                         Exit = otherExit,
                         PreviousDirection = exit.Value.Exit.OutboundDirection,
@@ -1162,7 +1162,7 @@ public static class PerceivedItemExtensions
     /// <param name="pathTransparentDoors">Whether closed transparent doors count as passable.</param>
     /// <param name="pathFireableDoors">Whether closed doors that can be fired through count as passable.</param>
     /// <returns><see langword="true" /> when no door blocks the exit under the supplied flags.</returns>
-    private static bool CanTraverse(ICellExit exit, bool openDoors, bool pathTransparentDoors,
+    private static bool CanTraverse(IRoomExit exit, bool openDoors, bool pathTransparentDoors,
         bool pathFireableDoors)
     {
         if (exit.Exit.Door?.IsOpen ?? true)
@@ -1186,8 +1186,8 @@ public static class PerceivedItemExtensions
     /// <summary>
     ///     Returns the shortest ordered exit path between two perceivables using the built-in door traversal flags.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="target">The perceivable whose location is the destination cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="target">The perceivable whose location is the destination room.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <param name="openDoors">
     ///     When <see langword="true" />, closed but unlocked doors are treated as passable because the pathing actor is
@@ -1205,13 +1205,13 @@ public static class PerceivedItemExtensions
     ///     The exits to take from source to target, or an empty collection when the target is colocated, invalid, blocked
     ///     by the traversal flags, or beyond <paramref name="maximumDistance" />.
     /// </returns>
-    public static IEnumerable<ICellExit> PathBetween(this IPerceivable source, IPerceivable target,
+    public static IEnumerable<IRoomExit> PathBetween(this IPerceivable source, IPerceivable target,
         uint maximumDistance, bool openDoors, bool pathTransparentDoors = false, bool pathFireableDoors = false)
     {
         if (source?.Location == target?.Location ||
             source == null || target == null || source.Location == null || target.Location == null)
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
         return FindShortestExitPath(source.Location, [target.Location], maximumDistance,
@@ -1223,14 +1223,14 @@ public static class PerceivedItemExtensions
     ///     options. Existing callers should continue to use the overload without options when they require exact
     ///     shortest-path semantics.
     /// </summary>
-    public static IEnumerable<ICellExit> PathBetween(this IPerceivable source, IPerceivable target,
+    public static IEnumerable<IRoomExit> PathBetween(this IPerceivable source, IPerceivable target,
         uint maximumDistance, bool openDoors, PathSearchOptions options, bool pathTransparentDoors = false,
         bool pathFireableDoors = false)
     {
         if (source?.Location == target?.Location ||
             source == null || target == null || source.Location == null || target.Location == null)
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
         return FindPath(source.Location, [target.Location], maximumDistance,
@@ -1241,8 +1241,8 @@ public static class PerceivedItemExtensions
     ///     Returns the shortest ordered exit path between two perceivables using a caller-supplied exit suitability
     ///     predicate.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="target">The perceivable whose location is the destination cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="target">The perceivable whose location is the destination room.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <param name="suitabilityFunction">
     ///     Predicate run before an exit is traversed. Use this for actor size, door handling, terrain restrictions, AI
@@ -1252,13 +1252,13 @@ public static class PerceivedItemExtensions
     ///     The exits to take from source to target, or an empty collection when the target is colocated, invalid, blocked
     ///     by <paramref name="suitabilityFunction" />, or beyond <paramref name="maximumDistance" />.
     /// </returns>
-    public static IEnumerable<ICellExit> PathBetween(this IPerceivable source, IPerceivable target,
-        uint maximumDistance, Func<ICellExit, bool> suitabilityFunction)
+    public static IEnumerable<IRoomExit> PathBetween(this IPerceivable source, IPerceivable target,
+        uint maximumDistance, Func<IRoomExit, bool> suitabilityFunction)
     {
         if (source?.Location == target?.Location ||
             source == null || target == null || source.Location == null || target.Location == null)
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
         return FindShortestExitPath(source.Location, [target.Location], maximumDistance, suitabilityFunction, true);
@@ -1269,13 +1269,13 @@ public static class PerceivedItemExtensions
     ///     opt-in long-range search options. Hierarchical mode uses the topology index only for coarse routing; every
     ///     returned exit still passes <paramref name="suitabilityFunction" /> at query time.
     /// </summary>
-    public static IEnumerable<ICellExit> PathBetween(this IPerceivable source, IPerceivable target,
-        uint maximumDistance, Func<ICellExit, bool> suitabilityFunction, PathSearchOptions options)
+    public static IEnumerable<IRoomExit> PathBetween(this IPerceivable source, IPerceivable target,
+        uint maximumDistance, Func<IRoomExit, bool> suitabilityFunction, PathSearchOptions options)
     {
         if (source?.Location == target?.Location ||
             source == null || target == null || source.Location == null || target.Location == null)
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
         return FindPath(source.Location, [target.Location], maximumDistance, suitabilityFunction, true, options);
@@ -1284,8 +1284,8 @@ public static class PerceivedItemExtensions
     /// <summary>
     ///     Returns the shortest ordered exit path from a source to the nearest reachable target in a set.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
-    /// <param name="targets">Candidate perceivables; their current locations are used as destination cells.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
+    /// <param name="targets">Candidate perceivables; their current locations are used as destination rooms.</param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <param name="suitabilityFunction">
     ///     Predicate run before an exit is traversed. It must return <see langword="true" /> for every exit in the
@@ -1293,25 +1293,25 @@ public static class PerceivedItemExtensions
     /// </param>
     /// <returns>
     ///     The exits to the nearest reachable target, or an empty collection when there are no valid targets, a target is
-    ///     already in the source cell, all targets are blocked, or all targets are beyond
+    ///     already in the source room, all targets are blocked, or all targets are beyond
     ///     <paramref name="maximumDistance" />.
     /// </returns>
-    public static IEnumerable<ICellExit> PathBetween(this IPerceivable source, IEnumerable<IPerceivable> targets,
-        uint maximumDistance, Func<ICellExit, bool> suitabilityFunction)
+    public static IEnumerable<IRoomExit> PathBetween(this IPerceivable source, IEnumerable<IPerceivable> targets,
+        uint maximumDistance, Func<IRoomExit, bool> suitabilityFunction)
     {
         if (source?.Location == null || targets == null || suitabilityFunction == null)
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
-        List<ICell> targetLocations = targets
+        List<IRoom> targetLocations = targets
                                       .Select(x => x?.Location)
                                       .Where(x => x != null)
-                                      .Distinct(CellReferenceComparer.Instance)
+                                      .Distinct(RoomReferenceComparer.Instance)
                                       .ToList();
         if (!targetLocations.Any() || targetLocations.Any(x => ReferenceEquals(x, source.Location)))
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
         return FindShortestExitPath(source.Location, targetLocations, maximumDistance, suitabilityFunction, true);
@@ -1322,22 +1322,22 @@ public static class PerceivedItemExtensions
     ///     options. Hierarchical mode may return any live-valid reachable target route rather than the globally nearest
     ///     target.
     /// </summary>
-    public static IEnumerable<ICellExit> PathBetween(this IPerceivable source, IEnumerable<IPerceivable> targets,
-        uint maximumDistance, Func<ICellExit, bool> suitabilityFunction, PathSearchOptions options)
+    public static IEnumerable<IRoomExit> PathBetween(this IPerceivable source, IEnumerable<IPerceivable> targets,
+        uint maximumDistance, Func<IRoomExit, bool> suitabilityFunction, PathSearchOptions options)
     {
         if (source?.Location == null || targets == null || suitabilityFunction == null)
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
-        List<ICell> targetLocations = targets
+        List<IRoom> targetLocations = targets
                                       .Select(x => x?.Location)
                                       .Where(x => x != null)
-                                      .Distinct(CellReferenceComparer.Instance)
+                                      .Distinct(RoomReferenceComparer.Instance)
                                       .ToList();
         if (!targetLocations.Any() || targetLocations.Any(x => ReferenceEquals(x, source.Location)))
         {
-            return Enumerable.Empty<ICellExit>();
+            return Enumerable.Empty<IRoomExit>();
         }
 
         return FindPath(source.Location, targetLocations, maximumDistance, suitabilityFunction, true, options);
@@ -1346,10 +1346,10 @@ public static class PerceivedItemExtensions
     /// <summary>
     ///     Searches outward from a perceivable and returns the first matching target plus the shortest path to it.
     /// </summary>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
+    /// <param name="source">The perceivable whose location is the start room.</param>
     /// <param name="targetFunction">
-    ///     Predicate applied to perceivables in each searched cell and to the cell itself. Use type checks inside this
-    ///     predicate when only characters, items, cells, or another perceivable category should match.
+    ///     Predicate applied to perceivables in each searched room and to the room itself. Use type checks inside this
+    ///     predicate when only characters, items, rooms, or another perceivable category should match.
     /// </param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <param name="suitabilityFunction">
@@ -1358,32 +1358,32 @@ public static class PerceivedItemExtensions
     /// </param>
     /// <returns>
     ///     A tuple containing the nearest matching target and the ordered exit path to it. If the target is in the source
-    ///     cell, the path is empty. If no target is found, the target item is <see langword="null" /> and the path is
+    ///     room, the path is empty. If no target is found, the target item is <see langword="null" /> and the path is
     ///     empty.
     /// </returns>
-    public static Tuple<IPerceivable, IEnumerable<ICellExit>> AcquireTargetAndPath(this IPerceivable source,
-        Func<IPerceivable, bool> targetFunction, uint maximumDistance, Func<ICellExit, bool> suitabilityFunction)
+    public static Tuple<IPerceivable, IEnumerable<IRoomExit>> AcquireTargetAndPath(this IPerceivable source,
+        Func<IPerceivable, bool> targetFunction, uint maximumDistance, Func<IRoomExit, bool> suitabilityFunction)
     {
         if (source?.Location == null || targetFunction == null || suitabilityFunction == null)
         {
-            return Tuple.Create(default(IPerceivable), Enumerable.Empty<ICellExit>());
+            return Tuple.Create(default(IPerceivable), Enumerable.Empty<IRoomExit>());
         }
 
-        IPerceivable homeTarget = FirstTargetInCell(source.Location, targetFunction);
+        IPerceivable homeTarget = FirstTargetInRoom(source.Location, targetFunction);
         if (homeTarget != null)
         {
-            return Tuple.Create(homeTarget, Enumerable.Empty<ICellExit>());
+            return Tuple.Create(homeTarget, Enumerable.Empty<IRoomExit>());
         }
 
         if (maximumDistance == 0)
         {
-            return Tuple.Create(default(IPerceivable), Enumerable.Empty<ICellExit>());
+            return Tuple.Create(default(IPerceivable), Enumerable.Empty<IRoomExit>());
         }
 
-        HashSet<ICell> locationsConsidered = NewCellSet();
+        HashSet<IRoom> locationsConsidered = NewRoomSet();
         Queue<PathSearchStep> queue = new();
         locationsConsidered.Add(source.Location);
-        foreach (ICellExit exit in source.Location.ExitsFor(null, true))
+        foreach (IRoomExit exit in source.Location.ExitsFor(null, true))
         {
             if (!suitabilityFunction(exit) || exit.Destination == null || !locationsConsidered.Add(exit.Destination))
             {
@@ -1392,7 +1392,7 @@ public static class PerceivedItemExtensions
 
             queue.Enqueue(new PathSearchStep
             {
-                Cell = exit.Destination,
+                Room = exit.Destination,
                 Exit = exit,
                 Distance = 1
             });
@@ -1401,7 +1401,7 @@ public static class PerceivedItemExtensions
         while (queue.Count > 0)
         {
             PathSearchStep step = queue.Dequeue();
-            IPerceivable exitTarget = FirstTargetInCell(step.Cell, targetFunction);
+            IPerceivable exitTarget = FirstTargetInRoom(step.Room, targetFunction);
             if (exitTarget != null)
             {
                 return Tuple.Create(exitTarget, BuildPath(step).AsEnumerable());
@@ -1412,7 +1412,7 @@ public static class PerceivedItemExtensions
                 continue;
             }
 
-            foreach (ICellExit exit in step.Cell.ExitsFor(null, true))
+            foreach (IRoomExit exit in step.Room.ExitsFor(null, true))
             {
                 if (!suitabilityFunction(exit) || exit.Destination == null ||
                     !locationsConsidered.Add(exit.Destination))
@@ -1422,7 +1422,7 @@ public static class PerceivedItemExtensions
 
                 queue.Enqueue(new PathSearchStep
                 {
-                    Cell = exit.Destination,
+                    Room = exit.Destination,
                     Exit = exit,
                     Parent = step,
                     Distance = step.Distance + 1
@@ -1430,44 +1430,44 @@ public static class PerceivedItemExtensions
             }
         }
 
-        return Tuple.Create(default(IPerceivable), Enumerable.Empty<ICellExit>());
+        return Tuple.Create(default(IPerceivable), Enumerable.Empty<IRoomExit>());
     }
 
     /// <summary>
     ///     Searches outward from a perceivable and returns all matching targets of a specific type with their shortest
     ///     paths.
     /// </summary>
-    /// <typeparam name="T">The perceivable type to return, such as <see cref="ICharacter" />, <c>IGameItem</c>, or <see cref="ICell" />.</typeparam>
-    /// <param name="source">The perceivable whose location is the start cell.</param>
+    /// <typeparam name="T">The perceivable type to return, such as <see cref="ICharacter" />, <c>IGameItem</c>, or <see cref="IRoom" />.</typeparam>
+    /// <param name="source">The perceivable whose location is the start room.</param>
     /// <param name="targetFunction">
-    ///     Predicate applied only to perceivables of type <typeparamref name="T" /> and to cells when <typeparamref name="T" />
-    ///     is compatible with <see cref="ICell" />.
+    ///     Predicate applied only to perceivables of type <typeparamref name="T" /> and to rooms when <typeparamref name="T" />
+    ///     is compatible with <see cref="IRoom" />.
     /// </param>
     /// <param name="maximumDistance">The inclusive maximum number of exits to traverse.</param>
     /// <param name="suitabilityFunction">Predicate run before an exit is traversed.</param>
     /// <returns>
-    ///     A list of all matching targets found within range. Targets in the source cell have an empty path; other
-    ///     targets share the shortest path to their cell. An invalid source or missing predicate returns an empty list.
+    ///     A list of all matching targets found within range. Targets in the source room have an empty path; other
+    ///     targets share the shortest path to their room. An invalid source or missing predicate returns an empty list.
     /// </returns>
-    public static List<(T Target, IEnumerable<ICellExit> Path)> AcquireAllTargetsAndPaths<T>(this IPerceivable source,
-        Func<T, bool> targetFunction, uint maximumDistance, Func<ICellExit, bool> suitabilityFunction)
+    public static List<(T Target, IEnumerable<IRoomExit> Path)> AcquireAllTargetsAndPaths<T>(this IPerceivable source,
+        Func<T, bool> targetFunction, uint maximumDistance, Func<IRoomExit, bool> suitabilityFunction)
         where T : class, IPerceivable
     {
-        List<(T Target, IEnumerable<ICellExit> Path)> list = new();
+        List<(T Target, IEnumerable<IRoomExit> Path)> list = new();
         if (source?.Location == null || targetFunction == null || suitabilityFunction == null)
         {
             return list;
         }
 
-        if (source.Location is T homeCell && targetFunction(homeCell))
+        if (source.Location is T homeRoom && targetFunction(homeRoom))
         {
-            list.Add((homeCell, Enumerable.Empty<ICellExit>()));
+            list.Add((homeRoom, Enumerable.Empty<IRoomExit>()));
         }
 
         List<T> homeTargets = source.Location.Perceivables.OfType<T>().Where(targetFunction).ToList();
         if (homeTargets.Any())
         {
-            list.AddRange(homeTargets.Select(x => (x, Enumerable.Empty<ICellExit>())));
+            list.AddRange(homeTargets.Select(x => (x, Enumerable.Empty<IRoomExit>())));
         }
 
         if (maximumDistance == 0)
@@ -1475,10 +1475,10 @@ public static class PerceivedItemExtensions
             return list;
         }
 
-        HashSet<ICell> locationsConsidered = NewCellSet();
+        HashSet<IRoom> locationsConsidered = NewRoomSet();
         Queue<PathSearchStep> queue = new();
         locationsConsidered.Add(source.Location);
-        foreach (ICellExit exit in source.Location.ExitsFor(null, true))
+        foreach (IRoomExit exit in source.Location.ExitsFor(null, true))
         {
             if (!suitabilityFunction(exit) || exit.Destination == null || !locationsConsidered.Add(exit.Destination))
             {
@@ -1487,7 +1487,7 @@ public static class PerceivedItemExtensions
 
             queue.Enqueue(new PathSearchStep
             {
-                Cell = exit.Destination,
+                Room = exit.Destination,
                 Exit = exit,
                 Distance = 1
             });
@@ -1496,14 +1496,14 @@ public static class PerceivedItemExtensions
         while (queue.Count > 0)
         {
             PathSearchStep step = queue.Dequeue();
-            List<ICellExit> path = BuildPath(step);
+            List<IRoomExit> path = BuildPath(step);
 
-            if (step.Cell is T cellTarget && targetFunction(cellTarget))
+            if (step.Room is T cellTarget && targetFunction(cellTarget))
             {
                 list.Add((cellTarget, path));
             }
 
-            List<T> exitTargets = step.Cell.Perceivables.OfType<T>().Where(targetFunction).ToList();
+            List<T> exitTargets = step.Room.Perceivables.OfType<T>().Where(targetFunction).ToList();
             if (exitTargets.Any())
             {
                 list.AddRange(exitTargets.Select(x => (x, path.AsEnumerable())));
@@ -1514,7 +1514,7 @@ public static class PerceivedItemExtensions
                 continue;
             }
 
-            foreach (ICellExit exit in step.Cell.ExitsFor(null, true))
+            foreach (IRoomExit exit in step.Room.ExitsFor(null, true))
             {
                 if (!suitabilityFunction(exit) || exit.Destination == null ||
                     !locationsConsidered.Add(exit.Destination))
@@ -1524,7 +1524,7 @@ public static class PerceivedItemExtensions
 
                 queue.Enqueue(new PathSearchStep
                 {
-                    Cell = exit.Destination,
+                    Room = exit.Destination,
                     Exit = exit,
                     Parent = step,
                     Distance = step.Distance + 1
@@ -1535,9 +1535,9 @@ public static class PerceivedItemExtensions
         return list;
     }
 
-    private class CellDirectionSearch
+    private class RoomDirectionSearch
     {
-        public ICellExit Exit { get; set; }
+        public IRoomExit Exit { get; set; }
         public CardinalDirection PreviousDirection { get; set; }
         public IEnumerable<CardinalDirection> PermittedDirections { get; set; }
     }

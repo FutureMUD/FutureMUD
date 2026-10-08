@@ -13,7 +13,7 @@ public partial class MagicModule : Module<ICharacter>
 {
 	[PlayerCommand("PsychometricHistory", "psychometrichistory")]
 	[CommandPermission(PermissionLevel.Admin)]
-	[HelpInfo("psychometrichistory", @"Inspect recorder counters or add a bounded authored clue to a cell or item. Gameplay cannot read automatic or authored clues while EnablePsychometricImpressions is false.
+	[HelpInfo("psychometrichistory", @"Inspect recorder counters or add a bounded authored clue to a room or item. Gameplay cannot read automatic or authored clues while EnablePsychometricImpressions is false.
 
 	#3psychometrichistory#0 - recorder diagnostics
 	#3psychometrichistory <here|item> <clue>#0 - author a clue, at most 256 characters", AutoHelp.HelpArg)]
@@ -436,7 +436,7 @@ The syntax is:
     public static void MagicAnchors(ICharacter actor, StringStack command)
     {
         var filter = command.SafeRemainingArgument;
-        var anchors = actor.Gameworld.Cells
+        var anchors = actor.Gameworld.Rooms
                            .SelectMany(x => x.EffectsOfType<IMagicTagEffect>(tag =>
                                string.IsNullOrWhiteSpace(filter) || tag.Tag.EqualTo(filter)).Select(tag => (Owner: (IPerceivable)x, Tag: tag)))
                            .Concat(actor.Gameworld.Items

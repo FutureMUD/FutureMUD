@@ -25,7 +25,7 @@ internal static class IllusionAudiencePolicy
 			IllusionAudienceScope.Caster => voyeur.Id == casterId,
 			IllusionAudienceScope.Target => voyeur.Id == targetId,
 			IllusionAudienceScope.Everyone => true,
-			IllusionAudienceScope.SameCell => SameCell(owner, voyeur),
+			IllusionAudienceScope.SameRoom => SameRoom(owner, voyeur),
 			IllusionAudienceScope.SameZone => SameZone(owner, voyeur),
 			IllusionAudienceScope.Party => PartyApplies(owner, voyeur, casterId, targetId),
 			IllusionAudienceScope.Clan => ClanApplies(voyeur, clanId),
@@ -33,15 +33,15 @@ internal static class IllusionAudiencePolicy
 		};
 	}
 
-	private static bool SameCell(IPerceivable owner, IPerceiver voyeur)
+	private static bool SameRoom(IPerceivable owner, IPerceiver voyeur)
 	{
-		var ownerLocation = owner is ICell cell ? cell : owner.Location;
+		var ownerLocation = owner is IRoom room ? room : owner.Location;
 		return ownerLocation?.Id == voyeur.Location?.Id;
 	}
 
 	private static bool SameZone(IPerceivable owner, IPerceiver voyeur)
 	{
-		var ownerLocation = owner is ICell cell ? cell : owner.Location;
+		var ownerLocation = owner is IRoom room ? room : owner.Location;
 		return ownerLocation?.Zone?.Id == voyeur.Location?.Zone?.Id;
 	}
 

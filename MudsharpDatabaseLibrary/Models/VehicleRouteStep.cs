@@ -8,10 +8,10 @@ public class VehicleRouteStep
 	public long VehicleRouteLegId { get; set; }
 	public int Sequence { get; set; }
 	public int StepType { get; set; }
-	public long OriginCellId { get; set; }
+	public long OriginRoomId { get; set; }
 	public int OriginRoomLayer { get; set; }
 	public decimal? OriginRoutePositionMetres { get; set; }
-	public long DestinationCellId { get; set; }
+	public long DestinationRoomId { get; set; }
 	public int DestinationRoomLayer { get; set; }
 	public decimal? DestinationRoutePositionMetres { get; set; }
 	public decimal? DistanceMetres { get; set; }
@@ -22,7 +22,7 @@ public class VehicleRouteStep
 	public long? ExitId { get; set; }
 
 	public virtual VehicleRouteLeg VehicleRouteLeg { get; set; } = null!;
-	public virtual Cell OriginCell { get; set; } = null!;
-	public virtual Cell DestinationCell { get; set; } = null!;
+	public virtual Room OriginRoom { get; set; } = null!;
+	public virtual Room DestinationRoom { get; set; } = null!;
 	public virtual Exit? Exit { get; set; }
 }

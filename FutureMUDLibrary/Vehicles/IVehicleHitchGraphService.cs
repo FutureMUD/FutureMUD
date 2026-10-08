@@ -103,9 +103,9 @@ public interface IVehicleHitchGraphService
 		IVehicle targetVehicle, IVehicleTowPointPrototype targetTowPoint, IGameItem? hitchItem, out string reason);
 	bool CanAddCharacterVehicleHitch(ICharacter actor, ICharacter source, IVehicle targetVehicle,
 		IVehicleTowPointPrototype targetTowPoint, IGameItem? hitchItem, IDragAid? dragAid, out string reason);
-	bool CanMoveVehicleTrain(IFuturemud? gameworld, IVehicle root, ICellExit exit,
+	bool CanMoveVehicleTrain(IFuturemud? gameworld, IVehicle root, IRoomExit exit,
 		out VehicleHitchGraphMovePlan movePlan, out string reason);
-	bool CanDragVehicleTrain(IFuturemud? gameworld, IVehicle root, ICellExit exit,
+	bool CanDragVehicleTrain(IFuturemud? gameworld, IVehicle root, IRoomExit exit,
 		IEnumerable<ICharacter> allowedPullers, out VehicleHitchGraphMovePlan movePlan, out string reason);
 	bool IsTowPointInUse(IFuturemud? gameworld, IVehicle vehicle, IVehicleTowPointPrototype towPoint,
 		IVehicleTowLink? exceptLegacyLink = null);
@@ -113,6 +113,6 @@ public interface IVehicleHitchGraphService
 		double warningRatio = 0.90, double failureStartRatio = 0.95, double maximumFailureChance = 0.25);
 	IReadOnlyList<VehicleHitchGraphTowStress> EvaluateTowStress(VehicleHitchGraphMovePlan movePlan,
 		VehicleTowStressPolicy defaultPolicy);
-	void CompleteVehicleTrainMove(VehicleHitchGraphMovePlan movePlan, ICell destination, RoomLayer layer,
-		ICellExit exit, IMovement? movement = null, IVehicle? alreadyMovedVehicle = null);
+	void CompleteVehicleTrainMove(VehicleHitchGraphMovePlan movePlan, IRoom destination, RoomLayer layer,
+		IRoomExit exit, IMovement? movement = null, IVehicle? alreadyMovedVehicle = null);
 }

@@ -10,9 +10,9 @@ namespace MudSharp.Effects.Interfaces
 {
     public interface IGuardExitEffect : IRemoveOnMeleeCombat, ILDescSuffixEffect, IRemoveOnMovementEffect, IRemoveOnStateChange, IAffectedByChangeInGuarding
     {
-        ICellExit Exit { get; }
+        IRoomExit Exit { get; }
         bool PermitAllies { get; set; }
-        bool PermittedToCross(ICharacter ch, ICellExit exit);
+        bool PermittedToCross(ICharacter ch, IRoomExit exit);
         void Exempt(ICharacter ch);
         void Exempt(long id, string description);
         void RemoveExemption(ICharacter ch);

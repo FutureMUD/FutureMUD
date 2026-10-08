@@ -375,7 +375,7 @@ Current runtime connection rules for that slice are:
 - one sink definition points at one source endpoint
 - microcontrollers do explicit aggregation by binding multiple input names and recomputing their own single output
 - output propagation is event-driven and suppressed when the computed signal value has not actually changed
-- motion sensors currently listen only to witnessed movement events on the same item/location path; they do not yet participate in cross-item or inventory-relayed signal graphs
+- motion sensors currently listen only to witnessed movement events on the same item/location path; they do not yet participate in cross-item or inventory-relayed signal graphs. The canonical arrival mode displays as Enter Room and accepts `enter room`; `enter cell` remains an input alias. Prototype XML retains `DetectionMode` value `EnterCell`, and its loader also accepts the renamed enum spelling and existing numeric values, preserving arrival-only sensors across the Room rename.
 - timer sensors currently generate their own recurring same-item phase changes from a persisted cycle anchor rather than an external event source
 - file-backed signal generators treat file changes as their triggering event source: editing the owned file locally or through network file tools recomputes the parsed signal state and re-emits if the live output value changes
 - powered machine automation modules can be authored to draw power from their automation host's parent-item power source when mounted, including compatible attached or connected power-producing items on that host; otherwise powered machines still resolve power from their own parent item
@@ -789,7 +789,7 @@ Crossbows may author a required spanning-tool tag. The inventory plan must acqui
 
 ## Runtime Integration: Instruments and Military Standards
 
-An active `Instrument` performance is a non-saving, character-exclusive effect. A character must stop the current performance before starting another instrument. Its initial check outcome is retained for hook consumers; output occurs immediately and every authored interval, and stamina is drained at admission and on each tick. Movement, melee engagement, item loss, invalid posture, incapacity, exhaustion, deletion, quit, or logout ends it. Audible propagation uses `ICell.HandleAudioEcho` and does not create alert events.
+An active `Instrument` performance is a non-saving, character-exclusive effect. A character must stop the current performance before starting another instrument. Its initial check outcome is retained for hook consumers; output occurs immediately and every authored interval, and stamina is drained at admission and on each tick. Movement, melee engagement, item loss, invalid posture, incapacity, exhaustion, deletion, quit, or logout ends it. Audible propagation uses `IRoom.HandleAudioEcho` and does not create alert events.
 
 Physical hand requirements use functioning `IWield` body locations rather than `IGrab` inventory locations. This distinction matters for inventory-model bodies, whose carried items share one non-unary grab location while their physical hands remain separate wielding locations. A location occupied by the item being used still counts toward that item's requirement; a location occupied by another item or disabled by injury does not. Ranged readying, ammunition manipulation, instruments, and signal instruments all use this shared rule.
 
@@ -877,3 +877,8 @@ Absorbed floor-stack deletion owns an independent required-write database scope.
 ## Internal-magazine post-detach recovery
 
 Native Unload and Ready ejection enclose exact slot detachment and receipt in captured floor recovery. Clearing the owner slot marks its component dirty before containment notifications. Body exact title/quantity/component validation runs inside its recovery boundary, so changed detached value is conserved at the original safe point. Recovery applies only to an unclaimed detached item; current independent hand, container, belt or spatial custody wins. A secondary recovery exception preserves the original gameplay exception, while an otherwise failing recovery propagates normally. A failed floor-membership observer can leave a captured floor pointer requiring an explicit independent membership retry; automatic recovery through a failing observer is not promised. See [bounded gameplay and cold persistence qualification](../Magic/Armageddon_AmmoDetachRecovery_Checkpoint.md).
+
+
+## Opt-in hostile firearm admission
+
+FirearmBaseGameItemComponent notifies opted-in physical recipient/body effects after exact accepted-round admission and before shot commitment, then validates captured ammunition and participants again. Empty triggers emit nothing. Independent admission-callback chamber replacement preserves both accepted and replacement ammunition and refuses stale shot work. Operation identity is shared with its executing ranged move and separate from independent countershots. See [bounded caller scope and qualification](../Magic/Armageddon_Emotional_Combat_Hooks.md); other ranged component families require their own receipts.

@@ -38,7 +38,7 @@ public class EnvironmentalExposureIntegrationTests
 	private sealed class WorldFixture
 	{
 		public readonly Mock<IFuturemud> World = new() { DefaultValue = DefaultValue.Mock };
-		public readonly Mock<ICell> Cell = new();
+		public readonly Mock<IRoom> Room = new();
 		public readonly Mock<ISolid> Material = new();
 		public readonly Mock<IGas> Gas = new();
 		public readonly Mock<IGameItem> Item = new();
@@ -67,13 +67,13 @@ public class EnvironmentalExposureIntegrationTests
 			Rule.Convert(10, 0, 0, false);
 			Assert.AreEqual(0, Rule.ValidationErrors(true).Count(), "Fixture reaction must be valid.");
 			Gas.SetupGet(x => x.EnvironmentalReactions).Returns(new[] { Rule });
-			Cell.SetupGet(x => x.Atmosphere).Returns(Gas.Object);
-			Cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(20);
+			Room.SetupGet(x => x.Atmosphere).Returns(Gas.Object);
+			Room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(20);
 			Item.SetupGet(x => x.Gameworld).Returns(World.Object);
 			Item.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1));
 			Item.SetupGet(x => x.Material).Returns(Material.Object);
 			Item.SetupGet(x => x.Size).Returns((SizeCategory)5);
-			Item.SetupGet(x => x.Location).Returns(Cell.Object);
+			Item.SetupGet(x => x.Location).Returns(Room.Object);
 			Item.SetupGet(x => x.LocationLevelPerceivable).Returns(Item.Object);
 			State = new SurfaceLiquidState(World.Object);
 			Item.SetupGet(x => x.SurfaceLiquidState).Returns(State);
@@ -88,7 +88,7 @@ public class EnvironmentalExposureIntegrationTests
 			body.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1));
 			actor.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1));
 			body.SetupGet(x => x.Actor).Returns(actor.Object); actor.SetupGet(x => x.Body).Returns(body.Object);
-			body.SetupGet(x => x.Location).Returns(Cell.Object); actor.SetupGet(x => x.Location).Returns(Cell.Object);
+			body.SetupGet(x => x.Location).Returns(Room.Object); actor.SetupGet(x => x.Location).Returns(Room.Object);
 			body.SetupGet(x => x.Bodyparts).Returns(parts); body.SetupGet(x => x.Organs).Returns(Array.Empty<IOrganProto>());
 			body.SetupGet(x => x.Race).Returns(race.Object); race.Setup(x => x.BreathingRate(body.Object, It.IsAny<IFluid>())).Returns(1);
 			body.SetupGet(x => x.BreathingStrategy).Returns(Mock.Of<IBreathingStrategy>(x => x.Name == strategy && x.NeedsToBreathe));
@@ -104,7 +104,7 @@ public class EnvironmentalExposureIntegrationTests
 	{
 		var f = new WorldFixture(); f.Advance(0.1); f.Service.Track(f.Item.Object);
 		f.Now = f.Now.AddSeconds(0.2);
-		using (f.Service.Change(f.Item.Object)) f.Item.SetupGet(x => x.Location).Returns((ICell)null!);
+		using (f.Service.Change(f.Item.Object)) f.Item.SetupGet(x => x.Location).Returns((IRoom)null!);
 		Assert.AreEqual(2, f.Damage.Sum(x => x.DamageAmount), 1e-8);
 		f.Advance(10); Assert.AreEqual(2, f.Damage.Sum(x => x.DamageAmount), 1e-8);
 		Assert.AreEqual(0, f.Service.ActiveCount);
@@ -114,11 +114,11 @@ public class EnvironmentalExposureIntegrationTests
 	[DataRow(0.25, 2.5)] [DataRow(200.0, 1000.0)] [DataRow(double.NaN, 0.0)] [DataRow(-1.0, 0.0)]
 	public void AmbientIntensityHook_IsBoundedAndFailsClosed(double multiplier, double expected)
 	{
-		var f = new WorldFixture(); f.Cell.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
+		var f = new WorldFixture(); f.Room.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
 		f.Material.SetupGet(x => x.HeatDamagePoint).Returns(100);
 		f.Material.Object.ExposureProperties.ThermalSlope = 0.5;
 		f.Material.Object.ExposureProperties.ThermalIntensityProgId = 71;
-		f.Cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(120);
+		f.Room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(120);
 		var prog = new Mock<IFutureProg>(); prog.SetupGet(x => x.Id).Returns(71);
 		prog.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Number);
 		prog.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
@@ -135,10 +135,10 @@ public class EnvironmentalExposureIntegrationTests
 	[TestMethod]
 	public void AmbientIntensityHook_DisablingTheModeCannotCommitInjury()
 	{
-		var f = new WorldFixture(); f.Cell.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
+		var f = new WorldFixture(); f.Room.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
 		f.Material.SetupGet(x => x.HeatDamagePoint).Returns(100);
 		f.Material.Object.ExposureProperties.ThermalIntensityProgId = 71;
-		f.Cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(120);
+		f.Room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(120);
 		var prog = new Mock<IFutureProg>(); prog.SetupGet(x => x.Id).Returns(71);
 		prog.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Number);
 		prog.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
@@ -152,11 +152,11 @@ public class EnvironmentalExposureIntegrationTests
 	[TestMethod]
 	public void AmbientIntensityBuilder_SettlesTheIntervalBeforeChangingTheProg()
 	{
-		var f = new WorldFixture(); f.Cell.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
+		var f = new WorldFixture(); f.Room.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
 		var material = new Solid(new MudSharp.Models.Material { Id = 1, Name = "fixture", HeatDamagePoint = 100, ResidueColour = "white" }, f.World.Object);
 		material.ExposureProperties.ThermalSlope = 0.5;
 		f.Item.SetupGet(x => x.Material).Returns(material);
-		f.Cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(120);
+		f.Room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(120);
 		var prog = new Mock<IFutureProg>(); prog.SetupGet(x => x.Id).Returns(71); prog.SetupGet(x => x.Name).Returns("zeroheat");
 		prog.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Number);
 		prog.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
@@ -208,7 +208,7 @@ public class EnvironmentalExposureIntegrationTests
 		var f = new WorldFixture();
 		var part = Mock.Of<IExternalBodypart>(x => x.Id == 1 && x.RelativeHitChance == 1 && x.BodypartType == type);
 		var body = f.Body(strategy, part);
-		f.Service.ResolveRespiratorySample(new(body.Object, f.Gas.Object, "sample", f.Cell.Object, RoomLayer.GroundLevel, 0.25, 2, true, true, true));
+		f.Service.ResolveRespiratorySample(new(body.Object, f.Gas.Object, "sample", f.Room.Object, RoomLayer.GroundLevel, 0.25, 2, true, true, true));
 		Assert.AreEqual(5, f.Damage.Sum(x => x.DamageAmount), 1e-8);
 		Assert.IsTrue(f.Damage.All(x => ReferenceEquals(x.Bodypart, part)));
 	}
@@ -219,7 +219,7 @@ public class EnvironmentalExposureIntegrationTests
 	{
 		var f = new WorldFixture(); var part = Mock.Of<IExternalBodypart>(x => x.RelativeHitChance == 1);
 		var body = f.Body("partless", part);
-		f.Service.ResolveRespiratorySample(new(body.Object, f.Gas.Object, "sample", f.Cell.Object, RoomLayer.GroundLevel, 1, 10, airflow, true, success));
+		f.Service.ResolveRespiratorySample(new(body.Object, f.Gas.Object, "sample", f.Room.Object, RoomLayer.GroundLevel, 1, 10, airflow, true, success));
 		Assert.AreEqual(0, f.Damage.Count);
 	}
 
@@ -228,9 +228,9 @@ public class EnvironmentalExposureIntegrationTests
 	{
 		var f = new WorldFixture(); var part = Mock.Of<IExternalBodypart>(x => x.RelativeHitChance == 1);
 		var body = f.Body("partless", part); var clean = new Mock<IGas>();
-		f.Service.ResolveRespiratorySample(new(body.Object, clean.Object, "clean supply", f.Cell.Object, RoomLayer.GroundLevel, 1, 10, true, true, true));
+		f.Service.ResolveRespiratorySample(new(body.Object, clean.Object, "clean supply", f.Room.Object, RoomLayer.GroundLevel, 1, 10, true, true, true));
 		var nonbreather = f.Body("nonbreather", part);
-		f.Service.ResolveRespiratorySample(new(nonbreather.Object, f.Gas.Object, "sample", f.Cell.Object, RoomLayer.GroundLevel, 1, 10, true, false, true));
+		f.Service.ResolveRespiratorySample(new(nonbreather.Object, f.Gas.Object, "sample", f.Room.Object, RoomLayer.GroundLevel, 1, 10, true, false, true));
 		Assert.AreEqual(0, f.Damage.Count);
 	}
 
@@ -241,7 +241,7 @@ public class EnvironmentalExposureIntegrationTests
 		f.Material.SetupGet(x => x.HeatDamagePoint).Returns(100);
 		f.Material.Object.ExposureProperties.ThermalSlope = 0.5;
 		f.Material.Object.ExposureProperties.ThermalCap = 60;
-		f.Cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(140);
+		f.Room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(140);
 		f.Service.Track(f.Item.Object); f.Advance(2);
 		Assert.AreEqual(40, f.Damage.Sum(x => x.DamageAmount), 1e-7);
 		Assert.AreEqual(60, f.Damage.Sum(x => x.PainAmount), 1e-7);
@@ -251,7 +251,7 @@ public class EnvironmentalExposureIntegrationTests
 	[TestMethod]
 	public void RetainedSurface_ContinuesWithoutLooking_AndDryingDoesNotInvokeDamage()
 	{
-		var f = new WorldFixture(); f.Cell.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
+		var f = new WorldFixture(); f.Room.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
 		f.Rule.Routes = ExposureRoute.LiquidContact;
 		var liquid = new Mock<ILiquid>(); liquid.SetupGet(x => x.EnvironmentalReactions).Returns(new[] { f.Rule });
 		liquid.SetupGet(x => x.RelativeEnthalpy).Returns(1);
@@ -330,7 +330,7 @@ public class EnvironmentalExposureIntegrationTests
 	[DataRow("Enabled")] [DataRow("Disabled")] [DataRow("Legacy")]
 	public void OrdinaryWetness_DriesOnTheClockWithoutReadsOrHazardRules(string mode)
 	{
-		var f = new WorldFixture(); f.Cell.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
+		var f = new WorldFixture(); f.Room.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
 		f.World.Setup(x => x.GetStaticConfiguration("EnvironmentalExposureMode")).Returns(mode);
 		f.World.Setup(x => x.GetStaticDouble("LiquidContaminationEffectDuration")).Returns(1);
 		var water = Mock.Of<ILiquid>(x => x.RelativeEnthalpy == 1);
@@ -342,22 +342,22 @@ public class EnvironmentalExposureIntegrationTests
 	}
 
 	[TestMethod]
-	public void CellSurfaceSerialisationAndDescription_DoNotAdvanceExposureOrDrying()
+	public void RoomSurfaceSerialisationAndDescription_DoNotAdvanceExposureOrDrying()
 	{
-		var f = new WorldFixture(); f.Cell.SetupGet(x => x.Gameworld).Returns(f.World.Object);
-		var cell = new Cell(f.Cell.Object, -123);
-		var state = (SurfaceLiquidState)typeof(Cell).GetMethod("GetOrCreateSurfaceState", BindingFlags.Instance | BindingFlags.NonPublic)!
-			.Invoke(cell, new object?[] { RoomLayer.GroundLevel, null })!;
+		var f = new WorldFixture(); f.Room.SetupGet(x => x.Gameworld).Returns(f.World.Object);
+		var room = new Room(f.Room.Object, -123);
+		var state = (SurfaceLiquidState)typeof(Room).GetMethod("GetOrCreateSurfaceState", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(room, new object?[] { RoomLayer.GroundLevel, null })!;
 		state.AddLiquid(new LiquidMixture(Mock.Of<ILiquid>(x => x.RelativeEnthalpy == 1), 1, f.World.Object));
 		state.LastResolvedUtc = f.Now.AddHours(-1);
 		var service = EnvironmentalExposureService.For(f.World.Object); service.Clock = () => f.Now;
 		service.Track(f.Item.Object); f.Now = f.Now.AddSeconds(2);
 		var before = state.SaveToXml().ToString();
-		var save = typeof(Cell).GetMethod("SaveSurfaceLiquidState", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		var save = typeof(Room).GetMethod("SaveSurfaceLiquidState", BindingFlags.Instance | BindingFlags.NonPublic)!;
 		for (var i = 0; i < 3; i++)
 		{
-			Assert.IsNotNull(save.Invoke(cell, null));
-			cell.DescribeLiquidSurface(RoomLayer.GroundLevel, f.Item.Object, false);
+			Assert.IsNotNull(save.Invoke(room, null));
+			room.DescribeLiquidSurface(RoomLayer.GroundLevel, f.Item.Object, false);
 		}
 		Assert.AreEqual(before, state.SaveToXml().ToString());
 		Assert.AreEqual(0, f.Damage.Count);
@@ -545,7 +545,7 @@ public class EnvironmentalExposureIntegrationTests
 	[TestMethod]
 	public void RetainedCorpseContact_ContinuesOnOriginalPartWithoutDoubleTickingBody()
 	{
-		var f = new WorldFixture(); f.Cell.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
+		var f = new WorldFixture(); f.Room.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
 		f.Rule.Routes = ExposureRoute.LiquidContact;
 		var liquid = Mock.Of<ILiquid>(x => x.RelativeEnthalpy == 1 && x.EnvironmentalReactions == new[] { f.Rule });
 		var part = Mock.Of<IExternalBodypart>(x => x.Id == 1 && x.RelativeHitChance == 1);
@@ -570,14 +570,14 @@ public class EnvironmentalExposureIntegrationTests
 		var right = Mock.Of<IExternalBodypart>(x => x.Id == 2 && x.RelativeHitChance == 1);
 		var body = f.Body("nonbreather", left, right);
 		body.SetupGet(x => x.Id).Returns(41);
-		body.SetupGet(x => x.Location).Returns((ICell)null!);
+		body.SetupGet(x => x.Location).Returns((IRoom)null!);
 		f.Item.Setup(x => x.GetItemType<ICorpse>()).Returns(Mock.Of<ICorpse>(x => x.OriginalBody == body.Object));
 		if (heat)
 		{
-			f.Cell.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
+			f.Room.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
 			f.Material.SetupGet(x => x.HeatDamagePoint).Returns(100);
 			f.Material.Object.ExposureProperties.ThermalSlope = 0.5;
-			f.Cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(120);
+			f.Room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(120);
 		}
 		if (contained)
 		{
@@ -585,7 +585,7 @@ public class EnvironmentalExposureIntegrationTests
 			container.SetupGet(x => x.Gameworld).Returns(f.World.Object);
 			container.SetupGet(x => x.Material).Returns(f.Material.Object);
 			container.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1));
-			container.SetupGet(x => x.Location).Returns(f.Cell.Object);
+			container.SetupGet(x => x.Location).Returns(f.Room.Object);
 			container.SetupGet(x => x.LocationLevelPerceivable).Returns(container.Object);
 			container.SetupGet(x => x.SurfaceLiquidState).Returns(new SurfaceLiquidState(f.World.Object));
 			container.Setup(x => x.GetItemTypes<IContainer>()).Returns(new[] { Mock.Of<IContainer>(x => x.Contents == new[] { f.Item.Object }) });
@@ -602,7 +602,7 @@ public class EnvironmentalExposureIntegrationTests
 	[TestMethod]
 	public void CorpseSplash_RetainsFiniteLiquidOnTheSelectedOriginalPart()
 	{
-		var f = new WorldFixture(); f.Cell.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
+		var f = new WorldFixture(); f.Room.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
 		f.Rule.Routes = ExposureRoute.LiquidContact;
 		var acid = Mock.Of<ILiquid>(x => x.RelativeEnthalpy == 1 && x.EnvironmentalReactions == new[] { f.Rule });
 		var left = Mock.Of<IExternalBodypart>(x => x.Id == 1 && x.RelativeHitChance == 1);
@@ -626,7 +626,7 @@ public class EnvironmentalExposureIntegrationTests
 	[TestMethod]
 	public void CorpseImmersion_SaturationDoesNotManufactureRunoff()
 	{
-		var f = new WorldFixture(); f.Cell.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
+		var f = new WorldFixture(); f.Room.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
 		var water = Mock.Of<ILiquid>(x => x.RelativeEnthalpy == 1);
 		var left = Mock.Of<IExternalBodypart>(x => x.Id == 1 && x.RelativeHitChance == 1);
 		var right = Mock.Of<IExternalBodypart>(x => x.Id == 2 && x.RelativeHitChance == 1);
@@ -638,7 +638,7 @@ public class EnvironmentalExposureIntegrationTests
 		f.Service.RefreshImmersion(f.Item.Object, water, true);
 		f.Service.RefreshImmersion(f.Item.Object, water, true);
 		Assert.AreEqual(1, body.Object.SurfaceLiquidState.LiquidVolume, 1e-8);
-		f.Cell.Verify(x => x.AddLiquidToSurface(It.IsAny<LiquidMixture>(), It.IsAny<RoomLayer>(), It.IsAny<IPerceivable>()), Times.Never);
+		f.Room.Verify(x => x.AddLiquidToSurface(It.IsAny<LiquidMixture>(), It.IsAny<RoomLayer>(), It.IsAny<IPerceivable>()), Times.Never);
 	}
 
 	[DataTestMethod]
@@ -647,7 +647,7 @@ public class EnvironmentalExposureIntegrationTests
 	{
 		var f = new WorldFixture(); f.Rule.Channel = "thermal"; f.Rule.DamageType = type; f.Rule.NoReaction = exclude;
 		f.Material.SetupGet(x => x.HeatDamagePoint).Returns(100); f.Material.Object.ExposureProperties.ThermalSlope = 0.5;
-		f.Cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(140);
+		f.Room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(140);
 		f.Service.Track(f.Item.Object); f.Advance(1);
 		Assert.AreEqual(total, f.Damage.Sum(x => x.DamageAmount), 1e-8);
 		Assert.AreEqual(20, f.Damage.Where(x => x.DamageType == DamageType.Burning).Sum(x => x.DamageAmount), 1e-8);
@@ -656,7 +656,7 @@ public class EnvironmentalExposureIntegrationTests
 	[TestMethod]
 	public void FiniteClosedVessel_InteriorReactsAndDebitsItsOwnedContents()
 	{
-		var f = new WorldFixture(); f.Cell.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
+		var f = new WorldFixture(); f.Room.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
 		f.Rule.Routes = ExposureRoute.LiquidContact; f.Rule.Consumption = ReactionConsumption.PerExposure; f.Rule.ConsumptionRate = 0.1;
 		var liquid = Mock.Of<ILiquid>(x => x.EnvironmentalReactions == new[] { f.Rule });
 		var contents = new LiquidMixture(liquid, 10, f.World.Object);
@@ -691,7 +691,7 @@ public class EnvironmentalExposureIntegrationTests
 	{
 		var f = new WorldFixture(); f.Rule.Channel = "thermal"; f.Rule.DamageType = DamageType.Burning; f.Rule.Convert(10, 0, 0, false);
 		f.Material.SetupGet(x => x.HeatDamagePoint).Returns(100); f.Material.Object.ExposureProperties.ThermalSlope = 0.5;
-		f.Cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(140);
+		f.Room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(140);
 		var resistance = new Mock<IExposureResistance>();
 		resistance.Setup(x => x.ExposureDamageMultiplier(It.IsAny<ExposureDamageContext>(), It.IsAny<IBodypart>()))
 			.Returns<ExposureDamageContext, IBodypart>((context, _) => context.Route == ExposureRoute.AmbientHeat ? 0 : 1);
@@ -715,7 +715,7 @@ public class EnvironmentalExposureIntegrationTests
 	[DataRow(0.05)] [DataRow(0.25)] [DataRow(1.0)]
 	public void StalePatch_CallbackMovementPreventsRemainingDamage(double substep)
 	{
-		var f = new WorldFixture(); var moved = new Mock<ICell>();
+		var f = new WorldFixture(); var moved = new Mock<IRoom>();
 		f.World.Setup(x => x.GetStaticConfiguration("EnvironmentalExposureSubstep")).Returns(substep.ToString(System.Globalization.CultureInfo.InvariantCulture));
 		f.Service.Refresh();
 		f.Item.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Callback<IDamage>(damage =>
@@ -744,11 +744,11 @@ public class EnvironmentalExposureIntegrationTests
 	public void NakedImmersion_PrewettingDoesNotPreventContinuousOrRetainedInjury(double prewet)
 	{
 		var f = new WorldFixture(); f.Rule.Routes = ExposureRoute.LiquidContact;
-		f.Cell.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
-		f.Cell.Setup(x => x.IsSwimmingLayer(It.IsAny<RoomLayer>())).Returns(true);
+		f.Room.SetupGet(x => x.Atmosphere).Returns((IFluid)null!);
+		f.Room.Setup(x => x.IsSwimmingLayer(It.IsAny<RoomLayer>())).Returns(true);
 		var acid = Mock.Of<ILiquid>(x => x.Id == 1 && x.RelativeEnthalpy == 1 && x.EnvironmentalReactions == new[] { f.Rule });
 		var water = Mock.Of<ILiquid>(x => x.Id == 2 && x.RelativeEnthalpy == 1);
-		f.Cell.Setup(x => x.Terrain(It.IsAny<ICharacter>())).Returns(Mock.Of<ITerrain>(x => x.WaterFluid == acid));
+		f.Room.Setup(x => x.Terrain(It.IsAny<ICharacter>())).Returns(Mock.Of<ITerrain>(x => x.WaterFluid == acid));
 		f.World.Setup(x => x.GetStaticDouble("BodyLiquidContaminationEffectDuration")).Returns(1e9);
 		var foot = Mock.Of<IExternalBodypart>(x => x.Id == 1 && x.RelativeHitChance == 1 && x.Orientation == Orientation.Lowest);
 		var body = f.Body("nonbreather", foot);
@@ -759,7 +759,7 @@ public class EnvironmentalExposureIntegrationTests
 		f.Service.Track(body.Object); f.Service.RefreshImmersion(body.Object); f.Advance(1);
 		Assert.AreEqual(10, f.Damage.Sum(x => x.DamageAmount), 1e-7);
 		Assert.AreEqual(1, local.ContaminatingLiquid.Instances.Where(x => x.Liquid == acid).Sum(x => x.Amount), 1e-8);
-		using (f.Service.Change(body.Object)) f.Cell.Setup(x => x.IsSwimmingLayer(It.IsAny<RoomLayer>())).Returns(false);
+		using (f.Service.Change(body.Object)) f.Room.Setup(x => x.IsSwimmingLayer(It.IsAny<RoomLayer>())).Returns(false);
 		f.Advance(1); Assert.AreEqual(20, f.Damage.Sum(x => x.DamageAmount), 1e-7);
 	}
 
@@ -768,9 +768,9 @@ public class EnvironmentalExposureIntegrationTests
 	{
 		var f = new WorldFixture();
 		var water = Mock.Of<ILiquid>(x => x.Id == 2 && x.RelativeEnthalpy == 1);
-		f.Cell.Setup(x => x.IsSwimmingLayer(It.IsAny<RoomLayer>())).Returns(true);
-		f.Cell.Setup(x => x.IsUnderwaterLayer(It.IsAny<RoomLayer>())).Returns(true);
-		f.Cell.Setup(x => x.Terrain(It.IsAny<ICharacter>())).Returns(Mock.Of<ITerrain>(x => x.WaterFluid == water));
+		f.Room.Setup(x => x.IsSwimmingLayer(It.IsAny<RoomLayer>())).Returns(true);
+		f.Room.Setup(x => x.IsUnderwaterLayer(It.IsAny<RoomLayer>())).Returns(true);
+		f.Room.Setup(x => x.Terrain(It.IsAny<ICharacter>())).Returns(Mock.Of<ITerrain>(x => x.WaterFluid == water));
 		var parts = Enumerable.Range(1, 100).Select(id => Mock.Of<IExternalBodypart>(x => x.Id == id && x.RelativeHitChance == 1)).ToArray();
 		var body = f.Body("nonbreather", parts);
 		body.SetupGet(x => x.LiquidAbsorbtionAmounts).Returns((1.0, 0.0));
@@ -788,12 +788,12 @@ public class EnvironmentalExposureIntegrationTests
 	[TestMethod]
 	public void Immersion_SelectsSubmergedAnatomyAndExcludesFlying()
 	{
-		var f = new WorldFixture(); f.Cell.Setup(x => x.IsSwimmingLayer(It.IsAny<RoomLayer>())).Returns(true);
+		var f = new WorldFixture(); f.Room.Setup(x => x.IsSwimmingLayer(It.IsAny<RoomLayer>())).Returns(true);
 		var foot = Mock.Of<IExternalBodypart>(x => x.Id == 1 && x.RelativeHitChance == 1 && x.Orientation == Orientation.Lowest);
 		var head = Mock.Of<IExternalBodypart>(x => x.Id == 2 && x.RelativeHitChance == 1 && x.Orientation == Orientation.Highest && x.BodypartType == BodypartTypeEnum.Mouth);
 		var body = f.Body("simple", foot, head);
 		CollectionAssert.AreEqual(new[] { foot }, EnvironmentalExposureService.ImmersedParts(body.Object));
-		f.Cell.Setup(x => x.IsUnderwaterLayer(It.IsAny<RoomLayer>())).Returns(true);
+		f.Room.Setup(x => x.IsUnderwaterLayer(It.IsAny<RoomLayer>())).Returns(true);
 		Assert.AreEqual(2, EnvironmentalExposureService.ImmersedParts(body.Object).Length);
 		body.SetupGet(x => x.PositionState).Returns(MudSharp.Body.Position.PositionStates.PositionFlying.Instance);
 		Assert.AreEqual(0, EnvironmentalExposureService.ImmersedParts(body.Object).Length);
@@ -802,17 +802,17 @@ public class EnvironmentalExposureIntegrationTests
 	[TestMethod]
 	public void Clouds_DeduplicateSourceAndCapCombinedContact_WhileCleanSupplyExcludesThem()
 	{
-		var f = new WorldFixture(); f.Cell.SetupGet(x => x.Gameworld).Returns(f.World.Object);
-		f.Cell.SetupGet(x => x.Atmosphere).Returns((IFluid)null!); f.Gas.SetupGet(x => x.Id).Returns(3);
+		var f = new WorldFixture(); f.Room.SetupGet(x => x.Gameworld).Returns(f.World.Object);
+		f.Room.SetupGet(x => x.Atmosphere).Returns((IFluid)null!); f.Gas.SetupGet(x => x.Id).Returns(3);
 		var gases = new All<IGas>(); gases.Add(f.Gas.Object); f.World.SetupGet(x => x.Gases).Returns(gases);
-		var a = new TrapGasCloudEffect(f.Cell.Object, f.Gas.Object, 999, RoomLayer.GroundLevel, "", 999, 0.75);
-		var b = new TrapGasCloudEffect(f.Cell.Object, f.Gas.Object, 999, RoomLayer.GroundLevel, "", 999, 0.75);
-		f.Cell.Setup(x => x.EffectsOfType<TrapGasCloudEffect>(It.IsAny<Predicate<TrapGasCloudEffect>>())).Returns(new[] { a, a, b });
+		var a = new TrapGasCloudEffect(f.Room.Object, f.Gas.Object, 999, RoomLayer.GroundLevel, "", 999, 0.75);
+		var b = new TrapGasCloudEffect(f.Room.Object, f.Gas.Object, 999, RoomLayer.GroundLevel, "", 999, 0.75);
+		f.Room.Setup(x => x.EffectsOfType<TrapGasCloudEffect>(It.IsAny<Predicate<TrapGasCloudEffect>>())).Returns(new[] { a, a, b });
 		f.Service.Track(f.Item.Object); f.Advance(1);
 		Assert.AreEqual(10, f.Damage.Sum(x => x.DamageAmount), 1e-7);
 		var part = Mock.Of<IExternalBodypart>(x => x.Id == 1 && x.RelativeHitChance == 1); var body = f.Body("partless", part);
 		var before = f.Damage.Count;
-		f.Service.ResolveRespiratorySample(new(body.Object, Mock.Of<IGas>(), "supply", f.Cell.Object, RoomLayer.GroundLevel, 1, 1, true, true, true));
+		f.Service.ResolveRespiratorySample(new(body.Object, Mock.Of<IGas>(), "supply", f.Room.Object, RoomLayer.GroundLevel, 1, 1, true, true, true));
 		Assert.AreEqual(before, f.Damage.Count);
 	}
 }

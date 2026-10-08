@@ -101,8 +101,8 @@ internal sealed class MagicCastingFixture
 		Actor.SetupGet(x => x.GetObject).Returns(() => Actor.Object);
 		Actor.SetupGet(x => x.Gameworld).Returns(World.Object); Actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
 		Actor.SetupGet(x => x.Capabilities).Returns(() => ActiveCapabilities); Actor.SetupGet(x => x.Body).Returns(Body.Object);
-		var cell = new Mock<ICell>() { DefaultValue = DefaultValue.Mock };
-		Actor.SetupGet(x => x.Location).Returns(cell.Object);
+		var room = new Mock<IRoom>() { DefaultValue = DefaultValue.Mock };
+		Actor.SetupGet(x => x.Location).Returns(room.Object);
 		Body.SetupGet(x => x.Id).Returns(200); Body.SetupGet(x => x.Gameworld).Returns(World.Object);
 		Body.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1));
 		Body.SetupGet(x => x.FunctioningFreeHands).Returns(new[] { new Mock<IGrab>().Object });

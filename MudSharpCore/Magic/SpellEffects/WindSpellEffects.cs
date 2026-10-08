@@ -561,7 +561,7 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate
 
 		var exit = additionalParameters
 		           .FirstOrDefault(x => x.ParameterName.Equals("exit", StringComparison.InvariantCultureIgnoreCase))
-		           ?.Item as ICellExit;
+		           ?.Item as IRoomExit;
 		if (exit is null)
 		{
 			return null;
@@ -597,7 +597,7 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate
 		return null;
 	}
 
-	private bool TryMoveTarget(ICharacter caster, ICharacter target, ICellExit exit, out string why)
+	private bool TryMoveTarget(ICharacter caster, ICharacter target, IRoomExit exit, out string why)
 	{
 		why = string.Empty;
 		if (!AllowFallExits && exit.IsFallExit)
@@ -640,7 +640,7 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate
 		}
 
 		var transition = exit.MovementTransition(target);
-		if (transition.TransitionType == CellMovementTransition.NoViableTransition)
+		if (transition.TransitionType == RoomMovementTransition.NoViableTransition)
 		{
 			why = "The target cannot be forced through that exit from this layer.";
 			return false;

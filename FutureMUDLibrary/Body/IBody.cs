@@ -116,7 +116,7 @@ namespace MudSharp.Body
 
         string GetConsiderString(IPerceiver voyeur);
         string GetPositionDescription(IPerceiver voyeur, bool proper, bool colour, PerceiveIgnoreFlags flags);
-        bool CanSee(ICell thing, ICellExit exit, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None);
+        bool CanSee(IRoom thing, IRoomExit exit, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None);
         void AddInfection(IInfection infection);
         void RemoveInfection(IInfection infection);
         void Dose(IDrug drug, DrugVector vector, double grams);

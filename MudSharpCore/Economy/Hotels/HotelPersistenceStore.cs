@@ -142,7 +142,7 @@ public static class HotelPersistenceStore
 		hotel.LostProperties.Clear();
 
 		var roomRecords = property.HotelRooms
-		                          .Where(x => x.Cell is not null)
+		                          .Where(x => x.Room is not null)
 		                          .Select(room => (Room: room, Record: CreateRoomRecord(hotel, room)))
 		                          .ToList();
 		foreach (var (_, record) in roomRecords)
@@ -192,7 +192,7 @@ public static class HotelPersistenceStore
 		foreach (var lost in property.HotelLostProperties.Where(x => x is not null))
 		{
 			var roomRecord = roomRecords.FirstOrDefault(x => ReferenceEquals(x.Room, lost.Room)).Record ??
-			                 roomRecords.FirstOrDefault(x => x.Room.Cell.Id == lost.Room.Cell.Id).Record;
+			                 roomRecords.FirstOrDefault(x => x.Room.Room.Id == lost.Room.Room.Id).Record;
 			if (roomRecord is null)
 			{
 				continue;
@@ -278,7 +278,7 @@ public static class HotelPersistenceStore
 		return new DbHotelRoom
 		{
 			Hotel = hotel,
-			CellId = room.Cell.Id,
+			RoomId = room.Room.Id,
 			Name = room.Name.Length <= HotelRoom.MaximumNameLength
 				? room.Name
 				: room.Name.Substring(0, HotelRoom.MaximumNameLength),

@@ -34,7 +34,7 @@ public partial class Body
 {
     #region IPerceiver
 
-    public override ICellOverlayPackage CurrentOverlayPackage
+    public override IRoomOverlayPackage CurrentOverlayPackage
     {
         get => Actor.CurrentOverlayPackage;
         set => Actor.CurrentOverlayPackage = value;
@@ -183,7 +183,7 @@ public partial class Body
             }
             else
             {
-                // Require at least 1 eye to see unless things are in your inventory or are cell exits
+                // Require at least 1 eye to see unless things are in your inventory or are room exits
                 List<EyeProto> eyes = Bodyparts.OfType<EyeProto>().ToList();
                 if (AffectedBy<IBlindnessEffect>() || Actor.AffectedBy<IBlindnessEffect>())
                 {
@@ -209,8 +209,8 @@ public partial class Body
         {
             return (Actor.GetPerception(Actor.NaturalPerceptionTypes) & PerceptionTypes.AllVisual &
                     celestial.PerceivableTypes) != PerceptionTypes.None &&
-                   (Location?.OutdoorsType(Actor) == CellOutdoorsType.IndoorsWithWindows ||
-                    Location?.OutdoorsType(Actor) == CellOutdoorsType.Outdoors);
+                   (Location?.OutdoorsType(Actor) == RoomOutdoorsType.IndoorsWithWindows ||
+                    Location?.OutdoorsType(Actor) == RoomOutdoorsType.Outdoors);
         }
 
         if (!flags.HasFlag(PerceiveIgnoreFlags.IgnoreObscured) && perceiverThing != null)
@@ -249,14 +249,14 @@ public partial class Body
         return !hasSensorArrays || sensorArrayFunction > 0.0;
     }
 
-    public bool CanSee(ICell cell, ICellExit exit, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
+    public bool CanSee(IRoom room, IRoomExit exit, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
     {
         if (Actor.IsAdministrator())
         {
             return true;
         }
 
-        return cell.IsExitVisible(Actor, exit,
+        return room.IsExitVisible(Actor, exit,
             Actor.GetPerception(Actor.NaturalPerceptionTypes) & PerceptionTypes.AllVisual, flags);
     }
 
@@ -750,7 +750,7 @@ public partial class Body
 
 			var accessPoints = vehicle.Dockings
 				.Where(x => x.State == VehicleDockingState.BoardingOpen)
-				.Where(x => x.ExteriorCell.Id == actor.Location.Id && x.ExteriorLayer == actor.RoomLayer)
+				.Where(x => x.ExteriorRoom.Id == actor.Location.Id && x.ExteriorLayer == actor.RoomLayer)
 				.Where(x => x is not VehicleDocking runtime || runtime.IsRegistered)
 				.Select(x => x.AccessPoint.Name.ColourName())
 				.Distinct(StringComparer.InvariantCultureIgnoreCase)
@@ -766,9 +766,9 @@ public partial class Body
 	}
 
     /// <summary>
-    /// Ordinary cells retain their existing whole-layer look semantics. A RouteCell can span
+    /// Ordinary rooms retain their existing whole-layer look semantics. A RouteRoom can span
     /// kilometres, so a normal look is deliberately bounded at the configured visual-locality
-    /// ceiling and uses the RouteCell's ordered spatial index.
+    /// ceiling and uses the RouteRoom's ordered spatial index.
     /// </summary>
     private IEnumerable<IPerceivable> PerceivablesInVisualRouteRange()
     {
@@ -1451,14 +1451,14 @@ public partial class Body
     }
 
 
-    public (ICharacter? Target, IEnumerable<ICellExit> Path) TargetDistantActor(string keyword, ICellExit? initialExit,
+    public (ICharacter? Target, IEnumerable<IRoomExit> Path) TargetDistantActor(string keyword, IRoomExit? initialExit,
         uint maximumRange,
         bool respectDoors, bool respectCorners)
     {
         return Actor.TargetDistantActor(keyword, initialExit, maximumRange, respectDoors, respectCorners);
     }
 
-    public (IGameItem? Target, IEnumerable<ICellExit> Path) TargetDistantItem(string keyword, ICellExit? initialExit,
+    public (IGameItem? Target, IEnumerable<IRoomExit> Path) TargetDistantItem(string keyword, IRoomExit? initialExit,
         uint maximumRange,
         bool respectDoors, bool respectCorners)
     {

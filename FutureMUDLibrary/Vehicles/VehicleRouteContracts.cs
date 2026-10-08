@@ -14,8 +14,8 @@ using MudSharp.TimeAndDate.Intervals;
 namespace MudSharp.Vehicles;
 
 /// <summary>
-/// A revisioned operational itinerary. This is deliberately distinct from a linear RouteCell.
-/// Approved revisions pin every traversed RouteCell topology version and every concrete step.
+/// A revisioned operational itinerary. This is deliberately distinct from a linear RouteRoom.
+/// Approved revisions pin every traversed RouteRoom topology version and every concrete step.
 /// </summary>
 public interface IVehicleRoute : IEditableRevisableItem, IProgVariable
 {
@@ -36,14 +36,14 @@ public interface IVehicleRouteStop : IFrameworkItem
 public interface IVehicleRoutePlatformBinding : IFrameworkItem
 {
 	IVehicleRouteStop Stop { get; }
-	ICell PlatformCell { get; }
+	IRoom PlatformRoom { get; }
 	IVehicleAccessPointPrototype AccessPoint { get; }
 	double DockingToleranceMetres { get; }
 }
 
 public interface IVehicleRouteTopologyPin
 {
-	ICell RouteCell { get; }
+	IRoom RouteRoom { get; }
 	long TopologyVersion { get; }
 }
 
@@ -128,7 +128,7 @@ public interface IVehicleJourney : IFrameworkItem, IHaveFuturemud, ISaveable, IP
 /// <summary>
 /// The result returned by the physical movement layer when a compiled route leg completes.
 /// Operational journeys deliberately depend on this seam rather than on a concrete movement
-/// implementation so longitudinal RouteCell and room-scale vehicle movement can evolve independently.
+/// implementation so longitudinal RouteRoom and room-scale vehicle movement can evolve independently.
 /// </summary>
 public sealed record VehicleJourneyLegResult(bool Succeeded, string Reason)
 {
@@ -189,7 +189,7 @@ public interface IVehicleDocking : IFrameworkItem
 	IVehicle Vehicle { get; }
 	IVehicleAccessPoint AccessPoint { get; }
 	IVehicleCompartment Compartment { get; }
-	ICell ExteriorCell { get; }
+	IRoom ExteriorRoom { get; }
 	RoomLayer ExteriorLayer { get; }
 	IVehicleRouteStop? Stop { get; }
 	VehicleDockingState State { get; }
@@ -202,14 +202,14 @@ public interface IVehicleDockingService
 	bool CanDock(
 		IVehicle vehicle,
 		IVehicleAccessPoint accessPoint,
-		ICell exteriorCell,
+		IRoom exteriorRoom,
 		RoomLayer exteriorLayer,
 		IVehicleRouteStop? stop,
 		out string reason);
 	IVehicleDocking Dock(
 		IVehicle vehicle,
 		IVehicleAccessPoint accessPoint,
-		ICell exteriorCell,
+		IRoom exteriorRoom,
 		RoomLayer exteriorLayer,
 		IVehicleRouteStop? stop = null);
 	void SetBoardingOpen(IVehicleDocking docking, bool open);

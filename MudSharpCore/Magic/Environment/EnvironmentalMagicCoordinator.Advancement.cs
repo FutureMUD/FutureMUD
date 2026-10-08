@@ -14,7 +14,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 
 	private AdvancePlan ProjectSettlement(Registration registration, double now)
 	{
-		var plan = new AdvancePlan(new(), registration.Cell.EnvironmentState)
+		var plan = new AdvancePlan(new(), registration.Room.EnvironmentState)
 		{
 			ProductionRemainders = registration.ProductionRemainders is { Count: > 0 } remainders
 				? new Dictionary<long, double>(remainders) : null,
@@ -29,7 +29,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 				plan.ProductionRemainders?.Remove(output.ResourceId);
 				continue;
 			}
-			var balance = registration.Cell.MagicResourceAmounts.GetValueOrDefault(resource);
+			var balance = registration.Room.MagicResourceAmounts.GetValueOrDefault(resource);
 			if (balance >= output.Maximum)
 			{
 				plan.Balances[resource] = output.Maximum;
@@ -67,8 +67,8 @@ public sealed partial class EnvironmentalMagicCoordinator
 	private void ApplySettlement(Registration registration, AdvancePlan plan, double now, bool ensurePresent = false)
 	{
 		foreach (var balance in plan.Balances)
-			if (registration.Cell.SetEnvironmentalResource(balance.Key, balance.Value, ensurePresent)) CountWrite();
-		if (registration.Cell.SetEnvironmentState(plan.State)) CountWrite();
+			if (registration.Room.SetEnvironmentalResource(balance.Key, balance.Value, ensurePresent)) CountWrite();
+		if (registration.Room.SetEnvironmentState(plan.State)) CountWrite();
 		AcceptSettlementAccounting(registration, plan, now);
 	}
 
@@ -79,15 +79,15 @@ public sealed partial class EnvironmentalMagicCoordinator
 
 	private void Recheck(Registration registration, double now, bool keepDeadline = false)
 	{
-		if (_registered.GetValueOrDefault(registration.Cell.Id) != registration) return;
-		if (EffectiveProfileId(registration.Cell) != registration.ProfileId)
+		if (_registered.GetValueOrDefault(registration.Room.Id) != registration) return;
+		if (EffectiveProfileId(registration.Room) != registration.ProfileId)
 		{
 			Settle(registration, now);
-			Register(registration.Cell);
-			if (_registered.TryGetValue(registration.Cell.Id, out var replacement)) Recheck(replacement, now);
+			Register(registration.Room);
+			if (_registered.TryGetValue(registration.Room.Id, out var replacement)) Recheck(replacement, now);
 			return;
 		}
-		var snapshot = Inspect(registration.Cell);
+		var snapshot = Inspect(registration.Room);
 		if (!snapshot.IsValid)
 		{
 			Fault(registration, string.Join("; ", snapshot.Errors), now);
@@ -101,7 +101,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 			return;
 		}
 		ApplySettlement(registration, plan, now, true);
-		SettlePressure(registration.Cell, profile);
+		SettlePressure(registration.Room, profile);
 		Accept(registration, samples, profile, now, keepDeadline);
 	}
 
@@ -115,7 +115,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		foreach (var output in profile.Outputs)
 		{
 			var resource = output.Resource!;
-			var balance = plan.Balances.GetValueOrDefault(resource, registration.Cell.MagicResourceAmounts.GetValueOrDefault(resource));
+			var balance = plan.Balances.GetValueOrDefault(resource, registration.Room.MagicResourceAmounts.GetValueOrDefault(resource));
 			var evaluation = profile.EvaluateOutput(output, inputs, balance);
 			if (evaluation.IsValid && balance > evaluation.Maximum)
 			{
@@ -139,7 +139,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		IEnvironmentalMagicProfile profile, double now, bool keepDeadline)
 	{
 		var production = samples.Any(x => x.Balance < x.Maximum && x.Rate > 0.0);
-		var maintenance = registration.Cell.EnvironmentState.ScarDamage > 0.0 && profile.NaturalRepairPerMinute > 0.0;
+		var maintenance = registration.Room.EnvironmentState.ScarDamage > 0.0 && profile.NaturalRepairPerMinute > 0.0;
 		var wasActive = registration.Production || registration.Maintenance;
 		SetStatus(registration, production, maintenance, false);
 		registration.Sample = samples;
@@ -191,7 +191,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		registration.LastAudit = now;
 		var interval = Math.Max(1.0, Math.Min(Options.ReconciliationSeconds, idleSeconds ?? Options.ReconciliationSeconds));
 		// Retain a stable phase even when a whole newly loaded population becomes dormant together.
-		registration.AuditAt = Math.Floor(now / interval) * interval + Stagger(registration.Cell.Id, interval);
+		registration.AuditAt = Math.Floor(now / interval) * interval + Stagger(registration.Room.Id, interval);
 		if (registration.AuditAt <= now) registration.AuditAt += interval;
 		_audit.Add(registration);
 		if (registration.AgeNode is not null) _auditAge.Remove(registration.AgeNode);
@@ -209,7 +209,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		registration.RepairRemainder = 0.0;
 		SetStatus(registration, false, false, true);
 		ScheduleAudit(registration, now, null);
-		_representativeError = $"Profile #{registration.ProfileId}, cell #{registration.Cell.Id}: {error}";
+		_representativeError = $"Profile #{registration.ProfileId}, room #{registration.Room.Id}: {error}";
 		_totalFaults++;
 		if (!_lastLoggedFault.TryGetValue(registration.ProfileId, out var last) || now - last >= 60.0)
 		{
@@ -218,20 +218,20 @@ public sealed partial class EnvironmentalMagicCoordinator
 		}
 	}
 
-	public bool TryMutateResource(ICell cell, IMagicResource resource, EnvironmentalResourceMutation mutation,
+	public bool TryMutateResource(IRoom room, IMagicResource resource, EnvironmentalResourceMutation mutation,
 		double amount, out bool success)
 	{
 		success = false;
-		if (cell is not Cell concrete || EffectiveProfileId(concrete) is not { } id) return false;
+		if (room is not Room concrete || EffectiveProfileId(concrete) is not { } id) return false;
 		var profile = Profile(id);
 		if (profile is not null && !profile.Outputs.Any(x => x.ResourceId == resource.Id)) return false;
 		if (_disposed || !Enum.IsDefined(mutation) || !double.IsFinite(amount) || mutation == EnvironmentalResourceMutation.Debit && amount < 0.0 ||
 			mutation == EnvironmentalResourceMutation.Set && amount < 0.0) return true;
-		if (_evaluating.Contains(cell.Id)) { _recursive.Add(cell.Id); return true; }
-		if (_ecologicalMutations.Contains(cell.Id)) return true;
-		Register(cell); // Also discovers a newly inherited binding before the unconfigured fast path can escape.
-		var registration = _registered[cell.Id];
-		var snapshot = Inspect(cell);
+		if (_evaluating.Contains(room.Id)) { _recursive.Add(room.Id); return true; }
+		if (_ecologicalMutations.Contains(room.Id)) return true;
+		Register(room); // Also discovers a newly inherited binding before the unconfigured fast path can escape.
+		var registration = _registered[room.Id];
+		var snapshot = Inspect(room);
 		if (!snapshot.IsValid)
 		{
 			Fault(registration, string.Join("; ", snapshot.Errors), Now);
@@ -242,7 +242,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		var insufficient = mutation == EnvironmentalResourceMutation.Debit && amount > recordedAvailable;
 		var now = Now;
 		var plan = ProjectSettlement(registration, now);
-		var balance = Math.Min(plan.Balances.GetValueOrDefault(resource, cell.MagicResourceAmounts.GetValueOrDefault(resource)), output.Maximum);
+		var balance = Math.Min(plan.Balances.GetValueOrDefault(resource, room.MagicResourceAmounts.GetValueOrDefault(resource)), output.Maximum);
 		if (!insufficient)
 		{
 			balance = mutation switch
@@ -268,11 +268,11 @@ public sealed partial class EnvironmentalMagicCoordinator
 		return true;
 	}
 
-	public bool TryDebit(ICell cell, IMagicResource resource, double amount, out string? error)
+	public bool TryDebit(IRoom room, IMagicResource resource, double amount, out string? error)
 	{
-		if (!TryMutateResource(cell, resource, EnvironmentalResourceMutation.Debit, amount, out var success))
+		if (!TryMutateResource(room, resource, EnvironmentalResourceMutation.Debit, amount, out var success))
 		{
-			error = "This cell/resource pair is not managed by an environmental profile.";
+			error = "This room/resource pair is not managed by an environmental profile.";
 			return false;
 		}
 		error = success ? null : "The full recorded amount is unavailable, or the current environment is invalid.";
@@ -304,8 +304,8 @@ public sealed partial class EnvironmentalMagicCoordinator
 		var d = Diagnostics;
 		return $"Environmental magic: {d.Configured:N0} configured; {d.ActiveProduction:N0} producing; {d.ActiveMaintenance:N0} maintaining; {d.Dormant:N0} dormant; {d.Dirty:N0} dirty; {d.Faulted:N0} faulted.\n" +
 			$"Queues: {d.ProductionQueue:N0} production, {d.AuditQueue:N0} audit, {d.DiscoveryRemaining:N0} discovery remaining. Oldest ready {d.OldestReadySeconds:F2}s; oldest audit {d.OldestAuditSeconds:F2}s.\n" +
-			$"Last pump: {d.LastCellVisits:N0} cells, {d.LastEvaluations:N0} evaluations, {d.LastInputProgExecutions:N0} progs, {d.LastWrites:N0} writes; {d.LastPumpMilliseconds:F3} ms (max {d.MaximumPumpMilliseconds:F3} ms); {d.BudgetLimitedPumps:N0} budget-limited pumps.\n" +
-			$"Budgets: {Options.MaximumCellVisits:N0} cells / {Options.MaximumOutputWork:N0} outputs / {Options.SoftBudgetMilliseconds:F2} ms; active {Options.ActiveCadenceSeconds:F0}s, audit {Options.ReconciliationSeconds:F0}s.\n" +
+			$"Last pump: {d.LastRoomVisits:N0} rooms, {d.LastEvaluations:N0} evaluations, {d.LastInputProgExecutions:N0} progs, {d.LastWrites:N0} writes; {d.LastPumpMilliseconds:F3} ms (max {d.MaximumPumpMilliseconds:F3} ms); {d.BudgetLimitedPumps:N0} budget-limited pumps.\n" +
+			$"Budgets: {Options.MaximumRoomVisits:N0} rooms / {Options.MaximumOutputWork:N0} outputs / {Options.SoftBudgetMilliseconds:F2} ms; active {Options.ActiveCadenceSeconds:F0}s, audit {Options.ReconciliationSeconds:F0}s.\n" +
 			$"Last error: {d.RepresentativeError ?? "none"}\nSlow input progs: {d.TotalSlowInputProgs:N0}; latest: {d.SlowProg ?? "none"}";
 	}
 }

@@ -116,7 +116,7 @@ public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectAdmissio
 		{
 			if (!Effect.DurableLifecycle) return Effect.GetOrApplyEffect(Caster, Target, Outcome, Power, parent, [])!;
 			if (!Effect.ValidateInvocation(Caster, Target, out var error)) throw new InvalidOperationException(error);
-			var item = (IGameItem)Target; var corpse = item.GetItemType<ICorpse>(); var originalCell = item.Location.Id; var layer = item.RoomLayer;
+			var item = (IGameItem)Target; var corpse = item.GetItemType<ICorpse>(); var originalRoom = item.Location.Id; var layer = item.RoomLayer;
 			var native = (MagicSpell)Effect.Spell; var now = RuntimeClock.UtcNow;
 			var ais = Effect._aiIds.Select(x => Effect.Gameworld.AIs.Get(x)!).ToArray();
 			var origin = new SpellLifecycleOrigin(Id, native.Id, native.InvocationGrade!.Value, CharacterInstanceIdentityComparer.IdentityId(Caster),
@@ -127,7 +127,7 @@ public sealed partial class AnimateCorpseSpellEffect : IMagicSpellEffectAdmissio
 			animated.AddEffect(new CorpseAnimationDispelProxyEffect(animated, item.Id));
 			var result = new SpellAnimatedCorpseEffect(item, parent, origin.CreatorId, Caster.InstanceId, item.Id,
 				CharacterInstanceIdentityComparer.IdentityId(corpse.OriginalCharacter), corpse.OriginalBody.Id, animated.InstanceId,
-				originalCell, (int)layer, native.Id, ais.Select(x => x.Id), CharacterInstancePersistencePolicy.DespawnOnReboot,
+				originalRoom, (int)layer, native.Id, ais.Select(x => x.Id), CharacterInstancePersistencePolicy.DespawnOnReboot,
 				Effect._roomEcho, Effect._collapseEcho, Effect._restoreEcho);
 			result.BindOwnedLifecycle(Id, origin.DeadlineUtc!.Value);
 			return result;

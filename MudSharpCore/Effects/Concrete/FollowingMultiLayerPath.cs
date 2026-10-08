@@ -18,7 +18,7 @@ public class FollowingMultiLayerPath : FollowingPath
     #endregion
 
     /// <inheritdoc />
-    public FollowingMultiLayerPath(ICharacter owner, IEnumerable<ICellExit> exits, RoomLayer targetMovingLayer, RoomLayer targetFinalLayer) : base(owner, exits)
+    public FollowingMultiLayerPath(ICharacter owner, IEnumerable<IRoomExit> exits, RoomLayer targetMovingLayer, RoomLayer targetFinalLayer) : base(owner, exits)
     {
         TargetMovingLayer = targetMovingLayer;
         TargetFinalLayer = targetFinalLayer;

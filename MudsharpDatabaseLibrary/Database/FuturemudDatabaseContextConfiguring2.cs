@@ -357,79 +357,79 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_Clans_BankAccounts");
             });
 
-            modelBuilder.Entity<ClanAdministrationCell>(entity =>
+            modelBuilder.Entity<ClanAdministrationRoom>(entity =>
             {
-                entity.HasKey(e => new { e.ClanId, e.CellId })
+                entity.HasKey(e => new { e.ClanId, e.RoomId })
                     .HasName("PRIMARY");
 
-                entity.ToTable("Clans_AdministrationCells");
+                entity.ToTable("Clans_AdministrationRooms");
 
-                entity.HasIndex(e => e.CellId)
-                    .HasDatabaseName("FK_Clans_AdministrationCells_Cells_idx");
+                entity.HasIndex(e => e.RoomId)
+                    .HasDatabaseName("FK_Clans_AdministrationRooms_Rooms_idx");
 
                 entity.Property(e => e.ClanId).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
-                entity.HasOne(d => d.Cell)
-                    .WithMany(p => p.ClansAdministrationCells)
-                    .HasForeignKey(d => d.CellId)
-                    .HasConstraintName("FK_Clans_AdministrationCells_Cells");
+                entity.HasOne(d => d.Room)
+                    .WithMany(p => p.ClansAdministrationRooms)
+                    .HasForeignKey(d => d.RoomId)
+                    .HasConstraintName("FK_Clans_AdministrationRooms_Rooms");
 
                 entity.HasOne(d => d.Clan)
-                    .WithMany(p => p.ClansAdministrationCells)
+                    .WithMany(p => p.ClansAdministrationRooms)
                     .HasForeignKey(d => d.ClanId)
-                    .HasConstraintName("FK_Clans_AdministrationCells_Clans");
+                    .HasConstraintName("FK_Clans_AdministrationRooms_Clans");
             });
 
-            modelBuilder.Entity<ClanHallCell>(entity =>
+            modelBuilder.Entity<ClanHallRoom>(entity =>
             {
-                entity.HasKey(e => new { e.ClanId, e.CellId })
+                entity.HasKey(e => new { e.ClanId, e.RoomId })
                     .HasName("PRIMARY");
 
-                entity.ToTable("Clans_HallCells");
+                entity.ToTable("Clans_HallRooms");
 
-                entity.HasIndex(e => e.CellId)
-                    .HasDatabaseName("FK_Clans_HallCells_Cells_idx");
+                entity.HasIndex(e => e.RoomId)
+                    .HasDatabaseName("FK_Clans_HallRooms_Rooms_idx");
 
                 entity.Property(e => e.ClanId).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
-                entity.HasOne(d => d.Cell)
-                    .WithMany(p => p.ClansHallCells)
-                    .HasForeignKey(d => d.CellId)
-                    .HasConstraintName("FK_Clans_HallCells_Cells");
+                entity.HasOne(d => d.Room)
+                    .WithMany(p => p.ClansHallRooms)
+                    .HasForeignKey(d => d.RoomId)
+                    .HasConstraintName("FK_Clans_HallRooms_Rooms");
 
                 entity.HasOne(d => d.Clan)
-                    .WithMany(p => p.ClansHallCells)
+                    .WithMany(p => p.ClansHallRooms)
                     .HasForeignKey(d => d.ClanId)
-                    .HasConstraintName("FK_Clans_HallCells_Clans");
+                    .HasConstraintName("FK_Clans_HallRooms_Clans");
             });
 
-            modelBuilder.Entity<ClanTreasuryCell>(entity =>
+            modelBuilder.Entity<ClanTreasuryRoom>(entity =>
             {
-                entity.HasKey(e => new { e.ClanId, e.CellId })
+                entity.HasKey(e => new { e.ClanId, e.RoomId })
                     .HasName("PRIMARY");
 
-                entity.ToTable("Clans_TreasuryCells");
+                entity.ToTable("Clans_TreasuryRooms");
 
-                entity.HasIndex(e => e.CellId)
-                    .HasDatabaseName("FK_Clans_TreasuryCells_Cells_idx");
+                entity.HasIndex(e => e.RoomId)
+                    .HasDatabaseName("FK_Clans_TreasuryRooms_Rooms_idx");
 
                 entity.Property(e => e.ClanId).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
-                entity.HasOne(d => d.Cell)
-                    .WithMany(p => p.ClansTreasuryCells)
-                    .HasForeignKey(d => d.CellId)
-                    .HasConstraintName("FK_Clans_TreasuryCells_Cells");
+                entity.HasOne(d => d.Room)
+                    .WithMany(p => p.ClansTreasuryRooms)
+                    .HasForeignKey(d => d.RoomId)
+                    .HasConstraintName("FK_Clans_TreasuryRooms_Rooms");
 
                 entity.HasOne(d => d.Clan)
-                    .WithMany(p => p.ClansTreasuryCells)
+                    .WithMany(p => p.ClansTreasuryRooms)
                     .HasForeignKey(d => d.ClanId)
-                    .HasConstraintName("FK_Clans_TreasuryCells_Clans");
+                    .HasConstraintName("FK_Clans_TreasuryRooms_Clans");
             });
 
             modelBuilder.Entity<ClimateModel>(entity =>
@@ -2017,9 +2017,9 @@ namespace MudSharp.Database
             modelBuilder.Entity<ConveyancingLocation>(entity =>
             {
                 entity.ToTable("ConveyancingLocations");
-                entity.HasKey(e => new { e.EconomicZoneId, e.CellId }).HasName("PRIMARY");
+                entity.HasKey(e => new { e.EconomicZoneId, e.RoomId }).HasName("PRIMARY");
                 entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.HasOne(e => e.EconomicZone)
                     .WithMany(e => e.ConveyancingLocations)
@@ -2027,19 +2027,19 @@ namespace MudSharp.Database
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ConveyancingLocations_EconomicZones");
 
-                entity.HasOne(e => e.Cell)
+                entity.HasOne(e => e.Room)
                     .WithMany()
-                    .HasForeignKey(e => e.CellId)
+                    .HasForeignKey(e => e.RoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_ConveyancingLocations_Cells");
+                    .HasConstraintName("FK_ConveyancingLocations_Rooms");
             });
 
             modelBuilder.Entity<JobFindingLocation>(entity =>
             {
                 entity.ToTable("JobFindingLocations");
-                entity.HasKey(e => new { e.EconomicZoneId, e.CellId }).HasName("PRIMARY");
+                entity.HasKey(e => new { e.EconomicZoneId, e.RoomId }).HasName("PRIMARY");
                 entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.HasOne(e => e.EconomicZone)
                     .WithMany(e => e.JobFindingLocations)
@@ -2047,11 +2047,11 @@ namespace MudSharp.Database
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_JobFindingLocations_EconomicZones");
 
-                entity.HasOne(e => e.Cell)
+                entity.HasOne(e => e.Room)
                     .WithMany()
-                    .HasForeignKey(e => e.CellId)
+                    .HasForeignKey(e => e.RoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_JobFindingLocations_Cells");
+                    .HasConstraintName("FK_JobFindingLocations_Rooms");
             });
 
             modelBuilder.Entity<CorpseRecoveryReport>(entity =>
@@ -2062,8 +2062,8 @@ namespace MudSharp.Database
                 entity.Property(e => e.LegalAuthorityId).HasColumnType("bigint(20)");
                 entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
                 entity.Property(e => e.CorpseId).HasColumnType("bigint(20)");
-                entity.Property(e => e.SourceCellId).HasColumnType("bigint(20)");
-                entity.Property(e => e.DestinationCellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.SourceRoomId).HasColumnType("bigint(20)");
+                entity.Property(e => e.DestinationRoomId).HasColumnType("bigint(20)");
                 entity.Property(e => e.ReporterId).HasColumnType("bigint(20)");
                 entity.Property(e => e.AssignedPatrolId).HasColumnType("bigint(20)");
                 entity.Property(e => e.Status).HasColumnType("int(11)");
@@ -2086,17 +2086,17 @@ namespace MudSharp.Database
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_CorpseRecoveryReports_GameItems");
 
-                entity.HasOne(e => e.SourceCell)
+                entity.HasOne(e => e.SourceRoom)
                     .WithMany()
-                    .HasForeignKey(e => e.SourceCellId)
+                    .HasForeignKey(e => e.SourceRoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_CorpseRecoveryReports_SourceCells");
+                    .HasConstraintName("FK_CorpseRecoveryReports_SourceRooms");
 
-                entity.HasOne(e => e.DestinationCell)
+                entity.HasOne(e => e.DestinationRoom)
                     .WithMany()
-                    .HasForeignKey(e => e.DestinationCellId)
+                    .HasForeignKey(e => e.DestinationRoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_CorpseRecoveryReports_DestinationCells");
+                    .HasConstraintName("FK_CorpseRecoveryReports_DestinationRooms");
 
                 entity.HasOne(e => e.Reporter)
                     .WithMany()
@@ -2114,9 +2114,9 @@ namespace MudSharp.Database
             modelBuilder.Entity<ProbateLocation>(entity =>
             {
                 entity.ToTable("ProbateLocations");
-                entity.HasKey(e => new { e.EconomicZoneId, e.CellId }).HasName("PRIMARY");
+                entity.HasKey(e => new { e.EconomicZoneId, e.RoomId }).HasName("PRIMARY");
                 entity.Property(e => e.EconomicZoneId).HasColumnType("bigint(20)");
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.HasOne(e => e.EconomicZone)
                     .WithMany(e => e.ProbateLocations)
@@ -2124,11 +2124,11 @@ namespace MudSharp.Database
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_ProbateLocations_EconomicZones");
 
-                entity.HasOne(e => e.Cell)
+                entity.HasOne(e => e.Room)
                     .WithMany()
-                    .HasForeignKey(e => e.CellId)
+                    .HasForeignKey(e => e.RoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_ProbateLocations_Cells");
+                    .HasConstraintName("FK_ProbateLocations_Rooms");
             });
 
             modelBuilder.Entity<EditableItem>(entity =>
@@ -2583,9 +2583,9 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
-                entity.Property(e => e.CellId1).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId1).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.CellId2).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId2).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.ClimbDifficulty)
                     .HasColumnType("int(11)")
@@ -2599,7 +2599,7 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.DoorSize).HasColumnType("int(11)");
 
-                entity.Property(e => e.FallCell).HasColumnType("bigint(20)");
+                entity.Property(e => e.FallRoom).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.InboundDescription1)
                     .HasColumnType("varchar(255)")
@@ -3954,8 +3954,8 @@ namespace MudSharp.Database
                 entity.HasIndex(e => e.BodyId)
                     .HasDatabaseName("FK_Hooks_Perceivables_Bodies_idx");
 
-                entity.HasIndex(e => e.CellId)
-                    .HasDatabaseName("FK_Hooks_Perceivables_Cells_idx");
+                entity.HasIndex(e => e.RoomId)
+                    .HasDatabaseName("FK_Hooks_Perceivables_Rooms_idx");
 
                 entity.HasIndex(e => e.CharacterId)
                     .HasDatabaseName("FK_Hooks_Perceivables_Characters_idx");
@@ -3976,7 +3976,7 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.BodyId).HasColumnType("bigint(20)");
 
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.CharacterId).HasColumnType("bigint(20)");
 
@@ -3994,11 +3994,11 @@ namespace MudSharp.Database
                     .OnDelete(DeleteBehavior.Cascade)
                     .HasConstraintName("FK_Hooks_Perceivables_Bodies");
 
-                entity.HasOne(d => d.Cell)
+                entity.HasOne(d => d.Room)
                     .WithMany(p => p.HooksPerceivables)
-                    .HasForeignKey(d => d.CellId)
+                    .HasForeignKey(d => d.RoomId)
                     .OnDelete(DeleteBehavior.Cascade)
-                    .HasConstraintName("FK_Hooks_Perceivables_Cells");
+                    .HasConstraintName("FK_Hooks_Perceivables_Rooms");
 
                 entity.HasOne(d => d.Character)
                     .WithMany(p => p.HooksPerceivables)
@@ -4405,22 +4405,22 @@ namespace MudSharp.Database
                     .HasDatabaseName("FK_LegalAuthorities_Currencies_idx");
 
                 entity.HasIndex(e => e.PreparingLocationId)
-                    .HasDatabaseName("FK_LegalAuthorities_PreparingCells_idx");
+                    .HasDatabaseName("FK_LegalAuthorities_PreparingRooms_idx");
 
                 entity.HasIndex(e => e.MarshallingLocationId)
-                    .HasDatabaseName("FK_LegalAuthorities_MarshallingCells_idx");
+                    .HasDatabaseName("FK_LegalAuthorities_MarshallingRooms_idx");
 
                 entity.HasIndex(e => e.EnforcerStowingLocationId)
-                    .HasDatabaseName("FK_LegalAuthorities_StowingCells_idx");
+                    .HasDatabaseName("FK_LegalAuthorities_StowingRooms_idx");
 
                 entity.HasIndex(e => e.PrisonLocationId)
-                    .HasDatabaseName("FK_LegalAuthorities_PrisonCells_idx");
+                    .HasDatabaseName("FK_LegalAuthorities_PrisonRooms_idx");
 
                 entity.HasIndex(e => e.PrisonReleaseLocationId)
-                    .HasDatabaseName("FK_LegalAuthorities_PrisonReleaseCells_idx");
+                    .HasDatabaseName("FK_LegalAuthorities_PrisonReleaseRooms_idx");
 
                 entity.HasIndex(e => e.PrisonBelongingsLocationId)
-                    .HasDatabaseName("FK_LegalAuthorities_PrisonBelongingsCells_idx");
+                    .HasDatabaseName("FK_LegalAuthorities_PrisonBelongingsRooms_idx");
 
                 entity.HasIndex(e => e.OnReleaseProgId)
                     .HasDatabaseName("FK_LegalAuthorities_FutureprogsRelease_idx");
@@ -4476,42 +4476,42 @@ namespace MudSharp.Database
                 entity.HasOne(d => d.PreparingLocation)
                     .WithMany()
                     .HasForeignKey(d => d.PreparingLocationId)
-                    .HasConstraintName("FK_LegalAuthorities_PreparingCells");
+                    .HasConstraintName("FK_LegalAuthorities_PreparingRooms");
 
                 entity.HasOne(d => d.MarshallingLocation)
                     .WithMany()
                     .HasForeignKey(d => d.MarshallingLocationId)
-                    .HasConstraintName("FK_LegalAuthorities_MarshallingCells");
+                    .HasConstraintName("FK_LegalAuthorities_MarshallingRooms");
 
                 entity.HasOne(d => d.EnforcerStowingLocation)
                     .WithMany()
                     .HasForeignKey(d => d.EnforcerStowingLocationId)
-                    .HasConstraintName("FK_LegalAuthorities_StowingCells");
+                    .HasConstraintName("FK_LegalAuthorities_StowingRooms");
 
                 entity.HasOne(d => d.PrisonLocation)
                     .WithMany()
                     .HasForeignKey(d => d.PrisonLocationId)
-                    .HasConstraintName("FK_LegalAuthorities_PrisonCells");
+                    .HasConstraintName("FK_LegalAuthorities_PrisonRooms");
 
                 entity.HasOne(d => d.JailLocation)
                     .WithMany()
                     .HasForeignKey(d => d.JailLocationId)
-                    .HasConstraintName("FK_LegalAuthorities_PrisonJailCells");
+                    .HasConstraintName("FK_LegalAuthorities_PrisonJailRooms");
 
                 entity.HasOne(d => d.CourtLocation)
                     .WithMany()
                     .HasForeignKey(d => d.CourtLocationId)
-                    .HasConstraintName("FK_LegalAuthorities_CourtroomCell");
+                    .HasConstraintName("FK_LegalAuthorities_CourtroomRoom");
 
                 entity.HasOne(d => d.PrisonReleaseLocation)
                     .WithMany()
                     .HasForeignKey(d => d.PrisonReleaseLocationId)
-                    .HasConstraintName("FK_LegalAuthorities_PrisonReleaseCells");
+                    .HasConstraintName("FK_LegalAuthorities_PrisonReleaseRooms");
 
                 entity.HasOne(d => d.PrisonBelongingsLocation)
                     .WithMany()
                     .HasForeignKey(d => d.PrisonBelongingsLocationId)
-                    .HasConstraintName("FK_LegalAuthorities_PrisonBelongingsCells");
+                    .HasConstraintName("FK_LegalAuthorities_PrisonBelongingsRooms");
 
                 entity.HasOne(d => d.OnReleaseProg)
                     .WithMany()
@@ -4563,42 +4563,42 @@ namespace MudSharp.Database
                     .HasConstraintName("FK_LegalAuthorityFines_Characters");
             });
 
-            modelBuilder.Entity<LegalAuthorityCells>(entity =>
+            modelBuilder.Entity<LegalAuthorityRooms>(entity =>
             {
-                entity.HasKey(e => new { e.LegalAuthorityId, e.CellId }).HasName("PRIMARY");
+                entity.HasKey(e => new { e.LegalAuthorityId, e.RoomId }).HasName("PRIMARY");
                 entity.Property(e => e.LegalAuthorityId).HasColumnType("bigint(20)");
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
-                entity.HasIndex(e => e.LegalAuthorityId).HasDatabaseName("FK_LegalAuthoritiesCells_LegalAuthorities_idx");
-                entity.HasIndex(e => e.CellId).HasDatabaseName("FK_LegalAuthoritiesCells_Cells_idx");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
+                entity.HasIndex(e => e.LegalAuthorityId).HasDatabaseName("FK_LegalAuthoritiesRooms_LegalAuthorities_idx");
+                entity.HasIndex(e => e.RoomId).HasDatabaseName("FK_LegalAuthoritiesRooms_Rooms_idx");
                 entity
                     .HasOne(e => e.LegalAuthority)
-                    .WithMany(e => e.LegalAuthorityCells)
+                    .WithMany(e => e.LegalAuthorityRooms)
                     .HasForeignKey(e => e.LegalAuthorityId)
-                    .HasConstraintName("FK_LegalAuthoritiesCells_LegalAuthorities");
+                    .HasConstraintName("FK_LegalAuthoritiesRooms_LegalAuthorities");
                 entity
-                    .HasOne(e => e.Cell)
+                    .HasOne(e => e.Room)
                     .WithMany()
-                    .HasForeignKey(e => e.CellId)
-                    .HasConstraintName("FK_LegalAuthoritiesCells_Cells");
+                    .HasForeignKey(e => e.RoomId)
+                    .HasConstraintName("FK_LegalAuthoritiesRooms_Rooms");
             });
 
-            modelBuilder.Entity<LegalAuthorityJailCell>(entity =>
+            modelBuilder.Entity<LegalAuthorityJailRoom>(entity =>
             {
-                entity.HasKey(e => new { e.LegalAuthorityId, e.CellId }).HasName("PRIMARY");
+                entity.HasKey(e => new { e.LegalAuthorityId, e.RoomId }).HasName("PRIMARY");
                 entity.Property(e => e.LegalAuthorityId).HasColumnType("bigint(20)");
-                entity.Property(e => e.CellId).HasColumnType("bigint(20)");
-                entity.HasIndex(e => e.LegalAuthorityId).HasDatabaseName("FK_LegalAuthoritiesCells_LegalAuthorities_Jail_idx");
-                entity.HasIndex(e => e.CellId).HasDatabaseName("FK_LegalAuthoritiesCells_Cells_Jail_idx");
+                entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
+                entity.HasIndex(e => e.LegalAuthorityId).HasDatabaseName("FK_LegalAuthoritiesRooms_LegalAuthorities_Jail_idx");
+                entity.HasIndex(e => e.RoomId).HasDatabaseName("FK_LegalAuthoritiesRooms_Rooms_Jail_idx");
                 entity
                     .HasOne(e => e.LegalAuthority)
-                    .WithMany(e => e.LegalAuthorityJailCells)
+                    .WithMany(e => e.LegalAuthorityJailRooms)
                     .HasForeignKey(e => e.LegalAuthorityId)
-                    .HasConstraintName("FK_LegalAuthoritiesCells_LegalAuthorities_Jail");
+                    .HasConstraintName("FK_LegalAuthoritiesRooms_LegalAuthorities_Jail");
                 entity
-                    .HasOne(e => e.Cell)
+                    .HasOne(e => e.Room)
                     .WithMany()
-                    .HasForeignKey(e => e.CellId)
-                    .HasConstraintName("FK_LegalAuthoritiesCells_Cells_Jail");
+                    .HasForeignKey(e => e.RoomId)
+                    .HasConstraintName("FK_LegalAuthoritiesRooms_Rooms_Jail");
             });
 
             modelBuilder.Entity<LegalAuthoritiesZones>(entity =>

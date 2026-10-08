@@ -29,8 +29,8 @@ namespace MudSharp.Climate
         double LightLevelMultiplier { get; }
         bool ObscuresViewOfSky { get; }
         IEnumerable<TimeOfDay> PermittedTimesOfDay { get; }
-        void OnMinuteEvent(ICell cell);
-        void OnFiveSecondEvent(ICell cell);
+        void OnMinuteEvent(IRoom room);
+        void OnFiveSecondEvent(IRoom room);
         [CanBeNull] IWeatherEvent CountsAs { get; }
         IWeatherEvent Clone(string name);
     }

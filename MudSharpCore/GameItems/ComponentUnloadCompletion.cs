@@ -79,19 +79,19 @@ internal static class ComponentUnloadCompletion
 			{
 			item.RoomLayer = destination.Layer;
 			if (!ComponentItemTransfer.IsDetached(item)) return;
-			item.Drop(destination.Cell);
+			item.Drop(destination.Room);
 			if (!CanCompleteAt(item, destination)) return;
-			if (destination.Cell.RouteDefinition is not null) item.MoveTo(destination);
+			if (destination.Room.RouteDefinition is not null) item.MoveTo(destination);
 			}
 			if (!CanCompleteAt(item, destination)) return;
-			if (!destination.Cell.GameItems.Any(x => ReferenceEquals(x, item))) destination.Cell.Insert(item, newStack: true);
+			if (!destination.Room.GameItems.Any(x => ReferenceEquals(x, item))) destination.Room.Insert(item, newStack: true);
 		};
 	}
 
 	private static bool CanCompleteAt(IGameItem item, SpatialLocation point) => item is { Deleted: false, Destroyed: false } &&
 		item.InInventoryOf is null && item.ContainedIn is null && item.GetItemType<IBeltable>()?.ConnectedTo is null &&
-		ReferenceEquals(ComponentItemTransfer.DirectLocationOf(item), point.Cell) && item.RoomLayer == point.Layer &&
-		(point.Cell.RouteDefinition is null || item.RoutePositionMetres == point.RoutePositionMetres);
+		ReferenceEquals(ComponentItemTransfer.DirectLocationOf(item), point.Room) && item.RoomLayer == point.Layer &&
+		(point.Room.RouteDefinition is null || item.RoutePositionMetres == point.RoutePositionMetres);
 
 	internal static bool Detach(ICharacter actor, IGameItem item, IGameItem owner, Action clearExactReference, Func<bool> exactParticipant)
 	{

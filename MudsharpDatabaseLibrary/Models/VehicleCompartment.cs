@@ -13,10 +13,10 @@ public class VehicleCompartment
 	public long VehicleId { get; set; }
 	public long VehicleCompartmentProtoId { get; set; }
 	public string Name { get; set; }
-	public long? InteriorCellId { get; set; }
+	public long? InteriorRoomId { get; set; }
 
 	public virtual Vehicle Vehicle { get; set; }
 	public virtual VehicleCompartmentProto VehicleCompartmentProto { get; set; }
-	public virtual Cell InteriorCell { get; set; }
+	public virtual Room InteriorRoom { get; set; }
 	public virtual ICollection<VehicleDocking> Dockings { get; set; }
 }

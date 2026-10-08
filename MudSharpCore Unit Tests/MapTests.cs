@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Accounts;
 using MudSharp.Character;
@@ -17,28 +17,24 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MapTests
 {
-    public static ICell[,] GetMapTestCells
+    public static IRoom[,] GetMapTestRooms
     {
         get
         {
             int id = 457;
-            CellStub[,] cellMap = new CellStub[9, 9];
+            RoomStub[,] cellMap = new RoomStub[9, 9];
             for (int i = 0; i < 9; i++)
             {
                 for (int j = 0; j < 9; j++)
                 {
-                    CellStub cell = new()
+                    RoomStub room = new()
                     {
-                        Room = new RoomStub
-                        {
-                            X = i,
-                            Y = j,
-                            Z = 0
-                        }.ToMock()
+                        Coordinates = (i, j, 0
+                        )
                     };
-                    cellMap[i, j] = cell;
-                    cell.Id = id++;
-                    cell.Name = $"Cell {i},{j}";
+                    cellMap[i, j] = room;
+                    room.Id = id++;
+                    room.Name = $"Cell {i},{j}";
                 }
             }
 
@@ -62,7 +58,7 @@ public class MapTests
                         continue;
                     }
 
-                    List<CellExitStub> exits = new();
+                    List<RoomExitStub> exits = new();
                     if (i > 0)
                     {
                         if (cellMap[i - 1, j] is not null)
@@ -74,19 +70,19 @@ public class MapTests
                                 {
                                     CanFireThrough = false,
                                     CanPlayersSmash = true,
-                                    HingeCell = cellMap[i - 1, j],
+                                    HingeRoom = cellMap[i - 1, j],
                                     State = j % 2 == 0 ? DoorState.Closed : DoorState.Open,
                                     IsOpen = j % 2 != 0
                                 };
                             }
-                            exits.Add(new CellExitStub()
+                            exits.Add(new RoomExitStub()
                             {
                                 Exit = new ExitStub() { Door = door, AcceptsDoor = door is not null },
                                 OutboundDirection = CardinalDirection.West,
                                 Destination = cellMap[i - 1, j]
                             });
 
-                            cellMap[i - 1, j].Exits.Add(new CellExitStub()
+                            cellMap[i - 1, j].Exits.Add(new RoomExitStub()
                             {
                                 Exit = new ExitStub() { Door = door, AcceptsDoor = door is not null },
                                 OutboundDirection = CardinalDirection.East,
@@ -99,13 +95,13 @@ public class MapTests
                     {
                         if (cellMap[i, j - 1] is not null)
                         {
-                            exits.Add(new CellExitStub()
+                            exits.Add(new RoomExitStub()
                             {
                                 Exit = new ExitStub() { Door = null },
                                 OutboundDirection = CardinalDirection.South,
                                 Destination = cellMap[i, j - 1]
                             });
-                            cellMap[i, j - 1].Exits.Add(new CellExitStub()
+                            cellMap[i, j - 1].Exits.Add(new RoomExitStub()
                             {
                                 Exit = new ExitStub() { Door = null },
                                 OutboundDirection = CardinalDirection.North,
@@ -119,8 +115,8 @@ public class MapTests
             }
 
 
-            ICell[,] returnMap = new ICell[9, 9];
-            List<Mock<ICell>> cellMocks = cellMap.OfType<CellStub>().Select(x => x.ToMock()).ToList();
+            IRoom[,] returnMap = new IRoom[9, 9];
+            List<Mock<IRoom>> cellMocks = cellMap.OfType<RoomStub>().Select(x => x.ToMock()).ToList();
             for (int i = 0; i < 9; i++)
             {
                 for (int j = 0; j < 9; j++)
@@ -135,18 +131,18 @@ public class MapTests
     [TestMethod]
     public void BasicExitLinking()
     {
-        ICell[,] map = GetMapTestCells;
-        ICell cellA = map[2, 2];
-        ICell cellB = map[3, 2];
+        IRoom[,] map = GetMapTestRooms;
+        IRoom cellA = map[2, 2];
+        IRoom cellB = map[3, 2];
 
         Assert.IsNotNull(cellA, "Cell 2,2 should exist");
         Assert.IsNotNull(cellB, "Cell 3,2 should exist");
 
-        ICellExit exitA = cellA.ExitsFor(null, true).FirstOrDefault(x => x.OutboundDirection == CardinalDirection.East);
+        IRoomExit exitA = cellA.ExitsFor(null, true).FirstOrDefault(x => x.OutboundDirection == CardinalDirection.East);
         Assert.IsNotNull(exitA, "Cell 2,2 should have an east exit");
         Assert.AreSame(cellB, exitA.Destination, "East exit from 2,2 should lead to 3,2");
 
-        ICellExit exitB = cellB.ExitsFor(null, true).FirstOrDefault(x => x.OutboundDirection == CardinalDirection.West);
+        IRoomExit exitB = cellB.ExitsFor(null, true).FirstOrDefault(x => x.OutboundDirection == CardinalDirection.West);
         Assert.IsNotNull(exitB, "Cell 3,2 should have a west exit");
         Assert.AreSame(cellA, exitB.Destination, "West exit from 3,2 should lead to 2,2");
     }
@@ -154,11 +150,11 @@ public class MapTests
     [TestMethod]
     public void SimplePathFinding()
     {
-        ICell[,] map = GetMapTestCells;
+        IRoom[,] map = GetMapTestRooms;
         IPerceivable source = new PerceivableStub { Location = map[2, 2] }.ToMock();
         IPerceivable target = new PerceivableStub { Location = map[5, 2] }.ToMock();
 
-        List<ICellExit> path = source.PathBetween(target, 10, false).ToList();
+        List<IRoomExit> path = source.PathBetween(target, 10, false).ToList();
         Assert.AreEqual(3, path.Count, $"Expected a path of length 3 but got {path.Count}. Path: {string.Join(", ", path.Select(x => x.OutboundDirection.DescribeBrief()))}");
     }
 }

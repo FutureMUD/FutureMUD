@@ -14,26 +14,26 @@ namespace MudSharp_Unit_Tests;
 public class SpatialLocationContractTests
 {
 	[TestMethod]
-	public void SpatialLocation_OrdinaryCell_HasLegacyProjectionWithoutRoutePosition()
+	public void SpatialLocation_OrdinaryRoom_HasLegacyProjectionWithoutRoutePosition()
 	{
-		var cell = Mock.Of<ICell>();
-		var location = new SpatialLocation(cell, RoomLayer.InTrees);
+		var room = Mock.Of<IRoom>();
+		var location = new SpatialLocation(room, RoomLayer.InTrees);
 
-		Assert.AreSame(cell, location.Cell);
+		Assert.AreSame(room, location.Room);
 		Assert.AreEqual(RoomLayer.InTrees, location.Layer);
 		Assert.IsFalse(location.HasRoutePosition);
 		Assert.IsNull(location.RoutePositionMetres);
-		Assert.AreSame(cell, location.InRoomLocation.Location);
+		Assert.AreSame(room, location.InRoomLocation.Location);
 		Assert.AreEqual(RoomLayer.InTrees, location.InRoomLocation.RoomLayer);
 	}
 
 	[TestMethod]
-	public void SpatialLocation_RouteCell_PreservesCoordinateAndValueEquality()
+	public void SpatialLocation_RouteRoom_PreservesCoordinateAndValueEquality()
 	{
-		var cell = Mock.Of<ICell>();
-		var first = new SpatialLocation(cell, RoomLayer.GroundLevel, 7_150.25);
-		var same = new SpatialLocation(cell, RoomLayer.GroundLevel, 7_150.25);
-		var elsewhere = new SpatialLocation(cell, RoomLayer.GroundLevel, 7_151.25);
+		var room = Mock.Of<IRoom>();
+		var first = new SpatialLocation(room, RoomLayer.GroundLevel, 7_150.25);
+		var same = new SpatialLocation(room, RoomLayer.GroundLevel, 7_150.25);
+		var elsewhere = new SpatialLocation(room, RoomLayer.GroundLevel, 7_151.25);
 
 		Assert.IsTrue(first.HasRoutePosition);
 		Assert.AreEqual(7_150.25, first.RoutePositionMetres);
@@ -42,33 +42,33 @@ public class SpatialLocationContractTests
 	}
 
 	[TestMethod]
-	public void Locateable_DefaultSpatialMembers_PreserveOrdinaryCellBehaviour()
+	public void Locateable_DefaultSpatialMembers_PreserveOrdinaryRoomBehaviour()
 	{
-		var cell = Mock.Of<ICell>();
-		ILocateable locateable = new LocateableStub(cell, RoomLayer.GroundLevel);
+		var room = Mock.Of<IRoom>();
+		ILocateable locateable = new LocateableStub(room, RoomLayer.GroundLevel);
 		locateable.SetRoutePosition(500.0);
 
 		Assert.IsNull(locateable.RoutePositionMetres);
-		Assert.AreSame(cell, locateable.SpatialLocation.Cell);
+		Assert.AreSame(room, locateable.SpatialLocation.Room);
 		Assert.AreEqual(RoomLayer.GroundLevel, locateable.SpatialLocation.Layer);
 		Assert.IsNull(locateable.SpatialLocation.RoutePositionMetres);
-		Assert.AreSame(cell, locateable.InRoomLocation.Location);
+		Assert.AreSame(room, locateable.InRoomLocation.Location);
 		Assert.AreEqual(RoomLayer.GroundLevel, locateable.InRoomLocation.RoomLayer);
 	}
 
 	[TestMethod]
-	public void SharesCellLayerWith_IgnoresLongitudinalCoordinateByDesign()
+	public void SharesRoomLayerWith_IgnoresLongitudinalCoordinateByDesign()
 	{
-		var cell = Mock.Of<ICell>();
-		ILocateable first = new LocateableStub(cell, RoomLayer.GroundLevel, 10.0);
-		ILocateable second = new LocateableStub(cell, RoomLayer.GroundLevel, 9_000.0);
-		ILocateable otherLayer = new LocateableStub(cell, RoomLayer.InAir, 10.0);
-		ILocateable otherCell = new LocateableStub(Mock.Of<ICell>(), RoomLayer.GroundLevel, 10.0);
+		var room = Mock.Of<IRoom>();
+		ILocateable first = new LocateableStub(room, RoomLayer.GroundLevel, 10.0);
+		ILocateable second = new LocateableStub(room, RoomLayer.GroundLevel, 9_000.0);
+		ILocateable otherLayer = new LocateableStub(room, RoomLayer.InAir, 10.0);
+		ILocateable otherRoom = new LocateableStub(Mock.Of<IRoom>(), RoomLayer.GroundLevel, 10.0);
 
-		Assert.IsTrue(first.SharesCellLayerWith(second));
-		Assert.IsFalse(first.SharesCellLayerWith(otherLayer));
-		Assert.IsFalse(first.SharesCellLayerWith(otherCell));
-		Assert.IsFalse(first.SharesCellLayerWith(null));
+		Assert.IsTrue(first.SharesRoomLayerWith(second));
+		Assert.IsFalse(first.SharesRoomLayerWith(otherLayer));
+		Assert.IsFalse(first.SharesRoomLayerWith(otherRoom));
+		Assert.IsFalse(first.SharesRoomLayerWith(null));
 	}
 
 	[TestMethod]
@@ -88,15 +88,15 @@ public class SpatialLocationContractTests
 	}
 
 	[TestMethod]
-	public void RouteCellDirection_NumericSignMatchesCoordinateDirection()
+	public void RouteRoomDirection_NumericSignMatchesCoordinateDirection()
 	{
-		Assert.AreEqual(-1, (int)RouteCellDirection.Negative);
-		Assert.AreEqual(1, (int)RouteCellDirection.Positive);
+		Assert.AreEqual(-1, (int)RouteRoomDirection.Negative);
+		Assert.AreEqual(1, (int)RouteRoomDirection.Positive);
 	}
 
 	private sealed class LocateableStub : ILocateable
 	{
-		public LocateableStub(ICell location, RoomLayer layer, double? routePositionMetres = null)
+		public LocateableStub(IRoom location, RoomLayer layer, double? routePositionMetres = null)
 		{
 			Location = location;
 			RoomLayer = layer;
@@ -107,13 +107,13 @@ public class SpatialLocationContractTests
 		public long Id => 1;
 		public string FrameworkItemType => "LocateableStub";
 		public IEnumerable<string> Keywords => ["locateable"];
-		public ICell Location { get; }
+		public IRoom Location { get; }
 		public RoomLayer RoomLayer { get; set; }
 		public double? RoutePositionMetres { get; }
 
 		public bool ColocatedWith(IPerceivable otherThing)
 		{
-			return ((ILocateable)this).SharesCellLayerWith(otherThing);
+			return ((ILocateable)this).SharesRoomLayerWith(otherThing);
 		}
 
 #pragma warning disable CS0067
@@ -124,8 +124,8 @@ public class SpatialLocationContractTests
 
 	private sealed class RouteExitAnchorStub : IRouteExitAnchor
 	{
-		public ICellExit Exit { get; } = Mock.Of<ICellExit>();
-		public ICell Cell { get; } = Mock.Of<ICell>();
+		public IRoomExit Exit { get; } = Mock.Of<IRoomExit>();
+		public IRoom Room { get; } = Mock.Of<IRoom>();
 		public double MinimumPositionMetres { get; init; }
 		public double MaximumPositionMetres { get; init; }
 		public double ArrivalPositionMetres { get; init; }

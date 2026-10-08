@@ -14,7 +14,7 @@ namespace MudSharp.Economy.Hospitals;
 
 public partial class Hospital : SavableKeywordedItem, IHospital
 {
-	private sealed record HospitalLocationAssignment(ICell Cell, HospitalLocationRole Role);
+	private sealed record HospitalLocationAssignment(IRoom Room, HospitalLocationRole Role);
 
 	private readonly List<HospitalLocationAssignment> _locations = new();
 	private readonly List<IHospitalService> _services = new();
@@ -67,15 +67,15 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 		_isTrading = hospital.IsTrading;
 		_defaultMaximumDebt = hospital.DefaultMaximumDebt;
 
-		foreach (var location in hospital.Locations.OrderBy(x => x.Role).ThenBy(x => x.CellId))
+		foreach (var location in hospital.Locations.OrderBy(x => x.Role).ThenBy(x => x.RoomId))
 		{
-			var cell = gameworld.Cells.Get(location.CellId);
-			if (cell is null)
+			var room = gameworld.Rooms.Get(location.RoomId);
+			if (room is null)
 			{
 				continue;
 			}
 
-			_locations.Add(new HospitalLocationAssignment(cell, (HospitalLocationRole)location.Role));
+			_locations.Add(new HospitalLocationAssignment(room, (HospitalLocationRole)location.Role));
 		}
 
 		foreach (var service in hospital.Services.OrderBy(x => x.SortOrder).ThenBy(x => x.Name))
@@ -182,33 +182,33 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 		}
 	}
 
-	public IEnumerable<ICell> WaitingRooms => _locations
+	public IEnumerable<IRoom> WaitingRooms => _locations
 		.Where(x => x.Role == HospitalLocationRole.WaitingRoom)
-		.Select(x => x.Cell)
+		.Select(x => x.Room)
 		.DistinctBy(x => x.Id);
 
-	public IEnumerable<ICell> OperatingTheatres => _locations
+	public IEnumerable<IRoom> OperatingTheatres => _locations
 		.Where(x => x.Role == HospitalLocationRole.OperatingTheatre)
-		.Select(x => x.Cell)
+		.Select(x => x.Room)
 		.DistinctBy(x => x.Id);
 
-	public IEnumerable<ICell> SupplyRooms => _locations
+	public IEnumerable<IRoom> SupplyRooms => _locations
 		.Where(x => x.Role == HospitalLocationRole.SupplyArea)
-		.Select(x => x.Cell)
+		.Select(x => x.Room)
 		.DistinctBy(x => x.Id);
 
-	public IEnumerable<ICell> RecoveryRooms => _locations
+	public IEnumerable<IRoom> RecoveryRooms => _locations
 		.Where(x => x.Role == HospitalLocationRole.RecoveryRoom)
-		.Select(x => x.Cell)
+		.Select(x => x.Room)
 		.DistinctBy(x => x.Id);
 
-	public IEnumerable<ICell> StaffRooms => _locations
+	public IEnumerable<IRoom> StaffRooms => _locations
 		.Where(x => x.Role == HospitalLocationRole.StaffRoom)
-		.Select(x => x.Cell)
+		.Select(x => x.Room)
 		.DistinctBy(x => x.Id);
 
-	public IEnumerable<ICell> Locations => _locations
-		.Select(x => x.Cell)
+	public IEnumerable<IRoom> Locations => _locations
+		.Select(x => x.Room)
 		.DistinctBy(x => x.Id);
 
 	public IEnumerable<IHospitalService> Services => _services;
@@ -238,12 +238,12 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 
 		var existingLocations = context.HospitalLocations.Where(x => x.HospitalId == Id).ToList();
 		context.HospitalLocations.RemoveRange(existingLocations);
-		foreach (var location in _locations.DistinctBy(x => (x.Cell.Id, x.Role)))
+		foreach (var location in _locations.DistinctBy(x => (x.Room.Id, x.Role)))
 		{
 			context.HospitalLocations.Add(new DbHospitalLocation
 			{
 				HospitalId = Id,
-				CellId = location.Cell.Id,
+				RoomId = location.Room.Id,
 				Role = (int)location.Role
 			});
 		}
@@ -266,33 +266,33 @@ public partial class Hospital : SavableKeywordedItem, IHospital
 		return this.HasProprietorEmploymentAccess(actor);
 	}
 
-	public bool HasLocationRole(ICell cell, HospitalLocationRole role)
+	public bool HasLocationRole(IRoom room, HospitalLocationRole role)
 	{
-		return _locations.Any(x => x.Cell.Id == cell.Id && x.Role == role);
+		return _locations.Any(x => x.Room.Id == room.Id && x.Role == role);
 	}
 
-	public IEnumerable<HospitalLocationRole> LocationRoles(ICell cell)
+	public IEnumerable<HospitalLocationRole> LocationRoles(IRoom room)
 	{
 		return _locations
-			.Where(x => x.Cell.Id == cell.Id)
+			.Where(x => x.Room.Id == room.Id)
 			.Select(x => x.Role)
 			.Distinct();
 	}
 
-	public void AddLocation(ICell cell, HospitalLocationRole role)
+	public void AddLocation(IRoom room, HospitalLocationRole role)
 	{
-		if (_locations.Any(x => x.Cell.Id == cell.Id && x.Role == role))
+		if (_locations.Any(x => x.Room.Id == room.Id && x.Role == role))
 		{
 			return;
 		}
 
-		_locations.Add(new HospitalLocationAssignment(cell, role));
+		_locations.Add(new HospitalLocationAssignment(room, role));
 		Changed = true;
 	}
 
-	public void RemoveLocation(ICell cell, HospitalLocationRole role)
+	public void RemoveLocation(IRoom room, HospitalLocationRole role)
 	{
-		if (_locations.RemoveAll(x => x.Cell.Id == cell.Id && x.Role == role) > 0)
+		if (_locations.RemoveAll(x => x.Room.Id == room.Id && x.Role == role) > 0)
 		{
 			Changed = true;
 		}

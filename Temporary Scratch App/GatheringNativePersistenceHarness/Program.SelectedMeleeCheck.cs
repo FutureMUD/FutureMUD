@@ -67,7 +67,8 @@ internal static partial class GNHProgram
 
 	private static int RunSelectedMeleeCheck(TestDatabase database, RetirementHost host, HarnessClock clock,
 		ScriptedAiCharacterInstance animated, ICharacter caster, ICharacter foe, Func<ScriptedAiCharacterInstance> cast,
-		Action<ScriptedAiCharacterInstance> restored, Action<ScriptedAiCharacterInstance, ICharacter, string> order, bool defendedFailureOnly = false)
+		Action<ScriptedAiCharacterInstance> restored, Action<ScriptedAiCharacterInstance, ICharacter, string> order, bool defendedFailureOnly = false,
+		Func<string, MudSharp.NPC.NPC>? person = null)
 	{
 		using var learningGlobals = new CheckLearningGlobals();
 		var native = host.Native; var world = native.World; var service = world.SpellOwnedCorpseAnimations!;
@@ -161,6 +162,13 @@ internal static partial class GNHProgram
 		try
 		{
 			SetPrivateMember(definition, "Improver", improver);
+			if (_emotionalHooks)
+			{
+				Require(service.TryRetire(animated.InstanceId, SpellRetirementReason.Dismissal, out var why), why);
+				restored(animated);
+				RunEmotionalMultiTarget(world, host, caster, foe, cast, restored, order, person!, attack, configured);
+				animated = cast();
+			}
 			foreach (var scenario in defendedFailureOnly ? new[] { "ordered-defended-fail", "ordered-revoked" } : new[] { "ordered-valid", "ordered-revoked", "applicable-independent", "applicable-revoke", "scoring-independent", "scoring-revoke", "final-setter-independent", "final-setter-aba", "final-setter-revoke", "direct-valid", "direct-scoring-independent" })
 			{
 				var actor = scenario is "ordered-valid" or "ordered-defended-fail" ? animated : cast(); actor.CombatSettings = settings;
@@ -245,7 +253,9 @@ internal static partial class GNHProgram
 					world.SaveManager.Flush();
 					defenseCalls = 0;
 					var before = foe.Body.Wounds.Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun); check.Reset(); inResolution = true;
+					using var emotional = _emotionalHooks ? new EmotionalProbeLease(foe) : null;
 					try { actor.Combat!.CombatAction(actor, move); } finally { inResolution = false; }
+					emotional?.Verify("melee-" + scenario, scenario != "ordered-revoked");
 					var permitted = !scenario.Contains("revoke", StringComparison.Ordinal);
 					var early = scenario is "applicable-independent" or "scoring-independent" or "direct-scoring-independent";
 					var improved = permitted && !scenario.StartsWith("final-setter", StringComparison.Ordinal);

@@ -113,7 +113,7 @@ public class CastingTriggerProgRoom : CastingTriggerBase
             return;
         }
 
-        Spell.CastSpell(actor, TargetRoomProg?.Execute<ICell>(actor, Spell, additionalArguments, (int)power), power);
+        Spell.CastSpell(actor, TargetRoomProg?.Execute<IRoom>(actor, Spell, additionalArguments, (int)power), power);
     }
 
     public override bool TriggerYieldsTarget => true;

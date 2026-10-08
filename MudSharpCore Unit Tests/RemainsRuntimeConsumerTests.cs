@@ -65,7 +65,7 @@ public partial class RemainsRuntimeBoundaryTests
 			f.Actor.SetupGet(x => x.Body).Returns(current.Object);
 		}
 		var zone = new Mock<IEconomicZone>(); var report = new Mock<ICorpseRecoveryReport>(); var patrol = new Mock<IPatrol>();
-		report.SetupGet(x => x.Corpse).Returns(f.Item.Object); report.SetupGet(x => x.SourceCell).Returns(f.Source.Object);
+		report.SetupGet(x => x.Corpse).Returns(f.Item.Object); report.SetupGet(x => x.SourceRoom).Returns(f.Source.Object);
 		report.SetupGet(x => x.EconomicZone).Returns(zone.Object); report.SetupProperty(x => x.Status, CorpseRecoveryReportStatus.Assigned);
 		report.Setup(x => x.MarkCompleted()).Callback(() => report.Object.Status = CorpseRecoveryReportStatus.Completed);
 		report.Setup(x => x.MarkFailed()).Callback(() => report.Object.Status = CorpseRecoveryReportStatus.Failed);
@@ -86,7 +86,7 @@ public partial class RemainsRuntimeBoundaryTests
 	{
 		var f = new Fixture(); var body = ResolveCorpse(f); f.Actor.SetupGet(x => x.Body).Returns(body.Object);
 		f.Item.SetupGet(x => x.InInventoryOf).Returns((IBody)null!);
-		var zone = new Mock<IEconomicZone>(); var storage = new Mock<ICell>(); zone.SetupGet(x => x.MorgueStorageCell).Returns(storage.Object);
+		var zone = new Mock<IEconomicZone>(); var storage = new Mock<IRoom>(); zone.SetupGet(x => x.MorgueStorageRoom).Returns(storage.Object);
 		Assert.IsTrue(MorgueService.TryIntakeCorpse(zone.Object, f.Item.Object, out var estate)); Assert.IsNull(estate);
 		f.Source.Verify(x => x.Extract(f.Item.Object), Times.Once); storage.Verify(x => x.Insert(f.Item.Object, true), Times.Once);
 		f.Item.Verify(x => x.AddEffect(It.IsAny<IEffect>()), Times.Once);
@@ -97,9 +97,9 @@ public partial class RemainsRuntimeBoundaryTests
 	{
 		var f = new Fixture(); var body = ResolveCorpse(f); f.Actor.SetupGet(x => x.Body).Returns(body.Object);
 		f.Item.SetupGet(x => x.InInventoryOf).Returns((IBody)null!);
-		var zone = new Mock<IEconomicZone>(); var storage = new Mock<ICell>(); zone.SetupGet(x => x.MorgueStorageCell).Returns(storage.Object);
+		var zone = new Mock<IEconomicZone>(); var storage = new Mock<IRoom>(); zone.SetupGet(x => x.MorgueStorageRoom).Returns(storage.Object);
 		var report = new Mock<ICorpseRecoveryReport>(); report.SetupGet(x => x.Corpse).Returns(f.Item.Object);
-		report.SetupGet(x => x.SourceCell).Returns(f.Source.Object); report.SetupGet(x => x.EconomicZone).Returns(zone.Object);
+		report.SetupGet(x => x.SourceRoom).Returns(f.Source.Object); report.SetupGet(x => x.EconomicZone).Returns(zone.Object);
 		report.SetupProperty(x => x.Status, CorpseRecoveryReportStatus.Assigned);
 		report.Setup(x => x.MarkCompleted()).Callback(() => report.Object.Status = CorpseRecoveryReportStatus.Completed);
 		var patrol = new Mock<IPatrol>(); patrol.SetupProperty(x => x.ActiveCorpseRecoveryReport, report.Object);
@@ -181,7 +181,7 @@ public partial class RemainsRuntimeBoundaryTests
 		effect.GetOrApplyEffect(f.Actor.Object, f.Item.Object, default, default, Mock.Of<IMagicSpellEffectParent>(), Array.Empty<SpellAdditionalParameter>());
 		InvokeCommand(typeof(StorytellerModule), "Resurrect", f.Actor.Object, "resurrect corpse");
 		body.Verify(x => x.CureAllWounds(), Times.Never); body.Verify(x => x.RestoreAllBodypartsOrgansAndBones(), Times.Never);
-		f.Actor.Verify(x => x.Resurrect(It.IsAny<ICell>()), Times.Never); f.Actor.VerifySet(x => x.RoomLayer = It.IsAny<RoomLayer>(), Times.Never);
+		f.Actor.Verify(x => x.Resurrect(It.IsAny<IRoom>()), Times.Never); f.Actor.VerifySet(x => x.RoomLayer = It.IsAny<RoomLayer>(), Times.Never);
 		f.Item.Verify(x => x.Delete(), Times.Never);
 	}
 

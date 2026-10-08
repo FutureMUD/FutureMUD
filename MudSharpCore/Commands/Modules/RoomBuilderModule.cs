@@ -1,4 +1,4 @@
-﻿using JetBrains.Annotations;
+using JetBrains.Annotations;
 using MoreLinq.Extensions;
 using MudSharp.Accounts;
 using MudSharp.Celestial;
@@ -41,10 +41,10 @@ internal partial class RoomBuilderModule : Module<ICharacter>
 
     public static RoomBuilderModule Instance { get; } = new();
 
-    public static List<ICell> BuiltCells { get; } = new();
+    public static List<IRoom> BuiltRooms { get; } = new();
 
 #nullable enable
-    public static ICell? LookupCell(ICharacter builder, string cellText)
+    public static IRoom? LookupRoom(ICharacter builder, string cellText)
     {
         if (string.IsNullOrEmpty(cellText))
         {
@@ -57,15 +57,15 @@ internal partial class RoomBuilderModule : Module<ICharacter>
         }
 
         if (cellText[0] == '@' && cellText.Length > 1 && int.TryParse(cellText[1..], out int index) &&
-            BuiltCells.Count >= index && index > 0)
+            BuiltRooms.Count >= index && index > 0)
         {
-            return BuiltCells[Index.FromEnd(index)];
+            return BuiltRooms[Index.FromEnd(index)];
         }
 
-        return builder.Gameworld.Cells.GetByIdOrName(cellText);
+        return builder.Gameworld.Rooms.GetByIdOrUniqueNameOrName(cellText);
     }
 
-    public static ICell? LookupCell(IFuturemud gameworld, string cellText)
+    public static IRoom? LookupRoom(IFuturemud gameworld, string cellText)
     {
         if (string.IsNullOrEmpty(cellText))
         {
@@ -73,104 +73,104 @@ internal partial class RoomBuilderModule : Module<ICharacter>
         }
 
         if (cellText[0] == '@' && cellText.Length > 1 && int.TryParse(cellText[1..], out int index) &&
-            BuiltCells.Count >= index && index > 0)
+            BuiltRooms.Count >= index && index > 0)
         {
-            return BuiltCells[Index.FromEnd(index)];
+            return BuiltRooms[Index.FromEnd(index)];
         }
 
-        return gameworld.Cells.GetByIdOrName(cellText);
+        return gameworld.Rooms.GetByIdOrUniqueNameOrName(cellText);
     }
 #nullable restore
 
-    private const string CellHelpText = @"
+    private const string RoomHelpText = @"
 #5Introduction#0
 
-This command is used primarily to build cells (also known as ""rooms"", or ""locations""). Almost all uses of this command require you to be editing a #2cell overlay package#0. If you are not familiar with these, you should read the section on them below before proceeding with this command.
+This command is used primarily to build rooms and their locations. Almost all uses of this command require you to be editing a #2room overlay package#0. If you are not familiar with these, you should read the section on them below before proceeding with this command.
 
-#5Cell Overlay Packages#0
+#5Room Overlay Packages#0
 
-A cell overlay package is used to allow building to take place on the ""live"" game server, and also permit review, roll-back and multiple versions of room building to exist. All cell-based building begins with a cell overlay package. 
+A room overlay package is used to allow building to take place on the ""live"" game server, and also permit review, roll-back and multiple versions of room building to exist. All room-based building begins with a room overlay package.
 
-While you have a package open, any changes you make to the location are made to an ""overlay"" of the cell that's stored in the package. It's not until you're done building, the package has been submitted, reviewed and swapped in as the ""current"" package that any of the building appears to anyone but you.
+While you have a package open, any changes you make to the location are made to an ""overlay"" of the room that's stored in the package. It's not until you're done building, the package has been submitted, reviewed and swapped in as the ""current"" package that any of the building appears to anyone but you.
 
-The key process is as follows: #6Open a Cell Overlay Package#3 -> #6Do your building#3 -> #6Submit the package#3 -> #6Someone approves the package#3 -> #6The package is swapped in and becomes live#0.
+The key process is as follows: #6Open a Room Overlay Package#3 -> #6Do your building#3 -> #6Submit the package#3 -> #6Someone approves the package#3 -> #6The package is swapped in and becomes live#0.
 
-Where possible you should prefer to revise existing cell overlay packages instead of creating new ones, as the latest approved version of the package will be used for any swap commands or progs. This is especially true if you have event-based special building where you have multiple versions of a room.
+Where possible you should prefer to revise existing room overlay packages instead of creating new ones, as the latest approved version of the package will be used for any swap commands or progs. This is especially true if you have event-based special building where you have multiple versions of a room.
 
-#5Cell Commands#0
+#5Room Commands#0
 
 The following commands do not require you to have adopted an overlay package:
 
-	#3cell show#0 - shows builder-specific info about the location you are in
-	#3cell overlay <id> [<revnum>]#0 - temporarily adopt a specific package so you can view the world as if it were live
-	#3cell overlay clear#0 - clears your current override for seeing cell packages
-	#3cell exit list#0 - lists all exits for the current cell (including in other overlays)
-	#3cell exit hide <exit> <prog>#0 - hides a cell exit with a specified prog controlling who can see it
-	#3cell exit unhide <exit>#0 - unhides a cell exit
-	#3cell set register <varname> <value>#0 - sets the specified prog variable for the current cell to the specified value
-	#3cell set register delete <varname>#0 - resets the specified prog variable to its default value for the current cell
-	#3cell landmark [<prog>] [<sphere>]#0 - sets your current location as a landmark (with optional applicability prog and sphere)
-	#3cell landmark#0 - toggles being a landmark off
-	#3cell meeting [<prog>] [<sphere>]#0 - sets your current location as a meeting place landmark (with optional applicability prog and sphere)
-	#3cell meeting#0 - toggles being a meeting place off
-	#3cell landmarktext#0 - shows all extra texts for a landmark cell
-	#3cell landmarktext add <prog>#0 - drops into an editor to create a new extra text
-	#3cell landmarktext prog <##> <prog>#0 - replaces the prog of a specific extra text
-	#3cell landmarktext text <##>#0 - drops into an editor to replace an extra text
-	#3cell landmarktext swap <##> <##>#0 - swaps the order of two extra texts
-	#3cell landmarktext delete <##>#0 - deletes a landmark text
-	#3cell private property <property>#0 - marks this cell private under a property controller
-	#3cell private host <host-type> <host>#0 - marks this cell private under an employment host
-	#3cell private show|clear#0 - shows or clears the private-property controller
+	#3room show#0 - shows builder-specific info about the location you are in
+	#3room overlay <id> [<revnum>]#0 - temporarily adopt a specific package so you can view the world as if it were live
+	#3room overlay clear#0 - clears your current override for seeing room packages
+	#3room exit list#0 - lists all exits for the current room (including in other overlays)
+	#3room exit hide <exit> <prog>#0 - hides a room exit with a specified prog controlling who can see it
+	#3room exit unhide <exit>#0 - unhides a room exit
+	#3room set register <varname> <value>#0 - sets the specified prog variable for the current room to the specified value
+	#3room set register delete <varname>#0 - resets the specified prog variable to its default value for the current room
+	#3room landmark [<prog>] [<sphere>]#0 - sets your current location as a landmark (with optional applicability prog and sphere)
+	#3room landmark#0 - toggles being a landmark off
+	#3room meeting [<prog>] [<sphere>]#0 - sets your current location as a meeting place landmark (with optional applicability prog and sphere)
+	#3room meeting#0 - toggles being a meeting place off
+	#3room landmarktext#0 - shows all extra texts for a landmark room
+	#3room landmarktext add <prog>#0 - drops into an editor to create a new extra text
+	#3room landmarktext prog <##> <prog>#0 - replaces the prog of a specific extra text
+	#3room landmarktext text <##>#0 - drops into an editor to replace an extra text
+	#3room landmarktext swap <##> <##>#0 - swaps the order of two extra texts
+	#3room landmarktext delete <##>#0 - deletes a landmark text
+	#3room private property <property>#0 - marks this room private under a property controller
+	#3room private host <host-type> <host>#0 - marks this room private under an employment host
+	#3room private show|clear#0 - shows or clears the private-property controller
 
 These are the commands used to work with overlay packages:
 
-	#3cell package list [all|by <who> | mine]#0 - lists all cell packages (optionally filtered)
-	#3cell package new ""name of your package""#0 - creates a new package with the specified name
-	#3cell package open <id>|""name of your package"">#0 - opens an existing unapproved package for further editing
-	#3cell package rename <name>#0 - renames your open cell package to something else
-	#3cell package revise <id>|""name of your package"">#0 - creates a new revision of an existing package
-	#3cell package close#0 - closes the package you are currently editing
-	#3cell package show <id>|""name"">#0 - views an existing package
-	#3cell package submit#0 - submits the package for review by an appropriate reviewer
-	#3cell package review list#0 - shows all packages ready for review
-	#3cell package review all#0 - reviews all submitted packages at once
-	#3cell package review <id>#0 - reviews a specific package
-	#3cell package history <id>#0 - shows the building/review history of a particular cell package
-	#3cell package swap <id|""name of your package"">#0 - swaps the package into the affected rooms and makes it live
+	#3room package list [all|by <who> | mine]#0 - lists all room packages (optionally filtered)
+	#3room package new ""name of your package""#0 - creates a new package with the specified name
+	#3room package open <id>|""name of your package"">#0 - opens an existing unapproved package for further editing
+	#3room package rename <name>#0 - renames your open room package to something else
+	#3room package revise <id>|""name of your package"">#0 - creates a new revision of an existing package
+	#3room package close#0 - closes the package you are currently editing
+	#3room package show <id>|""name"">#0 - views an existing package
+	#3room package submit#0 - submits the package for review by an appropriate reviewer
+	#3room package review list#0 - shows all packages ready for review
+	#3room package review all#0 - reviews all submitted packages at once
+	#3room package review <id>#0 - reviews a specific package
+	#3room package history <id>#0 - shows the building/review history of a particular room package
+	#3room package swap <id|""name of your package"">#0 - swaps the package into the affected rooms and makes it live
 
 These commands all require you to have an open overlay package:
 
-	#3cell new#0 - creates a new cell and transports you to it
-	#3cell dig <direction#0 - creates a new cell and a two-way exit in the specified direction, and transports you to it
-	#3cell ndig <template> <outboundkeyword> <inboundkeyword> ""<outbounddescription>"" ""<inbounddescription>""#0 - creates a new cell with a non cardinal exit, and transports you to it
-	#3cell exit add <id>#0 - adds an existing exit from another overlay for this cell to this overlay
-	#3cell exit remove <id>#0 - removes an exit from this overlay
-	#3cell exit size <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit
-	#3cell exit upright <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit in a standing position
-	#3cell exit reset <id|direction>#0 - turns a climb/fall exit into a regular exit
-	#3cell exit fall <id|direction>#0 - turns an up/down exit into a fall exit or toggles it off
-	#3cell exit climb <id|direction> <difficulty>#0 - turns an exit into a climb exit with a specified difficulty
-	#3cell exit climb <id|direction>#0 - toggles a climb exit off
-	#3cell exit block <id|direction> <layer>#0 - blocks an exit from appearing in a specified layer
-	#3cell exit unblock <id|direction> <layer>#0 - removes a block on an exit from appearing in a specified layer
-	#3cell link <direction> <cellid**>#0 - creates a new exit in the specified direction to the specified cell
-	#3cell nlink <template> <cellid**> <outboundkeyword> <inboundkeyword> ""<outbounddescription>"" ""<inbounddescription>""#0 - creates a non-cardinal exit using a template to a cell
-	#3cell set name <name>#0 - sets the name of the cell
-	#3cell set desc#0 - drops you into an editor to edit the cell description
-	#3cell set terrain <id|name>#0 - sets the terrain of this cell
-	#3cell set hearing <id|name>#0 - sets the hearing/noise profile for this cell
-	#3cell set lightmultiplier <multiplier>#0 - sets the multiplier for natural light (e.g. from shade etc)
-	#3cell set lightlevel <lux>#0 - sets the added light for the location to the specified lux level
-	#3cell set type outdoors|indoors|cave|windows|exposed#0 - sets the cell exposure type
-	#3cell set door <exit id|direction> clear#0 - clears the exit from accepting doors
-	#3cell set door <exit id|direction> <size>#0 - sets the exit to accept doors of the specified size
-	#3cell set forage clear#0 - clears an existing forage profile
-	#3cell set forage <id|name>#0 - sets the forage profile to the specified profile
-	#3cell set atmosphere liquid|gas <id|name>#0 - sets the atmosphere to the specified
-	#3cell set atmosphere none#0 - sets the location to have no atmosphere
-	#3cell set route ...#0 - creates, edits, maps and validates linear RouteCell geometry
-	#3cell set safequit#0 - toggles whether the current room is a safe quit room
+	#3room new#0 - creates a new room and transports you to it
+	#3room dig <direction#0 - creates a new room and a two-way exit in the specified direction, and transports you to it
+	#3room ndig <template> <outboundkeyword> <inboundkeyword> ""<outbounddescription>"" ""<inbounddescription>""#0 - creates a new room with a non cardinal exit, and transports you to it
+	#3room exit add <id>#0 - adds an existing exit from another overlay for this room to this overlay
+	#3room exit remove <id>#0 - removes an exit from this overlay
+	#3room exit size <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit
+	#3room exit upright <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit in a standing position
+	#3room exit reset <id|direction>#0 - turns a climb/fall exit into a regular exit
+	#3room exit fall <id|direction>#0 - turns an up/down exit into a fall exit or toggles it off
+	#3room exit climb <id|direction> <difficulty>#0 - turns an exit into a climb exit with a specified difficulty
+	#3room exit climb <id|direction>#0 - toggles a climb exit off
+	#3room exit block <id|direction> <layer>#0 - blocks an exit from appearing in a specified layer
+	#3room exit unblock <id|direction> <layer>#0 - removes a block on an exit from appearing in a specified layer
+	#3room link <direction> <cellid**>#0 - creates a new exit in the specified direction to the specified room
+	#3room nlink <template> <cellid**> <outboundkeyword> <inboundkeyword> ""<outbounddescription>"" ""<inbounddescription>""#0 - creates a non-cardinal exit using a template to a room
+	#3room set name <name>#0 - sets the name of the room
+	#3room set desc#0 - drops you into an editor to edit the room description
+	#3room set terrain <id|name>#0 - sets the terrain of this room
+	#3room set hearing <id|name>#0 - sets the hearing/noise profile for this room
+	#3room set lightmultiplier <multiplier>#0 - sets the multiplier for natural light (e.g. from shade etc)
+	#3room set lightlevel <lux>#0 - sets the added light for the location to the specified lux level
+	#3room set type outdoors|indoors|cave|windows|exposed#0 - sets the room exposure type
+	#3room set door <exit id|direction> clear#0 - clears the exit from accepting doors
+	#3room set door <exit id|direction> <size>#0 - sets the exit to accept doors of the specified size
+	#3room set forage clear#0 - clears an existing forage profile
+	#3room set forage <id|name>#0 - sets the forage profile to the specified profile
+	#3room set atmosphere liquid|gas <id|name>#0 - sets the atmosphere to the specified
+	#3room set atmosphere none#0 - sets the location to have no atmosphere
+	#3room set route ...#0 - creates, edits, maps and validates linear RouteRoom geometry
+	#3room set safequit#0 - toggles whether the current room is a safe quit room
 
 #6** Note: You can use the alternate syntax @n instead of the room ID for this.
 
@@ -184,82 +184,82 @@ Autobuilder templates allow you to automatically build areas based on some set p
 
 To see a list of all autobuilder templates, you simply use the #3SHOW AUTOAREAS#0 command.
 
-In order to use an autobuilder template, you must first be editing a cell overlay package, and then use the following command:
+In order to use an autobuilder template, you must first be editing a room overlay package, and then use the following command:
 
-	#3cell new <template id|name> ...#0
+	#3room new <template id|name> ...#0
 
 Each template has its own required arguments, which you will see if you simply type the command above with no further text.
 
-There is also a universal optional argument which must come first in the form of #3prog=someprog#0. This allows you to specify a prog that accepts either a single location or a collection of locations as an argument, and the template will execute that prog on the generated cells. You may specify this option multiple times but they must always be the first arguments in the list, before any template specific ones.";
+There is also a universal optional argument which must come first in the form of #3prog=someprog#0. This allows you to specify a prog that accepts either a single location or a collection of locations as an argument, and the template will execute that prog on the generated rooms. You may specify this option multiple times but they must always be the first arguments in the list, before any template specific ones.";
 
-    [PlayerCommand("Cell", "cell", "room")]
+    [PlayerCommand("Room", "room", "cell")]
     [CommandPermission(PermissionLevel.Admin)]
-    [HelpInfo("cell", CellHelpText, AutoHelp.HelpArgOrNoArg)]
-    protected static void Cell(ICharacter actor, string input)
+    [HelpInfo("room", RoomHelpText, AutoHelp.HelpArgOrNoArg)]
+    protected static void Room(ICharacter actor, string input)
     {
         StringStack ss = new(input.RemoveFirstWord());
         switch (ss.PopSpeech().ToLowerInvariant())
         {
             case "new":
             case "create":
-                CellNew(actor, ss);
+                RoomNew(actor, ss);
                 break;
             case "dig":
-                CellDig(actor, ss);
+                RoomDig(actor, ss);
                 break;
             case "ndig":
-                CellNDig(actor, ss);
+                RoomNDig(actor, ss);
                 break;
             case "show":
-                CellShow(actor, ss);
+                RoomShow(actor, ss);
                 break;
             case "set":
             case "edit":
-                CellSet(actor, ss);
+                RoomSet(actor, ss);
                 break;
             case "exit":
-                CellExit(actor, ss);
+                RoomExit(actor, ss);
                 break;
             case "overlay":
-                CellOverlay(actor, ss);
+                RoomOverlay(actor, ss);
                 break;
             case "package":
-                CellPackage(actor, ss);
+                RoomPackage(actor, ss);
                 break;
             case "link":
-                CellEditLink(actor, ss);
+                RoomEditLink(actor, ss);
                 break;
             case "nlink":
-                CellEditNlink(actor, ss);
+                RoomEditNlink(actor, ss);
                 break;
             case "delete":
-                CellDelete(actor, ss);
+                RoomDelete(actor, ss);
                 break;
             case "meetingplace":
             case "meeting":
-                CellMeetingPlace(actor, ss);
+                RoomMeetingPlace(actor, ss);
                 break;
             case "landmark":
-                CellLandmark(actor, ss);
+                RoomLandmark(actor, ss);
                 break;
             case "landmarktext":
-                CellLandmarkText(actor, ss);
+                RoomLandmarkText(actor, ss);
                 break;
             case "private":
             case "privateproperty":
-                CellPrivateProperty(actor, ss);
+                RoomPrivateProperty(actor, ss);
                 break;
             default:
                 actor.OutputHandler.Send(
-                    $"That is not a valid option to use with the {"cell".Colour(Telnet.Yellow)} command. See {"CELL HELP".FluentTagMXP("send", "href='cell help' hint='display cell help'")} for more info.");
+                    $"That is not a valid option to use with the {"room".Colour(Telnet.Yellow)} command. See {"CELL HELP".FluentTagMXP("send", "href='room help' hint='display room help'")} for more info.");
                 return;
         }
     }
 
-	private static void CellPrivateProperty(ICharacter actor, StringStack command)
+	private static void RoomPrivateProperty(ICharacter actor, StringStack command)
 	{
-		var cell = actor.Location;
-		var existing = PrivatePropertyAccessService.EffectFor(cell);
+		var room = actor.Location;
+		var existing = PrivatePropertyAccessService.EffectFor(room);
 		if (command.IsFinished || command.PeekSpeech().EqualTo("show"))
 		{
 			actor.OutputHandler.Send(existing?.Describe(actor) ??
@@ -276,7 +276,7 @@ There is also a universal optional argument which must come first in the form of
 				return;
 			}
 
-			cell.RemoveEffect(existing, true);
+			room.RemoveEffect(existing, true);
 			actor.OutputHandler.Send("This location is no longer marked as private property.");
 			return;
 		}
@@ -291,7 +291,7 @@ There is also a universal optional argument which must come first in the form of
 				return;
 			}
 
-			if (!property.PropertyLocations.Contains(cell))
+			if (!property.PropertyLocations.Contains(room))
 			{
 				actor.OutputHandler.Send("This location is not one of that property's configured locations.");
 				return;
@@ -308,7 +308,7 @@ There is also a universal optional argument which must come first in the form of
 				return;
 			}
 
-			if (!host.EmploymentHostLocations().Contains(cell))
+			if (!host.EmploymentHostLocations().Contains(room))
 			{
 				actor.OutputHandler.Send("This location is not one of that employment host's configured locations.");
 				return;
@@ -316,14 +316,14 @@ There is also a universal optional argument which must come first in the form of
 		}
 		else
 		{
-			actor.OutputHandler.Send("Use cell private property <property>, cell private host <type> <host>, cell private show, or cell private clear.");
+			actor.OutputHandler.Send("Use room private property <property>, room private host <type> <host>, room private show, or room private clear.");
 			return;
 		}
 
 		void ApplyController()
 		{
-			cell.RemoveAllEffects<PrivatePropertyEffect>(fireRemovalAction: true);
-			cell.AddEffect(new PrivatePropertyEffect(cell, controller));
+			room.RemoveAllEffects<PrivatePropertyEffect>(fireRemovalAction: true);
+			room.AddEffect(new PrivatePropertyEffect(room, controller));
 			actor.OutputHandler.Send($"This location is now private property controlled by {controller.Name.ColourName()}.");
 		}
 
@@ -342,10 +342,10 @@ There is also a universal optional argument which must come first in the form of
 			"private", "property")), TimeSpan.FromSeconds(120));
 	}
 
-    private static void CellLandmarkText(ICharacter actor, StringStack ss)
+    private static void RoomLandmarkText(ICharacter actor, StringStack ss)
     {
-        ICell cell = actor.Location;
-        LandmarkEffect existing = cell.EffectsOfType<LandmarkEffect>().FirstOrDefault();
+        IRoom room = actor.Location;
+        LandmarkEffect existing = room.EffectsOfType<LandmarkEffect>().FirstOrDefault();
         if (existing is null)
         {
             actor.OutputHandler.Send("You current location is not a landmark.");
@@ -532,10 +532,10 @@ Enter your text below:");
         }
     }
 
-    private static void CellMeetingPlace(ICharacter actor, StringStack ss)
+    private static void RoomMeetingPlace(ICharacter actor, StringStack ss)
     {
-        ICell cell = actor.Location;
-        LandmarkEffect existing = cell.EffectsOfType<LandmarkEffect>().FirstOrDefault();
+        IRoom room = actor.Location;
+        LandmarkEffect existing = room.EffectsOfType<LandmarkEffect>().FirstOrDefault();
         string sphere = string.Empty;
         IFutureProg prog = default;
         if (ss.IsFinished)
@@ -544,14 +544,14 @@ Enter your text below:");
             {
                 if (existing.IsMeetingPlace)
                 {
-                    cell.RemoveEffect(existing);
-                    actor.OutputHandler.Send($"Your current location ({cell.GetFriendlyReference(actor)}) is no longer considered a meeting place.");
+                    room.RemoveEffect(existing);
+                    actor.OutputHandler.Send($"Your current location ({room.GetFriendlyReference(actor)}) is no longer considered a meeting place.");
                     return;
                 }
 
                 existing.IsMeetingPlace = true;
                 existing.Changed = true;
-                actor.OutputHandler.Send($"Your current location ({cell.GetFriendlyReference(actor)}) is no longer only a landmark, but is now also a meeting place.");
+                actor.OutputHandler.Send($"Your current location ({room.GetFriendlyReference(actor)}) is no longer only a landmark, but is now also a meeting place.");
                 return;
             }
         }
@@ -586,17 +586,17 @@ Enter your text below:");
         }
         else
         {
-            existing = new LandmarkEffect(cell, true, sphere, prog);
-            cell.AddEffect(existing);
+            existing = new LandmarkEffect(room, true, sphere, prog);
+            room.AddEffect(existing);
         }
 
-        actor.OutputHandler.Send($"Your current location ({cell.GetFriendlyReference(actor)}) is now a meeting place landmark{(string.IsNullOrEmpty(sphere) ? "" : $" in the {sphere.ColourName()} sphere")} {(prog is not null ? $"that applies when the prog {prog.MXPClickableFunctionName()} is true" : "that always applies")}.");
+        actor.OutputHandler.Send($"Your current location ({room.GetFriendlyReference(actor)}) is now a meeting place landmark{(string.IsNullOrEmpty(sphere) ? "" : $" in the {sphere.ColourName()} sphere")} {(prog is not null ? $"that applies when the prog {prog.MXPClickableFunctionName()} is true" : "that always applies")}.");
     }
 
-    private static void CellLandmark(ICharacter actor, StringStack ss)
+    private static void RoomLandmark(ICharacter actor, StringStack ss)
     {
-        ICell cell = actor.Location;
-        LandmarkEffect existing = cell.EffectsOfType<LandmarkEffect>().FirstOrDefault();
+        IRoom room = actor.Location;
+        LandmarkEffect existing = room.EffectsOfType<LandmarkEffect>().FirstOrDefault();
         string sphere = string.Empty;
         IFutureProg prog = default;
         if (ss.IsFinished)
@@ -605,14 +605,14 @@ Enter your text below:");
             {
                 if (!existing.IsMeetingPlace)
                 {
-                    cell.RemoveEffect(existing);
-                    actor.OutputHandler.Send($"Your current location ({cell.GetFriendlyReference(actor)}) is no longer considered a landmark.");
+                    room.RemoveEffect(existing);
+                    actor.OutputHandler.Send($"Your current location ({room.GetFriendlyReference(actor)}) is no longer considered a landmark.");
                     return;
                 }
 
                 existing.IsMeetingPlace = false;
                 existing.Changed = true;
-                actor.OutputHandler.Send($"Your current location ({cell.GetFriendlyReference(actor)}) is now only a landmark, instead of also being a meeting place.");
+                actor.OutputHandler.Send($"Your current location ({room.GetFriendlyReference(actor)}) is now only a landmark, instead of also being a meeting place.");
                 return;
             }
         }
@@ -647,14 +647,14 @@ Enter your text below:");
         }
         else
         {
-            existing = new LandmarkEffect(cell, false, sphere, prog);
-            cell.AddEffect(existing);
+            existing = new LandmarkEffect(room, false, sphere, prog);
+            room.AddEffect(existing);
         }
 
-        actor.OutputHandler.Send($"Your current location ({cell.GetFriendlyReference(actor)}) is now a landmark{(string.IsNullOrEmpty(sphere) ? "" : $" in the {sphere.ColourName()} sphere")} {(prog is not null ? $"that applies when the prog {prog.MXPClickableFunctionName()} is true" : "that always applies")}.");
+        actor.OutputHandler.Send($"Your current location ({room.GetFriendlyReference(actor)}) is now a landmark{(string.IsNullOrEmpty(sphere) ? "" : $" in the {sphere.ColourName()} sphere")} {(prog is not null ? $"that applies when the prog {prog.MXPClickableFunctionName()} is true" : "that always applies")}.");
     }
 
-    private static void CellDelete(ICharacter actor, StringStack ss)
+    private static void RoomDelete(ICharacter actor, StringStack ss)
     {
         if (!actor.IsAdministrator(PermissionLevel.HighAdmin))
         {
@@ -664,14 +664,14 @@ Enter your text below:");
 
         if (ss.IsFinished)
         {
-            actor.OutputHandler.Send($@"Are you sure that you want to delete the cell that you're currently in? #1This action is irreversible and can have major unanticipated effects#0, including:
+            actor.OutputHandler.Send($@"Are you sure that you want to delete the room that you're currently in? #1This action is irreversible and can have major unanticipated effects#0, including:
 
 	1) All items and characters in the room (including those not logged in) will be moved to another room.
 	2) There are potentially parts of the code that reference this room indirectly that may not be updated
 
 {Accept.StandardAcceptPhrasing}".SubstituteANSIColour());
 
-            ICell location = actor.Location;
+            IRoom location = actor.Location;
 
             actor.AddEffect(new Accept(actor, new GenericProposal
             {
@@ -692,9 +692,9 @@ Enter your text below:");
                         return;
                     }
 
-                    ICell fallback = location.Zone.Rooms.FirstOrDefault(x => x != location.Room)?.Cells.First() ??
-                    location.Shard.Rooms.FirstOrDefault(x => x != location.Room)?.Cells.First() ??
-                    actor.Gameworld.Rooms.FirstOrDefault(x => x != location.Room)?.Cells.First();
+                    IRoom fallback = location.OwningZone.Rooms.FirstOrDefault(x => x != location) ??
+                    location.OwningZone.Shard.Rooms.FirstOrDefault(x => x != location) ??
+                    actor.Gameworld.Rooms.FirstOrDefault(x => x != location);
                     if (fallback is null)
                     {
                         actor.OutputHandler.Send("You can't delete that location because there would be no fallback. There must always be a fallback room.");
@@ -713,7 +713,7 @@ Enter your text below:");
                     actor.OutputHandler.Send("You decide not to delete the room.");
                 },
                 DescriptionString = "Deleting a room",
-                Keywords = new List<string> { "delete", "room", "cell", "location" }
+                Keywords = new List<string> { "delete", "room", "room", "location" }
             }), TimeSpan.FromSeconds(120));
             return;
         }
@@ -724,51 +724,51 @@ Enter your text below:");
 
     #region CellNew
 
-    private static void CellNew(ICharacter actor, StringStack input)
+    private static void RoomNew(ICharacter actor, StringStack input)
     {
         if (actor.CurrentOverlayPackage == null)
         {
-            actor.OutputHandler.Send("You have not adopted a cell overlay package.");
+            actor.OutputHandler.Send("You have not adopted a room overlay package.");
             return;
         }
 
         if (actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
         {
             actor.OutputHandler.Send(
-                "Only a Cell Overlay Package that is in the Under Design status can be used to create new Cells.");
+                "Only a Room Overlay Package that is in the Under Design status can be used to create new Rooms.");
             return;
         }
 
         if (!input.IsFinished)
         {
-            CellNewTemplate(actor, input);
+            RoomNewTemplate(actor, input);
             return;
         }
 
-        Construction.Room newRoom = new(actor, actor.CurrentOverlayPackage);
-        actor.Send("You create a new cell with ID #{0}.", newRoom.Cells.First().Id);
-        actor.TransferTo(newRoom.Cells.First(), RoomLayer.GroundLevel);
-        BuiltCells.Add(newRoom.Cells.First());
+        Construction.Room newRoom = new(actor.CurrentOverlayPackage, actor.Location.OwningZone);
+        actor.Send("You create a new room with ID #{0}.", newRoom.Id);
+        actor.TransferTo(newRoom, RoomLayer.GroundLevel);
+        BuiltRooms.Add(newRoom);
     }
 
-    private static void CellDig(ICharacter actor, StringStack input)
+    private static void RoomDig(ICharacter actor, StringStack input)
     {
         if (actor.CurrentOverlayPackage == null)
         {
-            actor.OutputHandler.Send("You have not adopted a cell overlay package.");
+            actor.OutputHandler.Send("You have not adopted a room overlay package.");
             return;
         }
 
         if (actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
         {
             actor.OutputHandler.Send(
-                "Only a Cell Overlay Package that is in the Under Design status can be used to create new Cells.");
+                "Only a Room Overlay Package that is in the Under Design status can be used to create new Rooms.");
             return;
         }
 
         if (input.IsFinished)
         {
-            actor.OutputHandler.Send("Towards which direction do you want to make a new cell?");
+            actor.OutputHandler.Send("Towards which direction do you want to make a new room?");
             return;
         }
 
@@ -778,51 +778,51 @@ Enter your text below:");
             return;
         }
 
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         if (
             actor.Gameworld.ExitManager.GetExitsFor(actor.Location, overlay)
                 .Any(x => x.OutboundDirection == direction))
         {
-            actor.OutputHandler.Send("This Cell Overlay already contains an exit in that direction.");
+            actor.OutputHandler.Send("This Room Overlay already contains an exit in that direction.");
             return;
         }
 
-        Construction.Room newRoom = new(actor, actor.CurrentOverlayPackage);
-        ICell cell = newRoom.Cells.First();
-        BuiltCells.Add(cell);
-        IEditableCellOverlay otherOverlay = cell.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        Construction.Room newRoom = new(actor.CurrentOverlayPackage, actor.Location.OwningZone);
+        IRoom room = newRoom;
+        BuiltRooms.Add(room);
+        IEditableRoomOverlay otherOverlay = room.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         CardinalDirection oppositeDirection = direction.Opposite();
         Construction.Boundary.Exit newExit =
-            new(actor.Gameworld, actor.Location, cell, direction, oppositeDirection, 1.0);
+            new(actor.Gameworld, actor.Location, room, direction, oppositeDirection, 1.0);
         overlay.AddExit(newExit);
         otherOverlay.AddExit(newExit);
-        actor.Gameworld.ExitManager.UpdateCellOverlayExits(actor.Location, overlay);
-        actor.Gameworld.ExitManager.UpdateCellOverlayExits(cell, otherOverlay);
+        actor.Gameworld.ExitManager.UpdateRoomOverlayExits(actor.Location, overlay);
+        actor.Gameworld.ExitManager.UpdateRoomOverlayExits(room, otherOverlay);
 
-        actor.Send($"You create a new cell to the {direction.Describe().ColourValue()} with ID #{cell.Id.ToString("N0", actor)}.", cell.Id);
-        actor.TransferTo(cell, RoomLayer.GroundLevel);
+        actor.Send($"You create a new room to the {direction.Describe().ColourValue()} with ID #{room.Id.ToString("N0", actor)}.", room.Id);
+        actor.TransferTo(room, RoomLayer.GroundLevel);
     }
 
-    private static void CellNDig(ICharacter actor, StringStack input)
+    private static void RoomNDig(ICharacter actor, StringStack input)
     {
         if (actor.CurrentOverlayPackage == null)
         {
-            actor.OutputHandler.Send("You have not adopted a cell overlay package.");
+            actor.OutputHandler.Send("You have not adopted a room overlay package.");
             return;
         }
 
         if (actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
         {
             actor.OutputHandler.Send(
-                "Only a Cell Overlay Package that is in the Under Design status can be used to create new Cells.");
+                "Only a Room Overlay Package that is in the Under Design status can be used to create new Rooms.");
             return;
         }
 
-        Match match = CellEditNDigRegex.Match(input.RemainingArgument);
+        Match match = RoomEditNDigRegex.Match(input.RemainingArgument);
         if (!match.Success)
         {
             actor.OutputHandler.Send("You must supply an argument in this form: " +
-                                    "cell ndig <template> <outbound keyword> <inbound keyword> \"<outbound name>\" \"<inbound name>\""
+                                    "room ndig <template> <outbound keyword> <inbound keyword> \"<outbound name>\" \"<inbound name>\""
                                         .Colour(Telnet.Yellow));
             return;
         }
@@ -834,26 +834,26 @@ Enter your text below:");
             return;
         }
 
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
-        Construction.Room newRoom = new(actor, actor.CurrentOverlayPackage);
-        ICell cell = newRoom.Cells.First();
-        BuiltCells.Add(cell);
-        IEditableCellOverlay otherOverlay = cell.GetOrCreateOverlay(actor.CurrentOverlayPackage);
-        Construction.Boundary.Exit newExit = new(actor.Gameworld, actor.Location, cell, 1.0, template,
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        Construction.Room newRoom = new(actor.CurrentOverlayPackage, actor.Location.OwningZone);
+        IRoom room = newRoom;
+        BuiltRooms.Add(room);
+        IEditableRoomOverlay otherOverlay = room.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        Construction.Boundary.Exit newExit = new(actor.Gameworld, actor.Location, room, 1.0, template,
             match.Groups["outboundkey"].Value,
             match.Groups["inboundkey"].Value, match.Groups["outboundname"].Value, match.Groups["inboundname"].Value);
         overlay.AddExit(newExit);
         otherOverlay.AddExit(newExit);
-        actor.Gameworld.ExitManager.UpdateCellOverlayExits(actor.Location, overlay);
-        actor.Gameworld.ExitManager.UpdateCellOverlayExits(cell, otherOverlay);
+        actor.Gameworld.ExitManager.UpdateRoomOverlayExits(actor.Location, overlay);
+        actor.Gameworld.ExitManager.UpdateRoomOverlayExits(room, otherOverlay);
 
-        actor.Send($"You create a new cell from the non-cardinal template {template.Name.Proper().Colour(Telnet.Cyan)} with ID #{cell.Id.ToString("N0", actor)}.", cell.Id);
-        actor.TransferTo(cell, RoomLayer.GroundLevel);
+        actor.Send($"You create a new room from the non-cardinal template {template.Name.Proper().Colour(Telnet.Cyan)} with ID #{room.Id.ToString("N0", actor)}.", room.Id);
+        actor.TransferTo(room, RoomLayer.GroundLevel);
     }
 
-    private static Regex CellNewTemplateOptionsRegex { get; } = new(@"(?<option>[a-zA-Z]+)=(?<value>\w+)\b");
+    private static Regex RoomNewTemplateOptionsRegex { get; } = new(@"(?<option>[a-zA-Z]+)=(?<value>\w+)\b");
 
-    private static void CellNewTemplate(ICharacter actor, StringStack input)
+    private static void RoomNewTemplate(ICharacter actor, StringStack input)
     {
         IAutobuilderArea template = long.TryParse(input.PopSpeech(), out long value)
             ? actor.Gameworld.AutobuilderAreas.Get(value)
@@ -865,9 +865,9 @@ Enter your text below:");
         }
 
         List<IFutureProg> afterExecutionProgs = new();
-        while (!input.IsFinished && CellNewTemplateOptionsRegex.IsMatch(input.PeekSpeech()))
+        while (!input.IsFinished && RoomNewTemplateOptionsRegex.IsMatch(input.PeekSpeech()))
         {
-            Match match = CellNewTemplateOptionsRegex.Match(input.PopSpeech());
+            Match match = RoomNewTemplateOptionsRegex.Match(input.PopSpeech());
             switch (match.Groups["option"].Value.ToLowerInvariant())
             {
                 case "prog":
@@ -895,7 +895,7 @@ Enter your text below:");
                     continue;
                 default:
                     actor.OutputHandler.Send(
-                        $"\"{match.Groups["option"].Value.ToLowerInvariant()}\" is not a recognised option for use with cell area templates.");
+                        $"\"{match.Groups["option"].Value.ToLowerInvariant()}\" is not a recognised option for use with room area templates.");
                     return;
             }
         }
@@ -909,7 +909,7 @@ Enter your text below:");
 
         actor.OutputHandler.PrioritySend(
             $"Launching the {template.Name.Colour(Telnet.Cyan)} autobuilder area template...");
-        List<ICell> results = template.ExecuteTemplate(actor, args).ToList();
+        List<IRoom> results = template.ExecuteTemplate(actor, args).ToList();
         actor.OutputHandler.PrioritySend($"Generated {results.Count} rooms.");
         foreach (IFutureProg prog in afterExecutionProgs)
         {
@@ -917,9 +917,9 @@ Enter your text below:");
                 $"Executing the prog {prog.MXPClickableFunctionNameWithId()} on the results.");
             if (prog.MatchesParameters(new[] { ProgVariableTypes.Location }))
             {
-                foreach (ICell cell in results)
+                foreach (IRoom room in results)
                 {
-                    prog.Execute(cell);
+                    prog.Execute(room);
                 }
             }
             else
@@ -930,49 +930,49 @@ Enter your text below:");
 
         actor.OutputHandler.PrioritySend("All done. Transferring you to the base room.");
         actor.TransferTo(results.FirstOrDefault(x => x != null), RoomLayer.GroundLevel);
-        BuiltCells.AddRange(results.AsEnumerable());
+        BuiltRooms.AddRange(results.AsEnumerable());
     }
 
     #endregion
 
     #region CellShow
 
-    private static void CellShow(ICharacter actor, StringStack input)
+    private static void RoomShow(ICharacter actor, StringStack input)
     {
-        ICell cell = actor.Location;
+        IRoom room = actor.Location;
         StringBuilder sb = new();
-        sb.AppendLine(string.Format(actor, "Showing Cell ID {0:N0}", cell.Id).Colour(Telnet.Cyan));
+        sb.AppendLine(string.Format(actor, "Showing Room ID {0:N0}", room.Id).Colour(Telnet.Cyan));
         sb.Append(new[]
         {
-            $"Cell ID: {cell.Id.ToString("N0", actor).Colour(Telnet.Green)}",
-            $"Room ID: {cell.Room.Id.ToString("N0", actor).Colour(Telnet.Green)}"
+            $"Room ID: {room.Id.ToString("N0", actor).Colour(Telnet.Green)}"
         }.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
         sb.Append(new[]
         {
-            $"Zone: {cell.Zone.Name.TitleCase().Colour(Telnet.Green)} (#{cell.Zone.Id:N0})",
-            $"Shard: {cell.Shard.Name.TitleCase().Colour(Telnet.Green)} (#{cell.Shard.Id:N0})"
+            $"Zone: {room.Zone.Name.TitleCase().Colour(Telnet.Green)} (#{room.Zone.Id:N0})",
+            $"Shard: {room.Shard.Name.TitleCase().Colour(Telnet.Green)} (#{room.Shard.Id:N0})"
         }.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
-        sb.AppendLine($"Current Name: {cell.CurrentOverlay.CellName}");
+        sb.AppendLine($"Current Name: {room.CurrentOverlay.RoomName}");
+		sb.AppendLine($"Unique Name: {room.UniqueName ?? "none"}");
         sb.AppendLine(
-            $"Current Description:\n\n{cell.CurrentOverlay.CellDescription.Wrap(actor.InnerLineFormatLength, "\t")}");
+            $"Current Description:\n\n{room.CurrentOverlay.RoomDescription.Wrap(actor.InnerLineFormatLength, "\t")}");
         sb.Append(new[]
         {
-            $"Terrain: {cell.CurrentOverlay.Terrain.Name.TitleCase().Colour(Telnet.Green)}",
-            $"Outdoors: {cell.CurrentOverlay.OutdoorsType.Describe().Colour(Telnet.Green)}"
+            $"Terrain: {room.CurrentOverlay.Terrain.Name.TitleCase().Colour(Telnet.Green)}",
+            $"Outdoors: {room.CurrentOverlay.OutdoorsType.Describe().Colour(Telnet.Green)}"
         }.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
         sb.Append(new[]
         {
-            $"Ambient Light Factor: {cell.CurrentOverlay.AmbientLightFactor.ToString("N5", actor).Colour(Telnet.Green)}",
-            $"Added Light: {cell.CurrentOverlay.AddedLight.ToString("N5", actor).Colour(Telnet.Green)} lux"
+            $"Ambient Light Factor: {room.CurrentOverlay.AmbientLightFactor.ToString("N5", actor).Colour(Telnet.Green)}",
+            $"Added Light: {room.CurrentOverlay.AddedLight.ToString("N5", actor).Colour(Telnet.Green)} lux"
         }.ArrangeStringsOntoLines(2, (uint)actor.Account.LineFormatLength));
         sb.AppendLine(
-            $"Noise Profile: {(cell.CurrentOverlay.HearingProfile == null ? "None".Colour(Telnet.Red) : $"{cell.CurrentOverlay.HearingProfile.Name.TitleCase().Colour(Telnet.Green)} (#{cell.CurrentOverlay.HearingProfile.Id:N0})")}");
-        var privateProperty = PrivatePropertyAccessService.EffectFor(cell);
+            $"Noise Profile: {(room.CurrentOverlay.HearingProfile == null ? "None".Colour(Telnet.Red) : $"{room.CurrentOverlay.HearingProfile.Name.TitleCase().Colour(Telnet.Green)} (#{room.CurrentOverlay.HearingProfile.Id:N0})")}");
+        var privateProperty = PrivatePropertyAccessService.EffectFor(room);
         sb.AppendLine($"Private Property: {(privateProperty?.Controller is { } controller ? $"{controller.Name.ColourName()} ({controller.FrameworkItemType.ColourValue()} #{controller.Id.ToString("N0", actor).ColourValue()})" : "None".ColourError())}");
         sb.AppendLine("Overlays:\n");
         sb.Append(
             StringUtilities.GetTextTable(
-                from overlay in cell.Overlays
+                from overlay in room.Overlays
                 orderby overlay.Package.BuilderDate descending
                 select new[]
                 {
@@ -980,7 +980,7 @@ Enter your text below:");
                     overlay.Package.RevisionNumber.ToString("N0", actor),
                     overlay.Package.Name.TitleCase(),
                     overlay.Package.Status.Describe(),
-                    cell.CurrentOverlay == overlay ? "Yes" : "No"
+                    room.CurrentOverlay == overlay ? "Yes" : "No"
                 },
                 new[] { "ID#", "Rev#", "Package", "Status", "Current" },
                 actor.Account.LineFormatLength,
@@ -994,12 +994,12 @@ Enter your text below:");
 
     #region CellOverlay
 
-    private static void CellOverlay(ICharacter actor, StringStack input)
+    private static void RoomOverlay(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
             actor.OutputHandler.Send(
-                "You must specify a Cell Overlay Package to adopt, or use \"clear\" to return to default.");
+                "You must specify a Room Overlay Package to adopt, or use \"clear\" to return to default.");
             return;
         }
 
@@ -1008,21 +1008,21 @@ Enter your text below:");
         if (cmd == "clear")
         {
             actor.CurrentOverlayPackage = null;
-            actor.OutputHandler.Send("You will now only see the current cell overlay for each location.");
+            actor.OutputHandler.Send("You will now only see the current room overlay for each location.");
             return;
         }
 
-        ICellOverlayPackage package = null;
+        IRoomOverlayPackage package = null;
         if (long.TryParse(cmd, out long value))
         {
             cmd = input.PopSpeech();
             if (!string.IsNullOrEmpty(cmd) && int.TryParse(cmd, out int revnum))
             {
-                package = actor.Gameworld.CellOverlayPackages.Get(value, revnum);
+                package = actor.Gameworld.RoomOverlayPackages.Get(value, revnum);
             }
             else
             {
-                package = actor.Gameworld.CellOverlayPackages.Get(value);
+                package = actor.Gameworld.RoomOverlayPackages.Get(value);
             }
         }
         else
@@ -1030,11 +1030,11 @@ Enter your text below:");
             string revcmd = input.PopSpeech();
             if (!string.IsNullOrEmpty(cmd) && int.TryParse(revcmd, out int revnum))
             {
-                package = actor.Gameworld.CellOverlayPackages.GetByName(cmd, revnum);
+                package = actor.Gameworld.RoomOverlayPackages.GetByName(cmd, revnum);
             }
             else
             {
-                package = actor.Gameworld.CellOverlayPackages.GetByName(cmd);
+                package = actor.Gameworld.RoomOverlayPackages.GetByName(cmd);
             }
         }
 
@@ -1046,7 +1046,7 @@ Enter your text below:");
 
         actor.CurrentOverlayPackage = package;
         actor.Send(
-            "You adopt the \"{0}\" (ID#{1} Rev#{2}) Cell Overlay Package, and will see it by default where it applies until you clear it.",
+            "You adopt the \"{0}\" (ID#{1} Rev#{2}) Room Overlay Package, and will see it by default where it applies until you clear it.",
             package.Name, package.Id, package.RevisionNumber);
     }
 
@@ -1054,7 +1054,7 @@ Enter your text below:");
 
     [PlayerCommand("Zones", "zones")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("zones", @"The #3zones#0 command lists every zone in the game, including its local time, local date, cell count and shard. Use #3zone#0 to create or edit zone definitions, and #3rezone#0 to move the current cell into a different zone.
+    [HelpInfo("zones", @"The #3zones#0 command lists every zone in the game, including its local time, local date, room count and shard. Use #3zone#0 to create or edit zone definitions, and #3rezone#0 to move the current room into a different zone.
 
 The syntax is:
 
@@ -1098,7 +1098,7 @@ Possible filter options include:
         StringStack ss = new(input.RemoveFirstWord());
 
         // Filters
-        IEnumerable<ICell> rooms = actor.Gameworld.Cells.AsEnumerable();
+        IEnumerable<IRoom> rooms = actor.Gameworld.Rooms.AsEnumerable();
         List<string> filterDescs = new();
         while (!ss.IsFinished)
         {
@@ -1163,11 +1163,11 @@ Possible filter options include:
                 select
                     new[]
                     {
-                        room.Id.ToString("N0", actor), room.HowSeen(actor, colour: false),
+                        room.Id.ToString("N0", actor), room.UniqueName ?? "", room.HowSeen(actor, colour: false),
                         room.CurrentOverlay.Package.Name, room.CurrentOverlay.Terrain.Name,
                         room.CurrentOverlay.OutdoorsType.Describe()
                     },
-                new[] { "ID", "Name", "Overlay", "Terrain", "Outdoors" },
+                new[] { "ID", "Unique Name", "Name", "Overlay", "Terrain", "Outdoors" },
                 actor.Account.LineFormatLength,
                 colour: Telnet.Green,
                 truncatableColumnIndex: 4
@@ -1196,7 +1196,7 @@ The syntax is:
             return;
         }
 
-        actor.Location.Room.SetNewZone(zone);
+        actor.Location.SetNewZone(zone);
         actor.Send(
             $"{actor.Location.HowSeen(actor, true)} is now in zone {zone.Name.Colour(Telnet.Cyan)} (#{zone.Id})");
     }
@@ -1570,7 +1570,7 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
             actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
         {
             actor.OutputHandler.Send(
-                "You must be editing an Under Design status cell overlay package to create a new zone.");
+                "You must be editing an Under Design status room overlay package to create a new zone.");
             return;
         }
 
@@ -1662,41 +1662,31 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
             FMDB.Context.SaveChanges();
 
 
-            Models.Room dbroom = new();
-            FMDB.Context.Rooms.Add(dbroom);
-
-            dbroom.Zone = dbzone;
-            dbroom.X = 0;
-            dbroom.Y = 0;
-            dbroom.Z = 0;
-
-            FMDB.Context.SaveChanges();
-
-            Models.Cell dbcell = new()
+            Models.Room dbcell = new()
             {
                 EffectData = "<Effects/>"
             };
-            FMDB.Context.Cells.Add(dbcell);
+            FMDB.Context.Rooms.Add(dbcell);
 
-            dbcell.Room = dbroom;
-            dbzone.DefaultCell = dbcell;
+            dbcell.Zone = dbzone;
+            dbzone.DefaultRoom = dbcell;
 
             FMDB.Context.SaveChanges();
 
-            Models.CellOverlay dboverlay = new();
-            FMDB.Context.CellOverlays.Add(dboverlay);
+            Models.RoomOverlay dboverlay = new();
+            FMDB.Context.RoomOverlays.Add(dboverlay);
 
-            dboverlay.Cell = dbcell;
-            dboverlay.CellOverlayPackageId = actor.CurrentOverlayPackage.Id;
-            dboverlay.CellOverlayPackageRevisionNumber = actor.CurrentOverlayPackage.RevisionNumber;
+            dboverlay.Room = dbcell;
+            dboverlay.RoomOverlayPackageId = actor.CurrentOverlayPackage.Id;
+            dboverlay.RoomOverlayPackageRevisionNumber = actor.CurrentOverlayPackage.RevisionNumber;
             dboverlay.AddedLight = 0;
             dboverlay.AmbientLightFactor = 1.0;
-            dboverlay.CellDescription =
+            dboverlay.RoomDescription =
                 "This is a newly built location that has not yet been described. It should not be approved for use in game.";
-            dboverlay.CellName = "An Unnamed Location";
+            dboverlay.RoomName = "An Unnamed Location";
             dboverlay.Name = actor.CurrentOverlayPackage.Name;
             dboverlay.Terrain = FMDB.Context.Terrains.First(x => x.DefaultTerrain);
-            dboverlay.OutdoorsType = (int)CellOutdoorsType.Outdoors;
+            dboverlay.OutdoorsType = (int)RoomOutdoorsType.Outdoors;
             dbcell.CurrentOverlay = dboverlay;
             dboverlay.AtmosphereId = actor.Gameworld.GetStaticLong("DefaultAtmosphereId");
             dboverlay.AtmosphereType = actor.Gameworld.GetStaticConfiguration("DefaultAtmosphereType");
@@ -1705,14 +1695,12 @@ See the #3CELL#0 command for more information about #3CELL PACKAGES#0.";
 
             Construction.Zone newZone = new(dbzone, actor.Gameworld);
             actor.Gameworld.Add(newZone);
-            Construction.Room newRoom = new(dbroom, newZone);
+            Construction.Room newRoom = new(dbcell, newZone);
             actor.Gameworld.Add(newRoom);
-            Construction.Cell newCell = new(dbcell, newRoom);
-            actor.Gameworld.Add(newCell);
             newZone.PostLoadSetup();
 
-            actor.Send("You create zone {0} (#{1:N0}), with default cell #{2:N0}.",
-                zoneName.Colour(Telnet.Green), newZone.Id, newCell.Id);
+            actor.Send("You create zone {0} (#{1:N0}), with default room #{2:N0}.",
+                zoneName.Colour(Telnet.Green), newZone.Id, newRoom.Id);
         }
 #if DEBUG
 #else
@@ -1786,7 +1774,7 @@ You can use the following subcommands:
 
     [PlayerCommand("Shards", "shards")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
-    [HelpInfo("shards", @"The #3shards#0 command lists all configured shards, including their calendars, clocks, celestial objects, sky templates and ambient illumination. A shard is the top-level world or realm grouping used by zones and cells.
+    [HelpInfo("shards", @"The #3shards#0 command lists all configured shards, including their calendars, clocks, celestial objects, sky templates and ambient illumination. A shard is the top-level world or realm grouping used by zones and rooms.
 
 Use #3shard#0 to create or edit a specific shard.
 
@@ -1817,112 +1805,137 @@ The syntax is:
 
     #region CellSet
 
-    internal const string CellSetHelpText = @"Valid options for #3cell set#0 are as follows:
+    internal const string RoomSetHelpText = @"Valid options for #3room set#0 are as follows:
 
-	#3cell set name <name>#0 - sets the name of the cell
-	#3cell set desc#0 - drops you into an editor to edit the cell description
-	#3cell set suggestdesc#0 - uses configured AI description generation to suggest a description
-	#3cell set terrain <id|name>#0 - sets the terrain of this cell
-	#3cell set hearing <id|name>#0 - sets the hearing/noise profile for this cell
-	#3cell set lightmultiplier <multiplier>#0 - sets the multiplier for natural light
-	#3cell set lightlevel <lux>#0 - sets the added light for the location to the specified lux level
-	#3cell set type outdoors|indoors|cave|windows|exposed#0 - sets the cell exposure type
-	#3cell set door <exit id|direction|keyword> clear#0 - clears the exit from accepting doors
-	#3cell set door <exit id|direction|keyword> <size>#0 - sets the exit to accept doors of the specified size
-	#3cell set forage clear#0 - clears an existing forage profile
-	#3cell set forage <id|name>#0 - sets the forage profile to the specified profile
-	#3cell set atmosphere liquid|gas <id|name>#0 - sets the atmosphere to the specified fluid
-	#3cell set atmosphere none#0 - sets the location to have no atmosphere
-	#3cell set safequit#0 - toggles whether the current room is a safe quit room
-	#3cell set register <varname> <value>#0 - sets the specified prog variable for the current cell
-	#3cell set register delete <varname>#0 - resets the specified prog variable to its default value";
+	#3room set uniquename <name|none>#0 - sets or clears the global identifier without an overlay package
+	#3room set name <name>#0 - sets the name of the room
+	#3room set desc#0 - drops you into an editor to edit the room description
+	#3room set suggestdesc#0 - uses configured AI description generation to suggest a description
+	#3room set terrain <id|name>#0 - sets the terrain of this room
+	#3room set hearing <id|name>#0 - sets the hearing/noise profile for this room
+	#3room set lightmultiplier <multiplier>#0 - sets the multiplier for natural light
+	#3room set lightlevel <lux>#0 - sets the added light for the location to the specified lux level
+	#3room set type outdoors|indoors|cave|windows|exposed#0 - sets the room exposure type
+	#3room set door <exit id|direction|keyword> clear#0 - clears the exit from accepting doors
+	#3room set door <exit id|direction|keyword> <size>#0 - sets the exit to accept doors of the specified size
+	#3room set forage clear#0 - clears an existing forage profile
+	#3room set forage <id|name>#0 - sets the forage profile to the specified profile
+	#3room set atmosphere liquid|gas <id|name>#0 - sets the atmosphere to the specified fluid
+	#3room set atmosphere none#0 - sets the location to have no atmosphere
+	#3room set safequit#0 - toggles whether the current room is a safe quit room
+	#3room set register <varname> <value>#0 - sets the specified prog variable for the current room
+	#3room set register delete <varname>#0 - resets the specified prog variable to its default value";
 
-    private static void CellSet(ICharacter actor, StringStack input)
+	private static void RoomSetUniqueName(ICharacter actor, StringStack input)
+	{
+		if (input.IsFinished)
+		{
+			actor.OutputHandler.Send("What unique name should this room have? Use 'none' to clear it.");
+			return;
+		}
+		var name = RoomLookupExtensions.NormaliseUniqueName(input.SafeRemainingArgument);
+		if (name is not null && new[] { "none", "clear", "delete", "remove" }.Any(x => x.EqualTo(name))) name = null;
+		if (!actor.Location.TrySetUniqueName(name, out var error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+		actor.OutputHandler.Send(name is null ? "This room no longer has a unique name." : $"This room now has the unique name {name.ColourCommand()}.");
+	}
+
+    private static void RoomSet(ICharacter actor, StringStack input)
     {
         if (input.IsFinished || input.Peek().EqualTo("help") || input.Peek().EqualTo("?"))
         {
-            actor.OutputHandler.Send(CellSetHelpText.SubstituteANSIColour());
+            actor.OutputHandler.Send(RoomSetHelpText.SubstituteANSIColour());
             return;
         }
 
         if (input.Peek().EqualTo("exit"))
         {
             input.PopSpeech();
-            CellExit(actor, input);
+            RoomExit(actor, input);
             return;
         }
+
+		if (input.Peek().EqualTo("uniquename") || input.Peek().EqualTo("unique"))
+		{
+			input.PopSpeech();
+			RoomSetUniqueName(actor, input);
+			return;
+		}
 
         if (input.Peek().Equals("register", StringComparison.InvariantCultureIgnoreCase))
         {
             input.PopSpeech();
-            CellSetRegister(actor, input);
+            RoomSetRegister(actor, input);
             return;
         }
 
 		if (input.Peek().Equals("route", StringComparison.InvariantCultureIgnoreCase))
 		{
 			input.PopSpeech();
-			CellSetRoute(actor, input);
+			RoomSetRoute(actor, input);
 			return;
 		}
 
         if (actor.CurrentOverlayPackage == null)
         {
             actor.OutputHandler.Send(
-                "You do not have a Cell Overlay Package prepared, and so cannot edit any Cells.");
+                "You do not have a Room Overlay Package prepared, and so cannot edit any Rooms.");
             return;
         }
 
         if (actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
         {
             actor.OutputHandler.Send(
-                "Only a Cell Overlay Package that is in the Under Design status can be used to edit Cells.");
+                "Only a Room Overlay Package that is in the Under Design status can be used to edit Rooms.");
             return;
         }
 
         switch (input.PopSpeech().ToLowerInvariant())
         {
             case "link":
-                CellEditLink(actor, input);
+                RoomEditLink(actor, input);
                 break;
             case "nlink":
-                CellEditNlink(actor, input);
+                RoomEditNlink(actor, input);
                 break;
             case "name":
-                CellEditName(actor, input);
+                RoomEditName(actor, input);
                 break;
             case "desc":
             case "description":
-                CellEditDescription(actor, input);
+                RoomEditDescription(actor, input);
                 break;
             case "suggestdesc":
             case "suggestdescription":
-                CellEditSuggestDescription(actor, input);
+                RoomEditSuggestDescription(actor, input);
                 break;
             case "terrain":
-                CellEditTerrain(actor, input);
+                RoomEditTerrain(actor, input);
                 break;
             case "hearing":
             case "hearing profile":
-                CellEditHearingProfile(actor, input);
+                RoomEditHearingProfile(actor, input);
                 break;
             case "multiplier":
             case "lightmultiplier":
             case "light multiplier":
-                CellEditLightMultiplier(actor, input);
+                RoomEditLightMultiplier(actor, input);
                 break;
             case "light":
             case "level":
             case "light level":
             case "lightlevel":
-                CellEditLightLevel(actor, input);
+                RoomEditLightLevel(actor, input);
                 break;
             case "outdoors":
             case "type":
-                CellEditOutdoors(actor, input);
+                RoomEditOutdoors(actor, input);
                 break;
             case "door":
-                CellSetDoor(actor, input);
+                RoomSetDoor(actor, input);
                 break;
             case "forage":
             case "forage profile":
@@ -1930,45 +1943,45 @@ The syntax is:
             case "foragable profile":
             case "foragableprofile":
             case "profile":
-                CellSetForageProfile(actor, input);
+                RoomSetForageProfile(actor, input);
                 break;
             case "atmosphere":
-                CellSetAtmosphere(actor, input);
+                RoomSetAtmosphere(actor, input);
                 break;
             case "safequit":
             case "quit":
             case "safe":
             case "safe quit":
             case "safe_quit":
-                CellSetSafeQuit(actor, input);
+                RoomSetSafeQuit(actor, input);
                 break;
             default:
-                actor.OutputHandler.Send(CellSetHelpText.SubstituteANSIColour());
+                actor.OutputHandler.Send(RoomSetHelpText.SubstituteANSIColour());
                 return;
         }
     }
 
-    private static void CellEditSuggestDescription(ICharacter actor, StringStack command)
+    private static void RoomEditSuggestDescription(ICharacter actor, StringStack command)
     {
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         StringBuilder sb = new();
         sb.AppendLine(Futuremud.Games.First().GetStaticString("GPT_RoomSuggestionPrompt"));
         sb.AppendLine();
-        sb.AppendLine($"The room that you are describing has a title of \"{overlay.CellName}\". It has a terrain type of {overlay.Terrain.Name}.");
+        sb.AppendLine($"The room that you are describing has a title of \"{overlay.RoomName}\". It has a terrain type of {overlay.Terrain.Name}.");
         sb.AppendLine();
         if (actor.Location.ExitsFor(actor, true).Any())
         {
             sb.AppendLine($"There are other rooms adjacent to this one, which are as follows:");
             sb.AppendLine();
-            foreach (ICellExit item in actor.Location.ExitsFor(actor, true))
+            foreach (IRoomExit item in actor.Location.ExitsFor(actor, true))
             {
                 if (item.OutboundDirection == CardinalDirection.Unknown)
                 {
-                    sb.AppendLine($"Accessible from here is {item.Destination.GetOverlayFor(actor).CellName}");
+                    sb.AppendLine($"Accessible from here is {item.Destination.GetOverlayFor(actor).RoomName}");
                 }
                 else
                 {
-                    sb.AppendLine($"To {item.OutboundDirectionDescription} is {item.Destination.GetOverlayFor(actor).CellName}");
+                    sb.AppendLine($"To {item.OutboundDirectionDescription} is {item.Destination.GetOverlayFor(actor).RoomName}");
                 }
             }
 
@@ -2046,7 +2059,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         {
             string[] descriptions = text.Split('#', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             StringBuilder sb = new();
-            sb.AppendLine($"Your GPT Model has made the following suggestions for descriptions for room {overlay.CellName.ColourRoom()}:");
+            sb.AppendLine($"Your GPT Model has made the following suggestions for descriptions for room {overlay.RoomName.ColourRoom()}:");
             int i = 1;
             foreach (string desc in descriptions)
             {
@@ -2070,9 +2083,9 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
                         return;
                     }
 
-                    overlay.CellDescription = descriptions[value - 1];
+                    overlay.RoomDescription = descriptions[value - 1];
                     overlay.Changed = true;
-                    actor.OutputHandler.Send($"You set the description of the room {overlay.CellName} to the {value.ToOrdinal()} suggestion.");
+                    actor.OutputHandler.Send($"You set the description of the room {overlay.RoomName} to the {value.ToOrdinal()} suggestion.");
                 },
                 RejectAction = text => { actor.OutputHandler.Send("You decide not to use any of the suggestions."); },
                 ExpireAction = () => { actor.OutputHandler.Send("You decide not to use any of the suggestions."); },
@@ -2107,14 +2120,14 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         actor.OutputHandler.Send("You send your request off to the GPT Model.");
     }
 
-    private static void CellSetSafeQuit(ICharacter actor, StringStack input)
+    private static void RoomSetSafeQuit(ICharacter actor, StringStack input)
     {
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         overlay.SafeQuit = !overlay.SafeQuit;
         actor.OutputHandler.Send($"This location is {(overlay.SafeQuit ? "now" : "no longer")} a safe quit room.");
     }
 
-    private static void CellSetAtmosphere(ICharacter actor, StringStack input)
+    private static void RoomSetAtmosphere(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
@@ -2134,7 +2147,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             case "none":
             case "remove":
             case "rem":
-                CellSetAtmosphereNone(actor);
+                RoomSetAtmosphereNone(actor);
                 return;
             default:
                 actor.Send(
@@ -2165,23 +2178,23 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         overlay.Atmosphere = fluid;
         actor.OutputHandler.Send($"This location now has {fluid.Name.Colour(fluid.DisplayColour)} as an atmosphere.");
     }
 
-    private static void CellSetAtmosphereNone(ICharacter actor)
+    private static void RoomSetAtmosphereNone(ICharacter actor)
     {
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         overlay.Atmosphere = null;
-        actor.Send("This cell will no longer have any atmosphere.");
+        actor.Send("This room will no longer have any atmosphere.");
     }
 
-    private static void CellSetForageProfile(ICharacter actor, StringStack input)
+    private static void RoomSetForageProfile(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
-            actor.Send("Do you want to clear the profile, or set one for this cell?");
+            actor.Send("Do you want to clear the profile, or set one for this room?");
             return;
         }
 
@@ -2192,11 +2205,11 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             actor.Location.ForagableProfile = null;
             if (actor.Location.ForagableProfile == null)
             {
-                actor.Send("You clear the foragable profile from this cell.");
+                actor.Send("You clear the foragable profile from this room.");
             }
             else
             {
-                actor.Send("You clear the cell-level foragable profile override. This cell will now inherit {0} ({1:N0}).",
+                actor.Send("You clear the room-level foragable profile override. This room will now inherit {0} ({1:N0}).",
                     actor.Location.ForagableProfile.Name.ColourName(), actor.Location.ForagableProfile.Id);
             }
             return;
@@ -2205,21 +2218,21 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         IForagableProfile profile = actor.Gameworld.ForagableProfiles.GetByIdOrName(input.SafeRemainingArgument);
         if (profile == null)
         {
-            actor.Send("There is no such foragable profile for you to assign to this cell.");
+            actor.Send("There is no such foragable profile for you to assign to this room.");
             return;
         }
 
         if (profile.Status != RevisionStatus.Current)
         {
-            actor.Send("You may only assign approved foragable profiles to cells.");
+            actor.Send("You may only assign approved foragable profiles to rooms.");
             return;
         }
 
         actor.Location.ForagableProfile = profile;
-        actor.Send("You set the foragable profile for this cell to be {0} ({1:N0}).", profile.Name, profile.Id);
+        actor.Send("You set the foragable profile for this room to be {0} ({1:N0}).", profile.Name, profile.Id);
     }
 
-    private static void CellSetRegister(ICharacter actor, StringStack command)
+    private static void RoomSetRegister(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
         {
@@ -2229,7 +2242,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
 
         if (command.Peek().Equals("delete", StringComparison.InvariantCultureIgnoreCase))
         {
-            CellSetRegisterDelete(actor, command);
+            RoomSetRegisterDelete(actor, command);
             return;
         }
 
@@ -2237,13 +2250,13 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         ProgVariableTypes variableType = actor.Gameworld.VariableRegister.GetType(ProgVariableTypes.Location, variableName);
         if (variableType == ProgVariableTypes.Error)
         {
-            actor.OutputHandler.Send($"There is no cell variable called {variableName.ColourName()} - you will need to register it first.");
+            actor.OutputHandler.Send($"There is no room variable called {variableName.ColourName()} - you will need to register it first.");
             return;
         }
 
         if (command.IsFinished)
         {
-            actor.OutputHandler.Send($"What value do you want to set for this variable?\nNote: To delete the variable, use {"cell set register delete <variable>".Colour(Telnet.Yellow)} instead");
+            actor.OutputHandler.Send($"What value do you want to set for this variable?\nNote: To delete the variable, use {"room set register delete <variable>".Colour(Telnet.Yellow)} instead");
             return;
         }
 
@@ -2255,17 +2268,17 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
 
         if (!actor.Gameworld.VariableRegister.SetValue(actor.Location, variableName, FutureProg.FutureProg.GetVariable(variableType, result)))
         {
-            actor.OutputHandler.Send("Unable to set that register value on this cell.");
+            actor.OutputHandler.Send("Unable to set that register value on this room.");
             return;
         }
-        actor.OutputHandler.Send($"You set the register value {variableName.Colour(Telnet.Cyan)} for this cell to {ProgModule.DescribeProgVariable(actor, variableType, result)}.");
+        actor.OutputHandler.Send($"You set the register value {variableName.Colour(Telnet.Cyan)} for this room to {ProgModule.DescribeProgVariable(actor, variableType, result)}.");
     }
 
-    private static void CellSetRegisterDelete(ICharacter actor, StringStack command)
+    private static void RoomSetRegisterDelete(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
         {
-            actor.Send("Which register value do you want to delete for this cell?");
+            actor.Send("Which register value do you want to delete for this room?");
             return;
         }
 
@@ -2273,7 +2286,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         ProgVariableTypes type = actor.Gameworld.VariableRegister.GetType(ProgVariableTypes.Location, whichVariable);
         if (type == ProgVariableTypes.Error)
         {
-            actor.Send("This cell does not have a register value of {0}.", whichVariable);
+            actor.Send("This room does not have a register value of {0}.", whichVariable);
             return;
         }
 
@@ -2283,7 +2296,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             whichVariable);
     }
 
-    internal static ICellExit GetCellExitForBuilderInput(IEnumerable<ICellExit> exits, StringStack input,
+    internal static IRoomExit GetRoomExitForBuilderInput(IEnumerable<IRoomExit> exits, StringStack input,
         IPerceiver voyeur)
     {
         if (input.IsFinished)
@@ -2316,7 +2329,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         return currentExits.GetFromItemListByKeyword(exitText, voyeur, abbreviated: false);
     }
 
-    private static void CellSetDoor(ICharacter actor, StringStack input)
+    private static void RoomSetDoor(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
@@ -2324,8 +2337,8 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor);
-        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
+        IEnumerable<IRoomExit> currentOverlayExits = actor.Location.ExitsFor(actor);
+        IRoomExit exit = GetRoomExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2339,7 +2352,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         }
 
         IExit newExit;
-        IEditableCellOverlay overlay;
+        IEditableRoomOverlay overlay;
         string text = input.PopSpeech();
         if (text.Equals("clear", StringComparison.InvariantCultureIgnoreCase))
         {
@@ -2350,9 +2363,9 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             }
 
             overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
-            IEditableCellOverlay otherOverlay = exit.Destination.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+            IEditableRoomOverlay otherOverlay = exit.Destination.GetOrCreateOverlay(actor.CurrentOverlayPackage);
 
-            ICellExit existingNonDoorExit =
+            IRoomExit existingNonDoorExit =
                 actor.Gameworld.ExitManager.GetAllExits(actor.Location)
                     .FirstOrDefault(
                         x =>
@@ -2381,8 +2394,8 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             otherOverlay.RemoveExit(exit.Exit);
             overlay.AddExit(newExit);
             otherOverlay.AddExit(newExit);
-            actor.Gameworld.ExitManager.UpdateCellOverlayExits(actor.Location, overlay);
-            actor.Gameworld.ExitManager.UpdateCellOverlayExits(exit.Destination, otherOverlay);
+            actor.Gameworld.ExitManager.UpdateRoomOverlayExits(actor.Location, overlay);
+            actor.Gameworld.ExitManager.UpdateRoomOverlayExits(exit.Destination, otherOverlay);
         }
         else
         {
@@ -2396,7 +2409,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             SizeCategory target =
                 sizes.FirstOrDefault(x => x.Describe().Equals(text, StringComparison.InvariantCultureIgnoreCase));
             overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
-            IEditableCellOverlay otherOverlay = exit.Destination.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+            IEditableRoomOverlay otherOverlay = exit.Destination.GetOrCreateOverlay(actor.CurrentOverlayPackage);
 
             if (!actor.Location.Overlays.Except(overlay).Any(x => x.ExitIDs.Contains(exit.Exit.Id)))
             {
@@ -2410,15 +2423,15 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
                 overlay.AddExit(newExit);
                 otherOverlay.RemoveExit(exit.Exit);
                 otherOverlay.AddExit(newExit);
-                actor.Gameworld.ExitManager.UpdateCellOverlayExits(actor.Location, overlay);
-                actor.Gameworld.ExitManager.UpdateCellOverlayExits(exit.Destination, otherOverlay);
+                actor.Gameworld.ExitManager.UpdateRoomOverlayExits(actor.Location, overlay);
+                actor.Gameworld.ExitManager.UpdateRoomOverlayExits(exit.Destination, otherOverlay);
                 actor.Send("That exit will now accept doors of size {0}. New ID is {1:N0}.",
                     target.Describe().Colour(Telnet.Green), newExit.Id);
             }
 
             newExit.AcceptsDoor = true;
             newExit.DoorSize = target;
-            List<RoomLayer> newExitLayers = newExit.CellExitFor(actor.Location).WhichLayersExitAppears().ToList();
+            List<RoomLayer> newExitLayers = newExit.RoomExitFor(actor.Location).WhichLayersExitAppears().ToList();
             if (newExitLayers.Count > 1)
             {
                 foreach (RoomLayer layer in newExitLayers)
@@ -2431,7 +2444,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
                     newExit.AddBlockedLayer(layer);
                 }
 
-                if (!newExit.CellExitFor(actor.Location).WhichLayersExitAppears().Any())
+                if (!newExit.RoomExitFor(actor.Location).WhichLayersExitAppears().Any())
                 {
                     newExit.RemoveBlockedLayer(newExitLayers.FirstMin(x => Math.Abs(x.LayerHeight())));
                 }
@@ -2441,11 +2454,11 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         newExit.Changed = true;
     }
 
-    private static void CellEditLightMultiplier(ICharacter actor, StringStack input)
+    private static void RoomEditLightMultiplier(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
-            actor.OutputHandler.Send("What multiplier of natural light levels do you want this cell to have?");
+            actor.OutputHandler.Send("What multiplier of natural light levels do you want this room to have?");
             return;
         }
 
@@ -2462,16 +2475,16 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         overlay.AmbientLightFactor = value;
-        actor.Send("You set the Ambient Light Multipler for this cell to {0:N3}.", value);
+        actor.Send("You set the Ambient Light Multipler for this room to {0:N3}.", value);
     }
 
-    private static void CellEditLightLevel(ICharacter actor, StringStack input)
+    private static void RoomEditLightLevel(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
-            actor.OutputHandler.Send("What level of ambient light do you want this cell to have?");
+            actor.OutputHandler.Send("What level of ambient light do you want this room to have?");
             return;
         }
 
@@ -2487,12 +2500,12 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         overlay.AddedLight = value;
-        actor.Send("You set the Ambient Light Level for this cell to {0:N3} lux.", value);
+        actor.Send("You set the Ambient Light Level for this room to {0:N3} lux.", value);
     }
 
-    private static void CellEditOutdoors(ICharacter actor, StringStack input)
+    private static void RoomEditOutdoors(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
@@ -2500,48 +2513,48 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        CellOutdoorsType type;
+        RoomOutdoorsType type;
         string text = input.SafeRemainingArgument.ToLowerInvariant();
         switch (text)
         {
             case "outdoor":
             case "outdoors":
             case "outside":
-                type = CellOutdoorsType.Outdoors;
+                type = RoomOutdoorsType.Outdoors;
                 break;
             case "indoors":
             case "indoor":
             case "inside":
-                type = CellOutdoorsType.Indoors;
+                type = RoomOutdoorsType.Indoors;
                 break;
             case "windows":
-                type = CellOutdoorsType.IndoorsWithWindows;
+                type = RoomOutdoorsType.IndoorsWithWindows;
                 break;
             case "cave":
             case "nolight":
             case "no light":
-                type = CellOutdoorsType.IndoorsNoLight;
+                type = RoomOutdoorsType.IndoorsNoLight;
                 break;
             case "shelter":
             case "climate":
             case "sheltered":
             case "exposed":
-                type = CellOutdoorsType.IndoorsClimateExposed;
+                type = RoomOutdoorsType.IndoorsClimateExposed;
                 break;
             default:
                 actor.OutputHandler.Send("Valid options are Outdoors, Indoors, Exposed, Cave or Windows.");
                 return;
         }
 
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         overlay.OutdoorsType = type;
         actor.Send("This location is now {0}.", type.Describe().Colour(Telnet.Green));
-        if (type == CellOutdoorsType.IndoorsNoLight)
+        if (type == RoomOutdoorsType.IndoorsNoLight)
         {
             actor.Send("The light level multiplier has been set to {0:N1}".Colour(Telnet.Yellow), 0);
             overlay.AmbientLightFactor = 0.0;
         }
-        else if (type != CellOutdoorsType.Outdoors)
+        else if (type != RoomOutdoorsType.Outdoors)
         {
             actor.Send(
                 "Don't forget to set a multiplier for the light levels in this room. Default has been set to 0.25 multiplier from natural."
@@ -2555,11 +2568,11 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         }
     }
 
-    private static void CellEditTerrain(ICharacter actor, StringStack input)
+    private static void RoomEditTerrain(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
-            actor.OutputHandler.Send("Which terrain do you want to set for this cell?");
+            actor.OutputHandler.Send("Which terrain do you want to set for this room?");
             return;
         }
 
@@ -2571,39 +2584,39 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         overlay.Terrain = terrain;
-        overlay.OutdoorsType = terrain.DefaultCellOutdoorsType;
+        overlay.OutdoorsType = terrain.DefaultRoomOutdoorsType;
         switch (overlay.OutdoorsType)
         {
-            case CellOutdoorsType.Indoors:
+            case RoomOutdoorsType.Indoors:
                 overlay.AmbientLightFactor = 0.25;
                 break;
-            case CellOutdoorsType.IndoorsWithWindows:
+            case RoomOutdoorsType.IndoorsWithWindows:
                 overlay.AmbientLightFactor = 0.35;
                 break;
-            case CellOutdoorsType.Outdoors:
+            case RoomOutdoorsType.Outdoors:
                 overlay.AmbientLightFactor = 1.0;
                 break;
-            case CellOutdoorsType.IndoorsNoLight:
+            case RoomOutdoorsType.IndoorsNoLight:
                 overlay.AmbientLightFactor = 0.0;
                 break;
-            case CellOutdoorsType.IndoorsClimateExposed:
+            case RoomOutdoorsType.IndoorsClimateExposed:
                 overlay.AmbientLightFactor = 0.9;
                 break;
             default:
                 throw new ArgumentOutOfRangeException();
         }
 
-        actor.OutputHandler.Send("You set the Terrain for this cell to \"" +
+        actor.OutputHandler.Send("You set the Terrain for this room to \"" +
                                 terrain.Name.TitleCase().Colour(Telnet.Green) + "\"");
     }
 
-    private static void CellEditHearingProfile(ICharacter actor, StringStack input)
+    private static void RoomEditHearingProfile(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
-            actor.OutputHandler.Send("Which terrain do you want to set for this cell?");
+            actor.OutputHandler.Send("Which terrain do you want to set for this room?");
             return;
         }
 
@@ -2615,20 +2628,20 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         overlay.HearingProfile = profile;
-        actor.OutputHandler.Send("You set the Hearing Profile for this cell to \"" +
+        actor.OutputHandler.Send("You set the Hearing Profile for this room to \"" +
                                 profile.Name.TitleCase().Colour(Telnet.Green) + "\"");
     }
 
-    private static void CellExit(ICharacter actor, StringStack input)
+    private static void RoomExit(ICharacter actor, StringStack input)
     {
-        ICellOverlay overlay = actor.Location.Overlays.FirstOrDefault(x => x.Package == actor.CurrentOverlayPackage);
+        IRoomOverlay overlay = actor.Location.Overlays.FirstOrDefault(x => x.Package == actor.CurrentOverlayPackage);
 
         if (input.IsFinished || input.Peek().ToLowerInvariant() == "list")
         {
-            IEnumerable<ICellExit> exits = actor.Gameworld.ExitManager.GetAllExits(actor.Location);
-            actor.OutputHandler.Send($@"This Cell has the following exits{(overlay != null
+            IEnumerable<IRoomExit> exits = actor.Gameworld.ExitManager.GetAllExits(actor.Location);
+            actor.OutputHandler.Send($@"This Room has the following exits{(overlay != null
                 ? $" ({"Note: Exits for your current Overlay appear with a [x] after them".Colour(Telnet.Red)})"
                 : "")}:
 
@@ -2646,77 +2659,77 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         if (input.Peek().EqualTo("hide"))
         {
             input.PopSpeech();
-            CellExitHide(actor, input);
+            RoomExitHide(actor, input);
             return;
         }
 
         if (input.Peek().EqualTo("unhide"))
         {
             input.PopSpeech();
-            CellExitUnhide(actor, input);
+            RoomExitUnhide(actor, input);
             return;
         }
 
         if (actor.CurrentOverlayPackage == null)
         {
             actor.OutputHandler.Send(
-                "You do not have a Cell Overlay Package prepared, and so cannot edit any Cells.");
+                "You do not have a Room Overlay Package prepared, and so cannot edit any Rooms.");
             return;
         }
 
         if (actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
         {
             actor.OutputHandler.Send(
-                "Only a Cell Overlay Package that is in the Under Design status can be used to edit Cells.");
+                "Only a Room Overlay Package that is in the Under Design status can be used to edit Rooms.");
             return;
         }
 
         if (input.Peek().EqualTo("size"))
         {
             input.PopSpeech();
-            CellExitSize(actor, input, false);
+            RoomExitSize(actor, input, false);
             return;
         }
 
         if (input.Peek().EqualTo("upright"))
         {
             input.PopSpeech();
-            CellExitSize(actor, input, true);
+            RoomExitSize(actor, input, true);
             return;
         }
 
         if (input.Peek().EqualTo("fall"))
         {
             input.PopSpeech();
-            CellExitFall(actor, input);
+            RoomExitFall(actor, input);
             return;
         }
 
         if (input.Peek().EqualTo("climb"))
         {
             input.PopSpeech();
-            CellExitClimb(actor, input);
+            RoomExitClimb(actor, input);
             return;
         }
 
         if (input.Peek().EqualTo("reset"))
         {
             input.PopSpeech();
-            CellExitReset(actor, input);
+            RoomExitReset(actor, input);
             return;
         }
 
         if (input.Peek().EqualTo("block"))
         {
             input.PopSpeech();
-            CellExitBlock(actor, input);
+            RoomExitBlock(actor, input);
             return;
         }
 
         if (input.Peek().EqualTo("unblock"))
         {
             input.PopSpeech();
-            CellExitUnblock(actor, input);
+            RoomExitUnblock(actor, input);
             return;
         }
 
@@ -2734,7 +2747,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             default:
                 actor.OutputHandler.Send(@"The valid options for this command are as follows:
 
-	#3add <id>#0 - adds an existing exit from another overlay for this cell to this overlay
+	#3add <id>#0 - adds an existing exit from another overlay for this room to this overlay
 	#3remove <id>#0 - removes an exit from this overlay
 	#3size <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit
 	#3upright <id|direction> <size>#0 - sets the maximum size of creatures that can use the exit in a standing position
@@ -2760,48 +2773,48 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        if (texit.CellExitFor(actor.Location) == null)
+        if (texit.RoomExitFor(actor.Location) == null)
         {
             actor.OutputHandler.Send("That exit is not a valid choice for this location.");
             return;
         }
 
-        IEditableCellOverlay editableOverlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay editableOverlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         if (add)
         {
             if (editableOverlay.ExitIDs.Contains(texit.Id))
             {
-                actor.OutputHandler.Send("The current Cell Overlay already contains that exit.");
+                actor.OutputHandler.Send("The current Room Overlay already contains that exit.");
                 return;
             }
 
             editableOverlay.AddExit(texit);
             // We also have to add this exit to an overlay at its destination.
-            IEditableCellOverlay otherOverlay =
-                texit.CellExitFor(actor.Location).Destination.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+            IEditableRoomOverlay otherOverlay =
+                texit.RoomExitFor(actor.Location).Destination.GetOrCreateOverlay(actor.CurrentOverlayPackage);
             otherOverlay.AddExit(texit);
 
-            actor.OutputHandler.Send("You add the Exit with ID " + texit.Id + " to this Location's Cell Overlay.");
+            actor.OutputHandler.Send("You add the Exit with ID " + texit.Id + " to this Location's Room Overlay.");
         }
         else
         {
             if (!editableOverlay.ExitIDs.Contains(texit.Id))
             {
-                actor.OutputHandler.Send("The current Cell Overlay does not contain that exit.");
+                actor.OutputHandler.Send("The current Room Overlay does not contain that exit.");
                 return;
             }
 
             editableOverlay.RemoveExit(texit);
-            IEditableCellOverlay otherOverlay =
-                texit.CellExitFor(actor.Location).Destination.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+            IEditableRoomOverlay otherOverlay =
+                texit.RoomExitFor(actor.Location).Destination.GetOrCreateOverlay(actor.CurrentOverlayPackage);
             otherOverlay.RemoveExit(texit);
 
             actor.OutputHandler.Send("You remove the Exit with ID " + texit.Id +
-                                    " from this Location's Cell Overlay.");
+                                    " from this Location's Room Overlay.");
         }
     }
 
-    private static void CellExitHide(ICharacter actor, StringStack input)
+    private static void RoomExitHide(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
@@ -2809,8 +2822,8 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
+        IEnumerable<IRoomExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
+        IRoomExit exit = GetRoomExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2857,7 +2870,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             $"The exit to {exit.OutboundDirectionDescription.ColourValue()} is now hidden with the {prog.MXPClickableFunctionName()} prog as a filter.");
     }
 
-    private static void CellExitUnhide(ICharacter actor, StringStack input)
+    private static void RoomExitUnhide(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
@@ -2865,8 +2878,8 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
+        IEnumerable<IRoomExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
+        IRoomExit exit = GetRoomExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2883,7 +2896,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         actor.OutputHandler.Send($"The exit to {exit.OutboundDirectionDescription.ColourValue()} is no longer hidden.");
     }
 
-    private static void CellExitUnblock(ICharacter actor, StringStack input)
+    private static void RoomExitUnblock(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
@@ -2891,8 +2904,8 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
+        IEnumerable<IRoomExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
+        IRoomExit exit = GetRoomExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2912,13 +2925,13 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        (IExit newExit, long newId) = GetOrCopyCellExit(exit, actor.CurrentOverlayPackage);
+        (IExit newExit, long newId) = GetOrCopyRoomExit(exit, actor.CurrentOverlayPackage);
         newExit.RemoveBlockedLayer(layer);
         actor.OutputHandler.Send(
             $"You unblock layer {layer.DescribeEnum().ColourValue()} from that exit.{(newId != 0 ? $" New ID is {newId:N0}" : "")}");
     }
 
-    private static void CellExitBlock(ICharacter actor, StringStack input)
+    private static void RoomExitBlock(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
@@ -2926,8 +2939,8 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
+        IEnumerable<IRoomExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
+        IRoomExit exit = GetRoomExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2947,13 +2960,13 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        (IExit newExit, long newId) = GetOrCopyCellExit(exit, actor.CurrentOverlayPackage);
+        (IExit newExit, long newId) = GetOrCopyRoomExit(exit, actor.CurrentOverlayPackage);
         newExit.AddBlockedLayer(layer);
         actor.OutputHandler.Send(
             $"You block layer {layer.DescribeEnum().ColourValue()} from that exit.{(newId != 0 ? $" New ID is {newId:N0}" : "")}");
     }
 
-    private static void CellExitReset(ICharacter actor, StringStack input)
+    private static void RoomExitReset(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
@@ -2962,8 +2975,8 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
+        IEnumerable<IRoomExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
+        IRoomExit exit = GetRoomExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -2976,8 +2989,8 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        (IExit newExit, long newId) = GetOrCopyCellExit(exit, actor.CurrentOverlayPackage);
-        newExit.FallCell = null;
+        (IExit newExit, long newId) = GetOrCopyRoomExit(exit, actor.CurrentOverlayPackage);
+        newExit.FallRoom = null;
         newExit.ClimbDifficulty = Difficulty.Normal;
         newExit.IsClimbExit = false;
         newExit.Changed = true;
@@ -2985,10 +2998,10 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             $"That exit is no longer a fall exit or a climb exit.{(newId != 0 ? $" New ID is {newId:N0}" : "")}");
     }
 
-    private static (IExit Exit, long NewId) GetOrCopyCellExit(ICellExit exit, ICellOverlayPackage package)
+    private static (IExit Exit, long NewId) GetOrCopyRoomExit(IRoomExit exit, IRoomOverlayPackage package)
     {
-        IEditableCellOverlay overlay = exit.Origin.GetOrCreateOverlay(package);
-        IEditableCellOverlay otherOverlay = exit.Destination.GetOrCreateOverlay(package);
+        IEditableRoomOverlay overlay = exit.Origin.GetOrCreateOverlay(package);
+        IEditableRoomOverlay otherOverlay = exit.Destination.GetOrCreateOverlay(package);
         if (!exit.Origin.Overlays.Except(overlay).Any(x => x.ExitIDs.Contains(exit.Exit.Id)))
         {
             return (exit.Exit, 0);
@@ -3000,13 +3013,13 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             overlay.AddExit(newExit);
             otherOverlay.RemoveExit(exit.Exit);
             otherOverlay.AddExit(newExit);
-            package.Gameworld.ExitManager.UpdateCellOverlayExits(exit.Origin, overlay);
-            package.Gameworld.ExitManager.UpdateCellOverlayExits(exit.Destination, otherOverlay);
+            package.Gameworld.ExitManager.UpdateRoomOverlayExits(exit.Origin, overlay);
+            package.Gameworld.ExitManager.UpdateRoomOverlayExits(exit.Destination, otherOverlay);
             return (newExit, newExit.Id);
         }
     }
 
-    private static void CellExitFall(ICharacter actor, StringStack input)
+    private static void RoomExitFall(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
@@ -3015,8 +3028,8 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
+        IEnumerable<IRoomExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
+        IRoomExit exit = GetRoomExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -3031,22 +3044,22 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
 
         if (exit.IsFallExit || exit.IsFlyExit)
         {
-            (IExit newExit, long newId) = GetOrCopyCellExit(exit, actor.CurrentOverlayPackage);
-            newExit.FallCell = null;
+            (IExit newExit, long newId) = GetOrCopyRoomExit(exit, actor.CurrentOverlayPackage);
+            newExit.FallRoom = null;
             newExit.Changed = true;
             actor.OutputHandler.Send(
                 $"That exit is no longer a fall exit.{(newId != 0 ? $" New ID is {newId:N0}" : "")}");
             return;
         }
 
-        (IExit editedExit, long editedId) = GetOrCopyCellExit(exit, actor.CurrentOverlayPackage);
-        editedExit.FallCell = exit.OutboundDirection == CardinalDirection.Up ? exit.Origin : exit.Destination;
+        (IExit editedExit, long editedId) = GetOrCopyRoomExit(exit, actor.CurrentOverlayPackage);
+        editedExit.FallRoom = exit.OutboundDirection == CardinalDirection.Up ? exit.Origin : exit.Destination;
         editedExit.Changed = true;
         actor.OutputHandler.Send(
-            $"This exit is now a fall exit {(exit.OutboundDirection == CardinalDirection.Up ? "towards" : "away from")} this cell.{(editedId != 0 ? $" New ID {editedId:N0}" : "")}");
+            $"This exit is now a fall exit {(exit.OutboundDirection == CardinalDirection.Up ? "towards" : "away from")} this room.{(editedId != 0 ? $" New ID {editedId:N0}" : "")}");
     }
 
-    private static void CellExitClimb(ICharacter actor, StringStack input)
+    private static void RoomExitClimb(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
@@ -3055,8 +3068,8 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
+        IEnumerable<IRoomExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
+        IRoomExit exit = GetRoomExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -3067,7 +3080,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         {
             if (exit.IsClimbExit)
             {
-                (IExit newExit, long newId) = GetOrCopyCellExit(exit, actor.CurrentOverlayPackage);
+                (IExit newExit, long newId) = GetOrCopyRoomExit(exit, actor.CurrentOverlayPackage);
                 newExit.IsClimbExit = false;
                 newExit.ClimbDifficulty = Difficulty.Normal;
                 newExit.Changed = true;
@@ -3086,7 +3099,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        (IExit editedExit, long editedID) = GetOrCopyCellExit(exit, actor.CurrentOverlayPackage);
+        (IExit editedExit, long editedID) = GetOrCopyRoomExit(exit, actor.CurrentOverlayPackage);
         editedExit.IsClimbExit = true;
         editedExit.ClimbDifficulty = difficulty;
         editedExit.Changed = true;
@@ -3094,7 +3107,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             $"That exit is now a climb exit with a difficulty of {difficulty.Describe().Colour(Telnet.Green)}.{(editedID != 0 ? $" New ID is {editedID:N0}" : "")}");
     }
 
-    private static void CellExitSize(ICharacter actor, StringStack input, bool upright)
+    private static void RoomExitSize(ICharacter actor, StringStack input, bool upright)
     {
         if (input.IsFinished)
         {
@@ -3102,8 +3115,8 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEnumerable<ICellExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
-        ICellExit exit = GetCellExitForBuilderInput(currentOverlayExits, input, actor);
+        IEnumerable<IRoomExit> currentOverlayExits = actor.Location.ExitsFor(actor, true);
+        IRoomExit exit = GetRoomExitForBuilderInput(currentOverlayExits, input, actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit for you to edit.");
@@ -3127,7 +3140,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
 
         SizeCategory target = sizes.FirstOrDefault(x => x.Describe().Equals(text, StringComparison.InvariantCultureIgnoreCase));
 
-        (IExit newExit, long newId) = GetOrCopyCellExit(exit, actor.CurrentOverlayPackage);
+        (IExit newExit, long newId) = GetOrCopyRoomExit(exit, actor.CurrentOverlayPackage);
         actor.OutputHandler.Send(
             $"That exit will now only allow creatures up to size {target.Describe().Colour(Telnet.Green)} to fit through{(upright ? " while upright" : "")}{(newId != 0 ? $". New ID is {newId:N0}" : "")}.");
 
@@ -3151,17 +3164,17 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         newExit.Changed = true;
     }
 
-    private static void CellEditLink(ICharacter actor, StringStack input)
+    private static void RoomEditLink(ICharacter actor, StringStack input)
     {
         if (actor.CurrentOverlayPackage == null)
         {
-            actor.OutputHandler.Send("You must first open a Cell Overlay Package to use this command.");
+            actor.OutputHandler.Send("You must first open a Room Overlay Package to use this command.");
             return;
         }
 
         if (!actor.CurrentOverlayPackage.Status.In(RevisionStatus.UnderDesign, RevisionStatus.PendingRevision))
         {
-            actor.OutputHandler.Send("You current Cell Overlay Package is not Under Design or Pending Revision.");
+            actor.OutputHandler.Send("You current Room Overlay Package is not Under Design or Pending Revision.");
             return;
         }
 
@@ -3183,67 +3196,67 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        ICell cell = LookupCell(actor.Gameworld, input.SafeRemainingArgument);
-        if (cell == null)
+        IRoom room = LookupRoom(actor.Gameworld, input.SafeRemainingArgument);
+        if (room == null)
         {
             actor.OutputHandler.Send("There is no such room for you to link to.");
             return;
         }
 
-        if (cell == actor.Location)
+        if (room == actor.Location)
         {
             actor.OutputHandler.Send("You cannot link a room to itself.");
             return;
         }
 
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         if (
             actor.Gameworld.ExitManager.GetExitsFor(actor.Location, overlay)
                 .Any(x => x.OutboundDirection == direction))
         {
-            actor.OutputHandler.Send("This Cell Overlay already contains an exit in that direction.");
+            actor.OutputHandler.Send("This Room Overlay already contains an exit in that direction.");
             return;
         }
 
-        if (actor.Gameworld.ExitManager.GetExitsFor(actor.Location, overlay).Any(x => x.Destination == cell))
+        if (actor.Gameworld.ExitManager.GetExitsFor(actor.Location, overlay).Any(x => x.Destination == room))
         {
-            actor.OutputHandler.Send("This Cell Overlay already contains an exit to that location.");
+            actor.OutputHandler.Send("This Room Overlay already contains an exit to that location.");
             return;
         }
 
-        IEditableCellOverlay otherOverlay = cell.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        IEditableRoomOverlay otherOverlay = room.GetOrCreateOverlay(actor.CurrentOverlayPackage);
         CardinalDirection oppositeDirection = direction.Opposite();
         if (
-            actor.Gameworld.ExitManager.GetExitsFor(cell, otherOverlay)
+            actor.Gameworld.ExitManager.GetExitsFor(room, otherOverlay)
                 .Any(x => x.OutboundDirection == oppositeDirection))
         {
-            actor.OutputHandler.Send("The target cell already has an exit in the opposite direction.");
+            actor.OutputHandler.Send("The target room already has an exit in the opposite direction.");
             return;
         }
 
         Construction.Boundary.Exit newExit =
-            new(actor.Gameworld, actor.Location, cell, direction, oppositeDirection, 1.0);
+            new(actor.Gameworld, actor.Location, room, direction, oppositeDirection, 1.0);
         overlay.AddExit(newExit);
         otherOverlay.AddExit(newExit);
-        actor.Gameworld.ExitManager.UpdateCellOverlayExits(actor.Location, overlay);
-        actor.Gameworld.ExitManager.UpdateCellOverlayExits(cell, otherOverlay);
-        actor.OutputHandler.Send("You create a two-way exit to the " + direction.Describe() + " to cell \"" +
-                                cell.HowSeen(actor) + "\"");
+        actor.Gameworld.ExitManager.UpdateRoomOverlayExits(actor.Location, overlay);
+        actor.Gameworld.ExitManager.UpdateRoomOverlayExits(room, otherOverlay);
+        actor.OutputHandler.Send("You create a two-way exit to the " + direction.Describe() + " to room \"" +
+                                room.HowSeen(actor) + "\"");
     }
 
-    private static readonly Regex CellEditNLinkRegex =
+    private static readonly Regex RoomEditNLinkRegex =
         new("((?:\\d+)|(?:\\w+)) (\\S+) (\\w+) (\\w+) \"([^\"]+)\" \"([^\"]+)\"", RegexOptions.IgnoreCase);
 
-    private static readonly Regex CellEditNDigRegex =
+    private static readonly Regex RoomEditNDigRegex =
         new("(?<template>(?:\\d+)|(?:\\w+)) (?<outboundkey>\\w+) (?<inboundkey>\\w+) \"(?<outboundname>[^\"]+)\" \"(?<inboundname>[^\"]+)\"", RegexOptions.IgnoreCase);
 
-    private static void CellEditNlink(ICharacter actor, StringStack input)
+    private static void RoomEditNlink(ICharacter actor, StringStack input)
     {
-        Match match = CellEditNLinkRegex.Match(input.RemainingArgument);
+        Match match = RoomEditNLinkRegex.Match(input.RemainingArgument);
         if (!match.Success)
         {
             actor.OutputHandler.Send("You must supply an argument in this form: " +
-                                    "cell nlink <template> <cellid> <outbound keyword> <inbound keyword> \"<outbound description>\" \"<inbound description>\""
+                                    "room nlink <template> <cellid> <outbound keyword> <inbound keyword> \"<outbound description>\" \"<inbound description>\""
                                         .Colour(Telnet.Yellow));
             return;
         }
@@ -3258,51 +3271,51 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        ICell cell = LookupCell(actor.Gameworld, match.Groups[2].Value);
-        if (cell == null)
+        IRoom room = LookupRoom(actor.Gameworld, match.Groups[2].Value);
+        if (room == null)
         {
-            actor.OutputHandler.Send("There is no such Cell for you to link to.");
+            actor.OutputHandler.Send("There is no such Room for you to link to.");
             return;
         }
 
-        if (cell == actor.Location)
+        if (room == actor.Location)
         {
-            actor.OutputHandler.Send("You cannot link a cell to itself.");
+            actor.OutputHandler.Send("You cannot link a room to itself.");
             return;
         }
 
         if (actor.CurrentOverlayPackage == null)
         {
-            actor.OutputHandler.Send("You must first open a Cell Overlay Package to use this command.");
+            actor.OutputHandler.Send("You must first open a Room Overlay Package to use this command.");
             return;
         }
 
         if (!actor.CurrentOverlayPackage.Status.In(RevisionStatus.UnderDesign, RevisionStatus.PendingRevision))
         {
-            actor.OutputHandler.Send("You current Cell Overlay Package is not Under Design or Pending Revision.");
+            actor.OutputHandler.Send("You current Room Overlay Package is not Under Design or Pending Revision.");
             return;
         }
 
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
-        if (actor.Gameworld.ExitManager.GetExitsFor(actor.Location, overlay).Any(x => x.Destination == cell))
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        if (actor.Gameworld.ExitManager.GetExitsFor(actor.Location, overlay).Any(x => x.Destination == room))
         {
-            actor.OutputHandler.Send("This Cell Overlay already contains an exit to that location.");
+            actor.OutputHandler.Send("This Room Overlay already contains an exit to that location.");
             return;
         }
 
-        IEditableCellOverlay otherOverlay = cell.GetOrCreateOverlay(actor.CurrentOverlayPackage);
-        Construction.Boundary.Exit newExit = new(actor.Gameworld, actor.Location, cell, 1.0, template,
+        IEditableRoomOverlay otherOverlay = room.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        Construction.Boundary.Exit newExit = new(actor.Gameworld, actor.Location, room, 1.0, template,
             match.Groups[3].Value,
             match.Groups[4].Value, match.Groups[5].Value, match.Groups[6].Value);
         overlay.AddExit(newExit);
         otherOverlay.AddExit(newExit);
-        actor.Gameworld.ExitManager.UpdateCellOverlayExits(actor.Location, overlay);
-        actor.Gameworld.ExitManager.UpdateCellOverlayExits(cell, otherOverlay);
+        actor.Gameworld.ExitManager.UpdateRoomOverlayExits(actor.Location, overlay);
+        actor.Gameworld.ExitManager.UpdateRoomOverlayExits(room, otherOverlay);
         actor.OutputHandler.Send(
-            $"You create a two-way exit to cell \"{cell.HowSeen(actor)}\" from the template {template.Name.Proper().Colour(Telnet.Cyan)}");
+            $"You create a two-way exit to room \"{room.HowSeen(actor)}\" from the template {template.Name.Proper().Colour(Telnet.Cyan)}");
     }
 
-    private static void CellEditName(ICharacter actor, StringStack input)
+    private static void RoomEditName(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
@@ -3310,30 +3323,30 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             return;
         }
 
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
-        overlay.CellName = input.SafeRemainingArgument.TitleCase();
-        actor.OutputHandler.Send($"You set the room name to {overlay.CellName.ColourName()}");
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        overlay.RoomName = input.SafeRemainingArgument.TitleCase();
+        actor.OutputHandler.Send($"You set the room name to {overlay.RoomName.ColourName()}");
     }
 
-    private static void DoCellDescPost(string description, IOutputHandler handler, object[] arguments)
+    private static void DoRoomDescPost(string description, IOutputHandler handler, object[] arguments)
     {
         ICharacter actor = (ICharacter)arguments[0];
-        IEditableCellOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
-        overlay.CellDescription = description;
-        handler.Send("You set the Cell Description to:\n\n" +
-                    overlay.CellDescription.Wrap(actor.InnerLineFormatLength));
+        IEditableRoomOverlay overlay = actor.Location.GetOrCreateOverlay(actor.CurrentOverlayPackage);
+        overlay.RoomDescription = description;
+        handler.Send("You set the Room Description to:\n\n" +
+                    overlay.RoomDescription.Wrap(actor.InnerLineFormatLength));
     }
 
-    private static void DoCellDescCancel(IOutputHandler handler, object[] arguments)
+    private static void DoRoomDescCancel(IOutputHandler handler, object[] arguments)
     {
         handler.Send("You decide not to change the description.");
     }
 
-    private static void CellEditDescription(ICharacter actor, StringStack input)
+    private static void RoomEditDescription(ICharacter actor, StringStack input)
     {
         StringBuilder sb = new();
         sb.AppendLine("Replacing:\n\n");
-        sb.AppendLine(actor.Location.GetOverlayFor(actor).CellDescription.Wrap(actor.InnerLineFormatLength, "\t"));
+        sb.AppendLine(actor.Location.GetOverlayFor(actor).RoomDescription.Wrap(actor.InnerLineFormatLength, "\t"));
         sb.AppendLine();
         sb.AppendLine("Enter the description in the editor below.");
         sb.AppendLine();
@@ -3374,20 +3387,20 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         sb.AppendLine();
         sb.AppendLine($"Note: reverse any condition with a ! (e.g. !dawn, !snow, !*rain, !summer)".ColourError());
         actor.OutputHandler.Send(sb.ToString());
-        actor.EditorMode(DoCellDescPost, DoCellDescCancel, 1.0, null, EditorOptions.None, new object[] { actor });
+        actor.EditorMode(DoRoomDescPost, DoRoomDescCancel, 1.0, null, EditorOptions.None, new object[] { actor });
     }
 
     #endregion
 
     #region CellPackage
 
-    private static void CellPackage(ICharacter actor, StringStack input)
+    private static void RoomPackage(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
             if (actor.CurrentOverlayPackage == null)
             {
-                actor.OutputHandler.Send("You have not adopted a cell overlay package.");
+                actor.OutputHandler.Send("You have not adopted a room overlay package.");
                 return;
             }
 
@@ -3398,100 +3411,100 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         switch (input.PopSpeech().CollapseString().ToLowerInvariant())
         {
             case "show":
-                CellPackageShow(actor, input);
+                RoomPackageShow(actor, input);
                 break;
             case "swap":
-                CellPackageSwap(actor, input);
+                RoomPackageSwap(actor, input);
                 break;
             case "new":
             case "create":
-                CellPackageNew(actor, input);
+                RoomPackageNew(actor, input);
                 break;
             case "rename":
-                CellPackageRename(actor, input);
+                RoomPackageRename(actor, input);
                 break;
             case "open":
-                CellPackageOpen(actor, input);
+                RoomPackageOpen(actor, input);
                 break;
             case "close":
-                CellPackageClose(actor, input);
+                RoomPackageClose(actor, input);
                 break;
             case "revise":
-                CellPackageRevise(actor, input);
+                RoomPackageRevise(actor, input);
                 break;
             case "submit":
-                CellPackageSubmit(actor, input);
+                RoomPackageSubmit(actor, input);
                 break;
             case "review":
-                CellPackageReview(actor, input);
+                RoomPackageReview(actor, input);
                 break;
             case "delete":
-                CellPackageDelete(actor, input);
+                RoomPackageDelete(actor, input);
                 break;
             case "obsolete":
-                CellPackageObsolete(actor, input);
+                RoomPackageObsolete(actor, input);
                 break;
             case "list":
-                CellPackageList(actor, input);
+                RoomPackageList(actor, input);
                 break;
             default:
                 actor.OutputHandler.Send(@"These are the commands used to work with overlay packages:
 
-#3cell package list [all|by <who> | mine]#0 - lists all cell packages (optionally filtered)
-#3cell package new ""name of your package""#0 - creates a new package with the specified name
-#3cell package open <id>|""name of your package""#0 - opens an existing unapproved package for further editing
-#3cell package rename <name>#0 - renames your open cell package to something else
-#3cell package revise <id>|""name of your package""#0 - creates a new revision of an existing package
-#3cell package close#0 - closes the package you are currently editing
-#3cell package show <id>|""name""#0 - views an existing package
-#3cell package submit#0 - submits the package for review by an appropriate reviewer
-#3cell package review list#0 - shows all packages ready for review
-#3cell package review all#0 - reviews all submitted packages at once
-#3cell package review <id>#0 - reviews a specific package
-#3cell package history <id>#0 - shows the building/review history of a particular cell package"
+#3room package list [all|by <who> | mine]#0 - lists all room packages (optionally filtered)
+#3room package new ""name of your package""#0 - creates a new package with the specified name
+#3room package open <id>|""name of your package""#0 - opens an existing unapproved package for further editing
+#3room package rename <name>#0 - renames your open room package to something else
+#3room package revise <id>|""name of your package""#0 - creates a new revision of an existing package
+#3room package close#0 - closes the package you are currently editing
+#3room package show <id>|""name""#0 - views an existing package
+#3room package submit#0 - submits the package for review by an appropriate reviewer
+#3room package review list#0 - shows all packages ready for review
+#3room package review all#0 - reviews all submitted packages at once
+#3room package review <id>#0 - reviews a specific package
+#3room package history <id>#0 - shows the building/review history of a particular room package"
                     .SubstituteANSIColour());
                 return;
         }
     }
 
-    private static void CellPackageRename(ICharacter actor, StringStack input)
+    private static void RoomPackageRename(ICharacter actor, StringStack input)
     {
         if (actor.CurrentOverlayPackage == null)
         {
             actor.OutputHandler.Send(
-                "You do not have a Cell Overlay Package open. You must first open a cell package.");
+                "You do not have a Room Overlay Package open. You must first open a room package.");
             return;
         }
 
         if (input.IsFinished)
         {
-            actor.OutputHandler.Send("What new name do you want to give to your open cell package?");
+            actor.OutputHandler.Send("What new name do you want to give to your open room package?");
             return;
         }
 
         string name = input.SafeRemainingArgument.TitleCase();
-        if (actor.Gameworld.CellOverlayPackages.Any(x => x.Name.EqualTo(name)))
+        if (actor.Gameworld.RoomOverlayPackages.Any(x => x.Name.EqualTo(name)))
         {
             actor.OutputHandler.Send(
-                "There is already a cell overlay package with that name. Names must be unique.");
+                "There is already a room overlay package with that name. Names must be unique.");
             return;
         }
 
         string oldname = actor.CurrentOverlayPackage.Name;
-        List<ICellOverlayPackage> packages = actor.Gameworld.CellOverlayPackages
+        List<IRoomOverlayPackage> packages = actor.Gameworld.RoomOverlayPackages
                             .Where(x => x.Id == actor.CurrentOverlayPackage.Id)
                             .ToList();
-        foreach (ICellOverlayPackage package in packages)
+        foreach (IRoomOverlayPackage package in packages)
         {
             package.SetName(name);
         }
 
-        actor.OutputHandler.Send($"You rename the cell overlay package {oldname.ColourName()} to {name.ColourName()}.");
+        actor.OutputHandler.Send($"You rename the room overlay package {oldname.ColourName()} to {name.ColourName()}.");
     }
 
-    private static void CellPackageList(ICharacter actor, StringStack input)
+    private static void RoomPackageList(ICharacter actor, StringStack input)
     {
-        IEnumerable<ICellOverlayPackage> packages = actor.Gameworld.CellOverlayPackages.GetAllApprovedOrMostRecent(false).AsEnumerable();
+        IEnumerable<IRoomOverlayPackage> packages = actor.Gameworld.RoomOverlayPackages.GetAllApprovedOrMostRecent(false).AsEnumerable();
 
         while (!input.IsFinished)
         {
@@ -3499,13 +3512,13 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
             switch (cmd)
             {
                 case "all":
-                    packages = actor.Gameworld.CellOverlayPackages.AsEnumerable();
+                    packages = actor.Gameworld.RoomOverlayPackages.AsEnumerable();
                     break;
                 case "by":
                     cmd = input.PopSpeech().ToLowerInvariant();
                     if (cmd.Length == 0)
                     {
-                        actor.OutputHandler.Send("List Cell Overlay Packages for Review by whom?");
+                        actor.OutputHandler.Send("List Room Overlay Packages for Review by whom?");
                         return;
                     }
 
@@ -3526,7 +3539,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
                     break;
                 default:
                     actor.OutputHandler.Send(
-                        "That is not a valid option for Listing Cell Overlay Packages for Review.");
+                        "That is not a valid option for Listing Room Overlay Packages for Review.");
                     return;
             }
         }
@@ -3546,12 +3559,12 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
                             package.Id.ToString(),
                             package.RevisionNumber.ToString(),
                             package.Name.Proper(),
-                            actor.Gameworld.Cells.Count(x => x.Overlays.Any(y => y.Package == package)).ToString(),
+                            actor.Gameworld.Rooms.Count(x => x.Overlays.Any(y => y.Package == package)).ToString(),
                             FMDB.Context.Accounts.Find(package.BuilderAccountID).Name,
                             package.BuilderComment,
                             package.Status.Describe()
                         },
-                    new[] { "ID#", "Rev#", "Name", "#Cells", "Builder", "Comment", "Status" },
+                    new[] { "ID#", "Rev#", "Name", "#Rooms", "Builder", "Comment", "Status" },
                     actor.Account.LineFormatLength,
                     colour: Telnet.Green,
                     truncatableColumnIndex: 5,
@@ -3561,18 +3574,18 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         }
     }
 
-    private static void CellPackageOpen(ICharacter actor, StringStack input)
+    private static void RoomPackageOpen(ICharacter actor, StringStack input)
     {
         if (actor.CurrentOverlayPackage != null)
         {
-            actor.OutputHandler.Send("You must first close your current Cell Overlay Package.");
+            actor.OutputHandler.Send("You must first close your current Room Overlay Package.");
             return;
         }
 
-        ICellOverlayPackage package = actor.Gameworld.CellOverlayPackages.BestRevisableMatch(actor, input);
+        IRoomOverlayPackage package = actor.Gameworld.RoomOverlayPackages.BestRevisableMatch(actor, input);
         if (package == null)
         {
-            actor.OutputHandler.Send("There is no such Cell Overlay Package to open.");
+            actor.OutputHandler.Send("There is no such Room Overlay Package to open.");
             return;
         }
 
@@ -3580,11 +3593,11 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         actor.Send("You open {0}.", package.EditHeader().Colour(Telnet.Green));
     }
 
-    private static void CellPackageClose(ICharacter actor, StringStack input)
+    private static void RoomPackageClose(ICharacter actor, StringStack input)
     {
         if (actor.CurrentOverlayPackage == null)
         {
-            actor.OutputHandler.Send("You do not have a Cell Overlay Package to close.");
+            actor.OutputHandler.Send("You do not have a Room Overlay Package to close.");
             return;
         }
 
@@ -3592,89 +3605,89 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         actor.CurrentOverlayPackage = null;
     }
 
-    private static void CellPackageSwap(ICharacter actor, StringStack input)
+    private static void RoomPackageSwap(ICharacter actor, StringStack input)
     {
-        ICellOverlayPackage package = long.TryParse(input.PopSpeech(), out long value)
-            ? actor.Gameworld.CellOverlayPackages.Get(value)
-            : actor.Gameworld.CellOverlayPackages.GetByName(input.Last, true);
+        IRoomOverlayPackage package = long.TryParse(input.PopSpeech(), out long value)
+            ? actor.Gameworld.RoomOverlayPackages.Get(value)
+            : actor.Gameworld.RoomOverlayPackages.GetByName(input.Last, true);
 
         if (package == null)
         {
-            actor.OutputHandler.Send("There is no such Cell Overlay Package to swap in.");
+            actor.OutputHandler.Send("There is no such Room Overlay Package to swap in.");
             return;
         }
 
         if (package.Status != RevisionStatus.Current)
         {
-            actor.OutputHandler.Send("You can only swap in approved Cell Overlay Packages.");
+            actor.OutputHandler.Send("You can only swap in approved Room Overlay Packages.");
             return;
         }
 
-        List<ICell> cells = actor.Gameworld.Cells.Where(x => x.Overlays.Any(y => y.Package == package)).ToList();
-        foreach (ICell cell in cells)
+        List<IRoom> rooms = actor.Gameworld.Rooms.Where(x => x.Overlays.Any(y => y.Package == package)).ToList();
+        foreach (IRoom room in rooms)
         {
-            cell.SetCurrentOverlay(package);
-            actor.Gameworld.ExitManager.UpdateCellOverlayExits(cell, cell.CurrentOverlay);
+            room.SetCurrentOverlay(package);
+            actor.Gameworld.ExitManager.UpdateRoomOverlayExits(room, room.CurrentOverlay);
         }
 
         actor.OutputHandler.Send(
-            $"Swapped Cell Overlay Package \"{package.Name.TitleCase()}\" into {cells.Count.ToString().Colour(Telnet.Green)} cells.");
+            $"Swapped Room Overlay Package \"{package.Name.TitleCase()}\" into {rooms.Count.ToString().Colour(Telnet.Green)} rooms.");
     }
 
-    private static void CellPackageShow(ICharacter actor, StringStack input)
+    private static void RoomPackageShow(ICharacter actor, StringStack input)
     {
-        ICellOverlayPackage package = null;
+        IRoomOverlayPackage package = null;
         package = input.IsFinished
             ? actor.CurrentOverlayPackage
-            : actor.Gameworld.CellOverlayPackages.BestRevisableMatch(actor, input);
+            : actor.Gameworld.RoomOverlayPackages.BestRevisableMatch(actor, input);
 
         if (package == null)
         {
-            actor.OutputHandler.Send("There is no such Cell Overlay Package to show you.");
+            actor.OutputHandler.Send("There is no such Room Overlay Package to show you.");
             return;
         }
 
         actor.OutputHandler.Send(package.Show(actor));
     }
 
-    private static void CellPackageNew(ICharacter actor, StringStack input)
+    private static void RoomPackageNew(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
-            actor.OutputHandler.Send("What name do you want to give to your new Cell Overlay Package?");
+            actor.OutputHandler.Send("What name do you want to give to your new Room Overlay Package?");
             return;
         }
 
         string name = input.SafeRemainingArgument.TitleCase();
         string lowerName = name.ToLowerInvariant();
-        if (actor.Gameworld.CellOverlayPackages.Any(x => x.Name.ToLowerInvariant() == lowerName))
+        if (actor.Gameworld.RoomOverlayPackages.Any(x => x.Name.ToLowerInvariant() == lowerName))
         {
             actor.OutputHandler.Send(
-                "There is already a Cell Overlay Package with that name. The name must be unique.");
+                "There is already a Room Overlay Package with that name. The name must be unique.");
             return;
         }
 
-        ICellOverlayPackage package = new Construction.CellOverlayPackage(actor.Gameworld, actor.Account, name);
+        IRoomOverlayPackage package = new Construction.RoomOverlayPackage(actor.Gameworld, actor.Account, name);
         actor.Gameworld.Add(package);
         actor.CurrentOverlayPackage = package;
         actor.OutputHandler.Send(
-            $"You create Cell Overlay Package #{package.Id.ToString("N0", actor)}, called {package.Name.ColourName()}, which is now your open overlay package.");
+            $"You create Room Overlay Package #{package.Id.ToString("N0", actor)}, called {package.Name.ColourName()}, which is now your open overlay package.");
     }
 
-    private static void CellPackageRevise(ICharacter actor, StringStack input)
+    private static void RoomPackageRevise(ICharacter actor, StringStack input)
     {
         if (input.IsFinished)
         {
-            actor.OutputHandler.Send("You must specify a Cell Overlay Package to revise.");
+            actor.OutputHandler.Send("You must specify a Room Overlay Package to revise.");
             return;
         }
 
         string cmd = input.PopSpeech().ToLowerInvariant();
 
-        ICellOverlayPackage package = null;
+        IRoomOverlayPackage package = null;
         package = long.TryParse(cmd, out long value)
-            ? actor.Gameworld.CellOverlayPackages.Get(value)
-            : actor.Gameworld.CellOverlayPackages.GetByName(cmd);
+            ? actor.Gameworld.RoomOverlayPackages.Get(value)
+            : actor.Gameworld.RoomOverlayPackages.GetByName(cmd);
 
         if (package == null)
         {
@@ -3685,82 +3698,82 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         if (package.Status != RevisionStatus.Current && package.Status != RevisionStatus.Rejected)
         {
             actor.OutputHandler.Send(
-                "You may only revise cell overlay packages that have a status of Current or Rejected.");
+                "You may only revise room overlay packages that have a status of Current or Rejected.");
             return;
         }
 
-        if (actor.Gameworld.CellOverlayPackages.Where(x => x.Id == package.Id).Any(x =>
+        if (actor.Gameworld.RoomOverlayPackages.Where(x => x.Id == package.Id).Any(x =>
                 x.RevisionNumber > package.RevisionNumber &&
                 x.Status.In(RevisionStatus.UnderDesign, RevisionStatus.PendingRevision)))
         {
             actor.OutputHandler.Send(
-                "There is already another cell overlay package under design or pending review for that ID. You should either OPEN that under design one for editing or REVIEW it to make it the current package, or DELETE it if it's no longer required.");
+                "There is already another room overlay package under design or pending review for that ID. You should either OPEN that under design one for editing or REVIEW it to make it the current package, or DELETE it if it's no longer required.");
             return;
         }
 
-        ICellOverlayPackage newPackage = (ICellOverlayPackage)package.CreateNewRevision(actor);
+        IRoomOverlayPackage newPackage = (IRoomOverlayPackage)package.CreateNewRevision(actor);
         actor.CurrentOverlayPackage = newPackage;
         actor.Send(
-            "You create a new revision ({2}) of Cell Overlay Package #{0} \"{1}\", which is now your open overlay package.",
+            "You create a new revision ({2}) of Room Overlay Package #{0} \"{1}\", which is now your open overlay package.",
             newPackage.Id.ToString("N0", actor),
             newPackage.Name.ColourName(), newPackage.RevisionNumber.ToString("N0", actor).ColourValue());
     }
 
-    private static void CellPackageSubmit(ICharacter actor, StringStack input)
+    private static void RoomPackageSubmit(ICharacter actor, StringStack input)
     {
         if (actor.CurrentOverlayPackage == null)
         {
-            actor.OutputHandler.Send("You do not have a Cell Overlay Package to submit for review.");
+            actor.OutputHandler.Send("You do not have a Room Overlay Package to submit for review.");
             return;
         }
 
         if (actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
         {
-            actor.OutputHandler.Send("Your Cell Overlay Package is not in the " +
+            actor.OutputHandler.Send("Your Room Overlay Package is not in the " +
                                     "Under Design".Colour(Telnet.Yellow) + " status.");
             return;
         }
 
         actor.CurrentOverlayPackage.ChangeStatus(RevisionStatus.PendingRevision, input.SafeRemainingArgument,
             actor.Account);
-        actor.OutputHandler.Send("You submit the Cell Overlay Package \"" + actor.CurrentOverlayPackage.Name +
+        actor.OutputHandler.Send("You submit the Room Overlay Package \"" + actor.CurrentOverlayPackage.Name +
                                 "\" for review.");
         actor.CurrentOverlayPackage = null;
     }
 
-    private static void CellPackageReview(ICharacter actor, StringStack input)
+    private static void RoomPackageReview(ICharacter actor, StringStack input)
     {
         string cmd = input.PopSpeech().ToLowerInvariant();
         if (cmd.Length == 0)
         {
-            CellPackageReviewList(actor, input);
+            RoomPackageReviewList(actor, input);
             return;
         }
 
         switch (cmd)
         {
             case "list":
-                CellPackageReviewList(actor, input);
+                RoomPackageReviewList(actor, input);
                 break;
             case "all":
-                CellPackageReviewAll(actor, input);
+                RoomPackageReviewAll(actor, input);
                 break;
             case "history":
-                CellPackageReviewHistory(actor, input);
+                RoomPackageReviewHistory(actor, input);
                 break;
             default:
-                CellPackageReviewDefault(actor, input);
+                RoomPackageReviewDefault(actor, input);
                 break;
         }
     }
 
-    private static void CellPackageReviewHistory(ICharacter actor, StringStack input)
+    private static void RoomPackageReviewHistory(ICharacter actor, StringStack input)
     {
-        List<ICellOverlayPackage> protos = actor.Gameworld.CellOverlayPackages.GetAllByIdOrName(input.SafeRemainingArgument);
+        List<IRoomOverlayPackage> protos = actor.Gameworld.RoomOverlayPackages.GetAllByIdOrName(input.SafeRemainingArgument);
         if (!protos.Any())
         {
             actor.OutputHandler.Send(
-                $"There is no cell overlay package that is identified by {input.SafeRemainingArgument.ColourCommand()}.");
+                $"There is no room overlay package that is identified by {input.SafeRemainingArgument.ColourCommand()}.");
             return;
         }
 
@@ -3796,9 +3809,9 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         }
     }
 
-    private static void CellPackageReviewList(ICharacter actor, StringStack input)
+    private static void RoomPackageReviewList(ICharacter actor, StringStack input)
     {
-        IEnumerable<ICellOverlayPackage> packages = actor.Gameworld.CellOverlayPackages.Where(x => x.Status == RevisionStatus.PendingRevision);
+        IEnumerable<IRoomOverlayPackage> packages = actor.Gameworld.RoomOverlayPackages.Where(x => x.Status == RevisionStatus.PendingRevision);
 
         while (!input.IsFinished)
         {
@@ -3809,7 +3822,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
                     cmd = input.PopSpeech().ToLowerInvariant();
                     if (cmd.Length == 0)
                     {
-                        actor.OutputHandler.Send("List Cell Overlay Packages for Review by whom?");
+                        actor.OutputHandler.Send("List Room Overlay Packages for Review by whom?");
                         return;
                     }
 
@@ -3830,7 +3843,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
                     break;
                 default:
                     actor.OutputHandler.Send(
-                        "That is not a valid option for Listing Cell Overlay Packages for Review.");
+                        "That is not a valid option for Listing Room Overlay Packages for Review.");
                     return;
             }
         }
@@ -3847,10 +3860,10 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
                         new[]
                         {
                             package.Id.ToString(), package.RevisionNumber.ToString(), package.Name.Proper(),
-                            actor.Gameworld.Cells.Count(x => x.Overlays.Any(y => y.Package == package)).ToString(),
+                            actor.Gameworld.Rooms.Count(x => x.Overlays.Any(y => y.Package == package)).ToString(),
                             FMDB.Context.Accounts.Find(package.BuilderAccountID).Name, package.BuilderComment
                         },
-                    new[] { "ID#", "Rev#", "Name", "#Cells", "Builder", "Comment" }, actor.Account.LineFormatLength,
+                    new[] { "ID#", "Rev#", "Name", "#Rooms", "Builder", "Comment" }, actor.Account.LineFormatLength,
                     colour: Telnet.Green,
                     unicodeTable: actor.Account.UseUnicode,
                     truncatableColumnIndex: 5
@@ -3859,9 +3872,9 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         }
     }
 
-    private static void CellPackageReviewAll(ICharacter actor, StringStack input)
+    private static void RoomPackageReviewAll(ICharacter actor, StringStack input)
     {
-        IEnumerable<ICellOverlayPackage> packages = actor.Gameworld.CellOverlayPackages.Where(x => x.Status == RevisionStatus.PendingRevision);
+        IEnumerable<IRoomOverlayPackage> packages = actor.Gameworld.RoomOverlayPackages.Where(x => x.Status == RevisionStatus.PendingRevision);
 
         while (!input.IsFinished)
         {
@@ -3872,7 +3885,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
                     cmd = input.PopSpeech().ToLowerInvariant();
                     if (cmd.Length == 0)
                     {
-                        actor.OutputHandler.Send("List Cell Overlay Packages for Review by whom?");
+                        actor.OutputHandler.Send("List Room Overlay Packages for Review by whom?");
                         return;
                     }
 
@@ -3893,43 +3906,43 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
                     break;
                 default:
                     actor.OutputHandler.Send(
-                        "That is not a valid option for Listing Cell Overlay Packages for Review.");
+                        "That is not a valid option for Listing Room Overlay Packages for Review.");
                     return;
             }
         }
 
         if (!packages.Any())
         {
-            actor.OutputHandler.Send("There are no Cell Overlay Packages to review.");
+            actor.OutputHandler.Send("There are no Room Overlay Packages to review.");
             return;
         }
 
         actor.OutputHandler.Send(
-            ("You are reviewing " + packages.Count() + " Cell Overlay Package" + (packages.Count() == 1 ? "" : "s"))
-            .Colour(Telnet.Red) + "\n\nTo approve these Cell Overlay Package" +
+            ("You are reviewing " + packages.Count() + " Room Overlay Package" + (packages.Count() == 1 ? "" : "s"))
+            .Colour(Telnet.Red) + "\n\nTo approve these Room Overlay Package" +
             (packages.Count() == 1 ? "" : "s") + ",	 type " + "accept edit <your comments>".Colour(Telnet.Yellow) +
             " or " + "decline edit <your comments>".Colour(Telnet.Yellow) +
             " to reject.\nIf you do not wish to approve or decline, your request will time out in 120 seconds.");
         actor.AddEffect(
-            new Accept(actor, new EditableItemReviewProposal<ICellOverlayPackage>(actor, packages.ToList())),
+            new Accept(actor, new EditableItemReviewProposal<IRoomOverlayPackage>(actor, packages.ToList())),
             TimeSpan.FromSeconds(120));
     }
 
-    private static void CellPackageReviewDefault(ICharacter actor, StringStack input)
+    private static void RoomPackageReviewDefault(ICharacter actor, StringStack input)
     {
         if (!long.TryParse(input.Last, out long value))
         {
-            actor.OutputHandler.Send("Which Cell Overlay Package do you wish to review?");
+            actor.OutputHandler.Send("Which Room Overlay Package do you wish to review?");
             return;
         }
 
-        ICellOverlayPackage package = null;
+        IRoomOverlayPackage package = null;
 
         string cmd = input.PopSpeech();
         if (cmd.Length == 0)
         {
             package =
-                actor.Gameworld.CellOverlayPackages.FirstOrDefault(
+                actor.Gameworld.RoomOverlayPackages.FirstOrDefault(
                     x => x.Id == value && x.Status == RevisionStatus.PendingRevision);
         }
         else
@@ -3940,7 +3953,7 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
                 return;
             }
 
-            package = actor.Gameworld.CellOverlayPackages.Get(value, revnum);
+            package = actor.Gameworld.RoomOverlayPackages.Get(value, revnum);
             if (package != null && package.Status != RevisionStatus.PendingRevision)
             {
                 package = null;
@@ -3949,32 +3962,32 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
 
         if (package == null)
         {
-            actor.OutputHandler.Send("There is no such Cell Overlay Package for you to review.");
+            actor.OutputHandler.Send("There is no such Room Overlay Package for you to review.");
             return;
         }
 
         actor.OutputHandler.Send(("You are reviewing " + package.EditHeader()).Colour(Telnet.Red) + "\n\n" +
-                                package.Show(actor) + "\n\nTo approve this Cell Overlay Package, type " +
+                                package.Show(actor) + "\n\nTo approve this Room Overlay Package, type " +
                                 "accept edit <your comments>".Colour(Telnet.Yellow) + " or " +
                                 "decline edit <your comments>".Colour(Telnet.Yellow) +
                                 " to reject.\nIf you do not wish to approve or decline, your request will time out in 120 seconds.");
         actor.AddEffect(
             new Accept(actor,
-                new EditableItemReviewProposal<ICellOverlayPackage>(actor, new List<ICellOverlayPackage> { package })),
+                new EditableItemReviewProposal<IRoomOverlayPackage>(actor, new List<IRoomOverlayPackage> { package })),
             TimeSpan.FromSeconds(120));
     }
 
-    private static void CellPackageDelete(ICharacter actor, StringStack input)
+    private static void RoomPackageDelete(ICharacter actor, StringStack input)
     {
         if (actor.CurrentOverlayPackage == null)
         {
-            actor.OutputHandler.Send("You are not currently editing any Cell Overlay Packages.");
+            actor.OutputHandler.Send("You are not currently editing any Room Overlay Packages.");
             return;
         }
 
         if (actor.CurrentOverlayPackage.Status != RevisionStatus.UnderDesign)
         {
-            actor.OutputHandler.Send("That Cell Overlay Package is not currently under design.");
+            actor.OutputHandler.Send("That Room Overlay Package is not currently under design.");
             return;
         }
 
@@ -3982,25 +3995,25 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         {
             actor.Gameworld.SaveManager.Flush();
             // We must first delete all of the CellOverlays linked to this CellOverlayPackage, because the Overlays have a foreign key constraint of the Package ID.
-            List<Models.CellOverlay> dboverlayproto = FMDB.Context.CellOverlays
-                                    .Where(x => x.CellOverlayPackageId == actor.CurrentOverlayPackage.Id)
-                                    .Where(x => x.CellOverlayPackageRevisionNumber ==
+            List<Models.RoomOverlay> dboverlayproto = FMDB.Context.RoomOverlays
+                                    .Where(x => x.RoomOverlayPackageId == actor.CurrentOverlayPackage.Id)
+                                    .Where(x => x.RoomOverlayPackageRevisionNumber ==
                                                 actor.CurrentOverlayPackage.RevisionNumber)
                                     .ToList();
 
-            foreach (Models.CellOverlay overlay in dboverlayproto)
+            foreach (Models.RoomOverlay overlay in dboverlayproto)
             {
-                ICell cell = actor.Gameworld.Cells.Get(overlay.CellId);
-                FMDB.Context.CellOverlays.Remove(overlay);
-                FMDB.Context.CellOverlaysExits.RemoveRange(overlay.CellOverlaysExits.AsEnumerable());
-                cell.RemoveOverlay(overlay.Id);
+                IRoom room = actor.Gameworld.Rooms.Get(overlay.RoomId);
+                FMDB.Context.RoomOverlays.Remove(overlay);
+                FMDB.Context.RoomOverlaysExits.RemoveRange(overlay.RoomOverlaysExits.AsEnumerable());
+                room.RemoveOverlay(overlay.Id);
             }
 
-            Models.CellOverlayPackage dbpackageproto = FMDB.Context.CellOverlayPackages
+            Models.RoomOverlayPackage dbpackageproto = FMDB.Context.RoomOverlayPackages
                                     .Find(actor.CurrentOverlayPackage.Id, actor.CurrentOverlayPackage.RevisionNumber);
             if (dbpackageproto != null)
             {
-                FMDB.Context.CellOverlayPackages.Remove(dbpackageproto);
+                FMDB.Context.RoomOverlayPackages.Remove(dbpackageproto);
                 FMDB.Context.SaveChanges();
             }
         }
@@ -4010,17 +4023,17 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         actor.CurrentOverlayPackage = null;
     }
 
-    private static void CellPackageObsolete(ICharacter actor, StringStack input)
+    private static void RoomPackageObsolete(ICharacter actor, StringStack input)
     {
         if (actor.CurrentOverlayPackage == null)
         {
-            actor.OutputHandler.Send("You are not currently editing any Cell Overlay Packages.");
+            actor.OutputHandler.Send("You are not currently editing any Room Overlay Packages.");
             return;
         }
 
         if (actor.CurrentOverlayPackage.Status != RevisionStatus.Current)
         {
-            actor.OutputHandler.Send("You are not editing the most current revision of this Cell Overlay Package.");
+            actor.OutputHandler.Send("You are not editing the most current revision of this Room Overlay Package.");
             return;
         }
 
@@ -4336,9 +4349,9 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
                                             area.WeatherController?.RegionalClimate.Name.Colour(Telnet.Cyan) ?? "Default",
                                             area.Zones.Select(x => x.Name)
                                                 .ListToString(conjunction: "", twoItemJoiner: ", "),
-                                            area.Cells.Count().ToString("N0", actor)
+                                            area.Rooms.Count().ToString("N0", actor)
                                         },
-                new[] { "Id", "Name", "Weather", "Zones", "Cells" },
+                new[] { "Id", "Name", "Weather", "Zones", "Rooms" },
                 actor.LineFormatLength,
                 colour: Telnet.Green,
                 unicodeTable: actor.Account.UseUnicode)
@@ -4489,24 +4502,15 @@ The syntax for working with areas is as follows:
             return;
         }
 
-        if (!area.Rooms.Contains(actor.Location.Room))
+        if (!area.Rooms.Contains(actor.Location))
         {
             actor.OutputHandler.Send("You currently location is not currently considered a part of that area.");
             return;
         }
 
         IEditableArea editArea = (IEditableArea)area;
-        editArea.Remove(actor.Location.Room);
-        if (actor.Location.Room.Cells.Count() > 1)
-        {
-            actor.OutputHandler.Send(
-                $"You remove your current location and associated locations in the same room from the {area.Name.Colour(Telnet.Cyan)} area.");
-        }
-        else
-        {
-            actor.OutputHandler.Send(
-                $"You remove your current location from the {area.Name.Colour(Telnet.Cyan)} area.");
-        }
+        editArea.Remove(actor.Location);
+        actor.OutputHandler.Send($"You remove your current location from the {area.Name.Colour(Telnet.Cyan)} area.");
     }
 
     private static void AreaAdd(ICharacter actor, StringStack ss)
@@ -4518,23 +4522,15 @@ The syntax for working with areas is as follows:
             return;
         }
 
-        if (area.Rooms.Contains(actor.Location.Room))
+        if (area.Rooms.Contains(actor.Location))
         {
             actor.OutputHandler.Send("You currently location is already considered a part of that area.");
             return;
         }
 
         IEditableArea editArea = (IEditableArea)area;
-        editArea.Add(actor.Location.Room);
-        if (actor.Location.Room.Cells.Count() > 1)
-        {
-            actor.OutputHandler.Send(
-                $"You add your current location and associated locations in the same room to the {area.Name.Colour(Telnet.Cyan)} area.");
-        }
-        else
-        {
-            actor.OutputHandler.Send($"You add your current location to the {area.Name.Colour(Telnet.Cyan)} area.");
-        }
+        editArea.Add(actor.Location);
+        actor.OutputHandler.Send($"You add your current location to the {area.Name.Colour(Telnet.Cyan)} area.");
     }
 
     private static void AreaView(ICharacter actor, StringStack ss)
@@ -4566,10 +4562,10 @@ The syntax for working with areas is as follows:
         sb.AppendLine(
             $"Weather Controller: {(area.WeatherController == null ? "Default".Colour(Telnet.Magenta) : $"{area.WeatherController.Name} (#{area.WeatherController.Id})")}");
         sb.AppendLine();
-        sb.AppendLine("Cells in Area:");
-        foreach (ICell cell in area.Cells)
+        sb.AppendLine("Rooms in Area:");
+        foreach (IRoom room in area.Rooms)
         {
-            sb.AppendLine($"\t{cell.GetFriendlyReference(actor)}");
+            sb.AppendLine($"\t{room.GetFriendlyReference(actor)}");
         }
 
         actor.OutputHandler.Send(sb.ToString());
@@ -4590,7 +4586,7 @@ The syntax for working with areas is as follows:
             return;
         }
 
-        Area area = new(actor.Location.Room, name);
+        Area area = new(actor.Location, name);
         actor.OutputHandler.Send(
             $"You create the new area {area.Name.Colour(Telnet.Cyan)}, with ID #{area.Id.ToString("N0", actor)}. You are now editing this area.");
         actor.RemoveAllEffects(x => x.IsEffectType<BuilderEditingEffect<IArea>>());

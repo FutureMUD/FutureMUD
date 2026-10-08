@@ -12,7 +12,7 @@ namespace MudSharp.Work.Agriculture;
 
 public interface IAgricultureField : IFrameworkItem, ISaveable, IHaveFuturemud, IProgVariable
 {
-	ICell Cell { get; }
+	IRoom Room { get; }
 	IAgricultureFieldProfile Profile { get; set; }
 	AgricultureFieldUse CurrentUse { get; }
 	IAgricultureCropDefinition CurrentCrop { get; }

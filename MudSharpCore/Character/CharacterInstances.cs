@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Accounts;
 using MudSharp.Body;
 using MudSharp.Body.Needs;
@@ -55,7 +55,7 @@ public partial class Character
 	public virtual bool IsControllable => _isControllable;
 	public virtual bool IsEmbodied => _isEmbodied;
 
-	// Secondary instances are intentionally identity-local and cell-local; do not add them to global actor caches.
+	// Secondary instances are intentionally identity-local and room-local; do not add them to global actor caches.
 	public virtual IEnumerable<ICharacterInstance> Instances =>
 		Enumerable.Repeat<ICharacterInstance>(this, 1).Concat(_secondaryInstances);
 	public virtual ICharacterInstance PrimaryInstance => this;
@@ -103,7 +103,7 @@ public partial class Character
 			_controlPolicy == CharacterInstanceControlPolicy.PlayerFocusable;
 		PermissionLevel = canUsePlayerCommandTree ? identity.PermissionLevel : PermissionLevel.NPC;
 		CommandTree = Gameworld.RetrieveAppropriateCommandTree(this);
-		Location = instance.LocationId.HasValue ? Gameworld.Cells.Get(instance.LocationId.Value) : identity.Location;
+		Location = instance.LocationId.HasValue ? Gameworld.Rooms.Get(instance.LocationId.Value) : identity.Location;
 		var persistedLocation = CharacterInstanceService.ResolvePersistedSpatialLocation(instance, Location);
 		_roomLayer = persistedLocation.Layer;
 		LoadRoutePosition(
@@ -253,7 +253,7 @@ public partial class Character
 
 		if (primary.LocationId.HasValue)
 		{
-			Location = Gameworld.Cells.Get(primary.LocationId.Value) ?? Location;
+			Location = Gameworld.Rooms.Get(primary.LocationId.Value) ?? Location;
 		}
 
 		_roomLayer = (RoomLayer)primary.RoomLayer;
@@ -506,7 +506,7 @@ public partial class Character
 		primary.PositionId = (int)(PositionState?.Id ?? PositionStanding.Instance.Id);
 		primary.PositionModifier = (int)PositionModifier;
 		primary.PositionTargetId = PositionTarget?.Id;
-		primary.PositionTargetType = PositionTarget?.FrameworkItemType;
+		primary.PositionTargetType = PositionTarget?.GetPersistedReferenceType();
 		primary.PositionEmote = PositionEmote?.SaveToXml().ToString() ?? string.Empty;
 		primary.State = (int)(stateOverride ?? State);
 		primary.Status = (int)_status;
@@ -542,8 +542,8 @@ public partial class Character
 		}
 	}
 
-	private long? DatabaseLocationId => Location is Construction.Cell cell
-		? cell.DatabaseLocationId
+	private long? DatabaseLocationId => Location is Construction.Room room
+		? room.DatabaseLocationId
 		: Location?.Id;
 
 	private void SaveCompatibilityWorldPresence(MudSharp.Models.Character dbchar, CharacterState? stateOverride = null)
@@ -558,7 +558,7 @@ public partial class Character
 		dbchar.PositionId = (int)(PositionState?.Id ?? PositionStanding.Instance.Id);
 		dbchar.PositionModifier = (int)PositionModifier;
 		dbchar.PositionTargetId = PositionTarget?.Id;
-		dbchar.PositionTargetType = PositionTarget?.FrameworkItemType;
+		dbchar.PositionTargetType = PositionTarget?.GetPersistedReferenceType();
 		dbchar.PositionEmote = PositionEmote?.SaveToXml().ToString() ?? string.Empty;
 	}
 
@@ -583,7 +583,7 @@ public partial class Character
 		instance.PositionId = (int)(PositionState?.Id ?? PositionStanding.Instance.Id);
 		instance.PositionModifier = (int)PositionModifier;
 		instance.PositionTargetId = PositionTarget?.Id;
-		instance.PositionTargetType = PositionTarget?.FrameworkItemType;
+		instance.PositionTargetType = PositionTarget?.GetPersistedReferenceType();
 		instance.PositionEmote = PositionEmote?.SaveToXml().ToString() ?? string.Empty;
 		instance.State = (int)State;
 		instance.Status = (int)_status;
@@ -617,7 +617,7 @@ public partial class Character
 			PositionId = (int)(PositionState?.Id ?? PositionStanding.Instance.Id),
 			PositionModifier = (int)PositionModifier,
 			PositionTargetId = PositionTarget?.Id,
-			PositionTargetType = PositionTarget?.FrameworkItemType,
+			PositionTargetType = PositionTarget?.GetPersistedReferenceType(),
 			PositionEmote = PositionEmote?.SaveToXml().ToString() ?? string.Empty,
 			State = (int)State,
 			Status = (int)_status,

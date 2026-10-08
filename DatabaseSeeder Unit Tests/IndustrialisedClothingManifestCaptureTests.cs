@@ -18,10 +18,10 @@ public class IndustrialisedClothingManifestCaptureTests
 	public void NonemptyAuthoredGraph_CapturesItemsSkinsOutfitsAndCraftsWithoutInstalledPrerequisites()
 	{
 		var sources = IndustrialisedClothingCatalogueTests.Fixture();
-		IndustrialisedClothingCatalogueTests.ReplaceCell(sources, "bases.tsv", 6, "Reviewed");
-		IndustrialisedClothingCatalogueTests.ReplaceCell(sources, "skins.tsv", 10, "Reviewed");
-		IndustrialisedClothingCatalogueTests.ReplaceCell(sources, "outfits.tsv", 4, "Reviewed");
-		IndustrialisedClothingCatalogueTests.ReplaceCell(sources, "crafts.tsv", 15, "Reviewed");
+		IndustrialisedClothingCatalogueTests.ReplaceRoom(sources, "bases.tsv", 6, "Reviewed");
+		IndustrialisedClothingCatalogueTests.ReplaceRoom(sources, "skins.tsv", 10, "Reviewed");
+		IndustrialisedClothingCatalogueTests.ReplaceRoom(sources, "outfits.tsv", 4, "Reviewed");
+		IndustrialisedClothingCatalogueTests.ReplaceRoom(sources, "crafts.tsv", 15, "Reviewed");
 		var clothing = IndustrialisedClothingCatalogueTests.Load(sources);
 		clothing = clothing with
 		{
@@ -81,7 +81,7 @@ public class IndustrialisedClothingManifestCaptureTests
 	public void ManifestOutfitBinding_UsesStableSymbolicColoursAndKeepsUnskinnedBasesValid()
 	{
 		var sources = IndustrialisedClothingCatalogueTests.Fixture();
-		IndustrialisedClothingCatalogueTests.ReplaceCell(sources, "outfit-entries.tsv", 4, string.Empty);
+		IndustrialisedClothingCatalogueTests.ReplaceRoom(sources, "outfit-entries.tsv", 4, string.Empty);
 		var clothing = IndustrialisedClothingCatalogueTests.Load(sources);
 		var result = ItemSeeder.BindClothingOutfitEntryForManifestCapture(clothing, clothing.OutfitEntries.Single());
 

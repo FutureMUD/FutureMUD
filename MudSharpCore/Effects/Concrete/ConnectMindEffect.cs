@@ -36,7 +36,7 @@ public class ConnectMindEffect : ConcentrationConsumingEffect, IMagicEffect, ICh
         ChildEffect.Login();
     }
 
-    public void CharacterOwner_OnLocationChanged(Form.Shape.ILocateable locatable, Construction.Boundary.ICellExit exit)
+    public void CharacterOwner_OnLocationChanged(Form.Shape.ILocateable locatable, Construction.Boundary.IRoomExit exit)
     {
         if (!MindPower.TargetIsInRange(CharacterOwner, TargetCharacter, MindPower.PowerDistance))
         {

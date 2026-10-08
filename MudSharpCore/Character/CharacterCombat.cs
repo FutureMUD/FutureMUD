@@ -81,7 +81,7 @@ public partial class Character
 
     protected bool HandleCombatEvent(EventType type, params dynamic[] arguments)
     {
-        if (type == EventType.CharacterEnterCellFinish && Combat != null &&
+        if (type == EventType.CharacterEnterRoomFinish && Combat != null &&
             CombatStrategyMode == CombatStrategyMode.Flee)
         {
             if (Combat.Combatants.All(x =>
@@ -806,8 +806,13 @@ public partial class Character
 
             if (!CommandExecutionScope.TryContinue(this)) return;
             _meleeRange = value;
+            CombatMutationVersion++;
         }
     }
+
+	// Selective cessation publishes the captured state before any leave notification.
+	internal void ClearMeleeRangeForCessation() => _meleeRange = false;
+	internal long CombatInstanceIdentity => _instanceId != 0 ? _instanceId : _id;
 
     #endregion
 
@@ -944,7 +949,7 @@ public partial class Character
         SeeTarget(corpse.Parent);
     }
 
-    private void Target_OnLocationChanged(ILocateable locatable, ICellExit exit)
+    private void Target_OnLocationChanged(ILocateable locatable, IRoomExit exit)
     {
         CheckTarget((IMortalPerceiver)locatable);
     }

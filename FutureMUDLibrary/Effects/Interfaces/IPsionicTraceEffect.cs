@@ -13,10 +13,10 @@ public interface IPsionicTraceEffect : IMagicEffect
 	Guid TraceId { get; }
 	long SourceCharacterId { get; }
 	long? TargetCharacterId { get; }
-	long? SourceCellId { get; }
+	long? SourceRoomId { get; }
 	ICharacter? SourceCharacter { get; }
 	ICharacter? TargetCharacter { get; }
-	ICell? SourceCell { get; }
+	IRoom? SourceRoom { get; }
 	PsionicActivityKind ActivityKind { get; }
 	string ActivityDescription { get; }
 	string UnknownIdentityDescription { get; }

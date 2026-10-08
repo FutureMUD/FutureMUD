@@ -21,8 +21,8 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
 
     protected void LoadFromXml(XElement root)
     {
-        _avoidCellProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("AvoidCellProg").Value));
-        _avoidCellInvoker = CalculateAvoidCellInvoker(_avoidCellProg);
+        _avoidRoomProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("AvoidCellProg").Value));
+        _avoidRoomInvoker = CalculateAvoidRoomInvoker(_avoidRoomProg);
         _considersThreatProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("ConsidersThreatProg").Value));
         _considersThreatInvoker = CalculateConsidersThreatInvoker(_considersThreatProg);
         foreach (XElement element in root.Element("Emotes").Elements())
@@ -81,7 +81,7 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
         }
     }
 
-    private Func<ICell, GroupAlertness, bool> CalculateAvoidCellInvoker(IFutureProg prog)
+    private Func<IRoom, GroupAlertness, bool> CalculateAvoidRoomInvoker(IFutureProg prog)
     {
         if (prog == null)
         {
@@ -90,47 +90,47 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
 
         if (prog.MatchesParameters(new[] { ProgVariableTypes.Location }))
         {
-            return (cell, alertness) => _avoidCellProg?.Execute<bool?>(cell) == true;
+            return (room, alertness) => _avoidRoomProg?.Execute<bool?>(room) == true;
         }
 
         if (prog.MatchesParameters(new[] { ProgVariableTypes.Location, ProgVariableTypes.Text }))
         {
-            return (cell, alertness) => _avoidCellProg?.Execute<bool?>(cell, alertness.DescribeEnum()) == true;
+            return (room, alertness) => _avoidRoomProg?.Execute<bool?>(room, alertness.DescribeEnum()) == true;
         }
 
         if (prog.MatchesParameters(new[] { ProgVariableTypes.Location, ProgVariableTypes.Number }))
         {
-            return (cell, alertness) => _avoidCellProg?.Execute<bool?>(cell, (int)alertness) == true;
+            return (room, alertness) => _avoidRoomProg?.Execute<bool?>(room, (int)alertness) == true;
         }
 
         if (prog.MatchesParameters(new[]
                 { ProgVariableTypes.Location, ProgVariableTypes.Number, ProgVariableTypes.Text }))
         {
-            return (cell, alertness) =>
-                _avoidCellProg?.Execute<bool?>(cell, (int)alertness, alertness.DescribeEnum()) == true;
+            return (room, alertness) =>
+                _avoidRoomProg?.Execute<bool?>(room, (int)alertness, alertness.DescribeEnum()) == true;
         }
 
         if (prog.MatchesParameters(new[]
                 { ProgVariableTypes.Location, ProgVariableTypes.Text, ProgVariableTypes.Number }))
         {
-            return (cell, alertness) =>
-                _avoidCellProg?.Execute<bool?>(cell, alertness.DescribeEnum(), (int)alertness) == true;
+            return (room, alertness) =>
+                _avoidRoomProg?.Execute<bool?>(room, alertness.DescribeEnum(), (int)alertness) == true;
         }
 
         return null;
     }
 
-    private IFutureProg _avoidCellProg;
-    private Func<ICell, GroupAlertness, bool> _avoidCellInvoker;
+    private IFutureProg _avoidRoomProg;
+    private Func<IRoom, GroupAlertness, bool> _avoidRoomInvoker;
 
-    public bool AvoidCell(ICell cell, GroupAlertness alertness)
+    public bool AvoidRoom(IRoom room, GroupAlertness alertness)
     {
-        if (_avoidCellInvoker == null)
+        if (_avoidRoomInvoker == null)
         {
             return false;
         }
 
-        return _avoidCellInvoker(cell, alertness);
+        return _avoidRoomInvoker(room, alertness);
     }
 
     private Func<ICharacter, GroupAlertness, bool> CalculateConsidersThreatInvoker(IFutureProg prog)
@@ -719,18 +719,18 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
         if (command.IsFinished)
         {
             actor.OutputHandler.Send(
-                "You must either specify a prog for the Avoid Cell routine or use 'none' to clear an existing one.");
+                "You must either specify a prog for the Avoid Room routine or use 'none' to clear an existing one.");
             return false;
         }
 
         string cmdText = command.PopSpeech();
         if (cmdText.EqualToAny("none", "clear", "remove"))
         {
-            _avoidCellProg = null;
-            _avoidCellInvoker = null;
+            _avoidRoomProg = null;
+            _avoidRoomInvoker = null;
             Changed = true;
             actor.OutputHandler.Send(
-                $"You clear the Avoid Cell Prog for Group AI Template {Name.Colour(Telnet.Cyan)}.");
+                $"You clear the Avoid Room Prog for Group AI Template {Name.Colour(Telnet.Cyan)}.");
             return true;
         }
 
@@ -749,7 +749,7 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
             return false;
         }
 
-        Func<ICell, GroupAlertness, bool> func = CalculateAvoidCellInvoker(prog);
+        Func<IRoom, GroupAlertness, bool> func = CalculateAvoidRoomInvoker(prog);
         if (func == null)
         {
             actor.OutputHandler.Send(
@@ -757,11 +757,11 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
             return false;
         }
 
-        _avoidCellInvoker = func;
-        _avoidCellProg = prog;
+        _avoidRoomInvoker = func;
+        _avoidRoomProg = prog;
         Changed = true;
         actor.OutputHandler.Send(
-            $"The Group AI Template {Name.Colour(Telnet.Cyan)} will now use the {_avoidCellProg.MXPClickableFunctionName()} prog for its Avoid Cell routine.");
+            $"The Group AI Template {Name.Colour(Telnet.Cyan)} will now use the {_avoidRoomProg.MXPClickableFunctionName()} prog for its Avoid Room routine.");
         return true;
     }
 
@@ -770,7 +770,7 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
         StringBuilder sb = new();
         sb.AppendLine($"Group AI Template #{Id.ToString("N0", actor)} - {Name.Colour(Telnet.Cyan)}");
         sb.AppendLine($"AI Type: {GroupAIType?.Name.ColourValue() ?? "None".Colour(Telnet.Red)}");
-        sb.AppendLine($"Avoid Prog: {_avoidCellProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
+        sb.AppendLine($"Avoid Prog: {_avoidRoomProg?.MXPClickableFunctionName() ?? "None".Colour(Telnet.Red)}");
         sb.AppendLine($"Threat Prog: {_considersThreatProg?.MXPClickableFunctionName() ?? "None".ColourError()}");
         sb.AppendLine($"Random Emotes:");
         for (int i = 0; i < _groupEmotes.Count; i++)
@@ -802,7 +802,7 @@ public class GroupAITemplate : SaveableItem, IGroupAITemplate
     protected XElement SaveToXml()
     {
         return new XElement("Template",
-            new XElement("AvoidCellProg", _avoidCellProg?.Id ?? 0),
+            new XElement("AvoidCellProg", _avoidRoomProg?.Id ?? 0),
             new XElement("ConsidersThreatProg", _considersThreatProg?.Id ?? 0),
             GroupAIType?.SaveToXml() ?? new XElement("GroupType", new XAttribute("typename", "invalid")),
             new XElement("Emotes",

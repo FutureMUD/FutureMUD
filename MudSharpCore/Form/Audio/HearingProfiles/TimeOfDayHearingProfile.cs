@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Celestial;
 using MudSharp.Construction;
@@ -44,7 +44,6 @@ public class TimeOfDayHearingProfile : HearingProfile
 	{
 		return location switch
 		{
-			ICell cell => cell.CurrentTimeOfDay,
 			IRoom room => room.CurrentTimeOfDay,
 			IZone zone => zone.CurrentTimeOfDay,
 			IArea area => area.CurrentTimeOfDay,

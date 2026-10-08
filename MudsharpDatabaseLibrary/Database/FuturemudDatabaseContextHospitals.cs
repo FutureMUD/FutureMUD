@@ -43,13 +43,13 @@ public partial class FuturemudDatabaseContext
 		modelBuilder.Entity<HospitalLocation>(entity =>
 		{
 			entity.ToTable("HospitalLocations");
-			entity.HasKey(e => new { e.HospitalId, e.CellId, e.Role }).HasName("PRIMARY");
+			entity.HasKey(e => new { e.HospitalId, e.RoomId, e.Role }).HasName("PRIMARY");
 
-			entity.HasIndex(e => e.CellId).HasDatabaseName("FK_HospitalLocations_Cells_idx");
+			entity.HasIndex(e => e.RoomId).HasDatabaseName("FK_HospitalLocations_Rooms_idx");
 			entity.HasIndex(e => new { e.HospitalId, e.Role }).HasDatabaseName("IX_HospitalLocations_Hospital_Role");
 
 			entity.Property(e => e.HospitalId).HasColumnType("bigint(20)");
-			entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.Role).HasColumnType("int(11)");
 
 			entity.HasOne(d => d.Hospital)
@@ -57,10 +57,10 @@ public partial class FuturemudDatabaseContext
 			      .HasForeignKey(d => d.HospitalId)
 			      .HasConstraintName("FK_HospitalLocations_Hospitals");
 
-			entity.HasOne(d => d.Cell)
+			entity.HasOne(d => d.Room)
 			      .WithMany()
-			      .HasForeignKey(d => d.CellId)
-			      .HasConstraintName("FK_HospitalLocations_Cells");
+			      .HasForeignKey(d => d.RoomId)
+			      .HasConstraintName("FK_HospitalLocations_Rooms");
 		});
 
 		modelBuilder.Entity<HospitalBloodStockPolicy>(entity =>
@@ -204,9 +204,9 @@ public partial class FuturemudDatabaseContext
 			entity.HasIndex(e => e.PatientId).HasDatabaseName("FK_HospitalServiceRequests_Characters_Patient_idx");
 			entity.HasIndex(e => e.AssignedEmployeeId).HasDatabaseName("FK_HospitalServiceRequests_Characters_Employee_idx");
 			entity.HasIndex(e => e.PreparedByEmployeeId).HasDatabaseName("FK_HospitalServiceRequests_Characters_PreparedBy_idx");
-			entity.HasIndex(e => e.OperatingTheatreCellId).HasDatabaseName("FK_HospitalServiceRequests_Cells_Theatre_idx");
-			entity.HasIndex(e => e.RecoveryRoomCellId).HasDatabaseName("FK_HospitalServiceRequests_Cells_Recovery_idx");
-			entity.HasIndex(e => e.ReturnCellId).HasDatabaseName("FK_HospitalServiceRequests_Cells_Return_idx");
+			entity.HasIndex(e => e.OperatingTheatreRoomId).HasDatabaseName("FK_HospitalServiceRequests_Rooms_Theatre_idx");
+			entity.HasIndex(e => e.RecoveryRoomId).HasDatabaseName("FK_HospitalServiceRequests_Rooms_Recovery_idx");
+			entity.HasIndex(e => e.ReturnRoomId).HasDatabaseName("FK_HospitalServiceRequests_Rooms_Return_idx");
 			entity.HasIndex(e => e.EmploymentTaskId).HasDatabaseName("IX_HospitalServiceRequests_EmploymentTaskId");
 			entity.HasIndex(e => new { e.HospitalId, e.Status }).HasDatabaseName("IX_HospitalServiceRequests_Hospital_Status");
 
@@ -227,13 +227,13 @@ public partial class FuturemudDatabaseContext
 			      .HasCharSet("utf8")
 			      .UseCollation("utf8_general_ci");
 			entity.Property(e => e.AssignedEmployeeId).HasColumnType("bigint(20)");
-			entity.Property(e => e.OperatingTheatreCellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.OperatingTheatreRoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.UsedInPlaceFallback).HasColumnType("bit(1)");
 			entity.Property(e => e.SupplyPrepared).HasColumnType("bit(1)");
 			entity.Property(e => e.PreparedByEmployeeId).HasColumnType("bigint(20)");
 			entity.Property(e => e.PreparedAtUtc).HasColumnType("datetime(6)");
-			entity.Property(e => e.RecoveryRoomCellId).HasColumnType("bigint(20)");
-			entity.Property(e => e.ReturnCellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.RecoveryRoomId).HasColumnType("bigint(20)");
+			entity.Property(e => e.ReturnRoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.CreatedAtUtc).HasColumnType("datetime(6)");
 			entity.Property(e => e.LastUpdatedAtUtc).HasColumnType("datetime(6)");
 			entity.Property(e => e.CompletedAtUtc).HasColumnType("datetime(6)");
@@ -275,23 +275,23 @@ public partial class FuturemudDatabaseContext
 			      .OnDelete(DeleteBehavior.SetNull)
 			      .HasConstraintName("FK_HospitalServiceRequests_Characters_PreparedBy");
 
-			entity.HasOne(d => d.OperatingTheatreCell)
+			entity.HasOne(d => d.OperatingTheatreRoom)
 			      .WithMany()
-			      .HasForeignKey(d => d.OperatingTheatreCellId)
+			      .HasForeignKey(d => d.OperatingTheatreRoomId)
 			      .OnDelete(DeleteBehavior.SetNull)
-			      .HasConstraintName("FK_HospitalServiceRequests_Cells_Theatre");
+			      .HasConstraintName("FK_HospitalServiceRequests_Rooms_Theatre");
 
-			entity.HasOne(d => d.RecoveryRoomCell)
+			entity.HasOne(d => d.RecoveryRoomRoom)
 			      .WithMany()
-			      .HasForeignKey(d => d.RecoveryRoomCellId)
+			      .HasForeignKey(d => d.RecoveryRoomId)
 			      .OnDelete(DeleteBehavior.SetNull)
-			      .HasConstraintName("FK_HospitalServiceRequests_Cells_Recovery");
+			      .HasConstraintName("FK_HospitalServiceRequests_Rooms_Recovery");
 
-			entity.HasOne(d => d.ReturnCell)
+			entity.HasOne(d => d.ReturnRoom)
 			      .WithMany()
-			      .HasForeignKey(d => d.ReturnCellId)
+			      .HasForeignKey(d => d.ReturnRoomId)
 			      .OnDelete(DeleteBehavior.SetNull)
-			      .HasConstraintName("FK_HospitalServiceRequests_Cells_Return");
+			      .HasConstraintName("FK_HospitalServiceRequests_Rooms_Return");
 		});
 
 		modelBuilder.Entity<HospitalPatientDebtAccount>(entity =>

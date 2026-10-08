@@ -154,7 +154,7 @@ public class MagicCastingIncantationTests
 	[TestMethod]
 	public void CompleteCompositeTarget_RejectsTrailingWordsWithoutRejectingValidExit()
 	{
-		var s = new SpeechFixture(); var exit = new Mock<ICellExit>();
+		var s = new SpeechFixture(); var exit = new Mock<IRoomExit>();
 		s.F.Actor.Setup(x => x.TargetActorOrCorpse("Bob")).Returns(s.F.Actor.Object);
 		Mock.Get(s.F.Actor.Object.Location).Setup(x => x.GetExitKeyword("north", s.F.Actor.Object)).Returns(exit.Object);
 		Assert.IsTrue(s.F.Spell.BuildingCommand(s.F.Actor.Object, new StringStack("trigger new characterexit")));
@@ -200,7 +200,7 @@ public class MagicCastingIncantationTests
 	{
 		foreach (var adapter in new[] { "named", "formula", "speech" })
 		{
-			var s = new SpeechFixture(); var exit = new Mock<ICellExit>();
+			var s = new SpeechFixture(); var exit = new Mock<IRoomExit>();
 			s.F.Actor.Setup(x => x.TargetActorOrCorpse("Bob the guard")).Returns(s.F.Actor.Object);
 			Mock.Get(s.F.Actor.Object.Location).Setup(x => x.GetExitKeyword("north", s.F.Actor.Object)).Returns(exit.Object);
 			Assert.IsTrue(s.F.Spell.BuildingCommand(s.F.Actor.Object, new StringStack("trigger new characterexit")));

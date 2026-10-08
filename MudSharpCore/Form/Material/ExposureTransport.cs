@@ -222,7 +222,7 @@ public static class ExposureTransport
 		Contact(item, mixture, new(item, null, item.Material, ItemArea(item), amounts.Coating + amounts.Absorb), doseShare);
 		if (item.Deleted)
 		{
-			if (location is MudSharp.Construction.Cell cell) cell.AddLiquidToSurfaceAt(mixture, layer, point);
+			if (location is MudSharp.Construction.Room room) room.AddLiquidToSurfaceAt(mixture, layer, point);
 			else location?.AddLiquidToSurface(mixture, layer, locationOwner);
 			return true;
 		}

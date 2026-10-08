@@ -30,7 +30,7 @@ public partial class Character
 			return false;
 		}
 
-		if (backup.DestinationCell is null)
+		if (backup.DestinationRoom is null)
 		{
 			whyNot = "The backup destination no longer exists.";
 			return false;
@@ -107,7 +107,7 @@ public partial class Character
 
 		if (Body is not BodyImplementation oldBody ||
 		    Location is null ||
-		    backup.DestinationCell is not { } destination)
+		    backup.DestinationRoom is not { } destination)
 		{
 			return false;
 		}
@@ -149,7 +149,7 @@ public partial class Character
 		_gender = Body.Gender;
 		RoomLayer = backup.DestinationLayer;
 		destination.Enter(this);
-		ReconcileTeleportCellMembership(this, destination, oldLocation);
+		ReconcileTeleportRoomMembership(this, destination, oldLocation);
 
 		RetireBodyForm(oldBody);
 		RemoveAllEffects<IBodyBackupEffect>(x => x.BackupBodyId == oldBody.Id, true);

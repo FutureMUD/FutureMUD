@@ -33,7 +33,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		MovementEnabledProg =
 			Gameworld.FutureProgs.Get(long.Parse(movement.Element("MovementEnabledProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysTrueProg;
-		MovementCellProg =
+		MovementRoomProg =
 			Gameworld.FutureProgs.Get(long.Parse(movement.Element("MovementCellProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysTrueProg;
 		PreferredHabitatProg =
@@ -42,10 +42,10 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		ToleratedHabitatProg =
 			Gameworld.FutureProgs.Get(long.Parse(movement.Element("ToleratedHabitatProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysTrueProg;
-		AmphibiousLandCellProg =
+		AmphibiousLandRoomProg =
 			Gameworld.FutureProgs.Get(long.Parse(movement.Element("AmphibiousLandCellProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysTrueProg;
-		AmphibiousWaterCellProg =
+		AmphibiousWaterRoomProg =
 			Gameworld.FutureProgs.Get(long.Parse(movement.Element("AmphibiousWaterCellProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysTrueProg;
 		AllowDescentProg =
@@ -81,7 +81,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		AwarenessThreatProg =
 			Gameworld.FutureProgs.Get(long.Parse(awareness.Element("ThreatProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysFalseProg;
-		AwarenessAvoidCellProg =
+		AwarenessAvoidRoomProg =
 			Gameworld.FutureProgs.Get(long.Parse(awareness.Element("AvoidCellProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysFalseProg;
 		AwarenessRange = int.Parse(awareness.Element("Range")?.Value ?? "5");
@@ -92,7 +92,7 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		RefugeStrategy = ParseEnum(refuge.Attribute("type")?.Value, AnimalRefugeStrategyType.None);
 		RefugeLayer = ParseEnum(refuge.Element("Layer")?.Value, RoomLayer.HighInTrees);
 		RefugeReturnSeconds = int.Parse(refuge.Element("ReturnSeconds")?.Value ?? "60");
-		RefugeCellProg =
+		RefugeRoomProg =
 			Gameworld.FutureProgs.Get(long.Parse(refuge.Element("CellProg")?.Value ?? "0")) ??
 			Gameworld.AlwaysFalseProg;
 
@@ -108,11 +108,11 @@ public abstract partial class CreatureAIBase : PathingAIBase
 				new XElement("WanderChancePerMinute", WanderChancePerMinute),
 				new XElement("WanderEmote", new XCData(WanderEmote)),
 				new XElement("MovementEnabledProg", MovementEnabledProg?.Id ?? 0),
-				new XElement("MovementCellProg", MovementCellProg?.Id ?? 0),
+				new XElement("MovementCellProg", MovementRoomProg?.Id ?? 0),
 				new XElement("PreferredHabitatProg", PreferredHabitatProg?.Id ?? 0),
 				new XElement("ToleratedHabitatProg", ToleratedHabitatProg?.Id ?? 0),
-				new XElement("AmphibiousLandCellProg", AmphibiousLandCellProg?.Id ?? 0),
-				new XElement("AmphibiousWaterCellProg", AmphibiousWaterCellProg?.Id ?? 0),
+				new XElement("AmphibiousLandCellProg", AmphibiousLandRoomProg?.Id ?? 0),
+				new XElement("AmphibiousWaterCellProg", AmphibiousWaterRoomProg?.Id ?? 0),
 				new XElement("AllowDescentProg", AllowDescentProg?.Id ?? 0),
 				new XElement("TargetFlyingLayer", TargetFlyingLayer),
 				new XElement("TargetRestingLayer", TargetRestingLayer),
@@ -133,14 +133,14 @@ public abstract partial class CreatureAIBase : PathingAIBase
 			new XElement("Awareness",
 				new XAttribute("type", AwarenessStrategy),
 				new XElement("ThreatProg", AwarenessThreatProg?.Id ?? 0),
-				new XElement("AvoidCellProg", AwarenessAvoidCellProg?.Id ?? 0),
+				new XElement("AvoidCellProg", AwarenessAvoidRoomProg?.Id ?? 0),
 				new XElement("Range", AwarenessRange),
 				new XElement("MemoryMinutes", AwarenessMemoryMinutes),
 				new XElement("Senses", SensesStrategy)),
 			new XElement("Refuge",
 				new XAttribute("type", RefugeStrategy),
 				new XElement("Layer", RefugeLayer),
-				new XElement("CellProg", RefugeCellProg?.Id ?? 0),
+				new XElement("CellProg", RefugeRoomProg?.Id ?? 0),
 				new XElement("ReturnSeconds", RefugeReturnSeconds))
 	};
 
@@ -174,19 +174,19 @@ public abstract partial class CreatureAIBase : PathingAIBase
 		if (Gameworld is not null)
 		{
 			MovementEnabledProg = Gameworld.AlwaysTrueProg;
-			MovementCellProg = Gameworld.AlwaysTrueProg;
+			MovementRoomProg = Gameworld.AlwaysTrueProg;
 			PreferredHabitatProg = Gameworld.AlwaysTrueProg;
 			ToleratedHabitatProg = Gameworld.AlwaysTrueProg;
-			AmphibiousLandCellProg = Gameworld.AlwaysTrueProg;
-			AmphibiousWaterCellProg = Gameworld.AlwaysTrueProg;
+			AmphibiousLandRoomProg = Gameworld.AlwaysTrueProg;
+			AmphibiousWaterRoomProg = Gameworld.AlwaysTrueProg;
 			AllowDescentProg = Gameworld.AlwaysFalseProg;
 			SuitableTerritoryProg = Gameworld.AlwaysTrueProg;
 			DesiredTerritorySizeProg = Gameworld.AlwaysOneProg;
 			BurrowSiteProg = Gameworld.AlwaysTrueProg;
 			BuildEnabledProg = Gameworld.AlwaysTrueProg;
 			AwarenessThreatProg = Gameworld.AlwaysFalseProg;
-			AwarenessAvoidCellProg = Gameworld.AlwaysFalseProg;
-			RefugeCellProg = Gameworld.AlwaysFalseProg;
+			AwarenessAvoidRoomProg = Gameworld.AlwaysFalseProg;
+			RefugeRoomProg = Gameworld.AlwaysFalseProg;
 		}
 	}
 }

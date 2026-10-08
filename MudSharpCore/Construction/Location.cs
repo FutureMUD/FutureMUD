@@ -81,7 +81,7 @@ public abstract class Location : PerceivedItem, ILocation
 		{
 			_gameItems.RemoveAll(items.Contains);
 			_gameItems.AddRange(present);
-			if (this is Cell cell) cell.ContentsChanged = true;
+			if (this is Room room) room.ContentsChanged = true;
 		};
 	}
 
@@ -101,7 +101,7 @@ public abstract class Location : PerceivedItem, ILocation
 
     public IEnumerable<IPerceivable> Perceivables => Characters.Cast<IPerceivable>().Concat(GameItems);
 
-    public abstract IEnumerable<ICell> Cells { get; }
+    public abstract IEnumerable<IRoom> Rooms { get; }
 
     public IEnumerable<IHandleEvents> EventHandlers
         => Characters.Cast<IHandleEvents>().Concat(GameItems).Concat(new IHandleEvents[] { this });
@@ -128,7 +128,7 @@ public abstract class Location : PerceivedItem, ILocation
         }
     }
 
-    public virtual void Enter(ICharacter movingCharacter, ICellExit exit = null, bool noSave = false,
+    public virtual void Enter(ICharacter movingCharacter, IRoomExit exit = null, bool noSave = false,
         RoomLayer roomLayer = RoomLayer.GroundLevel)
     {
         if (_characters.ContainsPhysicalInstance(movingCharacter))

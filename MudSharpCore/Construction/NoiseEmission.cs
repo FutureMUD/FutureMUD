@@ -10,7 +10,7 @@ namespace MudSharp.Construction;
 internal static class NoiseEmission
 {
 	public static bool RaiseEvent(
-		ICell origin,
+		IRoom origin,
 		IPerceiver source,
 		AudioVolume volume,
 		string noiseType,
@@ -33,7 +33,7 @@ internal static class NoiseEmission
 
 	public static void RaiseReceivedEvent(
 		ICharacter listener,
-		ICell origin,
+		IRoom origin,
 		IPerceiver source,
 		AudioVolume receivedVolume,
 		Proximity proximity,

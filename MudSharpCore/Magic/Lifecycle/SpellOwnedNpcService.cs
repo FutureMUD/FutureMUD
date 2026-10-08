@@ -33,8 +33,8 @@ public sealed partial class SpellOwnedNpcService(IFuturemud world) : ISpellOwned
 		if (NativeNpcCreationEligibility.TemplateError(template, world) is { } templateError)
 			throw new InvalidOperationException(templateError);
 		// Template preparation may evaluate authored selection predicates. It is outside the row factory;
-		// the private actor has no controller, subscriptions, queued initialisation or world/cell presence.
-		var characterTemplate = template.GetCharacterTemplate(location.Cell);
+		// the private actor has no controller, subscriptions, queued initialisation or world/room presence.
+		var characterTemplate = template.GetCharacterTemplate(location.Room);
 		if (NativeNpcCreationEligibility.CharacterTemplateError(characterTemplate) is { } eligibilityError)
 			throw new InvalidOperationException(eligibilityError);
 		var npc = new RuntimeNpc(world, characterTemplate, template, deferInitialisation: true);

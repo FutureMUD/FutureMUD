@@ -54,11 +54,11 @@ namespace MudSharp.RPG.Law
         IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
             string additionalInformation, IEnumerable<ICharacter> witnesses, bool notifyVictim);
         IEnumerable<ICrime> CheckPossibleCrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
-            string additionalInformation, IEnumerable<ICharacter> witnesses, bool notifyVictim, ICell crimeLocation);
+            string additionalInformation, IEnumerable<ICharacter> witnesses, bool notifyVictim, IRoom crimeLocation);
         bool WouldBeACrime(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
             string additionalInformation);
         bool WouldBeACrimeAtLocation(ICharacter criminal, CrimeTypes crime, ICharacter victim, IGameItem item,
-            string additionalInformation, ICell crimeLocation);
+            string additionalInformation, IRoom crimeLocation);
         ILegalClass GetLegalClass(ICharacter character);
         IEnforcementAuthority GetEnforcementAuthority(ICharacter character);
         void ReportCrime(ICrime crime, ICharacter witness, bool identityKnown, double reliability);
@@ -72,16 +72,16 @@ namespace MudSharp.RPG.Law
         bool PlayersKnowTheirCrimes { get; }
         TimeSpan AutomaticConvictionTime { get; }
 
-        ICell PreparingLocation { get; }
-        ICell MarshallingLocation { get; }
-        ICell EnforcerStowingLocation { get; }
-        ICell PrisonLocation { get; }
-        ICell PrisonReleaseLocation { get; }
-        ICell PrisonerBelongingsStorageLocation { get; }
-        ICell JailLocation { get; }
-        ICell CourtLocation { get; }
-        IEnumerable<ICell> CellLocations { get; }
-        IEnumerable<ICell> JailLocations { get; }
+        IRoom PreparingLocation { get; }
+        IRoom MarshallingLocation { get; }
+        IRoom EnforcerStowingLocation { get; }
+        IRoom PrisonLocation { get; }
+        IRoom PrisonReleaseLocation { get; }
+        IRoom PrisonerBelongingsStorageLocation { get; }
+        IRoom JailLocation { get; }
+        IRoom CourtLocation { get; }
+        IEnumerable<IRoom> RoomLocations { get; }
+        IEnumerable<IRoom> JailLocations { get; }
 
         IFutureProg OnPrisonerImprisoned { get; }
         IFutureProg OnPrisonerReleased { get; }
@@ -102,7 +102,7 @@ namespace MudSharp.RPG.Law
         void HandleDiscordNotificationOfForgiveness(ICrime crime, ICharacter enforcer);
         void ConvictAllKnownCrimes(ICharacter criminal, ICharacter judge);
         void ConvictCrime(ICharacter criminal, ICrime crime, PunishmentResult result);
-        void SendCharacterToHoldingCell(ICharacter criminal);
+        void SendCharacterToHoldingRoom(ICharacter criminal);
         void SendCharacterToPrison(ICharacter criminal);
         void ReleaseCharacterToFreedom(ICharacter criminal);
         void CheckCharacterForCustodyChanges(ICharacter criminal);

@@ -33,7 +33,7 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
                 {
                     Name = location.Element("Name")?.Value,
                     Blurb = location.Element("Blurb")?.Value,
-                    Location = Gameworld.Cells.Get(long.Parse(location.Element("Location")?.Value ?? "0")),
+                    Location = Gameworld.Rooms.Get(long.Parse(location.Element("Location")?.Value ?? "0")),
                     Role = Gameworld.Roles.Get(long.Parse(location.Element("Role")?.Value ?? "0")),
                     OnCommenceProg =
                         Gameworld.FutureProgs.Get(long.Parse(location.Element("OnCommenceProg")?.Value ?? "0"))
@@ -300,7 +300,7 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
             return false;
         }
 
-        ICell room = Gameworld.Cells.GetByIdOrName(command.SafeRemainingArgument);
+        IRoom room = Gameworld.Rooms.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
         if (room is null)
         {
             actor.OutputHandler.Send("There is no such room.");
@@ -434,8 +434,8 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
             return false;
         }
 
-        ICell cell = Gameworld.Cells.GetByIdOrName(command.PopSpeech());
-        if (cell is null)
+        IRoom room = Gameworld.Rooms.GetByIdOrUniqueNameOrName(command.PopSpeech());
+        if (room is null)
         {
             actor.OutputHandler.Send("There is no such room.");
             return false;
@@ -457,7 +457,7 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
 
         actor.OutputHandler.Send($"Enter the blurb for your starting location below:\n");
         actor.EditorMode(PostAddLocationBlurb, CancelAddLocationBlurb, 1.0, null, EditorOptions.None,
-            new object[] { actor.Account.InnerLineFormatLength, name, role, prog, cell, actor });
+            new object[] { actor.Account.InnerLineFormatLength, name, role, prog, room, actor });
         return true;
     }
 
@@ -471,7 +471,7 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
         string name = (string)args[1];
         IChargenRole role = (IChargenRole)args[2];
         IFutureProg prog = (IFutureProg)args[3];
-        ICell cell = (ICell)args[4];
+        IRoom room = (IRoom)args[4];
         ICharacter actor = (ICharacter)args[5];
         StartingLocation location = new()
         {
@@ -479,7 +479,7 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
             Role = role,
             Name = name,
             OnCommenceProg = prog,
-            Location = cell
+            Location = room
         };
         Locations.Add(location);
         Changed = true;
@@ -487,7 +487,7 @@ public class StartingLocationPickerScreenStoryboard : ChargenScreenStoryboard
 
 	Name: {name.ColourName()} 
 	Role: {role.Name.ColourName()} 
-	Location: {cell.GetFriendlyReference(actor)}
+	Location: {room.GetFriendlyReference(actor)}
 	Commence Prog: {prog?.MXPClickableFunctionName() ?? "None".ColourError()}
 	Blurb:
 

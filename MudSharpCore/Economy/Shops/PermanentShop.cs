@@ -20,21 +20,21 @@ public class PermanentShop : Shop, IPermanentShop
 {
     public PermanentShop(Models.Shop shop, IFuturemud gameworld) : base(shop, gameworld)
     {
-        foreach (ICell cell in shop.ShopsStoreroomCells.SelectNotNull(x => gameworld.Cells.Get(x.CellId)))
+        foreach (IRoom room in shop.ShopsStoreroomRooms.SelectNotNull(x => gameworld.Rooms.Get(x.RoomId)))
         {
-            AddShopfrontCell(cell);
+            AddShopfrontRoom(room);
         }
 
-        _stockroomCell = gameworld.Cells.Get(shop.StockroomCellId ?? 0);
-        if (_stockroomCell is not null)
+        _stockroomRoom = gameworld.Rooms.Get(shop.StockroomId ?? 0);
+        if (_stockroomRoom is not null)
         {
-            AddCellToStore(_stockroomCell);
+            AddRoomToStore(_stockroomRoom);
         }
 
-        _workshopCell = gameworld.Cells.Get(shop.WorkshopCellId ?? 0);
-        if (_workshopCell is not null)
+        _workshopRoom = gameworld.Rooms.Get(shop.WorkshopRoomId ?? 0);
+        if (_workshopRoom is not null)
         {
-            AddCellToStore(_workshopCell);
+            AddRoomToStore(_workshopRoom);
         }
 
         foreach (ShopsTill item in shop.ShopsTills)
@@ -47,21 +47,21 @@ public class PermanentShop : Shop, IPermanentShop
         InitialiseShop();
     }
 
-    public PermanentShop(IEconomicZone zone, ICell originalShopFront, string name) : this(zone, originalShopFront, name, "Permanent")
+    public PermanentShop(IEconomicZone zone, IRoom originalShopFront, string name) : this(zone, originalShopFront, name, "Permanent")
     {
     }
 
-    protected PermanentShop(IEconomicZone zone, ICell originalShopFront, string name, string shopType) : base(zone, originalShopFront, name, shopType)
+    protected PermanentShop(IEconomicZone zone, IRoom originalShopFront, string name, string shopType) : base(zone, originalShopFront, name, shopType)
     {
-        AddShopfrontCell(originalShopFront);
+        AddShopfrontRoom(originalShopFront);
         InitialiseShop();
     }
 
     protected override void InitialiseShop()
     {
-        foreach (ICell cell in AllShopCells)
+        foreach (IRoom room in AllShopRooms)
         {
-            cell.Shop = this;
+            room.Shop = this;
         }
     }
 
@@ -80,8 +80,8 @@ public class PermanentShop : Shop, IPermanentShop
 
     protected override void Save(Models.Shop dbitem)
     {
-        dbitem.StockroomCellId = StockroomCell?.Id;
-        dbitem.WorkshopCellId = WorkshopCell?.Id;
+        dbitem.StockroomId = StockroomRoom?.Id;
+        dbitem.WorkshopRoomId = WorkshopRoom?.Id;
         FMDB.Context.ShopsTills.RemoveRange(dbitem.ShopsTills);
         foreach (long item in _tillItemIds)
         {
@@ -92,18 +92,18 @@ public class PermanentShop : Shop, IPermanentShop
             }
         }
 
-        FMDB.Context.ShopsStoreroomCells.RemoveRange(dbitem.ShopsStoreroomCells);
-        foreach (ICell cell in ShopfrontCells)
+        FMDB.Context.ShopsStoreroomRooms.RemoveRange(dbitem.ShopsStoreroomRooms);
+        foreach (IRoom room in ShopfrontRooms)
         {
-            dbitem.ShopsStoreroomCells.Add(new ShopsStoreroomCell { Shop = dbitem, CellId = cell.Id });
+            dbitem.ShopsStoreroomRooms.Add(new ShopsStoreroomRoom { Shop = dbitem, RoomId = room.Id });
         }
     }
 
-    private void RemoveCellFromStore(ICell cell)
+    private void RemoveRoomFromStore(IRoom room)
     {
-        cell.Shop = null;
-        MudDateTime time = cell.DateTime();
-        foreach (IGameItem item in cell.GameItems.SelectMany(x => x.DeepItems))
+        room.Shop = null;
+        MudDateTime time = room.DateTime();
+        foreach (IGameItem item in room.GameItems.SelectMany(x => x.DeepItems))
         {
             if (item.AffectedBy<ItemOnDisplayInShop>())
             {
@@ -112,50 +112,50 @@ public class PermanentShop : Shop, IPermanentShop
         }
     }
 
-    private void AddCellToStore(ICell cell)
+    private void AddRoomToStore(IRoom room)
     {
-        cell.Shop = this;
-        cell.CellRequestsDeletion -= Cell_CellRequestsDeletion;
-        cell.CellRequestsDeletion += Cell_CellRequestsDeletion;
-        cell.CellProposedForDeletion -= Cell_CellProposedForDeletion;
-        cell.CellProposedForDeletion += Cell_CellProposedForDeletion;
+        room.Shop = this;
+        room.RoomRequestsDeletion -= Room_RoomRequestsDeletion;
+        room.RoomRequestsDeletion += Room_RoomRequestsDeletion;
+        room.RoomProposedForDeletion -= Room_RoomProposedForDeletion;
+        room.RoomProposedForDeletion += Room_RoomProposedForDeletion;
     }
 
-    private void Cell_CellProposedForDeletion(ICell cell, ProposalRejectionResponse response)
+    private void Room_RoomProposedForDeletion(IRoom room, ProposalRejectionResponse response)
     {
-        if (cell == WorkshopCell)
+        if (room == WorkshopRoom)
         {
             response.RejectWithReason($"That room is a workshop room for shop #{Id:N0} ({Name.ColourName()})");
             return;
         }
 
-        if (cell == StockroomCell)
+        if (room == StockroomRoom)
         {
             response.RejectWithReason($"That room is a stockroom for shop #{Id:N0} ({Name.ColourName()})");
             return;
         }
     }
 
-    private void Cell_CellRequestsDeletion(object sender, EventArgs e)
+    private void Room_RoomRequestsDeletion(object sender, EventArgs e)
     {
-        ICell cell = (ICell)sender;
-        RemoveShopfrontCell(cell);
+        IRoom room = (IRoom)sender;
+        RemoveShopfrontRoom(room);
     }
 
-    public void AddShopfrontCell(ICell cell)
+    public void AddShopfrontRoom(IRoom room)
     {
-        if (!_shopfrontCells.Contains(cell))
+        if (!_shopfrontRooms.Contains(room))
         {
-            AddCellToStore(cell);
-            _shopfrontCells.Add(cell);
+            AddRoomToStore(room);
+            _shopfrontRooms.Add(room);
             Changed = true;
         }
     }
 
-    public void RemoveShopfrontCell(ICell cell)
+    public void RemoveShopfrontRoom(IRoom room)
     {
-        _shopfrontCells.Remove(cell);
-        RemoveCellFromStore(cell);
+        _shopfrontRooms.Remove(room);
+        RemoveRoomFromStore(room);
         Changed = true;
     }
 
@@ -183,62 +183,62 @@ public class PermanentShop : Shop, IPermanentShop
         Changed = true;
     }
 
-    private readonly List<ICell> _shopfrontCells = new();
-    public IEnumerable<ICell> ShopfrontCells => _shopfrontCells;
-    private ICell _workshopCell;
-    private ICell _stockroomCell;
-    public ICell WorkshopCell
+    private readonly List<IRoom> _shopfrontRooms = new();
+    public IEnumerable<IRoom> ShopfrontRooms => _shopfrontRooms;
+    private IRoom _workshopRoom;
+    private IRoom _stockroomRoom;
+    public IRoom WorkshopRoom
     {
-        get => _workshopCell;
+        get => _workshopRoom;
         set
         {
-            if (_workshopCell != null && value != _workshopCell)
+            if (_workshopRoom != null && value != _workshopRoom)
             {
-                RemoveCellFromStore(_workshopCell);
+                RemoveRoomFromStore(_workshopRoom);
             }
 
-            RemoveCellFromStore(value);
-            AddCellToStore(value);
-            _workshopCell = value;
+            RemoveRoomFromStore(value);
+            AddRoomToStore(value);
+            _workshopRoom = value;
             Changed = true;
         }
     }
 
-    public ICell StockroomCell
+    public IRoom StockroomRoom
     {
-        get => _stockroomCell;
+        get => _stockroomRoom;
         set
         {
-            if (_stockroomCell != null && value != _stockroomCell)
+            if (_stockroomRoom != null && value != _stockroomRoom)
             {
-                RemoveCellFromStore(_stockroomCell);
+                RemoveRoomFromStore(_stockroomRoom);
             }
 
-            RemoveCellFromStore(value);
-            AddCellToStore(value);
-            _stockroomCell = value;
+            RemoveRoomFromStore(value);
+            AddRoomToStore(value);
+            _stockroomRoom = value;
             Changed = true;
         }
     }
-    public IEnumerable<ICell> AllShopCells => ShopfrontCells.Concat(new[]
+    public IEnumerable<IRoom> AllShopRooms => ShopfrontRooms.Concat(new[]
     {
-        WorkshopCell,
-        StockroomCell
+        WorkshopRoom,
+        StockroomRoom
     }.WhereNotNull(x => x));
 
-    private IEnumerable<ICell> PublicSaleStockCells => ShopfrontCells.Concat(new[]
+    private IEnumerable<IRoom> PublicSaleStockRooms => ShopfrontRooms.Concat(new[]
     {
-        StockroomCell
+        StockroomRoom
     }.WhereNotNull(x => x));
 
     private readonly HashSet<long> _tillItemIds = new();
 
     public IEnumerable<IGameItem> TillItems =>
-        AllShopCells.SelectMany(x => x.GameItems).Where(x => _tillItemIds.Contains(x.Id));
+        AllShopRooms.SelectMany(x => x.GameItems).Where(x => _tillItemIds.Contains(x.Id));
 
     private readonly HashSet<long> _displayContainerIds = new();
 
-    public IEnumerable<IGameItem> DisplayContainers => AllShopCells.SelectMany(x => x.GameItems)
+    public IEnumerable<IGameItem> DisplayContainers => AllShopRooms.SelectMany(x => x.GameItems)
                                                                    .Where(x => _displayContainerIds.Contains(x.Id));
 
     public override IEnumerable<IGameItem> DoAutoRestockForMerchandise(IMerchandise merchandise, List<(IGameItem Item, IGameItem Container)> purchasedItems = null)
@@ -298,7 +298,7 @@ public class PermanentShop : Shop, IPermanentShop
         }
 
         AddTransaction(new TransactionRecord(ShopTransactionType.Restock, Currency, this,
-            ShopfrontCells.First().DateTime(), null, merchandise.EffectiveAutoReorderPrice * originalQuantity, 0.0M, merchandise));
+            ShopfrontRooms.First().DateTime(), null, merchandise.EffectiveAutoReorderPrice * originalQuantity, 0.0M, merchandise));
         return newItems;
     }
 
@@ -317,12 +317,12 @@ public class PermanentShop : Shop, IPermanentShop
         else
         {
 
-            ICell targetCell = StockroomCell;
-            if (targetCell == null)
+            IRoom targetRoom = StockroomRoom;
+            if (targetRoom == null)
             {
-                targetCell = ShopfrontCells.First();
+                targetRoom = ShopfrontRooms.First();
             }
-            targetCell.Insert(item);
+            targetRoom.Insert(item);
         }
     }
 
@@ -332,7 +332,7 @@ public class PermanentShop : Shop, IPermanentShop
     public override IEnumerable<IGameItem> DoAutostockAllMerchandise()
     {
         List<IGameItem> stocked = new();
-        List<IGameItem> items = AllShopCells.SelectMany(x => x.GameItems).SelectMany(x => x.DeepItems).ToList();
+        List<IGameItem> items = AllShopRooms.SelectMany(x => x.GameItems).SelectMany(x => x.DeepItems).ToList();
         foreach (IGameItem item in items)
         {
             if (item.AffectedBy<ItemOnDisplayInShop>(this))
@@ -358,7 +358,7 @@ public class PermanentShop : Shop, IPermanentShop
     public override IEnumerable<IGameItem> DoAutostockForMerchandise(IMerchandise merchandise)
     {
         List<IGameItem> stocked = new();
-        foreach (IGameItem item in AllShopCells.SelectMany(x => x.GameItems).SelectMany(x => x.DeepItems).ToList())
+        foreach (IGameItem item in AllShopRooms.SelectMany(x => x.GameItems).SelectMany(x => x.DeepItems).ToList())
         {
             if (item.AffectedBy<ItemOnDisplayInShop>(this))
             {
@@ -380,13 +380,13 @@ public class PermanentShop : Shop, IPermanentShop
 
     public override IEnumerable<IGameItem> StockedItems(IMerchandise merchandise)
     {
-        List<ICell> shopfrontCells = ShopfrontCells.ToList();
-        List<ICell> stockCells = PublicSaleStockCells.ToList();
-        return shopfrontCells
+        List<IRoom> shopfrontRooms = ShopfrontRooms.ToList();
+        List<IRoom> stockRooms = PublicSaleStockRooms.ToList();
+        return shopfrontRooms
             .SelectMany(x => x.Characters)
             .SelectMany(x => x.Body.HeldItems)
             .Concat(
-                stockCells
+                stockRooms
                     .SelectMany(x => x.GameItems)
                     .SelectMany(x => x.ShallowItems)
             )
@@ -398,13 +398,13 @@ public class PermanentShop : Shop, IPermanentShop
     {
         get
         {
-            List<ICell> shopfrontCells = ShopfrontCells.ToList();
-            List<ICell> stockCells = PublicSaleStockCells.ToList();
-            return shopfrontCells
+            List<IRoom> shopfrontRooms = ShopfrontRooms.ToList();
+            List<IRoom> stockRooms = PublicSaleStockRooms.ToList();
+            return shopfrontRooms
                 .SelectMany(x => x.Characters)
                 .SelectMany(x => x.Body.HeldItems)
                 .Concat(
-                    stockCells
+                    stockRooms
                         .SelectMany(x => x.GameItems)
                         .SelectMany(x => x.ShallowItems)
                 )
@@ -445,25 +445,25 @@ public class PermanentShop : Shop, IPermanentShop
             if (actor.IsAdministrator())
             {
                 sb.AppendLine($"These are the locations for this store:");
-                sb.AppendLine($"\tWorkshop: {WorkshopCell?.GetFriendlyReference(actor) ?? "None".ColourError()}");
-                sb.AppendLine($"\tStockroom: {StockroomCell?.GetFriendlyReference(actor) ?? "None".ColourError()}");
-                foreach (ICell cell in ShopfrontCells)
+                sb.AppendLine($"\tWorkshop: {WorkshopRoom?.GetFriendlyReference(actor) ?? "None".ColourError()}");
+                sb.AppendLine($"\tStockroom: {StockroomRoom?.GetFriendlyReference(actor) ?? "None".ColourError()}");
+                foreach (IRoom room in ShopfrontRooms)
                 {
-                    sb.AppendLine($"\tShopfront: {cell.GetFriendlyReference(actor)}");
+                    sb.AppendLine($"\tShopfront: {room.GetFriendlyReference(actor)}");
                 }
             }
 
             else
             {
-                if (actor.Location == WorkshopCell)
+                if (actor.Location == WorkshopRoom)
                 {
                     sb.AppendLine("The location you are currently in is the workshop for this store.".ColourCommand());
                 }
-                else if (actor.Location == StockroomCell)
+                else if (actor.Location == StockroomRoom)
                 {
                     sb.AppendLine("The location you are currently in is the stockroom for this store.".ColourCommand());
                 }
-                else if (ShopfrontCells.Contains(actor.Location))
+                else if (ShopfrontRooms.Contains(actor.Location))
                 {
                     sb.AppendLine("The location you are currently in is the shopfront for this store.".ColourCommand());
                 }
@@ -494,9 +494,9 @@ public class PermanentShop : Shop, IPermanentShop
 
         RecalculateStockedItems(whichMerchandise, 0);
         int floorStock =
-            ShopfrontCells.SelectMany(x => x.Characters).SelectMany(x => x.Body.HeldItems)
+            ShopfrontRooms.SelectMany(x => x.Characters).SelectMany(x => x.Body.HeldItems)
                           .Concat(
-                              ShopfrontCells
+                              ShopfrontRooms
                                   .SelectMany(x => x.GameItems)
                                   .SelectMany(x => x.DeepItems)
                           )
@@ -515,9 +515,9 @@ public class PermanentShop : Shop, IPermanentShop
 
         RecalculateStockedItems(whichMerchandise, 0);
         var floorStock =
-            ShopfrontCells.SelectMany(x => x.Characters).SelectMany(x => x.Body.HeldItems)
+            ShopfrontRooms.SelectMany(x => x.Characters).SelectMany(x => x.Body.HeldItems)
                           .Concat(
-                              ShopfrontCells
+                              ShopfrontRooms
                                   .SelectMany(x => x.GameItems)
                                   .SelectMany(x => x.DeepItems)
                           )
@@ -533,7 +533,7 @@ public class PermanentShop : Shop, IPermanentShop
     {
         if (method is CashPayment)
         {
-            if (!TillItems.Any() && StockroomCell is null)
+            if (!TillItems.Any() && StockroomRoom is null)
             {
                 return (false, "the store is currently missing its till, and so cannot do cash transactions.");
             }
@@ -554,11 +554,11 @@ public class PermanentShop : Shop, IPermanentShop
         switch (property.ToLowerInvariant())
         {
             case "shopfront":
-                return new CollectionVariable(ShopfrontCells.ToList(), ProgVariableTypes.Location);
+                return new CollectionVariable(ShopfrontRooms.ToList(), ProgVariableTypes.Location);
             case "storeroom":
-                return StockroomCell;
+                return StockroomRoom;
             case "workshop":
-                return WorkshopCell;
+                return WorkshopRoom;
             case "tills":
                 return new CollectionVariable(TillItems.ToList(), ProgVariableTypes.Item);
             default:
@@ -566,9 +566,9 @@ public class PermanentShop : Shop, IPermanentShop
         }
     }
 
-    public override IEnumerable<ICell> CurrentLocations => ShopfrontCells;
+    public override IEnumerable<IRoom> CurrentLocations => ShopfrontRooms;
 
-    public override bool IsReadyToDoBusiness => TillItems.Any() || StockroomCell is not null;
+    public override bool IsReadyToDoBusiness => TillItems.Any() || StockroomRoom is not null;
 
     public override IReadOnlyDictionary<ICurrencyPile, Dictionary<ICoin, int>> GetCurrencyForShop(decimal amount)
     {
@@ -577,9 +577,9 @@ public class PermanentShop : Shop, IPermanentShop
             return Currency.FindCurrency(TillItems.SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()).ToList(), amount);
         }
 
-        if (StockroomCell is not null)
+        if (StockroomRoom is not null)
         {
-            return Currency.FindCurrency(StockroomCell.GameItems.SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()).ToList(), amount);
+            return Currency.FindCurrency(StockroomRoom.GameItems.SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()).ToList(), amount);
         }
 
         return new Dictionary<ICurrencyPile, Dictionary<ICoin, int>>();
@@ -589,9 +589,9 @@ public class PermanentShop : Shop, IPermanentShop
     {
         List<ICurrencyPile> piles = new();
         piles.AddRange(TillItems.SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()));
-        if (StockroomCell is not null)
+        if (StockroomRoom is not null)
         {
-            piles.AddRange(StockroomCell.GameItems
+            piles.AddRange(StockroomRoom.GameItems
                                         .Where(x => !TillItems.Contains(x))
                                         .SelectMany(x => x.RecursiveGetItems<ICurrencyPile>()));
         }
@@ -613,15 +613,15 @@ public class PermanentShop : Shop, IPermanentShop
             return;
         }
 
-        if (StockroomCell is not null)
+        if (StockroomRoom is not null)
         {
-            StockroomCell.Insert(currencyPile);
+            StockroomRoom.Insert(currencyPile);
             return;
         }
 
-        if (ShopfrontCells.Any())
+        if (ShopfrontRooms.Any())
         {
-            ShopfrontCells.First().Insert(currencyPile);
+            ShopfrontRooms.First().Insert(currencyPile);
             Gameworld.SystemMessage($"The shop {Name.ColourName()} inserted money on the public ground because it had no tills or stockroom.", true);
             return;
         }

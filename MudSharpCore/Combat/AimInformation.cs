@@ -13,7 +13,7 @@ namespace MudSharp.Combat;
 
 public class AimInformation : IAimInformation
 {
-    public static int GetEffectiveRange(IEnumerable<ICellExit> exits)
+    public static int GetEffectiveRange(IEnumerable<IRoomExit> exits)
     {
         switch (Futuremud.Games.First().GetStaticConfiguration("RangeCountingMode"))
         {
@@ -40,12 +40,12 @@ public class AimInformation : IAimInformation
         set => _aimPercentage = Math.Max(0.0, Math.Min(value, 1.0));
     }
 
-    public IEnumerable<ICellExit> Path { get; set; }
+    public IEnumerable<IRoomExit> Path { get; set; }
 	public IRangedWeaponPlatform Weapon { get; set; }
 
     public event EventHandler AimInvalidated;
 
-	public AimInformation(IPerceiver target, IPerceiver shooter, IEnumerable<ICellExit> path, IRangedWeaponPlatform weapon)
+	public AimInformation(IPerceiver target, IPerceiver shooter, IEnumerable<IRoomExit> path, IRangedWeaponPlatform weapon)
     {
         Shooter = shooter;
         Target = target;
@@ -140,7 +140,7 @@ public class AimInformation : IAimInformation
 
     private void RegisterPathEvents()
     {
-        foreach (ICellExit exit in Path)
+        foreach (IRoomExit exit in Path)
         {
             if (exit.Exit.Door != null)
             {
@@ -167,7 +167,7 @@ public class AimInformation : IAimInformation
             int range = GetEffectiveRange(Path);
             if (range > Weapon.WeaponType.DefaultRangeInRooms)
             {
-                Path = Enumerable.Empty<ICellExit>();
+                Path = Enumerable.Empty<IRoomExit>();
                 return;
             }
         }
@@ -268,7 +268,7 @@ public class AimInformation : IAimInformation
         }
     }
 
-    private void Target_OnLocationChanged(ILocateable locatable, ICellExit exit)
+    private void Target_OnLocationChanged(ILocateable locatable, IRoomExit exit)
     {
         if (exit != null)
         {
@@ -360,7 +360,7 @@ public class AimInformation : IAimInformation
 
     private void ReleasePathEvents()
     {
-        foreach (ICellExit exit in Path)
+        foreach (IRoomExit exit in Path)
         {
             if (exit.Exit.Door != null)
             {

@@ -24,15 +24,15 @@ public class ArenaObservationServiceTests
     }
 
     [TestMethod]
-    public void CanObserve_WhenNotInObservationCell_ReturnsFalse()
+    public void CanObserve_WhenNotInObservationRoom_ReturnsFalse()
     {
         Mock<ICharacter> observer = new();
         observer.SetupGet(x => x.State).Returns(CharacterState.Conscious);
-        Mock<ICell> observationCell = new();
-        Mock<ICell> otherCell = new();
-        observer.SetupGet(x => x.Location).Returns(otherCell.Object);
+        Mock<IRoom> observationRoom = new();
+        Mock<IRoom> otherRoom = new();
+        observer.SetupGet(x => x.Location).Returns(otherRoom.Object);
         Mock<ICombatArena> arena = new();
-        arena.Setup(x => x.ObservationCells).Returns(new[] { observationCell.Object });
+        arena.Setup(x => x.ObservationRooms).Returns(new[] { observationRoom.Object });
         Mock<IArenaEvent> arenaEvent = new();
         arenaEvent.Setup(x => x.Arena).Returns(arena.Object);
         arenaEvent.Setup(x => x.State).Returns(ArenaEventState.Live);
@@ -47,10 +47,10 @@ public class ArenaObservationServiceTests
     {
         Mock<ICharacter> observer = new();
         observer.SetupGet(x => x.State).Returns(CharacterState.Conscious);
-        Mock<ICell> observationCell = new();
-        observer.SetupGet(x => x.Location).Returns(observationCell.Object);
+        Mock<IRoom> observationRoom = new();
+        observer.SetupGet(x => x.Location).Returns(observationRoom.Object);
         Mock<ICombatArena> arena = new();
-        arena.Setup(x => x.ObservationCells).Returns(new[] { observationCell.Object });
+        arena.Setup(x => x.ObservationRooms).Returns(new[] { observationRoom.Object });
         Mock<IArenaEvent> arenaEvent = new();
         arenaEvent.Setup(x => x.Arena).Returns(arena.Object);
         arenaEvent.Setup(x => x.State).Returns(ArenaEventState.Scheduled);
@@ -65,10 +65,10 @@ public class ArenaObservationServiceTests
     {
         Mock<ICharacter> observer = new();
         observer.SetupGet(x => x.State).Returns(CharacterState.Conscious);
-        Mock<ICell> observationCell = new();
-        observer.SetupGet(x => x.Location).Returns(observationCell.Object);
+        Mock<IRoom> observationRoom = new();
+        observer.SetupGet(x => x.Location).Returns(observationRoom.Object);
         Mock<ICombatArena> arena = new();
-        arena.Setup(x => x.ObservationCells).Returns(new[] { observationCell.Object });
+        arena.Setup(x => x.ObservationRooms).Returns(new[] { observationRoom.Object });
         Mock<IArenaParticipant> participant = new();
         participant.SetupGet(x => x.Character).Returns(observer.Object);
         participant.SetupGet(x => x.ActiveCharacter).Returns(observer.Object);
@@ -86,11 +86,11 @@ public class ArenaObservationServiceTests
     {
         Mock<ICharacter> observer = new();
         observer.SetupGet(x => x.State).Returns(CharacterState.Conscious);
-        Mock<ICell> observationCell = new();
-        observer.SetupGet(x => x.Location).Returns(observationCell.Object);
+        Mock<IRoom> observationRoom = new();
+        observer.SetupGet(x => x.Location).Returns(observationRoom.Object);
         Mock<ICombatArena> arena = new();
         arena.Setup(x => x.Name).Returns("Test Arena");
-        arena.Setup(x => x.ObservationCells).Returns(Array.Empty<ICell>());
+        arena.Setup(x => x.ObservationRooms).Returns(Array.Empty<IRoom>());
         Mock<IArenaEvent> arenaEvent = new();
         arenaEvent.Setup(x => x.Arena).Returns(arena.Object);
         arenaEvent.Setup(x => x.State).Returns(ArenaEventState.Live);
@@ -101,14 +101,14 @@ public class ArenaObservationServiceTests
     }
 
     [TestMethod]
-    public void CanObserve_WhenObserverIsInObservationCell_ReturnsTrue()
+    public void CanObserve_WhenObserverIsInObservationRoom_ReturnsTrue()
     {
         Mock<ICharacter> observer = new();
         observer.SetupGet(x => x.State).Returns(CharacterState.Conscious);
-        Mock<ICell> observationCell = new();
-        observer.SetupGet(x => x.Location).Returns(observationCell.Object);
+        Mock<IRoom> observationRoom = new();
+        observer.SetupGet(x => x.Location).Returns(observationRoom.Object);
         Mock<ICombatArena> arena = new();
-        arena.Setup(x => x.ObservationCells).Returns(new[] { observationCell.Object });
+        arena.Setup(x => x.ObservationRooms).Returns(new[] { observationRoom.Object });
         Mock<IArenaEvent> arenaEvent = new();
         arenaEvent.Setup(x => x.Arena).Returns(arena.Object);
         arenaEvent.Setup(x => x.State).Returns(ArenaEventState.RegistrationOpen);
@@ -119,14 +119,14 @@ public class ArenaObservationServiceTests
     }
 
     [TestMethod]
-    public void CanObserve_WhenPreparingAndInObservationCell_ReturnsTrue()
+    public void CanObserve_WhenPreparingAndInObservationRoom_ReturnsTrue()
     {
         Mock<ICharacter> observer = new();
         observer.SetupGet(x => x.State).Returns(CharacterState.Conscious);
-        Mock<ICell> observationCell = new();
-        observer.SetupGet(x => x.Location).Returns(observationCell.Object);
+        Mock<IRoom> observationRoom = new();
+        observer.SetupGet(x => x.Location).Returns(observationRoom.Object);
         Mock<ICombatArena> arena = new();
-        arena.Setup(x => x.ObservationCells).Returns(new[] { observationCell.Object });
+        arena.Setup(x => x.ObservationRooms).Returns(new[] { observationRoom.Object });
         Mock<IArenaEvent> arenaEvent = new();
         arenaEvent.Setup(x => x.Arena).Returns(arena.Object);
         arenaEvent.Setup(x => x.State).Returns(ArenaEventState.Preparing);

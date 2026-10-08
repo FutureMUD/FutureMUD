@@ -240,7 +240,7 @@ public partial class Character
         ai?.HandleDeniedControl(this, rider);
     }
 
-    public bool RiderMove(ICellExit exit, ICharacter rider, IEmote? emote = null, bool ignoreSafeMovement = false)
+    public bool RiderMove(IRoomExit exit, ICharacter rider, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         if (!MountGearService.CanControlMount(this, rider))
         {

@@ -449,6 +449,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
     {
         using var orderedComponentExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(actor);
         if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+		using var hostileAttempt = MudSharp.Combat.HostileAttackAdmission.EnterComponent(actor, target as ICharacter);
 
 
         if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent))
@@ -487,12 +488,19 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
             var ammo = ChamberedRound;
 			var acceptedRound = PrepareAcceptedRoundOnFire(actor, ammo);
 			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor) || !ReferenceEquals(ChamberedRound, ammo) || !acceptedRound()) break;
-        MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
 			var prepareCasing = PrepareShellCasingOnFire(actor, originalLocation);
 			var canCycle = PrepareCyclingOnFire(actor);
+			if (!MudSharp.Combat.HostileAttackAdmission.TryNotify(actor, target as ICharacter,
+				() => ReferenceEquals(ChamberedRound, ammo) && acceptedRound()))
+			{
+				MudSharp.Combat.HostileAttackAdmission.RecordShotAdmissionRefused();
+				break;
+			}
+			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
 			var ammoContainer = Parent;
 			var shotCompletion = new ProjectileCustodyCompletion(actor, ammo.Parent, target, originalLocation);
             ChamberedRound = null;
+			MudSharp.Combat.HostileAttackAdmission.RecordShotCommitted();
 			if (!ComponentItemTransfer.ReleaseFiredItem(ammo.Parent, ammoContainer ?? Parent)) break;
 			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor))
 			{
@@ -596,7 +604,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
 
         if (shell is not null && !shell.Deleted && !shell.Destroyed && shell.Location is null && shell.InInventoryOf is null && shell.ContainedIn is null)
         {
-            originalLocation.Cell.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", shell), flags: OutputFlags.Insigificant));
+            originalLocation.Room.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", shell), flags: OutputFlags.Insigificant));
 			if (!shell.Deleted && !shell.Destroyed && shell.Location is null && shell.InInventoryOf is null && shell.ContainedIn is null) shell.InsertAtSpatialLocation(originalLocation);
         }
     }
@@ -808,7 +816,7 @@ public abstract class FirearmBaseGameItemComponent : GameItemComponent, IFirearm
         }
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         if (!InstalledAttachments.Any())
         {

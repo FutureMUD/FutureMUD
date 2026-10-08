@@ -222,20 +222,20 @@ public static class AlertUtilities
 
 	private static void SendAlertToNearbyRooms(ICharacter actor, string distantText)
 	{
-		var allCells = actor.Location.CellsInVicinity(AlertRoomRange, exit => true, cell => true).ToList();
+		var allRooms = actor.Location.RoomsInVicinity(AlertRoomRange, exit => true, room => true).ToList();
 		var surrounds = actor.Location.Surrounds.ToList();
-		foreach (var cell in allCells)
+		foreach (var room in allRooms)
 		{
-			if (cell == actor.Location)
+			if (room == actor.Location)
 			{
 				continue;
 			}
 
-			foreach (var witness in cell.Characters.ToList())
+			foreach (var witness in room.Characters.ToList())
 			{
-				var path = DirectionPathFrom(cell, actor);
+				var path = DirectionPathFrom(room, actor);
 				var distance = path.Count;
-				var directionText = DirectionText(actor, cell, witness, path, surrounds.Contains(cell));
+				var directionText = DirectionText(actor, room, witness, path, surrounds.Contains(room));
 				var volume = distance <= 1 ? AudioVolume.Decent : AudioVolume.Faint;
 				if (!CanHearAlert(actor, witness, volume, Proximity.VeryDistant))
 				{
@@ -252,17 +252,17 @@ public static class AlertUtilities
 		}
 	}
 
-	private static List<ICellExit> DirectionPathFrom(ICell cell, ICharacter actor)
+	private static List<IRoomExit> DirectionPathFrom(IRoom room, ICharacter actor)
 	{
-		return cell.PathBetween(actor, AlertRoomRange, PathSearch.IgnorePresenceOfDoors).ToList();
+		return room.PathBetween(actor, AlertRoomRange, PathSearch.IgnorePresenceOfDoors).ToList();
 	}
 
-	private static string DirectionText(ICharacter actor, ICell cell, ICharacter witness, List<ICellExit> path,
-		bool neighbouringCell)
+	private static string DirectionText(ICharacter actor, IRoom room, ICharacter witness, List<IRoomExit> path,
+		bool neighbouringRoom)
 	{
-		if (neighbouringCell)
+		if (neighbouringRoom)
 		{
-			return actor.Location.GetExitTo(cell, witness)?.InboundDirectionSuffix ?? "from somewhere unknown";
+			return actor.Location.GetExitTo(room, witness)?.InboundDirectionSuffix ?? "from somewhere unknown";
 		}
 
 		return path.Any()

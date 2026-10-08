@@ -17,7 +17,7 @@ public static class ThermalDebug {
 
         var parent = new Mock<IGameItem>();
         parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
-        parent.SetupGet(x => x.TrueLocations).Returns(Enumerable.Empty<MudSharp.Construction.ICell>());
+        parent.SetupGet(x => x.TrueLocations).Returns(Enumerable.Empty<MudSharp.Construction.IRoom>());
         parent.SetupGet(x => x.Effects).Returns(Enumerable.Empty<MudSharp.Effects.IEffect>());
         parent.SetupGet(x => x.Components).Returns(Enumerable.Empty<IGameItemComponent>());
         parent.SetupGet(x => x.RoomLayer).Returns(MudSharp.Framework.RoomLayer.GroundLevel);

@@ -21,8 +21,8 @@ namespace MudSharp.NPC.Templates
         IHealthStrategy? HealthStrategy { get; }
         ICharacterCombatSettings? DefaultCombatSetting { get; }
         List<IArtificialIntelligence> ArtificialIntelligences { get; }
-        ICharacterTemplate GetCharacterTemplate(ICell? cell = null);
-        ICharacter CreateNewCharacter(ICell location);
+        ICharacterTemplate GetCharacterTemplate(IRoom? room = null);
+        ICharacter CreateNewCharacter(IRoom location);
         ICharacter CreateNewCharacter(SpatialLocation location);
 		ICharacter CreateSpellOwnedCharacter(SpatialLocation location, MudSharp.Magic.SpellLifecycleOrigin origin);
         IEnumerable<string> ApplyTemplateLoadAdditions(ICharacter character, bool logWarnings = true);

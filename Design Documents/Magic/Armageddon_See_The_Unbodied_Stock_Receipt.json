@@ -1,0 +1,390 @@
+{
+  "schema_version": 1,
+  "entry_key": "arm.spell.see_the_unbodied",
+  "historical_identity": {
+    "name": "Detect Ethereal",
+    "skill": 44
+  },
+  "status": "SOURCE_QUALIFIED_EDITABLE_STOCK_NATIVE_VERIFIED_PARENT_REVIEW_PENDING",
+  "recorded_utc": "2026-10-05T23:08:24.505794+00:00",
+  "branch": "codex/armageddon-five-stock-spells",
+  "isolated_base": "1ad24d636925da64e7a82ffa858b0af470e56b0a",
+  "worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock",
+  "reviewed_component_checkpoint": "c4a6e4ffe0e5fe9b72759bebe4a9b9e55d9a3ab3",
+  "component_independent_review_cleared": true,
+  "implementation_commit": "25446524d80e980db60649363c114e7a4e135921",
+  "tested_source_head": "25446524d80e980db60649363c114e7a4e135921",
+  "stock_factory_implemented": true,
+  "normal_stock_command_wired": true,
+  "completion_clear": false,
+  "independent_review_pending": true,
+  "full_world_qualified": false,
+  "source_contract": {
+    "prerequisite_key": "arm.spell.pierce_concealment",
+    "prerequisite_raw": 80,
+    "prerequisite_controlled_grade": 1,
+    "opening": 30,
+    "raw_cap": 90,
+    "branches_raw": 80,
+    "printed_minimum": 7,
+    "raw_historical_min_mana": 0,
+    "target": "self recipient only",
+    "posture": "Existing positionid minimum-Standing mapping; standing variants and active movement; resting and combat refuse",
+    "lifetime_seconds": "1800*grade",
+    "unit_seconds": 600,
+    "maximum_units": 36,
+    "retain_strongest_source_grade": true,
+    "silt_shadow": "Explicit native terrain catalogue identities; Silt refusal before Shadow component exemption",
+    "component": "One directly carried native Divination quantity unit outside Shadow, all grades; rank max(grade-3,0), ranks0-4 ascending; higher descendants qualify",
+    "opposed_save": false,
+    "duration_randomness": false
+  },
+  "explicit_adaptations": [
+    "Native filter-bearing character trigger requires explicit self/me target; historical omitted-target self syntax is not implemented",
+    "Native position identity mapping, explicit terrain/tag IDs, quantity unit rather than historical whole-object extraction",
+    "600-second source clock mapped to exact deadlines, normalized remaining whole units and existing native offline remaining-time behavior",
+    "No inferred native guild/race/immortal bypasses; charged carriers and area delivery outside scope"
+  ],
+  "allocated_source_files": [
+    {
+      "path": "MudSharpCore Unit Tests/SeeTheUnbodiedStockTests.cs",
+      "bytes": 12748,
+      "sha256": "3e4aa4834446cd95b129986a1eaece60df02d27e91f7232ce296c7d7901a3255"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.PerceptionStock.cs",
+      "bytes": 1785,
+      "sha256": "31235f284802e80e9800cdcf0feaffee4c87510041d5e0d75033a0e6268ee8a5"
+    },
+    {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.SeeTheUnbodiedStock.cs",
+      "bytes": 2169,
+      "sha256": "39bd47fc7d1f7f0fc43bda521bd2dd29bed527dd3563fde878c484e4304d8595"
+    },
+    {
+      "path": "MudSharpCore/Magic/ArmageddonSeeTheUnbodiedStock.cs",
+      "bytes": 5197,
+      "sha256": "d11691fd7d058297fcf7756ed6e0759be38006a6747f89ce36e564e35a1c8899"
+    },
+    {
+      "path": "Temporary Scratch App/SeeTheUnbodiedStockNativeHarness/Program.SeeTheUnbodiedStock.cs",
+      "bytes": 31410,
+      "sha256": "4a79277b6ea436f552b6c0879c3a42c4739165bafe4207cf8c932538c4021f47"
+    },
+    {
+      "path": "Temporary Scratch App/SeeTheUnbodiedStockNativeHarness/Run-SeeTheUnbodiedStock.ps1",
+      "bytes": 8755,
+      "sha256": "a9ddbe73bfa5606e1cca7945e47fe2c32cd7dfba7b9de4b654ecc2babc96aafb"
+    },
+    {
+      "path": "Temporary Scratch App/SeeTheUnbodiedStockNativeHarness/SeeTheUnbodiedStockEntry.cs",
+      "bytes": 218,
+      "sha256": "c5704b6c63170b8d6465714f04d76fd4d4c8d49d84d94d144b6fde9403a600bb"
+    },
+    {
+      "path": "Temporary Scratch App/SeeTheUnbodiedStockNativeHarness/SeeTheUnbodiedStockNativeHarness.csproj",
+      "bytes": 1799,
+      "sha256": "36d27a632414790d7982f2b1c2febbcd3208e53e99d26e2ebd28d3e11da65335"
+    }
+  ],
+  "authority": {
+    "brief_library_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+    "codedump_library_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+    "source_qualification": {
+      "path": "Design Documents/Magic/Armageddon_See_The_Unbodied_Source_Qualification_Receipt.json",
+      "bytes": 24680,
+      "sha256": "aefb36364a143f47eeea8b271852d104b2b11ac19e86503ddbf925f7f0ff34a6"
+    },
+    "supported_bounded_snapshots": {
+      "path": ".artifacts/test-runs/see-unbodied-source-qualification-01/library-evidence.json",
+      "bytes": 79273,
+      "sha256": "039625cfaef11c975344a0ef101db6a53392cbeefacbac5d5c67a6219b13716d"
+    },
+    "full_file_materialization_claimed": false
+  },
+  "verification": {
+    "strict_fast": {
+      "path": ".artifacts/test-runs/see-unbodied-stock-final-01/20261005T224659Z-e272c4f33737/summary.json",
+      "bytes": 40934,
+      "sha256": "00c5aa86e48f2faa2a30fe79842a591a441dcc4fab76eda2ef50877ec3fe4c4f",
+      "head": "25446524d80e980db60649363c114e7a4e135921",
+      "counts": {
+        "executed": 7769,
+        "passed": 7769,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 7769
+      },
+      "projects": 10,
+      "source_stable": true,
+      "source_start": "13c7a64e2d012d9a1a46fbe38d34f839197f9ca140f347924a3485a1ff82991c",
+      "source_end": "13c7a64e2d012d9a1a46fbe38d34f839197f9ca140f347924a3485a1ff82991c"
+    },
+    "focused": {
+      "path": ".artifacts/test-runs/see-unbodied-stock-targeted-03/20261005T224020Z-531e3b2019c2/summary.json",
+      "bytes": 6441,
+      "sha256": "5c65416b1c29310252a7b6fa74772376cfce2c8e98602654b3476db329f9ef42",
+      "passed": 116,
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true
+    },
+    "native_build": {
+      "path": ".artifacts/test-runs/see-unbodied-stock-final-native-build-01.log",
+      "bytes": 16051,
+      "sha256": "9bc0f6c4a047ef5d2d2cb6bc13b4cd4dbae025e8bb8b985da1aa0ca8b11c49f0"
+    },
+    "native": {
+      "path": ".artifacts/test-runs/see-unbodied-stock-final-native-01/summary.json",
+      "bytes": 2876,
+      "sha256": "1b4a27b017f3fb0e13753e8ef00d9b9fc3e37b427c1c31d2bb80659041e9851d",
+      "source_head": "25446524d80e980db60649363c114e7a4e135921",
+      "source_files": 7526,
+      "source_stable": true,
+      "assemblies_stable": true,
+      "all_passed": true,
+      "source_manifest_sha256": "909336b28b8832da125f690f29c497060d34cabf63b40e2954ddc44c8cb099fd",
+      "assembly_manifest_sha256": "2a56c5f15e86550cef05a0d35b73600d7285303906c26010c56e463f78949294",
+      "runs": [
+        {
+          "mode": "see-unbodied-stock",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-unbodied-stock-final-native-01/see-unbodied-stock.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-unbodied-stock-final-native-01/see-unbodied-stock.log",
+            "bytes": 1867667,
+            "sha256": "6eb9c45ab439859afa148fff92b160db37240177795bb513821fc9f3823bcf2c"
+          }
+        },
+        {
+          "mode": "ethereal-component-adapter",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-unbodied-stock-final-native-01/ethereal-component-adapter.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-unbodied-stock-final-native-01/ethereal-component-adapter.log",
+            "bytes": 1064637,
+            "sha256": "98b32714b642aecb878618f281aa4cb190259b3ff34e7180b763a5f98f831bf9"
+          }
+        },
+        {
+          "mode": "ethereal-adapter",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-unbodied-stock-final-native-01/ethereal-adapter.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-unbodied-stock-final-native-01/ethereal-adapter.log",
+            "bytes": 440069,
+            "sha256": "ee6b0f879df99c48a5060d567ab081ce80543aa982ffecb6bfc9d69ab84d761a"
+          }
+        },
+        {
+          "mode": "water-stock",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-unbodied-stock-final-native-01/water-stock.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-unbodied-stock-final-native-01/water-stock.log",
+            "bytes": 1295806,
+            "sha256": "6d2dc8b71df7c6ea8608ac330c2ede9852385c684e66177b0ec798c1cfe45365"
+          }
+        },
+        {
+          "mode": "water-adapter",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-unbodied-stock-final-native-01/water-adapter.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-unbodied-stock-final-native-01/water-adapter.log",
+            "bytes": 441560,
+            "sha256": "fe5c69faad435ad351817bf9a5ea52f534fa9337efa8ffd51f7c9253867dc54c"
+          }
+        },
+        {
+          "mode": "pierce-stock",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-unbodied-stock-final-native-01/pierce-stock.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-unbodied-stock-final-native-01/pierce-stock.log",
+            "bytes": 677909,
+            "sha256": "86a0dea6a7d6df51ecdd34565cec966bd6e6a5ed8045d2ec94808364e43ea629"
+          }
+        },
+        {
+          "mode": "pierce-shared-runtime",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-unbodied-stock-final-native-01/pierce-shared-runtime.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-unbodied-stock-final-native-01/pierce-shared-runtime.log",
+            "bytes": 974804,
+            "sha256": "299381de620aadc61b34c4ef66f55124d1d03371027a2ca37b155ff143db214b"
+          }
+        },
+        {
+          "mode": "provision-stock",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-unbodied-stock-final-native-01/provision-stock.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-unbodied-stock-final-native-01/provision-stock.log",
+            "bytes": 1218140,
+            "sha256": "d386d07dfdadad94f3fcaef1b138ebcfeb04c7cbcc2da9f22961f0c8bf68cc30"
+          }
+        },
+        {
+          "mode": "five-stock",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-unbodied-stock-final-native-01/five-stock.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-unbodied-stock-final-native-01/five-stock.log",
+            "bytes": 2235544,
+            "sha256": "e7098d6e9b8bbdd0ab9f79e172a67b471a5979370cd8dc0ab5d91126c44bda00"
+          }
+        },
+        {
+          "mode": "regressions",
+          "exit_code": 0,
+          "passed": true,
+          "owned_cleanup": true,
+          "log": ".artifacts/test-runs/see-unbodied-stock-final-native-01/regressions.log",
+          "log_evidence": {
+            "path": ".artifacts/test-runs/see-unbodied-stock-final-native-01/regressions.log",
+            "bytes": 3199781,
+            "sha256": "7795af8cc8c089fbc0cf64805409cb6ac952572e107c8c1c0b2b30f9fa498075"
+          }
+        }
+      ]
+    },
+    "core_assembly_match": {
+      "path": ".artifacts/test-runs/see-unbodied-stock-final-core-assembly-match.json",
+      "bytes": 271,
+      "sha256": "27b9252598055fa3887bb31ec37204c5c8098bd04a7abcfceba5b6b1f05c723d",
+      "source_head": "25446524d80e980db60649363c114e7a4e135921",
+      "unit_core_sha256": "b22b85c03b2f143a229fa71e4348dc454a4502753af60d7ec95826c52d62a699",
+      "native_core_sha256": "b22b85c03b2f143a229fa71e4348dc454a4502753af60d7ec95826c52d62a699",
+      "matched": true
+    },
+    "unit_assembly_manifest": {
+      "path": ".artifacts/test-runs/see-unbodied-stock-final-unit-assemblies.json",
+      "bytes": 871,
+      "sha256": "66e56e2391952174740a0f4300be401b1bc983c7373f6303f507648894c4c284"
+    },
+    "owned_cleanup": {
+      "path": ".artifacts/test-runs/see-unbodied-stock-final-owned-cleanup.json",
+      "bytes": 151,
+      "sha256": "d6b6aac6e53cd62a55e5651b1039167902ae91739ae5fa579c66d9d913dbe7ab",
+      "checked_utc": "2026-10-05T23:06:37.7442728Z",
+      "owned_running_processes": [],
+      "owned_temporary_mysql_directories": [],
+      "clean": true
+    },
+    "protected_files": {
+      "path": ".artifacts/test-runs/see-unbodied-stock-protected-blobs.json",
+      "bytes": 25973,
+      "sha256": "a8e744bdd26944a9263aab176bb9874fcb4156d3542690bd8ab7ed1d6a02c7e9",
+      "checked_files": 99,
+      "all_unchanged": true
+    }
+  },
+  "native_qualification": [
+    "Normal editable stock command, duplicate/malformed row conservation, source/ref/rank/practice edits and native database reload",
+    "Real Pierce stock as fixture starting admission with distinct native skill; raw79 refusal/raw80 grant, See opening30 and route cap90/relative grades; full installer tree not claimed",
+    "Missing target, resting posture, Silt, missing carried component and insufficient rank refuse before debit/operation receipt; live invalid/missing/null/failed filter refuses with conserved resources/material",
+    "Actual paid grades1-7 at controlled7: 7,8,10,12,16,25,50, preserving existing integer source efficiency; initial controlled7 assigned explicitly for cast scenarios",
+    "Cumulative cap36/strongest grade7, typed native perception channels and parent-child cleanup; paid unchanged overreach112.5 no mastery sample/advancement",
+    "Outside Shadow exact one-unit decrement; Shadow only dedicated-action exemption; native quantity-one deletion from world/body/database",
+    "Prepayment cohort drift refusal, postcommit drift NeedsReview, both environment directions after debit retain old cohort and quantity",
+    "Separate pre-practice cold reader per uncertain operation with original recorded grade/targets: no second debit/consume/refund/mastery; explicit disposable-fixture staff reconciliation for continuation",
+    "Reset acquisition to controlled1 and native raw30, then normal paid effect-free practice through grade7/raw90 using actual ClassicImprovement and configured route cap; no component consumed",
+    "Final paid grade7 cast follows real practice; final separate reader reloads stock/filter/scope, grade7/raw90, typed parent-child identity/policy/exact deadline and reserve/quantity; origin retry refuses; exact expiry removes parent/child/perception without refund",
+    "Preserved native component/ethereal/water/Pierce/provision/five-stock modes, including Mend cap60/grade7 practice, and reviewed Raise Servitor/Storm Spear/Flame Knife/Sand Knife regressions"
+  ],
+  "unit_qualification": [
+    "Compiled self-only filter tests other-character refusal and all21 native posture identities",
+    "All seven grade/rank thresholds plus higher descendant and unrelated item refusal through existing native selection",
+    "Normal source reference/practice builder edits, template clone and profile/plan/scope reload",
+    "Invalid explicit terrain/tag mappings refuse before database writes; native acquisition fixture crosses raw79/80 without payment"
+  ],
+  "native_limits": [
+    "No production database/world boot, installed full source acquisition tree, or actual Silt/Shadow topology proof",
+    "Cells/terrain catalogue, anatomy/race and succeeding cast checks remain explicit fixture mocks; concrete character/body/items/tags/resources/database/scheduler/journal are native",
+    "Deterministic configured native improvement model and accelerated clock; initial controlled7 cast scenarios are explicitly staff-assigned, separate from genuine practice-to-grade7 proof",
+    "Native ethereal channel grant/restoration/expiry verified; full blindness/ward/planar hidden-target sight behavior unqualified",
+    "Other-character refusal proved by compiled stock filter unit cases and cleared self-recipient adapter; no second concrete native character target in this stock harness",
+    "Historical omitted-target self remains explicit native command-syntax adaptation; charged carriers, area, crime callbacks and automatic setting exemptions not implemented"
+  ],
+  "preserved_failed_attempts": [
+    {
+      "path": ".artifacts/test-runs/see-unbodied-stock-targeted-01/20261005T223318Z-acdcac469806/summary.json",
+      "bytes": 6557,
+      "sha256": "4ba821106a929de884f390189be14e37245fa1e05be525cb56847696019e2d28",
+      "reason": "115 passed/1 failed: acquisition fixture lacked the permanent capability merit required by native automatic progression; added fixture merit"
+    },
+    {
+      "path": ".artifacts/test-runs/see-unbodied-stock-targeted-02/20261005T223830Z-1767f288af24/summary.json",
+      "bytes": 3862,
+      "sha256": "b6faf9b3021ef08385d887f032670f89e6718c16d454a1d8fe9f3ede592d65a3",
+      "reason": "Compile failure from missing IMerit namespace; added using MudSharp.RPG.Merits"
+    },
+    {
+      "path": ".artifacts/test-runs/see-unbodied-stock-native-initial-01.log",
+      "bytes": 1013896,
+      "sha256": "28771fcfa7558d05e1d5e4eefe1a047b8086bfc9ab4ab7b1f1241129a5702a29",
+      "reason": "Paid stock/acquisition/refusal checks passed before pre-practice uncertainty reader attempted to restore a not-yet-created practice improver; condition that restoration on final post-practice reader"
+    }
+  ],
+  "preliminary_passed_native": {
+    "path": ".artifacts/test-runs/see-unbodied-stock-native-initial-02.log",
+    "bytes": 1857857,
+    "sha256": "3e8b5cd39bdf002a3763e6c51d8b0c1151fd536120886999091c0251f88e4bf5"
+  },
+  "shared_boundaries": {
+    "runtime_adapter_and_casting_api_changed": false,
+    "main_combat_authority_changed": false,
+    "central_ledger_changed": false,
+    "repertoire_disposition_changed": false,
+    "installer_registry_changed": false,
+    "shared_native_dispatch_changed": false,
+    "existing_builder_hook": {
+      "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.PerceptionStock.cs",
+      "scope": "One new stock-helper call and available stock-name entry; prior implementations unchanged"
+    },
+    "remote_actions_performed": false
+  },
+  "integration": {
+    "note": "Design Documents/Magic/Armageddon_See_The_Unbodied_Stock_Integration.md",
+    "factory": "ArmageddonSeeTheUnbodiedStock.Create(world, school, skill, resource, silt, shadow, divinationRanks)",
+    "required_authored_definitions": "Explicit existing native Silt/Shadow terrains and ascending Divination ranks0-4",
+    "admission": "Opening30, rawCap90, relative grade thresholds; acquired Pierce grade1/raw80 prerequisite",
+    "shared_api_additions_needed": [],
+    "shared_native_dispatch_additions_needed": [],
+    "installer_registry_contribution_pending_owner": true,
+    "central_ledger_updates_pending_owner": true
+  },
+  "separate_fury_explanation": {
+    "note": "Design Documents/Magic/Armageddon_Fury_Attribute_Decision_Note.md",
+    "bounded_followup": {
+      "path": ".artifacts/test-runs/fury-apply-end-lifecycle-source-evidence.json",
+      "bytes": 47582,
+      "sha256": "7fd82639a6c7e3e6219f9fce11cacf3a4663f53293bf3d64d462382183ed271d"
+    },
+    "attribute_mapping_approved": true,
+    "runtime_or_seeder_fury_changes_in_this_checkpoint": false,
+    "finding": "APPLY_END directly changes only tmpabilities.end; affect_total rebuilds/clamps effective attributes; GET_MAX_MOVE calculates capacity on demand through move_limit; current move writes use set_move/adjust_move, with no Fury refill or immediate source removal clamp"
+  }
+}

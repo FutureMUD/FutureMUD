@@ -1516,12 +1516,12 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 		var expectedStone = _ignitionStone;
 		var weaponBody = Parent.InInventoryOf;
 		var weaponContainer = Parent.ContainedIn;
-		var weaponCell = ComponentItemTransfer.DirectLocationOf(Parent);
+		var weaponRoom = ComponentItemTransfer.DirectLocationOf(Parent);
 		var weaponBelt = Parent.GetItemType<IBeltable>()?.ConnectedTo;
 		var launch = RouteSpatialService.Instance.GetEffectiveLocation(actor);
 		bool CurrentLoad() => !Parent.Deleted && !Parent.Destroyed && ReferenceEquals(_prototype, prototype) &&
 			ReferenceEquals(Parent.InInventoryOf, weaponBody) && ReferenceEquals(Parent.ContainedIn, weaponContainer) &&
-			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(Parent), weaponCell) &&
+			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(Parent), weaponRoom) &&
 			ReferenceEquals(Parent.GetItemType<IBeltable>()?.ConnectedTo, weaponBelt) &&
 			LoadStage == expectedStage && IsBlankLoad == expectedBlank && IsReadied == expectedReadied &&
 			NeedsCleaning == expectedCleaning && TapLoaded == expectedTap && IsJammed == expectedJam &&
@@ -1706,9 +1706,9 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 			else source.MoveTo(launch);
 			if (source.Deleted || source.Destroyed || source.InInventoryOf is not null || source.ContainedIn is not null ||
 				source.GetItemType<IBeltable>()?.ConnectedTo is not null ||
-				!ReferenceEquals(ComponentItemTransfer.DirectLocationOf(source), launch.Cell) || source.RoomLayer != launch.Layer ||
-				(launch.Cell.RouteDefinition is not null && source.RoutePositionMetres != launch.RoutePositionMetres)) return;
-			if (!launch.Cell.GameItems.Any(item => ReferenceEquals(item, source))) launch.Cell.Insert(source);
+				!ReferenceEquals(ComponentItemTransfer.DirectLocationOf(source), launch.Room) || source.RoomLayer != launch.Layer ||
+				(launch.Room.RouteDefinition is not null && source.RoutePositionMetres != launch.RoutePositionMetres)) return;
+			if (!launch.Room.GameItems.Any(item => ReferenceEquals(item, source))) launch.Room.Insert(source);
 		}
 		var sourceDetached = false;
 		var sourceDispatched = false;

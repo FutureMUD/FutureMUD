@@ -1039,7 +1039,7 @@ The syntax is:
         }
 
         string target = ss.PopSpeech();
-        ICellExit targetExit = actor.Location.GetExitKeyword(target, actor);
+        IRoomExit targetExit = actor.Location.GetExitKeyword(target, actor);
         IGameItem targetItem = targetExit?.Exit.Door?.Parent;
         if (targetItem == null && targetExit != null)
         {
@@ -2482,7 +2482,7 @@ There are three forms for this command:
 
 		if (ss.IsFinished)
 		{
-			// PURGE LOCATION is an explicit administrative whole-cell operation, including for RouteCells.
+			// PURGE LOCATION is an explicit administrative whole-room operation, including for RouteRooms.
 			items = actor.Location.LayerGameItems(actor.RoomLayer).ToList();
             emote = new Emote("@ purge|purges the location of all items.", actor);
         }
@@ -2498,7 +2498,7 @@ There are three forms for this command:
                 }
 
 				string keyword = ss.PopSpeech();
-				// PURGE ALL is likewise deliberately cell-wide rather than actor-local.
+				// PURGE ALL is likewise deliberately room-wide rather than actor-local.
 				items = actor.Location.LayerGameItems(actor.RoomLayer).Where(x => x.HasKeyword(keyword, actor, true))
                              .ToList();
                 emote = new Emote(
@@ -2663,7 +2663,7 @@ The following options are available:
 			puddle.ReduceLiquidQuantity(puddle.LiquidVolume, null, "debug");
 		}
 
-		var surfaceStates = actor.Gameworld.Cells
+		var surfaceStates = actor.Gameworld.Rooms
 			.SelectMany(x => x.SurfaceLiquidStates)
 			.Select(x => x.State)
 			.Where(x => x.IsWet)
@@ -2934,12 +2934,12 @@ The following options are available:
     {
         StringBuilder sb = new();
         sb.AppendLine("The following characters had weird death states:");
-        foreach (ICell cell in actor.Gameworld.Cells)
+        foreach (IRoom room in actor.Gameworld.Rooms)
         {
-            foreach (ICharacter ch in cell.Characters.Where(x => x.State == CharacterState.Dead))
+            foreach (ICharacter ch in room.Characters.Where(x => x.State == CharacterState.Dead))
             {
                 sb.AppendLine(
-                    $"Cell {cell.Id:N0} ({cell.CurrentOverlay.CellName}) had dead character {ch.Id} ({ch.HowSeen(actor)})");
+                    $"Room {room.Id:N0} ({room.CurrentOverlay.RoomName}) had dead character {ch.Id} ({ch.HowSeen(actor)})");
             }
         }
 
@@ -3704,7 +3704,7 @@ You can use the following subcommands with the grid command:
             return;
         }
 
-        ICellExit exit = actor.Location.GetExitKeyword(ss.PopSpeech(), actor);
+        IRoomExit exit = actor.Location.GetExitKeyword(ss.PopSpeech(), actor);
         if (exit == null)
         {
             actor.OutputHandler.Send("There is no such exit.");
@@ -3846,7 +3846,7 @@ Note, you can use names or keywords to do this search, so the following three sy
                 return;
             }
 
-            target = actor.Gameworld.Cells.Get(id);
+            target = actor.Gameworld.Rooms.Get(id);
             if (target is null)
             {
                 actor.OutputHandler.Send("There is no room with that ID.");
@@ -3864,14 +3864,14 @@ Note, you can use names or keywords to do this search, so the following three sy
             }
         }
 
-        List<ICellExit> exits1 = actor.ExitsBetween(target, 50).ToList();
+        List<IRoomExit> exits1 = actor.ExitsBetween(target, 50).ToList();
         if (!exits1.Any())
         {
             actor.OutputHandler.Send("Could not find a path to that target within 50 rooms.");
             return;
         }
 
-        IEnumerable<ICellExit> exits2 = actor.PathBetween(target, 50, PathSearch.PathIncludeUnlockableDoors(actor));
+        IEnumerable<IRoomExit> exits2 = actor.PathBetween(target, 50, PathSearch.PathIncludeUnlockableDoors(actor));
 
         List<string> directionStrings1 = exits1.Select(x =>
         {
@@ -3880,7 +3880,7 @@ Note, you can use names or keywords to do this search, so the following three sy
                 return x.OutboundDirection.DescribeBrief();
             }
 
-            return x is NonCardinalCellExit nc ? $"{nc.Verb} {nc.PrimaryKeyword}".ToLowerInvariant() : "??";
+            return x is NonCardinalRoomExit nc ? $"{nc.Verb} {nc.PrimaryKeyword}".ToLowerInvariant() : "??";
         }).ToList();
 
         List<string> directionStrings2 = exits2.Select(x =>
@@ -3890,7 +3890,7 @@ Note, you can use names or keywords to do this search, so the following three sy
                 return x.OutboundDirection.DescribeBrief();
             }
 
-            return x is NonCardinalCellExit nc ? $"({nc.Verb} {nc.PrimaryKeyword})".ToLowerInvariant() : "??";
+            return x is NonCardinalRoomExit nc ? $"({nc.Verb} {nc.PrimaryKeyword})".ToLowerInvariant() : "??";
         }).ToList();
 
         StringBuilder sb = new();
@@ -4177,7 +4177,7 @@ Warning: This command doesn't play especially nice with diagonal exits (NW, NE, 
 
         int centre = width / 2;
 
-        ICell[,] cells = new ICell[width, width];
+        IRoom[,] rooms = new IRoom[width, width];
         bool[,] hasNonCompass = new bool[width, width];
         bool[,] hasCartesianClashes = new bool[width, width];
         bool[,] hasBank = new bool[width, width];
@@ -4186,16 +4186,16 @@ Warning: This command doesn't play especially nice with diagonal exits (NW, NE, 
         bool[,] hasPlayers = new bool[width, width];
         bool[,] hasHostiles = new bool[width, width];
 
-        cells[centre, centre] = actor.Location;
-        List<ICellExit> exits = actor.Location.ExitsFor(actor, true).ToList();
-        Queue<(ICellExit Exit, int OriginX, int OriginY)> queue = new();
+        rooms[centre, centre] = actor.Location;
+        List<IRoomExit> exits = actor.Location.ExitsFor(actor, true).ToList();
+        Queue<(IRoomExit Exit, int OriginX, int OriginY)> queue = new();
 
-        foreach (ICellExit exit in exits)
+        foreach (IRoomExit exit in exits)
         {
             queue.Enqueue((exit, centre, centre));
         }
 
-        void AddExitCell(ICellExit exitToAdd, int originX, int originY)
+        void AddExitRoom(IRoomExit exitToAdd, int originX, int originY)
         {
             switch (exitToAdd.OutboundDirection)
             {
@@ -4239,9 +4239,9 @@ Warning: This command doesn't play especially nice with diagonal exits (NW, NE, 
                 return;
             }
 
-            if (cells[originX, originY] is not null)
+            if (rooms[originX, originY] is not null)
             {
-                if (cells[originX, originY] != exitToAdd.Destination)
+                if (rooms[originX, originY] != exitToAdd.Destination)
                 {
                     hasCartesianClashes[originX, originY] = true;
                 }
@@ -4249,9 +4249,9 @@ Warning: This command doesn't play especially nice with diagonal exits (NW, NE, 
                 return;
             }
 
-            ICell destinationCell = exitToAdd.Destination;
-            cells[originX, originY] = destinationCell;
-            foreach (ICellExit newExit in destinationCell.ExitsFor(actor, true).Except(exitToAdd))
+            IRoom destinationRoom = exitToAdd.Destination;
+            rooms[originX, originY] = destinationRoom;
+            foreach (IRoomExit newExit in destinationRoom.ExitsFor(actor, true).Except(exitToAdd))
             {
                 switch (newExit.OutboundDirection)
                 {
@@ -4265,27 +4265,27 @@ Warning: This command doesn't play especially nice with diagonal exits (NW, NE, 
                 queue.Enqueue((newExit, originX, originY));
             }
 
-            if (destinationCell.Shop is not null)
+            if (destinationRoom.Shop is not null)
             {
                 hasShop[originX, originY] = true;
             }
 
-            if (actor.Gameworld.Banks.Any(x => x.BranchLocations.Contains(destinationCell)))
+            if (actor.Gameworld.Banks.Any(x => x.BranchLocations.Contains(destinationRoom)))
             {
                 hasBank[originX, originY] = true;
             }
 
-            if (actor.Gameworld.AuctionHouses.Any(x => x.AuctionHouseCell == destinationCell))
+            if (actor.Gameworld.AuctionHouses.Any(x => x.AuctionHouseRoom == destinationRoom))
             {
                 hasAuctionHouse[originX, originY] = true;
             }
 
-            if (destinationCell.Characters.Any(x => x.IsPlayerCharacter))
+            if (destinationRoom.Characters.Any(x => x.IsPlayerCharacter))
             {
                 hasPlayers[originX, originY] = true;
             }
 
-            if (destinationCell.Characters.Any(x =>
+            if (destinationRoom.Characters.Any(x =>
                     x is INPC npc && !npc.AffectedBy<IPauseAIEffect>() && npc.AIs.Any(y => y.CountsAsAggressive)))
             {
                 hasHostiles[originX, originY] = true;
@@ -4294,14 +4294,14 @@ Warning: This command doesn't play especially nice with diagonal exits (NW, NE, 
 
         while (queue.Count > 0)
         {
-            (ICellExit exit, int x, int y) = queue.Dequeue();
-            AddExitCell(exit, x, y);
+            (IRoomExit exit, int x, int y) = queue.Dequeue();
+            AddExitRoom(exit, x, y);
         }
 
         hasPlayers[centre, centre] = true;
 
         actor.OutputHandler.Send(
-            StringUtilities.DrawMap(actor, width, width, cells, hasNonCompass, hasCartesianClashes, hasBank, hasShop,
+            StringUtilities.DrawMap(actor, width, width, rooms, hasNonCompass, hasCartesianClashes, hasBank, hasShop,
                 hasAuctionHouse, hasPlayers, hasHostiles), nopage: true);
     }
 
@@ -4532,7 +4532,7 @@ For example:
                 string cmd = ss.PopSpeech().ToLowerInvariant();
                 if (cmd.EqualTo("here"))
                 {
-                    logs = logs.Where(log => log.CellId == actor.Location.Id);
+                    logs = logs.Where(log => log.RoomId == actor.Location.Id);
                     filterTexts.Add($"in room {actor.Location.GetFriendlyReference(actor)}");
                     continue;
                 }
@@ -4653,7 +4653,7 @@ For example:
                 ICharacter ch = actor.Gameworld.TryGetCharacter(log.CharacterId, true);
                 sb.AppendLine($"Character: {ch.PersonalName.GetName(NameStyle.FullName).ColourName()} (#{ch.Id.ToString("N0", actor)})");
                 sb.AppendLine($"Account: {actor.Gameworld.Accounts.Get(log.AccountId ?? 0)?.Name.ColourName() ?? "None".ColourError()}");
-                sb.AppendLine($"Location: {actor.Gameworld.Cells.Get(log.CellId)!.GetFriendlyReference(actor)}");
+                sb.AppendLine($"Location: {actor.Gameworld.Rooms.Get(log.RoomId)!.GetFriendlyReference(actor)}");
                 sb.AppendLine($"Time: {log.Time.GetLocalDateString(actor, true).ColourValue()}");
                 sb.AppendLine();
                 sb.AppendLine(log.Command);
@@ -4662,7 +4662,7 @@ For example:
             {
                 sb.AppendLine(StringUtilities.GetTextTable(
                     from log in filteredLogs
-                    let cell = actor.Gameworld.Cells.Get(log.CellId)
+                    let room = actor.Gameworld.Rooms.Get(log.RoomId)
                     let account = actor.Gameworld.Accounts.Get(log.AccountId ?? 0)
                     let ch = actor.Gameworld.TryGetCharacter(log.CharacterId, true)
                     select new List<string>
@@ -4673,7 +4673,7 @@ For example:
                         ch.Id.ToString("N0", actor),
                         ch.PersonalName.GetName(NameStyle.FullName),
                         account?.Name ?? "",
-                        cell.GetFriendlyReference(actor)
+                        room.GetFriendlyReference(actor)
                     },
                     new List<string>
                     {
@@ -4798,7 +4798,7 @@ The filters that can be used are as follows:
 
         foreach (IGameItem item in items)
         {
-            ICell location = item.TrueLocations.FirstOrDefault();
+            IRoom location = item.TrueLocations.FirstOrDefault();
             if (zone is not null && location is not null && location.Zone != zone)
             {
                 continue;

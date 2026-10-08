@@ -12,16 +12,16 @@ using System.Linq;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class CellExitDescriptionTests
+public class RoomExitDescriptionTests
 {
 	[TestMethod]
 	public void DescribeFor_DoorCapableCardinalExitWithoutDoor_UsesBoldWhite()
 	{
-		var origin = CreateGroundCell();
-		var destination = CreateGroundCell();
+		var origin = CreateGroundRoom();
+		var destination = CreateGroundRoom();
 		var parent = CreateExit(acceptsDoor: true, door: null);
 		var perceiver = CreatePerceiver(origin.Object);
-		var exit = new CellExit(parent.Object, origin.Object, destination.Object, CardinalDirection.North,
+		var exit = new RoomExit(parent.Object, origin.Object, destination.Object, CardinalDirection.North,
 			CardinalDirection.South);
 
 		var description = exit.DescribeFor(perceiver.Object, colour: true);
@@ -35,11 +35,11 @@ public class CellExitDescriptionTests
 	[TestMethod]
 	public void DescribeFor_DoorCapableNonCardinalExitWithoutDoor_UsesBoldWhite()
 	{
-		var origin = CreateGroundCell();
-		var destination = CreateGroundCell();
+		var origin = CreateGroundRoom();
+		var destination = CreateGroundRoom();
 		var parent = CreateExit(acceptsDoor: true, door: null);
 		var perceiver = CreatePerceiver(origin.Object);
-		var exit = new NonCardinalCellExit(parent.Object, origin.Object, destination.Object, "enter", "gate",
+		var exit = new NonCardinalRoomExit(parent.Object, origin.Object, destination.Object, "enter", "gate",
 			new[] { "gate" }, "towards", "the gate", "from", "the gate");
 
 		var description = exit.DescribeFor(perceiver.Object, colour: true);
@@ -53,11 +53,11 @@ public class CellExitDescriptionTests
 	[TestMethod]
 	public void DescribeFor_ColourFalse_DoesNotApplyDoorCapableColour()
 	{
-		var origin = CreateGroundCell();
-		var destination = CreateGroundCell();
+		var origin = CreateGroundRoom();
+		var destination = CreateGroundRoom();
 		var parent = CreateExit(acceptsDoor: true, door: null);
 		var perceiver = CreatePerceiver(origin.Object);
-		var exit = new CellExit(parent.Object, origin.Object, destination.Object, CardinalDirection.North,
+		var exit = new RoomExit(parent.Object, origin.Object, destination.Object, CardinalDirection.North,
 			CardinalDirection.South);
 
 		var description = exit.DescribeFor(perceiver.Object, colour: false);
@@ -69,11 +69,11 @@ public class CellExitDescriptionTests
 	[TestMethod]
 	public void DescribeFor_DoorCapableClimbExit_UsesClimbColour()
 	{
-		var origin = CreateGroundCell();
-		var destination = CreateGroundCell();
+		var origin = CreateGroundRoom();
+		var destination = CreateGroundRoom();
 		var parent = CreateExit(acceptsDoor: true, door: null, isClimbExit: true);
 		var perceiver = CreatePerceiver(origin.Object);
-		var exit = new CellExit(parent.Object, origin.Object, destination.Object, CardinalDirection.Down,
+		var exit = new RoomExit(parent.Object, origin.Object, destination.Object, CardinalDirection.Down,
 			CardinalDirection.Up);
 
 		var description = exit.DescribeFor(perceiver.Object, colour: true);
@@ -90,16 +90,16 @@ public class CellExitDescriptionTests
 		return terrain;
 	}
 
-	private static Mock<ICell> CreateGroundCell()
+	private static Mock<IRoom> CreateGroundRoom()
 	{
 		var terrain = CreateGroundTerrain();
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Location).Returns(cell.Object);
-		cell.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
-		cell.Setup(x => x.IsSwimmingLayer(It.IsAny<RoomLayer>())).Returns(false);
-		cell.Setup(x => x.IsUnderwaterLayer(It.IsAny<RoomLayer>())).Returns(false);
-		cell.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), true)).Returns(Enumerable.Empty<ICellExit>());
-		return cell;
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Location).Returns(room.Object);
+		room.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
+		room.Setup(x => x.IsSwimmingLayer(It.IsAny<RoomLayer>())).Returns(false);
+		room.Setup(x => x.IsUnderwaterLayer(It.IsAny<RoomLayer>())).Returns(false);
+		room.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), true)).Returns(Enumerable.Empty<IRoomExit>());
+		return room;
 	}
 
 	private static Mock<IExit> CreateExit(bool acceptsDoor, IDoor? door, bool isClimbExit = false)
@@ -113,7 +113,7 @@ public class CellExitDescriptionTests
 		return exit;
 	}
 
-	private static Mock<IPerceiver> CreatePerceiver(ICell location)
+	private static Mock<IPerceiver> CreatePerceiver(IRoom location)
 	{
 		var perceiver = new Mock<IPerceiver>();
 		perceiver.SetupGet(x => x.Location).Returns(location);

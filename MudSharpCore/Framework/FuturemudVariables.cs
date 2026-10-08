@@ -120,10 +120,10 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<ICalendar> _calendars = new();
     private readonly All<ICelestialObject> _celestialObjects = new();
 
-    private readonly RevisableAll<ICellOverlayPackage> _cellOverlayPackages =
+    private readonly RevisableAll<IRoomOverlayPackage> _roomOverlayPackages =
         new();
 
-    private readonly All<ICell> _cells = new();
+    private readonly All<IRoom> _rooms = new();
     private readonly All<IChannel> _channels = new();
     private readonly All<ICharacteristicProfile> _characteristicProfiles = new();
     private readonly All<ICharacteristicDefinition> _characteristics = new();
@@ -244,7 +244,6 @@ public sealed partial class Futuremud : IDisposable
     private readonly All<IRace> _races = new();
     private readonly All<IRangedCover> _rangedCovers = new();
     private readonly All<IRangedWeaponType> _rangedWeaponTypes = new();
-    private readonly All<IRoom> _rooms = new();
     private readonly All<IScript> _scripts = new();
     private readonly All<IScriptedEvent> _scriptedEvents = new();
     private readonly All<IShard> _shards = new();
@@ -360,9 +359,9 @@ public sealed partial class Futuremud : IDisposable
 
     public IUneditableAll<ICelestialObject> CelestialObjects => _celestialObjects;
 
-    public IUneditableRevisableAll<ICellOverlayPackage> CellOverlayPackages => _cellOverlayPackages;
+    public IUneditableRevisableAll<IRoomOverlayPackage> RoomOverlayPackages => _roomOverlayPackages;
 
-    public IUneditableAll<ICell> Cells => _cells;
+    public IUneditableAll<IRoom> Rooms => _rooms;
 
     public IUneditableAll<IChannel> Channels => _channels;
 
@@ -554,7 +553,6 @@ public sealed partial class Futuremud : IDisposable
 
     public IUneditableAll<IRangedWeaponType> RangedWeaponTypes => _rangedWeaponTypes;
 
-    public IUneditableAll<IRoom> Rooms => _rooms;
 
     public IUneditableAll<IScript> Scripts => _scripts;
 

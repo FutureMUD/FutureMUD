@@ -6,7 +6,7 @@ public class GuardingExit : Effect, IGuardExitEffect
 {
     public ICharacter CharacterOwner { get; set; }
 
-    public GuardingExit(ICharacter owner, ICellExit exit, bool permitAllies) : base(owner)
+    public GuardingExit(ICharacter owner, IRoomExit exit, bool permitAllies) : base(owner)
     {
         CharacterOwner = owner;
         Exit = exit;
@@ -100,7 +100,7 @@ public class GuardingExit : Effect, IGuardExitEffect
     private readonly List<long> _permittedExemptionCharacterIds = new();
     private readonly Dictionary<long, string> _permittedExemptionCharacterLastDescs = new();
 
-    public ICellExit Exit { get; set; }
+    public IRoomExit Exit { get; set; }
     private bool _permitAllies;
 
     public bool PermitAllies
@@ -113,7 +113,7 @@ public class GuardingExit : Effect, IGuardExitEffect
         }
     }
 
-    public bool PermittedToCross(ICharacter ch, ICellExit exit)
+    public bool PermittedToCross(ICharacter ch, IRoomExit exit)
     {
         if (ch is null)
         {

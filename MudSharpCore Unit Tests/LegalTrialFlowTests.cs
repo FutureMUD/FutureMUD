@@ -270,8 +270,8 @@ public class LegalTrialFlowTests
 	[TestMethod]
 	public void LegalSurrenderRoomDescriptionAddenda_ShouldPromptForReturnBailAtPrison()
 	{
-		Mock<ICell> prison = new();
-		Mock<ICell> elsewhere = new();
+		Mock<IRoom> prison = new();
+		Mock<IRoom> elsewhere = new();
 
 		Mock<ILegalAuthority> authority = new();
 		authority.SetupGet(x => x.Name).Returns("Test Authority");
@@ -286,10 +286,10 @@ public class LegalTrialFlowTests
 		actor.Setup(x => x.EffectsOfType<WarnedByEnforcer>(It.IsAny<Predicate<WarnedByEnforcer>>()))
 		     .Returns(Array.Empty<WarnedByEnforcer>());
 
-		List<string> prisonAddenda = Cell.LegalSurrenderRoomDescriptionAddenda(actor.Object, prison.Object)
+		List<string> prisonAddenda = Room.LegalSurrenderRoomDescriptionAddenda(actor.Object, prison.Object)
 		                                  .Select(x => x.StripANSIColour())
 		                                  .ToList();
-		List<string> elsewhereAddenda = Cell.LegalSurrenderRoomDescriptionAddenda(actor.Object, elsewhere.Object)
+		List<string> elsewhereAddenda = Room.LegalSurrenderRoomDescriptionAddenda(actor.Object, elsewhere.Object)
 		                                      .Select(x => x.StripANSIColour())
 		                                      .ToList();
 
@@ -303,14 +303,14 @@ public class LegalTrialFlowTests
 	[TestMethod]
 	public void LegalSurrenderRoomDescriptionAddenda_ShouldPromptForWantedSurrenderWhenEnforcersArePresent()
 	{
-		Mock<ICell> cell = new();
+		Mock<IRoom> room = new();
 
 		Mock<ILegalAuthority> authority = new();
 		authority.SetupGet(x => x.Name).Returns("Test Authority");
 
 		Mock<ICrime> crime = new();
 		Mock<ICharacter> actor = new();
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		Mock<ICharacter> enforcer = new();
 		enforcer.Setup(x => x.ColocatedWith(actor.Object)).Returns(true);
 
@@ -324,7 +324,7 @@ public class LegalTrialFlowTests
 		actor.Setup(x => x.EffectsOfType<WarnedByEnforcer>(It.IsAny<Predicate<WarnedByEnforcer>>()))
 		     .Returns((Predicate<WarnedByEnforcer>? predicate) => warningEffects.Where(x => predicate?.Invoke(x) ?? true));
 
-		List<string> addenda = Cell.LegalSurrenderRoomDescriptionAddenda(actor.Object, cell.Object)
+		List<string> addenda = Room.LegalSurrenderRoomDescriptionAddenda(actor.Object, room.Object)
 		                           .Select(x => x.StripANSIColour())
 		                           .ToList();
 
@@ -337,14 +337,14 @@ public class LegalTrialFlowTests
 	[TestMethod]
 	public void LegalSurrenderRoomDescriptionAddenda_ShouldNotPromptForWantedSurrenderWithoutPresentEnforcers()
 	{
-		Mock<ICell> cell = new();
+		Mock<IRoom> room = new();
 
 		Mock<ILegalAuthority> authority = new();
 		authority.SetupGet(x => x.Name).Returns("Test Authority");
 
 		Mock<ICrime> crime = new();
 		Mock<ICharacter> actor = new();
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		Mock<ICharacter> enforcer = new();
 		enforcer.Setup(x => x.ColocatedWith(actor.Object)).Returns(false);
 
@@ -358,7 +358,7 @@ public class LegalTrialFlowTests
 		actor.Setup(x => x.EffectsOfType<WarnedByEnforcer>(It.IsAny<Predicate<WarnedByEnforcer>>()))
 		     .Returns((Predicate<WarnedByEnforcer>? predicate) => warningEffects.Where(x => predicate?.Invoke(x) ?? true));
 
-		Assert.AreEqual(0, Cell.LegalSurrenderRoomDescriptionAddenda(actor.Object, cell.Object).Count());
+		Assert.AreEqual(0, Room.LegalSurrenderRoomDescriptionAddenda(actor.Object, room.Object).Count());
 	}
 
 	[TestMethod]
@@ -422,36 +422,36 @@ public class LegalTrialFlowTests
 	}
 
 	[TestMethod]
-	public void IsInRemandCell_ShouldRequirePhysicalCellPresence()
+	public void IsInRemandRoom_ShouldRequirePhysicalRoomPresence()
 	{
 		Mock<ICharacter> character = new();
 		Mock<ICharacter> otherCharacter = new();
 
-		Mock<ICell> cell = new();
-		character.SetupGet(x => x.Location).Returns(cell.Object);
+		Mock<IRoom> room = new();
+		character.SetupGet(x => x.Location).Returns(room.Object);
 
 		Mock<ILegalAuthority> authority = new();
-		authority.SetupGet(x => x.CellLocations).Returns([cell.Object]);
+		authority.SetupGet(x => x.RoomLocations).Returns([room.Object]);
 
-		Assert.IsTrue(authority.Object.IsInRemandCell(character.Object));
-		Assert.IsFalse(authority.Object.IsInRemandCell(otherCharacter.Object));
+		Assert.IsTrue(authority.Object.IsInRemandRoom(character.Object));
+		Assert.IsFalse(authority.Object.IsInRemandRoom(otherCharacter.Object));
 	}
 
 	[TestMethod]
 	public void CrimeDescribeCrimeAtTrial_MissingVictim_ShouldUseUnnamedVictim()
 	{
-		Mock<ICellOverlay> overlay = new();
-		overlay.SetupGet(x => x.CellName).Returns("The Entrance to Easy Street");
+		Mock<IRoomOverlay> overlay = new();
+		overlay.SetupGet(x => x.RoomName).Returns("The Entrance to Easy Street");
 
-		Mock<ICell> location = new();
+		Mock<IRoom> location = new();
 		location.SetupGet(x => x.Id).Returns(1L);
 		location.SetupGet(x => x.CurrentOverlay).Returns(overlay.Object);
 
-		All<ICell> cells = new();
-		cells.Add(location.Object);
+		All<IRoom> rooms = new();
+		rooms.Add(location.Object);
 
 		Mock<IFuturemud> gameworld = new();
-		gameworld.SetupGet(x => x.Cells).Returns(cells);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms);
 		gameworld.SetupGet(x => x.SaveManager).Returns(new Mock<ISaveManager>().Object);
 
 		Mock<ILaw> law = new();

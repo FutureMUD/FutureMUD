@@ -78,12 +78,12 @@ public class TeleportEffect : IMagicSpellEffectTemplate
     public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
         SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
     {
-        if (target is not ICell cell)
+        if (target is not IRoom room)
         {
             return null;
         }
 
-        caster.Teleport(cell, PreserveLayer ? caster.RoomLayer : TargetLayer, TeleportParty, true);
+        caster.Teleport(room, PreserveLayer ? caster.RoomLayer : TargetLayer, TeleportParty, true);
         return null;
     }
 

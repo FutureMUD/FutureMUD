@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.EntityFrameworkCore;
@@ -30,12 +30,12 @@ public class RoomScaleVehicleRuntimeTests
 	}
 
 	[TestMethod]
-	[DataRow("indoors", CellOutdoorsType.Indoors)]
-	[DataRow("windows", CellOutdoorsType.IndoorsWithWindows)]
-	[DataRow("outdoors", CellOutdoorsType.Outdoors)]
-	[DataRow("dark", CellOutdoorsType.IndoorsNoLight)]
-	[DataRow("climateexposed", CellOutdoorsType.IndoorsClimateExposed)]
-	public void InteriorExposureParser_AcceptsRunbookAliases(string text, CellOutdoorsType expected)
+	[DataRow("indoors", RoomOutdoorsType.Indoors)]
+	[DataRow("windows", RoomOutdoorsType.IndoorsWithWindows)]
+	[DataRow("outdoors", RoomOutdoorsType.Outdoors)]
+	[DataRow("dark", RoomOutdoorsType.IndoorsNoLight)]
+	[DataRow("climateexposed", RoomOutdoorsType.IndoorsClimateExposed)]
+	public void InteriorExposureParser_AcceptsRunbookAliases(string text, RoomOutdoorsType expected)
 	{
 		Assert.IsTrue(VehiclePrototype.TryParseInteriorOutdoorsType(text, out var actual));
 		Assert.AreEqual(expected, actual);
@@ -92,16 +92,16 @@ public class RoomScaleVehicleRuntimeTests
 	{
 		var controlPrototype = Compartment(1, "Control");
 		var deckhousePrototype = Compartment(2, "Deckhouse");
-		var controlCell = new Mock<ICell>();
-		controlCell.SetupGet(x => x.Id).Returns(101L);
-		var deckhouseCell = new Mock<ICell>();
-		deckhouseCell.SetupGet(x => x.Id).Returns(102L);
+		var controlRoom = new Mock<IRoom>();
+		controlRoom.SetupGet(x => x.Id).Returns(101L);
+		var deckhouseRoom = new Mock<IRoom>();
+		deckhouseRoom.SetupGet(x => x.Id).Returns(102L);
 		var control = new Mock<IVehicleCompartment>();
 		control.SetupGet(x => x.Prototype).Returns(controlPrototype);
-		control.SetupGet(x => x.InteriorCell).Returns(controlCell.Object);
+		control.SetupGet(x => x.InteriorRoom).Returns(controlRoom.Object);
 		var deckhouse = new Mock<IVehicleCompartment>();
 		deckhouse.SetupGet(x => x.Prototype).Returns(deckhousePrototype);
-		deckhouse.SetupGet(x => x.InteriorCell).Returns(deckhouseCell.Object);
+		deckhouse.SetupGet(x => x.InteriorRoom).Returns(deckhouseRoom.Object);
 		var link = new Mock<IVehicleCompartmentLink>();
 		link.SetupGet(x => x.SourceCompartment).Returns(control.Object);
 		link.SetupGet(x => x.DestinationCompartment).Returns(deckhouse.Object);
@@ -129,10 +129,10 @@ public class RoomScaleVehicleRuntimeTests
 		var deckhousePrototype = Compartment(2, "Deckhouse");
 		var control = new Mock<IVehicleCompartment>();
 		control.SetupGet(x => x.Prototype).Returns(controlPrototype);
-		control.SetupGet(x => x.InteriorCell).Returns(new Mock<ICell>().Object);
+		control.SetupGet(x => x.InteriorRoom).Returns(new Mock<IRoom>().Object);
 		var deckhouse = new Mock<IVehicleCompartment>();
 		deckhouse.SetupGet(x => x.Prototype).Returns(deckhousePrototype);
-		deckhouse.SetupGet(x => x.InteriorCell).Returns(new Mock<ICell>().Object);
+		deckhouse.SetupGet(x => x.InteriorRoom).Returns(new Mock<IRoom>().Object);
 		var brokenLink = new Mock<IVehicleCompartmentLink>();
 		brokenLink.SetupGet(x => x.SourceCompartment).Returns(control.Object);
 		brokenLink.SetupGet(x => x.DestinationCompartment).Returns(deckhouse.Object);
@@ -156,13 +156,13 @@ public class RoomScaleVehicleRuntimeTests
 	public void RoomScaleControlStation_RequiresActorInAssignedHostedCompartment()
 	{
 		var controlPrototype = Compartment(1, "Control");
-		var controlCell = new Mock<ICell>();
-		controlCell.SetupGet(x => x.Id).Returns(101L);
-		var deckhouseCell = new Mock<ICell>();
-		deckhouseCell.SetupGet(x => x.Id).Returns(102L);
+		var controlRoom = new Mock<IRoom>();
+		controlRoom.SetupGet(x => x.Id).Returns(101L);
+		var deckhouseRoom = new Mock<IRoom>();
+		deckhouseRoom.SetupGet(x => x.Id).Returns(102L);
 		var control = new Mock<IVehicleCompartment>();
 		control.SetupGet(x => x.Prototype).Returns(controlPrototype);
-		control.SetupGet(x => x.InteriorCell).Returns(controlCell.Object);
+		control.SetupGet(x => x.InteriorRoom).Returns(controlRoom.Object);
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.RoomScale);
 		var vehicle = new Mock<IVehicle>();
@@ -170,76 +170,76 @@ public class RoomScaleVehicleRuntimeTests
 		vehicle.SetupGet(x => x.Compartments).Returns([control.Object]);
 		var slot = new Mock<IVehicleOccupantSlotPrototype>();
 		slot.SetupGet(x => x.Compartment).Returns(controlPrototype);
-		ICell actorLocation = deckhouseCell.Object;
+		IRoom actorLocation = deckhouseRoom.Object;
 		var actor = new Mock<ICharacter>();
 		actor.SetupGet(x => x.Location).Returns(() => actorLocation);
 
 		Assert.IsFalse(vehicle.Object.IsAtOccupantSlotLocation(actor.Object, slot.Object));
-		actorLocation = controlCell.Object;
+		actorLocation = controlRoom.Object;
 		Assert.IsTrue(vehicle.Object.IsAtOccupantSlotLocation(actor.Object, slot.Object));
 	}
 
 	[TestMethod]
 	public void RoomScaleOccupantMovement_InternalHostedExit_IsPermitted()
 	{
-		var controlCell = new Mock<ICell>();
-		controlCell.SetupGet(x => x.Id).Returns(101L);
-		var deckhouseCell = new Mock<ICell>();
-		deckhouseCell.SetupGet(x => x.Id).Returns(102L);
+		var controlRoom = new Mock<IRoom>();
+		controlRoom.SetupGet(x => x.Id).Returns(101L);
+		var deckhouseRoom = new Mock<IRoom>();
+		deckhouseRoom.SetupGet(x => x.Id).Returns(102L);
 		var control = new Mock<IVehicleCompartment>();
-		control.SetupGet(x => x.InteriorCell).Returns(controlCell.Object);
+		control.SetupGet(x => x.InteriorRoom).Returns(controlRoom.Object);
 		var deckhouse = new Mock<IVehicleCompartment>();
-		deckhouse.SetupGet(x => x.InteriorCell).Returns(deckhouseCell.Object);
+		deckhouse.SetupGet(x => x.InteriorRoom).Returns(deckhouseRoom.Object);
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.RoomScale);
 		var vehicle = new Mock<IVehicle>();
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
 		vehicle.SetupGet(x => x.Compartments).Returns([control.Object, deckhouse.Object]);
-		var exit = new Mock<MudSharp.Construction.Boundary.ICellExit>();
-		exit.SetupGet(x => x.Origin).Returns(controlCell.Object);
-		exit.SetupGet(x => x.Destination).Returns(deckhouseCell.Object);
-		controlCell.Setup(x => x.ExitsFor(null!, false)).Returns([exit.Object]);
+		var exit = new Mock<MudSharp.Construction.Boundary.IRoomExit>();
+		exit.SetupGet(x => x.Origin).Returns(controlRoom.Object);
+		exit.SetupGet(x => x.Destination).Returns(deckhouseRoom.Object);
+		controlRoom.Setup(x => x.ExitsFor(null!, false)).Returns([exit.Object]);
 
 		Assert.IsTrue(MudSharp.Character.Character.IsPermittedVehicleInteriorExit(
-			vehicle.Object, controlCell.Object, exit.Object));
+			vehicle.Object, controlRoom.Object, exit.Object));
 		Assert.IsTrue(MudSharp.Character.Character.HasPermittedVehicleInteriorExit(
-			vehicle.Object, controlCell.Object));
+			vehicle.Object, controlRoom.Object));
 	}
 
 	[TestMethod]
 	public void RoomScaleOccupantMovement_DockingExitToExterior_IsRejected()
 	{
-		var interiorCell = new Mock<ICell>();
-		interiorCell.SetupGet(x => x.Id).Returns(101L);
-		var exteriorCell = new Mock<ICell>();
-		exteriorCell.SetupGet(x => x.Id).Returns(42L);
+		var interiorRoom = new Mock<IRoom>();
+		interiorRoom.SetupGet(x => x.Id).Returns(101L);
+		var exteriorRoom = new Mock<IRoom>();
+		exteriorRoom.SetupGet(x => x.Id).Returns(42L);
 		var compartment = new Mock<IVehicleCompartment>();
-		compartment.SetupGet(x => x.InteriorCell).Returns(interiorCell.Object);
+		compartment.SetupGet(x => x.InteriorRoom).Returns(interiorRoom.Object);
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.RoomScale);
 		var vehicle = new Mock<IVehicle>();
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
 		vehicle.SetupGet(x => x.Compartments).Returns([compartment.Object]);
-		var dockingExit = new Mock<MudSharp.Construction.Boundary.ICellExit>();
-		dockingExit.SetupGet(x => x.Origin).Returns(interiorCell.Object);
-		dockingExit.SetupGet(x => x.Destination).Returns(exteriorCell.Object);
+		var dockingExit = new Mock<MudSharp.Construction.Boundary.IRoomExit>();
+		dockingExit.SetupGet(x => x.Origin).Returns(interiorRoom.Object);
+		dockingExit.SetupGet(x => x.Destination).Returns(exteriorRoom.Object);
 
 		Assert.IsFalse(MudSharp.Character.Character.IsPermittedVehicleInteriorExit(
-			vehicle.Object, interiorCell.Object, dockingExit.Object));
+			vehicle.Object, interiorRoom.Object, dockingExit.Object));
 	}
 
 	[TestMethod]
 	public void NonRoomScaleOccupantMovement_RemainsBlockedAcrossOrdinaryExit()
 	{
-		var origin = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
 		origin.SetupGet(x => x.Id).Returns(101L);
-		var destination = new Mock<ICell>();
+		var destination = new Mock<IRoom>();
 		destination.SetupGet(x => x.Id).Returns(102L);
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.RoomContainer);
 		var vehicle = new Mock<IVehicle>();
 		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
-		var exit = new Mock<MudSharp.Construction.Boundary.ICellExit>();
+		var exit = new Mock<MudSharp.Construction.Boundary.IRoomExit>();
 		exit.SetupGet(x => x.Origin).Returns(origin.Object);
 		exit.SetupGet(x => x.Destination).Returns(destination.Object);
 
@@ -276,44 +276,44 @@ public class RoomScaleVehicleRuntimeTests
 	}
 
 	[TestMethod]
-	public void VehicleLoad_MissingHostedCell_DoesNotSilentlyRegenerateInterior()
+	public void VehicleLoad_MissingHostedRoom_DoesNotSilentlyRegenerateInterior()
 	{
 		var vehicle = CreateVehicleWithMissingInterior(901);
 
 		var compartment = vehicle.Compartments.Single();
-		Assert.AreEqual(901L, compartment.InteriorCellId);
-		Assert.IsNull(compartment.InteriorCell);
+		Assert.AreEqual(901L, compartment.InteriorRoomId);
+		Assert.IsNull(compartment.InteriorRoom);
 	}
 
 	[TestMethod]
 	public void ResolveBoardingAccess_NoViaSelection_UsesOpenRoomScaleDocking()
 	{
-		var exteriorCell = new Mock<ICell>();
-		exteriorCell.SetupGet(x => x.Id).Returns(42L);
+		var exteriorRoom = new Mock<IRoom>();
+		exteriorRoom.SetupGet(x => x.Id).Returns(42L);
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.RoomScale);
 		prototype.SetupGet(x => x.Compartments).Returns([]);
 		prototype.SetupGet(x => x.CompartmentLinks).Returns([]);
 		var prototypes = new Mock<IUneditableRevisableAll<IVehiclePrototype>>();
 		prototypes.Setup(x => x.Get(10L, 0)).Returns(prototype.Object);
-		var cells = new Mock<IUneditableAll<ICell>>();
-		cells.Setup(x => x.Get(42L)).Returns(exteriorCell.Object);
+		var rooms = new Mock<IUneditableAll<IRoom>>();
+		rooms.Setup(x => x.Get(42L)).Returns(exteriorRoom.Object);
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.VehiclePrototypes).Returns(prototypes.Object);
-		gameworld.SetupGet(x => x.Cells).Returns(cells.Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms.Object);
 		var vehicle = new Vehicle(new DB.Vehicle
 		{
 			Id = 1L,
 			Name = "Test Platform",
 			VehicleProtoId = 10L,
 			VehicleProtoRevision = 0,
-			LocationType = (int)VehicleLocationType.Cell,
-			CurrentCellId = 42L,
+			LocationType = (int)VehicleLocationType.Room,
+			CurrentRoomId = 42L,
 			CurrentRoomLayer = (int)RoomLayer.GroundLevel,
 			MovementStatus = (int)VehicleMovementStatus.Stationary
 		}, gameworld.Object);
 		var actor = new Mock<ICharacter>();
-		actor.SetupGet(x => x.Location).Returns(exteriorCell.Object);
+		actor.SetupGet(x => x.Location).Returns(exteriorRoom.Object);
 		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		var accessPrototype = new Mock<IVehicleAccessPointPrototype>();
 		var access = new Mock<IVehicleAccessPoint>();
@@ -331,8 +331,8 @@ public class RoomScaleVehicleRuntimeTests
 		var docking = (VehicleDocking)RuntimeHelpers.GetUninitializedObject(typeof(VehicleDocking));
 		typeof(VehicleDocking).GetField("<AccessPoint>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.SetValue(docking, access.Object);
-		typeof(VehicleDocking).GetField("<ExteriorCell>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
-			.SetValue(docking, exteriorCell.Object);
+		typeof(VehicleDocking).GetField("<ExteriorRoom>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(docking, exteriorRoom.Object);
 		typeof(VehicleDocking).GetField("<ExteriorLayer>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.SetValue(docking, RoomLayer.GroundLevel);
 		typeof(VehicleDocking).GetField("_registered", BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -370,23 +370,23 @@ public class RoomScaleVehicleRuntimeTests
 	}
 
 	[TestMethod]
-	public void HostedCellContext_MissingLoadedVehicle_DoesNotInvokeLazyVehicleLoader()
+	public void HostedRoomContext_MissingLoadedVehicle_DoesNotInvokeLazyVehicleLoader()
 	{
 		var vehicles = new Mock<IUneditableAll<IVehicle>>();
 		vehicles.Setup(x => x.Get(42L)).Returns((IVehicle?)null);
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.Vehicles).Returns(vehicles.Object);
-		var cell = (Cell)RuntimeHelpers.GetUninitializedObject(typeof(Cell));
-		typeof(Cell)
-			.GetProperty(nameof(Cell.Gameworld), BindingFlags.Instance | BindingFlags.Public)!
-			.SetValue(cell, gameworld.Object);
-		typeof(Cell)
+		var room = (Room)RuntimeHelpers.GetUninitializedObject(typeof(Room));
+		typeof(Room)
+			.GetProperty(nameof(Room.Gameworld), BindingFlags.Instance | BindingFlags.Public)!
+			.SetValue(room, gameworld.Object);
+		typeof(Room)
 			.GetField("_hostedVehicleId", BindingFlags.Instance | BindingFlags.NonPublic)!
-			.SetValue(cell, 42L);
+			.SetValue(room, 42L);
 
-		var hostedVehicle = typeof(Cell)
+		var hostedVehicle = typeof(Room)
 			.GetProperty("HostedVehicle", BindingFlags.Instance | BindingFlags.NonPublic)!
-			.GetValue(cell);
+			.GetValue(room);
 
 		Assert.IsNull(hostedVehicle);
 		vehicles.Verify(x => x.Get(42L), Times.Once);
@@ -394,7 +394,7 @@ public class RoomScaleVehicleRuntimeTests
 	}
 
 	[TestMethod]
-	public void FleetAudit_InteriorMode_ReportsMissingHostedCell()
+	public void FleetAudit_InteriorMode_ReportsMissingHostedRoom()
 	{
 		var vehicle = CreateVehicleWithMissingInterior(null);
 		var readiness = new Mock<IVehicleOperationalReadinessService>();
@@ -418,19 +418,19 @@ public class RoomScaleVehicleRuntimeTests
 
 		Assert.AreEqual(1, result.Findings.Count);
 		Assert.AreEqual(VehicleOperationalSubsystem.Interior, result.Findings[0].Subsystem);
-		StringAssert.Contains(result.Findings[0].Reason, "no hosted interior cell assigned");
+		StringAssert.Contains(result.Findings[0].Reason, "no hosted interior room assigned");
 		StringAssert.Contains(result.Findings[0].Hint, "vehicle recover <vehicle> interior fix");
 	}
 
 	[TestMethod]
-	public void InteriorRecovery_PersistedHostedCell_RelinksInsteadOfCreatingReplacement()
+	public void InteriorRecovery_PersistedHostedRoom_RelinksInsteadOfCreatingReplacement()
 	{
-		var hostedCell = new Mock<ICell>();
-		hostedCell.SetupGet(x => x.Id).Returns(901L);
-		var vehicle = CreateVehicleWithMissingInterior(null, loadedCell: hostedCell.Object);
+		var hostedRoom = new Mock<IRoom>();
+		hostedRoom.SetupGet(x => x.Id).Returns(901L);
+		var vehicle = CreateVehicleWithMissingInterior(null, loadedRoom: hostedRoom.Object);
 		var compartment = (VehicleCompartment)vehicle.Compartments.Single();
 		using var context = CreateContext();
-		context.Cells.Add(new DB.Cell
+		context.Rooms.Add(new DB.Room
 		{
 			Id = 901,
 			EffectData = "<Effects />",
@@ -451,19 +451,19 @@ public class RoomScaleVehicleRuntimeTests
 
 		Assert.IsTrue(valid, reason);
 		Assert.IsTrue(relinked);
-		Assert.AreEqual(901L, compartment.InteriorCellId);
-		Assert.AreSame(hostedCell.Object, compartment.InteriorCell);
-		Assert.AreEqual(901L, context.VehicleCompartments.Find(compartment.Id)!.InteriorCellId);
-		Assert.AreEqual(1, context.Cells.Count());
+		Assert.AreEqual(901L, compartment.InteriorRoomId);
+		Assert.AreSame(hostedRoom.Object, compartment.InteriorRoom);
+		Assert.AreEqual(901L, context.VehicleCompartments.Find(compartment.Id)!.InteriorRoomId);
+		Assert.AreEqual(1, context.Rooms.Count());
 	}
 
 	[TestMethod]
-	public void InteriorRecovery_PersistedHostedCellNotLoaded_FailsClosed()
+	public void InteriorRecovery_PersistedHostedRoomNotLoaded_FailsClosed()
 	{
 		var vehicle = CreateVehicleWithMissingInterior(null);
 		var compartment = (VehicleCompartment)vehicle.Compartments.Single();
 		using var context = CreateContext();
-		context.Cells.Add(new DB.Cell
+		context.Rooms.Add(new DB.Room
 		{
 			Id = 902,
 			EffectData = "<Effects />",
@@ -485,20 +485,20 @@ public class RoomScaleVehicleRuntimeTests
 		Assert.IsFalse(valid);
 		Assert.IsFalse(relinked);
 		StringAssert.Contains(reason, "refused to create a duplicate");
-		Assert.IsNull(compartment.InteriorCellId);
-		Assert.IsNull(context.VehicleCompartments.Find(compartment.Id)!.InteriorCellId);
-		Assert.AreEqual(1, context.Cells.Count());
+		Assert.IsNull(compartment.InteriorRoomId);
+		Assert.IsNull(context.VehicleCompartments.Find(compartment.Id)!.InteriorRoomId);
+		Assert.AreEqual(1, context.Rooms.Count());
 	}
 
 	[TestMethod]
-	public void InteriorRecovery_PersistedHostedCellClaimedElsewhere_DoesNotStealCell()
+	public void InteriorRecovery_PersistedHostedRoomClaimedElsewhere_DoesNotStealRoom()
 	{
-		var hostedCell = new Mock<ICell>();
-		hostedCell.SetupGet(x => x.Id).Returns(903L);
-		var vehicle = CreateVehicleWithMissingInterior(null, loadedCell: hostedCell.Object);
+		var hostedRoom = new Mock<IRoom>();
+		hostedRoom.SetupGet(x => x.Id).Returns(903L);
+		var vehicle = CreateVehicleWithMissingInterior(null, loadedRoom: hostedRoom.Object);
 		var compartment = (VehicleCompartment)vehicle.Compartments.Single();
 		using var context = CreateContext();
-		context.Cells.Add(new DB.Cell
+		context.Rooms.Add(new DB.Room
 		{
 			Id = 903,
 			EffectData = "<Effects />",
@@ -519,7 +519,7 @@ public class RoomScaleVehicleRuntimeTests
 				VehicleId = 2,
 				VehicleCompartmentProtoId = 12,
 				Name = "Other Compartment",
-				InteriorCellId = 903
+				InteriorRoomId = 903
 			});
 		context.SaveChanges();
 
@@ -529,9 +529,9 @@ public class RoomScaleVehicleRuntimeTests
 		Assert.IsFalse(valid);
 		Assert.IsFalse(relinked);
 		StringAssert.Contains(reason, "refused to steal");
-		Assert.IsNull(compartment.InteriorCellId);
-		Assert.AreEqual(903L, context.VehicleCompartments.Find(99L)!.InteriorCellId);
-		Assert.AreEqual(1, context.Cells.Count());
+		Assert.IsNull(compartment.InteriorRoomId);
+		Assert.AreEqual(903L, context.VehicleCompartments.Find(99L)!.InteriorRoomId);
+		Assert.AreEqual(1, context.Rooms.Count());
 	}
 
 	[TestMethod]
@@ -567,8 +567,8 @@ public class RoomScaleVehicleRuntimeTests
 		exteriorComponent.Verify(x => x.LinkVehicle(It.IsAny<IVehicle>()), Times.Never);
 	}
 
-	private static Vehicle CreateVehicleWithMissingInterior(long? interiorCellId,
-		IGameItem? exteriorItem = null, ICell? loadedCell = null)
+	private static Vehicle CreateVehicleWithMissingInterior(long? interiorRoomId,
+		IGameItem? exteriorItem = null, IRoom? loadedRoom = null)
 	{
 		var compartment = Compartment(11, "Cab");
 		var prototype = new Mock<IVehiclePrototype>();
@@ -579,12 +579,12 @@ public class RoomScaleVehicleRuntimeTests
 
 		var prototypes = new Mock<IUneditableRevisableAll<IVehiclePrototype>>();
 		prototypes.Setup(x => x.Get(10, 0)).Returns(prototype.Object);
-		var cells = new Mock<IUneditableAll<ICell>>();
-		cells.Setup(x => x.Get(It.IsAny<long>()))
-			.Returns((long id) => loadedCell?.Id == id ? loadedCell : null);
+		var rooms = new Mock<IUneditableAll<IRoom>>();
+		rooms.Setup(x => x.Get(It.IsAny<long>()))
+			.Returns((long id) => loadedRoom?.Id == id ? loadedRoom : null);
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.VehiclePrototypes).Returns(prototypes.Object);
-		gameworld.SetupGet(x => x.Cells).Returns(cells.Object);
+		gameworld.SetupGet(x => x.Rooms).Returns(rooms.Object);
 		if (exteriorItem is not null)
 		{
 			gameworld.Setup(x => x.TryGetItem(42, true)).Returns(exteriorItem);
@@ -597,7 +597,7 @@ public class RoomScaleVehicleRuntimeTests
 			VehicleProtoId = 10,
 			VehicleProtoRevision = 0,
 			ExteriorItemId = exteriorItem is null ? null : 42,
-			LocationType = (int)VehicleLocationType.Cell,
+			LocationType = (int)VehicleLocationType.Room,
 			CurrentRoomLayer = (int)RoomLayer.GroundLevel,
 			MovementStatus = (int)VehicleMovementStatus.Stationary
 		};
@@ -607,7 +607,7 @@ public class RoomScaleVehicleRuntimeTests
 			VehicleId = 1,
 			VehicleCompartmentProtoId = compartment.Id,
 			Name = compartment.Name,
-			InteriorCellId = interiorCellId
+			InteriorRoomId = interiorRoomId
 		});
 		return new Vehicle(row, gameworld.Object);
 	}

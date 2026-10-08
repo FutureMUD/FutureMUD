@@ -54,7 +54,7 @@ public class RebreatherGameItemComponent : GameItemComponent, IConnectable, IPro
         return base.Decorate(voyeur, name, description, type, colour, flags);
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         if (ConnectedItem == null)
         {

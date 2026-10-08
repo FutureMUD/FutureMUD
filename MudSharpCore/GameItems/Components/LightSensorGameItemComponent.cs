@@ -150,13 +150,13 @@ public class LightSensorGameItemComponent : PoweredMachineBaseGameItemComponent,
 	private double ResolveCurrentIllumination()
 	{
 		var anchorItem = SignalComponentUtilities.ResolveSignalSearchAnchorItem(Parent);
-		var cell = anchorItem.TrueLocations
-			           .OfType<ICell>()
+		var room = anchorItem.TrueLocations
+			           .OfType<IRoom>()
 			           .FirstOrDefault() ??
 		           Parent.TrueLocations
-			           .OfType<ICell>()
+			           .OfType<IRoom>()
 			           .FirstOrDefault();
-		return cell?.CurrentIllumination(anchorItem) ?? 0.0;
+		return room?.CurrentIllumination(anchorItem) ?? 0.0;
 	}
 
 	private void SetCurrentSignal(ComputerSignal signal, bool markChanged)

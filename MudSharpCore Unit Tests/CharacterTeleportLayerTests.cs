@@ -21,10 +21,10 @@ public class CharacterTeleportLayerTests
 	[DataRow(RoomLayer.InTrees)]
 	[DataRow(RoomLayer.HighInAir)]
 	[DataRow(RoomLayer.Underwater)]
-	public void Teleport_PassesDestinationLayerToCellForCharacterAndRider(RoomLayer layer)
+	public void Teleport_PassesDestinationLayerToRoomForCharacterAndRider(RoomLayer layer)
 	{
-		var origin = new Mock<ICell>();
-		var destination = new Mock<ICell>();
+		var origin = new Mock<IRoom>();
+		var destination = new Mock<IRoom>();
 		var rider = new Mock<ICharacter> { DefaultValue = DefaultValue.Mock };
 		rider.SetupGet(x => x.Location).Returns(origin.Object);
 		var actor = TeleportCharacter.Create(origin.Object, rider.Object);
@@ -38,7 +38,7 @@ public class CharacterTeleportLayerTests
 	{
 		private TeleportCharacter() : base(null!, null!, true) { }
 
-		public static TeleportCharacter Create(ICell origin, ICharacter rider)
+		public static TeleportCharacter Create(IRoom origin, ICharacter rider)
 		{
 			var actor = TestObjectFactory.CreateUninitialized<TeleportCharacter>();
 			var body = new Mock<IBody>();

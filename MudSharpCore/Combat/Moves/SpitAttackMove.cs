@@ -41,6 +41,6 @@ public class SpitAttackMove : NaturalRangedAttackMoveBase
     {
         double quantity = SpitAttack.MaximumQuantity * 0.5;
         LiquidMixture mixture = new(SpitAttack.Liquid, quantity, Gameworld);
-        PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, scatter.Cell, scatter.RoomLayer, scatter.Cell);
+        PuddleGameItemComponentProto.TopUpOrCreateNewPuddle(mixture, scatter.Room, scatter.RoomLayer, scatter.Room);
     }
 }

@@ -5,11 +5,11 @@ using MudSharp.Construction;
 namespace MudSharp.Framework;
 
 /// <summary>
-/// A physical location in the world. Ordinary cells leave <see cref="RoutePositionMetres"/> null;
-/// linear route cells supply a coordinate measured from the route cell's negative endpoint.
+/// A physical location in the world. Ordinary rooms leave <see cref="RoutePositionMetres"/> null;
+/// linear route rooms supply a coordinate measured from the route room's negative endpoint.
 /// </summary>
 public readonly record struct SpatialLocation(
-	ICell Cell,
+	IRoom Room,
 	RoomLayer Layer,
 	double? RoutePositionMetres = null)
 {
@@ -18,20 +18,20 @@ public readonly record struct SpatialLocation(
 	/// </summary>
 	public InRoomLocation InRoomLocation => new()
 	{
-		Location = Cell,
+		Location = Room,
 		RoomLayer = Layer
 	};
 
 	/// <summary>
-	/// True when this location carries a coordinate within a linear route cell.
+	/// True when this location carries a coordinate within a linear route room.
 	/// </summary>
 	public bool HasRoutePosition => RoutePositionMetres.HasValue;
 
 	/// <summary>
-	/// Tests raw cell-and-layer membership without applying spatial proximity rules.
+	/// Tests raw room-and-layer membership without applying spatial proximity rules.
 	/// </summary>
-	public bool SharesCellLayerWith(SpatialLocation other)
+	public bool SharesRoomLayerWith(SpatialLocation other)
 	{
-		return ReferenceEquals(Cell, other.Cell) && Layer == other.Layer;
+		return ReferenceEquals(Room, other.Room) && Layer == other.Layer;
 	}
 }

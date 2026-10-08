@@ -60,9 +60,9 @@ public class ForcedExitMovementEffect : IMagicSpellEffectTemplate
 			return null;
 		}
 
-		ICellExit? exit = additionalParameters
+		IRoomExit? exit = additionalParameters
 		                  .FirstOrDefault(x => x.ParameterName.Equals("exit", StringComparison.InvariantCultureIgnoreCase))
-		                  ?.Item as ICellExit;
+		                  ?.Item as IRoomExit;
 		if (exit is null)
 		{
 			return null;

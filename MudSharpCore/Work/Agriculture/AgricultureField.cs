@@ -18,7 +18,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 {
 	private readonly List<AgricultureFieldHerd> _herds = new();
 	private readonly Dictionary<AgricultureScoreType, int> _customScores = new();
-	private long _cellId;
+	private long _roomId;
 	private long _profileId;
 	private IAgricultureFieldProfile _profile;
 	private long _cropDefinitionId;
@@ -46,11 +46,11 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		_environmentalInputNotificationsEnabled = true;
 	}
 
-	public AgricultureField(ICell cell, IAgricultureFieldProfile profile)
+	public AgricultureField(IRoom room, IAgricultureFieldProfile profile)
 	{
-		Gameworld = cell.Gameworld;
-		Cell = cell;
-		_cellId = cell.Id;
+		Gameworld = room.Gameworld;
+		Room = room;
+		_roomId = room.Id;
 		Profile = profile;
 		CurrentUse = AgricultureFieldUse.Fallow;
 		foreach (var score in AgricultureScoreTypeExtensions.ActiveScoreTypes(Gameworld))
@@ -63,7 +63,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		{
 			var dbitem = new Models.AgricultureField
 			{
-				CellId = cell.Id,
+				RoomId = room.Id,
 				ProfileId = profile.Id,
 				CurrentUse = (int)CurrentUse,
 				Moisture = Moisture,
@@ -90,7 +90,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 	}
 
 	public override string FrameworkItemType => "AgricultureField";
-	public ICell Cell { get; private set; }
+	public IRoom Room { get; private set; }
 
 	public IAgricultureFieldProfile Profile
 	{
@@ -328,7 +328,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 
 	private void DispatchEnvironmentalInputsChanged()
 	{
-		Gameworld.EnvironmentalMagic?.MarkDirty(Cell, EnvironmentalMagicDirtyReason.Agriculture);
+		Gameworld.EnvironmentalMagic?.MarkDirty(Room, EnvironmentalMagicDirtyReason.Agriculture);
 	}
 
 	private bool TryTakeEnvironmentalInputNotificationUnsafe()
@@ -397,8 +397,8 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 	{
 		_id = field.Id;
 		_name = $"Field #{field.Id}";
-		_cellId = field.CellId;
-		Cell = Gameworld.Cells.Get(_cellId);
+		_roomId = field.RoomId;
+		Room = Gameworld.Rooms.Get(_roomId);
 		_profileId = field.ProfileId;
 		CurrentUse = (AgricultureFieldUse)field.CurrentUse;
 		Moisture = field.Moisture.ClampScore();
@@ -571,7 +571,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 	public string DescribeTo(ICharacter voyeur, bool exact)
 	{
 		var sb = new StringBuilder();
-		sb.AppendLine($"Agriculture Field #{Id.ToString("N0", voyeur)} - {Cell.HowSeen(voyeur)}".GetLineWithTitleInner(voyeur, Telnet.Green, Telnet.BoldWhite));
+		sb.AppendLine($"Agriculture Field #{Id.ToString("N0", voyeur)} - {Room.HowSeen(voyeur)}".GetLineWithTitleInner(voyeur, Telnet.Green, Telnet.BoldWhite));
 		sb.AppendLine($"Profile: {Profile?.Name.ColourName() ?? "None".ColourError()}");
 		sb.AppendLine($"Use: {CurrentUse.DescribeEnum().ColourName()}");
 		if (CurrentCrop != null)
@@ -616,7 +616,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 	public void DailyTick()
 	{
 		using var environmentalChange = BeginEnvironmentalInputChange();
-		var weather = Cell.CurrentWeather(null);
+		var weather = Room.CurrentWeather(null);
 		switch (weather?.Precipitation ?? PrecipitationLevel.Dry)
 		{
 			case PrecipitationLevel.Parched:
@@ -666,7 +666,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 			return;
 		}
 
-		var temperature = Cell.CurrentTemperature(null);
+		var temperature = Room.CurrentTemperature(null);
 		var temperate = temperature >= 5.0 && temperature <= 40.0;
 		var wellSituated = Condition >= 40 && Pests <= 70 && temperate;
 		var healthDelta = wellSituated ? 1 : -3;
@@ -813,7 +813,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 	private (bool Stressed, int PollinationHealth, int PollinationYield) CurrentCropTickContributions(
 		IAgricultureCropDefinition crop, AgricultureCropStage stage)
 	{
-		var temperature = Cell.CurrentTemperature(null);
+		var temperature = Room.CurrentTemperature(null);
 		var pollinationSupport = CurrentPollinationSupport(crop);
 		var lacksRequiredPollination = crop.PollinationDependency == AgriculturePollinationDependency.Required &&
 		                                stage == AgricultureCropStage.Setting && pollinationSupport <= 0;
@@ -845,7 +845,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 				continue;
 			}
 
-			var distance = DistanceBetweenCells(Cell, field.Cell, field.Apiary.PollinationRadius);
+			var distance = DistanceBetweenRooms(Room, field.Room, field.Apiary.PollinationRadius);
 			if (distance < 0)
 			{
 				continue;
@@ -857,7 +857,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		return best;
 	}
 
-	private static int DistanceBetweenCells(ICell origin, ICell destination, int maximumDistance)
+	private static int DistanceBetweenRooms(IRoom origin, IRoom destination, int maximumDistance)
 	{
 		if (origin == null || destination == null)
 		{
@@ -875,7 +875,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		}
 
 		var seen = new HashSet<long> { origin.Id };
-		var queue = new Queue<(ICell Cell, int Distance)>();
+		var queue = new Queue<(IRoom Room, int Distance)>();
 		queue.Enqueue((origin, 0));
 		while (queue.Count > 0)
 		{
@@ -885,7 +885,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 				continue;
 			}
 
-			foreach (var exit in current.Cell.ExitsFor(null, true))
+			foreach (var exit in current.Room.ExitsFor(null, true))
 			{
 				var next = exit.Destination;
 				if (next == null || !seen.Add(next.Id))
@@ -913,7 +913,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 			return false;
 		}
 
-		var temperature = Cell.CurrentTemperature(null);
+		var temperature = Room.CurrentTemperature(null);
 		return _apiary.ColonyHealth >= 50 &&
 		       _apiary.Stores >= 25 &&
 		       Condition >= 40 &&
@@ -1043,7 +1043,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 			return false;
 		}
 
-		var property = Gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(Cell));
+		var property = Gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(Room));
 		if (enforceActorAccess && property != null &&
 		    (actor == null || !actor.IsAdministrator() && !property.IsAuthorisedOwner(actor) && !property.IsAuthorisedLeaseHolder(actor)))
 		{
@@ -1554,7 +1554,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 			item.Quality = outcome.OutputQuality;
 			item.RoomLayer = RoomLayer.GroundLevel;
 			Gameworld.Add(item);
-			Cell.Insert(item, true);
+			Room.Insert(item, true);
 			items.Add(item);
 		}
 
@@ -1613,7 +1613,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		item.ContainedIn?.GetItemType<IContainer>()?.Take(null, item, 0);
 		item.Location?.Extract(item);
 		item.RoomLayer = RoomLayer.GroundLevel;
-		Cell.Insert(item, true);
+		Room.Insert(item, true);
 	}
 
 	private void ClearCrop()
@@ -1735,14 +1735,14 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
         for (var i = 0; i < count; i++)
         {
 			var actorLocation = RouteSpatialService.Instance.GetEffectiveLocation(actor);
-			var spawnLocation = ReferenceEquals(actorLocation.Cell, Cell)
+			var spawnLocation = ReferenceEquals(actorLocation.Room, Room)
 				? actorLocation
-				: CharacterInstanceService.CreateDefaultSpawnLocation(Cell, RoomLayer.GroundLevel);
+				: CharacterInstanceService.CreateDefaultSpawnLocation(Room, RoomLayer.GroundLevel);
             var npc = definition.NpcTemplate.CreateNewCharacter(spawnLocation);
             Gameworld.Add(npc, true);
             definition.NpcTemplate.ApplyTemplateLoadAdditions(npc);
             definition.NpcTemplate.OnLoadProg?.Execute(npc);
-            Cell.Login(npc);
+            Room.Login(npc);
 			npc.HandleEvent(EventType.NPCOnGameLoadFinished, npc);
 		}
 
@@ -1754,7 +1754,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 
 	public bool AbsorbNpcIntoHerd(ICharacter npc, IAgricultureHerdDefinition definition, ICharacter actor, out string result)
 	{
-		if (npc == null || npc.IsPlayerCharacter || npc.Location != Cell || !AnimalLineageHelper.IsAnimal(npc))
+		if (npc == null || npc.IsPlayerCharacter || npc.Location != Room || !AnimalLineageHelper.IsAnimal(npc))
 		{
 			result = "You can only absorb a non-player animal in this field.";
 			return false;
@@ -1852,14 +1852,14 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		destination.TransitionNativeOrganicUse(AgricultureFieldUse.Pasture);
 		Changed = true;
 		destination.Changed = true;
-		var destinationName = actor == null ? destination.Cell.Name : destination.Cell.GetFriendlyReference(actor);
+		var destinationName = actor == null ? destination.Room.Name : destination.Room.GetFriendlyReference(actor);
 		result = $"You drive {moveCount.ToString("N0", actor)} {definition.Name} to {destinationName}.";
 		return true;
 	}
 
 	private bool CanActorUseField(ICharacter actor, IAgricultureField field, string action, out string reason)
 	{
-		var property = Gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(field.Cell));
+		var property = Gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(field.Room));
 		if (property != null &&
 		    (actor == null || !actor.IsAdministrator() && !property.IsAuthorisedOwner(actor) && !property.IsAuthorisedLeaseHolder(actor)))
 		{
@@ -1985,7 +1985,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 		return property.ToLowerInvariant() switch
 		{
 			"id" => new NumberVariable(Id),
-			"location" => Cell,
+			"location" => Room,
 			"profile" => new TextVariable(Profile?.Name ?? string.Empty),
 			"profiledefinition" => Profile is IProgVariable profile
 				? profile

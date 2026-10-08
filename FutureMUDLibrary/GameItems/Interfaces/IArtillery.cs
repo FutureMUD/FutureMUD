@@ -78,15 +78,15 @@ public enum WeaponCarrierState
 
 /// <summary>
 /// A validated spatial artillery target. The item component owns the current solution;
-/// the path is represented by stable cell identifiers so it remains version tolerant.
+/// the path is represented by stable room identifiers so it remains version tolerant.
 /// </summary>
 public sealed record ArtilleryFiringSolution(
 	double Bearing,
 	double Distance,
 	double Elevation,
 	double Traverse,
-	IReadOnlyList<long> CellPath,
-	long? RouteCellPositionId = null,
+	IReadOnlyList<long> RoomPath,
+	long? RouteRoomPositionId = null,
 	TimeSpan? Fuse = null);
 
 public interface IArtilleryPiece : IRangedWeaponPlatform

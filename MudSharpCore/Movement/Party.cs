@@ -122,7 +122,7 @@ public class Party : PerceiverItem, IParty
         return Proximity.Unapproximable;
     }
 
-    public override (bool, IEmoteOutput) CanCross(ICellExit exit)
+    public override (bool, IEmoteOutput) CanCross(IRoomExit exit)
     {
         foreach (IMove member in ActiveMembers)
         {
@@ -306,7 +306,7 @@ public class Party : PerceiverItem, IParty
     }
 
     /// <inheritdoc />
-    public CanMoveResponse CanMove(ICellExit exit, CanMoveFlags flags = CanMoveFlags.None)
+    public CanMoveResponse CanMove(IRoomExit exit, CanMoveFlags flags = CanMoveFlags.None)
     {
         List<ICharacter> nonMovers = new();
         bool leaderCanMove = false;
@@ -362,7 +362,7 @@ public class Party : PerceiverItem, IParty
         throw new NotImplementedException();
     }
 
-    public bool CanSee(ICell thing, ICellExit exit, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
+    public bool CanSee(IRoom thing, IRoomExit exit, PerceiveIgnoreFlags flags = PerceiveIgnoreFlags.None)
     {
         return false;
     }
@@ -402,7 +402,7 @@ public class Party : PerceiverItem, IParty
         return Leader.Move(rawString);
     }
 
-    public bool Move(ICellExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
+    public bool Move(IRoomExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         IMovement movement = MudSharp.Movement.Movement.CreateMovement(Leader, exit, emote, ignoreSafeMovement);
         if (movement is null)
@@ -417,7 +417,7 @@ public class Party : PerceiverItem, IParty
 
     public bool Move(CardinalDirection direction, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
-        ICellExit exit = Leader.Location.GetExit(direction, this);
+        IRoomExit exit = Leader.Location.GetExit(direction, this);
         if (exit == null || !Leader.CanSee(Leader.Location, exit))
         {
             _cannotMoveReason = "You cannot move in that direction.";
@@ -429,7 +429,7 @@ public class Party : PerceiverItem, IParty
 
     public bool Move(string cmd, string target, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
-        ICellExit exit = Leader.Location.GetExit(cmd, target, Leader);
+        IRoomExit exit = Leader.Location.GetExit(cmd, target, Leader);
         if (exit == null || !Leader.CanSee(Leader.Location, exit))
         {
             _cannotMoveReason = "You cannot move in that direction.";
@@ -444,19 +444,19 @@ public class Party : PerceiverItem, IParty
 
     public IMovement Movement { get; set; }
 
-    public double MoveSpeed(ICellExit exit)
+    public double MoveSpeed(IRoomExit exit)
     {
         return CharacterMembers
             .Where(x => x.Movement == Movement)
             .Max(x => x.MoveSpeed(exit));
     }
 
-    public double MoveSpeed(ICellExit exit, IEnumerable<ICharacter> movers)
+    public double MoveSpeed(IRoomExit exit, IEnumerable<ICharacter> movers)
     {
         return movers.Max(x => x.MoveSpeed(exit));
     }
 
-    public IMoveSpeed SlowestSpeed(ICellExit exit)
+    public IMoveSpeed SlowestSpeed(IRoomExit exit)
     {
         IOrderedEnumerable<ICharacter> partyMembers = CharacterMembers
             .Where(x => x.Movement == Movement)

@@ -24,6 +24,7 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 		"This is a partial prepared-world package, not a complete preset. No character attachment, enrolment, " +
 		"acquisition, reserve refill, charges or classes are created. Optional provisions require explicit native " +
 		"food profiles, wine recipes and existing spell-skill bindings; unselected owned provisions are preserved. " +
+		"Optional Water/See uses explicit native liquid, terrain and Divination-rank mappings with an owned prerequisite path; null preserves owned definitions. " +
 		"See Design Documents/Magic/Armageddon_Partial_Installer_Builder_Guide.md.";
 	public bool SafeToRunMoreThanOnce => true;
 	public SeederMetadata Metadata => SeederMetadataRegistry.GetMetadata(this);
@@ -35,7 +36,7 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 		: new(
 		ShouldSeedData(context) == ShouldSeedResult.ReadyToInstall ? SeederAssessmentStatus.ReadyToInstall : SeederAssessmentStatus.UpdateAvailable,
 		"Optional configuration/decline available. Opt-in requires a prepared world and validated explicit bindings; no full-preset readiness is implied.",
-		Array.Empty<string>(), [ArmageddonPreparedWorldInstaller.ProvisionReadiness],
+		Array.Empty<string>(), [ArmageddonPreparedWorldInstaller.ProvisionReadiness, ArmageddonPreparedWorldInstaller.WaterSeeReadiness],
 		["Default No on every visit. Each completed module remains committed if a later module stops.",
 		 "Bind an authored body attribute capacity, native gathering template, progs, skills and approved item revisions explicitly."]);
 

@@ -1,0 +1,1020 @@
+{
+  "schema_version": 1,
+  "entry_key": "arm.spell.see_the_unbodied",
+  "historical_identity": {
+    "name": "Detect Ethereal",
+    "skill": 44
+  },
+  "status": "ALLOCATED_ADAPTER_VERIFIED_CONDITIONAL_SOURCE_STOCK_PENDING_COORDINATION",
+  "branch": "codex/armageddon-five-stock-spells",
+  "isolated_base": "1ad24d636925da64e7a82ffa858b0af470e56b0a",
+  "worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock",
+  "tested_source_head": "3cb199240ab1b308e10b653c0ee259abb70367d0",
+  "completion_clear": false,
+  "independent_review_pending": true,
+  "stock_factory_implemented": false,
+  "conditional_component_selection_implemented": false,
+  "shared_payment_selection_apis_changed": false,
+  "installer_changed": false,
+  "shared_dispatch_changed": false,
+  "central_ledger_changed": false,
+  "repertoire_disposition_changed": false,
+  "remote_action_performed": false,
+  "new_checkpoint_commits": [
+    {
+      "commit": "e8318ddc312a2c1b3d488ac2f3efb8cb4472a8e2",
+      "scope": "Exact-file conditional component proposal"
+    },
+    {
+      "commit": "a357a623fa73b7216fad569f7c23f3863e90e554",
+      "scope": "Allocated typed ethereal operation/lifetime and owned tests/harness"
+    },
+    {
+      "commit": "96a5d62d19fa8008df8b41dd677d85b3cca2ebca",
+      "scope": "Native fixture preserves existing exclusive builder default"
+    },
+    {
+      "commit": "3cb199240ab1b308e10b653c0ee259abb70367d0",
+      "scope": "Native cost expectation and explicit paid-quarantine/reconciliation checks"
+    }
+  ],
+  "source_authority": {
+    "qualification": {
+      "path": "Design Documents/Magic/Armageddon_See_The_Unbodied_Source_Qualification_Receipt.json",
+      "bytes": 24680,
+      "sha256": "aefb36364a143f47eeea8b271852d104b2b11ac19e86503ddbf925f7f0ff34a6"
+    },
+    "brief_library_id": "libfile_a4606cd0097081918d6c9d9e220e6da0",
+    "codedump_library_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+    "supported_bounded_library_snapshots": {
+      "path": ".artifacts/test-runs/see-unbodied-source-qualification-01/library-evidence.json",
+      "bytes": 79273,
+      "sha256": "039625cfaef11c975344a0ef101db6a53392cbeefacbac5d5c67a6219b13716d"
+    },
+    "full_file_materialization_claimed": false
+  },
+  "source_stock_contract": {
+    "prerequisite": "Pierce Concealment raw80 unlocks See opening30; baseline acquired grade1",
+    "opening": 30,
+    "raw_cap": 90,
+    "outgoing_branch_raw": 80,
+    "printed_minimum": 7,
+    "duration_seconds_per_grade": 1800,
+    "unit_seconds": 600,
+    "maximum_units": 36,
+    "strongest_source_grade_retained": true,
+    "ordinary_target": "self only",
+    "silt_shadow_native_identities": "Builder-explicit mapping required; not implemented or guessed",
+    "outside_shadow_component": "One carried Divination quantity unit; rank max(grade-3,0), including low grades",
+    "shadow_component_exemption": "Pending coordinated invocation-local prepared selection"
+  },
+  "allocated_implementation": {
+    "changed_files": [
+      {
+        "path": "MudSharpCore/Magic/MagicSpell.Lifetime.cs",
+        "bytes": 12548,
+        "sha256": "0cf2a6d337c97940692f5a8e224e85578034870d91174483962381c6913bab9b"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/StandaloneStatusSpellEffects.cs",
+        "bytes": 36218,
+        "sha256": "ba0d902d06923b47805e4e9cce8adddfabc90d902daa50b1a0ef76db68c90e9c"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.Operation.cs",
+        "bytes": 2573,
+        "sha256": "bc46d3f93523d2f4dc93ff5138b96f8451de1c03acddda89668717e6c497a8a3"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/DetectEtherealEffect.Lifetime.cs",
+        "bytes": 2964,
+        "sha256": "e696e8f86efbc38d6df035ec3cf73800cbf72a0650ea22e066dafe563ff69867"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/DetectEtherealLifetimeTests.cs",
+        "bytes": 26250,
+        "sha256": "8d22d0c1bd539f31705814ef4709d8cc1b96f4e29c6ef543ce19d4e6435ac8e9"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/DetectEtherealOperationTests.cs",
+        "bytes": 11106,
+        "sha256": "560f754ba9a7deeb0eb4d398fa2fcf5f7359992846a13b41b6f762b5eb66d65c"
+      },
+      {
+        "path": "Temporary Scratch App/EtherealAdapterNativeHarness/EtherealAdapterNativeHarness.csproj",
+        "bytes": 1495,
+        "sha256": "abb5fdfee56a84bb07517920c78c2adcc8b8597db9de4f612a78641a18edaefd"
+      },
+      {
+        "path": "Temporary Scratch App/EtherealAdapterNativeHarness/EtherealAdapterEntry.cs",
+        "bytes": 202,
+        "sha256": "11a9b196a2d7732305dee14542b6d73aa26454e25beee933ebc94b2994f567bf"
+      },
+      {
+        "path": "Temporary Scratch App/EtherealAdapterNativeHarness/Program.EtherealAdapter.cs",
+        "bytes": 15290,
+        "sha256": "1381d7eac2d2291e8ca13853738cb3cdf9f4ffd294b96a4b44e974e4f0449671"
+      },
+      {
+        "path": "Temporary Scratch App/EtherealAdapterNativeHarness/Run-EtherealAdapter.ps1",
+        "bytes": 8565,
+        "sha256": "714366d9e88531075306ba0f6913bd4951097e29cfd0a1332a6452a847678c8a"
+      }
+    ],
+    "bridge_edits": [
+      "DetectEtherealEffect class declaration implements operation; no shared status-base change",
+      "MagicSpell.Lifetime concrete template/child kind admission and replacement-child confirmation"
+    ],
+    "operation_reports": "Observed retained mutation, no second attachment, legacy unattached factory preserved",
+    "lifetime": "Existing accumulate schema, scheduler, immutable cohort/deadline confirmation, strength/cap/reload/expiry machinery"
+  },
+  "final_unit_verification": {
+    "evidence": {
+      "path": ".artifacts/test-runs/ethereal-adapter-final-01/20261005T202358Z-d3ab8e63fcc6/summary.json",
+      "bytes": 40806,
+      "sha256": "c2269caae4f60a0999a9046ce7b4b464f21d4c42db0bfe460bce1a73107094ff"
+    },
+    "head": "3cb199240ab1b308e10b653c0ee259abb70367d0",
+    "status": "PASS",
+    "counts": {
+      "executed": 7684,
+      "passed": 7684,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7684
+    },
+    "source_start": "c2a8f8de5b680102cb7310bb6c69d8977d2a703dd8ac291680c5bb0bf54722e2",
+    "source_end": "c2a8f8de5b680102cb7310bb6c69d8977d2a703dd8ac291680c5bb0bf54722e2",
+    "source_stable": true,
+    "sdk": "10.0.401",
+    "owned_cases": {
+      "DetectEtherealLifetimeTests": 46,
+      "DetectEtherealOperationTests": 16
+    },
+    "strict_counts_complete": true,
+    "execution_complete": true
+  },
+  "final_native_verification": {
+    "evidence": {
+      "path": ".artifacts/test-runs/ethereal-adapter-final-native-01/summary.json",
+      "bytes": 2344,
+      "sha256": "a36b17400ac5dafc103c31786bded506ffdc258f06d578213700148248f969c2"
+    },
+    "source_head": "3cb199240ab1b308e10b653c0ee259abb70367d0",
+    "qualification_scope": "Allocated ethereal operation and typed lifetime adapter; all preserved native regression modes",
+    "stock_clearance": "Adapter only; conditional source components and faithful See stock unqualified; parent independent review pending",
+    "source_files": 7506,
+    "source_stable": true,
+    "assemblies_stable": true,
+    "all_passed": true,
+    "source_manifest_sha256": "c81c114f1eeb3d2ad8b7ebac72698aef68f91995e167a0c46da90abf85803e77",
+    "assembly_manifest_sha256": "058f8c596a980b7ad6b18724ecdbc9f24b9cf07b6aa854ae11cc750d1e92735c",
+    "runs": [
+      {
+        "mode": "ethereal-adapter",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/ethereal-adapter-final-native-01/ethereal-adapter.log"
+      },
+      {
+        "mode": "water-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/ethereal-adapter-final-native-01/water-stock.log"
+      },
+      {
+        "mode": "water-adapter",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/ethereal-adapter-final-native-01/water-adapter.log"
+      },
+      {
+        "mode": "pierce-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/ethereal-adapter-final-native-01/pierce-stock.log"
+      },
+      {
+        "mode": "pierce-shared-runtime",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/ethereal-adapter-final-native-01/pierce-shared-runtime.log"
+      },
+      {
+        "mode": "provision-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/ethereal-adapter-final-native-01/provision-stock.log"
+      },
+      {
+        "mode": "five-stock",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/ethereal-adapter-final-native-01/five-stock.log"
+      },
+      {
+        "mode": "regressions",
+        "exit_code": 0,
+        "passed": true,
+        "owned_cleanup": true,
+        "log": ".artifacts/test-runs/ethereal-adapter-final-native-01/regressions.log"
+      }
+    ],
+    "manifests": [
+      {
+        "path": ".artifacts/test-runs/ethereal-adapter-final-native-01/source-before.json",
+        "bytes": 1261845,
+        "sha256": "c81c114f1eeb3d2ad8b7ebac72698aef68f91995e167a0c46da90abf85803e77"
+      },
+      {
+        "path": ".artifacts/test-runs/ethereal-adapter-final-native-01/source-after.json",
+        "bytes": 1261845,
+        "sha256": "c81c114f1eeb3d2ad8b7ebac72698aef68f91995e167a0c46da90abf85803e77"
+      },
+      {
+        "path": ".artifacts/test-runs/ethereal-adapter-final-native-01/assemblies-before.json",
+        "bytes": 15260,
+        "sha256": "058f8c596a980b7ad6b18724ecdbc9f24b9cf07b6aa854ae11cc750d1e92735c"
+      },
+      {
+        "path": ".artifacts/test-runs/ethereal-adapter-final-native-01/assemblies-after.json",
+        "bytes": 15260,
+        "sha256": "058f8c596a980b7ad6b18724ecdbc9f24b9cf07b6aa854ae11cc750d1e92735c"
+      }
+    ],
+    "core_assembly_sha256": "6c9a5fddb1610a8c988471c0b9521c2c7b9a39cb50a71f7619023df5064ca1e5",
+    "matches_strict_suite_core": true,
+    "strict_assembly_evidence": {
+      "path": ".artifacts/test-runs/ethereal-adapter-final-unit-assemblies.json",
+      "bytes": 346,
+      "sha256": "05fce638c523547122ce046fd12877401b78563bc2d0c40fe1bbfaea192f4de5"
+    },
+    "ethereal_markers": [
+      "ETHEREAL-paid=passed grade:1 cost:7 applied:True",
+      "ETHEREAL-paid=passed grade:7 cost:50 applied:True",
+      "ETHEREAL-paid=passed grade:7 cost:50 applied:True",
+      "ETHEREAL-paid=passed grade:2 cost:112.5 applied:False",
+      "ETHEREAL-paid=passed grade:7 cost:50 applied:True",
+      "ETHEREAL-reader=passed fresh-process native-typed-child identity grade7 policy exact-deadline no-replay no-refund expiry-removes-parent-child-perception",
+      "ETHEREAL-adapter=passed ordinary-builder reload paid-grade1-grade7 min7 cumulative-cap36 strongest-grade nochange-no-mastery cohort-drift fresh-reader expiry; source-stock-components-and-environment-unqualified"
+    ],
+    "ethereal_log": {
+      "path": ".artifacts/test-runs/ethereal-adapter-final-native-01/ethereal-adapter.log",
+      "bytes": 437440,
+      "sha256": "b537cdcb3b8b4233609f97df28d6045057ea569b6288a9a269ed7403ecd150a2"
+    },
+    "fixture_scope": "Real native Character/Body, MagicSpell, SimpleMagicResource, casting state store, EffectScheduler and database persistence; world/race/anatomy environment uses existing mocked fixture collaborators",
+    "controlled_grade7_setup": "Explicit owned-fixture acquired record; not source acquisition or paid practice qualification",
+    "paid_uncertainty": "Native old cohort retained, debit7 retained, retry refused, no mastery/refund; explicit staff reconciliation after inspection only to continue independent fixture checks",
+    "native_perception_scope": "Actual character ethereal channel mask and expiry; no real hidden target, ward, blindness or cross-plane eligibility claim",
+    "cleanup": {
+      "checked_utc": "2026-10-05T20:38:57.0212121Z",
+      "process_queries_verified": true,
+      "owned_server_count": 0,
+      "owned_reader_count": 0,
+      "owned_temp_directory_count": 0,
+      "scope": "Only this lane ethereal-adapter process/path prefix; read-only check"
+    },
+    "cleanup_evidence": {
+      "path": ".artifacts/test-runs/ethereal-adapter-final-owned-cleanup.json",
+      "bytes": 266,
+      "sha256": "9b8baaa952906697306e653aa17037b15df2c4c57921a4c4b661285cfc86e853"
+    }
+  },
+  "preserved_history": {
+    "protected_count": 87,
+    "unchanged_count": 86,
+    "allocated_changed_count": 1,
+    "files": [
+      {
+        "path": "Design Documents/Magic/Armageddon_Completion_Progress.json",
+        "git_blob_sha1": "841c10f13313f158cae79a47b9d04c1ee4bac1e6",
+        "tested_git_blob_sha1": "841c10f13313f158cae79a47b9d04c1ee4bac1e6",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Completion_Progress.md",
+        "git_blob_sha1": "e4d761764e41707f323cadb52fa1e466b81b7433",
+        "tested_git_blob_sha1": "e4d761764e41707f323cadb52fa1e466b81b7433",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Draw_Water_Stock_Receipt.json",
+        "git_blob_sha1": "a50058ae2b2cd657a5fc205fa2f2fa368031cc58",
+        "tested_git_blob_sha1": "a50058ae2b2cd657a5fc205fa2f2fa368031cc58",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Emotional_Groundwork_Receipt.json",
+        "git_blob_sha1": "bb794856dd9f69a3138a9aad5347d5e1921c9ece",
+        "tested_git_blob_sha1": "bb794856dd9f69a3138a9aad5347d5e1921c9ece",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Emotional_Stamina_Removal_Receipt.json",
+        "git_blob_sha1": "f811c5cee6704befe68dca0104bea460f9e48133",
+        "tested_git_blob_sha1": "f811c5cee6704befe68dca0104bea460f9e48133",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Five_Stock_Verification_Receipt.json",
+        "git_blob_sha1": "87e3a0ce9448cfcd360ca54085ffb63410de7fbf",
+        "tested_git_blob_sha1": "87e3a0ce9448cfcd360ca54085ffb63410de7fbf",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Hovering_Light_Stock_Receipt.json",
+        "git_blob_sha1": "1730964aa62be7309db9af52e78210d1a9e19227",
+        "tested_git_blob_sha1": "1730964aa62be7309db9af52e78210d1a9e19227",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Mend_Flesh_Stock_Receipt.json",
+        "git_blob_sha1": "617520809e53c482fe864de8b3363a2e21f3673f",
+        "tested_git_blob_sha1": "617520809e53c482fe864de8b3363a2e21f3673f",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Pierce_Concealment_Stock_Receipt.json",
+        "git_blob_sha1": "ad1dea1766611c64cf48c4b31f78cbbcdd0d1f9a",
+        "tested_git_blob_sha1": "ad1dea1766611c64cf48c4b31f78cbbcdd0d1f9a",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Pierce_Lifetime_Verification_Receipt.json",
+        "git_blob_sha1": "b37f81fc46868366c27510fab19f1ee11db794a5",
+        "tested_git_blob_sha1": "b37f81fc46868366c27510fab19f1ee11db794a5",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Pierce_Shared_Repair_Receipt.json",
+        "git_blob_sha1": "5de9c77313d39091925b1f4b4b7e1570729a79fe",
+        "tested_git_blob_sha1": "5de9c77313d39091925b1f4b4b7e1570729a79fe",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Provision_Final_Admission_Receipt.json",
+        "git_blob_sha1": "276b2556e0df88c889d04db273e3508527e3c85c",
+        "tested_git_blob_sha1": "276b2556e0df88c889d04db273e3508527e3c85c",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Provision_Verification_Receipt.json",
+        "git_blob_sha1": "837d63d717cbd7c93c4921f69afcc03844be263f",
+        "tested_git_blob_sha1": "837d63d717cbd7c93c4921f69afcc03844be263f",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Repertoire.json",
+        "git_blob_sha1": "0b958260b05be0ecc15a03234813536f8ff3689e",
+        "tested_git_blob_sha1": "0b958260b05be0ecc15a03234813536f8ff3689e",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Repertoire.md",
+        "git_blob_sha1": "af49021b6dc177865adec91324e1c992e4cae7cc",
+        "tested_git_blob_sha1": "af49021b6dc177865adec91324e1c992e4cae7cc",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Sense_Enchantment_Stock_Receipt.json",
+        "git_blob_sha1": "8501bfb0296c07292e833d71ec5581f853a89859",
+        "tested_git_blob_sha1": "8501bfb0296c07292e833d71ec5581f853a89859",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Stock_Expiry_Reporting_Correction_Receipt.json",
+        "git_blob_sha1": "5ce02de949e580141395f59351e749f7632c3954",
+        "tested_git_blob_sha1": "5ce02de949e580141395f59351e749f7632c3954",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Stock_Operation_Reporting_Receipt.json",
+        "git_blob_sha1": "dd782aa33fa5654a171420aefd116005b163e5d3",
+        "tested_git_blob_sha1": "dd782aa33fa5654a171420aefd116005b163e5d3",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Unravel_Enchantment_Stock_Receipt.json",
+        "git_blob_sha1": "7e2c25684c91ce02805fad035607d45ae751adc4",
+        "tested_git_blob_sha1": "7e2c25684c91ce02805fad035607d45ae751adc4",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Water_Breathing_Adapter_Receipt.json",
+        "git_blob_sha1": "3766fc3dea3bdacfae6246bb9f3c953d56eddb4d",
+        "tested_git_blob_sha1": "3766fc3dea3bdacfae6246bb9f3c953d56eddb4d",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Water_Breathing_Compatibility_Receipt.json",
+        "git_blob_sha1": "ea859eb354592ddf8478640e35fede038a7e4cf5",
+        "tested_git_blob_sha1": "ea859eb354592ddf8478640e35fede038a7e4cf5",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Water_Breathing_Independent_Selection_Receipt.json",
+        "git_blob_sha1": "ddf64a97ad71a1fd6265e3138aa72b93a27683bf",
+        "tested_git_blob_sha1": "ddf64a97ad71a1fd6265e3138aa72b93a27683bf",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Water_Breathing_Source_Qualification_Receipt.json",
+        "git_blob_sha1": "cba61101af9380ad5931dfc5e946ca76abb8c3e6",
+        "tested_git_blob_sha1": "cba61101af9380ad5931dfc5e946ca76abb8c3e6",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Stock.cs",
+        "git_blob_sha1": "c50d863c210a5452d15f4bc21b268560547839f9",
+        "tested_git_blob_sha1": "c50d863c210a5452d15f4bc21b268560547839f9",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellScopedWaterBreathingEffect.cs",
+        "git_blob_sha1": "6f94932887fad09506a29c013a9850a3235737ae",
+        "tested_git_blob_sha1": "6f94932887fad09506a29c013a9850a3235737ae",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Effects/Concrete/SpellEffects/StandaloneSpellStatusEffects.cs",
+        "git_blob_sha1": "0d6c8df4726066143df64a5cea2c64230bad6471",
+        "tested_git_blob_sha1": "0d6c8df4726066143df64a5cea2c64230bad6471",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Health/Breathing/BlowholeBreather.cs",
+        "git_blob_sha1": "f10131e7502f915462ead2f5916a495ae1a43a0a",
+        "tested_git_blob_sha1": "f10131e7502f915462ead2f5916a495ae1a43a0a",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Health/Breathing/BreathingStrategyHelper.cs",
+        "git_blob_sha1": "2976c255f1313d02eab931e31bd856d74d9f3420",
+        "tested_git_blob_sha1": "2976c255f1313d02eab931e31bd856d74d9f3420",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Health/Breathing/GillBreather.cs",
+        "git_blob_sha1": "742891f3942962d824a0c36789c5bfd3d3029832",
+        "tested_git_blob_sha1": "742891f3942962d824a0c36789c5bfd3d3029832",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Health/Breathing/LungBreather.cs",
+        "git_blob_sha1": "c1f8d99a03f85598bf59393f720e4962ce96c19e",
+        "tested_git_blob_sha1": "c1f8d99a03f85598bf59393f720e4962ce96c19e",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Health/Breathing/NonBreather.cs",
+        "git_blob_sha1": "2ea5c996a53089b43d2641eb3ec22abc5bedb0fc",
+        "tested_git_blob_sha1": "2ea5c996a53089b43d2641eb3ec22abc5bedb0fc",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Health/Breathing/PartlessBreather.cs",
+        "git_blob_sha1": "359e4ef16e4dd72ba57fcb3a5e2b1cb8f28b3fff",
+        "tested_git_blob_sha1": "359e4ef16e4dd72ba57fcb3a5e2b1cb8f28b3fff",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Health/Breathing/RespirationDrugEffectExtensions.cs",
+        "git_blob_sha1": "e6eee6f4e526f114f775da824425f2ea0030eb24",
+        "tested_git_blob_sha1": "e6eee6f4e526f114f775da824425f2ea0030eb24",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonDrawWaterStock.cs",
+        "git_blob_sha1": "828fa94d0d877516ada2aa50fc52836c5f0bc9e8",
+        "tested_git_blob_sha1": "828fa94d0d877516ada2aa50fc52836c5f0bc9e8",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonDrawWineStock.cs",
+        "git_blob_sha1": "5a47a2ce221ddbb9c32f8402a85f853f4b525f76",
+        "tested_git_blob_sha1": "5a47a2ce221ddbb9c32f8402a85f853f4b525f76",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonFlameKnifeStock.cs",
+        "git_blob_sha1": "867b66908af8db0d0b0d61c7594a469ed6f7c302",
+        "tested_git_blob_sha1": "867b66908af8db0d0b0d61c7594a469ed6f7c302",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonHoveringLightStock.cs",
+        "git_blob_sha1": "6321f9516c8f15392fd9c662b68ab05d45b920dc",
+        "tested_git_blob_sha1": "6321f9516c8f15392fd9c662b68ab05d45b920dc",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonMendFleshStock.cs",
+        "git_blob_sha1": "d7c37cabfbeffadfeeda51e24bd075294741f4c6",
+        "tested_git_blob_sha1": "d7c37cabfbeffadfeeda51e24bd075294741f4c6",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonPierceConcealmentStock.cs",
+        "git_blob_sha1": "87e028ae7aab37c210a8e2351f7b261c30e509ac",
+        "tested_git_blob_sha1": "87e028ae7aab37c210a8e2351f7b261c30e509ac",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonRaiseServitorStock.cs",
+        "git_blob_sha1": "d36fb1d4e24c9aaed4019dee0dec8fc18feceb3d",
+        "tested_git_blob_sha1": "d36fb1d4e24c9aaed4019dee0dec8fc18feceb3d",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonSandKnifeStock.cs",
+        "git_blob_sha1": "9de7cd11864244b159909390e2368d3e3bd78e48",
+        "tested_git_blob_sha1": "9de7cd11864244b159909390e2368d3e3bd78e48",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonSenseEnchantmentStock.cs",
+        "git_blob_sha1": "239acfa6e096af434a322f6025dc1f1496e5630f",
+        "tested_git_blob_sha1": "239acfa6e096af434a322f6025dc1f1496e5630f",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonStormSpearStock.cs",
+        "git_blob_sha1": "77fd47d8a60336217a4983803135d82c2dc3dd3a",
+        "tested_git_blob_sha1": "77fd47d8a60336217a4983803135d82c2dc3dd3a",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonSustainMealStock.cs",
+        "git_blob_sha1": "7b9a9d0a02bcf91e41eb4c425867678d4272f734",
+        "tested_git_blob_sha1": "7b9a9d0a02bcf91e41eb4c425867678d4272f734",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonUnravelEnchantmentStock.cs",
+        "git_blob_sha1": "2fe3c767996d8ff7d08e87a1cf5f1137910b16cb",
+        "tested_git_blob_sha1": "2fe3c767996d8ff7d08e87a1cf5f1137910b16cb",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonUtilityStock.cs",
+        "git_blob_sha1": "1ff47ca6890fca2fd7561a1afb1538120ae36490",
+        "tested_git_blob_sha1": "1ff47ca6890fca2fd7561a1afb1538120ae36490",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/CastingNumerics.cs",
+        "git_blob_sha1": "1b70a61b9a701f5a094c7a0ad04e871dcb84f772",
+        "tested_git_blob_sha1": "1b70a61b9a701f5a094c7a0ad04e871dcb84f772",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/ConfiguredCastingExecution.cs",
+        "git_blob_sha1": "0be8ee91d90321dc5154f3d63e042d6ae1973c8a",
+        "tested_git_blob_sha1": "0be8ee91d90321dc5154f3d63e042d6ae1973c8a",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.Acquisition.cs",
+        "git_blob_sha1": "d02d9e7e0b55af25190a590ac6289d75f72264e2",
+        "tested_git_blob_sha1": "d02d9e7e0b55af25190a590ac6289d75f72264e2",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.Area.cs",
+        "git_blob_sha1": "bb747c2cffb63bb407f803a61bdbb200920f8964",
+        "tested_git_blob_sha1": "bb747c2cffb63bb407f803a61bdbb200920f8964",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.cs",
+        "git_blob_sha1": "3a59be69720e9bb7182a09c7b30762cd53dc2397",
+        "tested_git_blob_sha1": "3a59be69720e9bb7182a09c7b30762cd53dc2397",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.Devices.cs",
+        "git_blob_sha1": "b20e964d10569f1cc418d261eea10e339be3fd46",
+        "tested_git_blob_sha1": "b20e964d10569f1cc418d261eea10e339be3fd46",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.DeviceState.cs",
+        "git_blob_sha1": "ffe7de0f6192d10afffac5b1ce7fa44c2392a365",
+        "tested_git_blob_sha1": "ffe7de0f6192d10afffac5b1ce7fa44c2392a365",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.Execution.cs",
+        "git_blob_sha1": "3efc3541327ee26a652db39630d2ca2c2b0e724b",
+        "tested_git_blob_sha1": "3efc3541327ee26a652db39630d2ca2c2b0e724b",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.Incantation.cs",
+        "git_blob_sha1": "5bd68df74e59e9cc44fc749c615615bee2c3bf89",
+        "tested_git_blob_sha1": "5bd68df74e59e9cc44fc749c615615bee2c3bf89",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.Practice.cs",
+        "git_blob_sha1": "a3bb95334e4eab9a5f095f9ca7112098330626c5",
+        "tested_git_blob_sha1": "a3bb95334e4eab9a5f095f9ca7112098330626c5",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.PreparedSelection.cs",
+        "git_blob_sha1": "70fa4fa63ea113c4258a6d5920ac73a71f59da66",
+        "tested_git_blob_sha1": "70fa4fa63ea113c4258a6d5920ac73a71f59da66",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.Progression.cs",
+        "git_blob_sha1": "491f98b595093427be943bcd7ebaaf9f13ffa9f5",
+        "tested_git_blob_sha1": "491f98b595093427be943bcd7ebaaf9f13ffa9f5",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.Resources.cs",
+        "git_blob_sha1": "4e24b59796ac88c74ee3d90591e3d76d08119944",
+        "tested_git_blob_sha1": "4e24b59796ac88c74ee3d90591e3d76d08119944",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.SelectionPayment.cs",
+        "git_blob_sha1": "319a5ee8bc19b316f1b2ce3073cc6ac71b0390fd",
+        "tested_git_blob_sha1": "319a5ee8bc19b316f1b2ce3073cc6ac71b0390fd",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingService.Support.cs",
+        "git_blob_sha1": "4c246c675c58634096bb3c1a9e268b805e7ce711",
+        "tested_git_blob_sha1": "4c246c675c58634096bb3c1a9e268b805e7ce711",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicCastingStateStore.cs",
+        "git_blob_sha1": "f3f5f5a532d34a1fcc0bc3a247323e4ff2fc3e65",
+        "tested_git_blob_sha1": "f3f5f5a532d34a1fcc0bc3a247323e4ff2fc3e65",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicDeviceJournal.cs",
+        "git_blob_sha1": "a47ce3ce43d81e14b54f65776b735f78e516bd0b",
+        "tested_git_blob_sha1": "a47ce3ce43d81e14b54f65776b735f78e516bd0b",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/MagicPracticeAction.cs",
+        "git_blob_sha1": "89513bc0fb19fcf4fb8c4268fad32c631120457d",
+        "tested_git_blob_sha1": "89513bc0fb19fcf4fb8c4268fad32c631120457d",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/Casting/SpellAreaDamageScope.cs",
+        "git_blob_sha1": "7a874350e36c92f56485736076b1aafdbba3ce65",
+        "tested_git_blob_sha1": "7a874350e36c92f56485736076b1aafdbba3ce65",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/MagicSpell.Lifetime.cs",
+        "git_blob_sha1": "38c3e8db370e336b5e37be7afe6de810058d19a6",
+        "tested_git_blob_sha1": "41b9384e81d2e97ff75492507b75b347bfe0aec1",
+        "unchanged": false,
+        "allocated_change": true
+      },
+      {
+        "path": "MudSharpCore/Magic/MagicSpell.WaterBreathing.cs",
+        "git_blob_sha1": "6ceb33ae35ba1d876ac264b9b99392cac992ad8c",
+        "tested_git_blob_sha1": "6ceb33ae35ba1d876ac264b9b99392cac992ad8c",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/SourceWaterBreathingEffect.cs",
+        "git_blob_sha1": "5f6d7d8fac2e6855980cca254328bc6a5bde5624",
+        "tested_git_blob_sha1": "5f6d7d8fac2e6855980cca254328bc6a5bde5624",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/SourceWaterBreathingEffect.Operation.cs",
+        "git_blob_sha1": "553c6adfceb123947e770b6089a1e9ef00bca8d1",
+        "tested_git_blob_sha1": "553c6adfceb123947e770b6089a1e9ef00bca8d1",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/SourceWaterBreathingEffect.Selection.cs",
+        "git_blob_sha1": "eb6634ec1a732000a923093fdc326c257b69a81a",
+        "tested_git_blob_sha1": "eb6634ec1a732000a923093fdc326c257b69a81a",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Temporary Scratch App/GatheringNativePersistenceHarness/Program.cs",
+        "git_blob_sha1": "ba0b243fb1e2f8a3d5a61f64a568edb96b8de153",
+        "tested_git_blob_sha1": "ba0b243fb1e2f8a3d5a61f64a568edb96b8de153",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/Program.WaterBreathingAdapter.cs",
+        "git_blob_sha1": "fa89a38ab4919c0eb2bd299e24415d1daf30d3d1",
+        "tested_git_blob_sha1": "fa89a38ab4919c0eb2bd299e24415d1daf30d3d1",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/Run-WaterBreathingAdapter.ps1",
+        "git_blob_sha1": "833e8596f728a38c677ce40a88a68737896864f3",
+        "tested_git_blob_sha1": "833e8596f728a38c677ce40a88a68737896864f3",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/WaterBreathingAdapterEntry.cs",
+        "git_blob_sha1": "128e01a7eaa6a7a99ac62027cbff99e2c8a368ad",
+        "tested_git_blob_sha1": "128e01a7eaa6a7a99ac62027cbff99e2c8a368ad",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Temporary Scratch App/WaterBreathingAdapterNativeHarness/WaterBreathingAdapterNativeHarness.csproj",
+        "git_blob_sha1": "27ad0d3c0dfb02149139cb3481e8a2bec6247136",
+        "tested_git_blob_sha1": "27ad0d3c0dfb02149139cb3481e8a2bec6247136",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Water_Breathing_Stock_Integration.md",
+        "git_blob_sha1": "fe819bf53f412d064c534a395f8fda0f686c0c94",
+        "tested_git_blob_sha1": "fe819bf53f412d064c534a395f8fda0f686c0c94",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore Unit Tests/PositionIdFunctionTests.cs",
+        "git_blob_sha1": "8fb22d7742622678394fb592c635b01a02f7e993",
+        "tested_git_blob_sha1": "8fb22d7742622678394fb592c635b01a02f7e993",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore Unit Tests/WaterBreathingStockTests.cs",
+        "git_blob_sha1": "d0d6bf8f58fd1298f174b0ea77524a169e115fcd",
+        "tested_git_blob_sha1": "d0d6bf8f58fd1298f174b0ea77524a169e115fcd",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.PerceptionStock.cs",
+        "git_blob_sha1": "12c726a15e48f7ee210cebec3ba9b76152b8ebed",
+        "tested_git_blob_sha1": "12c726a15e48f7ee210cebec3ba9b76152b8ebed",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.WaterBreathingStock.cs",
+        "git_blob_sha1": "0c3900afcabe48f5bf4407b3d74b1c3487aaeb71",
+        "tested_git_blob_sha1": "0c3900afcabe48f5bf4407b3d74b1c3487aaeb71",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/FutureProg/Functions/BuiltIn/PositionIdFunction.cs",
+        "git_blob_sha1": "4295db7461b9d6f1c1d9fccbdcd74edcaaccd216",
+        "tested_git_blob_sha1": "4295db7461b9d6f1c1d9fccbdcd74edcaaccd216",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "MudSharpCore/Magic/ArmageddonWaterBreathingStock.cs",
+        "git_blob_sha1": "120eac40ff896d6b19b5a28f71279e802abc95e0",
+        "tested_git_blob_sha1": "120eac40ff896d6b19b5a28f71279e802abc95e0",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/Program.WaterBreathingStock.cs",
+        "git_blob_sha1": "edcc4044f6dd22c7bd0654bb1c30bdd4ea4fc3ea",
+        "tested_git_blob_sha1": "edcc4044f6dd22c7bd0654bb1c30bdd4ea4fc3ea",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/Run-WaterBreathingStock.ps1",
+        "git_blob_sha1": "21242ebda82c4571ecd612042481e05cab85f058",
+        "tested_git_blob_sha1": "21242ebda82c4571ecd612042481e05cab85f058",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/WaterBreathingStockEntry.cs",
+        "git_blob_sha1": "5524ee991f4de09489d2776038495cd8c74d3cad",
+        "tested_git_blob_sha1": "5524ee991f4de09489d2776038495cd8c74d3cad",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Temporary Scratch App/WaterBreathingStockNativeHarness/WaterBreathingStockNativeHarness.csproj",
+        "git_blob_sha1": "150270147ea0a435365356cf8a2d66cc58b78c2e",
+        "tested_git_blob_sha1": "150270147ea0a435365356cf8a2d66cc58b78c2e",
+        "unchanged": true,
+        "allocated_change": false
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Water_Breathing_Stock_Receipt.json",
+        "git_blob_sha1": "ec797a24cd26bb64b5c78e32a1d99ebcb431631f",
+        "tested_git_blob_sha1": "ec797a24cd26bb64b5c78e32a1d99ebcb431631f",
+        "unchanged": true,
+        "allocated_change": false
+      }
+    ],
+    "preliminary_unit_runs": [
+      {
+        "evidence": {
+          "path": ".artifacts/test-runs/ethereal-adapter-targeted-01/20261005T201217Z-b27982d94ea8/summary.json",
+          "bytes": 3880,
+          "sha256": "3588c6136838aa04537e8c3485c744eb852fca57594b3d70774013497447536b"
+        },
+        "head": "e8318ddc312a2c1b3d488ac2f3efb8cb4472a8e2",
+        "status": "FAIL",
+        "counts": null,
+        "source_start": "4031d3031041211b22fc047b0aff0b6eb4209781e5176ee566e3a555006700a5",
+        "source_end": "4031d3031041211b22fc047b0aff0b6eb4209781e5176ee566e3a555006700a5",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "explanation": "Owned test compile failure: missing Effects.Interfaces namespace; no tests executed"
+      },
+      {
+        "evidence": {
+          "path": ".artifacts/test-runs/ethereal-adapter-targeted-02/20261005T201354Z-2c07a42add19/summary.json",
+          "bytes": 6311,
+          "sha256": "7b6d471042fd374069f60ba8f807d95ecc2e68aa3a7d6f9530715852f17d3976"
+        },
+        "head": "e8318ddc312a2c1b3d488ac2f3efb8cb4472a8e2",
+        "status": "FAIL",
+        "counts": {
+          "executed": 199,
+          "passed": 198,
+          "failed": 1,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 199
+        },
+        "source_start": "883ac8ed52ad46876a6dfd29bfa309fb44061e95874639570db6ccdda035ed41",
+        "source_end": "883ac8ed52ad46876a6dfd29bfa309fb44061e95874639570db6ccdda035ed41",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "explanation": "198 passed/1 failed: fixture removed its last child and consequently its parent before typed-admission test"
+      },
+      {
+        "evidence": {
+          "path": ".artifacts/test-runs/ethereal-adapter-targeted-03/20261005T201453Z-abab823c457b/summary.json",
+          "bytes": 6196,
+          "sha256": "3a57b7e5661b632bef896d390f0d5a9bb491d962b183a682f0c7386d31483cbf"
+        },
+        "head": "e8318ddc312a2c1b3d488ac2f3efb8cb4472a8e2",
+        "status": "PASS",
+        "counts": {
+          "executed": 199,
+          "passed": 199,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 199
+        },
+        "source_start": "5db353fcb8e41bbfa579e57f707ab600bf06f2fb01257b59fb4daf6254650c73",
+        "source_end": "5db353fcb8e41bbfa579e57f707ab600bf06f2fb01257b59fb4daf6254650c73",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "explanation": "Corrected focused run: 199 passed, zero failures/skips; final committed source separately qualified by strict suite"
+      }
+    ],
+    "failed_native_runs": [
+      {
+        "source_head": "a357a623fa73b7216fad569f7c23f3863e90e554",
+        "evidence": {
+          "path": ".artifacts/test-runs/ethereal-adapter-native-initial-01.log",
+          "bytes": 53752,
+          "sha256": "1e0908e26964f8ee5e1b0735fbe88752009d4df63fe3e1f6760459c0d8a78995"
+        },
+        "passed": false,
+        "explanation": "Fixture toggled the already enabled native exclusive default off; readiness correctly refused",
+        "owned_cleanup": true
+      },
+      {
+        "source_head": "96a5d62d19fa8008df8b41dd677d85b3cca2ebca",
+        "evidence": {
+          "path": ".artifacts/test-runs/ethereal-adapter-native-initial-02.log",
+          "bytes": 186991,
+          "sha256": "d35f8b82cf467de0e53be04ff511124e8196a68a5f30c06229193fbd7b71eb6d"
+        },
+        "passed": false,
+        "explanation": "Grade1 paid cast passed; high-grade fixture asserted17.5 rather than the existing source-curve cost50; corrected assertion",
+        "owned_cleanup": true
+      }
+    ],
+    "read_only_cleanup_sandbox_denial": {
+      "path": ".artifacts/test-runs/ethereal-adapter-final-owned-cleanup-sandbox-denied.json",
+      "bytes": 374,
+      "sha256": "335deebfc8c7d6c49b5ef950c9727fef31facae590b63b152390a12621084217"
+    }
+  },
+  "build_limits": {
+    "sdk": "10.0.401",
+    "targeted_native_restore_build": "dotnet restore/build -m:1; build --no-restore",
+    "local_native_flags": [
+      "NuGetAudit=false",
+      "NoWarn=NU1902;NU1903;CS0618;MSB3277"
+    ],
+    "dependency_configuration_changed": false,
+    "audit_suppression_is_security_qualification": false
+  },
+  "verification_limits": [
+    "No installable See stock factory, source prerequisite acquisition/practice or source component/environment admission yet",
+    "Conditional Divination payment allocation remains pending; exact-file proposal needs zero existing shared payment/selection API edits",
+    "No source Silt/Shadow mapping, guild/race exemptions, criminal-casting implementation or topology inferred",
+    "Native perception tested as retained channels, not hidden-target visibility through blindness/wards/planar restrictions",
+    "Production installer, complete production world boot and gameplay remain unqualified; no remote changes"
+  ],
+  "integration_note": "Only two expressly allocated bridge edits plus owned partials/tests/harness. No shared dispatch or registry addition included. Water factory extraction remains separately coordinated.",
+  "docs_only_review_commit": "Receipt/proposal/integration documentation only after qualification; verify runtime/test/harness trees equal tested source before handoff"
+}

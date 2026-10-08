@@ -15,7 +15,7 @@ public partial class ActiveRouteMotion
 	public long Id { get; set; }
 	public int MoverType { get; set; }
 	public long MoverId { get; set; }
-	public long RouteCellId { get; set; }
+	public long RouteRoomId { get; set; }
 	public int RoomLayer { get; set; }
 	public decimal CheckpointPositionMetres { get; set; }
 	public decimal TargetMinimumPositionMetres { get; set; }
@@ -32,7 +32,7 @@ public partial class ActiveRouteMotion
 	public DateTime CreatedDateTime { get; set; }
 	public DateTime LastCheckpointDateTime { get; set; }
 
-	public virtual RouteCell RouteCell { get; set; } = null!;
+	public virtual RouteRoom RouteRoom { get; set; } = null!;
 	public virtual Exit? SelectedExit { get; set; }
 	public virtual ICollection<RouteMotionResourceLedger> ResourceLedger { get; set; }
 }

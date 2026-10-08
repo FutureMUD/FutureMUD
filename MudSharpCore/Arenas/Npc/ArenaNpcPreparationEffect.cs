@@ -27,7 +27,7 @@ public sealed class ArenaNpcPreparationEffect : Effect
         XElement element = definition.Element("Effect") ?? throw new ArgumentException("Invalid arena NPC preparation effect.");
         EventId = long.Parse(element.Attribute("EventId")?.Value ?? "0");
         long locationId = long.Parse(element.Attribute("LocationId")?.Value ?? "0");
-        OriginalLocation = locationId > 0 ? owner.Gameworld.Cells.Get(locationId) : null;
+        OriginalLocation = locationId > 0 ? owner.Gameworld.Rooms.Get(locationId) : null;
         OriginalRoomLayer = (RoomLayer)int.Parse(element.Attribute("RoomLayer")?.Value ?? "0");
         ResurrectOnReturn = bool.Parse(element.Attribute("ResurrectOnReturn")?.Value ?? bool.FalseString);
         IsParticipating = bool.Parse(element.Attribute("IsParticipating")?.Value ?? bool.FalseString);
@@ -57,7 +57,7 @@ public sealed class ArenaNpcPreparationEffect : Effect
     }
 
     public long EventId { get; }
-    public ICell? OriginalLocation { get; }
+    public IRoom? OriginalLocation { get; }
     public RoomLayer OriginalRoomLayer { get; }
     public bool ResurrectOnReturn { get; }
     public bool IsParticipating { get; private set; }

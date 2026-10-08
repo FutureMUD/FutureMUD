@@ -7,7 +7,7 @@ using MudSharp.Framework;
 namespace MudSharp.Construction;
 
 /// <summary>
-/// A path that may combine ordinary exit traversal with longitudinal movement inside route cells.
+/// A path that may combine ordinary exit traversal with longitudinal movement inside route rooms.
 /// </summary>
 public interface ISpatialPath
 {
@@ -16,7 +16,7 @@ public interface ISpatialPath
 	IReadOnlyList<ISpatialPathStep> Steps { get; }
 	double RouteDistanceMetres { get; }
 	double RoomEquivalentCost { get; }
-	IReadOnlyList<ICellExit> TraversedExits { get; }
+	IReadOnlyList<IRoomExit> TraversedExits { get; }
 }
 
 public interface ISpatialPathStep
@@ -28,12 +28,12 @@ public interface ISpatialPathStep
 
 public interface ILinearRoutePathStep : ISpatialPathStep
 {
-	IRouteCellDefinition RouteCell { get; }
-	RouteCellDirection Direction { get; }
+	IRouteRoomDefinition RouteRoom { get; }
+	RouteRoomDirection Direction { get; }
 	double DistanceMetres { get; }
 }
 
 public interface IExitTraversalPathStep : ISpatialPathStep
 {
-	ICellExit Exit { get; }
+	IRoomExit Exit { get; }
 }

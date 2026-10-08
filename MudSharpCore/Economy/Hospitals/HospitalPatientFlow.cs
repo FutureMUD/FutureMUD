@@ -15,7 +15,7 @@ public static class HospitalPatientFlow
 	private const string StagedBelongingsNotePrefix = "Patient belongings staged for recovery: item #";
 	private const string ReturnedBelongingsNotePrefix = "Patient belongings returned after treatment: item #";
 
-	internal static void StagePatientBelongings(IHospitalServiceRequest request, ICharacter patient, ICell stagingRoom,
+	internal static void StagePatientBelongings(IHospitalServiceRequest request, ICharacter patient, IRoom stagingRoom,
 		IReadOnlyCollection<IGameItem> strippedItems)
 	{
 		if (!strippedItems.Any())
@@ -83,7 +83,7 @@ public static class HospitalPatientFlow
 	}
 
 	private static void ReturnPatientBelongings(IHospitalServiceRequest request, ICharacter patient,
-		ICell destination)
+		IRoom destination)
 	{
 		if (TryGetStagedBelongings(request) is not { } belongings)
 		{
@@ -117,7 +117,7 @@ public static class HospitalPatientFlow
 	}
 
 	public static bool TryReserveTreatmentLocation(IHospital hospital, IHospitalServiceRequest request,
-		out ICell? location, out string reason)
+		out IRoom? location, out string reason)
 	{
 		location = null;
 		reason = string.Empty;
@@ -128,9 +128,9 @@ public static class HospitalPatientFlow
 			return location is not null;
 		}
 
-		if (request.OperatingTheatreCellId is { } theatreId)
+		if (request.OperatingTheatreRoomId is { } theatreId)
 		{
-			var reserved = (hospital.OperatingTheatres ?? Array.Empty<ICell>()).FirstOrDefault(x => x.Id == theatreId);
+			var reserved = (hospital.OperatingTheatres ?? Array.Empty<IRoom>()).FirstOrDefault(x => x.Id == theatreId);
 			if (reserved is null)
 			{
 				reason = "The reserved operating theatre is no longer configured for this hospital.";
@@ -146,14 +146,14 @@ public static class HospitalPatientFlow
 			return true;
 		}
 
-		foreach (var theatre in hospital.OperatingTheatres ?? Array.Empty<ICell>())
+		foreach (var theatre in hospital.OperatingTheatres ?? Array.Empty<IRoom>())
 		{
 			if (!IsTheatreAvailable(hospital, request, theatre, out _))
 			{
 				continue;
 			}
 
-			request.OperatingTheatreCellId = theatre.Id;
+			request.OperatingTheatreRoomId = theatre.Id;
 			request.UsedInPlaceFallback = false;
 			location = theatre;
 			return true;
@@ -164,10 +164,10 @@ public static class HospitalPatientFlow
 	}
 
 	public static bool TransferForTreatment(IHospital hospital, IHospitalServiceRequest request, ICharacter employee,
-		ICharacter patient, ICell treatmentLocation, out string reason)
+		ICharacter patient, IRoom treatmentLocation, out string reason)
 	{
 		reason = string.Empty;
-		request.ReturnCellId ??= patient.Location?.Id;
+		request.ReturnRoomId ??= patient.Location?.Id;
 		var patientAlreadyThere = patient.Location?.Id == treatmentLocation.Id;
 		if (patientAlreadyThere && employee.Location?.Id == treatmentLocation.Id)
 		{
@@ -209,7 +209,7 @@ public static class HospitalPatientFlow
 		ICharacter? employee, string auditPrefix)
 	{
 		if (request.Patient is not { } patient ||
-		    request.OperatingTheatreCellId is not { } theatreId ||
+		    request.OperatingTheatreRoomId is not { } theatreId ||
 		    patient.Location?.Id != theatreId)
 		{
 			return;
@@ -278,7 +278,7 @@ public static class HospitalPatientFlow
 
 		if (destinationIsRecovery)
 		{
-			request.RecoveryRoomCellId = destination.Id;
+			request.RecoveryRoomId = destination.Id;
 			if (patient.IsHelpless)
 			{
 				PlaceOnRecoveryBed(patient, destination);
@@ -297,7 +297,7 @@ public static class HospitalPatientFlow
 			return;
 		}
 
-		request.ReturnCellId = destination.Id;
+		request.ReturnRoomId = destination.Id;
 		patient.OutputHandler.Send(completed
 			? $"Your hospital treatment is complete, and you are returned to {destination.Name.ColourName()}."
 			: $"Your hospital procedure could not be completed, and you are returned to {destination.Name.ColourName()}.");
@@ -340,7 +340,7 @@ public static class HospitalPatientFlow
 			return true;
 		}
 
-		var hospitalLocations = (hospital.Locations ?? Enumerable.Empty<ICell>()).ToList();
+		var hospitalLocations = (hospital.Locations ?? Enumerable.Empty<IRoom>()).ToList();
 		if (hospitalLocations.Any() && hospitalLocations.All(x => x.Id != patientLocation.Id))
 		{
 			reason = $"{patientName} is no longer in a configured location for {hospital.Name}.";
@@ -348,11 +348,11 @@ public static class HospitalPatientFlow
 		}
 
 		if (requirePreparedTreatmentLocation &&
-		    request.ReturnCellId.HasValue &&
-		    request.OperatingTheatreCellId is { } theatreId &&
+		    request.ReturnRoomId.HasValue &&
+		    request.OperatingTheatreRoomId is { } theatreId &&
 		    patientLocation.Id != theatreId)
 		{
-			var theatre = (hospital.OperatingTheatres ?? Enumerable.Empty<ICell>()).FirstOrDefault(x => x.Id == theatreId);
+			var theatre = (hospital.OperatingTheatres ?? Enumerable.Empty<IRoom>()).FirstOrDefault(x => x.Id == theatreId);
 			reason = theatre is null
 				? $"{patientName} is no longer in the reserved operating theatre."
 				: $"{patientName} is no longer in the reserved operating theatre {theatre.Name}.";
@@ -370,7 +370,7 @@ public static class HospitalPatientFlow
 		return false;
 	}
 
-	public static bool IsTheatreAvailable(IHospital hospital, IHospitalServiceRequest request, ICell theatre,
+	public static bool IsTheatreAvailable(IHospital hospital, IHospitalServiceRequest request, IRoom theatre,
 		out string reason)
 	{
 		return IsTheatreAvailable(hospital, theatre, candidate => !IsSameRequest(candidate, request),
@@ -382,20 +382,20 @@ public static class HospitalPatientFlow
 	/// use the same reservation and occupant checks as the task runner, without mutating a request merely to test
 	/// availability.
 	/// </summary>
-	public static bool IsTheatreAvailableForNewRequest(IHospital hospital, ICharacter? patient, ICell theatre,
+	public static bool IsTheatreAvailableForNewRequest(IHospital hospital, ICharacter? patient, IRoom theatre,
 		out string reason)
 	{
 		return IsTheatreAvailable(hospital, theatre, _ => true,
 			occupant => IsRequestPatient(patient, occupant), out reason);
 	}
 
-	private static bool IsTheatreAvailable(IHospital hospital, ICell theatre,
+	private static bool IsTheatreAvailable(IHospital hospital, IRoom theatre,
 		Func<IHospitalServiceRequest, bool> isConflictingRequest, Func<ICharacter, bool> isRequestPatient,
 		out string reason)
 	{
 		var conflictingRequest = (hospital.ActiveServiceRequests ?? Array.Empty<IHospitalServiceRequest>())
 		                                 .FirstOrDefault(x =>
-			                                 isConflictingRequest(x) && x.OperatingTheatreCellId == theatre.Id);
+			                                 isConflictingRequest(x) && x.OperatingTheatreRoomId == theatre.Id);
 		if (conflictingRequest is not null)
 		{
 			reason = $"Operating theatre {theatre.Name} is already reserved for active hospital request #{conflictingRequest.Id.ToString("N0")}.";
@@ -444,7 +444,7 @@ public static class HospitalPatientFlow
 		        CharacterInstanceIdentityComparer.SameIdentity(occupant, patient));
 	}
 
-	private static void MoveCharacter(ICharacter character, ICell destination)
+	private static void MoveCharacter(ICharacter character, IRoom destination)
 	{
 		if (character.Location?.Id == destination.Id)
 		{
@@ -455,7 +455,7 @@ public static class HospitalPatientFlow
 		destination.Enter(character, noSave: true, roomLayer: character.RoomLayer);
 	}
 
-	private static void PlaceOnRecoveryBed(ICharacter patient, ICell destination)
+	private static void PlaceOnRecoveryBed(ICharacter patient, IRoom destination)
 	{
 		var bed = destination.GameItems
 		                     .SelectMany(x => x.DeepItems.Append(x))

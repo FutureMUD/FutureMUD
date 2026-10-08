@@ -4,50 +4,50 @@ namespace MudSharp.Effects.Concrete;
 
 public class Territory : Effect, IEffectSubtype
 {
-    private readonly List<(ICell Cell, HashSet<string> Flags)> _cells = new();
-    public IEnumerable<ICell> Cells => _cells.Select(x => x.Cell);
+    private readonly List<(IRoom Room, HashSet<string> Flags)> _rooms = new();
+    public IEnumerable<IRoom> Rooms => _rooms.Select(x => x.Room);
 
-    public void AddCell(ICell cell)
+    public void AddRoom(IRoom room)
     {
-        if (!_cells.Any(x => x.Cell == cell))
+        if (!_rooms.Any(x => x.Room == room))
         {
-            _cells.Add((cell, new HashSet<string>()));
+            _rooms.Add((room, new HashSet<string>()));
             Changed = true;
         }
     }
 
-    public void RemoveCell(ICell cell)
+    public void RemoveRoom(IRoom room)
     {
-        _cells.RemoveAll(x => x.Cell == cell);
+        _rooms.RemoveAll(x => x.Room == room);
         Changed = true;
     }
 
-    public void TagCell(ICell cell, string tag)
+    public void TagRoom(IRoom room, string tag)
     {
-        if (!_cells.Any(x => x.Cell == cell))
+        if (!_rooms.Any(x => x.Room == room))
         {
             return;
         }
 
-        _cells.First(x => x.Cell == cell).Flags.Add(tag.ToLowerInvariant());
+        _rooms.First(x => x.Room == room).Flags.Add(tag.ToLowerInvariant());
         Changed = true;
     }
 
-    public void UntagCell(ICell cell, string tag)
+    public void UntagRoom(IRoom room, string tag)
     {
-        if (!_cells.Any(x => x.Cell == cell))
+        if (!_rooms.Any(x => x.Room == room))
         {
             return;
         }
 
-        _cells.First(x => x.Cell == cell).Flags.Remove(tag.ToLowerInvariant());
+        _rooms.First(x => x.Room == room).Flags.Remove(tag.ToLowerInvariant());
         Changed = true;
     }
 
-    public bool HasFlag(ICell cell, string flag)
+    public bool HasFlag(IRoom room, string flag)
     {
         flag = flag.ToLowerInvariant();
-        return _cells.Any(x => x.Cell == cell && x.Flags.Contains(flag));
+        return _rooms.Any(x => x.Room == room && x.Flags.Contains(flag));
     }
 
     #region Static Initialisation
@@ -78,9 +78,9 @@ public class Territory : Effect, IEffectSubtype
     {
         return
             new XElement("Effect",
-                from cell in _cells
-                select new XElement("Cell", new XAttribute("id", cell.Cell.Id),
-                    from flag in cell.Flags
+                from room in _rooms
+                select new XElement("Cell", new XAttribute("id", room.Room.Id),
+                    from flag in room.Flags
                     select new XElement("Flag", new XCData(flag)))
             );
     }
@@ -89,14 +89,14 @@ public class Territory : Effect, IEffectSubtype
     {
         foreach (XElement item in root.Elements("Cell"))
         {
-            ICell cell = Gameworld.Cells.Get(long.Parse(item.Attribute("id").Value));
-            if (cell == null)
+            IRoom room = Gameworld.Rooms.Get(long.Parse(item.Attribute("id").Value));
+            if (room == null)
             {
                 Changed = true;
                 continue;
             }
 
-            (ICell cell, HashSet<string> flags) tuple = (cell, flags: new HashSet<string>());
+            (IRoom room, HashSet<string> flags) tuple = (room, flags: new HashSet<string>());
             foreach (XElement flag in item.Elements("Flag"))
             {
                 tuple.flags.Add(flag.Value);
@@ -112,7 +112,7 @@ public class Territory : Effect, IEffectSubtype
 
     public override string Describe(IPerceiver voyeur)
     {
-        return $"Has territory [{_cells.Select(x => x.Cell.Id.ToString("F0")).ListToCommaSeparatedValues(" ")}]";
+        return $"Has territory [{_rooms.Select(x => x.Room.Id.ToString("F0")).ListToCommaSeparatedValues(" ")}]";
     }
 
     public override bool SavingEffect => true;

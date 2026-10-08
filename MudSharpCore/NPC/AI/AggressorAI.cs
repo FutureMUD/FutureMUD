@@ -94,7 +94,7 @@ public class AggressorAI : ArtificialIntelligenceBase
         //TODO: With this, AI can find you through doorways it doesn't have direct LOS into, which doesn't seem fair
         //Worth revisiting at some point.
         {
-            foreach (ICharacter tch in ch.Location.CellsInVicinity(range, true, true).Except(ch.Location)
+            foreach (ICharacter tch in ch.Location.RoomsInVicinity(range, true, true).Except(ch.Location)
                                   .SelectMany(x => x.Characters).ToList())
             {
                 if (CheckForAttack(ch, tch))
@@ -118,7 +118,7 @@ public class AggressorAI : ArtificialIntelligenceBase
                     return false;
                 }
                 return CheckAllTargetsForAttack(ch);
-            case EventType.CharacterEnterCellWitness:
+            case EventType.CharacterEnterRoomWitness:
                 ch = (ICharacter)arguments[3];
                 if (ch.State.IsDead() || ch.State.IsInStatis())
                 {
@@ -136,7 +136,7 @@ public class AggressorAI : ArtificialIntelligenceBase
         {
             switch (type)
             {
-                case EventType.CharacterEnterCellWitness:
+                case EventType.CharacterEnterRoomWitness:
                 case EventType.TenSecondTick:
                     return true;
             }

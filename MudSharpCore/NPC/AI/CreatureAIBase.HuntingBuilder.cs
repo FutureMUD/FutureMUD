@@ -34,7 +34,7 @@ public abstract partial class CreatureAIBase
 					if (!value.EqualTo("on") && !value.EqualTo("off")) return Bad("Use on or off.");
 					Hunting.Opportunistic = value.EqualTo("on"); break;
 				case "range":
-					if (!int.TryParse(value, out var range) || range < 1 || range > 20) return Bad("Use a pursuit radius from 1 to 20 cells.");
+					if (!int.TryParse(value, out var range) || range < 1 || range > 20) return Bad("Use a pursuit radius from 1 to 20 rooms.");
 					Hunting.PursuitRange = range; break;
 				case "timeout":
 				case "lost":
@@ -42,7 +42,7 @@ public abstract partial class CreatureAIBase
 					if (option == "lost") Hunting.LostTimeout = TimeSpan.FromSeconds(seconds);
 					else Hunting.PursuitTimeout = TimeSpan.FromSeconds(seconds);
 					break;
-				default: return Bad("Use hunting on|off, opening <Direct|Ambush|TrapWait>, followup <Fight|Extract|VenomWithdrawal>, layer <layer|any>, opportunity <on|off>, range <cells>, timeout <seconds>, or lost <seconds>.");
+				default: return Bad("Use hunting on|off, opening <Direct|Ambush|TrapWait>, followup <Fight|Extract|VenomWithdrawal>, layer <layer|any>, opportunity <on|off>, range <rooms>, timeout <seconds>, or lost <seconds>.");
 			}
 		}
 		else if (section == "assessment")

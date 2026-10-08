@@ -212,15 +212,19 @@ public class DatabaseUpgradeCoordinatorTests
 		StringAssert.Contains(File.ReadAllText(preparation.StateFilePath), "\"MigrationAttempted\": true");
 	}
 
-	[TestMethod]
-	public void RollbackPreparedUpgrade_RestoresBackupAndArchivesState()
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void RollbackPreparedUpgrade_RestoresBackupAndArchivesState(bool captureRegexContext)
 	{
 		using var harness = new TemporaryDirectoryHarness();
 		var backupService = new FakeBackupService(harness.DirectoryPath);
 		var coordinator = new DatabaseUpgradeCoordinator(new FakeMigrationService(["First"]), backupService);
 		var preparation = coordinator.PrepareForStartup(CreateRequest(harness.DirectoryPath));
 
-		coordinator.RollbackPreparedUpgrade(preparation, new InvalidOperationException("boom"));
+		var original = new InvalidOperationException("boom");
+		if (captureRegexContext) CellSpatialRegexFailureInterceptorTests.AttachCapture(original);
+		coordinator.RollbackPreparedUpgrade(preparation, original);
 
 		Assert.AreEqual(1, backupService.RestoreBackupCalls);
 		Assert.IsFalse(File.Exists(preparation.StateFilePath));
@@ -228,23 +232,66 @@ public class DatabaseUpgradeCoordinatorTests
 		var archivedContents = File.ReadAllText(archivedState);
 		StringAssert.Contains(archivedContents, "\"RollbackSucceeded\": true");
 		StringAssert.Contains(archivedContents, "boom");
+		if (captureRegexContext)
+		{
+			using var archive = JsonDocument.Parse(archivedContents);
+			var error = archive.RootElement.GetProperty("LastError").GetString()!;
+			StringAssert.StartsWith(error, original.ToString());
+			StringAssert.Contains(error, "Cell spatial regex diagnostic:");
+			StringAssert.Contains(error, "autobuilderroomtemplates");
+			StringAssert.Contains(error, "Definition");
+		}
 	}
 
-	[TestMethod]
-	public void RollbackPreparedUpgrade_RestoreFailure_PreservesFailureStateForNextStartup()
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void RollbackPreparedUpgrade_RestoreFailure_PreservesFailureStateForNextStartup(bool captureRegexContext)
 	{
 		using var harness = new TemporaryDirectoryHarness();
 		var backupService = new FakeBackupService(harness.DirectoryPath) { ThrowOnRestore = true };
 		var coordinator = new DatabaseUpgradeCoordinator(new FakeMigrationService(["First"]), backupService);
 		var preparation = coordinator.PrepareForStartup(CreateRequest(harness.DirectoryPath));
 
-		Assert.ThrowsException<InvalidOperationException>(() =>
-			coordinator.RollbackPreparedUpgrade(preparation, new InvalidOperationException("migration failed")));
+		var original = new InvalidOperationException("migration failed");
+		if (captureRegexContext) CellSpatialRegexFailureInterceptorTests.AttachCapture(original);
+		Assert.ThrowsException<InvalidOperationException>(() => coordinator.RollbackPreparedUpgrade(preparation, original));
 
 		Assert.IsTrue(File.Exists(preparation.StateFilePath));
 		var state = File.ReadAllText(preparation.StateFilePath);
 		StringAssert.Contains(state, "migration failed");
 		StringAssert.Contains(state, "\"RollbackSucceeded\": false");
+		if (captureRegexContext)
+		{
+			using var archive = JsonDocument.Parse(state);
+			StringAssert.Contains(archive.RootElement.GetProperty("LastError").GetString()!, "Cell spatial regex diagnostic:");
+		}
+	}
+
+	[DataTestMethod]
+	[DataRow(true, false, "ConnectionUnavailable")]
+	[DataRow(false, true, "DiagnosticReadFailed")]
+	public void RollbackPreparedUpgrade_UnavailableDiagnosticsStillRestoreAndArchiveOriginalError(
+		bool closed, bool secondaryFailure, string expectedStatus)
+	{
+		using var harness = new TemporaryDirectoryHarness();
+		var backupService = new FakeBackupService(harness.DirectoryPath);
+		var coordinator = new DatabaseUpgradeCoordinator(new FakeMigrationService(["First"]), backupService);
+		var preparation = coordinator.PrepareForStartup(CreateRequest(harness.DirectoryPath));
+		var original = new InvalidOperationException("migration failed");
+		CellSpatialRegexFailureInterceptorTests.AttachCapture(original, closed, secondaryFailure);
+
+		coordinator.RollbackPreparedUpgrade(preparation, original);
+
+		Assert.AreEqual(1, backupService.RestoreBackupCalls);
+		Assert.IsFalse(File.Exists(preparation.StateFilePath));
+		using var archive = JsonDocument.Parse(File.ReadAllText(
+			Directory.GetFiles(harness.DirectoryPath, "db-upgrade-state-rolled-back-*.json").Single()));
+		Assert.IsTrue(archive.RootElement.GetProperty("RollbackSucceeded").GetBoolean());
+		var error = archive.RootElement.GetProperty("LastError").GetString()!;
+		StringAssert.StartsWith(error, original.ToString());
+		StringAssert.Contains(error, expectedStatus);
+		Assert.IsFalse(error.Contains("SECRET_SECONDARY_VALUE"));
 	}
 
 	[TestMethod]

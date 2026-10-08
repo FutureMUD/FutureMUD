@@ -45,7 +45,7 @@ internal static partial class GNHProgram
 		gun.Definition = xml.ToString(); db.SaveChanges();
 	}
 
-	private sealed record FirearmSavedItem(long Id, ItemOwnershipReference? Title, long? HeldBody, long? Cell, long? Container, bool Wielded = false, int Quantity = 1, long? Prototype = null, double? Condition = null);
+	private sealed record FirearmSavedItem(long Id, ItemOwnershipReference? Title, long? HeldBody, long? Room, long? Container, bool Wielded = false, int Quantity = 1, long? Prototype = null, double? Condition = null);
 	private sealed record FirearmAuthorityReader(string Database, FixtureIds Fixture, DateTime Now, long Canonical,
 		long Body, double Stamina, long Trait, double Raw, long VictimBody, double Wounds,
 		long Gun, double Condition, long? Chamber, long[] Magazine, FirearmSavedItem[] Items, string Case, long? StaleChamber = null, long? OtherBody = null, double? OtherStamina = null, long? OtherCanonical = null, double? OtherRaw = null, long? Casing = null, long[]? DeletedItems = null);
@@ -57,7 +57,7 @@ internal static partial class GNHProgram
 		var clock = new HarnessClock(); clock.Advance(input.Now - clock.GetUtcNow().UtcDateTime); using var time = RuntimeClock.Push(clock);
 		var host = PrepareRetirementHost(database, input.Fixture, clock, wielding: true, corpseAnimationAnatomy: true);
 		ConfigureRegressionP2Fixture(host, database);
-		var world = host.Native.World; var source = CreateAreaCell(host.Native, database.ConnectionString, input.Fixture.CellId, create: false);
+		var world = host.Native.World; var source = CreateAreaRoom(host.Native, database.ConnectionString, input.Fixture.RoomId, create: false);
 		SetPrivateMember(host.Native.Actor, "Location", source);
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
@@ -76,14 +76,14 @@ internal static partial class GNHProgram
 				long.Parse(storedGun.Element("ChamberedCasing")!.Value) == (input.Casing ?? 0), "Exact saved firearm slot XML must agree before any item load.");
 			foreach (var deleted in input.DeletedItems ?? [])
 				Require(!db.GameItems.Any(x => x.Id == deleted) && !db.GameItemComponents.Any(x => x.GameItemId == deleted) &&
-					!db.BodiesGameItems.Any(x => x.GameItemId == deleted) && !db.CellsGameItems.Any(x => x.GameItemId == deleted), "Deleted ammunition has no cold rows or custody edges.");
+					!db.BodiesGameItems.Any(x => x.GameItemId == deleted) && !db.RoomsGameItems.Any(x => x.GameItemId == deleted), "Deleted ammunition has no cold rows or custody edges.");
 			foreach (var saved in input.Items)
 				Require(db.GameItems.AsNoTracking().Single(x => x.Id == saved.Id).ContainerId == saved.Container &&
 				(!saved.Condition.HasValue || Same(db.GameItems.AsNoTracking().Single(x => x.Id == saved.Id).Condition, saved.Condition.Value)) &&
 				db.BodiesGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.BodyId).ToArray()
 					.SequenceEqual(saved.HeldBody.HasValue ? [saved.HeldBody.Value] : Array.Empty<long>()) &&
-				db.CellsGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.CellId).ToArray()
-					.SequenceEqual(saved.Cell.HasValue ? [saved.Cell.Value] : Array.Empty<long>()), "Cold firearm exact container/body/cell SQL custody must agree before any item load.");
+				db.RoomsGameItems.AsNoTracking().Where(x => x.GameItemId == saved.Id).Select(x => x.RoomId).ToArray()
+					.SequenceEqual(saved.Room.HasValue ? [saved.Room.Value] : Array.Empty<long>()), "Cold firearm exact container/body/cell SQL custody must agree before any item load.");
 			foreach (var saved in input.Items.Where(x => x.Container.HasValue && x.Container != input.Gun))
 			{
 				Require(input.Items.Any(x => x.Id == saved.Container), "Declare each foreign container parent in the cold fixture.");
@@ -103,10 +103,10 @@ internal static partial class GNHProgram
 		foreach (var saved in input.Items)
 		{
 			var item = (GameItem)world.TryGetItem(saved.Id, true)!; item.FinaliseLoadTimeTasks();
-			if (saved.Cell.HasValue) source.Insert(item, true);
+			if (saved.Room.HasValue) source.Insert(item, true);
 			Require(!item.Deleted && (!saved.Prototype.HasValue || item.Prototype.Id == saved.Prototype) && item.Quantity == saved.Quantity && item.OwnershipReference == saved.Title &&
-				item.GetItemType<IHoldable>()!.HeldBy?.Id == saved.HeldBody && item.DirectLocation?.Id == saved.Cell &&
-				item.ContainedIn?.Id == saved.Container, $"Cold native firearm item:{item.Id} quantity:{item.Quantity}/{saved.Quantity} title:{item.OwnershipReference}/{saved.Title} held:{item.GetItemType<IHoldable>()!.HeldBy?.Id}/{saved.HeldBody} cell:{item.DirectLocation?.Id}/{saved.Cell} container:{item.ContainedIn?.Id}/{saved.Container}.");
+				item.GetItemType<IHoldable>()!.HeldBy?.Id == saved.HeldBody && item.DirectLocation?.Id == saved.Room &&
+				item.ContainedIn?.Id == saved.Container, $"Cold native firearm item:{item.Id} quantity:{item.Quantity}/{saved.Quantity} title:{item.OwnershipReference}/{saved.Title} held:{item.GetItemType<IHoldable>()!.HeldBy?.Id}/{saved.HeldBody} cell:{item.DirectLocation?.Id}/{saved.Room} container:{item.ContainedIn?.Id}/{saved.Container}.");
 			if (saved.HeldBody.HasValue) Require((saved.Wielded ? owner.Body.WieldedItems : owner.Body.HeldItems).Any(x => ReferenceEquals(x, item)), "Cold native hand/wield membership must contain the exact firearm item.");
 			if (saved.Container.HasValue && saved.Container != input.Gun)
 				Require(world.TryGetItem(saved.Container.Value, true)!.GetItemType<IContainer>()!.Contents.Count(x => ReferenceEquals(x, item)) == 1,
@@ -145,7 +145,8 @@ internal static partial class GNHProgram
 			It.IsAny<IPerceivable>(), It.IsAny<IUseTrait>(), It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()))
 			.Returns(CheckOutcome.SimpleOutcome(CheckType.CombatRecoveryCheck, Outcome.Pass));
 		var configured = new HashSet<CommandableAI>();
-		foreach (var scenario in new[] { "ordered-valid", "queued-revoked", "component-policy-revoked", "postcommit-independent", "ordered-miss", "direct-valid" })
+		foreach (var scenario in new[] { "ordered-valid", "queued-revoked", "component-policy-revoked", "postcommit-independent", "ordered-miss", "direct-valid" }
+			.Concat(_emotionalHooks ? new[] { "admission-replacement" } : []))
 		{
 			var actor = scenario == "ordered-valid" ? animated : cast(); var body = (Body)actor.Body; actor.CombatSettings = settings;
 			var ai = actor.AIs.OfType<CommandableAI>().Single();
@@ -193,6 +194,11 @@ internal static partial class GNHProgram
 			var shot = (GameItem)gun.ChamberedRound!.Parent; var spare = gun.MagazineContents.Single();
 			Require(rounds.Contains(shot) && rounds.Contains(spare) && shot != spare && rounds.All(x => x.ContainedIn == gunItem), "Native reload must conserve exact distinct chamber and magazine identities.");
 			Read("loaded-chambered");
+			if (_emotionalHooks && scenario == "ordered-valid")
+			{
+				RunEmotionalFirearmControls(actor, foe, gun);
+				shot = (GameItem)gun.ChamberedRound!.Parent; spare = gun.MagazineContents.Single(); Read("emotional-controls-restored");
+			}
 			void Expire()
 			{
 				var origin = service.CommandGrant(actor.InstanceId, caster.Id)!;
@@ -232,20 +238,34 @@ internal static partial class GNHProgram
 				Require(move is RangedWeaponAttackMove && CommandExecutionAuthority.IsOrdered(move) == !direct, "Actual ChooseMove must select native ranged attack with exact controller provenance.");
 				if (scenario == "queued-revoked") Expire();
 				body.CurrentStamina = 100; world.SaveManager.Flush(); var before = foe.Body.Wounds.Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun);
+				var retainedAim = actor.Aim; var retainedAimPercentage = retainedAim!.AimPercentage;
+				using var emotional = _emotionalHooks ? new EmotionalProbeLease(foe, scenario == "admission-replacement" ? _ =>
+				{
+					using var independent = CommandExecutionScope.EnterIndependent();
+					Require(gun.Unready(actor), "Actual CombatAction admission callback must return the captured round.");
+					gun.Load(actor);
+					Require(gun.Ready(actor) && gun.ChamberedRound!.Parent == spare && gun.MagazineContents.Single() == shot,
+						"Actual CombatAction callback must retain both rounds in the independently replaced native slots.");
+				} : null) : null;
 				resolving = true; try { actor.Combat!.CombatAction(actor, move); } finally { resolving = false; }
-				var fired = scenario is not ("queued-revoked" or "component-policy-revoked");
+				emotional?.Verify("firearm-" + scenario, scenario is not ("queued-revoked" or "component-policy-revoked"));
+				var replaced = scenario == "admission-replacement";
+				var fired = scenario is not ("queued-revoked" or "component-policy-revoked" or "admission-replacement");
 				var hit = fired && scenario != "ordered-miss"; var after = foe.Body.Wounds.Sum(x => x.CurrentDamage + x.CurrentPain + x.CurrentStun);
 				Require(Same(actor.CurrentStamina, fired ? 97 : 100) && Same(gunItem.Condition, fired ? 0.99 : 1), $"Accepted shots must pay exactly3 stamina and0.01 condition once: {scenario} stamina:{actor.CurrentStamina} condition:{gunItem.Condition}.");
-				Require(gun.ChamberedRound?.Parent == (fired ? null : shot) && gun.MagazineContents.Single() == spare &&
+				Require(gun.ChamberedRound?.Parent == (fired ? null : replaced ? spare : shot) && gun.MagazineContents.Single() == (replaced ? shot : spare) &&
 					checks == (scenario == "queued-revoked" ? 0 : 1) && faults == (scenario == "component-policy-revoked" ? 1 : 0), "Refused shots must retain the exact chamber, magazine and truthful callback counts.");
 				Require(hit ? after > before : Same(after, before), "Only accepted native hits may install wounds.");
+				if (replaced) Require(ReferenceEquals(actor.Aim, retainedAim) && Same(actor.Aim.AimPercentage, retainedAimPercentage) &&
+					service.CanCommand(actor.InstanceId, caster.Id), "Exact-round refusal with valid authority must retain Aim and charge no uncommitted wrapper stamina.");
 				Require(reactions == (scenario == "postcommit-independent" ? 1 : 0) && Same(actor.TraitRawValue(trait), reactions == 1 ? 60 : 40), "Independent real wound reaction must survive once without being overwritten.");
 				Require(rounds.All(x => !x.Deleted && x.Quantity == 1 && x.OwnershipReference == new ItemOwnershipReference(caster.FrameworkItemType, caster.Identity.Id)) &&
 					(fired ? shot.DirectLocation == foe.Location && shot.ContainedIn is null && shot.GetItemType<IHoldable>()!.HeldBy is null : shot.ContainedIn == gunItem && shot.DirectLocation is null), "Consumed projectile must have exactly one native placement and retain title/quantity.");
 				using (CommandExecutionScope.EnterIndependent())
 				{
-					Require(gun.Unload(actor).SequenceEqual([spare]) && !gun.MagazineContents.Any() && spare.ContainedIn is null &&
-						ReferenceEquals(spare.GetItemType<IHoldable>()!.HeldBy, body), "Actual component Unload must return the distinct surviving magazine round once.");
+					var remaining = replaced ? shot : spare;
+					Require(gun.Unload(actor).SequenceEqual([remaining]) && !gun.MagazineContents.Any() && remaining.ContainedIn is null &&
+						ReferenceEquals(remaining.GetItemType<IHoldable>()!.HeldBy, body), "Actual component Unload must return the distinct surviving magazine round once.");
 				}
 				Read("shot-unloaded");
 				Console.WriteLine($"ARMFirearm={scenario} passed actual-Load-Ready-Unready-ChooseMove-RangedAttack-CombatAction-Unload cost:{100-actor.CurrentStamina} condition:{gunItem.Condition} wound-delta:{after-before} reactions:{reactions} projectile:{shot.Id} raw:{actor.TraitRawValue(trait)}");

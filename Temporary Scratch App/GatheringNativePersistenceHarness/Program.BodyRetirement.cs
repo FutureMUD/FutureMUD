@@ -199,7 +199,7 @@ internal static partial class GNHProgram
 			Require(db.GameItems.Any(x => x.Id == input.ForeignItem) && db.BodiesGameItems.Any(x => x.GameItemId == input.ForeignItem && x.BodyId == input.RetiredBody),
 				"Refused ordinary cleanup changed the foreign item or its body join.");
 			db.BodiesGameItems.Remove(db.BodiesGameItems.Single(x => x.GameItemId == input.ForeignItem));
-			db.CellsGameItems.Add(new() { GameItemId = input.ForeignItem, CellId = input.Fixture.CellId }); db.SaveChanges();
+			db.RoomsGameItems.Add(new() { GameItemId = input.ForeignItem, RoomId = input.Fixture.RoomId }); db.SaveChanges();
 		}
 		Require(!native.Actor.TryCleanupRetiredBody(retired, parent.Object), "Another persisted physical reference did not block ordinary cleanup.");
 		using (var db = NewIndependentContext(database.ConnectionString))
@@ -216,7 +216,7 @@ internal static partial class GNHProgram
 			Require(!db.CharacterBodyRetirements.Any(x => x.BodyId == input.RetiredBody), "Eligible cleanup left ordinary retirement metadata behind.");
 			Require(db.Characters.Single(x => x.Id == input.Fixture.CharacterId).BodyId == input.Fixture.BodyId &&
 				db.Bodies.Any(x => x.Id == input.Fixture.BodyId) && db.Wounds.Single(x => x.Id == input.HistoryWound).ActorOriginId == input.Fixture.CharacterId &&
-				db.CellsGameItems.Any(x => x.GameItemId == input.ForeignItem && x.CellId == input.Fixture.CellId) && !db.MagicSpellOwnedEntities.Any(),
+				db.RoomsGameItems.Any(x => x.GameItemId == input.ForeignItem && x.RoomId == input.Fixture.RoomId) && !db.MagicSpellOwnedEntities.Any(),
 				"Ordinary retirement changed canonical identity, current body, foreign possessions or historical attribution.");
 			db.GameItems.Remove(db.GameItems.Find(input.CorpseItem)!); db.SaveChanges();
 		}

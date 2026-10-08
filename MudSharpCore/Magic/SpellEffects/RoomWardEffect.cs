@@ -43,7 +43,7 @@ public class RoomWardEffect : WardSpellEffectBase
 
 	protected override IMagicSpellEffect CreateWardEffect(IPerceivable target, IMagicSpellEffectParent parent)
 	{
-		return target is ICell
+		return target is IRoom
 			? new SpellRoomWardEffect(target, parent, School, Mode, Coverage, IncludesSubschools, Prog)
 			: null;
 	}

@@ -9,13 +9,13 @@ using MudSharp.Framework;
 
 namespace MudSharp.Combat.Simulation;
 
-internal sealed class CombatSimulationCommandSession(ICell scene)
+internal sealed class CombatSimulationCommandSession(IRoom scene)
 {
-	public List<ICell> Cells { get; } = [scene];
-	public ICell Scene
+	public List<IRoom> Rooms { get; } = [scene];
+	public IRoom Scene
 	{
-		get => Cells[0];
-		set => Cells[0] = value;
+		get => Rooms[0];
+		set => Rooms[0] = value;
 	}
 
 	public List<CombatSimulationParticipantRequest> Participants { get; } = [];
@@ -31,19 +31,19 @@ internal sealed class CombatSimulationCommandSession(ICell scene)
 
 internal static class CombatSimulationCommand
 {
-	private const string HelpText = @"The #3impdebug combatsim#0 workflow stages and runs an accelerated combat using transient copies of loaded characters or NPC templates across one or more staged cells. Combat, effects and heartbeats use a private virtual-time scheduler while the normal game loop is blocked. EF SaveChanges calls and ordinary save-queue work are suppressed; generated actors, bodies, items and transient cells are removed afterward. Direct Dapper writes and external effects from hooks or progs cannot be unwound.
+	private const string HelpText = @"The #3impdebug combatsim#0 workflow stages and runs an accelerated combat using transient copies of loaded characters or NPC templates across one or more staged rooms. Combat, effects and heartbeats use a private virtual-time scheduler while the normal game loop is blocked. EF SaveChanges calls and ordinary save-queue work are suppressed; generated actors, bodies, items and transient rooms are removed afterward. Direct Dapper writes and external effects from hooks or progs cannot be unwound.
 
 Review #3validate#0 before running. Any warning requires #3force#0. An unset or unrecognised #3FUTUREMUD_ENVIRONMENT#0 is treated as production, where every run also requires the exact #3confirm-production#0 argument. Batch runs do not retain transcripts and have a ten-minute aggregate wall-clock guard.
 
 The syntax is:
 
-	#3impdebug combatsim new [<cell>]#0
-	#3impdebug combatsim cell add <cell>#0
-	#3impdebug combatsim cell remove <number>#0
-	#3impdebug combatsim add character <loaded character> team <team> [cell <number>] [layer <layer>] [state <position>] [range <melee|ranged>] [metres <distance>] [aim <percent>] [cover <cover>]#0
-	#3impdebug combatsim add template <NPC template> team <team> [cell <number>] [layer <layer>] [state <position>] [range <melee|ranged>] [metres <distance>] [aim <percent>] [cover <cover>] [count <number>]#0
+	#3impdebug combatsim new [<room>]#0
+	#3impdebug combatsim room add <room>#0
+	#3impdebug combatsim room remove <number>#0
+	#3impdebug combatsim add character <loaded character> team <team> [room <number>] [layer <layer>] [state <position>] [range <melee|ranged>] [metres <distance>] [aim <percent>] [cover <cover>]#0
+	#3impdebug combatsim add template <NPC template> team <team> [room <number>] [layer <layer>] [state <position>] [range <melee|ranged>] [metres <distance>] [aim <percent>] [cover <cover>] [count <number>]#0
 	#3impdebug combatsim remove <slot>#0
-	#3impdebug combatsim set scene <cell>#0
+	#3impdebug combatsim set scene <room>#0
 	#3impdebug combatsim set seed <number>#0
 	#3impdebug combatsim set maxtime <timespan>#0
 	#3impdebug combatsim set maxevents <number>#0
@@ -71,8 +71,9 @@ The syntax is:
 			case "add":
 				Add(actor, command);
 				return;
+			case "room":
 			case "cell":
-				Cell(actor, command);
+				Room(actor, command);
 				return;
 			case "remove":
 				Remove(actor, command);
@@ -135,10 +136,10 @@ The syntax is:
 
 	private static void New(ICharacter actor, StringStack command)
 	{
-		var scene = command.IsFinished ? actor.Location : actor.Gameworld.Cells.GetByIdOrName(command.SafeRemainingArgument);
+		var scene = command.IsFinished ? actor.Location : actor.Gameworld.Rooms.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
 		if (scene is null)
 		{
-			actor.OutputHandler.Send("There is no such cell to use as the combat scene.");
+			actor.OutputHandler.Send("There is no such room to use as the combat scene.");
 			return;
 		}
 
@@ -177,7 +178,7 @@ The syntax is:
 		}
 
 		var team = command.PopSpeech();
-		if (!TryParseAddOptions(actor, command, session, out var count, out var startingCell, out var startingLayer,
+		if (!TryParseAddOptions(actor, command, session, out var count, out var startingRoom, out var startingLayer,
 			    out var startingPosition, out var startsInMelee, out var startingMetres, out var initialAim,
 			    out var startingCover))
 		{
@@ -201,11 +202,11 @@ The syntax is:
 
 			session.Participants.Add(new CombatSimulationParticipantRequest(
 				session.NextSlot++, team, CombatSimulationSourceType.Character, character, null,
-				StartingCell: startingCell, StartingLayer: startingLayer, StartingPosition: startingPosition,
+				StartingRoom: startingRoom, StartingLayer: startingLayer, StartingPosition: startingPosition,
 				StartsInMelee: startsInMelee, StartingRoutePositionMetres: startingMetres,
 				InitialAimPercentage: initialAim, StartingCover: startingCover));
 			actor.OutputHandler.Send(
-				$"You add {character.PersonalName.GetName(NameStyle.SimpleFull).ColourName()} to team {team.ColourName()} {DescribeStartingLocation(session, startingCell, startingLayer, startingPosition)}.");
+				$"You add {character.PersonalName.GetName(NameStyle.SimpleFull).ColourName()} to team {team.ColourName()} {DescribeStartingLocation(session, startingRoom, startingLayer, startingPosition)}.");
 			return;
 		}
 
@@ -220,11 +221,11 @@ The syntax is:
 		{
 			session.Participants.Add(new CombatSimulationParticipantRequest(
 				session.NextSlot++, team, CombatSimulationSourceType.NpcTemplate, null, template, i,
-				startingCell, startingLayer, startingPosition, startsInMelee, startingMetres, initialAim, startingCover));
+				startingRoom, startingLayer, startingPosition, startsInMelee, startingMetres, initialAim, startingCover));
 		}
 
 		actor.OutputHandler.Send(
-			$"You add {count.ToString("N0", actor).ColourValue()} instance{(count == 1 ? string.Empty : "s")} of {template.Name.ColourName()} to team {team.ColourName()} {DescribeStartingLocation(session, startingCell, startingLayer, startingPosition)}.");
+			$"You add {count.ToString("N0", actor).ColourValue()} instance{(count == 1 ? string.Empty : "s")} of {template.Name.ColourName()} to team {team.ColourName()} {DescribeStartingLocation(session, startingRoom, startingLayer, startingPosition)}.");
 	}
 
 	private static bool TryParseAddOptions(
@@ -232,7 +233,7 @@ The syntax is:
 		StringStack command,
 		CombatSimulationCommandSession session,
 		out int count,
-		out ICell? startingCell,
+		out IRoom? startingRoom,
 		out RoomLayer startingLayer,
 		out IPositionState? startingPosition,
 		out bool startsInMelee,
@@ -241,7 +242,7 @@ The syntax is:
 		out IRangedCover? startingCover)
 	{
 		count = 1;
-		startingCell = null;
+		startingRoom = null;
 		startingLayer = RoomLayer.GroundLevel;
 		startingPosition = null;
 		startsInMelee = true;
@@ -268,15 +269,16 @@ The syntax is:
 					}
 
 					break;
+				case "room":
 				case "cell":
 					if (command.IsFinished || !int.TryParse(command.PopSpeech(), out var cellNumber) ||
-					    cellNumber is < 1 or > int.MaxValue || cellNumber > session.Cells.Count)
+					    cellNumber is < 1 or > int.MaxValue || cellNumber > session.Rooms.Count)
 					{
-						actor.OutputHandler.Send($"The cell must be a staged cell number from 1 to {session.Cells.Count:N0}.");
+						actor.OutputHandler.Send($"The room must be a staged room number from 1 to {session.Rooms.Count:N0}.");
 						return false;
 					}
 
-					startingCell = session.Cells[cellNumber - 1];
+					startingRoom = session.Rooms[cellNumber - 1];
 					break;
 				case "layer":
 					if (command.IsFinished || !TryParseRoomLayer(command.PopSpeech(), out startingLayer))
@@ -323,7 +325,7 @@ The syntax is:
 					if (command.IsFinished || !double.TryParse(command.PopSpeech(), out var metres) ||
 					    !double.IsFinite(metres) || metres < 0.0)
 					{
-						actor.OutputHandler.Send("Specify a non-negative RouteCell coordinate in metres.");
+						actor.OutputHandler.Send("Specify a non-negative RouteRoom coordinate in metres.");
 						return false;
 					}
 
@@ -354,23 +356,23 @@ The syntax is:
 
 					break;
 				default:
-					actor.OutputHandler.Send("The add options are cell, layer, state, range, metres, aim, cover and count.");
+					actor.OutputHandler.Send("The add options are room, layer, state, range, metres, aim, cover and count.");
 					return false;
 			}
 		}
 
-		var selectedCell = startingCell ?? session.Scene;
-		if (startingMetres.HasValue && (selectedCell.RouteDefinition is null ||
-		    startingMetres.Value > selectedCell.RouteDefinition.LengthMetres))
+		var selectedRoom = startingRoom ?? session.Scene;
+		if (startingMetres.HasValue && (selectedRoom.RouteDefinition is null ||
+		    startingMetres.Value > selectedRoom.RouteDefinition.LengthMetres))
 		{
-			actor.OutputHandler.Send("A metre coordinate requires a RouteCell and must fall within its authored length.");
+			actor.OutputHandler.Send("A metre coordinate requires a RouteRoom and must fall within its authored length.");
 			return false;
 		}
 
 		return true;
 	}
 
-	private static void Cell(ICharacter actor, StringStack command)
+	private static void Room(ICharacter actor, StringStack command)
 	{
 		var session = Session(actor);
 		if (session is null)
@@ -382,42 +384,42 @@ The syntax is:
 		switch (action)
 		{
 			case "add":
-				var cell = actor.Gameworld.Cells.GetByIdOrName(command.SafeRemainingArgument);
-				if (cell is null)
+				var room = actor.Gameworld.Rooms.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
+				if (room is null)
 				{
-					actor.OutputHandler.Send("There is no such cell.");
+					actor.OutputHandler.Send("There is no such room.");
 					return;
 				}
 
-				if (session.Cells.Any(x => ReferenceEquals(x, cell)))
+				if (session.Rooms.Any(x => ReferenceEquals(x, room)))
 				{
-					actor.OutputHandler.Send("That cell is already staged for this combat simulation.");
+					actor.OutputHandler.Send("That room is already staged for this combat simulation.");
 					return;
 				}
 
-				session.Cells.Add(cell);
-				actor.OutputHandler.Send($"You add cell #{session.Cells.Count:N0} {cell.GetFriendlyReference(actor).ColourName()} to the staged combat area.");
+				session.Rooms.Add(room);
+				actor.OutputHandler.Send($"You add room #{session.Rooms.Count:N0} {room.GetFriendlyReference(actor).ColourName()} to the staged combat area.");
 				return;
 			case "remove":
 				if (!int.TryParse(command.SafeRemainingArgument, out var cellNumber) ||
-				    cellNumber is < 2 or > int.MaxValue || cellNumber > session.Cells.Count)
+				    cellNumber is < 2 or > int.MaxValue || cellNumber > session.Rooms.Count)
 				{
-					actor.OutputHandler.Send($"Specify a non-default staged cell number from 2 to {session.Cells.Count:N0}.");
+					actor.OutputHandler.Send($"Specify a non-default staged room number from 2 to {session.Rooms.Count:N0}.");
 					return;
 				}
 
-				var removedCell = session.Cells[cellNumber - 1];
-				if (session.Participants.Any(x => ReferenceEquals(x.StartingCell, removedCell)))
+				var removedRoom = session.Rooms[cellNumber - 1];
+				if (session.Participants.Any(x => ReferenceEquals(x.StartingRoom, removedRoom)))
 				{
-					actor.OutputHandler.Send("Remove or relocate combatants assigned to that cell before removing it.");
+					actor.OutputHandler.Send("Remove or relocate combatants assigned to that room before removing it.");
 					return;
 				}
 
-				session.Cells.RemoveAt(cellNumber - 1);
-				actor.OutputHandler.Send($"You remove staged cell #{cellNumber:N0}.");
+				session.Rooms.RemoveAt(cellNumber - 1);
+				actor.OutputHandler.Send($"You remove staged room #{cellNumber:N0}.");
 				return;
 			case "list":
-				ShowCells(actor, session);
+				ShowRooms(actor, session);
 				return;
 			default:
 				actor.OutputHandler.Send("The cell syntax is impdebug combatsim cell add <cell>, cell remove <number>, or cell list.");
@@ -512,17 +514,18 @@ The syntax is:
 		switch (option)
 		{
 			case "scene":
+			case "room":
 			case "cell":
-				var scene = actor.Gameworld.Cells.GetByIdOrName(command.SafeRemainingArgument);
+				var scene = actor.Gameworld.Rooms.GetByIdOrUniqueNameOrName(command.SafeRemainingArgument);
 				if (scene is null)
 				{
-					actor.OutputHandler.Send("There is no such cell.");
+					actor.OutputHandler.Send("There is no such room.");
 					return;
 				}
 
-				if (session.Cells.Skip(1).Any(x => ReferenceEquals(x, scene)))
+				if (session.Rooms.Skip(1).Any(x => ReferenceEquals(x, scene)))
 				{
-					actor.OutputHandler.Send("That cell is already staged. Use its staged cell number when adding combatants.");
+					actor.OutputHandler.Send("That room is already staged. Use its staged room number when adding combatants.");
 					return;
 				}
 
@@ -530,9 +533,9 @@ The syntax is:
 				session.Scene = scene;
 				for (var i = 0; i < session.Participants.Count; i++)
 				{
-					if (ReferenceEquals(session.Participants[i].StartingCell, previousScene))
+					if (ReferenceEquals(session.Participants[i].StartingRoom, previousScene))
 					{
-						session.Participants[i] = session.Participants[i] with { StartingCell = scene };
+						session.Participants[i] = session.Participants[i] with { StartingRoom = scene };
 					}
 				}
 
@@ -582,7 +585,7 @@ The syntax is:
 				actor.OutputHandler.Send($"The transcript limit is now {entries.ToString("N0", actor).ColourValue()} entries.");
 				return;
 			default:
-				actor.OutputHandler.Send("You can set scene, seed, maxtime, maxevents or transcript. Use combatsim cell add/remove/list to manage the staged area.");
+				actor.OutputHandler.Send("You can set scene, seed, maxtime, maxevents or transcript. Use combatsim room add/remove/list to manage the staged area.");
 				return;
 		}
 	}
@@ -598,13 +601,13 @@ The syntax is:
 		var sb = new StringBuilder();
 		sb.AppendLine("Accelerated Combat Simulation");
 		sb.AppendLine();
-		sb.AppendLine($"Default Cell: {session.Scene.GetFriendlyReference(actor).ColourName()}");
+		sb.AppendLine($"Default Room: {session.Scene.GetFriendlyReference(actor).ColourName()}");
 		sb.AppendLine($"Seed: {session.Seed.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Limits: {session.MaximumVirtualTime.Describe(actor).ColourValue()} virtual time, {session.MaximumEvents.ToString("N0", actor).ColourValue()} events, {session.MaximumWallClockTime.Describe(actor).ColourValue()} wall time");
 		sb.AppendLine($"Transcript: {session.MaximumTranscriptEntries.ToString("N0", actor).ColourValue()} entries");
 		sb.AppendLine();
 		sb.AppendLine();
-		AppendCells(sb, actor, session);
+		AppendRooms(sb, actor, session);
 		sb.AppendLine();
 		var rows = session.Participants
 			.OrderBy(x => x.Slot)
@@ -614,7 +617,7 @@ The syntax is:
 				x.Team,
 				x.SourceType.DescribeEnum(true),
 				x.SourceDescription,
-				CellNumberFor(session, x).ToString("N0", actor),
+				RoomNumberFor(session, x).ToString("N0", actor),
 				x.StartingLayer.DescribeEnum(true),
 				(x.StartingPosition ?? PositionStanding.Instance).DefaultDescription(),
 				x.StartingRoutePositionMetres?.ToString("N1", actor) ?? "default",
@@ -623,47 +626,47 @@ The syntax is:
 			});
 		sb.AppendLine(session.Participants.Count == 0
 			? "No combatants have been added."
-			: StringUtilities.GetTextTable(rows, ["Slot", "Team", "Type", "Source", "Cell", "Layer", "State", "Metres", "Aim", "Cover"], actor, Telnet.Green));
+			: StringUtilities.GetTextTable(rows, ["Slot", "Team", "Type", "Source", "Room", "Layer", "State", "Metres", "Aim", "Cover"], actor, Telnet.Green));
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	private static void ShowCells(ICharacter actor, CombatSimulationCommandSession session)
+	private static void ShowRooms(ICharacter actor, CombatSimulationCommandSession session)
 	{
 		var sb = new StringBuilder();
-		AppendCells(sb, actor, session);
+		AppendRooms(sb, actor, session);
 		actor.OutputHandler.Send(sb.ToString());
 	}
 
-	private static void AppendCells(StringBuilder sb, ICharacter actor, CombatSimulationCommandSession session)
+	private static void AppendRooms(StringBuilder sb, ICharacter actor, CombatSimulationCommandSession session)
 	{
-		var rows = session.Cells
-			.Select((cell, index) => new[]
+		var rows = session.Rooms
+			.Select((room, index) => new[]
 			{
 				(index + 1).ToString("N0", actor),
-				cell.GetFriendlyReference(actor)
+				room.GetFriendlyReference(actor)
 			});
-		sb.AppendLine(StringUtilities.GetTextTable(rows, ["Cell", "Staged Cell"], actor, Telnet.Green));
+		sb.AppendLine(StringUtilities.GetTextTable(rows, ["Room", "Staged Room"], actor, Telnet.Green));
 	}
 
-	private static int CellNumberFor(CombatSimulationCommandSession session, CombatSimulationParticipantRequest participant)
+	private static int RoomNumberFor(CombatSimulationCommandSession session, CombatSimulationParticipantRequest participant)
 	{
-		if (participant.StartingCell is null)
+		if (participant.StartingRoom is null)
 		{
 			return 1;
 		}
 
-		var index = session.Cells.FindIndex(x => ReferenceEquals(x, participant.StartingCell));
+		var index = session.Rooms.FindIndex(x => ReferenceEquals(x, participant.StartingRoom));
 		return index >= 0 ? index + 1 : 0;
 	}
 
 	private static string DescribeStartingLocation(
 		CombatSimulationCommandSession session,
-		ICell? startingCell,
+		IRoom? startingRoom,
 		RoomLayer startingLayer,
 		IPositionState? startingPosition)
 	{
-		var cell = startingCell is null ? 1 : session.Cells.FindIndex(x => ReferenceEquals(x, startingCell)) + 1;
-		return $"in cell #{cell:N0}, {startingLayer.LocativeDescription()} and {(startingPosition ?? PositionStanding.Instance).DefaultDescription()}";
+		var room = startingRoom is null ? 1 : session.Rooms.FindIndex(x => ReferenceEquals(x, startingRoom)) + 1;
+		return $"in room #{room:N0}, {startingLayer.LocativeDescription()} and {(startingPosition ?? PositionStanding.Instance).DefaultDescription()}";
 	}
 
 	private static CombatSimulationRequest BuildRequest(ICharacter actor, CombatSimulationCommandSession session, bool force)
@@ -671,7 +674,7 @@ The syntax is:
 		return new CombatSimulationRequest(
 			Guid.NewGuid(), actor, session.Scene, session.Participants.ToList(), session.Seed,
 			session.MaximumVirtualTime, session.MaximumEvents, session.MaximumTranscriptEntries,
-			session.MaximumWallClockTime, force, session.Cells.ToList());
+			session.MaximumWallClockTime, force, session.Rooms.ToList());
 	}
 
 	private static CombatSimulationBatchRequest BuildBatchRequest(
@@ -695,7 +698,7 @@ The syntax is:
 			session.MaximumWallClockTime,
 			TimeSpan.FromMinutes(10),
 			force,
-			session.Cells.ToList());
+			session.Rooms.ToList());
 	}
 
 	private static void Validate(ICharacter actor)

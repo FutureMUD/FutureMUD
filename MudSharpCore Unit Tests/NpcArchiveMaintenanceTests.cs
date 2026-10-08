@@ -59,7 +59,7 @@ public class NpcArchiveMaintenanceTests
 			case "foreign-body": lifecycles = [life with { Entities = [new(SpellOwnedEntityKind.AutonomousCharacter, 123), new(SpellOwnedEntityKind.Body, 999)] }]; break;
 			case "extra-body": lifecycles = [life with { Entities = life.Entities.Append(new(SpellOwnedEntityKind.Body, 999)).ToArray() }]; break;
 			case "projection": lifecycles = [life with { Entities = [new(SpellOwnedEntityKind.CharacterInstance, 123), new(SpellOwnedEntityKind.Body, 456)] }]; break;
-			case "topology": lifecycles = [life with { Entities = life.Entities.Append(new(SpellOwnedEntityKind.Cell, 999)).ToArray() }]; break;
+			case "topology": lifecycles = [life with { Entities = life.Entities.Append(new(SpellOwnedEntityKind.Room, 999)).ToArray() }]; break;
 			case "completed": lifecycles = [life with { State = SpellLifecycleState.Completed }]; break;
 			case "missing-body": bodyId = null; break;
 		}

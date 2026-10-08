@@ -7,7 +7,7 @@ namespace MudSharp.Models
     {
         public EditableItem()
         {
-            CellOverlayPackages = new HashSet<CellOverlayPackage>();
+            RoomOverlayPackages = new HashSet<RoomOverlayPackage>();
             Crafts = new HashSet<Craft>();
             DisfigurementTemplates = new HashSet<DisfigurementTemplate>();
             ForagableProfiles = new HashSet<ForagableProfile>();
@@ -31,7 +31,7 @@ namespace MudSharp.Models
         public DateTime? ReviewerDate { get; set; }
         public DateTime? ObsoleteDate { get; set; }
 
-        public virtual ICollection<CellOverlayPackage> CellOverlayPackages { get; set; }
+        public virtual ICollection<RoomOverlayPackage> RoomOverlayPackages { get; set; }
         public virtual ICollection<Craft> Crafts { get; set; }
         public virtual ICollection<DisfigurementTemplate> DisfigurementTemplates { get; set; }
         public virtual ICollection<ForagableProfile> ForagableProfiles { get; set; }

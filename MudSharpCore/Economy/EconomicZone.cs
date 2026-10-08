@@ -184,8 +184,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
         Currency = Gameworld.Currencies.Get(zone.CurrencyId);
         _controllingClanId = zone.ControllingClanId;
         _estateAuctionHouseId = zone.EstateAuctionHouseId;
-        _morgueOfficeCell = gameworld.Cells.Get(zone.MorgueOfficeLocationId ?? 0);
-        _morgueStorageCell = gameworld.Cells.Get(zone.MorgueStorageLocationId ?? 0);
+        _morgueOfficeRoom = gameworld.Rooms.Get(zone.MorgueOfficeLocationId ?? 0);
+        _morgueStorageRoom = gameworld.Rooms.Get(zone.MorgueStorageLocationId ?? 0);
         foreach (Models.FinancialPeriod period in zone.FinancialPeriods)
         {
             _financialPeriods.Add(new FinancialPeriod(period, this, gameworld));
@@ -290,56 +290,56 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
         foreach (ConveyancingLocation location in zone.ConveyancingLocations)
         {
-            ICell cell = Gameworld.Cells.Get(location.CellId);
+            IRoom room = Gameworld.Rooms.Get(location.RoomId);
 #if DEBUG
-            if (cell == null)
+            if (room == null)
             {
-                throw new ApplicationException("Cell shouldn't be null in EconomicZone constructor");
+                throw new ApplicationException("Room shouldn't be null in EconomicZone constructor");
             }
 #endif
-            _conveyancingCells.Add(cell);
-            cell.CellRequestsDeletion -= ConveyancingCellRequestsDeletion;
-            cell.CellRequestsDeletion += ConveyancingCellRequestsDeletion;
+            _conveyancingRooms.Add(room);
+            room.RoomRequestsDeletion -= ConveyancingRoomRequestsDeletion;
+            room.RoomRequestsDeletion += ConveyancingRoomRequestsDeletion;
         }
 
         foreach (JobFindingLocation location in zone.JobFindingLocations)
         {
-            ICell cell = Gameworld.Cells.Get(location.CellId);
+            IRoom room = Gameworld.Rooms.Get(location.RoomId);
 #if DEBUG
-            if (cell == null)
+            if (room == null)
             {
-                throw new ApplicationException("Cell shouldn't be null in EconomicZone constructor");
+                throw new ApplicationException("Room shouldn't be null in EconomicZone constructor");
             }
 #endif
-            _jobFindingCells.Add(cell);
-            cell.CellRequestsDeletion -= JobCellRequestsDeletion;
-            cell.CellRequestsDeletion += JobCellRequestsDeletion;
+            _jobFindingRooms.Add(room);
+            room.RoomRequestsDeletion -= JobRoomRequestsDeletion;
+            room.RoomRequestsDeletion += JobRoomRequestsDeletion;
         }
 
         foreach (ProbateLocation location in zone.ProbateLocations)
         {
-            ICell cell = Gameworld.Cells.Get(location.CellId);
+            IRoom room = Gameworld.Rooms.Get(location.RoomId);
 #if DEBUG
-            if (cell == null)
+            if (room == null)
             {
-                throw new ApplicationException("Cell shouldn't be null in EconomicZone constructor");
+                throw new ApplicationException("Room shouldn't be null in EconomicZone constructor");
             }
 #endif
-            _probateOfficeCells.Add(cell);
-            cell.CellRequestsDeletion -= ProbateCellRequestsDeletion;
-            cell.CellRequestsDeletion += ProbateCellRequestsDeletion;
+            _probateOfficeRooms.Add(room);
+            room.RoomRequestsDeletion -= ProbateRoomRequestsDeletion;
+            room.RoomRequestsDeletion += ProbateRoomRequestsDeletion;
         }
 
-        if (_morgueOfficeCell != null)
+        if (_morgueOfficeRoom != null)
         {
-            _morgueOfficeCell.CellRequestsDeletion -= MorgueOfficeCellRequestsDeletion;
-            _morgueOfficeCell.CellRequestsDeletion += MorgueOfficeCellRequestsDeletion;
+            _morgueOfficeRoom.RoomRequestsDeletion -= MorgueOfficeRoomRequestsDeletion;
+            _morgueOfficeRoom.RoomRequestsDeletion += MorgueOfficeRoomRequestsDeletion;
         }
 
-        if (_morgueStorageCell != null)
+        if (_morgueStorageRoom != null)
         {
-            _morgueStorageCell.CellRequestsDeletion -= MorgueStorageCellRequestsDeletion;
-            _morgueStorageCell.CellRequestsDeletion += MorgueStorageCellRequestsDeletion;
+            _morgueStorageRoom.RoomRequestsDeletion -= MorgueStorageRoomRequestsDeletion;
+            _morgueStorageRoom.RoomRequestsDeletion += MorgueStorageRoomRequestsDeletion;
         }
     }
 
@@ -403,8 +403,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
                 EstatesEnabled = EstatesEnabled,
                 EstateDefaultDiscoverTime = EstateDefaultDiscoverTime.GetRoundTripParseText,
                 EstateClaimPeriodLength = EstateClaimPeriodLength.GetRoundTripParseText,
-                MorgueOfficeLocationId = MorgueOfficeCell?.Id,
-                MorgueStorageLocationId = MorgueStorageCell?.Id
+                MorgueOfficeLocationId = MorgueOfficeRoom?.Id,
+                MorgueStorageLocationId = MorgueStorageRoom?.Id
             };
 
             foreach (EconomicZoneTax tax in olditem.EconomicZoneTaxes)
@@ -449,8 +449,8 @@ public class EconomicZone : SaveableItem, IEconomicZone
         dbitem.EstatesEnabled = EstatesEnabled;
         dbitem.EstateDefaultDiscoverTime = EstateDefaultDiscoverTime.GetRoundTripParseText;
         dbitem.EstateClaimPeriodLength = EstateClaimPeriodLength.GetRoundTripParseText;
-        dbitem.MorgueOfficeLocationId = MorgueOfficeCell?.Id;
-        dbitem.MorgueStorageLocationId = MorgueStorageCell?.Id;
+        dbitem.MorgueOfficeLocationId = MorgueOfficeRoom?.Id;
+        dbitem.MorgueStorageLocationId = MorgueStorageRoom?.Id;
 
         FMDB.Context.EconomicZoneRevenues.RemoveRange(dbitem.EconomicZoneRevenues);
         foreach ((IFinancialPeriod Period, decimal TotalTaxRevenue) item in _historicalRevenues)
@@ -479,31 +479,31 @@ public class EconomicZone : SaveableItem, IEconomicZone
         }
 
         FMDB.Context.ConveyancingLocations.RemoveRange(dbitem.ConveyancingLocations);
-        foreach (ICell location in ConveyancingCells)
+        foreach (IRoom location in ConveyancingRooms)
         {
             dbitem.ConveyancingLocations.Add(new ConveyancingLocation
             {
-                CellId = location.Id,
+                RoomId = location.Id,
                 EconomicZoneId = Id
             });
         }
 
         FMDB.Context.JobFindingLocations.RemoveRange(dbitem.JobFindingLocations);
-        foreach (ICell location in JobFindingCells)
+        foreach (IRoom location in JobFindingRooms)
         {
             dbitem.JobFindingLocations.Add(new JobFindingLocation
             {
-                CellId = location.Id,
+                RoomId = location.Id,
                 EconomicZoneId = Id
             });
         }
 
         FMDB.Context.ProbateLocations.RemoveRange(dbitem.ProbateLocations);
-        foreach (ICell location in ProbateOfficeCells)
+        foreach (IRoom location in ProbateOfficeRooms)
         {
             dbitem.ProbateLocations.Add(new ProbateLocation
             {
-                CellId = location.Id,
+                RoomId = location.Id,
                 EconomicZoneId = Id
             });
         }
@@ -564,13 +564,13 @@ public class EconomicZone : SaveableItem, IEconomicZone
                 .ToList(), ProgVariableTypes.Property),
             "propertycount" => new NumberVariable(Gameworld.Properties.Count(x => x.EconomicZone.Id == Id)),
             "estatesenabled" => new BooleanVariable(EstatesEnabled),
-            "conveyancingcells" => new CollectionVariable(ConveyancingCells.ToList(), ProgVariableTypes.Location),
-            "jobfindingcells" => new CollectionVariable(JobFindingCells.ToList(), ProgVariableTypes.Location),
-            "probateofficecells" => new CollectionVariable(ProbateOfficeCells.ToList(), ProgVariableTypes.Location),
-            "morgueoffice" => MorgueOfficeCell is IProgVariable morgueOffice
+            "conveyancingcells" => new CollectionVariable(ConveyancingRooms.ToList(), ProgVariableTypes.Location),
+            "jobfindingcells" => new CollectionVariable(JobFindingRooms.ToList(), ProgVariableTypes.Location),
+            "probateofficecells" => new CollectionVariable(ProbateOfficeRooms.ToList(), ProgVariableTypes.Location),
+            "morgueoffice" => MorgueOfficeRoom is IProgVariable morgueOffice
                 ? morgueOffice
                 : new NullVariable(ProgVariableTypes.Location),
-            "morguestorage" => MorgueStorageCell is IProgVariable morgueStorage
+            "morguestorage" => MorgueStorageRoom is IProgVariable morgueStorage
                 ? morgueStorage
                 : new NullVariable(ProgVariableTypes.Location),
             _ => throw new NotSupportedException($"Unsupported economic zone property {property}.")
@@ -616,11 +616,11 @@ public class EconomicZone : SaveableItem, IEconomicZone
                 ["properties"] = "The properties assigned to this economic zone.",
                 ["propertycount"] = "The number of properties assigned to this economic zone.",
                 ["estatesenabled"] = "Whether new estates may be created in this economic zone.",
-                ["conveyancingcells"] = "The cells used for conveyancing workflows.",
-                ["jobfindingcells"] = "The cells used for job-finding workflows.",
-                ["probateofficecells"] = "The cells used for probate workflows.",
-                ["morgueoffice"] = "The morgue office cell, or null.",
-                ["morguestorage"] = "The morgue storage cell, or null."
+                ["conveyancingcells"] = "The rooms used for conveyancing workflows.",
+                ["jobfindingcells"] = "The rooms used for job-finding workflows.",
+                ["probateofficecells"] = "The rooms used for probate workflows.",
+                ["morgueoffice"] = "The morgue office room, or null.",
+                ["morguestorage"] = "The morgue storage room, or null."
             });
     }
 
@@ -1034,7 +1034,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
                 shop.IsTrading.ToString(actor),
                 shop.ActiveEmploymentContracts().Count().ToString("N0", actor),
                 shop.EmployeesOnDuty.Count().ToString("N0", actor),
-                pshop?.ShopfrontCells.Select(x =>
+                pshop?.ShopfrontRooms.Select(x =>
                     x.GetFriendlyReference(actor).FluentTagMXP("send",
                         $"href='goto {x.Id}'")).FirstOrDefault() ?? "",
                 shop.EconomicZone.Name,
@@ -2046,69 +2046,69 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
     private bool BuildingCommandConveyance(ICharacter actor, StringStack command)
     {
-        if (_conveyancingCells.Contains(actor.Location))
+        if (_conveyancingRooms.Contains(actor.Location))
         {
             actor.OutputHandler.Send(
                 "Your current location is no longer a location for conveyancing property in this economic zone.");
-            _conveyancingCells.Remove(actor.Location);
-            actor.Location.CellRequestsDeletion -= ConveyancingCellRequestsDeletion;
+            _conveyancingRooms.Remove(actor.Location);
+            actor.Location.RoomRequestsDeletion -= ConveyancingRoomRequestsDeletion;
         }
         else
         {
             actor.OutputHandler.Send(
                 "Your current location is now a location for conveyancing property in this economic zone.");
-            _conveyancingCells.Add(actor.Location);
-            actor.Location.CellRequestsDeletion -= ConveyancingCellRequestsDeletion;
-            actor.Location.CellRequestsDeletion += ConveyancingCellRequestsDeletion;
+            _conveyancingRooms.Add(actor.Location);
+            actor.Location.RoomRequestsDeletion -= ConveyancingRoomRequestsDeletion;
+            actor.Location.RoomRequestsDeletion += ConveyancingRoomRequestsDeletion;
         }
 
         Changed = true;
         return true;
     }
 
-    private void ConveyancingCellRequestsDeletion(object sender, EventArgs e)
+    private void ConveyancingRoomRequestsDeletion(object sender, EventArgs e)
     {
-        _conveyancingCells.Remove((ICell)sender);
+        _conveyancingRooms.Remove((IRoom)sender);
     }
 
-    private void JobCellRequestsDeletion(object sender, EventArgs e)
+    private void JobRoomRequestsDeletion(object sender, EventArgs e)
     {
-        _jobFindingCells.Remove((ICell)sender);
+        _jobFindingRooms.Remove((IRoom)sender);
     }
 
-    private void ProbateCellRequestsDeletion(object sender, EventArgs e)
+    private void ProbateRoomRequestsDeletion(object sender, EventArgs e)
     {
-        _probateOfficeCells.Remove((ICell)sender);
+        _probateOfficeRooms.Remove((IRoom)sender);
     }
 
-    private void MorgueOfficeCellRequestsDeletion(object sender, EventArgs e)
+    private void MorgueOfficeRoomRequestsDeletion(object sender, EventArgs e)
     {
-        _morgueOfficeCell = null;
+        _morgueOfficeRoom = null;
         Changed = true;
     }
 
-    private void MorgueStorageCellRequestsDeletion(object sender, EventArgs e)
+    private void MorgueStorageRoomRequestsDeletion(object sender, EventArgs e)
     {
-        _morgueStorageCell = null;
+        _morgueStorageRoom = null;
         Changed = true;
     }
 
     private bool BuildingCommandJobs(ICharacter actor, StringStack command)
     {
-        if (_jobFindingCells.Contains(actor.Location))
+        if (_jobFindingRooms.Contains(actor.Location))
         {
             actor.OutputHandler.Send(
                 "Your current location is no longer a location for listing and finding jobs in this economic zone.");
-            _jobFindingCells.Remove(actor.Location);
-            actor.Location.CellRequestsDeletion -= JobCellRequestsDeletion;
+            _jobFindingRooms.Remove(actor.Location);
+            actor.Location.RoomRequestsDeletion -= JobRoomRequestsDeletion;
         }
         else
         {
             actor.OutputHandler.Send(
                 "Your current location is now a location for listing and finding jobs in this economic zone.");
-            _jobFindingCells.Add(actor.Location);
-            actor.Location.CellRequestsDeletion -= JobCellRequestsDeletion;
-            actor.Location.CellRequestsDeletion += JobCellRequestsDeletion;
+            _jobFindingRooms.Add(actor.Location);
+            actor.Location.RoomRequestsDeletion -= JobRoomRequestsDeletion;
+            actor.Location.RoomRequestsDeletion += JobRoomRequestsDeletion;
         }
 
         Changed = true;
@@ -2117,20 +2117,20 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
     private bool BuildingCommandProbate(ICharacter actor, StringStack command)
     {
-        if (_probateOfficeCells.Contains(actor.Location))
+        if (_probateOfficeRooms.Contains(actor.Location))
         {
             actor.OutputHandler.Send(
                 "Your current location is no longer a probate office in this economic zone.");
-            _probateOfficeCells.Remove(actor.Location);
-            actor.Location.CellRequestsDeletion -= ProbateCellRequestsDeletion;
+            _probateOfficeRooms.Remove(actor.Location);
+            actor.Location.RoomRequestsDeletion -= ProbateRoomRequestsDeletion;
         }
         else
         {
             actor.OutputHandler.Send(
                 "Your current location is now a probate office in this economic zone.");
-            _probateOfficeCells.Add(actor.Location);
-            actor.Location.CellRequestsDeletion -= ProbateCellRequestsDeletion;
-            actor.Location.CellRequestsDeletion += ProbateCellRequestsDeletion;
+            _probateOfficeRooms.Add(actor.Location);
+            actor.Location.RoomRequestsDeletion -= ProbateRoomRequestsDeletion;
+            actor.Location.RoomRequestsDeletion += ProbateRoomRequestsDeletion;
         }
 
         Changed = true;
@@ -2141,7 +2141,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
     {
         if (command.IsFinished || command.PeekSpeech().EqualTo("here"))
         {
-            MorgueOfficeCell = actor.Location;
+            MorgueOfficeRoom = actor.Location;
             actor.OutputHandler.Send(
                 $"{actor.Location.GetFriendlyReference(actor)} is now the morgue office for this economic zone.");
             return true;
@@ -2153,7 +2153,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
             return false;
         }
 
-        MorgueOfficeCell = null;
+        MorgueOfficeRoom = null;
         actor.OutputHandler.Send("This economic zone no longer has a morgue office configured.");
         return true;
     }
@@ -2162,7 +2162,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
     {
         if (command.IsFinished || command.PeekSpeech().EqualTo("here"))
         {
-            MorgueStorageCell = actor.Location;
+            MorgueStorageRoom = actor.Location;
             actor.OutputHandler.Send(
                 $"{actor.Location.GetFriendlyReference(actor)} is now the morgue storage room for this economic zone.");
             return true;
@@ -2174,7 +2174,7 @@ public class EconomicZone : SaveableItem, IEconomicZone
             return false;
         }
 
-        MorgueStorageCell = null;
+        MorgueStorageRoom = null;
         actor.OutputHandler.Send("This economic zone no longer has a morgue storage room configured.");
         return true;
     }
@@ -2237,28 +2237,28 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
         sb.AppendLine();
         sb.AppendLine("Conveyancing Locations:");
-        foreach (ICell location in ConveyancingCells)
+        foreach (IRoom location in ConveyancingRooms)
         {
             sb.AppendLine($"\t{location.GetFriendlyReference(actor)}");
         }
 
         sb.AppendLine();
         sb.AppendLine("Job Finding Locations:");
-        foreach (ICell location in JobFindingCells)
+        foreach (IRoom location in JobFindingRooms)
         {
             sb.AppendLine($"\t{location.GetFriendlyReference(actor)}");
         }
 
         sb.AppendLine();
         sb.AppendLine("Probate Office Locations:");
-        foreach (ICell location in ProbateOfficeCells)
+        foreach (IRoom location in ProbateOfficeRooms)
         {
             sb.AppendLine($"\t{location.GetFriendlyReference(actor)}");
         }
 
         sb.AppendLine();
-        sb.AppendLine($"Morgue Office: {MorgueOfficeCell?.GetFriendlyReference(actor) ?? "None".ColourError()}");
-        sb.AppendLine($"Morgue Storage: {MorgueStorageCell?.GetFriendlyReference(actor) ?? "None".ColourError()}");
+        sb.AppendLine($"Morgue Office: {MorgueOfficeRoom?.GetFriendlyReference(actor) ?? "None".ColourError()}");
+        sb.AppendLine($"Morgue Storage: {MorgueStorageRoom?.GetFriendlyReference(actor) ?? "None".ColourError()}");
 
         return sb.ToString();
     }
@@ -2288,51 +2288,51 @@ public class EconomicZone : SaveableItem, IEconomicZone
 
     #region Property
 
-    private readonly List<ICell> _conveyancingCells = new();
-    public IEnumerable<ICell> ConveyancingCells => _conveyancingCells;
+    private readonly List<IRoom> _conveyancingRooms = new();
+    public IEnumerable<IRoom> ConveyancingRooms => _conveyancingRooms;
 
     #endregion
 
-    private readonly List<ICell> _jobFindingCells = new();
-    public IEnumerable<ICell> JobFindingCells => _jobFindingCells;
+    private readonly List<IRoom> _jobFindingRooms = new();
+    public IEnumerable<IRoom> JobFindingRooms => _jobFindingRooms;
 
-    private readonly List<ICell> _probateOfficeCells = new();
-    public IEnumerable<ICell> ProbateOfficeCells => _probateOfficeCells;
+    private readonly List<IRoom> _probateOfficeRooms = new();
+    public IEnumerable<IRoom> ProbateOfficeRooms => _probateOfficeRooms;
 
-    private ICell _morgueOfficeCell;
-    public ICell MorgueOfficeCell
+    private IRoom _morgueOfficeRoom;
+    public IRoom MorgueOfficeRoom
     {
-        get => _morgueOfficeCell;
+        get => _morgueOfficeRoom;
         private set
         {
-            _morgueOfficeCell?.CellRequestsDeletion -= MorgueOfficeCellRequestsDeletion;
+            _morgueOfficeRoom?.RoomRequestsDeletion -= MorgueOfficeRoomRequestsDeletion;
 
-            _morgueOfficeCell = value;
+            _morgueOfficeRoom = value;
 
-            if (_morgueOfficeCell != null)
+            if (_morgueOfficeRoom != null)
             {
-                _morgueOfficeCell.CellRequestsDeletion -= MorgueOfficeCellRequestsDeletion;
-                _morgueOfficeCell.CellRequestsDeletion += MorgueOfficeCellRequestsDeletion;
+                _morgueOfficeRoom.RoomRequestsDeletion -= MorgueOfficeRoomRequestsDeletion;
+                _morgueOfficeRoom.RoomRequestsDeletion += MorgueOfficeRoomRequestsDeletion;
             }
 
             Changed = true;
         }
     }
 
-    private ICell _morgueStorageCell;
-    public ICell MorgueStorageCell
+    private IRoom _morgueStorageRoom;
+    public IRoom MorgueStorageRoom
     {
-        get => _morgueStorageCell;
+        get => _morgueStorageRoom;
         private set
         {
-            _morgueStorageCell?.CellRequestsDeletion -= MorgueStorageCellRequestsDeletion;
+            _morgueStorageRoom?.RoomRequestsDeletion -= MorgueStorageRoomRequestsDeletion;
 
-            _morgueStorageCell = value;
+            _morgueStorageRoom = value;
 
-            if (_morgueStorageCell != null)
+            if (_morgueStorageRoom != null)
             {
-                _morgueStorageCell.CellRequestsDeletion -= MorgueStorageCellRequestsDeletion;
-                _morgueStorageCell.CellRequestsDeletion += MorgueStorageCellRequestsDeletion;
+                _morgueStorageRoom.RoomRequestsDeletion -= MorgueStorageRoomRequestsDeletion;
+                _morgueStorageRoom.RoomRequestsDeletion += MorgueStorageRoomRequestsDeletion;
             }
 
             Changed = true;

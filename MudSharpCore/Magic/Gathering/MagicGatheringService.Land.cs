@@ -129,7 +129,7 @@ public sealed partial class MagicGatheringService
 		{
 			return Refused("Land gathering cancelled because its captured price, source or action changed.");
 		}
-		if (HasUnresolvedGatheringSource(live.Cell.Id, quote))
+		if (HasUnresolvedGatheringSource(live.Room.Id, quote))
 		{
 			return Refused("A Land participant has an unresolved earlier operation.");
 		}
@@ -137,7 +137,7 @@ public sealed partial class MagicGatheringService
 		var nativePlans = new List<NativeOrganicDebitPlan>();
 		foreach (MagicLandSourceAllocation allocation in quote.LandSources.Where(x => x.Lifecycle is not null))
 		{
-			if (!environmental.TryPlanOrganicDebit(live.Cell, allocation.Selector, allocation.TotalUnits,
+			if (!environmental.TryPlanOrganicDebit(live.Room, allocation.Selector, allocation.TotalUnits,
 			    out NativeOrganicDebitPlan plan, out string? error) || plan.Lifecycle != allocation.Lifecycle)
 			{
 				return Refused(error ?? "The captured native Land source is no longer eligible.");
@@ -167,7 +167,7 @@ public sealed partial class MagicGatheringService
 				.Select(x => new EnvironmentalLandAmbientDebit(
 					_gameworld.MagicResources.Get(long.Parse(x.Selector[8..], CultureInfo.InvariantCulture))!,
 					x.TotalUnits)).ToArray();
-			bool groupSuccess = environmental.TryApplyLandDebitGroup(live.Cell, ambientDebits, nativePlans,
+			bool groupSuccess = environmental.TryApplyLandDebitGroup(live.Room, ambientDebits, nativePlans,
 				out IReadOnlyList<long> paidAmbient, out IReadOnlyList<NativeOrganicDebitPlan> paidNative,
 				out string? groupError);
 			foreach (long resourceId in paidAmbient)
@@ -219,7 +219,7 @@ public sealed partial class MagicGatheringService
 			})
 			{
 				if (health.Loss <= 0.0) continue;
-				IAgricultureField? field = environmental.FieldFor(live.Cell);
+				IAgricultureField? field = environmental.FieldFor(live.Room);
 				string healthError = "The indexed living field is no longer available.";
 				int appliedLoss = 0;
 				decimal discardedPrepaid = 0m;
@@ -242,7 +242,7 @@ public sealed partial class MagicGatheringService
 				}
 			}
 
-			EnvironmentalMagicOperationResult ecological = environmental.ApplyOperation(live.Cell, childRequest);
+			EnvironmentalMagicOperationResult ecological = environmental.ApplyOperation(live.Room, childRequest);
 			if (!ecological.Success)
 			{
 				return LandUnrecordedSourceProgress(live, receipt,
@@ -278,7 +278,7 @@ public sealed partial class MagicGatheringService
 			detail = detail with { Stage = "AccountingPersisted" };
 			receipt = receipt with { DestinationCredited = true, AccountingPersisted = true,
 				LandDetailJson = JsonSerializer.Serialize(detail), UpdatedUtc = UtcNow };
-			PersistAccounting(live.Actor, live.Cell, receipt);
+			PersistAccounting(live.Actor, live.Room, receipt);
 			return CompleteLandNotification(live, quote, receipt);
 		}
 		catch (Exception ex)
@@ -320,26 +320,26 @@ public sealed partial class MagicGatheringService
 	{
 		if (_persistLandSources is not null)
 		{
-			if (!_persistLandSources(live.Actor, live.Cell, receipt))
+			if (!_persistLandSources(live.Actor, live.Room, receipt))
 			{
-				live.Cell.Changed = true;
+				live.Room.Changed = true;
 				throw new InvalidOperationException("Injected Land source checkpoint failed.");
 			}
 			return;
 		}
 		IAgricultureField? field = live.Quote.LandSources.Any(x => x.Lifecycle?.FieldId is not null) ||
 			live.Quote.CropHealthCost > 0.0 || live.Quote.WoodlandHealthCost > 0.0
-			? _gameworld.EnvironmentalMagic?.FieldFor(live.Cell) : null;
-		var cell = live.Cell as Cell;
+			? _gameworld.EnvironmentalMagic?.FieldFor(live.Room) : null;
+		var room = live.Room as Room;
 		try
 		{
 			using IDisposable? isolated = FMDB.IsIsolated ? null : FMDB.BeginIsolatedScope();
 			using (new FMDB())
 			using (var transaction = FMDB.Context.Database.BeginTransaction())
 			{
-				cell?.PrepareForSaveAttempt();
+				room?.PrepareForSaveAttempt();
 				field?.Save();
-				live.Cell.Save();
+				live.Room.Save();
 				MagicGatheringReceiptStore.WriteCurrent(receipt);
 				FMDB.Context.SaveChanges();
 				transaction.Commit();
@@ -347,9 +347,9 @@ public sealed partial class MagicGatheringService
 		}
 		catch
 		{
-			cell?.RecoverFromSaveFailure();
+			room?.RecoverFromSaveFailure();
 			field?.Changed = true;
-			live.Cell.Changed = true;
+			live.Room.Changed = true;
 			throw;
 		}
 	}
@@ -379,7 +379,7 @@ public sealed partial class MagicGatheringService
 		try
 		{
 			if (!callback.ExecuteWithStatus(out _, live.Actor, live.Owner, live.Capability,
-			    live.Method.Key.ToString(), quote.RequestedAmount, live.Cell, live.Id.ToString()))
+			    live.Method.Key.ToString(), quote.RequestedAmount, live.Room, live.Id.ToString()))
 			{
 				throw new InvalidOperationException($"Prog #{callback.Id} reported execution failure.");
 			}
@@ -422,7 +422,7 @@ public sealed partial class MagicGatheringService
 	}
 
 	private MagicGatheringResult QuoteLand(ICharacter actor, ICharacter owner, IMagicGatheringCapability capability,
-		MagicGatheringMethodDefinition method, double amount, ICell cell, IMagicResource destination, double duration,
+		MagicGatheringMethodDefinition method, double amount, IRoom room, IMagicResource destination, double duration,
 		double stamina, double damage, double pain, double stun, DirectHealthCostPlan? healthPlan,
 		IReadOnlyList<MagicLandSourceAllocation>? captured = null)
 	{
@@ -431,7 +431,7 @@ public sealed partial class MagicGatheringService
 		{
 			return Refused("Land gathering requires one to sixteen configured local source entries and environmental accounting.");
 		}
-		EnvironmentalOrganicProfileSnapshot profileView = environmental.InspectOrganicProfile(cell);
+		EnvironmentalOrganicProfileSnapshot profileView = environmental.InspectOrganicProfile(room);
 		if (!profileView.ProfileId.HasValue || !profileView.HasOrganicConfiguration ||
 		    profileView.HasPendingOperation || profileView.Errors.Count > 0)
 		{
@@ -449,7 +449,7 @@ public sealed partial class MagicGatheringService
 			if (protection?.Id != protectionId ||
 			    !MagicGatheringPolicy.ValidSignature(protection, "permission") ||
 			    protection.StaticType != FutureProgStaticType.NotStatic ||
-			    !MagicGatheringPolicy.Permits(protection, actor, owner, capability, method.Key.ToString(), amount, cell))
+			    !MagicGatheringPolicy.Permits(protection, actor, owner, capability, method.Key.ToString(), amount, room))
 			{
 				return Refused("The land's protection policy does not permit this gathering action.");
 			}
@@ -466,7 +466,7 @@ public sealed partial class MagicGatheringService
 				return Refused($"Land source '{entry.Selector}' has a malformed selector.");
 			}
 			if (selector.StartsWith("ambient:", StringComparison.Ordinal) &&
-			    _store.HasUnresolvedForSource(cell.Id,
+			    _store.HasUnresolvedForSource(room.Id,
 				    long.Parse(selector[8..], CultureInfo.InvariantCulture)))
 			{
 				return Refused($"Land ambient source {selector} has an unresolved gathering receipt.");
@@ -481,7 +481,7 @@ public sealed partial class MagicGatheringService
 					return Refused($"Land source {selector} has an invalid dynamic price policy.");
 				}
 				ratio = MagicGatheringPolicy.Number(ratioProg, ratio, "Land source ratio", actor, owner,
-					capability, method.Key.ToString(), amount, cell, entry.Key.ToString());
+					capability, method.Key.ToString(), amount, room, entry.Key.ToString());
 			}
 			if (!double.IsFinite(ratio) || ratio < 0.0 || (!entry.IsCollateral && ratio <= 0.0) ||
 			    entry.IsCollateral && entry.AllowAbsent)
@@ -510,7 +510,7 @@ public sealed partial class MagicGatheringService
 				long resourceId = long.Parse(selector[8..], CultureInfo.InvariantCulture);
 				IMagicResource? resource = _gameworld.MagicResources.Get(resourceId);
 				if (resource is null || !resource.ResourceType.HasFlag(MagicResourceType.LocationResource) ||
-				    !environmental.TryInspectLandResource(cell, resource, out EnvironmentalResourceSnapshot output) ||
+				    !environmental.TryInspectLandResource(room, resource, out EnvironmentalResourceSnapshot output) ||
 				    !output.IsValid || !double.IsFinite(output.Balance) || !double.IsFinite(output.Maximum) ||
 				    output.Balance < 0.0 || output.Maximum < 0.0)
 				{
@@ -520,7 +520,7 @@ public sealed partial class MagicGatheringService
 				continue;
 			}
 
-			NativeOrganicSourceSnapshot native = environmental.InspectOrganicSource(cell, selector);
+			NativeOrganicSourceSnapshot native = environmental.InspectOrganicSource(room, selector);
 			if (!native.IsEligible || native.Lifecycle is null)
 			{
 				if (native.Status == NativeOrganicSourceStatus.Absent && entry.AllowAbsent && !entry.IsCollateral &&
@@ -602,7 +602,7 @@ public sealed partial class MagicGatheringService
 					state.Stock, 0m, 0, 0m));
 				continue;
 			}
-			if (!environmental.TryPlanOrganicDebit(cell, state.Selector, total,
+			if (!environmental.TryPlanOrganicDebit(room, state.Selector, total,
 				    out NativeOrganicDebitPlan nativePlan, out string? nativeError))
 			{
 				return Refused(nativeError ?? $"Native source {state.Selector} cannot fund its complete allocation.");
@@ -626,12 +626,12 @@ public sealed partial class MagicGatheringService
 		var sourceDictionary = new DictionaryVariable(sourceUnits, ProgVariableTypes.Number);
 		double scar = method.LandDamageProgId == 0 ? amount * method.LandDamagePerDestinationUnit :
 			EvaluateLandEcologicalPrice(method.LandDamageProgId, "Land scar", actor, owner, capability,
-				method, amount, cell, sourceDictionary);
+				method, amount, room, sourceDictionary);
 		double pressure = method.LandPressureProgId == 0
 			? amount * (method.LandPressurePerDestinationUnit ?? method.LandDamagePerDestinationUnit)
 			: EvaluateLandEcologicalPrice(method.LandPressureProgId, "Land pressure", actor, owner, capability,
-				method, amount, cell, sourceDictionary);
-		EnvironmentalMagicStateSnapshot stateView = environmental.InspectState(cell);
+				method, amount, room, sourceDictionary);
+		EnvironmentalMagicStateSnapshot stateView = environmental.InspectState(room);
 		if (!double.IsFinite(scar) || scar <= 0.0 || !double.IsFinite(pressure) || pressure < 0.0)
 		{
 			return Refused("Land gathering requires a finite, positive ecological scar and valid pressure.");
@@ -642,14 +642,14 @@ public sealed partial class MagicGatheringService
 		{
 			return Refused("The quantified Land damage cannot be applied to the current ecological state.");
 		}
-		if (!TryPlanLandHealthCost(environmental, cell, NativeOrganicSourceKind.Crop,
+		if (!TryPlanLandHealthCost(environmental, room, NativeOrganicSourceKind.Crop,
 			    method.CropHealthCostPerDestinationUnit, method.CropHealthCostProgId,
 			    actor, owner, capability, method, amount,
 			    out int cropHealth, out NativeOrganicLifecycleIdentity? cropLifecycle, out string? cropError))
 		{
 			return Refused(cropError!);
 		}
-		if (!TryPlanLandHealthCost(environmental, cell, NativeOrganicSourceKind.Woodland,
+		if (!TryPlanLandHealthCost(environmental, room, NativeOrganicSourceKind.Woodland,
 			    method.WoodlandHealthCostPerDestinationUnit, method.WoodlandHealthCostProgId,
 			    actor, owner, capability, method, amount,
 			    out int woodlandHealth, out NativeOrganicLifecycleIdentity? woodlandLifecycle, out string? woodlandError))
@@ -657,7 +657,7 @@ public sealed partial class MagicGatheringService
 			return Refused(woodlandError!);
 		}
 		MagicGatheringQuote quote = new(method.Key, method.StructuralVersion, MagicGatheringMethodKind.Land,
-			destination.Id, null, cell.Id, profile.Id, profile.Revision, amount, 0.0, duration, stamina,
+			destination.Id, null, room.Id, profile.Id, profile.Revision, amount, 0.0, duration, stamina,
 			method.MinimumStamina, damage, pain, stun, healthPlan?.Bodypart.Id,
 			healthPlan?.ExistingWound is not null)
 		{
@@ -677,7 +677,7 @@ public sealed partial class MagicGatheringService
 	}
 
 	private double EvaluateLandEcologicalPrice(long progId, string label, ICharacter actor, ICharacter owner,
-		IMagicGatheringCapability capability, MagicGatheringMethodDefinition method, double amount, ICell cell,
+		IMagicGatheringCapability capability, MagicGatheringMethodDefinition method, double amount, IRoom room,
 		DictionaryVariable sourceUnits)
 	{
 		IFutureProg? prog = Prog(progId);
@@ -687,10 +687,10 @@ public sealed partial class MagicGatheringService
 			throw new InvalidOperationException($"{label} has an invalid dynamic calculation policy.");
 		}
 		return MagicGatheringPolicy.Number(prog, 0.0, label, actor, owner, capability,
-			method.Key.ToString(), amount, cell, sourceUnits);
+			method.Key.ToString(), amount, room, sourceUnits);
 	}
 
-	private bool TryPlanLandHealthCost(IEnvironmentalMagicService environmental, ICell cell,
+	private bool TryPlanLandHealthCost(IEnvironmentalMagicService environmental, IRoom room,
 		NativeOrganicSourceKind kind, double rate, long progId, ICharacter actor, ICharacter owner,
 		IMagicGatheringCapability capability, MagicGatheringMethodDefinition method, double amount,
 		out int cost, out NativeOrganicLifecycleIdentity? lifecycle, out string? error)
@@ -708,7 +708,7 @@ public sealed partial class MagicGatheringService
 				return false;
 			}
 			rate = MagicGatheringPolicy.Number(prog, rate, $"{kind} health cost", actor, owner,
-				capability, method.Key.ToString(), amount, cell, $"{kind.ToString().ToLowerInvariant()}-health");
+				capability, method.Key.ToString(), amount, room, $"{kind.ToString().ToLowerInvariant()}-health");
 		}
 		double total = amount * rate;
 		if (!double.IsFinite(total) || total < 0.0 || total > int.MaxValue)
@@ -717,9 +717,9 @@ public sealed partial class MagicGatheringService
 			return false;
 		}
 		if (total == 0.0) return true;
-		NativeOrganicSourceSnapshot source = environmental.InspectOrganicSource(cell,
+		NativeOrganicSourceSnapshot source = environmental.InspectOrganicSource(room,
 			NativeOrganicSourceSelectors.Canonical(kind));
-		IAgricultureField? field = environmental.FieldFor(cell);
+		IAgricultureField? field = environmental.FieldFor(room);
 		int health = kind == NativeOrganicSourceKind.Crop ? field?.CropHealth ?? 0 : field?.WoodlandHealth ?? 0;
 		if (!source.IsEligible || source.Lifecycle is null || field is null || health <= 0)
 		{

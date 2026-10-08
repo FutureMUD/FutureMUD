@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.Character;
 using MudSharp.Climate;
 using MudSharp.FutureProg;
@@ -11,9 +11,8 @@ namespace MudSharp.Construction
     public interface IZone : ILocation, IProgVariable
     {
         IShard Shard { get; }
-        ICell DefaultCell { get; }
-        IEnumerable<IRoom> Rooms { get; }
-        new IEnumerable<ICell> Cells { get; }
+        IRoom DefaultRoom { get; }
+        new IEnumerable<IRoom> Rooms { get; }
 
         GeographicCoordinate Geography { get; }
         double AmbientLightPollution { get; }

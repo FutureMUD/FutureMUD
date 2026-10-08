@@ -66,9 +66,9 @@ public class CraftToolUsageTests
         toolItem.Setup(x => x.IsA(It.IsAny<ITag>())).Returns(true);
         toolItem.Setup(x => x.GetItemType<IToolItem>()).Returns(toolItemComponent.Object);
 
-        Mock<ICell> cell = new();
-        cell.SetupGet(x => x.GameItems).Returns(new List<IGameItem> { toolItem.Object });
-        cell.Setup(x => x.LayerGameItems(It.IsAny<RoomLayer>())).Returns(new List<IGameItem> { toolItem.Object });
+        Mock<IRoom> room = new();
+        room.SetupGet(x => x.GameItems).Returns(new List<IGameItem> { toolItem.Object });
+        room.Setup(x => x.LayerGameItems(It.IsAny<RoomLayer>())).Returns(new List<IGameItem> { toolItem.Object });
 
         Mock<IBody> body = new();
         body.SetupGet(x => x.WieldLocs).Returns(Array.Empty<IWield>());
@@ -83,7 +83,7 @@ public class CraftToolUsageTests
 
         Mock<ICharacter> character = new();
         character.SetupGet(x => x.Body).Returns(body.Object);
-        character.SetupGet(x => x.Location).Returns(cell.Object);
+        character.SetupGet(x => x.Location).Returns(room.Object);
         character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
         character.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
         character.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()));
@@ -280,9 +280,9 @@ public class CraftToolUsageTests
             .Setup(x => x.UseTool(toolTag.Object, It.IsAny<TimeSpan>()))
             .Callback<ITag, TimeSpan>((_, usage) => { toolItem.Object.Condition -= usage.TotalSeconds / 60.0; });
 
-        Mock<ICell> cell = new();
-        cell.SetupGet(x => x.GameItems).Returns(new List<IGameItem> { toolItem.Object });
-        cell.Setup(x => x.LayerGameItems(It.IsAny<RoomLayer>())).Returns(new List<IGameItem> { toolItem.Object });
+        Mock<IRoom> room = new();
+        room.SetupGet(x => x.GameItems).Returns(new List<IGameItem> { toolItem.Object });
+        room.Setup(x => x.LayerGameItems(It.IsAny<RoomLayer>())).Returns(new List<IGameItem> { toolItem.Object });
 
         Mock<IBody> body = new();
         body.SetupGet(x => x.WieldLocs).Returns(Array.Empty<IWield>());
@@ -297,7 +297,7 @@ public class CraftToolUsageTests
 
         Mock<ICharacter> character = new();
         character.SetupGet(x => x.Body).Returns(body.Object);
-        character.SetupGet(x => x.Location).Returns(cell.Object);
+        character.SetupGet(x => x.Location).Returns(room.Object);
         character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
         character.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
         character.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()));

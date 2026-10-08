@@ -15,7 +15,7 @@ namespace MudSharp.NPC.AI.Groups
     public interface IGroupAITemplate : IFrameworkItem, ISaveable, IEditableItem
     {
         IGroupAIType GroupAIType { get; }
-        bool AvoidCell(ICell cell, GroupAlertness alertness);
+        bool AvoidRoom(IRoom room, GroupAlertness alertness);
         bool ConsidersThreat(ICharacter ch, GroupAlertness alertness);
         IEnumerable<IGroupEmote> GroupEmotes { get; }
         (bool Truth, string Error) IsValidForCreatingGroups { get; }

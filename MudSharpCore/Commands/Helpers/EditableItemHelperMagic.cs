@@ -280,7 +280,7 @@ The core syntax is as follows:
 	#3magic portalnetwork close#0 - stops editing a portal network
 	#3magic portalnetwork show <which>#0 - shows a portal network
 	#3magic portalnetwork set active#0 - toggles runtime materialisation
-	#3magic portalnetwork set endpoint add room <key> <cell|here> [name]#0 - adds or replaces a room endpoint
+	#3magic portalnetwork set endpoint add room <key> <room|here> [name]#0 - adds or replaces a room endpoint
 	#3magic portalnetwork set endpoint add item <key> <item id> [name]#0 - adds or replaces an item endpoint
 	#3magic portalnetwork set link add <from> <to>#0 - explicitly links two endpoints
 	#3magic portalnetwork set refresh#0 - rebuilds active runtime portal exits",

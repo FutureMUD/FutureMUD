@@ -92,12 +92,12 @@ public class ShopkeeperAI : PathingAIBase
     {
         switch (type)
         {
-            case EventType.CharacterEnterCellFinish:
-                return HandleCharacterEnterCell((ICharacter)arguments[0], (ICell)arguments[1]) ||
+            case EventType.CharacterEnterRoomFinish:
+                return HandleCharacterEnterRoom((ICharacter)arguments[0], (IRoom)arguments[1]) ||
                        base.HandleEvent(type, arguments);
-            case EventType.CharacterEnterCellFinishWitness:
-                return HandleWitnessCharacterEnterCell((ICharacter)arguments[0], (ICell)arguments[1],
-                    (ICellExit)arguments[2], (ICharacter)arguments[3]);
+            case EventType.CharacterEnterRoomFinishWitness:
+                return HandleWitnessCharacterEnterRoom((ICharacter)arguments[0], (IRoom)arguments[1],
+                    (IRoomExit)arguments[2], (ICharacter)arguments[3]);
             case EventType.WitnessBuyItemInShop:
                 return HandleWitnessBuyItem((ICharacter)arguments[0], (ICharacter)arguments[1], (IPermanentShop)arguments[2],
                     (IMerchandise)arguments[3], (IEnumerable<IGameItem>)arguments[4]);
@@ -202,20 +202,20 @@ public class ShopkeeperAI : PathingAIBase
         return false;
     }
 
-    private bool HandleWitnessCharacterEnterCell(ICharacter customer, ICell cell, ICellExit cellExit,
+    private bool HandleWitnessCharacterEnterRoom(ICharacter customer, IRoom room, IRoomExit cellExit,
         ICharacter employee)
     {
-        if (cell.Shop?.IsClockedIn(employee) != true)
+        if (room.Shop?.IsClockedIn(employee) != true)
         {
             return false;
         }
 
-        if (cell.Shop.IsClockedIn(customer))
+        if (room.Shop.IsClockedIn(customer))
         {
             return false;
         }
 
-        if (cell.Shop.IsWelcomeCustomer(customer))
+        if (room.Shop.IsWelcomeCustomer(customer))
         {
             _onSomeoneEntersProg?.Execute(employee, customer, cellExit);
         }
@@ -227,7 +227,7 @@ public class ShopkeeperAI : PathingAIBase
         return false;
     }
 
-    private bool HandleCharacterEnterCell(ICharacter employee, ICell cell)
+    private bool HandleCharacterEnterRoom(ICharacter employee, IRoom room)
     {
         RestockingMerchandise effect = employee.EffectsOfType<RestockingMerchandise>().FirstOrDefault();
         if (effect == null)
@@ -278,7 +278,7 @@ public class ShopkeeperAI : PathingAIBase
             return true;
         }
 
-        if (cell != shop.StockroomCell)
+        if (room != shop.StockroomRoom)
         {
             return false;
         }
@@ -322,8 +322,8 @@ public class ShopkeeperAI : PathingAIBase
         {
             switch (type)
             {
-                case EventType.CharacterEnterCellFinish:
-                case EventType.CharacterEnterCellFinishWitness:
+                case EventType.CharacterEnterRoomFinish:
+                case EventType.CharacterEnterRoomFinishWitness:
                 case EventType.WitnessBuyItemInShop:
                 case EventType.ItemRequiresRestocking:
                 case EventType.MinuteTick:
@@ -345,25 +345,25 @@ public class ShopkeeperAI : PathingAIBase
             return false;
         }
 
-        return effect.CellExitQueue.Count > 0;
+        return effect.RoomExitQueue.Count > 0;
     }
 
     #endregion
 
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
         RestockingMerchandise effect = ch.EffectsOfType<RestockingMerchandise>().First();
         IPermanentShop shop = effect.TargetMerchandise.Shop as IPermanentShop;
         if (shop is null)
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
         if (effect.CurrentGameItems.Any())
         {
             if (effect.TargetMerchandise.PreferredDisplayContainer != null)
             {
-                List<ICellExit> path = ch.PathBetween(
+                List<IRoomExit> path = ch.PathBetween(
                     effect.TargetMerchandise.PreferredDisplayContainer.LocationLevelPerceivable, 10,
                     GetSuitabilityFunction(ch)).ToList();
                 if (path.Any())
@@ -372,16 +372,16 @@ public class ShopkeeperAI : PathingAIBase
                 }
             }
 
-            ICell target = shop.ShopfrontCells.WhereMin(x => x.Characters.Count(y => shop.IsClockedIn(y))).GetRandomElement();
+            IRoom target = shop.ShopfrontRooms.WhereMin(x => x.Characters.Count(y => shop.IsClockedIn(y))).GetRandomElement();
             return (target, ch.PathBetween(target, 10, GetSuitabilityFunction(ch)));
         }
 
-        if (shop?.StockroomCell == null || ch.Location == shop.StockroomCell)
+        if (shop?.StockroomRoom == null || ch.Location == shop.StockroomRoom)
         {
-            return (null, Enumerable.Empty<ICellExit>());
+            return (null, Enumerable.Empty<IRoomExit>());
         }
 
-        return (shop.StockroomCell, ch.PathBetween(shop.StockroomCell, 10, GetSuitabilityFunction(ch))
+        return (shop.StockroomRoom, ch.PathBetween(shop.StockroomRoom, 10, GetSuitabilityFunction(ch))
                  .ToList());
     }
 }

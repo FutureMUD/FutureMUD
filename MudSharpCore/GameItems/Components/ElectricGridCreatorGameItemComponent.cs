@@ -115,7 +115,7 @@ public class ElectricGridCreatorGameItemComponent : GameItemComponent
         return base.Decorate(voyeur, name, description, type, colour, flags);
     }
 
-    private IElectricalGrid CreateGrid(ICell? initialLocation, bool temporary = false)
+    private IElectricalGrid CreateGrid(IRoom? initialLocation, bool temporary = false)
     {
         ElectricalGrid grid = new(Gameworld, initialLocation);
         if (temporary)

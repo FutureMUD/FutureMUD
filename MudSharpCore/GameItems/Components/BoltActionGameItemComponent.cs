@@ -376,7 +376,7 @@ public class BoltActionGameItemComponent : FirearmBaseGameItemComponent, IRanged
         {
             if (_prototype.EjectOnFire)
             {
-                originalLocation.Cell.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", casing),
+                originalLocation.Room.Handle(new EmoteOutput(new Emote("@ tumble|tumbles to the ground.", casing),
                     flags: OutputFlags.Insigificant));
 				casing.InsertAtSpatialLocation(originalLocation);
             }

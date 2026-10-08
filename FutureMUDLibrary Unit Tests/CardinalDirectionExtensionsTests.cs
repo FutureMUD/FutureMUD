@@ -124,11 +124,11 @@ public class CardinalDirectionExtensionsTests
 		Assert.AreEqual(2, CreatePath(CardinalDirection.North, CardinalDirection.Unknown).MaximumAxialDistance());
 	}
 
-	private static List<ICellExit> CreatePath(params CardinalDirection[] directions)
+	private static List<IRoomExit> CreatePath(params CardinalDirection[] directions)
 	{
 		return directions.Select(direction =>
 		{
-			var exit = new Mock<ICellExit>();
+			var exit = new Mock<IRoomExit>();
 			exit.SetupGet(x => x.OutboundDirection).Returns(direction);
 			return exit.Object;
 		}).ToList();

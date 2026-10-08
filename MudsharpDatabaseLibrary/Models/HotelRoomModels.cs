@@ -14,7 +14,7 @@ public partial class HotelRoom
 
 	public long Id { get; set; }
 	public long HotelId { get; set; }
-	public long CellId { get; set; }
+	public long RoomId { get; set; }
 	public string Name { get; set; } = string.Empty;
 	public bool Listed { get; set; }
 	public decimal PricePerDay { get; set; }
@@ -23,7 +23,7 @@ public partial class HotelRoom
 	public long MaximumDurationTicks { get; set; }
 
 	public virtual Hotel Hotel { get; set; } = null!;
-	public virtual Cell Cell { get; set; } = null!;
+	public virtual Room Room { get; set; } = null!;
 	public virtual ICollection<HotelRoomKey> Keys { get; set; }
 	public virtual ICollection<HotelRoomFurnishing> Furnishings { get; set; }
 	public virtual HotelRoomRental? ActiveRental { get; set; }

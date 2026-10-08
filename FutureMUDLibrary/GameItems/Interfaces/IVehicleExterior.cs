@@ -9,7 +9,7 @@ public interface IVehicleExterior : IGameItemComponent
 	void LinkVehicle(IVehicle vehicle);
 	void ClearVehicleLink(string reason);
 	/// <summary>
-	/// Updates the exterior's RouteCell coordinate as a projection of its canonical vehicle.
+	/// Updates the exterior's RouteRoom coordinate as a projection of its canonical vehicle.
 	/// The exterior component ignores its own forced-move callback for this update, while every
 	/// other item component still receives the coordinate-change notification.
 	/// </summary>

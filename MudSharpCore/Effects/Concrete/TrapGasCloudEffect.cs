@@ -11,7 +11,7 @@ using MudSharp.Health;
 namespace MudSharp.Effects.Concrete;
 
 /// <summary>
-/// A temporary, localised cloud produced by a trap. It deliberately does not rewrite the cell atmosphere:
+/// A temporary, localised cloud produced by a trap. It deliberately does not rewrite the room atmosphere:
 /// existing atmospheric simulations continue to own the world's bulk gas while this effect supplies a bounded
 /// inhalation hazard on one room layer.
 /// </summary>
@@ -24,7 +24,7 @@ public sealed class TrapGasCloudEffect : Effect
 		RegisterFactory("TrapGasCloud", (effect, owner) => new TrapGasCloudEffect(effect, owner));
 	}
 
-	public TrapGasCloudEffect(ICell owner, IGas gas, double dosePerTick, RoomLayer layer, string echo, double magicVolumePerTick = 1.0, double contactStrength = 1.0)
+	public TrapGasCloudEffect(IRoom owner, IGas gas, double dosePerTick, RoomLayer layer, string echo, double magicVolumePerTick = 1.0, double contactStrength = 1.0)
 		: base(owner)
 	{
 		GasId = gas.Id;
@@ -81,9 +81,9 @@ public sealed class TrapGasCloudEffect : Effect
 	{
 		base.InitialEffect();
 		Subscribe();
-		if (Owner is ICell cell && !string.IsNullOrWhiteSpace(Echo))
+		if (Owner is IRoom room && !string.IsNullOrWhiteSpace(Echo))
 		{
-			foreach (ICharacter character in cell.LayerCharacters(Layer))
+			foreach (ICharacter character in room.LayerCharacters(Layer))
 			{
 				character.OutputHandler.Send(Echo);
 			}
@@ -104,7 +104,7 @@ public sealed class TrapGasCloudEffect : Effect
 
 	private void Subscribe()
 	{
-		if (Owner is ICell cell) EnvironmentalExposureService.For(Gameworld).RefreshCell(cell);
+		if (Owner is IRoom room) EnvironmentalExposureService.For(Gameworld).RefreshRoom(room);
 		if (_subscribed)
 		{
 			return;
@@ -127,14 +127,14 @@ public sealed class TrapGasCloudEffect : Effect
 
 	private void ApplyDose()
 	{
-		if (Owner is not ICell cell || Gas is null)
+		if (Owner is not IRoom room || Gas is null)
 		{
 			return;
 		}
 
 		var drug = Gas!.Drug;
 
-		foreach (ICharacter character in cell.LayerCharacters(Layer).Where(x => x.NeedsToBreathe && x.CanBreathe))
+		foreach (ICharacter character in room.LayerCharacters(Layer).Where(x => x.NeedsToBreathe && x.CanBreathe))
 		{
 			if (MudSharp.Health.Breathing.BreathingStrategyHelper.HasWorkingSupply(character.Body) ||
 				EnvironmentalExposureService.For(Gameworld).LastBreathWasSupplied(character.Body) ||

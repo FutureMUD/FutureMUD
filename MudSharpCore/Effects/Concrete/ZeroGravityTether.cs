@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.GameItems;
 
 namespace MudSharp.Effects.Concrete;
@@ -35,7 +35,7 @@ public class ZeroGravityTether : Effect, IZeroGravityTetherEffect
 	protected override XElement SaveDefinition()
 	{
 		return new XElement("Effect",
-			new XElement("AnchorType", Anchor.FrameworkItemType),
+			new XElement("AnchorType", Anchor.GetPersistedReferenceType()),
 			new XElement("AnchorId", Anchor.Id),
 			new XElement("PhysicalTetherId", PhysicalTether?.Id ?? 0),
 			new XElement("MaximumRooms", MaximumRooms)
@@ -57,9 +57,9 @@ public class ZeroGravityTether : Effect, IZeroGravityTetherEffect
 		return $"Tethered to {Anchor.HowSeen(voyeur, colour: false).ColourName()} with a maximum length of {MaximumRooms.ToString("N0", voyeur).ColourValue()} rooms.";
 	}
 
-	public bool BlocksMovementTo(ICell destination)
+	public bool BlocksMovementTo(IRoom destination)
 	{
-		var anchorLocation = Anchor as ICell ?? Anchor.Location;
+		var anchorLocation = Anchor as IRoom ?? Anchor.Location;
 		if (anchorLocation is null)
 		{
 			return true;
@@ -70,18 +70,18 @@ public class ZeroGravityTether : Effect, IZeroGravityTetherEffect
 			return false;
 		}
 
-		var visited = new HashSet<ICell> { anchorLocation };
-		var frontier = new Queue<(ICell Cell, int Distance)>();
+		var visited = new HashSet<IRoom> { anchorLocation };
+		var frontier = new Queue<(IRoom Room, int Distance)>();
 		frontier.Enqueue((anchorLocation, 0));
 		while (frontier.Count > 0)
 		{
-			var (cell, distance) = frontier.Dequeue();
+			var (room, distance) = frontier.Dequeue();
 			if (distance >= MaximumRooms)
 			{
 				continue;
 			}
 
-			foreach (var exit in cell.ExitsFor(null, true))
+			foreach (var exit in room.ExitsFor(null, true))
 			{
 				if (!visited.Add(exit.Destination))
 				{

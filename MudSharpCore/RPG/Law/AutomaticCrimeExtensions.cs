@@ -16,7 +16,7 @@ public static class AutomaticCrimeExtensions
 	public const string MurderIncludeFriendlyWoundsSetting = "AutomaticMurderIncludeFriendlyWounds";
 
 	public static bool HandleCrimeAndLawfulActing(IFuturemud gameworld, ICharacter criminal, CrimeTypes crime,
-		ICharacter victim = null, IGameItem target = null, string additionalInformation = "", ICell crimeLocation = null)
+		ICharacter victim = null, IGameItem target = null, string additionalInformation = "", IRoom crimeLocation = null)
 	{
 		if (victim is not null && criminal.IsLawfulEnforcementActionAgainst(victim, crime))
 		{
@@ -44,7 +44,7 @@ public static class AutomaticCrimeExtensions
 	}
 
 	public static bool CheckWouldBeACrime(IFuturemud gameworld, ICharacter criminal, CrimeTypes crime,
-		ICharacter victim = null, IGameItem target = null, string additionalInformation = "", ICell crimeLocation = null)
+		ICharacter victim = null, IGameItem target = null, string additionalInformation = "", IRoom crimeLocation = null)
 	{
 		if (victim is not null && criminal.IsLawfulEnforcementActionAgainst(victim, crime))
 		{
@@ -67,7 +67,7 @@ public static class AutomaticCrimeExtensions
 
 	public static void CheckPossibleCrime(IFuturemud gameworld, ICharacter criminal, CrimeTypes crime,
 		ICharacter victim = null, IGameItem target = null, string additionalInformation = "",
-		IEnumerable<ICharacter> witnesses = null, bool notifyVictim = true, ICell crimeLocation = null)
+		IEnumerable<ICharacter> witnesses = null, bool notifyVictim = true, IRoom crimeLocation = null)
 	{
 		if (victim is not null && criminal.IsLawfulEnforcementActionAgainst(victim, crime))
 		{
@@ -209,12 +209,12 @@ public static class AutomaticCrimeExtensions
 		return WoundExtensions.TryParseWoundSeverity(setting, out var severity) ? severity : WoundSeverity.Grievous;
 	}
 
-	public static bool CheckLawfulMovement(ICharacter actor, ICellExit exit)
+	public static bool CheckLawfulMovement(ICharacter actor, IRoomExit exit)
 	{
 		return CheckLawfulMovement(new[] { actor }, exit, actor);
 	}
 
-	public static bool CheckLawfulMovement(IEnumerable<ICharacter> actors, ICellExit exit, ICharacter movementLeader = null)
+	public static bool CheckLawfulMovement(IEnumerable<ICharacter> actors, IRoomExit exit, ICharacter movementLeader = null)
 	{
 		foreach (var actor in actors.Where(x => x is not null).Distinct())
 		{
@@ -242,7 +242,7 @@ public static class AutomaticCrimeExtensions
 		return false;
 	}
 
-	public static void CheckLocationEntryCrimes(ICharacter actor, ICell enteredCell, ICellExit exit,
+	public static void CheckLocationEntryCrimes(ICharacter actor, IRoom enteredRoom, IRoomExit exit,
 		bool isVoluntaryEntry = true)
 	{
 		if (!isVoluntaryEntry || actor.IsAdministrator())
@@ -250,10 +250,10 @@ public static class AutomaticCrimeExtensions
 			return;
 		}
 
-		if (WouldTrespass(actor.Gameworld, actor, enteredCell, out var trespassContext))
+		if (WouldTrespass(actor.Gameworld, actor, enteredRoom, out var trespassContext))
 		{
 			CheckPossibleCrime(actor.Gameworld, actor, CrimeTypes.Trespassing, null, null, trespassContext, null, true,
-				enteredCell);
+				enteredRoom);
 		}
 
 		if (!IsLegalAuthorityBoundaryEntry(actor.Gameworld, exit))
@@ -265,17 +265,17 @@ public static class AutomaticCrimeExtensions
 		{
 			var context = ContrabandTrafficContext(actor, exit, item);
 			if (!CheckWouldBeACrime(actor.Gameworld, actor, CrimeTypes.TrafficingContraband, null, item, context,
-				    enteredCell))
+				    enteredRoom))
 			{
 				continue;
 			}
 
 			CheckPossibleCrime(actor.Gameworld, actor, CrimeTypes.TrafficingContraband, null, item, context, null, true,
-				enteredCell);
+				enteredRoom);
 		}
 	}
 
-	private static bool WouldTrespass(IFuturemud gameworld, ICharacter actor, ICell destination, out string context)
+	private static bool WouldTrespass(IFuturemud gameworld, ICharacter actor, IRoom destination, out string context)
 	{
 		context = string.Empty;
 		var privateAccess = PrivatePropertyAccessService.Evaluate(destination, actor);
@@ -300,27 +300,27 @@ public static class AutomaticCrimeExtensions
 		return CheckWouldBeACrime(gameworld, actor, CrimeTypes.Trespassing, null, null, context, destination);
 	}
 
-	private static string PrivatePropertyTrespassContext(PrivatePropertyAccessResult access, ICell destination)
+	private static string PrivatePropertyTrespassContext(PrivatePropertyAccessResult access, IRoom destination)
 	{
 		var controller = access.Controller;
-		return $"automatic=private-property-entry; controller=#{controller?.Id ?? 0}; controllertype={ContextValue(controller?.FrameworkItemType ?? "missing")}; controllername={ContextValue(controller?.Name ?? "missing")}; cell=#{destination.Id}; denial={ContextValue(access.Explanation)}";
+		return $"automatic=private-property-entry; controller=#{controller?.Id ?? 0}; controllertype={ContextValue(controller?.FrameworkItemType ?? "missing")}; controllername={ContextValue(controller?.Name ?? "missing")}; room=#{destination.Id}; denial={ContextValue(access.Explanation)}";
 	}
 
-	private static bool IsAuthorisedForProperty(ICharacter actor, IProperty property, ICell destination)
+	private static bool IsAuthorisedForProperty(ICharacter actor, IProperty property, IRoom destination)
 	{
 		return property.IsAuthorisedOwner(actor) ||
 		       property.IsAuthorisedLeaseHolder(actor) ||
 		       property.Lease?.IsTenant(actor, false) == true ||
-		       property.HotelRoomForCell(destination)?.ActiveRental?.Guest == actor ||
-		       actor.AffectedBy<PermitWork>(x => x.Property == property || x.Cell == destination);
+		       property.HotelRoomForRoom(destination)?.ActiveRental?.Guest == actor ||
+		       actor.AffectedBy<PermitWork>(x => x.Property == property || x.Room == destination);
 	}
 
-	private static string TrespassContext(IProperty property, ICell destination)
+	private static string TrespassContext(IProperty property, IRoom destination)
 	{
-		return $"automatic=property-entry; property=#{property.Id}; propertyname={ContextValue(property.Name)}; cell=#{destination.Id}";
+		return $"automatic=property-entry; property=#{property.Id}; propertyname={ContextValue(property.Name)}; room=#{destination.Id}";
 	}
 
-	private static bool WouldTrafficContraband(IFuturemud gameworld, ICharacter actor, ICellExit exit, out string context)
+	private static bool WouldTrafficContraband(IFuturemud gameworld, ICharacter actor, IRoomExit exit, out string context)
 	{
 		context = string.Empty;
 		if (!IsLegalAuthorityBoundaryEntry(gameworld, exit))
@@ -342,7 +342,7 @@ public static class AutomaticCrimeExtensions
 		return false;
 	}
 
-	private static bool IsLegalAuthorityBoundaryEntry(IFuturemud gameworld, ICellExit exit)
+	private static bool IsLegalAuthorityBoundaryEntry(IFuturemud gameworld, IRoomExit exit)
 	{
 		return exit?.Origin?.Zone is not null &&
 		       exit.Destination?.Zone is not null &&
@@ -351,7 +351,7 @@ public static class AutomaticCrimeExtensions
 			       !x.EnforcementZones.Contains(exit.Origin.Zone));
 	}
 
-	private static string ContrabandTrafficContext(ICharacter actor, ICellExit exit, IGameItem item)
+	private static string ContrabandTrafficContext(ICharacter actor, IRoomExit exit, IGameItem item)
 	{
 		return
 			$"automatic=contraband-boundary; item=#{item.Id}; itemname={ContextValue(item.Name)}; from=#{exit.Origin.Id}; to=#{exit.Destination.Id}; actor=#{CharacterInstanceIdentityComparer.IdentityId(actor)}";

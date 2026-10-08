@@ -2626,7 +2626,7 @@ return userinput()";
 	public void MediaSensorPerceiver_CanSee_UsesPositivePerceptionVisibilityContract()
 	{
 		var gameworld = new Mock<IFuturemud>();
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		var owner = new Mock<IGameItem>();
 		var target = new Mock<IPerceivable>();
 		gameworld.SetupGet(x => x.DefaultPlane).Returns((MudSharp.Planes.IPlane)null!);

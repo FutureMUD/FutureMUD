@@ -16,9 +16,9 @@ internal static class AnimalAIStockTemplates
 {
 	private const string AnyPreyProgName = "StockAnimalAIAnyEdiblePrey";
 	private const string AvoidPeopleProgName = "StockAnimalAIAvoidPeople";
-	private const string AquaticCellProgName = "StockAnimalAIAquaticCell";
-	private const string AmphibiousCellProgName = "StockAnimalAIAmphibiousCell";
-	private const string ShelterCellProgName = "StockAnimalAIShelterCell";
+	private const string AquaticRoomProgName = "StockAnimalAIAquaticCell";
+	private const string AmphibiousRoomProgName = "StockAnimalAIAmphibiousCell";
+	private const string ShelterRoomProgName = "StockAnimalAIShelterCell";
 	private const string NestSiteProgName = "StockAnimalAINestSite";
 
 	public const string SmallSkittishForager = "AnimalSmallSkittishForager";
@@ -847,7 +847,7 @@ internal static class AnimalAIStockTemplates
 
 		SeederRepeatabilityHelper.EnsureProg(
 			context,
-			AquaticCellProgName,
+			AquaticRoomProgName,
 			"Animal AI",
 			"Stock Filters",
 			ProgVariableTypes.Boolean,
@@ -861,7 +861,7 @@ internal static class AnimalAIStockTemplates
 
 		SeederRepeatabilityHelper.EnsureProg(
 			context,
-			AmphibiousCellProgName,
+			AmphibiousRoomProgName,
 			"Animal AI",
 			"Stock Filters",
 			ProgVariableTypes.Boolean,
@@ -875,7 +875,7 @@ internal static class AnimalAIStockTemplates
 
 		SeederRepeatabilityHelper.EnsureProg(
 			context,
-			ShelterCellProgName,
+			ShelterRoomProgName,
 			"Animal AI",
 			"Stock Filters",
 			ProgVariableTypes.Boolean,

@@ -211,7 +211,7 @@ public class ExplosiveTriggerTests
 		connectedItems.Clear();
 		connectedItems.Add(sourceItem.Object);
 		sourceConnections.Add(item.Object);
-		sourceItem.Raise(x => x.OnLocationChanged += null!, sourceItem.Object, Mock.Of<ICellExit>());
+		sourceItem.Raise(x => x.OnLocationChanged += null!, sourceItem.Object, Mock.Of<IRoomExit>());
 
 		Assert.AreSame(source.Object, trigger.UpstreamSource);
 		source.Raise(x => x.SignalChanged += null, source.Object, new ComputerSignal(1.0, null, null));
@@ -337,7 +337,7 @@ public class ExplosiveTriggerTests
 		item.Setup(x => x.GetItemType<IDetonatable>()).Returns(detonatable);
 		item.Setup(x => x.GetItemTypes<IProducePower>()).Returns(Array.Empty<IProducePower>());
 		item.SetupGet(x => x.AttachedAndConnectedItems).Returns(Array.Empty<IGameItem>());
-		item.SetupGet(x => x.TrueLocations).Returns(Array.Empty<ICell>());
+		item.SetupGet(x => x.TrueLocations).Returns(Array.Empty<IRoom>());
 		item.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
 			It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>())).Returns("a test bomb");
 		return item;
@@ -350,7 +350,7 @@ public class ExplosiveTriggerTests
 		item.SetupGet(x => x.Id).Returns(itemId);
 		item.SetupGet(x => x.Name).Returns($"source {itemId}");
 		item.SetupGet(x => x.Gameworld).Returns(gameworld);
-		item.SetupGet(x => x.TrueLocations).Returns(Array.Empty<ICell>());
+		item.SetupGet(x => x.TrueLocations).Returns(Array.Empty<IRoom>());
 		var localSource = new Mock<ISignalSourceComponent>();
 		localSource.SetupGet(x => x.Id).Returns(componentId);
 		localSource.SetupGet(x => x.Parent).Returns(item.Object);

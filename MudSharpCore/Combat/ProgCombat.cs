@@ -7,7 +7,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat;
 
-public class ProgCombat : CombatBase
+public class ProgCombat : CombatBase, ICombatSelectiveCessation
 {
     public IFutureProg OnJoinProg { get; }
     public IFutureProg OnLeaveProg { get; }
@@ -52,7 +52,7 @@ public class ProgCombat : CombatBase
             OnJoinProg?.Execute(character, CombatReference);
         }
 
-        CombatCells.Add(character.Location);
+        CombatRooms.Add(character.Location);
     }
 
     /// <summary>

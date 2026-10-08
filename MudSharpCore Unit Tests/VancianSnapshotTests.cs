@@ -135,10 +135,10 @@ public class VancianSnapshotTests
 	{
 		var f = new VancianTestFixture(); var spell = Spell(f,"<Effect type='teleport'><TeleportParty>true</TeleportParty><PreserveLayer>true</PreserveLayer><TargetLayer>0</TargetLayer></Effect>",triggerType:"room");
 		var snapshot = StoredSpellSnapshot.Capture(spell,f.Actor.Object,f.Capability.Object,1,SpellPower.Standard,3,f.Clock.Now.UtcDateTime);
-		var reader = new Mock<ICharacter>(); var destination = new Mock<ICell>(); var invocation = snapshot.CreateSpell(f.World.Object);
+		var reader = new Mock<ICharacter>(); var destination = new Mock<IRoom>(); var invocation = snapshot.CreateSpell(f.World.Object);
 		invocation.SpellEffects.Single().GetOrApplyEffect(reader.Object,destination.Object,OpposedOutcomeDegree.Marginal,SpellPower.Standard,null!,[]);
 		reader.Verify(x => x.Teleport(destination.Object,reader.Object.RoomLayer,true,true),Times.Once);
-		f.Actor.Verify(x => x.Teleport(It.IsAny<ICell>(),It.IsAny<RoomLayer>(),It.IsAny<bool>(),It.IsAny<bool>()),Times.Never);
+		f.Actor.Verify(x => x.Teleport(It.IsAny<IRoom>(),It.IsAny<RoomLayer>(),It.IsAny<bool>(),It.IsAny<bool>()),Times.Never);
 	}
 	[TestMethod]
 	public void AllFutureProgContractsAreRegisteredWithTypedReturns()

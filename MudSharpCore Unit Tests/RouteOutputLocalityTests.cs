@@ -17,7 +17,7 @@ namespace MudSharp_Unit_Tests;
 public class RouteOutputLocalityTests
 {
 	[TestMethod]
-	public void Handle_LocalOutputInRouteCell_UsesIndexedSpatialRange()
+	public void Handle_LocalOutputInRouteRoom_UsesIndexedSpatialRange()
 	{
 		var fixture = CreateFixture();
 
@@ -29,7 +29,7 @@ public class RouteOutputLocalityTests
 	}
 
 	[TestMethod]
-	public void Handle_RoomOutputInRouteCell_RemainsExplicitWholeCellBroadcast()
+	public void Handle_RoomOutputInRouteRoom_RemainsExplicitWholeRoomBroadcast()
 	{
 		var fixture = CreateFixture();
 
@@ -41,12 +41,12 @@ public class RouteOutputLocalityTests
 	}
 
 	[TestMethod]
-	public void Handle_SourceLessLocalOutputInRouteCell_FailsClosedWithoutRoomEcho()
+	public void Handle_SourceLessLocalOutputInRouteRoom_FailsClosedWithoutRoomEcho()
 	{
 		var fixture = CreateFixture();
 
-		fixture.Cell.Object.Handle(fixture.Output.Object);
-		fixture.Cell.Object.Handle("source-less route output");
+		fixture.Room.Object.Handle(fixture.Output.Object);
+		fixture.Room.Object.Handle("source-less route output");
 
 		fixture.SourceRecipient.Verify(
 			x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()),
@@ -58,23 +58,23 @@ public class RouteOutputLocalityTests
 		fixture.FarRecipient.Verify(
 			x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()),
 			Times.Never);
-		fixture.Cell.Verify(x => x.HandleRoomEcho(It.IsAny<IEmoteOutput>(), It.IsAny<RoomLayer?>()), Times.Never);
-		fixture.Cell.Verify(x => x.HandleRoomEcho(It.IsAny<string>(), It.IsAny<RoomLayer?>()), Times.Never);
+		fixture.Room.Verify(x => x.HandleRoomEcho(It.IsAny<IEmoteOutput>(), It.IsAny<RoomLayer?>()), Times.Never);
+		fixture.Room.Verify(x => x.HandleRoomEcho(It.IsAny<string>(), It.IsAny<RoomLayer?>()), Times.Never);
 	}
 
 	[TestMethod]
-	public void HandleLocal_ItemSourceInRouteCell_PreservesItsCoordinate()
+	public void HandleLocal_ItemSourceInRouteRoom_PreservesItsCoordinate()
 	{
 		var fixture = CreateFixture();
 		var item = new Mock<IGameItem>();
-		item.SetupGet(x => x.Location).Returns(fixture.Cell.Object);
+		item.SetupGet(x => x.Location).Returns(fixture.Room.Object);
 		item.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		item.SetupGet(x => x.RoutePositionMetres).Returns(100.0);
 		item.SetupGet(x => x.SpatialLocation)
-			.Returns(new SpatialLocation(fixture.Cell.Object, RoomLayer.GroundLevel, 100.0));
+			.Returns(new SpatialLocation(fixture.Room.Object, RoomLayer.GroundLevel, 100.0));
 		item.SetupGet(x => x.Gameworld).Returns(fixture.Gameworld.Object);
 
-		fixture.Cell.Object.HandleLocal(item.Object, RoomLayer.GroundLevel, "item route output");
+		fixture.Room.Object.HandleLocal(item.Object, RoomLayer.GroundLevel, "item route output");
 
 		fixture.SourceRecipient.Verify(x => x.Send("item route output", true, false), Times.Once);
 		fixture.NearRecipient.Verify(x => x.Send("item route output", true, false), Times.Once);
@@ -90,23 +90,23 @@ public class RouteOutputLocalityTests
 			.Returns(true);
 		var distantObserver = new Mock<IRemoteObservationEffect>();
 		distantObserver.Setup(x => x.Observes(It.IsAny<SpatialLocation>())).Returns(false);
-		fixture.Cell.SetupGet(x => x.Cells).Returns([fixture.Cell.Object]);
-		fixture.Cell.Setup(x => x.EffectsOfType<IRemoteObservationEffect>(
+		fixture.Room.SetupGet(x => x.Rooms).Returns([fixture.Room.Object]);
+		fixture.Room.Setup(x => x.EffectsOfType<IRemoteObservationEffect>(
 				It.IsAny<Predicate<IRemoteObservationEffect>>()))
 			.Returns([anchoredObserver.Object, distantObserver.Object]);
 
-		fixture.Cell.Object.HandleLocal(
+		fixture.Room.Object.HandleLocal(
 			fixture.SourceHandler.Object.Perceiver,
 			RoomLayer.GroundLevel,
 			fixture.Output.Object);
 
-		anchoredObserver.Verify(x => x.HandleOutput(fixture.Output.Object, fixture.Cell.Object), Times.Once);
+		anchoredObserver.Verify(x => x.HandleOutput(fixture.Output.Object, fixture.Room.Object), Times.Once);
 		distantObserver.Verify(x => x.HandleOutput(It.IsAny<IOutput>(), It.IsAny<ILocation>()), Times.Never);
 
 		fixture.SourceHandler.Object.Handle(fixture.Output.Object, OutputRange.Room);
 
-		anchoredObserver.Verify(x => x.HandleOutput(fixture.Output.Object, fixture.Cell.Object), Times.Exactly(2));
-		distantObserver.Verify(x => x.HandleOutput(fixture.Output.Object, fixture.Cell.Object), Times.Once,
+		anchoredObserver.Verify(x => x.HandleOutput(fixture.Output.Object, fixture.Room.Object), Times.Exactly(2));
+		distantObserver.Verify(x => x.HandleOutput(fixture.Output.Object, fixture.Room.Object), Times.Once,
 			"An explicit whole-RouteCell broadcast remains available to topology-wide observers.");
 	}
 
@@ -115,27 +115,27 @@ public class RouteOutputLocalityTests
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.Setup(x => x.GetStaticDouble("RouteCellVeryDistantDistanceMetres")).Returns(500.0);
 
-		var cell = new Mock<ICell>();
-		var definition = new Mock<IRouteCellDefinition>();
-		definition.SetupGet(x => x.Cell).Returns(cell.Object);
+		var room = new Mock<IRoom>();
+		var definition = new Mock<IRouteRoomDefinition>();
+		definition.SetupGet(x => x.Room).Returns(room.Object);
 		definition.SetupGet(x => x.LengthMetres).Returns(2_000.0);
 		definition.SetupGet(x => x.DefaultPositionMetres).Returns(0.0);
 		definition.SetupGet(x => x.MetresPerRoomEquivalent).Returns(100.0);
 		definition.SetupGet(x => x.Landmarks).Returns([]);
 		definition.SetupGet(x => x.ExitAnchors).Returns([]);
-		cell.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
-		cell.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		room.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
+		room.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 
 		var sourceRecipient = new Mock<IOutputHandler>();
 		var nearRecipient = new Mock<IOutputHandler>();
 		var farRecipient = new Mock<IOutputHandler>();
-		var source = CreateCharacter(cell.Object, gameworld.Object, 100.0, sourceRecipient.Object);
-		var near = CreateCharacter(cell.Object, gameworld.Object, 550.0, nearRecipient.Object);
-		var far = CreateCharacter(cell.Object, gameworld.Object, 650.001, farRecipient.Object);
+		var source = CreateCharacter(room.Object, gameworld.Object, 100.0, sourceRecipient.Object);
+		var near = CreateCharacter(room.Object, gameworld.Object, 550.0, nearRecipient.Object);
+		var far = CreateCharacter(room.Object, gameworld.Object, 650.001, farRecipient.Object);
 		var occupants = new IPerceivable[] { source.Object, near.Object, far.Object };
-		cell.SetupGet(x => x.Perceivables).Returns(occupants);
-		cell.SetupGet(x => x.Characters).Returns(occupants.OfType<ICharacter>());
-		cell.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns(occupants.OfType<ICharacter>());
+		room.SetupGet(x => x.Perceivables).Returns(occupants);
+		room.SetupGet(x => x.Characters).Returns(occupants.OfType<ICharacter>());
+		room.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns(occupants.OfType<ICharacter>());
 
 		var sourceHandler = new Mock<IOutputHandler>();
 		sourceHandler.SetupGet(x => x.Perceiver).Returns(source.Object);
@@ -147,7 +147,7 @@ public class RouteOutputLocalityTests
 
 		return new OutputFixture(
 			gameworld,
-			cell,
+			room,
 			sourceHandler,
 			output,
 			sourceRecipient,
@@ -156,17 +156,17 @@ public class RouteOutputLocalityTests
 	}
 
 	private static Mock<ICharacter> CreateCharacter(
-		ICell cell,
+		IRoom room,
 		IFuturemud gameworld,
 		double position,
 		IOutputHandler outputHandler)
 	{
 		var character = new Mock<ICharacter>();
-		character.SetupGet(x => x.Location).Returns(cell);
+		character.SetupGet(x => x.Location).Returns(room);
 		character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		character.SetupGet(x => x.RoutePositionMetres).Returns(position);
 		character.SetupGet(x => x.SpatialLocation)
-			.Returns(new SpatialLocation(cell, RoomLayer.GroundLevel, position));
+			.Returns(new SpatialLocation(room, RoomLayer.GroundLevel, position));
 		character.SetupGet(x => x.Gameworld).Returns(gameworld);
 		character.SetupGet(x => x.OutputHandler).Returns(outputHandler);
 		character.Setup(x => x.EffectsOfType<IRemoteObservationEffect>(
@@ -177,7 +177,7 @@ public class RouteOutputLocalityTests
 
 	private sealed record OutputFixture(
 		Mock<IFuturemud> Gameworld,
-		Mock<ICell> Cell,
+		Mock<IRoom> Room,
 		Mock<IOutputHandler> SourceHandler,
 		Mock<IOutput> Output,
 		Mock<IOutputHandler> SourceRecipient,

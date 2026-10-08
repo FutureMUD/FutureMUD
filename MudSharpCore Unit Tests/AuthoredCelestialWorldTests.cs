@@ -85,22 +85,22 @@ public class AuthoredCelestialWorldTests
 		var output = new Mock<IOutputHandler>();
 		output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>())).Callback<string, bool, bool>((x, _, _) => messages.Add(x));
 		var character = new Mock<ICharacter>(); character.SetupGet(x => x.OutputHandler).Returns(output.Object);
-		var cell = new Mock<ICell>(); character.SetupGet(x => x.Location).Returns(cell.Object);
-		var canSee = true; var outdoors = CellOutdoorsType.Outdoors; var obscured = false;
+		var room = new Mock<IRoom>(); character.SetupGet(x => x.Location).Returns(room.Object);
+		var canSee = true; var outdoors = RoomOutdoorsType.Outdoors; var obscured = false;
 		character.Setup(x => x.CanSee(c, PerceiveIgnoreFlags.None)).Returns(() => canSee);
-		cell.SetupGet(x => x.Celestials).Returns(new[] { c }); cell.SetupGet(x => x.Characters).Returns(new[] { character.Object });
-		cell.Setup(x => x.OutdoorsType(character.Object)).Returns(() => outdoors);
+		room.SetupGet(x => x.Celestials).Returns(new[] { c }); room.SetupGet(x => x.Characters).Returns(new[] { character.Object });
+		room.Setup(x => x.OutdoorsType(character.Object)).Returns(() => outdoors);
 		var weather = new Mock<IWeatherEvent>(); weather.SetupGet(x => x.ObscuresViewOfSky).Returns(() => obscured);
-		cell.Setup(x => x.CurrentWeather(character.Object)).Returns(weather.Object);
+		room.Setup(x => x.CurrentWeather(character.Object)).Returns(weather.Object);
 		var body = new AuthoredEcho("body", "body echo"); var sky = new AuthoredEcho("sky", "sky echo", CelestialEchoAudience.SkyVisible);
-		c.Emit(body, cell.Object); Assert.AreEqual(0, messages.Count, "Body is below the horizon.");
-		c.Emit(sky, cell.Object); Assert.AreEqual(1, messages.Count);
-		outdoors = CellOutdoorsType.IndoorsWithWindows; c.Emit(sky, cell.Object); StringAssert.Contains(messages.Last(), "[Outside]");
-		canSee = false; c.Emit(sky, cell.Object); Assert.AreEqual(2, messages.Count, "Blind/unable-to-see recipient must receive no echo.");
-		canSee = true; outdoors = CellOutdoorsType.Indoors; c.Emit(sky, cell.Object); Assert.AreEqual(2, messages.Count);
-		outdoors = CellOutdoorsType.Outdoors; obscured = true; c.Emit(sky, cell.Object); Assert.AreEqual(2, messages.Count);
+		c.Emit(body, room.Object); Assert.AreEqual(0, messages.Count, "Body is below the horizon.");
+		c.Emit(sky, room.Object); Assert.AreEqual(1, messages.Count);
+		outdoors = RoomOutdoorsType.IndoorsWithWindows; c.Emit(sky, room.Object); StringAssert.Contains(messages.Last(), "[Outside]");
+		canSee = false; c.Emit(sky, room.Object); Assert.AreEqual(2, messages.Count, "Blind/unable-to-see recipient must receive no echo.");
+		canSee = true; outdoors = RoomOutdoorsType.Indoors; c.Emit(sky, room.Object); Assert.AreEqual(2, messages.Count);
+		outdoors = RoomOutdoorsType.Outdoors; obscured = true; c.Emit(sky, room.Object); Assert.AreEqual(2, messages.Count);
 		obscured = false; ctx.Clock.CurrentTime.SetTime(0, 0, 0); Assert.AreEqual(0, c.LiveState.SourceLux);
-		c.Emit(sky, cell.Object); Assert.AreEqual(3, messages.Count, "Zero source lux alone does not override recipient perception.");
+		c.Emit(sky, room.Object); Assert.AreEqual(3, messages.Count, "Zero source lux alone does not override recipient perception.");
 	}
 
 	[TestMethod]

@@ -14,12 +14,12 @@ public sealed class ShopEmploymentTaskService
 	}
 	public EmploymentTaskContext CreatePhysicalTransferContext(IPermanentShop sourceShop, IPermanentShop targetShop)
 	{
-		return new EmploymentTaskContext(sourceShop, usePhysicalItemMovement: true, targetShop.AllShopCells);
+		return new EmploymentTaskContext(sourceShop, usePhysicalItemMovement: true, targetShop.AllShopRooms);
 	}
 
 	public bool TryCreateStockTransferTask(ICharacter authorisedBy, IPermanentShop sourceShop,
 		IMerchandise sourceMerchandise, int itemCount, IPermanentShop targetShop, IMerchandise targetMerchandise,
-		out IEmploymentActiveTask? task, out string message, ICell? destination = null, IGameItem? container = null,
+		out IEmploymentActiveTask? task, out string message, IRoom? destination = null, IGameItem? container = null,
 		string? containerTag = null)
 	{
 		task = null;
@@ -59,7 +59,7 @@ public sealed class ShopEmploymentTaskService
 			return false;
 		}
 
-		if (sourceShop.StockroomCell is null)
+		if (sourceShop.StockroomRoom is null)
 		{
 			message = $"{sourceShop.EmploymentHostName.ColourName()} does not have a stockroom.";
 			return false;
@@ -72,7 +72,7 @@ public sealed class ShopEmploymentTaskService
 			return false;
 		}
 
-		if (!targetShop.AllShopCells.Any(x => x.Id == resolvedDestination.Id))
+		if (!targetShop.AllShopRooms.Any(x => x.Id == resolvedDestination.Id))
 		{
 			message = "Stock transfer tasks must deliver to one of the target shop's locations.";
 			return false;
@@ -111,7 +111,7 @@ public sealed class ShopEmploymentTaskService
 		                       .Distinct()
 		                       .ToList();
 		var plan = new EmploymentActionPlan([
-			new GetItemsByIdActionStep(itemCount, itemPrototypeIds, [sourceShop.StockroomCell]),
+			new GetItemsByIdActionStep(itemCount, itemPrototypeIds, [sourceShop.StockroomRoom]),
 			new ShopStockTransferActionStep(sourceShop, targetShop, targetMerchandise, resolvedDestination, container,
 				containerTag)
 		]);
@@ -138,7 +138,7 @@ public sealed class ShopEmploymentTaskService
 	}
 
 	public bool TryCreateStockroomRestockTask(ICharacter authorisedBy, IPermanentShop shop, IMerchandise merchandise,
-		int itemCount, out IEmploymentActiveTask? task, out string message, ICell? destination = null,
+		int itemCount, out IEmploymentActiveTask? task, out string message, IRoom? destination = null,
 		IGameItem? container = null, string? containerTag = null)
 	{
 		task = null;
@@ -166,7 +166,7 @@ public sealed class ShopEmploymentTaskService
 			return false;
 		}
 
-		if (shop.StockroomCell is null)
+		if (shop.StockroomRoom is null)
 		{
 			message = $"{shop.EmploymentHostName.ColourName()} does not have a stockroom.";
 			return false;
@@ -179,7 +179,7 @@ public sealed class ShopEmploymentTaskService
 			return false;
 		}
 
-		if (!shop.ShopfrontCells.Any(x => x.Id == resolvedDestination.Id))
+		if (!shop.ShopfrontRooms.Any(x => x.Id == resolvedDestination.Id))
 		{
 			message = "Stockroom restock tasks must deliver to one of the shop's shopfront locations.";
 			return false;
@@ -211,7 +211,7 @@ public sealed class ShopEmploymentTaskService
 		                       .Distinct()
 		                       .ToList();
 		var plan = new EmploymentActionPlan([
-			new GetItemsByIdActionStep(itemCount, itemPrototypeIds, [shop.StockroomCell]),
+			new GetItemsByIdActionStep(itemCount, itemPrototypeIds, [shop.StockroomRoom]),
 			new DeliverItemsActionStep(resolvedDestination, container, containerTag)
 		]);
 
@@ -228,33 +228,33 @@ public sealed class ShopEmploymentTaskService
 		}
 	}
 
-	private static ICell? ResolveTransferDestination(IPermanentShop targetShop, ICell? destination, IGameItem? container)
+	private static IRoom? ResolveTransferDestination(IPermanentShop targetShop, IRoom? destination, IGameItem? container)
 	{
 		if (destination is not null)
 		{
 			return destination;
 		}
 
-		var containerLocation = container?.TrueLocations.FirstOrDefault(x => targetShop.AllShopCells.Any(y => y.Id == x.Id));
-		return containerLocation ?? targetShop.StockroomCell ?? targetShop.ShopfrontCells.FirstOrDefault();
+		var containerLocation = container?.TrueLocations.FirstOrDefault(x => targetShop.AllShopRooms.Any(y => y.Id == x.Id));
+		return containerLocation ?? targetShop.StockroomRoom ?? targetShop.ShopfrontRooms.FirstOrDefault();
 	}
-	private static ICell? ResolveDestination(IPermanentShop shop, ICell? destination, IGameItem? container)
+	private static IRoom? ResolveDestination(IPermanentShop shop, IRoom? destination, IGameItem? container)
 	{
 		if (destination is not null)
 		{
 			return destination;
 		}
 
-		var containerLocation = container?.TrueLocations.FirstOrDefault(x => shop.ShopfrontCells.Any(y => y.Id == x.Id));
-		return containerLocation ?? shop.ShopfrontCells.FirstOrDefault();
+		var containerLocation = container?.TrueLocations.FirstOrDefault(x => shop.ShopfrontRooms.Any(y => y.Id == x.Id));
+		return containerLocation ?? shop.ShopfrontRooms.FirstOrDefault();
 	}
 
-	private static bool ContainerIsAtDestination(IGameItem container, ICell destination)
+	private static bool ContainerIsAtDestination(IGameItem container, IRoom destination)
 	{
 		return container.TrueLocations.Any(x => x.Id == destination.Id);
 	}
 
-	private static bool DestinationHasContainerTag(IPermanentShop shop, ICell destination, string containerTag)
+	private static bool DestinationHasContainerTag(IPermanentShop shop, IRoom destination, string containerTag)
 	{
 		return shop.DisplayContainers.Any(x => ContainerIsAtDestination(x, destination) && ItemMatchesTag(x, containerTag));
 	}
@@ -269,7 +269,7 @@ public sealed class ShopEmploymentTaskService
 
 	private static IEnumerable<IGameItem> StockroomItemsFor(IPermanentShop shop, IMerchandise merchandise)
 	{
-		var stockroomItemIds = shop.StockroomCell.GameItems
+		var stockroomItemIds = shop.StockroomRoom.GameItems
 		                           .SelectMany(x => x.DeepItems)
 		                           .Select(x => x.Id)
 		                           .ToHashSet();

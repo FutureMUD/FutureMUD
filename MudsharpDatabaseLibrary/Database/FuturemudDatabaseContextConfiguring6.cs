@@ -96,32 +96,32 @@ public partial class FuturemudDatabaseContext
                 .HasConstraintName("FK_ArenaManagers_Characters");
         });
 
-        modelBuilder.Entity<ArenaCell>(entity =>
+        modelBuilder.Entity<ArenaRoom>(entity =>
         {
-            entity.ToTable("ArenaCells");
+            entity.ToTable("ArenaRooms");
 
             entity.HasIndex(e => e.ArenaId)
-                .HasDatabaseName("FK_ArenaCells_Arenas");
+                .HasDatabaseName("FK_ArenaRooms_Arenas");
 
-            entity.HasIndex(e => e.CellId)
-                .HasDatabaseName("FK_ArenaCells_Cells");
+            entity.HasIndex(e => e.RoomId)
+                .HasDatabaseName("FK_ArenaRooms_Rooms");
 
             entity.Property(e => e.Id).HasColumnType("bigint(20)");
             entity.Property(e => e.ArenaId).HasColumnType("bigint(20)");
-            entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+            entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
             entity.Property(e => e.Role).HasColumnType("int(11)");
 
             entity.HasOne(d => d.Arena)
-                .WithMany(p => p.ArenaCells)
+                .WithMany(p => p.ArenaRooms)
                 .HasForeignKey(d => d.ArenaId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_ArenaCells_Arenas");
+                .HasConstraintName("FK_ArenaRooms_Arenas");
 
-            entity.HasOne(d => d.Cell)
+            entity.HasOne(d => d.Room)
                 .WithMany()
-                .HasForeignKey(d => d.CellId)
+                .HasForeignKey(d => d.RoomId)
                 .OnDelete(DeleteBehavior.Cascade)
-                .HasConstraintName("FK_ArenaCells_Cells");
+                .HasConstraintName("FK_ArenaRooms_Rooms");
         });
 
         modelBuilder.Entity<ArenaCombatantClass>(entity =>

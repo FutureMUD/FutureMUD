@@ -9,7 +9,7 @@ namespace MudSharp.Vehicles;
 
 public static class VehicleEnvironmentRules
 {
-	public static bool IsSurfaceWater(this ICell? location, RoomLayer layer)
+	public static bool IsSurfaceWater(this IRoom? location, RoomLayer layer)
 	{
 		return location is not null &&
 		       layer == RoomLayer.GroundLevel &&
@@ -49,7 +49,7 @@ public static class VehicleEnvironmentRules
 		       vehicle.ExteriorItem.RoomLayer == vehicle.RoomLayer;
 	}
 
-	public static bool CanTraverseEnvironment(this IVehicle? vehicle, ICell? destination, RoomLayer destinationLayer,
+	public static bool CanTraverseEnvironment(this IVehicle? vehicle, IRoom? destination, RoomLayer destinationLayer,
 		out string reason)
 	{
 		if (!vehicle.IsSurfaceWaterVehicle())

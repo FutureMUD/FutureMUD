@@ -10,20 +10,20 @@ using DB = MudSharp.Models;
 namespace MudSharp.Vehicles;
 
 /// <summary>
-/// A stable, persisted compartment instance. Its hosted cell belongs to the
+/// A stable, persisted compartment instance. Its hosted room belongs to the
 /// vehicle rather than to the vehicle's current exterior room.
 /// </summary>
 public sealed class VehicleCompartment : FrameworkItem, IVehicleCompartment
 {
 	private readonly List<IVehicleCompartmentLink> _links = [];
-	private long? _interiorCellId;
+	private long? _interiorRoomId;
 
 	public VehicleCompartment(IVehicle vehicle, DB.VehicleCompartment dbitem)
 	{
 		Vehicle = vehicle;
 		_id = dbitem.Id;
 		_name = dbitem.Name;
-		_interiorCellId = dbitem.InteriorCellId;
+		_interiorRoomId = dbitem.InteriorRoomId;
 		Prototype = vehicle.Prototype.Compartments
 			.FirstOrDefault(x => x.Id == dbitem.VehicleCompartmentProtoId)!;
 	}
@@ -31,10 +31,10 @@ public sealed class VehicleCompartment : FrameworkItem, IVehicleCompartment
 	public override string FrameworkItemType => "VehicleCompartment";
 	public IVehicle Vehicle { get; }
 	public IVehicleCompartmentPrototype Prototype { get; }
-	public long? InteriorCellId => _interiorCellId;
-	public ICell? InteriorCell => _interiorCellId is null
+	public long? InteriorRoomId => _interiorRoomId;
+	public IRoom? InteriorRoom => _interiorRoomId is null
 		? null
-		: Vehicle.Gameworld.Cells.Get(_interiorCellId.Value);
+		: Vehicle.Gameworld.Rooms.Get(_interiorRoomId.Value);
 	public IEnumerable<IVehicleCompartmentLink> Links => _links;
 
 	internal void AddLink(IVehicleCompartmentLink link)
@@ -50,15 +50,15 @@ public sealed class VehicleCompartment : FrameworkItem, IVehicleCompartment
 		_links.Clear();
 	}
 
-	internal void SetInteriorCell(ICell cell)
+	internal void SetInteriorRoom(IRoom room)
 	{
-		_interiorCellId = cell?.Id;
+		_interiorRoomId = room?.Id;
 	}
 }
 
 /// <summary>
 /// A live internal passage built from a revisioned compartment-link blueprint.
-/// The exit itself is intentionally transient; the two hosted cell IDs are the
+/// The exit itself is intentionally transient; the two hosted room IDs are the
 /// durable identity on either side of it.
 /// </summary>
 public sealed class VehicleCompartmentLink : FrameworkItem, IVehicleCompartmentLink
@@ -88,8 +88,8 @@ public sealed class VehicleCompartmentLink : FrameworkItem, IVehicleCompartmentL
 
 	internal bool Rebuild()
 	{
-		if (SourceCompartment.InteriorCell is not { } source ||
-		    DestinationCompartment.InteriorCell is not { } destination)
+		if (SourceCompartment.InteriorRoom is not { } source ||
+		    DestinationCompartment.InteriorRoom is not { } destination)
 		{
 			Remove();
 			return false;
@@ -146,7 +146,7 @@ public sealed class VehicleDocking : FrameworkItem, IVehicleDocking
 		_name = $"Vehicle Docking #{dbitem.Id:N0}";
 		AccessPoint = vehicle.AccessPoints.FirstOrDefault(x => x.Id == dbitem.VehicleAccessPointId)!;
 		Compartment = vehicle.Compartments.FirstOrDefault(x => x.Id == dbitem.VehicleCompartmentId)!;
-		ExteriorCell = vehicle.Gameworld.Cells.Get(dbitem.ExteriorCellId)!;
+		ExteriorRoom = vehicle.Gameworld.Rooms.Get(dbitem.ExteriorRoomId)!;
 		ExteriorLayer = (RoomLayer)dbitem.ExteriorRoomLayer;
 		_stopId = dbitem.VehicleRouteStopId;
 		_state = (VehicleDockingState)dbitem.State;
@@ -156,7 +156,7 @@ public sealed class VehicleDocking : FrameworkItem, IVehicleDocking
 	public IVehicle Vehicle { get; }
 	public IVehicleAccessPoint AccessPoint { get; }
 	public IVehicleCompartment Compartment { get; }
-	public ICell ExteriorCell { get; private set; }
+	public IRoom ExteriorRoom { get; private set; }
 	public RoomLayer ExteriorLayer { get; private set; }
 	public IVehicleRouteStop? Stop => _stopId is null
 		? null
@@ -169,10 +169,10 @@ public sealed class VehicleDocking : FrameworkItem, IVehicleDocking
 	internal bool IsRegistered => _registered;
 	internal static string TransientExitKey(long dockingId) => $"vehicle-docking:{dockingId}";
 
-	internal void Rebind(ICell exteriorCell, RoomLayer exteriorLayer, bool boardingOpen,
+	internal void Rebind(IRoom exteriorRoom, RoomLayer exteriorLayer, bool boardingOpen,
 		IVehicleRouteStop? stop = null)
 	{
-		ExteriorCell = exteriorCell;
+		ExteriorRoom = exteriorRoom;
 		ExteriorLayer = exteriorLayer;
 		_stopId = stop?.Id;
 		_state = boardingOpen ? VehicleDockingState.BoardingOpen : VehicleDockingState.DockedClosed;
@@ -206,8 +206,8 @@ public sealed class VehicleDocking : FrameworkItem, IVehicleDocking
 	internal void BuildAndRegisterIfOpen()
 	{
 		if (_state != VehicleDockingState.BoardingOpen ||
-		    Compartment.InteriorCell is not { } interior ||
-		    ExteriorCell is null ||
+		    Compartment.InteriorRoom is not { } interior ||
+		    ExteriorRoom is null ||
 		    AccessPoint.IsDisabled || AccessPoint.IsLocked || !AccessPoint.IsOpen)
 		{
 			Suspend(false);
@@ -218,7 +218,7 @@ public sealed class VehicleDocking : FrameworkItem, IVehicleDocking
 		var interiorTarget = AccessPoint.Prototype.Description.IfNullOrWhiteSpace(AccessPoint.Name);
 		var replacement = new TransientExit(
 			Vehicle.Gameworld,
-			ExteriorCell,
+			ExteriorRoom,
 			interior,
 			"enter",
 			AccessPoint.Name.ToLowerInvariant(),
@@ -252,7 +252,7 @@ public sealed class VehicleDocking : FrameworkItem, IVehicleDocking
 				return;
 			}
 
-			dbitem.ExteriorCellId = ExteriorCell.Id;
+			dbitem.ExteriorRoomId = ExteriorRoom.Id;
 			dbitem.ExteriorRoomLayer = (int)ExteriorLayer;
 			dbitem.VehicleRouteStopId = _stopId;
 			dbitem.State = (int)_state;
@@ -262,8 +262,8 @@ public sealed class VehicleDocking : FrameworkItem, IVehicleDocking
 }
 
 /// <summary>
-/// Creates hosted cells only when explicitly requested by vehicle creation or
-/// recovery. Normal load never invents a replacement for a missing cell ID.
+/// Creates hosted rooms only when explicitly requested by vehicle creation or
+/// recovery. Normal load never invents a replacement for a missing room ID.
 /// </summary>
 public static class RoomScaleVehicleInteriorService
 {
@@ -277,7 +277,7 @@ public static class RoomScaleVehicleInteriorService
 	internal static bool TryRecoverInterior(Vehicle vehicle, VehicleCompartment compartment,
 		out RecoveryAction action, out string reason)
 	{
-		if (compartment.InteriorCell is not null)
+		if (compartment.InteriorRoom is not null)
 		{
 			action = RecoveryAction.None;
 			reason = string.Empty;
@@ -313,7 +313,7 @@ public static class RoomScaleVehicleInteriorService
 		FuturemudDatabaseContext context, out bool relinked, out string reason)
 	{
 		relinked = false;
-		var candidateIds = context.Cells
+		var candidateIds = context.Rooms
 			.Where(x => x.HostedVehicleId == vehicle.Id &&
 			            x.HostedVehicleCompartmentId == compartment.Id)
 			.Select(x => x.Id)
@@ -328,54 +328,54 @@ public static class RoomScaleVehicleInteriorService
 
 		if (candidateIds.Count > 1)
 		{
-			reason = $"More than one persisted hosted cell claims vehicle #{vehicle.Id:N0} compartment " +
+			reason = $"More than one persisted hosted room claims vehicle #{vehicle.Id:N0} compartment " +
 			         $"#{compartment.Id:N0}. Resolve the duplicate ownership records before retrying recovery.";
 			return false;
 		}
 
 		var candidateId = candidateIds[0];
-		var cell = vehicle.Gameworld.Cells.Get(candidateId);
-		if (cell is null)
+		var room = vehicle.Gameworld.Rooms.Get(candidateId);
+		if (room is null)
 		{
-			reason = $"Persisted hosted cell #{candidateId:N0} already belongs to {compartment.Name}, but it is not " +
-			         "loaded. Recovery refused to create a duplicate; restore or reload that cell first.";
+			reason = $"Persisted hosted room #{candidateId:N0} already belongs to {compartment.Name}, but it is not " +
+			         "loaded. Recovery refused to create a duplicate; restore or reload that room first.";
 			return false;
 		}
 
 		var claimedBy = context.VehicleCompartments
-			.Where(x => x.Id != compartment.Id && x.InteriorCellId == candidateId)
+			.Where(x => x.Id != compartment.Id && x.InteriorRoomId == candidateId)
 			.Select(x => x.Id)
 			.FirstOrDefault();
 		if (claimedBy != 0)
 		{
-			reason = $"Persisted hosted cell #{candidateId:N0} is already linked to vehicle compartment " +
-			         $"#{claimedBy:N0}. Recovery refused to steal that cell.";
+			reason = $"Persisted hosted room #{candidateId:N0} is already linked to vehicle compartment " +
+			         $"#{claimedBy:N0}. Recovery refused to steal that room.";
 			return false;
 		}
 
 		var dbcompartment = context.VehicleCompartments.Find(compartment.Id);
 		if (dbcompartment is null)
 		{
-			reason = $"Vehicle compartment #{compartment.Id:N0} disappeared while its hosted cell was being recovered.";
+			reason = $"Vehicle compartment #{compartment.Id:N0} disappeared while its hosted room was being recovered.";
 			return false;
 		}
 
-		var previousInteriorCellId = dbcompartment.InteriorCellId;
-		dbcompartment.InteriorCellId = candidateId;
+		var previousInteriorRoomId = dbcompartment.InteriorRoomId;
+		dbcompartment.InteriorRoomId = candidateId;
 		try
 		{
 			context.SaveChanges();
 		}
 		catch (DbUpdateException)
 		{
-			dbcompartment.InteriorCellId = previousInteriorCellId;
-			context.Entry(dbcompartment).Property(x => x.InteriorCellId).IsModified = false;
-			reason = $"Persisted hosted cell #{candidateId:N0} could not be relinked because its ownership " +
+			dbcompartment.InteriorRoomId = previousInteriorRoomId;
+			context.Entry(dbcompartment).Property(x => x.InteriorRoomId).IsModified = false;
+			reason = $"Persisted hosted room #{candidateId:N0} could not be relinked because its ownership " +
 			         "changed or conflicts with another record. Recovery did not create a replacement.";
 			return false;
 		}
 
-		compartment.SetInteriorCell(cell);
+		compartment.SetInteriorRoom(room);
 		relinked = true;
 		reason = string.Empty;
 		return true;
@@ -385,11 +385,11 @@ public static class RoomScaleVehicleInteriorService
 	{
 		if (vehicle.Prototype.Scale != VehicleScale.RoomScale)
 		{
-			reason = "Only room-scale vehicles have hosted interior cells.";
+			reason = "Only room-scale vehicles have hosted interior rooms.";
 			return false;
 		}
 
-		if (compartment.InteriorCell is not null)
+		if (compartment.InteriorRoom is not null)
 		{
 			reason = string.Empty;
 			return true;
@@ -397,7 +397,7 @@ public static class RoomScaleVehicleInteriorService
 
 		if (vehicle.Location is null)
 		{
-			reason = "The vehicle has no exterior cell from which to source its hosted interior.";
+			reason = "The vehicle has no exterior room from which to source its hosted interior.";
 			return false;
 		}
 
@@ -408,53 +408,51 @@ public static class RoomScaleVehicleInteriorService
 		}
 
 		var room = new Room(
-			vehicle.Location.Zone,
 			vehicle.Location.CurrentOverlay.Package,
+			vehicle.Location.Zone,
 			vehicle.Location,
 			false);
-		room.SetName($"{vehicle.Name} - {compartment.Name}");
-		var cell = (Cell)room.Cells.Single();
-		var overlay = (IEditableCellOverlay)cell.CurrentOverlay;
-		overlay.CellName = $"{vehicle.Name} - {compartment.Name}";
-		overlay.CellDescription = compartment.Prototype.Description;
+		var overlay = (IEditableRoomOverlay)room.CurrentOverlay;
+		overlay.RoomName = $"{vehicle.Name} - {compartment.Name}";
+		overlay.RoomDescription = compartment.Prototype.Description;
 		overlay.Terrain = compartment.Prototype.InteriorTerrain;
 		overlay.OutdoorsType = compartment.Prototype.InteriorOutdoorsType;
 		overlay.AmbientLightFactor = AmbientLightFactor(compartment.Prototype.InteriorOutdoorsType);
-		cell.SetHostedVehicle(vehicle.Id, compartment.Id);
+		room.SetHostedVehicle(vehicle.Id, compartment.Id);
 		vehicle.Gameworld.SaveManager.Flush();
 
 		using (new FMDB())
 		{
-			var dbcell = FMDB.Context.Cells.Find(cell.Id);
+			var dbcell = FMDB.Context.Rooms.Find(room.Id);
 			var dbcompartment = FMDB.Context.VehicleCompartments.Find(compartment.Id);
 			if (dbcell is null || dbcompartment is null)
 			{
-				reason = "The hosted cell or vehicle compartment disappeared while it was being persisted.";
+				reason = "The hosted room or vehicle compartment disappeared while it was being persisted.";
 				return false;
 			}
 
 			dbcell.HostedVehicleId = vehicle.Id;
 			dbcell.HostedVehicleCompartmentId = compartment.Id;
-			dbcompartment.InteriorCellId = cell.Id;
+			dbcompartment.InteriorRoomId = room.Id;
 			FMDB.Context.SaveChanges();
 		}
 
-		compartment.SetInteriorCell(cell);
+		compartment.SetInteriorRoom(room);
 		reason = string.Empty;
 		return true;
 	}
 
 	public static void RepairHostMetadata(Vehicle vehicle, VehicleCompartment compartment)
 	{
-		if (compartment.InteriorCell is not Cell cell)
+		if (compartment.InteriorRoom is not Room room)
 		{
 			return;
 		}
 
-		cell.SetHostedVehicle(vehicle.Id, compartment.Id);
+		room.SetHostedVehicle(vehicle.Id, compartment.Id);
 		using (new FMDB())
 		{
-			var dbcell = FMDB.Context.Cells.Find(cell.Id);
+			var dbcell = FMDB.Context.Rooms.Find(room.Id);
 			if (dbcell is not null)
 			{
 				dbcell.HostedVehicleId = vehicle.Id;
@@ -464,15 +462,15 @@ public static class RoomScaleVehicleInteriorService
 		}
 	}
 
-	private static double AmbientLightFactor(CellOutdoorsType outdoorsType)
+	private static double AmbientLightFactor(RoomOutdoorsType outdoorsType)
 	{
 		return outdoorsType switch
 		{
-			CellOutdoorsType.Outdoors => 1.0,
-			CellOutdoorsType.Indoors => 0.25,
-			CellOutdoorsType.IndoorsClimateExposed => 0.9,
-			CellOutdoorsType.IndoorsWithWindows => 0.35,
-			CellOutdoorsType.IndoorsNoLight => 0.0,
+			RoomOutdoorsType.Outdoors => 1.0,
+			RoomOutdoorsType.Indoors => 0.25,
+			RoomOutdoorsType.IndoorsClimateExposed => 0.9,
+			RoomOutdoorsType.IndoorsWithWindows => 0.35,
+			RoomOutdoorsType.IndoorsNoLight => 0.0,
 			_ => 0.25
 		};
 	}
@@ -490,12 +488,12 @@ public sealed class VehicleDockingService : IVehicleDockingService
 			.ToList();
 	}
 
-	public bool CanDock(IVehicle vehicle, IVehicleAccessPoint accessPoint, ICell exteriorCell,
+	public bool CanDock(IVehicle vehicle, IVehicleAccessPoint accessPoint, IRoom exteriorRoom,
 		RoomLayer exteriorLayer, IVehicleRouteStop? stop, out string reason)
 	{
 		if (vehicle is not Vehicle concrete || vehicle.Prototype.Scale != VehicleScale.RoomScale)
 		{
-			reason = "Only live room-scale vehicles can create hosted-cell dockings.";
+			reason = "Only live room-scale vehicles can create hosted-room dockings.";
 			return false;
 		}
 
@@ -506,15 +504,15 @@ public sealed class VehicleDockingService : IVehicleDockingService
 		}
 
 		var compartment = concrete.CompartmentFor(accessPoint.Prototype.Compartment);
-		if (compartment?.InteriorCell is null)
+		if (compartment?.InteriorRoom is null)
 		{
 			reason = "That access point does not lead to a live hosted interior.";
 			return false;
 		}
 
-		if (exteriorCell is null)
+		if (exteriorRoom is null)
 		{
-			reason = "A docking requires an exterior cell.";
+			reason = "A docking requires an exterior room.";
 			return false;
 		}
 
@@ -522,10 +520,10 @@ public sealed class VehicleDockingService : IVehicleDockingService
 		return true;
 	}
 
-	public IVehicleDocking Dock(IVehicle vehicle, IVehicleAccessPoint accessPoint, ICell exteriorCell,
+	public IVehicleDocking Dock(IVehicle vehicle, IVehicleAccessPoint accessPoint, IRoom exteriorRoom,
 		RoomLayer exteriorLayer, IVehicleRouteStop? stop = null)
 	{
-		if (!CanDock(vehicle, accessPoint, exteriorCell, exteriorLayer, stop, out var reason))
+		if (!CanDock(vehicle, accessPoint, exteriorRoom, exteriorLayer, stop, out var reason))
 		{
 			throw new InvalidOperationException(reason);
 		}
@@ -535,7 +533,7 @@ public sealed class VehicleDockingService : IVehicleDockingService
 		var existing = concrete.DockingsInternal.FirstOrDefault(x => x.AccessPoint.Id == accessPoint.Id);
 		if (existing is not null)
 		{
-			existing.Rebind(exteriorCell, exteriorLayer,
+			existing.Rebind(exteriorRoom, exteriorLayer,
 				accessPoint.IsOpen && !accessPoint.IsDisabled && !accessPoint.IsLocked, stop);
 			return existing;
 		}
@@ -548,7 +546,7 @@ public sealed class VehicleDockingService : IVehicleDockingService
 				VehicleId = vehicle.Id,
 				VehicleAccessPointId = accessPoint.Id,
 				VehicleCompartmentId = compartment.Id,
-				ExteriorCellId = exteriorCell.Id,
+				ExteriorRoomId = exteriorRoom.Id,
 				ExteriorRoomLayer = (int)exteriorLayer,
 				VehicleRouteStopId = stop?.Id,
 				State = (int)(accessPoint.IsOpen && !accessPoint.IsDisabled && !accessPoint.IsLocked
@@ -618,7 +616,7 @@ public sealed class VehicleDockingService : IVehicleDockingService
 					continue;
 				}
 
-				docking.Rebind(docking.ExteriorCell, docking.ExteriorLayer,
+				docking.Rebind(docking.ExteriorRoom, docking.ExteriorLayer,
 					ShouldReopenRouteDocking(
 						docking.State,
 						docking.AccessPoint.IsOpen,
@@ -634,7 +632,7 @@ public sealed class VehicleDockingService : IVehicleDockingService
 		foreach (var accessPoint in vehicle.AccessPoints)
 		{
 			var compartment = concrete.CompartmentFor(accessPoint.Prototype.Compartment);
-			if (compartment?.InteriorCell is null)
+			if (compartment?.InteriorRoom is null)
 			{
 				continue;
 			}
@@ -673,7 +671,7 @@ public sealed class VehicleDockingService : IVehicleDockingService
 
 	internal static bool IsAtBoundRouteStop(IVehicle vehicle, VehicleDocking docking)
 	{
-		if (docking.Stop is not { } stop || vehicle.Location?.Id != stop.Location.Cell.Id ||
+		if (docking.Stop is not { } stop || vehicle.Location?.Id != stop.Location.Room.Id ||
 		    vehicle.RoomLayer != stop.Location.Layer)
 		{
 			return false;
@@ -681,7 +679,7 @@ public sealed class VehicleDockingService : IVehicleDockingService
 
 		var binding = stop.PlatformBindings.FirstOrDefault(x =>
 			x.AccessPoint.Id == docking.AccessPoint.Prototype.Id &&
-			x.PlatformCell.Id == docking.ExteriorCell.Id);
+			x.PlatformRoom.Id == docking.ExteriorRoom.Id);
 		if (binding is null)
 		{
 			return false;

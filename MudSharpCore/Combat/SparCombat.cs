@@ -26,7 +26,7 @@ public class SparCombat : CombatBase
             character.HandleEvent(EventType.JoinCombat, character);
         }
 
-        CombatCells.Add(character.Location);
+        CombatRooms.Add(character.Location);
     }
 
     /// <summary>

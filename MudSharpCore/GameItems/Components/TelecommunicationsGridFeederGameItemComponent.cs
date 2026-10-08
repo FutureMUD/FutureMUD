@@ -190,7 +190,7 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
         TelecommunicationsGrid = null;
     }
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         TelecommunicationsGrid = null;
         if (!_connectedItems.Any())

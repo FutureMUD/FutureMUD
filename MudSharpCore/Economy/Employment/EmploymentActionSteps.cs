@@ -22,7 +22,7 @@ namespace MudSharp.Economy.Employment;
 internal static class EmploymentItemSelectorResolver
 {
 	public static IGameItem? Resolve(IEmploymentTaskContext context, ICharacter actor,
-		EmploymentItemSelector? selector, ICell? location, bool includeCarried)
+		EmploymentItemSelector? selector, IRoom? location, bool includeCarried)
 	{
 		if (selector is null)
 		{
@@ -65,7 +65,7 @@ internal static class EmploymentItemSelectorResolver
 	}
 
 	private static IGameItem? ResolveKeyword(ICharacter actor, EmploymentItemSelector selector,
-		IReadOnlyCollection<IGameItem> candidates, ICell? location, bool includeCarried)
+		IReadOnlyCollection<IGameItem> candidates, IRoom? location, bool includeCarried)
 	{
 		if (selector.Id.HasValue)
 		{
@@ -82,7 +82,7 @@ internal static class EmploymentItemSelectorResolver
 	}
 
 	private static IGameItem? ResolveSpecificItem(ICharacter actor, EmploymentItemSelector selector,
-		IReadOnlyCollection<IGameItem> candidates, ICell? location, bool includeCarried)
+		IReadOnlyCollection<IGameItem> candidates, IRoom? location, bool includeCarried)
 	{
 		if (!selector.Id.HasValue)
 		{
@@ -114,7 +114,7 @@ internal static class EmploymentItemSelectorResolver
 	}
 
 	private static IEnumerable<IGameItem> CandidateItems(IEmploymentTaskContext context, ICharacter actor,
-		ICell? location, bool includeCarried)
+		IRoom? location, bool includeCarried)
 	{
 		if (includeCarried)
 		{
@@ -436,7 +436,7 @@ public sealed class PurchaseActionStep : EmploymentActionStepBase, IEmploymentAc
 		return EmploymentActionStepResult.CompletedResult($"Recorded audit-only purchase for {PurchaseDescription}.");
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return IsExecutablePurchase ? EmploymentFinanceService.PurchaseLocationHints(context, actor, this) : [];
 	}
@@ -444,7 +444,7 @@ public sealed class PurchaseActionStep : EmploymentActionStepBase, IEmploymentAc
 
 public sealed class MovementDeliveryActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
-	public MovementDeliveryActionStep(string deliveryDescription, ICell? destination = null)
+	public MovementDeliveryActionStep(string deliveryDescription, IRoom? destination = null)
 		: base(
 			EmploymentActionStepType.MoveOrDeliver,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -457,7 +457,7 @@ public sealed class MovementDeliveryActionStep : EmploymentActionStepBase, IEmpl
 	}
 
 	public string DeliveryDescription { get; }
-	public ICell? Destination { get; }
+	public IRoom? Destination { get; }
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
 		if (!base.CanExecute(context, actor, out reason))
@@ -479,7 +479,7 @@ public sealed class MovementDeliveryActionStep : EmploymentActionStepBase, IEmpl
 		return EmploymentActionStepResult.CompletedResult($"Completed delivery: {DeliveryDescription}.");
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return Destination is null ? [] : [Destination];
 	}
@@ -566,22 +566,22 @@ public sealed class CraftStationActionStep : EmploymentActionStepBase, IEmployme
 			: EmploymentActionStepResult.Blocked(reason);
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		if (StationSelector.EqualTo("here"))
 		{
 			return [];
 		}
 
-		return long.TryParse(StationSelector, out var id) && actor.Gameworld.Cells.Get(id) is { } cell
-			? [cell]
+		return long.TryParse(StationSelector, out var id) && actor.Gameworld.Rooms.Get(id) is { } room
+			? [room]
 			: [];
 	}
 }
 
 public sealed class CommandActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
-	public CommandActionStep(string commandName, string commandArguments, ICell? executionLocation = null)
+	public CommandActionStep(string commandName, string commandArguments, IRoom? executionLocation = null)
 		: base(
 			EmploymentActionStepType.Command,
 			EmploymentAuthority.AssignTasks,
@@ -596,7 +596,7 @@ public sealed class CommandActionStep : EmploymentActionStepBase, IEmploymentAct
 
 	public string CommandName { get; }
 	public string CommandArguments { get; }
-	public ICell? ExecutionLocation { get; }
+	public IRoom? ExecutionLocation { get; }
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
 		if (!base.CanExecute(context, actor, out reason))
@@ -626,7 +626,7 @@ public sealed class CommandActionStep : EmploymentActionStepBase, IEmploymentAct
 		return EmploymentActionStepResult.CompletedResult($"Executed command {CommandName}.");
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return ExecutionLocation is null ? [] : [ExecutionLocation];
 	}
@@ -771,8 +771,8 @@ public sealed class BankAccountTransferActionStep : EmploymentActionStepBase
 public sealed class BankAdministrationActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	public BankAdministrationActionStep(IBank bank, BankAdministrationActionKind operation, MoneyAmount? amount = null,
-		string? accountSelector = null, BankAccountStatus? targetStatus = null, ICell? sourceBranch = null,
-		ICell? destinationBranch = null, string? reason = null)
+		string? accountSelector = null, BankAccountStatus? targetStatus = null, IRoom? sourceBranch = null,
+		IRoom? destinationBranch = null, string? reason = null)
 		: base(
 			EmploymentActionStepType.BankAdministration,
 			RequiredAuthorityFor(operation),
@@ -795,8 +795,8 @@ public sealed class BankAdministrationActionStep : EmploymentActionStepBase, IEm
 	public MoneyAmount? Amount { get; }
 	public string? AccountSelector { get; }
 	public BankAccountStatus? TargetStatus { get; }
-	public ICell? SourceBranch { get; }
-	public ICell? DestinationBranch { get; }
+	public IRoom? SourceBranch { get; }
+	public IRoom? DestinationBranch { get; }
 	public string? Reason { get; }
 
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
@@ -1081,7 +1081,7 @@ public sealed class BankAdministrationActionStep : EmploymentActionStepBase, IEm
 		}
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return Operation switch
 		{
@@ -1116,7 +1116,7 @@ public sealed class BankAdministrationActionStep : EmploymentActionStepBase, IEm
 		return true;
 	}
 
-	private bool ValidateBranch(ICell? branch, string label, out string reason)
+	private bool ValidateBranch(IRoom? branch, string label, out string reason)
 	{
 		if (branch is null)
 		{
@@ -1673,18 +1673,18 @@ public sealed class BoardPostActionStep : EmploymentActionStepBase
 
 public sealed class CataloguedActionShellStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
-	public CataloguedActionShellStep(string actionKey, string actionDescription, ICell? targetLocation = null)
+	public CataloguedActionShellStep(string actionKey, string actionDescription, IRoom? targetLocation = null)
 		: this(actionKey, actionDescription, null, targetLocation)
 	{
 	}
 
-	public CataloguedActionShellStep(string actionKey, string actionDescription, IEnumerable<ICell> routeStops)
+	public CataloguedActionShellStep(string actionKey, string actionDescription, IEnumerable<IRoom> routeStops)
 		: this(actionKey, actionDescription, null, routeStops.LastOrDefault(), routeStops)
 	{
 	}
 
 	public CataloguedActionShellStep(string actionKey, string actionDescription, MoneyAmount? amount,
-		ICell? targetLocation = null, IEnumerable<ICell>? routeStops = null)
+		IRoom? targetLocation = null, IEnumerable<IRoom>? routeStops = null)
 		: this(EmploymentActionCatalog.Get(actionKey) ??
 		       throw new ArgumentException($"Unknown employment action catalogue key {actionKey}.", nameof(actionKey)),
 		actionDescription,
@@ -1695,7 +1695,7 @@ public sealed class CataloguedActionShellStep : EmploymentActionStepBase, IEmplo
 	}
 
 	private CataloguedActionShellStep(EmploymentActionDefinition definition, string actionDescription,
-		MoneyAmount? amount, ICell? targetLocation, IEnumerable<ICell>? routeStops)
+		MoneyAmount? amount, IRoom? targetLocation, IEnumerable<IRoom>? routeStops)
 		: base(
 			EmploymentActionStepType.CataloguedShell,
 			definition.Status == EmploymentActionCatalogStatus.Deferred
@@ -1722,8 +1722,8 @@ public sealed class CataloguedActionShellStep : EmploymentActionStepBase, IEmplo
 	public string ActionKey { get; }
 	public string ActionDescription { get; }
 	public MoneyAmount? Amount { get; }
-	public ICell? TargetLocation { get; }
-	public IReadOnlyList<ICell> RouteStops { get; }
+	public IRoom? TargetLocation { get; }
+	public IReadOnlyList<IRoom> RouteStops { get; }
 	public EmploymentActionDefinition Definition { get; }
 
 	private sealed record BatchPlan(decimal DemandTarget, decimal StorageCapacity, decimal BatchSize, string Rationale);
@@ -1932,7 +1932,7 @@ public sealed class CataloguedActionShellStep : EmploymentActionStepBase, IEmplo
 	{
 		var stops = RouteStops.Count > 0
 			? RouteStops.ToList()
-			: TargetLocation is null ? new List<ICell>() : new List<ICell> { TargetLocation };
+			: TargetLocation is null ? new List<IRoom>() : new List<IRoom> { TargetLocation };
 		if (stops.Count == 0)
 		{
 			return new EmploymentActionStepOperationalState(RouteResult: ActionDescription);
@@ -2166,7 +2166,7 @@ public sealed class CataloguedActionShellStep : EmploymentActionStepBase, IEmplo
 		return new EmploymentActionStepResult(true, $"Recorded {ActionKey} action: {ActionDescription}.", true, state);
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		if (ActionKey.EqualToAny("route", "routebatch", "tripcheck") && RouteStops.Count > 0)
 		{
@@ -2181,9 +2181,9 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 {
 	private readonly List<long> _itemPrototypeIds;
 	private readonly List<long> _specificItemIds;
-	private readonly List<ICell> _sourceLocations;
+	private readonly List<IRoom> _sourceLocations;
 
-	public GetItemsByIdActionStep(int quantity, IEnumerable<long> itemPrototypeIds, IEnumerable<ICell> sourceLocations,
+	public GetItemsByIdActionStep(int quantity, IEnumerable<long> itemPrototypeIds, IEnumerable<IRoom> sourceLocations,
 		IEnumerable<long>? specificItemIds = null)
 		: base(
 			EmploymentActionStepType.GetItemsById,
@@ -2201,7 +2201,7 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 	public int Quantity { get; }
 	public IReadOnlyList<long> ItemPrototypeIds => _itemPrototypeIds;
 	public IReadOnlyList<long> SpecificItemIds => _specificItemIds;
-	public IReadOnlyList<ICell> SourceLocations => _sourceLocations;
+	public IReadOnlyList<IRoom> SourceLocations => _sourceLocations;
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
 		if (!base.CanExecute(context, actor, out reason))
@@ -2261,23 +2261,23 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 				previouslyCarried));
 	}
 
-	private IEnumerable<ICell> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
+	private IEnumerable<IRoom> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return _sourceLocations.Where(x => context.CanPath(actor, x));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return ReachableSources(context, actor).ToList();
 	}
 
-	private IEnumerable<(ICell Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor)
+	private IEnumerable<(IRoom Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return MatchingItems(context, actor, ReachableSources(context, actor));
 	}
 
-	private IEnumerable<(ICell Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor,
-		IEnumerable<ICell> sources)
+	private IEnumerable<(IRoom Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor,
+		IEnumerable<IRoom> sources)
 	{
 		var prototypeIds = _itemPrototypeIds.ToHashSet();
 		var itemIds = _specificItemIds.ToHashSet();
@@ -2292,9 +2292,9 @@ public sealed class GetItemsByIdActionStep : EmploymentActionStepBase, IEmployme
 
 public sealed class GetItemsByTagActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
-	private readonly List<ICell> _sourceLocations;
+	private readonly List<IRoom> _sourceLocations;
 
-	public GetItemsByTagActionStep(int quantity, string tagName, IEnumerable<ICell> sourceLocations)
+	public GetItemsByTagActionStep(int quantity, string tagName, IEnumerable<IRoom> sourceLocations)
 		: base(
 			EmploymentActionStepType.GetItemsByTag,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -2309,7 +2309,7 @@ public sealed class GetItemsByTagActionStep : EmploymentActionStepBase, IEmploym
 
 	public int Quantity { get; }
 	public string TagName { get; }
-	public IReadOnlyList<ICell> SourceLocations => _sourceLocations;
+	public IReadOnlyList<IRoom> SourceLocations => _sourceLocations;
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
 		if (!base.CanExecute(context, actor, out reason))
@@ -2367,17 +2367,17 @@ public sealed class GetItemsByTagActionStep : EmploymentActionStepBase, IEmploym
 				previouslyCarried));
 	}
 
-	private IEnumerable<ICell> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
+	private IEnumerable<IRoom> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return _sourceLocations.Where(x => context.CanPath(actor, x));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return ReachableSources(context, actor).ToList();
 	}
 
-	private IEnumerable<(ICell Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor)
+	private IEnumerable<(IRoom Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor)
 	{
 		foreach (var source in ReachableSources(context, actor))
 		foreach (var item in context.AvailableItems(source).Where(x => context.ItemHasTag(x, TagName)))
@@ -2390,10 +2390,10 @@ public sealed class GetItemsByTagActionStep : EmploymentActionStepBase, IEmploym
 public sealed class GetCommodityActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	private readonly Dictionary<string, string> _characteristics;
-	private readonly List<ICell> _sourceLocations;
+	private readonly List<IRoom> _sourceLocations;
 
 	public GetCommodityActionStep(double requiredWeight, string materialName, string? tagName,
-		IReadOnlyDictionary<string, string>? characteristics, IEnumerable<ICell> sourceLocations)
+		IReadOnlyDictionary<string, string>? characteristics, IEnumerable<IRoom> sourceLocations)
 		: base(
 			EmploymentActionStepType.GetCommodity,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -2414,7 +2414,7 @@ public sealed class GetCommodityActionStep : EmploymentActionStepBase, IEmployme
 	public string MaterialName { get; }
 	public string? TagName { get; }
 	public IReadOnlyDictionary<string, string> Characteristics => _characteristics;
-	public IReadOnlyList<ICell> SourceLocations => _sourceLocations;
+	public IReadOnlyList<IRoom> SourceLocations => _sourceLocations;
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
 		if (!base.CanExecute(context, actor, out reason))
@@ -2454,7 +2454,7 @@ public sealed class GetCommodityActionStep : EmploymentActionStepBase, IEmployme
 
 	public override EmploymentActionStepResult Execute(IEmploymentTaskContext context, ICharacter actor)
 	{
-		var collected = new List<(ICell Source, IGameItem Item)>();
+		var collected = new List<(IRoom Source, IGameItem Item)>();
 		var totalWeight = 0.0;
 		foreach (var item in MatchingItems(context, actor).ToList())
 		{
@@ -2486,17 +2486,17 @@ public sealed class GetCommodityActionStep : EmploymentActionStepBase, IEmployme
 				previouslyCarried));
 	}
 
-	private IEnumerable<ICell> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
+	private IEnumerable<IRoom> ReachableSources(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return _sourceLocations.Where(x => context.CanPath(actor, x));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return ReachableSources(context, actor).ToList();
 	}
 
-	private IEnumerable<(ICell Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor)
+	private IEnumerable<(IRoom Source, IGameItem Item)> MatchingItems(IEmploymentTaskContext context, ICharacter actor)
 	{
 		foreach (var source in ReachableSources(context, actor))
 		foreach (var item in context.AvailableItems(source)
@@ -2509,14 +2509,14 @@ public sealed class GetCommodityActionStep : EmploymentActionStepBase, IEmployme
 
 public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
-	public DeliverItemsActionStep(ICell destination, IGameItem? container = null, string? containerTag = null)
+	public DeliverItemsActionStep(IRoom destination, IGameItem? container = null, string? containerTag = null)
 		: this(destination, container is not null
 			? EmploymentItemSelector.ForItem(container)
 			: string.IsNullOrWhiteSpace(containerTag) ? null : EmploymentItemSelector.ForTag(containerTag))
 	{
 	}
 
-	public DeliverItemsActionStep(ICell destination, EmploymentItemSelector? containerSelector)
+	public DeliverItemsActionStep(IRoom destination, EmploymentItemSelector? containerSelector)
 		: base(
 			EmploymentActionStepType.DeliverItems,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -2528,7 +2528,7 @@ public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmployme
 		ContainerSelector = containerSelector;
 	}
 
-	public ICell Destination { get; }
+	public IRoom Destination { get; }
 	public EmploymentItemSelector? ContainerSelector { get; }
 	public IGameItem? Container => ContainerSelector?.Item;
 	public string? ContainerTag => ContainerSelector?.Kind == EmploymentItemSelectorKind.Tag ? ContainerSelector.Text : null;
@@ -2590,7 +2590,7 @@ public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmployme
 					CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor), carried)));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return [Destination];
 	}
@@ -2604,7 +2604,7 @@ public sealed class DeliverItemsActionStep : EmploymentActionStepBase, IEmployme
 public sealed class ShopStockTransferActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	public ShopStockTransferActionStep(IPermanentShop sourceShop, IPermanentShop targetShop,
-		IMerchandise targetMerchandise, ICell destination, IGameItem? container = null, string? containerTag = null)
+		IMerchandise targetMerchandise, IRoom destination, IGameItem? container = null, string? containerTag = null)
 		: this(sourceShop, targetShop, targetMerchandise, destination,
 			container is not null
 				? EmploymentItemSelector.ForItem(container)
@@ -2613,7 +2613,7 @@ public sealed class ShopStockTransferActionStep : EmploymentActionStepBase, IEmp
 	}
 
 	public ShopStockTransferActionStep(IPermanentShop sourceShop, IPermanentShop targetShop,
-		IMerchandise targetMerchandise, ICell destination, EmploymentItemSelector? containerSelector)
+		IMerchandise targetMerchandise, IRoom destination, EmploymentItemSelector? containerSelector)
 		: base(
 			EmploymentActionStepType.ShopStockTransfer,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -2631,7 +2631,7 @@ public sealed class ShopStockTransferActionStep : EmploymentActionStepBase, IEmp
 	public IPermanentShop SourceShop { get; }
 	public IPermanentShop TargetShop { get; }
 	public IMerchandise TargetMerchandise { get; }
-	public ICell Destination { get; }
+	public IRoom Destination { get; }
 	public EmploymentItemSelector? ContainerSelector { get; }
 	public IGameItem? Container => ContainerSelector?.Item;
 	public string? ContainerTag => ContainerSelector?.Kind == EmploymentItemSelectorKind.Tag ? ContainerSelector.Text : null;
@@ -2743,7 +2743,7 @@ public sealed class ShopStockTransferActionStep : EmploymentActionStepBase, IEmp
 				OperationalPayload: $"stocktransfer:source={SourceShop.Id.ToString("F0", CultureInfo.InvariantCulture)};target={TargetShop.Id.ToString("F0", CultureInfo.InvariantCulture)};targetmerchandise={TargetMerchandise.Id.ToString("F0", CultureInfo.InvariantCulture)};count={count.ToString("F0", CultureInfo.InvariantCulture)};items={itemList};container={(container?.Id.ToString("F0", CultureInfo.InvariantCulture) ?? string.Empty)}"));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return [Destination];
 	}
@@ -2815,7 +2815,7 @@ public sealed class AuctionLotListingActionStep : EmploymentActionStepBase, IEmp
 			return false;
 		}
 
-		if (!context.CanPath(actor, AuctionHouse.AuctionHouseCell))
+		if (!context.CanPath(actor, AuctionHouse.AuctionHouseRoom))
 		{
 			reason = "The assigned employee cannot path to the auction house.";
 			return false;
@@ -2874,9 +2874,9 @@ public sealed class AuctionLotListingActionStep : EmploymentActionStepBase, IEmp
 				OperationalPayload: $"auctionlist:house={AuctionHouse.Id.ToString("F0", CultureInfo.InvariantCulture)};asset={item.Id.ToString("F0", CultureInfo.InvariantCulture)};reserve={ReservePrice.Amount.ToString("F2", CultureInfo.InvariantCulture)};buyout={(BuyoutPrice?.Amount.ToString("F2", CultureInfo.InvariantCulture) ?? string.Empty)};duration={(Duration?.Ticks.ToString(CultureInfo.InvariantCulture) ?? string.Empty)}"));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
-		return [AuctionHouse.AuctionHouseCell];
+		return [AuctionHouse.AuctionHouseRoom];
 	}
 
 	private bool IsAuctionHost(IEmploymentTaskContext context)
@@ -3092,7 +3092,7 @@ public sealed class AuctionClaimActionStep : EmploymentActionStepBase, IEmployme
 			return false;
 		}
 
-		if (!context.CanPath(actor, AuctionHouse.AuctionHouseCell))
+		if (!context.CanPath(actor, AuctionHouse.AuctionHouseRoom))
 		{
 			reason = "The assigned employee cannot path to the auction house.";
 			return false;
@@ -3140,8 +3140,8 @@ public sealed class AuctionClaimActionStep : EmploymentActionStepBase, IEmployme
 		}
 
 		item.RoomLayer = actor.RoomLayer;
-		AuctionHouse.AuctionHouseCell.Insert(item, true);
-		if (!context.TryCollectTaskItem(actor, item, AuctionHouse.AuctionHouseCell, out reason))
+		AuctionHouse.AuctionHouseRoom.Insert(item, true);
+		if (!context.TryCollectTaskItem(actor, item, AuctionHouse.AuctionHouseRoom, out reason))
 		{
 			return EmploymentActionStepResult.Blocked(reason);
 		}
@@ -3156,9 +3156,9 @@ public sealed class AuctionClaimActionStep : EmploymentActionStepBase, IEmployme
 				OperationalPayload: $"auctionclaim:house={AuctionHouse.Id.ToString("F0", CultureInfo.InvariantCulture)};asset={AssetId.ToString("F0", CultureInfo.InvariantCulture)};assettype={AssetType};item={item.Id.ToString("F0", CultureInfo.InvariantCulture)}"));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
-		return [AuctionHouse.AuctionHouseCell];
+		return [AuctionHouse.AuctionHouseRoom];
 	}
 
 	private UnclaimedAuctionItem? ResolveUnclaimedLot()
@@ -3177,7 +3177,7 @@ public sealed class AuctionClaimActionStep : EmploymentActionStepBase, IEmployme
 
 public sealed class LoadItemsActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
-	public LoadItemsActionStep(IGameItem? targetContainer, string? targetContainerTag, ICell? targetLocation)
+	public LoadItemsActionStep(IGameItem? targetContainer, string? targetContainerTag, IRoom? targetLocation)
 		: this(targetContainer is not null
 			? EmploymentItemSelector.ForItem(targetContainer)
 			: string.IsNullOrWhiteSpace(targetContainerTag) ? null : EmploymentItemSelector.ForTag(targetContainerTag),
@@ -3185,7 +3185,7 @@ public sealed class LoadItemsActionStep : EmploymentActionStepBase, IEmploymentA
 	{
 	}
 
-	public LoadItemsActionStep(EmploymentItemSelector? targetContainerSelector, ICell? targetLocation)
+	public LoadItemsActionStep(EmploymentItemSelector? targetContainerSelector, IRoom? targetLocation)
 		: base(
 			EmploymentActionStepType.LoadItems,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -3200,7 +3200,7 @@ public sealed class LoadItemsActionStep : EmploymentActionStepBase, IEmploymentA
 	public EmploymentItemSelector? TargetContainerSelector { get; }
 	public IGameItem? TargetContainer => TargetContainerSelector?.Item;
 	public string? TargetContainerTag => TargetContainerSelector?.Kind == EmploymentItemSelectorKind.Tag ? TargetContainerSelector.Text : null;
-	public ICell? TargetLocation { get; }
+	public IRoom? TargetLocation { get; }
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
 		if (!base.CanExecute(context, actor, out reason))
@@ -3255,7 +3255,7 @@ public sealed class LoadItemsActionStep : EmploymentActionStepBase, IEmploymentA
 		return new EmploymentActionStepResult(true, $"Loaded task items into {target.Name}.", true, state);
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		if (TargetLocation is not null)
 		{
@@ -3274,7 +3274,7 @@ public sealed class LoadItemsActionStep : EmploymentActionStepBase, IEmploymentA
 
 public sealed class UnloadItemsActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
-	public UnloadItemsActionStep(IGameItem? sourceContainer, string? sourceContainerTag, ICell? sourceLocation)
+	public UnloadItemsActionStep(IGameItem? sourceContainer, string? sourceContainerTag, IRoom? sourceLocation)
 		: this(sourceContainer is not null
 			? EmploymentItemSelector.ForItem(sourceContainer)
 			: string.IsNullOrWhiteSpace(sourceContainerTag) ? null : EmploymentItemSelector.ForTag(sourceContainerTag),
@@ -3282,7 +3282,7 @@ public sealed class UnloadItemsActionStep : EmploymentActionStepBase, IEmploymen
 	{
 	}
 
-	public UnloadItemsActionStep(EmploymentItemSelector? sourceContainerSelector, ICell? sourceLocation)
+	public UnloadItemsActionStep(EmploymentItemSelector? sourceContainerSelector, IRoom? sourceLocation)
 		: base(
 			EmploymentActionStepType.UnloadItems,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -3297,7 +3297,7 @@ public sealed class UnloadItemsActionStep : EmploymentActionStepBase, IEmploymen
 	public EmploymentItemSelector? SourceContainerSelector { get; }
 	public IGameItem? SourceContainer => SourceContainerSelector?.Item;
 	public string? SourceContainerTag => SourceContainerSelector?.Kind == EmploymentItemSelectorKind.Tag ? SourceContainerSelector.Text : null;
-	public ICell? SourceLocation { get; }
+	public IRoom? SourceLocation { get; }
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
 		if (!base.CanExecute(context, actor, out reason))
@@ -3346,7 +3346,7 @@ public sealed class UnloadItemsActionStep : EmploymentActionStepBase, IEmploymen
 		return new EmploymentActionStepResult(true, $"Unloaded task items from {source.Name}.", true, state);
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		if (SourceLocation is not null)
 		{
@@ -3365,7 +3365,7 @@ public sealed class UnloadItemsActionStep : EmploymentActionStepBase, IEmploymen
 
 public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
-	public ReturnAssetActionStep(IGameItem? container, string? containerTag, ICell destination,
+	public ReturnAssetActionStep(IGameItem? container, string? containerTag, IRoom destination,
 		IGameItem? destinationContainer = null, string? destinationContainerTag = null)
 		: this(container is not null
 				? EmploymentItemSelector.ForItem(container)
@@ -3377,7 +3377,7 @@ public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymen
 	{
 	}
 
-	public ReturnAssetActionStep(EmploymentItemSelector? containerSelector, ICell destination,
+	public ReturnAssetActionStep(EmploymentItemSelector? containerSelector, IRoom destination,
 		EmploymentItemSelector? destinationContainerSelector = null)
 		: base(
 			EmploymentActionStepType.ReturnAsset,
@@ -3394,7 +3394,7 @@ public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymen
 	public EmploymentItemSelector? ContainerSelector { get; }
 	public IGameItem? Container => ContainerSelector?.Item;
 	public string? ContainerTag => ContainerSelector?.Kind == EmploymentItemSelectorKind.Tag ? ContainerSelector.Text : null;
-	public ICell Destination { get; }
+	public IRoom Destination { get; }
 	public EmploymentItemSelector? DestinationContainerSelector { get; }
 	public IGameItem? DestinationContainer => DestinationContainerSelector?.Item;
 	public string? DestinationContainerTag => DestinationContainerSelector?.Kind == EmploymentItemSelectorKind.Tag ? DestinationContainerSelector.Text : null;
@@ -3506,7 +3506,7 @@ public sealed class ReturnAssetActionStep : EmploymentActionStepBase, IEmploymen
 		return new EmploymentActionStepResult(true, $"Returned container {container.Name}.", true, state);
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		var container = ResolveContainer(context, actor);
 		if (container is null)
@@ -3652,7 +3652,7 @@ public sealed class VehicleOperationActionStep : EmploymentActionStepBase, IEmpl
 					$"operation=vehiclecargo;vehicle={Vehicle.Id};cargo={cargoSpace.Id};compartment={cargoSpace.Prototype.Compartment.Id};projection={projection.Id};capacity={capacityState};carried={carriedCount}"));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return Vehicle.Location is null ? [] : [Vehicle.Location];
 	}
@@ -3709,7 +3709,7 @@ public enum EmploymentAnimalOperationKind
 public sealed class StableAnimalOperationActionStep : EmploymentActionStepBase, IEmploymentActionStepLocationHint
 {
 	public StableAnimalOperationActionStep(EmploymentAnimalOperationKind operation, ICharacter? mount = null,
-		IStable? stable = null, IStableStay? stay = null, ICell? destination = null, bool waiveFees = false)
+		IStable? stable = null, IStableStay? stay = null, IRoom? destination = null, bool waiveFees = false)
 		: base(
 			EmploymentActionStepType.StableAnimalOperation,
 			EmploymentAuthority.ManageDeliveryRoutes,
@@ -3729,7 +3729,7 @@ public sealed class StableAnimalOperationActionStep : EmploymentActionStepBase, 
 	public ICharacter? Mount { get; }
 	public IStable? Stable { get; }
 	public IStableStay? Stay { get; }
-	public ICell? Destination { get; }
+	public IRoom? Destination { get; }
 	public bool WaiveFees { get; }
 	public override bool CanExecute(IEmploymentTaskContext context, ICharacter actor, out string reason)
 	{
@@ -3765,13 +3765,13 @@ public sealed class StableAnimalOperationActionStep : EmploymentActionStepBase, 
 		};
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return Operation switch
 		{
-			EmploymentAnimalOperationKind.Lead => new[] { Mount?.Location, Destination }.Where(x => x is not null).Cast<ICell>().Distinct().ToList(),
+			EmploymentAnimalOperationKind.Lead => new[] { Mount?.Location, Destination }.Where(x => x is not null).Cast<IRoom>().Distinct().ToList(),
 			EmploymentAnimalOperationKind.Ride => Mount?.Location is null ? [] : [Mount.Location],
-			EmploymentAnimalOperationKind.Lodge => new[] { Mount?.Location, Stable?.Location }.Where(x => x is not null).Cast<ICell>().Distinct().ToList(),
+			EmploymentAnimalOperationKind.Lodge => new[] { Mount?.Location, Stable?.Location }.Where(x => x is not null).Cast<IRoom>().Distinct().ToList(),
 			EmploymentAnimalOperationKind.Return => Stable?.Location is null ? [] : [Stable.Location],
 			_ => []
 		};
@@ -3902,7 +3902,7 @@ public sealed class StableAnimalOperationActionStep : EmploymentActionStepBase, 
 	}
 
 	private static EmploymentActionStepOperationalState AnimalState(string operation, ICharacter actor, ICharacter? mount,
-		IStable? stable, IStableStay? stay, ICell? destination)
+		IStable? stable, IStableStay? stay, IRoom? destination)
 	{
 		var actorId = CharacterInstanceIdentityComparer.PhysicalInstanceKey(actor);
 		var selected = $"operation={operation};actor={actorId:F0}";
@@ -4025,7 +4025,7 @@ public sealed class StableAdministrationActionStep : EmploymentActionStepBase, I
 				OperationalPayload: OperationalPayload()));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return [Stable.Location];
 	}
@@ -4237,9 +4237,9 @@ public sealed class HotelAdministrationActionStep : EmploymentActionStepBase, IE
 				OperationalPayload: OperationalPayload()));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
-		return Room is null ? [] : [Room.Cell];
+		return Room is null ? [] : [Room.Room];
 	}
 
 	private bool IsHotelHost(IEmploymentTaskContext context)
@@ -4256,13 +4256,13 @@ public sealed class HotelAdministrationActionStep : EmploymentActionStepBase, IE
 			return false;
 		}
 
-		if (Hotel.Rooms.All(x => x.Cell.Id != Room.Cell.Id && !x.Name.EqualTo(Room.Name)))
+		if (Hotel.Rooms.All(x => x.Room.Id != Room.Room.Id && !x.Name.EqualTo(Room.Name)))
 		{
 			reason = $"{Room.Name} does not belong to {Hotel.Name}.";
 			return false;
 		}
 
-		if (!context.CanPath(actor, Room.Cell))
+		if (!context.CanPath(actor, Room.Room))
 		{
 			reason = "The assigned employee cannot path to the hotel room.";
 			return false;
@@ -4344,7 +4344,7 @@ public sealed class HotelAdministrationActionStep : EmploymentActionStepBase, IE
 		{
 			$"hoteladmin:{Operation}",
 			$"hotel={Hotel.Id.ToString("F0", CultureInfo.InvariantCulture)}",
-			Room is null ? null : $"room={Room.Cell.Id.ToString("F0", CultureInfo.InvariantCulture)}",
+			Room is null ? null : $"room={Room.Room.Id.ToString("F0", CultureInfo.InvariantCulture)}",
 			LostProperty is null ? null : $"lost={LostProperty.BundleId.ToString("F0", CultureInfo.InvariantCulture)}",
 			PatronBalance is null ? null : $"patron={PatronBalance.PatronId.ToString("F0", CultureInfo.InvariantCulture)}"
 		}.Where(x => !string.IsNullOrWhiteSpace(x))!);
@@ -4585,7 +4585,7 @@ public sealed class HospitalPatientPreparationActionStep : EmploymentActionStepB
 				OperationalPayload: $"hospitalpatientprep;hospital={Hospital.Id.ToString("F0", CultureInfo.InvariantCulture)};request={Request.Id.ToString("F0", CultureInfo.InvariantCulture)};theatre={theatre.Id.ToString("F0", CultureInfo.InvariantCulture)}"));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		if (Request.Patient is not { } patient)
 		{
@@ -4660,7 +4660,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 	/// theatre cannot make a different request appear executable.
 	/// </summary>
 	public static bool RequiresSupplyPreparation(IHospital hospital, IHospitalService service, ICharacter? patient,
-		out IReadOnlyCollection<ICell> treatmentLocations)
+		out IReadOnlyCollection<IRoom> treatmentLocations)
 	{
 		treatmentLocations = PreflightTreatmentLocationCandidates(hospital, service, patient).ToList();
 		return RequiresSupplyPreparation(hospital, service, patient, treatmentLocations);
@@ -4672,7 +4672,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 	/// request is charged or persisted.
 	/// </summary>
 	public static bool CanPrepareRequiredSupplies(IHospital hospital, IHospitalService service, ICharacter? patient,
-		ICharacter employee, IReadOnlyCollection<ICell> treatmentLocations, IEmploymentTaskContext context,
+		ICharacter employee, IReadOnlyCollection<IRoom> treatmentLocations, IEmploymentTaskContext context,
 		out string reason)
 	{
 		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(service).ToList();
@@ -4685,7 +4685,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 
 		foreach (var theatre in treatmentLocations)
 		{
-			foreach (var room in hospital.SupplyRooms ?? Enumerable.Empty<ICell>())
+			foreach (var room in hospital.SupplyRooms ?? Enumerable.Empty<IRoom>())
 			{
 				if (!SuppliesSatisfyService(hospital, (room.GameItems ?? Enumerable.Empty<IGameItem>())
 					.Concat(theatre.GameItems ?? Enumerable.Empty<IGameItem>()), service, patient, treatmentTypes,
@@ -4714,7 +4714,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 	/// absent altogether, allowing request preflight to reject the service before charging the patient.
 	/// </summary>
 	public static bool TreatmentLocationSuppliesAreReady(IHospital hospital, IHospitalService service,
-		ICharacter? patient, IReadOnlyCollection<ICell> treatmentLocations)
+		ICharacter? patient, IReadOnlyCollection<IRoom> treatmentLocations)
 	{
 		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(service).ToList();
 		var requiresBloodSupplies = RequiresImplicitBloodSupply(service, patient);
@@ -4736,7 +4736,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 	}
 
 	private static bool RequiresSupplyPreparation(IHospital hospital, IHospitalService service, ICharacter? patient,
-		IEnumerable<ICell> treatmentLocations)
+		IEnumerable<IRoom> treatmentLocations)
 	{
 		var treatmentTypes = HospitalMedicalServiceRunner.ImplicitTreatmentSupplyTypes(service).ToList();
 		var requiresBloodSupplies = RequiresImplicitBloodSupply(service, patient);
@@ -4996,7 +4996,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 				new EmploymentActionStepOperationalState(OperationalPayload: SupplyPayload(PhaseCollected, theatre.Id, source.Id))));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		if (!HospitalPatientFlow.TryReserveTreatmentLocation(Hospital, Request, out var theatre, out _) || theatre is null)
 		{
@@ -5019,7 +5019,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 	}
 
 	private EmploymentActionStepResult CompletePreparedSupplies(IEmploymentTaskContext context, ICharacter actor,
-		ICell theatre, string? selectedResources, string phase)
+		IRoom theatre, string? selectedResources, string phase)
 	{
 		Request.MarkSuppliesPrepared(actor,
 			$"{actor.HowSeen(actor, colour: false)} prepared hospital supplies in {theatre.Name}.");
@@ -5034,7 +5034,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 				OperationalPayload: SupplyPayload(phase, theatre.Id)));
 	}
 
-	private bool TreatmentLocationAlreadyPrepared(IEmploymentTaskContext context, ICharacter actor, ICell theatre)
+	private bool TreatmentLocationAlreadyPrepared(IEmploymentTaskContext context, ICharacter actor, IRoom theatre)
 	{
 		var available = TreatmentLocationSupplyItems(context, theatre).ToList();
 		var configuredSuppliesReady = !Request.Service.RequiredEquipment.Any() ||
@@ -5133,37 +5133,37 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		return true;
 	}
 
-	private static IEnumerable<ICell> TreatmentLocationCandidates(IHospital hospital, IHospitalServiceRequest request)
+	private static IEnumerable<IRoom> TreatmentLocationCandidates(IHospital hospital, IHospitalServiceRequest request)
 	{
-		if (request.OperatingTheatreCellId is { } reservedTheatreId)
+		if (request.OperatingTheatreRoomId is { } reservedTheatreId)
 		{
-			return (hospital.OperatingTheatres ?? Array.Empty<ICell>()).Where(x => x.Id == reservedTheatreId);
+			return (hospital.OperatingTheatres ?? Array.Empty<IRoom>()).Where(x => x.Id == reservedTheatreId);
 		}
 
-		return (hospital.OperatingTheatres ?? Array.Empty<ICell>())
+		return (hospital.OperatingTheatres ?? Array.Empty<IRoom>())
 		               .Where(theatre => HospitalPatientFlow.IsTheatreAvailable(hospital, request, theatre, out _))
 		               .Take(1);
 	}
 
-	private static IEnumerable<ICell> PreflightTreatmentLocationCandidates(IHospital hospital, IHospitalService service,
+	private static IEnumerable<IRoom> PreflightTreatmentLocationCandidates(IHospital hospital, IHospitalService service,
 		ICharacter? patient)
 	{
 		if (!HospitalMedicalServiceRunner.ShouldUseTreatmentTheatre(service))
 		{
 			return patient?.Location is { } patientLocation
 				? [patientLocation]
-				: (hospital.WaitingRooms ?? Enumerable.Empty<ICell>())
-					.Concat(hospital.OperatingTheatres ?? Enumerable.Empty<ICell>())
-					.Concat(hospital.SupplyRooms ?? Enumerable.Empty<ICell>())
+				: (hospital.WaitingRooms ?? Enumerable.Empty<IRoom>())
+					.Concat(hospital.OperatingTheatres ?? Enumerable.Empty<IRoom>())
+					.Concat(hospital.SupplyRooms ?? Enumerable.Empty<IRoom>())
 					.Take(1);
 		}
 
-		return (hospital.OperatingTheatres ?? Enumerable.Empty<ICell>())
+		return (hospital.OperatingTheatres ?? Enumerable.Empty<IRoom>())
 		       .Where(theatre => HospitalPatientFlow.IsTheatreAvailableForNewRequest(hospital, patient, theatre, out _))
 		       .Take(1);
 	}
 
-	private IEnumerable<IGameItem> TreatmentLocationSupplyItems(IEmploymentTaskContext context, ICell theatre)
+	private IEnumerable<IGameItem> TreatmentLocationSupplyItems(IEmploymentTaskContext context, IRoom theatre)
 	{
 		return context.AvailableItems(theatre)
 		              .Concat(theatre.GameItems ?? Enumerable.Empty<IGameItem>())
@@ -5171,8 +5171,8 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		              .DistinctBy(x => x.Id);
 	}
 
-	private bool TryFindSupplyBundle(IEmploymentTaskContext context, ICharacter actor, out ICell source,
-		out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
+	private bool TryFindSupplyBundle(IEmploymentTaskContext context, ICharacter actor, out IRoom source,
+		out IReadOnlyCollection<(IGameItem Item, IRoom Source)> items, out string reason)
 	{
 		if (!Request.Service.RequiredEquipment.Any() ||
 		    RequiresImplicitBloodSupply(Request) && TreatmentLocationAlreadyHasConfiguredSupplies(Hospital, Request))
@@ -5183,8 +5183,8 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		return TryFindConfiguredSupplyBundle(context, actor, out source, out items, out reason);
 	}
 
-	private bool TryFindConfiguredSupplyBundle(IEmploymentTaskContext context, ICharacter actor, out ICell source,
-		out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
+	private bool TryFindConfiguredSupplyBundle(IEmploymentTaskContext context, ICharacter actor, out IRoom source,
+		out IReadOnlyCollection<(IGameItem Item, IRoom Source)> items, out string reason)
 	{
 		source = null!;
 		items = [];
@@ -5194,7 +5194,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			                       .SelectMany(DeepItemsOrSelf)
 			                       .DistinctBy(x => x.Id)
 			                       .ToList();
-			var selected = new List<(IGameItem Item, ICell Source)>();
+			var selected = new List<(IGameItem Item, IRoom Source)>();
 			var used = new HashSet<long>();
 			var failed = false;
 			foreach (var requirement in Request.Service.RequiredEquipment)
@@ -5242,8 +5242,8 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 		reason = "No single hospital supply room contains all required equipment and IV blood supplies for this service.";
 		return false;
 	}
-	private bool TryFindImplicitTreatmentSupplyBundle(IEmploymentTaskContext context, out ICell source,
-		out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
+	private bool TryFindImplicitTreatmentSupplyBundle(IEmploymentTaskContext context, out IRoom source,
+		out IReadOnlyCollection<(IGameItem Item, IRoom Source)> items, out string reason)
 	{
 		source = null!;
 		items = [];
@@ -5264,7 +5264,7 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			                .Concat(stagedItems)
 			                .DistinctBy(x => x.Id)
 			                .ToList();
-			var selected = new List<(IGameItem Item, ICell Source)>();
+			var selected = new List<(IGameItem Item, IRoom Source)>();
 			var used = new HashSet<long>();
 			foreach (var treatmentType in treatmentTypes)
 			{
@@ -5598,8 +5598,8 @@ public sealed class HospitalSupplyPreparationActionStep : EmploymentActionStepBa
 			x.Contains(keyword, StringComparison.InvariantCultureIgnoreCase)));
 	}
 
-	private bool DoctorBlockedByAvailableSupplyWorker(IEmploymentTaskContext context, ICharacter actor, ICell theatre,
-		ICell source)
+	private bool DoctorBlockedByAvailableSupplyWorker(IEmploymentTaskContext context, ICharacter actor, IRoom theatre,
+		IRoom source)
 	{
 		if (!Hospital.HasAuthority(actor, EmploymentAuthority.PerformMedicalServices))
 		{
@@ -5790,7 +5790,7 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 		}
 		else
 		{
-			Request.OperatingTheatreCellId = patient.Location?.Id;
+			Request.OperatingTheatreRoomId = patient.Location?.Id;
 			if (!Request.UsedInPlaceFallback)
 			{
 				actor.OutputHandler.Send(new EmoteOutput(new Emote(
@@ -5829,7 +5829,7 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 		return HospitalMedicalServiceRunner.ExecuteServiceRequest(context, actor, Hospital, Request);
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		if (Request.Patient is not { } patient)
 		{
@@ -5851,7 +5851,7 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 	}
 
 	private bool ShouldCollectImplicitTreatmentSupplies(IEmploymentTaskContext context, ICharacter actor,
-		out ICell source, out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
+		out IRoom source, out IReadOnlyCollection<(IGameItem Item, IRoom Source)> items, out string reason)
 	{
 		source = null!;
 		items = [];
@@ -5892,7 +5892,7 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 
 	private IEnumerable<IGameItem> TreatmentLocationItems(IEmploymentTaskContext context)
 	{
-		if (Request.OperatingTheatreCellId is not { } theatreId)
+		if (Request.OperatingTheatreRoomId is not { } theatreId)
 		{
 			return [];
 		}
@@ -5919,18 +5919,18 @@ public sealed class HospitalServiceActionStep : EmploymentActionStepBase, IEmplo
 	}
 
 	private bool TryFindImplicitSupplyBundle(IEmploymentTaskContext context, ICharacter actor,
-		IReadOnlyCollection<TreatmentType> treatmentTypes, out ICell source,
-		out IReadOnlyCollection<(IGameItem Item, ICell Source)> items, out string reason)
+		IReadOnlyCollection<TreatmentType> treatmentTypes, out IRoom source,
+		out IReadOnlyCollection<(IGameItem Item, IRoom Source)> items, out string reason)
 	{
 		source = null!;
 		items = [];
-		foreach (var room in Hospital.SupplyRooms ?? Array.Empty<ICell>())
+		foreach (var room in Hospital.SupplyRooms ?? Array.Empty<IRoom>())
 		{
 			var available = context.AvailableItems(room)
 			                       .SelectMany(DeepItemsOrSelf)
 			                       .DistinctBy(x => x.Id)
 			                       .ToList();
-			var selected = new List<(IGameItem Item, ICell Source)>();
+			var selected = new List<(IGameItem Item, IRoom Source)>();
 			var used = new HashSet<long>();
 			foreach (var treatmentType in treatmentTypes)
 			{
@@ -6045,7 +6045,7 @@ public sealed class HospitalAdministrationActionStep : EmploymentActionStepBase,
 				OperationalPayload: $"hospitaladmin:{Operation};host={Hospital.Id.ToString("F0", CultureInfo.InvariantCulture)}"));
 	}
 
-	public IReadOnlyCollection<ICell> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
+	public IReadOnlyCollection<IRoom> ExecutionLocationHints(IEmploymentTaskContext context, ICharacter actor)
 	{
 		return Operation switch
 		{

@@ -15,18 +15,18 @@ public class HospitalRoomDescriptionTests
 	[TestMethod]
 	public void HospitalLobbyRoomDescriptionAddenda_AdvertisesServicesOnlyInWaitingRooms()
 	{
-		var waitingRoom = new Mock<ICell>();
-		var theatre = new Mock<ICell>();
+		var waitingRoom = new Mock<IRoom>();
+		var theatre = new Mock<IRoom>();
 		var hospital = new Mock<IHospital>();
 		hospital.Setup(x => x.HasLocationRole(waitingRoom.Object, HospitalLocationRole.WaitingRoom))
 		        .Returns(true);
 		hospital.Setup(x => x.HasLocationRole(theatre.Object, HospitalLocationRole.WaitingRoom))
 		        .Returns(false);
 
-		var waitingAddenda = Cell.HospitalLobbyRoomDescriptionAddenda([hospital.Object], waitingRoom.Object)
+		var waitingAddenda = Room.HospitalLobbyRoomDescriptionAddenda([hospital.Object], waitingRoom.Object)
 		                         .Select(x => x.StripANSIColour())
 		                         .ToList();
-		var theatreAddenda = Cell.HospitalLobbyRoomDescriptionAddenda([hospital.Object], theatre.Object)
+		var theatreAddenda = Room.HospitalLobbyRoomDescriptionAddenda([hospital.Object], theatre.Object)
 		                         .Select(x => x.StripANSIColour())
 		                         .ToList();
 

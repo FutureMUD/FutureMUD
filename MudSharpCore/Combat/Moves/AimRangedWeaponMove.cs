@@ -84,7 +84,7 @@ public class AimRangedWeaponMove : CombatMoveBase
             firstTimeAim = true;
             Assailant.Aim = new AimInformation(target, Assailant,
                 target == null
-                    ? Enumerable.Empty<ICellExit>()
+                    ? Enumerable.Empty<IRoomExit>()
                     : Assailant.PathBetween(target, Weapon.WeaponType.DefaultRangeInRooms, false, false, true), Weapon);
         }
 

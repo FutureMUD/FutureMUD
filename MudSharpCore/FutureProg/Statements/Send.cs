@@ -298,7 +298,7 @@ The text that is sent will parse ANSI colour codes using ##s (e.g. ##5a tall man
 
                     if (Range == OutputRange.Surrounds)
                     {
-                        foreach (ICell location in ((ICell)TargetFunction.Result.GetObject).Surrounds)
+                        foreach (IRoom location in ((IRoom)TargetFunction.Result.GetObject).Surrounds)
                         {
                             location.Handle(output);
                         }

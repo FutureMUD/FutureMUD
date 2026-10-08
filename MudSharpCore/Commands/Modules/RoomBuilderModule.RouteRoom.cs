@@ -1,0 +1,1094 @@
+#nullable enable
+
+using System.Data;
+using Microsoft.EntityFrameworkCore;
+using MudSharp.Character;
+using MudSharp.Construction;
+using MudSharp.Construction.Boundary;
+using MudSharp.Database;
+using MudSharp.Editor;
+using MudSharp.Framework;
+using MudSharp.Framework.Units;
+using DB = MudSharp.Models;
+
+namespace MudSharp.Commands.Modules;
+
+internal partial class RoomBuilderModule
+{
+	private const string RouteRoomSetHelp = @"RouteRoom authoring commands:
+
+	#3room set route create <length>#0
+	#3room set route clear#0
+	#3room set route length <length>#0
+	#3room set route default <distance|landmark>#0
+	#3room set route direction positive|negative <name>#0
+	#3room set route roomequivalent <length|default>#0
+	#3room set route landmark add <distance> <name>#0
+	#3room set route landmark rename|keywords|distance|description|delete <landmark> ...#0
+	#3room set route exit <exit> band <minimum> <maximum> arrival <distance>#0
+	#3room set route show#0
+	#3room set route map#0
+	#3room set route validate#0";
+
+	private static void RoomSetRoute(ICharacter actor, StringStack command)
+	{
+		if (command.IsFinished || command.Peek().EqualTo("help") || command.Peek().EqualTo("?"))
+		{
+			actor.OutputHandler.Send(RouteRoomSetHelp.SubstituteANSIColour());
+			return;
+		}
+
+		if (actor.Location is not MudSharp.Construction.Room room)
+		{
+			actor.OutputHandler.Send("This room implementation cannot host RouteRoom geometry.");
+			return;
+		}
+
+		switch (command.PopSpeech().ToLowerInvariant())
+		{
+			case "create":
+			case "new":
+				RoomSetRouteCreate(actor, room, command);
+				return;
+			case "clear":
+			case "remove":
+			case "delete":
+				RoomSetRouteClear(actor, room);
+				return;
+			case "length":
+				RoomSetRouteLength(actor, room, command);
+				return;
+			case "default":
+				RoomSetRouteDefault(actor, room, command);
+				return;
+			case "direction":
+				RoomSetRouteDirection(actor, room, command);
+				return;
+			case "roomequivalent":
+			case "room-equivalent":
+			case "room":
+				RoomSetRouteRoomEquivalent(actor, room, command);
+				return;
+			case "landmark":
+			case "landmarks":
+				RoomSetRouteLandmark(actor, room, command);
+				return;
+			case "exit":
+			case "portal":
+				RoomSetRouteExit(actor, room, command);
+				return;
+			case "show":
+			case "view":
+				RoomSetRouteShow(actor, room);
+				return;
+			case "map":
+				RoomSetRouteMap(actor, room);
+				return;
+			case "validate":
+			case "audit":
+				RoomSetRouteValidate(actor, room);
+				return;
+			default:
+				actor.OutputHandler.Send(RouteRoomSetHelp.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void RoomSetRouteCreate(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
+	{
+		if (room.RouteDefinition is not null)
+		{
+			actor.OutputHandler.Send("This room is already a RouteRoom.");
+			return;
+		}
+
+		if (!TryParseRouteMetres(actor, command.SafeRemainingArgument, out var length) || length <= 0.0)
+		{
+			actor.OutputHandler.Send("You must specify a positive, finite RouteRoom length using a valid unit.");
+			return;
+		}
+
+		var blockers = new List<string>();
+		if (room.Characters.Any(x => !ReferenceEquals(x, actor)))
+		{
+			AddRouteMutationBlocker(blockers, "other live characters");
+		}
+
+		if (room.GameItems.Any())
+		{
+			AddRouteMutationBlocker(blockers, "top-level items");
+		}
+
+		if (actor.Gameworld.Vehicles.Any(x => ReferenceEquals(x.Location, room)))
+		{
+			AddRouteMutationBlocker(blockers, "vehicles");
+		}
+
+		if (room.LocalProjects.Any())
+		{
+			AddRouteMutationBlocker(blockers, "projects");
+		}
+
+		if (room.Tracks.Any())
+		{
+			AddRouteMutationBlocker(blockers, "tracks");
+		}
+
+		if (room.HasPointSurfaceLiquid)
+		{
+			AddRouteMutationBlocker(blockers, "coordinate-bound surface liquid");
+		}
+
+		if (actor.Gameworld.ExitManager.GetAllExits(room).Any())
+		{
+			AddRouteMutationBlocker(blockers, "unanchored exits");
+		}
+
+		var actorIdentity = RouteMutationActor(actor);
+		using (new FMDB())
+		using (var transaction = FMDB.Context.Database.BeginTransaction(IsolationLevel.Serializable))
+		{
+			var persisted = RouteRoomMutationSafety.InspectOccupancy(FMDB.Context, room.Id, actorIdentity);
+			if (persisted.HasOtherCharacters)
+			{
+				AddRouteMutationBlocker(blockers, "other persisted character locations");
+			}
+			if (persisted.HasTopLevelItems)
+			{
+				AddRouteMutationBlocker(blockers, "top-level items");
+			}
+			if (persisted.HasVehicles)
+			{
+				AddRouteMutationBlocker(blockers, "vehicles");
+			}
+			if (persisted.HasProjects)
+			{
+				AddRouteMutationBlocker(blockers, "projects");
+			}
+			if (persisted.HasTracks)
+			{
+				AddRouteMutationBlocker(blockers, "tracks");
+			}
+			if (persisted.HasPointSurfaceLiquid)
+			{
+				AddRouteMutationBlocker(blockers, "coordinate-bound surface liquid");
+			}
+
+			if (blockers.Any())
+			{
+				actor.OutputHandler.Send(
+					$"This room cannot become a RouteRoom while it contains {blockers.ListToString()}. Clear those blockers first.");
+				return;
+			}
+
+			FMDB.Context.RouteRooms.Add(new DB.RouteRoom
+			{
+				RoomId = room.Id,
+				LengthMetres = ToPersistedMetres(length),
+				DefaultPositionMetres = 0.000M,
+				PositiveDirectionName = "forward",
+				NegativeDirectionName = "backward",
+				MetresPerRoomEquivalent = ToPersistedMetres(
+					actor.Gameworld.GetStaticDouble("RouteCellDefaultRoomEquivalentMetres")),
+				TopologyVersion = 1L
+			});
+			RouteRoomMutationSafety.PersistActorSpatialState(
+				FMDB.Context,
+				actorIdentity,
+				room.Id,
+				actor.RoomLayer,
+				0.0);
+			FMDB.Context.SaveChanges();
+			transaction.Commit();
+		}
+
+		ReloadRouteDefinition(room);
+		SetCommittedActorRoutePosition(actor, 0.0);
+		actor.OutputHandler.Send(
+			$"You convert this room into a {DescribeRouteMetres(actor, length).ColourValue()} linear RouteRoom at topology version {1L.ToString("N0", actor).ColourValue()}.");
+	}
+
+	private static void RoomSetRouteClear(ICharacter actor, MudSharp.Construction.Room room)
+	{
+		var route = room.RouteDefinition;
+		if (route is null)
+		{
+			actor.OutputHandler.Send("This is already an ordinary room.");
+			return;
+		}
+
+		var actorIdentity = RouteMutationActor(actor);
+		using (new FMDB())
+		using (var transaction = FMDB.Context.Database.BeginTransaction(IsolationLevel.Serializable))
+		{
+			var blockers = RouteRemovalBlockers(actor, room, route, FMDB.Context);
+			if (blockers.Any())
+			{
+				actor.OutputHandler.Send(
+					$"You cannot clear this RouteRoom while it contains {blockers.ListToString()}. Remove those dependencies first.");
+				return;
+			}
+
+			RouteRoomMutationSafety.PersistActorSpatialState(
+				FMDB.Context,
+				actorIdentity,
+				room.Id,
+				actor.RoomLayer,
+				null);
+			var dbroute = FMDB.Context.RouteRooms.Find(room.Id);
+			if (dbroute is not null)
+			{
+				FMDB.Context.RouteRooms.Remove(dbroute);
+			}
+			FMDB.Context.SaveChanges();
+			transaction.Commit();
+		}
+
+		room.ReloadRouteDefinition(null);
+		SetCommittedActorRoutePosition(actor, null);
+		actor.OutputHandler.Send("You clear the RouteRoom geometry. This is now an ordinary room.");
+	}
+
+	private static List<string> RouteRemovalBlockers(
+		ICharacter actor,
+		MudSharp.Construction.Room room,
+		IRouteRoomDefinition route,
+		FuturemudDatabaseContext context)
+	{
+		var blockers = new List<string>();
+		if (room.Characters.Any(x => !ReferenceEquals(x, actor)))
+		{
+			AddRouteMutationBlocker(blockers, "other live characters");
+		}
+
+		if (room.GameItems.Any())
+		{
+			AddRouteMutationBlocker(blockers, "top-level items");
+		}
+
+		if (actor.Gameworld.Vehicles.Any(x => ReferenceEquals(x.Location, room)))
+		{
+			AddRouteMutationBlocker(blockers, "vehicles");
+		}
+
+		if (room.LocalProjects.Any())
+		{
+			AddRouteMutationBlocker(blockers, "projects");
+		}
+
+		if (room.Tracks.Any())
+		{
+			AddRouteMutationBlocker(blockers, "tracks");
+		}
+
+		if (room.HasPointSurfaceLiquid)
+		{
+			AddRouteMutationBlocker(blockers, "coordinate-bound surface liquid");
+		}
+
+		if (route.Landmarks.Any())
+		{
+			AddRouteMutationBlocker(blockers, "landmarks");
+		}
+
+		if (route.ExitAnchors.Any())
+		{
+			AddRouteMutationBlocker(blockers, "anchored exits");
+		}
+
+		var persisted = RouteRoomMutationSafety.InspectOccupancy(
+			context,
+			room.Id,
+			RouteMutationActor(actor));
+		if (persisted.HasOtherCharacters)
+		{
+			AddRouteMutationBlocker(blockers, "other persisted character locations");
+		}
+		if (persisted.HasTopLevelItems)
+		{
+			AddRouteMutationBlocker(blockers, "top-level items");
+		}
+		if (persisted.HasVehicles)
+		{
+			AddRouteMutationBlocker(blockers, "vehicles");
+		}
+		if (persisted.HasProjects)
+		{
+			AddRouteMutationBlocker(blockers, "projects");
+		}
+		if (persisted.HasTracks)
+		{
+			AddRouteMutationBlocker(blockers, "tracks");
+		}
+		if (persisted.HasPointSurfaceLiquid)
+		{
+			AddRouteMutationBlocker(blockers, "coordinate-bound surface liquid");
+		}
+
+		if (context.ActiveRouteMotions.Any(x => x.RouteRoomId == room.Id))
+		{
+			AddRouteMutationBlocker(blockers, "active route motions");
+		}
+
+		if (context.VehicleRouteStops.Any(x => x.RoomId == room.Id) ||
+			context.VehicleRouteTopologyPins.Any(x => x.RouteRoomId == room.Id))
+		{
+			AddRouteMutationBlocker(blockers, "vehicle routes, stops, services, or journeys");
+		}
+
+		return blockers;
+	}
+
+	private static void RoomSetRouteLength(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
+	{
+		if (!RequireRoute(actor, room, out var route))
+		{
+			return;
+		}
+
+		if (!TryParseRouteMetres(actor, command.SafeRemainingArgument, out var length) || length <= 0.0)
+		{
+			actor.OutputHandler.Send("You must specify a positive, finite RouteRoom length using a valid unit.");
+			return;
+		}
+
+		using (new FMDB())
+		using (var transaction = FMDB.Context.Database.BeginTransaction(IsolationLevel.Serializable))
+		{
+			if (length < route.LengthMetres)
+			{
+				var blockers = RouteLengthBlockers(actor, room, route, length, FMDB.Context);
+				if (blockers.Any())
+				{
+					actor.OutputHandler.Send(
+						$"You cannot shorten this RouteRoom to {DescribeRouteMetres(actor, length).ColourValue()} because it would strand {blockers.ListToString()}.");
+					return;
+				}
+			}
+
+			var dbroute = FMDB.Context.RouteRooms.Single(x => x.RoomId == room.Id);
+			dbroute.LengthMetres = ToPersistedMetres(length);
+			dbroute.TopologyVersion++;
+			FMDB.Context.SaveChanges();
+			transaction.Commit();
+		}
+
+		ReloadRouteDefinition(room);
+		actor.OutputHandler.Send(
+			$"You set the RouteRoom length to {DescribeRouteMetres(actor, length).ColourValue()} and increment its topology version.");
+	}
+
+	private static List<string> RouteLengthBlockers(
+		ICharacter actor,
+		MudSharp.Construction.Room room,
+		IRouteRoomDefinition route,
+		double length,
+		FuturemudDatabaseContext context)
+	{
+		var blockers = new List<string>();
+		if (route.DefaultPositionMetres > length)
+		{
+			AddRouteMutationBlocker(blockers, "the default coordinate");
+		}
+
+		if (route.Landmarks.Any(x => x.PositionMetres > length))
+		{
+			AddRouteMutationBlocker(blockers, "one or more landmarks");
+		}
+
+		if (route.ExitAnchors.Any(x => x.MaximumPositionMetres > length || x.ArrivalPositionMetres > length))
+		{
+			AddRouteMutationBlocker(blockers, "one or more exit anchors");
+		}
+
+		if (room.Perceivables.OfType<ILocateable>().Any(x => x.RoutePositionMetres > length))
+		{
+			AddRouteMutationBlocker(blockers, "one or more live entities");
+		}
+
+		if (actor.Gameworld.Vehicles.Any(x => ReferenceEquals(x.Location, room) && x.RoutePositionMetres > length))
+		{
+			AddRouteMutationBlocker(blockers, "one or more vehicles");
+		}
+
+		if (room.Tracks.Any(x => x.RoutePositionMetres > length))
+		{
+			AddRouteMutationBlocker(blockers, "one or more tracks");
+		}
+
+		if (room.HasPointSurfaceLiquidBeyond(length))
+		{
+			AddRouteMutationBlocker(blockers, "coordinate-bound surface liquid");
+		}
+
+		var persisted = RouteRoomMutationSafety.InspectLength(context, room.Id, length);
+		if (persisted.HasCharactersBeyondLength)
+		{
+			AddRouteMutationBlocker(blockers, "one or more persisted character locations");
+		}
+		if (persisted.HasTopLevelItemsBeyondLength)
+		{
+			AddRouteMutationBlocker(blockers, "one or more persisted top-level items");
+		}
+		if (persisted.HasVehiclesBeyondLength)
+		{
+			AddRouteMutationBlocker(blockers, "one or more vehicles");
+		}
+		if (persisted.HasProjectsBeyondLength)
+		{
+			AddRouteMutationBlocker(blockers, "one or more persisted projects");
+		}
+		if (persisted.HasTracksBeyondLength)
+		{
+			AddRouteMutationBlocker(blockers, "one or more tracks");
+		}
+		if (persisted.HasPointSurfaceLiquidBeyondLength)
+		{
+			AddRouteMutationBlocker(blockers, "coordinate-bound surface liquid");
+		}
+
+		if (context.ActiveRouteMotions.Any(x =>
+			x.RouteRoomId == room.Id &&
+			(x.CheckpointPositionMetres > (decimal)length || x.TargetMaximumPositionMetres > (decimal)length)))
+		{
+			AddRouteMutationBlocker(blockers, "an active route motion");
+		}
+
+		if (context.VehicleRouteStops.Any(x =>
+			x.RoomId == room.Id && x.RoutePositionMetres > (decimal)length) ||
+			context.VehicleRouteSteps.Any(x =>
+				(x.OriginRoomId == room.Id && x.OriginRoutePositionMetres > (decimal)length) ||
+				(x.DestinationRoomId == room.Id && x.DestinationRoutePositionMetres > (decimal)length)))
+		{
+			AddRouteMutationBlocker(blockers, "a vehicle route stop or compiled route step");
+		}
+
+		return blockers;
+	}
+
+	private static void RoomSetRouteDefault(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
+	{
+		if (!RequireRoute(actor, room, out var route))
+		{
+			return;
+		}
+
+		if (command.IsFinished || !TryResolveRoutePosition(actor, route, command.SafeRemainingArgument, out var position))
+		{
+			actor.OutputHandler.Send("Specify a coordinate or one of this RouteRoom's landmarks.");
+			return;
+		}
+
+		MutateRouteDefinition(room, dbroute => dbroute.DefaultPositionMetres = ToPersistedMetres(position));
+		actor.OutputHandler.Send(
+			$"You set the default RouteRoom coordinate to {DescribeRouteMetres(actor, position).ColourValue()}.");
+	}
+
+	private static void RoomSetRouteDirection(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
+	{
+		if (!RequireRoute(actor, room, out _))
+		{
+			return;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Do you want to rename the positive or negative direction?");
+			return;
+		}
+
+		var direction = command.PopSpeech().ToLowerInvariant();
+		if (direction is not ("positive" or "negative" or "+" or "-"))
+		{
+			actor.OutputHandler.Send("The direction must be positive or negative.");
+			return;
+		}
+
+		var name = command.SafeRemainingArgument.Trim();
+		if (string.IsNullOrWhiteSpace(name) || name.Length > 100)
+		{
+			actor.OutputHandler.Send("Specify a direction name no longer than 100 characters.");
+			return;
+		}
+
+		MutateRouteDefinition(room, dbroute =>
+		{
+			if (direction is "positive" or "+")
+			{
+				dbroute.PositiveDirectionName = name;
+			}
+			else
+			{
+				dbroute.NegativeDirectionName = name;
+			}
+		});
+		actor.OutputHandler.Send($"You rename the {direction.ColourName()} RouteRoom direction to {name.ColourName()}.");
+	}
+
+	private static void RoomSetRouteRoomEquivalent(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
+	{
+		if (!RequireRoute(actor, room, out _))
+		{
+			return;
+		}
+
+		var text = command.SafeRemainingArgument;
+		var value = text.EqualTo("default")
+			? actor.Gameworld.GetStaticDouble("RouteCellDefaultRoomEquivalentMetres")
+			: TryParseRouteMetres(actor, text, out var parsed) ? parsed : double.NaN;
+		if (!double.IsFinite(value) || value <= 0.0)
+		{
+			actor.OutputHandler.Send("Specify a positive distance or DEFAULT for the room-equivalent scale.");
+			return;
+		}
+
+		MutateRouteDefinition(room, dbroute => dbroute.MetresPerRoomEquivalent = ToPersistedMetres(value));
+		actor.OutputHandler.Send(
+			$"You set this RouteRoom's room-equivalent scale to {DescribeRouteMetres(actor, value).ColourValue()}.");
+	}
+
+	private static void RoomSetRouteLandmark(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
+	{
+		if (!RequireRoute(actor, room, out var route))
+		{
+			return;
+		}
+
+		if (command.IsFinished)
+		{
+			RoomSetRouteShow(actor, room);
+			return;
+		}
+
+		var action = command.PopSpeech().ToLowerInvariant();
+		if (action is "add" or "new" or "create")
+		{
+			var distanceText = command.PopSpeech();
+			if (!TryParseRouteMetres(actor, distanceText, out var position) ||
+				position < 0.0 ||
+				position > route.LengthMetres)
+			{
+				actor.OutputHandler.Send("Specify a landmark coordinate inside this RouteRoom.");
+				return;
+			}
+
+			var name = command.SafeRemainingArgument.Trim();
+			if (string.IsNullOrWhiteSpace(name) || name.Length > 200)
+			{
+				actor.OutputHandler.Send("Specify a landmark name no longer than 200 characters.");
+				return;
+			}
+
+			using (new FMDB())
+			{
+				var dbroute = FMDB.Context.RouteRooms
+					.Include(x => x.Landmarks)
+					.Single(x => x.RoomId == room.Id);
+				dbroute.Landmarks.Add(new DB.RouteRoomLandmark
+				{
+					Name = name,
+					Keywords = name.ToLowerInvariant(),
+					Description = string.Empty,
+					PositionMetres = ToPersistedMetres(position),
+					DisplayOrder = dbroute.Landmarks.Select(x => x.DisplayOrder).DefaultIfEmpty().Max() + 1
+				});
+				dbroute.TopologyVersion++;
+				FMDB.Context.SaveChanges();
+			}
+
+			ReloadRouteDefinition(room);
+			actor.OutputHandler.Send(
+				$"You add the RouteRoom landmark {name.ColourName()} at {DescribeRouteMetres(actor, position).ColourValue()}.");
+			return;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which RouteRoom landmark do you want to edit?");
+			return;
+		}
+
+		var selector = command.PopSpeech();
+		var landmark = ResolveRouteLandmark(route, selector);
+		if (landmark is null)
+		{
+			actor.OutputHandler.Send($"There is no RouteRoom landmark identified by {selector.ColourCommand()}.");
+			return;
+		}
+
+		switch (action)
+		{
+			case "rename":
+			case "name":
+			{
+				var name = command.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(name) || name.Length > 200)
+				{
+					actor.OutputHandler.Send("Specify a landmark name no longer than 200 characters.");
+					return;
+				}
+
+				MutateLandmark(room, landmark.Id, x => x.Name = name);
+				actor.OutputHandler.Send($"You rename the RouteRoom landmark to {name.ColourName()}.");
+				return;
+			}
+			case "keywords":
+			case "keyword":
+			{
+				var keywords = command.SafeRemainingArgument.Trim();
+				if (string.IsNullOrWhiteSpace(keywords) || keywords.Length > 500)
+				{
+					actor.OutputHandler.Send("Specify one or more keywords totalling no more than 500 characters.");
+					return;
+				}
+
+				MutateLandmark(room, landmark.Id, x => x.Keywords = keywords);
+				actor.OutputHandler.Send($"You set the landmark keywords to {keywords.ColourCommand()}.");
+				return;
+			}
+			case "distance":
+			case "position":
+			{
+				if (!TryParseRouteMetres(actor, command.SafeRemainingArgument, out var position) ||
+					position < 0.0 ||
+					position > route.LengthMetres)
+				{
+					actor.OutputHandler.Send("Specify a landmark coordinate inside this RouteRoom.");
+					return;
+				}
+
+				MutateLandmark(room, landmark.Id, x => x.PositionMetres = ToPersistedMetres(position));
+				actor.OutputHandler.Send(
+					$"You move {landmark.Name.ColourName()} to {DescribeRouteMetres(actor, position).ColourValue()}.");
+				return;
+			}
+			case "description":
+			case "desc":
+				actor.OutputHandler.Send(
+					$"Replacing the description for {landmark.Name.ColourName()}:\n\n{landmark.Description.Wrap(actor.InnerLineFormatLength, "\t")}\n\nEnter the new description below.");
+				actor.EditorMode(
+					RouteLandmarkDescriptionPost,
+					RouteLandmarkDescriptionCancel,
+					1.0,
+					null,
+					EditorOptions.None,
+					[room.Id, landmark.Id]);
+				return;
+			case "delete":
+			case "remove":
+				using (new FMDB())
+				{
+					var dbroute = FMDB.Context.RouteRooms.Single(x => x.RoomId == room.Id);
+					var dblandmark = FMDB.Context.RouteRoomLandmarks.Single(x => x.Id == landmark.Id);
+					FMDB.Context.RouteRoomLandmarks.Remove(dblandmark);
+					dbroute.TopologyVersion++;
+					FMDB.Context.SaveChanges();
+				}
+
+				ReloadRouteDefinition(room);
+				actor.OutputHandler.Send($"You delete the RouteRoom landmark {landmark.Name.ColourName()}.");
+				return;
+			default:
+				actor.OutputHandler.Send(RouteRoomSetHelp.SubstituteANSIColour());
+				return;
+		}
+	}
+
+	private static void RouteLandmarkDescriptionPost(string description, IOutputHandler handler, object[] arguments)
+	{
+		var cellId = (long)arguments[0];
+		var landmarkId = (long)arguments[1];
+		using (new FMDB())
+		{
+			var landmark = FMDB.Context.RouteRoomLandmarks.SingleOrDefault(x => x.Id == landmarkId);
+			var route = FMDB.Context.RouteRooms.SingleOrDefault(x => x.RoomId == cellId);
+			if (landmark is null || route is null)
+			{
+				handler.Send("That RouteRoom landmark no longer exists.");
+				return;
+			}
+
+			landmark.Description = description;
+			route.TopologyVersion++;
+			FMDB.Context.SaveChanges();
+		}
+
+		var room = Futuremud.Games.FirstOrDefault()?.Rooms.Get(cellId) as MudSharp.Construction.Room;
+		if (room is not null)
+		{
+			ReloadRouteDefinition(room);
+		}
+
+		handler.Send("You replace the RouteRoom landmark description.");
+	}
+
+	private static void RouteLandmarkDescriptionCancel(IOutputHandler handler, object[] arguments)
+	{
+		handler.Send("You decide not to replace the RouteRoom landmark description.");
+	}
+
+	private static void RoomSetRouteExit(ICharacter actor, MudSharp.Construction.Room room, StringStack command)
+	{
+		if (!RequireRoute(actor, room, out var route))
+		{
+			return;
+		}
+
+		if (command.IsFinished)
+		{
+			actor.OutputHandler.Send("Which exit do you want to anchor?");
+			return;
+		}
+
+		var exit = GetRoomExitForBuilderInput(actor.Gameworld.ExitManager.GetAllExits(room), command, actor);
+		if (exit is null)
+		{
+			actor.OutputHandler.Send("There is no such exit in this room's topology.");
+			return;
+		}
+
+		if (command.IsFinished || !command.PopSpeech().EqualTo("band"))
+		{
+			actor.OutputHandler.Send("Use: room set route exit <exit> band <minimum> <maximum> arrival <distance>.");
+			return;
+		}
+
+		var minimumText = command.PopSpeech();
+		var maximumText = command.PopSpeech();
+		if (!TryParseRouteMetres(actor, minimumText, out var minimum) ||
+			!TryParseRouteMetres(actor, maximumText, out var maximum) ||
+			minimum < 0.0 ||
+			maximum < minimum ||
+			maximum > route.LengthMetres)
+		{
+			actor.OutputHandler.Send("Specify an inclusive minimum/maximum band inside this RouteRoom.");
+			return;
+		}
+
+		if (command.IsFinished || !command.PopSpeech().EqualTo("arrival") ||
+			!TryParseRouteMetres(actor, command.SafeRemainingArgument, out var arrival) ||
+			arrival < minimum ||
+			arrival > maximum)
+		{
+			actor.OutputHandler.Send("The deterministic arrival coordinate must lie inside the exit band.");
+			return;
+		}
+
+		using (new FMDB())
+		{
+			var dbroute = FMDB.Context.RouteRooms.Single(x => x.RoomId == room.Id);
+			var anchor = FMDB.Context.RouteExitAnchors.Find(exit.Exit.Id, room.Id);
+			if (anchor is null)
+			{
+				anchor = new DB.RouteExitAnchor
+				{
+					ExitId = exit.Exit.Id,
+					RouteRoomId = room.Id
+				};
+				FMDB.Context.RouteExitAnchors.Add(anchor);
+			}
+
+			anchor.MinimumPositionMetres = ToPersistedMetres(minimum);
+			anchor.MaximumPositionMetres = ToPersistedMetres(maximum);
+			anchor.ArrivalPositionMetres = ToPersistedMetres(arrival);
+			dbroute.TopologyVersion++;
+			FMDB.Context.SaveChanges();
+		}
+
+		ReloadRouteDefinition(room);
+		actor.OutputHandler.Send(
+			$"You anchor exit #{exit.Exit.Id.ToString("N0", actor).ColourValue()} from {DescribeRouteMetres(actor, minimum).ColourValue()} through {DescribeRouteMetres(actor, maximum).ColourValue()}, arriving at {DescribeRouteMetres(actor, arrival).ColourValue()}.");
+	}
+
+	private static void RoomSetRouteShow(ICharacter actor, MudSharp.Construction.Room room)
+	{
+		if (!RequireRoute(actor, room, out var route))
+		{
+			return;
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"RouteRoom Geometry for {room.GetFriendlyReference(actor).ColourName()}");
+		sb.AppendLine($"Length: {DescribeRouteMetres(actor, route.LengthMetres).ColourValue()}");
+		sb.AppendLine($"Default: {DescribeRouteMetres(actor, route.DefaultPositionMetres).ColourValue()}");
+		sb.AppendLine($"Negative: {route.NegativeDirectionName.ColourName()}");
+		sb.AppendLine($"Positive: {route.PositiveDirectionName.ColourName()}");
+		sb.AppendLine($"Room Equivalent: {DescribeRouteMetres(actor, route.MetresPerRoomEquivalent).ColourValue()}");
+		sb.AppendLine($"Topology Version: {route.TopologyVersion.ToString("N0", actor).ColourValue()}");
+		sb.AppendLine();
+		sb.AppendLine("Landmarks:");
+		sb.AppendLine(StringUtilities.GetTextTable(
+			route.Landmarks.Select(x => new[]
+			{
+				x.Id.ToString("N0", actor),
+				x.Name,
+				DescribeRouteMetres(actor, x.PositionMetres),
+				x.Keywords.ListToString()
+			}),
+			["Id", "Name", "Coordinate", "Keywords"],
+			actor.Account.LineFormatLength,
+			colour: Telnet.Green,
+			unicodeTable: actor.Account.UseUnicode));
+		sb.AppendLine("Exit Anchors:");
+		sb.AppendLine(StringUtilities.GetTextTable(
+			route.ExitAnchors.Select(x => new[]
+			{
+				x.Exit.Exit.Id.ToString("N0", actor),
+				x.Exit.OutboundDirectionDescription,
+				$"{DescribeRouteMetres(actor, x.MinimumPositionMetres)} - {DescribeRouteMetres(actor, x.MaximumPositionMetres)}",
+				DescribeRouteMetres(actor, x.ArrivalPositionMetres)
+			}),
+			["Exit", "Direction", "Band", "Arrival"],
+			actor.Account.LineFormatLength,
+			colour: Telnet.Green,
+			unicodeTable: actor.Account.UseUnicode));
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void RoomSetRouteMap(ICharacter actor, MudSharp.Construction.Room room)
+	{
+		if (!RequireRoute(actor, room, out var route))
+		{
+			return;
+		}
+
+		var points = route.Landmarks
+			.Select(x => (x.PositionMetres, Label: $"landmark #{x.Id:N0} {x.Name}"))
+			.Concat(route.ExitAnchors.Select(x =>
+				(PositionMetres: (x.MinimumPositionMetres + x.MaximumPositionMetres) / 2.0,
+					Label: $"exit #{x.Exit.Exit.Id:N0} [{DescribeRouteMetres(actor, x.MinimumPositionMetres)}-{DescribeRouteMetres(actor, x.MaximumPositionMetres)}]")))
+			.OrderBy(x => x.PositionMetres)
+			.ToList();
+		var sb = new StringBuilder();
+		sb.AppendLine($"{route.NegativeDirectionName.ColourName()} 0m");
+		foreach (var point in points)
+		{
+			sb.AppendLine($"  | {DescribeRouteMetres(actor, point.PositionMetres).ColourValue()} - {point.Label}");
+		}
+		sb.AppendLine($"  | {DescribeRouteMetres(actor, route.LengthMetres).ColourValue()} {route.PositiveDirectionName.ColourName()}");
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static void RoomSetRouteValidate(ICharacter actor, MudSharp.Construction.Room room)
+	{
+		if (!RequireRoute(actor, room, out var route))
+		{
+			return;
+		}
+
+		var errors = new List<string>();
+		var warnings = new List<string>();
+		if (route.LengthMetres <= 0.0 || route.DefaultPositionMetres < 0.0 ||
+			route.DefaultPositionMetres > route.LengthMetres || route.MetresPerRoomEquivalent <= 0.0)
+		{
+			errors.Add("The core geometry contains invalid lengths or coordinates.");
+		}
+
+		if (route.Landmarks.Any(x => x.PositionMetres < 0.0 || x.PositionMetres > route.LengthMetres))
+		{
+			errors.Add("One or more landmarks are outside the RouteRoom bounds.");
+		}
+
+		var topologyExits = actor.Gameworld.ExitManager.GetAllExits(room).ToList();
+		var anchoredExitIds = route.ExitAnchors.Select(x => x.Exit.Exit.Id).ToHashSet();
+		foreach (var exit in topologyExits.Where(x => !anchoredExitIds.Contains(x.Exit.Id)))
+		{
+			errors.Add($"Exit #{exit.Exit.Id:N0} ({exit.OutboundDirectionDescription}) has no RouteRoom anchor.");
+		}
+
+		foreach (var anchor in route.ExitAnchors)
+		{
+			if (anchor.MinimumPositionMetres < 0.0 ||
+				anchor.MaximumPositionMetres < anchor.MinimumPositionMetres ||
+				anchor.MaximumPositionMetres > route.LengthMetres ||
+				anchor.ArrivalPositionMetres < anchor.MinimumPositionMetres ||
+				anchor.ArrivalPositionMetres > anchor.MaximumPositionMetres)
+			{
+				errors.Add($"Exit #{anchor.Exit.Exit.Id:N0} has an invalid band or arrival coordinate.");
+			}
+
+			if (anchor.Exit.Destination.RouteDefinition is not null &&
+				anchor.Exit.Destination.RouteDefinition.ExitAnchors.All(x => x.Exit.Exit.Id != anchor.Exit.Exit.Id))
+			{
+				errors.Add($"Route-to-route exit #{anchor.Exit.Exit.Id:N0} has no anchor on its destination side.");
+			}
+		}
+
+		foreach (var entity in room.Perceivables.OfType<ILocateable>())
+		{
+			if (entity.RoutePositionMetres is null)
+			{
+				warnings.Add($"{entity.FrameworkItemType} #{entity.Id:N0} has no materialised RouteRoom coordinate.");
+			}
+			else if (entity.RoutePositionMetres < 0.0 || entity.RoutePositionMetres > route.LengthMetres)
+			{
+				errors.Add($"{entity.FrameworkItemType} #{entity.Id:N0} is outside the RouteRoom bounds.");
+			}
+		}
+
+		var sb = new StringBuilder();
+		sb.AppendLine($"RouteRoom validation for Room #{room.Id.ToString("N0", actor).ColourValue()}, topology {route.TopologyVersion.ToString("N0", actor).ColourValue()}:");
+		if (!errors.Any() && !warnings.Any())
+		{
+			sb.AppendLine("No errors or warnings were found.".Colour(Telnet.Green));
+		}
+		else
+		{
+			foreach (var error in errors)
+			{
+				sb.AppendLine($"Error: {error}".ColourError());
+			}
+
+			foreach (var warning in warnings)
+			{
+				sb.AppendLine($"Warning: {warning}".Colour(Telnet.Yellow));
+			}
+		}
+
+		actor.OutputHandler.Send(sb.ToString());
+	}
+
+	private static bool RequireRoute(
+		ICharacter actor,
+		MudSharp.Construction.Room room,
+		out IRouteRoomDefinition route)
+	{
+		route = room.RouteDefinition!;
+		if (route is not null)
+		{
+			return true;
+		}
+
+		actor.OutputHandler.Send("This is an ordinary room. Use CELL SET ROUTE CREATE <LENGTH> first.");
+		return false;
+	}
+
+	private static IRouteRoomLandmark? ResolveRouteLandmark(IRouteRoomDefinition route, string selector)
+	{
+		if (long.TryParse(selector, out var id))
+		{
+			return route.Landmarks.FirstOrDefault(x => x.Id == id);
+		}
+
+		return route.Landmarks.FirstOrDefault(x =>
+			x.Name.EqualTo(selector) || x.HasKeyword(selector, null, abbreviated: true));
+	}
+
+	private static bool TryResolveRoutePosition(
+		ICharacter actor,
+		IRouteRoomDefinition route,
+		string text,
+		out double position)
+	{
+		var landmark = ResolveRouteLandmark(route, text);
+		if (landmark is not null)
+		{
+			position = landmark.PositionMetres;
+			return true;
+		}
+
+		return TryParseRouteMetres(actor, text, out position) && position >= 0.0 && position <= route.LengthMetres;
+	}
+
+	private static bool TryParseRouteMetres(ICharacter actor, string text, out double metres)
+	{
+		metres = 0.0;
+		if (string.IsNullOrWhiteSpace(text) ||
+			!actor.Gameworld.UnitManager.TryGetBaseUnits(text, UnitType.Length, actor, out var baseUnits))
+		{
+			return false;
+		}
+
+		metres = baseUnits * actor.Gameworld.UnitManager.BaseHeightToMetres;
+		return double.IsFinite(metres);
+	}
+
+	private static string DescribeRouteMetres(ICharacter actor, double metres)
+	{
+		return actor.Gameworld.UnitManager.DescribeMostSignificantExact(
+			metres / actor.Gameworld.UnitManager.BaseHeightToMetres,
+			UnitType.Length,
+			actor);
+	}
+
+	private static RouteRoomMutationActor RouteMutationActor(ICharacter actor)
+	{
+		return new RouteRoomMutationActor(
+			CharacterInstanceIdentityComparer.IdentityId(actor),
+			actor.InstanceId,
+			actor.IsPrimaryInstance);
+	}
+
+	private static void AddRouteMutationBlocker(ICollection<string> blockers, string blocker)
+	{
+		if (!blockers.Contains(blocker, StringComparer.OrdinalIgnoreCase))
+		{
+			blockers.Add(blocker);
+		}
+	}
+
+	private static void SetCommittedActorRoutePosition(ICharacter actor, double? routePositionMetres)
+	{
+		if (actor is not PerceivedItem perceived)
+		{
+			throw new InvalidOperationException(
+				$"Builder #{actor.Id:N0} does not expose the spatial persistence implementation required for RouteRoom mutation.");
+		}
+
+		if (!perceived.TrySetRoutePosition(routePositionMetres, out var error, noSave: true))
+		{
+			throw new InvalidOperationException(
+				$"The committed RouteRoom geometry could not be applied to builder #{actor.Id:N0}: {error}");
+		}
+	}
+
+	private static decimal ToPersistedMetres(double metres)
+	{
+		return Math.Round((decimal)metres, 3, MidpointRounding.AwayFromZero);
+	}
+
+	private static void MutateRouteDefinition(
+		MudSharp.Construction.Room room,
+		Action<DB.RouteRoom> mutation)
+	{
+		using (new FMDB())
+		{
+			var route = FMDB.Context.RouteRooms.Single(x => x.RoomId == room.Id);
+			mutation(route);
+			route.TopologyVersion++;
+			FMDB.Context.SaveChanges();
+		}
+
+		ReloadRouteDefinition(room);
+	}
+
+	private static void MutateLandmark(
+		MudSharp.Construction.Room room,
+		long landmarkId,
+		Action<DB.RouteRoomLandmark> mutation)
+	{
+		using (new FMDB())
+		{
+			var route = FMDB.Context.RouteRooms.Single(x => x.RoomId == room.Id);
+			var landmark = FMDB.Context.RouteRoomLandmarks.Single(x => x.Id == landmarkId);
+			mutation(landmark);
+			route.TopologyVersion++;
+			FMDB.Context.SaveChanges();
+		}
+
+		ReloadRouteDefinition(room);
+	}
+
+	private static void ReloadRouteDefinition(MudSharp.Construction.Room room)
+	{
+		using (new FMDB())
+		{
+			var route = FMDB.Context.RouteRooms
+				.AsNoTracking()
+				.Include(x => x.Landmarks)
+				.Include(x => x.ExitAnchors)
+				.SingleOrDefault(x => x.RoomId == room.Id);
+			room.ReloadRouteDefinition(route);
+		}
+	}
+}

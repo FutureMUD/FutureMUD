@@ -66,7 +66,7 @@ public sealed class ClairvoyancePower : PsionicTargetedPowerBase
 			actor.OutputHandler.Send(new EmoteOutput(new Emote(SuccessEcho, actor, actor, target)));
 		}
 
-		actor.OutputHandler.Send(RemoteLookRenderer.DescribeRemoteCell(actor, target.Location, target.RoomLayer));
+		actor.OutputHandler.Send(RemoteLookRenderer.DescribeRemoteRoom(actor, target.Location, target.RoomLayer));
 		PsionicActivityNotifier.Notify(actor, this, "a remote psychic viewing", target);
 		ConsumePowerCosts(actor, Verb);
 	}

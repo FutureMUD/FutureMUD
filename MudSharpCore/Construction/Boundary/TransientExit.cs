@@ -11,11 +11,11 @@ namespace MudSharp.Construction.Boundary;
 public class TransientExit : PerceivedItem, ITransientExit, IMagicPortalExit
 {
 	private static long _nextId;
-	private readonly List<ICell> _cells = new();
-	private readonly ICellExit[] _cellExits = new ICellExit[2];
+	private readonly List<IRoom> _rooms = new();
+	private readonly IRoomExit[] _roomExits = new IRoomExit[2];
 	private readonly List<RoomLayer> _blockedLayers = new();
 
-	public TransientExit(IFuturemud gameworld, ICell origin, ICell destination, string verb, string outboundKeyword,
+	public TransientExit(IFuturemud gameworld, IRoom origin, IRoom destination, string verb, string outboundKeyword,
 		string inboundKeyword, string outboundTarget, string inboundTarget, string outboundDescription,
 		string inboundDescription, double timeMultiplier, ICharacter? caster = null, IMagicSpell? spell = null,
 		IEffect? sourceEffect = null, string? stableKey = null)
@@ -24,8 +24,8 @@ public class TransientExit : PerceivedItem, ITransientExit, IMagicPortalExit
 		_id = Interlocked.Decrement(ref _nextId);
 		IdInitialised = true;
 		_name = $"transient portal {Math.Abs(_id):N0}";
-		_cells.Add(origin);
-		_cells.Add(destination);
+		_rooms.Add(origin);
+		_rooms.Add(destination);
 		TimeMultiplier = timeMultiplier;
 		MaximumSizeToEnter = SizeCategory.Titanic;
 		MaximumSizeToEnterUpright = SizeCategory.Titanic;
@@ -43,26 +43,26 @@ public class TransientExit : PerceivedItem, ITransientExit, IMagicPortalExit
 
 		var outboundKeywords = KeywordsFor(outboundTarget, outboundKeyword);
 		var inboundKeywords = KeywordsFor(inboundTarget, inboundKeyword);
-		_cellExits[0] = new NonCardinalCellExit(this, origin, destination, verb, outboundKeyword, outboundKeywords,
+		_roomExits[0] = new NonCardinalRoomExit(this, origin, destination, verb, outboundKeyword, outboundKeywords,
 			outboundDescription, outboundTarget, inboundDescription, inboundTarget);
-		_cellExits[1] = new NonCardinalCellExit(this, destination, origin, verb, inboundKeyword, inboundKeywords,
+		_roomExits[1] = new NonCardinalRoomExit(this, destination, origin, verb, inboundKeyword, inboundKeywords,
 			outboundDescription, inboundTarget, inboundDescription, outboundTarget);
 	}
 
 	/// <summary>
-	/// Creates an isolated copy of one existing exit between two transient cells. The copied exit deliberately
+	/// Creates an isolated copy of one existing exit between two transient rooms. The copied exit deliberately
 	/// has no door reference, so a combat simulation can never open, close or otherwise mutate a live door.
 	/// </summary>
 	internal TransientExit(
 		IFuturemud gameworld,
-		ICell origin,
-		ICell destination,
+		IRoom origin,
+		IRoom destination,
 		IExit sourceExit,
-		ICell sourceOrigin,
+		IRoom sourceOrigin,
 		string stableKey)
 	{
-		var sourceOriginExit = sourceExit.CellExitFor(sourceOrigin) ??
-		                       throw new ArgumentException("The source exit does not leave the supplied source cell.",
+		var sourceOriginExit = sourceExit.RoomExitFor(sourceOrigin) ??
+		                       throw new ArgumentException("The source exit does not leave the supplied source room.",
 			                       nameof(sourceOrigin));
 		var sourceDestinationExit = sourceOriginExit.Opposite ??
 		                            throw new ArgumentException("The source exit has no opposite side.", nameof(sourceExit));
@@ -70,8 +70,8 @@ public class TransientExit : PerceivedItem, ITransientExit, IMagicPortalExit
 		_id = Interlocked.Decrement(ref _nextId);
 		IdInitialised = true;
 		_name = $"transient portal {Math.Abs(_id):N0}";
-		_cells.Add(origin);
-		_cells.Add(destination);
+		_rooms.Add(origin);
+		_rooms.Add(destination);
 		TimeMultiplier = sourceExit.TimeMultiplier;
 		MaximumSizeToEnter = sourceExit.MaximumSizeToEnter;
 		MaximumSizeToEnterUpright = sourceExit.MaximumSizeToEnterUpright;
@@ -84,9 +84,9 @@ public class TransientExit : PerceivedItem, ITransientExit, IMagicPortalExit
 			_blockedLayers.Add(blockedLayer);
 		}
 
-		FallCell = ReferenceEquals(sourceExit.FallCell, sourceOrigin)
+		FallRoom = ReferenceEquals(sourceExit.FallRoom, sourceOrigin)
 			? origin
-			: ReferenceEquals(sourceExit.FallCell, sourceOriginExit.Destination)
+			: ReferenceEquals(sourceExit.FallRoom, sourceOriginExit.Destination)
 				? destination
 				: null;
 		Caster = null;
@@ -95,25 +95,25 @@ public class TransientExit : PerceivedItem, ITransientExit, IMagicPortalExit
 		StableKey = stableKey;
 		Source = origin;
 		Destination = destination;
-		Verb = sourceOriginExit is INonCardinalCellExit nonCardinalOrigin
+		Verb = sourceOriginExit is INonCardinalRoomExit nonCardinalOrigin
 			? nonCardinalOrigin.Verb
 			: sourceOriginExit.OutboundDirection.Describe().ToLowerInvariant();
-		OutboundKeyword = sourceOriginExit is INonCardinalCellExit nonCardinalOutbound
+		OutboundKeyword = sourceOriginExit is INonCardinalRoomExit nonCardinalOutbound
 			? nonCardinalOutbound.PrimaryKeyword
 			: sourceOriginExit.OutboundDirection.Describe().ToLowerInvariant();
-		InboundKeyword = sourceDestinationExit is INonCardinalCellExit nonCardinalInbound
+		InboundKeyword = sourceDestinationExit is INonCardinalRoomExit nonCardinalInbound
 			? nonCardinalInbound.PrimaryKeyword
 			: sourceDestinationExit.OutboundDirection.Describe().ToLowerInvariant();
 
-		if (sourceOriginExit is INonCardinalCellExit sourceNonCardinalOrigin &&
-		    sourceDestinationExit is INonCardinalCellExit sourceNonCardinalDestination)
+		if (sourceOriginExit is INonCardinalRoomExit sourceNonCardinalOrigin &&
+		    sourceDestinationExit is INonCardinalRoomExit sourceNonCardinalDestination)
 		{
-			_cellExits[0] = new NonCardinalCellExit(this, origin, destination,
+			_roomExits[0] = new NonCardinalRoomExit(this, origin, destination,
 				sourceNonCardinalOrigin.Verb, sourceNonCardinalOrigin.PrimaryKeyword,
 				sourceNonCardinalOrigin.Keywords, sourceNonCardinalOrigin.OutboundDescription,
 				sourceNonCardinalOrigin.OutboundTarget, sourceNonCardinalOrigin.InboundDescription,
 				sourceNonCardinalOrigin.InboundTarget);
-			_cellExits[1] = new NonCardinalCellExit(this, destination, origin,
+			_roomExits[1] = new NonCardinalRoomExit(this, destination, origin,
 				sourceNonCardinalDestination.Verb, sourceNonCardinalDestination.PrimaryKeyword,
 				sourceNonCardinalDestination.Keywords, sourceNonCardinalDestination.OutboundDescription,
 				sourceNonCardinalDestination.OutboundTarget, sourceNonCardinalDestination.InboundDescription,
@@ -121,9 +121,9 @@ public class TransientExit : PerceivedItem, ITransientExit, IMagicPortalExit
 			return;
 		}
 
-		_cellExits[0] = new CellExit(this, origin, destination, sourceOriginExit.OutboundDirection,
+		_roomExits[0] = new RoomExit(this, origin, destination, sourceOriginExit.OutboundDirection,
 			sourceOriginExit.InboundDirection);
-		_cellExits[1] = new CellExit(this, destination, origin, sourceDestinationExit.OutboundDirection,
+		_roomExits[1] = new RoomExit(this, destination, origin, sourceDestinationExit.OutboundDirection,
 			sourceDestinationExit.InboundDirection);
 	}
 
@@ -138,7 +138,7 @@ public class TransientExit : PerceivedItem, ITransientExit, IMagicPortalExit
 	}
 
 	public override string FrameworkItemType => "TransientExit";
-	public override ICell Location => _cellExits[0].Origin;
+	public override IRoom Location => _roomExits[0].Origin;
 	public override ProgVariableTypes Type => ProgVariableTypes.Error;
 
 	public bool AcceptsDoor { get; set; }
@@ -147,10 +147,10 @@ public class TransientExit : PerceivedItem, ITransientExit, IMagicPortalExit
 	public double TimeMultiplier { get; set; }
 	public SizeCategory MaximumSizeToEnterUpright { get; set; }
 	public SizeCategory MaximumSizeToEnter { get; set; }
-	public IEnumerable<ICell> Cells => _cells;
+	public IEnumerable<IRoom> Rooms => _rooms;
 	public IExit Exit => this;
-	public ICell Source { get; }
-	public ICell Destination { get; }
+	public IRoom Source { get; }
+	public IRoom Destination { get; }
 	public ICharacter? Caster { get; }
 	public IMagicSpell? Spell { get; }
 	public IEffect? SourceEffect { get; }
@@ -158,29 +158,29 @@ public class TransientExit : PerceivedItem, ITransientExit, IMagicPortalExit
 	public string Verb { get; }
 	public string OutboundKeyword { get; }
 	public string InboundKeyword { get; }
-	public ICell? FallCell { get; set; }
+	public IRoom? FallRoom { get; set; }
 	public bool IsClimbExit { get; set; }
 	public Difficulty ClimbDifficulty { get; set; }
 	public IEnumerable<RoomLayer> BlockedLayers => _blockedLayers;
 
-	public ICellExit? CellExitFor(ICell cell)
+	public IRoomExit? RoomExitFor(IRoom room)
 	{
-		return _cellExits.FirstOrDefault(x => ReferenceEquals(x.Origin, cell) || x.Origin.Id == cell.Id);
+		return _roomExits.FirstOrDefault(x => ReferenceEquals(x.Origin, room) || x.Origin.Id == room.Id);
 	}
 
-	public ICell? Opposite(ICell cell)
+	public IRoom? Opposite(IRoom room)
 	{
-		return CellExitFor(cell)?.Destination;
+		return RoomExitFor(room)?.Destination;
 	}
 
-	public bool IsExit(ICell cell, string verb)
+	public bool IsExit(IRoom room, string verb)
 	{
-		return CellExitFor(cell)?.IsExit(verb) == true;
+		return RoomExitFor(room)?.IsExit(verb) == true;
 	}
 
-	public bool IsExitKeyword(ICell cell, string keyword)
+	public bool IsExitKeyword(IRoom room, string keyword)
 	{
-		return CellExitFor(cell)?.IsExitKeyword(keyword) == true;
+		return RoomExitFor(room)?.IsExitKeyword(keyword) == true;
 	}
 
 	public IExit Clone()

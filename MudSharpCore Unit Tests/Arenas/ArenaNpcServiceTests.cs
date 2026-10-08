@@ -26,7 +26,7 @@ public class ArenaNpcServiceTests
     {
         Mock<IFuturemud> gameworld = new();
         ArenaNpcService service = new(gameworld.Object);
-        Mock<ICell> location = new();
+        Mock<IRoom> location = new();
         Mock<IBody> body = new();
         Mock<ICharacter> npc = new();
         npc.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
@@ -39,7 +39,7 @@ public class ArenaNpcServiceTests
         arenaEvent.SetupGet(x => x.Id).Returns(99L);
 
         IGameItem? containedIn = null;
-        ICell? itemLocation = null;
+        IRoom? itemLocation = null;
         Mock<IGameItem> item = new();
         item.SetupGet(x => x.Deleted).Returns(false);
         item.SetupGet(x => x.ContainedIn).Returns(() => containedIn!);
@@ -75,7 +75,7 @@ public class ArenaNpcServiceTests
     {
         Mock<IFuturemud> gameworld = new();
         ArenaNpcService service = new(gameworld.Object);
-        Mock<ICell> location = new();
+        Mock<IRoom> location = new();
         Mock<IBody> body = new();
         Mock<ICharacter> npc = new();
         npc.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
@@ -88,7 +88,7 @@ public class ArenaNpcServiceTests
         arenaEvent.SetupGet(x => x.Id).Returns(100L);
 
         IGameItem? containedIn = null;
-        ICell? itemLocation = null;
+        IRoom? itemLocation = null;
         IBody? inventoryOwner = null;
         Mock<IGameItem> item = new();
         item.SetupGet(x => x.Deleted).Returns(false);
@@ -117,7 +117,7 @@ public class ArenaNpcServiceTests
 	{
         Mock<IFuturemud> gameworld = new();
         ArenaNpcService service = new(gameworld.Object);
-        Mock<ICell> location = new();
+        Mock<IRoom> location = new();
         Mock<IBody> body = new();
         Mock<ICharacter> npc = new();
         npc.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
@@ -130,7 +130,7 @@ public class ArenaNpcServiceTests
         arenaEvent.SetupGet(x => x.Id).Returns(101L);
 
         IGameItem? containedIn = null;
-        ICell? itemLocation = null;
+        IRoom? itemLocation = null;
         Mock<IGameItem> item = new();
         item.SetupGet(x => x.Deleted).Returns(false);
         item.SetupGet(x => x.ContainedIn).Returns(() => containedIn!);
@@ -214,14 +214,14 @@ public class ArenaNpcServiceTests
 		ratingsService.Setup(x => x.GetRating(lowRatedNpc.Object, combatantClass.Object)).Returns(1700.0m);
 		ratingsService.Setup(x => x.GetRating(championNpc.Object, combatantClass.Object)).Returns(1900.0m);
 
-		Mock<ICell> stableCell = new();
-		stableCell.SetupGet(x => x.Characters).Returns([lowRatedNpc.Object, championNpc.Object]);
+		Mock<IRoom> stableRoom = new();
+		stableRoom.SetupGet(x => x.Characters).Returns([lowRatedNpc.Object, championNpc.Object]);
 
 		Mock<IArenaEventType> eventType = new();
 		eventType.SetupGet(x => x.Sides).Returns([side.Object]);
 
 		Mock<ICombatArena> arena = new();
-		arena.SetupGet(x => x.NpcStablesCells).Returns([stableCell.Object]);
+		arena.SetupGet(x => x.NpcStablesRooms).Returns([stableRoom.Object]);
 		arena.SetupGet(x => x.ActiveEvents).Returns(Enumerable.Empty<IArenaEvent>());
 
 		Mock<IArenaEvent> arenaEvent = new();

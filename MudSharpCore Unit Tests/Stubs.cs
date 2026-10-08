@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using MudSharp.Body;
 using MudSharp.Celestial;
 using MudSharp.Character;
@@ -21,43 +21,30 @@ namespace MudSharp_Unit_Tests;
 
 public class RoomStub
 {
-    public int X { get; init; }
-    public int Y { get; init; }
-    public int Z { get; init; }
-
-    public IRoom ToMock()
-    {
-        Mock<IRoom> mock = new();
-        mock.Setup(t => t.X).Returns(X);
-        mock.Setup(t => t.Y).Returns(Y);
-        mock.Setup(t => t.Z).Returns(Z);
-        return mock.Object;
-    }
-}
-
-public class CellStub
-{
     public string Name { get; set; }
-    public List<CellExitStub> Exits { get; set; }
+    public List<RoomExitStub> Exits { get; set; }
     public List<IPerceivable> Perceivables { get; set; } = new();
-    public IRoom Room { get; init; }
+    public (int X, int Y, int Z) Coordinates { get; init; }
     public IFuturemud Gameworld { get; set; }
     public long Id { get; set; }
 
-    public Mock<ICell> ToMock()
+    public Mock<IRoom> ToMock()
     {
-        Mock<ICell> mock = new();
+        Mock<IRoom> mock = new();
         mock.Setup(t => t.Name).Returns(Name);
-        mock.Setup(t => t.Room).Returns(Room);
+        mock.Setup(t => t.StoredCoordinates).Returns(Coordinates);
+        mock.Setup(t => t.X).Returns(Coordinates.X);
+        mock.Setup(t => t.Y).Returns(Coordinates.Y);
+        mock.Setup(t => t.Z).Returns(Coordinates.Z);
         mock.Setup(t => t.Id).Returns(Id);
         mock.Setup(t => t.Gameworld).Returns(() => Gameworld);
         mock.Name = Name;
         return mock;
     }
 
-    public ICell GetObject(IEnumerable<Mock<ICell>> cellMocks)
+    public IRoom GetObject(IEnumerable<Mock<IRoom>> cellMocks)
     {
-        Mock<ICell> mock = cellMocks.First(x => x.Object.Name.Equals(Name));
+        Mock<IRoom> mock = cellMocks.First(x => x.Object.Name.Equals(Name));
         mock.Setup(t => t.ExitsFor(It.IsAny<IPerceiver>(), false)).Returns(Exits.Select(x => x.ToMock(cellMocks, mock.Object)));
         mock.Setup(t => t.ExitsFor(It.IsAny<IPerceiver>(), true)).Returns(Exits.Select(x => x.ToMock(cellMocks, mock.Object)));
         mock.Setup(t => t.Perceivables).Returns(Perceivables);
@@ -66,24 +53,24 @@ public class CellStub
     }
 }
 
-public class CellExitStub
+public class RoomExitStub
 {
     public override string ToString()
     {
         return $"Cell Exit {OutboundDirection.Describe()} to {Destination.Name}";
     }
-    public CellStub Destination { get; init; }
+    public RoomStub Destination { get; init; }
 
     public ExitStub Exit { get; init; }
 
     public CardinalDirection OutboundDirection { get; init; }
 
-    public ICellExit ToMock(IEnumerable<Mock<ICell>> cellMocks, ICell origin)
+    public IRoomExit ToMock(IEnumerable<Mock<IRoom>> cellMocks, IRoom origin)
     {
-        Mock<ICellExit> mock = new();
+        Mock<IRoomExit> mock = new();
         mock.Setup(t => t.OutboundDirection).Returns(OutboundDirection);
         mock.Setup(t => t.Origin).Returns(origin);
-        ICell destination = cellMocks.First(x => x.Name == Destination.Name).Object;
+        IRoom destination = cellMocks.First(x => x.Name == Destination.Name).Object;
         mock.Setup(t => t.Destination).Returns(destination);
         mock.Setup(t => t.Exit).Returns(Exit.ToMock(origin, destination));
         return mock.Object;
@@ -107,7 +94,7 @@ public class DoorStub
         get; set;
     }
 
-    public CellStub HingeCell
+    public RoomStub HingeRoom
     {
         get; set;
     }
@@ -132,7 +119,7 @@ public class DoorStub
         lockMock.SetupGet(x => x.IsLocked).Returns(() => Locked);
         mock.SetupGet(t => t.Locks).Returns(new[] { lockMock.Object });
         mock.SetupProperty(t => t.InstalledExit);
-        mock.SetupProperty(t => t.HingeCell);
+        mock.SetupProperty(t => t.HingeRoom);
         mock.Setup(t => t.CanSeeThrough(It.IsAny<IBody>())).Returns(true);
         return mock.Object;
     }
@@ -147,19 +134,19 @@ public class ExitStub
 
     public bool AcceptsDoor { get; init; }
 
-    public IExit ToMock(ICell origin, ICell destination)
+    public IExit ToMock(IRoom origin, IRoom destination)
     {
         Mock<IExit> mock = new();
         mock.SetupProperty(t => t.Door, Door?.ToMock());
         mock.Setup(t => t.AcceptsDoor).Returns(AcceptsDoor);
-        mock.Setup(t => t.Cells).Returns(new[] { origin, destination });
+        mock.Setup(t => t.Rooms).Returns(new[] { origin, destination });
         return mock.Object;
     }
 }
 
 public class PerceivableStub
 {
-    public ICell Location { get; init; }
+    public IRoom Location { get; init; }
     public IFuturemud Gameworld { get; set; }
     public IPerceivable ToMock()
     {

@@ -36,7 +36,7 @@ public class ProgArgumentResolverTests
 {
 	private Mock<IFuturemud> _world = null!;
 	private Mock<ICharacter> _actor = null!;
-	private Mock<ICell> _cell = null!;
+	private Mock<IRoom> _cell = null!;
 	private List<string> _messages = null!;
 
 	[TestInitialize]
@@ -44,7 +44,7 @@ public class ProgArgumentResolverTests
 	{
 		_world = new Mock<IFuturemud> { DefaultValue = DefaultValue.Mock };
 		_actor = new Mock<ICharacter>();
-		_cell = Reference<ICell>(ProgVariableTypes.Location);
+		_cell = Reference<IRoom>(ProgVariableTypes.Location);
 		_messages = new List<string>();
 		var output = new Mock<IOutputHandler>();
 		output.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
@@ -90,7 +90,7 @@ public class ProgArgumentResolverTests
 	[DataRow("shard")]
 	public void GetArgument_MissingSpatialId_FailsButExplicitNullSucceeds(string name)
 	{
-		_world.SetupGet(x => x.Cells).Returns(new Mock<IUneditableAll<ICell>>().Object);
+		_world.SetupGet(x => x.Rooms).Returns(new Mock<IUneditableAll<IRoom>>().Object);
 		_world.SetupGet(x => x.Zones).Returns(new Mock<IUneditableAll<IZone>>().Object);
 		_world.SetupGet(x => x.Shards).Returns(new Mock<IUneditableAll<IShard>>().Object);
 		var type = FutureProg.GetTypeByName(name);

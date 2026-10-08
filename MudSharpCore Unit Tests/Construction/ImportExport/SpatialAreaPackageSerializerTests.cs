@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Nodes;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Construction;
 using MudSharp.Construction.ImportExport;
@@ -11,6 +13,47 @@ namespace MudSharpCore_Unit_Tests.Construction.ImportExport;
 public class SpatialAreaPackageSerializerTests
 {
 	[TestMethod]
+	public void FrozenVersion4Checksum_ValidatesBeforeRoomPropertyConversion()
+	{
+		var current=CreateValidPackage();
+		current.Rooms[0].SourceId=8101;
+		current.Rooms[0].Overlay.RoomDescription="Cell is user-authored text and stays unchanged.";
+		var (archive, checksum) = CreateVersion4Archive(current);
+		var read=SpatialAreaPackageSerializer.Deserialize(archive);
+		Assert.IsTrue(read.Success,string.Join("; ",read.Diagnostics.Select(x=>x.Message)));
+		Assert.AreEqual(4,read.SourceVersion);
+		Assert.AreEqual(checksum,read.SourceIntegritySha256);
+		Assert.AreEqual(5,read.Package!.Version);
+		Assert.AreEqual(8101L,read.Package.Rooms[0].SourceId);
+		Assert.AreEqual(current.Rooms[0].Overlay.RoomDescription,read.Package.Rooms[0].Overlay.RoomDescription);
+		Assert.IsFalse(SpatialAreaPackageSerializer.Deserialize(archive.Replace("user-authored","tampered",StringComparison.Ordinal)).Success);
+	}
+
+	internal static (string Archive, string Checksum) CreateVersion4Archive(SpatialAreaPackage current)
+	{
+		var node=JsonNode.Parse(SpatialAreaPackageSerializer.Serialize(current))!;
+		var names=new System.Collections.Generic.Dictionary<string,string>
+		{
+			["Rooms"]="Cells",["DefaultRoomKey"]="DefaultCellKey",["RoomKeys"]="CellKeys",
+			["RoomName"]="CellName",["RoomDescription"]="CellDescription",["RouteRoom"]="RouteCell",
+			["Room1Key"]="Cell1Key",["Room2Key"]="Cell2Key",["FallRoomKey"]="FallCellKey"
+		};
+		void OldNames(JsonNode? value)
+		{
+			if(value is JsonObject obj) foreach(var property in obj.ToArray())
+			{
+				OldNames(property.Value);
+				if(!names.TryGetValue(property.Key,out var old))continue;
+				obj.Remove(property.Key);obj.Add(old,property.Value);
+			}
+			else if(value is JsonArray array) foreach(var item in array)OldNames(item);
+		}
+		OldNames(node);node["Version"]=4;
+		var original=JsonSerializer.Deserialize<MudSharp.Construction.ImportExport.LegacyV4.SpatialAreaPackage>(node.ToJsonString())!;
+		var archive=MudSharp.Construction.ImportExport.LegacyV4.SpatialAreaPackageSerializer.Serialize(original);
+		return (archive, original.IntegritySha256);
+	}
+	[TestMethod]
 	public void SerializeDeserialize_ValidPackage_RoundTripsWithIntegrity()
 	{
 		var package = CreateValidPackage();
@@ -20,8 +63,8 @@ public class SpatialAreaPackageSerializerTests
 
 		Assert.IsTrue(result.Success);
 		Assert.IsNotNull(result.Package);
-		Assert.AreEqual("Test Zone", result.Package.Zone.Name);
-		Assert.AreEqual(2, result.Package.Cells.Count);
+		Assert.AreEqual("Test Zone", result.Package.Zones[0].Name);
+		Assert.AreEqual(2, result.Package.Rooms.Count);
 		Assert.AreEqual(1, result.Package.Exits.Count);
 		Assert.AreEqual(64, result.Package.IntegritySha256.Length);
 	}
@@ -43,8 +86,8 @@ public class SpatialAreaPackageSerializerTests
 	public void Validate_OrphanedExitReference_ReportsActionableDiagnostics()
 	{
 		var package = CreateValidPackage();
-		package.Cells[0].Overlay.ExitKeys.Add("exit-missing");
-		package.Exits[0].Cell2Key = "cell-missing";
+		package.Rooms[0].Overlay.ExitKeys.Add("exit-missing");
+		package.Exits[0].Room2Key = "cell-missing";
 
 		var diagnostics = SpatialAreaPackageSerializer.Validate(package);
 
@@ -56,7 +99,7 @@ public class SpatialAreaPackageSerializerTests
 	public void Validate_DuplicateKeys_RejectsAmbiguousIdRemapping()
 	{
 		var package = CreateValidPackage();
-		package.Cells[1].Key = package.Cells[0].Key;
+		package.Rooms[1].Key = package.Rooms[0].Key;
 
 		var diagnostics = SpatialAreaPackageSerializer.Validate(package);
 
@@ -95,36 +138,16 @@ public class SpatialAreaPackageSerializerTests
 	}
 
 	[TestMethod]
-	public void Deserialize_Version1PackageWithEmptyRoom_WarnsAndRemainsImportable()
+	public void Validate_Version4MultiZonePackage_PreservesCrossZoneExit()
 	{
-		var package = CreateValidPackage();
-		package.Rooms.Add(new SpatialRoomDefinition
-		{
-			Key = "room-00003",
-			SourceId = 102,
-			X = 9
-		});
-
-		var json = SpatialAreaPackageSerializer.Serialize(package);
-		var result = SpatialAreaPackageSerializer.Deserialize(json);
-
-		Assert.IsTrue(result.Success);
-		Assert.IsNotNull(result.Package);
-		Assert.IsFalse(json.Contains("\"Zones\"", StringComparison.Ordinal));
-		Assert.IsTrue(result.Diagnostics.Any(x => x.Code == "empty-room-skipped"));
-	}
-
-	[TestMethod]
-	public void Validate_Version2MultiZonePackage_PreservesCrossZoneExit()
-	{
-		var package = CreateValidVersion2Package();
+		var package = CreateValidVersion4Package();
 		var secondZone = new SpatialZoneDefinition
 		{
 			Key = "zone-00002",
 			SourceId = 11,
 			Name = "Second Zone",
-			DefaultCellKey = "cell-00002",
-			TimeZones = package.Zone.TimeZones
+			DefaultRoomKey = "cell-00002",
+			TimeZones = package.Zones[0].TimeZones
 				.Select(x => new SpatialTimeZoneDefinition
 				{
 					ClockAlias = x.ClockAlias,
@@ -159,15 +182,15 @@ public class SpatialAreaPackageSerializerTests
 		Assert.IsNotNull(result.Package);
 		Assert.AreEqual(2, result.Package.Zones.Count);
 		Assert.AreEqual("boundary-exit", result.Package.Omissions.Single().Code);
-		Assert.AreEqual("cell-00001", result.Package.Exits[0].Cell1Key);
-		Assert.AreEqual("cell-00002", result.Package.Exits[0].Cell2Key);
+		Assert.AreEqual("cell-00001", result.Package.Exits[0].Room1Key);
+		Assert.AreEqual("cell-00002", result.Package.Exits[0].Room2Key);
 	}
 
 	[TestMethod]
-	public void SerializeDeserialize_Version3PackageWithFullyContainedArea_PreservesAreaMembership()
+	public void SerializeDeserialize_Version4PackageWithFullyContainedArea_PreservesAreaMembership()
 	{
-		var package = CreateValidVersion2Package();
-		package.Version = 3;
+		var package = CreateValidVersion4Package();
+		package.Version = 5;
 		package.Areas =
 		[
 			new SpatialAreaDefinition
@@ -176,7 +199,7 @@ public class SpatialAreaPackageSerializerTests
 				SourceId = 50,
 				Name = "Courtyard",
 				WeatherController = new SpatialNamedReference { SourceId = 9, Name = "Temperate" },
-				RoomKeys = ["room-00001", "room-00002"]
+				RoomKeys = ["cell-00001", "cell-00002"]
 			}
 		];
 
@@ -188,34 +211,34 @@ public class SpatialAreaPackageSerializerTests
 		Assert.IsNotNull(result.Package);
 		Assert.AreEqual(1, result.Package.Areas.Count);
 		Assert.AreEqual("Courtyard", result.Package.Areas[0].Name);
-		CollectionAssert.AreEqual(new[] { "room-00001", "room-00002" }, result.Package.Areas[0].RoomKeys);
+		CollectionAssert.AreEqual(new[] { "cell-00001", "cell-00002" }, result.Package.Areas[0].RoomKeys);
 	}
 
 	[TestMethod]
-	public void Validate_Version3AreaWithMissingRoom_ReportsAreaClosureError()
+	public void Validate_Version4AreaWithMissingRoom_ReportsAreaClosureError()
 	{
-		var package = CreateValidVersion2Package();
-		package.Version = 3;
+		var package = CreateValidVersion4Package();
+		package.Version = 5;
 		package.Areas =
 		[
 			new SpatialAreaDefinition
 			{
 				Key = "area-00001",
 				Name = "Courtyard",
-				RoomKeys = ["room-missing"]
+				RoomKeys = ["cell-missing"]
 			}
 		];
 
 		var diagnostics = SpatialAreaPackageSerializer.Validate(package);
 
-		Assert.IsTrue(diagnostics.Any(x => x.Code == "orphan-area-room"));
+		Assert.IsTrue(diagnostics.Any(x => x.Code == "orphan-area-cell"));
 	}
 
 	[TestMethod]
-	public void SerializeDeserialize_Version2RouteCell_RoundTripsGeometryAndAnchor()
+	public void SerializeDeserialize_Version4RouteRoom_RoundTripsGeometryAndAnchor()
 	{
-		var package = CreateValidVersion2Package();
-		package.Cells[0].RouteCell = new SpatialRouteCellDefinition
+		var package = CreateValidVersion4Package();
+		package.Rooms[0].RouteRoom = new SpatialRouteRoomDefinition
 		{
 			LengthMetres = 500.0,
 			DefaultPositionMetres = 125.0,
@@ -252,15 +275,15 @@ public class SpatialAreaPackageSerializerTests
 		Assert.IsTrue(result.Success,
 			string.Join(Environment.NewLine, result.Diagnostics.Select(x => $"{x.Code}: {x.Message}")));
 		Assert.IsNotNull(result.Package);
-		Assert.AreEqual(500.0, result.Package.Cells[0].RouteCell?.LengthMetres);
-		Assert.AreEqual("exit-00001", result.Package.Cells[0].RouteCell?.ExitAnchors.Single().ExitKey);
+		Assert.AreEqual(500.0, result.Package.Rooms[0].RouteRoom?.LengthMetres);
+		Assert.AreEqual("exit-00001", result.Package.Rooms[0].RouteRoom?.ExitAnchors.Single().ExitKey);
 	}
 
-	private static SpatialAreaPackage CreateValidPackage()
+	internal static SpatialAreaPackage CreateValidPackage()
 	{
-		return new SpatialAreaPackage
+		var package = new SpatialAreaPackage
 		{
-			Version = 1,
+			Version = 5,
 			CreatedUtc = new DateTime(2026, 7, 24, 0, 0, 0, DateTimeKind.Utc),
 			Source = new SpatialAreaPackageSource
 			{
@@ -272,10 +295,11 @@ public class SpatialAreaPackageSerializerTests
 				OverlayPackageId = 4,
 				OverlayPackageRevision = 1
 			},
-			Zone = new SpatialZoneDefinition
+			Zones = [new SpatialZoneDefinition
 			{
+				Key = "zone-00001", SourceId = 10,
 				Name = "Test Zone",
-				DefaultCellKey = "cell-00001",
+				DefaultRoomKey = "cell-00001",
 				TimeZones =
 				[
 					new SpatialTimeZoneDefinition
@@ -285,46 +309,32 @@ public class SpatialAreaPackageSerializerTests
 						TimeZoneDescription = "Universal"
 					}
 				]
-			},
+			}],
 			Rooms =
 			[
 				new SpatialRoomDefinition
 				{
-					Key = "room-00001",
-					SourceId = 100
-				},
-				new SpatialRoomDefinition
-				{
-					Key = "room-00002",
-					SourceId = 101,
-					X = 1
-				}
-			],
-			Cells =
-			[
-				new SpatialCellDefinition
-				{
 					Key = "cell-00001",
 					SourceId = 200,
-					RoomKey = "room-00001",
-					Overlay = new SpatialCellOverlayDefinition
+					ZoneKey = "zone-00001",
+					Overlay = new SpatialRoomOverlayDefinition
 					{
-						CellName = "First Room",
-						CellDescription = "The first room.",
+						RoomName = "First Room",
+						RoomDescription = "The first room.",
 						Terrain = new SpatialNamedReference { SourceId = 1, Name = "Default" },
 						AmbientLightFactor = 1.0,
 						ExitKeys = ["exit-00001"]
 					}
 				},
-				new SpatialCellDefinition
+				new SpatialRoomDefinition
 				{
 					Key = "cell-00002",
 					SourceId = 201,
-					RoomKey = "room-00002",
-					Overlay = new SpatialCellOverlayDefinition
+					ZoneKey = "zone-00001", X = 1,
+					Overlay = new SpatialRoomOverlayDefinition
 					{
-						CellName = "Second Room",
-						CellDescription = "Second room",
+						RoomName = "Second Room",
+						RoomDescription = "Second room",
 						Terrain = new SpatialNamedReference { SourceId = 1, Name = "Default" },
 						AmbientLightFactor = 1.0,
 						ExitKeys = ["exit-00001"]
@@ -337,8 +347,8 @@ public class SpatialAreaPackageSerializerTests
 				{
 					Key = "exit-00001",
 					SourceId = 300,
-					Cell1Key = "cell-00001",
-					Cell2Key = "cell-00002",
+					Room1Key = "cell-00001",
+					Room2Key = "cell-00002",
 					Side1 = new SpatialExitSideDefinition { Direction = (int)CardinalDirection.East },
 					Side2 = new SpatialExitSideDefinition { Direction = (int)CardinalDirection.West },
 					TimeMultiplier = 1.0,
@@ -347,21 +357,14 @@ public class SpatialAreaPackageSerializerTests
 				}
 			]
 		};
+		package.SourceZones = [package.Source];
+		return package;
 	}
 
-	private static SpatialAreaPackage CreateValidVersion2Package()
+	private static SpatialAreaPackage CreateValidVersion4Package()
 	{
 		var package = CreateValidPackage();
-		package.Version = 2;
-		package.Zone.Key = "zone-00001";
-		package.Zone.SourceId = package.Source.ZoneId;
-		package.Zones = [package.Zone];
 		package.SourceZones = [package.Source];
-		foreach (var room in package.Rooms)
-		{
-			room.ZoneKey = package.Zone.Key;
-		}
-
 		return package;
 	}
 }

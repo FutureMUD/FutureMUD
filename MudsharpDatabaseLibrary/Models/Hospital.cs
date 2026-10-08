@@ -35,11 +35,11 @@ public class Hospital
 public class HospitalLocation
 {
 	public long HospitalId { get; set; }
-	public long CellId { get; set; }
+	public long RoomId { get; set; }
 	public int Role { get; set; }
 
 	public virtual Hospital Hospital { get; set; } = null!;
-	public virtual Cell Cell { get; set; } = null!;
+	public virtual Room Room { get; set; } = null!;
 }
 
 public class HospitalService
@@ -95,13 +95,13 @@ public class HospitalServiceRequest
 	public decimal DebtCharged { get; set; }
 	public string? EmploymentTaskId { get; set; }
 	public long? AssignedEmployeeId { get; set; }
-	public long? OperatingTheatreCellId { get; set; }
+	public long? OperatingTheatreRoomId { get; set; }
 	public bool UsedInPlaceFallback { get; set; }
 	public bool SupplyPrepared { get; set; }
 	public long? PreparedByEmployeeId { get; set; }
 	public DateTime? PreparedAtUtc { get; set; }
-	public long? RecoveryRoomCellId { get; set; }
-	public long? ReturnCellId { get; set; }
+	public long? RecoveryRoomId { get; set; }
+	public long? ReturnRoomId { get; set; }
 	public DateTime CreatedAtUtc { get; set; }
 	public DateTime LastUpdatedAtUtc { get; set; }
 	public DateTime? CompletedAtUtc { get; set; }
@@ -114,9 +114,9 @@ public class HospitalServiceRequest
 	public virtual Character Patient { get; set; } = null!;
 	public virtual Character? AssignedEmployee { get; set; }
 	public virtual Character? PreparedByEmployee { get; set; }
-	public virtual Cell? OperatingTheatreCell { get; set; }
-	public virtual Cell? RecoveryRoomCell { get; set; }
-	public virtual Cell? ReturnCell { get; set; }
+	public virtual Room? OperatingTheatreRoom { get; set; }
+	public virtual Room? RecoveryRoomRoom { get; set; }
+	public virtual Room? ReturnRoom { get; set; }
 }
 
 public class HospitalBloodStockPolicy

@@ -278,8 +278,8 @@ public partial class FuturemudDatabaseContext
 			entity.Property(e => e.AmountCurrencyId).HasColumnType("bigint(20)");
 			entity.Property(e => e.Amount).HasColumnType("decimal(58,29)");
 			entity.Property(e => e.ExistingFinancialRecord).OptionalString("varchar(200)");
-			entity.Property(e => e.DestinationCellId).HasColumnType("bigint(20)");
-			entity.Property(e => e.ExecutionCellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.DestinationRoomId).HasColumnType("bigint(20)");
+			entity.Property(e => e.ExecutionRoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.CommandName).OptionalString("varchar(100)");
 			entity.Property(e => e.CommandArguments).OptionalString("mediumtext");
 			entity.Property(e => e.AccountName).OptionalString("varchar(200)");
@@ -656,14 +656,14 @@ public partial class FuturemudDatabaseContext
 			entity.ToTable("HotelRooms");
 			entity.HasKey(e => e.Id).HasName("PRIMARY");
 			entity.HasIndex(e => e.HotelId).HasDatabaseName("FK_HotelRooms_Hotels_idx");
-			entity.HasIndex(e => e.CellId).HasDatabaseName("FK_HotelRooms_Cells_idx");
-			entity.HasIndex(e => new { e.HotelId, e.CellId })
+			entity.HasIndex(e => e.RoomId).HasDatabaseName("FK_HotelRooms_Rooms_idx");
+			entity.HasIndex(e => new { e.HotelId, e.RoomId })
 			      .IsUnique()
-			      .HasDatabaseName("IX_HotelRooms_Hotel_Cell");
+			      .HasDatabaseName("IX_HotelRooms_Hotel_Room");
 
 			entity.Property(e => e.Id).HasColumnType("bigint(20)");
 			entity.Property(e => e.HotelId).HasColumnType("bigint(20)");
-			entity.Property(e => e.CellId).HasColumnType("bigint(20)");
+			entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
 			entity.Property(e => e.Name).RequiredString("varchar(200)");
 			entity.Property(e => e.Listed).HasColumnType("bit(1)");
 			entity.Property(e => e.PricePerDay).HasColumnType("decimal(58,29)");
@@ -677,11 +677,11 @@ public partial class FuturemudDatabaseContext
 			      .OnDelete(DeleteBehavior.Cascade)
 			      .HasConstraintName("FK_HotelRooms_Hotels");
 
-			entity.HasOne(e => e.Cell)
+			entity.HasOne(e => e.Room)
 			      .WithMany()
-			      .HasForeignKey(e => e.CellId)
+			      .HasForeignKey(e => e.RoomId)
 			      .OnDelete(DeleteBehavior.Restrict)
-			      .HasConstraintName("FK_HotelRooms_Cells");
+			      .HasConstraintName("FK_HotelRooms_Rooms");
 		});
 
 		modelBuilder.Entity<HotelRoomKey>(entity =>

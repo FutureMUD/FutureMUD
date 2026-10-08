@@ -10,22 +10,22 @@ namespace MudSharp.GameItems.Prototypes;
 
 public class DwellingGameItemComponentProto : GameItemComponentProto
 {
-    private long _templateEntryCellId;
-    private ICell _templateEntryCell;
+    private long _templateEntryRoomId;
+    private IRoom _templateEntryRoom;
 
-    public ICell TemplateEntryCell
+    public IRoom TemplateEntryRoom
     {
         get
         {
-            if (_templateEntryCellId != 0)
+            if (_templateEntryRoomId != 0)
             {
-                _templateEntryCell = Gameworld.Cells.Get(_templateEntryCellId);
-                _templateEntryCellId = 0;
+                _templateEntryRoom = Gameworld.Rooms.Get(_templateEntryRoomId);
+                _templateEntryRoomId = 0;
             }
 
-            return _templateEntryCell;
+            return _templateEntryRoom;
         }
-        protected set => _templateEntryCell = value;
+        protected set => _templateEntryRoom = value;
     }
 
     private long _doorProtoId;
@@ -71,7 +71,7 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
     protected override void LoadFromXml(XElement root)
     {
         _doorProtoId = long.Parse(root.Element("DoorProto")?.Value ?? "0");
-        _templateEntryCellId = long.Parse(root.Element("TemplateEntryCell")?.Value ?? "0");
+        _templateEntryRoomId = long.Parse(root.Element("TemplateEntryCell")?.Value ?? "0");
         DoorSize = (SizeCategory)int.Parse(root.Element("DoorSize")?.Value ?? "0");
         EntranceKeyword = root.Element("EntranceKeyword")?.Value ?? "building";
         EntranceDescription = root.Element("EntranceDescription")?.Value ?? "the building";
@@ -84,7 +84,7 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
     protected override string SaveToXml()
     {
         return new XElement("Definition",
-            new XElement("TemplateEntryCell", TemplateEntryCell?.Id ?? 0L),
+            new XElement("TemplateEntryCell", TemplateEntryRoom?.Id ?? 0L),
             new XElement("DoorProto", DoorProto?.Id ?? 0L),
             new XElement("DoorSize", (int)DoorSize),
             new XElement("EntranceKeyword", new XCData(EntranceKeyword)),
@@ -135,7 +135,7 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
     #region Overrides of GameItemComponentProto
 
     private const string BuildingHelpText =
-        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tentry <id> - the cell that is in the template that will be used for the entry\n\tkeyword <keyword> - the keyword that will be used for the external entrance\n\tdoor <item>|none - sets the item template that loads up as a door by default\n\tsize <item size> - sets the size of the door that fits in the entrance.";
+        "You can use the following options with this component:\n\tname <name> - sets the name of the component\n\tdesc <desc> - sets the description of the component\n\tentry <id> - the room that is in the template that will be used for the entry\n\tkeyword <keyword> - the keyword that will be used for the external entrance\n\tdoor <item>|none - sets the item template that loads up as a door by default\n\tsize <item size> - sets the size of the door that fits in the entrance.";
 
     public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -145,7 +145,7 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
 
     public override bool CanSubmit()
     {
-        if (TemplateEntryCell == null)
+        if (TemplateEntryRoom == null)
         {
             return false;
         }
@@ -155,9 +155,9 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
 
     public override string WhyCannotSubmit()
     {
-        if (TemplateEntryCell == null)
+        if (TemplateEntryRoom == null)
         {
-            return "You must set a cell as the entry cell for the template before you can submit.";
+            return "You must set a room as the entry room for the template before you can submit.";
         }
 
         return base.WhyCannotSubmit();
@@ -276,49 +276,49 @@ public class DwellingGameItemComponentProto : GameItemComponentProto
     {
         if (command.IsFinished)
         {
-            actor.Send("You must specify a cell to act as the entryway for the template area for your dwelling.");
+            actor.Send("You must specify a room to act as the entryway for the template area for your dwelling.");
             return false;
         }
 
         if (!long.TryParse(command.PopSpeech(), out long value))
         {
-            actor.Send("You must specify a valid ID number for the cell you want to set as the entryway.");
+            actor.Send("You must specify a valid ID number for the room you want to set as the entryway.");
             return false;
         }
 
-        ICell cell = Gameworld.Cells.Get(value);
-        if (cell == null)
+        IRoom room = Gameworld.Rooms.Get(value);
+        if (room == null)
         {
-            actor.Send("There is no such cell to use as the entryway.");
+            actor.Send("There is no such room to use as the entryway.");
             return false;
         }
 
         Changed = true;
-        TemplateEntryCell = cell;
+        TemplateEntryRoom = room;
         actor.Send(
-            $"You set the entryway cell for this dwelling to cell #{cell.Id} ({cell.CurrentOverlay.CellName}).\nIt is connected to {GetTemplateCells.Count() - 1:N0} rooms.");
+            $"You set the entryway room for this dwelling to room #{room.Id} ({room.CurrentOverlay.RoomName}).\nIt is connected to {GetTemplateRooms.Count() - 1:N0} rooms.");
         return true;
     }
 
     #endregion
 
-    public IEnumerable<ICell> GetTemplateCells => (TemplateEntryCell?.CellsInVicinity(10U,
+    public IEnumerable<IRoom> GetTemplateRooms => (TemplateEntryRoom?.RoomsInVicinity(10U,
                 exit => true,
-                cell => !cell.Temporary
-            ) ?? Enumerable.Empty<ICell>()).ToList();
+                room => !room.Temporary
+            ) ?? Enumerable.Empty<IRoom>()).ToList();
 
     public override string ComponentDescriptionOLC(ICharacter actor)
     {
         return string.Format(actor,
-            "{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item is a dwelling; an item that creates an internal set of rooms when it is loaded, and destroys them when it is destroyed. It uses cell {4} as its template, which is connected to {5:N0} other rooms. {6}. It uses the keyword {7} for its external exit.",
+            "{0} (#{1:N0}r{2:N0}, {3})\r\n\r\nThis item is a dwelling; an item that creates an internal set of rooms when it is loaded, and destroys them when it is destroyed. It uses room {4} as its template, which is connected to {5:N0} other rooms. {6}. It uses the keyword {7} for its external exit.",
             "Dwelling Game Item Component".Colour(Telnet.Cyan),
             Id,
             RevisionNumber,
             Name,
-            TemplateEntryCell != null
-                ? $"#{TemplateEntryCell.Id:N0} ({TemplateEntryCell.CurrentOverlay.CellName})".Colour(Telnet.Cyan)
+            TemplateEntryRoom != null
+                ? $"#{TemplateEntryRoom.Id:N0} ({TemplateEntryRoom.CurrentOverlay.RoomName})".Colour(Telnet.Cyan)
                 : "not yet set".Colour(Telnet.Red),
-            GetTemplateCells.Count(),
+            GetTemplateRooms.Count(),
             DoorProto != null
                 ? $"It uses item prototype {DoorProto.Id} ({DoorProto.Name}) for its external door"
                 : $"It does not load with a door, but permits doors of size {DoorSize.Describe()} to be installed",

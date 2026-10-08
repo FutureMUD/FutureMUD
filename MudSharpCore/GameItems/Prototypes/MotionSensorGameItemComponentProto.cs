@@ -58,7 +58,10 @@ public class MotionSensorGameItemComponentProto : PoweredMachineBaseGameItemComp
 		MinimumSize = Enum.TryParse<SizeCategory>(root.Element("MinimumSize")?.Value, out var minimumSize)
 			? minimumSize
 			: SizeCategory.Normal;
-		DetectionMode = Enum.TryParse<MotionSensorDetectionMode>(root.Element("DetectionMode")?.Value, out var mode)
+		var persistedMode = root.Element("DetectionMode")?.Value;
+		DetectionMode = persistedMode == "EnterCell"
+			? MotionSensorDetectionMode.EnterRoom
+			: Enum.TryParse<MotionSensorDetectionMode>(persistedMode, out var mode)
 			? mode
 			: MotionSensorDetectionMode.AnyMovement;
 	}
@@ -68,7 +71,9 @@ public class MotionSensorGameItemComponentProto : PoweredMachineBaseGameItemComp
 		root.Add(new XElement("SignalValue", SignalValue));
 		root.Add(new XElement("SignalDurationSeconds", SignalDuration.TotalSeconds));
 		root.Add(new XElement("MinimumSize", MinimumSize));
-		root.Add(new XElement("DetectionMode", DetectionMode));
+		root.Add(new XElement("DetectionMode", DetectionMode == MotionSensorDetectionMode.EnterRoom
+			? "EnterCell"
+			: DetectionMode.ToString()));
 		return root;
 	}
 

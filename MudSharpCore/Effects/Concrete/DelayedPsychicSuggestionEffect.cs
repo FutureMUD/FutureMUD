@@ -35,12 +35,12 @@ public sealed class DelayedPsychicSuggestionEffect : TimedPsychicEffect, IHandle
 	public override string Describe(IPerceiver voyeur) => $"An untriggered psychic suggestion ({Trigger}).";
 	protected override XElement SaveDefinition() => WithOrigin(new XElement("Effect", new XAttribute("source", SourceId), new XAttribute("power", PowerId),
 		new XAttribute("trigger", Trigger), new XAttribute("subject", SubjectId), new XAttribute("emotion", Emotion), new XCData(Payload)));
-	public bool HandlesEvent(params EventType[] types) => types.Any(x => x is EventType.CharacterEnterCell or EventType.CharacterEnterCellWitness or EventType.JoinCombat or EventType.EngageInCombat or EventType.EngagedInCombat);
+	public bool HandlesEvent(params EventType[] types) => types.Any(x => x is EventType.CharacterEnterRoom or EventType.CharacterEnterRoomWitness or EventType.JoinCombat or EventType.EngageInCombat or EventType.EngagedInCombat);
 	public bool HandleEvent(EventType type, params dynamic[] arguments)
 	{
 		if (Owner is not ICharacter owner) return false;
-		if (Trigger == "cell" && type == EventType.CharacterEnterCell && owner.Location?.Id == SubjectId ||
-		    Trigger == "encounter" && type is EventType.CharacterEnterCell or EventType.CharacterEnterCellWitness &&
+		if (Trigger == "cell" && type == EventType.CharacterEnterRoom && owner.Location?.Id == SubjectId ||
+		    Trigger == "encounter" && type is EventType.CharacterEnterRoom or EventType.CharacterEnterRoomWitness &&
 		    owner.Location?.CharactersInSpatialVicinity(owner).Any(x => CharacterInstanceIdentityComparer.IdentityId(x) == SubjectId && owner.CanSee(x)) == true ||
 		    Trigger == "combat" && type is EventType.JoinCombat or EventType.EngageInCombat or EventType.EngagedInCombat) Activate();
 		return false;

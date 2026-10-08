@@ -56,13 +56,13 @@ internal class StorytellerModule : Module<ICharacter>
 
 Use this command to inspect, spawn, move, retire and audit non-primary character instances. Instance owners and instances can generally be resolved by visible target, loaded character name or ID, while forms are resolved from the owner's known forms.
 
-The #3spawn#0 options after the form can be supplied in any order. #3ai#0 chooses NPC AI for NPC identities and script AI for other identities, while #3npcai#0 and #3scriptai#0 force a specific AI mode. #3cloneinventory#0 copies inventory to the new body where supported. In a RouteCell, #3here#0 preserves your exact coordinate while #3room <cell id>#0 uses that cell's authored default coordinate.
+The #3spawn#0 options after the form can be supplied in any order. #3ai#0 chooses NPC AI for NPC identities and script AI for other identities, while #3npcai#0 and #3scriptai#0 force a specific AI mode. #3cloneinventory#0 copies inventory to the new body where supported. In a RouteRoom, #3here#0 preserves your exact coordinate while #3room <room id>#0 uses that room's authored default coordinate.
 Use #3audit all#0 for persisted instance row and global actor-cache diagnostics. Use #3audit <character>#0 for the loaded identity currently in memory.
 
 The syntax is as follows:
 	#3instance list <character>#0 - lists all loaded instances for a character
-	#3instance spawn <character> <form> [here|room <cell id>] [persistent|temporary] [passive|focusable|ai|npcai|scriptai] [cloneinventory]#0 - spawns a secondary instance
-	#3instance move <instance id|target> here|room <cell id>#0 - moves a secondary instance
+	#3instance spawn <character> <form> [here|room <room id>] [persistent|temporary] [passive|focusable|ai|npcai|scriptai] [cloneinventory]#0 - spawns a secondary instance
+	#3instance move <instance id|target> here|room <room id>#0 - moves a secondary instance
 	#3instance retire <instance id|target>#0 - retires a secondary instance and removes temporary rows
 	#3instance despawn <instance id|target>#0 - alias for #3instance retire#0
 	#3instance audit <character>#0 - audits loaded instances for a character
@@ -166,7 +166,7 @@ The syntax is as follows:
 
         if (ss.IsFinished)
         {
-            error = "You must specify HERE or ROOM <cell id>.";
+            error = "You must specify HERE or ROOM <room id>.";
             return false;
         }
 
@@ -178,17 +178,17 @@ The syntax is as follows:
 
         if (!keyword.EqualTo("room"))
         {
-            error = "You must specify HERE or ROOM <cell id>.";
+            error = "You must specify HERE or ROOM <room id>.";
             return false;
         }
 
         if (ss.IsFinished)
         {
-            error = "Which room cell id do you want to use?";
+            error = "Which room room id do you want to use?";
             return false;
         }
 
-        var location = RoomBuilderModule.LookupCell(actor.Gameworld, ss.PopSpeech());
+        var location = RoomBuilderModule.LookupRoom(actor.Gameworld, ss.PopSpeech());
         if (location is not null)
         {
             destination = CharacterInstanceService.CreateDefaultSpawnLocation(
@@ -197,7 +197,7 @@ The syntax is as follows:
             return true;
         }
 
-        error = "There is no such cell.";
+        error = "There is no such room.";
         return false;
     }
 
@@ -436,7 +436,7 @@ The syntax is as follows:
         }
 
         actor.OutputHandler.Send(
-            $"Moved secondary instance #{target.InstanceId.ToString("N0", actor).ColourValue()} to {destination.Cell.HowSeen(actor)}.");
+            $"Moved secondary instance #{target.InstanceId.ToString("N0", actor).ColourValue()} to {destination.Room.HowSeen(actor)}.");
     }
 
     private static void InstanceRetire(ICharacter actor, StringStack ss)
@@ -479,7 +479,7 @@ The syntax is as follows:
                 var instances = FMDB.Context.CharacterInstances.ToList();
                 var references = new CharacterInstanceReferenceSets(
                     FMDB.Context.Bodies.Select(x => x.Id).ToHashSet(),
-                    FMDB.Context.Cells.Select(x => x.Id).ToHashSet());
+                    FMDB.Context.Rooms.Select(x => x.Id).ToHashSet());
                 var persistedDiagnostics = CharacterInstanceDiagnostics.AuditPersistedInstances(instances, true,
                     references);
                 var actorReferenceDiagnostics = CharacterInstanceDiagnostics.AuditPersistedActorReferences(
@@ -518,17 +518,17 @@ The syntax is as follows:
     }
 
     private const string SpyHelp =
-        @"The #3spy#0 command toggles staff spying on one or more cells, causing you to receive output from those locations as if you were there.
+        @"The #3spy#0 command toggles staff spying on one or more rooms, causing you to receive output from those locations as if you were there.
 
-Use #3spy here#0 to toggle your current cell, #3spy <cell id>#0 for a specific cell, and #3spy list#0 to review active spy locations.
+Use #3spy here#0 to toggle your current room, #3spy <room id>#0 for a specific room, and #3spy list#0 to review active spy locations.
 
-Spying is stored as an effect on you. Toggling a cell you already spy on removes it, and #3spy clear#0 removes every spied cell at once.
+Spying is stored as an effect on you. Toggling a room you already spy on removes it, and #3spy clear#0 removes every spied room at once.
 
 The syntax is as follows:
-	#3spy list#0 - lists all cells you are spying on
-	#3spy here#0 - toggles spying on your current cell
-	#3spy <cell id>#0 - toggles spying on a specific cell
-	#3spy clear#0 - clears all spied cells
+	#3spy list#0 - lists all rooms you are spying on
+	#3spy here#0 - toggles spying on your current room
+	#3spy <room id>#0 - toggles spying on a specific room
+	#3spy clear#0 - clears all spied rooms
 	#3spy none#0 - alias for #3spy clear#0
 	#3spy off#0 - alias for #3spy clear#0";
 
@@ -549,10 +549,10 @@ The syntax is as follows:
 
             StringBuilder sb = new();
             sb.AppendLine("You are currently spying on the following locations:");
-            foreach (ICell location in effect.SpiedCells)
+            foreach (IRoom location in effect.SpiedRooms)
             {
                 sb.AppendLine(
-                    $"\t{location.HowSeen(actor)} ({location.Id}) in {location.Room.Zone.Name.Colour(Telnet.BoldWhite)}");
+                    $"\t{location.HowSeen(actor)} ({location.Id}) in {location.OwningZone.Name.Colour(Telnet.BoldWhite)}");
             }
 
             actor.Send(sb.ToString());
@@ -568,22 +568,22 @@ The syntax is as follows:
                 return;
             }
 
-            foreach (ICell cell in effect.SpiedCells.ToList())
+            foreach (IRoom room in effect.SpiedRooms.ToList())
             {
-                effect.RemoveSpiedCell(cell);
+                effect.RemoveSpiedRoom(room);
             }
 
             actor.Send("All your spied upon locations have been cleared.");
             return;
         }
 
-        ICell targetCell = ss.Peek().Equals("here")
+        IRoom targetRoom = ss.Peek().Equals("here")
             ? actor.Location
-            : RoomBuilderModule.LookupCell(actor.Gameworld, ss.PopSpeech());
+            : RoomBuilderModule.LookupRoom(actor.Gameworld, ss.PopSpeech());
 
-        if (targetCell == null)
+        if (targetRoom == null)
         {
-            actor.Send("There is no such cell to spy on.");
+            actor.Send("There is no such room to spy on.");
             return;
         }
 
@@ -594,15 +594,15 @@ The syntax is as follows:
             actor.AddEffect(smeffect);
         }
 
-        if (smeffect.SpiedCells.Contains(targetCell))
+        if (smeffect.SpiedRooms.Contains(targetRoom))
         {
-            smeffect.RemoveSpiedCell(targetCell);
-            actor.Send($"You will no longer spy on {targetCell.HowSeen(actor)} ({targetCell.Id})");
+            smeffect.RemoveSpiedRoom(targetRoom);
+            actor.Send($"You will no longer spy on {targetRoom.HowSeen(actor)} ({targetRoom.Id})");
             return;
         }
 
-        smeffect.AddSpiedCell(targetCell);
-        actor.Send($"You are now spying on {targetCell.HowSeen(actor)} ({targetCell.Id})");
+        smeffect.AddSpiedRoom(targetRoom);
+        actor.Send($"You are now spying on {targetRoom.HowSeen(actor)} ({targetRoom.Id})");
     }
 
     private const string NewPlayerHelp =
@@ -657,7 +657,7 @@ The syntax is as follows:
     [HelpInfo("recentspeech", RecentSpeechHelp, AutoHelp.HelpArg)]
     protected static void RecentSpeech(ICharacter actor, string input)
     {
-        if (actor.Location is not ICell location)
+        if (actor.Location is not IRoom location)
         {
             actor.OutputHandler.Send("You are not currently in a room.");
             return;
@@ -1246,7 +1246,7 @@ The syntax is as follows:
 
 		if (targetText.Equals("here", StringComparison.InvariantCultureIgnoreCase))
 		{
-			// FORCE HERE is an explicit administrative whole-cell scope, including for RouteCells.
+			// FORCE HERE is an explicit administrative whole-room scope, including for RouteRooms.
 			character.OutputHandler.Handle(new EmoteOutput(new Emote(
                     $"@ force|forces everyone in the room to do the command '{ss.RemainingArgument}'", character),
                 flags: OutputFlags.WizOnly));
@@ -1264,7 +1264,7 @@ The syntax is as follows:
 
 		if (targetText.Equals("npcshere", StringComparison.InvariantCultureIgnoreCase))
 		{
-			// NPCSHERE intentionally shares FORCE HERE's administrative whole-cell scope.
+			// NPCSHERE intentionally shares FORCE HERE's administrative whole-room scope.
 			character.OutputHandler.Handle(new EmoteOutput(new Emote(
                     $"@ force|forces all NPCs in the room to do the command '{ss.RemainingArgument}'", character),
                 flags: OutputFlags.WizOnly));
@@ -2308,7 +2308,7 @@ The target is resolved from loaded actors, not offline character records. The co
 
 The syntax is as follows:
 	#3transfer <target>#0 - transfers a loaded actor to your exact spatial location
-	#3transfer <target> at <distance|landmark>#0 - transfers a loaded actor to another coordinate in your RouteCell";
+	#3transfer <target> at <distance|landmark>#0 - transfers a loaded actor to another coordinate in your RouteRoom";
 
     [PlayerCommand("Transfer", "transfer")]
     [CommandPermission(PermissionLevel.JuniorAdmin)]
@@ -2350,7 +2350,7 @@ The syntax is as follows:
 		}
 
 		var targetLocation = RouteSpatialService.Instance.GetEffectiveLocation(target);
-        if (ReferenceEquals(targetLocation.Cell, destination.Cell) && targetLocation.Layer == destination.Layer &&
+        if (ReferenceEquals(targetLocation.Room, destination.Room) && targetLocation.Layer == destination.Layer &&
 			Nullable.Equals(targetLocation.RoutePositionMetres, destination.RoutePositionMetres))
         {
             actor.OutputHandler.Send("They are already in the same location as you.");
@@ -2360,7 +2360,7 @@ The syntax is as follows:
         target.OutputHandler.Send(new EmoteOutput(new Emote("$0 transfers you to &0's location.", target, actor)));
         actor.OutputHandler.Send(new EmoteOutput(new Emote("You transfer $0 to your location.", actor, target)));
         target.Teleport(
-			destination.Cell,
+			destination.Room,
 			destination.Layer,
 			true,
 			true,
@@ -2846,7 +2846,7 @@ The syntax is as follows:
             }
         }
 
-		// This storyteller maintenance command deliberately modifies every corpse in the cell.
+		// This storyteller maintenance command deliberately modifies every corpse in the room.
 		foreach (ICorpse item in
                  actor.Location.LayerGameItems(actor.RoomLayer).SelectNotNull(x => x.GetItemType<ICorpse>()))
         {
@@ -3736,7 +3736,7 @@ Use it to inspect effects, hooks, variable-register values and other diagnostic 
 Use #3*<direction>#0 to inspect an exit from your current room, such as #3sniff *north#0. Character and item targets are resolved through normal targeting.
 
 The syntax is as follows:
-	#3sniff here#0 - sniffs your current cell
+	#3sniff here#0 - sniffs your current room
 	#3sniff zone#0 - sniffs your current zone
 	#3sniff shard#0 - sniffs your current shard
 	#3sniff *<direction>#0 - sniffs an exit
@@ -3769,7 +3769,7 @@ The syntax is as follows:
 
         if (cmd.Length > 1 && cmd[0] == '*')
         {
-            ICellExit targetExit = actor.Location.GetExitKeyword(cmd[1..], actor);
+            IRoomExit targetExit = actor.Location.GetExitKeyword(cmd[1..], actor);
             if (targetExit == null)
             {
                 actor.Send("There is no such exit for you to sniff.");
@@ -4021,7 +4021,7 @@ The syntax is as follows:
         actor.OutputHandler.Send(sb.ToString());
     }
 
-    private static void SniffExit(ICharacter actor, ICellExit exit, StringStack ss)
+    private static void SniffExit(ICharacter actor, IRoomExit exit, StringStack ss)
     {
         StringBuilder sb = new();
         sb.AppendLine($"Sniffing Exit {exit.Exit.Id.ToString("N0", actor).Colour(Telnet.Green)}...");
@@ -4071,15 +4071,15 @@ The syntax is as follows:
 
     private static void SniffRoom(ICharacter actor)
     {
-        ICell cell = actor.Location;
+        IRoom room = actor.Location;
         StringBuilder sb = new();
-        sb.AppendLine($"Sniffing Cell {cell.Id}...");
+        sb.AppendLine($"Sniffing Room {room.Id}...");
         sb.AppendLine(
-            $"Room: {cell.Room.Id} - Zone: {cell.Room.Zone.Name} ({cell.Room.Zone.Id}) - Shard: {cell.Room.Zone.Shard.Name} ({cell.Room.Zone.Shard.Id})");
+            $"Room: {room.Id} - Zone: {room.OwningZone.Name} ({room.OwningZone.Id}) - Shard: {room.OwningZone.Shard.Name} ({room.OwningZone.Shard.Id})");
         sb.AppendLine(
-            $"Current Overlay: {cell.CurrentOverlay.Id} from package {cell.CurrentOverlay.Package.Name.Colour(Telnet.Green)} ({cell.CurrentOverlay.Package.Id}r{cell.CurrentOverlay.Package.RevisionNumber})");
+            $"Current Overlay: {room.CurrentOverlay.Id} from package {room.CurrentOverlay.Package.Name.Colour(Telnet.Green)} ({room.CurrentOverlay.Package.Id}r{room.CurrentOverlay.Package.RevisionNumber})");
         sb.AppendLine("All overlays:");
-        foreach (ICellOverlay overlay in cell.Overlays)
+        foreach (IRoomOverlay overlay in room.Overlays)
         {
             sb.AppendLine(
                 $"\t{overlay.Id} - {overlay.Name.Colour(Telnet.Cyan)} - package {overlay.Package.Name.Colour(Telnet.Green)} ({overlay.Package.Id}r{overlay.Package.RevisionNumber})");
@@ -4087,8 +4087,8 @@ The syntax is as follows:
 
         sb.AppendLine();
         sb.AppendLine("Exits:");
-        foreach (ICellExit exit in actor.Gameworld.ExitManager.GetAllExits(cell)
-                                  .OrderByDescending(x => cell.CurrentOverlay.ExitIDs.Contains(x.Exit.Id)))
+        foreach (IRoomExit exit in actor.Gameworld.ExitManager.GetAllExits(room)
+                                  .OrderByDescending(x => room.CurrentOverlay.ExitIDs.Contains(x.Exit.Id)))
         {
             sb.AppendLine(
                 $"\t{exit.Exit.Id} - {exit.OutboundDirectionDescription} to {exit.Destination.CurrentOverlay.Name} ({exit.Destination.Id})");
@@ -4107,21 +4107,21 @@ The syntax is as follows:
 
         sb.AppendLine();
         sb.AppendLine("Tags:");
-        foreach (ITag tag in cell.Tags)
+        foreach (ITag tag in room.Tags)
         {
             sb.AppendLine($"\t[{tag.Id.ToString("N0", actor)}] {tag.FullName.Colour(Telnet.Cyan)}");
         }
 
         sb.AppendLine();
         sb.AppendLine("Effects:");
-        foreach (IEffect effect in cell.Effects)
+        foreach (IEffect effect in room.Effects)
         {
             sb.AppendLine($"\t{effect.Describe(actor)}");
         }
 
         sb.AppendLine();
         sb.AppendLine("Hooks:");
-        foreach (IHook hook in cell.Hooks)
+        foreach (IHook hook in room.Hooks)
         {
             sb.AppendLine($"\t#{hook.Id.ToString("N0", actor)}) {hook.Name.ColourName()} | {hook.Type.DescribeEnum(colour: Telnet.Green)} | {hook.InfoForHooklist}");
         }
@@ -4130,7 +4130,7 @@ The syntax is as follows:
         sb.AppendLine("Variables:");
         foreach (Tuple<string, ProgVariableTypes> variable in actor.Gameworld.VariableRegister.AllVariables(ProgVariableTypes.Location))
         {
-            IProgVariable value = actor.Gameworld.VariableRegister.GetValue(cell, variable.Item1);
+            IProgVariable value = actor.Gameworld.VariableRegister.GetValue(room, variable.Item1);
             sb.AppendLine(
                 $"\t{variable.Item2.Describe().Colour(Telnet.Cyan)} {variable.Item1.Colour(Telnet.BoldWhite)}: {FutureProg.FutureProg.VariableValueToText(value, actor)}");
         }

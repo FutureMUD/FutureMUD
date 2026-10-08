@@ -196,7 +196,7 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 		return false;
 	}
 
-	public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+	public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
 	{
 		var newContainer = newItem?.GetItemType<IContainer>();
 		foreach (var item in _contents.ToList())

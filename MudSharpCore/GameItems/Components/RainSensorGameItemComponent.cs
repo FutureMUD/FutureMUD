@@ -153,24 +153,24 @@ public class RainSensorGameItemComponent : PoweredMachineBaseGameItemComponent, 
 	private (PrecipitationLevel Precipitation, double Intensity) ResolveCurrentRainState()
 	{
 		var anchorItem = SignalComponentUtilities.ResolveSignalSearchAnchorItem(Parent);
-		var cell = anchorItem.TrueLocations
-			           .OfType<ICell>()
+		var room = anchorItem.TrueLocations
+			           .OfType<IRoom>()
 			           .FirstOrDefault() ??
 		           Parent.TrueLocations
-			           .OfType<ICell>()
+			           .OfType<IRoom>()
 			           .FirstOrDefault();
-		if (cell is null)
+		if (room is null)
 		{
 			return (PrecipitationLevel.Parched, 0.0);
 		}
 
-		var outdoorsType = cell.OutdoorsType(anchorItem);
-		if (outdoorsType != CellOutdoorsType.Outdoors && outdoorsType != CellOutdoorsType.IndoorsClimateExposed)
+		var outdoorsType = room.OutdoorsType(anchorItem);
+		if (outdoorsType != RoomOutdoorsType.Outdoors && outdoorsType != RoomOutdoorsType.IndoorsClimateExposed)
 		{
 			return (PrecipitationLevel.Parched, 0.0);
 		}
 
-		var precipitation = cell.CurrentWeather(anchorItem)?.Precipitation ?? PrecipitationLevel.Parched;
+		var precipitation = room.CurrentWeather(anchorItem)?.Precipitation ?? PrecipitationLevel.Parched;
 		return (precipitation, RainIntensityForPrecipitation(precipitation));
 	}
 

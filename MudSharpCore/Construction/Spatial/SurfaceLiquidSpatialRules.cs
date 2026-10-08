@@ -3,18 +3,18 @@
 namespace MudSharp.Construction;
 
 /// <summary>
-/// Coordinate rules for virtual surface liquids in RouteCells. A null coordinate denotes
+/// Coordinate rules for virtual surface liquids in RouteRooms. A null coordinate denotes
 /// uniform environmental liquid (for example rainfall); point spills retain an exact coordinate.
 /// </summary>
 public static class SurfaceLiquidSpatialRules
 {
-	public static double? Normalise(IRouteCellDefinition? route, double? coordinateMetres)
+	public static double? Normalise(IRouteRoomDefinition? route, double? coordinateMetres)
 	{
 		if (route is null)
 		{
 			if (coordinateMetres.HasValue)
 			{
-				throw new ArgumentException("An ordinary cell surface cannot have a RouteCell coordinate.",
+				throw new ArgumentException("An ordinary room surface cannot have a RouteRoom coordinate.",
 					nameof(coordinateMetres));
 			}
 

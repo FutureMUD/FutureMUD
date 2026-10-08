@@ -18,12 +18,12 @@ namespace MudSharp.Models
         public int ProjectRevisionNumber { get; set; }
         public long CurrentPhaseId { get; set; }
         public long? CharacterId { get; set; }
-        public long? CellId { get; set; }
+        public long? RoomId { get; set; }
 		public int RoomLayer { get; set; }
 		public decimal? RoutePosition { get; set; }
         public long? PaymentCurrencyId { get; set; }
 
-        public virtual Cell Cell { get; set; }
+        public virtual Room Room { get; set; }
         public virtual Character Character { get; set; }
         public virtual ProjectPhase CurrentPhase { get; set; }
         public virtual Currency PaymentCurrency { get; set; }

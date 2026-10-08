@@ -527,7 +527,7 @@ internal sealed class EmploymentTaskAuthoringService
 		var idTokens = PopTokensUntil(input, "from").ToList();
 		if (!idTokens.Any() || input.IsFinished)
 		{
-			message = $"Get-by-id steps use the syntax: {"tasks step getid <quantity> <prototype ids|*item ids...> from <here|cell ids...>".ColourCommand()}";
+			message = $"Get-by-id steps use the syntax: {"tasks step getid <quantity> <prototype ids|*item ids...> from <here|room ids...>".ColourCommand()}";
 			return false;
 		}
 
@@ -571,7 +571,7 @@ internal sealed class EmploymentTaskAuthoringService
 		var tag = input.PopSpeech();
 		if (input.IsFinished || !input.PopSpeech().EqualTo("from"))
 		{
-			message = $"Get-by-tag steps use the syntax: {"tasks step gettag <quantity> <&tag id|&tag name> from <here|cell ids...>".ColourCommand()}";
+			message = $"Get-by-tag steps use the syntax: {"tasks step gettag <quantity> <&tag id|&tag name> from <here|room ids...>".ColourCommand()}";
 			return false;
 		}
 
@@ -633,7 +633,7 @@ internal sealed class EmploymentTaskAuthoringService
 
 		if (input.IsFinished || !input.PopSpeech().EqualTo("from"))
 		{
-			message = $"Commodity steps use the syntax: {"tasks step commodity <weight> <material> [tag <&tag id|&tag name>] from <here|cell ids...> [char <name>=<value> ...]".ColourCommand()}";
+			message = $"Commodity steps use the syntax: {"tasks step commodity <weight> <material> [tag <&tag id|&tag name>] from <here|room ids...> [char <name>=<value> ...]".ColourCommand()}";
 			return false;
 		}
 
@@ -676,7 +676,7 @@ internal sealed class EmploymentTaskAuthoringService
 		step = null!;
 		if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
 		{
-			message = $"Delivery steps use the syntax: {"tasks step deliver to <here|cell id> [container <prototype id|*item id|&tag|keyword>]".ColourCommand()}";
+			message = $"Delivery steps use the syntax: {"tasks step deliver to <here|room id> [container <prototype id|*item id|&tag|keyword>]".ColourCommand()}";
 			return false;
 		}
 
@@ -755,7 +755,7 @@ internal sealed class EmploymentTaskAuthoringService
 
 		if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
 		{
-			message = $"Stock transfer steps use the syntax: {"tasks step stocktransfer to <shop id|name|self> merch <target merchandise id|name> [destination <here|cell id>] [container <selector>]".ColourCommand()}.";
+			message = $"Stock transfer steps use the syntax: {"tasks step stocktransfer to <shop id|name|self> merch <target merchandise id|name> [destination <here|room id>] [container <selector>]".ColourCommand()}.";
 			return false;
 		}
 
@@ -795,7 +795,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		var destination = targetShop.StockroomCell ?? targetShop.ShopfrontCells.FirstOrDefault();
+		var destination = targetShop.StockroomRoom ?? targetShop.ShopfrontRooms.FirstOrDefault();
 		EmploymentItemSelector? containerSelector = null;
 		while (!input.IsFinished)
 		{
@@ -867,7 +867,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		if (!targetShop.AllShopCells.Any(x => x.Id == destination.Id))
+		if (!targetShop.AllShopRooms.Any(x => x.Id == destination.Id))
 		{
 			message = "Stock transfer steps must deliver to one of the target shop's locations.";
 			return false;
@@ -1069,7 +1069,7 @@ internal sealed class EmploymentTaskAuthoringService
 
 		if (input.IsFinished)
 		{
-			message = $"Bank administration steps use the syntax: {"tasks step bankadmin reserve audit|deposit <amount>|withdraw <amount> OR bankadmin account credit <account> <amount> for <reason>|status <account> <active|suspended|locked> [reason]|close <account> <reason> OR bankadmin branch post <here|cell id> <note>|courier <from> to <to> <note>".ColourCommand()}";
+			message = $"Bank administration steps use the syntax: {"tasks step bankadmin reserve audit|deposit <amount>|withdraw <amount> OR bankadmin account credit <account> <amount> for <reason>|status <account> <active|suspended|locked> [reason]|close <account> <reason> OR bankadmin branch post <here|room id> <note>|courier <from> to <to> <note>".ColourCommand()}";
 			return false;
 		}
 
@@ -1250,7 +1250,7 @@ internal sealed class EmploymentTaskAuthoringService
 		step = null!;
 		if (input.IsFinished)
 		{
-			message = $"Bank branch administration uses the syntax: {"bankadmin branch post <here|cell id> <note>|courier <from> to <to> <note>".ColourCommand()}";
+			message = $"Bank branch administration uses the syntax: {"bankadmin branch post <here|room id> <note>|courier <from> to <to> <note>".ColourCommand()}";
 			return false;
 		}
 
@@ -1893,11 +1893,11 @@ internal sealed class EmploymentTaskAuthoringService
 		room = null!;
 		if (selector.EqualTo("here"))
 		{
-			room = hotel.Rooms.FirstOrDefault(x => x.Cell.Id == actor.Location.Id)!;
+			room = hotel.Rooms.FirstOrDefault(x => x.Room.Id == actor.Location.Id)!;
 		}
 		else if (long.TryParse(selector, NumberStyles.Integer, CultureInfo.InvariantCulture, out var cellId))
 		{
-			room = hotel.Rooms.FirstOrDefault(x => x.Cell.Id == cellId)!;
+			room = hotel.Rooms.FirstOrDefault(x => x.Room.Id == cellId)!;
 		}
 		else
 		{
@@ -2156,7 +2156,7 @@ internal sealed class EmploymentTaskAuthoringService
 
 		if (input.IsFinished || !input.PopSpeech().EqualTo("into"))
 		{
-			message = $"Load steps use the syntax: {"tasks step load all into <prototype id|*item id|&tag|keyword> [at <here|cell id>]".ColourCommand()}";
+			message = $"Load steps use the syntax: {"tasks step load all into <prototype id|*item id|&tag|keyword> [at <here|room id>]".ColourCommand()}";
 			return false;
 		}
 
@@ -2165,12 +2165,12 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		ICell? location = null;
+		IRoom? location = null;
 		if (!input.IsFinished)
 		{
 			if (!input.PopSpeech().EqualTo("at"))
 			{
-				message = $"Load location options use the syntax {"at <here|cell id>".ColourCommand()}.";
+				message = $"Load location options use the syntax {"at <here|room id>".ColourCommand()}.";
 				return false;
 			}
 
@@ -2208,12 +2208,12 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		ICell? location = null;
+		IRoom? location = null;
 		if (!input.IsFinished)
 		{
 			if (!input.PopSpeech().EqualTo("at"))
 			{
-				message = $"Unload location options use the syntax {"at <here|cell id>".ColourCommand()}.";
+				message = $"Unload location options use the syntax {"at <here|room id>".ColourCommand()}.";
 				return false;
 			}
 
@@ -2248,7 +2248,7 @@ internal sealed class EmploymentTaskAuthoringService
 		step = null!;
 		if (input.IsFinished)
 		{
-			message = $"Return steps use the syntax: {"tasks step return container <prototype id|*item id|&tag|keyword> to <here|cell id> [container <prototype id|*item id|&tag|keyword>]".ColourCommand()}";
+			message = $"Return steps use the syntax: {"tasks step return container <prototype id|*item id|&tag|keyword> to <here|room id> [container <prototype id|*item id|&tag|keyword>]".ColourCommand()}";
 			return false;
 		}
 
@@ -2266,7 +2266,7 @@ internal sealed class EmploymentTaskAuthoringService
 
 		if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
 		{
-			message = $"Return steps use the syntax: {"tasks step return container <prototype id|*item id|&tag|keyword> to <here|cell id> [container <prototype id|*item id|&tag|keyword>]".ColourCommand()}";
+			message = $"Return steps use the syntax: {"tasks step return container <prototype id|*item id|&tag|keyword> to <here|room id> [container <prototype id|*item id|&tag|keyword>]".ColourCommand()}";
 			return false;
 		}
 
@@ -2352,7 +2352,7 @@ internal sealed class EmploymentTaskAuthoringService
 				var mountText = input.PopSpeech();
 				if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
 				{
-					message = $"Animal lead steps use the syntax: {"tasks step animal lead <mount id|name> to <here|cell id>".ColourCommand()}";
+					message = $"Animal lead steps use the syntax: {"tasks step animal lead <mount id|name> to <here|room id>".ColourCommand()}";
 					return false;
 				}
 
@@ -2488,7 +2488,7 @@ internal sealed class EmploymentTaskAuthoringService
 
 	private static string AnimalStepSyntax()
 	{
-		return $"Animal steps use the syntax: {"tasks step animal lead <mount id|name> to <here|cell id>".ColourCommand()}, {"animal ride <mount id|name>".ColourCommand()}, {"animal lodge <mount id|name> at <stable id|name>".ColourCommand()}, or {"animal return <stay id> from <stable id|name> [waive]".ColourCommand()}";
+		return $"Animal steps use the syntax: {"tasks step animal lead <mount id|name> to <here|room id>".ColourCommand()}, {"animal ride <mount id|name>".ColourCommand()}, {"animal lodge <mount id|name> at <stable id|name>".ColourCommand()}, or {"animal return <stay id> from <stable id|name> [waive]".ColourCommand()}";
 	}
 
 	private static bool TryResolveEmploymentMount(ICharacter actor, string text, out ICharacter mount, out string message)
@@ -2600,7 +2600,7 @@ internal sealed class EmploymentTaskAuthoringService
 
 		if (input.IsFinished)
 		{
-			message = $"Move steps use the syntax: {"tasks step move to <here|cell id>".ColourCommand()}";
+			message = $"Move steps use the syntax: {"tasks step move to <here|room id>".ColourCommand()}";
 			return false;
 		}
 
@@ -2649,7 +2649,7 @@ internal sealed class EmploymentTaskAuthoringService
 		out string message)
 	{
 		step = null!;
-		ICell? location = null;
+		IRoom? location = null;
 		if (!input.IsFinished && input.PeekSpeech().EqualTo("at"))
 		{
 			input.PopSpeech();
@@ -2669,7 +2669,7 @@ internal sealed class EmploymentTaskAuthoringService
 
 		if (input.IsFinished)
 		{
-			message = $"Command steps use the syntax: {"tasks step command [at <here|cell id>] <command> [arguments...]".ColourCommand()}";
+			message = $"Command steps use the syntax: {"tasks step command [at <here|room id>] <command> [arguments...]".ColourCommand()}";
 			return false;
 		}
 
@@ -4356,7 +4356,7 @@ internal sealed class EmploymentTaskAuthoringService
 		step = null!;
 		if (input.IsFinished || !input.PopSpeech().EqualTo("to"))
 		{
-			message = $"Route planning steps use the syntax: {"tasks step route to <here|cell id> [then <here|cell id> ...] [description]".ColourCommand()}";
+			message = $"Route planning steps use the syntax: {"tasks step route to <here|room id> [then <here|room id> ...] [description]".ColourCommand()}";
 			return false;
 		}
 
@@ -4371,7 +4371,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		var routeStops = new List<ICell> { destination };
+		var routeStops = new List<IRoom> { destination };
 		while (!input.IsFinished && input.PeekSpeech().EqualToAny("then", "via", "and"))
 		{
 			input.PopSpeech();
@@ -4404,7 +4404,7 @@ internal sealed class EmploymentTaskAuthoringService
 		step = null!;
 		if (input.IsFinished || !input.PopSpeech().EqualTo("total"))
 		{
-			message = $"Route batch steps use the syntax: {"tasks step routebatch total <quantity> each <quantity> to <here|cell id> [then <here|cell id> ...] <rationale>".ColourCommand()}";
+			message = $"Route batch steps use the syntax: {"tasks step routebatch total <quantity> each <quantity> to <here|room id> [then <here|room id> ...] <rationale>".ColourCommand()}";
 			return false;
 		}
 
@@ -4443,7 +4443,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		var routeStops = new List<ICell> { destination };
+		var routeStops = new List<IRoom> { destination };
 		while (!input.IsFinished && input.PeekSpeech().EqualToAny("then", "via", "and"))
 		{
 			input.PopSpeech();
@@ -4505,7 +4505,7 @@ internal sealed class EmploymentTaskAuthoringService
 			return false;
 		}
 
-		var routeStops = new List<ICell>();
+		var routeStops = new List<IRoom>();
 		if (!input.IsFinished && input.PeekSpeech().EqualTo("to"))
 		{
 			input.PopSpeech();
@@ -4568,7 +4568,7 @@ internal sealed class EmploymentTaskAuthoringService
 		var actualKeyword = input.PopSpeech();
 		if (!actualKeyword.EqualTo(keyword) && !aliases.Any(x => actualKeyword.EqualTo(x)))
 		{
-			message = $"Trip check steps use the syntax: {"tasks step tripcheck fuel <policy> feed <policy> maintenance <policy> rest <policy> [to <here|cell id> [then <here|cell id> ...]] <rationale>".ColourCommand()}";
+			message = $"Trip check steps use the syntax: {"tasks step tripcheck fuel <policy> feed <policy> maintenance <policy> rest <policy> [to <here|room id> [then <here|room id> ...]] <rationale>".ColourCommand()}";
 			return false;
 		}
 
@@ -5593,10 +5593,10 @@ internal sealed class EmploymentTaskAuthoringService
 		return values.Any();
 	}
 
-	private static bool TryParseLocations(ICharacter actor, IEnumerable<string> tokens, out List<ICell> locations,
+	private static bool TryParseLocations(ICharacter actor, IEnumerable<string> tokens, out List<IRoom> locations,
 		out string message)
 	{
-		locations = new List<ICell>();
+		locations = new List<IRoom>();
 		foreach (var token in tokens)
 		{
 			foreach (var split in token.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
@@ -5620,7 +5620,7 @@ internal sealed class EmploymentTaskAuthoringService
 		return true;
 	}
 
-	private static bool TryResolveLocation(ICharacter actor, string token, out ICell location, out string message)
+	private static bool TryResolveLocation(ICharacter actor, string token, out IRoom location, out string message)
 	{
 		if (token.EqualTo("here"))
 		{
@@ -5632,14 +5632,14 @@ internal sealed class EmploymentTaskAuthoringService
 		if (!long.TryParse(token, out var id))
 		{
 			location = null!;
-			message = $"Employment task locations must be {"here".ColourCommand()} or numeric cell ids in this slice.";
+			message = $"Employment task locations must be {"here".ColourCommand()} or numeric room ids in this slice.";
 			return false;
 		}
 
-		location = actor.Gameworld.Cells.Get(id)!;
+		location = actor.Gameworld.Rooms.Get(id)!;
 		if (location is null)
 		{
-			message = $"There is no cell with id {id.ToString("N0", actor).ColourValue()}.";
+			message = $"There is no room with id {id.ToString("N0", actor).ColourValue()}.";
 			return false;
 		}
 
@@ -6154,7 +6154,7 @@ internal sealed class EmploymentTaskAuthoringService
 		return amount.Currency.Describe(amount.Amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue();
 	}
 
-	private static string DescribeLocations(IEnumerable<ICell> locations, ICharacter actor)
+	private static string DescribeLocations(IEnumerable<IRoom> locations, ICharacter actor)
 	{
 		return locations
 		       .Select(x => x.GetFriendlyReference(actor).ColourName())
@@ -6222,7 +6222,7 @@ internal sealed class EmploymentTaskAuthoringService
 		return deliver.ContainerSelector is null ? string.Empty : $" into {DescribeItemSelector(deliver.ContainerSelector, actor)}";
 	}
 
-	private static string DescribeOptionalLocation(ICell? location, IGameItem? item, ICharacter actor)
+	private static string DescribeOptionalLocation(IRoom? location, IGameItem? item, ICharacter actor)
 	{
 		if (location is not null)
 		{

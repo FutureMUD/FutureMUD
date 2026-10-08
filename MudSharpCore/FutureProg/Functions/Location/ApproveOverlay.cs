@@ -85,7 +85,7 @@ internal class ApproveOverlay : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICellOverlayPackage package = (ICellOverlayPackage)ParameterFunctions[0].Result?.GetObject;
+        IRoomOverlayPackage package = (IRoomOverlayPackage)ParameterFunctions[0].Result?.GetObject;
         if (package == null)
         {
             Result = new BooleanVariable(false);

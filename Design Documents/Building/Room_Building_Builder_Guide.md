@@ -1,12 +1,28 @@
 # Room Building Builder Guide
 
-Gameplay commands that target exits use the shared `ICell.GetExitKeyword` resolver, including door and lock manipulation, door smashing/destruction, directional socials, tollkeeper mode, and exit-targeted spell casting. Cardinal aliases resolve exactly (`n`/`north`, `ne`/`northeast`/`north-east`, `nw`/`northwest`/`north-west`), independently of exit ordering. Non-cardinal exits retain their configured keyword matching. Forced movement also uses exit-specific keyword matching when considering exits across layers. Builder exit editing retains its separate exact-direction, exit-ID, and exact named-keyword lookup. These lookup changes require no database migration or world-data repair.
+The canonical administrative building command is `room`; `room` remains an alias with identical permissions and dispatch. The live internal and database concept is Room, retaining the former Cell ID. Legacy containing Rooms are removed rather than renamed into playable locations. All examples use the canonical command; existing `room` commands retain identical dispatch. Optional unique names remain room-wide, case-insensitively unique, and independent of overlays; numeric IDs and FutureProg Location values retain their established meaning.
+
+Gameplay commands that target exits use the shared `IRoom.GetExitKeyword` resolver, including door and lock manipulation, door smashing/destruction, directional socials, tollkeeper mode, and exit-targeted spell casting. Cardinal aliases resolve exactly (`n`/`north`, `ne`/`northeast`/`north-east`, `nw`/`northwest`/`north-west`), independently of exit ordering. Non-cardinal exits retain their configured keyword matching. Forced movement also uses exit-specific keyword matching when considering exits across layers. Builder exit editing retains its separate exact-direction, exit-ID, and exact named-keyword lookup. These lookup changes require no database migration or world-data repair.
 
 This guide explains the FutureMUD room-building model for engine users, world builders, and AI agents helping them. It focuses on the builder-facing workflow and command surface rather than the internal persistence model.
 
-In this document, **room** and **cell** mean the same thing.
+A Room is the playable location. The `room` command is a compatibility alias.
+
+## Stable room identifiers
+
+`room set uniquename <name>` (also `room set unique`) assigns an optional global room identifier. This edits the room immediately and does not require an overlay package. `none`, `clear`, `delete` and `remove` clear it. `room show` and `rooms` display identifiers. Existing rooms, newly built rooms and template clones start unnamed; combat simulation rooms cannot be named. Persistent dwelling and vehicle interiors share the same global namespace.
+
+Identifiers follow item prototype conventions: trim outer whitespace, preserve internal spaces and case, compare exact keys case-insensitively, reject values parsed as a signed 64-bit numeric ID, and limit length to 255 characters. No prefix, punctuation or ASCII-only format is required. A rename removes the old key immediately; it creates no alias and rewrites no saved script text or numeric reference.
+
+`goto <identifier>` keeps living-character targeting precedence. `goto #<identifier>` forces a room target; numeric room IDs, legacy display-name matching, `here`, `@N` and route `at` syntax remain available. Existing name-based starting-location, hospital, restaurant, scheduled-employment and combat-scene selectors also accept exact room keys before their original name fallback. Other numeric protocols and item/staged-room selectors keep their existing grammar.
+
+FutureProg `tolocation(number)` continues to use room IDs. `tolocation(text)` resolves numeric IDs, `@N`, exact keys, then legacy names. `locationbyuniquename(text)` resolves only an exact key and returns null when absent; `room.uniquename` returns text (empty when unset). Special command syntax can shadow permissive keys such as `here`, `@1`, or a key containing ` at `; use the strict function or numeric ID to address these. Startup refuses duplicate or malformed nonblank persisted keys with a diagnostic; administrators must explicitly resolve them, rather than letting startup choose a winner.
+
+The additive `CellUniqueNames` migration adds nullable `utf8mb4` storage and a nonunique lookup index. The new column supports supplementary Unicode (including emoji), which the older prototype `utf8` columns cannot store; application comparison still follows prototype conventions. It performs no backfill or spatial restructuring and preserves numeric identities and references. Back up before upgrading. Downgrading drops assigned keys; export them by room ID first if needed. The later spatial ownership and Room terminology migrations remove the legacy containing Room and rename the surviving location.
 
 ## Quick Mental Model
+
+The [staged spatial migration](Cell_Spatial_Ownership_Migration.md) removes the legacy containing Room entity. Surviving Rooms directly own their zone, stored integer XYZ coordinates and Area memberships. Familiar room vocabulary and FutureProg location functions remain. Rezone and Area editing affect the selected Room directly. Hosted interiors still project their exterior environment while their stored ownership remains independent.
 
 FutureMUD locations are built from a small set of concepts:
 
@@ -14,12 +30,12 @@ FutureMUD locations are built from a small set of concepts:
 | --- | --- |
 | Shard | The highest location container. A shard represents a broad world, plane, planet, region of reality, or other top-level space. It owns sky, clocks, calendars, celestial objects, and minimum light settings. |
 | Zone | A geographic or operational region inside a shard. Zones own latitude, longitude, elevation, weather controller, clock time zones, light multiplier, and the default room created for the zone. |
-| Room or Cell | The place characters stand, look, move, forage, hear, quit safely, and interact. Cells have names, descriptions, terrain, outdoors type, atmosphere, light settings, exits, and overlays. |
+| Room | The place characters stand, look, move, forage, hear, quit safely, and interact. Rooms have names, descriptions, terrain, outdoors type, atmosphere, light settings, exits, and overlays. |
 | Area | A cross-cutting grouping of rooms. Areas are not a strict layer between zones and rooms. They can span zones, and rooms may belong to more than one area. |
 | Overlay | A versioned set of room presentation and exit data. Builders edit overlays rather than directly overwriting live room state. |
 | Overlay Package | A named collection of overlays that move through review, approval, and swap workflows together. |
 | Terrain | The mechanical and presentation baseline for a room: movement, layers, natural light expectations, atmosphere, tracks, weather override, forage defaults, and editor display. |
-| Agriculture Field | Optional field state attached to a cell for crops, pasture, herds, or managed woodland. A cell can have at most one field. |
+| Agriculture Field | Optional field state attached to a room for crops, pasture, herds, or managed woodland. A room can have at most one field. |
 | Exit | A connection between rooms. Exits can be cardinal, non-cardinal, door-capable, climbable, fall exits, layer-blocking, hidden by prog, or limited by character size/posture. |
 
 Most building sessions follow this shape:
@@ -71,9 +87,9 @@ Zones hold:
 - Per-clock time zone.
 - Weather controller.
 - Foragable profile.
-- A default cell.
+- A default room.
 
-Creating a zone requires an open `Under Design` overlay package. The command creates the zone and a default cell in the current package.
+Creating a zone requires an open `Under Design` overlay package. The command creates the zone and a default room in the current package.
 
 Key commands:
 
@@ -108,19 +124,19 @@ spatialpackage validate harbour-ward "Prime Material" "Imported Harbour Ward"
 spatialpackage import harbour-ward "Prime Material" confirm "Imported Harbour Ward"
 ```
 
-Copy the generated `.fmsa.json` file from the source server's `Spatial Packages` directory into the same directory on the target server. On the target installation, open or create an `Under Design` cell overlay package before validation or import.
+Copy the generated `.fmsa.json` file from the source server's `Spatial Packages` directory into the same directory on the target server. On the target installation, open or create an `Under Design` room overlay package before validation or import.
 
-An import always creates new zones and assigns new IDs to its rooms, cells, overlays, route metadata, and exits. It never merges into an existing zone or overwrites unrelated content. A name override is only available for a single-zone package. Validation checks package integrity, all internal references, the target shard's clocks and timezones, and named dependencies such as terrain, atmosphere, hearing profiles, weather controllers, forage profiles, tags, covers, and magic resources.
+An import creates new zones and assigns new IDs to Rooms, overlays, route metadata and exits. It never merges into an existing zone or overwrites unrelated content. A name override is only available for a single-zone package. Validation checks package integrity, all internal references, the target shard's clocks and timezones, and named dependencies such as terrain, atmosphere, hearing profiles, weather controllers, forage profiles, tags, covers, and magic resources.
 
-Package version 3 preserves route-cell geometry, landmarks, exit anchors, multiple zones, exits linking selected zones, and any `AREA` group whose complete room membership is selected. Links to unselected zones, partially selected `AREA` groups, hooks, characters, items, and installed door items are omitted and shown as an enumerated list by export, validation, and import. Temporary dwelling cells are skipped with their rooms and links; empty legacy room records without cells are likewise skipped and reported. An exit with an installed door imports as a door-capable exit without that physical door. The exporter refuses cells whose faithful transfer requires data it does not carry: hosted vehicle interiors, agriculture fields, persisted cell effects, surface-liquid state, and fall exits that lead outside the selection. Versions 1 and 2 packages remain importable.
+Current package version 5 preserves route-room geometry, landmarks, exit anchors, multiple zones, exits linking selected zones, and any `AREA` group whose complete room membership is selected. Links to unselected zones, partially selected `AREA` groups, hooks, characters, items, and installed door items are omitted and shown as an enumerated list by export, validation, and import. Temporary dwelling Rooms and their links are skipped. Historical packages with empty containing Rooms report omissions while preserving their archive provenance. An exit with an installed door imports as a door-capable exit without that physical door. The exporter refuses rooms whose faithful transfer requires data it does not carry: hosted vehicle interiors, agriculture fields, persisted room effects, surface-liquid state, and fall exits that lead outside the selection. Versions 1 through 4 remain importable through checksum-validated compatibility readers.
 
 See [Spatial Area Transfer Packages](../World/Spatial_Area_Transfer_Packages.md) for format, validation, remapping, and extension details.
 
-### Rooms and Cells
+### Rooms
 
-A cell is the concrete playable location. Rooms and cells are the same thing in the engine. They should be understood as synonyms.
+A Room is the concrete playable location. It retains the numeric identity and mechanics of the former Cell; the containing layer is removed.
 
-A cell has:
+A room has:
 
 - A parent room identity and zone.
 - A current overlay.
@@ -141,27 +157,27 @@ A cell has:
 Key inspection commands:
 
 ```text
-cell show
-cell overlay <id|name> [revision]
-cell overlay clear
+room show
+room overlay <id|name> [revision]
+room overlay clear
 rooms <zone id|name> [+keyword] [-keyword]
 show terrain [+keyword] [-keyword] [*keyword]
 show overlays
 show exittemplates
 ```
 
-`cell overlay` is a builder view/edit helper. It lets you view a specific overlay revision for your current room. `cell overlay clear` returns you to the default current overlay. You will see the information associated with your current overlay when you look at the room, but others will still see the room's default current. This way, you can be working on changes to an area live without impacting on what others are seeing.
+`room overlay` is a builder view/edit helper. It lets you view a specific overlay revision for your current room. `room overlay clear` returns you to the default current overlay. You will see the information associated with your current overlay when you look at the room, but others will still see the room's default current. This way, you can be working on changes to an area live without impacting on what others are seeing.
 
 Agriculture note:
 
-- agriculture fields are live cell state, not overlay text
+- agriculture fields are live room state, not overlay text
 - terrain can define a default agriculture profile with `terrain set agriculture <profile|none>`
 - builders create and maintain actual fields with `field create`, `field set`, `field reset`, and `field tick`
 - see [Agriculture Builder Workflows](../Agriculture/Agriculture_Builder_Workflows.md) for the full field workflow
 
 ### Areas
 
-Areas are independent room groupings. They are not a strict parent of rooms, and they are not a required step between zones and cells. A room can be in more than one area, and an area can include rooms across multiple zones.
+Areas are independent room groupings. They are not a strict parent of rooms, and they are not a required step between zones and rooms. A room can be in more than one area, and an area can include rooms across multiple zones.
 
 Use areas when you need a named collection of rooms for:
 
@@ -206,44 +222,44 @@ Package statuses you will see:
 Key commands:
 
 ```text
-cell package list [all|by <builder>|mine]
-cell package new <name>
-cell package open <id|name>
-cell package close
-cell package show [<id|name>]
-cell package rename <name>
-cell package revise <id|name>
-cell package submit <comment>
-cell package review list
-cell package review all
-cell package review <id>
+room package list [all|by <builder>|mine]
+room package new <name>
+room package open <id|name>
+room package close
+room package show [<id|name>]
+room package rename <name>
+room package revise <id|name>
+room package submit <comment>
+room package review list
+room package review all
+room package review <id>
 accept edit <comments>
 decline edit <comments>
-cell package history <id|name>
-cell package swap <id|name>
-cell package delete
-cell package obsolete
+room package history <id|name>
+room package swap <id|name>
+room package delete
+room package obsolete
 ```
 
 Common package workflow:
 
 ```text
-cell package new "North Road Expansion"
-cell new
-cell set name "A Packed-Dirt Road"
-cell set terrain "Dirt Road"
-cell set type outdoors
-cell set desc
-cell package submit "Adds the first road room north of the gate."
-cell package review list
-cell package review 42
+room package new "North Road Expansion"
+room new
+room set name "A Packed-Dirt Road"
+room set terrain "Dirt Road"
+room set type outdoors
+room set desc
+room package submit "Adds the first road room north of the gate."
+room package review list
+room package review 42
 accept edit "Looks good."
-cell package swap 42
+room package swap 42
 ```
 
-Use `cell package revise` for an existing current or rejected package when you want a new revision. Use `cell package delete` only for an open `Under Design` package you really want to discard.
+Use `room package revise` for an existing current or rejected package when you want a new revision. Use `room package delete` only for an open `Under Design` package you really want to discard.
 
-`cell package review <id>` and `cell package review all` open a temporary review proposal. Type `accept edit <comments>` or `decline edit <comments>` as the follow-up response before the proposal times out.
+`room package review <id>` and `room package review all` open a temporary review proposal. Type `accept edit <comments>` or `decline edit <comments>` as the follow-up response before the proposal times out.
 
 ## Terrain, Outdoors Type, and Environment
 
@@ -312,31 +328,31 @@ Terrain models control room layers. Common model names include:
 
 See the [Room Layer System Primer](../World/Room_Layer_System_Primer.md) for the complete model table, exit intersection rules, movement and perception interactions, and worked rooftop, underwater, climbing, and flying patterns.
 
-Cell-level environment commands:
+Room-level environment commands:
 
 ```text
-cell set terrain <terrain>
-cell set type outdoors
-cell set type indoors
-cell set type cave
-cell set type windows
-cell set type exposed
-cell set hearing <hearing profile>
-cell set lightmultiplier <multiplier>
-cell set lightlevel <lux>
-cell set forage clear
-cell set forage <profile>
-cell set atmosphere gas <gas>
-cell set atmosphere liquid <liquid>
-cell set atmosphere none
-cell set safequit
+room set terrain <terrain>
+room set type outdoors
+room set type indoors
+room set type cave
+room set type windows
+room set type exposed
+room set hearing <hearing profile>
+room set lightmultiplier <multiplier>
+room set lightlevel <lux>
+room set forage clear
+room set forage <profile>
+room set atmosphere gas <gas>
+room set atmosphere liquid <liquid>
+room set atmosphere none
+room set safequit
 ```
 
-An explicit `cell set forage <profile>` override is stored on the Cell and takes precedence over Zone and Terrain forage defaults. On startup, Cells, Zones, and Terrains retain their configured profile identity until forage profiles have loaded, then Cells restore compatible persisted yield pools without resetting partly depleted values. Persisted pools are constrained to the active profile's valid yield types and maximums. Fractional hourly recovery remains stored across restarts; discrete item and commodity finds require one complete yield point and consume it atomically. Direct edible and grazing yields may still consume fractional amounts. `cell set forage clear` removes the override and returns the Cell to normal Zone/Terrain inheritance.
+An explicit `room set forage <profile>` override is stored on the Room and takes precedence over Zone and Terrain forage defaults. On startup, Rooms, Zones, and Terrains retain their configured profile identity until forage profiles have loaded, then Rooms restore compatible persisted yield pools without resetting partly depleted values. Persisted pools are constrained to the active profile's valid yield types and maximums. Fractional hourly recovery remains stored across restarts; discrete item and commodity finds require one complete yield point and consume it atomically. Direct edible and grazing yields may still consume fractional amounts. `room set forage clear` removes the override and returns the Room to normal Zone/Terrain inheritance.
 
-Environmental magic resources use a separate explicit binding. Create an `environmental` regenerator with `magic regenerator edit new environmental <resource> <name>`, then set `terrain set environment <profile>` or `magic environment terrain <terrain> <profile>`. Use `magic environment cell <here|cell id> <profile|inherit|disabled>` for the physical cell's override. `disabled` suppresses the terrain default; `inherit` restores it. Balances and persistent scar damage survive overlay/profile changes and restart. A new output starts empty, and a higher cap never refills discarded energy.
+Environmental magic resources use a separate explicit binding. Create an `environmental` regenerator with `magic regenerator edit new environmental <resource> <name>`, then set `terrain set environment <profile>` or `magic environment terrain <terrain> <profile>`. Use `magic environment room <here|room id> <profile|inherit|disabled>` for the physical room's override. `disabled` suppresses the terrain default; `inherit` restores it. Balances and persistent scar damage survive overlay/profile changes and restart. A new output starts empty, and a higher cap never refills discarded energy.
 
-`magic environment show [here|cell id]` purely inspects inputs, resources and damage. Staff damage/repair, FutureProg helpers, explicit input scaling and disposable examples are documented in the [Environmental Magic Builder Guide](../Magic/Environmental_Magic_Builder_Guide.md). Environmental reads do not consume forage or agriculture yields.
+`magic environment show [here|room id]` purely inspects inputs, resources and damage. Staff damage/repair, FutureProg helpers, explicit input scaling and disposable examples are documented in the [Environmental Magic Builder Guide](../Magic/Environmental_Magic_Builder_Guide.md). Environmental reads do not consume forage or agriculture yields.
 
 Outdoors type:
 
@@ -348,13 +364,13 @@ Outdoors type:
 | `cave` | Indoors with no natural light | Caves, tunnels, sealed vaults. |
 | `exposed` | Indoors exposed to climate | Sheds, ruins, covered verandas, open-sided shelters. |
 
-Changing terrain can also set default light multipliers based on the terrain's default outdoors type. If you need a special case, set terrain first and then adjust `cell set type`, `cell set lightmultiplier`, or `cell set lightlevel`.
+Changing terrain can also set default light multipliers based on the terrain's default outdoors type. If you need a special case, set terrain first and then adjust `room set type`, `room set lightmultiplier`, or `room set lightlevel`.
 
-Rain, ordinary liquid overflow, and pouring liquid onto the ground no longer create saved puddle items by default. Outdoor rooms lazily resolve weather exposure when they are observed or interacted with, storing bounded per-layer virtual liquid state on the cell. If `PuddlesEnabled` is true, virtual puddles can appear as complete sentence-cased lines in room descriptions; if it is false, overflow soaks exposed items and bodies but does not accumulate room-level puddles. Existing saved puddle items remain load-compatible, but the room folds them into its virtual surface state and removes the legacy items before presenting room contents so old and new puddles cannot be shown together.
+Rain, ordinary liquid overflow, and pouring liquid onto the ground no longer create saved puddle items by default. Outdoor rooms lazily resolve weather exposure when they are observed or interacted with, storing bounded per-layer virtual liquid state on the room. If `PuddlesEnabled` is true, virtual puddles can appear as complete sentence-cased lines in room descriptions; if it is false, overflow soaks exposed items and bodies but does not accumulate room-level puddles. Existing saved puddle items remain load-compatible, but the room folds them into its virtual surface state and removes the legacy items before presenting room contents so old and new puddles cannot be shown together.
 
 ## Exits
 
-Exits are directional or named connections between cells. They carry both movement behaviour and builder-facing presentation.
+Exits are directional or named connections between rooms. They carry both movement behaviour and builder-facing presentation.
 
 ### Cardinal Exits
 
@@ -363,17 +379,17 @@ Cardinal exits use standard map directions such as north, south, east, west, up,
 Create a new room in a cardinal direction:
 
 ```text
-cell dig <direction>
+room dig <direction>
 ```
 
 Link the current room to an existing room:
 
 ```text
-cell link <direction> <cell id|@n>
-cell set link <direction> <cell id|@n>
+room link <direction> <room id|@n>
+room set link <direction> <room id|@n>
 ```
 
-`cell dig` creates a new room and transfers you into it. `cell link` connects to an existing cell and creates the reverse exit as well.
+`room dig` creates a new room and transfers you into it. `room link` connects to an existing room and creates the reverse exit as well.
 
 ### Non-Cardinal Exits
 
@@ -388,24 +404,24 @@ show exittemplates
 Create a new room through a non-cardinal exit:
 
 ```text
-cell ndig <template> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
+room ndig <template> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
 ```
 
 Link to an existing room through a non-cardinal exit:
 
 ```text
-cell nlink <template> <cell id|@n> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
-cell set nlink <template> <cell id|@n> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
+room nlink <template> <room id|@n> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
+room set nlink <template> <room id|@n> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
 ```
 
 Example:
 
 ```text
 show exittemplates
-cell ndig Enter doorway street "a narrow oak doorway" "the street outside"
-cell set name "Inside the Old Shop"
-cell set terrain "Shopfront"
-cell set type indoors
+room ndig Enter doorway street "a narrow oak doorway" "the street outside"
+room set name "Inside the Old Shop"
+room set terrain "Shopfront"
+room set type indoors
 ```
 
 From the street, the outbound keyword is `doorway`. From inside, the inbound keyword is `street`.
@@ -415,52 +431,52 @@ From the street, the outbound keyword is `doorway`. From inside, the inbound key
 List exits:
 
 ```text
-cell exit list
-cell exit list <direction|keyword>
-cell exit list all
+room exit list
+room exit list <direction|keyword>
+room exit list all
 ```
 
 Add or remove overlay exits:
 
 ```text
-cell exit add <direction|keyword>
-cell exit remove <direction|keyword>
+room exit add <direction|keyword>
+room exit remove <direction|keyword>
 ```
 
 Configure exit size and posture:
 
 ```text
-cell exit size <exit> <size>
-cell exit upright <exit> <size>
-cell exit reset <exit>
+room exit size <exit> <size>
+room exit upright <exit> <size>
+room exit reset <exit>
 ```
 
 Door support:
 
 ```text
-cell set door <exit> <size>
-cell set door <exit> clear
+room set door <exit> <size>
+room set door <exit> clear
 ```
 
-`cell set door` controls whether an exit accepts a door and, if so, what size. It does not by itself install a specific door item.
+`room set door` controls whether an exit accepts a door and, if so, what size. It does not by itself install a specific door item.
 Player `look` and `exits` output shows door-capable exits without an installed door in bold white; installed doors still show their door state and description directly on the exit.
 Cardinal exit arguments accept the whitelisted short and common forms: `n`, `north`, `nw`, `northwest`, `north-west`, and `north west` (and the equivalent forms for other directions). They do not use arbitrary prefixes, so `north` targets the north exit even if a north-west exit also exists.
 
 Climb and fall:
 
 ```text
-cell exit climb <exit> <difficulty>
-cell exit climb <exit>
-cell exit fall <exit>
+room exit climb <exit> <difficulty>
+room exit climb <exit>
+room exit fall <exit>
 ```
 
-`cell exit climb <exit>` without a difficulty toggles climb off if the exit is already climbable. Fall exits are only valid for up/down movement and are used for vertical exits where falling or flying matters.
+`room exit climb <exit>` without a difficulty toggles climb off if the exit is already climbable. Fall exits are only valid for up/down movement and are used for vertical exits where falling or flying matters.
 
 Layer blocking:
 
 ```text
-cell exit block <exit> <layer>
-cell exit unblock <exit> <layer>
+room exit block <exit> <layer>
+room exit unblock <exit> <layer>
 ```
 
 Common layers include `GroundLevel`, `Underwater`, `DeepUnderwater`, `VeryDeepUnderwater`, `InTrees`, `HighInTrees`, `InAir`, `HighInAir`, and `OnRooftops`. Terrain controls which layers are available in a room.
@@ -469,68 +485,68 @@ For the exact horizontal-intersection and up/down endpoint rules, see the [Room 
 Hidden exits:
 
 ```text
-cell exit hide <exit> <prog>
-cell exit unhide <exit>
+room exit hide <exit> <prog>
+room exit unhide <exit>
 ```
 
 The hide prog must return boolean and accept a location and character. Hidden exits are still real exits; the prog controls whether a character perceives them.
 
 When an exit is shared by other overlays, edit commands copy it into the current overlay package before changing it. This lets a new package adjust exit behaviour without accidentally mutating live or unrelated overlay data.
 
-## Linear RouteCells
+## Linear RouteRooms
 
-A RouteCell is one long, linear cell with exact metre coordinates. Use it for a road, railway, river, tunnel, or other corridor whose scale would otherwise require thousands of ordinary cells. It is not a vehicle timetable: scheduled operational itineraries are authored separately with `vehicleroute`, then attached to recurring operations with `vehicleservice`. See [RouteCell Spatial System](../World/Route_Cell_System.md) and [Vehicle System](../Vehicle_System.md).
+A RouteRoom is one long, linear room with exact metre coordinates. Use it for a road, railway, river, tunnel, or other corridor whose scale would otherwise require thousands of ordinary rooms. It is not a vehicle timetable: scheduled operational itineraries are authored separately with `vehicleroute`, then attached to recurring operations with `vehicleservice`. See [RouteRoom Spatial System](../World/Route_Cell_System.md) and [Vehicle System](../Vehicle_System.md).
 
 Create and inspect the geometry:
 
 ```text
-cell set route create <length>
-cell set route show
-cell set route map
-cell set route validate
-cell set route length <length>
-cell set route default <distance|landmark>
-cell set route direction positive <name>
-cell set route direction negative <name>
-cell set route roomequivalent <length|default>
-cell set route clear
+room set route create <length>
+room set route show
+room set route map
+room set route validate
+room set route length <length>
+room set route default <distance|landmark>
+room set route direction positive <name>
+room set route direction negative <name>
+room set route roomequivalent <length|default>
+room set route clear
 ```
 
-Lengths and coordinates accept the normal localised unit syntax. Coordinates run inclusively from `0` to the cell length. The default coordinate is used only when entry has no more specific inherited or exit-authored coordinate. The room-equivalent controls compatibility with systems whose range is still expressed as a number of rooms; the global default is 100 metres.
+Lengths and coordinates accept the normal localised unit syntax. Coordinates run inclusively from `0` to the room length. The default coordinate is used only when entry has no more specific inherited or exit-authored coordinate. The room-equivalent controls compatibility with systems whose range is still expressed as a number of rooms; the global default is 100 metres.
 
 Add navigation landmarks:
 
 ```text
-cell set route landmark add <distance> <name>
-cell set route landmark rename <landmark> <name>
-cell set route landmark keywords <landmark> <keywords>
-cell set route landmark distance <landmark> <distance>
-cell set route landmark description <landmark>
-cell set route landmark delete <landmark>
+room set route landmark add <distance> <name>
+room set route landmark rename <landmark> <name>
+room set route landmark keywords <landmark> <keywords>
+room set route landmark distance <landmark> <distance>
+room set route landmark description <landmark>
+room set route landmark delete <landmark>
 ```
 
-Route landmarks are points inside one RouteCell, distinct from the older whole-cell `cell landmark`/meeting-place system described later in this guide. Players can use RouteCell landmarks with `travel to`, and vehicle routes can bind stops to their exact coordinates.
+Route landmarks are points inside one RouteRoom, distinct from the older whole-room `room landmark`/meeting-place system described later in this guide. Players can use RouteRoom landmarks with `travel to`, and vehicle routes can bind stops to their exact coordinates.
 
 Anchor each route-side exit:
 
 ```text
-cell set route exit <exit> band <minimum> <maximum> arrival <distance>
+room set route exit <exit> band <minimum> <maximum> arrival <distance>
 ```
 
-The band is inclusive. An actor can use that exit only while inside the band. Merely travelling past it never takes it automatically. `arrival` is the deterministic coordinate assigned when entering this RouteCell through that exit. Route-to-route exits require a valid anchor on each side.
+The band is inclusive. An actor can use that exit only while inside the band. Merely travelling past it never takes it automatically. `arrival` is the deterministic coordinate assigned when entering this RouteRoom through that exit. Route-to-route exits require a valid anchor on each side.
 
 For example, on a ten-kilometre road with a turn-off accessible from 7,100 through 7,200 metres:
 
 ```text
-cell set route create 10km
-cell set route direction positive eastbound
-cell set route direction negative westbound
-cell set route landmark add 7150m "Old Quarry Turn-Off"
-cell set route exit quarry band 7100m 7200m arrival 7150m
-cell set route validate
+room set route create 10km
+room set route direction positive eastbound
+room set route direction negative westbound
+room set route landmark add 7150m "Old Quarry Turn-Off"
+room set route exit quarry band 7100m 7200m arrival 7150m
+room set route validate
 ```
 
-Conversion is intentionally guarded. The cell must not contain other live or persisted character instances, top-level items, vehicles, projects, tracks, coordinate-bound surface liquid, or any exits; remove exits first, convert the cell, then relink and anchor each route-side exit. The audit includes offline character/instance rows and dormant top-level item rows, not only objects currently materialised in memory. Shortening or clearing fails if it would strand an entity, track, point spill, landmark, exit anchor, stop, route, service, or active journey. The geometry mutation and the builder's resulting coordinate are committed together. A geometry change increments topology version and invalidates dependent route compilation; it never silently clamps existing data.
+Conversion is intentionally guarded. The room must not contain other live or persisted character instances, top-level items, vehicles, projects, tracks, coordinate-bound surface liquid, or any exits; remove exits first, convert the room, then relink and anchor each route-side exit. The audit includes offline character/instance rows and dormant top-level item rows, not only objects currently materialised in memory. Shortening or clearing fails if it would strand an entity, track, point spill, landmark, exit anchor, stop, route, service, or active journey. The geometry mutation and the builder's resulting coordinate are committed together. A geometry change increments topology version and invalidates dependent route compilation; it never silently clamps existing data.
 
 ## Ways to Make Rooms
 
@@ -539,44 +555,44 @@ Conversion is intentionally guarded. The cell must not contain other live or per
 Create a blank room in your current zone and current overlay package:
 
 ```text
-cell new
+room new
 ```
 
 Create a room from an area autobuilder template:
 
 ```text
-cell new <area template> <arguments...>
+room new <area template> <arguments...>
 ```
 
 Dig one room in a direction:
 
 ```text
-cell dig north
-cell set name "A Bend in the Road"
-cell set terrain "Dirt Road"
-cell set type outdoors
-cell set desc
+room dig north
+room set name "A Bend in the Road"
+room set terrain "Dirt Road"
+room set type outdoors
+room set desc
 ```
 
 Dig using a non-cardinal exit:
 
 ```text
-cell ndig StairsUp stairs landing "a flight of wooden stairs" "the lower landing"
-cell set name "An Upper Landing"
-cell set terrain "Hallway"
-cell set type indoors
+room ndig StairsUp stairs landing "a flight of wooden stairs" "the lower landing"
+room set name "An Upper Landing"
+room set terrain "Hallway"
+room set type indoors
 ```
 
 Link to existing rooms:
 
 ```text
-cell link east 12345
-cell nlink Enter 12346 gate courtyard "an iron garden gate" "the courtyard behind the gate"
+room link east 12345
+room nlink Enter 12346 gate courtyard "an iron garden gate" "the courtyard behind the gate"
 ```
 
 ### The `@n` Room Syntax
 
-FutureMUD tracks recently built cells since the last reboot. Builders can refer to these cells with `@n`:
+FutureMUD tracks recently built rooms since the last reboot. Builders can refer to these rooms with `@n`:
 
 - `@1`: the most recently created room.
 - `@2`: the second most recently created room.
@@ -587,20 +603,20 @@ This is especially useful for paste-able build scripts where you do not yet know
 Example:
 
 ```text
-cell package new "Gatehouse Chain"
-cell new
-cell set name "Before the Gatehouse"
-cell set terrain "Dirt Road"
-cell set type outdoors
-cell dig north
-cell set name "Inside the Gatehouse"
-cell set terrain "Gatehouse"
-cell set type indoors
-cell ndig StairsUp stairs lower "a tight stairwell" "the gatehouse floor below"
-cell set name "On the Gatehouse Stair"
-cell set terrain "Gatehouse"
-cell set type indoors
-cell link south @2
+room package new "Gatehouse Chain"
+room new
+room set name "Before the Gatehouse"
+room set terrain "Dirt Road"
+room set type outdoors
+room dig north
+room set name "Inside the Gatehouse"
+room set terrain "Gatehouse"
+room set type indoors
+room ndig StairsUp stairs lower "a tight stairwell" "the gatehouse floor below"
+room set name "On the Gatehouse Stair"
+room set terrain "Gatehouse"
+room set type indoors
+room link south @2
 ```
 
 In this example, `@1` is the stair room after `ndig`, and `@2` is the room inside the gatehouse. The exact numbering depends on what was created most recently, so keep command chains compact and avoid mixing manual building from multiple builders into the same paste sequence.
@@ -635,7 +651,7 @@ Feature Rectangle Diagonals
 Seeded Terrain Wilderness Grouped Features
 ```
 
-The diagonal rectangle variants connect every pair of corner-adjacent generated cells. In terrain-mask templates,
+The diagonal rectangle variants connect every pair of corner-adjacent generated rooms. In terrain-mask templates,
 `0` holes simply prevent any cardinal or diagonal exit that would otherwise lead into that position.
 
 Common seeded room templates include:
@@ -648,24 +664,24 @@ Seeded Terrain Wilderness Grouped Description
 Basic rectangle:
 
 ```text
-cell new Rectangle 3 4 Blank "Grasslands"
+room new Rectangle 3 4 Blank "Grasslands"
 ```
 
 Terrain mask rectangle:
 
 ```text
-cell new "Terrain Rectangle" 3 4 Blank 12,12,13,13,12,0,13,14,12,12,14,14
+room new "Terrain Rectangle" 3 4 Blank 12,12,13,13,12,0,13,14,12,12,14,14
 ```
 
-The terrain mask is row-major from the bottom-left `(0,0)` cell. It proceeds east across each row and then north to
+The terrain mask is row-major from the bottom-left `(0,0)` room. It proceeds east across each row and then north to
 the next row. It must contain exactly `height * width` entries. Use terrain IDs for rooms and `0` for no room.
 
 Seeded wilderness example:
 
 ```text
 terrain planner
-cell package new "Western Woods"
-cell new "Seeded Terrain Wilderness Grouped Features" 3 4 "Seeded Terrain Wilderness Grouped Description" 12,12,13,13,12,0,13,14,12,12,14,14
+room package new "Western Woods"
+room new "Seeded Terrain Wilderness Grouped Features" 3 4 "Seeded Terrain Wilderness Grouped Description" 12,12,13,13,12,0,13,14,12,12,14,14
 ```
 
 The IDs above are examples. Use `terrain planner` or `show terrain` to get the correct terrain IDs in your world.
@@ -673,10 +689,10 @@ The IDs above are examples. Use `terrain planner` or `show terrain` to get the c
 Feature mask example:
 
 ```text
-cell new "Feature Rectangle" 2 3 "Seeded Terrain Wilderness Grouped Description" 12,12,12,15,15,15 "101|102,103,104,,105,101"
+room new "Feature Rectangle" 2 3 "Seeded Terrain Wilderness Grouped Description" 12,12,12,15,15,15 "101|102,103,104,,105,101"
 ```
 
-Feature masks use the same bottom-left row-major order. Separate cells with commas and multiple features in one cell
+Feature masks use the same bottom-left row-major order. Separate rooms with commas and multiple features in one room
 with `|`. Use the numeric IDs from `tag list` or the hosted Terrain Planner; the IDs are resolved to the exact
 framework tags, and their names are supplied to the room template's descriptive feature rules. The IDs above are
 examples only.
@@ -716,10 +732,10 @@ Important room-template concepts:
 
 ### Post-Build Progs
 
-`cell new <area template>` can run one or more progs on every generated room. Put `prog=<prog>` arguments before the area template name.
+`room new <area template>` can run one or more progs on every generated room. Put `prog=<prog>` arguments before the area template name.
 
 ```text
-cell new prog=DecorateRoad prog=AddDistrictRegisters "Terrain Rectangle" 2 3 Blank 12,12,12,12,12,12
+room new prog=DecorateRoad prog=AddDistrictRegisters "Terrain Rectangle" 2 3 Blank 12,12,12,12,12,12
 ```
 
 The prog must accept either a single location or a collection of locations. This is useful for adding variable register values, applying stock effects, placing signs, or doing post-generation cleanup.
@@ -739,7 +755,7 @@ FutureProg also exposes room-building functions for scripted workflows. Useful e
 - `LinkCells(location, location, package, direction)`.
 - `CreateOverlay`, `ReviseOverlay`, `ApproveOverlay`, and `SwapOverlay`.
 
-Use prog-based building when the build is procedural, event-driven, or must be repeated in-world. Use manual commands or autobuilders when a builder needs tight control and readable command history. For non-cardinal scripted links, prefer a tested helper prog or the normal `cell ndig`/`cell nlink` workflow before bulk-generating content.
+Use prog-based building when the build is procedural, event-driven, or must be repeated in-world. Use manual commands or autobuilders when a builder needs tight control and readable command history. For non-cardinal scripted links, prefer a tested helper prog or the normal `room ndig`/`room nlink` workflow before bulk-generating content.
 
 ## Landmarks and Meeting Places
 
@@ -748,21 +764,21 @@ Landmarks help players orient themselves. Meeting places are landmarks that also
 Key commands:
 
 ```text
-cell landmark [<prog>] [<sphere>]
-cell meeting [<prog>] [<sphere>]
-cell landmarktext
-cell landmarktext add <prog>
-cell landmarktext prog <number> <prog>
-cell landmarktext text <number>
-cell landmarktext swap <number> <number>
-cell landmarktext delete <number>
+room landmark [<prog>] [<sphere>]
+room meeting [<prog>] [<sphere>]
+room landmarktext
+room landmarktext add <prog>
+room landmarktext prog <number> <prog>
+room landmarktext text <number>
+room landmarktext swap <number> <number>
+room landmarktext delete <number>
 landmarks
 landmarks <landmark>
 ```
 
-`cell landmark` toggles a landmark on or off. If the room is currently a meeting place, it changes it back to a landmark-only room.
+`room landmark` toggles a landmark on or off. If the room is currently a meeting place, it changes it back to a landmark-only room.
 
-`cell meeting` toggles a meeting place on or off. If the room is currently a landmark-only room, it upgrades it into a meeting place.
+`room meeting` toggles a meeting place on or off. If the room is currently a landmark-only room, it upgrades it into a meeting place.
 
 Optional landmark progs must return boolean and accept either:
 
@@ -776,12 +792,12 @@ The optional sphere lets you segment landmarks. A city can have public landmarks
 Example:
 
 ```text
-cell landmark AlwaysTrue Public
-cell landmarktext add CanReadOldImperial
-cell landmarktext text 1
+room landmark AlwaysTrue Public
+room landmarktext add CanReadOldImperial
+room landmarktext text 1
 This is a common public meeting place for traders and townsfolk. There are signs and posters in old imperial all over the city that describe this as the place to be.
 @
-cell meeting AlwaysTrue Public
+room meeting AlwaysTrue Public
 ```
 
 ## Room Descriptions and Markup
@@ -921,9 +937,9 @@ This section gathers the room-building commands most builders need.
 ### Discovery
 
 ```text
-cell show
-cell overlay <id|name> [revision]
-cell overlay clear
+room show
+room overlay <id|name> [revision]
+room overlay clear
 rooms <zone id|name> [+keyword] [-keyword]
 zones
 shards
@@ -989,83 +1005,83 @@ area weather clear
 ### Overlay Packages
 
 ```text
-cell package list [all|by <builder>|mine]
-cell package new <name>
-cell package open <id|name>
-cell package close
-cell package show [<id|name>]
-cell package rename <name>
-cell package revise <id|name>
-cell package submit <comment>
-cell package review list
-cell package review all
-cell package review <id>
+room package list [all|by <builder>|mine]
+room package new <name>
+room package open <id|name>
+room package close
+room package show [<id|name>]
+room package rename <name>
+room package revise <id|name>
+room package submit <comment>
+room package review list
+room package review all
+room package review <id>
 accept edit <comments>
 decline edit <comments>
-cell package history <id|name>
-cell package swap <id|name>
-cell package delete
-cell package obsolete
+room package history <id|name>
+room package swap <id|name>
+room package delete
+room package obsolete
 ```
 
 ### Room Creation and Editing
 
 ```text
-cell new
-cell new <area template> <arguments...>
-cell new prog=<prog> <area template> <arguments...>
-cell dig <direction>
-cell ndig <template> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
-cell link <direction> <cell id|@n>
-cell nlink <template> <cell id|@n> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
-cell set name <name>
-cell set desc
-cell set description
-cell set suggestdesc
-cell set terrain <terrain>
-cell set hearing <hearing profile>
-cell set lightmultiplier <multiplier>
-cell set lightlevel <lux>
-cell set type outdoors
-cell set type indoors
-cell set type cave
-cell set type windows
-cell set type exposed
-cell set door <exit> <size>
-cell set door <exit> clear
-cell set forage clear
-cell set forage <profile>
-cell set atmosphere gas <gas>
-cell set atmosphere liquid <liquid>
-cell set atmosphere none
-cell set safequit
-cell set register <variable> <value>
-cell set register delete <variable>
-cell delete
+room new
+room new <area template> <arguments...>
+room new prog=<prog> <area template> <arguments...>
+room dig <direction>
+room ndig <template> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
+room link <direction> <room id|@n>
+room nlink <template> <room id|@n> <outbound keyword> <inbound keyword> "<outbound description>" "<inbound description>"
+room set name <name>
+room set desc
+room set description
+room set suggestdesc
+room set terrain <terrain>
+room set hearing <hearing profile>
+room set lightmultiplier <multiplier>
+room set lightlevel <lux>
+room set type outdoors
+room set type indoors
+room set type cave
+room set type windows
+room set type exposed
+room set door <exit> <size>
+room set door <exit> clear
+room set forage clear
+room set forage <profile>
+room set atmosphere gas <gas>
+room set atmosphere liquid <liquid>
+room set atmosphere none
+room set safequit
+room set register <variable> <value>
+room set register delete <variable>
+room delete
 ```
 
-`cell set suggestdesc [<optional extra context>]` uses configured AI description generation if the game has an OpenAI or Anthropic API key configured. The request runs in the background and does not change the room until you choose a returned option with `accept desc <n>`. OpenAI failures and timeouts are returned to the builder with a request reference; administrators can use that reference to find full details in the server console.
+`room set suggestdesc [<optional extra context>]` uses configured AI description generation if the game has an OpenAI or Anthropic API key configured. The request runs in the background and does not change the room until you choose a returned option with `accept desc <n>`. OpenAI failures and timeouts are returned to the builder with a request reference; administrators can use that reference to find full details in the server console.
 
-`cell delete` is restricted to high administrators, asks for confirmation, and permanently deletes the current room if the engine can find a fallback destination. Treat it as a repair tool, not a normal building command.
+`room delete` is restricted to high administrators, asks for confirmation, and permanently deletes the current room if the engine can find a fallback destination. Treat it as a repair tool, not a normal building command.
 
 ### Exits
 
 ```text
-cell exit list
-cell exit list <exit>
-cell exit list all
-cell exit add <exit>
-cell exit remove <exit>
-cell exit size <exit> <size>
-cell exit upright <exit> <size>
-cell exit reset <exit>
-cell exit fall <exit>
-cell exit climb <exit> <difficulty>
-cell exit climb <exit>
-cell exit block <exit> <layer>
-cell exit unblock <exit> <layer>
-cell exit hide <exit> <prog>
-cell exit unhide <exit>
+room exit list
+room exit list <exit>
+room exit list all
+room exit add <exit>
+room exit remove <exit>
+room exit size <exit> <size>
+room exit upright <exit> <size>
+room exit reset <exit>
+room exit fall <exit>
+room exit climb <exit> <difficulty>
+room exit climb <exit>
+room exit block <exit> <layer>
+room exit unblock <exit> <layer>
+room exit hide <exit> <prog>
+room exit unhide <exit>
 ```
 
 ### Terrain
@@ -1109,14 +1125,14 @@ autoarea set <template-specific setting>
 ### Landmarks
 
 ```text
-cell landmark [<prog>] [<sphere>]
-cell meeting [<prog>] [<sphere>]
-cell landmarktext
-cell landmarktext add <prog>
-cell landmarktext prog <number> <prog>
-cell landmarktext text <number>
-cell landmarktext swap <number> <number>
-cell landmarktext delete <number>
+room landmark [<prog>] [<sphere>]
+room meeting [<prog>] [<sphere>]
+room landmarktext
+room landmarktext add <prog>
+room landmarktext prog <number> <prog>
+room landmarktext text <number>
+room landmarktext swap <number> <number>
+room landmarktext delete <number>
 landmarks
 landmarks <landmark>
 ```
@@ -1126,15 +1142,15 @@ landmarks <landmark>
 ### Example: First Room in a New Package
 
 ```text
-cell package new "Harbour Starter"
-cell new
-cell set name "At the Harbour Gate"
-cell set terrain "Cobblestone Road"
-cell set type outdoors
-cell set desc
-cell set lightmultiplier 1.0
-cell set safequit
-cell package submit "Adds the initial harbour gate room."
+room package new "Harbour Starter"
+room new
+room set name "At the Harbour Gate"
+room set terrain "Cobblestone Road"
+room set type outdoors
+room set desc
+room set lightmultiplier 1.0
+room set safequit
+room package submit "Adds the initial harbour gate room."
 ```
 
 Use this for a carefully authored first room, tutorial entry, or anchor location.
@@ -1142,20 +1158,20 @@ Use this for a carefully authored first room, tutorial entry, or anchor location
 ### Example: Road With Side Alley
 
 ```text
-cell package new "Harbour Road"
-cell new
-cell set name "The South End of Harbour Road"
-cell set terrain "Cobblestone Road"
-cell set type outdoors
-cell dig north
-cell set name "Harbour Road Beside the Market"
-cell set terrain "Cobblestone Road"
-cell set type outdoors
-cell new
-cell set name "A Narrow Market Alley"
-cell set terrain "Alleyway"
-cell set type outdoors
-cell link west @2
+room package new "Harbour Road"
+room new
+room set name "The South End of Harbour Road"
+room set terrain "Cobblestone Road"
+room set type outdoors
+room dig north
+room set name "Harbour Road Beside the Market"
+room set terrain "Cobblestone Road"
+room set type outdoors
+room new
+room set name "A Narrow Market Alley"
+room set terrain "Alleyway"
+room set type outdoors
+room link west @2
 ```
 
 After the alley room is created, `@1` is the alley, `@2` is the market road room, and `@3` is the south road room. The final command links the alley west to the market road without needing to know the market room's database ID.
@@ -1163,17 +1179,17 @@ After the alley room is created, `@1` is the alley, `@2` is the market road room
 ### Example: Building Interior Through a Doorway
 
 ```text
-cell package new "Old Shop Interior"
-cell new
-cell set name "Outside the Old Shop"
-cell set terrain "Cobblestone Road"
-cell set type outdoors
-cell ndig Enter doorway street "a narrow oak doorway" "the street outside"
-cell set name "Inside the Old Shop"
-cell set terrain "Shopfront"
-cell set type indoors
-cell set door street Normal
-cell set desc
+room package new "Old Shop Interior"
+room new
+room set name "Outside the Old Shop"
+room set terrain "Cobblestone Road"
+room set type outdoors
+room ndig Enter doorway street "a narrow oak doorway" "the street outside"
+room set name "Inside the Old Shop"
+room set terrain "Shopfront"
+room set type indoors
+room set door street Normal
+room set desc
 ```
 
 Use non-cardinal exits when movement should read as `enter doorway`, `leave street`, `climb ladder`, or another natural phrase.
@@ -1181,12 +1197,12 @@ Use non-cardinal exits when movement should read as `enter doorway`, `leave stre
 ### Example: Stairs and Climb Difficulty
 
 ```text
-cell ndig StairsUp stairs hall "a steep stone stair" "the lower hall"
-cell set name "At the Top of the Stone Stair"
-cell set terrain "Hallway"
-cell set type indoors
-cell exit climb stairs Easy
-cell exit upright stairs Small
+room ndig StairsUp stairs hall "a steep stone stair" "the lower hall"
+room set name "At the Top of the Stone Stair"
+room set terrain "Hallway"
+room set type indoors
+room exit climb stairs Easy
+room exit upright stairs Small
 ```
 
 This creates a stairs exit and then marks it as climbable and cramped for upright posture.
@@ -1194,11 +1210,11 @@ This creates a stairs exit and then marks it as climbable and cramped for uprigh
 ### Example: Hidden Cellar Hatch
 
 ```text
-cell ndig Descend hatch pantry "a concealed cellar hatch" "the pantry above"
-cell set name "A Low Cellar"
-cell set terrain "Cellar"
-cell set type cave
-cell exit hide pantry CanFindCellarHatch
+room ndig Descend hatch pantry "a concealed cellar hatch" "the pantry above"
+room set name "A Low Cellar"
+room set terrain "Cellar"
+room set type cave
+room exit hide pantry CanFindCellarHatch
 ```
 
 The hide prog controls whether a character sees the exit. The exit can still exist in topology even when many characters do not perceive it.
@@ -1206,10 +1222,10 @@ The hide prog controls whether a character sees the exit. The exit can still exi
 ### Example: Weather-Aware Square Description
 
 ```text
-cell set name "Fountain Square"
-cell set terrain "Cobblestone Road"
-cell set type outdoors
-cell set desc
+room set name "Fountain Square"
+room set terrain "Cobblestone Road"
+room set type outdoors
+room set desc
 ```
 
 Description body:
@@ -1225,13 +1241,13 @@ writing{English,Latin,minskill=25}{A bronze plaque reads "Founders' Square."}{A 
 ### Example: Creating a New Zone
 
 ```text
-cell package new "Harbour Zone"
+room package new "Harbour Zone"
 zone new "Harbour Ward" "Prime Material" local
 zone set "Harbour Ward" latitude -33.86
 zone set "Harbour Ward" longitude 151.21
 zone set "Harbour Ward" elevation 5
 zone set "Harbour Ward" weather "Coastal Weather"
-cell show
+room show
 ```
 
 The number of time-zone arguments depends on the shard's clocks. Use `shard list`, `zone show`, and command feedback to confirm the expected clocks in your world.
@@ -1252,8 +1268,8 @@ Add each relevant room while the area is open. Use areas for logical groupings t
 
 ```text
 terrain planner
-cell package new "Western Woods"
-cell new "Terrain Rectangle" 4 5 Blank 12,12,12,13,13,12,0,12,13,14,12,12,12,14,14,15,15,12,12,12
+room package new "Western Woods"
+room new "Terrain Rectangle" 4 5 Blank 12,12,12,13,13,12,0,12,13,14,12,12,12,14,14,15,15,12,12,12
 ```
 
 This creates a 4 by 5 grid. The `0` entry leaves a hole in the second row.
@@ -1261,8 +1277,8 @@ This creates a 4 by 5 grid. The `0` entry leaves a hole in the second row.
 ### Example: Seeded Wilderness Package
 
 ```text
-cell package new "Western Woods Detail"
-cell new "Seeded Terrain Wilderness Grouped Features" 4 5 "Seeded Terrain Wilderness Grouped Description" 12,12,12,13,13,12,0,12,13,14,12,12,12,14,14,15,15,12,12,12
+room package new "Western Woods Detail"
+room new "Seeded Terrain Wilderness Grouped Features" 4 5 "Seeded Terrain Wilderness Grouped Description" 12,12,12,13,13,12,0,12,13,14,12,12,12,14,14,15,15,12,12,12
 ```
 
 This assumes the UsefulSeeder stock wilderness autobuilder package has been installed. The generated rooms use terrain-aware grouped descriptions and seeded feature options.
@@ -1270,10 +1286,10 @@ This assumes the UsefulSeeder stock wilderness autobuilder package has been inst
 ### Example: Landmark and Meeting Place
 
 ```text
-cell landmark AlwaysTrue Public
-cell landmarktext add CanReadOldImperial
-cell landmarktext text 1
-cell meeting AlwaysTrue Public
+room landmark AlwaysTrue Public
+room landmarktext add CanReadOldImperial
+room landmarktext text 1
+room meeting AlwaysTrue Public
 landmarks
 ```
 
@@ -1282,19 +1298,19 @@ Use a plain landmark for orientation. Use a meeting place when the room should a
 ### Example: Private Property
 
 ```text
-cell private property "Dockside Warehouse"
-cell private host shop "Copper Kettle"
-cell private show
-cell private clear
+room private property "Dockside Warehouse"
+room private host shop "Copper Kettle"
+room private show
+room private clear
 ```
 
-A cell can have one private-property controller. Property controllers require the cell to already belong to the property; employment-host controllers require it to be one of the host's configured work locations. Replacing an existing controller requires confirmation. This marker supplies access and potential-trespass policy, while the local legal authority still decides whether unauthorised entry is a crime.
+A room can have one private-property controller. Property controllers require the room to already belong to the property; employment-host controllers require it to be one of the host's configured work locations. Replacing an existing controller requires confirmation. This marker supplies access and potential-trespass policy, while the local legal authority still decides whether unauthorised entry is a crime.
 
 ## Guidance for AI Agents
 
 When assisting a builder:
 
-- Start by discovering live IDs and template names with `cell show`, `show terrain`, `show exittemplates`, `show autoareas`, and `show autorooms`.
+- Start by discovering live IDs and template names with `room show`, `show terrain`, `show exittemplates`, `show autoareas`, and `show autorooms`.
 - Do not assume terrain IDs from examples. Use the target world's seeded data.
 - Keep an overlay package open before issuing creation or edit commands.
 - Prefer compact paste chains with `@n` when creating connected rooms.
@@ -1303,11 +1319,11 @@ When assisting a builder:
 - Use the hosted Terrain Planner's terrain mask for `Terrain Rectangle` grids and its numeric tag-ID mask for `Feature Rectangle`. Remember that `0` means no room and therefore no tags.
 - Set terrain before adjusting outdoors type and light special cases.
 - For non-cardinal exits, inspect `show exittemplates` first and choose the template whose verbs match the player's command.
-- Verify important builds with `cell show`, `cell exit list all`, `rooms <zone>`, and `landmarks`.
+- Verify important builds with `room show`, `room exit list all`, `rooms <zone>`, and `landmarks`.
 - Keep room descriptions readable without colour and without successful markup substitutions.
 
 The best build scripts are readable command histories. A future builder should be able to paste them into a test world, understand the intended topology, and revise the result without knowing C#.
 
 ## Manual register values
 
-`cell set register <variable> <value>` shares typed value parsing with `register default`, `setregister` and `prog execute`; see `prog help arguments`. Quoted collection elements and dictionary values retain their boundaries. Missing references and failed writes report errors, while explicit `null` is valid for reference values. `cell set register delete` continues to remove the override and restore the default.
+`room set register <variable> <value>` shares typed value parsing with `register default`, `setregister` and `prog execute`; see `prog help arguments`. Quoted collection elements and dictionary values retain their boundaries. Missing references and failed writes report errors, while explicit `null` is valid for reference values. `room set register delete` continues to remove the override and restore the default.

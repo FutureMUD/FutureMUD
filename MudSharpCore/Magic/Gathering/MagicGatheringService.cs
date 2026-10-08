@@ -29,7 +29,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 		public required long BodyId { get; init; }
 		public required IMagicGatheringCapability Capability { get; init; }
 		public required MagicGatheringMethodDefinition Method { get; init; }
-		public required ICell Cell { get; init; }
+		public required IRoom Room { get; init; }
 		public required SpatialLocation Location { get; init; }
 		public required MagicGatheringQuote Quote { get; init; }
 		public DirectHealthCostPlan? HealthPlan { get; init; }
@@ -42,20 +42,20 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 	private readonly IFuturemud _gameworld;
 	private readonly IMagicGatheringReceiptStore _store;
 	private readonly TimeProvider _clock;
-	private readonly Func<ICharacter, ICell?, MagicGatheringReceipt, bool>? _persistAccounting;
+	private readonly Func<ICharacter, IRoom?, MagicGatheringReceipt, bool>? _persistAccounting;
 	private readonly Func<ICharacter, IReadOnlyCollection<IWound>, bool>? _persistWounds;
-	private readonly Func<ICharacter, ICell, MagicGatheringReceipt, bool>? _persistLandSources;
+	private readonly Func<ICharacter, IRoom, MagicGatheringReceipt, bool>? _persistLandSources;
 	private readonly object _guard = new();
 	private readonly Dictionary<Guid, LiveOperation> _liveById = [];
 	private readonly Dictionary<long, LiveOperation> _liveByOwner = [];
 	private readonly HashSet<long> _committingOwners = [];
-	private readonly HashSet<(long CellId, long ResourceId)> _committingSources = [];
-	private readonly HashSet<(long CellId, string SourceKey)> _committingLandKeys = [];
+	private readonly HashSet<(long RoomId, long ResourceId)> _committingSources = [];
+	private readonly HashSet<(long RoomId, string SourceKey)> _committingLandKeys = [];
 
 	public MagicGatheringService(IFuturemud gameworld, IMagicGatheringReceiptStore? store = null,
-		TimeProvider? clock = null, Func<ICharacter, ICell?, MagicGatheringReceipt, bool>? persistAccounting = null,
+		TimeProvider? clock = null, Func<ICharacter, IRoom?, MagicGatheringReceipt, bool>? persistAccounting = null,
 		Func<ICharacter, IReadOnlyCollection<IWound>, bool>? persistWounds = null,
-		Func<ICharacter, ICell, MagicGatheringReceipt, bool>? persistLandSources = null)
+		Func<ICharacter, IRoom, MagicGatheringReceipt, bool>? persistLandSources = null)
 	{
 		_gameworld = gameworld;
 		_store = store ?? new MagicGatheringReceiptStore();
@@ -119,17 +119,17 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			return quoteResult;
 		}
 
-		if (actor.Location is not ICell cell)
+		if (actor.Location is not IRoom room)
 		{
-			return Refused("You must be physically located in a cell to begin gathering.");
+			return Refused("You must be physically located in a room to begin gathering.");
 		}
-		if (quote.Kind == MagicGatheringMethodKind.Gentle && HasUnresolvedGatheringSource(cell.Id, quote))
+		if (quote.Kind == MagicGatheringMethodKind.Gentle && HasUnresolvedGatheringSource(room.Id, quote))
 		{
 			return Refused("That environmental source has an unresolved gathering receipt and is temporarily quarantined for staff review.");
 		}
-		if (quote.Kind == MagicGatheringMethodKind.Land && HasUnresolvedGatheringSource(cell.Id, quote))
+		if (quote.Kind == MagicGatheringMethodKind.Land && HasUnresolvedGatheringSource(room.Id, quote))
 		{
-			return Refused("A Land source or this cell's ecological state has an unresolved gathering receipt.");
+			return Refused("A Land source or this room's ecological state has an unresolved gathering receipt.");
 		}
 
 		LiveOperation live = new()
@@ -140,7 +140,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			BodyId = actor.Body?.Id ?? 0,
 			Capability = capability,
 			Method = definition,
-			Cell = cell,
+			Room = room,
 			Location = actor.SpatialLocation,
 			Quote = quote,
 			HealthPlan = healthPlan,
@@ -210,27 +210,27 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			_committingOwners.Add(live.Owner.Id);
 			if (live.Quote.Kind == MagicGatheringMethodKind.Gentle && live.Quote.SourceResourceId is { } source)
 			{
-				if (_committingSources.Contains((live.Cell.Id, source)) ||
-				    _committingLandKeys.Contains((live.Cell.Id, $"ambient:{source}")))
+				if (_committingSources.Contains((live.Room.Id, source)) ||
+				    _committingLandKeys.Contains((live.Room.Id, $"ambient:{source}")))
 				{
 					live.Committing = false;
 					_committingOwners.Remove(live.Owner.Id);
 					return Refused("Another gathering operation is committing against that exact environmental source.");
 				}
-				_committingSources.Add((live.Cell.Id, source));
+				_committingSources.Add((live.Room.Id, source));
 			}
 			if (live.Quote.Kind == MagicGatheringMethodKind.Land)
 			{
 				string[] keys = LandCommitKeys(live.Quote);
-				if (keys.Any(key => _committingLandKeys.Contains((live.Cell.Id, key)) ||
+				if (keys.Any(key => _committingLandKeys.Contains((live.Room.Id, key)) ||
 				    key.StartsWith("ambient:", StringComparison.Ordinal) &&
-				    long.TryParse(key[8..], out long source) && _committingSources.Contains((live.Cell.Id, source))))
+				    long.TryParse(key[8..], out long source) && _committingSources.Contains((live.Room.Id, source))))
 				{
 					live.Committing = false;
 					_committingOwners.Remove(live.Owner.Id);
 					return Refused("Another gathering operation is committing against this Land participant.");
 				}
-				foreach (string key in keys) _committingLandKeys.Add((live.Cell.Id, key));
+				foreach (string key in keys) _committingLandKeys.Add((live.Room.Id, key));
 			}
 		}
 
@@ -250,13 +250,13 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 				_committingOwners.Remove(live.Owner.Id);
 				if (live.Quote.Kind == MagicGatheringMethodKind.Gentle && live.Quote.SourceResourceId is { } source)
 				{
-					_committingSources.Remove((live.Cell.Id, source));
+					_committingSources.Remove((live.Room.Id, source));
 				}
 				if (live.Quote.Kind == MagicGatheringMethodKind.Land)
 				{
 					foreach (string key in LandCommitKeys(live.Quote))
 					{
-						_committingLandKeys.Remove((live.Cell.Id, key));
+						_committingLandKeys.Remove((live.Room.Id, key));
 					}
 				}
 			}
@@ -343,7 +343,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 		{
 			return Refused("Gathering cancelled because the captured body, capability or location is no longer valid.");
 		}
-		if (quote.Kind == MagicGatheringMethodKind.Gentle && HasUnresolvedGatheringSource(live.Cell.Id, quote))
+		if (quote.Kind == MagicGatheringMethodKind.Gentle && HasUnresolvedGatheringSource(live.Room.Id, quote))
 		{
 			return Refused("Gathering cancelled because its environmental source has an unresolved transfer requiring staff review.");
 		}
@@ -363,7 +363,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 				IMagicResource? source = quote.SourceResourceId is { } sourceId ? _gameworld.MagicResources.Get(sourceId) : null;
 				string? debitError = null;
 				bool debited = environmental is not null && source is not null &&
-					environmental.TryDebit(live.Cell, source, quote.SourceDebit, out debitError);
+					environmental.TryDebit(live.Room, source, quote.SourceDebit, out debitError);
 				if (!debited)
 				{
 					TryRecord(receipt with { Status = "Cancelled", UpdatedUtc = UtcNow,
@@ -410,7 +410,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			}
 
 			receipt = receipt with { DestinationCredited = true, UpdatedUtc = UtcNow };
-			PersistAccounting(live.Actor, quote.Kind == MagicGatheringMethodKind.Gentle ? live.Cell : null,
+			PersistAccounting(live.Actor, quote.Kind == MagicGatheringMethodKind.Gentle ? live.Room : null,
 				receipt with { AccountingPersisted = true });
 			receipt = receipt with { AccountingPersisted = true, UpdatedUtc = UtcNow };
 
@@ -437,7 +437,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			try
 			{
 				if (!callback.ExecuteWithStatus(out _, live.Actor, live.Owner, live.Capability, live.Method.Key.ToString(),
-					quote.RequestedAmount, live.Cell, live.Id.ToString()))
+					quote.RequestedAmount, live.Room, live.Id.ToString()))
 				{
 					throw new InvalidOperationException($"Prog #{callback.Id} reported execution failure.");
 				}
@@ -505,9 +505,9 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			{
 				return Refused("You need a current body to gather magic.");
 			}
-			if (actor.Location is not ICell cell || !ReferenceEquals(cell.Gameworld, _gameworld))
+			if (actor.Location is not IRoom room || !ReferenceEquals(room.Gameworld, _gameworld))
 			{
-				return Refused("You must be physically located in a cell to gather.");
+				return Refused("You must be physically located in a room to gather.");
 			}
 			if (ActionError(actor, ignoredAction) is { } actionError)
 			{
@@ -515,7 +515,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			}
 
 			ICharacter owner = MagicGatheringPolicy.Owner(actor);
-			object[] policyArguments = [actor, owner, capability, method.Key.ToString(), amount, cell];
+			object[] policyArguments = [actor, owner, capability, method.Key.ToString(), amount, room];
 			IFutureProg? permission = Prog(method.PermissionProgId);
 			if (!MagicGatheringPolicy.Permits(permission, policyArguments))
 			{
@@ -574,7 +574,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 					return Refused("The configured Gentle source conversion ratio is invalid.");
 				}
 
-				EnvironmentalMagicSnapshot snapshot = environmental.Inspect(cell);
+				EnvironmentalMagicSnapshot snapshot = environmental.Inspect(room);
 				if (!snapshot.IsValid || !snapshot.ProfileId.HasValue || !environmental.TryInspectResource(snapshot, source, out EnvironmentalResourceSnapshot output) ||
 					!output.IsValid || !double.IsFinite(output.Balance) || !double.IsFinite(output.Maximum) || output.Balance < 0.0 || output.Maximum < 0.0 ||
 					Math.Min(output.Balance, output.Maximum) < sourceDebit)
@@ -588,12 +588,12 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			}
 			if (method.Kind == MagicGatheringMethodKind.Land)
 			{
-				return QuoteLand(actor, owner, capability, method, amount, cell, destination, duration,
+				return QuoteLand(actor, owner, capability, method, amount, room, destination, duration,
 					stamina, damage, pain, stun, healthPlan, capturedLand?.LandSources);
 			}
 
 			return new MagicGatheringResult(true, QuoteMessage(method, amount, sourceDebit, stamina, damage, pain, stun, duration), null,
-				new MagicGatheringQuote(method.Key, method.StructuralVersion, method.Kind, destination.Id, sourceId, cell.Id,
+				new MagicGatheringQuote(method.Key, method.StructuralVersion, method.Kind, destination.Id, sourceId, room.Id,
 					profileId, profileRevision, amount, sourceDebit, duration, stamina, method.MinimumStamina, damage, pain, stun,
 					healthPlan?.Bodypart.Id, healthPlan?.ExistingWound is not null));
 		}
@@ -605,7 +605,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 
 	private bool StillValid(LiveOperation live)
 	{
-		if (!ReferenceEquals(live.Actor.Gameworld, _gameworld) || !ReferenceEquals(live.Cell.Gameworld, _gameworld) ||
+		if (!ReferenceEquals(live.Actor.Gameworld, _gameworld) || !ReferenceEquals(live.Room.Gameworld, _gameworld) ||
 			live.Actor.SpatialLocation != live.Location ||
 			live.Actor.Body?.Id != live.BodyId || ActionError(live.Actor, live.Action) is not null ||
 			MagicGatheringPolicy.Owner(live.Actor).Id != live.Owner.Id)
@@ -975,13 +975,13 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 		}
 	}
 
-	private void PersistAccounting(ICharacter actor, ICell? cell, MagicGatheringReceipt receipt)
+	private void PersistAccounting(ICharacter actor, IRoom? room, MagicGatheringReceipt receipt)
 	{
 		if (_persistAccounting is not null)
 		{
-			if (!_persistAccounting(actor, cell, receipt))
+			if (!_persistAccounting(actor, room, receipt))
 			{
-				MarkAccountingComponentsDirty(actor, cell, receipt.DestinationResourceId);
+				MarkAccountingComponentsDirty(actor, room, receipt.DestinationResourceId);
 				throw new InvalidOperationException("Injected gathering accounting persistence failed.");
 			}
 			return;
@@ -997,20 +997,20 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 				actor.Save();
 				var reserveOwner = MudSharp.Magic.Casting.MagicCastingService.ReserveHolder(actor, receipt.DestinationResourceId);
 				if (!ReferenceEquals(reserveOwner, actor)) reserveOwner.Save();
-				cell?.Save();
+				room?.Save();
 				MagicGatheringReceiptStore.WriteCurrent(receipt);
 				FMDB.Context.SaveChanges();
 				transaction.Commit();
 			}
 			catch
 			{
-				MarkAccountingComponentsDirty(actor, cell, receipt.DestinationResourceId);
+				MarkAccountingComponentsDirty(actor, room, receipt.DestinationResourceId);
 				throw;
 			}
 		}
 	}
 
-	private static void MarkAccountingComponentsDirty(ICharacter actor, ICell? cell, long? reserveId = null)
+	private static void MarkAccountingComponentsDirty(ICharacter actor, IRoom? room, long? reserveId = null)
 	{
 		if (reserveId is { } resourceId)
 		{
@@ -1032,15 +1032,15 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 
 		actor.Body.Changed = true;
 		actor.Changed = true;
-		if (cell is not null)
+		if (room is not null)
 		{
-			cell.Changed = true;
+			room.Changed = true;
 		}
 	}
 
 	private MagicGatheringReceipt NewReceipt(LiveOperation live, MagicGatheringQuote quote) => new(
 		live.Id, live.Owner.Id, live.Actor.Id, live.BodyId, live.Capability.Id, live.Method.Key, live.Method.StructuralVersion,
-		quote.Kind, quote.SourceCellId, quote.SourceProfileId, quote.SourceProfileRevision, quote.SourceResourceId,
+		quote.Kind, quote.SourceRoomId, quote.SourceProfileId, quote.SourceProfileRevision, quote.SourceResourceId,
 		quote.DestinationResourceId, quote.RequestedAmount, quote.SourceDebit, quote.StaminaCost, quote.DamageCost,
 		quote.PainCost, quote.StunCost, false, false, false, false, false, "Committing", UtcNow);
 
@@ -1050,7 +1050,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 	private static bool Equivalent(MagicGatheringQuote expected, MagicGatheringQuote actual) =>
 		expected.MethodKey == actual.MethodKey && expected.MethodVersion == actual.MethodVersion && expected.Kind == actual.Kind &&
 		expected.DestinationResourceId == actual.DestinationResourceId && expected.SourceResourceId == actual.SourceResourceId &&
-		expected.SourceCellId == actual.SourceCellId && expected.SourceProfileId == actual.SourceProfileId &&
+		expected.SourceRoomId == actual.SourceRoomId && expected.SourceProfileId == actual.SourceProfileId &&
 		expected.SourceProfileRevision == actual.SourceProfileRevision &&
 		Same(expected.RequestedAmount, actual.RequestedAmount) && Same(expected.SourceDebit, actual.SourceDebit) &&
 		Same(expected.DurationSeconds, actual.DurationSeconds) && Same(expected.StaminaCost, actual.StaminaCost) &&

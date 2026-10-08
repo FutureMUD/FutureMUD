@@ -57,7 +57,7 @@ public class InvestigationPatrolStrategy : CrimeTargetedPatrolStrategyBase
 		return NeedsInvestigation(patrol.TargetCrime);
 	}
 
-	protected override void HandleArrivedAtTargetNode(IPatrol patrol, ICell node)
+	protected override void HandleArrivedAtTargetNode(IPatrol patrol, IRoom node)
 	{
 		base.HandleArrivedAtTargetNode(patrol, node);
 		if (RuntimeClock.UtcNow - patrol.LastArrivedTime < SceneSearchTime)

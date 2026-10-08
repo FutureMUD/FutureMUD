@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.Climate;
 using MudSharp.Form.Material;
 using MudSharp.Construction.Boundary;
@@ -28,14 +28,14 @@ public class Zone : Location, IEditableZone
 
     private GeographicCoordinate _geography;
 
-    public IEnumerable<IRoom> Rooms => _rooms;
-    public override IEnumerable<ICell> Cells => _rooms.SelectMany(x => x.Cells);
+    public override IEnumerable<IRoom> Rooms => _rooms;
 
     public Zone(MudSharp.Models.Zone zone, IFuturemud game) : base(game)
     {
         _noSave = true;
         _id = zone.Id;
         _name = zone.Name;
+        _defaultRoomId = zone.DefaultRoomId;
         Shard = game.Shards.Get(zone.ShardId);
         AmbientLightPollution = zone.AmbientLightPollution;
         Geography = new GeographicCoordinate(zone.Latitude, zone.Longitude, zone.Elevation,
@@ -66,7 +66,8 @@ public class Zone : Location, IEditableZone
 
     public IShard Shard { get; }
 
-    public ICell DefaultCell => Cells.FirstOrDefault();
+    private long? _defaultRoomId;
+    public IRoom DefaultRoom => _rooms.Get(_defaultRoomId ?? 0L) ?? Rooms.FirstOrDefault();
 
     public long P => Shard.Id;
 
@@ -132,12 +133,22 @@ public class Zone : Location, IEditableZone
     {
         _rooms.Add(room);
         Shard.Register(room);
+		if (_defaultRoomId is null)
+		{
+			_defaultRoomId = room.Id;
+			if (!_noSave) Changed = true;
+		}
     }
 
     public void Unregister(IRoom room)
     {
         _rooms.Remove(room);
         Shard.Unregister(room);
+		if (_defaultRoomId == room.Id)
+		{
+			_defaultRoomId = Rooms.FirstOrDefault()?.Id;
+			if (!_noSave) Changed = true;
+		}
     }
 
     public GeographicCoordinate Geography
@@ -161,7 +172,7 @@ public class Zone : Location, IEditableZone
         Changed = true;
     }
 
-    public override void Enter(ICharacter movingCharacter, ICellExit exit = null, bool noSave = false,
+    public override void Enter(ICharacter movingCharacter, IRoomExit exit = null, bool noSave = false,
         RoomLayer roomLayer = RoomLayer.GroundLevel)
     {
         base.Enter(movingCharacter, exit);
@@ -202,7 +213,7 @@ public class Zone : Location, IEditableZone
 			if (ReferenceEquals(_weather, value)) return;
 			using var exposureChange = EnvironmentalExposureService.ChangingDefinitions(Gameworld);
             _weather = value;
-			foreach (var cell in Cells.OfType<Cell>()) cell.RefreshWeatherSubscriptions();
+			foreach (var room in Rooms.OfType<Room>()) room.RefreshWeatherSubscriptions();
             Changed = true;
         }
     }
@@ -252,7 +263,8 @@ public class Zone : Location, IEditableZone
         using (new FMDB())
         {
             Models.Zone dbzone = FMDB.Context.Zones.Find(Id);
-            dbzone.DefaultCellId = DefaultCell?.Id;
+			_defaultRoomId = DefaultRoom?.Id;
+            dbzone.DefaultRoomId = _defaultRoomId;
             dbzone.AmbientLightPollution = AmbientLightPollution;
             dbzone.Latitude = Geography.Latitude;
             dbzone.Longitude = Geography.Longitude;
@@ -328,25 +340,22 @@ public class Zone : Location, IEditableZone
     public void PostLoadSetup()
     {
         _noSave = true;
-        // Insert anything that needs to happen after all cells are loaded
+        // Insert anything that needs to happen after all rooms are loaded
         _noSave = false;
     }
 
-    private void CellCoordinateVisitor(ICell c, int x, int y, int z, ref HashSet<ICell> alreadyTouched)
+    private void RoomCoordinateVisitor(IRoom c, int x, int y, int z, ref HashSet<IRoom> alreadyTouched)
     {
-        c.Room.X = x;
-        c.Room.Y = y;
-        c.Room.Z = z;
-        c.Room.Changed = true;
+        c.SetCoordinates(x, y, z);
         alreadyTouched.Add(c);
-        foreach (ICellExit exit in c.ExitsFor(null))
+        foreach (IRoomExit exit in c.ExitsFor(null))
         {
             if (alreadyTouched.Contains(exit.Destination))
             {
                 continue;
             }
 
-            CellCoordinateVisitor(
+            RoomCoordinateVisitor(
                 exit.Destination,
                 x + exit.OutboundDirection.Eastness() - exit.OutboundDirection.Westness(),
                 y + exit.OutboundDirection.Northness() - exit.OutboundDirection.Southness(),
@@ -358,19 +367,19 @@ public class Zone : Location, IEditableZone
 
     public void CalculateCoordinates()
     {
-        HashSet<ICell> alreadyTouched = new();
-        if (!Cells.Any())
+        HashSet<IRoom> alreadyTouched = new();
+        if (!Rooms.Any())
         {
             return;
         }
 
-        CellCoordinateVisitor(DefaultCell ?? Cells.First(), 0, 0, 0, ref alreadyTouched);
-        IEnumerable<ICell> zoneCells = Rooms.SelectMany(x => x.Cells);
-        List<ICell> missingCells = zoneCells.Where(x => !alreadyTouched.Contains(x)).ToList();
-        if (missingCells.Any())
+        RoomCoordinateVisitor(DefaultRoom ?? Rooms.First(), 0, 0, 0, ref alreadyTouched);
+        IEnumerable<IRoom> zoneRooms = Rooms;
+        List<IRoom> missingRooms = zoneRooms.Where(x => !alreadyTouched.Contains(x)).ToList();
+        if (missingRooms.Any())
         {
             Console.WriteLine(
-                $"Warning: The following cells in zone {Id:N0} ({Name}) were not linked to the main grid:\n{missingCells.Select(x => x.Id.ToString("N0")).ArrangeStringsOntoLines(7, 60)}");
+                $"Warning: The following rooms in zone {Id:N0} ({Name}) were not linked to the main grid:\n{missingRooms.Select(x => x.Id.ToString("N0")).ArrangeStringsOntoLines(7, 60)}");
         }
     }
 
@@ -379,13 +388,13 @@ public class Zone : Location, IEditableZone
         StringBuilder sb = new();
         sb.AppendLine($"Zone #{Id.ToString("N0", builder)} - {Name.Colour(Telnet.Cyan)}");
         sb.AppendLine($"Shard: {Shard.Name.Colour(Telnet.Green)}");
-        if (DefaultCell != null)
+        if (DefaultRoom != null)
         {
-            sb.AppendLine($"Default Cell: {DefaultCell.HowSeen(builder)} #{DefaultCell.Id.ToString("N0", builder)}");
+            sb.AppendLine($"Default Room: {DefaultRoom.HowSeen(builder)} #{DefaultRoom.Id.ToString("N0", builder)}");
         }
         else
         {
-            sb.AppendLine($"Default Cell: {"None".Colour(Telnet.Red)}");
+            sb.AppendLine($"Default Room: {"None".Colour(Telnet.Red)}");
         }
 
         sb.AppendLine(
@@ -451,7 +460,7 @@ public class Zone : Location, IEditableZone
         switch (property.ToLowerInvariant())
         {
             case "rooms":
-                return new CollectionVariable(_rooms.SelectMany(x => x.Cells).ToList(),
+                return new CollectionVariable(_rooms.ToList(),
                     ProgVariableTypes.Location);
             case "latitude":
                 return new NumberVariable(Geography.Latitude.RadiansToDegrees());

@@ -93,7 +93,7 @@ public class EmploymentWorkerAITests
 		var currency = Currency();
 		var gameworld = Gameworld(currencies: [currency.Object]);
 		var ai = LoadAI(gameworld.Object);
-		var actor = Character(1, "Builder", gameworld.Object, Cell(10, "workshop").Object).Object;
+		var actor = Character(1, "Builder", gameworld.Object, Room(10, "workshop").Object).Object;
 
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("currency test dollars")));
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("wage 15.5")));
@@ -123,7 +123,7 @@ public class EmploymentWorkerAITests
 		var currency = Currency();
 		var gameworld = Gameworld(currencies: [currency.Object]);
 		var ai = LoadAI(gameworld.Object);
-		var actor = Character(118, "Builder", gameworld.Object, Cell(118, "clinic").Object).Object;
+		var actor = Character(118, "Builder", gameworld.Object, Room(118, "clinic").Object).Object;
 
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("capability doctor")));
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("capability orderly")));
@@ -138,7 +138,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_ManagerCapabilityGatesManagerOpeningsAndGoalEvaluation()
 	{
 		var currency = Currency();
-		var workplace = Cell(119, "office");
+		var workplace = Room(119, "office");
 		var host = Shop(119, "managed shop", currency.Object, workplace.Object);
 		var gameworld = Gameworld(shops: [host.Shop.Object], currencies: [currency.Object]);
 		var manager = Character(119, "Manager", gameworld.Object, workplace.Object).Object;
@@ -179,7 +179,7 @@ public class EmploymentWorkerAITests
 		var currency = Currency();
 		var gameworld = Gameworld(currencies: [currency.Object]);
 		var ai = LoadAI(gameworld.Object);
-		var actor = Character(121, "Builder", gameworld.Object, Cell(121, "office").Object).Object;
+		var actor = Character(121, "Builder", gameworld.Object, Room(121, "office").Object).Object;
 
 		Assert.IsTrue(ai.BuildingCommand(actor, new StringStack("capability manager")));
 		Assert.IsTrue(ai.Capabilities.Contains(EmploymentAICapability.CanManageEmploymentHost));
@@ -201,7 +201,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_UnemployedNpcAppliesForBestMatchingOpening()
 	{
 		var currency = Currency();
-		var workplace = Cell(20, "shopfront");
+		var workplace = Room(20, "shopfront");
 		var lowHost = Shop(1, "low shop", currency.Object, workplace.Object);
 		var highHost = Shop(2, "high shop", currency.Object, workplace.Object);
 		lowHost.State.CreateJobOpening(Opening(currency.Object, 5.0M), null);
@@ -229,10 +229,10 @@ public class EmploymentWorkerAITests
 	}
 
 	[TestMethod]
-	public void EmploymentWorkerAI_UnemployedNpcAppliesForClanOpeningAtHallCell()
+	public void EmploymentWorkerAI_UnemployedNpcAppliesForClanOpeningAtHallRoom()
 	{
 		var currency = Currency();
-		var workplace = Cell(220, "guild hall");
+		var workplace = Room(220, "guild hall");
 		var host = Clan(220, "merchant league", currency.Object, workplace.Object);
 		host.State.CreateJobOpening(Opening(currency.Object, 12.0M), null);
 		var gameworld = Gameworld(clans: [host.Clan.Object], currencies: [currency.Object]);
@@ -258,7 +258,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_UnemployedNpcUsesRealSkillKnowledgeAndTagRequirements()
 	{
 		var currency = Currency();
-		var workplace = Cell(23, "guild shop");
+		var workplace = Room(23, "guild shop");
 		var host = Shop(23, "guild shop", currency.Object, workplace.Object);
 		var requirements = new JobRequirementSet(
 			[new SkillRequirement("haggling", 25.0)],
@@ -289,7 +289,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_RanksOpeningsByNormalisedEffectivePay()
 	{
 		var currency = Currency();
-		var workplace = Cell(24, "market");
+		var workplace = Room(24, "market");
 		var hourlyHost = Shop(24, "hourly shop", currency.Object, workplace.Object);
 		var weeklyHost = Shop(25, "weekly shop", currency.Object, workplace.Object);
 		hourlyHost.State.CreateJobOpening(Opening(currency.Object, 20.0M, cadence: PayCadence.Hourly), null);
@@ -316,7 +316,7 @@ public class EmploymentWorkerAITests
 	{
 		var currency = Currency();
 		var gameworld = Gameworld(currencies: [currency.Object]);
-		var workplace = Cell(22, "stable yard");
+		var workplace = Room(22, "stable yard");
 		var host = Stable(22, "echo stable", currency.Object, workplace.Object);
 		var manager = Character(23, "Manager", gameworld.Object, workplace.Object).Object;
 		var proprietor = Character(24, "Proprietor", gameworld.Object, workplace.Object).Object;
@@ -350,7 +350,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_RejectedApplicationToFullOpeningCanApplyToSecondOpeningSameRole()
 	{
 		var currency = Currency();
-		var workplace = Cell(21, "stable yard");
+		var workplace = Room(21, "stable yard");
 		var host = Stable(21, "busy stable", currency.Object, workplace.Object);
 		var gameworld = Gameworld(stables: [host.Stable.Object], currencies: [currency.Object]);
 		var worker = Character(21, "Amos", gameworld.Object, workplace.Object).Object;
@@ -380,7 +380,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_SearchDoesNotLazyCreatePropertyHotelHosts()
 	{
 		var currency = Currency();
-		var location = Cell(25, "road");
+		var location = Room(25, "road");
 		var property = new Mock<IProperty>();
 		property.SetupGet(x => x.Id).Returns(25);
 		property.SetupGet(x => x.Name).Returns("roadside inn");
@@ -400,8 +400,8 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_EmployedNpcTicksTowardStableWhenIdle()
 	{
 		var currency = Currency();
-		var current = Cell(40, "road");
-		var workplace = Cell(41, "stable");
+		var current = Room(40, "road");
+		var workplace = Room(41, "stable");
 		var stable = Stable(40, "task stable", currency.Object, workplace.Object);
 		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
 		var worker = Character(40, "Worker", gameworld.Object, current.Object).Object;
@@ -417,7 +417,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_QuitsWhenUnsettledPayrollExceedsOverdueTolerance()
 	{
 		var currency = Currency();
-		var workplace = Cell(42, "stable");
+		var workplace = Room(42, "stable");
 		var stable = Stable(42, "arrears stable", currency.Object, workplace.Object);
 		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
 		var worker = Character(42, "Worker", gameworld.Object, workplace.Object).Object;
@@ -446,7 +446,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_DoesNotQuitForAnotherEmployeesOverduePayroll()
 	{
 		var currency = Currency();
-		var workplace = Cell(142, "stable");
+		var workplace = Room(142, "stable");
 		var stable = Stable(142, "specific arrears stable", currency.Object, workplace.Object);
 		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
 		var worker = Character(142, "Worker", gameworld.Object, workplace.Object).Object;
@@ -474,7 +474,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_MinuteTickDoesNotClaimReadyPayroll()
 	{
 		var currency = Currency();
-		var workplace = Cell(43, "stable");
+		var workplace = Room(43, "stable");
 		var stable = Stable(43, "claim stable", currency.Object, workplace.Object);
 		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
 		var worker = Character(43, "Worker", gameworld.Object, workplace.Object).Object;
@@ -493,7 +493,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_HourTickClaimsReadyPayrollWhenIdleAtWorkplace()
 	{
 		var currency = Currency();
-		var workplace = Cell(44, "stable");
+		var workplace = Room(44, "stable");
 		var stable = Stable(44, "claim stable", currency.Object, workplace.Object);
 		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
 		var worker = Character(44, "Worker", gameworld.Object, workplace.Object).Object;
@@ -516,7 +516,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_DoesNotClaimPayrollWhileAssignedTask()
 	{
 		var currency = Currency();
-		var workplace = Cell(45, "stable");
+		var workplace = Room(45, "stable");
 		var stable = Stable(45, "claim stable", currency.Object, workplace.Object);
 		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
 		var worker = Character(45, "Worker", gameworld.Object, workplace.Object).Object;
@@ -541,7 +541,7 @@ public class EmploymentWorkerAITests
 	public void ImpDebugPayrollClaimForcesEmploymentWorkerAiEvaluation()
 	{
 		var currency = Currency();
-		var workplace = Cell(46, "stable");
+		var workplace = Room(46, "stable");
 		var stable = Stable(46, "claim stable", currency.Object, workplace.Object);
 		var gameworld = Gameworld(stables: [stable.Stable.Object], currencies: [currency.Object]);
 		var worker = Character(46, "Worker", gameworld.Object, workplace.Object).Object;
@@ -562,7 +562,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_ClaimsAndAdvancesRetrievalDeliveryTaskWithoutBoardPosts()
 	{
 		var currency = Currency();
-		var workplace = Cell(30, "stockroom");
+		var workplace = Room(30, "stockroom");
 		var item = Item(300, "apple");
 		var cellItems = new List<IGameItem> { item.Object };
 		workplace.SetupGet(x => x.GameItems).Returns(() => cellItems);
@@ -607,7 +607,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_FiveSecondTaskTickClaimsAndAdvancesReadyTask()
 	{
 		var currency = Currency();
-		var workplace = Cell(330, "stockroom");
+		var workplace = Room(330, "stockroom");
 		var item = Item(3300, "apple");
 		var cellItems = new List<IGameItem> { item.Object };
 		workplace.SetupGet(x => x.GameItems).Returns(() => cellItems);
@@ -643,7 +643,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_FreesHandsWithInventoryPlanBeforeCollectingTaskItems()
 	{
 		var currency = Currency();
-		var workplace = Cell(33, "stockroom");
+		var workplace = Room(33, "stockroom");
 		var item = Item(333, "socks");
 		var cellItems = new List<IGameItem> { item.Object };
 		workplace.SetupGet(x => x.GameItems).Returns(() => cellItems);
@@ -676,7 +676,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_BlocksDeliveryWhenTaskItemIsNoLongerCarried()
 	{
 		var currency = Currency();
-		var workplace = Cell(34, "stockroom");
+		var workplace = Room(34, "stockroom");
 		var item = Item(340, "socks");
 		var cellItems = new List<IGameItem> { item.Object };
 		workplace.SetupGet(x => x.GameItems).Returns(() => cellItems);
@@ -717,8 +717,8 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_DoesNotRetryBlockedDeliveryOutsideHostLocations()
 	{
 		var currency = Currency();
-		var workplace = Cell(35, "stockroom");
-		var destination = Cell(36, "public lane");
+		var workplace = Room(35, "stockroom");
+		var destination = Room(36, "public lane");
 		var item = Item(350, "socks");
 		var cellItems = new List<IGameItem> { item.Object };
 		workplace.SetupGet(x => x.GameItems).Returns(() => cellItems);
@@ -765,7 +765,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_EvaluatesScheduledRulesBeforeClaimingTasks()
 	{
 		var currency = Currency();
-		var workplace = Cell(32, "stockroom");
+		var workplace = Room(32, "stockroom");
 		var item = Item(302, "crate");
 		var cellItems = new List<IGameItem> { item.Object };
 		workplace.SetupGet(x => x.GameItems).Returns(() => cellItems);
@@ -802,7 +802,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_DoesNotBlockTasksWhenThisWorkerIsIneligible()
 	{
 		var currency = Currency();
-		var workplace = Cell(31, "stockroom");
+		var workplace = Room(31, "stockroom");
 		var item = Item(301, "crate");
 		var host = Shop(31, "task shop", currency.Object, workplace.Object);
 		var gameworld = Gameworld(shops: [host.Shop.Object], currencies: [currency.Object]);
@@ -838,7 +838,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_ClaimsHighestPriorityPendingTaskBeforeAlphabeticalTask()
 	{
 		var currency = Currency();
-		var workplace = Cell(37, "office");
+		var workplace = Room(37, "office");
 		var host = Shop(37, "priority shop", currency.Object, workplace.Object);
 		var gameworld = Gameworld(shops: [host.Shop.Object], currencies: [currency.Object]);
 		var worker = Character(37, "Worker", gameworld.Object, workplace.Object).Object;
@@ -867,7 +867,7 @@ public class EmploymentWorkerAITests
 	public void EmploymentWorkerAI_ChoosesHigherPriorityPendingTaskAcrossActiveHosts()
 	{
 		var currency = Currency();
-		var workplace = Cell(38, "office");
+		var workplace = Room(38, "office");
 		var lowHost = Shop(38, "alpha shop", currency.Object, workplace.Object);
 		var highHost = Shop(39, "zeta shop", currency.Object, workplace.Object);
 		var gameworld = Gameworld(shops: [lowHost.Shop.Object, highHost.Shop.Object], currencies: [currency.Object]);
@@ -952,7 +952,7 @@ public class EmploymentWorkerAITests
 	}
 
 	private static (Mock<IShop> Shop, EmploymentHostState State) Shop(long id, string name, ICurrency currency,
-		ICell workplace)
+		IRoom workplace)
 	{
 		var shop = new Mock<IShop>();
 		var state = new EmploymentHostState(shop.Object);
@@ -981,7 +981,7 @@ public class EmploymentWorkerAITests
 	}
 
 	private static (Mock<IStable> Stable, EmploymentHostState State) Stable(long id, string name, ICurrency currency,
-		ICell workplace)
+		IRoom workplace)
 	{
 		var stable = new Mock<IStable>();
 		var state = new EmploymentHostState(stable.Object);
@@ -1010,7 +1010,7 @@ public class EmploymentWorkerAITests
 	}
 
 	private static (Mock<IClan> Clan, EmploymentHostState State) Clan(long id, string name, ICurrency currency,
-		ICell workplace)
+		IRoom workplace)
 	{
 		var clan = new Mock<IClan>();
 		var state = new EmploymentHostState(clan.Object);
@@ -1020,7 +1020,7 @@ public class EmploymentWorkerAITests
 		clan.SetupGet(x => x.Alias).Returns(name);
 		clan.SetupGet(x => x.Names).Returns([name]);
 		clan.SetupGet(x => x.FrameworkItemType).Returns("Clan");
-		clan.SetupGet(x => x.ClanHallCells).Returns([workplace]);
+		clan.SetupGet(x => x.ClanHallRooms).Returns([workplace]);
 		clan.SetupGet(x => x.ClanBankAccount).Returns((IBankAccount)null!);
 		clan.SetupGet(x => x.EmploymentHostName).Returns(name);
 		clan.SetupGet(x => x.EmploymentHostType).Returns(EmploymentHostType.Clan);
@@ -1109,17 +1109,17 @@ public class EmploymentWorkerAITests
 		return currency;
 	}
 
-	private static Mock<ICell> Cell(long id, string name)
+	private static Mock<IRoom> Room(long id, string name)
 	{
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.SetupGet(x => x.Name).Returns(name);
-		cell.SetupGet(x => x.Location).Returns(cell.Object);
-		cell.SetupGet(x => x.GameItems).Returns(Array.Empty<IGameItem>());
-		cell.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
-		cell.Setup(x => x.LayerGameItems(It.IsAny<RoomLayer>())).Returns((RoomLayer _) => cell.Object.GameItems);
-		cell.Setup(x => x.GetFriendlyReference(It.IsAny<IPerceiver>())).Returns(name);
-		return cell;
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.SetupGet(x => x.Name).Returns(name);
+		room.SetupGet(x => x.Location).Returns(room.Object);
+		room.SetupGet(x => x.GameItems).Returns(Array.Empty<IGameItem>());
+		room.SetupGet(x => x.Characters).Returns(Array.Empty<ICharacter>());
+		room.Setup(x => x.LayerGameItems(It.IsAny<RoomLayer>())).Returns((RoomLayer _) => room.Object.GameItems);
+		room.Setup(x => x.GetFriendlyReference(It.IsAny<IPerceiver>())).Returns(name);
+		return room;
 	}
 
 	private static Mock<IGameItem> Item(long id, string name)
@@ -1138,7 +1138,7 @@ public class EmploymentWorkerAITests
 		return item;
 	}
 
-	private static Mock<ICharacter> Character(long id, string name, IFuturemud gameworld, ICell location,
+	private static Mock<ICharacter> Character(long id, string name, IFuturemud gameworld, IRoom location,
 		bool administrator = false)
 	{
 		var personalName = new Mock<IPersonalName>();

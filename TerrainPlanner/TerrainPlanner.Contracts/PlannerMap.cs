@@ -5,7 +5,7 @@ namespace TerrainPlanner.Contracts;
 public sealed class PlannerMap
 {
 	public const int MaximumDimension = 200;
-	private readonly PlannerCell[] _cells;
+	private readonly PlannerRoom[] _cells;
 
 	public PlannerMap(int width, int height)
 	{
@@ -13,15 +13,15 @@ public sealed class PlannerMap
 		Width = width;
 		Height = height;
 		_cells = Enumerable.Range(0, checked(width * height))
-			.Select(index => new PlannerCell(index % width, index / width))
+			.Select(index => new PlannerRoom(index % width, index / width))
 			.ToArray();
 	}
 
 	public int Width { get; }
 	public int Height { get; }
-	public IReadOnlyList<PlannerCell> Cells => new ReadOnlyCollection<PlannerCell>(_cells);
+	public IReadOnlyList<PlannerRoom> Rooms => new ReadOnlyCollection<PlannerRoom>(_cells);
 
-	public PlannerCell CellAt(int x, int y)
+	public PlannerRoom RoomAt(int x, int y)
 	{
 		if (!Contains(x, y))
 		{
@@ -41,7 +41,7 @@ public sealed class PlannerMap
 		{
 			for (var x = 0; x < Math.Min(Width, width); x++)
 			{
-				resized.CellAt(x, y).Restore(CellAt(x, y).Snapshot());
+				resized.RoomAt(x, y).Restore(RoomAt(x, y).Snapshot());
 			}
 		}
 
@@ -53,10 +53,10 @@ public sealed class PlannerMap
 		var edits = new MapChangeBuilder(this);
 		foreach (var coordinate in DistinctValid(coordinates))
 		{
-			var cell = CellAt(coordinate.X, coordinate.Y);
-			edits.CaptureBefore(cell);
-			cell.SetTerrain(terrainId);
-			edits.CaptureAfter(cell);
+			var room = RoomAt(coordinate.X, coordinate.Y);
+			edits.CaptureBefore(room);
+			room.SetTerrain(terrainId);
+			edits.CaptureAfter(room);
 		}
 
 		return edits.Build();
@@ -72,22 +72,22 @@ public sealed class PlannerMap
 		var edits = new MapChangeBuilder(this);
 		foreach (var coordinate in DistinctValid(coordinates))
 		{
-			var cell = CellAt(coordinate.X, coordinate.Y);
-			if (cell.TerrainId == 0)
+			var room = RoomAt(coordinate.X, coordinate.Y);
+			if (room.TerrainId == 0)
 			{
 				continue;
 			}
 
-			edits.CaptureBefore(cell);
+			edits.CaptureBefore(room);
 			if (add)
 			{
-				cell.AddTag(tagId);
+				room.AddTag(tagId);
 			}
 			else
 			{
-				cell.RemoveTag(tagId);
+				room.RemoveTag(tagId);
 			}
-			edits.CaptureAfter(cell);
+			edits.CaptureAfter(room);
 		}
 
 		return edits.Build();
@@ -95,19 +95,19 @@ public sealed class PlannerMap
 
 	public MapChangeSet FillTerrain(GridCoordinate origin, long terrainId)
 	{
-		var target = CellAt(origin.X, origin.Y).TerrainId;
+		var target = RoomAt(origin.X, origin.Y).TerrainId;
 		if (target == terrainId)
 		{
 			return MapChangeSet.Empty;
 		}
 
-		var coordinates = Flood(origin, cell => cell.TerrainId == target);
+		var coordinates = Flood(origin, room => room.TerrainId == target);
 		return PaintTerrain(coordinates, terrainId);
 	}
 
 	public MapChangeSet FillTag(GridCoordinate origin, long tagId, bool add)
 	{
-		var start = CellAt(origin.X, origin.Y);
+		var start = RoomAt(origin.X, origin.Y);
 		if (start.TerrainId == 0)
 		{
 			return MapChangeSet.Empty;
@@ -116,7 +116,7 @@ public sealed class PlannerMap
 		var targetTerrain = start.TerrainId;
 		var targetPresence = start.TagIds.Contains(tagId);
 		var coordinates = Flood(origin,
-			cell => cell.TerrainId == targetTerrain && cell.TagIds.Contains(tagId) == targetPresence);
+			room => room.TerrainId == targetTerrain && room.TagIds.Contains(tagId) == targetPresence);
 		return PaintTag(coordinates, tagId, add);
 	}
 
@@ -138,20 +138,20 @@ public sealed class PlannerMap
 	public MapChangeSet Clear(PlannerLayer? layer = null)
 	{
 		var edits = new MapChangeBuilder(this);
-		foreach (var cell in _cells)
+		foreach (var room in _cells)
 		{
-			edits.CaptureBefore(cell);
+			edits.CaptureBefore(room);
 			switch (layer)
 			{
 				case PlannerLayer.Tags:
-					cell.ClearTags();
+					room.ClearTags();
 					break;
 				case PlannerLayer.Terrain:
 				case null:
-					cell.SetTerrain(0);
+					room.SetTerrain(0);
 					break;
 			}
-			edits.CaptureAfter(cell);
+			edits.CaptureAfter(room);
 		}
 
 		return edits.Build();
@@ -167,15 +167,15 @@ public sealed class PlannerMap
 			Height = Height,
 			CatalogueRevision = catalogueRevision,
 			TagColours = tagColours.ToDictionary(),
-			Cells = _cells.Select(cell => new PlannerProjectCell
+			Rooms = _cells.Select(room => new PlannerProjectRoom
 			{
-				X = cell.X,
-				Y = cell.Y,
-				TerrainId = cell.TerrainId,
-				Tags = cell.TagIds
+				X = room.X,
+				Y = room.Y,
+				TerrainId = room.TerrainId,
+				Tags = room.TagIds
 					.Select(id => new PlannerTagReference(id, tags.GetValueOrDefault(id)?.ShortName ?? $"Missing tag #{id}"))
 					.ToList(),
-				UnresolvedFeatures = cell.UnresolvedFeatures.ToList()
+				UnresolvedFeatures = room.UnresolvedFeatures.ToList()
 			}).ToList()
 		};
 	}
@@ -188,17 +188,17 @@ public sealed class PlannerMap
 		}
 
 		var map = new PlannerMap(project.Width, project.Height);
-		foreach (var projectCell in project.Cells)
+		foreach (var projectRoom in project.Rooms)
 		{
-			if (!map.Contains(projectCell.X, projectCell.Y))
+			if (!map.Contains(projectRoom.X, projectRoom.Y))
 			{
-				throw new InvalidDataException($"Project cell ({projectCell.X}, {projectCell.Y}) is outside the map.");
+				throw new InvalidDataException($"Project cell ({projectRoom.X}, {projectRoom.Y}) is outside the map.");
 			}
 
-			map.CellAt(projectCell.X, projectCell.Y).Restore(new PlannerCellState(
-				projectCell.TerrainId,
-				projectCell.Tags.Select(tag => tag.Id).Distinct().Order().ToArray(),
-				projectCell.UnresolvedFeatures.Distinct(StringComparer.OrdinalIgnoreCase).Order().ToArray()));
+			map.RoomAt(projectRoom.X, projectRoom.Y).Restore(new PlannerRoomState(
+				projectRoom.TerrainId,
+				projectRoom.Tags.Select(tag => tag.Id).Distinct().Order().ToArray(),
+				projectRoom.UnresolvedFeatures.Distinct(StringComparer.OrdinalIgnoreCase).Order().ToArray()));
 		}
 
 		return map;
@@ -207,7 +207,7 @@ public sealed class PlannerMap
 	private IEnumerable<GridCoordinate> DistinctValid(IEnumerable<GridCoordinate> coordinates) =>
 		coordinates.Where(coordinate => Contains(coordinate.X, coordinate.Y)).Distinct();
 
-	private IReadOnlyList<GridCoordinate> Flood(GridCoordinate origin, Func<PlannerCell, bool> matches)
+	private IReadOnlyList<GridCoordinate> Flood(GridCoordinate origin, Func<PlannerRoom, bool> matches)
 	{
 		var result = new List<GridCoordinate>();
 		var queued = new Queue<GridCoordinate>();
@@ -220,8 +220,8 @@ public sealed class PlannerMap
 				continue;
 			}
 
-			var cell = CellAt(coordinate.X, coordinate.Y);
-			if (!matches(cell))
+			var room = RoomAt(coordinate.X, coordinate.Y);
+			if (!matches(room))
 			{
 				continue;
 			}
@@ -250,12 +250,12 @@ public sealed class PlannerMap
 	}
 }
 
-public sealed class PlannerCell
+public sealed class PlannerRoom
 {
 	private readonly HashSet<long> _tagIds = [];
 	private readonly HashSet<string> _unresolvedFeatures = new(StringComparer.OrdinalIgnoreCase);
 
-	internal PlannerCell(int x, int y)
+	internal PlannerRoom(int x, int y)
 	{
 		X = x;
 		Y = y;
@@ -285,12 +285,12 @@ public sealed class PlannerCell
 		_unresolvedFeatures.Clear();
 	}
 
-	internal PlannerCellState Snapshot() => new(
+	internal PlannerRoomState Snapshot() => new(
 		TerrainId,
 		_tagIds.Order().ToArray(),
 		_unresolvedFeatures.Order(StringComparer.OrdinalIgnoreCase).ToArray());
 
-	internal void Restore(PlannerCellState state)
+	internal void Restore(PlannerRoomState state)
 	{
 		TerrainId = state.TerrainId;
 		_tagIds.Clear();
@@ -304,30 +304,30 @@ public sealed class PlannerCell
 	}
 }
 
-public sealed record PlannerCellState(long TerrainId, long[] TagIds, string[] UnresolvedFeatures);
+public sealed record PlannerRoomState(long TerrainId, long[] TagIds, string[] UnresolvedFeatures);
 
-public sealed record MapCellChange(int X, int Y, PlannerCellState Before, PlannerCellState After);
+public sealed record MapRoomChange(int X, int Y, PlannerRoomState Before, PlannerRoomState After);
 
 public sealed class MapChangeSet
 {
 	public static MapChangeSet Empty { get; } = new([]);
 
-	public MapChangeSet(IReadOnlyList<MapCellChange> changes)
+	public MapChangeSet(IReadOnlyList<MapRoomChange> changes)
 	{
 		Changes = changes;
 	}
 
-	public IReadOnlyList<MapCellChange> Changes { get; }
+	public IReadOnlyList<MapRoomChange> Changes { get; }
 	public bool HasChanges => Changes.Count > 0;
 
 	public static MapChangeSet Merge(IEnumerable<MapChangeSet> changeSets)
 	{
-		var merged = new Dictionary<GridCoordinate, MapCellChange>();
+		var merged = new Dictionary<GridCoordinate, MapRoomChange>();
 		foreach (var change in changeSets.SelectMany(item => item.Changes))
 		{
 			var coordinate = new GridCoordinate(change.X, change.Y);
 			merged[coordinate] = merged.TryGetValue(coordinate, out var existing)
-				? new MapCellChange(change.X, change.Y, existing.Before, change.After)
+				? new MapRoomChange(change.X, change.Y, existing.Before, change.After)
 				: change;
 		}
 
@@ -343,7 +343,7 @@ public sealed class MapChangeSet
 	{
 		foreach (var change in Changes)
 		{
-			map.CellAt(change.X, change.Y).Restore(change.Before);
+			map.RoomAt(change.X, change.Y).Restore(change.Before);
 		}
 	}
 
@@ -351,7 +351,7 @@ public sealed class MapChangeSet
 	{
 		foreach (var change in Changes)
 		{
-			map.CellAt(change.X, change.Y).Restore(change.After);
+			map.RoomAt(change.X, change.Y).Restore(change.After);
 		}
 	}
 }
@@ -359,24 +359,24 @@ public sealed class MapChangeSet
 internal sealed class MapChangeBuilder
 {
 	private readonly PlannerMap _map;
-	private readonly Dictionary<GridCoordinate, PlannerCellState> _before = [];
-	private readonly Dictionary<GridCoordinate, PlannerCellState> _after = [];
+	private readonly Dictionary<GridCoordinate, PlannerRoomState> _before = [];
+	private readonly Dictionary<GridCoordinate, PlannerRoomState> _after = [];
 
 	public MapChangeBuilder(PlannerMap map)
 	{
 		_map = map;
 	}
 
-	public void CaptureBefore(PlannerCell cell) =>
-		_before.TryAdd(new GridCoordinate(cell.X, cell.Y), cell.Snapshot());
+	public void CaptureBefore(PlannerRoom room) =>
+		_before.TryAdd(new GridCoordinate(room.X, room.Y), room.Snapshot());
 
-	public void CaptureAfter(PlannerCell cell) =>
-		_after[new GridCoordinate(cell.X, cell.Y)] = cell.Snapshot();
+	public void CaptureAfter(PlannerRoom room) =>
+		_after[new GridCoordinate(room.X, room.Y)] = room.Snapshot();
 
 	public MapChangeSet Build()
 	{
 		var changes = _before
-			.Select(pair => new MapCellChange(pair.Key.X, pair.Key.Y, pair.Value, _after[pair.Key]))
+			.Select(pair => new MapRoomChange(pair.Key.X, pair.Key.Y, pair.Value, _after[pair.Key]))
 			.Where(change => !Equals(change.Before, change.After) &&
 				(change.Before.TerrainId != change.After.TerrainId ||
 				 !change.Before.TagIds.SequenceEqual(change.After.TagIds) ||

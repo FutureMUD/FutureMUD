@@ -285,7 +285,7 @@ public class FleeMove : CombatMoveBase
 			return;
 		}
 
-        List<ICellExit> directions = Assailant.Location.ExitsFor(Assailant).Where(x => Assailant.CanCross(x).Success).ToList();
+        List<IRoomExit> directions = Assailant.Location.ExitsFor(Assailant).Where(x => Assailant.CanCross(x).Success).ToList();
         // TODO - try to crash through doors if stuck
         if (!directions.Any())
         {
@@ -296,9 +296,9 @@ public class FleeMove : CombatMoveBase
             return;
         }
 
-        List<ICellExit> preferredDirections =
+        List<IRoomExit> preferredDirections =
             directions.Where(x => x.Destination.Characters.All(y => y.Combat != Assailant.Combat)).ToList();
-        ICellExit exit = preferredDirections.Any()
+        IRoomExit exit = preferredDirections.Any()
             ? preferredDirections.GetRandomElement()
             : directions.GetRandomElement();
         Assailant.RemoveAllEffects(x => x.IsEffectType<ISneakEffect>());

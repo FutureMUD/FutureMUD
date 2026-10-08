@@ -12,11 +12,11 @@ namespace MudSharp.Form.Material;
 public sealed record ExposurePatch(IPerceivable Target, IBodypart? Part, IMaterial Material, double Area,
 	double Capacity, double Transmission = 1.0, int LayerDepth = 0, IPerceivable? PhysicalAnchor = null)
 {
-	private static ICell? LocationOf(IPerceivable target) => target is IGameItem item ? item.LocationLevelPerceivable?.Location : target.Location;
-	public ICell? Location => LocationOf(PhysicalAnchor ?? Target);
+	private static IRoom? LocationOf(IPerceivable target) => target is IGameItem item ? item.LocationLevelPerceivable?.Location : target.Location;
+	public IRoom? Location => LocationOf(PhysicalAnchor ?? Target);
 	public RoomLayer Layer => (PhysicalAnchor ?? Target).RoomLayer;
 	public IBody? TargetBody => Target as IBody ?? (Target as IGameItem)?.GetItemType<ICorpse>()?.OriginalBody;
-	private ICell? OriginalLocation { get; } = LocationOf(PhysicalAnchor ?? Target);
+	private IRoom? OriginalLocation { get; } = LocationOf(PhysicalAnchor ?? Target);
 	private RoomLayer OriginalLayer { get; } = (PhysicalAnchor ?? Target).RoomLayer;
 	private IGameItem? OriginalContainer { get; } = (Target as IGameItem)?.ContainedIn;
 	private IBody? OriginalInventory { get; } = (Target as IGameItem)?.InInventoryOf;

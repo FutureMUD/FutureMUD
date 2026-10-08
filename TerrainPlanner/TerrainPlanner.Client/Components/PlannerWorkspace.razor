@@ -237,7 +237,7 @@
 	private bool _inspectorOpen;
 	private int _requestedWidth = 5;
 	private int _requestedHeight = 5;
-	private PlannerCell? _selectedCell;
+	private PlannerRoom? _selectedCell;
 	private ElementReference _canvas;
 	private IJSObjectReference? _canvasModule;
 	private DotNetObjectReference<PlannerWorkspace>? _selfReference;
@@ -252,7 +252,7 @@
 		string.IsNullOrWhiteSpace(_paletteSearch) || terrain.Name.Contains(_paletteSearch, StringComparison.OrdinalIgnoreCase));
 	private IEnumerable<TagCatalogueItem> FilteredTags => _tags.Where(tag =>
 		string.IsNullOrWhiteSpace(_paletteSearch) || tag.FullName.Contains(_paletteSearch, StringComparison.OrdinalIgnoreCase));
-	private IReadOnlyList<long> UsedTagIds => _map.Cells.SelectMany(cell => cell.TagIds).Distinct()
+	private IReadOnlyList<long> UsedTagIds => _map.Rooms.SelectMany(cell => cell.TagIds).Distinct()
 		.OrderBy(TagFullName, StringComparer.OrdinalIgnoreCase).ToList();
 
 	protected override Task OnInitializedAsync() => LoadAsync();
@@ -322,7 +322,7 @@
 				_map = PlannerMap.FromProject(saved);
 				_projectName = saved.Name;
 				_tagColours = saved.TagColours;
-				_projectTagNames = saved.Cells
+				_projectTagNames = saved.Rooms
 					.SelectMany(cell => cell.Tags)
 					.GroupBy(tag => tag.Id)
 					.ToDictionary(group => group.Key, group => group.First().Name);
@@ -365,7 +365,7 @@
 					: _map.PaintTag(coordinates, _tagBrushId, false);
 				break;
 			case PlannerTool.Eyedropper:
-				var sampled = _map.CellAt(coordinates[0].X, coordinates[0].Y);
+				var sampled = _map.RoomAt(coordinates[0].X, coordinates[0].Y);
 				if (_layer == PlannerLayer.Terrain)
 				{
 					_terrainBrushId = sampled.TerrainId;
@@ -433,7 +433,7 @@
 			return Task.CompletedTask;
 		}
 
-		_selectedCell = _map.Contains(coordinate.X, coordinate.Y) ? _map.CellAt(coordinate.X, coordinate.Y) : null;
+		_selectedCell = _map.Contains(coordinate.X, coordinate.Y) ? _map.RoomAt(coordinate.X, coordinate.Y) : null;
 		StateHasChanged();
 		return Task.CompletedTask;
 	}
@@ -456,7 +456,7 @@
 		{
 			_history.Record(change);
 		}
-		await UpdateCanvasCellsAsync(change.Changes.Select(item => _map.CellAt(item.X, item.Y)));
+		await UpdateCanvasCellsAsync(change.Changes.Select(item => _map.RoomAt(item.X, item.Y)));
 		Changed();
 	}
 
@@ -577,7 +577,7 @@
 		await RunImportAsync(() =>
 		{
 			MaskSerializer.ImportFeatureMask(_map, _featureMaskText, _tagById);
-			foreach (var tagId in _map.Cells.SelectMany(cell => cell.TagIds).Distinct())
+			foreach (var tagId in _map.Rooms.SelectMany(cell => cell.TagIds).Distinct())
 			{
 				if (_tagById.TryGetValue(tagId, out var tag))
 				{
@@ -653,7 +653,7 @@
 			_map = PlannerMap.FromProject(project);
 			_projectName = project.Name;
 			_tagColours = project.TagColours;
-			_projectTagNames = project.Cells
+			_projectTagNames = project.Rooms
 				.SelectMany(cell => cell.Tags)
 				.GroupBy(tag => tag.Id)
 				.ToDictionary(group => group.Key, group => group.First().Name);
@@ -834,7 +834,7 @@
 			++_canvasMapVersion,
 			_map.Width,
 			_map.Height,
-			_map.Cells
+			_map.Rooms
 				.Where(cell => cell.TerrainId != 0 || cell.TagIds.Count != 0 || cell.UnresolvedFeatures.Count != 0)
 				.Select(ToCanvasCell)
 				.ToArray(),
@@ -843,7 +843,7 @@
 		await _canvasModule.InvokeVoidAsync("setMap", _canvas, view);
 	}
 
-	private async Task UpdateCanvasCellsAsync(IEnumerable<PlannerCell> cells)
+	private async Task UpdateCanvasCellsAsync(IEnumerable<PlannerRoom> cells)
 	{
 		if (_canvasModule is not null)
 		{
@@ -862,7 +862,7 @@
 		StateHasChanged();
 	}
 
-	private static CanvasCell ToCanvasCell(PlannerCell cell) =>
+	private static CanvasCell ToCanvasCell(PlannerRoom cell) =>
 		new(cell.X, cell.Y, cell.TerrainId, cell.TagIds.ToArray());
 
 	private string TerrainName(long id) => id == 0 ? "Blank — no room" :
@@ -870,7 +870,7 @@
 	private string TagName(long id) => _tagById.GetValueOrDefault(id)?.ShortName ?? $"Missing tag #{id}";
 	private string TagFullName(long id) => _tagById.GetValueOrDefault(id)?.FullName ?? $"Missing tag #{id}";
 	private string GetTagColour(long id) => _tagColours.GetValueOrDefault(id, DeterministicTagColour(id));
-	private int TagUseCount(long id) => _map.Cells.Count(cell => cell.TagIds.Contains(id));
+	private int TagUseCount(long id) => _map.Rooms.Count(cell => cell.TagIds.Contains(id));
 	private static string WebColour(string colour) => colour.Length == 9 && colour.StartsWith('#') ? $"#{colour[3..]}" : colour;
 	private static string DeterministicTagColour(long id)
 	{
@@ -885,7 +885,7 @@
 	private IReadOnlyDictionary<long, TagCatalogueItem> ProjectTags()
 	{
 		var result = new Dictionary<long, TagCatalogueItem>();
-		foreach (var id in _map.Cells.SelectMany(cell => cell.TagIds).Distinct())
+		foreach (var id in _map.Rooms.SelectMany(cell => cell.TagIds).Distinct())
 		{
 			var live = _tagById.GetValueOrDefault(id);
 			var name = _projectTagNames.GetValueOrDefault(id, live?.ShortName ?? $"Missing tag #{id}");

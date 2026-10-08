@@ -135,81 +135,81 @@ namespace MudSharp.Events
 
 
         /// <summary>
-        ///     Hooks the character who moved, as they enter the room. Parameters are mover, cell, exit
+        ///     Hooks the character who moved, as they enter the room. Parameters are mover, room, exit
         /// </summary>
         [EventInfo("Hooks to a character when they move into a room", new[] { "character", "location", "exit" }, new[] { "mover", "destination", "exit" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit })]
-        CharacterEnterCell = 16,
+        CharacterEnterRoom = 16,
 
         /// <summary>
-        ///     Hooks any witness to the character who moved, as they enter the room. Parameters are mover, cell, exit, witness
+        ///     Hooks any witness to the character who moved, as they enter the room. Parameters are mover, room, exit, witness
         /// </summary>
         [EventInfo("Hooks to a perceiver witnessing someone move into a room", new[] { "character", "location", "exit", "perceivable" }, new[] { "mover", "destination", "exit", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Perceivable })]
-        CharacterEnterCellWitness = 17,
+        CharacterEnterRoomWitness = 17,
 
         /// <summary>
-        ///     Hooks the character who moved, after movement is complete. Parameters are mover, cell, exit
+        ///     Hooks the character who moved, after movement is complete. Parameters are mover, room, exit
         /// </summary>
         [EventInfo("Hooks to a character when they have moved into a room and their movement finishes", new[] { "character", "location", "exit" }, new[] { "mover", "destination", "exit" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit })]
-        CharacterEnterCellFinish = 18,
+        CharacterEnterRoomFinish = 18,
 
         /// <summary>
-        ///     Hooks any witness to the character who moved, after movement is complete. Parameters are mover, cell, exit, witness
+        ///     Hooks any witness to the character who moved, after movement is complete. Parameters are mover, room, exit, witness
         /// </summary>
         [EventInfo("Hooks to a perceiver witnessing someone finish move into a room", new[] { "character", "location", "exit", "perceivable" }, new[] { "mover", "destination", "exit", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Perceivable })]
-        CharacterEnterCellFinishWitness = 19,
+        CharacterEnterRoomFinishWitness = 19,
 
         /// <summary>
-        ///     Hooks the character who begun to move. Parameters are mover, cell, exit
+        ///     Hooks the character who begun to move. Parameters are mover, room, exit
         /// </summary>
         [EventInfo("Hooks to a character when they begin to move", new[] { "character", "location", "exit" }, new[] { "mover", "origin", "exit" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit })]
         CharacterBeginMovement = 21,
 
         /// <summary>
-        ///     Hooks any character who witnessed the character begin to move. Parameters are mover, cell, exit, witness
+        ///     Hooks any character who witnessed the character begin to move. Parameters are mover, room, exit, witness
         /// </summary>
         [EventInfo("Hooks to a perceiver witnessing someone begin to move", new[] { "character", "location", "exit", "perceivable" }, new[] { "mover", "origin", "exit", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Perceivable })]
         CharacterBeginMovementWitness = 22,
 
         /// <summary>
-        ///     Hooks the character who moved, as they leave the room. Parameters are mover, cell, exit
+        ///     Hooks the character who moved, as they leave the room. Parameters are mover, room, exit
         /// </summary>
         [EventInfo("Hooks to a character when they leave the room they started in", new[] { "character", "location", "exit" }, new[] { "mover", "origin", "exit" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit })]
-        CharacterLeaveCell = 23,
+        CharacterLeaveRoom = 23,
 
         /// <summary>
-        ///     Hooks any witness to the character who moved, as they leave the room. Parameters are mover, cell, exit, witness
+        ///     Hooks any witness to the character who moved, as they leave the room. Parameters are mover, room, exit, witness
         /// </summary>
         [EventInfo("Hooks to a perceiver witnessing someone move out of a room", new[] { "character", "location", "exit", "perceivable" }, new[] { "mover", "origin", "exit", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Perceivable })]
-        CharacterLeaveCellWitness = 24,
+        CharacterLeaveRoomWitness = 24,
 
         /// <summary>
-        ///     Hooks a character when they stop moving from the STOP command. Parameters are mover, cell, exit
+        ///     Hooks a character when they stop moving from the STOP command. Parameters are mover, room, exit
         /// </summary>
         [EventInfo("Hooks to a character when they stop moving with STOP command", new[] { "character", "location", "exit" }, new[] { "mover", "origin", "exit" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit })]
         CharacterStopMovement = 25,
 
         /// <summary>
-        ///     Hooks any witness to the character when they stop moving from the STOP command. Parameters are mover, cell, exit,
+        ///     Hooks any witness to the character when they stop moving from the STOP command. Parameters are mover, room, exit,
         ///     witness
         /// </summary>
         [EventInfo("Hooks to a perceiver witnessing someone stop moving with the STOP command", new[] { "character", "location", "exit", "perceivable" }, new[] { "mover", "origin", "exit", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Perceivable })]
         CharacterStopMovementWitness = 26,
 
         /// <summary>
-        ///     Hooks a character when they stop moving from the door being closed. Parameters are mover, cell, exit
+        ///     Hooks a character when they stop moving from the door being closed. Parameters are mover, room, exit
         /// </summary>
         [EventInfo("Hooks to a character when they stop moving because of a closed door", new[] { "character", "location", "exit" }, new[] { "mover", "origin", "exit" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit })]
         CharacterStopMovementClosedDoor = 27,
 
         /// <summary>
-        ///     Hooks any witness to the character when they stop moving from the door being closed. Parameters are mover, cell,
+        ///     Hooks any witness to the character when they stop moving from the door being closed. Parameters are mover, room,
         ///     exit, witness
         /// </summary>
         [EventInfo("Hooks to a perceiver witnessing someone stop moving because of a closed door", new[] { "character", "location", "exit", "perceivable" }, new[] { "mover", "origin", "exit", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Perceivable })]
         CharacterStopMovementClosedDoorWitness = 28,
 
         /// <summary>
-        ///     Hooks to trying to move but not being able to. Parameters are mover, cell, exit
+        ///     Hooks to trying to move but not being able to. Parameters are mover, room, exit
         /// </summary>
         [EventInfo("Hooks to a character trying to move but being unable to", new[] { "character", "location", "exit" }, new[] { "mover", "origin", "exit" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit })]
         CharacterCannotMove = 45,
@@ -252,20 +252,20 @@ namespace MudSharp.Events
 
         /// <summary>
         ///     Hooks to any character who is on the same side of a door when it is knocked on (except the person who knocked).
-        ///     Parameters are knocker, cell, exit, witness
+        ///     Parameters are knocker, room, exit, witness
         /// </summary>
         [EventInfo("Hooks to a character on the same side of a door when it is knocked on", new[] { "character", "location", "exit", "perceivable" }, new[] { "knocker", "origin", "exit", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Perceivable })]
         CharacterDoorKnockedSameSide = 31,
 
         /// <summary>
-        ///     Hooks to any character who is on the other side of a door when it is knocked on. Parameters are knocker, cell,
+        ///     Hooks to any character who is on the other side of a door when it is knocked on. Parameters are knocker, room,
         ///     exit, witness
         /// </summary>
         [EventInfo("Hooks to a character on the other side of a door when it is knocked on", new[] { "character", "location", "exit", "perceivable" }, new[] { "knocker", "origin", "exit", "witness" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Perceivable })]
         CharacterDoorKnockedOtherSide = 32,
 
         /// <summary>
-        ///     Hooks to the door itself when knocked upon. Parameters are knocker, cell, exit, door.Parent
+        ///     Hooks to the door itself when knocked upon. Parameters are knocker, room, exit, door.Parent
         /// </summary>
         [EventInfo("Hooks to a door item when it is knocked on", new[] { "character", "location", "exit", "item" }, new[] { "knocker", "origin", "exit", "door" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Item })]
         DoorKnocked = 33,
@@ -563,23 +563,23 @@ namespace MudSharp.Events
         VictimOfCrime = 88,
 
         /// <summary>
-        ///     Hooks to a character when they leave the room they started in, but fires on their inventory items. Parameters are mover, cell, exit, item
+        ///     Hooks to a character when they leave the room they started in, but fires on their inventory items. Parameters are mover, room, exit, item
         /// </summary>
         [EventInfo("Hooks to a character when they leave the room they started in, but fires on their inventory items", new[] { "character", "location", "exit", "item" }, new[] { "mover", "origin", "exit", "item" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Item })]
-        CharacterLeaveCellItems = 89,
+        CharacterLeaveRoomItems = 89,
 
         /// <summary>
-        ///     Hooks the character who begun to move, but fires on their inventory items. Parameters are mover, cell, exit, item
+        ///     Hooks the character who begun to move, but fires on their inventory items. Parameters are mover, room, exit, item
         /// </summary>
         [EventInfo("Hooks to a character when they begin to move, but fires on their inventory items", new[] { "character", "location", "exit", "item" }, new[] { "mover", "origin", "exit", "item" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Item })]
         CharacterBeginMovementItems = 90,
 
 
         /// <summary>
-        ///     Hooks the character who moved, as they enter the room, but fires on their inventory items. Parameters are mover, cell, exit, item
+        ///     Hooks the character who moved, as they enter the room, but fires on their inventory items. Parameters are mover, room, exit, item
         /// </summary>
         [EventInfo("Hooks to a character when they move into a room, but fires on their inventory items", new[] { "character", "location", "exit", "item" }, new[] { "mover", "destination", "exit", "item" }, new[] { ProgVariableTypeCode.Character, ProgVariableTypeCode.Location, ProgVariableTypeCode.Exit, ProgVariableTypeCode.Item })]
-        CharacterEnterCellItems = 91,
+        CharacterEnterRoomItems = 91,
 
         /// <summary>
         ///     Hooks to being invited to join a spar. Parameters are inviter, invitee
@@ -704,25 +704,25 @@ namespace MudSharp.Events
         [EventInfo("Fires on a character when they hear an alert.", ["character", "perceivable", "location", "text", "number", "text"], ["alerter", "witness", "origin", "direction", "range", "emote"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
         CharacterAlertHeard = 129,
 
-        [EventInfo("Fires on each character or vehicle exterior when longitudinal RouteCell movement begins.", ["perceivable", "location", "number", "number", "text", "number", "text"], ["mover", "routecell", "originmetres", "destinationmetres", "direction", "speedmetrespersecond", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        [EventInfo("Fires on each character or vehicle exterior when longitudinal RouteRoom movement begins.", ["perceivable", "location", "number", "number", "text", "number", "text"], ["mover", "routecell", "originmetres", "destinationmetres", "direction", "speedmetrespersecond", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
         RouteMovementBegin = 130,
 
-        [EventInfo("Fires on each character or vehicle exterior after a longitudinal RouteCell movement checkpoint advances its durable position.", ["perceivable", "location", "number", "number", "number", "text", "number", "text"], ["mover", "routecell", "previousmetres", "currentmetres", "destinationmetres", "direction", "speedmetrespersecond", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        [EventInfo("Fires on each character or vehicle exterior after a longitudinal RouteRoom movement checkpoint advances its durable position.", ["perceivable", "location", "number", "number", "number", "text", "number", "text"], ["mover", "routecell", "previousmetres", "currentmetres", "destinationmetres", "direction", "speedmetrespersecond", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
         RouteMovementProgress = 131,
 
-        [EventInfo("Fires on each character or vehicle exterior when longitudinal RouteCell movement reaches its destination.", ["perceivable", "location", "number", "number", "text", "text"], ["mover", "routecell", "originmetres", "destinationmetres", "direction", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
+        [EventInfo("Fires on each character or vehicle exterior when longitudinal RouteRoom movement reaches its destination.", ["perceivable", "location", "number", "number", "text", "text"], ["mover", "routecell", "originmetres", "destinationmetres", "direction", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
         RouteMovementComplete = 132,
 
-        [EventInfo("Fires on each character or vehicle exterior when longitudinal RouteCell movement stops before its destination.", ["perceivable", "location", "number", "number", "number", "text", "text", "text"], ["mover", "routecell", "originmetres", "currentmetres", "destinationmetres", "direction", "reason", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
+        [EventInfo("Fires on each character or vehicle exterior when longitudinal RouteRoom movement stops before its destination.", ["perceivable", "location", "number", "number", "number", "text", "text", "text"], ["mover", "routecell", "originmetres", "currentmetres", "destinationmetres", "direction", "reason", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
         RouteMovementCancelled = 133,
 
-        [EventInfo("Fires on each character or vehicle exterior when a longitudinal RouteCell checkpoint changes its exact coordinate.", ["perceivable", "location", "number", "number", "text"], ["mover", "routecell", "previousmetres", "currentmetres", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        [EventInfo("Fires on each character or vehicle exterior when a longitudinal RouteRoom checkpoint changes its exact coordinate.", ["perceivable", "location", "number", "number", "text"], ["mover", "routecell", "previousmetres", "currentmetres", "operationid"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
         RoutePositionChanged = 134,
 
-        [EventInfo("Fires on a vehicle exterior when its journey departs a stop. A stop position of -1 means an ordinary cell.", ["item", "number", "number", "number", "number", "location", "number", "text"], ["vehicle", "journeyid", "routeid", "serviceid", "vehicleid", "stopcell", "stoppositionmetres", "message"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        [EventInfo("Fires on a vehicle exterior when its journey departs a stop. A stop position of -1 means an ordinary room.", ["item", "number", "number", "number", "number", "location", "number", "text"], ["vehicle", "journeyid", "routeid", "serviceid", "vehicleid", "stopcell", "stoppositionmetres", "message"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
         VehicleJourneyDeparted = 135,
 
-        [EventInfo("Fires on a vehicle exterior when its journey arrives at a stop. A stop position of -1 means an ordinary cell.", ["item", "number", "number", "number", "number", "location", "number", "text"], ["vehicle", "journeyid", "routeid", "serviceid", "vehicleid", "stopcell", "stoppositionmetres", "message"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
+        [EventInfo("Fires on a vehicle exterior when its journey arrives at a stop. A stop position of -1 means an ordinary room.", ["item", "number", "number", "number", "number", "location", "number", "text"], ["vehicle", "journeyid", "routeid", "serviceid", "vehicleid", "stopcell", "stoppositionmetres", "message"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Location, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text])]
         VehicleJourneyArrived = 136,
 
         [EventInfo("Fires on a vehicle exterior when its journey's accumulated delay changes.", ["item", "number", "number", "number", "number", "timespan", "text"], ["vehicle", "journeyid", "routeid", "serviceid", "vehicleid", "delay", "message"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.Number, ProgVariableTypeCode.TimeSpan, ProgVariableTypeCode.Text])]
@@ -743,7 +743,7 @@ namespace MudSharp.Events
         [EventInfo("Fires on witnesses when a liquid libation is completed.", ["item", "character", "item", "liquidmixture", "number", "perceivable"], ["focus", "actor", "source", "liquid", "amount", "witness"], [ProgVariableTypeCode.Item, ProgVariableTypeCode.Character, ProgVariableTypeCode.Item, ProgVariableTypeCode.LiquidMixture, ProgVariableTypeCode.Number, ProgVariableTypeCode.Perceivable])]
         LiquidOfferingReceivedWitness = 142,
 
-        [EventInfo("Fires once on the origin cell when a non-silent noise is emitted. This event exposes sound to FutureProg hooks without prescribing game-specific reactions.", ["location", "perceivable", "number", "text", "text"], ["origin", "source", "volume", "type", "echo"], [ProgVariableTypeCode.Location, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
+        [EventInfo("Fires once on the origin room when a non-silent noise is emitted. This event exposes sound to FutureProg hooks without prescribing game-specific reactions.", ["location", "perceivable", "number", "text", "text"], ["origin", "source", "volume", "type", "echo"], [ProgVariableTypeCode.Location, ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Number, ProgVariableTypeCode.Text, ProgVariableTypeCode.Text])]
         NoiseEmitted = 143,
 
         [EventInfo("Fires on a trap when an automation signal addresses it. Parameters are the trap owner, signal value and source.", ["perceivable", "number", "perceivable"], ["owner", "value", "source"], [ProgVariableTypeCode.Perceivable, ProgVariableTypeCode.Number, ProgVariableTypeCode.Perceivable])]

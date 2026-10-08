@@ -7,15 +7,15 @@ namespace MudSharp.Models
     {
         public Exit()
         {
-            CellOverlaysExits = new HashSet<CellOverlayExit>();
+            RoomOverlaysExits = new HashSet<RoomOverlayExit>();
             RouteExitAnchors = new HashSet<RouteExitAnchor>();
         }
 
         public long Id { get; set; }
         public string Keywords1 { get; set; }
         public string Keywords2 { get; set; }
-        public long CellId1 { get; set; }
-        public long CellId2 { get; set; }
+        public long RoomId1 { get; set; }
+        public long RoomId2 { get; set; }
         public long? DoorId { get; set; }
         public int Direction1 { get; set; }
         public int Direction2 { get; set; }
@@ -36,12 +36,12 @@ namespace MudSharp.Models
         public int? DoorSize { get; set; }
         public int MaximumSizeToEnter { get; set; }
         public int MaximumSizeToEnterUpright { get; set; }
-        public long? FallCell { get; set; }
+        public long? FallRoom { get; set; }
         public bool IsClimbExit { get; set; }
         public int ClimbDifficulty { get; set; }
         public string BlockedLayers { get; set; }
 
-        public virtual ICollection<CellOverlayExit> CellOverlaysExits { get; set; }
+        public virtual ICollection<RoomOverlayExit> RoomOverlaysExits { get; set; }
         public virtual ICollection<RouteExitAnchor> RouteExitAnchors { get; set; }
     }
 }

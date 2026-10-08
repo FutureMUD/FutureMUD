@@ -38,8 +38,8 @@ public class ReactAI : ArtificialIntelligenceBase
 
     private void InitialiseDefaults()
     {
-        AddReaction("greet", EventType.CharacterEnterCellFinishWitness, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.Character } });
-        AddReaction("farewell", EventType.CharacterLeaveCellWitness, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.Character } });
+        AddReaction("greet", EventType.CharacterEnterRoomFinishWitness, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.Character } });
+        AddReaction("farewell", EventType.CharacterLeaveRoomWitness, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.Character } });
         AddReaction("weather", EventType.WeatherChanged, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.WeatherEvent, ProgVariableTypes.WeatherEvent } });
         AddReaction("gift", EventType.CharacterGiveItemWitness, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Character } });
         AddReaction("damage", EventType.CharacterDamagedWitness, new[] { new[] { ProgVariableTypes.Character, ProgVariableTypes.Item, ProgVariableTypes.Character, ProgVariableTypes.Character } });
@@ -173,7 +173,7 @@ Valid reactions: greet, farewell, weather, gift, damage, hide";
         Reaction reaction = _reactions[key];
         switch (type)
         {
-            case EventType.CharacterEnterCellFinishWitness:
+            case EventType.CharacterEnterRoomFinishWitness:
                 ICharacter moverIn = arguments[0] as ICharacter;
                 ICharacter witnessIn = arguments[3] as ICharacter;
                 if (witnessIn?.Id != Id || moverIn == witnessIn)
@@ -192,7 +192,7 @@ Valid reactions: greet, farewell, weather, gift, damage, hide";
                 }
 
                 return true;
-            case EventType.CharacterLeaveCellWitness:
+            case EventType.CharacterLeaveRoomWitness:
                 ICharacter moverOut = arguments[0] as ICharacter;
                 ICharacter witnessOut = arguments[3] as ICharacter;
                 if (witnessOut?.Id != Id || moverOut == witnessOut)

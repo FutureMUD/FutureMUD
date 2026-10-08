@@ -554,17 +554,17 @@ public class EmploymentWorkerAI : PathingAIBase
 		return ResolvePathTarget(character) is not null;
 	}
 
-	private static bool SameCell(ICell? lhs, ICell? rhs)
+	private static bool SameRoom(IRoom? lhs, IRoom? rhs)
 	{
 		return lhs is not null && rhs is not null && lhs.Id == rhs.Id;
 	}
 
-	protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+	protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
 	{
 		var target = ResolvePathTarget(ch);
-		if (target is null || SameCell(target, ch.Location))
+		if (target is null || SameRoom(target, ch.Location))
 		{
-			return (null, Enumerable.Empty<ICellExit>());
+			return (null, Enumerable.Empty<IRoomExit>());
 		}
 
 		return (target, ch.PathBetween(target, MaxPathRange, GetSuitabilityFunction(ch)).ToList());
@@ -595,13 +595,13 @@ public class EmploymentWorkerAI : PathingAIBase
 		              .Where(x => !HasRecentRejectedApplication(candidate, x.Host, x.Opening))
 		              .Where(x => EmploymentCandidateMatcher.IsMatch(x.Opening, profile, out _))
 		              .Where(x => HostReputationAcceptable(candidate, x.Host))
-		              .Select(x => (x.Host, x.Opening, WorkCell: PrimaryWorkCell(x.Host)))
+		              .Select(x => (x.Host, x.Opening, WorkRoom: PrimaryWorkRoom(x.Host)))
 		              .Select(x => (
 			              x.Host,
 			              x.Opening,
 			              EffectivePay: EmploymentCompensationEvaluator.EffectiveHourlyGlobalAmount(x.Opening.Compensation),
 			              OverdueDays: EmployerOverdueDays(x.Host),
-			              CommuteDistance: CommuteDistance(candidate, x.WorkCell)))
+			              CommuteDistance: CommuteDistance(candidate, x.WorkRoom)))
 		              .Where(x => x.CommuteDistance != int.MaxValue)
 		              .OrderByDescending(x => x.EffectivePay)
 		              .ThenBy(x => x.OverdueDays)
@@ -719,8 +719,8 @@ public class EmploymentWorkerAI : PathingAIBase
 				$"{worker.Name} is already in the middle of an employment task for {host.EmploymentHostName}.");
 		}
 
-		var workplace = PrimaryWorkCell(host);
-		if (workplace is not null && !SameCell(workplace, worker.Location))
+		var workplace = PrimaryWorkRoom(host);
+		if (workplace is not null && !SameRoom(workplace, worker.Location))
 		{
 			return EmploymentWorkerPayrollClaimResult.NoAction(
 				$"{worker.Name} is not at {host.EmploymentHostName}'s workplace.");
@@ -838,7 +838,7 @@ public class EmploymentWorkerAI : PathingAIBase
 			}
 
 			var hintedLocation = NextStepLocation(task, context, worker);
-			if (hintedLocation is not null && !SameCell(hintedLocation, worker.Location))
+			if (hintedLocation is not null && !SameRoom(hintedLocation, worker.Location))
 			{
 				DebugWorker(worker,
 					$"pathing to {hintedLocation.GetFriendlyReference(worker)} for next step of task {task.Name}.");
@@ -1118,7 +1118,7 @@ public class EmploymentWorkerAI : PathingAIBase
 		worker.RemoveAllEffects<EmploymentWorkerTaskContextEffect>(x => x.Matches(host, task), true);
 	}
 
-	private ICell? ResolvePathTarget(ICharacter worker)
+	private IRoom? ResolvePathTarget(ICharacter worker)
 	{
 		var host = ActiveEmploymentHost(worker);
 		if (host is null)
@@ -1131,17 +1131,17 @@ public class EmploymentWorkerAI : PathingAIBase
 		{
 			var context = ContextFor(worker, host, task);
 			var target = NextStepLocation(task, context, worker);
-			if (target is not null && !SameCell(target, worker.Location))
+			if (target is not null && !SameRoom(target, worker.Location))
 			{
 				return target;
 			}
 		}
 
-		var workplace = PrimaryWorkCell(host);
-		return workplace is not null && !SameCell(workplace, worker.Location) ? workplace : null;
+		var workplace = PrimaryWorkRoom(host);
+		return workplace is not null && !SameRoom(workplace, worker.Location) ? workplace : null;
 	}
 
-	private ICell? NextStepLocation(IEmploymentActiveTask task, IEmploymentTaskContext context, ICharacter worker)
+	private IRoom? NextStepLocation(IEmploymentActiveTask task, IEmploymentTaskContext context, ICharacter worker)
 	{
 		if (task is not EmploymentActiveTask concrete)
 		{
@@ -1161,8 +1161,8 @@ public class EmploymentWorkerAI : PathingAIBase
 
 		return hint.ExecutionLocationHints(context, worker)
 		           .Where(x => x is not null)
-		           .Where(x => SameCell(x, worker.Location) || CanReach(worker, x))
-		           .OrderBy(x => SameCell(x, worker.Location) ? 0 : 1)
+		           .Where(x => SameRoom(x, worker.Location) || CanReach(worker, x))
+		           .OrderBy(x => SameRoom(x, worker.Location) ? 0 : 1)
 		           .ThenBy(x => x.Id)
 		           .FirstOrDefault();
 	}
@@ -1253,37 +1253,37 @@ public class EmploymentWorkerAI : PathingAIBase
 			: 0;
 	}
 
-	private int CommuteDistance(ICharacter worker, ICell? cell)
+	private int CommuteDistance(ICharacter worker, IRoom? room)
 	{
-		if (cell is null || SameCell(worker.Location, cell))
+		if (room is null || SameRoom(worker.Location, room))
 		{
 			return 0;
 		}
 
-		var path = worker.PathBetween(cell, MaxPathRange, GetSuitabilityFunction(worker))?.ToList() ?? new List<ICellExit>();
+		var path = worker.PathBetween(room, MaxPathRange, GetSuitabilityFunction(worker))?.ToList() ?? new List<IRoomExit>();
 		return path.Any() ? path.Count : int.MaxValue;
 	}
 
-	private bool CanReach(ICharacter worker, ICell? cell)
+	private bool CanReach(ICharacter worker, IRoom? room)
 	{
-		if (cell is null || SameCell(worker.Location, cell))
+		if (room is null || SameRoom(worker.Location, room))
 		{
 			return true;
 		}
 
-		return worker.PathBetween(cell, MaxPathRange, GetSuitabilityFunction(worker))?.Any() == true;
+		return worker.PathBetween(room, MaxPathRange, GetSuitabilityFunction(worker))?.Any() == true;
 	}
 
-	private static ICell? PrimaryWorkCell(IEmploymentHost host)
+	private static IRoom? PrimaryWorkRoom(IEmploymentHost host)
 	{
 		return host switch
 		{
-			IPermanentShop shop => shop.ShopfrontCells.FirstOrDefault() ?? shop.StockroomCell ?? shop.WorkshopCell,
+			IPermanentShop shop => shop.ShopfrontRooms.FirstOrDefault() ?? shop.StockroomRoom ?? shop.WorkshopRoom,
 			IShop shop => shop.CurrentLocations.FirstOrDefault(),
-			IAuctionHouse auctionHouse => auctionHouse.AuctionHouseCell,
-			ICombatArena arena => arena.WaitingCells.FirstOrDefault() ??
-			                      arena.ArenaCells.FirstOrDefault() ??
-			                      arena.ObservationCells.FirstOrDefault(),
+			IAuctionHouse auctionHouse => auctionHouse.AuctionHouseRoom,
+			ICombatArena arena => arena.WaitingRooms.FirstOrDefault() ??
+			                      arena.ArenaRooms.FirstOrDefault() ??
+			                      arena.ObservationRooms.FirstOrDefault(),
 			IBank bank => bank.BranchLocations.FirstOrDefault(),
 			IStable stable => stable.Location,
 			IHospital hospital => hospital.StaffRooms.FirstOrDefault() ?? hospital.WaitingRooms.FirstOrDefault() ??

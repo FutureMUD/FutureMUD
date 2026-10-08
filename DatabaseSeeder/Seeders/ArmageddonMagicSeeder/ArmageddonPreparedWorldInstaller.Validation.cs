@@ -65,6 +65,7 @@ public static partial class ArmageddonPreparedWorldInstaller
 			!matrix.TryGetValue(x.Key, out var approved) || x.Value.Any(y => !approved.Contains(y))))
 			errors.Add("Choose a nonempty distinct subset of the approved method matrix for each variant: sorcerer Self/Gentle/Land, preserver Self/Gentle, defiler Self/Land.");
 		ValidateCapacity(db, bindings, errors);
+		ValidateWaterSee(db, bindings, errors);
 		try { _ = PreservedProvisionSpells(db); }
 		catch (Exception error) when (error is InvalidOperationException or System.Xml.XmlException or FormatException) { errors.Add(error.Message); }
 		return errors.AsReadOnly();

@@ -117,9 +117,9 @@ public class MagicPersistentSensoryCombatTests
 		var terrain = new Mock<ITerrain>();
 		terrain.SetupGet(x => x.TrackIntensityMultiplierVisual).Returns(1.5);
 		terrain.SetupGet(x => x.TrackIntensityMultiplierOlfactory).Returns(0.75);
-		var cell = new Mock<ICell>();
-		cell.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
-		cell.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(false);
+		var room = new Mock<IRoom>();
+		room.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
+		room.Setup(x => x.IsSwimmingLayer(RoomLayer.GroundLevel)).Returns(false);
 		var effect = new Mock<ITrackIntensityEffect>();
 		effect.SetupGet(x => x.VisualTrackIntensityMultiplier).Returns(2.0);
 		effect.SetupGet(x => x.OlfactoryTrackIntensityMultiplier).Returns(3.0);
@@ -134,7 +134,7 @@ public class MagicPersistentSensoryCombatTests
 		actor.Setup(x => x.CombinedEffectsOfType<ITrackIntensityEffect>()).Returns([effect.Object]);
 
 		var circumstance = TrackCircumstances.None;
-		var noTracks = Movement.GetTrackIntensities(actor.Object, cell.Object, ref circumstance,
+		var noTracks = Movement.GetTrackIntensities(actor.Object, room.Object, ref circumstance,
 			out var visual, out var olfactory);
 
 		Assert.IsFalse(noTracks);
@@ -144,7 +144,7 @@ public class MagicPersistentSensoryCombatTests
 
 		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.InAir);
 		circumstance = TrackCircumstances.None;
-		noTracks = Movement.GetTrackIntensities(actor.Object, cell.Object, ref circumstance,
+		noTracks = Movement.GetTrackIntensities(actor.Object, room.Object, ref circumstance,
 			out visual, out olfactory);
 
 		Assert.IsFalse(noTracks);

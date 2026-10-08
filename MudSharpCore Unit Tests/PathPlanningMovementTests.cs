@@ -42,19 +42,19 @@ public class PathPlanningMovementTests
 	{
 		var f = new Fixture();
 		Assert.IsFalse(f.Actor.CanMoveForPathPlanning(null!));
-		f.Second.SetupGet(x => x.Destination).Returns((ICell)null!);
+		f.Second.SetupGet(x => x.Destination).Returns((IRoom)null!);
 		Assert.IsFalse(f.Actor.CanMoveForPathPlanning(f.Second.Object));
 		f.Second.SetupGet(x => x.Destination).Returns(f.Home.Object);
-		f.Second.Setup(x => x.MovementTransition(f.Actor)).Returns((CellMovementTransition.NoViableTransition, RoomLayer.GroundLevel));
+		f.Second.Setup(x => x.MovementTransition(f.Actor)).Returns((RoomMovementTransition.NoViableTransition, RoomLayer.GroundLevel));
 		Assert.IsFalse(f.Actor.CanMoveForPathPlanning(f.Second.Object));
-		f.Second.Setup(x => x.MovementTransition(f.Actor)).Returns((CellMovementTransition.GroundToGround, RoomLayer.GroundLevel));
+		f.Second.Setup(x => x.MovementTransition(f.Actor)).Returns((RoomMovementTransition.GroundToGround, RoomLayer.GroundLevel));
 		f.Second.SetupGet(x => x.Exit.MaximumSizeToEnter).Returns(SizeCategory.Tiny);
 		Assert.IsFalse(f.Actor.CanMoveForPathPlanning(f.Second.Object));
 		f.Second.SetupGet(x => x.Exit.MaximumSizeToEnter).Returns(SizeCategory.Normal);
 		f.Actor.TestPosition = PositionProne.Instance;
 		Assert.IsFalse(f.Actor.CanMoveForPathPlanning(f.Second.Object), "An unusable crawling body must not pass planning.");
 		f.Actor.TestPosition = PositionStanding.Instance;
-		f.Second.Setup(x => x.MovementTransition(f.Actor)).Returns((CellMovementTransition.SwimOnly, RoomLayer.GroundLevel));
+		f.Second.Setup(x => x.MovementTransition(f.Actor)).Returns((RoomMovementTransition.SwimOnly, RoomLayer.GroundLevel));
 		Assert.IsFalse(f.Actor.CanMoveForPathPlanning(f.Second.Object), "Safe movement remains in force for a water entry.");
 		Assert.IsTrue(f.Actor.CanMoveForPathPlanning(f.Second.Object, CanMoveFlags.IgnoreSafeMovement));
 	}
@@ -64,7 +64,7 @@ public class PathPlanningMovementTests
 	{
 		var f = new Fixture();
 		var ai = TestObjectFactory.CreateUninitialized<PathToLocationAI>();
-		var predicate = (Func<ICellExit, bool>)typeof(PathingAIBase)
+		var predicate = (Func<IRoomExit, bool>)typeof(PathingAIBase)
 			.GetMethod("GetSuitabilityFunction", BindingFlags.NonPublic | BindingFlags.Instance)!
 			.Invoke(ai, [f.Actor, true])!;
 		var path = f.Actor.PathBetween(f.Home.Object, 3, predicate).ToList();
@@ -77,17 +77,17 @@ public class PathPlanningMovementTests
 
 	private sealed class Fixture
 	{
-		public Mock<ICell> Origin { get; } = Cell(1);
-		public Mock<ICell> Middle { get; } = Cell(2);
-		public Mock<ICell> Home { get; } = Cell(3);
-		public Mock<ICellExit> First { get; }
-		public Mock<ICellExit> Second { get; }
+		public Mock<IRoom> Origin { get; } = Room(1);
+		public Mock<IRoom> Middle { get; } = Room(2);
+		public Mock<IRoom> Home { get; } = Room(3);
+		public Mock<IRoomExit> First { get; }
+		public Mock<IRoomExit> Second { get; }
 		public PlanningCharacter Actor { get; }
 		public Fixture()
 		{
 			var world = new Mock<IFuturemud> { DefaultValue = DefaultValue.Mock };
 			var body = new Mock<IBody> { DefaultValue = DefaultValue.Mock };
-			body.Setup(x => x.CurrentContextualSize(SizeContext.CellExit)).Returns(SizeCategory.Normal);
+			body.Setup(x => x.CurrentContextualSize(SizeContext.RoomExit)).Returns(SizeCategory.Normal);
 			body.SetupGet(x => x.CurrentSpeeds).Returns(new Dictionary<IPositionState, IMoveSpeed>
 			{
 				[PositionStanding.Instance] = Mock.Of<IMoveSpeed>(),
@@ -99,22 +99,22 @@ public class PathPlanningMovementTests
 			Origin.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns([First.Object]);
 			Middle.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns([Second.Object]);
 		}
-		private static Mock<ICell> Cell(long id)
+		private static Mock<IRoom> Room(long id)
 		{
-			var cell = new Mock<ICell> { DefaultValue = DefaultValue.Mock };
-			cell.SetupGet(x => x.Id).Returns(id); cell.SetupGet(x => x.Location).Returns(cell.Object);
-			cell.SetupGet(x => x.RouteDefinition).Returns((IRouteCellDefinition)null!);
-			cell.Setup(x => x.Terrain(It.IsAny<IPerceiver>()).GravityModel).Returns(GravityModel.Normal);
-			return cell;
+			var room = new Mock<IRoom> { DefaultValue = DefaultValue.Mock };
+			room.SetupGet(x => x.Id).Returns(id); room.SetupGet(x => x.Location).Returns(room.Object);
+			room.SetupGet(x => x.RouteDefinition).Returns((IRouteRoomDefinition)null!);
+			room.Setup(x => x.Terrain(It.IsAny<IPerceiver>()).GravityModel).Returns(GravityModel.Normal);
+			return room;
 		}
-		private Mock<ICellExit> Exit(ICell origin, ICell destination)
+		private Mock<IRoomExit> Exit(IRoom origin, IRoom destination)
 		{
-			var exit = new Mock<ICellExit> { DefaultValue = DefaultValue.Mock };
+			var exit = new Mock<IRoomExit> { DefaultValue = DefaultValue.Mock };
 			exit.SetupGet(x => x.Origin).Returns(origin); exit.SetupGet(x => x.Destination).Returns(destination);
 			exit.SetupGet(x => x.Exit.Door).Returns((MudSharp.GameItems.Interfaces.IDoor)null!);
 			exit.SetupGet(x => x.Exit.MaximumSizeToEnter).Returns(SizeCategory.Normal);
 			exit.SetupGet(x => x.Exit.MaximumSizeToEnterUpright).Returns(SizeCategory.Normal);
-			exit.Setup(x => x.MovementTransition(Actor)).Returns((CellMovementTransition.GroundToGround, RoomLayer.GroundLevel));
+			exit.Setup(x => x.MovementTransition(Actor)).Returns((RoomMovementTransition.GroundToGround, RoomLayer.GroundLevel));
 			return exit;
 		}
 	}
@@ -124,7 +124,7 @@ public class PathPlanningMovementTests
 		private PlanningCharacter() : base(null!, null!, true) { }
 		public IPositionState TestPosition { get; set; } = null!;
 		public override IPositionState PositionState { get => TestPosition; set => TestPosition = value; }
-		public static PlanningCharacter Create(IFuturemud world, IBody body, ICell location)
+		public static PlanningCharacter Create(IFuturemud world, IBody body, IRoom location)
 		{
 			var actor = TestObjectFactory.CreateUninitialized<PlanningCharacter>();
 			typeof(LateKeywordedInitialisingItem).GetField("<Gameworld>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(actor, world);
@@ -132,6 +132,6 @@ public class PathPlanningMovementTests
 			actor.Body = body; actor.TestPosition = PositionStanding.Instance; actor.At(location);
 			return actor;
 		}
-		public void At(ICell cell) => Location = cell;
+		public void At(IRoom room) => Location = room;
 	}
 }

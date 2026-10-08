@@ -588,7 +588,7 @@ Admin Syntax:
 
 	private static bool CanWorkField(ICharacter actor, IAgricultureField field, out string reason)
 	{
-		var property = actor.Gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(field.Cell));
+		var property = actor.Gameworld.Properties.FirstOrDefault(x => x.PropertyLocations.Contains(field.Room));
 		if (property != null && !actor.IsAdministrator() && !property.IsAuthorisedOwner(actor) && !property.IsAuthorisedLeaseHolder(actor))
 		{
 			reason = "You are not authorised to work this property.";

@@ -7,11 +7,11 @@ namespace MudSharp.Effects.Concrete;
 
 public class TollkeeperMode : Effect, ITollkeeperModeEffect
 {
-	public TollkeeperMode(ICharacter owner, ICellExit exit)
+	public TollkeeperMode(ICharacter owner, IRoomExit exit)
 		: base(owner)
 	{
 		ExitId = exit.Exit.Id;
-		GuardCellId = exit.Origin.Id;
+		GuardRoomId = exit.Origin.Id;
 	}
 
 	protected TollkeeperMode(XElement effect, IPerceivable owner)
@@ -19,20 +19,20 @@ public class TollkeeperMode : Effect, ITollkeeperModeEffect
 	{
 		var root = effect.Element("Element");
 		ExitId = long.Parse(root.Element("ExitId")?.Value ?? "0");
-		GuardCellId = long.Parse(root.Element("GuardCellId")?.Value ?? "0");
+		GuardRoomId = long.Parse(root.Element("GuardCellId")?.Value ?? "0");
 	}
 
 	public long ExitId { get; }
-	public long GuardCellId { get; }
+	public long GuardRoomId { get; }
 
-	private ICell? GuardCell => Gameworld.Cells.Get(GuardCellId);
+	private IRoom? GuardRoom => Gameworld.Rooms.Get(GuardRoomId);
 
-	public ICellExit? Exit
+	public IRoomExit? Exit
 	{
 		get
 		{
-			var cell = GuardCell;
-			return cell is null ? null : Gameworld.ExitManager.GetExitByID(ExitId)?.CellExitFor(cell);
+			var room = GuardRoom;
+			return room is null ? null : Gameworld.ExitManager.GetExitByID(ExitId)?.RoomExitFor(room);
 		}
 	}
 
@@ -44,7 +44,7 @@ public class TollkeeperMode : Effect, ITollkeeperModeEffect
 	{
 		return new XElement("Element",
 			new XElement("ExitId", ExitId),
-			new XElement("GuardCellId", GuardCellId)
+			new XElement("GuardCellId", GuardRoomId)
 		);
 	}
 
@@ -64,8 +64,8 @@ public class TollkeeperMode : Effect, ITollkeeperModeEffect
 	public override void RemovalEffect()
 	{
 		var owner = (ICharacter)Owner;
-		owner.RemoveAllEffects<IGuardExitEffect>(x => x.Exit?.Exit.Id == ExitId && x.Exit?.Origin.Id == GuardCellId, true);
-		owner.RemoveAllEffects<TollExitPermit>(x => x.ExitId == ExitId && x.GuardCellId == GuardCellId, true);
+		owner.RemoveAllEffects<IGuardExitEffect>(x => x.Exit?.Exit.Id == ExitId && x.Exit?.Origin.Id == GuardRoomId, true);
+		owner.RemoveAllEffects<TollExitPermit>(x => x.ExitId == ExitId && x.GuardRoomId == GuardRoomId, true);
 	}
 
 	public override string ToString()

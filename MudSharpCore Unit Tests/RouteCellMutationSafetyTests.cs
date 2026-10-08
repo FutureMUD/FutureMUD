@@ -12,36 +12,36 @@ using DB = MudSharp.Models;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class RouteCellMutationSafetyTests
+public class RouteRoomMutationSafetyTests
 {
-	private const long CellId = 42L;
+	private const long RoomId = 42L;
 
 	[TestMethod]
 	public void InspectOccupancy_ActorMirrorsAreIgnoredButDormantCharacterAndInstanceBlock()
 	{
 		using var context = BuildContext();
-		context.Cells.Add(NewCell());
-		var actorCharacter = NewCharacter(1L, CellId);
-		var actorInstance = NewCharacterInstance(101L, 1L, CellId, isPrimary: true);
+		context.Rooms.Add(NewRoom());
+		var actorCharacter = NewCharacter(1L, RoomId);
+		var actorInstance = NewCharacterInstance(101L, 1L, RoomId, isPrimary: true);
 		context.Characters.Add(actorCharacter);
 		context.CharacterInstances.Add(actorInstance);
 		context.SaveChanges();
 
-		var actor = new RouteCellMutationActor(1L, 101L, true);
-		Assert.IsFalse(RouteCellMutationSafety.InspectOccupancy(context, CellId, actor).HasOtherCharacters);
+		var actor = new RouteRoomMutationActor(1L, 101L, true);
+		Assert.IsFalse(RouteRoomMutationSafety.InspectOccupancy(context, RoomId, actor).HasOtherCharacters);
 
-		var dormantCharacter = NewCharacter(2L, CellId);
+		var dormantCharacter = NewCharacter(2L, RoomId);
 		context.Characters.Add(dormantCharacter);
 		context.SaveChanges();
-		Assert.IsTrue(RouteCellMutationSafety.InspectOccupancy(context, CellId, actor).HasOtherCharacters,
+		Assert.IsTrue(RouteRoomMutationSafety.InspectOccupancy(context, RoomId, actor).HasOtherCharacters,
 			"A dormant compatibility character location must block RouteCell conversion or removal.");
 
 		dormantCharacter.Location = 7L;
-		context.CharacterInstances.Add(NewCharacterInstance(202L, 2L, CellId));
+		context.CharacterInstances.Add(NewCharacterInstance(202L, 2L, RoomId));
 		context.SaveChanges();
-		Assert.AreEqual(CellId, context.CharacterInstances.Single(x => x.Id == 202L).LocationId);
-		Assert.IsTrue(context.CharacterInstances.Any(x => x.LocationId == CellId && x.Id != 101L));
-		Assert.IsTrue(RouteCellMutationSafety.InspectOccupancy(context, CellId, actor).HasOtherCharacters,
+		Assert.AreEqual(RoomId, context.CharacterInstances.Single(x => x.Id == 202L).LocationId);
+		Assert.IsTrue(context.CharacterInstances.Any(x => x.LocationId == RoomId && x.Id != 101L));
+		Assert.IsTrue(RouteRoomMutationSafety.InspectOccupancy(context, RoomId, actor).HasOtherCharacters,
 			"A dormant physical character instance must independently block RouteCell conversion or removal.");
 	}
 
@@ -49,18 +49,18 @@ public class RouteCellMutationSafetyTests
 	public void InspectOccupancy_PersistedItemVehicleProjectTrackAndPointLiquidAllBlock()
 	{
 		using var context = BuildContext();
-		context.Cells.Add(NewCell("<Surfaces><Layer id=\"0\" position=\"750\"><Surface /></Layer></Surfaces>"));
+		context.Rooms.Add(NewRoom("<Surfaces><Layer id=\"0\" position=\"750\"><Surface /></Layer></Surfaces>"));
 		context.GameItems.Add(NewGameItem(301L));
-		context.CellsGameItems.Add(new DB.CellsGameItems { CellId = CellId, GameItemId = 301L });
-		context.Vehicles.Add(NewVehicle(401L, CellId));
-		context.ActiveProjects.Add(new DB.ActiveProject { Id = 501L, CellId = CellId });
+		context.RoomsGameItems.Add(new DB.RoomsGameItems { RoomId = RoomId, GameItemId = 301L });
+		context.Vehicles.Add(NewVehicle(401L, RoomId));
+		context.ActiveProjects.Add(new DB.ActiveProject { Id = 501L, RoomId = RoomId });
 		context.Tracks.Add(NewTrack(601L));
 		context.SaveChanges();
 
-		var result = RouteCellMutationSafety.InspectOccupancy(
+		var result = RouteRoomMutationSafety.InspectOccupancy(
 			context,
-			CellId,
-			new RouteCellMutationActor(1L, 101L, true));
+			RoomId,
+			new RouteRoomMutationActor(1L, 101L, true));
 
 		Assert.IsTrue(result.HasTopLevelItems);
 		Assert.IsTrue(result.HasVehicles);
@@ -73,22 +73,22 @@ public class RouteCellMutationSafetyTests
 	public void InspectLength_AllPersistedCoordinateOwnersBeyondNewLengthBlockShortening()
 	{
 		using var context = BuildContext();
-		context.Cells.Add(NewCell("<Surfaces><Layer id=\"0\" position=\"900\"><Surface /></Layer></Surfaces>"));
-		context.Characters.Add(NewCharacter(2L, CellId, 900.0M));
-		context.CharacterInstances.Add(NewCharacterInstance(202L, 2L, CellId, routePosition: 900.0M));
+		context.Rooms.Add(NewRoom("<Surfaces><Layer id=\"0\" position=\"900\"><Surface /></Layer></Surfaces>"));
+		context.Characters.Add(NewCharacter(2L, RoomId, 900.0M));
+		context.CharacterInstances.Add(NewCharacterInstance(202L, 2L, RoomId, routePosition: 900.0M));
 		context.GameItems.Add(NewGameItem(301L, 900.0M));
-		context.CellsGameItems.Add(new DB.CellsGameItems { CellId = CellId, GameItemId = 301L });
-		context.Vehicles.Add(NewVehicle(401L, CellId, 900.0M));
+		context.RoomsGameItems.Add(new DB.RoomsGameItems { RoomId = RoomId, GameItemId = 301L });
+		context.Vehicles.Add(NewVehicle(401L, RoomId, 900.0M));
 		context.ActiveProjects.Add(new DB.ActiveProject
 		{
 			Id = 501L,
-			CellId = CellId,
+			RoomId = RoomId,
 			RoutePosition = 900.0M
 		});
 		context.Tracks.Add(NewTrack(601L, 900.0M));
 		context.SaveChanges();
 
-		var result = RouteCellMutationSafety.InspectLength(context, CellId, 500.0);
+		var result = RouteRoomMutationSafety.InspectLength(context, RoomId, 500.0);
 
 		Assert.IsTrue(result.HasCharactersBeyondLength);
 		Assert.IsTrue(result.HasTopLevelItemsBeyondLength);
@@ -108,17 +108,17 @@ public class RouteCellMutationSafetyTests
 		context.CharacterInstances.Add(instance);
 		context.SaveChanges();
 
-		RouteCellMutationSafety.PersistActorSpatialState(
+		RouteRoomMutationSafety.PersistActorSpatialState(
 			context,
-			new RouteCellMutationActor(1L, 101L, true),
-			CellId,
+			new RouteRoomMutationActor(1L, 101L, true),
+			RoomId,
 			RoomLayer.InAir,
 			125.1236);
 
-		Assert.AreEqual(CellId, character.Location);
+		Assert.AreEqual(RoomId, character.Location);
 		Assert.AreEqual((int)RoomLayer.InAir, character.RoomLayer);
 		Assert.AreEqual(125.124M, character.RoutePosition);
-		Assert.AreEqual(CellId, instance.LocationId);
+		Assert.AreEqual(RoomId, instance.LocationId);
 		Assert.AreEqual((int)RoomLayer.InAir, instance.RoomLayer);
 		Assert.AreEqual(125.124M, instance.RoutePosition);
 	}
@@ -133,31 +133,31 @@ public class RouteCellMutationSafetyTests
 		context.CharacterInstances.Add(instance);
 		context.SaveChanges();
 
-		RouteCellMutationSafety.PersistActorSpatialState(
+		RouteRoomMutationSafety.PersistActorSpatialState(
 			context,
-			new RouteCellMutationActor(1L, 102L, false),
-			CellId,
+			new RouteRoomMutationActor(1L, 102L, false),
+			RoomId,
 			RoomLayer.GroundLevel,
 			250.0);
 
 		Assert.AreEqual(7L, character.Location,
 			"The compatibility character row mirrors the primary instance and must not follow a secondary body.");
 		Assert.IsNull(character.RoutePosition);
-		Assert.AreEqual(CellId, instance.LocationId);
+		Assert.AreEqual(RoomId, instance.LocationId);
 		Assert.AreEqual(250.0M, instance.RoutePosition);
 	}
 
 	[TestMethod]
 	public void PointSurfaceLiquidPositions_UniformStateIsSafeAndInvalidCoordinateFailsClosed()
 	{
-		Assert.AreEqual(0, RouteCellMutationSafety.PointSurfaceLiquidPositions(
+		Assert.AreEqual(0, RouteRoomMutationSafety.PointSurfaceLiquidPositions(
 			"<Surfaces><Layer id=\"0\"><Surface /></Layer></Surfaces>").Count);
 		CollectionAssert.AreEqual(
 			new[] { 7_150.125 },
-			RouteCellMutationSafety.PointSurfaceLiquidPositions(
+			RouteRoomMutationSafety.PointSurfaceLiquidPositions(
 				"<Surfaces><Layer id=\"0\" position=\"7150.125\"><Surface /></Layer></Surfaces>").ToArray());
 		Assert.ThrowsException<InvalidDataException>(() =>
-			RouteCellMutationSafety.PointSurfaceLiquidPositions(
+			RouteRoomMutationSafety.PointSurfaceLiquidPositions(
 				"<Surfaces><Layer id=\"0\" position=\"not-a-distance\"><Surface /></Layer></Surfaces>"));
 	}
 
@@ -169,11 +169,11 @@ public class RouteCellMutationSafetyTests
 		return new FuturemudDatabaseContext(options);
 	}
 
-	private static DB.Cell NewCell(string? surfaceLiquidData = null)
+	private static DB.Room NewRoom(string? surfaceLiquidData = null)
 	{
-		return new DB.Cell
+		return new DB.Room
 		{
-			Id = CellId,
+			Id = RoomId,
 			EffectData = "<Effects />",
 			SurfaceLiquidData = surfaceLiquidData
 		};
@@ -227,7 +227,7 @@ public class RouteCellMutationSafetyTests
 		{
 			Id = id,
 			Name = $"Vehicle {id}",
-			CurrentCellId = cellId,
+			CurrentRoomId = cellId,
 			CurrentRoutePosition = routePosition
 		};
 	}
@@ -237,7 +237,7 @@ public class RouteCellMutationSafetyTests
 		return new DB.Track
 		{
 			Id = id,
-			CellId = CellId,
+			RoomId = RoomId,
 			MudDateTime = "test-time",
 			RoutePosition = routePosition
 		};

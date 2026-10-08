@@ -37,7 +37,7 @@ public class CultureToolkitCatalogueTests
 	}
 
 	[TestMethod]
-	public void EveryAuthoredPlayableCellHasTwentyDistinctFamiliesAndDisplays()
+	public void EveryAuthoredPlayableRoomHasTwentyDistinctFamiliesAndDisplays()
 	{
 		var catalogue = new CultureToolkitCatalogue();
 		var requirements = catalogue.Document("data.name_playability_policy.json").GetProperty("requirements").EnumerateArray().ToArray();

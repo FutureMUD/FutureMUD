@@ -10,15 +10,15 @@ using MudSharp.Framework;
 namespace MudSharp.Construction;
 
 /// <summary>
-/// Dijkstra pathfinder over a hybrid graph of ordinary cells and exact one-dimensional
-/// RouteCell waypoints. Route topology snapshots are retained until their authored topology
+/// Dijkstra pathfinder over a hybrid graph of ordinary rooms and exact one-dimensional
+/// RouteRoom waypoints. Route topology snapshots are retained until their authored topology
 /// version changes or they are explicitly invalidated.
 /// </summary>
 public sealed class SpatialPathfinder : ISpatialPathfinder
 {
 	private const double CostEpsilon = 0.000000001;
-	private readonly Dictionary<ICell, RouteTopologySnapshot> _routeTopologyCache =
-		new(CellReferenceComparer.Instance);
+	private readonly Dictionary<IRoom, RouteTopologySnapshot> _routeTopologyCache =
+		new(RoomReferenceComparer.Instance);
 	private readonly object _cacheLock = new();
 
 	public bool TryFindPath(
@@ -38,7 +38,7 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 	public bool TryFindPath(
 		SpatialLocation origin,
 		SpatialLocation destination,
-		Func<ICellExit, bool>? suitabilityFunction,
+		Func<IRoomExit, bool>? suitabilityFunction,
 		bool ignoreLayers,
 		double maximumRoomEquivalentCost,
 		out ISpatialPath? path)
@@ -117,12 +117,12 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 	public bool TryFindExitOnlyPath(
 		SpatialLocation origin,
 		SpatialLocation destination,
-		Func<ICellExit, bool>? suitabilityFunction,
+		Func<IRoomExit, bool>? suitabilityFunction,
 		bool ignoreLayers,
 		double maximumRoomEquivalentCost,
-		out IReadOnlyList<ICellExit> exits)
+		out IReadOnlyList<IRoomExit> exits)
 	{
-		exits = Array.Empty<ICellExit>();
+		exits = Array.Empty<IRoomExit>();
 		if (!TryFindPath(
 				origin,
 				destination,
@@ -139,28 +139,28 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 		return true;
 	}
 
-	public void InvalidateTopology(ICell? changedCell = null)
+	public void InvalidateTopology(IRoom? changedRoom = null)
 	{
 		lock (_cacheLock)
 		{
-			if (changedCell is null)
+			if (changedRoom is null)
 			{
 				_routeTopologyCache.Clear();
 				return;
 			}
 
-			_routeTopologyCache.Remove(changedCell);
+			_routeTopologyCache.Remove(changedRoom);
 		}
 	}
 
 	private IEnumerable<SearchEdge> Expand(
 		NodeKey current,
 		SpatialLocation searchDestination,
-		Func<ICellExit, bool> suitabilityFunction,
+		Func<IRoomExit, bool> suitabilityFunction,
 		bool ignoreLayers)
 	{
 		var currentLocation = current.ToSpatialLocation();
-		var definition = current.Cell.RouteDefinition;
+		var definition = current.Room.RouteDefinition;
 		if (definition is null)
 		{
 			foreach (var edge in ExpandExits(
@@ -181,7 +181,7 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 		}
 
 		var position = current.CoordinateMetres.Value;
-		var dynamicTarget = ReferenceEquals(current.Cell, searchDestination.Cell) &&
+		var dynamicTarget = ReferenceEquals(current.Room, searchDestination.Room) &&
 		                    current.Layer == searchDestination.Layer
 			? searchDestination.RoutePositionMetres
 			: null;
@@ -215,12 +215,12 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 	private IEnumerable<SearchEdge> ExpandExits(
 		SpatialLocation origin,
 		RouteTopologySnapshot? sourceTopology,
-		Func<ICellExit, bool> suitabilityFunction,
+		Func<IRoomExit, bool> suitabilityFunction,
 		bool ignoreLayers)
 	{
-		// A null perceiver does not give Cell.ExitsFor a layer to filter against. Enumerate the
+		// A null perceiver does not give Room.ExitsFor a layer to filter against. Enumerate the
 		// topology here and apply the source-layer contract explicitly below.
-		var exits = origin.Cell.ExitsFor(null, true) ?? Array.Empty<ICellExit>();
+		var exits = origin.Room.ExitsFor(null, true) ?? Array.Empty<IRoomExit>();
 		foreach (var exit in exits)
 		{
 			if (exit?.Destination is null || !suitabilityFunction(exit))
@@ -264,7 +264,7 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 	}
 
 	private bool TryResolveExitDestination(
-		ICellExit exit,
+		IRoomExit exit,
 		SpatialLocation origin,
 		IReadOnlyList<RoomLayer> appearingLayers,
 		bool ignoreLayers,
@@ -284,22 +284,22 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 			transitionLayer = appearingLayers[0];
 		}
 
-		var transitionPerceiver = new DummyPerceiver(location: origin.Cell)
+		var transitionPerceiver = new DummyPerceiver(location: origin.Room)
 		{
 			RoomLayer = transitionLayer
 		};
 		var transition = exit.MovementTransition(transitionPerceiver);
-		if (transition.TransitionType == CellMovementTransition.NoViableTransition)
+		if (transition.TransitionType == RoomMovementTransition.NoViableTransition)
 		{
 			destination = default;
 			return false;
 		}
 
-		var destinationCell = exit.Destination;
-		var destinationDefinition = destinationCell.RouteDefinition;
+		var destinationRoom = exit.Destination;
+		var destinationDefinition = destinationRoom.RouteDefinition;
 		if (destinationDefinition is null)
 		{
-			destination = new SpatialLocation(destinationCell, transition.TargetLayer);
+			destination = new SpatialLocation(destinationRoom, transition.TargetLayer);
 			return true;
 		}
 
@@ -318,7 +318,7 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 		}
 
 		destination = new SpatialLocation(
-			destinationCell,
+			destinationRoom,
 			transition.TargetLayer,
 			destinationAnchor.ArrivalPositionMetres);
 		return true;
@@ -332,9 +332,9 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 		var originPosition = origin.RoutePositionMetres!.Value;
 		var distance = Math.Abs(destinationPosition - originPosition);
 		var direction = destinationPosition > originPosition
-			? RouteCellDirection.Positive
-			: RouteCellDirection.Negative;
-		var destination = new SpatialLocation(origin.Cell, origin.Layer, destinationPosition);
+			? RouteRoomDirection.Positive
+			: RouteRoomDirection.Negative;
+		var destination = new SpatialLocation(origin.Room, origin.Layer, destinationPosition);
 		var cost = distance / topology.MetresPerRoomEquivalent;
 		var step = new LinearRoutePathStep(
 			origin,
@@ -347,12 +347,12 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 	}
 
 	private bool TryGetRouteTopology(
-		IRouteCellDefinition definition,
+		IRouteRoomDefinition definition,
 		out RouteTopologySnapshot topology)
 	{
 		lock (_cacheLock)
 		{
-			if (_routeTopologyCache.TryGetValue(definition.Cell, out var cached) &&
+			if (_routeTopologyCache.TryGetValue(definition.Room, out var cached) &&
 				cached.TopologyVersion == definition.TopologyVersion)
 			{
 				topology = cached;
@@ -361,23 +361,23 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 
 			if (!RouteTopologySnapshot.TryCreate(definition, out topology))
 			{
-				_routeTopologyCache.Remove(definition.Cell);
+				_routeTopologyCache.Remove(definition.Room);
 				return false;
 			}
 
-			_routeTopologyCache[definition.Cell] = topology;
+			_routeTopologyCache[definition.Room] = topology;
 			return true;
 		}
 	}
 
 	private static bool TryValidateEndpoint(SpatialLocation location)
 	{
-		if (location.Cell is null)
+		if (location.Room is null)
 		{
 			return false;
 		}
 
-		var definition = location.Cell.RouteDefinition;
+		var definition = location.Room.RouteDefinition;
 		if (definition is null)
 		{
 			return !location.RoutePositionMetres.HasValue;
@@ -395,7 +395,7 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 		       coordinate >= 0.0 && coordinate <= length;
 	}
 
-	private static double GetOrdinaryExitCost(ICellExit exit)
+	private static double GetOrdinaryExitCost(IRoomExit exit)
 	{
 		var multiplier = exit.Exit?.TimeMultiplier ?? 1.0;
 		return double.IsFinite(multiplier) && multiplier > 0.0
@@ -433,14 +433,14 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 		{
 			if (step is ILinearRoutePathStep current &&
 				result.LastOrDefault() is ILinearRoutePathStep previous &&
-				ReferenceEquals(previous.RouteCell.Cell, current.RouteCell.Cell) &&
+				ReferenceEquals(previous.RouteRoom.Room, current.RouteRoom.Room) &&
 				previous.Direction == current.Direction &&
 				previous.Destination.Equals(current.Origin))
 			{
 				result[^1] = new LinearRoutePathStep(
 					previous.Origin,
 					current.Destination,
-					previous.RouteCell,
+					previous.RouteRoom,
 					previous.Direction,
 					previous.DistanceMetres + current.DistanceMetres,
 					previous.RoomEquivalentCost + current.RoomEquivalentCost);
@@ -463,18 +463,18 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 		ISpatialPathStep Step);
 
 	private readonly record struct NodeKey(
-		ICell Cell,
+		IRoom Room,
 		RoomLayer Layer,
 		double? CoordinateMetres)
 	{
 		public static NodeKey From(SpatialLocation location)
 		{
-			return new NodeKey(location.Cell, location.Layer, location.RoutePositionMetres);
+			return new NodeKey(location.Room, location.Layer, location.RoutePositionMetres);
 		}
 
 		public SpatialLocation ToSpatialLocation()
 		{
-			return new SpatialLocation(Cell, Layer, CoordinateMetres);
+			return new SpatialLocation(Room, Layer, CoordinateMetres);
 		}
 	}
 
@@ -484,29 +484,29 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 
 		public bool Equals(NodeKey x, NodeKey y)
 		{
-			return ReferenceEquals(x.Cell, y.Cell) && x.Layer == y.Layer &&
+			return ReferenceEquals(x.Room, y.Room) && x.Layer == y.Layer &&
 			       Nullable.Equals(x.CoordinateMetres, y.CoordinateMetres);
 		}
 
 		public int GetHashCode(NodeKey obj)
 		{
 			return HashCode.Combine(
-				RuntimeHelpers.GetHashCode(obj.Cell),
+				RuntimeHelpers.GetHashCode(obj.Room),
 				(int)obj.Layer,
 				obj.CoordinateMetres);
 		}
 	}
 
-	private sealed class CellReferenceComparer : IEqualityComparer<ICell>
+	private sealed class RoomReferenceComparer : IEqualityComparer<IRoom>
 	{
-		public static CellReferenceComparer Instance { get; } = new();
+		public static RoomReferenceComparer Instance { get; } = new();
 
-		public bool Equals(ICell? x, ICell? y)
+		public bool Equals(IRoom? x, IRoom? y)
 		{
 			return ReferenceEquals(x, y);
 		}
 
-		public int GetHashCode(ICell obj)
+		public int GetHashCode(IRoom obj)
 		{
 			return RuntimeHelpers.GetHashCode(obj);
 		}
@@ -518,7 +518,7 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 		private readonly IReadOnlyList<IRouteExitAnchor> _anchors;
 
 		private RouteTopologySnapshot(
-			IRouteCellDefinition definition,
+			IRouteRoomDefinition definition,
 			double lengthMetres,
 			double metresPerRoomEquivalent,
 			IReadOnlyList<double> waypoints,
@@ -532,17 +532,17 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 			_anchors = anchors;
 		}
 
-		public IRouteCellDefinition Definition { get; }
+		public IRouteRoomDefinition Definition { get; }
 		public long TopologyVersion { get; }
 		public double LengthMetres { get; }
 		public double MetresPerRoomEquivalent { get; }
 
 		public static bool TryCreate(
-			IRouteCellDefinition definition,
+			IRouteRoomDefinition definition,
 			out RouteTopologySnapshot topology)
 		{
 			topology = null!;
-			if (definition.Cell is null || !double.IsFinite(definition.LengthMetres) ||
+			if (definition.Room is null || !double.IsFinite(definition.LengthMetres) ||
 				definition.LengthMetres <= 0.0 || !double.IsFinite(definition.MetresPerRoomEquivalent) ||
 				definition.MetresPerRoomEquivalent <= 0.0)
 			{
@@ -550,7 +550,7 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 			}
 
 			var anchors = (definition.ExitAnchors ?? Array.Empty<IRouteExitAnchor>())
-				.Where(x => x is not null && ReferenceEquals(x.Cell, definition.Cell))
+				.Where(x => x is not null && ReferenceEquals(x.Room, definition.Room))
 				.Where(x => IsValidAnchor(x, definition.LengthMetres))
 				.ToArray();
 			var waypoints = new SortedSet<double>
@@ -559,7 +559,7 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 				definition.LengthMetres
 			};
 
-			foreach (var landmark in definition.Landmarks ?? Array.Empty<IRouteCellLandmark>())
+			foreach (var landmark in definition.Landmarks ?? Array.Empty<IRouteRoomLandmark>())
 			{
 				if (landmark is not null && IsCoordinateInRange(landmark.PositionMetres, definition.LengthMetres))
 				{
@@ -597,12 +597,12 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 			return waypoints.ToList();
 		}
 
-		public IRouteExitAnchor? FindAnchor(ICellExit exit)
+		public IRouteExitAnchor? FindAnchor(IRoomExit exit)
 		{
 			return _anchors.FirstOrDefault(x => ExitSidesMatch(x.Exit, exit));
 		}
 
-		public IRouteExitAnchor? FindDestinationAnchor(ICellExit sourceExit)
+		public IRouteExitAnchor? FindDestinationAnchor(IRoomExit sourceExit)
 		{
 			return _anchors.FirstOrDefault(x =>
 				ReferenceEquals(x.Exit, sourceExit.Opposite) || ExitSidesShareUnderlyingExit(x.Exit, sourceExit));
@@ -617,13 +617,13 @@ public sealed class SpatialPathfinder : ISpatialPathfinder
 			       anchor.MinimumPositionMetres <= anchor.MaximumPositionMetres;
 		}
 
-		private static bool ExitSidesMatch(ICellExit first, ICellExit second)
+		private static bool ExitSidesMatch(IRoomExit first, IRoomExit second)
 		{
 			return ReferenceEquals(first, second) ||
 			       ReferenceEquals(first.Exit, second.Exit) && ReferenceEquals(first.Origin, second.Origin);
 		}
 
-		private static bool ExitSidesShareUnderlyingExit(ICellExit first, ICellExit second)
+		private static bool ExitSidesShareUnderlyingExit(IRoomExit first, IRoomExit second)
 		{
 			if (ReferenceEquals(first.Exit, second.Exit))
 			{

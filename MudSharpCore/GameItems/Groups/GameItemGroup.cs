@@ -60,9 +60,9 @@ public class GameItemGroup : SavableKeywordedItem, IGameItemGroup
 
     public bool CannotBeDeleted => Gameworld.GetStaticLong("TooManyItemsGameItemGroup") == Id;
 
-    public string Describe(IPerceiver voyeur, IEnumerable<IGameItem> items, ICell cell)
+    public string Describe(IPerceiver voyeur, IEnumerable<IGameItem> items, IRoom room)
     {
-        IGameItemGroupForm form = Forms.FirstOrDefault(x => x.Applies(cell));
+        IGameItemGroupForm form = Forms.FirstOrDefault(x => x.Applies(room));
         if (form == null)
         {
             StringBuilder sb = new();
@@ -291,9 +291,9 @@ public class GameItemGroup : SavableKeywordedItem, IGameItemGroup
         Changed = true;
     }
 
-    public string LookDescription(IPerceiver voyeur, IEnumerable<IGameItem> items, ICell cell)
+    public string LookDescription(IPerceiver voyeur, IEnumerable<IGameItem> items, IRoom room)
     {
-        IGameItemGroupForm form = Forms.FirstOrDefault(x => x.Applies(cell));
+        IGameItemGroupForm form = Forms.FirstOrDefault(x => x.Applies(room));
         if (form == null)
         {
             StringBuilder sb = new();

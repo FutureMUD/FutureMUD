@@ -59,11 +59,11 @@ internal class SendTerrainFunction : BuiltInFunction
             ? new EmoteOutput(new NoFormatEmote(text, perceivables.ElementAtOrDefault(0) as IPerceiver, perceivables.ToArray()), flags: OutputFlags.IgnoreWatchers)
             : new EmoteOutput(new Emote(text, perceivables.ElementAtOrDefault(0) as IPerceiver, perceivables.ToArray()), flags: OutputFlags.IgnoreWatchers);
 
-        foreach (ICell cell in Gameworld.Cells)
+        foreach (IRoom room in Gameworld.Rooms)
         {
-            if (cell.Terrain(null) == target)
+            if (room.Terrain(null) == target)
             {
-                cell.Handle(output);
+                room.Handle(output);
             }
         }
 

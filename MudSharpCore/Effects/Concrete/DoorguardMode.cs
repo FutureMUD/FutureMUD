@@ -20,7 +20,7 @@ public class DoorguardMode : Effect, IDoorguardModeEffect
 
 	public DoorguardAccessMode AccessMode => DoorguardAccessMode.NormalRules;
 
-	public bool? PermitsDoorOpening(ICharacter doorguard, ICharacter target, ICellExit exit)
+	public bool? PermitsDoorOpening(ICharacter doorguard, ICharacter target, IRoomExit exit)
 	{
 		return null;
 	}

@@ -85,7 +85,7 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 			    claims.Count(x => x.Kind == SpellOwnedEntityKind.AutonomousCharacter) != 1 ||
 			    claims.Count(x => x.Kind == SpellOwnedEntityKind.AutonomousCharacter && x.Id == character.Id) != 1 ||
 			    claims.Count(x => x.Kind == SpellOwnedEntityKind.Body && x.Id == bodyId) != 1 ||
-			    claims.Any(x => x.Kind is SpellOwnedEntityKind.CharacterInstance or SpellOwnedEntityKind.Cell or SpellOwnedEntityKind.Exit ||
+			    claims.Any(x => x.Kind is SpellOwnedEntityKind.CharacterInstance or SpellOwnedEntityKind.Room or SpellOwnedEntityKind.Exit ||
 				    x.Kind == SpellOwnedEntityKind.Body && x.Id != bodyId) ||
 			    lifecycle.State is not (SpellLifecycleState.Retiring or SpellLifecycleState.RemainsPending or SpellLifecycleState.Completed))
 			{

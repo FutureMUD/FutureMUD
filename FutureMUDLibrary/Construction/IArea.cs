@@ -1,4 +1,4 @@
-﻿using MudSharp.Celestial;
+using MudSharp.Celestial;
 using MudSharp.Climate;
 using MudSharp.Framework;
 using MudSharp.FutureProg;
@@ -15,8 +15,7 @@ namespace MudSharp.Construction
     /// </summary>
     public interface IArea : ILocation, IProgVariable
     {
-        IEnumerable<IRoom> Rooms { get; }
-        new IEnumerable<ICell> Cells { get; }
+        new IEnumerable<IRoom> Rooms { get; }
         IEnumerable<IZone> Zones { get; }
         TimeOfDay CurrentTimeOfDay { get; }
     }

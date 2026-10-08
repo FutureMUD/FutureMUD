@@ -21,7 +21,7 @@ public class ActivePersonalProject : ActiveProject, IPersonalProject
         project.CharacterId = _characterOwnerId;
     }
 
-    public override ICell Location
+    public override IRoom Location
     {
         get => CharacterOwner.Location;
         protected init { }

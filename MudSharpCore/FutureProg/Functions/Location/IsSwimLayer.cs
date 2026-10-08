@@ -53,7 +53,7 @@ internal class IsSwimLayer : BuiltInFunction
             return StatementResult.Error;
         }
 
-        if (ParameterFunctions[0].Result is not ICell location)
+        if (ParameterFunctions[0].Result is not IRoom location)
         {
             Result = new BooleanVariable(false);
             return StatementResult.Normal;

@@ -73,7 +73,7 @@ public abstract class CastingTriggerProgTargetWithRoomBase : CastingTriggerProgT
 	protected override SpellAdditionalParameter[] GetAdditionalParameters(ICharacter actor, StringStack additionalArguments,
 		SpellPower power)
 	{
-		ICell? room = TargetRoomProg?.Execute<ICell?>(actor, Spell, additionalArguments, (int)power);
+		IRoom? room = TargetRoomProg?.Execute<IRoom?>(actor, Spell, additionalArguments, (int)power);
 		return [new SpellAdditionalParameter { ParameterName = "room", Item = room }];
 	}
 

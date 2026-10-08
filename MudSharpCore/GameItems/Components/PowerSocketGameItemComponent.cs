@@ -95,7 +95,7 @@ public class PowerSocketGameItemComponent : GameItemComponent, IConnectable, IPr
     private readonly List<Tuple<long, ConnectorType>> _pendingDependentLoadTimeConnections =
         new();
 
-    public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+    public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
     {
         if (!_connectedItems.Any())
         {

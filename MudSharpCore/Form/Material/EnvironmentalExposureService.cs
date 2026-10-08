@@ -29,7 +29,7 @@ public sealed class EnvironmentalExposureService
 	private readonly IFuturemud _world;
 	private readonly HashSet<IPerceivable> _active = new(ReferenceEqualityComparer.Instance);
 	private readonly HashSet<IPerceivable> _pending = new(ReferenceEqualityComparer.Instance);
-	private readonly HashSet<Cell> _weatherCells = new(ReferenceEqualityComparer.Instance);
+	private readonly HashSet<Room> _weatherRooms = new(ReferenceEqualityComparer.Instance);
 	private DateTime _lastWeather;
 	private readonly Dictionary<IBody, DateTime> _breaths = new(ReferenceEqualityComparer.Instance);
 	private readonly Dictionary<IBody, bool> _suppliedBreaths = new(ReferenceEqualityComparer.Instance);
@@ -65,7 +65,7 @@ public sealed class EnvironmentalExposureService
 		Settle(target);
 		var previousLocation = target.Location;
 		var previousLayer = target.RoomLayer;
-		if (target is ICell cell) return new ChangeScope(() => RefreshCell(cell));
+		if (target is IRoom room) return new ChangeScope(() => RefreshRoom(room));
 		return new ChangeScope(() =>
 		{
 			Track(target);
@@ -88,11 +88,11 @@ public sealed class EnvironmentalExposureService
 	{
 		if (target.Gameworld is { } world && Services.TryGetValue(world, out var service)) service.Settle(target);
 	}
-	public static IDisposable ChangingEnvironment(ICell cell)
+	public static IDisposable ChangingEnvironment(IRoom room)
 	{
-		if (cell.Gameworld is not { } world || !Services.TryGetValue(world, out var service)) return new ChangeScope(() => { });
+		if (room.Gameworld is not { } world || !Services.TryGetValue(world, out var service)) return new ChangeScope(() => { });
 		service.Advance(service.Clock());
-		return new ChangeScope(() => service.RefreshCell(cell));
+		return new ChangeScope(() => service.RefreshRoom(room));
 	}
 	public static IDisposable ChangingWeather(IFuturemud world, MudSharp.Climate.IWeatherController controller)
 	{
@@ -103,15 +103,15 @@ public sealed class EnvironmentalExposureService
 		return new ChangeScope(() =>
 		{
 			if (ReferenceEquals(previousWeather, controller.CurrentWeatherEvent) && previousTemperature == controller.CurrentTemperature) return;
-			foreach (var cell in service._weatherCells.Where(x => x.WeatherController == controller).ToArray()) service.RefreshCell(cell);
+			foreach (var room in service._weatherRooms.Where(x => x.WeatherController == controller).ToArray()) service.RefreshRoom(room);
 		});
 	}
 
 	public void Track(IPerceivable target)
 	{
 		if (_world.SaveManager?.MudBootingMode == true) return;
-		if ((target is IGameItem trackedItem ? trackedItem.LocationLevelPerceivable?.Location : target.Location) is Cell physicalCell)
-			_weatherCells.Add(physicalCell);
+		if ((target is IGameItem trackedItem ? trackedItem.LocationLevelPerceivable?.Location : target.Location) is Room physicalRoom)
+			_weatherRooms.Add(physicalRoom);
 		if (target is IGameItem remains && remains.GetItemType<ICorpse>()?.OriginalBody is { } remainsBody)
 		{
 			if (!_resumed.TryGetValue(remainsBody, out _))
@@ -162,15 +162,15 @@ public sealed class EnvironmentalExposureService
 		_active.Clear();
 		foreach (var actor in _world.Actors) Track(actor);
 		foreach (var item in _world.Items) Track(item);
-		foreach (var cell in _world.Cells.OfType<Cell>().Where(x => x.SurfaceLiquidStates.Any(s => s.State.IsWet))) _weatherCells.Add(cell);
+		foreach (var room in _world.Rooms.OfType<Room>().Where(x => x.SurfaceLiquidStates.Any(s => s.State.IsWet))) _weatherRooms.Add(room);
 		foreach (var body in _breaths.Keys.ToArray()) _breaths[body] = _last;
 	}
-	public void RefreshCell(ICell cell)
+	public void RefreshRoom(IRoom room)
 	{
-		if (cell is Cell physicalCell) _weatherCells.Add(physicalCell);
+		if (room is Room physicalRoom) _weatherRooms.Add(physicalRoom);
 		if (_advancing) return;
-		foreach (var actor in cell.Characters) Track(actor);
-		foreach (var item in cell.GameItems) Track(item);
+		foreach (var actor in room.Characters) Track(actor);
+		foreach (var item in room.GameItems) Track(item);
 	}
 
 	private bool IsActive(IPerceivable target)
@@ -201,10 +201,10 @@ public sealed class EnvironmentalExposureService
 		_advancing = true;
 		try
 		{
-			foreach (var cell in _weatherCells.ToArray())
+			foreach (var room in _weatherRooms.ToArray())
 			{
-				cell.SurfaceWeatherTick();
-				if (!cell.Characters.Any() && !cell.GameItems.Any() && !cell.SurfaceLiquidStates.Any(x => x.State.IsWet)) _weatherCells.Remove(cell);
+				room.SurfaceWeatherTick();
+				if (!room.Characters.Any() && !room.GameItems.Any() && !room.SurfaceLiquidStates.Any(x => x.State.IsWet)) _weatherRooms.Remove(room);
 			}
 		}
 		finally { _advancing = false; }
@@ -343,12 +343,12 @@ public sealed class EnvironmentalExposureService
 			RefreshImmersion(body, true);
 		}
 		var outside = body.Bodyparts.OfType<IExternalBodypart>().Except(immersed).ToArray();
-		if (body.Location is { } cell && outside.Length > 0)
+		if (body.Location is { } room && outside.Length > 0)
 		{
 			var patches = ExposureTransport.ExternalPatches(body, outside, ExposureRoute.GasContact).ToList();
 			patches.AddRange(body.HeldOrWieldedItems.Distinct().Except(immersedHeld).Select(ItemPatch));
-			Atmosphere(cell, body.RoomLayer, patches, seconds, temperature);
-			Heat(ExposureTransport.ExternalPatches(body, outside, ExposureRoute.AmbientHeat).Concat(body.HeldOrWieldedItems.Distinct().Except(immersedHeld).Select(ItemPatch)).ToArray(), cell, seconds, temperature);
+			Atmosphere(room, body.RoomLayer, patches, seconds, temperature);
+			Heat(ExposureTransport.ExternalPatches(body, outside, ExposureRoute.AmbientHeat).Concat(body.HeldOrWieldedItems.Distinct().Except(immersedHeld).Select(ItemPatch)).ToArray(), room, seconds, temperature);
 		}
 		if (body.SurfaceLiquidState is ILocalisedSurfaceLiquidState local)
 		{
@@ -367,7 +367,7 @@ public sealed class EnvironmentalExposureService
 			}
 			MudSharp.Magic.MagicalExposure.RetainedLiquidsChanged(body);
 		}
-		if (body.Location is Cell concrete && immersed.Length == 0 && body.PositionState != PositionFlying.Instance && !body.Actor.IsProtectedFromSurfaceWater(out _))
+		if (body.Location is Room concrete && immersed.Length == 0 && body.PositionState != PositionFlying.Instance && !body.Actor.IsProtectedFromSurfaceWater(out _))
 		{
 			var feet = body.Bodyparts.OfType<IExternalBodypart>().Where(x => x.Orientation == Orientation.Lowest).ToArray();
 			foreach (var state in concrete.ExposureSurfaceStates(body.RoomLayer, body.Actor))
@@ -455,42 +455,42 @@ public sealed class EnvironmentalExposureService
 		ExposureTransport.PassInward(item, transfer);
 	}
 
-	private void Atmosphere(ICell cell, RoomLayer layer, IReadOnlyList<ExposurePatch> patches, double seconds, double temperature)
+	private void Atmosphere(IRoom room, RoomLayer layer, IReadOnlyList<ExposurePatch> patches, double seconds, double temperature)
 	{
 		patches = Contents(patches, ExposureRoute.GasContact);
-		if (!cell.IsUnderwaterLayer(layer) && cell.Atmosphere is { } gas)
-			foreach (var result in Resolver.Gas(gas, patches, ExposureRoute.GasContact, ExposureSourceKind.Atmosphere, $"atmosphere:{cell.Id}:{layer}", 1, seconds, temperature, dryRun: true, evaluateProgs: true))
+		if (!room.IsUnderwaterLayer(layer) && room.Atmosphere is { } gas)
+			foreach (var result in Resolver.Gas(gas, patches, ExposureRoute.GasContact, ExposureSourceKind.Atmosphere, $"atmosphere:{room.Id}:{layer}", 1, seconds, temperature, dryRun: true, evaluateProgs: true))
 			{
 				if (result.Work > 0 && result.Reaction.DamageType == DamageType.Burning && _options.Allows(result.Patch.Target, ExposureRoute.AmbientHeat) && result.Reaction.Channel.Equals("thermal", StringComparison.OrdinalIgnoreCase))
 					_atmosphericThermal[(result.Patch.Target, result.Patch.Part)] = result;
-				else Resolver.Commit(result, ExposureRoute.GasContact, ExposureSourceKind.Atmosphere, $"atmosphere:{cell.Id}:{layer}", seconds);
+				else Resolver.Commit(result, ExposureRoute.GasContact, ExposureSourceKind.Atmosphere, $"atmosphere:{room.Id}:{layer}", seconds);
 			}
-		foreach (var (cloud, strength) in Clouds(cell, layer))
+		foreach (var (cloud, strength) in Clouds(room, layer))
 			Resolver.Gas(cloud.Gas!, patches, ExposureRoute.GasContact, ExposureSourceKind.Cloud, $"cloud:{cloud.SourceIdentity}", strength, seconds, temperature);
 	}
-	private void Heat(IReadOnlyList<ExposurePatch> patches, ICell cell, double seconds, double temperature)
+	private void Heat(IReadOnlyList<ExposurePatch> patches, IRoom room, double seconds, double temperature)
 	{
 		patches = Contents(patches, ExposureRoute.AmbientHeat);
-		foreach (var patch in patches.Where(x => x.StillCurrent && x.Location == cell && _options.Allows(x.Target, ExposureRoute.AmbientHeat)))
+		foreach (var patch in patches.Where(x => x.StillCurrent && x.Location == room && _options.Allows(x.Target, ExposureRoute.AmbientHeat)))
 		{
 			var material = patch.Material as ISolid;
 			var rate = ExposureArithmetic.ThermalRate(temperature, material?.HeatDamagePoint,
 				material?.ExposureProperties.ThermalSlope ?? _options.HeatSlope, material?.ExposureProperties.ThermalCap ?? _options.HeatCap);
-			var amount = rate <= 0 ? 0 : rate * patch.Area * patch.Transmission * seconds * _options.Scale * Resolver.ThermalModifier(patch, $"atmosphere:{cell.Id}", seconds);
+			var amount = rate <= 0 ? 0 : rate * patch.Area * patch.Transmission * seconds * _options.Scale * Resolver.ThermalModifier(patch, $"atmosphere:{room.Id}", seconds);
 			if (_atmosphericThermal.Remove((patch.Target, patch.Part), out var gasHeat))
 			{
 				// One physical heat source contributes each injury channel once. A pain-only gas rule
 				// must not disappear merely because ambient temperature produces greater damage.
-				var ambientContext = new ExposureDamageContext(ExposureRoute.AmbientHeat, ExposureSourceKind.Ambient, $"atmosphere:{cell.Id}", "heat", "thermal", Guid.Empty, seconds);
-				var gasContext = new ExposureDamageContext(ExposureRoute.GasContact, ExposureSourceKind.Atmosphere, $"atmosphere:{cell.Id}", gasHeat.Reaction.Category, "thermal", gasHeat.Reaction.Id, seconds);
+				var ambientContext = new ExposureDamageContext(ExposureRoute.AmbientHeat, ExposureSourceKind.Ambient, $"atmosphere:{room.Id}", "heat", "thermal", Guid.Empty, seconds);
+				var gasContext = new ExposureDamageContext(ExposureRoute.GasContact, ExposureSourceKind.Atmosphere, $"atmosphere:{room.Id}", gasHeat.Reaction.Category, "thermal", gasHeat.Reaction.Id, seconds);
 				var ambientMultiplier = EnvironmentalExposureResolver.ResistanceMultiplier(patch, ambientContext);
 				var gasMultiplier = EnvironmentalExposureResolver.ResistanceMultiplier(patch, gasContext);
 				Resolver.Commit(gasHeat with { RawDamage = Math.Max(amount * ambientMultiplier, gasHeat.RawDamage * gasMultiplier),
 					Pain = Math.Max(amount * ambientMultiplier, gasHeat.Pain * gasMultiplier), Stun = gasHeat.Stun * gasMultiplier },
-					ExposureRoute.GasContact, ExposureSourceKind.Atmosphere, $"atmosphere:{cell.Id}:{patch.Target.RoomLayer}", seconds, resistanceApplied: true);
+					ExposureRoute.GasContact, ExposureSourceKind.Atmosphere, $"atmosphere:{room.Id}:{patch.Target.RoomLayer}", seconds, resistanceApplied: true);
 				continue;
 			}
-			EnvironmentalExposureResolver.ApplyDamage(patch, new(ExposureRoute.AmbientHeat, ExposureSourceKind.Ambient, $"atmosphere:{cell.Id}", "heat", "thermal", Guid.Empty, seconds), DamageType.Burning, amount, amount, 0);
+			EnvironmentalExposureResolver.ApplyDamage(patch, new(ExposureRoute.AmbientHeat, ExposureSourceKind.Ambient, $"atmosphere:{room.Id}", "heat", "thermal", Guid.Empty, seconds), DamageType.Burning, amount, amount, 0);
 		}
 	}
 
@@ -514,9 +514,9 @@ public sealed class EnvironmentalExposureService
 	}
 
 	public bool LastBreathWasSupplied(IBody body) => _suppliedBreaths.GetValueOrDefault(body);
-	private IEnumerable<(TrapGasCloudEffect Cloud, double Strength)> Clouds(ICell cell, RoomLayer layer)
+	private IEnumerable<(TrapGasCloudEffect Cloud, double Strength)> Clouds(IRoom room, RoomLayer layer)
 	{
-		var clouds = cell.EffectsOfType<TrapGasCloudEffect>().Where(x => x.Layer == layer && x.Gas is not null && x.ContactStrength > 0)
+		var clouds = room.EffectsOfType<TrapGasCloudEffect>().Where(x => x.Layer == layer && x.Gas is not null && x.ContactStrength > 0)
 			.DistinctBy(x => x.SourceIdentity).ToArray();
 		var total = clouds.Sum(x => x.ContactStrength);
 		var scale = total > 0 ? Math.Min(1, _options.CloudStrengthCap / total) : 0;

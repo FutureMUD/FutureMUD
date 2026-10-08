@@ -6,7 +6,7 @@ using MudSharp.Framework;
 
 namespace MudSharp.Form.Shape;
 
-public delegate void LocatableEvent(ILocateable locatable, ICellExit exit);
+public delegate void LocatableEvent(ILocateable locatable, IRoomExit exit);
 public delegate void SpatialLocationEvent(
 	ILocateable locatable,
 	SpatialLocation previousLocation,
@@ -14,20 +14,20 @@ public delegate void SpatialLocationEvent(
 
 public interface ILocateable : IFrameworkItem, IKeyworded
 {
-	ICell Location { get; }
+	IRoom Location { get; }
 
 	RoomLayer RoomLayer { get; set; }
 
 	/// <summary>
-	/// The persisted coordinate within a linear route cell, in metres from its negative
-	/// endpoint. Ordinary-cell implementations remain compatible by using the default null value.
+	/// The persisted coordinate within a linear route room, in metres from its negative
+	/// endpoint. Ordinary-room implementations remain compatible by using the default null value.
 	/// </summary>
 	double? RoutePositionMetres => null;
 
 	SpatialLocation SpatialLocation => new(Location, RoomLayer, RoutePositionMetres);
 
 	/// <summary>
-	/// Materialises a coordinate within a linear route cell. Ordinary locateables retain the
+	/// Materialises a coordinate within a linear route room. Ordinary locateables retain the
 	/// default no-op implementation for source and binary compatibility.
 	/// </summary>
 	void SetRoutePosition(double? metres)
@@ -37,10 +37,10 @@ public interface ILocateable : IFrameworkItem, IKeyworded
 	InRoomLocation InRoomLocation => SpatialLocation.InRoomLocation;
 
 	/// <summary>
-	/// Tests raw cell-and-layer membership. Unlike <see cref="ColocatedWith"/>, this deliberately
-	/// ignores longitudinal distance inside a route cell.
+	/// Tests raw room-and-layer membership. Unlike <see cref="ColocatedWith"/>, this deliberately
+	/// ignores longitudinal distance inside a route room.
 	/// </summary>
-	bool SharesCellLayerWith(ILocateable? otherThing)
+	bool SharesRoomLayerWith(ILocateable? otherThing)
 	{
 		return otherThing is not null &&
 		       ReferenceEquals(Location, otherThing.Location) &&
@@ -52,8 +52,8 @@ public interface ILocateable : IFrameworkItem, IKeyworded
 	event LocatableEvent OnLocationChangedIntentionally;
 
 	/// <summary>
-	/// Fires when a locateable's coordinate changes without changing its cell or layer.
-	/// The default no-op accessors preserve compatibility for ordinary-cell implementations.
+	/// Fires when a locateable's coordinate changes without changing its room or layer.
+	/// The default no-op accessors preserve compatibility for ordinary-room implementations.
 	/// </summary>
 	event SpatialLocationEvent OnSpatialPositionChanged
 	{

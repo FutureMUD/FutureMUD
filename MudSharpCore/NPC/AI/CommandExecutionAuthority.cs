@@ -107,11 +107,11 @@ internal sealed class CommandExecutionAuthority
 
 	// A secondary is identity-local, not in Actors. Verify its exact current object without loading.
 	internal static bool IsCurrent(ICharacter actor, bool commander, NativeDisplacementReceipt? displacement = null) =>
-		IsCurrentWithoutCellMembership(actor, commander) &&
+		IsCurrentWithoutRoomMembership(actor, commander) &&
 		(actor.Location?.Characters.Any(x => ReferenceEquals(x, actor)) == true ||
 		 displacement?.PermitsMembershipGap(actor) == true);
 
-	internal static bool IsCurrentWithoutCellMembership(ICharacter actor, bool commander = false)
+	internal static bool IsCurrentWithoutRoomMembership(ICharacter actor, bool commander = false)
 	{
 		var world = actor.Gameworld;
 		var roots = world.Actors.Concat(world.Characters).Concat(world.NPCs);

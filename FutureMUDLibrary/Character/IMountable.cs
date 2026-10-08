@@ -29,7 +29,7 @@ public interface IMountable
     bool BuckRider(ICharacter rider);
     bool PermitControl(ICharacter rider);
     void HandleControlDenied(ICharacter rider);
-    bool RiderMove(ICellExit exit, ICharacter rider, IEmote? emote = null, bool ignoreSafeMovement = false);
+    bool RiderMove(IRoomExit exit, ICharacter rider, IEmote? emote = null, bool ignoreSafeMovement = false);
     bool RiderFly(ICharacter rider, IEmote? emote = null);
     bool RiderAscend(ICharacter rider, IEmote? emote = null);
     bool RiderDive(ICharacter rider, IEmote? emote = null);

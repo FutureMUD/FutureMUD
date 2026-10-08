@@ -145,10 +145,10 @@ public class ProjectQueuePreferenceTests
 		var project = new Mock<IPersonalProject>();
 		project.SetupGet(x => x.Id).Returns(10L);
 		project.SetupGet(x => x.Name).Returns("Wall");
-		var cell = new Mock<ICell>();
-		cell.SetupGet(x => x.LocalProjects).Returns(Array.Empty<ILocalProject>());
+		var room = new Mock<IRoom>();
+		room.SetupGet(x => x.LocalProjects).Returns(Array.Empty<ILocalProject>());
 		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
 		actor.SetupGet(x => x.PersonalProjects).Returns([project.Object]);
 		actor.SetupGet(x => x.CurrentProject).Returns((project.Object, null!));
 		actor.Setup(x => x.QueueProjectLabour(project.Object, preference, ProjectLabourQueueCompletionMode.JoinOnce, 0.0))

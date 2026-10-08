@@ -10,7 +10,7 @@ public enum IllusionAudienceScope
 	Caster = 0,
 	Target = 1,
 	Everyone = 2,
-	SameCell = 3,
+	SameRoom = 3,
 	SameZone = 4,
 	Party = 5,
 	Clan = 6

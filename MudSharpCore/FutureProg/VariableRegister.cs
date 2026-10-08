@@ -871,7 +871,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                 case ProgVariableTypeCode.Item:
                     return game.Items.Get(ID);
                 case ProgVariableTypeCode.Location:
-                    return game.Cells.Get(ID);
+                    return game.Rooms.Get(ID);
                 case ProgVariableTypeCode.Zone:
                     return game.Zones.Get(ID);
                 case ProgVariableTypeCode.Shard:
@@ -919,7 +919,7 @@ internal class VariableRegister : SaveableItem, IVariableRegister
                 case ProgVariableTypeCode.Project:
                     return game.ActiveProjects.Get(ID);
                 case ProgVariableTypeCode.OverlayPackage:
-                    return game.CellOverlayPackages.Get(ID);
+                    return game.RoomOverlayPackages.Get(ID);
                 case ProgVariableTypeCode.Terrain:
                     return game.Terrains.Get(ID);
                 case ProgVariableTypeCode.Solid:

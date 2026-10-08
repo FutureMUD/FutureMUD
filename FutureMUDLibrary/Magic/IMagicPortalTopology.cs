@@ -33,10 +33,10 @@ public interface IMagicPortalEndpoint : IFrameworkItem, IHaveFuturemud
 	IMagicPortalNetwork Network { get; }
 	string Key { get; }
 	MagicPortalEndpointType EndpointType { get; }
-	long? CellId { get; }
+	long? RoomId { get; }
 	long? GameItemId { get; }
 	bool IsActive { get; }
-	ICell? CurrentCell { get; }
+	IRoom? CurrentRoom { get; }
 	string WhyInvalid { get; }
 }
 
@@ -57,7 +57,7 @@ public interface IMagicPortalTopologyService
 	void RebuildNetworksForItem(IFuturemud gameworld, IGameItem item);
 	void RemoveNetworkExits(IMagicPortalNetwork network);
 	IMagicPortalEndpoint? CreateOrUpdateEndpoint(ICharacter actor, IMagicPortalNetwork network, string key, string name,
-		MagicPortalEndpointType endpointType, ICell? cell, IGameItem? item, bool replace, long? spellId,
+		MagicPortalEndpointType endpointType, IRoom? room, IGameItem? item, bool replace, long? spellId,
 		out string reason);
 	IMagicPortalLink? CreateLink(ICharacter actor, IMagicPortalNetwork network, IMagicPortalEndpoint source,
 		IMagicPortalEndpoint destination, long? spellId, out string reason);

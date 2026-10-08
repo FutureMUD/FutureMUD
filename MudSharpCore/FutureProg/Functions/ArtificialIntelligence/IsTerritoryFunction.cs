@@ -33,10 +33,10 @@ internal class IsTerritoryFunction : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICell target = (ICell)ParameterFunctions[1].Result;
+        IRoom target = (IRoom)ParameterFunctions[1].Result;
         if (target == null)
         {
-            ErrorMessage = "Target Cell was null in IsTerritory function.";
+            ErrorMessage = "Target Room was null in IsTerritory function.";
             return StatementResult.Error;
         }
 
@@ -56,7 +56,7 @@ internal class IsTerritoryFunction : BuiltInFunction
             }
         }
 
-        Result = new BooleanVariable(effect.Cells.Contains(target));
+        Result = new BooleanVariable(effect.Rooms.Contains(target));
         return StatementResult.Normal;
     }
 

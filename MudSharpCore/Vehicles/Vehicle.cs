@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
@@ -29,7 +29,7 @@ public class Vehicle : SaveableItem, IVehicle
 	private readonly List<IVehicleInstallation> _installations = new();
 	private readonly List<IVehicleTowLink> _towLinks = new();
 	private readonly List<IVehicleDamageZone> _damageZones = new();
-	private readonly CellExitVehicleMovementStrategy _cellExitMovementStrategy = new();
+	private readonly RoomExitVehicleMovementStrategy _roomExitMovementStrategy = new();
 	private readonly IVehicleOperationalReadinessService _operationalReadinessService = new VehicleOperationalReadinessService();
 	private readonly VehicleDockingService _dockingService = new();
 	private bool _forceDisembarking;
@@ -38,11 +38,11 @@ public class Vehicle : SaveableItem, IVehicle
 	private long? _exteriorItemId;
 	private IGameItem _exteriorItem;
 	private VehicleLocationType _locationType;
-	private long? _currentCellId;
+	private long? _currentRoomId;
 	private RoomLayer _roomLayer;
 	private VehicleMovementStatus _movementStatus;
 	private long? _currentExitId;
-	private long? _destinationCellId;
+	private long? _destinationRoomId;
 	private long? _movementProfileId;
 	private long? _activePropulsionProfileId;
 	private double? _routePositionMetres;
@@ -57,11 +57,11 @@ public class Vehicle : SaveableItem, IVehicle
 		_prototypeRevision = dbitem.VehicleProtoRevision;
 		_exteriorItemId = dbitem.ExteriorItemId;
 		_locationType = (VehicleLocationType)dbitem.LocationType;
-		_currentCellId = dbitem.CurrentCellId;
+		_currentRoomId = dbitem.CurrentRoomId;
 		_roomLayer = (RoomLayer)dbitem.CurrentRoomLayer;
 		_movementStatus = (VehicleMovementStatus)dbitem.MovementStatus;
 		_currentExitId = dbitem.CurrentExitId;
-		_destinationCellId = dbitem.DestinationCellId;
+		_destinationRoomId = dbitem.DestinationRoomId;
 		_movementProfileId = dbitem.MovementProfileProtoId;
 		_activePropulsionProfileId = dbitem.ActivePropulsionProfileProtoId;
 		if (dbitem.CurrentRoutePosition is { } persistedRoutePosition)
@@ -71,13 +71,13 @@ public class Vehicle : SaveableItem, IVehicle
 			if (route is null)
 			{
 				throw new System.IO.InvalidDataException(
-					$"Vehicle #{dbitem.Id:N0} has a persisted RouteCell coordinate but is not located in a RouteCell.");
+					$"Vehicle #{dbitem.Id:N0} has a persisted RouteRoom coordinate but is not located in a RouteRoom.");
 			}
 
 			if (!double.IsFinite(position) || position < 0.0 || position > route.LengthMetres)
 			{
 				throw new System.IO.InvalidDataException(
-					$"Vehicle #{dbitem.Id:N0} has invalid RouteCell coordinate {position:N3}m in Cell #{route.Cell.Id:N0}; valid coordinates are 0-{route.LengthMetres:N3}m.");
+					$"Vehicle #{dbitem.Id:N0} has invalid RouteRoom coordinate {position:N3}m in Room #{route.Room.Id:N0}; valid coordinates are 0-{route.LengthMetres:N3}m.");
 			}
 
 			_routePositionMetres = position;
@@ -87,7 +87,7 @@ public class Vehicle : SaveableItem, IVehicle
 			if (Location?.RouteDefinition is { } route)
 			{
 				throw new System.IO.InvalidDataException(
-					$"Vehicle #{dbitem.Id:N0} is located in RouteCell #{route.Cell.Id:N0} but has no persisted route coordinate; use vehicle recovery to assign an explicit position.");
+					$"Vehicle #{dbitem.Id:N0} is located in RouteRoom #{route.Room.Id:N0} but has no persisted route coordinate; use vehicle recovery to assign an explicit position.");
 			}
 
 			// Null is the legacy value for an ordinary-cell vehicle.
@@ -132,7 +132,7 @@ public class Vehicle : SaveableItem, IVehicle
 		{
 			var runtime = new VehicleDocking(this, docking);
 			if (runtime.AccessPoint is not null && runtime.Compartment is not null &&
-			    runtime.ExteriorCell is not null)
+			    runtime.ExteriorRoom is not null)
 			{
 				_dockings.Add(runtime);
 				runtime.BuildAndRegisterIfOpen();
@@ -222,9 +222,9 @@ public class Vehicle : SaveableItem, IVehicle
 				["id"] = "The stable vehicle identity.",
 				["name"] = "The vehicle name.",
 				["exterioritem"] = "The linked exterior game item, or null.",
-				["location"] = "The vehicle's current cell, or null.",
+				["location"] = "The vehicle's current room, or null.",
 				["layer"] = "The vehicle's current room layer.",
-				["routeposition"] = "The current route-cell coordinate in metres, or zero outside a route cell.",
+				["routeposition"] = "The current route-room coordinate in metres, or zero outside a route room.",
 				["occupants"] = "The characters currently occupying the vehicle.",
 				["controller"] = "The current vehicle controller, or null.",
 				["activejourney"] = "The active automatic journey, or null.",
@@ -258,7 +258,7 @@ public class Vehicle : SaveableItem, IVehicle
 	public IVehicleMovementProfilePrototype MovementProfile =>
 		Prototype?.MovementProfiles.FirstOrDefault(x => x.Id == _movementProfileId) ??
 		Prototype?.MovementProfiles
-		          .Where(x => x.MovementType == VehicleMovementProfileType.CellExit)
+		          .Where(x => x.MovementType == VehicleMovementProfileType.RoomExit)
 		          .OrderByDescending(x => x.IsDefault)
 		          .FirstOrDefault();
 	public IVehiclePropulsionProfilePrototype ActivePropulsionProfile =>
@@ -267,10 +267,10 @@ public class Vehicle : SaveableItem, IVehicle
 		               .OrderByDescending(x => x.IsDefault)
 		               .FirstOrDefault();
 	public IVehicleMovementState MovementState => new VehicleMovementState(_locationType, Location, _roomLayer,
-		_movementStatus, _currentExitId, _destinationCellId, _routePositionMetres,
+		_movementStatus, _currentExitId, _destinationRoomId, _routePositionMetres,
 		_destinationRoutePositionMetres);
 	public VehicleLocationType LocationType => _locationType;
-	public ICell Location => _currentCellId is null ? null : Gameworld.Cells.Get(_currentCellId.Value);
+	public IRoom Location => _currentRoomId is null ? null : Gameworld.Rooms.Get(_currentRoomId.Value);
 	public RoomLayer RoomLayer => _roomLayer;
 	public double? RoutePositionMetres => _routePositionMetres;
 	public IEnumerable<IVehicleOccupancy> Occupancies => _occupancies;
@@ -396,13 +396,13 @@ public class Vehicle : SaveableItem, IVehicle
 		}
 
 		return _occupancies.Any(x => x.Slot?.Compartment?.Id == compartment.Prototype.Id) ||
-		       compartment.InteriorCell?.Characters.Any() == true ||
-		       compartment.InteriorCell?.GameItems.Any() == true;
+		       compartment.InteriorRoom?.Characters.Any() == true ||
+		       compartment.InteriorRoom?.GameItems.Any() == true;
 	}
 
-	public bool IsHostedInterior(ICell cell)
+	public bool IsHostedInterior(IRoom room)
 	{
-		return cell is not null && _compartments.Any(x => x.InteriorCell?.Id == cell.Id);
+		return room is not null && _compartments.Any(x => x.InteriorRoom?.Id == room.Id);
 	}
 
 	public void EchoHostedInteriors(string message)
@@ -412,9 +412,9 @@ public class Vehicle : SaveableItem, IVehicle
 			return;
 		}
 
-		foreach (var cell in _compartments.Select(x => x.InteriorCell).Where(x => x is not null).Distinct())
+		foreach (var room in _compartments.Select(x => x.InteriorRoom).Where(x => x is not null).Distinct())
 		{
-			cell.HandleRoomEcho(message, RoomLayer.GroundLevel);
+			room.HandleRoomEcho(message, RoomLayer.GroundLevel);
 		}
 	}
 
@@ -467,7 +467,7 @@ public class Vehicle : SaveableItem, IVehicle
 		}
 
 		var interiorRooms = _compartments
-			.Select(x => x.InteriorCell?.Room)
+			.Select(x => x.InteriorRoom)
 			.Where(x => x is not null)
 			.Distinct()
 			.Cast<Room>()
@@ -481,13 +481,13 @@ public class Vehicle : SaveableItem, IVehicle
 				FMDB.Context.VehicleDockings.RemoveRange(dockings);
 				foreach (var compartment in FMDB.Context.VehicleCompartments.Where(x => x.VehicleId == Id))
 				{
-					compartment.InteriorCellId = null;
+					compartment.InteriorRoomId = null;
 				}
 
-				foreach (var cell in FMDB.Context.Cells.Where(x => x.HostedVehicleId == Id))
+				foreach (var room in FMDB.Context.Rooms.Where(x => x.HostedVehicleId == Id))
 				{
-					cell.HostedVehicleId = null;
-					cell.HostedVehicleCompartmentId = null;
+					room.HostedVehicleId = null;
+					room.HostedVehicleCompartmentId = null;
 				}
 
 				var dbitem = FMDB.Context.Vehicles.Find(Id);
@@ -516,7 +516,7 @@ public class Vehicle : SaveableItem, IVehicle
 
 		foreach (var room in interiorRooms)
 		{
-			room.DestroyRoom(Location);
+			room.Destroy(Location);
 		}
 
 		ExteriorItem?.GetItemType<IVehicleExterior>()?.ClearVehicleLink("The vehicle instance was retired.");
@@ -644,7 +644,7 @@ public class Vehicle : SaveableItem, IVehicle
 		}
 
 		if (Prototype.Scale == VehicleScale.RoomScale &&
-		    CompartmentFor(slot.Compartment)?.InteriorCell is null)
+		    CompartmentFor(slot.Compartment)?.InteriorRoom is null)
 		{
 			reason = $"The {slot.Compartment.Name} hosted interior is unavailable. An administrator must recover it before boarding.";
 			return false;
@@ -712,12 +712,12 @@ public class Vehicle : SaveableItem, IVehicle
 		}
 
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return false;
-		ICell boardingDestination = null;
+		IRoom boardingDestination = null;
 		if (Prototype.Scale == VehicleScale.RoomScale)
 		{
 			var docking = ActiveDockingForBoarding(actor, accessPoint);
 			boardingDestination = DockingExitFrom(docking, actor.Location)?.Destination;
-			if (boardingDestination is null || docking?.Compartment.InteriorCell?.Id != boardingDestination.Id)
+			if (boardingDestination is null || docking?.Compartment.InteriorRoom?.Id != boardingDestination.Id)
 			{
 				return false;
 			}
@@ -904,7 +904,7 @@ public class Vehicle : SaveableItem, IVehicle
 		{
 			var docking = ActiveDockingForDisembark(actor);
 			var dockingExit = DockingExitFrom(docking, actor.Location);
-			if (docking is null || dockingExit?.Destination.Id != docking.ExteriorCell.Id)
+			if (docking is null || dockingExit?.Destination.Id != docking.ExteriorRoom.Id)
 			{
 				return false;
 			}
@@ -1122,13 +1122,13 @@ public class Vehicle : SaveableItem, IVehicle
 	}
 	private void SetStationaryAfterForcedExteriorChange()
 	{
-		_locationType = VehicleLocationType.Cell;
+		_locationType = VehicleLocationType.Room;
 		if (_movementStatus != VehicleMovementStatus.Destroyed)
 		{
 			_movementStatus = VehicleMovementStatus.Stationary;
 		}
 		_currentExitId = null;
-		_destinationCellId = null;
+		_destinationRoomId = null;
 	}
 
 	private static void ClearForcedOccupantMovement(ICharacter occupant)
@@ -1136,14 +1136,14 @@ public class Vehicle : SaveableItem, IVehicle
 		occupant?.Movement?.CancelForMoverOnly(occupant);
 	}
 
-	public bool CanMove(ICharacter actor, ICellExit exit, out string reason)
+	public bool CanMove(ICharacter actor, IRoomExit exit, out string reason)
 	{
-		return _cellExitMovementStrategy.CanMove(this, actor, exit, out reason);
+		return _roomExitMovementStrategy.CanMove(this, actor, exit, out reason);
 	}
 
-	public bool Move(ICharacter actor, ICellExit exit)
+	public bool Move(ICharacter actor, IRoomExit exit)
 	{
-		return _cellExitMovementStrategy.Move(this, actor, exit);
+		return _roomExitMovementStrategy.Move(this, actor, exit);
 	}
 
 	public void LinkExteriorItem(IGameItem item)
@@ -1168,7 +1168,7 @@ public class Vehicle : SaveableItem, IVehicle
 	{
 		if (Location?.RouteDefinition is not { } route)
 		{
-			throw new InvalidOperationException("The vehicle is not in a RouteCell.");
+			throw new InvalidOperationException("The vehicle is not in a RouteRoom.");
 		}
 
 		_destinationRoutePositionMetres = Math.Clamp(destinationPositionMetres, 0.0, route.LengthMetres);
@@ -1182,7 +1182,7 @@ public class Vehicle : SaveableItem, IVehicle
 	{
 		if (Location?.RouteDefinition is not { } route)
 		{
-			throw new InvalidOperationException("The vehicle is not in a RouteCell.");
+			throw new InvalidOperationException("The vehicle is not in a RouteRoom.");
 		}
 
 		_routePositionMetres = Math.Clamp(positionMetres, 0.0, route.LengthMetres);
@@ -1289,24 +1289,24 @@ public class Vehicle : SaveableItem, IVehicle
 		}
 	}
 
-	public void BeginMoveToCell(ICell destination, RoomLayer layer, ICellExit exit)
+	public void BeginMoveToRoom(IRoom destination, RoomLayer layer, IRoomExit exit)
 	{
 		if (Gameworld.VehiclePrototypes?.Get(_prototypeId, _prototypeRevision)?.Scale == VehicleScale.RoomScale)
 		{
 			SuspendDockings();
 		}
-		_locationType = VehicleLocationType.CellExitTransit;
+		_locationType = VehicleLocationType.RoomExitTransit;
 		_movementStatus = VehicleMovementStatus.Moving;
 		_currentExitId = exit?.Exit.Id;
-		_destinationCellId = destination?.Id;
+		_destinationRoomId = destination?.Id;
 		Changed = true;
 		Gameworld.SaveManager.Flush();
 	}
 
-	public void MoveToCell(ICell destination, RoomLayer layer, ICellExit exit, IMovement movement = null)
+	public void MoveToRoom(IRoom destination, RoomLayer layer, IRoomExit exit, IMovement movement = null)
 	{
 		var origin = Location;
-		BeginMoveToCell(destination, layer, exit);
+		BeginMoveToRoom(destination, layer, exit);
 
 		if (ExteriorItem is not null)
 		{
@@ -1339,7 +1339,7 @@ public class Vehicle : SaveableItem, IVehicle
 			}
 		}
 
-		_currentCellId = destination.Id;
+		_currentRoomId = destination.Id;
 		_roomLayer = layer;
 		_routePositionMetres = destination.RouteDefinition is null
 			? null
@@ -1348,11 +1348,11 @@ public class Vehicle : SaveableItem, IVehicle
 			  destination.RouteDefinition.DefaultPositionMetres;
 		SynchroniseExteriorRoutePosition(_routePositionMetres);
 		_locationType = destination.RouteDefinition is null
-			? VehicleLocationType.Cell
+			? VehicleLocationType.Room
 			: VehicleLocationType.Route;
 		_movementStatus = VehicleMovementStatus.Stationary;
 		_currentExitId = null;
-		_destinationCellId = null;
+		_destinationRoomId = null;
 		EnsureExteriorWaterPosition();
 		if (Prototype.Scale == VehicleScale.RoomScale)
 		{
@@ -1429,7 +1429,7 @@ public class Vehicle : SaveableItem, IVehicle
 			destination.Enter(occupant, null, roomLayer: layer);
 		}
 
-		_currentCellId = destination.Id;
+		_currentRoomId = destination.Id;
 		_roomLayer = layer;
 		EnsureExteriorWaterPosition();
 		if (Prototype.Scale == VehicleScale.RoomScale)
@@ -1441,15 +1441,15 @@ public class Vehicle : SaveableItem, IVehicle
 
 	public void RecoverInterruptedMovement()
 	{
-		if (_movementStatus != VehicleMovementStatus.Moving && _locationType != VehicleLocationType.CellExitTransit)
+		if (_movementStatus != VehicleMovementStatus.Moving && _locationType != VehicleLocationType.RoomExitTransit)
 		{
 			return;
 		}
 
-		_locationType = VehicleLocationType.Cell;
+		_locationType = VehicleLocationType.Room;
 		_movementStatus = VehicleMovementStatus.Stationary;
 		_currentExitId = null;
-		_destinationCellId = null;
+		_destinationRoomId = null;
 		Changed = true;
 		SynchroniseExteriorItemToLocation();
 		if (Gameworld.VehiclePrototypes?.Get(_prototypeId, _prototypeRevision)?.Scale == VehicleScale.RoomScale)
@@ -1501,7 +1501,7 @@ public class Vehicle : SaveableItem, IVehicle
 				x.IsRegistered &&
 				x.State == VehicleDockingState.BoardingOpen &&
 				x.AccessPoint.Id == accessPoint.Id &&
-				x.ExteriorCell.Id == actor.Location?.Id &&
+				x.ExteriorRoom.Id == actor.Location?.Id &&
 				x.ExteriorLayer == actor.RoomLayer);
 	}
 
@@ -1512,14 +1512,14 @@ public class Vehicle : SaveableItem, IVehicle
 			: _dockings.FirstOrDefault(x =>
 				x.IsRegistered &&
 				x.State == VehicleDockingState.BoardingOpen &&
-				x.Compartment.InteriorCell?.Id == actor.Location?.Id &&
+				x.Compartment.InteriorRoom?.Id == actor.Location?.Id &&
 				x.AccessPoint.CanUse(actor, out _));
 	}
 
-	internal static ICellExit DockingExitFrom(IVehicleDocking docking, ICell origin)
+	internal static IRoomExit DockingExitFrom(IVehicleDocking docking, IRoom origin)
 	{
 		return docking?.State == VehicleDockingState.BoardingOpen
-			? docking.TransientExit?.CellExitFor(origin)
+			? docking.TransientExit?.RoomExitFor(origin)
 			: null;
 	}
 
@@ -1622,11 +1622,11 @@ public class Vehicle : SaveableItem, IVehicle
 			dbitem.VehicleProtoRevision = _prototypeRevision;
 			dbitem.ExteriorItemId = _exteriorItemId;
 			dbitem.LocationType = (int)_locationType;
-			dbitem.CurrentCellId = _currentCellId;
+			dbitem.CurrentRoomId = _currentRoomId;
 			dbitem.CurrentRoomLayer = (int)_roomLayer;
 			dbitem.MovementStatus = (int)_movementStatus;
 			dbitem.CurrentExitId = _currentExitId;
-			dbitem.DestinationCellId = _destinationCellId;
+			dbitem.DestinationRoomId = _destinationRoomId;
 			dbitem.MovementProfileProtoId = _movementProfileId;
 			dbitem.ActivePropulsionProfileProtoId = _activePropulsionProfileId;
 			dbitem.CurrentRoutePosition = _routePositionMetres is null
@@ -1680,8 +1680,8 @@ public class VehicleOccupancy : FrameworkItem, IVehicleOccupancy
 
 public class VehicleMovementState : IVehicleMovementState
 {
-	public VehicleMovementState(VehicleLocationType locationType, ICell location, RoomLayer roomLayer,
-		VehicleMovementStatus movementStatus, long? currentExitId, long? destinationCellId,
+	public VehicleMovementState(VehicleLocationType locationType, IRoom location, RoomLayer roomLayer,
+		VehicleMovementStatus movementStatus, long? currentExitId, long? destinationRoomId,
 		double? routePositionMetres = null, double? destinationRoutePositionMetres = null)
 	{
 		LocationType = locationType;
@@ -1689,17 +1689,17 @@ public class VehicleMovementState : IVehicleMovementState
 		RoomLayer = roomLayer;
 		MovementStatus = movementStatus;
 		CurrentExitId = currentExitId;
-		DestinationCellId = destinationCellId;
+		DestinationRoomId = destinationRoomId;
 		RoutePositionMetres = routePositionMetres;
 		DestinationRoutePositionMetres = destinationRoutePositionMetres;
 	}
 
 	public VehicleLocationType LocationType { get; }
-	public ICell Location { get; }
+	public IRoom Location { get; }
 	public RoomLayer RoomLayer { get; }
 	public VehicleMovementStatus MovementStatus { get; }
 	public long? CurrentExitId { get; }
-	public long? DestinationCellId { get; }
+	public long? DestinationRoomId { get; }
 	public double? RoutePositionMetres { get; }
 	public double? DestinationRoutePositionMetres { get; }
 }

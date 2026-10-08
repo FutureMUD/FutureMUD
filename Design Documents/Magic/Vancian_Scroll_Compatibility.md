@@ -131,6 +131,7 @@ These are per-invocation expression wrappers. Neither scroll release nor an over
 | `selfdamage` | Supported | Every numerical field has a typed captured binding; opposed outcome and random rolls remain live. |
 | `silence` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
 | `sleep` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
+| `sourcewaterbreathing` | Unsupported | Source-specific random accumulated lifetime and explicit native water scope are not qualified for stored scroll delivery; ordinary direct invocation only. |
 | `spellarmour` | Supported | Every numerical field has a typed captured binding; opposed outcome and random rolls remain live. |
 | `staminadelta` | Supported | Every numerical field has a typed captured binding; opposed outcome and random rolls remain live. |
 | `staminaexpendrate` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |

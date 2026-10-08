@@ -65,9 +65,9 @@ public class NPCSpawner : SaveableItem, INPCSpawner
                 Definition = SaveDefinition()
             };
             FMDB.Context.NpcSpawners.Add(dbitem);
-            foreach (long cell in _spawnLocations)
+            foreach (long room in _spawnLocations)
             {
-                dbitem.Cells.Add(new NPCSpawnerCell { CellId = cell, NPCSpawner = dbitem });
+                dbitem.Rooms.Add(new NPCSpawnerRoom { RoomId = room, NPCSpawner = dbitem });
             }
 
             foreach (long zone in _monitoredZones)
@@ -93,7 +93,7 @@ public class NPCSpawner : SaveableItem, INPCSpawner
         OnSpawnProg = Gameworld.FutureProgs.Get(dbitem.OnSpawnProgId ?? 0L);
         SpawnStrategy = (SpawnStrategy)dbitem.SpawnStrategy;
         _monitoredZones.AddRange(dbitem.Zones.Select(x => x.ZoneId));
-        _spawnLocations.AddRange(dbitem.Cells.Select(x => x.CellId));
+        _spawnLocations.AddRange(dbitem.Rooms.Select(x => x.RoomId));
         switch (SpawnStrategy)
         {
             case SpawnStrategy.Multi:
@@ -126,10 +126,10 @@ public class NPCSpawner : SaveableItem, INPCSpawner
         dbitem.TargetCount = _targetCount;
         dbitem.MinimumCount = _minimumCount;
         dbitem.Definition = SaveDefinition();
-        FMDB.Context.NpcSpawnerCells.RemoveRange(dbitem.Cells);
-        foreach (long cell in _spawnLocations)
+        FMDB.Context.NpcSpawnerRooms.RemoveRange(dbitem.Rooms);
+        foreach (long room in _spawnLocations)
         {
-            dbitem.Cells.Add(new NPCSpawnerCell { CellId = cell, NPCSpawnerId = Id });
+            dbitem.Rooms.Add(new NPCSpawnerRoom { RoomId = room, NPCSpawnerId = Id });
         }
 
         FMDB.Context.NpcSpawnerZones.RemoveRange(dbitem.Zones);
@@ -174,7 +174,7 @@ public class NPCSpawner : SaveableItem, INPCSpawner
 	#3counts <prog>#0 - sets a prog that determines which NPCs count for this spawner
 	#3counts none#0 - clears having a prog determine NPC counting
 	#3zone <id>#0 - toggles a zone being monitored by this spawner
-	#3cell <id>#0 - toggles a cell being a spawn location for this spawner
+	#3cell <id>#0 - toggles a room being a spawn location for this spawner
 
 Note that the #6Multi#0 strategy has additional building commands:
 
@@ -230,7 +230,7 @@ Note that the #6Multi#0 strategy has additional building commands:
             case "room":
             case "loc":
             case "cell":
-                return BuildingCommandCell(actor, command);
+                return BuildingCommandRoom(actor, command);
             default:
                 actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
                 return false;
@@ -268,7 +268,7 @@ Note that the #6Multi#0 strategy has additional building commands:
         return true;
     }
 
-    private bool BuildingCommandCell(ICharacter actor, StringStack command)
+    private bool BuildingCommandRoom(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
         {
@@ -277,26 +277,26 @@ Note that the #6Multi#0 strategy has additional building commands:
             return false;
         }
 
-        ICell? cell = command.SafeRemainingArgument.EqualTo("here")
+        IRoom? room = command.SafeRemainingArgument.EqualTo("here")
             ? actor.Location
-            : RoomBuilderModule.LookupCell(Gameworld, command.SafeRemainingArgument);
-        if (cell is null)
+            : RoomBuilderModule.LookupRoom(Gameworld, command.SafeRemainingArgument);
+        if (room is null)
         {
             actor.OutputHandler.Send("There is no such location.");
             return false;
         }
 
-        if (_spawnLocations.Contains(cell.Id))
+        if (_spawnLocations.Contains(room.Id))
         {
-            _spawnLocations.Remove(cell.Id);
+            _spawnLocations.Remove(room.Id);
             actor.OutputHandler.Send(
-                $"This NPC Spawner will no longer use {cell.GetFriendlyReference(actor).ColourValue()} as a spawn location.");
+                $"This NPC Spawner will no longer use {room.GetFriendlyReference(actor).ColourValue()} as a spawn location.");
         }
         else
         {
-            _spawnLocations.Add(cell.Id);
+            _spawnLocations.Add(room.Id);
             actor.OutputHandler.Send(
-                $"This NPC Spawner will now use {cell.GetFriendlyReference(actor).ColourValue()} as a spawn location.");
+                $"This NPC Spawner will now use {room.GetFriendlyReference(actor).ColourValue()} as a spawn location.");
         }
 
         Changed = true;
@@ -589,9 +589,9 @@ Note that the #6Multi#0 strategy has additional building commands:
 
         sb.AppendLine();
         sb.AppendLine($"Spawn Locations:");
-        foreach (ICell cell in SpawnLocations)
+        foreach (IRoom room in SpawnLocations)
         {
-            sb.AppendLine($"\t{cell.GetFriendlyReference(actor).ColourValue()}");
+            sb.AppendLine($"\t{room.GetFriendlyReference(actor).ColourValue()}");
         }
 
         return sb.ToString();
@@ -611,7 +611,7 @@ Note that the #6Multi#0 strategy has additional building commands:
     public IEnumerable<IZone> MonitoredZones => _monitoredZones.SelectNotNull(x => Gameworld.Zones.Get(x));
 
     private readonly List<long> _spawnLocations = new();
-    public IEnumerable<ICell> SpawnLocations => _spawnLocations.SelectNotNull(x => Gameworld.Cells.Get(x));
+    public IEnumerable<IRoom> SpawnLocations => _spawnLocations.SelectNotNull(x => Gameworld.Rooms.Get(x));
     public SpawnStrategy SpawnStrategy { get; private set; }
     public IFutureProg? OnSpawnProg { get; private set; }
     public IFutureProg? CountAsNPCProg { get; private set; }
@@ -621,7 +621,7 @@ Note that the #6Multi#0 strategy has additional building commands:
     /// <inheritdoc />
     public bool IsActive => IsActiveProg?.Execute<bool?>() ?? false;
 
-    private void DoSpawnNPC(INPCTemplate npcTemplate, ICharacterTemplate chTemplate, ICell location)
+    private void DoSpawnNPC(INPCTemplate npcTemplate, ICharacterTemplate chTemplate, IRoom location)
     {
         chTemplate = ((SimpleCharacterTemplate)chTemplate) with { SelectedStartingLocation = location };
         NPC newCharacter = new(Gameworld, chTemplate, npcTemplate);
@@ -668,13 +668,13 @@ Note that the #6Multi#0 strategy has additional building commands:
                     return false;
                 }
 
-                List<ICell> potentialCells = territorialAI.PotentialFreeTerritory(chTemplate, MonitoredZones).ToList();
-                if (!potentialCells.Any())
+                List<IRoom> potentialRooms = territorialAI.PotentialFreeTerritory(chTemplate, MonitoredZones).ToList();
+                if (!potentialRooms.Any())
                 {
                     return false;
                 }
 
-                DoSpawnNPC(npcTemplate, chTemplate, potentialCells.GetRandomElement());
+                DoSpawnNPC(npcTemplate, chTemplate, potentialRooms.GetRandomElement());
                 break;
         }
 

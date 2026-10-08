@@ -12,7 +12,7 @@ using MagicGenerator = MudSharp.Models.MagicGenerator;
 
 namespace MudSharp.Magic.Generators;
 
-/// <summary>A persisted profile. Its cell runtime belongs exclusively to the world coordinator.</summary>
+/// <summary>A persisted profile. Its room runtime belongs exclusively to the world coordinator.</summary>
 public sealed partial class EnvironmentalMagicGenerator : BaseMagicResourceGenerator, IEnvironmentalMagicProfile
 {
 	public const int CurrentDefinitionVersion = 1;
@@ -138,9 +138,9 @@ public sealed partial class EnvironmentalMagicGenerator : BaseMagicResourceGener
 
 	protected override void ValidateMinuteDelegateHolder(IHaveMagicResource thing)
 	{
-		throw new InvalidOperationException(thing is ICell
-			? $"Environmental regenerator #{Id} ({Name}) is centrally coordinated and cannot register a per-cell minute delegate."
-			: $"Environmental regenerator #{Id} ({Name}) supports physical cells only; character and item holders are unsupported.");
+		throw new InvalidOperationException(thing is IRoom
+			? $"Environmental regenerator #{Id} ({Name}) is centrally coordinated and cannot register a per-room minute delegate."
+			: $"Environmental regenerator #{Id} ({Name}) supports physical rooms only; character and item holders are unsupported.");
 	}
 
 	protected override HeartbeatManagerDelegate InternalGetOnMinuteDelegate(IHaveMagicResource thing) =>
@@ -644,7 +644,7 @@ native units. Declared named inputs are also available. The result is a dimensio
 			return false;
 		}
 		ApplyDefinitionChange(() => NaturalRepairPerMinute = value);
-		actor.OutputHandler.Send($"Natural scar repair is now {value.ToString("N3", actor).ColourValue()} per real minute, once per cell.");
+		actor.OutputHandler.Send($"Natural scar repair is now {value.ToString("N3", actor).ColourValue()} per real minute, once per room.");
 		return true;
 	}
 
@@ -680,8 +680,8 @@ native units. Declared named inputs are also available. The result is a dimensio
 		}
 		ApplyDefinitionChange(() => IdleRecheckSeconds = value);
 		actor.OutputHandler.Send(value.HasValue
-			? $"Dormant cells will request a central recheck every {value.Value.ToString("N0", actor).ColourValue()} real seconds."
-			: "Dormant cells will use the configured world reconciliation cadence.");
+			? $"Dormant rooms will request a central recheck every {value.Value.ToString("N0", actor).ColourValue()} real seconds."
+			: "Dormant rooms will use the configured world reconciliation cadence.");
 		return true;
 	}
 
@@ -863,10 +863,10 @@ native units. Declared named inputs are also available. The result is a dimensio
 		var sb = new StringBuilder();
 		sb.AppendLine($"Environmental Regenerator #{Id.ToString("N0", actor)} - {Name}".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine();
-		sb.AppendLine($"Type: {RegeneratorTypeName.ColourName()} (physical cells; central coordinator)");
+		sb.AppendLine($"Type: {RegeneratorTypeName.ColourName()} (physical rooms; central coordinator)");
 		sb.AppendLine($"Definition Version: {_definitionVersion.ToString("N0", actor).ColourValue()}    Runtime Revision: {Revision.ToString("N0", actor).ColourValue()}");
 		sb.AppendLine($"Pressure Half-Life: {PressureHalfLifeSeconds.ToString("N3", actor).ColourValue()} real seconds");
-		sb.AppendLine($"Natural Scar Repair: {NaturalRepairPerMinute.ToString("N3", actor).ColourValue()} per real minute (once per cell)");
+		sb.AppendLine($"Natural Scar Repair: {NaturalRepairPerMinute.ToString("N3", actor).ColourValue()} per real minute (once per room)");
 		sb.AppendLine($"Magical Repair Ceiling: {(MagicalRepairLimitPerMinute?.ToString("G", actor) ?? "none").ColourValue()} per real minute (zero disables treatments)");
 		foreach (var error in RepairValidationErrors) sb.AppendLine(error.ColourError());
 		sb.AppendLine($"Idle Recheck: {(IdleRecheckSeconds.HasValue ? $"{IdleRecheckSeconds.Value.ToString("N0", actor)} real seconds" : "world default").ColourValue()}");
@@ -895,7 +895,7 @@ native units. Declared named inputs are also available. The result is a dimensio
 		sb.AppendLine("Validation".GetLineWithTitleInner(actor, Telnet.Cyan, Telnet.BoldWhite));
 		if (_validationErrors.Count == 0)
 		{
-			sb.AppendLine("Legacy mana definition is valid. Cell-specific inputs and formula results are checked at use.".ColourValue());
+			sb.AppendLine("Legacy mana definition is valid. Room-specific inputs and formula results are checked at use.".ColourValue());
 		}
 		else
 		{

@@ -37,10 +37,10 @@ namespace MudSharp.Movement
 
         bool CanBeVoluntarilyCancelled { get; }
         /// <summary>
-        /// The boundary crossed by an ordinary cell movement. Longitudinal RouteCell movement
-        /// deliberately has no exit because it remains inside one cell.
+        /// The boundary crossed by an ordinary room movement. Longitudinal RouteRoom movement
+        /// deliberately has no exit because it remains inside one room.
         /// </summary>
-        ICellExit? Exit { get; }
+        IRoomExit? Exit { get; }
         MovementPhase Phase { get; }
         IEnumerable<ICharacter> CharacterMovers { get; }
         public IParty Party { get; }
@@ -86,13 +86,13 @@ namespace MudSharp.Movement
     }
 
     /// <summary>
-    /// A movement that changes only the one-dimensional coordinate inside a RouteCell.
+    /// A movement that changes only the one-dimensional coordinate inside a RouteRoom.
     /// </summary>
     public interface ILinearRouteMovement : IMovement
     {
         SpatialLocation Origin { get; }
         SpatialLocation Destination { get; }
-        RouteCellDirection Direction { get; }
+        RouteRoomDirection Direction { get; }
         double SpeedMetresPerSecond { get; }
         Guid OperationId { get; }
     }

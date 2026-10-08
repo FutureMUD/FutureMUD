@@ -92,7 +92,7 @@ public class LockingDoorGameItemComponent : DoorGameItemComponentBase, ILock
 
 	public bool CanBeInstalled => false;
 
-	public void InstallLock(ILockable lockable, IExit exit, ICell installLocation)
+	public void InstallLock(ILockable lockable, IExit exit, IRoom installLocation)
 	{
 	}
 
@@ -156,16 +156,16 @@ public class LockingDoorGameItemComponent : DoorGameItemComponentBase, ILock
 			actor.OutputHandler.Handle(new MixedEmoteOutput(
 				new Emote(_lockingPrototype.UnlockEmote, actor, actor, Parent, key.Parent),
 				flags: OutputFlags.SuppressObscured).Append(playerEmote));
-			InstalledExit?.Cells.Except(actor.Location)
+			InstalledExit?.Rooms.Except(actor.Location)
 				.Single()
 				.Handle(new EmoteOutput(new Emote(_lockingPrototype.UnlockEmoteOtherSide, actor, actor, Parent,
 					key.Parent)));
 		}
 		else
 		{
-			foreach (var cell in Parent.TrueLocations)
+			foreach (var room in Parent.TrueLocations)
 			{
-				cell.Handle(new EmoteOutput(new Emote(_lockingPrototype.UnlockEmoteNoActor, Parent, Parent)));
+				room.Handle(new EmoteOutput(new Emote(_lockingPrototype.UnlockEmoteNoActor, Parent, Parent)));
 			}
 		}
 
@@ -201,16 +201,16 @@ public class LockingDoorGameItemComponent : DoorGameItemComponentBase, ILock
 			actor.OutputHandler.Handle(new MixedEmoteOutput(
 				new Emote(_lockingPrototype.LockEmote, actor, actor, Parent, key.Parent),
 				flags: OutputFlags.SuppressObscured).Append(playerEmote));
-			InstalledExit?.Cells.Except(actor.Location)
+			InstalledExit?.Rooms.Except(actor.Location)
 				.Single()
 				.Handle(new EmoteOutput(new Emote(_lockingPrototype.LockEmoteOtherSide, actor, actor, Parent,
 					key.Parent)));
 		}
 		else
 		{
-			foreach (var cell in Parent.TrueLocations)
+			foreach (var room in Parent.TrueLocations)
 			{
-				cell.Handle(new EmoteOutput(new Emote(_lockingPrototype.LockEmoteNoActor, Parent, Parent)));
+				room.Handle(new EmoteOutput(new Emote(_lockingPrototype.LockEmoteNoActor, Parent, Parent)));
 			}
 		}
 

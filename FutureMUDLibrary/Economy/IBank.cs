@@ -53,7 +53,7 @@ namespace MudSharp.Economy
         DecimalCounter<ICurrency> CurrencyReserves { get; }
         DecimalCounter<(ICurrency From, ICurrency To)> ExchangeRates { get; }
         IEnumerable<IBankAccountType> BankAccountTypes { get; }
-        IEnumerable<ICell> BranchLocations { get; }
+        IEnumerable<IRoom> BranchLocations { get; }
         void AddAccount(IBankAccount newAccount);
         (bool Truth, string Error) CanOpenAccount(ICharacter actor, IBankAccountType type);
         IEnumerable<ICharacter> BankManagers { get; }

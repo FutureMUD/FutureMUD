@@ -144,8 +144,8 @@ return @togglevalue");
 	public void FileSignalGenerator_UpdatesSignalWhenBackingFileChanges()
 	{
 		var gameworld = CreateGameworld();
-		var cell = CreateCell(9060L);
-		var item = CreateBasicItem(gameworld.Object, 9061L, "Signal Controller", cell.Object);
+		var room = CreateRoom(9060L);
+		var item = CreateBasicItem(gameworld.Object, 9061L, "Signal Controller", room.Object);
 		var proto = CreateFileSignalGeneratorProto(gameworld.Object);
 		var component = new FileSignalGeneratorGameItemComponent(proto, item.Object, true);
 
@@ -202,8 +202,8 @@ return @togglevalue");
 	public void ComputerFileTransferUtilities_EnumerateOwners_IncludesHostLocalFileSignalGenerator()
 	{
 		var gameworld = CreateGameworld();
-		var cell = CreateCell(9070L);
-		var hostItem = CreateBasicItem(gameworld.Object, 9071L, "Network Appliance", cell.Object);
+		var room = CreateRoom(9070L);
+		var hostItem = CreateBasicItem(gameworld.Object, 9071L, "Network Appliance", room.Object);
 		IGameItemComponent[] components = [];
 		hostItem.SetupGet(x => x.Components).Returns(() => components);
 
@@ -220,21 +220,43 @@ return @togglevalue");
 		Assert.IsTrue(owners.Any(x => x.FileOwnerId == fileGenerator.Id));
 	}
 
-	[TestMethod]
-	public void MotionSensorDetectionMode_MatchesExpectedWitnessEvents()
+	[DataTestMethod]
+	[DataRow("enter cell")]
+	[DataRow("enter room")]
+	public void MotionSensorDetectionMode_MatchesExpectedWitnessEvents(string selector)
 	{
+		Assert.IsTrue(MotionSensorDetectionModeExtensions.TryParse(selector, out var parsed));
+		Assert.AreEqual(MotionSensorDetectionMode.EnterRoom, parsed);
 		Assert.IsTrue(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterBeginMovementWitness));
-		Assert.IsTrue(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterEnterCellWitness));
+		Assert.IsTrue(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterEnterRoomWitness));
 		Assert.IsTrue(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterStopMovementWitness));
 		Assert.IsTrue(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterStopMovementClosedDoorWitness));
-		Assert.IsFalse(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterEnterCellItems));
+		Assert.IsFalse(MotionSensorDetectionMode.AnyMovement.MatchesEventType(EventType.CharacterEnterRoomItems));
 		Assert.IsTrue(MotionSensorDetectionMode.BeginMovement.MatchesEventType(EventType.CharacterBeginMovementWitness));
-		Assert.IsFalse(MotionSensorDetectionMode.BeginMovement.MatchesEventType(EventType.CharacterEnterCellWitness));
-		Assert.IsTrue(MotionSensorDetectionMode.EnterCell.MatchesEventType(EventType.CharacterEnterCellWitness));
-		Assert.IsFalse(MotionSensorDetectionMode.EnterCell.MatchesEventType(EventType.CharacterBeginMovementWitness));
+		Assert.IsFalse(MotionSensorDetectionMode.BeginMovement.MatchesEventType(EventType.CharacterEnterRoomWitness));
+		Assert.IsTrue(MotionSensorDetectionMode.EnterRoom.MatchesEventType(EventType.CharacterEnterRoomWitness));
+		Assert.IsFalse(MotionSensorDetectionMode.EnterRoom.MatchesEventType(EventType.CharacterBeginMovementWitness));
 		Assert.IsTrue(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterStopMovementWitness));
 		Assert.IsTrue(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterStopMovementClosedDoorWitness));
-		Assert.IsFalse(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterEnterCellWitness));
+		Assert.IsFalse(MotionSensorDetectionMode.StopMovement.MatchesEventType(EventType.CharacterEnterRoomWitness));
+	}
+
+	[DataTestMethod]
+	[DataRow("EnterCell")]
+	[DataRow("EnterRoom")]
+	[DataRow("2")]
+	public void MotionSensorPrototype_LegacyDetectionMode_PreservesArrivalOnlyOnLoadSave(string persistedMode)
+	{
+		var gameworld = CreateGameworld();
+		var proto = CreateMotionSensorProto(gameworld.Object, persistedMode);
+		Assert.AreEqual(MotionSensorDetectionMode.EnterRoom, proto.DetectionMode);
+		Assert.IsTrue(proto.DetectionMode.MatchesEventType(EventType.CharacterEnterRoomWitness));
+		Assert.IsFalse(proto.DetectionMode.MatchesEventType(EventType.CharacterBeginMovementWitness));
+		var xml = XElement.Parse((string)typeof(PoweredMachineBaseGameItemComponentProto)
+			.GetMethod("SaveToXml", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(proto, [])!);
+		Assert.AreEqual("EnterCell", xml.Element("DetectionMode")!.Value);
+		var reloaded = CreateMotionSensorProto(gameworld.Object, xml.Element("DetectionMode")!.Value);
+		Assert.AreEqual(MotionSensorDetectionMode.EnterRoom, reloaded.DetectionMode);
 	}
 
 	[TestMethod]
@@ -385,10 +407,10 @@ return @togglevalue");
 	public void SignalComponentUtilities_FindSignalSource_UsesMountedHostAnchorForRoomLocalSources()
 	{
 		var gameworld = CreateGameworld();
-		var sharedCell = CreateCell(150L);
-		var hostItem = CreateBasicItem(gameworld.Object, 151L, "Electronic Door", sharedCell.Object);
+		var sharedRoom = CreateRoom(150L);
+		var hostItem = CreateBasicItem(gameworld.Object, 151L, "Electronic Door", sharedRoom.Object);
 		var moduleItem = CreateBasicItem(gameworld.Object, 152L, "Airlock Controller Module");
-		var sourceItem = CreateBasicItem(gameworld.Object, 153L, "Outside Motion Sensor", sharedCell.Object);
+		var sourceItem = CreateBasicItem(gameworld.Object, 153L, "Outside Motion Sensor", sharedRoom.Object);
 		var source = CreateSignalSourceMock(154L, "Door Outside Motion Sensor", parent: sourceItem.Object,
 			componentId: 155L,
 			signal: new ComputerSignal(1.0, TimeSpan.FromSeconds(10), null));
@@ -453,7 +475,7 @@ return @togglevalue");
 	public void AutomationMountHost_InstallAndRemoveModule_TracksMountedSeparateItem()
 	{
 		var gameworld = CreateGameworld();
-		var hostLocation = CreateCell(10L);
+		var hostLocation = CreateRoom(10L);
 		var hostItem = CreateBasicItem(gameworld.Object, 100L, "Automation Cabinet", hostLocation.Object);
 		IGameItemComponent[] hostComponents = [];
 		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
@@ -465,7 +487,7 @@ return @togglevalue");
 		hostItem.Setup(x => x.GetItemType<IAutomationMountHost>()).Returns(host);
 		hostComponents = [host];
 
-		var moduleLocation = CreateCell(11L);
+		var moduleLocation = CreateRoom(11L);
 		var moduleItem = CreateBasicItem(gameworld.Object, 200L, "Loose Controller", moduleLocation.Object);
 		var module = new Mock<IAutomationMountable>();
 		var connectable = module.As<IConnectable>();
@@ -496,7 +518,7 @@ return @togglevalue");
 	public void AutomationMountHost_CanAccessMounts_RequiresOpenSiblingPanel()
 	{
 		var gameworld = CreateGameworld();
-		var hostLocation = CreateCell(12L);
+		var hostLocation = CreateRoom(12L);
 		var hostItem = CreateBasicItem(gameworld.Object, 110L, "Sealed Cabinet", hostLocation.Object);
 		IGameItemComponent[] hostComponents = [];
 		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
@@ -592,7 +614,7 @@ return @togglevalue");
 	public void Microcontroller_UsesMountedHostPowerWhenConfigured()
 	{
 		var gameworld = CreateGameworld();
-		var hostLocation = CreateCell(40L);
+		var hostLocation = CreateRoom(40L);
 		var hostItem = CreateBasicItem(gameworld.Object, 400L, "Automation Cabinet", hostLocation.Object);
 		IGameItemComponent[] hostComponents = [];
 		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
@@ -610,7 +632,7 @@ return @togglevalue");
 			true);
 		hostComponents = [host];
 
-		var moduleLocation = CreateCell(41L);
+		var moduleLocation = CreateRoom(41L);
 		var moduleItem = CreateBasicItem(gameworld.Object, 401L, "Mounted Controller", moduleLocation.Object);
 		var localPower = new Mock<IProducePower>();
 		moduleItem.Setup(x => x.GetItemType<IProducePower>()).Returns(localPower.Object);
@@ -634,7 +656,7 @@ return @togglevalue");
 	public void Microcontroller_UsesAttachedHostPowerProducerWhenMounted()
 	{
 		var gameworld = CreateGameworld();
-		var hostLocation = CreateCell(42L);
+		var hostLocation = CreateRoom(42L);
 		var hostItem = CreateBasicItem(gameworld.Object, 402L, "Security Door", hostLocation.Object);
 		IGameItemComponent[] hostComponents = [];
 		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
@@ -658,7 +680,7 @@ return @togglevalue");
 			true);
 		hostComponents = [host];
 
-		var moduleLocation = CreateCell(43L);
+		var moduleLocation = CreateRoom(43L);
 		var moduleItem = CreateBasicItem(gameworld.Object, 404L, "Mounted Controller", moduleLocation.Object);
 		var localPower = new Mock<IProducePower>();
 		moduleItem.Setup(x => x.GetItemType<IProducePower>()).Returns(localPower.Object);
@@ -708,7 +730,7 @@ return @togglevalue");
 	public void Microcontroller_RestoresMountHostFromPendingHostIdForPowerResolution()
 	{
 		var gameworld = CreateGameworld();
-		var hostLocation = CreateCell(44L);
+		var hostLocation = CreateRoom(44L);
 		var hostItem = CreateBasicItem(gameworld.Object, 405L, "Security Door", hostLocation.Object);
 		IGameItemComponent[] hostComponents = [];
 		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
@@ -731,7 +753,7 @@ return @togglevalue");
 		hostItem.Setup(x => x.GetItemTypes<IConnectable>()).Returns([host]);
 		gameworld.Setup(x => x.TryGetItem(hostItem.Object.Id, true)).Returns(hostItem.Object);
 
-		var moduleLocation = CreateCell(45L);
+		var moduleLocation = CreateRoom(45L);
 		var moduleItem = CreateBasicItem(gameworld.Object, 406L, "Mounted Controller", moduleLocation.Object);
 		var controller = new MicrocontrollerGameItemComponent(CreateMicrocontrollerProto(gameworld.Object),
 			moduleItem.Object,
@@ -759,8 +781,8 @@ return @togglevalue");
 	public void Microcontroller_Login_ReconnectsSourcesAndSeedsCurrentValues()
 	{
 		var gameworld = CreateGameworld();
-		var sharedCell = CreateCell(46L);
-		var hostItem = CreateBasicItem(gameworld.Object, 407L, "Security Door", sharedCell.Object);
+		var sharedRoom = CreateRoom(46L);
+		var hostItem = CreateBasicItem(gameworld.Object, 407L, "Security Door", sharedRoom.Object);
 		IGameItemComponent[] hostComponents = [];
 		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
 		var hostPower = new Mock<IProducePower>();
@@ -778,13 +800,13 @@ return @togglevalue");
 		hostComponents = [host];
 
 		var moduleItem = CreateBasicItem(gameworld.Object, 408L, "Airlock Controller Module");
-		var sourceItem = CreateBasicItem(gameworld.Object, 409L, "Outside Motion Sensor", sharedCell.Object);
+		var sourceItem = CreateBasicItem(gameworld.Object, 409L, "Outside Motion Sensor", sharedRoom.Object);
 		var currentSignal = new ComputerSignal(1.0, TimeSpan.FromSeconds(10), null);
 		var source = CreateSignalSourceMock(410L, "Door Outside Motion Sensor", parent: sourceItem.Object,
 			componentId: 411L, signal: currentSignal);
 		sourceItem.Setup(x => x.GetItemTypes<ISignalSourceComponent>()).Returns([source.Object]);
 		sourceItem.SetupGet(x => x.Components).Returns([source.Object]);
-		sharedCell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([hostItem.Object, sourceItem.Object]);
+		sharedRoom.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([hostItem.Object, sourceItem.Object]);
 
 		var controller = new MicrocontrollerGameItemComponent(CreateMicrocontrollerProto(gameworld.Object),
 			moduleItem.Object,
@@ -809,7 +831,7 @@ return @togglevalue");
 	public void Microcontroller_Login_RetriesPowerResolutionUntilHostPowerBecomesAccessible()
 	{
 		var gameworld = CreateGameworld();
-		var hostLocation = CreateCell(47L);
+		var hostLocation = CreateRoom(47L);
 		var hostItem = CreateBasicItem(gameworld.Object, 412L, "Security Door", hostLocation.Object);
 		IGameItem[] attachedItems = [];
 		IGameItemComponent[] hostComponents = [];
@@ -913,11 +935,11 @@ return @togglevalue");
 		var mover = new Mock<ICharacter>();
 		mover.SetupGet(x => x.Size).Returns(SizeCategory.Normal);
 
-		sensor.HandleEvent(EventType.CharacterEnterCellWitness, mover.Object);
+		sensor.HandleEvent(EventType.CharacterEnterRoomWitness, mover.Object);
 		Assert.AreEqual(0.0, sensor.CurrentValue, 0.0001);
 
 		sensor.OnPowerCutIn();
-		sensor.HandleEvent(EventType.CharacterEnterCellWitness, mover.Object);
+		sensor.HandleEvent(EventType.CharacterEnterRoomWitness, mover.Object);
 		Assert.AreEqual(1.0, sensor.CurrentValue, 0.0001);
 	}
 
@@ -925,7 +947,7 @@ return @togglevalue");
 	public void AutomationMountHost_Quit_QuitsMountedModules()
 	{
 		var gameworld = CreateGameworld();
-		var hostLocation = CreateCell(49L);
+		var hostLocation = CreateRoom(49L);
 		var hostItem = CreateBasicItem(gameworld.Object, 416L, "Automation Cabinet", hostLocation.Object);
 		IGameItemComponent[] hostComponents = [];
 		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
@@ -936,7 +958,7 @@ return @togglevalue");
 			true);
 		hostComponents = [host];
 
-		var moduleLocation = CreateCell(50L);
+		var moduleLocation = CreateRoom(50L);
 		var moduleItem = CreateBasicItem(gameworld.Object, 417L, "Mounted Controller", moduleLocation.Object);
 		var module = new Mock<IAutomationMountable>();
 		var connectable = module.As<IConnectable>();
@@ -957,7 +979,7 @@ return @togglevalue");
 	public void AutomationMountHost_Login_LogsInMountedModules()
 	{
 		var gameworld = CreateGameworld();
-		var hostLocation = CreateCell(51L);
+		var hostLocation = CreateRoom(51L);
 		var hostItem = CreateBasicItem(gameworld.Object, 418L, "Automation Cabinet", hostLocation.Object);
 		IGameItemComponent[] hostComponents = [];
 		hostItem.SetupGet(x => x.Components).Returns(() => hostComponents);
@@ -968,7 +990,7 @@ return @togglevalue");
 			true);
 		hostComponents = [host];
 
-		var moduleLocation = CreateCell(52L);
+		var moduleLocation = CreateRoom(52L);
 		var moduleItem = CreateBasicItem(gameworld.Object, 419L, "Mounted Controller", moduleLocation.Object);
 		var module = new Mock<IAutomationMountable>();
 		var connectable = module.As<IConnectable>();
@@ -999,7 +1021,7 @@ return @togglevalue");
 		mover.Setup(x => x.CombinedEffectsOfType<IImmwalkEffect>()).Returns([Mock.Of<IImmwalkEffect>()]);
 
 		sensor.OnPowerCutIn();
-		sensor.HandleEvent(EventType.CharacterEnterCellWitness, mover.Object);
+		sensor.HandleEvent(EventType.CharacterEnterRoomWitness, mover.Object);
 
 		Assert.AreEqual(0.0, sensor.CurrentValue, 0.0001);
 	}
@@ -1008,10 +1030,10 @@ return @togglevalue");
 	public void LightSensor_ReportsCurrentIlluminationWhenPowered()
 	{
 		var gameworld = CreateGameworld();
-		var cell = CreateCell(502L);
+		var room = CreateRoom(502L);
 		var illumination = 37.5;
-		cell.Setup(x => x.CurrentIllumination(It.IsAny<IPerceiver>())).Returns(() => illumination);
-		var item = CreateBasicItem(gameworld.Object, 5020L, "Light Sensor", cell.Object);
+		room.Setup(x => x.CurrentIllumination(It.IsAny<IPerceiver>())).Returns(() => illumination);
+		var item = CreateBasicItem(gameworld.Object, 5020L, "Light Sensor", room.Object);
 		var sensor = new LightSensorGameItemComponent(CreateLightSensorProto(gameworld.Object), item.Object, true)
 		{
 			SwitchedOn = true
@@ -1032,14 +1054,14 @@ return @togglevalue");
 	public void RainSensor_ReportsRainIntensityAndSheltersIndoorLocations()
 	{
 		var gameworld = CreateGameworld();
-		var cell = CreateCell(503L);
-		var outdoorsType = CellOutdoorsType.Outdoors;
+		var room = CreateRoom(503L);
+		var outdoorsType = RoomOutdoorsType.Outdoors;
 		var precipitation = PrecipitationLevel.Rain;
 		var weather = new Mock<IWeatherEvent>();
 		weather.SetupGet(x => x.Precipitation).Returns(() => precipitation);
-		cell.Setup(x => x.OutdoorsType(It.IsAny<IPerceiver>())).Returns(() => outdoorsType);
-		cell.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns(() => weather.Object);
-		var item = CreateBasicItem(gameworld.Object, 5030L, "Rain Sensor", cell.Object);
+		room.Setup(x => x.OutdoorsType(It.IsAny<IPerceiver>())).Returns(() => outdoorsType);
+		room.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns(() => weather.Object);
+		var item = CreateBasicItem(gameworld.Object, 5030L, "Rain Sensor", room.Object);
 		var sensor = new RainSensorGameItemComponent(CreateRainSensorProto(gameworld.Object), item.Object, true)
 		{
 			SwitchedOn = true
@@ -1048,7 +1070,7 @@ return @togglevalue");
 		sensor.OnPowerCutIn();
 		Assert.AreEqual(2.0, sensor.CurrentValue, 0.0001);
 
-		outdoorsType = CellOutdoorsType.Indoors;
+		outdoorsType = RoomOutdoorsType.Indoors;
 		typeof(RainSensorGameItemComponent)
 			.GetMethod("HeartbeatTick", BindingFlags.Instance | BindingFlags.NonPublic)!
 			.Invoke(sensor, []);
@@ -1063,9 +1085,9 @@ return @togglevalue");
 		var unitManager = new Mock<IUnitManager>();
 		unitManager.SetupGet(x => x.BaseTemperatureToCelcius).Returns(2.0);
 		gameworld.SetupGet(x => x.UnitManager).Returns(unitManager.Object);
-		var cell = CreateCell(504L);
-		cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(10.75);
-		var item = CreateBasicItem(gameworld.Object, 5040L, "Temperature Sensor", cell.Object);
+		var room = CreateRoom(504L);
+		room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(10.75);
+		var item = CreateBasicItem(gameworld.Object, 5040L, "Temperature Sensor", room.Object);
 		var sensor = new TemperatureSensorGameItemComponent(CreateTemperatureSensorProto(gameworld.Object), item.Object,
 			true)
 		{
@@ -1239,10 +1261,10 @@ return @togglevalue");
 
 		var actor = new Mock<ICharacter>();
 		PhysicalManipulationTestHelper.SetUpUsableHands(actor);
-		var cell = new Mock<ICell>();
-		cell.Setup(x => x.CanGetAccess(It.IsAny<IGameItem>(), actor.Object)).Returns(true);
-		actor.SetupGet(x => x.Location).Returns(cell.Object);
-		scannerItem.SetupGet(x => x.Location).Returns(cell.Object);
+		var room = new Mock<IRoom>();
+		room.Setup(x => x.CanGetAccess(It.IsAny<IGameItem>(), actor.Object)).Returns(true);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
+		scannerItem.SetupGet(x => x.Location).Returns(room.Object);
 		scannerItem.SetupGet(x => x.BasePlanarPresence).Returns(MudSharp.Planes.PlanarPresenceDefinition.DefaultMaterial(1));
 		Assert.IsTrue(scanner.CanScan(actor.Object, severedItem.Object, out var identityId, out error), error);
 		Assert.AreEqual(42L, identityId);
@@ -1324,23 +1346,23 @@ return @togglevalue");
 	[TestMethod]
 	public void SignalCableSegment_ConfigureRoute_MirrorsAdjacentSourceAcrossSpecificExit()
 	{
-		var destinationCell = CreateCell(20L);
-		var sourceExit = new Mock<ICellExit>();
+		var destinationRoom = CreateRoom(20L);
+		var sourceExit = new Mock<IRoomExit>();
 		var exit = new Mock<IExit>();
 		exit.SetupGet(x => x.Id).Returns(601L);
 		sourceExit.SetupGet(x => x.Exit).Returns(exit.Object);
-		sourceExit.SetupGet(x => x.Destination).Returns(destinationCell.Object);
+		sourceExit.SetupGet(x => x.Destination).Returns(destinationRoom.Object);
 		sourceExit.SetupGet(x => x.OutboundDirectionDescription).Returns("east");
-		var sourceCell = CreateCell(19L, [sourceExit.Object]);
+		var sourceRoom = CreateRoom(19L, [sourceExit.Object]);
 
 		var sourceSignal = new ComputerSignal(7.5, TimeSpan.FromSeconds(15), null);
 		var gameworld = CreateGameworld();
-		var sourceItem = CreateBasicItem(gameworld.Object, 300L, "Motion Sensor", sourceCell.Object);
+		var sourceItem = CreateBasicItem(gameworld.Object, 300L, "Motion Sensor", sourceRoom.Object);
 		var source = CreateSignalSourceMock(41L, "MotionSensor", parent: sourceItem.Object, signal: sourceSignal,
 			componentId: 208L);
 		sourceItem.Setup(x => x.GetItemTypes<ISignalSourceComponent>()).Returns([source.Object]);
 
-		var cableItem = CreateBasicItem(gameworld.Object, 301L, "Signal Cable", destinationCell.Object);
+		var cableItem = CreateBasicItem(gameworld.Object, 301L, "Signal Cable", destinationRoom.Object);
 		var cable = new SignalCableSegmentGameItemComponent(CreateSignalCableProto(gameworld.Object), cableItem.Object,
 			true);
 
@@ -1360,16 +1382,16 @@ return @togglevalue");
 	[TestMethod]
 	public void SignalCableSegment_ConfigureRoute_RejectsNonAdjacentSource()
 	{
-		var destinationCell = CreateCell(30L);
-		var sourceCell = CreateCell(29L);
+		var destinationRoom = CreateRoom(30L);
+		var sourceRoom = CreateRoom(29L);
 		var sourceSignal = new ComputerSignal(2.0, null, null);
 		var gameworld = CreateGameworld();
-		var sourceItem = CreateBasicItem(gameworld.Object, 310L, "Remote Sensor", sourceCell.Object);
+		var sourceItem = CreateBasicItem(gameworld.Object, 310L, "Remote Sensor", sourceRoom.Object);
 		var source = CreateSignalSourceMock(51L, "RemoteSensor", parent: sourceItem.Object, signal: sourceSignal,
 			componentId: 309L);
 		sourceItem.Setup(x => x.GetItemTypes<ISignalSourceComponent>()).Returns([source.Object]);
 
-		var cableItem = CreateBasicItem(gameworld.Object, 311L, "Signal Cable", destinationCell.Object);
+		var cableItem = CreateBasicItem(gameworld.Object, 311L, "Signal Cable", destinationRoom.Object);
 		var cable = new SignalCableSegmentGameItemComponent(CreateSignalCableProto(gameworld.Object), cableItem.Object,
 			true);
 
@@ -1548,14 +1570,14 @@ return @togglevalue");
 	public void ElectronicDoor_HeartbeatReconnect_ResolvesLateSourceAndOpensWhenSignalIsActive()
 	{
 		var gameworld = CreateGameworld();
-		var sharedCell = CreateCell(9061L);
-		var currentLocations = Array.Empty<ICell>();
+		var sharedRoom = CreateRoom(9061L);
+		var currentLocations = Array.Empty<IRoom>();
 		var doorItem = CreateBasicItem(gameworld.Object, 9062L, "Electronic Door");
 		doorItem.SetupGet(x => x.TrueLocations).Returns(() => currentLocations);
 		doorItem.SetupGet(x => x.Location).Returns(() => currentLocations.FirstOrDefault()!);
 		doorItem.SetupGet(x => x.AttachedAndConnectedItems).Returns(Array.Empty<IGameItem>());
 
-		var sourceItem = CreateBasicItem(gameworld.Object, 9063L, "Airlock Controller Module", sharedCell.Object);
+		var sourceItem = CreateBasicItem(gameworld.Object, 9063L, "Airlock Controller Module", sharedRoom.Object);
 		var source = CreateSignalSourceMock(1L, "DoorController",
 			parent: sourceItem.Object,
 			componentId: 1L,
@@ -1572,8 +1594,8 @@ return @togglevalue");
 		door.Login();
 		Assert.IsFalse(door.IsOpen);
 
-		currentLocations = [sharedCell.Object];
-		sharedCell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([doorItem.Object, sourceItem.Object]);
+		currentLocations = [sharedRoom.Object];
+		sharedRoom.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([doorItem.Object, sourceItem.Object]);
 
 		typeof(ElectronicDoorGameItemComponent)
 			.GetMethod("HeartbeatTick", BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -1586,16 +1608,16 @@ return @togglevalue");
 	public void ElectronicDoor_SourceSignal_ClosesAnOpenDoorWhenConfiguredBelowThreshold()
 	{
 		var gameworld = CreateGameworld();
-		var sharedCell = CreateCell(9064L);
-		var doorItem = CreateBasicItem(gameworld.Object, 9065L, "Electronic Door", sharedCell.Object);
-		doorItem.SetupGet(x => x.TrueLocations).Returns([sharedCell.Object]);
+		var sharedRoom = CreateRoom(9064L);
+		var doorItem = CreateBasicItem(gameworld.Object, 9065L, "Electronic Door", sharedRoom.Object);
+		doorItem.SetupGet(x => x.TrueLocations).Returns([sharedRoom.Object]);
 		doorItem.SetupGet(x => x.AttachedAndConnectedItems).Returns(Array.Empty<IGameItem>());
 
-		var sourceItem = CreateBasicItem(gameworld.Object, 9066L, "Airlock Controller Module", sharedCell.Object);
+		var sourceItem = CreateBasicItem(gameworld.Object, 9066L, "Airlock Controller Module", sharedRoom.Object);
 		var source = CreateSignalSourceMock(1L, "DoorController", parent: sourceItem.Object, componentId: 1L);
 		sourceItem.Setup(x => x.GetItemTypes<ISignalSourceComponent>()).Returns([source.Object]);
 		sourceItem.SetupGet(x => x.Components).Returns([source.Object]);
-		sharedCell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([doorItem.Object, sourceItem.Object]);
+		sharedRoom.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([doorItem.Object, sourceItem.Object]);
 
 		var door = new ElectronicDoorGameItemComponent(CreateElectronicDoorProto(gameworld.Object), doorItem.Object, true)
 		{
@@ -1613,10 +1635,10 @@ return @togglevalue");
 	public void ElectronicsModule_ResolveNearbySignalSource_UsesMountedHostLocationAndPlayerItemKeywords()
 	{
 		var gameworld = CreateGameworld();
-		var cell = CreateCell(907L);
-		var hostItem = CreateBasicItem(gameworld.Object, 9070L, "Electronic Door", cell.Object);
+		var room = CreateRoom(907L);
+		var hostItem = CreateBasicItem(gameworld.Object, 9070L, "Electronic Door", room.Object);
 		var moduleItem = CreateBasicItem(gameworld.Object, 9071L, "Airlock Controller Module");
-		var sourceItem = CreateBasicItem(gameworld.Object, 9072L, "Outside Motion Sensor", cell.Object);
+		var sourceItem = CreateBasicItem(gameworld.Object, 9072L, "Outside Motion Sensor", room.Object);
 		var source = CreateSignalSourceMock(9073L, "Door Outside Motion Sensor", parent: sourceItem.Object,
 			componentId: 9074L);
 		var host = new Mock<IAutomationMountHost>();
@@ -1628,7 +1650,7 @@ return @togglevalue");
 		moduleItem.Setup(x => x.GetItemType<IAutomationMountable>()).Returns(mountable.Object);
 		sourceItem.SetupGet(x => x.Components).Returns([source.Object]);
 		actor.Setup(x => x.TargetItem("outside")).Returns(sourceItem.Object);
-		cell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([hostItem.Object, sourceItem.Object]);
+		room.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([hostItem.Object, sourceItem.Object]);
 
 		var method = typeof(ElectronicDoorGameItemComponent).Assembly
 			.GetType("MudSharp.Commands.Modules.ElectronicsModule", true)!
@@ -1643,10 +1665,10 @@ return @togglevalue");
 	public void ElectronicsModule_ResolveNearbySignalSource_FallsBackToActorLocationWhenMountedHostHasNoTrueLocation()
 	{
 		var gameworld = CreateGameworld();
-		var actorCell = CreateCell(9075L);
+		var actorRoom = CreateRoom(9075L);
 		var hostItem = CreateBasicItem(gameworld.Object, 9076L, "Security Door");
 		var moduleItem = CreateBasicItem(gameworld.Object, 9077L, "Airlock Controller Module");
-		var sourceItem = CreateBasicItem(gameworld.Object, 9078L, "Outside Motion Sensor", actorCell.Object);
+		var sourceItem = CreateBasicItem(gameworld.Object, 9078L, "Outside Motion Sensor", actorRoom.Object);
 		var source = CreateSignalSourceMock(9079L, "Door Outside Motion Sensor", parent: sourceItem.Object,
 			componentId: 9080L);
 		var host = new Mock<IAutomationMountHost>();
@@ -1657,10 +1679,10 @@ return @togglevalue");
 		mountable.SetupGet(x => x.MountHost).Returns(host.Object);
 		moduleItem.Setup(x => x.GetItemType<IAutomationMountable>()).Returns(mountable.Object);
 		sourceItem.SetupGet(x => x.Components).Returns([source.Object]);
-		actor.SetupGet(x => x.Location).Returns(actorCell.Object);
+		actor.SetupGet(x => x.Location).Returns(actorRoom.Object);
 		actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		actor.Setup(x => x.TargetItem("sensor")).Returns(sourceItem.Object);
-		actorCell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([sourceItem.Object]);
+		actorRoom.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([sourceItem.Object]);
 
 		var method = typeof(ElectronicDoorGameItemComponent).Assembly
 			.GetType("MudSharp.Commands.Modules.ElectronicsModule", true)!
@@ -1693,10 +1715,10 @@ return @togglevalue");
 	public void ElectronicsModule_ShowElectricalStatus_DisplaysControllerInputsAndResolvedSignalPaths()
 	{
 		var gameworld = CreateGameworld();
-		var sharedCell = CreateCell(9083L);
-		var doorItem = CreateBasicItem(gameworld.Object, 9084L, "Electronic Door", sharedCell.Object);
+		var sharedRoom = CreateRoom(9083L);
+		var doorItem = CreateBasicItem(gameworld.Object, 9084L, "Electronic Door", sharedRoom.Object);
 		var controllerItem = CreateBasicItem(gameworld.Object, 9085L, "Airlock Controller Module");
-		var sourceItem = CreateBasicItem(gameworld.Object, 9086L, "Outside Motion Sensor", sharedCell.Object);
+		var sourceItem = CreateBasicItem(gameworld.Object, 9086L, "Outside Motion Sensor", sharedRoom.Object);
 		var source = CreateSignalSourceMock(9087L, "Door Outside Motion Sensor", parent: sourceItem.Object,
 			componentId: 9088L,
 			signal: new ComputerSignal(1.0, TimeSpan.FromSeconds(10), null));
@@ -1762,7 +1784,7 @@ return @togglevalue");
 	public void ElectronicsModule_ShowElectricalStatus_DisplaysNearbyCableRoutesForInspectedSensor()
 	{
 		var gameworld = CreateGameworld();
-		var sharedCell = CreateCell(9090L);
+		var sharedRoom = CreateRoom(9090L);
 		var outputHandler = new Mock<IOutputHandler>();
 		var actor = new Mock<ICharacter>();
 		string? statusText = null;
@@ -1771,29 +1793,29 @@ return @togglevalue");
 		outputHandler.Setup(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
 			.Callback<string, bool, bool>((text, _, _) => statusText = text);
 
-		var sensorItem = CreateBasicItem(gameworld.Object, 9091L, "Outside Motion Sensor", sharedCell.Object);
+		var sensorItem = CreateBasicItem(gameworld.Object, 9091L, "Outside Motion Sensor", sharedRoom.Object);
 		var sensor = CreateSignalSourceMock(9092L, "Door Outside Motion Sensor", parent: sensorItem.Object,
 			componentId: 9093L,
 			signal: new ComputerSignal(1.0, TimeSpan.FromSeconds(10), null));
 		sensorItem.SetupGet(x => x.Components).Returns([sensor.Object]);
 		sensorItem.Setup(x => x.GetItemTypes<ISignalSourceComponent>()).Returns([sensor.Object]);
 
-		var cableItem = CreateBasicItem(gameworld.Object, 9094L, "Signal Cable", sharedCell.Object);
+		var cableItem = CreateBasicItem(gameworld.Object, 9094L, "Signal Cable", sharedRoom.Object);
 		var cable = new SignalCableSegmentGameItemComponent(CreateSignalCableProto(gameworld.Object), cableItem.Object,
 			true);
 		cableItem.SetupGet(x => x.Components).Returns([cable]);
-		sharedCell.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([sensorItem.Object, cableItem.Object]);
+		sharedRoom.Setup(x => x.LayerGameItems(RoomLayer.GroundLevel)).Returns([sensorItem.Object, cableItem.Object]);
 		actor.Setup(x => x.CanSee(cableItem.Object, It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
 		gameworld.Setup(x => x.TryGetItem(It.IsAny<long>(), It.IsAny<bool>()))
 			.Returns((long id, bool _) => id == sensorItem.Object.Id ? sensorItem.Object : null!);
 
 		var exit = new Mock<IExit>();
 		exit.SetupGet(x => x.Id).Returns(9095L);
-		var route = new Mock<ICellExit>();
+		var route = new Mock<IRoomExit>();
 		route.SetupGet(x => x.Exit).Returns(exit.Object);
-		route.SetupGet(x => x.Destination).Returns(sharedCell.Object);
+		route.SetupGet(x => x.Destination).Returns(sharedRoom.Object);
 		route.SetupGet(x => x.OutboundDirectionDescription).Returns("south");
-		sharedCell.Setup(x => x.ExitsFor(sensorItem.Object)).Returns([route.Object]);
+		sharedRoom.Setup(x => x.ExitsFor(sensorItem.Object)).Returns([route.Object]);
 
 		Assert.IsTrue(cable.ConfigureRoute(sensor.Object, exit.Object.Id, out var error), error);
 
@@ -1847,22 +1869,22 @@ return @togglevalue");
 		return gameworld;
 	}
 
-	private static Mock<ICell> CreateCell(long id, IEnumerable<ICellExit>? exits = null)
+	private static Mock<IRoom> CreateRoom(long id, IEnumerable<IRoomExit>? exits = null)
 	{
-		var cell = new Mock<ICell>();
-		var exitList = (exits ?? Enumerable.Empty<ICellExit>()).ToList();
-		cell.SetupGet(x => x.Id).Returns(id);
-		cell.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns(() => exitList);
-		cell.Setup(x => x.Insert(It.IsAny<IGameItem>()));
-		cell.Setup(x => x.Extract(It.IsAny<IGameItem>()));
-		cell.Setup(x => x.CurrentIllumination(It.IsAny<IPerceiver>())).Returns(0.0);
-		cell.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(0.0);
-		cell.Setup(x => x.OutdoorsType(It.IsAny<IPerceiver>())).Returns(CellOutdoorsType.Outdoors);
-		cell.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns((IWeatherEvent)null!);
-		return cell;
+		var room = new Mock<IRoom>();
+		var exitList = (exits ?? Enumerable.Empty<IRoomExit>()).ToList();
+		room.SetupGet(x => x.Id).Returns(id);
+		room.Setup(x => x.ExitsFor(It.IsAny<IPerceiver>(), It.IsAny<bool>())).Returns(() => exitList);
+		room.Setup(x => x.Insert(It.IsAny<IGameItem>()));
+		room.Setup(x => x.Extract(It.IsAny<IGameItem>()));
+		room.Setup(x => x.CurrentIllumination(It.IsAny<IPerceiver>())).Returns(0.0);
+		room.Setup(x => x.CurrentTemperature(It.IsAny<IPerceiver>())).Returns(0.0);
+		room.Setup(x => x.OutdoorsType(It.IsAny<IPerceiver>())).Returns(RoomOutdoorsType.Outdoors);
+		room.Setup(x => x.CurrentWeather(It.IsAny<IPerceiver>())).Returns((IWeatherEvent)null!);
+		return room;
 	}
 
-	private static Mock<IGameItem> CreateBasicItem(IFuturemud gameworld, long id, string name, params ICell[] trueLocations)
+	private static Mock<IGameItem> CreateBasicItem(IFuturemud gameworld, long id, string name, params IRoom[] trueLocations)
 	{
 		var item = new Mock<IGameItem>();
 		item.SetupGet(x => x.Id).Returns(id);
@@ -2016,7 +2038,8 @@ return @togglevalue");
 			]);
 	}
 
-	private static MotionSensorGameItemComponentProto CreateMotionSensorProto(IFuturemud gameworld)
+	private static MotionSensorGameItemComponentProto CreateMotionSensorProto(IFuturemud gameworld,
+		string persistedMode = "AnyMovement")
 	{
 		var definition = new XElement("Definition",
 			new XElement("Wattage", 50.0),
@@ -2030,7 +2053,7 @@ return @togglevalue");
 			new XElement("SignalValue", 1.0),
 			new XElement("SignalDurationSeconds", 10.0),
 			new XElement("MinimumSize", SizeCategory.Normal),
-			new XElement("DetectionMode", MotionSensorDetectionMode.AnyMovement)
+			new XElement("DetectionMode", persistedMode)
 		);
 
 		return (MotionSensorGameItemComponentProto)typeof(MotionSensorGameItemComponentProto)

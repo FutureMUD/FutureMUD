@@ -20,7 +20,7 @@ namespace MudSharp.Construction
         OnRooftops = 8
     }
 
-    public enum CellOutdoorsType
+    public enum RoomOutdoorsType
     {
         Indoors,
         IndoorsWithWindows,
@@ -51,7 +51,7 @@ namespace MudSharp.Construction
 
         /// <summary>
         /// Distant is for things that are in the same location, but not in any other way close to each other.
-        /// The usual MUD example is any two items in the same cell that do not otherwise have a relationship
+        /// The usual MUD example is any two items in the same room that do not otherwise have a relationship
         /// </summary>
         Distant,
 
@@ -66,21 +66,21 @@ namespace MudSharp.Construction
         Unapproximable
     }
 
-    public static class CellOutdoorsTypeExtension
+    public static class RoomOutdoorsTypeExtension
     {
-        public static string Describe(this CellOutdoorsType type)
+        public static string Describe(this RoomOutdoorsType type)
         {
             switch (type)
             {
-                case CellOutdoorsType.Indoors:
+                case RoomOutdoorsType.Indoors:
                     return "Indoors";
-                case CellOutdoorsType.IndoorsWithWindows:
+                case RoomOutdoorsType.IndoorsWithWindows:
                     return "Indoors (With View of Outside)";
-                case CellOutdoorsType.Outdoors:
+                case RoomOutdoorsType.Outdoors:
                     return "Outdoors";
-                case CellOutdoorsType.IndoorsNoLight:
+                case RoomOutdoorsType.IndoorsNoLight:
                     return "Indoors (With No Natural Light)";
-                case CellOutdoorsType.IndoorsClimateExposed:
+                case RoomOutdoorsType.IndoorsClimateExposed:
                     return "Indoors (Exposed to Climate)";
                 default:
                     throw new NotSupportedException("Invalid CellOutdoorsType in CellOutdoorsTypeExtension.Describe");

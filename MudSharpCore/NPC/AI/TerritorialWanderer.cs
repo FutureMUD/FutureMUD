@@ -351,7 +351,7 @@ public class TerritorialWanderer : PathingAIBase
 
     #endregion
 
-    public IEnumerable<ICell> PotentialFreeTerritory(ICharacterTemplate template, IEnumerable<IZone> zones)
+    public IEnumerable<IRoom> PotentialFreeTerritory(ICharacterTemplate template, IEnumerable<IZone> zones)
     {
         if (!SuitableTerritoryProg.MatchesParameters(new[]
             {
@@ -363,20 +363,20 @@ public class TerritorialWanderer : PathingAIBase
                 ProgVariableTypes.Toon
             }))
         {
-            return Enumerable.Empty<ICell>();
+            return Enumerable.Empty<IRoom>();
         }
 
-        ICollection<ICell> claimedTerritory;
+        ICollection<IRoom> claimedTerritory;
         if (WillShareTerritory)
         {
-            claimedTerritory = new List<ICell>();
+            claimedTerritory = new List<IRoom>();
         }
         else if (WillShareTerritoryWithOtherRaces)
         {
             claimedTerritory = template.Gameworld.NPCs
                                        .Where(x => !x.Race.SameRace(template.SelectedRace))
                                        .SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
-                                       .SelectMany(x => x.Cells)
+                                       .SelectMany(x => x.Rooms)
                                        .Distinct()
                                        .ToList();
         }
@@ -384,13 +384,13 @@ public class TerritorialWanderer : PathingAIBase
         {
             claimedTerritory = template.Gameworld.NPCs
                                        .SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
-                                       .SelectMany(x => x.Cells)
+                                       .SelectMany(x => x.Rooms)
                                        .Distinct()
                                        .ToList();
         }
 
         return zones
-               .SelectMany(x => x.Cells)
+               .SelectMany(x => x.Rooms)
                .Except(claimedTerritory)
                .Where(x => SuitableTerritoryProg?.Execute<bool?>(x, template) ?? false)
             ;
@@ -419,12 +419,12 @@ public class TerritorialWanderer : PathingAIBase
         }
 
         Territory territoryEffect = character.CombinedEffectsOfType<Territory>().First();
-        if (!territoryEffect.Cells.Any())
+        if (!territoryEffect.Rooms.Any())
         {
             return;
         }
 
-        if (territoryEffect.Cells.Contains(character.Location))
+        if (territoryEffect.Rooms.Contains(character.Location))
         {
             // Wandering in territory
             if (RandomUtilities.DoubleRandom(0.0, 1.0) > WanderChancePerMinute)
@@ -432,9 +432,9 @@ public class TerritorialWanderer : PathingAIBase
                 return;
             }
 
-            Func<ICellExit, bool> suitability = GetSuitabilityFunction(character);
-            List<ICellExit> options = character.Location.ExitsFor(character)
-                                   .Where(x => territoryEffect.Cells.Contains(x.Destination))
+            Func<IRoomExit, bool> suitability = GetSuitabilityFunction(character);
+            List<IRoomExit> options = character.Location.ExitsFor(character)
+                                   .Where(x => territoryEffect.Rooms.Contains(x.Destination))
                                    .Where(x => suitability(x))
                                    .ToList();
             if (options.Any())
@@ -459,20 +459,20 @@ public class TerritorialWanderer : PathingAIBase
             character.AddEffect(territoryEffect);
         }
 
-        List<ICell> cells = territoryEffect.Cells.ToList();
-        if (cells.Count < DesiredTerritorySizeProg.ExecuteInt(0, character))
+        List<IRoom> rooms = territoryEffect.Rooms.ToList();
+        if (rooms.Count < DesiredTerritorySizeProg.ExecuteInt(0, character))
         {
-            ICollection<ICell> claimedTerritory;
+            ICollection<IRoom> claimedTerritory;
             if (WillShareTerritory)
             {
-                claimedTerritory = new List<ICell>();
+                claimedTerritory = new List<IRoom>();
             }
             else if (WillShareTerritoryWithOtherRaces)
             {
                 claimedTerritory = character.Gameworld.NPCs
                                             .Where(x => !x.Race.SameRace(character.Race))
                                             .SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
-                                            .SelectMany(x => x.Cells)
+                                            .SelectMany(x => x.Rooms)
                                             .Distinct()
                                             .ToList();
             }
@@ -480,44 +480,44 @@ public class TerritorialWanderer : PathingAIBase
             {
                 claimedTerritory = character.Gameworld.NPCs
                                             .SelectNotNull(x => x.CombinedEffectsOfType<Territory>().FirstOrDefault())
-                                            .SelectMany(x => x.Cells)
+                                            .SelectMany(x => x.Rooms)
                                             .Distinct()
                                             .ToList();
             }
 
-            if (cells.Count == 0)
+            if (rooms.Count == 0)
             {
                 if (SuitableTerritoryProg.Execute<bool?>(character.Location, character) == true &&
                     !claimedTerritory.Contains(character.Location))
                 {
-                    territoryEffect.AddCell(character.Location);
+                    territoryEffect.AddRoom(character.Location);
                     return;
                 }
 
-                (IPerceivable target, IEnumerable<ICellExit> _) = character.AcquireTargetAndPath(
+                (IPerceivable target, IEnumerable<IRoomExit> _) = character.AcquireTargetAndPath(
                     loc => SuitableTerritoryProg.Execute<bool?>(loc, character) == true &&
                            !claimedTerritory.Contains(loc),
                     20, GetSuitabilityFunction(character));
-                if (target is not ICell cell)
+                if (target is not IRoom room)
                 {
                     return;
                 }
 
-                territoryEffect.AddCell(cell);
+                territoryEffect.AddRoom(room);
                 return;
             }
 
-            foreach (ICell cell in territoryEffect.Cells)
+            foreach (IRoom room in territoryEffect.Rooms)
             {
-                ICell expand = cell
+                IRoom expand = room
                              .ExitsFor(character, true)
                              .Where(x => SuitableTerritoryProg.Execute<bool?>(x.Destination, character) == true &&
                                          !claimedTerritory.Contains(x.Destination))
                              .Select(x => x.Destination)
                              .GetRandomElement();
-                if (expand is not null && !territoryEffect.Cells.Contains(expand))
+                if (expand is not null && !territoryEffect.Rooms.Contains(expand))
                 {
-                    territoryEffect.AddCell(expand);
+                    territoryEffect.AddRoom(expand);
                     return;
                 }
             }
@@ -558,7 +558,7 @@ public class TerritorialWanderer : PathingAIBase
     }
 
     /// <inheritdoc />
-    protected override (ICell? Target, IEnumerable<ICellExit>) GetPath(ICharacter ch)
+    protected override (IRoom? Target, IEnumerable<IRoomExit>) GetPath(ICharacter ch)
     {
         Territory territoryEffect = ch.CombinedEffectsOfType<Territory>().FirstOrDefault();
         if (territoryEffect is null)
@@ -567,7 +567,7 @@ public class TerritorialWanderer : PathingAIBase
             ch.AddEffect(territoryEffect);
         }
 
-        List<ICellExit> path = ch.PathBetween(territoryEffect.Cells, 20, GetSuitabilityFunction(ch, true)).ToList();
+        List<IRoomExit> path = ch.PathBetween(territoryEffect.Rooms, 20, GetSuitabilityFunction(ch, true)).ToList();
         return (path.Last().Destination, path);
     }
 }

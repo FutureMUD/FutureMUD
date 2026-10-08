@@ -13,7 +13,7 @@ public class AutobuilderAreaRectangle : AutobuilderAreaBase
             (gameworld, name) => new AutobuilderAreaRectangle(name, gameworld));
     }
 
-    public virtual bool ConnectCellsWithDiagonalExits => false;
+    public virtual bool ConnectRoomsWithDiagonalExits => false;
 
     protected AutobuilderAreaRectangle(string name, IFuturemud gameworld, string type = null) : base(name, gameworld,
         type ?? "rectangle")
@@ -62,40 +62,40 @@ public class AutobuilderAreaRectangle : AutobuilderAreaBase
         _parameters.Add(new AutobuilderTerrainParameter("terrain type", "", true, Gameworld));
     }
 
-    public override IEnumerable<ICell> ExecuteTemplate(ICharacter builder, IEnumerable<object> arguments)
+    public override IEnumerable<IRoom> ExecuteTemplate(ICharacter builder, IEnumerable<object> arguments)
     {
-        ICellOverlayPackage package = builder.CurrentOverlayPackage;
+        IRoomOverlayPackage package = builder.CurrentOverlayPackage;
         List<object> argList = arguments.ToList();
         int height = (int)argList.ElementAt(0);
         int width = (int)argList.ElementAt(1);
         IAutobuilderRoom roomTemplate = (IAutobuilderRoom)argList.ElementAt(2);
         Terrain terrain = argList.ElementAtOrDefault(3) as Terrain;
 
-        ICell[,] cells = new ICell[width, height];
+        IRoom[,] rooms = new IRoom[width, height];
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
             {
-                ICell cell = roomTemplate.CreateRoom(builder, terrain, false);
-                cells[i, j] = cell;
+                IRoom room = roomTemplate.CreateRoom(builder, terrain, false);
+                rooms[i, j] = room;
 
             }
         }
 
-		AutobuilderRectangleTopology.ConnectCells(builder, package, cells, ConnectCellsWithDiagonalExits);
+		AutobuilderRectangleTopology.ConnectRooms(builder, package, rooms, ConnectRoomsWithDiagonalExits);
 
-        foreach (ICell cell in cells)
+        foreach (IRoom room in rooms)
         {
-            builder.Gameworld.ExitManager.UpdateCellOverlayExits(cell, cell.CurrentOverlay);
+            builder.Gameworld.ExitManager.UpdateRoomOverlayExits(room, room.CurrentOverlay);
         }
 
-        return cells.Cast<ICell>().ToList();
+        return rooms.Cast<IRoom>().ToList();
     }
 
     public override string Show(ICharacter builder)
     {
         return
-            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\nThis autobuilder template will return a rectangular area of linked cells with height, width, terrain and room template supplied by the builder.";
+            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\nThis autobuilder template will return a rectangular area of linked rooms with height, width, terrain and room template supplied by the builder.";
     }
 
     public override IAutobuilderArea Clone(string newName)

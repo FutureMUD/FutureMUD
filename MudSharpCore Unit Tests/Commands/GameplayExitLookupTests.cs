@@ -42,7 +42,7 @@ public class GameplayExitLookupTests
 		foreach (var exit in exits)
 		{
 			exit.VerifyGet(x => x.AcceptsDoor,
-				exit.Object.CellExitFor(fixture.Cell.Object).OutboundDirection == expected ? Times.Once() : Times.Never());
+				exit.Object.RoomExitFor(fixture.Room.Object).OutboundDirection == expected ? Times.Once() : Times.Never());
 		}
 	}
 
@@ -97,15 +97,15 @@ public class GameplayExitLookupTests
 		var fixture = new Fixture();
 		var exit = fixture.AddExit(CardinalDirection.Unknown, "street");
 
-		Assert.AreSame(exit.Object.CellExitFor(fixture.Cell.Object), fixture.Resolve("street"));
-		Assert.AreSame(exit.Object.CellExitFor(fixture.Cell.Object), fixture.Resolve("str"));
+		Assert.AreSame(exit.Object.RoomExitFor(fixture.Room.Object), fixture.Resolve("street"));
+		Assert.AreSame(exit.Object.RoomExitFor(fixture.Room.Object), fixture.Resolve("str"));
 	}
 
 	private sealed class Fixture
 	{
 		public Mock<ICharacter> Actor { get; } = new();
-		public Mock<ICell> Cell { get; } = new();
-		private readonly Mock<ICellOverlay> _overlay = new();
+		public Mock<IRoom> Room { get; } = new();
+		private readonly Mock<IRoomOverlay> _overlay = new();
 		private readonly TestExitManager _manager = new();
 		private readonly System.Collections.Generic.List<long> _ids = [];
 
@@ -113,43 +113,43 @@ public class GameplayExitLookupTests
 		{
 			var terrain = new Mock<ITerrain>();
 			terrain.SetupGet(x => x.TerrainLayers).Returns([RoomLayer.GroundLevel]);
-			Cell.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
-			Cell.SetupGet(x => x.Location).Returns(Cell.Object);
-			Cell.SetupGet(x => x.CurrentOverlay).Returns(_overlay.Object);
+			Room.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(terrain.Object);
+			Room.SetupGet(x => x.Location).Returns(Room.Object);
+			Room.SetupGet(x => x.CurrentOverlay).Returns(_overlay.Object);
 			_overlay.SetupGet(x => x.ExitIDs).Returns(_ids);
-			Actor.SetupGet(x => x.Location).Returns(Cell.Object);
+			Actor.SetupGet(x => x.Location).Returns(Room.Object);
 			Actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 			Actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
 			Actor.Setup(x => x.CanSee(It.IsAny<IPerceivable>(), PerceiveIgnoreFlags.None)).Returns(true);
-			Cell.Setup(x => x.GetExitKeyword(It.IsAny<string>(), Actor.Object))
+			Room.Setup(x => x.GetExitKeyword(It.IsAny<string>(), Actor.Object))
 				.Returns<string, IPerceiver>((keyword, _) => Resolve(keyword)!);
 		}
 
-		public ICellExit? Resolve(string keyword) => _manager.GetExitKeyword(Cell.Object, keyword, Actor.Object);
+		public IRoomExit? Resolve(string keyword) => _manager.GetExitKeyword(Room.Object, keyword, Actor.Object);
 
 		public Mock<IExit> AddExit(CardinalDirection direction, string? keyword = null)
 		{
 			var parent = new Mock<IExit>();
 			parent.SetupGet(x => x.Id).Returns(_ids.Count + 1);
 			parent.SetupGet(x => x.BlockedLayers).Returns([]);
-			ICellExit exit = keyword is null
-				? new CellExit(parent.Object, Cell.Object, Cell.Object, direction, direction)
-				: new NonCardinalCellExit(parent.Object, Cell.Object, Cell.Object, "leave", keyword,
+			IRoomExit exit = keyword is null
+				? new RoomExit(parent.Object, Room.Object, Room.Object, direction, direction)
+				: new NonCardinalRoomExit(parent.Object, Room.Object, Room.Object, "leave", keyword,
 					[keyword], "towards", keyword, "from", keyword);
-			parent.Setup(x => x.CellExitFor(Cell.Object)).Returns(exit);
-			parent.Setup(x => x.IsExitKeyword(Cell.Object, It.IsAny<string>()))
-				.Returns<ICell, string>((_, text) => exit.IsExitKeyword(text));
+			parent.Setup(x => x.RoomExitFor(Room.Object)).Returns(exit);
+			parent.Setup(x => x.IsExitKeyword(Room.Object, It.IsAny<string>()))
+				.Returns<IRoom, string>((_, text) => exit.IsExitKeyword(text));
 			_ids.Add(parent.Object.Id);
-			_manager.Add(Cell.Object, _overlay.Object, parent.Object);
+			_manager.Add(Room.Object, _overlay.Object, parent.Object);
 			return parent;
 		}
 	}
 
 	private sealed class TestExitManager() : ExitManager(Mock.Of<IFuturemud>())
 	{
-		public void Add(ICell cell, ICellOverlay overlay, IExit exit)
+		public void Add(IRoom room, IRoomOverlay overlay, IExit exit)
 		{
-			CellExitDictionary.Add((cell, overlay), exit);
+			RoomExitDictionary.Add((room, overlay), exit);
 		}
 	}
 }

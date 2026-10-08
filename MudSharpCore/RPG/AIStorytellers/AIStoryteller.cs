@@ -198,7 +198,7 @@ public partial class AIStoryteller : SaveableItem, IAIStoryteller
     public IAIStorytellerSurveillanceStrategy SurveillanceStrategy { get; private set; }
     public IFutureProg? CustomPlayerInformationProg { get; private set; }
 
-	private readonly List<ICell> _subscribedCells = [];
+	private readonly List<IRoom> _subscribedRooms = [];
 	private readonly List<IAIStorytellerCharacterMemory> _characterMemories = [];
 	public IEnumerable<IAIStorytellerCharacterMemory> CharacterMemories => _characterMemories;
 	private readonly SemaphoreSlim _storytellerWorkerSemaphore = new(1, 1);
@@ -291,14 +291,14 @@ Total Tokens: {usage.TotalTokenCount:N0}
             Gameworld.HeartbeatManager.FuzzyThirtyMinuteHeartbeat += HeartbeatManager_ThirtyMinuteHeartbeat;
         }
 
-        List<ICell> cells = SurveillanceStrategy.GetCells(Gameworld).ToList();
-        _subscribedCells.Clear();
-        _subscribedCells.AddRange(cells);
+        List<IRoom> rooms = SurveillanceStrategy.GetRooms(Gameworld).ToList();
+        _subscribedRooms.Clear();
+        _subscribedRooms.AddRange(rooms);
         if (SubscribeToRoomEvents)
         {
-            foreach (ICell cell in cells)
+            foreach (IRoom room in rooms)
             {
-                cell.OnRoomEmoteEcho += Cell_OnRoomEcho;
+                room.OnRoomEmoteEcho += Room_OnRoomEcho;
             }
         }
     }
@@ -570,7 +570,7 @@ Total Tokens: {usage.TotalTokenCount:N0}
         return true;
     }
 
-    private void AppendOpenSituationTitles(StringBuilder sb, ICell? triggerRoom = null,
+    private void AppendOpenSituationTitles(StringBuilder sb, IRoom? triggerRoom = null,
         IEnumerable<ICharacter?>? triggerCharacters = null)
     {
         List<long> triggerCharacterIds = triggerCharacters?
@@ -613,12 +613,12 @@ Total Tokens: {usage.TotalTokenCount:N0}
         return document.IsVisibleTo(this);
     }
 
-    internal void CellOnRoomEchoForTesting(ICell location, PerceptionEngine.IEmoteOutput emote)
+    internal void RoomOnRoomEchoForTesting(IRoom location, PerceptionEngine.IEmoteOutput emote)
     {
-        Cell_OnRoomEcho(location, null, emote);
+        Room_OnRoomEcho(location, null, emote);
     }
 
-    private void Cell_OnRoomEcho(ICell location, RoomLayer? layer, PerceptionEngine.IEmoteOutput emote)
+    private void Room_OnRoomEcho(IRoom location, RoomLayer? layer, PerceptionEngine.IEmoteOutput emote)
     {
         if (IsPaused)
         {
@@ -683,9 +683,9 @@ Total Tokens: {usage.TotalTokenCount:N0}
         Gameworld.HeartbeatManager.FuzzyTenMinuteHeartbeat -= HeartbeatManager_TenMinuteHeartbeat;
         Gameworld.HeartbeatManager.FuzzyThirtyMinuteHeartbeat -= HeartbeatManager_ThirtyMinuteHeartbeat;
         Gameworld.HeartbeatManager.FuzzyHourHeartbeat -= HeartbeatManager_FuzzyHourHeartbeat;
-        foreach (ICell cell in _subscribedCells)
+        foreach (IRoom room in _subscribedRooms)
         {
-            cell.OnRoomEmoteEcho -= Cell_OnRoomEcho;
+            room.OnRoomEmoteEcho -= Room_OnRoomEcho;
         }
     }
 

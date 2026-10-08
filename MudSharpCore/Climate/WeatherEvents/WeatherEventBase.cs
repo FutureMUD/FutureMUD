@@ -45,12 +45,12 @@ public abstract partial class WeatherEventBase : SaveableItem, IWeatherEvent, IH
         }
     }
 
-    public virtual void OnMinuteEvent(ICell cell)
+    public virtual void OnMinuteEvent(IRoom room)
     {
-		WeatherHazardService.Tick(this, cell, Constants.Random.NextDouble);
+		WeatherHazardService.Tick(this, room, Constants.Random.NextDouble);
     }
 
-    public virtual void OnFiveSecondEvent(ICell cell)
+    public virtual void OnFiveSecondEvent(IRoom room)
     {
         // Do nothing
     }

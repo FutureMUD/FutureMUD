@@ -10,11 +10,11 @@ public static partial class DirectionExtensions
     /// </summary>
     /// <param name="exits">A series of exits, with the order of the enumeration reflecting the distance from the origin</param>
     /// <returns>A string describing the directions</returns>
-    public static string DescribeDirection(this IEnumerable<ICellExit> exits)
+    public static string DescribeDirection(this IEnumerable<IRoomExit> exits)
     {
         bool exitFound = false;
-        ICellExit firstNonCardinal = null;
-        foreach (ICellExit exit in exits)
+        IRoomExit firstNonCardinal = null;
+        foreach (IRoomExit exit in exits)
         {
             if (exit.OutboundDirection != CardinalDirection.Unknown)
             {
@@ -46,11 +46,11 @@ public static partial class DirectionExtensions
     /// <param name="exits">A series of exits, with the order of the enumeration reflecting the distance from the origin</param>
     /// <param name="distance">Distance as the crow flies for the exits</param>
     /// <returns>Text describing the directions</returns>
-    public static string DescribeDirectionsToFrom(this IEnumerable<ICellExit> exits)
+    public static string DescribeDirectionsToFrom(this IEnumerable<IRoomExit> exits)
     {
         bool exitFound = false;
-        ICellExit firstNonCardinal = null;
-        foreach (ICellExit exit in exits)
+        IRoomExit firstNonCardinal = null;
+        foreach (IRoomExit exit in exits)
         {
             if (exit.OutboundDirection != CardinalDirection.Unknown)
             {
@@ -96,20 +96,20 @@ public static partial class DirectionExtensions
     }
 
     public static string DescribeDirectionKeywords<T>(this T path, ANSIColour colour = null)
-        where T : IEnumerable<ICellExit>
+        where T : IEnumerable<IRoomExit>
     {
         return path.Select(exit =>
-                       (exit is NonCardinalCellExit ncce
+                       (exit is NonCardinalRoomExit ncce
                            ? $"{ncce.Verb} {ncce.PrimaryKeyword}".ToLowerInvariant()
                            : exit.OutboundDirection.DescribeBrief()).Colour(colour))
                    .ListToString(conjunction: "", twoItemJoiner: "");
     }
 
     public static (int Northness, int Southness, int Westness, int Eastness, int Upness, int Downness)
-        CountDirections(this IEnumerable<ICellExit> directions)
+        CountDirections(this IEnumerable<IRoomExit> directions)
     {
         int northness = 0, southness = 0, westness = 0, eastness = 0, upness = 0, downness = 0;
-        foreach (ICellExit direction in directions)
+        foreach (IRoomExit direction in directions)
         {
             switch (direction.OutboundDirection)
             {
@@ -168,12 +168,12 @@ public static partial class DirectionExtensions
     }
 
     public static (int Northness, int Southness, int Westness, int Eastness, int Upness, int Downness)
-        CountTotalDirections<U, T>(this U directions) where T : IEnumerable<ICellExit> where U : IEnumerable<T>
+        CountTotalDirections<U, T>(this U directions) where T : IEnumerable<IRoomExit> where U : IEnumerable<T>
     {
         int northness = 0, southness = 0, westness = 0, eastness = 0, upness = 0, downness = 0;
         foreach (T item in directions)
         {
-            foreach (ICellExit direction in item)
+            foreach (IRoomExit direction in item)
             {
                 switch (direction.OutboundDirection)
                 {

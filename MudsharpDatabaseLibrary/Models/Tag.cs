@@ -7,7 +7,7 @@ namespace MudSharp.Models
     {
         public Tag()
         {
-            CellsTags = new HashSet<CellsTags>();
+            RoomsTags = new HashSet<RoomsTags>();
             GameItemProtosTags = new HashSet<GameItemProtosTags>();
             GasesTags = new HashSet<GasesTags>();
             InverseParent = new HashSet<Tag>();
@@ -24,7 +24,7 @@ namespace MudSharp.Models
 
         public virtual Tag Parent { get; set; }
         public virtual FutureProg ShouldSeeProg { get; set; }
-        public virtual ICollection<CellsTags> CellsTags { get; set; }
+        public virtual ICollection<RoomsTags> RoomsTags { get; set; }
         public virtual ICollection<GameItemProtosTags> GameItemProtosTags { get; set; }
         public virtual ICollection<GasesTags> GasesTags { get; set; }
         public virtual ICollection<Tag> InverseParent { get; set; }

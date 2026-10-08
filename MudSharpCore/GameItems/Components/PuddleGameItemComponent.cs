@@ -152,7 +152,7 @@ namespace MudSharp.GameItems.Components
 
         private void DoFiveSecondUpdate()
         {
-            ICell location = Parent.TrueLocations.FirstOrDefault();
+            IRoom location = Parent.TrueLocations.FirstOrDefault();
             if (location is null)
             {
                 return;
@@ -391,7 +391,7 @@ namespace MudSharp.GameItems.Components
                     {
                         if (voyeur is ICharacter ch && ch.IsAdministrator())
                         {
-                            ICell location = Parent.TrueLocations.FirstOrDefault();
+                            IRoom location = Parent.TrueLocations.FirstOrDefault();
                             if (location is null)
                             {
                                 return "It is a puddle in the void.";
@@ -434,7 +434,7 @@ It is best described as {PuddleDescription(LiquidMixture.TotalVolume).A_An()} co
             return LiquidMixture?.Instances.Sum(x => (fluidDensity - x.Liquid.Density) * x.Amount * x.Liquid.Density) ?? 0.0;
         }
 
-        public override bool HandleDieOrMorph(IGameItem newItem, ICell location)
+        public override bool HandleDieOrMorph(IGameItem newItem, IRoom location)
         {
             if (LiquidMixture == null)
             {

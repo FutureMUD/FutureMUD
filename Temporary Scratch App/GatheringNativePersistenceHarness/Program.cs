@@ -58,6 +58,15 @@ internal static partial class GNHProgram
 			return args switch
 			{
 				["--probe"] => Probe(),
+				["--cell-unique-name-run"] => RunRoomUniqueNames(),
+				["--cell-spatial-contraction-run"] => RunRoomSpatialExpansion(contract: true),
+				["--cell-spatial-contraction-reader", string databaseName] => ReadRoomSpatialExpansion(databaseName, contracted: true),
+				["--cell-spatial-expansion-run"] => RunRoomSpatialExpansion(),
+				["--cell-spatial-expansion-reader", string databaseName] => ReadRoomSpatialExpansion(databaseName),
+				["--emotional-melee-run"] => RunEmotionalHooks("melee"),
+				["--emotional-firearm-run"] => RunEmotionalHooks("firearm"),
+				["--emotional-countershot-run"] => RunEmotionalHooks("countershot"),
+				["--emotional-cessation-run"] => RunEmotionalHooks("cessation"),
 				["--schema"] => InspectFreshSchema(),
 				["--run"] => RunAcceptanceChecks(),
 				["--casting-run"] => RunAllCastingAcceptanceChecks(),
@@ -139,6 +148,9 @@ internal static partial class GNHProgram
 		catch (MySqlException ex)
 		{
 			Console.Error.WriteLine($"Harness failed: MySqlException (number={ex.Number}): {ex.Message}");
+			Console.Error.WriteLine(ex.StackTrace);
+			for (var cause = ex.InnerException; cause is not null; cause = cause.InnerException)
+				Console.Error.WriteLine($"Cause: {cause.GetType().Name}: {cause.Message}");
 			return 1;
 		}
 		catch (Exception ex)
@@ -309,7 +321,7 @@ internal static partial class GNHProgram
 		string executable = Assembly.GetExecutingAssembly().Location;
 		string host = Environment.GetEnvironmentVariable("DOTNET_HOST_PATH") ?? "dotnet";
 		string arguments = string.Join(' ',
-			$"\"{executable}\"", "--reader", databaseName, scenario, fixture.CharacterId, fixture.BodyId, fixture.CellId,
+			$"\"{executable}\"", "--reader", databaseName, scenario, fixture.CharacterId, fixture.BodyId, fixture.RoomId,
 			fixture.ResourceId, fixture.CapabilityId, fixture.HealthStrategyId, fixture.TraitExpressionId,
 			fixture.ExistingWoundId?.ToString() ?? "0", fixture.BodypartId, operationId,
 			expectedMana.ToString(System.Globalization.CultureInfo.InvariantCulture),
@@ -373,15 +385,15 @@ internal static partial class GNHProgram
 
 	private sealed record WoundChannels(double Damage, double Pain, double Stun);
 
-	private static FuturemudDatabaseContext NewIndependentContext(string connectionString)
+	private static FuturemudDatabaseContext NewIndependentContext(string connectionString, Microsoft.EntityFrameworkCore.Diagnostics.IInterceptor? extraInterceptor = null)
 	{
 		using var candidate = new MySqlConnector.MySqlConnection(connectionString);
 		OwnedConnections.Validate("independent-context-before-autodetect", candidate);
-		DbContextOptions<FuturemudDatabaseContext> options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+		var builder = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString))
-			.AddInterceptors(new FMDB.ValidatedConnectionInterceptor((boundary, connection) => OwnedConnections.ValidateIndependentConnection(boundary, connection, connectionString)))
-			.Options;
-		return new FuturemudDatabaseContext(options);
+			.AddInterceptors(new FMDB.ValidatedConnectionInterceptor((boundary, connection) => OwnedConnections.ValidateIndependentConnection(boundary, connection, connectionString)));
+		if (extraInterceptor is not null) builder.AddInterceptors(extraInterceptor);
+		return new FuturemudDatabaseContext(builder.Options);
 	}
 
 	private static void ConfigureNativeDatabase(string connectionString)
@@ -394,7 +406,7 @@ internal static partial class GNHProgram
 	private sealed record FixtureIds(
 		long CharacterId,
 		long BodyId,
-		long CellId,
+		long RoomId,
 		long ResourceId,
 		long CapabilityId,
 		long HealthStrategyId,
@@ -450,8 +462,14 @@ internal static partial class GNHProgram
 				("MinimumTerrestrialLux", 0.0), ("SkyDescriptionTemplateId", skyTemplateId));
 			long zoneId = Insert(connection, "zones", ("Name", $"{scenario} zone"), ("ShardId", shardId),
 				("Latitude", 0.0), ("Longitude", 0.0), ("Elevation", 0.0), ("AmbientLightPollution", 0.0));
-			long roomId = Insert(connection, "rooms", ("ZoneId", zoneId), ("X", 0), ("Y", 0), ("Z", 0));
-			long cellId = Insert(connection, "cells", ("RoomId", roomId), ("EffectData", "<Effects />"));
+			using var shape = new MySqlCommand("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='rooms'", connection);
+			long cellId;
+			if (Convert.ToInt64(shape.ExecuteScalar()) == 1)
+			{
+				var roomId = Insert(connection, "rooms", ("ZoneId", zoneId), ("X", 0), ("Y", 0), ("Z", 0));
+				cellId = Insert(connection, "cells", ("RoomId", roomId), ("EffectData", "<Effects />"));
+			}
+			else cellId = Insert(connection, "cells", ("ZoneId", zoneId), ("X", 0), ("Y", 0), ("Z", 0), ("EffectData", "<Effects />"));
 			long bodyId = Insert(connection, "bodies", ("BodyPrototypeID", bodyPrototypeId), ("Height", 1.8),
 				("ShortDescription", "a native acceptance participant"), ("FullDescription", "A native acceptance participant stands here."),
 				("Weight", 80.0), ("Position", 1L), ("RaceId", raceId), ("CurrentStamina", 100.0),
@@ -671,10 +689,10 @@ internal static partial class GNHProgram
 			cultures.Add(culture.Object);
 			world.SetupGet(x => x.Cultures).Returns(cultures);
 
-			Mock<ICell> cell = NewCell(fixture.CellId, world.Object);
-			var cells = new All<ICell>();
-			cells.Add(cell.Object);
-			world.SetupGet(x => x.Cells).Returns(cells);
+			Mock<IRoom> room = NewRoom(fixture.RoomId, world.Object);
+			var rooms = new All<IRoom>();
+			rooms.Add(room.Object);
+			world.SetupGet(x => x.Rooms).Returns(rooms);
 
 			Mock<ITraitDefinition> trait = NewTraitDefinition(1, world.Object);
 			var traits = new All<ITraitDefinition>();
@@ -710,7 +728,7 @@ internal static partial class GNHProgram
 			capabilities.Add(capability);
 			world.SetupGet(x => x.MagicCapabilities).Returns(capabilities);
 
-			NativeHarnessCharacter actor = NativeHarnessCharacter.Create(world.Object, character.Id, cell.Object, culture.Object);
+			NativeHarnessCharacter actor = NativeHarnessCharacter.Create(world.Object, character.Id, room.Object, culture.Object);
 			using var capacityRestoration = (IDisposable)typeof(RuntimeCharacter).GetMethod("DeferCastingCapacityReconciliation", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(actor, [false])!;
 			RuntimeBody body = new(bodyModel, world.Object, actor);
 			actor.AttachBody(body);
@@ -865,15 +883,15 @@ internal static partial class GNHProgram
 			return culture;
 		}
 
-		private static Mock<ICell> NewCell(long id, IFuturemud world)
+		private static Mock<IRoom> NewRoom(long id, IFuturemud world)
 		{
-			var cell = new Mock<ICell>(MockBehavior.Loose);
-			cell.As<ICustodyRollbackLocation>();
-			cell.SetupGet(x => x.Id).Returns(id);
-			cell.SetupGet(x => x.Name).Returns("Harness cell");
-			cell.SetupGet(x => x.Gameworld).Returns(world);
-			cell.Setup(x => x.EventHandlersFor(It.IsAny<IPerceivable>())).Returns(Array.Empty<IHandleEvents>());
-			return cell;
+			var room = new Mock<IRoom>(MockBehavior.Loose);
+			room.As<ICustodyRollbackLocation>();
+			room.SetupGet(x => x.Id).Returns(id);
+			room.SetupGet(x => x.Name).Returns("Harness cell");
+			room.SetupGet(x => x.Gameworld).Returns(world);
+			room.Setup(x => x.EventHandlersFor(It.IsAny<IPerceivable>())).Returns(Array.Empty<IHandleEvents>());
+			return room;
 		}
 
 		private static Mock<ITraitDefinition> NewTraitDefinition(long id, IFuturemud world)
@@ -923,7 +941,7 @@ internal static partial class GNHProgram
 		{
 		}
 
-		public static NativeHarnessCharacter Create(IFuturemud world, long id, ICell cell, ICulture culture)
+		public static NativeHarnessCharacter Create(IFuturemud world, long id, IRoom room, ICulture culture)
 		{
 			var character = (NativeHarnessCharacter)RuntimeHelpers.GetUninitializedObject(typeof(NativeHarnessCharacter));
 			SetPrivateField(character, "_id", id);
@@ -933,7 +951,7 @@ internal static partial class GNHProgram
 			SetPrivateMember(character, "EffectHandler", new EffectHandler(character));
 			SetPrivateField(character, "_cachedEffects", new List<(IEffect Effect, TimeSpan Time)>());
 			SetPrivateMember(character, "OutputHandler", new NonPlayerOutputHandler());
-			SetPrivateMember(character, "Location", cell);
+			SetPrivateMember(character, "Location", room);
 			SetPrivateMember(character, "Culture", culture);
 			SetPrivateMember(character, "PermissionLevel", PermissionLevel.Player);
 			SetPrivateField(character, "_account", NewFormattingAccount());
@@ -1104,7 +1122,7 @@ internal static partial class GNHProgram
 			return database;
 		}
 
-		public static TestDatabase CreateFresh(string prefix = "futuremud_gather_gc_")
+		public static TestDatabase CreateFresh(string prefix = "futuremud_gather_gc_", bool historicalExpanded = false)
 		{
 			if (prefix is not ("futuremud_gather_gc_" or "futuremud_land_"))
 			{
@@ -1146,7 +1164,7 @@ internal static partial class GNHProgram
 				}
 				database._created = true;
 				OwnedConnections.Register(name, token, ready: false);
-				database.ImportSupportedSnapshot();
+				database.ImportSupportedSnapshot(historicalExpanded);
 				database.WriteOwnershipMarker();
 				database._markerReady = true;
 				OwnedConnections.Register(name, token, ready: true);
@@ -1255,9 +1273,10 @@ internal static partial class GNHProgram
 			Console.WriteLine("cleanup=deleted-owned-database");
 		}
 
-		private void ImportSupportedSnapshot()
+		private void ImportSupportedSnapshot(bool historicalExpanded)
 		{
 			string snapshot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.sql"));
+			if (historicalExpanded) snapshot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "Temporary Scratch App", "GatheringNativePersistenceHarness", "Fixtures", "ExpandedCellSpatialSnapshot.sql"));
 			if (!File.Exists(snapshot))
 			{
 				throw new FileNotFoundException("The supported blank database snapshot was not found.", snapshot);

@@ -14,7 +14,7 @@ namespace MudSharp.Climate;
 internal static class WeatherForecastService
 {
 	internal static bool CanObserve(ICharacter actor) => !actor.Location.IsUnderwaterLayer(actor.RoomLayer) &&
-		actor.Location.OutdoorsType(actor) is CellOutdoorsType.Outdoors or CellOutdoorsType.IndoorsWithWindows or CellOutdoorsType.IndoorsClimateExposed &&
+		actor.Location.OutdoorsType(actor) is RoomOutdoorsType.Outdoors or RoomOutdoorsType.IndoorsWithWindows or RoomOutdoorsType.IndoorsClimateExposed &&
 		actor.CanSee(actor.Location);
 
 	internal static void Show(ICharacter actor, bool table)

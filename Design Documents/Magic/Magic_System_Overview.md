@@ -51,7 +51,7 @@ Magic is spread across contracts, runtime implementations, commands, and persist
 | Contracts | Public interfaces and enums shared across the engine | `FutureMUDLibrary/Magic` |
 | Runtime | Schools, capabilities, resources, regenerators, powers, spells, triggers, spell effects | `MudSharpCore/Magic` |
 | Command surface | Admin and builder editing commands, plus player-facing school verb dispatch | `MudSharpCore/Commands/Helpers/EditableItemHelperMagic.cs`, `MudSharpCore/Commands/Modules/MagicModule.cs` |
-| Runtime integration | Characters, drugs, merits, items, cells, effects, combat, FutureProg exposure | `MudSharpCore/Character/CharacterMagic.cs`, `MudSharpCore/Effects/Concrete`, `MudSharpCore/RPG/Merits`, `MudSharpCore/GameItems/GameItemMagic.cs`, `MudSharpCore/Construction/CellMagic.cs` |
+| Runtime integration | Characters, drugs, merits, items, cells, effects, combat, FutureProg exposure | `MudSharpCore/Character/CharacterMagic.cs`, `MudSharpCore/Effects/Concrete`, `MudSharpCore/RPG/Merits`, `MudSharpCore/GameItems/GameItemMagic.cs`, `MudSharpCore/Construction/RoomMagic.cs` |
 | Persistence | EF Core models and migrations for magic entities and stored resource amounts | `MudsharpDatabaseLibrary/Models/*Magic*`, related migrations |
 
 ## Core Runtime Relationships

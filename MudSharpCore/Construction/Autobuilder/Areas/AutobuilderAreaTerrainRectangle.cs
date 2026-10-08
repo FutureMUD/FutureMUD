@@ -29,7 +29,7 @@ public class AutobuilderAreaTerrainRectangle : AutobuilderAreaBase
         }
     }
 
-    public bool ConnectCellsWithDiagonalExits { get; protected set; }
+    public bool ConnectRoomsWithDiagonalExits { get; protected set; }
 
     protected AutobuilderAreaTerrainRectangle(string name, IFuturemud gameworld, string type = null) : base(name,
         gameworld, type ?? "terrain rectangle")
@@ -43,7 +43,7 @@ public class AutobuilderAreaTerrainRectangle : AutobuilderAreaBase
 
     protected override void LoadFromXml(XElement element)
     {
-        ConnectCellsWithDiagonalExits = bool.Parse(element.Attribute("connect_diagonals")?.Value ?? "false");
+        ConnectRoomsWithDiagonalExits = bool.Parse(element.Attribute("connect_diagonals")?.Value ?? "false");
         ShowCommandByLine = element.Element("ShowCommandByLine")?.Value ??
                             "An undescribed autobuilder area template";
     }
@@ -51,7 +51,7 @@ public class AutobuilderAreaTerrainRectangle : AutobuilderAreaBase
     protected override XElement SaveToXml()
     {
         return new XElement("Template",
-            new XAttribute("connect_diagonals", ConnectCellsWithDiagonalExits),
+            new XAttribute("connect_diagonals", ConnectRoomsWithDiagonalExits),
             new XElement("ShowCommandByLine", new XCData(ShowCommandByLine))
         );
     }
@@ -134,9 +134,9 @@ public class AutobuilderAreaTerrainRectangle : AutobuilderAreaBase
         });
     }
 
-    public override IEnumerable<ICell> ExecuteTemplate(ICharacter builder, IEnumerable<object> arguments)
+    public override IEnumerable<IRoom> ExecuteTemplate(ICharacter builder, IEnumerable<object> arguments)
     {
-        ICellOverlayPackage package = builder.CurrentOverlayPackage;
+        IRoomOverlayPackage package = builder.CurrentOverlayPackage;
         List<object> argList = arguments.ToList();
         int height = (int)argList.ElementAt(0);
         int width = (int)argList.ElementAt(1);
@@ -155,7 +155,7 @@ public class AutobuilderAreaTerrainRectangle : AutobuilderAreaBase
             }
         }
 
-        ICell[,] cells = new ICell[width, height];
+        IRoom[,] rooms = new IRoom[width, height];
         for (int i = 0; i < width; i++)
         {
             for (int j = 0; j < height; j++)
@@ -165,31 +165,31 @@ public class AutobuilderAreaTerrainRectangle : AutobuilderAreaBase
                     continue;
                 }
 
-                ICell cell = roomTemplate.CreateRoom(builder, terrains[i, j], false);
-                cells[i, j] = cell;
+                IRoom room = roomTemplate.CreateRoom(builder, terrains[i, j], false);
+                rooms[i, j] = room;
 
             }
         }
 
-		AutobuilderRectangleTopology.ConnectCells(builder, package, cells, ConnectCellsWithDiagonalExits);
+		AutobuilderRectangleTopology.ConnectRooms(builder, package, rooms, ConnectRoomsWithDiagonalExits);
 
-        foreach (ICell cell in cells)
+        foreach (IRoom room in rooms)
         {
-            if (cell == null)
+            if (room == null)
             {
                 continue;
             }
 
-            builder.Gameworld.ExitManager.UpdateCellOverlayExits(cell, cell.CurrentOverlay);
+            builder.Gameworld.ExitManager.UpdateRoomOverlayExits(room, room.CurrentOverlay);
         }
 
-        return cells.OfType<ICell>().ToList();
+        return rooms.OfType<IRoom>().ToList();
     }
 
     public override string Show(ICharacter builder)
     {
         return
-            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\n{$"This autobuilder template will return a rectangular area of cells with height, width, terrain and room template supplied by the builder. It {(ConnectCellsWithDiagonalExits ? "does" : "does not")} link diagonally between rooms.".Wrap(builder.InnerLineFormatLength)}";
+            $"{$"Autobuilder Area Template #{Id} ({Name})".Colour(Telnet.Cyan)}\n\n{$"This autobuilder template will return a rectangular area of rooms with height, width, terrain and room template supplied by the builder. It {(ConnectRoomsWithDiagonalExits ? "does" : "does not")} link diagonally between rooms.".Wrap(builder.InnerLineFormatLength)}";
     }
 
     public override string SubtypeHelpText => @"
@@ -209,10 +209,10 @@ public class AutobuilderAreaTerrainRectangle : AutobuilderAreaBase
 
     private bool BuildingCommandDiagonals(ICharacter actor)
     {
-        ConnectCellsWithDiagonalExits = !ConnectCellsWithDiagonalExits;
+        ConnectRoomsWithDiagonalExits = !ConnectRoomsWithDiagonalExits;
         Changed = true;
         actor.OutputHandler.Send(
-            $"This template will {(ConnectCellsWithDiagonalExits ? "now" : "no longer")} connect rooms diagonally.");
+            $"This template will {(ConnectRoomsWithDiagonalExits ? "now" : "no longer")} connect rooms diagonally.");
         return true;
     }
 }

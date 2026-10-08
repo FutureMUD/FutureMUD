@@ -74,7 +74,7 @@ namespace MudSharp.Models
 		}
 
 		public long Id { get; set; }
-		public long CellId { get; set; }
+		public long RoomId { get; set; }
 		public long ProfileId { get; set; }
 		public int CurrentUse { get; set; }
 		public int Moisture { get; set; }
@@ -92,7 +92,7 @@ namespace MudSharp.Models
 		public string LastTickMudDateTime { get; set; }
 		public string Definition { get; set; }
 
-		public virtual Cell Cell { get; set; }
+		public virtual Room Room { get; set; }
 		public virtual AgricultureFieldProfile Profile { get; set; }
 		public virtual AgricultureFieldCrop AgricultureFieldCrop { get; set; }
 		public virtual AgricultureFieldWoodland AgricultureFieldWoodland { get; set; }

@@ -26,7 +26,7 @@ public sealed class CreateTrapSpellEffect : IMagicSpellEffectTemplate
 		SpellEffectFactory.RegisterBuilderFactory(
 			"createtrap",
 			BuilderFactory,
-			"Installs a configured magical trap template on an item or cell",
+			"Installs a configured magical trap template on an item or room",
 			"Use template <traptemplate> to choose a current magical template.",
 			true,
 			true,
@@ -36,7 +36,7 @@ public sealed class CreateTrapSpellEffect : IMagicSpellEffectTemplate
 		SpellEffectFactory.RegisterBuilderFactory(
 			"placetrap",
 			BuilderFactory,
-			"Installs a configured magical trap template on an item or cell",
+			"Installs a configured magical trap template on an item or room",
 			"Use template <traptemplate> to choose a current magical template.",
 			true,
 			true,
@@ -130,7 +130,7 @@ public sealed class CreateTrapSpellEffect : IMagicSpellEffectTemplate
 	{
 		var template = TrapTemplate;
 		var boundExit = additionalParameters
-			.FirstOrDefault(x => x.ParameterName.EqualTo("exit"))?.Item as ICellExit;
+			.FirstOrDefault(x => x.ParameterName.EqualTo("exit"))?.Item as IRoomExit;
 		var anchor = boundExit?.Origin ?? target;
 		if (anchor is null || template is null || template.SourceKind != TrapSourceKind.Magical ||
 		    template.Status != RevisionStatus.Current || !template.CanSubmit() || !TrapEffect.IsValidAnchor(template, anchor) ||
@@ -163,7 +163,7 @@ public sealed class CreateTrapSpellEffect : IMagicSpellEffectTemplate
 		return null;
 	}
 
-	private static bool HasSameBinding(TrapEffect trap, ICellExit? exit) => exit is null
+	private static bool HasSameBinding(TrapEffect trap, IRoomExit? exit) => exit is null
 		? !trap.BoundExitId.HasValue
 		: trap.MatchesExit(exit);
 

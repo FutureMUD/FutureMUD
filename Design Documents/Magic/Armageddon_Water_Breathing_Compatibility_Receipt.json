@@ -1,0 +1,110 @@
+{
+  "schema_version": 1,
+  "entry_key": "arm.spell.water_breathing",
+  "scope": "Only the allocated Unsupported compatibility row and matching documentation",
+  "source_commit": "c859a2526dfabad58899cc6801956b8eabbb6a67",
+  "base_checkpoint": "35615ecc3c2a7bcf5971b54bf284d9526e3dbd51",
+  "adapter_source": "2099cda8791466b6425d1f12313269190ed1c",
+  "reason": "Source-specific random accumulated lifetime and explicit native water scope are not qualified for stored scroll delivery; ordinary direct invocation only.",
+  "allocated_changes": [
+    {
+      "path": "Design Documents/Magic/Vancian_Scroll_Compatibility.md",
+      "sha256": "d8056905264ea74c1b4afecbc4333ce871a5787ab0a1fc0158afffa0c516d1c5"
+    },
+    {
+      "path": "MudSharpCore/Magic/Vancian/ScrollSpellCompatibility.cs",
+      "sha256": "0e502f9cc4af0838e222de65541b08d75732f2d6a938b15fe26eb80a0837622f"
+    }
+  ],
+  "targeted": {
+    "status": "PASS",
+    "head": "c859a2526dfabad58899cc6801956b8eabbb6a67",
+    "run_id": "20261005T182440Z-be37226d6af2",
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName=MudSharp_Unit_Tests.VancianSnapshotTests.CompatibilityManifestCoversEveryRegisteredTypeAndRequiredFamilies",
+    "counts": {
+      "executed": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 1
+    },
+    "fail_on_skipped": true,
+    "source_start": "471f7fab978f7e37d942b5935f71202fe2e274f5293424a7a56a5b14227c0be7",
+    "source_end": "471f7fab978f7e37d942b5935f71202fe2e274f5293424a7a56a5b14227c0be7",
+    "source_stable": true,
+    "summary": {
+      "path": ".artifacts/test-runs/water-adapter-compatibility-targeted-01/20261005T182440Z-be37226d6af2/summary.json",
+      "sha256": "e213ffe5d3949672f0781f21844e2785eeff870e04f9e2dd6af554beed054523"
+    }
+  },
+  "strict_fast": {
+    "status": "PASS",
+    "head": "c859a2526dfabad58899cc6801956b8eabbb6a67",
+    "run_id": "20261005T182550Z-77127a99dd83",
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+      "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+      "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+      "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+      "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+      "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+    ],
+    "filter": null,
+    "counts": {
+      "executed": 7566,
+      "passed": 7566,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7566
+    },
+    "fail_on_skipped": true,
+    "source_start": "b759bdf8bb70327f32ce30e4827db587de90a5ffa8d56773188261c80a24222c",
+    "source_end": "b759bdf8bb70327f32ce30e4827db587de90a5ffa8d56773188261c80a24222c",
+    "source_stable": true,
+    "summary": {
+      "path": ".artifacts/test-runs/water-adapter-compatibility-final-01/20261005T182550Z-77127a99dd83/summary.json",
+      "sha256": "120db9541681c348a9abbc897871e881f41386f286b6e6be3c98689776d903fc"
+    }
+  },
+  "executed_core_assembly": {
+    "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+    "sha256": "0b1e7f089a3c2f08942a11e99379003c06cdef3044f452b1e1285d60ece72748"
+  },
+  "fingerprint_scope": "Reporter fingerprints include the selected project files: core-only and ten-project hashes differ by selection; both runs have the same committed HEAD and individually stable start/end fingerprints.",
+  "preserved_historical_evidence": [
+    {
+      "sha256": "8ac552a354bafc3c56e9df74234a88a91633877b7baf1a389bebcf015649a52d",
+      "path": "Design Documents/Magic/Armageddon_Water_Breathing_Adapter_Receipt.json"
+    },
+    {
+      "sha256": "d04eaf13c49d9b804cde759c14f7ac6bf80d6317581eb9ff8a2a0e2a7da7d817",
+      "path": ".artifacts/test-runs/water-adapter-final-02/20261005T180443Z-a794f4a4a2c3/summary.json"
+    },
+    {
+      "sha256": "15fb0d2726dd3f512fb86d3100424954d00473233f7ff60e1674c195ba39f2db",
+      "path": ".artifacts/test-runs/water-adapter-final-02/20261005T180443Z-a794f4a4a2c3/failures.json"
+    }
+  ],
+  "prior_failure": "Strict run on adapter2099cda: 7565 passed, 1 failed, 0 skipped; missing sourcewaterbreathing compatibility row. Historical receipt and failure artifacts retained unchanged.",
+  "native_rerun": false,
+  "native_evidence": "Previous native adapter/regression qualification belongs to source2099cda; no claim of a native rerun on this correction.",
+  "stock_started": false,
+  "adapter_independent_review_pending": true,
+  "limits": [
+    "Stored scroll delivery remains unsupported; other compatibility decisions are unchanged.",
+    "Stock definition awaits independent adapter review.",
+    "No central completion ledger, repertoire disposition or dispatch changes.",
+    "No push, PR, merge or deployment."
+  ]
+}

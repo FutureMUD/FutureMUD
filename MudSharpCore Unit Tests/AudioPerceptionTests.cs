@@ -19,7 +19,7 @@ public class AudioPerceptionTests
 	{
 		var listener = new Mock<ICharacter>();
 		var source = new Mock<ICharacter>();
-		var location = new Mock<ICell>();
+		var location = new Mock<IRoom>();
 		var gameworld = new Mock<IFuturemud>();
 		var check = new Mock<ICheck>();
 		listener.SetupGet(x => x.Location).Returns(location.Object);

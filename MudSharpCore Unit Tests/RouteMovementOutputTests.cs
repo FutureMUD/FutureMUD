@@ -23,20 +23,20 @@ public class RouteMovementOutputTests
 		var fixture = CreateRouteFixture();
 		var sourceOutput = new Mock<IOutputHandler>();
 		var source = CreateCharacter(
-			fixture.Cell.Object,
+			fixture.Room.Object,
 			fixture.Gameworld.Object,
 			100.0,
 			sourceOutput.Object);
 		sourceOutput.SetupGet(x => x.Perceiver).Returns(source.Object);
 		var nearOutput = new Mock<IOutputHandler>();
 		var near = CreateCharacter(
-			fixture.Cell.Object,
+			fixture.Room.Object,
 			fixture.Gameworld.Object,
 			150.0,
 			nearOutput.Object);
 		var farOutput = new Mock<IOutputHandler>();
 		var far = CreateCharacter(
-			fixture.Cell.Object,
+			fixture.Room.Object,
 			fixture.Gameworld.Object,
 			1_100.0,
 			farOutput.Object);
@@ -61,20 +61,20 @@ public class RouteMovementOutputTests
 		var fixture = CreateRouteFixture();
 		var exteriorOutput = new Mock<IOutputHandler>();
 		var exterior = CreateExterior(
-			fixture.Cell.Object,
+			fixture.Room.Object,
 			fixture.Gameworld.Object,
 			100.0,
 			exteriorOutput.Object);
 		exteriorOutput.SetupGet(x => x.Perceiver).Returns(exterior.Object);
 		var nearOutput = new Mock<IOutputHandler>();
 		var near = CreateCharacter(
-			fixture.Cell.Object,
+			fixture.Room.Object,
 			fixture.Gameworld.Object,
 			150.0,
 			nearOutput.Object);
 		var farOutput = new Mock<IOutputHandler>();
 		var far = CreateCharacter(
-			fixture.Cell.Object,
+			fixture.Room.Object,
 			fixture.Gameworld.Object,
 			1_100.0,
 			farOutput.Object);
@@ -83,13 +83,13 @@ public class RouteMovementOutputTests
 		var interiorOutput = new Mock<IOutputHandler>();
 		var interiorOccupant = new Mock<ICharacter>();
 		interiorOccupant.SetupGet(x => x.OutputHandler).Returns(interiorOutput.Object);
-		var interior = new Mock<ICell>();
-		interior.SetupGet(x => x.Cells).Returns([interior.Object]);
+		var interior = new Mock<IRoom>();
+		interior.SetupGet(x => x.Rooms).Returns([interior.Object]);
 		interior.SetupGet(x => x.Characters).Returns([interiorOccupant.Object]);
 		interior.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel))
 			.Returns([interiorOccupant.Object]);
 		var compartment = new Mock<IVehicleCompartment>();
-		compartment.SetupGet(x => x.InteriorCell).Returns(interior.Object);
+		compartment.SetupGet(x => x.InteriorRoom).Returns(interior.Object);
 		var prototype = new Mock<IVehiclePrototype>();
 		prototype.SetupGet(x => x.Scale).Returns(VehicleScale.RoomScale);
 		var vehicle = new Mock<IVehicle>();
@@ -126,55 +126,55 @@ public class RouteMovementOutputTests
 			.Returns(500.0);
 
 		var occupants = new List<IPerceivable>();
-		var cell = new Mock<ICell>();
-		var definition = new Mock<IRouteCellDefinition>();
-		definition.SetupGet(x => x.Cell).Returns(cell.Object);
+		var room = new Mock<IRoom>();
+		var definition = new Mock<IRouteRoomDefinition>();
+		definition.SetupGet(x => x.Room).Returns(room.Object);
 		definition.SetupGet(x => x.LengthMetres).Returns(2_000.0);
 		definition.SetupGet(x => x.DefaultPositionMetres).Returns(0.0);
 		definition.SetupGet(x => x.MetresPerRoomEquivalent).Returns(100.0);
 		definition.SetupGet(x => x.Landmarks).Returns([]);
 		definition.SetupGet(x => x.ExitAnchors).Returns([]);
-		cell.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
-		cell.SetupGet(x => x.Perceivables).Returns(occupants);
-		cell.SetupGet(x => x.Cells).Returns([cell.Object]);
-		cell.SetupGet(x => x.Characters).Returns(() => occupants.OfType<ICharacter>());
-		cell.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel))
+		room.SetupGet(x => x.RouteDefinition).Returns(definition.Object);
+		room.SetupGet(x => x.Perceivables).Returns(occupants);
+		room.SetupGet(x => x.Rooms).Returns([room.Object]);
+		room.SetupGet(x => x.Characters).Returns(() => occupants.OfType<ICharacter>());
+		room.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel))
 			.Returns(() => occupants.OfType<ICharacter>());
-		return new RouteFixture(gameworld, cell, occupants);
+		return new RouteFixture(gameworld, room, occupants);
 	}
 
 	private static Mock<ICharacter> CreateCharacter(
-		ICell cell,
+		IRoom room,
 		IFuturemud gameworld,
 		double position,
 		IOutputHandler outputHandler)
 	{
 		var character = new Mock<ICharacter>();
 		character.SetupGet(x => x.Name).Returns("route observer");
-		character.SetupGet(x => x.Location).Returns(cell);
+		character.SetupGet(x => x.Location).Returns(room);
 		character.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		character.SetupGet(x => x.RoutePositionMetres).Returns(position);
 		character.SetupGet(x => x.SpatialLocation)
-			.Returns(new SpatialLocation(cell, RoomLayer.GroundLevel, position));
+			.Returns(new SpatialLocation(room, RoomLayer.GroundLevel, position));
 		character.SetupGet(x => x.Gameworld).Returns(gameworld);
 		character.SetupGet(x => x.OutputHandler).Returns(outputHandler);
 		return character;
 	}
 
 	private static Mock<IGameItem> CreateExterior(
-		ICell cell,
+		IRoom room,
 		IFuturemud gameworld,
 		double position,
 		IOutputHandler outputHandler)
 	{
 		var exterior = new Mock<IGameItem>();
 		exterior.SetupGet(x => x.Name).Returns("room-scale vehicle");
-		exterior.SetupGet(x => x.Location).Returns(cell);
-		exterior.SetupGet(x => x.TrueLocations).Returns([cell]);
+		exterior.SetupGet(x => x.Location).Returns(room);
+		exterior.SetupGet(x => x.TrueLocations).Returns([room]);
 		exterior.SetupGet(x => x.RoomLayer).Returns(RoomLayer.GroundLevel);
 		exterior.SetupGet(x => x.RoutePositionMetres).Returns(position);
 		exterior.SetupGet(x => x.SpatialLocation)
-			.Returns(new SpatialLocation(cell, RoomLayer.GroundLevel, position));
+			.Returns(new SpatialLocation(room, RoomLayer.GroundLevel, position));
 		exterior.SetupGet(x => x.Gameworld).Returns(gameworld);
 		exterior.SetupGet(x => x.OutputHandler).Returns(outputHandler);
 		return exterior;
@@ -182,6 +182,6 @@ public class RouteMovementOutputTests
 
 	private sealed record RouteFixture(
 		Mock<IFuturemud> Gameworld,
-		Mock<ICell> Cell,
+		Mock<IRoom> Room,
 		List<IPerceivable> Occupants);
 }

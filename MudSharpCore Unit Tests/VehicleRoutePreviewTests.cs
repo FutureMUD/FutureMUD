@@ -20,22 +20,22 @@ public class VehicleRoutePreviewTests
 	public void DescribeCompiledRouteDetails_ListsTypedStepsCoordinatesCostsAndTopologyPins()
 	{
 		var actor = CreateActor();
-		var routeCell = new Mock<ICell>();
-		routeCell.SetupGet(x => x.Id).Returns(101L);
-		routeCell.SetupGet(x => x.Name).Returns("Intertown Main Line");
-		var routeDefinition = new Mock<IRouteCellDefinition>();
-		routeDefinition.SetupGet(x => x.Cell).Returns(routeCell.Object);
+		var routeRoom = new Mock<IRoom>();
+		routeRoom.SetupGet(x => x.Id).Returns(101L);
+		routeRoom.SetupGet(x => x.Name).Returns("Intertown Main Line");
+		var routeDefinition = new Mock<IRouteRoomDefinition>();
+		routeDefinition.SetupGet(x => x.Room).Returns(routeRoom.Object);
 		routeDefinition.SetupGet(x => x.TopologyVersion).Returns(7L);
 		routeDefinition.SetupGet(x => x.PositiveDirectionName).Returns("eastbound");
 		routeDefinition.SetupGet(x => x.NegativeDirectionName).Returns("westbound");
-		routeCell.SetupGet(x => x.RouteDefinition).Returns(routeDefinition.Object);
+		routeRoom.SetupGet(x => x.RouteDefinition).Returns(routeDefinition.Object);
 
-		var townCell = new Mock<ICell>();
-		townCell.SetupGet(x => x.Id).Returns(202L);
-		townCell.SetupGet(x => x.Name).Returns("East Town Station");
+		var townRoom = new Mock<IRoom>();
+		townRoom.SetupGet(x => x.Id).Returns(202L);
+		townRoom.SetupGet(x => x.Name).Returns("East Town Station");
 
-		var originStop = CreateStop(11L, "West Town", routeCell.Object, 250.0);
-		var destinationStop = CreateStop(12L, "East Town", townCell.Object, null);
+		var originStop = CreateStop(11L, "West Town", routeRoom.Object, 250.0);
+		var destinationStop = CreateStop(12L, "East Town", townRoom.Object, null);
 		var leg = new Mock<IVehicleRouteLeg>();
 		leg.SetupGet(x => x.Id).Returns(21L);
 		leg.SetupGet(x => x.Sequence).Returns(0);
@@ -48,47 +48,47 @@ public class VehicleRoutePreviewTests
 		linear.SetupGet(x => x.Id).Returns(301L);
 		linear.SetupGet(x => x.Sequence).Returns(0);
 		linear.SetupGet(x => x.StepType).Returns(VehicleRouteStepType.LinearRoute);
-		linear.SetupGet(x => x.RouteCell).Returns(routeDefinition.Object);
-		linear.SetupGet(x => x.Direction).Returns(RouteCellDirection.Positive);
+		linear.SetupGet(x => x.RouteRoom).Returns(routeDefinition.Object);
+		linear.SetupGet(x => x.Direction).Returns(RouteRoomDirection.Positive);
 		linear.SetupGet(x => x.DistanceMetres).Returns(500.0);
 		linear.SetupGet(x => x.RoomEquivalentCost).Returns(5.0);
-		linear.SetupGet(x => x.Origin).Returns(new SpatialLocation(routeCell.Object, RoomLayer.GroundLevel, 250.0));
-		linear.SetupGet(x => x.Destination).Returns(new SpatialLocation(routeCell.Object, RoomLayer.GroundLevel, 750.0));
+		linear.SetupGet(x => x.Origin).Returns(new SpatialLocation(routeRoom.Object, RoomLayer.GroundLevel, 250.0));
+		linear.SetupGet(x => x.Destination).Returns(new SpatialLocation(routeRoom.Object, RoomLayer.GroundLevel, 750.0));
 		linear.SetupGet(x => x.OriginTopologyVersion).Returns(7L);
 		linear.SetupGet(x => x.DestinationTopologyVersion).Returns(7L);
 
 		var persistentExit = new Mock<IExit>();
 		persistentExit.SetupGet(x => x.Id).Returns(401L);
-		var cellExit = new Mock<ICellExit>();
+		var cellExit = new Mock<IRoomExit>();
 		cellExit.SetupGet(x => x.Exit).Returns(persistentExit.Object);
 		cellExit.SetupGet(x => x.OutboundDirectionDescription).Returns("the station gate");
 		var exitStep = new Mock<IVehicleRouteExitStep>();
 		exitStep.SetupGet(x => x.Id).Returns(302L);
 		exitStep.SetupGet(x => x.Sequence).Returns(1);
-		exitStep.SetupGet(x => x.StepType).Returns(VehicleRouteStepType.CellExit);
+		exitStep.SetupGet(x => x.StepType).Returns(VehicleRouteStepType.RoomExit);
 		exitStep.SetupGet(x => x.Exit).Returns(cellExit.Object);
 		exitStep.SetupGet(x => x.RoomEquivalentCost).Returns(1.25);
-		exitStep.SetupGet(x => x.Origin).Returns(new SpatialLocation(routeCell.Object, RoomLayer.GroundLevel, 750.0));
-		exitStep.SetupGet(x => x.Destination).Returns(new SpatialLocation(townCell.Object, RoomLayer.GroundLevel));
+		exitStep.SetupGet(x => x.Origin).Returns(new SpatialLocation(routeRoom.Object, RoomLayer.GroundLevel, 750.0));
+		exitStep.SetupGet(x => x.Destination).Returns(new SpatialLocation(townRoom.Object, RoomLayer.GroundLevel));
 		exitStep.SetupGet(x => x.OriginTopologyVersion).Returns(7L);
 		exitStep.SetupGet(x => x.DestinationTopologyVersion).Returns((long?)null);
 
 		leg.SetupGet(x => x.Steps).Returns([linear.Object, exitStep.Object]);
-		var pin = new VehicleRouteTopologyPin(routeCell.Object, 7L);
+		var pin = new VehicleRouteTopologyPin(routeRoom.Object, 7L);
 
 		var result = VehicleRoute.DescribeCompiledRouteDetails(actor.Object, [leg.Object], [pin])
 			.StripANSIColour();
 
 		StringAssert.Contains(result, "LinearRouteStep #301");
-		StringAssert.Contains(result, "cell #101 Intertown Main Line / GroundLevel at local-length-250");
-		StringAssert.Contains(result, "cell #101 Intertown Main Line / GroundLevel at local-length-750");
+		StringAssert.Contains(result, "room #101 Intertown Main Line / GroundLevel at local-length-250");
+		StringAssert.Contains(result, "room #101 Intertown Main Line / GroundLevel at local-length-750");
 		StringAssert.Contains(result, "Direction eastbound; distance local-length-500; cost 5.000 room-equivalents");
-		StringAssert.Contains(result, "topology pins: origin cell #101 v7, destination cell #101 v7");
-		StringAssert.Contains(result, "CellExitStep #302 via exit #401 (the station gate)");
-		StringAssert.Contains(result, "cell #202 East Town Station / GroundLevel");
+		StringAssert.Contains(result, "topology pins: origin room #101 v7, destination room #101 v7");
+		StringAssert.Contains(result, "RoomExitStep #302 via exit #401 (the station gate)");
+		StringAssert.Contains(result, "room #202 East Town Station / GroundLevel");
 		StringAssert.Contains(result, "Cost 1.250 room-equivalents");
-		StringAssert.Contains(result, "RouteCell Topology Pins:");
-		StringAssert.Contains(result, "Cell #101 Intertown Main Line: pinned v7, current v7 [current]");
+		StringAssert.Contains(result, "RouteRoom Topology Pins:");
+		StringAssert.Contains(result, "Room #101 Intertown Main Line: pinned v7, current v7 [current]");
 	}
 
 	[TestMethod]
@@ -102,7 +102,7 @@ public class VehicleRoutePreviewTests
 			Array.Empty<IVehicleRouteTopologyPin>());
 
 		StringAssert.Contains(result, "Compiled Legs:");
-		StringAssert.Contains(result, "RouteCell Topology Pins:");
+		StringAssert.Contains(result, "RouteRoom Topology Pins:");
 		Assert.AreEqual(2, result.Split("\t(none)").Length - 1);
 	}
 
@@ -123,14 +123,14 @@ public class VehicleRoutePreviewTests
 		return actor;
 	}
 
-	private static Mock<IVehicleRouteStop> CreateStop(long id, string name, ICell cell,
+	private static Mock<IVehicleRouteStop> CreateStop(long id, string name, IRoom room,
 		double? routePositionMetres)
 	{
 		var stop = new Mock<IVehicleRouteStop>();
 		stop.SetupGet(x => x.Id).Returns(id);
 		stop.SetupGet(x => x.Name).Returns(name);
 		stop.SetupGet(x => x.Location)
-			.Returns(new SpatialLocation(cell, RoomLayer.GroundLevel, routePositionMetres));
+			.Returns(new SpatialLocation(room, RoomLayer.GroundLevel, routePositionMetres));
 		return stop;
 	}
 }

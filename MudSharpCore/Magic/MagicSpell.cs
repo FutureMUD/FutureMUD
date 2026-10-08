@@ -1766,7 +1766,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		bool allowReflection = Trigger.TargetTypes == "character";
 
 		using var capacityChanges = new SpellCapacityBatch();
-		var rejuvenatedCells = new HashSet<long>();
+		var rejuvenatedRooms = new HashSet<long>();
 		var parentsAppliedThisCast = new HashSet<MagicSpellParent>(ReferenceEqualityComparer.Instance);
 		bool ApplySpellEffect(IPerceivable effectTarget, IEnumerable<IMagicSpellEffectTemplate> effects,
 			OpposedOutcomeDegree effectOutcome, bool echoTarget = false, bool intended = false, Func<bool>? stillEligible = null)
@@ -1779,7 +1779,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 				magician.OutputHandler.Send("No treatment was established: duplicate rejuvenateland entries are forbidden.".ColourError());
 				return false;
 			}
-			if (templates.OfType<SpellEffects.RejuvenateLandEffect>().Any() && effectTarget is ICell cell && !rejuvenatedCells.Add(cell.Id)) return true;
+			if (templates.OfType<SpellEffects.RejuvenateLandEffect>().Any() && effectTarget is IRoom room && !rejuvenatedRooms.Add(room.Id)) return true;
 			foreach (var template in templates)
 			{
 				if (template is not IMagicSpellEffectAdmission admission) continue;

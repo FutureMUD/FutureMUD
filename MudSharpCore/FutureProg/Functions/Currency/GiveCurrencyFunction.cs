@@ -30,7 +30,7 @@ internal class GiveCurrencyFunction : BuiltInFunction
             }
         }
 
-        if (target is ICell location)
+        if (target is IRoom location)
         {
             targetPile = location.GameItems.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
             if (targetPile == null)
@@ -151,7 +151,7 @@ internal class GiveCurrencyFunction : BuiltInFunction
             }
         }
 
-        if (parameter1 is ICell location)
+        if (parameter1 is IRoom location)
         {
             targetPile = location.GameItems.RecursiveGetItems<ICurrencyPile>(respectGetRules).FirstOrDefault();
             if (targetPile == null)

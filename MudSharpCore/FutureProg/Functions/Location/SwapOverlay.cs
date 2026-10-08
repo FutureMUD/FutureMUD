@@ -29,20 +29,20 @@ internal class SwapOverlay : BuiltInFunction
             return StatementResult.Error;
         }
 
-        ICellOverlayPackage package = null;
+        IRoomOverlayPackage package = null;
 
         if (ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.Text))
         {
-            package = _gameworld.CellOverlayPackages.GetByName(
+            package = _gameworld.RoomOverlayPackages.GetByName(
                 ParameterFunctions[0].Result?.GetObject?.ToString() ?? "");
         }
         else if (ParameterFunctions[0].ReturnType.CompatibleWith(ProgVariableTypes.OverlayPackage))
         {
-            package = (ICellOverlayPackage)ParameterFunctions[0].Result?.GetObject;
+            package = (IRoomOverlayPackage)ParameterFunctions[0].Result?.GetObject;
         }
         else
         {
-            package = _gameworld.CellOverlayPackages.Get(Convert.ToInt64(ParameterFunctions[0].Result?.GetObject ?? 0));
+            package = _gameworld.RoomOverlayPackages.Get(Convert.ToInt64(ParameterFunctions[0].Result?.GetObject ?? 0));
         }
 
         if (package == null || package.Status != RevisionStatus.Current)
@@ -53,15 +53,15 @@ internal class SwapOverlay : BuiltInFunction
 
         if (_package)
         {
-            foreach (ICell cell in _gameworld.Cells.Where(x => x.Overlays.Any(y => y.Package == package)).ToList())
+            foreach (IRoom room in _gameworld.Rooms.Where(x => x.Overlays.Any(y => y.Package == package)).ToList())
             {
-                cell.SetCurrentOverlay(package);
-                _gameworld.ExitManager.UpdateCellOverlayExits(cell, cell.CurrentOverlay);
+                room.SetCurrentOverlay(package);
+                _gameworld.ExitManager.UpdateRoomOverlayExits(room, room.CurrentOverlay);
             }
         }
         else
         {
-            ICell location = (ICell)ParameterFunctions[1].Result;
+            IRoom location = (IRoom)ParameterFunctions[1].Result;
             if (location == null)
             {
                 Result = new BooleanVariable(false);
@@ -75,7 +75,7 @@ internal class SwapOverlay : BuiltInFunction
             }
 
             location.SetCurrentOverlay(package);
-            _gameworld.ExitManager.UpdateCellOverlayExits(location, location.CurrentOverlay);
+            _gameworld.ExitManager.UpdateRoomOverlayExits(location, location.CurrentOverlay);
         }
 
         Result = new BooleanVariable(true);

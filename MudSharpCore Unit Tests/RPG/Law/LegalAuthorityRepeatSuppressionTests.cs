@@ -20,9 +20,9 @@ public class LegalAuthorityRepeatSuppressionTests
 		Mock<ILaw> law = CreateLaw(1L, CrimeTypes.GreviousBodilyHarm, doNotRepeat: false);
 		Mock<ICharacter> victim = CreateCharacter(10L);
 		Mock<IGameItem> newWeapon = CreateItem(22L, "weapon");
-		Mock<ICell> newLocation = CreateCell(32L);
+		Mock<IRoom> newLocation = CreateRoom(32L);
 		Mock<ICrime> existingCrime = CreateCrime(law.Object, 10L, now.AddMinutes(-2), 21L, "weapon",
-			CreateCell(31L).Object);
+			CreateRoom(31L).Object);
 
 		bool result = LegalAuthority.ShouldSuppressAutomaticRepeatCrime(law.Object, [existingCrime.Object],
 			victim.Object, newWeapon.Object, newLocation.Object, now);
@@ -37,7 +37,7 @@ public class LegalAuthorityRepeatSuppressionTests
 		Mock<ILaw> law = CreateLaw(1L, CrimeTypes.Theft, doNotRepeat: false);
 		Mock<ICharacter> victim = CreateCharacter(10L);
 		Mock<IGameItem> item = CreateItem(20L, "GameItem");
-		Mock<ICell> location = CreateCell(30L);
+		Mock<IRoom> location = CreateRoom(30L);
 		Mock<ICrime> existingCrime = CreateCrime(law.Object, 10L, now.AddMinutes(-2), 20L, "GameItem",
 			location.Object);
 
@@ -54,8 +54,8 @@ public class LegalAuthorityRepeatSuppressionTests
 		Mock<ILaw> law = CreateLaw(1L, CrimeTypes.Theft, doNotRepeat: true);
 		Mock<ICharacter> victim = CreateCharacter(10L);
 		Mock<IGameItem> item = CreateItem(20L, "GameItem");
-		Mock<ICell> existingLocation = CreateCell(30L);
-		Mock<ICell> newLocation = CreateCell(30L);
+		Mock<IRoom> existingLocation = CreateRoom(30L);
+		Mock<IRoom> newLocation = CreateRoom(30L);
 		Mock<ICrime> existingCrime = CreateCrime(law.Object, 10L, now.AddMinutes(-2), 20L, "GameItem",
 			existingLocation.Object);
 
@@ -72,10 +72,10 @@ public class LegalAuthorityRepeatSuppressionTests
 		Mock<ILaw> law = CreateLaw(1L, CrimeTypes.Assault, doNotRepeat: false);
 		Mock<ICharacter> victim = CreateCharacter(10L);
 		Mock<ICrime> existingCrime = CreateCrime(law.Object, 10L, now.AddMinutes(-11), null, null,
-			CreateCell(30L).Object);
+			CreateRoom(30L).Object);
 
 		bool result = LegalAuthority.ShouldSuppressAutomaticRepeatCrime(law.Object, [existingCrime.Object],
-			victim.Object, null!, CreateCell(31L).Object, now);
+			victim.Object, null!, CreateRoom(31L).Object, now);
 
 		Assert.IsFalse(result);
 	}
@@ -90,7 +90,7 @@ public class LegalAuthorityRepeatSuppressionTests
 	}
 
 	private static Mock<ICrime> CreateCrime(ILaw law, long? victimId, DateTime realTimeOfCrime, long? itemId,
-		string? itemType, ICell location)
+		string? itemType, IRoom location)
 	{
 		Mock<ICrime> crime = new();
 		crime.SetupGet(x => x.Law).Returns(law);
@@ -117,10 +117,10 @@ public class LegalAuthorityRepeatSuppressionTests
 		return item;
 	}
 
-	private static Mock<ICell> CreateCell(long id)
+	private static Mock<IRoom> CreateRoom(long id)
 	{
-		Mock<ICell> cell = new();
-		cell.SetupGet(x => x.Id).Returns(id);
-		return cell;
+		Mock<IRoom> room = new();
+		room.SetupGet(x => x.Id).Returns(id);
+		return room;
 	}
 }

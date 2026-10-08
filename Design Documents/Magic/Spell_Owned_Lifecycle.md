@@ -47,9 +47,14 @@ a prepared coordinate. Legacy creation and permanent lifetimes retain their exis
 The [NPC prepayment checkpoint](Armageddon_Npc_Prepayment_Checkpoint_20261009.json) records 152
 focused managed passes and real payment/refusal/creation cases in the owned restored world.
 The [archival continuation](Armageddon_Npc_Archival_Checkpoint_20261009.json) adds verified Agriculture/Armour
-codecs and registration-only Body shutdown, with 5,980 current Core passes. Its unchanged
-native physical-release gate remains held by two malformed seeded chopping-damage formulas.
-Both heavy graphs remain; physical release and completed cold-retry proof are unqualified.
+codecs and registration-only Body shutdown, retaining its historical 5,980 Core passes.
+The [stock armour repair checkpoint](Armageddon_Npc_Armour_Repair_Checkpoint_20261009.json)
+fixes both seeded chopping defaults and qualifies their exact owned-world correction with
+1,613 Seeder and 102 focused Core passes plus native transaction/preservation checks.
+The unchanged physical-release gate now holds on `ArtificialIntelligence.Definition`;
+both heavy graphs remain, and physical release/completed cold retry remain unqualified.
+Only strict observed row-Type-aware AI codec classification is the next bounded stage;
+unknown/malformed reference holds and the original physical-release assertions remain enabled.
 Earlier creation/retirement receipts do not establish full current lifecycle readiness.
 
 Preparation allocates a stable creation key and canonical creator ID. A fresh serializable

@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-08",
-  "status": "MANAGED_PASS_NATIVE_RETIREMENT_BLOCKED_MALFORMED_ARMOUR",
+  "status": "STOCK_ARMOUR_REPAIRED_NATIVE_RETIREMENT_BLOCKED_AI_REFERENCES",
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
@@ -6532,117 +6532,165 @@
       ]
     },
     "native_retirement_qualified": false,
-    "next_bounded_milestone": "Repair the inherited chopping-damage formula in the Human/Animal armour seed content, reconcile only exact known old stock values in the owned disposable world while preserving builder edits, then rerun the unchanged physical-release gate for retained characters/bodies 10 and 11. Classify further observed contracts only as required; unknown/malformed holds stay enabled."
+    "next_bounded_milestone": "Repair the inherited chopping-damage formula in the Human/Animal armour seed content, reconcile only exact known old stock values in the owned disposable world while preserving builder edits, then rerun the unchanged physical-release gate for retained characters/bodies 10 and 11. Classify further observed contracts only as required; unknown/malformed holds stay enabled.",
+    "historical_attribution": "Previous malformed-armour failure retained; current stock repair and AI hold supersede its current-stage status."
   },
   "current_managed": {
-    "receipt": {
-      "path": ".artifacts/armageddon-npc-archive-20261009/core-acceptance/20261008T213247Z-75e88331ffa4/summary.json",
-      "sha256": "6ed279967880349857197f14e55785fb6631fc198bfada7ab394559c9e3dab15"
-    },
-    "run": "20261008T213247Z-75e88331ffa4",
     "status": "PASS",
-    "configuration": "Debug",
-    "scope": "MudSharpCore Unit Tests only",
-    "head_during_execution": "c4f6896c05199169f47e0ea3f47c512440bea02f",
-    "counts": {
-      "executed": 5980,
-      "passed": 5980,
-      "failed": 0,
-      "skipped": 0,
-      "inconclusive": 0,
-      "other": 0,
-      "total": 5980
-    },
-    "source_start": "7e4cc396e849f631725230fa84b3803ce43c030b5002c23c929819d6c4e8e65c",
-    "source_end": "7e4cc396e849f631725230fa84b3803ce43c030b5002c23c929819d6c4e8e65c",
-    "source_stable": true,
-    "execution_complete": true,
-    "counts_complete": true,
-    "projects": [
-      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
-    ],
-    "invocations": [
+    "scope": "Separate fresh full Seeder and focused Core contract runs",
+    "runs": [
       {
-        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
-        "framework": "net10.0",
-        "attempt": 1,
+        "receipt": {
+          "path": ".artifacts/armageddon-npc-armour-repair-20261009/seeder-tests/20261008T215709Z-68a06ebd0820/summary.json",
+          "sha256": "5cf889e8a53e92b26010e88182ada4377b236dbf80377611f3461cbca0140c9a"
+        },
+        "run": "20261008T215709Z-68a06ebd0820",
         "status": "PASS",
-        "reason": null,
-        "build": {
-          "name": "build",
-          "arguments": [
-            "build",
-            "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
-            "-c",
-            "Debug",
-            "-m:1",
-            "-p:RestoreBuildInParallel=false",
-            "-p:NuGetAudit=false",
-            "-p:NoWarn=NU1902%3BNU1510",
-            "--no-restore"
-          ],
-          "started_utc": "2026-10-08T21:32:48.1915232+00:00",
-          "ended_utc": "2026-10-08T21:33:55.2063526+00:00",
-          "exit_code": 0,
-          "termination_reason": null,
-          "stdout": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
-          "stderr": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
-        },
-        "test": {
-          "name": "test",
-          "arguments": [
-            "test",
-            "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
-            "-c",
-            "Debug",
-            "--no-build",
-            "--no-restore",
-            "-m:1",
-            "-f",
-            "net10.0",
-            "-p:NoWarn=NU1902%3BNU1510",
-            "--logger",
-            "trx;LogFileName=results.trx",
-            "--results-directory",
-            "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1"
-          ],
-          "started_utc": "2026-10-08T21:33:55.2093689+00:00",
-          "ended_utc": "2026-10-08T21:35:05.5937272+00:00",
-          "exit_code": 0,
-          "termination_reason": null,
-          "stdout": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
-          "stderr": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
-        },
-        "report": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
-        "binary": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+        "scope": "Full DatabaseSeeder Unit Tests",
+        "configuration": "Debug",
+        "filter": null,
+        "head_during_execution": "13658ca1e6926a378ea716579bd35be40f36b94b",
         "counts": {
-          "executed": 5980,
-          "passed": 5980,
+          "executed": 1613,
+          "passed": 1613,
           "failed": 0,
           "skipped": 0,
           "inconclusive": 0,
           "other": 0,
-          "total": 5980
+          "total": 1613
         },
-        "native_counters": {
-          "total": "5980",
-          "executed": "5980",
-          "passed": "5980",
-          "failed": "0",
-          "error": "0",
-          "timeout": "0",
-          "aborted": "0",
-          "inconclusive": "0",
-          "passedButRunAborted": "0",
-          "notRunnable": "0",
-          "notExecuted": "0",
-          "disconnected": "0",
-          "warning": "0",
-          "completed": "0",
-          "inProgress": "0",
-          "pending": "0"
-        }
+        "source_start": "173687737dacc558c1f205b90d412e28374c26f33d789046de9c62fd25537cab",
+        "source_end": "173687737dacc558c1f205b90d412e28374c26f33d789046de9c62fd25537cab",
+        "source_stable": true,
+        "process_exit_codes": [
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "build": 0,
+            "test": 0
+          }
+        ]
+      },
+      {
+        "receipt": {
+          "path": ".artifacts/armageddon-npc-armour-repair-20261009/core-contract-tests/20261008T220412Z-66b9a95c6eb3/summary.json",
+          "sha256": "b1ff6cb637613c3c748bd75a2559f3977af8611e2f404b99c74046e026739ddc"
+        },
+        "run": "20261008T220412Z-66b9a95c6eb3",
+        "status": "PASS",
+        "scope": "NpcArchiveReferencePolicyTests and BodyShutdownHealthTests only",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~NpcArchiveReferencePolicyTests|FullyQualifiedName~BodyShutdownHealthTests",
+        "head_during_execution": "13658ca1e6926a378ea716579bd35be40f36b94b",
+        "counts": {
+          "executed": 102,
+          "passed": 102,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 102
+        },
+        "source_start": "a732c451c80852021d2bc334d69e32d0555a727daf5235130f2661e45835a7ee",
+        "source_end": "a732c451c80852021d2bc334d69e32d0555a727daf5235130f2661e45835a7ee",
+        "source_stable": true,
+        "process_exit_codes": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "build": 0,
+            "test": 0
+          }
+        ]
       }
-    ]
+    ],
+    "total_passes_across_separate_runs": 1715,
+    "failed": 0,
+    "skipped": 0,
+    "combined_run": false,
+    "attribution": "Separate fresh runs on HEAD13658ca1 plus the subsequently committed unchanged Seeder sources/tests. Later changes affect only the owned fixture/Python diagnostics. Full Core and combined suites were not rerun for this stage."
+  },
+  "npc_armour_repair_continuation_20261009": {
+    "status": "STOCK_ARMOUR_REPAIRED_NATIVE_RETIREMENT_BLOCKED_AI_REFERENCES",
+    "receipt": "Armageddon_Npc_Armour_Repair_Checkpoint_20261009.json",
+    "implementation_commits": [
+      "e21da34d3e17203a89780f60bc74952ca1fc4268",
+      "0c88d5054a87d3b1f2ecf6f4cc3a4b5900be27c9",
+      "baa4ad851c998b7e83863b8bcbf84e2ba3d4d5a6"
+    ],
+    "stock_armour_repair_qualified": true,
+    "native_retirement_qualified": false,
+    "managed": {
+      "status": "PASS",
+      "scope": "Separate fresh full Seeder and focused Core contract runs",
+      "runs": [
+        {
+          "receipt": {
+            "path": ".artifacts/armageddon-npc-armour-repair-20261009/seeder-tests/20261008T215709Z-68a06ebd0820/summary.json",
+            "sha256": "5cf889e8a53e92b26010e88182ada4377b236dbf80377611f3461cbca0140c9a"
+          },
+          "run": "20261008T215709Z-68a06ebd0820",
+          "status": "PASS",
+          "scope": "Full DatabaseSeeder Unit Tests",
+          "configuration": "Debug",
+          "filter": null,
+          "head_during_execution": "13658ca1e6926a378ea716579bd35be40f36b94b",
+          "counts": {
+            "executed": 1613,
+            "passed": 1613,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1613
+          },
+          "source_start": "173687737dacc558c1f205b90d412e28374c26f33d789046de9c62fd25537cab",
+          "source_end": "173687737dacc558c1f205b90d412e28374c26f33d789046de9c62fd25537cab",
+          "source_stable": true,
+          "process_exit_codes": [
+            {
+              "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+              "build": 0,
+              "test": 0
+            }
+          ]
+        },
+        {
+          "receipt": {
+            "path": ".artifacts/armageddon-npc-armour-repair-20261009/core-contract-tests/20261008T220412Z-66b9a95c6eb3/summary.json",
+            "sha256": "b1ff6cb637613c3c748bd75a2559f3977af8611e2f404b99c74046e026739ddc"
+          },
+          "run": "20261008T220412Z-66b9a95c6eb3",
+          "status": "PASS",
+          "scope": "NpcArchiveReferencePolicyTests and BodyShutdownHealthTests only",
+          "configuration": "Debug",
+          "filter": "FullyQualifiedName~NpcArchiveReferencePolicyTests|FullyQualifiedName~BodyShutdownHealthTests",
+          "head_during_execution": "13658ca1e6926a378ea716579bd35be40f36b94b",
+          "counts": {
+            "executed": 102,
+            "passed": 102,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 102
+          },
+          "source_start": "a732c451c80852021d2bc334d69e32d0555a727daf5235130f2661e45835a7ee",
+          "source_end": "a732c451c80852021d2bc334d69e32d0555a727daf5235130f2661e45835a7ee",
+          "source_stable": true,
+          "process_exit_codes": [
+            {
+              "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "build": 0,
+              "test": 0
+            }
+          ]
+        }
+      ],
+      "total_passes_across_separate_runs": 1715,
+      "failed": 0,
+      "skipped": 0,
+      "combined_run": false,
+      "attribution": "Separate fresh runs on HEAD13658ca1 plus the subsequently committed unchanged Seeder sources/tests. Later changes affect only the owned fixture/Python diagnostics. Full Core and combined suites were not rerun for this stage."
+    },
+    "next_bounded_milestone": "Add discriminator-aware strict classification for the observed Judge, Mount, Animal and Monster AI Definition codecs, with collision/unknown/malformed regression coverage, then rerun the unchanged physical-release and completed cold-retry gates for both retained NPCs. Preserve every unknown/malformed hold and all other serialized contracts."
   }
 }

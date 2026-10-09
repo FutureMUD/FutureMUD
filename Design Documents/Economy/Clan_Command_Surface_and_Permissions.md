@@ -76,6 +76,8 @@ Admin access is treated as authoritative override rather than just “another pr
 
 Normal clan authority is resolved from `IClanMembership.NetPrivileges`.
 
+`clan remove rank|paygrade|appointment` checks current authority when invoked, even if a clan remains selected in a builder editing effect. Only `PermissionLevel.Admin` or higher bypasses membership checks. Other users require an active, non-archived membership with the corresponding `CanCreateRanks`, `CanCreatePaygrades` or `CanCreateAppointments` privilege; missing membership or revoked privileges deny the removal before target lookup.
+
 Net privileges combine:
 
 - rank privileges; and

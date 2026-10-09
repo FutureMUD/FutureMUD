@@ -62,8 +62,13 @@ public static class Dice
 
             foreach (Match match in _regex.Matches(text))
             {
-                int sides = match.Groups["sides"].Length > 0 ? int.Parse(match.Groups["sides"].Value) : 1;
-                int numdice = match.Groups["numdice"].Length > 0 ? int.Parse(match.Groups["numdice"].Value) : 0;
+				var sides = 1;
+				if ((match.Groups["sides"].Length > 0 && !int.TryParse(match.Groups["sides"].Value, out sides)) ||
+				    !int.TryParse(match.Groups["numdice"].Value, out var numdice))
+				{
+					error = "Dice values must be whole numbers within the supported integer range.";
+					return false;
+				}
                 bool isBareConstant = match.Groups["sides"].Length == 0 &&
                                       string.IsNullOrEmpty(match.Groups["mod1"].Value) &&
                                       string.IsNullOrEmpty(match.Groups["mod2"].Value) &&
@@ -95,12 +100,18 @@ public static class Dice
                 for (var i = 1; i <= 3; i++)
                 {
                     var modifier = match.Groups[$"mod{i}"].Value;
+					var threshold = 0;
+					var value = match.Groups[$"val{i}"].Value;
+					if (value.Length > 0 && !int.TryParse(value, out threshold))
+					{
+						error = "Dice modifiers must be whole numbers within the supported integer range.";
+						return false;
+					}
                     if (!modifier.Equals("e", System.StringComparison.OrdinalIgnoreCase))
                     {
                         continue;
                     }
 
-                    var threshold = int.Parse(match.Groups[$"val{i}"].Value);
                     if (threshold <= 1)
                     {
                         error = "Exploding dice must use a threshold greater than 1.";

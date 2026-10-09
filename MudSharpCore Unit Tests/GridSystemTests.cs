@@ -37,6 +37,426 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class GridSystemTests
 {
+	[TestMethod]
+	public void FaxMachine_FullQueueRejectsRoutedAndDirectFaxesThenPrintingFreesSpace()
+	{
+		var gameworld = CreateGameworld();
+		gameworld.Setup(x => x.GetStaticConfiguration("FaxMaximumPendingJobs")).Returns("2");
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateRoom().Object, "555", 4);
+		var sender = new FaxMachineDouble(gameworld.Object, 1) { TelecommunicationsGrid = grid };
+		var receiver = CreateNativeFax(gameworld.Object, 2);
+		((ICanConnectToTelecommunicationsGrid)receiver).TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)sender);
+		receiver.OnPowerCutIn();
+		var writing = new Mock<IWriting>();
+		writing.SetupGet(x => x.Id).Returns(42);
+		writing.SetupGet(x => x.DocumentLength).Returns(10);
+
+		Assert.IsTrue(grid.TrySendFax(sender, receiver.PhoneNumber!, [writing.Object], out var error), error);
+		Assert.IsTrue(grid.TrySendFax(sender, receiver.PhoneNumber!, [writing.Object], out error), error);
+		Assert.IsFalse(receiver.CanReceiveFaxes);
+		Assert.IsFalse(grid.TrySendFax(sender, receiver.PhoneNumber!, [writing.Object], out error));
+		for (var i = 0; i < 100; i++) receiver.ReceiveFax("5550001", [writing.Object]);
+		Assert.AreEqual(2, SaveFaxDefinition(receiver).Descendants("Fax").Count());
+
+		var paper = CreateBasicItem(gameworld.Object, 3);
+		paper.Setup(x => x.Equals(It.IsAny<IGameItem>())).Returns<IGameItem>(other => ReferenceEquals(other, paper.Object));
+		var writeable = new Mock<IWriteable>();
+		writeable.Setup(x => x.CanAddWriting(writing.Object)).Returns(true);
+		writeable.Setup(x => x.AddWriting(writing.Object)).Returns(true);
+		paper.Setup(x => x.GetItemType<IWriteable>()).Returns(writeable.Object);
+		receiver.Put(null, paper.Object);
+		writeable.Verify(x => x.AddWriting(writing.Object), Times.Once);
+		Assert.AreEqual(1, SaveFaxDefinition(receiver).Descendants("Fax").Count());
+		Assert.IsTrue(receiver.CanReceiveFaxes);
+		Assert.IsTrue(grid.TrySendFax(sender, receiver.PhoneNumber!, [writing.Object], out error), error);
+		Assert.AreEqual(2, SaveFaxDefinition(receiver).Descendants("Fax").Count());
+	}
+
+	[TestMethod]
+	public void FaxMachine_OversizedDocumentIsRejectedByRouterAndReceiver()
+	{
+		var gameworld = CreateGameworld();
+		gameworld.Setup(x => x.GetStaticConfiguration("FaxMaximumDocumentReadables")).Returns("2");
+		var grid = new TelecommunicationsGrid(gameworld.Object, CreateRoom().Object, "555", 4);
+		var sender = new FaxMachineDouble(gameworld.Object, 1) { TelecommunicationsGrid = grid };
+		var receiver = CreateNativeFax(gameworld.Object, 2);
+		((ICanConnectToTelecommunicationsGrid)receiver).TelecommunicationsGrid = grid;
+		grid.JoinGrid((ITelephoneNumberOwner)sender);
+		receiver.OnPowerCutIn();
+		ICanBeRead[] document = [CreateReadableDocument(10), CreateReadableDocument(20), CreateReadableDocument(30)];
+		Assert.IsFalse(grid.TrySendFax(sender, receiver.PhoneNumber!, document, out var error));
+		StringAssert.Contains(error, "too large");
+		receiver.ReceiveFax(sender.PhoneNumber!, document);
+		Assert.AreEqual(0, SaveFaxDefinition(receiver).Descendants("Fax").Count());
+		Assert.IsTrue(grid.TrySendFax(sender, receiver.PhoneNumber!, document.Take(2).ToArray(), out error), error);
+		Assert.AreEqual(2, SaveFaxDefinition(receiver).Descendants("Fax").Single().Elements().Count());
+	}
+
+	[TestMethod]
+	public void FaxMachine_LoadPreservesLegacyJobsAboveLoweredQueueLimit()
+	{
+		var gameworld = CreateGameworld();
+		gameworld.Setup(x => x.GetStaticConfiguration("FaxMaximumPendingJobs")).Returns("1");
+		var drawing = new Mock<IDrawing>();
+		drawing.SetupGet(x => x.Id).Returns(42);
+		gameworld.SetupGet(x => x.Drawings).Returns(CreateCollection([drawing.Object]).Object);
+		var receiver = CreateNativeFax(gameworld.Object, 2,
+			"<Definition><PendingFaxes><Fax sender='5550001'><Drawing>42</Drawing></Fax><Fax sender='5550001'><Drawing>42</Drawing></Fax></PendingFaxes></Definition>");
+		((ICanConnectToTelecommunicationsGrid)receiver).TelecommunicationsGrid = Mock.Of<ITelecommunicationsGrid>();
+		receiver.AssignPhoneNumber("5550002");
+		receiver.OnPowerCutIn();
+		Assert.IsFalse(receiver.CanReceiveFaxes);
+		receiver.ReceiveFax("5550001", [drawing.Object]);
+		Assert.AreEqual(2, SaveFaxDefinition(receiver).Descendants("Fax").Count());
+	}
+
+	private static FaxMachineGameItemComponent CreateNativeFax(IFuturemud gameworld, long id, string? definition = null)
+	{
+		var proto = new FaxMachineGameItemComponentProto(new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 50, Name = "Fax", Description = "Test", RevisionNumber = 1,
+			Definition = "<Definition><Wattage>2</Wattage><RingEmote><![CDATA[@ ring|rings.]]></RingEmote><TransmitPremote><![CDATA[@ speak|speaks.]]></TransmitPremote><PaperWeightCapacity>1.5</PaperWeightCapacity></Definition>",
+			EditableItem = new MudSharp.Models.EditableItem { RevisionStatus = (int)RevisionStatus.Current, RevisionNumber = 1 }
+		}, gameworld);
+		var parent = CreateBasicItem(gameworld, id).Object;
+		return definition == null
+			? new FaxMachineGameItemComponent(proto, parent, true)
+			: new FaxMachineGameItemComponent(new MudSharp.Models.GameItemComponent { Definition = definition }, proto, parent);
+	}
+
+	private static XElement SaveFaxDefinition(FaxMachineGameItemComponent fax) => XElement.Parse((string)typeof(FaxMachineGameItemComponent)
+		.GetMethod("SaveToXml", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(fax, null)!);
+
+	[DataTestMethod]
+	[DataRow("full")]
+	[DataRow("protected")]
+	[DataRow("removed")]
+	public void AnsweringMachine_GreetingStopsBeforeUnstorableSegmentsAndReleasesBuffer(string restriction)
+	{
+		var gameworld = CreateGameworld();
+		var room = CreateRoom().Object;
+		var parent = CreateBasicItem(gameworld.Object, 230, room);
+		var tape = CreateAudioMedium(gameworld.Object, 231, 0.03);
+		var machine = new AnsweringMachineGameItemComponent(CreateAnsweringMachineProto(gameworld.Object, 2), parent.Object, true);
+		var actor = CreateCharacter(gameworld.Object, 232, room);
+		var language = CreateLanguage(301);
+		var accent = CreateAccent(302, language.Object);
+		machine.Put(actor.Object, tape.Item.Object);
+		Assert.IsTrue(machine.Select(actor.Object, "greeting record", Mock.Of<IEmote>()));
+		machine.HandleEvent(EventType.CharacterSpeaksWitness, actor.Object, actor.Object, AudioVolume.Decent,
+			language.Object, accent.Object, "Hello");
+		Assert.IsTrue(machine.IsRecordingGreeting);
+		if (restriction == "protected") tape.Component.WriteProtected = true;
+		if (restriction == "removed") Assert.IsTrue(machine.Take(tape.Item.Object));
+		for (var i = 0; i < 100; i++)
+		{
+			machine.HandleEvent(EventType.CharacterSpeaksWitness, actor.Object, actor.Object, AudioVolume.Decent,
+				language.Object, accent.Object, "Goodbye");
+		}
+		Assert.IsFalse(machine.IsRecordingGreeting);
+		var working = (List<RecordedAudioSegment>)typeof(AnsweringMachineGameItemComponent)
+			.GetField("_workingGreetingSegments", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(machine)!;
+		Assert.AreEqual(0, working.Count);
+		if (restriction == "full")
+		{
+			Assert.IsNotNull(machine.GreetingRecording);
+			Assert.AreEqual(1, machine.GreetingRecording.Recording.Segments.Count);
+			Assert.AreEqual("Hello", machine.GreetingRecording.Recording.Segments[0].RawText);
+			Assert.IsTrue(machine.GreetingRecording.Recording.TotalDuration <= tape.Component.Capacity);
+		}
+		else
+		{
+			Assert.IsNull(machine.GreetingRecording);
+		}
+	}
+
+	[DataTestMethod]
+	[DataRow("segments", 10, 2)]
+	[DataRow("characters", 10, 2)]
+	[DataRow("characters", 21, 0)]
+	public void HostedVoicemail_EndsAndSavesOnlyBoundedRecording(string limit, int textLength, int expectedSegments)
+	{
+		var gameworld = CreateGameworld();
+		gameworld.Setup(x => x.GetStaticConfiguration("HostedVoicemailMaximumSegmentsPerMessage"))
+			.Returns(limit == "segments" ? "2" : "64");
+		gameworld.Setup(x => x.GetStaticConfiguration("HostedVoicemailMaximumCharactersPerMessage"))
+			.Returns(limit == "characters" ? "20" : "8192");
+		var grid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4, true);
+		grid.SetMaximumRings(1);
+		var caller = new TelephoneDouble(gameworld.Object, 1) { TelecommunicationsGrid = grid };
+		var receiver = new TelephoneDouble(gameworld.Object, 2) { TelecommunicationsGrid = grid, HostedVoicemailEnabled = true };
+		Mock.Get(caller.Parent).SetupGet(x => x.Name).Returns("Caller");
+		grid.JoinGrid((ITelephoneNumberOwner)caller);
+		grid.JoinGrid((ITelephoneNumberOwner)receiver);
+		Assert.IsTrue(grid.TryStartCall(caller, receiver.PhoneNumber!, out var error), error);
+		var heartbeat = Mock.Get(gameworld.Object.HeartbeatManager);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+		heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+		for (var i = 0; i < 4; i++)
+		{
+			caller.Transmit(CreateSpokenLanguage(caller.Parent, new string('a', textLength)));
+		}
+		Assert.IsFalse(caller.IsEngaged);
+		Assert.IsTrue(caller.ProgressMessages.Any(x => x.Contains("message limit")));
+		var saved = SaveTelecomDefinition(grid);
+		Assert.AreEqual(expectedSegments, saved.Descendants("Segment").Count());
+		Assert.AreEqual(expectedSegments == 0 ? 0 : 1, saved.Descendants("StoredRecording").Count());
+	}
+
+	[TestMethod]
+	public void HostedVoicemail_MailboxAndGridQuotasRefuseNewMessagesAndDeletionFreesCapacity()
+	{
+		var gameworld = CreateGameworld();
+		gameworld.Setup(x => x.GetStaticConfiguration("HostedVoicemailMaximumMessagesPerMailbox")).Returns("2");
+		gameworld.Setup(x => x.GetStaticConfiguration("HostedVoicemailMaximumMessagesPerGrid")).Returns("3");
+		var grid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4, true);
+		grid.SetMaximumRings(1);
+		var caller = new TelephoneDouble(gameworld.Object, 1) { TelecommunicationsGrid = grid };
+		var receivers = Enumerable.Range(2, 3).Select(id => new TelephoneDouble(gameworld.Object, id)
+		{
+			TelecommunicationsGrid = grid, HostedVoicemailEnabled = true
+		}).ToArray();
+		Mock.Get(caller.Parent).SetupGet(x => x.Name).Returns("Caller");
+		foreach (var phone in receivers.Prepend(caller)) grid.JoinGrid((ITelephoneNumberOwner)phone);
+		var heartbeat = Mock.Get(gameworld.Object.HeartbeatManager);
+		void LeaveMessage(TelephoneDouble receiver, bool shouldRecord)
+		{
+			Assert.IsTrue(grid.TryStartCall(caller, receiver.PhoneNumber!, out var error), error);
+			heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+			heartbeat.Raise(x => x.FuzzyFiveSecondHeartbeat += null);
+			Assert.AreEqual(shouldRecord, caller.IsConnected);
+			if (shouldRecord)
+			{
+				caller.Transmit(CreateSpokenLanguage(caller.Parent));
+				Assert.IsTrue(caller.HangUp(null!, out error), error);
+			}
+			Assert.IsFalse(caller.IsEngaged);
+		}
+		LeaveMessage(receivers[0], true);
+		LeaveMessage(receivers[0], true);
+		LeaveMessage(receivers[0], false);
+		LeaveMessage(receivers[1], true);
+		LeaveMessage(receivers[2], false);
+		Assert.AreEqual(3, SaveTelecomDefinition(grid).Descendants("StoredRecording").Count());
+		Assert.IsTrue(receivers[0].Dial(null!, grid.HostedVoicemailAccessNumber, out var error), error);
+		Assert.IsTrue(receivers[0].Dial(null!, "7", out error), error);
+		Assert.IsTrue(receivers[0].Dial(null!, "#", out error), error);
+		LeaveMessage(receivers[2], true);
+		Assert.AreEqual(2, SaveTelecomDefinition(grid).Descendants("StoredRecording").Count());
+	}
+
+	[TestMethod]
+	public void HostedVoicemail_LoadPreservesLegacyMessagesButRefusesAdditionalOverQuotaStorage()
+	{
+		var gameworld = CreateGameworld();
+		gameworld.Setup(x => x.GetStaticConfiguration("HostedVoicemailMaximumMessagesPerMailbox")).Returns("1");
+		var speech = RecordedAudioSegment.FromSpokenLanguage(CreateSpokenLanguage(Mock.Of<IGameItem>(x => x.Name == "Caller")), TimeSpan.Zero);
+		var recording = new StoredAudioRecording("legacy", new RecordedAudio([speech]), DateTime.UtcNow);
+		var definition = new XElement("Definition", new XElement("HostedVoicemailMailboxes",
+			new XElement("Mailbox", new XAttribute("number", "5551200"), recording.SaveToXml(), recording.SaveToXml())));
+		var grid = new TelecommunicationsGrid(new MudSharp.Models.Grid
+		{
+			Id = 1, GridType = "Telecommunications", Definition = definition.ToString()
+		}, gameworld.Object);
+		var admitted = (bool)typeof(TelecommunicationsGrid).GetMethod("StoreHostedVoicemailMessage", BindingFlags.NonPublic | BindingFlags.Instance)!
+			.Invoke(grid, ["5551200", recording])!;
+		Assert.IsFalse(admitted);
+		Assert.AreEqual(2, SaveTelecomDefinition(grid).Descendants("StoredRecording").Count());
+	}
+
+	private static XElement SaveTelecomDefinition(TelecommunicationsGrid grid) =>
+		(XElement)typeof(TelecommunicationsGrid).GetMethod("SaveDefinition", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(grid, [])!;
+
+	[TestMethod]
+	public void TelecomFeeders_RejectMutualAndLongerCyclesWithoutLosingExistingPower()
+	{
+		var gameworld = CreateGameworld();
+		var (aItem, a) = CreateTelecomFeeder(gameworld.Object);
+		var (bItem, b) = CreateTelecomFeeder(gameworld.Object);
+		var (cItem, c) = CreateTelecomFeeder(gameworld.Object);
+		var connector = new ConnectorType(Gender.Neuter, "power", true);
+		var rootItem = new Mock<IGameItem>();
+		var root = new Mock<IProducePower>();
+		root.SetupGet(x => x.Parent).Returns(rootItem.Object);
+		root.SetupGet(x => x.PrimaryExternalConnectionPowerProducer).Returns(true);
+		root.SetupGet(x => x.MaximumPowerInWatts).Returns(100);
+		root.SetupGet(x => x.ProducingPower).Returns(true);
+		root.SetupGet(x => x.FuelLevel).Returns(9);
+		root.Setup(x => x.CanBeginDrawDown(10)).Returns(true);
+		root.Setup(x => x.CanDrawdownSpike(10)).Returns(true);
+		root.Setup(x => x.DrawdownSpike(10)).Returns(true);
+		rootItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns([root.Object]);
+		var rootConnection = new Mock<IConnectable>();
+		rootConnection.SetupGet(x => x.Parent).Returns(rootItem.Object);
+		aItem.Raise(x => x.OnConnected += null, rootConnection.Object, connector);
+		bItem.Raise(x => x.OnConnected += null, rootConnection.Object, connector);
+		aItem.Raise(x => x.OnConnected += null, b, connector);
+		bItem.Raise(x => x.OnConnected += null, a, connector);
+		Assert.AreEqual(100, a.MaximumPowerInWatts);
+		Assert.AreEqual(100, b.MaximumPowerInWatts);
+		root.Verify(x => x.EndDrawdown(a), Times.Once);
+		root.Verify(x => x.EndDrawdown(b), Times.Never);
+		cItem.Raise(x => x.OnConnected += null, a, connector);
+		bItem.Raise(x => x.OnConnected += null, c, connector);
+		bItem.Raise(x => x.OnConnected += null, b, connector);
+		Assert.AreEqual(100, c.PowerConsumptionInWatts);
+		Assert.AreEqual(9, c.FuelLevel);
+		Assert.IsTrue(c.ProducingPower);
+		Assert.IsTrue(c.CanBeginDrawDown(10));
+		Assert.IsTrue(c.CanDrawdownSpike(10));
+		Assert.IsTrue(c.DrawdownSpike(10));
+		aItem.Raise(x => x.OnDisconnected += null, b, connector);
+		Assert.AreEqual(0, a.MaximumPowerInWatts);
+		Assert.AreEqual(0, c.MaximumPowerInWatts);
+		Assert.AreEqual(100, b.MaximumPowerInWatts);
+	}
+
+	[TestMethod]
+	public void TelecomFeeder_AcyclicSourceReplacementSupportsNonPrimaryPowerAndReleasesOldSource()
+	{
+		var gameworld = CreateGameworld();
+		var (item, feeder) = CreateTelecomFeeder(gameworld.Object);
+		var connector = new ConnectorType(Gender.Neuter, "power", true);
+		var first = new Mock<IProducePower>();
+		first.SetupGet(x => x.PrimaryExternalConnectionPowerProducer).Returns(true);
+		first.SetupGet(x => x.MaximumPowerInWatts).Returns(100);
+		var second = new Mock<IProducePower>();
+		second.SetupGet(x => x.MaximumPowerInWatts).Returns(50);
+		foreach (var source in new[] { first, second })
+		{
+			var sourceItem = new Mock<IGameItem>();
+			sourceItem.Setup(x => x.GetItemTypes<IProducePower>()).Returns([source.Object]);
+			var connection = new Mock<IConnectable>();
+			connection.SetupGet(x => x.Parent).Returns(sourceItem.Object);
+			item.Raise(x => x.OnConnected += null, connection.Object, connector);
+			if (source == second)
+			{
+				item.Raise(x => x.OnConnected += null, connection.Object, connector);
+			}
+		}
+		Assert.AreEqual(50, feeder.MaximumPowerInWatts);
+		first.Verify(x => x.EndDrawdown(feeder), Times.Once);
+		second.Verify(x => x.BeginDrawdown(feeder), Times.Once);
+	}
+
+	private static (Mock<IGameItem> Item, TelecommunicationsGridFeederGameItemComponent Feeder) CreateTelecomFeeder(IFuturemud gameworld)
+	{
+		var model = new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 124, Name = "Feeder", Description = "Test", RevisionNumber = 1,
+			Definition = "<Definition><Connectors><Connection gender='0' type='power' powered='true'/></Connectors></Definition>",
+			EditableItem = new MudSharp.Models.EditableItem { RevisionStatus = (int)RevisionStatus.Current, RevisionNumber = 1 }
+		};
+		var proto = (TelecommunicationsGridFeederGameItemComponentProto)typeof(TelecommunicationsGridFeederGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([model, gameworld]);
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Gameworld).Returns(gameworld);
+		var feeder = new TelecommunicationsGridFeederGameItemComponent(proto, item.Object, true);
+		item.Setup(x => x.GetItemTypes<IProducePower>()).Returns([feeder]);
+		return (item, feeder);
+	}
+
+	[TestMethod]
+	public void CellularCoverage_UsesRegisteredTowersAndLivePowerSwitchLocation()
+	{
+		var gameworld = CreateGameworld();
+		var grid = new TelecommunicationsGrid(gameworld.Object, null, "555", 4);
+		var otherGrid = new TelecommunicationsGrid(gameworld.Object, null, "556", 4);
+		var zone = new Mock<IZone>().Object;
+		var otherZone = new Mock<IZone>().Object;
+		var room = CreateRoom();
+		room.SetupGet(x => x.Zone).Returns(zone);
+		var otherRoom = CreateRoom();
+		otherRoom.SetupGet(x => x.Zone).Returns(otherZone);
+		IRoom towerRoom = room.Object;
+		var towerItem = new Mock<IGameItem>();
+		towerItem.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		towerItem.SetupGet(x => x.Id).Returns(12);
+		towerItem.SetupGet(x => x.TrueLocations).Returns(() => new[] { towerRoom });
+		var items = Mock.Get(gameworld.Object.Items);
+		var towerLoaded = true;
+		items.Setup(x => x.Get(12L)).Returns(() => towerLoaded ? towerItem.Object : null);
+		var model = new MudSharp.Models.GameItemComponentProto
+		{
+			Id = 123, Name = "Tower", Description = "Test", RevisionNumber = 1,
+			Definition = "<Definition><Wattage>250</Wattage></Definition>",
+			EditableItem = new MudSharp.Models.EditableItem { RevisionStatus = (int)RevisionStatus.Current, RevisionNumber = 1 }
+		};
+		var proto = (CellPhoneTowerGameItemComponentProto)typeof(CellPhoneTowerGameItemComponentProto)
+			.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic, null,
+				[typeof(MudSharp.Models.GameItemComponentProto), typeof(IFuturemud)], null)!
+			.Invoke([model, gameworld.Object]);
+		var tower = new CellPhoneTowerGameItemComponent(proto, towerItem.Object, true);
+		var phoneItem = new Mock<IGameItem>();
+		phoneItem.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		phoneItem.SetupGet(x => x.TrueLocations).Returns([room.Object]);
+		var phone = new CellularPhoneGameItemComponent(CreateCellularPhoneProto(gameworld.Object, 2), phoneItem.Object, true)
+		{
+			TelecommunicationsGrid = grid
+		};
+		gameworld.Invocations.Clear();
+		Assert.IsFalse(phone.HasCoverage);
+		tower.TelecommunicationsGrid = grid;
+		tower.OnPowerCutIn();
+		Assert.IsTrue(phone.HasCoverage);
+		tower.SwitchedOn = false;
+		Assert.IsFalse(phone.HasCoverage);
+		tower.SwitchedOn = true;
+		tower.OnPowerCutOut();
+		Assert.IsFalse(phone.HasCoverage);
+		tower.OnPowerCutIn();
+		towerRoom = otherRoom.Object;
+		Assert.IsFalse(phone.HasCoverage);
+		towerRoom = room.Object;
+		Assert.IsTrue(phone.HasCoverage);
+		tower.TelecommunicationsGrid = otherGrid;
+		tower.OnPowerCutIn();
+		grid.LinkGrid(otherGrid);
+		Assert.IsFalse(phone.HasCoverage);
+		tower.TelecommunicationsGrid = grid;
+		tower.OnPowerCutIn();
+		Assert.IsTrue(phone.HasCoverage);
+		towerLoaded = false;
+		Assert.IsFalse(phone.HasCoverage);
+		towerLoaded = true;
+		Assert.IsTrue(phone.HasCoverage);
+		tower.TelecommunicationsGrid = null;
+		Assert.IsFalse(phone.HasCoverage);
+		items.Verify(x => x.GetEnumerator(), Times.Never);
+	}
+
+	[TestMethod]
+	public void CellularCoverage_RestoresTowerRegistryFromSavedConsumers()
+	{
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(12);
+		var tower = new Mock<ICellPhoneTower>();
+		tower.SetupGet(x => x.Parent).Returns(item.Object);
+		item.Setup(x => x.GetItemType<IConsumePower>()).Returns(tower.Object);
+		var gameworld = CreateGameworld([item.Object]);
+		var grid = new TelecommunicationsGrid(new MudSharp.Models.Grid
+		{
+			Id = 1, GridType = "Telecommunications",
+			Definition = "<Definition><Consumer>12</Consumer></Definition>"
+		}, gameworld.Object);
+		tower.SetupGet(x => x.TelecommunicationsGrid).Returns(grid);
+		var zone = new Mock<IZone>().Object;
+		tower.Setup(x => x.ProvidesCoverage(zone)).Returns(true);
+		Assert.IsFalse(grid.HasCellularCoverage(zone));
+		grid.LoadTimeInitialise();
+		gameworld.Invocations.Clear();
+		var items = Mock.Get(gameworld.Object.Items);
+		items.Invocations.Clear();
+		Assert.IsTrue(grid.HasCellularCoverage(zone));
+		grid.LeaveGrid((IConsumePower)tower.Object);
+		Assert.IsFalse(grid.HasCellularCoverage(zone));
+		items.Verify(x => x.GetEnumerator(), Times.Never);
+	}
+
     [TestMethod]
     public void GridPowerSupplyProto_RoundTripsWattage()
     {
@@ -1102,8 +1522,9 @@ public class GridSystemTests
         component.TelecommunicationsGrid = grid.Object;
         component.AssignPhoneNumber("5551200");
         component.OnPowerCutIn();
+		var (actor, _) = InstallAudioNeuralLink(component);
 
-        Assert.IsFalse(component.CanDial(null!, "5551201", out string? error));
+		Assert.IsFalse(component.CanDial(actor.Object, "5551201", out string? error));
         StringAssert.Contains(error, "no signal");
     }
 
@@ -1116,16 +1537,96 @@ public class GridSystemTests
         parent.SetupGet(x => x.Id).Returns(21L);
         ImplantTelephoneGameItemComponentProto proto = CreateImplantTelephoneProto(gameworld.Object);
         ImplantTelephoneGameItemComponent component = new(proto, parent.Object, true);
+		var (actor, _) = InstallAudioNeuralLink(component);
         Mock<ITelephoneCall> call = new();
         call.SetupGet(x => x.IsConnected).Returns(true);
         call.SetupGet(x => x.Participants).Returns([component]);
 
         component.ConnectCall(call.Object);
         component.OnPowerCutIn();
-        component.Transmit(CreateSpokenLanguage(parent.Object));
+		component.Transmit(CreateSpokenLanguage(actor.Object));
 
         call.Verify(x => x.RelayTransmission(component, It.IsAny<SpokenLanguageInfo>()), Times.Once);
     }
+
+	[DataTestMethod]
+	[DataRow("unlinked")]
+	[DataRow("unpowered")]
+	[DataRow("noaudio")]
+	[DataRow("otheractor")]
+	public void ImplantPhone_RejectsControlWithoutWearerAudioLink(string restriction)
+	{
+		var gameworld = CreateGameworld();
+		var parent = new Mock<IGameItem>();
+		parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var room = CreateRoom();
+		room.SetupGet(x => x.Zone).Returns(new Mock<IZone>().Object);
+		parent.SetupGet(x => x.TrueLocations).Returns([room.Object]);
+		var component = new ImplantTelephoneGameItemComponent(CreateImplantTelephoneProto(gameworld.Object), parent.Object, true);
+		var (owner, link) = InstallAudioNeuralLink(component);
+		var grid = new Mock<ITelecommunicationsGrid>();
+		grid.Setup(x => x.HasCellularCoverage(It.IsAny<IZone>())).Returns(true);
+		component.TelecommunicationsGrid = grid.Object;
+		component.AssignPhoneNumber("5551200");
+		component.OnPowerCutIn();
+		Assert.IsTrue(component.CanDial(owner.Object, "5551201", out _));
+		ICharacter actor = owner.Object;
+		switch (restriction)
+		{
+			case "unlinked": link.Setup(x => x.IsLinkedTo(component)).Returns(false); break;
+			case "unpowered": link.SetupGet(x => x.DNIConnected).Returns(false); break;
+			case "noaudio": link.SetupGet(x => x.PermitsAudio).Returns(false); break;
+			case "otheractor": actor = new Mock<ICharacter>().Object; break;
+		}
+		Assert.IsFalse(component.ManualTransmit);
+		Assert.IsFalse(component.CanDial(actor, "5551201", out _));
+		Assert.IsFalse(component.Dial(actor, "5551201", out _));
+		Assert.IsFalse(component.CanPickUp(actor, out _));
+		Assert.IsFalse(component.PickUp(actor, out _));
+		Assert.IsFalse(component.CanAnswer(actor, out _));
+		Assert.IsFalse(component.CanHangUp(actor, out _));
+		Assert.IsFalse(component.CanSendDigits(actor, "1", out _));
+		Assert.IsFalse(component.Switch(actor, "off"));
+		var call = new Mock<ITelephoneCall>();
+		call.SetupGet(x => x.IsConnected).Returns(true);
+		call.SetupGet(x => x.Participants).Returns([component]);
+		component.ConnectCall(call.Object);
+		component.Transmit(CreateSpokenLanguage(actor));
+		call.Verify(x => x.RelayTransmission(component, It.IsAny<SpokenLanguageInfo>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void ImplantPhone_ReceivesSpeechOnlyFromCurrentCallParticipants()
+	{
+		var gameworld = CreateGameworld();
+		var parent = new Mock<IGameItem>();
+		parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var component = new ImplantTelephoneGameItemComponent(CreateImplantTelephoneProto(gameworld.Object), parent.Object, true);
+		var (actor, link) = InstallAudioNeuralLink(component);
+		var output = Mock.Get(actor.Object.OutputHandler);
+		var source = new Mock<ITelephone>();
+		var outsider = new Mock<ITelephone>();
+		var call = new Mock<ITelephoneCall>();
+		call.SetupGet(x => x.IsConnected).Returns(true);
+		call.SetupGet(x => x.Participants).Returns([component, source.Object]);
+		source.SetupGet(x => x.CurrentCall).Returns(call.Object);
+		outsider.SetupGet(x => x.CurrentCall).Returns(call.Object);
+		component.ConnectCall(call.Object);
+		component.OnPowerCutIn();
+		var speech = CreateSpokenLanguage(actor.Object);
+		component.ReceiveTransmission(0, speech, 0, outsider.Object);
+		source.SetupGet(x => x.CurrentCall).Returns(new Mock<ITelephoneCall>().Object);
+		component.ReceiveTransmission(0, speech, 0, source.Object);
+		output.Verify(x => x.Send(It.IsAny<IOutput>(), true, false), Times.Never);
+		source.SetupGet(x => x.CurrentCall).Returns(call.Object);
+		component.ReceiveTransmission(0, speech, 0, source.Object);
+		output.Verify(x => x.Send(It.IsAny<IOutput>(), true, false), Times.Once);
+		link.SetupGet(x => x.DNIConnected).Returns(false);
+		component.ReceiveTransmission(0, speech, 0, source.Object);
+		call.SetupGet(x => x.IsConnected).Returns(false);
+		component.ReceiveTransmission(0, speech, 0, source.Object);
+		output.Verify(x => x.Send(It.IsAny<IOutput>(), true, false), Times.Once);
+	}
 
     [TestMethod]
     public void TelecommunicationsGridCreatorComponent_RecreatesMissingGridOnLoad()
@@ -1765,6 +2266,22 @@ public class GridSystemTests
                .Invoke([model, gameworld]);
     }
 
+	private static (Mock<ICharacter> Actor, Mock<IImplantNeuralLink> Link) InstallAudioNeuralLink(
+		ImplantTelephoneGameItemComponent component)
+	{
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
+		var body = new Mock<IBody>();
+		body.SetupGet(x => x.Actor).Returns(actor.Object);
+		var link = new Mock<IImplantNeuralLink>();
+		link.Setup(x => x.IsLinkedTo(component)).Returns(true);
+		link.SetupGet(x => x.DNIConnected).Returns(true);
+		link.SetupGet(x => x.PermitsAudio).Returns(true);
+		body.SetupGet(x => x.Implants).Returns([component, link.Object]);
+		component.InstallImplant(body.Object);
+		return (actor, link);
+	}
+
     private static Mock<ITelephoneNumberOwner> CreateLineOwner(IFuturemud gameworld, long parentId, long componentId,
         params ITelephone[] phones)
     {
@@ -1811,7 +2328,7 @@ public class GridSystemTests
                .Invoke([model, gameworld]);
     }
 
-    private static SpokenLanguageInfo CreateSpokenLanguage(IPerceivable origin)
+	private static SpokenLanguageInfo CreateSpokenLanguage(IPerceivable origin, string text = "Hello there")
     {
         Mock<ILanguageDifficultyModel> model = new();
         model.Setup(x => x.RateDifficulty(It.IsAny<ExplodedString>())).Returns(Difficulty.Automatic);
@@ -1822,7 +2339,7 @@ public class GridSystemTests
         Mock<IAccent> accent = new();
         accent.SetupGet(x => x.Id).Returns(2L);
         accent.SetupGet(x => x.Language).Returns(language.Object);
-        return new SpokenLanguageInfo(language.Object, accent.Object, AudioVolume.Decent, "Hello there",
+		return new SpokenLanguageInfo(language.Object, accent.Object, AudioVolume.Decent, text,
             Outcome.Pass, origin, origin);
     }
 

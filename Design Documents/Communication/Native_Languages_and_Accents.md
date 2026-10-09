@@ -14,6 +14,8 @@ Accent roles are `Native` (0), `Foreign` (1), and `Fallback` (2). Accents can as
 
 Automatic acquisition in a non-native language selects a Foreign accent associated with the native language, then a Fallback accent, then the heard accent if Native, then any Native accent, then any accent. Each tier uses ascending accent ID. Without accents, the character still knows the language. A scoped acquisition context carries the heard accent through skill branching, including psychic spoken-language comprehension; signed languages are unaffected.
 
+The player `speak` status command displays a known/current accentless language without an accent suffix. `speak <language>` can select an accentless language and clears any previously selected accent; explicitly requesting an unknown accent still fails normally.
+
 For the native language, selected Native accents take precedence, followed by an available Native accent and then any available accent. Explicit template choices are retained. Automatic creation choices respect chargen availability progs. Normal gameplay acquisition does not treat chargen-only restrictions as learning restrictions.
 
 Builder commands, within the usual editable-item workflow:

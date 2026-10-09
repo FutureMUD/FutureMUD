@@ -182,7 +182,7 @@ public abstract class PathingAIWithProgTargetsBase : PathingAIBase
 
     protected override bool IsPathingEnabled(ICharacter ch)
     {
-        return PathingEnabledProg.ExecuteBool(ch);
+        return PathingEnabledProg?.ExecuteBool(ch) == true;
     }
 
     protected override void LoadFromXML(XElement root)

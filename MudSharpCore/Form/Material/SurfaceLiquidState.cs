@@ -1,6 +1,7 @@
 ﻿using System.Globalization;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
+using MudSharp.Magic;
 
 #nullable enable
 
@@ -90,7 +91,10 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 
 		if (root.Element("Mix") is { } mixRoot)
 		{
-			ContaminatingLiquid = new LiquidMixture(mixRoot, gameworld);
+			var incoming = new LiquidMixture(mixRoot, gameworld);
+			SubstanceDose.LimitSurfaceLots(Array.Empty<LiquidInstance>(), incoming);
+			ContaminatingLiquid = LiquidMixture.CreateEmpty(gameworld);
+			ContaminatingLiquid.AddLiquid(incoming);
 			ContaminatingLiquid.BeforeMutation = beforeMutation;
 			ContaminatingLiquid.OnLiquidMixtureChanged += _ => LiquidChanged();
 		}
@@ -165,7 +169,9 @@ public sealed class SurfaceLiquidState : ISurfaceLiquidState
 			return;
 		}
 
-		ContaminatingLiquid.AddLiquid(liquid.Clone());
+		var incoming = liquid.Clone();
+		SubstanceDose.LimitSurfaceLots(ContaminatingLiquid.Instances, incoming);
+		ContaminatingLiquid.AddLiquid(incoming);
 		LastResolvedUtc = DateTime.UtcNow;
 		_changed?.Invoke();
 	}

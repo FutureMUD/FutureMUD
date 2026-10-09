@@ -52,7 +52,7 @@ public class VariableGameItemComponentProto : GameItemComponentProto, IVariableP
             ICharacteristicValue cvalue = null;
 
             definition =
-                CharacteristicDefinitions.FirstOrDefault(x => x.Pattern.IsMatch(match.Groups[1].Value));
+                CharacteristicDefinitions.FirstOrDefault(x => x.MatchesPattern(match.Groups[1].Value));
             if (definition == null)
             {
                 continue;

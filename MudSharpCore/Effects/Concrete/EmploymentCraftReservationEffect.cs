@@ -2,7 +2,7 @@
 
 namespace MudSharp.Effects.Concrete;
 
-public sealed class EmploymentCraftReservationEffect : Effect, INoGetEffect
+public class EmploymentCraftReservationEffect : Effect
 {
 	public EmploymentCraftReservationEffect(IPerceivable owner, Guid taskId, Guid correlationId, string taskName,
 		string resourceDescription, DateTimeOffset expiresAt)
@@ -39,6 +39,6 @@ public sealed class EmploymentCraftReservationEffect : Effect, INoGetEffect
 
 	public override bool PreventsItemFromMerging(IGameItem effectOwnerItem, IGameItem targetItem)
 	{
-		return true;
+		return false;
 	}
 }

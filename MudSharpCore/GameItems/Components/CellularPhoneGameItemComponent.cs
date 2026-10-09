@@ -716,9 +716,7 @@ public class CellularPhoneGameItemComponent : GameItemComponent, ITelephone, ITe
 
     private bool HasCoverageInZone(Construction.IZone zone)
     {
-        return Gameworld.Items
-                        .SelectNotNull(x => x!.GetItemType<ICellPhoneTower>())
-                        .Any(x => x.TelecommunicationsGrid == TelecommunicationsGrid && x.ProvidesCoverage(zone));
+		return TelecommunicationsGrid?.HasCellularCoverage(zone) == true;
     }
 
     private void Ring()

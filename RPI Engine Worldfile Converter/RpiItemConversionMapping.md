@@ -139,9 +139,11 @@ The current pass aims to import the following families functionally:
 
 - RPI `ITEM_BOARD` prototypes map to FutureMUD board items.
 - The first source keyword is preserved as the legacy board key, matching how the RPI Engine selected the board name from the object name.
-- Execute import creates or reuses a `Boards` row and a generated approved `Board` component named `RPI_Board_<key>`.
+- Execute import uses generated names with deterministic 128-bit SHA-256 suffixes. Board names identify the complete legacy key; component and access-program names identify the complete key and sorted clan/rank restrictions, before any readable prefix is sanitised or truncated. Names remain within database limits, and reruns produce the same identities.
+- Multiple physical board objects with the same legacy key intentionally share posts, as in the archived engine, while distinct per-object access policies have separate components and progs. Different legacy keys cannot collapse onto the same truncated board name.
 - Generated board components use the seeded `AlwaysTrue` FutureProg for view and post permissions when no legacy clan rows exist.
-- When legacy board item clan rows exist, item import resolves the imported clan alias and rank to stable database IDs, then creates a private `RPIBoardAccess_<key>` FutureProg and attaches it to both view and post permissions.
+- When legacy board item clan rows exist, item import resolves the imported clan alias and rank to stable database IDs, then creates a private `RPIBoardAccess_<key>_<access suffix>` FutureProg and attaches it to both view and post permissions.
+- This naming change applies to newly imported definitions. It does not rename old generated rows, move existing posts, or repair boards already merged by an earlier import. Owners correcting an earlier collision must separate the affected backing boards and rebind their components deliberately; do not discard or duplicate existing posts by blindly rerunning imports.
 - Because of that stable-ID binding, run `apply-clans --execute` before `apply-items --execute`. Item import validation treats missing board clans or ranks as fatal baseline errors.
 - Historical board posts are not imported from item worldfiles.
 

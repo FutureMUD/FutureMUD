@@ -134,6 +134,8 @@ The execution patrol progresses through these stages:
 
 If required rooms, tools, keys, paths, or targets become unavailable for too long, the patrol aborts and removes only the execution-specific no-quit effect. The `AwaitingExecution` effect remains so a later patrol can try again.
 
+Every execution tick rechecks that the selected prisoner still has a due `AwaitingExecution` effect for the patrol's legal authority. Removing or postponing that sentence aborts the execution. All patrol abort and completion paths release execution drag/no-quit state and reset the strategy's cached target and ceremony progress before the route is reused.
+
 If the patrol reaches the configured execution-attempt limit without killing the condemned prisoner, it announces the failed execution, releases any execution drag and no-quit state, delays the `AwaitingExecution` date by at least one in-game day from the current legal clock, sends the prisoner back to a holding cell, and then aborts the patrol. This keeps the sentence active but prevents an immediate silent relaunch loop.
 
 ## Trials and PC Judges
@@ -155,7 +157,7 @@ A PC judge is any enforcer whose enforcement authority has `CanConvict` for the 
 Judge-facing trial commands:
 
 - `trial`: shows the active trial in the current room. The active-trial view includes a per-charge progress table. Automated trials reveal coded details as the judge reaches each phase: charges, pleas, prosecution and defense argument quality, verdicts, and then announced sentences. During sentencing, a consolidated sentence summary appears below the table and grows only as individual sentences are announced. PC-held trials use the same table, but plea and argument quality are marked as roleplayed/manual surfaces and verdict/sentence columns reflect recorded `convict` and `acquit` results.
-- `trial docket [jurisdiction]`: lists defendants awaiting trial for the judge's jurisdictions, including remand/bail/trial status, open charge counts, a compact charge-name summary, wrapped charge ID details, and prior local convictions.
+- `trial docket [jurisdiction]`: lists defendants awaiting trial whom the actor may manually judge in their jurisdictions, including remand/bail/trial status, open charge counts, a compact charge-name summary, wrapped charge ID details, and prior local convictions. Each defendant must pass the same enforcement `CanConvict` and `AccusableClasses` checks as a manual judgement before their name or case details are rendered; the existing administrator judgement rules also apply.
 - `trial summon <target>`: from the jurisdiction courtroom, calls a remand prisoner or present defendant before the court and begins a PC-held trial.
 - `convict <target> <crime> <sentence>`: records a guilty verdict and sentence for one charge.
 - `acquit <target> <crime>`: records a not-guilty verdict for one charge.
@@ -176,7 +178,7 @@ When the return deadline expires, the bail heartbeat attempts to record a `Viola
 
 The `trial docket` command distinguishes active bail from bail-revoked at-large defendants so PC judges can see why a person is not currently summonable.
 
-Prisoners can engage legal counsel while physically held in a remand cell, and advocates can hire counsel for remand prisoners from a remand cell as well as from the legal authority's prison location. `engagelawyer list` only lists remand prisoners who do not already have counsel. When a remand prisoner hires counsel for themselves without specifying a bank account, the cash payment can draw from their carried cash and from the prison-belongings bundle stored for that legal authority, allowing legal fees to be paid from money confiscated during remand intake.
+Prisoners can engage legal counsel while physically held in a remand cell, and advocates can hire counsel for remand prisoners from a remand cell as well as from the legal authority's prison location. `engagelawyer list` only lists remand prisoners who do not already have counsel. When a remand prisoner hires counsel for themselves without specifying a bank account, the cash payment can draw from their carried cash and from the prison-belongings bundle stored for that legal authority, allowing legal fees to be paid from money confiscated during remand intake. Any change from this combined payment returns to the stored belongings bundle, including when the original coin pile is exhausted or the bundle is over capacity; it remains in custody until release.
 
 `score` includes legal status addenda for characters on remand, on bail, serving a custodial sentence, or awaiting execution. Execution status uses the more precise time display so condemned characters can see the scheduled execution time.
 

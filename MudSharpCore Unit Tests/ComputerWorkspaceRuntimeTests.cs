@@ -34,7 +34,7 @@ using System.Reflection;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class ComputerWorkspaceRuntimeTests
+public partial class ComputerWorkspaceRuntimeTests
 {
 	[TestMethod]
 	public void ImplantComputerUtilities_ResolvesUniqueAliasOnSameBodyAndNeuralBus()
@@ -696,6 +696,9 @@ return userinput()";
 	{
 		var scheduler = new Mock<IScheduler>();
 		var gameworld = CreateGameworld(scheduler);
+		var items = new Mock<IUneditableAll<IGameItem>>();
+		items.Setup(x => x.GetEnumerator()).Throws(new InvalidOperationException("Terminal waits must not enumerate world items."));
+		gameworld.SetupGet(x => x.Items).Returns(items.Object);
 		var service = new ComputerExecutionService(gameworld.Object);
 		var host = new StubComputerHost { Powered = true, Name = "Local Host" };
 		var owner = new StubComputerOwner(host, "Local Host");
@@ -734,6 +737,82 @@ return userinput()";
 		Assert.IsFalse(secondResult.Success);
 		Assert.AreEqual(ComputerProcessStatus.Failed, secondResult.Status);
 		StringAssert.Contains(secondResult.ErrorMessage, "already waiting for input");
+		items.Verify(x => x.GetEnumerator(), Times.Never);
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_TerminalInput_RejectsRestoredWaitersWithCollidingOwnerProcessIds()
+	{
+		var gameworld = CreateGameworld(new Mock<IScheduler>());
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost { Powered = true, Name = "Host" };
+		var owner = new StubComputerOwner(host, "Storage") { OwnerStorageItemIdValue = 99 };
+		var user = CreateOwner(gameworld.Object, 48);
+		var program = (IComputerProgramDefinition)service.CreateExecutable(owner, ComputerExecutableKind.Program, "Interactive");
+		var first = owner.CreateProcessDefinition(user.Object, program);
+		var second = host.CreateProcessDefinition(user.Object, program);
+		Assert.AreEqual(first.Id, second.Id);
+		foreach (var process in new[] { first, second })
+		{
+			process.Status = ComputerProcessStatus.Sleeping;
+			process.WaitType = ComputerProcessWaitType.UserInput;
+			process.WaitingCharacterId = 48;
+			process.WaitingTerminalItemId = 105;
+		}
+		var session = new ComputerTerminalSession
+		{
+			User = user.Object,
+			Terminal = Mock.Of<IComputerTerminal>(x => x.TerminalItemId == 105),
+			Host = host,
+			CurrentOwner = owner
+		};
+		Assert.IsFalse(service.TrySubmitTerminalInput(session, "input", out var error));
+		StringAssert.Contains(error, "More than one program");
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, first.Status);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, second.Status);
+	}
+
+	[TestMethod]
+	public void ComputerExecutionService_UserInputIndex_PreservesCrossOwnerExclusionAndReleasesCompletedOrKilledWaits()
+	{
+		var gameworld = CreateGameworld(new Mock<IScheduler>());
+		var items = new Mock<IUneditableAll<IGameItem>>();
+		items.Setup(x => x.GetEnumerator()).Throws(new InvalidOperationException("Terminal input must not enumerate world items."));
+		gameworld.SetupGet(x => x.Items).Returns(items.Object);
+		var service = new ComputerExecutionService(gameworld.Object);
+		var host = new StubComputerHost { Powered = true, Name = "Host" };
+		var firstOwner = new StubComputerOwner(host, "First") { OwnerStorageItemIdValue = 99 };
+		var secondOwner = new StubComputerOwner(host, "Second") { OwnerStorageItemIdValue = 100 };
+		var user = CreateOwner(gameworld.Object, 48);
+		user.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
+		var terminal = Mock.Of<IComputerTerminal>(x => x.TerminalItemId == 105);
+		var session = new ComputerTerminalSession { User = user.Object, Terminal = terminal, Host = host, CurrentOwner = firstOwner };
+		IComputerExecutableDefinition CreateProgram(StubComputerOwner owner)
+		{
+			var executable = service.CreateExecutable(owner, ComputerExecutableKind.Program, "Interactive");
+			var runtime = (ComputerRuntimeExecutableBase)executable;
+			runtime.ReturnType = ProgVariableTypes.Text;
+			runtime.SourceCode = "return userinput()";
+			service.SaveExecutable(owner, executable);
+			Assert.IsTrue(service.CompileExecutable(executable).Success);
+			return executable;
+		}
+		var firstProgram = CreateProgram(firstOwner);
+		var secondProgram = CreateProgram(secondOwner);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, service.Execute(user.Object, firstOwner, firstProgram, [], session).Status);
+		session.CurrentOwner = secondOwner;
+		var duplicate = service.Execute(user.Object, secondOwner, secondProgram, [], session);
+		Assert.AreEqual(ComputerProcessStatus.Failed, duplicate.Status);
+		StringAssert.Contains(duplicate.ErrorMessage, "already waiting for input");
+		session.CurrentOwner = firstOwner;
+		Assert.IsTrue(service.TrySubmitTerminalInput(session, "finished", out var error), error);
+		session.CurrentOwner = secondOwner;
+		var waiter = service.Execute(user.Object, secondOwner, secondProgram, [], session);
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, waiter.Status);
+		Assert.IsTrue(service.KillProcess(secondOwner, waiter.Process!.Id, out error), error);
+		session.CurrentOwner = firstOwner;
+		Assert.AreEqual(ComputerProcessStatus.Sleeping, service.Execute(user.Object, firstOwner, firstProgram, [], session).Status);
+		items.Verify(x => x.GetEnumerator(), Times.Never);
 	}
 
 	[TestMethod]

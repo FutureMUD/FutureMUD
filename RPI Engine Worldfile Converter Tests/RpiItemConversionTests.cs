@@ -415,7 +415,7 @@ public class RpiItemConversionTests
 
 		Assert.IsNotNull(converted.BoardDefinition);
 		Assert.AreEqual("market", converted.BoardDefinition!.LegacyBoardKey);
-		Assert.AreEqual("RPI_Board_market", converted.BoardDefinition.ComponentName);
+		Assert.AreEqual($"RPI_Board_market_{RpiBoardIdentity.AccessSuffix("market", converted.BoardDefinition.ClanRestrictions)}", converted.BoardDefinition.ComponentName);
 		Assert.AreEqual(1, converted.BoardDefinition.ClanRestrictions.Count);
 		Assert.AreEqual("gondor", converted.BoardDefinition.ClanRestrictions[0].ClanAlias);
 		Assert.AreEqual("Captain", converted.BoardDefinition.ClanRestrictions[0].RankName);
@@ -444,6 +444,43 @@ public class RpiItemConversionTests
 		Assert.IsTrue(issues.Any(x =>
 			x.Severity.Equals("error", StringComparison.OrdinalIgnoreCase) &&
 			x.Message.Contains("Run apply-clans before apply-items", StringComparison.OrdinalIgnoreCase)));
+	}
+
+	[DataTestMethod]
+	[DataRow("market-board", "market_board")]
+	[DataRow("abcdefghijklmnopqrstuvwxabcdefghijklmnopqrstuvwx-first", "abcdefghijklmnopqrstuvwxabcdefghijklmnopqrstuvwx-second")]
+	public void BoardIdentifiers_DistinctKeysDoNotCollideAfterSanitisingOrTruncating(string first, string second)
+	{
+		var transformer = new FutureMUDItemTransformer(BuildCatalog());
+		FutureMudBoardDefinition ConvertBoard(string key) => transformer.Convert(BuildItem(
+			itemType: RPIItemType.Board, wearBits: 0, rawName: key + " board OTHER~",
+			clans: [new RpiClanRecord("gondor", "Captain")])).BoardDefinition!;
+		var a = ConvertBoard(first);
+		var b = ConvertBoard(second);
+		Assert.AreNotEqual(a.BoardName, b.BoardName);
+		Assert.AreNotEqual(a.ComponentName, b.ComponentName);
+		var getProgName = typeof(FutureMudItemImporter).GetMethod("BuildBoardAccessProgName",
+			System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
+		Assert.AreNotEqual(getProgName.Invoke(null, [a]), getProgName.Invoke(null, [b]));
+		Assert.IsTrue(a.BoardName.Length <= 45 && b.BoardName.Length <= 45);
+		Assert.IsTrue(a.ComponentName.Length <= 100 && b.ComponentName.Length <= 100);
+	}
+
+	[TestMethod]
+	public void BoardIdentifiers_SameKeySharesPostsButDifferentAccessUsesSeparateComponentsAndProgs()
+	{
+		var transformer = new FutureMUDItemTransformer(BuildCatalog());
+		var restricted = transformer.Convert(BuildItem(itemType: RPIItemType.Board, wearBits: 0,
+			rawName: "market board OTHER~", clans: [new RpiClanRecord("gondor", "Captain")])).BoardDefinition!;
+		var otherAccess = transformer.Convert(BuildItem(itemType: RPIItemType.Board, wearBits: 0,
+			rawName: "market board OTHER~", clans: [new RpiClanRecord("gondor", "member")])).BoardDefinition!;
+		Assert.AreEqual(restricted.BoardName, otherAccess.BoardName);
+		Assert.AreNotEqual(restricted.ComponentName, otherAccess.ComponentName);
+		var getProgName = typeof(FutureMudItemImporter).GetMethod("BuildBoardAccessProgName",
+			System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
+		Assert.AreNotEqual(getProgName.Invoke(null, [restricted]), getProgName.Invoke(null, [otherAccess]));
+		Assert.AreEqual(RpiBoardIdentity.AccessSuffix("market", restricted.ClanRestrictions),
+			RpiBoardIdentity.AccessSuffix("MARKET", restricted.ClanRestrictions.Reverse()));
 	}
 
 	private static string GetFixtureDirectory()

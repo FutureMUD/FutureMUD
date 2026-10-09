@@ -42,6 +42,7 @@ public sealed record MagicCastingGrant(bool Changed, bool Allowed, string Messag
 public interface IMagicCastingService
 {
 	AcquiredSpell? Acquisition(ICharacter character, long spellId);
+	bool HasAnyAcquisition(ICharacter character, IReadOnlyCollection<long> spellIds);
 	IReadOnlyList<MagicCastingRoute> Routes(ICharacter actor, long? spellId = null);
 	string? Preflight(ICharacter actor, long capabilityId, long spellId, int grade, bool overreach);
 	MagicCastingQuote Quote(MagicCastingIntent intent);

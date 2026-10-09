@@ -299,7 +299,20 @@ internal static class EditableItemNameBulkRenameCommand
 			x => x.Status,
 			x => x.Name,
 			helper.NameScopeKeyFunc,
-			helper.TryNormaliseNameForBulkRename,
+			(item, name) =>
+			{
+				if (!helper.CanEditItemFunc(actor, item) || item.ReadOnly)
+				{
+					return EditableItemNameValidationResult.Failure("You are not permitted to rename this item.");
+				}
+
+				if (!actor.IsAdministrator() && item.Status != RevisionStatus.UnderDesign)
+				{
+					return EditableItemNameValidationResult.Failure("Open an under-design revision before renaming this item.");
+				}
+
+				return helper.TryNormaliseNameForBulkRename(item, name);
+			},
 			helper.SetNameFromValidatedBulkRenameAction);
 	}
 

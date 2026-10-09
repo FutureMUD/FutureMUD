@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Xml.Linq;
@@ -28,6 +29,35 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SpellOwnedItemTests
 {
+	[TestMethod]
+	public void LifecycleLookup_OrdinaryItems_ReadClaimsOnceWithoutPerItemDatabaseAccess()
+	{
+		var reads = 0;
+		var service = new SpellOwnedItemService(Mock.Of<IFuturemud>(), () =>
+		{
+			reads++;
+			return new HashSet<long> { 10001 };
+		});
+		// No FMDB has been configured: reaching either per-item query would fail this test.
+		for (var id = 1; id <= 10000; id++)
+		{
+			Assert.IsNull(service.FindOrigin(id));
+			Assert.IsFalse(service.IsActivationPending(id));
+		}
+		Assert.AreEqual(1, reads);
+	}
+
+	[TestMethod]
+	public void LifecycleLookup_InvalidItemIds_DoNotInitialiseClaims()
+	{
+		var service = new SpellOwnedItemService(Mock.Of<IFuturemud>(), () =>
+			throw new AssertFailedException("Invalid IDs must not access storage."));
+		Assert.IsNull(service.FindOrigin(0));
+		Assert.IsNull(service.FindOrigin(-1));
+		Assert.IsFalse(service.IsActivationPending(0));
+		Assert.IsFalse(service.IsActivationPending(-1));
+	}
+
 	[TestMethod]
 	public void GameItem_PrototypeConstructor_PreservesPublicThreeArgumentSignatureAndDefaults()
 	{

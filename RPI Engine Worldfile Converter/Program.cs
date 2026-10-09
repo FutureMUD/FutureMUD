@@ -46,7 +46,8 @@ internal sealed record ConverterCliOptions(
 	string? ConnectionString,
 	string? ZoneTemplate,
 	bool Execute,
-	bool UseBaseline);
+	bool UseBaseline,
+	string? RoomAuditPath);
 
 internal sealed record ItemBaselineLoadResult(
 	FuturemudDatabaseContext? Context,
@@ -358,7 +359,7 @@ internal static class Program
 		var roomTransformer = new FutureMudRoomTransformer();
 		var roomConversion = roomTransformer.Convert(roomCorpus.Rooms);
 
-		var baseline = LoadShopBaseline(options);
+		var baseline = LoadShopBaseline(options, roomConversion.Rooms);
 		using var baselineContext = baseline.Context;
 		if (options.Command == "apply-shops" && baseline.Catalog is null)
 		{
@@ -1659,7 +1660,8 @@ internal static class Program
 		}
 	}
 
-	private static ShopBaselineLoadResult LoadShopBaseline(ConverterCliOptions options)
+	private static ShopBaselineLoadResult LoadShopBaseline(ConverterCliOptions options,
+		IEnumerable<ConvertedRoomDefinition> sourceRooms)
 	{
 		if (!options.UseBaseline)
 		{
@@ -1671,7 +1673,11 @@ internal static class Program
 		{
 			context = CreateDatabaseContext(options);
 
-			var catalog = FutureMudShopBaselineCatalog.Load(context);
+			var auditPath = ResolveOutputPath(options.RoomAuditPath, "rpi-rooms-apply-audit.json");
+			var mappings = options.Command == "apply-shops" || File.Exists(auditPath)
+				? FutureMudShopRoomMapping.Read(auditPath, sourceRooms)
+				: new Dictionary<int, long>();
+			var catalog = FutureMudShopBaselineCatalog.Load(context, mappings);
 			return new ShopBaselineLoadResult(context, catalog, "Loaded shop baseline from FutureMUD.");
 		}
 		catch (Exception ex)
@@ -1718,6 +1724,7 @@ internal static class Program
 		string? output = null;
 		string? connectionString = null;
 		string? zoneTemplate = null;
+		string? roomAudit = null;
 		var execute = false;
 		var useBaseline = true;
 
@@ -1747,6 +1754,9 @@ internal static class Program
 				case "--execute":
 					execute = true;
 					break;
+				case "--room-audit":
+					roomAudit = ReadOptionValue(args, ref i, "--room-audit");
+					break;
 				case "--skip-baseline":
 					useBaseline = false;
 					break;
@@ -1771,7 +1781,8 @@ internal static class Program
 			connectionString,
 			zoneTemplate,
 			execute,
-			useBaseline);
+			useBaseline,
+			roomAudit);
 	}
 
 	private static bool IsItemCommand(string command)
@@ -1919,7 +1930,7 @@ internal static class Program
 		Console.WriteLine("  apply-npcs [--root <regions-dir>] [--output <audit-json>] [--db-connection <connection-string>] [--execute]");
 		Console.WriteLine("  analyze-shops [--root <regions-dir>] [--db-connection <connection-string>] [--skip-baseline]");
 		Console.WriteLine("  export-shops [--root <regions-dir>] [--output <json-path>] [--db-connection <connection-string>] [--skip-baseline]");
-		Console.WriteLine("  apply-shops [--root <regions-dir>] [--output <audit-json>] [--db-connection <connection-string>] [--execute]");
+		Console.WriteLine("  apply-shops [--root <regions-dir>] [--room-audit <executed-room-audit-json>] [--output <audit-json>] [--db-connection <connection-string>] [--execute]");
 		Console.WriteLine();
 		Console.WriteLine("Notes:");
 		Console.WriteLine("  apply-items, apply-clans, apply-crafts, apply-rooms, apply-shops, and apply-npcs default to dry-run mode unless --execute is supplied.");

@@ -1010,7 +1010,7 @@ The syntax is as follows:
 
         string text = ss.PopSpeech();
         ICharacteristicDefinition definition = target.CharacteristicDefinitions.Where(x => x.Type == CharacteristicType.Growable)
-                               .FirstOrDefault(x => x.Pattern.IsMatch(text) || x.Name.Equals(text));
+                               .FirstOrDefault(x => x.MatchesPattern(text) || x.Name.Equals(text));
         if (definition == null)
         {
             actor.Send("There is no characteristic like that possessed by them that can be styled.");

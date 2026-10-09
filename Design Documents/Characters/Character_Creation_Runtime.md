@@ -68,6 +68,11 @@ Not every stage has only one possible screen type. The most important alternativ
 
 `RerollableCharacteristicPicker` rolls values from the selected ethnicity's characteristic profiles when the stage opens. Players can accept the roll, reroll unlocked values, lock an exact value, lock a basic value while varying its specific form, or customise any individual value. A manual choice retains its existing lock. The screen requires a selected value for every characteristic before it completes. Locks belong to the active screen session; accepted values become the chargen's selected characteristics.
 
+Characteristic pattern lookup accepts at most 256 characters and gives each regex match
+25 milliseconds. A timeout behaves as a non-match, allowing the normal invalid-selection
+response. Existing regex syntax, including backreferences, remains supported. Runtime
+characteristic lookups and description parsing use the same bounded matcher.
+
 For races without characteristic definitions, all three characteristic picker types complete with an empty selection. `DescriptionPicker` then uses custom description entry regardless of its pattern setting, and an otherwise complete application can be submitted without selected characteristics. Races with definitions retain the configured characteristic picker and normal submission requirement.
 
 ### Knowledge Selection

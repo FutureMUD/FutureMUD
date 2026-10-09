@@ -114,6 +114,8 @@ Every fallback attempts to notify admins through `DiscordConnection.NotifyAdmins
 ## Clock Model
 `IClock` defines a configurable clock rather than assuming Earth time.
 
+New clocks start with one full-day crude time range named `day`, which builders can customise. The first database insert already contains the complete clock definition, so creating a clock does not temporarily persist an empty definition or produce empty crude intervals that fail to reload.
+
 Important properties include:
 
 - `SecondsPerMinute`

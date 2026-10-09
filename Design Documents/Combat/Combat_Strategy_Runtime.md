@@ -123,6 +123,8 @@ The player and NPC syntax is `<verb> [target]`. Version 1 is combat-only, target
 
 The move's existing `BaseDelay` remains the actor's combat recovery. Manual command cooldowns are optional command-delay effects only; they block the configured primary verb and aliases for a repeat attempt but do not replace combat scheduler timing. Victim delay, knockdown, stamina drain, and other target-side consequences remain data on the bound auxiliary action or weapon attack.
 
+Manual auxiliary commands require a visible, colocated target on the same room layer and a current melee engagement between attacker and target. The resolver checks this before queuing. Auxiliary move execution rechecks physical melee reach before applying effects, including secondary targets; existing engaged melee combat can continue after sight is lost. A target leaving reach while a command is queued cannot receive a remote bash or other auxiliary control effect.
+
 NPC strategy integration does not add another percentage bucket. Existing weapon, natural, and auxiliary percentages still decide the action category. When a candidate action has one or more NPC-usable manual command bindings, the underlying action's normal weighting is multiplied by the highest applicable manual-command multiplier. The default comes from `ManualCombatCommand.DefaultAiWeightMultiplier`, and per-style overrides are persisted in `CharacterCombatSettings_ManualCombatCommands` through `combat config manual <verb> <multiplier|off|clear>`. A missing override row means the command's default multiplier applies.
 
 ## Strategy Rundown

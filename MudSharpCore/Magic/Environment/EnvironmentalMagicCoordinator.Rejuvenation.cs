@@ -29,6 +29,7 @@ public sealed partial class EnvironmentalMagicCoordinator
 		a.DueAt.CompareTo(b.DueAt) is var result && result != 0 ? result : a.Room.Id.CompareTo(b.Room.Id)));
 	public long TreatmentVisits { get; private set; }
 	public int ActiveTreatmentCount => _treatmentDue.Count;
+	internal int CachedTreatmentRecordCount => _treatmentRecords.Count;
 
 	public void RegisterLoadedTreatment(ILandRejuvenationEffect effect)
 	{
@@ -79,12 +80,22 @@ public sealed partial class EnvironmentalMagicCoordinator
 	private void LoadTreatmentRecords(long cellId)
 	{
 		if (_treatmentRoomsLoaded.Contains(cellId)) return;
-		foreach (var row in _operations.TreatmentsFor(cellId)) CacheTreatment(row);
+		foreach (var row in _operations.UnresolvedTreatmentsFor(cellId)) CacheTreatment(row);
 		_treatmentRoomsLoaded.Add(cellId);
 	}
 
 	private void CacheTreatment(LandRejuvenationProgress progress)
 	{
+		if (progress.IsTerminal && progress.PendingRequest is null)
+		{
+			_treatmentRecords.Remove(progress.Id);
+			if (_treatmentRecordsByRoom.TryGetValue(progress.RoomId, out var ended))
+			{
+				ended.Remove(progress.Id);
+				if (ended.Count == 0) _treatmentRecordsByRoom.Remove(progress.RoomId);
+			}
+			return;
+		}
 		_treatmentRecords[progress.Id] = progress;
 		if (!_treatmentRecordsByRoom.TryGetValue(progress.RoomId, out var records))
 			_treatmentRecordsByRoom[progress.RoomId] = records = [];
@@ -98,14 +109,20 @@ public sealed partial class EnvironmentalMagicCoordinator
 	{
 		if (_disposed || !ReferenceEquals(room.Gameworld, _world)) return null;
 		LoadTreatmentRecords(room.Id);
-		return _treatmentRecords.GetValueOrDefault(treatmentId) is { } p && p.RoomId == room.Id ? p : null;
+		var progress = _treatmentRecords.GetValueOrDefault(treatmentId) ?? _operations.FindTreatment(treatmentId);
+		return progress?.RoomId == room.Id ? progress : null;
 	}
 
 	public IReadOnlyList<LandRejuvenationProgress> InspectTreatments(IRoom room)
 	{
 		if (_disposed || !ReferenceEquals(room.Gameworld, _world)) return [];
 		LoadTreatmentRecords(room.Id);
-		return RoomTreatmentRecords(room.Id).ToArray();
+		// Terminal tombstones remain durable history, but do not occupy the admission cache.
+		return _operations.TreatmentsFor(room.Id)
+			.Concat(RoomTreatmentRecords(room.Id))
+			.GroupBy(x => x.Id)
+			.Select(x => x.Last())
+			.ToArray();
 	}
 
 	public bool CanInstallTreatment(IRoom room, out string? error)

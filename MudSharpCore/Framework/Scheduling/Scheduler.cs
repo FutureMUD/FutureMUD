@@ -5,6 +5,8 @@ namespace MudSharp.Framework.Scheduling;
 
 public class Scheduler : IScheduler
 {
+	public const int MaximumSchedulesPerCheck = 1000;
+
 	private readonly StableScheduleHeap<ISchedule> _schedules = new();
 	private readonly TimeProvider _timeProvider;
 	private readonly IRuntimePerformanceMonitor _performanceMonitor;
@@ -59,7 +61,7 @@ public class Scheduler : IScheduler
 		var started = Stopwatch.GetTimestamp();
 		var fired = 0;
 		var overdue = 0;
-		while (_schedules.TryPeek(out var next) && UtcNow >= next.TriggerUtc)
+		while (fired < MaximumSchedulesPerCheck && _schedules.TryPeek(out var next) && UtcNow >= next.TriggerUtc)
 		{
 			_schedules.TryDequeue(out var entry);
 			var schedule = entry.Schedule;

@@ -19,6 +19,8 @@ public class ComputerExecutionService : IComputerExecutionService
 	private readonly Dictionary<long, ICharacterComputerWorkspace> _workspaceOwners = new();
 	private readonly Dictionary<long, IComputerExecutableOwner> _mutableExecutableOwners = new();
 	private readonly List<IComputerExecutableOwner> _registeredItemOwners = [];
+	private readonly Dictionary<(long CharacterId, long TerminalId), HashSet<ComputerRuntimeProcess>> _userInputWaiters = new();
+	private readonly Dictionary<ComputerRuntimeProcess, (long CharacterId, long TerminalId)> _userInputWaitKeys = new(ReferenceEqualityComparer.Instance);
 	private readonly Dictionary<long, ComputerSignalWaitSubscription> _signalWaitSubscriptions = new();
 	private readonly Dictionary<long, ComputerMediaWaitSubscription> _mediaWaitSubscriptions = new();
 	private bool _loaded;
@@ -895,6 +897,10 @@ public class ComputerExecutionService : IComputerExecutionService
 		{
 			_mutableExecutableOwners[executable.Id] = owner;
 		}
+		foreach (var process in owner.Processes.OfType<ComputerRuntimeProcess>())
+		{
+			UpdateUserInputWait_NoLock(process);
+		}
 	}
 
 	private IEnumerable<IComputerExecutableDefinition> ResolveExecutables_NoLock(IComputerExecutableOwner owner)
@@ -940,6 +946,10 @@ public class ComputerExecutionService : IComputerExecutionService
 	private void LoadWorkspaceFromDatabase_NoLock()
 	{
 		_executables.Clear();
+		foreach (var process in _processes.Values)
+		{
+			RemoveUserInputWait_NoLock(process);
+		}
 		_processes.Clear();
 
 		using (new FMDB())
@@ -993,6 +1003,7 @@ public class ComputerExecutionService : IComputerExecutionService
 					runtimeProcess.WaitingTerminalItemId = waitingTerminalItemId;
 				}
 				_processes[runtimeProcess.Id] = runtimeProcess;
+				UpdateUserInputWait_NoLock(runtimeProcess);
 			}
 		}
 	}
@@ -1209,7 +1220,7 @@ public class ComputerExecutionService : IComputerExecutionService
 		    FindWaitingUserInputProcesses_NoLock(
 				    outcome.WaitingCharacterId.Value,
 				    outcome.WaitingTerminalItemId.Value,
-				    process.Id).Any())
+				    process).Any())
 		{
 			outcome = new ComputerProgramExecutionOutcome
 			{
@@ -1555,29 +1566,54 @@ public class ComputerExecutionService : IComputerExecutionService
 			.Where(x => x.WaitType == ComputerProcessWaitType.UserInput)
 			.Where(x => x.WaitingCharacterId == CharacterInstanceIdentityComparer.IdentityId(session.User))
 			.Where(x => x.WaitingTerminalItemId == session.Terminal.TerminalItemId)
-			.GroupBy(x => x.Id)
-			.Select(x => x.First())
+			.Distinct<ComputerRuntimeProcess>(ReferenceEqualityComparer.Instance)
 			.ToList();
 	}
 
 	private IEnumerable<ComputerRuntimeProcess> FindWaitingUserInputProcesses_NoLock(long waitingCharacterId,
 		long waitingTerminalItemId,
-		long? excludingProcessId)
+		ComputerRuntimeProcess excludingProcess)
 	{
-		return EnumerateAllProcesses_NoLock()
+		return (_userInputWaiters.TryGetValue((waitingCharacterId, waitingTerminalItemId), out var waiters)
+				? waiters : Enumerable.Empty<ComputerRuntimeProcess>())
 			.Where(x => x.Status == ComputerProcessStatus.Sleeping)
 			.Where(x => x.WaitType == ComputerProcessWaitType.UserInput)
 			.Where(x => x.WaitingCharacterId == waitingCharacterId)
 			.Where(x => x.WaitingTerminalItemId == waitingTerminalItemId)
-			.Where(x => !excludingProcessId.HasValue || x.Id != excludingProcessId.Value)
+			.Where(x => !ReferenceEquals(x, excludingProcess))
 			.ToList();
+	}
+
+	private void RemoveUserInputWait_NoLock(ComputerRuntimeProcess process)
+	{
+		if (!_userInputWaitKeys.Remove(process, out var key)) return;
+		var waiters = _userInputWaiters[key];
+		waiters.Remove(process);
+		if (waiters.Count == 0) _userInputWaiters.Remove(key);
+	}
+
+	private void UpdateUserInputWait_NoLock(ComputerRuntimeProcess process)
+	{
+		RemoveUserInputWait_NoLock(process);
+		if (process.Status != ComputerProcessStatus.Sleeping || process.WaitType != ComputerProcessWaitType.UserInput ||
+			!process.WaitingCharacterId.HasValue || !process.WaitingTerminalItemId.HasValue) return;
+		var key = (process.WaitingCharacterId.Value, process.WaitingTerminalItemId.Value);
+		if (!_userInputWaiters.TryGetValue(key, out var waiters))
+		{
+			waiters = new HashSet<ComputerRuntimeProcess>(ReferenceEqualityComparer.Instance);
+			_userInputWaiters.Add(key, waiters);
+		}
+		waiters.Add(process);
+		_userInputWaitKeys[process] = key;
 	}
 
 	private bool ResumeWaitingProcessFromTerminalInput_NoLock(ComputerRuntimeProcess process, IComputerTerminalSession session,
 		string text,
 		out string error)
 	{
-		var owner = ResolveOwnerForProcess_NoLock(process);
+		var owner = ResolveProcesses_NoLock(session.CurrentOwner).Any(x => ReferenceEquals(x, process))
+			? session.CurrentOwner
+			: ResolveProcesses_NoLock(session.Host).Any(x => ReferenceEquals(x, process)) ? session.Host : null;
 		if (owner is null)
 		{
 			error = "That computer program's owner is no longer available.";
@@ -1853,6 +1889,7 @@ public class ComputerExecutionService : IComputerExecutionService
 
 	private void PersistProcess_NoLock(IComputerExecutableOwner owner, ComputerRuntimeProcess process)
 	{
+		UpdateUserInputWait_NoLock(process);
 		if (owner is ICharacterComputerWorkspace)
 		{
 			PersistWorkspaceProcess_NoLock(process);

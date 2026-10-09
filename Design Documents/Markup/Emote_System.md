@@ -178,6 +178,8 @@ Current behaviour:
 - If the caller uses one of the restrictive language modes, the speech becomes the relevant replacement such as muffled, choking, gasping, or clicking output.
 - If speech is forbidden with `PermitLanguageOptions.LanguageIsError`, parsing fails.
 
+The body emote API honours its `permitSpeech` flag: forbidden quoted speech rejects the emote. Gagged characters retain a muffled visual emote. Spoken events, listening devices and storyteller speech records receive words only from permitted language tokens while the speaker can currently vocalise at the emote's volume and is not gagged. Gasping, choking, muffling, babbling and other replacement tokens never emit their hidden raw words. Signed-language tokens retain their independent visual channel.
+
 ## Culture Tokens
 
 `EmoteTokens.cs` defines a regex for culture tokens in this format:

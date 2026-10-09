@@ -451,7 +451,7 @@ public class TelephoneGameItemComponent : GameItemComponent, ITelephone, ITeleph
     }
 
     public ITelephoneNumberOwner? NumberOwner => _connectedLineOwner ?? (_directGrid != null ? this : null);
-    public string? PhoneNumber => NumberOwner?.PhoneNumber ?? _directPhoneNumber;
+    public string? PhoneNumber => _connectedLineOwner?.PhoneNumber ?? _directPhoneNumber;
 
     public string? PreferredNumber
     {

@@ -9,6 +9,13 @@ namespace MudSharp.Economy.Shops;
 /// </summary>
 public static class RestaurantServiceRules
 {
+	public const string MaximumOrderQuantityConfiguration = "RestaurantMaximumOrderQuantity";
+	public const int MaximumSafeQuantity = 1000;
+	public static bool IsSafeOrderQuantity(int quantity) => quantity is >= 1 and <= MaximumSafeQuantity;
+
+	public static DateTime ExpectedReadyAt(DateTime now, TimeSpan wait) =>
+		now.AddTicks(Math.Clamp(wait.Ticks, 0, DateTime.MaxValue.Ticks - now.Ticks));
+
 	public static bool CanAutomaticallyJoin(bool sharesCurrentParty,
 		bool existingParticipantConsidersRequesterAlly)
 	{
@@ -23,8 +30,8 @@ public static class RestaurantServiceRules
 		var handling = handlingTime < TimeSpan.Zero ? TimeSpan.Zero : handlingTime;
 		var batching = maximumBatchWait < TimeSpan.Zero ? TimeSpan.Zero : maximumBatchWait;
 		var queueCount = Math.Max(0, queuedOrdersAhead);
-		return TimeSpan.FromTicks(preparation.Ticks * units) +
-		       TimeSpan.FromTicks(handling.Ticks * (queueCount + 1L)) + batching;
+		var ticks = preparation.Ticks * (decimal)units + handling.Ticks * (queueCount + 1M) + batching.Ticks;
+		return TimeSpan.FromTicks((long)Math.Min(long.MaxValue, ticks));
 	}
 
 	public static TimeSpan PreparationTime(TimeSpan configuredPreparationTime, IEnumerable<TimeSpan>? craftPhaseLengths)
@@ -34,7 +41,7 @@ public static class RestaurantServiceRules
 		{
 			if (phaseLength > TimeSpan.Zero)
 			{
-				result += phaseLength;
+				result = TimeSpan.FromTicks((long)Math.Min(long.MaxValue, (decimal)result.Ticks + phaseLength.Ticks));
 			}
 		}
 

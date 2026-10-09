@@ -13,7 +13,7 @@ public partial class MagicModule
 	<capability> <method> <amount>
 	cancel
 
-Only explicitly configured methods on a capability you currently possess are available. Preview is pure; it does not create a receipt, change a room, or advance environmental production.";
+Methods lists configured definitions; use preview to check current eligibility and costs. Only explicitly configured methods on a capability you currently possess are available. Preview is pure; it does not create a receipt, change a room, or advance environmental production.";
 
 	private static void GatheringPlayer(ICharacter actor, IMagicSchool school, StringStack command)
 	{
@@ -60,7 +60,7 @@ Only explicitly configured methods on a capability you currently possess are ava
 					x.Name,
 					x.Kind.DescribeEnum(),
 					$"{x.MinimumAmount.ToString("N2", actor)}-{x.MaximumAmount.ToString("N2", actor)}",
-					x.UnavailableReason is null ? "Available" : "Unavailable"
+					x.UnavailableReason is null ? "Configured" : "Unavailable"
 				}), ["Alias", "Method", "Kind", "Amount", "Status"], actor.LineFormatLength,
 					unicodeTable: actor.Account.UseUnicode));
 				return;

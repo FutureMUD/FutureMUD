@@ -402,7 +402,8 @@ public class OfferingReceiverGameItemComponent : GameItemComponent, IOfferingRec
 		return _prototype.ConsumptionMode != OfferingConsumptionMode.RecordOnly &&
 		       offering is not null &&
 		       _contents.Contains(offering) &&
-		       (Parent.Location?.CanGetAccess(Parent, actor) ?? true);
+		       (Parent.Location?.CanGetAccess(Parent, actor) ?? true) &&
+		       (_prototype.CanOfferProg?.ExecuteBool(false, actor, Parent, offering) ?? true);
 	}
 
 	public string WhyCannotBurnOffering(ICharacter actor, IGameItem offering)

@@ -190,6 +190,7 @@ public partial class QueuedCommandAuthorityTests
 		{
 			target.SetupProperty(x => x.Combat); target.SetupGet(x => x.Location).Returns(f.Actor.Object.Location);
 			target.SetupGet(x => x.CombatTarget).Returns(f.Actor.Object); target.SetupGet(x => x.MeleeRange).Returns(true);
+			f.Actor.Setup(x => x.CanSee(target.Object)).Returns(true);
 			f.Actor.Setup(x => x.ColocatedWith(target.Object)).Returns(true); combat.JoinCombat(target.Object);
 		}
 		var auxiliary = new Mock<IAuxiliaryCombatAction>(); auxiliary.SetupGet(x => x.Id).Returns(42); auxiliary.SetupGet(x => x.MaximumTargets).Returns(2);
@@ -366,6 +367,11 @@ public partial class QueuedCommandAuthorityTests
 		var f = new Fixture();
 		var combat = f.Engage();
 		var target = new Mock<ICharacter>(); target.SetupProperty(x => x.Combat); combat.JoinCombat(target.Object);
+		target.SetupGet(x => x.Location).Returns(f.Actor.Object.Location);
+		target.SetupGet(x => x.CombatTarget).Returns(f.Actor.Object);
+		target.SetupGet(x => x.MeleeRange).Returns(true);
+		f.Actor.Setup(x => x.ColocatedWith(target.Object)).Returns(true);
+		f.Actor.Setup(x => x.CanSee(target.Object)).Returns(true);
 		var auxiliary = new Mock<IAuxiliaryCombatAction>(); auxiliary.SetupGet(x => x.Id).Returns(42);
 		var race = new Mock<MudSharp.Character.Heritage.IRace>();
 		race.Setup(x => x.UsableAuxiliaryMoves(f.Actor.Object, target.Object, false)).Returns([auxiliary.Object]);

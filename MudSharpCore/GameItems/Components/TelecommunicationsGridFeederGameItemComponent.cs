@@ -458,16 +458,41 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
         }
 
         IProducePower? power = other.Parent.GetItemTypes<IProducePower>()
-                         .FirstOrDefault(x => x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0);
+			.FirstOrDefault(x => !WouldCreatePowerCycle(x) &&
+				(x.PrimaryExternalConnectionPowerProducer || x.MaximumPowerInWatts > 0.0));
         if (power == null)
         {
             return;
         }
 
+		if (ReferenceEquals(power, _connectedPowerSource))
+		{
+			return;
+		}
+		_connectedPowerSource?.EndDrawdown(this);
+
         _connectedPowerSource = power;
         _connectedPowerSourceConnector = type;
         power.BeginDrawdown(this);
     }
+
+	private bool WouldCreatePowerCycle(IProducePower candidate)
+	{
+		var visited = new HashSet<IProducePower>(ReferenceEqualityComparer.Instance);
+		while (candidate is TelecommunicationsGridFeederGameItemComponent feeder)
+		{
+			if (ReferenceEquals(feeder, this) || !visited.Add(feeder))
+			{
+				return true;
+			}
+			if (feeder._connectedPowerSource == null)
+			{
+				return false;
+			}
+			candidate = feeder._connectedPowerSource;
+		}
+		return false;
+	}
 
     private void Parent_OnDisconnected(IConnectable other, ConnectorType type)
     {

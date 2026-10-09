@@ -238,17 +238,26 @@ public class HumanoidCommunicationStrategy : IBodyCommunicationStrategy
 		var executor = body.Actor;
 		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(executor);
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
-        PlayerEmote emoteData = new(emote, body.Actor, true, VocalisationOption(body, AudioVolume.Decent)
-        );
+		var speechOption = !permitSpeech
+			? PermitLanguageOptions.LanguageIsError
+			: IsGagged(body)
+				? PermitLanguageOptions.LanguageIsMuffling
+				: VocalisationOption(body, AudioVolume.Decent);
+		PlayerEmote emoteData = new(emote, body.Actor, true, speechOption);
 		if (!ReferenceEquals(body.Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
         if (emoteData.Valid)
         {
 			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(executor);
             body.OutputHandler.Handle(new EmoteOutput(emoteData, flags: additionalConditions));
 			if (!ReferenceEquals(body.Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
-            if (emoteData.LanguageTokens.Any())
+			var spokenTokens = emoteData.LanguageTokens
+				.Where(x => x.PermitLanguageOptions == PermitLanguageOptions.PermitLanguage)
+				.ToList();
+			if (permitSpeech && spokenTokens.Count > 0 &&
+			    CanVocalise(body, AudioVolume.Decent) && !IsGagged(body))
             {
-                HandleSpeechEvents(body, null, emoteData.LanguageTokens.Select(x => x.LanguageInfo.RawText.Fullstop()).ListToCommaSeparatedValues(" ").ProperSentences(), AudioVolume.Decent, body.CurrentLanguage, body.CurrentAccent);
+				if (!ReferenceEquals(body.Actor, executor) || !MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor)) return;
+				HandleSpeechEvents(body, null, spokenTokens.Select(x => x.LanguageInfo.RawText.Fullstop()).ListToCommaSeparatedValues(" ").ProperSentences(), AudioVolume.Decent, body.CurrentLanguage, body.CurrentAccent);
             }
 			foreach (var token in emoteData.SignedLanguageTokens)
 			{

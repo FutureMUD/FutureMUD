@@ -95,9 +95,13 @@ The syntax is:
             return true;
         }
 
-        return actor.Gameworld.MagicCasting is { } casting && actor.Gameworld.MagicCapabilities.OfType<IMagicCastingCapability>()
+		if (actor.Gameworld.MagicCasting is not { } casting) return false;
+		var admittedSpellIds = actor.Gameworld.MagicCapabilities.OfType<IMagicCastingCapability>()
 			.Where(x => x.School.SchoolVerb.EqualTo(commandWord) && x.CastingPolicy is not null)
-			.Any(x => x.CastingPolicy!.Admissions.Any(a => casting.Acquisition(actor, a.SpellId) is not null));
+			.SelectMany(x => x.CastingPolicy!.Admissions.Select(a => a.SpellId))
+			.Distinct()
+			.ToArray();
+		return casting.HasAnyAcquisition(actor, admittedSpellIds);
     }
 
     public static void MagicGeneric(ICharacter actor, string command)

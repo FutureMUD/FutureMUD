@@ -166,6 +166,7 @@ public sealed record MagicGatheringOperationSummary(
 /// </summary>
 public interface IMagicGatheringService
 {
+	/// <summary>Lists configured definitions and access errors without quoting policy costs or current source availability.</summary>
 	IReadOnlyList<MagicGatheringMethodView> Methods(ICharacter actor, IMagicGatheringCapability capability);
 	MagicGatheringResult Preview(ICharacter actor, IMagicGatheringCapability capability, string method, double amount);
 	MagicGatheringResult Begin(ICharacter actor, IMagicGatheringCapability capability, string method, double amount);

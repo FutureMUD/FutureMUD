@@ -61,7 +61,7 @@ Gathering remains within an owned school's existing player/NPC verb; there is no
 <schoolverb> gather cancel
 ```
 
-Capability names with spaces work when quoted. `methods` only lists methods actually present on a capability currently held by the actor. A school alone does not grant gathering. Preview reports destination gain, exact source debit where relevant, bodily costs, and real-time duration without revealing privileged environmental diagnostics.
+Capability names with spaces work when quoted. `methods` only lists methods actually present on a capability currently held by the actor. Its status is `Configured`, not a current eligibility quote: listing does not execute gathering policies or inspect environmental sources. Use `preview` for current eligibility and costs; starting the method repeats the normal checks. A school alone does not grant gathering. Preview reports destination gain, exact source debit where relevant, bodily costs, and real-time duration without revealing privileged environmental diagnostics.
 
 FutureProg uses the same service and cannot bypass its token, quote, timing, ownership or debit checks:
 

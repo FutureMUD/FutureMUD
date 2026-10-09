@@ -16,6 +16,7 @@ using MudSharp.FutureProg.Functions.Magic;
 using MudSharp.Health;
 using MudSharp.Magic;
 using MudSharp.Magic.Capabilities;
+using MudSharp.Magic.Casting;
 using MudSharp.PerceptionEngine.Lists;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
@@ -27,6 +28,44 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicCastingIntegrationTests
 {
+	[TestMethod]
+	public void SchoolCommand_NonMageWithManyAdmissions_UsesOneBatchedLookup()
+	{
+		var f = new MagicCastingFixture();
+		f.ActiveCapabilities.Clear();
+		var policy = f.Earth.CastingPolicy!;
+		var capability = new Mock<IMagicCastingCapability>();
+		capability.SetupGet(x => x.School).Returns(f.School);
+		capability.SetupGet(x => x.CastingPolicy).Returns(policy with
+		{
+			Admissions = Enumerable.Range(1, 512).Select(id => policy.Admissions[0] with { SpellId = id }).ToArray()
+		});
+		f.Capabilities.Clear();
+		f.Capabilities.Add(capability.Object);
+		var store = new Mock<IMagicCastingStateStore>(MockBehavior.Strict);
+		var acquired = false;
+		store.Setup(x => x.HasAnyAcquisition(100, It.Is<IReadOnlyCollection<long>>(ids => ids.Count == 512)))
+			.Returns(() => acquired);
+		f.World.SetupGet(x => x.MagicCasting).Returns(new MagicCastingService(f.World.Object, store.Object));
+		Assert.IsFalse(MagicModule.MagicFilterFunction(f.Actor.Object, "earth"));
+		store.Verify(x => x.HasAnyAcquisition(100, It.IsAny<IReadOnlyCollection<long>>()), Times.Once);
+		acquired = true;
+		Assert.IsTrue(MagicModule.MagicFilterFunction(f.Actor.Object, "earth"), "A new grant must be visible without stale negative caching.");
+		store.Verify(x => x.HasAnyAcquisition(100, It.IsAny<IReadOnlyCollection<long>>()), Times.Exactly(2));
+		store.Verify(x => x.Acquisition(It.IsAny<long>(), It.IsAny<long>()), Times.Never);
+		Assert.IsFalse(MagicModule.MagicFilterFunction(f.Actor.Object, "unrelated"));
+		store.Verify(x => x.HasAnyAcquisition(It.IsAny<long>(), It.IsAny<IReadOnlyCollection<long>>()), Times.Exactly(2));
+	}
+
+	[TestMethod]
+	public void SchoolCommand_CurrentCapability_SkipsAcquisitionStorage()
+	{
+		var f = new MagicCastingFixture();
+		f.World.SetupGet(x => x.MagicCasting).Returns(new MagicCastingService(f.World.Object,
+			new Mock<IMagicCastingStateStore>(MockBehavior.Strict).Object));
+		Assert.IsTrue(MagicModule.MagicFilterFunction(f.Actor.Object, "earth"));
+	}
+
 	[TestMethod]
 	public void PlayerCommands_RefuseAmbiguityAndLaterModes_ExplicitRoutePays()
 	{

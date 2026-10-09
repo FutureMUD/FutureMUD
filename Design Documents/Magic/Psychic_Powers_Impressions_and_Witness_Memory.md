@@ -66,6 +66,8 @@ Mind barriers now apply when their applicability prog returns true, and their mo
 
 Power builders reject non-finite numeric settings. Invocation/upkeep XML rejects negative resource costs, and sustained concentration cannot be negative. Hex duration validation preserves the previous value on rejection; empathy and danger-sense intervals reject values outside TimeSpan bounds. Choke resistance intervals use the same one-day maximum as anaesthesia. Existing registered power tokens and finite custom configurations remain compatible.
 
+Additional psychic echo editing validates complete .NET composite-format syntax and allowed argument indexes before formatting the preview. Unmatched braces and invalid placeholders return a builder error and preserve the previous echo; escaped literal braces and optional omitted placeholders remain valid.
+
 ## Existing power terminology
 
 - **Audit** examines incoming presences in the user's own mind, subject to concealment.

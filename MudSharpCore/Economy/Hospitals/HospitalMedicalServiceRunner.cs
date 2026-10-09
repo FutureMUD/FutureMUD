@@ -1,6 +1,7 @@
-﻿using System.Globalization;
+using System.Globalization;
 using MudSharp.Body;
 using MudSharp.Construction;
+using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Economy.Employment;
 using MudSharp.Effects;
@@ -31,6 +32,7 @@ public static class HospitalMedicalServiceRunner
 	internal const double MinimumBloodFractionForDonation = 0.8;
 
 	private sealed record UsageCharge(HospitalServiceType ServiceType, int Count);
+	private sealed record UsageReservation(int Count, decimal Amount);
 	private enum BloodDonorPayoutResult
 	{
 		NotDue,
@@ -198,6 +200,7 @@ public static class HospitalMedicalServiceRunner
 		public int ActiveExpectedCount { get; set; }
 		public HashSet<string> CompletedPhases { get; } = new(StringComparer.InvariantCultureIgnoreCase);
 		public Dictionary<HospitalServiceType, int> Charges { get; } = new();
+		public Dictionary<string, UsageReservation> Reservations { get; } = new(StringComparer.InvariantCultureIgnoreCase);
 		public BloodWorkflowProgress? BloodWorkflow { get; set; }
 		public HashSet<long> BloodBagIds { get; } = new();
 
@@ -289,6 +292,12 @@ public static class HospitalMedicalServiceRunner
 				parts.Add($"blood={BloodWorkflow.ToPayload()}");
 			}
 
+			if (Reservations.Any())
+			{
+				parts.Add($"reserved={string.Join(',', Reservations.Select(x =>
+					$"{x.Key}:{x.Value.Count.ToString(CultureInfo.InvariantCulture)}:{x.Value.Amount.ToString(CultureInfo.InvariantCulture)}"))}");
+			}
+
 			if (BloodBagIds.Any())
 			{
 				parts.Add($"bloodbags={BloodBagIds.OrderBy(x => x).Select(x => x.ToString("F0", CultureInfo.InvariantCulture)).ListToCommaSeparatedValues()}");
@@ -352,6 +361,20 @@ public static class HospitalMedicalServiceRunner
 			    BloodWorkflowProgress.FromPayload(blood) is { } bloodWorkflow)
 			{
 				progress.BloodWorkflow = bloodWorkflow;
+			}
+
+			if (parts.TryGetValue("reserved", out var reserved))
+			{
+				foreach (var entry in reserved.Split(',', StringSplitOptions.RemoveEmptyEntries))
+				{
+					var fields = entry.Split(':');
+					if (fields.Length == 3 &&
+					    int.TryParse(fields[1], NumberStyles.Integer, CultureInfo.InvariantCulture, out var units) && units > 0 &&
+					    decimal.TryParse(fields[2], NumberStyles.Number, CultureInfo.InvariantCulture, out var amount) && amount >= 0.0M)
+					{
+						progress.Reservations[fields[0]] = new UsageReservation(units, amount);
+					}
+				}
 			}
 
 			if (parts.TryGetValue("bloodbags", out var bloodBags))
@@ -514,11 +537,18 @@ public static class HospitalMedicalServiceRunner
 		}
 
 		var progress = HospitalTreatmentProgress.FromPayload(CurrentOperationalPayload(context), request);
+		if (!TryReconcileUsageReservations(context, hospital, request, progress, out var creditError))
+		{
+			FailStagedRequest(context, employee, hospital, request, creditError,
+				$"Refused unfunded hospital treatment request #{request.Id}: {creditError}");
+			return EmploymentActionStepResult.Failed(creditError);
+		}
+
 		var result = request.Service.ServiceType switch
 		{
 			HospitalServiceType.Binding or HospitalServiceType.WoundCleaning or HospitalServiceType.WoundClosing or
 				HospitalServiceType.WoundTending or HospitalServiceType.BoneRelocation =>
-				PerformCommandRoutedWoundService(employee, patient, hospital, request, progress),
+				PerformCommandRoutedWoundService(context, employee, patient, hospital, request, progress),
 			HospitalServiceType.BoneSetting => TreatWorstBoneFracture(employee, patient, TreatmentType.SurgicalSet,
 				CheckType.SurgicalSetCheck, "surgically set a fracture"),
 			HospitalServiceType.SurgicalProcedure or HospitalServiceType.ImplantProcedure =>
@@ -703,11 +733,9 @@ public static class HospitalMedicalServiceRunner
 			return true;
 		}
 
-		var charges = (result.UsageCharges ?? Array.Empty<UsageCharge>())
-		              .Where(x => x.Count > 0)
-		              .ToList();
-		var total = charges.Sum(x => HospitalServiceBilling.UnitPriceForServiceType(hospital, x.ServiceType) * x.Count);
-		request.MarkCharged(0.0M, 0.0M, total);
+		var progress = result.Progress ?? HospitalTreatmentProgress.FromPayload(CurrentOperationalPayload(context), request);
+		var total = progress.Reservations.Values.Sum(x => x.Amount);
+		request.MarkCharged(request.AmountPaid, request.DebtCharged, total);
 		if (total <= 0.0M)
 		{
 			message = "No usage-billed hospital charge was due.";
@@ -723,34 +751,139 @@ public static class HospitalMedicalServiceRunner
 			return true;
 		}
 
-		if (!request.Service.AllowDebt)
-		{
-			message = $"{request.Service.Name} is usage-billed but does not allow hospital debt.";
-			return false;
-		}
-
-		if (request.Patient is not { } patient)
-		{
-			message = "The patient is no longer available for usage-billed hospital charging.";
-			return false;
-		}
-
-		var account = hospital.DebtAccountFor(patient, true)!;
-		if (!account.CanCharge(total, out message))
-		{
-			message = $"The usage-billed hospital charge of {hospital.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal)} could not be charged: {message}";
-			return false;
-		}
-
-		account.Charge(total,
-			$"Usage-billed hospital service {request.Service.Name} for request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)}");
-		request.MarkCharged(0.0M, total, total);
-		var details = charges.Select(x => HospitalServiceBilling.DescribeUsageLine(hospital, x.ServiceType, x.Count, employee)).ListToString();
+		var details = DescribeReservedUsage(hospital, progress, employee).ListToString();
 		context.RecordRegister(EmploymentRegisterEntryType.AuditActionRecorded, employee,
-			$"Charged {hospital.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal)} to {account.PatientName} for usage-billed hospital request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)} ({details.StripANSIColour()}).",
+			$"Completed prepaid usage-billed hospital request #{request.Id.ToString("N0", CultureInfo.InvariantCulture)} for {request.PatientName} ({details.StripANSIColour()}).",
 			CurrentCorrelationId(context));
-		message = $"Usage-billed hospital charge: {details}. Charged {hospital.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} to the patient's hospital debt account.";
+		message = $"Usage-billed hospital charge: {details}. Charged {hospital.Currency.Describe(total, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()} to the patient's hospital debt account before treatment.";
 		return true;
+	}
+
+	private static IEnumerable<string> DescribeReservedUsage(IHospital hospital, HospitalTreatmentProgress progress,
+		ICharacter actor)
+	{
+		return progress.Reservations.Select(x =>
+			$"{x.Value.Count.ToString("N0", actor).ColourValue()}x {UsageServiceTypeForPhase(x.Key).DescribeEnum().ColourName()} = {hospital.Currency.Describe(x.Value.Amount, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()}");
+	}
+
+	private static bool TryReconcileUsageReservations(IEmploymentTaskContext context, IHospital hospital,
+		IHospitalServiceRequest request, HospitalTreatmentProgress progress, out string message)
+	{
+		message = string.Empty;
+		if (!HospitalServiceBilling.IsUsageBilledServiceType(request.Service.ServiceType))
+		{
+			return true;
+		}
+
+		// Older task payloads contain usage counts but no price/reservation checkpoint.
+		var changed = false;
+		foreach (var charge in progress.Charges.Where(x => x.Value > 0))
+		{
+			var phase = PhaseForUsageServiceType(charge.Key);
+			changed |= AddUsageQuote(hospital, progress, phase, charge.Key, charge.Value);
+		}
+
+		if (!string.IsNullOrWhiteSpace(progress.ActivePhase))
+		{
+			var serviceType = UsageServiceTypeForPhase(progress.ActivePhase);
+			var count = serviceType == HospitalServiceType.BloodTransfusion ? 1 : progress.ActiveExpectedCount;
+			changed |= AddUsageQuote(hospital, progress, progress.ActivePhase, serviceType, count);
+		}
+
+		return !changed && (request.PaymentMethod == HospitalPaymentMethod.Waived ||
+		                   progress.Reservations.Values.Sum(x => x.Amount) <= request.DebtCharged) ||
+		       TrySecureUsageReservations(context, hospital, request, progress, out message);
+	}
+
+	private static string PhaseForUsageServiceType(HospitalServiceType serviceType)
+	{
+		return serviceType switch
+		{
+			HospitalServiceType.Binding => "bind",
+			HospitalServiceType.WoundClosing => "suture",
+			HospitalServiceType.WoundCleaning => "clean",
+			HospitalServiceType.WoundTending => "tend",
+			HospitalServiceType.BoneRelocation => "relocate",
+			HospitalServiceType.BloodTransfusion => BloodTransfusionPhase,
+			_ => serviceType.ToString()
+		};
+	}
+
+	private static bool AddUsageQuote(IHospital hospital, HospitalTreatmentProgress progress, string phase,
+		HospitalServiceType serviceType, int count)
+	{
+		if (count <= 0 || progress.Reservations.ContainsKey(phase))
+		{
+			return false;
+		}
+
+		progress.Reservations.Add(phase,
+			new UsageReservation(count, Math.Max(0.0M, HospitalServiceBilling.UnitPriceForServiceType(hospital, serviceType)) * count));
+		return true;
+	}
+
+	private static bool TrySecureUsageReservations(IEmploymentTaskContext context, IHospital hospital,
+		IHospitalServiceRequest request, HospitalTreatmentProgress progress, out string message)
+	{
+		message = string.Empty;
+		var total = progress.Reservations.Values.Sum(x => x.Amount);
+		var charge = request.PaymentMethod == HospitalPaymentMethod.Waived ? 0.0M : Math.Max(0.0M, total - request.DebtCharged);
+		IHospitalPatientDebtAccount? account = null;
+		if (charge > 0.0M)
+		{
+			if (!request.Service.AllowDebt || request.Patient is not { } patient)
+			{
+				message = "The hospital service cannot be funded from patient medical debt.";
+				return false;
+			}
+
+			account = hospital.DebtAccountFor(patient, true);
+			if (account is null || !account.CanCharge(charge, out message))
+			{
+				message = $"The hospital treatment cannot start because its usage charge could not be secured: {message}";
+				return false;
+			}
+		}
+
+		using (new FMDB())
+		{
+			account?.Charge(charge, $"Usage-billed hospital service {request.Service.Name} for request #{request.Id}");
+			request.MarkCharged(request.AmountPaid, request.DebtCharged + charge, total);
+			CheckpointUsageReservations(context, hospital, request, progress, account);
+		}
+
+		return true;
+	}
+
+	private static void CheckpointUsageReservations(IEmploymentTaskContext context, IHospital hospital,
+		IHospitalServiceRequest request, HospitalTreatmentProgress progress, IHospitalPatientDebtAccount? account)
+	{
+		// Task persistence shares this FMDB context: debit, receipt and replay checkpoint commit together.
+		account?.Save();
+		request.Save();
+		if (context is EmploymentTaskContext concrete && concrete.CurrentTask is EmploymentActiveTask task)
+		{
+			task.MarkStep(concrete.CurrentStepIndex, EmploymentActionStepStatus.InProgress,
+				new EmploymentActionStepOperationalState(OperationalPayload: progress.ToPayload(hospital, request, false)));
+		}
+
+		FMDB.Context.SaveChanges();
+	}
+
+	private static void RefundUnstartedUsagePhase(IEmploymentTaskContext context, IHospital hospital,
+		IHospitalServiceRequest request, HospitalTreatmentProgress progress, string phase, decimal charge)
+	{
+		progress.Reservations.Remove(phase);
+		progress.ActivePhase = null;
+		progress.ActiveExpectedCount = 0;
+		using (new FMDB())
+		{
+			var account = charge > 0.0M ? hospital.DebtAccountFor(request.Patient!, true) : null;
+			account?.Pay(charge, $"Hospital treatment phase {phase} could not start for request #{request.Id}");
+			request.MarkCharged(request.AmountPaid, request.DebtCharged - charge,
+				progress.Reservations.Values.Sum(x => x.Amount));
+			CheckpointUsageReservations(context, hospital, request, progress, account);
+		}
 	}
 
 	private static ServiceExecutionResult TreatWorstWound(ICharacter employee,
@@ -863,7 +996,7 @@ public static class HospitalMedicalServiceRunner
 			wound.Id.ToString("F0", CultureInfo.InvariantCulture));
 	}
 
-	private static ServiceExecutionResult PerformCommandRoutedWoundService(ICharacter employee, ICharacter patient,
+	private static ServiceExecutionResult PerformCommandRoutedWoundService(IEmploymentTaskContext context, ICharacter employee, ICharacter patient,
 		IHospital hospital, IHospitalServiceRequest request, HospitalTreatmentProgress progress)
 	{
 		if (CompleteFinishedCommandPhase(employee, patient, progress))
@@ -873,15 +1006,15 @@ public static class HospitalMedicalServiceRunner
 
 		return request.Service.ServiceType switch
 		{
-			HospitalServiceType.Binding => TryStartTreatmentPhase(employee, patient, hospital, request, progress,
+			HospitalServiceType.Binding => TryStartTreatmentPhase(context, employee, patient, hospital, request, progress,
 				"bind", HospitalServiceType.Binding),
-			HospitalServiceType.WoundCleaning => TryStartTreatmentPhase(employee, patient, hospital, request, progress,
+			HospitalServiceType.WoundCleaning => TryStartTreatmentPhase(context, employee, patient, hospital, request, progress,
 				"clean", HospitalServiceType.WoundCleaning),
-			HospitalServiceType.WoundClosing => TryStartTreatmentPhase(employee, patient, hospital, request, progress,
+			HospitalServiceType.WoundClosing => TryStartTreatmentPhase(context, employee, patient, hospital, request, progress,
 				"suture", HospitalServiceType.WoundClosing),
-			HospitalServiceType.WoundTending => TryStartTreatmentPhase(employee, patient, hospital, request, progress,
+			HospitalServiceType.WoundTending => TryStartTreatmentPhase(context, employee, patient, hospital, request, progress,
 				"tend", HospitalServiceType.WoundTending),
-			HospitalServiceType.BoneRelocation => TryStartTreatmentPhase(employee, patient, hospital, request, progress,
+			HospitalServiceType.BoneRelocation => TryStartTreatmentPhase(context, employee, patient, hospital, request, progress,
 				"relocate", HospitalServiceType.BoneRelocation),
 			_ => new ServiceExecutionResult(false, "Unsupported command-routed hospital wound service.", string.Empty,
 				Progress: progress)
@@ -904,13 +1037,13 @@ public static class HospitalMedicalServiceRunner
 	{
 		if (!progress.CompletedPhases.Contains("bind") && HasBindableWounds(employee, patient))
 		{
-			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "bind",
+			return TryStartTreatmentPhase(context, employee, patient, hospital, request, progress, "bind",
 				HospitalServiceType.Binding);
 		}
 
 		if (!progress.CompletedPhases.Contains("suture") && HasSuturableWounds(employee, patient))
 		{
-			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "suture",
+			return TryStartTreatmentPhase(context, employee, patient, hospital, request, progress, "suture",
 				HospitalServiceType.WoundClosing);
 		}
 
@@ -962,31 +1095,31 @@ public static class HospitalMedicalServiceRunner
 	{
 		if (!progress.CompletedPhases.Contains("bind") && HasBindableWounds(employee, patient))
 		{
-			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "bind",
+			return TryStartTreatmentPhase(context, employee, patient, hospital, request, progress, "bind",
 				HospitalServiceType.Binding);
 		}
 
 		if (!progress.CompletedPhases.Contains("suture") && HasSuturableWounds(employee, patient))
 		{
-			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "suture",
+			return TryStartTreatmentPhase(context, employee, patient, hospital, request, progress, "suture",
 				HospitalServiceType.WoundClosing);
 		}
 
 		if (!progress.CompletedPhases.Contains("clean") && HasCleanableWounds(employee, patient))
 		{
-			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "clean",
+			return TryStartTreatmentPhase(context, employee, patient, hospital, request, progress, "clean",
 				HospitalServiceType.WoundCleaning);
 		}
 
 		if (!progress.CompletedPhases.Contains("tend") && HasTendableWounds(employee, patient))
 		{
-			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "tend",
+			return TryStartTreatmentPhase(context, employee, patient, hospital, request, progress, "tend",
 				HospitalServiceType.WoundTending);
 		}
 
 		if (!progress.CompletedPhases.Contains("relocate") && HasRelocatableFractures(patient))
 		{
-			return TryStartTreatmentPhase(employee, patient, hospital, request, progress, "relocate",
+			return TryStartTreatmentPhase(context, employee, patient, hospital, request, progress, "relocate",
 				HospitalServiceType.BoneRelocation);
 		}
 
@@ -1018,7 +1151,7 @@ public static class HospitalMedicalServiceRunner
 		return CompleteCommandRoutedService(employee, patient, hospital, request, progress);
 	}
 
-	private static ServiceExecutionResult TryStartTreatmentPhase(ICharacter employee, ICharacter patient,
+	private static ServiceExecutionResult TryStartTreatmentPhase(IEmploymentTaskContext context, ICharacter employee, ICharacter patient,
 		IHospital hospital, IHospitalServiceRequest request, HospitalTreatmentProgress progress, string phase,
 		HospitalServiceType usageServiceType)
 	{
@@ -1046,11 +1179,33 @@ public static class HospitalMedicalServiceRunner
 			return new ServiceExecutionResult(false, reason, string.Empty, Progress: progress);
 		}
 
+		var usageBilled = HospitalServiceBilling.IsUsageBilledServiceType(request.Service.ServiceType);
+		var newlyReserved = usageBilled && !progress.Reservations.ContainsKey(phase);
+		var debtBefore = request.DebtCharged;
+		if (newlyReserved)
+		{
+			progress.ActivePhase = phase;
+			progress.ActiveExpectedCount = expectedCount;
+			AddUsageQuote(hospital, progress, phase, usageServiceType, expectedCount);
+			if (!TrySecureUsageReservations(context, hospital, request, progress, out var creditError))
+			{
+				progress.Reservations.Remove(phase);
+				progress.ActivePhase = null;
+				progress.ActiveExpectedCount = 0;
+				return new ServiceExecutionResult(false, creditError, string.Empty, Progress: progress);
+			}
+		}
+
 		EnsureHospitalTreatmentPermission(patient, employee, request);
 		var existingEffects = ActivePhaseEffects(employee, patient, phase).ToHashSet();
 		if (!employee.CommandTree.Commands.Execute(employee, command, employee.State, employee.PermissionLevel,
 			    employee.OutputHandler))
 		{
+			if (newlyReserved)
+			{
+				RefundUnstartedUsagePhase(context, hospital, request, progress, phase, request.DebtCharged - debtBefore);
+			}
+
 			return new ServiceExecutionResult(false,
 				$"{employee.HowSeen(employee, true)} could not start {DescribePhase(phase)} for {patient.HowSeen(employee)}.",
 				string.Empty,
@@ -1059,6 +1214,11 @@ public static class HospitalMedicalServiceRunner
 
 		if (!ActivePhaseEffects(employee, patient, phase).Any(x => !existingEffects.Contains(x)))
 		{
+			if (newlyReserved)
+			{
+				RefundUnstartedUsagePhase(context, hospital, request, progress, phase, request.DebtCharged - debtBefore);
+			}
+
 			return new ServiceExecutionResult(false,
 				$"{employee.HowSeen(employee, true)} could not start {DescribePhase(phase)} for {patient.HowSeen(employee)}.",
 				string.Empty,
@@ -1077,10 +1237,12 @@ public static class HospitalMedicalServiceRunner
 	private static ServiceExecutionResult CompleteCommandRoutedService(ICharacter employee, ICharacter patient,
 		IHospital hospital, IHospitalServiceRequest request, HospitalTreatmentProgress progress)
 	{
-		var summaries = progress.Charges
-		                        .Where(x => x.Value > 0)
-		                        .Select(x => HospitalServiceBilling.DescribeUsageLine(hospital, x.Key, x.Value, employee).StripANSIColour())
-		                        .ToList();
+		var summaries = (HospitalServiceBilling.IsUsageBilledServiceType(request.Service.ServiceType)
+			? DescribeReservedUsage(hospital, progress, employee)
+			: progress.Charges.Where(x => x.Value > 0)
+				.Select(x => HospitalServiceBilling.DescribeUsageLine(hospital, x.Key, x.Value, employee)))
+			.Select(x => x.StripANSIColour())
+			.ToList();
 		var summary = summaries.Any()
 			? summaries.ListToString()
 			: progress.CompletedPhases.Select(DescribePhase).ListToString();
@@ -1231,7 +1393,7 @@ public static class HospitalMedicalServiceRunner
 			"clean" => HospitalServiceType.WoundCleaning,
 			"tend" => HospitalServiceType.WoundTending,
 			"relocate" => HospitalServiceType.BoneRelocation,
-			"transfusion" => HospitalServiceType.BloodTransfusion,
+			"transfusion" or BloodTransfusionPhase => HospitalServiceType.BloodTransfusion,
 			_ => HospitalServiceType.FullTreatment
 		};
 	}
@@ -3112,7 +3274,29 @@ public static class HospitalMedicalServiceRunner
 
 		if (string.IsNullOrWhiteSpace(workflow.Stage))
 		{
-			return StartTransfusionWorkflow(context, employee, recipient, request, progress, workflow);
+			var newlyReserved = HospitalServiceBilling.IsUsageBilledServiceType(request.Service.ServiceType) &&
+			                    !progress.Reservations.ContainsKey(BloodTransfusionPhase);
+			var debtBefore = request.DebtCharged;
+			if (newlyReserved)
+			{
+				AddUsageQuote(request.Hospital, progress, BloodTransfusionPhase, HospitalServiceType.BloodTransfusion, 1);
+				if (!TrySecureUsageReservations(context, request.Hospital, request, progress, out var creditError))
+				{
+					progress.Reservations.Remove(BloodTransfusionPhase);
+					progress.BloodWorkflow = null;
+					progress.ActivePhase = null;
+					return new ServiceExecutionResult(false, creditError, string.Empty, Progress: progress);
+				}
+			}
+
+			var result = StartTransfusionWorkflow(context, employee, recipient, request, progress, workflow);
+			if (!result.Success && newlyReserved)
+			{
+				RefundUnstartedUsagePhase(context, request.Hospital, request, progress, BloodTransfusionPhase,
+					request.DebtCharged - debtBefore);
+			}
+
+			return result;
 		}
 
 		if (workflow.Stage.EqualTo(BloodWorkflowStageCannulating))

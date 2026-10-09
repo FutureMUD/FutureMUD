@@ -173,6 +173,17 @@ public class PlanarPresenceDefinitionTests
 		Assert.AreEqual(string.Empty, voyeur.Object.RemoteObservationTagFor(target.Object, false));
 	}
 
+	[TestMethod]
+	public void RemoteObservationTagFor_UnsafeStoredFormatUsesFallbackBeforeExpansion()
+	{
+		var (gameworld, _, astral) = BuildPlanarGameworld();
+		astral.Setup(x => x.RemoteObservationTag).Returns("{0}{0,9999999}");
+		var voyeur = BuildPerceiver(gameworld.Object, PlanarPresenceDefinition.DefaultMaterial(1)
+			.Merge(PlanarPresenceDefinition.PerceivesPlanes(new[] { astral.Object })));
+		var target = BuildPerceivable(gameworld.Object, PlanarPresenceDefinition.DefaultMaterial(2));
+		Assert.AreEqual("(Astral Plane)", voyeur.Object.RemoteObservationTagFor(target.Object, false));
+	}
+
 	private static (Mock<IFuturemud> Gameworld, Mock<IPlane> Prime, Mock<IPlane> Astral) BuildPlanarGameworld()
 	{
 		var gameworld = new Mock<IFuturemud>();

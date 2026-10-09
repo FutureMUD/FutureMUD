@@ -33,6 +33,8 @@ public sealed partial class MagicCastingService : IMagicCastingService
 	public static ICharacter Owner(ICharacter actor) => actor.Identity?.PrimaryInstance ?? actor;
 	private object Guard(ICharacter actor) => _guards.GetOrAdd(Owner(actor).Id, _ => new object());
 	public AcquiredSpell? Acquisition(ICharacter character, long spellId) => _store.Acquisition(Owner(character).Id, spellId);
+	public bool HasAnyAcquisition(ICharacter character, IReadOnlyCollection<long> spellIds) =>
+		spellIds.Count > 0 && _store.HasAnyAcquisition(Owner(character).Id, spellIds);
 
 	public IReadOnlyList<MagicCastingRoute> Routes(ICharacter actor, long? spellId = null)
 	{

@@ -698,8 +698,27 @@ public class PathingAIDoorSmashScheduleTests
         prog.Verify(x => x.ExecuteDecimal(It.IsAny<object[]>()), Times.Exactly(2));
     }
 
-    [TestMethod]
-    public void ConfiguredCallback_KeepsIndependentDeadlinesForEachCharacter()
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void ConfiguredCallback_MaximumDecimal_SafelySaturatesAtTheLastTimestamp(bool nearBoundary)
+	{
+		var fixture = CreateFixture();
+		var ai = new TestPathingAI
+		{
+			Clock = nearBoundary ? DateTime.SpecifyKind(DateTime.MaxValue.AddTicks(-1), DateTimeKind.Utc) :
+				new DateTime(2026, 10, 9, 0, 0, 0, DateTimeKind.Utc)
+		};
+		ai.SetDelayProg(DelayProg(77, (_, _) => decimal.MaxValue).Object);
+		Bind(fixture, ai);
+		Assert.IsTrue(ai.RunCheckSmash(fixture.Character.Object));
+		Assert.AreEqual(DateTime.MaxValue.Ticks, fixture.Focus.NextSmashAttemptUtc!.Value.Ticks);
+		Assert.AreEqual(DateTimeKind.Utc, fixture.Focus.NextSmashAttemptUtc.Value.Kind);
+		Assert.AreEqual(0, ai.SmashCount);
+	}
+
+	[TestMethod]
+	public void ConfiguredCallback_KeepsIndependentDeadlinesForEachCharacter()
     {
         var first = CreateFixture();
         var second = CreateFixture();

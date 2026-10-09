@@ -1,6 +1,7 @@
 #nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MySql.Data.MySqlClient;
 using MudSharp.Database;
 using System;
 using System.Collections.Generic;
@@ -389,6 +390,41 @@ public class DatabaseUpgradeCoordinatorTests
 		Assert.IsNotNull(backupService.LastExecutedScript);
 		StringAssert.StartsWith(backupService.LastExecutedScript, "-- EF-generated idempotent delta");
 		StringAssert.Contains(backupService.LastExecutedScript, "LatestMigration");
+	}
+
+	[DataTestMethod]
+	[DataRow("ordinary_database")]
+	[DataRow("database with spaces")]
+	[DataRow("target`; DROP TABLE victim; -- ")]
+	[DataRow("a``b")]
+	public void ImportBlankDatabaseSnapshot_QuotesDatabaseNameInDumpAndDelta(string databaseName)
+	{
+		using var harness = new TemporaryDirectoryHarness();
+		var backupService = new FakeBackupService(harness.DirectoryPath);
+		var coordinator = new DatabaseUpgradeCoordinator(new FakeMigrationService(), backupService);
+		var snapshotPath = Path.Combine(harness.DirectoryPath, "BlankDatabaseSnapshot.sql");
+		File.WriteAllText(snapshotPath, "CREATE DATABASE `__FUTUREMUD_DATABASE__`;\n" +
+			"-- EF-generated idempotent delta for LatestMigration\nUSE `__FUTUREMUD_DATABASE__`;\n");
+		var connectionString = new MySqlConnectionStringBuilder { Server = "localhost", Database = databaseName }.ConnectionString;
+		coordinator.ImportBlankDatabaseSnapshot(connectionString, snapshotPath, "__FUTUREMUD_DATABASE__");
+		var identifier = "`" + databaseName.Replace("`", "``", StringComparison.Ordinal) + "`";
+		Assert.AreEqual("CREATE DATABASE " + identifier + ";\n", backupService.LastRestoreContents);
+		Assert.AreEqual("-- EF-generated idempotent delta for LatestMigration\nUSE " + identifier + ";\n", backupService.LastExecutedScript);
+	}
+
+	[DataTestMethod]
+	[DataRow("")]
+	[DataRow("name\nDELIMITER $$")]
+	[DataRow("name\rUSE other")]
+	public void ImportBlankDatabaseSnapshot_InvalidNameDoesNotReachRestore(string databaseName)
+	{
+		using var harness = new TemporaryDirectoryHarness();
+		var backupService = new FakeBackupService(harness.DirectoryPath);
+		var coordinator = new DatabaseUpgradeCoordinator(new FakeMigrationService(), backupService);
+		var connectionString = new MySqlConnectionStringBuilder { Server = "localhost", Database = databaseName }.ConnectionString;
+		Assert.ThrowsException<ArgumentException>(() => coordinator.ImportBlankDatabaseSnapshot(connectionString, "unused.sql", "__FUTUREMUD_DATABASE__"));
+		Assert.AreEqual(0, backupService.RestoreBackupCalls);
+		Assert.AreEqual(0, backupService.ExecuteSqlScriptCalls);
 	}
 
 	[TestMethod]

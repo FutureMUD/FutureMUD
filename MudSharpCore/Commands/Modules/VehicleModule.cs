@@ -788,10 +788,27 @@ Use #3vehiclepropulsion <selfpowered|rowed|sail|outboard|engine|externallypulled
 		                         .Where(x => x.Target == character)
 		                         .ToList();
 		hitches.AddRange(targetHitches);
-		hitches = hitches.Distinct().ToList();
+		hitches = hitches
+			.Where(x => x.CharacterOwner.EffectsOfType<CharacterHitch>(y => y.Target == x.Target).Any())
+			.Distinct()
+			.ToList();
 		if (!hitches.Any() && !persistentLinks.Any())
 		{
 			return false;
+		}
+
+		var linkedVehicles = hitches
+			.Select(x => (x.Target as IGameItem)?.GetItemType<IVehicleExterior>()?.Vehicle)
+			.Concat(persistentLinks.SelectMany(x => new[] { x.SourceVehicle, x.TargetVehicle }))
+			.Where(x => x is not null)
+			.Distinct();
+		foreach (var linkedVehicle in linkedVehicles)
+		{
+			if (!CanUseVehicleForAction(actor, linkedVehicle, VehicleOperationalAction.Hitch, out var reason))
+			{
+				actor.OutputHandler.Send(reason);
+				return true;
+			}
 		}
 
 		foreach (var link in persistentLinks)

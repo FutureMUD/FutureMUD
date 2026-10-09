@@ -19,6 +19,8 @@ internal static class StartupScriptGenerator
 	private const int TemplateVersion = 2;
 	private const int MaximumStartAttempts = 100;
 	private const int RestartDelaySeconds = 5;
+	private const UnixFileMode GeneratedScriptPermissions =
+		UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute;
 
 	internal static StartupScriptGenerationResult EnsureStartScript(string installationDirectory,
 		string connectionString, bool isWindows)
@@ -37,9 +39,7 @@ internal static class StartupScriptGenerator
 		{
 			File.SetUnixFileMode(
 				scriptPath,
-				UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute |
-				UnixFileMode.GroupRead | UnixFileMode.GroupExecute |
-				UnixFileMode.OtherRead | UnixFileMode.OtherExecute);
+				GeneratedScriptPermissions);
 		}
 
 		return result;
@@ -162,14 +162,14 @@ done
 	{
 		if (!File.Exists(scriptPath))
 		{
-			File.WriteAllText(scriptPath, script);
+			WriteGeneratedScript(scriptPath, script, isWindows);
 			return StartupScriptGenerationResult.Created;
 		}
 
 		string existing = File.ReadAllText(scriptPath);
 		if (string.IsNullOrWhiteSpace(existing))
 		{
-			File.WriteAllText(scriptPath, script);
+			WriteGeneratedScript(scriptPath, script, isWindows);
 			return StartupScriptGenerationResult.Created;
 		}
 
@@ -184,8 +184,30 @@ done
 			return StartupScriptGenerationResult.PreservedCustom;
 		}
 
-		File.WriteAllText(scriptPath, script);
+		WriteGeneratedScript(scriptPath, script, isWindows);
 		return StartupScriptGenerationResult.Updated;
+	}
+
+	private static void WriteGeneratedScript(string scriptPath, string script, bool isWindows)
+	{
+		var options = new FileStreamOptions
+		{
+			Mode = FileMode.Create,
+			Access = FileAccess.Write,
+			Share = FileShare.None
+		};
+		if (!isWindows && !OperatingSystem.IsWindows())
+		{
+			options.UnixCreateMode = GeneratedScriptPermissions;
+			if (File.Exists(scriptPath))
+			{
+				File.SetUnixFileMode(scriptPath, GeneratedScriptPermissions);
+			}
+		}
+
+		using var stream = new FileStream(scriptPath, options);
+		using var writer = new StreamWriter(stream);
+		writer.Write(script);
 	}
 
 	private static bool IsLegacyGeneratedScript(string script, bool isWindows)

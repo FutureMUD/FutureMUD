@@ -113,7 +113,8 @@ public class PathingAICommonOptionLoadTests
 	private static (PathingAIWithProgTargetsBase Ai, Mock<IUneditableAll<IFutureProg>> Progs) Load(
 		Type aiType,
 		bool includeCommonOptions,
-		bool openDoors = true)
+		bool openDoors = true,
+		long pathingEnabledProgId = 10)
 	{
 		var progCache = Enumerable.Range(1, 100).ToDictionary(
 			x => (long)x,
@@ -125,15 +126,17 @@ public class PathingAICommonOptionLoadTests
 				return prog.Object;
 			});
 		var progs = new Mock<IUneditableAll<IFutureProg>>();
-		progs.Setup(x => x.Get(It.IsAny<long>())).Returns((long id) => progCache[id]);
+		progs.Setup(x => x.Get(It.IsAny<long>())).Returns((long id) => progCache.GetValueOrDefault(id)!);
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.FutureProgs).Returns(progs.Object);
+		var definition = BuildDefinition(aiType, includeCommonOptions, openDoors);
+		definition.Element("PathingEnabledProg")!.Value = pathingEnabledProgId.ToString();
 		var model = new ArtificialIntelligence
 		{
 			Id = 1,
 			Name = aiType.Name,
 			Type = aiType.Name,
-			Definition = BuildDefinition(aiType, includeCommonOptions, openDoors).ToString()
+			Definition = definition.ToString()
 		};
 		var constructor = aiType.GetConstructor(BindingFlags.Instance | BindingFlags.NonPublic,
 			null, [typeof(ArtificialIntelligence), typeof(IFuturemud)], null);
@@ -192,6 +195,35 @@ public class PathingAICommonOptionLoadTests
 
 		return root;
 	}
+
+	[DataTestMethod]
+	[DataRow(typeof(SemiAggressiveAI), 0L)]
+	[DataRow(typeof(SemiAggressiveAI), 999L)]
+	[DataRow(typeof(TrackingAggressorAI), 0L)]
+	[DataRow(typeof(TrackingAggressorAI), 999L)]
+	public void IsPathingEnabled_LoadedMissingProg_DefaultsDisabled(Type aiType, long progId)
+	{
+		var (ai, _) = Load(aiType, true, pathingEnabledProgId: progId);
+		Assert.IsNull(ai.PathingEnabledProg);
+		Assert.IsFalse(IsPathingEnabled(ai));
+		Assert.AreEqual("0", SavedDefinition(ai).Element("PathingEnabledProg")!.Value);
+	}
+
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void IsPathingEnabled_ConfiguredProg_PreservesResult(bool enabled)
+	{
+		var (ai, _) = Load(typeof(SemiAggressiveAI), true);
+		var prog = Mock.Get(ai.PathingEnabledProg);
+		prog.Setup(x => x.ExecuteBool(It.IsAny<object[]>())).Returns(enabled);
+		Assert.AreEqual(enabled, IsPathingEnabled(ai));
+		prog.Verify(x => x.ExecuteBool(It.IsAny<object[]>()), Times.Once);
+	}
+
+	private static bool IsPathingEnabled(PathingAIWithProgTargetsBase ai) =>
+		(bool)typeof(PathingAIWithProgTargetsBase).GetMethod("IsPathingEnabled", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.Invoke(ai, [Mock.Of<ICharacter>()])!;
 
 	private static IEnumerable<long> SpecialisedProgIds(Type aiType)
 	{

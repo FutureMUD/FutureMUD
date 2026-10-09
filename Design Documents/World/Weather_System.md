@@ -12,6 +12,8 @@ Quality changes the interpretation, not the scheduled weather. Difficulty and un
 
 ## Authoritative schedule
 
+Creating a weather controller requires an initial weather event permitted for its current season and local time of day. If the regional climate has no such event, creation returns a builder error without inserting the controller or subscribing it to clock/heartbeat updates. Add a permitted event to the climate before retrying; creation does not override event time restrictions.
+
 Each weather controller owns a rolling queue of climate-processing checkpoints. `weathercontroller set forecast <days>` configures its horizon from 1 to 30 local game days; the default is 7. Growing the horizon extends the existing future. Shrinking it limits what is shown without discarding an already scheduled future.
 
 Queues are limited to 200,000 checkpoints. Horizon settings that would exceed this limit are rejected. If a later clock or climate-interval edit makes the configured horizon too large, live weather continues one checkpoint at a time and player forecasting remains unavailable until the configuration is reduced.
@@ -55,5 +57,7 @@ Heavy/torrential rain variants receive lightning in non-polar stock climates. En
 `dusty air` counts as the stock breathable atmosphere and carries the inhaled Weather Dust Irritant drug. `choking dust` does not count as breathable air. Both reuse existing respiratory/drug systems; dust installation requires the stock `Breathable Atmosphere` gas (or legacy `air`). Local respiratory protection and authored material/exposure rules remain separate configuration.
 
 ## Verification ownership
+
+Implementor weather-statistics CSV exports encode all text columns and metadata as spreadsheet-safe cells. Formula prefixes, including those after leading whitespace, receive a leading apostrophe; CSV quoting preserves embedded commas, quotes and line breaks. Numeric measurements retain their invariant numeric representation, including negative temperatures. This export protection does not restrict builder names in the game.
 
 Shared XML/RNG contracts belong to `FutureMUDLibrary Unit Tests`; controller playback, persistence, daily readings and lightning routing belong to `MudSharpCore Unit Tests`. Stock hazard adoption and long climate simulations belong to `MudSharpCore Climate Tests`. Seeder workflow/replay and snapshot contracts remain in `DatabaseSeeder Unit Tests`. Native MySQL/Telnet evidence and limitations are recorded in the [weather verification report](Weather_Verification.md).

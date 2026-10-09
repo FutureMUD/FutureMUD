@@ -76,7 +76,7 @@ internal static class VehicleMovementCommand
 			exit = vehicle.Location?.GetExit(cardinal, actor);
 		}
 
-		if (exit is null)
+		if (exit is null || !actor.Body.CanSee(vehicle.Location, exit))
 		{
 			actor.OutputHandler.Send("There is no such exit for the vehicle to use.");
 			actor.QueuedMoveCommands.Clear();

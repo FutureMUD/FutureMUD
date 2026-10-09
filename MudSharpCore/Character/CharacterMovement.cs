@@ -168,7 +168,7 @@ public partial class Character
 		if (displacement is not null && !displacement.CaptureCompanions(otherMovers)) return;
         foreach (ICharacter mover in otherMovers)
         {
-            Movement?.CancelForMoverOnly(mover);
+            mover.Movement?.CancelForMoverOnly(mover);
             mover.RemoveAllEffects(x => x.IsEffectType<IActionEffect>(), true);
             mover.RemoveAllEffects<IRemoveOnMovementEffect>(fireRemovalAction: true);
 			if (displacement is not null && !displacement.Continue()) return;
@@ -576,6 +576,7 @@ public partial class Character
 
         IPositionState requiredPosition = GetRequiredMovementPosition(movement?.Exit);
         if (requiredPosition is not null && PositionState != requiredPosition &&
+            (requiredPosition != PositionFlying.Instance || movement.IsConsensualMover(this)) &&
             !(requiredPosition == PositionSwimming.Instance && EffectsOfType<IImmwalkEffect>().Any()))
         {
             SetState(requiredPosition);
@@ -1996,9 +1997,17 @@ public partial class Character
 
     public void Land(IEmote actionEmote = null)
     {
-        if (RidingMount is not null && RidingMount.IsPrimaryRider(this))
+        var mount = RidingMount;
+        if (mount is not null && mount.IsPrimaryRider(this))
         {
-            RidingMount.RiderMovePosition(Location.IsSwimmingLayer(RoomLayer) ? PositionSwimming.Instance : PositionStanding.Instance,
+            var landing = mount.CanLand();
+            if (!landing.Truth)
+            {
+                OutputHandler.Send(landing.Error);
+                return;
+            }
+
+            mount.RiderMovePosition(Location.IsSwimmingLayer(RoomLayer) ? PositionSwimming.Instance : PositionStanding.Instance,
                     PositionModifier.None, null, this, actionEmote, null);
             return;
         }

@@ -2032,6 +2032,8 @@ If the physical body is bound, can the astral body project? If the astral body i
 
 Movement code currently handles mounts, riders, dragging, and parties for one actor. Instance movement must not accidentally move all same-identity instances.
 
+Teleport cancels each carried physical instance's own pending movement before relocating it. This applies to dragged targets, helpers, party companions, mounts and riders, including when the lead character has no pending movement; an old scheduled exit traversal must not survive the teleport.
+
 ### 21.15 Crimes and Legal Attribution
 
 Crimes should be committed by an instance, attributed to an identity only if known or legally inferred. A clone may commit a crime while the primary body is elsewhere. Witnesses may or may not know they are the same person.

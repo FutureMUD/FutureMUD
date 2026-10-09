@@ -163,6 +163,41 @@ public class PhysicalManipulationTests
 		Assert.IsFalse(actor.Object.CanReachItem(item.Object, requireInventoryPermission: false).Truth);
 	}
 
+	[DataTestMethod]
+	[DataRow(false, true)]
+	[DataRow(true, false)]
+	public void SheathEmpty_OtherInventoryWithoutConsentOrProximity_PreservesContents(bool consent, bool colocated)
+	{
+		var (actor, _, room, world) = ActorWithHand();
+		var (owner, ownerBody, _, _) = ActorWithHand();
+		owner.SetupGet(x => x.Location).Returns(colocated ? room.Object : Mock.Of<IRoom>());
+		owner.Setup(x => x.WillingToPermitInventoryManipulation(actor.Object)).Returns(consent);
+		var sheathItem = Item(world);
+		sheathItem.SetupGet(x => x.InInventoryOf).Returns(ownerBody.Object);
+		actor.Setup(x => x.CanManipulateItem(It.IsAny<IGameItem>()))
+			.Returns<IGameItem>(item => actor.Object.CanReachItem(item));
+		var weapon = Item(world);
+		weapon.SetupGet(x => x.ContainedIn).Returns(sheathItem.Object);
+		var wieldable = new Mock<IWieldable>();
+		wieldable.SetupGet(x => x.Parent).Returns(weapon.Object);
+		var sheath = TestObjectFactory.CreateUninitialized<SheathGameItemComponent>();
+		typeof(GameItemComponent).GetProperty(nameof(GameItemComponent.Parent))!.SetValue(sheath, sheathItem.Object);
+		typeof(SheathGameItemComponent).GetField("_contents", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(sheath, new List<IWieldable> { wieldable.Object });
+
+		sheath.Empty(actor.Object, null!);
+
+		Assert.AreSame(weapon.Object, sheath.Contents.Single());
+		Assert.AreSame(sheathItem.Object, weapon.Object.ContainedIn);
+		weapon.VerifySet(x => x.ContainedIn = It.IsAny<IGameItem>(), Times.Never);
+		weapon.Verify(x => x.Delete(), Times.Never);
+		room.Verify(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>()), Times.Never);
+		if (colocated)
+		{
+			owner.Verify(x => x.WillingToPermitInventoryManipulation(actor.Object), Times.Once);
+		}
+	}
+
 	[TestMethod]
 	[Timeout(3000)]
 	public void Reach_DifferentLayerOrRoom_AndContainmentCycle_AreRejected()
@@ -250,6 +285,36 @@ public class PhysicalManipulationTests
 		item.Verify(x => x.PeekSplitByWeight(It.IsAny<double>()), Times.Never);
 		item.Verify(x => x.GetByWeight(It.IsAny<IBody>(), It.IsAny<double>()), Times.Never);
 		container.Verify(x => x.Take(It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<int>()), Times.Never);
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void Inventory_ContainerRetrieval_RejectsMissingComponentOrUnrelatedSource(bool suppliedContainer)
+	{
+		var (actor, _, room, world) = ActorWithHand();
+		var body = EmptyBody();
+		body.Actor = actor.Object;
+		var actualSource = Item(world, room);
+		var unrelated = Item(world, room);
+		var item = Item(world);
+		item.SetupGet(x => x.ContainedIn).Returns(actualSource.Object);
+		item.SetupGet(x => x.Quantity).Returns(1);
+		var container = new Mock<IContainer>();
+		container.SetupGet(x => x.Parent).Returns(unrelated.Object);
+		container.SetupGet(x => x.Contents).Returns([]);
+		if (suppliedContainer)
+		{
+			unrelated.Setup(x => x.GetItemType<IContainer>()).Returns(container.Object);
+		}
+
+		Assert.IsFalse(body.CanGet(item.Object, unrelated.Object, 0));
+		body.Get(item.Object, unrelated.Object, 0, silent: true);
+
+		Assert.AreSame(actualSource.Object, item.Object.ContainedIn);
+		container.Verify(x => x.Take(It.IsAny<ICharacter>(), It.IsAny<IGameItem>(), It.IsAny<int>()), Times.Never);
+		item.Verify(x => x.Get(It.IsAny<IBody>()), Times.Never);
+		item.VerifySet(x => x.ContainedIn = It.IsAny<IGameItem>(), Times.Never);
 	}
 
 	[TestMethod]

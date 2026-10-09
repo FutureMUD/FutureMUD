@@ -640,8 +640,10 @@ public abstract class PathingAIBase : ArtificialIntelligenceBase
     {
         var milliseconds = Math.Max(0.0M, DoorSmashDelayProg?.ExecuteDecimal(ch, exit) ?? 0.0M);
         var now = UtcNow;
-        var maximumMilliseconds = (decimal)(DateTime.MaxValue - now).TotalMilliseconds;
-        return now.AddMilliseconds((double)Math.Min(milliseconds, maximumMilliseconds));
+		var remainingTicks = DateTime.MaxValue.Ticks - now.Ticks;
+		var maximumMilliseconds = remainingTicks / (decimal)TimeSpan.TicksPerMillisecond;
+		var delayTicks = (long)(Math.Min(milliseconds, maximumMilliseconds) * TimeSpan.TicksPerMillisecond);
+		return now.AddTicks(delayTicks);
     }
 
     protected void ClosedDoor(ICharacter ch, IRoomExit exit)

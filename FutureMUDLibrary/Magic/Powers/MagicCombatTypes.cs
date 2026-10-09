@@ -26,7 +26,13 @@ public enum MagicDefenseThreat
 }
 
 public sealed record MagicAttackEffect(MagicAttackEffectType Type, Difficulty Resistance, double Strength,
-	double DurationSeconds, string SuccessEmote, string ResistEmote);
+	double DurationSeconds, string SuccessEmote, string ResistEmote)
+{
+	public const double MaximumStrength = 1000;
+	public const double MaximumDurationSeconds = 86400;
+	public bool HasValidParameters => double.IsFinite(Strength) && Strength > 0 && Strength <= MaximumStrength &&
+		double.IsFinite(DurationSeconds) && DurationSeconds >= 0 && DurationSeconds <= MaximumDurationSeconds;
+}
 
 public interface IMagicDefensePower : IMagicPower
 {

@@ -48,7 +48,6 @@ public partial class WeatherController : SaveableItem, IWeatherController
         Gameworld = gameworld;
         _name = name;
         FeedClock = Gameworld.Clocks.First();
-        FeedClock.MinutesUpdated += HandleWeatherTick;
         FeedClockTimeZone = FeedClock.PrimaryTimezone;
         RegionalClimate = climate;
         Celestial = Gameworld.CelestialObjects.FirstOrDefault();
@@ -59,7 +58,13 @@ public partial class WeatherController : SaveableItem, IWeatherController
         TimeOfDay currentTimeOfDay = Celestial?.CurrentTimeOfDay(GeographyForTimeOfDay) ?? TimeOfDay.Night;
         UpdateCurrentSeason();
         CurrentWeatherEvent = RegionalClimate.ClimateModel.HandleWeatherTick(null, CurrentSeason, currentTimeOfDay, ConsecutiveUnchangedPeriods);
+        if (CurrentWeatherEvent is null)
+        {
+            throw new ArgumentException("The regional climate has no initial weather event permitted for the current season and local time of day.", nameof(climate));
+        }
+
         CalculateCurrentTemperature();
+        FeedClock.MinutesUpdated += HandleWeatherTick;
         Gameworld.HeartbeatManager.FuzzyFiveSecondHeartbeat += HandleFiveSecondTick;
         using (new FMDB())
         {

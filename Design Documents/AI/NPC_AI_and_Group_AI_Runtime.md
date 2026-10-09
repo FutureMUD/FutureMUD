@@ -14,6 +14,8 @@ This is the primary AI reference. The companion document [Event_System_for_AI_an
 `AnimalAI` and `MonsterAI` are sibling controllers under `CreatureAIBase : PathingAIBase`. Shared mechanics cover observation, movement, home/refuge, threat assessment and bounded pursuit; Animal retains ecology and Wildlife group policy, while Monster owns configurable motives and schedules independent of needs. See [Monster AI](./Monster_AI.md) for commands, stock profiles and persistence. Monster definitions require one primary creature controller and cannot participate in Wildlife groups; auxiliary AIs remain supported.
 
 ## Scope
+
+Prog-targeted pathing AIs treat an unset or missing pathing-enabled prog as disabled. This applies to fresh builder defaults and legacy saved zero or stale prog IDs, including SemiAggressive and TrackingAggressor AIs. A configured prog retains its existing boolean decision.
 This document covers:
 
 - `IArtificialIntelligence` and the concrete AI hierarchy
@@ -142,6 +144,8 @@ NPC templates persist through `NPCTemplates` rows. In addition to the template `
 - `UniqueName`: optional stable lookup key for builder commands and `loadnpc(text)`
 - `BuilderNotes`: optional free-form builder comment for design intent and maintenance notes
 
+For simple templates, `npc set accent <language> <accent>` resolves a language already known by the NPC before looking up its accent. An unknown language or accent returns the normal missing-accent message without changing the template.
+
 `npc rename <match regex> <replacement text>` changes the template `Name` through the shared atomic rename workflow. `npc renameunique <match regex> <replacement text>` remains the separate operation for the optional stable `UniqueName` lookup key. `npc clone <id|unique name> [<new name>]` validates a supplied name before persisting the clone; when no name is supplied it creates a collision-free default appropriate to the template type.
 
 Blank unique names are treated as unset. Nonblank unique names are trimmed, cannot be entirely numeric, and must be unique case-insensitively among active template revisions: `Current`, `PendingRevision`, and `UnderDesign`. Historical `Rejected`, `Revised`, and `Obsolete` revisions may duplicate them.
@@ -216,7 +220,7 @@ That means `HandlesEvent` is not just documentation. It directly controls whethe
 
 #### Optional native door-smash scheduling
 
-All `PathingAIBase` AIs retain their legacy native door-smash cadence unless a builder sets `smashdelay <prog>`. The optional prog must return `Number` and accept `(Character smasher, Exit obstruction)`; its result is a nonnegative delay in milliseconds.
+All `PathingAIBase` AIs retain their legacy native door-smash cadence unless a builder sets `smashdelay <prog>`. The optional prog must return `Number` and accept `(Character smasher, Exit obstruction)`; its result is a nonnegative delay in milliseconds. Negative results become zero. Delay timestamps use exact decimal and integer tick arithmetic and saturate at the last representable timestamp, so even `decimal.MaxValue` cannot overflow the scheduler.
 
 When configured, the callback runs before the first native smash for a newly created `BreakDownDoor` focus and again after each real native smash attempt. The focus keeps its own transient next-attempt time, so different NPCs using the same AI remain independent. The focus and its wait are intentionally not saved: after a reload, reconstructed pathing calls the prog again before any attack. A pure delay callback therefore establishes a fresh future delay after downtime; it does not catch up missed attacks. Feature callbacks that persist policy state must preserve that no-catch-up reconstruction rule. Use `smashdelay none` to restore the legacy cadence.
 
@@ -260,7 +264,7 @@ These commands are diagnostics only; they do not alter a wildlife definition or 
 
 - `npc set clan ...` for clan memberships, paygrades, and appointments
 - `npc set outfit ...` for outfit templates to materialise on load
-- `npc set hook ...` for character/NPC-valid hooks
+- `npc set hook ...` for character/NPC-valid hooks; adding or removing template hooks requires Senior Admin, matching direct hook installation permissions
 - `npc set bank ...` for NPC-owned bank accounts and opening balances
 - `npc set implant ...` and `npc set prosthetic ...` for installed body equipment
 

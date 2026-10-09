@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Health;
+using MudSharp.Form.Material;
 
 #nullable enable
 namespace MudSharp.Magic;
@@ -11,22 +12,24 @@ namespace MudSharp.Magic;
 public sealed class SubstanceCharge
 {
 	public Guid Lot { get; init; } = Guid.NewGuid();
+	/// <summary>Overflow provenance is permanently inert, including after transfer or builder changes.</summary>
+	public bool Inert { get; init; }
 	public HashSet<Guid> Spent { get; } = new();
 	public HashSet<Guid> Suppressed { get; } = new();
 	public SubstanceCharge Copy()
 	{
-		var copy = new SubstanceCharge { Lot = Lot };
+		var copy = new SubstanceCharge { Lot = Lot, Inert = Inert };
 		copy.Spent.UnionWith(Spent);
 		copy.Suppressed.UnionWith(Suppressed);
 		return copy;
 	}
-	public bool CanMerge(SubstanceCharge other) => Lot == other.Lot &&
+	public bool CanMerge(SubstanceCharge other) => Inert == other.Inert && Lot == other.Lot &&
 		Spent.SetEquals(other.Spent) && Suppressed.SetEquals(other.Suppressed);
-	public XElement Save() => new("Charge", new XAttribute("lot", Lot),
+	public XElement Save() => new("Charge", new XAttribute("lot", Lot), new XAttribute("inert", Inert),
 		Spent.Select(x => new XElement("Spent", x)), Suppressed.Select(x => new XElement("Suppressed", x)));
 	public static SubstanceCharge Load(XElement root)
 	{
-		var result = new SubstanceCharge { Lot = Guid.Parse(root.Attribute("lot")!.Value) };
+		var result = new SubstanceCharge { Lot = Guid.Parse(root.Attribute("lot")!.Value), Inert = (bool?)root.Attribute("inert") ?? false };
 		result.Spent.UnionWith(root.Elements("Spent").Select(x => Guid.Parse(x.Value)));
 		result.Suppressed.UnionWith(root.Elements("Suppressed").Select(x => Guid.Parse(x.Value)));
 		return result;
@@ -35,6 +38,29 @@ public sealed class SubstanceCharge
 
 public static class SubstanceDose
 {
+	public const int MaximumRetainedLots = 256;
+	/// <summary>Bounds active magical provenance without deleting physical liquid or refreshing spent lots.</summary>
+	public static void LimitSurfaceLots(IEnumerable<LiquidInstance> retained, LiquidMixture incoming)
+	{
+		var lots = new Dictionary<long, HashSet<Guid>>();
+		foreach (var instance in retained)
+			foreach (var (id, charge) in instance.MagicalCharges)
+			{
+				if (charge.Inert) continue;
+				if (!lots.TryGetValue(id, out var seen)) lots[id] = seen = new();
+				seen.Add(charge.Lot);
+			}
+		foreach (var instance in incoming.Instances)
+			foreach (var (id, charge) in instance.MagicalCharges.ToArray())
+			{
+				if (charge.Inert) continue;
+				if (!lots.TryGetValue(id, out var seen)) lots[id] = seen = new();
+				if (seen.Contains(charge.Lot)) continue;
+				if (seen.Count < MaximumRetainedLots) { seen.Add(charge.Lot); continue; }
+				// A canonical inert lot can merge safely: it can never deliver any entry again.
+				instance.MagicalCharges[id] = new SubstanceCharge { Lot = Guid.Empty, Inert = true };
+			}
+	}
 	public static bool IsPositive(double value) => double.IsFinite(value) && value > 0.0;
 	public static double AbsorptionFraction(DrugVector vector) => vector switch
 	{

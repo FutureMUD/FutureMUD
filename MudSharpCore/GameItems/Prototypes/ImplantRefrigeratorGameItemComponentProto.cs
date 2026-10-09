@@ -88,9 +88,9 @@ public class ImplantRefrigeratorGameItemComponentProto : ImplantContainerGameIte
 
 	private bool SetRate(ICharacter actor, StringStack command, string description, Action<double> setter)
 	{
-		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || value < 0.0)
+		if (command.IsFinished || !command.SafeRemainingArgument.TryParsePercentage(actor.Account.Culture, out var value) || !double.IsFinite(value) || value < 0.0)
 		{
-			actor.Send("You must enter a non-negative percentage.");
+			actor.Send("You must enter a finite, non-negative percentage.");
 			return false;
 		}
 

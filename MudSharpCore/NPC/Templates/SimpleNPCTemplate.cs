@@ -1132,7 +1132,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
         else
         {
             ILanguage language = SelectedLanguages.GetByIdOrName(text);
-            accent = language.Accents.GetByIdOrName(command.SafeRemainingArgument);
+            accent = language?.Accents.GetByIdOrName(command.SafeRemainingArgument);
         }
 
         if (accent == null)
@@ -1388,7 +1388,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
             return false;
         }
 
-        (ICharacteristicDefinition, ICharacteristicValue) definition = SelectedCharacteristics.FirstOrDefault(x => x.Item1.Pattern.IsMatch(cmd));
+        (ICharacteristicDefinition, ICharacteristicValue) definition = SelectedCharacteristics.FirstOrDefault(x => x.Item1.MatchesPattern(cmd));
         if (definition.Item1 == null)
         {
             actor.OutputHandler.Send("There is no such characteristic definition.");

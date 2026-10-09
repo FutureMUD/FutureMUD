@@ -53,6 +53,24 @@ public sealed partial class DatabaseEnvironmentalMagicOperationStore
 		}
 	}
 
+	public IReadOnlyList<LandRejuvenationProgress> UnresolvedTreatmentsFor(long cellId)
+	{
+		using var isolated = FMDB.BeginIsolatedScope();
+		using (new FMDB())
+		{
+			// Valid checkpoints with an unacknowledged request always have Pending status.
+			// Include unknown statuses so malformed nonterminal records still fail closed.
+			return FMDB.Context.LandRejuvenationTreatments.AsNoTracking()
+				.Where(x => x.RoomId == cellId &&
+					x.Status != nameof(LandRejuvenationStatus.Completed) &&
+					x.Status != nameof(LandRejuvenationStatus.Cancelled) &&
+					x.Status != nameof(LandRejuvenationStatus.Faulted))
+				.AsEnumerable()
+				.Select(ReadTreatment)
+				.ToArray();
+		}
+	}
+
 	public void SaveTreatment(LandRejuvenationProgress progress, long? expectedRevision)
 	{
 		using var isolated = FMDB.BeginIsolatedScope();

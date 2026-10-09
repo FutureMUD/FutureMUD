@@ -6,18 +6,118 @@ using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Communication.Language;
 using MudSharp.Form.Colour;
+using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.FutureProg.Variables;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.Effects.Concrete;
+using MudSharp.PerceptionEngine;
+using MudSharp.PerceptionEngine.Outputs;
+using MudSharp.Construction;
+using MudSharp.RPG.Checks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
 public class TattooTextSlotTests
 {
+	[DataTestMethod]
+	[DataRow("closed")]
+	[DataRow("sealed")]
+	public void TattooTextCopy_RejectsUnexposedTextOnVisibleItem(string restriction)
+	{
+		var context = CreateTattooTestContext();
+		var writing = context.CreateWriting("Secret");
+		var item = context.CreateReadableItem(writing.Object);
+		if (restriction == "closed") item.Setup(x => x.GetItemType<IOpenable>()).Returns(Mock.Of<IOpenable>(x => !x.IsOpen));
+		else item.Setup(x => x.GetItemType<ISealable>()).Returns(Mock.Of<ISealable>(x => x.IsSealed));
+		var actor = context.CreateActor(writing.Object, [item.Object]);
+		Assert.IsFalse(TattooTextCommandHelper.TryParseTextValues(actor.Object, context.Template.Object,
+			new StringStack("banner=copy:99"), true, out _, out _, out _));
+		writing.Verify(x => x.GetProperty("text"), Times.Never);
+	}
+
+	[TestMethod]
+	public void TattooTextCopy_MissingAndInaccessibleIdsHaveSameError()
+	{
+		var context = CreateTattooTestContext();
+		var writing = context.CreateWriting("Secret");
+		var actor = context.CreateActor(writing.Object, []);
+		Assert.IsFalse(TattooTextCommandHelper.TryParseTextValues(actor.Object, context.Template.Object,
+			new StringStack("banner=copy:99"), true, out _, out _, out var inaccessibleError));
+		Assert.IsFalse(TattooTextCommandHelper.TryParseTextValues(actor.Object, context.Template.Object,
+			new StringStack("banner=copy:100"), true, out _, out _, out var missingError));
+		Assert.AreEqual(inaccessibleError, missingError);
+		writing.Verify(x => x.GetProperty("text"), Times.Never);
+	}
+
+	[TestMethod]
+	public void TattooTextCopy_VisibleUnreadableTextRetainsVisualCopyPenalty()
+	{
+		var context = CreateTattooTestContext();
+		var writing = context.CreateWriting("Visible");
+		var item = context.CreateReadableItem(writing.Object);
+		var actor = context.CreateActor(writing.Object, [item.Object]);
+		actor.Setup(x => x.CanRead(writing.Object)).Returns(false);
+		Assert.IsTrue(TattooTextCommandHelper.TryParseTextValues(actor.Object, context.Template.Object,
+			new StringStack("banner=copy:99"), true, out var values, out var penalty, out var error), error);
+		Assert.IsTrue(penalty);
+		Assert.IsTrue(values.Single().WasCopiedWithoutUnderstanding);
+		var tattoo = new Tattoo(context.Template.Object, context.Gameworld.Object, context.Tattooist.Object, 75,
+			context.Bodypart.Object, null, values, penalty) { CompletionPercentage = 1 };
+		Assert.IsFalse(tattoo.ShortDescriptionFor(context.CreateViewer(false).Object).Contains("Visible"));
+		StringAssert.Contains(tattoo.ShortDescriptionFor(context.CreateViewer(true).Object), "Visible");
+	}
+
+	[TestMethod]
+	[DoNotParallelize]
+	public void InkingTattoo_CompletionOutputAppliesRecipientReadingChecks()
+	{
+		var context = CreateTattooTestContext();
+		var owner = context.Tattooist;
+		owner.SetupGet(x => x.Gameworld).Returns(context.Gameworld.Object);
+		var room = new Mock<IRoom>();
+		room.Setup(x => x.LayerCharacters(It.IsAny<RoomLayer>())).Returns([owner.Object]);
+		room.SetupGet(x => x.Characters).Returns([]);
+		room.SetupGet(x => x.Rooms).Returns([]);
+		owner.SetupGet(x => x.Location).Returns(room.Object);
+		PhysicalManipulationTestHelper.SetUpUsableHands(owner);
+		context.Gameworld.Setup(x => x.GetStaticDouble("TattooSkillPerDifficulty")).Returns(1);
+		context.Gameworld.Setup(x => x.GetCheck(CheckType.InkTattooCheck)).Returns(Mock.Of<ICheck>());
+		var target = new Mock<ICharacter>();
+		owner.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(), It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>())).Returns("the tattooist");
+		target.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(), It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>())).Returns("the customer");
+		PhysicalManipulationTestHelper.SetUpUsableHands(target);
+		var outputHandler = new Mock<IOutputHandler>();
+		outputHandler.SetupGet(x => x.Perceiver).Returns(owner.Object);
+		owner.SetupGet(x => x.OutputHandler).Returns(outputHandler.Object);
+		IOutput? completionOutput = null;
+		outputHandler.Setup(x => x.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()))
+			.Callback<IOutput, bool, bool>((output, _, _) => completionOutput = output).Returns(true);
+		var tattoo = new Tattoo(context.Template.Object, context.Gameworld.Object, owner.Object, 75,
+			context.Bodypart.Object, null, [new TattooTextValue("banner", context.Language.Object, context.Script.Object,
+				WritingStyleDescriptors.None, context.Colour.Object, 25, "Secret", "unreadable scrawl")]) { CompletionPercentage = 1 };
+		var cachedTrait = typeof(TattooTemplate).GetField("_tattooistTrait", BindingFlags.Static | BindingFlags.NonPublic)!;
+		var previousTrait = cachedTrait.GetValue(null);
+		try
+		{
+			cachedTrait.SetValue(null, context.LanguageTrait.Object);
+			new InkingTattoo(owner.Object, target.Object, tattoo, Mock.Of<IGameItem>()).ExpireEffect();
+		}
+		finally
+		{
+			cachedTrait.SetValue(null, previousTrait);
+		}
+		Assert.IsNotNull(completionOutput);
+		var unreadable = completionOutput.ParseFor(context.CreateViewer(false).Object);
+		Assert.IsFalse(unreadable.Contains("Secret"));
+		StringAssert.Contains(unreadable, "unreadable scrawl");
+		StringAssert.Contains(completionOutput.ParseFor(context.CreateViewer(true).Object), "Secret");
+	}
     [TestMethod]
     public void Tattoo_UsesFallbackTextValuesInDescriptionsAndKeywords()
     {
@@ -175,6 +275,8 @@ public class TattooTextSlotTests
         public Mock<IPerceiver> CreateViewer(bool canRead)
         {
             Mock<IPerceiver> perceiver = new();
+			perceiver.SetupGet(x => x.LineFormatLength).Returns(120);
+			perceiver.SetupGet(x => x.InnerLineFormatLength).Returns(120);
             Mock<IHaveLanguage> languageViewer = perceiver.As<IHaveLanguage>();
             languageViewer.SetupGet(x => x.Languages).Returns(canRead ? [Language.Object] : []);
             languageViewer.SetupGet(x => x.Scripts).Returns(canRead ? [Script.Object] : []);

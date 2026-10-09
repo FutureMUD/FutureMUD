@@ -290,6 +290,12 @@ internal static class EmploymentFinanceService
 		MoneyAmount amount, out string reason, out EmploymentActionStepOperationalState operationalState)
 	{
 		operationalState = EmploymentActionStepOperationalState.Empty;
+		if (!context.Employer.HasAuthority(actor, EmploymentAuthority.WithdrawBusinessCash))
+		{
+			reason = "You are not authorised to withdraw business cash for a bank transfer.";
+			return false;
+		}
+
 		if (!CanBankTransfer(context, targetAccountKey, amount, out reason))
 		{
 			return false;

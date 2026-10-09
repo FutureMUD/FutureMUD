@@ -67,6 +67,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [FutureProg Type System](./Core/FutureProg_Type_System.md)
 - [MudSharp 2.0 Release Readiness Audit](./Core/MudSharp_2_0_Release_Readiness_Audit.md)
 - [Outbound Email Delivery](./Core/Outbound_Email_Delivery.md)
+- [Static Configuration Security](./Core/Static_Configuration_Security.md)
 - [Patch Notes Authoring Guide](./Core/Patch_Notes_Authoring_Guide.md)
 - [Unit Test Suite Quality and Maintenance](./Core/Unit_Test_Suite_Quality_and_Maintenance.md)
 - [Trap System](./Core/Trap_System.md)

@@ -7,6 +7,8 @@ using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
+using MudSharp.Body.Implementations;
+using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.GameItems;
@@ -19,6 +21,184 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class PreparedGetStackMergeTests
 {
+	[DataTestMethod]
+	[DataRow(0)]
+	[DataRow(-1)]
+	public void EmptyStack_CannotBeRetrievedMergedOrTargeted(int quantity)
+	{
+		var (survivor, source, _) = Pair(5, quantity);
+		Assert.AreEqual(ItemGetResponse.Unpositionable, source.CanGet());
+		Assert.AreEqual(ItemGetResponse.Unpositionable, source.CanGet(0));
+		Assert.AreEqual(ItemGetResponse.Unpositionable, source.CanGet(1));
+		Assert.AreEqual(ItemGetResponse.Unpositionable, source.CanGet(1, ItemCanGetIgnore.IgnoreCombat | ItemCanGetIgnore.IgnoreInventoryPlans));
+		Assert.IsFalse(survivor.CanMerge(source));
+		Assert.IsFalse(source.CanMerge(survivor));
+		CollectionAssert.AreEqual(new IGameItem[] { survivor },
+			MudSharp.Character.Character.IncludeTargetProjections([source, survivor]).ToArray());
+		var projections = new Mock<IProvideItemTargetProjections>();
+		projections.SetupGet(x => x.TargetProjections).Returns([source, survivor]);
+		var host = new Mock<IGameItem>();
+		host.SetupGet(x => x.Components).Returns([projections.Object]);
+		CollectionAssert.AreEqual(new IGameItem[] { host.Object, survivor },
+			MudSharp.Character.Character.IncludeTargetProjections([host.Object]).ToArray());
+		Assert.AreEqual(5, survivor.Quantity);
+		Assert.AreEqual(quantity, source.Quantity);
+	}
+
+	[TestMethod]
+	public void CommittedGetStackMerge_AdditionalComponentRemnant_CannotBePickedUpOrMergedAgain()
+	{
+		var (survivor, source, holder) = Pair(5, 3);
+		((List<IGameItemComponent>)typeof(GameItem).GetField("_components", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(source)!)
+			.Add(Mock.Of<IGameItemComponent>());
+		survivor.MergeCommittedStackForGet(source, holder);
+		Assert.IsFalse(source.Deleted);
+		Assert.AreEqual(8, survivor.Quantity);
+		Assert.AreEqual(0, source.Quantity);
+		Assert.AreEqual(ItemGetResponse.Unpositionable, source.CanGet(0));
+		Assert.IsFalse(survivor.CanMerge(source));
+		source.GetItemType<IStackable>()!.Quantity = 2;
+		Assert.IsTrue(survivor.CanMerge(source), "A legitimate later refill remains mergeable.");
+
+	}
+
+	[DataTestMethod]
+	[DataRow(0, false)]
+	[DataRow(-1, false)]
+	[DataRow(2, false)]
+	[DataRow(2, true)]
+	public void PreparedFloorRecovery_OnlyRestoresPositiveStackValue(int quantity, bool emptyDuringDrop)
+	{
+		var (_, source, _) = Pair(5, quantity);
+		source.GetItemType<IHoldable>()!.HeldBy = null;
+		var floor = new Mock<IRoom>();
+		var items = new List<IGameItem>();
+		floor.SetupGet(x => x.GameItems).Returns(items);
+		floor.Setup(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>()))
+			.Callback<IGameItem, bool>((item, _) => items.Add(item));
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Location).Returns(floor.Object);
+		if (emptyDuringDrop)
+		{
+			var component = new Mock<IGameItemComponent>();
+			var emptied = false;
+			component.Setup(x => x.Taken()).Callback(() =>
+			{
+				if (emptied) return;
+				emptied = true;
+				source.GetItemType<IStackable>()!.Quantity = 0;
+			});
+			((List<IGameItemComponent>)typeof(GameItem).GetField("_components", BindingFlags.Instance | BindingFlags.NonPublic)!
+				.GetValue(source)!).Add(component.Object);
+		}
+		var recover = ComponentUnloadCompletion.PrepareFloor(actor.Object, source, actor.Object);
+		Assert.IsNotNull(recover);
+		recover();
+
+		Assert.AreEqual(emptyDuringDrop ? 0 : quantity, source.Quantity);
+		Assert.AreEqual(quantity > 0 && !emptyDuringDrop ? 1 : 0, items.Count);
+		Assert.IsNull(source.GetItemType<IHoldable>()!.HeldBy);
+		if (quantity <= 0 || emptyDuringDrop) Assert.IsNull(source.DirectLocation);
+		else Assert.AreSame(floor.Object, source.DirectLocation);
+		if (emptyDuringDrop)
+		{
+			source.GetItemType<IStackable>()!.Quantity = 2;
+			recover();
+			Assert.AreSame(floor.Object, source.DirectLocation);
+			CollectionAssert.AreEqual(new IGameItem[] { source }, items);
+			Assert.AreEqual(2, source.Quantity);
+		}
+	}
+
+	[DataTestMethod]
+	[DataRow("ammo")]
+	[DataRow("foreign-component")]
+	[DataRow("callback-component")]
+	[DataRow("delete-throw")]
+	[DataRow("refill")]
+	[DataRow("refill-empty")]
+	[DataRow("refill-empty-throw")]
+	public void GetCompletion_AbsorbedSourceHasNoEmptyFloorRemnantAndPreservesRefills(string scenario)
+	{
+		var (survivor, source, _) = Pair(5, 3);
+		var body = TestObjectFactory.CreateUninitialized<Body>();
+		var floor = new Mock<IRoom>();
+		var floorItems = new List<IGameItem>();
+		floor.SetupGet(x => x.GameItems).Returns(floorItems);
+		floor.Setup(x => x.Insert(It.IsAny<IGameItem>(), It.IsAny<bool>()))
+			.Callback<IGameItem, bool>((item, _) => floorItems.Add(item));
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.Body).Returns(body);
+		actor.SetupGet(x => x.Location).Returns(floor.Object);
+		actor.SetupGet(x => x.Gameworld).Returns(source.Gameworld);
+		body.Actor = actor.Object;
+		typeof(Body).GetField("_heldItems", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(body, new List<Tuple<IGameItem, IGrab>> { Tuple.Create<IGameItem, IGrab>(survivor, Mock.Of<IGrab>()) });
+		var wielded = typeof(Body).GetField("_wieldedItems", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		wielded.SetValue(body, Activator.CreateInstance(wielded.FieldType));
+		survivor.GetItemType<IHoldable>()!.HeldBy = body;
+		source.GetItemType<IHoldable>()!.HeldBy = body;
+		var sourceComponents = (List<IGameItemComponent>)typeof(GameItem)
+			.GetField("_components", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(source)!;
+		if (scenario == "ammo")
+		{
+			sourceComponents.Add(new AmmunitionGameItemComponent((AmmunitionGameItemComponentProto)null!, source, temporary: true));
+			((List<IGameItemComponent>)typeof(GameItem).GetField("_components", BindingFlags.Instance | BindingFlags.NonPublic)!
+				.GetValue(survivor)!).Add(new AmmunitionGameItemComponent((AmmunitionGameItemComponentProto)null!, survivor, temporary: true));
+		}
+		var foreign = Mock.Of<IGameItemComponent>();
+		if (scenario == "foreign-component") sourceComponents.Add(foreign);
+		if (scenario == "callback-component") survivor.GetItemType<StackableGameItemComponent>()!.DescriptionUpdate += (_, _) => sourceComponents.Add(foreign);
+		var expected = new InvalidOperationException("fixture deletion failure");
+		source.OnDeleted += _ =>
+		{
+			if (scenario == "delete-throw") throw expected;
+			if (scenario is "refill" or "refill-empty" or "refill-empty-throw") source.GetItemType<IStackable>()!.Quantity = 2;
+			if (scenario is "refill-empty" or "refill-empty-throw")
+			{
+				var component = new Mock<IGameItemComponent>();
+				component.Setup(x => x.Taken()).Callback(() =>
+				{
+					source.GetItemType<IStackable>()!.Quantity = 0;
+					if (scenario == "refill-empty-throw") throw expected;
+				});
+				sourceComponents.Add(component.Object);
+			}
+		};
+		var preparedType = typeof(Body).GetNestedType("PreparedGet", BindingFlags.NonPublic)!;
+		var placement = Activator.CreateInstance(preparedType, [null!, survivor, actor.Object, floor.Object, RoomLayer.GroundLevel])!;
+		object?[] arguments = [source, placement, null, true, false];
+		var completion = typeof(Body).GetMethod("CompleteGetPlacementWithResult", BindingFlags.Instance | BindingFlags.NonPublic)!;
+		if (scenario is "delete-throw" or "refill-empty-throw")
+		{
+			var error = Assert.ThrowsException<TargetInvocationException>(() => completion.Invoke(body, arguments));
+			Assert.AreSame(expected, error.InnerException, error.InnerException?.ToString());
+		}
+		else Assert.IsTrue((bool)completion.Invoke(body, arguments)!);
+
+		// Reflection copies out parameters only on successful completion.
+		if (scenario is not ("delete-throw" or "refill-empty-throw")) Assert.AreSame(survivor, arguments[2]);
+		Assert.AreEqual(8, survivor.Quantity);
+		Assert.AreEqual(scenario == "refill" ? 2 : 0, source.Quantity);
+		Assert.AreEqual(scenario == "ammo", source.Deleted);
+		Assert.IsNull(source.GetItemType<IHoldable>()!.HeldBy);
+		if (scenario == "refill")
+		{
+			CollectionAssert.AreEqual(new IGameItem[] { source }, floorItems);
+			Assert.AreSame(floor.Object, source.DirectLocation);
+			Assert.AreEqual(ItemGetResponse.CanGet, source.CanGet(0));
+		}
+		else
+		{
+			Assert.AreEqual(0, floorItems.Count);
+			Assert.IsNull(source.DirectLocation);
+			Assert.IsFalse(survivor.CanMerge(source));
+			Assert.AreNotEqual(ItemGetResponse.CanGet, source.CanGet(0));
+			Assert.AreEqual(0, MudSharp.Character.Character.IncludeTargetProjections([source]).Count());
+		}
+		if (scenario is "foreign-component" or "callback-component") Assert.IsTrue(source.Components.Contains(foreign));
+	}
+
 	[DataTestMethod]
 	[DataRow("valid")]
 	[DataRow("refill")]

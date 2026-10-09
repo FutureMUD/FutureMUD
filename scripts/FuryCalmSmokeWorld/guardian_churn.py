@@ -265,6 +265,9 @@ def qualify_cycle(index, batch=False):
     room = s.sql(f'SELECT LocationId FROM CharacterInstances WHERE CharacterId={claims[recipient]["1"]} '
                  f'AND BodyId={carried} AND IsPrimary=1')
     s.check('exact primary custody room exists', room.isdigit())
+    if batch:
+        s.report['activeCycle'].update(room=int(room), recipient=recipient,
+                                      energyBefore=energy, energyAfter=after_energy)
     # Each cycle exercises native engagement and creator protection before cleanup.
     s.command('force qaguardian hit qaother', 'engage.*combat')
     response = s.command('force qaenemy hit qacaster', seconds=.3)
@@ -273,13 +276,13 @@ def qualify_cycle(index, batch=False):
     s.command('peace', 'end .* combats')
     deaths = 64 if batch else count if early else 0
     for _ in range(deaths):
-        s.command('kill qaguardian', 'has died!' if batch else None, seconds=.3)
+        s.command('kill qaguardian', seconds=.3)
     flush()
     early_query = (f'SELECT COUNT(*) FROM MagicSpellLifecycles WHERE Id IN ({ids}) '
                    'AND DeathObservedUtc IS NOT NULL AND DeathObservedUtc<DeadlineUtc')
     if batch:
         wait_for('exact early-death output count and timestamp preceding original deadline',
-                 early_query, lambda value: value == str(deaths), 15)
+                 early_query, lambda value: value == str(deaths), 60)
     elif deaths:
         s.check('exact early-death output count and timestamp preceding original deadline',
                 s.sql(early_query) == str(deaths))

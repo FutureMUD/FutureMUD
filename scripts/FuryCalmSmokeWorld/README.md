@@ -65,10 +65,12 @@ cast, kills 64 early and lets the other 64 expire without restarting during clea
 The batch has an explicit 180-second cast-response budget within the ordinary
 900-second scenario deadline. Fixture timing is 30*grade seconds / 30-second corpse
 decay, and 240 seconds for the batch; these are not historical balance mappings.
-Each batch kill waits for the owned world's native death emote within the existing
-eight-second command budget. A separate fifteen-second durable barrier requires
-exactly 64 early deaths; it prevents a client read boundary from prematurely comparing
-the queued commands against database state. Neither wait changes the lifetime or count.
+The batch submits all 64 native kills with bounded reads, then uses a sixty-second
+durable completion barrier requiring exactly 64 early deaths. It accommodates native
+retirement work without applying an eight-second response limit to each individual
+command. Every death must still precede its original 240-second deadline; no lifetime,
+count or ordinary 900-second scenario deadline is extended. The original recipient
+room is captured immediately in the in-progress receipt.
 
 Set `N16_BATCH_FAILED_RECEIPT` to an exact failed batch receipt beneath the owned world
 and run `guardian_batch_audit.py` with marker `guardian-batch-audit-passed.json`.
@@ -76,6 +78,12 @@ This read-only audit starts no MUD and cannot qualify N16. After separate native
 `N16_BATCH_REQUIRE_RECOVERY=1` additionally proves all exact outputs are terminal, their
 heavy records are gone, archives/typed claims survive, foreign goods retain ordinary
 room custody and the paid debit remains charged.
+Lifecycle UUIDs and positive Int64 entity IDs are validated before any audit query.
+Historic receipts lacking immediate room capture use the preceding qualified room
+as their fixed fixture anchor and require the same caster to remain there.
+For a partial submission, `N16_BATCH_EXPECTED_EARLY_DEATHS` records its exact submitted
+count (default 64). `N16_BATCH_PREVIOUS_RECOVERY_AUDIT` anchors the balance when more
+than one separately retained paid batch was interrupted.
 
 The N15 permanent body's short description and personal name are temporarily changed
 through `resdesc` and exact-ID `rename`

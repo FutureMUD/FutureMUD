@@ -708,14 +708,16 @@ improvement remain active, while incidental ordinary cooldowns cannot change the
 qualification baseline. All actual scheduled entries remain included in the census;
 each stage restores the original improver definitions byte-for-byte while stopped.
 
-The continuous batch acknowledges each native death command within the existing
-eight-second client budget, then waits at most fifteen seconds for exactly 64 durable
-early-death timestamps. The original lifetime and scenario deadlines remain fixed.
+The continuous batch submits all 64 native death commands, then waits at most sixty
+seconds for exactly 64 durable early-death timestamps. Each death must precede its
+original 240-second deadline; the lifetime and ordinary scenario deadline remain fixed.
+The in-progress receipt captures the exact original recipient room before cleanup.
 All sixteen normal-stage receipts must share a pinned scenario revision and input
 set. The batch may use a separately recorded client-script revision only when every
 common runtime source and binary hash matches those normal receipts. A read-only
 interrupted-batch audit and separate native recovery preserve paid history and foreign
-custody; neither qualifies gameplay.
+custody; neither qualifies gameplay. Audit IDs are validated before interpolation;
+historic missing-room receipts require the preceding qualified fixture room as an anchor.
 
 The harness snapshots all nineteen explicit lifecycle fields through MySQL `JSON_ARRAY`.
 Empty diagnostics and null fields retain their distinct values even when the shared SQL

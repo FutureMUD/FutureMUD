@@ -141,6 +141,7 @@ try:
     flush()
     lives = {key: value for key, value in life_rows().items() if key not in before_lives}
     s.check('requested grade creates two independently claimed native guardians', len(lives) == 2 and all(set(claims) == {'1', '3'} for claims in lives.values()))
+    s.report['createdLifecycles'] = [dict(id=key, character=value['1'], body=value['3']) for key, value in lives.items()]
     for identifier, claims in lives.items():
         s.check('guardian persists the exact typed creator bond',
                 len(s.children(claims['1'], 'SpellNpcGuardian')) == 1 and s.children(claims['1'], 'SpellNpcGuardian')[0].findtext('Effect/CreatorId') == str(s.caster))
@@ -161,6 +162,7 @@ try:
     remains = s.sql(f"SELECT RemainsItemId FROM MagicSpellLifecycles WHERE Id='{retained}'")
     s.check('early death correlates a real native corpse', remains.isdigit())
     death_row = s.sql(f"SELECT DeathObservedUtc,RemainsItemId FROM MagicSpellLifecycles WHERE Id='{retained}'")
+    s.report['retainedRemains'] = dict(lifecycle=retained, corpse=int(remains), foreignItem=goods, deathRow=death_row)
     wait_for('original summon deadline actually passes', f"SELECT DeadlineUtc<=UTC_TIMESTAMP(6) FROM MagicSpellLifecycles WHERE Id='{retained}'", lambda value: value == '1', 100)
     flush()
     s.check('expiry preserves the same early death and corpse without resurrection', s.sql(f"SELECT DeathObservedUtc,RemainsItemId FROM MagicSpellLifecycles WHERE Id='{retained}'") == death_row)
@@ -176,7 +178,7 @@ try:
     wait_for('actual scheduled native corpse decay removes remains', f'SELECT COUNT(*) FROM GameItems WHERE Id={remains}', lambda value: value == '0', 280)
     verify_retired(retained, retained_claims)
     s.check('decay evacuates the foreign item intact to the native room',
-            s.sql(f'SELECT (SELECT COUNT(*) FROM GameItems WHERE Id={goods}),(SELECT COUNT(*) FROM Bodies_GameItems WHERE GameItemId={goods}),(SELECT COUNT(*) FROM Cells_GameItems WHERE GameItemId={goods})') == '1\t0\t1')
+            s.sql(f'SELECT (SELECT COUNT(*) FROM GameItems WHERE Id={goods}),(SELECT COUNT(*) FROM Bodies_GameItems WHERE GameItemId={goods}),(SELECT COUNT(*) FROM Rooms_GameItems WHERE GameItemId={goods})') == '1\t0\t1')
     # The other grade-two guardian follows the ordinary expiry/remains path; qualify its eventual cleanup too.
     for identifier, claims in lives.items():
         if identifier != retained:
@@ -198,12 +200,13 @@ try:
     claims = current[identifier]
     default_goods, default_body = foreign_item_to()
     s.check('default foreign-item recipient matches exact ownership claim', default_body == claims['3'])
+    s.report['defaultDissipation'] = dict(lifecycle=identifier, character=claims['1'], body=claims['3'], foreignItem=default_goods)
     s.command('kill qaguardian', seconds=.7)
     flush()
     s.check('default early death dissipates without a corpse', s.sql(f"SELECT RemainsItemId IS NULL,DeathObservedUtc IS NOT NULL FROM MagicSpellLifecycles WHERE Id='{identifier}'") == '1\t1')
     verify_retired(identifier, claims)
     s.check('default early dissipation also conserves foreign carried goods',
-            s.sql(f'SELECT (SELECT COUNT(*) FROM GameItems WHERE Id={default_goods}),(SELECT COUNT(*) FROM Bodies_GameItems WHERE GameItemId={default_goods}),(SELECT COUNT(*) FROM Cells_GameItems WHERE GameItemId={default_goods})') == '1\t0\t1')
+            s.sql(f'SELECT (SELECT COUNT(*) FROM GameItems WHERE Id={default_goods}),(SELECT COUNT(*) FROM Bodies_GameItems WHERE GameItemId={default_goods}),(SELECT COUNT(*) FROM Rooms_GameItems WHERE GameItemId={default_goods})') == '1\t0\t1')
     created = dict(lives)
     created[identifier] = claims
     s.report['createdLifecycles'] = [dict(id=key, character=value['1'], body=value['3']) for key, value in created.items()]

@@ -69,4 +69,8 @@ the actual native keyword resolver has no old recipient before any destructive
 command. That exact description, canonical name fields, spell definition and corpse policy are restored
 byte-for-byte while stopped. Spent energy, evacuated ordinary goods, canonical
 archives and journals/claims remain intentionally retained and explicitly counted.
-The approved NPC template remains unchanged. No text scan for IDs is used.
+The approved NPC template remains unchanged. No text scan for IDs is used. The census
+reports the detached-body registry and reference-distinct bodies attached to loaded
+actors/cache/NPCs separately. Interrupted attempts can be recovered with
+`guardian_churn_recover.py` and marker `guardian-churn-recovery-passed.json`; this runs
+native expiry and public custody only, preserves payment/history, and never qualifies N16.

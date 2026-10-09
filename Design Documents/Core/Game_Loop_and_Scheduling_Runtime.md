@@ -29,6 +29,8 @@ Track decay remains per-cell and fuzzy-minute. A cell with no expired tracks per
 Junior administrators can use `debug performance`, `debug performance on`, `debug performance off`, and `debug performance reset`. Monitoring is disabled by default and is in-memory only. When enabled it records loop and scheduler timing, allocations, memory/GC state, heartbeat callback timing, subscriber counts, network bytes and operations, queue high-water marks, connection counts, slow-client disconnects, and transport errors. Network aggregates are atomic and never retain connection instances. Diagnostics do not create persistence records or alter runtime scheduling behaviour.
 
 `debug census [loaded character id]` reports current Actors, CachedActors, NPCs, Bodies,
+and distinct current body objects attached to actors/cache/NPCs. `Bodies` is the separate
+detached-body registry; ordinary actor construction does not populate it. It also reports
 main/effect schedule heap counts and every hard/fuzzy heartbeat cadence, including all
 five stored generations. An optional exact loaded character ID adds the actual quit,
 deleted, combat-join and death delegate counts and loaded followers. It never resolves

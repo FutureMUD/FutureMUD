@@ -41,7 +41,7 @@ journal_columns = ('Id,SpellId,Grade,CreatorId,HEX(Family),Mode,CreatedUtc,Deadl
                    'HEX(Provenance),State,Reason,DeathObservedUtc,RemainsItemId,'
                    'RemainsRemovalRequestedUtc,RemainsNotificationAttemptedUtc,'
                    'RemainsNotificationCompletedUtc,UpdatedUtc,Version,HEX(Diagnostic)')
-census_names = ['Actors', 'Cached actors', 'NPCs', 'Bodies', 'Main schedules', 'Effect schedules',
+census_names = ['Actors', 'Cached actors', 'NPCs', 'Bodies', 'Attached bodies', 'Main schedules', 'Effect schedules',
                 'Second', 'Ten Second', 'Thirty Second', 'Minute', 'Hour', 'Fuzzy Five Second',
                 'Fuzzy Ten Second', 'Fuzzy Thirty Second', 'Fuzzy Minute', 'Fuzzy Five Minute',
                 'Fuzzy Ten Minute', 'Fuzzy Thirty Minute', 'Fuzzy Hour', 'Character',
@@ -208,8 +208,11 @@ def qualify_cycle(index, batch=False):
         s.check('exact saved creator bond for output ' + character,
                 len(effects) == 1 and effects[0].findtext('Effect/CreatorId') == str(s.caster))
     active = census()
+    s.report['activeCycle'] = dict(index=index, batch=batch, claims=claims, foreignItem=item,
+                                  baseline=baseline, active=active, before=serial_graphs(before))
     s.check('all outputs are live native actors NPCs and bodies',
-            all(active[name] == baseline[name] + count for name in ['Actors', 'NPCs', 'Bodies']))
+            all(active[name] == baseline[name] + count for name in ['Actors', 'NPCs', 'Attached bodies']) and
+            active['Bodies'] == baseline['Bodies'], json.dumps(dict(baseline=baseline, active=active)))
     s.check('creator bond and native follow subscriptions grow by their code-proven amounts',
             active['Followers'] == baseline['Followers'] + count and
             active['Quit subscriptions'] == baseline['Quit subscriptions'] + 2 * count and

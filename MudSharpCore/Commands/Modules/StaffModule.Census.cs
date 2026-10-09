@@ -28,6 +28,9 @@ internal partial class StaffModule
 		sb.AppendLine($"Cached actors: {world.CachedActors.Count()}");
 		sb.AppendLine($"NPCs: {world.NPCs.Count()}");
 		sb.AppendLine($"Bodies: {world.Bodies.Count()}");
+		// Bodies is the detached-body registry. Current actor bodies live on their owners.
+		sb.AppendLine($"Attached bodies: {world.Actors.Concat(world.CachedActors).Concat(world.NPCs)
+			.Select(x => x.Body).Where(x => x is not null).Distinct(ReferenceEqualityComparer.Instance).Count()}");
 		sb.AppendLine($"Main schedules: {world.Scheduler.ScheduleCount}");
 		sb.AppendLine($"Effect schedules: {world.EffectScheduler.ScheduleCount}");
 		world.HeartbeatManager.AppendPerformanceReport(sb);

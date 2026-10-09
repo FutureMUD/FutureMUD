@@ -85,11 +85,11 @@ try:
     trait = int(s.sql(f"SELECT CastingTraitDefinitionId FROM MagicSpells WHERE Id={actors['fury']}"))
     untouched_fury = s.sql(f"SELECT HEX(Definition) FROM MagicSpells WHERE Id={actors['fury']}")
     # The sole native corpse prototype receives an explicitly authored timed decay policy in this owned world.
-    rows = s.sql("SELECT DISTINCT p.Id,p.RevisionNumber,p.MorphTimeSeconds,IFNULL(p.MorphTargetId,'NULL'),HEX(p.MorphEmote) FROM GameItemProtos p JOIN GameItemProtos_GameItemComponentProtos pc ON pc.GameItemProtoId=p.Id AND pc.GameItemProtoRevision=p.RevisionNumber JOIN GameItemComponentProtos c ON c.Id=pc.GameItemComponentProtoId AND c.RevisionNumber=pc.GameItemComponentRevision WHERE c.Type='Corpse'").splitlines()
+    rows = s.sql("SELECT DISTINCT p.Id,p.RevisionNumber,p.MorphTimeSeconds,IFNULL(p.MorphGameItemProtoId,'NULL'),HEX(p.MorphEmote) FROM GameItemProtos p JOIN GameItemProtos_GameItemComponentProtos pc ON pc.GameItemProtoId=p.Id AND pc.GameItemProtoRevision=p.RevisionNumber JOIN GameItemComponentProtos c ON c.Id=pc.GameItemComponentProtoId AND c.RevisionNumber=pc.GameItemComponentRevision WHERE c.Type='Corpse'").splitlines()
     s.check('one native corpse prototype in owned world', len(rows) == 1)
     corpse_original = rows[0].split('\t')
     corpse_proto, corpse_revision, old_seconds, old_target, old_emote = corpse_original
-    s.sql(f"UPDATE GameItemProtos SET MorphTimeSeconds=240,MorphTargetId=NULL,MorphEmote=CONVERT(UNHEX('{b'$0 crumbles into dust.'.hex()}') USING utf8mb4) WHERE Id={corpse_proto} AND RevisionNumber={corpse_revision}")
+    s.sql(f"UPDATE GameItemProtos SET MorphTimeSeconds=240,MorphGameItemProtoId=NULL,MorphEmote=CONVERT(UNHEX('{b'$0 crumbles into dust.'.hex()}') USING utf8mb4) WHERE Id={corpse_proto} AND RevisionNumber={corpse_revision}")
     s.report['authoredTiming'] = dict(lifetimeSeconds='45*grade', corpseTimedDecaySeconds=240, offlineMorphPolicy='native paused remaining duration')
     s.start()
     source = int(s.sql("SELECT DISTINCT Id FROM NpcTemplates WHERE Name='qaspawn'"))
@@ -208,8 +208,8 @@ finally:
         if s.process is not None:
             s.stop()
         if corpse_original is not None:
-            s.sql(f"UPDATE GameItemProtos SET MorphTimeSeconds={old_seconds},MorphTargetId={old_target},MorphEmote=CONVERT(UNHEX('{old_emote}') USING utf8mb4) WHERE Id={corpse_proto} AND RevisionNumber={corpse_revision}")
-            s.check('native corpse prototype policy restored exactly', s.sql(f"SELECT MorphTimeSeconds,IFNULL(MorphTargetId,'NULL'),HEX(MorphEmote) FROM GameItemProtos WHERE Id={corpse_proto} AND RevisionNumber={corpse_revision}") == '\t'.join(corpse_original[2:]))
+            s.sql(f"UPDATE GameItemProtos SET MorphTimeSeconds={old_seconds},MorphGameItemProtoId={old_target},MorphEmote=CONVERT(UNHEX('{old_emote}') USING utf8mb4) WHERE Id={corpse_proto} AND RevisionNumber={corpse_revision}")
+            s.check('native corpse prototype policy restored exactly', s.sql(f"SELECT MorphTimeSeconds,IFNULL(MorphGameItemProtoId,'NULL'),HEX(MorphEmote) FROM GameItemProtos WHERE Id={corpse_proto} AND RevisionNumber={corpse_revision}") == '\t'.join(corpse_original[2:]))
         s.check('Fury stock definition remains byte-identical', s.sql(f"SELECT HEX(Definition) FROM MagicSpells WHERE Id={actors['fury']}") == untouched_fury)
     except BaseException as cleanup_error:
         s.report['status'] = 'FAIL'

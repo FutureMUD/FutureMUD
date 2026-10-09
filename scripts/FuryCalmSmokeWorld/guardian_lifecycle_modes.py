@@ -202,9 +202,11 @@ try:
     untouched_fury = s.sql(f'SELECT HEX(Definition) FROM MagicSpells WHERE Id={actors["fury"]}')
     definition = ET.fromstring(bytes.fromhex(guardian_original).decode('utf-8'))
     template = int(definition.findtext('Effects/Effect/NPCPrototypeId'))
+    template_name = s.sql(f'SELECT DISTINCT Name FROM NpcTemplates WHERE Id={template}')
     s.check('same exact builder-installed stock and approved template retained',
             definition.findtext('StockIdentity') == 'arm.spell.air_guardian' and
-            s.sql(f'SELECT DISTINCT Name FROM NpcTemplates WHERE Id={template}') == 'qaguardian')
+            spell == prior['objects']['guardianSpell'] and template == prior['objects']['guardianTemplate'] and bool(template_name),
+            f'template={template}; prior={prior["objects"]["guardianTemplate"]}; name={template_name}')
     s.check('no prior living guardian obscures exact recipient selection',
             s.sql(f'SELECT COUNT(*) FROM Npcs n JOIN Characters c ON c.Id=n.CharacterId '
                   f'WHERE n.TemplateId={template} AND (c.State & 64)=0') == '0')

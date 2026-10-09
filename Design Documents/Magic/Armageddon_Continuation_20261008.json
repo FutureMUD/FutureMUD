@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-08",
-  "status": "PASS_BOUNDED_N14_BUILDER_INSTALLED",
+  "status": "PASS_BOUNDED_N15_BUILDER_INSTALLED",
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
@@ -17,7 +17,15 @@
     "old_phase1_and_hook_branches_have_no_unique_commits": true,
     "water_see_integrated_commits_patch_equivalent_not_recherrypicked": true,
     "fury_calm_groundwork_unique_commits_restored_with_cherry_pick_x": 10,
-    "historical_branches_and_untracked_artifacts_preserved": true
+    "historical_branches_and_untracked_artifacts_preserved": true,
+    "pr789_security_integration": {
+      "pr_number": 789,
+      "url": "https://github.com/FutureMUD/FutureMUD/pull/789",
+      "head": "7590560af235342716f33733599e2197a162a20f",
+      "merge_commit": "dac1deee031f4e4726597e88d07af47d5cda3e27",
+      "conflicts": false,
+      "scope": "Merge into continuation branch; upstream PR and draft PR remain unmerged"
+    }
   },
   "inventory_counts": {
     "candidates": 154,
@@ -3100,7 +3108,7 @@
         }
       ],
       "historical_progress_status": "pending_runtime_stock_and_native_acceptance",
-      "current_scope": "Builder-installed guardian lifecycle/creator bond N14 qualified; full source/catalogue parity remains pending.",
+      "current_scope": "Builder-installed guardian lifecycle/creator bond N14 and same-template N15 modes qualified; full source/catalogue parity remains pending.",
       "complete_per_spell_native_acceptance": "BOUNDED_GUARDIAN_LIFECYCLE_PASS_FULL_PARITY_PENDING",
       "whole_candidate_complete": false
     },
@@ -6537,27 +6545,23 @@
   },
   "current_managed": {
     "status": "PASS",
-    "scope": "All ten default fast projects, Debug, unfiltered; final focused guardian, derived-limb, archive and typed-reference subset.",
+    "scope": "All ten default fast projects, Debug, unfiltered, combined PR789 integration.",
     "runs": [
       {
-        "receipt": {
-          "path": ".artifacts/armageddon-guardian-20261009/final-default-qualified/20261009T022802Z-312a6bd607c7/summary.json",
-          "sha256": "2f69586f65c72e7626dc961116ec23d213f79aa0ad1238f216c1310567b5a80f"
-        },
-        "run_id": "20261009T022802Z-312a6bd607c7",
-        "head": "d758cd6bc41fdd485ac26c0ca4b7f5968813eccc",
+        "run_id": "20261009T065727Z-8042d1a51080",
+        "head": "dac1deee031f4e4726597e88d07af47d5cda3e27",
         "status": "PASS",
         "counts": {
-          "executed": 8739,
-          "passed": 8739,
+          "executed": 9199,
+          "passed": 9199,
           "failed": 0,
-          "skipped": 0,
+          "skipped": 3,
           "inconclusive": 0,
           "other": 0,
-          "total": 8739
+          "total": 9202
         },
-        "source_start": "c9e6ae284c6141a1af3b06455dfa2b106c2003d5d69d6f64bb1cc708ed637b44",
-        "source_end": "c9e6ae284c6141a1af3b06455dfa2b106c2003d5d69d6f64bb1cc708ed637b44",
+        "source_start": "42a310927f3e03680d6f9fdc54a8cd5b67842f4286d35c57a022eb5c3387aaf1",
+        "source_end": "42a310927f3e03680d6f9fdc54a8cd5b67842f4286d35c57a022eb5c3387aaf1",
         "source_stable": true,
         "projects": [
           "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
@@ -6572,17 +6576,21 @@
           "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
         ],
         "filter": null,
+        "receipt": {
+          "path": ".artifacts/n15-20261009/integrated-default/20261009T065727Z-8042d1a51080/summary.json",
+          "sha256": "64254b1b654661ccd039f9fca4ff51d1c0cb1ffce3a5d0b4835992281e6da6d7"
+        },
         "per_project": [
           {
             "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
             "counts": {
-              "executed": 668,
-              "passed": 668,
+              "executed": 709,
+              "passed": 709,
               "failed": 0,
               "skipped": 0,
               "inconclusive": 0,
               "other": 0,
-              "total": 668
+              "total": 709
             }
           },
           {
@@ -6600,37 +6608,37 @@
           {
             "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
             "counts": {
-              "executed": 1613,
-              "passed": 1613,
+              "executed": 1617,
+              "passed": 1617,
               "failed": 0,
-              "skipped": 0,
+              "skipped": 3,
               "inconclusive": 0,
               "other": 0,
-              "total": 1613
+              "total": 1620
             }
           },
           {
             "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
             "counts": {
-              "executed": 5966,
-              "passed": 5966,
+              "executed": 6357,
+              "passed": 6357,
               "failed": 0,
               "skipped": 0,
               "inconclusive": 0,
               "other": 0,
-              "total": 5966
+              "total": 6357
             }
           },
           {
             "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
             "counts": {
-              "executed": 264,
-              "passed": 264,
+              "executed": 274,
+              "passed": 274,
               "failed": 0,
               "skipped": 0,
               "inconclusive": 0,
               "other": 0,
-              "total": 264
+              "total": 274
             }
           },
           {
@@ -6648,13 +6656,13 @@
           {
             "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
             "counts": {
-              "executed": 43,
-              "passed": 43,
+              "executed": 57,
+              "passed": 57,
               "failed": 0,
               "skipped": 0,
               "inconclusive": 0,
               "other": 0,
-              "total": 43
+              "total": 57
             }
           },
           {
@@ -6693,50 +6701,32 @@
               "total": 38
             }
           }
+        ],
+        "skipped_cases": [
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.StartupScriptGeneratorTests.EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions",
+            "name": "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (1)",
+            "outcome": "SKIPPED",
+            "message": "Assert.Inconclusive failed. Native Unix filesystem permissions require a Unix host."
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.StartupScriptGeneratorTests.EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions",
+            "name": "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (0)",
+            "outcome": "SKIPPED",
+            "message": "Assert.Inconclusive failed. Native Unix filesystem permissions require a Unix host."
+          },
+          {
+            "fully_qualified_name": "MudSharp_Unit_Tests.StartupScriptGeneratorTests.EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions",
+            "name": "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (2)",
+            "outcome": "SKIPPED",
+            "message": "Assert.Inconclusive failed. Native Unix filesystem permissions require a Unix host."
+          }
         ]
       }
     ],
-    "diagnostic_subset": {
-      "receipt": {
-        "path": ".artifacts/armageddon-guardian-20261009/derived-limb-focused-final/20261009T022623Z-bfc378c94bcf/summary.json",
-        "sha256": "dfffe705462806af2fa48b23c3860e4a46410a44a2691f07caedee48efa0695d"
-      },
-      "run_id": "20261009T022623Z-bfc378c94bcf",
-      "head": "d758cd6bc41fdd485ac26c0ca4b7f5968813eccc",
-      "status": "PASS",
-      "counts": {
-        "executed": 184,
-        "passed": 184,
-        "failed": 0,
-        "skipped": 0,
-        "inconclusive": 0,
-        "other": 0,
-        "total": 184
-      },
-      "source_start": "c0e7b2494ac58a65c4863d1104bc8d9e76c4ef2155534cef83990f29529dfe7d",
-      "source_end": "c0e7b2494ac58a65c4863d1104bc8d9e76c4ef2155534cef83990f29529dfe7d",
-      "source_stable": true,
-      "projects": [
-        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
-      ],
-      "filter": "FullyQualifiedName~RetirementBodyEffectsTests|FullyQualifiedName~SpellNpcGuardianTests|FullyQualifiedName~SpellOwnedNpc|FullyQualifiedName~NpcArchive|FullyQualifiedName~PhysicalReferenceGuardTests",
-      "per_project": [
-        {
-          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
-          "counts": {
-            "executed": 184,
-            "passed": 184,
-            "failed": 0,
-            "skipped": 0,
-            "inconclusive": 0,
-            "other": 0,
-            "total": 184
-          }
-        }
-      ]
-    },
-    "authoritative_passed": 8739,
-    "counts_are_not_added": true
+    "authoritative_passed": 9199,
+    "counts_are_not_added": true,
+    "previous_n14_receipt": "Design Documents/Magic/Armageddon_Guardian_Early_Death_Checkpoint_20261009.json"
   },
   "npc_armour_repair_continuation_20261009": {
     "status": "STOCK_ARMOUR_REPAIRED_NATIVE_RETIREMENT_BLOCKED_AI_REFERENCES",
@@ -7029,7 +7019,7 @@
     "package_release_enabled": false,
     "publication_authorized": false
   },
-  "next_bounded_milestone": "N15: exercise the same approved guardian template through normal builder-installed casting as permanent, temporary cleanup and death-on-expiry; prove permanent no-expiry persistence across restart and exactly one terminal transition for each temporary mode. N16 high-volume/per-cycle restart remains separate; full Air Guardian catalogue and historical timing parity remain pending. No static-schema classifier stage.",
+  "next_bounded_milestone": "N16: repeat normal builder-installed guardian summon/use/kill/expire with a cold restart on every cycle; qualify stable eligible heavy-row, timer and subscription counts and explain retained canonical history, claims and the ordinary permanent fixture. Full Air Guardian catalogue and historical timing parity remain pending. Use only code-proven references; no static-definition classifier stage.",
   "npc_typed_reference_review_20261009": {
     "date": "2026-10-09",
     "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
@@ -7187,5 +7177,14 @@
     "number": 788,
     "draft": true,
     "merge_authorized": false
+  },
+  "guardian_lifecycle_modes_20261009": {
+    "status": "PASS_BOUNDED_N15_BUILDER_INSTALLED",
+    "receipt": "Design Documents/Magic/Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.json",
+    "runtime_integration_commit": "dac1deee031f4e4726597e88d07af47d5cda3e27",
+    "scenario_revision": "1c78b8c2b2b74d82b1db2b030e41e9c892ad9779",
+    "n15_builder_installed_qualified": true,
+    "full_air_guardian_catalogue_qualified": false,
+    "next_bounded_milestone": "N16: repeat normal builder-installed guardian summon/use/kill/expire with a cold restart on every cycle; qualify stable eligible heavy-row, timer and subscription counts and explain retained canonical history, claims and the ordinary permanent fixture. Full Air Guardian catalogue and historical timing parity remain pending. Use only code-proven references; no static-definition classifier stage."
   }
 }

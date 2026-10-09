@@ -509,7 +509,7 @@ Its fancy value is: {choice.GetFancyValue.Colour(Telnet.Green)}";
                 return Display();
             }
 
-            _selectedDefinition = _definitions.FirstOrDefault(x => x.Pattern.IsMatch(command)) ??
+            _selectedDefinition = _definitions.FirstOrDefault(x => x.MatchesPattern(command)) ??
                                   _definitions.GetByIdOrName(command);
             if (_selectedDefinition is null)
             {

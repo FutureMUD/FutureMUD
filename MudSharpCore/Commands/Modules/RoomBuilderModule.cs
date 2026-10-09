@@ -3483,6 +3483,12 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         }
 
         string name = input.SafeRemainingArgument.TitleCase();
+        if (name.Length > Construction.RoomOverlayPackage.MaximumNameLength)
+        {
+            actor.OutputHandler.Send($"Room overlay package names cannot exceed {Construction.RoomOverlayPackage.MaximumNameLength.ToString("N0", actor)} characters.");
+            return;
+        }
+
         if (actor.Gameworld.RoomOverlayPackages.Any(x => x.Name.EqualTo(name)))
         {
             actor.OutputHandler.Send(
@@ -3659,6 +3665,12 @@ environment{!rain,*rain=Though the rain has subsided, beads of water still drip 
         }
 
         string name = input.SafeRemainingArgument.TitleCase();
+        if (name.Length > Construction.RoomOverlayPackage.MaximumNameLength)
+        {
+            actor.OutputHandler.Send($"Room overlay package names cannot exceed {Construction.RoomOverlayPackage.MaximumNameLength.ToString("N0", actor)} characters.");
+            return;
+        }
+
         string lowerName = name.ToLowerInvariant();
         if (actor.Gameworld.RoomOverlayPackages.Any(x => x.Name.ToLowerInvariant() == lowerName))
         {

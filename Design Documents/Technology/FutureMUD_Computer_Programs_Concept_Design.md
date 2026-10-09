@@ -107,6 +107,7 @@ The first player-facing command surface for this slice has also now landed:
   - `type <terminal> <text>` explicitly targets a nearby terminal
   - when no session exists, `type` auto-connects to the resolved terminal before submitting input
   - when a foreground program on that session is suspended in `UserInput()`, `type` resumes it immediately with the supplied text
+
 - once connected to a powered `ComputerTerminal`, workspace-style authoring commands operate on either the connected `ComputerHost` or one selected mounted `ComputerStorage`
 - real host-backed or storage-backed execution now requires a powered execution host, while the private workspace remains power-free
 - built-in applications are now exposed by the connected powered `ComputerHost`, not by the private workspace or mounted storage
@@ -124,6 +125,7 @@ The first player-facing command surface for this slice has also now landed:
 - failed checks still cost time because the delayed action runs to completion before the check resolves
 - abject electrical failures trigger electrical shock damage and an electrical-shock emote, but still do not consume tools or materials
 - dedicated `AutomationHousing` components now gate concealed automation modules and cable ends by being the actual lockable-container capability on the item, integrating directly with the normal container/openable/lockable and legal/crime handling path rather than relying on arbitrary generic container items
+- character-driven automation mounting uses `electrical install <host> <module> [<bay>]`; generic `connect` refuses both host-first and module-first mounting, including direct component calls. Installation retains the electrical tool, skill, delay and risk workflow and rechecks housing access at completion; administrators retain the existing immediate electrical workflow.
 - mounted microcontrollers now restore their mount-host relationship lazily from saved host identity during load and login, so host-derived power and local signal access survive reboot/load ordering
 - mounted microcontrollers also refresh their live input-source subscriptions during login and power cut-in, so late-resolved nearby sensors and cable sources seed current values correctly after reboot/load ordering
 - mounted powered automation modules and other powered-machine-based automation components now treat power discovery as an ongoing topology-aware process: they retry for a longer post-login window when switched on but initially unpowered, and they also refresh power resolution when relevant parent or host connectivity changes reveal usable power later in the boot sequence
@@ -132,6 +134,8 @@ The first player-facing command surface for this slice has also now landed:
 - the shared runtime lifecycle is now explicit for powered and signal-capable items: `FinaliseLoad()` restores structural state, while `Login()` is where power drawdown, signal subscriptions, polling, timers, and retry heartbeats begin
 - the world boot login pass now logs in world-root items only, while inventory-rooted items remain dormant until their owning character or body logs in; extracted mounted modules still activate because their `AutomationMountHost` forwards the item lifecycle to them
 - powered-machine-based automation components no longer begin drawdown merely because they load switched on; they wait for `Login()` before attempting live power use
+
+Terminal-input waiter lookup stays within the current executable owner and host, including owner resolution during resume. Duplicate foreground waits use an index keyed by waiting character and terminal, populated when workspace/item processes load or register and maintained as waits suspend, resume, complete, fail or are killed. These input paths do not enumerate world items; a waiter on another registered storage owner still prevents a second foreground wait on the same character/terminal pair.
 
 ## 1.0 Design Baseline
 
@@ -167,6 +171,8 @@ The 1.0 design for this subsystem is now:
 - terminal sessions can gain temporary additional route reachability through authenticated VPN tunnelling without mutating the underlying adapter hardware
 - `Directory` is the primary discovery and tunnel-management client, while `SysMon` is the primary diagnostics and monitoring surface
 - shared `user@domain` identities are the common login model for shipped and planned network services
+
+VPN gateways deliberately authenticate at the hosted-domain level: any enabled account in an enabled domain hosted by a reachable gateway may select any VPN network advertised by that gateway. The shared mail identity alone grants no route unless the gateway also hosts its domain. These are simulated in-world routes added only to the current terminal session; this feature creates no operating-system VPN or external network tunnel. Per-account or per-role VPN ACLs are not part of this access model. Builders who need distinct trust groups can use separate gateway/domain arrangements; service-specific permissions continue to apply after a route becomes reachable.
 - `Mail` is the first database-backed host service
 - `Boards` is the first host service built on an existing world subsystem, reusing the board runtime and persistence while adding host-scoped exposure and shared-identity posting
 - `FTP` and public network files remain XML-backed on the owning host, storage, or component file owner

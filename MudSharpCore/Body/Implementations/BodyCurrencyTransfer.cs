@@ -2,6 +2,7 @@
 
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Economy;
 using MudSharp.Economy.Currency;
 using MudSharp.Events;
 using MudSharp.Framework;
@@ -257,6 +258,13 @@ public partial class Body
 		if (destinationBody is not null) destinationBody.InventoryChanged = true;
 		if (kind == CurrencyTransferKind.Put) container!.StorageOwner.Changed = true;
 		if (floor is not null) floor.ContentsChanged = true;
+		if (kind == CurrencyTransferKind.Give && corpse is null && Gameworld.EconomyAnalytics is { } analytics)
+		{
+			analytics.RecordActivity(new EconomicActivityEvent(
+				EconomicActivityType.CashGift, EconomicVolumeClassification.GeneralTransfer, currency.Id, total,
+				Gameworld.EconomicZones.FirstOrDefault(x => x.ZoneForTimePurposes == origin.Room.Zone)?.Id,
+				executor.Id, executor.FrameworkItemType, recipientActor!.Id, recipientActor.FrameworkItemType));
+		}
 		draft.ActivateCurrencySplit();
 		Gameworld.Add(draft);
 		RouteSpatialService.Instance.TrackPerceivable(draft);

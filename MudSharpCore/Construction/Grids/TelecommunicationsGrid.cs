@@ -24,6 +24,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 
     private readonly List<long> _connectedConsumerIds = [];
     private readonly List<IConsumePower> _connectedConsumers = [];
+	private readonly HashSet<ICellPhoneTower> _cellPhoneTowers = [];
     private readonly List<long> _connectedProducerIds = [];
     private readonly List<IProducePower> _connectedProducers = [];
     private readonly List<IConsumePower> _idleConsumers = [];
@@ -129,6 +130,9 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
     public double TotalDrawdown => _connectedConsumers.Except(_idleConsumers).Sum(x => x.PowerConsumptionInWatts);
     public IEnumerable<ITelecommunicationsGrid> LinkedGrids => _linkedGrids.ToList();
     public IEnumerable<INetworkAdapter> NetworkAdapters => _networkAdapters.ToList();
+	public bool HasCellularCoverage(IZone zone) =>
+		_cellPhoneTowers.Any(x => ReferenceEquals(x.TelecommunicationsGrid, this) &&
+			ReferenceEquals(Gameworld.Items.Get(x.Parent.Id), x.Parent) && x.ProvidesCoverage(zone));
     private long NextNumber { get; set; }
 
     public override void LoadTimeInitialise()
@@ -143,7 +147,14 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
                 continue;
             }
 
-            _connectedConsumers.Add(consumer);
+			if (!_connectedConsumers.Contains(consumer))
+			{
+				_connectedConsumers.Add(consumer);
+			}
+			if (consumer is ICellPhoneTower tower)
+			{
+				_cellPhoneTowers.Add(tower);
+			}
         }
 
         foreach (long id in _connectedProducerIds)
@@ -320,6 +331,10 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 
         _idleConsumers.Add(consumer);
         _connectedConsumers.Add(consumer);
+		if (consumer is ICellPhoneTower tower)
+		{
+			_cellPhoneTowers.Add(tower);
+		}
         Changed = true;
         RecalculateGrid();
     }
@@ -328,6 +343,10 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
     {
         _idleConsumers.Remove(consumer);
         _connectedConsumers.Remove(consumer);
+		if (consumer is ICellPhoneTower tower)
+		{
+			_cellPhoneTowers.Remove(tower);
+		}
         Changed = true;
         RecalculateGrid();
     }
@@ -660,6 +679,11 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 
     public bool TrySendFax(IFaxMachine sender, string number, IReadOnlyCollection<ICanBeRead> document, out string error)
     {
+		if (document.Count > FaxMachineGameItemComponent.MaximumDocumentReadables(Gameworld))
+		{
+			error = "That document is too large to fax in one transmission.";
+			return false;
+		}
         string normalised = Normalise(number);
         if (string.IsNullOrWhiteSpace(normalised))
         {
@@ -939,8 +963,28 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
             : [];
     }
 
-    private void StoreHostedVoicemailMessage(string number, StoredAudioRecording recording)
+	private int VoicemailLimit(string setting, int defaultValue, int maximum) =>
+		int.TryParse(Gameworld.GetStaticConfiguration(setting), out var value) && value > 0
+			? Math.Min(value, maximum)
+			: defaultValue;
+
+	private int MaximumVoicemailMessagesPerMailbox => VoicemailLimit("HostedVoicemailMaximumMessagesPerMailbox", 50, 200);
+	private int MaximumVoicemailMessagesPerGrid => VoicemailLimit("HostedVoicemailMaximumMessagesPerGrid", 1000, 10000);
+	private int MaximumVoicemailSegmentsPerMessage => VoicemailLimit("HostedVoicemailMaximumSegmentsPerMessage", 64, 128);
+	private int MaximumVoicemailCharactersPerMessage => VoicemailLimit("HostedVoicemailMaximumCharactersPerMessage", 8192, 32768);
+
+	private bool HasHostedVoicemailCapacity(string number) =>
+		GetHostedVoicemailMessages(number).Count < MaximumVoicemailMessagesPerMailbox &&
+		_hostedVoicemailRecordings.Values.Sum(x => (long)x.Count) < MaximumVoicemailMessagesPerGrid;
+
+	private bool StoreHostedVoicemailMessage(string number, StoredAudioRecording recording)
     {
+		if (!HasHostedVoicemailCapacity(number) ||
+			recording.Recording.Segments.Count > MaximumVoicemailSegmentsPerMessage ||
+			recording.Recording.Segments.Sum(x => (long)x.RawText.Length) > MaximumVoicemailCharactersPerMessage)
+		{
+			return false;
+		}
         if (!_hostedVoicemailRecordings.TryGetValue(number, out List<StoredAudioRecording>? recordings))
         {
             recordings = [];
@@ -950,6 +994,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
         recordings.Add(recording);
         recordings.Sort((a, b) => a.RecordedAtUtc.CompareTo(b.RecordedAtUtc));
         Changed = true;
+		return true;
     }
 
     private bool DeleteHostedVoicemailMessage(string number, string messageName)
@@ -1366,6 +1411,11 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
         {
             return false;
         }
+		if (!HasHostedVoicemailCapacity(call.Number))
+		{
+			call.Caller.NotifyCallProgress("The exchange voicemail service says: This mailbox is full. Your message cannot be recorded.");
+			return false;
+		}
 
         call.ConnectHostedVoicemailRecording(call.Number);
         return true;
@@ -1378,6 +1428,7 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
         private readonly string _mailboxNumber;
         private readonly HostedVoicemailMode _mode;
         private readonly List<RecordedAudioSegment> _workingSegments = [];
+		private int _workingCharacters;
         private DateTime? _lastSegmentUtc;
         private DateTime? _recordedAtUtc;
         private int _currentPlaybackIndex = -1;
@@ -1423,10 +1474,28 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
 
             DateTime now = DateTime.UtcNow;
             TimeSpan delay = _lastSegmentUtc.HasValue ? now - _lastSegmentUtc.Value : TimeSpan.Zero;
+			if (_workingSegments.Count >= _grid.MaximumVoicemailSegmentsPerMessage ||
+				spokenLanguage.RawText.Length > _grid.MaximumVoicemailCharactersPerMessage - _workingCharacters)
+			{
+				EndFullRecording();
+				return true;
+			}
             _workingSegments.Add(RecordedAudioSegment.FromSpokenLanguage(spokenLanguage, delay));
+			_workingCharacters += spokenLanguage.RawText.Length;
             _lastSegmentUtc = now;
+			if (_workingSegments.Count >= _grid.MaximumVoicemailSegmentsPerMessage ||
+				_workingCharacters >= _grid.MaximumVoicemailCharactersPerMessage)
+			{
+				EndFullRecording();
+			}
             return true;
         }
+
+		private void EndFullRecording()
+		{
+			_call.Caller.NotifyCallProgress("The exchange voicemail service says: The message limit has been reached. The recording ends.");
+			_call.HangUp(_call.Caller);
+		}
 
         public bool HandleDigits(ITelephone source, string digits)
         {
@@ -1451,8 +1520,11 @@ public class TelecommunicationsGrid : GridBase, ITelecommunicationsGrid
             }
 
             string messageName = $"voicemail-{_recordedAtUtc.Value:yyyyMMddHHmmss}";
-            _grid.StoreHostedVoicemailMessage(_mailboxNumber,
-                new StoredAudioRecording(messageName, new RecordedAudio(_workingSegments), _recordedAtUtc.Value));
+			if (!_grid.StoreHostedVoicemailMessage(_mailboxNumber,
+				new StoredAudioRecording(messageName, new RecordedAudio(_workingSegments), _recordedAtUtc.Value)))
+			{
+				_call.Caller.NotifyCallProgress("The exchange voicemail service says: This mailbox is full. Your message could not be saved.");
+			}
         }
 
         private void HandleDigit(char digit)

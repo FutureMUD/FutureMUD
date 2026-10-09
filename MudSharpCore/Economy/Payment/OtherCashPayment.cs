@@ -8,6 +8,7 @@ public class OtherCashPayment : CashPayment
 {
     private readonly IReadOnlyCollection<IGameItem> _paymentItems = Array.Empty<IGameItem>();
     private readonly bool _useCustomPaymentItems;
+    private readonly IContainer? _changeContainer;
 
     public OtherCashPayment(ICurrency currency, ICharacter actor) : base(currency, actor)
     {
@@ -22,6 +23,12 @@ public class OtherCashPayment : CashPayment
 
     protected override IEnumerable<IGameItem> PaymentItems => _useCustomPaymentItems ? _paymentItems : base.PaymentItems;
 
+	public OtherCashPayment(ICurrency currency, ICharacter actor, IEnumerable<IGameItem> paymentItems,
+		IContainer changeContainer) : this(currency, actor, paymentItems)
+	{
+		_changeContainer = changeContainer ?? throw new ArgumentNullException(nameof(changeContainer));
+	}
+
     #region Overrides of CashPayment
 
     public override void TakePayment(decimal price)
@@ -29,7 +36,7 @@ public class OtherCashPayment : CashPayment
         IEnumerable<ICurrencyPile> currency = PaymentItems.RecursiveGetItems<ICurrencyPile>(true);
         Dictionary<ICurrencyPile, Dictionary<ICoin, int>> targetCoins = Currency.FindCurrency(currency, price);
         decimal value = targetCoins.Sum(x => x.Value.Sum(y => y.Value * y.Key.Value));
-        IEnumerable<IGameItem> containers = targetCoins.SelectNotNull(x => x.Key.Parent.ContainedIn).Distinct();
+        var containers = targetCoins.SelectNotNull(x => x.Key.Parent.ContainedIn).Distinct().ToList();
         decimal change = value - price;
         foreach (KeyValuePair<ICurrencyPile, Dictionary<ICoin, int>> item in targetCoins.Where(item =>
                      !item.Key.RemoveCoins(item.Value.Select(x => Tuple.Create(x.Key, x.Value)))))
@@ -55,6 +62,12 @@ public class OtherCashPayment : CashPayment
             GameItems.Prototypes.CurrencyGameItemComponentProto.CreateNewCurrencyPile(Currency,
                 Currency.FindCoinsForAmount(change, out _));
         changeItem.SetOwner(Actor);
+		if (_changeContainer is not null)
+		{
+			// Returning confiscated cash must preserve custody even if the change exceeds container capacity.
+			_changeContainer.Put(null, changeItem);
+			return;
+		}
         foreach (IGameItem item in containers)
         {
             IContainer container = item.GetItemType<IContainer>();

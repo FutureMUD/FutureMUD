@@ -10,6 +10,7 @@ using MudSharp.RPG.Law;
 using Org.BouncyCastle.Asn1.X509;
 
 using MudSharp.Construction;
+using MudSharp.Planes;
 
 namespace MudSharp.Commands.Modules;
 
@@ -413,6 +414,7 @@ The syntax is as follows:
         }
 
         var remaining = ss.SafeRemainingArgument;
+        if (!CheckStealthInventoryAccess(actor, target, null, null)) return;
         if (string.IsNullOrWhiteSpace(remaining))
         {
             StealRandom(actor, target);
@@ -745,6 +747,7 @@ The syntax is as follows:
         }
 
         IGameItem previewItem;
+        if (!CheckStealthInventoryAccess(actor, null, null, spec.Item, spec.Currency, items)) return;
         if (spec.Kind == StealthTransferKind.Item)
         {
             previewItem = spec.Item;
@@ -770,6 +773,7 @@ The syntax is as follows:
             return;
         }
 
+        if (!CheckStealthInventoryAccess(actor, null, null, spec.Item, spec.Currency, items)) return;
         var moved = spec.Kind == StealthTransferKind.Item
             ? actor.Body.Get(spec.Item, spec.Quantity, null, true, ItemCanGetIgnore.None,
                 detection.Noticers.Cast<IHandleEvents>())
@@ -795,6 +799,7 @@ The syntax is as follows:
             return;
         }
 
+        if (!CheckStealthInventoryAccess(actor, owner, sourceItem, null)) return;
         var container = sourceItem.GetItemType<IContainer>();
         if (!TryParseTransferSpec(actor, targetText, container.Contents, $"in {sourceItem.HowSeen(actor)}",
                 out var spec, out error))
@@ -804,6 +809,7 @@ The syntax is as follows:
         }
 
         var crime = owner is not null && owner != actor ? CrimeTypes.Theft : (CrimeTypes?)null;
+        if (!CheckStealthInventoryAccess(actor, owner, sourceItem, spec.Item, spec.Currency, container.Contents)) return;
         var previewItem = spec.Kind == StealthTransferKind.Item ? spec.Item : sourceItem;
         if (WouldStopLawfulAction(actor, crime, owner, previewItem))
         {
@@ -830,6 +836,7 @@ The syntax is as follows:
             return;
         }
 
+        if (!CheckStealthInventoryAccess(actor, owner, sourceItem, spec.Item, spec.Currency, container.Contents)) return;
         var moved = spec.Kind == StealthTransferKind.Item
             ? actor.Body.Get(spec.Item, sourceItem, spec.Quantity, null, true, ItemCanGetIgnore.None,
                 detection.Noticers.Cast<IHandleEvents>())
@@ -857,6 +864,7 @@ The syntax is as follows:
             return;
         }
 
+        if (!CheckStealthInventoryAccess(actor, containerOwner, containerItem, null)) return;
         if (!TryParseTransferSpec(actor, targetText, actor.Body.ItemsInHands,
                 "in your hands", out var spec, out error))
         {
@@ -865,6 +873,7 @@ The syntax is as follows:
         }
 
         var victim = containerOwner == actor ? null : containerOwner;
+        if (!CheckStealthInventoryAccess(actor, containerOwner, containerItem, spec.Item, spec.Currency, actor.Body.ItemsInHands)) return;
         var check = victim is null ? CheckType.PalmCheck : CheckType.StealCheck;
         var crime = victim is null ? (CrimeTypes?)null : CrimeTypes.UnauthorisedDealing;
         var previewItem = spec.Kind == StealthTransferKind.Item ? spec.Item : containerItem;
@@ -895,6 +904,7 @@ The syntax is as follows:
             return;
         }
 
+        if (!CheckStealthInventoryAccess(actor, containerOwner, containerItem, spec.Item, spec.Currency, actor.Body.ItemsInHands)) return;
         var moved = spec.Kind == StealthTransferKind.Item
             ? actor.Body.Put(spec.Item, containerItem, containerOwner, spec.Quantity, null, true, true,
                 detection.Noticers.Cast<IHandleEvents>())
@@ -1051,6 +1061,7 @@ The syntax is as follows:
     private static void StealItemFromContainer(ICharacter actor, ICharacter target, IGameItem item, int quantity,
         IGameItem containerItem)
     {
+        if (!CheckStealthInventoryAccess(actor, target, containerItem, item)) return;
         if (!actor.Body.CanGet(item, containerItem, quantity))
         {
             actor.OutputHandler.Send(actor.Body.WhyCannotGet(item, containerItem, quantity));
@@ -1068,6 +1079,7 @@ The syntax is as follows:
             return;
         }
 
+        if (!CheckStealthInventoryAccess(actor, target, containerItem, item)) return;
         var moved = actor.Body.Get(item, containerItem, quantity, null, true, ItemCanGetIgnore.None,
             detection.Noticers.Cast<IHandleEvents>());
         if (moved is null)
@@ -1085,6 +1097,8 @@ The syntax is as follows:
     private static void StealCurrencyFromContainer(ICharacter actor, ICharacter target, ICurrency currency,
         decimal amount, bool exact, IGameItem containerItem)
     {
+        if (!CheckStealthInventoryAccess(actor, target, containerItem, null, currency,
+                containerItem.GetItemType<IContainer>().Contents)) return;
         if (!actor.Body.CanGet(currency, containerItem, amount, exact))
         {
             actor.OutputHandler.Send(actor.Body.WhyCannotGet(currency, containerItem, amount, exact));
@@ -1103,6 +1117,8 @@ The syntax is as follows:
             return;
         }
 
+        if (!CheckStealthInventoryAccess(actor, target, containerItem, null, currency,
+                containerItem.GetItemType<IContainer>().Contents)) return;
         var moved = actor.Body.Get(currency, containerItem, amount, exact, null, true,
             detection.Noticers.Cast<IHandleEvents>());
         if (moved is null)
@@ -1119,6 +1135,7 @@ The syntax is as follows:
 
     private static void StealBeltedItem(ICharacter actor, ICharacter target, IGameItem beltItem, IGameItem item)
     {
+        if (!CheckStealthInventoryAccess(actor, target, beltItem, item)) return;
         if (!HasCutPurseTool(actor, out var error))
         {
             actor.OutputHandler.Send(error);
@@ -1150,6 +1167,7 @@ The syntax is as follows:
             return;
         }
 
+        if (!CheckStealthInventoryAccess(actor, target, beltItem, item)) return;
         belt.RemoveConnectedItem(beltable);
         var moved = actor.Body.Get(item, 0, null, true, ItemCanGetIgnore.None,
             detection.Noticers.Cast<IHandleEvents>());
@@ -1172,14 +1190,18 @@ The syntax is as follows:
         return target.Body.ExternalItemsForOtherActors
                      .Where(x => actor.CanSee(x))
                      .Where(x => x.IsItemType<IContainer>())
-                     .Where(IsOpenContainer);
+                     .Where(IsOpenContainer)
+                     .Where(x => actor.CanInteractPlanar(target, PlanarInteractionKind.Inventory) &&
+                                 actor.CanInteractPlanar(x, PlanarInteractionKind.Inventory));
     }
 
     private static IEnumerable<IGameItem> GetStealableBelts(ICharacter actor, ICharacter target)
     {
         return target.Body.ExternalItemsForOtherActors
                      .Where(x => actor.CanSee(x))
-                     .Where(x => x.IsItemType<IBelt>());
+                     .Where(x => x.IsItemType<IBelt>())
+                     .Where(x => actor.CanInteractPlanar(target, PlanarInteractionKind.Inventory) &&
+                                 actor.CanInteractPlanar(x, PlanarInteractionKind.Inventory));
     }
 
     private static bool TryResolveStealSource(ICharacter actor, ICharacter target, string sourceText,
@@ -1244,6 +1266,18 @@ The syntax is as follows:
                 };
             }
         }
+    }
+
+    private static bool CheckStealthInventoryAccess(ICharacter actor, ICharacter owner, IGameItem source,
+        IGameItem item, ICurrency currency = null, IEnumerable<IGameItem> currencyItems = null)
+    {
+        bool Accessible(IPerceivable target) => target is null || actor.CanInteractPlanar(target, PlanarInteractionKind.Inventory);
+        if (Accessible(owner) && Accessible(source) && Accessible(item) &&
+            (currency is null || currencyItems is null || currencyItems
+                .Where(x => x.GetItemType<ICurrencyPile>()?.Currency == currency)
+                .All(Accessible))) return true;
+        actor.OutputHandler.Send("You cannot interact with those belongings on a plane you can affect.");
+        return false;
     }
 
     private static bool IsOpenContainer(IGameItem item)

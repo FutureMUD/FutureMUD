@@ -225,10 +225,10 @@ Roles should be separated from permissions. A "manager" role is only useful if i
 - `ModifyManagerGoals`
 - `ApprovePurchases`
 - `UseStoreAccount`
-- `WithdrawBusinessCash`
+- `WithdrawBusinessCash` (also required for linked-bank account transfer tasks, at authoring, execution, and the finance operation)
 - `DepositBusinessCash`
 - `ManageStockRules`
-- `ManageCraftRules`
+- `ManageCraftRules`. Item-backed craft station reservations track employment capacity without preventing normal item pickup or merging. Craft start/resume checks that the saved station item remains accessible; genuine reserved craft inputs and tools retain their pickup and merge locks.
 - `ManageDeliveryRoutes`
 - `AdjustPrices`
 - `PayTaxes`

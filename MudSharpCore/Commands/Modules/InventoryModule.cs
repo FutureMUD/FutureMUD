@@ -1476,17 +1476,6 @@ The syntax is:
             {
                 actor.Body.Give(actor.Currency, targetActor.Body, targetCurrency,
                     currencyMatch.Groups["exactly"].Value.Length > 0, emote);
-				actor.Gameworld.EconomyAnalytics?.RecordActivity(new EconomicActivityEvent(
-					EconomicActivityType.CashGift,
-					EconomicVolumeClassification.GeneralTransfer,
-					actor.Currency.Id,
-					targetCurrency,
-					actor.Gameworld.EconomicZones.FirstOrDefault(x =>
-						x.ZoneForTimePurposes == actor.Location.Zone)?.Id,
-					actor.Id,
-					actor.FrameworkItemType,
-					targetActor.Id,
-					targetActor.FrameworkItemType));
             }
         }
     }
@@ -2367,6 +2356,7 @@ The possible syntaxes for this command are:
 
     private static void StripOther(ICharacter actor, ICharacter target, StringStack ss, PlayerEmote emote)
     {
+		var acceptedRequest = false;
         bool StripOtherRecursiveRemoveItem(IGameItem item, IContainer intoContainer, out IGameItem problemItem)
         {
             if (item == null)
@@ -2381,8 +2371,9 @@ The possible syntaxes for this command are:
                 return true;
             }
 
-            if (target.Body.CanBeRemoved(item, actor))
+			bool TryRemove()
             {
+                if (!target.Body.CanBeRemoved(item, actor)) return false;
                 target.Body.RemoveItem(item, null, actor);
                 if (intoContainer?.CanPut(item) == true)
                 {
@@ -2394,9 +2385,14 @@ The possible syntaxes for this command are:
                     item.InsertAtSource(actor);
                 }
 
-                problemItem = null;
                 return true;
             }
+
+			if (WithStripItemConsent(actor, target, item, acceptedRequest, TryRemove))
+			{
+				problemItem = null;
+				return true;
+			}
 
             List<Tuple<WearableItemCoverStatus, IGameItem>> itemsCoveringItem = target.Body.CoverInformation(item)
                                           .Where(x => x.Item1 != WearableItemCoverStatus.Uncovered).ToList();
@@ -2568,10 +2564,7 @@ The possible syntaxes for this command are:
         void BeginStrip(bool grantTemporaryConsent = false)
         {
             TimeSpan stripDuration = TimeSpanForStrip(coveringItems);
-            if (grantTemporaryConsent)
-            {
-                target.AddEffect(new BeDressedEffect(target, actor), stripDuration + TimeSpan.FromSeconds(5));
-            }
+			acceptedRequest = grantTemporaryConsent;
 
             actor.OutputHandler.Handle(
                 new MixedEmoteOutput(new Emote($"@ begin|begins stripping off $0's gear", actor, target),
@@ -2647,6 +2640,22 @@ The possible syntaxes for this command are:
             )), TimeSpan.FromSeconds(120));
         }
     }
+
+	internal static bool WithStripItemConsent(ICharacter actor, ICharacter target, IGameItem item,
+		bool acceptedRequest, Func<bool> removal)
+	{
+		if (!acceptedRequest) return removal();
+		var consent = new StripItemConsent(target, actor, item);
+		target.AddEffect(consent);
+		try
+		{
+			return removal();
+		}
+		finally
+		{
+			target.RemoveEffect(consent);
+		}
+	}
     #endregion
 
     #region Outfit

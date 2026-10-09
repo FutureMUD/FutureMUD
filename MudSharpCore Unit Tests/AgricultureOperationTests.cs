@@ -16,6 +16,8 @@ using MudSharp.Work.Crafts;
 using MudSharp.Work.Crafts.Inputs;
 using MudSharp.Economy.Property;
 using MudSharp.NPC.Templates;
+using MudSharp.NPC;
+using MudSharp.Effects.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -597,6 +599,80 @@ public class AgricultureOperationTests
 		Assert.IsFalse(success);
 		StringAssert.Contains(result, "non-player animal");
 		npc.Verify(x => x.Quit(It.IsAny<bool>()), Times.Never);
+	}
+
+	[DataTestMethod]
+	[DataRow("untrusted")]
+	[DataRow("template-less")]
+	[DataRow("mismatch")]
+	[DataRow("ridden")]
+	[DataRow("riding")]
+	[DataRow("dragged")]
+	public void AbsorbNpcIntoHerd_UnauthorisedOrBusyAnimal_RejectsBeforeRemoval(string state)
+	{
+		var fixture = BuildAbsorptionAnimal();
+		if (state == "untrusted") fixture.Npc.Setup(x => x.IsAlly(fixture.Actor.Object)).Returns(false);
+		if (state == "template-less") Mock.Get(fixture.Herd).SetupGet(x => x.NpcTemplate).Returns((INPCTemplate)null!);
+		if (state == "mismatch") fixture.Npc.SetupGet(x => x.Template).Returns(Mock.Of<INPCTemplate>(x => x.Id == 99L));
+		if (state == "ridden") fixture.Npc.SetupGet(x => x.Riders).Returns([fixture.Actor.Object]);
+		if (state == "riding") fixture.Npc.SetupGet(x => x.RidingMount).Returns(Mock.Of<ICharacter>());
+		if (state == "dragged") fixture.Npc.Setup(x => x.CombinedEffectsOfType<IDragParticipant>()).Returns([Mock.Of<IDragParticipant>()]);
+
+		Assert.IsFalse(fixture.Field.AbsorbNpcIntoHerd(fixture.Npc.Object, fixture.Herd, fixture.Actor.Object, out _));
+		fixture.Npc.Verify(x => x.Quit(It.IsAny<bool>()), Times.Never);
+		Assert.AreEqual(0, fixture.Field.Herds.Sum(x => x.HeadCount));
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void AbsorbNpcIntoHerd_AnimalAllyOrAdministrator_AddsMatchingStock(bool administrator)
+	{
+		var fixture = BuildAbsorptionAnimal();
+		fixture.Actor.Setup(x => x.IsAdministrator()).Returns(administrator);
+		fixture.Npc.Setup(x => x.IsAlly(fixture.Actor.Object)).Returns(!administrator);
+
+		Assert.IsTrue(fixture.Field.AbsorbNpcIntoHerd(fixture.Npc.Object, fixture.Herd, fixture.Actor.Object, out _));
+		fixture.Npc.Verify(x => x.Quit(true), Times.Once);
+		Assert.AreEqual(1, fixture.Field.Herds.Single().HeadCount);
+	}
+
+	[TestMethod]
+	public void DrawDownHerd_LivestockRecognisesDrawingActor_AllowsReturnToStock()
+	{
+		var fixture = BuildAbsorptionAnimal(1);
+		var template = Mock.Get(fixture.Herd.NpcTemplate);
+		Mock.Get(fixture.Herd).SetupGet(x => x.CanMaterialise).Returns(true);
+		template.Setup(x => x.CreateNewCharacter(It.IsAny<SpatialLocation>())).Returns(fixture.Npc.Object);
+		fixture.Npc.Setup(x => x.SetAlly(fixture.Actor.Object)).Callback(() =>
+			fixture.Npc.Setup(x => x.IsAlly(fixture.Actor.Object)).Returns(true));
+		fixture.Npc.Setup(x => x.IsAlly(fixture.Actor.Object)).Returns(false);
+		fixture.Actor.SetupGet(x => x.SpatialLocation).Returns(new SpatialLocation(fixture.Field.Room, RoomLayer.GroundLevel));
+
+		Assert.IsTrue(fixture.Field.DrawDownHerd(fixture.Herd, 1, fixture.Actor.Object, out _));
+		fixture.Npc.Verify(x => x.SetAlly(fixture.Actor.Object), Times.Once);
+		Assert.AreEqual(0, fixture.Field.Herds.Single().HeadCount);
+		Assert.IsTrue(fixture.Field.AbsorbNpcIntoHerd(fixture.Npc.Object, fixture.Herd, fixture.Actor.Object, out _));
+		Assert.AreEqual(1, fixture.Field.Herds.Single().HeadCount);
+	}
+
+	private static (AgricultureField Field, IAgricultureHerdDefinition Herd, Mock<INPC> Npc, Mock<ICharacter> Actor)
+		BuildAbsorptionAnimal(int stock = 0)
+	{
+		var (world, herd) = BuildTwoFieldGameworld();
+		world.SetupGet(x => x.BodyPrototypes).Returns(new All<IBodyPrototype>());
+		var field = BuildFieldWithHerd(world.Object, 1, 1, AgricultureFieldUse.Pasture, herd, stock, 60.0);
+		var template = Mock.Of<INPCTemplate>(x => x.Id == 42L);
+		Mock.Get(herd).SetupGet(x => x.NpcTemplate).Returns(template);
+		var actor = new Mock<ICharacter>();
+		var npc = new Mock<INPC>();
+		npc.SetupGet(x => x.Template).Returns(template);
+		npc.SetupGet(x => x.Location).Returns(field.Room);
+		npc.SetupGet(x => x.Gameworld).Returns(world.Object);
+		npc.SetupGet(x => x.Race).Returns(Mock.Of<IRace>(x => x.BaseBody == Mock.Of<IBodyPrototype>(b => b.Name == "Ungulate")));
+		npc.SetupGet(x => x.Riders).Returns(Array.Empty<ICharacter>());
+		npc.Setup(x => x.IsAlly(actor.Object)).Returns(true);
+		return (field, herd, npc, actor);
 	}
 
 	[TestMethod]

@@ -258,14 +258,9 @@ public class Plane : SavableKeywordedItem, IPlane
 			return false;
 		}
 
-		string example;
-		try
+		if (!PlaneDisplayFormat.TryFormat(format, "A Test Room", out var example))
 		{
-			example = string.Format(format, "A Test Room");
-		}
-		catch (FormatException)
-		{
-			actor.OutputHandler.Send("That is not a valid string format. Use {0} where the normal room name should appear.");
+			actor.OutputHandler.Send("Use a valid format containing only {0} fields, at most 1024 characters, 16 fields and 128 characters of alignment padding.");
 			return false;
 		}
 
@@ -298,14 +293,9 @@ public class Plane : SavableKeywordedItem, IPlane
 			return false;
 		}
 
-		string example;
-		try
+		if (!PlaneDisplayFormat.TryFormat(format, Name, out var example))
 		{
-			example = string.Format(format, Name);
-		}
-		catch (FormatException)
-		{
-			actor.OutputHandler.Send("That format string is invalid.");
+			actor.OutputHandler.Send("Use a valid format containing only {0} fields, at most 1024 characters, 16 fields and 128 characters of alignment padding.");
 			return false;
 		}
 

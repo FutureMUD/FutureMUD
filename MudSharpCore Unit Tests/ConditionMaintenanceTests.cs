@@ -34,6 +34,54 @@ namespace MudSharp_Unit_Tests;
 public class ConditionMaintenanceTests
 {
 	[TestMethod]
+	[DataRow("if(condition<0.2,'broken',0.01)")]
+	[DataRow("if(condition<0.2,dice(1000000000,6),0.01)")]
+	[DataRow("if(condition<0.2,1/0,0.01)")]
+	public void Profile_InvalidLiveBranch_IsIgnoredWhileValidBranchStillWorks(string formula)
+	{
+		var profile = new ConditionMaintenanceProfile(formula);
+		profile.LoadFromXml(new XElement("Definition",
+			new XElement("ConditionDegradesOnUse", true),
+			new XElement("ConditionQualityFormula", formula)));
+		var parent = CreateConditionItem(0.1);
+
+		Assert.AreEqual(0, profile.QualityPenaltyStages(parent.Object));
+		profile.UseCondition(parent.Object, new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack));
+		Assert.AreEqual(0.1, parent.Object.Condition, 0.000001);
+		parent.Object.Condition = 0.5;
+		profile.UseCondition(parent.Object, new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack));
+		Assert.AreEqual(0.49, parent.Object.Condition, 0.000001);
+	}
+
+	[TestMethod]
+	[DataRow("not valid expression !!")]
+	[DataRow("missingparameter")]
+	[DataRow("unknownfunction(condition)")]
+	public void Profile_InvalidLoadedFormula_DoesNotEscapeIntoItemUse(string formula)
+	{
+		var profile = new ConditionMaintenanceProfile(formula);
+		profile.LoadFromXml(new XElement("Definition",
+			new XElement("ConditionDegradesOnUse", true), new XElement("ConditionQualityFormula", formula)));
+		var parent = CreateConditionItem(0.1);
+
+		Assert.AreEqual(0, profile.QualityPenaltyStages(parent.Object));
+		profile.UseCondition(parent.Object, new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack));
+		Assert.AreEqual(0.1, parent.Object.Condition, 0.000001);
+	}
+
+	[TestMethod]
+	public void Profile_ExtremeFiniteQualityPenalty_ClampsToQualityRangeBeforeAggregation()
+	{
+		var profile = EnabledProfile("0.01");
+		profile.LoadFromXml(new XElement("Definition", new XElement("ConditionDegradesOnUse", true),
+			new XElement("ConditionQualityFormula", "-1e30")));
+
+		var penalty = profile.QualityPenaltyStages(CreateConditionItem(0.1).Object);
+		Assert.AreEqual((int)ItemQuality.Terrible - (int)ItemQuality.Legendary, penalty);
+		Assert.AreEqual(ItemQuality.Terrible, ItemQuality.Standard.StageUp(Enumerable.Repeat(penalty, 10).Sum()));
+	}
+
+	[TestMethod]
 	public void Profile_LegacyXmlLoadsDisabledAndDoesNotPenaliseQuality()
 	{
 		var profile = new ConditionMaintenanceProfile("0.0005");

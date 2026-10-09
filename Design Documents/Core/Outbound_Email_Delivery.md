@@ -4,6 +4,8 @@ FutureMUD composes every outbound message once as a `MimeMessage` and sends it t
 
 The email server configuration is the `EmailServer` static configuration. The seeded Version 2 configuration is deliberately disabled. Set `<Enabled>true</Enabled>` only after the transport, DNS, account, and secrets have been configured.
 
+Viewing or editing `EmailServer` in game requires implementor permission. Other administrators see the setting name and a red `Redacted for Security` placeholder. See [Static Configuration Security](./Static_Configuration_Security.md).
+
 ## Security model
 
 All Version 2 secrets are references, never values. A secret element must use `env:VARIABLE_NAME`; FutureMUD resolves it from the process environment when email configuration is loaded. Do not put passwords, OAuth client secrets, refresh tokens, recipients, or message content in static configuration, screenshots, tickets, or source control.

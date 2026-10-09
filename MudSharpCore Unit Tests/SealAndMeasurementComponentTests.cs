@@ -761,6 +761,64 @@ public class SealAndMeasurementComponentTests
 	}
 
 	[TestMethod]
+	public void OfferingReceiver_GenericPutCannotBypassBurnAdmissionProg()
+	{
+		var gameworld = CreateGameworld();
+		var proto = CreateOfferingProto(gameworld.Object);
+		var parent = CreateParent(gameworld.Object, 67L, "altar");
+		parent.SetupGet(x => x.TrueLocations).Returns([]);
+		var offering = CreateParent(gameworld.Object, 68L, "offering", 15000.0);
+		offering.Setup(x => x.Equals(It.IsAny<IGameItem>())).Returns((IGameItem other) => ReferenceEquals(other, offering.Object));
+		var actor = CreateActor(gameworld.Object, 69L);
+		actor.Setup(x => x.IsAdministrator(It.IsAny<PermissionLevel>())).Returns(false);
+		actor.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
+		var gate = new Mock<IFutureProg>();
+		var allowed = false;
+		gate.Setup(x => x.ExecuteBool(false, It.IsAny<object[]>())).Returns(() => allowed);
+		var onBurn = new Mock<IFutureProg>();
+		typeof(OfferingReceiverGameItemComponentProto).GetProperty(nameof(proto.CanOfferProg))!
+			.SetValue(proto, gate.Object);
+		typeof(OfferingReceiverGameItemComponentProto).GetProperty(nameof(proto.OnBurnProg))!
+			.SetValue(proto, onBurn.Object);
+		var component = (OfferingReceiverGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+
+		Assert.IsTrue(component.CanPut(offering.Object));
+		component.Put(actor.Object, offering.Object);
+		Assert.IsTrue(ItemManipulationGuard.CanManipulate(actor.Object, out var accessReason, parent.Object, offering.Object), accessReason);
+		Assert.IsFalse(component.CanBurnOffering(actor.Object, offering.Object));
+		Assert.IsFalse(component.BurnOffering(actor.Object, offering.Object, null));
+		CollectionAssert.Contains(component.Contents.ToList(), offering.Object);
+		onBurn.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Never);
+		parent.Verify(x => x.HandleEvent(It.IsAny<EventType>(), It.IsAny<object[]>()), Times.Never);
+		offering.Verify(x => x.Delete(), Times.Never);
+		gate.Verify(x => x.ExecuteBool(false, It.Is<object[]>(args =>
+			args.Length == 3 && ReferenceEquals(args[0], actor.Object) &&
+			ReferenceEquals(args[1], parent.Object) && ReferenceEquals(args[2], offering.Object))), Times.Exactly(2));
+
+		allowed = true;
+		Assert.IsTrue(component.BurnOffering(actor.Object, offering.Object, null),
+			"Reauthorization must not count the contained item's weight a second time at full capacity.");
+		Assert.IsFalse(component.Contents.Contains(offering.Object));
+		onBurn.Verify(x => x.Execute(It.IsAny<object[]>()), Times.Once);
+		parent.Verify(x => x.HandleEvent(EventType.OfferingBurned, It.IsAny<object[]>()), Times.Once);
+		offering.Verify(x => x.Delete(), Times.Once);
+	}
+
+	[TestMethod]
+	public void OfferingReceiver_BurnWithoutAdmissionProg_PreservesExistingPermission()
+	{
+		var gameworld = CreateGameworld();
+		var proto = CreateOfferingProto(gameworld.Object);
+		var parent = CreateParent(gameworld.Object, 167L, "altar");
+		var offering = CreateParent(gameworld.Object, 168L, "offering");
+		offering.Setup(x => x.Equals(It.IsAny<IGameItem>())).Returns((IGameItem other) => ReferenceEquals(other, offering.Object));
+		var actor = CreateActor(gameworld.Object, 169L);
+		var component = (OfferingReceiverGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+		component.Put(null, offering.Object);
+		Assert.IsTrue(component.CanBurnOffering(actor.Object, offering.Object), component.WhyCannotBurnOffering(actor.Object, offering.Object));
+	}
+
+	[TestMethod]
 	public void OfferingReceiver_LiquidAdmissionConsumptionSummaryPersistenceAndCopyReset()
 	{
 		var gameworld = CreateGameworld();

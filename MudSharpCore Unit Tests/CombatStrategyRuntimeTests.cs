@@ -691,6 +691,11 @@ public class CombatStrategyRuntimeTests
 		race.Setup(x => x.UsableAuxiliaryMoves(actor.Object, target.Object, false))
 		    .Returns(new[] { action.Object });
 		combat.SetupGet(x => x.Combatants).Returns(new IPerceiver[] { actor.Object, target.Object });
+		target.SetupGet(x => x.Combat).Returns(combat.Object);
+		target.SetupGet(x => x.CombatTarget).Returns(actor.Object);
+		target.SetupGet(x => x.MeleeRange).Returns(true);
+		actor.Setup(x => x.ColocatedWith(target.Object)).Returns(true);
+		actor.Setup(x => x.CanSee(target.Object)).Returns(true);
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		actor.SetupGet(x => x.Race).Returns(race.Object);
 		actor.SetupProperty(x => x.Combat, combat.Object);
@@ -726,6 +731,11 @@ public class CombatStrategyRuntimeTests
 		command.SetupGet(x => x.AuxiliaryAction).Returns(action.Object);
 		command.Setup(x => x.IsUsableBy(actor.Object, target.Object)).Returns(true);
 		combat.SetupGet(x => x.Combatants).Returns(new IPerceiver[] { actor.Object, target.Object });
+		target.SetupGet(x => x.Combat).Returns(combat.Object);
+		target.SetupGet(x => x.CombatTarget).Returns(actor.Object);
+		target.SetupGet(x => x.MeleeRange).Returns(true);
+		actor.Setup(x => x.ColocatedWith(target.Object)).Returns(true);
+		actor.Setup(x => x.CanSee(target.Object)).Returns(true);
 		actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 		actor.SetupGet(x => x.Race).Returns(race.Object);
 		actor.SetupProperty(x => x.Combat, combat.Object);

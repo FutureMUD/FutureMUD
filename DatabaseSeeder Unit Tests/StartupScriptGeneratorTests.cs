@@ -11,6 +11,47 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class StartupScriptGeneratorTests
 {
+	[DataTestMethod]
+	[DataRow(0)]
+	[DataRow(1)]
+	[DataRow(2)]
+	public void EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions(int existingState)
+	{
+		if (OperatingSystem.IsWindows())
+		{
+			Assert.Inconclusive("Native Unix filesystem permissions require a Unix host.");
+			return;
+		}
+
+		using var harness = new TemporaryDirectoryHarness();
+		var scriptPath = Path.Combine(harness.DirectoryPath, "Start-MUD.sh");
+		if (existingState == 1)
+		{
+			File.WriteAllText(scriptPath, "#!/bin/sh\n# FutureMUD generated startup script v1\nexit 0\n");
+		}
+		else if (existingState == 2)
+		{
+			StartupScriptGenerator.EnsureStartScript(harness.DirectoryPath, "server=localhost;", false);
+		}
+
+		if (existingState > 0)
+		{
+			File.SetUnixFileMode(scriptPath, UnixFileMode.UserRead | UnixFileMode.UserWrite |
+				UnixFileMode.UserExecute | UnixFileMode.GroupRead | UnixFileMode.OtherRead);
+		}
+
+		var result = StartupScriptGenerator.EnsureStartScript(harness.DirectoryPath, "server=localhost;", false);
+		Assert.AreEqual(existingState switch
+		{
+			1 => StartupScriptGenerationResult.Updated,
+			2 => StartupScriptGenerationResult.Unchanged,
+			_ => StartupScriptGenerationResult.Created
+		}, result);
+		Assert.AreEqual(UnixFileMode.UserRead | UnixFileMode.UserWrite | UnixFileMode.UserExecute,
+			File.GetUnixFileMode(scriptPath));
+		Assert.AreEqual(StartupScriptGenerator.BuildLinuxScript("server=localhost;"), File.ReadAllText(scriptPath));
+	}
+
 	[TestMethod]
 	public void BuildWindowsScript_QuotesPathsAppliesStagedPayloadAndBacksOff()
 	{

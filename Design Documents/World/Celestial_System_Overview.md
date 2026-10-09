@@ -68,6 +68,8 @@ Some celestial types also expose arbitrary-instant ephemeris interfaces for cale
 
 The solver is intentionally deterministic and engine-local. Visible crescent detection uses geometric thresholds at sunset; it does not consult manual observation ledgers or weather-dependent official calendar decisions.
 
+Physical ephemeris queries accept occurrences from 1 through 32. The service rejects larger requests before sampling, bounding the number of repeated searches from both Time previews and FutureProg callers. One query also shares a budget of 100,000 ephemeris samples across all occurrences, refinement and nested crescent searches; exhausting it returns a search-limit failure (`Never` to FutureProg) without a partial result. Each search retains its existing finite search window. Authored celestials use their separately bounded cycle/rank queries and retain their larger occurrence range.
+
 Weather controllers also sample these frames without advancing live clocks to build their persisted future weather schedules. Physical and authored frames preserve their existing time-of-day rules. Authored activation invalidates dependent forecasts, including composite frames; previously issued player readings remain unchanged. See [Weather forecasts and hazardous weather](Weather_System.md).
 
 ## Observer Frames
@@ -128,4 +130,4 @@ FutureProgs can also ask for deterministic event times as `MudDateTime` values:
 - `nextvisiblecrescent(location|zone, sunId, moonId, calendar[, occurrence])`
 - `nextcelestialevent(location|zone, celestialId, calendar, "custom:key"[, occurrence])`
 
-These functions also accept resolved celestial objects. They project the found `MudInstant` through the supplied calendar, clock and local zone timezone. Physical pairs use the existing bounded ephemeris solver. Authored capabilities use independent minute-sampled tracks and direct cycle/rank arithmetic, ignoring observer geography. Unavailable events, invalid arguments and incompatible time contexts return `MudDateTime.Never`. `moonphase(location|zone)` selects the first celestial exposing lunar phase capability. See [Authored Celestials](Authored_Celestials.md) for synthetic longitude and explicitly associated crescent markers.
+These functions also accept resolved celestial objects. They project the found `MudInstant` through the supplied calendar, clock and local zone timezone. Physical pairs use the bounded ephemeris solver with an occurrence limit of 32. Authored capabilities use independent minute-sampled tracks and direct cycle/rank arithmetic, ignoring observer geography. Unavailable events, invalid arguments (including larger physical occurrences) and incompatible time contexts return `MudDateTime.Never`. `moonphase(location|zone)` selects the first celestial exposing lunar phase capability. See [Authored Celestials](Authored_Celestials.md) for synthetic longitude and explicitly associated crescent markers.

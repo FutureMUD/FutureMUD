@@ -28,12 +28,17 @@ public partial class MagicAttackPower
 		AttackSpellPower = Enum.Parse<SpellPower>(root.Element("AttackSpellPower")?.Value ?? "Standard", true);
 		foreach (var element in root.Element("AttackEffects")?.Elements("Effect") ?? [])
 		{
-			_attackEffects.Add(new MagicAttackEffect(
+			var effect = new MagicAttackEffect(
 				Enum.Parse<MagicAttackEffectType>(element.Attribute("type")!.Value, true),
 				Enum.Parse<Difficulty>(element.Element("Resistance")!.Value, true),
 				double.Parse(element.Element("Strength")!.Value, CultureInfo.InvariantCulture),
 				double.Parse(element.Element("DurationSeconds")!.Value, CultureInfo.InvariantCulture),
-				element.Element("SuccessEmote")!.Value, element.Element("ResistEmote")!.Value));
+				element.Element("SuccessEmote")!.Value, element.Element("ResistEmote")!.Value);
+			_attackEffects.Add(effect with
+			{
+				Strength = double.IsFinite(effect.Strength) ? Math.Min(effect.Strength, MagicAttackEffect.MaximumStrength) : effect.Strength,
+				DurationSeconds = double.IsFinite(effect.DurationSeconds) ? Math.Min(effect.DurationSeconds, MagicAttackEffect.MaximumDurationSeconds) : effect.DurationSeconds
+			});
 		}
 		ValidateCombatDefinition();
 	}
@@ -44,8 +49,7 @@ public partial class MagicAttackPower
 		    TargetsItems && _attackEffects.Count > 0 ||
 		    _attackEffects.Select(x => x.Type).Distinct().Count() != _attackEffects.Count ||
 		    _attackEffects.Any(x => !Enum.IsDefined(x.Type) || !Enum.IsDefined(x.Resistance) ||
-		                           !double.IsFinite(x.Strength) || x.Strength <= 0 ||
-		                           !double.IsFinite(x.DurationSeconds) || x.DurationSeconds < 0) ||
+		                           !x.HasValidParameters) ||
 		    (_attackEffects.Any(x => x.Type == MagicAttackEffectType.Pull) &&
 		     _attackEffects.Any(x => x.Type == MagicAttackEffectType.Pushback)))
 			throw new ApplicationException($"Invalid combat configuration for magic power {Id} ({Name}).");
@@ -145,9 +149,9 @@ public partial class MagicAttackPower
 					break;
 				}
 				if (!Enum.TryParse<Difficulty>(option, true, out var difficulty) || !Enum.IsDefined(difficulty) ||
-				    !double.TryParse(command.PopSpeech(), out var strength) || !double.IsFinite(strength) || strength <= 0 ||
-				    !double.TryParse(command.PopSpeech(), out var seconds) || !double.IsFinite(seconds) || seconds < 0)
-				{ actor.Send("Use rider <type> <resistance difficulty> <strength> <seconds>, remove, success <emote>, or resist <emote>."); return false; }
+				    !double.TryParse(command.PopSpeech(), out var strength) || !double.IsFinite(strength) || strength <= 0 || strength > MagicAttackEffect.MaximumStrength ||
+				    !double.TryParse(command.PopSpeech(), out var seconds) || !double.IsFinite(seconds) || seconds < 0 || seconds > MagicAttackEffect.MaximumDurationSeconds)
+				{ actor.Send("Use rider <type> <resistance difficulty> <strength> <seconds>, remove, success <emote>, or resist <emote>. Strength must be greater than zero and at most 1000; duration must be between 0 and 86400 seconds."); return false; }
 				if (_attackEffects.Any(x => (type == MagicAttackEffectType.Pull && x.Type == MagicAttackEffectType.Pushback) || (type == MagicAttackEffectType.Pushback && x.Type == MagicAttackEffectType.Pull)))
 				{ actor.Send("Pull and pushback cannot be combined."); return false; }
 				_attackEffects.RemoveAll(x => x.Type == type);

@@ -59,7 +59,7 @@ public static class ItemTimeRateExtensions
 				var rate = modifier.RateMultiplierFor(type);
 				if (rate is not null)
 				{
-					return Math.Max(0.0, rate.Value);
+					return double.IsFinite(rate.Value) ? Math.Max(0.0, rate.Value) : 0.0;
 				}
 			}
 
@@ -86,7 +86,15 @@ public static class ItemTimeRateMath
 
 	public static TimeSpan EffectiveElapsed(TimeSpan wallElapsed, double rate)
 	{
-		return TimeSpan.FromTicks((long)(wallElapsed.Ticks * Math.Max(0.0, rate)));
+		if (!double.IsFinite(rate) || rate <= 0.0)
+		{
+			return TimeSpan.Zero;
+		}
+
+		var ticks = wallElapsed.Ticks * rate;
+		if (ticks >= long.MaxValue) return TimeSpan.MaxValue;
+		if (ticks <= long.MinValue) return TimeSpan.MinValue;
+		return TimeSpan.FromTicks((long)ticks);
 	}
 
 	public static TimeSpan PreservedMorphRemaining(TimeSpan wallRemaining, bool refrigerationSensitive,
@@ -104,8 +112,9 @@ public static class ItemTimeRateMath
 
 	public static TimeSpan? WallDuration(TimeSpan effectiveDuration, double rate)
 	{
-		return rate <= 0.0
-			? null
-			: TimeSpan.FromTicks((long)(effectiveDuration.Ticks / rate));
+		if (!double.IsFinite(rate) || rate <= 0.0) return null;
+		if (effectiveDuration <= TimeSpan.Zero) return TimeSpan.Zero;
+		var ticks = effectiveDuration.Ticks / rate;
+		return !double.IsFinite(ticks) || ticks >= long.MaxValue ? null : TimeSpan.FromTicks((long)ticks);
 	}
 }

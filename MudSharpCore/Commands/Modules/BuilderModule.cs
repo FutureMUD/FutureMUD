@@ -600,7 +600,7 @@ You must use one of the following subcommands of this command:
             }
             else
             {
-                ICharacteristicDefinition definition = actor.Gameworld.Characteristics.FirstOrDefault(x => x.Pattern.IsMatch(cmd));
+                ICharacteristicDefinition definition = actor.Gameworld.Characteristics.FirstOrDefault(x => x.MatchesPattern(cmd));
                 if (definition == null)
                 {
                     actor.OutputHandler.Send(
@@ -879,7 +879,7 @@ You must use one of the following subcommands of this command:
             }
             else
             {
-                ICharacteristicDefinition definition = actor.Gameworld.Characteristics.FirstOrDefault(x => x.Pattern.IsMatch(cmd));
+                ICharacteristicDefinition definition = actor.Gameworld.Characteristics.FirstOrDefault(x => x.MatchesPattern(cmd));
                 if (definition == null)
                 {
                     actor.OutputHandler.Send(
@@ -3412,7 +3412,7 @@ Also, as an admin you should see the two related commands #3GIVETATTOO#0 and #3F
             actor.OutputHandler.Handle(new EmoteOutput(new Emote(
                 $"@ are|is proposing to begin continue working on $1's !2.", actor, actor, target,
                 new DummyPerceivable(
-                    perc => tattoo.ShortDescription.SubstituteWrittenLanguage(perc, actor.Gameworld).Strip_A_An(),
+                    perc => tattoo.ShortDescriptionFor(perc).Strip_A_An(),
                     perc => ""))));
             target.OutputHandler.Send(Accept.StandardAcceptPhrasing);
             target.AddEffect(new Accept(target, new GenericProposal

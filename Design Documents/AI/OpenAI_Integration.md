@@ -2,7 +2,7 @@
 
 ## Purpose
 
-FutureMUD uses OpenAI for builder description suggestions, configured GPT threads, FutureProg GPT requests, and AI Storytellers. The API key is read from the `GPT_Secret_Key` static configuration and must never be written to command output, Discord alerts, or request logs.
+FutureMUD uses OpenAI for builder description suggestions, configured GPT threads, FutureProg GPT requests, and AI Storytellers. The API key is read from the `GPT_Secret_Key` static configuration. Only implementors can explicitly view or edit this setting in game; other administrators see a red `Redacted for Security` placeholder. The key must never appear in ordinary request output, Discord alerts, or request logs. See [Static Configuration Security](../Core/Static_Configuration_Security.md).
 
 ## API and SDK
 

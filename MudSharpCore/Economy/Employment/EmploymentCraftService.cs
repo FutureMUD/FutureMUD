@@ -30,6 +30,11 @@ internal static class EmploymentCraftService
 			return false;
 		}
 
+		if (!ValidateStationAccess(FindPriorStationReservation(context), actor, out reason))
+		{
+			return false;
+		}
+
 		if (MatchingActiveCraft(actor, craft) is not null || TryGetPriorCraftState(context, craft, out _))
 		{
 			reason = string.Empty;
@@ -378,6 +383,13 @@ internal static class EmploymentCraftService
 		IReadOnlyCollection<long> taskInputItemIds, CraftState? priorState, out CraftState state, out string reason)
 	{
 		var now = DateTimeOffset.UtcNow;
+		var station = FindPriorStationReservation(context) ?? priorState?.Station;
+		if (!ValidateStationAccess(station, actor, out reason))
+		{
+			state = null!;
+			return false;
+		}
+
 		var shouldRefresh = priorState?.Reservation is null ||
 		                    priorState.ExpiresAt <= now ||
 		                    priorState.CraftId != craft.Id ||
@@ -409,10 +421,22 @@ internal static class EmploymentCraftService
 			shouldRefresh ? now : priorState!.ReservedAt,
 			shouldRefresh ? now.Add(duration) : priorState!.ExpiresAt,
 			reservation,
-			FindPriorStationReservation(context) ?? priorState?.Station,
+			station,
 			priorState?.OutputItemIds ?? []);
 		if (!TryApplyReservationLocks(context.CurrentTask, actor.Gameworld, state, component, out reason))
 		{
+			return false;
+		}
+
+		reason = string.Empty;
+		return true;
+	}
+
+	private static bool ValidateStationAccess(CraftStationReservation? station, ICharacter actor, out string reason)
+	{
+		if (station?.ItemId is { } itemId && actor.TargetLocalOrHeldItem(station.Selector)?.Id != itemId)
+		{
+			reason = $"The reserved craft station {station.Description} is no longer accessible to the assigned employee.";
 			return false;
 		}
 
@@ -623,8 +647,22 @@ internal static class EmploymentCraftService
 
 		var duration = state.ExpiresAt - DateTimeOffset.UtcNow;
 		var reservedItems = new List<(IGameItem Item, string Description)>();
+		var currentResourceIds = ReservationItemIds(state, component, false).ToHashSet();
 		foreach (var itemId in ReservationItemIds(state, component))
 		{
+			var isStationOnly = state.Station?.ItemId == itemId &&
+			                    !currentResourceIds.Contains(itemId);
+			if (isStationOnly)
+			{
+				if (!TryApplyStationReservationLock(task, gameworld, state.Station! with { ExpiresAt = state.ExpiresAt },
+					StationReservationCapacity(gameworld), out reason))
+				{
+					return false;
+				}
+
+				continue;
+			}
+
 			if (gameworld.TryGetItem(itemId, true) is not { } item)
 			{
 				reason = $"Reserved craft resource item #{itemId:N0} could not be found.";
@@ -682,12 +720,12 @@ internal static class EmploymentCraftService
 		}
 
 		RefreshReservationEffect(item, task, $"craft station {station.Description}", station.ExpiresAt,
-			station.ExpiresAt - DateTimeOffset.UtcNow);
+			station.ExpiresAt - DateTimeOffset.UtcNow, false);
 		return true;
 	}
 
 	private static void RefreshReservationEffect(IGameItem item, IEmploymentActiveTask task, string description,
-		DateTimeOffset expiresAt, TimeSpan duration)
+		DateTimeOffset expiresAt, TimeSpan duration, bool preventPickup = true)
 	{
 		if (duration <= TimeSpan.Zero)
 		{
@@ -697,13 +735,10 @@ internal static class EmploymentCraftService
 		item.RemoveAllEffects<EmploymentCraftReservationEffect>(
 			x => x.CorrelationId == task.CorrelationId,
 			false);
-		item.AddEffect(new EmploymentCraftReservationEffect(
-			item,
-			task.Id,
-			task.CorrelationId,
-			task.Name,
-			description,
-			expiresAt), duration);
+		EmploymentCraftReservationEffect effect = preventPickup
+			? new EmploymentCraftResourceReservationEffect(item, task.Id, task.CorrelationId, task.Name, description, expiresAt)
+			: new EmploymentCraftReservationEffect(item, task.Id, task.CorrelationId, task.Name, description, expiresAt);
+		item.AddEffect(effect, duration);
 	}
 
 	private static IReadOnlyCollection<EmploymentCraftReservationEffect> ActiveReservationEffects(IGameItem item)
@@ -724,7 +759,7 @@ internal static class EmploymentCraftService
 	}
 
 	private static IReadOnlyCollection<long> ReservationItemIds(CraftState state,
-		IActiveCraftGameItemComponent? component = null)
+		IActiveCraftGameItemComponent? component = null, bool includeStation = true)
 	{
 		var ids = new List<long>();
 		if (state.Reservation is not null)
@@ -739,7 +774,7 @@ internal static class EmploymentCraftService
 			                  .Select(x => x.ItemId));
 		}
 
-		if (state.Station?.ItemId is { } stationItemId)
+		if (includeStation && state.Station?.ItemId is { } stationItemId)
 		{
 			ids.Add(stationItemId);
 		}

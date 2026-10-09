@@ -357,9 +357,13 @@ When extending the seeder side of the economy:
 
 ### Hospital persistence note
 
+Combined-service usage reservations use the existing task operational payload and request/debt fields; no schema or seeder changes are required. Legacy usage counts are reconciled before further treatment. The phase debit and task checkpoint are saved together before clinical startup rather than relying on the later save queue.
+
 The blank-database snapshot and manifest include migration `20260816012516_HospitalServiceConsentPolicy`. It adds the non-null `HospitalServices.ConsentPolicy` column, defaults services to informed consent, and backfills existing Stabilisation rows to emergency presumed consent. Hospital stock content remains world-specific; when seeded later, its manager-goal authority requirements must be delegated deliberately alongside service-equipment editing rights.
 
 ### Restaurant seeding posture
+
+The runtime default registry supplies `RestaurantMaximumOrderQuantity = 100` for fresh and existing worlds without a migration or manual setup. Operators may change it through static configuration; runtime enforcement clamps it to 1–1,000 and separately limits each orderer's unserved quantity at a restaurant to 1,000.
 
 Restaurants are runtime-ready but deliberately have no stock cafe or restaurant package. A useful restaurant needs world-specific cells, physical table furniture, shop merchandise and stock sources, optionally world-specific crafts, plates, containers, bags, staff, payment instruments, service presentation, and legal policy. It should also configure real kitchen containers for ingredients, reusable tools, servingware, inner takeaway containers, and outer takeaway bags as appropriate. Seeding a generic venue would therefore create more misleading content than useful content. The current restaurant workflow migration adds restaurant-wide takeaway-bag configuration and persisted kitchen-storage roles while removing the superseded per-menu bag configuration; a fresh blank snapshot must be refreshed through the standard snapshot workflow after that migration is applied.
 
@@ -373,6 +377,6 @@ Migration `20260904111218_AddEconomyAnalytics` creates `EconomicActivityRecords`
 - `EconomyAnalyticsSnapshotIntervalMinutes = 1440`
 - `EconomyAnalyticsRolloverSnapshotsEnabled = true`
 
-The runtime default registry additionally exposes `EconomyAnalyticsGlobalDisplayCurrencyId = 0`. It is intentionally content-neutral rather than seeded with a world-specific database ID: `0` makes analytics use the world's first currency, and `economy config currency <currency>` persists an explicit selection when the world operator chooses one.
+The runtime default registry additionally exposes `EconomyAnalyticsGlobalDisplayCurrencyId = 0`. It is intentionally content-neutral rather than seeded with a world-specific database ID: `0` makes analytics use the world's first currency, and `economy config currency <currency>` persists an explicit selection when the world operator chooses one. `EconomyAnalyticsCashGiftsEnabled = false` is also supplied by runtime bootstrap for fresh and existing worlds; it requires no migration or manual setup. Operators can explicitly enable individual cash-gift history through static configuration if its usefulness warrants the storage cost.
 
 No economy content package is required. The service creates its first baseline after the world, items, characters, and economy hosts finish loading. The activity ledger starts empty and its reports state their actual coverage start; the seeder does not import or reinterpret old bank/shop histories. Operators that do not want durable trend data can set snapshots off immediately (or after installation) without affecting live reports or future activity-volume collection. Existing snapshot rows are retained indefinitely in this initial version; database-constrained games should disable collection before history growth becomes material.

@@ -33,6 +33,32 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class LandRejuvenationTests
 {
+	[TestMethod]
+	public void Treatment_RepeatedDispel_DoesNotRetainTerminalAdmissionRecords()
+	{
+		using var f = new Fixture();
+		Guid last = default;
+		for (var i = 0; i < 1000; i++)
+		{
+			var child = f.Install(12, 2, 600);
+			last = child.TreatmentId;
+			f.Room.RemoveEffect(child.ParentEffect, true);
+			Assert.AreEqual(0, f.Environment.Coordinator.CachedTreatmentRecordCount);
+			Assert.IsTrue(f.Environment.Coordinator.CanInstallTreatment(f.Room, out var error), error);
+		}
+		Assert.AreEqual(20.0, f.Scar);
+		Assert.AreEqual(0, f.Environment.Coordinator.ActiveTreatmentCount);
+		Assert.AreEqual(1000, f.Environment.Coordinator.InspectTreatments(f.Room).Count);
+		Assert.AreEqual(LandRejuvenationStatus.Cancelled,
+			f.Environment.Coordinator.InspectTreatment(f.Room, last)!.Status);
+		Assert.AreEqual(0, f.Environment.Coordinator.CachedTreatmentRecordCount, "History inspection must not repopulate the admission cache.");
+		var historyReads = f.Environment.Operations.TreatmentHistoryReads;
+		using var reloaded = new Fixture(operations: f.Environment.Operations);
+		Assert.IsTrue(reloaded.Environment.Coordinator.CanInstallTreatment(reloaded.Room, out var reloadError), reloadError);
+		Assert.AreEqual(0, reloaded.Environment.Coordinator.CachedTreatmentRecordCount);
+		Assert.AreEqual(historyReads, f.Environment.Operations.TreatmentHistoryReads, "Cold admission must not request terminal history.");
+	}
+
 	[TestMethod, TestCategory("R-T01"), TestCategory("R-T02"), TestCategory("R-T13")]
 	public void Template_FactoryBuilderCloneAndCompatibility_ArePureAndExplicit()
 	{

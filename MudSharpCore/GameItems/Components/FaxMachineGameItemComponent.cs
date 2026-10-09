@@ -48,8 +48,17 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
         TelecommunicationsGrid != null &&
         !string.IsNullOrWhiteSpace(PhoneNumber) &&
         !IsEngaged &&
-        !IsRinging;
+		!IsRinging && _pendingFaxes.Count < MaximumPendingJobs;
     public int CurrentInkLevels { get; protected set; }
+	private int MaximumPendingJobs =>
+		int.TryParse(Gameworld.GetStaticConfiguration("FaxMaximumPendingJobs"), out var value) && value > 0
+			? Math.Min(value, 200)
+			: 50;
+
+	internal static int MaximumDocumentReadables(IFuturemud gameworld) =>
+		int.TryParse(gameworld.GetStaticConfiguration("FaxMaximumDocumentReadables"), out var value) && value > 0
+			? Math.Min(value, 4096)
+			: 1024;
 
     protected override void UpdateComponentNewPrototype(IGameItemComponentProto newProto)
     {
@@ -280,6 +289,12 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
             error = "That document has nothing on it to fax.";
             return false;
         }
+		var maximumReadables = MaximumDocumentReadables(Gameworld);
+		if (document.Readables.Take(maximumReadables + 1).Count() > maximumReadables)
+		{
+			error = "That document is too large to fax in one transmission.";
+			return false;
+		}
 
         if (string.IsNullOrWhiteSpace(number))
         {
@@ -308,7 +323,8 @@ public class FaxMachineGameItemComponent : TelephoneGameItemComponent, IFaxMachi
 
     public void ReceiveFax(string senderNumber, IReadOnlyCollection<ICanBeRead> document)
     {
-        if (!document.Any())
+		if (document.Count == 0 || document.Count > MaximumDocumentReadables(Gameworld) ||
+			_pendingFaxes.Count >= MaximumPendingJobs)
         {
             return;
         }

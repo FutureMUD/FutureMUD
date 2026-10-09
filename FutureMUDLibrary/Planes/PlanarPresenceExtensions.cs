@@ -140,15 +140,8 @@ public static class PlanarPresenceExtensions
 			return string.Empty;
 		}
 
-		string tag;
-		try
-		{
-			tag = string.Format(plane.RemoteObservationTag, plane.Name);
-		}
-		catch (FormatException)
-		{
-			tag = $"({plane.Name})";
-		}
+		var tag = PlaneDisplayFormat.TryFormat(plane.RemoteObservationTag, plane.Name, out var formatted)
+			? formatted : $"({plane.Name})";
 
 		tag = tag.SubstituteANSIColour();
 		return colour ? tag : tag.StripANSIColour();

@@ -30,6 +30,7 @@ public class PreparedGetStackMergeTests
 		Assert.AreEqual(ItemGetResponse.Unpositionable, source.CanGet());
 		Assert.AreEqual(ItemGetResponse.Unpositionable, source.CanGet(0));
 		Assert.AreEqual(ItemGetResponse.Unpositionable, source.CanGet(1));
+		Assert.AreEqual(ItemGetResponse.Unpositionable, source.CanGet(1, ItemCanGetIgnore.IgnoreCombat | ItemCanGetIgnore.IgnoreInventoryPlans));
 		Assert.IsFalse(survivor.CanMerge(source));
 		Assert.IsFalse(source.CanMerge(survivor));
 		CollectionAssert.AreEqual(new IGameItem[] { survivor },
@@ -42,6 +43,23 @@ public class PreparedGetStackMergeTests
 			MudSharp.Character.Character.IncludeTargetProjections([host.Object]).ToArray());
 		Assert.AreEqual(5, survivor.Quantity);
 		Assert.AreEqual(quantity, source.Quantity);
+	}
+
+	[TestMethod]
+	public void CommittedGetStackMerge_AdditionalComponentRemnant_CannotBePickedUpOrMergedAgain()
+	{
+		var (survivor, source, holder) = Pair(5, 3);
+		((List<IGameItemComponent>)typeof(GameItem).GetField("_components", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(source)!)
+			.Add(Mock.Of<IGameItemComponent>());
+		survivor.MergeCommittedStackForGet(source, holder);
+		Assert.IsFalse(source.Deleted);
+		Assert.AreEqual(8, survivor.Quantity);
+		Assert.AreEqual(0, source.Quantity);
+		Assert.AreEqual(ItemGetResponse.Unpositionable, source.CanGet(0));
+		Assert.IsFalse(survivor.CanMerge(source));
+		source.GetItemType<IStackable>()!.Quantity = 2;
+		Assert.IsTrue(survivor.CanMerge(source), "A legitimate later refill remains mergeable.");
+
 	}
 
 	[DataTestMethod]

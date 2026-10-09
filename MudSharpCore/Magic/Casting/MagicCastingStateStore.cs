@@ -17,6 +17,7 @@ public interface IMagicCastingStateStore
 	IReadOnlySet<long> CappedTraits(long characterId);
 	CastingSupportAcquisition? SupportGrant(long characterId, Guid identity, Guid key);
 	AcquiredSpell? Acquisition(long characterId, long spellId);
+	bool HasAnyAcquisition(long characterId, IReadOnlyCollection<long> spellIds);
 	CastingSkillOpportunity? Opportunity(long characterId, long traitId);
 	CastingEnrolment? Enrolment(long characterId, Guid capabilityIdentity);
 	IReadOnlyList<CastingOperation> Unresolved(long? characterId = null);
@@ -65,6 +66,14 @@ public sealed class MagicCastingStateStore : IMagicCastingStateStore
 			return row is null ? null : new(row.CharacterId, row.MagicSpellId, row.ControlledGrade, row.ProfileVersion,
 				Utc(row.AcquiredUtc), row.Provenance, Utc(row.NextMasteryUtc), row.StateVersion);
 		}
+	}
+	public bool HasAnyAcquisition(long characterId, IReadOnlyCollection<long> spellIds)
+	{
+		if (spellIds.Count == 0) return false;
+		var ids = spellIds.Distinct().ToArray();
+		using (new FMDB())
+			return FMDB.Context.CharacterAcquiredSpells.AsNoTracking()
+				.Any(x => x.CharacterId == characterId && ids.Contains(x.MagicSpellId));
 	}
 	public CastingSkillOpportunity? Opportunity(long characterId, long traitId)
 	{

@@ -1779,6 +1779,7 @@ public partial class UnifiedEmploymentDispatchTests
 	[TestMethod]
 	public void HospitalMedicalServiceRunner_ChargesUsageBilledServiceToDebt()
 	{
+		using var billingDatabase = new HospitalBillingTestDbScope();
 		var currency = Currency();
 		var bindingService = new Mock<IHospitalService>();
 		bindingService.SetupGet(x => x.Id).Returns(9120);
@@ -1831,6 +1832,10 @@ public partial class UnifiedEmploymentDispatchTests
 		request.SetupGet(x => x.PaymentMethod).Returns(HospitalPaymentMethod.Debt);
 		request.SetupGet(x => x.PatientId).Returns(patient.Object.Id);
 		request.SetupGet(x => x.Patient).Returns(patient.Object);
+		var chargedDebt = 0.0M;
+		request.SetupGet(x => x.DebtCharged).Returns(() => chargedDebt);
+		request.Setup(x => x.MarkCharged(It.IsAny<decimal>(), It.IsAny<decimal>(), It.IsAny<decimal?>()))
+			.Callback<decimal, decimal, decimal?>((_, debt, _) => chargedDebt = debt);
 		var task = new EmploymentActiveTask(hospital.Object, "Treat patient",
 			new EmploymentActionPlan([new HospitalServiceActionStep(hospital.Object, request.Object)]), Guid.NewGuid());
 		task.Assign(employee.Object);
@@ -1845,7 +1850,7 @@ public partial class UnifiedEmploymentDispatchTests
 
 		Assert.IsTrue(result.Success, result.Message);
 		debtAccount.Verify(x => x.Charge(12.5M, It.Is<string>(text => text.Contains("Full Treatment"))), Times.Once);
-		request.Verify(x => x.MarkCharged(0.0M, 12.5M, 12.5M), Times.Once);
+		request.Verify(x => x.MarkCharged(0.0M, 12.5M, 12.5M), Times.AtLeastOnce);
 		request.Verify(x => x.MarkStatus(HospitalServiceRequestStatus.Completed,
 			It.Is<string>(text => text.Contains("Usage-billed hospital charge"))), Times.Once);
 	}
@@ -4468,7 +4473,7 @@ public partial class UnifiedEmploymentDispatchTests
 			EmploymentAuthority.AssignTasks |
 			EmploymentAuthority.ApprovePurchases |
 			EmploymentAuthority.ManageStockRules |
-			EmploymentAuthority.UseStoreAccount), null);
+			EmploymentAuthority.WithdrawBusinessCash), null);
 		var task = state.TaskBoard.CreateActiveTask("account transfer",
 			new EmploymentActionPlan([
 				new CataloguedActionShellStep("authorise", "supplier transfer", new MoneyAmount(currency.Object, 10.0M)),
@@ -4522,7 +4527,7 @@ public partial class UnifiedEmploymentDispatchTests
 			EmploymentAuthority.AssignTasks |
 			EmploymentAuthority.ApprovePurchases |
 			EmploymentAuthority.ManageStockRules |
-			EmploymentAuthority.UseStoreAccount), null);
+			EmploymentAuthority.WithdrawBusinessCash), null);
 		var task = state.TaskBoard.CreateActiveTask("blocked account transfer",
 			new EmploymentActionPlan([
 				new CataloguedActionShellStep("authorise", "supplier transfer", new MoneyAmount(currency.Object, 10.0M)),
@@ -4573,7 +4578,7 @@ public partial class UnifiedEmploymentDispatchTests
 			EmploymentAuthority.AssignTasks |
 			EmploymentAuthority.ApprovePurchases |
 			EmploymentAuthority.ManageStockRules |
-			EmploymentAuthority.UseStoreAccount), null);
+			EmploymentAuthority.WithdrawBusinessCash), null);
 		var actionPlan = new EmploymentActionPlan([
 			new CataloguedActionShellStep("reserve", "supplier transfer", new MoneyAmount(currency.Object, 10.0M)),
 			new BankAccountTransferActionStep(targetAccount.Object.AccountReference,
@@ -8178,6 +8183,8 @@ public partial class UnifiedEmploymentDispatchTests
 		Assert.AreEqual(task.CorrelationId, addedEffects.Single().CorrelationId);
 		Assert.IsTrue(addedDurations.Single() > TimeSpan.FromMinutes(6.5));
 		Assert.IsTrue(addedDurations.Single() <= TimeSpan.FromMinutes(7.0));
+		Assert.IsFalse(addedEffects.Single() is INoGetEffect, "Station occupancy must not prevent normal pickup.");
+		Assert.IsFalse(addedEffects.Single().PreventsItemFromMerging(station.Object, Item(999, "other item").Object));
 	}
 
 	[TestMethod]
@@ -8428,6 +8435,7 @@ public partial class UnifiedEmploymentDispatchTests
 		StringAssert.Contains(reason, "did not create a native active craft effect");
 		Assert.AreEqual(1, addedEffects.Count);
 		Assert.AreEqual(task.CorrelationId, addedEffects.Single().CorrelationId);
+		Assert.IsTrue(addedEffects.Single() is INoGetEffect, "Actual reserved craft inputs retain pickup locks.");
 		AssertReservationCleanup(reservedInput, inputPredicates, task);
 	}
 

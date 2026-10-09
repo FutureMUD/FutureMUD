@@ -69,18 +69,9 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 
 	public IReadOnlyList<MagicGatheringMethodView> Methods(ICharacter actor, IMagicGatheringCapability capability)
 	{
-		if (AccessError(actor, capability) is { } error)
-		{
-			return capability.GatheringMethods.Select(x => new MagicGatheringMethodView(x.Key, x.Alias, x.Name, x.Kind,
-				x.MinimumAmount, x.MaximumAmount, error)).ToArray();
-		}
-
-		return capability.GatheringMethods.Select(method =>
-		{
-			MagicGatheringResult quote = Quote(actor, capability, method, method.MinimumAmount);
-			return new MagicGatheringMethodView(method.Key, method.Alias, method.Name, method.Kind, method.MinimumAmount,
-				method.MaximumAmount, quote.Success ? null : quote.Message);
-		}).ToArray();
+		var error = AccessError(actor, capability);
+		return capability.GatheringMethods.Select(x => new MagicGatheringMethodView(x.Key, x.Alias, x.Name, x.Kind,
+			x.MinimumAmount, x.MaximumAmount, error)).ToArray();
 	}
 
 	public MagicGatheringResult Preview(ICharacter actor, IMagicGatheringCapability capability, string method, double amount)

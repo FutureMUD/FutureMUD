@@ -399,7 +399,8 @@ The syntax is as follows:
 					actor.CurrentAccent = acquired;
                 }
             }
-            actor.OutputHandler.Send($"You are currently speaking {actor.CurrentLanguage.Name.Proper().ColourValue()} {actor.CurrentAccent.AccentSuffix}.");
+			var suffix = actor.CurrentAccent is { } currentAccent ? $" {currentAccent.AccentSuffix}" : "";
+			actor.OutputHandler.Send($"You are currently speaking {actor.CurrentLanguage.Name.Proper().ColourValue()}{suffix}.");
             return;
         }
 
@@ -428,6 +429,13 @@ The syntax is as follows:
 
         if (accent == null)
         {
+			if (string.IsNullOrEmpty(taccent) && !language.Accents.Any())
+			{
+				actor.CurrentLanguage = language;
+				actor.CurrentAccent = null;
+				actor.OutputHandler.Send($"You will now speak in {language.Name.Proper().ColourValue()}.");
+				return;
+			}
             actor.OutputHandler.Send($"You do not know that accent of {language.Name.Proper().ColourValue()}.");
             return;
         }
@@ -1090,6 +1098,12 @@ The syntax is:
             error = $"{item.HowSeen(actor, true)} cannot be used for voice calls.";
             return false;
         }
+
+		if (telephone is IImplant)
+		{
+			error = "Implant telephones must be controlled through their wearer's neural interface.";
+			return false;
+		}
 
         error = string.Empty;
         return true;

@@ -2373,11 +2373,9 @@ The syntax is as follows:
         else
         {
             List<IGameItem> remandBelongings = actor == who && jurisdiction.IsInRemandRoom(actor)
-                ? PrisonerBelongingsBundles(jurisdiction, actor).ToList()
+                ? PrisonerBelongingsBundles(jurisdiction, actor).Where(x => x.IsItemType<IContainer>()).ToList()
                 : new List<IGameItem>();
-            OtherCashPayment payment = remandBelongings.Any()
-                ? new OtherCashPayment(jurisdiction.Currency, actor, actor.Body.ExternalItems.Concat(remandBelongings))
-                : new OtherCashPayment(jurisdiction.Currency, actor);
+            OtherCashPayment payment = CreateLawyerCashPayment(jurisdiction.Currency, actor, remandBelongings);
             decimal accessible = payment.AccessibleMoneyForPayment();
             if (accessible < fee)
             {
@@ -2409,6 +2407,15 @@ The syntax is as follows:
         target.AddEffect(new Lawyering(target, jurisdiction) { EngagedByCharacter = who });
         who.AddEffect(new HasLegalCounsel(who, target));
     }
+
+	private static OtherCashPayment CreateLawyerCashPayment(ICurrency currency, ICharacter actor,
+		IReadOnlyList<IGameItem> remandBelongings)
+	{
+		return remandBelongings.Count > 0
+			? new OtherCashPayment(currency, actor, actor.Body.ExternalItems.Concat(remandBelongings),
+				remandBelongings[0].GetItemType<IContainer>())
+			: new OtherCashPayment(currency, actor);
+	}
 
     private static IEnumerable<IGameItem> PrisonerBelongingsBundles(ILegalAuthority jurisdiction, ICharacter prisoner)
     {
@@ -2646,6 +2653,7 @@ The syntax is as follows:
             List<ICharacter> defendants = authority.KnownCrimes
                                                   .Select(x => x.Criminal)
                                                   .Distinct()
+												  .Where(x => CanManuallyJudge(actor, x, authority, out _))
                                                   .Where(x =>
                                                       x.AffectedBy<AwaitingSentencing>(authority) ||
                                                       x.AffectedBy<OnBail>(authority) ||

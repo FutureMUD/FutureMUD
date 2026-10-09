@@ -454,6 +454,7 @@ internal static partial class GNHProgram
 		public bool LoseNextAcknowledgement { get; set; }
 		public LandRejuvenationProgress? FindTreatment(Guid id) => _inner.FindTreatment(id);
 		public IReadOnlyList<LandRejuvenationProgress> TreatmentsFor(long cellId) => _inner.TreatmentsFor(cellId);
+		public IReadOnlyList<LandRejuvenationProgress> UnresolvedTreatmentsFor(long cellId) => _inner.UnresolvedTreatmentsFor(cellId);
 		public void SaveTreatment(LandRejuvenationProgress progress, long? revision) => _inner.SaveTreatment(progress, revision);
 		public StoredEnvironmentalMagicOperation? Find(Guid id) => _inner.Find(id);
 		public StoredEnvironmentalMagicState Load(Room room) => _inner.Load(room);

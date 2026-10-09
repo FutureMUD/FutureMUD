@@ -1546,15 +1546,11 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         }
 
         StoredAudioRecording stored = new(GreetingRecordingName, new RecordedAudio(_workingGreetingSegments), DateTime.UtcNow);
-		if (!StoreAudioRecording(stored, out error))
-        {
-            return false;
-        }
+		var saved = StoreAudioRecording(stored, out error);
 
         _workingGreetingSegments.Clear();
         _lastGreetingSegmentUtc = null;
-        error = string.Empty;
-        return true;
+		return saved;
     }
 
     private void AppendGreetingSegment(ICharacter speaker, AudioVolume volume, ILanguage language, IAccent accent,
@@ -1571,6 +1567,23 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         TimeSpan delay = _lastGreetingSegmentUtc.HasValue ? now - _lastGreetingSegmentUtc.Value : TimeSpan.Zero;
         SpokenLanguageInfo spoken = new(language, accent, volume, text, Outcome.Pass, speaker, target, Parent);
         RecordedAudioSegment segment = RecordedAudioSegment.FromSpokenLanguage(spoken, delay);
+		var medium = Medium;
+		if (medium == null)
+		{
+			StopGreetingRecording(out var error);
+			speaker.Send(error);
+			return;
+		}
+		var duration = new RecordedAudio(_workingGreetingSegments.Concat([segment])).TotalDuration;
+		var provisional = new MediaRecordingDescriptor(0L, MediaCapabilities.Audio,
+			MediaRecordingStatus.Finalised, now, now + duration, duration, 0L, GreetingRecordingName);
+		if (!medium.CanStoreRecording(provisional, out var capacityError))
+		{
+			var saved = StopGreetingRecording(out var saveError);
+			speaker.Send($"The greeting recording stops: {capacityError} " +
+				(saved ? "The recorded greeting was saved." : saveError));
+			return;
+		}
         _workingGreetingSegments.Add(segment);
         _lastGreetingSegmentUtc = now;
         Changed = true;

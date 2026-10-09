@@ -282,6 +282,11 @@ does not flush unrelated dirty state. An origin cannot replay creation. Temporar
 retains its immutable origin and deadline through ordinary custody, equipment and legal
 title changes. Permanent output completes its lifecycle after activation and has no expiry.
 
+Item loading reads the immutable item-claim IDs once per world. Ordinary items then skip
+origin and activation-pending database lookups. Newly committed native item claims enter
+the index before activation; claimed items still read authoritative lifecycle state for
+activation and removal. The index does not cache deadlines, retirement state or holds.
+
 Temporary output refuses copy, merge, split, morph/replacement, prototype update and
 conversion into ordinary crafting inputs, casting material, salvage products, shop stock,
 sale proceeds or auction lots. Value guards also inspect temporary items inside or attached

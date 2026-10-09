@@ -772,12 +772,12 @@ public sealed class FutureMudItemImporter
 			suffix = "board";
 		}
 
-		if (suffix.Length > 70)
+		if (suffix.Length > 53)
 		{
-			suffix = suffix[..70].Trim('_');
+			suffix = suffix[..53].Trim('_');
 		}
 
-		return $"RPIBoardAccess_{suffix}";
+		return $"RPIBoardAccess_{suffix}_{RpiBoardIdentity.AccessSuffix(boardDefinition.LegacyBoardKey, boardDefinition.ClanRestrictions)}";
 	}
 
 	private static string BuildBoardAccessProgText(IReadOnlyList<ResolvedBoardClanRestriction> restrictions)

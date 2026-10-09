@@ -2942,19 +2942,19 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
         {
             type =
                 CharacteristicDefinitions.FirstOrDefault(
-                    x => x.Pattern.IsMatch(BasicCharacteristicRegex.Match(pattern).Groups[1].Value));
+                    x => x.MatchesPattern(BasicCharacteristicRegex.Match(pattern).Groups[1].Value));
             descType = CharacteristicDescriptionType.Basic;
         }
         else if (FancyCharacteristicRegex.IsMatch(pattern))
         {
             type =
                 CharacteristicDefinitions.FirstOrDefault(
-                    x => x.Pattern.IsMatch(FancyCharacteristicRegex.Match(pattern).Groups[1].Value));
+                    x => x.MatchesPattern(FancyCharacteristicRegex.Match(pattern).Groups[1].Value));
             descType = CharacteristicDescriptionType.Fancy;
         }
         else
         {
-            type = CharacteristicDefinitions.FirstOrDefault(x => x.Pattern.IsMatch(pattern));
+            type = CharacteristicDefinitions.FirstOrDefault(x => x.MatchesPattern(pattern));
         }
 
         return Tuple.Create(type, descType);
@@ -3107,14 +3107,15 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 			_morphRateAtSchedule = Prototype.RefrigerationSensitive
 				? this.TimeRateMultiplier(ItemTimeRateType.Morph)
 				: 1.0;
-			if (_morphRateAtSchedule <= 0.0)
+			var now = RuntimeClock.UtcNow;
+			var wallDuration = ItemTimeRateMath.WallDuration(CachedMorphTime.Value, _morphRateAtSchedule);
+			if (wallDuration is null || wallDuration.Value.Ticks > DateTime.MaxValue.Ticks - now.Ticks)
 			{
 				MorphTime = DateTime.MinValue;
 				return;
 			}
 
-			MorphTime = RuntimeClock.UtcNow + ItemTimeRateMath.WallDuration(
-				CachedMorphTime.Value, _morphRateAtSchedule)!.Value;
+			MorphTime = now.AddTicks(wallDuration.Value.Ticks);
             CachedMorphTime = null;
         }
 

@@ -28,6 +28,7 @@ public interface ITelecommunicationsGrid : IGrid
     double TotalDrawdown { get; }
     IEnumerable<ITelecommunicationsGrid> LinkedGrids { get; }
     IEnumerable<INetworkAdapter> NetworkAdapters { get; }
+	bool HasCellularCoverage(IZone zone);
     void JoinGrid(ITelephoneNumberOwner owner);
     void LeaveGrid(ITelephoneNumberOwner owner);
     void JoinGrid(IConsumePower consumer);

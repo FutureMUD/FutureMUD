@@ -28,6 +28,10 @@ All named fields and calls above are authored source. The addition steps are sta
 
 ## Declared rerun and ownership contract
 
+Stock tiered-law applicability separates class membership selection from punishment rank. `Felon` and `Criminal` retain selection priorities above `Citizen`, but the generated offender/victim comparison maps their authority-scoped class IDs to ranks 20 and 19, below `Slave` and above `Pet`/`Other`. Other classes use their configured priorities. This prevents criminal status selecting the weaker "Against Inferior" variant against citizens or non-citizens, while preserving classification and the intended privileged-class variants. The generated progs remain builder-editable; `LegalClassOutranks` itself still compares membership priority and is not used for this stock comparison.
+
+Existing worlds retain stored applicability progs until their owners update them. Reinstalling the same stock authority through the existing `RepairExisting` seeder refreshes these progs and other managed stock fields; owners preserving customised laws should edit the affected applicability progs instead. A server restart alone does not reconcile seeded law content.
+
 Metadata declares `Idempotent / RepairExisting`.
 
 The trace above describes actual identity, write and transaction behavior. Metadata is a declared contract, not proof of field-level preservation. The [shared executor](README.md#shared-execution-contract) records answers after `SeedData`; it cannot undo commits or earlier saves that have already completed.

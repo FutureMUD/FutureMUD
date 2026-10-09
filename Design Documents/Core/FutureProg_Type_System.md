@@ -253,6 +253,8 @@ Variable-register persistence must be total for every type that can be registere
 
 Script-time helpers that search, roll, or evaluate user-authored formulas must enforce bounded work. Weekday occurrence helpers reject zero or excessive occurrence counts, dice formulas have explicit dice/sides/roll limits, exploding dice must not be guaranteed infinite, and formula evaluation fails closed on invalid custom-function arguments, overflow, or non-finite numeric output.
 
+Dice counts, sides, constants and modifier values must fit the supported integer range. Oversized numeric tokens fail validation without throwing; `Dice.Roll` returns zero for invalid expressions, while text-formula `wound` returns false without applying damage. Existing dice-count, side-count and total-roll limits still bound valid expressions.
+
 Writing text is not exposed through the `writing.text` FutureProg dot reference. Scripts may inspect writing metadata, but readable text still goes through the normal in-character read workflow so language, literacy, script, and access checks remain authoritative.
 
 Datetime register values use round-trip ISO 8601 XML text, preserving kind and fractional seconds. Historical invariant-format values without a timezone are interpreted as UTC, matching the original storage assumption without conversion to the host local wall clock. Normal assignments retain deferred saving; Vancian callback completion also requires a successful engine save boundary.

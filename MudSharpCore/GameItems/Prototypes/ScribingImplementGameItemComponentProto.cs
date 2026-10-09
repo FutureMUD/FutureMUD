@@ -52,9 +52,9 @@ public class ScribingImplementGameItemComponentProto : GameItemComponentProto, I
 			return WritingImplementType.Quill;
 		}
 
-		return int.TryParse(text, out var value)
-			? (WritingImplementType)value
-			: Enum.Parse<WritingImplementType>(text, true);
+		return Enum.TryParse<WritingImplementType>(text, true, out var value) && Enum.IsDefined(value)
+			? value
+			: WritingImplementType.Quill;
 	}
 
 	#endregion
@@ -159,7 +159,8 @@ public class ScribingImplementGameItemComponentProto : GameItemComponentProto, I
 			return false;
 		}
 
-		if (!Enum.TryParse<WritingImplementType>(command.SafeRemainingArgument, true, out var value))
+		if (!Enum.TryParse<WritingImplementType>(command.SafeRemainingArgument, true, out var value) ||
+		    !Enum.IsDefined(value))
 		{
 			actor.Send("That is not a valid writing implement type.");
 			return false;

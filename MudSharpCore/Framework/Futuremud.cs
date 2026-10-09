@@ -1859,8 +1859,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         {
             return null;
         }
-		using (new FMDB())
-			if (MudSharp.Magic.Lifecycle.SpellOwnedItemService.IsActivationPending(FMDB.Context, dbitem.Id)) return null;
+		if (SpellOwnedItems.IsActivationPending(dbitem.Id)) return null;
 
         if (_items.Has(dbitem.Id))
         {
@@ -1903,7 +1902,7 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
             {
                 return null;
             }
-			if (MudSharp.Magic.Lifecycle.SpellOwnedItemService.IsActivationPending(FMDB.Context, id)) return null;
+			if (SpellOwnedItems.IsActivationPending(id)) return null;
 
             GameItem newItem = new(dbitem, this);
             if (addToGameworld)

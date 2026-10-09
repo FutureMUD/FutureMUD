@@ -18,6 +18,8 @@ Persisted character combat settings remain authoritative. This feature only chan
 
 For newly created characters and NPCs, fallback assignment is provisional during construction so late-initialising items do not trigger an early save before they have a database ID. Once the insert has completed and the character has its real ID, the engine revalidates the fallback selection using the normal rules above. If that final validation picks a different setting, the character is queued for a follow-up save with the corrected combat setting.
 
+If no setting passes final availability validation, the character has no current combat setting. Settings-dependent commands return a recovery prompt rather than retaining an unavailable provisional template. `combat list`, viewing a named owned setting, selecting an available setting with `combat set`, cloning a named available template, and command/configuration help remain usable.
+
 ## Priority Prog
 
 Global combat settings can now optionally define a `PriorityProg`.

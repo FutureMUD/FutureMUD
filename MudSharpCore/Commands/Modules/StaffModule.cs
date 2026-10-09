@@ -284,7 +284,7 @@ The syntax is:
 
         ICharacteristicDefinition definition = long.TryParse(ss.PopSpeech(), out long value)
             ? actor.Gameworld.Characteristics.Get(value)
-            : actor.Gameworld.Characteristics.FirstOrDefault(x => x.Pattern.IsMatch(ss.Last));
+            : actor.Gameworld.Characteristics.FirstOrDefault(x => x.MatchesPattern(ss.Last));
         if (definition == null)
         {
             actor.Send($"There is no such characteristic for you to set for {target.HowSeen(actor)}.");
@@ -693,8 +693,8 @@ The syntax is:
         tattoo.CompletionPercentage = 1.0;
         target.Body.TattoosChanged = true;
         actor.OutputHandler.Send(new EmoteOutput(new Emote(
-            $"You finish off the {tattoo.ShortDescription.Colour(Telnet.BoldOrange)} tattoo on $1's {tattoo.Bodypart.FullDescription().ColourValue()}.",
-            actor, actor, target)));
+            $"You finish off the $2 tattoo on $1's {tattoo.Bodypart.FullDescription().ColourValue()}.",
+            actor, actor, target, new DummyPerceivable(perceiver => tattoo.ShortDescriptionFor(perceiver).Colour(Telnet.BoldOrange), perceiver => string.Empty))));
     }
 
     [PlayerCommand("GiveTattoo", "givetattoo")]
@@ -4065,6 +4065,8 @@ This command should be used with extreme caution. You can break the game with ba
 
 Due to the nature of how some of these settings are used the MUD may need to be rebooted for them to apply, so you should generally reboot the MUD after you are done with this command and associated editing.
 
+Sensitive settings require implementor permission to view or edit. Other administrators see their names with a red Redacted for Security placeholder.
+
 The syntax is #3editstaticconfig <whichsetting>#0, which will drop you into an editor. You can use #3editstaticconfig#0 on its own to see a list of configurations that you can edit.",
         AutoHelp.HelpArg)]
     protected static void EditStaticConfiguration(ICharacter actor, string input)
@@ -4081,7 +4083,7 @@ The syntax is #3editstaticconfig <whichsetting>#0, which will drop you into an e
                     select new List<string>
                     {
                         item,
-                        actor.Gameworld.GetStaticConfiguration(item)
+                        StaticConfigurationAccess.DisplayValue(actor, item)
                     },
                     [
                         "Setting",
@@ -4106,6 +4108,13 @@ The syntax is #3editstaticconfig <whichsetting>#0, which will drop you into an e
             return;
         }
 
+		if (!StaticConfigurationAccess.CanAccess(actor, matchingName))
+		{
+			actor.OutputHandler.Send(
+				$"{matchingName.ColourCommand()}: {StaticConfigurationAccess.DisplayValue(actor, matchingName)}\nOnly an implementor can view or edit this setting.");
+			return;
+		}
+
         string oldValue = actor.Gameworld.GetStaticConfiguration(matchingName);
         if (!string.IsNullOrEmpty(oldValue))
         {
@@ -4115,7 +4124,7 @@ The syntax is #3editstaticconfig <whichsetting>#0, which will drop you into an e
         actor.OutputHandler.Send("Enter the new value of the static configuration in the editor below.");
 
         actor.EditorMode(PostConfigAction, CancelConfigAction, 1.0, oldValue,
-            EditorOptions.None, new object[] { matchingName, actor.Gameworld });
+            EditorOptions.None, new object[] { matchingName, actor.Gameworld, actor });
     }
 
     private static void CancelConfigAction(IOutputHandler handler, object[] args)
@@ -4127,6 +4136,12 @@ The syntax is #3editstaticconfig <whichsetting>#0, which will drop you into an e
     private static void PostConfigAction(string text, IOutputHandler handler, object[] args)
     {
         string which = args[0].ToString();
+		if (!StaticConfigurationAccess.CanAccess((ICharacter)args[2], which))
+		{
+			handler.Send("Only an implementor can edit this setting. Your change was not saved.".ColourError());
+			return;
+		}
+
 		if (((IFuturemud)args[1]).EnvironmentalMagic is MudSharp.Magic.Environment.EnvironmentalMagicCoordinator environment &&
 			which.StartsWith("EnvironmentalMagic", StringComparison.OrdinalIgnoreCase))
 		{

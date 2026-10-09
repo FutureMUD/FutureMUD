@@ -35,6 +35,7 @@ internal static partial class GNHProgram
 		public IGameItem Create(IGameItemProto prototype, ICharacter caster, ItemQuality quality, SpellLifecycleOrigin origin)
 		{ if (++Attempts == 2) throw new InvalidOperationException("Provision fixture second-output creation fault"); return inner.Create(prototype, caster, quality, origin); }
 		public SpellOwnedItemOrigin? FindOrigin(long id) => inner.FindOrigin(id);
+		public bool IsActivationPending(long id) => inner.IsActivationPending(id);
 		public bool TryPrepareRemoval(IGameItem item, out string diagnostic) => inner.TryPrepareRemoval(item, out diagnostic);
 		public void ObserveRemoval(IGameItem item) => inner.ObserveRemoval(item);
 		public int ReconcileRetirements(DateTime now, int limit = 100) => inner.ReconcileRetirements(now, limit);

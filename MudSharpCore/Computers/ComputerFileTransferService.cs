@@ -6,9 +6,12 @@ namespace MudSharp.Computers;
 public sealed class ComputerFileTransferService : IComputerFileTransferService
 {
 	private const int MaximumFailedAuthenticationAttemptsBeforeBackoff = 5;
+	private const int MaximumAuthenticationBackoffs = 1024;
+	private const int MaximumUserNameLength = 64;
 	private static readonly TimeSpan AuthenticationBackoffDuration = TimeSpan.FromSeconds(30);
+	private static readonly TimeSpan AuthenticationFailureRetention = TimeSpan.FromMinutes(5);
 	private readonly IFuturemud _gameworld;
-	private readonly Dictionary<string, (int FailedAttempts, DateTime? NextAttemptUtc)> _authenticationBackoffs =
+	private readonly Dictionary<string, (int FailedAttempts, DateTime? NextAttemptUtc, DateTime LastFailureUtc)> _authenticationBackoffs =
 		new(StringComparer.InvariantCultureIgnoreCase);
 
 	public ComputerFileTransferService(IFuturemud gameworld)
@@ -133,9 +136,19 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 		}
 
 		var backoffKey = $"{targetHost.FileOwnerId}:{normalisedUserName}";
+		var now = DateTime.UtcNow;
+		foreach (var key in _authenticationBackoffs
+			         .Where(x => x.Value.LastFailureUtc + AuthenticationFailureRetention <= now ||
+			                     x.Value.NextAttemptUtc is { } nextAttempt && nextAttempt <= now)
+			         .Select(x => x.Key)
+			         .ToList())
+		{
+			_authenticationBackoffs.Remove(key);
+		}
+
 		if (_authenticationBackoffs.TryGetValue(backoffKey, out var backoff) &&
 		    backoff.NextAttemptUtc is not null &&
-		    backoff.NextAttemptUtc > DateTime.UtcNow)
+		    backoff.NextAttemptUtc > now)
 		{
 			return new ComputerFtpAuthenticationResult
 			{
@@ -147,11 +160,20 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 		var account = ResolveAccount(targetHost, normalisedUserName);
 		if (account is null || !account.Enabled)
 		{
-			RecordAuthenticationFailure(backoffKey);
 			return new ComputerFtpAuthenticationResult
 			{
 				Success = false,
 				ErrorMessage = "The FTP username or password is not correct."
+			};
+		}
+
+		if (!_authenticationBackoffs.ContainsKey(backoffKey) &&
+		    _authenticationBackoffs.Count >= MaximumAuthenticationBackoffs)
+		{
+			return new ComputerFtpAuthenticationResult
+			{
+				Success = false,
+				ErrorMessage = "FTP login attempts are temporarily delayed. Try again shortly."
 			};
 		}
 
@@ -177,9 +199,10 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 	{
 		_authenticationBackoffs.TryGetValue(backoffKey, out var backoff);
 		var attempts = backoff.FailedAttempts + 1;
+		var now = DateTime.UtcNow;
 		_authenticationBackoffs[backoffKey] = attempts >= MaximumFailedAuthenticationAttemptsBeforeBackoff
-			? (0, DateTime.UtcNow + AuthenticationBackoffDuration)
-			: (attempts, null);
+			? (0, now + AuthenticationBackoffDuration, now)
+			: (attempts, null, now);
 	}
 
 	public IComputerFtpAccount? GetAccount(IComputerHost sourceHost, IComputerHost targetHost, string userName,
@@ -600,8 +623,16 @@ public sealed class ComputerFileTransferService : IComputerFileTransferService
 
 	private static bool TryNormaliseUserName(string userName, out string normalisedUserName, out string error)
 	{
-		normalisedUserName = userName.Trim().ToLowerInvariant();
+		normalisedUserName = string.Empty;
 		error = string.Empty;
+		var trimmed = userName.AsSpan().Trim();
+		if (trimmed.Length > MaximumUserNameLength)
+		{
+			error = $"FTP user names cannot exceed {MaximumUserNameLength} characters.";
+			return false;
+		}
+
+		normalisedUserName = trimmed.ToString().ToLowerInvariant();
 		if (string.IsNullOrWhiteSpace(normalisedUserName))
 		{
 			error = "You must supply a user name.";

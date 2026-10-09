@@ -10,6 +10,9 @@ namespace MudSharp.Combat.Moves;
 
 internal static class MagicAttackEffectResolver
 {
+	internal static TimeSpan BoundedDuration(double seconds) => double.IsNaN(seconds) || seconds <= 0
+		? TimeSpan.Zero
+		: TimeSpan.FromSeconds(Math.Min(seconds, MagicAttackEffect.MaximumDurationSeconds));
 	internal static bool IsApplicable(ICharacter actor, ICharacter target, MagicAttackEffectType type) => type switch
 	{
 		MagicAttackEffectType.Pull => actor.ColocatedWith(target),
@@ -29,6 +32,7 @@ internal static class MagicAttackEffectResolver
 	{
 		foreach (var effect in power.AttackEffects.OrderBy(x => x.Type))
 		{
+			if (!effect.HasValidParameters) continue;
 			if (target.State.HasFlag(CharacterState.Dead)) return;
 			if (!IsApplicable(actor, target, effect.Type)) continue;
 			if (effect.Type == MagicAttackEffectType.Pull && !actor.ColocatedWith(target)) continue;
@@ -51,17 +55,17 @@ internal static class MagicAttackEffectResolver
 				case MagicAttackEffectType.BreakClinch:
 					actor.RemoveAllEffects(x => x.GetSubtype<ClinchEffect>()?.Target == target, true);
 					target.RemoveAllEffects(x => x.GetSubtype<ClinchEffect>()?.Target == actor, true);
-					if (target.Combat is not null) target.AddEffect(new ClinchCooldown(target, target.Combat), TimeSpan.FromSeconds(30 * CombatBase.CombatSpeedMultiplier));
+					if (target.Combat is not null) target.AddEffect(new ClinchCooldown(target, target.Combat), BoundedDuration(30 * CombatBase.CombatSpeedMultiplier));
 					break;
 				case MagicAttackEffectType.Disarm:
 					target.Body.Take(item!);
 					Disarm.PlaceDisarmedItem(item!, target);
 					if (effect.DurationSeconds > 0 && target.Combat is not null)
-						item!.AddEffect(new CombatNoGetEffect(item, target.Combat), TimeSpan.FromSeconds(effect.DurationSeconds));
+						item!.AddEffect(new CombatNoGetEffect(item, target.Combat), BoundedDuration(effect.DurationSeconds));
 					break;
 				case MagicAttackEffectType.Stagger:
-					target.AddEffect(new Staggered(target), TimeSpan.FromSeconds(effect.DurationSeconds));
-					actor.Gameworld.Scheduler.DelayScheduleType(target, ScheduleType.Combat, TimeSpan.FromSeconds(effect.DurationSeconds * effect.Strength * CombatBase.CombatSpeedMultiplier));
+					target.AddEffect(new Staggered(target), BoundedDuration(effect.DurationSeconds));
+					actor.Gameworld.Scheduler.DelayScheduleType(target, ScheduleType.Combat, BoundedDuration(effect.DurationSeconds * effect.Strength * CombatBase.CombatSpeedMultiplier));
 					break;
 				case MagicAttackEffectType.Knockdown: target.DoCombatKnockdown(degrees); break;
 				case MagicAttackEffectType.Pushback: CombatForcedMovementUtilities.ApplyPushback(actor, target, degrees); break;

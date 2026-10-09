@@ -15,6 +15,20 @@ namespace MudSharp_Unit_Tests;
 public class SubstanceDoseTests
 {
 	[TestMethod]
+	public void InertCharge_CopySplitAndReload_RemainsInertAndCannotMergeWithActiveCharge()
+	{
+		var inert = new SubstanceCharge { Lot = Guid.Empty, Inert = true };
+		var restored = SubstanceCharge.Load(inert.Copy().Save());
+		Assert.IsTrue(restored.Inert);
+		Assert.IsTrue(restored.CanMerge(inert));
+		Assert.IsFalse(restored.CanMerge(new SubstanceCharge { Lot = Guid.Empty }));
+		var liquid = Mock.Of<ILiquid>();
+		var instance = new LiquidInstance { Liquid = liquid, Amount = 2 };
+		instance.MagicalCharges[1] = restored;
+		Assert.IsTrue(instance.SplitVolume(1).MagicalCharges[1].Inert);
+		Assert.IsFalse(SubstanceCharge.Load(new XElement("Charge", new XAttribute("lot", Guid.NewGuid()))).Inert);
+	}
+	[TestMethod]
 	public void Absorption_TinyDose_ConservesQuantityBeforeClearance()
 	{
 		foreach (var vector in new[] { DrugVector.Ingested, DrugVector.Injected, DrugVector.Touched, DrugVector.Inhaled })

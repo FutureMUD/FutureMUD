@@ -28,6 +28,63 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class VehicleTowServiceTests
 {
+	[DataTestMethod]
+	[DataRow(false, false)]
+	[DataRow(true, false)]
+	[DataRow(false, true)]
+	[DataRow(true, true)]
+	public void RemoveCharacterHitches_OnlyGenuineHitch_RemovesDrag(bool incoming, bool hitched)
+	{
+		var actor = CreateActor();
+		var owner = CreateActor();
+		var target = CreateActor();
+		var room = new Mock<IRoom>();
+		var world = new Mock<IFuturemud>();
+		actor.SetupGet(x => x.Gameworld).Returns(world.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
+		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
+		room.Setup(x => x.LayerCharacters(actor.Object.RoomLayer)).Returns([owner.Object, target.Object]);
+		var drag = new Dragging(owner.Object, null!, target.Object);
+		owner.Setup(x => x.EffectsOfType<Dragging>(It.IsAny<Predicate<Dragging>>())).Returns([drag]);
+		owner.Setup(x => x.EffectsOfType<CharacterHitch>(It.IsAny<Predicate<CharacterHitch>>()))
+			.Returns((Predicate<CharacterHitch>? p) => hitched
+				? new[] { new CharacterHitch(owner.Object, target.Object, 1.0) }.Where(x => p?.Invoke(x) ?? true)
+				: Enumerable.Empty<CharacterHitch>());
+
+		var handled = (bool)typeof(VehicleModule).GetMethod("RemoveCharacterHitches", BindingFlags.Static | BindingFlags.NonPublic)!
+			.Invoke(null, [actor.Object, incoming ? target.Object : owner.Object])!;
+
+		Assert.AreEqual(hitched, handled);
+		owner.Verify(x => x.RemoveAllEffects(It.Is<Predicate<IEffect>>(p => p(drag)), true), hitched ? Times.Once() : Times.Never());
+	}
+
+	[TestMethod]
+	public void RemoveCharacterHitches_CharacterPullingRestrictedVehicle_RechecksHitchAccess()
+	{
+		var actor = CreateActor();
+		var owner = CreateActor();
+		var room = new Mock<IRoom>();
+		var world = new Mock<IFuturemud>();
+		actor.SetupGet(x => x.Gameworld).Returns(world.Object);
+		actor.SetupGet(x => x.Location).Returns(room.Object);
+		var output = new Mock<IOutputHandler>();
+		actor.SetupGet(x => x.OutputHandler).Returns(output.Object);
+		room.Setup(x => x.LayerCharacters(actor.Object.RoomLayer)).Returns([owner.Object]);
+		var cart = CreateVehicle(1, "cart", room.Object);
+		cart.Vehicle.SetupGet(x => x.AccessStates).Returns([Mock.Of<IVehicleAccessState>()]);
+		var drag = new Dragging(owner.Object, null!, cart.Vehicle.Object.ExteriorItem);
+		owner.Setup(x => x.EffectsOfType<Dragging>(It.IsAny<Predicate<Dragging>>())).Returns([drag]);
+		owner.Setup(x => x.EffectsOfType<CharacterHitch>(It.IsAny<Predicate<CharacterHitch>>()))
+			.Returns([new CharacterHitch(owner.Object, cart.Vehicle.Object.ExteriorItem, 1.0)]);
+
+		var handled = (bool)typeof(VehicleModule).GetMethod("RemoveCharacterHitches", BindingFlags.Static | BindingFlags.NonPublic)!
+			.Invoke(null, [actor.Object, owner.Object])!;
+
+		Assert.IsTrue(handled);
+		owner.Verify(x => x.RemoveAllEffects(It.IsAny<Predicate<IEffect>>(), It.IsAny<bool>()), Times.Never);
+		output.Verify(x => x.Send(It.Is<string>(s => s.Contains("hitch") && s.Contains("access")), true, false), Times.Once);
+	}
+
 	[TestMethod]
 	public void VehicleTowPointPrototype_LoadsCharacterPullMultiplier()
 	{

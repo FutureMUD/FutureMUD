@@ -63,7 +63,7 @@ namespace MudSharp.Form.Characteristics
     public interface ICharacteristicDefinition : IFrameworkItem, ISaveable, IProgVariable
     {
         /// <summary>
-        ///     The Regex that matches this characteristic definition
+        ///     The authored regex. Use MatchesPattern for bounded runtime matching.
         /// </summary>
         Regex Pattern { get; }
 

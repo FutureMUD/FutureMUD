@@ -164,13 +164,18 @@ public sealed class DatabaseUpgradeCoordinator : IDatabaseUpgradeCoordinator
     public void ImportBlankDatabaseSnapshot(string connectionString, string scriptPath, string databaseNamePlaceholder)
     {
         MySqlConnectionStringBuilder builder = new(connectionString);
+		if (string.IsNullOrWhiteSpace(builder.Database) || builder.Database.Any(char.IsControl))
+		{
+			throw new ArgumentException("A snapshot target database name must be nonempty and contain no control characters.", nameof(connectionString));
+		}
+		var escapedDatabaseName = builder.Database.Replace("`", "``", StringComparison.Ordinal);
         string tempDirectory = Path.Combine(Path.GetTempPath(), "FutureMUD-SnapshotImport", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempDirectory);
 		try
 		{
 			string tempPath = Path.Combine(tempDirectory, Path.GetFileName(scriptPath));
 			string script = File.ReadAllText(scriptPath);
-			script = script.Replace(databaseNamePlaceholder, builder.Database, StringComparison.Ordinal);
+			script = script.Replace(databaseNamePlaceholder, escapedDatabaseName, StringComparison.Ordinal);
 			int deltaMarkerIndex = script.IndexOf(SnapshotDeltaMarker, StringComparison.Ordinal);
 			string backupScript = deltaMarkerIndex >= 0 ? script[..deltaMarkerIndex] : script;
 			string? deltaScript = deltaMarkerIndex >= 0 ? script[deltaMarkerIndex..] : null;

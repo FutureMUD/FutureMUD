@@ -543,6 +543,38 @@ return @togglevalue");
 		StringAssert.Contains(error, "open");
 	}
 
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void AutomationMounts_GenericConnectRequiresElectricalInstallInBothOrders(bool housingOpen)
+	{
+		var gameworld = CreateGameworld();
+		var hostItem = CreateBasicItem(gameworld.Object, 111L, "Cabinet");
+		var host = new AutomationMountHostGameItemComponent(
+			CreateAutomationMountHostProto(gameworld.Object, [("controller", "Microcontroller")], 501L, "Maintenance Housing"),
+			hostItem.Object, true);
+		var housing = new AutomationHousingGameItemComponent(
+			CreateAutomationHousingProto(gameworld.Object, 501L, "Maintenance Housing"), hostItem.Object, true);
+		hostItem.SetupGet(x => x.Components).Returns([host, housing]);
+		if (housingOpen) housing.Open(); else housing.Close();
+		var moduleItem = CreateBasicItem(gameworld.Object, 211L, "Controller");
+		var module = new MicrocontrollerGameItemComponent(CreateMicrocontrollerProto(gameworld.Object), moduleItem.Object, true);
+		var actor = new Mock<ICharacter>();
+		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<IOutputHandler>());
+
+		Assert.IsFalse(host.CanConnect(actor.Object, module));
+		Assert.IsFalse(module.CanConnect(actor.Object, host));
+		StringAssert.Contains(host.WhyCannotConnect(actor.Object, module), "electrical install");
+		StringAssert.Contains(module.WhyCannotConnect(actor.Object, host), "electrical install");
+		host.Connect(actor.Object, module);
+		module.Connect(actor.Object, host);
+		Assert.IsFalse(host.Bays.Single().Occupied);
+		Assert.IsFalse(module.IsMounted);
+		Assert.AreEqual(housingOpen, host.InstallModule(actor.Object, module, "controller", out var error), error);
+		Assert.AreEqual(housingOpen, host.Bays.Single().Occupied);
+		Assert.AreEqual(housingOpen, module.IsMounted);
+	}
+
 	[TestMethod]
 	public void AutomationHousing_CanAccessHousing_RequiresOpenableParentOpen()
 	{

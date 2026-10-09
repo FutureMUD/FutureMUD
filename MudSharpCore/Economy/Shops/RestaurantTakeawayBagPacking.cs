@@ -7,16 +7,23 @@ using MudSharp.GameItems.Prototypes;
 namespace MudSharp.Economy.Shops;
 
 /// <summary>
-/// Produces the smallest possible number of identical standard-container bags for a prepared
-/// takeaway order. Restaurant menu items are normally few, so an exact branch-and-bound search
-/// is preferable to a fast approximation that can hand a customer unnecessary bags.
+/// Packs a prepared takeaway order, using a bounded exact search for small collections
+/// and a linear greedy fallback for large collections.
 /// </summary>
 internal static class RestaurantTakeawayBagPacking
 {
 	private const double WeightTolerance = 0.000001;
+	internal const int MaximumExactItems = 24;
+	internal const int MaximumSearchSteps = 10000;
+	private sealed class SearchBudget(int remaining)
+	{
+		public int Remaining { get; private set; } = remaining;
+		public bool Spend() => Remaining-- > 0;
+	}
 
 	public static bool TryPlan(IGameItemProto bagPrototype, IReadOnlyCollection<IGameItem> items,
-		out IReadOnlyList<IReadOnlyList<IGameItem>> plan, out string reason)
+		out IReadOnlyList<IReadOnlyList<IGameItem>> plan, out string reason,
+		int maximumSearchSteps = MaximumSearchSteps)
 	{
 		plan = [];
 		reason = string.Empty;
@@ -54,6 +61,12 @@ internal static class RestaurantTakeawayBagPacking
 			}
 		}
 
+		if (orderedItems.Count > MaximumExactItems)
+		{
+			plan = NextFitDecreasing(orderedItems, container.WeightLimit);
+			return true;
+		}
+
 		var upperBound = FirstFitDecreasing(orderedItems, container.WeightLimit);
 		var minimumBagCount = LowerBound(orderedItems, container.WeightLimit);
 		if (upperBound.Count == minimumBagCount)
@@ -62,9 +75,10 @@ internal static class RestaurantTakeawayBagPacking
 			return true;
 		}
 
-		for (var bagCount = minimumBagCount; bagCount < upperBound.Count; bagCount++)
+		var budget = new SearchBudget(Math.Clamp(maximumSearchSteps, 0, MaximumSearchSteps));
+		for (var bagCount = minimumBagCount; bagCount < upperBound.Count && budget.Remaining > 0; bagCount++)
 		{
-			if (!TryPackInto(orderedItems, container.WeightLimit, bagCount, out var exactPlan))
+			if (!TryPackInto(orderedItems, container.WeightLimit, bagCount, budget, out var exactPlan))
 			{
 				continue;
 			}
@@ -116,7 +130,7 @@ internal static class RestaurantTakeawayBagPacking
 	}
 
 	private static bool TryPackInto(IReadOnlyList<IGameItem> items, double capacity, int bagCount,
-		out IReadOnlyList<IReadOnlyList<IGameItem>> plan)
+		SearchBudget budget, out IReadOnlyList<IReadOnlyList<IGameItem>> plan)
 	{
 		var bags = Enumerable.Range(0, bagCount).Select(_ => new List<IGameItem>()).ToList();
 		var weights = new double[bagCount];
@@ -132,6 +146,7 @@ internal static class RestaurantTakeawayBagPacking
 			var triedLoads = new HashSet<long>();
 			for (var bagIndex = 0; bagIndex < bags.Count; bagIndex++)
 			{
+				if (!budget.Spend()) return false;
 				if (weights[bagIndex] + item.Weight > capacity + WeightTolerance)
 				{
 					continue;
@@ -173,5 +188,28 @@ internal static class RestaurantTakeawayBagPacking
 
 		plan = [];
 		return false;
+	}
+
+	private static IReadOnlyList<IReadOnlyList<IGameItem>> NextFitDecreasing(IEnumerable<IGameItem> items,
+		double capacity)
+	{
+		var bags = new List<IReadOnlyList<IGameItem>>();
+		List<IGameItem>? current = null;
+		var currentWeight = 0.0;
+		foreach (var item in items)
+		{
+			var weight = item.Weight;
+			if (current is null || currentWeight + weight > capacity + WeightTolerance)
+			{
+				current = [];
+				bags.Add(current);
+				currentWeight = 0.0;
+			}
+
+			current.Add(item);
+			currentWeight += weight;
+		}
+
+		return bags;
 	}
 }

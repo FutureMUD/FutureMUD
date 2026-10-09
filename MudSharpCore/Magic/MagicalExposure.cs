@@ -61,6 +61,7 @@ public static class MagicalExposure
 	{
 		if (recipient is not (ICharacter or IBody or IGameItem) || mixture.IsEmpty) return;
 		using var scope = BeginExposure();
+		var deliveries = new List<(IMagicalSubstance Substance, LiquidInstance Instance, SubstanceBinding Binding)>();
 		foreach (var substance in recipient.Gameworld.MagicalSubstances.Where(x => x.Vectors.HasFlag(vector) &&
 			x.Bindings.Any(b => b.Carrier == SubstanceCarrier.Liquid && mixture.Instances.Any(i => i.Liquid.Id == b.Id)) && !x.ReadinessErrors.Any()))
 			foreach (var group in mixture.Instances
@@ -69,8 +70,12 @@ public static class MagicalExposure
 			{
 				if (!group.Instance.MagicalCharges.TryGetValue(substance.Id, out var charge))
 					group.Instance.MagicalCharges[substance.Id] = charge = new();
-				Queue(recipient, substance, group.Instance.Amount * group.Binding!.QuantityPerUnit, vector, charge, surface);
+				deliveries.Add((substance, group.Instance, group.Binding!));
 			}
+		if (surface) SubstanceDose.LimitSurfaceLots(RetainedLiquids(recipient).Select(x => x.Instance), mixture);
+		foreach (var (substance, instance, binding) in deliveries)
+			if (instance.MagicalCharges[substance.Id] is { Inert: false } charge)
+				Queue(recipient, substance, instance.Amount * binding.QuantityPerUnit, vector, charge, surface);
 	}
 	internal static IEnumerable<(LiquidInstance Instance, double Quantity)> RetainedLiquids(IPerceivable target)
 	{
@@ -112,7 +117,7 @@ public static class MagicalExposure
 			var spell = substance.Gameworld.MagicSpells.Get(entry.SpellId);
 			if (spell is not MagicSpell concrete || spell.Trigger.TargetTypes != (recipient is ICharacter ? "character" : "item")) continue;
 			var spendsCharge = entry.Lifecycle == SubstanceLifecycle.Activation || entry.Lifecycle == SubstanceLifecycle.Periodic && entry.PulseMode == SubstancePulseMode.Timed;
-			var eligible = parts.Where(x => !x.Charge.Suppressed.Contains(entry.Key) && (!spendsCharge || !x.Charge.Spent.Contains(entry.Key))).ToList();
+			var eligible = parts.Where(x => !x.Charge.Inert && !x.Charge.Suppressed.Contains(entry.Key) && (!spendsCharge || !x.Charge.Spent.Contains(entry.Key))).ToList();
 			var dose = Math.Min(entry.MaximumDose, eligible.Sum(x => x.Quantity) / substance.ReferenceDose);
 			if (dose <= 0 || dose < entry.MinimumDose) continue;
 			if (spendsCharge) foreach (var part in eligible) part.Charge.Spent.Add(entry.Key);
@@ -133,6 +138,12 @@ public static class MagicalExposure
 				x.SubstanceId == substance.Id && x.Entry.Key == entry.Key && x.SourceBodyId == (sourceBody?.Id ?? 0) && entry.Stacking != SubstanceStacking.Independent);
 			if (parent is null)
 			{
+				if (recipient.EffectsOfType<SubstanceExposureEffect>().Take(SubstanceExposureEffect.MaximumParents).Count() >=
+					SubstanceExposureEffect.MaximumParents)
+				{
+					foreach (var part in eligible) part.Charge.Suppressed.Add(entry.Key);
+					continue;
+				}
 				parent = new SubstanceExposureEffect(recipient, substance, entry, sourceBody);
 				recipient.AddEffect(parent, TimeSpan.FromSeconds(1));
 			}

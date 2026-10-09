@@ -113,6 +113,17 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
         InstalledBody?.Implants.OfType<IImplantNeuralLink>()
             .Any(x => x.IsLinkedTo(this) && x.DNIConnected && x.PermitsAudio) == true;
 
+	private bool CanControl(ICharacter? actor, out string error)
+	{
+		if (actor == null || !ReferenceEquals(actor, Actor) || !HasAudioAccess)
+		{
+			error = "Only its wearer can operate this implant through a powered audio-capable neural interface.";
+			return false;
+		}
+		error = string.Empty;
+		return true;
+	}
+
     private IEnumerable<IZone> CurrentZones
     {
         get
@@ -133,9 +144,7 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
     private bool HasCoverageInZone(IZone zone)
     {
-        return Gameworld.Items
-                        .SelectNotNull(x => x!.GetItemType<ICellPhoneTower>())
-                        .Any(x => x.TelecommunicationsGrid == TelecommunicationsGrid && x.ProvidesCoverage(zone));
+		return TelecommunicationsGrid?.HasCellularCoverage(zone) == true;
     }
 
     private void SendInternalMessage(string message)
@@ -313,12 +322,13 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
         }
     }
 
-    public bool ManualTransmit => true;
+	public bool ManualTransmit => false;
     public string TransmitPremote => string.Empty;
 
     public void Transmit(SpokenLanguageInfo spokenLanguage)
     {
-        if (!IsConnected || !IsPowered || _currentCall == null)
+		if (!IsConnected || !IsPowered || _currentCall == null ||
+			!CanControl(spokenLanguage.Origin as ICharacter, out _))
         {
             return;
         }
@@ -332,7 +342,9 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
     public void ReceiveTransmission(double frequency, SpokenLanguageInfo spokenLanguage, long encryption, ITransmit origin)
     {
-        if (origin == this || !IsPowered || !HasAudioAccess)
+		if (origin == this || !IsPowered || !HasAudioAccess || !IsConnected ||
+			origin is not ITelephone source || source.CurrentCall != _currentCall ||
+			!_currentCall!.Participants.Contains(source))
         {
             return;
         }
@@ -351,6 +363,10 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
     public bool CanSwitch(ICharacter actor, string setting)
     {
+		if (!CanControl(actor, out _))
+		{
+			return false;
+		}
         if (setting.Equals("on", StringComparison.InvariantCultureIgnoreCase))
         {
             return !_switchedOn;
@@ -371,6 +387,10 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
     public string WhyCannotSwitch(ICharacter actor, string setting)
     {
+		if (!CanControl(actor, out var controlError))
+		{
+			return controlError;
+		}
         if (setting.Equals("vmon", StringComparison.InvariantCultureIgnoreCase) ||
             setting.Equals("vmoff", StringComparison.InvariantCultureIgnoreCase))
         {
@@ -408,6 +428,10 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
     public bool CanPickUp(ICharacter actor, out string error)
     {
+		if (!CanControl(actor, out error))
+		{
+			return false;
+		}
         if (_isOffHook && _currentCall == null)
         {
             error = "That telephone is already off the hook.";
@@ -458,6 +482,10 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
     public bool CanDial(ICharacter actor, string number, out string error)
     {
+		if (!CanControl(actor, out error))
+		{
+			return false;
+		}
         if (_currentCall?.IsConnected == true)
         {
             return CanSendDigits(actor, number, out error);
@@ -526,6 +554,10 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
     public bool CanSendDigits(ICharacter actor, string digits, out string error)
     {
+		if (!CanControl(actor, out error))
+		{
+			return false;
+		}
         if (_currentCall?.IsConnected != true)
         {
             error = "That telephone is not connected to a live call.";
@@ -563,6 +595,10 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
     public bool CanAnswer(ICharacter actor, out string error)
     {
+		if (!CanControl(actor, out error))
+		{
+			return false;
+		}
         if (!_isRinging || _currentCall == null)
         {
             error = "That telephone is not ringing.";
@@ -597,6 +633,10 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
     public bool CanHangUp(ICharacter actor, out string error)
     {
+		if (!CanControl(actor, out error))
+		{
+			return false;
+		}
         if (_currentCall == null && !_isOffHook)
         {
             error = "That telephone is not currently in use.";
@@ -762,6 +802,11 @@ public class ImplantTelephoneGameItemComponent : ImplantBaseGameItemComponent, I
 
     public void IssueCommand(string command, StringStack arguments)
     {
+		if (!CanControl(Actor, out var controlError))
+		{
+			SendInternalMessage(controlError);
+			return;
+		}
         string? whichCommand = Commands.FirstOrDefault(x => x.EqualTo(command)) ??
                            Commands.FirstOrDefault(x =>
                                x.StartsWith(command, StringComparison.InvariantCultureIgnoreCase));

@@ -462,8 +462,9 @@ All of the following commands must happen with an edited clan selected:
         switch (ss.PopForSwitch())
         {
             case "rank":
-                if (!actor.IsAdministrator(PermissionLevel.Admin) && actorMembership != null &&
-                    !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateRanks))
+                if (!actor.IsAdministrator(PermissionLevel.Admin) &&
+				    (actorMembership is null || actorMembership.IsArchivedMembership ||
+                     !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateRanks)))
                 {
                     actor.OutputHandler.Send("You are not allowed to remove ranks in that clan.");
                     return;
@@ -492,8 +493,9 @@ All of the following commands must happen with an edited clan selected:
                 actor.OutputHandler.Send($"You delete the rank {rank.Name.ColourValue()} in the clan {clan.FullName.ColourName()}.");
                 return;
             case "paygrade":
-                if (!actor.IsAdministrator(PermissionLevel.Admin) && actorMembership != null &&
-                    !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreatePaygrades))
+                if (!actor.IsAdministrator(PermissionLevel.Admin) &&
+				    (actorMembership is null || actorMembership.IsArchivedMembership ||
+                     !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreatePaygrades)))
                 {
                     actor.OutputHandler.Send("You are not allowed to remove paygrades in that clan.");
                     return;
@@ -516,8 +518,9 @@ All of the following commands must happen with an edited clan selected:
                 actor.OutputHandler.Send($"You delete the paygrade {paygrade.Name.ColourValue()} in the clan {clan.FullName.ColourName()}.");
                 return;
             case "appointment":
-                if (!actor.IsAdministrator(PermissionLevel.Admin) && actorMembership != null &&
-                    !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateAppointments))
+                if (!actor.IsAdministrator(PermissionLevel.Admin) &&
+				    (actorMembership is null || actorMembership.IsArchivedMembership ||
+                     !actorMembership.NetPrivileges.HasFlag(ClanPrivilegeType.CanCreateAppointments)))
                 {
                     actor.OutputHandler.Send("You are not allowed to remove appointments in that clan.");
                     return;

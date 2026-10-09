@@ -114,12 +114,22 @@ public static class ManualCombatCommandResolver
 			return ManualCombatMoveResolution.Failed("That manual combat command does not have an auxiliary action configured.");
 		}
 
+		if (!actor.CanSee(target) || !AuxiliaryMove.CanReachTarget(actor, target))
+		{
+			return ManualCombatMoveResolution.Failed("You must be able to see and reach that target at melee range.");
+		}
+
 		var available = actor.Race.UsableAuxiliaryMoves(actor, target, false)
 		                     .FirstOrDefault(x => x.Id == action.Id);
 		if (!CommandExecutionScope.TryContinue(actor)) return ManualCombatMoveResolution.Failed("Your authority to execute that order is no longer valid.");
 		if (available is null)
 		{
 			return ManualCombatMoveResolution.Failed("Your race cannot use that auxiliary move against that target right now.");
+		}
+
+		if (!actor.CanSee(target) || !AuxiliaryMove.CanReachTarget(actor, target))
+		{
+			return ManualCombatMoveResolution.Failed("You can no longer see and reach that target at melee range.");
 		}
 
 		if (!actor.CanSpendStamina(AuxiliaryMove.MoveStaminaCost(actor, available)))

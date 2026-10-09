@@ -365,11 +365,13 @@ public sealed class FutureMudShopBaselineCatalog
 
 	public required FutureMudEconomicZoneReference? DefaultEconomicZone { get; init; }
 	public required IReadOnlySet<long> RoomIds { get; init; }
+	public IReadOnlyDictionary<int, long> ImportedRoomIdsByVnum { get; init; } = new Dictionary<int, long>();
 	public required IReadOnlyDictionary<int, IReadOnlyList<FutureMudShopItemProtoReference>> ItemProtosByLegacyVnum { get; init; }
 	public required IReadOnlySet<string> ExistingShopKeys { get; init; }
 	public required IReadOnlySet<string> ExistingShopNames { get; init; }
 
-	public static FutureMudShopBaselineCatalog Load(FuturemudDatabaseContext context)
+	public static FutureMudShopBaselineCatalog Load(FuturemudDatabaseContext context,
+		IReadOnlyDictionary<int, long>? importedRoomIdsByVnum = null)
 	{
 		var economicZone = context.EconomicZones
 			.OrderBy(x => x.Id)
@@ -395,6 +397,7 @@ public sealed class FutureMudShopBaselineCatalog
 		{
 			DefaultEconomicZone = economicZone,
 			RoomIds = cellIds,
+			ImportedRoomIdsByVnum = importedRoomIdsByVnum ?? new Dictionary<int, long>(),
 			ItemProtosByLegacyVnum = itemProtos
 				.GroupBy(x => x.LegacyVnum)
 				.ToDictionary(
@@ -414,8 +417,27 @@ public sealed class FutureMudShopBaselineCatalog
 
 	public bool HasExistingShop(ConvertedShopDefinition definition)
 	{
-		return ExistingShopKeys.Contains(definition.StructuralKey) ||
+		return (TryResolveRoomId(definition.ShopVnum, out _) &&
+		        (definition.StoreVnum <= 0 || TryResolveRoomId(definition.StoreVnum, out _)) &&
+		        ExistingShopKeys.Contains(ResolvedShopKey(definition))) ||
 		       ExistingShopNames.Contains(definition.ShopName);
+	}
+
+	public bool TryResolveRoomId(int vnum, out long roomId)
+	{
+		return ImportedRoomIdsByVnum.TryGetValue(vnum, out roomId) && RoomIds.Contains(roomId);
+	}
+
+	public long ResolveRoomId(int vnum)
+	{
+		return TryResolveRoomId(vnum, out var roomId) ? roomId :
+			throw new InvalidOperationException($"No verified imported room mapping for RPI vnum {vnum}.");
+	}
+
+	public string ResolvedShopKey(ConvertedShopDefinition definition)
+	{
+		return BuildShopKey(ResolveRoomId(definition.ShopVnum),
+			definition.StoreVnum > 0 ? ResolveRoomId(definition.StoreVnum) : 0);
 	}
 
 	public bool TryResolveItemPrototype(
@@ -519,12 +541,12 @@ public static class FutureMudShopValidation
 					"error",
 					"Shop has no positive RPI shop_vnum for the FutureMUD shopfront."));
 			}
-			else if (!catalog.RoomIds.Contains(definition.ShopVnum))
+			else if (!catalog.TryResolveRoomId(definition.ShopVnum, out _))
 			{
 				issues.Add(new FutureMudShopValidationIssue(
 					definition.SourceKey,
 					"error",
-					$"Missing FutureMUD shopfront cell id {definition.ShopVnum.ToString(SystemCultureInfo.InvariantCulture)}. Run apply-rooms before apply-shops."));
+					$"No verified imported shopfront room for RPI vnum {definition.ShopVnum.ToString(SystemCultureInfo.InvariantCulture)}. Supply the executed apply-rooms audit for this corpus."));
 			}
 
 			if (definition.StoreVnum <= 0)
@@ -534,12 +556,12 @@ public static class FutureMudShopValidation
 					"warning",
 					"Shop has no positive RPI store_vnum; no stockroom cell will be assigned."));
 			}
-			else if (!catalog.RoomIds.Contains(definition.StoreVnum))
+			else if (!catalog.TryResolveRoomId(definition.StoreVnum, out _))
 			{
 				issues.Add(new FutureMudShopValidationIssue(
 					definition.SourceKey,
 					"error",
-					$"Missing FutureMUD stockroom cell id {definition.StoreVnum.ToString(SystemCultureInfo.InvariantCulture)}. Run apply-rooms before apply-shops."));
+					$"No verified imported stockroom room for RPI vnum {definition.StoreVnum.ToString(SystemCultureInfo.InvariantCulture)}. Supply the executed apply-rooms audit for this corpus."));
 			}
 
 			if (catalog.HasExistingShop(definition))
@@ -622,13 +644,6 @@ public sealed class FutureMudShopImporter
 
 		foreach (var definition in ordered)
 		{
-			if (existingShopKeys.Contains(definition.StructuralKey) || existingShopNames.Contains(definition.ShopName))
-			{
-				skippedExistingCount++;
-				auditEntries.Add(BuildAuditEntry(definition, "skipped-existing", null, 0, definition.DeliveryVnums));
-				continue;
-			}
-
 			if (globalFatal ||
 			    invalidSourceKeys.Contains(definition.SourceKey) ||
 			    definition.Status != ShopConversionStatus.Ready)
@@ -639,10 +654,17 @@ public sealed class FutureMudShopImporter
 			}
 
 			var resolvedMerchandise = ResolveMerchandise(definition, out var skippedDeliveryVnums);
+			var resolvedKey = _catalog.ResolvedShopKey(definition);
+			if (existingShopKeys.Contains(resolvedKey) || existingShopNames.Contains(definition.ShopName))
+			{
+				skippedExistingCount++;
+				auditEntries.Add(BuildAuditEntry(definition, "skipped-existing", null, 0, definition.DeliveryVnums));
+				continue;
+			}
 			if (!execute)
 			{
 				auditEntries.Add(BuildAuditEntry(definition, "would-create", null, resolvedMerchandise.Count, skippedDeliveryVnums));
-				existingShopKeys.Add(definition.StructuralKey);
+				existingShopKeys.Add(resolvedKey);
 				existingShopNames.Add(definition.ShopName);
 				continue;
 			}
@@ -653,7 +675,7 @@ public sealed class FutureMudShopImporter
 
 			insertedCount++;
 			insertedMerchandiseCount += resolvedMerchandise.Count;
-			existingShopKeys.Add(definition.StructuralKey);
+			existingShopKeys.Add(resolvedKey);
 			existingShopNames.Add(definition.ShopName);
 			auditEntries.Add(BuildAuditEntry(definition, "created", shop.Id, resolvedMerchandise.Count, skippedDeliveryVnums));
 		}
@@ -706,13 +728,13 @@ public sealed class FutureMudShopImporter
 			ShopType = "Permanent",
 			MinimumFloatToBuyItems = 0.0M,
 			AutopayTaxes = true,
-			StockroomId = definition.StoreVnum > 0 ? (long)definition.StoreVnum : null,
+			StockroomId = definition.StoreVnum > 0 ? _catalog.ResolveRoomId(definition.StoreVnum) : null,
 		};
 
 		shop.ShopsStoreroomRooms.Add(new ShopsStoreroomRoom
 		{
 			Shop = shop,
-			RoomId = definition.ShopVnum,
+			RoomId = _catalog.ResolveRoomId(definition.ShopVnum),
 		});
 
 		foreach (var (definitionMerchandise, proto) in merchandise)

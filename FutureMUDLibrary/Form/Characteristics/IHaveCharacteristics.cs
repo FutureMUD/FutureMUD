@@ -86,7 +86,7 @@ namespace MudSharp.Form.Characteristics
             CharacteristicDescriptionType type = CharacteristicDescriptionType.Normal;
             ICharacteristicDefinition selection =
                 characteristics.Select(x => x.Item1)
-                    .FirstOrDefault(x => x.Pattern.IsMatch(definition) && !BasicFancyCharacteristicRegex.IsMatch(definition));
+                    .FirstOrDefault(x => x.MatchesPattern(definition) && !BasicFancyCharacteristicRegex.IsMatch(definition));
             if (selection != null)
             {
                 return Tuple.Create(selection, type);
@@ -97,7 +97,7 @@ namespace MudSharp.Form.Characteristics
                     characteristics.Select(x => x.Item1)
                         .FirstOrDefault(
                             x =>
-                                x.Pattern.IsMatch(
+                                x.MatchesPattern(
                                     BasicFancyCharacteristicRegex.Match(definition).Groups[1].Value.ToLowerInvariant()));
                 type = BasicFancyCharacteristicRegex.Match(definition).Groups[2].Value.Equals("basic",
                     StringComparison.InvariantCultureIgnoreCase)

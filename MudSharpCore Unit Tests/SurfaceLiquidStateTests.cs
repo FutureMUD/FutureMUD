@@ -7,12 +7,40 @@ using Moq;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.Magic;
 
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
 public class SurfaceLiquidStateTests
 {
+	[TestMethod]
+	public void DistinctLots_AreBoundedOnAdditionAndLoad_WhileCompatibleLotsStillMerge()
+	{
+		var world = new Mock<IFuturemud>();
+		var liquid = CreateLiquid("water").Object;
+		var liquids = new All<ILiquid>();
+		liquids.Add(liquid);
+		world.SetupGet(x => x.Liquids).Returns(liquids);
+		var state = new SurfaceLiquidState(world.Object);
+		var legacy = new LiquidMixture(Enumerable.Range(0, 1000).Select(_ =>
+		{
+			var instance = new LiquidInstance { Liquid = liquid, Amount = 0.001 };
+			instance.MagicalCharges[1] = new();
+			return instance;
+		}), world.Object);
+		state.AddLiquid(legacy);
+		Assert.AreEqual(SubstanceDose.MaximumRetainedLots + 1, state.ContaminatingLiquid.Instances.Count());
+		var first = state.ContaminatingLiquid.Instances.First();
+		first.MagicalCharges[1].Spent.Add(Guid.NewGuid());
+		state.AddLiquid(new LiquidMixture(first.Copy(), world.Object));
+		Assert.AreEqual(SubstanceDose.MaximumRetainedLots + 1, state.ContaminatingLiquid.Instances.Count());
+		Assert.AreEqual(1.001, state.LiquidVolume, 1e-9);
+		Assert.AreEqual(1, first.MagicalCharges[1].Spent.Count);
+		var restored = new SurfaceLiquidState(world.Object, new System.Xml.Linq.XElement("Surface", legacy.SaveToXml()));
+		Assert.AreEqual(SubstanceDose.MaximumRetainedLots + 1, restored.ContaminatingLiquid.Instances.Count());
+		Assert.AreEqual(1, restored.LiquidVolume, 1e-9);
+	}
 	[TestMethod]
 	public void AddLiquidVolume_PositiveVolume_IncreasesExistingVolume()
 	{

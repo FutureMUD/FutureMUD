@@ -209,6 +209,8 @@ area weather clear
 
 FutureMUD room building is package-based. You usually do not directly mutate live room presentation. Instead, you work in an overlay package, submit it, and then review or swap it.
 
+Overlay package creation and renaming reject names longer than 4,000 characters before inserting or changing a package. Names within the existing database limit retain the normal title casing and uniqueness checks.
+
 Package statuses you will see:
 
 | Status | Meaning |

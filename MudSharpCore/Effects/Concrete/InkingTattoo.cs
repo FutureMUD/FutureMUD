@@ -145,7 +145,7 @@ public class InkingTattoo : CharacterActionWithTargetAndTool, IAffectProximity
                 $"@ have|has finished inking $2 on $1's {Tattoo.Bodypart.FullDescription()}.", CharacterOwner,
                 CharacterOwner, Target,
                 new DummyPerceivable(
-                    perceiver => Tattoo.ShortDescription.SubstituteWrittenLanguage(perceiver, Gameworld)
+                    perceiver => Tattoo.ShortDescriptionFor(perceiver)
                                        .Colour(Telnet.BoldOrange), perceiver => string.Empty))));
             Owner.RemoveEffect(this, true);
             return;

@@ -109,6 +109,12 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 		Owner.EffectsChanged = true;
 	}
 
+	public override IEnumerable<PhysicalEntityReference> PhysicalReferences =>
+		base.PhysicalReferences
+			.Append(new(PhysicalEntityKind.Character, _casterId, "Caster"))
+			.Append(new(PhysicalEntityKind.CharacterInstance, _casterInstanceId ?? 0, "CasterInstance"))
+			.Concat(_spellEffects.OfType<IPhysicalEntityReferenceProvider>().SelectMany(x => x.PhysicalReferences));
+
     protected override string SpecificEffectType => "MagicSpellParent";
 
     public override bool SavingEffect => true;

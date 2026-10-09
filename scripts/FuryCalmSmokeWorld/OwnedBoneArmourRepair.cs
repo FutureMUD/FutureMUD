@@ -63,8 +63,8 @@ internal static class OwnedBoneArmourRepair
 				var corrected = oldText.Replace(OldFormula, CorrectFormula, StringComparison.Ordinal);
 				var newHex = Convert.ToHexString(Encoding.UTF8.GetBytes(corrected));
 				Require(row.Hex == pinned[row.Id] || row.Hex == newHex, "Complete target definition changed; retain builder edits.");
-				Require(!NpcArchiveReferencePolicy.HasReferenceOrUncertainty(typeof(MudSharp.Models.ArmourType),
-					"Definition", corrected, 10, 11), "Corrected stock definition must pass the unchanged typed classifier.");
+				Require(new ExpressionEngine.Expression(CorrectFormula).HasErrors() == false,
+					"Corrected stock formula must parse through the domain expression engine.");
 				return new Repair(row.Id, pinned[row.Id], newHex, row.Hex != newHex);
 			}).ToArray(); // Validate both complete rows before the first UPDATE.
 

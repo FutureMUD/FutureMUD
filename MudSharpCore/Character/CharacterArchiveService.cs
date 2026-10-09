@@ -188,7 +188,8 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 						    (type is "Crime" or "CharacterLog" ||
 						     type == "Wound" && property == "ActorOriginId" ||
 						     type == "Writing" && property is "AuthorId" or "TrueAuthorId" ||
-						     type == "Drawing" && property == "AuthorId")) continue;
+						     type == "Drawing" && property == "AuthorId" ||
+						     type == "CharacterCombatSetting" && property == "CharacterOwnerId")) continue;
 						var removable = principal.Item1 == typeof(Db.Character)
 							? CharacterStateRows.Contains(type) && property == "CharacterId" || type == "Npc" && property == "CharacterId" ||
 							  type == "CharacterInstance" && property == "CharacterId"
@@ -219,11 +220,17 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 					return Hold("A polymorphic item reference retains a physical character instance.");
 				if (wounds.Any(x => context.Infections.Any(y => y.WoundId == x.Id)))
 					return Hold("An infection graph requires explicit historical handling before compaction.");
-				if (!SerializedReferencesAreClear(context, character.Id, bodyId,
-					    instanceIds.Concat(wounds.Select(x => x.Id)).ToArray(), out var referenceDiagnostic))
+				var targets = new PhysicalReferenceTargets(
+					new[] { new PhysicalEntityReference(PhysicalEntityKind.Character, character.Id, "CharacterId"),
+						new PhysicalEntityReference(PhysicalEntityKind.Body, bodyId, "BodyId") }
+					.Concat(instanceIds.Select(x => new PhysicalEntityReference(PhysicalEntityKind.CharacterInstance, x, "InstanceId")))
+					.Concat(wounds.Select(x => new PhysicalEntityReference(PhysicalEntityKind.Wound, x.Id, "WoundId"))));
+				if (!DeletedPrincipalReferencesAreClear(context, compactRows, out var referenceDiagnostic))
 					return Hold(referenceDiagnostic);
-				if (!UnmappedReferencesAreClear(context, character.Id, bodyId,
-					    instanceIds.Concat(wounds.Select(x => x.Id)).ToArray(), compactRows, out referenceDiagnostic))
+				if (!PhysicalReferenceGuard.RuntimeReferencesAreClear(character.Gameworld, targets))
+					return Hold("A typed live effect reference retains the physical graph.");
+				if (!PhysicalReferenceGuard.PersistedReferencesAreClear(context, targets, [character.Id], [bodyId],
+					instanceIds, null, out referenceDiagnostic))
 					return Hold(referenceDiagnostic);
 
 				context.CharacterArchives.Add(new Db.CharacterArchive
@@ -277,47 +284,25 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 		return query.Provider.CreateQuery(take).Cast<object>().ToList();
 	}
 
-	private static bool SerializedReferencesAreClear(FuturemudDatabaseContext context, long characterId, long bodyId,
-		long[] additionalPhysicalIds, out string diagnostic)
+	private static bool DeletedPrincipalReferencesAreClear(FuturemudDatabaseContext context,
+		HashSet<object> removedRows, out string diagnostic)
 	{
-		foreach (var type in context.Model.GetEntityTypes())
+		foreach (var principal in removedRows.Where(x => x is Db.CharacterInstance or Db.Wound))
 		{
-			foreach (var property in type.GetProperties().Where(x => x.ClrType == typeof(string) &&
-				         (x.Name.Contains("Definition", StringComparison.Ordinal) || x.Name is "EffectData" or "Data" or "Value" or
-					         "StateData" or "StateJson" or "ResultJson" or "WaitArgument" or "Tattoos" or
-					         "ExtraInformation" or "ProcedureParameters" or "OperationalPayload" or "CommandArguments" or
-					         "StrategyData" or "LandDetailJson")))
+			var entity = context.Entry(principal).Metadata;
+			var id = (long)context.Entry(principal).Property("Id").CurrentValue!;
+			foreach (var key in entity.GetReferencingForeignKeys())
 			{
-				// Writing content is historical narrative, not a serialized runtime actor or physical reference.
-				if (type.ClrType == typeof(Db.Writing) && property.Name == "Definition") continue;
-				var contractDiagnostic = string.Empty;
-				bool held;
-				if (type.ClrType == typeof(Db.ArtificialIntelligence) && property.Name == nameof(Db.ArtificialIntelligence.Definition))
+				if (key.Properties.Count != 1 || key.PrincipalKey.Properties.Count != 1 ||
+					key.PrincipalKey.Properties[0].Name != "Id")
 				{
-					// Keep the loader discriminator paired with its payload, under the same scan bounds.
-					var rows = context.Set<Db.ArtificialIntelligence>().AsNoTracking()
-						.Select(x => new Db.ArtificialIntelligence { Type = x.Type, Definition = x.Definition })
-						.Take(RowLimit + 1).ToArray();
-					held = rows.Length > RowLimit || rows.Any(x => x.Definition?.Length > 1048576 ||
-						NpcArchiveReferencePolicy.HasReferenceOrUncertainty(x, characterId, bodyId, out contractDiagnostic, additionalPhysicalIds));
-				}
-				else
-				{
-					var query = (IQueryable)SetMethod.MakeGenericMethod(type.ClrType).Invoke(context, null)!;
-					var parameter = Expression.Parameter(type.ClrType, "row");
-					var select = Expression.Call(typeof(Queryable), nameof(Queryable.Select), [type.ClrType, typeof(string)],
-						query.Expression, Expression.Quote(Expression.Lambda(Expression.Property(parameter, property.Name), parameter)));
-					var values = query.Provider.CreateQuery<string?>(select).Take(RowLimit + 1).ToArray();
-					held = values.Length > RowLimit || values.Any(x => x?.Length > 1048576 ||
-						NpcArchiveReferencePolicy.HasReferenceOrUncertainty(type.ClrType, property.Name, x,
-							characterId, bodyId, out contractDiagnostic, additionalPhysicalIds));
-				}
-				if (held)
-				{
-					diagnostic = $"Unresolved serialized reference or scan limit in {type.ClrType.Name}.{property.Name}; retain the physical graph." +
-					             (string.IsNullOrEmpty(contractDiagnostic) ? string.Empty : $" {contractDiagnostic}.");
+					diagnostic = $"{entity.ClrType.Name}: an incoming composite/alternate physical relation needs a disposition.";
 					return false;
 				}
+				var matches = Rows(context, key.DeclaringEntityType, key.Properties[0], id);
+				if (matches.Count <= RowLimit && matches.All(removedRows.Contains)) continue;
+				diagnostic = $"{key.DeclaringEntityType.ClrType.Name}.{key.Properties[0].Name} retains {entity.ClrType.Name} {id}.";
+				return false;
 			}
 		}
 		diagnostic = string.Empty;
@@ -345,33 +330,6 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 			        x.SeenTargets.Any(y => y.Id == character.Id && y.FrameworkItemType == character.FrameworkItemType) ||
 			        x.CombatTarget is ICharacter target && target.Id == character.Id ||
 			        x.PositionTarget is ICharacter position && position.Id == character.Id));
-	}
-
-	private static bool UnmappedReferencesAreClear(FuturemudDatabaseContext context, long characterId, long bodyId,
-		long[] additionalPhysicalIds, HashSet<object> compactRows, out string diagnostic)
-	{
-		foreach (var type in context.Model.GetEntityTypes())
-		{
-			// These are immutable canonical attribution/ownership receipts, never physical actor loaders.
-			if (type.ClrType == typeof(Db.CharacterArchive) || type.ClrType == typeof(Db.MagicSpellLifecycle) ||
-			    type.ClrType == typeof(Db.MagicSpellOwnedEntity)) continue;
-			foreach (var property in type.GetProperties().Where(x =>
-				         (x.ClrType == typeof(long) || x.ClrType == typeof(long?)) &&
-				         x.Name.EndsWith("Id", StringComparison.Ordinal) && !x.GetContainingKeys().Any() &&
-				         !x.GetContainingForeignKeys().Any()))
-			{
-				var matches = new[] { characterId, bodyId }.Concat(additionalPhysicalIds).Where(x => x > 0)
-					.SelectMany(id => Rows(context, type, property, id)).ToArray();
-				if (matches.Length == 0) continue;
-				// These uniqueness keys derive from the already-audited primary instance, not an independent actor reference.
-				if (type.ClrType == typeof(Db.CharacterInstance) && property.Name is "EmbodiedBodyId" or "PrimaryCharacterId" &&
-				    property.GetComputedColumnSql() is not null && matches.All(compactRows.Contains)) continue;
-				diagnostic = $"Unclassified scalar reference in {type.ClrType.Name}.{property.Name}; retain the physical graph.";
-				return false;
-			}
-		}
-		diagnostic = string.Empty;
-		return true;
 	}
 
 	private static ArchivedCharacterIdentity Read(Db.CharacterArchive archive) =>

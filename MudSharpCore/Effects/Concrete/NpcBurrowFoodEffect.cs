@@ -114,5 +114,8 @@ public sealed class NpcBurrowFoodEffect : Effect
 
 	public override bool SavingEffect => true;
 
+	public override IEnumerable<PhysicalEntityReference> PhysicalReferences =>
+		[new PhysicalEntityReference(PhysicalEntityKind.Character, _pendingVictimId, "PendingVictimId")];
+
 	protected override string SpecificEffectType => "NpcBurrowFood";
 }

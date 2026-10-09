@@ -4,7 +4,6 @@ import importlib.util
 import json
 import os
 import pathlib
-import re
 import uuid
 
 spec = importlib.util.spec_from_file_location('fury_calm_smoke', pathlib.Path(__file__).with_name('smoke.py'))
@@ -12,14 +11,38 @@ s = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(s)
 s.report['scope'] = 'retained paid NPC expiry/archival retry and a separate-process completed retry'
 s.report['qualificationMarker'] = 'npc-archival-passed.json'
-for name in ['scripts/FuryCalmSmokeWorld/npc_archival.py', 'MudSharpCore/Character/CharacterArchiveService.cs',
-             'scripts/FuryCalmSmokeWorld/OwnedBoneArmourRepair.cs',
-             'DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.Bodyparts.cs',
-             'DatabaseSeeder/Seeders/AnimalSeeder/AnimalSeeder.Races.cs',
-             'MudSharpCore/Character/NpcArchiveReferencePolicy.cs', 'MudSharpCore/Character/NpcArchiveReferencePolicy.Agriculture.cs',
-             'MudSharpCore/Character/NpcArchiveReferencePolicy.Combat.cs',
-             'MudSharpCore/Character/NpcArchiveReferencePolicy.ArtificialIntelligence.cs', 'MudSharpCore/Body/Implementations/Body.cs',
-             'MudSharpCore/Body/Implementations/Body.Archival.cs']:
+for name in [
+    'scripts/FuryCalmSmokeWorld/npc_archival.py',
+    'scripts/FuryCalmSmokeWorld/OwnedBoneArmourRepair.cs',
+    'MudSharpCore/Character/CharacterArchiveService.cs',
+    'MudSharpCore/Character/CharacterBodyCleanup.cs',
+    'MudSharpCore/Character/NpcArchiveReferencePolicy.cs',
+    'MudSharpCore/Character/PhysicalReferenceCodecs.cs',
+    'MudSharpCore/Character/PhysicalReferenceGuard.cs',
+    'MudSharpCore/Character/PhysicalReferenceTargets.cs',
+    'FutureMUDLibrary/Framework/IPhysicalEntityReferenceProvider.cs',
+    'MudSharpCore/bin/Debug/net10.0/FutureMUDLibrary.dll',
+    'scripts/FuryCalmSmokeWorld/bin/Debug/net10.0/MudSharp.dll',
+    'scripts/FuryCalmSmokeWorld/bin/Debug/net10.0/FutureMUDLibrary.dll',
+    'MudSharpCore/Effects/Effect.cs',
+    'MudSharpCore/Effects/EffectPhysicalReferences.cs',
+    'MudSharpCore/Magic/Lifecycle/SpellOwnedNpcService.cs',
+    'MudSharpCore/Magic/Lifecycle/SpellOwnedCorpseAnimationService.cs',
+    'MudSharpCore/Magic/Lifecycle/SpellOwnedCreation.Corpse.cs',
+    'MudSharpCore/Body/Implementations/Body.cs',
+    'MudSharpCore/Body/Implementations/Body.Archival.cs',
+    'DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.Bodyparts.cs',
+    'DatabaseSeeder/Seeders/AnimalSeeder/AnimalSeeder.Races.cs',
+    'MudSharpCore/Effects/Concrete/HasLegalCounsel.cs',
+    'MudSharpCore/Effects/Concrete/InCustodyOfEnforcer.cs',
+    'MudSharpCore/Effects/Concrete/Lawyering.cs',
+    'MudSharpCore/Effects/Concrete/MagicSpellParent.cs',
+    'MudSharpCore/Effects/Concrete/NpcBurrowFoodEffect.cs',
+    'MudSharpCore/Effects/Concrete/OnTrial.cs',
+    'MudSharpCore/Effects/Concrete/SubstanceExposureEffect.cs',
+    'MudSharpCore/Effects/Concrete/WitnessedClanMemberDeath.cs',
+    'MudSharpCore/Effects/Concrete/SpellEffects/SpellRejuvenateLandEffect.cs',
+]:
     s.report['inputs'][name] = hashlib.sha256((s.repo / name).read_bytes()).hexdigest()
 
 
@@ -63,27 +86,9 @@ try:
         s.report['boneArmourRepair']['receipt'] = str(s.runtime / 'fixture-armour-repair.json')
     s.report['archiveReferenceEvidence'] = {
         table: s.sql(f'SELECT Id,HEX(Definition) FROM {table} ORDER BY Id') for table in
-        ['AgricultureOperations', 'AgricultureCropDefinitions', 'AgricultureFieldProfiles', 'ArmourTypes']}
+        ['AgricultureOperations', 'AgricultureCropDefinitions', 'AgricultureFieldProfiles', 'ArmourTypes', 'AutobuilderAreaTemplates', 'AutobuilderRoomTemplates']}
     s.report['observedAiDefinitions'] = s.sql(
         'SELECT Id,HEX(Name),HEX(Type),HEX(Definition) FROM ArtificialIntelligences ORDER BY Id')
-    # Diagnostic census only: these digit collisions do not classify or exempt any column.
-    # Keep values out of the receipt; the runtime's typed reference policy remains authoritative.
-    columns = s.sql("SELECT TABLE_NAME,COLUMN_NAME FROM information_schema.COLUMNS "
-                    "WHERE TABLE_SCHEMA=DATABASE() AND DATA_TYPE IN ('char','varchar','text','mediumtext','longtext') "
-                    "AND (COLUMN_NAME LIKE '%Definition%' OR COLUMN_NAME IN "
-                    "('EffectData','Data','Value','StateData','StateJson','ResultJson','WaitArgument','Tattoos',"
-                    "'ExtraInformation','ProcedureParameters','OperationalPayload','CommandArguments','StrategyData','LandDetailJson')) "
-                    "ORDER BY TABLE_NAME,COLUMN_NAME")
-    token = re.compile(r'(?<![\d.])(?:' + '|'.join(str(x) for life in lives for x in [life['character'], life['body']]) + r')(?![\d.])')
-    s.report['serializedDigitCollisionCensus'] = []
-    for column in columns.splitlines():
-        table, name = column.split('\t')
-        if not all(re.fullmatch(r'[A-Za-z0-9_]+', x) for x in [table, name]):
-            raise RuntimeError('Unsupported diagnostic metadata identifier')
-        values = s.sql(f'SELECT HEX(`{name}`) FROM `{table}` LIMIT 10001')
-        count = sum(bool(token.search(bytes.fromhex(value).decode('utf-8'))) for value in values.splitlines() if value != 'NULL')
-        if count:
-            s.report['serializedDigitCollisionCensus'].append(dict(table=table, column=name, rows=count))
     death_before = {}
     s.report['physicalEvidenceBeforeStart'] = {}
     s.report['initialJournalStates'] = {}
@@ -125,6 +130,11 @@ try:
     s.stop()
     s.check('archival retry preserves exact original Fury definition',
             s.sql(f'SELECT HEX(Definition) FROM MagicSpells WHERE Id={s.fury_id}') == original_hex)
+    for table, before in s.report['archiveReferenceEvidence'].items():
+        s.check('static ' + table + ' definitions are preserved byte for byte',
+                s.sql(f'SELECT Id,HEX(Definition) FROM {table} ORDER BY Id') == before)
+    s.check('static AI definitions are preserved byte for byte', s.sql(
+        'SELECT Id,HEX(Name),HEX(Type),HEX(Definition) FROM ArtificialIntelligences ORDER BY Id') == s.report['observedAiDefinitions'])
     s.report['fixtureRestoration'] = 'PASS: Fury definition unchanged; no payload or funding mutation'
     s.report['status'] = 'PASS'
 except BaseException as error:

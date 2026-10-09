@@ -187,18 +187,16 @@ public sealed partial class SpellOwnedNpcService(IFuturemud world) : ISpellOwned
 
 	private static long? FindPersistedRemains(long bodyId)
 	{
-		var token = bodyId.ToString(CultureInfo.InvariantCulture);
-		// XML character references can encode any digit of a native body's exact ID. Include
-		// those definitions in the bounded census rather than falsely proving remains absence.
-		var candidates = FMDB.Context.GameItemComponents.AsNoTracking().Where(x => x.Definition.Contains(token) || x.Definition.Contains("&#"))
-			.Select(x => new { x.GameItemId, x.Definition }).Take(257).ToArray();
-		if (candidates.Length > 256) throw new InvalidOperationException("The remains reference census exceeds its bounded inspection limit.");
+		var candidates = PhysicalReferenceGuard.RemainsComponents(FMDB.Context).Take(100001).ToArray();
+		if (candidates.Length > 100000) throw new InvalidOperationException("Known remains component rows exceed the bounded inspection limit.");
 		var matches = new HashSet<long>();
+		long? LegacyBody(long characterId) => FMDB.Context.Characters.AsNoTracking()
+			.Where(x => x.Id == characterId && !x.IsArchived).Select(x => x.BodyId).SingleOrDefault();
 		foreach (var candidate in candidates)
 		{
-			var xml = XElement.Parse(candidate.Definition); // Malformed candidates hold rather than proving absence.
-			if ((long?)xml.Element("OriginalBody") == bodyId || (long?)xml.Element("OriginalBodyId") == bodyId)
-				matches.Add(candidate.GameItemId);
+			if (PhysicalReferenceCodecs.Component(candidate.Type, candidate.Definition, LegacyBody)
+				.Any(x => x.Kind == MudSharp.Framework.PhysicalEntityKind.Body && x.Id == bodyId))
+				matches.Add(candidate.ItemId);
 		}
 		return matches.Count switch
 		{

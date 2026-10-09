@@ -480,6 +480,10 @@ public class OnTrial : Effect, IEffect, INoQuitEffect
 
     #region Overrides of Effect
 
+	public override IEnumerable<PhysicalEntityReference> PhysicalReferences =>
+		[new PhysicalEntityReference(PhysicalEntityKind.Character, _prosecutorId ?? 0, "Prosecutor"),
+		new PhysicalEntityReference(PhysicalEntityKind.Character, _defenderId ?? 0, "Defender")];
+
     protected override string SpecificEffectType => "OnTrial";
 
     public override string Describe(IPerceiver voyeur)

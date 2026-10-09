@@ -15,8 +15,9 @@ s.report['inputs'][str(pathlib.Path(__file__).relative_to(s.repo))] = hashlib.sh
 s.report['archiveClassificationInputs'] = {
     name: hashlib.sha256((s.repo / name).read_bytes()).hexdigest() for name in [
         'MudSharpCore/Character/CharacterArchiveService.cs',
-        'MudSharpCore/Character/NpcArchiveReferencePolicy.cs',
-        'MudSharpCore/Character/NpcArchiveReferencePolicy.Agriculture.cs']}
+        'MudSharpCore/Character/NpcArchiveReferencePolicy.cs', 'MudSharpCore/Character/PhysicalReferenceCodecs.cs', 'MudSharpCore/Character/PhysicalReferenceGuard.cs',
+        'MudSharpCore/Character/PhysicalReferenceTargets.cs', 'FutureMUDLibrary/Framework/IPhysicalEntityReferenceProvider.cs',
+        'MudSharpCore/Effects/EffectPhysicalReferences.cs']}
 original_hex = None
 family = 'qa-npc-' + s.runtime.name.split('-')[-1]
 

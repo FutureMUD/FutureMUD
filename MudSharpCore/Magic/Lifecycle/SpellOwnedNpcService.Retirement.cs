@@ -88,11 +88,11 @@ public sealed partial class SpellOwnedNpcService
 					throw new InvalidOperationException("The exact native NPC/body cannot be loaded safely; retain its graph.");
 				if (life.State == SpellLifecycleState.Active)
 					life = _store.BeginRetirement(life.Origin.Id, life.Version, SpellRetirementReason.Expiry, TransitionTime(life, nowUtc));
+				// This exact creation's outgoing bond must also release on persisted-dead reloads.
+				// External effects and relationships retain their ordinary custody guards.
+				foreach (var bond in npc.EffectsOfType<SpellNpcGuardian>().ToArray()) bond.PrepareRetirement(life.Origin.CreatorId);
 				if (!npc.State.HasFlag(CharacterState.Dead))
 				{
-					// This owned creation's bond is outgoing lifecycle state. Release it only after
-					// durable retirement intent; external relationships retain the ordinary guards.
-					foreach (var bond in npc.EffectsOfType<SpellNpcGuardian>()) bond.PrepareRetirement(life.Origin.CreatorId);
 					if (CharacterArchiveService.HasRuntimeDependants(npc) || world.NPCs.OfType<RuntimeNpc>().Any(x => x.BodyguardingCharacterID == npc.Id))
 						throw new InvalidOperationException("Connected controllers, runtime relationships or dependent instances must release before native death or evacuation.");
 					if (life.Origin.Mode == SpellLifecycleMode.TemporaryCleanup)
@@ -113,7 +113,7 @@ public sealed partial class SpellOwnedNpcService
 						throw new InvalidOperationException(life.Diagnostic.StartsWith(RemovalPending, StringComparison.Ordinal)
 							? life.Diagnostic : "Native remains retain the exact body until ordinary decay or removal releases them.");
 				EvacuateBody(npc.Body, life, RouteSpatialService.Instance.GetEffectiveLocation(npc));
-				if (CharacterArchiveService.HasRuntimeDependants(npc) || npc.Effects.Any() || npc.Body.Effects.Any() ||
+				if (CharacterArchiveService.HasRuntimeDependants(npc) || npc.Effects.Any() || !RetirementBodyEffects.TryCapture(npc.Body, out _) ||
 					world.NPCs.OfType<RuntimeNpc>().Any(x => x.BodyguardingCharacterID == npc.Id))
 					throw new InvalidOperationException("Runtime relationships or unadapted effects still retain this native NPC.");
 				npc.Quit(silent: true);
@@ -223,10 +223,17 @@ public sealed partial class SpellOwnedNpcService
 			throw new InvalidOperationException("Installed prosthetics, implants or lodged goods require a separately verified native detachment adapter.");
 		if (roots.Any(x => x.ContainedIn is not null) || structuralComponents.Any(c => c.Changed))
 			throw new InvalidOperationException("Foreign subtree structural edits or external containment must settle before evacuation.");
-		if (body is not MudSharp.Body.Implementations.Body nativeBody || body.Effects.Any() || body.Actor.Effects.Any() ||
+		if (body is not MudSharp.Body.Implementations.Body nativeBody || !RetirementBodyEffects.TryCapture(body, out var bodyEffectsUnchanged) || body.Actor.Effects.Any() ||
 			body.Actor.PositionTarget is not null || graph.Any(x => x is not GameItem || x.Effects.Any() || x.Wounds.Any() ||
 				x.PositionTarget is not null || x.PositionEmote is not null || x.TargetedBy.Any()))
-			throw new InvalidOperationException("Foreign custody requires a verified callback-free rollback adapter for its body, effects, wounds and position graph.");
+			throw new InvalidOperationException($"Foreign custody requires a verified callback-free rollback adapter for its body, effects, wounds and position graph. " +
+				$"Body effects [{string.Join(", ", body.Effects.Select(x => x.GetType().Name))}]; " +
+				$"actor effects [{string.Join(", ", body.Actor.Effects.Select(x => x.GetType().Name))}]; " +
+				$"actor position target {body.Actor.PositionTarget is not null}; " +
+				$"item effects [{string.Join(", ", graph.SelectMany(x => x.Effects).Select(x => x.GetType().Name))}]; " +
+				$"items with wounds {graph.Count(x => x.Wounds.Any())}, position targets {graph.Count(x => x.PositionTarget is not null)}, " +
+				$"position emotes {graph.Count(x => x.PositionEmote is not null)}, targeting references {graph.Count(x => x.TargetedBy.Any())}, " +
+				$"non-native items {graph.Count(x => x is not GameItem)}.");
 		var componentRestores = graph.SelectMany(x => x.Components).Select(x =>
 			(Component: x, Restore: (x as GameItemComponent)?.CaptureCustodyRollback())).ToArray();
 		if (componentRestores.Any(x => x.Restore is null))
@@ -269,7 +276,7 @@ public sealed partial class SpellOwnedNpcService
 		}
 		body.RecalculateItemHelpers();
 		var topologyChanged = !snapshot.Matches(roots, graph);
-		if (body.AllItems.Any() || roots.Any(x => x.Deleted || !ReferenceEquals(x.Location, destination.Room)) ||
+		if (!bodyEffectsUnchanged() || body.Actor.Effects.Any() || body.AllItems.Any() || roots.Any(x => x.Deleted || !ReferenceEquals(x.Location, destination.Room)) ||
 			graph.Any(x => x.Deleted) || !TryCaptureForeignCustody(body, out _, out var after, out _, roots) ||
 			!new HashSet<IGameItem>(graph, ReferenceEqualityComparer.Instance).SetEquals(after) ||
 			topologyChanged || structuralComponents.Any(c => c.Changed))

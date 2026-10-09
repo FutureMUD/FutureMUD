@@ -100,11 +100,20 @@ and engage a visible ranged attacker through ordinary native combat. Death/remov
 releases its subscriptions. Its live and saved references use those two proven scalar fields;
 reference checks do not resolve an actor or search serialized text for IDs. After durable
 retirement intent, the matching lifecycle creator's bond stops protection and releases only
-its exact outgoing follow relationship. Other follow targets, combat, riders, incoming
+its exact outgoing follow relationship and owned effect, including on persisted-dead reload.
+Other follow targets, combat, riders, incoming
 followers and all other runtime dependencies retain the existing retirement guards.
 Suspension is saved on the bond. Activation also checks exact durable NPC/body ownership
 and pending retirement before resolving the creator or subscribing, so restart or a crash
 before the effect snapshot cannot reactivate a retiring guardian's bond.
+
+Dead-body custody and archival also admit the exact native `LimbSpinalDamageEffect` class
+when its owner/body/limb references match the captured body, it is unsaved and unscheduled,
+and it has no applicability prog. These derived health effects stay attached during custody
+transfer; exact membership, limb references and those eligibility conditions are checked again
+after transfer callbacks. Other effects, subclasses, foreign limbs and changed state still hold.
+Persisted effects and external physical references retain their existing archival guards.
+This does not remove limb damage or authorize transfer of an unadapted effect graph.
 
 Builders can install the bounded Air Guardian stock path with
 `magic spell edit new stock air-guardian <school> <casting trait> <resource> <approved NPC template> <lifetime expression in real seconds>`.

@@ -115,7 +115,9 @@ public class SpellNpcGuardianTests
 		var bond = new SpellNpcGuardian(guardian.Object, creator);
 		Assert.IsFalse(bond.PrepareRetirement(99));
 		guardian.Verify(x => x.CeaseFollowing(), Times.Never);
+		guardian.Verify(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>()), Times.Never);
 		Assert.IsTrue(bond.PrepareRetirement(17));
+		guardian.Verify(x => x.RemoveEffect(bond, true), Times.Once);
 		Assert.IsFalse(bond.Targets.Any());
 		guardian.Verify(x => x.CeaseFollowing(), ownFollow ? Times.Once() : Times.Never());
 		Assert.AreEqual(!ownFollow, following is not null);

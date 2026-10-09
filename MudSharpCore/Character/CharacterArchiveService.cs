@@ -7,6 +7,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using MudSharp.Accounts;
+using MudSharp.Body;
 using MudSharp.Character.Name;
 using MudSharp.Database;
 using MudSharp.Magic;
@@ -125,7 +126,7 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 				var physicalHold = character.Body.AllItems.Any() ? "physical possessions" :
 					character.Bodies.Any(x => x.Id != bodyId) ? "other body forms" :
 					character.Effects.Any() ? "runtime character effects" :
-					character.Body.Effects.Any() ? "runtime body effects" :
+					!RetirementBodyEffects.TryCapture(character.Body, out _) ? "runtime body effects" :
 					character.Gameworld.Characters.Any(x => x.Id != character.Id && x.Body?.Id == bodyId) ? "another live actor using this body" :
 					!NpcArchiveReferencePolicy.IsEmptyEffects(identity.EffectData) ? "persisted character effects or unrecognized effect XML" :
 					!NpcArchiveReferencePolicy.IsEmptyEffects(body.EffectData) ? "persisted body effects or unrecognized effect XML" :

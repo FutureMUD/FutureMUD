@@ -17,7 +17,8 @@ for name in ['scripts/FuryCalmSmokeWorld/guardian_early_death.py',
              'MudSharpCore/Character/CharacterCombat.cs', 'MudSharpCore/Character/PhysicalReferenceCodecs.cs']:
     s.report['inputs'][name] = hashlib.sha256((s.repo / name).read_bytes()).hexdigest()
 for name in ['MudSharpCore/Magic/Lifecycle/SpellOwnedNpcService.Retirement.cs',
-             'FutureMUDLibrary/Magic/ISpellOwnedNpcService.cs']:
+             'FutureMUDLibrary/Magic/ISpellOwnedNpcService.cs',
+             'MudSharpCore/Body/RetirementBodyEffects.cs', 'MudSharpCore/Character/CharacterArchiveService.cs']:
     s.report['inputs'][name] = hashlib.sha256((s.repo / name).read_bytes()).hexdigest()
 corpse_original = None
 

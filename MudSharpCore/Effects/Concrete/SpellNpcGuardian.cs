@@ -135,6 +135,9 @@ public sealed class SpellNpcGuardian : Effect, IGuardCharacterEffect, IAffectPro
 		Deactivate();
 		if (Guardian.Following is ICharacter following && CharacterInstanceIdentityComparer.IdentityId(following) == CreatorId &&
 			following.InstanceId == CreatorInstanceId) Guardian.CeaseFollowing();
+		// Durable retirement owns this bond. Keeping a suspended effect attached would
+		// block the callback-free custody adapter after native death or a cold reload.
+		Owner.RemoveEffect(this, true);
 		return true;
 	}
 	private void Unbind()

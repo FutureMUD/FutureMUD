@@ -38,6 +38,12 @@ an unloaded character or fires callbacks. These snapshots support before/after l
 qualification; retained historical database rows are measured separately. Run this staff
 diagnostic on the game-loop thread, as with the existing scheduler diagnostics.
 
+`debug scheduler` also identifies each queued effect's concrete type and its actual
+owner's framework type and 64-bit ID, alongside the existing remaining duration and
+description. It reads the queued objects directly without loading entities or firing
+callbacks. Use it to distinguish a lingering summon schedule from an ordinary timed
+effect on a retained actor or body.
+
 ## Boundaries
 
 

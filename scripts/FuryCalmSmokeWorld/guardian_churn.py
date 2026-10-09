@@ -16,16 +16,20 @@ from guardian_journals import JOURNAL_COLUMNS, parse_journals
 spec = importlib.util.spec_from_file_location('fury_calm_smoke', pathlib.Path(__file__).with_name('smoke.py'))
 s = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(s)
-stage = int(os.environ['N16_STAGE'])
+diagnostic_cycle = int(os.environ['N16_DEBUG_CYCLE']) if 'N16_DEBUG_CYCLE' in os.environ else None
+assert diagnostic_cycle is None or 0 <= diagnostic_cycle < 32
+stage = 0 if diagnostic_cycle is not None else int(os.environ['N16_STAGE'])
 assert 0 <= stage <= 16
 s.report.update(scope='N16 normal paid guardian churn; bounded restart cycles and continuous 128-creature batch',
-                qualificationMarker=f'guardian-churn-{stage:02d}-passed.json', n16Stage=stage,
+                qualificationMarker='guardian-churn-census-probe-passed.json' if diagnostic_cycle is not None else f'guardian-churn-{stage:02d}-passed.json',
+                n16Stage=stage, n16DiagnosticOnly=diagnostic_cycle is not None,
                 cycles=[], authoredTiming=dict(cycleLifetime='30*grade', corpseDecaySeconds=30,
                                                batchLifetimeSeconds=240, batchEarlyDeaths=64))
 for name in ['scripts/FuryCalmSmokeWorld/guardian_churn.py',
              'scripts/FuryCalmSmokeWorld/guardian_journals.py',
              'MudSharpCore/Commands/Modules/StaffModule.Census.cs',
              'MudSharpCore/Framework/Scheduling/Scheduler.cs', 'MudSharpCore/Effects/EffectScheduler.cs',
+             'MudSharpCore/Effects/EffectSchedule.cs',
              'MudSharpCore/Framework/Scheduling/HeartbeatManager.cs',
              'MudSharpCore/Framework/PerceivedItem.cs', 'MudSharpCore/Framework/PerceiverItem.cs',
              'MudSharpCore/Character/Character.Diagnostics.cs', 'FutureMUDLibrary/Framework/Scheduling/IScheduler.cs',
@@ -87,6 +91,12 @@ def stable_census(label, expected, seconds=15):
         if consecutive == 3:
             break
         s.session.read_for(1)
+    if consecutive != 3:
+        # Preserve the failed census; native scheduler/effect diagnostics only collect evidence.
+        s.report.setdefault('censusFailures', []).append(dict(label=label,
+            scheduler=s.command('debug scheduler', seconds=.5),
+            loadedEffects={name: s.command('effect list ' + name, seconds=.5) for name in
+                          ['me', 'qacaster', 'qatarget', 'qaother', 'qaenemy', 'qaguard', 'qan16permanent']}))
     s.check(label, consecutive == 3, json.dumps(dict(expected=expected, samples=samples)))
     return samples
 
@@ -286,6 +296,10 @@ def qualify_cycle(index, batch=False):
             s.sql(f'SELECT RoomId FROM Rooms_GameItems WHERE GameItemId={item}') == room and
             not s.sql(f'SELECT BodyId FROM Bodies_GameItems WHERE GameItemId={item}'))
     s.check('native remains return to the original identity set', corpses() == corpse_baseline)
+    if diagnostic_cycle is not None:
+        s.report['terminalScheduler'] = s.command('debug scheduler', seconds=.5)
+        s.report['terminalLoadedEffects'] = {name: s.command('effect list ' + name, seconds=.5) for name in
+            ['me', 'qacaster', 'qatarget', 'qaother', 'qaenemy', 'qaguard', 'qan16permanent']}
     samples = stable_census('runtime collections schedules and subscriptions return to baseline before restart', baseline)
     terminal = histories()
     old_ids = before['lifecycles']
@@ -373,7 +387,9 @@ try:
     s.possess('qacaster')
     s.command('return')
     s.session.read_for(12)
-    if stage == 16:
+    if diagnostic_cycle is not None:
+        qualify_cycle(diagnostic_cycle)
+    elif stage == 16:
         qualify_cycle(32, batch=True)
     else:
         for index in range(stage * 2, stage * 2 + 2):

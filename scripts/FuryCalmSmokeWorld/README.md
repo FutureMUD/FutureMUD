@@ -86,3 +86,10 @@ For a retained TSV transport failure, set `N16_JOURNAL_AUDIT_FAILED_RECEIPT` to 
 `guardian_journal_transport_audit.py` through the same owned wrapper with marker
 `guardian-journal-transport-audit-passed.json`. This read-only audit starts no MUD,
 compares the actual rows to the failed receipt and never qualifies gameplay.
+
+Set `N16_DEBUG_CYCLE` to one cycle index (0 through 31) for a bounded diagnostic run
+through the owned wrapper with marker `guardian-churn-census-probe-passed.json`.
+It captures terminal scheduler entries and effects on the known loaded fixtures.
+The receipt explicitly sets `n16DiagnosticOnly=true`; it cannot qualify an N16 stage.
+Unset this variable for the normal campaign. Failed census waits retain scheduler and
+loaded-effect evidence without changing the assertion or its deadline.

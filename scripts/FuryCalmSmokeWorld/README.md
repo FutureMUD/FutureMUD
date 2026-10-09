@@ -49,9 +49,13 @@ Public builder edits select each lifecycle policy; ordinary paid grade-one casts
 N16's `guardian_churn.py` runs sequential bounded stages on that same stopped world.
 Set `N16_STAGE` to 0 through 15 for two cycles per invocation, then 16 for the continuous
 128-output batch. Pass the matching marker `guardian-churn-00-passed.json` through
-`guardian-churn-16-passed.json` to the owned wrapper. A stage requires the preceding
+`guardian-churn-16-passed.json` to the owned wrapper. Normal stages require the preceding
 source-identical marker; each marker is promoted only after fresh qualification and
-MySQL cleanup. Do not skip stages or combine receipts from different source inputs.
+MySQL cleanup. The batch validates all sixteen normal markers at the pinned
+`N16_CYCLE_CHECKPOINT_REVISION` (default: current revision). Every common captured
+runtime source and binary hash must match. Only the batch scenario's own file may
+differ; its revision and hash are recorded separately. A batch-only client correction
+can therefore retain the unchanged normal-cycle evidence without mixing runtime inputs.
 
 The 32 cycles cover both temporary modes, early death and natural expiry, alternating
 single and paired paid outputs. Every cycle measures exact heavy identities and
@@ -61,6 +65,17 @@ cast, kills 64 early and lets the other 64 expire without restarting during clea
 The batch has an explicit 180-second cast-response budget within the ordinary
 900-second scenario deadline. Fixture timing is 30*grade seconds / 30-second corpse
 decay, and 240 seconds for the batch; these are not historical balance mappings.
+Each batch kill waits for the owned world's native death emote within the existing
+eight-second command budget. A separate fifteen-second durable barrier requires
+exactly 64 early deaths; it prevents a client read boundary from prematurely comparing
+the queued commands against database state. Neither wait changes the lifetime or count.
+
+Set `N16_BATCH_FAILED_RECEIPT` to an exact failed batch receipt beneath the owned world
+and run `guardian_batch_audit.py` with marker `guardian-batch-audit-passed.json`.
+This read-only audit starts no MUD and cannot qualify N16. After separate native recovery,
+`N16_BATCH_REQUIRE_RECOVERY=1` additionally proves all exact outputs are terminal, their
+heavy records are gone, archives/typed claims survive, foreign goods retain ordinary
+room custody and the paid debit remains charged.
 
 The N15 permanent body's short description and personal name are temporarily changed
 through `resdesc` and exact-ID `rename`

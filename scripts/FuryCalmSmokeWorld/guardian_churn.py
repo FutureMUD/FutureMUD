@@ -273,12 +273,16 @@ def qualify_cycle(index, batch=False):
     s.command('peace', 'end .* combats')
     deaths = 64 if batch else count if early else 0
     for _ in range(deaths):
-        s.command('kill qaguardian', seconds=.3)
+        s.command('kill qaguardian', 'has died!' if batch else None, seconds=.3)
     flush()
-    if deaths:
+    early_query = (f'SELECT COUNT(*) FROM MagicSpellLifecycles WHERE Id IN ({ids}) '
+                   'AND DeathObservedUtc IS NOT NULL AND DeathObservedUtc<DeadlineUtc')
+    if batch:
+        wait_for('exact early-death output count and timestamp preceding original deadline',
+                 early_query, lambda value: value == str(deaths), 15)
+    elif deaths:
         s.check('exact early-death output count and timestamp preceding original deadline',
-                s.sql(f'SELECT COUNT(*) FROM MagicSpellLifecycles WHERE Id IN ({ids}) '
-                      'AND DeathObservedUtc IS NOT NULL AND DeathObservedUtc<DeadlineUtc') == str(deaths))
+                s.sql(early_query) == str(deaths))
     if mode == 'deathonexpiry':
         wait_for('every death-on-expiry output correlates one native corpse',
                  f'SELECT COUNT(*) FROM MagicSpellLifecycles WHERE Id IN ({ids}) AND RemainsItemId IS NOT NULL',
@@ -361,7 +365,33 @@ try:
     prior = json.loads((s.root / 'guardian-lifecycle-modes-passed.json').read_text(encoding='utf-8'))
     s.check('N15 installed-world prerequisite and cleanup are qualified',
             prior['status'] == prior['runnerStatus'] == 'PASS' and prior['n15BuilderInstalledQualified'] and prior['cleanup']['mysqlStopped'])
-    if stage:
+    if stage == 16:
+        cycle_revision = os.environ.get('N16_CYCLE_CHECKPOINT_REVISION', s.report['revision'])
+        scenario = 'scripts/FuryCalmSmokeWorld/guardian_churn.py'
+        common_inputs = {name: digest for name, digest in s.report['inputs'].items() if name != scenario}
+        cycle_markers = []
+        cycle_inputs = None
+        for index in range(16):
+            marker = s.root / f'guardian-churn-{index:02d}-passed.json'
+            checkpoint = json.loads(marker.read_text(encoding='utf-8'))
+            if cycle_inputs is None:
+                cycle_inputs = checkpoint['inputs']
+            s.check('normal-cycle checkpoint has pinned unchanged runtime and complete proof ' + str(index),
+                    checkpoint['status'] == checkpoint['runnerStatus'] == 'PASS' and
+                    checkpoint['n16Stage'] == index and not checkpoint.get('n16DiagnosticOnly') and
+                    checkpoint['revision'] == cycle_revision and checkpoint['inputs'] == cycle_inputs and
+                    {name: digest for name, digest in checkpoint['inputs'].items() if name != scenario} == common_inputs and
+                    checkpoint['inputsUnchanged'] and checkpoint['cleanup']['mysqlStopped'] and
+                    not checkpoint['cleanup'].get('error') and all(row['passed'] for row in checkpoint['assertions']) and
+                    all(row['returncode'] == 0 and row['collectorStopped'] for row in checkpoint['serverProcesses']) and
+                    [row['index'] for row in checkpoint['cycles']] == [2 * index, 2 * index + 1] and
+                    all(row['restartVerified'] for row in checkpoint['cycles']))
+            cycle_markers.append(dict(path=str(marker.relative_to(s.root)),
+                                      sha256=hashlib.sha256(marker.read_bytes()).hexdigest()))
+        s.report['normalCycleCheckpoint'] = dict(revision=cycle_revision, inputs=cycle_inputs,
+            markers=cycle_markers, sharedRuntimeInputsMatched=True,
+            batchScenarioRevision=s.report['revision'], batchScenarioSha256=s.report['inputs'][scenario])
+    elif stage:
         preceding = json.loads((s.root / f'guardian-churn-{stage-1:02d}-passed.json').read_text(encoding='utf-8'))
         s.check('preceding stage is fresh source-identical qualified proof',
                 preceding['status'] == preceding['runnerStatus'] == 'PASS' and preceding['n16Stage'] == stage - 1 and

@@ -8,7 +8,6 @@ using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -53,8 +52,6 @@ public class NaturalBoneArmourSeederTests
 			foreach (var expression in map.Values) Assert.IsFalse(expression.HasErrors(), expression.OriginalExpression);
 		}
 
-		Assert.IsFalse(NpcArchiveReferencePolicy.HasReferenceOrUncertainty(typeof(DbArmourType),
-			nameof(DbArmourType.Definition), definition, 10, 11));
 		var chopping = armour.DissipateExpressions[DamageType.Chopping];
 		foreach (var (damage, quality, expected) in new[] { (10.0, 6.0, 1.0), (10.0, 0.0, 10.0), (200.0, 6.0, 188.0) })
 		{

@@ -40,6 +40,7 @@ public static class PhysicalReferenceCodecs
 			"WitnessedClanMemberDeath" => ["Member"],
 			"Trap" or "TrapPayloadSchedule" => ["CreatorId", "TargetCharacterId"],
 			"SpellIdentify" => ["CasterId"],
+			"SpellNpcGuardian" => ["CreatorId"],
 			"SpellReciteProxy" => ["CasterId", "LinkedCharacterId"],
 			"SpellLiveBodyPossession" => ["AnchorCharacterId", "TargetCharacterId"],
 			"SpellPossessedBody" => ["AnchorCharacterId", "SourceTargetCharacterId"],
@@ -93,6 +94,7 @@ public static class PhysicalReferenceCodecs
 		var instanceFields = type switch
 		{
 			"SpellIdentify" => new[] { "CasterInstanceId" },
+			"SpellNpcGuardian" => ["CreatorInstanceId"],
 			"SpellReciteProxy" => ["CasterInstanceId", "LinkedInstanceId"],
 			"SpellLiveBodyPossession" => ["AnchorInstanceId", "TargetInstanceId"],
 			"SpellPossessedBody" => ["AnchorInstanceId", "ShellInstanceId", "SourceTargetInstanceId"],

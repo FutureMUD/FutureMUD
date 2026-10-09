@@ -133,6 +133,7 @@ public partial class SpellOwnedNpcAdmissionTests
 
 	private static MagicSpell Configure(MagicCastingFixture f, SimpleNPCTemplate template)
 	{
+		f.World.SetupGet(x => x.Actors).Returns(MagicCastingFixture.Collection(() => new[] { f.Actor.Object }));
 		var templates = new Mock<IUneditableRevisableAll<INPCTemplate>>(); templates.Setup(x => x.Get(44)).Returns(template);
 		f.World.SetupGet(x => x.NpcTemplates).Returns(templates.Object);
 		f.World.SetupGet(x => x.SpellOwnedNpcs).Returns(Mock.Of<ISpellOwnedNpcService>());

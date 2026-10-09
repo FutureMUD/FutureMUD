@@ -188,6 +188,7 @@ SpellPoison
 SpellPortal
 SpellPortalTopology
 SpellPossessedBody
+SpellNpcGuardian
 SpellRage
 SpellReciteProxy
 SpellRejuvenateLand

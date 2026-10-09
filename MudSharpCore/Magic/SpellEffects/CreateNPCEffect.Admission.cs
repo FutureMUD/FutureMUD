@@ -36,6 +36,7 @@ public sealed partial class CreateNPCEffect
 			}
 		}
 		Reference(() => caster.Gameworld); Reference(() => caster.Body); Value(() => caster.InstanceId);
+		Value(() => caster.State); Value(() => Gameworld.Actors.Any(x => ReferenceEquals(x, caster)));
 		Reference(() => caster.Location); Value(() => caster.RoomLayer); Value(() => caster.RoutePositionMetres);
 		Reference(() => caster.Movement);
 		Reference(() => Gameworld.SpellOwnedNpcs); Reference(() => Gameworld.NpcTemplates.Get(_npcPrototypeId));
@@ -86,7 +87,13 @@ public sealed partial class CreateNPCEffect
 		knownSeconds = null;
 		error = DefinitionError;
 		if (error is not null) return false;
-		if (Spell is not MagicSpell { InvocationGrade: not null })
+		if (!CharacterState.Able.HasFlag(caster.State) || caster.State.HasFlag(CharacterState.Stasis) ||
+			!Gameworld.Actors.Any(x => ReferenceEquals(x, caster)))
+		{
+			error = "The NPC creator must be able and loaded in the casting gameworld.";
+			return false;
+		}
+		if (Spell is not MagicSpell { InvocationGrade: { } grade } || !TryCount(_count, grade, out _))
 		{
 			error = "Lifecycle NPC creation requires a configured selected-grade native casting invocation.";
 			return false;

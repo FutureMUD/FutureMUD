@@ -84,6 +84,30 @@ activation-pending identities. Crash recovery does not recreate the NPC or rerun
 Permanent creation completes its journal after activation and becomes an ordinary durable NPC
 without a deadline. Temporary creation retains active ownership evidence.
 
+Lifecycle `createnpc` also supports `count <1-128>|grade` and `guardcaster`. Legacy and
+existing lifecycle XML default to one NPC without a creator bond. Grade counts use the
+requested casting grade, without a universal total-active summon cap. One paid application
+creates independent lifecycle keys and native graphs for each output. The pure admission
+token includes count/protection policy, caster state and exact loaded actor membership.
+Each output rechecks those guards: an on-load callback that quits, unloads or disables the
+caster stops the remaining group and retains the paid operation for review without replay.
+
+`SpellNpcGuardian` stores the exact canonical creator and physical instance IDs. It resolves
+loaded actors, including NPC creators, follows through native movement and supplies the
+existing guard/interpose combat contract. Engagement notification occurs after assigning
+native combat targets and before the first attack; a guardian can switch from another fight
+and engage a visible ranged attacker through ordinary native combat. Death/removal/quit
+releases its subscriptions. Its live and saved references use those two proven scalar fields;
+reference checks do not resolve an actor or search serialized text for IDs.
+
+Builders can install the bounded Air Guardian stock path with
+`magic spell edit new stock air-guardian <school> <casting trait> <resource> <approved NPC template> <lifetime expression in real seconds>`.
+It creates one guardian per requested grade, with creator protection and TemporaryCleanup
+by default. The supplied template, explicit real-second lifetime and nine energy per grade
+are authored native mappings. The proposed historical duration has no recovered unit
+conversion; complete template/component/prerequisite/seeder catalogue parity is still pending.
+This builder path does not enable the full Armageddon package or establish Release readiness.
+
 `NPC.Die` correlates only after the native method has persisted death and created its optional
 remains. Actual corpse insertion is saved before recording its ID, and the journal independently
 checks dead state and the exact body in persisted remains XML. Pre-death events are not death

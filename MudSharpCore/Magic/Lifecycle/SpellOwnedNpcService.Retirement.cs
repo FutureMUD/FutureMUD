@@ -6,6 +6,7 @@ using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
@@ -22,6 +23,15 @@ public sealed partial class SpellOwnedNpcService
 	// restart the uncommitted inventory joins load those roots through the ordinary body loader.
 	private readonly Dictionary<long, ForeignCustodySnapshot> _evacuationRetries = new();
 	private long _lastInspectedRetirementNpcId;
+	public bool HasPendingRetirement(ICharacter character, long creatorId)
+	{
+		var life = FindNpc(character.Id);
+		return life is { State: SpellLifecycleState.Retiring or SpellLifecycleState.RemainsPending } &&
+			life.Origin.CreatorId == creatorId && life.Entities.Count(x => x.Kind == SpellOwnedEntityKind.AutonomousCharacter) == 1 &&
+			life.Entities.Count(x => x.Kind == SpellOwnedEntityKind.Body) == 1 &&
+			life.Entities.Any(x => x.Kind == SpellOwnedEntityKind.Body && x.Id == character.Body.Id);
+	}
+
 	public bool SuppressNativeRemains(ICharacter character)
 	{
 		var life = FindNpc(character.Id);
@@ -80,6 +90,9 @@ public sealed partial class SpellOwnedNpcService
 					life = _store.BeginRetirement(life.Origin.Id, life.Version, SpellRetirementReason.Expiry, TransitionTime(life, nowUtc));
 				if (!npc.State.HasFlag(CharacterState.Dead))
 				{
+					// This owned creation's bond is outgoing lifecycle state. Release it only after
+					// durable retirement intent; external relationships retain the ordinary guards.
+					foreach (var bond in npc.EffectsOfType<SpellNpcGuardian>()) bond.PrepareRetirement(life.Origin.CreatorId);
 					if (CharacterArchiveService.HasRuntimeDependants(npc) || world.NPCs.OfType<RuntimeNpc>().Any(x => x.BodyguardingCharacterID == npc.Id))
 						throw new InvalidOperationException("Connected controllers, runtime relationships or dependent instances must release before native death or evacuation.");
 					if (life.Origin.Mode == SpellLifecycleMode.TemporaryCleanup)

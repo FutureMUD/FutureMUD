@@ -12,6 +12,7 @@ public sealed class SpellNpcGuardian : Effect, IGuardCharacterEffect, IAffectPro
 	private ICharacter? _creator;
 	private bool _active;
 	private bool _protecting;
+	private bool _retiring;
 	private ICharacter Guardian => (ICharacter)Owner;
 	public long CreatorId { get; }
 	public long CreatorInstanceId { get; }
@@ -31,20 +32,21 @@ public sealed class SpellNpcGuardian : Effect, IGuardCharacterEffect, IAffectPro
 		CreatorId = long.Parse(root.Element("CreatorId")!.Value);
 		CreatorInstanceId = long.Parse(root.Element("CreatorInstanceId")!.Value);
 		Interdicting = bool.Parse(root.Element("Interdicting")!.Value);
+		_retiring = bool.Parse(root.Element("Retiring")?.Value ?? "false");
 	}
 
 	public static void InitialiseEffectType() =>
 		RegisterFactory("SpellNpcGuardian", (root, owner) => new SpellNpcGuardian(root, owner));
 
 	protected override XElement SaveDefinition() => new("Effect", new XElement("CreatorId", CreatorId),
-		new XElement("CreatorInstanceId", CreatorInstanceId), new XElement("Interdicting", Interdicting));
+		new XElement("CreatorInstanceId", CreatorInstanceId), new XElement("Interdicting", Interdicting), new XElement("Retiring", _retiring));
 
 	public override IEnumerable<PhysicalEntityReference> PhysicalReferences =>
 		[new(PhysicalEntityKind.Character, CreatorId, "CreatorId"),
 		 new(PhysicalEntityKind.CharacterInstance, CreatorInstanceId, "CreatorInstanceId")];
 
 	// Resolve loaded instances only. Reading archival references never calls this getter.
-	public IEnumerable<ICharacter> Targets => Gameworld.Actors
+	public IEnumerable<ICharacter> Targets => _retiring ? [] : Gameworld.Actors
 		.Where(x => CharacterInstanceIdentityComparer.IdentityId(x) == CreatorId && x.InstanceId == CreatorInstanceId &&
 			!x.State.HasFlag(CharacterState.Dead));
 
@@ -63,7 +65,13 @@ public sealed class SpellNpcGuardian : Effect, IGuardCharacterEffect, IAffectPro
 	public override void Login() => Activate();
 	private void Activate()
 	{
-		if (_active || Guardian.State.HasFlag(CharacterState.Dead)) return;
+		if (_active || _retiring || Guardian.State.HasFlag(CharacterState.Dead)) return;
+		// Durable intent also covers a crash before the owner's effect snapshot was saved.
+		if (Gameworld.SpellOwnedNpcs?.HasPendingRetirement(Guardian, CreatorId) == true)
+		{
+			PrepareRetirement(CreatorId);
+			return;
+		}
 		_active = true;
 		Guardian.OnQuit += OwnerQuit;
 		Guardian.OnDeath += OwnerDied;
@@ -101,7 +109,7 @@ public sealed class SpellNpcGuardian : Effect, IGuardCharacterEffect, IAffectPro
 	}
 	private void ProtectAgainst(ICharacter attacker)
 	{
-		if (_protecting || !CharacterState.Able.HasFlag(Guardian.State) ||
+		if (_retiring || _protecting || !CharacterState.Able.HasFlag(Guardian.State) ||
 			!Targets.Any(x => ReferenceEquals(attacker.CombatTarget, x) && Guardian.ColocatedWith(x)) ||
 			ReferenceEquals(Guardian.CombatTarget, attacker) || !Guardian.CanSee(attacker) || !Guardian.CanEngage(attacker)) return;
 		_protecting = true;
@@ -119,6 +127,16 @@ public sealed class SpellNpcGuardian : Effect, IGuardCharacterEffect, IAffectPro
 	private void CreatorGone(IPerceivable _) => Unbind();
 	private void OwnerDied(IPerceivable _) => Owner.RemoveEffect(this, true);
 	private void OwnerQuit(IPerceivable _) => Deactivate();
+	/// <summary>Release this creation's exact outgoing follow bond after durable retirement intent.</summary>
+	public bool PrepareRetirement(long lifecycleCreatorId)
+	{
+		if (CreatorId != lifecycleCreatorId) return false;
+		if (!_retiring) { _retiring = true; Changed = true; }
+		Deactivate();
+		if (Guardian.Following is ICharacter following && CharacterInstanceIdentityComparer.IdentityId(following) == CreatorId &&
+			following.InstanceId == CreatorInstanceId) Guardian.CeaseFollowing();
+		return true;
+	}
 	private void Unbind()
 	{
 		if (_creator is null) return;

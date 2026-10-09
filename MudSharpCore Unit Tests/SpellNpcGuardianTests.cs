@@ -71,6 +71,64 @@ public class SpellNpcGuardianTests
 	}
 
 	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void Restart_SavedSuspensionOrDurableRetirementIntent_PreventsBondReactivation(bool savedSuspension)
+	{
+		var world = new Mock<IFuturemud>();
+		world.SetupGet(x => x.FutureProgs).Returns(Mock.Of<IUneditableAll<MudSharp.FutureProg.IFutureProg>>());
+		var creator = Mock.Of<ICharacter>(x => x.Id == 17 && x.InstanceId == 23);
+		var guardian = new Mock<ICharacter>(); guardian.SetupGet(x => x.Gameworld).Returns(world.Object);
+		guardian.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		ICharacter? following = creator;
+		guardian.SetupGet(x => x.Following).Returns(() => following);
+		guardian.Setup(x => x.CeaseFollowing()).Callback(() => following = null);
+		var lifecycle = new Mock<ISpellOwnedNpcService>();
+		lifecycle.Setup(x => x.HasPendingRetirement(guardian.Object, 17)).Returns(true);
+		world.SetupGet(x => x.SpellOwnedNpcs).Returns(lifecycle.Object);
+		var bond = new SpellNpcGuardian(guardian.Object, creator);
+		if (savedSuspension) Assert.IsTrue(bond.PrepareRetirement(17));
+		var saved = bond.SaveToXml(new());
+		SpellNpcGuardian.InitialiseEffectType();
+		var restored = (SpellNpcGuardian)Effect.LoadEffect(saved, guardian.Object);
+		restored.InitialEffect(); restored.Login();
+		Assert.IsFalse(restored.Targets.Any());
+		Assert.IsNull(following);
+		guardian.Verify(x => x.Follow(It.IsAny<ICharacter>()), Times.Never);
+		guardian.Verify(x => x.CeaseFollowing(), Times.Once);
+		guardian.VerifySet(x => x.EffectsChanged = true, Times.Once);
+		lifecycle.Verify(x => x.HasPendingRetirement(guardian.Object, 17), savedSuspension ? Times.Never() : Times.Once());
+	}
+
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void Retirement_ReleasesOnlyExactOwnedFollowAndStopsEngagement(bool ownFollow)
+	{
+		var world = new Mock<IFuturemud>(); var room = new Mock<IRoom>();
+		var creator = Mock.Of<ICharacter>(x => x.Id == 17 && x.InstanceId == 23 && x.State == CharacterState.Awake);
+		var guardian = new Mock<ICharacter>(); guardian.SetupGet(x => x.Gameworld).Returns(world.Object);
+		guardian.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		ICharacter? following = ownFollow ? creator : Mock.Of<ICharacter>(x => x.Id == 17 && x.InstanceId == 24);
+		guardian.SetupGet(x => x.Following).Returns(() => following);
+		guardian.Setup(x => x.CeaseFollowing()).Callback(() => following = null);
+		var bond = new SpellNpcGuardian(guardian.Object, creator);
+		Assert.IsFalse(bond.PrepareRetirement(99));
+		guardian.Verify(x => x.CeaseFollowing(), Times.Never);
+		Assert.IsTrue(bond.PrepareRetirement(17));
+		Assert.IsFalse(bond.Targets.Any());
+		guardian.Verify(x => x.CeaseFollowing(), ownFollow ? Times.Once() : Times.Never());
+		Assert.AreEqual(!ownFollow, following is not null);
+		world.SetupGet(x => x.Actors).Returns(MagicCastingFixture.Collection(() => new[] { creator }));
+		Mock.Get(creator).SetupGet(x => x.Location).Returns(room.Object);
+		guardian.Setup(x => x.EffectsOfType<SpellNpcGuardian>(It.IsAny<System.Predicate<SpellNpcGuardian>>())).Returns(new[] { bond });
+		room.Setup(x => x.LayerCharacters(It.IsAny<RoomLayer>())).Returns(new[] { creator, guardian.Object });
+		var attacker = Mock.Of<ICharacter>(x => x.CombatTarget == creator);
+		SpellNpcGuardian.NotifyEngagement(attacker, creator);
+		guardian.Verify(x => x.Engage(It.IsAny<ICharacter>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
+	}
+
+	[DataTestMethod]
 	[DataRow(false, false)]
 	[DataRow(true, false)]
 	[DataRow(false, true)]

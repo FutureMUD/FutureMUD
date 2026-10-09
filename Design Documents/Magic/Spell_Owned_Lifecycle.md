@@ -98,13 +98,19 @@ existing guard/interpose combat contract. Engagement notification occurs after a
 native combat targets and before the first attack; a guardian can switch from another fight
 and engage a visible ranged attacker through ordinary native combat. Death/removal/quit
 releases its subscriptions. Its live and saved references use those two proven scalar fields;
-reference checks do not resolve an actor or search serialized text for IDs.
+reference checks do not resolve an actor or search serialized text for IDs. After durable
+retirement intent, the matching lifecycle creator's bond stops protection and releases only
+its exact outgoing follow relationship. Other follow targets, combat, riders, incoming
+followers and all other runtime dependencies retain the existing retirement guards.
+Suspension is saved on the bond. Activation also checks exact durable NPC/body ownership
+and pending retirement before resolving the creator or subscribing, so restart or a crash
+before the effect snapshot cannot reactivate a retiring guardian's bond.
 
 Builders can install the bounded Air Guardian stock path with
 `magic spell edit new stock air-guardian <school> <casting trait> <resource> <approved NPC template> <lifetime expression in real seconds>`.
 It creates one guardian per requested grade, with creator protection and TemporaryCleanup
-by default. The supplied template, explicit real-second lifetime and nine energy per grade
-are authored native mappings. The proposed historical duration has no recovered unit
+by default. The supplied template, explicit real-second lifetime and nine-energy minimum
+on the shared source-efficiency curve are authored native mappings. The proposed historical duration has no recovered unit
 conversion; complete template/component/prerequisite/seeder catalogue parity is still pending.
 This builder path does not enable the full Armageddon package or establish Release readiness.
 

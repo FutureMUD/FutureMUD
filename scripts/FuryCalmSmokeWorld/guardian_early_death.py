@@ -16,6 +16,9 @@ for name in ['scripts/FuryCalmSmokeWorld/guardian_early_death.py',
              'MudSharpCore/Magic/SpellEffects/CreateNPCEffect.Admission.cs', 'MudSharpCore/Effects/Concrete/SpellNpcGuardian.cs',
              'MudSharpCore/Character/CharacterCombat.cs', 'MudSharpCore/Character/PhysicalReferenceCodecs.cs']:
     s.report['inputs'][name] = hashlib.sha256((s.repo / name).read_bytes()).hexdigest()
+for name in ['MudSharpCore/Magic/Lifecycle/SpellOwnedNpcService.Retirement.cs',
+             'FutureMUDLibrary/Magic/ISpellOwnedNpcService.cs']:
+    s.report['inputs'][name] = hashlib.sha256((s.repo / name).read_bytes()).hexdigest()
 corpse_original = None
 
 
@@ -123,12 +126,15 @@ try:
     item_proto = int(s.sql("SELECT LogicalId FROM SeederManagedRecords WHERE StableKey='arm.item.charged_staff'"))
     s.report['objects'] = dict(actors, guardianSpell=spell, guardianTemplate=template, foreignPrototype=item_proto)
     s.start()
+    wait_for('prior failed-run guardians are no longer living',
+             f'SELECT COUNT(*) FROM MagicSpellLifecycles l JOIN MagicSpellOwnedEntities e ON e.LifecycleId=l.Id AND e.Kind=1 JOIN Npcs n ON n.CharacterId=e.EntityId JOIN Characters c ON c.Id=n.CharacterId WHERE l.SpellId={spell} AND (c.State & 64)=0',
+             lambda value: value == '0', 120)
     before = s.resource(s.caster)
     before_lives = set(life_rows())
     operation_count = int(s.sql('SELECT COUNT(*) FROM MagicCastingOperations'))
     output = s.cast('Air Guardian', 2, 'here', 'The paid casting succeeded')
     after = s.resource(s.caster)
-    s.check('grade-two stock cast pays one exact eighteen-energy debit', before - after == 18,
+    s.check('controlled-seven grade-two cast pays one exact nine-energy minimum debit', before - after == 9,
             f'before={before}; after={after}; debit={before-after}; {output}')
     s.check('one casting operation for the group', int(s.sql('SELECT COUNT(*) FROM MagicCastingOperations')) == operation_count + 1)
     flush()

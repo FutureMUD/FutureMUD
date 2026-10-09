@@ -1781,7 +1781,7 @@ public partial class Body
 					!HeldOrWieldedItems.Any(x => ReferenceEquals(x, item)) && item.ContainedIn is null &&
 					ComponentItemTransfer.DirectLocationOf(item) is null && item.GetItemType<IBeltable>()?.ConnectedTo is null)
 					item.GetItemType<IHoldable>()!.HeldBy = null;
-				if (ComponentItemTransfer.IsDetached(item)) floor(item);
+				if (ComponentItemTransfer.IsDetached(item) && item.GetItemType<IStackable>() is not { Quantity: <= 0 }) floor(item);
 			});
 		};
 	}
@@ -1860,19 +1860,35 @@ public partial class Body
 						acquired = merge;
 						try
 						{
-							if (allowAmmo) nativeMerge.MergeCommittedAmmoStackForGet(nativeSource, this);
+							if (allowAmmo || nativeMerge.IsQuiescentNativeAmmoStack && nativeSource.IsQuiescentNativeAmmoStack)
+								nativeMerge.MergeCommittedAmmoStackForGet(nativeSource, this);
 							else nativeMerge.MergeCommittedStackForGet(nativeSource, this);
 						}
 						finally
 						{
-							// Observers may refill or retitle the zero source. Preserve their value at the
-							// captured floor if they did not establish a real inventory/spatial claim.
+							// Preserve positive callback refills at the captured floor. An empty source
+							// whose teardown was refused retains its component graph without player custody.
 							if (SourceReady() && !HeldOrWieldedItems.Any(x => ReferenceEquals(x, item)))
 							{
-								if (placement.Fallback is { } floor) nativeSource.TryDropPrepared(new SpatialLocation(floor, placement.Layer, placement.RoutePosition));
-								else item.Drop(null);
-								if (!item.Deleted && !item.Destroyed && ReferenceEquals(item.Location, placement.Fallback) &&
-									item.InInventoryOf is null && item.ContainedIn is null) placement.Fallback?.Insert(item, newStack: true);
+								if (nativeSource.Quantity <= 0)
+								{
+									item.GetItemType<IHoldable>()!.HeldBy = null;
+								}
+								else
+								{
+									try
+									{
+										if (placement.Fallback is { } floor) nativeSource.TryDropPrepared(new SpatialLocation(floor, placement.Layer, placement.RoutePosition));
+										else item.Drop(null);
+										if (nativeSource.Quantity > 0 && !item.Deleted && !item.Destroyed && ReferenceEquals(item.Location, placement.Fallback) &&
+											item.InInventoryOf is null && item.ContainedIn is null) placement.Fallback?.Insert(item, newStack: true);
+									}
+									finally
+									{
+										if (nativeSource.Quantity <= 0 && SourceReady() && !HeldOrWieldedItems.Any(x => ReferenceEquals(x, item)))
+											item.GetItemType<IHoldable>()!.HeldBy = null;
+									}
+								}
 							}
 						}
 					}

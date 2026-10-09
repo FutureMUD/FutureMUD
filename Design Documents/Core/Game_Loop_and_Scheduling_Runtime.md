@@ -8,6 +8,8 @@ The TCP server is event-driven. A cancellable accept task publishes new sockets 
 
 Complete commands enter a bounded sixteen-command channel. A full channel pauses the socket reader and relies on TCP backpressure, so commands are not dropped, reordered, or coalesced. The game loop retains its reusable randomized work list and executes at most one command per ready connection per tick.
 
+An exception during player input aborts only that connection and prevents its remaining queued commands from executing. The normal game-loop disposal path detaches the controller. The failure retains the existing crash report, but diagnostic callbacks or log-write failures are contained too. Debug and Release builds use the same boundary; a player-command exception does not terminate the server process.
+
 All text, prompts, and Telnet negotiation frames share one ordered output writer. Staged and queued output is bounded to 2 MiB and 256 frames per connection. A non-reading client that exceeds either limit is disconnected rather than being allowed to grow the managed heap indefinitely. Ordinary logout, timeout, and administrative closure drains queued output for up to two seconds; socket failure and limit violations abort immediately. Engine shutdown stops acceptance, allows connection drains for up to five seconds, and then aborts any remainder.
 
 ## Schedules and heartbeats

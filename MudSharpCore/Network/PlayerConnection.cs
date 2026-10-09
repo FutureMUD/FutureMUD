@@ -44,6 +44,7 @@ public class PlayerConnection : IPlayerConnection, IAsyncPlayerConnection
 	private readonly IConnectionTransport _transport;
 	private readonly INetworkTelemetrySink _telemetry;
 	private readonly TimeProvider _timeProvider;
+	private readonly Action<string> _crashLogger;
 	private readonly Channel<string> _incomingCommands;
 	private readonly Channel<OutboundFrame> _outgoingFrames;
 	private readonly ConcurrentQueue<ProtocolEvent> _protocolEvents = new();
@@ -85,10 +86,11 @@ public class PlayerConnection : IPlayerConnection, IAsyncPlayerConnection
 	}
 
 	internal PlayerConnection(IConnectionTransport transport, TimeProvider timeProvider,
-		INetworkTelemetrySink telemetry)
+		INetworkTelemetrySink telemetry, Action<string>? crashLogger = null)
 	{
 		_transport = transport;
 		_timeProvider = timeProvider;
+		_crashLogger = crashLogger ?? Server.MudSharp.WriteCrashLog;
 		_telemetry = telemetry;
 		_readBuffer = ArrayPool<byte>.Shared.Rent(ReadBufferSize);
 		_incomingCommandBuffer = ArrayPool<byte>.Shared.Rent(InitialCommandBufferSize);
@@ -187,51 +189,54 @@ public class PlayerConnection : IPlayerConnection, IAsyncPlayerConnection
 
 	public void AttemptCommand()
 	{
-		if (!_incomingCommands.Reader.TryRead(out var command))
+		if (State != ConnectionState.Open || !_incomingCommands.Reader.TryRead(out var command))
 		{
 			return;
 		}
 
 		Interlocked.Decrement(ref _incomingCommandQueueCount);
-		using var inputOrigin = MagicSpeechContext.PlayerInput((ControlPuppet as IFuturemudControlContext)?.Actor);
-#if DEBUG
-		ControlPuppet?.HandleCommand(command.TrimEnd('\n'));
-#else
 		try
 		{
+			using var inputOrigin = MagicSpeechContext.PlayerInput((ControlPuppet as IFuturemudControlContext)?.Actor);
 			ControlPuppet?.HandleCommand(command.TrimEnd('\n'));
 		}
 		catch (Exception e)
 		{
-			var sb = new StringBuilder();
-			sb.AppendLine("Crash during player input");
-			if (ControlPuppet is IFuturemudControlContext fcc)
+			RequestClose(ConnectionCloseMode.Abort);
+			try
 			{
-				sb.AppendLine($"Account: {fcc.Account?.Name ?? "N/A"}");
-				var actor = fcc.Actor;
-				if (actor is not null)
+				var sb = new StringBuilder();
+				sb.AppendLine("Crash during player input");
+				if (ControlPuppet is IFuturemudControlContext fcc)
 				{
-					sb.AppendLine($"Character: #{actor.Id:N0} {actor.PersonalName.GetName(NameStyle.FullName)} - {actor.HowSeen(actor, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}");
-					foreach (var item in actor
-					         .CombinedEffectsOfType<IBuilderEditingEffect>()
-					         .SelectNotNull(x => x?.EditingItem as IFrameworkItem))
+					sb.AppendLine($"Account: {fcc.Account?.Name ?? "N/A"}");
+					var actor = fcc.Actor;
+					if (actor is not null)
 					{
-						sb.AppendLine($"Editing: {item}");
+						sb.AppendLine($"Character: #{actor.Id:N0} {actor.PersonalName.GetName(NameStyle.FullName)} - {actor.HowSeen(actor, colour: false, flags: PerceiveIgnoreFlags.IgnoreCanSee | PerceiveIgnoreFlags.IgnoreSelf)}");
+						foreach (var item in actor
+						         .CombinedEffectsOfType<IBuilderEditingEffect>()
+						         .SelectNotNull(x => x?.EditingItem as IFrameworkItem))
+						{
+							sb.AppendLine($"Editing: {item}");
+						}
 					}
 				}
-			}
 
-			sb.AppendLine("Input:");
-			sb.AppendLine();
-			sb.AppendLine(command);
-			sb.AppendLine();
-			sb.AppendLine("Exception:");
-			sb.AppendLine();
-			sb.AppendLine(e.ToString());
-			Server.MudSharp.WriteCrashLog(sb.ToString());
-			Environment.Exit(0);
+				sb.AppendLine("Input:");
+				sb.AppendLine();
+				sb.AppendLine(command);
+				sb.AppendLine();
+				sb.AppendLine("Exception:");
+				sb.AppendLine();
+				sb.AppendLine(e.ToString());
+				_crashLogger(sb.ToString());
+			}
+			catch (Exception)
+			{
+				// Diagnostic callbacks and log I/O must not escape the player-input boundary either.
+			}
 		}
-#endif
 	}
 
 	public void AddOutgoing(string text)
@@ -259,6 +264,11 @@ public class PlayerConnection : IPlayerConnection, IAsyncPlayerConnection
 
 	public void PrepareOutgoing()
 	{
+		if (State != ConnectionState.Open)
+		{
+			return;
+		}
+
 		var controlPuppet = ControlPuppet;
 		var outputHandler = controlPuppet?.OutputHandler;
 		if (controlPuppet is null || outputHandler is null)

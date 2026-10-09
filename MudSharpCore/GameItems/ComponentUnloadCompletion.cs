@@ -70,7 +70,7 @@ internal static class ComponentUnloadCompletion
 		if (!RouteSpatialService.Instance.TryValidateLocation(destination, out _) || !CommandExecutionScope.TryContinue(actor)) return null;
 		return item =>
 		{
-			if (!ComponentItemTransfer.IsDetached(item)) return;
+			if (!ComponentItemTransfer.IsDetached(item) || item.GetItemType<IStackable>() is { Quantity: <= 0 }) return;
 			if (item is GameItem native)
 			{
 				if (!native.TryDropPrepared(destination)) return;
@@ -89,6 +89,7 @@ internal static class ComponentUnloadCompletion
 	}
 
 	private static bool CanCompleteAt(IGameItem item, SpatialLocation point) => item is { Deleted: false, Destroyed: false } &&
+		item.GetItemType<IStackable>() is not { Quantity: <= 0 } &&
 		item.InInventoryOf is null && item.ContainedIn is null && item.GetItemType<IBeltable>()?.ConnectedTo is null &&
 		ReferenceEquals(ComponentItemTransfer.DirectLocationOf(item), point.Room) && item.RoomLayer == point.Layer &&
 		(point.Room.RouteDefinition is null || item.RoutePositionMetres == point.RoutePositionMetres);

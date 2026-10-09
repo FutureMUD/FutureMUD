@@ -126,8 +126,10 @@ try:
     before = s.resource(s.caster)
     before_lives = set(life_rows())
     operation_count = int(s.sql('SELECT COUNT(*) FROM MagicCastingOperations'))
-    output = s.cast('Air Guardian', 2, 'here')
-    s.check('grade-two stock cast pays one exact eighteen-energy debit', before - s.resource(s.caster) == 18, output)
+    output = s.cast('Air Guardian', 2, 'here', 'The paid casting succeeded')
+    after = s.resource(s.caster)
+    s.check('grade-two stock cast pays one exact eighteen-energy debit', before - after == 18,
+            f'before={before}; after={after}; debit={before-after}; {output}')
     s.check('one casting operation for the group', int(s.sql('SELECT COUNT(*) FROM MagicCastingOperations')) == operation_count + 1)
     flush()
     lives = {key: value for key, value in life_rows().items() if key not in before_lives}
@@ -177,8 +179,10 @@ try:
     s.command('magic spell close')
     before_lives = set(life_rows())
     before = s.resource(s.caster)
-    output = s.cast('Air Guardian', 1, 'here')
-    s.check('default-dissipation stock cast pays exact nine-energy debit', before - s.resource(s.caster) == 9, output)
+    output = s.cast('Air Guardian', 1, 'here', 'The paid casting succeeded')
+    after = s.resource(s.caster)
+    s.check('default-dissipation stock cast pays exact nine-energy debit', before - after == 9,
+            f'before={before}; after={after}; debit={before-after}; {output}')
     flush()
     current = life_rows()
     new = set(current) - before_lives

@@ -48,7 +48,7 @@ census_names = ['Actors', 'Cached actors', 'NPCs', 'Bodies', 'Main schedules', '
                 'Quit subscriptions', 'Deleted subscriptions', 'Join combat subscriptions',
                 'Death subscriptions', 'Start move subscriptions', 'Stop move subscriptions',
                 'Following character', 'Following instance', 'Followers']
-guardian_original = corpse_original = permanent_description = None
+guardian_original = corpse_original = permanent_description = permanent_names = None
 
 
 def flush():
@@ -335,6 +335,7 @@ try:
     permanent = next(row for row in prior['createdLifecycles'] if row['mode'] == 'permanent')
     permanent_character, permanent_body = permanent['character'], permanent['body']
     permanent_description = s.sql(f'SELECT HEX(ShortDescription) FROM Bodies WHERE Id={permanent_body}')
+    permanent_names = s.sql(f'SELECT HEX(Name),HEX(NameInfo) FROM Characters WHERE Id={permanent_character}').split('\t')
     s.check('only the explained ordinary permanent guardian remains before churn',
             s.sql(f'SELECT GROUP_CONCAT(c.Id ORDER BY c.Id) FROM Npcs n JOIN Characters c ON c.Id=n.CharacterId '
                   f'WHERE n.TemplateId={template} AND (c.State & 64)=0') == str(permanent_character) and
@@ -359,6 +360,8 @@ try:
     s.command('resdesc qaguardian', 'editor')
     s.command('a qan16permanent spirit')
     s.command('@', seconds=.5)
+    # Administrative target keywords include the true personal name as well.
+    s.command(f'rename {permanent_character} Qan16permanent', 'You rename')
     flush()
     s.check('only the exact ordinary permanent body is renamed for safe keyword targeting',
             s.sql(f'SELECT ShortDescription FROM Bodies WHERE Id={permanent_body}') == 'a qan16permanent spirit' and
@@ -397,6 +400,10 @@ finally:
             s.sql(f"UPDATE Bodies SET ShortDescription=CONVERT(UNHEX('{permanent_description}') USING utf8mb4) WHERE Id={permanent_body}")
             s.check('ordinary permanent body description restored exactly',
                     s.sql(f'SELECT HEX(ShortDescription) FROM Bodies WHERE Id={permanent_body}') == permanent_description)
+        if permanent_names is not None:
+            s.sql(f"UPDATE Characters SET Name=CONVERT(UNHEX('{permanent_names[0]}') USING utf8mb4),NameInfo=CONVERT(UNHEX('{permanent_names[1]}') USING utf8mb4) WHERE Id={permanent_character}")
+            s.check('ordinary permanent canonical name fields restored exactly',
+                    s.sql(f'SELECT HEX(Name),HEX(NameInfo) FROM Characters WHERE Id={permanent_character}') == '\t'.join(permanent_names))
         s.report['inputsUnchanged'] = all(hashlib.sha256((s.repo / name).read_bytes()).hexdigest() == digest for name, digest in s.report['inputs'].items())
         s.check('all captured source and binary inputs remain unchanged', s.report['inputsUnchanged'])
     except BaseException as error:

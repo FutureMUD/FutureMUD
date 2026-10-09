@@ -62,10 +62,11 @@ The batch has an explicit 180-second cast-response budget within the ordinary
 900-second scenario deadline. Fixture timing is 30*grade seconds / 30-second corpse
 decay, and 240 seconds for the batch; these are not historical balance mappings.
 
-The N15 permanent body's short description is temporarily changed through `resdesc`
+The N15 permanent body's short description and personal name are temporarily changed
+through `resdesc` and exact-ID `rename`
 to distinguish it from new guardians. A harmless `force qaguardian look` must prove
 the actual native keyword resolver has no old recipient before any destructive
-command. That exact description, spell definition and corpse policy are restored
+command. That exact description, canonical name fields, spell definition and corpse policy are restored
 byte-for-byte while stopped. Spent energy, evacuated ordinary goods, canonical
 archives and journals/claims remain intentionally retained and explicitly counted.
 The approved NPC template remains unchanged. No text scan for IDs is used.

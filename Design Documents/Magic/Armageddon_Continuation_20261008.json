@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-08",
-  "status": "PASS_BOUNDED_N15_BUILDER_INSTALLED",
+  "status": "PASS_BOUNDED_N16_BUILDER_INSTALLED",
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
@@ -6544,189 +6544,39 @@
     "historical_attribution": "Previous malformed-armour failure retained; current stock repair and AI hold supersede its current-stage status."
   },
   "current_managed": {
-    "status": "PASS",
-    "scope": "All ten default fast projects, Debug, unfiltered, combined PR789 integration.",
+    "scope": "Full Core and shared Library after N16 census additions",
     "runs": [
       {
-        "run_id": "20261009T065727Z-8042d1a51080",
-        "head": "dac1deee031f4e4726597e88d07af47d5cda3e27",
+        "run_id": "20261009T103701Z-f15ab59e0250",
+        "head": "3f97b3ba7802f5b95b87abebb7c9aeddc793cc60",
         "status": "PASS",
         "counts": {
-          "executed": 9199,
-          "passed": 9199,
+          "executed": 7069,
+          "passed": 7069,
           "failed": 0,
-          "skipped": 3,
+          "skipped": 0,
           "inconclusive": 0,
           "other": 0,
-          "total": 9202
+          "total": 7069
         },
-        "source_start": "42a310927f3e03680d6f9fdc54a8cd5b67842f4286d35c57a022eb5c3387aaf1",
-        "source_end": "42a310927f3e03680d6f9fdc54a8cd5b67842f4286d35c57a022eb5c3387aaf1",
+        "source_start": "9b22d70220a6b4bbf8a940f3dd459e65d59b2ec170ebedfe60f0c1474377348a",
+        "source_end": "9b22d70220a6b4bbf8a940f3dd459e65d59b2ec170ebedfe60f0c1474377348a",
         "source_stable": true,
         "projects": [
           "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
-          "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
-          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
-          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
-          "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
-          "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
-          "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
-          "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
-          "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
-          "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
         ],
         "filter": null,
+        "configuration": "Debug",
         "receipt": {
-          "path": ".artifacts/n15-20261009/integrated-default/20261009T065727Z-8042d1a51080/summary.json",
-          "sha256": "64254b1b654661ccd039f9fca4ff51d1c0cb1ffce3a5d0b4835992281e6da6d7"
-        },
-        "per_project": [
-          {
-            "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
-            "counts": {
-              "executed": 709,
-              "passed": 709,
-              "failed": 0,
-              "skipped": 0,
-              "inconclusive": 0,
-              "other": 0,
-              "total": 709
-            }
-          },
-          {
-            "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
-            "counts": {
-              "executed": 36,
-              "passed": 36,
-              "failed": 0,
-              "skipped": 0,
-              "inconclusive": 0,
-              "other": 0,
-              "total": 36
-            }
-          },
-          {
-            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
-            "counts": {
-              "executed": 1617,
-              "passed": 1617,
-              "failed": 0,
-              "skipped": 3,
-              "inconclusive": 0,
-              "other": 0,
-              "total": 1620
-            }
-          },
-          {
-            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
-            "counts": {
-              "executed": 6357,
-              "passed": 6357,
-              "failed": 0,
-              "skipped": 0,
-              "inconclusive": 0,
-              "other": 0,
-              "total": 6357
-            }
-          },
-          {
-            "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
-            "counts": {
-              "executed": 274,
-              "passed": 274,
-              "failed": 0,
-              "skipped": 0,
-              "inconclusive": 0,
-              "other": 0,
-              "total": 274
-            }
-          },
-          {
-            "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
-            "counts": {
-              "executed": 22,
-              "passed": 22,
-              "failed": 0,
-              "skipped": 0,
-              "inconclusive": 0,
-              "other": 0,
-              "total": 22
-            }
-          },
-          {
-            "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
-            "counts": {
-              "executed": 57,
-              "passed": 57,
-              "failed": 0,
-              "skipped": 0,
-              "inconclusive": 0,
-              "other": 0,
-              "total": 57
-            }
-          },
-          {
-            "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
-            "counts": {
-              "executed": 54,
-              "passed": 54,
-              "failed": 0,
-              "skipped": 0,
-              "inconclusive": 0,
-              "other": 0,
-              "total": 54
-            }
-          },
-          {
-            "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
-            "counts": {
-              "executed": 35,
-              "passed": 35,
-              "failed": 0,
-              "skipped": 0,
-              "inconclusive": 0,
-              "other": 0,
-              "total": 35
-            }
-          },
-          {
-            "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
-            "counts": {
-              "executed": 38,
-              "passed": 38,
-              "failed": 0,
-              "skipped": 0,
-              "inconclusive": 0,
-              "other": 0,
-              "total": 38
-            }
-          }
-        ],
-        "skipped_cases": [
-          {
-            "fully_qualified_name": "MudSharp_Unit_Tests.StartupScriptGeneratorTests.EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions",
-            "name": "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (1)",
-            "outcome": "SKIPPED",
-            "message": "Assert.Inconclusive failed. Native Unix filesystem permissions require a Unix host."
-          },
-          {
-            "fully_qualified_name": "MudSharp_Unit_Tests.StartupScriptGeneratorTests.EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions",
-            "name": "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (0)",
-            "outcome": "SKIPPED",
-            "message": "Assert.Inconclusive failed. Native Unix filesystem permissions require a Unix host."
-          },
-          {
-            "fully_qualified_name": "MudSharp_Unit_Tests.StartupScriptGeneratorTests.EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions",
-            "name": "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (2)",
-            "outcome": "SKIPPED",
-            "message": "Assert.Inconclusive failed. Native Unix filesystem permissions require a Unix host."
-          }
-        ]
+          "path": ".artifacts/n16-20261009/managed/20261009T103701Z-f15ab59e0250/summary.json",
+          "sha256": "6305f2a7ea0c3fa891c93182cfaec6e0eff3d5dc5ecb9f93ab97b5e0098c3f91"
+        }
       }
     ],
-    "authoritative_passed": 9199,
+    "authoritative_passed": 7069,
     "counts_are_not_added": true,
-    "previous_n14_receipt": "Design Documents/Magic/Armageddon_Guardian_Early_Death_Checkpoint_20261009.json"
+    "previous_n15_receipt": "Design Documents/Magic/Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.json"
   },
   "npc_armour_repair_continuation_20261009": {
     "status": "STOCK_ARMOUR_REPAIRED_NATIVE_RETIREMENT_BLOCKED_AI_REFERENCES",
@@ -7019,7 +6869,7 @@
     "package_release_enabled": false,
     "publication_authorized": false
   },
-  "next_bounded_milestone": "N16: repeat normal builder-installed guardian summon/use/kill/expire with a cold restart on every cycle; qualify stable eligible heavy-row, timer and subscription counts and explain retained canonical history, claims and the ordinary permanent fixture. Full Air Guardian catalogue and historical timing parity remain pending. Use only code-proven references; no static-definition classifier stage.",
+  "next_bounded_milestone": "N17: map and implement the bounded occupied-shelter dependencies for Spring Haven, Burrow Refuge and Sand Shelter, then qualify real utility, finite water, occupied expiry/destruction and safe fallback with preserved actors and foreign goods. Full Air Guardian catalogue/timing parity and other stock/readiness gates remain pending. Use only code-proven references; no static-definition classifier stage.",
   "npc_typed_reference_review_20261009": {
     "date": "2026-10-09",
     "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
@@ -7186,5 +7036,13 @@
     "n15_builder_installed_qualified": true,
     "full_air_guardian_catalogue_qualified": false,
     "next_bounded_milestone": "N16: repeat normal builder-installed guardian summon/use/kill/expire with a cold restart on every cycle; qualify stable eligible heavy-row, timer and subscription counts and explain retained canonical history, claims and the ordinary permanent fixture. Full Air Guardian catalogue and historical timing parity remain pending. Use only code-proven references; no static-definition classifier stage."
+  },
+  "guardian_churn_20261009": {
+    "status": "PASS_BOUNDED_N16_BUILDER_INSTALLED",
+    "receipt": "Design Documents/Magic/Armageddon_Guardian_Churn_Checkpoint_20261009.json",
+    "scenario_revision": "01547b72bd87cb080b3152b3c57df9bf561047c3",
+    "n16_builder_installed_qualified": true,
+    "full_air_guardian_catalogue_qualified": false,
+    "next_bounded_milestone": "N17: map and implement the bounded occupied-shelter dependencies for Spring Haven, Burrow Refuge and Sand Shelter, then qualify real utility, finite water, occupied expiry/destruction and safe fallback with preserved actors and foreign goods. Full Air Guardian catalogue/timing parity and other stock/readiness gates remain pending. Use only code-proven references; no static-definition classifier stage."
   }
 }

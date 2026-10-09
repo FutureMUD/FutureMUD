@@ -124,3 +124,5 @@ available. Existing timed effects expire naturally within a bounded 500-second
 preflight; no effect is removed and no scheduler entry is excluded from the census.
 This isolates incidental ordinary skill cooldowns from the guardian lifecycle gate.
 Each stage restores every original improver definition byte-for-byte while stopped.
+
+The [9 October installed N16 checkpoint](../../Design%20Documents/Magic/Armageddon_Guardian_Churn_Checkpoint_20261009.md) qualifies all 32 restart cycles and the continuous 128-output batch with 2,728 native assertions with identical common runtime source/binary inputs and separately pinned normal-cycle and batch scenario revisions. The current Core/Library suites pass 7,069 tests. This bounded fixture qualification preserves the ordinary permanent guardian and does not establish full catalogue, historical balance or Release readiness.

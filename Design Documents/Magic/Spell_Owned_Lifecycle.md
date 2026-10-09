@@ -4,7 +4,7 @@ Phase3B1 adds the conservative canonical NPC archival boundary described below. 
 connects explicit `createnpc` lifecycle provenance to native simple-template construction and
 persisted death/remains recovery. Phase3B2B connects bounded simple-NPC retirement to
 native death, ordinary corpse deletion/decay, conserved foreign custody and canonical
-archival. The bounded builder-installed [N14 guardian checkpoint](Armageddon_Guardian_Early_Death_Checkpoint_20261009.md) now qualifies early death, remains/custody, restart/decay and default dissipation. The bounded builder-installed [N15 lifecycle modes checkpoint](Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.md) also qualifies permanent no-expiry persistence and both temporary modes with stable terminal state across cold restart. N16 high-volume/per-cycle restart, full catalogue parity and the other creation adapters remain outstanding.
+archival. The bounded builder-installed [N14 guardian checkpoint](Armageddon_Guardian_Early_Death_Checkpoint_20261009.md) now qualifies early death, remains/custody, restart/decay and default dissipation. The bounded builder-installed [N15 lifecycle modes checkpoint](Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.md) also qualifies permanent no-expiry persistence and both temporary modes with stable terminal state across cold restart. The bounded builder-installed [N16 churn checkpoint](Armageddon_Guardian_Churn_Checkpoint_20261009.md) qualifies 32 paid cycles with cleanup before every cold restart and a separate continuous 128-output batch. Full catalogue parity and the other creation adapters remain outstanding.
 
 ## Native NPC creation and death recovery
 
@@ -687,10 +687,11 @@ The lightweight lifecycle/claim journal deliberately has no entity FKs and does 
 canonical deletion. Bounded journal retention/archival is a later explicit policy; these
 receipt tables currently retain ownership evidence rather than purging it automatically.
 
-N14 and N15 have the bounded controlled native coverage described above. N16 has sixteen
-native steady-state cycles and separate fault/decay readers; high-volume installed-world
-acceptance and restart on every cycle remain pending. Earlier Phase3A persistence/body
-checks remain supporting evidence, not substitutes for complete installed gameplay.
+N14 and N15 have the bounded controlled native coverage described above. Earlier N16
+support covered sixteen native steady-state cycles and separate fault/decay readers.
+The [installed N16 checkpoint](Armageddon_Guardian_Churn_Checkpoint_20261009.md) now qualifies 32 paid cycles with
+cleanup before a cold restart on every cycle, plus 128 outputs cleaned up in one
+continuous process. Earlier Phase3A persistence/body checks remain supporting evidence.
 
 The installed N16 harness uses `debug census <creator id>` to observe real loaded
 collections, both schedule heaps, all heartbeat generations and the creator's exact
@@ -698,8 +699,11 @@ guardian/follow event delegates. It compares them after cleanup **before** resta
 so process teardown cannot conceal a subscription or timer leak. Canonical archives,
 original typed claims, durable terminal journals and evacuated ordinary goods are
 expected retained state. The N15 permanent guardian remains ordinary durable output.
-The new 32-cycle/128-output campaign is not qualified until every fresh source-bound
-stage and owned cleanup receipt passes.
+All seventeen qualifying stages and their owned cleanup receipts pass with identical
+common runtime source/binary inputs. Normal cycles and the corrected batch have
+separately pinned scenario revisions, with 2,728 native assertions. The Core/Library
+suites pass 7,069 tests. Fixture timings, retained failed attempts and the separate
+native recovery are recorded in the checkpoint. Full stock catalogue parity remains pending.
 
 The N16 disposable fixture uses native `improver set nogain 0` on the explicit
 skill-to-improvement-model links whose runtime models produce skill cooldowns.

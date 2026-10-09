@@ -11,6 +11,7 @@ import pathlib
 import re
 import time
 import xml.etree.ElementTree as ET
+from guardian_journals import JOURNAL_COLUMNS, parse_journals
 
 spec = importlib.util.spec_from_file_location('fury_calm_smoke', pathlib.Path(__file__).with_name('smoke.py'))
 s = importlib.util.module_from_spec(spec)
@@ -22,6 +23,7 @@ s.report.update(scope='N16 normal paid guardian churn; bounded restart cycles an
                 cycles=[], authoredTiming=dict(cycleLifetime='30*grade', corpseDecaySeconds=30,
                                                batchLifetimeSeconds=240, batchEarlyDeaths=64))
 for name in ['scripts/FuryCalmSmokeWorld/guardian_churn.py',
+             'scripts/FuryCalmSmokeWorld/guardian_journals.py',
              'MudSharpCore/Commands/Modules/StaffModule.Census.cs',
              'MudSharpCore/Framework/Scheduling/Scheduler.cs', 'MudSharpCore/Effects/EffectScheduler.cs',
              'MudSharpCore/Framework/Scheduling/HeartbeatManager.cs',
@@ -37,10 +39,6 @@ for name in ['scripts/FuryCalmSmokeWorld/guardian_churn.py',
              'MudSharpCore/Body/RetirementBodyEffects.cs', 'MudSharpCore/GameItems/Components/CorpseGameItemComponent.cs']:
     s.report['inputs'][name] = hashlib.sha256((s.repo / name).read_bytes()).hexdigest()
 
-journal_columns = ('Id,SpellId,Grade,CreatorId,HEX(Family),Mode,CreatedUtc,DeadlineUtc,'
-                   'HEX(Provenance),State,Reason,DeathObservedUtc,RemainsItemId,'
-                   'RemainsRemovalRequestedUtc,RemainsNotificationAttemptedUtc,'
-                   'RemainsNotificationCompletedUtc,UpdatedUtc,Version,HEX(Diagnostic)')
 census_names = ['Actors', 'Cached actors', 'NPCs', 'Bodies', 'Attached bodies', 'Main schedules', 'Effect schedules',
                 'Second', 'Ten Second', 'Thirty Second', 'Minute', 'Hour', 'Fuzzy Five Second',
                 'Fuzzy Ten Second', 'Fuzzy Thirty Second', 'Fuzzy Minute', 'Fuzzy Five Minute',
@@ -111,7 +109,7 @@ def serial_graphs(value):
 
 
 def histories():
-    return (s.sql(f'SELECT {journal_columns} FROM MagicSpellLifecycles ORDER BY Id'),
+    return (parse_journals(s.sql(f'SELECT JSON_ARRAY({JOURNAL_COLUMNS}) FROM MagicSpellLifecycles ORDER BY Id')),
             s.sql('SELECT LifecycleId,Kind,EntityId,Role FROM MagicSpellOwnedEntities ORDER BY LifecycleId,Kind,EntityId'))
 
 
@@ -292,7 +290,7 @@ def qualify_cycle(index, batch=False):
     terminal = histories()
     old_ids = before['lifecycles']
     s.check('all preceding terminal and permanent journals remain byte-identical',
-            '\n'.join(row for row in terminal[0].splitlines() if row.split('\t', 1)[0] in old_ids) == old_history[0])
+            {identifier: row for identifier, row in terminal[0].items() if identifier in old_ids} == old_history[0])
     record = dict(index=index, batch=batch, mode=mode, earlyDeaths=deaths, outputCount=count, grade=grade,
                   claims=claims, foreignItem=item, recipient=recipient, room=int(room),
                   baseline=baseline, active=active, terminalSamples=samples,

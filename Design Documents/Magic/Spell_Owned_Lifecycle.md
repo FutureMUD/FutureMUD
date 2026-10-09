@@ -701,6 +701,12 @@ expected retained state. The N15 permanent guardian remains ordinary durable out
 The new 32-cycle/128-output campaign is not qualified until every fresh source-bound
 stage and owned cleanup receipt passes.
 
+The harness snapshots all nineteen explicit lifecycle fields through MySQL `JSON_ARRAY`.
+Empty diagnostics and null fields retain their distinct values even when the shared SQL
+helper strips stdout boundaries. Comparison uses exact field tuples keyed by lifecycle
+identity; no field is omitted or guessed. A separate read-only transport audit starts no
+MUD and cannot qualify gameplay or replace the installed campaign.
+
 The ordinary backup regression fixture separately exercises the native backup transfer
 helper, an atomic form/remains save failure and retry, a separate-process real corpse reload
 without a retired-body preload, database possession/reference refusal and the real corpse

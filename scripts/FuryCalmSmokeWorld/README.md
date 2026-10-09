@@ -74,3 +74,15 @@ reports the detached-body registry and reference-distinct bodies attached to loa
 actors/cache/NPCs separately. Interrupted attempts can be recovered with
 `guardian_churn_recover.py` and marker `guardian-churn-recovery-passed.json`; this runs
 native expiry and public custody only, preserves payment/history, and never qualifies N16.
+
+Complete lifecycle journal snapshots select the nineteen explicit columns through MySQL
+`JSON_ARRAY`, preserving empty diagnostics and nulls when the shared SQL helper strips
+stdout boundaries. `guardian_journals.py` rejects missing fields or duplicate journal
+identities; comparisons retain every field. Run its transport regression with
+`python -B scripts/FuryCalmSmokeWorld/test_guardian_journals.py`.
+
+For a retained TSV transport failure, set `N16_JOURNAL_AUDIT_FAILED_RECEIPT` to its
+`smoke-invocation-.../receipt.json` path within the owned world and run
+`guardian_journal_transport_audit.py` through the same owned wrapper with marker
+`guardian-journal-transport-audit-passed.json`. This read-only audit starts no MUD,
+compares the actual rows to the failed receipt and never qualifies gameplay.

@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-continuation-20261008",
   "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Source review complete; replace retirement heuristics with code-proven links. Runtime implementation unchanged and new qualification pending.",
+  "selected_stage": "Code-proven reference replacement and retained NPC physical/cold retry qualified; next N14 installed stock early-death/remains/default-dissipation acceptance.",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -383,6 +383,11 @@
         "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json",
         "status": "controlled_native_PASS_installed_stock_session_pending",
         "scope": "Actual guardian Die/configured corpse and nested foreign bag/lock/belt custody across original expiry, separate-process dead-body/item reload, positive minute decay and scheduled Morph-to-nothing/Delete, Quit/archive; separate default dissipation."
+      },
+      "typed_reference_support": {
+        "receipt": "Armageddon_Typed_Reference_Checkpoint_20261009.json",
+        "status": "BOUNDED_RETAINED_EXPIRY_AND_COMPLETED_COLD_RETRY_PASS",
+        "scope": "Two previously paid TemporaryCleanup NPCs physically archived; exact completed rows survive second process. Full installed stock or high-volume scenario not run."
       }
     },
     {
@@ -419,6 +424,11 @@
         "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json",
         "status": "controlled_native_same_template_PASS_installed_stock_session_pending",
         "scope": "One actual SimpleNPCTemplate used for permanent, temporary cleanup and death-on-expiry; exactly one terminal death/corpse transition and retained no-expiry permanent identity."
+      },
+      "typed_reference_support": {
+        "receipt": "Armageddon_Typed_Reference_Checkpoint_20261009.json",
+        "status": "BOUNDED_RETAINED_EXPIRY_AND_COMPLETED_COLD_RETRY_PASS",
+        "scope": "Two previously paid TemporaryCleanup NPCs physically archived; exact completed rows survive second process. Full installed stock or high-volume scenario not run."
       }
     },
     {
@@ -455,6 +465,11 @@
         "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json",
         "status": "partial_sixteen_native_cycles_and_separate_fault_decay_restarts_high_volume_pending",
         "scope": "Sixteen actual create/early-kill-or-expire/Delete/Quit/archive cycles with stable heavy rows/roots/scheduler/heartbeat, plus two separate decay/fault readers; high volume and every-cycle restart not run."
+      },
+      "typed_reference_support": {
+        "receipt": "Armageddon_Typed_Reference_Checkpoint_20261009.json",
+        "status": "BOUNDED_RETAINED_EXPIRY_AND_COMPLETED_COLD_RETRY_PASS",
+        "scope": "Two previously paid TemporaryCleanup NPCs physically archived; exact completed rows survive second process. Full installed stock or high-volume scenario not run."
       }
     },
     {
@@ -3736,7 +3751,7 @@
     }
   ],
   "next_checkpoint": {
-    "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
+    "status": "TYPED_REFERENCES_QUALIFIED_RETAINED_NPC_ARCHIVAL_AND_COLD_RETRY_PASS",
     "receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
     "remaining": [
       {
@@ -3784,9 +3799,10 @@
     "publication_authorized": false,
     "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7",
     "qualification_receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
-    "current_npc_archival_receipt": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
-    "next_bounded_milestone": "Replace NPC archival and shared retired-body reference heuristics with actual EF foreign keys, typed scalar/discriminator pairs and exact identity fields proven by concrete loaders. Include completed remains recovery and corpse-animation provenance checks; remove numeric-text searches, guessed *Id checks and archive-only static-schema classifiers. Preserve valid stock armour repair, registration-only Body shutdown, ownership, custody and canonical history. Qualify the replacement, then rerun unchanged physical-release and separate-process completed cold-retry gates for both retained NPCs. The Autobuilder classifier milestone is superseded.",
-    "current_npc_reference_review": "Design Documents/Magic/Armageddon_Typed_Reference_Review_20261009.md"
+    "current_npc_archival_receipt": "Armageddon_Typed_Reference_Checkpoint_20261009.json",
+    "next_bounded_milestone": "N14 installed stock early-death acceptance: cast the approved guardian/summon family through the normal installed command path; retain configured remains and foreign carried goods through original expiry, a cold restart and actual decay, then exercise default dissipation. Use the same code-proven references and preserve canonical history and custody. N15 same-template lifecycle modes and N16 high-volume/per-cycle restart remain separate follow-ups; no static-schema classifier stage.",
+    "current_npc_reference_review": "Design Documents/Magic/Armageddon_Typed_Reference_Review_20261009.md",
+    "current_npc_reference_implementation": "Design Documents/Magic/Armageddon_Typed_Reference_Implementation_20261009.md"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -3900,9 +3916,9 @@
     },
     {
       "id": "npc_prepayment_lifetime_spawn_admission",
-      "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
-      "receipt": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
-      "acceptance": "Retain fixed lifetime/spawn admission, payment/creation, valid stock armour repair and original retirement assertions. Replace heuristic reference checks with actual typed links across current and completed cleanup paths; then qualify real physical release and completed cold retry.",
+      "status": "TYPED_REFERENCES_QUALIFIED_RETAINED_NPC_ARCHIVAL_AND_COLD_RETRY_PASS",
+      "receipt": "Armageddon_Typed_Reference_Checkpoint_20261009.json",
+      "acceptance": "Original prepayment proof retained; code-proven reference replacement, two retained paid NPC physical retirements and separate-process completed cold retry pass. Installed stock N14/N15 and high-volume N16 remain pending.",
       "prepayment_receipt": "Armageddon_Npc_Prepayment_Checkpoint_20261009.json",
       "reference_review": "Design Documents/Magic/Armageddon_Typed_Reference_Review_20261009.md"
     }
@@ -5767,72 +5783,99 @@
   },
   "current_managed": {
     "status": "PASS",
-    "scope": "Full Core with focused subset",
+    "scope": "Full Core and shared Library; final 173-test reference/archive/retirement/possession subset includes a concrete unsaved possession source regression.",
     "runs": [
       {
         "receipt": {
-          "path": ".artifacts/armageddon-npc-ai-20261009/core-full/20261008T224505Z-9047a8c2c877/summary.json",
-          "sha256": "05ca99996447c90f6a2a1883fa04b09c9bc97d70706c61d9e0f9b6c41d0067fe"
+          "path": ".artifacts/armageddon-typed-references-20261009/managed/20261009T001957Z-d65c7a211c37/summary.json",
+          "sha256": "874fb01e96a7a8531fb4766f2ad042e54bf55d617f09baa1cbf22ea77e46ccf4"
         },
-        "run": "20261008T224505Z-9047a8c2c877",
+        "run_id": "20261009T001957Z-d65c7a211c37",
         "status": "PASS",
-        "scope": "Full MudSharpCore Unit Tests",
-        "configuration": "Debug",
-        "filter": null,
-        "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
         "counts": {
-          "executed": 6038,
-          "passed": 6038,
+          "executed": 6606,
+          "passed": 6606,
           "failed": 0,
           "skipped": 0,
           "inconclusive": 0,
           "other": 0,
-          "total": 6038
+          "total": 6606
         },
-        "source_start": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
-        "source_end": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+        "source_start": "faa418a1179fd66e59fec4e783a5d8650003528d2dbfc92e24e1b345f5d952e0",
+        "source_end": "faa418a1179fd66e59fec4e783a5d8650003528d2dbfc92e24e1b345f5d952e0",
         "source_stable": true,
-        "process_exit_codes": [
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj"
+        ],
+        "filter": null,
+        "per_project": [
           {
             "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
-            "build": 0,
-            "test": 0
+            "counts": {
+              "executed": 5938,
+              "passed": 5938,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 5938
+            }
+          },
+          {
+            "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+            "counts": {
+              "executed": 668,
+              "passed": 668,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 668
+            }
           }
         ]
       }
     ],
     "diagnostic_subset": {
       "receipt": {
-        "path": ".artifacts/armageddon-npc-ai-20261009/core-focused/20261008T224044Z-e235ce6f1b73/summary.json",
-        "sha256": "3ea6845a8f1aa4f57518a3eaa18ade15f550c68aca55e569d12e5fe71f3deb1b"
+        "path": ".artifacts/armageddon-typed-references-20261009/focused-final/20261009T002403Z-4346690f6b0f/summary.json",
+        "sha256": "bebcb35d4723e22440de0a7a5947b05b7d4a8b39bba4a719b45053ecdcc5cd7e"
       },
-      "run": "20261008T224044Z-e235ce6f1b73",
+      "run_id": "20261009T002403Z-4346690f6b0f",
       "status": "PASS",
-      "scope": "NpcArchiveAiReferencePolicyTests, NpcArchiveReferencePolicyTests, NpcArchiveRuntimeTests and BodyShutdownHealthTests",
-      "configuration": "Debug",
-      "filter": "FullyQualifiedName~NpcArchiveAiReferencePolicyTests|FullyQualifiedName~NpcArchiveReferencePolicyTests|FullyQualifiedName~NpcArchiveRuntimeTests|FullyQualifiedName~BodyShutdownHealthTests",
-      "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
       "counts": {
-        "executed": 164,
-        "passed": 164,
+        "executed": 173,
+        "passed": 173,
         "failed": 0,
         "skipped": 0,
         "inconclusive": 0,
         "other": 0,
-        "total": 164
+        "total": 173
       },
-      "source_start": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
-      "source_end": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+      "source_start": "07a3529b47d645e7e726769c8f77e5746c1b55e46ebd20365b6f5ffb241faf06",
+      "source_end": "07a3529b47d645e7e726769c8f77e5746c1b55e46ebd20365b6f5ffb241faf06",
       "source_stable": true,
-      "process_exit_codes": [
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PhysicalReferenceGuardTests|FullyQualifiedName~NpcArchive|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~SpellOwnedNpc|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~PossessionVictimContextTests",
+      "per_project": [
         {
           "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
-          "build": 0,
-          "test": 0
+          "counts": {
+            "executed": 173,
+            "passed": 173,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 173
+          }
         }
       ]
     },
-    "authoritative_passed": 6038,
+    "authoritative_passed": 6606,
     "counts_are_not_added": true
   },
   "full_plan_complete": false,
@@ -6159,6 +6202,115 @@
       "Canonical historical identity, idempotency and post-commit runtime release"
     ],
     "later_milestone_rule": "N14/N15/N16 and subsequent summon/projection/possession/corpse/control/topology work use the same code-proven reference contracts. No sequence of static configuration exemptions.",
+    "full_plan_complete": false,
+    "package_release_enabled": false,
+    "publication_authorized": false
+  },
+  "npc_typed_reference_implementation_20261009": {
+    "status": "TYPED_REFERENCES_QUALIFIED_RETAINED_NPC_ARCHIVAL_AND_COLD_RETRY_PASS",
+    "implementation_commit": "13204460aa4524d5ecce29e6baf0aefc4928166b",
+    "receipt": "Design Documents/Magic/Armageddon_Typed_Reference_Checkpoint_20261009.json",
+    "coverage_ledger": "Design Documents/Magic/Armageddon_Typed_Reference_Implementation_20261009.md",
+    "native_physical_retirement_qualified": true,
+    "completed_cold_retry_qualified": true,
+    "managed": {
+      "status": "PASS",
+      "scope": "Full Core and shared Library; final 173-test reference/archive/retirement/possession subset includes a concrete unsaved possession source regression.",
+      "runs": [
+        {
+          "receipt": {
+            "path": ".artifacts/armageddon-typed-references-20261009/managed/20261009T001957Z-d65c7a211c37/summary.json",
+            "sha256": "874fb01e96a7a8531fb4766f2ad042e54bf55d617f09baa1cbf22ea77e46ccf4"
+          },
+          "run_id": "20261009T001957Z-d65c7a211c37",
+          "status": "PASS",
+          "counts": {
+            "executed": 6606,
+            "passed": 6606,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 6606
+          },
+          "source_start": "faa418a1179fd66e59fec4e783a5d8650003528d2dbfc92e24e1b345f5d952e0",
+          "source_end": "faa418a1179fd66e59fec4e783a5d8650003528d2dbfc92e24e1b345f5d952e0",
+          "source_stable": true,
+          "projects": [
+            "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj"
+          ],
+          "filter": null,
+          "per_project": [
+            {
+              "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "counts": {
+                "executed": 5938,
+                "passed": 5938,
+                "failed": 0,
+                "skipped": 0,
+                "inconclusive": 0,
+                "other": 0,
+                "total": 5938
+              }
+            },
+            {
+              "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+              "counts": {
+                "executed": 668,
+                "passed": 668,
+                "failed": 0,
+                "skipped": 0,
+                "inconclusive": 0,
+                "other": 0,
+                "total": 668
+              }
+            }
+          ]
+        }
+      ],
+      "diagnostic_subset": {
+        "receipt": {
+          "path": ".artifacts/armageddon-typed-references-20261009/focused-final/20261009T002403Z-4346690f6b0f/summary.json",
+          "sha256": "bebcb35d4723e22440de0a7a5947b05b7d4a8b39bba4a719b45053ecdcc5cd7e"
+        },
+        "run_id": "20261009T002403Z-4346690f6b0f",
+        "status": "PASS",
+        "counts": {
+          "executed": 173,
+          "passed": 173,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 173
+        },
+        "source_start": "07a3529b47d645e7e726769c8f77e5746c1b55e46ebd20365b6f5ffb241faf06",
+        "source_end": "07a3529b47d645e7e726769c8f77e5746c1b55e46ebd20365b6f5ffb241faf06",
+        "source_stable": true,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "filter": "FullyQualifiedName~PhysicalReferenceGuardTests|FullyQualifiedName~NpcArchive|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~SpellOwnedNpc|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~PossessionVictimContextTests",
+        "per_project": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": {
+              "executed": 173,
+              "passed": 173,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 173
+            }
+          }
+        ]
+      },
+      "authoritative_passed": 6606,
+      "counts_are_not_added": true
+    },
+    "next_bounded_milestone": "N14 installed stock early-death acceptance: cast the approved guardian/summon family through the normal installed command path; retain configured remains and foreign carried goods through original expiry, a cold restart and actual decay, then exercise default dissipation. Use the same code-proven references and preserve canonical history and custody. N15 same-template lifecycle modes and N16 high-volume/per-cycle restart remain separate follow-ups; no static-schema classifier stage.",
     "full_plan_complete": false,
     "package_release_enabled": false,
     "publication_authorized": false

@@ -1,0 +1,306 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-09",
+  "status": "TYPED_REFERENCES_QUALIFIED_RETAINED_NPC_ARCHIVAL_AND_COLD_RETRY_PASS",
+  "branch": "codex/armageddon-continuation-20261008",
+  "user_request": "Execute the approved code-proven reference replacement milestone; no numeric ID text scans or guessed Id properties.",
+  "implementation_commit": "13204460aa4524d5ecce29e6baf0aefc4928166b",
+  "reviewed_plan": {
+    "path": "Design Documents/Magic/Armageddon_Typed_Reference_Review_20261009.md",
+    "sha256": "588f3b37fa2a2a420e301ed6621be188e026ba355465e8d856bc459b6c3180d9"
+  },
+  "coverage_ledger": "Design Documents/Magic/Armageddon_Typed_Reference_Implementation_20261009.md",
+  "typed_reference_replacement_qualified": true,
+  "native_physical_retirement_qualified": true,
+  "completed_cold_retry_qualified": true,
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "publication_authorized": false,
+  "release_deploy_live_world_changes_executed": false,
+  "implementation": [
+    "Removed arbitrary XML/JSON/raw-number matching, serialized-column discovery, guessed numeric Id matching and archive-only Agriculture/Armour/AI classifiers. Autobuilder classification is cancelled.",
+    "Shared pure typed reference provider separates Character, Body, CharacterInstance and Wound identities. Live effects are inspected without saving, loading, resolving lazy actors or invoking callbacks.",
+    "Incoming instance/wound FKs extend the existing Character/Body/NPC relationship and exact ownership checks; canonical CharacterCombatSetting ownership survives.",
+    "Persisted guard selects exact owner/position discriminator pairs, known effect channels, component prototype type/revision, member definitions, Character-typed variables/defaults, route Character participants and UserInput waits.",
+    "Known saved effect and instance-metadata fields are read explicitly, including nested spell children, possession source/animated/linked identity pairs and named backup/transformation body fields. Unrelated history/static IDs are excluded by concrete consumer meaning.",
+    "Corpse/Bodypart remains recovery uses exact prototype joins and supported legacy final-body lookup. Bodypart wound IDs also protect earlier retired-body cleanup.",
+    "Borrowed corpse detection reuses versioned CorpseAnimation provenance and exact claims; no corpse ID substring match.",
+    "Retained stock bone-armour repair now validates its formula through ExpressionEngine; native repair changed zero rows and preserved builder edits and rollback/idempotency checks."
+  ],
+  "managed": {
+    "status": "PASS",
+    "scope": "Full Core and shared Library; final 173-test reference/archive/retirement/possession subset includes a concrete unsaved possession source regression.",
+    "runs": [
+      {
+        "receipt": {
+          "path": ".artifacts/armageddon-typed-references-20261009/managed/20261009T001957Z-d65c7a211c37/summary.json",
+          "sha256": "874fb01e96a7a8531fb4766f2ad042e54bf55d617f09baa1cbf22ea77e46ccf4"
+        },
+        "run_id": "20261009T001957Z-d65c7a211c37",
+        "status": "PASS",
+        "counts": {
+          "executed": 6606,
+          "passed": 6606,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6606
+        },
+        "source_start": "faa418a1179fd66e59fec4e783a5d8650003528d2dbfc92e24e1b345f5d952e0",
+        "source_end": "faa418a1179fd66e59fec4e783a5d8650003528d2dbfc92e24e1b345f5d952e0",
+        "source_stable": true,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj"
+        ],
+        "filter": null,
+        "per_project": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": {
+              "executed": 5938,
+              "passed": 5938,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 5938
+            }
+          },
+          {
+            "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+            "counts": {
+              "executed": 668,
+              "passed": 668,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 668
+            }
+          }
+        ]
+      }
+    ],
+    "diagnostic_subset": {
+      "receipt": {
+        "path": ".artifacts/armageddon-typed-references-20261009/focused-final/20261009T002403Z-4346690f6b0f/summary.json",
+        "sha256": "bebcb35d4723e22440de0a7a5947b05b7d4a8b39bba4a719b45053ecdcc5cd7e"
+      },
+      "run_id": "20261009T002403Z-4346690f6b0f",
+      "status": "PASS",
+      "counts": {
+        "executed": 173,
+        "passed": 173,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 173
+      },
+      "source_start": "07a3529b47d645e7e726769c8f77e5746c1b55e46ebd20365b6f5ffb241faf06",
+      "source_end": "07a3529b47d645e7e726769c8f77e5746c1b55e46ebd20365b6f5ffb241faf06",
+      "source_stable": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~PhysicalReferenceGuardTests|FullyQualifiedName~NpcArchive|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~SpellOwnedNpc|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~PossessionVictimContextTests",
+      "per_project": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 173,
+            "passed": 173,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 173
+          }
+        }
+      ]
+    },
+    "authoritative_passed": 6606,
+    "counts_are_not_added": true
+  },
+  "native": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-e44b81e3ef33/receipt.json",
+      "sha256": "1e3a4d0f9d1d4b5511dd108f34be61b27d796ba028b5631e9746f42b42641780"
+    },
+    "source_receipt": {
+      "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\smoke-invocation-aa55c6ee3866\\receipt.json",
+      "sha256": "428dd36fcfce5e0748700ee34a12f443211e60395f523788006912325f656297"
+    },
+    "qualification_marker": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/npc-archival-passed.json",
+      "sha256": "1e3a4d0f9d1d4b5511dd108f34be61b27d796ba028b5631e9746f42b42641780"
+    },
+    "status": "PASS",
+    "assertions": {
+      "passed": 60,
+      "failed": 0
+    },
+    "owned_world": ".artifacts/authored-celestials/run-8f52a54633e3",
+    "database": "authored_celestial_smoke",
+    "mysql_port": 58998,
+    "server_uuid": "ac3f13f9-c311-11f1-b8a6-30560f3c3fde",
+    "created_lifecycles": [
+      {
+        "id": "476b6713-766b-4f23-b8e9-c1693c29220c",
+        "formula": "grade*45",
+        "seconds": 45.0,
+        "character": 10,
+        "body": 10
+      },
+      {
+        "id": "9a536f89-f899-461b-9111-a11b2ede595b",
+        "formula": "45+outcome*5",
+        "seconds": 70.0,
+        "character": 11,
+        "body": 11
+      }
+    ],
+    "retirement_observations": [
+      {
+        "id": "476b6713-766b-4f23-b8e9-c1693c29220c",
+        "row": "3\t0"
+      },
+      {
+        "id": "9a536f89-f899-461b-9111-a11b2ede595b",
+        "row": "3\t0"
+      },
+      {
+        "id": "476b6713-766b-4f23-b8e9-c1693c29220c",
+        "row": "3\t0"
+      },
+      {
+        "id": "9a536f89-f899-461b-9111-a11b2ede595b",
+        "row": "3\t0"
+      }
+    ],
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-1.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "cleanup": {
+      "mysqlStopped": true,
+      "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+    },
+    "bone_armour_repair": {
+      "Status": "PASS",
+      "SourceReceipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\smoke-invocation-880b44100290\\receipt.json",
+      "SourceReceiptSha256": "4406b47b2b151d7108e3c2b4f608931ac110cc7ab72ae16342fcbdc0b1403e4b",
+      "ChangedRows": 0,
+      "BuilderEditRefusals": [
+        "5:definition:REFUSED",
+        "5:metadata:REFUSED",
+        "42:definition:REFUSED",
+        "42:metadata:REFUSED"
+      ],
+      "RollbackProbe": "PASS_SECOND_COMPARE_FAILED_FIRST_UPDATE_ROLLED_BACK",
+      "RerunChangedRows": 0,
+      "correctedBaselineRoundTripRows": 2,
+      "changedTables": [],
+      "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\fury-calm-7229983c\\fixture-armour-repair.json"
+    },
+    "proof": [
+      "Both retained paid lifecycle records complete through the normal service, with NPC/Body/CharacterInstance rows absent and canonical/archive/claim identity preserved.",
+      "Original native DeathObservedUtc remains unchanged; no repeated death or manual physical-row deletion.",
+      "Separate second server process preserves exact completed lifecycle and CharacterArchives rows.",
+      "Exact Fury source and Agriculture/Armour/AI/Autobuilder definition bytes are preserved.",
+      "Two server processes exit zero with stopped stdout collectors; owned MySQL stops; data retained."
+    ],
+    "inherited_full_milestone_flag": false,
+    "flag_boundary": "The inherited broad installer/full-magic milestoneQualified field remains false. The current scoped retirement and cold-retry gates are established by the 60 explicit passing assertions and promoted phase marker; no full Armageddon readiness is claimed.",
+    "input_hashes_match_current_implementation": true,
+    "inputs_sha256": {
+      "scripts\\FuryCalmSmokeWorld\\smoke.py": "7638d3cb7abfeb88bd4a191555aa7f6f2fc324373de745c527e1b471160afa40",
+      "scripts\\FuryCalmSmokeWorld\\Program.cs": "10cf1847dcef732de0fe2a6edd6651583890f65803995cf7bcf56262c85d36ec",
+      "scripts\\AuthoredCelestialSmokeWorld\\native.py": "21ef19f7fa888edf402f14b43d8bfce17d02b3ffb06072b5651518f3d3eb8227",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "937272496c88155750e4807de78e00e1c9a9c7a6d0a54d5774951d60842561fe",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "aa137062947a2c176f3523c73d6b2de00d06c217e66516404fec782fcfaec378",
+      "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "d1c612500125f40b26fed01b1e6d1870b450ed7d4cb078f2305748ed50f47ac0",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+      "scripts/FuryCalmSmokeWorld/npc_archival.py": "73fadb4ae7f0a165c451744fdb3ecf80eba5e6503a718d6a2de705a1a415a765",
+      "scripts/FuryCalmSmokeWorld/OwnedBoneArmourRepair.cs": "c3ac3dea1b052ee2574a67605d4486b1e8a80baf41b1256079f1d12e8a479bd3",
+      "MudSharpCore/Character/CharacterArchiveService.cs": "3506622f27340856450ecf33da72d1897c36fee6bcc632abbdab7af2f30196be",
+      "MudSharpCore/Character/CharacterBodyCleanup.cs": "d35de2806a156b70e6587bc800b2d22ab0f96bf4419ad2e02a69ce7cf29c50c8",
+      "MudSharpCore/Character/NpcArchiveReferencePolicy.cs": "10372a2d6ebbe26ba9053c5dbbad64766115ef08c136d38189116900562823cf",
+      "MudSharpCore/Character/PhysicalReferenceCodecs.cs": "bdeee6459776004ac56fcdf8a328b59dcbe6a63b4acc899144fc49204fafd381",
+      "MudSharpCore/Character/PhysicalReferenceGuard.cs": "74d01ca80f74e04b4f27059e868c37e80bb8c1b89aa520b857ae30b0a6d53d0b",
+      "MudSharpCore/Character/PhysicalReferenceTargets.cs": "556d6fcf29a0a7a880585b7f81c750885cbaf6cf4b6b4a833b99c6831bec8e52",
+      "FutureMUDLibrary/Framework/IPhysicalEntityReferenceProvider.cs": "1360358136b865e2ce3225cbd275a0f092dffa6d06e5bbd53881818cddcb44c8",
+      "MudSharpCore/bin/Debug/net10.0/FutureMUDLibrary.dll": "44b9e07f78d0ed3d139b52415c8d45b92feed2fe4dca4dd5618339cf26173f4e",
+      "scripts/FuryCalmSmokeWorld/bin/Debug/net10.0/MudSharp.dll": "d1c612500125f40b26fed01b1e6d1870b450ed7d4cb078f2305748ed50f47ac0",
+      "scripts/FuryCalmSmokeWorld/bin/Debug/net10.0/FutureMUDLibrary.dll": "44b9e07f78d0ed3d139b52415c8d45b92feed2fe4dca4dd5618339cf26173f4e",
+      "MudSharpCore/Effects/Effect.cs": "34197f3bcb36ae4362163add5e6e0c0334e109fb2341bbb3ffc0b313a9e98593",
+      "MudSharpCore/Effects/EffectPhysicalReferences.cs": "47bf149cd8bd892b677a1a3174dbccccd3b6cffff88e754d096f91087b4872d8",
+      "MudSharpCore/Magic/Lifecycle/SpellOwnedNpcService.cs": "23b35dcc70a26002d61711656010c16da9e0db76b4da93f62e30dc37b5b2e459",
+      "MudSharpCore/Magic/Lifecycle/SpellOwnedCorpseAnimationService.cs": "8e26d8a6c1548da20cead32dbd51190870b3f7265b5f0d3e7f60ff6a91dffe65",
+      "MudSharpCore/Magic/Lifecycle/SpellOwnedCreation.Corpse.cs": "bf953d597c7e08d119d27471d7a51089c3511fa337ad2ca165b76d391459c9fa",
+      "MudSharpCore/Body/Implementations/Body.cs": "1eb9bf569c223549890f66528b7db60593a2f5c6e0bd5344f61901f5be3ba455",
+      "MudSharpCore/Body/Implementations/Body.Archival.cs": "a1703980e50aed95d79203d63ec7c93e603ed9ba2d9effe6938837359a3f41fa",
+      "DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.Bodyparts.cs": "3f7dec6c3d0b43f85e6b0c51a597a6c4b1de45f6acce849393a4cf87bd796a81",
+      "DatabaseSeeder/Seeders/AnimalSeeder/AnimalSeeder.Races.cs": "650be66aebe2a548f35ddcb975615aca34af002b0c94323396985799c84c372e",
+      "MudSharpCore/Effects/Concrete/HasLegalCounsel.cs": "531bca7d37b990d5f1e625dd25d7e212e9c8392a961b6a693c1080665e480b64",
+      "MudSharpCore/Effects/Concrete/InCustodyOfEnforcer.cs": "58118b40dd241443a70d1c757199f1562c1aaa83fc17fab8b26b1cee2d74a49d",
+      "MudSharpCore/Effects/Concrete/Lawyering.cs": "a85c835a5b885febc83618e10d79bc46c9675ee65c0daead54eecb1204cdc6fc",
+      "MudSharpCore/Effects/Concrete/MagicSpellParent.cs": "1192d0de22103867255448d229ea1bc945d8d29f00f477f013239baca7b6e65e",
+      "MudSharpCore/Effects/Concrete/NpcBurrowFoodEffect.cs": "db6fd3de49adb9335f74f3849da82b1e46b46d1cb5778aee7612a2fe855cabe0",
+      "MudSharpCore/Effects/Concrete/OnTrial.cs": "0dd86a0ccee3dd5dbd7b9bcf9ccb0b4cc66ee8cbdedd266482f54168fe0ae14e",
+      "MudSharpCore/Effects/Concrete/SubstanceExposureEffect.cs": "65657c2ad00fae33088f6d007fa63ed866d6e64629c2f14f9f41e831a4bca675",
+      "MudSharpCore/Effects/Concrete/WitnessedClanMemberDeath.cs": "d892ce16482215e871e75312dbb66db9ba0afcb45721722fb6c75867e937424e",
+      "MudSharpCore/Effects/Concrete/SpellEffects/SpellRejuvenateLandEffect.cs": "643f76f8db508795b52894426bfd6ee9a448ffa3f9cba7c86e9ace06baa640de"
+    }
+  },
+  "review": {
+    "status": "REPAIRED_AND_REREVIEWED",
+    "finding": "Possessed-body source character/instance pair omitted from initial mapping; death/quit consumer proved its lifecycle relationship.",
+    "repair": "Live provider, saved effect and PossessedBody metadata now include both fields; final focused regression exercises saved, metadata and concrete unsaved effect, including static source-spell collision exclusion.",
+    "remaining_supported_defects": [],
+    "review_was_read_only": true
+  },
+  "retained_failed_attempts": [
+    {
+      "path": ".artifacts/typed-reference-review-20261009/initial-build.log",
+      "kind": "compile failure",
+      "reason": "Unreachable SurgicalProcedureEffect switch arm; moved before CharacterActionWithTarget."
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-typed-references-20261009/focused-final/20261009T002335Z-8e045c8f975c/summary.json",
+        "sha256": "b720c2ed5f7f460933d849729d2f0eaf12118bafb0a5d4d337d5ce0752dbf668"
+      },
+      "kind": "compile failure",
+      "reason": "New live regression missing Effects.Interfaces import; fixed before final 173-pass run.",
+      "complete_test_counts": false
+    }
+  ],
+  "verification_source_boundary": "Full suites ran on 8910b71 plus frozen unstaged runtime implementation. Afterward only the regression was expanded with concrete live assertions and native input hashes were extended; final 173-test run passed on stable final inputs. Runtime/shared-library source did not change after the full run. Native source and binary hashes match the implementation commit.",
+  "limits": [
+    "Retained-world retry qualifies two previously paid TemporaryCleanup NPCs and a separate-process completed retry; prepayment cases are inherited from the exact original failed receipt, not rerun here.",
+    "New persisted guard regressions use EF InMemory; the selected guard queries and actual archival transaction also execute against owned MySQL in native qualification.",
+    "No claim of complete installed-stock N14/N15, N16 high-volume/every-cycle restart, arbitrary extension codecs or full programme readiness.",
+    "Future identity-bearing codecs must declare actual typed live and persisted links; unknown static/text fields do not regain a generic numeric fallback.",
+    "Original 154 candidates, 152 required/two optional, 82 Sorcerer/four roots/12 supports and eight large features remain unchanged."
+  ],
+  "next_bounded_milestone": "N14 installed stock early-death acceptance: cast the approved guardian/summon family through the normal installed command path; retain configured remains and foreign carried goods through original expiry, a cold restart and actual decay, then exercise default dissipation. Use the same code-proven references and preserve canonical history and custody. N15 same-template lifecycle modes and N16 high-volume/per-cycle restart remain separate follow-ups; no static-schema classifier stage.",
+  "documentation_validation": {
+    "status": "PASS",
+    "receipt": {
+      "path": ".artifacts/typed-reference-review-20261009/documentation-validation.json",
+      "sha256": "90aee37f7a0c99257a0c33278ec0a92d2e61238d3f0ba4680ece1fb676dc8acf"
+    }
+  }
+}

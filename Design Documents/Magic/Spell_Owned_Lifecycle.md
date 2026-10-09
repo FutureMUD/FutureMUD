@@ -51,15 +51,16 @@ codecs and registration-only Body shutdown, retaining its historical 5,980 Core 
 The [stock armour repair checkpoint](Armageddon_Npc_Armour_Repair_Checkpoint_20261009.json)
 fixes both seeded chopping defaults and qualifies their exact owned-world correction with
 1,613 Seeder and 102 focused Core passes plus native transaction/preservation checks.
-The [AI reference checkpoint](Armageddon_Npc_AI_Reference_Checkpoint_20261009.json) records
-historical Judge/Mount/Animal/Monster classification and 6,038 full Core passes. Its native
-gate clears the AI hold and next holds on `AutobuilderAreaTemplate.Definition`; both heavy
-graphs remain and physical release/completed cold retry remain unqualified. The current
-user direction supersedes the static-schema exemption approach. The next milestone is
-the [code-proven reference replacement](Armageddon_Typed_Reference_Review_20261009.md),
-covering NPC archival, shared retired-body cleanup, remains recovery and corpse provenance.
-No Autobuilder classifier is planned. Runtime changes and new qualification remain pending;
-previous receipts and original retirement assertions remain preserved.
+The [AI reference checkpoint](Armageddon_Npc_AI_Reference_Checkpoint_20261009.json) is historical
+classification evidence; its native Autobuilder hold is superseded by the
+[code-proven reference implementation](Armageddon_Typed_Reference_Implementation_20261009.md).
+The replacement removes numeric text searches, guessed Id fields and archive-only static
+classifiers across archival, earlier body cleanup, remains recovery and corpse provenance.
+The [fresh checkpoint](Armageddon_Typed_Reference_Checkpoint_20261009.json) records 6,606 full
+Core/Library passes, a 173-test focused subset and 60 passing native assertions. Both retained
+paid NPCs physically retire, and a separate process preserves exact completed/archive rows.
+Original ownership, custody, death/history, stock repair and registration-only shutdown
+contracts remain. No Autobuilder classifier is planned; full installed acceptance remains pending.
 Earlier creation/retirement receipts do not establish full current lifecycle readiness.
 
 Preparation allocates a stable creation key and canonical creator ID. A fresh serializable
@@ -93,9 +94,10 @@ After startup NPC load callbacks and on the minute heartbeat, a bounded persiste
 unobserved dead owned NPCs, including early deaths whose original deadline is still future.
 It rotates its cursor, reads exact body ownership and correlates zero or one persisted remains
 reference without materializing a dead Character/Body/controller/AI graph. Multiple matches,
-malformed candidates, changed bodies or a census over 256 candidate component rows hold.
-The candidate census includes numeric XML character references, whose decoded body IDs must
-not be mistaken for absence merely because the raw serialized digits differ.
+malformed known remains contracts, changed bodies or more than 100,000 known remains component rows hold.
+The candidate query joins exact component prototype ID/revision and selects only Corpse/Bodypart.
+It reads their actual original-body fields and final-death legacy owner lookup; XML character
+entities are decoded normally, without searching raw definition text for IDs.
 Observation cancels the need for a second native death; retries do not change existing remains,
 recast, delete rows or replay callbacks. Persisted death recovery itself does not evacuate
 custody; the separate retirement pass below consumes that correlation.
@@ -245,69 +247,36 @@ nickname-inclusive archive display name. Anonymous/printed writing keeps its con
 provenance. Accountless live NPC
 authors display without requiring an account.
 
-The following scan/classifier paragraphs describe the **legacy implementation pending
-replacement**, not the approved reference contract. The
-[9 October source review](Armageddon_Typed_Reference_Review_20261009.md) requires actual
-foreign keys, typed scalar pairs and exact identity fields established by concrete loaders.
-It prohibits numeric-text searches and field-name guesses. Static configuration validation
-must leave the archival pipeline. Known malformed identity-bearing fields can still hold;
-unrelated malformed configuration is outside the retirement decision.
+The shared [typed reference guard](../../MudSharpCore/Character/PhysicalReferenceGuard.cs)
+uses actual EF foreign keys and exact discriminator/identity pairs. Incoming FKs to deleted
+CharacterInstance and Wound principals must belong to the proven removal set. Item owner
+and position targets, and unloaded character/instance position targets, retain their type.
+Generated instance uniqueness keys remain established ownership, not guessed references.
 
-The legacy bounded serialized scan covers definitions, effects, data/value fields, route motion,
-computer process state/result/wait arguments, tattoos, injury extras, procedure parameters,
-employment payload/arguments, strategy data and land-detail JSON. XML leaf/attribute values
-and decoded JSON values/keys are checked for canonical/body/instance/wound references;
-malformed or oversized payloads hold. Numeric namespace collisions may conservatively hold.
-This is explicit support for the audited persisted surfaces, not proof about arbitrary new
-extension encodings. New identity-bearing surfaces require classification before enabling
-compaction for them.
+Known persisted channels are Character/CharacterInstance/Body/GameItem/Room EffectData,
+Corpse/Bodypart components selected by exact prototype type/revision, Group member definitions,
+Character-typed variable values/defaults, route Character participants and active computer
+UserInput waits. Pure readers parse only identity fields consumed by their concrete codecs.
+Nested spell children retain their own contracts; stored spell configuration remains static.
+Character, Body, CharacterInstance and Wound numbers cannot collide across identity domains.
+Malformed known identity contracts hold with source row and field diagnostics. Inspection is
+bounded at 100,000 known rows and 1 MiB per payload, without selecting arbitrary text columns.
 
-The exact `AgricultureOperation.Definition`, `AgricultureCropDefinition.Definition` and
-`AgricultureFieldProfile.Definition` contracts have schema-aware classification.
-Recognized Operation/Crop/Profile XML contains tuning
-scalars and static score/material/tag/planting-window names, so coincident character, body,
-instance or wound numbers in those fields are not physical references. Empty legacy defaults
-are supported. Unknown roots, nodes, attributes, namespaces, duplicate singleton containers,
-mixed text and invalid scalar values hold even without a matching ID. Other Agriculture
-columns retain the generic scan; row-count and payload-size limits remain authoritative.
+Live effects expose [direct typed references](../../FutureMUDLibrary/Framework/IPhysicalEntityReferenceProvider.cs),
+including non-saving effects, child effects and effects on inactive loaded bodies. Private
+identity fields are reported without resolving lazy actors or invoking effect save/load,
+initialization or prog callbacks. Earlier retired-body cleanup uses the same guard, including
+Bodypart wound dependencies. Existing forms, possessions, foreign ownership and real remains
+still hold. NPC Quit and post-archive body release keep registration-only heartbeat shutdown.
 
-`ArmourType.Definition` also classifies its exact current codec and seeded `ArmourType`
-root alongside the runtime writer's `Definition` root: six scalar expression
-maps and damage/severity enum transformations. Formula text is parsed without execution;
-only the existing scalar combat inputs and supported expression functions are recognized.
-Unknown shape, invalid enums/formulas, duplicate keys or additional inputs retain a hold.
-Damage-type values such as 10/11 and numeric formula literals are not physical identities.
-An armour hold reports the rejected section, integer damage type and validation category;
-it does not expose formula contents or execute them to diagnose the failure.
-
-The observed `ArtificialIntelligence.Definition` codecs for exact row `Type` values
-`Judge`, `Mount`, `Animal` and `Monster` also have schema-aware classification. The bounded
-query keeps each discriminator paired with its definition; the common `Definition` root
-alone cannot select a codec. These configurations contain static prog, race, craft,
-calendar and celestial references, tuning values, dice expressions and narrative text.
-Live actors are supplied at runtime. Consequently, matching numbers in those verified
-fields do not retain an otherwise qualified physical graph. Judge supports its loader's
-legacy prog-name fields; Animal/Monster preserve absent optional sections and legacy
-Water `enabled` configuration. Current version 1 and unversioned legacy containers are
-supported where the loader supports them. Required Judge/Mount fields, leaf-only text,
-finite numbers, defined enums, parse-only dice syntax and known nested/list contracts are
-validated. Unknown structure, malformed values and unsupported versions hold, including
-payloads without matching IDs. Other AI types retain the generic reference scan. Actor
-effects, runtime dependants, row-count and payload-size limits remain authoritative;
-this classification neither executes progs nor asserts that an AI's external static
-definitions exist or that its gameplay configuration is ready.
-
-Physical holds identify the first retained condition, distinguishing runtime effects from
-persisted or unrecognized effect XML. NPC Quit and post-archive body release unregister
-health heartbeats without generating fresh damage effects during teardown. Existing
-effects, possessions, forms, body users and owned remains still hold archival; shutdown
-does not clear those guards.
-
-The legacy implementation also checks unmapped numeric `*Id` properties without proving
-their identity domain. This suffix-based guard must be replaced by exact code-proven
-relationships alongside the text matcher.
-The instance's generated `EmbodiedBodyId` and `PrimaryCharacterId` uniqueness keys are
-classified only when every matching row is already in the audited removal set.
+Agriculture, Armour, AI and Autobuilder definitions are outside retirement queries; their
+archive-only validators are removed. Recorded history, audience/access identity and static
+IDs have explicit consumer-based exclusions. WitnessedClanMemberDeath's Member remains a
+hold because its current display resolves/caches a live clan member. PossessedBody source
+character/instance fields remain lifecycle links used by death and quit. See the
+[coverage and exclusion ledger](Armageddon_Typed_Reference_Implementation_20261009.md).
+New physical relationships must declare their live provider and persisted codec fields;
+there is no generic numeric-text or guessed-property fallback.
 
 On success, `Characters` retains its canonical ID, bounded identity fields and dead state,
 sets `IsArchived`, clears its physical body pointer and active outfit/position data, and gains
@@ -483,7 +452,8 @@ still dead in runtime and persistence. It refuses abandoned/nonfinal bodies pend
 a cold-load adapter. Runtime and saved ownership checks reject foreign body pointers,
 instances, forms, sources and retirement records, external attachments and route
 positions. Source identity, body, corpse and carried goods are borrowed, never owned.
-Only one active animation may borrow a particular corpse; there is no universal
+The borrow check reads versioned CorpseAnimation provenance and its exact instance claim;
+it compares the decoded corpse field, never a numeric ID substring. Only one active animation may borrow a particular corpse; there is no universal
 one-summon cap. Existing AI metadata and shared canonical resources remain native.
 
 Expiry, dispel, dismissal, actor death and actor Quit converge on durable retirement.

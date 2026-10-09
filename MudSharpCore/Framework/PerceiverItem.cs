@@ -275,6 +275,12 @@ public abstract partial class PerceiverItem : PerceivedItem, IPerceiver
 
     public event PerceivableEvent OnJoinCombat;
 
+	public override void AppendEventSubscriptionReport(StringBuilder sb)
+	{
+		base.AppendEventSubscriptionReport(sb);
+		sb.AppendLine($"Join combat subscriptions: {OnJoinCombat?.GetInvocationList().Length ?? 0}");
+	}
+
     protected void PerceiverJoinCombat()
     {
         OnJoinCombat?.Invoke(this);

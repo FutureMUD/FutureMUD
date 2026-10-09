@@ -692,6 +692,15 @@ native steady-state cycles and separate fault/decay readers; high-volume install
 acceptance and restart on every cycle remain pending. Earlier Phase3A persistence/body
 checks remain supporting evidence, not substitutes for complete installed gameplay.
 
+The installed N16 harness uses `debug census <creator id>` to observe real loaded
+collections, both schedule heaps, all heartbeat generations and the creator's exact
+guardian/follow event delegates. It compares them after cleanup **before** restarting
+so process teardown cannot conceal a subscription or timer leak. Canonical archives,
+original typed claims, durable terminal journals and evacuated ordinary goods are
+expected retained state. The N15 permanent guardian remains ordinary durable output.
+The new 32-cycle/128-output campaign is not qualified until every fresh source-bound
+stage and owned cleanup receipt passes.
+
 The ordinary backup regression fixture separately exercises the native backup transfer
 helper, an atomic form/remains save failure and retry, a separate-process real corpse reload
 without a retired-body preload, database possession/reference refusal and the real corpse

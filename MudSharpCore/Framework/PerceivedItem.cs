@@ -806,6 +806,13 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 
     public event PerceivableEvent OnQuit;
 
+	/// <summary>Reports actual subscriptions without resolving or loading referenced entities.</summary>
+	public virtual void AppendEventSubscriptionReport(StringBuilder sb)
+	{
+		sb.AppendLine($"Quit subscriptions: {OnQuit?.GetInvocationList().Length ?? 0}");
+		sb.AppendLine($"Deleted subscriptions: {OnDeleted?.GetInvocationList().Length ?? 0}");
+	}
+
     protected void PerceivableQuit()
     {
         OnQuit?.Invoke(this);

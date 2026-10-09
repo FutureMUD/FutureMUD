@@ -56,7 +56,7 @@ using TimeZoneInfo = System.TimeZoneInfo;
 
 namespace MudSharp.Commands.Modules;
 
-internal class StaffModule : Module<ICharacter>
+internal partial class StaffModule : Module<ICharacter>
 {
 	internal const string EngineUpdateBinariesPathStaticConfiguration = "EngineUpdateBinariesPath";
 
@@ -2574,6 +2574,7 @@ The following options are available:
 	#3debug healing#0 - attaches the healing logger (writes to file)
 	#3debug skills#0 - attaches the skill check logger (writes to file)
 	#3debug scheduler#0 - shows all things in the scheduler
+	#3debug census [loaded character id]#0 - counts loaded entities, schedules and heartbeat subscribers; optionally reports a loaded character's events and followers
 	#3debug performance [on|off|reset]#0 - shows or controls runtime performance diagnostics
 	#3debug listeners#0 - shows all listeners
 	#3debug fixmorph#0 - resets all morph timers of shop stocked items
@@ -2605,6 +2606,9 @@ The following options are available:
             case "perf":
                 DebugPerformance(actor, ss);
                 return;
+			case "census":
+				DebugCensus(actor, ss);
+				return;
 
             case "listeners":
                 DebugListeners(actor);

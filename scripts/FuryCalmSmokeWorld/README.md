@@ -45,3 +45,27 @@ python -B -u scripts/AuthoredCelestialSmokeWorld/native.py --no-build --restart-
 ```
 
 Public builder edits select each lifecycle policy; ordinary paid grade-one casts exercise temporary cleanup, death on expiry and permanent output. Temporary modes compare exact terminal journals/versions, claims, foreign-item destination and native graph identities after cold restart. Death on expiry must create exactly one native corpse, then release it through actual scheduled decay. Permanent output survives beyond the authored temporary lifetime with no deadline and remains as an ordinary durable NPC in the disposable world. The native 45*grade/60-second timings are explicit fixture mappings. Guardian/Fury definitions and corpse policy are restored exactly with the MUD stopped; all owned processes stop. Earlier failed receipts remain retained. Complete stock catalogue parity and high-volume N16 are separate gates.
+
+N16's `guardian_churn.py` runs sequential bounded stages on that same stopped world.
+Set `N16_STAGE` to 0 through 15 for two cycles per invocation, then 16 for the continuous
+128-output batch. Pass the matching marker `guardian-churn-00-passed.json` through
+`guardian-churn-16-passed.json` to the owned wrapper. A stage requires the preceding
+source-identical marker; each marker is promoted only after fresh qualification and
+MySQL cleanup. Do not skip stages or combine receipts from different source inputs.
+
+The 32 cycles cover both temporary modes, early death and natural expiry, alternating
+single and paired paid outputs. Every cycle measures exact heavy identities and
+`debug census <creator id>` before casting, while active, after cleanup in the same
+process and after its cold restart. The last stage creates 128 outputs in one paid
+cast, kills 64 early and lets the other 64 expire without restarting during cleanup.
+The batch has an explicit 180-second cast-response budget within the ordinary
+900-second scenario deadline. Fixture timing is 30*grade seconds / 30-second corpse
+decay, and 240 seconds for the batch; these are not historical balance mappings.
+
+The N15 permanent body's short description is temporarily changed through `resdesc`
+to distinguish it from new guardians. A harmless `force qaguardian look` must prove
+the actual native keyword resolver has no old recipient before any destructive
+command. That exact description, spell definition and corpse policy are restored
+byte-for-byte while stopped. Spent energy, evacuated ordinary goods, canonical
+archives and journals/claims remain intentionally retained and explicitly counted.
+The approved NPC template remains unchanged. No text scan for IDs is used.

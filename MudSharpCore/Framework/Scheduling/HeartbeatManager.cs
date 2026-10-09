@@ -740,6 +740,14 @@ public class HeartbeatManager : IHaveFuturemud, IHeartbeatManager
 			_FuzzyThirtySecondGeneration3, _FuzzyThirtySecondGeneration4, _FuzzyThirtySecondGeneration5);
 		AppendSubscriberCount(sb, "Fuzzy Minute", _FuzzyMinuteGeneration1, _FuzzyMinuteGeneration2,
 			_FuzzyMinuteGeneration3, _FuzzyMinuteGeneration4, _FuzzyMinuteGeneration5);
+		AppendSubscriberCount(sb, "Fuzzy Five Minute", _Fuzzy5mGeneration1, _Fuzzy5mGeneration2,
+			_Fuzzy5mGeneration3, _Fuzzy5mGeneration4, _Fuzzy5mGeneration5);
+		AppendSubscriberCount(sb, "Fuzzy Ten Minute", _Fuzzy10mGeneration1, _Fuzzy10mGeneration2,
+			_Fuzzy10mGeneration3, _Fuzzy10mGeneration4, _Fuzzy10mGeneration5);
+		AppendSubscriberCount(sb, "Fuzzy Thirty Minute", _Fuzzy30mGeneration1, _Fuzzy30mGeneration2,
+			_Fuzzy30mGeneration3, _Fuzzy30mGeneration4, _Fuzzy30mGeneration5);
+		AppendSubscriberCount(sb, "Fuzzy Hour", _FuzzyHourGeneration1, _FuzzyHourGeneration2,
+			_FuzzyHourGeneration3, _FuzzyHourGeneration4, _FuzzyHourGeneration5);
 	}
 
 	private void InvokeHeartbeat(HeartbeatManagerDelegate callbacks, string cadence)

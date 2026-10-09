@@ -4,7 +4,7 @@ Phase3B1 adds the conservative canonical NPC archival boundary described below. 
 connects explicit `createnpc` lifecycle provenance to native simple-template construction and
 persisted death/remains recovery. Phase3B2B connects bounded simple-NPC retirement to
 native death, ordinary corpse deletion/decay, conserved foreign custody and canonical
-archival. Complete installed-world N14-N16 and the other creation adapters remain outstanding.
+archival. The bounded builder-installed [N14 guardian checkpoint](Armageddon_Guardian_Early_Death_Checkpoint_20261009.md) now qualifies early death, remains/custody, restart/decay and default dissipation. Installed N15/N16, full catalogue parity and the other creation adapters remain outstanding.
 
 ## Native NPC creation and death recovery
 
@@ -60,7 +60,7 @@ The [fresh checkpoint](Armageddon_Typed_Reference_Checkpoint_20261009.json) reco
 Core/Library passes, a 173-test focused subset and 60 passing native assertions. Both retained
 paid NPCs physically retire, and a separate process preserves exact completed/archive rows.
 Original ownership, custody, death/history, stock repair and registration-only shutdown
-contracts remain. No Autobuilder classifier is planned; full installed acceptance remains pending.
+contracts remain. No Autobuilder classifier is planned. The later builder-installed N14 checkpoint qualifies its bounded scenario; full catalogue and N15/N16 remain pending.
 Earlier creation/retirement receipts do not establish full current lifecycle readiness.
 
 Preparation allocates a stable creation key and canonical creator ID. A fresh serializable

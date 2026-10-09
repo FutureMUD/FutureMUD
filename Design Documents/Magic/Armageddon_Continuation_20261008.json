@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-08",
-  "status": "TYPED_REFERENCES_QUALIFIED_RETAINED_NPC_ARCHIVAL_AND_COLD_RETRY_PASS",
+  "status": "PASS_BOUNDED_N14_BUILDER_INSTALLED",
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
@@ -3100,8 +3100,8 @@
         }
       ],
       "historical_progress_status": "pending_runtime_stock_and_native_acceptance",
-      "current_scope": "consult_existing_progress_and_dependencies_no_new_completion_claim",
-      "complete_per_spell_native_acceptance": "NOT_RUN_CURRENT_CONTINUATION",
+      "current_scope": "Builder-installed guardian lifecycle/creator bond N14 qualified; full source/catalogue parity remains pending.",
+      "complete_per_spell_native_acceptance": "BOUNDED_GUARDIAN_LIFECYCLE_PASS_FULL_PARITY_PENDING",
       "whole_candidate_complete": false
     },
     {
@@ -6098,7 +6098,7 @@
   ],
   "full_plan_complete": false,
   "package_release_enabled": false,
-  "publication_authorized": false,
+  "publication_authorized": true,
   "release_deploy_live_world_changes_executed": false,
   "final_managed": {
     "run": "20261008T073200Z-d2f3219192f7",
@@ -6264,7 +6264,7 @@
   },
   "validation_boundary": "Managed runs used frozen uncommitted implementation on restored HEAD 83509243cfceb62811e002fca14b4d9de96d2574. Only documentation/receipt updates followed before local checkpoint commits. Native gates remain NOT_RUN. Superseded for the named native milestone by the fresh 2026-10-09 qualification receipt; original managed runs remain historical.",
   "code_changed_after_final_checks": false,
-  "local_checkpoint_only": true,
+  "local_checkpoint_only": false,
   "historical_native_checkpoint": {
     "status": "NOT_RUN_PLATFORM_RESTRICTION",
     "bypass_authorized": false,
@@ -6537,45 +6537,42 @@
   },
   "current_managed": {
     "status": "PASS",
-    "scope": "Full Core and shared Library; final 173-test reference/archive/retirement/possession subset includes a concrete unsaved possession source regression.",
+    "scope": "All ten default fast projects, Debug, unfiltered; final focused guardian, derived-limb, archive and typed-reference subset.",
     "runs": [
       {
         "receipt": {
-          "path": ".artifacts/armageddon-typed-references-20261009/managed/20261009T001957Z-d65c7a211c37/summary.json",
-          "sha256": "874fb01e96a7a8531fb4766f2ad042e54bf55d617f09baa1cbf22ea77e46ccf4"
+          "path": ".artifacts/armageddon-guardian-20261009/final-default-qualified/20261009T022802Z-312a6bd607c7/summary.json",
+          "sha256": "2f69586f65c72e7626dc961116ec23d213f79aa0ad1238f216c1310567b5a80f"
         },
-        "run_id": "20261009T001957Z-d65c7a211c37",
+        "run_id": "20261009T022802Z-312a6bd607c7",
+        "head": "d758cd6bc41fdd485ac26c0ca4b7f5968813eccc",
         "status": "PASS",
         "counts": {
-          "executed": 6606,
-          "passed": 6606,
+          "executed": 8739,
+          "passed": 8739,
           "failed": 0,
           "skipped": 0,
           "inconclusive": 0,
           "other": 0,
-          "total": 6606
+          "total": 8739
         },
-        "source_start": "faa418a1179fd66e59fec4e783a5d8650003528d2dbfc92e24e1b345f5d952e0",
-        "source_end": "faa418a1179fd66e59fec4e783a5d8650003528d2dbfc92e24e1b345f5d952e0",
+        "source_start": "c9e6ae284c6141a1af3b06455dfa2b106c2003d5d69d6f64bb1cc708ed637b44",
+        "source_end": "c9e6ae284c6141a1af3b06455dfa2b106c2003d5d69d6f64bb1cc708ed637b44",
         "source_stable": true,
         "projects": [
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
           "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
-          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj"
+          "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
         ],
         "filter": null,
         "per_project": [
-          {
-            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
-            "counts": {
-              "executed": 5938,
-              "passed": 5938,
-              "failed": 0,
-              "skipped": 0,
-              "inconclusive": 0,
-              "other": 0,
-              "total": 5938
-            }
-          },
           {
             "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
             "counts": {
@@ -6587,49 +6584,158 @@
               "other": 0,
               "total": 668
             }
+          },
+          {
+            "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+            "counts": {
+              "executed": 36,
+              "passed": 36,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 36
+            }
+          },
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "counts": {
+              "executed": 1613,
+              "passed": 1613,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 1613
+            }
+          },
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": {
+              "executed": 5966,
+              "passed": 5966,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 5966
+            }
+          },
+          {
+            "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+            "counts": {
+              "executed": 264,
+              "passed": 264,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 264
+            }
+          },
+          {
+            "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+            "counts": {
+              "executed": 22,
+              "passed": 22,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 22
+            }
+          },
+          {
+            "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+            "counts": {
+              "executed": 43,
+              "passed": 43,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 43
+            }
+          },
+          {
+            "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+            "counts": {
+              "executed": 54,
+              "passed": 54,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 54
+            }
+          },
+          {
+            "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+            "counts": {
+              "executed": 35,
+              "passed": 35,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 35
+            }
+          },
+          {
+            "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+            "counts": {
+              "executed": 38,
+              "passed": 38,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 38
+            }
           }
         ]
       }
     ],
     "diagnostic_subset": {
       "receipt": {
-        "path": ".artifacts/armageddon-typed-references-20261009/focused-final/20261009T002403Z-4346690f6b0f/summary.json",
-        "sha256": "bebcb35d4723e22440de0a7a5947b05b7d4a8b39bba4a719b45053ecdcc5cd7e"
+        "path": ".artifacts/armageddon-guardian-20261009/derived-limb-focused-final/20261009T022623Z-bfc378c94bcf/summary.json",
+        "sha256": "dfffe705462806af2fa48b23c3860e4a46410a44a2691f07caedee48efa0695d"
       },
-      "run_id": "20261009T002403Z-4346690f6b0f",
+      "run_id": "20261009T022623Z-bfc378c94bcf",
+      "head": "d758cd6bc41fdd485ac26c0ca4b7f5968813eccc",
       "status": "PASS",
       "counts": {
-        "executed": 173,
-        "passed": 173,
+        "executed": 184,
+        "passed": 184,
         "failed": 0,
         "skipped": 0,
         "inconclusive": 0,
         "other": 0,
-        "total": 173
+        "total": 184
       },
-      "source_start": "07a3529b47d645e7e726769c8f77e5746c1b55e46ebd20365b6f5ffb241faf06",
-      "source_end": "07a3529b47d645e7e726769c8f77e5746c1b55e46ebd20365b6f5ffb241faf06",
+      "source_start": "c0e7b2494ac58a65c4863d1104bc8d9e76c4ef2155534cef83990f29529dfe7d",
+      "source_end": "c0e7b2494ac58a65c4863d1104bc8d9e76c4ef2155534cef83990f29529dfe7d",
       "source_stable": true,
       "projects": [
         "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
       ],
-      "filter": "FullyQualifiedName~PhysicalReferenceGuardTests|FullyQualifiedName~NpcArchive|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~SpellOwnedNpc|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~PossessionVictimContextTests",
+      "filter": "FullyQualifiedName~RetirementBodyEffectsTests|FullyQualifiedName~SpellNpcGuardianTests|FullyQualifiedName~SpellOwnedNpc|FullyQualifiedName~NpcArchive|FullyQualifiedName~PhysicalReferenceGuardTests",
       "per_project": [
         {
           "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
           "counts": {
-            "executed": 173,
-            "passed": 173,
+            "executed": 184,
+            "passed": 184,
             "failed": 0,
             "skipped": 0,
             "inconclusive": 0,
             "other": 0,
-            "total": 173
+            "total": 184
           }
         }
       ]
     },
-    "authoritative_passed": 6606,
+    "authoritative_passed": 8739,
     "counts_are_not_added": true
   },
   "npc_armour_repair_continuation_20261009": {
@@ -6923,7 +7029,7 @@
     "package_release_enabled": false,
     "publication_authorized": false
   },
-  "next_bounded_milestone": "N14 installed stock early-death acceptance: cast the approved guardian/summon family through the normal installed command path; retain configured remains and foreign carried goods through original expiry, a cold restart and actual decay, then exercise default dissipation. Use the same code-proven references and preserve canonical history and custody. N15 same-template lifecycle modes and N16 high-volume/per-cycle restart remain separate follow-ups; no static-schema classifier stage.",
+  "next_bounded_milestone": "N15: exercise the same approved guardian template through normal builder-installed casting as permanent, temporary cleanup and death-on-expiry; prove permanent no-expiry persistence across restart and exactly one terminal transition for each temporary mode. N16 high-volume/per-cycle restart remains separate; full Air Guardian catalogue and historical timing parity remain pending. No static-schema classifier stage.",
   "npc_typed_reference_review_20261009": {
     "date": "2026-10-09",
     "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
@@ -7066,5 +7172,20 @@
     "full_plan_complete": false,
     "package_release_enabled": false,
     "publication_authorized": false
+  },
+  "guardian_early_death_20261009": {
+    "status": "PASS_BOUNDED_N14_BUILDER_INSTALLED",
+    "receipt": "Design Documents/Magic/Armageddon_Guardian_Early_Death_Checkpoint_20261009.json",
+    "runtime_implementation_commit": "f8f28735e98d98bc6205fba99875f1874fd2c3e8",
+    "n14_builder_installed_qualified": true,
+    "full_air_guardian_catalogue_qualified": false,
+    "next_bounded_milestone": "N15: exercise the same approved guardian template through normal builder-installed casting as permanent, temporary cleanup and death-on-expiry; prove permanent no-expiry persistence across restart and exactly one terminal transition for each temporary mode. N16 high-volume/per-cycle restart remains separate; full Air Guardian catalogue and historical timing parity remain pending. No static-schema classifier stage."
+  },
+  "publication": {
+    "scope": "Draft pull request only",
+    "url": "https://github.com/FutureMUD/FutureMUD/pull/788",
+    "number": 788,
+    "draft": true,
+    "merge_authorized": false
   }
 }

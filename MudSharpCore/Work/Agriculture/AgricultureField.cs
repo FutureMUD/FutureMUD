@@ -1744,6 +1744,7 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
             definition.NpcTemplate.OnLoadProg?.Execute(npc);
             Room.Login(npc);
 			npc.HandleEvent(EventType.NPCOnGameLoadFinished, npc);
+			npc.SetAlly(actor);
 		}
 
 		herd.HeadCount -= count;
@@ -1760,10 +1761,22 @@ public partial class AgricultureField : SaveableItem, IAgricultureField
 			return false;
 		}
 
-		if (definition.NpcTemplate != null && npc is INPC concreteNpc &&
+		if (definition.NpcTemplate is null || npc is not INPC concreteNpc ||
 		    concreteNpc.Template?.Id != definition.NpcTemplate.Id)
 		{
 			result = $"You can only absorb animals that match the {definition.Name} herd definition.";
+			return false;
+		}
+
+		if (actor is null || (!actor.IsAdministrator() && !npc.IsAlly(actor)))
+		{
+			result = "That animal must recognise you as an ally before you can absorb it into a herd.";
+			return false;
+		}
+
+		if (npc.Riders.Any() || npc.RidingMount is not null || npc.CombinedEffectsOfType<IDragParticipant>().Any())
+		{
+			result = "You cannot absorb an animal while it is being ridden, dragging or being dragged.";
 			return false;
 		}
 

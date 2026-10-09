@@ -277,14 +277,34 @@ Please enter your penalty unit: ", (context, answers) => true,
 
     private string BuildTierComparisonText(bool offenderOutranksVictim)
     {
-        string outranksCheck = $"LegalClassOutranks(@criminal, @victim, ToLegalAuthority({Authority.Id}))";
-        return $@"if (isnull(@victim))
+        var text = new System.Text.StringBuilder($@"if (isnull(@victim))
   return false
 end if
-if ({outranksCheck})
+var offenderClass = GetLegalClass(@criminal, ToLegalAuthority({Authority.Id}))
+var victimClass = GetLegalClass(@victim, ToLegalAuthority({Authority.Id}))
+if (isnull(@offenderClass) or isnull(@victimClass))
+  return {(offenderOutranksVictim ? "false" : "true")}
+end if
+var offenderRank = @offenderClass.Priority
+var victimRank = @victimClass.Priority
+");
+		// Membership priority must select these classes ahead of Citizen. Their social
+		// position in stock tiered laws is below Slave and above Pet/Other instead.
+		foreach (var (classKey, rank) in new[] { ("felon", 20), ("criminal", 19) })
+		{
+			if (!Classes.TryGetValue(classKey, out var legalClass)) continue;
+			foreach (var side in new[] { "offender", "victim" })
+			{
+				text.AppendLine($@"if (@{side}Class.Id == {legalClass.Id})
+  {side}Rank = {rank}
+end if");
+			}
+		}
+		text.Append($@"if (@offenderRank > @victimRank)
   return {(offenderOutranksVictim ? "true" : "false")}
 end if
-return {(offenderOutranksVictim ? "false" : "true")}";
+return {(offenderOutranksVictim ? "false" : "true")}");
+		return text.ToString();
     }
 
     private static bool IsTieredVictimBasedCrime(CrimeTypes crime)

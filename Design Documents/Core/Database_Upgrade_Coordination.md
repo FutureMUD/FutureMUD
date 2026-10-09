@@ -1,5 +1,7 @@
 # Database Upgrade Coordination
 
+EF design-time tooling uses `FUTUREMUD_EF_CONNECTION_STRING` when explicitly supplied. Otherwise its factory selects a credential-free `futuremud_design_time` placeholder with a fixed provider version, so model inspection and migration generation require no database connection or setup. Database-changing EF commands require a real configured connection; the factory no longer silently uses a shared development password. The engine and interactive installer retain their own connection configuration workflows.
+
 ## Scope
 
 `MudsharpDatabaseLibrary` coordinates startup migrations, pre-upgrade backups, failed-upgrade recovery, rollback state, blank snapshot import/export, and backup retention. The coordinator is designed so a process failure leaves enough state for the next startup to make a safe decision.
@@ -29,7 +31,7 @@ For MySQL regex timeout 3699 during the CellSpatialExpansion preflight CALL, a m
 
 ## Snapshot and retention behavior
 
-Blank database snapshot import and export use unique temporary directories. The directories are removed in `finally` blocks after both success and exceptions. Export replaces the concrete database name with the maintained placeholder; import performs the reverse substitution before restore. Restore explicitly creates and selects the target database before invoking the backup importer. Maintained snapshots may contain EF-generated idempotent migration deltas appended after the backup dump. Import restores the base dump first, then executes the appended delta section against the target database with support for MySQL `DELIMITER` directives before verifying the latest migration-history row.
+Blank database snapshot import and export use unique temporary directories. The directories are removed in `finally` blocks after both success and exceptions. Export replaces the concrete database name with the maintained placeholder; import performs the reverse substitution before restore, doubling embedded backticks to keep the name inside its MySQL identifier. Empty names and control characters are rejected before import, including line breaks that could interfere with script delimiter directives. Restore explicitly creates and selects the target database before invoking the backup importer. Maintained snapshots may contain EF-generated idempotent migration deltas appended after the backup dump. Import restores the base dump first, then executes the appended delta section against the target database with support for MySQL `DELIMITER` directives before verifying the latest migration-history row.
 
 Backup pruning considers SQL files only, orders them newest first, and deletes entries beyond `RetainedBackupCount`.
 

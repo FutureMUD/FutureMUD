@@ -171,7 +171,7 @@ public class ShowModule : Module<ICharacter>
 	#3sizes#0 - shows all sizes
 	#3speeds#0 - shows all movement speeds
 	#3stacks#0 - shows all stack descriptors 
-	#3staticconfig <which>#0 - shows a static config setting
+	#3staticconfig <which>#0 - shows a static config setting; sensitive values require implementor permission
 	#3staticstring <which>#0 - shows a static string setting
 	#3surgeries#0 - shows a list of possible surgery types
 	#3tags#0 - shows a list of all top level tags
@@ -1462,7 +1462,7 @@ Using #3show#0 on its own displays the topic list appropriate to your current pe
         StringBuilder sb = new();
         sb.AppendLine($"Static Configuration: {matchingName.ColourCommand()}");
         sb.AppendLine();
-        sb.AppendLine(actor.Gameworld.GetStaticConfiguration(matchingName));
+        sb.AppendLine(StaticConfigurationAccess.DisplayValue(actor, matchingName));
         actor.OutputHandler.Send(sb.ToString());
     }
 
@@ -3296,7 +3296,7 @@ Using #3show#0 on its own displays the topic list appropriate to your current pe
         }
 
         string cmd = input.PopSpeech();
-        ICharacteristicDefinition definition = actor.Gameworld.Characteristics.FirstOrDefault(x => x.Pattern.IsMatch(cmd));
+        ICharacteristicDefinition definition = actor.Gameworld.Characteristics.FirstOrDefault(x => x.MatchesPattern(cmd));
         if (definition == null)
         {
             actor.OutputHandler.Send("Show characteristic values for which definition?");

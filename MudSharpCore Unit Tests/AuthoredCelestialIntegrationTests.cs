@@ -182,6 +182,8 @@ public class AuthoredCelestialIntegrationTests
 		using var moon = AuthoredCelestial.Create(52, md, ctx.Clock, ctx.Gameworld);
 		CelestialEventResult Query(ICelestialObject target, CelestialEventRequest request, long ticks = 0, ICelestialObject? secondary = null) => AstronomicalEventService.Instance.FindNextForCelestial(Instant(ticks), request, target, ctx.ZeroGeography, secondary);
 		Assert.AreEqual(360 * 60L, Query(sun, new(AstronomicalEventType.Sunrise)).Instant.Ticks);
+		Assert.AreEqual((360 + 1440L * (1_000_000 - 1)) * 60L,
+			Query(sun, new(AstronomicalEventType.Sunrise, 1_000_000)).Instant.Ticks);
 		Assert.AreEqual((360 + 1440) * 60L, Query(sun, new(AstronomicalEventType.Sunrise), 360 * 60).Instant.Ticks);
 		Assert.AreEqual(20160 * 60L, Query(moon, new(AstronomicalEventType.NewMoon)).Instant.Ticks);
 		Assert.AreEqual(40320 * 60L, Query(moon, new(AstronomicalEventType.FullMoon)).Instant.Ticks);

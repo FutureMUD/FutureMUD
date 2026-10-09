@@ -410,6 +410,9 @@ grant is idempotent and opens a missing native skill at the admission's explicit
 or the profile's opening value when omitted (10 in the legacy fixture). If native skill persistence is interrupted after acquisition is recorded,
 the route refuses until the same explicit grant is retried; an existing skill is never
 used to infer acquisition. Removal of capability or admission retains acquired progress.
+School command visibility retains acquired knowledge when a capability is absent. It checks
+the school's admitted spell IDs in one database query, rather than querying each admission;
+an unknown school or a current matching capability needs no acquisition query.
 Support authorisation commits before opening its missing native skill. Repeating enrolment
 or reconciling a legitimate permanent route repairs an interrupted support write/opening
 without repeating root grants, increasing existing proficiency or refilling reserves.

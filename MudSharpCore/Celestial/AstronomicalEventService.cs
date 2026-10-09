@@ -6,6 +6,8 @@ namespace MudSharp.Celestial;
 
 public sealed class AstronomicalEventService : IAstronomicalEventService
 {
+	public const int MaximumPhysicalEventOccurrence = 32;
+	public const int MaximumPhysicalEventSamples = 100_000;
 	private const long DefaultStepSeconds = 1800;
 	private const long DefaultMaximumSearchSeconds = 86400L * 800L;
 	private const long RefinementToleranceSeconds = 1;
@@ -58,6 +60,8 @@ public sealed class AstronomicalEventService : IAstronomicalEventService
 			if (primary is IAuthoredCelestial authored) return authored.FindNext(reference, request);
 			if (request.EventKey is not null || primary is not ICelestialEphemeris ephemeris || request.Type is not { } type)
 				return CelestialEventResult.Failure(CelestialEventStatus.Unsupported, "The object does not support that event capability.");
+			if (request.Occurrence > MaximumPhysicalEventOccurrence)
+				return CelestialEventResult.Failure(CelestialEventStatus.InvalidRequest, $"Physical ephemeris queries support occurrences from 1 to {MaximumPhysicalEventOccurrence}.");
 			if (primary is ICelestialTimeContext context && reference.HasSourceContext)
 			{
 				var converted = reference.ToMudDateTime(context.Calendar, context.Clock, context.Clock.PrimaryTimezone);
@@ -91,9 +95,9 @@ public sealed class AstronomicalEventService : IAstronomicalEventService
 			return false;
 		}
 
-		if (occurrence < 1)
+		if (occurrence < 1 || occurrence > MaximumPhysicalEventOccurrence)
 		{
-			error = "The occurrence must be a positive number.";
+			error = $"The occurrence must be between 1 and {MaximumPhysicalEventOccurrence}.";
 			return false;
 		}
 
@@ -109,15 +113,25 @@ public sealed class AstronomicalEventService : IAstronomicalEventService
 			return false;
 		}
 
+		var budget = new SearchBudget();
 		var searchFrom = reference;
-		for (var i = 0; i < occurrence; i++)
+		try
 		{
-			if (!TryFindSingle(eventType, searchFrom, primary, observer, secondary, targetLongitude, out instant, out error))
+			for (var i = 0; i < occurrence; i++)
 			{
-				return false;
-			}
+				if (!TryFindSingle(eventType, searchFrom, primary, observer, secondary, targetLongitude, budget, out instant, out error))
+				{
+					return false;
+				}
 
-			searchFrom = AddSeconds(instant, RefinementToleranceSeconds);
+				searchFrom = AddSeconds(instant, RefinementToleranceSeconds);
+			}
+		}
+		catch (SearchBudgetExceededException)
+		{
+			instant = MudInstant.Never;
+			error = "The physical ephemeris sampling budget was exhausted inside the bounded search window.";
+			return false;
 		}
 
 		return true;
@@ -125,11 +139,11 @@ public sealed class AstronomicalEventService : IAstronomicalEventService
 
 	private static bool TryFindSingle(AstronomicalEventType eventType, MudInstant reference,
 		ICelestialEphemeris primary, GeographicCoordinate observer, ICelestialEphemeris? secondary,
-		double targetLongitude, out MudInstant instant, out string error)
+		double targetLongitude, SearchBudget budget, out MudInstant instant, out string error)
 	{
 		if (eventType == AstronomicalEventType.VisibleCrescent)
 		{
-			return TryFindVisibleCrescent(reference, primary, secondary, observer, out instant, out error);
+			return TryFindVisibleCrescent(reference, primary, secondary, observer, budget, out instant, out error);
 		}
 
 		Func<MudInstant, double> value;
@@ -184,7 +198,7 @@ public sealed class AstronomicalEventService : IAstronomicalEventService
 				return false;
 		}
 
-		return TryBracketAndRefine(reference, value, isCrossing, out instant, out error);
+		return TryBracketAndRefine(reference, candidate => budget.Sample(value, candidate), isCrossing, out instant, out error);
 	}
 
 	private static bool TryBracketAndRefine(MudInstant reference, Func<MudInstant, double> value,
@@ -214,7 +228,7 @@ public sealed class AstronomicalEventService : IAstronomicalEventService
 	}
 
 	private static bool TryFindVisibleCrescent(MudInstant reference, ICelestialEphemeris primary,
-		ICelestialEphemeris? secondary, GeographicCoordinate observer, out MudInstant instant, out string error)
+		ICelestialEphemeris? secondary, GeographicCoordinate observer, SearchBudget budget, out MudInstant instant, out string error)
 	{
 		instant = MudInstant.Never;
 		if (primary is not ISolarEphemeris sun || secondary is not ILunarEphemeris moon)
@@ -226,13 +240,13 @@ public sealed class AstronomicalEventService : IAstronomicalEventService
 		var searchFrom = reference;
 		for (var i = 0; i < 90; i++)
 		{
-			if (!TryFindSingle(AstronomicalEventType.Sunset, searchFrom, sun, observer, null, 0.0, out var sunset, out error))
+			if (!TryFindSingle(AstronomicalEventType.Sunset, searchFrom, sun, observer, null, 0.0, budget, out var sunset, out error))
 			{
 				return false;
 			}
 
-			var moonAltitude = moon.ApparentAltitudeAt(sunset, observer);
-			var elongation = AngularSeparation(moon, sun, sunset);
+			var moonAltitude = budget.Sample(candidate => moon.ApparentAltitudeAt(candidate, observer), sunset);
+			var elongation = AngularSeparation(moon, sun, sunset, budget);
 			if (moonAltitude >= 5.0.DegreesToRadians() && elongation >= 10.0.DegreesToRadians())
 			{
 				instant = sunset;
@@ -288,17 +302,34 @@ public sealed class AstronomicalEventService : IAstronomicalEventService
 		return difference;
 	}
 
-	private static double AngularSeparation(ICelestialEphemeris first, ICelestialEphemeris second, MudInstant instant)
+	private static double AngularSeparation(ICelestialEphemeris first, ICelestialEphemeris second, MudInstant instant, SearchBudget budget)
 	{
-		var firstRightAscension = first.RightAscensionAt(instant);
-		var firstDeclination = first.DeclinationAt(instant);
-		var secondRightAscension = second.RightAscensionAt(instant);
-		var secondDeclination = second.DeclinationAt(instant);
+		var firstRightAscension = budget.Sample(first.RightAscensionAt, instant);
+		var firstDeclination = budget.Sample(first.DeclinationAt, instant);
+		var secondRightAscension = budget.Sample(second.RightAscensionAt, instant);
+		var secondDeclination = budget.Sample(second.DeclinationAt, instant);
 		var cosine = Math.Sin(firstDeclination) * Math.Sin(secondDeclination) +
 		             Math.Cos(firstDeclination) * Math.Cos(secondDeclination) *
 		             Math.Cos(firstRightAscension - secondRightAscension);
 		return Math.Acos(Math.Clamp(cosine, -1.0, 1.0));
 	}
+
+	private sealed class SearchBudget
+	{
+		private int _remaining = MaximumPhysicalEventSamples;
+
+		public double Sample(Func<MudInstant, double> sample, MudInstant instant)
+		{
+			if (_remaining-- <= 0)
+			{
+				throw new SearchBudgetExceededException();
+			}
+
+			return sample(instant);
+		}
+	}
+
+	private sealed class SearchBudgetExceededException : Exception;
 
 	private static MudInstant AddSeconds(MudInstant instant, long seconds)
 	{

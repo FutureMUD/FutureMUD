@@ -170,23 +170,24 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
     public bool CanWear(IBody wearer, IWearProfile profile)
     {
 		if (!CanWear(wearer)) return false;
+		var locations = profile?.Profile(wearer);
+		if (locations is null) return false;
         if (Bulky)
         {
-            foreach (KeyValuePair<IWear, IWearlocProfile> location in profile.Profile(wearer))
+            foreach (KeyValuePair<IWear, IWearlocProfile> location in locations)
             {
                 if (!location.Value.Mandatory)
                 {
                     continue;
                 }
 
-                foreach (IGameItem item in wearer.WornItemsFor(location.Key))
+				foreach (var local in wearer.WornItemsFullInfo.Where(x => location.Key.CountsAs(x.Wearloc)))
                 {
-                    if (item.GetItemType<IWearable>()?.Bulky != true)
+                    if (local.Item.GetItemType<IWearable>()?.Bulky != true)
                     {
                         continue;
                     }
 
-                    (IGameItem Item, IWear Wearloc, IWearlocProfile Profile) local = wearer.WornItemsFullInfo.First(x => x.Item == item && x.Wearloc == location.Key);
                     if (!local.Profile.Mandatory)
                     {
                         continue;
@@ -202,18 +203,19 @@ public class WearableGameItemComponent : GameItemComponent, IWearable
 
     public WhyCannotDrapeReason WhyCannotWear(IBody wearer, IWearProfile profile)
     {
+		var locations = profile?.Profile(wearer);
+		if (locations is null) return WhyCannotDrapeReason.SpecificProfileNoMatch;
         if (Bulky)
         {
-            foreach (KeyValuePair<IWear, IWearlocProfile> location in profile.Profile(wearer))
+            foreach (KeyValuePair<IWear, IWearlocProfile> location in locations)
             {
-                foreach (IGameItem item in wearer.WornItemsFor(location.Key))
+				foreach (var local in wearer.WornItemsFullInfo.Where(x => location.Key.CountsAs(x.Wearloc)))
                 {
-                    if (item.GetItemType<IWearable>()?.Bulky != true)
+                    if (local.Item.GetItemType<IWearable>()?.Bulky != true)
                     {
                         continue;
                     }
 
-                    (IGameItem Item, IWear Wearloc, IWearlocProfile Profile) local = wearer.WornItemsFullInfo.First(x => x.Item == item && x.Wearloc == location.Key);
                     if (!local.Profile.Mandatory)
                     {
                         continue;

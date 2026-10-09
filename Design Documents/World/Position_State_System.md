@@ -128,11 +128,13 @@ Position states are consumed outside the position module in several important pl
 - `BodyBiology.CurrentContextualSize` changes effective size for swimming, prone-like states, exits, explosive damage, and mounted contexts.
 - `CharacterMovement` uses `SafeFromFalling`, `MoveRestrictions`, `TransitionOnMovement`, and move speed availability.
 - `ZeroGravityMovementHelper` enforces floating state for characters and items in zero gravity.
+- saved zero-gravity tethers with missing anchors or tether items are discarded during effect loading. Deleting either live target releases the tether; removal/logout detaches its event handlers, and login restores them. Invalid tethers neither block movement nor save again.
 - `Cell` changes items and characters to floating-in-water or zero-gravity floating when room layers demand it.
 - combat strategies and combat moves use `CompareTo` for cover height, firing posture, ranged bonuses, melee assumptions, and forced movement decisions.
 - sleep commands and animal AI compare the current state to a race's `MinimumSleepingPosition`.
 - infection recovery checks posture height against lounging.
 - mount code sets rider and mount states through riding or mounted movement calls.
+- flying exits assign flying posture only to characters moving under their own movement authority; riders and dragged targets are transported without receiving independent flight, and riders retain riding posture for normal dismount cleanup.
 - builder combat actions and ranged cover builders use `PositionState.GetState(string)` for position lookup.
 
 ## Description Rules
@@ -175,6 +177,7 @@ Valid positions and movement verbs belong on body prototypes and move speed data
 - legged humanoids and many quadrupeds use standing/prostrate/prone plus race-appropriate movement verbs;
 - swimming bodies need swimming speeds and valid swimming positions;
 - flying bodies need flying speeds and enough wings to satisfy flight checks;
+- a primary rider ordering `land` must pass the mount's own landing checks: the mount must be flying and free of general movement restrictions; the existing mount-control and destination-position checks still apply;
 - climbing-capable bodies need climbing speeds and usable limbs that make sense for the body plan;
 - wheeled or tracked robots should usually keep an upright/mobile posture state and use move speeds such as "roll", "drive", "trundle", or "crawl";
 - robots that cannot crouch, kneel, sit, or go prone should omit those valid positions from their body prototype;

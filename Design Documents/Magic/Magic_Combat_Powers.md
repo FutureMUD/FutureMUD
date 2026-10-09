@@ -59,6 +59,8 @@ magic power set rider Knockdown resist $1 resist|resists $0's telekinetic pressu
 
 `range melee` restores melee targeting. `rider <type> remove` removes a rider. `attackemote <text>` changes the attack echo. Existing intention, defense, cost and invocation-prog controls remain available.
 
+Combat riders require finite strength greater than zero and at most 1,000, and finite duration from zero to 86,400 seconds (24 hours). The editor rejects larger values. Loading clamps oversized finite legacy values to those limits; existing validation still rejects non-finite or negative values. Computed rider delays, including strength and combat-speed multiplication, are capped at 24 hours before conversion to `TimeSpan`, preventing an overflowing authored duration from stopping the game loop.
+
 Create an equipment-free parry with:
 
 ```text

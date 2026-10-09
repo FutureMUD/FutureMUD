@@ -65,14 +65,14 @@ public class ConditionMaintenanceProfile
 			return 0;
 		}
 
-		var result = ConditionQualityPenaltyExpression.EvaluateDoubleWith(GetParameters(parent,
-			new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack)));
-		if (double.IsNaN(result) || double.IsInfinity(result))
+		if (!ConditionQualityPenaltyExpression.TryEvaluateDoubleWith(GetParameters(parent,
+			new ItemConditionUseContext(ItemConditionUseKind.MeleeAttack)), out var result, out _))
 		{
 			return 0;
 		}
 
-		return Math.Min(0, (int)Math.Round(result, MidpointRounding.AwayFromZero));
+		return (int)Math.Clamp(Math.Round(result, MidpointRounding.AwayFromZero),
+			(int)ItemQuality.Terrible - (int)ItemQuality.Legendary, 0.0);
 	}
 
 	public void UseCondition(IGameItem parent, ItemConditionUseContext context)
@@ -82,8 +82,8 @@ public class ConditionMaintenanceProfile
 			return;
 		}
 
-		var loss = ConditionUseExpression.EvaluateDoubleWith(GetParameters(parent, context));
-		if (double.IsNaN(loss) || double.IsInfinity(loss) || loss <= 0.0)
+		if (!ConditionUseExpression.TryEvaluateDoubleWith(GetParameters(parent, context), out var loss, out _) ||
+		    loss <= 0.0)
 		{
 			return;
 		}
@@ -224,19 +224,19 @@ Formula variables: condition, rawquality, basequality, usekind, outcome, degree,
 		("passed", 0.0)
 	];
 
-	private static (string Name, object Value)[] GetParameters(IGameItem parent, ItemConditionUseContext context)
+	private static IReadOnlyDictionary<string, object> GetParameters(IGameItem parent, ItemConditionUseContext context)
 	{
-		return
-		[
-			("condition", parent.Condition),
-			("rawquality", (int)parent.RawQuality),
-			("basequality", (int)(parent.Skin?.Quality ?? parent.RawQuality)),
-			("usekind", (int)context.UseKind),
-			("outcome", (int)context.Outcome),
-			("degree", context.Degree),
-			("damage", context.Damage),
-			("absorbed", context.Absorbed),
-			("passed", context.Passed)
-		];
+		return new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+		{
+			["condition"] = parent.Condition,
+			["rawquality"] = (int)parent.RawQuality,
+			["basequality"] = (int)(parent.Skin?.Quality ?? parent.RawQuality),
+			["usekind"] = (int)context.UseKind,
+			["outcome"] = (int)context.Outcome,
+			["degree"] = context.Degree,
+			["damage"] = context.Damage,
+			["absorbed"] = context.Absorbed,
+			["passed"] = context.Passed
+		};
 	}
 }

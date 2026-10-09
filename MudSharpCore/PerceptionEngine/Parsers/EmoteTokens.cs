@@ -141,12 +141,6 @@ public partial class Emote
         bool sourceIncluded = false;
         string text = RawText;
 
-        if (permitSpeech == PermitLanguageOptions.LanguageIsError && SpeechTokenRegex.IsMatch(text))
-        {
-            ErrorMessage = "You are not permitted to include speech in that emote.";
-            return false;
-        }
-
 		if (playerMode && text.Contains('`'))
 		{
 			var backtickCount = text.Count(x => x == '`');
@@ -192,6 +186,12 @@ public partial class Emote
         {
             text = text.Append("\"");
         }
+
+		if (permitSpeech == PermitLanguageOptions.LanguageIsError && SpeechTokenRegex.IsMatch(text))
+		{
+			ErrorMessage = "You are not permitted to include speech in that emote.";
+			return false;
+		}
 
         text = SpeechTokenRegex.Replace(text, m =>
         {

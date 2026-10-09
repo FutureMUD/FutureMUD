@@ -794,14 +794,8 @@ public partial class Room
             return baseRoomName;
         }
 
-        try
-        {
-            return string.Format(plane.RoomNameFormat, baseRoomName);
-        }
-        catch (FormatException)
-        {
-            return baseRoomName;
-        }
+        return PlaneDisplayFormat.TryFormat(plane.RoomNameFormat, baseRoomName, out var formatted)
+            ? formatted : baseRoomName;
     }
 
     private void AppendPlaneRoomDescriptionAddendum(StringBuilder descSubSB, ICharacter character, IPerceiver voyeur,

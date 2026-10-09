@@ -32,6 +32,53 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicCombatPowerTests
 {
+	[DataTestMethod]
+	[DataRow("1e308", "2")]
+	[DataRow("1", "1e308")]
+	[DataRow("1001", "2")]
+	[DataRow("1", "86401")]
+	public void RiderBuilder_RejectsOversizedValuesWithoutChangingEffects(string strength, string seconds)
+	{
+		var f = new Fixture();
+		MagicAttackPower.RegisterLoader();
+		var power = (MagicAttackPower)MagicPowerFactory.LoadPower(Fixture.Model(PsionicStockContent.CombatPowers.First()), f.World.Object);
+		var previous = power.AttackEffects.ToArray();
+		Assert.IsFalse(power.BuildingCommand(f.Actor.Object, new StringStack($"rider Stagger Normal {strength} {seconds}")));
+		CollectionAssert.AreEqual(previous, power.AttackEffects.ToArray());
+		Assert.IsTrue(power.BuildingCommand(f.Actor.Object, new StringStack("rider Stagger Normal 1 2")));
+		Assert.AreEqual(2, power.AttackEffects.Single(x => x.Type == MagicAttackEffectType.Stagger).DurationSeconds);
+	}
+
+	[TestMethod]
+	public void RiderLoad_ClampsOversizedFiniteLegacyValues_AndSavesBoundedValues()
+	{
+		var f = new Fixture();
+		MagicAttackPower.RegisterLoader();
+		var model = Fixture.Model(PsionicStockContent.CombatPowers.First());
+		var xml = XElement.Parse(model.Definition);
+		xml.Element("AttackEffects")?.Remove();
+		xml.Add(XElement.Parse("<AttackEffects><Effect type='Stagger'><Resistance>Normal</Resistance><Strength>1e308</Strength><DurationSeconds>1e308</DurationSeconds><SuccessEmote>$0 moves $1.</SuccessEmote><ResistEmote>$1 resists $0.</ResistEmote></Effect></AttackEffects>"));
+		model.Definition = xml.ToString();
+		var power = (MagicAttackPower)MagicPowerFactory.LoadPower(model, f.World.Object);
+		Assert.AreEqual(MagicAttackEffect.MaximumStrength, power.AttackEffects.Single().Strength);
+		Assert.AreEqual(MagicAttackEffect.MaximumDurationSeconds, power.AttackEffects.Single().DurationSeconds);
+		Assert.IsTrue(power.AttackEffects.Single().HasValidParameters);
+		var saved = (XElement)typeof(MagicAttackPower).GetMethod("SaveDefinition", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(power, null)!;
+		Assert.AreEqual(MagicAttackEffect.MaximumDurationSeconds, (double)saved.Element("AttackEffects")!.Element("Effect")!.Element("DurationSeconds")!);
+	}
+
+	[DataTestMethod]
+	[DataRow(1e308)]
+	[DataRow(double.PositiveInfinity)]
+	[DataRow(double.NaN)]
+	[DataRow(-1.0)]
+	[DataRow(2.0)]
+	public void RiderDuration_HandlesOverflowingProductsBeforeTimeSpanConversion(double seconds)
+	{
+		var duration = MagicAttackEffectResolver.BoundedDuration(seconds);
+		var expected = double.IsNaN(seconds) || seconds < 0 ? 0 : Math.Min(seconds, MagicAttackEffect.MaximumDurationSeconds);
+		Assert.AreEqual(TimeSpan.FromSeconds(expected), duration);
+	}
 	[TestMethod]
 	public void LegacyTape_LoadsAsModernStorageWithoutLosingCapacity()
 	{

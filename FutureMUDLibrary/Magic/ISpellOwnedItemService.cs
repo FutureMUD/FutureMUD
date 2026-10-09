@@ -16,6 +16,7 @@ public interface ISpellOwnedItemService
 {
 	IGameItem Create(IGameItemProto prototype, ICharacter caster, ItemQuality quality, SpellLifecycleOrigin origin);
 	SpellOwnedItemOrigin? FindOrigin(long itemId);
+	bool IsActivationPending(long itemId);
 	bool TryPrepareRemoval(IGameItem item, out string diagnostic);
 	void ObserveRemoval(IGameItem item);
 	int ReconcileRetirements(DateTime nowUtc, int limit = 100);

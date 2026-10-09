@@ -133,7 +133,7 @@ public static class WeaponPoisonDeliveryHelper
 		var damage = vector == DrugVector.Injected
 			? StaticDouble(gameworld, InjectedDamageMultiplierConfiguration(wound.DamageType))
 			: StaticDouble(gameworld, ContactDamageMultiplier);
-		if (vector == DrugVector.Injected && damage <= 0.0)
+		if (!double.IsFinite(severity) || severity <= 0.0 || !double.IsFinite(damage) || damage <= 0.0)
 		{
 			return 0.0;
 		}
@@ -145,7 +145,11 @@ public static class WeaponPoisonDeliveryHelper
 				: StaticDouble(gameworld, ExternalNonBleedingWoundMultiplier);
 		var minimum = StaticDouble(gameworld, DeliveryMinimumChance);
 		var maximum = StaticDouble(gameworld, DeliveryMaximumChance);
-		return Math.Clamp(severity * damage * woundNature, minimum, maximum);
+		if (!double.IsFinite(woundNature) || woundNature <= 0.0 ||
+			!double.IsFinite(minimum) || !double.IsFinite(maximum) || minimum < 0.0 || maximum > 1.0 || maximum < minimum)
+			return 0.0;
+		var chance = severity * damage * woundNature;
+		return chance > 0.0 ? Math.Clamp(chance, minimum, maximum) : 0.0;
 	}
 
 	public static void DoseContact(IBody body, LiquidMixture mixture, object originator)

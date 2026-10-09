@@ -479,6 +479,8 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 
 	public bool CanConnect(ICharacter? actor, IConnectable other)
 	{
+		if (actor is not null) return false;
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out _, Parent, other?.Parent))
 		{
 			return false;
@@ -494,9 +496,9 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 
 	public void Connect(ICharacter? actor, IConnectable other)
 	{
-		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
+		if (!CanConnect(actor, other))
 		{
-			actor?.OutputHandler.Send(manipulationReason);
+			actor?.OutputHandler.Send(WhyCannotConnect(actor, other));
 			return;
 		}
 
@@ -529,6 +531,8 @@ public class MicrocontrollerGameItemComponent : PoweredMachineBaseGameItemCompon
 
 	public string WhyCannotConnect(ICharacter? actor, IConnectable other)
 	{
+		if (actor is not null) return "Use electrical install <host> <module> [<bay>] to install automation modules.";
+
 		if (!ItemManipulationGuard.CanManipulate(actor, out var manipulationReason, Parent, other?.Parent))
 		{
 			return manipulationReason;

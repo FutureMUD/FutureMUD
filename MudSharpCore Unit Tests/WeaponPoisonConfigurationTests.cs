@@ -1,6 +1,7 @@
 #nullable enable
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 using MudSharp.Combat;
 using MudSharp.Framework;
 using MudSharp.Health;
@@ -14,6 +15,59 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class WeaponPoisonConfigurationTests
 {
+	[DataTestMethod]
+	[DataRow(DrugVector.Injected)]
+	[DataRow(DrugVector.Touched)]
+	public void DeliveryChance_NoneSeverityDoesNotReceiveMinimumChance(DrugVector vector)
+	{
+		var world = PoisonWorld();
+		var wound = Mock.Of<IWound>(x => x.Severity == WoundSeverity.None && x.DamageType == DamageType.Piercing);
+		Assert.AreEqual(0.0, WeaponPoisonDeliveryHelper.CalculateDeliveryChance(world.Object, wound, vector));
+	}
+
+	[DataTestMethod]
+	[DataRow("severity", 0.0)]
+	[DataRow("severity", -1.0)]
+	[DataRow("severity", double.NaN)]
+	[DataRow("damage", 0.0)]
+	[DataRow("damage", -1.0)]
+	[DataRow("nature", 0.0)]
+	[DataRow("nature", -1.0)]
+	[DataRow("nature", double.PositiveInfinity)]
+	public void DeliveryChance_NonpositiveOrInvalidGateDisablesDelivery(string gate, double value)
+	{
+		var world = PoisonWorld();
+		var key = gate switch
+		{
+			"severity" => WeaponPoisonDeliveryHelper.SeverityMultiplierConfiguration(WoundSeverity.Minor),
+			"damage" => WeaponPoisonDeliveryHelper.ContactDamageMultiplier,
+			_ => WeaponPoisonDeliveryHelper.ExternalNonBleedingWoundMultiplier
+		};
+		world.Setup(x => x.GetStaticDouble(key)).Returns(value);
+		var wound = Mock.Of<IWound>(x => x.Severity == WoundSeverity.Minor && x.DamageType == DamageType.Piercing);
+		Assert.AreEqual(0.0, WeaponPoisonDeliveryHelper.CalculateDeliveryChance(world.Object, wound, DrugVector.Touched));
+	}
+
+	[DataTestMethod]
+	[DataRow(0.001, 0.05)]
+	[DataRow(0.5, 0.5)]
+	[DataRow(10.0, 0.95)]
+	public void DeliveryChance_PositiveProductKeepsConfiguredClamp(double severity, double expected)
+	{
+		var world = PoisonWorld();
+		world.Setup(x => x.GetStaticDouble(WeaponPoisonDeliveryHelper.SeverityMultiplierConfiguration(WoundSeverity.Minor))).Returns(severity);
+		var wound = Mock.Of<IWound>(x => x.Severity == WoundSeverity.Minor && x.DamageType == DamageType.Piercing);
+		Assert.AreEqual(expected, WeaponPoisonDeliveryHelper.CalculateDeliveryChance(world.Object, wound, DrugVector.Touched));
+	}
+
+	private static Mock<IFuturemud> PoisonWorld()
+	{
+		var world = new Mock<IFuturemud>();
+		world.Setup(x => x.GetStaticDouble(It.IsAny<string>())).Returns((string key) =>
+			double.Parse(DefaultStaticSettings.DefaultStaticConfigurations[key], System.Globalization.CultureInfo.InvariantCulture));
+		return world;
+	}
+
 	[TestMethod]
 	public void ApplyPoisonCheck_IsPhysicalVisionInfluencedActivity()
 	{

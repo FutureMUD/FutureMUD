@@ -9,6 +9,8 @@ namespace MudSharp.Construction;
 
 public class RoomOverlayPackage : Framework.Revision.EditableItem, IRoomOverlayPackage
 {
+	public const int MaximumNameLength = 4000;
+
     public RoomOverlayPackage(MudSharp.Models.RoomOverlayPackage package, IFuturemud gameworld)
         : base(package.EditableItem)
     {

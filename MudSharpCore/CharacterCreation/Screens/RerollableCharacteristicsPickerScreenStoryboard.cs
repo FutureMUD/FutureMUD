@@ -278,7 +278,7 @@ public class RerollableCharacteristicsPickerScreenStoryboard : SimpleCharacteris
 				return null;
 			}
 
-			return _definitions.FirstOrDefault(x => x.Pattern.IsMatch(name)) ?? _definitions.GetByIdOrName(name);
+			return _definitions.FirstOrDefault(x => x.MatchesPattern(name)) ?? _definitions.GetByIdOrName(name);
 		}
 	}
 }

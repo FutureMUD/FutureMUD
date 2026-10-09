@@ -12,7 +12,7 @@ All text, prompts, and Telnet negotiation frames share one ordered output writer
 
 ## Schedules and heartbeats
 
-The normal scheduler and effect scheduler use stable min-heaps ordered by trigger UTC and insertion order. Due schedules are fired until none remain due. This deliberately preserves repeating schedule catch-up: a delayed server executes every missed repetition rather than coalescing or dropping it.
+The normal scheduler and effect scheduler use stable min-heaps ordered by trigger UTC and insertion order. The normal scheduler fires at most 1,000 schedules per dispatch pass, retaining all remaining entries for the next game-loop iteration. This bounds self-rescheduling work while preserving repeating schedule catch-up: a delayed server executes every missed repetition incrementally rather than coalescing or dropping it. Callbacks remain synchronous; the dispatch count limit does not interrupt an individual callback.
 
 `HeartbeatManager` is a one-second repeating schedule. Hard heartbeats fire at their normal cadence; fuzzy heartbeats retain their five-generation distribution. Heartbeat subscribers execute synchronously on the game-loop thread, so expensive callbacks should subscribe only while they have active work.
 
@@ -34,4 +34,4 @@ The listener binds to the IP address and port on the first two lines of `Connect
 
 The trusted proxy address is resolved before admission and flood accounting. The resulting client address is then used by `PlayerConnection`, the database-backed site-ban check, duplicate-registration checks, and the TCP flood window. Consequently the `Bans` table remains the single authoritative ban list for direct Telnet and WebSocket clients; the proxy does not maintain a second list that can drift.
 
-TLS termination, Discord transport, callback coalescing, and schedule execution budgets are outside this runtime boundary. No networking state or diagnostic session is persisted.
+TLS termination, Discord transport, callback coalescing, and individual callback execution time limits are outside this runtime boundary. No networking state or diagnostic session is persisted.

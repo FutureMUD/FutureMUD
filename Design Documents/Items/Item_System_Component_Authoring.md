@@ -201,6 +201,8 @@ Supported component protos expose the shared builder commands:
 
 Legacy XML and fresh component protos must load disabled by default. Do not make old weapons, armour, shields, measuring instruments, or firearms begin degrading merely because the code now supports it; builders opt specific component revisions in.
 
+Runtime condition formulas use exception-safe numeric evaluation. Invalid, missing-parameter, unknown-function, nonnumeric, or non-finite results apply no condition loss or quality penalty for that evaluation. The expression engine's dice count/side bounds also apply; extreme finite quality penalties are clamped to the supported quality range before integer conversion and component aggregation.
+
 Use the shared `ConditionMaintenanceProfile` helper for XML load/save, builder parsing, formula validation, and clamping. Its formula variables are `condition`, `rawquality`, `basequality`, `usekind`, `outcome`, `degree`, `damage`, `absorbed`, and `passed`. The default quality formula applies no penalty above 20 percent condition and becomes progressively harsher only at very low condition. Hybrid combat profiles should branch their stock use-loss formula on `usekind`, so ranged firing and shield blocks can use the higher default while melee attacks, parries, and warding weapon uses keep the lower melee default.
 
 Place use hooks after the use attempt has resolved so the current action uses the pre-use quality. Combat components should map melee attacks, parries, warding attacks, shield blocks, ranged shots, and armour absorption to the matching `ItemConditionUseKind`. Non-combat components should hook meaningful operation attempts such as a completed measurement or a breathing-filter gas consumption tick.
@@ -272,6 +274,8 @@ Enable consumptive libations with `liquids on`, then configure `liquidallow`, `l
 `liquidecho` must contain the literal `{0}` token for the coloured liquid description. The runtime replaces that token literally rather than treating builder text as a composite .NET format string, so other braces remain ordinary emote text and malformed legacy definitions cannot throw during `libate`.
 
 `CanOfferProg`, `OnOfferProg`, and `OnBurnProg` receive `(Character actor, Item focus, Item offering)`. Liquid progs receive `(Character actor, Item focus, Item source, LiquidMixture liquid, Number amount)`; the gate is Boolean, the rejection/oracle progs return Text, and the success hook returns Void. `OfferingReceiver` raises item offering/burning events plus `LiquidOfferingReceived` and `LiquidOfferingReceivedWitness`. The witness variants append the witnessing perceivable. Detailed history, ownership policy, cooldown, legal, clan, and religion rules belong in external consumers rather than the stock component.
+
+Burning rechecks `CanOfferProg` with the acting character before any burn emote, hook, event or item consumption. Ordinary container insertion still stores an item without ritual hooks; it cannot bypass this burn authorization. The burn check evaluates the gate without counting an already-contained offering against capacity again. A missing gate retains the existing unrestricted ritual policy.
 
 ### Readable book components
 Books remain one component family rather than splitting blank books and published books into separate component types. `BookGameItemComponentProto` owns reusable authored defaults, while `BookGameItemComponent` owns live page state, torn pages, current page, title, and the actual readable rows attached to each loaded item.
@@ -592,7 +596,7 @@ When adding similar capabilities in future:
 - `dryer` is always closable. Configure its standard container settings, `wattage`, and `drying <multiplier>`. It cannot be switched on while open, and opening it switches it off.
 - `powerbank` configures `capacity <watt-hours>`, `inputwatts`, `outputwatts`, `efficiency <percentage>`, and directional connector sets through `input add|remove` and `output add|remove`. A submitted prototype requires at least one connector in each direction.
 
-Use `item set refrigeration` on a game-item prototype whose morph countdown represents spoilage or another environment-sensitive transformation. Do not enable it on ordinary delayed transformations. Component rates are authored as non-negative values without forced ordering; refrigerator defaults are 10%, 50%, 75%, and 100% for powered/closed, powered/open, unpowered/closed, and unpowered/open respectively.
+Use `item set refrigeration` on a game-item prototype whose morph countdown represents spoilage or another environment-sensitive transformation. Do not enable it on ordinary delayed transformations. Component rates are authored as finite, non-negative values without forced ordering; refrigerator defaults are 10%, 50%, 75%, and 100% for powered/closed, powered/open, unpowered/closed, and unpowered/open respectively. Zero pauses a process. Extremely small positive rates can also pause morph scheduling when the resulting deadline cannot be represented; changing the environment resumes the preserved countdown when its wait becomes representable.
 
 ## Historical Firearm and Storage Authoring
 

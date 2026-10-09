@@ -20,6 +20,8 @@ The default plane is used by fallback material presence and by content that does
 
 The optional room presentation fields let a plane alter how ordinary cells are shown without duplicating room content. `RoomNameFormat` is a string format where `{0}` is replaced with the normal layer-adjusted room name, for example `Astral Plane {0}`. `RoomDescriptionAddendum` is appended with other coded room-description cues, such as shop and bank notices. `RemoteObservationTag` is a string format where `{0}` is replaced with the plane name; it is appended to character and item ldescs when the viewer can see the target because the viewer can perceive or occupy that other plane. ANSI colour codes are supported. Null or blank values leave room names, room descriptions, and remote ldesc tags unchanged.
 
+Room-name and remote-observation formats are limited to 1024 characters, 16 `{0}` fields, alignment widths from -128 to 128, and a conservative 16384-character rendered-output budget. Invalid or oversized stored formats fall back to the ordinary room name or `(<plane name>)` tag without expansion. Builder previews apply the same checks before accepting a format.
+
 The stock core data now includes:
 
 - `Prime Material`, the default plane, with no extra room-name, room-description, or remote-observation presentation.
@@ -141,6 +143,8 @@ Drugs support `PlanarState` as a drug type. Builders set its intensity with the 
 `BodyPerception.CanSee` runs biological and sensory checks first, then applies planar visibility before ordinary obscuring effects. Cells and other locations bypass the perceivable planar-presence check so an observer who is corporeally present on the Astral Plane still sees the room through the normal lighting model instead of failing because the cell itself is default-material. Characters and items keep the normal planar visibility rules. `VisualEthereal` and `SenseEthereal` perception grants can reveal targets whose planar profile allows ethereal detection.
 
 Sight-based targeting still resolves visible-only targets. This is deliberate so commands such as `tell`, `whisperto`, and other speech or observation commands can use visible spirits even when physical interaction would fail.
+
+Stealth inventory transfers (`palm` and `steal`, including currency and belt cutting) require inventory interaction with the owner, source/destination container or belt, and affected item or currency piles. Visibility and room colocation alone do not grant that interaction. Transfers recheck it after stealth resolution before changing inventory; theft and planting remain available when the authored planar rules permit them.
 
 Long descriptions for characters and items can include a remote-plane addendum such as `(Astral Plane)`. The addendum appears only when the viewer sees the target through a remote plane the viewer can perceive or occupy. It does not appear when the target is visible to the viewer's current plane as a noncorporeal manifestation, and it does not appear when a fully multi-planar target is visible on the viewer's current plane.
 

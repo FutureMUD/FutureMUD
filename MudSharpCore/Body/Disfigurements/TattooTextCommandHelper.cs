@@ -1,5 +1,6 @@
 ﻿using MudSharp.Communication.Language;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp.Body.Disfigurements;
 
@@ -48,13 +49,7 @@ public static class TattooTextCommandHelper
                 }
 
                 IWriting writing = actor.Gameworld.Writings.Get(writingId);
-                if (writing == null)
-                {
-                    errorMessage = "There is no such writing to copy from.";
-                    return false;
-                }
-
-                if (!CanCopyWriting(actor, writing))
+                if (writing == null || !CanCopyWriting(actor, writing))
                 {
                     errorMessage = "You must be able to see a readable item containing that writing to copy it.";
                     return false;
@@ -112,6 +107,8 @@ public static class TattooTextCommandHelper
     {
         return actor.Gameworld.Items
                     .Where(x => actor.CanSee(x))
+                    .Where(x => x.GetItemType<IOpenable>()?.IsOpen != false &&
+                                x.GetItemType<ISealable>()?.IsSealed != true)
                     .SelectMany(x => x.GetItemTypes<IReadable>())
                     .Any(x => x.Writings.Contains(writing) || x.Readables.Contains(writing));
     }

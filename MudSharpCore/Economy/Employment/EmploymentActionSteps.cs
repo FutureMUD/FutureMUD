@@ -725,7 +725,7 @@ public sealed class BankAccountTransferActionStep : EmploymentActionStepBase
 	public BankAccountTransferActionStep(string targetAccountKey, MoneyAmount amount, string? existingFinancialRecord = null)
 		: base(
 			EmploymentActionStepType.AccountTransfer,
-			EmploymentAuthority.UseStoreAccount,
+			EmploymentAuthority.WithdrawBusinessCash,
 			new[] { EmploymentAICapability.CanUseBankAccount },
 			true,
 			true)

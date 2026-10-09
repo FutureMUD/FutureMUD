@@ -268,10 +268,14 @@ The exception details were as follows:
 
 		if (!captureInMemory)
 		{
-			ConnectionString = captureIndex + 1 < args.Length &&
-			                   !args[captureIndex + 1].StartsWith("--", StringComparison.Ordinal)
-				? args[captureIndex + 1]
-				: Environment.GetEnvironmentVariable("FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING");
+			if (captureIndex + 1 < args.Length &&
+			    !args[captureIndex + 1].StartsWith("--", StringComparison.Ordinal))
+			{
+				throw new InvalidOperationException(
+					"Do not pass database credentials on the command line. Set FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING for --capture-item-manifest.");
+			}
+
+			ConnectionString = Environment.GetEnvironmentVariable("FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING");
 #if DEBUG
 			ConnectionString ??=
 				DebugSeederConnection.DefaultConnectionString;
@@ -279,7 +283,7 @@ The exception details were as follows:
 			if (string.IsNullOrWhiteSpace(ConnectionString))
 			{
 				throw new InvalidOperationException(
-					"--capture-item-manifest requires FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING or a connection string argument.");
+					"--capture-item-manifest requires FUTUREMUD_ITEM_MANIFEST_CONNECTION_STRING.");
 			}
 		}
 

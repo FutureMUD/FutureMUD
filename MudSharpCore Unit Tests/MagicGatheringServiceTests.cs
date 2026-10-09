@@ -39,6 +39,37 @@ namespace MudSharp_Unit_Tests;
 public class MagicGatheringServiceTests
 {
 	[TestMethod]
+	public void Methods_MaximumConfiguredMethods_DoesNotExecutePolicyOrInspectEnvironment()
+	{
+		using var fixture = new GatheringFixture(MagicGatheringMethodKind.Gentle);
+		var progs = Enumerable.Range(1, 6).Select(id =>
+		{
+			var prog = new Mock<IFutureProg>(MockBehavior.Strict);
+			prog.SetupGet(x => x.Id).Returns(id);
+			fixture.World.Progs.Add(prog.Object);
+			prog.Invocations.Clear();
+			return prog;
+		}).ToArray();
+		fixture.Capability.SetupGet(x => x.GatheringMethods).Returns(Enumerable.Range(1, 64)
+			.Select(i => fixture.Method with
+			{
+				Key = Guid.NewGuid(), Alias = $"draw{i}", PermissionProgId = 1, DurationProgId = 2,
+				StaminaCostProgId = 3, DamageCostProgId = 4, PainCostProgId = 5, StunCostProgId = 6
+			}).ToArray());
+		var reads = fixture.World.Clock.UtcReads;
+		var views = fixture.Service.Methods(fixture.Actor.Object, fixture.Capability.Object);
+		Assert.AreEqual(64, views.Count);
+		Assert.IsTrue(views.All(x => x.UnavailableReason is null));
+		Assert.AreEqual(reads, fixture.World.Clock.UtcReads);
+		Assert.AreEqual(0, fixture.Store.Count);
+		Assert.AreEqual(0.0, fixture.DestinationBalance);
+		foreach (var prog in progs) prog.VerifyNoOtherCalls();
+		fixture.Actor.SetupGet(x => x.Capabilities).Returns([]);
+		Assert.IsTrue(fixture.Service.Methods(fixture.Actor.Object, fixture.Capability.Object)
+			.All(x => x.UnavailableReason is not null), "Listing still requires the current capability.");
+	}
+
+	[TestMethod]
 	[TestCategory("L-T03")]
 	[TestCategory("L-T18")]
 	public void LandGathering_AmbientOnlyPaysExactDebitAndOneEcologicalChild()

@@ -993,6 +993,18 @@ namespace MudSharp.Framework
 
         public static bool IsValidFormatString(this string formatString, int expectedParameterCount, ReadOnlySpan<bool> mandatoryMask)
         {
+			if (formatString is null || expectedParameterCount < 0 || mandatoryMask.Length < expectedParameterCount)
+				return false;
+			try
+			{
+				// Validate complete composite-format syntax, including escaped/unmatched braces
+				// and indexes hidden from the placeholder-presence regex (for example alignment).
+				if (CompositeFormat.Parse(formatString).MinimumArgumentCount > expectedParameterCount) return false;
+			}
+			catch (FormatException)
+			{
+				return false;
+			}
             // This regex pattern matches {number} or {number:format} placeholders
             MatchCollection matches = IsValidFormatStringRegex.Matches(formatString);
 

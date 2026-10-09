@@ -35,20 +35,16 @@ public class InscribableSurfaceGameItemComponentProto : GameItemComponentProto, 
 		AllowedImplementTypes.Clear();
 		foreach (var element in root.Element("AllowedImplementTypes")?.Elements("Type") ?? Enumerable.Empty<XElement>())
 		{
-			AllowedImplementTypes.Add(ParseImplementType(element.Value));
+			if (Enum.TryParse<WritingImplementType>(element.Value, true, out var type) && Enum.IsDefined(type))
+			{
+				AllowedImplementTypes.Add(type);
+			}
 		}
 
 		if (AllowedImplementTypes.Count == 0)
 		{
 			AllowedImplementTypes.Add(WritingImplementType.Stylus);
 		}
-	}
-
-	private static WritingImplementType ParseImplementType(string text)
-	{
-		return int.TryParse(text, out var value)
-			? (WritingImplementType)value
-			: Enum.Parse<WritingImplementType>(text, true);
 	}
 
 	#endregion
@@ -219,7 +215,7 @@ public class InscribableSurfaceGameItemComponentProto : GameItemComponentProto, 
 			return false;
 		}
 
-		if (Enum.TryParse(command.SafeRemainingArgument, true, out type))
+		if (Enum.TryParse(command.SafeRemainingArgument, true, out type) && Enum.IsDefined(type))
 		{
 			return true;
 		}

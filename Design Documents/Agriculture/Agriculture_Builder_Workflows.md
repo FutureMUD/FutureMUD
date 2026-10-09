@@ -177,6 +177,8 @@ field start "Collect Herd Products" <herd>
 
 Drawdown requires the herd definition to have an NPC template. Builders may select that template by numeric id or by its unique template name. Absorb is for turning live livestock back into abstract field stock after validation.
 
+Drawn livestock recognise the drawing character as an ally, allowing that character to return them to matching stock. Other animals must explicitly recognise the absorbing character as an ally, or be handled by an administrator. Absorb requires the configured NPC template to match and refuses active riding/drag relationships; template-less definitions do not admit live animals.
+
 Driving a herd moves abstract animals from the current field into an adjacent field through the named exit. Omit the count, or use `all`, to move the whole herd. The destination field must already exist, support pasture use, and be fallow or pasture. Herders can drive animals into unowned fields or fields they are authorised to use, which allows wild grazing grounds and semi-nomadic pastoral movement without making owned fields freely available.
 
 Herd definitions can also define per-head secondary commodity outputs. Stock herds use this to provide raw milk, wool, eggs, and manure from species-specific definitions rather than mixed livestock placeholders; the horse herd remains the stock pastoral milk source for kumis-facing cultures. Fed herds build secondary yield potential on the daily tick, and `Collect Herd Products` releases the configured commodities without changing the pasture use.

@@ -3317,6 +3317,11 @@ public partial class Body
         }
 
         Dictionary<IWear, IWearlocProfile> profiles = profile.Profile(this);
+		if (profiles is null)
+		{
+			return false;
+		}
+
         if (profile.RequireContainerIsEmpty && item.GetItemType<IContainer>()?.Contents.Any() == true)
         {
             return false;
@@ -3583,7 +3588,9 @@ public partial class Body
             return false;
         }
 
-        if (!Actor.IsTrustedAlly(remover) && Actor.EffectsOfType<BeDressedEffect>().All(x => x.Dresser != remover))
+        if (!Actor.IsTrustedAlly(remover) && Actor.EffectsOfType<BeDressedEffect>().All(x => x.Dresser != remover) &&
+		    !(DirectWornItems.Contains(item) && Actor.EffectsOfType<StripItemConsent>()
+			    .Any(x => ReferenceEquals(x.Item, item) && ReferenceEquals(x.Stripper, remover))))
         {
             if (!Actor.State.HasFlag(CharacterState.Dead) && !Actor.State.HasFlag(CharacterState.Unconscious) &&
                 !Actor.State.HasFlag(CharacterState.Sleeping))
@@ -4781,6 +4788,12 @@ public static class DrapeableExtensionClass
     public static WhyCannotDrapeReason WhyCannotDrape<T>(this IEnumerable<T> wearlocs, IGameItem item,
         IWearProfile profile, IBody body) where T : IWear
     {
+		var profiles = profile?.Profile(body);
+		if (profiles is null)
+		{
+			return WhyCannotDrapeReason.SpecificProfileNoMatch;
+		}
+
         if (body.CanWear(item, profile))
         {
             return WhyCannotDrapeReason.SpecificProfileNoMatch;
@@ -4792,7 +4805,7 @@ public static class DrapeableExtensionClass
             return result;
         }
 
-        if (profile is not null && profile.Profile(body).Any(x =>
+        if (profiles.Any(x =>
                 body.WornItemsFor(x.Key).Sum(y => y.GetItemType<IWearable>().LayerWeightConsumption) >
                 Body.MaximumLayerWeight) == true)
         {

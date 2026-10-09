@@ -186,6 +186,8 @@ internal sealed class CastingMemoryStore : IMagicCastingStateStore
 		.Where(x => x.CharacterId == characterId && MagicCastingStateStore.IsSupportRecord(x.Stage)).Select(MagicCastingStateStore.ReadSupportGrant)
 		.SingleOrDefault(x => x.CapabilityIdentity == identity && x.GrantKey == key);
 	public AcquiredSpell? Acquisition(long characterId, long spellId) => Acquired.GetValueOrDefault((characterId, spellId));
+	public bool HasAnyAcquisition(long characterId, IReadOnlyCollection<long> spellIds) =>
+		spellIds.Any(id => Acquired.ContainsKey((characterId, id)));
 	public CastingSkillOpportunity? Opportunity(long characterId, long traitId) => Opportunities.GetValueOrDefault((characterId, traitId));
 	public CastingEnrolment? Enrolment(long characterId, Guid capabilityIdentity) => Enrolments.GetValueOrDefault((characterId, capabilityIdentity));
 	public IReadOnlyList<CastingOperation> Unresolved(long? characterId = null) => Operations.Values.Where(x => (!characterId.HasValue || x.CharacterId == characterId) && !MagicCastingStateStore.TerminalStages.Contains(x.Stage)).ToArray();

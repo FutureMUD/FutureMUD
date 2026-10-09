@@ -44,6 +44,33 @@ public class WoundFunctionTests
 
 	private static void AssertBodylessItemDamage(DamageType damageType)
 	{
+		AssertBodylessItemDamage(damageType, new NumberVariable(12.0M), 12.0);
+	}
+
+	[DataTestMethod]
+	[DataRow("1d1 e1")]
+	[DataRow("1000000000d6")]
+	[DataRow("999999999999999999999999d6")]
+	[DataRow("1d6 m999999999999999999999999")]
+	public void Execute_UnsafeDiceText_ReturnsFalseWithoutDamage(string expression)
+	{
+		var item = new Mock<IGameItem>();
+		var function = Compile(new ConstantFunction(item.Object, ProgVariableTypes.Item),
+			new ConstantFunction(new TextVariable(nameof(DamageType.Crushing))),
+			new ConstantFunction(new TextVariable(expression)));
+		Assert.AreEqual(StatementResult.Normal, function.Execute(Mock.Of<IVariableSpace>()));
+		Assert.AreEqual(false, function.Result.GetObject);
+		item.Verify(x => x.SufferDamage(It.IsAny<IDamage>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void Execute_ValidDiceText_PreservesDamage()
+	{
+		AssertBodylessItemDamage(DamageType.Crushing, new TextVariable("1d1+4"), 5.0);
+	}
+
+	private static void AssertBodylessItemDamage(DamageType damageType, IProgVariable amount, double expectedDamage)
+	{
 		IDamage? appliedDamage = null;
 		var item = new Mock<IGameItem>();
 		item.Setup(x => x.SufferDamage(It.IsAny<IDamage>()))
@@ -52,14 +79,14 @@ public class WoundFunctionTests
 		var function = Compile(
 			new ConstantFunction(item.Object, ProgVariableTypes.Item),
 			new ConstantFunction(new TextVariable(damageType.ToString())),
-			new ConstantFunction(new NumberVariable(12.0M)));
+			new ConstantFunction(amount));
 
 		Assert.AreEqual(StatementResult.Normal, function.Execute(Mock.Of<IVariableSpace>()));
 		Assert.IsNotNull(function.Result);
 		Assert.AreEqual(true, function.Result.GetObject);
 		Assert.IsNotNull(appliedDamage);
 		Assert.AreEqual(damageType, appliedDamage.DamageType);
-		Assert.AreEqual(12.0, appliedDamage.DamageAmount);
+		Assert.AreEqual(expectedDamage, appliedDamage.DamageAmount);
 		Assert.IsNull(appliedDamage.Bodypart);
 		item.Verify(x => x.SufferDamage(It.IsAny<IDamage>()), Times.Once);
 	}

@@ -47,6 +47,7 @@ public class EconomyAnalyticsTests
 	public void SnapshotDefaultsAndMinimumInterval_AreStable()
 	{
 		Assert.AreEqual("true", DefaultStaticSettings.DefaultStaticConfigurations["EconomyAnalyticsSnapshotsEnabled"]);
+		Assert.AreEqual("false", DefaultStaticSettings.DefaultStaticConfigurations[EconomyAnalyticsService.CashGiftsEnabledConfiguration]);
 		Assert.AreEqual("1440", DefaultStaticSettings.DefaultStaticConfigurations["EconomyAnalyticsSnapshotIntervalMinutes"]);
 		Assert.AreEqual("true", DefaultStaticSettings.DefaultStaticConfigurations["EconomyAnalyticsRolloverSnapshotsEnabled"]);
 		Assert.AreEqual("0", DefaultStaticSettings.DefaultStaticConfigurations["EconomyAnalyticsGlobalDisplayCurrencyId"]);
@@ -167,5 +168,43 @@ public class EconomyAnalyticsTests
 		StringAssert.Contains(trendSql, "ORDER BY");
 		StringAssert.Contains(trendSql, "LIMIT");
 		StringAssert.Contains(volumeSql, "GROUP BY");
+	}
+
+	[TestMethod]
+	public void RecordActivity_CashGiftDisabled_RepeatedTransfersNeverEnterTheSaveQueue()
+	{
+		var world = new Mock<IFuturemud>(MockBehavior.Strict);
+		world.Setup(x => x.GetStaticBool(EconomyAnalyticsService.CashGiftsEnabledConfiguration)).Returns(false);
+		var service = new EconomyAnalyticsService(world.Object);
+		for (var i = 0; i < 10000; i++)
+		{
+			service.RecordActivity(new EconomicActivityEvent(EconomicActivityType.CashGift,
+				EconomicVolumeClassification.GeneralTransfer, 1, 1m));
+		}
+		Assert.IsNull(service.ActivityCoverageStartUtc);
+		world.VerifyGet(x => x.SaveManager, Times.Never);
+		world.VerifyGet(x => x.Currencies, Times.Never);
+	}
+
+	[DataTestMethod]
+	[DataRow(EconomicActivityType.CashGift, true)]
+	[DataRow(EconomicActivityType.BankTransfer, false)]
+	public void RecordActivity_OptedInGiftOrOtherTransfer_PreservesTheLedger(EconomicActivityType type, bool giftsEnabled)
+	{
+		var currency = Mock.Of<ICurrency>(x => x.Id == 1 && x.BaseCurrencyToGlobalBaseCurrencyConversion == 2m);
+		var currencies = new All<ICurrency>();
+		currencies.Add(currency);
+		var world = new Mock<IFuturemud> { DefaultValue = DefaultValue.Mock };
+		world.SetupGet(x => x.Currencies).Returns(currencies);
+		world.Setup(x => x.GetStaticBool(EconomyAnalyticsService.CashGiftsEnabledConfiguration)).Returns(giftsEnabled);
+		EconomicActivityRecordItem? pending = null;
+		world.Setup(x => x.SaveManager.AddInitialisation(It.IsAny<MudSharp.Framework.Save.ILateInitialisingItem>()))
+			.Callback<MudSharp.Framework.Save.ILateInitialisingItem>(x => pending = (EconomicActivityRecordItem)x);
+		var service = new EconomyAnalyticsService(world.Object);
+		service.RecordActivity(new EconomicActivityEvent(type, EconomicVolumeClassification.GeneralTransfer, 1, 3m));
+		Assert.IsNotNull(pending);
+		Assert.AreEqual(3m, pending.Record.Amount);
+		Assert.AreEqual(6m, pending.Record.GlobalBaseValue);
+		Assert.IsNotNull(service.ActivityCoverageStartUtc);
 	}
 }

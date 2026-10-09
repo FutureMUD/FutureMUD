@@ -942,8 +942,6 @@ public sealed class FutureMUDItemTransformer
 		ICollection<RpiConversionWarning> warnings)
 	{
 		var legacyBoardKey = InferLegacyBoardKey(item);
-		var componentName = BuildBoardComponentName(legacyBoardKey, item.Vnum);
-		AddUnique(components, componentName);
 		AddUnique(components, ChooseDestroyableComponent(item, ConversionStatus.FunctionalImport));
 
 		var clanRestrictions = item.Clans
@@ -954,6 +952,10 @@ public sealed class FutureMUDItemTransformer
 			.GroupBy(x => $"{x.ClanAlias}\n{x.RankName}", StringComparer.OrdinalIgnoreCase)
 			.Select(x => x.First())
 			.ToList();
+
+		var componentName = BuildBoardComponentName(legacyBoardKey, item.Vnum,
+			RpiBoardIdentity.AccessSuffix(legacyBoardKey, clanRestrictions));
+		AddUnique(components, componentName);
 
 		if (item.Clans.Count > 0 && clanRestrictions.Count == 0)
 		{
@@ -1118,7 +1120,7 @@ public sealed class FutureMUDItemTransformer
 			: sourceKeyword;
 	}
 
-	private static string BuildBoardComponentName(string legacyBoardKey, int vnum)
+	private static string BuildBoardComponentName(string legacyBoardKey, int vnum, string identitySuffix)
 	{
 		var componentSuffix = NonComponentNameRegex
 			.Replace(legacyBoardKey.ToLowerInvariant(), "_")
@@ -1128,12 +1130,12 @@ public sealed class FutureMUDItemTransformer
 			componentSuffix = $"vnum_{vnum.ToString(CultureInfo.InvariantCulture)}";
 		}
 
-		if (componentSuffix.Length > 80)
+		if (componentSuffix.Length > 58)
 		{
-			componentSuffix = componentSuffix[..80].Trim('_');
+			componentSuffix = componentSuffix[..58].Trim('_');
 		}
 
-		return $"RPI_Board_{componentSuffix}";
+		return $"RPI_Board_{componentSuffix}_{identitySuffix}";
 	}
 
 	private static string BuildBoardName(string legacyBoardKey, int vnum)
@@ -1142,7 +1144,7 @@ public sealed class FutureMUDItemTransformer
 			? $"board-{vnum.ToString(CultureInfo.InvariantCulture)}"
 			: legacyBoardKey.Trim();
 
-		return boardName.Length <= 45 ? boardName : boardName[..45];
+		return $"{(boardName.Length <= 12 ? boardName : boardName[..12])}_{RpiBoardIdentity.BoardSuffix(legacyBoardKey)}";
 	}
 
 	private void MapGenericProp(

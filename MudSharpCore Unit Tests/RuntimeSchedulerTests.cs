@@ -104,6 +104,62 @@ public class RuntimeSchedulerTests
 		Assert.AreEqual(3, count);
 	}
 
+	[DataTestMethod]
+	[DataRow(0)]
+	[DataRow(1)]
+	public void CheckSchedules_SelfReschedulingJobAlwaysDue_ReturnsAndRetainsNextRepetition(int intervalMilliseconds)
+	{
+		var time = new ManualTimeProvider(DateTimeOffset.UtcNow);
+		var scheduler = new Scheduler(time);
+		var gameworld = new Mock<IFuturemud>();
+		gameworld.SetupGet(x => x.Scheduler).Returns(scheduler);
+		var count = 0;
+		var schedule = new RepeatingSchedule(gameworld.Object, () =>
+		{
+			count++;
+			Assert.IsTrue(count <= Scheduler.MaximumSchedulesPerCheck * 2,
+				"An unbounded scheduler must fail this test rather than hang the test process.");
+			time.Advance(TimeSpan.FromMilliseconds(2));
+		}, ScheduleType.System, TimeSpan.FromMilliseconds(intervalMilliseconds), "always due")
+		{
+			TriggerETA = time.GetUtcNow().UtcDateTime
+		};
+		scheduler.AddSchedule(schedule);
+
+		scheduler.CheckSchedules();
+		Assert.AreEqual(Scheduler.MaximumSchedulesPerCheck, count);
+		Assert.AreEqual(Scheduler.MaximumSchedulesPerCheck, scheduler.LastCheckFiredCount);
+		Assert.AreEqual(schedule.TriggerETA, scheduler.NextTriggerUtc);
+		Assert.IsTrue(scheduler.NextTriggerUtc <= time.GetUtcNow().UtcDateTime);
+		scheduler.CheckSchedules();
+		Assert.AreEqual(Scheduler.MaximumSchedulesPerCheck * 2, count);
+		Assert.AreEqual(schedule.TriggerETA, scheduler.NextTriggerUtc);
+	}
+
+	[TestMethod]
+	public void CheckSchedules_LargeDueQueue_ContinuesInOrderWithoutDroppingEntries()
+	{
+		var time = new ManualTimeProvider(DateTimeOffset.UtcNow);
+		var scheduler = new Scheduler(time);
+		var fired = new List<string>();
+		for (var i = 0; i < Scheduler.MaximumSchedulesPerCheck + 3; i++)
+		{
+			scheduler.AddSchedule(CreateSchedule(i.ToString(), time.GetUtcNow().UtcDateTime, fired));
+		}
+
+		scheduler.CheckSchedules();
+		Assert.AreEqual(Scheduler.MaximumSchedulesPerCheck, fired.Count);
+		scheduler.CheckSchedules();
+		Assert.AreEqual(Scheduler.MaximumSchedulesPerCheck + 3, fired.Count);
+		for (var i = 0; i < fired.Count; i++)
+		{
+			Assert.AreEqual(i.ToString(), fired[i]);
+		}
+
+		Assert.AreEqual(3, scheduler.LastCheckFiredCount);
+		Assert.IsNull(scheduler.NextTriggerUtc);
+	}
+
 	[TestMethod]
 	public void DelayScheduleType_RebuildsHeapAndPreservesRemainingDuration()
 	{

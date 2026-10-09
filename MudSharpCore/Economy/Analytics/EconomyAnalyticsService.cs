@@ -30,6 +30,7 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 		bool IsNpc, long? BodyguardCharacterId);
 
 	public const string SnapshotsEnabledConfiguration = "EconomyAnalyticsSnapshotsEnabled";
+	public const string CashGiftsEnabledConfiguration = "EconomyAnalyticsCashGiftsEnabled";
 	public const string SnapshotIntervalConfiguration = "EconomyAnalyticsSnapshotIntervalMinutes";
 	public const string RolloverSnapshotsEnabledConfiguration = "EconomyAnalyticsRolloverSnapshotsEnabled";
 	public const string GlobalDisplayCurrencyConfiguration = "EconomyAnalyticsGlobalDisplayCurrencyId";
@@ -134,7 +135,8 @@ public sealed partial class EconomyAnalyticsService : IEconomyAnalyticsService
 
 	public void RecordActivity(EconomicActivityEvent activity)
 	{
-		if (activity.Amount == 0.0M)
+		if (activity.Amount == 0.0M || activity.ActivityType == EconomicActivityType.CashGift &&
+		    !_gameworld.GetStaticBool(CashGiftsEnabledConfiguration))
 		{
 			return;
 		}

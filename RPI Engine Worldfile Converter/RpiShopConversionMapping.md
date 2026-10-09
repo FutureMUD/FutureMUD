@@ -76,10 +76,12 @@ Run order matters:
 The shop pass needs:
 
 - at least one FutureMUD economic zone, used as the default economic zone for imported shops
-- imported cells matching RPI `shop_vnum` and positive `store_vnum`
+- rooms in the parsed corpus resolved through an executed `apply-rooms` audit to existing direct FutureMUD Room IDs
 - imported item prototypes with `RPIIMPORT|...` provenance markers for delivery merchandise
 
 Existing shop detection is structural because FutureMUD shops do not have an editable builder-comment provenance field. `apply-shops` skips an import if another shop already has the generated name or the same shopfront/stockroom pair.
+
+The shop pass automatically reads `rpi-rooms-apply-audit.json` from the current directory, as produced by the preceding room import. If that audit was written elsewhere, supply `--room-audit <path>`. Keep the original execute audit: a later room-import rerun that skips existing zone groups cannot reconstruct their per-room mappings. Only uniquely matched source keys/vnums with a `created` action qualify; missing, ambiguous, dry-run or deleted-room mappings fail validation before shop persistence. Actual Room IDs from the audit are used for both shopfronts and stockrooms, including fallback IDs assigned after collisions. Merely finding the raw legacy vnum among all database Room IDs grants no binding. Historical audits use their playable `CellId`; their former parent `RoomId` is never treated as the current direct Room ID. Audit files are trusted operator output and must come from the target world's room import.
 
 ## Known Limits
 

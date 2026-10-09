@@ -140,19 +140,19 @@ namespace MudSharp.CharacterCreation
             {
                 type =
                     CharacteristicDefinitions.FirstOrDefault(
-                        x => x.Pattern.IsMatch(IHaveCharacteristicsExtensions.BasicCharacteristicRegex.Match(pattern).Groups[1].Value))!;
+                        x => x.MatchesPattern(IHaveCharacteristicsExtensions.BasicCharacteristicRegex.Match(pattern).Groups[1].Value))!;
                 descType = CharacteristicDescriptionType.Basic;
             }
             else if (IHaveCharacteristicsExtensions.FancyCharacteristicRegex.IsMatch(pattern))
             {
                 type =
                     CharacteristicDefinitions.FirstOrDefault(
-                        x => x.Pattern.IsMatch(IHaveCharacteristicsExtensions.FancyCharacteristicRegex.Match(pattern).Groups[1].Value))!;
+                        x => x.MatchesPattern(IHaveCharacteristicsExtensions.FancyCharacteristicRegex.Match(pattern).Groups[1].Value))!;
                 descType = CharacteristicDescriptionType.Fancy;
             }
             else
             {
-                type = CharacteristicDefinitions.FirstOrDefault(x => x.Pattern.IsMatch(pattern))!;
+                type = CharacteristicDefinitions.FirstOrDefault(x => x.MatchesPattern(pattern))!;
             }
 
             if (type == null)

@@ -141,6 +141,8 @@ Only clean FutureMUD fits are mapped in v1.
 
 The mount mapping is intentionally structured-data driven. Carts, wagons, horse teams, mounted troops, or prose-only references to riding do not receive `BasicMount` unless the source mob also carries `ACT_MOUNT` and resolves to one of the supported mount races above. `ACT_VEHICLE` records remain deferred rather than being treated as rideable NPC mounts.
 
+`BasicMount` is a permissive stock riding template: its rider and control progs allow anyone. This is intentional in-world mount gameplay, not an ownership or stable-ticket policy. Builders who want private, clan-restricted or hired mounts should give those NPCs a configured `Mount` AI with appropriate rider/control progs; importing the stock template does not infer such ownership rules.
+
 ## Deferred Data
 
 The following are parsed and exported but not converted in this pass:

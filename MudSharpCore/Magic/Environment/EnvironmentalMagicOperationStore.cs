@@ -19,6 +19,8 @@ public interface IEnvironmentalMagicOperationStore
 {
 	LandRejuvenationProgress? FindTreatment(Guid id) => throw new NotSupportedException("Treatment checkpoints are not supported by this store.");
 	IReadOnlyList<LandRejuvenationProgress> TreatmentsFor(long cellId) => throw new NotSupportedException("Treatment checkpoints are not supported by this store.");
+	IReadOnlyList<LandRejuvenationProgress> UnresolvedTreatmentsFor(long cellId) =>
+		TreatmentsFor(cellId).Where(x => !x.IsTerminal || x.PendingRequest is not null).ToArray();
 	void SaveTreatment(LandRejuvenationProgress progress, long? expectedRevision) => throw new NotSupportedException("Treatment checkpoints are not supported by this store.");
 	void CommitRepair(Room room, EnvironmentalMagicOperationRequest request, EnvironmentalMagicOperationResult result,
 		EnvironmentalMagicState state, DateTimeOffset atUtc, IReadOnlyDictionary<IMagicResource, double> balances,

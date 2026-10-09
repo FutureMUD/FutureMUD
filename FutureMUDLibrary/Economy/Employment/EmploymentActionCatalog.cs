@@ -264,7 +264,7 @@ public static class EmploymentActionCatalog
 		Executable("transfer", EmploymentActionCategory.Purchasing,
 			"tasks step transfer <amount> to <bank account id|bankcode:account|alias>",
 			EmploymentActionStepType.AccountTransfer,
-			EmploymentAuthority.UseStoreAccount,
+			EmploymentAuthority.WithdrawBusinessCash,
 			Caps(EmploymentAICapability.CanUseBankAccount),
 			"Transfers funds from the employer linked native bank account to another native bank account with paired transfer records.",
 			Aliases("banktransfer", "accounttransfer"),

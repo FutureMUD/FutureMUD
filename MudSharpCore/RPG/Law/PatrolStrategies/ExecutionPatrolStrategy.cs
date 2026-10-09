@@ -236,18 +236,21 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 
 	private bool EnsureCondemned(IPatrol patrol)
 	{
-		if (_condemned is not null)
-		{
-			return true;
-		}
-
-		if (_condemnedId > 0)
+		if (_condemned is null && _condemnedId > 0)
 		{
 			_condemned = Gameworld.TryGetCharacter(_condemnedId, true);
 		}
 
 		if (_condemned is not null)
 		{
+			var now = CurrentLegalTime(patrol.LegalAuthority);
+			if (!_condemned.EffectsOfType<AwaitingExecution>(x =>
+				    x.LegalAuthority == patrol.LegalAuthority && x.ExecutionDate <= now).Any())
+			{
+				AbortExecution(patrol);
+				return false;
+			}
+
 			return true;
 		}
 
@@ -1179,7 +1182,17 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		patrol.CompletePatrol();
 	}
 
-	private void AbortExecution(IPatrol patrol)
+	public override void HandlePatrolCompleted(IPatrol patrol)
+	{
+		ClearPatrolRuntimeState(patrol);
+	}
+
+	public override void HandlePatrolAborted(IPatrol patrol)
+	{
+		ClearPatrolRuntimeState(patrol);
+	}
+
+	private void ClearPatrolRuntimeState(IPatrol patrol)
 	{
 		if (_condemned is not null)
 		{
@@ -1188,6 +1201,11 @@ Use normal emote targets outside speech: $0 is the executioner and $1 is the con
 		}
 
 		ResetRuntimeState();
+	}
+
+	private void AbortExecution(IPatrol patrol)
+	{
+		ClearPatrolRuntimeState(patrol);
 		patrol.AbortPatrol();
 	}
 

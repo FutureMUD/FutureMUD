@@ -42,11 +42,20 @@ internal class AuxiliaryMove : CombatMoveBase
         return move.StaminaCost * CombatBase.GraceMoveStaminaMultiplier(assailant);
     }
 
+	internal static bool CanReachTarget(ICharacter assailant, ICharacter target)
+	{
+		return assailant.Combat is not null && target.Combat == assailant.Combat &&
+		       assailant.ColocatedWith(target) && assailant.RoomLayer == target.RoomLayer &&
+		       ((assailant.CombatTarget == target && assailant.MeleeRange) ||
+		        (target.CombatTarget == assailant && target.MeleeRange));
+	}
+
     /// <inheritdoc />
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
 		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		if (!CanReachTarget(Assailant, _target)) return CombatMoveResult.Irrelevant;
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (!VehicleCombatService.Instance.CanCrossVehicleBoundary(Assailant, _target, false, false,
@@ -59,6 +68,7 @@ internal class AuxiliaryMove : CombatMoveBase
         {
             defenderMove = new HelplessDefenseMove { Assailant = _target };
         }
+		if (!CanReachTarget(Assailant, _target)) return CombatMoveResult.Irrelevant;
 
         WorsenCombatPosition(defenderMove.Assailant, Assailant);
 		if (!CanContinueCommand()) return CompletedResult();
@@ -78,6 +88,7 @@ internal class AuxiliaryMove : CombatMoveBase
         foreach (IAuxiliaryEffect effect in _action.AuxiliaryEffects)
         {
 			if (!CanContinueCommand()) break;
+			if (!CanReachTarget(Assailant, _target)) break;
             effect.ApplyEffect(Assailant, _target, attackRoll);
         }
 

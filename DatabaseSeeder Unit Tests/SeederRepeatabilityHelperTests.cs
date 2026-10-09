@@ -5,6 +5,8 @@ using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
+using MudSharp.FutureProg.Variables;
 using MudSharp.Celestial;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -481,6 +483,68 @@ public class SeederRepeatabilityHelperTests
         }
     }
 
+	[TestMethod]
+	[DoNotParallelize]
+	public void LawSeeder_TieredApplicability_DoesNotPromoteCriminalMembershipToSocialRank()
+	{
+		using var context = BuildContext();
+		AddLawSeederPrerequisites(context);
+		SeedLawSeeder(context, punishmentLevel: "tiered", classes: "noble citizen noncitizen enforcer slave felon criminal pet other");
+		MudSharp.FutureProg.FutureProg.Initialise();
+		var authority = new Mock<MudSharp.RPG.Law.ILegalAuthority>();
+		var authorityId = context.LegalAuthorities.Single().Id;
+		authority.SetupGet(x => x.Id).Returns(authorityId);
+		authority.SetupGet(x => x.GetObject).Returns(authority.Object);
+		authority.SetupGet(x => x.Type).Returns(ProgVariableTypes.LegalAuthority);
+		var authorities = new All<MudSharp.RPG.Law.ILegalAuthority>();
+		authorities.Add(authority.Object);
+		var classes = new Dictionary<string, MudSharp.RPG.Law.ILegalClass>();
+		foreach (var model in context.LegalClasses)
+		{
+			var legalClass = new Mock<MudSharp.RPG.Law.ILegalClass>();
+			legalClass.SetupGet(x => x.Id).Returns(model.Id);
+			legalClass.SetupGet(x => x.GetObject).Returns(legalClass.Object);
+			legalClass.SetupGet(x => x.Type).Returns(ProgVariableTypes.LegalClass);
+			legalClass.Setup(x => x.GetProperty("id")).Returns(new NumberVariable(model.Id));
+			legalClass.Setup(x => x.GetProperty("priority")).Returns(new NumberVariable(model.LegalClassPriority));
+			classes.Add(model.Name, legalClass.Object);
+		}
+		var world = new Mock<IFuturemud>();
+		world.SetupGet(x => x.LegalAuthorities).Returns(authorities);
+		var offender = new Mock<MudSharp.Character.ICharacter>();
+		var victim = new Mock<MudSharp.Character.ICharacter>();
+		offender.SetupGet(x => x.GetObject).Returns(offender.Object);
+		offender.SetupGet(x => x.Type).Returns(ProgVariableTypes.Character);
+		victim.SetupGet(x => x.GetObject).Returns(victim.Object);
+		victim.SetupGet(x => x.Type).Returns(ProgVariableTypes.Character);
+		var normal = context.Laws.Single(x => x.Name == "Murder");
+		var inferior = context.Laws.Single(x => x.Name == "Murder Against Inferior");
+		MudSharp.FutureProg.FutureProg Compile(Law law)
+		{
+			var model = context.FutureProgs.Single(x => x.Id == law.LawAppliesProgId);
+			var prog = new MudSharp.FutureProg.FutureProg(world.Object, model.FunctionName, (ProgVariableTypes)model.ReturnType,
+				model.FutureProgsParameters.OrderBy(x => x.ParameterIndex).Select(x => Tuple.Create((ProgVariableTypes)x.ParameterType, x.ParameterName)), model.FunctionText);
+			Assert.IsTrue(prog.Compile(), prog.CompileError);
+			return prog;
+		}
+		var normalProg = Compile(normal);
+		var inferiorProg = Compile(inferior);
+		foreach (var (offenderName, victimName, outranks) in new[]
+		{
+			("Criminal", "Citizen", false), ("Felon", "Citizen", false),
+			("Criminal", "Non-Citizen", false), ("Felon", "Non-Citizen", false),
+			("Criminal", "Slave", false), ("Noble", "Citizen", true),
+			("Citizen", "Felon", true), ("Felon", "Criminal", true), ("Criminal", "Felon", false)
+		})
+		{
+			authority.Setup(x => x.GetLegalClass(offender.Object)).Returns(classes[offenderName]);
+			authority.Setup(x => x.GetLegalClass(victim.Object)).Returns(classes[victimName]);
+			Assert.AreEqual(!outranks, normalProg.ExecuteBool(offender.Object, victim.Object, null, 1m, "Murder"), $"Normal: {offenderName} -> {victimName}");
+			Assert.AreEqual(outranks, inferiorProg.ExecuteBool(offender.Object, victim.Object, null, 1m, "Murder"), $"Inferior: {offenderName} -> {victimName}");
+		}
+		Assert.IsTrue(context.LegalClasses.Single(x => x.Name == "Criminal").LegalClassPriority > context.LegalClasses.Single(x => x.Name == "Citizen").LegalClassPriority);
+	}
+
     [TestMethod]
     public void LawSeeder_SeedData_Tiered_SplitsVictimBasedCrimesAndLeavesVictimlessCrimesFlat()
     {
@@ -504,8 +568,8 @@ public class SeederRepeatabilityHelperTests
         Assert.IsFalse(murderAgainstInferiorLaw.PunishmentStrategy.Contains("type=\"execute\""));
         StringAssert.Contains(murderApplicabilityProg.FunctionText, "isnull(@victim)");
         StringAssert.Contains(murderAgainstInferiorApplicabilityProg.FunctionText, "isnull(@victim)");
-        StringAssert.Contains(murderApplicabilityProg.FunctionText, "LegalClassOutranks(@criminal, @victim, ToLegalAuthority(");
-        StringAssert.Contains(murderAgainstInferiorApplicabilityProg.FunctionText, "LegalClassOutranks(@criminal, @victim, ToLegalAuthority(");
+        StringAssert.Contains(murderApplicabilityProg.FunctionText, "GetLegalClass(@criminal, ToLegalAuthority(");
+        StringAssert.Contains(murderAgainstInferiorApplicabilityProg.FunctionText, "@offenderRank > @victimRank");
         Assert.IsFalse(murderApplicabilityProg.FunctionText.Contains("IsLegalClass", StringComparison.Ordinal));
         Assert.IsFalse(murderAgainstInferiorApplicabilityProg.FunctionText.Contains("IsLegalClass", StringComparison.Ordinal));
 

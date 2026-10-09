@@ -2133,8 +2133,7 @@ div.function-generalhelp {
         writer.WriteLine("Season,MetricType,Key,Hour,Statistic,Value,Unit,SampleCount,SeasonMinutes");
         foreach (WeatherStatisticsCsvRow row in rows)
         {
-            writer.WriteLine(
-                $"{EscapeCsv(row.Season)},{EscapeCsv(row.MetricType)},{EscapeCsv(row.Key)},{(row.Hour.HasValue ? row.Hour.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : string.Empty)},{EscapeCsv(row.Statistic)},{row.Value.ToString("R", System.Globalization.CultureInfo.InvariantCulture)},{EscapeCsv(row.Unit)},{row.SampleCount.ToString(System.Globalization.CultureInfo.InvariantCulture)},{row.SeasonMinutes.ToString(System.Globalization.CultureInfo.InvariantCulture)}");
+            writer.WriteLine(FormatWeatherStatisticsRowCsv(row));
         }
 
         writer.Flush();
@@ -2306,22 +2305,15 @@ div.function-generalhelp {
         return $"{EscapeCsv($"# {label}")},{EscapeCsv(value)}";
     }
 
-    private static string EscapeCsv(string value)
-    {
-        if (value is null)
-        {
-            return string.Empty;
-        }
+	internal static string FormatWeatherStatisticsRowCsv(WeatherStatisticsCsvRow row)
+	{
+		return $"{EscapeCsv(row.Season)},{EscapeCsv(row.MetricType)},{EscapeCsv(row.Key)},{(row.Hour.HasValue ? row.Hour.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : string.Empty)},{EscapeCsv(row.Statistic)},{row.Value.ToString("R", System.Globalization.CultureInfo.InvariantCulture)},{EscapeCsv(row.Unit)},{row.SampleCount.ToString(System.Globalization.CultureInfo.InvariantCulture)},{row.SeasonMinutes.ToString(System.Globalization.CultureInfo.InvariantCulture)}";
+	}
 
-        bool needsQuotes = value.IndexOfAny(new[] { ',', '"', '\r', '\n' }) != -1 ||
-                          (value.Length > 0 && (char.IsWhiteSpace(value[0]) || char.IsWhiteSpace(value[^1])));
-        if (!needsQuotes)
-        {
-            return value;
-        }
-
-        return $"\"{value.Replace("\"", "\"\"")}\"";
-    }
+	private static string EscapeCsv(string value)
+	{
+		return SpreadsheetSafeCsv.EncodeCell(value);
+	}
 
     private static void DebugDescriptions(ICharacter actor, StringStack ss)
     {

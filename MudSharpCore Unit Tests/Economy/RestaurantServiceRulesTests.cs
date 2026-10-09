@@ -201,6 +201,52 @@ public class RestaurantServiceRulesTests
 		StringAssert.Contains(reason, "exactly one standard Container component");
 	}
 
+	[TestMethod]
+	public void TakeawayBagPacking_SmallCollection_StillImprovesTheGreedyPlan()
+	{
+		var items = new[] { 6.0, 5.0, 3.0, 2.0, 2.0, 2.0 }
+			.Select((weight, i) => TakeawayItem(i + 1, weight)).ToArray();
+		Assert.IsTrue(RestaurantTakeawayBagPacking.TryPlan(TakeawayBag(10), items, out var plan, out var reason), reason);
+		Assert.AreEqual(2, plan.Count);
+		Assert.IsTrue(plan.All(x => x.Sum(y => y.Weight) <= 10));
+	}
+
+	[DataTestMethod]
+	[DataRow(0)]
+	[DataRow(1)]
+	public void TakeawayBagPacking_ExhaustedSearchBudget_ReturnsACompleteGreedyPlan(int budget)
+	{
+		var items = new[] { 6.0, 5.0, 3.0, 2.0, 2.0, 2.0 }
+			.Select((weight, i) => TakeawayItem(i + 1, weight)).ToArray();
+		Assert.IsTrue(RestaurantTakeawayBagPacking.TryPlan(TakeawayBag(10), items, out var plan, out var reason, budget), reason);
+		Assert.AreEqual(3, plan.Count);
+		Assert.IsTrue(plan.All(x => x.Sum(y => y.Weight) <= 10));
+		CollectionAssert.AreEquivalent(items.Select(x => x.Id).ToList(), plan.SelectMany(x => x).Select(x => x.Id).ToList());
+	}
+
+	[TestMethod]
+	public void TakeawayBagPacking_LargeCohort_PreservesEveryItemWithLinearWeightReads()
+	{
+		const int count = 4096;
+		var reads = 0;
+		var weights = new[] { 6.0, 5.0, 3.0, 2.0, 2.0, 2.0 };
+		var items = Enumerable.Range(0, count).Select(i =>
+		{
+			var item = new Mock<IGameItem>();
+			item.SetupGet(x => x.Id).Returns(i + 1);
+			item.SetupGet(x => x.Size).Returns(SizeCategory.Small);
+			item.SetupGet(x => x.Weight).Returns(() =>
+			{
+				Assert.IsTrue(++reads <= count * 5, "Packing exceeded a linear amount of item-weight work.");
+				return weights[i % weights.Length];
+			});
+			return item.Object;
+		}).ToArray();
+		Assert.IsTrue(RestaurantTakeawayBagPacking.TryPlan(TakeawayBag(10), items, out var plan, out var reason), reason);
+		CollectionAssert.AreEquivalent(items.Select(x => x.Id).ToList(), plan.SelectMany(x => x).Select(x => x.Id).ToList());
+		Assert.IsTrue(plan.All(x => x.Sum(y => y.Weight) <= 10));
+	}
+
 	private static bool Validate(RestaurantFulfilmentMode mode, out string reason, bool dineInAvailable = true,
 		bool takeawayAvailable = true, bool hasCraft = true, bool craftIsValidAndProducesOutput = true,
 		bool itemCanBeOpened = true, bool hasServingContainer = true, bool servingContainerIsCompatible = true,

@@ -9,6 +9,8 @@ namespace MudSharp.Effects.Concrete;
 /// <summary>A retained spell parent owns the doses that sustain it. Dispel suppresses those doses.</summary>
 public sealed class SubstanceExposureEffect : MagicSpellParent
 {
+	internal const int MaximumContributions = 256;
+	internal const int MaximumParents = 256;
 	private sealed class Contribution
 	{
 		public double Quantity;
@@ -55,11 +57,11 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 		foreach (var pair in SpellEffects.Zip(indices)) _templateIndices[pair.First] = pair.Second;
 		_pulseElapsed = (double?)root.Element("PulseElapsed") ?? 0;
 		_absorptionElapsed = (double?)root.Element("AbsorptionElapsed") ?? 0;
-		foreach (var d in root.Elements("Dose")) _doses.Add(new()
+		foreach (var d in root.Elements("Dose").Take(MaximumContributions)) _doses.Add(new()
 		{
 			Quantity = (double)d.Attribute("quantity")!, Latent = (double)d.Attribute("latent")!, Active = (double)d.Attribute("active")!,
 			Remaining = (double)d.Attribute("remaining")!, Vector = (DrugVector)(int)d.Attribute("vector")!, Surface = (bool)d.Attribute("surface")!,
-			Charges = d.Elements("Charge").Select(SubstanceCharge.Load).ToList()
+			Charges = d.Elements("Charge").Take(MaximumContributions).Select(SubstanceCharge.Load).ToList()
 		});
 	}
 	protected override XElement SaveDefinition()
@@ -74,9 +76,15 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 	}
 	public void AddExposure(IEnumerable<(double Quantity, SubstanceCharge Charge)> parts, DrugVector vector, bool surface)
 	{
+		if (_doses.Count >= MaximumContributions && Entry.Stacking is not
+			(SubstanceStacking.Aggregate or SubstanceStacking.Replace)) return;
+		if (_doses.Count >= MaximumContributions && surface && !IsTimed) return;
 		var incoming = parts.ToList();
 		if (surface && !IsTimed)
+		{
 			incoming.RemoveAll(x => _doses.Any(d => d.Surface && d.Charges.Any(c => c.Lot == x.Charge.Lot)));
+			incoming = incoming.Take(Math.Max(0, MaximumContributions - _doses.Sum(x => x.Charges.Count))).ToList();
+		}
 		if (incoming.Count == 0) return;
 		var quantity = incoming.Sum(x => x.Quantity);
 		var dose = Math.Min(Entry.MaximumDose, quantity / Substance!.ReferenceDose);
@@ -89,7 +97,8 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 		var duration = Math.Min(Entry.MaximumDurationSeconds, Entry.DurationSeconds *
 			(Entry.Scaling == SubstanceScaling.Duration || Entry.Lifecycle == SubstanceLifecycle.Periodic ? dose : 1));
 		var contribution = new Contribution { Quantity = quantity, Latent = quantity, Vector = vector, Surface = surface,
-			Charges = incoming.Select(x => x.Charge).DistinctBy(x => x.Lot).Select(x => x.Copy()).ToList(), Remaining = duration };
+			Charges = incoming.Select(x => x.Charge).DistinctBy(x => x.Lot).Take(MaximumContributions)
+				.Select(x => x.Copy()).ToList(), Remaining = duration };
 		if (IsTimed && Entry.Stacking == SubstanceStacking.Aggregate)
 		{
 			contribution.Quantity = Math.Min(Entry.MaximumDose * Substance.ReferenceDose, quantity + _doses.Sum(x => x.Quantity));
@@ -97,7 +106,7 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 			contribution.Charges.AddRange(_doses.SelectMany(x => x.Charges));
 			// Timed doses have already spent their activation charge. Only retained liquid needs
 			// provenance for later dispelling; historical internal doses share one capped reservoir.
-			contribution.Charges = RetainedCharges(contribution.Charges);
+			contribution.Charges = RetainedCharges(contribution.Charges).Take(MaximumContributions).ToList();
 			contribution.Surface = contribution.Charges.Count > 0;
 			_doses.Clear();
 		}
@@ -109,23 +118,34 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 	private List<SubstanceCharge> RetainedCharges(IEnumerable<SubstanceCharge> charges)
 	{
 		var lots = RetainedLiquids
-			.Where(x => x.Instance.MagicalCharges.ContainsKey(SubstanceId))
+			.Where(x => x.Instance.MagicalCharges.TryGetValue(SubstanceId, out var charge) && !charge.Inert)
 			.Select(x => x.Instance.MagicalCharges[SubstanceId].Lot).ToHashSet();
 		return charges.Where(x => lots.Contains(x.Lot)).DistinctBy(x => x.Lot).ToList();
 	}
 	public bool IsTimed => Entry.Lifecycle == SubstanceLifecycle.Activation ||
 		Entry.Lifecycle == SubstanceLifecycle.Periodic && Entry.PulseMode == SubstancePulseMode.Timed;
-	private double SurfaceQuantity(Contribution d)
+	private Dictionary<Guid, double> SurfaceQuantities()
 	{
-		return RetainedLiquids.Sum(x =>
-			x.Instance.MagicalCharges.TryGetValue(SubstanceId, out var charge) && d.Charges.Any(c => c.Lot == charge.Lot) && !charge.Suppressed.Contains(Entry.Key)
-				? x.Quantity * (Substance?.Bindings.FirstOrDefault(b => b.Carrier == SubstanceCarrier.Liquid && b.Id == x.Instance.Liquid.Id)?.QuantityPerUnit ?? 0) : 0);
+		var quantities = new Dictionary<Guid, double>();
+		var bindings = Substance?.Bindings.Where(x => x.Carrier == SubstanceCarrier.Liquid)
+			.GroupBy(x => x.Id).ToDictionary(x => x.Key, x => x.First().QuantityPerUnit);
+		foreach (var (instance, quantity) in RetainedLiquids)
+		{
+			if (!instance.MagicalCharges.TryGetValue(SubstanceId, out var charge) ||
+				charge.Inert || charge.Suppressed.Contains(Entry.Key)) continue;
+			quantities[charge.Lot] = quantities.GetValueOrDefault(charge.Lot) +
+				quantity * (bindings?.GetValueOrDefault(instance.Liquid.Id) ?? 0);
+		}
+		return quantities;
 	}
-	private double CurrentDose()
+	private static double SurfaceQuantity(Contribution dose, IReadOnlyDictionary<Guid, double> quantities) =>
+		dose.Charges.Sum(x => quantities.GetValueOrDefault(x.Lot));
+	private double CurrentDose(IReadOnlyDictionary<Guid, double>? surfaceQuantities = null)
 	{
 		if (Substance is not { } substance) return 0;
+		surfaceQuantities ??= !IsTimed && _doses.Any(x => x.Surface) ? SurfaceQuantities() : new Dictionary<Guid, double>();
 		var values = _doses
-			.Select(x => IsTimed ? x.Quantity : x.Surface ? SurfaceQuantity(x) : x.Active).ToList();
+			.Select(x => IsTimed ? x.Quantity : x.Surface ? SurfaceQuantity(x, surfaceQuantities) : x.Active).ToList();
 		var quantity = Entry.Stacking == SubstanceStacking.Strongest ? values.DefaultIfEmpty().Max() : values.Sum();
 		return Math.Min(Entry.MaximumDose, quantity / substance.ReferenceDose);
 	}
@@ -183,9 +203,12 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 				(d.Latent, d.Active) = SubstanceDose.Advance(d.Latent, d.Active, d.Vector, substance.ClearancePerTick);
 		}
 		if (_absorptionElapsed >= 10) _absorptionElapsed %= 10;
-		_doses.RemoveAll(x => IsTimed ? x.Remaining <= 0 : x.Surface ? SurfaceQuantity(x) <= 0 : x.Latent + x.Active <= 0);
+		var surfaceQuantities = _doses.Any(x => x.Surface) ? SurfaceQuantities() : new Dictionary<Guid, double>();
+		foreach (var contribution in _doses.Where(x => x.Surface && !IsTimed))
+			contribution.Charges.RemoveAll(x => !surfaceQuantities.ContainsKey(x.Lot));
+		_doses.RemoveAll(x => IsTimed ? x.Remaining <= 0 : x.Surface ? SurfaceQuantity(x, surfaceQuantities) <= 0 : x.Latent + x.Active <= 0);
 		if (_doses.Count == 0) { EndNaturally(); return; }
-		var dose = CurrentDose();
+		var dose = CurrentDose(surfaceQuantities);
 		if (Entry.Lifecycle == SubstanceLifecycle.Periodic)
 		{
 			if (_pulseElapsed >= Entry.IntervalSeconds)
@@ -216,8 +239,9 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 		foreach (var charge in _doses.SelectMany(x => x.Charges)) charge.Suppressed.Add(Entry.Key);
 		var surface = (RetainedTarget is ICharacter c ? c.Body : RetainedTarget) as ISurfaceContaminable;
 		if (surface is null) return;
+		var lots = _doses.SelectMany(x => x.Charges).Select(x => x.Lot).ToHashSet();
 		foreach (var (instance, _) in RetainedLiquids)
-			if (instance.MagicalCharges.TryGetValue(SubstanceId, out var charge) && _doses.Any(x => x.Charges.Any(c => c.Lot == charge.Lot))) charge.Suppressed.Add(Entry.Key);
+			if (instance.MagicalCharges.TryGetValue(SubstanceId, out var charge) && lots.Contains(charge.Lot)) charge.Suppressed.Add(Entry.Key);
 		if (RetainedTarget is { } target) MagicalExposure.RetainedLiquidsChanged(target);
 	}
 	public override void RemovalEffect()

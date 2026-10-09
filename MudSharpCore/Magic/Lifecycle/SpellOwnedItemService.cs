@@ -9,20 +9,46 @@ using MudSharp.GameItems;
 namespace MudSharp.Magic.Lifecycle;
 
 /// <summary>Creation and terminal removal of exact single leaf items, never their custodian or host.</summary>
-public sealed class SpellOwnedItemService(IFuturemud world) : ISpellOwnedItemService
+public sealed class SpellOwnedItemService : ISpellOwnedItemService
 {
+	private readonly IFuturemud _world;
+	private readonly Func<HashSet<long>> _readClaimedItemIds;
+	private HashSet<long>? _claimedItemIds;
 	private readonly SpellOwnedLifecycleStore _store = new();
 	private long _lastInspectedItemId;
 	internal const string ActivationPending = "Native item activation pending";
 
+	public SpellOwnedItemService(IFuturemud world) : this(world, ReadClaimedItemIds)
+	{
+	}
+
+	internal SpellOwnedItemService(IFuturemud world, Func<HashSet<long>> readClaimedItemIds)
+	{
+		_world = world;
+		_readClaimedItemIds = readClaimedItemIds;
+	}
+
+	private static HashSet<long> ReadClaimedItemIds()
+	{
+		using var isolated = FMDB.BeginIndependentScope();
+		using var db = new FMDB();
+		return FMDB.Context.MagicSpellOwnedEntities.AsNoTracking()
+			.Where(x => x.Kind == (int)SpellOwnedEntityKind.GameItem)
+			.Select(x => x.EntityId)
+			.ToHashSet();
+	}
+
+	private bool HasClaim(long itemId) => itemId > 0 &&
+		(_claimedItemIds ??= _readClaimedItemIds()).Contains(itemId);
+
 	public IGameItem Create(IGameItemProto prototype, ICharacter caster, ItemQuality quality, SpellLifecycleOrigin origin)
 	{
 		origin.Validate();
-		if (origin.Mode == SpellLifecycleMode.DeathOnExpiry || !Enum.IsDefined(quality) || !ReferenceEquals(caster.Gameworld, world) ||
+		if (origin.Mode == SpellLifecycleMode.DeathOnExpiry || !Enum.IsDefined(quality) || !ReferenceEquals(caster.Gameworld, _world) ||
 			origin.CreatorId != MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(caster))
 			throw new ArgumentException("Native item creation requires a valid item mode, quality and caster world.");
 		using var authorization = FMDB.BeginIndependentScope(requireWrites: true);
-		if (NativeItemCreationEligibility.Error(prototype, world) is { } error) throw new InvalidOperationException(error);
+		if (NativeItemCreationEligibility.Error(prototype, _world) is { } error) throw new InvalidOperationException(error);
 		if (_store.Find(origin.Id) is not null) throw new InvalidOperationException("This native item creation cannot be replayed.");
 		var item = new GameItem(prototype, caster, quality, deferSpellInitialisation: true);
 		// The light's usable state is part of its private birth, before rows or exposure.
@@ -36,6 +62,8 @@ public sealed class SpellOwnedItemService(IFuturemud world) : ISpellOwnedItemSer
 				components.Add((component, (MudSharp.Models.GameItemComponent)component.DatabaseInsert()));
 			creation.Claim(SpellOwnedEntityKind.GameItem, inserted);
 		}, ActivationPending);
+		// Claims are immutable. Publish a newly committed ID before native activation can load it.
+		_claimedItemIds?.Add(inserted!.Id);
 		try
 		{
 			item.ActivateCommittedSpellItem(inserted!, origin, components);
@@ -58,7 +86,7 @@ public sealed class SpellOwnedItemService(IFuturemud world) : ISpellOwnedItemSer
 
 	public SpellOwnedItemOrigin? FindOrigin(long itemId)
 	{
-		if (itemId <= 0) return null;
+		if (!HasClaim(itemId)) return null;
 		var life = Find(itemId);
 		return life is null ? null : new(life.Origin.Id, life.Origin.Mode, life.Origin.DeadlineUtc);
 	}
@@ -71,9 +99,14 @@ public sealed class SpellOwnedItemService(IFuturemud world) : ISpellOwnedItemSer
 			is { } row ? SpellOwnedLifecycleStore.Read(row) : null;
 	}
 
-	internal static bool IsActivationPending(FuturemudDatabaseContext context, long itemId) =>
-		context.MagicSpellLifecycles.Any(x => x.Diagnostic.StartsWith(ActivationPending) &&
+	public bool IsActivationPending(long itemId)
+	{
+		if (!HasClaim(itemId)) return false;
+		using var isolated = FMDB.BeginIndependentScope();
+		using var db = new FMDB();
+		return FMDB.Context.MagicSpellLifecycles.Any(x => x.Diagnostic.StartsWith(ActivationPending) &&
 			x.Entities.Any(e => e.Kind == (int)SpellOwnedEntityKind.GameItem && e.EntityId == itemId));
+	}
 
 	public bool TryPrepareRemoval(IGameItem item, out string diagnostic)
 	{
@@ -83,7 +116,7 @@ public sealed class SpellOwnedItemService(IFuturemud world) : ISpellOwnedItemSer
 		var life = Find(item.Id);
 		try
 		{
-			if (!ReferenceEquals(item.Gameworld, world) || item is not GameItem || life is null || life.State == SpellLifecycleState.Completed ||
+			if (!ReferenceEquals(item.Gameworld, _world) || item is not GameItem || life is null || life.State == SpellLifecycleState.Completed ||
 				life.Origin.Mode != SpellLifecycleMode.TemporaryCleanup || life.Origin.Id != item.SpellCreationOrigin.LifecycleId || !life.MayRemoveOwnedEntities ||
 				life.Entities.Count != 1 || life.Entities[0] is not { Kind: SpellOwnedEntityKind.GameItem, Role: SpellOwnedEntityRole.CreatedEntity } ||
 				life.Entities[0].Id != item.Id || life.Diagnostic.StartsWith(ActivationPending, StringComparison.Ordinal))
@@ -155,9 +188,9 @@ public sealed class SpellOwnedItemService(IFuturemud world) : ISpellOwnedItemSer
 				using (var db = new FMDB())
 					if (!FMDB.Context.GameItems.Any(x => x.Id == id))
 					{
-						if (world.Items.FirstOrDefault(x => x.Id == id) is { } cached)
+						if (_world.Items.FirstOrDefault(x => x.Id == id) is { } cached)
 						{
-							if (cached is not GameItem native || !ReferenceEquals(cached.Gameworld, world) || cached.SpellCreationOrigin?.LifecycleId != life.Origin.Id)
+							if (cached is not GameItem native || !ReferenceEquals(cached.Gameworld, _world) || cached.SpellCreationOrigin?.LifecycleId != life.Origin.Id)
 								throw new InvalidOperationException("Cached item differs from its committed retirement authority.");
 							native.FinishCommittedSpellItemRemoval();
 							life = _store.Find(life.Origin.Id)!;
@@ -165,8 +198,8 @@ public sealed class SpellOwnedItemService(IFuturemud world) : ISpellOwnedItemSer
 						if (life.State != SpellLifecycleState.Completed) _store.Complete(life.Origin.Id, life.Version, TransitionTime(life, nowUtc));
 						continue;
 					}
-				var item = world.TryGetItem(id, true) ?? throw new InvalidOperationException("The exact persisted item is unavailable; retain its row.");
-				if (!ReferenceEquals(item.Gameworld, world) || item.SpellCreationOrigin?.LifecycleId != life.Origin.Id)
+				var item = _world.TryGetItem(id, true) ?? throw new InvalidOperationException("The exact persisted item is unavailable; retain its row.");
+				if (!ReferenceEquals(item.Gameworld, _world) || item.SpellCreationOrigin?.LifecycleId != life.Origin.Id)
 					throw new InvalidOperationException("Loaded item does not match this creation.");
 				item.Delete();
 				ObserveRemoval(item);

@@ -522,6 +522,7 @@ The syntax is one of the following:
         AutoHelp.HelpArg)]
     protected static void Grapple(ICharacter actor, string command)
     {
+		if (!HasCombatSettings(actor)) return;
         StringStack ss = new(command.RemoveFirstWord());
         if (actor.Combat == null)
         {
@@ -589,6 +590,7 @@ Strangle attacks are only used from within grapples, so this mode will first att
 The syntax is #3strangle#0 to toggle the mode on and off.", AutoHelp.HelpArg)]
     protected static void Strangle(ICharacter actor, string command)
     {
+		if (!HasCombatSettings(actor)) return;
         if (actor.Combat == null)
         {
             actor.Send("This command is only usable when you are in combat.");
@@ -2274,6 +2276,7 @@ Note: The prog used with #3peace permanent#0 takes the following parameters and 
 The syntax is simply #3flee#0 to toggle it on, and the same again to return to your default combat setting.", AutoHelp.HelpArg)]
     protected static void Flee(ICharacter actor, string command)
     {
+		if (!HasCombatSettings(actor)) return;
         if (actor.Combat == null)
         {
             actor.Send("You are not in combat, and so do not need to flee.");
@@ -2330,6 +2333,7 @@ If the ward fails, you can still dodge the attack (albeit at a penalty) but you 
 The syntax is simply #3ward#0 to toggle the setting on or off.", AutoHelp.HelpArg)]
     protected static void Ward(ICharacter actor, string command)
     {
+		if (!HasCombatSettings(actor)) return;
         if (actor.Combat == null)
         {
             actor.Send("You are not in combat, and so cannot begin to ward.");
@@ -2374,6 +2378,7 @@ The syntax is simply #3ward#0 to toggle the setting on or off.", AutoHelp.HelpAr
 The syntax is simply #3clinch#0 to toggle the setting on or off.", AutoHelp.HelpArg)]
     protected static void Clinch(ICharacter actor, string command)
     {
+		if (!HasCombatSettings(actor)) return;
         if (actor.Combat == null)
         {
             actor.Send("You are not in combat, and so cannot begin to clinch.");
@@ -2871,7 +2876,8 @@ The syntax is:
             actor.OutputHandler.Handle(
                 new EmoteOutput(new Emote("@ begin|begins to aim $2 at $1.", actor, actor, target, weapon.Parent),
                     flags: OutputFlags.SuppressObscured | OutputFlags.InnerWrap));
-            if (target is ICharacter && !actor.CombatSettings.PreferredRangedMode.IsRangedStartDesiringStrategy())
+            if (target is ICharacter && actor.CombatSettings is not null &&
+                !actor.CombatSettings.PreferredRangedMode.IsRangedStartDesiringStrategy())
             {
                 actor.Send(
                     "Warning: Your current combat settings are not range-friendly settings, you will charge into melee when you fire."
@@ -3659,8 +3665,24 @@ The syntax for this command is as follows:
 
     #region Combat Subcommands
 
+	private static bool HasCombatSettings(ICharacter actor)
+	{
+		if (actor.CombatSettings is not null)
+		{
+			return true;
+		}
+
+		actor.Send($"You do not have a usable combat setting. Use {"combat list".ColourCommand()} and {"combat set <id/name>".ColourCommand()} to select one, or ask an administrator to make a suitable setting available.");
+		return false;
+	}
+
     protected static void CombatTargets(ICharacter actor)
     {
+		if (!HasCombatSettings(actor))
+		{
+			return;
+		}
+
         StringBuilder sb = new();
         sb.AppendLine($"Combat settings attack information:");
         sb.AppendLine();
@@ -3723,6 +3745,11 @@ The syntax for this command is as follows:
         ICharacterCombatSettings setting;
         if (command.IsFinished)
         {
+			if (!HasCombatSettings(actor))
+			{
+				return;
+			}
+
             setting = actor.CombatSettings;
         }
         else
@@ -3768,7 +3795,7 @@ The syntax for this command is as follows:
         if (command.IsFinished)
         {
             actor.Send(
-                $"Which combat setting do you want to clone? In order to clone your current one, use {$"combat clone \"{actor.CombatSettings.Name}\" \"New Name\"".Colour(Telnet.Yellow)}.");
+                $"Which combat setting do you want to clone? Use {$"combat clone \"{actor.CombatSettings?.Name ?? "Setting Name"}\" \"New Name\"".ColourCommand()}.");
             return;
         }
 
@@ -5141,6 +5168,11 @@ The following options refer to flags listed in the SHOW COMBATFLAGS list:
             CombatConfigHelp(actor);
             return;
         }
+
+		if (!HasCombatSettings(actor))
+		{
+			return;
+		}
 
         if (actor.CombatSettings.GlobalTemplate && !actor.IsAdministrator())
         {

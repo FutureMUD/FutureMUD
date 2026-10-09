@@ -19,6 +19,8 @@ Outbound bot-to-engine commands continue to use UTF-16 with the existing newline
 
 `login` is the only inbound command accepted before authentication. Its presented secret is compared with the configured `ServerAuth` using an exact, case-sensitive, fixed-time comparison. Empty secrets do not authenticate.
 
+The engine's `DiscordAuthToken`, `DiscordBotIpAddress`, and `DiscordBotPort` static configurations require implementor permission to view or edit in game. Restricting the destination prevents another administrator from redirecting the authentication secret to a different service. Other administrators see setting names with a red `Redacted for Security` placeholder. See [Static Configuration Security](./Static_Configuration_Security.md).
+
 Every recognized command other than `login` is marked as requiring authentication by `DiscordTcpCommandRouter`. Unknown and empty commands are rejected before dispatch. Authentication success and failure retain the existing `authsuccess` and `authfailure` response commands.
 
 Discord `showaccount` and `showcharacter` requests carry the linked MUD account ID, but the engine remains the authorization boundary: the requester must currently resolve to at least `JuniorAdmin`. Malformed request, requester, or character identifiers are rejected without throwing through the game loop. Account-detail rendering occurs while its `FMDB` scope is alive because the formatter reads account navigation data and related character rows.

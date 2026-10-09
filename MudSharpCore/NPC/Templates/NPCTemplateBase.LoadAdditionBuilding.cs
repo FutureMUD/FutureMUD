@@ -1,5 +1,6 @@
 ﻿using MudSharp.Community;
 using MudSharp.Economy;
+using MudSharp.Accounts;
 using MudSharp.Events.Hooks;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Prototypes;
@@ -362,6 +363,12 @@ public abstract partial class NPCTemplateBase
 
     private bool BuildingCommandHook(ICharacter actor, StringStack command)
     {
+        if (actor.PermissionLevel < PermissionLevel.SeniorAdmin)
+        {
+            actor.OutputHandler.Send("You must be a senior administrator to change NPC template hooks.".ColourError());
+            return false;
+        }
+
         var action = command.PopSpeech();
         var add = action.EqualTo("add");
         if (!add && !action.EqualToAny("remove", "delete", "rem"))

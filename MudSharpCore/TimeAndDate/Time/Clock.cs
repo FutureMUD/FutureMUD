@@ -684,11 +684,12 @@ public class Clock : SaveableItem, IClock
         HourIntervalNames.AddRange(new[] { "am", "pm" });
         HourIntervalLongNames.AddRange(new[] { "in the morning", "in the afternoon" });
         NoZeroHour = true;
+        CrudeTimeIntervals.Add(new BoundRange<string>(CrudeTimeIntervals, "day", 0, HoursPerDay));
         using (new FMDB())
         {
             Models.Clock dbclock = new();
             FMDB.Context.Clocks.Add(dbclock);
-            dbclock.Definition = string.Empty;
+            dbclock.Definition = SaveToXml().ToString();
             dbclock.Hours = 0;
             dbclock.Minutes = 0;
             dbclock.Seconds = 0;
@@ -733,7 +734,7 @@ public class Clock : SaveableItem, IClock
         {
             Models.Clock dbclock = new();
             FMDB.Context.Clocks.Add(dbclock);
-            dbclock.Definition = string.Empty;
+            dbclock.Definition = SaveToXml().ToString();
             dbclock.Hours = rhs.CurrentTime.Hours;
             dbclock.Minutes = rhs.CurrentTime.Minutes;
             dbclock.Seconds = rhs.CurrentTime.Seconds;

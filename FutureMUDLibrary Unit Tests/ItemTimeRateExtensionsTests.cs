@@ -82,6 +82,25 @@ public class ItemTimeRateExtensionsTests
 		Assert.IsNull(ItemTimeRateMath.WallDuration(effective, 0.0));
 	}
 
+	[DataTestMethod]
+	[DataRow(1e-300)]
+	[DataRow(double.Epsilon)]
+	[DataRow(double.NaN)]
+	[DataRow(double.PositiveInfinity)]
+	[DataRow(double.NegativeInfinity)]
+	public void WallDuration_UnrepresentableOrNonFiniteRate_DefersWithoutOverflow(double rate)
+	{
+		Assert.IsNull(ItemTimeRateMath.WallDuration(TimeSpan.FromMinutes(1), rate));
+	}
+
+	[TestMethod]
+	public void EffectiveElapsed_HugeFiniteRate_SaturatesWithoutWrappingNegative()
+	{
+		Assert.AreEqual(TimeSpan.MaxValue, ItemTimeRateMath.EffectiveElapsed(TimeSpan.FromMinutes(1), 1e300));
+		Assert.AreEqual(TimeSpan.Zero, ItemTimeRateMath.EffectiveElapsed(TimeSpan.FromMinutes(1), double.NaN));
+		Assert.AreEqual(0.0, ContainedItem(ItemWithModifier(double.PositiveInfinity).Object).Object.TimeRateMultiplier(ItemTimeRateType.Morph));
+	}
+
 	[TestMethod]
 	public void PreservedSensitiveMorphConvertsScheduledWallTimeBackToEffectiveTime()
 	{

@@ -31,6 +31,30 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicEngineV4Tests
 {
+	[DataTestMethod]
+	[DataRow("{")]
+	[DataRow("}")]
+	[DataRow("{0")]
+	[DataRow("{1,10}")]
+	public void TechniqueEchoes_MalformedFormatReturnsErrorWithoutChangingEcho(string text)
+	{
+		var world = CreateGameworld();
+		world.SetupGet(x => x.SaveManager).Returns(Mock.Of<MudSharp.Framework.Save.ISaveManager>());
+		var resource = new Mock<IMagicResource>();
+		resource.SetupGet(x => x.Id).Returns(1);
+		world.SetupGet(x => x.MagicResources).Returns(CreateCollectionMock(resource.Object).Object);
+		var stock = PsionicStockContent.Powers.First(x => x.Type == "dreamsend");
+		var model = new MagicPower { Id = 1, Name = stock.Verb, MagicSchoolId = 1, PowerModel = stock.Type,
+			Definition = PsionicStockContent.Definition(stock, 1, 1, 0, 0, 0, 0).ToString() };
+		var power = (PsychicTechniquePower)MagicPowerFactory.LoadPower(model, world.Object);
+		var previous = power.EchoText("DreamEcho");
+		var actor = CreateCharacter(1, world.Object);
+		actor.SetupGet(x => x.OutputHandler).Returns(Mock.Of<MudSharp.PerceptionEngine.IOutputHandler>());
+		Assert.IsFalse(power.BuildingCommand(actor.Object, new StringStack($"echo DreamEcho {text}")));
+		Assert.AreEqual(previous, power.EchoText("DreamEcho"));
+		Assert.IsTrue(power.BuildingCommand(actor.Object, new StringStack("echo DreamEcho A dream: {0}")));
+		Assert.AreEqual("A dream: remembered text", power.FormatEcho("DreamEcho", "remembered text"));
+	}
 	[TestMethod]
 	public void TechniqueEchoes_PreserveCustomTextAndExplicitSilenceAcrossSaveLoad()
 	{

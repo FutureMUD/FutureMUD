@@ -869,6 +869,10 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 		{
 			return RestaurantOperationResult.Fail("That order is not awaiting preparation at this restaurant.");
 		}
+		if (RejectUnsafeOrder(order))
+		{
+			return RestaurantOperationResult.Fail("That order has an unsafe quantity and requires manager recovery.");
+		}
 
 		if (order.MenuItem.FulfilmentMode is RestaurantFulfilmentMode.CraftAndBring or RestaurantFulfilmentMode.CraftAndPlate)
 		{
@@ -1009,6 +1013,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 	/// </summary>
 	public bool TryHandleNpcService(ICharacter employee, IReadOnlySet<EmploymentAICapability> capabilities)
 	{
+		RejectUnsafeQueuedOrders();
 		if (!IsWithinRestaurant(employee.Location))
 		{
 			return false;
@@ -1398,9 +1403,21 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return RestaurantOperationResult.Fail("This restaurant is not currently trading.");
 		}
 
-		if (quantity < 1)
+		var maximumQuantity = Math.Clamp(Gameworld.GetStaticInt(RestaurantServiceRules.MaximumOrderQuantityConfiguration),
+			1, RestaurantServiceRules.MaximumSafeQuantity);
+		if (quantity < 1 || quantity > maximumQuantity)
 		{
-			return RestaurantOperationResult.Fail("You must order a quantity of at least one.");
+			return RestaurantOperationResult.Fail($"You must order between 1 and {maximumQuantity:N0} servings at a time.");
+		}
+
+		var ordererId = CharacterInstanceIdentityComparer.IdentityId(orderer);
+		var pendingQuantity = _orders.OfType<RestaurantOrder>()
+			.Where(x => x.OrdererCharacterId == ordererId &&
+				(x.Status is RestaurantOrderStatus.Queued or RestaurantOrderStatus.Preparing or RestaurantOrderStatus.ReadyForService))
+			.Sum(x => (long)Math.Max(0, x.Quantity));
+		if (pendingQuantity + quantity > RestaurantServiceRules.MaximumSafeQuantity)
+		{
+			return RestaurantOperationResult.Fail("Finish or cancel existing orders before requesting more servings.");
 		}
 
 		if (!menuItem.IsActive)
@@ -1454,7 +1471,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			return RestaurantOperationResult.Fail(paymentReason);
 		}
 
-		var expectedReady = DateTime.UtcNow + EstimateWait(orderer, menuItem, quantity);
+		var expectedReady = RestaurantServiceRules.ExpectedReadyAt(DateTime.UtcNow, EstimateWait(orderer, menuItem, quantity));
 		var order = new RestaurantOrder(this, session, menuItem, orderer, recipient, orderType, quantity, calculation,
 			expectedReady);
 		_orders.Add(order);
@@ -1539,6 +1556,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 	private IEnumerable<IGameItem> TakeStockForOrder(RestaurantOrder order, ICharacter? employee)
 	{
+		if (RejectUnsafeOrder(order)) return Enumerable.Empty<IGameItem>();
 		var stocked = StockedItems(order.MenuItem.Merchandise).ToList();
 		if (stocked.Sum(x => x.Quantity) < order.Quantity)
 		{
@@ -2588,6 +2606,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 
 	private void RestaurantHeartbeat()
 	{
+		RejectUnsafeQueuedOrders();
 		CleanInvalidJoinRequests();
 		ProcessAbandonments();
 		if (AutomatedService)
@@ -2639,6 +2658,22 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 					DeliverOrder(order, null);
 				}
 			}
+		}
+	}
+
+	private bool RejectUnsafeOrder(RestaurantOrder order)
+	{
+		if (RestaurantServiceRules.IsSafeOrderQuantity(order.Quantity)) return false;
+		order.MarkFailed("Order quantity is outside the safe service range; manager recovery is required.");
+		return true;
+	}
+
+	private void RejectUnsafeQueuedOrders()
+	{
+		foreach (var order in _orders.OfType<RestaurantOrder>()
+			.Where(x => x.Status is RestaurantOrderStatus.Queued or RestaurantOrderStatus.Preparing).ToList())
+		{
+			RejectUnsafeOrder(order);
 		}
 	}
 

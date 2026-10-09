@@ -339,6 +339,7 @@ internal sealed class EnvironmentalMagicTestOperationStore : IEnvironmentalMagic
 {
 	public Dictionary<Guid, LandRejuvenationProgress> Treatments { get; } = new();
 	public int TreatmentReads { get; private set; }
+	public int TreatmentHistoryReads { get; private set; }
 	public bool FailTreatmentSave { get; set; }
 	public LandRejuvenationProgress? FindTreatment(Guid id)
 	{
@@ -349,8 +350,15 @@ internal sealed class EnvironmentalMagicTestOperationStore : IEnvironmentalMagic
 	public IReadOnlyList<LandRejuvenationProgress> TreatmentsFor(long cellId)
 	{
 		TreatmentReads++;
+		TreatmentHistoryReads++;
 		if (FailRead) throw new InvalidOperationException("Test treatment read failure");
 		return Treatments.Values.Where(x => x.RoomId == cellId).ToArray();
+	}
+	public IReadOnlyList<LandRejuvenationProgress> UnresolvedTreatmentsFor(long cellId)
+	{
+		TreatmentReads++;
+		if (FailRead) throw new InvalidOperationException("Test treatment read failure");
+		return Treatments.Values.Where(x => x.RoomId == cellId && (!x.IsTerminal || x.PendingRequest is not null)).ToArray();
 	}
 	public void SaveTreatment(LandRejuvenationProgress progress, long? expectedRevision)
 	{

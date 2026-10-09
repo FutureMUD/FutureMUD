@@ -437,7 +437,17 @@ public partial class EditableItemHelper
 
 			var (name, regionalClimate, zone) = creationArguments.Value;
 
-            WeatherController wc = new(actor.Gameworld, name, regionalClimate, zone);
+            WeatherController wc;
+            try
+            {
+                wc = new WeatherController(actor.Gameworld, name, regionalClimate, zone);
+            }
+            catch (ArgumentException ex) when (ex.ParamName == "climate")
+            {
+                actor.OutputHandler.Send("That regional climate has no initial weather event permitted for the current season and local time of day. Add a permitted event before creating this controller.".ColourError());
+                return;
+            }
+
             actor.Gameworld.Add(wc);
             actor.RemoveAllEffects<BuilderEditingEffect<IWeatherController>>();
             actor.AddEffect(new BuilderEditingEffect<IWeatherController>(actor) { EditingItem = wc });

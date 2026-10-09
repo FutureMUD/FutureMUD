@@ -20,6 +20,20 @@ namespace MudSharp_Unit_Tests.CharacterCreation;
 [TestClass]
 public class RerollableCharacteristicPickerScreenTests
 {
+	[DataTestMethod]
+	[DataRow("")]
+	[DataRow("lock ")]
+	[DataRow("basiclock ")]
+	[DataRow("unlock ")]
+	public void Screen_BacktrackingCharacteristicPattern_RefusesInputWithoutThrowing(string prefix)
+	{
+		var fixture = CreateFixture(false, "", Value("Chestnut", "brown"));
+		fixture.Definition.SetupGet(x => x.Pattern).Returns(new Regex("^(a+)+$"));
+		var result = fixture.Screen.HandleCommand(prefix + new string('a', 128) + "!");
+		StringAssert.Contains(result, "valid characteristic");
+		Assert.AreEqual(ChargenScreenState.Incomplete, fixture.Screen.State);
+	}
+
 	[TestMethod]
 	public void Screen_InitialRollAndContinue_AcceptsRolledValue()
 	{
@@ -86,6 +100,26 @@ public class RerollableCharacteristicPickerScreenTests
 		StringAssert.Contains(fixture.Screen.Display(), "Not Selected");
 		StringAssert.Contains(fixture.Screen.HandleCommand("continue"), "must select valid values");
 		Assert.AreNotEqual(ChargenScreenState.Complete, fixture.Screen.State);
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void SimplePicker_NullRandomValueOrMissingProfile_DisplaysNotSelected(bool missingProfile)
+	{
+		var fixture = CreateFixture(false, "Choose your look");
+		if (missingProfile)
+		{
+			fixture.Chargen.SetupGet(x => x.SelectedEthnicity).Returns(Mock.Of<IEthnicity>(x =>
+				x.CharacteristicChoices == new Dictionary<ICharacteristicDefinition, ICharacteristicProfile>()));
+		}
+		var storyboard = (SimpleCharacteristicsPickerScreenStoryboard)Activator.CreateInstance(
+			typeof(SimpleCharacteristicsPickerScreenStoryboard), true)!;
+		typeof(SimpleCharacteristicsPickerScreenStoryboard).GetProperty("Blurb")!.SetValue(storyboard, "Choose your look");
+		var screen = storyboard.GetScreen(fixture.Chargen.Object);
+		StringAssert.Contains(screen.Display(), "Not Selected");
+		StringAssert.Contains(screen.Display(), "Hair");
+		Assert.AreEqual(ChargenScreenState.Incomplete, screen.State);
 	}
 
 	[TestMethod]
@@ -204,7 +238,7 @@ public class RerollableCharacteristicPickerScreenTests
 	}
 
 	private static (RerollableCharacteristicsPickerScreenStoryboard.RerollableCharacteristicPickerScreen Screen,
-		Mock<IChargen> Chargen, Mock<ICharacteristicProfile> Profile) CreateFixture(
+		Mock<IChargen> Chargen, Mock<ICharacteristicProfile> Profile, Mock<ICharacteristicDefinition> Definition) CreateFixture(
 		bool separateBlurb, string blurb, params ICharacteristicValue[] values)
 	{
 		var definition = new Mock<ICharacteristicDefinition>();
@@ -242,7 +276,7 @@ public class RerollableCharacteristicPickerScreenTests
 		typeof(RerollableCharacteristicsPickerScreenStoryboard).GetProperty("SeparateBlurb")!
 			.SetValue(storyboard, separateBlurb);
 		return ((RerollableCharacteristicsPickerScreenStoryboard.RerollableCharacteristicPickerScreen)
-			storyboard.GetScreen(chargen.Object), chargen, profile);
+			storyboard.GetScreen(chargen.Object), chargen, profile, definition);
 	}
 
 	private static ICharacteristicValue Value(string name, string basic)

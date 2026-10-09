@@ -172,6 +172,10 @@ The base forms are:
 
 What "ordinary", "basic", and "fancy" mean depends on the specific characteristic value implementation. The generic system does not hardcode the prose; it asks the characteristic value for `GetValue`, `GetBasicValue`, and `GetFancyValue`.
 
+Characteristic-definition regex lookup accepts variable names up to 256 characters and
+limits each match to 25 milliseconds. A timed-out pattern is a non-match for that lookup;
+the normal missing-variable handling then applies. Authored regex syntax is retained.
+
 ### Obscurer-Aware Variable Branches
 
 Form:
@@ -321,6 +325,8 @@ Current runtime:
 - checks visible and exposed tattoos or scars
 - honours special overrides where a tattoo/scar template provides one
 - otherwise falls back to stock summary strings such as "scarred", "heavily scarred", "inked", and their `with...` variants
+
+Tattoo text copying requires a visible readable item exposing the source writing; closed or sealed items are excluded, and missing or inaccessible writing IDs produce the same refusal. Copying visible writing without understanding it remains supported with the existing skill penalty. Tattoo proposal and completion output resolves text separately for each recipient, preserving language, script and skill checks and showing the alternate text to viewers who cannot read it.
 
 These helpers are useful in sdescs because they compress many visible marks into short readable phrases.
 

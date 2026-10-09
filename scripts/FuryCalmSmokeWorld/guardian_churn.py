@@ -30,6 +30,11 @@ for name in ['scripts/FuryCalmSmokeWorld/guardian_churn.py',
              'MudSharpCore/Commands/Modules/StaffModule.Census.cs',
              'MudSharpCore/Framework/Scheduling/Scheduler.cs', 'MudSharpCore/Effects/EffectScheduler.cs',
              'MudSharpCore/Effects/EffectSchedule.cs',
+             'MudSharpCore/Body/Traits/Subtypes/SkillDefinition.cs',
+             'MudSharpCore/Body/Traits/Improvement/ImprovementModel.cs',
+             'MudSharpCore/Body/Traits/Improvement/ClassicImprovement.cs',
+             'MudSharpCore/Body/Traits/Improvement/BranchingImprover.cs',
+             'MudSharpCore/Body/Traits/Improvement/TheoreticalImprovementModel.cs',
              'MudSharpCore/Framework/Scheduling/HeartbeatManager.cs',
              'MudSharpCore/Framework/PerceivedItem.cs', 'MudSharpCore/Framework/PerceiverItem.cs',
              'MudSharpCore/Character/Character.Diagnostics.cs', 'FutureMUDLibrary/Framework/Scheduling/IScheduler.cs',
@@ -51,6 +56,7 @@ census_names = ['Actors', 'Cached actors', 'NPCs', 'Bodies', 'Attached bodies', 
                 'Death subscriptions', 'Start move subscriptions', 'Stop move subscriptions',
                 'Following character', 'Following instance', 'Followers']
 guardian_original = corpse_original = permanent_description = permanent_names = None
+improver_originals = {}
 
 
 def flush():
@@ -99,6 +105,31 @@ def stable_census(label, expected, seconds=15):
                           ['me', 'qacaster', 'qatarget', 'qaother', 'qaenemy', 'qaguard', 'qan16permanent']}))
     s.check(label, consecutive == 3, json.dumps(dict(expected=expected, samples=samples)))
     return samples
+
+
+def stabilize_improvement_cooldowns():
+    # SkillDefinition loads this explicit scalar link. The three runtime model types
+    # share the native nogain setting; no actor effects or queued entries are removed.
+    for identifier in improver_originals:
+        s.command(f'improver edit {identifier}')
+        s.command('improver set nogain 0', 'no-gain effect will now be 0 seconds')
+        s.command('improver close')
+    flush()
+    for identifier in improver_originals:
+        definition = ET.fromstring(s.sql(f'SELECT Definition FROM Improvers WHERE Id={identifier}'))
+        s.check('native improver has zero cooldown duration ' + identifier,
+                definition.get('NoGainSecondsDiceExpression') == '0')
+    initial = census()['Effect schedules']
+    s.report['improvementCooldownFixture'] = dict(modelDefinitions=improver_originals,
+        initialEffectSchedules=initial, initialScheduler=s.command('debug scheduler', seconds=.5),
+        policy='native nogain 0; existing schedules expire naturally; no schedule exclusions')
+    limit = min(s.deadline, time.monotonic() + 500)
+    remaining = initial
+    while remaining and time.monotonic() < limit:
+        s.session.read_for(3)
+        remaining = census()['Effect schedules']
+    s.check('existing fixture effect schedules expire naturally before qualification baseline', remaining == 0)
+    flush()
 
 
 def identities(table, column='Id', where=''):
@@ -334,6 +365,7 @@ try:
         preceding = json.loads((s.root / f'guardian-churn-{stage-1:02d}-passed.json').read_text(encoding='utf-8'))
         s.check('preceding stage is fresh source-identical qualified proof',
                 preceding['status'] == preceding['runnerStatus'] == 'PASS' and preceding['n16Stage'] == stage - 1 and
+                not preceding.get('n16DiagnosticOnly') and
                 preceding['revision'] == s.report['revision'] and preceding['inputs'] == s.report['inputs'] and
                 preceding['cleanup']['mysqlStopped'] and all(row['restartVerified'] for row in preceding['cycles']))
     actors = json.loads((s.root / 'fury-calm-actors.json').read_text(encoding='utf-8'))
@@ -351,6 +383,10 @@ try:
     permanent_character, permanent_body = permanent['character'], permanent['body']
     permanent_description = s.sql(f'SELECT HEX(ShortDescription) FROM Bodies WHERE Id={permanent_body}')
     permanent_names = s.sql(f'SELECT HEX(Name),HEX(NameInfo) FROM Characters WHERE Id={permanent_character}').split('\t')
+    rows = s.sql("SELECT DISTINCT i.Id,HEX(i.Definition) FROM TraitDefinitions t JOIN Improvers i ON i.Id=t.ImproverId "
+                 "WHERE i.Type IN ('classic','branching','theoretical') ORDER BY i.Id")
+    improver_originals = dict(row.split('\t', 1) for row in rows.splitlines())
+    s.check('code-linked skill improvement models exist for fixture cooldown isolation', bool(improver_originals))
     s.check('only the explained ordinary permanent guardian remains before churn',
             s.sql(f'SELECT GROUP_CONCAT(c.Id ORDER BY c.Id) FROM Npcs n JOIN Characters c ON c.Id=n.CharacterId '
                   f'WHERE n.TemplateId={template} AND (c.State & 64)=0') == str(permanent_character) and
@@ -387,6 +423,7 @@ try:
     s.possess('qacaster')
     s.command('return')
     s.session.read_for(12)
+    stabilize_improvement_cooldowns()
     if diagnostic_cycle is not None:
         qualify_cycle(diagnostic_cycle)
     elif stage == 16:
@@ -421,6 +458,10 @@ finally:
             s.sql(f"UPDATE Characters SET Name=CONVERT(UNHEX('{permanent_names[0]}') USING utf8mb4),NameInfo=CONVERT(UNHEX('{permanent_names[1]}') USING utf8mb4) WHERE Id={permanent_character}")
             s.check('ordinary permanent canonical name fields restored exactly',
                     s.sql(f'SELECT HEX(Name),HEX(NameInfo) FROM Characters WHERE Id={permanent_character}') == '\t'.join(permanent_names))
+        for identifier, original in improver_originals.items():
+            s.sql(f"UPDATE Improvers SET Definition=CONVERT(UNHEX('{original}') USING utf8mb4) WHERE Id={identifier}")
+            s.check('skill improver definition restored byte-for-byte ' + identifier,
+                    s.sql(f'SELECT HEX(Definition) FROM Improvers WHERE Id={identifier}') == original)
         s.report['inputsUnchanged'] = all(hashlib.sha256((s.repo / name).read_bytes()).hexdigest() == digest for name, digest in s.report['inputs'].items())
         s.check('all captured source and binary inputs remain unchanged', s.report['inputsUnchanged'])
     except BaseException as error:

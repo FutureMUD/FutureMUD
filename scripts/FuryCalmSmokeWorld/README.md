@@ -93,3 +93,11 @@ It captures terminal scheduler entries and effects on the known loaded fixtures.
 The receipt explicitly sets `n16DiagnosticOnly=true`; it cannot qualify an N16 stage.
 Unset this variable for the normal campaign. Failed census waits retain scheduler and
 loaded-effect evidence without changing the assertion or its deadline.
+
+The disposable fixture temporarily uses the supported `improver set nogain 0` on
+the exact improvement models linked by `TraitDefinitions.ImproverId` and loaded as
+classic, branching or theoretical models. Combat checks and skill gains remain
+available. Existing timed effects expire naturally within a bounded 500-second
+preflight; no effect is removed and no scheduler entry is excluded from the census.
+This isolates incidental ordinary skill cooldowns from the guardian lifecycle gate.
+Each stage restores every original improver definition byte-for-byte while stopped.

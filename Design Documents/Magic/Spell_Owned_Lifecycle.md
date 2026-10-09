@@ -701,6 +701,13 @@ expected retained state. The N15 permanent guardian remains ordinary durable out
 The new 32-cycle/128-output campaign is not qualified until every fresh source-bound
 stage and owned cleanup receipt passes.
 
+The N16 disposable fixture uses native `improver set nogain 0` on the explicit
+skill-to-improvement-model links whose runtime models produce skill cooldowns.
+Existing effect schedules expire naturally in a bounded preflight. Combat and skill
+improvement remain active, while incidental ordinary cooldowns cannot change the
+qualification baseline. All actual scheduled entries remain included in the census;
+each stage restores the original improver definitions byte-for-byte while stopped.
+
 The harness snapshots all nineteen explicit lifecycle fields through MySQL `JSON_ARRAY`.
 Empty diagnostics and null fields retain their distinct values even when the shared SQL
 helper strips stdout boundaries. Comparison uses exact field tuples keyed by lifecycle

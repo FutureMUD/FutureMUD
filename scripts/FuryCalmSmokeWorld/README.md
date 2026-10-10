@@ -1,5 +1,49 @@
 # Fury/Calm disposable-world qualification
 
+## N21 Flame Knife qualification
+
+Build `FuryCalmSmokeWorld.csproj` serially in Debug, then run this scenario only on
+the stopped retained loopback world used by the earlier checkpoints:
+
+```powershell
+python -B -u scripts/FuryCalmSmokeWorld/flame_knife.py --run-dir .artifacts/authored-celestials/run-8f52a54633e3
+```
+
+The scenario owns its MySQL/server processes and uses the maintained Telnet client.
+It creates fourteen approved burning native weapons plus component, salvage and
+foreign-custody fixtures. Explicit skill 100, controlled grade seven, Automatic
+casting and a reserve of 1000 make payment deterministic; this does not qualify
+natural acquisition or mastery. Four paid grades 1/6/7/7 spend exactly 132 reserve
+units. Missing, unsuitable, ground, contained and otherwise-tagged temporary
+materials must refuse without payment or consumption. Each successful mon cast
+consumes only its selected component. Exactly one wielded claimed weapon, its
+burning attack profile, a successful weapon-specific strike and new positive
+caster-attributed burning wounds in the same hit window establish native damage.
+The native damage helper supplies null ToolOrigin; that path does not persist a
+weapon ID in Wounds. Its provenance implications require a separate audit.
+Timed salvage refuses; one paid permanent staff produces
+ordinary salvage while another remains held by the recipient.
+
+The explicit fixture lifetime is `240+5*grade` seconds. Exact journal deltas,
+survival immediately before the original deadlines and the Expiry retirement
+reason distinguish actual timed cleanup from early disappearance. Cold restart
+preserves origins, deadlines, wielding, the recipient-held foreign bag and payment.
+Both timed weapons expire while the foreign bag, sibling goods and permanent staff
+survive exactly once. A second cold load verifies retained permanent goods and
+removed temporary goods. Successful completion restores the original spell XML
+and combat setting exactly. Failures retain their disposable state and receipts;
+they never qualify the milestone. Each server start explicitly enables immortal
+mode before staff setup; paid casts and combat run in mortal mode. All process
+and collector cleanup must pass.
+Historical object statistics, event-unit conversion, all native grades/output
+choices, full installer composition and native commerce/crafting matrices remain
+separate gates.
+
+The [11 October N21 checkpoint](../../Design%20Documents/Magic/Armageddon_Permanent_Tier_Checkpoint_20261011.md)
+records the qualified run, exact inputs, payments, retained failures and limits.
+
+## Initial Fury/Calm scenario
+
 This scenario uses the existing `AuthoredCelestialSmokeWorld/native.py` world provisioner and the repository's `futuremud-mud-tester` Telnet helper. The provisioner creates a new loopback MySQL instance, imports the maintained blank snapshot, runs the standard Debug replay, checks refusal of a second nonblank replay and stops the owned MySQL process in `finally`. It retains the database directory and receipts beneath `.artifacts/authored-celestials/run-*`.
 
 On Windows, build serially before running:

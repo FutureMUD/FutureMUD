@@ -301,6 +301,38 @@ occupants, conservation on collapse and withdrawal from held retirements are
 described in [the lifecycle contract](Spell_Owned_Lifecycle.md#folded-pocket).
 This stock does not change the partial installer's roster or admission counts.
 
+## Builder-installed Flame Knife
+
+Select six distinct approved temporary weapon prototypes in grade order and eight
+distinct approved permanent staff prototypes. All fourteen must have usable native
+burning melee attacks and pass plain-item creation admission. Supply an existing
+Conjuration component tag representing rank six; descendant tags represent higher
+ranks under this authored policy.
+
+```
+magic spell edit new stock flame-knife <school> <casting skill> <resource> <knife1> <knife2> <knife3> <knife4> <knife5> <knife6> <staff1> <staff2> <staff3> <staff4> <staff5> <staff6> <staff7> <staff8> <component tag>
+```
+
+Configure capability membership and acquisition separately. Grades one through six
+create one temporary weapon without consuming material. Grade seven (`mon`)
+consumes one directly carried tagged component and selects one of the eight
+permanent staffs. Ground, contained, unsuitable and temporary spell-created
+material cannot satisfy that plan. Normal paid invocation creates the item in
+ordinary inventory or at the caster's location; native equipment commands wield it.
+Permanent output has no expiry and can enter ordinary salvage and trade. Temporary
+origin prevents conversion to permanent value through the existing typed guards.
+
+The stock's terrain-name progs block Water Plane and halve temporary lifetime on
+Shadow Plane. Edit those progs to map the game world. The stock duration
+`(grade+1)*1500*0.75` uses a nominal seconds conversion: recovered source establishes
+the event-unit expression and Shadow halving, but does not prove that conversion.
+The directly carried rank-six policy and all native weapon profiles are authored
+adaptations. Historical prototypes, staff payloads and exact balance remain
+unavailable. See [the lifecycle contract](Spell_Owned_Lifecycle.md) and
+[historical qualification limits](Armageddon_FlameKnife_Stock_Verification.json).
+This builder stock does not extend the partial installer's roster or Sorcerer
+membership, and stored scroll/device delivery is unsupported.
+
 ## Verification boundary
 
 The dedicated `tests/ArmageddonPreparedSeederNativeHarness` runs on a UUID-named owned disposable database/server with

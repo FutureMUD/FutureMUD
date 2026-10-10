@@ -812,6 +812,18 @@ Create Item lifecycle output pools are editable using output <grade 1-7> <protot
 
 Consumed material plan grade <number> <grade 1-7>|all is persisted, displayed and bound on an invocation copy. Other grades omit that requirement without deleting materials; runtime selectors are preserved. Missing grade-dependent tags keep their original ID and refuse before payment and consumption, preventing null-tag wildcard consumption. The existing legacy/custom plan path remains unchanged when no grade selection exists. Temporary weapons refuse salvage; permanent staff remains ordinary salvage-eligible material. Exact expiry/restart conserves foreign bag, permanent staff and sibling goods; source/native qualification limits are recorded in Armageddon_FlameKnife_Stock_Verification.json.
 
+Flame Knife's recovered `spell_fire_jambiya` selects temporary objects 462–467 at
+grades one through six and consumes a Conjuration component before selecting one
+of objects 1386–1393 at grade seven. The permanent branch returns before the
+temporary timer/NOSAVE path. This establishes permanence, without establishing
+indestructibility or a charged staff payload. The raw temporary delay is
+`(level+1)*1500` event units, halved on Shadow Plane. Stock's `0.75` seconds per
+unit remains nominal. Source receipts do not establish rank threshold or carriage
+semantics; directly carried rank-six-or-higher descendant-tag selection is the
+current authored native policy. All fourteen native burning weapon profiles are
+authored, since historical object data is unavailable. Full source/timing parity
+remains unqualified.
+
 ## Sand Knife source and qualification
 
 Recovered spell_sand_jambiya uses component-free grades1-6 (objects456-461), then get_componentB(Creation,7) rank>=6 consumption and random permanent1378-1385 staff output at mon. Temporary heap duration is ((grade+1)*3000)/2, mapped using the shared event loop nominal0.75 seconds/unit to (grade+1)*1500*0.75 seconds. There is no shadow half-duration. Builder grade pools, permanent-grade switch, direct material selection and existing item ownership journal are reused without changing the shared lifecycle schema.

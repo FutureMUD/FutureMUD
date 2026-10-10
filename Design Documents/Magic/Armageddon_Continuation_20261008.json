@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-08",
-  "status": "PASS_BOUNDED_N20_BUILDER_INSTALLED",
+  "status": "PASS_BOUNDED_N21_BUILDER_INSTALLED",
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
@@ -722,8 +722,8 @@
         }
       ],
       "historical_progress_status": "bounded_self_stock_parent_independently_cleared_full_installer_pending",
-      "current_scope": "consult_existing_progress_and_dependencies_no_new_completion_claim",
-      "complete_per_spell_native_acceptance": "NOT_RUN_CURRENT_CONTINUATION",
+      "current_scope": "N21 builder-installed timed/permanent tier exception qualified; full installer/source/all-grade matrix pending",
+      "complete_per_spell_native_acceptance": "PASS_BOUNDED_BUILDER_INSTALLED_N21_FULL_MATRIX_PENDING",
       "whole_candidate_complete": false
     },
     {
@@ -6572,11 +6572,11 @@
     "historical_attribution": "Previous malformed-armour failure retained; current stock repair and AI hold supersede its current-stage status."
   },
   "current_managed": {
-    "scope": "Full Core and shared Library after N20 Folded Pocket and registry integration",
+    "scope": "Full Core/Library for N21, plus separate focused N20 catalogue-baseline repair",
     "runs": [
       {
-        "run_id": "20261010T133056Z-9d5d36494665",
-        "head": "c8890c082eb4351540d3343bf806c9fdeba172c9",
+        "run_id": "20261010T202143Z-181442621567",
+        "head": "24af8ce1442bd907b1df8648969f27ac32adc6c1",
         "status": "PASS",
         "counts": {
           "executed": 7200,
@@ -6587,8 +6587,8 @@
           "other": 0,
           "total": 7200
         },
-        "source_start": "1e5e0ef318e510362d13c0978224c97199847a03c2afdbd5b0b2c6aa2c4bea14",
-        "source_end": "1e5e0ef318e510362d13c0978224c97199847a03c2afdbd5b0b2c6aa2c4bea14",
+        "source_start": "9e523654e6da0f838fcb5dd62135cdd89340b6594b8668b0b60f35455b5f38a5",
+        "source_end": "9e523654e6da0f838fcb5dd62135cdd89340b6594b8668b0b60f35455b5f38a5",
         "source_stable": true,
         "projects": [
           "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
@@ -6597,8 +6597,8 @@
         "filter": null,
         "configuration": "Debug",
         "receipt": {
-          "path": ".artifacts/test-runs/20261010T133056Z-9d5d36494665/summary.json",
-          "sha256": "3cf299383e2308a56bed703058698651bcbecd4ebcc595da674134ed39542ebc"
+          "path": ".artifacts/test-runs/20261010T202143Z-181442621567/summary.json",
+          "sha256": "2d0ee7cb4a34cac1f0a9a35dcb0b8cb6bf3a97fda4da1c47976eb05ad631a6c0"
         },
         "project_counts": {
           "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
@@ -6620,8 +6620,46 @@
             "total": 758
           }
         }
+      },
+      {
+        "run_id": "20261010T202423Z-4463799b3412",
+        "head": "24af8ce1442bd907b1df8648969f27ac32adc6c1",
+        "status": "PASS",
+        "counts": {
+          "executed": 8,
+          "passed": 8,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 8
+        },
+        "source_start": "390af58eead8e47dbbbec8162e48d06eabd7d22ff2dd764cea04c37858f0b04c",
+        "source_end": "390af58eead8e47dbbbec8162e48d06eabd7d22ff2dd764cea04c37858f0b04c",
+        "source_stable": true,
+        "projects": [
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+        ],
+        "filter": "FullyQualifiedName~IndustrialisedItemCatalogueTests|FullyQualifiedName~IndustrialisedPrerequisiteAuditTests",
+        "configuration": "Debug",
+        "receipt": {
+          "path": ".artifacts/test-runs/20261010T202423Z-4463799b3412/summary.json",
+          "sha256": "84e5cb0619d5566ce1a653b251bcda69240d5fbc1d10a33459ea6a1d2a4a75d5"
+        },
+        "project_counts": {
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj": {
+            "executed": 8,
+            "passed": 8,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 8
+          }
+        }
       }
-    ]
+    ],
+    "counts_are_not_added": true
   },
   "npc_armour_repair_continuation_20261009": {
     "status": "STOCK_ARMOUR_REPAIRED_NATIVE_RETIREMENT_BLOCKED_AI_REFERENCES",
@@ -6914,7 +6952,7 @@
     "package_release_enabled": false,
     "publication_authorized": false
   },
-  "next_bounded_milestone": "N21: review source-informed Flame Knife tier policies, then qualify timed and explicitly configured highest-tier permanent real-component output through normal paid invocation. Prove timed gear cannot yield permanent salvage and permanent output retains its explicit no-expiry policy across restart. Use only known typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending.",
+  "next_bounded_milestone": "N22: qualify stock charged-device activation by caster and non-caster, an explicitly configured anyone exception, depleted-charge refusal and explicit focus. Preserve captured potency, normal caster gating and payment; forbid free fallback and acquisition/mastery gains. Use only known typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending.",
   "npc_typed_reference_review_20261009": {
     "date": "2026-10-09",
     "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
@@ -7131,5 +7169,18 @@
     "known_code_proven_links_only": true,
     "whole_candidate_complete": false,
     "next_bounded_milestone": "N21: review source-informed Flame Knife tier policies, then qualify timed and explicitly configured highest-tier permanent real-component output through normal paid invocation. Prove timed gear cannot yield permanent salvage and permanent output retains its explicit no-expiry policy across restart. Use only known typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending."
+  },
+  "permanent_tier_20261011": {
+    "status": "PASS_BOUNDED_N21_BUILDER_INSTALLED",
+    "checkpoint": "Armageddon_Permanent_Tier_Checkpoint_20261011.json",
+    "managed_passed": 7200,
+    "seeder_catalogue_passed": 8,
+    "native_assertions": 195,
+    "paid_casts": 4,
+    "reserve_spent": 132,
+    "known_code_proven_links_only": true,
+    "runtime_implementation_changed": false,
+    "whole_candidate_complete": false,
+    "next_bounded_milestone": "N22: qualify stock charged-device activation by caster and non-caster, an explicitly configured anyone exception, depleted-charge refusal and explicit focus. Preserve captured potency, normal caster gating and payment; forbid free fallback and acquisition/mastery gains. Use only known typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending."
   }
 }

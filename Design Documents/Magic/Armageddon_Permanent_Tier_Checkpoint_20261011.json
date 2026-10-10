@@ -1,0 +1,570 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "status": "PASS_BOUNDED_N21_BUILDER_INSTALLED",
+  "branch": "codex/armageddon-continuation-20261008",
+  "base_head": "24af8ce1442bd907b1df8648969f27ac32adc6c1",
+  "candidates": [
+    "arm.spell.flame_knife"
+  ],
+  "reference_authority": "Known typed/code-proven links only",
+  "numeric_text_scans": false,
+  "guessed_identity_fields": false,
+  "runtime_implementation_changed": false,
+  "schema_migration_required": false,
+  "changed_source_sha256": {
+    "DatabaseSeeder Unit Tests/IndustrialisedItemCatalogueTests.cs": "a449af9735baa15f2b8578783da810595278316c2d796d97aab60921a2e8a52a",
+    "DatabaseSeeder Unit Tests/IndustrialisedPrerequisiteAuditTests.cs": "ed9878a1e902974d9934fbb5df5031a8933e2db5cd985e5ad6838e36f27e98ce",
+    "scripts/FuryCalmSmokeWorld/FlameKnifeFixtures.cs": "10198b4a6cb8ab17d53e7df42d2dac37e711741e333076e53f7fd3678da5738a",
+    "scripts/FuryCalmSmokeWorld/Program.cs": "f6960c57e220dc7aad2c2fa5877d16b64af21e2b06dc4740d336337b7a87614c",
+    "scripts/FuryCalmSmokeWorld/flame_knife.py": "64d6cdcd1499e18484017ba8798c7b2fad445f377abcc31aa06320908c00bbe1"
+  },
+  "runtime_code_changed_after_managed_gate": false,
+  "harness_only_corrections_after_managed_gate": true,
+  "managed": {
+    "run_id": "20261010T202143Z-181442621567",
+    "head": "24af8ce1442bd907b1df8648969f27ac32adc6c1",
+    "status": "PASS",
+    "counts": {
+      "executed": 7200,
+      "passed": 7200,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7200
+    },
+    "source_start": "9e523654e6da0f838fcb5dd62135cdd89340b6594b8668b0b60f35455b5f38a5",
+    "source_end": "9e523654e6da0f838fcb5dd62135cdd89340b6594b8668b0b60f35455b5f38a5",
+    "source_stable": true,
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj"
+    ],
+    "filter": null,
+    "configuration": "Debug",
+    "receipt": {
+      "path": ".artifacts/test-runs/20261010T202143Z-181442621567/summary.json",
+      "sha256": "2d0ee7cb4a34cac1f0a9a35dcb0b8cb6bf3a97fda4da1c47976eb05ad631a6c0"
+    },
+    "project_counts": {
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
+        "executed": 6442,
+        "passed": 6442,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6442
+      },
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
+        "executed": 758,
+        "passed": 758,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 758
+      }
+    }
+  },
+  "seeder_catalogue_regression_gate": {
+    "run_id": "20261010T202423Z-4463799b3412",
+    "head": "24af8ce1442bd907b1df8648969f27ac32adc6c1",
+    "status": "PASS",
+    "counts": {
+      "executed": 8,
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 8
+    },
+    "source_start": "390af58eead8e47dbbbec8162e48d06eabd7d22ff2dd764cea04c37858f0b04c",
+    "source_end": "390af58eead8e47dbbbec8162e48d06eabd7d22ff2dd764cea04c37858f0b04c",
+    "source_stable": true,
+    "projects": [
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~IndustrialisedItemCatalogueTests|FullyQualifiedName~IndustrialisedPrerequisiteAuditTests",
+    "configuration": "Debug",
+    "receipt": {
+      "path": ".artifacts/test-runs/20261010T202423Z-4463799b3412/summary.json",
+      "sha256": "84e5cb0619d5566ce1a653b251bcda69240d5fbc1d10a33459ea6a1d2a4a75d5"
+    },
+    "project_counts": {
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj": {
+        "executed": 8,
+        "passed": 8,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 8
+      }
+    }
+  },
+  "managed_native_binary_matches": {
+    "MudSharp.dll": {
+      "test_path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+      "native_path": "MudSharpCore/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "0d8ee1986c62c969d20de529cbcb973ec8d7f93c422fb235b946b111ecb47959"
+    },
+    "FutureMUDLibrary.dll": {
+      "test_path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "native_path": "MudSharpCore/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "22b4a3162fa6e917d6eaee116324ecbec2814ea09d2ce0a6195de0d527cc5a1b"
+    }
+  },
+  "native": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-06b13f13/receipt.json",
+      "sha256": "b50490ae8f818b1fdc71be2f5e7a0ba5949e7d9f68e02470159054caf492f92a"
+    },
+    "status": "PASS",
+    "milestone_qualified": true,
+    "assertions": 195,
+    "inputs_sha256": {
+      "scripts\\FuryCalmSmokeWorld\\smoke.py": "7638d3cb7abfeb88bd4a191555aa7f6f2fc324373de745c527e1b471160afa40",
+      "scripts\\FuryCalmSmokeWorld\\Program.cs": "f6960c57e220dc7aad2c2fa5877d16b64af21e2b06dc4740d336337b7a87614c",
+      "scripts\\AuthoredCelestialSmokeWorld\\native.py": "18fca1b93f3a85551d9b0907ebe4f7b8fa11c625517abab470c67cf155f265f8",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "7c4b656fc209ea0cbd44d389e69a2291c1e3a300af1238c6ed96efd332805b69",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "c93668ba4186af4bdb6c1dd271b382623c55578446d1d049f6289323f9e8d2ee",
+      "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "0d8ee1986c62c969d20de529cbcb973ec8d7f93c422fb235b946b111ecb47959",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+      "scripts\\FuryCalmSmokeWorld\\flame_knife.py": "64d6cdcd1499e18484017ba8798c7b2fad445f377abcc31aa06320908c00bbe1",
+      "scripts\\FuryCalmSmokeWorld\\FlameKnifeFixtures.cs": "10198b4a6cb8ab17d53e7df42d2dac37e711741e333076e53f7fd3678da5738a",
+      "MudSharpCore\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll": "22b4a3162fa6e917d6eaee116324ecbec2814ea09d2ce0a6195de0d527cc5a1b",
+      "MudSharpCore\\Magic\\ArmageddonFlameKnifeStock.cs": "4092dd7b76e2776977593f218e26425e9b96b463624d04a275fa0231cbecb888",
+      "MudSharpCore\\GameItems\\SpellOwnedItemValuePolicy.cs": "145b686626bfb2ecb21bddf42203ed5d47e8229cfefdccbfcb94f7fef9503f73",
+      "MudSharpCore\\Magic\\SpellEffects\\CreateItemEffect.cs": "99c99be475c259be27bcaa844b0a5163036b06b9b57c4f50b2b65278b4c502c4",
+      "MudSharpCore\\Magic\\SpellEffects\\CreateItemEffect.FoodProfiles.cs": "6d07091942a2119c30da77937cc06b66884ad4d756e0f1639d29143d8f56f9a4",
+      "MudSharpCore\\Magic\\SpellEffects\\CreateItemEffect.GradeOutputs.cs": "03a12e47103b1ad6d87a3c54844fabfb846d6720764fe57ae7da939fe26b2b31",
+      "MudSharpCore\\Magic\\SpellEffects\\CreateItemEffect.Lifecycle.cs": "5069128be0d9640e296390132574fbb4b9984ee41cb0659e750930897b7e1305"
+    },
+    "objects": {
+      "player": 1,
+      "recipient": 3,
+      "combatTarget": 2,
+      "spell": 71,
+      "fixtures": {
+        "Status": "PASS",
+        "Prototypes": {
+          "scrap": 7142,
+          "weka": 7143,
+          "yuqa": 7144,
+          "kral": 7145,
+          "een": 7146,
+          "pav": 7147,
+          "sul": 7148,
+          "staffa": 7149,
+          "staffb": 7150,
+          "staffc": 7151,
+          "staffd": 7152,
+          "staffe": 7153,
+          "stafff": 7154,
+          "staffg": 7155,
+          "staffh": 7156,
+          "six": 7157,
+          "seven": 7158,
+          "low": 7159,
+          "wrong": 7160,
+          "foreign": 7161,
+          "bag": 7162
+        },
+        "Knives": [
+          7143,
+          7144,
+          7145,
+          7146,
+          7147,
+          7148
+        ],
+        "Staffs": [
+          7149,
+          7150,
+          7151,
+          7152,
+          7153,
+          7154,
+          7155,
+          7156
+        ],
+        "Keywords": {
+          "scrap": "qanflamescrapaglbdpbd",
+          "weka": "qanflamewekaaglbdpbd",
+          "yuqa": "qanflameyuqaaglbdpbd",
+          "kral": "qanflamekralaglbdpbd",
+          "een": "qanflameeenaglbdpbd",
+          "pav": "qanflamepavaglbdpbd",
+          "sul": "qanflamesulaglbdpbd",
+          "staffa": "qanflamestaffaaglbdpbd",
+          "staffb": "qanflamestaffbaglbdpbd",
+          "staffc": "qanflamestaffcaglbdpbd",
+          "staffd": "qanflamestaffdaglbdpbd",
+          "staffe": "qanflamestaffeaglbdpbd",
+          "stafff": "qanflamestafffaglbdpbd",
+          "staffg": "qanflamestaffgaglbdpbd",
+          "staffh": "qanflamestaffhaglbdpbd",
+          "six": "qanflamesixaglbdpbd",
+          "seven": "qanflamesevenaglbdpbd",
+          "low": "qanflamelowaglbdpbd",
+          "wrong": "qanflamewrongaglbdpbd",
+          "foreign": "qanflameforeignaglbdpbd",
+          "bag": "qanflamebagaglbdpbd"
+        },
+        "ComponentTag": 2645,
+        "CombatSetting": 98,
+        "OriginalCombatSetting": 97,
+        "Modes": {
+          "Permanent": 0,
+          "Temporary": 1
+        },
+        "States": {
+          "Active": 0,
+          "Completed": 3
+        },
+        "ItemKind": 0,
+        "BurningDamageType": 5,
+        "ExpiryReason": 0,
+        "WeaponType": 60,
+        "Attack": 1059,
+        "Profile": {
+          "Damage": 6,
+          "Pain": 4,
+          "Stun": 2
+        }
+      },
+      "rooms": {
+        "Status": "PASS",
+        "Anchor": 11,
+        "Fallback": 2,
+        "Spring": 4,
+        "Burrow": 5,
+        "Sand": 6,
+        "Terrain": 1,
+        "Incompatible": 34,
+        "PoolPrototype": 6895,
+        "CupPrototype": 6896,
+        "MountAi": 113,
+        "Water": 1
+      }
+    },
+    "lifecycles": [
+      {
+        "id": "1a9baa33-0700-4259-864a-7244c6172e91",
+        "item": 282,
+        "prototype": 7143,
+        "role": "weka",
+        "grade": 1,
+        "mode": 1,
+        "deadline": "2026-10-10 21:02:25.394034",
+        "original": "7143\t0\t5\t1\tCharacter",
+        "terminal": "3\t0"
+      },
+      {
+        "id": "fe372cf1-26eb-44ab-8658-7827eaf63226",
+        "item": 284,
+        "prototype": 7148,
+        "role": "sul",
+        "grade": 6,
+        "mode": 1,
+        "deadline": "2026-10-10 21:03:07.816022",
+        "original": "7148\t0\t5\t1\tCharacter",
+        "terminal": "3\t0"
+      },
+      {
+        "id": "be6fc5eb-9690-4d36-b840-689ec3008494",
+        "item": 285,
+        "prototype": 7149,
+        "role": "staffa",
+        "grade": 7,
+        "mode": 0,
+        "deadline": "",
+        "original": "7149\t0\t5\t1\tCharacter"
+      },
+      {
+        "id": "3390656c-9558-4f57-9ee2-ee89cedc9915",
+        "item": 287,
+        "prototype": 7152,
+        "role": "staffd",
+        "grade": 7,
+        "mode": 0,
+        "deadline": "",
+        "original": "7152\t0\t5\t1\tCharacter"
+      }
+    ],
+    "paid_casts": [
+      {
+        "grade": 1,
+        "before": 1000.0,
+        "after": 993.0,
+        "cost": 7,
+        "reason": "",
+        "answer": "You gather flames into a weapon.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "grade": 6,
+        "before": 993.0,
+        "after": 968.0,
+        "cost": 25,
+        "reason": "",
+        "answer": "You gather flames into a weapon.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "grade": 7,
+        "before": 968.0,
+        "after": 918.0,
+        "cost": 50,
+        "reason": "",
+        "answer": "You gather flames into a weapon.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Heavy | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "grade": 7,
+        "before": 918.0,
+        "after": 868.0,
+        "cost": 50,
+        "reason": "",
+        "answer": "You can once again engage in combat freely.\n\nYou gather flames into a weapon.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Heavy | Status: Awake>\n<You are standing here>\n\n"
+      }
+    ],
+    "zero_payment_refusals": [
+      {
+        "grade": 7,
+        "before": 1000.0,
+        "after": 1000.0,
+        "cost": 0,
+        "reason": "missing component",
+        "answer": "The actual component plan is infeasible; check materials and free manipulators.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "grade": 7,
+        "before": 1000.0,
+        "after": 1000.0,
+        "cost": 0,
+        "reason": "wrong component",
+        "answer": "The actual component plan is infeasible; check materials and free manipulators.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "grade": 7,
+        "before": 1000.0,
+        "after": 1000.0,
+        "cost": 0,
+        "reason": "low component",
+        "answer": "The actual component plan is infeasible; check materials and free manipulators.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "grade": 7,
+        "before": 1000.0,
+        "after": 1000.0,
+        "cost": 0,
+        "reason": "ground component",
+        "answer": "The actual component plan is infeasible; check materials and free manipulators.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "grade": 7,
+        "before": 1000.0,
+        "after": 1000.0,
+        "cost": 0,
+        "reason": "contained component",
+        "answer": "The actual component plan is infeasible; check materials and free manipulators.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "grade": 7,
+        "before": 993.0,
+        "after": 993.0,
+        "cost": 0,
+        "reason": "temporary weapon as otherwise tagged component",
+        "answer": "The actual component plan is infeasible; check materials and free manipulators.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      }
+    ],
+    "reserve_spent": 132,
+    "reserve_initial": 1000,
+    "reserve_final": 868,
+    "borrowed_custody": {
+      "bag": 281,
+      "foreign": 283,
+      "holder": 3,
+      "bagOriginal": "7162\t0\t5\t0",
+      "foreignOriginal": "7161\t0\t5\t0"
+    },
+    "burning_wounds": "35\t5\t2.4000000000000004\t3.52\t0.4\t1\tNULL",
+    "combat_evidence": {
+      "target": 2,
+      "weapon": 284,
+      "attack": 1059,
+      "afterWoundId": 32,
+      "output": "\n> hit qacaster\nYou engage a qacaster human in combat!\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here, in melee with a qacaster human>\nYou thrust a qanflamesulaglbdpbd fixture at a qacaster human, and he is struck\non his right hip!\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\nA qacaster human throws a high right-leg roundhouse kick at you.\nYou ineptly parry with a qanflamesulaglbdpbd fixture.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\nYou thrust a qanflamesulaglbdpbd fixture at a qacaster human, and he is struck\non his right breast!\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>\n> impdebug flush\nAll queued saves have been flushed to the database.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Heavy | Status: Awake>\n<You are standing here, in melee with a qacaster human>",
+      "limitation": "The native GetDamagePlusSelfDamageForWeapon path sets ToolOrigin=null. Burning wound/caster and same-window weapon-specific strike prove behavior; Wounds does not persist the weapon ID."
+    },
+    "legitimate_permanent_salvage": {
+      "staff": 287,
+      "product": 288
+    },
+    "original_stock_definition": "<Spell>\n\n  <StockIdentity>arm.spell.flame_knife</StockIdentity>\n\n  <ControlledPower schema=\"1\" version=\"1\" overreachCost=\"1.5\" overreachDifficulty=\"1\" masteryChance=\"0.25\" masterySeconds=\"600\" skillSeconds=\"60\" openingSkill=\"30\">\n\n    <Efficiency type=\"source\" minimum=\"7\" scale=\"1\" />\n\n    <Grade number=\"1\" power=\"2\" skill=\"0\" difficulty=\"0\" />\n\n    <Grade number=\"2\" power=\"3\" skill=\"20\" difficulty=\"0\" />\n\n    <Grade number=\"3\" power=\"4\" skill=\"40\" difficulty=\"1\" />\n\n    <Grade number=\"4\" power=\"5\" skill=\"55\" difficulty=\"1\" />\n\n    <Grade number=\"5\" power=\"6\" skill=\"70\" difficulty=\"2\" />\n\n    <Grade number=\"6\" power=\"7\" skill=\"85\" difficulty=\"2\" />\n\n    <Grade number=\"7\" power=\"8\" skill=\"95\" difficulty=\"3\" />\n\n    <ScalarBindings />\n\n  </ControlledPower>\n\n  <Trigger type=\"self\">\n\n    <MinimumPower>2</MinimumPower>\n\n    <MaximumPower>8</MaximumPower>\n\n  </Trigger>\n\n  <Costs>\n\n    <Cost resource=\"4\" expression=\"814\" />\n\n  </Costs>\n\n  <Effects>\n\n    <Effect type=\"createitem\">\n\n      <ItemQuality><![CDATA[base]]></ItemQuality>\n\n      <ItemPrototypeId>7143</ItemPrototypeId>\n\n      <ItemSkinId>0</ItemSkinId>\n\n      <Quantity>1</Quantity>\n\n      <LoadString><![CDATA[]]></LoadString>\n\n      <Lifecycle version=\"1\" mode=\"TemporaryCleanup\">\n\n        <Family>flame-knife</Family>\n\n        <Seconds>(grade+1)*1500*0.75</Seconds>\n\n        <PermanentOutput grade=\"7\">7149</PermanentOutput>\n\n        <EligibilityProg>3966</EligibilityProg>\n\n        <LifetimeMultiplierProg>3967</LifetimeMultiplierProg>\n\n        <GradeOutputs>\n\n          <Output grade=\"1\">\n\n            <Prototype>7143</Prototype>\n\n          </Output>\n\n          <Output grade=\"2\">\n\n            <Prototype>7144</Prototype>\n\n          </Output>\n\n          <Output grade=\"3\">\n\n            <Prototype>7145</Prototype>\n\n          </Output>\n\n          <Output grade=\"4\">\n\n            <Prototype>7146</Prototype>\n\n          </Output>\n\n          <Output grade=\"5\">\n\n            <Prototype>7147</Prototype>\n\n          </Output>\n\n          <Output grade=\"6\">\n\n            <Prototype>7148</Prototype>\n\n          </Output>\n\n          <Output grade=\"7\">\n\n            <Prototype>7149</Prototype>\n\n            <Prototype>7150</Prototype>\n\n            <Prototype>7151</Prototype>\n\n            <Prototype>7152</Prototype>\n\n            <Prototype>7153</Prototype>\n\n            <Prototype>7154</Prototype>\n\n            <Prototype>7155</Prototype>\n\n            <Prototype>7156</Prototype>\n\n          </Output>\n\n        </GradeOutputs>\n\n      </Lifecycle>\n\n    </Effect>\n\n  </Effects>\n\n  <CasterEffects />\n\n  <Plan>\n\n    <Phase>\n\n      <Action state=\"consumed\" tag=\"2645\" secondtag=\"0\" quantity=\"1\" inplaceoverride=\"true\" inplacemultiplier=\"100\" originalreference=\"\" carriedonly=\"true\" grade=\"7\" />\n\n    </Phase>\n\n  </Plan>\n\n</Spell>",
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-1.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-2.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-3.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "mysql_stopped_by_owned_handle": true,
+    "mysql_port_closed": true
+  },
+  "source": {
+    "receipts": [
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_FlameKnife_HistoricalSource_ReadReceipt.json",
+        "sha256": "5538372608edbad83acec3c7c8310fa85443448bb1c0c17413ad88384cc43200"
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-02\\task\\Armageddon_FlameKnife_SourceEnergy_ReadReceipt.json",
+        "sha256": "040e42c77e2c0aa2fdc8a07cd67c305009d39726193f65df2f22041dfdc58918"
+      }
+    ],
+    "historical_checkpoint": "Armageddon_FlameKnife_Stock_Verification.json",
+    "recovered": "spell_fire_jambiya: grades1-6 temporary source462-467; grade7 consumes Conjuration component then random permanent1386-1393; rawdelay=(level+1)*1500, Shadowhalf",
+    "authored": "Native profiles, directly-carried rank6+descendant-tag, terrain-name progs and nominal .75seconds/unit; no indestructibility or charged payload claim"
+  },
+  "typed_value_guard_ledger": [
+    {
+      "path": "MudSharpCore/GameItems/SpellOwnedItemValuePolicy.cs",
+      "links": "Actual SpellCreationOrigin.IsTemporary plus DeepItems/AttachedAndConnectedItems/LodgedItems with a cycle guard; permanent origin uses ordinary value policy"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Components/SalvageableGameItemComponent.cs",
+      "links": "CanSalvage and CreateProducts both guard temporary value"
+    },
+    {
+      "path": "MudSharpCore/GameItems/GameItem.cs",
+      "links": "Persistent copy, CanMerge/Merge, split-weight and replacement paths guard temporary origin before mutations"
+    },
+    {
+      "path": "MudSharpCore/Work/Crafts/Inputs/BaseInput.cs",
+      "links": "Actual inventory plan and consume selection guard temporary items before reservation/consumption"
+    },
+    {
+      "path": "MudSharpCore/Economy/Shops/Shop.cs",
+      "links": "Stock admission, sell preflight/commit and outbound stock guards"
+    },
+    {
+      "path": "MudSharpCore/Economy/Auctions/AuctionHouse.cs",
+      "links": "Actual auction item admission guard"
+    },
+    {
+      "path": "MudSharpCore/Magic/Lifecycle/NativeItemCreationEligibility.cs",
+      "links": "Plain weapons admit Holdable/MeleeWeapon/Salvageable; Stackable/Commodity are outside this creation graph"
+    }
+  ],
+  "review": {
+    "scope": "N21 fixture/scenario read-only review and source/value mapping",
+    "findings": "Expiry timing, cold exact custody and exact component-consumption coverage strengthened; follow-up clear. No observed runtime defect."
+  },
+  "deferred_adjacent_finding": {
+    "path": "MudSharpCore/Combat/Moves/WeaponAttackMove.cs",
+    "symbol": "GetDamagePlusSelfDamageForWeapon",
+    "evidence": {
+      "path": ".artifacts/n21-wound-audit.log",
+      "sha256": "05e5c264f068b04558979d494e4eb730f3e2f872302ca56d619c655a24e474c2"
+    },
+    "native_failed_receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-ff3d26cb/receipt.json",
+      "sha256": "be710b23778e76db9396d411233b1ec190c7217ac69c93e0aa1200f609341e07"
+    },
+    "observation": "Native successful burning attacks produce caster-attributed wounds with null ToolOriginId. The helper explicitly supplies null; weapon-specific persisted attribution is unavailable on this path.",
+    "disposition": "Deferred separate provenance/retirement-reference audit; native strike/profile/wield and same-window wound evidence qualify N21 behavior without inventing a stored weapon link"
+  },
+  "build": {
+    "fixture": "Debug build PASS, zero warnings/errors after fixture import/ambiguity corrections"
+  },
+  "retained_failed_native_receipts": [
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-0b41f727/receipt.json",
+      "sha256": "b8c825efc57fb2c7c182196c0de8138b2fc703502ef93801ab812f7850136aa3"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-68170a49/receipt.json",
+      "sha256": "ffd7b13cf6c1cb5265d0e0ba144b1c5af63a8f6d1bef62dc058d777bb3b4b451"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-3de7a254/receipt.json",
+      "sha256": "8d905905c4f8b1790288c4dfc2007ad2e0913495023e6e0a7d91a9eb201bd426"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-041b6e8e/receipt.json",
+      "sha256": "6c2539918e7233bd956725a815c8e147258a90136a0b52f0a20021e00db2d4e9"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-ff3d26cb/receipt.json",
+      "sha256": "be710b23778e76db9396d411233b1ec190c7217ac69c93e0aa1200f609341e07"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-e0b47d26/receipt.json",
+      "sha256": "462ad7f45918656244998ad03422c5a881dfd68a18a4c67d854887e4cb1e30e1"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-6a1b3ed3/receipt.json",
+      "sha256": "d95c17dfc122e38669db9560093b0574071fdf4a678fb98d4858573be3ebdbe0"
+    }
+  ],
+  "retained_diagnostic_receipt": {
+    "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-02075e7f/receipt.json",
+    "sha256": "71a48a14b2c91e1a548242cb87f5404fa515e703e8978063d91d64013a7d3160"
+  },
+  "retained_equipment_recovery_receipt": {
+    "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-a5df0b63/receipt.json",
+    "sha256": "481cf7b7890f854e9d3a1fddbc21106e475e265af2648edf1e0a14cc80f33af4"
+  },
+  "native_setup_correction": "Character.IsAdministrator requires IAdminSightEffect. The interrupted combat run retained mortal mode, so manual admission silently refused. Startup now enables immortal mode before staff setup; paid casting and combat explicitly switch to mortal mode. The separate custody/admission probe never qualifies gameplay.",
+  "hosted_previous_head_failure": {
+    "head": "24af8ce1442bd907b1df8648969f27ac32adc6c1",
+    "run_url": "https://github.com/FutureMUD/FutureMUD/actions/runs/38057134699",
+    "failures": [
+      "ComponentMetadata_CoversRuntimeRegistryAndEveryCatalogueBinding",
+      "ComponentTypeAndPrerequisiteAudits_ContainExactCurrentBaseline"
+    ],
+    "disposition": "N20 added FoldedPocket and restored omitted Spellbook/SpellScroll/ChargedMagicDevice metadata: current248 vs stale244. Counts updated, explicit four identities checked, focused8testgate PASS. Fresh hosted N21 status checked separately."
+  },
+  "verification_limits": [
+    "Native grades 1, 6 and 7 qualify this permanent-tier exception; all seven grades have managed policy coverage, but native grades 2-5 and every one of eight random staff outputs are not freshly exercised.",
+    "Historical objects 462-467 and 1386-1393, statistics, charged staff payloads and exact balance are unavailable. All fourteen native burning weapon profiles are explicitly authored.",
+    "Recovered temporary delay is (level+1)*1500 event units, halved on Shadow Plane. Stock .75 seconds/unit is nominal and unproven; fixture 240+5*grade seconds is not historical timing parity.",
+    "Rank-six-or-higher descendant tag and directly carried material selection are authored policy. Source receipts establish Conjuration consumption at mon, but do not establish rank threshold or carriage semantics.",
+    "Water/Shadow terrain-name mappings remain editable authored progs; this native run does not qualify historical planar parity or their full gameplay matrix.",
+    "Controlled grade seven, raw skill100 and Automatic difficulty are explicit deterministic fixtures, not stock attainability, natural acquisition/progression or legitimate maximum-grade affordability qualification.",
+    "Crafting, shop, auction, copy, split, merge and replacement protection have typed code mapping and existing managed coverage. This run freshly exercises native salvage/material consumption, not a full native commerce/crafting matrix.",
+    "Stored scroll/device delivery remains unsupported. Full installer/prerequisite composition, arbitrary callback/fault/concurrency paths and whole-programme native readiness remain pending.",
+    "Native GetDamagePlusSelfDamageForWeapon sets ToolOrigin=null. Wounds persists caster attribution, but not the weapon ID on that path; exact wield/profile and same-hit-window successful weapon message plus new positive burning wounds qualify behavior. Weapon provenance repair has separate retirement-reference implications and is deferred.",
+    "No new seeder content, schema or snapshot. The separate eight-test gate repairs stale expectations for the N20 registry expansion; it is not a full Seeder run. Previous seeder/baseline results remain historical."
+  ],
+  "inventory_counts": {
+    "total_candidates": 154,
+    "required": 152,
+    "optional": 2,
+    "sorcerer_spells": 82,
+    "sorcerer_roots": 4,
+    "support_skills": 12,
+    "larger_systems": 8
+  },
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "next_bounded_milestone": "N22: qualify stock charged-device activation by caster and non-caster, an explicitly configured anyone exception, depleted-charge refusal and explicit focus. Preserve captured potency, normal caster gating and payment; forbid free fallback and acquisition/mastery gains. Use only known typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending."
+}

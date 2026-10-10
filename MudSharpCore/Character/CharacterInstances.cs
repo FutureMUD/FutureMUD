@@ -291,6 +291,7 @@ public partial class Character
 				// Do not materialise its AI or erase the row before that recovery has run.
 				if ((CharacterInstanceKind)instance.InstanceKind == CharacterInstanceKind.AnimatedCorpse &&
 					Gameworld.SpellOwnedCorpseAnimations?.OwnsInstance(instance.Id) == true) continue;
+				if (Gameworld.SpellOwnedProjections?.OwnsInstance(instance.Id) == true) continue;
 				FMDB.Context.CharacterInstances.Remove(instance);
 				persistenceChanged = true;
 				continue;
@@ -314,7 +315,8 @@ public partial class Character
 		}
 	}
 
-	internal ICharacterInstance MaterialiseSecondaryInstance(MudSharp.Models.CharacterInstance instance, IBody body)
+	internal ICharacterInstance MaterialiseSecondaryInstance(MudSharp.Models.CharacterInstance instance, IBody body,
+		Action<ICharacterInstance>? beforeExposure = null)
 	{
 		EnsureProvisionedFormBodyVitals(body);
 		var controlPolicy = (CharacterInstanceControlPolicy)instance.ControlPolicy;
@@ -353,6 +355,7 @@ public partial class Character
 		}
 		_secondaryInstances.RemoveAll(x => ReferenceEquals(x, materialised) || x.InstanceId == materialised.InstanceId);
 		_secondaryInstances.Add(materialised);
+		beforeExposure?.Invoke(materialised);
 		if (materialised is ScriptedAiCharacterInstance scriptedAi)
 		{
 			scriptedAi.InitialiseScriptedControl();

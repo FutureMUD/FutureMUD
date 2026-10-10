@@ -46,6 +46,11 @@ var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>().UseMySql(c
 FuturemudDatabaseContext? lastContext = null;
 Func<FuturemudDatabaseContext> factory = () => lastContext = new(options);
 var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+if (args[2] == "projection-fixtures")
+{
+	OwnedProjectionFixtures.Run(options, receiptPath);
+	return;
+}
 if (args[2] == "shelter-fixtures")
 {
 	OwnedShelterFixtures.Run(options, receiptPath);

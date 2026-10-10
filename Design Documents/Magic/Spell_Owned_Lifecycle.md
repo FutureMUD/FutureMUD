@@ -1,5 +1,56 @@
 # Spell-owned lifecycle foundation
 
+## Bounded owned identity projections (N18)
+
+The `createprojection` effect uses the existing canonical character identity, secondary
+instance, focus and planar services. Sand Effigy creates one new temporary body/instance
+and one plain approved holdable figurine. Walking Shadow creates one new temporary
+body/instance on an explicitly selected nonmaterial plane. Neither creates a character,
+borrows a permanent form, copies inventory nor inserts canonical skill or resource rows.
+The caster must be a living non-guest PC at its persisted primary instance in a stable
+ordinary room, outside route travel, riding and movement. One unfinished projection per
+identity is admitted. Invalid policy, source, prototype or duplicate creation refuses before
+payment; prepared selection retains the exact body/instance/location and authored policy.
+
+Builders explicitly choose occupied plane, seconds per grade (one day maximum), Walking
+Shadow range (0-32 native room edges), ordinary closed-door passage, positive energy cost
+and severing/damage backlash (0-1000 native cellular damage). Sand Effigy has zero range
+and remains visibly identifiable as sand. Both support observation and hearing; physical
+manipulation, combat, medical actions and other outgoing planar interactions are unavailable.
+Walking Shadow moves through admitted native exits on its anchored layer. Teleportation,
+layer changes, route travel and destinations beyond range refuse before displacement.
+Its primary body remains present and helpless while focus is on the shadow.
+
+Creation atomically records the exact newly inserted body, secondary instance and optional
+item claims in `native-identity-projection-v1`. The versioned `ProjectionAnchor` stores the
+primary instance/body, native room/layer/coordinate and policy. The runtime boundary is
+installed before secondary room exposure. Creation does not automatically change focus;
+use `instances`, then its numbered `focus` selection. Activation failure disables control,
+returns focus and retains durable retirement intent without recreating the graph.
+
+Expiry, logout/reboot, destruction, primary-body displacement/death and damage to either
+body or figurine return focus and retire only those creation-proven rows. Damage callbacks
+record intent and disable control; the bounded world pulse removes the graph after the
+health callback has finished. Configured backlash applies on damage or anchor severance.
+Its attempt is journalled before native health delivery; an interrupted attempt holds for
+review and is never replayed.
+Native movement/combat callbacks finish before the deletion checks. Other live physical
+bindings hold retirement. After the exact instance row is removed, runtime detachment
+only unregisters the secondary, its room/route membership, exposure and body ticks;
+it does not fire room-leave events or archive the canonical identity. Cold inventory
+recovery uses an unexposed, uncontrollable custodian for the exact secondary so primary
+effects and control do not become the projection body's cleanup context.
+Foreign goods in the temporary body are evacuated through
+the existing native custody rollback adapter. Unknown effects, lodged or installed goods,
+typed physical references and undisposed declared EF relations hold cleanup. No numeric
+text scans or guessed reference fields authorize deletion. Cold recovery loads body and
+inventory relationships inside a live database scope, preserves the owner and paid reserve,
+and collapses the projection rather than extending its deadline or rebuilding it.
+
+This is bounded builder stock. The partial installer, exact historical two-stage figurine
+casting, high-power resemblance, legacy affect-unit timing, all-grade/source balance and
+whole-programme Release readiness remain separate gates.
+
 Phase3B1 adds the conservative canonical NPC archival boundary described below. Phase3B2A
 connects explicit `createnpc` lifecycle provenance to native simple-template construction and
 persisted death/remains recovery. Phase3B2B connects bounded simple-NPC retirement to

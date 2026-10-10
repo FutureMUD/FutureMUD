@@ -285,7 +285,7 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 		return query.Provider.CreateQuery(take).Cast<object>().ToList();
 	}
 
-	private static bool DeletedPrincipalReferencesAreClear(FuturemudDatabaseContext context,
+	internal static bool DeletedPrincipalReferencesAreClear(FuturemudDatabaseContext context,
 		HashSet<object> removedRows, out string diagnostic)
 	{
 		foreach (var principal in removedRows.Where(x => x is Db.CharacterInstance or Db.Wound))
@@ -307,6 +307,56 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 			}
 		}
 		diagnostic = string.Empty;
+		return true;
+	}
+
+	internal static bool ProjectionBodyReferencesAreClear(FuturemudDatabaseContext context, Db.Body body,
+		HashSet<object> removedRows, out string diagnostic)
+	{
+		// These are body-local native state, with the same lifetime as the created body.
+		var localState = new HashSet<string>(StringComparer.Ordinal)
+		{
+			"BodyDrugDose", "BodyDrugExposure", "BodiesSeveredParts", "Characteristic", "Trait", "Wound", "PerceiverMerit"
+		};
+		foreach (var key in context.Entry(body).Metadata.GetReferencingForeignKeys())
+		{
+			if (key.Properties.Count != 1 || key.PrincipalKey.Properties.Count != 1 || key.PrincipalKey.Properties[0].Name != "Id")
+			{
+				diagnostic = "The projection body has an incoming composite or alternate relation without a cleanup disposition.";
+				return false;
+			}
+			var rows = Rows(context, key.DeclaringEntityType, key.Properties[0], body.Id);
+			if (rows.Count > RowLimit || !localState.Contains(key.DeclaringEntityType.ClrType.Name) && rows.Any(x => !removedRows.Contains(x)))
+			{
+				diagnostic = $"{key.DeclaringEntityType.ClrType.Name}.{key.Properties[0].Name} retains projection body {body.Id}.";
+				return false;
+			}
+		}
+		diagnostic = "";
+		return true;
+	}
+
+	internal static bool ProjectionItemReferencesAreClear(FuturemudDatabaseContext context, Db.GameItem item, out string diagnostic)
+	{
+		foreach (var key in context.Entry(item).Metadata.GetReferencingForeignKeys())
+		{
+			if (key.Properties.Count != 1 || key.PrincipalKey.Properties.Count != 1 || key.PrincipalKey.Properties[0].Name != "Id")
+			{
+				diagnostic = "The effigy has an incoming composite or alternate relation without a cleanup disposition.";
+				return false;
+			}
+			var rows = Rows(context, key.DeclaringEntityType, key.Properties[0], item.Id);
+			var nativeCustody = key.DeclaringEntityType.ClrType == typeof(Db.RoomsGameItems) || key.DeclaringEntityType.ClrType == typeof(Db.BodiesGameItems);
+			var nativeComponents = key.DeclaringEntityType.ClrType == typeof(Db.GameItemComponent);
+			var ownedWounds = key.DeclaringEntityType.ClrType == typeof(Db.Wound) && key.Properties[0].Name == nameof(Db.Wound.GameItemId) &&
+				rows.Cast<Db.Wound>().All(x => x.LodgedItemId is null);
+			if (rows.Count > RowLimit || rows.Count > 0 && !nativeCustody && !nativeComponents && !ownedWounds)
+			{
+				diagnostic = $"{key.DeclaringEntityType.ClrType.Name}.{key.Properties[0].Name} retains effigy {item.Id}.";
+				return false;
+			}
+		}
+		diagnostic = "";
 		return true;
 	}
 

@@ -525,6 +525,15 @@ Expected result:
 
 ## Worked Example 5: Magical Copy And Physical Clone Spells
 
+The separately authored Armageddon `sand-effigy` and `walking-shadow` stocks use an owned
+temporary body rather than the dormant forms in the generic examples below. They retain
+the same canonical identity, skills, reserves and focus controller. Their initial cast leaves
+focus on the primary; `instances` supplies the numbered selection for `focus`. Sand Effigy
+stays at its figurine anchor. Walking Shadow permits bounded native-exit observation travel
+while its primary body is helpless in trance. Both prohibit physical manipulation and collapse
+on damage, severance, expiry and logout/reboot. See the explicit bindings and policy limits in
+the [Armageddon builder guide](../Magic/Armageddon_Partial_Installer_Builder_Guide.md).
+
 Magical copy:
 
 ```text

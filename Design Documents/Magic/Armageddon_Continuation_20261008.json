@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-08",
-  "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
+  "status": "PASS_BOUNDED_N18_BUILDER_INSTALLED",
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
@@ -2601,9 +2601,12 @@
         }
       ],
       "historical_progress_status": "pending_runtime_stock_and_native_acceptance",
-      "current_scope": "consult_existing_progress_and_dependencies_no_new_completion_claim",
-      "complete_per_spell_native_acceptance": "NOT_RUN_CURRENT_CONTINUATION",
-      "whole_candidate_complete": false
+      "current_scope": "N18 builder-installed native projection lifecycle qualified; full installer/source/all-grade acceptance pending",
+      "complete_per_spell_native_acceptance": "PASS_BOUNDED_BUILDER_INSTALLED_N18_FULL_MATRIX_PENDING",
+      "whole_candidate_complete": false,
+      "evidence": [
+        "Armageddon_Owned_Projections_Checkpoint_20261010.json"
+      ]
     },
     {
       "key": "arm.spell.shatter_stone",
@@ -3910,9 +3913,12 @@
         }
       ],
       "historical_progress_status": "pending_runtime_stock_and_native_acceptance",
-      "current_scope": "consult_existing_progress_and_dependencies_no_new_completion_claim",
-      "complete_per_spell_native_acceptance": "NOT_RUN_CURRENT_CONTINUATION",
-      "whole_candidate_complete": false
+      "current_scope": "N18 builder-installed native projection lifecycle qualified; full installer/source/all-grade acceptance pending",
+      "complete_per_spell_native_acceptance": "PASS_BOUNDED_BUILDER_INSTALLED_N18_FULL_MATRIX_PENDING",
+      "whole_candidate_complete": false,
+      "evidence": [
+        "Armageddon_Owned_Projections_Checkpoint_20261010.json"
+      ]
     },
     {
       "key": "arm.spell.shadow_passage",
@@ -6560,23 +6566,23 @@
     "historical_attribution": "Previous malformed-armour failure retained; current stock repair and AI hold supersede its current-stage status."
   },
   "current_managed": {
-    "scope": "Full Core and shared Library after N17 occupied shelter repairs",
+    "scope": "Full Core and shared Library after N18 owned projection repairs",
     "runs": [
       {
-        "run_id": "20261010T024247Z-a7acd15ad0da",
-        "head": "7090fe5f444d10bfb9252465c2c7aabfc4db6163",
+        "run_id": "20261010T063319Z-002c1b496a98",
+        "head": "db9136e45a8c4f5bb41ff0b16cf970820257ae1d",
         "status": "PASS",
         "counts": {
-          "executed": 7113,
-          "passed": 7113,
+          "executed": 7136,
+          "passed": 7136,
           "failed": 0,
           "skipped": 0,
           "inconclusive": 0,
           "other": 0,
-          "total": 7113
+          "total": 7136
         },
-        "source_start": "68618b2203339dbf2d6b809fb7725a767e1bec8208732cd294b7f48186dde688",
-        "source_end": "68618b2203339dbf2d6b809fb7725a767e1bec8208732cd294b7f48186dde688",
+        "source_start": "d561791279ded615dee09155385c706f4be07dd2ea18b7a9e17b19bf47cd8ec3",
+        "source_end": "d561791279ded615dee09155385c706f4be07dd2ea18b7a9e17b19bf47cd8ec3",
         "source_stable": true,
         "projects": [
           "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
@@ -6585,34 +6591,34 @@
         "filter": null,
         "configuration": "Debug",
         "receipt": {
-          "path": ".artifacts/test-runs/20261010T024247Z-a7acd15ad0da/summary.json",
-          "sha256": "36879bd1843f3203190e4f7ca482f767f50c08d0a0c47ec927b03f6ffa959150"
+          "path": ".artifacts/test-runs/20261010T063319Z-002c1b496a98/summary.json",
+          "sha256": "aa79802ffd2cae70bea5183435a23effa68c95d44a7d57bbc998e56c8c2f97d7"
         },
         "project_counts": {
           "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
-            "executed": 717,
-            "passed": 717,
+            "executed": 728,
+            "passed": 728,
             "failed": 0,
             "skipped": 0,
             "inconclusive": 0,
             "other": 0,
-            "total": 717
+            "total": 728
           },
           "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
-            "executed": 6396,
-            "passed": 6396,
+            "executed": 6408,
+            "passed": 6408,
             "failed": 0,
             "skipped": 0,
             "inconclusive": 0,
             "other": 0,
-            "total": 6396
+            "total": 6408
           }
         }
       }
     ],
-    "authoritative_passed": 7113,
+    "authoritative_passed": 7136,
     "counts_are_not_added": true,
-    "previous_n16_receipt": "Design Documents/Magic/Armageddon_Guardian_Churn_Checkpoint_20261009.json"
+    "previous_n17_receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
   },
   "npc_armour_repair_continuation_20261009": {
     "status": "STOCK_ARMOUR_REPAIRED_NATIVE_RETIREMENT_BLOCKED_AI_REFERENCES",
@@ -6905,7 +6911,7 @@
     "package_release_enabled": false,
     "publication_authorized": false
   },
-  "next_bounded_milestone": "N18: map and implement bounded Sand Effigy and Walking Shadow instance/focus/anchor contracts; qualify normal paid creation, focus switching, damage/severing/collapse and cold restart, with canonical identity, skills, resources and owner preserved. Full shelter installer/source parity and other catalogue/readiness gates remain pending. Use only code-proven links.",
+  "next_bounded_milestone": "N19: map and implement bounded Severing Refuge and Apex Bane policies; qualify allowed/blocked element interactions and eligible/ineligible native beings through normal paid invocation. Use explicit native categories and known code-proven links; preserve resisted outcomes, ownership and custody. Full installer/source parity and other catalogue/readiness gates remain pending.",
   "npc_typed_reference_review_20261009": {
     "date": "2026-10-09",
     "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
@@ -7088,5 +7094,16 @@
     "managed_passed": 7113,
     "full_installer_and_source_parity": "pending",
     "next_bounded_milestone": "N18: map and implement bounded Sand Effigy and Walking Shadow instance/focus/anchor contracts; qualify normal paid creation, focus switching, damage/severing/collapse and cold restart, with canonical identity, skills, resources and owner preserved. Full shelter installer/source parity and other catalogue/readiness gates remain pending. Use only code-proven links."
+  },
+  "owned_projections_20261010": {
+    "status": "PASS_BOUNDED_N18_BUILDER_INSTALLED",
+    "checkpoint": "Armageddon_Owned_Projections_Checkpoint_20261010.json",
+    "managed_passed": 7136,
+    "native_assertions": 166,
+    "paid_casts": 9,
+    "reserve_spent": 90,
+    "known_code_proven_links_only": true,
+    "whole_candidate_complete": false,
+    "next_bounded_milestone": "N19: map and implement bounded Severing Refuge and Apex Bane policies; qualify allowed/blocked element interactions and eligible/ineligible native beings through normal paid invocation. Use explicit native categories and known code-proven links; preserve resisted outcomes, ownership and custody. Full installer/source parity and other catalogue/readiness gates remain pending."
   }
 }

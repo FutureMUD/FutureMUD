@@ -205,6 +205,28 @@ activation eligibility and live target resistance/wards are rechecked. Copying a
 
 ## Reports, ownership and reruns
 
+### Separately authored N18 projection stocks
+
+These stocks use the shared paid casting route and are installed explicitly by a builder:
+
+```text
+magic spell edit new stock sand-effigy <school> <casting skill> <resource> <plane> <plain holdable prototype> <seconds per grade> <backlash damage> <energy per grade>
+magic spell edit new stock walking-shadow <school> <casting skill> <resource> <nonmaterial plane> <seconds per grade> <range in room edges> <backlash damage> <energy per grade> <cross closed doors true|false>
+magic spell set effect 1 lifetime <seconds per grade>
+magic spell set effect 1 range <0-32>
+magic spell set effect 1 backlash <0-1000>
+```
+
+Quote names containing spaces. Add the new spell to the intended configured capability and
+grant/acquire it through that route; creating its definition gives no automatic entitlement.
+Cast normally on `self`, use `instances` and the numbered `focus` selection, then `focus primary`
+to return. Both are observation presences with shared canonical skills/resources and empty
+inventory. Sand Effigy is immobile and its figurine is the exact destructible anchor. Walking
+Shadow travels through native exits within range while the primary is vulnerable in a trance.
+Expiry, damage, severance and logout/reboot collapse their owned temporary graph.
+The [lifecycle contract](Spell_Owned_Lifecycle.md) describes custody holds and authored-policy
+limits. These definitions do not change the partial installer's inventory or qualify historical parity.
+
 Successful base composition owns 196 records: 21 utility/device, 171 tradition, four Pierce. It creates six payload
 definitions but only four prerequisite-closed source admissions per unedited variant: Sense, Unravel, Water and Pierce;
 78 source spells lack admission. Mend and Hovering Light definitions do not create entitlement. With explicitly selected

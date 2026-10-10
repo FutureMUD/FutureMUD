@@ -7,7 +7,7 @@ namespace MudSharp.Magic;
 
 public enum SpellLifecycleMode { Permanent, TemporaryCleanup, DeathOnExpiry }
 public enum SpellLifecycleState { Active, Retiring, RemainsPending, Completed }
-public enum SpellRetirementReason { Expiry, Dispel, Dismissal, CapabilityLoss, Logout, EarlyDeath, EarlyItemRemoval }
+public enum SpellRetirementReason { Expiry, Dispel, Dismissal, CapabilityLoss, Logout, EarlyDeath, EarlyItemRemoval, AnchorSevered, ProjectionDamage, Reboot }
 public enum SpellOwnedEntityKind { GameItem, AutonomousCharacter, CharacterInstance, Body, Room, Exit, RoomOverlay }
 public enum SpellOwnedEntityRole { CreatedEntity, GeneratedPossession }
 

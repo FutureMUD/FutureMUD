@@ -26,6 +26,21 @@ public sealed class EnvironmentalExposureService
 	{
 		if (Services.TryGetValue(world, out var service)) service.Forget(target);
 	}
+	// The owned projection adapter has already committed retirement. Advancing
+	// exposure here could run health callbacks against rows that no longer exist.
+	internal static void ForgetCommittedProjectionBody(IFuturemud world, IBody body)
+	{
+		if (!Services.TryGetValue(world, out var service)) return;
+		service._active.Remove(body);
+		service._pending.Remove(body);
+		service._breaths.Remove(body);
+		service._suppliedBreaths.Remove(body);
+		service._airflowBreaths.Remove(body);
+		service._resumed.Remove(body);
+		service._remains.Remove(body);
+		foreach (var key in service._atmosphericThermal.Keys.Where(x => ReferenceEquals(x.Item1, body)).ToArray())
+			service._atmosphericThermal.Remove(key);
+	}
 	private readonly IFuturemud _world;
 	private readonly HashSet<IPerceivable> _active = new(ReferenceEqualityComparer.Instance);
 	private readonly HashSet<IPerceivable> _pending = new(ReferenceEqualityComparer.Instance);

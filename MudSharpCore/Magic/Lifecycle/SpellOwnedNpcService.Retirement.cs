@@ -206,7 +206,8 @@ public sealed partial class SpellOwnedNpcService
 		_store.Hold(current.Origin.Id, current.Version, diagnostic[..Math.Min(diagnostic.Length, 2048)], TransitionTime(current, nowUtc));
 	}
 
-	private void EvacuateBody(IBody body, SpellOwnedLifecycle life, SpatialLocation destination)
+	internal void EvacuateBody(IBody body, SpellOwnedLifecycle life, SpatialLocation destination,
+		IReadOnlyCollection<MudSharp.Effects.IEffect>? ownedEffects = null)
 	{
 		_evacuationRetries.TryGetValue(body.Id, out var retrySnapshot);
 		var retryRoots = retrySnapshot?.Roots;
@@ -217,13 +218,15 @@ public sealed partial class SpellOwnedNpcService
 		if (retrySnapshot is not null && !retrySnapshot.Matches(roots, graph))
 			throw new InvalidOperationException("Previously transferred foreign custody topology changed; retain its exact retry graph for review.");
 		var snapshot = retrySnapshot ?? new ForeignCustodySnapshot(roots, graph);
+		var permittedEffects = ownedEffects?.ToArray() ?? [];
+		bool ActorEffectsUnchanged() => body.Actor.Effects.All(permittedEffects.Contains) && permittedEffects.All(body.Actor.Effects.Contains);
 		var structuralComponents = graph.SelectMany(x => x.Components).Where(c =>
 			c is IContainer or ILockable or IBelt or IFirearmAttachmentHost or ISeveredBodypart).ToArray();
 		if (body.Implants.Any() || body.Prosthetics.Any() || body.Wounds.Any(x => x.Lodged is not null))
 			throw new InvalidOperationException("Installed prosthetics, implants or lodged goods require a separately verified native detachment adapter.");
 		if (roots.Any(x => x.ContainedIn is not null) || structuralComponents.Any(c => c.Changed))
 			throw new InvalidOperationException("Foreign subtree structural edits or external containment must settle before evacuation.");
-		if (body is not MudSharp.Body.Implementations.Body nativeBody || !RetirementBodyEffects.TryCapture(body, out var bodyEffectsUnchanged) || body.Actor.Effects.Any() ||
+		if (body is not MudSharp.Body.Implementations.Body nativeBody || !RetirementBodyEffects.TryCapture(body, out var bodyEffectsUnchanged) || body.Actor.Effects.Any(x => ownedEffects?.Contains(x) != true) ||
 			body.Actor.PositionTarget is not null || graph.Any(x => x is not GameItem || x.Effects.Any() || x.Wounds.Any() ||
 				x.PositionTarget is not null || x.PositionEmote is not null || x.TargetedBy.Any()))
 			throw new InvalidOperationException($"Foreign custody requires a verified callback-free rollback adapter for its body, effects, wounds and position graph. " +
@@ -245,7 +248,7 @@ public sealed partial class SpellOwnedNpcService
 		var context = FMDB.Context;
 		var current = context.MagicSpellLifecycles.AsNoTracking().Include(x => x.Entities).Single(x => x.Id == life.Origin.Id);
 		var authority = SpellOwnedLifecycleStore.Read(current);
-		if (current.Version != life.Version || !HasSimpleRetirementClaims(authority) ||
+		if (current.Version != life.Version || !(HasSimpleRetirementClaims(authority) || SpellOwnedProjectionService.HasClaims(authority)) ||
 			!authority.Entities.Any(x => x.Kind == SpellOwnedEntityKind.Body && x.Id == body.Id))
 			throw new InvalidOperationException("The exact evacuation authority changed; reload before transferring custody.");
 		var persisted = context.BodiesGameItems.Where(x => x.BodyId == body.Id).Select(x => x.GameItemId)
@@ -276,7 +279,7 @@ public sealed partial class SpellOwnedNpcService
 		}
 		body.RecalculateItemHelpers();
 		var topologyChanged = !snapshot.Matches(roots, graph);
-		if (!bodyEffectsUnchanged() || body.Actor.Effects.Any() || body.AllItems.Any() || roots.Any(x => x.Deleted || !ReferenceEquals(x.Location, destination.Room)) ||
+		if (!bodyEffectsUnchanged() || !ActorEffectsUnchanged() || body.AllItems.Any() || roots.Any(x => x.Deleted || !ReferenceEquals(x.Location, destination.Room)) ||
 			graph.Any(x => x.Deleted) || !TryCaptureForeignCustody(body, out _, out var after, out _, roots) ||
 			!new HashSet<IGameItem>(graph, ReferenceEqualityComparer.Instance).SetEquals(after) ||
 			topologyChanged || structuralComponents.Any(c => c.Changed))

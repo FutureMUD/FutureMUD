@@ -116,6 +116,12 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 		if (item.SpellCreationOrigin?.IsTemporary != true) return true;
 		using var authorization = FMDB.BeginIndependentScope(requireWrites: true);
 		var life = Find(item.Id);
+		if (life?.Origin.Family == SpellProjectionAnchor.Family)
+		{
+			_world.SpellOwnedProjections?.RequestAnchorRemoval(item.Id);
+			diagnostic = "The effigy retires through its exact projection ownership adapter.";
+			return false;
+		}
 		if (life?.Origin.Family == SpellShelterAnchor.Family)
 		{
 			_world.SpellOwnedShelters?.RequestRetirement(life.Entities.Single(x => x.Kind == SpellOwnedEntityKind.Room).Id,
@@ -165,7 +171,7 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 	{
 		if (!item.Deleted || item.SpellCreationOrigin?.IsTemporary != true) return;
 		var life = Find(item.Id);
-		if (life is { State: SpellLifecycleState.Retiring }) _store.Complete(life.Origin.Id, life.Version, TransitionTime(life, RuntimeClock.UtcNow));
+		if (life is { State: SpellLifecycleState.Retiring } && life.Origin.Family != SpellProjectionAnchor.Family) _store.Complete(life.Origin.Id, life.Version, TransitionTime(life, RuntimeClock.UtcNow));
 	}
 
 	public int ReconcileRetirements(DateTime nowUtc, int limit = 100)

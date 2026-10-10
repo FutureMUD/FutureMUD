@@ -4,7 +4,17 @@ namespace MudSharp.Body.Implementations;
 
 public partial class Body
 {
-	internal void ReleaseArchivedRuntime()
+	internal void SetIDFromCommittedProjection(Models.Body row)
+	{
+		SetIDFromDatabase(row);
+		_noSave = false;
+		Changed = false;
+	}
+	internal void ReleaseArchivedRuntime() => ReleaseRetiredRuntime(false);
+
+	internal void ReleaseCommittedProjectionRuntime() => ReleaseRetiredRuntime(true);
+
+	private void ReleaseRetiredRuntime(bool committedProjection)
 	{
 		_noSave = true;
 		Changed = false;
@@ -15,7 +25,8 @@ public partial class Body
 		Gameworld.SaveManager.Abort(this);
 		Gameworld.EffectScheduler.Destroy(this);
 		Gameworld.Scheduler.Destroy(this);
-		EffectHandler.RemoveAllEffects();
+		if (committedProjection) ((MudSharp.Effects.EffectHandler)EffectHandler).ForgetCommittedRetirementEffects();
+		else EffectHandler.RemoveAllEffects();
 		Gameworld.Destroy(this);
 	}
 }

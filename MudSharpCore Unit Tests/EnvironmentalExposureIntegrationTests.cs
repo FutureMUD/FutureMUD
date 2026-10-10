@@ -188,6 +188,23 @@ public class EnvironmentalExposureIntegrationTests
 	}
 
 	[TestMethod]
+	public void CommittedProjectionRelease_DoesNotAdvanceExposureOrRunHealthCallbacks()
+	{
+		var f = new WorldFixture();
+		var service = EnvironmentalExposureService.For(f.World.Object);
+		var body = f.Body("lungs");
+		var handler = new MudSharp.Effects.EffectHandler(body.Object);
+		var effect = new Mock<MudSharp.Effects.IEffect>();
+		handler.AddEffect(effect.Object);
+		service.Clock = () => throw new AssertFailedException("Committed release must not settle exposure against deleted rows.");
+		handler.ForgetCommittedRetirementEffects();
+		EnvironmentalExposureService.ForgetCommittedProjectionBody(f.World.Object, body.Object);
+		Assert.IsFalse(handler.Effects.Any());
+		effect.Verify(x => x.RemovalEffect(), Times.Never);
+		Assert.AreEqual(0, f.Damage.Count);
+	}
+
+	[TestMethod]
 	public void RuntimeDisableAndResume_DoesNotReplayDisabledTime()
 	{
 		var f = new WorldFixture(); f.Service.Track(f.Item.Object); f.Advance(1);

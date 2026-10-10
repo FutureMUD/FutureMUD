@@ -956,6 +956,12 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 	private void EnterCore(ICharacter movingCharacter, IRoomExit exit, bool noSave, RoomLayer roomLayer,
 		NativeDisplacementReceipt? receipt, bool nativeLogin = false)
 	{
+		if (MudSharp.Character.ProjectionSpatialPolicy.Error(movingCharacter,
+			new SpatialLocation(this, roomLayer, receipt?.RoutePosition), exit is not null) is { } projectionError)
+		{
+			if (movingCharacter.Location is Room original) original.ReconcileNativeCharacterMembership(movingCharacter, true);
+			movingCharacter.OutputHandler.Send(projectionError.ColourError()); return;
+		}
 		if (Gameworld.SpellOwnedShelters is { } shelters && shelters.OwnsRoom(Id) &&
 			!(nativeLogin ? shelters.CanReconnect(this, movingCharacter) : shelters.CanEnter(this, movingCharacter)))
 		{

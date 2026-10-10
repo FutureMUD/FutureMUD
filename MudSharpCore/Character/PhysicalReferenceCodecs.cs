@@ -113,6 +113,11 @@ public static class PhysicalReferenceCodecs
 	private static IEnumerable<PhysicalEntityReference> InstanceMetadata(XElement root, PhysicalReferenceTargets? targets)
 	{
 		bool Needed(PhysicalEntityKind kind) => targets is null || targets.HasKind(kind);
+		if (root.Element("OwnedProjection") is { } owned)
+		{
+			if (Needed(PhysicalEntityKind.Character)) yield return Read(PhysicalEntityKind.Character, RequiredAttribute(owned, "AnchorCharacterId"), "OwnedProjection/@AnchorCharacterId");
+			if (Needed(PhysicalEntityKind.CharacterInstance)) yield return Read(PhysicalEntityKind.CharacterInstance, RequiredAttribute(owned, "AnchorInstanceId"), "OwnedProjection/@AnchorInstanceId");
+		}
 		foreach (var name in new[] { "AstralProjection", "MagicalCopy", "PhysicalClone", "PossessedBody", "PossessedCorpse", "AnimatedCorpse", "ScriptedAi" })
 		{
 			var node = root.Name == name ? root : root.Element(name);

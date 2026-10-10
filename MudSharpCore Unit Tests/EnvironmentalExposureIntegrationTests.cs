@@ -205,6 +205,24 @@ public class EnvironmentalExposureIntegrationTests
 	}
 
 	[TestMethod]
+	public void CommittedShelterWardRelease_DoesNotAdvanceExposureOrRunRemovalCallbacks()
+	{
+		var f = new WorldFixture();
+		var service = EnvironmentalExposureService.For(f.World.Object);
+		var room = new Mock<IRoom>(); room.SetupGet(x => x.Gameworld).Returns(f.World.Object); room.SetupGet(x => x.Hooks).Returns([]);
+		var handler = new MudSharp.Effects.EffectHandler(room.Object);
+		room.SetupGet(x => x.Effects).Returns(() => handler.Effects);
+		var configuration = new SpellShelterWardConfiguration([1], [], MagicInterdictionCoverage.Both);
+		var origin = new SpellLifecycleOrigin(Guid.NewGuid(), 1, 1, 100, SpellShelterAnchor.Family,
+			SpellLifecycleMode.TemporaryCleanup, f.Now, f.Now.AddSeconds(60), "typed fixture");
+		var ward = new SpellShelterWard(SpellShelterWard.Envelope(origin.Id, origin.SpellId, configuration), room.Object);
+		handler.AddEffect(ward);
+		service.Clock = () => throw new AssertFailedException("Committed ward detach must not settle deleted room exposure.");
+		MudSharp.Magic.Lifecycle.SpellOwnedShelterService.DetachCommittedWard(room.Object, handler, origin, configuration);
+		Assert.IsFalse(handler.Effects.Any()); Assert.AreEqual(0, f.Damage.Count);
+	}
+
+	[TestMethod]
 	public void RuntimeDisableAndResume_DoesNotReplayDisabledTime()
 	{
 		var f = new WorldFixture(); f.Service.Track(f.Item.Object); f.Advance(1);

@@ -41,6 +41,12 @@ public sealed class EnvironmentalExposureService
 		foreach (var key in service._atmosphericThermal.Keys.Where(x => ReferenceEquals(x.Item1, body)).ToArray())
 			service._atmosphericThermal.Remove(key);
 	}
+	internal static void ForgetCommittedShelterRoom(IFuturemud world, IRoom room)
+	{
+		if (!Services.TryGetValue(world, out var service)) return;
+		if (room is Room native) service._weatherRooms.Remove(native);
+		service._active.Remove(room); service._pending.Remove(room); service._resumed.Remove(room);
+	}
 	private readonly IFuturemud _world;
 	private readonly HashSet<IPerceivable> _active = new(ReferenceEqualityComparer.Instance);
 	private readonly HashSet<IPerceivable> _pending = new(ReferenceEqualityComparer.Instance);

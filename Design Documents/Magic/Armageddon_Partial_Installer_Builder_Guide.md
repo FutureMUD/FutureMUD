@@ -205,6 +205,32 @@ activation eligibility and live target resistance/wards are rechecked. Copying a
 
 ## Reports, ownership and reruns
 
+### Separately authored N19 ward and bane stocks
+
+Create these definitions explicitly and add/grant them through the intended
+configured capability:
+
+```text
+magic spell edit new stock severing-refuge <school> <casting skill> <resource> <indoor template room> <source terrain> <fallback room> <seconds per grade> <capacity> school|tag <selector> Incoming|Outgoing|Both
+magic spell edit new stock apex-bane <school> <casting skill> <resource> <Boolean eligibility prog (target,caster)> <resistance trait> <difficulty> <damage per grade> <maximum damage> <damage type>
+magic spell set effect 1 ward school <school>
+magic spell set effect 1 ward tag <tag name>
+magic spell set effect 1 ward coverage Incoming|Outgoing|Both
+magic spell set effect 1 ward subschools true|false
+```
+
+Quote names containing spaces. The refuge uses ordinary `enter refuge` / `leave
+outside` movement, shelter capacity and safe evacuation. Its ward matches selected
+schools (optionally descendants) or invocation tag names through native magic
+interdiction. School/tag editor commands toggle selectors, retaining at least one.
+Ordinary physical hazards remain subject to native room mechanics.
+Apex Bane accepts the builder's compiled eligibility predicate, native resistance
+trait and damage type; its grade damage is capped by the selected maximum. An
+ineligible target refuses before payment. Native paid ward/resistance failures
+retain payment. The [lifecycle contract](Spell_Owned_Lifecycle.md) records exact
+ward authority and occupied teardown. These builder definitions do not extend
+the partial installer or the fixed Sorcerer roster.
+
 ### Separately authored N18 projection stocks
 
 These stocks use the shared paid casting route and are installed explicitly by a builder:

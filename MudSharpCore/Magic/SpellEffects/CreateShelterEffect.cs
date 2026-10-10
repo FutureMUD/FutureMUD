@@ -18,7 +18,9 @@ public sealed class CreateShelterEffect : IMagicSpellEffectTemplate, IMagicSpell
 	public bool IsInstantaneous => true;
 	public bool RequiresTarget => true;
 	public const string HelpText = @"Shelter effect options:
-	#3kind SpringHaven|BurrowRefuge|SandShelter#0
+	#3kind SpringHaven|BurrowRefuge|SandShelter|SeveringRefuge#0
+	#3ward school <school>#0 / #3ward tag <invocation tag>#0 - toggle an explicit Severing Refuge selector
+	#3ward coverage Incoming|Outgoing|Both#0 / #3ward subschools true|false#0
 	#3template <room>#0 - approved indoor room whose overlay supplies the new space
 	#3terrain <terrain>#0 - toggle an admitted source terrain
 	#3fallback <room>#0 - permanent ground-level recovery destination
@@ -48,19 +50,20 @@ public sealed class CreateShelterEffect : IMagicSpellEffectTemplate, IMagicSpell
 		new XElement("FallbackRoom", c.FallbackRoomId), new XElement("SecondsPerGrade", c.SecondsPerGrade),
 		new XElement("MaximumOccupants", c.MaximumOccupants), c.AllowedTerrainIds.Order().Select(x => new XElement("Terrain", x)),
 		new XElement("WaterPrototype", c.WaterPrototypeId), new XElement("Liquid", c.LiquidId), new XElement("LitresPerGrade", c.LitresPerGrade),
-		new XElement("UndergroundDepth", c.UndergroundDepth));
+		new XElement("UndergroundDepth", c.UndergroundDepth), c.Ward?.Save());
 
 	internal SpellShelterConfiguration Configuration()
 	{
 		if ((string?)_definition.Attribute("version") != "1") throw new FormatException("Unsupported shelter effect version.");
 		if (_definition.Elements().Where(x => x.Name != "Terrain").GroupBy(x => x.Name).Any(x => x.Count() != 1) ||
-			_definition.Elements().Any(x => !new[] { "Kind", "TemplateRoom", "FallbackRoom", "SecondsPerGrade", "MaximumOccupants", "Terrain", "WaterPrototype", "Liquid", "LitresPerGrade", "UndergroundDepth" }.Contains(x.Name.LocalName)))
+			_definition.Elements().Any(x => !new[] { "Kind", "TemplateRoom", "FallbackRoom", "SecondsPerGrade", "MaximumOccupants", "Terrain", "WaterPrototype", "Liquid", "LitresPerGrade", "UndergroundDepth", "Ward" }.Contains(x.Name.LocalName)))
 			throw new FormatException("Unknown or duplicate shelter configuration fields.");
 		return new(Enum.Parse<SpellShelterKind>(_definition.Element("Kind")!.Value), (long)_definition.Element("TemplateRoom")!,
 			_definition.Elements("Terrain").Select(x => (long)x).Distinct().ToArray(), (long)_definition.Element("FallbackRoom")!,
 			(double)_definition.Element("SecondsPerGrade")!, (int)_definition.Element("MaximumOccupants")!,
 			(long?)_definition.Element("WaterPrototype") ?? 0, (long?)_definition.Element("Liquid") ?? 0,
-			(double?)_definition.Element("LitresPerGrade") ?? 0, (int?)_definition.Element("UndergroundDepth") ?? 1);
+			(double?)_definition.Element("LitresPerGrade") ?? 0, (int?)_definition.Element("UndergroundDepth") ?? 1,
+			_definition.Element("Ward") is { } ward ? SpellShelterWardConfiguration.Load(ward) : null);
 	}
 
 	public string? DefinitionError
@@ -164,7 +167,7 @@ public sealed class CreateShelterEffect : IMagicSpellEffectTemplate, IMagicSpell
 				throw new InvalidOperationException(error);
 			var now = RuntimeClock.UtcNow;
 			var metadata = new SpellShelterAnchor(Configuration.Kind, Anchor.Id, Configuration.FallbackRoomId,
-				Caster.RoutePositionMetres, Configuration.MaximumOccupants, Anchor.CurrentOverlay.Id);
+				Caster.RoutePositionMetres, Configuration.MaximumOccupants, Anchor.CurrentOverlay.Id, Configuration.Ward);
 			Effect.Gameworld.SpellOwnedShelters!.Create(Caster, Anchor, Configuration,
 				new SpellLifecycleOrigin(Id, Effect.Spell.Id, Grade, CharacterInstanceIdentityComparer.IdentityId(Caster),
 					SpellShelterAnchor.Family, SpellLifecycleMode.TemporaryCleanup, now,
@@ -181,12 +184,14 @@ public sealed class CreateShelterEffect : IMagicSpellEffectTemplate, IMagicSpell
 			$"fallback {c.FallbackRoomId.ToString("N0", actor).ColourValue()}, capacity {c.MaximumOccupants.ToString("N0", actor).ColourValue()}, " +
 			$"lifetime {TimeSpan.FromSeconds(c.SecondsPerGrade).Describe(actor).ColourValue()} per grade; " +
 			$"admitted terrains {c.AllowedTerrainIds.Select(x => x.ToString("N0", actor)).ListToCommaSeparatedValues().ColourValue()}. " +
+			(c.Ward is { } ward ? $"Ward: {ward.Coverage.DescribeEnum().ColourName()}, schools {ward.SchoolIds.Select(x => x.ToString("N0", actor)).ListToCommaSeparatedValues().ColourValue()}, invocation tags {ward.Tags.ListToCommaSeparatedValues().ColourValue()}, subschools {ward.IncludesSubschools.ToColouredString()}. " : "") +
 			(c.Kind == SpellShelterKind.BurrowRefuge ? $"Depth: {c.UndergroundDepth.ToString("N0", actor).ColourValue()} native grid levels. " : "") +
 			(c.Kind == SpellShelterKind.SpringHaven ? $"Finite supply: prototype {c.WaterPrototypeId.ToString("N0", actor)}, liquid {c.LiquidId.ToString("N0", actor)}, {c.LitresPerGrade.ToString("N2", actor)} litres per grade." : "");
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
+		if (command.PeekSpeech().EqualTo("ward")) return BuildingCommandWard(actor, command);
 		var field = command.PopSpeech().ToLowerInvariant(); var text = command.SafeRemainingArgument;
 		string? name = null; object? value = null;
 		switch (field)
@@ -194,6 +199,7 @@ public sealed class CreateShelterEffect : IMagicSpellEffectTemplate, IMagicSpell
 			case "kind":
 				if (!Enum.TryParse<SpellShelterKind>(text, true, out var kind) || !Enum.IsDefined(kind)) break;
 				name = "Kind"; value = kind;
+				if (kind != SpellShelterKind.SeveringRefuge) _definition.Element("Ward")?.Remove();
 				if (kind != SpellShelterKind.SpringHaven)
 				{ _definition.SetElementValue("WaterPrototype", 0); _definition.SetElementValue("Liquid", 0); _definition.SetElementValue("LitresPerGrade", 0); }
 				break;
@@ -225,5 +231,37 @@ public sealed class CreateShelterEffect : IMagicSpellEffectTemplate, IMagicSpell
 		if (name is null) { actor.OutputHandler.Send(HelpText.SubstituteANSIColour()); return false; }
 		_definition.SetElementValue(name, value); Spell.Changed = true;
 		actor.OutputHandler.Send("Shelter configuration updated."); return true;
+	}
+
+	private bool BuildingCommandWard(ICharacter actor, StringStack command)
+	{
+		command.PopSpeech();
+		var field = command.PopSpeech().ToLowerInvariant(); var text = command.SafeRemainingArgument;
+		if ((string?)_definition.Element("Kind") != nameof(SpellShelterKind.SeveringRefuge))
+		{ actor.OutputHandler.Send("Only Severing Refuge owns this ward.".ColourError()); return false; }
+		var ward = _definition.Element("Ward") is { } existing ? new XElement(existing) :
+			new XElement("Ward", new XAttribute("version", 1), new XElement("Coverage", MagicInterdictionCoverage.Both), new XElement("IncludesSubschools", true));
+		switch (field)
+		{
+			case "school":
+				var school = Gameworld.MagicSchools.GetByIdOrName(text); if (school is null) return false;
+				var selectedSchool = ward.Elements("School").SingleOrDefault(x => (long)x == school.Id);
+				if (selectedSchool is null) ward.Add(new XElement("School", school.Id)); else selectedSchool.Remove(); break;
+			case "tag":
+				if (string.IsNullOrWhiteSpace(text) || text.Length > 128) return false;
+				var selectedTag = ward.Elements("Tag").SingleOrDefault(x => x.Value.EqualTo(text));
+				if (selectedTag is null) ward.Add(new XElement("Tag", text)); else selectedTag.Remove(); break;
+			case "coverage":
+				if (!Enum.TryParse<MagicInterdictionCoverage>(text, true, out var coverage) || !Enum.IsDefined(coverage)) return false;
+				ward.SetElementValue("Coverage", coverage); break;
+			case "subschools":
+				if (!bool.TryParse(text, out var children)) return false;
+				ward.SetElementValue("IncludesSubschools", children); break;
+			default: actor.OutputHandler.Send(HelpText.SubstituteANSIColour()); return false;
+		}
+		try { SpellShelterWardConfiguration.Load(ward); }
+		catch (ArgumentException ex) { actor.OutputHandler.Send(ex.Message.ColourError()); return false; }
+		_definition.Element("Ward")?.Remove(); _definition.Add(ward); Spell.Changed = true;
+		actor.OutputHandler.Send("Shelter ward configuration updated."); return true;
 	}
 }

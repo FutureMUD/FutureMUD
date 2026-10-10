@@ -5,6 +5,8 @@ using System.Xml.Linq;
 using MudSharp.Database;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
+using MudSharp.Magic;
+using MudSharp.Magic.Lifecycle;
 
 namespace MudSharp.Construction;
 
@@ -51,12 +53,14 @@ public partial class Room
 		foreach (var residue in source.Residues) destination.AddResidue(residue.Material, residue.OriginalLiquid, residue.Weight);
 	}
 
-	internal void FinishCommittedShelterRemoval()
+	// Subscriber callbacks run before the final save and topology/effect/custody fences.
+	internal void PrepareShelterRetirement() => InvalidatePositionTargets();
+
+	internal void FinishCommittedShelterRemoval(SpellLifecycleOrigin origin, SpellShelterWardConfiguration? ward)
 	{
 		if (Characters.Any() || GameItems.Any(x => !x.Deleted))
 			throw new InvalidOperationException("Committed shelter release still has runtime occupants or goods.");
 		SetNoSave(true);
-		InvalidatePositionTargets();
 		foreach (var overlay in _overlays)
 		{
 			if (overlay is RoomOverlay native) native.SetNoSave(true);
@@ -64,7 +68,7 @@ public partial class Room
 		}
 		Gameworld.SaveManager.Abort(this);
 		Gameworld.EffectScheduler.Destroy(this); Gameworld.Scheduler.Destroy(this);
-		EffectHandler.RemoveAllEffects();
+		SpellOwnedShelterService.DetachCommittedWard(this, (MudSharp.Effects.EffectHandler)EffectHandler, origin, ward);
 		ReleaseEvents();
 		Dispose();
 	}

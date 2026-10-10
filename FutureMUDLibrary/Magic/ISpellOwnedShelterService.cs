@@ -8,12 +8,13 @@ using MudSharp.Framework;
 
 namespace MudSharp.Magic;
 
-public enum SpellShelterKind { SpringHaven, BurrowRefuge, SandShelter }
+public enum SpellShelterKind { SpringHaven, BurrowRefuge, SandShelter, SeveringRefuge }
 
 /// <summary>Explicit native bindings. Durations are real seconds; quantities are litres.</summary>
 public sealed record SpellShelterConfiguration(SpellShelterKind Kind, long TemplateRoomId,
 	IReadOnlyCollection<long> AllowedTerrainIds, long FallbackRoomId, double SecondsPerGrade,
-	int MaximumOccupants, long WaterPrototypeId = 0, long LiquidId = 0, double LitresPerGrade = 0, int UndergroundDepth = 1);
+	int MaximumOccupants, long WaterPrototypeId = 0, long LiquidId = 0, double LitresPerGrade = 0, int UndergroundDepth = 1,
+	SpellShelterWardConfiguration? Ward = null);
 
 public interface ISpellOwnedShelterService
 {

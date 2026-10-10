@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Database;
+using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Scheduling;
@@ -57,6 +58,13 @@ public sealed partial class SpellOwnedShelterService : ISpellOwnedShelterService
 
 	public string? AdmissionError(ICharacter caster, IRoom anchor, SpellShelterConfiguration c, int grade)
 	{
+		if ((c.Kind == SpellShelterKind.SeveringRefuge) != (c.Ward is not null))
+			return "Only Severing Refuge requires an explicitly authored ward.";
+		if (c.Ward is { } ward)
+		{
+			try { ward.Validate(); } catch (ArgumentException ex) { return ex.Message; }
+			if (ward.SchoolIds.Any(x => _world.MagicSchools.Get(x) is null)) return "A selected ward school is unavailable.";
+		}
 		if (!Enum.IsDefined(c.Kind) || grade is < 1 or > 7 || c.MaximumOccupants is < 1 or > 128 ||
 			!double.IsFinite(c.SecondsPerGrade) || c.SecondsPerGrade <= 0 ||
 			c.SecondsPerGrade * grade > (DateTime.MaxValue - RuntimeClock.UtcNow).TotalSeconds ||
@@ -81,6 +89,9 @@ public sealed partial class SpellOwnedShelterService : ISpellOwnedShelterService
 		if (_world.DefaultHooks.Any(x => x.PerceivableType.EqualTo("Room") || x.PerceivableType.EqualTo("Cell")))
 			return "Shelter creation needs an adapter for configured default room hooks.";
 		if (!TryDestination(c.FallbackRoomId, null, out _)) return "Bind a valid permanent ground-level fallback room.";
+		if (c.Ward is not null && new SpellShelterAnchor(c.Kind, anchor.Id, c.FallbackRoomId, caster.RoutePositionMetres,
+			c.MaximumOccupants, anchor.CurrentOverlay.Id, c.Ward).Save().Length > 2048)
+			return "The authored ward exceeds the native lifecycle provenance limit; reduce its selectors.";
 		if (c.Kind != SpellShelterKind.SpringHaven)
 			return c.WaterPrototypeId != 0 || c.LiquidId != 0 || c.LitresPerGrade != 0 ? "Only Spring Haven creates a finite water supply." : null;
 		return WaterAdmissionError(c, grade);
@@ -89,7 +100,7 @@ public sealed partial class SpellOwnedShelterService : ISpellOwnedShelterService
 	public IRoom Create(ICharacter caster, IRoom anchor, SpellShelterConfiguration c, SpellLifecycleOrigin origin)
 	{
 		if (AdmissionError(caster, anchor, c, origin.Grade) is { } error) throw new InvalidOperationException(error);
-		var metadata = new SpellShelterAnchor(c.Kind, anchor.Id, c.FallbackRoomId, caster.RoutePositionMetres, c.MaximumOccupants, anchor.CurrentOverlay.Id);
+		var metadata = new SpellShelterAnchor(c.Kind, anchor.Id, c.FallbackRoomId, caster.RoutePositionMetres, c.MaximumOccupants, anchor.CurrentOverlay.Id, c.Ward);
 		if (origin.Family != SpellShelterAnchor.Family || origin.Mode != SpellLifecycleMode.TemporaryCleanup ||
 			origin.CreatorId != CharacterInstanceIdentityComparer.IdentityId(caster) || origin.Provenance != metadata.Save())
 			throw new ArgumentException("Shelter creation requires its exact typed origin and absolute deadline.");
@@ -97,6 +108,9 @@ public sealed partial class SpellOwnedShelterService : ISpellOwnedShelterService
 		var row = new Models.Room { ZoneId = anchor.OwningZone.Id, Temporary = true, EffectData = "<Effects />",
 			X = anchor.StoredCoordinates.X, Y = anchor.StoredCoordinates.Y,
 			Z = c.Kind == SpellShelterKind.BurrowRefuge ? anchor.StoredCoordinates.Z - c.UndergroundDepth : anchor.StoredCoordinates.Z };
+		// The durable row loads its native ward before world registration or entrance exposure.
+		if (c.Ward is { } wardConfiguration)
+			row.EffectData = new XElement("Effects", SpellShelterWard.Envelope(origin.Id, origin.SpellId, wardConfiguration)).ToString();
 		var overlay = new Models.RoomOverlay
 		{
 			Room = row, Name = template.Name, RoomName = template.RoomName, RoomDescription = template.RoomDescription,
@@ -123,6 +137,7 @@ public sealed partial class SpellOwnedShelterService : ISpellOwnedShelterService
 		try
 		{
 			var room = new Room(row, anchor.OwningZone);
+			RequireWardAuthority(room, origin, c.Ward, true);
 			_world.Add(room);
 			_world.ExitManager.InitialiseRoom(room, room.CurrentOverlay);
 			ReloadCommittedOverlayExit(anchor, life.Entities.Single(x => x.Kind == SpellOwnedEntityKind.Exit).Id);
@@ -144,6 +159,7 @@ public sealed partial class SpellOwnedShelterService : ISpellOwnedShelterService
 	internal static string Keyword(SpellShelterKind kind) => kind switch
 	{
 		SpellShelterKind.SpringHaven => "haven", SpellShelterKind.BurrowRefuge => "burrow", SpellShelterKind.SandShelter => "shelter",
+		SpellShelterKind.SeveringRefuge => "refuge",
 		_ => throw new ArgumentOutOfRangeException(nameof(kind))
 	};
 
@@ -165,6 +181,7 @@ public sealed partial class SpellOwnedShelterService : ISpellOwnedShelterService
 			var life = _store.Find(id);
 			if (life is null) return false;
 			var c = SpellShelterAnchor.Load(life.Origin.Provenance);
+			RequireWardAuthority(room, life.Origin, c.Ward, true);
 			using var isolated = FMDB.BeginIndependentScope(); using var db = new FMDB();
 			var persisted = FMDB.Context.CharacterInstances.AsNoTracking().Where(x => x.LocationId == room.Id)
 				.Select(x => new { x.Id, x.CharacterId }).ToArray();
@@ -243,9 +260,16 @@ public sealed partial class SpellOwnedShelterService : ISpellOwnedShelterService
 			_cursor = roomId;
 			var life = _store.Find(Rooms[roomId]);
 			if (life is null || life.State == SpellLifecycleState.Completed) { Rooms.Remove(roomId); continue; }
-			if (life.State == SpellLifecycleState.Active && life.Origin.DeadlineUtc > nowUtc) continue;
 			try
 			{
+				if (life.State == SpellLifecycleState.Active && life.Origin.DeadlineUtc > nowUtc)
+				{
+					var metadata = SpellShelterAnchor.Load(life.Origin.Provenance);
+					if (metadata.Ward is not null)
+						RequireWardAuthority(_world.Rooms.Get(roomId) ?? throw new InvalidOperationException("The warded shelter is unavailable."),
+							life.Origin, metadata.Ward, true);
+					continue;
+				}
 				if (life.State == SpellLifecycleState.Active)
 					life = _store.BeginRetirement(life.Origin.Id, life.Version, SpellRetirementReason.Expiry, nowUtc < life.UpdatedUtc ? life.UpdatedUtc : nowUtc);
 				Retire(life);

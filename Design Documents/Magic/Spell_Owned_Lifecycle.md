@@ -820,7 +820,7 @@ Enough-sand source includes five sectors plus room sandstorm flag or numeric wea
 
 ## Native occupied shelters
 
-`createshelter` implements Spring Haven, Burrow Refuge and Sand Shelter through
+`createshelter` implements Spring Haven, Burrow Refuge, Sand Shelter and Severing Refuge through
 the existing paid casting and exact ownership journal. The builder selects an
 approved indoor native room template, allowed source terrains, a permanent safe
 fallback, seconds per grade and a capacity of 1–128 physical occupants. Burrow
@@ -880,6 +880,28 @@ relational dependencies or altered topology associations also hold deletion. Rep
 and startup reconciliation retry the original graph and absolute deadline without
 another cast, payment or creation.
 
+Severing Refuge snapshots a builder-authored union of native school IDs and magic
+tag names, Incoming/Outgoing/Both coverage and the school-descendant policy. Its
+one `SpellShelterWard` participates in the existing contextual interdiction path
+with Fail mode. School or invocation-tag matches block covered deliveries; tag
+values do not change this selection. Physical hazards and other ordinary room
+mechanics continue through their native systems. This does not establish a
+universal elemental taxonomy or immunity.
+
+The exact lifecycle/spell/configuration ward is persisted in the private room
+transaction and loaded before the room or entrance is exposed. Its strict
+`SpellShelterAnchor` journal is version 2; existing unwarded shelters retain
+version 1. Entry and active reconciliation verify the native ward authority.
+Missing or changed authority refuses entry and records a recovery diagnostic;
+restart retains the original absolute deadline. A missing ward can be retired
+safely, while changed or foreign effects hold teardown for explicit recovery.
+
+Retirement checks both runtime effects and the exact persisted native envelope
+before evacuation and again at the final transaction. Position-target callbacks
+run before those final save and authority fences. After committed deletion,
+the exact owned ward is forgotten without removal callbacks or environmental
+exposure advancement; unrelated effects cannot receive this exemption.
+
 Spring Haven supplies its configured finite grade-scaled mixture once. Ordinary
 fill/drink/empty mechanics own subsequent consumption. Remaining water becomes an
 ordinary puddle in the safe destination, while all foreign surface liquid and residue
@@ -903,6 +925,43 @@ The `createshelter` effect editor exposes `kind`, `template`, `terrain`, `fallba
 `lifetime`, `capacity`, `depth`, `water`, `liquid` and `litres`. Add the resulting spell
 to the intended casting capability. Full installer composition, source parity, all
 grades, high-volume shelter churn and release readiness require their own evidence.
+
+Severing Refuge additionally requires one initial school or tag selector:
+
+```text
+magic spell edit new stock severing-refuge <school> <casting skill> <resource>
+  <indoor template room> <source terrain> <fallback room> <seconds per grade>
+  <capacity> school|tag <selector> Incoming|Outgoing|Both
+magic spell set effect 1 ward school <school>
+magic spell set effect 1 ward tag <tag name>
+magic spell set effect 1 ward coverage Incoming|Outgoing|Both
+magic spell set effect 1 ward subschools true|false
+```
+
+School/tag editor commands toggle individual selectors. At least one and at most
+64 distinct selectors are required. Quote names containing spaces. Changing the
+stock definition affects the next invocation; an existing refuge keeps its
+recorded ward and deadline.
+
+## Bounded Apex Bane stock
+
+```text
+magic spell edit new stock apex-bane <school> <casting skill> <resource>
+  <Boolean eligibility prog (target,caster)> <resistance trait> <difficulty>
+  <damage per grade> <maximum damage> <damage type>
+```
+
+Apex Bane uses the ordinary character trigger, compiled Boolean eligibility
+prog, native opposed resistance and native damage effect. Builders can author
+eligibility with `hasmagictag` or other existing predicates rather than creature
+names or a setting-specific race list. Damage binds grades 1–7 through
+`min(maximumDamage, damagePerGrade*grade)` and creates actual native wounds.
+Eligibility is rechecked before payment; ward or resisted outcomes after payment
+retain the charge. The existing native self-target resistance exemption remains.
+The source efficiency minimum is 12, with the existing controlled-grade curve;
+Severing Refuge's minimum is 9. Both are editable builder policy. Neither stock
+adds a Sorcerer roster member or changes the partial installer. Full installer,
+historical balance and all-grade native acceptance remain pending.
 
 ### Queued servitor command authority
 

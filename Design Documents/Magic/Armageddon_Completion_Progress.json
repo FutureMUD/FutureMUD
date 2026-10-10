@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-continuation-20261008",
   "authorised_scope": "Complete plan in coherent stages; local commits and draft PR #788 authorized; no merge, deploy or shared/production DB",
-  "selected_stage": "N18 builder-installed Sand Effigy and Walking Shadow qualified; next N19 Severing Refuge and Apex Bane.",
+  "selected_stage": "N19 builder-installed Severing Refuge and Apex Bane qualified; next N20 Folded Pocket.",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -510,8 +510,10 @@
       "name": "Ward and bane",
       "scenario": "Use Severing Refuge against allowed/blocked element interactions; Apex Bane against eligible/ineligible beings",
       "required_result": "Functional bounded ward and resisted category attack, not cosmetic effects or name checks",
-      "status": "not_run",
-      "evidence": []
+      "status": "qualified_bounded_builder_stock_full_installer_source_and_all_grade_matrix_pending",
+      "evidence": [
+        "Armageddon_Ward_And_Bane_Checkpoint_20261010.json: 134 native assertions; 7165 Core/Library tests; separate 169 Armageddon seeder checks; native wards, wounds, resistance and conserved occupied custody"
+      ]
     },
     {
       "id": "N20",
@@ -1926,8 +1928,11 @@
       "group": "Larger",
       "required_behavior": "Usable refuge with defined builder-configurable elemental ward scope and safe temporary topology",
       "selected_sorcerer": false,
-      "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "status": "bounded_builder_stock_and_native_lifecycle_qualified_full_installer_source_and_grade_matrix_pending",
+      "evidence": [
+        "Armageddon_Ward_And_Bane_Checkpoint_20261010.json"
+      ],
+      "whole_candidate_complete": false
     },
     {
       "key": "arm.spell.apex_bane",
@@ -1935,8 +1940,11 @@
       "group": "Larger",
       "required_behavior": "Resisted bounded attack against builder-tagged exceptional magical beings, with explicit eligible/ineligible tests",
       "selected_sorcerer": false,
-      "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "status": "bounded_builder_stock_and_native_lifecycle_qualified_full_installer_source_and_grade_matrix_pending",
+      "evidence": [
+        "Armageddon_Ward_And_Bane_Checkpoint_20261010.json"
+      ],
+      "whole_candidate_complete": false
     },
     {
       "key": "arm.spell.empty_aura",
@@ -5824,23 +5832,23 @@
     "historical_attribution": "Previous malformed-armour failure retained; current stock repair and AI hold supersede its current-stage status."
   },
   "current_managed": {
-    "scope": "Full Core and shared Library after N18 owned projection repairs",
+    "scope": "Full Core and shared Library after N19 ward/bane and callback-free retirement repairs",
     "runs": [
       {
-        "run_id": "20261010T063319Z-002c1b496a98",
-        "head": "db9136e45a8c4f5bb41ff0b16cf970820257ae1d",
+        "run_id": "20261010T082643Z-1401e2a85cd2",
+        "head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
         "status": "PASS",
         "counts": {
-          "executed": 7136,
-          "passed": 7136,
+          "executed": 7165,
+          "passed": 7165,
           "failed": 0,
           "skipped": 0,
           "inconclusive": 0,
           "other": 0,
-          "total": 7136
+          "total": 7165
         },
-        "source_start": "d561791279ded615dee09155385c706f4be07dd2ea18b7a9e17b19bf47cd8ec3",
-        "source_end": "d561791279ded615dee09155385c706f4be07dd2ea18b7a9e17b19bf47cd8ec3",
+        "source_start": "21d51d1587ba101b4cb063eabf8ab713355ccdf880ee97b27db40f186141aac4",
+        "source_end": "21d51d1587ba101b4cb063eabf8ab713355ccdf880ee97b27db40f186141aac4",
         "source_stable": true,
         "projects": [
           "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
@@ -5849,34 +5857,71 @@
         "filter": null,
         "configuration": "Debug",
         "receipt": {
-          "path": ".artifacts/test-runs/20261010T063319Z-002c1b496a98/summary.json",
-          "sha256": "aa79802ffd2cae70bea5183435a23effa68c95d44a7d57bbc998e56c8c2f97d7"
+          "path": ".artifacts/test-runs/20261010T082643Z-1401e2a85cd2/summary.json",
+          "sha256": "deab00ad74974b2c95d56803e00d9055e7f20b8426c19c569c529d157127d6e2"
         },
         "project_counts": {
           "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
-            "executed": 728,
-            "passed": 728,
+            "executed": 740,
+            "passed": 740,
             "failed": 0,
             "skipped": 0,
             "inconclusive": 0,
             "other": 0,
-            "total": 728
+            "total": 740
           },
           "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
-            "executed": 6408,
-            "passed": 6408,
+            "executed": 6425,
+            "passed": 6425,
             "failed": 0,
             "skipped": 0,
             "inconclusive": 0,
             "other": 0,
-            "total": 6408
+            "total": 6425
           }
         }
       }
     ],
-    "authoritative_passed": 7136,
+    "authoritative_passed": 7165,
     "counts_are_not_added": true,
-    "previous_n17_receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
+    "separate_seeder_armageddon": {
+      "run_id": "20261010T082330Z-ac6d7323c87d",
+      "head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
+      "status": "PASS",
+      "counts": {
+        "executed": 169,
+        "passed": 169,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 169
+      },
+      "source_start": "e6338e413f2e756a2f12a1aad20ad155aab2e6e5b843054a444058548712e93d",
+      "source_end": "e6338e413f2e756a2f12a1aad20ad155aab2e6e5b843054a444058548712e93d",
+      "source_stable": true,
+      "projects": [
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~Armageddon",
+      "configuration": "Debug",
+      "receipt": {
+        "path": ".artifacts/test-runs/20261010T082330Z-ac6d7323c87d/summary.json",
+        "sha256": "8e5740750ed27509953815670d9a17f855ccaa7d879f8ae2e6e8cca8e72e247f"
+      },
+      "project_counts": {
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj": {
+          "executed": 169,
+          "passed": 169,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 169
+        }
+      }
+    },
+    "previous_n18_receipt": "Design Documents/Magic/Armageddon_Owned_Projections_Checkpoint_20261010.json"
   },
   "full_plan_complete": false,
   "package_release_enabled": false,
@@ -6347,7 +6392,7 @@
     "full_air_guardian_catalogue_qualified": false,
     "next_bounded_milestone": "N17: map and implement the bounded occupied-shelter dependencies for Spring Haven, Burrow Refuge and Sand Shelter, then qualify real utility, finite water, occupied expiry/destruction and safe fallback with preserved actors and foreign goods. Full Air Guardian catalogue/timing parity and other stock/readiness gates remain pending. Use only code-proven references; no static-definition classifier stage."
   },
-  "next_bounded_milestone": "N19: map and implement bounded Severing Refuge and Apex Bane policies; qualify allowed/blocked element interactions and eligible/ineligible native beings through normal paid invocation. Use explicit native categories and known code-proven links; preserve resisted outcomes, ownership and custody. Full installer/source parity and other catalogue/readiness gates remain pending.",
+  "next_bounded_milestone": "N20: map and implement bounded Folded Pocket capacity and access using native item custody; reject living targets, pocket nesting and cycles, then qualify transfer, cold restart and collapse with every foreign item released exactly once. Use only declared typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending.",
   "occupied_shelters_20261010": {
     "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
     "receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json",
@@ -6366,5 +6411,17 @@
     "known_code_proven_links_only": true,
     "whole_candidate_complete": false,
     "next_bounded_milestone": "N19: map and implement bounded Severing Refuge and Apex Bane policies; qualify allowed/blocked element interactions and eligible/ineligible native beings through normal paid invocation. Use explicit native categories and known code-proven links; preserve resisted outcomes, ownership and custody. Full installer/source parity and other catalogue/readiness gates remain pending."
+  },
+  "ward_and_bane_20261010": {
+    "status": "PASS_BOUNDED_N19_BUILDER_INSTALLED",
+    "checkpoint": "Armageddon_Ward_And_Bane_Checkpoint_20261010.json",
+    "managed_passed": 7165,
+    "seeder_armageddon_passed": 169,
+    "native_assertions": 134,
+    "paid_casts": 12,
+    "reserve_spent": 122,
+    "known_code_proven_links_only": true,
+    "whole_candidate_complete": false,
+    "next_bounded_milestone": "N20: map and implement bounded Folded Pocket capacity and access using native item custody; reject living targets, pocket nesting and cycles, then qualify transfer, cold restart and collapse with every foreign item released exactly once. Use only declared typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending."
   }
 }

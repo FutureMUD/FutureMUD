@@ -33,13 +33,13 @@ public sealed partial class SpellOwnedShelterService
 				!TryDestination(metadata.FallbackRoomId, null, out destination))
 				throw new InvalidOperationException("Neither recorded anchor nor configured fallback is safe; retain the occupied shelter for recovery.");
 			if (room is null || !room.Temporary) throw new InvalidOperationException("The claimed shelter room is missing from runtime or no longer temporary.");
-			if (room.Hooks.Any() || room.Effects.Any())
-				throw new InvalidOperationException("Room hooks or effects need cleanup before topology removal.");
+			RequireRetirementEffects(room, life.Origin, metadata.Ward);
 			// Check before any movement. A builder/vehicle/economy link cannot silently become cast ownership.
 			using (var isolated = FMDB.BeginIndependentScope())
 			using (var db = new FMDB())
 			{
 				RequireTopologyAuthority(FMDB.Context, roomId, overlayId, exitId, metadata);
+				RequirePersistedWardAuthority(FMDB.Context.Rooms.Find(roomId)!.EffectData, life.Origin, metadata.Ward);
 				RequireNoForeignRoomEffectReferences(FMDB.Context, room);
 				foreach (var supply in life.Entities.Where(x => x.Kind == SpellOwnedEntityKind.GameItem))
 					RequireSupplyPersistence(FMDB.Context, supply.Id, roomId);
@@ -60,6 +60,7 @@ public sealed partial class SpellOwnedShelterService
 			{
 				EvacuateForeignItem(item, room, destination);
 			}
+			room.PrepareShelterRetirement();
 			// Native saves finish custody and primary/secondary actor state before deletion is permitted.
 			// A crash here leaves the durable retirement intent and a replayable remaining room, never an absent destination.
 			_world.SaveManager.Flush(); _world.LogManager.FlushLog();
@@ -70,6 +71,8 @@ public sealed partial class SpellOwnedShelterService
 			if (current.Version != life.Version || current.State != (int)SpellLifecycleState.Retiring)
 				throw new InvalidOperationException("Shelter retirement authority changed before commit.");
 			RequireTopologyAuthority(context, roomId, overlayId, exitId, metadata);
+			RequireRetirementEffects(room, life.Origin, metadata.Ward);
+			RequirePersistedWardAuthority(context.Rooms.Find(roomId)!.EffectData, life.Origin, metadata.Ward);
 			RequireNoForeignRoomEffectReferences(context, room);
 			var point = destination.RoutePositionMetres is { } position ? (decimal?)position : null;
 			foreach (var actor in context.Characters.Where(x => x.Location == roomId))
@@ -130,7 +133,7 @@ public sealed partial class SpellOwnedShelterService
 			cached?.FinishCommittedSpellItemRemoval();
 		}
 		_world.ExitManager.ForgetCommittedTopology(roomId, [exitId]);
-		room?.FinishCommittedShelterRemoval();
+		room?.FinishCommittedShelterRemoval(life.Origin, metadata.Ward);
 		_store.Complete(life.Origin.Id, life.Version, TransitionTime(life));
 		Rooms.Remove(roomId);
 		_exits?.Remove(exitId);

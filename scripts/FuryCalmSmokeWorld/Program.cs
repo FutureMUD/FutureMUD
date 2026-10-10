@@ -56,6 +56,11 @@ if (args[2] == "shelter-fixtures")
 	OwnedShelterFixtures.Run(options, receiptPath);
 	return;
 }
+if (args[2] == "ward-bane-fixtures")
+{
+	WardBaneFixtures.Run(options, receiptPath);
+	return;
+}
 void Require(bool test, string reason) { if (!test) throw new InvalidOperationException(reason); }
 Dictionary<string, string> TableChecksums()
 {

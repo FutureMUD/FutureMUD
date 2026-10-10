@@ -32,6 +32,7 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 		create(creation);
 		creation.ValidateBeforeSave();
 		FMDB.Context.SaveChanges();
+		creation.FinishShelterTopology();
 		var claims = creation.SavedClaims();
 		if (claims.Any(x => x.Id <= 0) || claims.DistinctBy(x => (x.Kind, x.Id)).Count() != claims.Count)
 		{
@@ -194,6 +195,7 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 		SpellOwnedEntityKind.Body => FMDB.Context.Bodies.Any(x => x.Id == entity.Id),
 		SpellOwnedEntityKind.Room => FMDB.Context.Rooms.Any(x => x.Id == entity.Id),
 		SpellOwnedEntityKind.Exit => FMDB.Context.Exits.Any(x => x.Id == entity.Id),
+		SpellOwnedEntityKind.RoomOverlay => FMDB.Context.RoomOverlays.Any(x => x.Id == entity.Id),
 		_ => throw new InvalidOperationException("Unknown owned entity kind; retirement is blocked.")
 	};
 

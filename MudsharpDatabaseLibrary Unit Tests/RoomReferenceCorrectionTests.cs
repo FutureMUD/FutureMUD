@@ -130,6 +130,16 @@ public class RoomReferenceCorrectionTests
 	}
 
 	[TestMethod]
+	public void SourceEmotionalChildren_HaveNoRoomReferencesAndPreserveExactPayloadBytes()
+	{
+		const string children = "<Effect><Type>SpellSourceFury</Type><Effect version='1' group='Room narrative' unitSeconds='600' capUnits='36' grade='3' nativePower='5' intensity='1' endurancePoints='4' enduranceTrait='9000' unitsPerSourcePoint='0.5'/></Effect><Effect><Type>SpellSourceCalm</Type><Effect version='1' group='calm' unitSeconds='600' capUnits='24' grade='2' nativePower='4' intensity='1' endurancePoints='0' attackbreak='true'/></Effect>";
+		var xml = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{children}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
+		var direct = $"<Effects>{children}</Effects>";
+		Assert.AreSame(direct, RoomReferenceXml.Rewrite(direct, false, Map(), "Bodies #1.EffectData"));
+	}
+
+	[TestMethod]
 	public void EffectFactories_CustomSerializer_RefusesAndBuiltInInventoryMatchesSource()
 	{
 		Assert.ThrowsException<InvalidOperationException>(() => RoomReferenceXml.Rewrite("<Effects><Effect><Type>CustomEffect</Type><Effect/></Effect></Effects>", false, Map(), "Bodies #8.EffectData"));

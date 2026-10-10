@@ -13,7 +13,8 @@ public class EffectSchedule : ScheduleBase, IEffectSchedule
 
     public IEffect Effect { get; protected set; }
 
-    public override string DebugInfoString => $"EffectSchedule for {Effect.Describe(null)}";
+    public override string DebugInfoString =>
+        $"EffectSchedule for {Effect.FrameworkItemType} on {Effect.Owner?.FrameworkItemType ?? "Unknown"} #{Effect.Owner?.Id ?? 0}: {Effect.Describe(null)}";
 
     public override void Fire()
     {

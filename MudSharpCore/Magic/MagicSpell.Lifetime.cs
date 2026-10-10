@@ -18,6 +18,15 @@ public partial class MagicSpell
 		get
 		{
 			var all = _spellEffects.Concat(_casterSpellEffects).ToArray();
+			if (all.OfType<SourceEmotionalEffect>().FirstOrDefault() is { } emotion)
+			{
+				if (emotion.ProfileError is { } profileError) return profileError;
+				if (all.Length != 1 || _casterSpellEffects.Any() || !AppliedEffectsAreExclusive ||
+					Trigger is not (SpellTriggers.CastingTriggerCharacter or SpellTriggers.CastingTriggerSelf) ||
+					GradeProfile?.Area is not null || OpposedTrait is not null || EffectDurationExpression?.OriginalFormulaText.Trim() != "0")
+					return "Source emotions require one exclusive target effect, a character/self trigger, duration expression 0, no area and no ordinary opposed trait.";
+				return null;
+			}
 			if (all.OfType<SourceWaterBreathingEffect>().FirstOrDefault() is { } water)
 			{
 				if (water.ConfigurationError is { } waterError) return waterError;

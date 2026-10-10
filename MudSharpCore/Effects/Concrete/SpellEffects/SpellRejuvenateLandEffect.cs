@@ -134,6 +134,9 @@ public sealed class SpellRejuvenateLandEffect : MagicSpellEffectBase, ILandRejuv
 		base.RemovalEffect();
 	}
 
+	public override IEnumerable<PhysicalEntityReference> PhysicalReferences =>
+		PhysicalEntityReference.FromItem(_actingCaster, "ActingCaster");
+
 	protected override string SpecificEffectType => "SpellRejuvenateLand";
 	protected override XElement SaveDefinition() => new("Effect", new XAttribute("version", 1),
 		new XElement("TreatmentId", TreatmentId), new XElement("Description", new XCData(_description)), new XElement("Colour", _colour.Name));

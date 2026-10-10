@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "status": "PASS_BOUNDED_N20_BUILDER_INSTALLED",
+  "branch": "codex/armageddon-continuation-20261008",
+  "base_head": "c8890c082eb4351540d3343bf806c9fdeba172c9",
+  "source_brief": "Armageddon_Magic_Completion_Implementation_Brief.md",
+  "candidates": [
+    "arm.spell.folded_pocket"
+  ],
+  "reference_authority": [
+    "Declared incoming EF foreign keys",
+    "Strict native Pocket configuration and exact single carrier creation claim",
+    "Native IContainer, containment, body and room custody relationships",
+    "Actual GameItem position/owner, Crime third-party and ZeroGravityTether physical item codecs"
+  ],
+  "numeric_text_scans": false,
+  "guessed_identity_fields": false,
+  "schema_migration_required": false,
+  "runtime_source_sha256": {
+    "FutureMUDLibrary Unit Tests/ArmageddonPocketContentTests.cs": "3e9776d855aff8297d0b21940db5a6a85a8dfaa8d78c4fe39c904f502d2a45d9",
+    "FutureMUDLibrary/Framework/IFuturemud.cs": "5466303c91deba033e50f6977ea4f50bf30898b9dab30bb5a4f071acd4686412",
+    "FutureMUDLibrary/Framework/IPhysicalEntityReferenceProvider.cs": "35c45dce632996b2dc2c732c19c8ee16ddb9975deba398a223b91984207a4608",
+    "FutureMUDLibrary/GameItems/Interfaces/ISpellPocket.cs": "f90505d1a3e4906fbc0b2a38641b4161114237148f7276501494e299cea79fbf",
+    "FutureMUDLibrary/GameItems/Prototypes/GameItemComponentPrototypeInterfaces.cs": "fdd329a169b487b299a6cf3071a02f041764be689da2dc3372da512c18f4f0d5",
+    "FutureMUDLibrary/Magic/ISpellOwnedItemService.cs": "32e0d71cc243507c86e1657b374fda1e7bbf807aedd4a5253355755e599b7916",
+    "FutureMUDLibrary/Magic/ISpellOwnedPocketService.cs": "2c209e3c0203a017c4a1f7df02a06ad9fa9c65f4558f0f1076e9062be013b320",
+    "FutureMUDLibrary/Magic/SpellPocketConfiguration.cs": "1f840e64289bb415352c283c8241b4ef3bb2253c6d763414b564aff16b58e48c",
+    "FutureMUDLibrary/Magic/Stock/ArmageddonPocketContent.cs": "239b7a3f4b2512a3f9fa237a43e759fd87fd20002993931d29c3e84ee15efba7",
+    "MudSharpCore Unit Tests/ArmageddonPocketTests.cs": "58a40bf1607b69d918eb3d69572064f79219fc7a8b0a2563bebe0a463c6fae67",
+    "MudSharpCore Unit Tests/Documentation/DocumentationCatalogueExporterTests.cs": "f03dc03385e97e11ebd21cd8138dd43ab03c8206d829602351bdbf123ec18b53",
+    "MudSharpCore Unit Tests/GameItemComponentRegistrationAuditTests.cs": "da6230529c0980a39475b8e4deb34b05cf903132d08f3d046f154e47d1cf45ad",
+    "MudSharpCore Unit Tests/SpellRemovalCustodianEffectsTests.cs": "848440947d6ee8080dc01ee58b3c3ce177d810c89e0fbe2ba4b0507b0ebc0fe4",
+    "MudSharpCore/Character/PhysicalReferenceCodecs.cs": "29b927bc49344666885e1b05abcb35a7c2aa856865387c9cf04f43e84c1e8649",
+    "MudSharpCore/Character/PhysicalReferenceGuard.cs": "9ad2ddc84f1262e1a6d2e90d3cfdc4aab85eae034254c964918ccb780ddd636d",
+    "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Pocket.cs": "9fc6a5a23cd654802c5ff476c19ab371ab887a22dfb8692a9a6b293dab15d95c",
+    "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Stock.cs": "c63cf80658f8ed39256bb36bfba52c9f9ba5fac94fd0bdbd5e92ed601e23c0e8",
+    "MudSharpCore/Commands/Modules/ManipulationModule.cs": "a5724d34163107692d791621d29cf36d926137048788c518c9bf904c2280fd69",
+    "MudSharpCore/Documentation/IndustrialisedPrerequisiteAuditExporter.cs": "4b093e1743b1c7e39eb4fc468112cddd1e0c9476d668843bb5c44f13e6b64e1e",
+    "MudSharpCore/Effects/EffectPhysicalReferences.cs": "b1c248cec53b9f92b5e2ee23351d0889773177b0c2d0c6a3d911c4f198a837d0",
+    "MudSharpCore/Framework/Futuremud.SpellOwnedNpcs.cs": "3c1addbf2566132e45f799e95c65ec61e89291967a3fe5e2dadec107474491d4",
+    "MudSharpCore/GameItems/Components/ContainerGameItemComponent.cs": "4ed828d35bb8761d452356ec213ee61fbec2470a7e87c3e9263a3505e93bdc7e",
+    "MudSharpCore/GameItems/Components/FoldedPocketGameItemComponent.cs": "476ed25777df007264639f30416162f22f23df8e2d5d9624b748a38a4015537d",
+    "MudSharpCore/GameItems/GameItem.SpellCreation.cs": "77c23eceb35191359db02057849f69742041829d76347afed995a88b460ca8b8",
+    "MudSharpCore/GameItems/GameItem.SpellRemoval.cs": "5bc4d4d0bdfe6f19303d9835ac2fae61aef8eabe991607a94e8feefbaa967c5b",
+    "MudSharpCore/GameItems/GameItem.cs": "bda9dc5ac5749b1ce2eb36785f117fcb37527293e63e0fcdfb545f029b895684",
+    "MudSharpCore/GameItems/Prototypes/FoldedPocketGameItemComponentProto.cs": "fb2590d4561c4aff2f98659a1ba1198c91bfb55090427febf1863e3ad857fcd9",
+    "MudSharpCore/GameItems/SpellPocketContainment.cs": "f4791a02af5b8faf12b0fe14613452b46cdc817e9cd0f316ad2bf505ea3b8d56",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedItemService.cs": "940f583098819c845568f268844ca816e73a54483389a771799408c1c46c0e44",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedPocketService.cs": "412690c28c1edfac7e86c1aece1260cf306fb92e55a07e5f3cf80ca61e6fc221",
+    "MudSharpCore/Magic/SpellEffects/CreatePocketEffect.cs": "fc897c9496c9063f0f855699eea7ef1c0da5db726253a7a3db9ea8b37f9e3bb7",
+    "MudSharpCore/Magic/Vancian/ScrollSpellCompatibility.cs": "a895eee02de19a5547b0adec70a423d07835c0f692a9710b16f759ab3b6d4ca9",
+    "scripts/FuryCalmSmokeWorld/PocketFixtures.cs": "38c72c62f5e7e508f285e99386a750b4f0c089bef035f8dfee0015397bf97721",
+    "scripts/FuryCalmSmokeWorld/Program.cs": "60f747f15e63da2fffceab2b59f936b1f7ef2694bbe1a94e86e831ad4aacd7e1",
+    "scripts/FuryCalmSmokeWorld/pockets.py": "ad037abbbefcf15ea0893708a59f2a069dfeaddf4ce2122fa0b96ebf26f907dd"
+  },
+  "runtime_code_changed_after_final_managed_checks": false,
+  "subsequent_changes": "Only documentation and receipt promotion followed the current managed gate; C# runtime/tests and native harness unchanged and disposable fixture rebuilt from current sources.",
+  "managed": {
+    "run_id": "20261010T133056Z-9d5d36494665",
+    "head": "c8890c082eb4351540d3343bf806c9fdeba172c9",
+    "status": "PASS",
+    "counts": {
+      "executed": 7200,
+      "passed": 7200,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7200
+    },
+    "source_start": "1e5e0ef318e510362d13c0978224c97199847a03c2afdbd5b0b2c6aa2c4bea14",
+    "source_end": "1e5e0ef318e510362d13c0978224c97199847a03c2afdbd5b0b2c6aa2c4bea14",
+    "source_stable": true,
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj"
+    ],
+    "filter": null,
+    "configuration": "Debug",
+    "receipt": {
+      "path": ".artifacts/test-runs/20261010T133056Z-9d5d36494665/summary.json",
+      "sha256": "3cf299383e2308a56bed703058698651bcbecd4ebcc595da674134ed39542ebc"
+    },
+    "project_counts": {
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
+        "executed": 6442,
+        "passed": 6442,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6442
+      },
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
+        "executed": 758,
+        "passed": 758,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 758
+      }
+    }
+  },
+  "native": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-8c916cd9/receipt.json",
+      "sha256": "c65e2e575fc0687be0e426f2283d4a6ac6f3e3ffe49668aa7534d2a28314d304"
+    },
+    "status": "PASS",
+    "milestone_qualified": true,
+    "assertions": 203,
+    "inputs_sha256": {
+      "scripts\\FuryCalmSmokeWorld\\smoke.py": "7638d3cb7abfeb88bd4a191555aa7f6f2fc324373de745c527e1b471160afa40",
+      "scripts\\FuryCalmSmokeWorld\\Program.cs": "60f747f15e63da2fffceab2b59f936b1f7ef2694bbe1a94e86e831ad4aacd7e1",
+      "scripts\\AuthoredCelestialSmokeWorld\\native.py": "18fca1b93f3a85551d9b0907ebe4f7b8fa11c625517abab470c67cf155f265f8",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "615116f027a34bb2b9e252066c424bbd130e53d45a5c5c203894b4194299d1a5",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "4eaecf3213a59c3a8d466d11a3a4a3cabc7d12b160d6540a694de251cc7f07f1",
+      "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "586654d73b7789de1b803600a07483f153f66914d5b4e0fab7c025866df84050",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+      "scripts\\FuryCalmSmokeWorld\\pockets.py": "ad037abbbefcf15ea0893708a59f2a069dfeaddf4ce2122fa0b96ebf26f907dd",
+      "scripts\\FuryCalmSmokeWorld\\PocketFixtures.cs": "38c72c62f5e7e508f285e99386a750b4f0c089bef035f8dfee0015397bf97721",
+      "MudSharpCore\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll": "d71e725886503a82b69c8b8ff329582b50ea90027bba595a6c12392b7badc9a3",
+      "MudSharpCore\\Magic\\Lifecycle\\SpellOwnedPocketService.cs": "412690c28c1edfac7e86c1aece1260cf306fb92e55a07e5f3cf80ca61e6fc221",
+      "MudSharpCore\\GameItems\\Components\\FoldedPocketGameItemComponent.cs": "476ed25777df007264639f30416162f22f23df8e2d5d9624b748a38a4015537d",
+      "MudSharpCore\\GameItems\\SpellPocketContainment.cs": "f4791a02af5b8faf12b0fe14613452b46cdc817e9cd0f316ad2bf505ea3b8d56"
+    },
+    "objects": {
+      "player": 1,
+      "recipient": 3,
+      "spell": 64,
+      "fixtures": {
+        "Status": "PASS",
+        "Prototypes": {
+          "pocket": 6987,
+          "inner": 6988,
+          "focus": 6989,
+          "bag": 6990,
+          "outer": 6991,
+          "child": 6992,
+          "full": 6993,
+          "overflow": 6994
+        },
+        "Keywords": {
+          "pocket": "qanpocketimjbgmnj",
+          "inner": "qaninnerimjbgmnj",
+          "focus": "qanfocusimjbgmnj",
+          "bag": "qanbagimjbgmnj",
+          "outer": "qanouterimjbgmnj",
+          "child": "qanchildimjbgmnj",
+          "full": "qanfullimjbgmnj",
+          "overflow": "qanoverflowimjbgmnj"
+        },
+        "Capacity": 2000
+      },
+      "rooms": {
+        "Status": "PASS",
+        "Anchor": 11,
+        "Fallback": 2,
+        "Spring": 4,
+        "Burrow": 5,
+        "Sand": 6,
+        "Terrain": 1,
+        "Incompatible": 34,
+        "PoolPrototype": 6895,
+        "CupPrototype": 6896,
+        "MountAi": 113,
+        "Water": 1
+      },
+      "focus": 246
+    },
+    "lifecycles": [
+      {
+        "id": "568d02a8-70fa-4b59-87a6-f4aeea427a81",
+        "carrier": 247,
+        "role": "pocket",
+        "deadline": "2026-10-10 13:47:52.501354",
+        "binding": "<PocketAnchor version=\"1\"><SourceItem>246</SourceItem><Grade>1</Grade><Pocket version=\"1\"><Prototype>6987</Prototype><CapacityPerGrade>2000</CapacityPerGrade><MaximumSize>Normal</MaximumSize><SecondsPerGrade>600</SecondsPerGrade><Access>Bearer</Access><FallbackRoom>2</FallbackRoom></Pocket></PocketAnchor>",
+        "terminal": "3\t6"
+      },
+      {
+        "id": "9a6b3a9f-7971-4333-a21b-a7ec2c10e3c8",
+        "carrier": 251,
+        "role": "inner",
+        "deadline": "2026-10-10 13:48:11.559769",
+        "binding": "<PocketAnchor version=\"1\"><SourceItem>246</SourceItem><Grade>1</Grade><Pocket version=\"1\"><Prototype>6988</Prototype><CapacityPerGrade>10000</CapacityPerGrade><MaximumSize>Normal</MaximumSize><SecondsPerGrade>600</SecondsPerGrade><Access>Bearer</Access><FallbackRoom>2</FallbackRoom></Pocket></PocketAnchor>",
+        "terminal": "3\t6"
+      },
+      {
+        "id": "1962bf7d-eb83-4ac3-b11a-f442a44ff9cc",
+        "carrier": 253,
+        "role": "pocket",
+        "deadline": "2026-10-10 13:49:38.417800",
+        "binding": "<PocketAnchor version=\"1\"><SourceItem>246</SourceItem><Grade>1</Grade><Pocket version=\"1\"><Prototype>6987</Prototype><CapacityPerGrade>2000</CapacityPerGrade><MaximumSize>Normal</MaximumSize><SecondsPerGrade>600</SecondsPerGrade><Access>Bearer</Access><FallbackRoom>2</FallbackRoom></Pocket></PocketAnchor>",
+        "terminal": "3\t6"
+      },
+      {
+        "id": "76987b8e-3e4d-4f54-83db-e23f316a972a",
+        "carrier": 255,
+        "role": "pocket",
+        "deadline": "2026-10-10 13:51:30.712073",
+        "binding": "<PocketAnchor version=\"1\"><SourceItem>246</SourceItem><Grade>1</Grade><Pocket version=\"1\"><Prototype>6987</Prototype><CapacityPerGrade>2000</CapacityPerGrade><MaximumSize>Normal</MaximumSize><SecondsPerGrade>600</SecondsPerGrade><Access>Creator</Access><FallbackRoom>2</FallbackRoom></Pocket></PocketAnchor>",
+        "terminal": "3\t6"
+      },
+      {
+        "id": "5e702340-e003-4649-9776-e63273cb668d",
+        "carrier": 257,
+        "role": "pocket",
+        "deadline": "2026-10-10 13:43:47.542388",
+        "binding": "<PocketAnchor version=\"1\"><SourceItem>246</SourceItem><Grade>1</Grade><Pocket version=\"1\"><Prototype>6987</Prototype><CapacityPerGrade>2000</CapacityPerGrade><MaximumSize>Normal</MaximumSize><SecondsPerGrade>75.0000001</SecondsPerGrade><Access>Bearer</Access><FallbackRoom>2</FallbackRoom></Pocket></PocketAnchor>",
+        "terminal": "3\t0"
+      }
+    ],
+    "foreign_items": [
+      {
+        "id": 248,
+        "role": "bag",
+        "prototype": 6990,
+        "original": "6990\t0\t5\t0"
+      },
+      {
+        "id": 249,
+        "role": "child",
+        "prototype": 6992,
+        "original": "6992\t0\t5\t0"
+      },
+      {
+        "id": 250,
+        "role": "overflow",
+        "prototype": 6994,
+        "original": "6994\t0\t5\t0"
+      },
+      {
+        "id": 252,
+        "role": "outer",
+        "prototype": 6991,
+        "original": "6991\t0\t5\t0"
+      },
+      {
+        "id": 254,
+        "role": "full",
+        "prototype": 6993,
+        "original": "6993\t0\t5\t0"
+      },
+      {
+        "id": 256,
+        "role": "full",
+        "prototype": 6993,
+        "original": "6993\t0\t5\t0"
+      },
+      {
+        "id": 258,
+        "role": "full",
+        "prototype": 6993,
+        "original": "6993\t0\t5\t0"
+      }
+    ],
+    "paid_casts": [
+      {
+        "target": "qatarget",
+        "before": 1000.0,
+        "after": 1000.0,
+        "cost": 0,
+        "answer": "You don't see anyone like that to target.\n\nNo valid target was resolved.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "target": "qan20focus",
+        "before": 1000.0,
+        "after": 988.0,
+        "cost": 12,
+        "answer": "You fold a finite magical pocket around a qanfocusimjbgmnj fixture.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "target": "qan20focus",
+        "before": 988.0,
+        "after": 976.0,
+        "cost": 12,
+        "answer": "You fold a finite magical pocket around a qanfocusimjbgmnj fixture.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "target": "qaninnerimjbgmnj",
+        "before": 976.0,
+        "after": 976.0,
+        "cost": 0,
+        "answer": "Select a persisted ordinary item held by the caster; pocket spaces and physical occupants are unsuitable targets.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "target": "qan20focus",
+        "before": 976.0,
+        "after": 964.0,
+        "cost": 12,
+        "answer": "You fold a finite magical pocket around a qanfocusimjbgmnj fixture.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "target": "qan20focus",
+        "before": 964.0,
+        "after": 952.0,
+        "cost": 12,
+        "answer": "You fold a finite magical pocket around a qanfocusimjbgmnj fixture.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "target": "qan20focus",
+        "before": 952.0,
+        "after": 940.0,
+        "cost": 12,
+        "answer": "You fold a finite magical pocket around a qanfocusimjbgmnj fixture.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      }
+    ],
+    "reserve_spent": 60.0,
+    "recipient_progress_before": {
+      "skills": {
+        "14": 5,
+        "296": 3
+      },
+      "knowledges": {}
+    },
+    "recipient_progress_after": {
+      "skills": {
+        "14": 5,
+        "296": 3
+      },
+      "knowledges": {}
+    },
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-1.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-2.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-3.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "mysql_stopped": true,
+    "mysql_port_closed": true
+  },
+  "build": {
+    "core_test_warnings": 207,
+    "core_test_errors": 0,
+    "fixture_warnings": 0,
+    "fixture_errors": 0
+  },
+  "managed_native_binary_matches": {
+    "MudSharp.dll": {
+      "test_path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+      "native_path": "MudSharpCore/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "586654d73b7789de1b803600a07483f153f66914d5b4e0fab7c025866df84050"
+    },
+    "FutureMUDLibrary.dll": {
+      "test_path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "native_path": "MudSharpCore/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "d71e725886503a82b69c8b8ff329582b50ea90027bba595a6c12392b7badc9a3"
+    }
+  },
+  "retained_failed_managed_runs": [
+    "20261010T114710Z-0974994c84f4",
+    "20261010T114842Z-5f2487790820",
+    "20261010T114929Z-7408e14ca351",
+    "20261010T115001Z-311ba9a5f89a",
+    "20261010T115827Z-2c2c74549291",
+    "20261010T122000Z-60ec30d35faa"
+  ],
+  "retained_failed_native_receipts": [
+    ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-4a12b967/receipt.json",
+    ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-fa8b0046/receipt.json",
+    ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-d112b599/receipt.json",
+    ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-7ad88c38/receipt.json",
+    ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-9af8e4bf/receipt.json",
+    ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-073b40be/receipt.json",
+    ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-91fa682b/receipt.json",
+    ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-318fab5b/receipt.json",
+    ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-6787d2fa/receipt.json",
+    ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-d9c4f2a6/receipt.json",
+    ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-db7492f4/receipt.json"
+  ],
+  "superseded_managed_passes": [
+    "20261010T122455Z-19d967948a69",
+    "20261010T124021Z-1d29fdebcc82",
+    "20261010T125326Z-0f97f8bbac86",
+    "20261010T125647Z-203ad6bcfdad",
+    "20261010T131020Z-ee0b7d6ea2bd"
+  ],
+  "diagnostic_receipt": {
+    "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-d35b12a2/receipt.json",
+    "sha256": "2e6df2e1adf19b11fc1abe4d59797a85513f1fa13585840b15903aa84b1de809"
+  },
+  "recipient_diagnostic_receipt": {
+    "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-0eac346a/receipt.json",
+    "sha256": "9e68ae4bc1ae1a658901d44afbee11de115a50c8c677725517574616eae746ab"
+  },
+  "verification_limits": [
+    "Explicit builder-installed grade-one stock and controlled acquisition/resources; no full installer or natural progression qualification",
+    "Managed grades 1-7; full native all-grade and historical balance/timing/source parity remain pending",
+    "Unsupported foreign callbacks/effects/components hold automatic evacuation; withdrawal remains available",
+    "Healthy cold load, transfer, transactional rollback, early collapse and occupied expiry qualified; malformed cold binding, missing fallback, native typed-reference fault injection and high-volume pocket churn not run",
+    "Stored scroll/device delivery explicitly unsupported; createpocket compatibility disposition recorded",
+    "Historical seeder checks are not a fresh N20 seeder run"
+  ],
+  "inventory_counts": {
+    "total_candidates": 154,
+    "required": 152,
+    "optional": 2,
+    "sorcerer_spells": 82,
+    "sorcerer_roots": 4,
+    "support_skills": 12,
+    "larger_systems": 8
+  },
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "next_bounded_milestone": "N21: review source-informed Flame Knife tier policies, then qualify timed and explicitly configured highest-tier permanent real-component output through normal paid invocation. Prove timed gear cannot yield permanent salvage and permanent output retains its explicit no-expiry policy across restart. Use only known typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending."
+}

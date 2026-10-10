@@ -39,6 +39,9 @@ public sealed class SubstanceExposureEffect : MagicSpellParent
 	public IMagicalSubstance? Substance => Gameworld.MagicalSubstances.Get(SubstanceId);
 	public double RemainingSeconds => !IsTimed ? 0 : _doses.Select(x => x.Remaining).DefaultIfEmpty().Max();
 	public static new void InitialiseEffectType() => RegisterFactory("SubstanceExposure", (xml, owner) => new SubstanceExposureEffect(xml, owner));
+	public override IEnumerable<PhysicalEntityReference> PhysicalReferences =>
+		base.PhysicalReferences.Append(new(PhysicalEntityKind.Body, SourceBodyId, "SourceBody"));
+
 	protected override string SpecificEffectType => "SubstanceExposure";
 	public SubstanceExposureEffect(IPerceivable owner, IMagicalSubstance substance, SubstanceEffectEntry entry, IBody? sourceBody = null)
 		: base(owner, substance.Gameworld.MagicSpells.Get(entry.SpellId), null!, substance.Power)

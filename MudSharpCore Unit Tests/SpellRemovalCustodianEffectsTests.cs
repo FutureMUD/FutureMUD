@@ -39,6 +39,39 @@ public class SpellRemovalCustodianEffectsTests
 	}
 
 	[TestMethod]
+	public void RemovalCustodian_NativeMetadata_AdmitsAndPreservesExactPlayerHistory()
+	{
+		var actor = new Mock<MudSharp.Character.ICharacter>();
+		actor.SetupGet(x => x.Gameworld).Returns(Mock.Of<IFuturemud>());
+		var hints = new NewPlayerHintsShown(actor.Object) { LastHintShown = DateTime.UnixEpoch };
+		hints.ShownHintIds.UnionWith([17, 23]);
+		var branching = new IncreasedBranchChance(actor.Object);
+		var skill = Mock.Of<MudSharp.Body.Traits.Subtypes.ISkillDefinition>(x => x.Id == 31);
+		var knowledge = Mock.Of<MudSharp.RPG.Knowledge.IKnowledge>(x => x.Id == 41 && x.LearnerSessionsRequired == 3);
+		branching.UseSkill(skill); branching.UseSkill(skill);
+		branching.KnowledgeLesson(knowledge, 2.5);
+		IEffect[] effects = [new AdminSight(actor.Object), new Immwalk(actor.Object), new AdminTelepathy(actor.Object), hints, branching];
+		actor.SetupGet(x => x.Effects).Returns(effects);
+		Assert.IsTrue(GameItem.SpellRemovalEffectsArePassive(actor.Object));
+		CollectionAssert.AreEquivalent(new long[] { 17, 23 }, hints.ShownHintIds.ToArray());
+		Assert.AreEqual(DateTime.UnixEpoch, hints.LastHintShown);
+		Assert.AreEqual(2, branching.GetAttemptsForSkill(skill));
+		Assert.AreEqual(2.5, branching.GetKnowledges().Single().Lessons);
+		actor.Verify(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>()), Times.Never);
+		foreach (var effect in effects)
+		{
+			effect.ApplicabilityProg = Mock.Of<IFutureProg>();
+			Assert.IsFalse(GameItem.SpellRemovalEffectsArePassive(actor.Object));
+			effect.ApplicabilityProg = null;
+		}
+		actor.SetupGet(x => x.Effects).Returns([new AdminSight(Mock.Of<IPerceivable>(x => x.Gameworld == actor.Object.Gameworld))]);
+		Assert.IsFalse(GameItem.SpellRemovalEffectsArePassive(actor.Object));
+		actor.SetupGet(x => x.Effects).Returns([new DerivedAdminSight(actor.Object)]);
+		Assert.IsFalse(GameItem.SpellRemovalEffectsArePassive(actor.Object));
+	}
+	private sealed class DerivedAdminSight(IPerceivable owner) : AdminSight(owner);
+
+	[TestMethod]
 	public void RemovalCustodian_NoEffects_AdmitsOrdinaryHolder()
 	{
 		Assert.IsTrue(new Fixture().Admitted);

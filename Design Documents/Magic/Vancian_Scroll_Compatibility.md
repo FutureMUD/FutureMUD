@@ -8,6 +8,7 @@ Inscription checks both target and caster templates before reserving or paying. 
 
 | Family | Captured fields | Live context |
 | --- | --- | --- |
+| `sourcecalm`, `sourcefury` | Unsupported | Source counters, residual saves, retained attributes and prepared selective cessation require character/self invocation; stored scroll delivery is unsupported. |
 | Damage and self damage | `DamageExpression`, creator trait bindings | Current target, body applicability, opposed outcome, damage origin is reader |
 | Heal and mend | `HealingAmount`, creator trait bindings | Current wounds and opposed outcome |
 | Stamina and magic resource delta | `Formula`, creator trait bindings | Target's current stamina/resource; referenced resource must exist |
@@ -40,6 +41,7 @@ These are per-invocation expression wrappers. Neither scroll release nor an over
 | `createitem` | Unsupported | Creation/template callbacks and referenced prototype lifecycle require a dedicated adapter. |
 | `createliquid` | Unsupported | Creation/template callbacks and referenced prototype lifecycle require a dedicated adapter. |
 | `createnpc` | Unsupported | Creation/template callbacks and referenced prototype lifecycle require a dedicated adapter. |
+| `createpocket` | Unsupported | Borrowed held focus, exact carrier binding and conserved foreign custody require a dedicated stored-delivery adapter; direct invocation only. |
 | `createtrap` | Unsupported | Nested prepared-payload and trap ownership require a dedicated adapter. |
 | `cureblindness` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |
 | `curse` | Supported | Scalar configuration and duration are frozen; live target applicability and reader attribution remain. |

@@ -12,6 +12,10 @@ Use `--mysql-bin "C:\path\to\MySQL\bin"` for a different installation. Use `--no
 
 An interrupted, still-running instance can be resumed explicitly with `--reuse-owned <absolute-run-directory> --no-build`. This requires the matching `@@datadir` and passing first/second replay receipts. A mismatched directory or nonblank first-run target aborts before mutation. The wrapper stops its verified MySQL instance on exit and preserves all data and evidence. It does not reset a failed database. The `smoke.py --run-dir <absolute-run-directory>` entry point runs only the Telnet assertions and stops its MUD processes, leaving the owned MySQL instance available for investigation.
 
+A stopped retained instance can be restarted with `--restart-owned <run-directory> --no-build`. The wrapper validates the exact data path, database, server UUID, successful original replay, verified prior cleanup and free loopback port before starting an owned process. This resumes the same test world without another import or replay. `--smoke-script scripts/<scenario>/smoke.py` selects another repository scenario against that world.
+
+Each invocation archives the earlier latest receipt before any startup/build/replay can fail, retains a unique `smoke-invocation-*/smoke.log`, and requires a fresh scenario receipt. An optional `--qualification-marker <phase-passed.json>` also archives that phase's previous marker at entry. The scenario must declare the same filename in its receipt. The runner promotes the marker only after a fresh PASS and verified owned MySQL cleanup; the promoted receipt includes its invocation and cleanup evidence. A failed rerun cannot leave the old marker as current proof.
+
 ## Assertions and stop conditions
 
 The executable scenario, rather than this prose, is authoritative for command order and dynamic IDs. It stops on the first failed assertion or expired deadline:
@@ -32,7 +36,7 @@ The run directory contains `mysql-instance.json`, `native-replay.json`, `native-
 
 Unit tests separately cover the supplied 14 numerical fixtures, randomized geometry/crossing oracles, nonstandard clocks, negative epochs, compatible/incompatible calendars, every registered event-function overload, invalid requests, blinded/weather-obscured perception contracts, two-zone echo ordering, detach/reattach and 1,000-zone cache behavior. The native test uses an administrative avatar; it does not claim to simulate a blinded player or changed weather. See [the feature guide](../../Design%20Documents/World/Authored_Celestials.md) and [handover](../../Design%20Documents/World/Authored_Celestials_Handover.md) for verification results and limitations.
 
-Run the three process-ownership cleanup checks without starting a server:
+Run the four process-ownership and stale-receipt checks without starting a server:
 
 ```powershell
 python -B -m unittest discover -s scripts/AuthoredCelestialSmokeWorld -p test_cleanup.py -v

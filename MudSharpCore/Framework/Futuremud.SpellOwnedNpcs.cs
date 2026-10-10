@@ -12,6 +12,12 @@ public partial class Futuremud
 	public ISpellOwnedNpcService SpellOwnedNpcs => _spellOwnedNpcs ??= new SpellOwnedNpcService(this);
 	private ISpellOwnedItemService? _spellOwnedItems;
 	public ISpellOwnedItemService SpellOwnedItems => _spellOwnedItems ??= new SpellOwnedItemService(this);
+	private ISpellOwnedShelterService? _spellOwnedShelters;
+	public ISpellOwnedShelterService SpellOwnedShelters => _spellOwnedShelters ??= new SpellOwnedShelterService(this);
+	private ISpellOwnedPocketService? _spellOwnedPockets;
+	public ISpellOwnedPocketService SpellOwnedPockets => _spellOwnedPockets ??= new SpellOwnedPocketService(this);
+	private ISpellOwnedProjectionService? _spellOwnedProjections;
+	public ISpellOwnedProjectionService SpellOwnedProjections => _spellOwnedProjections ??= new SpellOwnedProjectionService(this);
 	private ISpellOwnedCorpseAnimationService? _spellOwnedCorpseAnimations;
 	public ISpellOwnedCorpseAnimationService SpellOwnedCorpseAnimations => _spellOwnedCorpseAnimations ??= new SpellOwnedCorpseAnimationService(this);
 
@@ -23,5 +29,9 @@ public partial class Futuremud
 		catch (Exception ex) { SystemMessage("Spell-owned item reconciliation needs attention: " + ex.Message, true); }
 		try { SpellOwnedCorpseAnimations.ReconcileRetirements(RuntimeClock.UtcNow); }
 		catch (Exception ex) { SystemMessage("Corpse animation reconciliation needs attention: " + ex.Message, true); }
+		try { SpellOwnedShelters.ReconcileRetirements(RuntimeClock.UtcNow); }
+		catch (Exception ex) { SystemMessage("Spell-owned shelter reconciliation needs attention: " + ex.Message, true); }
+		try { SpellOwnedProjections.ReconcileRetirements(RuntimeClock.UtcNow); }
+		catch (Exception ex) { SystemMessage("Spell-owned projection reconciliation needs attention: " + ex.Message, true); }
 	}
 }

@@ -26,7 +26,23 @@ Track decay remains per-cell and fuzzy-minute. A cell with no expired tracks per
 
 ## Diagnostics
 
-Junior administrators can use `debug performance`, `debug performance on`, `debug performance off`, and `debug performance reset`. Monitoring is disabled by default and is in-memory only. When enabled it records loop and scheduler timing, allocations, memory/GC state, heartbeat callback timing, subscriber counts, network bytes and operations, queue high-water marks, connection counts, slow-client disconnects, and transport errors. Network aggregates are atomic and never retain connection instances. Diagnostics do not create persistence records or alter runtime scheduling behaviour.
+Senior administrators can use `debug performance`, `debug performance on`, `debug performance off`, and `debug performance reset`. Monitoring is disabled by default and is in-memory only. When enabled it records loop and scheduler timing, allocations, memory/GC state, heartbeat callback timing, subscriber counts, network bytes and operations, queue high-water marks, connection counts, slow-client disconnects, and transport errors. Network aggregates are atomic and never retain connection instances. Diagnostics do not create persistence records or alter runtime scheduling behaviour.
+
+`debug census [loaded character id]` reports current Actors, CachedActors, NPCs, Bodies,
+and distinct current body objects attached to actors/cache/NPCs. `Bodies` is the separate
+detached-body registry; ordinary actor construction does not populate it. It also reports
+main/effect schedule heap counts and every hard/fuzzy heartbeat cadence, including all
+five stored generations. An optional exact loaded character ID adds the actual quit,
+deleted, combat-join, death, movement-start and movement-stop delegate counts and loaded followers. It never resolves
+an unloaded character or fires callbacks. These snapshots support before/after lifecycle
+qualification; retained historical database rows are measured separately. Run this staff
+diagnostic on the game-loop thread, as with the existing scheduler diagnostics.
+
+`debug scheduler` also identifies each queued effect's concrete type and its actual
+owner's framework type and 64-bit ID, alongside the existing remaining duration and
+description. It reads the queued objects directly without loading entities or firing
+callbacks. Use it to distinguish a lingering summon schedule from an ordinary timed
+effect on a retained actor or body.
 
 ## Boundaries
 

@@ -94,6 +94,8 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 			{
 				return;
 			}
+			if (MudSharp.Character.ProjectionSpatialPolicy.Error(this, new SpatialLocation(Location, value, RoutePositionMetres), false) is { } projectionError)
+				throw new InvalidOperationException(projectionError);
 
 			using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Layer, this);
 			using var exposureChange = Gameworld is null ? null : MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
@@ -142,6 +144,8 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
     public virtual void MoveTo(IRoom location, RoomLayer layer, IRoomExit exit = null, bool noSave = false)
     {
 		var requestedPoint = _nextSpatialMove;
+		if (MudSharp.Character.ProjectionSpatialPolicy.Error(this, new SpatialLocation(location, layer, requestedPoint?.RoutePositionMetres), exit is not null) is { } projectionError)
+			throw new InvalidOperationException(projectionError);
 		_nextSpatialMove = null;
 		using var exposureChange = Gameworld is null ? null : MudSharp.Form.Material.EnvironmentalExposureService.For(Gameworld).Change(this);
 		using var proximityChange = Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Movement, this);
@@ -210,6 +214,8 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 		}
 
 		var candidate = new SpatialLocation(Location, RoomLayer, metres);
+		if (MudSharp.Character.ProjectionSpatialPolicy.Error(this, candidate, false) is { } projectionError)
+		{ error = projectionError; return false; }
 		if (!RouteSpatialService.Instance.TryValidateLocation(candidate, out error))
 		{
 			return false;
@@ -805,6 +811,13 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
     }
 
     public event PerceivableEvent OnQuit;
+
+	/// <summary>Reports actual subscriptions without resolving or loading referenced entities.</summary>
+	public virtual void AppendEventSubscriptionReport(StringBuilder sb)
+	{
+		sb.AppendLine($"Quit subscriptions: {OnQuit?.GetInvocationList().Length ?? 0}");
+		sb.AppendLine($"Deleted subscriptions: {OnDeleted?.GetInvocationList().Length ?? 0}");
+	}
 
     protected void PerceivableQuit()
     {

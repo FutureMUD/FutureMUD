@@ -41,16 +41,26 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 	private bool HasClaim(long itemId) => itemId > 0 &&
 		(_claimedItemIds ??= _readClaimedItemIds()).Contains(itemId);
 
+	internal void RegisterClaimedItem(long itemId) => _claimedItemIds?.Add(itemId);
+
 	public IGameItem Create(IGameItemProto prototype, ICharacter caster, ItemQuality quality, SpellLifecycleOrigin origin)
+		=> CreateCore(prototype, caster, quality, origin, null);
+
+	internal IGameItem CreatePocket(IGameItemProto prototype, ICharacter caster, SpellLifecycleOrigin origin, SpellPocketAnchor anchor)
+		=> CreateCore(prototype, caster, ItemQuality.Standard, origin, anchor);
+
+	private IGameItem CreateCore(IGameItemProto prototype, ICharacter caster, ItemQuality quality, SpellLifecycleOrigin origin, SpellPocketAnchor? pocket)
 	{
 		origin.Validate();
 		if (origin.Mode == SpellLifecycleMode.DeathOnExpiry || !Enum.IsDefined(quality) || !ReferenceEquals(caster.Gameworld, _world) ||
 			origin.CreatorId != MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(caster))
 			throw new ArgumentException("Native item creation requires a valid item mode, quality and caster world.");
 		using var authorization = FMDB.BeginIndependentScope(requireWrites: true);
-		if (NativeItemCreationEligibility.Error(prototype, _world) is { } error) throw new InvalidOperationException(error);
+		var error = pocket is null ? NativeItemCreationEligibility.Error(prototype, _world) : SpellOwnedPocketService.PrototypeError(prototype, _world);
+		if (error is not null) throw new InvalidOperationException(error);
 		if (_store.Find(origin.Id) is not null) throw new InvalidOperationException("This native item creation cannot be replayed.");
 		var item = new GameItem(prototype, caster, quality, deferSpellInitialisation: true);
+		if (pocket is not null) item.GetItemType<MudSharp.GameItems.Components.FoldedPocketGameItemComponent>()!.Bind(origin, pocket);
 		// The light's usable state is part of its private birth, before rows or exposure.
 		if (item.GetItemType<MudSharp.GameItems.Components.ProgLightGameItemComponent>() is { } light) light.Lit = true;
 		MudSharp.Models.GameItem? inserted = null;
@@ -88,7 +98,7 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 	{
 		if (!HasClaim(itemId)) return null;
 		var life = Find(itemId);
-		return life is null ? null : new(life.Origin.Id, life.Origin.Mode, life.Origin.DeadlineUtc);
+		return life is null ? null : new(life.Origin.Id, life.Origin.Mode, life.Origin.DeadlineUtc, life.Origin.CreatorId);
 	}
 
 	private SpellOwnedLifecycle? Find(long itemId)
@@ -114,6 +124,21 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 		if (item.SpellCreationOrigin?.IsTemporary != true) return true;
 		using var authorization = FMDB.BeginIndependentScope(requireWrites: true);
 		var life = Find(item.Id);
+		if (life?.Origin.Family == SpellPocketAnchor.Family)
+			return _world.SpellOwnedPockets?.TryPrepareRemoval(item, out diagnostic) ?? false;
+		if (life?.Origin.Family == SpellProjectionAnchor.Family)
+		{
+			_world.SpellOwnedProjections?.RequestAnchorRemoval(item.Id);
+			diagnostic = "The effigy retires through its exact projection ownership adapter.";
+			return false;
+		}
+		if (life?.Origin.Family == SpellShelterAnchor.Family)
+		{
+			_world.SpellOwnedShelters?.RequestRetirement(life.Entities.Single(x => x.Kind == SpellOwnedEntityKind.Room).Id,
+				SpellRetirementReason.Dismissal);
+			diagnostic = "The finite supply retires with its shelter through the exact topology adapter.";
+			return false;
+		}
 		try
 		{
 			if (!ReferenceEquals(item.Gameworld, _world) || item is not GameItem || life is null || life.State == SpellLifecycleState.Completed ||
@@ -156,7 +181,7 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 	{
 		if (!item.Deleted || item.SpellCreationOrigin?.IsTemporary != true) return;
 		var life = Find(item.Id);
-		if (life is { State: SpellLifecycleState.Retiring }) _store.Complete(life.Origin.Id, life.Version, TransitionTime(life, RuntimeClock.UtcNow));
+		if (life is { State: SpellLifecycleState.Retiring } && life.Origin.Family != SpellProjectionAnchor.Family) _store.Complete(life.Origin.Id, life.Version, TransitionTime(life, RuntimeClock.UtcNow));
 	}
 
 	public int ReconcileRetirements(DateTime nowUtc, int limit = 100)

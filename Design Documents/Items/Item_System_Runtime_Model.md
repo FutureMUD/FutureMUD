@@ -24,6 +24,16 @@ Created leaf-item removal also admits exact native passive detection effects on 
 
 ## Physical manipulation and reach
 
+FoldedPocket is a spell-bound native container. Its frozen instance binding
+supplies capacity, maximum size and Bearer/Creator access; prototype container
+limits do not replace those values. Stored contents contribute their full native
+weight. Nested bags use the outer pocket's admission and access rules at native
+transfer boundaries. Copies are empty and unbound; pocket carriers refuse locks
+and in-place replacement. `empty` transfers each admitted item separately and
+places refused detached goods safely in the current room. `junk` retains the
+carrier's custody when conservation is held. See [Folded Pocket lifecycle and
+conservation limits](../Magic/Spell_Owned_Lifecycle.md#folded-pocket).
+
 Ordinary manual actions require at least one current `IBody.HoldLocs` part for which `CanUseBodypart` succeeds. Occupied manipulators still count; inventory and weapon plans keep their stricter free-location requirements. Missing parts and restrained limbs fail at the body capability layer, including wield-only locations.
 
 `CanReachItem` follows containment and automation mount hosts, checking planar interaction, closed ancestor containers, inventory-owner proximity/permission, cell/layer or installed-door adjacency, and room guard access. External locks remain reachable on closed doors. `Character.CanManipulateItem` combines reach, manual capability and mounted restrictions. Eating, drinking, swallowing and bodypart-operated devices use reach with their own anatomy rules.

@@ -7,6 +7,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using MudSharp.Accounts;
+using MudSharp.Body;
 using MudSharp.Character.Name;
 using MudSharp.Database;
 using MudSharp.Magic;
@@ -122,15 +123,18 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 					return Hold("A runtime group, guard, movement, mount, combat or position relationship retains the NPC.");
 				if (context.Crimes.Any(x => x.CriminalId == character.Id && !x.IsFinalised))
 					return Hold("Unresolved enforcement still requires a physical criminal; preserve the NPC graph.");
-				if (character.Body.AllItems.Any() || character.Bodies.Any(x => x.Id != bodyId) ||
-				    character.Effects.Any() || character.Body.Effects.Any() ||
-				    character.Gameworld.Characters.Any(x => x.Id != character.Id && x.Body?.Id == bodyId) ||
-				    !NpcArchiveReferencePolicy.IsEmptyEffects(identity.EffectData) ||
-				    !NpcArchiveReferencePolicy.IsEmptyEffects(body.EffectData) ||
-				    claims.Any(x => x.Kind == SpellOwnedEntityKind.GameItem && context.GameItems.Any(y => y.Id == x.Id)) ||
-				    lifecycle.RemainsItemId is { } remains && context.GameItems.Any(x => x.Id == remains))
+				var physicalHold = character.Body.AllItems.Any() ? "physical possessions" :
+					character.Bodies.Any(x => x.Id != bodyId) ? "other body forms" :
+					character.Effects.Any() ? "runtime character effects" :
+					!RetirementBodyEffects.TryCapture(character.Body, out _) ? "runtime body effects" :
+					character.Gameworld.Characters.Any(x => x.Id != character.Id && x.Body?.Id == bodyId) ? "another live actor using this body" :
+					!NpcArchiveReferencePolicy.IsEmptyEffects(identity.EffectData) ? "persisted character effects or unrecognized effect XML" :
+					!NpcArchiveReferencePolicy.IsEmptyEffects(body.EffectData) ? "persisted body effects or unrecognized effect XML" :
+					claims.Any(x => x.Kind == SpellOwnedEntityKind.GameItem && context.GameItems.Any(y => y.Id == x.Id)) ? "dependent owned items" :
+					lifecycle.RemainsItemId is { } remains && context.GameItems.Any(x => x.Id == remains) ? "persisted remains" : null;
+				if (physicalHold is not null)
 				{
-					return Hold("Physical possessions, effects, other forms, live bodies or dependent owned entities remain.");
+					return Hold($"Physical archival held: {physicalHold} remain; retain the physical graph.");
 				}
 				if (context.CharacterInstances.Any(x => x.CharacterId == character.Id &&
 					    (!x.IsPrimary || x.BodyId != bodyId || !((CharacterState)x.State).HasFlag(CharacterState.Dead))) ||
@@ -185,7 +189,8 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 						    (type is "Crime" or "CharacterLog" ||
 						     type == "Wound" && property == "ActorOriginId" ||
 						     type == "Writing" && property is "AuthorId" or "TrueAuthorId" ||
-						     type == "Drawing" && property == "AuthorId")) continue;
+						     type == "Drawing" && property == "AuthorId" ||
+						     type == "CharacterCombatSetting" && property == "CharacterOwnerId")) continue;
 						var removable = principal.Item1 == typeof(Db.Character)
 							? CharacterStateRows.Contains(type) && property == "CharacterId" || type == "Npc" && property == "CharacterId" ||
 							  type == "CharacterInstance" && property == "CharacterId"
@@ -216,11 +221,17 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 					return Hold("A polymorphic item reference retains a physical character instance.");
 				if (wounds.Any(x => context.Infections.Any(y => y.WoundId == x.Id)))
 					return Hold("An infection graph requires explicit historical handling before compaction.");
-				if (!SerializedReferencesAreClear(context, character.Id, bodyId,
-					    instanceIds.Concat(wounds.Select(x => x.Id)).ToArray(), out var referenceDiagnostic))
+				var targets = new PhysicalReferenceTargets(
+					new[] { new PhysicalEntityReference(PhysicalEntityKind.Character, character.Id, "CharacterId"),
+						new PhysicalEntityReference(PhysicalEntityKind.Body, bodyId, "BodyId") }
+					.Concat(instanceIds.Select(x => new PhysicalEntityReference(PhysicalEntityKind.CharacterInstance, x, "InstanceId")))
+					.Concat(wounds.Select(x => new PhysicalEntityReference(PhysicalEntityKind.Wound, x.Id, "WoundId"))));
+				if (!DeletedPrincipalReferencesAreClear(context, compactRows, out var referenceDiagnostic))
 					return Hold(referenceDiagnostic);
-				if (!UnmappedReferencesAreClear(context, character.Id, bodyId,
-					    instanceIds.Concat(wounds.Select(x => x.Id)).ToArray(), compactRows, out referenceDiagnostic))
+				if (!PhysicalReferenceGuard.RuntimeReferencesAreClear(character.Gameworld, targets))
+					return Hold("A typed live effect reference retains the physical graph.");
+				if (!PhysicalReferenceGuard.PersistedReferencesAreClear(context, targets, [character.Id], [bodyId],
+					instanceIds, null, out referenceDiagnostic))
 					return Hold(referenceDiagnostic);
 
 				context.CharacterArchives.Add(new Db.CharacterArchive
@@ -274,33 +285,78 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 		return query.Provider.CreateQuery(take).Cast<object>().ToList();
 	}
 
-	private static bool SerializedReferencesAreClear(FuturemudDatabaseContext context, long characterId, long bodyId,
-		long[] additionalPhysicalIds, out string diagnostic)
+	internal static bool DeletedPrincipalReferencesAreClear(FuturemudDatabaseContext context,
+		HashSet<object> removedRows, out string diagnostic)
 	{
-		foreach (var type in context.Model.GetEntityTypes())
+		foreach (var principal in removedRows.Where(x => x is Db.CharacterInstance or Db.Wound))
 		{
-			foreach (var property in type.GetProperties().Where(x => x.ClrType == typeof(string) &&
-				         (x.Name.Contains("Definition", StringComparison.Ordinal) || x.Name is "EffectData" or "Data" or "Value" or
-					         "StateData" or "StateJson" or "ResultJson" or "WaitArgument" or "Tattoos" or
-					         "ExtraInformation" or "ProcedureParameters" or "OperationalPayload" or "CommandArguments" or
-					         "StrategyData" or "LandDetailJson")))
+			var entity = context.Entry(principal).Metadata;
+			var id = (long)context.Entry(principal).Property("Id").CurrentValue!;
+			foreach (var key in entity.GetReferencingForeignKeys())
 			{
-				// Writing content is historical narrative, not a serialized runtime actor or physical reference.
-				if (type.ClrType == typeof(Db.Writing) && property.Name == "Definition") continue;
-				var query = (IQueryable)SetMethod.MakeGenericMethod(type.ClrType).Invoke(context, null)!;
-				var parameter = Expression.Parameter(type.ClrType, "row");
-				var select = Expression.Call(typeof(Queryable), nameof(Queryable.Select), [type.ClrType, typeof(string)],
-					query.Expression, Expression.Quote(Expression.Lambda(Expression.Property(parameter, property.Name), parameter)));
-				var values = query.Provider.CreateQuery<string?>(select).Take(RowLimit + 1).ToArray();
-				if (values.Length > RowLimit || values.Any(x => x?.Length > 1048576 ||
-				    NpcArchiveReferencePolicy.HasReferenceOrUncertainty(x, characterId, bodyId, additionalPhysicalIds)))
+				if (key.Properties.Count != 1 || key.PrincipalKey.Properties.Count != 1 ||
+					key.PrincipalKey.Properties[0].Name != "Id")
 				{
-					diagnostic = $"Unresolved serialized reference or scan limit in {type.ClrType.Name}.{property.Name}; retain the physical graph.";
+					diagnostic = $"{entity.ClrType.Name}: an incoming composite/alternate physical relation needs a disposition.";
 					return false;
 				}
+				var matches = Rows(context, key.DeclaringEntityType, key.Properties[0], id);
+				if (matches.Count <= RowLimit && matches.All(removedRows.Contains)) continue;
+				diagnostic = $"{key.DeclaringEntityType.ClrType.Name}.{key.Properties[0].Name} retains {entity.ClrType.Name} {id}.";
+				return false;
 			}
 		}
 		diagnostic = string.Empty;
+		return true;
+	}
+
+	internal static bool ProjectionBodyReferencesAreClear(FuturemudDatabaseContext context, Db.Body body,
+		HashSet<object> removedRows, out string diagnostic)
+	{
+		// These are body-local native state, with the same lifetime as the created body.
+		var localState = new HashSet<string>(StringComparer.Ordinal)
+		{
+			"BodyDrugDose", "BodyDrugExposure", "BodiesSeveredParts", "Characteristic", "Trait", "Wound", "PerceiverMerit"
+		};
+		foreach (var key in context.Entry(body).Metadata.GetReferencingForeignKeys())
+		{
+			if (key.Properties.Count != 1 || key.PrincipalKey.Properties.Count != 1 || key.PrincipalKey.Properties[0].Name != "Id")
+			{
+				diagnostic = "The projection body has an incoming composite or alternate relation without a cleanup disposition.";
+				return false;
+			}
+			var rows = Rows(context, key.DeclaringEntityType, key.Properties[0], body.Id);
+			if (rows.Count > RowLimit || !localState.Contains(key.DeclaringEntityType.ClrType.Name) && rows.Any(x => !removedRows.Contains(x)))
+			{
+				diagnostic = $"{key.DeclaringEntityType.ClrType.Name}.{key.Properties[0].Name} retains projection body {body.Id}.";
+				return false;
+			}
+		}
+		diagnostic = "";
+		return true;
+	}
+
+	internal static bool ProjectionItemReferencesAreClear(FuturemudDatabaseContext context, Db.GameItem item, out string diagnostic)
+	{
+		foreach (var key in context.Entry(item).Metadata.GetReferencingForeignKeys())
+		{
+			if (key.Properties.Count != 1 || key.PrincipalKey.Properties.Count != 1 || key.PrincipalKey.Properties[0].Name != "Id")
+			{
+				diagnostic = "The effigy has an incoming composite or alternate relation without a cleanup disposition.";
+				return false;
+			}
+			var rows = Rows(context, key.DeclaringEntityType, key.Properties[0], item.Id);
+			var nativeCustody = key.DeclaringEntityType.ClrType == typeof(Db.RoomsGameItems) || key.DeclaringEntityType.ClrType == typeof(Db.BodiesGameItems);
+			var nativeComponents = key.DeclaringEntityType.ClrType == typeof(Db.GameItemComponent);
+			var ownedWounds = key.DeclaringEntityType.ClrType == typeof(Db.Wound) && key.Properties[0].Name == nameof(Db.Wound.GameItemId) &&
+				rows.Cast<Db.Wound>().All(x => x.LodgedItemId is null);
+			if (rows.Count > RowLimit || rows.Count > 0 && !nativeCustody && !nativeComponents && !ownedWounds)
+			{
+				diagnostic = $"{key.DeclaringEntityType.ClrType.Name}.{key.Properties[0].Name} retains effigy {item.Id}.";
+				return false;
+			}
+		}
+		diagnostic = "";
 		return true;
 	}
 
@@ -325,33 +381,6 @@ public sealed class CharacterArchiveService : ICharacterArchiveService
 			        x.SeenTargets.Any(y => y.Id == character.Id && y.FrameworkItemType == character.FrameworkItemType) ||
 			        x.CombatTarget is ICharacter target && target.Id == character.Id ||
 			        x.PositionTarget is ICharacter position && position.Id == character.Id));
-	}
-
-	private static bool UnmappedReferencesAreClear(FuturemudDatabaseContext context, long characterId, long bodyId,
-		long[] additionalPhysicalIds, HashSet<object> compactRows, out string diagnostic)
-	{
-		foreach (var type in context.Model.GetEntityTypes())
-		{
-			// These are immutable canonical attribution/ownership receipts, never physical actor loaders.
-			if (type.ClrType == typeof(Db.CharacterArchive) || type.ClrType == typeof(Db.MagicSpellLifecycle) ||
-			    type.ClrType == typeof(Db.MagicSpellOwnedEntity)) continue;
-			foreach (var property in type.GetProperties().Where(x =>
-				         (x.ClrType == typeof(long) || x.ClrType == typeof(long?)) &&
-				         x.Name.EndsWith("Id", StringComparison.Ordinal) && !x.GetContainingKeys().Any() &&
-				         !x.GetContainingForeignKeys().Any()))
-			{
-				var matches = new[] { characterId, bodyId }.Concat(additionalPhysicalIds).Where(x => x > 0)
-					.SelectMany(id => Rows(context, type, property, id)).ToArray();
-				if (matches.Length == 0) continue;
-				// These uniqueness keys derive from the already-audited primary instance, not an independent actor reference.
-				if (type.ClrType == typeof(Db.CharacterInstance) && property.Name is "EmbodiedBodyId" or "PrimaryCharacterId" &&
-				    property.GetComputedColumnSql() is not null && matches.All(compactRows.Contains)) continue;
-				diagnostic = $"Unclassified scalar reference in {type.ClrType.Name}.{property.Name}; retain the physical graph.";
-				return false;
-			}
-		}
-		diagnostic = string.Empty;
-		return true;
 	}
 
 	private static ArchivedCharacterIdentity Read(Db.CharacterArchive archive) =>

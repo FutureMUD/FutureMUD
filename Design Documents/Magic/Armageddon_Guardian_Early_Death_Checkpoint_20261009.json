@@ -1,0 +1,550 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-09",
+  "status": "PASS_BOUNDED_N14_BUILDER_INSTALLED",
+  "branch": "codex/armageddon-continuation-20261008",
+  "runtime_implementation_commit": "f8f28735e98d98bc6205fba99875f1874fd2c3e8",
+  "scope": "N14 normal builder-installed Air Guardian early death, configured remains, original expiry, cold restart, native timed decay and separate default dissipation.",
+  "implementation": [
+    "Optional createnpc count grade or bounded integer emits separately claimed native NPC/body graphs from one paid operation; caster state/membership callbacks stop later outputs without replay.",
+    "Persistent exact creator/instance guardian bond uses native following and guard combat; already-fighting protection occurs before the initiating attack action.",
+    "Exact durable retirement releases only this creation's owned bond/follow state, including persisted-dead and stale-snapshot restart cases.",
+    "Exact unscheduled, unsaved native spinal effects remain attached to their dead body during custody; owner/limb/membership invariants are rechecked after transfer callbacks. Unknown effects still hold.",
+    "Existing actual FK, typed scalar and known-codec reference checks remain; no numeric text or guessed Id-field scans."
+  ],
+  "managed": {
+    "status": "PASS",
+    "scope": "All ten default fast projects, Debug, unfiltered; final focused guardian, derived-limb, archive and typed-reference subset.",
+    "runs": [
+      {
+        "receipt": {
+          "path": ".artifacts/armageddon-guardian-20261009/final-default-qualified/20261009T022802Z-312a6bd607c7/summary.json",
+          "sha256": "2f69586f65c72e7626dc961116ec23d213f79aa0ad1238f216c1310567b5a80f"
+        },
+        "run_id": "20261009T022802Z-312a6bd607c7",
+        "head": "d758cd6bc41fdd485ac26c0ca4b7f5968813eccc",
+        "status": "PASS",
+        "counts": {
+          "executed": 8739,
+          "passed": 8739,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 8739
+        },
+        "source_start": "c9e6ae284c6141a1af3b06455dfa2b106c2003d5d69d6f64bb1cc708ed637b44",
+        "source_end": "c9e6ae284c6141a1af3b06455dfa2b106c2003d5d69d6f64bb1cc708ed637b44",
+        "source_stable": true,
+        "projects": [
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+        ],
+        "filter": null,
+        "per_project": [
+          {
+            "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+            "counts": {
+              "executed": 668,
+              "passed": 668,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 668
+            }
+          },
+          {
+            "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+            "counts": {
+              "executed": 36,
+              "passed": 36,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 36
+            }
+          },
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "counts": {
+              "executed": 1613,
+              "passed": 1613,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 1613
+            }
+          },
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": {
+              "executed": 5966,
+              "passed": 5966,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 5966
+            }
+          },
+          {
+            "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+            "counts": {
+              "executed": 264,
+              "passed": 264,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 264
+            }
+          },
+          {
+            "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+            "counts": {
+              "executed": 22,
+              "passed": 22,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 22
+            }
+          },
+          {
+            "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+            "counts": {
+              "executed": 43,
+              "passed": 43,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 43
+            }
+          },
+          {
+            "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+            "counts": {
+              "executed": 54,
+              "passed": 54,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 54
+            }
+          },
+          {
+            "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+            "counts": {
+              "executed": 35,
+              "passed": 35,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 35
+            }
+          },
+          {
+            "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+            "counts": {
+              "executed": 38,
+              "passed": 38,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 38
+            }
+          }
+        ]
+      }
+    ],
+    "diagnostic_subset": {
+      "receipt": {
+        "path": ".artifacts/armageddon-guardian-20261009/derived-limb-focused-final/20261009T022623Z-bfc378c94bcf/summary.json",
+        "sha256": "dfffe705462806af2fa48b23c3860e4a46410a44a2691f07caedee48efa0695d"
+      },
+      "run_id": "20261009T022623Z-bfc378c94bcf",
+      "head": "d758cd6bc41fdd485ac26c0ca4b7f5968813eccc",
+      "status": "PASS",
+      "counts": {
+        "executed": 184,
+        "passed": 184,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 184
+      },
+      "source_start": "c0e7b2494ac58a65c4863d1104bc8d9e76c4ef2155534cef83990f29529dfe7d",
+      "source_end": "c0e7b2494ac58a65c4863d1104bc8d9e76c4ef2155534cef83990f29529dfe7d",
+      "source_stable": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~RetirementBodyEffectsTests|FullyQualifiedName~SpellNpcGuardianTests|FullyQualifiedName~SpellOwnedNpc|FullyQualifiedName~NpcArchive|FullyQualifiedName~PhysicalReferenceGuardTests",
+      "per_project": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "counts": {
+            "executed": 184,
+            "passed": 184,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 184
+          }
+        }
+      ]
+    },
+    "authoritative_passed": 8739,
+    "counts_are_not_added": true
+  },
+  "native": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-5cd74e9fb79e/receipt.json",
+      "sha256": "32253f0feca0be1078694286223c7f0898d36b98580286dd7344f43e04fc2662"
+    },
+    "status": "PASS",
+    "runner_status": "PASS",
+    "assertions": 77,
+    "passed": 77,
+    "failed": 0,
+    "revision": "384503a68fea51eaa4ca5bd5c12f11396eccc6e5",
+    "inputs": {
+      "scripts\\FuryCalmSmokeWorld\\smoke.py": "7638d3cb7abfeb88bd4a191555aa7f6f2fc324373de745c527e1b471160afa40",
+      "scripts\\FuryCalmSmokeWorld\\Program.cs": "10cf1847dcef732de0fe2a6edd6651583890f65803995cf7bcf56262c85d36ec",
+      "scripts\\AuthoredCelestialSmokeWorld\\native.py": "21ef19f7fa888edf402f14b43d8bfce17d02b3ffb06072b5651518f3d3eb8227",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "de3e344277d34bb960f4a69ad2cdfeaabc9f653ee3819a887f3475dc0cc56e22",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "d2d8649844bdd594f7a0f8e538359a05a0ecc1068594a5af4b82b764e68ac889",
+      "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "1016314dfbabc950a29cc5a957885f66c96d1b2f7c4396f2afd1066ed7adaa31",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+      "scripts/FuryCalmSmokeWorld/guardian_early_death.py": "6c531ee284da362fcf601a6eb0a8373708786a0dc4ada42909bda6afb57d9939",
+      "MudSharpCore/Magic/ArmageddonAirGuardianStock.cs": "cc8882c17817e88575728758a51f101732e9f6bd22c3c5b96331859c211d46c0",
+      "MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs": "525e9bc9bfad403f47685db9e6a11d818a58969dbfce302a229c4d22d332f750",
+      "MudSharpCore/Magic/SpellEffects/CreateNPCEffect.Admission.cs": "27b2e44848217c983b8d6de9cb5df0918bdab9aa3a889b6e22948c438b66580f",
+      "MudSharpCore/Effects/Concrete/SpellNpcGuardian.cs": "1d5197bd4fe955eeea484f9bad5a68935231d68856f86995d17e3828ee05111e",
+      "MudSharpCore/Character/CharacterCombat.cs": "48b2e5b7548844cdc15377a936907ba896735f069ca3c75291942032afaadad4",
+      "MudSharpCore/Character/PhysicalReferenceCodecs.cs": "65acc8e6ec024a17c3f407ed5bff4f7d1865d16153051b17e2678b909222b670",
+      "MudSharpCore/Magic/Lifecycle/SpellOwnedNpcService.Retirement.cs": "b08bb7ae172756d7d2043acf5410fb547a5ab313746f3661c1bcf3bac044e91f",
+      "FutureMUDLibrary/Magic/ISpellOwnedNpcService.cs": "ce7d0585a116d9d44cc38b0150c60ac105a3e0ce9aaf3a5a9f8a201fd83cb8ac",
+      "MudSharpCore/Body/RetirementBodyEffects.cs": "794933aceff1a9c53d360d67fa21702968c4809daf5580c297983b16da43d203",
+      "MudSharpCore/Character/CharacterArchiveService.cs": "f6543553ef46331d6b5bd8846ab2ffbf0f2b09556a1681b53819519952e1b92c"
+    },
+    "objects": {
+      "caster": 2,
+      "target": 3,
+      "other": 4,
+      "enemy": 5,
+      "fury": 16,
+      "calm": 17,
+      "capability": 5,
+      "reserve": 5,
+      "guardianSpell": 22,
+      "guardianTemplate": 8,
+      "foreignPrototype": 6894
+    },
+    "created_lifecycles": [
+      {
+        "id": "19a80ee2-ea67-48fe-ae23-0a65fd333e52",
+        "character": 21,
+        "body": 21
+      },
+      {
+        "id": "26477b17-ea3b-4dd0-8db3-b7b4503f3151",
+        "character": 20,
+        "body": 20
+      },
+      {
+        "id": "b077788d-4fd5-4776-bfff-5793a1431181",
+        "character": 22,
+        "body": 22
+      }
+    ],
+    "retained_remains": {
+      "lifecycle": "26477b17-ea3b-4dd0-8db3-b7b4503f3151",
+      "corpse": 12,
+      "foreignItem": 11,
+      "deathRow": "2026-10-09 02:47:32.237480\t12"
+    },
+    "default_dissipation": {
+      "lifecycle": "b077788d-4fd5-4776-bfff-5793a1431181",
+      "character": 22,
+      "body": 22,
+      "foreignItem": 14
+    },
+    "authored_timing": {
+      "lifetimeSeconds": "45*grade",
+      "corpseTimedDecaySeconds": 240,
+      "offlineMorphPolicy": "native paused remaining duration"
+    },
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-1.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-2.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-3.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "cleanup": {
+      "mysqlStopped": true,
+      "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+    },
+    "owned_server_uuid": "ac3f13f9-c311-11f1-b8a6-30560f3c3fde",
+    "full_programme_milestone_qualified": false,
+    "n14_builder_installed_qualified": true
+  },
+  "terminal_journal_audit": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-8f16f167b708/receipt.json",
+      "sha256": "3ea8232dce75fc7664a8549e5a8913f796ffd6020f77eb7bfceb0d1662fd0dbd"
+    },
+    "status": "PASS",
+    "journals": [
+      {
+        "id": "19a80ee2-ea67-48fe-ae23-0a65fd333e52",
+        "character": 21,
+        "body": 21,
+        "state": 3,
+        "reason": 0,
+        "createdUtc": "2026-10-09 02:46:38.007732",
+        "deadlineUtc": "2026-10-09 02:48:08.007732",
+        "deathObservedUtc": "2026-10-09 02:48:48.581573",
+        "beforeDeadline": false
+      },
+      {
+        "id": "26477b17-ea3b-4dd0-8db3-b7b4503f3151",
+        "character": 20,
+        "body": 20,
+        "state": 3,
+        "reason": 5,
+        "createdUtc": "2026-10-09 02:46:37.834668",
+        "deadlineUtc": "2026-10-09 02:48:07.834668",
+        "deathObservedUtc": "2026-10-09 02:47:32.237480",
+        "beforeDeadline": true
+      },
+      {
+        "id": "b077788d-4fd5-4776-bfff-5793a1431181",
+        "character": 22,
+        "body": 22,
+        "state": 3,
+        "reason": 5,
+        "createdUtc": "2026-10-09 02:53:15.771171",
+        "deadlineUtc": "2026-10-09 02:54:00.771171",
+        "deathObservedUtc": "2026-10-09 02:53:21.323866",
+        "beforeDeadline": true
+      }
+    ],
+    "scope": "Read-only audit confirms both early deaths preceded their original deadline, expiry death followed its deadline, and native input hashes remained unchanged; not additional gameplay assertions."
+  },
+  "review": {
+    "status": "NO_ACTIONABLE_FINDING_IN_BOUNDED_READ_ONLY_REVIEW",
+    "scope": "Post-d758 working-tree derived-effect predicate, retirement/archive callers, guardian bond and regressions; no native/test execution by reviewer."
+  },
+  "validation_boundary": "Managed checks ran frozen dirty code at d758, committed as f8f28735e. Only owning contract text and Python input-hash coverage changed after that full run. Native harness rebuilt at f8f28735e. Commit 384503a68 changes only the Python room-item assertion and receipt fields; native runtime binaries are unchanged and the native receipt records revision 384503a68 and exact source/binary hashes. Subsequent checkpoint edits are documentation only.",
+  "retained_failed_managed_runs": [
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-guardian-20261009/derived-limb-focused/20261009T022515Z-8578496a3066/summary.json",
+        "sha256": "15a90e4d08d97f3f8431842304799c18c5b49333283349d46bf607d377e75999"
+      },
+      "status": "FAIL",
+      "counts": null,
+      "source_stable": true
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-guardian-20261009/focused/20261009T005143Z-43debc3daf62/summary.json",
+        "sha256": "cd01b92bc8a1c298c128df47f3220dd2213cfbbc714a535feab090556cfc1dda"
+      },
+      "status": "FAIL",
+      "counts": null,
+      "source_stable": true
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-guardian-20261009/focused/20261009T010155Z-ce0853675f0b/summary.json",
+        "sha256": "3c4368af0fcac6080f8567ad17bfdfbded3534483cb897bac41c209ff268ac84"
+      },
+      "status": "FAIL",
+      "counts": {
+        "executed": 142,
+        "passed": 141,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 142
+      },
+      "source_stable": true
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-guardian-20261009/focused-final/20261009T012337Z-cbeb1230eebe/summary.json",
+        "sha256": "0f0f52a3f3c676d64367ec6b25e0cfac7bccd41047e5eafc139814a00ad1676a"
+      },
+      "status": "FAIL",
+      "counts": {
+        "executed": 53,
+        "passed": 51,
+        "failed": 2,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 53
+      },
+      "source_stable": true
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-guardian-20261009/full/20261009T010729Z-5615f6cf0bad/summary.json",
+        "sha256": "ef658d313ffebe123a532bcbc72e1c4ec11223e7daa6e8c2eac1ad2fea3ac1e3"
+      },
+      "status": "FAIL",
+      "counts": {
+        "executed": 8725,
+        "passed": 8724,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 8725
+      },
+      "source_stable": true
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-guardian-20261009/retirement-follow/20261009T014540Z-235d020c1e4a/summary.json",
+        "sha256": "86332eb8bf731752285f6a6412e73d420a16d479139ff51dd8cdb569137af3ae"
+      },
+      "status": "FAIL",
+      "counts": null,
+      "source_stable": true
+    }
+  ],
+  "retained_failed_native_runs": [
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-6a9be1ca07d7/receipt.json",
+        "sha256": "fcecfcd88ec2818dd2a0ef06b93fd50d72abf6d9c0268bd49e6ae30e73acd059"
+      },
+      "status": "FAIL",
+      "runner_status": "FAIL",
+      "error": "ERROR 1054 (42S22) at line 1: Unknown column 'p.MorphTargetId' in 'field list'\n",
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      },
+      "disposition": "Fixture used obsolete corpse morph column; repaired to actual EF field."
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-3f91d10d44f5/receipt.json",
+        "sha256": "8190557bebbac28a951764c0aaf5be3f7ea4d3a0e0ffdeba20cf8448d9c41a6b"
+      },
+      "status": "FAIL",
+      "runner_status": "FAIL",
+      "error": "grade-two stock cast pays one exact eighteen-energy debit: ",
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      },
+      "disposition": "Cast helper did not await paid terminal output; bounded terminal wait added."
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-8004d5d9fc94/receipt.json",
+        "sha256": "452567212a09797fac53e7f75e3de3212ab53d1e89a29a588d7542d33adfba02"
+      },
+      "status": "FAIL",
+      "runner_status": "FAIL",
+      "error": "grade-two stock cast pays one exact eighteen-energy debit: before=1000.0; after=991.0; debit=9.0; You summon protecting spirits from the air.\nA qaguardian spirit has entered the area.\nA qaguardian spirit has entered the area.\nThe paid casting succeeded.\n\n<You are currently in no pain>\n<Stamina: 200/200 | Exertion: Low | Status: Awake>\n\n",
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      },
+      "disposition": "Fixture expected grade-multiplied cost; actual shared source curve pays nine-energy minimum."
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-475e0c1ccca6/receipt.json",
+        "sha256": "f8dab1f3324669a7b1b802a751e2a8afcaf3a7ce644d3e790f976b75682695ea"
+      },
+      "status": "FAIL",
+      "runner_status": "FAIL",
+      "error": "early-dead guardian completes physical retirement: 2\t5\tNative retirement held: Foreign custody requires a verified callback-free rollback adapter for its body, effects, wounds and position graph.",
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      },
+      "disposition": "After real decay, retirement held the owned suspended bond and derived spinal effects; narrow proven repairs now qualified."
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-7b7d00b77f3a/receipt.json",
+        "sha256": "f800827133e7d9608fbf29e5c5036deb0333fd08405c7ccd61be0ab05ffa93f4"
+      },
+      "status": "FAIL",
+      "runner_status": "FAIL",
+      "error": "ERROR 1146 (42S02) at line 1: Table 'authored_celestial_smoke.cells_gameitems' doesn't exist\n",
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      },
+      "disposition": "Repaired runtime retired the early-dead graph; harness then queried obsolete Cells_GameItems instead of the proven Rooms_GameItems mapping."
+    }
+  ],
+  "diagnostic_only_receipt": {
+    "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-a84f8d0d5225/receipt.json",
+    "sha256": "6e4042f8fa8711247e313c4dd3f1618096a2fb61c7e376b0b357dff3c9828216"
+  },
+  "limits": [
+    "Approved native simple template and real-second timing are authored fixture mappings. Historical duration units were not recovered.",
+    "One creature per requested grade and creator protection are implemented; full wind template/stats/components/liking/prerequisite/seeder parity remains pending.",
+    "Grade-two at controlled seven pays one nine-energy minimum on the existing shared source-efficiency curve; this is not nine per creature or full balance qualification.",
+    "N15 installed three-mode matrix and N16 high-volume/every-cycle restart are not qualified by this run.",
+    "Earlier Fury/Calm, typed-reference and other checkpoints remain historical source-bound evidence."
+  ],
+  "next_bounded_milestone": "N15: exercise the same approved guardian template through normal builder-installed casting as permanent, temporary cleanup and death-on-expiry; prove permanent no-expiry persistence across restart and exactly one terminal transition for each temporary mode. N16 high-volume/per-cycle restart remains separate; full Air Guardian catalogue and historical timing parity remain pending. No static-schema classifier stage.",
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "publication_authorized": true,
+  "publication": {
+    "scope": "Draft pull request only",
+    "url": "https://github.com/FutureMUD/FutureMUD/pull/788",
+    "number": 788,
+    "draft": true,
+    "merge_authorized": false
+  },
+  "production_or_shared_database_used": false
+}

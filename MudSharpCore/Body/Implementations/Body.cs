@@ -447,7 +447,9 @@ public partial class Body : PerceiverItem, IBody
 
         EndStaminaTick(true);
         EndDrugTick();
-        EndHealthTick();
+        // Unloading only unregisters health callbacks. Damage reevaluation can create
+        // derived effects and perform gameplay mutations after the save boundary.
+        EndHealthTickRegistration();
         CacheScheduledEffects();
         Gameworld.EffectScheduler.Destroy(this, true);
         Gameworld.Scheduler.Destroy(this);

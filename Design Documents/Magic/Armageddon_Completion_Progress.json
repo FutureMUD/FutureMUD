@@ -37,9 +37,9 @@
     "rendered_content_utf8_bytes": 131070
   },
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
-  "implementation_branch": "codex/armageddon-completion-phase1",
-  "authorised_scope": "Complete plan in coherent stages; local commits; no publication, merge, deploy or shared/production DB",
-  "selected_stage": "Bounded active-Sense food repair verified against cleared installer37de; local checkpoint for parent review; whole plan incomplete",
+  "implementation_branch": "codex/armageddon-continuation-20261008",
+  "authorised_scope": "Complete plan in coherent stages; local commits and draft PR #788 authorized; no merge, deploy or shared/production DB",
+  "selected_stage": "N19 builder-installed Severing Refuge and Apex Bane qualified; next N20 Folded Pocket.",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -51,7 +51,7 @@
       "name": "Rebase and reconcile",
       "scope": "Current `master`, `Design Documents/Magic/Armageddon_Casting_*.md`, `Armageddon_Repertoire.json/.md`, existing A-D10 work if landed",
       "exit_evidence": "Current commit and delivery matrix; no redo of PR771/778; complete 154 disposition plus exact 82 membership",
-      "status": "completed"
+      "status": "reconciled_current_master_07146cdc_and_unique_fury_calm_groundwork_20261008"
     },
     {
       "id": 1,
@@ -79,14 +79,14 @@
       "name": "Finish portable production",
       "scope": "`MagicSpell.Production.cs`, existing snapshot compatibility and numerical context, game-item component/prototype families, substance machinery",
       "exit_evidence": "Focus/charged separation, caster-only stock, configurable eligibility, reproduce-power recharge, no stock scroll dependency",
-      "status": "pending"
+      "status": "bounded_charged_devices_and_five_stock_consolidation_implemented_larger_portable_catalogue_native_readiness_pending"
     },
     {
       "id": 5,
       "name": "Author full stock and installer",
       "scope": "New owning `DatabaseSeeder/Seeders/ArmageddonMagicSeeder/` or equivalent agreed name; shared ownership framework; manifests; replay metadata and profiles",
       "exit_evidence": "Complete usable stock, exact 82, classless and optional-class installs, safe reruns and conflict receipts",
-      "status": "pending"
+      "status": "partial_optional_installer_utilities_provisions_pierce_water_see_and_fury_calm_managed_checkpoint_full_stock_pending"
     },
     {
       "id": 6,
@@ -354,12 +354,13 @@
       "name": "Summon early death",
       "scenario": "In a fixture explicitly configured to leave remains, kill a temporary guardian, retain corpse and foreign carried item, pass original expiry, restart, then decay corpse; separately exercise default dissipation",
       "required_result": "No resurrection/second death; foreign item conserved; temporary heavy graph eventually retired when references clear",
-      "status": "controlled_native_PASS_installed_stock_session_pending",
+      "status": "builder_installed_native_PASS_catalogue_parity_pending",
       "evidence": [
         "Armageddon_Stage3B_NpcRetirement_Verification.json",
         "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
         "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json",
-        "Armageddon_Stage3B_HistoricalAuthorship_Verification.json"
+        "Armageddon_Stage3B_HistoricalAuthorship_Verification.json",
+        "Armageddon_Guardian_Early_Death_Checkpoint_20261009.json"
       ],
       "foundation_support": {
         "receipt": "Armageddon_Stage3A_Verification.json",
@@ -383,6 +384,16 @@
         "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json",
         "status": "controlled_native_PASS_installed_stock_session_pending",
         "scope": "Actual guardian Die/configured corpse and nested foreign bag/lock/belt custody across original expiry, separate-process dead-body/item reload, positive minute decay and scheduled Morph-to-nothing/Delete, Quit/archive; separate default dissipation."
+      },
+      "typed_reference_support": {
+        "receipt": "Armageddon_Typed_Reference_Checkpoint_20261009.json",
+        "status": "BOUNDED_RETAINED_EXPIRY_AND_COMPLETED_COLD_RETRY_PASS",
+        "scope": "Two previously paid TemporaryCleanup NPCs physically archived; exact completed rows survive second process. Full installed stock or high-volume scenario not run."
+      },
+      "builder_installed_support": {
+        "receipt": "Armageddon_Guardian_Early_Death_Checkpoint_20261009.json",
+        "status": "PASS_BOUNDED_N14",
+        "scope": "N14 normal builder-installed Air Guardian early death, configured remains, original expiry, cold restart, native timed decay and separate default dissipation."
       }
     },
     {
@@ -390,12 +401,13 @@
       "name": "Lifecycle modes",
       "scenario": "Same template exercised as permanent, temporary cleanup and death-on-expiry",
       "required_result": "Correct persistence/death/remains behaviour and exactly one terminal transition; permanent creation survives its no-expiry contract",
-      "status": "controlled_native_same_template_PASS_installed_stock_session_pending",
+      "status": "builder_installed_native_PASS_catalogue_parity_pending",
       "evidence": [
         "Armageddon_Stage3B_NpcRetirement_Verification.json",
         "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
         "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json",
-        "Armageddon_Stage3B_HistoricalAuthorship_Verification.json"
+        "Armageddon_Stage3B_HistoricalAuthorship_Verification.json",
+        "Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.json"
       ],
       "foundation_support": {
         "receipt": "Armageddon_Stage3A_Verification.json",
@@ -419,6 +431,16 @@
         "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json",
         "status": "controlled_native_same_template_PASS_installed_stock_session_pending",
         "scope": "One actual SimpleNPCTemplate used for permanent, temporary cleanup and death-on-expiry; exactly one terminal death/corpse transition and retained no-expiry permanent identity."
+      },
+      "typed_reference_support": {
+        "receipt": "Armageddon_Typed_Reference_Checkpoint_20261009.json",
+        "status": "BOUNDED_RETAINED_EXPIRY_AND_COMPLETED_COLD_RETRY_PASS",
+        "scope": "Two previously paid TemporaryCleanup NPCs physically archived; exact completed rows survive second process. Full installed stock or high-volume scenario not run."
+      },
+      "builder_installed_guardian_support": {
+        "receipt": "Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.json",
+        "status": "PASS_BOUNDED_N15",
+        "scope": "N15 builder-installed same-template guardian lifecycle modes; authored timing, not full catalogue parity"
       }
     },
     {
@@ -426,12 +448,13 @@
       "name": "High-volume retirement",
       "scenario": "Repeated summon/use/kill/expire/restart with deterministic terminal checks",
       "required_result": "Stable eligible heavy-row/timer/subscription counts after cleanup; every retained record explained",
-      "status": "partial_sixteen_native_cycles_and_separate_fault_decay_restarts_high_volume_pending",
+      "status": "pass_bounded_32_installed_restart_cycles_and_continuous_128_outputs",
       "evidence": [
         "Armageddon_Stage3B_NpcRetirement_Verification.json",
         "Armageddon_Stage3B_NpcRetirement_P2_Verification.json",
         "Armageddon_Stage3B_NpcRetirement_DirtyState_P2_Verification.json",
-        "Armageddon_Stage3B_HistoricalAuthorship_Verification.json"
+        "Armageddon_Stage3B_HistoricalAuthorship_Verification.json",
+        "Armageddon_Guardian_Churn_Checkpoint_20261009.json"
       ],
       "foundation_support": {
         "receipt": "Armageddon_Stage3A_Verification.json",
@@ -455,6 +478,11 @@
         "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json",
         "status": "partial_sixteen_native_cycles_and_separate_fault_decay_restarts_high_volume_pending",
         "scope": "Sixteen actual create/early-kill-or-expire/Delete/Quit/archive cycles with stable heavy rows/roots/scheduler/heartbeat, plus two separate decay/fault readers; high volume and every-cycle restart not run."
+      },
+      "typed_reference_support": {
+        "receipt": "Armageddon_Typed_Reference_Checkpoint_20261009.json",
+        "status": "BOUNDED_RETAINED_EXPIRY_AND_COMPLETED_COLD_RETRY_PASS",
+        "scope": "Two previously paid TemporaryCleanup NPCs physically archived; exact completed rows survive second process. Full installed stock or high-volume scenario not run."
       }
     },
     {
@@ -462,24 +490,30 @@
       "name": "Occupied shelters",
       "scenario": "Use Spring Haven, Burrow Refuge and Sand Shelter; expire/destroy while occupied",
       "required_result": "Real shelter utility/finite water; no stranded/deleted actors or foreign possessions; safe fallback when anchor missing",
-      "status": "not_run",
-      "evidence": []
+      "status": "passed_bounded_builder_installed_full_installer_source_parity_pending",
+      "evidence": [
+        "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
+      ]
     },
     {
       "id": "N18",
       "name": "Effigy and shadow",
       "scenario": "Create each, switch focus, damage/sever source and restart",
       "required_result": "Correct instance identity, anchor and focus; canonical skills/resources not duplicated; owner survives temporary collapse as configured",
-      "status": "not_run",
-      "evidence": []
+      "status": "qualified_bounded_builder_stock_full_installer_source_and_all_grade_matrix_pending",
+      "evidence": [
+        "Armageddon_Owned_Projections_Checkpoint_20261010.json: 166 native assertions; 7136 current Core/Library tests; exact typed claims, payment and preserved canonical owner/custody"
+      ]
     },
     {
       "id": "N19",
       "name": "Ward and bane",
       "scenario": "Use Severing Refuge against allowed/blocked element interactions; Apex Bane against eligible/ineligible beings",
       "required_result": "Functional bounded ward and resisted category attack, not cosmetic effects or name checks",
-      "status": "not_run",
-      "evidence": []
+      "status": "qualified_bounded_builder_stock_full_installer_source_and_all_grade_matrix_pending",
+      "evidence": [
+        "Armageddon_Ward_And_Bane_Checkpoint_20261010.json: 134 native assertions; 7165 Core/Library tests; separate 169 Armageddon seeder checks; native wards, wounds, resistance and conserved occupied custody"
+      ]
     },
     {
       "id": "N20",
@@ -813,12 +847,16 @@
       "key": "arm.spell.still_anger",
       "name": "Still Anger",
       "group": "Policy",
-      "required_behavior": "Apply native pacifism to suppress aggressive behaviour for a duration.",
+      "required_behavior": "Source-grade reciprocal counters, residual-grade save, prepared selective cessation and admitted incoming hostile-attack break, with retained bounded lifetime.",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "bounded_paid_runtime_optional_installer_managed_checkpoint_native_acceptance_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
-      ]
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Armageddon_Continuation_20261008.json: current continuation managed runtime/installer; native NOT_RUN",
+        "Final continuation run 20261008T073200Z-d2f3219192f7: 8412 passed/four inherited blank-snapshot failures/zero skipped; native NOT_RUN."
+      ],
+      "historical_status": "pending_runtime_stock_and_native_acceptance",
+      "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7"
     },
     {
       "key": "arm.spell.spring_haven",
@@ -826,8 +864,10 @@
       "group": "Larger",
       "required_behavior": "Real temporary sheltered watering place, finite usable water, terrain admission and occupancy-safe lifecycle",
       "selected_sorcerer": false,
-      "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "status": "bounded_builder_installed_runtime_native_pass_full_installer_source_parity_pending",
+      "evidence": [
+        "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
+      ]
     },
     {
       "key": "arm.spell.unyielding_veil",
@@ -1093,9 +1133,10 @@
       "group": "Larger",
       "required_behavior": "Enterable temporary underground topology, terrain gate, safe return, occupied expiry and restart cleanup",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "bounded_builder_installed_runtime_native_pass_full_installer_source_parity_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
       ]
     },
     {
@@ -1113,12 +1154,16 @@
       "key": "arm.spell.roused_fury",
       "name": "Roused Fury",
       "group": "Primitive",
-      "required_behavior": "Apply native rage intensity for a duration.",
+      "required_behavior": "Source-grade reciprocal counters and configurable ordinary attribute bonus without stamina refill, retained source/native state and bounded lifetime.",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "bounded_paid_runtime_optional_installer_managed_checkpoint_native_acceptance_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
-      ]
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Armageddon_Continuation_20261008.json: current continuation managed runtime/installer; native NOT_RUN",
+        "Final continuation run 20261008T073200Z-d2f3219192f7: 8412 passed/four inherited blank-snapshot failures/zero skipped; native NOT_RUN."
+      ],
+      "historical_status": "pending_runtime_stock_and_native_acceptance",
+      "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7"
     },
     {
       "key": "arm.spell.earth_mount",
@@ -1179,8 +1224,10 @@
       "group": "Larger",
       "required_behavior": "Physically usable shelter with protection/occupancy and foreign-content-preserving teardown",
       "selected_sorcerer": false,
-      "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "status": "bounded_builder_installed_runtime_native_pass_full_installer_source_parity_pending",
+      "evidence": [
+        "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
+      ]
     },
     {
       "key": "arm.spell.clay_sentinel",
@@ -1197,10 +1244,12 @@
       "group": "Larger",
       "required_behavior": "Bounded source-item-to-projection link using canonical identity, immobile copy/focus/anchor restrictions and safe collapse",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "bounded_builder_stock_and_native_lifecycle_qualified_full_installer_source_and_grade_matrix_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
-      ]
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Armageddon_Owned_Projections_Checkpoint_20261010.json"
+      ],
+      "whole_candidate_complete": false
     },
     {
       "key": "arm.spell.shatter_stone",
@@ -1325,9 +1374,11 @@
       "group": "Gap",
       "required_behavior": "Create a temporary protective air creature. NPC creation does not establish guarding commands, summon ownership or safe expiry.",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "runtime_lifecycle_qualified_catalogue_parity_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Armageddon_Guardian_Early_Death_Checkpoint_20261009.json: bounded normal-builder guardian lifecycle; full source/catalogue parity pending",
+        "Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.json: same-template normal-builder paid lifecycle modes and cold restart; full catalogue parity pending"
       ]
     },
     {
@@ -1522,10 +1573,12 @@
       "group": "Larger",
       "required_behavior": "Controllable shadow instance with original body, canonical progress/resources, focus/anchor/plane limits and safe collapse",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "bounded_builder_stock_and_native_lifecycle_qualified_full_installer_source_and_grade_matrix_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
-      ]
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Armageddon_Owned_Projections_Checkpoint_20261010.json"
+      ],
+      "whole_candidate_complete": false
     },
     {
       "key": "arm.spell.shadow_passage",
@@ -1875,8 +1928,11 @@
       "group": "Larger",
       "required_behavior": "Usable refuge with defined builder-configurable elemental ward scope and safe temporary topology",
       "selected_sorcerer": false,
-      "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "status": "bounded_builder_stock_and_native_lifecycle_qualified_full_installer_source_and_grade_matrix_pending",
+      "evidence": [
+        "Armageddon_Ward_And_Bane_Checkpoint_20261010.json"
+      ],
+      "whole_candidate_complete": false
     },
     {
       "key": "arm.spell.apex_bane",
@@ -1884,8 +1940,11 @@
       "group": "Larger",
       "required_behavior": "Resisted bounded attack against builder-tagged exceptional magical beings, with explicit eligible/ineligible tests",
       "selected_sorcerer": false,
-      "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "status": "bounded_builder_stock_and_native_lifecycle_qualified_full_installer_source_and_grade_matrix_pending",
+      "evidence": [
+        "Armageddon_Ward_And_Bane_Checkpoint_20261010.json"
+      ],
+      "whole_candidate_complete": false
     },
     {
       "key": "arm.spell.empty_aura",
@@ -3461,7 +3520,7 @@
     },
     {
       "id": "servitor_queued_control_execution_gap",
-      "status": "required_before_full_queued_control_qualification",
+      "status": "bounded_deadline_gap_closed_existing_implementation",
       "finding": "CommandableAI authorizes order acceptance, but queued SelectedCombatAction can execute after the control deadline while animation remains alive.",
       "required_changes": [
         "Preserve immutable controller/grant/action provenance through queued selected combat actions.",
@@ -3477,7 +3536,18 @@
         "Complete actual servitor damage/defence and historical aggression.",
         "Guard/rescue repairs and qualification for later guard families.",
         "PC-corpse, full boot/Telnet and concurrency release qualification."
-      ]
+      ],
+      "resolution_20261009": {
+        "receipt": "Armageddon_QueuedCommand_Authority_Verification.json",
+        "source_map": "CommandableAI -> CommandExecutionAuthority -> SelectedCombatAction -> CombatBase/CombatMoveBase execution fence",
+        "historical_native_markers": [
+          "ARMQueued-expired-queue",
+          "ARMQueued-expired-selected"
+        ],
+        "fresh_execution": false,
+        "comprehensive_authority_cleared": false,
+        "scope": "Existing immutable grant provenance and execution-time deadline checks close this particular gap; broader combat/authority/installed acceptance remains pending."
+      }
     },
     {
       "id": "storm_spear_restart_pause_20261004",
@@ -3694,48 +3764,92 @@
     {
       "sha": "b4237365b6b1d26cf4f9ca37ee300d60e1255664",
       "subject": "Add durable final-corpse animation and conserved restoration"
+    },
+    {
+      "sha": "6c41c629b5a99389631949661d3c9e7992d048a7",
+      "subject": "Implement paid Fury and Calm with optional owned mappings"
+    },
+    {
+      "sha": "e21da34d3e17203a89780f60bc74952ca1fc4268",
+      "subject": "Repair natural bone armour formulas and guard owned-world reconciliation"
+    },
+    {
+      "sha": "0c88d5054a87d3b1f2ecf6f4cc3a4b5900be27c9",
+      "subject": "Handle MySQL table casing and qualify repaired armour retries"
+    },
+    {
+      "sha": "baa4ad851c998b7e83863b8bcbf84e2ba3d4d5a6",
+      "subject": "Retain concrete AI definitions in NPC archival diagnostics"
+    },
+    {
+      "sha": "3b69a93860dd6d7ded5eb8960122b9ffc5a1ba59",
+      "subject": "Classify observed AI definitions for conservative NPC archival"
     }
   ],
   "next_checkpoint": {
-    "status": "SENSE_FOOD_BOUNDED_REPAIR_PARENT_REVIEW_PENDING",
-    "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_CheckStaleWrite_Verification.json",
+    "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
+    "receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
     "remaining": [
       {
-        "id": "historical-stack-conservation",
-        "status": "OPEN_NOT_QUALIFIED",
-        "scope": "Ordinary valid merge absorbed-source cleanup, native total quantity/title/custody and cold reader"
+        "stage": "Fury/Calm bounded native gate",
+        "status": "PASS",
+        "receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
+        "scope": "Installed paid casting, trait/no refill, counters, admitted missed attack, selective combat/callbacks, lifecycle, cold restart, restore and selected/null rerun preservation. High-volume/balance remain production-readiness gates."
       },
       {
-        "id": "eat-with-detection",
-        "status": "BOUNDED_NATIVE_REPAIR_PASS_PARENT_REVIEW_PENDING",
-        "scope": "Admit ordinary Sense/detection in spell item removal; preserve custody/reacquisition/dependency refusal and commit-safe persistence/rollback"
+        "stage": "Remaining reusable dependencies",
+        "status": "PENDING",
+        "scope": "Follow phase3_remaining and phase3_dependency_checklist: safe NPC/possession/corpse/control/queued authority, history/custody, guarded source lifetime admission, topology and native need-driven stock dependencies."
       },
       {
-        "id": "component-boarding-countershot",
-        "status": "NOT_COMPLETE",
-        "scope": "Representative gun families load/chamber/unready/unload/fire, accepted-shot costs, boarding and actual independent defender countershot"
+        "stage": "Required larger features",
+        "status": "PARTIAL_BOUNDED_N17",
+        "scope": [
+          "Spring Haven",
+          "Burrow Refuge",
+          "Sand Shelter",
+          "Sand Effigy",
+          "Walking Shadow",
+          "Severing Refuge",
+          "Apex Bane",
+          "Folded Pocket"
+        ],
+        "bounded_builder_installed_qualified": [
+          "Spring Haven",
+          "Burrow Refuge",
+          "Sand Shelter"
+        ],
+        "evidence": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json",
+        "remaining": "Other five systems, full installer/source parity and complete candidate acceptance remain required."
       },
       {
-        "id": "selected-melee-check-fault",
-        "status": "NATIVE_NOT_RUN",
-        "scope": "Actual selected melee attack with native scoring-merit fault; prior native Check fixture dispatch and explicit casting scope do not qualify this"
+        "stage": "Catalogue and portable production",
+        "status": "PARTIAL",
+        "scope": "Use all 154 existing candidate dispositions and per-membership prerequisites. Preserve exactly 82 Sorcerer spells/four roots/12 supports; Wardcraft and Renew Earth stay optional outside that roster. Qualify each actual effect family before charged storage; no stock scrolls."
       },
       {
-        "id": "fury-calm-hooks",
-        "status": "NOT_ALLOCATED_OR_INTEGRATED",
-        "scope": "Stock da9af18a departing-Fury stamina correction independently cleared. Native victim LeaveCombat may retarget caster via AcquireTarget; pair cessation must inspect current post-removal opponent, with another-opponent shared-combat regression. Endurance defaults and Calm break behavior await Luke. Live shared combat hooks untouched"
+        "stage": "Stock/support/crafting/supply/capability/merits",
+        "status": "PARTIAL",
+        "scope": "Expand stable-owned optional modules in dependency order; classless and optional-class paths, chargen controls/NPC placement, preserving builder edits and all player state."
       },
       {
-        "id": "whole-plan-release",
-        "status": "OPEN",
-        "scope": "PC charm N13, stock/device/provision integration, eight larger features, production/repertoire/installer and all remaining native release gates. Sibling installer reports Pierce and seven of82 closed admissions, prepared-world entry/guide only; new provision installation remains gated on active-Sense persisted removal repair. Installer owns SeederMetadataRegistry.cs and DebugSeederReplay.cs; no runtime overlap"
+        "stage": "Production readiness",
+        "status": "PENDING",
+        "scope": "Installed-world per-spell proof, affordability/balance, high-volume restart and all 25 acceptance scenarios; retain Release disable until real readiness gates pass."
       }
     ],
-    "priority_after_review": "Persisted active-Sense food consumption/removal before broader optional authority coverage",
-    "exact_local_commit_receipt": "Task Armageddon_check_CommitReceipt.json",
     "full_plan_complete": false,
-    "publication_authorized": false,
-    "comprehensive_queued_authority_cleared": false
+    "publication_authorized": true,
+    "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7",
+    "qualification_receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
+    "current_npc_archival_receipt": "Armageddon_Typed_Reference_Checkpoint_20261009.json",
+    "next_bounded_milestone": "N18: map and implement bounded Sand Effigy and Walking Shadow instance/focus/anchor contracts; qualify normal paid creation, focus switching, damage/severing/collapse and cold restart, with canonical identity, skills, resources and owner preserved. Full shelter installer/source parity and other catalogue/readiness gates remain pending. Use only code-proven links.",
+    "current_npc_reference_review": "Design Documents/Magic/Armageddon_Typed_Reference_Review_20261009.md",
+    "current_npc_reference_implementation": "Design Documents/Magic/Armageddon_Typed_Reference_Implementation_20261009.md",
+    "current_guardian_receipt": "Design Documents/Magic/Armageddon_Guardian_Early_Death_Checkpoint_20261009.json",
+    "current_guardian_lifecycle_modes_receipt": "Design Documents/Magic/Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.json",
+    "current_guardian_churn_receipt": "Design Documents/Magic/Armageddon_Guardian_Churn_Checkpoint_20261009.json",
+    "current_occupied_shelters_receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -3757,10 +3871,10 @@
     "Writing/TrueAuthor/Drawings history is boundedly verified; extend other identity-bearing histories only with native need/evidence, preserving unknown-reference holds and ownership.",
     "Bounded native created leaf weapons, food grade-count/consumption, water/wine capacity/mixing/transfer and worn light are verified. Actual stock profiles and declared event/unit conversions remain pending, as do Storm Spear automatic primary-hand placement/native combat profile, installed/nonfinal corpse qualification, canonical projections and occupied/connected topology. Variable/prosthetic/role-adjusted/extra-body NPC generalization remains conditional on selected stock need.",
     "Complete generated-possession economy/salvage and occupant/cross-body detachment/replacement-morph adapters plus approved per-cast counts, Gate follower-risk/control, Guardian guarding, Mount riding and Courier delivery. Safe destinations must use configured fallback OR recoverable holding with diagnostics (brief255); automatic fallback is not mandatory.",
-    "Complete installed stock command/world N14/N15 and high-volume N16 with per-cycle restart; controlled native early death/decay/restart, same-template modes and sixteen heavy/runtime cycles are verified.",
+    "Complete N16 installed high-volume/per-cycle restart; bounded normal-builder N14 early death and N15 modes now pass. Full catalogue/timing parity remains pending.",
     "Implement remaining reusable effects and all eight approved larger features; later charm must retain the per-spell PC toggle, resolved executable whitelist and queued-action provenance.",
-    "Created leaf items now prepare and bind their finite positive selected-grade lifetime before payment. NPC resolved lifetime (including known constant-zero invalid lifetime) and dynamic spawn validation remain post-check application refusals; qualify their prepayment treatment without changing opposed-outcome semantics in a separate boundary.",
-    "Raise Servitor queued SelectedCombatAction requires immutable command/grant provenance and execution-time authorization. Test an accepted action crossing the control deadline while animation survives, preserving independent following. Actual damage/defence and historical aggression, later-family guard/rescue, PC-corpse, full boot and concurrency remain required."
+    "NPC fixed-input lifetime/spawn admission and stock armour repair retain their bounded proof. Replace NPC archival/body cleanup/remains/corpse provenance heuristics with code-proven references; remove numeric-text searches, guessed *Id checks and archive-only static classifiers. The planned Autobuilder classifier is superseded. Physical release and completed cold retry remain unqualified.",
+    "Raise Servitor queued/selected deadline crossing is implemented and bounded historical native evidence is retained in Armageddon_QueuedCommand_Authority_Verification.json. Do not reimplement this gap. Actual damage/defence, comprehensive authority, later-family guard/rescue, PC-corpse, full installed boot and concurrency remain required."
   ],
   "phase3_dependency_checklist": [
     {
@@ -3801,9 +3915,10 @@
     },
     {
       "id": "full_N14_N15_N16",
-      "status": "N14_N15_controlled_native_pass_N16_partial_full_installed_high_volume_pending",
+      "status": "N14_N15_builder_installed_bounded_pass_N16_high_volume_per_cycle_restart_pending",
       "acceptance": "Complete exact brief scenarios: early death/foreign corpse custody/decay/restart, three same-template modes, high-volume heavy/runtime steady state.",
-      "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json"
+      "receipt": "Armageddon_Stage3B_NpcRetirement_Verification.json",
+      "latest_receipt": "Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.json"
     },
     {
       "id": "historical_authorship",
@@ -3840,7 +3955,20 @@
       "stock_receipt": "Armageddon_Stage3D1Stock_RaiseServitor_Verification.json",
       "parent_verified_morph_restart_head": "812020244974323bcc75b2dee2e212e3110ff101",
       "security_integration_receipt": "Armageddon_SecurityMaster_Integration_Verification.json",
-      "required_queued_control_check": "servitor_queued_control_execution_gap"
+      "required_queued_control_check": "servitor_queued_control_execution_gap",
+      "queued_deadline_gap": {
+        "status": "bounded_gap_closed_existing_implementation",
+        "receipt": "Armageddon_QueuedCommand_Authority_Verification.json",
+        "fresh_execution": false
+      }
+    },
+    {
+      "id": "npc_prepayment_lifetime_spawn_admission",
+      "status": "TYPED_REFERENCES_QUALIFIED_RETAINED_NPC_ARCHIVAL_AND_COLD_RETRY_PASS",
+      "receipt": "Armageddon_Typed_Reference_Checkpoint_20261009.json",
+      "acceptance": "Original prepayment proof retained; code-proven reference replacement, two retained paid NPC physical retirements and separate-process completed cold retry pass. Installed stock N14/N15 and high-volume N16 remain pending.",
+      "prepayment_receipt": "Armageddon_Npc_Prepayment_Checkpoint_20261009.json",
+      "reference_review": "Design Documents/Magic/Armageddon_Typed_Reference_Review_20261009.md"
     }
   ],
   "checkpoint_history": [
@@ -4039,6 +4167,13 @@
         "N13 PC charm remains not_run. Seven phases,16 decisions,154 candidates,82 Sorcerer plus12 support rows,25 native scenarios and all eight feature packages/devices/installer/full installed-world gates remain open. All previous qualification limits and immutable receipts/helpers/closing proofs remain.",
         "Local commit only; primary master preserved; no publication, remote merge, deployment, shared/production database or model/billing change. Stop for parent independent re-review."
       ]
+    },
+    {
+      "status": "AI_CONTRACTS_QUALIFIED_NATIVE_RETIREMENT_BLOCKED_AUTOBUILDER_REFERENCES",
+      "receipt": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
+      "implementation_commit": "3b69a93860dd6d7ded5eb8960122b9ffc5a1ba59",
+      "managed_full_core_passed": 6038,
+      "native_retirement_qualified": false
     }
   ],
   "queued_command_authority": {
@@ -5302,7 +5437,7 @@
     "native_attack_controls": 18,
     "receipt": "Design Documents/Magic/Armageddon_EmotionalCombatHooks_Verification.json",
     "contract": "Design Documents/Magic/Armageddon_Emotional_Combat_Hooks.md",
-    "next_gate": "Parent/stock integration of actual Fury/Calm effects and paid bridge, with unsupported cessation refused before payment",
+    "next_gate": "Paid stock bridge and optional mapping now implemented with bounded managed checks; installed-world/cold restart native acceptance remains unrun under platform restriction.",
     "whole_plan_complete": false,
     "package_enabled": false,
     "limits": [
@@ -5313,7 +5448,9 @@
       "Observer exceptions propagate after consumed-ticket committed detach. Captured old Aim releases across removal failure; arbitrary later callback continuation is not universally promised.",
       "Full Fast, full-world/Telnet, stock emotional activation/reload and exhaustive family acceptance are NOT_RUN here.",
       "Historical Musket/artillery continuation is deferred by the current allocation; no issues780-783 fix, version change, publication, merge, deployment or shared/production database work."
-    ]
+    ],
+    "continuation_receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
+    "historical_next_gate": "Parent/stock integration of actual Fury/Calm effects and paid bridge, with unsupported cessation refused before payment"
   },
   "emotional_shot_refusal_correction": {
     "baseline": "9353e2ad4b0d0e95289069dc166a52ad6db45c71",
@@ -5335,5 +5472,956 @@
     "native_cases": 9,
     "fresh_readers": 23,
     "receipt": "Design Documents/Magic/Armageddon_EmotionalShotRefusal_Verification.json"
+  },
+  "superseded_central_status": [
+    {
+      "date": "2026-10-08",
+      "implementation_branch": "codex/armageddon-completion-phase1",
+      "selected_stage": "Bounded active-Sense food repair verified against cleared installer37de; local checkpoint for parent review; whole plan incomplete",
+      "next_checkpoint": {
+        "status": "SENSE_FOOD_BOUNDED_REPAIR_PARENT_REVIEW_PENDING",
+        "receipt": "Design Documents/Magic/Armageddon_OrderedNpc_CheckStaleWrite_Verification.json",
+        "remaining": [
+          {
+            "id": "historical-stack-conservation",
+            "status": "OPEN_NOT_QUALIFIED",
+            "scope": "Ordinary valid merge absorbed-source cleanup, native total quantity/title/custody and cold reader"
+          },
+          {
+            "id": "eat-with-detection",
+            "status": "BOUNDED_NATIVE_REPAIR_PASS_PARENT_REVIEW_PENDING",
+            "scope": "Admit ordinary Sense/detection in spell item removal; preserve custody/reacquisition/dependency refusal and commit-safe persistence/rollback"
+          },
+          {
+            "id": "component-boarding-countershot",
+            "status": "NOT_COMPLETE",
+            "scope": "Representative gun families load/chamber/unready/unload/fire, accepted-shot costs, boarding and actual independent defender countershot"
+          },
+          {
+            "id": "selected-melee-check-fault",
+            "status": "NATIVE_NOT_RUN",
+            "scope": "Actual selected melee attack with native scoring-merit fault; prior native Check fixture dispatch and explicit casting scope do not qualify this"
+          },
+          {
+            "id": "fury-calm-hooks",
+            "status": "NOT_ALLOCATED_OR_INTEGRATED",
+            "scope": "Stock da9af18a departing-Fury stamina correction independently cleared. Native victim LeaveCombat may retarget caster via AcquireTarget; pair cessation must inspect current post-removal opponent, with another-opponent shared-combat regression. Endurance defaults and Calm break behavior await Luke. Live shared combat hooks untouched"
+          },
+          {
+            "id": "whole-plan-release",
+            "status": "OPEN",
+            "scope": "PC charm N13, stock/device/provision integration, eight larger features, production/repertoire/installer and all remaining native release gates. Sibling installer reports Pierce and seven of82 closed admissions, prepared-world entry/guide only; new provision installation remains gated on active-Sense persisted removal repair. Installer owns SeederMetadataRegistry.cs and DebugSeederReplay.cs; no runtime overlap"
+          }
+        ],
+        "priority_after_review": "Persisted active-Sense food consumption/removal before broader optional authority coverage",
+        "exact_local_commit_receipt": "Task Armageddon_check_CommitReceipt.json",
+        "full_plan_complete": false,
+        "publication_authorized": false,
+        "comprehensive_queued_authority_cleared": false
+      },
+      "reason": "Old central checkpoint was superseded by later accepted hook/device/installer/Sense receipts and this reconciled continuation."
+    }
+  ],
+  "continuation_20261008": {
+    "receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
+    "master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
+    "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
+    "full_plan_complete": false,
+    "native": {
+      "status": "PASS_BOUNDED_FURY_CALM_NATIVE_MILESTONE",
+      "receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
+      "process_database_telnet_checks_executed": true,
+      "owned_disposable_only": true,
+      "full_plan_complete": false
+    },
+    "installer_coverage": {
+      "historical_selected_provisions_water_see": {
+        "managed_records": 211,
+        "payload_definitions": 10,
+        "admissions_per_variant": 9,
+        "sorcerer_without_admission": 73
+      },
+      "selected_provisions_water_see_emotions": {
+        "managed_records": 217,
+        "payload_definitions": 12,
+        "admissions_per_variant": 12,
+        "sorcerer_without_admission": 70
+      },
+      "kind": "Managed composition counts, not character acquisitions or whole catalogue completion."
+    },
+    "final_managed": {
+      "run": "20261008T073200Z-d2f3219192f7",
+      "passed": 8412,
+      "failed": 4,
+      "skipped": 0,
+      "source_stable": true,
+      "failure_classification": "Exactly the four inherited master blank-snapshot failures; zero new failures."
+    },
+    "release_disabled_assertions": {
+      "run": "20261008T073706Z-a6838db00122",
+      "passed": 3,
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true
+    },
+    "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7",
+    "qualification_20261009": {
+      "receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
+      "managed": [
+        {
+          "scope": "snapshot-managed",
+          "receipt": ".artifacts/fury-calm-native-20261008/snapshot-managed/20261008T115600Z-d10d334cf566/summary.json",
+          "run": "20261008T115600Z-d10d334cf566",
+          "configuration": "Debug",
+          "counts": {
+            "executed": 7,
+            "passed": 7,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 7
+          },
+          "source_start": "9a05171f1d0e2384f5bbc3c751f177e0126f14f8d8332cbc106148c737420fe3",
+          "source_end": "9a05171f1d0e2384f5bbc3c751f177e0126f14f8d8332cbc106148c737420fe3",
+          "source_stable": true
+        },
+        {
+          "scope": "seeder-repair-managed",
+          "receipt": ".artifacts/fury-calm-native-20261008/seeder-repair-managed/20261008T123447Z-532149f4d090/summary.json",
+          "run": "20261008T123447Z-532149f4d090",
+          "configuration": "Debug",
+          "counts": {
+            "executed": 1608,
+            "passed": 1608,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1608
+          },
+          "source_start": "5bca95344dbfbbb444ae40eed3e569178efcd777afb64f31924ffd94a900adb9",
+          "source_end": "5bca95344dbfbbb444ae40eed3e569178efcd777afb64f31924ffd94a900adb9",
+          "source_stable": true
+        },
+        {
+          "scope": "retained-pierce-managed",
+          "receipt": ".artifacts/fury-calm-native-20261008/retained-pierce-managed/20261008T133555Z-2b5c1f41721d/summary.json",
+          "run": "20261008T133555Z-2b5c1f41721d",
+          "configuration": "Debug",
+          "counts": {
+            "executed": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 3
+          },
+          "source_start": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+          "source_end": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+          "source_stable": true
+        },
+        {
+          "scope": "release-disabled",
+          "receipt": ".artifacts/fury-calm-native-20261008/release-disabled/20261008T133640Z-c6510b18cb8c/summary.json",
+          "run": "20261008T133640Z-c6510b18cb8c",
+          "configuration": "Release",
+          "counts": {
+            "executed": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 3
+          },
+          "source_start": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+          "source_end": "fc603f67eca21519796801594c4e7b9f23f32d3b6ccb03678b7d749ee42cb072",
+          "source_stable": true
+        },
+        {
+          "scope": "startcombat-managed",
+          "receipt": ".artifacts/fury-calm-native-20261008/startcombat-managed/20261008T152034Z-db03ecae1512/summary.json",
+          "run": "20261008T152034Z-db03ecae1512",
+          "configuration": "Debug",
+          "counts": {
+            "executed": 24,
+            "passed": 24,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 24
+          },
+          "source_start": "360c3a4bce0aea0342e6196ccb133c50d2b0e12b4286fb2fe16d56882f25d218",
+          "source_end": "360c3a4bce0aea0342e6196ccb133c50d2b0e12b4286fb2fe16d56882f25d218",
+          "source_stable": true
+        }
+      ],
+      "restriction": {
+        "current_denial": false,
+        "original_denied_command_unknown": true,
+        "historical_blanket_scope_established": false,
+        "identifiable_denial_cleared": false,
+        "bypass": false,
+        "evidence": "Available Platform-Restriction-Evidence.md lacks original denied command/reason; original thread unavailable. Current owned workflow completed without denial."
+      },
+      "snapshot_failures_repaired": true
+    },
+    "next_bounded_milestone": "N18: map and implement bounded Sand Effigy and Walking Shadow instance/focus/anchor contracts; qualify normal paid creation, focus switching, damage/severing/collapse and cold restart, with canonical identity, skills, resources and owner preserved. Full shelter installer/source parity and other catalogue/readiness gates remain pending. Use only code-proven links.",
+    "current_occupied_shelters_receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
+  },
+  "npc_prepayment_continuation_20261009": {
+    "status": "MANAGED_PASS_NATIVE_PREPAYMENT_PASS_RETIREMENT_BLOCKED",
+    "receipt": "Armageddon_Npc_Prepayment_Checkpoint_20261009.json",
+    "native_prepayment_cases_passed": true,
+    "native_retirement_qualified": false,
+    "next_bounded_milestone": "Classify known serialized-reference contracts at NPC archival and rerun the unchanged physical-release gate; preserve actual, malformed and unknown-reference holds.",
+    "combined_managed": {
+      "receipt": ".artifacts/armageddon-npc-admission-20261009/combined/20261008T161736Z-8de132824515/summary.json",
+      "sha256": "e17591f90c6ef5a43e9bb2b07c785352b6d0fdd5dc43ab0bec000d6c1fb3b75d",
+      "run": "20261008T161736Z-8de132824515",
+      "head": "7046c8a94e69d2e14dc0950f42dda6b07c942a0b",
+      "counts": {
+        "executed": 8445,
+        "passed": 8445,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 8445
+      },
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+      ],
+      "source_start": "a7b26dd12972a0dcbd21201c345a271f4ca1624b868dedc34b47429e7d3b37d2",
+      "source_end": "a7b26dd12972a0dcbd21201c345a271f4ca1624b868dedc34b47429e7d3b37d2",
+      "source_stable": true,
+      "status": "PASS",
+      "per_project": {
+        "MudSharpCore": 5902,
+        "FutureMUDLibrary": 668,
+        "MudsharpDatabaseLibrary": 264,
+        "DatabaseSeeder": 1611
+      },
+      "attribution": "Final combined run on the implementation commit; only receipt/document metadata is added afterward. Production/test source is unchanged."
+    },
+    "superseded_by": "Armageddon_Npc_Archival_Checkpoint_20261009.json"
+  },
+  "npc_archival_continuation_20261009": {
+    "status": "MANAGED_PASS_NATIVE_RETIREMENT_BLOCKED_MALFORMED_ARMOUR",
+    "receipt": "Armageddon_Npc_Archival_Checkpoint_20261009.json",
+    "implementation_commit": "ee9056df3be48f25081e946de15e55e02990404d",
+    "managed": {
+      "receipt": {
+        "path": ".artifacts/armageddon-npc-archive-20261009/core-acceptance/20261008T213247Z-75e88331ffa4/summary.json",
+        "sha256": "6ed279967880349857197f14e55785fb6631fc198bfada7ab394559c9e3dab15"
+      },
+      "run": "20261008T213247Z-75e88331ffa4",
+      "status": "PASS",
+      "configuration": "Debug",
+      "scope": "MudSharpCore Unit Tests only",
+      "head_during_execution": "c4f6896c05199169f47e0ea3f47c512440bea02f",
+      "counts": {
+        "executed": 5980,
+        "passed": 5980,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 5980
+      },
+      "source_start": "7e4cc396e849f631725230fa84b3803ce43c030b5002c23c929819d6c4e8e65c",
+      "source_end": "7e4cc396e849f631725230fa84b3803ce43c030b5002c23c929819d6c4e8e65c",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "invocations": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "framework": "net10.0",
+          "attempt": 1,
+          "status": "PASS",
+          "reason": null,
+          "build": {
+            "name": "build",
+            "arguments": [
+              "build",
+              "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "-c",
+              "Debug",
+              "-m:1",
+              "-p:RestoreBuildInParallel=false",
+              "-p:NuGetAudit=false",
+              "-p:NoWarn=NU1902%3BNU1510",
+              "--no-restore"
+            ],
+            "started_utc": "2026-10-08T21:32:48.1915232+00:00",
+            "ended_utc": "2026-10-08T21:33:55.2063526+00:00",
+            "exit_code": 0,
+            "termination_reason": null,
+            "stdout": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+            "stderr": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+          },
+          "test": {
+            "name": "test",
+            "arguments": [
+              "test",
+              "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "-c",
+              "Debug",
+              "--no-build",
+              "--no-restore",
+              "-m:1",
+              "-f",
+              "net10.0",
+              "-p:NoWarn=NU1902%3BNU1510",
+              "--logger",
+              "trx;LogFileName=results.trx",
+              "--results-directory",
+              "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1"
+            ],
+            "started_utc": "2026-10-08T21:33:55.2093689+00:00",
+            "ended_utc": "2026-10-08T21:35:05.5937272+00:00",
+            "exit_code": 0,
+            "termination_reason": null,
+            "stdout": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+            "stderr": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+          },
+          "report": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\armageddon-npc-archive-20261009\\core-acceptance\\20261008T213247Z-75e88331ffa4\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+          "binary": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+          "counts": {
+            "executed": 5980,
+            "passed": 5980,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 5980
+          },
+          "native_counters": {
+            "total": "5980",
+            "executed": "5980",
+            "passed": "5980",
+            "failed": "0",
+            "error": "0",
+            "timeout": "0",
+            "aborted": "0",
+            "inconclusive": "0",
+            "passedButRunAborted": "0",
+            "notRunnable": "0",
+            "notExecuted": "0",
+            "disconnected": "0",
+            "warning": "0",
+            "completed": "0",
+            "inProgress": "0",
+            "pending": "0"
+          }
+        }
+      ]
+    },
+    "native_retirement_qualified": false,
+    "next_bounded_milestone": "Repair the inherited chopping-damage formula in the Human/Animal armour seed content, reconcile only exact known old stock values in the owned disposable world while preserving builder edits, then rerun the unchanged physical-release gate for retained characters/bodies 10 and 11. Classify further observed contracts only as required; unknown/malformed holds stay enabled.",
+    "historical_attribution": "Previous malformed-armour failure retained; current stock repair and AI hold supersede its current-stage status."
+  },
+  "current_managed": {
+    "scope": "Full Core and shared Library after N19 ward/bane and callback-free retirement repairs",
+    "runs": [
+      {
+        "run_id": "20261010T082643Z-1401e2a85cd2",
+        "head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
+        "status": "PASS",
+        "counts": {
+          "executed": 7165,
+          "passed": 7165,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7165
+        },
+        "source_start": "21d51d1587ba101b4cb063eabf8ab713355ccdf880ee97b27db40f186141aac4",
+        "source_end": "21d51d1587ba101b4cb063eabf8ab713355ccdf880ee97b27db40f186141aac4",
+        "source_stable": true,
+        "projects": [
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "filter": null,
+        "configuration": "Debug",
+        "receipt": {
+          "path": ".artifacts/test-runs/20261010T082643Z-1401e2a85cd2/summary.json",
+          "sha256": "deab00ad74974b2c95d56803e00d9055e7f20b8426c19c569c529d157127d6e2"
+        },
+        "project_counts": {
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
+            "executed": 740,
+            "passed": 740,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 740
+          },
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
+            "executed": 6425,
+            "passed": 6425,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 6425
+          }
+        }
+      }
+    ],
+    "authoritative_passed": 7165,
+    "counts_are_not_added": true,
+    "separate_seeder_armageddon": {
+      "run_id": "20261010T082330Z-ac6d7323c87d",
+      "head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
+      "status": "PASS",
+      "counts": {
+        "executed": 169,
+        "passed": 169,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 169
+      },
+      "source_start": "e6338e413f2e756a2f12a1aad20ad155aab2e6e5b843054a444058548712e93d",
+      "source_end": "e6338e413f2e756a2f12a1aad20ad155aab2e6e5b843054a444058548712e93d",
+      "source_stable": true,
+      "projects": [
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~Armageddon",
+      "configuration": "Debug",
+      "receipt": {
+        "path": ".artifacts/test-runs/20261010T082330Z-ac6d7323c87d/summary.json",
+        "sha256": "8e5740750ed27509953815670d9a17f855ccaa7d879f8ae2e6e8cca8e72e247f"
+      },
+      "project_counts": {
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj": {
+          "executed": 169,
+          "passed": 169,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 169
+        }
+      }
+    },
+    "previous_n18_receipt": "Design Documents/Magic/Armageddon_Owned_Projections_Checkpoint_20261010.json"
+  },
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "publication_authorized": true,
+  "npc_armour_repair_continuation_20261009": {
+    "status": "STOCK_ARMOUR_REPAIRED_NATIVE_RETIREMENT_BLOCKED_AI_REFERENCES",
+    "receipt": "Armageddon_Npc_Armour_Repair_Checkpoint_20261009.json",
+    "implementation_commits": [
+      "e21da34d3e17203a89780f60bc74952ca1fc4268",
+      "0c88d5054a87d3b1f2ecf6f4cc3a4b5900be27c9",
+      "baa4ad851c998b7e83863b8bcbf84e2ba3d4d5a6"
+    ],
+    "stock_armour_repair_qualified": true,
+    "native_retirement_qualified": false,
+    "managed": {
+      "status": "PASS",
+      "scope": "Separate fresh full Seeder and focused Core contract runs",
+      "runs": [
+        {
+          "receipt": {
+            "path": ".artifacts/armageddon-npc-armour-repair-20261009/seeder-tests/20261008T215709Z-68a06ebd0820/summary.json",
+            "sha256": "5cf889e8a53e92b26010e88182ada4377b236dbf80377611f3461cbca0140c9a"
+          },
+          "run": "20261008T215709Z-68a06ebd0820",
+          "status": "PASS",
+          "scope": "Full DatabaseSeeder Unit Tests",
+          "configuration": "Debug",
+          "filter": null,
+          "head_during_execution": "13658ca1e6926a378ea716579bd35be40f36b94b",
+          "counts": {
+            "executed": 1613,
+            "passed": 1613,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1613
+          },
+          "source_start": "173687737dacc558c1f205b90d412e28374c26f33d789046de9c62fd25537cab",
+          "source_end": "173687737dacc558c1f205b90d412e28374c26f33d789046de9c62fd25537cab",
+          "source_stable": true,
+          "process_exit_codes": [
+            {
+              "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+              "build": 0,
+              "test": 0
+            }
+          ]
+        },
+        {
+          "receipt": {
+            "path": ".artifacts/armageddon-npc-armour-repair-20261009/core-contract-tests/20261008T220412Z-66b9a95c6eb3/summary.json",
+            "sha256": "b1ff6cb637613c3c748bd75a2559f3977af8611e2f404b99c74046e026739ddc"
+          },
+          "run": "20261008T220412Z-66b9a95c6eb3",
+          "status": "PASS",
+          "scope": "NpcArchiveReferencePolicyTests and BodyShutdownHealthTests only",
+          "configuration": "Debug",
+          "filter": "FullyQualifiedName~NpcArchiveReferencePolicyTests|FullyQualifiedName~BodyShutdownHealthTests",
+          "head_during_execution": "13658ca1e6926a378ea716579bd35be40f36b94b",
+          "counts": {
+            "executed": 102,
+            "passed": 102,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 102
+          },
+          "source_start": "a732c451c80852021d2bc334d69e32d0555a727daf5235130f2661e45835a7ee",
+          "source_end": "a732c451c80852021d2bc334d69e32d0555a727daf5235130f2661e45835a7ee",
+          "source_stable": true,
+          "process_exit_codes": [
+            {
+              "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "build": 0,
+              "test": 0
+            }
+          ]
+        }
+      ],
+      "total_passes_across_separate_runs": 1715,
+      "failed": 0,
+      "skipped": 0,
+      "combined_run": false,
+      "attribution": "Separate fresh runs on HEAD13658ca1 plus the subsequently committed unchanged Seeder sources/tests. Later changes affect only the owned fixture/Python diagnostics. Full Core and combined suites were not rerun for this stage."
+    },
+    "next_bounded_milestone": "Add discriminator-aware strict classification for the observed Judge, Mount, Animal and Monster AI Definition codecs, with collision/unknown/malformed regression coverage, then rerun the unchanged physical-release and completed cold-retry gates for both retained NPCs. Preserve every unknown/malformed hold and all other serialized contracts.",
+    "historical_for_current_stage": true,
+    "superseded_current_status_by": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json"
+  },
+  "npc_ai_reference_continuation_20261009": {
+    "status": "AI_CONTRACTS_QUALIFIED_NATIVE_RETIREMENT_BLOCKED_AUTOBUILDER_REFERENCES",
+    "receipt": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
+    "implementation_commits": [
+      "3b69a93860dd6d7ded5eb8960122b9ffc5a1ba59"
+    ],
+    "ai_definition_contracts_qualified": true,
+    "native_retirement_qualified": false,
+    "completed_cold_retry_qualified": false,
+    "managed": {
+      "status": "PASS",
+      "scope": "Full Core with focused subset",
+      "runs": [
+        {
+          "receipt": {
+            "path": ".artifacts/armageddon-npc-ai-20261009/core-full/20261008T224505Z-9047a8c2c877/summary.json",
+            "sha256": "05ca99996447c90f6a2a1883fa04b09c9bc97d70706c61d9e0f9b6c41d0067fe"
+          },
+          "run": "20261008T224505Z-9047a8c2c877",
+          "status": "PASS",
+          "scope": "Full MudSharpCore Unit Tests",
+          "configuration": "Debug",
+          "filter": null,
+          "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
+          "counts": {
+            "executed": 6038,
+            "passed": 6038,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 6038
+          },
+          "source_start": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+          "source_end": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+          "source_stable": true,
+          "process_exit_codes": [
+            {
+              "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "build": 0,
+              "test": 0
+            }
+          ]
+        }
+      ],
+      "diagnostic_subset": {
+        "receipt": {
+          "path": ".artifacts/armageddon-npc-ai-20261009/core-focused/20261008T224044Z-e235ce6f1b73/summary.json",
+          "sha256": "3ea6845a8f1aa4f57518a3eaa18ade15f550c68aca55e569d12e5fe71f3deb1b"
+        },
+        "run": "20261008T224044Z-e235ce6f1b73",
+        "status": "PASS",
+        "scope": "NpcArchiveAiReferencePolicyTests, NpcArchiveReferencePolicyTests, NpcArchiveRuntimeTests and BodyShutdownHealthTests",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~NpcArchiveAiReferencePolicyTests|FullyQualifiedName~NpcArchiveReferencePolicyTests|FullyQualifiedName~NpcArchiveRuntimeTests|FullyQualifiedName~BodyShutdownHealthTests",
+        "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
+        "counts": {
+          "executed": 164,
+          "passed": 164,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 164
+        },
+        "source_start": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+        "source_end": "299a31fded8a728b6dcdc74f6a60da4647e6f7988431662b7354939e76ef0860",
+        "source_stable": true,
+        "process_exit_codes": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "build": 0,
+            "test": 0
+          }
+        ]
+      },
+      "authoritative_passed": 6038,
+      "counts_are_not_added": true
+    },
+    "native": {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-6cc55ecad542/receipt.json",
+        "sha256": "7aa90c7d5f1b9cd87bc9e40a31aa41dd70ca2a08d1cb024c10758013c4ccb287"
+      },
+      "status": "FAIL",
+      "assertions": {
+        "total": 16,
+        "passed": 15,
+        "failed": 1
+      },
+      "scope": "retained paid NPC expiry/archival retry and a separate-process completed retry",
+      "head_during_execution": "5177f11b3b269cd54df41b463e81756df15da0ce",
+      "source_receipt": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\smoke-invocation-aa55c6ee3866\\receipt.json",
+        "sha256": "428dd36fcfce5e0748700ee34a12f443211e60395f523788006912325f656297"
+      },
+      "error": "real native scheduled expiry completes without a hold: 2\t0\tNative retirement held: Unresolved serialized reference or scan limit in AutobuilderAreaTemplate.Definition; retain the physical graph.",
+      "first_retirement_attempt": [
+        {
+          "id": "476b6713-766b-4f23-b8e9-c1693c29220c",
+          "row": "2\t0\tNative retirement held: Unresolved serialized reference or scan limit in AutobuilderAreaTemplate.Definition; retain the physical graph."
+        }
+      ],
+      "ai_column_passed_for_first_retirement_attempt": true,
+      "observed_ai_rows": 112,
+      "observed_ai_types": {
+        "Enforcer": 1,
+        "Judge": 1,
+        "Lawyer": 1,
+        "Commandable": 2,
+        "Doorguard": 1,
+        "CombatEnd": 1,
+        "Wanderer": 1,
+        "Aggressor": 1,
+        "Rescuer": 1,
+        "Scavenge": 1,
+        "TrackingAggressor": 1,
+        "SelfCare": 1,
+        "Mount": 1,
+        "ArenaParticipant": 1,
+        "ArborealWanderer": 1,
+        "DenBuilder": 1,
+        "LairScavenger": 1,
+        "Animal": 80,
+        "Monster": 12,
+        "NaturalTrap": 2
+      },
+      "observed_ai_rows_unchanged": true,
+      "agriculture_and_armour_rows_unchanged": true,
+      "native_input_hashes_match_current_files": true,
+      "created_lifecycles": [
+        {
+          "id": "476b6713-766b-4f23-b8e9-c1693c29220c",
+          "formula": "grade*45",
+          "seconds": 45.0,
+          "character": 10,
+          "body": 10
+        },
+        {
+          "id": "9a536f89-f899-461b-9111-a11b2ede595b",
+          "formula": "45+outcome*5",
+          "seconds": 70.0,
+          "character": 11,
+          "body": 11
+        }
+      ],
+      "physical_evidence_after_failure": {
+        "476b6713-766b-4f23-b8e9-c1693c29220c": "2\t1\t0\t1\t1\t1\t1\t0",
+        "9a536f89-f899-461b-9111-a11b2ede595b": "2\t1\t0\t1\t1\t1\t1\t0"
+      },
+      "physical_evidence_columns": [
+        "State",
+        "Mode",
+        "Reason",
+        "NpcCount",
+        "BodyCount",
+        "InstanceCount",
+        "UnarchivedCanonicalWithExactBodyCount",
+        "ArchiveCount"
+      ],
+      "original_fury_preserved": true,
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        }
+      ],
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      },
+      "world": {
+        "root": ".artifacts/authored-celestials/run-8f52a54633e3",
+        "database": "authored_celestial_smoke",
+        "endpoint": "127.0.0.1:58998",
+        "server_uuid": "ac3f13f9-c311-11f1-b8a6-30560f3c3fde",
+        "stopped": true,
+        "qualification_marker_promoted": false
+      },
+      "not_run": [
+        "Successful physical release",
+        "Second NPC successful retirement",
+        "Separate-process completed cold retry"
+      ],
+      "observed_autobuilder_collisions": [
+        {
+          "table": "autobuilderareatemplates",
+          "column": "Definition",
+          "rows": 1
+        },
+        {
+          "table": "autobuilderroomtemplates",
+          "column": "Definition",
+          "rows": 1
+        }
+      ],
+      "autobuilder_evidence_boundary": "Census identifies one area and one room Definition with a 10/11 collision. Their exact persisted TemplateType/XML were not captured; source mapping suggests static Terrain references or tuning, but does not establish the held literal provenance."
+    },
+    "next_bounded_milestone": "Capture the exact observed Autobuilder area and room TemplateType/Definition rows in the owned disposable world; map only those concrete codecs, classify verified static terrain/tuning/narrative contracts with unknown/malformed holds, then rerun the unchanged physical-release and completed cold-retry gates. Area digit collisions are observed, but exact held XML/type and literal provenance remain uncaptured.",
+    "full_plan_complete": false,
+    "package_release_enabled": false,
+    "publication_authorized": false
+  },
+  "npc_typed_reference_review_20261009": {
+    "date": "2026-10-09",
+    "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
+    "reviewed_head": "81b9b6d1a04bff63389477be5f035ca6cf9bb1e9",
+    "review": "Design Documents/Magic/Armageddon_Typed_Reference_Review_20261009.md",
+    "authority": "Latest user direction: only known, provable links from code; no text scans looking for IDs.",
+    "runtime_implementation_changed": false,
+    "new_managed_tests_executed": false,
+    "new_native_checks_executed": false,
+    "next_bounded_milestone": "Replace NPC archival and shared retired-body reference heuristics with actual EF foreign keys, typed scalar/discriminator pairs and exact identity fields proven by concrete loaders. Include completed remains recovery and corpse-animation provenance checks; remove numeric-text searches, guessed *Id checks and archive-only static-schema classifiers. Preserve valid stock armour repair, registration-only Body shutdown, ownership, custody and canonical history. Qualify the replacement, then rerun unchanged physical-release and separate-process completed cold-retry gates for both retained NPCs. The Autobuilder classifier milestone is superseded.",
+    "superseded_milestone": "Autobuilder area/room static-schema classification for NPC archival",
+    "historical_ai_checkpoint": "Armageddon_Npc_AI_Reference_Checkpoint_20261009.json",
+    "historical_evidence_boundary": "The 6038 full Core passes and 164-test subset qualified the previous implementation. The native 15-pass/one-fail Autobuilder hold remains failed; both physical graphs are retained and the completed cold retry was not reached. None qualifies the new reference contract.",
+    "completed_work_to_replace": [
+      "NpcArchiveReferencePolicy generic XML/JSON/raw-text number matching",
+      "CharacterArchiveService serialized-property discovery and unmapped *Id matching",
+      "Archive-only Agriculture/Armour/AI schema classifiers and matching tests",
+      "RetiredBodyReferencePolicy field-name heuristics and effect-save inspection",
+      "SpellOwnedNpcService numeric Definition.Contains remains candidate filter",
+      "Corpse-animation provenance ID substring checks",
+      "Future native diagnostic digit-collision census and stock-repair coupling to archive classifier"
+    ],
+    "completed_work_to_keep": [
+      "Actual stock bone-armour formula correction and transactional builder-preservation repair",
+      "Registration-only Body shutdown",
+      "Prepayment, lifetime and spawn-admission proof",
+      "Exact ownership claims, real foreign keys and typed item custody",
+      "Canonical historical identity, idempotency and post-commit runtime release"
+    ],
+    "later_milestone_rule": "N14/N15/N16 and subsequent summon/projection/possession/corpse/control/topology work use the same code-proven reference contracts. No sequence of static configuration exemptions.",
+    "full_plan_complete": false,
+    "package_release_enabled": false,
+    "publication_authorized": false
+  },
+  "npc_typed_reference_implementation_20261009": {
+    "status": "TYPED_REFERENCES_QUALIFIED_RETAINED_NPC_ARCHIVAL_AND_COLD_RETRY_PASS",
+    "implementation_commit": "13204460aa4524d5ecce29e6baf0aefc4928166b",
+    "receipt": "Design Documents/Magic/Armageddon_Typed_Reference_Checkpoint_20261009.json",
+    "coverage_ledger": "Design Documents/Magic/Armageddon_Typed_Reference_Implementation_20261009.md",
+    "native_physical_retirement_qualified": true,
+    "completed_cold_retry_qualified": true,
+    "managed": {
+      "status": "PASS",
+      "scope": "Full Core and shared Library; final 173-test reference/archive/retirement/possession subset includes a concrete unsaved possession source regression.",
+      "runs": [
+        {
+          "receipt": {
+            "path": ".artifacts/armageddon-typed-references-20261009/managed/20261009T001957Z-d65c7a211c37/summary.json",
+            "sha256": "874fb01e96a7a8531fb4766f2ad042e54bf55d617f09baa1cbf22ea77e46ccf4"
+          },
+          "run_id": "20261009T001957Z-d65c7a211c37",
+          "status": "PASS",
+          "counts": {
+            "executed": 6606,
+            "passed": 6606,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 6606
+          },
+          "source_start": "faa418a1179fd66e59fec4e783a5d8650003528d2dbfc92e24e1b345f5d952e0",
+          "source_end": "faa418a1179fd66e59fec4e783a5d8650003528d2dbfc92e24e1b345f5d952e0",
+          "source_stable": true,
+          "projects": [
+            "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj"
+          ],
+          "filter": null,
+          "per_project": [
+            {
+              "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+              "counts": {
+                "executed": 5938,
+                "passed": 5938,
+                "failed": 0,
+                "skipped": 0,
+                "inconclusive": 0,
+                "other": 0,
+                "total": 5938
+              }
+            },
+            {
+              "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+              "counts": {
+                "executed": 668,
+                "passed": 668,
+                "failed": 0,
+                "skipped": 0,
+                "inconclusive": 0,
+                "other": 0,
+                "total": 668
+              }
+            }
+          ]
+        }
+      ],
+      "diagnostic_subset": {
+        "receipt": {
+          "path": ".artifacts/armageddon-typed-references-20261009/focused-final/20261009T002403Z-4346690f6b0f/summary.json",
+          "sha256": "bebcb35d4723e22440de0a7a5947b05b7d4a8b39bba4a719b45053ecdcc5cd7e"
+        },
+        "run_id": "20261009T002403Z-4346690f6b0f",
+        "status": "PASS",
+        "counts": {
+          "executed": 173,
+          "passed": 173,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 173
+        },
+        "source_start": "07a3529b47d645e7e726769c8f77e5746c1b55e46ebd20365b6f5ffb241faf06",
+        "source_end": "07a3529b47d645e7e726769c8f77e5746c1b55e46ebd20365b6f5ffb241faf06",
+        "source_stable": true,
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "filter": "FullyQualifiedName~PhysicalReferenceGuardTests|FullyQualifiedName~NpcArchive|FullyQualifiedName~RetiredBodyCleanupTests|FullyQualifiedName~SpellOwnedNpc|FullyQualifiedName~SpellOwnedCorpseAnimationTests|FullyQualifiedName~PossessionVictimContextTests",
+        "per_project": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "counts": {
+              "executed": 173,
+              "passed": 173,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 173
+            }
+          }
+        ]
+      },
+      "authoritative_passed": 6606,
+      "counts_are_not_added": true
+    },
+    "next_bounded_milestone": "N14 installed stock early-death acceptance: cast the approved guardian/summon family through the normal installed command path; retain configured remains and foreign carried goods through original expiry, a cold restart and actual decay, then exercise default dissipation. Use the same code-proven references and preserve canonical history and custody. N15 same-template lifecycle modes and N16 high-volume/per-cycle restart remain separate follow-ups; no static-schema classifier stage.",
+    "full_plan_complete": false,
+    "package_release_enabled": false,
+    "publication_authorized": false
+  },
+  "guardian_early_death_20261009": {
+    "status": "PASS_BOUNDED_N14_BUILDER_INSTALLED",
+    "receipt": "Design Documents/Magic/Armageddon_Guardian_Early_Death_Checkpoint_20261009.json",
+    "runtime_implementation_commit": "f8f28735e98d98bc6205fba99875f1874fd2c3e8",
+    "n14_builder_installed_qualified": true,
+    "full_air_guardian_catalogue_qualified": false,
+    "next_bounded_milestone": "N15: exercise the same approved guardian template through normal builder-installed casting as permanent, temporary cleanup and death-on-expiry; prove permanent no-expiry persistence across restart and exactly one terminal transition for each temporary mode. N16 high-volume/per-cycle restart remains separate; full Air Guardian catalogue and historical timing parity remain pending. No static-schema classifier stage."
+  },
+  "publication": {
+    "scope": "Draft pull request only",
+    "url": "https://github.com/FutureMUD/FutureMUD/pull/788",
+    "number": 788,
+    "draft": true,
+    "merge_authorized": false
+  },
+  "guardian_lifecycle_modes_20261009": {
+    "status": "PASS_BOUNDED_N15_BUILDER_INSTALLED",
+    "receipt": "Design Documents/Magic/Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.json",
+    "runtime_integration_commit": "dac1deee031f4e4726597e88d07af47d5cda3e27",
+    "scenario_revision": "1c78b8c2b2b74d82b1db2b030e41e9c892ad9779",
+    "n15_builder_installed_qualified": true,
+    "full_air_guardian_catalogue_qualified": false,
+    "next_bounded_milestone": "N16: repeat normal builder-installed guardian summon/use/kill/expire with a cold restart on every cycle; qualify stable eligible heavy-row, timer and subscription counts and explain retained canonical history, claims and the ordinary permanent fixture. Full Air Guardian catalogue and historical timing parity remain pending. Use only code-proven references; no static-definition classifier stage."
+  },
+  "guardian_churn_20261009": {
+    "status": "PASS_BOUNDED_N16_BUILDER_INSTALLED",
+    "receipt": "Design Documents/Magic/Armageddon_Guardian_Churn_Checkpoint_20261009.json",
+    "scenario_revision": "01547b72bd87cb080b3152b3c57df9bf561047c3",
+    "n16_builder_installed_qualified": true,
+    "full_air_guardian_catalogue_qualified": false,
+    "next_bounded_milestone": "N17: map and implement the bounded occupied-shelter dependencies for Spring Haven, Burrow Refuge and Sand Shelter, then qualify real utility, finite water, occupied expiry/destruction and safe fallback with preserved actors and foreign goods. Full Air Guardian catalogue/timing parity and other stock/readiness gates remain pending. Use only code-proven references; no static-definition classifier stage."
+  },
+  "next_bounded_milestone": "N20: map and implement bounded Folded Pocket capacity and access using native item custody; reject living targets, pocket nesting and cycles, then qualify transfer, cold restart and collapse with every foreign item released exactly once. Use only declared typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending.",
+  "occupied_shelters_20261010": {
+    "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
+    "receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json",
+    "native_assertions": 248,
+    "managed_passed": 7113,
+    "full_installer_and_source_parity": "pending",
+    "next_bounded_milestone": "N18: map and implement bounded Sand Effigy and Walking Shadow instance/focus/anchor contracts; qualify normal paid creation, focus switching, damage/severing/collapse and cold restart, with canonical identity, skills, resources and owner preserved. Full shelter installer/source parity and other catalogue/readiness gates remain pending. Use only code-proven links."
+  },
+  "owned_projections_20261010": {
+    "status": "PASS_BOUNDED_N18_BUILDER_INSTALLED",
+    "checkpoint": "Armageddon_Owned_Projections_Checkpoint_20261010.json",
+    "managed_passed": 7136,
+    "native_assertions": 166,
+    "paid_casts": 9,
+    "reserve_spent": 90,
+    "known_code_proven_links_only": true,
+    "whole_candidate_complete": false,
+    "next_bounded_milestone": "N19: map and implement bounded Severing Refuge and Apex Bane policies; qualify allowed/blocked element interactions and eligible/ineligible native beings through normal paid invocation. Use explicit native categories and known code-proven links; preserve resisted outcomes, ownership and custody. Full installer/source parity and other catalogue/readiness gates remain pending."
+  },
+  "ward_and_bane_20261010": {
+    "status": "PASS_BOUNDED_N19_BUILDER_INSTALLED",
+    "checkpoint": "Armageddon_Ward_And_Bane_Checkpoint_20261010.json",
+    "managed_passed": 7165,
+    "seeder_armageddon_passed": 169,
+    "native_assertions": 134,
+    "paid_casts": 12,
+    "reserve_spent": 122,
+    "known_code_proven_links_only": true,
+    "whole_candidate_complete": false,
+    "next_bounded_milestone": "N20: map and implement bounded Folded Pocket capacity and access using native item custody; reject living targets, pocket nesting and cycles, then qualify transfer, cold restart and collapse with every foreign item released exactly once. Use only declared typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending."
   }
 }

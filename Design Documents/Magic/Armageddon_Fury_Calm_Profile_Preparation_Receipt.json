@@ -1,0 +1,217 @@
+{
+  "schema": 1,
+  "kind": "independent_emotional_profile_preparation",
+  "created_utc": "2026-10-06T00:03:53.889574+00:00",
+  "status": "verified_preparation_pending_main_allocation",
+  "branch": "codex/armageddon-five-stock-spells",
+  "original_base": "1ad24d636925da64e7a82ffa858b0af470e56b0a",
+  "code_commits": [
+    "c9912223de12cbe38af1d0bda4385875cf8d2d98",
+    "e6599448bfb7bbb35f141326a90839f013867a03"
+  ],
+  "tested_source_commit": "e6599448bfb7bbb35f141326a90839f013867a03",
+  "cleared_content_boundary": "e380f3ebc03eff886092639ccc79e361f328d1c4",
+  "cleared_content_branch": "codex/armageddon-five-stock-cleared-e380f3eb",
+  "runtime_qualified": false,
+  "magic_package_release_enabled": false,
+  "automatic_factory_registration_enabled": false,
+  "paid_fury_calm_qualified": false,
+  "new_runtime_tests": {
+    "FuryCalmStockProfileTests": 44,
+    "FuryCalmPreparedTemplateTests": 9
+  },
+  "implemented": [
+    "independent ordinary stock definition XML and canonical acquisition metadata",
+    "immutable editable Fury/Calm profiles using reviewed source policy",
+    "normal template builder methods, clone/XML repair and explicit refusal gates",
+    "isolated nonparallel preparation factory tests with exact registry restoration",
+    "new dedicated profile harness and explicit blocked paid-native entry"
+  ],
+  "owned_source_files": [
+    "MudSharpCore Unit Tests/FuryCalmPreparedTemplateTests.cs",
+    "MudSharpCore Unit Tests/FuryCalmStockProfileTests.cs",
+    "MudSharpCore/Magic/ArmageddonRousedFuryStock.cs",
+    "MudSharpCore/Magic/ArmageddonStillAngerStock.cs",
+    "MudSharpCore/Magic/Emotions/EmotionalStockProfile.cs",
+    "MudSharpCore/Magic/SpellEffects/SourceEmotionalEffect.Builder.cs",
+    "MudSharpCore/Magic/SpellEffects/SourceEmotionalEffect.cs",
+    "Temporary Scratch App/FuryCalmStockNativeHarness/AcceptancePlan.json",
+    "Temporary Scratch App/FuryCalmStockNativeHarness/FuryCalmStockEntry.cs",
+    "Temporary Scratch App/FuryCalmStockNativeHarness/FuryCalmStockNativeHarness.csproj",
+    "Temporary Scratch App/FuryCalmStockNativeHarness/Run-Preparation.ps1"
+  ],
+  "source_trees": {
+    "MudSharpCore": "242a9dc14215ead19b4d41562c51f7ddab16039a",
+    "MudSharpCore Unit Tests": "af82870d6a6e70de57cc0a07c7c7c188ede5fb21",
+    "Temporary Scratch App/FuryCalmStockNativeHarness": "7d1f30d3e84f54e0990832f93eb637f41b87624b"
+  },
+  "verification": {
+    "strict_fast": {
+      "summary": {
+        "path": ".artifacts/test-runs/fury-calm-profile-final-02/20261005T235751Z-5dd81c1d600f/summary.json",
+        "sha256": "a1199a5ada8a4fbf5c7adf0002360f677617e3a684231c9a15aa4c923bed444d"
+      },
+      "head": "e6599448bfb7bbb35f141326a90839f013867a03",
+      "counts": {
+        "executed": 7822,
+        "passed": 7822,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 7822
+      },
+      "project_count": 10,
+      "source_start": "3da822bb9a8de14a1915094ed04a8559ed4f50ccfeb94c891f9e55a6c65ed75f",
+      "source_end": "3da822bb9a8de14a1915094ed04a8559ed4f50ccfeb94c891f9e55a6c65ed75f",
+      "source_stable": true
+    },
+    "profile_harness": {
+      "summary": {
+        "path": ".artifacts/test-runs/fury-calm-stock-preparation_363449f2934a479591cf7635ea50ad78/summary.json",
+        "sha256": "fd71900172908d718b3cd98b2ee2b0bbdbea1861a5f31d613d960963a5da8825"
+      },
+      "entry": {
+        "path": ".artifacts/test-runs/fury-calm-stock-preparation_363449f2934a479591cf7635ea50ad78/entry.json",
+        "sha256": "3d31f15c8d93df4fd492da2e1d173aaf0781292f7657cb10c25bc253317347cd"
+      },
+      "checks": 9,
+      "source_manifest": {
+        "path": ".artifacts/test-runs/fury-calm-stock-preparation_363449f2934a479591cf7635ea50ad78/source-start.json",
+        "sha256": "5f5b60c0885da22bc46d66e08ddfff168b6956f70b1d1d527269542063552282"
+      },
+      "source_file_count": 5390,
+      "assembly_manifest": {
+        "path": ".artifacts/test-runs/fury-calm-stock-preparation_363449f2934a479591cf7635ea50ad78/assembly-start.json",
+        "sha256": "7e17280b49b3657933b207dac3a207a1bc0e30f5e3e9d705ba6fdcf7322e5f55"
+      },
+      "source_stable": true,
+      "assemblies_stable": true,
+      "runtime_qualified": false
+    },
+    "paid_native_block": {
+      "summary": {
+        "path": ".artifacts/test-runs/fury-calm-stock-preparation_9ad14dc5a0bd487a9b22034484fc00ca/summary.json",
+        "sha256": "66b0231eb077824159728c458567db5159f5142b866953f8e9995182928819fe"
+      },
+      "entry": {
+        "path": ".artifacts/test-runs/fury-calm-stock-preparation_9ad14dc5a0bd487a9b22034484fc00ca/entry.json",
+        "sha256": "a367628a51be3a008dc21ffc11cefec4e973942e0edc4dccb3ed2382da2b1d6d"
+      },
+      "entry_exit": 2,
+      "status": "blocked",
+      "database_started": false
+    },
+    "core_assembly_equality": {
+      "path": ".artifacts/test-runs/fury-calm-harness-final-build-01/core-assembly-match.json",
+      "sha256": "ae7d1aa87902faf25b8645933b5089c0d7ab00c0a434717a637981ad210e8af1"
+    },
+    "core_sha256": "e6ce0663d07d66107133345930db25afa1fb0af8a4b750a427ff446885627d1e",
+    "preserved_boundary": {
+      "path": ".artifacts/test-runs/fury-calm-harness-final-build-01/preserved-boundary.json",
+      "sha256": "7d8524365c2a6ff8e3a8af07d0bd38abe14a5b5350cb41556181d6b275d985c3"
+    },
+    "harness_build_log": {
+      "path": ".artifacts/test-runs/fury-calm-harness-final-build-01/build.log",
+      "sha256": "5ca74e20496916f39b0ca5a249c6829e4b8c01152ee209500ef0a0aba828e019"
+    }
+  },
+  "preserved_failed_attempts": [
+    {
+      "summary": {
+        "path": ".artifacts/test-runs/fury-calm-profile-focused-01/20261005T233423Z-478a464e6d04/summary.json",
+        "sha256": "ac128c984abbbb8b98931c10fa278822953d79088dbcca2db967f17ae02502c1"
+      },
+      "failures": {
+        "path": ".artifacts/test-runs/fury-calm-profile-focused-01/20261005T233423Z-478a464e6d04/failures.json",
+        "sha256": "4eb89d4469ece93be33145e2e4c869a0d0ead32e9cca8c5f803abeef4e4f5eb3"
+      },
+      "diagnosis": "Missing character-target emote/filter fixture;84 passed/2 failed."
+    },
+    {
+      "summary": {
+        "path": ".artifacts/test-runs/fury-calm-profile-focused-02/20261005T234049Z-a0def825bd81/summary.json",
+        "sha256": "db08aaa44261541680dea6f1aa55d5d8c20394102bf9bc3b65bb722e0aead8d6"
+      },
+      "failures": {
+        "path": ".artifacts/test-runs/fury-calm-profile-focused-02/20261005T234049Z-a0def825bd81/failures.json",
+        "sha256": "00d1f4a62a23eeb43a91ad1a5707afcb79b8562a06be36bbad9ded2646e97b02"
+      },
+      "diagnosis": "Character parser fixture returned an unintended deep-mock target;85 passed/2 failed."
+    },
+    {
+      "summary": {
+        "path": ".artifacts/test-runs/fury-calm-profile-final-01/20261005T234626Z-9bff9c68ef34/summary.json",
+        "sha256": "51488e3d8c98db2a12af508f33bcd564ed6200c81a827a5f25c71df881ab264c"
+      },
+      "failures": {
+        "path": ".artifacts/test-runs/fury-calm-profile-final-01/20261005T234626Z-9bff9c68ef34/failures.json",
+        "sha256": "7a61d972b111538e942108bafa30dcc7f038d9407c7ce7609b56f9af085d539b"
+      },
+      "diagnosis": "Automatic staged registration required shared compatibility rows;7821 passed/1 failed. Registration deferred; shared file untouched."
+    },
+    {
+      "summary": {
+        "path": ".artifacts/test-runs/fury-calm-profile-registry-fix-01/20261005T235327Z-3f8f9a3e5aa0/summary.json",
+        "sha256": "6983da57622ed0895a832631677b3ad4c822b7aa948cc28611a60445701ee678"
+      },
+      "failures": {
+        "path": ".artifacts/test-runs/fury-calm-profile-registry-fix-01/20261005T235327Z-3f8f9a3e5aa0/failures.json",
+        "sha256": "fdd5e83b9ef8724d89f146c91cf647a6b3fdda2b5ef4b2e7b78175bd778e62eb"
+      },
+      "diagnosis": "Test-only generic dictionary enumeration caused9 initialization failures;45 passed. Corrected IDictionaryEnumerator snapshot."
+    }
+  ],
+  "earlier_diagnostics": [
+    {
+      "path": ".artifacts/test-runs/fury-calm-harness-build-01/initial-assembly-mismatch.json",
+      "sha256": "3e26ffc1322ee727e3e4a0ff8595779033ff5d8fb3cba395dca106a2e989f93e"
+    }
+  ],
+  "successful_focused_runs": [
+    {
+      "path": ".artifacts/test-runs/fury-calm-profile-focused-03/20261005T234239Z-bcc516171276/summary.json",
+      "sha256": "b1486a5ec1de4aba37cb44d1ec331dcf864452a826a27bfb45a27cdaca0c4c66"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-profile-registry-fix-02/20261005T235424Z-9f0b2d6c27b5/summary.json",
+      "sha256": "0c60fe95b2b67e3d399e3c2787902256d245c1d98b76968a35575bf8a4da0fbe"
+    }
+  ],
+  "main_integration_contributions": {
+    "prospective_contract_commit": "fdba0e03f6b6cf3a3a4df9197e9ff42c2697c255",
+    "attack_payload_signature": "AdmittedHostileAttack(IPerceiver Attacker, ICharacter Recipient, Guid OperationIdentity)",
+    "effect_callback_signature": "IAdmittedHostileAttackEffect.OnAdmittedHostileAttack(AdmittedHostileAttack attack)",
+    "cessation_signature": "ICombatSelectiveCessation.CeaseCombatFor(IPerceiver subject, IPerceiver opponent, ICombat expectedCombat)",
+    "identities": "Unique nonempty identity per actual child attack after final admission, exact physical identities rechecked after callbacks; no wrapper-enumeration or damage-only notification.",
+    "shared_scroll_unsupported_rows": [
+      "sourcefury",
+      "sourcecalm"
+    ],
+    "registration": "Enable automatic RegisterFactory only after compatibility/live hook allocation.",
+    "trait_binding": "Installer supplies real TraitType.Attribute ID and explicit positive finite UnitsPerSourcePoint. No lane seeder inference implementation.",
+    "live_files_not_changed": [
+      "FutureMUDLibrary",
+      "DatabaseSeeder",
+      "Temporary Scratch App/GatheringNativePersistenceHarness",
+      "Design Documents/Magic/Armageddon_Completion_Progress.md",
+      "Design Documents/Magic/Armageddon_Completion_Progress.json",
+      "MudSharpCore/Magic/MagicSpell.cs",
+      "MudSharpCore/Magic/Casting/MagicCastingService.cs",
+      "MudSharpCore/Combat/CombatBase.cs",
+      "MudSharpCore/Character/CharacterCombat.cs",
+      "MudSharpCore/Effects/Concrete/SpellEffects/SpellEmotionalEffect.cs",
+      "MudSharpCore/Magic/Vancian/ScrollSpellCompatibility.cs"
+    ]
+  },
+  "remaining_limits": [
+    "No database construction factory or stock command/installer registry addition yet.",
+    "No live main-owned attack/casting/cessation hook or shared API declaration added.",
+    "No actual paid low/high Fury/Calm, resisted combat cessation or incoming attack-break native qualification.",
+    "No independent-process database reload, full-world stamina prog, expiry/dispel or custody qualification for these definitions.",
+    "Historical undead/Quickening/Insomnia/Mul/Thodeliv setting exceptions remain explicitly unmapped.",
+    "Direct legacy cast is unsupported; configured prepayment refusal is tested.",
+    "Previous native See/five-stock/four-weapon receipts preserved; not rerun as native gameplay under this preparation revision.",
+    "Magic package remains disabled in release until ready; unqualified lane tips excluded."
+  ]
+}

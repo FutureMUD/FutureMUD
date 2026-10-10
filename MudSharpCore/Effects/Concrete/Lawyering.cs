@@ -39,6 +39,9 @@ public class Lawyering : Effect, IEffect
     #endregion
 
     #region Overrides of Effect
+	public override IEnumerable<PhysicalEntityReference> PhysicalReferences =>
+		[new PhysicalEntityReference(PhysicalEntityKind.Character, _engagedByCharacterId ?? 0, "EngagedBy")];
+
     protected override string SpecificEffectType => "Lawyering";
 
     public override string Describe(IPerceiver voyeur)

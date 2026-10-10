@@ -34,6 +34,9 @@ public class HasLegalCounsel : Effect, IEffect
     #endregion
 
     #region Overrides of Effect
+	public override IEnumerable<PhysicalEntityReference> PhysicalReferences =>
+		[new PhysicalEntityReference(PhysicalEntityKind.Character, _lawyerId, "Lawyer")];
+
     protected override string SpecificEffectType => "HasLegalCounsel";
 
     public override string Describe(IPerceiver voyeur)

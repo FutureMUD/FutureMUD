@@ -667,6 +667,8 @@ public partial class Character
         EffectHandler.RemoveAllEffects(x =>
             x.GetSubtype<Rescue>()?.RescueTarget == CombatTarget ||
             (x.GetSubtype<GuardCharacter>()?.Targets.Contains(CombatTarget) ?? false));
+		if (target is ICharacter guardedTarget) SpellNpcGuardian.NotifyEngagement(this, guardedTarget);
+		if (!CommandExecutionScope.TryContinue(this)) return false;
         return true;
     }
 

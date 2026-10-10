@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using MudSharp.Database;
 using MudSharp.Magic;
+using MudSharp.RPG.Checks;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -17,6 +18,7 @@ public sealed record ArmageddonPreparedWorldBindings(ArmageddonMagicInstallPlan 
 	ArmageddonProvisionInstallPlan? Provisions = null)
 {
 	public ArmageddonWaterSeeBindings? WaterSee { get; init; }
+	public ArmageddonEmotionalBindings? Emotions { get; init; }
 }
 
 public sealed partial class ArmageddonMagicSeeder
@@ -26,7 +28,8 @@ public sealed partial class ArmageddonMagicSeeder
 	private static readonly JsonSerializerOptions JsonOptions = new()
 	{
 		UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,
-		Converters = { new JsonStringEnumConverter<MagicGatheringMethodKind>(allowIntegerValues: false) }
+		Converters = { new JsonStringEnumConverter<MagicGatheringMethodKind>(allowIntegerValues: false),
+			new JsonStringEnumConverter<Difficulty>(allowIntegerValues: false) }
 	};
 	private static bool IsYes(string answer) => answer.Trim().Equals("yes", StringComparison.OrdinalIgnoreCase);
 	public IEnumerable<SeederQuestion> Questions => !Enabled ? Array.Empty<SeederQuestion>() :

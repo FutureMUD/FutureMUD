@@ -1,5 +1,7 @@
 # ARM-01 candidate repertoire register
 
+Current continuation: [2026-10-08 checkpoint](Armageddon_Continuation_20261008.md) and [machine-readable inventory/evidence](Armageddon_Continuation_20261008.json). Current branch is `codex/armageddon-continuation-20261008`, based on Room master `07146cdc8a38fd23040281b58c6544d45f260cd2`. Old baseline, device/installer pending fields and unresolved Fury allocation statements below are historical; later receipts and the current ledger supersede them. The exact 154 dispositions and 82 Sorcerer memberships remain in scope. Full programme and native readiness are incomplete.
+
 Canonical data: [Armageddon_Repertoire.json](Armageddon_Repertoire.json). Historical inventory preparation revision: `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`. Current implementation baseline: `b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38`.
 
 Status: approved completion scope; runtime, stock and native qualification remain in progress. The exact selected roster is in [Armageddon_Sorcerer_Source_Tree.json](Armageddon_Sorcerer_Source_Tree.json); all 154 dispositions and 25 native cases are tracked in [Armageddon_Completion_Progress.json](Armageddon_Completion_Progress.json). This completion authority supersedes historical proposal text below. This rendering is generated from the JSON; source labels are provenance, not stock player-facing names.

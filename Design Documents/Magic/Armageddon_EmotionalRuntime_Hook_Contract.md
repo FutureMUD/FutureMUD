@@ -1,5 +1,7 @@
 # Emotional runtime integration allocation
 
+Historical preparation/planning record. Its allocation/refusal statements describe that checkpoint. Current paid runtime, factory registration and optional installer mappings are documented in [Fury/Calm runtime](Armageddon_Fury_Calm_Runtime.md) and the [2026-10-08 continuation](Armageddon_Continuation_20261008.md). Native acceptance remains unrun; old receipts are preserved as history.
+
 Planning packet only. Luke approved Fury's attribute bonus using the existing seeder inference, owned by the installer. Stock owns the reviewed Fury/Calm effects and lifetime. Calm breaks on an admitted incoming hostile attack, including a miss. MAIN owns the narrow attack-admission notification and cessation of the exact hostile pair. This checkpoint changes no emotional runtime hooks.
 
 The proposed notification takes the exact physical attacker, intended character recipient and an identity for the admitted attack operation. Emit it once after the operation's final eligibility/authority check and before hit, miss or damage resolution. Notify only recipient effects that opt into this contract. Recheck authority and the captured physical identities after effect callbacks; preserve independent defender attacks. An attack refused before admission emits nothing. Each admitted child of a multi-target action qualifies separately. Direct component attacks need an explicit operation identity and admission receipt; a move's target enumeration alone is insufficient.

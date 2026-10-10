@@ -1,10 +1,61 @@
 # Spell-owned lifecycle foundation
 
+## Bounded owned identity projections (N18)
+
+The `createprojection` effect uses the existing canonical character identity, secondary
+instance, focus and planar services. Sand Effigy creates one new temporary body/instance
+and one plain approved holdable figurine. Walking Shadow creates one new temporary
+body/instance on an explicitly selected nonmaterial plane. Neither creates a character,
+borrows a permanent form, copies inventory nor inserts canonical skill or resource rows.
+The caster must be a living non-guest PC at its persisted primary instance in a stable
+ordinary room, outside route travel, riding and movement. One unfinished projection per
+identity is admitted. Invalid policy, source, prototype or duplicate creation refuses before
+payment; prepared selection retains the exact body/instance/location and authored policy.
+
+Builders explicitly choose occupied plane, seconds per grade (one day maximum), Walking
+Shadow range (0-32 native room edges), ordinary closed-door passage, positive energy cost
+and severing/damage backlash (0-1000 native cellular damage). Sand Effigy has zero range
+and remains visibly identifiable as sand. Both support observation and hearing; physical
+manipulation, combat, medical actions and other outgoing planar interactions are unavailable.
+Walking Shadow moves through admitted native exits on its anchored layer. Teleportation,
+layer changes, route travel and destinations beyond range refuse before displacement.
+Its primary body remains present and helpless while focus is on the shadow.
+
+Creation atomically records the exact newly inserted body, secondary instance and optional
+item claims in `native-identity-projection-v1`. The versioned `ProjectionAnchor` stores the
+primary instance/body, native room/layer/coordinate and policy. The runtime boundary is
+installed before secondary room exposure. Creation does not automatically change focus;
+use `instances`, then its numbered `focus` selection. Activation failure disables control,
+returns focus and retains durable retirement intent without recreating the graph.
+
+Expiry, logout/reboot, destruction, primary-body displacement/death and damage to either
+body or figurine return focus and retire only those creation-proven rows. Damage callbacks
+record intent and disable control; the bounded world pulse removes the graph after the
+health callback has finished. Configured backlash applies on damage or anchor severance.
+Its attempt is journalled before native health delivery; an interrupted attempt holds for
+review and is never replayed.
+Native movement/combat callbacks finish before the deletion checks. Other live physical
+bindings hold retirement. After the exact instance row is removed, runtime detachment
+only unregisters the secondary, its room/route membership, exposure and body ticks;
+it does not fire room-leave events or archive the canonical identity. Cold inventory
+recovery uses an unexposed, uncontrollable custodian for the exact secondary so primary
+effects and control do not become the projection body's cleanup context.
+Foreign goods in the temporary body are evacuated through
+the existing native custody rollback adapter. Unknown effects, lodged or installed goods,
+typed physical references and undisposed declared EF relations hold cleanup. No numeric
+text scans or guessed reference fields authorize deletion. Cold recovery loads body and
+inventory relationships inside a live database scope, preserves the owner and paid reserve,
+and collapses the projection rather than extending its deadline or rebuilding it.
+
+This is bounded builder stock. The partial installer, exact historical two-stage figurine
+casting, high-power resemblance, legacy affect-unit timing, all-grade/source balance and
+whole-programme Release readiness remain separate gates.
+
 Phase3B1 adds the conservative canonical NPC archival boundary described below. Phase3B2A
 connects explicit `createnpc` lifecycle provenance to native simple-template construction and
 persisted death/remains recovery. Phase3B2B connects bounded simple-NPC retirement to
 native death, ordinary corpse deletion/decay, conserved foreign custody and canonical
-archival. Complete installed-world N14-N16 and the other creation adapters remain outstanding.
+archival. The bounded builder-installed [N14 guardian checkpoint](Armageddon_Guardian_Early_Death_Checkpoint_20261009.md) now qualifies early death, remains/custody, restart/decay and default dissipation. The bounded builder-installed [N15 lifecycle modes checkpoint](Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.md) also qualifies permanent no-expiry persistence and both temporary modes with stable terminal state across cold restart. The bounded builder-installed [N16 churn checkpoint](Armageddon_Guardian_Churn_Checkpoint_20261009.md) qualifies 32 paid cycles with cleanup before every cold restart and a separate continuous 128-output batch. Full catalogue parity and the other creation adapters remain outstanding.
 
 ## Native NPC creation and death recovery
 
@@ -29,9 +80,39 @@ additional-body guard. Withdrawn approval, a mismatched template world and an un
 native lifecycle service also refuse during configuration validation. Ordinary creation keeps
 its existing role/trait timing and merit composition; extra-body ownership remains deferred.
 
-Resolved temporary lifetime and spawn validation remain effect-application checks after the
-casting result. Lifetime expressions may depend on opposed outcome. This admission correction
-does not move their evaluation or qualify a complete installed gameplay session.
+Configured lifecycle NPC casting now prepares an invocation-local token for each recipient.
+Known invalid spawn rooms, route coordinates and world identity refuse before payment. The
+token retains the approved native template identity/revision/definition, lifecycle service,
+caster body/instance and raw room/layer/route/movement frame. Fresh casting copies reuse those
+tokens. Callback-free structural fences run after all live selection confirmations so a later
+confirmation cannot invalidate an earlier NPC admission and still take payment.
+
+Temporary lifetime preflight uses the casting copy's actual captured expression. Only formulas
+whose parsed inputs are fixed grade, power and mastery, with no trait parameters or functions,
+are evaluated before the roll. Nonpositive, nonfinite, strict-evaluation failures and unrepresentable
+UTC deadlines refuse before payment/reservation/proficiency. Outcome, variable/trait and function
+formulas remain deferred. All formulas retain their existing post-roll evaluation and native
+trait-read timing; the pure precheck does not substitute a cached lifetime. Spawn position is
+resolved again at application, preserving clock-based effective movement rather than freezing
+a prepared coordinate. Legacy creation and permanent lifetimes retain their existing policy.
+The [NPC prepayment checkpoint](Armageddon_Npc_Prepayment_Checkpoint_20261009.json) records 152
+focused managed passes and real payment/refusal/creation cases in the owned restored world.
+The [archival continuation](Armageddon_Npc_Archival_Checkpoint_20261009.json) adds verified Agriculture/Armour
+codecs and registration-only Body shutdown, retaining its historical 5,980 Core passes.
+The [stock armour repair checkpoint](Armageddon_Npc_Armour_Repair_Checkpoint_20261009.json)
+fixes both seeded chopping defaults and qualifies their exact owned-world correction with
+1,613 Seeder and 102 focused Core passes plus native transaction/preservation checks.
+The [AI reference checkpoint](Armageddon_Npc_AI_Reference_Checkpoint_20261009.json) is historical
+classification evidence; its native Autobuilder hold is superseded by the
+[code-proven reference implementation](Armageddon_Typed_Reference_Implementation_20261009.md).
+The replacement removes numeric text searches, guessed Id fields and archive-only static
+classifiers across archival, earlier body cleanup, remains recovery and corpse provenance.
+The [fresh checkpoint](Armageddon_Typed_Reference_Checkpoint_20261009.json) records 6,606 full
+Core/Library passes, a 173-test focused subset and 60 passing native assertions. Both retained
+paid NPCs physically retire, and a separate process preserves exact completed/archive rows.
+Original ownership, custody, death/history, stock repair and registration-only shutdown
+contracts remain. No Autobuilder classifier is planned. The later builder-installed N14 checkpoint qualifies its bounded scenario; full catalogue and N15/N16 remain pending.
+Earlier creation/retirement receipts do not establish full current lifecycle readiness.
 
 Preparation allocates a stable creation key and canonical creator ID. A fresh serializable
 transaction inserts the production NPC/Character/Body/primary instance graph and exact
@@ -54,6 +135,45 @@ activation-pending identities. Crash recovery does not recreate the NPC or rerun
 Permanent creation completes its journal after activation and becomes an ordinary durable NPC
 without a deadline. Temporary creation retains active ownership evidence.
 
+Lifecycle `createnpc` also supports `count <1-128>|grade` and `guardcaster`. Legacy and
+existing lifecycle XML default to one NPC without a creator bond. Grade counts use the
+requested casting grade, without a universal total-active summon cap. One paid application
+creates independent lifecycle keys and native graphs for each output. The pure admission
+token includes count/protection policy, caster state and exact loaded actor membership.
+Each output rechecks those guards: an on-load callback that quits, unloads or disables the
+caster stops the remaining group and retains the paid operation for review without replay.
+
+`SpellNpcGuardian` stores the exact canonical creator and physical instance IDs. It resolves
+loaded actors, including NPC creators, follows through native movement and supplies the
+existing guard/interpose combat contract. Engagement notification occurs after assigning
+native combat targets and before the first attack; a guardian can switch from another fight
+and engage a visible ranged attacker through ordinary native combat. Death/removal/quit
+releases its subscriptions. Its live and saved references use those two proven scalar fields;
+reference checks do not resolve an actor or search serialized text for IDs. After durable
+retirement intent, the matching lifecycle creator's bond stops protection and releases only
+its exact outgoing follow relationship and owned effect, including on persisted-dead reload.
+Other follow targets, combat, riders, incoming
+followers and all other runtime dependencies retain the existing retirement guards.
+Suspension is saved on the bond. Activation also checks exact durable NPC/body ownership
+and pending retirement before resolving the creator or subscribing, so restart or a crash
+before the effect snapshot cannot reactivate a retiring guardian's bond.
+
+Dead-body custody and archival also admit the exact native `LimbSpinalDamageEffect` class
+when its owner/body/limb references match the captured body, it is unsaved and unscheduled,
+and it has no applicability prog. These derived health effects stay attached during custody
+transfer; exact membership, limb references and those eligibility conditions are checked again
+after transfer callbacks. Other effects, subclasses, foreign limbs and changed state still hold.
+Persisted effects and external physical references retain their existing archival guards.
+This does not remove limb damage or authorize transfer of an unadapted effect graph.
+
+Builders can install the bounded Air Guardian stock path with
+`magic spell edit new stock air-guardian <school> <casting trait> <resource> <approved NPC template> <lifetime expression in real seconds>`.
+It creates one guardian per requested grade, with creator protection and TemporaryCleanup
+by default. The supplied template, explicit real-second lifetime and nine-energy minimum
+on the shared source-efficiency curve are authored native mappings. The proposed historical duration has no recovered unit
+conversion; complete template/component/prerequisite/seeder catalogue parity is still pending.
+This builder path does not enable the full Armageddon package or establish Release readiness.
+
 `NPC.Die` correlates only after the native method has persisted death and created its optional
 remains. Actual corpse insertion is saved before recording its ID, and the journal independently
 checks dead state and the exact body in persisted remains XML. Pre-death events are not death
@@ -64,9 +184,10 @@ After startup NPC load callbacks and on the minute heartbeat, a bounded persiste
 unobserved dead owned NPCs, including early deaths whose original deadline is still future.
 It rotates its cursor, reads exact body ownership and correlates zero or one persisted remains
 reference without materializing a dead Character/Body/controller/AI graph. Multiple matches,
-malformed candidates, changed bodies or a census over 256 candidate component rows hold.
-The candidate census includes numeric XML character references, whose decoded body IDs must
-not be mistaken for absence merely because the raw serialized digits differ.
+malformed known remains contracts, changed bodies or more than 100,000 known remains component rows hold.
+The candidate query joins exact component prototype ID/revision and selects only Corpse/Bodypart.
+It reads their actual original-body fields and final-death legacy owner lookup; XML character
+entities are decoded normally, without searching raw definition text for IDs.
 Observation cancels the need for a second native death; retries do not change existing remains,
 recast, delete rows or replay callbacks. Persisted death recovery itself does not evacuate
 custody; the separate retirement pass below consumes that correlation.
@@ -216,19 +337,36 @@ nickname-inclusive archive display name. Anonymous/printed writing keeps its con
 provenance. Accountless live NPC
 authors display without requiring an account.
 
-The bounded serialized scan covers definitions, effects, data/value fields, route motion,
-computer process state/result/wait arguments, tattoos, injury extras, procedure parameters,
-employment payload/arguments, strategy data and land-detail JSON. XML leaf/attribute values
-and decoded JSON values/keys are checked for canonical/body/instance/wound references;
-malformed or oversized payloads hold. Numeric namespace collisions may conservatively hold.
-This is explicit support for the audited persisted surfaces, not proof about arbitrary new
-extension encodings. New identity-bearing surfaces require classification before enabling
-compaction for them.
+The shared [typed reference guard](../../MudSharpCore/Character/PhysicalReferenceGuard.cs)
+uses actual EF foreign keys and exact discriminator/identity pairs. Incoming FKs to deleted
+CharacterInstance and Wound principals must belong to the proven removal set. Item owner
+and position targets, and unloaded character/instance position targets, retain their type.
+Generated instance uniqueness keys remain established ownership, not guessed references.
 
-Unmapped numeric ID properties are checked as well; non-receipt references without a
-classified FK/key hold rather than relying on their field name to imply ownership.
-The instance's generated `EmbodiedBodyId` and `PrimaryCharacterId` uniqueness keys are
-classified only when every matching row is already in the audited removal set.
+Known persisted channels are Character/CharacterInstance/Body/GameItem/Room EffectData,
+Corpse/Bodypart components selected by exact prototype type/revision, Group member definitions,
+Character-typed variable values/defaults, route Character participants and active computer
+UserInput waits. Pure readers parse only identity fields consumed by their concrete codecs.
+Nested spell children retain their own contracts; stored spell configuration remains static.
+Character, Body, CharacterInstance and Wound numbers cannot collide across identity domains.
+Malformed known identity contracts hold with source row and field diagnostics. Inspection is
+bounded at 100,000 known rows and 1 MiB per payload, without selecting arbitrary text columns.
+
+Live effects expose [direct typed references](../../FutureMUDLibrary/Framework/IPhysicalEntityReferenceProvider.cs),
+including non-saving effects, child effects and effects on inactive loaded bodies. Private
+identity fields are reported without resolving lazy actors or invoking effect save/load,
+initialization or prog callbacks. Earlier retired-body cleanup uses the same guard, including
+Bodypart wound dependencies. Existing forms, possessions, foreign ownership and real remains
+still hold. NPC Quit and post-archive body release keep registration-only heartbeat shutdown.
+
+Agriculture, Armour, AI and Autobuilder definitions are outside retirement queries; their
+archive-only validators are removed. Recorded history, audience/access identity and static
+IDs have explicit consumer-based exclusions. WitnessedClanMemberDeath's Member remains a
+hold because its current display resolves/caches a live clan member. PossessedBody source
+character/instance fields remain lifecycle links used by death and quit. See the
+[coverage and exclusion ledger](Armageddon_Typed_Reference_Implementation_20261009.md).
+New physical relationships must declare their live provider and persisted codec fields;
+there is no generic numeric-text or guessed-property fallback.
 
 On success, `Characters` retains its canonical ID, bounded identity fields and dead state,
 sets `IsArchived`, clears its physical body pointer and active outfit/position data, and gains
@@ -409,7 +547,8 @@ still dead in runtime and persistence. It refuses abandoned/nonfinal bodies pend
 a cold-load adapter. Runtime and saved ownership checks reject foreign body pointers,
 instances, forms, sources and retirement records, external attachments and route
 positions. Source identity, body, corpse and carried goods are borrowed, never owned.
-Only one active animation may borrow a particular corpse; there is no universal
+The borrow check reads versioned CorpseAnimation provenance and its exact instance claim;
+it compares the decoded corpse field, never a numeric ID substring. Only one active animation may borrow a particular corpse; there is no universal
 one-summon cap. Existing AI metadata and shared canonical resources remain native.
 
 Expiry, dispel, dismissal, actor death and actor Quit converge on durable retirement.
@@ -599,10 +738,47 @@ The lightweight lifecycle/claim journal deliberately has no entity FKs and does 
 canonical deletion. Bounded journal retention/archival is a later explicit policy; these
 receipt tables currently retain ownership evidence rather than purging it automatically.
 
-N14 and N15 have the bounded controlled native coverage described above. N16 has sixteen
-native steady-state cycles and separate fault/decay readers; high-volume installed-world
-acceptance and restart on every cycle remain pending. Earlier Phase3A persistence/body
-checks remain supporting evidence, not substitutes for complete installed gameplay.
+N14 and N15 have the bounded controlled native coverage described above. Earlier N16
+support covered sixteen native steady-state cycles and separate fault/decay readers.
+The [installed N16 checkpoint](Armageddon_Guardian_Churn_Checkpoint_20261009.md) now qualifies 32 paid cycles with
+cleanup before a cold restart on every cycle, plus 128 outputs cleaned up in one
+continuous process. Earlier Phase3A persistence/body checks remain supporting evidence.
+
+The installed N16 harness uses `debug census <creator id>` to observe real loaded
+collections, both schedule heaps, all heartbeat generations and the creator's exact
+guardian/follow event delegates. It compares them after cleanup **before** restarting
+so process teardown cannot conceal a subscription or timer leak. Canonical archives,
+original typed claims, durable terminal journals and evacuated ordinary goods are
+expected retained state. The N15 permanent guardian remains ordinary durable output.
+All seventeen qualifying stages and their owned cleanup receipts pass with identical
+common runtime source/binary inputs. Normal cycles and the corrected batch have
+separately pinned scenario revisions, with 2,728 native assertions. The Core/Library
+suites pass 7,069 tests. Fixture timings, retained failed attempts and the separate
+native recovery are recorded in the checkpoint. Full stock catalogue parity remains pending.
+
+The N16 disposable fixture uses native `improver set nogain 0` on the explicit
+skill-to-improvement-model links whose runtime models produce skill cooldowns.
+Existing effect schedules expire naturally in a bounded preflight. Combat and skill
+improvement remain active, while incidental ordinary cooldowns cannot change the
+qualification baseline. All actual scheduled entries remain included in the census;
+each stage restores the original improver definitions byte-for-byte while stopped.
+
+The continuous batch submits all 64 native death commands, then waits at most sixty
+seconds for exactly 64 durable early-death timestamps. Each death must precede its
+original 240-second deadline; the lifetime and ordinary scenario deadline remain fixed.
+The in-progress receipt captures the exact original recipient room before cleanup.
+All sixteen normal-stage receipts must share a pinned scenario revision and input
+set. The batch may use a separately recorded client-script revision only when every
+common runtime source and binary hash matches those normal receipts. A read-only
+interrupted-batch audit and separate native recovery preserve paid history and foreign
+custody; neither qualifies gameplay. Audit IDs are validated before interpolation;
+historic missing-room receipts require the preceding qualified fixture room as an anchor.
+
+The harness snapshots all nineteen explicit lifecycle fields through MySQL `JSON_ARRAY`.
+Empty diagnostics and null fields retain their distinct values even when the shared SQL
+helper strips stdout boundaries. Comparison uses exact field tuples keyed by lifecycle
+identity; no field is omitted or guessed. A separate read-only transport audit starts no
+MUD and cannot qualify gameplay or replace the installed campaign.
 
 The ordinary backup regression fixture separately exercises the native backup transfer
 helper, an atomic form/remains save failure and retry, a separate-process real corpse reload
@@ -641,6 +817,209 @@ Consumed material plan grade <number> <grade 1-7>|all is persisted, displayed an
 Recovered spell_sand_jambiya uses component-free grades1-6 (objects456-461), then get_componentB(Creation,7) rank>=6 consumption and random permanent1378-1385 staff output at mon. Temporary heap duration is ((grade+1)*3000)/2, mapped using the shared event loop nominal0.75 seconds/unit to (grade+1)*1500*0.75 seconds. There is no shadow half-duration. Builder grade pools, permanent-grade switch, direct material selection and existing item ownership journal are reused without changing the shared lifecycle schema.
 
 Enough-sand source includes five sectors plus room sandstorm flag or numeric weather condition>=2.5; wrapper refuses Inside/City first. This bounded native stock maps those to editable terrain names, a typed64-bit room tag and a builder-selected weather event, with a controlled controller in acceptance. It targets the caster and preserves foreign custody on restart/expiry. Historical sector/condition parity, other-recipient placement, privileged source component exemptions, charged staff payloads, all random outcomes and complete installed-world acceptance remain pending. See Armageddon_SandKnife_Stock_Verification.json for exact evidence and limits.
+
+## Native occupied shelters
+
+`createshelter` implements Spring Haven, Burrow Refuge, Sand Shelter and Severing Refuge through
+the existing paid casting and exact ownership journal. The builder selects an
+approved indoor native room template, allowed source terrains, a permanent safe
+fallback, seconds per grade and a capacity of 1–128 physical occupants. Burrow
+Refuge places its room below the recorded source by the configured `depth` of
+1–128 native grid levels. These are authored native policies; historical terrain,
+timing and catalogue parity remain separate.
+
+One private transaction creates the temporary Room, its RoomOverlay, an ordinary
+non-cardinal entrance and their exact joins. The journal claims only those rows
+and, for Spring Haven, its finite immovable liquid-container item. `RoomOverlay`
+is an appended ownership kind; no schema migration is needed. Birth records the
+source room/overlay, source route point and configured fallback through the strict
+versioned `SpellShelterAnchor` format. Payment admission and application compare
+the prepared native identities, overlays and configuration. Stored/scroll delivery
+is explicitly unsupported.
+
+Normal movement and forced room entry share the capacity/deadline guard. Admission
+counts persisted physical instances and present actors, including offline residents.
+A resident can reconnect to a retained shelter while new entry is closed. Only the
+native `Room.Login` context can restore an exact persisted resident without current
+room membership. Ordinary and forced entry use the same active/deadline/capacity
+gate. Already loaded physical instances supply their actual position before their
+next save; unloaded instances retain their declared persisted room. Canonical cache
+lookups do not materialise offline actors. Legacy and current membership do not
+count the same occupant twice. Rejected displacement stops before companion or
+floor-item transfer.
+
+Unsaved NPC instances have no durable instance ID yet; each distinct runtime reference
+consumes its own place. ID zero never proves persisted reconnect authority. Stale room
+membership is ignored when the actor's actual location differs. A full or closing
+shelter remains a visible exit and movement returns a useful refusal before physical
+mutation. Public deletion reports a held room as retained for recovery.
+
+Expiry or public room deletion closes entry and evacuates live and cached actors,
+offline canonical/instance positions and unclaimed ground items. Riding links are
+released before moving either endpoint. Native callbacks are fenced: a callback's
+new custody is preserved, and membership is reconciled from the actual final native
+position. No borrowed character, body or foreign item is claimed or deleted.
+Discriminated position targets and declared EF foreign keys supply reference checks;
+there is no numeric text scan or guessed definition field.
+
+Native command-log rows retain their IDs, account, character, time and command bytes.
+Their non-null Room foreign key is redirected to the resolved safe return room in the
+retirement transaction, so topology deletion cannot cascade-delete the audit history.
+Exact room-only `PermitWork` effects are removed while the room still exists, including
+unloaded identities' `Characters.EffectData`; permission is never broadened to the
+return room. Property/controller permits and known backup, home, pursuit, spy and NPC
+location-memory references hold for explicit recovery. The readers inspect only each
+concrete effect's native room field, including the exact `Children/Effect` envelope of
+`MagicSpellParent` and `SubstanceExposure`. Instance metadata is a separate contract.
+Unregistered room occupants receive the same guard as registered and cached actors.
+
+Retirement uses the recorded permanent source and route point, then the explicitly
+configured safe permanent fallback. If neither is safe, the closed topology and its
+occupants remain recoverable with a durable diagnostic. Unknown hooks, effects,
+relational dependencies or altered topology associations also hold deletion. Repair
+and startup reconciliation retry the original graph and absolute deadline without
+another cast, payment or creation.
+
+Severing Refuge snapshots a builder-authored union of native school IDs and magic
+tag names, Incoming/Outgoing/Both coverage and the school-descendant policy. Its
+one `SpellShelterWard` participates in the existing contextual interdiction path
+with Fail mode. School or invocation-tag matches block covered deliveries; tag
+values do not change this selection. Physical hazards and other ordinary room
+mechanics continue through their native systems. This does not establish a
+universal elemental taxonomy or immunity.
+
+The exact lifecycle/spell/configuration ward is persisted in the private room
+transaction and loaded before the room or entrance is exposed. Its strict
+`SpellShelterAnchor` journal is version 2; existing unwarded shelters retain
+version 1. Entry and active reconciliation verify the native ward authority.
+Missing or changed authority refuses entry and records a recovery diagnostic;
+restart retains the original absolute deadline. A missing ward can be retired
+safely, while changed or foreign effects hold teardown for explicit recovery.
+
+Retirement checks both runtime effects and the exact persisted native envelope
+before evacuation and again at the final transaction. Position-target callbacks
+run before those final save and authority fences. After committed deletion,
+the exact owned ward is forgotten without removal callbacks or environmental
+exposure advancement; unrelated effects cannot receive this exemption.
+
+Spring Haven supplies its configured finite grade-scaled mixture once. Ordinary
+fill/drink/empty mechanics own subsequent consumption. Remaining water becomes an
+ordinary puddle in the safe destination, while all foreign surface liquid and residue
+on the floor and basin exterior are transferred through the native room surface state.
+The basin must have exact direct runtime floor custody and exactly its claimed
+persisted room link. Foreign containment, inventory, second room links and other
+declared item dependencies hold removal and preserve the custodians. The destination quantity and
+exact topology removal commit together. Runtime activation resumes per component
+after an interruption; it does not spill or recreate another quantity on retry.
+
+Create the builder-installed stocks with:
+
+```text
+magic spell edit new stock spring-haven|burrow-refuge|sand-shelter
+  <school> <casting skill> <resource> <indoor template room> <source terrain>
+  <fallback room> <seconds per grade> <capacity>
+  [Spring Haven: <immovable liquid-container prototype> <liquid> <litres per grade>]
+```
+
+The `createshelter` effect editor exposes `kind`, `template`, `terrain`, `fallback`,
+`lifetime`, `capacity`, `depth`, `water`, `liquid` and `litres`. Add the resulting spell
+to the intended casting capability. Full installer composition, source parity, all
+grades, high-volume shelter churn and release readiness require their own evidence.
+
+Severing Refuge additionally requires one initial school or tag selector:
+
+```text
+magic spell edit new stock severing-refuge <school> <casting skill> <resource>
+  <indoor template room> <source terrain> <fallback room> <seconds per grade>
+  <capacity> school|tag <selector> Incoming|Outgoing|Both
+magic spell set effect 1 ward school <school>
+magic spell set effect 1 ward tag <tag name>
+magic spell set effect 1 ward coverage Incoming|Outgoing|Both
+magic spell set effect 1 ward subschools true|false
+```
+
+School/tag editor commands toggle individual selectors. At least one and at most
+64 distinct selectors are required. Quote names containing spaces. Changing the
+stock definition affects the next invocation; an existing refuge keeps its
+recorded ward and deadline.
+
+## Bounded Apex Bane stock
+
+```text
+magic spell edit new stock apex-bane <school> <casting skill> <resource>
+  <Boolean eligibility prog (target,caster)> <resistance trait> <difficulty>
+  <damage per grade> <maximum damage> <damage type>
+```
+
+Apex Bane uses the ordinary character trigger, compiled Boolean eligibility
+prog, native opposed resistance and native damage effect. Builders can author
+eligibility with `hasmagictag` or other existing predicates rather than creature
+names or a setting-specific race list. Damage binds grades 1–7 through
+`min(maximumDamage, damagePerGrade*grade)` and creates actual native wounds.
+Eligibility is rechecked before payment; ward or resisted outcomes after payment
+retain the charge. The existing native self-target resistance exemption remains.
+The source efficiency minimum is 12, with the existing controlled-grade curve;
+Severing Refuge's minimum is 9. Both are editable builder policy. Neither stock
+adds a Sorcerer roster member or changes the partial installer. Full installer,
+historical balance and all-grade native acceptance remain pending.
+
+### Folded Pocket
+
+`createpocket` targets a persisted ordinary item actually held by the caster.
+That focus remains borrowed. Creation claims one new carrier with exactly the
+native Holdable and FoldedPocket components; it creates no room, body or actor.
+Its versioned binding retains the source item ID, grade, prototype, capacity,
+maximum size, access mode, fallback and original absolute deadline. Copies start
+empty and unbound. Builder changes affect later invocations only.
+The committed carrier enters the world item cache before hand or floor custody;
+retirement therefore resolves the same live instance that the bearer holds.
+Creation timestamps and grade durations are canonicalized to the lifecycle
+journal's microsecond precision before persistence. Positive authored fractional
+seconds round to the nearest microsecond; values below one microsecond refuse.
+
+Capacity is positive finite native mass per grade; all stored goods retain their
+ordinary weight. Bearer access uses ordinary reach/custody; Creator additionally
+requires the canonical creator identity. Storage is bounded at 256 distinct
+native item identities. Direct and hidden pocket nesting, physical target
+projections, cycles, invalid quantities/weights and morphing goods refuse before
+adoption. Native container transfer and ancestor checks enforce these rules
+across both incoming and stored graphs, including conflicting persisted identities
+on distinct live instances. Transfers of the same existing instance remain valid
+inside ordinary bags. Pocket carriers do not accept installed locks or in-place
+replacement. These are explicit conservation limits, not historical balance.
+
+Retirement first commits borrowed contents to the carrier's current effective
+native location, retaining ordinary nested contents and exact identities. An
+explicit permanent ground-level fallback is used when no valid current location
+exists. A separate native leaf retirement removes the emptied carrier. A cold
+retry therefore either sees the original filled graph or already evacuated
+goods; it does not create copies. Each evacuation proves native and persisted
+custody, captures rollback adapters, fences callbacks and commits a serializable
+transaction. Unsupported foreign effects, hooks, wounded/connected goods or
+missing rollback support hold automatic evacuation. A retiring carrier remains
+accessible for withdrawal and refuses deposits. `junk` retains hand custody
+until this adapter permits deletion.
+Unsafe body/container custody also holds before evacuation, using the same
+native leaf-removal preflight. Transient custodian effects can clear and permit
+automatic retry without raising a command exception.
+Exact native AdminSight, Immwalk, AdminTelepathy, NewPlayerHintsShown and IncreasedBranchChance metadata
+have no custody callbacks and may remain on the holder. Their state is preserved;
+hint history and skill/knowledge branching progress remain intact.
+subclasses, scripted applicability, foreign owners and unknown effects still hold.
+
+Final removal reuses declared incoming EF relations and the typed reference
+guard. GameItem identities remain distinct from Character/Body/Instance/Wound.
+Known position/owner discriminators, crime third-party item links and concrete
+tether anchor/physical-item fields hold removal when they require the carrier.
+Live providers read direct objects; persisted effect codecs read their declared
+fields. There is no numeric text search or guessed property fallback.
+
+The builder stock requires all capacity, size, timing, prototype, access and
+fallback choices explicitly. Its source efficiency floor is 12 and cost
+expression is `12*grade`; existing controlled-grade rules determine payment.
+This bounded stock does not extend the partial installer or certify historical
+Portable Hole timing, permanent storage, arbitrary scripted component graphs,
+all-grade native acceptance or whole-programme readiness.
 
 ### Queued servitor command authority
 

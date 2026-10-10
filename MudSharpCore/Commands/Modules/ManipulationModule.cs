@@ -5373,6 +5373,14 @@ The syntax is:
 
             character.OutputHandler.Handle(new EmoteOutput(new Emote("@ junk|junks $0.", character, item),
                 flags: OutputFlags.SuppressObscured));
+			if (item.IsItemType<ISpellPocket>())
+			{
+				// The pocket adapter commits borrowed contents before removing its
+				// carrier. Retain the current hand if that retirement is held.
+				item.Delete();
+				if (!item.Deleted) character.Send("The pocket's contents or dependencies prevent safe collapse; it remains in your custody.");
+				return;
+			}
             character.Body.Take(item);
             item.Delete();
         }

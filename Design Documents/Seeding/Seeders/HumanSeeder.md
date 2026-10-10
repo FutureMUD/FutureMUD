@@ -37,6 +37,10 @@ Those are metadata declarations. The source trace above identifies actual lookup
 
 ## Verification and related references
 
+The full-bones initial install emits `Human Natural Bone Armour` through `BuildHumanBoneArmourDefinition`. Its chopping dissipation formula is `max(damage*0.1,damage-(quality * 2 * strength/115000))`: it retains the 10% damage floor and the existing quality/material reduction. The surplus closing parenthesis in the previous default is corrected at source. [NaturalBoneArmourSeederTests](../../../DatabaseSeeder%20Unit%20Tests/NaturalBoneArmourSeederTests.cs) loads all six formula maps and checks chopping results through the runtime expression engine. This source correction does not reconcile existing builder-edited armour definitions on a normal seeder rerun.
+
+The Armageddon owned-world qualification fixture has a separate, deliberately narrow repair mode in [OwnedBoneArmourRepair](../../../scripts/FuryCalmSmokeWorld/OwnedBoneArmourRepair.cs). It pins the complete malformed definitions from the retained failed receipt, checks identities and metadata, updates both rows atomically, proves rollback and a no-op rerun, and checks preservation of all other table contents. Any other definition or metadata is refused. This fixture is restricted to its retained disposable world and is not a production migration.
+
 This guide was checked by static source reading; its addition recipe was not executed. No build, database or runtime result is claimed. For a future content change, add focused source/loader/serialization or selected-path first-install/rerun regression checks as appropriate, following the [verification map](../../../.codex/references/verification-and-docs.md). A source invariant is not proof of installed gameplay behavior.
 
 See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md), [coverage and reviewed evidence](Coverage_and_Evidence.md), and the relevant linked test/source references above.

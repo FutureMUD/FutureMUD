@@ -2,12 +2,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Construction;
+using MudSharp.Magic;
 using MudSharp.NPC.AI;
 
 namespace MudSharp_Unit_Tests;
@@ -16,6 +18,25 @@ namespace MudSharp_Unit_Tests;
 // movement require the separate native scenarios; these mocks do not establish them.
 public partial class QueuedCommandAuthorityTests
 {
+	[TestMethod]
+	public void OrderedDisplacement_FullShelterRefusesBeforeTheCallerCanMoveCompanionsOrFloorItems()
+	{
+		var room = (Room)RuntimeHelpers.GetUninitializedObject(typeof(Room));
+		typeof(Location).GetField("_characters", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+			.SetValue(room, new List<ICharacter>());
+		var shelters = new Mock<ISpellOwnedShelterService>();
+		shelters.Setup(x => x.OwnsRoom(room.Id)).Returns(true);
+		var world = new Mock<MudSharp.Framework.IFuturemud>(); world.SetupGet(x => x.SpellOwnedShelters).Returns(shelters.Object);
+		typeof(Room).GetProperty(nameof(Room.Gameworld))!.SetValue(room, world.Object);
+		using var d = new DisplacementFixture(destination: room);
+		var original = d.Location;
+		d.Reach("gap");
+		Assert.IsTrue(d.Receipt.Continue(), "The active displacement receipt permits its source membership gap.");
+		Assert.IsFalse(room.EnterDisplaced(d.F.Actor.Object, d.Receipt), "A false result stops the caller before companion/item transfer.");
+		Assert.AreSame(original, d.Location);
+		shelters.Verify(x => x.CanEnter(room, d.F.Actor.Object), Times.Once);
+	}
+
 	[DataTestMethod]
 	[DataRow("source", "expire")]
 	[DataRow("source", "replacement-grant")]
@@ -156,7 +177,7 @@ public partial class QueuedCommandAuthorityTests
 		internal NativeDisplacementReceipt Receipt { get; }
 		private readonly IDisposable _execution;
 
-		internal DisplacementFixture(bool self = false)
+		internal DisplacementFixture(bool self = false, IRoom? destination = null)
 		{
 			Location = F.Actor.Object.Location;
 			F.Actor.SetupGet(x => x.Location).Returns(() => Location);
@@ -171,7 +192,7 @@ public partial class QueuedCommandAuthorityTests
 			else { F.Order(); Move = F.Queued!.GetMove(F.Actor.Object)!; }
 			Assert.IsNotNull(Move);
 			_execution = CommandExecutionScope.EnterMove(Move);
-			Receipt = CommandExecutionScope.BeginDisplacement(F.Actor.Object, Destination.Object, RoomLayer.InAir)!;
+			Receipt = CommandExecutionScope.BeginDisplacement(F.Actor.Object, destination ?? Destination.Object, RoomLayer.InAir)!;
 			Assert.IsNotNull(Receipt);
 		}
 

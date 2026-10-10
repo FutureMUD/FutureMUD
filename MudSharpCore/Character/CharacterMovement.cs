@@ -103,6 +103,8 @@ public partial class Character
 		{
 			throw new ArgumentException(spatialError, nameof(routePositionMetres));
 		}
+		if (ProjectionSpatialPolicy.Error(this, spatialTarget, false) is { } projectionError)
+		{ OutputHandler.Send(projectionError.ColourError()); return; }
 
 
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return;
@@ -785,6 +787,11 @@ public partial class Character
     private CanMoveResponse CanMoveInternal(CanMoveFlags flags, IPositionState movingPositionOverride,
 		IRoomExit vehicleInteriorExit = null)
     {
+		if (EffectsOfType<MudSharp.Magic.ISpellProjectionBoundary>().Any(x => x.Kind == MudSharp.Magic.SpellProjectionKind.SandEffigy))
+			return new CanMoveResponse { Result = false, ErrorMessage = "The sand effigy cannot move from its anchor." };
+		if (vehicleInteriorExit?.Destination is { } projectionDestination &&
+			ProjectionSpatialPolicy.Error(this, new SpatialLocation(projectionDestination, RoomLayer), true) is { } projectionError)
+			return new CanMoveResponse { Result = false, ErrorMessage = projectionError };
         var vehicle = Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(this));
         if (vehicle is not null && !IsPermittedVehicleInteriorExit(vehicle, Location, vehicleInteriorExit))
         {
@@ -966,6 +973,11 @@ public partial class Character
 
 	private CanMoveResponse CanMoveThroughExit(IRoomExit exit, CanMoveFlags flags, bool requireCurrentOrigin)
     {
+		if (exit?.Destination is { } destination && Gameworld?.SpellOwnedShelters is { } shelters &&
+			shelters.OwnsRoom(destination.Id) && !shelters.CanEnter(destination, this))
+		{
+			return new CanMoveResponse { Result = false, ErrorMessage = "That shelter is full or closing." };
+		}
         // Execution remains anchored to this room, including for Immwalk. Planning may inspect
         // a later edge without relocating the character; all other current-state checks remain
         // shared, and normal movement must revalidate the edge when the character reaches it.
@@ -1646,6 +1658,9 @@ public partial class Character
 
     public void ExecuteMove(IMovement movement, IMoveSpeed speedOverride = null)
     {
+		if (movement?.Exit?.Destination is { } projectionDestination &&
+			ProjectionSpatialPolicy.Error(this, new SpatialLocation(projectionDestination, RoomLayer), true) is { } projectionError)
+		{ OutputHandler.Send(projectionError.ColourError()); movement.CancelForMoverOnly(this); return; }
         if (RidingMount is null && !EffectHandler.AffectedBy<IImmwalkEffect>())
         {
             SpendStamina(StaminaForMovement(PositionState, speedOverride ?? CurrentSpeed, movement.StaminaMultiplier, PositionState.IgnoreTerrainStaminaCostsForMovement));

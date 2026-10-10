@@ -1,0 +1,11 @@
+# Emotional checkpoint independent review and cessation correction
+
+The coordinator's independent review cleared the narrow departing-Fury correction at `da9af18a57634cf77b92999810a9aad0102fa41c`, including its exact7511-test evidence. The [committed receipt](Armageddon_Emotional_Stamina_Removal_Receipt.json) remains the historical execution record; its then-pending review flag is preserved. This clearance does not approve emotional stock defaults, paid casting/combat hooks, database reload or complete Fury/Calm qualification.
+
+This note supersedes the caster-wide cessation wording in the [unapplied casting-hook proposal](Armageddon_Emotional_Casting_Hook_Proposal.md). Removing the victim through native `LeaveCombat` can clear the caster's target and invoke `AcquireTarget`, selecting a different opponent. A subsequent caster-wide `LeaveCombat` based only on the pre-save snapshot could end that unrelated fight. A pre-save snapshot is therefore insufficient authority for the later caster mutation.
+
+Future completion must revalidate the caster/victim relationship **after victim removal**. Coordinate pair-specific cessation with the main combat owner before selecting or adding an API. Preserve a caster's native acquisition of another opponent and do not use a historical target relationship to remove its entire combat registration. Keep the existing final queued-action authority as the single admission boundary. The source requirement to stop fighting that victim must not be approximated by stopping every newly selected opponent.
+
+Required native case: caster A targets victim B while another opponent C shares the same combat. Calm completes its save phase against B; B leaves, and native target acquisition redirects A to C. Prove B's relationship/queued moves cease, A and C keep their valid combat registrations and targets, and no later caster-wide leave destroys that unrelated fight. Also test a caster still targeting B, a caster with no remaining opponent, and save/output callback drift. The main owner must review the final pair-specific behavior and stale-action checks.
+
+No live method or unapplied patch is changed by this note. The endurance mapping and Calm attack-break choices remain unresolved. The preceding proposal/receipt bytes remain unchanged, and current Water Breathing qualification stays separate.

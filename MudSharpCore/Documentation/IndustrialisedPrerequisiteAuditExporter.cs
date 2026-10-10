@@ -66,7 +66,7 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 	private static readonly HashSet<string> DependencyBound = new(StringComparer.OrdinalIgnoreCase)
 	{
 		"BiometricScanner", "BreathingFilter", "FaxMachine", "Photocopier", "Salvageable", "SignalDetonator",
-		"Spellbook", "SpellScroll", "ChargedMagicDevice", "VehicleAccessPoint", "VehicleCargoSpace", "VehicleExterior"
+		"Spellbook", "SpellScroll", "ChargedMagicDevice", "FoldedPocket", "VehicleAccessPoint", "VehicleCargoSpace", "VehicleExterior"
 	};
 
 	private static readonly HashSet<string> CombatOwned = new(StringComparer.OrdinalIgnoreCase)
@@ -425,6 +425,7 @@ internal static class IndustrialisedPrerequisiteAuditExporter
 			"signaldetonator" => "Requires a concrete signal-source component and endpoint; seed it with the finished explosive or automation graph.",
 			"spellbook" or "spellscroll" => "Requires the world's authored magic capabilities, spell policies and writing costs; configure it with that magic system rather than assuming stock spell access.",
 			"chargedmagicdevice" => "Requires the world's authored magic capabilities, carrier payloads, production costs and activation eligibility; configure its empty wand/staff bank with that magic system.",
+			"foldedpocket" => "Requires authored magic capabilities and exact native spell lifecycle binding for capacity, access and conserved retirement; unbound ordinary copies cannot accept contents.",
 			_ => "Requires finished-item or world-specific references; do not seed placeholder IDs."
 		};
 	}

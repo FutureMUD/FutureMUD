@@ -55,6 +55,24 @@ The existing owned spell-skill definitions are configuration records, not player
 
 ## Binding document
 
+### Optional Fury/Calm mappings
+
+The bounded [Fury/Calm runtime](Armageddon_Fury_Calm_Runtime.md) adds optional `Emotions` to the same binding JSON. Leave it omitted/null to preserve an existing six-record owned module without running it. To select it, provide:
+
+| Field | Required selection |
+| --- | --- |
+| `FuryAttribute` | Positive ordinary body-owned attribute ID, or null when exactly one Constitution/Physique/Endurance/Body attribute exists. Missing, ambiguous and derived-only inference refuses. |
+| `UnitsPerSourcePoint` | Authored finite positive attribute units per source endurance point; no inferred numerical scale. |
+| `FuryIntensity`, `CalmIntensity` | Authored finite nonnegative native intensity values. |
+| `FuryEligibilityProg`, `CalmEligibilityProg` | Existing compiled Boolean progs with `(target character, caster character)` parameters. These remain builder-owned. |
+| `CalmSaveTrait` | Existing native character skill or body attribute used for the opposed save. |
+| `CalmSaves` | Exactly seven named native `Difficulty` values, in source grades 1–7 order. Numeric enums are rejected. |
+| `Terrains` | Object containing `Air`, `City`, `Inside`, `Hills`, `Mountain`, `Thornlands`, `Earth`, each a distinct positive existing terrain ID. |
+
+These selections extend the source Unravel → Fury → Calm → Mend path using owned tradition skills. The six new owned rows are two spells and their duration/cost expressions. With provisions and Water/See also selected, managed composition is 217 records, 12 payload definitions and 12 stored source admissions per variant, leaving 70 of 82 unavailable. Native installed-world/restart acceptance remains unrun; this does not enable the full Release package. No player state is granted/refreshed. Explicit stock/profile, expression and capability edits remain preserved on selected and null reruns.
+
+### Existing binding schema
+
 Use one JSON line at the prompt. This formatted schema is deliberately **not runnable**: replace every zero ID with
 the selected actual ID, use the approved revision numbers (zero is a valid revision), and keep `Install` true.
 No examples are silently used as defaults. Unknown/duplicate properties, numeric enum values, invalid IDs and oversized
@@ -187,6 +205,54 @@ activation eligibility and live target resistance/wards are rechecked. Copying a
 
 ## Reports, ownership and reruns
 
+### Separately authored N19 ward and bane stocks
+
+Create these definitions explicitly and add/grant them through the intended
+configured capability:
+
+```text
+magic spell edit new stock severing-refuge <school> <casting skill> <resource> <indoor template room> <source terrain> <fallback room> <seconds per grade> <capacity> school|tag <selector> Incoming|Outgoing|Both
+magic spell edit new stock apex-bane <school> <casting skill> <resource> <Boolean eligibility prog (target,caster)> <resistance trait> <difficulty> <damage per grade> <maximum damage> <damage type>
+magic spell set effect 1 ward school <school>
+magic spell set effect 1 ward tag <tag name>
+magic spell set effect 1 ward coverage Incoming|Outgoing|Both
+magic spell set effect 1 ward subschools true|false
+```
+
+Quote names containing spaces. The refuge uses ordinary `enter refuge` / `leave
+outside` movement, shelter capacity and safe evacuation. Its ward matches selected
+schools (optionally descendants) or invocation tag names through native magic
+interdiction. School/tag editor commands toggle selectors, retaining at least one.
+Ordinary physical hazards remain subject to native room mechanics.
+Apex Bane accepts the builder's compiled eligibility predicate, native resistance
+trait and damage type; its grade damage is capped by the selected maximum. An
+ineligible target refuses before payment. Native paid ward/resistance failures
+retain payment. The [lifecycle contract](Spell_Owned_Lifecycle.md) records exact
+ward authority and occupied teardown. These builder definitions do not extend
+the partial installer or the fixed Sorcerer roster.
+
+### Separately authored N18 projection stocks
+
+These stocks use the shared paid casting route and are installed explicitly by a builder:
+
+```text
+magic spell edit new stock sand-effigy <school> <casting skill> <resource> <plane> <plain holdable prototype> <seconds per grade> <backlash damage> <energy per grade>
+magic spell edit new stock walking-shadow <school> <casting skill> <resource> <nonmaterial plane> <seconds per grade> <range in room edges> <backlash damage> <energy per grade> <cross closed doors true|false>
+magic spell set effect 1 lifetime <seconds per grade>
+magic spell set effect 1 range <0-32>
+magic spell set effect 1 backlash <0-1000>
+```
+
+Quote names containing spaces. Add the new spell to the intended configured capability and
+grant/acquire it through that route; creating its definition gives no automatic entitlement.
+Cast normally on `self`, use `instances` and the numbered `focus` selection, then `focus primary`
+to return. Both are observation presences with shared canonical skills/resources and empty
+inventory. Sand Effigy is immobile and its figurine is the exact destructible anchor. Walking
+Shadow travels through native exits within range while the primary is vulnerable in a trance.
+Expiry, damage, severance and logout/reboot collapse their owned temporary graph.
+The [lifecycle contract](Spell_Owned_Lifecycle.md) describes custody holds and authored-policy
+limits. These definitions do not change the partial installer's inventory or qualify historical parity.
+
 Successful base composition owns 196 records: 21 utility/device, 171 tradition, four Pierce. It creates six payload
 definitions but only four prerequisite-closed source admissions per unedited variant: Sense, Unravel, Water and Pierce;
 78 source spells lack admission. Mend and Hovering Light definitions do not create entitlement. With explicitly selected
@@ -214,6 +280,26 @@ player actions occurs. The same stable IDs are reused. Missing, retired, competi
 collisions block rather than resurrect/adopt. Preserve historical ownership records; resolve conflicts explicitly.
 For paid gameplay uncertainty use the existing staff reconciliation command
 `magic casting resolve <character> <operation-guid> <reconciliation reason>`; seeder reruns never resolve player receipts.
+
+## Builder-installed Folded Pocket
+
+Create and approve an item prototype with exactly Holdable and FoldedPocket
+components. The folded-pocket component type uses ordinary container open/size
+editing; the spell freezes its actual instance capacity and size policy.
+
+```
+magic spell edit new stock folded-pocket <school> <casting skill> <resource> <pocket prototype> "<mass per grade>" <maximum size> <real seconds per grade> Bearer|Creator <permanent fallback room>
+```
+
+For example, `"2 kilograms" Normal 300 Bearer` is an authored mapping, not
+verified historical balance. Configure native capability membership and
+acquisition separately, then cast on an ordinary held item. The focus survives;
+one new carrier is created. `effect 1` edits prototype, fallback, capacity, size,
+lifetime or access for future invocations. Existing pockets retain their original
+binding and deadline. Full weight, finite capacity, no pocket nesting or living
+occupants, conservation on collapse and withdrawal from held retirements are
+described in [the lifecycle contract](Spell_Owned_Lifecycle.md#folded-pocket).
+This stock does not change the partial installer's roster or admission counts.
 
 ## Verification boundary
 

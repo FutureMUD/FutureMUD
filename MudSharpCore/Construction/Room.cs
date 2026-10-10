@@ -853,7 +853,8 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
         loginCharacter.LastMinutesUpdate = System.DateTime.UtcNow;
         loginCharacter.LoginDateTime = System.DateTime.UtcNow;
         loginCharacter.OutputHandler?.Register(loginCharacter);
-        Enter(loginCharacter, noSave: true, roomLayer: loginCharacter.RoomLayer);
+		if (CommandExecutionScope.TryContinue(loginCharacter))
+			EnterCore(loginCharacter, null, true, loginCharacter.RoomLayer, null, nativeLogin: true);
         if (loginCharacter is NPC.NPC npc)
         {
             npc.SetupEventSubscriptions();
@@ -949,12 +950,32 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 	{
 		if (!receipt.BeginEnter(actor, this)) return false;
 		EnterCore(actor, null, false, receipt.Layer, receipt);
-		return receipt.Continue();
+		return ReferenceEquals(actor.Location, this) && Characters.Any(x => ReferenceEquals(x, actor)) && receipt.Continue();
 	}
 
 	private void EnterCore(ICharacter movingCharacter, IRoomExit exit, bool noSave, RoomLayer roomLayer,
-		NativeDisplacementReceipt? receipt)
+		NativeDisplacementReceipt? receipt, bool nativeLogin = false)
 	{
+		if (MudSharp.Character.ProjectionSpatialPolicy.Error(movingCharacter,
+			new SpatialLocation(this, roomLayer, receipt?.RoutePosition), exit is not null) is { } projectionError)
+		{
+			if (movingCharacter.Location is Room original) original.ReconcileNativeCharacterMembership(movingCharacter, true);
+			movingCharacter.OutputHandler.Send(projectionError.ColourError()); return;
+		}
+		if (Gameworld.SpellOwnedShelters is { } shelters && shelters.OwnsRoom(Id) &&
+			!(nativeLogin ? shelters.CanReconnect(this, movingCharacter) : shelters.CanEnter(this, movingCharacter)))
+		{
+			if (ReferenceEquals(movingCharacter.Location, this))
+			{
+				if (shelters.ReturnRejectedEntrant(this, movingCharacter) || !ReferenceEquals(movingCharacter.Location, this)) return;
+			}
+			else
+			{
+				if (movingCharacter.Location is Room original) original.ReconcileNativeCharacterMembership(movingCharacter, true);
+				movingCharacter.OutputHandler.Send("That shelter is full or closing.".ColourError());
+				return;
+			}
+		}
 		var explicitlyAssignedPosition = receipt is not null ? receipt.RoutePosition : _routeDefinition is not null &&
 		                                 ReferenceEquals(movingCharacter.Location, this)
 			? movingCharacter.RoutePositionMetres
@@ -2039,6 +2060,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 
     public void Destroy(IRoom fallbackRoom)
     {
+		if (Gameworld.SpellOwnedShelters?.RequestRetirement(Id, SpellRetirementReason.Dismissal) == true) return;
         Action action = DestroyWithDatabaseAction(fallbackRoom);
         Gameworld.SaveManager.Flush();
         Gameworld.LogManager.FlushLog();
@@ -2063,6 +2085,8 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 
     public Action DestroyWithDatabaseAction(IRoom fallbackRoom)
     {
+		if (Gameworld.SpellOwnedShelters?.OwnsRoom(Id) == true)
+			throw new InvalidOperationException("Spell-owned rooms retire through their exact shelter manifest.");
         _noSave = true;
         RoomRequestsDeletion?.Invoke(this, EventArgs.Empty);
         foreach (IGameItem item in _gameItems.ToList())

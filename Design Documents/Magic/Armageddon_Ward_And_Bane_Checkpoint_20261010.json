@@ -1,0 +1,621 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-10",
+  "status": "PASS_BOUNDED_N19_BUILDER_INSTALLED",
+  "branch": "codex/armageddon-continuation-20261008",
+  "base_head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
+  "source_brief": "Armageddon_Magic_Completion_Implementation_Brief.md",
+  "candidates": [
+    "arm.spell.severing_refuge",
+    "arm.spell.apex_bane"
+  ],
+  "reference_authority": [
+    "Declared EF foreign keys",
+    "Strict native SpellShelterAnchor versions 1/2 and exact lifecycle/room/entrance/overlay claims",
+    "Exact registered SpellShelterWard envelope and lifecycle/spell/configuration fields",
+    "Existing concrete typed physical-reference codecs and native custody providers"
+  ],
+  "numeric_text_scans": false,
+  "guessed_identity_fields": false,
+  "schema_migration_required": false,
+  "runtime_source_sha256": {
+    "FutureMUDLibrary Unit Tests/ArmageddonWardBaneContentTests.cs": "aeb50a300dd30602ab94e8ffea5dbcc68069e99402aadd8e64dc1cd12197b0dd",
+    "FutureMUDLibrary/Magic/ISpellOwnedShelterService.cs": "c7ef7ce16a105e20739e50bf6839caa59778f7e975360cbd648d676a8852b7b7",
+    "FutureMUDLibrary/Magic/SpellShelterAnchor.cs": "a3bcb21a8fe06bb9995cb8dcf471eee4e72c9f1b56329ffa97900455a966eef3",
+    "FutureMUDLibrary/Magic/SpellShelterWardConfiguration.cs": "f3c1c3f1949c41e569695fa13ac3e05201c8f68351073449aab1cffbc02152c2",
+    "FutureMUDLibrary/Magic/Stock/ArmageddonBaneContent.cs": "2e9768d21eb76154159595b61e5b77bd1764d5ef3e80389d00705ad254343ba4",
+    "FutureMUDLibrary/Magic/Stock/ArmageddonUtilitySpellContent.cs": "e3fca4bc933d77b7458cca3b782a96b3a52993ff0ee189bd98ce6a7517ceb22f",
+    "MudSharpCore Unit Tests/ArmageddonWardBaneTests.cs": "14f323d8eb9718d87b73828bcc03eeedc19a2c4455f9cec3653d58505e4b7750",
+    "MudSharpCore Unit Tests/EnvironmentalExposureIntegrationTests.cs": "0bd2cd65b0550636c9e9a6716126f32762575abc5b2642be1a0d82f6481599c6",
+    "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Bane.cs": "26e2f3fcc10c9968743799de46133e1413a7a323c52d1ef1c3d8e2fe309e6af0",
+    "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Shelters.cs": "9c4d9c19266d4121ed46288e8e93a0c231c24507a0b314942b9899b8de805b0b",
+    "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Stock.cs": "fa52727ac274b6cce55f5649b5d98407610b9538ff0f272c3c01915e0ee48301",
+    "MudSharpCore/Construction/Room.SpellShelter.cs": "b1d3beae0292d46ebb8244d7df5c2ed9f55f8747938a9878f71d4aa9075a54fa",
+    "MudSharpCore/Effects/Concrete/SpellShelterWard.cs": "2228aafaf0b368088278906e3feb77b6e0a1305597f72ac37dce12dde2634c02",
+    "MudSharpCore/Form/Material/EnvironmentalExposureService.cs": "ad2d6f0c56385f4cce338f859c5348d6d9411eb1a225b44e4e7a64a0d6854b6e",
+    "MudSharpCore/Magic/ArmageddonBaneStock.cs": "a3e4f904043d8ef98ee5b88f5ab53ceed9b96141d13196eabcfbefbad4321b9f",
+    "MudSharpCore/Magic/ArmageddonShelterStock.cs": "a0048653451855a40b244ff0d037c665730d50122f0e603d721cb4279664d49a",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedShelterService.Retirement.cs": "ca6d4793a0b09d6d10791eb005d454d856ac47b0c995502b43fc693bb04d771f",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedShelterService.Wards.cs": "56f76ccc1a49d69df7e0d1e5bf56a9df72374352192a156952ae5793e4565a82",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedShelterService.cs": "4d79909bf85223752f7510450bbe08a6ad5129c53c6c0a8ae21e58e0daf0f67a",
+    "MudSharpCore/Magic/SpellEffects/CreateShelterEffect.cs": "49d155b5c2d904cfcdaed04399fd57f116dcac3c7ae3fa19a8d809c8f46e00ec"
+  },
+  "runtime_code_changed_after_final_managed_checks": false,
+  "subsequent_harness_changes": "Only disposable fixture/probe policy and harness assertions changed: source-efficiency floor 8, complete native wound/tag inspection, marker cleanup, exact prior receipt recovery through native expiry, 90-second foreign probe and held-deletion wording.",
+  "managed": {
+    "run_id": "20261010T082643Z-1401e2a85cd2",
+    "head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
+    "status": "PASS",
+    "counts": {
+      "executed": 7165,
+      "passed": 7165,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7165
+    },
+    "source_start": "21d51d1587ba101b4cb063eabf8ab713355ccdf880ee97b27db40f186141aac4",
+    "source_end": "21d51d1587ba101b4cb063eabf8ab713355ccdf880ee97b27db40f186141aac4",
+    "source_stable": true,
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": null,
+    "configuration": "Debug",
+    "receipt": {
+      "path": ".artifacts/test-runs/20261010T082643Z-1401e2a85cd2/summary.json",
+      "sha256": "deab00ad74974b2c95d56803e00d9055e7f20b8426c19c569c529d157127d6e2"
+    },
+    "project_counts": {
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
+        "executed": 740,
+        "passed": 740,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 740
+      },
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
+        "executed": 6425,
+        "passed": 6425,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6425
+      }
+    }
+  },
+  "seeder": {
+    "run_id": "20261010T082330Z-ac6d7323c87d",
+    "head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
+    "status": "PASS",
+    "counts": {
+      "executed": 169,
+      "passed": 169,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 169
+    },
+    "source_start": "e6338e413f2e756a2f12a1aad20ad155aab2e6e5b843054a444058548712e93d",
+    "source_end": "e6338e413f2e756a2f12a1aad20ad155aab2e6e5b843054a444058548712e93d",
+    "source_stable": true,
+    "projects": [
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+    ],
+    "filter": "FullyQualifiedName~Armageddon",
+    "configuration": "Debug",
+    "receipt": {
+      "path": ".artifacts/test-runs/20261010T082330Z-ac6d7323c87d/summary.json",
+      "sha256": "8e5740750ed27509953815670d9a17f855ccaa7d879f8ae2e6e8cca8e72e247f"
+    },
+    "project_counts": {
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj": {
+        "executed": 169,
+        "passed": 169,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 169
+      }
+    }
+  },
+  "seeder_scope": "Armageddon filter passed before the final Core-only cleanup repair; shared content and installer sources unchanged afterward.",
+  "native": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-c06a2c1f/receipt.json",
+      "sha256": "4da89149f85296d6c1a98c156b2a0116bf9d4e0b42647c4c47b98b67252aca7c"
+    },
+    "status": "PASS",
+    "milestone_qualified": true,
+    "assertions": 134,
+    "inputs_sha256": {
+      "scripts\\FuryCalmSmokeWorld\\smoke.py": "7638d3cb7abfeb88bd4a191555aa7f6f2fc324373de745c527e1b471160afa40",
+      "scripts\\FuryCalmSmokeWorld\\Program.cs": "f58b427ef3a060eb71d1d749b82ae017bfac0db36523f9e982b8e77c05cfaa3d",
+      "scripts\\AuthoredCelestialSmokeWorld\\native.py": "18fca1b93f3a85551d9b0907ebe4f7b8fa11c625517abab470c67cf155f265f8",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "b6a7cc3ae523687bd3596de5cce1bab505c69e388b5169b17ec9c7d390c6fd26",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "8af90746aeadad98e784e59c783dcde4b3e2235db64a315fbbf7cd6870175728",
+      "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "3498eb3c9bab8398340eaf507cd328abc24aec7d6d70f63b35d87901d169c11b",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+      "scripts\\FuryCalmSmokeWorld\\wards_bane.py": "24743bfe0f3b82fc913b3d4eca78494f25ff3406c0769f9d19e6cc7d3b53e38b",
+      "scripts\\FuryCalmSmokeWorld\\WardBaneFixtures.cs": "02962d6d30d00fc15f46e85fd34b34726dd82eb51a0d499b4c87ca7151b1d169",
+      "MudSharpCore\\Magic\\Lifecycle\\SpellOwnedShelterService.cs": "4d79909bf85223752f7510450bbe08a6ad5129c53c6c0a8ae21e58e0daf0f67a",
+      "MudSharpCore\\Magic\\Lifecycle\\SpellOwnedShelterService.Permits.cs": "4220fa8ca021d9f53da2e99e700300f73ae6dd873fb157fbd779e1826b534ba0",
+      "MudSharpCore\\Magic\\Lifecycle\\SpellOwnedShelterService.Retirement.cs": "ca6d4793a0b09d6d10791eb005d454d856ac47b0c995502b43fc693bb04d771f",
+      "MudSharpCore\\Magic\\Lifecycle\\SpellOwnedShelterService.Wards.cs": "56f76ccc1a49d69df7e0d1e5bf56a9df72374352192a156952ae5793e4565a82",
+      "MudSharpCore\\Magic\\Lifecycle\\SpellOwnedShelterService.Water.cs": "80978f4ac1c7858e09dd4850774049c98b29ac7993a908ba7610a7cad2f7a880",
+      "MudSharpCore\\Effects\\Concrete\\SpellShelterWard.cs": "2228aafaf0b368088278906e3feb77b6e0a1305597f72ac37dce12dde2634c02",
+      "MudSharpCore\\Magic\\ArmageddonBaneStock.cs": "a3e4f904043d8ef98ee5b88f5ab53ceed9b96141d13196eabcfbefbad4321b9f",
+      "MudSharpCore\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll": "763d0791efb3558d7f7616e696e91cf5d1392f8874bb237b9a19a6f3a57a9f3c",
+      "FutureMUDLibrary\\Magic\\SpellShelterWardConfiguration.cs": "f3c1c3f1949c41e569695fa13ac3e05201c8f68351073449aab1cffbc02152c2",
+      "FutureMUDLibrary\\Magic\\Stock\\ArmageddonBaneContent.cs": "2e9768d21eb76154159595b61e5b77bd1764d5ef3e80389d00705ad254343ba4"
+    },
+    "objects": {
+      "player": 1,
+      "recipient": 3,
+      "spells": {
+        "refuge": 51,
+        "bane": 52,
+        "QA_N19_Mark": 38,
+        "QA_N19_FireProbe": 39,
+        "QA_N19_ForeignWard": 40
+      },
+      "fixtures": {
+        "Status": "PASS",
+        "Anchor": 11,
+        "Fallback": 2,
+        "Spring": 4,
+        "Burrow": 5,
+        "Sand": 6,
+        "Terrain": 1,
+        "Incompatible": 34,
+        "PoolPrototype": 6895,
+        "CupPrototype": 6896,
+        "MountAi": 113,
+        "Water": 1
+      },
+      "predicate": 3953
+    },
+    "lifecycles": [
+      {
+        "id": "6322bcbe-da4d-418a-b0db-36d8cacb588a",
+        "claims": {
+          "4": 38,
+          "5": 28,
+          "6": 38
+        },
+        "terminal": "3\t2"
+      },
+      {
+        "id": "c4aba4b8-ad64-4eb9-b7ff-fc13d8212155",
+        "claims": {
+          "4": 39,
+          "5": 29,
+          "6": 39
+        },
+        "terminal": "3\t0"
+      }
+    ],
+    "paid_casts": [
+      {
+        "spell": "QA_N19_apex_bane_28635f",
+        "target": "qatarget",
+        "before": 1000.0,
+        "after": 1000.0,
+        "cost": 0,
+        "answer": "a qatarget human is not a valid target for that spell.\n\nNo valid target was resolved.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_Mark",
+        "target": "qatarget",
+        "before": 1000.0,
+        "after": 992.0,
+        "cost": 8,
+        "answer": "You invoke a qualification enchantment.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_apex_bane_28635f",
+        "target": "qatarget",
+        "before": 992.0,
+        "after": 980.0,
+        "cost": 12,
+        "answer": "You direct a baneful enchantment at a qatarget human.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_apex_bane_28635f",
+        "target": "qatarget",
+        "before": 980.0,
+        "after": 968.0,
+        "cost": 12,
+        "answer": "You fail to shape the enchantment.\n\nThe paid casting failed or its targets rejected it.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_apex_bane_28635f",
+        "target": "qatarget",
+        "before": 968.0,
+        "after": 956.0,
+        "cost": 12,
+        "answer": "You direct a baneful enchantment at a qatarget human.\n\nA qatarget human resists the N19 bane.\n\nThe paid casting failed or its targets rejected it.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_severing_refuge_28635f",
+        "target": "here",
+        "before": 956.0,
+        "after": 947.0,
+        "cost": 9,
+        "answer": "You shape a sheltered space.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_FireProbe",
+        "target": "qatarget",
+        "before": 947.0,
+        "after": 939.0,
+        "cost": 8,
+        "answer": "You invoke a qualification enchantment.\n\nA ward on QA Sand Shelter blocks your spell.\n\nThe paid casting failed or its targets rejected it.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_Mark",
+        "target": "qatarget",
+        "before": 939.0,
+        "after": 931.0,
+        "cost": 8,
+        "answer": "You invoke a qualification enchantment.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_apex_bane_28635f",
+        "target": "qatarget",
+        "before": 931.0,
+        "after": 919.0,
+        "cost": 12,
+        "answer": "You direct a baneful enchantment at a qatarget human.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_ForeignWard",
+        "target": "here",
+        "before": 919.0,
+        "after": 911.0,
+        "cost": 8,
+        "answer": "You invoke a qualification enchantment.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_severing_refuge_28635f",
+        "target": "here",
+        "before": 911.0,
+        "after": 902.0,
+        "cost": 9,
+        "answer": "You shape a sheltered space.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_apex_bane_28635f",
+        "target": "qatarget",
+        "before": 902.0,
+        "after": 890.0,
+        "cost": 12,
+        "answer": "You direct a baneful enchantment at a qatarget human.\n\nA ward on QA Sand Shelter blocks your spell.\n\nThe paid casting failed or its targets rejected it.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_apex_bane_28635f",
+        "target": "qatarget",
+        "before": 890.0,
+        "after": 878.0,
+        "cost": 12,
+        "answer": "You direct a baneful enchantment at a qatarget human.\n\nA ward on QA Sand Shelter blocks your spell.\n\nThe paid casting failed or its targets rejected it.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      }
+    ],
+    "wound_samples": [
+      {
+        "damage": 71.04960000000001,
+        "pain": 64.37248,
+        "stun": 67.2
+      },
+      {
+        "damage": 71.04960000000001,
+        "pain": 64.37248,
+        "stun": 67.2
+      },
+      {
+        "damage": 79.51360000000001,
+        "pain": 66.27647999999999,
+        "stun": 71.60000000000001
+      },
+      {
+        "damage": 79.51360000000001,
+        "pain": 66.27647999999999,
+        "stun": 71.60000000000001
+      },
+      {
+        "damage": 79.51360000000001,
+        "pain": 66.27647999999999,
+        "stun": 71.60000000000001
+      },
+      {
+        "damage": 79.51360000000001,
+        "pain": 66.27647999999999,
+        "stun": 71.60000000000001
+      },
+      {
+        "damage": 79.51360000000001,
+        "pain": 66.27647999999999,
+        "stun": 71.60000000000001
+      },
+      {
+        "damage": 86.07360000000001,
+        "pain": 73.31648,
+        "stun": 71.60000000000001
+      },
+      {
+        "damage": 86.07360000000001,
+        "pain": 51.913599999999995,
+        "stun": 36.64
+      },
+      {
+        "damage": 86.07360000000001,
+        "pain": 51.913599999999995,
+        "stun": 36.64
+      },
+      {
+        "damage": 86.07360000000001,
+        "pain": 51.913599999999995,
+        "stun": 36.64
+      },
+      {
+        "damage": 86.07360000000001,
+        "pain": 51.913599999999995,
+        "stun": 36.64
+      }
+    ],
+    "actual_ward_outcomes": [
+      {
+        "spell": "QA_N19_FireProbe",
+        "target": "qatarget",
+        "before": 947.0,
+        "after": 939.0,
+        "cost": 8,
+        "answer": "You invoke a qualification enchantment.\n\nA ward on QA Sand Shelter blocks your spell.\n\nThe paid casting failed or its targets rejected it.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_apex_bane_28635f",
+        "target": "qatarget",
+        "before": 902.0,
+        "after": 890.0,
+        "cost": 12,
+        "answer": "You direct a baneful enchantment at a qatarget human.\n\nA ward on QA Sand Shelter blocks your spell.\n\nThe paid casting failed or its targets rejected it.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      },
+      {
+        "spell": "QA_N19_apex_bane_28635f",
+        "target": "qatarget",
+        "before": 890.0,
+        "after": 878.0,
+        "cost": 12,
+        "answer": "You direct a baneful enchantment at a qatarget human.\n\nA ward on QA Sand Shelter blocks your spell.\n\nThe paid casting failed or its targets rejected it.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+      }
+    ],
+    "prior_attempt_recovery": [],
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-1.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-2.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "mysql_stopped_by_owned_handle": true,
+    "mysql_port_closed": true
+  },
+  "payment": {
+    "normal_grade_one_invocations": 13,
+    "paid_invocations": 12,
+    "reserve_before": 1000.0,
+    "reserve_after": 878.0,
+    "total_spent": 122,
+    "ineligible_target_spent": 0,
+    "native_probe_minimum": 8,
+    "refuge_minimum": 9,
+    "bane_minimum": 12,
+    "restart_preserves_paid_reserve": true
+  },
+  "fixture_preparation": [
+    "Exact owned loopback MySQL datadir checked before every query; retained disposable world only",
+    "Native indoor shelter template, authored tag/school selectors and explicit Boolean(target,caster) hasmagictag predicate",
+    "Actual Admin PC and distinct native NPC recipient; mortal normal configured capability casts",
+    "Explicit entry/grant and stopped-server controlled grade 7, caster raw skill 90, recipient native resistance trait 90 and initial reserve 1000; no refill during the scenario",
+    "Only exact QA_N19_Mark native parent removed before initial ineligible test on replay",
+    "For exact earlier failed N19 graphs only, stopped fixture reduces the known foreign probe native Remaining field to one second; native expiry/retirement perform removal and conserve goods"
+  ],
+  "implementation": [
+    "Persist owned ward before exposing room and entrance; native contextual interdiction with authored school/tag union and coverage",
+    "Strict ward provenance, original absolute deadline and entry authority; no separate elemental simulation",
+    "Occupied retirement exempts only its exact owned ward and holds foreign/changed effects before evacuation",
+    "Position callbacks finish before final authority fences; committed cleanup has no removal/exposure callbacks",
+    "Apex uses compiled native eligibility, native resistance and actual native wound delivery with capped grade formula"
+  ],
+  "acceptance": [
+    "Ineligible target refuses without payment or wounds; authored magic tag makes it eligible",
+    "Eligible ordinary paid attack creates native wounds; actual native opposed resistance retains payment without wounds",
+    "Selected tag ward prevents its actual tag effect while allowing an unselected eligible attack",
+    "Incoming school ward prevents eligible damage before and after occupied cold startup",
+    "Native entry/exit/re-entry and strict room/instance positions, no payment/deadline/topology recreation on restart",
+    "Real foreign room effect holds public deletion before evacuation; its native expiry resumes exact owned topology cleanup",
+    "Borrowed actors/bodies/physical frames and foreign floor item survive evacuation without ownership claims",
+    "Occupied expiry completes at the original absolute deadline and removes only exact owned room/entrance/overlay"
+  ],
+  "review": {
+    "role": "fm_reviewer",
+    "result": "No remaining concrete blocker after callback-free ward/exposure release repair; source review only",
+    "physical_reference_followup": "Existing persisted room-effect readers inspect only types with known physical-reference fields. Ward GUID/spell/school/tag payload has no physical-entity references; no additional codec registration is warranted or unrelated archive hold introduced."
+  },
+  "adjacent_findings": [
+    {
+      "location": "MudSharpCore/Magic/MagicSpell.cs:716",
+      "impact": "The targetresistemote editor confirmation displays CastingEmote rather than the newly saved TargetResistedEmote.",
+      "evidence": "Native editor output echoes the casting line; the subsequent actual resisted cast uses the newly configured N19 resistance line.",
+      "disposition": "Deferred existing presentation issue; no runtime resistance blocker."
+    }
+  ],
+  "retained_failed_managed": [
+    {
+      "run_id": "20261010T081338Z-69972d883f91",
+      "status": "FAIL",
+      "counts": null,
+      "qualified": false,
+      "receipt": {
+        "path": ".artifacts/test-runs/20261010T081338Z-69972d883f91/summary.json",
+        "sha256": "dad5882ca1c4880b0f0812693f0d1d0832f2e59ff23ef1dc47e72bc172e04218"
+      }
+    },
+    {
+      "run_id": "20261010T081456Z-06d4e8e875ae",
+      "status": "FAIL",
+      "counts": {
+        "executed": 16,
+        "passed": 15,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 16
+      },
+      "qualified": false,
+      "receipt": {
+        "path": ".artifacts/test-runs/20261010T081456Z-06d4e8e875ae/summary.json",
+        "sha256": "c04cbde1f2d9f10a6cdea53ad2997f1eeeeafea55b5c39cd76639401d9fa3105"
+      }
+    },
+    {
+      "run_id": "20261010T081628Z-2ede8927f91a",
+      "status": "FAIL",
+      "counts": {
+        "executed": 16,
+        "passed": 15,
+        "failed": 1,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 16
+      },
+      "qualified": false,
+      "receipt": {
+        "path": ".artifacts/test-runs/20261010T081628Z-2ede8927f91a/summary.json",
+        "sha256": "90ad55634f71515b5d347df944ef7a126cc8320c1043b1b36c5ede490cbbf329"
+      }
+    },
+    {
+      "run_id": "20261010T082559Z-721919850860",
+      "status": "FAIL",
+      "counts": null,
+      "qualified": false,
+      "receipt": {
+        "path": ".artifacts/test-runs/20261010T082559Z-721919850860/summary.json",
+        "sha256": "e6e8e55d9625c36f181656c156ea16d0723aace40c1746cccd443d0b7300d787"
+      }
+    }
+  ],
+  "retained_failed_native": [
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-2ed62797/receipt.json",
+        "sha256": "1e90a285f795cb4a7e2749a6c3824b283437479ef6f95b57317bcd2da08d9e9e"
+      },
+      "error": "Owned port is already occupied",
+      "qualified": false
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-47781d00/receipt.json",
+        "sha256": "ac8c796682b699a08566772590e5764c4f232251abe91d21a90dc9383d51f951"
+      },
+      "error": "authored tag ward allows an unselected eligible attack: ",
+      "qualified": false
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-560a4063/receipt.json",
+        "sha256": "a5e7d9b40c6205d8fc64abdc27f66d9a4d512e4250989b08e5cac48e7efd50cc"
+      },
+      "error": "native opposed resistance was actually exercised: ",
+      "qualified": false
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-8b670e19/receipt.json",
+        "sha256": "71c515258dffb0af18524e217dc044c5f091581a23d5536ab032fc990bde7604"
+      },
+      "error": "exact payment for QA_N19_Mark: 1000.0->993.0; You invoke a qualification enchantment.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "qualified": false
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-ad16978a/receipt.json",
+        "sha256": "9048a67508379a53e534a471b4e504867c6defc11b9cb552be5f3a8ccd03ffa9"
+      },
+      "error": "enter refuge: That shelter is full or closing.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "qualified": false
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-c5b165c0/receipt.json",
+        "sha256": "eaf370ad68f662afeb22e4a25bee7616b865de7304cdda5b14333c9a636a3f22"
+      },
+      "error": "exact prior probe parent is visible to native removal: Effects for a qadrawcup filled with a clear liquid:\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "qualified": false
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-c65ba56b/receipt.json",
+        "sha256": "e494de4f02cc35896bdaad7016da19ae58d34e149d03ca0f327e0582e89dcd5b"
+      },
+      "error": "accept delete: Deletion of QA Sand Shelter [#36] is held for recovery; the room is retained.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "qualified": false
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-cac41fcb/receipt.json",
+        "sha256": "1e90a285f795cb4a7e2749a6c3824b283437479ef6f95b57317bcd2da08d9e9e"
+      },
+      "error": "Owned port is already occupied",
+      "qualified": false
+    }
+  ],
+  "other_unqualified_attempts": [
+    "Sandbox direct build cancelled after no output",
+    "Rejected multi-project filtered invocation executed no checks",
+    "Native hash inventory named a nonexistent library DLL before launch; path corrected"
+  ],
+  "counts_are_not_added": true,
+  "limits": [
+    "Builder-installed grade-one native qualification; full installer/prerequisite composition and all-grade native matrix remain pending",
+    "Authored native school/tag vocabulary, eligibility predicate, damage type/cap, energy and real seconds; historical elemental/balance/timing parity remains pending",
+    "Native physical hazards are not universal immunity; they use ordinary engine systems",
+    "Healthy occupied cold ward load is qualified; missing/changed ward cold fault injection, coverage/subschool permutations and high-volume ward churn are not qualified by this native run",
+    "Managed tests cover selector/envelope validation, missing/changed ward fences, coverage and grades 1-7 capped damage; this is separate from native gameplay evidence",
+    "Stored scroll/device shelter delivery remains unsupported; no full-programme or Release readiness claim"
+  ],
+  "inventory_counts": {
+    "candidates": 154,
+    "required": 152,
+    "optional": 2,
+    "sorcerer_spells": 82,
+    "roots": 4,
+    "support_rows": 12,
+    "larger_systems": 8
+  },
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "next_bounded_milestone": "N20: map and implement bounded Folded Pocket capacity and access using native item custody; reject living targets, pocket nesting and cycles, then qualify transfer, cold restart and collapse with every foreign item released exactly once. Use only declared typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending."
+}

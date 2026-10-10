@@ -771,6 +771,8 @@ public class SimpleNPCTemplate : NPCTemplateBase
         }
     }
 
+	internal string NativeCreationDefinition => SaveDefinition();
+
     private string SaveDefinition()
     {
         return

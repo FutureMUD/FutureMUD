@@ -129,6 +129,14 @@ public class EffectHandler : IEffectHandler
         }
     }
 
+	// Only a retirement adapter that has checked every exact effect and committed
+	// row removal may use this. Its scheduler has already been deregistered.
+	internal void ForgetCommittedRetirementEffects()
+	{
+		_effects.Clear();
+		_hasSaveableScheduledEffects = false;
+	}
+
 	private void NotifyCastingInputChange(IEffect effect)
 	{
 		var physicalInput = effect is ISilencedEffect or IBodypartIneffectiveEffect or ILimbIneffectiveEffect or IForceParalysisEffect;

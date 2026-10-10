@@ -13,6 +13,56 @@ namespace MudSharp_Unit_Tests;
 
 public partial class ArmageddonPreparedWorldSeederTests
 {
+	[DataTestMethod]
+	[DataRow("retired")]
+	[DataRow("type")]
+	[DataRow("version")]
+	public void InvalidRetainedPierceBlocksBeforeAnyComposedModuleMutation(string corruption)
+	{
+		var (db, bindings) = EmotionalFixture(); using (db)
+		{
+			Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings));
+			var record = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonReviewedPierceContent.Key);
+			switch (corruption)
+			{
+				case "retired": record.Retired = true; break;
+				case "type": record.EntityType = "MagicCapability"; break;
+				case "version": record.ManifestVersion = "invalid-version"; break;
+			}
+			db.SaveChanges();
+			string State() => JsonSerializer.Serialize(new
+			{
+				Records = db.SeederManagedRecords.AsNoTracking().OrderBy(x => x.Id).Select(x => new
+					{ x.Id, x.StableKey, x.EntityType, x.LogicalId, x.ManifestVersion, x.Retired, x.AppliedAt, x.SeedBaseline, x.AppliedFingerprint }).ToArray(),
+				Spells = db.MagicSpells.AsNoTracking().OrderBy(x => x.Id).Select(x => new { x.Id, x.Name, x.Definition }).ToArray(),
+				Expressions = db.TraitExpressions.AsNoTracking().OrderBy(x => x.Id).Select(x => new { x.Id, x.Expression }).ToArray(),
+				Traditions = CapabilityMeritPolicy(db)
+			});
+			var before = State();
+			var result = ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings);
+			Assert.AreEqual(ArmageddonInstallStatus.Blocked, result.Status);
+			Assert.AreEqual(0, result.Modules.Count, "Retained identity validation must precede utility and tradition commits.");
+			Assert.AreEqual(before, State(), "Blocking a corrupt retained identity must preserve every prior module and audit timestamp.");
+		}
+	}
+
+	[TestMethod]
+	public void CompletedPreparedWorldRerunPreservesAllOwnershipAuditTimestamps()
+	{
+		var (db, bindings) = EmotionalFixture(); using (db)
+		{
+			Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings));
+			string Ownership() => JsonSerializer.Serialize(db.SeederManagedRecords.AsNoTracking().OrderBy(x => x.StableKey)
+				.Select(x => new { x.StableKey, x.LogicalId, x.AppliedAt, x.SeedBaseline, x.AppliedFingerprint }).ToArray());
+			var before = Ownership();
+			for (var i = 0; i < 2; i++)
+			{
+				Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings));
+				Assert.AreEqual(before, Ownership(), "A no-op bootstrap/final plan must not churn the ownership audit.");
+			}
+		}
+	}
+
 	private static string CapabilityMeritPolicy(FuturemudDatabaseContext db) => JsonSerializer.Serialize(new
 	{
 		Records = db.SeederManagedRecords.AsNoTracking().Where(x => x.Module == ArmageddonTraditionInstaller.Module &&

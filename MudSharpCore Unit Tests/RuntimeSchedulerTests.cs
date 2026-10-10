@@ -40,10 +40,12 @@ public class RuntimeSchedulerTests
 		scheduler.AddSchedule(CreateSchedule("second", trigger, fired));
 
 		Assert.AreEqual(trigger, scheduler.NextTriggerUtc);
+		Assert.AreEqual(2, scheduler.ScheduleCount);
 		time.Advance(TimeSpan.FromSeconds(2));
 		scheduler.CheckSchedules();
 
 		Assert.AreEqual(2, scheduler.LastCheckFiredCount);
+		Assert.AreEqual(0, scheduler.ScheduleCount);
 		Assert.IsNull(scheduler.NextTriggerUtc);
 	}
 
@@ -201,6 +203,7 @@ public class RuntimeSchedulerTests
 		scheduler.AddSchedule(second);
 
 		scheduler.Destroy(item);
+		Assert.AreEqual(0, scheduler.ScheduleCount);
 		scheduler.CheckSchedules();
 
 		Assert.AreEqual(0, count);
@@ -246,9 +249,11 @@ public class RuntimeSchedulerTests
 		};
 		scheduler.AddSchedule(schedule);
 
+		Assert.AreEqual(1, scheduler.ScheduleCount);
 		scheduler.CheckSchedules();
 
 		effect.Verify(x => x.ExpireEffect(), Times.Once);
+		Assert.AreEqual(0, scheduler.ScheduleCount);
 		Assert.IsFalse(scheduler.IsScheduled(effect.Object));
 	}
 
@@ -262,9 +267,11 @@ public class RuntimeSchedulerTests
 		Assert.IsTrue(scheduler.IsScheduled(effect.Object));
 		scheduler.Reschedule(effect.Object, TimeSpan.FromMinutes(2));
 		Assert.IsTrue(scheduler.IsScheduled(effect.Object));
+		Assert.AreEqual(1, scheduler.ScheduleCount);
 
 		scheduler.Unschedule(effect.Object);
 		Assert.IsFalse(scheduler.IsScheduled(effect.Object));
+		Assert.AreEqual(0, scheduler.ScheduleCount);
 	}
 
 	private static Schedule CreateSchedule(string name, DateTime trigger, ICollection<string> fired)

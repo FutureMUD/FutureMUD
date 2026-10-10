@@ -188,6 +188,7 @@ SpellPoison
 SpellPortal
 SpellPortalTopology
 SpellPossessedBody
+SpellNpcGuardian
 SpellRage
 SpellReciteProxy
 SpellRejuvenateLand
@@ -205,6 +206,8 @@ SpellRoomWardTag
 SpellScopedWaterBreathing
 SpellSilence
 SpellSleep
+SpellSourceCalm
+SpellSourceFury
 SpellStaminaExpenditure
 SpellStaminaRegen
 SpellSubjectiveDescription

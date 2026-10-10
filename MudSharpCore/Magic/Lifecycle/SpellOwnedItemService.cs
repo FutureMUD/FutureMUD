@@ -41,6 +41,8 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 	private bool HasClaim(long itemId) => itemId > 0 &&
 		(_claimedItemIds ??= _readClaimedItemIds()).Contains(itemId);
 
+	internal void RegisterClaimedItem(long itemId) => _claimedItemIds?.Add(itemId);
+
 	public IGameItem Create(IGameItemProto prototype, ICharacter caster, ItemQuality quality, SpellLifecycleOrigin origin)
 	{
 		origin.Validate();
@@ -114,6 +116,13 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 		if (item.SpellCreationOrigin?.IsTemporary != true) return true;
 		using var authorization = FMDB.BeginIndependentScope(requireWrites: true);
 		var life = Find(item.Id);
+		if (life?.Origin.Family == SpellShelterAnchor.Family)
+		{
+			_world.SpellOwnedShelters?.RequestRetirement(life.Entities.Single(x => x.Kind == SpellOwnedEntityKind.Room).Id,
+				SpellRetirementReason.Dismissal);
+			diagnostic = "The finite supply retires with its shelter through the exact topology adapter.";
+			return false;
+		}
 		try
 		{
 			if (!ReferenceEquals(item.Gameworld, _world) || item is not GameItem || life is null || life.State == SpellLifecycleState.Completed ||

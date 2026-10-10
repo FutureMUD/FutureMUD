@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-continuation-20261008",
   "authorised_scope": "Complete plan in coherent stages; local commits and draft PR #788 authorized; no merge, deploy or shared/production DB",
-  "selected_stage": "N16 installed guardian high-volume/per-cycle restart qualified; next N17 occupied shelters.",
+  "selected_stage": "N17 builder-installed occupied shelters qualified; next N18 Sand Effigy and Walking Shadow.",
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -490,8 +490,10 @@
       "name": "Occupied shelters",
       "scenario": "Use Spring Haven, Burrow Refuge and Sand Shelter; expire/destroy while occupied",
       "required_result": "Real shelter utility/finite water; no stranded/deleted actors or foreign possessions; safe fallback when anchor missing",
-      "status": "not_run",
-      "evidence": []
+      "status": "passed_bounded_builder_installed_full_installer_source_parity_pending",
+      "evidence": [
+        "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
+      ]
     },
     {
       "id": "N18",
@@ -858,8 +860,10 @@
       "group": "Larger",
       "required_behavior": "Real temporary sheltered watering place, finite usable water, terrain admission and occupancy-safe lifecycle",
       "selected_sorcerer": false,
-      "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "status": "bounded_builder_installed_runtime_native_pass_full_installer_source_parity_pending",
+      "evidence": [
+        "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
+      ]
     },
     {
       "key": "arm.spell.unyielding_veil",
@@ -1125,9 +1129,10 @@
       "group": "Larger",
       "required_behavior": "Enterable temporary underground topology, terrain gate, safe return, occupied expiry and restart cleanup",
       "selected_sorcerer": true,
-      "status": "pending_runtime_stock_and_native_acceptance",
+      "status": "bounded_builder_installed_runtime_native_pass_full_installer_source_parity_pending",
       "evidence": [
-        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
+        "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
+        "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
       ]
     },
     {
@@ -1215,8 +1220,10 @@
       "group": "Larger",
       "required_behavior": "Physically usable shelter with protection/occupancy and foreign-content-preserving teardown",
       "selected_sorcerer": false,
-      "status": "pending_runtime_stock_and_native_acceptance",
-      "evidence": []
+      "status": "bounded_builder_installed_runtime_native_pass_full_installer_source_parity_pending",
+      "evidence": [
+        "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
+      ]
     },
     {
       "key": "arm.spell.clay_sentinel",
@@ -3766,7 +3773,7 @@
     }
   ],
   "next_checkpoint": {
-    "status": "PASS_BOUNDED_N16_BUILDER_INSTALLED",
+    "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
     "receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
     "remaining": [
       {
@@ -3782,7 +3789,7 @@
       },
       {
         "stage": "Required larger features",
-        "status": "PENDING",
+        "status": "PARTIAL_BOUNDED_N17",
         "scope": [
           "Spring Haven",
           "Burrow Refuge",
@@ -3792,7 +3799,14 @@
           "Severing Refuge",
           "Apex Bane",
           "Folded Pocket"
-        ]
+        ],
+        "bounded_builder_installed_qualified": [
+          "Spring Haven",
+          "Burrow Refuge",
+          "Sand Shelter"
+        ],
+        "evidence": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json",
+        "remaining": "Other five systems, full installer/source parity and complete candidate acceptance remain required."
       },
       {
         "stage": "Catalogue and portable production",
@@ -3815,12 +3829,13 @@
     "implementation_commit": "6c41c629b5a99389631949661d3c9e7992d048a7",
     "qualification_receipt": "Design Documents/Magic/Armageddon_Fury_Calm_Native_Qualification_20261009.json",
     "current_npc_archival_receipt": "Armageddon_Typed_Reference_Checkpoint_20261009.json",
-    "next_bounded_milestone": "N17: map and implement the bounded occupied-shelter dependencies for Spring Haven, Burrow Refuge and Sand Shelter, then qualify real utility, finite water, occupied expiry/destruction and safe fallback with preserved actors and foreign goods. Full Air Guardian catalogue/timing parity and other stock/readiness gates remain pending. Use only code-proven references; no static-definition classifier stage.",
+    "next_bounded_milestone": "N18: map and implement bounded Sand Effigy and Walking Shadow instance/focus/anchor contracts; qualify normal paid creation, focus switching, damage/severing/collapse and cold restart, with canonical identity, skills, resources and owner preserved. Full shelter installer/source parity and other catalogue/readiness gates remain pending. Use only code-proven links.",
     "current_npc_reference_review": "Design Documents/Magic/Armageddon_Typed_Reference_Review_20261009.md",
     "current_npc_reference_implementation": "Design Documents/Magic/Armageddon_Typed_Reference_Implementation_20261009.md",
     "current_guardian_receipt": "Design Documents/Magic/Armageddon_Guardian_Early_Death_Checkpoint_20261009.json",
     "current_guardian_lifecycle_modes_receipt": "Design Documents/Magic/Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.json",
-    "current_guardian_churn_receipt": "Design Documents/Magic/Armageddon_Guardian_Churn_Checkpoint_20261009.json"
+    "current_guardian_churn_receipt": "Design Documents/Magic/Armageddon_Guardian_Churn_Checkpoint_20261009.json",
+    "current_occupied_shelters_receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -5496,7 +5511,7 @@
   "continuation_20261008": {
     "receipt": "Design Documents/Magic/Armageddon_Continuation_20261008.json",
     "master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
-    "status": "PASS_BOUNDED_N15_BUILDER_INSTALLED",
+    "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
     "full_plan_complete": false,
     "native": {
       "status": "PASS_BOUNDED_FURY_CALM_NATIVE_MILESTONE",
@@ -5640,7 +5655,8 @@
       },
       "snapshot_failures_repaired": true
     },
-    "next_bounded_milestone": "N16: repeat normal builder-installed guardian summon/use/kill/expire with a cold restart on every cycle; qualify stable eligible heavy-row, timer and subscription counts and explain retained canonical history, claims and the ordinary permanent fixture. Full Air Guardian catalogue and historical timing parity remain pending. Use only code-proven references; no static-definition classifier stage."
+    "next_bounded_milestone": "N18: map and implement bounded Sand Effigy and Walking Shadow instance/focus/anchor contracts; qualify normal paid creation, focus switching, damage/severing/collapse and cold restart, with canonical identity, skills, resources and owner preserved. Full shelter installer/source parity and other catalogue/readiness gates remain pending. Use only code-proven links.",
+    "current_occupied_shelters_receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
   },
   "npc_prepayment_continuation_20261009": {
     "status": "MANAGED_PASS_NATIVE_PREPAYMENT_PASS_RETIREMENT_BLOCKED",
@@ -5802,23 +5818,23 @@
     "historical_attribution": "Previous malformed-armour failure retained; current stock repair and AI hold supersede its current-stage status."
   },
   "current_managed": {
-    "scope": "Full Core and shared Library after N16 census additions",
+    "scope": "Full Core and shared Library after N17 occupied shelter repairs",
     "runs": [
       {
-        "run_id": "20261009T103701Z-f15ab59e0250",
-        "head": "3f97b3ba7802f5b95b87abebb7c9aeddc793cc60",
+        "run_id": "20261010T024247Z-a7acd15ad0da",
+        "head": "7090fe5f444d10bfb9252465c2c7aabfc4db6163",
         "status": "PASS",
         "counts": {
-          "executed": 7069,
-          "passed": 7069,
+          "executed": 7113,
+          "passed": 7113,
           "failed": 0,
           "skipped": 0,
           "inconclusive": 0,
           "other": 0,
-          "total": 7069
+          "total": 7113
         },
-        "source_start": "9b22d70220a6b4bbf8a940f3dd459e65d59b2ec170ebedfe60f0c1474377348a",
-        "source_end": "9b22d70220a6b4bbf8a940f3dd459e65d59b2ec170ebedfe60f0c1474377348a",
+        "source_start": "68618b2203339dbf2d6b809fb7725a767e1bec8208732cd294b7f48186dde688",
+        "source_end": "68618b2203339dbf2d6b809fb7725a767e1bec8208732cd294b7f48186dde688",
         "source_stable": true,
         "projects": [
           "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
@@ -5827,14 +5843,34 @@
         "filter": null,
         "configuration": "Debug",
         "receipt": {
-          "path": ".artifacts/n16-20261009/managed/20261009T103701Z-f15ab59e0250/summary.json",
-          "sha256": "6305f2a7ea0c3fa891c93182cfaec6e0eff3d5dc5ecb9f93ab97b5e0098c3f91"
+          "path": ".artifacts/test-runs/20261010T024247Z-a7acd15ad0da/summary.json",
+          "sha256": "36879bd1843f3203190e4f7ca482f767f50c08d0a0c47ec927b03f6ffa959150"
+        },
+        "project_counts": {
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
+            "executed": 717,
+            "passed": 717,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 717
+          },
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
+            "executed": 6396,
+            "passed": 6396,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 6396
+          }
         }
       }
     ],
-    "authoritative_passed": 7069,
+    "authoritative_passed": 7113,
     "counts_are_not_added": true,
-    "previous_n15_receipt": "Design Documents/Magic/Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.json"
+    "previous_n16_receipt": "Design Documents/Magic/Armageddon_Guardian_Churn_Checkpoint_20261009.json"
   },
   "full_plan_complete": false,
   "package_release_enabled": false,
@@ -6305,5 +6341,13 @@
     "full_air_guardian_catalogue_qualified": false,
     "next_bounded_milestone": "N17: map and implement the bounded occupied-shelter dependencies for Spring Haven, Burrow Refuge and Sand Shelter, then qualify real utility, finite water, occupied expiry/destruction and safe fallback with preserved actors and foreign goods. Full Air Guardian catalogue/timing parity and other stock/readiness gates remain pending. Use only code-proven references; no static-definition classifier stage."
   },
-  "next_bounded_milestone": "N17: map and implement the bounded occupied-shelter dependencies for Spring Haven, Burrow Refuge and Sand Shelter, then qualify real utility, finite water, occupied expiry/destruction and safe fallback with preserved actors and foreign goods. Full Air Guardian catalogue/timing parity and other stock/readiness gates remain pending. Use only code-proven references; no static-definition classifier stage."
+  "next_bounded_milestone": "N18: map and implement bounded Sand Effigy and Walking Shadow instance/focus/anchor contracts; qualify normal paid creation, focus switching, damage/severing/collapse and cold restart, with canonical identity, skills, resources and owner preserved. Full shelter installer/source parity and other catalogue/readiness gates remain pending. Use only code-proven links.",
+  "occupied_shelters_20261010": {
+    "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
+    "receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json",
+    "native_assertions": 248,
+    "managed_passed": 7113,
+    "full_installer_and_source_parity": "pending",
+    "next_bounded_milestone": "N18: map and implement bounded Sand Effigy and Walking Shadow instance/focus/anchor contracts; qualify normal paid creation, focus switching, damage/severing/collapse and cold restart, with canonical identity, skills, resources and owner preserved. Full shelter installer/source parity and other catalogue/readiness gates remain pending. Use only code-proven links."
+  }
 }

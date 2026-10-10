@@ -1,0 +1,967 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-10",
+  "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
+  "branch": "codex/armageddon-continuation-20261008",
+  "base_head": "7090fe5f444d10bfb9252465c2c7aabfc4db6163",
+  "source_brief": "Armageddon_Magic_Completion_Implementation_Brief.md",
+  "candidates": [
+    "arm.spell.spring_haven",
+    "arm.spell.burrow_refuge",
+    "arm.spell.sand_shelter"
+  ],
+  "reference_authority": [
+    "Declared EF foreign keys",
+    "Versioned SpellShelterAnchor native room/overlay/route fields",
+    "Exact physical instance IDs and discriminated native position targets",
+    "PermitWork and known room-effect native field codecs; instance metadata is not normal effect XML"
+  ],
+  "numeric_text_scans": false,
+  "guessed_identity_fields": false,
+  "schema_migration_required": false,
+  "runtime_source_sha256": {
+    "FutureMUDLibrary Unit Tests/SpellShelterAnchorTests.cs": "0d2ebae79a98231c265cbd341105cc6f8b0489e4b7ad416ab5584cf452d16cb1",
+    "FutureMUDLibrary/Construction/Boundary/IExitManager.cs": "aa1c8639383a8cfaa08afbbbb7723a1054d94b9a94ef5dccab86ffb4a7205c60",
+    "FutureMUDLibrary/Framework/IFuturemud.cs": "aac345347682cfdb771edec87fcfaebc88f37d133d597d167609f5e987e789e8",
+    "FutureMUDLibrary/Magic/ISpellOwnedLifecycle.cs": "0c6fa2e7eb51f82d8d4fae121181d3d524adcf05bdb47cca299ef267bba18d5a",
+    "FutureMUDLibrary/Magic/ISpellOwnedShelterService.cs": "21da4b0cbbfe7a6f84d37e03c4f2dc22eb598320c610af10b99270543e3b8a25",
+    "FutureMUDLibrary/Magic/SpellShelterAnchor.cs": "394d7a9ba69a7df94df6f5e279443f110405f439a89fe0795d9f0fc9424e07af",
+    "MudSharpCore Unit Tests/QueuedCommandAuthorityDisplacementTests.cs": "d792d19a4019cc229c71e021f3eda7540807675baa53fc92e7cc2b3bff20aa1f",
+    "MudSharpCore Unit Tests/SpellOwnedShelterTests.cs": "92c0e4a02cda9d0fc459f3ca1b58a71ab4a6ce0bf062ed4c1db91bd0fccd81b2",
+    "MudSharpCore/Character/CharacterMovement.cs": "beebba6e5e2320cd4c75900780670ae7f7003ba12bd165bb9019e7bb99286374",
+    "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Shelters.cs": "c19b20d0164f0bc7b9a44c02a3200782d64126c7912ca6903c83101f403ff457",
+    "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Stock.cs": "71e44c4ef7c585c7bcf5be33e9995c4bf894f0b99d149a38c18df59d4fde02f8",
+    "MudSharpCore/Commands/Modules/RoomBuilderModule.cs": "7c6edf90696b8da3864c5da075eef03ce5fdedab8e28262b94d3c17d274d30e9",
+    "MudSharpCore/Construction/Boundary/ExitManager.cs": "30a196277474a809221994d46f72ec2b833fda4551f6d04847e6f889a16d56ec",
+    "MudSharpCore/Construction/Room.SpellShelter.cs": "a379f42788c31a30b965a69a1cac7e6d6137cc3c903c8dad4fae2ec151affe7e",
+    "MudSharpCore/Construction/Room.cs": "176e7f3ff07c7a4212bc4d224790f937ed101259320999057b140e89255488dd",
+    "MudSharpCore/Construction/RoomOverlay.cs": "cce4e2ba543393a51fa6ffe9b7ca05d6e090a644f1157cc2c128cc09257eb9c1",
+    "MudSharpCore/Framework/Futuremud.SpellOwnedNpcs.cs": "557ed43fde4c62b8b53397fa69b9b962ed99f0bd1e202266d567a8e0b07853fa",
+    "MudSharpCore/GameItems/GameItem.SpellCreation.cs": "780c597b1f28c33c42616d6e8965c083191c8d76d2c314bd41c45525d4189187",
+    "MudSharpCore/Magic/ArmageddonShelterStock.cs": "89f3d29d9a22c670c0b13e9767d639df54c4f92c956c7b4e7e9da13b7c40da73",
+    "MudSharpCore/Magic/Casting/CastingNumerics.cs": "b00fba428dad095bbc4b5d0ecb001318bffc2ca598ad427172128df91db98de4",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedCreation.Shelter.cs": "f71ad101a1d8bf31a91ec889a952c494d424e9952410cee4206b415594f99bdd",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedCreation.cs": "a0b668ab8409691d552350e189a91e080e8c913aca1a80b04c01e1d351081aaf",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedItemService.cs": "f04fce26db37c3fcde42156a4506362b01e6e4251bb82cd54221e8a868275e11",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedLifecycleStore.cs": "ec29fb9647e221aaf4d4e5979365dfc637af1ffbc7bbf6f273e4e0844e2f1005",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedShelterService.Permits.cs": "4220fa8ca021d9f53da2e99e700300f73ae6dd873fb157fbd779e1826b534ba0",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedShelterService.Retirement.cs": "5ef1c2a509ec2942037e658acfde59c28313c27bf64ca1a69338b0e2ffd53cad",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedShelterService.Water.cs": "80978f4ac1c7858e09dd4850774049c98b29ac7993a908ba7610a7cad2f7a880",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedShelterService.cs": "b93de3d6465b67bf0306e866dbdccf6b24732c50bac4f45deadb5b0e8bd830d5",
+    "MudSharpCore/Magic/SpellEffects/CreateShelterEffect.cs": "79b9df424484a01b44ae262a1825a2ac58d0dbf963580c65fb04adaaa3ad75ac",
+    "MudSharpCore/Magic/Vancian/ScrollSpellCompatibility.cs": "e0d1b171bc235f7b28ca89d987d5ada0f0a0f37c996137f7904c2b2361f2429a",
+    "scripts/FuryCalmSmokeWorld/OwnedShelterFixtures.cs": "090c11882c330d689013ee5e0beff7156891a1ca8615267e71ceb739b3653d7d",
+    "scripts/FuryCalmSmokeWorld/Program.cs": "de40c883a512ea0d9f551bc07721e4270b7894e2ab967a673d7942332d8799ff"
+  },
+  "managed": {
+    "run_id": "20261010T024247Z-a7acd15ad0da",
+    "head": "7090fe5f444d10bfb9252465c2c7aabfc4db6163",
+    "status": "PASS",
+    "counts": {
+      "executed": 7113,
+      "passed": 7113,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7113
+    },
+    "source_start": "68618b2203339dbf2d6b809fb7725a767e1bec8208732cd294b7f48186dde688",
+    "source_end": "68618b2203339dbf2d6b809fb7725a767e1bec8208732cd294b7f48186dde688",
+    "source_stable": true,
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": null,
+    "configuration": "Debug",
+    "receipt": {
+      "path": ".artifacts/test-runs/20261010T024247Z-a7acd15ad0da/summary.json",
+      "sha256": "36879bd1843f3203190e4f7ca482f767f50c08d0a0c47ec927b03f6ffa959150"
+    },
+    "project_counts": {
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
+        "executed": 717,
+        "passed": 717,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 717
+      },
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
+        "executed": 6396,
+        "passed": 6396,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6396
+      }
+    }
+  },
+  "focused_managed": {
+    "scope": "Prior repair subset; final subsequent C# changes are covered by the full managed gate",
+    "run_id": "20261010T023921Z-e8a69aa4cc0e",
+    "passed": 34,
+    "failed": 0,
+    "skipped": 0,
+    "source_stable": true,
+    "receipt": ".artifacts/test-runs/20261010T023921Z-e8a69aa4cc0e/summary.json"
+  },
+  "native": {
+    "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-latest.json",
+    "sha256": "344ca7da8c3830ba0856c192ce04b5020f62e373c22f2e71a7869f4160194066",
+    "invocation_receipt": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-dde976c5dcbe/receipt.json",
+    "assertions": 248,
+    "inputs_sha256": {
+      "scripts\\FuryCalmSmokeWorld\\smoke.py": "7638d3cb7abfeb88bd4a191555aa7f6f2fc324373de745c527e1b471160afa40",
+      "scripts\\FuryCalmSmokeWorld\\Program.cs": "de40c883a512ea0d9f551bc07721e4270b7894e2ab967a673d7942332d8799ff",
+      "scripts\\AuthoredCelestialSmokeWorld\\native.py": "18fca1b93f3a85551d9b0907ebe4f7b8fa11c625517abab470c67cf155f265f8",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "e34d469d9d0ce4b4008b2f3662d9c3f0ddc6eba05e77ee9c85c3ded938b6afd1",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "48b49cdfadfafa74ec1a36caeda98ecf17d3b4dc4d8d8ca80ac9e27e96c419bd",
+      "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "a9036546bc300819aef9f38ff5cc141109a66d0e06bd63695018083f50a379c9",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+      "scripts\\FuryCalmSmokeWorld\\shelters.py": "397519c13a99c1d48af80d74a2d7933242777b5f7173190de4edabeba003d6a2",
+      "scripts\\FuryCalmSmokeWorld\\OwnedShelterFixtures.cs": "090c11882c330d689013ee5e0beff7156891a1ca8615267e71ceb739b3653d7d",
+      "MudSharpCore\\Magic\\Lifecycle\\SpellOwnedShelterService.cs": "b93de3d6465b67bf0306e866dbdccf6b24732c50bac4f45deadb5b0e8bd830d5",
+      "MudSharpCore\\Magic\\Lifecycle\\SpellOwnedShelterService.Permits.cs": "4220fa8ca021d9f53da2e99e700300f73ae6dd873fb157fbd779e1826b534ba0",
+      "MudSharpCore\\Magic\\Lifecycle\\SpellOwnedShelterService.Retirement.cs": "5ef1c2a509ec2942037e658acfde59c28313c27bf64ca1a69338b0e2ffd53cad",
+      "MudSharpCore\\Magic\\Lifecycle\\SpellOwnedShelterService.Water.cs": "80978f4ac1c7858e09dd4850774049c98b29ac7993a908ba7610a7cad2f7a880",
+      "MudSharpCore\\Magic\\SpellEffects\\CreateShelterEffect.cs": "79b9df424484a01b44ae262a1825a2ac58d0dbf963580c65fb04adaaa3ad75ac"
+    },
+    "inputs_unchanged": true,
+    "objects": {
+      "caster": 2,
+      "target": 3,
+      "other": 4,
+      "enemy": 5,
+      "fury": 16,
+      "calm": 17,
+      "capability": 5,
+      "reserve": 5,
+      "Status": "PASS",
+      "Anchor": 11,
+      "Fallback": 2,
+      "Spring": 4,
+      "Burrow": 5,
+      "Sand": 6,
+      "Terrain": 1,
+      "Incompatible": 7,
+      "PoolPrototype": 6895,
+      "CupPrototype": 6896,
+      "MountAi": 113,
+      "Water": 1
+    },
+    "created_lifecycles": [
+      {
+        "id": "74a5c922-037a-41b8-808e-196db4298a71",
+        "name": "Spring Haven",
+        "claims": {
+          "0": "163",
+          "4": "24",
+          "5": "16",
+          "6": "24"
+        },
+        "terminal": "3\t2\t3"
+      },
+      {
+        "id": "d6c7481c-2136-4a66-bb79-8b6cb20528b9",
+        "name": "Burrow Refuge",
+        "claims": {
+          "4": "25",
+          "5": "17",
+          "6": "25"
+        },
+        "terminal": "3\t0\t3"
+      },
+      {
+        "id": "0655fb7f-c56b-48c3-a0bc-e2ea05b6a633",
+        "name": "Sand Shelter",
+        "claims": {
+          "4": "26",
+          "5": "18",
+          "6": "26"
+        },
+        "terminal": "3\t0\t3"
+      },
+      {
+        "id": "a1cfcf43-5068-4a0e-821c-589e5c2f50ad",
+        "name": "Sand Shelter",
+        "claims": {
+          "4": "27",
+          "5": "19",
+          "6": "27"
+        },
+        "terminal": "3\t0\t4"
+      },
+      {
+        "id": "0e475e1d-ebcc-4912-9193-98944f3cf3e2",
+        "name": "Spring Haven",
+        "claims": {
+          "0": "169",
+          "4": "28",
+          "5": "20",
+          "6": "28"
+        },
+        "terminal": "3\t0\t3"
+      },
+      {
+        "id": "0e227839-e72b-4fa9-8340-7716d42792f2",
+        "name": "Sand Shelter",
+        "claims": {
+          "4": "29",
+          "5": "21",
+          "6": "29"
+        },
+        "terminal": "3\t2\t3"
+      },
+      {
+        "id": "b09230e6-febc-4b40-ac1e-d9073f75dbb3",
+        "name": "Burrow Refuge",
+        "claims": {
+          "4": "30",
+          "5": "22",
+          "6": "30"
+        },
+        "terminal": "3\t0\t3"
+      }
+    ],
+    "reserve_before": 262.0,
+    "reserve_after": 199.0,
+    "paid_invocations": 7,
+    "total_paid": 63,
+    "authored_timing": {
+      "secondsPerGrade": {
+        "Spring Haven": 120,
+        "Burrow Refuge": 180,
+        "Sand Shelter": 210
+      },
+      "maximumOccupants": 2,
+      "initialLitresPerGrade": 10,
+      "fixtureSurfaceDryingIntervalSeconds": 86400,
+      "sourceParity": false
+    },
+    "fixture_policy_before": {
+      "roomFlags": "2\t0\n11\t0",
+      "dryingDefinitionHex": "3836343030"
+    },
+    "assertions_passed": [
+      "native fixture shelter-fixtures",
+      "login uses the exact surviving native PC room",
+      "1",
+      "impdebug freezetime",
+      "magic spell edit 23",
+      "magic spell set effect 1 lifetime 120",
+      "magic spell set difficulty automatic",
+      "magic capability edit 5",
+      "magic capability set casting entry add 23",
+      "magic casting grant 2 5 23 N17 owned qualification",
+      "magic spell edit 24",
+      "magic spell set effect 1 lifetime 180",
+      "magic spell set difficulty automatic",
+      "magic capability edit 5",
+      "magic capability set casting entry add 24",
+      "magic casting grant 2 5 24 N17 owned qualification",
+      "magic spell edit 25",
+      "magic spell set effect 1 lifetime 210",
+      "magic spell set difficulty automatic",
+      "magic capability edit 5",
+      "magic capability set casting entry add 25",
+      "magic casting grant 2 5 25 N17 owned qualification",
+      "graceful server shutdown",
+      "login uses the exact surviving native PC room",
+      "1",
+      "impdebug freezetime",
+      "possess qacaster",
+      "qamagi cast \"Spring Haven\" grade 1 on here via 5",
+      "possess qacaster",
+      "qamagi cast \"Burrow Refuge\" grade 1 on here via 5",
+      "possess qacaster",
+      "qamagi cast \"Sand Shelter\" grade 1 on here via 5",
+      "incompatible terrain refuses every shelter before payment or creation",
+      "possess qacaster",
+      "qamagi cast \"Spring Haven\" grade 1 on here via 5",
+      "Spring Haven pays exactly nine reserve units and creates one graph",
+      "only exact declared topology and optional pool are claimed",
+      "native sheltered room is temporary with a usable indoor ground overlay",
+      "possess qacaster",
+      "enter haven",
+      "native movement arrives at QA Spring Haven",
+      "ordinary non-cardinal entry reaches the new usable haven",
+      "item load 6894",
+      "drop staff",
+      "one ordinary foreign item created",
+      "permitwork qacaster 1 hour",
+      "look",
+      "native room-specific permit is durable before retirement",
+      "native PC command logs exist inside the shelter",
+      "drop qadrawcup",
+      "retained fixture cups leave inventory without deletion",
+      "item load 6896",
+      "one new unambiguous native draw cup is carried",
+      "the exact new cup has native inventory custody",
+      "fill qadrawcup basin 1 litre",
+      "native withdrawal conserves finite water into an ordinary vessel",
+      "spill qadrawcup basin",
+      "ordinary native spill wets the owned basin exterior without refilling it",
+      "fill qadrawcup basin 1 litre",
+      "empty qadrawcup",
+      "public deletion targets the exact occupied temporary shelter",
+      "room delete",
+      "accept delete",
+      "retirement wait stays within the fixed qualification policy",
+      "Spring Haven retires through the journal",
+      "only the owned topology rows disappear",
+      "visitor identity and body survive at the exact safe return room",
+      "every physical instance of the visitor returns safely",
+      "visitor identity and body survive at the exact safe return room",
+      "every physical instance of the visitor returns safely",
+      "unclaimed visitor goods survive in the exact return room",
+      "remaining pool water and foreign spilled water survive exactly once at return",
+      "finite source is removed without deleting the borrowed draw cup",
+      "shelter command log IDs and payloads survive topology removal",
+      "retirement removes exact shelter work permits without granting work at the anchor",
+      "possess qacaster",
+      "qamagi cast \"Burrow Refuge\" grade 1 on here via 5",
+      "Burrow Refuge pays exactly nine reserve units and creates one graph",
+      "only exact declared topology and optional pool are claimed",
+      "native sheltered room is temporary with a usable indoor ground overlay",
+      "possess qacaster",
+      "enter burrow",
+      "native movement arrives at QA Burrow Refuge",
+      "burrow is native topology below the entrance",
+      "item load 6894",
+      "drop staff",
+      "one ordinary foreign item created",
+      "graceful server shutdown",
+      "login uses the exact surviving native PC room",
+      "1",
+      "impdebug freezetime",
+      "occupied cold restart does not recreate topology, repay, or extend the deadline",
+      "same occupied room, overlay, entrance and goods survive the active restart",
+      "possess qacaster",
+      "leave outside",
+      "native movement arrives at QA Shelter Clearing",
+      "the same native entrance returns an occupant after restart",
+      "original Burrow deadline has time for native re-entry after restart",
+      "possess qacaster",
+      "enter burrow",
+      "native movement arrives at QA Burrow Refuge",
+      "retirement wait stays within the fixed qualification policy",
+      "Burrow Refuge retires through the journal",
+      "only the owned topology rows disappear",
+      "visitor identity and body survive at the exact safe return room",
+      "every physical instance of the visitor returns safely",
+      "unclaimed visitor goods survive in the exact return room",
+      "possess qacaster",
+      "qamagi cast \"Sand Shelter\" grade 1 on here via 5",
+      "Sand Shelter pays exactly nine reserve units and creates one graph",
+      "only exact declared topology and optional pool are claimed",
+      "native sheltered room is temporary with a usable indoor ground overlay",
+      "possess qatarget",
+      "enter shelter",
+      "native movement arrives at QA Sand Shelter",
+      "possess qaother",
+      "enter shelter",
+      "native movement arrives at QA Sand Shelter",
+      "possess qacaster",
+      "enter shelter",
+      "full shelter refuses ordinary entry",
+      "forced goto also respects the same capacity",
+      "item load 6894",
+      "drop staff",
+      "one ordinary foreign item created",
+      "possess qaother",
+      "enter shelter",
+      "native movement arrives at QA Sand Shelter",
+      "possess qatarget",
+      "enter shelter",
+      "native movement arrives at QA Sand Shelter",
+      "native movement finishes and the rider mounts through the normal command",
+      "a real native riding link exists before occupied expiry",
+      "retirement wait stays within the fixed qualification policy",
+      "Sand Shelter retires through the journal",
+      "only the owned topology rows disappear",
+      "visitor identity and body survive at the exact safe return room",
+      "every physical instance of the visitor returns safely",
+      "visitor identity and body survive at the exact safe return room",
+      "every physical instance of the visitor returns safely",
+      "unclaimed visitor goods survive in the exact return room",
+      "retirement dismounts before moving either borrowed endpoint",
+      "possess qacaster",
+      "qamagi cast \"Sand Shelter\" grade 1 on here via 5",
+      "Sand Shelter pays exactly nine reserve units and creates one graph",
+      "only exact declared topology and optional pool are claimed",
+      "native sheltered room is temporary with a usable indoor ground overlay",
+      "possess qacaster",
+      "enter shelter",
+      "native movement arrives at QA Sand Shelter",
+      "graceful server shutdown",
+      "absolute occupied deadline passes while offline",
+      "login uses the exact surviving native PC room",
+      "1",
+      "impdebug freezetime",
+      "unsafe return holds a closed recoverable topology and exact occupant",
+      "offline PC reconnects to its exact retained closed shelter",
+      "room delete",
+      "accept delete",
+      "held public deletion reports recovery and retains the exact native room",
+      "graceful server shutdown",
+      "login uses the exact surviving native PC room",
+      "1",
+      "impdebug freezetime",
+      "retirement wait stays within the fixed qualification policy",
+      "Sand Shelter retires through the journal",
+      "only the owned topology rows disappear",
+      "visitor identity and body survive at the exact safe return room",
+      "every physical instance of the visitor returns safely",
+      "visitor identity and body survive at the exact safe return room",
+      "every physical instance of the visitor returns safely",
+      "graceful server shutdown",
+      "login uses the exact surviving native PC room",
+      "1",
+      "impdebug freezetime",
+      "possess qacaster",
+      "qamagi cast \"Spring Haven\" grade 1 on here via 5",
+      "Spring Haven pays exactly nine reserve units and creates one graph",
+      "only exact declared topology and optional pool are claimed",
+      "native sheltered room is temporary with a usable indoor ground overlay",
+      "possess qacaster",
+      "enter haven",
+      "native movement arrives at QA Spring Haven",
+      "drop qadrawcup",
+      "retained fixture cups leave inventory without deletion",
+      "item load 6896",
+      "one new unambiguous native draw cup is carried",
+      "the exact new cup has native inventory custody",
+      "fill qadrawcup basin 100 litres",
+      "native draw cannot exceed the finite available source",
+      "fill qadrawcup basin 1 litre",
+      "exhausted-source overdraw refuses without recreating quantity",
+      "retirement wait stays within the fixed qualification policy",
+      "Spring Haven retires through the journal",
+      "only the owned topology rows disappear",
+      "visitor identity and body survive at the exact safe return room",
+      "every physical instance of the visitor returns safely",
+      "possess qacaster",
+      "qamagi cast \"Sand Shelter\" grade 1 on here via 5",
+      "Sand Shelter pays exactly nine reserve units and creates one graph",
+      "only exact declared topology and optional pool are claimed",
+      "native sheltered room is temporary with a usable indoor ground overlay",
+      "possess qacaster",
+      "enter shelter",
+      "native movement arrives at QA Sand Shelter",
+      "public deletion targets the exact occupied temporary shelter",
+      "room delete",
+      "accept delete",
+      "retirement wait stays within the fixed qualification policy",
+      "Sand Shelter retires through the journal",
+      "only the owned topology rows disappear",
+      "visitor identity and body survive at the exact safe return room",
+      "every physical instance of the visitor returns safely",
+      "visitor identity and body survive at the exact safe return room",
+      "every physical instance of the visitor returns safely",
+      "graceful server shutdown",
+      "login uses the exact surviving native PC room",
+      "1",
+      "impdebug freezetime",
+      "magic spell set effect 1 terrain 239",
+      "possess qacaster",
+      "qamagi cast \"Burrow Refuge\" grade 1 on here via 5",
+      "Burrow Refuge pays exactly nine reserve units and creates one graph",
+      "only exact declared topology and optional pool are claimed",
+      "native sheltered room is temporary with a usable indoor ground overlay",
+      "possess qacaster",
+      "enter burrow",
+      "native movement arrives at QA Burrow Refuge",
+      "PC and NPC occupy the exact burrow before cold shutdown",
+      "graceful server shutdown",
+      "owned missing-anchor fixture has no visitors or goods before removal",
+      "original deadline passes without a server or anchor",
+      "login uses the exact surviving native PC room",
+      "1",
+      "impdebug freezetime",
+      "retirement wait stays within the fixed qualification policy",
+      "Burrow Refuge retires through the journal",
+      "only the owned topology rows disappear",
+      "visitor identity and body survive at the exact safe return room",
+      "every physical instance of the visitor returns safely",
+      "visitor identity and body survive at the exact safe return room",
+      "every physical instance of the visitor returns safely",
+      "magic spell set effect 1 terrain 239",
+      "graceful server shutdown",
+      "no reserve reset or refund; exactly seven paid casts",
+      "native drying policy restored exactly after stopped qualification",
+      "qualification mount binding restored while stopped",
+      "source and binaries remained frozen throughout the scenario"
+    ],
+    "audit_conservation": [
+      {
+        "before": "6206\t1\t1\t6974656D206C6F61642036383934\t2026-10-10 03:02:27.000000\t1\n6207\t1\t1\t64726F70207374616666\t2026-10-10 03:02:28.000000\t1\n6208\t1\t1\t696D70646562756720666C757368\t2026-10-10 03:02:28.000000\t1\n6209\t1\t1\t7065726D6974776F726B207161636173746572203120686F7572\t2026-10-10 03:02:29.000000\t1\n6210\t1\t1\t6C6F6F6B\t2026-10-10 03:02:30.000000\t1\n6211\t1\t1\t696D70646562756720666C757368\t2026-10-10 03:02:30.000000\t1",
+        "room": 24,
+        "returnRoom": 11
+      }
+    ],
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-1.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-2.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-3.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-4.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-5.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-6.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-7.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "cleanup": {
+      "mysqlStopped": true,
+      "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+    }
+  },
+  "retained_failed_native": [
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-12111017/receipt.json",
+      "sha256": "cfeef414289369cdaa501b0bc90a74d3bb9642c7c65d60ce064c593e9bca8ca8",
+      "error": "native movement arrives at QA Burrow Refuge: <You are currently in no pain>\n<Stamina: 200/200 | Exertion: Low | Status: Awake>\n\nYou begin strolling into burrow.\n\n\n<You are currently in no pain>\n<Stamina: 200/200 | Exertion: Low | Status: Awake>\n\nYou are unable to follow your group any longer and stop moving.\n\n<You are currently in no pain>\n<Stamina: 200/200 | Exertion: Low | Status: Awake>\n\n",
+      "created_lifecycles": [
+        {
+          "id": "e146da87-68b1-4920-973e-ccd66cd299f3",
+          "name": "Spring Haven",
+          "claims": {
+            "0": "143",
+            "4": "15",
+            "5": "7",
+            "6": "15"
+          },
+          "terminal": "3\t2\t3"
+        },
+        {
+          "id": "433a5a47-71fd-4be3-891f-052536aefa57",
+          "name": "Burrow Refuge",
+          "claims": {
+            "4": "16",
+            "5": "8",
+            "6": "16"
+          }
+        }
+      ],
+      "reserve_before": 343.0,
+      "cleanup_error": "Command '['dotnet', 'run', '--project', 'C:\\\\Users\\\\luker\\\\.codex\\\\worktrees\\\\377e\\\\FutureMUD\\\\MudSharpCore\\\\MudSharpCore.csproj', '-c', 'Debug', '--no-build', '--no-restore', '--', 'MySql.Data.MySqlClient', '[REDACTED]']' timed out after 30 seconds",
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-1.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-2.log",
+          "returncode": 1,
+          "collectorStopped": true
+        }
+      ],
+      "inputs_unchanged": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-1643c2b6/receipt.json",
+      "sha256": "345a79da1977324a04aa5e1faf49c3f7c073276181e9e4d19136fed84d0a38e5",
+      "error": "native fixture shelter-fixtures: Unhandled exception. System.ArgumentException: The key value at position 0 of the call to 'DbSet<FutureProg>.Find' was of type 'int', which does not match the property type of 'long'.\n   at Microsoft.EntityFrameworkCore.Internal.EntityFinder`1.FindTracked(Object[] keyValues)\n   at Microsoft.EntityFrameworkCore.Internal.EntityFinder`1.Find(Object[] keyValues)\n   at Microsoft.EntityFrameworkCore.Internal.InternalDbSet`1.Find(Object[] keyValues)\n   at OwnedShelterFixtures.Run(DbContextOptions`1 options, String receipt) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\OwnedShelterFixtures.cs:line 25\n   at Program.<Main>$(String[] args) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\Program.cs:line 51\n",
+      "created_lifecycles": [],
+      "reserve_before": null,
+      "cleanup_error": null,
+      "server_processes": [],
+      "inputs_unchanged": true
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-190bc78c/receipt.json",
+      "sha256": "befd7724481a2574d257dc00c61951982276e54cd8e4ed8b7022d255f2fda045",
+      "error": "possess qacaster: You don't see anyone like that to possess.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "created_lifecycles": [
+        {
+          "id": "7254d50e-aba7-4660-8168-165c640e923a",
+          "name": "Spring Haven",
+          "claims": {
+            "0": "138",
+            "4": "13",
+            "5": "5",
+            "6": "13"
+          },
+          "terminal": "3\t2\t3"
+        },
+        {
+          "id": "74325641-e10b-4d11-a06d-ebf4cc903dd3",
+          "name": "Burrow Refuge",
+          "claims": {
+            "4": "14",
+            "5": "6",
+            "6": "14"
+          }
+        }
+      ],
+      "reserve_before": 361.0,
+      "cleanup_error": null,
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-1.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-2.log",
+          "returncode": 0,
+          "collectorStopped": true
+        }
+      ],
+      "inputs_unchanged": true
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-1a8282a9/receipt.json",
+      "sha256": "c744e7a3236dfbde3204ec19f591f79a0f54f30214674d5c2f04bd5c9a0981bd",
+      "error": "mount qaother: You must stop moving before you can do that.\n\n<You are currently in no pain>\n<Stamina: 200/200 | Exertion: Low | Status: Awake>\n\n",
+      "created_lifecycles": [
+        {
+          "id": "559e6b39-8196-4f0a-bbaf-c3902c127399",
+          "name": "Spring Haven",
+          "claims": {
+            "0": "157",
+            "4": "21",
+            "5": "13",
+            "6": "21"
+          },
+          "terminal": "3\t2\t3"
+        },
+        {
+          "id": "03767d2f-535f-4d9f-9547-2c877e9883e5",
+          "name": "Burrow Refuge",
+          "claims": {
+            "4": "22",
+            "5": "14",
+            "6": "22"
+          },
+          "terminal": "3\t0\t3"
+        },
+        {
+          "id": "e3ebb438-a6ed-41dd-a9cb-7517699fec84",
+          "name": "Sand Shelter",
+          "claims": {
+            "4": "23",
+            "5": "15",
+            "6": "23"
+          }
+        }
+      ],
+      "reserve_before": 289.0,
+      "cleanup_error": null,
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-1.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-2.log",
+          "returncode": 0,
+          "collectorStopped": true
+        }
+      ],
+      "inputs_unchanged": true
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-57ee12f7/receipt.json",
+      "sha256": "b6e6b23ba21e56da21d9d556a744a29de19aee508b1924cf59a466bc42ad3bcb",
+      "error": "native sheltered room is temporary with a usable indoor ground overlay: ",
+      "created_lifecycles": [
+        {
+          "id": "67d9cc22-80c9-4f64-9371-6f629f8ae4e2",
+          "name": "Spring Haven",
+          "claims": {
+            "0": "126",
+            "4": "8",
+            "5": "1",
+            "6": "8"
+          }
+        }
+      ],
+      "reserve_before": 397.0,
+      "cleanup_error": "embedded null character",
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-1.log",
+          "returncode": 0,
+          "collectorStopped": true
+        }
+      ],
+      "inputs_unchanged": null
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-6c90a9fb/receipt.json",
+      "sha256": "ed65de2f5bdb5b2e54d285d31402304b2e35a06a019f230ac0f13b44d9cb6764",
+      "error": "ordinary non-cardinal entry reaches the new usable haven: ",
+      "created_lifecycles": [
+        {
+          "id": "e4e746e7-1f24-4b61-b217-e13782d1b768",
+          "name": "Spring Haven",
+          "claims": {
+            "0": "128",
+            "4": "9",
+            "5": "2",
+            "6": "9"
+          }
+        }
+      ],
+      "reserve_before": 388.0,
+      "cleanup_error": null,
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-1.log",
+          "returncode": 0,
+          "collectorStopped": true
+        }
+      ],
+      "inputs_unchanged": true
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-8355cd51/receipt.json",
+      "sha256": "90d0ec70066a3a61ea045e7c992f04a9f95e1ca4e30a81abe171639ca0fea8ac",
+      "error": "enter shelter: <You are currently in no pain>\n<Stamina: 200/200 | Exertion: Low | Status: Awake>\n\n",
+      "created_lifecycles": [
+        {
+          "id": "edba937d-10d4-4e81-826c-a1fbd4481d5b",
+          "name": "Spring Haven",
+          "claims": {
+            "0": "148",
+            "4": "17",
+            "5": "9",
+            "6": "17"
+          },
+          "terminal": "3\t2\t3"
+        },
+        {
+          "id": "145ee7e8-bda0-45eb-8fae-7c32ae2f1f96",
+          "name": "Burrow Refuge",
+          "claims": {
+            "4": "18",
+            "5": "10",
+            "6": "18"
+          },
+          "terminal": "3\t0\t3"
+        },
+        {
+          "id": "2a9c3739-0268-4aee-b4f4-3e7aae11e3c3",
+          "name": "Sand Shelter",
+          "claims": {
+            "4": "19",
+            "5": "11",
+            "6": "19"
+          }
+        }
+      ],
+      "reserve_before": 325.0,
+      "cleanup_error": null,
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-1.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-2.log",
+          "returncode": 0,
+          "collectorStopped": true
+        }
+      ],
+      "inputs_unchanged": true
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-b9d253c6/receipt.json",
+      "sha256": "5847d8378dcc1df7f3713088e594bcccf8e95ce43d7192757fb6a3fe426efe82",
+      "error": "visitor identity and body survive at the exact safe return room: ",
+      "created_lifecycles": [
+        {
+          "id": "5ad272a3-6b1d-4fdd-9526-b17500e7fb55",
+          "name": "Spring Haven",
+          "claims": {
+            "0": "130",
+            "4": "10",
+            "5": "3",
+            "6": "10"
+          }
+        }
+      ],
+      "reserve_before": 379.0,
+      "cleanup_error": null,
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-1.log",
+          "returncode": 0,
+          "collectorStopped": true
+        }
+      ],
+      "inputs_unchanged": true
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-ca8d2a57/receipt.json",
+      "sha256": "d17b00d4c43297e5a371b7edc2d3b7598d335132395d10ae88b74ea27df81682",
+      "error": "native withdrawal conserves finite water into an ordinary vessel: initial=10.0; pool=9.0; cup=0",
+      "created_lifecycles": [
+        {
+          "id": "da795b0a-129c-4f3b-8b04-0c22edc486ff",
+          "name": "Spring Haven",
+          "claims": {
+            "0": "134",
+            "4": "12",
+            "5": "4",
+            "6": "12"
+          }
+        }
+      ],
+      "reserve_before": 370.0,
+      "cleanup_error": null,
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-1.log",
+          "returncode": 0,
+          "collectorStopped": true
+        }
+      ],
+      "inputs_unchanged": true
+    },
+    {
+      "receipt": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-d58fbca4/receipt.json",
+      "sha256": "f403abcf04b8bc2450cdbcabbf1273926e5de88b18106d399bc1c51268106f1c",
+      "error": "ordinary native spill wets the owned basin exterior without refilling it: ",
+      "created_lifecycles": [
+        {
+          "id": "33c269d3-a2ad-424f-a9ff-fc89e2b945c3",
+          "name": "Spring Haven",
+          "claims": {
+            "0": "153",
+            "4": "20",
+            "5": "12",
+            "6": "20"
+          }
+        }
+      ],
+      "reserve_before": 298.0,
+      "cleanup_error": null,
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        },
+        {
+          "output": "server-output-1.log",
+          "returncode": 0,
+          "collectorStopped": true
+        }
+      ],
+      "inputs_unchanged": true
+    }
+  ],
+  "retained_failed_managed": {
+    "run_id": "20261010T003406Z-2d5a780434b3",
+    "library_passed": 717,
+    "core_passed": 6359,
+    "core_failed": 15,
+    "disposition": "Repaired own-room/null-world entry scope and explicit Vancian unsupported registration; rerun above is authoritative."
+  },
+  "review": {
+    "scope": "Read-only shelter retirement/admission/callback/depth review",
+    "fixes": [
+      "Callback-selected actor/item custody, conserved floor and basin exterior liquid/residue",
+      "Exact runtime and declared persisted supply custody guards",
+      "Command audit IDs/payloads preserved with the room FK redirected to safe return",
+      "Exact room work permits removed without broadening scope; other known room references held",
+      "Unregistered occupants included in room-effect guards",
+      "Unsaved NPCs counted by reference; stale runtime membership ignored",
+      "Useful capacity movement refusal and truthful held public deletion",
+      "Depth editor/display, legacy double count and native login proof"
+    ],
+    "deliberate_decision": "After the active/deadline gate, capacity counts other occupants and excludes the prospective entrant own instance so it cannot count twice. Native login or existing membership proves closed residency."
+  },
+  "limits": [
+    "Builder-installed stocks only; full installer composition and stable-owned rerun acceptance pending.",
+    "Authored native terrain, capacity, lifetime, water and drying policies; historical source/balance parity pending.",
+    "Grade-one native scenarios; all-grade and high-volume shelter churn remain unqualified.",
+    "Managed callback fences and instance reconciliation are tested; arbitrary scripted hooks remain conservative holds.",
+    "Stored/scroll/device delivery is explicitly unsupported.",
+    "All 154 candidates, 152 required/two optional, 82 Sorcerer spells/four roots/12 supports and eight larger systems remain in scope.",
+    "Whole-plan completion and package Release remain disabled."
+  ],
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "next_bounded_milestone": "N18: map and implement bounded Sand Effigy and Walking Shadow instance/focus/anchor contracts; qualify normal paid creation, focus switching, damage/severing/collapse and cold restart, with canonical identity, skills, resources and owner preserved. Full shelter installer/source parity and other catalogue/readiness gates remain pending. Use only code-proven links."
+}

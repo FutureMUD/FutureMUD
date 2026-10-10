@@ -46,6 +46,11 @@ var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>().UseMySql(c
 FuturemudDatabaseContext? lastContext = null;
 Func<FuturemudDatabaseContext> factory = () => lastContext = new(options);
 var jsonOptions = new JsonSerializerOptions { WriteIndented = true };
+if (args[2] == "shelter-fixtures")
+{
+	OwnedShelterFixtures.Run(options, receiptPath);
+	return;
+}
 void Require(bool test, string reason) { if (!test) throw new InvalidOperationException(reason); }
 Dictionary<string, string> TableChecksums()
 {

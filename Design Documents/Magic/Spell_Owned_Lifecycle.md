@@ -767,6 +767,92 @@ Recovered spell_sand_jambiya uses component-free grades1-6 (objects456-461), the
 
 Enough-sand source includes five sectors plus room sandstorm flag or numeric weather condition>=2.5; wrapper refuses Inside/City first. This bounded native stock maps those to editable terrain names, a typed64-bit room tag and a builder-selected weather event, with a controlled controller in acceptance. It targets the caster and preserves foreign custody on restart/expiry. Historical sector/condition parity, other-recipient placement, privileged source component exemptions, charged staff payloads, all random outcomes and complete installed-world acceptance remain pending. See Armageddon_SandKnife_Stock_Verification.json for exact evidence and limits.
 
+## Native occupied shelters
+
+`createshelter` implements Spring Haven, Burrow Refuge and Sand Shelter through
+the existing paid casting and exact ownership journal. The builder selects an
+approved indoor native room template, allowed source terrains, a permanent safe
+fallback, seconds per grade and a capacity of 1–128 physical occupants. Burrow
+Refuge places its room below the recorded source by the configured `depth` of
+1–128 native grid levels. These are authored native policies; historical terrain,
+timing and catalogue parity remain separate.
+
+One private transaction creates the temporary Room, its RoomOverlay, an ordinary
+non-cardinal entrance and their exact joins. The journal claims only those rows
+and, for Spring Haven, its finite immovable liquid-container item. `RoomOverlay`
+is an appended ownership kind; no schema migration is needed. Birth records the
+source room/overlay, source route point and configured fallback through the strict
+versioned `SpellShelterAnchor` format. Payment admission and application compare
+the prepared native identities, overlays and configuration. Stored/scroll delivery
+is explicitly unsupported.
+
+Normal movement and forced room entry share the capacity/deadline guard. Admission
+counts persisted physical instances and present actors, including offline residents.
+A resident can reconnect to a retained shelter while new entry is closed. Only the
+native `Room.Login` context can restore an exact persisted resident without current
+room membership. Ordinary and forced entry use the same active/deadline/capacity
+gate. Already loaded physical instances supply their actual position before their
+next save; unloaded instances retain their declared persisted room. Canonical cache
+lookups do not materialise offline actors. Legacy and current membership do not
+count the same occupant twice. Rejected displacement stops before companion or
+floor-item transfer.
+
+Unsaved NPC instances have no durable instance ID yet; each distinct runtime reference
+consumes its own place. ID zero never proves persisted reconnect authority. Stale room
+membership is ignored when the actor's actual location differs. A full or closing
+shelter remains a visible exit and movement returns a useful refusal before physical
+mutation. Public deletion reports a held room as retained for recovery.
+
+Expiry or public room deletion closes entry and evacuates live and cached actors,
+offline canonical/instance positions and unclaimed ground items. Riding links are
+released before moving either endpoint. Native callbacks are fenced: a callback's
+new custody is preserved, and membership is reconciled from the actual final native
+position. No borrowed character, body or foreign item is claimed or deleted.
+Discriminated position targets and declared EF foreign keys supply reference checks;
+there is no numeric text scan or guessed definition field.
+
+Native command-log rows retain their IDs, account, character, time and command bytes.
+Their non-null Room foreign key is redirected to the resolved safe return room in the
+retirement transaction, so topology deletion cannot cascade-delete the audit history.
+Exact room-only `PermitWork` effects are removed while the room still exists, including
+unloaded identities' `Characters.EffectData`; permission is never broadened to the
+return room. Property/controller permits and known backup, home, pursuit, spy and NPC
+location-memory references hold for explicit recovery. The readers inspect only each
+concrete effect's native room field, including the exact `Children/Effect` envelope of
+`MagicSpellParent` and `SubstanceExposure`. Instance metadata is a separate contract.
+Unregistered room occupants receive the same guard as registered and cached actors.
+
+Retirement uses the recorded permanent source and route point, then the explicitly
+configured safe permanent fallback. If neither is safe, the closed topology and its
+occupants remain recoverable with a durable diagnostic. Unknown hooks, effects,
+relational dependencies or altered topology associations also hold deletion. Repair
+and startup reconciliation retry the original graph and absolute deadline without
+another cast, payment or creation.
+
+Spring Haven supplies its configured finite grade-scaled mixture once. Ordinary
+fill/drink/empty mechanics own subsequent consumption. Remaining water becomes an
+ordinary puddle in the safe destination, while all foreign surface liquid and residue
+on the floor and basin exterior are transferred through the native room surface state.
+The basin must have exact direct runtime floor custody and exactly its claimed
+persisted room link. Foreign containment, inventory, second room links and other
+declared item dependencies hold removal and preserve the custodians. The destination quantity and
+exact topology removal commit together. Runtime activation resumes per component
+after an interruption; it does not spill or recreate another quantity on retry.
+
+Create the builder-installed stocks with:
+
+```text
+magic spell edit new stock spring-haven|burrow-refuge|sand-shelter
+  <school> <casting skill> <resource> <indoor template room> <source terrain>
+  <fallback room> <seconds per grade> <capacity>
+  [Spring Haven: <immovable liquid-container prototype> <liquid> <litres per grade>]
+```
+
+The `createshelter` effect editor exposes `kind`, `template`, `terrain`, `fallback`,
+`lifetime`, `capacity`, `depth`, `water`, `liquid` and `litres`. Add the resulting spell
+to the intended casting capability. Full installer composition, source parity, all
+grades, high-volume shelter churn and release readiness require their own evidence.
+
 ### Queued servitor command authority
 
 The bounded queued-order repair binds accepted SelectedCombatAction to its exact actor/controller references, canonical IDs and immutable active animation origin. CommandGrant returns the current authorized origin only while the existing creator, exact secondary, Active state and independent absolute control/animation deadlines validate. Old orders refuse expiration, revocation, replacement origin, stale/reloaded physical identities, ambiguous canonical roots, changed or removed command policy and allowlist revocation. Checks surround executable policy and native defender callbacks, including multi-target children. Rejection after retirement adds no runtime work.

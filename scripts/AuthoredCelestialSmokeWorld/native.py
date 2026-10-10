@@ -79,7 +79,11 @@ def main() -> int:
                         help='Repository-owned alternate scenario to run against this same disposable seeded world.')
     parser.add_argument('--qualification-marker',
                         help='Owned JSON phase marker, promoted only after fresh PASS and verified cleanup.')
+    parser.add_argument('--smoke-timeout-seconds', type=int, default=960,
+                        help='Bounded wall-clock limit for the scenario, including its cleanup (60-3600 seconds).')
     args = parser.parse_args()
+    if not 60 <= args.smoke_timeout_seconds <= 3600:
+        parser.error('Smoke timeout must be between 60 and 3600 seconds.')
     if args.qualification_marker and not re.fullmatch(r'[a-z0-9][a-z0-9._-]*\.json', args.qualification_marker):
         parser.error('Qualification marker must be a simple lowercase JSON filename.')
     smoke_script = args.smoke_script.resolve() if args.smoke_script else pathlib.Path(__file__).with_name('smoke.py')
@@ -247,7 +251,7 @@ def main() -> int:
         smoke_env['PYTHONIOENCODING'] = 'utf-8'
         with (invocation_root / 'smoke.log').open('w', encoding='utf-8') as output:
             smoke = run([sys.executable, '-B', '-u', str(smoke_script),
-                         '--run-dir', str(root)], timeout=960, env=smoke_env, stdout=output, stderr=subprocess.STDOUT)
+                         '--run-dir', str(root)], timeout=args.smoke_timeout_seconds, env=smoke_env, stdout=output, stderr=subprocess.STDOUT)
         (root / 'smoke.log').write_bytes((invocation_root / 'smoke.log').read_bytes())
         result_code = smoke.returncode
         if not latest_receipt.exists():
@@ -273,6 +277,7 @@ def main() -> int:
     receipt['cleanup'] = cleanup
     receipt['invocationReceipt'] = str(invocation_root / 'receipt.json')
     receipt['runnerStatus'] = 'PASS' if result_code == 0 else 'FAIL'
+    receipt['scenarioTimeoutSeconds'] = args.smoke_timeout_seconds
     latest_receipt.write_text(json.dumps(receipt, indent=2), encoding='utf-8')
     (invocation_root / 'receipt.json').write_bytes(latest_receipt.read_bytes())
     if marker and result_code == 0:

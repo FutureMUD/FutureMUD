@@ -966,6 +966,11 @@ public partial class Character
 
 	private CanMoveResponse CanMoveThroughExit(IRoomExit exit, CanMoveFlags flags, bool requireCurrentOrigin)
     {
+		if (exit?.Destination is { } destination && Gameworld?.SpellOwnedShelters is { } shelters &&
+			shelters.OwnsRoom(destination.Id) && !shelters.CanEnter(destination, this))
+		{
+			return new CanMoveResponse { Result = false, ErrorMessage = "That shelter is full or closing." };
+		}
         // Execution remains anchored to this room, including for Immwalk. Planning may inspect
         // a later edge without relocating the character; all other current-state checks remain
         // shared, and normal movement must revalidate the edge when the character reaches it.

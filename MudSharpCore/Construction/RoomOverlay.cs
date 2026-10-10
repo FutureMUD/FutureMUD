@@ -291,6 +291,13 @@ public class RoomOverlay : SaveableItem, IEditableRoomOverlay
         Gameworld.ExitManager.UpdateRoomOverlayExits(Room, this);
     }
 
+	internal void ForgetCommittedExit(long exitId)
+	{
+		_exitIDs.Remove(exitId);
+		Changed = true;
+		Gameworld.ExitManager.UpdateRoomOverlayExits(Room, this);
+	}
+
     public override void Save()
     {
         using (new FMDB())

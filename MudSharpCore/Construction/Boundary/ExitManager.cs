@@ -58,6 +58,8 @@ public class ExitManager : IExitManager, IHaveFuturemud
             List<IExit> exitList = new();
             foreach (Models.Exit exit in exits)
             {
+				if ((Gameworld.Rooms.Get(exit.RoomId1) is null || Gameworld.Rooms.Get(exit.RoomId2) is null) &&
+					Gameworld.SpellOwnedShelters?.OwnsExit(exit.Id) == true) continue;
                 IExit newExit;
                 if (!MasterExitList.ContainsKey(exit.Id))
                 {
@@ -409,6 +411,33 @@ public class ExitManager : IExitManager, IHaveFuturemud
             exit.Delete();
         }
     }
+
+	public void ForgetCommittedTopology(long roomId, IReadOnlyCollection<long> exitIds)
+	{
+		if (roomId <= 0 || exitIds.Any(x => x <= 0)) throw new ArgumentException("Explicit committed topology IDs are required.");
+		foreach (var room in Gameworld.Rooms.ToArray())
+		foreach (var overlay in room.Overlays.OfType<IEditableRoomOverlay>())
+		{
+			foreach (var id in overlay.ExitIDs.Where(exitIds.Contains).ToArray())
+			{
+				// Rows are gone; do not resolve a deleted ID or traverse the surrounding room graph.
+				if (MasterExitList[id] is { } exit) overlay.RemoveExit(exit);
+				else if (overlay is RoomOverlay native) native.ForgetCommittedExit(id);
+			}
+			if (room.Id == roomId) RoomExitDictionary.Remove((room, overlay));
+			else if (RoomExitDictionary.ContainsKey((room, overlay)))
+				RoomExitDictionary.RemoveAll((room, overlay), x => exitIds.Contains(x.Id));
+		}
+		foreach (var id in exitIds)
+		{
+			if (MasterExitList[id] is { } exit)
+			{
+				Gameworld.SaveManager.Abort(exit); Gameworld.EffectScheduler.Destroy(exit); Gameworld.Scheduler.Destroy(exit);
+			}
+			MasterExitList.Remove(id);
+		}
+		PathfindingService.InvalidateTopology(); SpatialPathfinder.InvalidateTopology();
+	}
 
     #endregion
 }

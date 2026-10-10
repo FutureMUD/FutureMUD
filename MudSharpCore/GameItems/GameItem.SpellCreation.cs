@@ -18,4 +18,16 @@ public partial class GameItem
 		foreach (var (component, model) in components) component.ActivateCommittedSpellComponent(model);
 		_noSave = false;
 	}
+
+	internal void ActivateCommittedOrdinaryItem(Models.GameItem row,
+		IReadOnlyList<(GameItemComponent Component, Models.GameItemComponent Row)> components)
+	{
+		if (!IdInitialised) CompleteCommittedInitialisation(row);
+		foreach (var (component, model) in components)
+		{
+			if (!component.IdHasBeenRegistered) component.ActivateCommittedSpellComponent(model);
+			component.SetNoSave(false);
+		}
+		_noSave = false;
+	}
 }

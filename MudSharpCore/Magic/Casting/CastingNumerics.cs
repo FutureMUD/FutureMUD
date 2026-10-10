@@ -86,6 +86,7 @@ internal static class CastingNumerics
 					yield return $"{label}/{property.Name}: unsupported route-bound numerical field.";
 			if (effect is TraitBoostEffect { Trait: null }) yield return $"{label}/boost.Trait: missing trait.";
 			if (effect is CreateNPCEffect { DefinitionError: { } creationError }) yield return $"{label}/createnpc: {creationError}";
+			if (effect is CreateShelterEffect { DefinitionError: { } shelterError }) yield return $"{label}/createshelter: {shelterError}";
 			if (effect is CreateLiquidEffect { DefinitionError: { } liquidError }) yield return $"{label}/createliquid: {liquidError}";
 			if (effect is CreateItemEffect { DefinitionError: { } itemCreationError }) yield return $"{label}/createitem: {itemCreationError}";
 			if (effect is AnimateCorpseSpellEffect { DefinitionError: { } animationError }) yield return $"{label}/animatecorpse: {animationError}";

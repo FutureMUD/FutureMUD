@@ -14,6 +14,8 @@ public partial class Futuremud
 	public ISpellOwnedItemService SpellOwnedItems => _spellOwnedItems ??= new SpellOwnedItemService(this);
 	private ISpellOwnedShelterService? _spellOwnedShelters;
 	public ISpellOwnedShelterService SpellOwnedShelters => _spellOwnedShelters ??= new SpellOwnedShelterService(this);
+	private ISpellOwnedPocketService? _spellOwnedPockets;
+	public ISpellOwnedPocketService SpellOwnedPockets => _spellOwnedPockets ??= new SpellOwnedPocketService(this);
 	private ISpellOwnedProjectionService? _spellOwnedProjections;
 	public ISpellOwnedProjectionService SpellOwnedProjections => _spellOwnedProjections ??= new SpellOwnedProjectionService(this);
 	private ISpellOwnedCorpseAnimationService? _spellOwnedCorpseAnimations;

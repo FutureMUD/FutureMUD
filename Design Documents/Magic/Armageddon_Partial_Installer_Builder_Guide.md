@@ -281,6 +281,26 @@ collisions block rather than resurrect/adopt. Preserve historical ownership reco
 For paid gameplay uncertainty use the existing staff reconciliation command
 `magic casting resolve <character> <operation-guid> <reconciliation reason>`; seeder reruns never resolve player receipts.
 
+## Builder-installed Folded Pocket
+
+Create and approve an item prototype with exactly Holdable and FoldedPocket
+components. The folded-pocket component type uses ordinary container open/size
+editing; the spell freezes its actual instance capacity and size policy.
+
+```
+magic spell edit new stock folded-pocket <school> <casting skill> <resource> <pocket prototype> "<mass per grade>" <maximum size> <real seconds per grade> Bearer|Creator <permanent fallback room>
+```
+
+For example, `"2 kilograms" Normal 300 Bearer` is an authored mapping, not
+verified historical balance. Configure native capability membership and
+acquisition separately, then cast on an ordinary held item. The focus survives;
+one new carrier is created. `effect 1` edits prototype, fallback, capacity, size,
+lifetime or access for future invocations. Existing pockets retain their original
+binding and deadline. Full weight, finite capacity, no pocket nesting or living
+occupants, conservation on collapse and withdrawal from held retirements are
+described in [the lifecycle contract](Spell_Owned_Lifecycle.md#folded-pocket).
+This stock does not change the partial installer's roster or admission counts.
+
 ## Verification boundary
 
 The dedicated `tests/ArmageddonPreparedSeederNativeHarness` runs on a UUID-named owned disposable database/server with

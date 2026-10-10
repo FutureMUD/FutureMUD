@@ -1319,6 +1319,36 @@
     "Has Help": true
   },
   {
+    "Component Type Name": "ChargedMagicDevice",
+    "Component Type Description": "Explicit charged wand/staff or focus with paid homogeneous payloads",
+    "Technology": "General",
+    "Builder Primary Type": "chargedmagicdevice",
+    "Builder Aliases": [
+      "chargedmagicdevice"
+    ],
+    "Prototype Class": "MudSharp.GameItems.Prototypes.ChargedMagicDeviceGameItemComponentProto",
+    "Component Capabilities": [
+      "IChargedMagicDevice"
+    ],
+    "Exclusive Types": [
+      "IChargedMagicDevice"
+    ],
+    "Required Sibling Types": [],
+    "Runtime Component Class": "MudSharp.GameItems.Components.ChargedMagicDeviceGameItemComponent",
+    "Has Prototype XML Load": true,
+    "Has Prototype XML Save": true,
+    "Has Create Path": true,
+    "Has Component Load Path": true,
+    "Has Revision Copy Path": true,
+    "Has Builder Command Path": true,
+    "Has Runtime Copy Path": true,
+    "Has Context-Dependent Requirements": false,
+    "Prevents Manual Load": false,
+    "Has Builder Loader": true,
+    "Has Database Loader": true,
+    "Has Help": true
+  },
+  {
     "Component Type Name": "ClockDetonator",
     "Component Type Description": "An \u001B[33m[armable]\u001B[0;39m exact in-game datetime trigger for an explosive payload",
     "Technology": "Modern",
@@ -2739,6 +2769,42 @@
     ],
     "Required Sibling Types": [],
     "Runtime Component Class": "MudSharp.GameItems.Components.FlareAmmunitionGameItemComponent",
+    "Has Prototype XML Load": true,
+    "Has Prototype XML Save": true,
+    "Has Create Path": true,
+    "Has Component Load Path": true,
+    "Has Revision Copy Path": true,
+    "Has Builder Command Path": true,
+    "Has Runtime Copy Path": true,
+    "Has Context-Dependent Requirements": false,
+    "Prevents Manual Load": false,
+    "Has Builder Loader": true,
+    "Has Database Loader": true,
+    "Has Help": true
+  },
+  {
+    "Component Type Name": "FoldedPocket",
+    "Component Type Description": "Finite spell-bound item storage; unbound copies refuse contents.",
+    "Technology": "General",
+    "Builder Primary Type": "foldedpocket",
+    "Builder Aliases": [
+      "foldedpocket"
+    ],
+    "Prototype Class": "MudSharp.GameItems.Prototypes.FoldedPocketGameItemComponentProto",
+    "Component Capabilities": [
+      "IContainer",
+      "ILockable",
+      "IOpenable",
+      "ISpellPocket"
+    ],
+    "Exclusive Types": [
+      "IContainer",
+      "ILockable",
+      "IOpenable",
+      "ISpellPocket"
+    ],
+    "Required Sibling Types": [],
+    "Runtime Component Class": "MudSharp.GameItems.Components.FoldedPocketGameItemComponent",
     "Has Prototype XML Load": true,
     "Has Prototype XML Save": true,
     "Has Create Path": true,
@@ -7053,6 +7119,66 @@
     ],
     "Required Sibling Types": [],
     "Runtime Component Class": "MudSharp.GameItems.Components.SolidFuelHeaterCoolerGameItemComponent",
+    "Has Prototype XML Load": true,
+    "Has Prototype XML Save": true,
+    "Has Create Path": true,
+    "Has Component Load Path": true,
+    "Has Revision Copy Path": true,
+    "Has Builder Command Path": true,
+    "Has Runtime Copy Path": true,
+    "Has Context-Dependent Requirements": false,
+    "Prevents Manual Load": false,
+    "Has Builder Loader": true,
+    "Has Database Loader": true,
+    "Has Help": true
+  },
+  {
+    "Component Type Name": "Spellbook",
+    "Component Type Description": "Stores structured spell formulae on each item instance",
+    "Technology": "General",
+    "Builder Primary Type": "spellbook",
+    "Builder Aliases": [
+      "spellbook"
+    ],
+    "Prototype Class": "MudSharp.GameItems.Prototypes.SpellbookGameItemComponentProto",
+    "Component Capabilities": [
+      "ISpellbook"
+    ],
+    "Exclusive Types": [
+      "ISpellbook"
+    ],
+    "Required Sibling Types": [],
+    "Runtime Component Class": "MudSharp.GameItems.Components.SpellbookGameItemComponent",
+    "Has Prototype XML Load": true,
+    "Has Prototype XML Save": true,
+    "Has Create Path": true,
+    "Has Component Load Path": true,
+    "Has Revision Copy Path": true,
+    "Has Builder Command Path": true,
+    "Has Runtime Copy Path": true,
+    "Has Context-Dependent Requirements": false,
+    "Prevents Manual Load": false,
+    "Has Builder Loader": true,
+    "Has Database Loader": true,
+    "Has Help": true
+  },
+  {
+    "Component Type Name": "SpellScroll",
+    "Component Type Description": "A blank surface or prepaid, single-use stored spell",
+    "Technology": "General",
+    "Builder Primary Type": "spellscroll",
+    "Builder Aliases": [
+      "spellscroll"
+    ],
+    "Prototype Class": "MudSharp.GameItems.Prototypes.SpellScrollGameItemComponentProto",
+    "Component Capabilities": [
+      "ISpellScroll"
+    ],
+    "Exclusive Types": [
+      "ISpellScroll"
+    ],
+    "Required Sibling Types": [],
+    "Runtime Component Class": "MudSharp.GameItems.Components.SpellScrollGameItemComponent",
     "Has Prototype XML Load": true,
     "Has Prototype XML Save": true,
     "Has Create Path": true,

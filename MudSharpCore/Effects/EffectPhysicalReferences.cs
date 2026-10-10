@@ -45,7 +45,7 @@ internal static class EffectPhysicalReferences
 			WildAnimalHerdEffect x => new IFrameworkItem?[] { x.HerdLeader }
 				.Concat(x.SubordinateEffects.Select(y => y.Owner)),
 			MagicClairaudienceConcentrationEffect x => [x.TargetCharacter],
-			ZeroGravityTether x => [x.Anchor],
+			ZeroGravityTether x => [x.Anchor, x.PhysicalTether],
 			SpellZeroGravityTetherEffect x => [x.Anchor],
 			_ => []
 		};

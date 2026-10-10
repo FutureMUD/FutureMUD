@@ -34,7 +34,7 @@ public static class PhysicalReferenceGuard
 	{
 		var characterIds = targets.Ids(PhysicalEntityKind.Character);
 		var instanceIds = targets.Ids(PhysicalEntityKind.CharacterInstance);
-		foreach (var kind in new[] { PhysicalEntityKind.Character, PhysicalEntityKind.Body, PhysicalEntityKind.CharacterInstance })
+		foreach (var kind in new[] { PhysicalEntityKind.Character, PhysicalEntityKind.Body, PhysicalEntityKind.CharacterInstance, PhysicalEntityKind.GameItem })
 		{
 			var ids = targets.Ids(kind);
 			if (ids.Length == 0) continue;
@@ -65,7 +65,13 @@ public static class PhysicalReferenceGuard
 
 		long? LegacyBody(long characterId) => context.Characters.AsNoTracking()
 			.Where(x => x.Id == characterId && !x.IsArchived).Select(x => x.BodyId).SingleOrDefault();
-		if (!Check(RemainsComponents(context, excludingItemId), "GameItemComponent",
+		var itemIds = targets.Ids(PhysicalEntityKind.GameItem);
+		if (itemIds.Length > 0 && context.Crimes.AsNoTracking().Any(x => x.ThirdPartyIItemType == "GameItem" && itemIds.Contains(x.ThirdPartyId ?? 0)))
+		{
+			diagnostic = "Crime.ThirdPartyIItemType/ThirdPartyId retains the item.";
+			return false;
+		}
+		if ((targets.HasKind(PhysicalEntityKind.Body) || targets.HasKind(PhysicalEntityKind.Wound)) && !Check(RemainsComponents(context, excludingItemId), "GameItemComponent",
 			x => x.Id, x => x.Definition, x => PhysicalReferenceCodecs.Component(x.Type, x.Definition, LegacyBody), targets, out diagnostic)) return false;
 		if (!Check(context.Characters.AsNoTracking().Where(x => !removedCharacters.Contains(x.Id))
 			.Select(x => new Payload(x.Id, x.EffectData)), "Character.EffectData", x => x.Id, x => x.Value,

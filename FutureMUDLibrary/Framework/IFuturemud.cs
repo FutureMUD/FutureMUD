@@ -104,6 +104,7 @@ namespace MudSharp.Framework
 		MudSharp.Magic.ISpellOwnedNpcService? SpellOwnedNpcs => null;
 		MudSharp.Magic.ISpellOwnedItemService? SpellOwnedItems => null;
 		MudSharp.Magic.ISpellOwnedShelterService? SpellOwnedShelters => null;
+		MudSharp.Magic.ISpellOwnedPocketService? SpellOwnedPockets => null;
 		MudSharp.Magic.ISpellOwnedProjectionService? SpellOwnedProjections => null;
 		MudSharp.Magic.ISpellOwnedCorpseAnimationService? SpellOwnedCorpseAnimations => null;
 #nullable restore annotations

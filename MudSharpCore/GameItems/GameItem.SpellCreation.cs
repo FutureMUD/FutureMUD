@@ -13,7 +13,7 @@ public partial class GameItem
 	internal void ActivateCommittedSpellItem(Models.GameItem row, SpellLifecycleOrigin origin,
 		IReadOnlyList<(GameItemComponent Component, Models.GameItemComponent Row)> components)
 	{
-		SpellCreationOrigin = new(origin.Id, origin.Mode, origin.DeadlineUtc);
+		SpellCreationOrigin = new(origin.Id, origin.Mode, origin.DeadlineUtc, origin.CreatorId);
 		CompleteCommittedInitialisation(row);
 		foreach (var (component, model) in components) component.ActivateCommittedSpellComponent(model);
 		_noSave = false;

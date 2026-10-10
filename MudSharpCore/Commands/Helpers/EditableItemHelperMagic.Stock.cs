@@ -12,13 +12,14 @@ public partial class EditableItemHelper
 		if (TryCreateProjectionStockSpell(actor, command)) return;
 		if (TryCreateShelterStockSpell(actor, command)) return;
 		if (TryCreateBaneStockSpell(actor, command)) return;
+		if (TryCreatePocketStockSpell(actor, command)) return;
 		if (TryCreatePerceptionStockSpell(actor, command)) return;
 		if (TryCreateUtilityStockSpell(actor, command)) return;
 		if (TryCreateProvisionStockSpell(actor, command)) return;
 		var stock = command.PopSpeech().ToLowerInvariant();
 		if (stock is not ("air-guardian" or "raise-servitor" or "storm-spear" or "flame-knife" or "sand-knife"))
 		{
-			actor.OutputHandler.Send(("Available stock spells: #3severing-refuge#0, #3apex-bane#0, #3sand-effigy#0, #3walking-shadow#0, #3spring-haven#0, #3burrow-refuge#0, #3sand-shelter#0, #3air-guardian#0, #3raise-servitor#0, #3storm-spear#0, #3flame-knife#0, #3sand-knife#0, " + UtilityStockNames + ", " + ProvisionStockNames + ", " + PerceptionStockNames + ".").SubstituteANSIColour());
+			actor.OutputHandler.Send(("Available stock spells: #3folded-pocket#0, #3severing-refuge#0, #3apex-bane#0, #3sand-effigy#0, #3walking-shadow#0, #3spring-haven#0, #3burrow-refuge#0, #3sand-shelter#0, #3air-guardian#0, #3raise-servitor#0, #3storm-spear#0, #3flame-knife#0, #3sand-knife#0, " + UtilityStockNames + ", " + ProvisionStockNames + ", " + PerceptionStockNames + ".").SubstituteANSIColour());
 			return;
 		}
 		var schoolText = command.PopSpeech();

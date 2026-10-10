@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-08",
-  "status": "PASS_BOUNDED_N19_BUILDER_INSTALLED",
+  "status": "PASS_BOUNDED_N20_BUILDER_INSTALLED",
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
@@ -5443,8 +5443,8 @@
         }
       ],
       "historical_progress_status": "pending_runtime_stock_and_native_acceptance",
-      "current_scope": "consult_existing_progress_and_dependencies_no_new_completion_claim",
-      "complete_per_spell_native_acceptance": "NOT_RUN_CURRENT_CONTINUATION",
+      "current_scope": "N20 builder-installed finite portable item custody qualified; full installer/source/all-grade acceptance pending",
+      "complete_per_spell_native_acceptance": "PASS_BOUNDED_BUILDER_INSTALLED_N20_FULL_MATRIX_PENDING",
       "whole_candidate_complete": false
     },
     {
@@ -6572,96 +6572,56 @@
     "historical_attribution": "Previous malformed-armour failure retained; current stock repair and AI hold supersede its current-stage status."
   },
   "current_managed": {
-    "scope": "Full Core and shared Library after N19 ward/bane and callback-free retirement repairs",
+    "scope": "Full Core and shared Library after N20 Folded Pocket and registry integration",
     "runs": [
       {
-        "run_id": "20261010T082643Z-1401e2a85cd2",
-        "head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
+        "run_id": "20261010T133056Z-9d5d36494665",
+        "head": "c8890c082eb4351540d3343bf806c9fdeba172c9",
         "status": "PASS",
         "counts": {
-          "executed": 7165,
-          "passed": 7165,
+          "executed": 7200,
+          "passed": 7200,
           "failed": 0,
           "skipped": 0,
           "inconclusive": 0,
           "other": 0,
-          "total": 7165
+          "total": 7200
         },
-        "source_start": "21d51d1587ba101b4cb063eabf8ab713355ccdf880ee97b27db40f186141aac4",
-        "source_end": "21d51d1587ba101b4cb063eabf8ab713355ccdf880ee97b27db40f186141aac4",
+        "source_start": "1e5e0ef318e510362d13c0978224c97199847a03c2afdbd5b0b2c6aa2c4bea14",
+        "source_end": "1e5e0ef318e510362d13c0978224c97199847a03c2afdbd5b0b2c6aa2c4bea14",
         "source_stable": true,
         "projects": [
-          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
-          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj"
         ],
         "filter": null,
         "configuration": "Debug",
         "receipt": {
-          "path": ".artifacts/test-runs/20261010T082643Z-1401e2a85cd2/summary.json",
-          "sha256": "deab00ad74974b2c95d56803e00d9055e7f20b8426c19c569c529d157127d6e2"
+          "path": ".artifacts/test-runs/20261010T133056Z-9d5d36494665/summary.json",
+          "sha256": "3cf299383e2308a56bed703058698651bcbecd4ebcc595da674134ed39542ebc"
         },
         "project_counts": {
-          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
-            "executed": 740,
-            "passed": 740,
-            "failed": 0,
-            "skipped": 0,
-            "inconclusive": 0,
-            "other": 0,
-            "total": 740
-          },
           "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
-            "executed": 6425,
-            "passed": 6425,
+            "executed": 6442,
+            "passed": 6442,
             "failed": 0,
             "skipped": 0,
             "inconclusive": 0,
             "other": 0,
-            "total": 6425
+            "total": 6442
+          },
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
+            "executed": 758,
+            "passed": 758,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 758
           }
         }
       }
-    ],
-    "authoritative_passed": 7165,
-    "counts_are_not_added": true,
-    "separate_seeder_armageddon": {
-      "run_id": "20261010T082330Z-ac6d7323c87d",
-      "head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
-      "status": "PASS",
-      "counts": {
-        "executed": 169,
-        "passed": 169,
-        "failed": 0,
-        "skipped": 0,
-        "inconclusive": 0,
-        "other": 0,
-        "total": 169
-      },
-      "source_start": "e6338e413f2e756a2f12a1aad20ad155aab2e6e5b843054a444058548712e93d",
-      "source_end": "e6338e413f2e756a2f12a1aad20ad155aab2e6e5b843054a444058548712e93d",
-      "source_stable": true,
-      "projects": [
-        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
-      ],
-      "filter": "FullyQualifiedName~Armageddon",
-      "configuration": "Debug",
-      "receipt": {
-        "path": ".artifacts/test-runs/20261010T082330Z-ac6d7323c87d/summary.json",
-        "sha256": "8e5740750ed27509953815670d9a17f855ccaa7d879f8ae2e6e8cca8e72e247f"
-      },
-      "project_counts": {
-        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj": {
-          "executed": 169,
-          "passed": 169,
-          "failed": 0,
-          "skipped": 0,
-          "inconclusive": 0,
-          "other": 0,
-          "total": 169
-        }
-      }
-    },
-    "previous_n18_receipt": "Design Documents/Magic/Armageddon_Owned_Projections_Checkpoint_20261010.json"
+    ]
   },
   "npc_armour_repair_continuation_20261009": {
     "status": "STOCK_ARMOUR_REPAIRED_NATIVE_RETIREMENT_BLOCKED_AI_REFERENCES",
@@ -6954,7 +6914,7 @@
     "package_release_enabled": false,
     "publication_authorized": false
   },
-  "next_bounded_milestone": "N20: map and implement bounded Folded Pocket capacity and access using native item custody; reject living targets, pocket nesting and cycles, then qualify transfer, cold restart and collapse with every foreign item released exactly once. Use only declared typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending.",
+  "next_bounded_milestone": "N21: review source-informed Flame Knife tier policies, then qualify timed and explicitly configured highest-tier permanent real-component output through normal paid invocation. Prove timed gear cannot yield permanent salvage and permanent output retains its explicit no-expiry policy across restart. Use only known typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending.",
   "npc_typed_reference_review_20261009": {
     "date": "2026-10-09",
     "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
@@ -7160,5 +7120,16 @@
     "known_code_proven_links_only": true,
     "whole_candidate_complete": false,
     "next_bounded_milestone": "N20: map and implement bounded Folded Pocket capacity and access using native item custody; reject living targets, pocket nesting and cycles, then qualify transfer, cold restart and collapse with every foreign item released exactly once. Use only declared typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending."
+  },
+  "folded_pocket_20261011": {
+    "status": "PASS_BOUNDED_N20_BUILDER_INSTALLED",
+    "checkpoint": "Armageddon_Pocket_Checkpoint_20261011.json",
+    "managed_passed": 7200,
+    "native_assertions": 203,
+    "paid_casts": 5,
+    "reserve_spent": 60,
+    "known_code_proven_links_only": true,
+    "whole_candidate_complete": false,
+    "next_bounded_milestone": "N21: review source-informed Flame Knife tier policies, then qualify timed and explicitly configured highest-tier permanent real-component output through normal paid invocation. Prove timed gear cannot yield permanent salvage and permanent output retains its explicit no-expiry policy across restart. Use only known typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending."
   }
 }

@@ -44,15 +44,23 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 	internal void RegisterClaimedItem(long itemId) => _claimedItemIds?.Add(itemId);
 
 	public IGameItem Create(IGameItemProto prototype, ICharacter caster, ItemQuality quality, SpellLifecycleOrigin origin)
+		=> CreateCore(prototype, caster, quality, origin, null);
+
+	internal IGameItem CreatePocket(IGameItemProto prototype, ICharacter caster, SpellLifecycleOrigin origin, SpellPocketAnchor anchor)
+		=> CreateCore(prototype, caster, ItemQuality.Standard, origin, anchor);
+
+	private IGameItem CreateCore(IGameItemProto prototype, ICharacter caster, ItemQuality quality, SpellLifecycleOrigin origin, SpellPocketAnchor? pocket)
 	{
 		origin.Validate();
 		if (origin.Mode == SpellLifecycleMode.DeathOnExpiry || !Enum.IsDefined(quality) || !ReferenceEquals(caster.Gameworld, _world) ||
 			origin.CreatorId != MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(caster))
 			throw new ArgumentException("Native item creation requires a valid item mode, quality and caster world.");
 		using var authorization = FMDB.BeginIndependentScope(requireWrites: true);
-		if (NativeItemCreationEligibility.Error(prototype, _world) is { } error) throw new InvalidOperationException(error);
+		var error = pocket is null ? NativeItemCreationEligibility.Error(prototype, _world) : SpellOwnedPocketService.PrototypeError(prototype, _world);
+		if (error is not null) throw new InvalidOperationException(error);
 		if (_store.Find(origin.Id) is not null) throw new InvalidOperationException("This native item creation cannot be replayed.");
 		var item = new GameItem(prototype, caster, quality, deferSpellInitialisation: true);
+		if (pocket is not null) item.GetItemType<MudSharp.GameItems.Components.FoldedPocketGameItemComponent>()!.Bind(origin, pocket);
 		// The light's usable state is part of its private birth, before rows or exposure.
 		if (item.GetItemType<MudSharp.GameItems.Components.ProgLightGameItemComponent>() is { } light) light.Lit = true;
 		MudSharp.Models.GameItem? inserted = null;
@@ -90,7 +98,7 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 	{
 		if (!HasClaim(itemId)) return null;
 		var life = Find(itemId);
-		return life is null ? null : new(life.Origin.Id, life.Origin.Mode, life.Origin.DeadlineUtc);
+		return life is null ? null : new(life.Origin.Id, life.Origin.Mode, life.Origin.DeadlineUtc, life.Origin.CreatorId);
 	}
 
 	private SpellOwnedLifecycle? Find(long itemId)
@@ -116,6 +124,8 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 		if (item.SpellCreationOrigin?.IsTemporary != true) return true;
 		using var authorization = FMDB.BeginIndependentScope(requireWrites: true);
 		var life = Find(item.Id);
+		if (life?.Origin.Family == SpellPocketAnchor.Family)
+			return _world.SpellOwnedPockets?.TryPrepareRemoval(item, out diagnostic) ?? false;
 		if (life?.Origin.Family == SpellProjectionAnchor.Family)
 		{
 			_world.SpellOwnedProjections?.RequestAnchorRemoval(item.Id);

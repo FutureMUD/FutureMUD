@@ -291,6 +291,10 @@ public interface IContainerPrototype : IExclusiveGameItemComponentPrototype<ICon
 {
 }
 
+public interface ISpellPocketPrototype : IExclusiveGameItemComponentPrototype<ISpellPocket>, IContainerPrototype
+{
+}
+
 public interface ICorpsePrototype : IExclusiveGameItemComponentPrototype<ICorpse>, IBodyRemainsPrototype
 {
 }

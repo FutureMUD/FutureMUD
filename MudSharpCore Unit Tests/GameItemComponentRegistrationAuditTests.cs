@@ -16,10 +16,10 @@ public class GameItemComponentRegistrationAuditTests
 		var manager = new GameItemComponentManager();
 		var entries = manager.RegistrationAuditEntries;
 
-		Assert.AreEqual(247, entries.Count);
+		Assert.AreEqual(248, entries.Count);
 		Assert.AreEqual(109, entries.Count(x => x.Technology == GameItemComponentTypeTechnology.Modern));
 		Assert.AreEqual(18, entries.Count(x => x.Technology == GameItemComponentTypeTechnology.Futuristic));
-		Assert.AreEqual(120, entries.Count(x => x.Technology == GameItemComponentTypeTechnology.None));
+		Assert.AreEqual(121, entries.Count(x => x.Technology == GameItemComponentTypeTechnology.None));
 		Assert.AreEqual(entries.Count,
 			entries.Select(x => x.CanonicalDatabaseType).Distinct(StringComparer.OrdinalIgnoreCase).Count());
 		Assert.IsTrue(entries.All(x => x.HasDatabaseLoader));
@@ -50,6 +50,10 @@ public class GameItemComponentRegistrationAuditTests
 		var ammoClip = entries.Single(x => x.CanonicalDatabaseType == "AmmoClip");
 		CollectionAssert.Contains(ammoClip.ExclusiveCapabilities.ToList(), "IAmmoClip");
 		CollectionAssert.Contains(ammoClip.ExclusiveCapabilities.ToList(), "IContainer");
+
+		var pocket = entries.Single(x => x.CanonicalDatabaseType == "FoldedPocket");
+		CollectionAssert.Contains(pocket.ExclusiveCapabilities.ToList(), "ISpellPocket");
+		CollectionAssert.Contains(pocket.ExclusiveCapabilities.ToList(), "IContainer");
 
 		var pinPull = entries.Single(x => x.CanonicalDatabaseType == "PinPullDetonator");
 		CollectionAssert.Contains(pinPull.RequiredSiblingCapabilities.ToList(), "IDetonatable");

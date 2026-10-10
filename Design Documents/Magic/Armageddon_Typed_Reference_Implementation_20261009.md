@@ -57,3 +57,26 @@ Earlier compile failures and the historical failed AI/Autobuilder receipts remai
 Next: N14 installed stock early-death acceptance: cast the approved guardian/summon family through the normal installed command path; retain configured remains and foreign carried goods through original expiry, a cold restart and actual decay, then exercise default dissipation. Use the same code-proven references and preserve canonical history and custody. N15 same-template lifecycle modes and N16 high-volume/per-cycle restart remain separate follow-ups; no static-schema classifier stage.
 
 All 154 candidates (152 required/two optional), 82 Sorcerer spells/four roots/12 supports and eight larger features remain unchanged. Whole-plan completion, publication and release remain disabled. No PR, push, merge, deployment or production/shared database operation was performed.
+
+## N20 carrier reference extension — 10 October 2026
+
+Folded Pocket retirement adds a distinct `GameItem` identity domain to the same
+reference protocol. `FromItem` supplies the native item identity while retaining
+the original-body reference for remains. PositionTargetType/PositionTargetId on
+GameItem, Character and CharacterInstance rows, GameItem OwnerType/OwnerId, and
+Crime ThirdPartyIItemType/ThirdPartyId use their actual item discriminator. Final
+carrier removal also checks the existing declared incoming EF foreign keys.
+
+ZeroGravityTether's live provider now reports both its Anchor and PhysicalTether;
+its concrete persisted reader reads PhysicalTetherId as GameItem and preserves
+AnchorType/AnchorId's separate domain. A character or body with the same number
+cannot match this item target. Remains component definitions are selected only
+when Body or Wound is in the requested target set; they have no GameItem identity
+field and are not inspected for carrier retirement. These additions do not query
+static AI/Autobuilder definitions, search numeric text, or guess identity fields.
+
+Pocket binding records its borrowed SourceItem as immutable creation provenance.
+That historical ID is not a live ownership claim or a teardown dependency: pocket
+access, capacity and collapse consume the frozen carrier policy and lifecycle.
+The N20 checkpoint records the fresh bounded validation and remaining gaps;
+the earlier counts and publication statement above remain historical.

@@ -13,7 +13,8 @@ public enum PhysicalEntityKind
 	Character,
 	Body,
 	CharacterInstance,
-	Wound
+	Wound,
+	GameItem
 }
 
 /// <summary>An identity field whose owning code requires a physical entity to remain available.</summary>
@@ -29,9 +30,11 @@ public readonly record struct PhysicalEntityReference(PhysicalEntityKind Kind, l
 			if (actor.Body is { } actorBody)
 				yield return new(PhysicalEntityKind.Body, actorBody.Id, field);
 		}
-		else if (item is IGameItem gameItem && gameItem.GetItemType<IButcherable>() is { } remains)
+		else if (item is IGameItem gameItem)
 		{
-			yield return new(PhysicalEntityKind.Body, remains.OriginalBodyId, field);
+			yield return new(PhysicalEntityKind.GameItem, gameItem.Id, field);
+			if (gameItem.GetItemType<IButcherable>() is { } remains)
+				yield return new(PhysicalEntityKind.Body, remains.OriginalBodyId, field);
 		}
 		else if (item is IBody body)
 		{

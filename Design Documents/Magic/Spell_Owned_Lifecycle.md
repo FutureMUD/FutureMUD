@@ -963,6 +963,64 @@ Severing Refuge's minimum is 9. Both are editable builder policy. Neither stock
 adds a Sorcerer roster member or changes the partial installer. Full installer,
 historical balance and all-grade native acceptance remain pending.
 
+### Folded Pocket
+
+`createpocket` targets a persisted ordinary item actually held by the caster.
+That focus remains borrowed. Creation claims one new carrier with exactly the
+native Holdable and FoldedPocket components; it creates no room, body or actor.
+Its versioned binding retains the source item ID, grade, prototype, capacity,
+maximum size, access mode, fallback and original absolute deadline. Copies start
+empty and unbound. Builder changes affect later invocations only.
+The committed carrier enters the world item cache before hand or floor custody;
+retirement therefore resolves the same live instance that the bearer holds.
+Creation timestamps and grade durations are canonicalized to the lifecycle
+journal's microsecond precision before persistence. Positive authored fractional
+seconds round to the nearest microsecond; values below one microsecond refuse.
+
+Capacity is positive finite native mass per grade; all stored goods retain their
+ordinary weight. Bearer access uses ordinary reach/custody; Creator additionally
+requires the canonical creator identity. Storage is bounded at 256 distinct
+native item identities. Direct and hidden pocket nesting, physical target
+projections, cycles, invalid quantities/weights and morphing goods refuse before
+adoption. Native container transfer and ancestor checks enforce these rules
+across both incoming and stored graphs, including conflicting persisted identities
+on distinct live instances. Transfers of the same existing instance remain valid
+inside ordinary bags. Pocket carriers do not accept installed locks or in-place
+replacement. These are explicit conservation limits, not historical balance.
+
+Retirement first commits borrowed contents to the carrier's current effective
+native location, retaining ordinary nested contents and exact identities. An
+explicit permanent ground-level fallback is used when no valid current location
+exists. A separate native leaf retirement removes the emptied carrier. A cold
+retry therefore either sees the original filled graph or already evacuated
+goods; it does not create copies. Each evacuation proves native and persisted
+custody, captures rollback adapters, fences callbacks and commits a serializable
+transaction. Unsupported foreign effects, hooks, wounded/connected goods or
+missing rollback support hold automatic evacuation. A retiring carrier remains
+accessible for withdrawal and refuses deposits. `junk` retains hand custody
+until this adapter permits deletion.
+Unsafe body/container custody also holds before evacuation, using the same
+native leaf-removal preflight. Transient custodian effects can clear and permit
+automatic retry without raising a command exception.
+Exact native AdminSight, Immwalk, AdminTelepathy, NewPlayerHintsShown and IncreasedBranchChance metadata
+have no custody callbacks and may remain on the holder. Their state is preserved;
+hint history and skill/knowledge branching progress remain intact.
+subclasses, scripted applicability, foreign owners and unknown effects still hold.
+
+Final removal reuses declared incoming EF relations and the typed reference
+guard. GameItem identities remain distinct from Character/Body/Instance/Wound.
+Known position/owner discriminators, crime third-party item links and concrete
+tether anchor/physical-item fields hold removal when they require the carrier.
+Live providers read direct objects; persisted effect codecs read their declared
+fields. There is no numeric text search or guessed property fallback.
+
+The builder stock requires all capacity, size, timing, prototype, access and
+fallback choices explicitly. Its source efficiency floor is 12 and cost
+expression is `12*grade`; existing controlled-grade rules determine payment.
+This bounded stock does not extend the partial installer or certify historical
+Portable Hole timing, permanent storage, arbitrary scripted component graphs,
+all-grade native acceptance or whole-programme readiness.
+
 ### Queued servitor command authority
 
 The bounded queued-order repair binds accepted SelectedCombatAction to its exact actor/controller references, canonical IDs and immutable active animation origin. CommandGrant returns the current authorized origin only while the existing creator, exact secondary, Active state and independent absolute control/animation deadlines validate. Old orders refuse expiration, revocation, replacement origin, stale/reloaded physical identities, ambiguous canonical roots, changed or removed command policy and allowlist revocation. Checks surround executable policy and native defender callbacks, including multi-target children. Rejection after retirement adds no runtime work.

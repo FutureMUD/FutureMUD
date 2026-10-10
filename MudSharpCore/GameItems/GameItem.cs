@@ -1519,6 +1519,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
     // Public setters and completion retain ordinary behavior unless a caller supplies a checkpoint.
     internal bool TrySetContainedIn(IGameItem value, Func<bool> mayCommit = null, Action ownerCommit = null)
     {
+			if (value is not null && SpellPocketContainment.AdmissionError(this, value) is not null) return false;
 			ForeignCustodyTransferContext.EnsureItem(this);
 			if (value is not null) ForeignCustodyTransferContext.EnsurePair(value, this);
 			using var exposureChange = EnvironmentalExposureService.Changing(this);
@@ -1547,6 +1548,7 @@ public partial class GameItem : PerceiverItem, IGameItem, IDisposable, IPostChar
 			if (!OriginalCustody()) return false;
             if (mayCommit is not null && !mayCommit()) return false;
             if (!OriginalCustody()) return false;
+			if (value is not null && SpellPocketContainment.AdmissionError(this, value) is not null) return false;
             _containedIn = value;
             Changed = true;
             ownerCommit?.Invoke();

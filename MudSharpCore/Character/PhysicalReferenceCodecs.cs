@@ -108,6 +108,8 @@ public static class PhysicalReferenceCodecs
 		if (type is "ZeroGravityTether" or "SpellZeroGravityTether")
 			foreach (var reference in Typed(Required(root, "AnchorType"), Required(root, "AnchorId"), $"{type}/Anchor"))
 				yield return reference;
+		if (Needed(PhysicalEntityKind.GameItem) && type == "ZeroGravityTether")
+			yield return Read(PhysicalEntityKind.GameItem, Required(root, "PhysicalTetherId"), "ZeroGravityTether/PhysicalTetherId");
 	}
 
 	private static IEnumerable<PhysicalEntityReference> InstanceMetadata(XElement root, PhysicalReferenceTargets? targets)
@@ -237,6 +239,7 @@ public static class PhysicalReferenceCodecs
 			"CharacterInstance" => PhysicalEntityKind.CharacterInstance,
 			"Body" => PhysicalEntityKind.Body,
 			"Wound" => PhysicalEntityKind.Wound,
+			"GameItem" => PhysicalEntityKind.GameItem,
 			_ => null
 		};
 		if (kind is { } known) yield return Read(known, id, field);

@@ -71,6 +71,11 @@ if (args[2] == "flame-knife-fixtures")
 	FlameKnifeFixtures.Run(options, receiptPath);
 	return;
 }
+if (args[2] == "device-fixtures")
+{
+	FuryCalmSmokeWorld.DeviceFixtures.Run(options, receiptPath);
+	return;
+}
 void Require(bool test, string reason) { if (!test) throw new InvalidOperationException(reason); }
 Dictionary<string, string> TableChecksums()
 {

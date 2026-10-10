@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-08",
-  "status": "PASS_BOUNDED_N21_BUILDER_INSTALLED",
+  "status": "PASS_BOUNDED_N22_CHARGED_DEVICE_ACTIVATION",
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
@@ -6572,23 +6572,23 @@
     "historical_attribution": "Previous malformed-armour failure retained; current stock repair and AI hold supersede its current-stage status."
   },
   "current_managed": {
-    "scope": "Full Core/Library for N21, plus separate focused N20 catalogue-baseline repair",
+    "scope": "Full Core/Library N22 command registration and activation gate",
     "runs": [
       {
-        "run_id": "20261010T202143Z-181442621567",
-        "head": "24af8ce1442bd907b1df8648969f27ac32adc6c1",
+        "run_id": "20261010T214749Z-2e0d61e079f2",
+        "head": "93f7ba9a4b465ec44b40ac51b4f114e9b0a9d53d",
         "status": "PASS",
         "counts": {
-          "executed": 7200,
-          "passed": 7200,
+          "executed": 7201,
+          "passed": 7201,
           "failed": 0,
           "skipped": 0,
           "inconclusive": 0,
           "other": 0,
-          "total": 7200
+          "total": 7201
         },
-        "source_start": "9e523654e6da0f838fcb5dd62135cdd89340b6594b8668b0b60f35455b5f38a5",
-        "source_end": "9e523654e6da0f838fcb5dd62135cdd89340b6594b8668b0b60f35455b5f38a5",
+        "source_start": "dd3f0e5fe3c721805ac79f5997126168d6674866e1c707d629a67b8d9569f74a",
+        "source_end": "dd3f0e5fe3c721805ac79f5997126168d6674866e1c707d629a67b8d9569f74a",
         "source_stable": true,
         "projects": [
           "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
@@ -6597,18 +6597,18 @@
         "filter": null,
         "configuration": "Debug",
         "receipt": {
-          "path": ".artifacts/test-runs/20261010T202143Z-181442621567/summary.json",
-          "sha256": "2d0ee7cb4a34cac1f0a9a35dcb0b8cb6bf3a97fda4da1c47976eb05ad631a6c0"
+          "path": ".artifacts/test-runs/20261010T214749Z-2e0d61e079f2/summary.json",
+          "sha256": "348db9d5734f083281a76efcdd06b291c52ef53e2d00c064e36594c87abbd581"
         },
         "project_counts": {
           "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
-            "executed": 6442,
-            "passed": 6442,
+            "executed": 6443,
+            "passed": 6443,
             "failed": 0,
             "skipped": 0,
             "inconclusive": 0,
             "other": 0,
-            "total": 6442
+            "total": 6443
           },
           "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
             "executed": 758,
@@ -6618,43 +6618,6 @@
             "inconclusive": 0,
             "other": 0,
             "total": 758
-          }
-        }
-      },
-      {
-        "run_id": "20261010T202423Z-4463799b3412",
-        "head": "24af8ce1442bd907b1df8648969f27ac32adc6c1",
-        "status": "PASS",
-        "counts": {
-          "executed": 8,
-          "passed": 8,
-          "failed": 0,
-          "skipped": 0,
-          "inconclusive": 0,
-          "other": 0,
-          "total": 8
-        },
-        "source_start": "390af58eead8e47dbbbec8162e48d06eabd7d22ff2dd764cea04c37858f0b04c",
-        "source_end": "390af58eead8e47dbbbec8162e48d06eabd7d22ff2dd764cea04c37858f0b04c",
-        "source_stable": true,
-        "projects": [
-          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
-        ],
-        "filter": "FullyQualifiedName~IndustrialisedItemCatalogueTests|FullyQualifiedName~IndustrialisedPrerequisiteAuditTests",
-        "configuration": "Debug",
-        "receipt": {
-          "path": ".artifacts/test-runs/20261010T202423Z-4463799b3412/summary.json",
-          "sha256": "84e5cb0619d5566ce1a653b251bcda69240d5fbc1d10a33459ea6a1d2a4a75d5"
-        },
-        "project_counts": {
-          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj": {
-            "executed": 8,
-            "passed": 8,
-            "failed": 0,
-            "skipped": 0,
-            "inconclusive": 0,
-            "other": 0,
-            "total": 8
           }
         }
       }
@@ -6952,7 +6915,7 @@
     "package_release_enabled": false,
     "publication_authorized": false
   },
-  "next_bounded_milestone": "N22: qualify stock charged-device activation by caster and non-caster, an explicitly configured anyone exception, depleted-charge refusal and explicit focus. Preserve captured potency, normal caster gating and payment; forbid free fallback and acquisition/mastery gains. Use only known typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending.",
+  "next_bounded_milestone": "N23: qualify legitimate homogeneous recharge through acquired/admitted production, magic-type and controlled-grade checks, reproducible potency, exact per-charge payment and cold restart without mixed payload, duplicate charge, replay or refund. N23 has not started. Use only known typed/code-proven links; full installer, historical parity and whole-programme gates remain pending.",
   "npc_typed_reference_review_20261009": {
     "date": "2026-10-09",
     "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
@@ -7182,5 +7145,19 @@
     "runtime_implementation_changed": false,
     "whole_candidate_complete": false,
     "next_bounded_milestone": "N22: qualify stock charged-device activation by caster and non-caster, an explicitly configured anyone exception, depleted-charge refusal and explicit focus. Preserve captured potency, normal caster gating and payment; forbid free fallback and acquisition/mastery gains. Use only known typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending."
+  },
+  "item_activation_20261011": {
+    "status": "PASS_BOUNDED_N22_CHARGED_DEVICE_ACTIVATION",
+    "checkpoint": "Armageddon_Item_Activation_Checkpoint_20261011.json",
+    "managed_passed": 7201,
+    "native_assertions": 870,
+    "paid_produced_charges": 5,
+    "charged_releases": 5,
+    "production_spent": 250,
+    "focus_spent": 50,
+    "known_code_proven_links_only": true,
+    "runtime_implementation_changed": true,
+    "whole_candidate_complete": false,
+    "next_bounded_milestone": "N23: qualify legitimate homogeneous recharge through acquired/admitted production, magic-type and controlled-grade checks, reproducible potency, exact per-charge payment and cold restart without mixed payload, duplicate charge, replay or refund. N23 has not started. Use only known typed/code-proven links; full installer, historical parity and whole-programme gates remain pending."
   }
 }

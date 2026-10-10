@@ -195,13 +195,26 @@ roots open at raw 60/grade 1; real parent proficiency 80 opens the appropriate c
 The runtime enforces the entire current source path and per-spell grade policy.
 
 Blank wand/staff templates have capacity 5/10, explicit dual modes, current-caster activation eligibility, and a Mend-only
-carrier whitelist. The partial graph has no attainable Mend path, so stock device production/recharge is **unattainable**
-through this package. A builder-authored compatible payload/route can use the production service; that adaptation is
-not implicit approval or source completion. No stock scrolls, free charges or fabricated Vancian enrolment are installed.
+carrier whitelist. The base partial package without the optional prerequisite composition supplies no attainable
+Mend path. Optional Fury/Calm extends the source chain; inspect the actual stored admissions and acquisition report
+before enabling production. Natural Mend/device prerequisite acceptance remains pending. A builder-authored compatible
+payload/route can use the service; that adaptation is not implicit source completion. No stock scrolls, free charges
+or fabricated Vancian enrolment are installed.
 Legitimate production requires currently acquired/admitted reproducible control, pays per charge and per-item supplies,
 and creates a homogeneous bank. Interruption after payment gives no refund. Charged use consumes a charge and refuses
 depletion; it never falls back to focus or teaches/improves the spell. Stored production potency is frozen while current
 activation eligibility and live target resistance/wards are rechecked. Copying a device produces an empty bank.
+
+The ordinary player `magicdevice` command uses the shared inventory command tree;
+its four modes above delegate to the same service as staff use. Keep `charged`
+and `focus` explicit. Changing one private component to `eligibility anyone`
+does not remove its `mingrade` requirement or grant a focus route. Submit/review/
+approve revisions and run native component updates before testing the instance.
+The [N22 ordinary-player checkpoint](Armageddon_Item_Activation_Checkpoint_20261011.md)
+qualifies stock gates, a private Anyone exception, frozen potency, exact charge
+consumption, depletion and paid material-bearing focus in a full server. Its
+explicit grants and deterministic inputs do not qualify natural stock progression
+or the broader N23 recharge/installer/readiness gates.
 
 ## Reports, ownership and reruns
 
@@ -343,7 +356,7 @@ Debug Medieval profile and verifies second-run refusal with an all-table content
 reported as blocked; it does not qualify full replay. All five profile inventories/default declines have focused tests.
 Read exact checkpoint receipts for outcomes. Native controlled-world scenarios do not certify Telnet/login or a full
 running server. Read the separately retained installed Active Sense eating/reload qualification for the consumption repair.
-The unattainable stock Mend/device prerequisite path remains an explicit limit.
+Natural stock Mend/device prerequisite acceptance remains an explicit limit; the separate N22 activation fixture uses administrative acquisition.
 
 The separate installed Sense smoke uses legitimate native enrolment, timed paid Self gathering and ordinary paid
 grade-one command/speech casting in a running MUD. Normal random failures remain paid failed operations; bounded retries
@@ -363,4 +376,4 @@ Parent and child process jobs enforce bounded cleanup and verify zero active own
 The Python child waits for a unique matching parent-ready receipt after job attachment before SQL or MUD startup,
 so process scheduling cannot put MUD children outside the database owner's job.
 Read the exact boot receipt for outcomes or the first substantive failure. Default replay runs no boot child. This basic
-server smoke does not certify the whole Armageddon repertoire or remove the stock Mend/device prerequisite limit.
+server smoke does not certify the whole Armageddon repertoire or qualify natural stock Mend/device acquisition.

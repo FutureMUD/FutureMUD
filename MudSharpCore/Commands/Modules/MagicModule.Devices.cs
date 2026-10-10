@@ -8,8 +8,7 @@ namespace MudSharp.Commands.Modules;
 
 public partial class MagicModule
 {
-	[PlayerCommand("MagicDevice", "magicdevice")]
-	[HelpInfo("magicdevice", @"Hold or wield the device and choose its mode explicitly:
+	internal const string MagicDeviceHelp = @"Hold or wield the device and choose its mode explicitly:
 	#3magicdevice show <item>#0
 	#3magicdevice charged <item> <complete target selector>#0 - spend one stored charge
 	#3magicdevice focus <item> <capability> <spell> <grade> <targets>#0 - ordinary paid personal casting
@@ -18,8 +17,8 @@ public partial class MagicModule
 Quote multiword item, capability and spell names. Use self for self-targeted payloads.
 Recharge requires currently acquired, admitted knowledge and controlled reproducible potency.
 Interruption after payment gives no refund; uncertain work requires staff reconciliation.
-Charged use never teaches the spell or increases spell proficiency/mastery.", AutoHelp.HelpArgOrNoArg)]
-	protected static void MagicDevice(ICharacter actor, string input) => DeviceCommand(actor, new StringStack(input.RemoveFirstWord()));
+Charged use never teaches the spell or increases spell proficiency/mastery.";
+	internal static void MagicDeviceCommand(ICharacter actor, string input) => DeviceCommand(actor, new StringStack(input.RemoveFirstWord()));
 	internal static void DeviceCommand(ICharacter actor, StringStack command)
 	{
 		var mode = command.PopForSwitch();

@@ -170,3 +170,57 @@ This isolates incidental ordinary skill cooldowns from the guardian lifecycle ga
 Each stage restores every original improver definition byte-for-byte while stopped.
 
 The [9 October installed N16 checkpoint](../../Design%20Documents/Magic/Armageddon_Guardian_Churn_Checkpoint_20261009.md) qualifies all 32 restart cycles and the continuous 128-output batch with 2,728 native assertions with identical common runtime source/binary inputs and separately pinned normal-cycle and batch scenario revisions. The current Core/Library suites pass 7,069 tests. This bounded fixture qualification preserves the ordinary permanent guardian and does not establish full catalogue, historical balance or Release readiness.
+
+## N22 charged-device activation
+
+`DeviceFixtures.cs` requires existing ordinary Player accounts `n22caster` and
+`n22reader`, one active native Human character with seeded anatomy and primary physical
+instance each. Create them through the real account/chargen/approval workflow in
+the owned Debug world, with its approved native `Wear_Ring` component installed.
+The private tagged material uses that exact wearable component FK and retains
+the carried-only consume plan. The replay first checks an occupied-hands refusal,
+then native wear and persisted body/wear-profile custody before paid focus.
+Use that world's Debug password via the maintained secret
+helper; do not copy hashes, credentials or staff authority into fixture records.
+With local SMTP disabled, staff registration precedes chargen; staff approves
+the submitted native applications. The retained account-creation receipt is named
+by the N22 checkpoint. The fixture validates actual account/character/body/instance
+links and never creates accounts or bodies.
+
+With that world stopped and its retained MySQL port free, refresh Debug engine and
+fixture assemblies sequentially, then run:
+
+```powershell
+dotnet build scripts/FuryCalmSmokeWorld/FuryCalmSmokeWorld.csproj -c Debug --no-restore -m:1
+python -B -u scripts/FuryCalmSmokeWorld/devices.py --run-dir .artifacts/authored-celestials/<owned-run-directory>
+```
+
+This direct runner owns MySQL startup/shutdown; do not wrap it in another database
+owner. It verifies the exact retained datadir before every SQL operation and uses
+a new room, component/item/spell definitions and receipt directory per attempt.
+Players drop prior carried items in their old room before native transfer. The
+admin socket handles explicit merit/acquisition setup and private builder revisions;
+ordinary player sockets perform production, release, custody and focus. No admin
+sight or admin account is used for those gameplay actions.
+
+The deadline is 1800 seconds; stock production remains 60 seconds per charge. The
+private clone alone uses one second. Caster raw 60/control 3/initial reserve 1000 and
+administrative grants are explicit deterministic setup. No bank or charge is
+inserted directly. Paid native banks, exact first-GUID consumption/recipient
+receipts, current caster/Anyone/minimum-grade gates, changed-producer frozen
+potency, full progression/reserve invariance, depletion and ordinary material-bearing
+paid focus must all pass. Four clean server phases and final exact captured
+capability restoration are required; owned MySQL and its port must close.
+
+The final JSON receipt decides status after cleanup. Retain failed attempts and
+their data; never aggregate their counts into qualification. Source/binary inputs
+remain frozen while running. The [N22 checkpoint](../../Design%20Documents/Magic/Armageddon_Item_Activation_Checkpoint_20261011.md)
+records exact final evidence and limitations. N23 recharge and natural stock
+progression remain separate gates.
+
+Required SQL scalars demand a present numeric result. Empty rowsets require a
+separate zero count of the exact derived query. One read-only retry is permitted
+for missing client output; commands, mutations and payments are never retried.
+The retained datadir and exit-status guards remain enforced. The local
+`sql-observations.jsonl` records query/result hashes and sizes without credentials
+or SQL text. Missing results after the bounded read fail qualification.

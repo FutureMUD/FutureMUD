@@ -1,9 +1,9 @@
-# Charged devices: isolated implementation checkpoint
+# Charged devices: runtime and installed-world checkpoints
 
 Authority: `Armageddon_Magic_Completion_Implementation_Brief.md`, Library
 `libfile_a4606cd0097081918d6c9d9e220e6da0`, full supported text read (905 lines),
 sections N22/N23. Base: `1ad24d636925da64e7a82ffa858b0af470e56b0a`.
-The central progress ledger, repertoire disposition tables and native dispatch were not edited.
+That historical isolated lane did not edit the central ledger, repertoire tables or native dispatch. The later N22 installed-world qualification below updates the continuation ledger and ordinary command registration.
 
 ## Builder and player use
 
@@ -227,3 +227,38 @@ each reader runs against this lane's owned database and process paths. Focused c
 cover a new global item receipt created by the last target callback before commitment.
 Earlier fixture trials (Windows argument-size limit and an injected fault left active for
 the reconciliation positive control) are preserved in the external evidence.
+
+## N22 ordinary-player activation — 11 October 2026
+
+The [N22 checkpoint](Armageddon_Item_Activation_Checkpoint_20261011.md) adds a full
+server/MySQL/Telnet replay with genuine ordinary Player accounts, native Human
+chargen/approval, separate authenticated sessions and exact primary body/instance
+identities. It passes **870 assertions**; current Core/Library passes **7,201
+tests**, zero failures/skips. This is a separate scope from the controlled native
+harness above. Read the machine-readable checkpoint for exact inputs and limits.
+
+`magicdevice` now registers once in the shared InventoryModule. Its former
+MagicModule-only registration made the documented player command unavailable;
+the existing parser and service remain. Player/NPC/Guide/Admin dispatch and the
+staff environment permission boundary have regressions. Stock Dual/Caster
+wand/staff retain their Mend whitelist, capacity 5/10 and 60-second production.
+Non-casters refuse. Native revisions on one private clone prove Anyone and the
+independent minimum controlled grade; `mingrade 0` permits the non-caster's charged
+release without giving personal acquisition or focus entitlement.
+
+Five native-produced charges pay 250 once. Transfer, a producer change from
+raw 60/grade 3 to raw 30/grade 1 and cold restart retain exact banks and potency.
+Each release heals 18 and claims exactly one GUID with a completed actual
+recipient/item receipt, without either player's reserve or progression changing.
+Depletion refuses implicit focus. A separate material-bearing private focus
+refuses absent/ground material and both occupied hands, then consumes the exact worn carried item, pays 50
+and heals 2 through ordinary grade 1 casting, retaining ordinary progression.
+Final cold load proves no charge recreation or duplicate debit. Four server
+phases exit zero with collectors stopped; owned MySQL stops and its port closes.
+Stock component definitions/revisions and captured capability restoration pass.
+
+Explicit grants, deterministic skill/control/reserve setup, one-second private
+production and an Automatic private focus do not qualify natural stock progression
+or affordability. Only stored Mend is invoked here. The full N23 recharge matrix,
+all carrier adapters and provider-failure acceptance remain pending. No installer
+content, schema or blank snapshot changes; whole-programme and Release remain off.

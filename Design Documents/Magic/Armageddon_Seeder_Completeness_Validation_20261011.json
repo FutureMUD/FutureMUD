@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "baseline_revision": "aae875af09cf62e6324bb31eba79f58b72249e13",
+  "status": "PASS_STRUCTURAL_DESIGN_ONLY",
+  "scope": "Document structure/provenance/dependency checks; no gameplay, source-gap resolution, code builds/tests or DB writes",
+  "counts": {
+    "candidates": 154,
+    "required": 152,
+    "optional": 2,
+    "capabilities": 10,
+    "sorcerer_spells_per_variant": 82,
+    "sorcerer_roots_per_variant": 4,
+    "sorcerer_support_rows": 12,
+    "larger_required_systems": 8,
+    "prototype_blueprints": 210,
+    "simple_admissions": 399
+  },
+  "checks": [
+    {
+      "name": "full_exact_inventory",
+      "status": "PASS",
+      "evidence": 154
+    },
+    {
+      "name": "required_optional_partition",
+      "status": "PASS",
+      "evidence": [
+        "arm.spell.renew_earth",
+        "arm.spell.wardcraft"
+      ]
+    },
+    {
+      "name": "eight_required_larger_systems",
+      "status": "PASS",
+      "evidence": 8
+    },
+    {
+      "name": "exact_94_classic_source_rows",
+      "status": "PASS",
+      "evidence": "82 spells and 12 support rows, unchanged order/values/parents"
+    },
+    {
+      "name": "exact_source_roots_openings_caps",
+      "status": "PASS",
+      "evidence": [
+        "arm.spell.sense_enchantment",
+        "arm.spell.unravel_enchantment",
+        "arm.spell.gust_hands",
+        "arm.spell.unyielding_veil"
+      ]
+    },
+    {
+      "name": "source_graph_acyclic_and_resolved",
+      "status": "PASS",
+      "evidence": "all 94 nodes"
+    },
+    {
+      "name": "ten_always_capabilities_conditional_classes",
+      "status": "PASS",
+      "evidence": "seven elementals plus three Sorcerer variants"
+    },
+    {
+      "name": "simple_admission_uniqueness",
+      "status": "PASS",
+      "evidence": 399
+    },
+    {
+      "name": "simple_thresholds_reachable_and_separate_grade",
+      "status": "PASS",
+      "evidence": "opening10, unlock10..90, cap100, initial controlled grade1"
+    },
+    {
+      "name": "simple_complete_Earth",
+      "status": "PASS",
+      "evidence": 22
+    },
+    {
+      "name": "simple_complete_Fire",
+      "status": "PASS",
+      "evidence": 19
+    },
+    {
+      "name": "simple_complete_Water",
+      "status": "PASS",
+      "evidence": 28
+    },
+    {
+      "name": "simple_complete_Wind",
+      "status": "PASS",
+      "evidence": 23
+    },
+    {
+      "name": "simple_complete_Shadow",
+      "status": "PASS",
+      "evidence": 17
+    },
+    {
+      "name": "simple_complete_Lightning",
+      "status": "PASS",
+      "evidence": 15
+    },
+    {
+      "name": "simple_complete_Void",
+      "status": "PASS",
+      "evidence": 29
+    },
+    {
+      "name": "simple_complete_Sorcerer",
+      "status": "PASS",
+      "evidence": 82
+    },
+    {
+      "name": "simple_source_parent_order_Sorcerer",
+      "status": "PASS",
+      "evidence": "every selected source spell parent strictly precedes child"
+    },
+    {
+      "name": "simple_complete_Preserver",
+      "status": "PASS",
+      "evidence": 82
+    },
+    {
+      "name": "simple_source_parent_order_Preserver",
+      "status": "PASS",
+      "evidence": "every selected source spell parent strictly precedes child"
+    },
+    {
+      "name": "simple_complete_Defiler",
+      "status": "PASS",
+      "evidence": 82
+    },
+    {
+      "name": "simple_source_parent_order_Defiler",
+      "status": "PASS",
+      "evidence": "every selected source spell parent strictly precedes child"
+    },
+    {
+      "name": "all_required_spells_have_simple_routes",
+      "status": "PASS",
+      "evidence": 152
+    },
+    {
+      "name": "optional_not_required_dependencies",
+      "status": "PASS",
+      "evidence": "Wardcraft and Renew Earth isolated"
+    },
+    {
+      "name": "explicit_classic_elemental_source_gate",
+      "status": "PASS",
+      "evidence": "no inferred grade2/raw20 branches or coded-family learn-tree claim"
+    },
+    {
+      "name": "prototype_unique_resolved_acyclic",
+      "status": "PASS",
+      "evidence": 210
+    },
+    {
+      "name": "every_spell_prototype_binding_resolved",
+      "status": "PASS",
+      "evidence": "known prototype_dependencies field only"
+    },
+    {
+      "name": "recipe_inputs_are_declared_typed_dependencies",
+      "status": "PASS",
+      "evidence": "all recipe inputs resolve and have positive finite quantities"
+    },
+    {
+      "name": "known_template_and_material_binding_fields_resolved",
+      "status": "PASS",
+      "evidence": "race_bundle, ai_bundle, culture, native_material only"
+    },
+    {
+      "name": "automatic_support_catalogue",
+      "status": "PASS",
+      "evidence": "49 NPC and 49 weapon prototypes plus supports; no external-prototype questions"
+    },
+    {
+      "name": "grade7_flame_tier_distinct",
+      "status": "PASS",
+      "evidence": "six knives and eight permanent staves"
+    },
+    {
+      "name": "fixed_single_installation_no_conversion",
+      "status": "PASS",
+      "evidence": "owned pre-module settings, one direction"
+    },
+    {
+      "name": "read_attunement_separate_facts",
+      "status": "PASS",
+      "evidence": "explicit affinity separate from learned route history; pure query"
+    },
+    {
+      "name": "four_install_matrix_cells",
+      "status": "PASS",
+      "evidence": 4
+    },
+    {
+      "name": "finite_authored_energy_minima",
+      "status": "PASS",
+      "evidence": "source comparison/current factory/printed/new proposal provenance remains labelled"
+    },
+    {
+      "name": "input_hashes_match",
+      "status": "PASS",
+      "evidence": "UTF-8 without BOM and LF transport canonicalization; all other input text preserved"
+    },
+    {
+      "name": "current_factory_source_paths_exist",
+      "status": "PASS",
+      "evidence": 26
+    },
+    {
+      "name": "tsv_matches_json",
+      "status": "PASS",
+      "evidence": 399
+    },
+    {
+      "name": "design_relative_file_links_resolve",
+      "status": "PASS",
+      "evidence": "all local links; this receipt produced below"
+    }
+  ],
+  "known_open_gates": [
+    "Classic elemental historical learn tables",
+    "implementation of complete stock catalogue and remaining adapters",
+    "four fresh-install matrix cells and natural progression",
+    "N24 full installer rerun/native conservation",
+    "N25/final whole-programme qualification"
+  ],
+  "review": {
+    "role": "fm_reviewer",
+    "scope": "read-only design/craft-link review; no runtime execution",
+    "initial_finding": "Missing typed craft input dependencies",
+    "final_outcome": "Resolved; 76 structured recipes independently read, 0 input/dependency mismatches across 210 blueprints",
+    "structural_gate": "Final checks include every recipe input and known template/material binding field."
+  }
+}

@@ -1,5 +1,7 @@
 # ARM-01 candidate repertoire register
 
+Current seeder design: [complete content/progression specification](Armageddon_Seeder_Completeness_Design_20261011.md). Read Attunement now has the user-selected contract of reporting explicit elemental affinities and learned magical affiliations separately; the old unresolved-vocabulary wording below is historical. Fixed game-wide mode, automatic conditional classes and automatic NPC/item authorship supersede earlier optional installer proposals. Classic elemental learn-table data remains an explicit source gate.
+
 Current continuation: [2026-10-08 checkpoint](Armageddon_Continuation_20261008.md) and [machine-readable inventory/evidence](Armageddon_Continuation_20261008.json). Current branch is `codex/armageddon-continuation-20261008`, based on Room master `07146cdc8a38fd23040281b58c6544d45f260cd2`. Old baseline, device/installer pending fields and unresolved Fury allocation statements below are historical; later receipts and the current ledger supersede them. The exact 154 dispositions and 82 Sorcerer memberships remain in scope. Full programme and native readiness are incomplete.
 
 Canonical data: [Armageddon_Repertoire.json](Armageddon_Repertoire.json). Historical inventory preparation revision: `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`. Current implementation baseline: `b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38`.

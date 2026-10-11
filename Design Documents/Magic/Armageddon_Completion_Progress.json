@@ -39,7 +39,18 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-continuation-20261008",
   "authorised_scope": "Complete plan in coherent stages; local commits and draft PR #788 authorized; no merge, deploy or shared/production DB",
-  "selected_stage": "N19 builder-installed Severing Refuge and Apex Bane qualified; next N20 Folded Pocket.",
+  "selected_stage": "Seeder completeness design before N24; N23 remains the latest bounded runtime checkpoint. S1-S6 installation dependencies and Classic elemental source gate remain pending.",
+  "seeder_completeness_design": {
+    "date": "2026-10-11",
+    "document": "Armageddon_Seeder_Completeness_Design_20261011.md",
+    "inventory": "Armageddon_Seeder_Completeness_Design_20261011.json",
+    "simple_progression": "Armageddon_Seeder_Completeness_Design_20261011_Simple_Progression.tsv",
+    "status": "DESIGN_ONLY_CLASSIC_ELEMENTAL_SOURCE_GATE_OPEN",
+    "runtime_baseline": "aae875af09cf62e6324bb31eba79f58b72249e13",
+    "read_attunement": "Explicit elemental affinities and learned magical affiliations reported separately",
+    "one_fixed_mode_installation": true,
+    "n24_started": false
+  },
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
     "Complete installed source/support/crafting/chargen wiring and gathering restrictions/environmental accounting remain later stock/native gates.",
@@ -884,7 +895,7 @@
       "key": "arm.spell.read_attunement",
       "name": "Read Attunement",
       "group": "Gap",
-      "required_behavior": "Report an explicitly configured relationship between a target and elemental traditions. Requires an agreed attunement vocabulary and bounded query; historical setting relationships are unresolved.",
+      "required_behavior": "Report explicitly builder-assigned elemental affinities and learned magical affiliations separately through a bounded permitted pure query; no inferred ordinary-character affinity or acquisition/enrolment/progression side effects.",
       "selected_sorcerer": true,
       "status": "pending_runtime_stock_and_native_acceptance",
       "evidence": [

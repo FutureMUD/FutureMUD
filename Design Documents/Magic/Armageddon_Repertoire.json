@@ -4994,7 +4994,7 @@
         ],
         "boundary_assertion": "Requires an agreed attunement vocabulary and bounded query; historical setting relationships are unresolved."
       },
-      "completion_contract": "Report an explicitly configured relationship between a target and elemental traditions. Requires an agreed attunement vocabulary and bounded query; historical setting relationships are unresolved."
+      "completion_contract": "Report explicitly builder-assigned elemental affinities and learned magical affiliations as separate bounded results. Seeded magical creatures have authored affinities; ordinary characters have no inferred affinity. Pure permitted query with no acquisition, enrolment or progression side effects."
     },
     {
       "key": "arm.spell.thunderclap",
@@ -25759,5 +25759,6 @@
   "revision_kind": "historical_inventory_preparation",
   "implementation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "current_continuation_receipt": "Armageddon_Continuation_20261008.json",
+  "seeder_completeness_design": "Armageddon_Seeder_Completeness_Design_20261011.json",
   "historical_status_fields_note": "Uniform legacy runtime/practice/native fields remain original proposal provenance. Current evidence is reconciled in Armageddon_Completion_Progress.json and the continuation overlay; classification and per-membership prerequisites stay authoritative. No all-candidate completion is claimed."
 }

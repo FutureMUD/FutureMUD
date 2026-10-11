@@ -176,6 +176,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Armageddon Continuation Checkpoint](./Magic/Armageddon_Continuation_20261008.md)
 - [Armageddon Recharge Checkpoint](./Magic/Armageddon_Recharge_Checkpoint_20261011.md)
 - [Armageddon Seeder Completeness Design](./Magic/Armageddon_Seeder_Completeness_Design_20261011.md)
+- [Armageddon Elementalist Research Adoption](./Magic/Armageddon_Elementalist_Research_Adoption_20261011.md) — selected seven-guild graphs, explicit numeric reconstruction and identity/provenance boundaries.
 - [Armageddon Fury/Calm Runtime and Installer](./Magic/Armageddon_Fury_Calm_Runtime.md)
 - [Vancian Magic Runtime and Persistence](./Magic/Vancian_Magic_Runtime.md)
 - [Vancian Magic Player Guide](./Magic/Vancian_Magic_Player_Guide.md)

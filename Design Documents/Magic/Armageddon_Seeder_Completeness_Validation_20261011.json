@@ -3,7 +3,7 @@
   "date": "2026-10-11",
   "baseline_revision": "aae875af09cf62e6324bb31eba79f58b72249e13",
   "status": "PASS_STRUCTURAL_DESIGN_ONLY",
-  "scope": "Document structure/provenance/dependency checks; no gameplay, source-gap resolution, code builds/tests or DB writes",
+  "scope": "Document structure/provenance/dependency checks, selected research graph and explicit numerical reconstruction; no gameplay, historical numerical parity, code builds/tests or DB writes",
   "counts": {
     "candidates": 154,
     "required": 152,
@@ -15,7 +15,8 @@
     "larger_required_systems": 8,
     "prototype_blueprints": 210,
     "simple_admissions": 399,
-    "classic_elemental_placeholder_admissions": 153
+    "classic_elemental_research_spell_bindings": 149,
+    "classic_elemental_research_support_bindings": 8
   },
   "checks": [
     {
@@ -147,89 +148,162 @@
       "evidence": "Wardcraft and Renew Earth isolated"
     },
     {
-      "name": "explicit_authorised_classic_elemental_placeholders",
+      "name": "user_adopted_research_separate_from_numeric_evidence",
       "status": "PASS",
-      "evidence": "authorised provisional data allows implementation; historical parity unqualified"
+      "evidence": "research graph selected; unrecovered historical numbers null; reconstruction permits implementation"
     },
     {
-      "name": "classic_elemental_unique_complete_provenance",
+      "name": "selected_157_research_bindings_match_inventory",
       "status": "PASS",
-      "evidence": 153
+      "evidence": {
+        "compiled_entries": 155,
+        "selected_bindings": 157,
+        "spell_bindings": 149,
+        "support_bindings": 8,
+        "resolved_identity_bindings": 156,
+        "unresolved_identity_bindings": 1,
+        "blocked_identity_chains": 2
+      }
     },
     {
-      "name": "classic_placeholder_graph_Earth",
+      "name": "selected_classic_graph_Earth",
       "status": "PASS",
       "evidence": 22
     },
     {
-      "name": "classic_placeholder_thresholds_reachable_Earth",
+      "name": "reconstructed_thresholds_reachable_Earth",
       "status": "PASS",
-      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+      "evidence": "parent raw cap minus10; explicit roots only; child opening <= cap"
     },
     {
-      "name": "classic_placeholder_graph_Fire",
+      "name": "selected_classic_graph_Fire",
+      "status": "PASS",
+      "evidence": 22
+    },
+    {
+      "name": "reconstructed_thresholds_reachable_Fire",
+      "status": "PASS",
+      "evidence": "parent raw cap minus10; explicit roots only; child opening <= cap"
+    },
+    {
+      "name": "selected_classic_graph_Water",
+      "status": "PASS",
+      "evidence": 24
+    },
+    {
+      "name": "reconstructed_thresholds_reachable_Water",
+      "status": "PASS",
+      "evidence": "parent raw cap minus10; explicit roots only; child opening <= cap"
+    },
+    {
+      "name": "selected_classic_graph_Wind",
+      "status": "PASS",
+      "evidence": 27
+    },
+    {
+      "name": "reconstructed_thresholds_reachable_Wind",
+      "status": "PASS",
+      "evidence": "parent raw cap minus10; explicit roots only; child opening <= cap"
+    },
+    {
+      "name": "selected_classic_graph_Shadow",
+      "status": "PASS",
+      "evidence": 20
+    },
+    {
+      "name": "reconstructed_thresholds_reachable_Shadow",
+      "status": "PASS",
+      "evidence": "parent raw cap minus10; explicit roots only; child opening <= cap"
+    },
+    {
+      "name": "selected_classic_graph_Lightning",
       "status": "PASS",
       "evidence": 19
     },
     {
-      "name": "classic_placeholder_thresholds_reachable_Fire",
+      "name": "reconstructed_thresholds_reachable_Lightning",
       "status": "PASS",
-      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+      "evidence": "parent raw cap minus10; explicit roots only; child opening <= cap"
     },
     {
-      "name": "classic_placeholder_graph_Water",
-      "status": "PASS",
-      "evidence": 28
-    },
-    {
-      "name": "classic_placeholder_thresholds_reachable_Water",
-      "status": "PASS",
-      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
-    },
-    {
-      "name": "classic_placeholder_graph_Wind",
+      "name": "selected_classic_graph_Void",
       "status": "PASS",
       "evidence": 23
     },
     {
-      "name": "classic_placeholder_thresholds_reachable_Wind",
+      "name": "reconstructed_thresholds_reachable_Void",
       "status": "PASS",
-      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+      "evidence": "parent raw cap minus10; explicit roots only; child opening <= cap"
     },
     {
-      "name": "classic_placeholder_graph_Shadow",
+      "name": "classic_research_optional_isolation",
       "status": "PASS",
-      "evidence": 17
+      "evidence": "no branch to optional Wardcraft/Renew Earth"
     },
     {
-      "name": "classic_placeholder_thresholds_reachable_Shadow",
+      "name": "unresolved_portal_gate_fails_closed",
       "status": "PASS",
-      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+      "evidence": "null canonical identity is not an opening grant; dependent Portal also held"
     },
     {
-      "name": "classic_placeholder_graph_Lightning",
+      "name": "Mend_child_threshold_50_from_parent_cap",
       "status": "PASS",
-      "evidence": 15
+      "evidence": "Water Heal -> Health Drain: parent cap60 gives50; exact Sorcerer source untouched"
     },
     {
-      "name": "classic_placeholder_thresholds_reachable_Lightning",
+      "name": "shared_canonical_mount_no_invented_variants",
       "status": "PASS",
-      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+      "evidence": "seven reconstructed memberships, one existing Earth native school identity"
     },
     {
-      "name": "classic_placeholder_graph_Void",
+      "name": "exact_source_name_or_explicit_spelling_identity",
       "status": "PASS",
-      "evidence": 29
+      "evidence": "known source.name field with recorded source numbers/code-reference provenance; no ID scans"
     },
     {
-      "name": "classic_placeholder_thresholds_reachable_Void",
+      "name": "guild_parent_binding_isolation",
       "status": "PASS",
-      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+      "evidence": "explicit parent binding resolved only within the same guild"
     },
     {
-      "name": "classic_placeholder_optional_isolation",
+      "name": "ComponentCrafting80_admission_scope_no_void_cycle",
       "status": "PASS",
-      "evidence": "no required branch to Wardcraft/Renew Earth"
+      "evidence": "Sorcerer variants only; Void Identify -> Components follows research"
+    },
+    {
+      "name": "approved_simple_thresholds_and_sorcerer_admissions_preserved",
+      "status": "PASS",
+      "evidence": "399 numeric thresholds unchanged; three Sorcerer Simple tables byte-equivalent as JSON values; elemental reconciliation explicit S2 work"
+    },
+    {
+      "name": "support_catalogue_and_effect_configuration_preserved",
+      "status": "PASS",
+      "evidence": "210 blueprints and154 effect configurations unchanged"
+    },
+    {
+      "name": "required_inventory_outside_selected_learn_trees_retained",
+      "status": "PASS",
+      "evidence": "20 required entries outside selected trees retain stock/progression scope; authored supplemental admission reconciliation is S2 work"
+    },
+    {
+      "name": "placeholder_table_retired_not_active_input",
+      "status": "PASS",
+      "evidence": "legacy flattened graph excluded from active Classic rows"
+    },
+    {
+      "name": "every_selected_edge_and_root_matches_page",
+      "status": "PASS",
+      "evidence": "all155 printed compilation roots/edges plus two explicitly selected Stone additions; no alternative union"
+    },
+    {
+      "name": "source_snapshot_hash_and_complete_capture",
+      "status": "PASS",
+      "evidence": "111-block complete Page capture, canonical UTF8/LF hash"
+    },
+    {
+      "name": "entry_admission_rows_resolve_selected_bindings",
+      "status": "PASS",
+      "evidence": "per-entry admissions reference the exact selected guild bindings"
     },
     {
       "name": "prototype_unique_resolved_acyclic",
@@ -289,7 +363,7 @@
     {
       "name": "current_factory_source_paths_exist",
       "status": "PASS",
-      "evidence": 26
+      "evidence": 27
     },
     {
       "name": "tsv_matches_json",
@@ -297,9 +371,9 @@
       "evidence": 399
     },
     {
-      "name": "classic_placeholder_tsv_matches_json",
+      "name": "research_tsv_matches_json",
       "status": "PASS",
-      "evidence": 153
+      "evidence": 157
     },
     {
       "name": "design_relative_file_links_resolve",
@@ -313,11 +387,22 @@
     "N24 full installer rerun/native conservation",
     "N25/final whole-programme qualification"
   ],
-  "research_pending": {
-    "topic": "Classic elemental historical learn tables",
+  "research_adoption": {
+    "document": "Armageddon_Elementalist_Research_Adoption_20261011.json",
+    "source_blocks_read": 111,
+    "selected_bindings": 157,
+    "historical_numbers_unrecovered": true,
     "blocks_current_implementation": false,
-    "current_dataset": "authorised labelled placeholders",
+    "unresolved_identity": "Void Portal Gate and dependent Portal binding held until S2 mapping",
     "historical_parity_qualified": false
+  },
+  "research_adoption_review": {
+    "role": "fm_reviewer",
+    "date": "2026-10-11",
+    "baseline_revision": "1291d13dfbdb033933fbf3ccf322bb34d547b1af",
+    "scope": "Read-only Page snapshot/adoption and affected seeder design/validation; direct casting contract for cross-school admission.",
+    "outcome": "No actionable defect found; selected157 bindings, shared Earth Mount, Mend50, route-specific craft prerequisite and unresolved Portal Gate chain consistent.",
+    "limits": "No tests/builds/gameplay; unavailable linked Page attachments and Portal Gate semantic identity remain unresolved. Required supplemental admission wording subsequently clarified without changing selected rows."
   },
   "review": {
     "role": "fm_reviewer",
@@ -325,6 +410,6 @@
     "initial_finding": "Missing typed craft input dependencies",
     "final_outcome": "Resolved; 76 structured recipes independently read, 0 input/dependency mismatches across 210 blueprints",
     "structural_gate": "Final checks include every recipe input and known template/material binding field.",
-    "scope_limit": "Independent review preceded this provisional Classic elemental addendum; the addendum has structural checks only."
+    "scope_limit": "Earlier craft review preceded elemental research adoption; new adoption has structural checks and a separate read-only identity/prerequisite mapping receipt, no runtime execution."
   }
 }

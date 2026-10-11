@@ -6915,20 +6915,22 @@
     "package_release_enabled": false,
     "publication_authorized": false
   },
-  "next_bounded_milestone": "Implement S1-S6 seeder completeness dependencies before N24 full installer rerun qualification, using authorised Classic elemental placeholders while separate historical research proceeds. N24 is unstarted; no design document qualifies installed gameplay.",
+  "next_bounded_milestone": "Implement S1-S6 before N24 using the adopted elemental research basis, preserving exact Sorcerer rows and prior approved policies. S2 resolves Portal Gate identity and reconciles elemental Simple data. N23 remains latest runtime qualification; N24 unstarted.",
   "seeder_completeness_design_20261011": {
     "document": "Armageddon_Seeder_Completeness_Design_20261011.md",
     "inventory": "Armageddon_Seeder_Completeness_Design_20261011.json",
     "simple_progression": "Armageddon_Seeder_Completeness_Design_20261011_Simple_Progression.tsv",
     "runtime_baseline": "aae875af09cf62e6324bb31eba79f58b72249e13",
     "design_only": true,
-    "classic_elemental_research": "historical guild/subguild learn tables unavailable; user authorised labelled placeholders while another agent researches real values",
-    "classic_elemental_placeholders": "Armageddon_Seeder_Completeness_Design_20261011_Classic_Elemental_Placeholders.tsv",
+    "classic_elemental_research": "User-adopted research Page: selected full-seven graph plus Stone addition; unknown numbers separately reconstructed; Portal Gate identity pending S2.",
     "historical_research_blocks_implementation": false,
     "read_attunement": "explicit elemental affinities and learned magical affiliations separately",
     "fixed_game_wide_mode": true,
     "conversion_or_parallel_installation": false,
-    "n24_started": false
+    "n24_started": false,
+    "superseded_classic_elemental_placeholders": "Armageddon_Seeder_Completeness_Design_20261011_Classic_Elemental_Placeholders.tsv",
+    "elemental_research_adoption": "Armageddon_Elementalist_Research_Adoption_20261011.json",
+    "status": "DESIGN_ONLY_ELEMENTAL_RESEARCH_BASIS_ADOPTED"
   },
   "npc_typed_reference_review_20261009": {
     "date": "2026-10-09",

@@ -177,6 +177,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Armageddon Recharge Checkpoint](./Magic/Armageddon_Recharge_Checkpoint_20261011.md)
 - [Armageddon Seeder Completeness Design](./Magic/Armageddon_Seeder_Completeness_Design_20261011.md)
 - [Armageddon Final Seeder Decisions](./Magic/Armageddon_Seeder_Decisions_20261011.md)
+- [Armageddon Master List Archive and Review](./Armageddon/References/Armageddon_Info_Master_List_Review_20261011.md) — preserved full source, 15 guild tables and comparison with locked magic decisions; S1 paused for source reconciliation.
 - [Armageddon Elementalist Research Adoption](./Magic/Armageddon_Elementalist_Research_Adoption_20261011.md) — selected seven-guild graphs, explicit numeric reconstruction and identity/provenance boundaries.
 - [Armageddon Fury/Calm Runtime and Installer](./Magic/Armageddon_Fury_Calm_Runtime.md)
 - [Vancian Magic Runtime and Persistence](./Magic/Vancian_Magic_Runtime.md)

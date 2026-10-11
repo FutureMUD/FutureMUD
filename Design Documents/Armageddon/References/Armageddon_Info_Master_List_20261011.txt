@@ -1,0 +1,1619 @@
+SUBGUILD SKILL LIST
+
+Acrobat - Kick/Climb/Flee
+Forester - Hunt/Lumberjack/Woodworking/Direction Sense
+Linguist - Allundean/Mirukkim/Sirihish
+Stonecrafter - Stone Working/Value
+Archer - Archery/Fletchery/Bowmaking
+General Crafter - Ropemaking/BasketWeaving/Dyeing/Value/Tanning
+Mercenary - Knife-Making/Armor Repair/Direction Sense/Ride/Alcohol+
+Subguild Tailor - Cloth Working/Dyeing/Haggle
+Armormaker - Tanning/Armor Making/Leatherworking/Armor Repair
+Subguild Guard - Guard/Rescue/Shield-use/Subdue
+Nomad - Bendune/Haggle/Knife Making/Spear Making/Ride/Direction Sense
+Thief - Steal/Sleight of hand/Sneak/Flee
+Bard - Sleight of Hand/Instrument Making/+Languages
+House Servant - Cook/Listen/Pilot/Floristry
+Physician - Brew/Bandaging/Bandage Making
+Thug - Kick/Subdue/Sap/Flee
+Caravan Guide - Mount/Pilot/Value/Bendune/Direction Sense
+Hunter - Hunt/Sneak/Archery/Skinning/Direction Sense
+Subguild Rebel - Spear Making/Knife Making/Direction Sense/Sneak/Armor Repair
+Tinker - Haggle/Value/Tool Making
+Con Artist - Sleight of Hand/Value/Haggle
+Jeweler - Jewerly Making/FeatherWorking/Value
+Scavenger - Forage/Climb/Value/Search/Direction Sense
+Weaponcrafter - Sword Making/Spear Making/Knife Making/Value
+
+
+
+
+
+STAT RANGES BY RACE
+
+
+Human
+STRENGTH: 3d4+7 AGILITY: 3d4+7 WISDOM: 4d4+4 ENDURANCE: 3d4+7
+Str: 10-19
+Agi: 10-19
+Wis: 8-19
+End: 10-19
+
+Elf
+STRENGTH: 3d4+3 AGILITY: 3d6+8 WISDOM: 4d7+5 ENDURANCE: 2d4+8
+Str: 6-15
+Agi: 11-26
+Wis: 9-33
+End: 10-16
+
+Dwarf
+STRENGTH: 3d4+9 AGILITY: 3d4+6 WISDOM: 3d4+6 ENDURANCE: 2d4+13
+Str: 12-21
+Agi: 9-18
+Wis: 9-18
+End: 15-21
+
+Mantis
+STRENGTH: 3d4+8 AGILITY: 3d4+6 WISDOM: 3d4+6 ENDURANCE: 2d4+13
+Str: 11-20
+Agi: 9-18
+Wis: 9-18
+End: 15-21
+
+Silt Horror
+STRENGTH: 1d4+20 AGILITY: 3d4+2 WISDOM: 1d4+0 ENDURANCE: 1d4+20
+Str: 21-24
+Agi: 5-14
+Wis: 1-4
+End: 21-24
+
+Dragon
+STRENGTH: 1d4+20 AGILITY: 2d5+12 WISDOM: 2d4+16 ENDURANCE: 1d4+20
+Str: 21-24
+Agi: 14-22
+Wis: 18-24
+End: 21-24
+
+Demon
+STRENGTH: 10d5+20 AGILITY: 1d20+40 WISDOM: 1d30+30 ENDURANCE: 20d8+50
+Str: 30-70
+Agi: 41-60
+Wis: 31-60
+End: 70-210
+
+Halfling
+STRENGTH: 4d4+2 AGILITY: 1d15+25 WISDOM: 3d4+7 ENDURANCE: 3d4+6
+Str: 6-18
+Agi: 26-40
+Wis: 10-19
+End: 9-18
+
+Gith
+STRENGTH: 3d4+8 AGILITY: 2d4+12 WISDOM: 2d4+9 ENDURANCE: 2d4+12
+Str: 11-20
+Agi: 14-20
+Wis: 11-17
+End: 14-20
+
+Giant
+STRENGTH: 1d2+22 AGILITY: 2d3+4 WISDOM: 2d3+0 ENDURANCE: 1d4+20
+Str: 23-24
+Agi: 6-10
+Wis: 2-6
+End: 21-24
+
+Half-Giant
+STRENGTH: 1d15+35 AGILITY: 3d4+0 WISDOM: 3d3+1 ENDURANCE: 1d8+14
+Str: 36-50
+Agi: 3-12
+Wis: 4-10
+End: 15-22
+
+Elemental
+STRENGTH: 2d4+16 AGILITY: 2d3+18 WISDOM: 2d4+16 ENDURANCE: 1d4+20
+Str: 18-24
+Agi: 20-24
+Wis: 18-24
+End: 21-24
+
+Mul
+STRENGTH: 2d6+18 AGILITY: 3d4+8 WISDOM: 3d4+6 ENDURANCE: 3d4+8
+Str: 20-30
+Agi: 11-20
+Wis: 9-18
+End: 11-20
+
+Half-Elf
+STRENGTH: 3d4+6 AGILITY: 3d4+7 WISDOM: 3d4+7 ENDURANCE: 3d4+8
+Str: 9-18
+Agi: 10-19
+Wis: 10-19
+End: 11-20
+
+Mekillot
+STRENGTH: 5d4+50 AGILITY: 1d4+2 WISDOM: 1d3+0 ENDURANCE: 1d4+20
+Str: 55-70
+Agi: 3-6
+Wis: 1-3
+End: 21-24
+
+Gaj (This has probably been changed)
+STRENGTH: 1d4+20 AGILITY: 1d4+20 WISDOM: 1d4+20 ENDURANCE: 1d4+20
+Str: 21-24
+Agi: 21-24
+Wis: 21-24
+End: 21-24
+
+Ankheg
+STRENGTH: 1d4+20 AGILITY: 2d4+14 WISDOM: 2d4+0 ENDURANCE: 1d4+20
+Str: 21-24
+Agi: 16-22
+Wis: 2-8
+end: 21-24
+
+Bahamet
+STRENGTH: 3d6+2 AGILITY: 3d4+5 WISDOM: 1d6+1 ENDURANCE: 3d6+2
+Str: 5-20
+Agi: 8-17
+Wis: 2-7
+End: 5-20
+
+Desert Elf
+STRENGTH: 3d4+3 AGILITY: 3d7+8 WISDOM: 4d4+5 ENDURANCE: 1d15+25
+Str: 6-15
+Agi: 11-29
+Wis: 20-29
+End: 26-40
+
+
+POISONS
+
+
+bloodburn - gradual HP loss
+rough white stones - foraged in rocky areas
+red spotted leaf - spawns near Red Storm and Allanak
+cilops gland - skinned off cilops
+
+grishen - movement takes INCREDIBLE stamina, stamina drains periodically
+chedya stems - chedya plants spawn around the world
+harelle berries - no idea where these are
+
+peraine - if target fails a saving throw, paralysis
+kryl glands - ONLY skinned off black kryl east of Tuluk
+wezer glands - skinned off wezers in the tablelands
+
+terradin - causes the target to violently expel their stomachs - throwing up can cause instant death
+kzul berries - Found in Tuluk's chasm
+eating shit (literally)
+drinking cleaning fluid
+
+
+
+
+POISON CURES
+
+purple octagonal tablet: 
+No idea what it cures, but it makes you trip and otherwise seems harmless 
+
+
+crumbling red tablet: 
+Cures 'burning poison', caused by: 
+cilops, snakes, some tainted food 
+
+
+made with: 
+handful of grass stalks - eastern grasses 
+cluster of feathery yellow flowers 
+bunch of ferns - eastern grasses 
+spike of yellow flowers - eastern grasses 
+citron sented leaves - eastern grasses 
+
+
+grainy yellow tablet: 
+Cures hallucinations, caused by:  
+translucent green tablets 
+
+
+made with: 
+tiny musk gland - gortoks 
+stiff, white-petalled flower - scrubs, eastern grasses? 
+feathery brown leaves - scrubs, eastern grasses? 
+
+
+transluscent green tablet: 
+cures vomiting poison caused by: 
+cluster of (brown?) berries - northeast of Tuluk, northern edge of forest 
+makes you hallucinate, must chase with grainy yellow tablet 
+
+
+made with: 
+sap-filled something leaves (bimbal) - tablelands, scrubs 
+a knotted mass of spiny greenish-brown moss - tunnels beneath tablelands? 
+a handful of leaves - eastern grasses 
+mauve blossoms w/ bimbal - eastern grasses 
+
+
+small yellow tablet: 
+cures: stamina drain 
+
+
+made with: 
+scattering of spotted leaves - grasslands? 
+
+
+chalky blue tablet 
+Cures: ? 
+
+
+made with: 
+circular blue leaves - gypsy lands 
+thin sheet of pale blue moss - tunnels beneath tablelands 
+
+
+octagonal purple tablet 
+Cures: ? 
+  
+
+
+ SPICE
+
+Krentakh 
+crumbly, golden spice 
+Effect: Makes you happy (similar to Tho, but cheaper and more common) 
+Gives you a headache when it wears off. 
+
+
+Aggross 
+colorful, flaky spice 
+multi-colored grain of flaky spice 
+Your heart begins to thump solidly in your chest ? 
+Effect: War spice! >:) Boosts Endurance 
+
+
+Qel 
+greenish-brown spice 
+It makes you feel more one with nature more or less 
+Actually increases your mana max by a tiny amount 
+
+
+Melen Tuek 
+(dark?) red with little yellow, or gold flecks 
+grain of dark-red, golden-flecked spice 
+It makes you feel self confident. 
+
+
+Krelez 
+shiny, red spice 
+Boosts agility 
+
+
+Methelinoc 
+dark, light-flecked spice 
+boosts wisdom 
+
+
+Kemen 
+silky grey spice 
+It dulls the pain so you can take more abuse 
+
+
+Zharal 
+dark-red spice 
+It makes you outwardly aggressive. 
+
+
+Tho 
+viscous black spice: 
+Solidly packed tube of spice 
+You feel euphoric, and a numbness creeps across your body. 
+
+
+Krelez 
+dull red spice: 
+Boosts agility
+
+
+DAMAGE VALUE FOR COMBAT DESCRIPTIONS
+
+
+Barely Grazing 1-2
+
+Nick 3-4
+
+Lightly 5-6
+
+Normal(No mod) 7-8
+
+Solid 9-11
+
+Very Hard 12-15
+
+Wound 16-19
+
+Viciously 20-24
+
+Brutal Wound 25-29
+
+Grievous Wound 30-37
+
+Unspeakable 38+
+
+
+COMPLETE SKILL LISTS 
+
+
+
+List for Water Elementalist
+
+  create water   (st=60, max=90, min_mana=7, go on=80)
+
+  . oasis   (st=40, max=90, min_mana=7, go on=80)
+
+  . . create wine   (st=40, max=90, min_mana=7, go on=80)
+
+  . . . create food   (st=40, max=90, min_mana=7, go on=80)
+
+  . mirage   (st=40, max=90, min_mana=7, go on=80)
+
+  detect poison   (st=60, max=90, min_mana=7, go on=80)
+
+  . cure poison   (st=40, max=90, min_mana=7, go on=80)
+
+  . . poison   (st=40, max=90, min_mana=7, go on=80)
+
+  . determine relationship   (st=40, max=90, min_mana=20, go on=80)
+
+  . identify   (st=40, max=90, min_mana=7, go on=80)
+
+  heal   (st=60, max=90, min_mana=20, go on=80)
+
+  . health drain   (st=40, max=90, min_mana=7, go on=80)
+
+  calm   (st=60, max=90, min_mana=7, go on=80)
+
+  . silence   (st=40, max=90, min_mana=33, go on=80)
+
+  . sober   (st=40, max=90, min_mana=7, go on=80)
+
+  . . intoxication   (st=40, max=90, min_mana=7, go on=80)
+
+  invulnerability   (st=60, max=90, min_mana=7, go on=80)
+
+  . sanctuary   (st=40, max=90, min_mana=7, go on=80)
+
+  . . gate   (st=40, max=90, min_mana=50, go on=80)
+
+  . . breathe water   (st=40, max=90, min_mana=20, go on=80)
+
+  . mount   (st=40, max=90, min_mana=20, go on=80)
+
+  . . wall of thorns   (st=40, max=90, min_mana=10, go on=80)
+
+  . . . shield of mist   (st=10, max=90, min_mana=20, go on=80)
+
+  thunder   (st=60, max=90, min_mana=7, go on=80)
+
+  . deafness   (st=40, max=90, min_mana=7, go on=80)
+
+  . component crafting   (st=20, max=90, go on=80)
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  dual wield   (st=5, max=20, go on=10)
+
+  shield use   (st=5, max=10, go on=0)
+
+  forage   (st=10, max=50, go on=40)
+
+  cooking   (st=5, max=60, go on=50)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=5, max=20, go on=10)
+
+
+
+List for Stone Elementalist
+
+  armor   (st=60, max=90, min_mana=7, go on=80)
+
+  . stone skin   (st=40, max=90, min_mana=7, go on=80)
+
+  . alarm   (st=40, max=90, min_mana=33, go on=80)
+
+  create food   (st=60, max=90, min_mana=7, go on=80)
+
+  . sand jambiya   (st=40, max=90, min_mana=7, go on=80)
+
+  . . gate   (st=40, max=90, min_mana=50, go on=80)
+
+  . mount   (st=40, max=90, min_mana=20, go on=80)
+
+  . . sand statue   (st=40, max=90, min_mana=20, go on=80)
+
+  weaken   (st=60, max=90, min_mana=7, go on=80)
+
+  . strength   (st=40, max=90, min_mana=20, go on=80)
+
+  . feeblemind   (st=40, max=90, min_mana=20, go on=80)
+
+  . . sleep   (st=40, max=90, min_mana=20, go on=80)
+
+  fury   (st=60, max=90, min_mana=20, go on=80)
+
+  . godspeed   (st=40, max=90, min_mana=10, go on=80)
+
+  wall of sand   (st=60, max=90, min_mana=10, go on=80)
+
+  . earthquake   (st=40, max=90, min_mana=7, go on=80)
+
+  . burrow   (st=40, max=90, min_mana=20, go on=80)
+
+  . . sand shelter   (st=40, max=90, min_mana=7, go on=80)
+
+  rewind   (st=60, max=90, min_mana=7, go on=80)
+
+  . component crafting   (st=20, max=90, go on=80)
+
+  . identify   (st=40, max=90, min_mana=7, go on=80)
+
+  . . repair item   (st=40, max=90, min_mana=7, go on=80)
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  dual wield   (st=5, max=20, go on=10)
+
+  shield use   (st=5, max=10, go on=0)
+
+  skinning   (st=15, max=40, go on=30)
+
+  forage   (st=10, max=85, go on=75)
+
+  cooking   (st=5, max=60, go on=50)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=5, max=20, go on=10)
+
+
+
+List for Fire Elementalist
+
+  detect magick   (st=60, max=90, min_mana=7, go on=80)
+
+  . tongues   (st=40, max=90, min_mana=7, go on=80)
+
+  . identify   (st=40, max=90, min_mana=7, go on=80)
+
+  ball of light   (st=60, max=90, min_mana=7, go on=80)
+
+  . pyrotechnics   (st=40, max=90, min_mana=7, go on=80)
+
+  . . fire armor   (st=40, max=90, min_mana=7, go on=80)
+
+  . . . wall of fire   (st=40, max=90, min_mana=10, go on=80)
+
+  dispel magick   (st=60, max=90, min_mana=7, go on=80)
+
+  . mount   (st=40, max=90, min_mana=20, go on=80)
+
+  . . gate   (st=40, max=90, min_mana=50, go on=80)
+
+  flamestrike   (st=60, max=90, min_mana=7, go on=80)
+
+  . fireball   (st=40, max=90, min_mana=20, go on=80)
+
+  . . rain of fire   (st=40, max=90, min_mana=7, go on=80)
+
+  . . . fire seed   (st=40, max=90, min_mana=20, go on=80)
+
+  . . immolate   (st=40, max=90, min_mana=20, go on=80)
+
+  . . . demonfire   (st=40, max=90, min_mana=33, go on=80)
+
+  glyph   (st=60, max=90, min_mana=10, go on=80)
+
+  . empower   (st=40, max=90, min_mana=33, go on=80)
+
+  . . fire jambiya   (st=40, max=90, min_mana=7, go on=80)
+
+  . . component crafting   (st=20, max=90, go on=80)
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  dual wield   (st=5, max=25, go on=15)
+
+  parch   (st=60, max=90, min_mana=7, go on=80)
+
+  . firebreather   (st=40, max=90, min_mana=7, go on=80)
+
+  shield use   (st=5, max=15, go on=5)
+
+  forage   (st=10, max=50, go on=40)
+
+  cooking   (st=5, max=65, go on=55)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=5, max=25, go on=15)
+
+
+
+List for Wind Elementalist
+
+  teleport   (st=60, max=90, min_mana=7, go on=80)
+
+  . summon   (st=40, max=90, min_mana=50, go on=80)
+
+  . . gate   (st=40, max=90, min_mana=50, go on=80)
+
+  . relocate   (st=40, max=90, min_mana=7, go on=80)
+
+  . . create rune   (st=40, max=90, min_mana=50, go on=80)
+
+  . transference   (st=40, max=90, min_mana=33, go on=80)
+
+  detect invisible   (st=60, max=90, min_mana=7, go on=80)
+
+  . invisibility   (st=40, max=90, min_mana=7, go on=80)
+
+  . . delusion   (st=40, max=90, min_mana=7, go on=80)
+
+  . . dispel invisibility   (st=40, max=90, min_mana=7, go on=80)
+
+  . identify   (st=40, max=90, min_mana=7, go on=80)
+
+  levitate   (st=60, max=90, min_mana=7, go on=80)
+
+  . fly   (st=40, max=90, min_mana=25, go on=80)
+
+  hands of wind   (st=60, max=90, min_mana=7, go on=80)
+
+  . banishment   (st=40, max=90, min_mana=7, go on=80)
+
+  . . wind fist   (st=40, max=90, min_mana=33, go on=80)
+
+  . repel   (st=40, max=90, min_mana=7, go on=80)
+
+  . . wall of wind   (st=40, max=90, min_mana=10, go on=80)
+
+  . . . shield of wind   (st=40, max=90, min_mana=20, go on=80)
+
+  . . wind armor   (st=40, max=90, min_mana=7, go on=80)
+
+  guardian   (st=60, max=90, min_mana=33, go on=80)
+
+  . mount   (st=40, max=90, min_mana=20, go on=80)
+
+  . . component crafting   (st=20, max=90, go on=80)
+
+  . messenger   (st=40, max=90, min_mana=7, go on=80)
+
+  . . stalker   (st=40, max=90, min_mana=20, go on=80)
+
+  feather fall   (st=60, max=90, min_mana=20, go on=80)
+
+  . sandstorm   (st=40, max=90, min_mana=7, go on=80)
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  dual wield   (st=5, max=25, go on=15)
+
+  shield use   (st=5, max=15, go on=5)
+
+  forage   (st=10, max=50, go on=40)
+
+  cooking   (st=5, max=50, go on=40)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=5, max=25, go on=15)
+
+
+
+List for Lightning Elementalist
+
+  lightning bolt   (st=60, max=90, min_mana=20, go on=80)
+
+  . chain lightning   (st=40, max=90, min_mana=7, go on=80)
+
+  . . lightning storm   (st=40, max=90, min_mana=20, go on=80)
+
+  . . . lightning spear   (st=40, max=90, min_mana=20, go on=80)
+
+  . . lightning whip   (st=40, max=90, min_mana=7, go on=80)
+
+  refresh   (st=60, max=90, min_mana=20, go on=80)
+
+  . regenerate   (st=40, max=90, min_mana=7, go on=80)
+
+  insomnia   (st=60, max=90, min_mana=20, go on=80)
+
+  . mount   (st=40, max=90, min_mana=20, go on=80)
+
+  . . gate   (st=60, max=90, min_mana=50, go on=80)
+
+  slow   (st=60, max=90, min_mana=33, go on=80)
+
+  . quickening   (st=40, max=90, min_mana=33, go on=80)
+
+  . . paralyze   (st=40, max=90, min_mana=20, go on=80)
+
+  . illuminant   (st=40, max=90, min_mana=7, go on=80)
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  stamina drain   (st=60, max=90, min_mana=7, go on=80)
+
+  . energy shield   (st=40, max=90, min_mana=7, go on=80)
+
+  . . ball of light   (st=40, max=90, min_mana=7, go on=80)
+
+  dual wield   (st=5, max=25, go on=15)
+
+  fluorescent footsteps   (st=60, max=90, min_mana=7, go on=80)
+
+  . component crafting   (st=20, max=90, go on=80)
+
+  . identify   (st=20, max=90, min_mana=7, go on=80)
+
+  shield use   (st=5, max=15, go on=5)
+
+  forage   (st=10, max=50, go on=40)
+
+  cooking   (st=5, max=50, go on=40)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=5, max=25, go on=15)
+
+
+
+List for Drov Elementalist
+
+  cure blindness   (st=60, max=90, min_mana=7, go on=80)
+
+  . blind   (st=40, max=90, min_mana=7, go on=80)
+
+  remove curse   (st=60, max=90, min_mana=7, go on=80)
+
+  . curse   (st=40, max=90, min_mana=7, go on=80)
+
+  . . shadow sword   (st=40, max=90, min_mana=7, go on=80)
+
+  . component crafting   (st=20, max=90, go on=80)
+
+  infravision   (st=60, max=90, min_mana=7, go on=80)
+
+  detect ethereal   (st=60, max=90, min_mana=7, go on=80)
+
+  . ethereal   (st=40, max=90, min_mana=20, go on=80)
+
+  . . shadow armor   (st=40, max=90, min_mana=7, go on=80)
+
+  . . dispel ethereal   (st=40, max=90, min_mana=7, go on=80)
+
+  . identify   (st=40, max=90, min_mana=7, go on=80)
+
+  restful shade   (st=60, max=90, min_mana=20, go on=80)
+
+  . send shadow   (st=40, max=90, min_mana=7, go on=80)
+
+  . . gate   (st=40, max=90, min_mana=50, go on=80)
+
+  . mount   (st=40, max=90, min_mana=20, go on=80)
+
+  . . haunt   (st=40, max=90, min_mana=25, go on=80)
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  dual wield   (st=5, max=25, go on=15)
+
+  create darkness   (st=60, max=90, min_mana=7, go on=80)
+
+  . fear   (st=40, max=90, min_mana=7, go on=80)
+
+  . shadowplay   (st=40, max=90, min_mana=7, go on=80)
+
+  shield use   (st=5, max=15, go on=5)
+
+  forage   (st=10, max=50, go on=40)
+
+  cooking   (st=5, max=30, go on=20)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=5, max=25, go on=15)
+
+
+
+List for Void Elementalist
+
+  mark   (st=60, max=90, min_mana=25, go on=80)
+
+  . travel gate   (st=40, max=90, min_mana=33, go on=80)
+
+  . . portal   (st=40, max=90, min_mana=33, go on=80)
+
+  pseudo death   (st=60, max=90, min_mana=20, go on=80)
+
+  . animate dead   (st=40, max=90, min_mana=7, go on=80)
+
+  . . vloran   (st=40, max=100, go on=90)
+
+  . . dead speak   (st=40, max=90, min_mana=33, go on=80)
+
+  . . . possess corpse   (st=40, max=90, min_mana=33, go on=80)
+
+  . mount   (st=40, max=90, min_mana=20, go on=80)
+
+  . . gate   (st=40, max=90, min_mana=50, go on=80)
+
+  psionic suppression   (st=60, max=90, min_mana=20, go on=80)
+
+  . aura drain   (st=40, max=90, min_mana=7, go on=80)
+
+  . . charm person   (st=40, max=90, min_mana=33, go on=80)
+
+  . psionic drain   (st=40, max=90, min_mana=20, go on=80)
+
+  shield of nilaz   (st=60, max=90, min_mana=25, go on=80)
+
+  . forbid elements   (st=40, max=90, min_mana=33, go on=80)
+
+  . . blade barrier   (st=40, max=90, min_mana=10, go on=80)
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  dual wield   (st=5, max=25, go on=15)
+
+  portable hole   (st=60, max=90, min_mana=7, go on=80)
+
+  . phantasm   (st=40, max=90, min_mana=7, go on=80)
+
+  . . vampiric blade   (st=40, max=90, min_mana=25, go on=80)
+
+  elemental fog   (st=60, max=90, min_mana=20, go on=80)
+
+  . turn element   (st=40, max=90, min_mana=7, go on=80)
+
+  . identify   (st=40, max=90, min_mana=7, go on=80)
+
+  . . component crafting   (st=40, max=90, go on=80)
+
+  shield use   (st=5, max=15, go on=5)
+
+  forage   (st=10, max=50, go on=40)
+
+  cooking   (st=5, max=50, go on=40)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=5, max=25, go on=15)
+
+
+
+List for Psionicist
+
+  contact   (st=60, max=80, go on=70)
+
+  . allspeak   (st=10, max=90, go on=80)
+
+  . . babble   (st=10, max=90, go on=80)
+
+  barrier   (st=20, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  . dome   (st=10, max=90, go on=80)
+
+  locate   (st=20, max=90, go on=80)
+
+  . trace   (st=20, max=90, go on=80)
+
+  . . hear   (st=10, max=90, go on=80)
+
+  . . clairaudience   (st=10, max=90, go on=80)
+
+  . sense presence   (st=10, max=90, go on=80)
+
+  . . probe   (st=10, max=90, go on=80)
+
+  . . thoughtsense   (st=10, max=90, go on=80)
+
+  empathy   (st=10, max=90, go on=80)
+
+  . disorient   (st=10, max=90, go on=80)
+
+  . . mindwipe   (st=10, max=90, go on=80)
+
+  . . . mindblast   (st=10, max=90, go on=80)
+
+  . project   (st=10, max=90, go on=80)
+
+  . rejuvenate   (st=10, max=90, go on=80)
+
+  conceal   (st=10, max=90, go on=80)
+
+  . masquerade   (st=10, max=90, go on=80)
+
+  . . illusion   (st=10, max=90, go on=80)
+
+  . suggest   (st=10, max=90, go on=80)
+
+  . . compel   (st=10, max=90, go on=80)
+
+  . . . control   (st=10, max=90, go on=80)
+
+  . vanish   (st=10, max=90, go on=80)
+
+  . . shadowwalk   (st=10, max=90, go on=80)
+
+  dual wield   (st=5, max=50, go on=40)
+
+  piercing weapons   (st=5, max=40, go on=30)
+
+  shield use   (st=5, max=20, go on=10)
+
+  forage   (st=10, max=50, go on=40)
+
+  cooking   (st=5, max=50, go on=40)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=5, max=50, go on=40)
+
+
+
+List for Sorcerer
+
+  detect magick   (st=60, max=90, min_mana=7, go on=80)
+
+  . detect invisible   (st=30, max=90, min_mana=7, go on=80)
+
+  . . infravision   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . cure blindness   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . remove curse   (st=30, max=90, min_mana=7, go on=80)
+
+  . . detect ethereal   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . detect poison   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . tongues   (st=30, max=90, min_mana=7, go on=80)
+
+  . invisibility   (st=30, max=90, min_mana=7, go on=80)
+
+  . . send shadow   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . glyph   (st=30, max=90, min_mana=10, go on=80)
+
+  . . . curse   (st=30, max=90, min_mana=7, go on=80)
+
+  . . ethereal   (st=30, max=90, min_mana=20, go on=80)
+
+  . . . determine relationship   (st=30, max=90, min_mana=20, go on=80)
+
+  . . . component crafting   (st=30, max=90, go on=80)
+
+  . . . . identify   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . dispel ethereal   (st=30, max=90, min_mana=7, go on=80)
+
+  . . dispel invisibility   (st=30, max=90, min_mana=7, go on=80)
+
+  dispel magick   (st=60, max=90, min_mana=7, go on=80)
+
+  . create water   (st=30, max=90, min_mana=7, go on=80)
+
+  . . create food   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . ball of light   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . . alarm   (st=30, max=90, min_mana=33, go on=80)
+
+  . . . empower   (st=30, max=90, min_mana=33, go on=80)
+
+  . . . repair item   (st=30, max=90, min_mana=7, go on=80)
+
+  . . mount   (st=30, max=90, min_mana=20, go on=80)
+
+  . . . gate   (st=30, max=90, min_mana=50, go on=80)
+
+  . . . guardian   (st=30, max=90, min_mana=33, go on=80)
+
+  . . . . sand statue   (st=30, max=90, min_mana=20, go on=80)
+
+  . . . . messenger   (st=30, max=90, min_mana=7, go on=80)
+
+  . . create wine   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . breathe water   (st=30, max=90, min_mana=20, go on=80)
+
+  . fury   (st=30, max=90, min_mana=20, go on=80)
+
+  . . blind   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . poison   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . . feeblemind   (st=30, max=90, min_mana=20, go on=80)
+
+  . . . . create darkness   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . pseudo death   (st=30, max=90, min_mana=20, go on=80)
+
+  . . . . sleep   (st=30, max=90, min_mana=20, go on=80)
+
+  . . . . . paralyze   (st=30, max=90, min_mana=20, go on=80)
+
+  . . . . animate dead   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . . . vloran   (st=40, max=100, go on=90)
+
+  . . . . . dead speak   (st=30, max=90, min_mana=33, go on=80)
+
+  . . . . . . recite   (st=30, max=90, min_mana=7, go on=80)
+
+  . . calm   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . heal   (st=30, max=60, min_mana=20, go on=50)
+
+  . . . cure poison   (st=30, max=90, min_mana=7, go on=80)
+
+  hands of wind   (st=60, max=90, min_mana=7, go on=80)
+
+  . teleport   (st=30, max=90, min_mana=7, go on=80)
+
+  . . banishment   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . summon   (st=30, max=90, min_mana=50, go on=80)
+
+  . . . slow   (st=30, max=90, min_mana=33, go on=80)
+
+  . . repel   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . portal   (st=30, max=90, min_mana=33, go on=80)
+
+  . . . wall of wind   (st=30, max=90, min_mana=10, go on=80)
+
+  . levitate   (st=30, max=90, min_mana=7, go on=80)
+
+  . . mark   (st=30, max=90, min_mana=25, go on=80)
+
+  . . . godspeed   (st=30, max=90, min_mana=10, go on=80)
+
+  . . . . quickening   (st=30, max=90, min_mana=33, go on=80)
+
+  . . . travel gate   (st=30, max=90, min_mana=33, go on=80)
+
+  . . fly   (st=30, max=90, min_mana=25, go on=80)
+
+  . . . relocate   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . . create rune   (st=30, max=90, min_mana=50, go on=80)
+
+  . . . burrow   (st=30, max=90, min_mana=20, go on=80)
+
+  invulnerability   (st=60, max=90, min_mana=7, go on=80)
+
+  . lightning bolt   (st=30, max=90, min_mana=20, go on=80)
+
+  . . fireball   (st=30, max=90, min_mana=20, go on=80)
+
+  . . . earthquake   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . chain lightning   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . . lightning spear   (st=30, max=90, min_mana=20, go on=80)
+
+  . . fire jambiya   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . fear   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . . aura drain   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . . stamina drain   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . immolate   (st=30, max=90, min_mana=20, go on=80)
+
+  . . . . demonfire   (st=30, max=90, min_mana=33, go on=80)
+
+  . energy shield   (st=30, max=90, min_mana=7, go on=80)
+
+  . . wall of sand   (st=30, max=90, min_mana=10, go on=80)
+
+  . . . sanctuary   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . stone skin   (st=30, max=90, min_mana=7, go on=80)
+
+  . . . . strength   (st=30, max=90, min_mana=20, go on=80)
+
+  . . blade barrier   (st=30, max=90, min_mana=10, go on=80)
+
+  . . . wall of fire   (st=30, max=90, min_mana=10, go on=80)
+
+  . . wind armor   (st=30, max=90, min_mana=7, go on=80)
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  dual wield   (st=5, max=20, go on=10)
+
+  shield use   (st=5, max=10, go on=0)
+
+  forage   (st=5, max=50, go on=40)
+
+  cooking   (st=5, max=80, go on=70)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=5, max=20, go on=10)
+
+  gather   (st=10, max=90, go on=80)
+
+
+
+List for Pick-pocket
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  peek   (st=15, max=95, go on=85)
+
+  . scan   (st=5, max=80, go on=70)
+
+  sneak   (st=10, max=95, go on=85)
+
+  . hide   (st=10, max=80, go on=70)
+
+  . listen   (st=5, max=70, go on=60)
+
+  . sap   (st=10, max=50, go on=40)
+
+  steal   (st=20, max=95, go on=85)
+
+  . sleight of hand   (st=10, max=90, go on=80)
+
+  haggle   (st=10, max=85, go on=75)
+
+  climb   (st=10, max=60, go on=50)
+
+  dual wield   (st=10, max=40, go on=30)
+
+  . parry   (st=5, max=45, go on=35)
+
+  piercing weapons   (st=5, max=40, go on=30)
+
+  slashing weapons   (st=5, max=30, go on=20)
+
+  shield use   (st=10, max=25, go on=15)
+
+  forage   (st=5, max=50, go on=40)
+
+  flee   (st=10, max=30, go on=20)
+
+  cooking   (st=5, max=90, go on=80)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=10, max=40, go on=30)
+
+
+
+List for Burglar
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  peek   (st=5, max=60, go on=50)
+
+  sneak   (st=10, max=95, go on=85)
+
+  hide   (st=10, max=90, go on=80)
+
+  . search   (st=10, max=40, go on=30)
+
+  steal   (st=10, max=60, go on=50)
+
+  . poisoning   (st=10, max=40, go on=30)
+
+  . brew   (st=10, max=40, go on=30)
+
+  . sleight of hand   (st=10, max=80, go on=70)
+
+  pick   (st=30, max=90, go on=80)
+
+  . trap   (st=10, max=50, go on=40)
+
+  . pick making   (st=20, max=80, go on=70)
+
+  listen   (st=10, max=90, go on=80)
+
+  haggle   (st=15, max=40, go on=30)
+
+  . value   (st=10, max=60, go on=50)
+
+  climb   (st=15, max=90, go on=80)
+
+  dual wield   (st=5, max=50, go on=40)
+
+  . backstab   (st=5, max=40, go on=30)
+
+  throw   (st=10, max=90, go on=80)
+
+  piercing weapons   (st=5, max=40, go on=30)
+
+  slashing weapons   (st=5, max=30, go on=20)
+
+  shield use   (st=5, max=30, go on=20)
+
+  forage   (st=5, max=50, go on=40)
+
+  cooking   (st=20, max=90, go on=80)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=5, max=50, go on=40)
+
+
+
+List for Warrior
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  kick   (st=15, max=80, go on=70)
+
+  bash   (st=15, max=80, go on=70)
+
+  rescue   (st=15, max=90, go on=80)
+
+  . bandage   (st=10, max=50, go on=40)
+
+  disarm   (st=5, max=70, go on=60)
+
+  parry   (st=5, max=65, go on=55)
+
+  . archery   (st=10, max=65, go on=55)
+
+  . . fletchery   (st=5, max=60, go on=50)
+
+  . throw   (st=15, max=70, go on=60)
+
+  . blind fighting   (st=5, max=70, go on=60)
+
+  dual wield   (st=10, max=90, go on=80)
+
+  subdue   (st=10, max=50, go on=40)
+
+  guarding   (st=60, max=95, go on=85)
+
+  piercing weapons   (st=10, max=70, go on=60)
+
+  . trident weapons   (st=10, max=80, go on=70)
+
+  slashing weapons   (st=10, max=70, go on=60)
+
+  . knife weapons   (st=10, max=80, go on=70)
+
+  . razor weapons   (st=10, max=80, go on=70)
+
+  chopping weapons   (st=10, max=70, go on=60)
+
+  . polearm weapons   (st=10, max=80, go on=70)
+
+  bludgeoning weapons   (st=10, max=70, go on=60)
+
+  . pike weapons   (st=10, max=80, go on=70)
+
+  shield use   (st=15, max=45, go on=35)
+
+  skinning   (st=15, max=50, go on=40)
+
+  forage   (st=10, max=50, go on=40)
+
+  flee   (st=5, max=80, go on=70)
+
+  cooking   (st=5, max=50, go on=40)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=10, max=90, go on=80)
+
+
+
+List for Assassin
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  sneak   (st=5, max=95, go on=85)
+
+  . listen   (st=5, max=80, go on=70)
+
+  . climb   (st=15, max=50, go on=40)
+
+  hide   (st=5, max=90, go on=80)
+
+  . hunt   (st=5, max=50, go on=40)
+
+  . . scan   (st=5, max=80, go on=70)
+
+  . . . blind fighting   (st=5, max=80, go on=70)
+
+  backstab   (st=5, max=90, go on=80)
+
+  . sap   (st=5, max=80, go on=70)
+
+  dual wield   (st=15, max=70, go on=60)
+
+  . parry   (st=10, max=40, go on=30)
+
+  throw   (st=5, max=80, go on=70)
+
+  poisoning   (st=5, max=85, go on=75)
+
+  . brew   (st=10, max=90, go on=80)
+
+  . . trap   (st=5, max=90, go on=80)
+
+  piercing weapons   (st=10, max=70, go on=60)
+
+  . knife making   (st=10, max=50, go on=40)
+
+  bludgeoning weapons   (st=10, max=70, go on=60)
+
+  shield use   (st=5, max=25, go on=15)
+
+  forage   (st=10, max=50, go on=40)
+
+  cooking   (st=5, max=60, go on=50)
+
+  sleight of hand   (st=10, max=70, go on=60)
+
+  . pick   (st=15, max=60, go on=50)
+
+  . . pick making   (st=10, max=40, go on=30)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=15, max=70, go on=60)
+
+
+
+List for Ranger
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  archery   (st=20, max=90, go on=80)
+
+  . throw   (st=20, max=80, go on=70)
+
+  . fletchery   (st=15, max=60, go on=50)
+
+  rescue   (st=15, max=95, go on=85)
+
+  . guarding   (st=15, max=75, go on=65)
+
+  listen   (st=5, max=80, go on=70)
+
+  . sneak   (st=10, max=80, go on=70)
+
+  hunt   (st=15, max=85, go on=75)
+
+  . climb   (st=15, max=90, go on=80)
+
+  . poisoning   (st=5, max=75, go on=65)
+
+  . brew   (st=15, max=90, go on=80)
+
+  bandage   (st=10, max=95, go on=85)
+
+  . bandagemaking   (st=10, max=60, go on=50)
+
+  dual wield   (st=15, max=85, go on=75)
+
+  . parry   (st=10, max=50, go on=40)
+
+  scan   (st=10, max=90, go on=80)
+
+  . hide   (st=10, max=80, go on=70)
+
+  . blind fighting   (st=10, max=70, go on=60)
+
+  ride   (st=40, max=95, go on=85)
+
+  . charge   (st=15, max=80, go on=70)
+
+  piercing weapons   (st=10, max=70, go on=60)
+
+  slashing weapons   (st=10, max=70, go on=60)
+
+  chopping weapons   (st=10, max=70, go on=60)
+
+  bludgeoning weapons   (st=10, max=70, go on=60)
+
+  shield use   (st=10, max=20, go on=10)
+
+  skinning   (st=30, max=95, go on=85)
+
+  . tanning   (st=10, max=50, go on=40)
+
+  forage   (st=10, max=75, go on=65)
+
+  flee   (st=5, max=40, go on=30)
+
+  cooking   (st=5, max=60, go on=50)
+
+  analyze   (st=5, max=40, go on=30)
+
+  two handed   (st=15, max=85, go on=75)
+
+  direction sense   (st=60, max=95, go on=85)
+
+
+
+List for Merchant
+
+  contact   (st=20, max=80, go on=70)
+
+  barrier   (st=5, max=80, go on=70)
+
+  . expel   (st=5, max=80, go on=70)
+
+  cavilish   (st=100, max=100, go on=90)
+
+  listen   (st=5, max=80, go on=70)
+
+  haggle   (st=30, max=95, go on=85)
+
+  bandage   (st=10, max=90, go on=80)
+
+  . bandagemaking   (st=10, max=80, go on=70)
+
+  dual wield   (st=5, max=30, go on=20)
+
+  scan   (st=10, max=80, go on=70)
+
+  value   (st=20, max=95, go on=85)
+
+  ride   (st=15, max=95, go on=85)
+
+  pilot   (st=40, max=95, go on=85)
+
+  shield use   (st=5, max=15, go on=5)
+
+  skinning   (st=20, max=50, go on=40)
+
+  tanning   (st=10, max=90, go on=80)
+
+  . dyeing   (st=40, max=90, go on=80)
+
+  . . feather working   (st=10, max=90, go on=80)
+
+  . . floristry   (st=30, max=50, go on=40)
+
+  . leather working   (st=10, max=90, go on=80)
+
+  . . tentmaking   (st=10, max=90, go on=80)
+
+  . . armor repair   (st=10, max=90, go on=80)
+
+  . . . armor making   (st=10, max=90, go on=80)
+
+  . rope making   (st=30, max=80, go on=70)
+
+  . clothworking   (st=20, max=80, go on=70)
+
+  forage   (st=20, max=50, go on=40)
+
+  . basketweaving   (st=10, max=80, go on=70)
+
+  . stonecrafting   (st=20, max=90, go on=80)
+
+  . . jewelrymaking   (st=20, max=90, go on=80)
+
+  . toolmaking   (st=15, max=90, go on=80)
+
+  . . instrument making   (st=10, max=90, go on=80)
+
+  fletchery   (st=10, max=90, go on=80)
+
+  . bow making   (st=10, max=90, go on=80)
+
+  . knife making   (st=10, max=90, go on=80)
+
+  . . swordmaking   (st=10, max=90, go on=80)
+
+  . . spearmaking   (st=10, max=90, go on=80)
+
+  lumberjacking   (st=10, max=50, go on=40)
+
+  . woodworking   (st=10, max=80, go on=70)
+
+  . . wagonmaking   (st=10, max=90, go on=80)
+
+  . . club making   (st=10, max=80, go on=70)
+
+  . axe making   (st=10, max=80, go on=70)
+
+  cooking   (st=5, max=90, go on=80)
+
+  analyze   (st=10, max=90, go on=80)
+
+  two handed   (st=5, max=30, go on=20)
+  
+  ======================================================
+  
+  After scouring the codedump, it appears as though the new poison/cure system functions based on herb/item 'flavor'.
+
+  if (temp->obj_flags.type == ITEM_CURE) {
+    switch (temp->obj_flags.value[3]) {
+    case 0:                /* none */
+      act("$p has no discernable taste.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 1:                /* acidic       */
+      act("$p tastes slightly acidic.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 2:                /* bitter       */
+      act("$p has a bitter flavor.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 3:                /* foul       */
+      act("$p tastes very foul.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 4:                /* minty       */
+      act("$p leaves a minty taste in your mouth.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 5:                /* sour       */
+      act("$p is sour.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 6:                /* spicy       */
+      act("$p has a flavor much like spice.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 7:                /* sweet       */
+      act("$p is very sweet tasting.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 8:                /* strong       */
+      act("$p has a strong flavor.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 9:                /* citric       */
+      act("$p has a citric flavor.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 10:               /* sharp       */
+      act("$p's flavor is very sharp .", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 11:               /* awful       */
+      act("$p tastes awful!", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 12:               /* fruity       */
+      act("$p has a mild, fruity taste.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 13:               /* chalky       */
+      act("$p is flat, almost chalky in flavor.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 14:               /* salty       */
+      act("$p is very salty.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    case 15:               /* gritty       */
+      act("$p has a gritty taste to it.", FALSE, ch, temp, 0, TO_CHAR);
+      break;
+    }
+  }
+
+^^^^^^^^^^^^^^^^^^^^^^
+These are all the possible 'flavors' and accompanying echoes when using the 'taste' command.
+
+
+    struct antidote_struct cure_recipes[] = {
+        {POISON_GENERIC, HERB_COLD, HERB_BLAND, -1},
+        {POISON_GRISHEN, HERB_CALMING, HERB_COLD, HERB_SWEET},
+        {POISON_SKELLEBAIN, HERB_REFRESHING, HERB_CALMING, HERB_ACIDIC},
+        {POISON_TERRADIN, HERB_REFRESHING, HERB_BLAND, HERB_SOUR},
+        {POISON_PERAINE, HERB_HOT, HERB_SOUR, HERB_ACIDIC},
+        {POISON_HERAMIDE, HERB_HOT, HERB_SOUR, HERB_SWEET},
+        {-1, -1, -1, -1}
+    };
+
+^^^^^^^^^^^^^^^^^^^^^^^^^
+These are the required combinations of herbs (determined by 'flavor') in order to produce a cure.
+
+ struct antidote_struct poison_recipes[] = {
+        {POISON_GENERIC, HERB_HOT, HERB_ACIDIC, -1},
+        {POISON_GRISHEN, HERB_CALMING, HERB_COLD, HERB_HOT},
+        {POISON_SKELLEBAIN, HERB_BLAND, HERB_SOUR, HERB_SWEET},
+        {POISON_TERRADIN, HERB_SOUR, HERB_SWEET, HERB_ACIDIC},
+        {POISON_HERAMIDE, HERB_REFRESHING, HERB_CALMING, HERB_BLAND},
+        {-1, -1, -1, -1}
+    };
+
+^^^^^^^^^^^^^^^^^^^^^^^^
+And these are the combinations that determines whether or not you make a poison.
+
+
+
+Obviously, a lot of this has been changed around by staff and their transition from the 'brew' command to 'craft'. For now it can only be assumed that the 'flavor' instances and combinations haven't changed, but instead, there is now tablet 'strength' based on how many herbs you use, and of what sort.
+
+When making a cure, it's far easier to now accidentally make that cure carry a poisonous side-effect.
+
+The 'strength' and side-effect information is pulled from below:
+/* ITEM_HERB */
+    {
+     {"herb_type", "edibility", "herb_color", "poison", NOTHING, NOTHING},
+     {"(Type of herb it is)",
+      "(Non edible, or edible)",
+      "(What color is the herb?",
+      "(Poison type?)",
+      NOTHING, NOTHING},
+     {"  This sets the herb to a valid herb type.\n\r",
+      "  0 = not edible, 1 = edible.\n\r",
+      "  This sets a color on the herb, for mixing purposes.\n\r",
+      "  This sets the herb with a poisonous side-effect.\n\r",
+      NOTHING, NOTHING}},
+
+    /* ITEM_CURE */
+    {
+     {"cure", "form", "poison", "taste", "strength", NOTHING},
+     {"(What poison type does this cure?)",
+      "(What form is this in?)",
+      "(Does it have a side-effect?)",
+      "(What does it taste like?)",
+      "(How strong is it?)",
+      NOTHING},
+     {"  This sets the type of poison it cures.  Set using poison name, not number.\n\r\n\r"
+      "They are, with numerical equivalent in parentheses:\n\r"
+      "  none (0), generic (1), grishen (2), skellebain (3), methelinoc (4),\n\r"
+      "  terradin (5), peraine (6), heramide (7), plague (8)\n\r",
+      "  0 = vial, 1 = tablet, 2 = syringe.\n\r",
+      "  Is it poisoned?  If so, what type of poison?\n\r",
+      "What the cure tastes like when ... tasted.\n\r",
+      "How strong the cure is, if it can succeed completely.\n\r"
+      "0 is 0%, which is a dud. 100 is 100% which removes the entire affect.\n\r"
+      "99 is 99%, which will always leave 0 hours left.\n\r", NOTHING}},

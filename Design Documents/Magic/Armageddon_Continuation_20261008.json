@@ -2,6 +2,17 @@
   "schema_version": 1,
   "date": "2026-10-08",
   "status": "PASS_BOUNDED_N23_RECHARGE",
+  "execution_pause": {
+    "date": "2026-10-11",
+    "milestone": "S1",
+    "state": "PAUSED_BEFORE_IMPLEMENTATION_AT_USER_REQUEST",
+    "revision": "76afe8f94553615b40a428cf39551018fb5ff465",
+    "reason": "Review and preserve newly supplied Armageddon Info Master List for magic and later class work.",
+    "review": "Design Documents/Armageddon/References/Armageddon_Info_Master_List_Review_20261011.md",
+    "review_json": "Design Documents/Armageddon/References/Armageddon_Info_Master_List_Review_20261011.json",
+    "locked_design_changed": false,
+    "resume_dependency": "Reconcile new source evidence with locked Classic values/memberships and consequent Simple ordering before resuming S1."
+  },
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",

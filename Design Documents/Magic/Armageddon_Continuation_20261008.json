@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-08",
-  "status": "PASS_BOUNDED_N22_CHARGED_DEVICE_ACTIVATION",
+  "status": "PASS_BOUNDED_N23_RECHARGE",
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
   "restored_groundwork_head": "83509243cfceb62811e002fca14b4d9de96d2574",
@@ -6572,23 +6572,23 @@
     "historical_attribution": "Previous malformed-armour failure retained; current stock repair and AI hold supersede its current-stage status."
   },
   "current_managed": {
-    "scope": "Full Core/Library N22 command registration and activation gate",
+    "scope": "Full Core/Library N23 recharge gate",
     "runs": [
       {
-        "run_id": "20261010T214749Z-2e0d61e079f2",
-        "head": "93f7ba9a4b465ec44b40ac51b4f114e9b0a9d53d",
+        "run_id": "20261011T021441Z-e423f6e2011c",
+        "head": "7f04faaf51fe56a4b15e52fb17a625e1b3dced15",
         "status": "PASS",
         "counts": {
-          "executed": 7201,
-          "passed": 7201,
+          "executed": 7208,
+          "passed": 7208,
           "failed": 0,
           "skipped": 0,
           "inconclusive": 0,
           "other": 0,
-          "total": 7201
+          "total": 7208
         },
-        "source_start": "dd3f0e5fe3c721805ac79f5997126168d6674866e1c707d629a67b8d9569f74a",
-        "source_end": "dd3f0e5fe3c721805ac79f5997126168d6674866e1c707d629a67b8d9569f74a",
+        "source_start": "ec53203540af107287cee4aa25ff506a123207a9ba47bd83fd177f40316f057b",
+        "source_end": "ec53203540af107287cee4aa25ff506a123207a9ba47bd83fd177f40316f057b",
         "source_stable": true,
         "projects": [
           "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
@@ -6597,18 +6597,18 @@
         "filter": null,
         "configuration": "Debug",
         "receipt": {
-          "path": ".artifacts/test-runs/20261010T214749Z-2e0d61e079f2/summary.json",
-          "sha256": "348db9d5734f083281a76efcdd06b291c52ef53e2d00c064e36594c87abbd581"
+          "path": ".artifacts/test-runs/20261011T021441Z-e423f6e2011c/summary.json",
+          "sha256": "74e1c4aa3762dc88e89c472d83ddb2ffd50354e04085934bb31577a6a00f449c"
         },
         "project_counts": {
           "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
-            "executed": 6443,
-            "passed": 6443,
+            "executed": 6450,
+            "passed": 6450,
             "failed": 0,
             "skipped": 0,
             "inconclusive": 0,
             "other": 0,
-            "total": 6443
+            "total": 6450
           },
           "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
             "executed": 758,
@@ -6915,7 +6915,7 @@
     "package_release_enabled": false,
     "publication_authorized": false
   },
-  "next_bounded_milestone": "N23: qualify legitimate homogeneous recharge through acquired/admitted production, magic-type and controlled-grade checks, reproducible potency, exact per-charge payment and cold restart without mixed payload, duplicate charge, replay or refund. N23 has not started. Use only known typed/code-proven links; full installer, historical parity and whole-programme gates remain pending.",
+  "next_bounded_milestone": "N24: qualify installer ownership/rerun safety for edited/renamed stock, retired or deleted entries, clones and interrupted owned installation; preserve stable IDs, customisations and every player-state table. N24 has not started. Full installer, historical parity and whole-programme readiness remain pending.",
   "npc_typed_reference_review_20261009": {
     "date": "2026-10-09",
     "status": "TYPED_REFERENCE_REVIEW_COMPLETE_IMPLEMENTATION_PENDING",
@@ -7159,5 +7159,18 @@
     "runtime_implementation_changed": true,
     "whole_candidate_complete": false,
     "next_bounded_milestone": "N23: qualify legitimate homogeneous recharge through acquired/admitted production, magic-type and controlled-grade checks, reproducible potency, exact per-charge payment and cold restart without mixed payload, duplicate charge, replay or refund. N23 has not started. Use only known typed/code-proven links; full installer, historical parity and whole-programme gates remain pending."
+  },
+  "recharge_20261011": {
+    "status": "PASS_BOUNDED_N23_RECHARGE",
+    "checkpoint": "Armageddon_Recharge_Checkpoint_20261011.json",
+    "managed_passed": 7208,
+    "native_assertions": 1052,
+    "produced_charges": 8,
+    "consumed_charges": 5,
+    "paid": 500,
+    "known_code_proven_links_only": true,
+    "runtime_implementation_changed": false,
+    "whole_candidate_complete": false,
+    "next_bounded_milestone": "N24: qualify installer ownership/rerun safety for edited/renamed stock, retired or deleted entries, clones and interrupted owned installation; preserve stable IDs, customisations and every player-state table. N24 has not started. Full installer, historical parity and whole-programme readiness remain pending."
   }
 }

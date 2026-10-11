@@ -214,7 +214,14 @@ The [N22 ordinary-player checkpoint](Armageddon_Item_Activation_Checkpoint_20261
 qualifies stock gates, a private Anyone exception, frozen potency, exact charge
 consumption, depletion and paid material-bearing focus in a full server. Its
 explicit grants and deterministic inputs do not qualify natural stock progression
-or the broader N23 recharge/installer/readiness gates.
+or broader installer/readiness gates. The later
+[N23 recharge checkpoint](Armageddon_Recharge_Checkpoint_20261011.md) qualifies
+current route/acquisition/grade/raw-power checks and legitimate top-ups, including
+a stronger alternate admitted producer. Existing charges retain their original
+potency and ordered GUIDs. The whole batch pays before timed production; native
+cancellation refunds nothing. Paid incomplete work retained after a forced stop
+refuses use or recharge pending explicit staff reconciliation. These controlled
+inputs do not qualify natural stock progression, affordability or N24 rerun safety.
 
 ## Reports, ownership and reruns
 

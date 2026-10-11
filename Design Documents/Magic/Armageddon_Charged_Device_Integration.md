@@ -247,7 +247,7 @@ independent minimum controlled grade; `mingrade 0` permits the non-caster's char
 release without giving personal acquisition or focus entitlement.
 
 Five native-produced charges pay 250 once. Transfer, a producer change from
-raw 60/grade 3 to raw 30/grade 1 and cold restart retain exact banks and potency.
+database skill 60 (native capped raw 50)/grade 3 to raw 30/grade 1 and cold restart retain exact banks and potency.
 Each release heals 18 and claims exactly one GUID with a completed actual
 recipient/item receipt, without either player's reserve or progression changing.
 Depletion refuses implicit focus. A separate material-bearing private focus
@@ -259,6 +259,31 @@ Stock component definitions/revisions and captured capability restoration pass.
 
 Explicit grants, deterministic skill/control/reserve setup, one-second private
 production and an Automatic private focus do not qualify natural stock progression
-or affordability. Only stored Mend is invoked here. The full N23 recharge matrix,
-all carrier adapters and provider-failure acceptance remain pending. No installer
+or affordability. Only stored Mend is invoked here. The full N23 recharge matrix was pending at this N22 checkpoint; its later
+qualification follows below. All carrier adapters and provider-failure acceptance
+remain pending. No installer
 content, schema or blank snapshot changes; whole-programme and Release remain off.
+
+## N23 legitimate recharge — 11 October 2026
+
+The [N23 checkpoint](Armageddon_Recharge_Checkpoint_20261011.md) qualifies
+ordinary-player top-up of a partially depleted bank, with **7,208 managed tests**
+and **1052 full-server assertions**. Current route, acquired knowledge,
+controlled grade and reproducible raw potency are required again. An entitled
+alternate admitted capability with stronger deterministic potency can recharge;
+the bank retains its original snapshot, producer provenance and old GUID order.
+Capacity, grade, different payload, reserve and aggregate material shortages
+refuse without payment or journal mutation.
+
+Eight charges are created for 400 reserve; five releases retain the original
+18-healing budget and exact GUID/recipient receipts. Two real per-charge supplies
+are consumed before timed private work completes. Production grants no
+manifestation or progression. Paid cancellation and a deliberate owned-MUD crash
+each retain their 50 debit without output/refund. Cold restart preserves the
+stranded reservation and refuses use/recharge pending explicit staff review.
+Five clean phases and one forced stop are separate evidence; all collectors and
+owned MySQL close. Stock revisions and capability restoration pass. No runtime
+implementation change is needed by this matrix. Explicit fixture grants and
+reserve/skill conditioning leave natural stock progression and affordability
+unqualified. N24 installer rerun safety, N25 provider faults and wider readiness
+remain pending; whole-programme and Release gates remain false.

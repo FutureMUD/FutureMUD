@@ -960,7 +960,7 @@
   "failed_managed_disposition": "Existing environment security test assumed player magic was unknown. It now verifies exact MagicDevice abbreviation/refusal plus unchanged staff permission/direct guard and VerifyNoOtherCalls; no environment mutation is permitted.",
   "verification_limits": [
     "Real ordinary Player accounts and Human characters were created through native account creation, chargen, staff approval and first login. The N22 fixture requires those existing accounts; it does not clone accounts/bodies or invent password hashes.",
-    "The caster receives an explicit capability merit, enrolment, administrative Mend/private-focus grants, raw skill 60/controlled grade 3 and initial reserve 1000. The reader has no casting capability/grant. Natural stock acquisition, progression, affordability and gathering are not qualified.",
+    "The caster receives an explicit capability merit, enrolment, administrative Mend/private-focus grants, database skill input 60 (native capped raw 50)/controlled grade 3 and initial reserve 1000. The reader has no casting capability/grant. Natural stock acquisition, progression, affordability and gathering are not qualified.",
     "Stock wand/staff retain Dual/Caster/Mend-only configuration and 60 seconds per charge. One independent private clone uses one second per charge, native Anyone policy revisions and a grade0 exception. This shorter private timing is fixture policy, not stock/source parity.",
     "Mend Flesh is the only stored payload invoked. Private focus copies its native healing with an ordinary carried-only material plan and Automatic difficulty. Its private material adds the approved Wear_Ring component so ordinary free-hand policy can remain enforced. Other adapters, wards/resistance, activation-control failures and multi-target payloads retain existing managed/controlled-native coverage; no new full-server qualification is claimed for them.",
     "Initial banks are produced through native paid commands solely to establish N22 activation inputs. N23 wrong-type, acquisition, insufficient-grade and potency/recharge matrix is still pending.",
@@ -980,5 +980,14 @@
   },
   "full_plan_complete": false,
   "package_release_enabled": false,
-  "next_bounded_milestone": "N23: qualify legitimate homogeneous recharge through acquired/admitted production, magic-type and controlled-grade checks, reproducible potency, exact per-charge payment and cold restart without mixed payload, duplicate charge, replay or refund. N23 has not started. Use only known typed/code-proven links; full installer, historical parity and whole-programme gates remain pending."
+  "next_bounded_milestone": "N23: qualify legitimate homogeneous recharge through acquired/admitted production, magic-type and controlled-grade checks, reproducible potency, exact per-charge payment and cold restart without mixed payload, duplicate charge, replay or refund. N23 has not started. Use only known typed/code-proven links; full installer, historical parity and whole-programme gates remain pending.",
+  "n23_skill_input_clarification": {
+    "database_setup": 60,
+    "native_skill_cap": 50,
+    "recorded_production_raw": 50,
+    "later_database_input": 30,
+    "grade_three_healing": 18,
+    "qualification_unchanged": true,
+    "reference": "Armageddon_Recharge_Checkpoint_20261011.json"
+  }
 }

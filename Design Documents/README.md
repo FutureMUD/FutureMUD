@@ -174,6 +174,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [ARM-02 Configurable Casting Player, Builder and FutureProg Guide](./Magic/Configurable_Casting.md)
 - [ARM-02 Implementation and Verification Handover](./Magic/Configurable_Casting_Handover.md)
 - [Armageddon Continuation Checkpoint](./Magic/Armageddon_Continuation_20261008.md)
+- [Armageddon Recharge Checkpoint](./Magic/Armageddon_Recharge_Checkpoint_20261011.md)
 - [Armageddon Fury/Calm Runtime and Installer](./Magic/Armageddon_Fury_Calm_Runtime.md)
 - [Vancian Magic Runtime and Persistence](./Magic/Vancian_Magic_Runtime.md)
 - [Vancian Magic Player Guide](./Magic/Vancian_Magic_Player_Guide.md)

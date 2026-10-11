@@ -76,6 +76,11 @@ if (args[2] == "device-fixtures")
 	FuryCalmSmokeWorld.DeviceFixtures.Run(options, receiptPath);
 	return;
 }
+if (args[2] == "recharge-fixtures")
+{
+	FuryCalmSmokeWorld.RechargeFixtures.Run(options, receiptPath);
+	return;
+}
 void Require(bool test, string reason) { if (!test) throw new InvalidOperationException(reason); }
 Dictionary<string, string> TableChecksums()
 {

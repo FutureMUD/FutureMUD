@@ -8,6 +8,8 @@ starts. The [machine-readable checkpoint](Armageddon_Item_Activation_Checkpoint_
 binds the exact source/binary inputs, ordinary account/character/body/instance
 identities, banks, charge GUIDs, payments, failed attempts and cleanup.
 
+The skill setup values 60 and 30 below are database inputs. N23 later verified that native `Skill.Value` applies the unchanged cap of 50, so production recorded raw 50 and the reduced input recorded 30. N22 still qualifies its frozen grade-three 18-healing budget; stronger recharge is qualified separately by [N23](Armageddon_Recharge_Checkpoint_20261011.md).
+
 The first native attempt exposed a command-registration defect: ordinary players
 received `Wat?` for `magicdevice`, because MagicModule was present only in staff
 trees. Its single registration now lives in InventoryModule, following the native

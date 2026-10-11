@@ -69,8 +69,11 @@ public class ArmageddonReleaseGateTests
 	{
 		IDatabaseSeeder seeder = new ArmageddonMagicSeeder();
 #if DEBUG
-		Assert.AreEqual(2, seeder.Questions.Count());
-		Assert.AreEqual(2, seeder.SeederQuestions.Count());
+		Assert.AreEqual(6, seeder.Questions.Count());
+		Assert.AreEqual(6, seeder.SeederQuestions.Count());
+		CollectionAssert.AreEqual(new[] { ArmageddonMagicSeeder.FullInstallQuestion, ArmageddonMagicSeeder.ModeQuestion,
+			ArmageddonMagicSeeder.CapacityQuestion, ArmageddonMagicSeeder.NativeBindingsQuestion, ArmageddonMagicSeeder.InstallQuestion,
+			ArmageddonMagicSeeder.BindingsQuestion }, seeder.Questions.Select(x => x.Id).ToArray());
 		StringAssert.Contains(seeder.FullDescription, "Development-only");
 		Assert.AreEqual("no", seeder.Questions.First().DefaultAnswerResolver!(null!, new Dictionary<string, string>()));
 #else
@@ -99,6 +102,8 @@ public class ArmageddonReleaseGateTests
 		Assert.AreEqual(ArmageddonMagicSeeder.ReleaseDisabledMessage,
 			seeder.SeedData(null!, new Dictionary<string, string> { [ArmageddonMagicSeeder.InstallQuestion] = "yes", [ArmageddonMagicSeeder.BindingsQuestion] = "invalid" }));
 		Assert.AreEqual(ArmageddonMagicSeeder.ReleaseDisabledMessage, seeder.SeedData(null!, null!));
+		Assert.AreEqual(ArmageddonMagicSeeder.ReleaseDisabledMessage, seeder.SeedData(null!, new Dictionary<string, string>
+		{ [ArmageddonMagicSeeder.FullInstallQuestion] = "yes", [ArmageddonMagicSeeder.ModeQuestion] = "Simple" }));
 #endif
 	}
 

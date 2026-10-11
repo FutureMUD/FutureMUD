@@ -5,13 +5,13 @@
   "execution_pause": {
     "date": "2026-10-11",
     "milestone": "S1",
-    "state": "PAUSED_BEFORE_IMPLEMENTATION_AT_USER_REQUEST",
+    "state": "RESUMED_AFTER_USER_AUTHORIZED_SOURCE_ADOPTION",
     "revision": "76afe8f94553615b40a428cf39551018fb5ff465",
     "reason": "Review and preserve newly supplied Armageddon Info Master List for magic and later class work.",
     "review": "Design Documents/Armageddon/References/Armageddon_Info_Master_List_Review_20261011.md",
     "review_json": "Design Documents/Armageddon/References/Armageddon_Info_Master_List_Review_20261011.json",
-    "locked_design_changed": false,
-    "resume_dependency": "Reconcile new source evidence with locked Classic values/memberships and consequent Simple ordering before resuming S1."
+    "locked_design_changed": true,
+    "resume_dependency": "Resolved by user-authorized master-list adoption; S1 implementation resumed."
   },
   "branch": "codex/armageddon-continuation-20261008",
   "base_master": "07146cdc8a38fd23040281b58c6544d45f260cd2",
@@ -6926,7 +6926,7 @@
     "package_release_enabled": false,
     "publication_authorized": false
   },
-  "next_bounded_milestone": "Implement S1 fixed installer settings/typed preflight, then S2-S6 using the locked spell rosters, identities and numeric defaults. Only required non-spell Component Crafting is included; broader class skills deferred. N23 latest runtime qualification; N24 unstarted.",
+  "next_bounded_milestone": "S2: implement429 Classic bindings,419 Simple spell admissions and required crafting, ten capabilities/merits and conditional classes with natural progression; S3-S6 then N24 remain.",
   "seeder_completeness_design_20261011": {
     "document": "Armageddon_Seeder_Completeness_Design_20261011.md",
     "inventory": "Armageddon_Seeder_Completeness_Design_20261011.json",
@@ -7203,5 +7203,15 @@
     "runtime_implementation_changed": false,
     "whole_candidate_complete": false,
     "next_bounded_milestone": "N24: qualify installer ownership/rerun safety for edited/renamed stock, retired or deleted entries, clones and interrupted owned installation; preserve stable IDs, customisations and every player-state table. N24 has not started. Full installer, historical parity and whole-programme readiness remain pending."
+  },
+  "master_list_adoption": {
+    "record": "Armageddon_Master_List_Adoption_20261011.json",
+    "source_tree": "Armageddon_Elementalist_Source_Tree.json",
+    "next": "Source adoption and S1 settings accepted; S2 next, N24 unstarted."
+  },
+  "S1_fixed_settings": {
+    "status": "PASS_BOUNDED_S1_FIXED_SETTINGS",
+    "receipt": "Design Documents/Magic/Armageddon_Installation_Settings_S1_20261011.json",
+    "next": "S2: implement429 Classic bindings,419 Simple spell admissions and required crafting, ten capabilities/merits and conditional classes with natural progression; S3-S6 then N24 remain."
   }
 }

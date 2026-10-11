@@ -6411,7 +6411,7 @@
     "full_air_guardian_catalogue_qualified": false,
     "next_bounded_milestone": "N17: map and implement the bounded occupied-shelter dependencies for Spring Haven, Burrow Refuge and Sand Shelter, then qualify real utility, finite water, occupied expiry/destruction and safe fallback with preserved actors and foreign goods. Full Air Guardian catalogue/timing parity and other stock/readiness gates remain pending. Use only code-proven references; no static-definition classifier stage."
   },
-  "next_bounded_milestone": "Implement S1 fixed installer settings/typed preflight, then S2-S6 using the locked spell rosters, identities and numeric defaults. Only required non-spell Component Crafting is included; broader class skills deferred. N23 latest runtime qualification; N24 unstarted.",
+  "next_bounded_milestone": "S2: implement429 Classic bindings,419 Simple spell admissions and required crafting, ten capabilities/merits and conditional classes with natural progression; S3-S6 then N24 remain.",
   "occupied_shelters_20261010": {
     "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
     "receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json",
@@ -6442,5 +6442,15 @@
     "known_code_proven_links_only": true,
     "whole_candidate_complete": false,
     "next_bounded_milestone": "N20: map and implement bounded Folded Pocket capacity and access using native item custody; reject living targets, pocket nesting and cycles, then qualify transfer, cold restart and collapse with every foreign item released exactly once. Use only declared typed/code-proven links. Full installer, historical parity and whole-programme gates remain pending."
+  },
+  "master_list_adoption": {
+    "record": "Armageddon_Master_List_Adoption_20261011.json",
+    "source_tree": "Armageddon_Elementalist_Source_Tree.json",
+    "next": "Source adoption and S1 settings accepted; S2 next, N24 unstarted."
+  },
+  "S1_fixed_settings": {
+    "status": "PASS_BOUNDED_S1_FIXED_SETTINGS",
+    "receipt": "Design Documents/Magic/Armageddon_Installation_Settings_S1_20261011.json",
+    "next": "S2: implement429 Classic bindings,419 Simple spell admissions and required crafting, ten capabilities/merits and conditional classes with natural progression; S3-S6 then N24 remain."
   }
 }

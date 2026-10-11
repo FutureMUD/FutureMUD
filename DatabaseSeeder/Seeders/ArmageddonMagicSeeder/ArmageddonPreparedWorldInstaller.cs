@@ -50,11 +50,16 @@ public static partial class ArmageddonPreparedWorldInstaller
 		}
 		try
 		{
-			bindings = FreezeWaterSeeBindings(bindings);
-			if (bindings.Emotions?.CalmSaves is { } saves)
-				bindings = bindings with { Emotions = bindings.Emotions with { CalmSaves = saves.ToArray() } };
 			using (var db = freshContext())
 			{
+				if (ArmageddonInstallation.Read(db) is not null)
+				{
+					messages.Add("Fixed full-package settings already exist. Resume that installation; the historical prepared-world API cannot bypass its fixed direction.");
+					return Result(ArmageddonInstallStatus.Blocked);
+				}
+				bindings = FreezeWaterSeeBindings(bindings);
+				if (bindings.Emotions?.CalmSaves is { } saves)
+					bindings = bindings with { Emotions = bindings.Emotions with { CalmSaves = saves.ToArray() } };
 				var errors = Validate(db, bindings);
 				if (errors.Count != 0) { messages.AddRange(errors); return Result(ArmageddonInstallStatus.Blocked); }
 				if (bindings.Emotions is { } emotions)

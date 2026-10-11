@@ -14,7 +14,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
-	private static int PreparedSeederReplayNative(bool installed = false)
+	private static int PreparedSeederReplayNative(bool installed = false, bool settings = false)
 	{
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		using (var db = NewIndependentContext(database.ConnectionString))
@@ -57,7 +57,8 @@ internal static partial class GNHProgram
 		}
 		using (var db = NewIndependentContext(database.ConnectionString)) Require(!db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package), "Standard decline profile installed magic content.");
 		Console.WriteLine("ARMPREP-replay-completion=passed complete-medieval-profile optional-Armageddon-declined");
-		if (installed) PreparedInstalledWorldAcceptance(database, assembly);
+		if (settings) PreparedInstallationSettingsAcceptance(database);
+		else if (installed) PreparedInstalledWorldAcceptance(database, assembly);
 		else RunPreparedReplayBoot(database, assembly);
 		return 0;
 	}
@@ -168,7 +169,7 @@ internal static partial class GNHProgram
             Console.WriteLine("ARMPREP-replay-boot=passed native-login-LOOK-save-graceful-shutdown-cold-restart-login owned-processes-stopped");
         }
 	}
-	private static string PreparedDatabaseChecksum(TestDatabase database)
+	private static string PreparedDatabaseChecksum(TestDatabase database, bool excludeInstallationMetadata = false)
 	{
 		using var connection = new MySqlConnection(database.ConnectionString);
 		OwnedConnections.Validate("prepared-checksum-before-connect", connection); connection.Open();
@@ -179,6 +180,7 @@ internal static partial class GNHProgram
 		using var hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 		foreach (var table in tables)
 		{
+			if (excludeInstallationMetadata && (table.Equals("SeederChoices", StringComparison.OrdinalIgnoreCase) || table.Equals("SeederManagedRecords", StringComparison.OrdinalIgnoreCase))) continue;
 			command.Parameters.Clear(); command.CommandText = "SELECT * FROM `" + table.Replace("`", "``") + "`";
 			var rows = new List<string>();
 			using (var reader = command.ExecuteReader())

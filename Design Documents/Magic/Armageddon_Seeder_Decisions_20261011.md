@@ -6,16 +6,14 @@ The user approved all five decision-gate configurations, with one overriding cor
 
 Void Portal Gate uses the existing **Linked Threshold / Travel Gate** anchored travel effect: Arcane Mark → Linked Threshold → Open Threshold. This is a deliberate FutureMUD identity selection, not a proven historical alias. No new spell identity is created.
 
-These 23 memberships complete the researched roster without enlarging the 82-spell Sorcerer roster. Each child opens at 30/cap 90 and controlled grade 1. Parent threshold is that guild binding's cap minus10: normally 80, or 50 after Water Mend Flesh. These authored stock admissions remain separately labelled from historical guild claims.
+These 20 retained authored memberships complete the researched roster without enlarging the 82-spell Sorcerer roster. Each child opens at 30/cap 90 and controlled grade 1. Parent threshold is that guild binding's cap minus10: normally 80, including 80 after Water Mend Flesh. These authored stock admissions remain separately labelled from historical guild claims.
 
 | Capability | Added spell | Parent |
 | --- | --- | --- |
 | Fire | Daylight | Hovering Light |
 | Water | Wither Growth | Thorn Barrier |
-| Water | Mist Shield | Sheltering Veil |
 | Water | Restorative Mud | Mend Flesh |
 | Water | Purge Disease | Purge Toxin |
-| Water | Water Breathing | Draw Water |
 | Water | Drowning Grip | Water Breathing |
 | Water | Sow Sickness | Venom Touch |
 | Water | Caustic Spray | Venom Touch |
@@ -30,7 +28,6 @@ These 23 memberships complete the researched roster without enlarging the 82-spe
 | Void | Cross the Veil | Linked Threshold |
 | Void | Unbodied Journey | Feign Death |
 | Void | Erode Object | Arcane Mark |
-| Void | Leeching Edge | Devouring Touch |
 | Void | Echo Servant | Voice of Remains |
 | Void | Sow Sickness | Erode Object |
 
@@ -42,16 +39,16 @@ Each elemental capability uses its final Classic spell roster and six source sta
 
 The exact 94-row Sorcerer source contains one non-spell parent of a spell: **Read Enchantment requires Component Crafting 80**. Component Crafting also supplies the native recipes for required magical components. Keep that support skill. The threshold 80 applies only to the three Sorcerer variants, not elemental Read Enchantment.
 
-Classic installs Component Crafting at its source/researched guild position, opening30/cap 90. Simple grants it on legitimate permanent capability enrolment for all ten capabilities, opening10/cap 90. Simple never grants Classic per-spell proficiency traits. Installing/rerunning content never grants skills or spells to existing players.
+Classic installs Component Crafting at its source/researched guild position, opening20/cap90 in six elemental guilds, opening40/cap90 in Void, and opening30/cap90 in the three Sorcerer variants. Simple grants it on legitimate permanent capability enrolment for all ten capabilities, opening10/cap 90. Simple never grants Classic per-spell proficiency traits. Installing/rerunning content never grants skills or spells to existing players.
 
 Vloran is an after-spell language side grant, not a spell prerequisite, so it is deferred. Contact, Barrier, Expel, Dual Wield, Shield Use, Forage, Cooking, Analyze, Two Handed and Gather are also deferred in both modes. Their historical rows remain evidence for the later non-magical class/full-skills pass. Native NPC combat stats and required magic-supply crafting remain part of the magic package.
 
-Classic has 428 install rows: 172 elemental spell memberships, seven elemental crafting bindings and three variants of 82 Sorcerer spells plus one crafting support each. Simple has 418 spell admissions and ten crafting grants. All 152 required canonical spells have routes; Wardcraft and Renew Earth remain optional and unadmitted. All 154 candidates and 210 prototype blueprints remain in the completion inventory.
+Classic has 429 install rows: 173 elemental spell memberships, seven elemental crafting bindings and three variants of 82 Sorcerer spells plus one crafting support each. Simple has 419 spell admissions and ten crafting grants. All 152 required canonical spells have routes; Wardcraft and Renew Earth remain optional and unadmitted. All 154 candidates and 210 prototype blueprints remain in the completion inventory.
 
 ## Final stock defaults and implementation boundary
 
-Current per-entry effect magnitudes/durations and minimum energy, reserve rates/capacity coefficients, NPC/item stats, recipes and device capacities/timings are final builder-editable defaults. The JSON records their canonical value hash and exact fields against baseline `fe2f750133bcb5a56645390db0d57227a90c4713`; this checkpoint makes no numerical rebalance. Historical unknowns and authored origins remain visible. Native unit conversion and correctness qualification implement these settings; a material balance change requires a new explicit human decision.
+The user subsequently approved adopting the supplied master-list values and links. [Source adoption](Armageddon_Master_List_Adoption_20261011.md) records the exact changes: printed elemental openings/caps/branches and four newly documented memberships, and printed minimum mana for 134 canonical spells (55 minima changed). Twenty previously approved additions absent from the file remain authored stock. Effect magnitudes/durations, reserve rates/capacity coefficients, NPC/item stats, recipes and device capacities/timings retain their approvals. The JSON records the refreshed canonical stock value hash. Native unit conversion and correctness qualification remain implementation gates.
 
 Existing approved incantations remain selected. Legacy generic energy/area heuristics and unsupported carrier candidates do not become qualified by this approval. Read Attunement affinities and learned affiliations remain separate. One fixed game-wide mode, ten capabilities and conditional matching classes, automatic NPC/item supplies, typed links and preservation of builder edits/player state remain binding.
 
-No content-design question remains. S1 fixed installer settings and typed preflight is next, followed by S2–S6 implementation, then N24. This checkpoint changes design artifacts only. N23 remains the latest bounded runtime qualification; installed learning, full stock behaviour, historical parity and Release readiness retain their implementation gates.
+No content-design question remains. S1 fixed settings and typed preflight now has its [acceptance checkpoint](Armageddon_Installation_Settings_S1_20261011.md); S2-S6 implementation precedes N24. Source adoption updates the approved design; S1 adds the fixed settings stage without installing catalogue content. N23 remains the latest bounded runtime qualification; installed learning, full stock behaviour, historical parity and Release readiness retain their implementation gates.

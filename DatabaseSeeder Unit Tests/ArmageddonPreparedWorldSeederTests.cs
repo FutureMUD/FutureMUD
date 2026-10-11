@@ -281,15 +281,21 @@ public partial class ArmageddonPreparedWorldSeederTests
 		foreach (var profile in DebugSeederReplayProfiles.All)
 		{
 			var validation = SeederReplayRunner.Validate(profile, SeederCatalogue.GetEnabledSeeders()); Assert.IsTrue(validation.IsValid, string.Join("\n", validation.Errors));
-			var step = profile.Steps.Single(x => x.SeederType == typeof(ArmageddonMagicSeeder)); Assert.AreEqual(2, step.Answers.Count);
+			var step = profile.Steps.Single(x => x.SeederType == typeof(ArmageddonMagicSeeder)); Assert.AreEqual(6, step.Answers.Count);
 			var seeder = new ArmageddonMagicSeeder(); var prior = new Dictionary<string, string>();
 			foreach (var question in seeder.Questions)
 			{
 				var answer = step.Answers.Single(x => x.Id == question.Id).Answer;
-				if (!SeederQuestionWorkflow.IsActive(question, db, prior)) { Assert.AreEqual("none", answer); continue; }
+				if (!SeederQuestionWorkflow.IsActive(question, db, prior)) continue;
 				Assert.IsTrue(SeederQuestionWorkflow.Validate(question, answer, db).Success); prior.Add(question.Id, answer);
 			}
-			Assert.AreEqual("no", prior[ArmageddonMagicSeeder.InstallQuestion]);
+			Assert.AreEqual("no", prior[ArmageddonMagicSeeder.FullInstallQuestion]);
+			Assert.AreEqual(1, prior.Count);
+			Assert.AreEqual("no", step.Answers.Single(x => x.Id == ArmageddonMagicSeeder.InstallQuestion).Answer);
+			Assert.AreEqual("none", step.Answers.Single(x => x.Id == ArmageddonMagicSeeder.BindingsQuestion).Answer);
+			Assert.AreEqual("Classic", step.Answers.Single(x => x.Id == ArmageddonMagicSeeder.ModeQuestion).Answer);
+			Assert.AreEqual("0", step.Answers.Single(x => x.Id == ArmageddonMagicSeeder.CapacityQuestion).Answer);
+			Assert.AreEqual("{}", step.Answers.Single(x => x.Id == ArmageddonMagicSeeder.NativeBindingsQuestion).Answer);
 		}
 #endif
 	}

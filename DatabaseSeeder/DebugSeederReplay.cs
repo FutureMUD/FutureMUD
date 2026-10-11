@@ -507,6 +507,8 @@ internal static class DebugSeederReplayProfiles
 				("random", "static"),
 				("messagestyle", "sparse")),
 			Step<ArmageddonMagicSeeder>((ArmageddonMagicSeeder.InstallQuestion, "no"),
+				(ArmageddonMagicSeeder.FullInstallQuestion, "no"), (ArmageddonMagicSeeder.ModeQuestion, "Classic"),
+				(ArmageddonMagicSeeder.CapacityQuestion, "0"), (ArmageddonMagicSeeder.NativeBindingsQuestion, "{}"),
 				(ArmageddonMagicSeeder.BindingsQuestion, "none")),
 			Step<PsionicsSeeder>(("install-psionics", "yes")),
 			Step<EnvironmentalExposureSeeder>(("natural", "yes"), ("fantasy", "yes"))

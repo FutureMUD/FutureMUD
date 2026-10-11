@@ -5,7 +5,8 @@
   "baseline_revision": "fe2f750133bcb5a56645390db0d57227a90c4713",
   "authority": {
     "human_request": "Lock all this in except exclude the non spell skills (except where required as per requisites) for now. E.g. things like barrier and shield use are just psychic/mundane skills that class gets and we'll do a later pass on the non magical classes and all the full skills",
-    "scope": "Approves all five concrete decision-gate configurations with the non-spell exclusion taking precedence; attached research remains evidence, not execution authority."
+    "scope": "Approves all five concrete decision-gate configurations with the non-spell exclusion taking precedence; attached research remains evidence, not execution authority.",
+    "subsequent_human_request": "Please update the approved existing source tree to match the supplied file where it differs. If there are any genuine incompatibilities or further decisions - raise them to me - otherwise resume S1 with the updated master list"
   },
   "PortalGate": {
     "canonical_spell": "arm.spell.linked_threshold",
@@ -14,7 +15,7 @@
       "arm.spell.linked_threshold",
       "arm.spell.open_threshold"
     ],
-    "provenance": "Explicit human-selected FutureMUD mapping, not a historical alias claim."
+    "provenance": "Master list prints Mark -> Travel Gate -> Portal, supporting the existing Linked Threshold mapping; the earlier Page printed Portal Gate."
   },
   "supplemental_admissions": [
     {
@@ -37,35 +38,17 @@
     },
     {
       "capability": "arm.capability.water",
-      "spell": "arm.spell.mist_shield",
-      "parent": "arm.spell.sheltering_veil",
-      "opening": 30,
-      "raw_cap": 90,
-      "parent_threshold": 80,
-      "controlled_grade": 1
-    },
-    {
-      "capability": "arm.capability.water",
       "spell": "arm.spell.restorative_mud",
       "parent": "arm.spell.mend_flesh",
       "opening": 30,
       "raw_cap": 90,
-      "parent_threshold": 50,
+      "parent_threshold": 80,
       "controlled_grade": 1
     },
     {
       "capability": "arm.capability.water",
       "spell": "arm.spell.purge_disease",
       "parent": "arm.spell.purge_toxin",
-      "opening": 30,
-      "raw_cap": 90,
-      "parent_threshold": 80,
-      "controlled_grade": 1
-    },
-    {
-      "capability": "arm.capability.water",
-      "spell": "arm.spell.water_breathing",
-      "parent": "arm.spell.draw_water",
       "opening": 30,
       "raw_cap": 90,
       "parent_threshold": 80,
@@ -199,15 +182,6 @@
     },
     {
       "capability": "arm.capability.void",
-      "spell": "arm.spell.leeching_edge",
-      "parent": "arm.spell.devouring_touch",
-      "opening": 30,
-      "raw_cap": 90,
-      "parent_threshold": 80,
-      "controlled_grade": 1
-    },
-    {
-      "capability": "arm.capability.void",
       "spell": "arm.spell.echo_servant",
       "parent": "arm.spell.voice_of_remains",
       "opening": 30,
@@ -255,7 +229,7 @@
       "arm.support.gather"
     ],
     "Vloran": "After-spell language side grant; not required to admit any selected spell or craft required supply. Deferred in both modes.",
-    "classic": "Only82 source spells plus Component Crafting per Sorcerer variant; elemental spell rows plus Components at each researched guild position. Opening30/cap90.",
+    "classic": "Sorcerer-family Craft30/cap90; elemental Craft20 in six guilds and40 in Void, cap90, at exact source positions. Other non-spell class grants deferred.",
     "simple": "Component Crafting on enrolment for all ten capabilities, opening10/cap90; source spell skills are never granted in Simple.",
     "read_enchantment_requirement": {
       "capabilities": [
@@ -726,7 +700,7 @@
   },
   "stock_defaults": {
     "status": "FINAL_STOCK_DEFAULTS_BUILDER_EDITABLE",
-    "value_sha256": "ef22ce5ec6f9f50a225a86c169560e5737987e1327e4843010b316902a3366ce",
+    "value_sha256": "c62fe779be152cf948af7e0e289d76d8721584e408a06a9f6461dbce8464730c",
     "canonicalization": "JSON values encoded as UTF-8 without BOM, sorted object keys, compact separators; array order preserved.",
     "change_policy": "Unit conversion and correctness qualification implement these values. A material balance change requires a new explicit human decision.",
     "limits": "Source unknowns remain provenance. Locked design is not historical parity, installed-world qualification or permission to enable unsupported carrier/area variants.",
@@ -760,8 +734,52 @@
         0.95
       ]
     },
-    "unchanged_value_baseline": "fe2f750133bcb5a56645390db0d57227a90c4713"
+    "unchanged_value_baseline": "Superseded for minimum energy only by explicit master-list adoption; effect/prototype/resource/variant defaults unchanged."
   },
   "content_design_questions_remaining": [],
-  "next_implementation": "S1 fixed installer settings/typed preflight, then S2-S6; N24 remains unstarted."
+  "next_implementation": "S1 fixed installer settings/typed preflight, then S2-S6; N24 remains unstarted.",
+  "master_list_adoption": {
+    "human_request": "Please update the approved existing source tree to match the supplied file where it differs. If there are any genuine incompatibilities or further decisions - raise them to me - otherwise resume S1 with the updated master list",
+    "source_archive": {
+      "supplied_path": "C:/Users/luker/OneDrive/Armageddon Info Master List.txt",
+      "archive_path": "Design Documents/Armageddon/References/Armageddon_Info_Master_List_20261011.txt",
+      "sha256": "4dd92656d32068e5e2726c15c1a59bb4586d2e99bc41f59a5e8bef9136524c93",
+      "size_bytes": 40439,
+      "line_count": 1619,
+      "encoding": "UTF-8 without BOM",
+      "line_endings": "CRLF",
+      "final_newline": true,
+      "filesystem_last_write_utc": "2026-04-21T00:11:37.7003465Z",
+      "author": null,
+      "publication_date": null,
+      "source_url": null,
+      "historical_version": null,
+      "provenance_limits": "Filesystem modification time is not publication time. This text does not identify an author, URL, date or historical version for its skill tables.",
+      "read_windows": [
+        [
+          1,
+          345
+        ],
+        [
+          346,
+          823
+        ],
+        [
+          824,
+          1100
+        ],
+        [
+          1101,
+          1619
+        ]
+      ],
+      "complete_content_read": true
+    },
+    "elementalist_tree": "Armageddon_Elementalist_Source_Tree.json",
+    "adoption_record": "Armageddon_Master_List_Adoption_20261011.json",
+    "retained_authored_memberships": 20,
+    "printed_minimum_energy_changes": 55,
+    "genuine_incompatibilities": [],
+    "further_design_decisions": []
+  }
 }

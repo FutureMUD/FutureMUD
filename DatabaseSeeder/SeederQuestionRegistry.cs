@@ -20,6 +20,7 @@ public static class SeederQuestionRegistry
     private static readonly IReadOnlyDictionary<string, SeederQuestionEnhancement> Enhancements =
         new Dictionary<string, SeederQuestionEnhancement>(StringComparer.OrdinalIgnoreCase)
         {
+			[BuildKey(nameof(ChargenSeeder), "class")] = new(SharedAnswerKey: "use-classes"),
             [BuildKey(nameof(CombatSeeder), "messagestyle")] = new(
                 SharedAnswerKey: "combat-message-style",
                 DefaultAnswerResolver: (context, _) => CombatSeederMessageStyleHelper.GetRecordedChoice(context),

@@ -1,8 +1,8 @@
 # Armageddon seeder completeness design — 11 October 2026
 
-This is the approved design work before N24. It specifies one complete, builder-editable Armageddon package. No game code, database, runtime stock or replay profile is changed by this checkpoint. The baseline is `aae875af09cf62e6324bb31eba79f58b72249e13`, after the bounded N23 recharge qualification. N24 remains unstarted.
+This is the approved design work before N24. It specifies one complete, builder-editable Armageddon package. The original design checkpoint changed no executable behaviour. S1 now embeds this inventory for typed preflight; catalogue production remains in S2-S6. The baseline is `aae875af09cf62e6324bb31eba79f58b72249e13`, after the bounded N23 recharge qualification. N24 remains unstarted.
 
-The [machine-readable inventory](Armageddon_Seeder_Completeness_Design_20261011.json) contains all 154 candidates, all ten capability definitions, every Simple admission, the exact historical Sorcerer rows, and the automatic prototype catalogue. The [Classic progression TSV](Armageddon_Seeder_Completeness_Design_20261011_Classic_Progression.tsv) and [Simple progression TSV](Armageddon_Seeder_Completeness_Design_20261011_Simple_Progression.tsv) contain the final installation rows. The [final decision gate](Armageddon_Seeder_Decisions_20261011.md) records the user's approval and non-spell exclusion. These are design inputs for subsequent implementation, not a manifest currently loaded by DatabaseSeeder.
+The [machine-readable inventory](Armageddon_Seeder_Completeness_Design_20261011.json) contains all 154 candidates, all ten capability definitions, every Simple admission, the exact historical Sorcerer rows, and the automatic prototype catalogue. The [Classic progression TSV](Armageddon_Seeder_Completeness_Design_20261011_Classic_Progression.tsv) and [Simple progression TSV](Armageddon_Seeder_Completeness_Design_20261011_Simple_Progression.tsv) contain the final installation rows. The [final decision gate](Armageddon_Seeder_Decisions_20261011.md) records the user's approval and non-spell exclusion. DatabaseSeeder embeds this inventory for S1 structural preflight. Installing its complete catalogue remains work for S2-S6.
 
 ## Decisions and authority
 
@@ -12,15 +12,15 @@ One installed package has ordinary manifest revisions for updates. Reruns repair
 
 Read Attunement has the user's selected semantics: **elemental affinities and learned magical affiliations are reported separately**. Numeric effect/crafting/template defaults below are final builder-editable stock values approved by the user. Authored values remain labelled where historical native objects or setting identities are unavailable. A current factory is narrower evidence than full installed-stock qualification.
 
-## Adopted elemental research basis
+## Adopted master-list basis
 
-The user has adopted [the elemental research and progression decisions](Armageddon_Elementalist_Research_Adoption_20261011.md) as the basis going forward. The [selected source binding inventory](Armageddon_Elementalist_Research_Adoption_20261011.json) and [TSV](Armageddon_Elementalist_Research_Adoption_20261011.tsv) supersede the flattened153-row Classic placeholder table. Full-seven compilation plus the selected Stone Rewind → Identify → Repair Item chain gives157 source bindings:149 spell memberships and8 supports. The final stock adds23 explicit approved spell memberships and defers Vloran, giving172 elemental spell bindings and7 required Component Crafting bindings. Alternative rosters/parents remain evidence rather than additional OR routes.
+The user subsequently approved updating the existing tree from the supplied [Armageddon Info Master List](../Armageddon/References/Armageddon_Info_Master_List_20261011.txt). The [adoption receipt](Armageddon_Master_List_Adoption_20261011.json) and [active source tree](Armageddon_Elementalist_Source_Tree.json) supersede numeric reconstruction and conflicting memberships/parents in the [earlier Page research](Armageddon_Elementalist_Research_Adoption_20261011.md). The earlier research is retained as evidence. Exact source lines, printed openings/caps/branch values/minimum mana, typed canonical keys and parent bindings are recorded.
 
-Starting spells open at60; branched spells at30; spell caps90 except Mend60; parent threshold is that guild binding's cap minus10, including Mend50. These are approved FutureMUD reconstruction values. Exact historical elemental numeric values remain unknown/null; historical parity is unqualified and their absence does not block implementation. The exact selected94 Sorcerer rows are unchanged and retain their own recorded values.
+The active source tree has 161 elemental rows: 153 spells, seven Component Crafting rows and deferred Vloran. Twenty previously approved authored memberships absent from this file remain. Classic therefore has 173 elemental spell memberships and seven crafting bindings, or 429 installation rows including the three Sorcerer variants. Simple has 419 spell admissions, recalculated from the approved parent-depth/source-order rule; its 246 Sorcerer-family rows are unchanged.
 
-Mappings use explicit historical source names and enumerated abbreviations. Mount memberships share the existing Earth Mount identity/native school; Gate remains creature-summoning Call Outsider, distinct from Portal/Travel Gate. The user has selected the existing anchored **Linked Threshold / Travel Gate** for Void Portal Gate: Arcane Mark → Linked Threshold → Open Threshold. This is an intentional stock identity choice, not proof of a historical alias. No identity remains unresolved. The adoption record retains all111 Page blocks and each selected typed guild parent, source uncertainty and numeric override separately.
+The file supplies elemental numeric values directly. Water Mend Flesh now caps at 90 and branches at 80. Component Crafting opens at 20 in six elemental guilds and 40 in Void; the Sorcerer source remains 30. Mist Shield opens at 10, Lightning Call Outsider at 60, and Lightning Read Enchantment at 20. Water Breathing follows Sheltering Veil, Mist Shield follows Thorn Barrier, Void Leeching Edge follows Veiled Phantasm, and Lightning gains Hovering Light after Energy Shield. The source's Travel Gate confirms the existing Linked Threshold identity. No new canonical spell is introduced.
 
-Component Crafting80 is a Sorcerer/Preserver/Defiler admission prerequisite for Read Enchantment, not a global spell restriction. Elemental Identify uses its selected guild parent; Void Identify → Component Crafting is therefore acyclic. Final Simple elemental rosters and six starting spells per guild match final Classic spell bindings. S2 implements these tables. All154 programme candidates, exact Sorcerer spell data, support blueprints, approved incantations, fixed installation choices and builder/player preservation remain in scope.
+All 94 Sorcerer rows match the archive and remain unchanged. Printed minimum mana supplies stock minima for 134 canonical spells, changing 55 previously approved minimum-energy values. Other effect/resource/prototype/device/recipe defaults retain their approval. The source does not establish an author, publication date or version, nor does adoption establish complete historical or installed-world parity. Component Crafting80 remains a Read Enchantment prerequisite only for the three Sorcerer variants. Other non-spell grants stay deferred.
 
 ## Installer and persistence contract
 
@@ -47,13 +47,13 @@ Shared spell definitions retain native elemental school for wards/resistance/det
 
 Simple creates one main magic skill per capability: opening10, raw cap100, a genuine starting SupportGrant and DefaultTrait binding. Automatic spell edges use a typed SupportTrait prerequisite against that main skill at the tables below. They do not use the old spell-grade2/raw20 prerequisites. Component Crafting opens at10/cap90 on legitimate enrolment for all ten capabilities, for required magic-supply crafting and the Sorcerer-family Read Enchantment80 prerequisite. No deferred class skills or Classic per-spell proficiency traits are granted by Simple.
 
-Simple root spells start at skill10 and controlled grade1. Elemental nonroots sort by parent depth, then source row order, with supplemental siblings in the approved table order. For nonroot rank i among N, the final unlock is `15 + floor(75*(i-1)/(N-1))`, spanning15..90. The three Sorcerer-family tables retain all246 previous spell admissions unchanged. All418 Simple spell admissions have reachable thresholds; source spell parents precede their children. Learning a spell never awards grade7 simply because the shared class skill is high.
+Simple root spells start at skill10 and controlled grade1. Elemental nonroots sort by parent depth, then source row order, with supplemental siblings in the approved table order. For nonroot rank i among N, the final unlock is `15 + floor(75*(i-1)/(N-1))`, spanning15..90. The three Sorcerer-family tables retain all246 previous spell admissions unchanged. All419 Simple spell admissions have reachable thresholds; source spell parents precede their children. Learning a spell never awards grade7 simply because the shared class skill is high.
 
-Controlled grade stays per canonical identity/spell and begins at1 in both modes. Raw proficiency is separate. Grade mastery fractions0,0.20,0.40,0.55,0.70,0.85,0.95 use route cap-relative scale; grade7 is reachable at Classic cap90/Mend60 and Simple cap100. Mend's Classic cap60 must not trim the shared Simple main skill. Reuse event-driven acquisition and PR778 convergence; no new global polling scheduler or skill-possession knowledge shortcut. Shared trait/per-spell opportunity gates prevent multiple spells from multiplying training opportunities.
+Controlled grade stays per canonical identity/spell and begins at1 in both modes. Raw proficiency is separate. Grade mastery fractions0,0.20,0.40,0.55,0.70,0.85,0.95 use route cap-relative scale; grade7 is reachable at each Classic route cap and Simple cap100. Water Mend Flesh now caps90; the exact Sorcerer-family Mend cap remains60 and must not trim the shared Simple main skill. Reuse event-driven acquisition and PR778 convergence; no new global polling scheduler or skill-possession knowledge shortcut. Shared trait/per-spell opportunity gates prevent multiple spells from multiplying training opportunities.
 
 Create seven elemental reserve bindings and one canonical Sorcerer reserve shared by its three policy variants. Initial reserves are zero. Capacity uses the selected body's native mental/spiritual attribute through the existing cap prog, with the source-shaped `100+3*(attribute-13)` expression clamped to `2*attribute..12*attribute`, without historical race constants. Sorcerer allows configured Self/Gentle/Land, Preserver Self/Gentle and Defiler Land; these are explicit editable engineering policies. Elemental passive rate starts at2 native units/minute while conscious/focused, doubled at rest. No practice pool growth, body-change refill or duplicate pool per policy variant. Preserve existing environmental accounting and legal gathering restrictions.
 
-The per-entry minima, effect magnitudes/durations, reserve coefficients/rates, recipes, prototype stats and device timings are final stock defaults, locked by the [decision receipt](Armageddon_Seeder_Decisions_20261011.json). A current-factory value, selected printed minimum or authored value retains its origin; historical unknowns do not make the chosen stock minimum a placeholder. Printed Sorcerer minimum is not automatically the C skill-table minimum field. The old blanket `B*grade` and generic ally-excluding area strings remain historical proposals. Quiet uses +1 difficulty/x2 designated energy; overreach +1/x1.5. Native unit conversion, per-entry variant compatibility and correctness qualification remain implementation work. Material balance changes require a new explicit user decision. Practice is target-free, paid30-second work retaining focus, no real manifestation/material generation; controlled/raw opportunities remain separate.
+The per-entry minima now follow the adopted master list where printed; effect magnitudes/durations, reserve coefficients/rates, recipes, prototype stats and device timings retain their locked defaults in the [decision receipt](Armageddon_Seeder_Decisions_20261011.json). A current-factory value, selected printed minimum or authored value retains its origin; historical unknowns do not make the chosen stock minimum a placeholder. The printed minimum mana is explicitly adopted as the stock minimum energy, separately from raw proficiency and controlled grade. The old blanket `B*grade` and generic ally-excluding area strings remain historical proposals. Quiet uses +1 difficulty/x2 designated energy; overreach +1/x1.5. Native unit conversion, per-entry variant compatibility and correctness qualification remain implementation work. Material balance changes require a new explicit user decision. Practice is target-free, paid30-second work retaining focus, no real manifestation/material generation; controlled/raw opportunities remain separate.
 
 ## Read Attunement and typed links
 
@@ -88,7 +88,7 @@ N24 follows the complete installed-stock dependency, not merely this document. T
 | Slice | Work and exit evidence |
 | --- | --- |
 | S1 — Fixed installer settings and typed preflight | question/replay contract, class-source agreement, owned settings and partial-resume boundaries, no player writes |
-| S2 — Complete progression/capabilities/classes | implement final typed Classic bindings,418 Simple spell admissions and required crafting supports, exact82-spell Sorcerer rosters, ten capabilities/merits and conditional roles, natural grade/raw practice |
+| S2 — Complete progression/capabilities/classes | implement final typed Classic bindings,419 Simple spell admissions and required crafting supports, exact82-spell Sorcerer rosters, ten capabilities/merits and conditional roles, natural grade/raw practice |
 | S3 — Automatic NPC/item/supply/template catalogue | all blueprints produce approved native entities, usable attacks/riding/guard/seek/courier, native recipes/gather supplies and exact typed dependency closure |
 | S4 — Full spell catalogue and remaining adapters | all 152 required defining contracts, eight systems, all grades/source-informed material/timing/quiet/area data, separate Read Attunement facts; optional additions isolated |
 | S5 — Production/device/substance and installed-world progression | qualified allowlists, real frozen-payload production and dose calibration, normal acquisition/practice/costs across both modes, no free fallback |
@@ -115,24 +115,24 @@ These are final authored stock thresholds. The seven elemental tables project th
 | Roused Fury (`arm.spell.roused_fury`) | 10 | Yes |
 | Sand Barrier (`arm.spell.sand_barrier`) | 10 | Yes |
 | Return Tether (`arm.spell.return_tether`) | 10 | Yes |
-| Stone Skin (`arm.spell.stone_skin`) | 15 |  |
-| Threshold Alarm (`arm.spell.threshold_alarm`) | 19 |  |
-| Earth Mount (`arm.spell.earth_mount`) | 23 |  |
-| Sand Knife (`arm.spell.sand_knife`) | 28 |  |
-| Earthen Strength (`arm.spell.earthen_strength`) | 32 |  |
-| Clouded Will (`arm.spell.clouded_will`) | 37 |  |
-| Fleet Step (`arm.spell.fleet_step`) | 41 |  |
-| Burrow Refuge (`arm.spell.burrow_refuge`) | 45 |  |
-| Ground Tremor (`arm.spell.ground_tremor`) | 50 |  |
-| Read Enchantment (`arm.spell.read_enchantment`) | 54 |  |
-| Trace the Path (`arm.spell.trace_the_path`) | 59 |  |
-| Sand Effigy (`arm.spell.sand_effigy`) | 63 |  |
-| Call Outsider (`arm.spell.call_outsider`) | 67 |  |
-| Heavy Slumber (`arm.spell.heavy_slumber`) | 72 |  |
-| Sand Shelter (`arm.spell.sand_shelter`) | 76 |  |
-| Restore Object (`arm.spell.restore_object`) | 81 |  |
-| Clay Sentinel (`arm.spell.clay_sentinel`) | 85 |  |
-| Shatter Stone (`arm.spell.shatter_stone`) | 90 |  |
+| Stone Skin (`arm.spell.stone_skin`) | 15 | No |
+| Threshold Alarm (`arm.spell.threshold_alarm`) | 19 | No |
+| Sand Knife (`arm.spell.sand_knife`) | 23 | No |
+| Earth Mount (`arm.spell.earth_mount`) | 28 | No |
+| Earthen Strength (`arm.spell.earthen_strength`) | 32 | No |
+| Clouded Will (`arm.spell.clouded_will`) | 37 | No |
+| Fleet Step (`arm.spell.fleet_step`) | 41 | No |
+| Ground Tremor (`arm.spell.ground_tremor`) | 45 | No |
+| Burrow Refuge (`arm.spell.burrow_refuge`) | 50 | No |
+| Read Enchantment (`arm.spell.read_enchantment`) | 54 | No |
+| Trace the Path (`arm.spell.trace_the_path`) | 59 | No |
+| Call Outsider (`arm.spell.call_outsider`) | 63 | No |
+| Sand Effigy (`arm.spell.sand_effigy`) | 67 | No |
+| Heavy Slumber (`arm.spell.heavy_slumber`) | 72 | No |
+| Sand Shelter (`arm.spell.sand_shelter`) | 76 | No |
+| Restore Object (`arm.spell.restore_object`) | 81 | No |
+| Clay Sentinel (`arm.spell.clay_sentinel`) | 85 | No |
+| Shatter Stone (`arm.spell.shatter_stone`) | 90 | No |
 
 ### Fire
 
@@ -144,22 +144,22 @@ These are final authored stock thresholds. The seven elemental tables project th
 | Pillar of Flame (`arm.spell.pillar_of_flame`) | 10 | Yes |
 | Custodian Glyph (`arm.spell.custodian_glyph`) | 10 | Yes |
 | Desiccate (`arm.spell.desiccate`) | 10 | Yes |
-| Borrowed Tongues (`arm.spell.borrowed_tongues`) | 15 |  |
-| Read Enchantment (`arm.spell.read_enchantment`) | 20 |  |
-| Fireworks (`arm.spell.fireworks`) | 25 |  |
-| Earth Mount (`arm.spell.earth_mount`) | 30 |  |
-| Ember Lance (`arm.spell.ember_lance`) | 35 |  |
-| Kindle Enchantment (`arm.spell.kindle_enchantment`) | 40 |  |
-| Burning Draught Curse (`arm.spell.burning_draught_curse`) | 45 |  |
-| Daylight (`arm.spell.daylight`) | 50 |  |
-| Flame Mantle (`arm.spell.flame_mantle`) | 55 |  |
-| Call Outsider (`arm.spell.call_outsider`) | 60 |  |
-| Cinder Rain (`arm.spell.cinder_rain`) | 65 |  |
-| Immolate (`arm.spell.immolate`) | 70 |  |
-| Flame Knife (`arm.spell.flame_knife`) | 75 |  |
-| Flame Barrier (`arm.spell.flame_barrier`) | 80 |  |
-| Ember Seed (`arm.spell.ember_seed`) | 85 |  |
-| Consuming Flame (`arm.spell.consuming_flame`) | 90 |  |
+| Borrowed Tongues (`arm.spell.borrowed_tongues`) | 15 | No |
+| Read Enchantment (`arm.spell.read_enchantment`) | 20 | No |
+| Fireworks (`arm.spell.fireworks`) | 25 | No |
+| Earth Mount (`arm.spell.earth_mount`) | 30 | No |
+| Ember Lance (`arm.spell.ember_lance`) | 35 | No |
+| Kindle Enchantment (`arm.spell.kindle_enchantment`) | 40 | No |
+| Burning Draught Curse (`arm.spell.burning_draught_curse`) | 45 | No |
+| Daylight (`arm.spell.daylight`) | 50 | No |
+| Flame Mantle (`arm.spell.flame_mantle`) | 55 | No |
+| Call Outsider (`arm.spell.call_outsider`) | 60 | No |
+| Cinder Rain (`arm.spell.cinder_rain`) | 65 | No |
+| Immolate (`arm.spell.immolate`) | 70 | No |
+| Flame Knife (`arm.spell.flame_knife`) | 75 | No |
+| Flame Barrier (`arm.spell.flame_barrier`) | 80 | No |
+| Ember Seed (`arm.spell.ember_seed`) | 85 | No |
+| Consuming Flame (`arm.spell.consuming_flame`) | 90 | No |
 
 ### Water
 
@@ -171,63 +171,63 @@ These are final authored stock thresholds. The seven elemental tables project th
 | Still Anger (`arm.spell.still_anger`) | 10 | Yes |
 | Unyielding Veil (`arm.spell.unyielding_veil`) | 10 | Yes |
 | Thunderclap (`arm.spell.thunderclap`) | 10 | Yes |
-| Spring Haven (`arm.spell.spring_haven`) | 15 |  |
-| Distant Mirage (`arm.spell.distant_mirage`) | 18 |  |
-| Purge Toxin (`arm.spell.purge_toxin`) | 21 |  |
-| Read Attunement (`arm.spell.read_attunement`) | 24 |  |
-| Read Enchantment (`arm.spell.read_enchantment`) | 27 |  |
-| Vital Siphon (`arm.spell.vital_siphon`) | 30 |  |
-| Seal Voice (`arm.spell.seal_voice`) | 33 |  |
-| Clear Head (`arm.spell.clear_head`) | 36 |  |
-| Sheltering Veil (`arm.spell.sheltering_veil`) | 39 |  |
-| Earth Mount (`arm.spell.earth_mount`) | 42 |  |
-| Hush Hearing (`arm.spell.hush_hearing`) | 45 |  |
-| Restorative Mud (`arm.spell.restorative_mud`) | 48 |  |
-| Water Breathing (`arm.spell.water_breathing`) | 51 |  |
-| Gather Puddle (`arm.spell.gather_puddle`) | 54 |  |
-| Draw Wine (`arm.spell.draw_wine`) | 57 |  |
-| Venom Touch (`arm.spell.venom_touch`) | 60 |  |
-| Headlong Revel (`arm.spell.headlong_revel`) | 63 |  |
-| Call Outsider (`arm.spell.call_outsider`) | 66 |  |
-| Thorn Barrier (`arm.spell.thorn_barrier`) | 69 |  |
-| Mist Shield (`arm.spell.mist_shield`) | 72 |  |
-| Purge Disease (`arm.spell.purge_disease`) | 75 |  |
-| Drowning Grip (`arm.spell.drowning_grip`) | 78 |  |
-| Sustain Meal (`arm.spell.sustain_meal`) | 81 |  |
-| Wither Growth (`arm.spell.wither_growth`) | 84 |  |
-| Sow Sickness (`arm.spell.sow_sickness`) | 87 |  |
-| Caustic Spray (`arm.spell.caustic_spray`) | 90 |  |
+| Spring Haven (`arm.spell.spring_haven`) | 15 | No |
+| Distant Mirage (`arm.spell.distant_mirage`) | 18 | No |
+| Purge Toxin (`arm.spell.purge_toxin`) | 21 | No |
+| Read Attunement (`arm.spell.read_attunement`) | 24 | No |
+| Read Enchantment (`arm.spell.read_enchantment`) | 27 | No |
+| Vital Siphon (`arm.spell.vital_siphon`) | 30 | No |
+| Seal Voice (`arm.spell.seal_voice`) | 33 | No |
+| Clear Head (`arm.spell.clear_head`) | 36 | No |
+| Sheltering Veil (`arm.spell.sheltering_veil`) | 39 | No |
+| Earth Mount (`arm.spell.earth_mount`) | 42 | No |
+| Hush Hearing (`arm.spell.hush_hearing`) | 45 | No |
+| Restorative Mud (`arm.spell.restorative_mud`) | 48 | No |
+| Gather Puddle (`arm.spell.gather_puddle`) | 51 | No |
+| Draw Wine (`arm.spell.draw_wine`) | 54 | No |
+| Venom Touch (`arm.spell.venom_touch`) | 57 | No |
+| Headlong Revel (`arm.spell.headlong_revel`) | 60 | No |
+| Call Outsider (`arm.spell.call_outsider`) | 63 | No |
+| Water Breathing (`arm.spell.water_breathing`) | 66 | No |
+| Thorn Barrier (`arm.spell.thorn_barrier`) | 69 | No |
+| Purge Disease (`arm.spell.purge_disease`) | 72 | No |
+| Sustain Meal (`arm.spell.sustain_meal`) | 75 | No |
+| Mist Shield (`arm.spell.mist_shield`) | 78 | No |
+| Wither Growth (`arm.spell.wither_growth`) | 81 | No |
+| Drowning Grip (`arm.spell.drowning_grip`) | 84 | No |
+| Sow Sickness (`arm.spell.sow_sickness`) | 87 | No |
+| Caustic Spray (`arm.spell.caustic_spray`) | 90 | No |
 
 ### Wind
 
 | Spell | Unlock | Start |
 | --- | --- | --- |
 | Waystep (`arm.spell.waystep`) | 10 | Yes |
+| Pierce Concealment (`arm.spell.pierce_concealment`) | 10 | Yes |
 | Buoyant Lift (`arm.spell.buoyant_lift`) | 10 | Yes |
 | Gust Hands (`arm.spell.gust_hands`) | 10 | Yes |
 | Air Guardian (`arm.spell.air_guardian`) | 10 | Yes |
 | Gentle Descent (`arm.spell.gentle_descent`) | 10 | Yes |
-| Pierce Concealment (`arm.spell.pierce_concealment`) | 10 | Yes |
-| Draw Traveller (`arm.spell.draw_traveller`) | 15 |  |
-| Join Traveller (`arm.spell.join_traveller`) | 18 |  |
-| Exchange Places (`arm.spell.exchange_places`) | 22 |  |
-| Windborne Flight (`arm.spell.windborne_flight`) | 26 |  |
-| Banish Traveller (`arm.spell.banish_traveller`) | 30 |  |
-| Driving Gust (`arm.spell.driving_gust`) | 34 |  |
-| Earth Mount (`arm.spell.earth_mount`) | 38 |  |
-| Wind Courier (`arm.spell.wind_courier`) | 42 |  |
-| Scouring Gust (`arm.spell.scouring_gust`) | 46 |  |
-| Veil from Sight (`arm.spell.veil_from_sight`) | 50 |  |
-| Read Enchantment (`arm.spell.read_enchantment`) | 54 |  |
-| Call Outsider (`arm.spell.call_outsider`) | 58 |  |
-| Anchor Rune (`arm.spell.anchor_rune`) | 62 |  |
-| Wind Hammer (`arm.spell.wind_hammer`) | 66 |  |
-| Wind Barrier (`arm.spell.wind_barrier`) | 70 |  |
-| Wind Mantle (`arm.spell.wind_mantle`) | 74 |  |
-| Seeking Wind (`arm.spell.seeking_wind`) | 78 |  |
-| False Presence (`arm.spell.false_presence`) | 82 |  |
-| Reveal the Hidden (`arm.spell.reveal_the_hidden`) | 86 |  |
-| Wind Shield (`arm.spell.wind_shield`) | 90 |  |
+| Draw Traveller (`arm.spell.draw_traveller`) | 15 | No |
+| Join Traveller (`arm.spell.join_traveller`) | 18 | No |
+| Exchange Places (`arm.spell.exchange_places`) | 22 | No |
+| Veil from Sight (`arm.spell.veil_from_sight`) | 26 | No |
+| Read Enchantment (`arm.spell.read_enchantment`) | 30 | No |
+| Windborne Flight (`arm.spell.windborne_flight`) | 34 | No |
+| Banish Traveller (`arm.spell.banish_traveller`) | 38 | No |
+| Driving Gust (`arm.spell.driving_gust`) | 42 | No |
+| Earth Mount (`arm.spell.earth_mount`) | 46 | No |
+| Wind Courier (`arm.spell.wind_courier`) | 50 | No |
+| Scouring Gust (`arm.spell.scouring_gust`) | 54 | No |
+| Call Outsider (`arm.spell.call_outsider`) | 58 | No |
+| Anchor Rune (`arm.spell.anchor_rune`) | 62 | No |
+| False Presence (`arm.spell.false_presence`) | 66 | No |
+| Reveal the Hidden (`arm.spell.reveal_the_hidden`) | 70 | No |
+| Wind Hammer (`arm.spell.wind_hammer`) | 74 | No |
+| Wind Barrier (`arm.spell.wind_barrier`) | 78 | No |
+| Wind Mantle (`arm.spell.wind_mantle`) | 82 | No |
+| Seeking Wind (`arm.spell.seeking_wind`) | 86 | No |
+| Wind Shield (`arm.spell.wind_shield`) | 90 | No |
 
 ### Shadow
 
@@ -239,20 +239,20 @@ These are final authored stock thresholds. The seven elemental tables project th
 | See the Unbodied (`arm.spell.see_the_unbodied`) | 10 | Yes |
 | Cooling Shade (`arm.spell.cooling_shade`) | 10 | Yes |
 | Deep Darkness (`arm.spell.deep_darkness`) | 10 | Yes |
-| Shroud Eyes (`arm.spell.shroud_eyes`) | 15 |  |
-| Clinging Hex (`arm.spell.clinging_hex`) | 20 |  |
-| Shadow Passage (`arm.spell.shadow_passage`) | 26 |  |
-| Read Enchantment (`arm.spell.read_enchantment`) | 32 |  |
-| Walking Shadow (`arm.spell.walking_shadow`) | 38 |  |
-| Earth Mount (`arm.spell.earth_mount`) | 43 |  |
-| Dread Presence (`arm.spell.dread_presence`) | 49 |  |
-| Shadowplay (`arm.spell.shadowplay`) | 55 |  |
-| Shadow Blade (`arm.spell.shadow_blade`) | 61 |  |
-| Shadow Mantle (`arm.spell.shadow_mantle`) | 66 |  |
-| Draw into Flesh (`arm.spell.draw_into_flesh`) | 72 |  |
-| Call Outsider (`arm.spell.call_outsider`) | 78 |  |
-| Haunting Shape (`arm.spell.haunting_shape`) | 84 |  |
-| Champion Blade (`arm.spell.champion_blade`) | 90 |  |
+| Shroud Eyes (`arm.spell.shroud_eyes`) | 15 | No |
+| Clinging Hex (`arm.spell.clinging_hex`) | 20 | No |
+| Shadow Passage (`arm.spell.shadow_passage`) | 26 | No |
+| Read Enchantment (`arm.spell.read_enchantment`) | 32 | No |
+| Walking Shadow (`arm.spell.walking_shadow`) | 38 | No |
+| Earth Mount (`arm.spell.earth_mount`) | 43 | No |
+| Dread Presence (`arm.spell.dread_presence`) | 49 | No |
+| Shadowplay (`arm.spell.shadowplay`) | 55 | No |
+| Shadow Blade (`arm.spell.shadow_blade`) | 61 | No |
+| Shadow Mantle (`arm.spell.shadow_mantle`) | 66 | No |
+| Draw into Flesh (`arm.spell.draw_into_flesh`) | 72 | No |
+| Call Outsider (`arm.spell.call_outsider`) | 78 | No |
+| Haunting Shape (`arm.spell.haunting_shape`) | 84 | No |
+| Champion Blade (`arm.spell.champion_blade`) | 90 | No |
 
 ### Lightning
 
@@ -264,18 +264,19 @@ These are final authored stock thresholds. The seven elemental tables project th
 | Leadfoot (`arm.spell.leadfoot`) | 10 | Yes |
 | Steal Breath (`arm.spell.steal_breath`) | 10 | Yes |
 | Luminous Trail (`arm.spell.luminous_trail`) | 10 | Yes |
-| Leaping Lightning (`arm.spell.leaping_lightning`) | 15 |  |
-| Quickened Healing (`arm.spell.quickened_healing`) | 21 |  |
-| Earth Mount (`arm.spell.earth_mount`) | 28 |  |
-| Lightning Pace (`arm.spell.lightning_pace`) | 35 |  |
-| Sky Lantern (`arm.spell.sky_lantern`) | 42 |  |
-| Charged Aegis (`arm.spell.charged_aegis`) | 49 |  |
-| Read Enchantment (`arm.spell.read_enchantment`) | 55 |  |
-| Storm Locus (`arm.spell.storm_locus`) | 62 |  |
-| Spark Lash (`arm.spell.spark_lash`) | 69 |  |
-| Call Outsider (`arm.spell.call_outsider`) | 76 |  |
-| Still Limbs (`arm.spell.still_limbs`) | 83 |  |
-| Storm Spear (`arm.spell.storm_spear`) | 90 |  |
+| Leaping Lightning (`arm.spell.leaping_lightning`) | 15 | No |
+| Quickened Healing (`arm.spell.quickened_healing`) | 21 | No |
+| Earth Mount (`arm.spell.earth_mount`) | 27 | No |
+| Lightning Pace (`arm.spell.lightning_pace`) | 33 | No |
+| Sky Lantern (`arm.spell.sky_lantern`) | 40 | No |
+| Charged Aegis (`arm.spell.charged_aegis`) | 46 | No |
+| Read Enchantment (`arm.spell.read_enchantment`) | 52 | No |
+| Storm Locus (`arm.spell.storm_locus`) | 58 | No |
+| Spark Lash (`arm.spell.spark_lash`) | 65 | No |
+| Call Outsider (`arm.spell.call_outsider`) | 71 | No |
+| Still Limbs (`arm.spell.still_limbs`) | 77 | No |
+| Hovering Light (`arm.spell.hovering_light`) | 83 | No |
+| Storm Spear (`arm.spell.storm_spear`) | 90 | No |
 
 ### Void
 
@@ -287,30 +288,30 @@ These are final authored stock thresholds. The seven elemental tables project th
 | Unmaking Ward (`arm.spell.unmaking_ward`) | 10 | Yes |
 | Folded Pocket (`arm.spell.folded_pocket`) | 10 | Yes |
 | Veil of Elements (`arm.spell.veil_of_elements`) | 10 | Yes |
-| Linked Threshold (`arm.spell.linked_threshold`) | 15 |  |
-| Raise Servitor (`arm.spell.raise_servitor`) | 18 |  |
-| Earth Mount (`arm.spell.earth_mount`) | 21 |  |
-| Empty Aura (`arm.spell.empty_aura`) | 24 |  |
-| Mind Scour (`arm.spell.mind_scour`) | 28 |  |
-| Bar the Elements (`arm.spell.bar_the_elements`) | 31 |  |
-| Phantasm (`arm.spell.phantasm`) | 34 |  |
-| Turn the Elements (`arm.spell.turn_the_elements`) | 37 |  |
-| Read Enchantment (`arm.spell.read_enchantment`) | 41 |  |
-| Unbodied Journey (`arm.spell.unbodied_journey`) | 44 |  |
-| Erode Object (`arm.spell.erode_object`) | 47 |  |
-| Open Threshold (`arm.spell.open_threshold`) | 50 |  |
-| Voice of Remains (`arm.spell.voice_of_remains`) | 54 |  |
-| Call Outsider (`arm.spell.call_outsider`) | 57 |  |
-| Compelling Regard (`arm.spell.compelling_regard`) | 60 |  |
-| Blade Barrier (`arm.spell.blade_barrier`) | 63 |  |
-| Devouring Touch (`arm.spell.devouring_touch`) | 67 |  |
-| Severing Refuge (`arm.spell.severing_refuge`) | 70 |  |
-| Apex Bane (`arm.spell.apex_bane`) | 73 |  |
-| Cross the Veil (`arm.spell.cross_the_veil`) | 76 |  |
-| Sow Sickness (`arm.spell.sow_sickness`) | 80 |  |
-| Borrow the Dead (`arm.spell.borrow_the_dead`) | 83 |  |
-| Leeching Edge (`arm.spell.leeching_edge`) | 86 |  |
-| Echo Servant (`arm.spell.echo_servant`) | 90 |  |
+| Linked Threshold (`arm.spell.linked_threshold`) | 15 | No |
+| Raise Servitor (`arm.spell.raise_servitor`) | 18 | No |
+| Earth Mount (`arm.spell.earth_mount`) | 21 | No |
+| Empty Aura (`arm.spell.empty_aura`) | 24 | No |
+| Mind Scour (`arm.spell.mind_scour`) | 28 | No |
+| Bar the Elements (`arm.spell.bar_the_elements`) | 31 | No |
+| Phantasm (`arm.spell.phantasm`) | 34 | No |
+| Turn the Elements (`arm.spell.turn_the_elements`) | 37 | No |
+| Read Enchantment (`arm.spell.read_enchantment`) | 41 | No |
+| Unbodied Journey (`arm.spell.unbodied_journey`) | 44 | No |
+| Erode Object (`arm.spell.erode_object`) | 47 | No |
+| Open Threshold (`arm.spell.open_threshold`) | 50 | No |
+| Voice of Remains (`arm.spell.voice_of_remains`) | 54 | No |
+| Call Outsider (`arm.spell.call_outsider`) | 57 | No |
+| Compelling Regard (`arm.spell.compelling_regard`) | 60 | No |
+| Blade Barrier (`arm.spell.blade_barrier`) | 63 | No |
+| Leeching Edge (`arm.spell.leeching_edge`) | 67 | No |
+| Devouring Touch (`arm.spell.devouring_touch`) | 70 | No |
+| Severing Refuge (`arm.spell.severing_refuge`) | 73 | No |
+| Apex Bane (`arm.spell.apex_bane`) | 76 | No |
+| Cross the Veil (`arm.spell.cross_the_veil`) | 80 | No |
+| Sow Sickness (`arm.spell.sow_sickness`) | 83 | No |
+| Borrow the Dead (`arm.spell.borrow_the_dead`) | 86 | No |
+| Echo Servant (`arm.spell.echo_servant`) | 90 | No |
 
 ### Sorcerer
 
@@ -320,84 +321,84 @@ These are final authored stock thresholds. The seven elemental tables project th
 | Unravel Enchantment (`arm.spell.unravel_enchantment`) | 10 | Yes |
 | Unyielding Veil (`arm.spell.unyielding_veil`) | 10 | Yes |
 | Gust Hands (`arm.spell.gust_hands`) | 10 | Yes |
-| Pierce Concealment (`arm.spell.pierce_concealment`) | 15 |  |
-| Veil from Sight (`arm.spell.veil_from_sight`) | 15 |  |
-| Draw Water (`arm.spell.draw_water`) | 16 |  |
-| Roused Fury (`arm.spell.roused_fury`) | 17 |  |
-| Waystep (`arm.spell.waystep`) | 18 |  |
-| Buoyant Lift (`arm.spell.buoyant_lift`) | 19 |  |
-| Lightning Lance (`arm.spell.lightning_lance`) | 20 |  |
-| Charged Aegis (`arm.spell.charged_aegis`) | 21 |  |
-| Night Eyes (`arm.spell.night_eyes`) | 22 |  |
-| See the Unbodied (`arm.spell.see_the_unbodied`) | 23 |  |
-| Walking Shadow (`arm.spell.walking_shadow`) | 24 |  |
-| Shadow Passage (`arm.spell.shadow_passage`) | 25 |  |
-| Reveal the Hidden (`arm.spell.reveal_the_hidden`) | 26 |  |
-| Sustain Meal (`arm.spell.sustain_meal`) | 27 |  |
-| Earth Mount (`arm.spell.earth_mount`) | 28 |  |
-| Draw Wine (`arm.spell.draw_wine`) | 29 |  |
-| Shroud Eyes (`arm.spell.shroud_eyes`) | 30 |  |
-| Still Anger (`arm.spell.still_anger`) | 31 |  |
-| Banish Traveller (`arm.spell.banish_traveller`) | 32 |  |
-| Driving Gust (`arm.spell.driving_gust`) | 33 |  |
-| Arcane Mark (`arm.spell.arcane_mark`) | 34 |  |
-| Windborne Flight (`arm.spell.windborne_flight`) | 35 |  |
-| Ember Lance (`arm.spell.ember_lance`) | 36 |  |
-| Flame Knife (`arm.spell.flame_knife`) | 37 |  |
-| Sand Barrier (`arm.spell.sand_barrier`) | 38 |  |
-| Blade Barrier (`arm.spell.blade_barrier`) | 39 |  |
-| Wind Mantle (`arm.spell.wind_mantle`) | 40 |  |
-| Clear Eyes (`arm.spell.clear_eyes`) | 41 |  |
-| Lift Hex (`arm.spell.lift_hex`) | 42 |  |
-| Sense Toxin (`arm.spell.sense_toxin`) | 43 |  |
-| Borrowed Tongues (`arm.spell.borrowed_tongues`) | 44 |  |
-| Custodian Glyph (`arm.spell.custodian_glyph`) | 45 |  |
-| Clinging Hex (`arm.spell.clinging_hex`) | 46 |  |
-| Read Attunement (`arm.spell.read_attunement`) | 47 |  |
-| Draw into Flesh (`arm.spell.draw_into_flesh`) | 48 |  |
-| Hovering Light (`arm.spell.hovering_light`) | 49 |  |
-| Kindle Enchantment (`arm.spell.kindle_enchantment`) | 50 |  |
-| Restore Object (`arm.spell.restore_object`) | 51 |  |
-| Air Guardian (`arm.spell.air_guardian`) | 52 |  |
-| Call Outsider (`arm.spell.call_outsider`) | 52 |  |
-| Water Breathing (`arm.spell.water_breathing`) | 53 |  |
-| Venom Touch (`arm.spell.venom_touch`) | 54 |  |
-| Feign Death (`arm.spell.feign_death`) | 55 |  |
-| Mend Flesh (`arm.spell.mend_flesh`) | 56 |  |
-| Purge Toxin (`arm.spell.purge_toxin`) | 57 |  |
-| Draw Traveller (`arm.spell.draw_traveller`) | 58 |  |
-| Leadfoot (`arm.spell.leadfoot`) | 59 |  |
-| Open Threshold (`arm.spell.open_threshold`) | 60 |  |
-| Wind Barrier (`arm.spell.wind_barrier`) | 61 |  |
-| Fleet Step (`arm.spell.fleet_step`) | 62 |  |
-| Linked Threshold (`arm.spell.linked_threshold`) | 63 |  |
-| Join Traveller (`arm.spell.join_traveller`) | 64 |  |
-| Burrow Refuge (`arm.spell.burrow_refuge`) | 65 |  |
-| Ground Tremor (`arm.spell.ground_tremor`) | 66 |  |
-| Leaping Lightning (`arm.spell.leaping_lightning`) | 67 |  |
-| Dread Presence (`arm.spell.dread_presence`) | 68 |  |
-| Immolate (`arm.spell.immolate`) | 69 |  |
-| Sheltering Veil (`arm.spell.sheltering_veil`) | 70 |  |
-| Stone Skin (`arm.spell.stone_skin`) | 71 |  |
-| Flame Barrier (`arm.spell.flame_barrier`) | 72 |  |
-| Read Enchantment (`arm.spell.read_enchantment`) | 73 |  |
-| Threshold Alarm (`arm.spell.threshold_alarm`) | 74 |  |
-| Sand Effigy (`arm.spell.sand_effigy`) | 75 |  |
-| Wind Courier (`arm.spell.wind_courier`) | 76 |  |
-| Clouded Will (`arm.spell.clouded_will`) | 77 |  |
-| Deep Darkness (`arm.spell.deep_darkness`) | 78 |  |
-| Heavy Slumber (`arm.spell.heavy_slumber`) | 79 |  |
-| Raise Servitor (`arm.spell.raise_servitor`) | 80 |  |
-| Lightning Pace (`arm.spell.lightning_pace`) | 81 |  |
-| Anchor Rune (`arm.spell.anchor_rune`) | 82 |  |
-| Storm Spear (`arm.spell.storm_spear`) | 83 |  |
-| Empty Aura (`arm.spell.empty_aura`) | 84 |  |
-| Steal Breath (`arm.spell.steal_breath`) | 85 |  |
-| Consuming Flame (`arm.spell.consuming_flame`) | 86 |  |
-| Earthen Strength (`arm.spell.earthen_strength`) | 87 |  |
-| Still Limbs (`arm.spell.still_limbs`) | 88 |  |
-| Voice of Remains (`arm.spell.voice_of_remains`) | 89 |  |
-| Echo Servant (`arm.spell.echo_servant`) | 90 |  |
+| Pierce Concealment (`arm.spell.pierce_concealment`) | 15 | No |
+| Veil from Sight (`arm.spell.veil_from_sight`) | 15 | No |
+| Draw Water (`arm.spell.draw_water`) | 16 | No |
+| Roused Fury (`arm.spell.roused_fury`) | 17 | No |
+| Waystep (`arm.spell.waystep`) | 18 | No |
+| Buoyant Lift (`arm.spell.buoyant_lift`) | 19 | No |
+| Lightning Lance (`arm.spell.lightning_lance`) | 20 | No |
+| Charged Aegis (`arm.spell.charged_aegis`) | 21 | No |
+| Night Eyes (`arm.spell.night_eyes`) | 22 | No |
+| See the Unbodied (`arm.spell.see_the_unbodied`) | 23 | No |
+| Walking Shadow (`arm.spell.walking_shadow`) | 24 | No |
+| Shadow Passage (`arm.spell.shadow_passage`) | 25 | No |
+| Reveal the Hidden (`arm.spell.reveal_the_hidden`) | 26 | No |
+| Sustain Meal (`arm.spell.sustain_meal`) | 27 | No |
+| Earth Mount (`arm.spell.earth_mount`) | 28 | No |
+| Draw Wine (`arm.spell.draw_wine`) | 29 | No |
+| Shroud Eyes (`arm.spell.shroud_eyes`) | 30 | No |
+| Still Anger (`arm.spell.still_anger`) | 31 | No |
+| Banish Traveller (`arm.spell.banish_traveller`) | 32 | No |
+| Driving Gust (`arm.spell.driving_gust`) | 33 | No |
+| Arcane Mark (`arm.spell.arcane_mark`) | 34 | No |
+| Windborne Flight (`arm.spell.windborne_flight`) | 35 | No |
+| Ember Lance (`arm.spell.ember_lance`) | 36 | No |
+| Flame Knife (`arm.spell.flame_knife`) | 37 | No |
+| Sand Barrier (`arm.spell.sand_barrier`) | 38 | No |
+| Blade Barrier (`arm.spell.blade_barrier`) | 39 | No |
+| Wind Mantle (`arm.spell.wind_mantle`) | 40 | No |
+| Clear Eyes (`arm.spell.clear_eyes`) | 41 | No |
+| Lift Hex (`arm.spell.lift_hex`) | 42 | No |
+| Sense Toxin (`arm.spell.sense_toxin`) | 43 | No |
+| Borrowed Tongues (`arm.spell.borrowed_tongues`) | 44 | No |
+| Custodian Glyph (`arm.spell.custodian_glyph`) | 45 | No |
+| Clinging Hex (`arm.spell.clinging_hex`) | 46 | No |
+| Read Attunement (`arm.spell.read_attunement`) | 47 | No |
+| Draw into Flesh (`arm.spell.draw_into_flesh`) | 48 | No |
+| Hovering Light (`arm.spell.hovering_light`) | 49 | No |
+| Kindle Enchantment (`arm.spell.kindle_enchantment`) | 50 | No |
+| Restore Object (`arm.spell.restore_object`) | 51 | No |
+| Air Guardian (`arm.spell.air_guardian`) | 52 | No |
+| Call Outsider (`arm.spell.call_outsider`) | 52 | No |
+| Water Breathing (`arm.spell.water_breathing`) | 53 | No |
+| Venom Touch (`arm.spell.venom_touch`) | 54 | No |
+| Feign Death (`arm.spell.feign_death`) | 55 | No |
+| Mend Flesh (`arm.spell.mend_flesh`) | 56 | No |
+| Purge Toxin (`arm.spell.purge_toxin`) | 57 | No |
+| Draw Traveller (`arm.spell.draw_traveller`) | 58 | No |
+| Leadfoot (`arm.spell.leadfoot`) | 59 | No |
+| Open Threshold (`arm.spell.open_threshold`) | 60 | No |
+| Wind Barrier (`arm.spell.wind_barrier`) | 61 | No |
+| Fleet Step (`arm.spell.fleet_step`) | 62 | No |
+| Linked Threshold (`arm.spell.linked_threshold`) | 63 | No |
+| Join Traveller (`arm.spell.join_traveller`) | 64 | No |
+| Burrow Refuge (`arm.spell.burrow_refuge`) | 65 | No |
+| Ground Tremor (`arm.spell.ground_tremor`) | 66 | No |
+| Leaping Lightning (`arm.spell.leaping_lightning`) | 67 | No |
+| Dread Presence (`arm.spell.dread_presence`) | 68 | No |
+| Immolate (`arm.spell.immolate`) | 69 | No |
+| Sheltering Veil (`arm.spell.sheltering_veil`) | 70 | No |
+| Stone Skin (`arm.spell.stone_skin`) | 71 | No |
+| Flame Barrier (`arm.spell.flame_barrier`) | 72 | No |
+| Read Enchantment (`arm.spell.read_enchantment`) | 73 | No |
+| Threshold Alarm (`arm.spell.threshold_alarm`) | 74 | No |
+| Sand Effigy (`arm.spell.sand_effigy`) | 75 | No |
+| Wind Courier (`arm.spell.wind_courier`) | 76 | No |
+| Clouded Will (`arm.spell.clouded_will`) | 77 | No |
+| Deep Darkness (`arm.spell.deep_darkness`) | 78 | No |
+| Heavy Slumber (`arm.spell.heavy_slumber`) | 79 | No |
+| Raise Servitor (`arm.spell.raise_servitor`) | 80 | No |
+| Lightning Pace (`arm.spell.lightning_pace`) | 81 | No |
+| Anchor Rune (`arm.spell.anchor_rune`) | 82 | No |
+| Storm Spear (`arm.spell.storm_spear`) | 83 | No |
+| Empty Aura (`arm.spell.empty_aura`) | 84 | No |
+| Steal Breath (`arm.spell.steal_breath`) | 85 | No |
+| Consuming Flame (`arm.spell.consuming_flame`) | 86 | No |
+| Earthen Strength (`arm.spell.earthen_strength`) | 87 | No |
+| Still Limbs (`arm.spell.still_limbs`) | 88 | No |
+| Voice of Remains (`arm.spell.voice_of_remains`) | 89 | No |
+| Echo Servant (`arm.spell.echo_servant`) | 90 | No |
 
 ### Preserver
 
@@ -407,84 +408,84 @@ These are final authored stock thresholds. The seven elemental tables project th
 | Unravel Enchantment (`arm.spell.unravel_enchantment`) | 10 | Yes |
 | Unyielding Veil (`arm.spell.unyielding_veil`) | 10 | Yes |
 | Gust Hands (`arm.spell.gust_hands`) | 10 | Yes |
-| Pierce Concealment (`arm.spell.pierce_concealment`) | 15 |  |
-| Veil from Sight (`arm.spell.veil_from_sight`) | 15 |  |
-| Draw Water (`arm.spell.draw_water`) | 16 |  |
-| Roused Fury (`arm.spell.roused_fury`) | 17 |  |
-| Waystep (`arm.spell.waystep`) | 18 |  |
-| Buoyant Lift (`arm.spell.buoyant_lift`) | 19 |  |
-| Lightning Lance (`arm.spell.lightning_lance`) | 20 |  |
-| Charged Aegis (`arm.spell.charged_aegis`) | 21 |  |
-| Night Eyes (`arm.spell.night_eyes`) | 22 |  |
-| See the Unbodied (`arm.spell.see_the_unbodied`) | 23 |  |
-| Walking Shadow (`arm.spell.walking_shadow`) | 24 |  |
-| Shadow Passage (`arm.spell.shadow_passage`) | 25 |  |
-| Reveal the Hidden (`arm.spell.reveal_the_hidden`) | 26 |  |
-| Sustain Meal (`arm.spell.sustain_meal`) | 27 |  |
-| Earth Mount (`arm.spell.earth_mount`) | 28 |  |
-| Draw Wine (`arm.spell.draw_wine`) | 29 |  |
-| Shroud Eyes (`arm.spell.shroud_eyes`) | 30 |  |
-| Still Anger (`arm.spell.still_anger`) | 31 |  |
-| Banish Traveller (`arm.spell.banish_traveller`) | 32 |  |
-| Driving Gust (`arm.spell.driving_gust`) | 33 |  |
-| Arcane Mark (`arm.spell.arcane_mark`) | 34 |  |
-| Windborne Flight (`arm.spell.windborne_flight`) | 35 |  |
-| Ember Lance (`arm.spell.ember_lance`) | 36 |  |
-| Flame Knife (`arm.spell.flame_knife`) | 37 |  |
-| Sand Barrier (`arm.spell.sand_barrier`) | 38 |  |
-| Blade Barrier (`arm.spell.blade_barrier`) | 39 |  |
-| Wind Mantle (`arm.spell.wind_mantle`) | 40 |  |
-| Clear Eyes (`arm.spell.clear_eyes`) | 41 |  |
-| Lift Hex (`arm.spell.lift_hex`) | 42 |  |
-| Sense Toxin (`arm.spell.sense_toxin`) | 43 |  |
-| Borrowed Tongues (`arm.spell.borrowed_tongues`) | 44 |  |
-| Custodian Glyph (`arm.spell.custodian_glyph`) | 45 |  |
-| Clinging Hex (`arm.spell.clinging_hex`) | 46 |  |
-| Read Attunement (`arm.spell.read_attunement`) | 47 |  |
-| Draw into Flesh (`arm.spell.draw_into_flesh`) | 48 |  |
-| Hovering Light (`arm.spell.hovering_light`) | 49 |  |
-| Kindle Enchantment (`arm.spell.kindle_enchantment`) | 50 |  |
-| Restore Object (`arm.spell.restore_object`) | 51 |  |
-| Air Guardian (`arm.spell.air_guardian`) | 52 |  |
-| Call Outsider (`arm.spell.call_outsider`) | 52 |  |
-| Water Breathing (`arm.spell.water_breathing`) | 53 |  |
-| Venom Touch (`arm.spell.venom_touch`) | 54 |  |
-| Feign Death (`arm.spell.feign_death`) | 55 |  |
-| Mend Flesh (`arm.spell.mend_flesh`) | 56 |  |
-| Purge Toxin (`arm.spell.purge_toxin`) | 57 |  |
-| Draw Traveller (`arm.spell.draw_traveller`) | 58 |  |
-| Leadfoot (`arm.spell.leadfoot`) | 59 |  |
-| Open Threshold (`arm.spell.open_threshold`) | 60 |  |
-| Wind Barrier (`arm.spell.wind_barrier`) | 61 |  |
-| Fleet Step (`arm.spell.fleet_step`) | 62 |  |
-| Linked Threshold (`arm.spell.linked_threshold`) | 63 |  |
-| Join Traveller (`arm.spell.join_traveller`) | 64 |  |
-| Burrow Refuge (`arm.spell.burrow_refuge`) | 65 |  |
-| Ground Tremor (`arm.spell.ground_tremor`) | 66 |  |
-| Leaping Lightning (`arm.spell.leaping_lightning`) | 67 |  |
-| Dread Presence (`arm.spell.dread_presence`) | 68 |  |
-| Immolate (`arm.spell.immolate`) | 69 |  |
-| Sheltering Veil (`arm.spell.sheltering_veil`) | 70 |  |
-| Stone Skin (`arm.spell.stone_skin`) | 71 |  |
-| Flame Barrier (`arm.spell.flame_barrier`) | 72 |  |
-| Read Enchantment (`arm.spell.read_enchantment`) | 73 |  |
-| Threshold Alarm (`arm.spell.threshold_alarm`) | 74 |  |
-| Sand Effigy (`arm.spell.sand_effigy`) | 75 |  |
-| Wind Courier (`arm.spell.wind_courier`) | 76 |  |
-| Clouded Will (`arm.spell.clouded_will`) | 77 |  |
-| Deep Darkness (`arm.spell.deep_darkness`) | 78 |  |
-| Heavy Slumber (`arm.spell.heavy_slumber`) | 79 |  |
-| Raise Servitor (`arm.spell.raise_servitor`) | 80 |  |
-| Lightning Pace (`arm.spell.lightning_pace`) | 81 |  |
-| Anchor Rune (`arm.spell.anchor_rune`) | 82 |  |
-| Storm Spear (`arm.spell.storm_spear`) | 83 |  |
-| Empty Aura (`arm.spell.empty_aura`) | 84 |  |
-| Steal Breath (`arm.spell.steal_breath`) | 85 |  |
-| Consuming Flame (`arm.spell.consuming_flame`) | 86 |  |
-| Earthen Strength (`arm.spell.earthen_strength`) | 87 |  |
-| Still Limbs (`arm.spell.still_limbs`) | 88 |  |
-| Voice of Remains (`arm.spell.voice_of_remains`) | 89 |  |
-| Echo Servant (`arm.spell.echo_servant`) | 90 |  |
+| Pierce Concealment (`arm.spell.pierce_concealment`) | 15 | No |
+| Veil from Sight (`arm.spell.veil_from_sight`) | 15 | No |
+| Draw Water (`arm.spell.draw_water`) | 16 | No |
+| Roused Fury (`arm.spell.roused_fury`) | 17 | No |
+| Waystep (`arm.spell.waystep`) | 18 | No |
+| Buoyant Lift (`arm.spell.buoyant_lift`) | 19 | No |
+| Lightning Lance (`arm.spell.lightning_lance`) | 20 | No |
+| Charged Aegis (`arm.spell.charged_aegis`) | 21 | No |
+| Night Eyes (`arm.spell.night_eyes`) | 22 | No |
+| See the Unbodied (`arm.spell.see_the_unbodied`) | 23 | No |
+| Walking Shadow (`arm.spell.walking_shadow`) | 24 | No |
+| Shadow Passage (`arm.spell.shadow_passage`) | 25 | No |
+| Reveal the Hidden (`arm.spell.reveal_the_hidden`) | 26 | No |
+| Sustain Meal (`arm.spell.sustain_meal`) | 27 | No |
+| Earth Mount (`arm.spell.earth_mount`) | 28 | No |
+| Draw Wine (`arm.spell.draw_wine`) | 29 | No |
+| Shroud Eyes (`arm.spell.shroud_eyes`) | 30 | No |
+| Still Anger (`arm.spell.still_anger`) | 31 | No |
+| Banish Traveller (`arm.spell.banish_traveller`) | 32 | No |
+| Driving Gust (`arm.spell.driving_gust`) | 33 | No |
+| Arcane Mark (`arm.spell.arcane_mark`) | 34 | No |
+| Windborne Flight (`arm.spell.windborne_flight`) | 35 | No |
+| Ember Lance (`arm.spell.ember_lance`) | 36 | No |
+| Flame Knife (`arm.spell.flame_knife`) | 37 | No |
+| Sand Barrier (`arm.spell.sand_barrier`) | 38 | No |
+| Blade Barrier (`arm.spell.blade_barrier`) | 39 | No |
+| Wind Mantle (`arm.spell.wind_mantle`) | 40 | No |
+| Clear Eyes (`arm.spell.clear_eyes`) | 41 | No |
+| Lift Hex (`arm.spell.lift_hex`) | 42 | No |
+| Sense Toxin (`arm.spell.sense_toxin`) | 43 | No |
+| Borrowed Tongues (`arm.spell.borrowed_tongues`) | 44 | No |
+| Custodian Glyph (`arm.spell.custodian_glyph`) | 45 | No |
+| Clinging Hex (`arm.spell.clinging_hex`) | 46 | No |
+| Read Attunement (`arm.spell.read_attunement`) | 47 | No |
+| Draw into Flesh (`arm.spell.draw_into_flesh`) | 48 | No |
+| Hovering Light (`arm.spell.hovering_light`) | 49 | No |
+| Kindle Enchantment (`arm.spell.kindle_enchantment`) | 50 | No |
+| Restore Object (`arm.spell.restore_object`) | 51 | No |
+| Air Guardian (`arm.spell.air_guardian`) | 52 | No |
+| Call Outsider (`arm.spell.call_outsider`) | 52 | No |
+| Water Breathing (`arm.spell.water_breathing`) | 53 | No |
+| Venom Touch (`arm.spell.venom_touch`) | 54 | No |
+| Feign Death (`arm.spell.feign_death`) | 55 | No |
+| Mend Flesh (`arm.spell.mend_flesh`) | 56 | No |
+| Purge Toxin (`arm.spell.purge_toxin`) | 57 | No |
+| Draw Traveller (`arm.spell.draw_traveller`) | 58 | No |
+| Leadfoot (`arm.spell.leadfoot`) | 59 | No |
+| Open Threshold (`arm.spell.open_threshold`) | 60 | No |
+| Wind Barrier (`arm.spell.wind_barrier`) | 61 | No |
+| Fleet Step (`arm.spell.fleet_step`) | 62 | No |
+| Linked Threshold (`arm.spell.linked_threshold`) | 63 | No |
+| Join Traveller (`arm.spell.join_traveller`) | 64 | No |
+| Burrow Refuge (`arm.spell.burrow_refuge`) | 65 | No |
+| Ground Tremor (`arm.spell.ground_tremor`) | 66 | No |
+| Leaping Lightning (`arm.spell.leaping_lightning`) | 67 | No |
+| Dread Presence (`arm.spell.dread_presence`) | 68 | No |
+| Immolate (`arm.spell.immolate`) | 69 | No |
+| Sheltering Veil (`arm.spell.sheltering_veil`) | 70 | No |
+| Stone Skin (`arm.spell.stone_skin`) | 71 | No |
+| Flame Barrier (`arm.spell.flame_barrier`) | 72 | No |
+| Read Enchantment (`arm.spell.read_enchantment`) | 73 | No |
+| Threshold Alarm (`arm.spell.threshold_alarm`) | 74 | No |
+| Sand Effigy (`arm.spell.sand_effigy`) | 75 | No |
+| Wind Courier (`arm.spell.wind_courier`) | 76 | No |
+| Clouded Will (`arm.spell.clouded_will`) | 77 | No |
+| Deep Darkness (`arm.spell.deep_darkness`) | 78 | No |
+| Heavy Slumber (`arm.spell.heavy_slumber`) | 79 | No |
+| Raise Servitor (`arm.spell.raise_servitor`) | 80 | No |
+| Lightning Pace (`arm.spell.lightning_pace`) | 81 | No |
+| Anchor Rune (`arm.spell.anchor_rune`) | 82 | No |
+| Storm Spear (`arm.spell.storm_spear`) | 83 | No |
+| Empty Aura (`arm.spell.empty_aura`) | 84 | No |
+| Steal Breath (`arm.spell.steal_breath`) | 85 | No |
+| Consuming Flame (`arm.spell.consuming_flame`) | 86 | No |
+| Earthen Strength (`arm.spell.earthen_strength`) | 87 | No |
+| Still Limbs (`arm.spell.still_limbs`) | 88 | No |
+| Voice of Remains (`arm.spell.voice_of_remains`) | 89 | No |
+| Echo Servant (`arm.spell.echo_servant`) | 90 | No |
 
 ### Defiler
 
@@ -494,84 +495,85 @@ These are final authored stock thresholds. The seven elemental tables project th
 | Unravel Enchantment (`arm.spell.unravel_enchantment`) | 10 | Yes |
 | Unyielding Veil (`arm.spell.unyielding_veil`) | 10 | Yes |
 | Gust Hands (`arm.spell.gust_hands`) | 10 | Yes |
-| Pierce Concealment (`arm.spell.pierce_concealment`) | 15 |  |
-| Veil from Sight (`arm.spell.veil_from_sight`) | 15 |  |
-| Draw Water (`arm.spell.draw_water`) | 16 |  |
-| Roused Fury (`arm.spell.roused_fury`) | 17 |  |
-| Waystep (`arm.spell.waystep`) | 18 |  |
-| Buoyant Lift (`arm.spell.buoyant_lift`) | 19 |  |
-| Lightning Lance (`arm.spell.lightning_lance`) | 20 |  |
-| Charged Aegis (`arm.spell.charged_aegis`) | 21 |  |
-| Night Eyes (`arm.spell.night_eyes`) | 22 |  |
-| See the Unbodied (`arm.spell.see_the_unbodied`) | 23 |  |
-| Walking Shadow (`arm.spell.walking_shadow`) | 24 |  |
-| Shadow Passage (`arm.spell.shadow_passage`) | 25 |  |
-| Reveal the Hidden (`arm.spell.reveal_the_hidden`) | 26 |  |
-| Sustain Meal (`arm.spell.sustain_meal`) | 27 |  |
-| Earth Mount (`arm.spell.earth_mount`) | 28 |  |
-| Draw Wine (`arm.spell.draw_wine`) | 29 |  |
-| Shroud Eyes (`arm.spell.shroud_eyes`) | 30 |  |
-| Still Anger (`arm.spell.still_anger`) | 31 |  |
-| Banish Traveller (`arm.spell.banish_traveller`) | 32 |  |
-| Driving Gust (`arm.spell.driving_gust`) | 33 |  |
-| Arcane Mark (`arm.spell.arcane_mark`) | 34 |  |
-| Windborne Flight (`arm.spell.windborne_flight`) | 35 |  |
-| Ember Lance (`arm.spell.ember_lance`) | 36 |  |
-| Flame Knife (`arm.spell.flame_knife`) | 37 |  |
-| Sand Barrier (`arm.spell.sand_barrier`) | 38 |  |
-| Blade Barrier (`arm.spell.blade_barrier`) | 39 |  |
-| Wind Mantle (`arm.spell.wind_mantle`) | 40 |  |
-| Clear Eyes (`arm.spell.clear_eyes`) | 41 |  |
-| Lift Hex (`arm.spell.lift_hex`) | 42 |  |
-| Sense Toxin (`arm.spell.sense_toxin`) | 43 |  |
-| Borrowed Tongues (`arm.spell.borrowed_tongues`) | 44 |  |
-| Custodian Glyph (`arm.spell.custodian_glyph`) | 45 |  |
-| Clinging Hex (`arm.spell.clinging_hex`) | 46 |  |
-| Read Attunement (`arm.spell.read_attunement`) | 47 |  |
-| Draw into Flesh (`arm.spell.draw_into_flesh`) | 48 |  |
-| Hovering Light (`arm.spell.hovering_light`) | 49 |  |
-| Kindle Enchantment (`arm.spell.kindle_enchantment`) | 50 |  |
-| Restore Object (`arm.spell.restore_object`) | 51 |  |
-| Air Guardian (`arm.spell.air_guardian`) | 52 |  |
-| Call Outsider (`arm.spell.call_outsider`) | 52 |  |
-| Water Breathing (`arm.spell.water_breathing`) | 53 |  |
-| Venom Touch (`arm.spell.venom_touch`) | 54 |  |
-| Feign Death (`arm.spell.feign_death`) | 55 |  |
-| Mend Flesh (`arm.spell.mend_flesh`) | 56 |  |
-| Purge Toxin (`arm.spell.purge_toxin`) | 57 |  |
-| Draw Traveller (`arm.spell.draw_traveller`) | 58 |  |
-| Leadfoot (`arm.spell.leadfoot`) | 59 |  |
-| Open Threshold (`arm.spell.open_threshold`) | 60 |  |
-| Wind Barrier (`arm.spell.wind_barrier`) | 61 |  |
-| Fleet Step (`arm.spell.fleet_step`) | 62 |  |
-| Linked Threshold (`arm.spell.linked_threshold`) | 63 |  |
-| Join Traveller (`arm.spell.join_traveller`) | 64 |  |
-| Burrow Refuge (`arm.spell.burrow_refuge`) | 65 |  |
-| Ground Tremor (`arm.spell.ground_tremor`) | 66 |  |
-| Leaping Lightning (`arm.spell.leaping_lightning`) | 67 |  |
-| Dread Presence (`arm.spell.dread_presence`) | 68 |  |
-| Immolate (`arm.spell.immolate`) | 69 |  |
-| Sheltering Veil (`arm.spell.sheltering_veil`) | 70 |  |
-| Stone Skin (`arm.spell.stone_skin`) | 71 |  |
-| Flame Barrier (`arm.spell.flame_barrier`) | 72 |  |
-| Read Enchantment (`arm.spell.read_enchantment`) | 73 |  |
-| Threshold Alarm (`arm.spell.threshold_alarm`) | 74 |  |
-| Sand Effigy (`arm.spell.sand_effigy`) | 75 |  |
-| Wind Courier (`arm.spell.wind_courier`) | 76 |  |
-| Clouded Will (`arm.spell.clouded_will`) | 77 |  |
-| Deep Darkness (`arm.spell.deep_darkness`) | 78 |  |
-| Heavy Slumber (`arm.spell.heavy_slumber`) | 79 |  |
-| Raise Servitor (`arm.spell.raise_servitor`) | 80 |  |
-| Lightning Pace (`arm.spell.lightning_pace`) | 81 |  |
-| Anchor Rune (`arm.spell.anchor_rune`) | 82 |  |
-| Storm Spear (`arm.spell.storm_spear`) | 83 |  |
-| Empty Aura (`arm.spell.empty_aura`) | 84 |  |
-| Steal Breath (`arm.spell.steal_breath`) | 85 |  |
-| Consuming Flame (`arm.spell.consuming_flame`) | 86 |  |
-| Earthen Strength (`arm.spell.earthen_strength`) | 87 |  |
-| Still Limbs (`arm.spell.still_limbs`) | 88 |  |
-| Voice of Remains (`arm.spell.voice_of_remains`) | 89 |  |
-| Echo Servant (`arm.spell.echo_servant`) | 90 |  |
+| Pierce Concealment (`arm.spell.pierce_concealment`) | 15 | No |
+| Veil from Sight (`arm.spell.veil_from_sight`) | 15 | No |
+| Draw Water (`arm.spell.draw_water`) | 16 | No |
+| Roused Fury (`arm.spell.roused_fury`) | 17 | No |
+| Waystep (`arm.spell.waystep`) | 18 | No |
+| Buoyant Lift (`arm.spell.buoyant_lift`) | 19 | No |
+| Lightning Lance (`arm.spell.lightning_lance`) | 20 | No |
+| Charged Aegis (`arm.spell.charged_aegis`) | 21 | No |
+| Night Eyes (`arm.spell.night_eyes`) | 22 | No |
+| See the Unbodied (`arm.spell.see_the_unbodied`) | 23 | No |
+| Walking Shadow (`arm.spell.walking_shadow`) | 24 | No |
+| Shadow Passage (`arm.spell.shadow_passage`) | 25 | No |
+| Reveal the Hidden (`arm.spell.reveal_the_hidden`) | 26 | No |
+| Sustain Meal (`arm.spell.sustain_meal`) | 27 | No |
+| Earth Mount (`arm.spell.earth_mount`) | 28 | No |
+| Draw Wine (`arm.spell.draw_wine`) | 29 | No |
+| Shroud Eyes (`arm.spell.shroud_eyes`) | 30 | No |
+| Still Anger (`arm.spell.still_anger`) | 31 | No |
+| Banish Traveller (`arm.spell.banish_traveller`) | 32 | No |
+| Driving Gust (`arm.spell.driving_gust`) | 33 | No |
+| Arcane Mark (`arm.spell.arcane_mark`) | 34 | No |
+| Windborne Flight (`arm.spell.windborne_flight`) | 35 | No |
+| Ember Lance (`arm.spell.ember_lance`) | 36 | No |
+| Flame Knife (`arm.spell.flame_knife`) | 37 | No |
+| Sand Barrier (`arm.spell.sand_barrier`) | 38 | No |
+| Blade Barrier (`arm.spell.blade_barrier`) | 39 | No |
+| Wind Mantle (`arm.spell.wind_mantle`) | 40 | No |
+| Clear Eyes (`arm.spell.clear_eyes`) | 41 | No |
+| Lift Hex (`arm.spell.lift_hex`) | 42 | No |
+| Sense Toxin (`arm.spell.sense_toxin`) | 43 | No |
+| Borrowed Tongues (`arm.spell.borrowed_tongues`) | 44 | No |
+| Custodian Glyph (`arm.spell.custodian_glyph`) | 45 | No |
+| Clinging Hex (`arm.spell.clinging_hex`) | 46 | No |
+| Read Attunement (`arm.spell.read_attunement`) | 47 | No |
+| Draw into Flesh (`arm.spell.draw_into_flesh`) | 48 | No |
+| Hovering Light (`arm.spell.hovering_light`) | 49 | No |
+| Kindle Enchantment (`arm.spell.kindle_enchantment`) | 50 | No |
+| Restore Object (`arm.spell.restore_object`) | 51 | No |
+| Air Guardian (`arm.spell.air_guardian`) | 52 | No |
+| Call Outsider (`arm.spell.call_outsider`) | 52 | No |
+| Water Breathing (`arm.spell.water_breathing`) | 53 | No |
+| Venom Touch (`arm.spell.venom_touch`) | 54 | No |
+| Feign Death (`arm.spell.feign_death`) | 55 | No |
+| Mend Flesh (`arm.spell.mend_flesh`) | 56 | No |
+| Purge Toxin (`arm.spell.purge_toxin`) | 57 | No |
+| Draw Traveller (`arm.spell.draw_traveller`) | 58 | No |
+| Leadfoot (`arm.spell.leadfoot`) | 59 | No |
+| Open Threshold (`arm.spell.open_threshold`) | 60 | No |
+| Wind Barrier (`arm.spell.wind_barrier`) | 61 | No |
+| Fleet Step (`arm.spell.fleet_step`) | 62 | No |
+| Linked Threshold (`arm.spell.linked_threshold`) | 63 | No |
+| Join Traveller (`arm.spell.join_traveller`) | 64 | No |
+| Burrow Refuge (`arm.spell.burrow_refuge`) | 65 | No |
+| Ground Tremor (`arm.spell.ground_tremor`) | 66 | No |
+| Leaping Lightning (`arm.spell.leaping_lightning`) | 67 | No |
+| Dread Presence (`arm.spell.dread_presence`) | 68 | No |
+| Immolate (`arm.spell.immolate`) | 69 | No |
+| Sheltering Veil (`arm.spell.sheltering_veil`) | 70 | No |
+| Stone Skin (`arm.spell.stone_skin`) | 71 | No |
+| Flame Barrier (`arm.spell.flame_barrier`) | 72 | No |
+| Read Enchantment (`arm.spell.read_enchantment`) | 73 | No |
+| Threshold Alarm (`arm.spell.threshold_alarm`) | 74 | No |
+| Sand Effigy (`arm.spell.sand_effigy`) | 75 | No |
+| Wind Courier (`arm.spell.wind_courier`) | 76 | No |
+| Clouded Will (`arm.spell.clouded_will`) | 77 | No |
+| Deep Darkness (`arm.spell.deep_darkness`) | 78 | No |
+| Heavy Slumber (`arm.spell.heavy_slumber`) | 79 | No |
+| Raise Servitor (`arm.spell.raise_servitor`) | 80 | No |
+| Lightning Pace (`arm.spell.lightning_pace`) | 81 | No |
+| Anchor Rune (`arm.spell.anchor_rune`) | 82 | No |
+| Storm Spear (`arm.spell.storm_spear`) | 83 | No |
+| Empty Aura (`arm.spell.empty_aura`) | 84 | No |
+| Steal Breath (`arm.spell.steal_breath`) | 85 | No |
+| Consuming Flame (`arm.spell.consuming_flame`) | 86 | No |
+| Earthen Strength (`arm.spell.earthen_strength`) | 87 | No |
+| Still Limbs (`arm.spell.still_limbs`) | 88 | No |
+| Voice of Remains (`arm.spell.voice_of_remains`) | 89 | No |
+| Echo Servant (`arm.spell.echo_servant`) | 90 | No |
+
 ## Historical Classic supporting rows
 
 The twelve rows below are preserved source evidence. **Only Component Crafting is an installation input.** The other eleven rows are deferred for the later non-magical class/full-skills pass. The final [Classic TSV](Armageddon_Seeder_Completeness_Design_20261011_Classic_Progression.tsv) selects required crafting support for all ten capabilities; Simple uses `support_policy.simple_grants`.
@@ -973,6 +975,6 @@ Every entry retains its defining completion contract and provenance in the JSON.
 
 ## Design validation and limits
 
-The [structural receipt](Armageddon_Seeder_Completeness_Validation_20261011.json) records exact inventory, source-row preservation, capability counts, Simple admission uniqueness/threshold reachability/source-parent ordering, prototype dependency resolution, optional isolation and relative-link checks. Input source hashes use UTF-8 without BOM and LF line endings so Git transport preserves their meaning; all other text is retained. No runtime build, database install, natural progression, combat, dose calibration, historical numeric parity, installed elemental learning or N24 gameplay pass is claimed by these checks.
+The earlier [structural receipt](Armageddon_Seeder_Completeness_Validation_20261011.json) is historical evidence for the pre-master-list design. The current [source adoption validation](Armageddon_Master_List_Validation_20261011.json) records exact inventory, source-row preservation, capability counts, Simple admission uniqueness/threshold reachability/source-parent ordering, prototype dependency resolution, optional isolation and relative-link checks. Input source hashes use UTF-8 without BOM and LF line endings so Git transport preserves their meaning; all other text is retained. No runtime build, database install, natural progression, combat, dose calibration, historical numeric parity, installed elemental learning or N24 gameplay pass is claimed by these checks.
 
 Relevant implementation contracts: [casting design](Armageddon_Casting_Design.md), [completion scope/progress](Armageddon_Completion_Progress.md), [current continuation](Armageddon_Continuation_20261008.md), [partial installer guide](Armageddon_Partial_Installer_Builder_Guide.md), and the current source factories recorded per entry. The full installer guide must replace the present prepared-world prototype/binding burden when the implementation is delivered.

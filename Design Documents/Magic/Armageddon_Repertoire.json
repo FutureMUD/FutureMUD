@@ -25761,6 +25761,10 @@
   "current_continuation_receipt": "Armageddon_Continuation_20261008.json",
   "seeder_completeness_design": "Armageddon_Seeder_Completeness_Design_20261011.json",
   "historical_status_fields_note": "Legacy proposal/runtime/practice/native fields remain original provenance. Final installation/progression/default choices are locked in Armageddon_Seeder_Completeness_Design_20261011.json and Armageddon_Seeder_Decisions_20261011.json; only required non-spell supports are installed. Current runtime evidence remains the completion progress/continuation overlays; no all-candidate completion claimed.",
-  "elemental_research_basis": "Armageddon_Elementalist_Research_Adoption_20261011.json",
+  "elemental_research_basis": {
+    "active": "Armageddon_Elementalist_Source_Tree.json",
+    "previous_page_evidence": "Armageddon_Elementalist_Research_Adoption_20261011.json",
+    "adoption": "Armageddon_Master_List_Adoption_20261011.json"
+  },
   "final_seeder_decision_gate": "Armageddon_Seeder_Decisions_20261011.json"
 }

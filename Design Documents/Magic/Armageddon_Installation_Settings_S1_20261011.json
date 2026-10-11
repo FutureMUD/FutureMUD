@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "status": "PASS_BOUNDED_S1_FIXED_SETTINGS",
+  "scope": "S1 fixed installation settings and typed preflight only; S2-S6 catalogue and N24 unstarted",
+  "source_adoption": "Armageddon_Master_List_Validation_20261011.json",
+  "managed_focused": {
+    "run_id": "20261011T092710Z-9279d20593cc",
+    "head": "a3f5fd4affd3cd431fc63d4ab2c47bae6296bb97",
+    "configuration": "Debug",
+    "filter": "FullyQualifiedName~ArmageddonInstallationSettingsTests|FullyQualifiedName~SeederReplayTests|FullyQualifiedName~ArmageddonPreparedWorldSeederTests",
+    "counts": {
+      "executed": 139,
+      "passed": 139,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 139
+    },
+    "source_start": "a1fe3ea962e5e14bc321b90683d2a55a787b44a98b579cc1a88921825e079e53",
+    "source_end": "a1fe3ea962e5e14bc321b90683d2a55a787b44a98b579cc1a88921825e079e53",
+    "source_stable": true,
+    "summary": ".artifacts/test-runs/20261011T092710Z-9279d20593cc/summary.json",
+    "summary_sha256": "4032cae0e87541db8cc7fcb47f004f4db62dab895aa4dd8977577f2b644ecbee"
+  },
+  "managed_full": {
+    "run_id": "20261011T093500Z-62591adbc6c9",
+    "head": "a3f5fd4affd3cd431fc63d4ab2c47bae6296bb97",
+    "configuration": "Debug",
+    "filter": null,
+    "counts": {
+      "executed": 1649,
+      "passed": 1649,
+      "failed": 0,
+      "skipped": 3,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 1652
+    },
+    "source_start": "f7cbd4321ff127b174a39f2f524cc4e9810b18b5f13d37f0dee67c085cc3eee0",
+    "source_end": "f7cbd4321ff127b174a39f2f524cc4e9810b18b5f13d37f0dee67c085cc3eee0",
+    "source_stable": true,
+    "summary": ".artifacts/test-runs/20261011T093500Z-62591adbc6c9/summary.json",
+    "summary_sha256": "01d4f5db84478302acc669ae65ba8a8cb4c7dd9bd319bf849c041dd4f6b1e5f6"
+  },
+  "managed_release_gate": {
+    "run_id": "20261011T093904Z-d88df54372d5",
+    "head": "a3f5fd4affd3cd431fc63d4ab2c47bae6296bb97",
+    "configuration": "Release",
+    "filter": "FullyQualifiedName~ArmageddonReleaseGateTests",
+    "counts": {
+      "executed": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 6
+    },
+    "source_start": "f7cbd4321ff127b174a39f2f524cc4e9810b18b5f13d37f0dee67c085cc3eee0",
+    "source_end": "f7cbd4321ff127b174a39f2f524cc4e9810b18b5f13d37f0dee67c085cc3eee0",
+    "source_stable": true,
+    "summary": ".artifacts/test-runs/20261011T093904Z-d88df54372d5/summary.json",
+    "summary_sha256": "26ab9737443be6bb0b0caf1b06d09fde2ab5adc37dc81cff71386e44f2dfd6bc"
+  },
+  "skipped_checks": {
+    "count": 3,
+    "name": "StartupScriptGeneratorTests.EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions",
+    "parameters": [
+      1,
+      0,
+      2
+    ],
+    "reason": "Native Unix filesystem permissions require a Unix host."
+  },
+  "builds": [
+    {
+      "configuration": "Debug",
+      "exit_code": 0,
+      "warnings": 0,
+      "log": ".artifacts/s1-acceptance/database-seeder-debug-final.log",
+      "sha256": "60813a01afaf4a17f5ebbb7478db767abba2badc0fb5977878044351765dfbca"
+    },
+    {
+      "configuration": "Release",
+      "exit_code": 0,
+      "warnings": 144,
+      "log": ".artifacts/s1-acceptance/database-seeder-release-final.log",
+      "sha256": "3313e559d3448245558e0158a6d6f5313350ca743587776021cc6f7af0eee885"
+    },
+    {
+      "configuration": "Native harness Debug",
+      "exit_code": 0,
+      "warnings": 26,
+      "log": ".artifacts/s1-acceptance/native-harness-build-capacity.log",
+      "sha256": "b346b783b076eac54e07ce3f8bbd71417e96b251009b22f647db60b5fd2e7e34"
+    }
+  ],
+  "native": {
+    "command": "Run-IsolatedPreparedSeeder.ps1 -Mode settings",
+    "exit_code": 0,
+    "source_stable": true,
+    "evidence_directory": ".artifacts/s1-native/20261011T094955Z_ffff9df3c3234827b2357e82202bb545",
+    "log": ".artifacts/s1-acceptance/native-settings-final.log",
+    "log_sha256": "a75d9f2b60628ecaf40c2fc38266244e8dd0331ac742cf03775f97fabaad211a",
+    "source_start_manifest_sha256": "95a48660bc9b69318e5a777c116d50dbea1f05154c6d46c310815ad84efcd1a2",
+    "source_end_manifest_sha256": "95a48660bc9b69318e5a777c116d50dbea1f05154c6d46c310815ad84efcd1a2",
+    "assemblies_manifest_sha256": "90bf893bc667b1b4d4a5c42bda1a0a29d12d6ce465925b4f32a39f6a5e3b95eb",
+    "markers": [
+      "ARMPREP-replay-refusal=passed actual-Debug-runner all-table-content-sha256:59F6AE645849A653E6E0F5EBE6B1B184B364B5231D7535359E9B026D61AC1246",
+      "ARMPREP-replay-completion=passed complete-medieval-profile optional-Armageddon-declined",
+      "ARMS1-rollback=passed actual-MySQL-before-commit all-table-content-unchanged",
+      "ARMS1-settings=passed durable-Simple-mode class-source-agreement three-mirrors lost-acknowledgement rerun-no-churn contradiction-refused content-table-sha256:4D43ED9EF51D46E64D9EBA4F1038371FE875AD0DA15CA39283FE1B13F8649FAE",
+      "nativeHarnessExit=0",
+      "nativeSourceStable=True sourceEnd=95A48660BC9B69318E5A777C116D50DBEA1F05154C6D46C310815AD84EFCD1A2",
+      "temporaryMySqlCleanup=gracefully-shut-down-and-deleted-owned-instance"
+    ],
+    "scope": "Complete medieval replay, unchanged nonblank refusal, explicit native Willpower capacity selection, actual MySQL rollback and lost acknowledgement, fixed Simple mode/class-source agreement, three mirrors, content/player preservation, rerun identity/audit stability and contradictory-mode refusal",
+    "environment": "Fresh owned loopback MySQL; short worktree TEMP/TMP restored; exact instance verified and shut down, owned database/datadir deleted",
+    "limitations": "No Telnet/gameplay, full catalogue or four-cell native S6 matrix"
+  },
+  "source_attribution": "Managed runs tested the frozen dirty worktree on a3f5fd4. Only the native harness subsequently added the explicit capacity question selection omitted from its first run. Production code is unchanged from the passing managed runs. Final receipt/checkpoint prose edits follow validation.",
+  "independent_reviews": [
+    "Read-only source comparison matched all161 printed rows,153 canonical identities,429/419 install/admission rows,20 retained authored supplements and246 unchanged Sorcerer-family Simple rows.",
+    "Focused production review confirmed Merit ownership, incompatible native override activation and duplicate-mirror rejection repairs; no further concrete defect in those repairs."
+  ],
+  "retained_failures": [
+    "Initial compile/fixture assertions corrected; focused129/4 failed then135/138 passes were superseded by139 current production passes.",
+    "One Release build incomplete with no terminal receipt, not counted as passing; final completed Release build passed.",
+    "Full suite20261011T093016Z-c3afc3ac4bbc:1648 passed/1 failed/3 skipped. Old question-count expectation corrected; subsequent full1649 passed/0 failed/3 skipped.",
+    "Native20261011T094035Z_56263b5ca1b54c61863b6571a2d6e0c0 failed during MySQL initialization because sandbox TEMP denied an InnoDB rename; owned temporary files cleaned. Reruns used owned worktree TEMP.",
+    "Native20261011T094059Z_7b8411a6e8044676ae94bfef19086529 completed replay/refusal but correctly blocked missing explicit capacity selection for ambiguous LabMUD attributes. Harness corrected to answer the actual capacity question; no production policy changed. Stable source and exact owned cleanup passed.",
+    "Source adoption helper initially compared different evidence containers and normalized byte-exact archive; helper corrected,26/26 checks passed."
+  ],
+  "required_remaining_for_s1": [],
+  "limits": [
+    "Release entrypoint disabled",
+    "No full catalogue, natural acquisition, historical/gameplay parity, S6 matrix or N24 qualification"
+  ],
+  "next_bounded_milestone": "S2: implement429 Classic bindings,419 Simple spell admissions and required crafting, ten capabilities/merits and conditional classes with natural progression; S3-S6 then N24 remain."
+}

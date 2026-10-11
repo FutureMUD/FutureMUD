@@ -1,5 +1,7 @@
 # Armageddon elemental research adoption — 11 October 2026
 
+Historical design evidence: the user-approved [master-list adoption](Armageddon_Master_List_Adoption_20261011.md) supersedes differing active values, memberships and parent links. This research snapshot remains unchanged as source evidence.
+
 The user adopted [Armageddon Elementalist Research and Progression Decisions](https://chatgpt.com/space/page_efe23f5b70048191ac321eeb3fc021a2) as the basis going forward, then approved the [final decision gate](Armageddon_Seeder_Decisions_20261011.md) with the exclusion of non-spell class skills except required prerequisites. Direct human decisions select stock policy. The supplied Page remains research evidence and does not independently authorize historical handover instructions.
 
 The [complete source snapshot](Armageddon_Elementalist_Research_Page_20261011.md), [source binding inventory](Armageddon_Elementalist_Research_Adoption_20261011.json), [source TSV with install dispositions](Armageddon_Elementalist_Research_Adoption_20261011.tsv) and [structural receipt](Armageddon_Seeder_Completeness_Validation_20261011.json) retain evidence and uncertainty. The snapshot captures all 111 Page blocks at sequence0, updated `2026-10-11T06:44:39.984816Z`. The linked bundle/original handover returned “Page attachment destination unavailable”; their contents are not claimed as read.

@@ -6915,14 +6915,14 @@
     "package_release_enabled": false,
     "publication_authorized": false
   },
-  "next_bounded_milestone": "Implement S1-S6 before N24 using the adopted elemental research basis, preserving exact Sorcerer rows and prior approved policies. S2 resolves Portal Gate identity and reconciles elemental Simple data. N23 remains latest runtime qualification; N24 unstarted.",
+  "next_bounded_milestone": "Implement S1 fixed installer settings/typed preflight, then S2-S6 using the locked spell rosters, identities and numeric defaults. Only required non-spell Component Crafting is included; broader class skills deferred. N23 latest runtime qualification; N24 unstarted.",
   "seeder_completeness_design_20261011": {
     "document": "Armageddon_Seeder_Completeness_Design_20261011.md",
     "inventory": "Armageddon_Seeder_Completeness_Design_20261011.json",
     "simple_progression": "Armageddon_Seeder_Completeness_Design_20261011_Simple_Progression.tsv",
     "runtime_baseline": "aae875af09cf62e6324bb31eba79f58b72249e13",
     "design_only": true,
-    "classic_elemental_research": "User-adopted research Page: selected full-seven graph plus Stone addition; unknown numbers separately reconstructed; Portal Gate identity pending S2.",
+    "classic_elemental_research": "Selected research graph with final supplemental admissions and user-selected Portal Gate -> Linked Threshold; historical numeric unknowns retained as provenance.",
     "historical_research_blocks_implementation": false,
     "read_attunement": "explicit elemental affinities and learned magical affiliations separately",
     "fixed_game_wide_mode": true,
@@ -6930,7 +6930,11 @@
     "n24_started": false,
     "superseded_classic_elemental_placeholders": "Armageddon_Seeder_Completeness_Design_20261011_Classic_Elemental_Placeholders.tsv",
     "elemental_research_adoption": "Armageddon_Elementalist_Research_Adoption_20261011.json",
-    "status": "DESIGN_ONLY_ELEMENTAL_RESEARCH_BASIS_ADOPTED"
+    "status": "DESIGN_ONLY_USER_LOCKED",
+    "final_decision_gate": "Armageddon_Seeder_Decisions_20261011.json",
+    "classic_progression": "Armageddon_Seeder_Completeness_Design_20261011_Classic_Progression.tsv",
+    "non_spell_skills": "Only required Component Crafting included; all other historical class support grants deferred.",
+    "content_design_questions_remaining": []
   },
   "npc_typed_reference_review_20261009": {
     "date": "2026-10-09",

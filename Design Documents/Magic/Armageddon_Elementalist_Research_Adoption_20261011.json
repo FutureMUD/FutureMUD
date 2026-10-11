@@ -1,12 +1,13 @@
 {
   "schema_version": 1,
   "date": "2026-10-11",
-  "status": "USER_ADOPTED_RESEARCH_BASIS_IDENTITY_QUALIFICATION_PENDING",
+  "status": "USER_LOCKED_STOCK_DESIGN",
   "baseline_revision": "1291d13dfbdb033933fbf3ccf322bb34d547b1af",
   "authority": {
     "direct_user_request": "The document Armageddon Elementalist Research and Progression Decisions contains the best guess we have about the unknown proprieties and I'd like that to be the basis going forward.",
-    "interpretation": "Adopt the twelve recommended choices; retain uncertainty and prior approved policies. The Page is source material, not independent execution authority.",
-    "not_selected": "Alternative elemental Heal cap90; recommended Mend cap60 retained."
+    "interpretation": "Research graphs adopted; the subsequent explicit human gate locks stock identities, supplementals, Simple progression and defaults. Non-spell class grants are deferred except required prerequisites/crafting.",
+    "not_selected": "Alternative elemental Heal cap90; recommended Mend cap60 retained.",
+    "final_gate": "Armageddon_Seeder_Decisions_20261011.json"
   },
   "page_source": {
     "url": "https://chatgpt.com/space/page_efe23f5b70048191ac321eeb3fc021a2",
@@ -32,7 +33,7 @@
     "ComponentCrafting_cap": 90,
     "Vloran_opening": 40,
     "Vloran_cap": 100,
-    "Vloran_values_provenance": "Existing approved support policy retained; not a newly recovered elemental cap.",
+    "Vloran_values_provenance": "Historical support policy retained as evidence only; Vloran is deferred and no grant is installed.",
     "casting_grades": "Separate from raw proficiency; explicit spell admission begins controlled grade1.",
     "reach": "Retain native reach enums/capabilities; no redundant reach-none/local native skills."
   },
@@ -40,7 +41,7 @@
     "mapping": "Exact repertoire source.name plus enumerated spelling/abbreviation normalization; no numeric-ID text scans or fuzzy name matches.",
     "Mount": "Seven claimed memberships reference the single existing Earth Mount identity/native school. No six additional elemental Mount variants are inferred. Page membership claims remain reconstruction evidence.",
     "Gate": "Existing Call Outsider creature summoning; distinct from Portal and Travel Gate.",
-    "PortalGate": "Unresolved; do not alias to Travel Gate or Portal without semantic evidence. Its child Portal also cannot install through an unresolved parent.",
+    "PortalGate": "User-selected Linked Threshold (existing anchored Travel Gate). Mark -> Linked Threshold -> Open Threshold; intentional stock identity selection, not a proven historical alias.",
     "incantations": "Existing approved FutureMUD incantations unchanged; Page disagreements remain provenance for S2/S4 source comparison.",
     "ComponentCrafting80": "Sorcerer/Preserver/Defiler admission to Read Enchantment only; not a global spell prerequisite. Elemental Identify follows its selected guild parent; Void Identify -> Components remains acyclic."
   },
@@ -51,8 +52,8 @@
     "sorcerer_spells": 82,
     "sorcerer_support_rows": 12,
     "larger_systems": 8,
-    "Simple_policy": "One main skill per capability, existing authored tables retained as a base. Reconcile elemental membership/roots/order against this research in S2; do not copy Classic numerical values into Simple or reset players.",
-    "remaining_stock": "Required entries outside the selected learn trees remain required stock with legitimate progression; S2 must reconcile their explicitly labelled authored supplemental admissions without presenting them as historical guild memberships or adding them by coded school.",
+    "Simple_policy": "Locked elemental spell rosters and starting sets match final Classic; root10, nonroots depth/source-order spaced15..90. Exact246 Sorcerer-family rows unchanged.",
+    "remaining_stock": "All20 previously uncovered required entries now have explicit human-approved supplemental spell admissions in the final stock inventory; original research graph claims remain distinct.",
     "required_entries_outside_selected_learn_trees": [
       "arm.spell.daylight",
       "arm.spell.wither_growth",
@@ -74,18 +75,21 @@
       "arm.spell.sow_sickness",
       "arm.spell.caustic_spray",
       "arm.spell.gather_puddle"
-    ]
+    ],
+    "previously_uncovered_entries_status": "CLOSED_BY_USER_SELECTED_SUPPLEMENTAL_ADMISSIONS"
   },
   "counts": {
     "compiled_entries": 155,
     "selected_bindings": 157,
     "spell_bindings": 149,
     "support_bindings": 8,
-    "resolved_identity_bindings": 156,
-    "unresolved_identity_bindings": 1,
-    "blocked_identity_chains": 2
+    "resolved_identity_bindings": 157,
+    "unresolved_identity_bindings": 0,
+    "blocked_identity_chains": 0,
+    "included_source_support_bindings": 7,
+    "deferred_source_support_bindings": 1
   },
-  "implementation": "Design inputs only. S1 remains the next implementation slice; S2 completes identity/admission reconciliation. No installer, runtime, schema, player state or Release gate changed.",
+  "implementation": "Locked design inputs only. S1 is next; S2 implements finalized identities/admissions, not further design reconciliation. No runtime, installer, schema, player state or Release gate changed.",
   "rows": [
     {
       "tradition": "Water",
@@ -151,7 +155,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.draw_water.skill"
+      "trait_key": "arm.spell.draw_water.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -217,7 +222,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.spring_haven.skill"
+      "trait_key": "arm.spell.spring_haven.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -289,7 +295,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.draw_wine.skill"
+      "trait_key": "arm.spell.draw_wine.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -355,7 +362,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.sustain_meal.skill"
+      "trait_key": "arm.spell.sustain_meal.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -421,7 +429,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.distant_mirage.skill"
+      "trait_key": "arm.spell.distant_mirage.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -487,7 +496,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.sense_toxin.skill"
+      "trait_key": "arm.spell.sense_toxin.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -553,7 +563,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.purge_toxin.skill"
+      "trait_key": "arm.spell.purge_toxin.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -619,7 +630,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.venom_touch.skill"
+      "trait_key": "arm.spell.venom_touch.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -685,7 +697,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.read_attunement.skill"
+      "trait_key": "arm.spell.read_attunement.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -751,7 +764,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.read_enchantment.skill"
+      "trait_key": "arm.spell.read_enchantment.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -817,7 +831,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.mend_flesh.skill"
+      "trait_key": "arm.spell.mend_flesh.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -883,7 +898,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.vital_siphon.skill"
+      "trait_key": "arm.spell.vital_siphon.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -949,7 +965,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.still_anger.skill"
+      "trait_key": "arm.spell.still_anger.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -1015,7 +1032,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.seal_voice.skill"
+      "trait_key": "arm.spell.seal_voice.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -1081,7 +1099,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.clear_head.skill"
+      "trait_key": "arm.spell.clear_head.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -1147,7 +1166,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.headlong_revel.skill"
+      "trait_key": "arm.spell.headlong_revel.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -1213,7 +1233,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.unyielding_veil.skill"
+      "trait_key": "arm.spell.unyielding_veil.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -1279,7 +1300,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.sheltering_veil.skill"
+      "trait_key": "arm.spell.sheltering_veil.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -1345,7 +1367,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.call_outsider.skill"
+      "trait_key": "arm.spell.call_outsider.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -1411,7 +1434,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.earth_mount.skill"
+      "trait_key": "arm.spell.earth_mount.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -1471,7 +1495,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.thorn_barrier.skill"
+      "trait_key": "arm.spell.thorn_barrier.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -1537,7 +1562,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.thunderclap.skill"
+      "trait_key": "arm.spell.thunderclap.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -1603,7 +1629,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.hush_hearing.skill"
+      "trait_key": "arm.spell.hush_hearing.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Water",
@@ -1639,7 +1666,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.support.component_crafting"
+      "trait_key": "arm.support.component_crafting",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -1705,7 +1733,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.earthen_ward.skill"
+      "trait_key": "arm.spell.earthen_ward.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -1771,7 +1800,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.stone_skin.skill"
+      "trait_key": "arm.spell.stone_skin.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -1837,7 +1867,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.threshold_alarm.skill"
+      "trait_key": "arm.spell.threshold_alarm.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -1903,7 +1934,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.sustain_meal.skill"
+      "trait_key": "arm.spell.sustain_meal.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -1969,7 +2001,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.earth_mount.skill"
+      "trait_key": "arm.spell.earth_mount.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2035,7 +2068,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.sand_effigy.skill"
+      "trait_key": "arm.spell.sand_effigy.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2101,7 +2135,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.sand_knife.skill"
+      "trait_key": "arm.spell.sand_knife.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2167,7 +2202,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.call_outsider.skill"
+      "trait_key": "arm.spell.call_outsider.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2233,7 +2269,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.sapping_weight.skill"
+      "trait_key": "arm.spell.sapping_weight.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2299,7 +2336,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.earthen_strength.skill"
+      "trait_key": "arm.spell.earthen_strength.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2365,7 +2403,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.clouded_will.skill"
+      "trait_key": "arm.spell.clouded_will.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2431,7 +2470,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.heavy_slumber.skill"
+      "trait_key": "arm.spell.heavy_slumber.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2497,7 +2537,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.roused_fury.skill"
+      "trait_key": "arm.spell.roused_fury.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2563,7 +2604,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.fleet_step.skill"
+      "trait_key": "arm.spell.fleet_step.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2623,7 +2665,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.sand_barrier.skill"
+      "trait_key": "arm.spell.sand_barrier.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2689,7 +2732,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.burrow_refuge.skill"
+      "trait_key": "arm.spell.burrow_refuge.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2755,7 +2799,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.sand_shelter.skill"
+      "trait_key": "arm.spell.sand_shelter.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2821,7 +2866,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.ground_tremor.skill"
+      "trait_key": "arm.spell.ground_tremor.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2887,7 +2933,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.return_tether.skill"
+      "trait_key": "arm.spell.return_tether.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2923,7 +2970,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.support.component_crafting"
+      "trait_key": "arm.support.component_crafting",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -2989,7 +3037,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.read_enchantment.skill"
+      "trait_key": "arm.spell.read_enchantment.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Earth",
@@ -3055,7 +3104,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.restore_object.skill"
+      "trait_key": "arm.spell.restore_object.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3121,7 +3171,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.sense_enchantment.skill"
+      "trait_key": "arm.spell.sense_enchantment.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3187,7 +3238,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.borrowed_tongues.skill"
+      "trait_key": "arm.spell.borrowed_tongues.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3253,7 +3305,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.read_enchantment.skill"
+      "trait_key": "arm.spell.read_enchantment.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3319,7 +3372,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.hovering_light.skill"
+      "trait_key": "arm.spell.hovering_light.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3385,7 +3439,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.fireworks.skill"
+      "trait_key": "arm.spell.fireworks.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3451,7 +3506,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.flame_mantle.skill"
+      "trait_key": "arm.spell.flame_mantle.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3517,7 +3573,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.flame_barrier.skill"
+      "trait_key": "arm.spell.flame_barrier.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3577,7 +3634,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.unravel_enchantment.skill"
+      "trait_key": "arm.spell.unravel_enchantment.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3643,7 +3701,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.earth_mount.skill"
+      "trait_key": "arm.spell.earth_mount.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3709,7 +3768,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.call_outsider.skill"
+      "trait_key": "arm.spell.call_outsider.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3775,7 +3835,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.pillar_of_flame.skill"
+      "trait_key": "arm.spell.pillar_of_flame.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3841,7 +3902,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.ember_lance.skill"
+      "trait_key": "arm.spell.ember_lance.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3913,7 +3975,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.cinder_rain.skill"
+      "trait_key": "arm.spell.cinder_rain.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -3979,7 +4042,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.ember_seed.skill"
+      "trait_key": "arm.spell.ember_seed.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -4045,7 +4109,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.immolate.skill"
+      "trait_key": "arm.spell.immolate.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -4111,7 +4176,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.consuming_flame.skill"
+      "trait_key": "arm.spell.consuming_flame.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -4177,7 +4243,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.custodian_glyph.skill"
+      "trait_key": "arm.spell.custodian_glyph.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -4231,7 +4298,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.kindle_enchantment.skill"
+      "trait_key": "arm.spell.kindle_enchantment.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -4267,7 +4335,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.support.component_crafting"
+      "trait_key": "arm.support.component_crafting",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -4333,7 +4402,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.flame_knife.skill"
+      "trait_key": "arm.spell.flame_knife.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -4399,7 +4469,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.desiccate.skill"
+      "trait_key": "arm.spell.desiccate.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Fire",
@@ -4465,7 +4536,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.burning_draught_curse.skill"
+      "trait_key": "arm.spell.burning_draught_curse.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -4531,7 +4603,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.clear_eyes.skill"
+      "trait_key": "arm.spell.clear_eyes.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -4597,7 +4670,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.shroud_eyes.skill"
+      "trait_key": "arm.spell.shroud_eyes.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -4663,7 +4737,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.lift_hex.skill"
+      "trait_key": "arm.spell.lift_hex.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -4729,7 +4804,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.clinging_hex.skill"
+      "trait_key": "arm.spell.clinging_hex.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -4795,7 +4871,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.shadow_blade.skill"
+      "trait_key": "arm.spell.shadow_blade.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -4831,7 +4908,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.support.component_crafting"
+      "trait_key": "arm.support.component_crafting",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -4897,7 +4975,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.night_eyes.skill"
+      "trait_key": "arm.spell.night_eyes.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -4963,7 +5042,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.see_the_unbodied.skill"
+      "trait_key": "arm.spell.see_the_unbodied.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -5029,7 +5109,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.shadow_passage.skill"
+      "trait_key": "arm.spell.shadow_passage.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -5089,7 +5170,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.shadow_mantle.skill"
+      "trait_key": "arm.spell.shadow_mantle.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -5149,7 +5231,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.draw_into_flesh.skill"
+      "trait_key": "arm.spell.draw_into_flesh.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -5215,7 +5298,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.read_enchantment.skill"
+      "trait_key": "arm.spell.read_enchantment.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -5281,7 +5365,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.cooling_shade.skill"
+      "trait_key": "arm.spell.cooling_shade.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -5347,7 +5432,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.walking_shadow.skill"
+      "trait_key": "arm.spell.walking_shadow.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -5413,7 +5499,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.call_outsider.skill"
+      "trait_key": "arm.spell.call_outsider.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -5479,7 +5566,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.earth_mount.skill"
+      "trait_key": "arm.spell.earth_mount.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -5545,7 +5633,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.haunting_shape.skill"
+      "trait_key": "arm.spell.haunting_shape.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -5617,7 +5706,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.deep_darkness.skill"
+      "trait_key": "arm.spell.deep_darkness.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -5683,7 +5773,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.dread_presence.skill"
+      "trait_key": "arm.spell.dread_presence.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Shadow",
@@ -5749,7 +5840,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.shadowplay.skill"
+      "trait_key": "arm.spell.shadowplay.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -5815,7 +5907,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.lightning_lance.skill"
+      "trait_key": "arm.spell.lightning_lance.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -5881,7 +5974,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.leaping_lightning.skill"
+      "trait_key": "arm.spell.leaping_lightning.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -5947,7 +6041,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.storm_locus.skill"
+      "trait_key": "arm.spell.storm_locus.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6013,7 +6108,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.storm_spear.skill"
+      "trait_key": "arm.spell.storm_spear.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6079,7 +6175,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.spark_lash.skill"
+      "trait_key": "arm.spell.spark_lash.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6145,7 +6242,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.second_breath.skill"
+      "trait_key": "arm.spell.second_breath.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6211,7 +6309,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.quickened_healing.skill"
+      "trait_key": "arm.spell.quickened_healing.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6277,7 +6376,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.wakeful_mind.skill"
+      "trait_key": "arm.spell.wakeful_mind.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6343,7 +6443,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.earth_mount.skill"
+      "trait_key": "arm.spell.earth_mount.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6409,7 +6510,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.call_outsider.skill"
+      "trait_key": "arm.spell.call_outsider.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6475,7 +6577,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.leadfoot.skill"
+      "trait_key": "arm.spell.leadfoot.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6541,7 +6644,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.lightning_pace.skill"
+      "trait_key": "arm.spell.lightning_pace.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6607,7 +6711,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.still_limbs.skill"
+      "trait_key": "arm.spell.still_limbs.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6673,7 +6778,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.sky_lantern.skill"
+      "trait_key": "arm.spell.sky_lantern.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6739,7 +6845,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.steal_breath.skill"
+      "trait_key": "arm.spell.steal_breath.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6805,7 +6912,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.charged_aegis.skill"
+      "trait_key": "arm.spell.charged_aegis.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6871,7 +6979,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.luminous_trail.skill"
+      "trait_key": "arm.spell.luminous_trail.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6937,7 +7046,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.read_enchantment.skill"
+      "trait_key": "arm.spell.read_enchantment.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Lightning",
@@ -6973,7 +7083,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.support.component_crafting"
+      "trait_key": "arm.support.component_crafting",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7039,7 +7150,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.waystep.skill"
+      "trait_key": "arm.spell.waystep.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7105,7 +7217,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.draw_traveller.skill"
+      "trait_key": "arm.spell.draw_traveller.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7171,7 +7284,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.call_outsider.skill"
+      "trait_key": "arm.spell.call_outsider.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7237,7 +7351,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.join_traveller.skill"
+      "trait_key": "arm.spell.join_traveller.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7303,7 +7418,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.anchor_rune.skill"
+      "trait_key": "arm.spell.anchor_rune.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7369,7 +7485,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.exchange_places.skill"
+      "trait_key": "arm.spell.exchange_places.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7435,7 +7552,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.buoyant_lift.skill"
+      "trait_key": "arm.spell.buoyant_lift.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7501,7 +7619,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.windborne_flight.skill"
+      "trait_key": "arm.spell.windborne_flight.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7567,7 +7686,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.gust_hands.skill"
+      "trait_key": "arm.spell.gust_hands.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7633,7 +7753,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.banish_traveller.skill"
+      "trait_key": "arm.spell.banish_traveller.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7699,7 +7820,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.wind_hammer.skill"
+      "trait_key": "arm.spell.wind_hammer.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7765,7 +7887,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.driving_gust.skill"
+      "trait_key": "arm.spell.driving_gust.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7825,7 +7948,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.wind_barrier.skill"
+      "trait_key": "arm.spell.wind_barrier.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7891,7 +8015,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.wind_shield.skill"
+      "trait_key": "arm.spell.wind_shield.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -7957,7 +8082,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.wind_mantle.skill"
+      "trait_key": "arm.spell.wind_mantle.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -8023,7 +8149,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.air_guardian.skill"
+      "trait_key": "arm.spell.air_guardian.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -8089,7 +8216,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.earth_mount.skill"
+      "trait_key": "arm.spell.earth_mount.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -8125,7 +8253,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.support.component_crafting"
+      "trait_key": "arm.support.component_crafting",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -8191,7 +8320,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.wind_courier.skill"
+      "trait_key": "arm.spell.wind_courier.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -8257,7 +8387,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.seeking_wind.skill"
+      "trait_key": "arm.spell.seeking_wind.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -8323,7 +8454,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.gentle_descent.skill"
+      "trait_key": "arm.spell.gentle_descent.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -8389,7 +8521,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.scouring_gust.skill"
+      "trait_key": "arm.spell.scouring_gust.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -8455,7 +8588,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.pierce_concealment.skill"
+      "trait_key": "arm.spell.pierce_concealment.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -8521,7 +8655,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.veil_from_sight.skill"
+      "trait_key": "arm.spell.veil_from_sight.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -8587,7 +8722,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.false_presence.skill"
+      "trait_key": "arm.spell.false_presence.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -8647,7 +8783,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.reveal_the_hidden.skill"
+      "trait_key": "arm.spell.reveal_the_hidden.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Wind",
@@ -8713,7 +8850,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.read_enchantment.skill"
+      "trait_key": "arm.spell.read_enchantment.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -8779,7 +8917,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.arcane_mark.skill"
+      "trait_key": "arm.spell.arcane_mark.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -8791,13 +8930,17 @@
       "binding_key": "arm.research.guild.void.portalgate",
       "capability": "arm.capability.void",
       "kind": "spell",
-      "key": null,
-      "spell": null,
+      "key": "arm.spell.linked_threshold",
+      "spell": "arm.spell.linked_threshold",
       "support_key": null,
-      "name": "Portal Gate",
-      "mapping_status": "UNRESOLVED_IDENTITY_NO_AUTOMATIC_GRANT",
-      "identity_evidence": null,
-      "native_school": null,
+      "name": "Linked Threshold",
+      "mapping_status": "USER_SELECTED_STOCK_IDENTITY_NOT_PROVEN_HISTORICAL_ALIAS",
+      "identity_evidence": {
+        "decision": "Armageddon_Seeder_Decisions_20261011.json",
+        "kind": "explicit_user_selection",
+        "semantics": "Existing anchored linked travel effect; distinct from Open Threshold portal."
+      },
+      "native_school": "Void",
       "parent_binding_key": "arm.research.guild.void.mark",
       "parent_key": "arm.spell.arcane_mark",
       "source_values": {
@@ -8812,10 +8955,11 @@
       "numeric_provenance": "user_adopted_FutureMUD_reconstruction_not_recovered_elemental_numbers",
       "acquired_controlled_grade": 1,
       "functional_support": [],
-      "installable_identity_chain": false,
+      "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": null
+      "trait_key": "arm.spell.linked_threshold.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -8865,7 +9009,7 @@
       },
       "native_school": "Void",
       "parent_binding_key": "arm.research.guild.void.portalgate",
-      "parent_key": null,
+      "parent_key": "arm.spell.linked_threshold",
       "source_values": {
         "opening": null,
         "raw_cap": null,
@@ -8878,10 +9022,11 @@
       "numeric_provenance": "user_adopted_FutureMUD_reconstruction_not_recovered_elemental_numbers",
       "acquired_controlled_grade": 1,
       "functional_support": [],
-      "installable_identity_chain": false,
+      "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.open_threshold.skill"
+      "trait_key": "arm.spell.open_threshold.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -8947,7 +9092,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.feign_death.skill"
+      "trait_key": "arm.spell.feign_death.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9013,7 +9159,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.raise_servitor.skill"
+      "trait_key": "arm.spell.raise_servitor.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9049,7 +9196,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.support.vloran"
+      "trait_key": "arm.support.vloran",
+      "stock_install_disposition": "DEFER_NON_SPELL_CLASS_SKILL"
     },
     {
       "tradition": "Void",
@@ -9115,7 +9263,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.voice_of_remains.skill"
+      "trait_key": "arm.spell.voice_of_remains.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9181,7 +9330,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.borrow_the_dead.skill"
+      "trait_key": "arm.spell.borrow_the_dead.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9247,7 +9397,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.earth_mount.skill"
+      "trait_key": "arm.spell.earth_mount.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9313,7 +9464,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.call_outsider.skill"
+      "trait_key": "arm.spell.call_outsider.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9379,7 +9531,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.silence_the_mind.skill"
+      "trait_key": "arm.spell.silence_the_mind.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9445,7 +9598,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.empty_aura.skill"
+      "trait_key": "arm.spell.empty_aura.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9511,7 +9665,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.compelling_regard.skill"
+      "trait_key": "arm.spell.compelling_regard.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9577,7 +9732,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.mind_scour.skill"
+      "trait_key": "arm.spell.mind_scour.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9643,7 +9799,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.unmaking_ward.skill"
+      "trait_key": "arm.spell.unmaking_ward.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9709,7 +9866,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.bar_the_elements.skill"
+      "trait_key": "arm.spell.bar_the_elements.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9763,7 +9921,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.blade_barrier.skill"
+      "trait_key": "arm.spell.blade_barrier.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9829,7 +9988,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.folded_pocket.skill"
+      "trait_key": "arm.spell.folded_pocket.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9895,7 +10055,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.phantasm.skill"
+      "trait_key": "arm.spell.phantasm.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -9961,7 +10122,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": null,
       "minimum_parent_grade": null,
-      "trait_key": "arm.spell.veil_of_elements.skill"
+      "trait_key": "arm.spell.veil_of_elements.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -10027,7 +10189,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.turn_the_elements.skill"
+      "trait_key": "arm.spell.turn_the_elements.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -10093,7 +10256,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.spell.read_enchantment.skill"
+      "trait_key": "arm.spell.read_enchantment.skill",
+      "stock_install_disposition": "INCLUDE"
     },
     {
       "tradition": "Void",
@@ -10129,7 +10293,8 @@
       "installable_identity_chain": true,
       "prerequisite_kind": "Spell",
       "minimum_parent_grade": 1,
-      "trait_key": "arm.support.component_crafting"
+      "trait_key": "arm.support.component_crafting",
+      "stock_install_disposition": "INCLUDE"
     }
   ]
 }

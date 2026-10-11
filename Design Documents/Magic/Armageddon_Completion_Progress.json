@@ -45,15 +45,19 @@
     "document": "Armageddon_Seeder_Completeness_Design_20261011.md",
     "inventory": "Armageddon_Seeder_Completeness_Design_20261011.json",
     "simple_progression": "Armageddon_Seeder_Completeness_Design_20261011_Simple_Progression.tsv",
-    "status": "DESIGN_ONLY_ELEMENTAL_RESEARCH_BASIS_ADOPTED",
+    "status": "DESIGN_ONLY_USER_LOCKED",
     "historical_research_blocks_implementation": false,
     "runtime_baseline": "aae875af09cf62e6324bb31eba79f58b72249e13",
     "read_attunement": "Explicit elemental affinities and learned magical affiliations reported separately",
     "one_fixed_mode_installation": true,
     "n24_started": false,
-    "classic_elemental_research": "User-adopted research Page: selected full-seven graph plus Stone addition; unknown numbers separately reconstructed; Portal Gate identity pending S2.",
+    "classic_elemental_research": "Selected research graph with final supplemental admissions and user-selected Portal Gate -> Linked Threshold; historical numeric unknowns retained as provenance.",
     "superseded_classic_elemental_placeholders": "Armageddon_Seeder_Completeness_Design_20261011_Classic_Elemental_Placeholders.tsv",
-    "elemental_research_adoption": "Armageddon_Elementalist_Research_Adoption_20261011.json"
+    "elemental_research_adoption": "Armageddon_Elementalist_Research_Adoption_20261011.json",
+    "final_decision_gate": "Armageddon_Seeder_Decisions_20261011.json",
+    "classic_progression": "Armageddon_Seeder_Completeness_Design_20261011_Classic_Progression.tsv",
+    "non_spell_skills": "Only required Component Crafting included; all other historical class support grants deferred.",
+    "content_design_questions_remaining": []
   },
   "phase1_remaining": [
     "Stock installer selects and qualifies the mental/spiritual native attribute, capacity expression/basis and authored energy coefficients.",
@@ -6407,7 +6411,7 @@
     "full_air_guardian_catalogue_qualified": false,
     "next_bounded_milestone": "N17: map and implement the bounded occupied-shelter dependencies for Spring Haven, Burrow Refuge and Sand Shelter, then qualify real utility, finite water, occupied expiry/destruction and safe fallback with preserved actors and foreign goods. Full Air Guardian catalogue/timing parity and other stock/readiness gates remain pending. Use only code-proven references; no static-definition classifier stage."
   },
-  "next_bounded_milestone": "Implement S1-S6 before N24 using the adopted elemental research basis, preserving exact Sorcerer rows and prior approved policies. S2 resolves Portal Gate identity and reconciles elemental Simple data. N23 remains latest runtime qualification; N24 unstarted.",
+  "next_bounded_milestone": "Implement S1 fixed installer settings/typed preflight, then S2-S6 using the locked spell rosters, identities and numeric defaults. Only required non-spell Component Crafting is included; broader class skills deferred. N23 latest runtime qualification; N24 unstarted.",
   "occupied_shelters_20261010": {
     "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
     "receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json",

@@ -1,0 +1,767 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "status": "USER_LOCKED_STOCK_DESIGN",
+  "baseline_revision": "fe2f750133bcb5a56645390db0d57227a90c4713",
+  "authority": {
+    "human_request": "Lock all this in except exclude the non spell skills (except where required as per requisites) for now. E.g. things like barrier and shield use are just psychic/mundane skills that class gets and we'll do a later pass on the non magical classes and all the full skills",
+    "scope": "Approves all five concrete decision-gate configurations with the non-spell exclusion taking precedence; attached research remains evidence, not execution authority."
+  },
+  "PortalGate": {
+    "canonical_spell": "arm.spell.linked_threshold",
+    "chain": [
+      "arm.spell.arcane_mark",
+      "arm.spell.linked_threshold",
+      "arm.spell.open_threshold"
+    ],
+    "provenance": "Explicit human-selected FutureMUD mapping, not a historical alias claim."
+  },
+  "supplemental_admissions": [
+    {
+      "capability": "arm.capability.fire",
+      "spell": "arm.spell.daylight",
+      "parent": "arm.spell.hovering_light",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.wither_growth",
+      "parent": "arm.spell.thorn_barrier",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.mist_shield",
+      "parent": "arm.spell.sheltering_veil",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.restorative_mud",
+      "parent": "arm.spell.mend_flesh",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 50,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.purge_disease",
+      "parent": "arm.spell.purge_toxin",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.water_breathing",
+      "parent": "arm.spell.draw_water",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.drowning_grip",
+      "parent": "arm.spell.water_breathing",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.sow_sickness",
+      "parent": "arm.spell.venom_touch",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.caustic_spray",
+      "parent": "arm.spell.venom_touch",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.gather_puddle",
+      "parent": "arm.spell.draw_water",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.earth",
+      "spell": "arm.spell.trace_the_path",
+      "parent": "arm.spell.return_tether",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.earth",
+      "spell": "arm.spell.clay_sentinel",
+      "parent": "arm.spell.earth_mount",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.earth",
+      "spell": "arm.spell.shatter_stone",
+      "parent": "arm.spell.earthen_strength",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.shadow",
+      "spell": "arm.spell.champion_blade",
+      "parent": "arm.spell.shadow_blade",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.devouring_touch",
+      "parent": "arm.spell.empty_aura",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.severing_refuge",
+      "parent": "arm.spell.bar_the_elements",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.apex_bane",
+      "parent": "arm.spell.turn_the_elements",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.cross_the_veil",
+      "parent": "arm.spell.linked_threshold",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.unbodied_journey",
+      "parent": "arm.spell.feign_death",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.erode_object",
+      "parent": "arm.spell.arcane_mark",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.leeching_edge",
+      "parent": "arm.spell.devouring_touch",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.echo_servant",
+      "parent": "arm.spell.voice_of_remains",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.sow_sickness",
+      "parent": "arm.spell.erode_object",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    }
+  ],
+  "simple": {
+    "elemental_rosters_and_roots": "Same as final Classic spell bindings; six starting spells per elemental capability.",
+    "opening": 10,
+    "raw_cap": 100,
+    "root_unlock": 10,
+    "nonroot_order": "parent depth then source order; supplemental siblings in listed order",
+    "nonroot_formula": "15 + floor(75 * (rank - 1) / (nonroot_count - 1))",
+    "Sorcerer_family": "All246 existing Simple spell rows unchanged; Component Crafting80 for Read Enchantment retained.",
+    "controlled_grade_on_admission": 1
+  },
+  "non_spell_support": {
+    "included_keys": [
+      "arm.support.component_crafting"
+    ],
+    "proof": "The exact94-row source contains only one spell-parent support dependency: Read Enchantment -> Component Crafting80. The native rank supply recipes also explicitly use Component Crafting.",
+    "historical_source_preserved": true,
+    "deferred_keys": [
+      "arm.support.vloran",
+      "arm.support.contact",
+      "arm.support.barrier",
+      "arm.support.expel",
+      "arm.support.dual_wield",
+      "arm.support.shield_use",
+      "arm.support.forage",
+      "arm.support.cooking",
+      "arm.support.analyze",
+      "arm.support.two_handed",
+      "arm.support.gather"
+    ],
+    "Vloran": "After-spell language side grant; not required to admit any selected spell or craft required supply. Deferred in both modes.",
+    "classic": "Only82 source spells plus Component Crafting per Sorcerer variant; elemental spell rows plus Components at each researched guild position. Opening30/cap90.",
+    "simple": "Component Crafting on enrolment for all ten capabilities, opening10/cap90; source spell skills are never granted in Simple.",
+    "read_enchantment_requirement": {
+      "capabilities": [
+        "arm.capability.sorcerer",
+        "arm.capability.preserver",
+        "arm.capability.defiler"
+      ],
+      "support": "arm.support.component_crafting",
+      "raw_threshold": 80
+    },
+    "simple_grants": [
+      {
+        "capability": "arm.capability.earth",
+        "support": "arm.support.component_crafting",
+        "trigger": "legitimate_permanent_capability_enrolment",
+        "opening": 10,
+        "raw_cap": 90,
+        "purpose": "required_magic_supply_crafting_and_route_scoped_spell_prerequisite"
+      },
+      {
+        "capability": "arm.capability.fire",
+        "support": "arm.support.component_crafting",
+        "trigger": "legitimate_permanent_capability_enrolment",
+        "opening": 10,
+        "raw_cap": 90,
+        "purpose": "required_magic_supply_crafting_and_route_scoped_spell_prerequisite"
+      },
+      {
+        "capability": "arm.capability.water",
+        "support": "arm.support.component_crafting",
+        "trigger": "legitimate_permanent_capability_enrolment",
+        "opening": 10,
+        "raw_cap": 90,
+        "purpose": "required_magic_supply_crafting_and_route_scoped_spell_prerequisite"
+      },
+      {
+        "capability": "arm.capability.wind",
+        "support": "arm.support.component_crafting",
+        "trigger": "legitimate_permanent_capability_enrolment",
+        "opening": 10,
+        "raw_cap": 90,
+        "purpose": "required_magic_supply_crafting_and_route_scoped_spell_prerequisite"
+      },
+      {
+        "capability": "arm.capability.shadow",
+        "support": "arm.support.component_crafting",
+        "trigger": "legitimate_permanent_capability_enrolment",
+        "opening": 10,
+        "raw_cap": 90,
+        "purpose": "required_magic_supply_crafting_and_route_scoped_spell_prerequisite"
+      },
+      {
+        "capability": "arm.capability.lightning",
+        "support": "arm.support.component_crafting",
+        "trigger": "legitimate_permanent_capability_enrolment",
+        "opening": 10,
+        "raw_cap": 90,
+        "purpose": "required_magic_supply_crafting_and_route_scoped_spell_prerequisite"
+      },
+      {
+        "capability": "arm.capability.void",
+        "support": "arm.support.component_crafting",
+        "trigger": "legitimate_permanent_capability_enrolment",
+        "opening": 10,
+        "raw_cap": 90,
+        "purpose": "required_magic_supply_crafting_and_route_scoped_spell_prerequisite"
+      },
+      {
+        "capability": "arm.capability.sorcerer",
+        "support": "arm.support.component_crafting",
+        "trigger": "legitimate_permanent_capability_enrolment",
+        "opening": 10,
+        "raw_cap": 90,
+        "purpose": "required_magic_supply_crafting_and_route_scoped_spell_prerequisite"
+      },
+      {
+        "capability": "arm.capability.preserver",
+        "support": "arm.support.component_crafting",
+        "trigger": "legitimate_permanent_capability_enrolment",
+        "opening": 10,
+        "raw_cap": 90,
+        "purpose": "required_magic_supply_crafting_and_route_scoped_spell_prerequisite"
+      },
+      {
+        "capability": "arm.capability.defiler",
+        "support": "arm.support.component_crafting",
+        "trigger": "legitimate_permanent_capability_enrolment",
+        "opening": 10,
+        "raw_cap": 90,
+        "purpose": "required_magic_supply_crafting_and_route_scoped_spell_prerequisite"
+      }
+    ],
+    "non_spell_class_skill_pass": "Deferred; not a prerequisite for completing this magic package.",
+    "craft_recipe_requirements": [
+      {
+        "prototype": "arm.material.abjuration.rank0",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.abjuration.rank1",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 25
+      },
+      {
+        "prototype": "arm.material.abjuration.rank2",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 40
+      },
+      {
+        "prototype": "arm.material.abjuration.rank3",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 55
+      },
+      {
+        "prototype": "arm.material.abjuration.rank4",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 70
+      },
+      {
+        "prototype": "arm.material.alteration.rank0",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.alteration.rank1",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 25
+      },
+      {
+        "prototype": "arm.material.alteration.rank2",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 40
+      },
+      {
+        "prototype": "arm.material.alteration.rank3",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 55
+      },
+      {
+        "prototype": "arm.material.alteration.rank4",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 70
+      },
+      {
+        "prototype": "arm.material.clerical.rank0",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.clerical.rank1",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 25
+      },
+      {
+        "prototype": "arm.material.clerical.rank2",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 40
+      },
+      {
+        "prototype": "arm.material.clerical.rank3",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 55
+      },
+      {
+        "prototype": "arm.material.clerical.rank4",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 70
+      },
+      {
+        "prototype": "arm.material.conjuration.rank0",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.conjuration.rank1",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 25
+      },
+      {
+        "prototype": "arm.material.conjuration.rank2",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 40
+      },
+      {
+        "prototype": "arm.material.conjuration.rank3",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 55
+      },
+      {
+        "prototype": "arm.material.conjuration.rank4",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 70
+      },
+      {
+        "prototype": "arm.material.creation.rank0",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.creation.rank1",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 25
+      },
+      {
+        "prototype": "arm.material.creation.rank2",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 40
+      },
+      {
+        "prototype": "arm.material.creation.rank3",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 55
+      },
+      {
+        "prototype": "arm.material.creation.rank4",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 70
+      },
+      {
+        "prototype": "arm.material.divination.rank0",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.divination.rank1",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 25
+      },
+      {
+        "prototype": "arm.material.divination.rank2",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 40
+      },
+      {
+        "prototype": "arm.material.divination.rank3",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 55
+      },
+      {
+        "prototype": "arm.material.divination.rank4",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 70
+      },
+      {
+        "prototype": "arm.material.enchantment.rank0",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.enchantment.rank1",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 25
+      },
+      {
+        "prototype": "arm.material.enchantment.rank2",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 40
+      },
+      {
+        "prototype": "arm.material.enchantment.rank3",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 55
+      },
+      {
+        "prototype": "arm.material.enchantment.rank4",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 70
+      },
+      {
+        "prototype": "arm.material.illusion.rank0",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.illusion.rank1",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 25
+      },
+      {
+        "prototype": "arm.material.illusion.rank2",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 40
+      },
+      {
+        "prototype": "arm.material.illusion.rank3",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 55
+      },
+      {
+        "prototype": "arm.material.illusion.rank4",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 70
+      },
+      {
+        "prototype": "arm.material.invocation.rank0",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.invocation.rank1",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 25
+      },
+      {
+        "prototype": "arm.material.invocation.rank2",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 40
+      },
+      {
+        "prototype": "arm.material.invocation.rank3",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 55
+      },
+      {
+        "prototype": "arm.material.invocation.rank4",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 70
+      },
+      {
+        "prototype": "arm.material.nature.rank0",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.nature.rank1",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 25
+      },
+      {
+        "prototype": "arm.material.nature.rank2",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 40
+      },
+      {
+        "prototype": "arm.material.nature.rank3",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 55
+      },
+      {
+        "prototype": "arm.material.nature.rank4",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 70
+      },
+      {
+        "prototype": "arm.material.necromancy.rank0",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.necromancy.rank1",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 25
+      },
+      {
+        "prototype": "arm.material.necromancy.rank2",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 40
+      },
+      {
+        "prototype": "arm.material.necromancy.rank3",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 55
+      },
+      {
+        "prototype": "arm.material.necromancy.rank4",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 70
+      },
+      {
+        "prototype": "arm.material.teleportation.rank0",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.teleportation.rank1",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 25
+      },
+      {
+        "prototype": "arm.material.teleportation.rank2",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 40
+      },
+      {
+        "prototype": "arm.material.teleportation.rank3",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 55
+      },
+      {
+        "prototype": "arm.material.teleportation.rank4",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 70
+      },
+      {
+        "prototype": "arm.item.binding_seal",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 10
+      },
+      {
+        "prototype": "arm.material.conjuration.rank6",
+        "support": "arm.support.component_crafting",
+        "recipe_field": "min_component_crafting",
+        "minimum_raw": 90
+      }
+    ]
+  },
+  "stock_defaults": {
+    "status": "FINAL_STOCK_DEFAULTS_BUILDER_EDITABLE",
+    "value_sha256": "ef22ce5ec6f9f50a225a86c169560e5737987e1327e4843010b316902a3366ce",
+    "canonicalization": "JSON values encoded as UTF-8 without BOM, sorted object keys, compact separators; array order preserved.",
+    "change_policy": "Unit conversion and correctness qualification implement these values. A material balance change requires a new explicit human decision.",
+    "limits": "Source unknowns remain provenance. Locked design is not historical parity, installed-world qualification or permission to enable unsupported carrier/area variants.",
+    "value_fields": {
+      "inventory": "Armageddon_Seeder_Completeness_Design_20261011.json",
+      "entries": [
+        "key",
+        "effect_configuration",
+        "minimum_energy"
+      ],
+      "prototype_catalogue": "entire210-blueprint catalogue",
+      "resource_and_casting_defaults": "this decision record"
+    },
+    "resource_and_casting_defaults": {
+      "capacity_expression": "clamp(100+3*(attribute-13),2*attribute,12*attribute)",
+      "elemental_units_per_minute": 2,
+      "rest_multiplier": 2,
+      "initial_reserve": 0,
+      "quiet_difficulty_delta": 1,
+      "quiet_designated_energy_multiplier": 2,
+      "overreach_difficulty_delta": 1,
+      "overreach_energy_multiplier": 1.5,
+      "paid_practice_seconds": 30,
+      "grade_mastery_fractions": [
+        0,
+        0.2,
+        0.4,
+        0.55,
+        0.7,
+        0.85,
+        0.95
+      ]
+    },
+    "unchanged_value_baseline": "fe2f750133bcb5a56645390db0d57227a90c4713"
+  },
+  "content_design_questions_remaining": [],
+  "next_implementation": "S1 fixed installer settings/typed preflight, then S2-S6; N24 remains unstarted."
+}

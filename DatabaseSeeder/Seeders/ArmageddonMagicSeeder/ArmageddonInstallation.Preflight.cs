@@ -144,7 +144,7 @@ public static partial class ArmageddonInstallation
 	private static IReadOnlyList<string> ValidateLegacyOwnership(FuturemudDatabaseContext db)
 	{
 		var errors = new List<string>();
-		var modules = new[] { ArmageddonMagicInstaller.Module, ArmageddonTraditionInstaller.Module, ArmageddonPierceInstaller.Module, ArmageddonProvisionInstaller.Module, ArmageddonWaterSeeInstaller.Module, ArmageddonEmotionalInstaller.Module };
+		var modules = new[] { ArmageddonMagicInstaller.Module, ArmageddonTraditionInstaller.Module, ArmageddonPierceInstaller.Module, ArmageddonProvisionInstaller.Module, ArmageddonWaterSeeInstaller.Module, ArmageddonEmotionalInstaller.Module, ArmageddonProgressionInstaller.Module };
 		var records = db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey != SettingsKey).ToArray();
 		foreach (var record in records)
 		{
@@ -155,6 +155,8 @@ public static partial class ArmageddonInstallation
 				nameof(Merit) => db.Merits.Any(x => x.Id == record.LogicalId),
 				nameof(MagicSchool) => db.MagicSchools.Any(x => x.Id == record.LogicalId),
 				nameof(MagicResource) => db.MagicResources.Any(x => x.Id == record.LogicalId),
+				nameof(MagicGenerator) => db.MagicGenerators.Any(x => x.Id == record.LogicalId),
+				nameof(ChargenRole) => db.ChargenRoles.Any(x => x.Id == record.LogicalId),
 				nameof(TraitExpression) => db.TraitExpressions.Any(x => x.Id == record.LogicalId),
 				nameof(TraitDefinition) => db.TraitDefinitions.Any(x => x.Id == record.LogicalId),
 				nameof(Improver) => db.Improvers.Any(x => x.Id == record.LogicalId),

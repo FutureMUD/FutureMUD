@@ -29,7 +29,7 @@ namespace MudSharp_Unit_Tests;
 public class ArmageddonInstallationSettingsTests
 {
 	private static readonly InMemoryDatabaseRoot Stores = new();
-	private static FuturemudDatabaseContext Fixture(bool classes = true, FuturemudDatabaseContext? legacy = null)
+	internal static FuturemudDatabaseContext Fixture(bool classes = true, FuturemudDatabaseContext? legacy = null)
 	{
 		var db = legacy ?? new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString(), Stores, x => x.EnableNullChecks(false)).Options);
@@ -79,7 +79,7 @@ public class ArmageddonInstallationSettingsTests
 		return db;
 	}
 
-	private static Func<FuturemudDatabaseContext> Factory(FuturemudDatabaseContext db)
+	internal static Func<FuturemudDatabaseContext> Factory(FuturemudDatabaseContext db)
 	{
 		var options = (DbContextOptions<FuturemudDatabaseContext>)db.GetService<IDbContextOptions>();
 		return () => new FuturemudDatabaseContext(options);
@@ -288,7 +288,7 @@ public class ArmageddonInstallationSettingsTests
 	}
 
 	[TestMethod]
-	public void SharedExecutor_SettingsStageDoesNotPersistGenericQuestionAnswers()
+	public void SharedExecutor_ProgressionStageDoesNotPersistGenericQuestionAnswers()
 	{
 #if DEBUG
 		using var db = Fixture();
@@ -296,7 +296,8 @@ public class ArmageddonInstallationSettingsTests
 		var result = SeederExecutionService.Execute(db, seeder, seeder.Questions, new Dictionary<string, string>
 		{ [ArmageddonMagicSeeder.FullInstallQuestion] = "yes", [ArmageddonMagicSeeder.ModeQuestion] = "Simple" }, new Version(1, 0));
 		Assert.IsTrue(result.Success, result.Exception?.ToString());
-		Assert.AreEqual(4, db.SeederChoices.Count()); Assert.AreEqual(1, db.SeederManagedRecords.Count());
+		Assert.AreEqual(4, db.SeederChoices.Count()); Assert.IsTrue(db.SeederManagedRecords.Count() > 1);
+		Assert.AreEqual(10, db.MagicCapabilities.Count()); Assert.AreEqual(10, db.ChargenRoles.Count());
 		StringAssert.Contains(result.Message!, "S2"); StringAssert.Contains(result.Message!, "S6");
 		StringAssert.Contains(result.Message!, "full package is not installed");
 #endif

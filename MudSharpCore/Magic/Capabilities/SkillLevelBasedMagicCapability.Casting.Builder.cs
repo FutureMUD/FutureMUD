@@ -9,6 +9,7 @@ public partial class SkillLevelBasedMagicCapability
 {
 	private const string CastingHelp = @"Casting options:
 	#3casting enable on|off#0
+	#3casting classenrol on|off#0
 	#3casting resources <source> <reserve> passive|gather#0
 	#3casting trait <skill>#0
 	#3casting entry add|remove <spell>#0
@@ -26,7 +27,7 @@ public partial class SkillLevelBasedMagicCapability
 	#3casting support prerequisite trait <support skill> <support skill> <raw skill>#0
 	#3casting support prerequisite remove spell|trait <support skill> <source>#0
 	#3casting validate|show#0
-Removing admission preserves player knowledge. Starting grants require explicit staff enrolment.";
+Removing admission preserves player knowledge. Starting grants require explicit enrolment; classenrol applies only at new-character approval.";
 
 	private bool BuildingCommandCasting(ICharacter actor, StringStack command)
 	{
@@ -53,6 +54,7 @@ Removing admission preserves player knowledge. Starting grants require explicit 
 			switch (action)
 			{
 				case "enable": p = p with { Enabled = Toggle(command.PopSpeech()) }; break;
+				case "classenrol": p = p with { EnrolOnClassSelection = Toggle(command.PopSpeech()) }; break;
 				case "trait":
 					var trait = Gameworld.Traits.GetByIdOrName(command.PopSpeech()) ?? throw new FormatException("No such skill.");
 					p = p with { DefaultTraitId = trait.Id }; break;

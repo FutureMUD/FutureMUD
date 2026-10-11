@@ -306,6 +306,11 @@ maximum must not be introduced. Invalid policy/XML prevents readiness and preser
 unreadable XML for repair. Practice plan edits reject trailing input without changing the
 saved plan.
 
+Paid practice records completion and releases its mutation fence before notifying the
+typed prerequisite index, while retaining the character's owner guard. Raw proficiency
+or controlled-grade progress can therefore acquire eligible branches immediately.
+Interrupted, uncertain and replayed completions do not trigger this notification.
+
 `variable` binds the selected attribute. Other expression parameters must explicitly
 bind native body attributes. Skills, mastery, extended options, unknown parameters and
 random functions are rejected. Omitted basis means `effective`; select `raw` explicitly

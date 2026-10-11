@@ -141,6 +141,7 @@ public sealed partial class MagicCastingService
 				_activePractices.TryRemove(active.Operation.Id, out _);
 				actor.OutputHandler.Send(PracticeUncertain(active, new InvalidOperationException("A casting mutation overlapped practice completion.")).Message); return;
 			}
+			var completed = false;
 			try
 			{
 				if (StopFinalisedPractice(active)) return;
@@ -168,11 +169,18 @@ public sealed partial class MagicCastingService
 					active.SkillEligible, active.MasteryEligible, active.Payload, stage => PracticeStage(active, stage), () => active.Operation, active.Profile);
 				active.Plan.FinalisePlan(); Flush(actor); PracticeStage(active, "Completed");
 				actor.OutputHandler.Send(check.Outcome >= active.Prepared.Spell.MinimumSuccessThreshold ? "Your paid practice succeeds." : "Your paid practice fails.");
-				try { NotifyProgress(actor, captured.TraitId, captured.SpellId); }
-				catch (Exception ex) { _world.SystemMessage($"Practice {active.Operation.Id} completed, but prerequisite evaluation needs retry: {ex.Message}", true); }
+				completed = true;
 			}
 			catch (Exception ex) { actor.OutputHandler.Send(PracticeUncertain(active, ex).Message); }
 			finally { _activePractices.TryRemove(active.Operation.Id, out _); _mutating.TryRemove(owner.Id, out _); }
+			// Native improvement callbacks are suppressed during the mutation. Re-evaluate after the
+			// completion is durable and the mutation fence is released, retaining the owner guard.
+			if (completed)
+			{
+				var captured = active.Prepared.Quote.Invocation!;
+				try { NotifyProgress(actor, captured.TraitId, captured.SpellId); }
+				catch (Exception ex) { _world.SystemMessage($"Practice {active.Operation.Id} completed, but prerequisite evaluation needs retry: {ex.Message}", true); }
+			}
 		}
 	}
 

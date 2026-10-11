@@ -462,14 +462,23 @@ internal static partial class GNHProgram
 				("MinimumTerrestrialLux", 0.0), ("SkyDescriptionTemplateId", skyTemplateId));
 			long zoneId = Insert(connection, "zones", ("Name", $"{scenario} zone"), ("ShardId", shardId),
 				("Latitude", 0.0), ("Longitude", 0.0), ("Elevation", 0.0), ("AmbientLightPollution", 0.0));
-			using var shape = new MySqlCommand("SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='rooms'", connection);
+			// Current playable Rooms own EffectData and spatial fields. Retain explicit historical snapshot paths.
+			using var shape = new MySqlCommand("SELECT COUNT(*) FROM information_schema.columns WHERE table_schema=DATABASE() AND table_name='rooms' AND column_name='EffectData'", connection);
 			long cellId;
 			if (Convert.ToInt64(shape.ExecuteScalar()) == 1)
 			{
-				var roomId = Insert(connection, "rooms", ("ZoneId", zoneId), ("X", 0), ("Y", 0), ("Z", 0));
-				cellId = Insert(connection, "cells", ("RoomId", roomId), ("EffectData", "<Effects />"));
+				cellId = Insert(connection, "rooms", ("ZoneId", zoneId), ("X", 0), ("Y", 0), ("Z", 0), ("EffectData", "<Effects />"));
 			}
-			else cellId = Insert(connection, "cells", ("ZoneId", zoneId), ("X", 0), ("Y", 0), ("Z", 0), ("EffectData", "<Effects />"));
+			else
+			{
+				shape.CommandText = "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema=DATABASE() AND table_name='rooms'";
+				if (Convert.ToInt64(shape.ExecuteScalar()) == 1)
+				{
+					var roomId = Insert(connection, "rooms", ("ZoneId", zoneId), ("X", 0), ("Y", 0), ("Z", 0));
+					cellId = Insert(connection, "cells", ("RoomId", roomId), ("EffectData", "<Effects />"));
+				}
+				else cellId = Insert(connection, "cells", ("ZoneId", zoneId), ("X", 0), ("Y", 0), ("Z", 0), ("EffectData", "<Effects />"));
+			}
 			long bodyId = Insert(connection, "bodies", ("BodyPrototypeID", bodyPrototypeId), ("Height", 1.8),
 				("ShortDescription", "a native acceptance participant"), ("FullDescription", "A native acceptance participant stands here."),
 				("Weight", 80.0), ("Position", 1L), ("RaceId", raceId), ("CurrentStamina", 100.0),

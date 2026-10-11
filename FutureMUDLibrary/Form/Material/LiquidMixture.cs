@@ -194,7 +194,8 @@ namespace MudSharp.Form.Material
             TotalVolume = _instances.Sum(x => x.Amount);
             double baseFluidToLitres = Gameworld?.UnitManager?.BaseFluidToLitres ?? 1.0;
             double baseWeightToKilograms = Gameworld?.UnitManager?.BaseWeightToKilograms ?? 1.0;
-            TotalWeight = _instances.Sum(x => x.Amount * x.Liquid.Density) * baseFluidToLitres / baseWeightToKilograms;
+            // Density is kg/m3; fluid conversion supplies litres, so convert to m3 first.
+            TotalWeight = _instances.Sum(x => x.Amount * x.Liquid.Density) * baseFluidToLitres * 0.001 / baseWeightToKilograms;
 
             OnLiquidMixtureChanged?.Invoke(this);
         }

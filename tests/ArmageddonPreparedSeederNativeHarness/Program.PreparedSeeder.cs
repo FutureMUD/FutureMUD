@@ -41,6 +41,7 @@ internal static partial class GNHProgram
 			"--stock-supplies-run" => PreparedSeederReplayNative(supplies: true),
 			"--stock-supplies-reader" => ReadStockSupplyCatalogue(args[1]),
 			"--stock-weapons-reader" => ReadStockWeaponCatalogue(args[1]),
+			"--stock-provisions-reader" => ReadStockProvisionCatalogue(args[1]),
 			"--stock-progression-fixtures-run" => RunStockProgressionFixturesOnly(),
 			"--stock-progression-reader" => ReadStockProgressionFixture(args[1]),
 			"--installed-sql-run" => PreparedInstalledSqlPreflight(),

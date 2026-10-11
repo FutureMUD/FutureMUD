@@ -46,7 +46,7 @@ This is persistence and native-factory qualification. Actual craft execution, ac
 
 Creature race/body/ethnicity/culture bundles, the 49 NPC templates and their riding/guard/seeking/courier/haunting/Outsider behaviours remain to implement and qualify. Courier mapping establishes that native grasping forepaws can coexist with separate standing pads on four leg limbs, and that parcel pickup/delivery can use the normal Body.Get/Body.Give custody path.
 
-The other focus/device, meal/liquid/light/trigger/projection/pocket and medical families also remain. Three native representation/ordering choices have been raised to the user and are unanswered:
+The other focus/device, meal/liquid/light/trigger/projection/pocket and medical families also remain. Three native representation/ordering choices were pending at this checkpoint. The user subsequently resolved them in the [S3 native decisions](Armageddon_Catalogue_S3_Decisions_20261012.md): use native infections, defer foci/devices with spell dependencies to S4, and translate calories to satiation without a calorie model. The original questions were:
 
 - Native diseases are spell infection parameters; there is no standalone native disease-definition entity. Choose a retained typed infection profile or an added builder-editable disease-profile system.
 - Approved charged-device/focus definitions require real spell whitelist IDs. Choose to create real disabled spell records alongside these S3 dependencies and finish payload qualification in S4, or keep those devices under design until S4. Fabricated IDs and no-op spell placeholders are excluded.

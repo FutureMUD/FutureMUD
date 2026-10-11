@@ -18,7 +18,11 @@ public sealed record ArmageddonCatalogueRecipe(IReadOnlyDictionary<string, doubl
 	double Seconds, int MinimumComponentCrafting);
 public sealed record ArmageddonStockBlueprint(string Key, string Name, ArmageddonBlueprintKind Kind,
 	JsonElement Configuration, IReadOnlyList<string> Dependencies,
-	IReadOnlyList<ArmageddonCatalogueReference> References, ArmageddonCatalogueRecipe? Recipe);
+	IReadOnlyList<ArmageddonCatalogueReference> References, ArmageddonCatalogueRecipe? Recipe)
+{
+	// Real spell allowlists are an S4 dependency; no placeholder native IDs in S3.
+	public bool DeferredToS4 => Kind is ArmageddonBlueprintKind.Focus or ArmageddonBlueprintKind.DeviceBlank;
+}
 
 /// <summary>
 /// The approved catalogue in dependency order. Only declared, schema-specific reference fields

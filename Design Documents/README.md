@@ -180,6 +180,8 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Armageddon S1 Installation Settings](./Magic/Armageddon_Installation_Settings_S1_20261011.md)
 - [Armageddon S2 Stock Progression](./Magic/Armageddon_Stock_Progression_S2_20261011.md)
 - [Armageddon S3 Catalogue Checkpoint](./Magic/Armageddon_Catalogue_S3_Checkpoint_20261012.md) — qualified supplies, shelter templates and melee weapons; full catalogue remains in progress.
+- [Armageddon S3 Native Decisions](./Magic/Armageddon_Catalogue_S3_Decisions_20261012.md) — native infections, S4 focus/device dependencies and source nutrition translated into satiation.
+- [Armageddon S3 Provisions](./Magic/Armageddon_Catalogue_S3_Provisions_20261012.md) — native food/drink prototypes, conservative reruns and corrected shared liquid mass; creature/catalogue completion still pending.
 - [Armageddon Final Seeder Decisions](./Magic/Armageddon_Seeder_Decisions_20261011.md)
 - [Armageddon Master List Archive and Review](./Armageddon/References/Armageddon_Info_Master_List_Review_20261011.md) — preserved full source, 15 guild tables and comparison with locked magic decisions; source adoption complete; other classes retained for later work.
 - [Armageddon Elementalist Research Adoption](./Magic/Armageddon_Elementalist_Research_Adoption_20261011.md) — selected seven-guild graphs, explicit numeric reconstruction and identity/provenance boundaries.

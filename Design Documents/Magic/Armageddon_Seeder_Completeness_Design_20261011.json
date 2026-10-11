@@ -20,7 +20,16 @@
     "final_decision_gate": "Armageddon_Seeder_Decisions_20261011.json",
     "non_spell_class_skills": "DEFER_EXCEPT_PROVEN_SPELL_PREREQUISITES_AND_REQUIRED_MAGIC_SUPPLY_CRAFTING",
     "PortalGate": "arm.spell.linked_threshold",
-    "stock_default_values": "LOCKED_BUILDER_EDITABLE_NO_MATERIAL_REBALANCE_WITHOUT_NEW_USER_DECISION"
+    "stock_default_values": "LOCKED_BUILDER_EDITABLE_NO_MATERIAL_REBALANCE_WITHOUT_NEW_USER_DECISION",
+    "s3_infections": "USE_EXISTING_NATIVE_INFECTIONS_ADD_TYPES_ONLY_IF_REQUIRED",
+    "s3_focus_device_dependencies": "DEFER_FOCI_AND_DEVICE_PROTOTYPES_AND_RECIPES_TO_S4_WITH_REAL_SPELL_DEPENDENCIES",
+    "s3_food_nutrition": "TRANSLATE_SOURCE_CALORIES_TO_NATIVE_SATIATION_NO_CALORIE_MODEL",
+    "food_satiation_translation": {
+      "reference_calories_per_day": 2400,
+      "reference_hours_per_day": 24,
+      "meal_source_calories": 500,
+      "meal_native_satiation_hours": 5
+    }
   },
   "inventory_counts": {
     "candidates": 154,

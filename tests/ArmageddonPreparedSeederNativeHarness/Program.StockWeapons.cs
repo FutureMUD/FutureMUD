@@ -62,6 +62,7 @@ internal static partial class GNHProgram
 		Require(players == TraditionPlayers(database), "Weapon catalogue changed existing players.");
 		RunStockWeaponReader(database.Name);
 		Console.WriteLine("ARMS3-weapons-installation=passed actual-MySQL 49-melee-prototypes 49-native-attacks 49-combat-messages rollback lost-ack stable-IDs builder-edits renamed-shared-combat no-player-writes no-live-items; complete-S3:NOT_QUALIFIED");
+		PreparedStockProvisionAcceptance(database);
 	}
 
 	private sealed record WeaponAliasReceipt(string NativeType, long NativeId);

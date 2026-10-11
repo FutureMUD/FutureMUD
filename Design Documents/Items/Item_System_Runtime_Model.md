@@ -132,6 +132,8 @@ It owns the reusable definition of:
 
 Prototype methods like `CreateNew(...)` instantiate a `GameItem`, create one runtime component per attached component prototype, apply variable initialisation, and execute on-load progs.
 
+Liquid density uses kg/m³. `LiquidMixture.TotalWeight` converts its native volume to litres, then to cubic metres, before applying density and converting kilograms to native weight units. With litre/gram base units, one litre of water at 1,000 kg/m³ contributes 1,000 grams; one litre of wine at 990 kg/m³ contributes 990 grams. Liquid containers and other fluid-bearing components consume this shared mass. The total is recomputed from stored constituents, so correcting the conversion needs no persisted-total migration.
+
 The public `GameItem(IGameItemProto, ICharacter, ItemQuality)` constructor retains its
 three-argument binary signature and optional loader/quality defaults. It forwards to normal
 initialisation. Deferred spell-owned construction uses an internal four-argument overload;

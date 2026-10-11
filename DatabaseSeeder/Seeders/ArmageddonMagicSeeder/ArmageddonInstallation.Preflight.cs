@@ -144,10 +144,15 @@ public static partial class ArmageddonInstallation
 	private static IReadOnlyList<string> ValidateLegacyOwnership(FuturemudDatabaseContext db)
 	{
 		var errors = new List<string>();
-		var modules = new[] { ArmageddonMagicInstaller.Module, ArmageddonTraditionInstaller.Module, ArmageddonPierceInstaller.Module, ArmageddonProvisionInstaller.Module, ArmageddonWaterSeeInstaller.Module, ArmageddonEmotionalInstaller.Module, ArmageddonProgressionInstaller.Module };
+		var modules = new[] { ArmageddonMagicInstaller.Module, ArmageddonTraditionInstaller.Module, ArmageddonPierceInstaller.Module, ArmageddonProvisionInstaller.Module, ArmageddonWaterSeeInstaller.Module, ArmageddonEmotionalInstaller.Module, ArmageddonProgressionInstaller.Module, ArmageddonCatalogueOwnership.Module };
 		var records = db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey != SettingsKey).ToArray();
 		foreach (var record in records)
 		{
+			if (record.Module == ArmageddonCatalogueLinks.Module)
+			{
+				if (!ArmageddonCatalogueLinks.Valid(db, record)) errors.Add($"Existing Armageddon {record.StableKey} has invalid typed catalogue reference ownership.");
+				continue;
+			}
 			var exists = record.EntityType switch
 			{
 				nameof(MagicSpell) => db.MagicSpells.Any(x => x.Id == record.LogicalId),
@@ -161,6 +166,13 @@ public static partial class ArmageddonInstallation
 				nameof(TraitDefinition) => db.TraitDefinitions.Any(x => x.Id == record.LogicalId),
 				nameof(Improver) => db.Improvers.Any(x => x.Id == record.LogicalId),
 				nameof(FutureProg) => db.FutureProgs.Any(x => x.Id == record.LogicalId),
+				nameof(Tag) => db.Tags.Any(x => x.Id == record.LogicalId),
+				nameof(WeaponType) => db.WeaponTypes.Any(x => x.Id == record.LogicalId),
+				nameof(WeaponAttack) => db.WeaponAttacks.Any(x => x.Id == record.LogicalId),
+				nameof(CombatMessage) => db.CombatMessages.Any(x => x.Id == record.LogicalId),
+				nameof(AutobuilderRoomTemplate) => db.AutobuilderRoomTemplates.Any(x => x.Id == record.LogicalId),
+				nameof(Craft) => record.RevisionNumber is not null && db.Crafts.Any(x => x.Id == record.LogicalId && x.RevisionNumber == record.RevisionNumber),
+				nameof(Foragable) => record.RevisionNumber is not null && db.Foragables.Any(x => x.Id == record.LogicalId && x.RevisionNumber == record.RevisionNumber),
 				nameof(GameItemProto) => record.RevisionNumber is not null && db.GameItemProtos.Any(x => x.Id == record.LogicalId && x.RevisionNumber == record.RevisionNumber),
 				nameof(GameItemComponentProto) => record.RevisionNumber is not null && db.GameItemComponentProtos.Any(x => x.Id == record.LogicalId && x.RevisionNumber == record.RevisionNumber),
 				_ => false

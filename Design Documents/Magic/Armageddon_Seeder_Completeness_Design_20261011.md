@@ -12,13 +12,17 @@ One installed package has ordinary manifest revisions for updates. Reruns repair
 
 Read Attunement has the user's selected semantics: **elemental affinities and learned magical affiliations are reported separately**. Numeric effect/crafting/template defaults below are new editable FutureMUD proposals where historical native objects or setting identities are unavailable. A current factory is narrower evidence than full installed-stock qualification.
 
-## Remaining source gate
+## Classic elemental placeholders and research handoff
 
 The selected Sorcerer tree is exact: four spell roots open at 60/cap90; 78 other spells open at30; Mend caps at60 and other spells at90. Each child's unlock uses its parent's recorded threshold. All three Sorcerer variants use that same 82-spell tree and 12 supporting rows. [The retained source tree](Armageddon_Sorcerer_Source_Tree.json) records the selected 2013 tree/2016 archive provenance.
 
 The supplied C dump/reference **does not include external elemental guild/subguild learn tables**. The C skill table proves spell definitions/families, not complete guild openings, caps, memberships or branching. This absence is recorded in [the integration evidence](Armageddon_Casting_Integration.md#supplied-historical-evidence). Old grade2/raw20 elemental edges are proposals, and required Earth Mount previously depended on optional Wardcraft. Those values are excluded from this design's Classic data.
 
-Classic elemental numerical progression must wait for documented historical learn tables. No made-up fallback is approved. If those tables cannot be obtained, using labelled designed elemental tables would require a user decision because Classic was requested to use Armageddon data. All remaining design and independent implementation work can proceed; a complete Classic four-cell validation matrix and Release gate cannot pass while this source gate remains open. The existing seven elemental family memberships are labelled designed repertoire membership, as allowed by the original brief, and must be compared against any newly obtained learn tables.
+The user has now authorised **placeholders for Classic elemental progression**, with another agent researching the real values. Missing learn tables no longer block implementing or functionally validating the package. Historical elemental parity remains unqualified. The [provisional elemental table](Armageddon_Seeder_Completeness_Design_20261011_Classic_Elemental_Placeholders.tsv) contains every required elemental admission and marks every row as a placeholder. The existing seven elemental memberships also remain labelled designed repertoire membership and must be compared against researched guild tables.
+
+The provisional defaults are opening60 for the selected elemental root and30 for other spells; rawcap90 except Mend60; parent branch threshold80 except Mend48. A same-tradition selected Sorcerer spell parent is retained as a structural hint where available; remaining spells attach to that elemental root. All parent requirements use controlled grade1 plus the stated raw threshold. These are explicit engineering placeholders, **not historical elemental guild values**. Component Crafting80 remains the real functional support requirement for Read Enchantment. Simple tables and the exact 94 Sorcerer source rows are unchanged.
+
+Research can replace each provisional row using its `(capability, spell)` keys and the TSV's opening/cap/parent/threshold fields, with source provenance. Correcting those stock data does not convert Classic to Simple or create another installation/version. Use ordinary ownership-aware reconciliation, preserving builder edits, stable content/trait identities and player acquisition/proficiency/controlled grades/resources; do not reopen skills or reset player state. This checkpoint adds design data only, so no installed player state needs migration. No research task is launched or messaged here; the user is arranging the separate agent.
 
 ## Installer and persistence contract
 
@@ -86,7 +90,7 @@ N24 follows the complete installed-stock dependency, not merely this document. T
 | Slice | Work and exit evidence |
 | --- | --- |
 | S1 — Fixed installer settings and typed preflight | question/replay contract, class-source agreement, owned settings and partial-resume boundaries, no player writes |
-| S2 — Complete progression/capabilities/classes | full Simple tables and exact available Classic tables, ten capabilities/merits and conditional roles, natural grade/raw practice; Classic elemental source gate cleared |
+| S2 — Complete progression/capabilities/classes | full Simple tables, exact Sorcerer Classic rows and authorised elemental placeholders, ten capabilities/merits and conditional roles, natural grade/raw practice; retain research provenance |
 | S3 — Automatic NPC/item/supply/template catalogue | all blueprints produce approved native entities, usable attacks/riding/guard/seek/courier, native recipes/gather supplies and exact typed dependency closure |
 | S4 — Full spell catalogue and remaining adapters | all 152 required defining contracts, eight systems, all grades/source-informed material/timing/quiet/area data, separate Read Attunement facts; optional additions isolated |
 | S5 — Production/device/substance and installed-world progression | qualified allowlists, real frozen-payload production and dose calibration, normal acquisition/practice/costs across both modes, no free fallback |
@@ -97,7 +101,7 @@ N24 follows the complete installed-stock dependency, not merely this document. T
 
 The complete install matrix is Classic/classes off, Classic/classes on, Simple/classes off and Simple/classes on. Each creates all ten capabilities, correct zero/ten Class roles, every required stock definition/support/prototype, legitimate natural automatic acquisition and grade/raw practice, no seeded live NPCs or player mutation. Run seeder Debug/Release builds, focused question/replay/ownership tests and the full Seeder suite with baselines reported separately. On disposable newly migrated MySQL worlds, run supported fresh replay and prove a second Debug replay refuses without mutation. Ownership-aware installer reruns are a separate supported operation. Update every strict replay profile inventory/order/question ID deliberately, including inactive questions. Release enablement remains held until the whole-programme gates pass.
 
-The only presently known decision/data dependency is the missing Classic elemental source progression. Remaining numeric balance tuning and dose/attack calibration are implementation validation work, not extra user questions about stock prototypes. Wardcraft/Renew Earth stay optional, unadmitted builder additions outside all required stock routes; no required spell depends on them.
+Classic elemental research is pending independently and does not block implementation using the authorised placeholders. Functional checks must identify the provisional dataset and cannot claim historical elemental parity. Remaining numeric balance tuning and dose/attack calibration are implementation validation work, not extra user questions about stock prototypes. Wardcraft/Renew Earth stay optional, unadmitted builder additions outside all required stock routes; no required spell depends on them.
 
 ## Simple progression tables
 

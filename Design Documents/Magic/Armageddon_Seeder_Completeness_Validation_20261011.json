@@ -14,7 +14,8 @@
     "sorcerer_support_rows": 12,
     "larger_required_systems": 8,
     "prototype_blueprints": 210,
-    "simple_admissions": 399
+    "simple_admissions": 399,
+    "classic_elemental_placeholder_admissions": 153
   },
   "checks": [
     {
@@ -146,9 +147,89 @@
       "evidence": "Wardcraft and Renew Earth isolated"
     },
     {
-      "name": "explicit_classic_elemental_source_gate",
+      "name": "explicit_authorised_classic_elemental_placeholders",
       "status": "PASS",
-      "evidence": "no inferred grade2/raw20 branches or coded-family learn-tree claim"
+      "evidence": "authorised provisional data allows implementation; historical parity unqualified"
+    },
+    {
+      "name": "classic_elemental_unique_complete_provenance",
+      "status": "PASS",
+      "evidence": 153
+    },
+    {
+      "name": "classic_placeholder_graph_Earth",
+      "status": "PASS",
+      "evidence": 22
+    },
+    {
+      "name": "classic_placeholder_thresholds_reachable_Earth",
+      "status": "PASS",
+      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+    },
+    {
+      "name": "classic_placeholder_graph_Fire",
+      "status": "PASS",
+      "evidence": 19
+    },
+    {
+      "name": "classic_placeholder_thresholds_reachable_Fire",
+      "status": "PASS",
+      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+    },
+    {
+      "name": "classic_placeholder_graph_Water",
+      "status": "PASS",
+      "evidence": 28
+    },
+    {
+      "name": "classic_placeholder_thresholds_reachable_Water",
+      "status": "PASS",
+      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+    },
+    {
+      "name": "classic_placeholder_graph_Wind",
+      "status": "PASS",
+      "evidence": 23
+    },
+    {
+      "name": "classic_placeholder_thresholds_reachable_Wind",
+      "status": "PASS",
+      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+    },
+    {
+      "name": "classic_placeholder_graph_Shadow",
+      "status": "PASS",
+      "evidence": 17
+    },
+    {
+      "name": "classic_placeholder_thresholds_reachable_Shadow",
+      "status": "PASS",
+      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+    },
+    {
+      "name": "classic_placeholder_graph_Lightning",
+      "status": "PASS",
+      "evidence": 15
+    },
+    {
+      "name": "classic_placeholder_thresholds_reachable_Lightning",
+      "status": "PASS",
+      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+    },
+    {
+      "name": "classic_placeholder_graph_Void",
+      "status": "PASS",
+      "evidence": 29
+    },
+    {
+      "name": "classic_placeholder_thresholds_reachable_Void",
+      "status": "PASS",
+      "evidence": "parent thresholds equal explicit parent branch value and fit raw cap; opening <= cap"
+    },
+    {
+      "name": "classic_placeholder_optional_isolation",
+      "status": "PASS",
+      "evidence": "no required branch to Wardcraft/Renew Earth"
     },
     {
       "name": "prototype_unique_resolved_acyclic",
@@ -216,23 +297,34 @@
       "evidence": 399
     },
     {
+      "name": "classic_placeholder_tsv_matches_json",
+      "status": "PASS",
+      "evidence": 153
+    },
+    {
       "name": "design_relative_file_links_resolve",
       "status": "PASS",
       "evidence": "all local links; this receipt produced below"
     }
   ],
   "known_open_gates": [
-    "Classic elemental historical learn tables",
     "implementation of complete stock catalogue and remaining adapters",
     "four fresh-install matrix cells and natural progression",
     "N24 full installer rerun/native conservation",
     "N25/final whole-programme qualification"
   ],
+  "research_pending": {
+    "topic": "Classic elemental historical learn tables",
+    "blocks_current_implementation": false,
+    "current_dataset": "authorised labelled placeholders",
+    "historical_parity_qualified": false
+  },
   "review": {
     "role": "fm_reviewer",
     "scope": "read-only design/craft-link review; no runtime execution",
     "initial_finding": "Missing typed craft input dependencies",
     "final_outcome": "Resolved; 76 structured recipes independently read, 0 input/dependency mismatches across 210 blueprints",
-    "structural_gate": "Final checks include every recipe input and known template/material binding field."
+    "structural_gate": "Final checks include every recipe input and known template/material binding field.",
+    "scope_limit": "Independent review preceded this provisional Classic elemental addendum; the addendum has structural checks only."
   }
 }

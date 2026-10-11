@@ -6915,14 +6915,16 @@
     "package_release_enabled": false,
     "publication_authorized": false
   },
-  "next_bounded_milestone": "Implement S1-S6 seeder completeness dependencies before N24 full installer rerun qualification. Classic elemental historical learn-table source gate remains open. N24 is unstarted; no design document qualifies installed gameplay.",
+  "next_bounded_milestone": "Implement S1-S6 seeder completeness dependencies before N24 full installer rerun qualification, using authorised Classic elemental placeholders while separate historical research proceeds. N24 is unstarted; no design document qualifies installed gameplay.",
   "seeder_completeness_design_20261011": {
     "document": "Armageddon_Seeder_Completeness_Design_20261011.md",
     "inventory": "Armageddon_Seeder_Completeness_Design_20261011.json",
     "simple_progression": "Armageddon_Seeder_Completeness_Design_20261011_Simple_Progression.tsv",
     "runtime_baseline": "aae875af09cf62e6324bb31eba79f58b72249e13",
     "design_only": true,
-    "classic_elemental_source_gate": "historical external guild/subguild learn tables unavailable",
+    "classic_elemental_research": "historical guild/subguild learn tables unavailable; user authorised labelled placeholders while another agent researches real values",
+    "classic_elemental_placeholders": "Armageddon_Seeder_Completeness_Design_20261011_Classic_Elemental_Placeholders.tsv",
+    "historical_research_blocks_implementation": false,
     "read_attunement": "explicit elemental affinities and learned magical affiliations separately",
     "fixed_game_wide_mode": true,
     "conversion_or_parallel_installation": false,

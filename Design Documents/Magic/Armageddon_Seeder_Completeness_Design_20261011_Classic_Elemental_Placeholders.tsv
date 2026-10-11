@@ -1,0 +1,154 @@
+Capability	SpellKey	Name	Starting	ParentKey	ParentThreshold	Opening	RawCap	BranchesAt	Provenance
+arm.capability.earth	arm.spell.earthen_ward	Earthen Ward	true			60	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.sand_knife	Sand Knife	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.sapping_weight	Sapping Weight	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.trace_the_path	Trace the Path	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.return_tether	Return Tether	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.sand_shelter	Sand Shelter	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.clay_sentinel	Clay Sentinel	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.shatter_stone	Shatter Stone	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.roused_fury	Roused Fury	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.sustain_meal	Sustain Meal	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.earth_mount	Earth Mount	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.sand_barrier	Sand Barrier	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.restore_object	Restore Object	false	arm.spell.sustain_meal	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.fleet_step	Fleet Step	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.burrow_refuge	Burrow Refuge	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.ground_tremor	Ground Tremor	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.stone_skin	Stone Skin	false	arm.spell.sand_barrier	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.threshold_alarm	Threshold Alarm	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.sand_effigy	Sand Effigy	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.clouded_will	Clouded Will	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.heavy_slumber	Heavy Slumber	false	arm.spell.earthen_ward	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.earth	arm.spell.earthen_strength	Earthen Strength	false	arm.spell.stone_skin	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.sense_enchantment	Sense Enchantment	true			60	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.unravel_enchantment	Unravel Enchantment	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.cinder_rain	Cinder Rain	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.pillar_of_flame	Pillar of Flame	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.fireworks	Fireworks	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.burning_draught_curse	Burning Draught Curse	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.desiccate	Desiccate	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.flame_mantle	Flame Mantle	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.ember_seed	Ember Seed	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.daylight	Daylight	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.ember_lance	Ember Lance	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.flame_knife	Flame Knife	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.borrowed_tongues	Borrowed Tongues	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.custodian_glyph	Custodian Glyph	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.hovering_light	Hovering Light	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.kindle_enchantment	Kindle Enchantment	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.immolate	Immolate	false	arm.spell.flame_knife	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.flame_barrier	Flame Barrier	false	arm.spell.sense_enchantment	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.fire	arm.spell.consuming_flame	Consuming Flame	false	arm.spell.immolate	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.draw_water	Draw Water	true			60	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.unyielding_veil	Unyielding Veil	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.spring_haven	Spring Haven	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.thunderclap	Thunderclap	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.hush_hearing	Hush Hearing	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.seal_voice	Seal Voice	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.vital_siphon	Vital Siphon	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.thorn_barrier	Thorn Barrier	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.headlong_revel	Headlong Revel	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.clear_head	Clear Head	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.wither_growth	Wither Growth	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.distant_mirage	Distant Mirage	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.mist_shield	Mist Shield	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.restorative_mud	Restorative Mud	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.purge_disease	Purge Disease	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.drowning_grip	Drowning Grip	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.sow_sickness	Sow Sickness	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.caustic_spray	Caustic Spray	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.gather_puddle	Gather Puddle	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.draw_wine	Draw Wine	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.still_anger	Still Anger	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.sense_toxin	Sense Toxin	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.read_attunement	Read Attunement	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.water_breathing	Water Breathing	false	arm.spell.draw_wine	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.venom_touch	Venom Touch	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.mend_flesh	Mend Flesh	false	arm.spell.still_anger	80	30	60	48	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.purge_toxin	Purge Toxin	false	arm.spell.still_anger	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.water	arm.spell.sheltering_veil	Sheltering Veil	false	arm.spell.draw_water	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.gust_hands	Gust Hands	true			60	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.scouring_gust	Scouring Gust	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.exchange_places	Exchange Places	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.seeking_wind	Seeking Wind	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.gentle_descent	Gentle Descent	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.wind_hammer	Wind Hammer	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.false_presence	False Presence	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.wind_shield	Wind Shield	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.pierce_concealment	Pierce Concealment	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.veil_from_sight	Veil from Sight	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.waystep	Waystep	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.buoyant_lift	Buoyant Lift	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.reveal_the_hidden	Reveal the Hidden	false	arm.spell.veil_from_sight	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.banish_traveller	Banish Traveller	false	arm.spell.waystep	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.driving_gust	Driving Gust	false	arm.spell.waystep	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.windborne_flight	Windborne Flight	false	arm.spell.buoyant_lift	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.wind_mantle	Wind Mantle	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.air_guardian	Air Guardian	false	arm.spell.gust_hands	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.draw_traveller	Draw Traveller	false	arm.spell.banish_traveller	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.wind_barrier	Wind Barrier	false	arm.spell.driving_gust	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.join_traveller	Join Traveller	false	arm.spell.windborne_flight	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.wind_courier	Wind Courier	false	arm.spell.air_guardian	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.wind	arm.spell.anchor_rune	Anchor Rune	false	arm.spell.join_traveller	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.night_eyes	Night Eyes	true			60	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.cooling_shade	Cooling Shade	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.haunting_shape	Haunting Shape	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.shadow_blade	Shadow Blade	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.shadowplay	Shadowplay	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.shadow_mantle	Shadow Mantle	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.champion_blade	Champion Blade	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.see_the_unbodied	See the Unbodied	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.walking_shadow	Walking Shadow	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.shadow_passage	Shadow Passage	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.shroud_eyes	Shroud Eyes	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.clear_eyes	Clear Eyes	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.lift_hex	Lift Hex	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.clinging_hex	Clinging Hex	false	arm.spell.walking_shadow	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.draw_into_flesh	Draw into Flesh	false	arm.spell.shadow_passage	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.dread_presence	Dread Presence	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.shadow	arm.spell.deep_darkness	Deep Darkness	false	arm.spell.night_eyes	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.lightning_lance	Lightning Lance	true			60	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.second_breath	Second Breath	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.wakeful_mind	Wakeful Mind	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.storm_locus	Storm Locus	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.luminous_trail	Luminous Trail	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.quickened_healing	Quickened Healing	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.spark_lash	Spark Lash	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.sky_lantern	Sky Lantern	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.charged_aegis	Charged Aegis	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.leadfoot	Leadfoot	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.leaping_lightning	Leaping Lightning	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.lightning_pace	Lightning Pace	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.storm_spear	Storm Spear	false	arm.spell.leaping_lightning	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.steal_breath	Steal Breath	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.lightning	arm.spell.still_limbs	Still Limbs	false	arm.spell.lightning_lance	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.arcane_mark	Arcane Mark	true			60	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.silence_the_mind	Silence the Mind	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.devouring_touch	Devouring Touch	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.compelling_regard	Compelling Regard	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.unmaking_ward	Unmaking Ward	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.severing_refuge	Severing Refuge	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.apex_bane	Apex Bane	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.bar_the_elements	Bar the Elements	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.turn_the_elements	Turn the Elements	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.folded_pocket	Folded Pocket	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.veil_of_elements	Veil of Elements	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.cross_the_veil	Cross the Veil	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.borrow_the_dead	Borrow the Dead	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.mind_scour	Mind Scour	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.phantasm	Phantasm	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.unbodied_journey	Unbodied Journey	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.erode_object	Erode Object	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.leeching_edge	Leeching Edge	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.sow_sickness	Sow Sickness	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.blade_barrier	Blade Barrier	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.call_outsider	Call Outsider	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.feign_death	Feign Death	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.open_threshold	Open Threshold	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.linked_threshold	Linked Threshold	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.read_enchantment	Read Enchantment	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.raise_servitor	Raise Servitor	false	arm.spell.feign_death	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.empty_aura	Empty Aura	false	arm.spell.arcane_mark	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.voice_of_remains	Voice of Remains	false	arm.spell.raise_servitor	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data
+arm.capability.void	arm.spell.echo_servant	Echo Servant	false	arm.spell.voice_of_remains	80	30	90	80	user_authorised_placeholder_not_historical_elemental_guild_data

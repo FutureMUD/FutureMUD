@@ -512,12 +512,38 @@ def native_first_boot_scenario(session):
         require(len(moved) == 1 and moved[0][0] == str(moved_to) and moved[0][0] != str(original_mount_location), 'Forced NPC did not persist the expected changed Location after crossing the real exit.')
         assertions.append('Native force moved spawned NPC across builder-created room exit; persisted Location changed after flush')
         guardian = creature_names['arm.npc.air_guardian.g7']
-        session.send('force ' + guardian + ' fly', read_seconds=2)
+        flight = session.send('force ' + guardian + ' fly', read_seconds=1)
+        require('begins to fly' in flight.lower(), 'Native winged takeoff did not confirm.')
+        # Fly() adds the real five-second BlockLayerChange movement blocker.
+        # A forced command discards the NPC's private refusal, so capture it
+        # through the staff AS output proxy while the blocker is still active.
+        delay_description = 'prevented from entering the commands ascend'
+        delay_before = session.send('effect list ' + guardian, read_seconds=0.5)
+        require('Effects for' in delay_before and delay_description in delay_before.lower(),
+                'Native takeoff did not install its declared movement cooldown.')
+        refused = session.send('as ' + guardian + ' east', read_seconds=0.5)
+        require('cannot move until you stop recovering from your recent swim, fly or climb' in refused.lower(),
+                'Native takeoff cooldown did not refuse early east movement.')
         session.send('impdebug flush', read_seconds=3)
-        guardian_position = sql(f"SELECT PositionId FROM Characters WHERE Id={receipt['spawned_creatures']['arm.npc.air_guardian.g7'][0]}")
+        guardian_id = receipt['spawned_creatures']['arm.npc.air_guardian.g7'][0]
+        guardian_position = sql(f'SELECT PositionId FROM Characters WHERE Id={guardian_id}')
         require(len(guardian_position) == 1 and guardian_position[0][0] == '18', 'Winged creature did not enter native PositionFlying (18) using its working wings.')
+        refused_location = sql(f'SELECT Location FROM Characters WHERE Id={guardian_id}')
+        require(len(refused_location) == 1 and refused_location[0][0] == str(home_location),
+                'A cooldown-refused movement changed the native guardian Location.')
+        receipt['guardian_takeoff_cooldown'] = {'before': delay_before, 'refusal': refused,
+                                               'refused_location': refused_location, 'observations': []}
+        assertions.append('Native winged takeoff cooldown refused early movement and preserved its Location')
+        delay_deadline = time.monotonic() + 10
+        while time.monotonic() < delay_deadline:
+            delay_after = session.send('effect list ' + guardian, read_seconds=0.5)
+            require('Effects for' in delay_after, 'Native guardian effect inspection failed.')
+            receipt['guardian_takeoff_cooldown']['observations'].append(delay_after)
+            if delay_description not in delay_after.lower():
+                break
+        require(delay_description not in delay_after.lower(), 'Native takeoff cooldown did not expire within ten seconds.')
         session.send('force ' + guardian + ' east', read_seconds=3)
-        guardian_location = await_native_location(receipt['spawned_creatures']['arm.npc.air_guardian.g7'][0], moved_to, 'guardian_movement_locations')
+        guardian_location = await_native_location(guardian_id, moved_to, 'guardian_movement_locations')
         require(len(guardian_location) == 1 and guardian_location[0][0] == str(moved_to), 'Winged creature did not fly across the live room exit.')
         assertions.append('Native winged creature entered Flying posture and crossed the same approved room exit')
 

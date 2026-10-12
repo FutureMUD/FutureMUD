@@ -542,7 +542,90 @@
     "Live active-craft continuation across compatible stock repair.",
     "S6 Classic/Simple by classes-on/off fresh-install matrix, then N24 full ownership/player-state rerun safety.",
     "Historical/game balance, all candidate readiness and Release activation.",
-    "Hosted checks for the new publication commit; old-head successful checks are historical."
+    "Hosted component-export baseline failures at the S3 publication head; see continuation handoff for exact failures and first required repair."
   ],
-  "next_bounded_milestone": "S4: hydrate all 152 required spells with real catalogue/controller/lifecycle dependencies; install ten foci, two device blanks and twelve recipes with real spell bindings. S5/S6 and then N24 remain; Release stays disabled."
+  "next_bounded_milestone": "S4: hydrate all 152 required spells with real catalogue/controller/lifecycle dependencies; install ten foci, two device blanks and twelve recipes with real spell bindings. S5/S6 and then N24 remain; Release stays disabled.",
+  "hosted_after_publication": {
+    "status": "UNRESOLVED_HOSTED_TEST_BASELINE",
+    "head": "8d503f6e789e5d68e03fceb4ae64b0a66f1fabd3",
+    "inspected_workflow": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223319636",
+    "second_workflow": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223314696",
+    "live_check_snapshot": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-12T08:44:01Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223319636/job/114724629095",
+        "name": "default-gate (ubuntu-latest)",
+        "startedAt": "2026-10-12T08:23:59Z",
+        "status": "COMPLETED",
+        "workflowName": "Unit Tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-12T08:40:03Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223314696/job/114724613124",
+        "name": "default-gate (ubuntu-latest)",
+        "startedAt": "2026-10-12T08:23:57Z",
+        "status": "COMPLETED",
+        "workflowName": "Unit Tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-12T08:49:26Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223319636/job/114724629320",
+        "name": "default-gate (windows-latest)",
+        "startedAt": "2026-10-12T08:24:00Z",
+        "status": "COMPLETED",
+        "workflowName": "Unit Tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-12T08:54:59Z",
+        "conclusion": "CANCELLED",
+        "detailsUrl": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223314696/job/114724613448",
+        "name": "default-gate (windows-latest)",
+        "startedAt": "2026-10-12T08:23:57Z",
+        "status": "COMPLETED",
+        "workflowName": "Unit Tests"
+      }
+    ],
+    "failures": [
+      {
+        "test": "ComponentMetadata_CoversRuntimeRegistryAndEveryCatalogueBinding",
+        "path": "DatabaseSeeder Unit Tests/IndustrialisedItemCatalogueTests.cs",
+        "line": 100,
+        "expected": 248,
+        "actual": 249
+      },
+      {
+        "test": "ComponentTypeAndPrerequisiteAudits_ContainExactCurrentBaseline",
+        "path": "DatabaseSeeder Unit Tests/IndustrialisedPrerequisiteAuditTests.cs",
+        "line": 36,
+        "expected": 248,
+        "actual": 249
+      }
+    ],
+    "also_inspect": "Uniqueness expectation 248 and header-inclusive component TSV expectation 249 in IndustrialisedPrerequisiteAuditTests; current catalogue has 249 rows.",
+    "observed_linux_default_gate": {
+      "passed": 9507,
+      "failed": 2,
+      "skipped": 0
+    },
+    "observed_linux_core": {
+      "passed": 6514,
+      "failed": 0,
+      "skipped": 0
+    },
+    "observed_windows_seeder": {
+      "passed": 1711,
+      "failed": 2,
+      "skipped": 3
+    },
+    "repair_or_rerun_in_handoff_task": false,
+    "next_action": "Verify exact runtime/JSON/TSV contents, reconcile obsolete test expectations without weakening coverage, run focused/full relevant Seeder checks and inspect new hosted results before S4."
+  },
+  "continuation_handoff": "Design Documents/Magic/Armageddon_S4_Continuation_Handoff_20261012.md"
 }

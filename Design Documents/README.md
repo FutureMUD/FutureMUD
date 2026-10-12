@@ -170,6 +170,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 ## Magic
 
+- [Armageddon S4 Continuation Handoff](./Magic/Armageddon_S4_Continuation_Handoff_20261012.md) — start here in a new task: current state, locked decisions, full archived brief, hosted test follow-up, S4 execution and later gates.
 - [ARM-01 Configurable Casting Design and Candidate Repertoire](./Magic/Armageddon_Casting_Design.md)
 - [ARM-02 Configurable Casting Player, Builder and FutureProg Guide](./Magic/Configurable_Casting.md)
 - [ARM-02 Implementation and Verification Handover](./Magic/Configurable_Casting_Handover.md)

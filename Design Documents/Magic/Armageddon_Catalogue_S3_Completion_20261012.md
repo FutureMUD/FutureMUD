@@ -1,5 +1,7 @@
 # Armageddon S3 catalogue completion — 12 October 2026
 
+For a new task, start with the [S4 continuation handoff](Armageddon_S4_Continuation_Handoff_20261012.md). Post-publication checks of commit `8d503f6e789e5d68e03fceb4ae64b0a66f1fabd3` exposed two missed Seeder export-baseline expectations (248 types versus the actual 249). Both Linux and Windows failed those tests; one duplicate Windows job was cancelled. The handoff records exact tests/paths and the required repair before S4. The local passes below retain their original dated scope; final hosted/all-project success is not claimed.
+
 The approved S3 catalogue is implemented and qualified within the boundaries below. The composite installer connects S1 fixed settings and S2 progression to every one of the **198 S3 blueprints**. The ten foci, two device blanks and their twelve recipes remain in S4 with real spell dependencies. Full spell hydration, normal-player progression/cost qualification, the S6 four-cell fresh-install matrix and N24 remain separate gates. Release entry, staged spell admissions and Class availability remain disabled.
 
 ## Installed catalogue

@@ -1,5 +1,7 @@
 # Armageddon continuation checkpoint — 8 October 2026
 
+For the current new-task start and unresolved hosted test baseline, read the [S4 continuation handoff](Armageddon_S4_Continuation_Handoff_20261012.md) first. The dated entries below retain their bounded historical scopes.
+
 Source review resumed by direct user approval on 11 October 2026. The [adopted master list](Armageddon_Master_List_Adoption_20261011.md) updates the active typed source tree, Classic numeric values and memberships, elemental Simple thresholds and printed minimum mana. No additional design decision is required.
 
 Current seeder design: [final locked decisions](Armageddon_Seeder_Decisions_20261011.md), [complete stock inventory](Armageddon_Seeder_Completeness_Design_20261011.md) and [research evidence](Armageddon_Elementalist_Research_Adoption_20261011.md). Final Classic/Simple tables cover all152 required spells; Portal Gate uses Linked Threshold. Only required Component Crafting is included; other non-spell class grants are deferred. S1 fixed settings, S2 staged progression and the [S3 native catalogue](Armageddon_Catalogue_S3_Completion_20261012.md) are qualified within their receipts. S4-S6 remain before N24; Release and stock spell admissions remain disabled. N23 retains the latest ordinary-player paid spell/recharge qualification; N24 is unstarted.

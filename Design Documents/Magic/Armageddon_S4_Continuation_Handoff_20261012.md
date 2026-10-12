@@ -1,0 +1,143 @@
+# Armageddon continuation handoff — S4 and remaining gates
+
+Start here when continuing in a new Codex task. This handoff replaces dependence on the old chat; it records accepted decisions and current evidence, and routes to the full contracts. It introduces no new content policy and does not start S4 by itself. Read the new user's request and current repository/module `AGENTS.md` for execution authority.
+
+## Checkout and current state
+
+- Repository: `FutureMUD/FutureMUD`; branch: `codex/armageddon-continuation-20261008`.
+- Completed S3 implementation commit: `8d503f6e789e5d68e03fceb4ae64b0a66f1fabd3`, “Complete Armageddon S3 native catalogue and runtime”. This document is committed after it; use the latest branch head, not a reset to that commit.
+- Existing [draft PR #788](https://github.com/FutureMUD/FutureMUD/pull/788), base `master`. Continue this PR; do not create a duplicate, mark ready, merge, release or deploy as a side effect of continuation.
+- PR #789 is already integrated by merge `dac1deee031f4e4726597e88d07af47d5cda3e27`. PR771/778 foundations and acquisition convergence are present; do not reimplement them.
+- The previous local checkout was `C:\Users\luker\.codex\worktrees\377e\FutureMUD`. A new checkout is valid when it contains the latest continuation branch. The main tree was clean at handoff preparation; verify this live.
+- S1 fixed settings, S2 staged progression and S3 catalogue have bounded local acceptance. **S4 is unstarted. S5/S6 and N24/N25 remain. Release, spell admissions and Class availability are disabled.**
+- The two S3 child worktrees (`armageddon-s3-controllers`, `armageddon-s3-special-mechanics`) were integrated and archived recoverably. No child/server/database work is running and none must be resumed.
+
+### First prerequisite: repair the recorded hosted test baseline
+
+Hosted validation of the S3 commit is **not green**. On 12 October, workflow [38223319636](https://github.com/FutureMUD/FutureMUD/actions/runs/38223319636) failed on Linux and Windows. Both report these two Seeder failures:
+
+| Exact test | Owning file / observation |
+| --- | --- |
+| `ComponentMetadata_CoversRuntimeRegistryAndEveryCatalogueBinding` | `DatabaseSeeder Unit Tests/IndustrialisedItemCatalogueTests.cs`, assertion at line 100: expected 248 component types, actual 249. |
+| `ComponentTypeAndPrerequisiteAudits_ContainExactCurrentBaseline` | `DatabaseSeeder Unit Tests/IndustrialisedPrerequisiteAuditTests.cs`, assertion at line 36: expected 248, actual 249; the following uniqueness expectation also retains 248. |
+
+The latter file also expects 249 **TSV lines including the header**; the current export has 249 component rows / **250 lines including its header**. The new registered `ArmageddonEmberSeed` component appears exactly once and accounts for the source-backed registry expansion. Core export/registration expectations were updated during S3, but these two Seeder baselines were missed after export refresh. Confirm the registry/export contents, reconcile exact expectations without weakening coverage, run the focused tests and relevant full Seeder gate, and inspect fresh hosted outcomes before treating this as resolved. This handoff only records the issue; it does not repair test code or claim a rerun.
+
+The inspected Linux job passed all 6,514 Core tests and reported 9,507 passes / two failures across the default gate; Windows reported 1,711 Seeder passes / two failures / three platform skips. A second workflow [38223314696](https://github.com/FutureMUD/FutureMUD/actions/runs/38223314696) had a failed Linux job and cancelled Windows job. Cancellation is not a pass. Refresh GitHub state for the latest head; this is a dated observation, not a blanket claim about all future failures.
+
+## Reading order and authority
+
+1. [S3 completion checkpoint](Armageddon_Catalogue_S3_Completion_20261012.md) and [receipt](Armageddon_Catalogue_S3_Completion_20261012.json): what exists and what was actually exercised.
+2. [Final seeder decisions](Armageddon_Seeder_Decisions_20261011.md) and [decision JSON](Armageddon_Seeder_Decisions_20261011.json), then [master-list adoption](Armageddon_Master_List_Adoption_20261011.md). These close the design gate and supersede older proposals/placeholders.
+3. [Seeder completeness design](Armageddon_Seeder_Completeness_Design_20261011.md), its [embedded inventory](Armageddon_Seeder_Completeness_Design_20261011.json), and final [Classic](Armageddon_Seeder_Completeness_Design_20261011_Classic_Progression.tsv) / [Simple](Armageddon_Seeder_Completeness_Design_20261011_Simple_Progression.tsv) rows. The JSON is the active machine-readable stock input, embedded by DatabaseSeeder as `ArmageddonStockDesign`.
+4. [Original completion brief, archived in full](../Armageddon/References/Armageddon_Magic_Completion_Implementation_Brief_20261002.md): original scope, eight larger systems, defining per-candidate contracts and final release gates. Its preparation-only permission text and old baseline/missing-work statements are historical, not current instructions to stop or redo completed work. Later direct user decisions below override conflicting older proposals.
+5. [Configurable casting contract](Configurable_Casting.md), [owned lifecycle](Spell_Owned_Lifecycle.md), [native special mechanics](Armageddon_S3_Native_Special_Mechanics.md), [creature foundations](Armageddon_Catalogue_S3_Creature_Foundations_20261012.md), and [S2 progression/staging](Armageddon_Stock_Progression_S2_20261011.md) for the surfaces touched.
+6. [Whole-plan progress](Armageddon_Completion_Progress.json) retains all 154 candidates, original phases and native cases. [Continuation history](Armageddon_Continuation_20261008.md) and its receipts are historical evidence; consult relevant entries, not every old file. This handoff and the S3 receipt identify current status. Old `not_run`, “S2 next”, partial-install and proposal text does not override later dated acceptance.
+
+The [full master-list archive](../Armageddon/References/Armageddon_Info_Master_List_20261011.txt), [extracted skill tables](../Armageddon/References/Armageddon_Info_Master_List_Skill_Tables_20261011.tsv) and [review](../Armageddon/References/Armageddon_Info_Master_List_Review_20261011.md) are committed for magic and later non-magical classes. The [elementalist research page](Armageddon_Elementalist_Research_Page_20261011.md) is also preserved. A new task does not need the Downloads/OneDrive originals, old pasted-message attachments, ChatGPT Page access or the old chat. The archived brief's source/normalised hashes are in the [handoff record](Armageddon_S4_Continuation_Handoff_20261012.json).
+
+## Locked user decisions — do not reopen them
+
+- One installation per MUD; one **game-wide** Classic/Simple choice in the seeder. Preserve that choice and the earlier classes direction on rerun. Repair/update in place; no conversion, alternate edition or parallel-version installation.
+- Seven elemental traditions plus Sorcerer/Preserver/Defiler always have ten MagicCapabilities and permanent capability merits. Create ten matching native Class roles only when earlier seeding enabled classes. NPCs/items/supplies are automatic; no new prototype questions.
+- Classic uses individual spell skills and the adopted source openings/caps/branches. Simple uses one main skill per capability, with the final approved thresholds. The source tables, identities and 419 admissions are final; do not substitute researched placeholders or invent a new progression design.
+- Exclude mundane/psychic non-spell class grants for this pass. Keep Component Crafting for real supply recipes and its proven Read Enchantment prerequisite (80 only on the three Sorcerer variants). Native NPC locomotion/combat/language traits remain necessary stock.
+- Exactly 152 required canonical spells; two optional additions, Wardcraft/Renew Earth, stay separately identified and unadmitted to required rosters. Exactly 82 spells/four roots in each Sorcerer-family roster; no union with speculative historical memberships. Void Portal Gate is the selected Linked Threshold / Travel Gate identity.
+- Read Attunement reports **explicit builder-assigned elemental affinities** and **legitimately learned magical affiliations** separately. Seeded creatures have attached affinity merits; ordinary characters default unassigned. Do not infer affinity from names, species, skills or temporary item grants.
+- Use native infections, extending native infection kinds when necessary. Sown Sickness is already native kind 5. Translate source nutrition to **satiation**, not a calorie model. Meals are five satiation hours/five bites/0.1 litre water under the approved 2,400-source-units/day translation.
+- Ten foci, two device blanks and their twelve recipes were deliberately deferred to S4 with real spell dependencies. No fake spell IDs, inert AI or decorative substitutes for defining gameplay.
+- All identity links must be code-proven: native FKs, declared discriminator/scalar pairs, known typed XML serializers and owned manifest bindings. **No searching arbitrary text/definitions for numeric IDs or guessing `*Id` reflection fields.** Unknown contracts hold safely.
+- Stock charm can affect PCs under the existing IC-command whitelist; keep all account/OOC/builder/alias/indirect-command authority fences. Use the existing canonical identity/body/focus services, gathering architecture, prepaid snapshots and normal casting pipeline.
+- Seven POWER words remain `wek`, `yuqa`, `kral`, `een`, `pav`, `sul`, `mon`. External grades 1–7, historical indices 0–6 and native `SpellPower` enum values are separate coordinates. Per-spell/source-informed quiet, area, material and lifetime rules override generic heuristics.
+- Installer changes preserve builder edits, stable native/child IDs and all player acquisition, enrolment, traits, grades, opportunity clocks, reserves, charge GUIDs and custody. Do not refill/regrant players during content reconciliation.
+- Authored numbers in the final decisions/inventory are approved builder-editable stock defaults, with provenance labels. No design question remains. Raise only a newly demonstrated semantic incompatibility or a material change to an approved decision, not routine implementation choices.
+
+## S3 implementation to reuse
+
+The fixed development opt-in performs settings → progression → resumable catalogue batches. All **198 nondeferred blueprints** are reconciled; twelve focus/device blueprints remain S4. The installer creates 123 item prototypes and no live actors/items/Rooms. It installs 64 supplies/recipes, 61 tags, finite clay forage, four shelter templates, 49 weapons/types/attacks/messages, 147 expressions, three foods/bottle/wine/water binding, seven independent creature bundles/culture, 49 graded templates, eight controller bundles/ten AI rows, six specialised items/contact poison/infection alias.
+
+Creature attributes are `10 + 2*grade`, combat skills `20 + 5*grade`, natural strikes `3*grade` damage / `grade` pain / zero stun / five stamina. Quadrupeds have four legs and grasping forepaws; winged creatures have native working wings. Affinity merits grant no magic. There are no live conjurations until real S4 invocation bindings create them.
+
+Controllers implement follow/stop/guard/attack, exact-instance track seeking, conserved courier custody/delivery, bounded Haunt and Outsider control loss. Earth Mount additionally uses native Mount AI; Servitors use the existing corpse-animation/commandable path. Retain the exact **primary creator** guard: an earlier attempt to remove it was rejected and the native fixture was corrected to contain a real primary row. Manual unbound NPC loads give no controller authority. Creator/body/NPC identity, active claims, real ready spell, current acquisition/grade and enabled attached capability must agree; callbacks recheck visibility, location, custody and authority.
+
+Haunt cache removal is applied only after confirmed transaction commit. Unknown outcomes hold until reload. Dirty/queued target changes survive failed persistence; clean successful cleanup does not queue a later broad save over unrelated offline fields. These fences and injected-failure coverage must survive S4 bindings.
+
+Ember and Mud use real lifecycle origins and durable one-use consumption before damage/healing; copied, unbound, stale or spent objects cannot activate. Sown Sickness uses native infection/thermal/stamina systems. The pocket prototype's 14 kg maximum and Haven vessel's 3.5 L maximum are catalogue bounds: S4 hydrates exact `2*grade` kg and `0.5*grade` L invocation values. Actual deadlines/counts follow each entry, not one global lifetime.
+
+Tracks now carry optional exact `CharacterInstanceId`, SetNull on deletion. Preserve generated migration `20261012024208_TrackCharacterInstanceIdentity`, designer/model/blank-snapshot alignment and nullable legacy/vehicle tracks. Shared melee/armour packets now preserve the causing weapon, and shared liquid mass has its native volume conversion; keep their regressions.
+
+## Concrete S4 scope and execution order
+
+The following is an implementation order within the already approved milestone, not a new design gate. Complete useful bounded slices and record per-entry progress so a later continuation never has to infer completion from a factory registration.
+
+1. **Resolve the hosted baseline above, then map all 154 entries against current code.** For each stable key, record required/optional, defining contract, existing effect/factory, real prototype/controller dependencies, grade mapping, energy/material/quiet/area/lifetime policy, remaining code/content and evidence. Existing factories and older transcripts qualify only their recorded scope. Do not reclassify a spell complete merely because it has a named effect.
+2. **Hydrate real canonical spell definitions and typed dependencies.** One native spell per key is shared by all traditions; route-local skill/cap/reserve policy stays in capability admission. Reuse existing stock factories when compatible with current approved data. Bind the 49 grade-specific NPC/weapon outputs, native shelters/secondary bodies, special item origins and per-entry counts/deadlines. Do not mutate shared templates or global spell traits/costs to make one route work.
+3. **Finish missing defining adapters.** Include all eight required systems: Spring Haven, Burrow Refuge, Sand Shelter, Sand Effigy, Walking Shadow, Severing Refuge, Apex Bane, Folded Pocket. Their N17–N20 runtime has bounded builder-installed acceptance, but full installed-stock/all-grade bindings remain S4 obligations. Implement Read Attunement's two facts and any remaining required per-entry mechanisms using native configurable seams; preserve normal resistance, visibility, ward, physical eligibility and guarded outcomes.
+4. **Install the twelve deferred focus/device prototypes and recipes.** Use real qualified spell allowlists and existing focus/charged-device components. Ten tradition foci; empty wand capacity five and staff ten, stock caster-only. Keep frozen payload reproduction, payment, legitimate homogeneous recharge and GUID conservation. S4 authors real stock dependencies; S5 separately qualifies production/exposure/calibration across the complete package. No stock scrolls.
+5. **Wire the full qualified catalogue into the existing fixed install.** Reconcile owned fields/children/typed links, retain compatible child IDs and partial-commit resume. `ArmageddonStockProgression.Casting(...)` already takes a `qualifiedSpells` map and remains disabled unless every spell in that capability resolves to a positive distinct canonical ID. A positive ID alone is not qualification: use the per-entry evidence ledger. Do not bypass this completeness fence, enable partial active rosters or enable classes/regenerators prematurely. Full admissions/Class availability require complete dependency qualification through S4/S5; Release remains gated through final readiness.
+6. **Validate actual paid installed-stock invocation and update docs/PR.** In particular qualify creator-bound mount riding/commands, native guard/follow, seeker pursuit, exact courier transfer/delivery, Haunt resistance/visibility/cancellation/restart and Outsider failure under real stock casts, with original reserve costs and lifecycle/custody. Exercise special one-use output and native cure/condition selection through genuine cast bindings. Cover grade/lifetime overrides, zero-payment refusals and cold restart. Keep S5 dose/production calibration and S6 full matrix separately labelled; do not claim them from an S4 fixture.
+
+### Code entry points
+
+| Surface | Current owning paths |
+| --- | --- |
+| Stock contract/projection | `DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonStockManifest.cs`, `ArmageddonStockCatalogue.cs`, `ArmageddonStockProgression.cs`; embedded approved JSON in `DatabaseSeeder.csproj` |
+| Full fixed installation | Same directory: `ArmageddonMagicSeeder.cs`, `.Questions.cs`, `ArmageddonInstallationSettings.cs`, `.Preflight.cs`, `ArmageddonProgressionInstaller*.cs`, `ArmageddonCatalogueInstaller.cs` |
+| Conservative stock ownership | `ArmageddonCatalogueOwnership*.cs`, `ArmageddonCatalogueLinks.cs`, native `SeederManagedRecordReconciler`; module-specific declared schemas/baselines |
+| Older stock factories/partial APIs | `MudSharpCore/Magic/Armageddon*Stock.cs`, `ArmageddonUtilityStock.cs`; seeder `Armageddon*InstallPlan.cs` / `Armageddon*Installer*.cs`. The retained prepared-world API rejects bypassing fixed installed settings; do not use it to make a second package. |
+| Ordinary paid progression/casting | `MudSharpCore/Magic/Casting/MagicCastingService.*`, `MagicCastingStateStore`, `MudSharpCore/Magic/MagicSpell*.cs`, skill-level capability casting partials; shared contracts in `FutureMUDLibrary/Magic/` |
+| Creation/control/retirement | `MudSharpCore/Magic/Lifecycle/SpellOwnedNpcService*.cs`, `SpellOwnedItemService*.cs`, native eligibility, `Magic/SpellEffects/CreateNPCEffect*.cs`, creation/lifecycle item effects |
+| Companion runtime | `MudSharpCore/NPC/AI/SpellCompanionAI.cs`, `Effects/Concrete/SpellNpcControlEffect*.cs`, `SpellNpcMissionEffect.cs`, native guard/mount/commandable AI, `FutureProg/Functions/Magic/CanCommandSpellNpc.cs` |
+| Special effects/providers | `ArmageddonEmberSeedGameItemComponent*`, native `TopicalCreamGameItemComponent*`, `SownSicknessInfection.cs`, `SownSicknessSymptoms.cs`, `ElementalAffinityMerit.cs`; shared interfaces in `FutureMUDLibrary/` |
+| Verification | `DatabaseSeeder Unit Tests/Armageddon*Tests.cs`, `MudSharpCore Unit Tests/SpellNpcControlTests.cs`, one-use/infection/affinity/provenance tests; `tests/ArmageddonPreparedSeederNativeHarness/` |
+
+This table is navigation, not permission to overwrite existing modules or a mandate to create matching new filenames.
+
+## Verification and reproducible environment
+
+Read [verification routing](../../.codex/references/verification-and-docs.md) and [test execution](../../.codex/references/test-execution.md). Resolve relevant skills from the new task's live catalogue: database-seeder for workflow/replay changes, entity-framework for persistence, mud-tester for actual Telnet, catalogue-audit for generated exports and pr-publish for the completed update. On the old task these lived under `.agents/skills`; do not assume an absent `.codex/skills` path or old installed runtime path.
+
+Use the checked-out SDK/package versions (current projects target .NET 10 / EF 9.0.11); serial `-m:1`, restore only as needed, then `--no-restore`. Do not build the whole solution merely to test magic; VSIX requires separate tooling. Example commands from the repository root:
+
+```powershell
+& .\scripts\test-unit.ps1 -OutputMode Compact -Project 'DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj' -ResultsRoot '.artifacts/s4-seeder'
+& .\scripts\test-unit-core.ps1 -OutputMode Compact -ResultsRoot '.artifacts/s4-core'
+dotnet build DatabaseSeeder/DatabaseSeeder.csproj -c Release --no-restore -m:1
+dotnet build tests/ArmageddonPreparedSeederNativeHarness/ArmageddonPreparedSeederNativeHarness.csproj -c Debug --no-restore -m:1
+```
+
+Broaden to shared Library/DB suites when those contracts change. Record stable source fingerprints, binaries, filters, counts and fixture identity. Do not add overlapping run counts. Documentation-only changes need path/JSON/diff checks, not a new gameplay campaign.
+
+The native harness wrapper `tests/ArmageddonPreparedSeederNativeHarness/Run-IsolatedPreparedSeeder.ps1` owns a unique MySQL instance, datadir, database marker and process tree. Existing modes include `stock-catalogue`, `stock-catalogue-boot`, `catalogue-fixture-boot`, `s3-runtime`, `snapshot-refresh`, progression and prepared legacy lanes. Inspect current flags/source before execution; extend the exact S4 scenario as needed rather than calling S3 fixtures proof of new spells.
+
+- Windows native MySQL needed a short TEMP/TMP base: `C:\Temp`, with the wrapper's unique owned child. Long worktree paths caused tablespace failures. Do not delete shared roots or unrelated databases/processes.
+- The existing boot script uses Windows job APIs and imports exactly `<checkout>/.agents/skills/futuremud-mud-tester/scripts/mud_session.py`. Verify that installed skill helper and Python/MySQL availability first; the helper is a task-environment dependency, not a Git artifact. A different mount/host needs an explicit matching helper-path or platform adaptation with the ownership fences intact. Report unavailable native prerequisites as blocked, not passing.
+- `stock-catalogue` proves a fresh 32-seeder Medieval replay and separate catalogue reconciliation/reader outcomes. `stock-catalogue-boot` additionally uses the explicit checked-in `PreparedCatalogueBootSmoke.py` via the optional parent handoff.
+- Boot helper requires a byte-identical copy of that script in the checkout's **parent directory**, with `FUTUREMUD_PREPARED_REPLAY_BOOT_SCRIPT` set to that exact path. `FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT` must be a fresh parent-directory name starting `prepared-catalogue-boot-native`; the source validates both. Parent job attachment/ready marker precedes SQL/server actions. Do not remove these checks to change paths.
+- `catalogue-fixture-boot` requires `FUTUREMUD_S3_CATALOGUE_FIXTURE` pointing to the descriptor within its exact owned `.artifacts/s3-catalogue-fixtures/<timestamp_GUID>/` directory. It checks SQL SHA and current stock-source SHA, restores into a fresh owned DB and reseals ownership. It is a **restore**, never another fresh seeder replay; content edits can invalidate it. Rebuild a fresh fixture when necessary instead of changing hashes to accept mismatched content.
+- The previous optional local archive is `.artifacts/s3-catalogue-fixtures/20261012T045328Z_a02cf90291094a77af75e4ebcf4bee7f/fixture.json`; latest gameplay evidence is `.artifacts/s3-gameplay-native/boot-run-016/boot-latest.json`. These ignored artifacts/private SQL are **not portable prerequisites** and must not be committed or uploaded. All required source/scenarios/contracts are committed; recreate disposable fixtures on another host.
+- Native XML SQL transport uses explicit `HEX(Definition)`/UTF-8 decoding. Native skill owner scopes normalise legacy stored zero for skill types into Character scope; attributes use Body scope. Use real model contracts and exact `Bodies_GameItems` table/instance IDs. Native keyword matching uses dotted compound keywords. Open closable bottles before drinking. Movement uses a bounded 45-second exact-character location poll after the native scheduled move.
+- Freeze tested source and allow one operator per world. Store transcripts/receipts outside tracked source; distinguish Admin-created/set-up fixtures from ordinary-player natural acquisition/casting. Both shutdowns, owned database drop and MySQL/datadir cleanup must be observed, not inferred from connection closure.
+
+S3 local evidence: 9,495 default-suite passes / zero failures / three Windows skips before later changes; final Core 6,514 passes; Release Seeder and Debug harness builds zero errors (160/0 warnings); native composite/snapshot/controller failure-recovery fixtures; 21 actual two-phase builder/Admin assertions. Those prove only their dated bounded scopes. The hosted export-baseline failures above qualify the earlier local broad-suite claim; do not advertise final all-project/hosted success until repaired and rerun.
+
+On Windows, sandboxed `gh auth status` can falsely reject keyring credentials. Verify outside the sandbox before diagnosing authentication; keep Windows Credential Manager storage and run authenticated `gh` there. Never copy tokens to environment variables/plaintext files. Git metadata may be outside the writable worktree; use the narrow normal escalation for Git state writes.
+
+## Subsequent checkpoints and exit boundaries
+
+| Gate | Required remaining outcome |
+| --- | --- |
+| S4 | All 152 defining spell contracts/real native dependencies and required eight systems; full grade/source-informed policies; separate Attunement facts; twelve deferred foci/devices/recipes; required/optional evidence ledger. |
+| S5 | Qualified producer/delivery allowlists, frozen-payload production/recharge and carriers/dose calibration; real acquisition/practice/cost/affordability in both modes. Keep unqualified producers disabled and no free fallback. |
+| S6 | Four fresh-install cells: Classic/Simple × earlier classes on/off; full dependencies, Debug/Release build gates, actual isolated replay/second-run refusal and ordinary nonadmin integration guide. Release entry remains gated pending the remaining readiness conditions. |
+| N24 | Full owned-content rerun: edited/renamed/retired/deleted/cloned/interrupted stock, stable identities/children and **all relevant player-state table checksums** conserved. Narrow handpicked table checks are insufficient. |
+| N25 | Cross-feature paid effect/progression/lifecycle uncertain failures, different bodies/routes, restart recovery; no double payment/refund/replay/duplicate state/custody loss. |
+| Final original phase-6 readiness | Per-spell defining gameplay and delivery evidence, all required native cases, high-volume/lifetime persistence and performance, source/adaptation/affordability report, complete ordinary builder/player guide and explicit unresolved-failure disposition. Use the original brief/whole-plan ledger; do not equate “S4 code exists” with release readiness. |
+
+N14–N23 receipts remain valuable bounded runtime evidence: early death/churn, shelters, projections, ward/bane, pocket, weapon tiers, activation and recharge. Requalify the actual changed installed stock; do not repeat every historical campaign without a dependency reason. In particular N23's paid ordinary-player recharge evidence does not prove the new full catalogue, every production payload or natural progression.
+
+## Suggested prompt for the new task
+
+> Continue FutureMUD/FutureMUD on branch `codex/armageddon-continuation-20261008`, using the latest draft PR #788 head. Read `Design Documents/Magic/Armageddon_S4_Continuation_Handoff_20261012.md` first, then its required authority/contract references. Resolve the recorded component-export CI baseline and validate that repair, then begin S4 under the locked design. Keep the required/optional per-entry evidence ledger, use existing native services and only code-proven typed identity links, preserve builder/player state and keep Release gated. Do not reopen final seeder decisions or treat archived permissions/proposals as current instructions. Validate coherent slices and update draft PR #788 after validation; do not merge or deploy. S5/S6 and N24/N25 follow the handoff's dependency order.
+
+Maintain this handoff/current progress after each accepted slice, with exact commit, completed entries, blockers, tests actually run and next concrete dependency. Genuine newly discovered incompatibilities go to the user; routine implementation and already approved continuation do not require another permission gate.

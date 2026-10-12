@@ -1,0 +1,154 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-12",
+  "purpose": "Portable new-task entrypoint; no new runtime/content implementation",
+  "markdown": "Design Documents/Magic/Armageddon_S4_Continuation_Handoff_20261012.md",
+  "repository": "FutureMUD/FutureMUD",
+  "branch": "codex/armageddon-continuation-20261008",
+  "pr": "https://github.com/FutureMUD/FutureMUD/pull/788",
+  "pr_remains_draft": true,
+  "s3_implementation_commit": "8d503f6e789e5d68e03fceb4ae64b0a66f1fabd3",
+  "resume_latest_branch_not_reset_to_s3": true,
+  "s4_started": false,
+  "n24_started": false,
+  "release_enabled": false,
+  "spell_admissions_enabled": false,
+  "class_availability_enabled": false,
+  "primary_sources": [
+    "Design Documents/Magic/Armageddon_Seeder_Decisions_20261011.md",
+    "Design Documents/Magic/Armageddon_Seeder_Completeness_Design_20261011.json",
+    "Design Documents/Magic/Armageddon_Master_List_Adoption_20261011.md",
+    "Design Documents/Magic/Armageddon_Catalogue_S3_Completion_20261012.json"
+  ],
+  "brief_archive": {
+    "path": "Design Documents/Armageddon/References/Armageddon_Magic_Completion_Implementation_Brief_20261002.md",
+    "original_path": "C:/Users/luker/Downloads/Armageddon_Magic_Completion_Implementation_Brief.md",
+    "edition_date": "2026-10-02",
+    "archived_date": "2026-10-12",
+    "bytes": 131071,
+    "lines": 905,
+    "original_bytes_sha256": "16B67175354DA916DA20A388895C7FADAB77FB452C63D47B40DD1D03A2A51B42",
+    "utf8_no_bom_lf_sha256": "16B67175354DA916DA20A388895C7FADAB77FB452C63D47B40DD1D03A2A51B42",
+    "authority": "Original scope/source contracts; later direct user decisions and current approved inventory supersede conflicting proposals. Preparation-only permissions/baselines are historical, not active execution instructions."
+  },
+  "fixed_requirements": {
+    "one_installation_per_mud": true,
+    "game_wide_mode": [
+      "Classic",
+      "Simple"
+    ],
+    "mode_conversion": false,
+    "always_capabilities_and_merits": 10,
+    "class_roles_if_earlier_classes_enabled": 10,
+    "required_spells": 152,
+    "optional_spells": 2,
+    "sorcerer_roster": 82,
+    "prototype_blueprints": 210,
+    "s3_reconciled_blueprints": 198,
+    "s4_deferred_foci": 10,
+    "s4_deferred_device_blanks": 2,
+    "s4_deferred_recipes": 12,
+    "read_attunement": "Explicit assigned affinities and legitimate learned affiliations separately; no inference",
+    "non_spell_player_skills": "Only required Component Crafting/proven prerequisites; other mundane/psychic grants deferred",
+    "nutrition": "Native satiation, no calorie model",
+    "infection": "Native infection system; Sown Sickness kind 5",
+    "identity_references": "Only native FK/known typed serializer/explicit manifest fields; no arbitrary numeric text scans or guessed Id reflection",
+    "reruns": "Preserve builder edits/native IDs and all player state; fixed direction only"
+  },
+  "hosted_followup": {
+    "status": "UNRESOLVED_HOSTED_TEST_BASELINE",
+    "head": "8d503f6e789e5d68e03fceb4ae64b0a66f1fabd3",
+    "inspected_workflow": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223319636",
+    "second_workflow": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223314696",
+    "live_check_snapshot": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-12T08:44:01Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223319636/job/114724629095",
+        "name": "default-gate (ubuntu-latest)",
+        "startedAt": "2026-10-12T08:23:59Z",
+        "status": "COMPLETED",
+        "workflowName": "Unit Tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-12T08:40:03Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223314696/job/114724613124",
+        "name": "default-gate (ubuntu-latest)",
+        "startedAt": "2026-10-12T08:23:57Z",
+        "status": "COMPLETED",
+        "workflowName": "Unit Tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-12T08:49:26Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223319636/job/114724629320",
+        "name": "default-gate (windows-latest)",
+        "startedAt": "2026-10-12T08:24:00Z",
+        "status": "COMPLETED",
+        "workflowName": "Unit Tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-12T08:54:59Z",
+        "conclusion": "CANCELLED",
+        "detailsUrl": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223314696/job/114724613448",
+        "name": "default-gate (windows-latest)",
+        "startedAt": "2026-10-12T08:23:57Z",
+        "status": "COMPLETED",
+        "workflowName": "Unit Tests"
+      }
+    ],
+    "failures": [
+      {
+        "test": "ComponentMetadata_CoversRuntimeRegistryAndEveryCatalogueBinding",
+        "path": "DatabaseSeeder Unit Tests/IndustrialisedItemCatalogueTests.cs",
+        "line": 100,
+        "expected": 248,
+        "actual": 249
+      },
+      {
+        "test": "ComponentTypeAndPrerequisiteAudits_ContainExactCurrentBaseline",
+        "path": "DatabaseSeeder Unit Tests/IndustrialisedPrerequisiteAuditTests.cs",
+        "line": 36,
+        "expected": 248,
+        "actual": 249
+      }
+    ],
+    "also_inspect": "Uniqueness expectation 248 and header-inclusive component TSV expectation 249 in IndustrialisedPrerequisiteAuditTests; current catalogue has 249 rows.",
+    "observed_linux_default_gate": {
+      "passed": 9507,
+      "failed": 2,
+      "skipped": 0
+    },
+    "observed_linux_core": {
+      "passed": 6514,
+      "failed": 0,
+      "skipped": 0
+    },
+    "observed_windows_seeder": {
+      "passed": 1711,
+      "failed": 2,
+      "skipped": 3
+    },
+    "repair_or_rerun_in_handoff_task": false,
+    "next_action": "Verify exact runtime/JSON/TSV contents, reconcile obsolete test expectations without weakening coverage, run focused/full relevant Seeder checks and inspect new hosted results before S4."
+  },
+  "order": [
+    "Resolve recorded hosted component-export baseline",
+    "S4 full required spell catalogue/real adapters/foci/devices/recipes",
+    "S5 production/substance/progression qualification",
+    "S6 four fresh-install cells",
+    "N24 full owned-content/player-state rerun qualification",
+    "N25 cross-feature uncertain-failure qualification",
+    "Original final readiness/per-spell/balance/guide gates"
+  ],
+  "portable_without_old_chat_or_local_artifacts": true,
+  "local_artifacts_optional_and_private": true,
+  "new_host_recreates_disposable_fixtures": true,
+  "running_children_or_test_databases_to_resume": false,
+  "authorization_boundary": "New task follows its human prompt and live AGENTS/skills; no automatic merge/deploy/release or policy redesign."
+}

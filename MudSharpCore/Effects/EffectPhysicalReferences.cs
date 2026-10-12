@@ -69,6 +69,7 @@ internal static class EffectPhysicalReferences
 			SpellTransformFormEffect x => [new(PhysicalEntityKind.Body, x.FormBodyId, "FormBodyId"), new(PhysicalEntityKind.Body, x.PriorBodyId, "PriorBodyId")],
 			AstralProjectionAnchorEffect x => [new(PhysicalEntityKind.CharacterInstance, x.ProjectionInstanceId, "ProjectionInstanceId")],
 			SpellIdentifyEffect x => Caster(x.CasterId, x.CasterInstanceId),
+			SpellReadAttunementEffect x => Caster(x.CasterId, x.CasterInstanceId),
 			SpellReciteProxyEffect x => Caster(x.CasterId, x.CasterInstanceId)
 				.Concat(Caster(x.LinkedCharacterId, x.LinkedInstanceId)),
 			SpellLiveBodyPossessionEffect x => Caster(x.AnchorCharacterId, x.AnchorInstanceId)

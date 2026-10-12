@@ -153,6 +153,16 @@ public class RoomReferenceCorrectionTests
 		CollectionAssert.AreEquivalent(names.ToArray(), RoomReferenceEffectTypes.Names.ToArray());
 	}
 
+	[TestMethod]
+	public void ReadAttunementChildren_DeclareNoRoomLinksAndPreserveCasterIdentityBytes()
+	{
+		const string child = "<Effect><Type>SpellReadAttunement</Type><Effect><CasterId>9000</CasterId><CasterInstanceId>9001</CasterInstanceId></Effect></Effect>";
+		var nested = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{child}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(nested, RoomReferenceXml.Rewrite(nested, false, Map(), "Characters #1.EffectData"));
+		var direct = $"<Effects>{child}</Effects>";
+		Assert.AreSame(direct, RoomReferenceXml.Rewrite(direct, false, Map(), "Bodies #1.EffectData"));
+	}
+
 	[DataTestMethod]
 	[DataRow("<Emote><Token TargetType='Room'/></Emote>")]
 	[DataRow("<Emote><Token TargetId='9000'/></Emote>")]

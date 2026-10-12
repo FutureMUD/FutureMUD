@@ -39,12 +39,15 @@ public enum MagicCastingStatus { Refused, Failed, Succeeded, NeedsReview, Starte
 public sealed record MagicCastingResult(MagicCastingStatus Status, string Message, Guid? OperationId = null);
 public sealed record MagicCastingGrant(bool Changed, bool Allowed, string Message);
 public sealed record MagicCastingClassEnrolment(long CapabilityId, MagicCastingGrant Result);
+public sealed record MagicCastingAffiliation(long CapabilityId, string Name, bool Active);
 
 /// <summary>World-local authority for acquired knowledge, explicit routes, paid casting and progression.</summary>
 public interface IMagicCastingService
 {
 	AcquiredSpell? Acquisition(ICharacter character, long spellId);
 	bool HasAnyAcquisition(ICharacter character, IReadOnlyCollection<long> spellIds);
+	/// <summary>Pure completed enrolment history, with current explicit route permission on this body.</summary>
+	IReadOnlyList<MagicCastingAffiliation> LearnedAffiliations(ICharacter character);
 	IReadOnlyList<MagicCastingRoute> Routes(ICharacter actor, long? spellId = null);
 	string? Preflight(ICharacter actor, long capabilityId, long spellId, int grade, bool overreach);
 	MagicCastingQuote Quote(MagicCastingIntent intent);

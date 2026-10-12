@@ -168,6 +168,7 @@ SpellFlight
 SpellGlow
 SpellHealingRate
 SpellIdentify
+SpellReadAttunement
 SpellInfravision
 SpellInsomnia
 SpellInvisibility

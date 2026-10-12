@@ -49,6 +49,7 @@ public partial class DispelMagicEffect : IMagicSpellEffectTemplate, IMagicSpellE
 			{ "possesscorpse", x => x is ICorpsePossessionEffect },
 			{ "animatecorpse", x => x is IAnimatedCorpseEffect },
 			{ "identify", x => x is IIdentifyLookEffect },
+			{ "readattunement", x => x is SpellReadAttunementEffect },
 			{ "reciteproxy", x => x is IReciteProxyEffect },
 			{ "deadspeak", x => x is IDeadSpeakEffect },
 			{ "projectile", x => x is IMagicProjectilePayloadEffect },

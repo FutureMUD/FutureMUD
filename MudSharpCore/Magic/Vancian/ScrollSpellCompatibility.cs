@@ -41,6 +41,7 @@ public static class ScrollSpellCompatibility
 		Add("createtrap placetrap dispeltrap removetrap", "Nested prepared-payload and trap ownership require a dedicated adapter.");
 		Add("exitbarrier magicaltether portal portalnetwork", "Retained topology/attachment lifecycle requires a dedicated snapshot adapter.");
 		Add("deadspeak identify detectpoison telepathy phantomillusion subjectivedesc subjectivesdesc", "Information or subjective-perception policy scripts require an explicit live-context adapter.");
+		Add("readattunement", "Live canonical enrolment and exact casting-instance disclosure require separate carrier qualification; stock carriers remain disabled.");
 		Add("dispelmagic personalward roomward personaltagward roomtagward", "Active interception/dispelling policies require a dedicated compatibility adapter.");
 		Add("corpseconsume corpsemark corpsepreserve destroyitem itemdamage itemenchant", "Item/corpse mutation and nested item configuration require a dedicated compatibility adapter.");
 		Add("burning ignite trackmark tracktrail", "Periodic damage/tracking expressions require a dedicated retained-context adapter.");

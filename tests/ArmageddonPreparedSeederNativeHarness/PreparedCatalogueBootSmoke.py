@@ -35,6 +35,10 @@ helper = importlib.util.module_from_spec(spec)
 assert spec.loader
 spec.loader.exec_module(helper)
 SECRETS = [CONNECTION, PASSWORD]
+BOOT_SCOPE = os.environ.get('FUTUREMUD_CATALOGUE_BOOT_SCOPE', 'catalogue')
+assert BOOT_SCOPE in ('catalogue', 'attunement-builder'), 'Unknown catalogue boot scope.'
+assert BOOT_SCOPE != 'attunement-builder' or os.environ.get('FUTUREMUD_S4_ATTUNEMENT_BUILDER_SMOKE') == '1', \
+    'The Attunement-only lane requires its explicit builder assertions.'
 
 def redact(text): return helper.redact(str(text), SECRETS)
 def sha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest().upper()
@@ -201,6 +205,32 @@ def item_command_reference(proto_id):
     require(len(rows) == 1 and rows[0][0] == str(proto_id), 'Exact native item prototype is missing.')
     return str(proto_id)
 
+def attunement_builder_smoke(session, phase):
+    # This authors only a disposable builder fixture. It is never a qualified stock admission.
+    if phase == 'first':
+        school = catalogue_record('arm.school.water')
+        require(school[1] == 'MagicSchool', 'Attunement fixture requires the exact declared native school binding.')
+        created = session.send(f'magic spell new "S4 Attunement Adapter Fixture" {school[2]}', read_seconds=1)
+        require('You create a new magic spell' in created, 'Native Attunement builder fixture creation failed.')
+        configured = session.send('magic spell set effect add readattunement', read_seconds=1)
+        require('readattunement' in configured.lower() or 'Read Attunement' in configured,
+                'Native builder did not accept the Read Attunement effect.')
+        session.send('impdebug flush', read_seconds=2)
+        rows = sql("SELECT Id,HEX(Definition) FROM MagicSpells WHERE Name='S4 Attunement Adapter Fixture'", (1,))
+        require(len(rows) == 1, 'Expected exactly one disposable Attunement builder fixture.')
+        root = ET.fromstring(rows[0][1])
+        require(len(root.findall("Effects/Effect[@type='readattunement']")) == 1,
+                'Native builder save did not persist the exact effect discriminator.')
+        receipt['attunement_builder_fixture'] = {'spell':int(rows[0][0]), 'definition':rows[0][1]}
+        assertions.append('S4 adapter: native builder accepted and persisted one readattunement effect')
+    else:
+        fixture = receipt['attunement_builder_fixture']
+        shown = session.send(f"magic spell show {fixture['spell']}", read_seconds=1)
+        require('Read Attunement' in shown, 'Cold native spell loader did not restore Attunement template.')
+        rows = sql(f"SELECT HEX(Definition) FROM MagicSpells WHERE Id={fixture['spell']}", (0,))
+        require(len(rows) == 1 and rows[0][0] == fixture['definition'], 'Cold builder fixture definition changed.')
+        assertions.append('S4 adapter: cold native loader showed the saved Read Attunement template unchanged')
+
 def food_bites(definition):
     # These catalogue provisions use the native Food component's Bites element.
     return float(ET.fromstring(definition).findtext('Bites', 'nan'))
@@ -240,26 +270,41 @@ def native_first_boot_scenario(session):
     product_id = records['arm.material.abjuration.rank0'][2]
     input_before = int(sql(f'SELECT COUNT(*) FROM GameItems WHERE GameItemProtoId={blank_id}')[0][0])
     product_before = int(sql(f'SELECT COUNT(*) FROM GameItems WHERE GameItemProtoId={product_id}')[0][0])
-    output = session.send('item load ' + item_command_reference(blank_id), read_seconds=2)
-    require('you load ' in output.lower(), 'Native item load did not acknowledge the recipe input.')
-    output = session.send('impdebug flush', read_seconds=3)
-    require('All queued saves have been flushed' in output, 'Loaded craft input flush did not confirm.')
-    input_loaded = int(sql(f'SELECT COUNT(*) FROM GameItems WHERE GameItemProtoId={blank_id}')[0][0])
-    require(input_loaded == input_before + 1, 'Native item load did not persist exactly one recipe input.')
-    held_input = sql(f'SELECT gi.Id FROM GameItems gi JOIN Bodies_GameItems bgi ON bgi.GameItemId=gi.Id WHERE gi.GameItemProtoId={blank_id} AND bgi.BodyId={admin_body[0][0]}')
-    require(len(held_input) == 1, 'Loaded recipe input is not in the Admin avatar inventory.')
     recipe_name = sql(f"SELECT Name FROM Crafts WHERE Id={records['arm.material.abjuration.rank0.recipe'][2]}")
     require(len(recipe_name) == 1 and recipe_name[0][0], 'Native recipe row has no exact command name.')
-    output = session.send('craft begin "' + recipe_name[0][0] + '"', read_seconds=2)
-    require('prepar' in output.lower() or 'craft' in output.lower(), 'Native craft begin did not accept the exact ranked recipe name.')
     phase_rows = sql(f"SELECT PhaseLengthInSeconds FROM CraftPhases WHERE CraftPhaseId={records['arm.material.abjuration.rank0.recipe'][2]} ORDER BY PhaseNumber")
     require(len(phase_rows) == 1 and math.isfinite(float(phase_rows[0][0])) and 0 < float(phase_rows[0][0]) <= 60, 'Craft phase is missing or exceeds bounded wait.')
-    session.read_for(math.ceil(float(phase_rows[0][0])) + 3)
-    output = session.send('impdebug flush', read_seconds=3)
-    require('All queued saves have been flushed' in output, 'Craft save flush did not confirm.')
-    input_after = int(sql(f'SELECT COUNT(*) FROM GameItems WHERE GameItemProtoId={blank_id}')[0][0])
-    product_after = int(sql(f'SELECT COUNT(*) FROM GameItems WHERE GameItemProtoId={product_id}')[0][0])
-    require(input_after < input_before + 1 and product_after > product_before, 'Craft did not persist its native product and consume the loaded blank input.')
+    receipt['craft_attempts'] = []
+    # Native checks can legitimately spoil a blank even at skill 100. Retry only
+    # that exact outcome, with a fresh loaded input and independent conservation
+    # checks on every attempt. Success remains required within three attempts.
+    for attempt in range(1, 4):
+        output = session.send('item load ' + item_command_reference(blank_id), read_seconds=2)
+        require('you load ' in output.lower(), 'Native item load did not acknowledge the recipe input.')
+        output = session.send('impdebug flush', read_seconds=3)
+        require('All queued saves have been flushed' in output, 'Loaded craft input flush did not confirm.')
+        input_loaded = int(sql(f'SELECT COUNT(*) FROM GameItems WHERE GameItemProtoId={blank_id}')[0][0])
+        require(input_loaded == input_before + 1, 'Native item load did not persist exactly one recipe input.')
+        held_input = sql(f'SELECT gi.Id FROM GameItems gi JOIN Bodies_GameItems bgi ON bgi.GameItemId=gi.Id WHERE gi.GameItemProtoId={blank_id} AND bgi.BodyId={admin_body[0][0]}')
+        require(len(held_input) == 1 and held_input[0][0].isdigit(), 'Loaded recipe input is not in the Admin avatar inventory.')
+        output = session.send('craft begin "' + recipe_name[0][0] + '"', read_seconds=2)
+        require('prepar' in output.lower() or 'craft' in output.lower(), 'Native craft begin did not accept the exact ranked recipe name.')
+        output += session.read_for(math.ceil(float(phase_rows[0][0])) + 3)
+        flushed = session.send('impdebug flush', read_seconds=3)
+        require('All queued saves have been flushed' in flushed, 'Craft save flush did not confirm.')
+        input_after = int(sql(f'SELECT COUNT(*) FROM GameItems WHERE GameItemProtoId={blank_id}')[0][0])
+        product_after = int(sql(f'SELECT COUNT(*) FROM GameItems WHERE GameItemProtoId={product_id}')[0][0])
+        consumed = int(sql(f'SELECT COUNT(*) FROM GameItems WHERE Id={held_input[0][0]}')[0][0]) == 0
+        require(input_after == input_before and consumed, 'Craft did not consume exactly its loaded blank input.')
+        receipt['craft_attempts'].append({'attempt': attempt, 'input': int(held_input[0][0]),
+                                         'consumed': consumed, 'product_count': product_after})
+        if product_after == product_before + 1:
+            receipt['craft_attempts'][-1]['outcome'] = 'success'
+            break
+        require(product_after == product_before and 'spoil the prepared materials' in output.lower(),
+                'Craft failed without the exact native spoil outcome and unchanged product count.')
+        receipt['craft_attempts'][-1]['outcome'] = 'native-spoil'
+    require(product_after == product_before + 1, 'Craft did not persist exactly one native product within three attempts.')
     assertions.append('Native exact ranked craft persisted product and consumed its loaded input after bounded phase and flush')
     session.send('drop all', read_seconds=2)
 
@@ -519,7 +564,7 @@ def boot(phase):
             looked = session.send('look',read_seconds=3)
             require('Guest Lounge' in looked, 'Native login/LOOK did not reach seeded Guest Lounge.')
             assertions.append(phase+': native Admin avatar login and LOOK')
-            if phase == 'first':
+            if phase == 'first' and BOOT_SCOPE == 'catalogue':
                 native_first_boot_scenario(session)
             elif phase == 'cold' and 'food_component_instance' in receipt:
                 food_component_id = catalogue_record('arm.item.food.bread.component')[2]
@@ -530,6 +575,8 @@ def boot(phase):
                 persisted_bottle = sql(f"SELECT HEX(Definition) FROM GameItemComponents WHERE GameItemId={receipt['bottle_component_instance'][0]} AND GameItemComponentProtoId={bottle_component_id} ORDER BY Id LIMIT 1", (0,))
                 require(len(persisted_bottle) == 1 and liquid_volume(persisted_bottle[0][0]) == receipt['bottle_component_instance'][3], 'Cold restart did not retain reduced numeric liquid volume.')
                 assertions.append('Cold restart retained reduced native bottle liquid contents')
+            if os.environ.get('FUTUREMUD_S4_ATTUNEMENT_BUILDER_SMOKE') == '1':
+                attunement_builder_smoke(session, phase)
             flush = session.send('impdebug flush',read_seconds=3)
             require('All queued saves have been flushed' in flush, 'Native save queue flush did not confirm.')
             state = character_state()
@@ -558,6 +605,10 @@ def boot(phase):
         (runtime/'process-output.txt').write_text('\n'.join(collector.lines)+'\n',encoding='utf-8')
 
 try:
+    receipt['scope'] = BOOT_SCOPE
+    if BOOT_SCOPE == 'attunement-builder':
+        receipt['limitations'] = ['S4 builder registration/save and unchanged cold template loading only; '
+                                  'no S3 crafting/combat/movement qualification and no paid installed-stock Attunement gameplay.']
     ready = Path(os.environ['FUTUREMUD_PREPARED_REPLAY_PARENT_READY_PATH']).resolve()
     ready_token = os.environ['FUTUREMUD_PREPARED_REPLAY_PARENT_READY_TOKEN']
     require(ready.parent == ROOT and ready.name.startswith('prepared-replay-boot-parent-ready_') and ready.suffix == '.txt' and

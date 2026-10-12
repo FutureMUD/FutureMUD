@@ -39,7 +39,7 @@ public static class PhysicalReferenceCodecs
 			"PsionicTrace" => ["SourceCharacterId", "TargetCharacterId"],
 			"WitnessedClanMemberDeath" => ["Member"],
 			"Trap" or "TrapPayloadSchedule" => ["CreatorId", "TargetCharacterId"],
-			"SpellIdentify" => ["CasterId"],
+			"SpellIdentify" or "SpellReadAttunement" => ["CasterId"],
 			"SpellNpcGuardian" => ["CreatorId"],
 			"SpellNpcControl" => ["CreatorId", "TargetId"],
 			"SpellNpcMission" => ["TargetId", "RecipientId"],
@@ -103,7 +103,7 @@ public static class PhysicalReferenceCodecs
 		}
 		var instanceFields = type switch
 		{
-			"SpellIdentify" => new[] { "CasterInstanceId" },
+			"SpellIdentify" or "SpellReadAttunement" => new[] { "CasterInstanceId" },
 			"SpellNpcGuardian" => ["CreatorInstanceId"],
 			"SpellNpcControl" => ["CreatorInstanceId", "TargetInstanceId"],
 			"SpellNpcMission" => ["TargetInstanceId", "RecipientInstanceId"],

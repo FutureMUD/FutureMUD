@@ -452,6 +452,19 @@ this hook automatically. A failed authored enrolment can be retried directly.
 
 ## Persistence and extension seams
 
+`IMagicCastingService.LearnedAffiliations` is a pure query of exact completed canonical
+capability enrolments. Completion follows durable starting acquisitions; incomplete or
+misbound records are excluded. Shared canonical spell knowledge cannot infer another
+teaching route. Learning history remains when permanent permission becomes inactive.
+The active flag checks the supplied physical body's currently attached capability and
+enabled valid policy, without demanding current energy or casting posture. A temporary
+attachment can reactivate an already learned route; it cannot create learning history.
+The Read Attunement adapter uses this query separately from explicit affinity merits in
+a description overlay on its actual spell target. Only its exact casting instance can
+read that overlay while it can see the target; ordinary casting retains target wards and
+resistance. See the [S4 checkpoint](Armageddon_S4_Checkpoint_20261012.md) for the bounded
+verification and outstanding installed-stock bindings.
+
 The generated `ConfigurableCasting` migration introduces empty acquired-spell,
 trait-opportunity, enrolment and paid-operation tables. No historical knowledge, Vancian
 book, scroll, skill or administrative power is converted automatically. Acquired rows

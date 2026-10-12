@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "date": "2026-10-12",
-  "purpose": "Portable new-task entrypoint; no new runtime/content implementation",
+  "purpose": "Portable current continuation entrypoint, including resolved CI baseline and bounded first S4 slice; no full-stock qualification.",
   "markdown": "Design Documents/Magic/Armageddon_S4_Continuation_Handoff_20261012.md",
   "repository": "FutureMUD/FutureMUD",
   "branch": "codex/armageddon-continuation-20261008",
@@ -9,7 +9,7 @@
   "pr_remains_draft": true,
   "s3_implementation_commit": "8d503f6e789e5d68e03fceb4ae64b0a66f1fabd3",
   "resume_latest_branch_not_reset_to_s3": true,
-  "s4_started": false,
+  "s4_started": true,
   "n24_started": false,
   "release_enabled": false,
   "spell_admissions_enabled": false,
@@ -18,7 +18,9 @@
     "Design Documents/Magic/Armageddon_Seeder_Decisions_20261011.md",
     "Design Documents/Magic/Armageddon_Seeder_Completeness_Design_20261011.json",
     "Design Documents/Magic/Armageddon_Master_List_Adoption_20261011.md",
-    "Design Documents/Magic/Armageddon_Catalogue_S3_Completion_20261012.json"
+    "Design Documents/Magic/Armageddon_Catalogue_S3_Completion_20261012.json",
+    "Design Documents/Magic/Armageddon_S4_Checkpoint_20261012.md",
+    "Design Documents/Magic/Armageddon_S4_Entry_Ledger_20261012.json"
   ],
   "brief_archive": {
     "path": "Design Documents/Armageddon/References/Armageddon_Magic_Completion_Implementation_Brief_20261002.md",
@@ -56,6 +58,41 @@
     "reruns": "Preserve builder edits/native IDs and all player state; fixed direction only"
   },
   "hosted_followup": {
+    "status": "RESOLVED_HOSTED_TEST_BASELINE",
+    "head": "d5cdd6ccc80079e335ca6480a775c9ee9063f9da",
+    "workflow": "https://github.com/FutureMUD/FutureMUD/actions/runs/38233157601",
+    "linux": {
+      "status": "PASS",
+      "passed": 9509,
+      "failed": 0,
+      "skipped": 0
+    },
+    "windows": {
+      "status": "PASS",
+      "passed": 9506,
+      "failed": 0,
+      "skipped": 3
+    },
+    "duplicate_workflow": "https://github.com/FutureMUD/FutureMUD/actions/runs/38233166333",
+    "duplicate_windows": "CANCELLED; not counted as a pass",
+    "scope": "Exact component audit baseline repair. Later S4 head checks must be inspected separately.",
+    "next_action": "Continue S4 real stock hydration and per-entry qualification under locked design."
+  },
+  "order": [
+    "Component-export CI baseline resolved at d5cdd6c; continue latest branch head",
+    "S4 full required spell catalogue/real adapters/foci/devices/recipes",
+    "S5 production/substance/progression qualification",
+    "S6 four fresh-install cells",
+    "N24 full owned-content/player-state rerun qualification",
+    "N25 cross-feature uncertain-failure qualification",
+    "Original final readiness/per-spell/balance/guide gates"
+  ],
+  "portable_without_old_chat_or_local_artifacts": true,
+  "local_artifacts_optional_and_private": true,
+  "new_host_recreates_disposable_fixtures": true,
+  "running_children_or_test_databases_to_resume": false,
+  "authorization_boundary": "New task follows its human prompt and live AGENTS/skills; no automatic merge/deploy/release or policy redesign.",
+  "previous_hosted_failure_observation": {
     "status": "UNRESOLVED_HOSTED_TEST_BASELINE",
     "head": "8d503f6e789e5d68e03fceb4ae64b0a66f1fabd3",
     "inspected_workflow": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223319636",
@@ -137,18 +174,81 @@
     "repair_or_rerun_in_handoff_task": false,
     "next_action": "Verify exact runtime/JSON/TSV contents, reconcile obsolete test expectations without weakening coverage, run focused/full relevant Seeder checks and inspect new hosted results before S4."
   },
-  "order": [
-    "Resolve recorded hosted component-export baseline",
-    "S4 full required spell catalogue/real adapters/foci/devices/recipes",
-    "S5 production/substance/progression qualification",
-    "S6 four fresh-install cells",
-    "N24 full owned-content/player-state rerun qualification",
-    "N25 cross-feature uncertain-failure qualification",
-    "Original final readiness/per-spell/balance/guide gates"
-  ],
-  "portable_without_old_chat_or_local_artifacts": true,
-  "local_artifacts_optional_and_private": true,
-  "new_host_recreates_disposable_fixtures": true,
-  "running_children_or_test_databases_to_resume": false,
-  "authorization_boundary": "New task follows its human prompt and live AGENTS/skills; no automatic merge/deploy/release or policy redesign."
+  "S4_first_slice": {
+    "status": "BOUNDED_READ_ATTUNEMENT_ADAPTER_VERIFIED_STOCK_PENDING",
+    "implementation_commit": "d427e02b0deefd5445fc9599d2a9f031f0cb8ac9",
+    "checkpoint": "Design Documents/Magic/Armageddon_S4_Checkpoint_20261012.md",
+    "ledger": "Design Documents/Magic/Armageddon_S4_Entry_Ledger_20261012.json",
+    "candidates_mapped": 154,
+    "required": 152,
+    "optional": 2,
+    "installed_stock_entries_qualified": 0,
+    "adapter": "readattunement: ordinary selected-target parent/child, explicit assigned affinities and exact completed enrolment history, current body permission and exact caster-instance disclosure",
+    "qualification_boundary": "Unit paid-pipeline fixture and native builder/cold-template evidence only. The builder spell has no trigger and remains unready. Canonical stock20 minimum, 60*grade duration, all grades, real paid stock targets/wards/resistance/restart remain pending.",
+    "verification": [
+      {
+        "scope": "Ten-project fast gate before final affiliation availability correction; overlapping tests are not additive.",
+        "receipt": ".artifacts/s4-final-fast-repaired/20261012T102507Z-2c0249dbe3c9/summary.json",
+        "status": "PASS",
+        "head_before_uncommitted_slice": "d5cdd6ccc80079e335ca6480a775c9ee9063f9da",
+        "counts": {
+          "executed": 9516,
+          "passed": 9516,
+          "failed": 0,
+          "skipped": 3,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 9519
+        },
+        "source_start": "0387984991855d7d1f341cce2b6a673b91da4e18af3159ff365f1ef0b0adc80f",
+        "source_end": "0387984991855d7d1f341cce2b6a673b91da4e18af3159ff365f1ef0b0adc80f"
+      },
+      {
+        "scope": "Complete Core gate after final affiliation availability correction.",
+        "receipt": ".artifacts/s4-final-core/20261012T110027Z-30dc624db544/summary.json",
+        "status": "PASS",
+        "head_before_uncommitted_slice": "d5cdd6ccc80079e335ca6480a775c9ee9063f9da",
+        "counts": {
+          "executed": 6523,
+          "passed": 6523,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6523
+        },
+        "source_start": "5eb4a1b9e1fc3847784cd14cd1ef58d89ff369446d149ad8ab5d5e78dc508ea9",
+        "source_end": "5eb4a1b9e1fc3847784cd14cd1ef58d89ff369446d149ad8ab5d5e78dc508ea9"
+      },
+      {
+        "scope": "Restored first/cold MUD boots, explicitly attunement-builder only; no S3 gameplay or paid installed-stock Attunement qualification.",
+        "receipt": ".artifacts/s4-native-builder/20261012T112038Z_6d8775dad57447fc89e92eedba2ac662/summary.json",
+        "status": "PASS",
+        "assertions": 12,
+        "s4_builder_assertions": 2,
+        "mud_processes": 2,
+        "mud_shutdowns_graceful": true,
+        "source_start": "3B3EA68F5BFA06FD798C913CE2C3150A50C3C2568F85620A20FF8B043762E8A7",
+        "source_end": "3B3EA68F5BFA06FD798C913CE2C3150A50C3C2568F85620A20FF8B043762E8A7",
+        "boot_receipt_local_optional": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-builder-f4acd8b0d36c465bb903d1cb497c24a7\\boot-latest.json"
+      }
+    ],
+    "release_enabled": false,
+    "spell_admissions_enabled": false,
+    "class_availability_enabled": false,
+    "full_plan_complete": false,
+    "n24_started": false,
+    "environment_blockers": [],
+    "remaining_check_failures": [
+      {
+        "receipt": ".artifacts/s4-native-qualified/20261012T111135Z_25c55d1a5e1141a487bdace580fdf846/summary.json",
+        "status": "FAIL",
+        "scope": "Broader default S3 catalogue smoke, before Attunement assertions or cold phase",
+        "assertions_before_failure": 12,
+        "failure": "Winged creature entered native Flying posture but did not cross the live room exit within the unchanged 45-second assertion.",
+        "disposition": "Unresolved adjacent S3 movement/fixture finding; preserved separately from the passing S4 builder-only lane."
+      }
+    ],
+    "next_bounded_milestone": "Hydrate and qualify canonical Read Attunement; add typed grade-specific NPC template selection for seven real creature families; preserve all qualification fences. Full S4 then S5/S6, N24/N25 and final readiness remain."
+  }
 }

@@ -144,7 +144,7 @@ public static partial class ArmageddonInstallation
 	private static IReadOnlyList<string> ValidateLegacyOwnership(FuturemudDatabaseContext db)
 	{
 		var errors = new List<string>();
-		var modules = new[] { ArmageddonMagicInstaller.Module, ArmageddonTraditionInstaller.Module, ArmageddonPierceInstaller.Module, ArmageddonProvisionInstaller.Module, ArmageddonWaterSeeInstaller.Module, ArmageddonEmotionalInstaller.Module, ArmageddonProgressionInstaller.Module, ArmageddonCatalogueOwnership.Module };
+		var modules = new[] { ArmageddonMagicInstaller.Module, ArmageddonTraditionInstaller.Module, ArmageddonPierceInstaller.Module, ArmageddonProvisionInstaller.Module, ArmageddonWaterSeeInstaller.Module, ArmageddonEmotionalInstaller.Module, ArmageddonProgressionInstaller.Module, ArmageddonCatalogueOwnership.Module, ArmageddonStockSpellInstaller.Module };
 		var records = db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey != SettingsKey).ToArray();
 		foreach (var record in records)
 		{

@@ -45,6 +45,7 @@ internal static partial class GNHProgram
 		}
 		RunStockAnatomyReader(database.Name);
 		if (!qualifyReruns) SaveCatalogueFixture(database);
+		PreparedStockAttunementAcceptance(database);
 		Console.WriteLine(qualifyReruns
 			? "ARMS3-composite=passed actual-MySQL later-rollback retained-earlier-batches lost-ack resume all-198-blueprints no-op-all-table-checksum no-player-writes"
 			: "ARMS3-composite-boot-install=passed actual-MySQL fresh-all-198-blueprints no-player-writes rerun-fault-gate-not-repeated");

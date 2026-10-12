@@ -19,7 +19,7 @@ public static partial class ArmageddonProgressionInstaller
 {
 	public const string Module = "stock-progression";
 	public const string SourceResourceKey = "arm.resource.source_energy";
-	private const string Version = "stock-progression-1";
+	internal const string Version = "stock-progression-1";
 	private const string ImproverKey = "arm.improver.spell_practice";
 	private sealed record Spec(Type Type, string Key, string Name);
 

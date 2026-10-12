@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
+using MudSharp.Body.Traits;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
@@ -191,5 +192,59 @@ public class ReadAttunementTests
 		var rolls = f.Rolls; var count = children.Count; f.Balances[f.Resources[1]] = 0;
 		Assert.AreEqual(MagicCastingStatus.Refused, f.Service.Cast(f.Intent(1, false)).Status);
 		Assert.AreEqual(rolls, f.Rolls); Assert.AreEqual(count, children.Count); Assert.AreEqual(0.0, f.Balances[f.Resources[1]]);
+	}
+
+	[DataTestMethod]
+	[DataRow(1)][DataRow(2)][DataRow(3)][DataRow(4)][DataRow(5)][DataRow(6)][DataRow(7)]
+	public void CanonicalStock_AllGradesUseApprovedEfficiencyDurationAndPaidParent(int grade)
+	{
+		var f = new MagicCastingFixture();
+		var content = ArmageddonStockSpellContent.ReadAttunement();
+		f.Expressions.Clear();
+		var cost = content.CostRow(1); cost.Id = 1;
+		var duration = content.DurationRow(1); duration.Id = 2;
+		f.Expressions.Add(new TraitExpression(cost, f.World.Object));
+		f.Expressions.Add(new TraitExpression(duration, f.World.Object));
+		var row = content.SpellRow(1, 1, 1); row.Id = 1; row.EffectDurationExpressionId = 2;
+		row.Definition = content.BuildDefinition(10, 1, 0).ToString();
+		var spell = new MagicSpell(row, f.World.Object);
+		f.Spells.Clear(); f.Spells.Add(spell);
+		f.Actor.Setup(x => x.TargetActorOrCorpse("self", It.IsAny<PerceiveIgnoreFlags>())).Returns(f.Actor.Object);
+		f.Actor.Setup(x => x.CanSee(f.Actor.Object, PerceiveIgnoreFlags.None)).Returns(true);
+		f.Acquire(7);
+		f.Skills[1] = 100; // All grades controlled: select a lower grade without overreach.
+		MagicSpellParent? parent = null;
+		TimeSpan applied = default;
+		f.Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>())).Callback<IEffect, TimeSpan>((effect, seconds) =>
+		{
+			if (effect is MagicSpellParent value) { parent = value; applied = seconds; }
+		});
+		var result = f.Service.Cast(f.Intent(grade, false));
+		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.IsTrue((bool)XElement.Parse(f.Store.Operations[result.OperationId!.Value].Definition).Attribute("applied")!,
+			"A saved information overlay must report its actual defining operation to the ordinary casting journal.");
+		Assert.AreEqual(100 - new ControlledSpellEfficiency(20, 1).Cost(7, grade), f.Balances[f.Resources[1]], 0.00001);
+		Assert.AreEqual(TimeSpan.FromSeconds(60 * grade), applied);
+		Assert.IsNotNull(parent);
+		Assert.IsInstanceOfType(parent.SpellEffects.Single(), typeof(SpellReadAttunementEffect));
+		var rolls = f.Rolls; var writes = f.Store.Writes;
+		f.Balances[f.Resources[1]] = 0;
+		Assert.AreEqual(MagicCastingStatus.Refused, f.Service.Cast(f.Intent(grade, false)).Status);
+		Assert.AreEqual(rolls, f.Rolls); Assert.AreEqual(writes, f.Store.Writes);
+	}
+
+	[TestMethod]
+	public void Operation_RejectsNonCharacterAndReportsActualConstructedChild()
+	{
+		var f = new MagicCastingFixture();
+		var template = SpellEffectFactory.LoadEffect(XElement.Parse("<Effect type='readattunement'/>"), f.Spell);
+		var operation = (IMagicSpellEffectOperation)template;
+		var parent = new Mock<IMagicSpellEffectParent>().Object;
+		var rejected = operation.Apply(f.Actor.Object, new Mock<IPerceivable>().Object, default, SpellPower.ExtremelyWeak, parent, []);
+		Assert.AreEqual(MagicEffectOperationStatus.Rejected, rejected.Status); Assert.IsNull(rejected.Effect);
+		var applied = operation.Apply(f.Actor.Object, f.Actor.Object, default, SpellPower.ExtremelyWeak, parent, []);
+		Assert.AreEqual(MagicEffectOperationStatus.Applied, applied.Status);
+		Assert.IsInstanceOfType(applied.Effect, typeof(SpellReadAttunementEffect));
+		Assert.AreEqual(0, f.Store.Writes); Assert.AreEqual(0, f.Rolls);
 	}
 }

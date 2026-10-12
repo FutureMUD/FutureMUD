@@ -36,9 +36,11 @@ assert spec.loader
 spec.loader.exec_module(helper)
 SECRETS = [CONNECTION, PASSWORD]
 BOOT_SCOPE = os.environ.get('FUTUREMUD_CATALOGUE_BOOT_SCOPE', 'catalogue')
-assert BOOT_SCOPE in ('catalogue', 'attunement-builder'), 'Unknown catalogue boot scope.'
+assert BOOT_SCOPE in ('catalogue', 'attunement-builder', 'attunement-stock'), 'Unknown catalogue boot scope.'
 assert BOOT_SCOPE != 'attunement-builder' or os.environ.get('FUTUREMUD_S4_ATTUNEMENT_BUILDER_SMOKE') == '1', \
     'The Attunement-only lane requires its explicit builder assertions.'
+assert BOOT_SCOPE != 'attunement-stock' or os.environ.get('FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE') == '1', \
+    'The stock Attunement lane requires explicit paid stock assertions.'
 
 def redact(text): return helper.redact(str(text), SECRETS)
 def sha(path): return hashlib.sha256(Path(path).read_bytes()).hexdigest().upper()
@@ -230,6 +232,142 @@ def attunement_builder_smoke(session, phase):
         rows = sql(f"SELECT HEX(Definition) FROM MagicSpells WHERE Id={fixture['spell']}", (0,))
         require(len(rows) == 1 and rows[0][0] == fixture['definition'], 'Cold builder fixture definition changed.')
         assertions.append('S4 adapter: cold native loader showed the saved Read Attunement template unchanged')
+
+def attunement_stock_smoke(session, phase):
+    prepared = Path(os.environ['FUTUREMUD_S4_ATTUNEMENT_STOCK_INPUT']).resolve()
+    require(prepared.parent == ROOT and prepared.name.startswith('prepared-stock-attunement-input_') and
+            prepared.suffix == '.json', 'Stock Attunement requires its explicit local fixture input.')
+    data = json.loads(prepared.read_text(encoding='utf-8'))
+    schema = data['sql_schema']
+    require(isinstance(schema, list) and len(schema) == 16, 'Missing bounded EF SQL schema contract.')
+    identifiers = {}
+    for table in schema:
+        for alias, name in [(table['alias'], table['table'])] + [(x['alias'], x['column']) for x in table['columns']]:
+            require(isinstance(name, str) and re.fullmatch(r'[A-Za-z_][A-Za-z_0-9]*', name), 'Unsafe EF SQL identifier.')
+            quoted = '`' + name + '`'
+            require(alias not in identifiers or identifiers[alias] == quoted, 'Ambiguous EF SQL identifier: ' + alias)
+            identifiers[alias] = quoted
+
+    def mapped(statement):
+        # All names are declared DbSet/property aliases from the existing typed EF mapping helper.
+        return re.sub(r"'(?:''|[^'])*'|[A-Za-z_][A-Za-z_0-9]*",
+                      lambda match: match[0] if match[0].startswith("'") else identifiers.get(match[0], match[0]), statement)
+    c, s, r, cap, trait = (int(data[k]) for k in ('character', 'spell', 'resource', 'capability', 'trait'))
+    require(c == int(character_state()[1]), 'Stock qualification actor differs from the exact seeded Admin avatar.')
+    row = catalogue_record('arm.spell.read_attunement')
+    require(row[1] == 'MagicSpell' and int(row[2]) == s, 'Paid test does not use the installed canonical spell ID.')
+    unchanged = sql(f'SELECT HEX(Definition) FROM MagicSpells WHERE Id={s}', (0,))
+    require(len(unchanged) == 1 and unchanged[0][0] == data['definition'], 'Qualification changed the installed stock spell definition.')
+    for package_cap in data['package_capabilities']:
+        definition = sql(f'SELECT HEX(Definition) FROM MagicCapabilities WHERE Id={int(package_cap)}', (0,))
+        casting = ET.fromstring(definition[0][0]).find('Casting')
+        require(casting is not None and casting.get('enabled') == 'false' and not casting.findall('Admission'),
+                'A partial package roster was enabled for qualification.')
+
+    def flush():
+        require('All queued saves have been flushed' in session.send('impdebug flush', read_seconds=.3), 'S4 save flush did not confirm.')
+
+    def state():
+        rows = sql(mapped(f'SELECT IFNULL((SELECT Amount FROM CharactersMagicResources WHERE CharacterId={c} AND MagicResourceId={r}),0), '
+                   f'IFNULL((SELECT ControlledGrade FROM CharacterAcquiredSpells WHERE CharacterId={c} AND MagicSpellId={s}),0), '
+                   f'IFNULL((SELECT Value FROM CharacterTraits WHERE CharacterId={c} AND TraitDefinitionId={trait}),0), '
+                   f'(SELECT COUNT(*) FROM CharacterCastingEnrolments WHERE CharacterId={c} AND MagicCapabilityId={cap}), HEX(EffectData) FROM Characters WHERE Id={c}'), (4,))
+        require(len(rows) == 1 and len(rows[0]) == 5, 'S4 actor state is missing.')
+        balance, grade, raw, enrol, saved = rows[0]
+        parents = []
+        for wrapper in ET.fromstring(saved).iter('Effect'):
+            if wrapper.findtext('Type') != 'MagicSpellParent': continue
+            inner = wrapper.find('Effect')
+            if inner is None or inner.findtext('Spell') != str(s): continue
+            children = inner.find('Children')
+            parents.append({'identity':inner.findtext('Identity'), 'remaining_ms':int(wrapper.findtext('Remaining', '0')),
+                            'children': [child.findtext('Type') for child in children]})
+        return {'balance':float(balance), 'grade':int(grade), 'raw':float(raw), 'enrolments':int(enrol), 'parents':parents}
+
+    def operations():
+        return sql(mapped(f'SELECT HEX(Id),HEX(Stage),HEX(Definition) FROM MagicCastingOperations WHERE CharacterId={c} AND MagicSpellId={s} ORDER BY CreatedUtc,Id'), (0,1,2))
+
+    flush()
+    initial = state()
+    if phase == 'first':
+        require(initial == {'balance':0.0, 'grade':0, 'raw':0.0, 'enrolments':0, 'parents':[]}, 'S4 preparation pre-granted or refilled a player.')
+        session.send(f"givemerit me {data['merit']}", read_seconds=.3)
+        enrolled = session.send(f'magic casting enrol {c} {cap} explicit disposable S4 stock qualification', read_seconds=.5)
+        flush()
+        current = state()
+        require(current['balance'] == 0 and current['grade'] == 1 and current['raw'] == 100 and current['enrolments'] == 1,
+                'Native S4 enrolment did not grant grade one with the fixture opening and zero reserve: ' + redact(enrolled))
+        assertions.append('S4 stock: native merit attachment and enrolment acquired the real canonical Read Attunement at grade one without reserve refill')
+    else:
+        saved = receipt['stock_attunement_first']
+        require(all(initial[k] == saved[k] for k in ('balance', 'grade', 'raw', 'enrolments')), 'Cold S4 state was refilled or reacquired.')
+        require(len(initial['parents']) == 1 and initial['parents'][0]['identity'] == saved['parents'][0]['identity'] and
+                initial['parents'][0]['children'] == ['SpellReadAttunement'] and
+                0 < initial['parents'][0]['remaining_ms'] <= saved['parents'][0]['remaining_ms'], 'Cold S4 parent/child identity or remaining duration was not retained.')
+        assertions.append('S4 stock: cold restart retained paid reserve, grade, skill, completed enrolment and exact parent/child identity with decreasing lifetime')
+
+    # A depleted reserve refuses before a roll/payment operation or overlay replacement.
+    current = state()
+    require(current['balance'] == 0, 'S4 depletion control must use a saved zero reserve.')
+    old = operations()
+    refused = session.send(f'armwater cast "Read Attunement" grade 1 on self via {cap}', read_seconds=.3)
+    flush()
+    after_refusal = state()
+    require('Insufficient' in refused and operations() == old and
+            all(after_refusal[k] == current[k] for k in ('balance', 'grade', 'raw', 'enrolments')) and
+            [(x['identity'], x['children']) for x in after_refusal['parents']] == [(x['identity'], x['children']) for x in current['parents']],
+            'Unfunded S4 cast changed state or produced an operation: ' + redact(refused))
+    assertions.append(phase + ': S4 stock unfunded cast refused with no operation, debit, learning or overlay side effect')
+    if phase == 'cold':
+        looked = session.send('look me', read_seconds=.5)
+        require('Assigned elemental affinities: Unassigned.' in looked and 'Learned magical affiliations: S4 Attunement Qualification (active).' in looked,
+                'Cold native overlay did not separate unassigned affinity and legitimately learned active fixture affiliation: ' + redact(looked))
+        assertions.append('S4 stock: cold visible self overlay separated unassigned affinity from completed learned affiliation')
+        return
+
+    session.send(f'armwater gather {cap} draw 100', read_seconds=.2)
+    deadline = time.monotonic() + 15
+    while time.monotonic() < deadline:
+        session.read_for(.5); flush()
+        if state()['balance'] == 100: break
+    require(state()['balance'] == 100, 'S4 finite paid Self gathering did not fund exactly100 units.')
+    assertions.append('S4 stock: timed native Self gathering funded the real route reserve without SQL credit')
+    # At controlled grade one the approved source curve costs50. Two funded attempts is a finite RNG bound.
+    success = False
+    for attempt in range(2):
+        prior = state(); old = operations()
+        output = session.send(f'armwater cast "Read Attunement" grade 1 on self via {cap}', read_seconds=.5)
+        flush()
+        added = [row for row in operations() if row[0] not in {x[0] for x in old}]
+        require(len(added) == 1 and added[0][1] == 'Completed', 'S4 cast did not produce one completed paid operation: ' + redact(output))
+        payload = ET.fromstring(added[0][2]); costs = payload.findall('Cost')
+        require(payload.get('grade') == '1' and payload.get('controlledGrade') == '1' and
+                len(costs) == 1 and costs[0].get('resource') == str(r) and float(costs[0].get('amount')) == 50,
+                'S4 grade/source/reserve cost mapping differs from approved efficiency.')
+        after = state()
+        require(prior['balance'] - after['balance'] == 50 and after['grade'] == 1 and after['enrolments'] == 1, 'S4 invocation did not persist exactly one debit.')
+        receipt.setdefault('stock_attunement_paid_attempts', []).append({'attempt':attempt + 1, 'payload':added[0][2], 'before':prior, 'after':after})
+        if payload.get('applied') == 'true':
+            require(len(after['parents']) == 1 and after['parents'][0]['children'] == ['SpellReadAttunement'] and
+                    0 < after['parents'][0]['remaining_ms'] <= 60000, 'S4 paid cast did not install its native overlay with the grade-one lifetime.')
+            success = True
+            break
+        require(payload.get('outcome') in ('MinorFail', 'Fail', 'MajorFail'), 'Unexpected S4 defining-result failure.')
+    require(success, 'S4 finite native RNG budget exhausted without defining result; no gameplay certificate.')
+    assertions.append('S4 stock: real grade-one invocation retained one50-unit payment and native target-scoped overlay with60-second lifetime')
+    looked = session.send('look me', read_seconds=.5)
+    require('Assigned elemental affinities: Unassigned.' in looked and 'Learned magical affiliations: S4 Attunement Qualification (active).' in looked,
+            'Native Read Attunement output did not report two independent facts: ' + redact(looked))
+    # Spend the remaining finite budget through another ordinary cast, retaining its paid failure if RNG fails.
+    if state()['balance'] == 50:
+        prior = state(); old = operations()
+        session.send(f'armwater cast "Read Attunement" grade 1 on self via {cap}', read_seconds=.5); flush()
+        added = [row for row in operations() if row[0] not in {x[0] for x in old}]
+        require(len(added) == 1 and added[0][1] == 'Completed' and state()['balance'] == 0, 'S4 remaining casting budget was not consumed once.')
+        receipt['stock_attunement_budget_exhaustion'] = {'payload':added[0][2], 'before':prior, 'after':state()}
+    receipt['stock_attunement_first'] = state()
+    receipt['stock_attunement_limits'] = data['limits'] + ' All seven grade costs/durations have deterministic pipeline tests; this Telnet lane casts grade one.'
+    assertions.append('S4 stock: native visible overlay separated assigned affinity and learned affiliation; finite paid budget depleted before cold restart')
 
 def food_bites(definition):
     # These catalogue provisions use the native Food component's Bites element.
@@ -603,6 +741,8 @@ def boot(phase):
                 assertions.append('Cold restart retained reduced native bottle liquid contents')
             if os.environ.get('FUTUREMUD_S4_ATTUNEMENT_BUILDER_SMOKE') == '1':
                 attunement_builder_smoke(session, phase)
+            if os.environ.get('FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE') == '1':
+                attunement_stock_smoke(session, phase)
             flush = session.send('impdebug flush',read_seconds=3)
             require('All queued saves have been flushed' in flush, 'Native save queue flush did not confirm.')
             state = character_state()
@@ -635,6 +775,9 @@ try:
     if BOOT_SCOPE == 'attunement-builder':
         receipt['limitations'] = ['S4 builder registration/save and unchanged cold template loading only; '
                                   'no S3 crafting/combat/movement qualification and no paid installed-stock Attunement gameplay.']
+    elif BOOT_SCOPE == 'attunement-stock':
+        receipt['limitations'] = ['S4 canonical grade-one paid self cast and cold overlay reload through a separate disposable builder capability. '
+                                  'No partial package roster activation, S3 gameplay matrix, native all-grade/ward/resistance or S5 learning/affordability certificate.']
     ready = Path(os.environ['FUTUREMUD_PREPARED_REPLAY_PARENT_READY_PATH']).resolve()
     ready_token = os.environ['FUTUREMUD_PREPARED_REPLAY_PARENT_READY_TOKEN']
     require(ready.parent == ROOT and ready.name.startswith('prepared-replay-boot-parent-ready_') and ready.suffix == '.txt' and

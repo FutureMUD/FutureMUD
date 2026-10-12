@@ -21,6 +21,7 @@ internal static partial class GNHProgram
 			.SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.cs", SearchOption.TopDirectoryOnly))
 			.Concat(new[] { "DatabaseSeeder/Seeders", "MudsharpDatabaseLibrary/Models", "MudsharpDatabaseLibrary/Migrations", "MudsharpDatabaseLibrary/Database" }
 				.SelectMany(folder => Directory.EnumerateFiles(Path.Combine(root, folder), "*.cs", SearchOption.AllDirectories)))
+			.Concat(Directory.EnumerateFiles(Path.Combine(root, "FutureMUDLibrary", "Magic", "Stock"), "*.cs", SearchOption.AllDirectories))
 			.Append(Path.Combine(root, "Design Documents", "Magic", "Armageddon_Seeder_Completeness_Design_20261011.json"))
 			.OrderBy(path => Path.GetRelativePath(root, path), StringComparer.Ordinal);
 		var stamps = new StringBuilder();
@@ -72,6 +73,7 @@ internal static partial class GNHProgram
 					"Restored catalogue is missing " + blueprint.Key);
 		}
 		Console.WriteLine("ARMS3-restored-catalogue=verified exact dump/source hashes all-198-blueprints fresh ownership marker; not a new seeder replay");
+		if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE") == "1") PreparedStockAttunementAcceptance(database);
 		RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
 		return 0;
 	}

@@ -22,7 +22,7 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 	public string Tagline => Enabled ? "Development-only package progression; automatic native foundation mapping" : ReleaseDisabledMessage;
 	public string FullDescription => !Enabled ? ReleaseDisabledMessage : "Development-only: validates the approved stock graph and native foundations, then fixes " +
 		"one game-wide Classic/Simple mode and the earlier Chargen class direction. Settings and their shared answers commit together before catalogue modules. " +
-		"S2 creates native skills, ten disabled capability/merit pairs, eight reserves and conditional Class roles. S3 reconciles native supplies, recipes, weapons, provisions, creature templates/controllers and specialised stock in resumable batches. Class availability and spell admissions await S4/S5 qualification. No existing player state is changed. " +
+		"S2 creates native skills, ten disabled capability/merit pairs, eight reserves and conditional Class roles. S3 reconciles native supplies, recipes, weapons, provisions, creature templates/controllers and specialised stock in resumable batches. S4 begins with the canonical Read Attunement definition and its cost/duration children. Class availability and spell admissions await S4/S5 qualification. No existing player state is changed. " +
 		"Existing prepared-world APIs remain available for historical packages without fixed full-package settings. " +
 		"See Design Documents/Magic/Armageddon_Installation_Settings_S1_20261011.md.";
 	public bool SafeToRunMoreThanOnce => true;
@@ -69,7 +69,10 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 			var catalogue = ArmageddonCatalogueInstaller.Install(factory);
 			var catalogueReport = string.Join("\n", catalogue.Messages);
 			if (catalogue.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(progressionReport + "\n" + catalogueReport);
-			return $"Armageddon fixed settings ready: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Settings and shared answers are durable.\n{progressionReport}\n{catalogueReport}\nS4–S6 remain pending; the full magic package is not installed.";
+			var spells = ArmageddonStockSpellInstaller.Install(factory);
+			var spellReport = string.Join("\n", spells.Messages);
+			if (spells.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(progressionReport + "\n" + catalogueReport + "\n" + spellReport);
+			return $"Armageddon fixed settings ready: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Settings and shared answers are durable.\n{progressionReport}\n{catalogueReport}\n{spellReport}\nS4-S6 remain pending; the full magic package is not installed.";
 		}
 		if (!questionAnswers.TryGetValue(InstallQuestion, out var answer) || !IsYes(answer))
 			return "Armageddon package declined. No package content or player state changed. Generic answer-memory housekeeping may still run.";

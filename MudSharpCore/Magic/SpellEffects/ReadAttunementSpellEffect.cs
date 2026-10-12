@@ -10,7 +10,7 @@ using MudSharp.RPG.Checks;
 namespace MudSharp.Magic.SpellEffects;
 
 /// <summary>Reads only the cast target for its exact caster; ordinary casting owns resistance and lifetime.</summary>
-public sealed class ReadAttunementSpellEffect : CharacterSpellEffectTemplateBase
+public sealed class ReadAttunementSpellEffect : CharacterSpellEffectTemplateBase, IMagicSpellEffectOperation
 {
 	public static void RegisterFactory()
 	{
@@ -25,6 +25,12 @@ public sealed class ReadAttunementSpellEffect : CharacterSpellEffectTemplateBase
 	private ReadAttunementSpellEffect(XElement root, IMagicSpell spell) : base(root, spell) { }
 	protected override string BuilderEffectType => "readattunement";
 	protected override string ShowText => "Read Attunement";
+	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+	{
+		var child = GetOrApplyEffect(caster, target, outcome, power, parent, additionalParameters);
+		return new(child is null ? MagicEffectOperationStatus.Rejected : MagicEffectOperationStatus.Applied, child);
+	}
 	protected override IMagicSpellEffect CreateEffect(ICharacter caster, ICharacter target,
 		OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent,
 		SpellAdditionalParameter[] additionalParameters) => new SpellReadAttunementEffect(target, parent,

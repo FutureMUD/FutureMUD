@@ -3812,6 +3812,10 @@
     {
       "sha": "d427e02b0deefd5445fc9599d2a9f031f0cb8ac9",
       "subject": "Add bounded Read Attunement casting adapter"
+    },
+    {
+      "sha": "fbf827f55c93b6cafc39ed2f771e8092aa8ce36e",
+      "subject": "Wait for native takeoff cooldown in catalogue smoke"
     }
   ],
   "next_checkpoint": {
@@ -6897,16 +6901,65 @@
     "full_plan_complete": false,
     "n24_started": false,
     "environment_blockers": [],
-    "remaining_check_failures": [
+    "next_bounded_milestone": "Hydrate and qualify canonical Read Attunement; add typed grade-specific NPC template selection for seven real creature families; preserve all qualification fences. Full S4 then S5/S6, N24/N25 and final readiness remain.",
+    "resolved_check_failures": [
       {
         "receipt": ".artifacts/s4-native-qualified/20261012T111135Z_25c55d1a5e1141a487bdace580fdf846/summary.json",
         "status": "FAIL",
         "scope": "Broader default S3 catalogue smoke, before Attunement assertions or cold phase",
         "assertions_before_failure": 12,
         "failure": "Winged creature entered native Flying posture but did not cross the live room exit within the unchanged 45-second assertion.",
-        "disposition": "Unresolved adjacent S3 movement/fixture finding; preserved separately from the passing S4 builder-only lane."
+        "disposition": "Resolved by native cooldown observation and unchanged crossing acceptance; see validation_followthrough."
       }
     ],
-    "next_bounded_milestone": "Hydrate and qualify canonical Read Attunement; add typed grade-specific NPC template selection for seven real creature families; preserve all qualification fences. Full S4 then S5/S6, N24/N25 and final readiness remain."
+    "remaining_check_failures": [],
+    "validation_followthrough": {
+      "status": "PASS_AFFECTED_LOCAL_GATES_HARNESS_TIMING_REPAIRED",
+      "harness_repair_commit": "fbf827f55c93b6cafc39ed2f771e8092aa8ce36e",
+      "classification": "HARNESS_TIMING_DEFECT",
+      "cause": "Native Fly adds a five-second BlockLayerChange movement blocker. The old smoke assumed client read intervals guaranteed scheduler expiry, issued east once, then polled Location after a private NPC refusal.",
+      "evidence_boundary": "The original retained attempt did not capture its private refusal. New native reproduction observes the exact five-second blocker and refusal, unchanged Location, actual expiry and successful crossing without product changes.",
+      "product_rules_changed": false,
+      "movement_timeout_seconds_unchanged": 45,
+      "cooldown_observation_timeout_seconds": 10,
+      "harness_path": "tests/ArmageddonPreparedSeederNativeHarness/PreparedCatalogueBootSmoke.py",
+      "harness_sha256": "9bf6799e72a8810abb1994c819e93b124ec8892aa9d714bd61677edbbfffbd48",
+      "review": "Focused read-only review closed with no actionable defects; AS controller restoration is in finally and effect polling observes real native membership.",
+      "verification": [
+        {
+          "scope": "Affected Movement, CarriedFlightSecurity, BodyPrototypeMovementSpeed, CommandExecutionSecurity and ReadAttunement regressions",
+          "status": "PASS",
+          "passed": 59,
+          "failed": 0,
+          "skipped": 0,
+          "receipt": ".artifacts/s4-followthrough-regressions/20261012T114522Z-95149c2fef25/summary.json",
+          "head_before_harness_commit": "020d871706667b33a16bcf07b0e496dfafdafdbd",
+          "source_start": "980ef9724ce9e86ff75aba661384bb30d97c517bacf3681e8c80260027313985",
+          "source_end": "980ef9724ce9e86ff75aba661384bb30d97c517bacf3681e8c80260027313985"
+        },
+        {
+          "scope": "Full restored catalogue first/cold MUD/Admin/Telnet lane plus two S4 builder/template assertions; no paid installed-stock Attunement qualification",
+          "status": "PASS",
+          "assertions": 24,
+          "s4_builder_assertions": 2,
+          "receipt": ".artifacts/s4-native-cooldown/20261012T113733Z_8b90782c778f44ae8f7364ad22ce868a/summary.json",
+          "source_start": "91978DFFBAF8FE0F005E5D2BC55F1BC5DED8977B35943E88CD9200D2A2C84AF6",
+          "source_end": "91978DFFBAF8FE0F005E5D2BC55F1BC5DED8977B35943E88CD9200D2A2C84AF6",
+          "source_stable": true,
+          "mud_processes": 2,
+          "mud_shutdowns_graceful": true,
+          "owned_database_dropped": true,
+          "owned_mysql_shutdown_and_datadir_removed": true,
+          "boot_receipt_local_optional": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-cooldown-d59a5baacc564dbfb573ef2a4b9bfbbc\\boot-latest.json"
+        }
+      ],
+      "hosted_ci_publication_source": "https://github.com/FutureMUD/FutureMUD/pull/788",
+      "hosted_ci_scope": "Exact latest published-head results and run URLs are recorded in the PR validation section; earlier-head success never qualifies a later head.",
+      "remaining_local_check_failures": [],
+      "installed_stock_entries_qualified": 0,
+      "release_enabled": false,
+      "spell_admissions_enabled": false,
+      "class_availability_enabled": false
+    }
   }
 }

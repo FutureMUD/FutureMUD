@@ -22,7 +22,7 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 	public string Tagline => Enabled ? "Development-only package progression; automatic native foundation mapping" : ReleaseDisabledMessage;
 	public string FullDescription => !Enabled ? ReleaseDisabledMessage : "Development-only: validates the approved stock graph and native foundations, then fixes " +
 		"one game-wide Classic/Simple mode and the earlier Chargen class direction. Settings and their shared answers commit together before catalogue modules. " +
-		"S2 creates native skills, ten disabled capability/merit pairs, eight reserves and conditional Class roles. Class availability and spell admissions await complete S3/S4 content. S3–S6 remain pending. No existing player state is changed. " +
+		"S2 creates native skills, ten disabled capability/merit pairs, eight reserves and conditional Class roles. S3 reconciles native supplies, recipes, weapons, provisions, creature templates/controllers and specialised stock in resumable batches. Class availability and spell admissions await S4/S5 qualification. No existing player state is changed. " +
 		"Existing prepared-world APIs remain available for historical packages without fixed full-package settings. " +
 		"See Design Documents/Magic/Armageddon_Installation_Settings_S1_20261011.md.";
 	public bool SafeToRunMoreThanOnce => true;
@@ -34,7 +34,7 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 		? new(SeederAssessmentStatus.Blocked, ReleaseDisabledMessage, Array.Empty<string>(), Array.Empty<string>(), Array.Empty<string>())
 		: new(
 		ShouldSeedData(context) == ShouldSeedResult.ReadyToInstall ? SeederAssessmentStatus.ReadyToInstall : SeederAssessmentStatus.UpdateAvailable,
-		"Optional settings and progression stage. Opt-in requires validated native foundations; complete stock modules S3–S6 remain pending.",
+		"Optional fixed settings, progression and native catalogue. Opt-in requires validated native foundations; full spell hydration and final readiness remain pending.",
 		Array.Empty<string>(), Array.Empty<string>(),
 		["Default No on every visit. Fixed settings and shared answers commit atomically before catalogue work.",
 		 "Classic/Simple and the earlier class direction cannot change on rerun. Ambiguous native primitives require explicit typed bindings."]);
@@ -66,7 +66,10 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 			var progression = ArmageddonProgressionInstaller.Install(factory);
 			var progressionReport = string.Join("\n", progression.Messages);
 			if (progression.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(progressionReport);
-			return $"Armageddon fixed settings ready: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Settings and shared answers are durable.\n{progressionReport}\nCatalogue modules S3–S6 are pending; the full package is not installed.";
+			var catalogue = ArmageddonCatalogueInstaller.Install(factory);
+			var catalogueReport = string.Join("\n", catalogue.Messages);
+			if (catalogue.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(progressionReport + "\n" + catalogueReport);
+			return $"Armageddon fixed settings ready: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Settings and shared answers are durable.\n{progressionReport}\n{catalogueReport}\nS4–S6 remain pending; the full magic package is not installed.";
 		}
 		if (!questionAnswers.TryGetValue(InstallQuestion, out var answer) || !IsYes(answer))
 			return "Armageddon package declined. No package content or player state changed. Generic answer-memory housekeeping may still run.";

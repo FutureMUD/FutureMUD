@@ -23234,6 +23234,9 @@ namespace MudSharp.Migrations
                     b.Property<long?>("CharacterId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<long?>("CharacterInstanceId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<int>("ExertionLevel")
                         .HasColumnType("int(11)");
 
@@ -23288,6 +23291,9 @@ namespace MudSharp.Migrations
                     b.HasIndex("BodyPrototypeId");
 
                     b.HasIndex("CharacterId");
+
+                    b.HasIndex("CharacterInstanceId")
+                        .HasDatabaseName("FK_Tracks_CharacterInstances_idx");
 
                     b.HasIndex("FromDirectionExitId");
 
@@ -36524,6 +36530,12 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_Tracks_Characters");
 
+                    b.HasOne("MudSharp.Models.CharacterInstance", "CharacterInstance")
+                        .WithMany()
+                        .HasForeignKey("CharacterInstanceId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Tracks_CharacterInstances");
+
                     b.HasOne("MudSharp.Models.Exit", "FromDirectionExit")
                         .WithMany()
                         .HasForeignKey("FromDirectionExitId")
@@ -36564,6 +36576,8 @@ namespace MudSharp.Migrations
                     b.Navigation("BodyPrototype");
 
                     b.Navigation("Character");
+
+                    b.Navigation("CharacterInstance");
 
                     b.Navigation("FromDirectionExit");
 

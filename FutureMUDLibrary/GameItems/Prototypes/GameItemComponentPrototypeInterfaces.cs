@@ -82,6 +82,14 @@ public interface IApplyPrototype : IExclusiveGameItemComponentPrototype<IApply>
 {
 }
 
+public interface IArmageddonEmberSeedComponentPrototype : IExclusiveGameItemComponentPrototype<IArmageddonEmberSeedComponent>, IApplyPrototype
+{
+}
+
+public interface IArmageddonTopicalDoseComponentPrototype : IExclusiveGameItemComponentPrototype<IArmageddonTopicalDoseComponent>, IApplyPrototype
+{
+}
+
 public interface IArmourPrototype : IExclusiveGameItemComponentPrototype<IArmour>
 {
 }

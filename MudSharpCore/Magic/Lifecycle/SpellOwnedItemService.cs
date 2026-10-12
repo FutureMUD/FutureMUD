@@ -9,7 +9,7 @@ using MudSharp.GameItems;
 namespace MudSharp.Magic.Lifecycle;
 
 /// <summary>Creation and terminal removal of exact single leaf items, never their custodian or host.</summary>
-public sealed class SpellOwnedItemService : ISpellOwnedItemService
+public sealed partial class SpellOwnedItemService : ISpellOwnedItemService
 {
 	private readonly IFuturemud _world;
 	private readonly Func<HashSet<long>> _readClaimedItemIds;
@@ -60,6 +60,13 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 		if (error is not null) throw new InvalidOperationException(error);
 		if (_store.Find(origin.Id) is not null) throw new InvalidOperationException("This native item creation cannot be replayed.");
 		var item = new GameItem(prototype, caster, quality, deferSpellInitialisation: true);
+		if (item.GetItemType<MudSharp.GameItems.Interfaces.IArmageddonEmberSeedComponent>() is { } ember)
+			ember.Bind(origin, caster, ((MudSharp.GameItems.Prototypes.ArmageddonEmberSeedGameItemComponentProto)ember.Prototype).DamagePerGrade);
+		if (item.GetItemType<MudSharp.GameItems.Interfaces.IArmageddonTopicalDoseComponent>() is { } mud)
+		{
+			var profile = ((MudSharp.GameItems.Prototypes.TopicalCreamGameItemComponentProto)mud.Prototype).NativeDoseProfile;
+			mud.Bind(new MudSharp.GameItems.Interfaces.ArmageddonTopicalDoseBinding("arm.item.restorative_mud", origin.Id, origin.SpellId, origin.Grade, origin.CreatorId, caster.InstanceId, profile.ReferenceDoseGrams, profile.BudgetPerGrade, false));
+		}
 		if (pocket is not null) item.GetItemType<MudSharp.GameItems.Components.FoldedPocketGameItemComponent>()!.Bind(origin, pocket);
 		// The light's usable state is part of its private birth, before rows or exposure.
 		if (item.GetItemType<MudSharp.GameItems.Components.ProgLightGameItemComponent>() is { } light) light.Lit = true;
@@ -98,7 +105,7 @@ public sealed class SpellOwnedItemService : ISpellOwnedItemService
 	{
 		if (!HasClaim(itemId)) return null;
 		var life = Find(itemId);
-		return life is null ? null : new(life.Origin.Id, life.Origin.Mode, life.Origin.DeadlineUtc, life.Origin.CreatorId);
+		return life is null ? null : new(life.Origin.Id, life.Origin.Mode, life.Origin.DeadlineUtc, life.Origin.CreatorId, life.Origin.SpellId, life.Origin.Grade);
 	}
 
 	private SpellOwnedLifecycle? Find(long itemId)

@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param([string]$EvidenceRoot,
-	[ValidateSet('prepared', 'replay', 'settings', 'stock-progressions', 'stock-supplies', 'stock-progression-fixtures', 'installed', 'installed-sql', 'sense', 'sense-control')]
+	[ValidateSet('prepared', 'replay', 'settings', 'stock-progressions', 'stock-supplies', 'stock-anatomy', 'stock-catalogue', 'stock-catalogue-boot', 'catalogue-fixture-boot', 's3-runtime', 'snapshot-refresh', 'stock-progression-fixtures', 'installed', 'installed-sql', 'sense', 'sense-control')]
 	[string]$Mode = 'prepared')
 
 $ErrorActionPreference = 'Stop'
@@ -31,8 +31,9 @@ function Write-SourceEvidence {
 	param([string]$Name)
 	$sourcePaths = @(& git -c core.quotepath=false -C $workspaceRoot ls-files --cached --others --exclude-standard)
 	if ($LASTEXITCODE -ne 0) { throw 'Source inventory failed.' }
+	$sourcePaths = @($sourcePaths | Where-Object { $Mode -ne 'snapshot-refresh' -or $_ -notin @('DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.sql', 'DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.manifest.json') })
 	$records = @($sourcePaths | Where-Object { $_ -match '\.(cs|csproj|props|targets|sln|json|ps1|md|sql|sql\.gz)$' -or
-		$_ -in @('tests/ArmageddonPreparedSeederNativeHarness/PreparedReplayBootSmoke.py', 'tests/ArmageddonPreparedSeederNativeHarness/PreparedInstalledMagicSmoke.py') } | Sort-Object -Unique | ForEach-Object {
+		$_ -in @('tests/ArmageddonPreparedSeederNativeHarness/PreparedReplayBootSmoke.py', 'tests/ArmageddonPreparedSeederNativeHarness/PreparedInstalledMagicSmoke.py', 'tests/ArmageddonPreparedSeederNativeHarness/PreparedCatalogueBootSmoke.py') } | Sort-Object -Unique | ForEach-Object {
 		$sourcePath = Join-Path $workspaceRoot $_
 		if (-not (Test-Path -LiteralPath $sourcePath)) { throw "Source missing: $_" }
 		@{ path = $_; sha256 = (Get-FileHash -LiteralPath $sourcePath -Algorithm SHA256).Hash }

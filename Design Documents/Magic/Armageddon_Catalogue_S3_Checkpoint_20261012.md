@@ -1,5 +1,7 @@
 # Armageddon S3 catalogue checkpoint — 12 October 2026
 
+Historical supply/weapon checkpoint. Its counts, implementation state and unexercised surfaces describe that earlier slice. The later composite S3 acceptance receipt supersedes its current-status statements without changing the original evidence below.
+
 S3 is in progress. This checkpoint implements and qualifies the supply, shelter-template and melee-weapon portions of the approved catalogue. It does not mark the 210-blueprint catalogue complete. The normal interactive seeder still performs S1/S2; these S3 batch APIs will be connected to the composite installation when the remaining catalogue and dependency decisions are resolved. Release and staged spell admissions remain disabled.
 
 ## Native content

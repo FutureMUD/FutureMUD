@@ -2,6 +2,8 @@
 using MudSharp.Form.Material;
 using MudSharp.Health;
 using MudSharp.Movement;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MudSharp.Effects.Concrete;
 
@@ -54,6 +56,15 @@ public class ThermalImbalance : Effect, IStaminaExpenditureEffect, IStaminaRegen
             Changed = true;
         }
     }
+
+    /// <summary>Whether this thermal state is progressed by environmental temperature ticks.</summary>
+    public virtual bool IsAmbientExposureDriven => true;
+
+    /// <summary>Returns the strongest environmental thermal state, excluding medical/infection states.</summary>
+    public static ThermalImbalance DominantAmbientExposureEffect(IEnumerable<ThermalImbalance> effects) =>
+        effects.Where(x => x.IsAmbientExposureDriven)
+            .OrderByDescending(x => ThermalImbalanceConsequenceModel.EffectSeverityScore(x.TemperatureStatus, x.ImbalanceProgress))
+            .FirstOrDefault();
 
     private bool SystemEnabled => Gameworld.GetStaticBool(ThermalImbalanceConsequenceModel.EnabledStaticConfiguration);
 
@@ -183,14 +194,14 @@ public class ThermalImbalance : Effect, IStaminaExpenditureEffect, IStaminaRegen
         }
     }
 
-    public double Multiplier => SystemEnabled
+    public virtual double Multiplier => SystemEnabled
         ? ThermalImbalanceConsequenceModel.StaminaMultiplier(
             TemperatureStatus,
             Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHypothermiaStaminaMultiplier),
             Gameworld.GetStaticDouble(ThermalImbalanceConsequenceModel.MaximumHyperthermiaStaminaMultiplier))
         : 1.0;
 
-    double IStaminaRegenerationRateEffect.Multiplier => SystemEnabled
+    protected virtual double StaminaRegenerationRateMultiplier => SystemEnabled
         ? ThermalImbalanceConsequenceModel.StaminaRegenerationMultiplier(
             TemperatureStatus,
             Gameworld.GetStaticDouble(
@@ -198,6 +209,8 @@ public class ThermalImbalance : Effect, IStaminaExpenditureEffect, IStaminaRegen
             Gameworld.GetStaticDouble(
                 ThermalImbalanceConsequenceModel.MinimumHyperthermiaStaminaRegenerationMultiplier))
         : 1.0;
+
+    double IStaminaRegenerationRateEffect.Multiplier => StaminaRegenerationRateMultiplier;
 
     public double DelayMultiplier(IMoveSpeed speed)
     {

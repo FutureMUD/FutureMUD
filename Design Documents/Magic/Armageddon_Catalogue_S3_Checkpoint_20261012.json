@@ -2,6 +2,8 @@
   "schema_version": 1,
   "milestone": "S3",
   "checkpoint": "supplies-shelter-templates-melee-weapons",
+  "historical_checkpoint": true,
+  "current_status_authority": "Armageddon_Catalogue_S3_Completion_20261012.json",
   "dated": "2026-10-12",
   "milestone_complete": false,
   "release_enabled": false,

@@ -11,11 +11,11 @@ using MudSharp.Models;
 namespace DatabaseSeeder.Seeders;
 
 /// <summary>Typed native rows and explicit child collections, with three-way stock reconciliation.</summary>
-internal sealed class ArmageddonCatalogueOwnership
+internal sealed partial class ArmageddonCatalogueOwnership
 {
 	internal const string Module = "stock-catalogue";
 	private const string Version = "stock-catalogue-1";
-	private static readonly IReadOnlyDictionary<Type, string[]> OwnedFields = new Dictionary<Type, string[]>
+	private static readonly IReadOnlyDictionary<Type, string[]> OwnedFields = MedicalOwnedFields(CreatureOwnedFields(AnatomyOwnedFields(new Dictionary<Type, string[]>
 	{
 		[typeof(Tag)] = ["Name", "ParentId", "ShouldSeeProgId"],
 		[typeof(Liquid)] = ["Name", "Description", "LongDescription", "TasteText", "VagueTasteText", "SmellText", "VagueSmellText", "TasteIntensity", "SmellIntensity", "AlcoholLitresPerLitre", "WaterLitresPerLitre", "FoodSatiatedHoursPerLitre", "DrinkSatiatedHoursPerLitre", "Viscosity", "Density", "Organic", "ThermalConductivity", "ElectricalConductivity", "SpecificHeatCapacity", "IgnitionPoint", "FreezingPoint", "BoilingPoint", "DraughtProgId", "SolventId", "CountAsId", "CountAsQuality", "DisplayColour", "DampDescription", "WetDescription", "DrenchedDescription", "DampShortDescription", "WetShortDescription", "DrenchedShortDescription", "SolventVolumeRatio", "DriedResidueId", "DrugId", "DrugGramsPerUnitVolume", "InjectionConsequence", "ResidueVolumePercentage", "RelativeEnthalpy", "GasFormId", "LeaveResidueInRooms", "SurfaceReactionInfo", "StaleAfterSeconds", "SpoilAfterSeconds", "StaleLiquidId", "SpoiledLiquidId"],
@@ -29,11 +29,17 @@ internal sealed class ArmageddonCatalogueOwnership
 		[typeof(FutureProg)] = ["FunctionName", "FunctionText", "ReturnType", "AcceptsAnyParameters", "Category", "Subcategory", "FunctionComment", "Public", "StaticType"],
 		[typeof(AutobuilderRoomTemplate)] = ["Name", "TemplateType", "Definition"],
 		[typeof(Foragable)] = ["Name", "ForagableTypes", "ForageDifficulty", "RelativeChance", "MinimumOutcome", "MaximumOutcome", "QuantityDiceExpression", "ItemProtoId", "CommodityMaterialId", "CommodityTagId", "CommodityWeightExpression", "OnForageProgId", "CanForageProgId"]
-	};
+	})));
 	private readonly FuturemudDatabaseContext _db;
 	private readonly Dictionary<string, SeederManagedRecord> _records;
 	private readonly List<string> _messages;
 	private readonly long _builder;
+	private readonly Dictionary<(Type Type, string Key), long> _allocated = new();
+	private readonly Dictionary<Type, long> _maximumIds = new();
+	private readonly Dictionary<string, object> _staged = new(StringComparer.Ordinal);
+	private readonly Dictionary<string, Dictionary<string, string>> _stagedFields = new(StringComparer.Ordinal);
+	private readonly List<Action> _flush = new();
+	private bool _batching;
 
 	internal ArmageddonCatalogueOwnership(FuturemudDatabaseContext db, long builder, List<string> messages)
 	{
@@ -72,10 +78,84 @@ internal sealed class ArmageddonCatalogueOwnership
 			if (record.EntityType != typeof(T).Name) throw new InvalidOperationException($"{key}: native identity type changed.");
 			return record.LogicalId!.Value;
 		}
-		var nativeMaximum = _db.Set<T>().Select(x => (long?)EF.Property<long>(x, "Id")).Max() ?? 0;
-		var type = typeof(T).Name;
-		var claimedMaximum = _db.SeederManagedRecords.Where(x => x.EntityType == type).Select(x => x.LogicalId).Max() ?? 0;
-		return checked(Math.Max(nativeMaximum, claimedMaximum) + 1);
+		if (_allocated.TryGetValue((typeof(T), key), out var allocated)) return allocated;
+		if (!_maximumIds.TryGetValue(typeof(T), out var maximum))
+		{
+			var nativeMaximum = _db.Set<T>().Select(x => (long?)EF.Property<long>(x, "Id")).Max() ?? 0;
+			var type = typeof(T).Name;
+			var claimedMaximum = _db.SeederManagedRecords.Where(x => x.EntityType == type).Select(x => x.LogicalId).Max() ?? 0;
+			maximum = Math.Max(nativeMaximum, claimedMaximum);
+		}
+		_maximumIds[typeof(T)] = checked(maximum + 1);
+		return _allocated[(typeof(T), key)] = _maximumIds[typeof(T)];
+	}
+
+	/// <summary>Stage an explicitly typed graph before saving its mutually dependent native rows.</summary>
+	internal T Stage<T>(string key, T desired, IReadOnlyList<string> dependencies) where T : class
+	{
+		if (!OwnedFields.ContainsKey(typeof(T)) || !_staged.TryAdd(key, desired))
+			throw new InvalidOperationException($"{key}: undeclared or duplicate staged catalogue row.");
+		_flush.Add(() => Put(key, desired, dependencies));
+		return desired;
+	}
+
+	internal void Flush()
+	{
+		// Only this call's newly constructed rows may be registered after graph insertion.
+		// Existing unowned rows can never enter this set through name or ID matching.
+		foreach (var entry in _staged) _stagedFields.Add(entry.Key, Fields(entry.Value));
+		var fresh = _staged.Where(x => !_records.ContainsKey(x.Key)).ToArray();
+		if (fresh.Select(x => x.Value).OfType<MoveSpeed>().GroupBy(x => x.BodyProtoId)
+			.Any(body => body.GroupBy(x => x.Alias, StringComparer.OrdinalIgnoreCase).Any(alias => alias.Count() > 1)))
+			throw new InvalidOperationException("A staged body has duplicate native movement aliases; resolve the source topology before installation.");
+		foreach (var entry in fresh)
+		{
+			var name = _db.Entry(entry.Value).Metadata.FindProperty("Name");
+			if (name is not null && StagedNameCollision(entry.Key, entry.Value))
+				throw new InvalidOperationException($"{entry.Key}: unowned native name collision; no adoption.");
+			if (entry.Value is MoveSpeed speed && _db.MoveSpeeds.Any(x => x.BodyProtoId == speed.BodyProtoId && x.Alias == speed.Alias))
+				throw new InvalidOperationException($"{entry.Key}: native movement alias collision; retained IDs cannot be replaced by a newly bound source speed.");
+		}
+		foreach (var entry in fresh) _db.Add(entry.Value);
+		// Body -> default smashing part -> body is a nullable native FK cycle.
+		// Insert with that edge absent, then complete it inside the same transaction.
+		var smashing = fresh.Select(x => x.Value).OfType<BodyProto>()
+			.Where(x => x.DefaultSmashingBodypartId is not null).ToDictionary(x => x, x => x.DefaultSmashingBodypartId);
+		if (smashing.Count != 0)
+		{
+			foreach (var body in smashing.Keys) body.DefaultSmashingBodypartId = null;
+			_db.SaveChanges();
+			foreach (var entry in smashing) entry.Key.DefaultSmashingBodypartId = entry.Value;
+		}
+		_batching = true;
+		try
+		{
+			foreach (var action in _flush) action();
+			_db.SaveChanges();
+			// Several native columns have SQL defaults and a CLR zero sentinel. A genuine
+			// authored zero may therefore be replaced during INSERT. Restore only these
+			// freshly constructed rows' explicit whitelist values with ordinary UPDATEs,
+			// inside the same transaction, before accepting their desired stock baselines.
+			foreach (var entry in fresh)
+				foreach (var field in OwnedFields[entry.Value.GetType()])
+				{
+					var property = _db.Entry(entry.Value).Property(field);
+					property.CurrentValue = JsonSerializer.Deserialize(_stagedFields[entry.Key][field], property.Metadata.ClrType);
+				}
+			_db.SaveChanges();
+			_flush.Clear();
+			_staged.Clear();
+			_stagedFields.Clear();
+		}
+		finally { _batching = false; }
+	}
+
+	internal T Copy<T>(T source) where T : class, new()
+	{
+		var result = new T();
+		foreach (var field in OwnedFields[typeof(T)])
+			_db.Entry(result).Property(field).CurrentValue = _db.Entry(source).Property(field).CurrentValue;
+		return result;
 	}
 
 	internal EditableItem Approval() => new()
@@ -87,7 +167,8 @@ internal sealed class ArmageddonCatalogueOwnership
 	internal T Put<T>(string key, T desired, IReadOnlyList<string> dependencies) where T : class
 	{
 		if (!OwnedFields.ContainsKey(typeof(T))) throw new InvalidOperationException($"Undeclared catalogue entity type {typeof(T).Name}.");
-		var next = Fields(desired);
+		var next = _batching && _stagedFields.TryGetValue(key, out var stagedFields)
+			? new Dictionary<string, string>(stagedFields, StringComparer.Ordinal) : Fields(desired);
 		var created = !_records.TryGetValue(key, out var record);
 		T row;
 		if (created)
@@ -98,13 +179,14 @@ internal sealed class ArmageddonCatalogueOwnership
 			if (_db.Entry(desired).Metadata.FindProperty(nameField) is not null)
 			{
 				var name = (string)_db.Entry(desired).Property(nameField).CurrentValue!;
-				if (_db.Set<T>().Any(x => EF.Property<string>(x, nameField) == name))
+				if (NameCollision(key, desired, nameField, name))
 					throw new InvalidOperationException($"{key}: unowned native name collision; no adoption.");
 			}
 			row = desired;
-			_db.Add(row);
-			_db.SaveChanges();
+			if (!_staged.TryGetValue(key, out var stagedRow) || !ReferenceEquals(stagedRow, row)) _db.Add(row);
+			if (!_batching) _db.SaveChanges();
 			var id = (long)_db.Entry(row).Property("Id").CurrentValue!;
+			if (_maximumIds.TryGetValue(typeof(T), out var maximum) && id > maximum) _maximumIds[typeof(T)] = id;
 			if (_db.SeederManagedRecords.Any(x => x.EntityType == typeof(T).Name && x.LogicalId == id))
 				throw new InvalidOperationException($"{key}: retained logical identity collision.");
 			record = new SeederManagedRecord { Seeder = ArmageddonMagicInstaller.Package, Module = Module, StableKey = key,
@@ -137,7 +219,7 @@ internal sealed class ArmageddonCatalogueOwnership
 		if (!created) ApplyChildren(row, current, merged);
 		record.ManifestVersion = Version;
 		if (created || current.Count != merged.Count || current.Any(x => !merged.TryGetValue(x.Key, out var value) || value != x.Value)) record.AppliedAt = DateTime.UtcNow;
-		_db.SaveChanges();
+		if (!_batching) _db.SaveChanges();
 		return row;
 	}
 
@@ -158,6 +240,9 @@ internal sealed class ArmageddonCatalogueOwnership
 		}
 		if (row is FutureProg prog) _db.Entry(prog).Collection(x => x.FutureProgsParameters).Load();
 		if (row is CombatMessage message) _db.Entry(message).Collection(x => x.CombatMessagesWeaponAttacks).Load();
+		LoadAnatomyChildren(row);
+		LoadCreatureChildren(row);
+		LoadMedicalChildren(row);
 	}
 
 	private Dictionary<string, string> Fields(object row)
@@ -182,11 +267,17 @@ internal sealed class ArmageddonCatalogueOwnership
 			fields["Phases"] = JsonSerializer.Serialize(craft.CraftPhases.OrderBy(x => x.PhaseNumber)
 				.Select(x => new Phase(x.PhaseNumber, x.PhaseLengthInSeconds, x.Echo, x.FailEcho, x.ExertionLevel, x.StaminaUsage)).ToArray());
 		}
+		AnatomyFields(row, fields);
+		CreatureFields(row, fields);
+		MedicalFields(row, fields);
 		return fields;
 	}
 
 	private void ApplyChildren(object row, IReadOnlyDictionary<string, string> current, IReadOnlyDictionary<string, string> merged)
 	{
+		ApplyAnatomyChildren(row, current, merged);
+		ApplyCreatureChildren(row, current, merged);
+		ApplyMedicalChildren(row, current, merged);
 		// Reconcile each native collection as an aggregate; builder edits are retained by the shared reconciler.
 		if (row is CombatMessage message && current["WeaponAttacks"] != merged["WeaponAttacks"])
 		{

@@ -38,10 +38,8 @@ public partial class Body
             return;
         }
 
-        ThermalImbalance thermal = Actor.CombinedEffectsOfType<ThermalImbalance>()
-            .OrderByDescending(x =>
-                ThermalImbalanceConsequenceModel.EffectSeverityScore(x.TemperatureStatus, x.ImbalanceProgress))
-            .FirstOrDefault();
+		ThermalImbalance thermal = ThermalImbalance.DominantAmbientExposureEffect(
+			Actor.CombinedEffectsOfType<ThermalImbalance>());
         if (thermal == null)
         {
             thermal = new ThermalImbalance(Actor);

@@ -189,6 +189,8 @@ SpellPortal
 SpellPortalTopology
 SpellPossessedBody
 SpellNpcGuardian
+SpellNpcControl
+SpellNpcMission
 SpellRage
 SpellReciteProxy
 SpellRejuvenateLand

@@ -288,18 +288,18 @@ public class ArmageddonInstallationSettingsTests
 	}
 
 	[TestMethod]
-	public void SharedExecutor_ProgressionStageDoesNotPersistGenericQuestionAnswers()
+	public void SharedExecutor_CatalogueFailureRetainsDurableSettingsAndProgressionWithoutGenericAnswers()
 	{
 #if DEBUG
 		using var db = Fixture();
 		var seeder = new ArmageddonMagicSeeder();
 		var result = SeederExecutionService.Execute(db, seeder, seeder.Questions, new Dictionary<string, string>
 		{ [ArmageddonMagicSeeder.FullInstallQuestion] = "yes", [ArmageddonMagicSeeder.ModeQuestion] = "Simple" }, new Version(1, 0));
-		Assert.IsTrue(result.Success, result.Exception?.ToString());
+		Assert.IsFalse(result.Success, "The deliberately minimal S1/S2 fixture lacks S3 catalogue prerequisites.");
 		Assert.AreEqual(4, db.SeederChoices.Count()); Assert.IsTrue(db.SeederManagedRecords.Count() > 1);
 		Assert.AreEqual(10, db.MagicCapabilities.Count()); Assert.AreEqual(10, db.ChargenRoles.Count());
-		StringAssert.Contains(result.Message!, "S2"); StringAssert.Contains(result.Message!, "S6");
-		StringAssert.Contains(result.Message!, "full package is not installed");
+		StringAssert.Contains(result.Exception!.Message, "supplies");
+		Assert.IsFalse(db.SeederManagedRecords.Any(x => x.Module == "stock-catalogue"));
 #endif
 	}
 }

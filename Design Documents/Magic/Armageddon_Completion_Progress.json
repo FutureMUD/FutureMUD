@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-continuation-20261008",
   "authorised_scope": "Complete plan in coherent stages; local commits and draft PR #788 authorized; no merge, deploy or shared/production DB",
-  "selected_stage": "Implement S1-S6 before N24 using the adopted elemental research basis, preserving exact Sorcerer rows and prior approved policies. S2 resolves Portal Gate identity and reconciles elemental Simple data. N23 remains latest runtime qualification; N24 unstarted.",
+  "selected_stage": "S3 catalogue implemented and bounded qualification complete; S4 hydration is next, then S5/S6 before N24. Preserve approved source/progression and typed links; Release remains disabled.",
   "seeder_completeness_design": {
     "date": "2026-10-11",
     "document": "Armageddon_Seeder_Completeness_Design_20261011.md",
@@ -3868,7 +3868,9 @@
     "current_guardian_receipt": "Design Documents/Magic/Armageddon_Guardian_Early_Death_Checkpoint_20261009.json",
     "current_guardian_lifecycle_modes_receipt": "Design Documents/Magic/Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.json",
     "current_guardian_churn_receipt": "Design Documents/Magic/Armageddon_Guardian_Churn_Checkpoint_20261009.json",
-    "current_occupied_shelters_receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
+    "current_occupied_shelters_receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json",
+    "historical_checkpoint": true,
+    "current_status_authority": "Design Documents/Magic/Armageddon_Catalogue_S3_Completion_20261012.json"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -5851,96 +5853,254 @@
     "historical_attribution": "Previous malformed-armour failure retained; current stock repair and AI hold supersede its current-stage status."
   },
   "current_managed": {
-    "scope": "Full Core and shared Library after N19 ward/bane and callback-free retirement repairs",
+    "scope": "S3 default suites and later relevant runtime gates; overlap not summed",
     "runs": [
       {
-        "run_id": "20261010T082643Z-1401e2a85cd2",
-        "head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
+        "run_id": "20261012T041911Z-070050db04d5",
         "status": "PASS",
+        "configuration": "Debug",
+        "filter": null,
         "counts": {
-          "executed": 7165,
-          "passed": 7165,
+          "executed": 9495,
+          "passed": 9495,
+          "failed": 0,
+          "skipped": 3,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 9498
+        },
+        "source_start": "b3574dfe7f84c02c41029e422027ccd8f6b6d2dc7a96e6a0d6e0927a078fd2e7",
+        "source_end": "b3574dfe7f84c02c41029e422027ccd8f6b6d2dc7a96e6a0d6e0927a078fd2e7",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-full-fast-final/20261012T041911Z-070050db04d5/summary.json",
+        "projects": [
+          {
+            "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+            "passed": 763,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+            "passed": 36,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "passed": 1713,
+            "failed": 0,
+            "skipped": 3
+          },
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 6503,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+            "passed": 274,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+            "passed": 57,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+            "passed": 54,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+            "passed": 35,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+            "passed": 38,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "run_id": "20261012T043229Z-94688201f38a",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": null,
+        "counts": {
+          "executed": 6505,
+          "passed": 6505,
           "failed": 0,
           "skipped": 0,
           "inconclusive": 0,
           "other": 0,
-          "total": 7165
+          "total": 6505
         },
-        "source_start": "21d51d1587ba101b4cb063eabf8ab713355ccdf880ee97b27db40f186141aac4",
-        "source_end": "21d51d1587ba101b4cb063eabf8ab713355ccdf880ee97b27db40f186141aac4",
+        "source_start": "f60951ee8c20dc41cfef2ada178c8fc407de15559507835e207bffa8b2c00e47",
+        "source_end": "f60951ee8c20dc41cfef2ada178c8fc407de15559507835e207bffa8b2c00e47",
         "source_stable": true,
+        "receipt": ".artifacts/s3-final-runtime-regressions/20261012T043229Z-94688201f38a/summary.json",
         "projects": [
-          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
-          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
-        ],
-        "filter": null,
-        "configuration": "Debug",
-        "receipt": {
-          "path": ".artifacts/test-runs/20261010T082643Z-1401e2a85cd2/summary.json",
-          "sha256": "deab00ad74974b2c95d56803e00d9055e7f20b8426c19c569c529d157127d6e2"
-        },
-        "project_counts": {
-          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
-            "executed": 740,
-            "passed": 740,
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 6505,
             "failed": 0,
-            "skipped": 0,
-            "inconclusive": 0,
-            "other": 0,
-            "total": 740
-          },
-          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
-            "executed": 6425,
-            "passed": 6425,
-            "failed": 0,
-            "skipped": 0,
-            "inconclusive": 0,
-            "other": 0,
-            "total": 6425
+            "skipped": 0
           }
-        }
+        ]
+      },
+      {
+        "run_id": "20261012T044949Z-784394bc02e9",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~SpellNpcControlTests|FullyQualifiedName~DocumentationCatalogueExporterTests",
+        "counts": {
+          "executed": 25,
+          "passed": 25,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 25
+        },
+        "source_start": "b25692f5fcefbdf2fc899d6f7906b8e8a2b1acce41d973c1c335afdc1d43c3f5",
+        "source_end": "b25692f5fcefbdf2fc899d6f7906b8e8a2b1acce41d973c1c335afdc1d43c3f5",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-terminal-fences/20261012T044949Z-784394bc02e9/summary.json",
+        "projects": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 25,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "run_id": "20261012T051357Z-a6a633a69bfb",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~GameItemComponentPrototypeExclusivityTests|FullyQualifiedName~ArmageddonOneUseReloadTests",
+        "counts": {
+          "executed": 22,
+          "passed": 22,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 22
+        },
+        "source_start": "bb0343e73fbbfa494ea806e6976acd9010a93ac371e09a4807552d00fd60c94c",
+        "source_end": "bb0343e73fbbfa494ea806e6976acd9010a93ac371e09a4807552d00fd60c94c",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-builder-final/20261012T051357Z-a6a633a69bfb/summary.json",
+        "projects": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "run_id": "20261012T052941Z-758f5c04d096",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~SpellNpcControlTests",
+        "counts": {
+          "executed": 22,
+          "passed": 22,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 22
+        },
+        "source_start": "7a97e9c6fb89cede7e31260f345fd3f48d5296ac8e164a3baef297fde98e6984",
+        "source_end": "7a97e9c6fb89cede7e31260f345fd3f48d5296ac8e164a3baef297fde98e6984",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-haunt-final-recheck/20261012T052941Z-758f5c04d096/summary.json",
+        "projects": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "run_id": "20261012T060312Z-6d42d00d9665",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": null,
+        "counts": {
+          "executed": 6510,
+          "passed": 6510,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6510
+        },
+        "source_start": "227059ec0b40b4989a350455962d0cc5686920bf565d2fc2ce07dc2886c0c788",
+        "source_end": "227059ec0b40b4989a350455962d0cc5686920bf565d2fc2ce07dc2886c0c788",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-melee-core-final/20261012T060312Z-6d42d00d9665/summary.json",
+        "projects": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 6510,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "run_id": "20261012T062655Z-9916c84fe1e2",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": null,
+        "counts": {
+          "executed": 6514,
+          "passed": 6514,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6514
+        },
+        "source_start": "24279d081f1b9d92d8ae43075e6b1bcb4da556e76da953f5d299531f9a5782d3",
+        "source_end": "24279d081f1b9d92d8ae43075e6b1bcb4da556e76da953f5d299531f9a5782d3",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-armour-core-final/20261012T062655Z-9916c84fe1e2/summary.json",
+        "projects": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 6514,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
       }
     ],
-    "authoritative_passed": 7165,
     "counts_are_not_added": true,
-    "separate_seeder_armageddon": {
-      "run_id": "20261010T082330Z-ac6d7323c87d",
-      "head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
-      "status": "PASS",
-      "counts": {
-        "executed": 169,
-        "passed": 169,
-        "failed": 0,
-        "skipped": 0,
-        "inconclusive": 0,
-        "other": 0,
-        "total": 169
-      },
-      "source_start": "e6338e413f2e756a2f12a1aad20ad155aab2e6e5b843054a444058548712e93d",
-      "source_end": "e6338e413f2e756a2f12a1aad20ad155aab2e6e5b843054a444058548712e93d",
-      "source_stable": true,
-      "projects": [
-        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
-      ],
-      "filter": "FullyQualifiedName~Armageddon",
-      "configuration": "Debug",
-      "receipt": {
-        "path": ".artifacts/test-runs/20261010T082330Z-ac6d7323c87d/summary.json",
-        "sha256": "8e5740750ed27509953815670d9a17f855ccaa7d879f8ae2e6e8cca8e72e247f"
-      },
-      "project_counts": {
-        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj": {
-          "executed": 169,
-          "passed": 169,
-          "failed": 0,
-          "skipped": 0,
-          "inconclusive": 0,
-          "other": 0,
-          "total": 169
-        }
-      }
-    },
-    "previous_n18_receipt": "Design Documents/Magic/Armageddon_Owned_Projections_Checkpoint_20261010.json"
+    "receipt": "Design Documents/Magic/Armageddon_Catalogue_S3_Completion_20261012.json"
   },
   "full_plan_complete": false,
   "package_release_enabled": false,
@@ -6411,7 +6571,7 @@
     "full_air_guardian_catalogue_qualified": false,
     "next_bounded_milestone": "N17: map and implement the bounded occupied-shelter dependencies for Spring Haven, Burrow Refuge and Sand Shelter, then qualify real utility, finite water, occupied expiry/destruction and safe fallback with preserved actors and foreign goods. Full Air Guardian catalogue/timing parity and other stock/readiness gates remain pending. Use only code-proven references; no static-definition classifier stage."
   },
-  "next_bounded_milestone": "S2: implement429 Classic bindings,419 Simple spell admissions and required crafting, ten capabilities/merits and conditional classes with natural progression; S3-S6 then N24 remain.",
+  "next_bounded_milestone": "S4: hydrate all 152 required spells with real catalogue/controller/lifecycle dependencies; install ten foci, two device blanks and twelve recipes with real spell bindings. S5/S6 and then N24 remain; Release stays disabled.",
   "occupied_shelters_20261010": {
     "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
     "receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json",
@@ -6452,5 +6612,111 @@
     "status": "PASS_BOUNDED_S1_FIXED_SETTINGS",
     "receipt": "Design Documents/Magic/Armageddon_Installation_Settings_S1_20261011.json",
     "next": "S2: implement429 Classic bindings,419 Simple spell admissions and required crafting, ten capabilities/merits and conditional classes with natural progression; S3-S6 then N24 remain."
+  },
+  "current_status_authority": "Design Documents/Magic/Armageddon_Catalogue_S3_Completion_20261012.json",
+  "S2_staged_progression": {
+    "status": "PASS_BOUNDED_S2_STOCK_PROGRESSION",
+    "receipt": "Design Documents/Magic/Armageddon_Stock_Progression_S2_20261011.json",
+    "activation_pending_s4": true
+  },
+  "S3_catalogue": {
+    "status": "PASS_BOUNDED_S3_CATALOGUE",
+    "receipt": "Design Documents/Magic/Armageddon_Catalogue_S3_Completion_20261012.json",
+    "s3_blueprints": 198,
+    "deferred_to_s4": 12,
+    "release_enabled": false,
+    "next": "S4: hydrate all 152 required spells with real catalogue/controller/lifecycle dependencies; install ten foci, two device blanks and twelve recipes with real spell bindings. S5/S6 and then N24 remain; Release stays disabled."
+  },
+  "managed_before_s3_historical": {
+    "scope": "Full Core and shared Library after N19 ward/bane and callback-free retirement repairs",
+    "runs": [
+      {
+        "run_id": "20261010T082643Z-1401e2a85cd2",
+        "head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
+        "status": "PASS",
+        "counts": {
+          "executed": 7165,
+          "passed": 7165,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7165
+        },
+        "source_start": "21d51d1587ba101b4cb063eabf8ab713355ccdf880ee97b27db40f186141aac4",
+        "source_end": "21d51d1587ba101b4cb063eabf8ab713355ccdf880ee97b27db40f186141aac4",
+        "source_stable": true,
+        "projects": [
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "filter": null,
+        "configuration": "Debug",
+        "receipt": {
+          "path": ".artifacts/test-runs/20261010T082643Z-1401e2a85cd2/summary.json",
+          "sha256": "deab00ad74974b2c95d56803e00d9055e7f20b8426c19c569c529d157127d6e2"
+        },
+        "project_counts": {
+          "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
+            "executed": 740,
+            "passed": 740,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 740
+          },
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
+            "executed": 6425,
+            "passed": 6425,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 6425
+          }
+        }
+      }
+    ],
+    "authoritative_passed": 7165,
+    "counts_are_not_added": true,
+    "separate_seeder_armageddon": {
+      "run_id": "20261010T082330Z-ac6d7323c87d",
+      "head": "6b99e95cbacc4f400cb651017505eda081b3f52d",
+      "status": "PASS",
+      "counts": {
+        "executed": 169,
+        "passed": 169,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 169
+      },
+      "source_start": "e6338e413f2e756a2f12a1aad20ad155aab2e6e5b843054a444058548712e93d",
+      "source_end": "e6338e413f2e756a2f12a1aad20ad155aab2e6e5b843054a444058548712e93d",
+      "source_stable": true,
+      "projects": [
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+      ],
+      "filter": "FullyQualifiedName~Armageddon",
+      "configuration": "Debug",
+      "receipt": {
+        "path": ".artifacts/test-runs/20261010T082330Z-ac6d7323c87d/summary.json",
+        "sha256": "8e5740750ed27509953815670d9a17f855ccaa7d879f8ae2e6e8cca8e72e247f"
+      },
+      "project_counts": {
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj": {
+          "executed": 169,
+          "passed": 169,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 169
+        }
+      }
+    },
+    "previous_n18_receipt": "Design Documents/Magic/Armageddon_Owned_Projections_Checkpoint_20261010.json"
   }
 }

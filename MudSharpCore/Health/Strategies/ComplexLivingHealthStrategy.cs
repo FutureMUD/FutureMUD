@@ -686,7 +686,8 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
         double temperature = character.Location.CurrentTemperature(character);
         Temperature subjective =
             TemperatureExtensions.SubjectiveTemperature(temperature, floor, ceiling);
-        ThermalImbalance effect = DominantThermalImbalanceEffect(character);
+		ThermalImbalance effect = ThermalImbalance.DominantAmbientExposureEffect(
+			character.CombinedEffectsOfType<ThermalImbalance>());
         if (effect == null && subjective == Temperature.Temperate)
         {
             return;

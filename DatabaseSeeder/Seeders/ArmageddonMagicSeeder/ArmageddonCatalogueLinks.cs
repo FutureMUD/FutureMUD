@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
 using MudSharp.Models;
+using MudSharp.Health;
 
 namespace DatabaseSeeder.Seeders;
 
@@ -44,6 +45,11 @@ internal static class ArmageddonCatalogueLinks
 		nameof(Liquid) => db.Liquids.Any(x => x.Id == alias.NativeId && x.Density > 0),
 		nameof(Terrain) => db.Terrains.Any(x => x.Id == alias.NativeId),
 		nameof(WeaponType) => db.WeaponTypes.Any(x => x.Id == alias.NativeId),
+		nameof(BodyProto) => db.BodyProtos.Any(x => x.Id == alias.NativeId),
+		nameof(PopulationBloodModel) => db.PopulationBloodModels.Any(x => x.Id == alias.NativeId),
+		nameof(Accent) => db.Accents.Any(x => x.Id == alias.NativeId),
+		nameof(BodypartShape) => db.BodypartShapes.Any(x => x.Id == alias.NativeId),
+		nameof(InfectionType) => alias.NativeId == (long)InfectionType.SownSickness,
 		_ => false
 	});
 

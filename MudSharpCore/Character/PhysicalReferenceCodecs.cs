@@ -41,6 +41,8 @@ public static class PhysicalReferenceCodecs
 			"Trap" or "TrapPayloadSchedule" => ["CreatorId", "TargetCharacterId"],
 			"SpellIdentify" => ["CasterId"],
 			"SpellNpcGuardian" => ["CreatorId"],
+			"SpellNpcControl" => ["CreatorId", "TargetId"],
+			"SpellNpcMission" => ["TargetId", "RecipientId"],
 			"SpellReciteProxy" => ["CasterId", "LinkedCharacterId"],
 			"SpellLiveBodyPossession" => ["AnchorCharacterId", "TargetCharacterId"],
 			"SpellPossessedBody" => ["AnchorCharacterId", "SourceTargetCharacterId"],
@@ -53,8 +55,11 @@ public static class PhysicalReferenceCodecs
 		foreach (var field in Needed(PhysicalEntityKind.Character) ? fields : [])
 		{
 			if (root?.Element(field) is { } element)
+			{
+				if (type == "SpellNpcMission" && long.TryParse(element.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var missionId) && missionId <= 0) continue;
 				yield return Read(PhysicalEntityKind.Character, element.Value, $"{type}/{field}");
-			else if (type is not ("OnTrial" or "Trap" or "TrapPayloadSchedule" or "SpellPhantomIllusion" or "SpellSubjectiveDescription" or "SpellPossessedBody" or "SpellCorpsePossession" or "SpellAnimatedCorpse" or "SpellDeadSpeak" or "SpellReciteProxy" or "MonsterState") &&
+			}
+			else if (type is not ("OnTrial" or "Trap" or "TrapPayloadSchedule" or "SpellPhantomIllusion" or "SpellSubjectiveDescription" or "SpellPossessedBody" or "SpellCorpsePossession" or "SpellAnimatedCorpse" or "SpellDeadSpeak" or "SpellReciteProxy" or "SpellNpcMission" or "MonsterState") && !(type == "SpellNpcControl" && field == "TargetId") &&
 				!(type == "PsionicTrace" && field == "TargetCharacterId"))
 				throw new FormatException($"{type}/{field} is missing.");
 		}
@@ -84,17 +89,24 @@ public static class PhysicalReferenceCodecs
 			"SubstanceExposure" => ["SourceBody"],
 			"ForcedTransformationBaseline" => ["BaselineBodyId"],
 			"SpellTransformForm" => ["FormBodyId", "PriorBodyId"],
+			"SpellNpcMission" => ["TargetBodyId"],
 			"SpellLiveBodyPossession" => ["TargetBodyId"],
 			"SpellPossessedBody" => ["ShellBodyId"],
 			"SpellCorpsePossession" or "SpellAnimatedCorpse" or "SpellDeadSpeak" => ["OriginalBodyId"],
 			_ => Array.Empty<string>()
 		};
 		foreach (var field in Needed(PhysicalEntityKind.Body) ? bodyFields : [])
-			yield return Read(PhysicalEntityKind.Body, root?.Element(field)?.Value ?? "0", $"{type}/{field}");
+		{
+			var value = root?.Element(field)?.Value ?? "0";
+			if (type == "SpellNpcMission" && long.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var missionBodyId) && missionBodyId <= 0) continue;
+			yield return Read(PhysicalEntityKind.Body, value, $"{type}/{field}");
+		}
 		var instanceFields = type switch
 		{
 			"SpellIdentify" => new[] { "CasterInstanceId" },
 			"SpellNpcGuardian" => ["CreatorInstanceId"],
+			"SpellNpcControl" => ["CreatorInstanceId", "TargetInstanceId"],
+			"SpellNpcMission" => ["TargetInstanceId", "RecipientInstanceId"],
 			"SpellReciteProxy" => ["CasterInstanceId", "LinkedInstanceId"],
 			"SpellLiveBodyPossession" => ["AnchorInstanceId", "TargetInstanceId"],
 			"SpellPossessedBody" => ["AnchorInstanceId", "ShellInstanceId", "SourceTargetInstanceId"],
@@ -104,12 +116,17 @@ public static class PhysicalReferenceCodecs
 		};
 		foreach (var field in Needed(PhysicalEntityKind.CharacterInstance) ? instanceFields : [])
 			if (root?.Element(field) is { } element)
+			{
+				if (type == "SpellNpcMission" && long.TryParse(element.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var missionInstanceId) && missionInstanceId <= 0) continue;
 				yield return Read(PhysicalEntityKind.CharacterInstance, element.Value, $"{type}/{field}");
+			}
 		if (type is "ZeroGravityTether" or "SpellZeroGravityTether")
 			foreach (var reference in Typed(Required(root, "AnchorType"), Required(root, "AnchorId"), $"{type}/Anchor"))
 				yield return reference;
 		if (Needed(PhysicalEntityKind.GameItem) && type == "ZeroGravityTether")
 			yield return Read(PhysicalEntityKind.GameItem, Required(root, "PhysicalTetherId"), "ZeroGravityTether/PhysicalTetherId");
+		if (Needed(PhysicalEntityKind.GameItem) && type == "SpellNpcMission" && root?.Element("ParcelId") is { } parcel && long.Parse(parcel.Value, CultureInfo.InvariantCulture) > 0)
+			yield return Read(PhysicalEntityKind.GameItem, parcel.Value, "SpellNpcMission/ParcelId");
 	}
 
 	private static IEnumerable<PhysicalEntityReference> InstanceMetadata(XElement root, PhysicalReferenceTargets? targets)
@@ -151,6 +168,15 @@ public static class PhysicalReferenceCodecs
 
 	public static IEnumerable<PhysicalEntityReference> Component(string type, string value, Func<long, long?> legacyBody)
 	{
+		if (type is "ArmageddonEmberSeed" or "TopicalCream")
+		{
+			var binding = XElement.Parse(value);
+			if (binding.Attribute("CreatorId") is { } creator)
+				yield return Read(PhysicalEntityKind.Character, creator.Value, $"{type}/@CreatorId");
+			if (binding.Attribute("CreatorInstanceId") is { } instance)
+				yield return Read(PhysicalEntityKind.CharacterInstance, instance.Value, $"{type}/@CreatorInstanceId");
+			yield break;
+		}
 		if (type is not ("Corpse" or "Bodypart")) yield break;
 		var root = XElement.Parse(value);
 		var bodyField = type == "Corpse" ? "OriginalBody" : "OriginalBodyId";

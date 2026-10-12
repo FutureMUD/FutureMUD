@@ -14,7 +14,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
-	private static int PreparedSeederReplayNative(bool installed = false, bool settings = false, bool progression = false, bool supplies = false)
+	private static int PreparedSeederReplayNative(bool installed = false, bool settings = false, bool progression = false, bool supplies = false, bool anatomy = false, bool catalogue = false, bool catalogueBootOnly = false)
 	{
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		using (var db = NewIndependentContext(database.ConnectionString))
@@ -57,7 +57,9 @@ internal static partial class GNHProgram
 		}
 		using (var db = NewIndependentContext(database.ConnectionString)) Require(!db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package), "Standard decline profile installed magic content.");
 		Console.WriteLine("ARMPREP-replay-completion=passed complete-medieval-profile optional-Armageddon-declined");
-		if (supplies) PreparedStockSupplyAcceptance(database);
+		if (catalogue) PreparedStockCatalogueAcceptance(database, assembly, qualifyReruns: !catalogueBootOnly);
+		else if (anatomy) PreparedStockAnatomyAcceptance(database);
+		else if (supplies) PreparedStockSupplyAcceptance(database);
 		else if (progression) PreparedStockProgressionAcceptance(database);
 		else if (settings) PreparedInstallationSettingsAcceptance(database);
 		else if (installed) PreparedInstalledWorldAcceptance(database, assembly);

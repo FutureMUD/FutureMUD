@@ -165,7 +165,7 @@ public class RoomTerminologyTests
 		var assemblyLatest = context.GetService<IMigrationsAssembly>().Migrations.Keys
 			.OrderBy(x=>x,StringComparer.Ordinal).Last();
 		Assert.IsTrue(context.GetService<IMigrationsAssembly>().Migrations.ContainsKey("20261007043900_RoomTerminology"));
-		Assert.AreEqual("20261008024603_TargetedLegacyRoomReferences",assemblyLatest);
+		Assert.AreEqual("20261012024208_TrackCharacterInstanceIdentity",assemblyLatest);
 		Assert.AreEqual(assemblyLatest,sourceLatest);
 	}
 

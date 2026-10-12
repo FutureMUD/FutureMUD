@@ -1,5 +1,5 @@
 {
-  "ProductVersion": "3.7.0.0",
-  "LatestMigrationId": "20261008024603_TargetedLegacyRoomReferences",
-  "GeneratedUtc": "2026-10-08T11:53:21.7787435Z"
+  "ProductVersion": "3.7.0",
+  "LatestMigrationId": "20261012024208_TrackCharacterInstanceIdentity",
+  "GeneratedUtc": "2026-10-12T03:09:14.2863767Z"
 }

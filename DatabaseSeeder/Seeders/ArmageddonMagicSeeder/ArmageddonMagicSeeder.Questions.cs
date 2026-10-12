@@ -38,7 +38,7 @@ public sealed partial class ArmageddonMagicSeeder
 	private static bool IsYes(string answer) => answer.Trim().Equals("yes", StringComparison.OrdinalIgnoreCase);
 	public IEnumerable<SeederQuestion> Questions => !Enabled ? Array.Empty<SeederQuestion>() :
 	[
-		new(FullInstallQuestion, "Prepare the Armageddon package installation? yes/no (default no). This stage fixes settings; catalogue modules S2–S6 are pending.",
+		new(FullInstallQuestion, "Install/reconcile Armageddon fixed settings, progression and native stock catalogue? yes/no (default no). Full spell hydration and S4–S6 qualification remain pending.",
 			(_, _) => true, (answer, _) => answer.Trim().Equals("no", StringComparison.OrdinalIgnoreCase) || IsYes(answer) ? (true, "") : (false, "Answer yes or no."), DefaultAnswerResolver: (_, _) => "no", PersistAnswer: false),
 		new(ModeQuestion, "Choose the fixed game-wide progression mode: Classic or Simple.",
 			(db, answers) => FullConsent(answers) && ArmageddonInstallation.Read(db) is null,

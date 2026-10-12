@@ -1,6 +1,8 @@
 #nullable enable
 
 using MudSharp.CharacterCreation;
+using MudSharp.Events;
+using MudSharp.NPC.AI;
 using MudSharp.Framework.Revision;
 using MudSharp.NPC.Templates;
 using MudSharp.RPG.Merits;
@@ -18,6 +20,9 @@ internal static class NativeNpcCreationEligibility
 			return "The native NPC template belongs to a different gameworld.";
 		if (template.Status != RevisionStatus.Current)
 			return "The NPC template is missing or not approved.";
+		var controllers = template.ArtificialIntelligences.OfType<SpellCompanionAI>().ToArray();
+		if (controllers.Length > 1 || controllers.Length == 1 && template.ArtificialIntelligences.Count(x => x.HandlesEvent(EventType.CommandIssuedToCharacter)) != 1)
+			return "Lifecycle NPC creation needs one unambiguous spell companion controller and no competing command handlers.";
 		return CharacterTemplateError(template.GetCharacterTemplate());
 	}
 

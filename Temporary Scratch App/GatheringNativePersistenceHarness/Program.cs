@@ -1066,7 +1066,7 @@ internal static partial class GNHProgram
 		SetPrivateField(target, $"<{propertyName}>k__BackingField", value);
 	}
 
-	private sealed class TestDatabase : IDisposable
+	private sealed partial class TestDatabase : IDisposable
 	{
 		private readonly MySqlConnectionStringBuilder _serverBuilder;
 		private readonly string _ownershipToken;

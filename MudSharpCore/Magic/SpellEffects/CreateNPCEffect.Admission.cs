@@ -1,5 +1,8 @@
 #nullable enable
 using MudSharp.Character;
+using Microsoft.EntityFrameworkCore;
+using MudSharp.Database;
+using MudSharp.NPC.AI;
 using MudSharp.Construction;
 using MudSharp.Magic.Casting;
 using MudSharp.Magic.Lifecycle;
@@ -92,6 +95,19 @@ public sealed partial class CreateNPCEffect
 		{
 			error = "The NPC creator must be able and loaded in the casting gameworld.";
 			return false;
+		}
+		if (NPCTemplate?.ArtificialIntelligences.OfType<SpellCompanionAI>().Any() == true)
+		{
+			using (new FMDB())
+			{
+				var creatorId = CharacterInstanceIdentityComparer.IdentityId(caster);
+				if (!FMDB.Context.CharacterInstances.AsNoTracking().Any(x => x.Id == caster.InstanceId && x.CharacterId == creatorId &&
+					x.BodyId == caster.Body.Id && x.IsPrimary))
+				{
+					error = "A spell companion controller requires its creator to be loaded in their current persisted primary character instance.";
+					return false;
+				}
+			}
 		}
 		if (Spell is not MagicSpell { InvocationGrade: { } grade } || !TryCount(_count, grade, out _))
 		{

@@ -90,6 +90,7 @@ public sealed partial class SpellOwnedNpcService
 					life = _store.BeginRetirement(life.Origin.Id, life.Version, SpellRetirementReason.Expiry, TransitionTime(life, nowUtc));
 				// This exact creation's outgoing bond must also release on persisted-dead reloads.
 				// External effects and relationships retain their ordinary custody guards.
+				foreach (var bond in npc.EffectsOfType<SpellNpcControlEffect>().ToArray()) bond.PrepareRetirement(life.Origin.Id);
 				foreach (var bond in npc.EffectsOfType<SpellNpcGuardian>().ToArray()) bond.PrepareRetirement(life.Origin.CreatorId);
 				if (!npc.State.HasFlag(CharacterState.Dead))
 				{

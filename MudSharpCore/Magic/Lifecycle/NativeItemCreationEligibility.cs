@@ -23,8 +23,16 @@ internal static class NativeItemCreationEligibility
 		var foodGraph = types.Length == 2 && types.Contains(typeof(HoldableGameItemComponentProto)) && types.Contains(typeof(FoodGameItemComponentProto));
 		var lightGraph = types.Length == 3 && types.Contains(typeof(HoldableGameItemComponentProto)) &&
 			types.Contains(typeof(WearableGameItemComponentProto)) && types.Contains(typeof(ProgLightGameItemComponentProto));
-		if (!prototype.IsItemType<HoldableGameItemComponentProto>() || !(weaponGraph || foodGraph || lightGraph))
-			return "Lifecycle creation supports plain holdable weapons, food or wearable lights; other component graphs need an adapter.";
+		var emberGraph = types.Length == 2 && types.Contains(typeof(HoldableGameItemComponentProto)) && types.Contains(typeof(ArmageddonEmberSeedGameItemComponentProto));
+		var doseGraph = types.Length == 2 && types.Contains(typeof(HoldableGameItemComponentProto)) && types.Contains(typeof(TopicalCreamGameItemComponentProto));
+		if (!prototype.IsItemType<HoldableGameItemComponentProto>() || !(weaponGraph || foodGraph || lightGraph || emberGraph || doseGraph))
+			return "Lifecycle creation supports plain holdable weapons, food, wearable lights, bounded ember triggers or native healing doses; other component graphs need an adapter.";
+		if (prototype.GetItemType<ArmageddonEmberSeedGameItemComponentProto>() is { } ember && !ember.CanSubmit())
+			return "The native ember trigger configuration is invalid.";
+		if (prototype.GetItemType<TopicalCreamGameItemComponentProto>() is { } dose &&
+			(dose.NativeDoseProfile is not { IsValid: true } || dose.Drugs.Count != 0 || dose.OnApplyProg is not null ||
+			 !double.IsFinite(dose.TotalGrams) || Math.Abs(dose.TotalGrams * world.UnitManager.BaseWeightToKilograms * 1000.0 - dose.NativeDoseProfile.ReferenceDoseGrams) > 0.000001))
+			return "Native healing doses require a valid exact physical mass and no additional drug or apply script.";
 		if (prototype.GetItemType<FoodGameItemComponentProto>() is { } food &&
 			(food.OnEatProg is not null || !double.IsFinite(food.Bites) || food.Bites <= 0 || food.Decorator is null ||
 			 new[] { food.SatiationPoints, food.ThirstPoints, food.WaterLitres, food.AlcoholLitres }.Any(x => !double.IsFinite(x) || x < 0)))

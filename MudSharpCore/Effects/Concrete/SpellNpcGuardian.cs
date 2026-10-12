@@ -121,7 +121,10 @@ public sealed class SpellNpcGuardian : Effect, IGuardCharacterEffect, IAffectPro
 	public static void NotifyEngagement(ICharacter attacker, ICharacter target)
 	{
 		foreach (var guardian in target.Location.LayerCharacters(target.RoomLayer).ToArray())
+		{
 			foreach (var bond in guardian.EffectsOfType<SpellNpcGuardian>().ToArray()) bond.ProtectAgainst(attacker);
+			foreach (var bond in guardian.EffectsOfType<SpellNpcControlEffect>().ToArray()) bond.NotifyCreatorEngagement(attacker, target);
+		}
 	}
 	private void CreatorCombat(IPerceivable _) => Protect();
 	private void CreatorGone(IPerceivable _) => Unbind();

@@ -272,6 +272,20 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
 
     private Dictionary<string, TraitExpressionParameter> _parameters = new();
 
+	public IReadOnlyDictionary<string, long> TraitReferenceIds
+	{
+		get
+		{
+			var names = Formula.ParameterNames.ToHashSet(StringComparer.Ordinal);
+			var references = _parameters.Where(x => names.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value.Trait.Id);
+			// A builder formula edit may replace an already loaded parameter. The pending
+			// native parse takes precedence, just as it does in ProcessLazyLoading.
+			foreach (var reference in _parameterIndexes)
+				if (names.Contains(reference.Key)) references[reference.Key] = reference.Value;
+			return references;
+		}
+	}
+
     public Dictionary<string, TraitExpressionParameter> Parameters
     {
         get

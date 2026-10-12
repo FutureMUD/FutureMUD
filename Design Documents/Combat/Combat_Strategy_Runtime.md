@@ -4,6 +4,10 @@ Magical defense selection runs after the ordinary strategy response. Active elig
 
 Successful magic attacks can deliver a separately configured attack-context spell, including caster effects. Full magical interception prevents that payload. Magical item smashes use selected combat actions without introducing a character defensive response for the item; their costs, target validity and payload compatibility are checked again at resolution.
 
+Native melee target damage retains both the attacker and exact weapon item as its actor/tool origins, including ordinary dodge/helpless-defense resolution with weapon wear enabled or disabled. Persisted wounds can therefore identify the actual causing weapon. This provenance does not alter damage, pain, stun or weapon-wear formulas.
+
+Natural, worn and spell armour preserve the incoming tool origin on absorbed and passed-through packets. Armour calculations continue to apply their configured dissipation, absorption and type transformations; they do not replace the identity of the causing weapon with the armour item.
+
 ## Scope
 
 This document describes the current runtime behaviour of the built-in `ICombatStrategy` implementations. It is intended as a practical reference for maintainers and AI agents auditing combat behaviour, especially around cases where a strategy may otherwise choose no move.

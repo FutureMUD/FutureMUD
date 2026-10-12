@@ -1,0 +1,548 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-12",
+  "milestone": "S3",
+  "status": "PASS_BOUNDED_S3_CATALOGUE",
+  "branch": "codex/armageddon-continuation-20261008",
+  "qualification_base_head": "f828f485d2ad15dcad2cac309089c9e1cd972962",
+  "qualification_includes_uncommitted_s3_changes": true,
+  "whole_plan_complete": false,
+  "release_enabled": false,
+  "spell_admissions_enabled": false,
+  "class_availability_enabled": false,
+  "inventory": {
+    "declared_blueprints": 210,
+    "s3_reconciled": 198,
+    "deferred_to_s4": 12,
+    "item_prototypes": 123,
+    "supplies": 64,
+    "supply_recipes": 64,
+    "component_tags": 61,
+    "finite_component_forage": 1,
+    "shelter_templates": 4,
+    "weapons": 49,
+    "weapon_types": 49,
+    "weapon_attacks": 49,
+    "weapon_combat_messages": 49,
+    "weapon_expressions": 147,
+    "food_prototypes": 3,
+    "empty_bottle": 1,
+    "wine": 1,
+    "shared_water_alias": 1,
+    "owned_creature_families": 7,
+    "graded_npc_templates": 49,
+    "shared_creature_culture": 1,
+    "controller_bundles": 8,
+    "native_ai_rows": 10,
+    "special_items": 6,
+    "contact_poison": 1,
+    "native_infection_alias": 1,
+    "live_entities_created_by_installer": 0
+  },
+  "contracts": [
+    "One fixed Classic/Simple and classes choice; conservative repair/resume, no conversion or parallel editions.",
+    "Settings and progression precede independently committed catalogue batches; later failure retains earlier work.",
+    "Explicit ownership scalar/child schemas and code-proven typed links; no arbitrary numeric text or guessed Id-field scans.",
+    "No additional non-spell player class skills beyond required Component Crafting; native NPC skills provide real locomotion/combat.",
+    "Explicit attached elemental affinities grant no magic; learned affiliations remain a separate S4 Read Attunement result.",
+    "Controller authority uses the exact primary creator/body/NPC, active claims, real ready spell and current capability/acquisition.",
+    "Haunt cache cleanup occurs only after confirmed commit; failed saves preserve cached and durable fear and earlier queued state.",
+    "Ember/Mud require exact lifecycle binding and durable one-use consumption before native consequences.",
+    "Sown Sickness uses native infection/thermal/stamina systems; source energy is translated to satiation without a calorie model."
+  ],
+  "managed": {
+    "counts_are_separate_not_added": true,
+    "runs": [
+      {
+        "run_id": "20261012T041911Z-070050db04d5",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": null,
+        "counts": {
+          "executed": 9495,
+          "passed": 9495,
+          "failed": 0,
+          "skipped": 3,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 9498
+        },
+        "source_start": "b3574dfe7f84c02c41029e422027ccd8f6b6d2dc7a96e6a0d6e0927a078fd2e7",
+        "source_end": "b3574dfe7f84c02c41029e422027ccd8f6b6d2dc7a96e6a0d6e0927a078fd2e7",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-full-fast-final/20261012T041911Z-070050db04d5/summary.json",
+        "projects": [
+          {
+            "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+            "passed": 763,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+            "passed": 36,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "passed": 1713,
+            "failed": 0,
+            "skipped": 3
+          },
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 6503,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+            "passed": 274,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+            "passed": 57,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+            "passed": 54,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+            "passed": 35,
+            "failed": 0,
+            "skipped": 0
+          },
+          {
+            "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+            "passed": 38,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "run_id": "20261012T043229Z-94688201f38a",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": null,
+        "counts": {
+          "executed": 6505,
+          "passed": 6505,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6505
+        },
+        "source_start": "f60951ee8c20dc41cfef2ada178c8fc407de15559507835e207bffa8b2c00e47",
+        "source_end": "f60951ee8c20dc41cfef2ada178c8fc407de15559507835e207bffa8b2c00e47",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-final-runtime-regressions/20261012T043229Z-94688201f38a/summary.json",
+        "projects": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 6505,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "run_id": "20261012T044949Z-784394bc02e9",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~SpellNpcControlTests|FullyQualifiedName~DocumentationCatalogueExporterTests",
+        "counts": {
+          "executed": 25,
+          "passed": 25,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 25
+        },
+        "source_start": "b25692f5fcefbdf2fc899d6f7906b8e8a2b1acce41d973c1c335afdc1d43c3f5",
+        "source_end": "b25692f5fcefbdf2fc899d6f7906b8e8a2b1acce41d973c1c335afdc1d43c3f5",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-terminal-fences/20261012T044949Z-784394bc02e9/summary.json",
+        "projects": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 25,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "run_id": "20261012T051357Z-a6a633a69bfb",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~GameItemComponentPrototypeExclusivityTests|FullyQualifiedName~ArmageddonOneUseReloadTests",
+        "counts": {
+          "executed": 22,
+          "passed": 22,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 22
+        },
+        "source_start": "bb0343e73fbbfa494ea806e6976acd9010a93ac371e09a4807552d00fd60c94c",
+        "source_end": "bb0343e73fbbfa494ea806e6976acd9010a93ac371e09a4807552d00fd60c94c",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-builder-final/20261012T051357Z-a6a633a69bfb/summary.json",
+        "projects": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "run_id": "20261012T052941Z-758f5c04d096",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~SpellNpcControlTests",
+        "counts": {
+          "executed": 22,
+          "passed": 22,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 22
+        },
+        "source_start": "7a97e9c6fb89cede7e31260f345fd3f48d5296ac8e164a3baef297fde98e6984",
+        "source_end": "7a97e9c6fb89cede7e31260f345fd3f48d5296ac8e164a3baef297fde98e6984",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-haunt-final-recheck/20261012T052941Z-758f5c04d096/summary.json",
+        "projects": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "run_id": "20261012T060312Z-6d42d00d9665",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": null,
+        "counts": {
+          "executed": 6510,
+          "passed": 6510,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6510
+        },
+        "source_start": "227059ec0b40b4989a350455962d0cc5686920bf565d2fc2ce07dc2886c0c788",
+        "source_end": "227059ec0b40b4989a350455962d0cc5686920bf565d2fc2ce07dc2886c0c788",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-melee-core-final/20261012T060312Z-6d42d00d9665/summary.json",
+        "projects": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 6510,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
+      },
+      {
+        "run_id": "20261012T062655Z-9916c84fe1e2",
+        "status": "PASS",
+        "configuration": "Debug",
+        "filter": null,
+        "counts": {
+          "executed": 6514,
+          "passed": 6514,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6514
+        },
+        "source_start": "24279d081f1b9d92d8ae43075e6b1bcb4da556e76da953f5d299531f9a5782d3",
+        "source_end": "24279d081f1b9d92d8ae43075e6b1bcb4da556e76da953f5d299531f9a5782d3",
+        "source_stable": true,
+        "receipt": ".artifacts/s3-armour-core-final/20261012T062655Z-9916c84fe1e2/summary.json",
+        "projects": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "passed": 6514,
+            "failed": 0,
+            "skipped": 0
+          }
+        ]
+      }
+    ],
+    "final_core_passed": 6514,
+    "default_ten_project_passed": 9495,
+    "default_ten_project_failed": 0,
+    "windows_platform_skips": 3,
+    "final_production_code_unchanged_after_core_gate": true,
+    "subsequent_changes": "Bounded native Python movement wait and documentation/receipt closure only."
+  },
+  "builds": [
+    {
+      "project": "DatabaseSeeder/DatabaseSeeder.csproj",
+      "configuration": "Release",
+      "status": "PASS",
+      "warnings": 160,
+      "errors": 0,
+      "log": ".artifacts/s3-armour-core-final/seeder-release.log",
+      "command": ".artifacts/s3-armour-core-final/seeder-release-command.txt"
+    },
+    {
+      "project": "tests/ArmageddonPreparedSeederNativeHarness/ArmageddonPreparedSeederNativeHarness.csproj",
+      "configuration": "Debug",
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0,
+      "log": ".artifacts/s3-armour-core-final/native-harness-debug.log",
+      "command": ".artifacts/s3-armour-core-final/native-harness-debug-command.txt"
+    }
+  ],
+  "native": {
+    "composite": {
+      "status": "PASS",
+      "scope": "Fresh 32-seeder Medieval replay/refusal; late rollback, retained batches, lost acknowledgement/resume, all 198 records, no-op all-table conservation and cold native readers.",
+      "receipt": ".artifacts/s3-composite-native/20261012T031237Z_0a5ee33f20154043afba2626accf982f/summary.json",
+      "source_start": "5390476FA976796423BF0A34520B69475A48442D638496DD6D115A27CA2DBBA2",
+      "source_end": "5390476FA976796423BF0A34520B69475A48442D638496DD6D115A27CA2DBBA2",
+      "source_stable": true,
+      "mode": "stock-catalogue"
+    },
+    "snapshot": {
+      "status": "PASS",
+      "scope": "Real blank snapshot refresh and fresh import, migration history and Track instance FK.",
+      "receipt": ".artifacts/s3-snapshot-native/20261012T030601Z_1d53268eda934df58885eaf472e7e172/summary.json",
+      "source_start": "4096971C652E4A5E74C72E17DC3048BDC46061D49444F61FD1941D5ACFB26C42",
+      "source_end": "4096971C652E4A5E74C72E17DC3048BDC46061D49444F61FD1941D5ACFB26C42",
+      "source_stable": true,
+      "mode": "snapshot-refresh"
+    },
+    "controllers": {
+      "status": "PASS",
+      "scope": "Native current controller authority/follow/stop/cold restore/refusals; clean cached Haunt success preserves offline scalar; injected transaction failure preserves dirty queued cache, saved fear/sibling/mission and later actual queue flush.",
+      "receipt": ".artifacts/s3-controller-native/20261012T052933Z_396026e9bd6e4501879dd0acab4a8d25/summary.json",
+      "source_start": "11D34D1733154F47D173546200FAB1CB7F2284818C4E2DC25DCEEE9919512587",
+      "source_end": "11D34D1733154F47D173546200FAB1CB7F2284818C4E2DC25DCEEE9919512587",
+      "source_stable": true,
+      "mode": "s3-runtime"
+    },
+    "gameplay": {
+      "status": "PASS",
+      "scope": "Actual two-phase native server/Admin/Telnet gameplay from sealed restored fixture, separate from fresh seeder replay.",
+      "receipt": ".artifacts/s3-gameplay-native/20261012T080827Z_f0fa1d6c74434180bd5e69db175297d0/summary.json",
+      "source_start": "4A030A280573A7F559B8497245F29B92DD04F4DD7C19A0222AF109E72279874D",
+      "source_end": "4A030A280573A7F559B8497245F29B92DD04F4DD7C19A0222AF109E72279874D",
+      "source_stable": true,
+      "mode": "catalogue-fixture-boot",
+      "boot_receipt": ".artifacts/s3-gameplay-native/boot-run-016/boot-latest.json",
+      "console": ".artifacts/s3-gameplay-native/run-016.log",
+      "assertion_count": 21,
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "Exact stable records resolved for gathering yield, recipe/product, provision, vessel, grade 1/7 creatures and melee prototype",
+        "Native owned Component Crafting trait set to exact numeric level 100",
+        "Native exact ranked craft persisted product and consumed its loaded input after bounded phase and flush",
+        "Loaded grade 1 melee instance has exact native component Definition and BodiesGameItems Wielded location",
+        "Grade 1 mount and grade 7 winged template loads persisted native Character and Body identities",
+        "Native food consumption flushed and independently checked after save",
+        "Native attack produced a persisted target Wounds row with the exact loaded melee GameItem as ToolOriginId",
+        "Native force moved spawned NPC across builder-created room exit; persisted Location changed after flush",
+        "Native winged creature entered Flying posture and crossed the same approved room exit",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "Cold restart retained exact partially-consumed native Food component state",
+        "Cold restart retained reduced native bottle liquid contents",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "script_sha256": "376CAD20CB2BFA5980BB0BD520DC5B5E57BFAF6FD9BE3D8EF764EE747CCA7745",
+      "root_and_native_changed_production_files_identical": 71,
+      "weapon_item_id": 4,
+      "target_body_id": 2,
+      "exact_weapon_wound_rows": [
+        [
+          [
+            "1",
+            "2",
+            "1",
+            "4",
+            "5",
+            "5.739999999999999",
+            "5.739999999999999"
+          ]
+        ]
+      ],
+      "mount_location_observations": [
+        [
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "2"
+          ]
+        ]
+      ],
+      "guardian_location_observations": [
+        [
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "1"
+          ]
+        ],
+        [
+          [
+            "2"
+          ]
+        ]
+      ],
+      "food_bites_before_after": [
+        5.0,
+        4.0
+      ],
+      "bottle_litres_empty_filled_consumed": [
+        0,
+        1.0,
+        0.97
+      ],
+      "native_harness_sha256": "880B21E866C6C737CB578C51E92E64E342AEEC56165004CB4239D842015E3E40",
+      "mudsharp_sha256": "1FEF9E554172D16130D3EB4B6A57E017E6EBFEC989EFA61F4FBF3CC8895C1633",
+      "both_mud_shutdowns_graceful": true,
+      "owned_database_deleted": true,
+      "owned_mysql_stopped_and_datadir_removed": true,
+      "wrapper_generic_limits_label_superseded_for_gameplay_by_boot_receipt": true
+    }
+  },
+  "persistence": {
+    "migration": "20261012024208_TrackCharacterInstanceIdentity",
+    "optional_track_instance_fk": "SetNull",
+    "legacy_and_vehicle_tracks_nullable": true,
+    "generated_migration_designer_model_snapshot_aligned": true,
+    "blank_snapshot_and_manifest_refreshed_and_fresh_imported": true,
+    "ef_pending_model_changes": false,
+    "ef_log": ".artifacts/s3-ef-pending-after.log"
+  },
+  "exports": {
+    "component_types": 249,
+    "standard_profiles": 4559,
+    "no_same_type_stock": 44,
+    "audit_and_deterministic_check": "PASS",
+    "optional_armageddon_profiles_not_part_of_standard_export": true
+  },
+  "shared_combat_repair": {
+    "problem": "Melee target packets and reconstructed natural/worn/spell armour packets lost the exact causing weapon.",
+    "two_melee_and_six_armour_packet_routes_preserve_tool_origin": true,
+    "damage_pain_stun_and_self_wear_formulas_unchanged": true,
+    "regression_cases": 6,
+    "final_full_core_and_actual_persisted_weapon_wound": "PASS"
+  },
+  "retained_failed_attempts": [
+    {
+      "receipt": ".artifacts/s3-full-fast/20261012T034507Z-18b9f78d91dd",
+      "failed": 6,
+      "resolution": "Integration fixture/registry expectations corrected; later complete default suite passes."
+    },
+    {
+      "scope": "Focused post-resistance Haunt regression first run",
+      "resolution": "Fixture now uses the real spell OpposedDifficulty (native default Automatic); final focused and full Core pass."
+    },
+    {
+      "scope": "Native gameplay runs 001-011",
+      "resolution": "Corrected short MySQL path, typed crafting key/trait scope, explicit HEX XML transport, real numeric prototype/inventory table, native compound keywords and bottle opening. Their blocked/unrun later phases remain historical."
+    },
+    {
+      "scope": "Native gameplay runs 012-014",
+      "resolution": "Actual wounds exposed missing ToolOrigin in shared melee and armour packet reconstruction; six meaningful regression cases and unchanged exact live wound assertion now pass."
+    },
+    {
+      "scope": "Native gameplay run 015",
+      "resolution": "Native scheduled movement had begun before immediate SQL query; bounded 45-second exact-character location poll records actual arrival. Flight/restart were not run in 015; all pass in 016."
+    },
+    {
+      "scope": "Native gameplay run 004 cleanup",
+      "resolution": "Import USE database state leaked through pooled server connection; fixture import disables pooling. That run did not confirm DB drop; subsequent runs confirm owned DB/process/datadir cleanup."
+    }
+  ],
+  "review": {
+    "focused_reviews": "Completed; actionable findings repaired and closure reviewed.",
+    "latest_combat_provenance_review": "No actionable defect; read-only review, execution evidence supplied separately."
+  },
+  "unverified_or_deferred": [
+    "S4 full 152-spell hydration, actual paid stock casts and summon grade/lifetime bindings.",
+    "S4 ten foci, two device blanks and twelve recipes with real spell dependencies.",
+    "End-to-end seeker/courier/Haunt/Outsider missions and creator riding through real installed casts; native authority and managed seams are qualified separately.",
+    "Every one of the 49 creature/weapon variants in live combat/locomotion.",
+    "S5 carriers, exposure/dose/production calibration and ordinary-player natural progression/affordability.",
+    "Live active-craft continuation across compatible stock repair.",
+    "S6 Classic/Simple by classes-on/off fresh-install matrix, then N24 full ownership/player-state rerun safety.",
+    "Historical/game balance, all candidate readiness and Release activation.",
+    "Hosted checks for the new publication commit; old-head successful checks are historical."
+  ],
+  "next_bounded_milestone": "S4: hydrate all 152 required spells with real catalogue/controller/lifecycle dependencies; install ten foci, two device blanks and twelve recipes with real spell bindings. S5/S6 and then N24 remain; Release stays disabled."
+}

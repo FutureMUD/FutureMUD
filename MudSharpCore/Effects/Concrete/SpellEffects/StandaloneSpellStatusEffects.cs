@@ -5,6 +5,8 @@ using MudSharp.Health;
 using MudSharp.Health.Infections;
 using MudSharp.Magic;
 using MudSharp.RPG.Checks;
+using MudSharp.Effects.Interfaces;
+using MudSharp.Framework.Scheduling;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
@@ -152,26 +154,35 @@ public class SpellInsomniaEffect : SimpleSpellStatusEffectBase, IPreventSleepEff
 	protected override string SpecificEffectType => "SpellInsomnia";
 }
 
-public class SpellFearEffect : SimpleSpellStatusEffectBase, IFearEffect
+public class SpellFearEffect : SimpleSpellStatusEffectBase, IFearEffect, IIndependentlyExpiringSpellEffect
 {
+	public DateTime? ExpiryUtc { get; }
 	public static void InitialiseEffectType()
 	{
 		RegisterFactory("SpellFear", (effect, owner) => new SpellFearEffect(effect, owner));
 	}
 
-	public SpellFearEffect(IPerceivable owner, IMagicSpellEffectParent parent, IFutureProg? prog = null)
+	public SpellFearEffect(IPerceivable owner, IMagicSpellEffectParent parent, IFutureProg? prog = null, DateTime? expiryUtc = null)
 		: base(owner, parent, prog)
 	{
+		ExpiryUtc = expiryUtc;
 	}
 
 	private SpellFearEffect(XElement root, IPerceivable owner)
 		: base(root, owner)
 	{
+		ExpiryUtc = DateTime.TryParse(root.Element("Effect")?.Element("ExpiryUtc")?.Value, System.Globalization.CultureInfo.InvariantCulture,
+			System.Globalization.DateTimeStyles.RoundtripKind, out var expiry) ? expiry : null;
 	}
-
+	protected override XElement SaveDefinition() => SimpleSaveDefinition(ExpiryUtc.HasValue ? new XElement("ExpiryUtc", ExpiryUtc.Value) : null);
 	public override void InitialEffect()
 	{
 		base.InitialEffect();
+		if (ExpiryUtc is { } expiry)
+		{
+			if (expiry <= RuntimeClock.UtcNow) Owner.RemoveEffect(this, true);
+			else if (!Gameworld.EffectScheduler.IsScheduled(this)) Gameworld.EffectScheduler.AddSchedule(new EffectSchedule(this, expiry - RuntimeClock.UtcNow) { TriggerETA = expiry });
+		}
 		if (Owner is ICharacter character && character.Combat != null)
 		{
 			character.CombatStrategyMode = CombatStrategyMode.Flee;

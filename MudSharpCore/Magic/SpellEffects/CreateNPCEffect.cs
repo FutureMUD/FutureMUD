@@ -1,9 +1,11 @@
-﻿using MudSharp.Body.Position.PositionStates;
+using MudSharp.Database;
+using MudSharp.Body.Position.PositionStates;
 using MudSharp.Construction;
 using MudSharp.Events;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.NPC.Templates;
+using MudSharp.NPC.AI;
 using MudSharp.RPG.Checks;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
@@ -85,6 +87,8 @@ public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicS
 		!TryCount(_count, 1, out _) ? "NPC count must be grade or an integer from 1 to 128." :
 		string.IsNullOrWhiteSpace(LifecycleFamily) || LifecycleFamily.Length > 128 ? "Set a lifecycle family of at most 128 characters." :
 		NativeNpcCreationEligibility.TemplateError(NPCTemplate, Gameworld) is { } templateError ? templateError :
+		LifecycleMode == SpellLifecycleMode.Permanent && NPCTemplate.ArtificialIntelligences.OfType<SpellCompanionAI>().Any() ?
+			"Spell companion control requires an active temporary lifecycle; choose TemporaryCleanup or DeathOnExpiry." :
 		Gameworld.SpellOwnedNpcs is null ? "Spell-owned native NPC creation is unavailable." :
 		LifecycleMode != SpellLifecycleMode.Permanent && (LifetimeExpression is null || LifetimeExpression.HasErrors()) ? "Set a valid temporary lifetime expression in real seconds." : null);
 
@@ -154,7 +158,7 @@ public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicS
 		if (LifecycleMode is not null && newCharacter.State.HasFlag(CharacterState.Dead)) return null;
         _onLoadProg?.Execute(newCharacter, caster, Spell);
 		if (LifecycleMode is not null && newCharacter.State.HasFlag(CharacterState.Dead)) return null;
-		if (LifecycleMode is not null && GuardCaster)
+		if (LifecycleMode is not null && GuardCaster && !newCharacter.EffectsOfType<SpellNpcControlEffect>().Any())
 			newCharacter.AddEffect(new SpellNpcGuardian(newCharacter, caster));
 
         if (newCharacter.Location.IsSwimmingLayer(newCharacter.RoomLayer) && newCharacter.Race.CanSwim)
@@ -234,6 +238,21 @@ public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicS
 				Effect.LifecycleMode!.Value, now, Seconds is { } seconds ? now.AddSeconds(seconds) : null,
 				$"native-createnpc; template={Template.Id}/{Template.RevisionNumber}; invocation={Invocation}; parent={(parent as MagicSpellParent)?.Identity}");
 			var character = Template.CreateSpellOwnedCharacter(Location, origin);
+			var controllers = Template.ArtificialIntelligences.OfType<SpellCompanionAI>().ToArray();
+			if (controllers.Length == 1)
+			{
+				var existing = character.EffectsOfType<SpellNpcControlEffect>().ToArray();
+				if (existing.Length == 0) character.AddEffect(new SpellNpcControlEffect(character, origin, Caster, Effect.GuardCaster));
+				else if (existing.Length != 1 || existing[0].LifecycleId != origin.Id || existing[0].CreatorInstanceId != Caster.InstanceId)
+					throw new InvalidOperationException("The native creation already has ambiguous or mismatched controller state.");
+				using var isolated = FMDB.BeginIndependentScope(requireWrites: true);
+				using var db = new FMDB();
+				using var transaction = FMDB.Context.Database.BeginTransaction();
+				character.Save();
+				if (FMDB.Context.SaveChanges() <= 0)
+					throw new InvalidOperationException("The summoned creature bond could not be durably saved before native on-load callbacks.");
+				transaction.Commit();
+			}
 			try { Effect.FinishLoading(character, Template, Caster); }
 			catch (Exception ex)
 			{

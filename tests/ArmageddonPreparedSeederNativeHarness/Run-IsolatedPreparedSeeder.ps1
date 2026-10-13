@@ -1,7 +1,12 @@
 [CmdletBinding()]
 param([string]$EvidenceRoot,
-	[ValidateSet('prepared', 'replay', 'settings', 'stock-progressions', 'stock-supplies', 'stock-anatomy', 'stock-catalogue', 'stock-catalogue-boot', 'catalogue-fixture-boot', 's3-runtime', 'snapshot-refresh', 'stock-progression-fixtures', 'installed', 'installed-sql', 'sense', 'sense-control')]
-	[string]$Mode = 'prepared')
+	[ValidateSet('prepared', 'replay', 'settings', 'stock-progressions', 'stock-supplies', 'stock-anatomy', 'stock-catalogue', 'stock-catalogue-boot', 'catalogue-fixture-boot', 'base-fixture-capture', 'base-fixture-restore', 'base-fixture-package', 's3-runtime', 'snapshot-refresh', 'stock-progression-fixtures', 'installed', 'installed-sql', 'sense', 'sense-control')]
+	[string]$Mode = 'prepared',
+	[string]$BaseFixture,
+	[string]$BaseFixtureSha256,
+	[ValidateSet('Classic', 'Simple')][string]$PackageMode = 'Classic',
+	[ValidateSet('PsionicsSeeder', 'EnvironmentalExposureSeeder')][string[]]$LaterSteps = @(),
+	[switch]$FreshInstallCheck)
 
 $ErrorActionPreference = 'Stop'
 
@@ -20,9 +25,20 @@ $reachable = $false
 $cleanupSucceeded = $false
 $runExit = 1
 $previousSnapshotConnection = $env:FUTUREMUD_SNAPSHOT_CONNECTION_STRING
-$ownedEnvironmentNames = @('FUTUREMUD_GATHERING_TEST_CONNECTION', 'FUTUREMUD_OWNED_MYSQL_UUID', 'FUTUREMUD_OWNED_MYSQL_PORT', 'FUTUREMUD_OWNED_MYSQL_DATADIR', 'FUTUREMUD_CAPACITY_ACCEPTANCE_OUTPUT')
+$ownedEnvironmentNames = @('FUTUREMUD_BASE_WORLD_FIXTURE', 'FUTUREMUD_BASE_WORLD_FIXTURE_SHA256', 'FUTUREMUD_BASE_PACKAGE_MODE', 'FUTUREMUD_BASE_LATER_STEPS', 'FUTUREMUD_BASE_WORLD_RECEIPT', 'FUTUREMUD_BASE_FRESH_INSTALL_CHECK', 'FUTUREMUD_GATHERING_TEST_CONNECTION', 'FUTUREMUD_OWNED_MYSQL_UUID', 'FUTUREMUD_OWNED_MYSQL_PORT', 'FUTUREMUD_OWNED_MYSQL_DATADIR', 'FUTUREMUD_CAPACITY_ACCEPTANCE_OUTPUT')
 $ownedPreviousEnvironment = @{}
 foreach ($ownedName in $ownedEnvironmentNames) { $ownedPreviousEnvironment[$ownedName] = [Environment]::GetEnvironmentVariable($ownedName) }
+if ($Mode -in @('base-fixture-restore', 'base-fixture-package')) {
+	if (-not $BaseFixture -or $BaseFixtureSha256 -cnotmatch '^[A-F0-9]{64}$') { throw 'Restore requires an explicit base descriptor and its capture SHA256.' }
+	$baseFixtureFull = [IO.Path]::GetFullPath($BaseFixture)
+	$baseFixtureBoundary = (Join-Path $workspaceRoot '.artifacts\pre-armageddon-base-fixtures') + [IO.Path]::DirectorySeparatorChar
+	if (-not $baseFixtureFull.StartsWith($baseFixtureBoundary, [StringComparison]::OrdinalIgnoreCase) -or
+		-not (Test-Path -LiteralPath $baseFixtureFull) -or (Get-FileHash -LiteralPath $baseFixtureFull -Algorithm SHA256).Hash -ne $BaseFixtureSha256) {
+		throw 'The base descriptor path or explicit digest is invalid.'
+	}
+}
+if ($FreshInstallCheck -and $Mode -ne 'base-fixture-capture') { throw 'FreshInstallCheck applies only to capture.' }
+if ($LaterSteps.Count -gt 0 -and $Mode -ne 'base-fixture-package') { throw 'LaterSteps applies only to targeted package mode.' }
 $evidenceParent = if ($EvidenceRoot) { [IO.Path]::GetFullPath($EvidenceRoot) } else { Join-Path $workspaceRoot '.artifacts\armageddon-prepared-seeder' }
 $evidenceDirectory = Join-Path $evidenceParent ([DateTime]::UtcNow.ToString('yyyyMMddTHHmmssZ') + '_' + [guid]::NewGuid().ToString('N'))
 New-Item -ItemType Directory -Path $evidenceDirectory -Force | Out-Null
@@ -136,6 +152,12 @@ try {
 
 	Write-Output "workingTreeRevision=$revision"
 	Write-Output "workingTreeState=$workingTreeState"
+	$env:FUTUREMUD_BASE_WORLD_FIXTURE = $BaseFixture
+	$env:FUTUREMUD_BASE_WORLD_FIXTURE_SHA256 = $BaseFixtureSha256
+	$env:FUTUREMUD_BASE_PACKAGE_MODE = $PackageMode
+	$env:FUTUREMUD_BASE_LATER_STEPS = $LaterSteps -join ','
+	$env:FUTUREMUD_BASE_WORLD_RECEIPT = Join-Path $evidenceDirectory 'base-world-run.json'
+	$env:FUTUREMUD_BASE_FRESH_INSTALL_CHECK = if ($FreshInstallCheck) { '1' } else { $null }
 	$sourceStart = Write-SourceEvidence 'source-start'
 	Write-AssemblyEvidence
 	Write-Output "nativeEvidence=$evidenceDirectory sourceStart=$sourceStart"
@@ -174,7 +196,7 @@ try {
 	$sourceEnd = Write-SourceEvidence 'source-end'
 	$sourceStable = $sourceStart -eq $sourceEnd
 	@{ revision = $revision; mode = $Mode; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
-		process_root = $taskRoot; owned_port = $taskPort; limits = 'Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.' } |
+		base_fixture = $BaseFixture; base_fixture_sha256 = $BaseFixtureSha256; package_mode = $PackageMode; later_steps = $LaterSteps; fresh_install_check = [bool]$FreshInstallCheck; base_receipt = (Join-Path $evidenceDirectory 'base-world-run.json'); process_root = $taskRoot; owned_port = $taskPort; limits = 'Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.' } |
 		ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $evidenceDirectory 'summary.json')
 	Write-Output "nativeSourceStable=$sourceStable sourceEnd=$sourceEnd"
 	if (-not $sourceStable) { $runExit = 1 }

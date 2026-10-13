@@ -30,6 +30,7 @@ internal static partial class GNHProgram
 	internal static int PreparedSeederMain(string[] args)
 	{
 		if (args.FirstOrDefault() == "--installed-components-check") return PreparedInstalledComponentPreflight();
+		if (args.FirstOrDefault() == "--base-fixture-check-run") return BaseFixtureSafetyChecks();
 		OwnedConnections.Install();
 		return args.FirstOrDefault() switch
 		{
@@ -43,6 +44,9 @@ internal static partial class GNHProgram
 			"--stock-catalogue-run" => PreparedSeederReplayNative(catalogue: true),
 			"--stock-catalogue-boot-run" => PreparedSeederReplayNative(catalogue: true, catalogueBootOnly: true),
 			"--catalogue-fixture-boot-run" => RunCatalogueFixtureBoot(),
+			"--base-fixture-capture-run" => CaptureBaseWorldFixture(),
+			"--base-fixture-restore-run" => RestoreBaseWorldFixture(installPackage: false),
+			"--base-fixture-package-run" => RestoreBaseWorldFixture(installPackage: true),
 			"--s3-runtime-run" => RunS3RuntimeAcceptanceChecks(),
 			"--snapshot-refresh-run" => RefreshOwnedBlankSnapshot(),
 			"--stock-anatomy-reader" => ReadStockAnatomyCatalogue(args[1]),

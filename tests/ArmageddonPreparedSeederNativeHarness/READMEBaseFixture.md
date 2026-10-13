@@ -1,0 +1,23 @@
+# Reusable pre-Armageddon seeded base
+
+This harness can capture one reusable seeded world **before invoking ArmageddonMagicSeeder**. The full Debug replay inventory remains strict: `RunPrefixBefore` validates every enabled step and question, then executes only the nonempty prefix. Ordinary `Run` still refuses truncated profiles and previously seeded databases. The maintained `medieval-standard` prefix ends with SupernaturalSeeder; its exact step types and answer inventory are stored in the descriptor. It has the profile's Chargen class choice (`no`).
+
+Build the dedicated harness from the current source, then use its existing owned-instance wrapper:
+
+```powershell
+.\Run-IsolatedPreparedSeeder.ps1 -Mode base-fixture-capture
+.\Run-IsolatedPreparedSeeder.ps1 -Mode base-fixture-restore -BaseFixture <captured-base-world.json> -BaseFixtureSha256 <capture-descriptor-SHA256>
+.\Run-IsolatedPreparedSeeder.ps1 -Mode base-fixture-package -BaseFixture <captured-base-world.json> -BaseFixtureSha256 <capture-descriptor-SHA256> -PackageMode Classic
+```
+
+Capture writes a unique directory beneath this worktree's `.artifacts/pre-armageddon-base-fixtures`. Its canonical SQL and `base-world.json` are sealed read-only and preserved. Capture does not claim a verified dump round trip; the first successful **clean restore** supplies that evidence. Each restore creates a new randomly named owned disposable database, imports a temporary rewritten SQL copy with `DatabaseUpgradeCoordinator.ImportBlankDatabaseSnapshot`, replaces the imported ownership marker with the new target's marker, and disposes only that target. The original SQL is never rewritten. No existing world is selected or reset.
+
+The descriptor pins kind/version, original owned database, sibling SQL filename/hash, exact profile prefix/answers, actual ordered migration history, live column/index/key/foreign-key schema hash, base content hash excluding only the necessarily resealed ownership row, base source inventory/hash, and blank snapshot/manifest hashes. Restore requires an explicit descriptor hash, rejects directory/file reparse points and escaping paths, checks SQL database targets, and verifies no pending migrations/model drift or Armageddon package claims/settings/answers. Post-S3 catalogue dumps are not compatible bases.
+
+Base fingerprints include base seeder code/shared workflow/resources and database/model/migration inputs. `DebugSeederReplay.cs#runner` hashes execution code separately from profiles; prefix answers are pinned independently. Armageddon seeder content and `FutureMUDLibrary/Magic/Stock` are excluded. S4-only edits there do not invalidate the base. Relevant base/schema changes require an explicit new capture; original dumps are preserved. A compatible existing descriptor refuses repeated capture. `-FreshInstallCheck` explicitly allows an additional fresh-install verification when requested.
+
+Targeted package mode uses the ordinary shared executor, current question filters/validators, explicit Classic/Simple selection, and the unique base Willpower capacity attribute. It executes Armageddon once, never replays foundational seeders. Optional later steps are omitted unless passed explicitly as `-LaterSteps PsionicsSeeder,EnvironmentalExposureSeeder`; only those two exact later steps are admitted in profile order. `FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE=1` enables the existing targeted acceptance. Existing explicitly configured boot tooling remains available through `FUTUREMUD_PREPARED_REPLAY_BOOT_SCRIPT`.
+
+The wrapper saves source/assembly evidence, owned-instance metadata, and `base-world-run.json`. Capture receipt has `CAPTURED`, descriptor/SQL/base-source hashes, prefix boundary/count and latest migration; restore has `RESTORED_CLEAN` or `RESTORED_AND_TARGETED_PACKAGE`, hashes, fresh ownership, exact executed step list, `FullReplayExecuted=false`, immutable SQL and verified dump round trip. Package receipts additionally record selected mode/later steps and current package content source hash. Success certifies only the executed lane; missing boot configuration supplies no gameplay certificate.
+
+Direct harness environment equivalents are `FUTUREMUD_BASE_WORLD_FIXTURE`, `FUTUREMUD_BASE_WORLD_FIXTURE_SHA256`, `FUTUREMUD_BASE_PACKAGE_MODE`, `FUTUREMUD_BASE_LATER_STEPS`, `FUTUREMUD_BASE_WORLD_RECEIPT`, and `FUTUREMUD_BASE_FRESH_INSTALL_CHECK`. Prefer the owned wrapper. The pure `--base-fixture-check-run` entrypoint opens no database and exercises descriptor digest/kind/boundary/sibling/ownership/source/answer/migration/dump-target refusal scenarios. Durable prefix execution/refusal regressions live in `DatabaseSeeder Unit Tests/SeederReplayTests.cs`.

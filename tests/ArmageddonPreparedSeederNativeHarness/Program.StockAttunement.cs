@@ -267,7 +267,8 @@ internal static partial class GNHProgram
 		[nameof(Db.GameItemProto)] = typeof(Db.GameItemProto), [nameof(Db.GameItemSkin)] = typeof(Db.GameItemSkin),
 		[nameof(Db.Liquid)] = typeof(Db.Liquid), [nameof(Db.Tag)] = typeof(Db.Tag), [nameof(Db.Terrain)] = typeof(Db.Terrain),
 		[nameof(Db.Room)] = typeof(Db.Room), [nameof(Db.AutobuilderRoomTemplate)] = typeof(Db.AutobuilderRoomTemplate),
-		[nameof(Db.ArtificialIntelligence)] = typeof(Db.ArtificialIntelligence), [nameof(Db.Plane)] = typeof(Db.Plane)
+		[nameof(Db.ArtificialIntelligence)] = typeof(Db.ArtificialIntelligence), [nameof(Db.Plane)] = typeof(Db.Plane),
+		[nameof(Db.ArmourType)] = typeof(Db.ArmourType), [nameof(Db.Material)] = typeof(Db.Material)
 	};
 
 	private static object PreparedStockReferenceSchema(MudSharp.Database.FuturemudDatabaseContext db, string kind)

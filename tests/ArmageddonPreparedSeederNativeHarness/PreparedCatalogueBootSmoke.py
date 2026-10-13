@@ -356,8 +356,14 @@ def attunement_stock_smoke(session, phase):
             require(sql(f'SELECT DISTINCT `{column}` FROM `{table}` WHERE `{column}`={identity}') == [[str(identity)]], 'Unresolved exact typed native reference: ' + kind + ':' + str(identity))
             resolved_refs.add((kind, identity))
         shown = session.send(f"magic spell show {int(entry['id'])}", read_seconds=.2)
-        require(entry['name'] in shown and 'Building Error' not in shown and 'Controlled Power Profile' in shown and
-                all(f'Grade {grade}:' in shown for grade in range(1, 8)),
+        def ready(text):
+            return (entry['name'] in text and 'Building Error' not in text and 'Controlled Power Profile' in text and
+                    all(f'Grade {grade}:' in text for grade in range(1, 8)))
+        if not ready(shown):
+            # A busy server may answer after the short fast-path read. Continue
+            # reading this command's response without issuing the command twice.
+            shown += session.read_for(5.0)
+        require(ready(shown),
                 'Native canonical spell loader/readiness failed: ' + entry['key'] + ': ' + redact(shown))
         receipt.setdefault('stock_definition_loader', {}).setdefault(phase, {})[entry['key']] = {
             'id': entry['id'], 'definition_sha256': hashlib.sha256(entry['definition'].encode('utf-8')).hexdigest(),

@@ -27,7 +27,7 @@ public class ArmageddonStockSupportInstallerTests
 		var beforeItems = db.GameItemProtos.Count(); var beforeAttacks = db.WeaponAttacks.Count();
 		var first = ArmageddonStockSupportInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status, string.Join("\n", first.Messages)); db.ChangeTracker.Clear();
-		Assert.AreEqual(39, first.Identities.Count); Assert.AreEqual(beforeItems + 16, db.GameItemProtos.Count());
+		Assert.AreEqual(45, first.Identities.Count); Assert.AreEqual(beforeItems + 17, db.GameItemProtos.Count());
 		Assert.AreEqual(beforeAttacks + 16, db.WeaponAttacks.Count()); Assert.AreEqual(1, db.Planes.Count(x => x.IsDefault));
 		Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(0, db.Characters.Count()); Assert.AreEqual(0, db.MagicSpells.Count());
 		Assert.AreEqual(210, new ArmageddonStockCatalogue().Blueprints.Count);
@@ -114,10 +114,10 @@ public class ArmageddonStockSupportInstallerTests
 		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);
 		var uncertain = ArmageddonStockSupportInstaller.Install(factory, point =>
 		{ if (point == ArmageddonInstallCheckpoint.AfterCommit) throw new InvalidOperationException("confirmation fixture"); });
-		Assert.AreEqual(ArmageddonInstallStatus.CommittedConfirmationFailed, uncertain.Status); Assert.AreEqual(39, uncertain.Identities.Count);
+		Assert.AreEqual(ArmageddonInstallStatus.CommittedConfirmationFailed, uncertain.Status); Assert.AreEqual(45, uncertain.Identities.Count);
 		var rerun = ArmageddonStockSupportInstaller.Install(factory); Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
 		foreach (var entry in uncertain.Identities) Assert.AreEqual(entry.Value, rerun.Identities[entry.Key]);
-		db.ChangeTracker.Clear(); Assert.AreEqual(129, db.GameItemProtos.Count()); Assert.AreEqual(0, db.GameItems.Count());
+		db.ChangeTracker.Clear(); Assert.AreEqual(130, db.GameItemProtos.Count()); Assert.AreEqual(0, db.GameItems.Count());
 	}
 
 	private static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)

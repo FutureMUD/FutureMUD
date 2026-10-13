@@ -35,7 +35,7 @@ public sealed record ArmageddonStockSupportProgBindings(long SiltTag, long Shall
 }
 
 /// <summary>Supplemental typed supports, outside the approved 210-blueprint inventory. No live entities or relocation.</summary>
-public static class ArmageddonStockSupportInstaller
+public static partial class ArmageddonStockSupportInstaller
 {
 	public const string Module = ArmageddonCatalogueOwnership.Module;
 	public const string Version = ArmageddonCatalogueOwnership.Version;
@@ -134,6 +134,7 @@ public static class ArmageddonStockSupportInstaller
 				!db.TraitDefinitions.Any(x => x.Id == foundation.ParryTraitId && x.Type == 0 && x.OwnerScope == 0))
 				throw new InvalidOperationException("The retained Club foundation must have valid native attack and parry skills.");
 			var catalogue = new ArmageddonStockCatalogue();
+			var protection = ProtectionPreflight(db, settings);
 			for (var variant = 1; variant <= 8; variant++)
 			{
 				var key = FlameStaffKey(variant);
@@ -152,6 +153,7 @@ public static class ArmageddonStockSupportInstaller
 			var owned = new ArmageddonCatalogueOwnership(db, settings.NativeBindings[ArmageddonNativeBinding.BuilderAccount], messages);
 			preflightComplete = true;
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.PreflightComplete);
+			InstallProtection(owned, protection, ids, messages);
 			foreach (var (key, name, order) in new[] { (WaterPlaneKey, "Water", 10), (ShadowPlaneKey, "Shadow", 20), (FirePlaneKey, "Fire", 30) })
 			{
 				var plane = owned.Put(key, new Plane { Name = "Armageddon " + name, Alias = "armageddon" + name.ToLowerInvariant(),

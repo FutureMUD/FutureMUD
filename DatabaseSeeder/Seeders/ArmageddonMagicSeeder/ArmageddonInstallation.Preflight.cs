@@ -170,6 +170,7 @@ public static partial class ArmageddonInstallation
 				nameof(Plane) => db.Planes.Any(x => x.Id == record.LogicalId),
 				nameof(Liquid) => db.Liquids.Any(x => x.Id == record.LogicalId),
 				nameof(WeaponType) => db.WeaponTypes.Any(x => x.Id == record.LogicalId),
+				nameof(ArmourType) => record.RevisionNumber is null && db.ArmourTypes.Any(x => x.Id == record.LogicalId),
 				nameof(WeaponAttack) => db.WeaponAttacks.Any(x => x.Id == record.LogicalId),
 				nameof(CombatMessage) => db.CombatMessages.Any(x => x.Id == record.LogicalId),
 				nameof(BodyProto) => db.BodyProtos.Any(x => x.Id == record.LogicalId),

@@ -5,6 +5,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Framework;
+using MudSharp.GameItems;
 
 namespace MudSharp.Magic;
 
@@ -13,7 +14,7 @@ public enum SpellProjectionKind { SandEffigy, WalkingShadow }
 /// <summary>Authored native policy; seconds and room-edge distance are not legacy affect units.</summary>
 public sealed record SpellProjectionConfiguration(SpellProjectionKind Kind, long PlaneId, long EffigyPrototypeId,
 	double SecondsPerGrade, int MaximumRoomDistance, double BacklashDamage, bool CrossClosedDoors = false,
-	int RoomDistancePerGrade = 0, int RangeGrade = 0)
+	int RoomDistancePerGrade = 0, int RangeGrade = 0, bool RequiresHeldSourceItem = false)
 {
 	public SpellProjectionConfiguration ResolveForGrade(int grade)
 	{
@@ -27,6 +28,7 @@ public sealed record SpellProjectionConfiguration(SpellProjectionKind Kind, long
 	public string? Error(int grade) => !Enum.IsDefined(Kind) || grade is < 1 or > 7 || PlaneId <= 0 ||
 		!double.IsFinite(SecondsPerGrade) || SecondsPerGrade <= 0 || SecondsPerGrade * grade > 86400 ||
 		!HasValidRange || RoomDistancePerGrade != 0 && RangeGrade != 0 && RangeGrade != grade ||
+		RequiresHeldSourceItem && Kind != SpellProjectionKind.SandEffigy ||
 		!double.IsFinite(BacklashDamage) || BacklashDamage is < 0 or > 1000 ||
 		(Kind == SpellProjectionKind.SandEffigy ? EffigyPrototypeId <= 0 || MaximumRoomDistance != 0 || CrossClosedDoors : EffigyPrototypeId != 0)
 		? "Projection configuration needs an explicit plane, bounded real-time lifetime, range and damage policy. Sand Effigy also needs an item prototype and zero movement range."
@@ -43,7 +45,9 @@ public interface ISpellProjectionBoundary : IEffect
 public interface ISpellOwnedProjectionService
 {
 	string? AdmissionError(ICharacter caster, SpellProjectionConfiguration configuration, int grade);
+	string? AdmissionError(ICharacter caster, SpellProjectionConfiguration configuration, int grade, IGameItem source);
 	ICharacterInstance Create(ICharacter caster, SpellProjectionConfiguration configuration, SpellLifecycleOrigin origin);
+	ICharacterInstance Create(ICharacter caster, SpellProjectionConfiguration configuration, SpellLifecycleOrigin origin, IGameItem source);
 	bool OwnsInstance(long instanceId);
 	void RequestRetirement(ICharacter projection, SpellRetirementReason reason);
 	bool TryRetire(long instanceId, SpellRetirementReason reason, out string diagnostic);

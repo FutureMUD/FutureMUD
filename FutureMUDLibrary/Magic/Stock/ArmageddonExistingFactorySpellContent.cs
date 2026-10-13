@@ -21,17 +21,26 @@ public static class ArmageddonExistingFactorySpellContent
 	public const string WeaponLifetime = "(grade+1)*1500*0.75";
 	public const string StormLifetime = "(24+rand(1,6))*90*grade*0.75";
 	public const string GradeLifetime = "60*grade";
-	public static IReadOnlyList<string> Keys => ["arm.spell.walking_shadow",
+	public static IReadOnlyList<string> Keys => ["arm.spell.sand_effigy", "arm.spell.walking_shadow",
 		"arm.spell.raise_servitor", "arm.spell.roused_fury", "arm.spell.still_anger", "arm.spell.flame_knife",
 		"arm.spell.sand_knife", "arm.spell.storm_spear"];
-	// Its approved item target needs a native borrowed-source admission/provenance path before installation.
-	public static IReadOnlyList<string> PendingKeys => ["arm.spell.sand_effigy"];
+	public static IReadOnlyList<string> PendingKeys => [];
 	public static IReadOnlyList<string> ServitorCommands => ["follow", "hit", "flee", "stop", "stand", "sit",
 		"kneel", "emote", "get", "drop", "give", "wear", "remove", "wield", "unwield"];
 	public const string ServitorCommandSource = "return cancommandanimation(@servitor, @commander)";
 	public const string ServitorEligibilitySource = "return lowercase(@corpse.location.terrain.name) != \"silt\" and lowercase(@corpse.location.terrain.name) != \"shallows\"";
 	public const string FlameEligibilitySource = "return lowercase(@caster.location.terrain.name) != \"water plane\"";
 	public const string FlameMultiplierSource = "if (lowercase(@caster.location.terrain.name) == \"shadow plane\")\nreturn 0.5\nend if\nreturn 1";
+	public static ArmageddonUtilitySpellContent SandEffigy(long planeId, long anchorPrototypeId)
+	{
+		var policy = new SpellProjectionConfiguration(SpellProjectionKind.SandEffigy, planeId, anchorPrototypeId, 60, 0, 0, RequiresHeldSourceItem: true);
+		if (policy.Error(7) is { } error) throw new ArgumentException(error);
+		return new("arm.spell.sand_effigy", "Sand Effigy",
+			"Borrows one exact persisted ordinary item held by your original primary body to supply a figurine anchor and an immobile secondary presence for 60*grade seconds. Identity, skills and resources remain shared; inventory is never cloned. Source loss or drift, damage or created-anchor loss collapses the owned presence; the source item is never claimed or deleted.",
+			GradeLifetime, 20, "$0 shape|shapes a sand effigy through $1.", (resource, cost, _) =>
+				Base("arm.spell.sand_effigy", "item", resource, cost, 20,
+					new XElement("Effect", new XAttribute("type", "createprojection"), new XAttribute("version", 1), SpellProjectionAnchor.Definition(policy))));
+	}
 	public static ArmageddonUtilitySpellContent WalkingShadow(long planeId) =>
 		Projection(new(SpellProjectionKind.WalkingShadow, planeId, 0, 60, 10, 0, RoomDistancePerGrade: 10), "Walking Shadow", 7);
 	private static ArmageddonUtilitySpellContent Projection(SpellProjectionConfiguration policy, string name, double minimum)

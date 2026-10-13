@@ -136,6 +136,8 @@ public static class PhysicalReferenceCodecs
 		{
 			if (Needed(PhysicalEntityKind.Character)) yield return Read(PhysicalEntityKind.Character, RequiredAttribute(owned, "AnchorCharacterId"), "OwnedProjection/@AnchorCharacterId");
 			if (Needed(PhysicalEntityKind.CharacterInstance)) yield return Read(PhysicalEntityKind.CharacterInstance, RequiredAttribute(owned, "AnchorInstanceId"), "OwnedProjection/@AnchorInstanceId");
+			if (Needed(PhysicalEntityKind.GameItem) && owned.Attribute("BorrowedSourceItemId") is { } source)
+				yield return Read(PhysicalEntityKind.GameItem, source.Value, "OwnedProjection/@BorrowedSourceItemId");
 		}
 		foreach (var name in new[] { "AstralProjection", "MagicalCopy", "PhysicalClone", "PossessedBody", "PossessedCorpse", "AnimatedCorpse", "ScriptedAi" })
 		{

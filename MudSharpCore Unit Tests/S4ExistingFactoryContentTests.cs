@@ -26,7 +26,7 @@ public class S4ExistingFactoryContentTests
 	internal static Dictionary<int, long> Items() => Enumerable.Range(1, 7).ToDictionary(x => x, x => 100L + x);
 	internal static ArmageddonUtilitySpellContent[] Contents() =>
 	[
-		ArmageddonProjectionStock.WalkingShadowContent(11),
+		ArmageddonProjectionStock.SandEffigyContent(11, 12), ArmageddonProjectionStock.WalkingShadowContent(11),
 		ArmageddonRaiseServitorStock.Content(new(13, 14, 15)), ArmageddonRousedFuryStock.Content(new(16, 17)),
 		ArmageddonStillAngerStock.Content(new(18, 19, Enumerable.Range(1, 7).ToDictionary(x => x, _ => Difficulty.Normal))),
 		ArmageddonFlameKnifeStock.Content(new(Enumerable.Range(1, 6).Select(x => 200L + x).ToArray(),
@@ -42,8 +42,13 @@ public class S4ExistingFactoryContentTests
 		using var inventory = JsonDocument.Parse(File.ReadAllText(Path.Combine(directory!.FullName, "Design Documents", "Magic", "Armageddon_Seeder_Completeness_Design_20261011.json")));
 		var entries = inventory.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		CollectionAssert.AreEquivalent(ArmageddonExistingFactorySpellContent.Keys.ToArray(), Contents().Select(x => x.Key).ToArray());
-		CollectionAssert.AreEqual(new[] { "arm.spell.sand_effigy" }, ArmageddonExistingFactorySpellContent.PendingKeys.ToArray());
+		Assert.AreEqual(0, ArmageddonExistingFactorySpellContent.PendingKeys.Count);
 		Assert.AreEqual("item", entries["arm.spell.sand_effigy"].GetProperty("target_type").GetString());
+		var effigy = ArmageddonProjectionStock.SandEffigyContent(11, 12).BuildDefinition(31, 32, 0);
+		Assert.AreEqual("item", effigy.Element("Trigger")!.Attribute("type")!.Value);
+		var effigyPolicy = SpellProjectionAnchor.ReadPolicy(effigy.Descendants("Policy").Single());
+		Assert.IsTrue(effigyPolicy.RequiresHeldSourceItem); Assert.AreEqual(12L, effigyPolicy.EffigyPrototypeId);
+		Assert.AreEqual(60.0, effigyPolicy.SecondsPerGrade); Assert.AreEqual(0, effigyPolicy.MaximumRoomDistance);
 		foreach (var content in Contents())
 		{
 			Assert.AreEqual(entries[content.Key].GetProperty("minimum_energy").GetDouble(), content.MinimumEnergy, content.Key);

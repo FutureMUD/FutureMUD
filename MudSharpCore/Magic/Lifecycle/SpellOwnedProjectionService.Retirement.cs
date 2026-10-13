@@ -22,6 +22,8 @@ public sealed partial class SpellOwnedProjectionService
 		if (life.Origin.Family != SpellProjectionAnchor.Family || life.Origin.Mode != SpellLifecycleMode.TemporaryCleanup ||
 			life.Entities.Any(x => x.Role != SpellOwnedEntityRole.CreatedEntity)) return false;
 		var c = SpellProjectionAnchor.Load(life.Origin.Provenance).Configuration;
+		var borrowed = SpellProjectionAnchor.Load(life.Origin.Provenance).BorrowedSourceItemId;
+		if (borrowed is { } sourceId && life.Entities.Any(x => x.Kind == SpellOwnedEntityKind.GameItem && x.Id == sourceId)) return false;
 		if (c.RoomDistancePerGrade != 0 && (c.RangeGrade != life.Origin.Grade ||
 			c.Error(life.Origin.Grade) is not null || life.Origin.DeadlineUtc != life.Origin.CreatedUtc.AddSeconds(c.SecondsPerGrade * life.Origin.Grade)))
 			return false;
@@ -79,7 +81,8 @@ public sealed partial class SpellOwnedProjectionService
 				{
 					var metadata = XElement.Parse(instanceRow.EffectData);
 					var claim = metadata.Element("OwnedProjection")!;
-					if (metadata.Name != "Effects" || metadata.HasAttributes || metadata.Elements().Count() != 1 || claim.HasElements || claim.Attributes().Count() != 3 ||
+					if (metadata.Name != "Effects" || metadata.HasAttributes || metadata.Elements().Count() != 1 || claim.HasElements || claim.Attributes().Count() != (anchor.BorrowedSource is null ? 3 : 4) ||
+						(long?)claim.Attribute("BorrowedSourceItemId") != anchor.BorrowedSourceItemId ||
 						(long?)claim.Attribute("AnchorCharacterId") != life.Origin.CreatorId || (long?)claim.Attribute("AnchorInstanceId") != anchor.InstanceId ||
 						instanceRow.InstanceKind != (int)(anchor.Configuration.Kind == SpellProjectionKind.SandEffigy ? CharacterInstanceKind.MagicalCopy : CharacterInstanceKind.AstralProjection) ||
 						instanceRow.ControlPolicy != (int)CharacterInstanceControlPolicy.PlayerFocusable || instanceRow.DeathPolicy != (int)CharacterInstanceDeathPolicy.CollapseToAnchor ||
@@ -222,7 +225,8 @@ public sealed partial class SpellOwnedProjectionService
 			if (life.Origin.DeadlineUtc <= nowUtc) { TryRetire(id, SpellRetirementReason.Expiry, out _); continue; }
 			if (!_active.ContainsKey(id)) { TryRetire(id, SpellRetirementReason.Reboot, out _); continue; }
 			var b = _active[id]; var anchor = SpellProjectionAnchor.Load(life.Origin.Provenance);
-			if (b.Anchor.State.IsDead() || b.Anchor.Location?.Id != anchor.RoomId || (int)b.Anchor.RoomLayer != anchor.Layer || b.Anchor.Body.Id != anchor.BodyId ||
+			if (b.BorrowedSource is { IsCurrent: false } ||
+				b.Anchor.State.IsDead() || b.Anchor.Location?.Id != anchor.RoomId || (int)b.Anchor.RoomLayer != anchor.Layer || b.Anchor.Body.Id != anchor.BodyId ||
 				b.Effigy is { } item && (item.Deleted || item.InInventoryOf is not null || item.ContainedIn is not null || item.Location?.Id != anchor.RoomId || (int)item.RoomLayer != anchor.Layer))
 				TryRetire(id, SpellRetirementReason.AnchorSevered, out _);
 		}

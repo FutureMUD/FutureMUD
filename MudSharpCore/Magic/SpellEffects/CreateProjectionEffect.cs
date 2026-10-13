@@ -3,6 +3,8 @@
 using System.Globalization;
 using MudSharp.Character;
 using MudSharp.Framework.Scheduling;
+using MudSharp.GameItems;
+using MudSharp.Magic.Lifecycle;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.SpellEffects;
@@ -29,13 +31,14 @@ public sealed class CreateProjectionEffect : IMagicSpellEffectTemplate, IMagicSp
 		SpellEffectFactory.RegisterBuilderFactory("createprojection", (_, spell) =>
 			(new CreateProjectionEffect(Definition(new(SpellProjectionKind.WalkingShadow, 0, 0, 120, 3, 0)), spell), ""),
 			"Creates a bounded owned presence of the caster's identity", HelpText, true, true,
-			SpellTriggerFactory.MagicTriggerTypes.Where(x => SpellTriggerFactory.BuilderInfoForType(x).TargetTypes.Contains("character")).ToArray());
+			SpellTriggerFactory.MagicTriggerTypes.Where(x => SpellTriggerFactory.BuilderInfoForType(x).TargetTypes.Contains("character") || SpellTriggerFactory.BuilderInfoForType(x).TargetTypes.Contains("item")).ToArray());
 	}
 	public CreateProjectionEffect(XElement root, IMagicSpell spell) { Spell = spell; _definition = new(root); }
 	public static XElement Definition(SpellProjectionConfiguration c) => new("Effect", new XAttribute("type", "createprojection"), new XAttribute("version", 1), SpellProjectionAnchor.Definition(c));
 	public XElement SaveToXml() => new(_definition);
 	public IMagicSpellEffectTemplate Clone() => new CreateProjectionEffect(SaveToXml(), Spell);
-	public bool IsCompatibleWithTrigger(IMagicTrigger trigger) => trigger.TargetTypes.Contains("character");
+	public bool IsCompatibleWithTrigger(IMagicTrigger trigger) => DefinitionError is null &&
+		trigger.TargetTypes.Contains(Configuration().RequiresHeldSourceItem ? "item" : "character");
 	internal SpellProjectionConfiguration Configuration()
 	{
 		if ((string?)_definition.Attribute("version") != "1" || _definition.Elements().Count() != 1) throw new FormatException("Invalid projection effect schema.");
@@ -45,55 +48,89 @@ public sealed class CreateProjectionEffect : IMagicSpellEffectTemplate, IMagicSp
 	private bool Validate(ICharacter caster, IPerceivable target, out SpellProjectionConfiguration? c, out int grade, out string? error)
 	{
 		c = null; grade = 0; error = DefinitionError; if (error is not null) return false;
-		if (!ReferenceEquals(caster, target) || Spell is not MagicSpell { InvocationGrade: { } selected } || Gameworld.SpellOwnedProjections is null)
+		c = Configuration();
+		if (Spell is not MagicSpell { InvocationGrade: { } selected } || Gameworld.SpellOwnedProjections is null)
 		{ error = "Owned projection creation requires a selected-grade invocation targeting yourself."; return false; }
-		grade = selected; c = Configuration(); error = Gameworld.SpellOwnedProjections.AdmissionError(caster, c, grade); return error is null;
+		grade = selected;
+		if (c.RequiresHeldSourceItem)
+		{
+			if (target is not IGameItem source) { error = "Select the exact ordinary held item supplying this effigy."; return false; }
+			SpellOwnedProjectionService.SourceFrame frame;
+			try { frame = SpellOwnedProjectionService.CaptureSourceFrame(caster, source, Gameworld); }
+			catch (InvalidOperationException exception) { error = exception.Message; return false; }
+			error = Gameworld.SpellOwnedProjections.AdmissionError(caster, c, grade, source);
+			if (error is null && !frame.IsCurrent) error = "The borrowed item changed during projection admission.";
+			return error is null;
+		}
+		if (!ReferenceEquals(caster, target)) { error = "This projection targets your existing primary identity."; return false; }
+		error = Gameworld.SpellOwnedProjections.AdmissionError(caster, c, grade); return error is null;
 	}
-	private sealed record Selection(ICharacter Caster, IPerceivable Recipient, int Grade, string Definition, Func<bool> Check) : IMagicSpellEffectPreparedSelectionRawToken
+	private sealed record Selection(ICharacter Caster, IPerceivable Recipient, int Grade, string Definition, Func<bool> Check,
+		SpellOwnedProjectionService.SourceFrame? Source) : IMagicSpellEffectPreparedSelectionRawToken
 	{ public bool IsCurrent => Check(); }
 	public IMagicSpellEffectPreparedSelectionToken? CapturePreparedSelection(ICharacter caster, IPerceivable recipient)
 	{
-		if (!Validate(caster, recipient, out var c, out var grade, out var error)) throw new InvalidOperationException(error);
+		var c = Configuration();
+		var source = c.RequiresHeldSourceItem && recipient is IGameItem item ? SpellOwnedProjectionService.CaptureSourceFrame(caster, item, Gameworld) : null;
+		var grade = 0; string? error;
+		if (source is null && !Validate(caster, recipient, out _, out grade, out error)) throw new InvalidOperationException(error);
 		var body = caster.Body; var room = caster.Location; var layer = caster.RoomLayer; var instance = caster.InstanceId; var state = caster.State;
-		var plane = Gameworld.Planes.Get(c!.PlaneId); var proto = Gameworld.ItemProtos.Get(c.EffigyPrototypeId);
+		var identity = caster.Identity; var plane = Gameworld.Planes.Get(c.PlaneId); var proto = Gameworld.ItemProtos.Get(c.EffigyPrototypeId);
 		var definition = SaveToXml().ToString(SaveOptions.DisableFormatting);
-		var token = new Selection(caster, recipient, grade, definition, () => ReferenceEquals(caster.Body, body) && ReferenceEquals(caster.Location, room) &&
+		bool CurrentFrame() => ReferenceEquals(caster.Body, body) && ReferenceEquals(caster.Identity, identity) && ReferenceEquals(caster.Location, room) &&
 			caster.RoomLayer == layer && caster.InstanceId == instance && caster.State == state && caster.RoutePositionMetres is null && caster.Movement is null &&
-			ReferenceEquals(Gameworld.Planes.Get(c.PlaneId), plane) && ReferenceEquals(Gameworld.ItemProtos.Get(c.EffigyPrototypeId), proto) && SaveToXml().ToString(SaveOptions.DisableFormatting) == definition);
+			ReferenceEquals(Gameworld.Planes.Get(c.PlaneId), plane) && ReferenceEquals(Gameworld.ItemProtos.Get(c.EffigyPrototypeId), proto) &&
+			(source is null || source.IsCurrent) && SaveToXml().ToString(SaveOptions.DisableFormatting) == definition;
+		if (source is not null && !Validate(caster, recipient, out _, out grade, out error)) throw new InvalidOperationException(error);
+		if (!CurrentFrame()) throw new InvalidOperationException("The projection's original source or physical frame changed during admission.");
+		var token = new Selection(caster, recipient, grade, definition, CurrentFrame, source);
 		_selections[recipient] = token; return token;
 	}
 	public bool TryReusePreparedSelection(IMagicSpellEffectPreparedSelectionToken selection, ICharacter caster, IPerceivable recipient, out string? error)
 	{
 		error = "The prepared projection source or policy changed.";
 		if (selection is not Selection token || !ReferenceEquals(token.Caster, caster) || !ReferenceEquals(token.Recipient, recipient) || !token.IsCurrent ||
-			SaveToXml().ToString(SaveOptions.DisableFormatting) != token.Definition || !Validate(caster, recipient, out _, out var grade, out error) || grade != token.Grade) return false;
+			SaveToXml().ToString(SaveOptions.DisableFormatting) != token.Definition || !Validate(caster, recipient, out _, out var grade, out error) || grade != token.Grade || !token.IsCurrent) return false;
 		_selections[recipient] = token; return true;
 	}
 	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
 	{
 		error = "The prepared projection source or policy changed.";
-		return _selections.TryGetValue(recipient, out var token) && ReferenceEquals(token.Caster, caster) && token.IsCurrent && Validate(caster, recipient, out _, out var grade, out error) && grade == token.Grade;
+		return _selections.TryGetValue(recipient, out var token) && ReferenceEquals(token.Caster, caster) && token.IsCurrent && Validate(caster, recipient, out _, out var grade, out error) && grade == token.Grade && token.IsCurrent;
 	}
 	public bool TryPrepareApplication(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome, SpellPower power, TimeSpan resolvedDuration, out IMagicSpellEffectApplication? application, out string? error)
 	{
-		application = null; if (!Validate(caster, target, out var c, out var grade, out error) || _selections.ContainsKey(target) && !TryConfirmPreparedSelection(caster, target, out error)) return false;
-		application = new Creation(Guid.NewGuid(), this, caster, c!, grade); return true;
+		application = null;
+		try { if (Configuration().RequiresHeldSourceItem && !_selections.ContainsKey(target)) CapturePreparedSelection(caster, target); }
+		catch (InvalidOperationException exception) { error = exception.Message; return false; }
+		if (!Validate(caster, target, out var c, out var grade, out error) || _selections.ContainsKey(target) && !TryConfirmPreparedSelection(caster, target, out error)) return false;
+		_selections.TryGetValue(target, out var selection);
+		application = new Creation(Guid.NewGuid(), this, caster, target, c!, grade, selection); return true;
 	}
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
 		if (target is null || !TryPrepareApplication(caster, target, outcome, power, TimeSpan.Zero, out var application, out var error)) throw new InvalidOperationException("Projection was not admitted.");
 		return application!.Create(parent);
 	}
-	private sealed record Creation(Guid Id, CreateProjectionEffect Effect, ICharacter Caster, SpellProjectionConfiguration Policy, int Grade) : IMagicSpellEffectApplicationOperation
+	private sealed record Creation(Guid Id, CreateProjectionEffect Effect, ICharacter Caster, IPerceivable Recipient,
+		SpellProjectionConfiguration Policy, int Grade, Selection? Prepared) : IMagicSpellEffectApplicationOperation
 	{
 		public IMagicSpellEffect Create(IMagicSpellEffectParent parent) => Apply(parent).Effect!;
 		public MagicEffectOperation Apply(IMagicSpellEffectParent parent)
 		{
-			if (Effect._selections.ContainsKey(Caster) && !Effect.TryConfirmPreparedSelection(Caster, Caster, out var error)) throw new InvalidOperationException(error);
+			if (Prepared is not null && (!Prepared.IsCurrent || !Effect.TryConfirmPreparedSelection(Caster, Recipient, out var error)))
+				throw new InvalidOperationException("The original paid projection source or physical frame changed.");
 			var now = RuntimeClock.UtcNow;
 			var policy = Policy.ResolveForGrade(Grade);
-			var instance = Effect.Gameworld.SpellOwnedProjections!.Create(Caster, policy, new(Id, Effect.Spell.Id, Grade, Caster.Identity.Id,
-				SpellProjectionAnchor.Family, SpellLifecycleMode.TemporaryCleanup, now, now.AddSeconds(policy.SecondsPerGrade * Grade)));
+			var origin = new SpellLifecycleOrigin(Id, Effect.Spell.Id, Grade, Caster.Identity.Id,
+				SpellProjectionAnchor.Family, SpellLifecycleMode.TemporaryCleanup, now, now.AddSeconds(policy.SecondsPerGrade * Grade));
+			var service = Effect.Gameworld.SpellOwnedProjections!;
+			var instance = Prepared?.Source is { } source ? service.Create(Caster, policy, origin, source.Item) : service.Create(Caster, policy, origin);
+			if (Prepared is not null && !Prepared.IsCurrent)
+			{
+				if (instance is ICharacter projection) service.RequestRetirement(projection, SpellRetirementReason.AnchorSevered);
+				throw new InvalidOperationException("Projection creation changed its paid frame; retain retirement and do not replay.");
+			}
 			var index = Caster.Identity.Instances.OrderByDescending(x => x.IsPrimaryInstance).ThenBy(x => x.InstanceId).ToList().FindIndex(x => x.InstanceId == instance.InstanceId) + 1;
 			Caster.OutputHandler.Send($"Your {Policy.Kind.DescribeEnum().ColourName()} takes shape as instance #{instance.InstanceId.ToString("N0", Caster).ColourValue()}. Use {($"focus {index}").ColourCommand()} to observe through it.");
 			return new(MagicEffectOperationStatus.Applied, null);

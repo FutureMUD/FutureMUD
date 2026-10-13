@@ -7,6 +7,13 @@ namespace MudSharp.Magic;
 
 public static partial class ArmageddonPrimitiveSpellContent
 {
+	public static ArmageddonCanonicalSpellContribution CreateAlcoholRemovalContribution() =>
+		Scalar("water", "clear_head", "Clear Head", "character", 7, 40, "0",
+			"Remove at most one hundredth of a litre of alcohol per selected grade, floored at zero. Other substances and needs are unchanged.",
+			new XElement("Effect", new XAttribute("type", "needdelta"), new XElement("Hunger", 0),
+				new XElement("Thirst", 0), new XElement("Drunk", -0.01), new XElement("DirectAlcoholRemoval", true)),
+			"needdelta", "DrunkDelta", "-0.01*grade");
+
 	/// <summary>Locked scalar contributions requiring the native roomlight and healingrate typed scalar adapters.</summary>
 	public static IReadOnlyList<ArmageddonCanonicalSpellContribution> CreateScalarContributions() =>
 		Array.AsReadOnly(new[]
@@ -25,7 +32,7 @@ public static partial class ArmageddonPrimitiveSpellContent
 
 	private static XElement RoomLight(double coefficient) => new("Effect", new XAttribute("type", "roomlight"),
 		new XElement("AddedLuxPerPower", coefficient), new XElement("DescAddendum", new XCData("")),
-		new XElement("GlowAddendumColour", "bold white"));
+		new XElement("GlowAddendumColour", "Bold White"));
 
 	private static ArmageddonCanonicalSpellContribution Scalar(string school, string suffix, string name,
 		string trigger, double minimum, int opening, string duration, string description, XElement effect,

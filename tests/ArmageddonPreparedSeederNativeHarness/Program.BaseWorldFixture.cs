@@ -343,15 +343,18 @@ internal static partial class GNHProgram
 				"FutureMUDLibrary/Magic/ISpellOwnedShelterService.cs", "FutureMUDLibrary/Construction/Autobuilder/IAutobuilderRoomPresentation.cs" })
 			{ Require(IsS4OnlyBaseSource(path), "S4-only contracts must not invalidate the unrelated seeded base."); checks++; }
 			Require(!IsS4OnlyBaseSource("FutureMUDLibrary/Magic/MagicSchool.cs"), "General shared inputs remain fingerprinted."); checks++;
-			IReadOnlyList<BaseSource> compatibilitySources = [new(DamageInterfacePath, BaseDamageInterfaceHash), new("base.cs", new string('D', 64))];
+			IReadOnlyList<BaseSource> compatibilitySources = [new(DamageInterfacePath, BaseDamageInterfaceHash),
+				new(RoomReferenceTypesPath, BaseRoomReferenceTypesHash), new("base.cs", new string('D', 64))];
 			var compatibilityReceipt = original with { BaseSources = compatibilitySources, BaseSourceSha256 = BaseValueHash(compatibilitySources) };
-			var live = compatibilitySources.Select(x => x.Path == DamageInterfacePath ? x with { Sha256 = ReviewedDamageInterfaceHash } : x)
+			var live = compatibilitySources.Select(x => x.Path == DamageInterfacePath ? x with { Sha256 = ReviewedDamageInterfaceHash } :
+				x.Path == RoomReferenceTypesPath ? x with { Sha256 = ReviewedRoomReferenceTypesHash } : x)
 				.Concat(BaseCompilerPins).Concat(ReviewedS4SourceAdditions).OrderBy(x => x.Path, StringComparer.Ordinal).ToArray();
-			Require(CompatibleBaseSources(compatibilityReceipt, live, out var applied) && applied == S4DamageBaseCompatibility, "Exact reviewed inert receipt compatibility must retain the sealed base."); checks++;
+			Require(CompatibleBaseSources(compatibilityReceipt, live, out var applied) && applied == S4BaseCompatibility, "Exact reviewed inert receipt compatibility must retain the sealed base."); checks++;
 			foreach (var drift in new[]
 			{
 				live.Select(x => x.Path == "base.cs" ? x with { Sha256 = new string('E', 64) } : x).ToArray(),
 				live.Select(x => x.Path == DamageInterfacePath ? x with { Sha256 = new string('F', 64) } : x).ToArray(),
+				live.Select(x => x.Path == RoomReferenceTypesPath ? x with { Sha256 = new string('F', 64) } : x).ToArray(),
 				live.Concat([new BaseSource("FutureMUDLibrary/Health/unreviewed.cs", new string('A', 64))]).ToArray(),
 				live.Select(x => x.Path == BaseCompilerPins[0].Path ? x with { Sha256 = new string('F', 64) } : x).ToArray(),
 				live.Where(x => x.Path != ReviewedS4SourceAdditions[0].Path).ToArray()

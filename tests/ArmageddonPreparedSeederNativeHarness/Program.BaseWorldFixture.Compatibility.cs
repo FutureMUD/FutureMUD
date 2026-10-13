@@ -4,10 +4,13 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
-	private const string S4DamageBaseCompatibility = "inert-damage-hooks-and-recorded-native-base-compilers-20261013";
+	private const string S4BaseCompatibility = "inert-damage-hooks-and-s4-room-reference-classifications-20261013";
 	private const string DamageInterfacePath = "FutureMUDLibrary/Health/IDamage.cs";
 	private const string BaseDamageInterfaceHash = "407A6C10C4EC149CE8E3DC57EC47EB58DAB4D6A327E2B505E54A596C120A4004";
 	private const string ReviewedDamageInterfaceHash = "D05A7CD804266CFCBFF5C4CDA568207FBB4AF76E62F22D6B1574113170050EA6";
+	private const string RoomReferenceTypesPath = "MudsharpDatabaseLibrary/Database/RoomReferenceEffectTypes.cs";
+	private const string BaseRoomReferenceTypesHash = "FD29553872E4369CDB807EEB62C6A23F52D85728241FD7E76D27FBF94E16E53";
+	private const string ReviewedRoomReferenceTypesHash = "434DCE3A30E9D7D3173E2A66AAD41CC2380BC1B2814E12428F7222FFD0C7B160";
 	// Captured full-source evidence proves these base compiler inputs at the original capture.
 	// They are now explicit inputs for all new descriptors. The sealed original stays unchanged.
 	private static readonly BaseSource[] BaseCompilerPins =
@@ -44,8 +47,12 @@ internal static partial class GNHProgram
 		// The pre-Armageddon prefix performs no live damage, traversal or spell interdiction; schema, answers and restored content remain sealed.
 		// No health/schema subtree is excluded; every other input still compares byte-for-byte.
 		projected[DamageInterfacePath] = oldDamage;
+		if (!recorded.TryGetValue(RoomReferenceTypesPath, out var oldRoomTypes) || oldRoomTypes.Sha256 != BaseRoomReferenceTypesHash ||
+			!projected.TryGetValue(RoomReferenceTypesPath, out var newRoomTypes) || newRoomTypes.Sha256 != ReviewedRoomReferenceTypesHash) return false;
+		// The two reviewed additions classify S4 serializers absent from the sealed base dump.
+		projected[RoomReferenceTypesPath] = oldRoomTypes;
 		var compatible = BaseValueHash(projected.Values.OrderBy(x => x.Path, StringComparer.Ordinal).ToArray()) == receipt.BaseSourceSha256;
-		if (compatible) rule = S4DamageBaseCompatibility;
+		if (compatible) rule = S4BaseCompatibility;
 		return compatible;
 	}
 }

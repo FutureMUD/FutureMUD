@@ -7,6 +7,7 @@ using Moq;
 using MudSharp.Body.Traits;
 using MudSharp.Magic;
 using MudSharp.Magic.SpellEffects;
+using MudSharp.Magic.SpellTriggers;
 using MudSharp.RPG.Checks;
 using ConcreteBody = MudSharp.Body.Implementations.Body;
 
@@ -15,8 +16,10 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonPrimitiveSpellContentTests
 {
-	[TestMethod]
-	public void NativeFactory_EveryContributionRoundTripsAndEveryGradeBindsWithoutMutation()
+	[DataTestMethod]
+	[DataRow(0L)]
+	[DataRow(1L)]
+	public void NativeFactory_EveryContributionRoundTripsAndEveryGradeBindsWithoutMutation(long filter)
 	{
 		var f = new MagicCastingFixture();
 		Mock.Get(f.Traits[2]).SetupGet(x => x.TraitType).Returns(TraitType.Attribute);
@@ -24,16 +27,23 @@ public class ArmageddonPrimitiveSpellContentTests
 		foreach (var contribution in ArmageddonPrimitiveSpellContent.Create(new(3, 2, 1, 11, Difficulty.Normal)))
 		{
 			var content = contribution.Content;
-			var spell = Load(f, content);
+			var spell = Load(f, content, filter);
 			Assert.AreEqual(content.Key, spell.StockIdentity);
 			Assert.AreEqual(0, spell.GradeConfigurationErrors().Count, string.Join("\n", spell.GradeConfigurationErrors()));
 			var template = spell.SpellEffects.Single();
-			var source = content.BuildDefinition(10, 1, 1).Element("Effects")!.Elements().Single();
+			var source = content.BuildDefinition(10, 1, filter).Element("Effects")!.Elements().Single();
 			Assert.IsTrue(XNode.DeepEquals(source, template.SaveToXml()), content.Key);
 			Assert.IsTrue(XNode.DeepEquals(source, template.Clone().SaveToXml()), content.Key);
 			Assert.IsTrue(template.IsCompatibleWithTrigger(spell.Trigger), content.Key);
 			var reload = new MagicSpell(spell.SnapshotModel(), f.World.Object);
 			Assert.IsTrue(XNode.DeepEquals(template.SaveToXml(), reload.SpellEffects.Single().SaveToXml()), content.Key);
+			var trigger = (CastingTriggerCharacter)reload.Trigger;
+			Assert.AreEqual(filter, trigger.TargetFilterProgId, content.Key);
+			if (filter == 0)
+			{
+				Assert.IsNull(trigger.TargetFilterError, content.Key);
+				Assert.IsTrue(trigger.AllowsTarget(f.Actor.Object, f.Actor.Object), content.Key);
+			}
 			for (var grade = 1; grade <= 7; grade++)
 			{
 				var copy = spell.CastingCopy(f.Actor.Object, f.Traits[0], grade,
@@ -98,7 +108,7 @@ public class ArmageddonPrimitiveSpellContentTests
 		f.Actor.Verify(x => x.AddResource(It.IsAny<IMagicResource>(), It.IsAny<double>()), Times.Never);
 	}
 
-	private static MagicSpell Load(MagicCastingFixture f, ArmageddonUtilitySpellContent content)
+	private static MagicSpell Load(MagicCastingFixture f, ArmageddonUtilitySpellContent content, long filter = 1)
 	{
 		f.Expressions.Clear();
 		var cost = content.CostRow(1); cost.Id = 1;
@@ -107,7 +117,7 @@ public class ArmageddonPrimitiveSpellContentTests
 		f.Expressions.Add(new TraitExpression(duration, f.World.Object));
 		var row = content.SpellRow(1, 1, 1); row.Id = 900;
 		row.EffectDurationExpressionId = 2;
-		row.Definition = content.BuildDefinition(10, 1, 1).ToString();
+		row.Definition = content.BuildDefinition(10, 1, filter).ToString();
 		return new MagicSpell(row, f.World.Object);
 	}
 }

@@ -131,7 +131,20 @@ public class ArmageddonPrimitiveStockDefinitionTests
 		{
 			Assert.ThrowsException<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(invalid, 202, 203));
 			Assert.ThrowsException<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(201, invalid, 203));
-			Assert.ThrowsException<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(201, 202, invalid));
+			if (invalid < 0)
+				Assert.ThrowsException<ArgumentOutOfRangeException>(() => contribution.Content.BuildDefinition(201, 202, invalid));
+		}
+	}
+
+	[TestMethod]
+	public void Create_NoEligibilitySourceUsesNativeZeroFilterWithoutSupportProg()
+	{
+		foreach (var contribution in ArmageddonPrimitiveSpellContent.Create(Bindings))
+		{
+			Assert.IsNull(contribution.Content.EligibilitySource);
+			Assert.IsNull(contribution.Content.EligibilityRow(300));
+			var definition = contribution.Content.BuildDefinition(201, 202, 0);
+			Assert.AreEqual(0L, (long)definition.Element("Trigger")!.Element("TargetFilterProg")!, contribution.Content.Key);
 		}
 	}
 }

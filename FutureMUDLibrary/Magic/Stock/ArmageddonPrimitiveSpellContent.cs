@@ -115,7 +115,7 @@ public static class ArmageddonPrimitiveSpellContent
 			{
 				ArmageddonPrimitiveSpellBindings.RequirePositive(resource, nameof(resource));
 				ArmageddonPrimitiveSpellBindings.RequirePositive(cost, nameof(cost));
-				ArmageddonPrimitiveSpellBindings.RequirePositive(filter, nameof(filter));
+				if (filter < 0) throw new ArgumentOutOfRangeException(nameof(filter), filter, "Use zero for no eligibility filter or a positive resolved prog identity.");
 				var definition = ArmageddonUtilitySpellContent.Definition(key, "character", resource, cost, filter,
 					opening, minimum, new XElement(effect));
 				if (scalarFormula is not null)

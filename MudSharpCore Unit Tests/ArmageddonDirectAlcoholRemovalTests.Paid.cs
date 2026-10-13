@@ -48,6 +48,23 @@ public partial class ArmageddonDirectAlcoholRemovalTests
 		Assert.AreEqual(0, f.Store.Operations.Count);
 	}
 
+	[DataTestMethod]
+	[DataRow("0.01*grade")]
+	[DataRow("-1000000*grade")]
+	public void ClearHead_InvalidReboundScalarRefusesBeforePayment(string formula)
+	{
+		var (f, needs) = Fixture(0.1);
+		var row = LoadPaidContent(f).SnapshotModel();
+		var definition = XElement.Parse(row.Definition);
+		definition.Element("ControlledPower")!.Element("ScalarBindings")!.Element("Binding")!.Value = formula;
+		row.Definition = definition.ToString(); f.Spells[0] = new MagicSpell(row, f.World.Object);
+		var result = f.Service.Cast(f.Intent(7, false));
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message);
+		Assert.AreEqual(0.1, needs.AlcoholLitres, 1e-12);
+		Assert.AreEqual(100.0, f.Balances[f.Resources[1]]);
+		Assert.AreEqual(0, f.Rolls); Assert.AreEqual(0, f.Store.Operations.Count);
+	}
+
 	[TestMethod]
 	public void ClearHead_PaidNativeSetterBodyCallbackQuarantinesWithoutRefundOrReplay()
 	{

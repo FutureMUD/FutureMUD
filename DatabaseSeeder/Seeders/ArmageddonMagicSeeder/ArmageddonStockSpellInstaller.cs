@@ -26,19 +26,7 @@ public static partial class ArmageddonStockSpellInstaller
 	{
 		var messages = new List<string>();
 		var identities = new Dictionary<string, long>(StringComparer.Ordinal);
-		var contributions = ArmageddonStockSpellContent.Contributions
-			.Select(x => (Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x)))
-			.Concat(ArmageddonCreatureSpellContent.Contributions.Select(x =>
-				(Key: x.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveCreature(db, x)))))
-			.Concat(ArmageddonShelterSpellContent.Contributions.Select(x =>
-				(Key: x.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveShelter(db, x)))))
-			.Append((Key: "arm.spell.folded_pocket", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolvePocket))
-			.Concat(PrimitiveKeys.Select(key => (Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolvePrimitive(db, key)))))
-			.Concat(ArmageddonPrimitiveSpellContent.CreateScalarContributions().Append(ArmageddonPrimitiveSpellContent.CreateAlcoholRemovalContribution())
-				.Select(x => (Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))))
-			.Append((Key: ArmageddonNativeReserveSpellContent.StealBreathKey, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonNativeReserveSpellContent.StealBreath())))
-			.Concat(new[] { "arm.spell.sow_sickness", "arm.spell.purge_disease" }.Select(key =>
-				(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveCondition(db, key)))));
+		var contributions = Contributions();
 		foreach (var contribution in contributions)
 		{
 			var result = InstallContribution(factory, contribution.Resolve, stage => checkpoint?.Invoke(contribution.Key, stage));
@@ -51,6 +39,23 @@ public static partial class ArmageddonStockSpellInstaller
 		messages.Add("Canonical S4 definitions reconciled. Content identities alone do not qualify gameplay or enable package admissions, classes or regeneration.");
 		return new(ArmageddonInstallStatus.Completed, messages.AsReadOnly(), identities);
 	}
+
+	public static IReadOnlyList<string> CanonicalKeys => Contributions().Select(x => x.Key).ToArray();
+
+	private static IEnumerable<(string Key, Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution> Resolve)> Contributions() =>
+		ArmageddonStockSpellContent.Contributions
+		.Select(x => (Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x)))
+		.Concat(ArmageddonCreatureSpellContent.Contributions.Select(x =>
+			(Key: x.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveCreature(db, x)))))
+		.Concat(ArmageddonShelterSpellContent.Contributions.Select(x =>
+			(Key: x.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveShelter(db, x)))))
+		.Append((Key: "arm.spell.folded_pocket", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolvePocket))
+		.Concat(PrimitiveKeys.Select(key => (Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolvePrimitive(db, key)))))
+		.Concat(ArmageddonPrimitiveSpellContent.CreateScalarContributions().Append(ArmageddonPrimitiveSpellContent.CreateAlcoholRemovalContribution())
+			.Select(x => (Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))))
+		.Append((Key: ArmageddonNativeReserveSpellContent.StealBreathKey, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonNativeReserveSpellContent.StealBreath())))
+		.Concat(new[] { "arm.spell.sow_sickness", "arm.spell.purge_disease" }.Select(key =>
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveCondition(db, key)))));
 
 	private static ArmageddonInstallResult InstallContribution(Func<FuturemudDatabaseContext> factory,
 		Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution> resolve, Action<ArmageddonInstallCheckpoint>? checkpoint)

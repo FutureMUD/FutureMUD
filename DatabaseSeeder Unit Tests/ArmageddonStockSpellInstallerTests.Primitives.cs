@@ -24,7 +24,8 @@ public partial class ArmageddonStockSpellInstallerTests
 		using var manifest = JsonDocument.Parse(ArmageddonStockManifest.Read());
 		var entries = manifest.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell").ToArray();
-		Assert.AreEqual(39, claims.Length);
+		CollectionAssert.AreEquivalent(ArmageddonStockSpellInstaller.CanonicalKeys.ToArray(), claims.Select(x => x.StableKey).ToArray());
+		Assert.AreEqual(39, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var source = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId!.Value;
 		foreach (var claim in claims)
@@ -38,6 +39,12 @@ public partial class ArmageddonStockSpellInstallerTests
 			var minimum = entry.GetProperty("minimum_energy").GetDouble();
 			Assert.AreEqual(minimum, (double)root.Element("ControlledPower")!.Element("Efficiency")!.Attribute("minimum")!, claim.StableKey);
 			var expectedTarget = entry.GetProperty("target_type").GetString();
+			if (claim.StableKey is "arm.spell.seeking_wind" or "arm.spell.wind_courier" or "arm.spell.haunting_shape")
+			{
+				// Inventory's room delivery has an exact typed mission-input trigger, documented in the casting contract.
+				Assert.AreEqual("room", expectedTarget);
+				expectedTarget = "roommission";
+			}
 			if (claim.StableKey == "arm.spell.unravel_enchantment")
 			{
 				// Inventory retains its broad historical label; the locked defining contract selects character dispel.

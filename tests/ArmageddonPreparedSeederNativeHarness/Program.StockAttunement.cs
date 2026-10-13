@@ -26,7 +26,7 @@ internal static partial class GNHProgram
 			"S4 native precommit rollback changed tables or returned the wrong outcome.");
 		var lostAck = ArmageddonStockSpellInstaller.Install(factory, (key, stage) =>
 		{
-			if (key == ArmageddonCreatureSpellContent.Contributions.Last().Key && stage == ArmageddonInstallCheckpoint.AfterCommit) throw new IOException("S4 contribution lost acknowledgement");
+			if (key == ArmageddonStockSpellInstaller.CanonicalKeys.Last() && stage == ArmageddonInstallCheckpoint.AfterCommit) throw new IOException("S4 contribution lost acknowledgement");
 		});
 		Require(lostAck.Status == ArmageddonInstallStatus.CommittedConfirmationFailed, string.Join("\n", lostAck.Messages));
 		before = PreparedDatabaseChecksum(database);

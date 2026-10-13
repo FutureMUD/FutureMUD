@@ -200,6 +200,13 @@ internal static partial class GNHProgram
 		RequireBaseDumpTargets(File.ReadAllText(sql), receipt.Database);
 		return (receipt, sql, BaseHash(manifest));
 	}
+	private static int ValidateBaseWorldFixture(string manifest, string expectedHash)
+	{
+		var steps = BaseSteps(BaseProfile());
+		var fixture = ReadBaseFixture(manifest, expectedHash, steps, BaseSources(steps));
+		Console.WriteLine($"ARMBASE-descriptor=PASS sha256:{fixture.ManifestHash} source-and-answer-compatible no-database");
+		return 0;
+	}
 	private static void RequireBaseDumpTargets(string sql, string database)
 	{
 		var targets = Regex.Matches(sql, @"(?im)^\s*(?:USE\s+|(?:CREATE|DROP)\s+DATABASE\s+(?:IF\s+(?:NOT\s+)?EXISTS\s+)?)`([^`]+)`");

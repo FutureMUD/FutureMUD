@@ -9,7 +9,7 @@ internal static partial class GNHProgram
 	private const string BaseDamageInterfaceHash = "407A6C10C4EC149CE8E3DC57EC47EB58DAB4D6A327E2B505E54A596C120A4004";
 	private const string ReviewedDamageInterfaceHash = "D05A7CD804266CFCBFF5C4CDA568207FBB4AF76E62F22D6B1574113170050EA6";
 	private const string RoomReferenceTypesPath = "MudsharpDatabaseLibrary/Database/RoomReferenceEffectTypes.cs";
-	private const string BaseRoomReferenceTypesHash = "FD29553872E4369CDB807EEB62C6A23F52D85728241FD7E76D27FBF94E16E53";
+	private const string BaseRoomReferenceTypesHash = "FD29553872E4369CDB807EEB62C6A23F52D85728241FD7E76D27FBF949E16E53";
 	private const string ReviewedRoomReferenceTypesHash = "434DCE3A30E9D7D3173E2A66AAD41CC2380BC1B2814E12428F7222FFD0C7B160";
 	// Captured full-source evidence proves these base compiler inputs at the original capture.
 	// They are now explicit inputs for all new descriptors. The sealed original stays unchanged.

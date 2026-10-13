@@ -31,6 +31,11 @@ internal static partial class GNHProgram
 	{
 		if (args.FirstOrDefault() == "--installed-components-check") return PreparedInstalledComponentPreflight();
 		if (args.FirstOrDefault() == "--base-fixture-check-run") return BaseFixtureSafetyChecks();
+		if (args.FirstOrDefault() == "--base-fixture-validate-run")
+		{
+			Require(args.Length == 3, "Base fixture validation requires an explicit descriptor path and SHA-256.");
+			return ValidateBaseWorldFixture(args[1], args[2]);
+		}
 		OwnedConnections.Install();
 		return args.FirstOrDefault() switch
 		{

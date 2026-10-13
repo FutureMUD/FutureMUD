@@ -299,6 +299,21 @@ def attunement_stock_smoke(session, phase):
     def operations():
         return sql(mapped(f'SELECT HEX(Id),HEX(Stage),HEX(Definition) FROM MagicCastingOperations WHERE CharacterId={c} AND MagicSpellId={s} ORDER BY CreatedUtc,Id'), (0,1,2))
 
+    def verify_overlay(output):
+        expected = {cap: data['capability_name']}
+        candidates = {row['key']: row for row in data.get('representative_campaign', {}).get('candidates', [])}
+        for selected in receipt.get('representative_campaign', {}).get('selected', []):
+            if selected['coverage'] != 'direct-paid-route': continue
+            candidate = candidates[selected['key']]
+            require(selected.get('saved_state', {}).get('enrolments') == 1, 'Read roster sample lacks completed native enrolment evidence.')
+            expected[int(candidate['capability'])] = candidate['capability_name']
+        rows = sql(mapped(f'SELECT e.MagicCapabilityId,m.Name,e.CompletedStartingGrantVersion FROM CharacterCastingEnrolments e '
+                          f'JOIN MagicCapabilities m ON m.Id=e.MagicCapabilityId WHERE e.CharacterId={c} AND e.CompletedStartingGrantVersion>0'))
+        require(len(rows) == len(expected) and {int(row[0]): row[1] for row in rows} == expected and all(int(row[2]) > 0 for row in rows),
+                'Read learned roster differs from the exact Read and actually enrolled campaign capabilities.')
+        campaign.verify_read_overlay(output, list(expected.values()))
+        receipt.setdefault('stock_attunement_learned_roster', {})[phase] = [{'capability': identity, 'name': name} for identity, name in sorted(expected.items())]
+
     flush()
     initial = state()
     if phase == 'first':
@@ -364,8 +379,7 @@ def attunement_stock_smoke(session, phase):
     assertions.append(phase + ': S4 stock unfunded cast refused with no operation, debit, learning or overlay side effect')
     if phase == 'cold':
         looked = session.send('look me', read_seconds=.5)
-        require('Assigned elemental affinities: Unassigned.' in looked and 'Learned magical affiliations: S4 Attunement Qualification (active).' in looked,
-                'Cold native overlay did not separate unassigned affinity and legitimately learned active fixture affiliation: ' + redact(looked))
+        verify_overlay(looked)
         assertions.append('S4 stock: cold visible self overlay separated unassigned affinity from completed learned affiliation')
         mark_inherited_read('cold')
         return
@@ -401,8 +415,7 @@ def attunement_stock_smoke(session, phase):
     require(success, 'S4 finite native RNG budget exhausted without defining result; no gameplay certificate.')
     assertions.append('S4 stock: real grade-one invocation retained one50-unit payment and native target-scoped overlay with60-second lifetime')
     looked = session.send('look me', read_seconds=.5)
-    require('Assigned elemental affinities: Unassigned.' in looked and 'Learned magical affiliations: S4 Attunement Qualification (active).' in looked,
-            'Native Read Attunement output did not report two independent facts: ' + redact(looked))
+    verify_overlay(looked)
     # Spend the remaining finite budget through another ordinary cast, retaining its paid failure if RNG fails.
     if state()['balance'] == 50:
         prior = state(); old = operations()

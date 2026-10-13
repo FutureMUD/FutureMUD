@@ -110,6 +110,16 @@ def selection_receipt(selected):
                           'coverage': 'inherited-original-read' if row['key'] == 'arm.spell.read_attunement' else 'direct-paid-route',
                           'outcome': 'PENDING'} for row in selected]}
 
+def verify_read_overlay(text, names):
+    require(names and len(names) == len(set(names)), 'Missing or ambiguous native learned affiliation names.')
+    normal = re.sub(r'\s+', ' ', text)
+    require('Assigned elemental affinities: Unassigned.' in normal, 'Read overlay lost the exact unassigned affinity fact.')
+    tokens = [name + ' (active)' for name in sorted(names, key=str.casefold)]
+    # Match the native ListToString default for this explicit ASCII fixture roster.
+    listed = tokens[0] if len(tokens) == 1 else ' and '.join(tokens) if len(tokens) == 2 else ', '.join(tokens[:-1]) + ', and ' + tokens[-1]
+    require('Learned magical affiliations: ' + listed + '.' in normal, 'Read overlay differs from its exact completed native affiliation roster.')
+
+
 if __name__ == '__main__':
     import unittest
     class ContractTests(unittest.TestCase):
@@ -151,4 +161,11 @@ if __name__ == '__main__':
             for changed in (dict(row, table='Rooms;DROP TABLE Characters'), dict(row, kind='GuessedKind'), dict(row, id_column='Id` OR 1=1')):
                 with self.assertRaises(ValueError): reference_schema([changed])
             with self.assertRaises(ValueError): reference_schema([row, row])
+        def test_read_overlay_retains_exact_native_learned_roster(self):
+            names = ['S4 Attunement Qualification', 'S4 Campaign Qualification arm.spell.second_breath', 'S4 Campaign Qualification arm.spell.earthen_strength']
+            line = 'Assigned elemental affinities: Unassigned.\nLearned magical affiliations: S4 Attunement Qualification (active), S4 Campaign Qualification arm.spell.earthen_strength (active), and S4 Campaign Qualification arm.spell.second_breath (active).'
+            verify_read_overlay(line, names)
+            with self.assertRaises(ValueError): verify_read_overlay(line.replace('Unassigned', 'Water'), names)
+            with self.assertRaises(ValueError): verify_read_overlay(line.replace('second_breath (active)', 'second_breath (inactive)'), names)
+            with self.assertRaises(ValueError): verify_read_overlay(line, names + ['Arbitrary extra affiliation'])
     unittest.main()

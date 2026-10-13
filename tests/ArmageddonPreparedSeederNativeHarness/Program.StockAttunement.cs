@@ -123,6 +123,7 @@ internal static partial class GNHProgram
 			candidates.Add(new
 			{
 				key = spec.Key, spell = native.Id, target = spec.Target, capability = fixture.Capability, merit = fixture.Merit,
+				capability_name = fixture.Name,
 				trait = native.CastingTraitDefinitionId!.Value, school = native.MagicSchoolId,
 				resource = resourceClaim.LogicalId.Value, source, invoked = nativeSchool.SchoolVerb.ToLowerInvariant(),
 				grade_one_cost = cost, duration_seconds = spec.Seconds, gather_alias = "draw", gather_stamina_cost = gatherStamina
@@ -131,6 +132,9 @@ internal static partial class GNHProgram
 		var sqlSchema = ((IEnumerable<object>)InstalledSqlSchema(db)).ToList();
 		sqlSchema.Add(PreparedStockSqlTable<Db.Room>(db, "Rooms", [nameof(Db.Room.Id), nameof(Db.Room.EffectData)]));
 		sqlSchema.Add(PreparedStockSqlTable<Db.Body>(db, "Bodies", [nameof(Db.Body.Id), nameof(Db.Body.CurrentStamina)]));
+		sqlSchema.Add(PreparedStockSqlTable<Db.MagicCapability>(db, "MagicCapabilities", [nameof(Db.MagicCapability.Id), nameof(Db.MagicCapability.Name)]));
+		sqlSchema.Add(PreparedStockSqlTable<Db.CharacterCastingEnrolment>(db, "CharacterCastingEnrolments", [nameof(Db.CharacterCastingEnrolment.CharacterId),
+			nameof(Db.CharacterCastingEnrolment.MagicCapabilityId), nameof(Db.CharacterCastingEnrolment.CompletedStartingGrantVersion)]));
 		sqlSchema.Add(PreparedStockSqlTable<Db.MagicSpell>(db, "MagicSpells", [nameof(Db.MagicSpell.Id), nameof(Db.MagicSpell.Definition),
 			nameof(Db.MagicSpell.MagicSchoolId), nameof(Db.MagicSpell.CastingTraitDefinitionId), nameof(Db.MagicSpell.EffectDurationExpressionId),
 			nameof(Db.MagicSpell.SpellKnownProgId), nameof(Db.MagicSpell.ResistingTraitDefinitionId)]));
@@ -149,6 +153,7 @@ internal static partial class GNHProgram
 			sql_schema = sqlSchema, typed_reference_schema = referenceSchema,
 			mode = settings.Mode.ToString(), classes_enabled = settings.ClassesEnabled,
 			character = actor.Id, body = actor.BodyId, spell = spell.Id, resource = reserve, capability = cap.Id, merit = merit.Id,
+			capability_name = cap.Name,
 			trait = spell.CastingTraitDefinitionId, school = spell.MagicSchoolId, source = ids[ArmageddonProgressionInstaller.SourceResourceKey],
 			definition = spell.Definition, duration = spell.EffectDurationExpressionId,
 			stock_spells = stockInputs,
@@ -162,7 +167,7 @@ internal static partial class GNHProgram
 		Console.WriteLine("ARMS4-attunement-qualification-input=" + input + " separate-builder-fixture no-player-mutation");
 	}
 
-	private static (long Capability, long Merit) PreparedStockCampaignRoute(MudSharp.Database.FuturemudDatabaseContext db,
+	private static (long Capability, long Merit, string Name) PreparedStockCampaignRoute(MudSharp.Database.FuturemudDatabaseContext db,
 		ArmageddonInstallationSettings settings, string key, Db.MagicSpell spell, long reserve, long source, double gatherStamina)
 	{
 		var name = "S4 Campaign Qualification " + key;
@@ -191,7 +196,7 @@ internal static partial class GNHProgram
 				new XElement("Capabilities", new XElement("Capability", cap.Id))).ToString()
 		};
 		db.Add(merit); db.SaveChanges();
-		return (cap.Id, merit.Id);
+		return (cap.Id, merit.Id, cap.Name);
 	}
 
 	private sealed record PreparedStockReference(string Kind, long Id);

@@ -57,7 +57,8 @@ public static class ArmageddonCatalogueSpecials
 				new XElement("Waterproof", new XAttribute("ratio", 0.5), false),
 				new XElement("Profiles", new XAttribute("Default", wear.Id), new XElement("Profile", wear.Id))), [wearKey]);
 			var illumination = Component(owned, light.Key + ".light", light.Name, "Prog Light",
-				new XElement("Definition", new XElement("IlluminationProvided", light.Configuration.GetProperty("lux_per_grade").GetDouble())), []);
+				new XElement("Definition", new XElement("IlluminationProvided", light.Configuration.GetProperty("lux_per_grade").GetDouble()),
+					new XElement("MultiplyIlluminationBySpellGrade", true)), []);
 			ids.Add(light.Key, Item(owned, light, settings, kilograms, [holdable, wearable, illumination],
 				["arm.catalogue.component.holdable", light.Key + ".wearable", light.Key + ".light"]).Id);
 			var ember = catalogue.ByKey["arm.item.ember_seed"];

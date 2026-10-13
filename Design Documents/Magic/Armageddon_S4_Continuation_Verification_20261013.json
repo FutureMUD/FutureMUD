@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-10-13T09:27:25+00:00",
-  "source_revision": "e2afd061e659c417ebf38e807f09e1b876c55177",
+  "generated_utc": "2026-10-13T13:16:35+00:00",
+  "source_revision": "b58eba58e7dddedb04907753c2497cf42d97a8f2",
   "scope": "Coherent S4 content and adapter batch; broader S4 remains authorised and incomplete. No merge/deploy or availability changes.",
   "continuation_batch": {
     "source_revision": "29f4ff288122a278a4df0471244e96c7ae2b9c5f",
@@ -14,11 +14,26 @@
     "hosted_previous_head": "6efdc9513 push Linux/Windows passed; PR Linux passed, PR Windows failed TestReporting.Tests buildfail scenario with TIMEOUT instead of REPORTING_ERROR under five-second bootstrap budget",
     "reporting_fix_local": "buildfail budget 30 seconds; one-second bootstrap-hang retained; focused 1/1 and full TestReporting.Tests 38/38 passed"
   },
-  "canonical_definitions_declared": 100,
+  "latest_batch": {
+    "source_revision": "b58eba58e7dddedb04907753c2497cf42d97a8f2",
+    "declared_required_definitions": 107,
+    "required_not_yet_declared": 45,
+    "new_keys": ["arm.spell.fleet_step", "arm.spell.lightning_pace", "arm.spell.leadfoot", "arm.spell.immolate", "arm.spell.sense_toxin"],
+    "full_core": "PASS 7116/0/0; TRX task/s4-b58-final-tests/core/core-final-b58.trx",
+    "full_seeder": "PASS 1836/0/3; TRX task/s4-b58-final-tests/seeder/seeder-final-b58.trx",
+    "full_library": "PASS 763/0/0; TRX task/s4-b58-final-tests/library/library-final-b58.trx",
+    "full_persistence": "PASS 277/0/0; TRX task/s4-b58-final-tests/persistence/persistence-final-b58.trx",
+    "focused_gathering_and_movement": "PASS 87/0/0 after exact mandatory stamina payment repair",
+    "focused_native_helper": "PASS Python campaign 6/6 and SQL retry 5/5; Python syntax and git diff --check pass",
+    "native_status": "106/106 first-boot exact definitions; paid grade-one Fleet Step saved 0.9523809523809523 movement and 0.95 stamina children. Subsequent Second Breath Self funding exposed mandatory stamina price underpayment under active Fleet Step; exact-payment repair passes managed tests but has not been live-rerun. No 106 cold boot or paid Immolate/Sense Toxin certificate.",
+    "qualification_limit": "Read Attunement retains its prior S4 qualification; new entries do not inherit live certification merely from declaration or a shared adapter.",
+    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+  },
+  "canonical_definitions_declared": 107,
   "required_inventory": 152,
-  "required_not_yet_declared": 52,
+  "required_not_yet_declared": 45,
   "optional_inventory": 2,
-  "definition_audit": "PASS: every100 definition Classic/Simple atf594051d42dd4cb4d71faa7c528c2051777e2dfb; exact sealed-base compatibility31/31 and native first/cold100/100 at e2afd061e659c417ebf38e807f09e1b876c55177",
+  "definition_audit": "PASS: 107 declared fixed definitions under final full Seeder 1836/0/3 at b58eba58e; native first boot loaded the earlier 106/106 at c04c7c855, and historical first/cold 100/100 remains at e2afd061e. Sense Toxin and exact gathering repair have no new live certificate.",
   "checks": [
     {
       "name": "seeder-full-final-99",
@@ -330,14 +345,44 @@
       "cold_boot_and_remaining_definitions": "NOT_RUN",
       "new_spell_paid_samples": "NOT_RUN",
       "cleanup": "owned database dropped; exact MySQL instance gracefully shut down/datadir removed; failed MUD child exit1"
+    },
+    {
+      "receipt": ".artifacts/s4-106-native-first-cold/20261013T114554Z_e6dc30cb34c54b6ba7076832ffd259d4/summary.json",
+      "status": "FAIL_PRE_RESTORE_SEALED_BASE_COMPATIBILITY",
+      "head": "c04c7c8553b8b8a610e262e9ea93245f80f762ee",
+      "diagnostic": "Original sealed base refused the additional SpellMovementTempo room-reference classification. No database restore, MUD boot or paid sample. The original descriptor was preserved and a fresh 29-step base was explicitly captured under owned MySQL.",
+      "cleanup": "owned MySQL instance gracefully stopped and datadir removed"
+    },
+    {
+      "receipt": ".artifacts/s4-106-native-captured-base-first-cold/20261013T115623Z_9cf7e307514c4452bde050ffea7006ac/summary.json",
+      "status": "FAIL_FIRST_PAID_SAMPLE_FIXTURE_HAND_OCCUPIED",
+      "head": "c04c7c8553b8b8a610e262e9ea93245f80f762ee",
+      "base_descriptor_sha256": "83E8D6F1D99293526D776F9D3923F1B31429B92C487160ADA98FAD5B538579E6",
+      "package": "PASS actual-MySQL targeted Classic acceptance and disabled gates",
+      "first_boot": "PASS exact 106/106 definition and typed-reference displays; Fleet Step preflight refused because the prior melee fixture left its knife wielded, with no payment or completed operation",
+      "cold_boot": "NOT_RUN",
+      "cleanup": "owned database dropped and MySQL gracefully shut down/datadir removed; failed MUD child stopped"
+    },
+    {
+      "receipt": ".artifacts/s4-106-native-fleetstep-released/20261013T122134Z_9b7702c0582341be9834db1e3ef56dbd/summary.json",
+      "status": "FAIL_SECOND_SAMPLE_EXACT_GATHERING_STAMINA_PRICE",
+      "head": "c04c7c8553b8b8a610e262e9ea93245f80f762ee",
+      "source_start_end_sha256": "5E0C75A546E7F25F235DDFA51AA4FC54CD5193BB693FB8ECFD15B9EF79425A84",
+      "base_descriptor_sha256": "83E8D6F1D99293526D776F9D3923F1B31429B92C487160ADA98FAD5B538579E6",
+      "package": "PASS actual-MySQL targeted Classic rollback, lost-ack resume, stable children, no-op checksum, no player writes and disabled gates",
+      "first_boot": "17 assertions: exact 106/106 definitions and typed references; paid grade-one Fleet Step completed with one 50-unit reserve debit and saved SpellMovementTempo=1/1.05 plus SpellStaminaExpenditure=0.95 under a 60-second parent",
+      "first_failure": "Second Breath Self gathering under Fleet Step debited 19 rather than the quoted 20 stamina and correctly withheld reserve credit. The direct exact-price repair at ea710865b passes focused managed tests but has not been live-rerun.",
+      "cold_boot": "NOT_RUN; no cold definition, paid Immolate or paid Sense Toxin claim",
+      "cleanup": "owned database dropped, MySQL gracefully shut down/datadir removed, owned MUD tree stopped"
     }
   ],
   "immutable_base": {
-    "descriptor": ".artifacts/pre-armageddon-base-fixtures/20261013T011917Z_024ee64c6f334396b9d65cfe5ce6a02e/base-world.json",
-    "descriptor_sha256": "2F3FA0D5A837E4C9E7663AD8A2E24FBD16F66C4AEB9F1D6351B92DBD01B6039D",
-    "sql_sha256": "44A91CF9B29AA7DA929E43E8805AF10EF3165E1FCA5D753D5C577E1241546184",
-    "foundational_reseeding": false,
-    "workflow": "fresh owned restore, targeted Armageddon package only; exact reviewed inert interface compatibility, sealed SQL unchanged"
+    "descriptor": ".artifacts/pre-armageddon-base-fixtures/20261013T115504Z_50636efe2adb41e082cbec84f3f63bbb/base-world.json",
+    "descriptor_sha256": "83E8D6F1D99293526D776F9D3923F1B31429B92C487160ADA98FAD5B538579E6",
+    "sql_sha256": "7722D20E19A69C1517717B5F7460825D7176B59EF2C24C1C29AD8C4CC2BD7656",
+    "capture_receipt": ".artifacts/s4-106-native-base-capture/20261013T114845Z_91fc550e1eb749a0bb7f84ddfbb5b8f3/base-world-run.json",
+    "foundational_reseeding": "one explicit fresh 29-step capture after exact source compatibility preflight refused the older sealed fixture; no repeat during package runs",
+    "workflow": "fresh owned MySQL base capture and hash-pinned isolated restores; subsequent Sense Toxin room-reference addition requires a new exact source-compatibility review before another reuse; old descriptor preserved"
   },
   "gates": {
     "release": false,
@@ -346,17 +391,18 @@
     "unqualified_carrier_producers": false
   },
   "hosted_ci": {
-    "previous_published_head": "46fd47ef47027d86f869f0f25e6704887d89e2f6",
-    "pull_request_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38363369189",
-    "push_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38363364012",
-    "previous_result": "Linux passed; Windows test steps were cancelled at the workflow's 30-minute job timeout after the preceding Core suite passed, not by an assertion failure. Both Windows jobs remain unverified.",
-    "repair": "unit-tests.yml job timeout increased from 30 to 60 minutes at 94636956a; hosted result for the publication head must be checked after push"
+    "baseline_resolved": "Component-export regression repaired at d5cdd6c; hosted 38233157601 passed Linux and Windows.",
+    "last_verified_head": "c04c7c8553b8b8a610e262e9ea93245f80f762ee",
+    "pull_request_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38390349700",
+    "push_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38390343703",
+    "last_verified_result": "All four push/PR Linux/Windows default-gate jobs passed; b58eba58e publication head awaits hosted verification after push."
   },
   "remaining_critical": [
-    "52 required definitions and their defining adapters/dependencies remain undeclared.",
+    "45 required definitions and their defining adapters/dependencies remain undeclared.",
     "Seven creature/controller representative mission/riding/custody cases remain pending.",
     "Sheltering Veil and Consuming Flame require real Clerical/Necromancy rank5/6 supplies, rank hierarchy and the explicit water-plane conditional material rule.",
-    "Venom/Purge Toxin require durable native dose origin/custody rather than heuristic drug adjustment.",
+    "Venom Touch/Purge Toxin require durable native dose origin/custody: BodyDrugDose persists only BodyId/DrugId/Active and coalesces originator on load; legacy SpellPoisonEffect removes matching unowned doses.",
+    "The 106-definition first boot and paid Fleet Step sample are bounded; exact gathering payment repair and Sense Toxin have no new native cold/paid acceptance. A later consolidated campaign must use an exact compatible sealed-base source pin.",
     "Deferred ten foci, two device blanks and twelve recipes require real qualified dependency allowlists.",
     "S5/S6 and N24/N25 remain separate."
   ],

@@ -31,7 +31,7 @@ public sealed record ArmageddonPrimitiveSpellBindings(long StrengthTraitId, long
 /// Pure locked S4 definitions using native status, condition removal, trait and reserve effects.
 /// These contributions do not enable admissions, alternate methods or carriers, and do not assert gameplay qualification.
 /// </summary>
-public static class ArmageddonPrimitiveSpellContent
+public static partial class ArmageddonPrimitiveSpellContent
 {
 	/// <summary>
 	/// Strength must be an ordinary package-bound attribute. Invisibility uses the supplied applicability prog.

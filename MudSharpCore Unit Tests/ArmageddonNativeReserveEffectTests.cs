@@ -119,6 +119,27 @@ public class ArmageddonNativeReserveEffectTests
 		Assert.AreEqual(5.0, body.CurrentStamina, "An uncertain old-body write must never be replayed against a replacement body.");
 	}
 
+	[TestMethod]
+	public void ExactStamina_NativeSaveRegistrationThrowsOnce_RearmsStaminaAndOriginalBodyQueue()
+	{
+		var (f, body, saves) = StaminaFixture(40, 100);
+		var nativeQueue = new SaveManager();
+		var registrations = 0;
+		saves.Setup(x => x.Add(body)).Callback(() =>
+		{
+			if (++registrations == 1) throw new InvalidOperationException("Injected native queue registration failure.");
+			nativeQueue.Add(body);
+		});
+		var effect = Stamina(f, -35);
+		Assert.ThrowsException<InvalidOperationException>(() => effect.Apply(f.Actor.Object, f.Actor.Object, default, default, null!, []));
+		Assert.AreEqual(5.0, body.CurrentStamina, "The uncertain native write is retained for staff reconciliation.");
+		Assert.AreEqual(35.0, (double)Raw(body, "_staminaSpentInCurrentPeriod")!, "Repairing dirty state must not replay the signed delta.");
+		Assert.IsTrue(body.StaminaChanged, "The native save must still include its changed stamina field.");
+		Assert.IsTrue(body.Changed); Assert.IsTrue(f.Actor.Object.Changed);
+		Assert.IsTrue(nativeQueue.IsQueued(body), "The actual native save queue must regain the exact original body after the throw.");
+		Assert.AreEqual(2, registrations, "The native dirty-flag setter retries the lost registration exactly once.");
+	}
+
 	[DataTestMethod]
 	[DataRow(1, 40.0, 35.0)]
 	[DataRow(7, 40.0, 5.0)]

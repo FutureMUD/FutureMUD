@@ -191,7 +191,15 @@ public class StaminaDeltaSpellEffect : IMagicSpellEffectTemplate, IMagicSpellEff
 				try { if (selected.Body.CurrentStamina != before) MarkDirty(); } catch { }
 				throw;
 			}
-			void MarkDirty() { selected.Target.Changed = true; selected.Body.Changed = true; }
+			void MarkDirty()
+			{
+				// The native setter writes the value before queue registration. A registration
+				// callback can throw before StaminaChanged is assigned; retry the native flag so
+				// its Changed setter also restores registration for this exact captured body.
+				if (selected.Body is MudSharp.Body.Implementations.Body nativeBody) nativeBody.StaminaChanged = true;
+				selected.Body.Changed = true;
+				selected.Target.Changed = true;
+			}
 		}
 		finally { _applyingDirect = false; }
 	}

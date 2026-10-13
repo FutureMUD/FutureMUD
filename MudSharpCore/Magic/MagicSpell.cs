@@ -1940,6 +1940,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			bool reflected = interdiction?.Mode == MagicInterdictionMode.Reflect && originalTarget is ICharacter &&
 			                 originalTarget != magician;
 			IPerceivable actualTarget = reflected ? magician : originalTarget;
+			// The paid, admitted reflection spends the exact captured ward before output/application callbacks.
+			// Stale authority holds this recipient; it must not become unprotected ordinary damage.
+			if (reflected && !MagicInterdictionHelper.TryCommitReflection(interdiction!)) return true;
 
 			if (interdiction is not null && !reflected)
 			{

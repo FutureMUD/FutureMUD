@@ -46,12 +46,15 @@ public sealed partial class SpellOwnedItemService : ISpellOwnedItemService
 	public IGameItem Create(IGameItemProto prototype, ICharacter caster, ItemQuality quality, SpellLifecycleOrigin origin)
 		=> CreateCore(prototype, caster, quality, origin, null);
 
-	internal IGameItem CreatePocket(IGameItemProto prototype, ICharacter caster, SpellLifecycleOrigin origin, SpellPocketAnchor anchor)
-		=> CreateCore(prototype, caster, ItemQuality.Standard, origin, anchor);
+	internal IGameItem CreatePocket(IGameItemProto prototype, ICharacter caster, SpellLifecycleOrigin origin,
+		SpellPocketAnchor anchor, Func<bool>? selectionCurrent = null) =>
+		CreateCore(prototype, caster, ItemQuality.Standard, origin, anchor, selectionCurrent);
 
-	private IGameItem CreateCore(IGameItemProto prototype, ICharacter caster, ItemQuality quality, SpellLifecycleOrigin origin, SpellPocketAnchor? pocket)
+	private IGameItem CreateCore(IGameItemProto prototype, ICharacter caster, ItemQuality quality, SpellLifecycleOrigin origin,
+		SpellPocketAnchor? pocket, Func<bool>? selectionCurrent = null)
 	{
-		origin.Validate();
+		void Confirm() { if (selectionCurrent?.Invoke() == false) throw new InvalidOperationException("The prepared pocket changed during native item creation; do not replay."); }
+		Confirm(); origin.Validate();
 		if (origin.Mode == SpellLifecycleMode.DeathOnExpiry || !Enum.IsDefined(quality) || !ReferenceEquals(caster.Gameworld, _world) ||
 			origin.CreatorId != MudSharp.Character.CharacterInstanceIdentityComparer.IdentityId(caster))
 			throw new ArgumentException("Native item creation requires a valid item mode, quality and caster world.");
@@ -59,7 +62,9 @@ public sealed partial class SpellOwnedItemService : ISpellOwnedItemService
 		var error = pocket is null ? NativeItemCreationEligibility.Error(prototype, _world) : SpellOwnedPocketService.PrototypeError(prototype, _world);
 		if (error is not null) throw new InvalidOperationException(error);
 		if (_store.Find(origin.Id) is not null) throw new InvalidOperationException("This native item creation cannot be replayed.");
+		Confirm();
 		var item = new GameItem(prototype, caster, quality, deferSpellInitialisation: true);
+		Confirm();
 		if (item.GetItemType<MudSharp.GameItems.Interfaces.IArmageddonEmberSeedComponent>() is { } ember)
 			ember.Bind(origin, caster, ((MudSharp.GameItems.Prototypes.ArmageddonEmberSeedGameItemComponentProto)ember.Prototype).DamagePerGrade);
 		if (item.GetItemType<MudSharp.GameItems.Interfaces.IArmageddonTopicalDoseComponent>() is { } mud)
@@ -72,11 +77,14 @@ public sealed partial class SpellOwnedItemService : ISpellOwnedItemService
 		if (item.GetItemType<MudSharp.GameItems.Components.ProgLightGameItemComponent>() is { } light) light.Lit = true;
 		MudSharp.Models.GameItem? inserted = null;
 		var components = new List<(GameItemComponent Component, MudSharp.Models.GameItemComponent Row)>();
+		Confirm();
 		var life = _store.Create(origin, creation =>
 		{
+			Confirm();
 			inserted = (MudSharp.Models.GameItem)item.DatabaseInsert();
 			foreach (var component in item.Components.Cast<GameItemComponent>())
 				components.Add((component, (MudSharp.Models.GameItemComponent)component.DatabaseInsert()));
+			Confirm();
 			creation.Claim(SpellOwnedEntityKind.GameItem, inserted);
 		}, ActivationPending);
 		// Claims are immutable. Publish a newly committed ID before native activation can load it.
@@ -84,6 +92,7 @@ public sealed partial class SpellOwnedItemService : ISpellOwnedItemService
 		try
 		{
 			item.ActivateCommittedSpellItem(inserted!, origin, components);
+			Confirm();
 			using var isolated = FMDB.BeginIndependentScope(requireWrites: true); using var db = new FMDB();
 			var row = FMDB.Context.MagicSpellLifecycles.Single(x => x.Id == origin.Id);
 			if (row.Version != life.Version || row.Diagnostic != ActivationPending || row.State != (int)SpellLifecycleState.Active)

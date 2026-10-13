@@ -9,7 +9,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public sealed class CreatePocketEffect : IMagicSpellEffectTemplate, IMagicSpellEffectAdmission, IMagicSpellEffectPreparedSelection
+public sealed partial class CreatePocketEffect : IMagicSpellEffectTemplate, IMagicSpellEffectAdmission, IMagicSpellEffectPreparedSelection
 {
 	private XElement _definition;
 	private readonly Dictionary<IPerceivable, Selection> _selections = new(ReferenceEqualityComparer.Instance);
@@ -55,15 +55,10 @@ public sealed class CreatePocketEffect : IMagicSpellEffectTemplate, IMagicSpellE
 		{ if (!TryConfirmPreparedSelection(caster, recipient, out var error)) throw new InvalidOperationException(error); return existing; }
 		if (!Validate(caster, recipient, out var configuration, out var grade, out var diagnostic)) throw new InvalidOperationException(diagnostic);
 		var source = (IGameItem)recipient; var definition = SaveToXml().ToString(SaveOptions.DisableFormatting);
-		var prototype = Gameworld.ItemProtos.Get(configuration!.PrototypeId); var revision = prototype.RevisionNumber;
-		var fallback = Gameworld.Rooms.Get(configuration.FallbackRoomId);
-		var sourcePrototype = source.Prototype; var body = caster.Body; var instance = caster.InstanceId;
-		var location = caster.Location; var layer = caster.RoomLayer; var position = caster.RoutePositionMetres;
-		var selection = new Selection(caster, source, grade, definition, () => ReferenceEquals(caster.Body, body) && caster.InstanceId == instance &&
-			ReferenceEquals(caster.Location, location) && caster.RoomLayer == layer && caster.RoutePositionMetres == position &&
-			ReferenceEquals(source.Prototype, sourcePrototype) && ReferenceEquals(Gameworld.ItemProtos.Get(configuration.PrototypeId), prototype) &&
-			prototype.RevisionNumber == revision && ReferenceEquals(Gameworld.Rooms.Get(configuration.FallbackRoomId), fallback) &&
-			SaveToXml().ToString(SaveOptions.DisableFormatting) == definition);
+		var frame = CaptureNativeFrame(caster, source, configuration!);
+		var selection = new Selection(caster, source, grade, definition,
+			() => frame() && SaveToXml().ToString(SaveOptions.DisableFormatting) == definition);
+		if (!selection.IsCurrent) throw new InvalidOperationException("The prepared pocket source or policy changed during capture.");
 		_selections.Add(recipient, selection); return selection;
 	}
 	public bool TryReusePreparedSelection(IMagicSpellEffectPreparedSelectionToken selection, ICharacter caster, IPerceivable recipient, out string? error)
@@ -71,14 +66,14 @@ public sealed class CreatePocketEffect : IMagicSpellEffectTemplate, IMagicSpellE
 		error = "The prepared pocket frame or policy changed.";
 		if (selection is not Selection token || !ReferenceEquals(token.Caster, caster) || !ReferenceEquals(token.Source, recipient) ||
 			!token.IsCurrent || token.Definition != SaveToXml().ToString(SaveOptions.DisableFormatting) ||
-			!Validate(caster, recipient, out _, out var grade, out error) || grade != token.Grade) return false;
+			!Validate(caster, recipient, out _, out var grade, out error) || grade != token.Grade || !token.IsCurrent) return false;
 		_selections[recipient] = token; return true;
 	}
 	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
 	{
 		error = "The prepared pocket frame or policy changed.";
 		return _selections.TryGetValue(recipient, out var token) && ReferenceEquals(token.Caster, caster) && token.IsCurrent &&
-			Validate(caster, recipient, out _, out var grade, out error) && grade == token.Grade;
+			Validate(caster, recipient, out _, out var grade, out error) && grade == token.Grade && token.IsCurrent;
 	}
 	public bool TryPrepareApplication(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome, SpellPower power,
 		TimeSpan resolvedDuration, out IMagicSpellEffectApplication? application, out string? error)
@@ -105,14 +100,12 @@ public sealed class CreatePocketEffect : IMagicSpellEffectTemplate, IMagicSpellE
 		{
 			var now = new DateTime(RuntimeClock.UtcNow.Ticks / 10 * 10, DateTimeKind.Utc);
 			var anchor = new SpellPocketAnchor(Source.Id, Grade, Configuration);
-			try
-			{
-				if (Effect._selections.ContainsKey(Source) && !Effect.TryConfirmPreparedSelection(Caster, Source, out var error)) throw new InvalidOperationException(error);
-				Effect.Gameworld.SpellOwnedPockets!.Create(Caster, Source, Configuration, new SpellLifecycleOrigin(Id, Effect.Spell.Id,
-					Grade, CharacterInstanceIdentityComparer.IdentityId(Caster), SpellPocketAnchor.Family, SpellLifecycleMode.TemporaryCleanup,
-					now, now + Configuration.DurationForGrade(Grade), anchor.Save()));
-			}
-			finally { Effect._selections.Remove(Source); }
+			if (Effect._selections.ContainsKey(Source) && !Effect.TryConfirmPreparedSelection(Caster, Source, out var error)) throw new InvalidOperationException(error);
+			var origin = new SpellLifecycleOrigin(Id, Effect.Spell.Id, Grade, CharacterInstanceIdentityComparer.IdentityId(Caster),
+				SpellPocketAnchor.Family, SpellLifecycleMode.TemporaryCleanup, now, now + Configuration.DurationForGrade(Grade), anchor.Save());
+			if (Effect._selections.TryGetValue(Source, out var selection))
+				Effect.Gameworld.SpellOwnedPockets!.CreatePrepared(Caster, Source, Configuration, origin, () => selection.IsCurrent);
+			else Effect.Gameworld.SpellOwnedPockets!.Create(Caster, Source, Configuration, origin);
 			return new(MagicEffectOperationStatus.Applied, null);
 		}
 	}

@@ -1,3 +1,4 @@
+extern alias EngineCompiler;
 #nullable enable
 using System;
 using System.Collections.Generic;
@@ -8,12 +9,14 @@ using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
 using MudSharp.Magic;
 using MudSharp.Framework.Revision;
+using MudSharp.Framework;
+using OfflineProgCompilation = EngineCompiler::MudSharp.Framework.OfflineProgCompilation;
 using MudSharp.Models;
 
 namespace DatabaseSeeder.Seeders;
 
 /// <summary>Canonical S4 content batches. Never activates a partial roster or changes player state.</summary>
-public static class ArmageddonStockSpellInstaller
+public static partial class ArmageddonStockSpellInstaller
 {
 	public const string Module = "stock-spells";
 	public const string Version = "stock-spells-1";
@@ -26,7 +29,13 @@ public static class ArmageddonStockSpellInstaller
 		var contributions = ArmageddonStockSpellContent.Contributions
 			.Select(x => (Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x)))
 			.Concat(ArmageddonCreatureSpellContent.Contributions.Select(x =>
-				(Key: x.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveCreature(db, x)))));
+				(Key: x.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveCreature(db, x)))))
+			.Concat(ArmageddonShelterSpellContent.Contributions.Select(x =>
+				(Key: x.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveShelter(db, x)))))
+			.Append((Key: "arm.spell.folded_pocket", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolvePocket))
+			.Concat(PrimitiveKeys.Select(key => (Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolvePrimitive(db, key)))))
+			.Concat(ArmageddonPrimitiveSpellContent.CreateScalarContributions().Append(ArmageddonPrimitiveSpellContent.CreateAlcoholRemovalContribution())
+				.Select(x => (Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))));
 		foreach (var contribution in contributions)
 		{
 			var result = InstallContribution(factory, contribution.Resolve, stage => checkpoint?.Invoke(contribution.Key, stage));
@@ -85,7 +94,8 @@ public static class ArmageddonStockSpellInstaller
 				new ArmageddonStockContribution(typeof(MagicSpell), content.Key, content.Name),
 				new ArmageddonStockContribution(typeof(TraitExpression), content.Key + ".duration", ""),
 				new ArmageddonStockContribution(typeof(TraitExpression), content.Key + ".cost", "")
-			};
+			}.ToList();
+			if (content.EligibilitySource is not null) specs.Add(new(typeof(FutureProg), content.Key + ".eligibility", ""));
 			var records = db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package &&
 				specs.Select(y => y.Key).Contains(x.StableKey)).ToDictionary(x => x.StableKey, StringComparer.Ordinal);
 			var reconciler = new ArmageddonStockContributionReconciler(db, ArmageddonMagicInstaller.Package, Module, Version);
@@ -97,7 +107,7 @@ public static class ArmageddonStockSpellInstaller
 					db.SeederManagedRecords.Any(x => x.Id != record.Id && x.EntityType == record.EntityType && x.LogicalId == record.LogicalId))
 					messages.Add($"{spec.Key}: missing, retired, cross-module or competing owned content; restore explicitly.");
 			}
-			if (records.Count != 0 && records.Count != specs.Length)
+			if (records.Count != 0 && records.Count != specs.Count)
 				messages.Add($"{content.Key}: incomplete retained contribution; no child resurrection.");
 			if (records.TryGetValue(content.Key, out var retained) && reconciler.Find(specs[0], retained) is MagicSpell retainedSpell &&
 				StockIdentity(retainedSpell.Definition) != content.Key)
@@ -113,9 +123,21 @@ public static class ArmageddonStockSpellInstaller
 			var bindings = new { settings.Mode, School = school, Trait = trait, Resource = resource, KnownProg = known };
 			var duration = reconciler.Apply(specs[1], content.DurationRow(spell.Id), records, bindings, messages);
 			var cost = reconciler.Apply(specs[2], content.CostRow(spell.Id), records, bindings, messages);
+			long filter = 0;
+			if (content.EligibilitySource is not null)
+			{
+				var spec = specs.Single(x => x.Type == typeof(FutureProg));
+				var eligibility = reconciler.Apply(spec, content.EligibilityRow(spell.Id)!, records, bindings, messages);
+				using var compiler = new OfflineProgCompilation(db.FutureProgs.Include(x => x.FutureProgsParameters).AsNoTracking().ToArray());
+				var compiled = compiler.Compile(eligibility.Id);
+				if (!compiled.ReturnType.CompatibleWith(MudSharp.FutureProg.ProgVariableTypes.Boolean) ||
+					!compiled.MatchesParameters([content.TargetType ?? MudSharp.FutureProg.ProgVariableTypes.Character, MudSharp.FutureProg.ProgVariableTypes.Character]))
+					throw new StockDependencyException(content.Key + ": restore the owned Boolean(target,caster) eligibility signature before casting.");
+				filter = eligibility.Id;
+			}
 			var desired = content.SpellRow(school, trait, known);
 			desired.EffectDurationExpressionId = duration.Id;
-			desired.Definition = content.BuildDefinition(resource, cost.Id, 0).ToString();
+			desired.Definition = content.BuildDefinition(resource, cost.Id, filter).ToString();
 			reconciler.Apply(specs[0], desired, records, bindings, messages, isNew);
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.ContentCreated);
 			db.SaveChanges();
@@ -145,17 +167,7 @@ public static class ArmageddonStockSpellInstaller
 
 	private static ArmageddonCanonicalSpellContribution ResolveCreature(FuturemudDatabaseContext db, ArmageddonCreatureSpellContent creature)
 	{
-		SeederManagedRecord Claim<T>(string key, bool revisioned) where T : class
-		{
-			var claims = db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key).ToArray();
-			if (claims.Length != 1 || claims[0] is not { Retired: false, LogicalId: > 0, SeedBaseline: not null } record ||
-				record.Module != ArmageddonCatalogueOwnership.Module || record.ManifestVersion != ArmageddonCatalogueOwnership.Version ||
-				record.EntityType != typeof(T).Name || (record.RevisionNumber is not null) != revisioned ||
-				db.SeederManagedRecords.Any(x => x.Id != record.Id && x.EntityType == record.EntityType && x.LogicalId == record.LogicalId))
-				throw new StockDependencyException($"{key}: complete unique typed S3 ownership is required before this S4 contribution; no name adoption.");
-			return record;
-		}
-		var aiClaim = Claim<ArtificialIntelligence>("arm.ai." + creature.NpcFamily, false);
+		var aiClaim = CatalogueClaim<ArtificialIntelligence>(db, "arm.ai." + creature.NpcFamily, false);
 		var ai = db.ArtificialIntelligences.AsNoTracking().SingleOrDefault(x => x.Id == aiClaim.LogicalId);
 		XElement controller;
 		try { controller = XElement.Parse(ai?.Definition ?? ""); }
@@ -166,7 +178,7 @@ public static class ArmageddonStockSpellInstaller
 		long? riding = null;
 		if (creature.NpcFamily == "earth_mount")
 		{
-			var mount = Claim<ArtificialIntelligence>("arm.ai.earth_mount.riding", false);
+			var mount = CatalogueClaim<ArtificialIntelligence>(db, "arm.ai.earth_mount.riding", false);
 			if (!db.ArtificialIntelligences.Any(x => x.Id == mount.LogicalId && x.Type == "Mount"))
 				throw new StockDependencyException("Earth Mount requires its exact owned native riding AI.");
 			riding = mount.LogicalId;
@@ -175,7 +187,7 @@ public static class ArmageddonStockSpellInstaller
 		for (var grade = 1; grade <= 7; grade++)
 		{
 			var key = $"arm.npc.{creature.NpcFamily}.g{grade}";
-			var record = Claim<NpcTemplate>(key, true);
+			var record = CatalogueClaim<NpcTemplate>(db, key, true);
 			var template = db.NpcTemplates.AsNoTracking().Include(x => x.EditableItem)
 				.Include(x => x.NpctemplatesArtificalIntelligences).ThenInclude(x => x.Ai)
 				.SingleOrDefault(x => x.Id == record.LogicalId && x.RevisionNumber == record.RevisionNumber);

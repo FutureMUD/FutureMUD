@@ -17,6 +17,7 @@ internal static partial class GNHProgram
 {
 	private const string BaseFixtureKind = "FutureMUD-pre-Armageddon-base-v1";
 	private const string BaseProfileId = "medieval-standard";
+	private const string BaseContentAlgorithm = "sha256-table-sorted-row-digests-v1";
 	private static string BaseFixtureRoot => Path.Combine(CatalogueRepository, ".artifacts", "pre-armageddon-base-fixtures");
 	private sealed record BaseAnswer(string Id, string Answer);
 	private sealed record BaseStep(string SeederType, IReadOnlyList<BaseAnswer> Answers);
@@ -24,7 +25,7 @@ internal static partial class GNHProgram
 	private sealed record BaseWorldFixture(string Kind, string Database, string SqlFile, string SqlSha256,
 		string Profile, string StopBefore, IReadOnlyList<BaseStep> BaseSteps, IReadOnlyList<string> AppliedMigrations,
 		string SchemaSha256, string BaseSourceSha256, IReadOnlyList<BaseSource> BaseSources,
-		string BlankSqlSha256, string BlankManifestSha256, string OwnershipMarker, string BaseContentSha256);
+		string BlankSqlSha256, string BlankManifestSha256, string OwnershipMarker, string BaseContentSha256, string BaseContentHashAlgorithm);
 	private static readonly BindingFlags ReplayFlags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 	private static readonly JsonSerializerOptions BaseJsonOptions = new() { WriteIndented = true };
 
@@ -71,9 +72,10 @@ internal static partial class GNHProgram
 				.Where(x => Path.GetFileName(x) != "DebugSeederReplay.cs" && Path.GetFileName(x) != "Program.cs"))
 			.Append(Path.Combine(root, "DatabaseSeeder", "DatabaseSeeder.csproj"))
 			.Append(Path.Combine(root, "DatabaseSeeder", "Assets", "Manifests", "Monster_AI_Recommendations.json"))
+			.Concat(BaseCompilerPins.Select(x => Path.Combine(root, x.Path)))
 			.Append(Path.Combine(root, "Design Documents", "Seeding", "Seeded_Item_Manifest.json"))
-			.Append(Path.Combine(root, "tests", "ArmageddonPreparedSeederNativeHarness", "Program.BaseWorldFixture.cs"))
 			.Where(x => !Regex.IsMatch(Path.GetRelativePath(root, x).Replace('\\', '/'), @"(^|/)(bin|obj)/|^FutureMUDLibrary/Magic/Stock/"))
+			.Where(x => !IsS4OnlyBaseSource(Path.GetRelativePath(root, x).Replace('\\', '/')))
 			.Where(x => new[] { ".cs", ".json", ".tsv", ".sql", ".props", ".targets", ".csproj" }.Contains(Path.GetExtension(x)))
 			.Distinct(StringComparer.OrdinalIgnoreCase)
 			.OrderBy(x => Path.GetRelativePath(root, x).Replace('\\', '/'), StringComparer.Ordinal);
@@ -84,6 +86,14 @@ internal static partial class GNHProgram
 			.Append(new BaseSource("DatabaseSeeder/DebugSeederReplay.cs#runner", Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(runner[..profileStart])))))
 			.OrderBy(x => x.Path, StringComparer.Ordinal).ToList();
 	}
+	private static bool IsS4OnlyBaseSource(string path) => path.StartsWith("FutureMUDLibrary/Magic/Stock/", StringComparison.Ordinal) ||
+		path == "FutureMUDLibrary/Construction/Autobuilder/IAutobuilderRoomPresentation.cs" ||
+		path.StartsWith("FutureMUDLibrary/Magic/", StringComparison.Ordinal) &&
+			(Path.GetFileName(path).StartsWith("ISpellOwned", StringComparison.Ordinal) ||
+			 Path.GetFileName(path).EndsWith("Configuration.cs", StringComparison.Ordinal) ||
+			 Path.GetFileName(path).EndsWith("Anchor.cs", StringComparison.Ordinal) ||
+			 Path.GetFileName(path) is "ISpellOwnedLifecycle.cs" or "SpellNpcMissionInputs.cs" or "IMagicSpellEffectInvocationInputs.cs");
+
 	private static void RequireCleanBase(FuturemudDatabaseContext db)
 	{
 		Require(db.Accounts.Any() && db.SeederChoices.Any(), "Fixture has no seeded base world.");
@@ -115,6 +125,25 @@ internal static partial class GNHProgram
 		}
 		return BaseValueHash(rows);
 	}
+	private static void AppendBaseTableDigest(IncrementalHash digest, string table, IEnumerable<string> rowDigests)
+	{
+		// Each row is hashed independently. Never serialize an entire table as one JSON string.
+		var name = Encoding.UTF8.GetBytes(table);
+		digest.AppendData(Encoding.UTF8.GetBytes("table:" + name.Length.ToString(System.Globalization.CultureInfo.InvariantCulture) + ":"));
+		digest.AppendData(name);
+		var count = 0;
+		foreach (var row in rowDigests.Order(StringComparer.Ordinal))
+		{
+			digest.AppendData(Encoding.ASCII.GetBytes("row:" + row)); count++;
+		}
+		digest.AppendData(Encoding.ASCII.GetBytes("end:" + count.ToString(System.Globalization.CultureInfo.InvariantCulture) + ";"));
+	}
+	private static string BaseTableDigest(string table, params object[][] rows)
+	{
+		using var digest = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+		AppendBaseTableDigest(digest, table, rows.Select(BaseValueHash));
+		return Convert.ToHexString(digest.GetHashAndReset());
+	}
 	private static string BaseContentHash(TestDatabase database)
 	{
 		using var connection = database.OpenOwnedConnection();
@@ -123,18 +152,18 @@ internal static partial class GNHProgram
 		command.Parameters.AddWithValue("@schema", database.Name);
 		var tables = new List<string>();
 		using (var reader = command.ExecuteReader()) while (reader.Read()) tables.Add(reader.GetString(0));
-		var content = new List<string>();
+		using var digest = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
 		foreach (var table in tables.Where(x => x != OwnershipTable))
 		{
 			command.Parameters.Clear(); command.CommandText = "SELECT * FROM `" + table.Replace("`", "``", StringComparison.Ordinal) + "`";
 			var rows = new List<string>();
 			using (var reader = command.ExecuteReader()) while (reader.Read())
 			{
-				var values = new object[reader.FieldCount]; reader.GetValues(values); rows.Add(JsonSerializer.Serialize(values));
+				var values = new object[reader.FieldCount]; reader.GetValues(values); rows.Add(BaseValueHash(values));
 			}
-			content.Add(JsonSerializer.Serialize(new { table, rows = rows.Order(StringComparer.Ordinal).ToArray() }));
+			AppendBaseTableDigest(digest, table, rows);
 		}
-		return BaseValueHash(content);
+		return Convert.ToHexString(digest.GetHashAndReset());
 	}
 	private static void RequireBasePath(string path, string root, bool directory = false)
 	{
@@ -156,13 +185,13 @@ internal static partial class GNHProgram
 			BaseHash(manifest) == expectedManifestHash, "Fixture descriptor digest or filename differs from its explicit pin.");
 		var receipt = JsonSerializer.Deserialize<BaseWorldFixture>(File.ReadAllText(manifest)) ?? throw new InvalidOperationException("Malformed base descriptor.");
 		Require(receipt.Kind == BaseFixtureKind && receipt.Profile == BaseProfileId && receipt.StopBefore == typeof(ArmageddonMagicSeeder).FullName &&
-			receipt.OwnershipMarker == OwnershipTable && Regex.IsMatch(receipt.Database, "^futuremud_land_[a-zA-Z0-9_]+$") && TestDatabase.HasOwnedPrefix(receipt.Database),
+			receipt.OwnershipMarker == OwnershipTable && receipt.BaseContentHashAlgorithm == BaseContentAlgorithm && Regex.IsMatch(receipt.Database, "^futuremud_land_[a-zA-Z0-9_]+$") && TestDatabase.HasOwnedPrefix(receipt.Database),
 			"Wrong fixture kind, replay boundary or database ownership marker.");
 		Require(!string.IsNullOrWhiteSpace(receipt.SqlFile) && Path.GetFileName(receipt.SqlFile) == receipt.SqlFile &&
 			receipt.SqlFile.EndsWith(".sql", StringComparison.OrdinalIgnoreCase), "Fixture SQL must be a sibling dump.");
 		var sql = Path.Combine(Path.GetDirectoryName(manifest)!, receipt.SqlFile); RequireBasePath(sql, BaseFixtureRoot);
 		Require(BaseHash(sql) == receipt.SqlSha256 && BaseValueHash(receipt.BaseSteps) == BaseValueHash(steps) &&
-			receipt.BaseSourceSha256 == BaseValueHash(sources) && BaseValueHash(receipt.BaseSources) == BaseValueHash(sources),
+			CompatibleBaseSources(receipt, sources, out _),
 			"Base dump, exact prefix answers, or base/schema sources have changed; rebuild the base explicitly.");
 		Require(receipt.BlankSqlSha256 == BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.sql")) &&
 			receipt.BlankManifestSha256 == BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.manifest.json")), "Blank installer snapshot has changed.");
@@ -193,7 +222,7 @@ internal static partial class GNHProgram
 			{
 				RequireBasePath(existing, BaseFixtureRoot);
 				var prior = JsonSerializer.Deserialize<BaseWorldFixture>(File.ReadAllText(existing));
-				Require(prior?.BaseSourceSha256 != BaseValueHash(sources) || BaseValueHash(prior.BaseSteps) != BaseValueHash(steps),
+				Require(prior is null || !CompatibleBaseSources(prior, sources, out _) || BaseValueHash(prior.BaseSteps) != BaseValueHash(steps),
 					"A compatible base descriptor already exists. Restore its pinned immutable dump; use an explicit fresh-install check only when needed.");
 			}
 		}
@@ -206,6 +235,14 @@ internal static partial class GNHProgram
 		var result = run.Invoke(null, [profile, seeders, typeof(ArmageddonMagicSeeder), factory, new Version(1, 0), (Action<string>)(x => Console.WriteLine("ARMBASE-progress=" + x))])!;
 		Require((bool)result.GetType().GetProperty("Success", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(result)!,
 			"Base prefix failed: " + result);
+		var seededContent = BaseContentHash(database);
+		var repeated = run.Invoke(null, [profile, seeders, typeof(ArmageddonMagicSeeder), factory, new Version(1, 0),
+			(Action<string>)(x => Console.WriteLine("ARMBASE-refusal-progress=" + x))])!;
+		Require(!(bool)repeated.GetType().GetProperty("Success", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(repeated)! &&
+			!((IEnumerable)repeated.GetType().GetProperty("CompletedSeeders")!.GetValue(repeated)!).Cast<object>().Any(),
+			"A second prefix replay must refuse the seeded target before executing any step.");
+		Require(seededContent == BaseContentHash(database), "Refused second prefix changed the seeded base.");
+		Console.WriteLine("ARMBASE-second-prefix-refusal=PASS unchanged-content=" + seededContent);
 		IReadOnlyList<string> migrations;
 		using (var db = factory()) { RequireCleanBase(db); migrations = db.Database.GetAppliedMigrations().ToList(); }
 		var folder = Path.Combine(BaseFixtureRoot, DateTime.UtcNow.ToString("yyyyMMddTHHmmssZ") + "_" + Guid.NewGuid().ToString("N")); Directory.CreateDirectory(folder);
@@ -217,11 +254,11 @@ internal static partial class GNHProgram
 			typeof(ArmageddonMagicSeeder).FullName!, steps, migrations, BaseSchemaHash(database), BaseValueHash(sources), sources,
 			BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.sql")),
 			BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.manifest.json")), OwnershipTable,
-			BaseContentHash(database));
+			BaseContentHash(database), BaseContentAlgorithm);
 		var manifest = Path.Combine(folder, "base-world.json"); File.WriteAllText(manifest, JsonSerializer.Serialize(receipt, BaseJsonOptions));
 		File.SetAttributes(sql, File.GetAttributes(sql) | FileAttributes.ReadOnly); File.SetAttributes(manifest, File.GetAttributes(manifest) | FileAttributes.ReadOnly);
 		WriteBaseRunReceipt(new { Status = "CAPTURED", Manifest = manifest, ManifestSha256 = BaseHash(manifest), receipt.SqlSha256, receipt.BaseSourceSha256, BaseStepCount = steps.Count,
-			DumpRoundTripVerified = false, LastBaseSeeder = steps.Last().SeederType, StopBefore = receipt.StopBefore, LatestMigration = migrations.Last(), CleanArmageddonPackage = true });
+			DumpRoundTripVerified = false, SecondPrefixRefused = true, RefusedReplayContentUnchanged = true, LastBaseSeeder = steps.Last().SeederType, StopBefore = receipt.StopBefore, LatestMigration = migrations.Last(), CleanArmageddonPackage = true });
 		return 0;
 	}
 	private static int RestoreBaseWorldFixture(bool installPackage)
@@ -262,13 +299,14 @@ internal static partial class GNHProgram
 				ExecuteBaseTargetStep(database, (IDatabaseSeeder)Activator.CreateInstance(type)!, answers); executed.Add(type.FullName!);
 			}
 			if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE") == "1") PreparedStockAttunementAcceptance(database);
-			RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-base-package-boot-native");
+			RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
 		}
 		Require(BaseHash(fixture.Sql) == fixture.Receipt.SqlSha256 &&
 			BaseHash(Environment.GetEnvironmentVariable("FUTUREMUD_BASE_WORLD_FIXTURE")!) == fixture.ManifestHash &&
 			BaseValueHash(sources) == BaseValueHash(BaseSources(steps)), "Canonical descriptor/dump or base source changed during restore/targeted run.");
 		WriteBaseRunReceipt(new { Status = installPackage ? "RESTORED_AND_TARGETED_PACKAGE" : "RESTORED_CLEAN", fixture.ManifestHash, fixture.Receipt.SqlSha256,
-			fixture.Receipt.BaseSourceSha256, Database = database.Name, Ownership = "fresh-owned-marker-resealed", ExecutedSeeders = executed, FullReplayExecuted = false, CanonicalSqlUnchanged = true, DumpRoundTripVerified = true,
+			fixture.Receipt.BaseSourceSha256, CurrentBaseSourceSha256 = BaseValueHash(sources),
+			BaseSourceCompatibilityRule = CompatibleBaseSources(fixture.Receipt, sources, out var rule) ? rule : "INVALID", Database = database.Name, Ownership = "fresh-owned-marker-resealed", ExecutedSeeders = executed, FullReplayExecuted = false, CanonicalSqlUnchanged = true, DumpRoundTripVerified = true,
 			PackageMode = installPackage ? mode : null, LaterSteps = requested, PackageContentSourceSha256 = installPackage ? CatalogueContentSourceHash() : null });
 		return 0;
 	}
@@ -284,7 +322,7 @@ internal static partial class GNHProgram
 		var original = new BaseWorldFixture(BaseFixtureKind, database, "fixture.sql", BaseHash(sql), BaseProfileId,
 			typeof(ArmageddonMagicSeeder).FullName!, steps, ["migration"], new string('B', 64), BaseValueHash(sources), sources,
 			BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.sql")),
-			BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.manifest.json")), OwnershipTable, new string('C', 64));
+			BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.manifest.json")), OwnershipTable, new string('C', 64), BaseContentAlgorithm);
 		var checks = 0;
 		void Write(BaseWorldFixture value) => File.WriteAllText(manifest, JsonSerializer.Serialize(value, BaseJsonOptions));
 		void Refuses(Action action)
@@ -295,9 +333,33 @@ internal static partial class GNHProgram
 		try
 		{
 			Write(original); ReadBaseFixture(manifest, BaseHash(manifest), steps, sources); checks++;
+			var rows = new object[][] { [1, "same"], [2, "other"] };
+			var content = BaseTableDigest("native", rows);
+			Require(content == BaseTableDigest("native", rows.Reverse().ToArray()), "Native row ordering must not alter the content digest."); checks++;
+			Require(content != BaseTableDigest("native", [1, "changed"], [2, "other"]), "Changed native data must alter the digest."); checks++;
+			Require(content != BaseTableDigest("native", rows.Concat(rows.Take(1)).ToArray()), "Duplicated native rows must alter the digest."); checks++;
+			Require(content != BaseTableDigest("different", rows), "Table identity must be part of the digest."); checks++;
+			foreach (var path in new[] { "FutureMUDLibrary/Magic/Stock/ArmageddonShelterSpellContent.cs",
+				"FutureMUDLibrary/Magic/ISpellOwnedShelterService.cs", "FutureMUDLibrary/Construction/Autobuilder/IAutobuilderRoomPresentation.cs" })
+			{ Require(IsS4OnlyBaseSource(path), "S4-only contracts must not invalidate the unrelated seeded base."); checks++; }
+			Require(!IsS4OnlyBaseSource("FutureMUDLibrary/Magic/MagicSchool.cs"), "General shared inputs remain fingerprinted."); checks++;
+			IReadOnlyList<BaseSource> compatibilitySources = [new(DamageInterfacePath, BaseDamageInterfaceHash), new("base.cs", new string('D', 64))];
+			var compatibilityReceipt = original with { BaseSources = compatibilitySources, BaseSourceSha256 = BaseValueHash(compatibilitySources) };
+			var live = compatibilitySources.Select(x => x.Path == DamageInterfacePath ? x with { Sha256 = VitalDamageInterfaceHash } : x)
+				.Concat(BaseCompilerPins).Concat(ReviewedS4SourceAdditions).OrderBy(x => x.Path, StringComparer.Ordinal).ToArray();
+			Require(CompatibleBaseSources(compatibilityReceipt, live, out var applied) && applied == VitalReceiptBaseCompatibility, "Exact reviewed inert receipt compatibility must retain the sealed base."); checks++;
+			foreach (var drift in new[]
+			{
+				live.Select(x => x.Path == "base.cs" ? x with { Sha256 = new string('E', 64) } : x).ToArray(),
+				live.Select(x => x.Path == DamageInterfacePath ? x with { Sha256 = new string('F', 64) } : x).ToArray(),
+				live.Concat([new BaseSource("FutureMUDLibrary/Health/unreviewed.cs", new string('A', 64))]).ToArray(),
+				live.Select(x => x.Path == BaseCompilerPins[0].Path ? x with { Sha256 = new string('F', 64) } : x).ToArray(),
+				live.Where(x => x.Path != ReviewedS4SourceAdditions[0].Path).ToArray()
+			}) { Require(!CompatibleBaseSources(compatibilityReceipt, drift, out _), "Unreviewed source drift must invalidate the base."); checks++; }
 			Refuses(() => ReadBaseFixture(manifest, new string('0', 64), steps, sources));
 			foreach (var changed in new[] { original with { Kind = "post-S3" }, original with { SqlFile = "../fixture.sql" },
 				original with { Database = "user_database" }, original with { OwnershipMarker = "other" },
+				original with { BaseContentHashAlgorithm = "unrecognised" },
 				original with { StopBefore = typeof(PsionicsSeeder).FullName! }, original with { SqlSha256 = new string('0', 64) },
 				original with { BaseSourceSha256 = new string('0', 64) }, original with { AppliedMigrations = ["duplicate", "duplicate"] },
 				original with { BaseSteps = [new("DatabaseSeeder.Seeders.CoreDataSeeder", [new("answer", "changed")])] } })

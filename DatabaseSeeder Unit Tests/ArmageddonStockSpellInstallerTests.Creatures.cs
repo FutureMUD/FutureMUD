@@ -91,10 +91,11 @@ public partial class ArmageddonStockSpellInstallerTests
 		db.SaveChanges(); db.ChangeTracker.Clear();
 		var installed = ArmageddonStockSpellInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db));
 		Assert.AreEqual(ArmageddonInstallStatus.Blocked, installed.Status, string.Join("\n", installed.Messages));
-		Assert.AreEqual(3, installed.Identities.Count);
-		Assert.AreEqual(1, db.MagicSpells.Count());
-		Assert.AreEqual(3, db.SeederManagedRecords.Count(x => x.Module == ArmageddonStockSpellInstaller.Module));
+		Assert.AreEqual(6, installed.Identities.Count);
+		Assert.AreEqual(2, db.MagicSpells.Count());
+		Assert.AreEqual(6, db.SeederManagedRecords.Count(x => x.Module == ArmageddonStockSpellInstaller.Module));
 		Assert.IsTrue(installed.Identities.ContainsKey(ArmageddonStockSpellContent.ReadAttunementKey));
+		Assert.IsTrue(installed.Identities.ContainsKey("arm.spell.unravel_enchantment"));
 		Assert.AreEqual(0, db.CharacterCastingEnrolments.Count());
 	}
 }

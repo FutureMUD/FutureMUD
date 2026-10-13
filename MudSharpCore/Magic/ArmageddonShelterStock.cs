@@ -17,6 +17,14 @@ public static class ArmageddonShelterStock
 		SpellShelterKind.SpringHaven => "Spring Haven", SpellShelterKind.BurrowRefuge => "Burrow Refuge",
 		SpellShelterKind.SandShelter => "Sand Shelter", SpellShelterKind.SeveringRefuge => "Severing Refuge", _ => throw new ArgumentOutOfRangeException(nameof(kind))
 	};
+	public static double MinimumEnergy(SpellShelterKind kind) => kind switch
+	{
+		SpellShelterKind.SpringHaven or SpellShelterKind.SandShelter => 7,
+		SpellShelterKind.BurrowRefuge => 20,
+		SpellShelterKind.SeveringRefuge => 9,
+		_ => throw new ArgumentOutOfRangeException(nameof(kind))
+	};
+
 	public static MagicSpell Create(IFuturemud world, IMagicSchool school, ITraitDefinition trait, IMagicResource resource,
 		SpellShelterConfiguration configuration)
 	{
@@ -31,9 +39,9 @@ public static class ArmageddonShelterStock
 			(configuration.Ward is null ? "" : "Its owned fail-mode ward blocks only selected native invocation schools or tags, with authored incoming/outgoing coverage. Physical hazards remain governed by native simulation. ") +
 			(configuration.Kind == SpellShelterKind.SpringHaven ? "The water is a finite, paid initial volume, never refilled on reload. Remaining liquid survives as a native puddle when its container dissipates. " : "") +
 			"The explicitly selected duration in real seconds and native template/terrain/capacity choices are authored policy; historical parity remains a separate source gate.",
-			"0", 9, "$0 shape|shapes a sheltered space.", (resourceId, costId, _) => Definition(configuration, resourceId, costId));
+			"0", MinimumEnergy(configuration.Kind), "$0 shape|shapes a sheltered space.", (resourceId, costId, _) => Definition(configuration, resourceId, costId));
 	}
 	public static XElement Definition(SpellShelterConfiguration configuration, long resourceId, long costId) =>
-		ArmageddonUtilityStock.Definition(Key(configuration.Kind), "room", resourceId, costId, 0, 30, 9,
+		ArmageddonUtilityStock.Definition(Key(configuration.Kind), "room", resourceId, costId, 0, 30, MinimumEnergy(configuration.Kind),
 			CreateShelterEffect.Definition(configuration));
 }

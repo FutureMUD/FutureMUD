@@ -27,7 +27,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var before = db.MagicCapabilities.ToDictionary(x => x.Id, x => x.Definition);
 		var installed = ArmageddonStockSpellInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, installed.Status, string.Join("\n", installed.Messages));
-		Assert.AreEqual(24, installed.Identities.Count);
+		Assert.AreEqual(108, installed.Identities.Count);
 		db.ChangeTracker.Clear();
 		var spell = db.MagicSpells.Single(x => x.Id == db.SeederManagedRecords.Single(y => y.StableKey == ArmageddonStockSpellContent.ReadAttunementKey).LogicalId);
 		var definition = XElement.Parse(spell.Definition);
@@ -127,8 +127,8 @@ public partial class ArmageddonStockSpellInstallerTests
 		var second = ArmageddonStockSpellInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, second.Status);
 		foreach (var pair in first.Identities) Assert.AreEqual(pair.Value, second.Identities[pair.Key]);
-		Assert.AreEqual(24, second.Identities.Count);
-		Assert.AreEqual(8, db.MagicSpells.Count());
+		Assert.AreEqual(108, second.Identities.Count);
+		Assert.AreEqual(36, db.MagicSpells.Count());
 	}
 
 	[TestMethod]
@@ -151,11 +151,31 @@ public partial class ArmageddonStockSpellInstallerTests
 
 	private static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)
 	{
-		var db = ArmageddonCatalogueCreatureTests.Fixture(mode, classes);
+		var db = ArmageddonCatalogueInstallerTests.Fixture(mode, classes);
 		var factory = ArmageddonInstallationSettingsTests.Factory(db);
 		ArmageddonInstallation.Prepare(factory, mode);
+		db.TraitDefinitions.Add(new() { Name = "Native Fixture Strength", Alias = "str", Type = 1, DerivedType = 0, OwnerScope = 0, TraitGroup = "Physical" });
+		db.FutureProgs.Single(x => x.Id == ArmageddonInstallation.Read(db)!.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg]).AcceptsAnyParameters = true;
+		db.Gases.Single(x => x.Id == 1).Density = 1;
+		foreach (var terrain in db.Terrains)
+		{
+			terrain.TerrainBehaviourMode = terrain.Id == 2 ? "cave" : "indoors";
+			terrain.AtmosphereId = 1; terrain.AtmosphereType = "gas";
+		}
+		var package = new RoomOverlayPackage { Id = 11, RevisionNumber = 0, Name = "Native fixture package",
+			EditableItem = new() { RevisionStatus = (int)MudSharp.Framework.Revision.RevisionStatus.Current } };
+		db.RoomOverlayPackages.Add(package);
+		var room = new Room { Id = 73, Temporary = false };
+		db.Rooms.Add(room);
+		var overlay = new RoomOverlay { Id = 74, Room = room, RoomId = room.Id, TerrainId = 1,
+			RoomOverlayPackage = package, RoomOverlayPackageId = package.Id, RoomOverlayPackageRevisionNumber = 0 };
+		db.RoomOverlays.Add(overlay); room.CurrentOverlay = overlay; room.CurrentOverlayId = overlay.Id;
+		db.ChargenScreenStoryboards.Add(new() { Id = 100, ChargenStage = (int)MudSharp.CharacterCreation.ChargenStage.SelectStartingLocation,
+			ChargenType = "StartingLocationPicker", StageDefinition = "<Screen><Locations><Location><Location>999</Location></Location><Location><Location>73</Location></Location></Locations></Screen>" });
+		db.SaveChanges(); db.ChangeTracker.Clear();
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonProgressionInstaller.Install(factory).Status);
-		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonCatalogueCreatures.Install(factory).Status);
+		var catalogue = ArmageddonCatalogueInstaller.Install(factory);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, catalogue.Status, string.Join("\n", catalogue.Messages));
 		return db;
 	}
 }

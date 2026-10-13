@@ -4,6 +4,7 @@ using System.Data;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Character;
 using MudSharp.Construction;
+using MudSharp.Construction.Autobuilder;
 using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
@@ -20,12 +21,19 @@ namespace MudSharp.Magic.Lifecycle;
 public sealed partial class SpellOwnedShelterService : ISpellOwnedShelterService
 {
 	private readonly IFuturemud _world;
+	private readonly Func<ICharacter, IRoom, SpellShelterConfiguration, int, string?> _creationAdmission;
 	private readonly SpellOwnedLifecycleStore _store = new();
 	private Dictionary<long, Guid>? _rooms;
 	private HashSet<long>? _exits;
 	private long _cursor;
 
-	public SpellOwnedShelterService(IFuturemud world) => _world = world;
+	public SpellOwnedShelterService(IFuturemud world) : this(world, null) { }
+
+	internal SpellOwnedShelterService(IFuturemud world, Func<ICharacter, IRoom, SpellShelterConfiguration, int, string?>? creationAdmission)
+	{
+		_world = world;
+		_creationAdmission = creationAdmission ?? AdmissionError;
+	}
 
 	private Dictionary<long, Guid> Rooms
 	{
@@ -66,6 +74,7 @@ public sealed partial class SpellOwnedShelterService : ISpellOwnedShelterService
 			if (ward.SchoolIds.Any(x => _world.MagicSchools.Get(x) is null)) return "A selected ward school is unavailable.";
 		}
 		if (!Enum.IsDefined(c.Kind) || grade is < 1 or > 7 || c.MaximumOccupants is < 1 or > 128 ||
+			c.CapacityForGrade(grade) is < 1 or > 128 ||
 			!double.IsFinite(c.SecondsPerGrade) || c.SecondsPerGrade <= 0 ||
 			c.SecondsPerGrade * grade > (DateTime.MaxValue - RuntimeClock.UtcNow).TotalSeconds ||
 			TimeSpan.FromSeconds(c.SecondsPerGrade * grade) <= TimeSpan.Zero)
@@ -80,50 +89,60 @@ public sealed partial class SpellOwnedShelterService : ISpellOwnedShelterService
 		if (c.AllowedTerrainIds.Count == 0 || c.AllowedTerrainIds.Any(x => x <= 0 || _world.Terrains.Get(x) is null) ||
 			!c.AllowedTerrainIds.Contains(anchor.Terrain(caster).Id))
 			return "This terrain does not admit the configured shelter.";
-		var template = _world.Rooms.Get(c.TemplateRoomId);
-		if (template is null || template.Temporary || template.RouteDefinition is not null || template is Room { HostedVehicleId: not null } ||
-			template.CurrentOverlay.Package.Status != RevisionStatus.Current || template.Hooks.Any() || template.Effects.Any() ||
-			template.CurrentOverlay.OutdoorsType is not (RoomOutdoorsType.Indoors or RoomOutdoorsType.IndoorsNoLight) ||
-			!template.CurrentOverlay.Terrain.TerrainLayers.Contains(RoomLayer.GroundLevel))
-			return "Bind an approved ordinary indoor room template without effects, hooks or route/vehicle topology.";
+		if (ResolveTemplateOverlay(anchor, c, out _, out _) is { } templateError) return templateError;
 		if (_world.DefaultHooks.Any(x => x.PerceivableType.EqualTo("Room") || x.PerceivableType.EqualTo("Cell")))
 			return "Shelter creation needs an adapter for configured default room hooks.";
 		if (!TryDestination(c.FallbackRoomId, null, out _)) return "Bind a valid permanent ground-level fallback room.";
 		if (c.Ward is not null && new SpellShelterAnchor(c.Kind, anchor.Id, c.FallbackRoomId, caster.RoutePositionMetres,
-			c.MaximumOccupants, anchor.CurrentOverlay.Id, c.Ward).Save().Length > 2048)
+			c.CapacityForGrade(grade), anchor.CurrentOverlay.Id, c.Ward).Save().Length > 2048)
 			return "The authored ward exceeds the native lifecycle provenance limit; reduce its selectors.";
 		if (c.Kind != SpellShelterKind.SpringHaven)
 			return c.WaterPrototypeId != 0 || c.LiquidId != 0 || c.LitresPerGrade != 0 ? "Only Spring Haven creates a finite water supply." : null;
 		return WaterAdmissionError(c, grade);
 	}
 
-	public IRoom Create(ICharacter caster, IRoom anchor, SpellShelterConfiguration c, SpellLifecycleOrigin origin)
+	public IRoom Create(ICharacter caster, IRoom anchor, SpellShelterConfiguration c, SpellLifecycleOrigin origin) =>
+		CreateCore(caster, anchor, c, origin, null);
+
+	public IRoom CreatePrepared(ICharacter caster, IRoom anchor, SpellShelterConfiguration c,
+		SpellLifecycleOrigin origin, Func<bool> inputsCurrent)
 	{
-		if (AdmissionError(caster, anchor, c, origin.Grade) is { } error) throw new InvalidOperationException(error);
-		var metadata = new SpellShelterAnchor(c.Kind, anchor.Id, c.FallbackRoomId, caster.RoutePositionMetres, c.MaximumOccupants, anchor.CurrentOverlay.Id, c.Ward);
+		ArgumentNullException.ThrowIfNull(inputsCurrent);
+		return CreateCore(caster, anchor, c, origin, inputsCurrent);
+	}
+
+	private IRoom CreateCore(ICharacter caster, IRoom anchor, SpellShelterConfiguration c,
+		SpellLifecycleOrigin origin, Func<bool>? inputsCurrent)
+	{
+		void ConfirmFrame()
+		{
+			if (inputsCurrent?.Invoke() == false)
+				throw new InvalidOperationException("The prepared shelter physical frame changed during native creation.");
+		}
+		ConfirmFrame();
+		if (_creationAdmission(caster, anchor, c, origin.Grade) is { } error) throw new InvalidOperationException(error);
+		ConfirmFrame();
+		var metadata = new SpellShelterAnchor(c.Kind, anchor.Id, c.FallbackRoomId, caster.RoutePositionMetres, c.CapacityForGrade(origin.Grade), anchor.CurrentOverlay.Id, c.Ward);
 		if (origin.Family != SpellShelterAnchor.Family || origin.Mode != SpellLifecycleMode.TemporaryCleanup ||
 			origin.CreatorId != CharacterInstanceIdentityComparer.IdentityId(caster) || origin.Provenance != metadata.Save())
 			throw new ArgumentException("Shelter creation requires its exact typed origin and absolute deadline.");
-		var template = (_world.Rooms.Get(c.TemplateRoomId) ?? throw new InvalidOperationException("The admitted shelter template disappeared.")).CurrentOverlay;
+		if (ResolveTemplateOverlay(anchor, c, out var resolvedOverlay, out var foragableProfileId) is { } templateError)
+			throw new InvalidOperationException(templateError);
 		var row = new Models.Room { ZoneId = anchor.OwningZone.Id, Temporary = true, EffectData = "<Effects />",
-			X = anchor.StoredCoordinates.X, Y = anchor.StoredCoordinates.Y,
+			ForagableProfileId = foragableProfileId, X = anchor.StoredCoordinates.X, Y = anchor.StoredCoordinates.Y,
 			Z = c.Kind == SpellShelterKind.BurrowRefuge ? anchor.StoredCoordinates.Z - c.UndergroundDepth : anchor.StoredCoordinates.Z };
 		// The durable row loads its native ward before world registration or entrance exposure.
 		if (c.Ward is { } wardConfiguration)
 			row.EffectData = new XElement("Effects", SpellShelterWard.Envelope(origin.Id, origin.SpellId, wardConfiguration)).ToString();
-		var overlay = new Models.RoomOverlay
-		{
-			Room = row, Name = template.Name, RoomName = template.RoomName, RoomDescription = template.RoomDescription,
-			RoomOverlayPackageId = template.Package.Id, RoomOverlayPackageRevisionNumber = template.Package.RevisionNumber,
-			TerrainId = template.Terrain.Id, OutdoorsType = (int)template.OutdoorsType, HearingProfileId = template.HearingProfile?.Id,
-			AmbientLightFactor = template.AmbientLightFactor, AddedLight = template.AddedLight,
-			AtmosphereId = template.Atmosphere?.Id, AtmosphereType = template.Atmosphere is ILiquid ? "liquid" : "gas", SafeQuit = true
-		};
+		var overlay = resolvedOverlay!;
+		overlay.Room = row;
 		GameItem? supply = c.Kind == SpellShelterKind.SpringHaven ? PrepareWater(c, caster, origin.Grade) : null;
 		Models.GameItem? supplyRow = null;
 		var components = new List<(GameItemComponent Component, Models.GameItemComponent Row)>();
+		ConfirmFrame();
 		var life = _store.Create(origin, creation =>
 		{
+			ConfirmFrame();
 			creation.StageShelterTopology(row, overlay, anchor.Id, anchor.CurrentOverlay.Id, Keyword(c.Kind));
 			if (supply is null) return;
 			supplyRow = (Models.GameItem)supply.DatabaseInsert();
@@ -154,6 +173,64 @@ public sealed partial class SpellOwnedShelterService : ISpellOwnedShelterService
 			Hold(life, "Committed shelter activation needs recovery; never replay creation: " + ex.Message);
 			throw;
 		}
+	}
+
+	/// <summary>Resolve a typed presentation into unsaved topology rows; allocate no ordinary room.</summary>
+	internal string? ResolveTemplateOverlay(IRoom anchor, SpellShelterConfiguration c,
+		out Models.RoomOverlay? overlay, out long? foragableProfileId)
+	{
+		overlay = null; foragableProfileId = null;
+		if (c.TemplateRoomId < 0 || c.AutobuilderTemplateId < 0 ||
+			(c.TemplateRoomId > 0) == (c.AutobuilderTemplateId > 0))
+			return "Bind exactly one indoor Room template or deterministic autobuilder template.";
+		if (c.AutobuilderTemplateId > 0)
+		{
+			if (_world.AutobuilderRooms.Get(c.AutobuilderTemplateId) is not IAutobuilderRoomPresentation source ||
+				!ReferenceEquals(source.Gameworld, _world))
+				return "Bind a deterministic native autobuilder presentation in this world.";
+			AutobuilderRoomPresentation presentation;
+			try { presentation = source.ResolvePresentation(); }
+			catch (Exception ex) when (ex is InvalidOperationException or ArgumentException or NullReferenceException)
+			{ return "The deterministic autobuilder presentation has an unavailable native binding."; }
+			var terrain = presentation.Terrain;
+			var profile = presentation.ForagableProfile;
+			if (terrain is null || terrain.Id <= 0 || !ReferenceEquals(_world.Terrains.Get(terrain.Id), terrain) ||
+				!terrain.TerrainLayers.Contains(RoomLayer.GroundLevel) ||
+				presentation.OutdoorsType is not (RoomOutdoorsType.Indoors or RoomOutdoorsType.IndoorsNoLight) ||
+				!double.IsFinite(presentation.AmbientLightFactor) || presentation.AmbientLightFactor < 0 ||
+				terrain.Atmosphere is not IGas gas || gas.Id <= 0 || !ReferenceEquals(_world.Gases.Get(gas.Id), gas) ||
+				anchor.CurrentOverlay.Package.Status != RevisionStatus.Current ||
+				profile is not null && (profile.Id <= 0 || profile.Status != RevisionStatus.Current ||
+					!ReferenceEquals(_world.ForagableProfiles.Get(profile.Id), profile)))
+				return "The autobuilder needs an indoor ground-level presentation, current native terrain/gas/forage and finite light.";
+			foragableProfileId = profile?.Id;
+			overlay = new Models.RoomOverlay
+			{
+				Name = presentation.RoomName, RoomName = presentation.RoomName, RoomDescription = presentation.RoomDescription,
+				RoomOverlayPackageId = anchor.CurrentOverlay.Package.Id,
+				RoomOverlayPackageRevisionNumber = anchor.CurrentOverlay.Package.RevisionNumber,
+				TerrainId = terrain.Id, OutdoorsType = (int)presentation.OutdoorsType,
+				AmbientLightFactor = presentation.AmbientLightFactor, AddedLight = 0,
+				AtmosphereId = gas.Id, AtmosphereType = "gas", SafeQuit = true
+			};
+			return null;
+		}
+		var template = _world.Rooms.Get(c.TemplateRoomId);
+		if (template is null || template.Temporary || template.RouteDefinition is not null || template is Room { HostedVehicleId: not null } ||
+			template.CurrentOverlay.Package.Status != RevisionStatus.Current || template.Hooks.Any() || template.Effects.Any() ||
+			template.CurrentOverlay.OutdoorsType is not (RoomOutdoorsType.Indoors or RoomOutdoorsType.IndoorsNoLight) ||
+			!template.CurrentOverlay.Terrain.TerrainLayers.Contains(RoomLayer.GroundLevel))
+			return "Bind an approved ordinary indoor room template without effects, hooks or route/vehicle topology.";
+		var existing = template.CurrentOverlay;
+		overlay = new Models.RoomOverlay
+		{
+			Name = existing.Name, RoomName = existing.RoomName, RoomDescription = existing.RoomDescription,
+			RoomOverlayPackageId = existing.Package.Id, RoomOverlayPackageRevisionNumber = existing.Package.RevisionNumber,
+			TerrainId = existing.Terrain.Id, OutdoorsType = (int)existing.OutdoorsType, HearingProfileId = existing.HearingProfile?.Id,
+			AmbientLightFactor = existing.AmbientLightFactor, AddedLight = existing.AddedLight,
+			AtmosphereId = existing.Atmosphere?.Id, AtmosphereType = existing.Atmosphere is ILiquid ? "liquid" : "gas", SafeQuit = true
+		};
+		return null;
 	}
 
 	internal static string Keyword(SpellShelterKind kind) => kind switch

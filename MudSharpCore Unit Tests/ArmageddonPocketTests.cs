@@ -140,6 +140,9 @@ public class ArmageddonPocketTests
 	{
 		var f = new MagicCastingFixture(); var source = Item(9); var service = new Mock<ISpellOwnedPocketService>();
 		source.SetupGet(x => x.Gameworld).Returns(f.World.Object);
+		source.SetupGet(x => x.InInventoryOf).Returns(f.Body.Object);
+		f.World.SetupGet(x => x.Items).Returns(MagicCastingFixture.Collection(() => new[] { source.Object }));
+		f.Body.SetupGet(x => x.HeldItems).Returns(new[] { source.Object });
 		source.SetupGet(x => x.BasePlanarPresence).Returns(MudSharp.Planes.PlanarPresenceDefinition.DefaultMaterial(1));
 		source.SetupGet(x => x.Prototype).Returns(Mock.Of<IGameItemProto>(x => x.Id == 9));
 		var allowed = scenario != "refused";
@@ -164,7 +167,7 @@ public class ArmageddonPocketTests
 		var result = f.Service.Cast(intent);
 		Assert.AreEqual(scenario == "paid" ? MagicCastingStatus.Succeeded : MagicCastingStatus.Refused, result.Status, result.Message);
 		Assert.AreEqual(scenario == "paid" ? 95.0 : 100.0, f.Balances[f.Resources[1]]);
-		service.Verify(x => x.Create(f.Actor.Object, source.Object, config, It.Is<SpellLifecycleOrigin>(o => o.Grade == 1 && o.Provenance == new SpellPocketAnchor(9, 1, config).Save())),
+		service.Verify(x => x.CreatePrepared(f.Actor.Object, source.Object, config, It.Is<SpellLifecycleOrigin>(o => o.Grade == 1 && o.Provenance == new SpellPocketAnchor(9, 1, config).Save()), It.IsAny<Func<bool>>()),
 			scenario == "paid" ? Times.Once() : Times.Never());
 		if (scenario == "paid") { Assert.AreEqual(MagicCastingStatus.Refused, f.Service.Cast(intent).Status); Assert.AreEqual(95.0, f.Balances[f.Resources[1]]); }
 	}

@@ -12,9 +12,9 @@ public static class ArmageddonPocketContent
 	{
 		configuration.Validate();
 		return new("arm.spell.folded_pocket", "Folded Pocket", "Finite portable item storage with conserved collapse and explicit access.",
-			configuration.SecondsPerGrade.ToString(CultureInfo.InvariantCulture) + "*grade", 12,
+			configuration.SecondsPerGrade.ToString(CultureInfo.InvariantCulture) + "*grade", 7,
 			"$0 fold|folds a finite magical pocket around $1.", (resource, cost, filter) =>
-				ArmageddonUtilitySpellContent.Definition("arm.spell.folded_pocket", "item", resource, cost, filter, 30, 12,
+				ArmageddonUtilitySpellContent.Definition("arm.spell.folded_pocket", "item", resource, cost, filter, 30, 7,
 					new XElement("Effect", new XAttribute("type", "createpocket"), new XAttribute("version", 1), configuration.Save())),
 			TargetType: ProgVariableTypes.Item);
 	}

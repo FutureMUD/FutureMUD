@@ -32,7 +32,9 @@ public sealed class SpellOwnedPocketService(IFuturemud world) : ISpellOwnedPocke
 	{
 		try { configuration.Validate(); } catch (ArgumentException ex) { return ex.Message; }
 		if (grade is < 1 or > 7 || !ReferenceEquals(caster.Gameworld, world) || !ReferenceEquals(source.Gameworld, world) ||
-			source is not GameItem || source.Id <= 0 || source.Deleted || source.Destroyed || !caster.Body.HeldItems.Contains(source) ||
+			source is not GameItem nativeSource || source.Id <= 0 || source.Quantity <= 0 || source.Deleted || source.Destroyed ||
+			!ReferenceEquals(world.Items.Get(source.Id), source) || !ReferenceEquals(source.InInventoryOf, caster.Body) ||
+			source.ContainedIn is not null || nativeSource.DirectLocation is not null || !caster.Body.HeldItems.Any(x => ReferenceEquals(x, source)) ||
 			source.IsItemType<ISpellPocket>() || source.Components.OfType<IProvideItemTargetProjections>().Any(x => x.TargetProjections.Any()))
 			return "Select a persisted ordinary item held by the caster; pocket spaces and physical occupants are unsuitable targets.";
 		if (world.SpellOwnedItems is not SpellOwnedItemService) return "Native pocket creation is unavailable.";
@@ -42,16 +44,26 @@ public sealed class SpellOwnedPocketService(IFuturemud world) : ISpellOwnedPocke
 		return RouteSpatialService.Instance.TryValidateLocation(location, out error) && location.Room is ICustodyRollbackLocation
 			? null : "The caster has no valid native placement destination.";
 	}
-	public IGameItem Create(ICharacter caster, IGameItem source, SpellPocketConfiguration configuration, SpellLifecycleOrigin origin)
+	public IGameItem Create(ICharacter caster, IGameItem source, SpellPocketConfiguration configuration, SpellLifecycleOrigin origin) =>
+		CreateCore(caster, source, configuration, origin, null);
+	public IGameItem CreatePrepared(ICharacter caster, IGameItem source, SpellPocketConfiguration configuration,
+		SpellLifecycleOrigin origin, Func<bool> selectionCurrent) =>
+		CreateCore(caster, source, configuration, origin, selectionCurrent ?? throw new ArgumentNullException(nameof(selectionCurrent)));
+	private IGameItem CreateCore(ICharacter caster, IGameItem source, SpellPocketConfiguration configuration,
+		SpellLifecycleOrigin origin, Func<bool>? selectionCurrent)
 	{
+		void Confirm() { if (selectionCurrent?.Invoke() == false) throw new InvalidOperationException("The prepared pocket changed during native creation."); }
+		Confirm();
 		if (AdmissionError(caster, source, configuration, origin.Grade) is { } error) throw new InvalidOperationException(error);
+		Confirm();
 		var anchor = new SpellPocketAnchor(source.Id, origin.Grade, configuration);
 		if (origin.Family != SpellPocketAnchor.Family || origin.Provenance != anchor.Save() || origin.CreatorId != CharacterInstanceIdentityComparer.IdentityId(caster) ||
 			origin.Mode != SpellLifecycleMode.TemporaryCleanup || origin.CreatedUtc.Ticks % 10 != 0 ||
 			origin.DeadlineUtc != origin.CreatedUtc + configuration.DurationForGrade(origin.Grade))
 			throw new InvalidOperationException("Pocket creation policy differs from its frozen invocation.");
-		var carrier = ((SpellOwnedItemService)world.SpellOwnedItems!).CreatePocket(world.ItemProtos.Get(configuration.PrototypeId), caster, origin, anchor);
-		PlaceCommittedCarrier(carrier, caster);
+		Confirm();
+		var carrier = ((SpellOwnedItemService)world.SpellOwnedItems!).CreatePocket(world.ItemProtos.Get(configuration.PrototypeId), caster, origin, anchor, selectionCurrent);
+		Confirm(); PlaceCommittedCarrier(carrier, caster); Confirm();
 		return carrier;
 	}
 	internal void PlaceCommittedCarrier(IGameItem carrier, ICharacter caster)
@@ -116,9 +128,22 @@ public sealed class SpellOwnedPocketService(IFuturemud world) : ISpellOwnedPocke
 	}
 	private bool TryFallback(long id, out SpatialLocation location)
 	{
-		location = new(world.Rooms.Get(id)!, RoomLayer.GroundLevel);
-		return location.Room is ICustodyRollbackLocation && world.SpellOwnedShelters?.OwnsRoom(id) != true &&
-			RouteSpatialService.Instance.TryValidateLocation(location, out _);
+		var room = world.Rooms.Get(id);
+		if (!TryFallbackLocation(room, world.SpellOwnedShelters?.OwnsRoom(id) == true, out location)) return false;
+		using var isolated = FMDB.BeginIndependentScope(); using var db = new FMDB();
+		return FMDB.Context.Rooms.Any(x => x.Id == id && !x.Temporary && x.HostedVehicleId == null &&
+			x.HostedVehicleCompartmentId == null && x.CurrentOverlayId == room!.CurrentOverlay.Id) &&
+			TryFallbackLocation(room, world.SpellOwnedShelters?.OwnsRoom(id) == true, out location);
+	}
+	internal static bool TryFallbackLocation(IRoom? room, bool ownedShelter, out SpatialLocation location)
+	{
+		location = default;
+		if (room is null || room.Temporary || ownedShelter || room is not ICustodyRollbackLocation ||
+			room is Room { HostedVehicleId: not null } or Room { HostedVehicleCompartmentId: not null } ||
+			!room.Terrain(null).TerrainLayers.Contains(RoomLayer.GroundLevel) || room.IsSwimmingLayer() ||
+			room.CurrentOverlay.Package.Status != RevisionStatus.Current) return false;
+		location = new(room, RoomLayer.GroundLevel, room.RouteDefinition?.DefaultPositionMetres);
+		return RouteSpatialService.Instance.TryValidateLocation(location, out _);
 	}
 	private static DateTime Time(SpellOwnedLifecycle life) => RuntimeClock.UtcNow < life.UpdatedUtc ? life.UpdatedUtc : RuntimeClock.UtcNow;
 	internal static bool ReferencesAreClear(FuturemudDatabaseContext context, IGameItem carrier, out string diagnostic)

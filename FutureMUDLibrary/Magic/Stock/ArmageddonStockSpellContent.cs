@@ -19,5 +19,6 @@ public static class ArmageddonStockSpellContent
 
 	// Presence here means a real definition can be installed. It is not a gameplay qualification or admission list.
 	public static IReadOnlyList<ArmageddonCanonicalSpellContribution> Contributions =>
-		[new("arm.capability.water", ReadAttunement())];
+		[new("arm.capability.water", ReadAttunement()),
+		 new("arm.capability.fire", ArmageddonReviewedUtilityContent.UnravelEnchantment())];
 }

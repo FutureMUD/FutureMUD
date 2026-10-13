@@ -85,6 +85,7 @@ internal static class CastingNumerics
 				if (property.GetValue(effect) is ITraitExpression expression && !bindings.Any(x => ReferenceEquals(x.Expression, expression)))
 					yield return $"{label}/{property.Name}: unsupported route-bound numerical field.";
 			if (effect is TraitBoostEffect { Trait: null }) yield return $"{label}/boost.Trait: missing trait.";
+			if (effect is NeedDeltaEffect { DefinitionError: { } needsError }) yield return $"{label}/needdelta: {needsError}";
 			if (effect is CreateNPCEffect { DefinitionError: { } creationError }) yield return $"{label}/createnpc: {creationError}";
 			if (effect is CreateShelterEffect { DefinitionError: { } shelterError }) yield return $"{label}/createshelter: {shelterError}";
 			if (effect is CreateLiquidEffect { DefinitionError: { } liquidError }) yield return $"{label}/createliquid: {liquidError}";

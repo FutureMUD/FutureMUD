@@ -122,6 +122,8 @@ public class ArmageddonPrimitiveScalarContentTests
 
 	private static MagicSpell Load(MagicCastingFixture f, ArmageddonUtilitySpellContent content)
 	{
+		f.Actor.Setup(x => x.TargetActorOrCorpse("self", It.IsAny<PerceiveIgnoreFlags>())).Returns(f.Actor.Object);
+		Mock.Get(f.Actor.Object.Location).SetupGet(x => x.Gameworld).Returns(f.World.Object);
 		f.Expressions.Clear();
 		var cost = content.CostRow(1); cost.Id = 1;
 		var duration = content.DurationRow(1); duration.Id = 2;

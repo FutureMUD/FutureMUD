@@ -16,7 +16,7 @@ using MudSharp.RPG.Checks;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class ArmageddonDirectAlcoholRemovalTests
+public partial class ArmageddonDirectAlcoholRemovalTests
 {
 	[DataTestMethod]
 	[DataRow(1, 0.1, 0.09)]
@@ -115,6 +115,19 @@ public class ArmageddonDirectAlcoholRemovalTests
 		Assert.IsNotNull(effect.DefinitionError);
 		Assert.IsNotNull(((NeedDeltaEffect)effect.Clone()).DefinitionError);
 		Assert.IsTrue(XNode.DeepEquals(xml, effect.SaveToXml()));
+	}
+
+	[TestMethod]
+	public void ExactAlcohol_DirectModeRequiresOneSelectedCharacterWithoutNarrowingLegacyTriggers()
+	{
+		var (f, _) = Fixture(0.1);
+		var effect = Effect(f, -0.01);
+		var character = Mock.Of<IMagicTrigger>(x => x.TargetTypes == "character");
+		var characters = Mock.Of<IMagicTrigger>(x => x.TargetTypes == "characters");
+		Assert.IsTrue(effect.IsCompatibleWithTrigger(character));
+		Assert.IsFalse(effect.IsCompatibleWithTrigger(characters));
+		var xml = effect.SaveToXml(); xml.Element("DirectAlcoholRemoval")!.Remove();
+		Assert.IsTrue(SpellEffectFactory.LoadEffect(xml, f.Spell).IsCompatibleWithTrigger(characters));
 	}
 
 	[TestMethod]

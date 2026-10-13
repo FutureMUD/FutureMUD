@@ -185,6 +185,7 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOpera
 
     public bool IsCompatibleWithTrigger(IMagicTrigger trigger)
     {
+		if (DirectAlcoholRemoval) return trigger.TargetTypes == "character";
         return IsCompatibleWithTrigger(trigger.TargetTypes);
     }
 

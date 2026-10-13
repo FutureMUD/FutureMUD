@@ -37,13 +37,14 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 100,
+    "installed_canonical_spells": 107,
     "native_grade_one_stock_entries": 1,
-    "native_sampled_grade_one_spells": 4,
-    "declared_canonical_spells": 100,
-    "definition_audited_canonical_spells": 100,
+    "native_sampled_grade_one_spells": 5,
+    "declared_canonical_spells": 107,
+    "definition_audited_canonical_spells": 107,
     "latest_successful_native_loaded_spells": 100,
-    "required_not_yet_declared": 52
+    "required_not_yet_declared": 45,
+    "latest_partial_native_first_loaded_spells": 106
   },
   "path_discrepancies": [],
   "unselected_registration_name_guesses": [],
@@ -1815,7 +1816,7 @@
           "line": 37
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "candidate_scope": "Fixed-install declared definition and focused managed contracts; entry-level S4 gameplay qualification remains pending.",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -1842,9 +1843,7 @@
       },
       "current_code_note": null,
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Paid initial fire strike, recurring native injury/armour custody and cold expiry remain unverified."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -1854,16 +1853,22 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "b58eba58e7dddedb04907753c2497cf42d97a8f2"
         },
         "direct": [],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
+        "assumptions": [
+          "Definition and managed checks establish only their named contracts; no automatic full entry qualification or Release promotion."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 20,
@@ -2024,7 +2029,7 @@
           "line": 12
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "candidate_scope": "Fixed-install declared definition and focused managed contracts; entry-level S4 gameplay qualification remains pending.",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -2051,9 +2056,7 @@
       },
       "current_code_note": null,
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Paid retained permission, local inspection disclosure, expiry and cold reload remain unverified."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -2063,16 +2066,22 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "b58eba58e7dddedb04907753c2497cf42d97a8f2"
         },
         "direct": [],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
+        "assumptions": [
+          "Definition and managed checks establish only their named contracts; no automatic full entry qualification or Release promotion."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 22,
@@ -4364,7 +4373,7 @@
           "line": 26
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "candidate_scope": "Fixed-install declared definition and focused managed contracts; entry-level S4 gameplay qualification remains pending.",
       "prototype_dependencies": [
         {
           "key": "arm.liquid.water",
@@ -4397,10 +4406,7 @@
       },
       "current_code_note": null,
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Paid water-gate use and accumulated-duration cold behavior remain to be sampled natively."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -4410,16 +4416,22 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "b58eba58e7dddedb04907753c2497cf42d97a8f2"
         },
         "direct": [],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
+        "assumptions": [
+          "Definition and managed checks establish only their named contracts; no automatic full entry qualification or Release promotion."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 44,
@@ -5979,7 +5991,7 @@
           "line": 11
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "candidate_scope": "Fixed-install declared definition and focused managed contracts; entry-level S4 gameplay qualification remains pending.",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -6006,9 +6018,7 @@
       },
       "current_code_note": null,
       "remaining": [
-        "No spell IMovementDelayEffect adapter found in surveyed spell effects; stamina/trait bonuses cannot prove actual movement speed.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Paid grade-one children passed on the 106-definition first boot; real movement timing, exact gathering-price repair and cold reload remain to be verified natively."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -6018,16 +6028,31 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "b58eba58e7dddedb04907753c2497cf42d97a8f2"
         },
         "direct": [],
         "inherited": [],
-        "sampled": [],
-        "assumptions": [],
+        "sampled": [
+          {
+            "status": "PASS_BOUNDED_FIRST_BOOT",
+            "receipt": ".artifacts/s4-106-native-fleetstep-released/20261013T122134Z_9b7702c0582341be9834db1e3ef56dbd/summary.json",
+            "configuration": "Grade-one self via disposable builder admission; exact 50-unit payment and saved movement/stamina children.",
+            "seed": 20261013,
+            "seeded_random_sample": true,
+            "scope": "No cold or actual movement-timing certificate; later gathering failed before the exact-price repair."
+          }
+        ],
+        "assumptions": [
+          "Definition and managed checks establish only their named contracts; no automatic full entry qualification or Release promotion."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 61,
@@ -8223,7 +8248,7 @@
           "line": 12
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "candidate_scope": "Fixed-install declared definition and focused managed contracts; entry-level S4 gameplay qualification remains pending.",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -8250,9 +8275,7 @@
       },
       "current_code_note": null,
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Paid concealment, viewer policy and cold lifetime remain to be sampled natively."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -8260,16 +8283,22 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "b58eba58e7dddedb04907753c2497cf42d97a8f2"
         },
         "direct": [],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
+        "assumptions": [
+          "Definition and managed checks establish only their named contracts; no automatic full entry qualification or Release promotion."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 85,
@@ -10564,7 +10593,7 @@
           "line": 11
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "candidate_scope": "Fixed-install declared definition and focused managed contracts; entry-level S4 gameplay qualification remains pending.",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -10591,9 +10620,7 @@
       },
       "current_code_note": null,
       "remaining": [
-        "No spell IMovementDelayEffect adapter found; actual delay modifier required in addition to agility penalty.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Boundary-grade native slowing, agility binding, paid target/refusal and cold reload remain."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -10603,16 +10630,22 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "b58eba58e7dddedb04907753c2497cf42d97a8f2"
         },
         "direct": [],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
+        "assumptions": [
+          "Definition and managed checks establish only their named contracts; no automatic full entry qualification or Release promotion."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 110,
@@ -11195,7 +11228,7 @@
           "line": 11
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "candidate_scope": "Fixed-install declared definition and focused managed contracts; entry-level S4 gameplay qualification remains pending.",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -11222,9 +11255,7 @@
       },
       "current_code_note": null,
       "remaining": [
-        "No spell IMovementDelayEffect adapter found; actual speed modifier required in addition to agility bonus.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Boundary-grade native movement timing, agility binding, paid use and cold reload remain."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -11234,16 +11265,22 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "b58eba58e7dddedb04907753c2497cf42d97a8f2"
         },
         "direct": [],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
+        "assumptions": [
+          "Definition and managed checks establish only their named contracts; no automatic full entry qualification or Release promotion."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 118,
@@ -14881,6 +14918,6 @@
   "qualification_strategy": "Armageddon_S4_Qualification_Strategy_20261013.json",
   "S4_creature_definition_batch_source_revision": "9790aeed72fe3facb5520d1e7604465c014a4b2a",
   "S4_creature_definition_batch_sources_scope": "Historical tested Windows worktree bytes at published9790aeed; later content integration may change these files.",
-  "current_batch_revision": "f594051d42dd4cb4d71faa7c528c2051777e2dfb",
+  "current_batch_revision": "b58eba58e7dddedb04907753c2497cf42d97a8f2",
   "current_batch_verification": "Armageddon_S4_Continuation_Verification_20261013.json"
 }

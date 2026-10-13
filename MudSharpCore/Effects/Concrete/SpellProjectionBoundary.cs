@@ -32,14 +32,15 @@ public sealed class SpellProjectionBoundary(ICharacter owner, SpellProjectionAnc
 			return null;
 		if (!throughExit || destination.Layer != (RoomLayer)anchor.Layer || destination.RoutePositionMetres is not null)
 			return "The walking shadow may travel only through native exits on its anchored layer, outside route rooms.";
-		if (!WithinRange(Gameworld.Rooms.Get(anchor.RoomId), destination.Room, owner, anchor.Configuration.MaximumRoomDistance))
+		if (!anchor.Configuration.HasValidRange || anchor.Configuration.RoomDistancePerGrade != 0 && anchor.Configuration.RangeGrade == 0 ||
+			!WithinRange(Gameworld.Rooms.Get(anchor.RoomId), destination.Room, owner, anchor.Configuration.MaximumRoomDistance))
 			return "That destination is beyond the walking shadow's anchor range.";
 		return null;
 	}
 
 	internal static bool WithinRange(IRoom? anchor, IRoom? destination, ICharacter actor, int distance)
 	{
-		if (anchor is null || destination is null || distance is < 0 or > 32) return false;
+		if (anchor is null || destination is null || distance is < 0 or > 70) return false;
 		var seen = new HashSet<long> { anchor.Id }; var pending = new Queue<(IRoom Room, int Distance)>(); pending.Enqueue((anchor, 0));
 		while (pending.TryDequeue(out var step))
 		{

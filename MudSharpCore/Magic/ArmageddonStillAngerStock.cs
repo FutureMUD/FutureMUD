@@ -9,6 +9,8 @@ namespace MudSharp.Magic;
 /// <summary>Editable source profile for paid character/self invocation and selective Calm cessation.</summary>
 public static class ArmageddonStillAngerStock
 {
+	public static ArmageddonUtilitySpellContent Content(ArmageddonCalmBindings bindings) =>
+		ArmageddonExistingFactorySpellContent.StillAnger(bindings);
 	public const string Key = "arm.spell.still_anger";
 	public const string Name = "Still Anger";
 	public const string PrerequisiteKey = ArmageddonRousedFuryStock.Key;

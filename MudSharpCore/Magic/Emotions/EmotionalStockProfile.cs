@@ -17,7 +17,7 @@ public sealed class EmotionalStockProfile
 	public EmotionalStockProfile(EmotionalSpellKind kind, string group, int unitSeconds, int capUnits,
 		long eligibilityProgId, double intensity, long traitId, double unitsPerSourcePoint,
 		EmotionalTerrainRule fallback, IEnumerable<EmotionalTerrainBinding> terrains,
-		IEnumerable<KeyValuePair<int, Difficulty>> saves, bool breakOnAdmittedAttack)
+		IEnumerable<KeyValuePair<int, Difficulty>> saves, bool breakOnAdmittedAttack, bool canonicalGradePolicy = false)
 	{
 		if (!Enum.IsDefined(kind)) throw new ArgumentException("Select Fury or Calm.");
 		if (DetectInvisibleEffect.PolicyError(new(group, unitSeconds, capUnits)) is { } error)
@@ -52,12 +52,16 @@ public sealed class EmotionalStockProfile
 		}
 		if (kind == EmotionalSpellKind.Calm && fallback != new EmotionalTerrainRule(2, 1, 0))
 			throw new ArgumentException("Calm uses two units per grade and no endurance bonus.");
+		if (canonicalGradePolicy && (unitSeconds != 60 || capUnits != 7 || intensity != (kind == EmotionalSpellKind.Fury ? 5 : 11) || terrainList.Length != 0 ||
+			(kind == EmotionalSpellKind.Fury ? unitsPerSourcePoint != 1 || fallback != new EmotionalTerrainRule(1, 1, 0) : !breakOnAdmittedAttack)))
+			throw new ArgumentException("Canonical grade policy requires 60 seconds per grade, a seven-grade cap, active native emotion intensity and exact native grade mappings.");
 		Kind = kind; Group = group; UnitSeconds = unitSeconds; CapUnits = capUnits;
 		EligibilityProgId = eligibilityProgId; Intensity = intensity; TraitId = traitId;
 		UnitsPerSourcePoint = unitsPerSourcePoint; Fallback = fallback;
 		Terrains = Array.AsReadOnly(terrainList);
 		Saves = new ReadOnlyDictionary<int, Difficulty>(saveList.ToDictionary(x => x.Key, x => x.Value));
 		BreakOnAdmittedAttack = breakOnAdmittedAttack;
+		CanonicalGradePolicy = canonicalGradePolicy;
 	}
 
 	public EmotionalSpellKind Kind { get; }
@@ -72,6 +76,7 @@ public sealed class EmotionalStockProfile
 	public IReadOnlyList<EmotionalTerrainBinding> Terrains { get; }
 	public IReadOnlyDictionary<int, Difficulty> Saves { get; }
 	public bool BreakOnAdmittedAttack { get; }
+	public bool CanonicalGradePolicy { get; }
 	public const string HistoricalExceptionLimit = "Undead, Quickening, Insomnia and Mul/Thodeliv exceptions remain unmapped; no native setting IDs are inferred.";
 
 	public EmotionalTerrainRule TerrainRule(long terrainId)
@@ -92,11 +97,35 @@ public sealed class EmotionalStockProfile
 		Func<int, int, int> inclusiveRandom, TimeSpan? remaining = null, EmotionalRetainedState? previous = null)
 	{
 		ArgumentNullException.ThrowIfNull(inclusiveRandom);
+		var endurance = Kind == EmotionalSpellKind.Fury ? RollEndurance(residualGrade, terrainId, inclusiveRandom) : 0;
+		return ResolveLifetime(residualGrade, terrainId, new(residualGrade, power, Intensity, endurance), remaining, previous);
+	}
+	public double RollEndurance(int grade, long terrainId, Func<int, int, int> inclusiveRandom)
+	{
+		EmotionalSpellPolicy.ValidateGrade(grade);
 		var terrain = TerrainRule(terrainId);
-		var endurance = Kind == EmotionalSpellKind.Fury
-			? EmotionalSpellPolicy.RollEndurance(residualGrade, terrain, inclusiveRandom) : 0;
-		return EmotionalSpellPolicy.ResolveLifetime(Kind, residualGrade, terrain, UnitSeconds, CapUnits,
-			new(residualGrade, power, Intensity, endurance), remaining, previous);
+		return CanonicalGradePolicy ? grade : EmotionalSpellPolicy.RollEndurance(grade, terrain, inclusiveRandom);
+	}
+	public EmotionalLifetime ResolveLifetime(int grade, long terrainId, EmotionalRetainedState incoming,
+		TimeSpan? remaining = null, EmotionalRetainedState? previous = null)
+	{
+		EmotionalSpellPolicy.ValidateGrade(grade);
+		EmotionalSpellPolicy.ValidateState(incoming);
+		var terrain = TerrainRule(terrainId);
+		if (!CanonicalGradePolicy)
+			return EmotionalSpellPolicy.ResolveLifetime(Kind, grade, terrain, UnitSeconds, CapUnits, incoming, remaining, previous);
+		if (incoming.SourceGrade != grade || incoming.Intensity != Intensity ||
+			incoming.EndurancePoints != (Kind == EmotionalSpellKind.Fury ? grade : 0) ||
+			remaining.HasValue != (previous is not null))
+			throw new ArgumentException("Canonical emotional state must match the exact residual requested grade.");
+		if (previous is not null)
+		{
+			EmotionalSpellPolicy.ValidateState(previous);
+			if (remaining <= TimeSpan.Zero || remaining > TimeSpan.FromSeconds(UnitSeconds * CapUnits))
+				throw new ArgumentException("Retained effects require a positive bounded native deadline.");
+		}
+		return new(TimeSpan.FromSeconds(UnitSeconds * grade), Kind == EmotionalSpellKind.Fury && previous is not null
+			? incoming with { Power = previous.Power } : incoming);
 	}
 
 	/// <summary>Installer supplies the inferred attribute. Runtime never repeats seeder inference.</summary>
@@ -117,6 +146,7 @@ public sealed class EmotionalStockProfile
 		new XAttribute("eligibility", EligibilityProgId), new XAttribute("intensity", Intensity),
 		new XAttribute("trait", TraitId), new XAttribute("units", UnitsPerSourcePoint),
 		new XAttribute("attackbreak", BreakOnAdmittedAttack),
+		CanonicalGradePolicy ? new XAttribute("gradepolicy", "Canonical") : null,
 		new XElement("Lifetime", new XAttribute("group", Group), new XAttribute("seconds", UnitSeconds), new XAttribute("cap", CapUnits)),
 		WriteRule("Fallback", Fallback),
 		new XElement("Terrains", Terrains.Select(x => WriteRule("Terrain", x.Rule, x.TerrainId))),
@@ -127,13 +157,17 @@ public sealed class EmotionalStockProfile
 	public static EmotionalStockProfile Read(XElement root)
 	{
 		var names = new[] { "Lifetime", "Fallback", "Terrains", "Saves", "HistoricalExceptions" };
-		if (names.Any(name => root.Elements(name).Count() != 1) || root.Elements().Any(x => !names.Contains(x.Name.LocalName)))
+		if (names.Any(name => root.Elements(name).Count() != 1) || root.Elements().Any(x => x.Name.Namespace != XNamespace.None || !names.Contains(x.Name.LocalName)))
 			throw new ArgumentException("The profile must have exactly one of each supported configuration section.");
 		if (root.Name != "SourceProfile" || (int?)root.Attribute("version") != 1 ||
 			!Enum.TryParse<EmotionalSpellKind>((string?)root.Attribute("kind"), false, out var kind) ||
 			root.Element("HistoricalExceptions")?.Attribute("status")?.Value != "unmapped")
 			throw new ArgumentException("Unsupported source profile kind/version or historical exception mapping.");
 		var lifetime = root.Element("Lifetime") ?? throw new ArgumentException("A lifetime profile is required.");
+		var attributes = new[] { "version", "kind", "eligibility", "intensity", "trait", "units", "attackbreak", "gradepolicy" };
+		if (root.Attributes().Any(x => x.Name.Namespace != XNamespace.None || !attributes.Contains(x.Name.LocalName)) ||
+			root.Attribute("gradepolicy") is { } policy && policy.Value != "Canonical")
+			throw new ArgumentException("Unknown emotional profile attribute or requested-grade policy.");
 		return new(kind, (string?)lifetime.Attribute("group") ?? "", (int)lifetime.Attribute("seconds")!,
 			(int)lifetime.Attribute("cap")!, (long)root.Attribute("eligibility")!, (double)root.Attribute("intensity")!,
 			(long)root.Attribute("trait")!, (double)root.Attribute("units")!,
@@ -142,7 +176,7 @@ public sealed class EmotionalStockProfile
 				.Select(x => new EmotionalTerrainBinding((long)x.Attribute("id")!, ReadRule(x))),
 			(root.Element("Saves") ?? throw new ArgumentException("Save mappings are required.")).Elements("Grade")
 				.Select(x => new KeyValuePair<int, Difficulty>((int)x.Attribute("number")!, (Difficulty)(int)x.Attribute("difficulty")!)),
-			(bool)root.Attribute("attackbreak")!);
+			(bool)root.Attribute("attackbreak")!, root.Attribute("gradepolicy") is not null);
 	}
 
 	private static XElement WriteRule(string name, EmotionalTerrainRule rule, long? id = null) => new(name,

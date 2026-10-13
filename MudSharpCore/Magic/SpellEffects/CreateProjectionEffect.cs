@@ -91,8 +91,9 @@ public sealed class CreateProjectionEffect : IMagicSpellEffectTemplate, IMagicSp
 		{
 			if (Effect._selections.ContainsKey(Caster) && !Effect.TryConfirmPreparedSelection(Caster, Caster, out var error)) throw new InvalidOperationException(error);
 			var now = RuntimeClock.UtcNow;
-			var instance = Effect.Gameworld.SpellOwnedProjections!.Create(Caster, Policy, new(Id, Effect.Spell.Id, Grade, Caster.Identity.Id,
-				SpellProjectionAnchor.Family, SpellLifecycleMode.TemporaryCleanup, now, now.AddSeconds(Policy.SecondsPerGrade * Grade)));
+			var policy = Policy.ResolveForGrade(Grade);
+			var instance = Effect.Gameworld.SpellOwnedProjections!.Create(Caster, policy, new(Id, Effect.Spell.Id, Grade, Caster.Identity.Id,
+				SpellProjectionAnchor.Family, SpellLifecycleMode.TemporaryCleanup, now, now.AddSeconds(policy.SecondsPerGrade * Grade)));
 			var index = Caster.Identity.Instances.OrderByDescending(x => x.IsPrimaryInstance).ThenBy(x => x.InstanceId).ToList().FindIndex(x => x.InstanceId == instance.InstanceId) + 1;
 			Caster.OutputHandler.Send($"Your {Policy.Kind.DescribeEnum().ColourName()} takes shape as instance #{instance.InstanceId.ToString("N0", Caster).ColourValue()}. Use {($"focus {index}").ColourCommand()} to observe through it.");
 			return new(MagicEffectOperationStatus.Applied, null);

@@ -7,6 +7,8 @@ namespace MudSharp.Magic;
 
 public static class ArmageddonProjectionStock
 {
+	public static ArmageddonUtilitySpellContent WalkingShadowContent(long planeId) =>
+		ArmageddonExistingFactorySpellContent.WalkingShadow(planeId);
 	public static string Key(SpellProjectionKind kind) => kind switch { SpellProjectionKind.SandEffigy => "arm.spell.sand_effigy", SpellProjectionKind.WalkingShadow => "arm.spell.walking_shadow", _ => throw new ArgumentOutOfRangeException(nameof(kind)) };
 	public static string Name(SpellProjectionKind kind) => kind switch { SpellProjectionKind.SandEffigy => "Sand Effigy", SpellProjectionKind.WalkingShadow => "Walking Shadow", _ => throw new ArgumentOutOfRangeException(nameof(kind)) };
 	public static MagicSpell Create(IFuturemud world, IMagicSchool school, ITraitDefinition skill, IMagicResource resource, SpellProjectionConfiguration c, double energy)

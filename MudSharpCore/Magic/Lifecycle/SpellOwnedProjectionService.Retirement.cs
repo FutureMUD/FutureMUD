@@ -22,6 +22,9 @@ public sealed partial class SpellOwnedProjectionService
 		if (life.Origin.Family != SpellProjectionAnchor.Family || life.Origin.Mode != SpellLifecycleMode.TemporaryCleanup ||
 			life.Entities.Any(x => x.Role != SpellOwnedEntityRole.CreatedEntity)) return false;
 		var c = SpellProjectionAnchor.Load(life.Origin.Provenance).Configuration;
+		if (c.RoomDistancePerGrade != 0 && (c.RangeGrade != life.Origin.Grade ||
+			c.Error(life.Origin.Grade) is not null || life.Origin.DeadlineUtc != life.Origin.CreatedUtc.AddSeconds(c.SecondsPerGrade * life.Origin.Grade)))
+			return false;
 		return life.Entities.Count == (c.Kind == SpellProjectionKind.SandEffigy ? 3 : 2) &&
 			life.Entities.Count(x => x.Kind == SpellOwnedEntityKind.Body) == 1 && life.Entities.Count(x => x.Kind == SpellOwnedEntityKind.CharacterInstance) == 1 &&
 			life.Entities.Count(x => x.Kind == SpellOwnedEntityKind.GameItem) == (c.Kind == SpellProjectionKind.SandEffigy ? 1 : 0);

@@ -61,6 +61,7 @@ public sealed partial class SpellOwnedProjectionService(IFuturemud world) : ISpe
 		if (origin.Mode != SpellLifecycleMode.TemporaryCleanup || origin.Family != SpellProjectionAnchor.Family || origin.CreatorId != caster.Identity.Id ||
 			origin.DeadlineUtc != origin.CreatedUtc.AddSeconds(c.SecondsPerGrade * origin.Grade)) throw new InvalidOperationException("Invalid owned projection origin.");
 		if (AdmissionError(caster, c, origin.Grade) is { } error) throw new InvalidOperationException(error);
+		c = c.ResolveForGrade(origin.Grade);
 		var identity = (RuntimeCharacter)caster.Identity;
 		var anchor = new SpellProjectionAnchor(caster.InstanceId, caster.Body.Id, caster.Location.Id, (int)caster.RoomLayer, caster.RoutePositionMetres, c);
 		origin = origin with { Provenance = anchor.Save().ToString(SaveOptions.DisableFormatting) };

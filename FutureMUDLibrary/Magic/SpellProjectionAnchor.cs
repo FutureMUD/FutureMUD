@@ -19,16 +19,23 @@ public sealed record SpellProjectionAnchor(long InstanceId, long BodyId, long Ro
 	public static XElement Definition(SpellProjectionConfiguration c) => new("Policy", new XElement("Kind", c.Kind),
 		new XElement("Plane", c.PlaneId), new XElement("EffigyPrototype", c.EffigyPrototypeId),
 		new XElement("SecondsPerGrade", c.SecondsPerGrade), new XElement("MaximumRoomDistance", c.MaximumRoomDistance),
-		new XElement("BacklashDamage", c.BacklashDamage), new XElement("CrossClosedDoors", c.CrossClosedDoors));
+		new XElement("BacklashDamage", c.BacklashDamage), new XElement("CrossClosedDoors", c.CrossClosedDoors),
+		c.RoomDistancePerGrade == 0 ? null : new XElement("RequestedGradeRange", new XAttribute("version", 1),
+			new XAttribute("perGrade", c.RoomDistancePerGrade), new XAttribute("grade", c.RangeGrade)));
 	public static SpellProjectionConfiguration ReadPolicy(XElement root)
 	{
 		var fields = new[] { "Kind", "Plane", "EffigyPrototype", "SecondsPerGrade", "MaximumRoomDistance", "BacklashDamage", "CrossClosedDoors" };
-		if (root.Name != "Policy" || root.HasAttributes || root.Elements().Count() != fields.Length ||
-			fields.Any(x => root.Elements(x).Count() != 1) || root.Elements().Any(x => x.HasElements || x.HasAttributes))
+		var range = root.Element("RequestedGradeRange");
+		if (root.Name != "Policy" || root.HasAttributes || root.Elements().Count() != fields.Length + (range is null ? 0 : 1) ||
+			fields.Any(x => root.Elements(x).Count() != 1) || root.Elements().Where(x => x != range).Any(x => x.HasElements || x.HasAttributes) ||
+			range is not null && (range.HasElements || !string.IsNullOrWhiteSpace(range.Value) || range.Attributes().Count() != 3 ||
+				(int?)range.Attribute("version") != 1 || (int?)range.Attribute("perGrade") != 10 ||
+				(int?)range.Attribute("grade") is not (>= 0 and <= 7)))
 			throw new FormatException("Unknown, duplicate or missing projection policy fields.");
 		return new(Enum.Parse<SpellProjectionKind>(root.Element("Kind")!.Value), (long)root.Element("Plane")!,
 			(long)root.Element("EffigyPrototype")!, (double)root.Element("SecondsPerGrade")!,
-			(int)root.Element("MaximumRoomDistance")!, (double)root.Element("BacklashDamage")!, (bool)root.Element("CrossClosedDoors")!);
+			(int)root.Element("MaximumRoomDistance")!, (double)root.Element("BacklashDamage")!, (bool)root.Element("CrossClosedDoors")!,
+			(int?)range?.Attribute("perGrade") ?? 0, (int?)range?.Attribute("grade") ?? 0);
 	}
 	public static SpellProjectionAnchor Load(string value)
 	{
@@ -43,7 +50,9 @@ public sealed record SpellProjectionAnchor(long InstanceId, long BodyId, long Ro
 			(long)root.Attribute("room")!, (int)root.Attribute("layer")!,
 			point.Length == 0 ? null : double.Parse(point, System.Globalization.CultureInfo.InvariantCulture), ReadPolicy(root.Element("Policy")!));
 		if (result.InstanceId <= 0 || result.BodyId <= 0 || result.RoomId <= 0 || !Enum.IsDefined((RoomLayer)result.Layer) ||
-			result.RoutePosition is { } coordinate && (!double.IsFinite(coordinate) || coordinate < 0) || result.Configuration.Error(1) is not null)
+			result.RoutePosition is { } coordinate && (!double.IsFinite(coordinate) || coordinate < 0) ||
+			result.Configuration.RoomDistancePerGrade != 0 && result.Configuration.RangeGrade == 0 ||
+			result.Configuration.Error(Math.Max(1, result.Configuration.RangeGrade)) is not null)
 			throw new FormatException("Invalid projection anchor values.");
 		return result;
 	}

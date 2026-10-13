@@ -11,6 +11,8 @@ public sealed record RousedFuryTerrainBindings(long Air, long City, long Inside,
 /// <summary>Editable source profile for paid character/self invocation and retained Fury effects.</summary>
 public static class ArmageddonRousedFuryStock
 {
+	public static ArmageddonUtilitySpellContent Content(ArmageddonFuryBindings bindings) =>
+		ArmageddonExistingFactorySpellContent.RousedFury(bindings);
 	public const string Key = "arm.spell.roused_fury";
 	public const string Name = "Roused Fury";
 	public const string PrerequisiteKey = ArmageddonUnravelEnchantmentStock.Key;

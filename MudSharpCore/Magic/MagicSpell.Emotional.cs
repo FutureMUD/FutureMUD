@@ -66,7 +66,7 @@ public partial class MagicSpell
 		foreach (var bound in bounds.Where(x => x.Counter.Continue))
 		{
 			var endurance = profile.Kind == EmotionalSpellKind.Fury
-				? EmotionalSpellPolicy.RollEndurance(bound.Counter.RemainingIncomingGrade, profile.TerrainRule(terrain.Id), RandomUtilities.Random) : 0;
+				? profile.RollEndurance(bound.Counter.RemainingIncomingGrade, terrain.Id, RandomUtilities.Random) : 0;
 			var index = Array.IndexOf(bounds, bound);
 			bounds[index] = bound with { Incoming = new(bound.Counter.RemainingIncomingGrade, power, profile.Intensity, endurance) };
 			// Validate retained arithmetic, including conflicting equal-grade Calm mappings, before any debit.
@@ -225,8 +225,8 @@ public partial class MagicSpell
 	private EmotionalLifetime ResolveEmotionalLifetime(EmotionalSelection token, EmotionalRecipient bound, EmotionalStockProfile profile)
 	{
 		var old = bound.Members.SingleOrDefault(x => x.Applicable && x.Child.Kind == profile.Kind);
-		var lifetime = EmotionalSpellPolicy.ResolveLifetime(profile.Kind, bound.Counter.RemainingIncomingGrade, profile.TerrainRule(token.Terrain.Id),
-			profile.UnitSeconds, profile.CapUnits, bound.Incoming!, old is null ? null : old.Expiry - RuntimeClock.UtcNow, old?.State);
+		var lifetime = profile.ResolveLifetime(bound.Counter.RemainingIncomingGrade, token.Terrain.Id,
+			bound.Incoming!, old is null ? null : old.Expiry - RuntimeClock.UtcNow, old?.State);
 		if (lifetime.Duration > DateTime.MaxValue - RuntimeClock.UtcNow)
 			throw new InvalidOperationException("The selected emotional lifetime cannot be represented by the native clock.");
 		return lifetime;
@@ -260,14 +260,22 @@ public partial class MagicSpell
 			return new(changed ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
 		if (old is not null && profile.Kind == EmotionalSpellKind.Fury)
 		{
-			// Fury retains the exact existing child and bonus. A remove/re-add would transiently clamp stamina.
+			if (profile.CanonicalGradePolicy)
+			{
+				((SpellSourceFuryEffect)old.Child).UpdateCanonicalState(lifetime.State);
+				members[members.IndexOf(old)] = old with { State = lifetime.State };
+				ConfirmEmotionalRecipient(bound, members.ToArray(), afterCessation: ceased);
+			}
+			// Retain the exact child; canonical policy updates its bonus in place. Removal/re-add would transiently clamp stamina.
 			Gameworld.EffectScheduler.Reschedule(old.Parent, lifetime.Duration);
 			var expiry = ((IEffectExpiryObserver)Gameworld.EffectScheduler).ScheduledExpiry(old.Parent);
 			if (expiry is null) throw new InvalidOperationException("The Fury recast deadline was not confirmed.");
-			members[members.IndexOf(old)] = old with { Expiry = expiry.Value };
+			members[members.FindIndex(x => ReferenceEquals(x.Child, old.Child))] = old with
+				{ Expiry = expiry.Value, State = profile.CanonicalGradePolicy ? lifetime.State : old.State };
 			ConfirmEmotionalRecipient(bound, members.ToArray(), afterCessation: ceased);
 			target.EffectsChanged = true;
-			return new(changed || expiry != old.Expiry ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
+			return new(changed || expiry != old.Expiry || profile.CanonicalGradePolicy && old.State != lifetime.State
+				? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
 		}
 		var head = new MagicSpellParent(target, this, phase.Selection.Caster, lifetime.State.Power, outcome) { ResolvedDuration = lifetime.Duration };
 		SpellEmotionalEffect child = profile.Kind == EmotionalSpellKind.Fury

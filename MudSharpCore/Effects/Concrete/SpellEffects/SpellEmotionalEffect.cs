@@ -65,6 +65,13 @@ public abstract class SpellEmotionalEffect : MagicSpellEffectBase
 		State = State with { SourceGrade = State.SourceGrade - amount };
 		Owner.EffectsChanged = true;
 	}
+	protected void ReplaceRetainedState(EmotionalRetainedState state)
+	{
+		if (DefinitionError is not null) throw new InvalidOperationException("Invalid retained emotion cannot be updated.");
+		EmotionalSpellPolicy.ValidateState(state);
+		State = state;
+		Owner.EffectsChanged = true;
+	}
 
 	protected XElement SaveEmotionalDefinition() => DefinitionError is not null && _retainedDefinition is not null
 		? new XElement(_retainedDefinition) : new("Effect", new XAttribute("version", 1),
@@ -132,6 +139,16 @@ public sealed class SpellSourceFuryEffect : SpellEmotionalEffect, IRageEffect, I
 	protected override string SpecificEffectType => "SpellSourceFury";
 	public ITraitDefinition? EnduranceTrait { get; }
 	public double UnitsPerSourcePoint { get; }
+	internal void UpdateCanonicalState(EmotionalRetainedState state)
+	{
+		if (UnitSeconds != 60 || CapUnits != 7 || UnitsPerSourcePoint != 1 || state.Intensity != 5 ||
+			state.EndurancePoints != state.SourceGrade || ParentEffect is not MagicSpellParent parent || parent.Power != state.Power ||
+			!ReferenceEquals(parent.Owner, Owner) || !Owner.Effects.Contains(this) ||
+			!Owner.Effects.Contains(parent) || parent.SpellEffects.Count() != 1 || !parent.SpellEffects.Contains(this))
+			throw new InvalidOperationException("Canonical Fury update requires its exact attached native parent and resolved grade state.");
+		ReplaceRetainedState(state);
+		ReconcileStamina();
+	}
 	public override void InitialEffect() { base.InitialEffect(); _removing = false; ReconcileStamina(); }
 	public override void Login() { _removing = false; ReconcileStamina(); }
 	public override void RemovalEffect()

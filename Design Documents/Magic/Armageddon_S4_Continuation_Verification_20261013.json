@@ -43,11 +43,11 @@
       "unqualified carrier producers"
     ]
   },
-  "canonical_definitions_declared": 114,
+  "canonical_definitions_declared": 118,
   "required_inventory": 152,
-  "required_not_yet_declared": 38,
+  "required_not_yet_declared": 34,
   "optional_inventory": 2,
-  "definition_audit": "PASS: 114 declared fixed definitions in focused Classic/Simple audit, including Desiccate, Headlong Revel, Gust Hands and Driving Gust. Repaired-source Classic native first/cold loaded 114/114 exact definitions; paid grade-one needs samples are bounded below.",
+  "definition_audit": "PASS: 118 declared fixed definitions in focused Classic/Simple audit, including four new area harm entries. Runtime hydration passes for the four new entries. Repaired-source Classic native first/cold loaded only the preceding 114/114 definitions; paid grade-one needs samples are bounded below.",
   "checks": [
     {
       "name": "seeder-full-final-99",
@@ -473,6 +473,19 @@
       "unqualified carrier producers"
     ],
     "qualification_limit": "The sampled paid Venom cast proves first-boot dose creation/payment, not a live cold dose; managed reload and isolated MySQL tests cover custody. No complete installed-stock, all-grade, Purge Toxin or Consuming Flame paid qualification is claimed."
+  },
+  "area_harm_candidate": {
+    "base_revision": "dfc4706ad09f287e9d32d8657d76abe923ae5706",
+    "declared_required_definitions": 118,
+    "required_not_yet_declared": 34,
+    "new_keys": ["arm.spell.cinder_rain", "arm.spell.thunderclap", "arm.spell.scouring_gust", "arm.spell.caustic_spray"],
+    "focused_seeder": "PASS 3/0/0 four-definition contract plus Classic/Simple fixed installer audit",
+    "focused_core": "PASS 1/0/0 native hydration/ReadyForGame for four authored area definitions",
+    "full_core": "PASS 7136/0/0 Debug --no-build --no-restore",
+    "full_seeder": "PASS 1843/0/3 Debug --no-build --no-restore",
+    "native_paid_cold": "PENDING; preceding 114-definition receipt must not be inferred to certify these four",
+    "wind_paid_movement": "PENDING; add explicit exit fixture and saved relocation assertion to the next consolidated campaign",
+    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
   },
   "current_unpublished_slice": {
     "source_base": "b8f4760436cb21eb302cfb57c69e7c920df8e84e",

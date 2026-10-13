@@ -25,7 +25,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var entries = manifest.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell").ToArray();
 		CollectionAssert.AreEquivalent(ArmageddonStockSpellInstaller.CanonicalKeys.ToArray(), claims.Select(x => x.StableKey).ToArray());
-		Assert.AreEqual(114, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
+		Assert.AreEqual(118, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var source = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId!.Value;
 		foreach (var claim in claims)
@@ -66,6 +66,12 @@ public partial class ArmageddonStockSpellInstallerTests
 			{
 				Assert.AreEqual("character_and_exit", expectedTarget);
 				expectedTarget = "characterexit"; // Native two-part target trigger.
+			}
+			if (claim.StableKey is ArmageddonAreaHarmSpellContent.CinderRainKey or ArmageddonAreaHarmSpellContent.ThunderclapKey or
+				ArmageddonAreaHarmSpellContent.ScouringGustKey or ArmageddonAreaHarmSpellContent.CausticSprayKey)
+			{
+				Assert.AreEqual("characters", expectedTarget);
+				expectedTarget = "character"; // The explicit controlled-area policy selects and guards physical character recipients.
 			}
 			Assert.AreEqual(expectedTarget, (string?)root.Element("Trigger")!.Attribute("type"), claim.StableKey);
 			CollectionAssert.AreEqual(Enumerable.Range(1, 7).ToArray(), root.Element("ControlledPower")!.Elements("Grade").Select(x => (int)x.Attribute("number")!).ToArray(), claim.StableKey);

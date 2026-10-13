@@ -102,7 +102,12 @@ public static partial class ArmageddonStockSpellInstaller
 		.Concat(ArmageddonWindForceSpellContent.Create().Select(x =>
 			(Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))))
 		.Concat(ArmageddonNeedHarmSpellContent.Create().Select(x =>
-			(Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))));
+			(Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))))
+		.Concat(new[] { ArmageddonAreaHarmSpellContent.CinderRainKey, ArmageddonAreaHarmSpellContent.ThunderclapKey,
+			ArmageddonAreaHarmSpellContent.ScouringGustKey, ArmageddonAreaHarmSpellContent.CausticSprayKey }.Select(key =>
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
+				ArmageddonAreaHarmSpellContent.Create(CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey))
+					.Single(x => x.Content.Key == key)))));
 
 	private static ArmageddonInstallResult InstallContribution(Func<FuturemudDatabaseContext> factory,
 		Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution> resolve, Action<ArmageddonInstallCheckpoint>? checkpoint)

@@ -57,8 +57,13 @@ public partial class MagicSpell
 			copy.EffectDurationExpression = CastingNumerics.Bind(duration, trait, grade, power, "duration", Gameworld, controlledGrade);
 		foreach (var (effect, label) in copy.SpellEffects.Select((x, i) => (x, $"target[{i}]"))
 			.Concat(copy.CasterSpellEffects.Select((x, i) => (x, $"caster[{i}]"))))
+		{
 			foreach (var (field, expression, set) in ScrollSpellCompatibility.Expressions(effect))
 				set(CastingNumerics.Bind(expression, trait, grade, power, $"{label}/{field}", Gameworld, controlledGrade));
+			CastingNumerics.ValidateOwnedDiseaseInputs(effect, grade);
+		}
+		if (CastingNumerics.ConfigurationErrors(copy).FirstOrDefault() is { } boundError)
+			throw new InvalidOperationException(boundError);
 		return copy;
 	}
 }

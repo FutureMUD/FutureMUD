@@ -64,6 +64,10 @@ public static class ScrollSpellCompatibility
 			case SelfDamageEffect x: yield return ("DamageExpression", x.DamageExpression, e => x.DamageExpression = e); break;
 			case HealEffect x: yield return ("HealingAmount", x.HealingAmount, e => x.HealingAmount = e); break;
 			case MendEffect x: yield return ("HealingAmount", x.HealingAmount, e => x.HealingAmount = e); break;
+			case DiseaseEffect x:
+				yield return ("IntensityExpression", x.IntensityExpression, e => x.IntensityExpression = e);
+				yield return ("VirulenceExpression", x.VirulenceExpression, e => x.VirulenceExpression = e);
+				break;
 			case StaminaDeltaSpellEffect x: yield return ("Formula", x.AmountExpression, e => x.AmountExpression = e); break;
 			case MagicResourceDeltaEffect x: yield return ("Formula", x.DeltaExpression, e => x.DeltaExpression = e); break;
 			case SpellArmourEffect x: yield return ("MaximumDamageAbsorbed", x.ArmourConfiguration.MaximumDamageAbsorbed, e => x.ArmourConfiguration.MaximumDamageAbsorbed = e); break;

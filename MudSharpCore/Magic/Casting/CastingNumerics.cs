@@ -85,6 +85,8 @@ internal static class CastingNumerics
 				if (property.GetValue(effect) is ITraitExpression expression && !bindings.Any(x => ReferenceEquals(x.Expression, expression)))
 					yield return $"{label}/{property.Name}: unsupported route-bound numerical field.";
 			if (effect is TraitBoostEffect { Trait: null }) yield return $"{label}/boost.Trait: missing trait.";
+			if (effect is DiseaseEffect { DefinitionError: { } diseaseError }) yield return $"{label}/disease: {diseaseError}";
+			if (effect is RemoveDiseaseEffect { DefinitionError: { } cureError }) yield return $"{label}/removedisease: {cureError}";
 			if (effect is NeedDeltaEffect { DefinitionError: { } needsError }) yield return $"{label}/needdelta: {needsError}";
 			if (effect is StaminaDeltaSpellEffect { DefinitionError: { } staminaError }) yield return $"{label}/staminadelta: {staminaError}";
 			if (effect is MagicResourceDeltaEffect { DefinitionError: { } resourceDeltaError }) yield return $"{label}/magicresourcedelta: {resourceDeltaError}";
@@ -128,7 +130,11 @@ internal static class CastingNumerics
 			case ("boost", "Bonus"): effect.SetAttributeValue("bonus", value); break;
 			case ("roomlight", "AddedLuxPerPower"): effect.SetElementValue("AddedLuxPerPower", value); break;
 			case ("healingrate", "Multiplier"): effect.SetElementValue("Multiplier", value); break;
-			case ("needdelta", "DrunkDelta"): effect.SetElementValue("Drunk", value); break;
+			case ("needdelta", "DrunkDelta"):
+				if ((bool?)effect.Element("DirectAlcoholRemoval") == true &&
+					(value > 0 || value < -MagicBuilderValidation.MaximumNeedDeltaAlcoholLitres))
+					throw new InvalidOperationException("Exact alcohol removal requires a nonpositive bounded scalar before payment.");
+				effect.SetElementValue("Drunk", value); break;
 			default: throw new InvalidOperationException($"{token}.{field}: unsupported scalar field.");
 		}
 	}
@@ -141,6 +147,16 @@ internal static class CastingNumerics
 		var allowed = new[] { "variable", "grade", "power", "mastery" }.Concat(contextParameters);
 		foreach (var name in expression.NonTraitParameters.Where(x => !allowed.Contains(x, StringComparer.OrdinalIgnoreCase)))
 			yield return $"{location}: unsupported numerical parameter {name}.";
+	}
+
+	internal static void ValidateOwnedDiseaseInputs(IMagicSpellEffectTemplate effect, int grade)
+	{
+		if (effect is not DiseaseEffect { OwnedFamily: not null } disease) return;
+		if (disease.IntensityExpression is not CastingExpression intensity ||
+			!intensity.TryEvaluateFixedInputs(out var strength, out _) || strength != grade ||
+			disease.VirulenceExpression is not CastingExpression virulence ||
+			!virulence.TryEvaluateFixedInputs(out var multiplier, out _) || multiplier != 1.0)
+			throw new InvalidOperationException("Owned sickness requires fixed selected-grade intensity and unit virulence before payment.");
 	}
 
 	public static ITraitExpression Bind(ITraitExpression expression, ITraitDefinition trait, int grade, SpellPower power,

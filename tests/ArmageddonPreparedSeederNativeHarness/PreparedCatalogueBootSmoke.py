@@ -851,6 +851,17 @@ def native_first_boot_scenario(session):
     assertions.append('Native attack produced a persisted target Wounds row with the exact loaded melee GameItem as ToolOriginId')
     peace = session.send('peace', read_seconds=2)
     require('peace' in peace.lower() or 'combat' in peace.lower(), 'Native peace command did not report combat cleanup.')
+    # The melee fixture must release its hand before the later ordinary paid casts.
+    session.send('unwield knife', read_seconds=2)
+    output = session.send('impdebug flush', read_seconds=3)
+    require('All queued saves have been flushed' in output, 'Melee unwield save flush did not confirm.')
+    unwielded = sql(f'SELECT IFNULL(Wielded,0) FROM Bodies_GameItems WHERE BodyId={admin_body[0][0]} AND GameItemId={knife_item_id}')
+    require(len(unwielded) == 1 and unwielded[0][0] == '0', 'The exact melee fixture item remained wielded before casting.')
+    session.send('drop knife', read_seconds=2)
+    output = session.send('impdebug flush', read_seconds=3)
+    require('All queued saves have been flushed' in output, 'Melee drop save flush did not confirm.')
+    require(sql(f'SELECT COUNT(*) FROM Bodies_GameItems WHERE BodyId={admin_body[0][0]} AND GameItemId={knife_item_id}')[0][0] == '0',
+            'The exact melee fixture item still occupies the avatar inventory before casting.')
 
     # Create disposable rooms through the live builder and confirm an NPC moves via a real exit.
     package_name = 'S3 Movement ' + uuid.uuid4().hex

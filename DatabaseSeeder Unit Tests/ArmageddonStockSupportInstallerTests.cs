@@ -32,6 +32,10 @@ public class ArmageddonStockSupportInstallerTests
 		Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(0, db.Characters.Count()); Assert.AreEqual(0, db.MagicSpells.Count());
 		Assert.AreEqual(210, new ArmageddonStockCatalogue().Blueprints.Count);
 		Assert.AreEqual(49, new ArmageddonStockCatalogue().Blueprints.Count(x => x.Kind == ArmageddonBlueprintKind.MeleeItem));
+		var corpse = db.FutureProgs.Include(x => x.FutureProgsParameters)
+			.Single(x => x.Id == first.Identities[ArmageddonStockSupportInstaller.CorpseEligibilityKey]);
+		CollectionAssert.AreEqual(new[] { ProgVariableTypes.Character, ProgVariableTypes.Item }, corpse.FutureProgsParameters
+			.OrderBy(x => x.ParameterIndex).Select(x => ProgVariableTypes.FromStorageString(x.ParameterTypeDefinition)).ToArray());
 		for (var variant = 1; variant <= 8; variant++)
 		{
 			var flame = ArmageddonStockSupportInstaller.FlameStaffKey(variant);
@@ -97,6 +101,9 @@ public class ArmageddonStockSupportInstallerTests
 	{
 		var definitions = ArmageddonStockSupportInstaller.ProgDefinitions(new(11, 12, 21, 22, 31, 47, 32, 23, 33, new[] { 41L, 42, 43, 44, 45, 46, 47 }));
 		Assert.AreEqual(11, definitions.Count); var id = 100L; foreach (var row in definitions.Values) row.Id = id++;
+		CollectionAssert.AreEqual(new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
+			definitions[ArmageddonStockSupportInstaller.CorpseEligibilityKey].FutureProgsParameters
+				.OrderBy(x => x.ParameterIndex).Select(x => ProgVariableTypes.FromStorageString(x.ParameterTypeDefinition)).ToArray());
 		using var compiler = new OfflineProgCompilation(definitions.Values);
 		foreach (var definition in definitions.Values)
 		{

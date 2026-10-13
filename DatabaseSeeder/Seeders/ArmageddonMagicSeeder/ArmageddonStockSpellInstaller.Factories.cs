@@ -89,7 +89,7 @@ public static partial class ArmageddonStockSpellInstaller
 					!db.ArtificialIntelligences.Any(x => x.Id == combatEnd && x.Type == "CombatEnd"))
 					throw new StockDependencyException("Servitor control requires its exact native Commandable and CombatEnd bundle.");
 				content = ArmageddonExistingFactorySpellContent.RaiseServitor(new(
-					CatalogueProg(db, "arm.support.prog.corpse_eligibility", ProgVariableTypes.Boolean, ProgVariableTypes.Item, character), commandable, combatEnd));
+					CatalogueProg(db, ArmageddonStockSupportInstaller.CorpseEligibilityKey, ProgVariableTypes.Boolean, character, ProgVariableTypes.Item), commandable, combatEnd));
 				break;
 			case "arm.spell.roused_fury":
 				school = "earth";

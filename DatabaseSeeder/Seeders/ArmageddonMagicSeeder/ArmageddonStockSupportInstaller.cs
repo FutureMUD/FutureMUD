@@ -78,7 +78,7 @@ public static partial class ArmageddonStockSupportInstaller
 		return new Dictionary<string, FutureProg>(StringComparer.Ordinal)
 		{
 			[CorpseEligibilityKey] = Prog("arm_support_corpse_eligibility", ProgVariableTypes.Boolean,
-				"return " + locationAllowed, ("corpse", ProgVariableTypes.Item), ("caster", ProgVariableTypes.Character)),
+				"return " + locationAllowed, ("caster", ProgVariableTypes.Character), ("corpse", ProgVariableTypes.Item)),
 			[WeaponEligibilityKey] = Prog("arm_support_weapon_eligibility", ProgVariableTypes.Boolean,
 				$"return currentplaneid(@caster) != {bindings.WaterPlane}", ("caster", ProgVariableTypes.Character)),
 			[FlameMultiplierKey] = Prog("arm_support_flame_multiplier", ProgVariableTypes.Number,

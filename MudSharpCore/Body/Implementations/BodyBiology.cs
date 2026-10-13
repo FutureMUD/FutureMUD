@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Disfigurements;
+using MudSharp.Body.Disfigurements;
 using MudSharp.Body.PartProtos;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
@@ -932,6 +932,7 @@ public partial class Body
             {
 				if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return Enumerable.Empty<IWound>();
 				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
+                var transferMeasurement = damage.VitalTransfer?.BeginMeasurement(this, damage);
                 existingWound = HealthStrategy.SufferDamage(Actor, new Damage(damage) { TargetBody = this }, damage.Bodypart).FirstOrDefault();
                 if (existingWound == null)
                 {
@@ -945,14 +946,17 @@ public partial class Body
                     _wounds.Add(existingWound);
                 }
 
+                transferMeasurement?.Complete(new[] { existingWound });
                 return new[] { existingWound };
             }
 
 			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return Enumerable.Empty<IWound>();
 			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
+            var existingTransferMeasurement = damage.VitalTransfer?.BeginMeasurement(this, damage);
             existingWound.OriginalDamage += damage.DamageAmount;
             existingWound.CurrentDamage += damage.DamageAmount;
             existingWound.CurrentPain += damage.PainAmount;
+            existingTransferMeasurement?.Complete(new[] { existingWound });
             Gameworld.LogManager.CustomLogEntry(LogEntryType.SufferHypoxiaCellularDamage, this, damage, existingWound);
             return new[] { existingWound };
         }
@@ -1085,6 +1089,7 @@ public partial class Body
 
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return wounds;
 		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
+        var transferMeasurementForWounds = damage.VitalTransfer?.BeginMeasurement(this, damage);
         IWound[] newWounds = HealthStrategy.SufferDamage(Actor, new Damage(damage) { TargetBody = this }, damage.Bodypart).ToArray();
         IWound newWound = newWounds.FirstOrDefault(x => x is not BoneFracture);
         newWound?.SeveredBodypart = severedPart;
@@ -1103,6 +1108,7 @@ public partial class Body
             }
         }
 
+        transferMeasurementForWounds?.Complete(newWounds);
         wounds.AddRange(newWounds);
         return wounds;
     }

@@ -434,6 +434,7 @@ public class ArmourType : SaveableItem, IArmourType
         Damage partDamage = new()
         {
             ExposureContext = damage.ExposureContext,
+			VitalTransfer = damage.VitalTransfer,
             DamageType = damage.DamageType,
             ActorOrigin = damage.ActorOrigin,
             ToolOrigin = damage.ToolOrigin,
@@ -472,6 +473,7 @@ public class ArmourType : SaveableItem, IArmourType
         return (partDamage, new Damage
         {
             ExposureContext = damage.ExposureContext,
+			VitalTransfer = damage.VitalTransfer,
             DamageType = newDamageType,
             ActorOrigin = damage.ActorOrigin,
             ToolOrigin = damage.ToolOrigin,
@@ -548,6 +550,7 @@ public class ArmourType : SaveableItem, IArmourType
         Damage armourDamage = new()
         {
             ExposureContext = damage.ExposureContext,
+			VitalTransfer = damage.VitalTransfer,
             DamageType = damage.DamageType,
             ActorOrigin = damage.ActorOrigin,
             ToolOrigin = damage.ToolOrigin,
@@ -593,6 +596,7 @@ public class ArmourType : SaveableItem, IArmourType
         return new Damage
         {
             ExposureContext = damage.ExposureContext,
+			VitalTransfer = damage.VitalTransfer,
             DamageType = newDamageType,
             ActorOrigin = damage.ActorOrigin,
             ToolOrigin = damage.ToolOrigin,
@@ -673,6 +677,7 @@ public class ArmourType : SaveableItem, IArmourType
         Damage armourDamage = new()
         {
             ExposureContext = damage.ExposureContext,
+			VitalTransfer = damage.VitalTransfer,
             DamageType = damage.DamageType,
             ActorOrigin = damage.ActorOrigin,
             ToolOrigin = damage.ToolOrigin,
@@ -710,6 +715,7 @@ public class ArmourType : SaveableItem, IArmourType
         return (new Damage
         {
             ExposureContext = damage.ExposureContext,
+			VitalTransfer = damage.VitalTransfer,
             DamageType = newDamageType,
             ActorOrigin = damage.ActorOrigin,
             ToolOrigin = damage.ToolOrigin,

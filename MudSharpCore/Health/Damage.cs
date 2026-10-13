@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
 
@@ -25,6 +25,7 @@ public class Damage : IDamage
     public Damage(IDamage rhs)
     {
 		TargetBody = rhs.TargetBody;
+		VitalTransfer = rhs.VitalTransfer;
 		ExposureContext = rhs.ExposureContext;
         DamageType = rhs.DamageType;
         DamageAmount = rhs.DamageAmount;
@@ -42,6 +43,7 @@ public class Damage : IDamage
     public Damage(IDamage rhs, double damageMultipliers)
     {
 		TargetBody = rhs.TargetBody;
+		VitalTransfer = rhs.VitalTransfer;
 		ExposureContext = rhs.ExposureContext;
         DamageType = rhs.DamageType;
         DamageAmount = rhs.DamageAmount * damageMultipliers;
@@ -60,6 +62,7 @@ public class Damage : IDamage
 
     public DamageType DamageType { get; init; }
 	public IBody TargetBody { get; init; }
+	public MudSharp.Magic.IMagicVitalTransferDamage VitalTransfer { get; init; }
 	public MudSharp.Form.Material.ExposureDamageContext ExposureContext { get; init; }
 
     public double DamageAmount { get; init; }

@@ -12,6 +12,7 @@ SAFE_TARGETS = {
     'arm.spell.quickened_healing': 'self', 'arm.spell.earthen_strength': 'self',
     'arm.spell.fleet_step': 'self', 'arm.spell.venom_touch': 'self',
     'arm.spell.desiccate': 'self', 'arm.spell.headlong_revel': 'self',
+    'arm.spell.gust_hands': 'mount east', 'arm.spell.cinder_rain': 'mount',
 }
 EXPECTED_CHILDREN = {'arm.spell.night_eyes': 'SpellInfravision', 'arm.spell.daylight': 'SpellRoomLight',
                      'arm.spell.quickened_healing': 'SpellHealingRate', 'arm.spell.earthen_strength': 'SpellTraitBoost',
@@ -132,12 +133,19 @@ if __name__ == '__main__':
                      'trait': 30, 'school': 40, 'resource': 50, 'source': 60, 'invoked': 'armtest',
                      'grade_one_cost': 50, 'duration_seconds': 60} for index, (key, target) in enumerate(SAFE_TARGETS.items())]
         def test_repeatable_order_independent_bounded_selection(self):
-            rows = self.rows(); installed = {row['key']: {'id': row['spell'], 'trait': 30, 'school': 40} for row in rows}
+            rows = [row for row in self.rows() if row['key'] not in ('arm.spell.gust_hands', 'arm.spell.cinder_rain')]
+            installed = {row['key']: {'id': row['spell'], 'trait': 30, 'school': 40} for row in rows}
             a = select_campaign({'version': 1, 'seed': SEED, 'sample_limit': 4, 'candidates': rows}, installed)
             b = select_campaign({'version': 1, 'seed': SEED, 'sample_limit': 4, 'candidates': list(reversed(rows))}, installed)
             self.assertEqual([row['key'] for row in a], [row['key'] for row in b]); self.assertEqual(4, len(a))
             self.assertIn('arm.spell.fleet_step', [row['key'] for row in a])
             self.assertTrue(all(row['grade'] == 1 for row in selection_receipt(a)['selected']))
+        def test_new_wind_and_area_paid_routes_are_selected_with_retained_read(self):
+            rows = [row for row in self.rows() if row['key'] in
+                    ('arm.spell.read_attunement', 'arm.spell.gust_hands', 'arm.spell.cinder_rain')]
+            installed = {row['key']: {'id': row['spell'], 'trait': 30, 'school': 40} for row in rows}
+            selected = select_campaign({'version': 1, 'seed': SEED, 'sample_limit': 3, 'candidates': rows}, installed)
+            self.assertEqual({row['key'] for row in rows}, {row['key'] for row in selected})
         def test_invalid_configuration_refuses_before_native_io(self):
             rows = self.rows(); installed = {row['key']: {'id': row['spell'], 'trait': 30, 'school': 40} for row in rows}
             for limit in (0, 5, True):

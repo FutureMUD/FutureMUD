@@ -594,6 +594,31 @@ def stock_campaign_smoke(session, phase, data, mapped):
             result['outcome'] = 'PASS'
             continue
         require(initial['balance'] == 0 and initial['grade'] == 0 and initial['enrolments'] == 0, 'Campaign preparation pregranted/refilled actor: ' + key)
+        physical_target = None
+        cast_target = row['target']
+        if key in ('arm.spell.gust_hands', 'arm.spell.cinder_rain'):
+            template_id = int(catalogue_record('arm.npc.earth_mount.g1')[2])
+            unique = sql(f'SELECT UniqueName FROM NPCTemplates WHERE Id={template_id}')
+            require(len(unique) == 1 and unique[0][0] == 'arm.npc.earth_mount.g1', 'Campaign lost exact native mount template.')
+            previous = int(sql(f'SELECT COUNT(*) FROM Npcs WHERE TemplateId={template_id}')[0][0])
+            spawned = session.send('npc load ' + unique[0][0], read_seconds=2)
+            flush()
+            result['physical_spawn_output'] = redact(spawned)
+            require(int(sql(f'SELECT COUNT(*) FROM Npcs WHERE TemplateId={template_id}')[0][0]) == previous + 1,
+                    'Campaign did not persist exactly one disposable native physical target: ' + redact(spawned))
+            rows = sql(f'SELECT c.Id,c.BodyId,c.Location,c.Name FROM Characters c JOIN Npcs n ON n.CharacterId=c.Id '
+                       f'WHERE n.TemplateId={template_id} ORDER BY c.Id DESC LIMIT 1')
+            require(len(rows) == 1 and len(rows[0]) == 4 and all(rows[0][index].isdigit() for index in (0,1,2)) and
+                    rows[0][2] == character_state()[3] and rows[0][3], 'Campaign target lacks exact local Character/Body custody.')
+            physical_target = {'id': int(rows[0][0]), 'body': int(rows[0][1]), 'home': int(rows[0][2]), 'name': rows[0][3]}
+            result['physical_target'] = physical_target
+            if key == 'arm.spell.gust_hands':
+                cast_target = '.'.join(rows[0][3].lower().split()) + ' east'
+                require(row['target'] == 'mount east' and 'campaign_exit_destination' in receipt,
+                        'Wind sample lacks its approved explicit native east exit.')
+            elif key == 'arm.spell.cinder_rain':
+                cast_target = '.'.join(rows[0][3].lower().split())
+                require(row['target'] == 'mount', 'Area sample lacks its approved local character target.')
         session.send(f'givemerit me {int(row["merit"])}', read_seconds=.3)
         enrol = session.send(f'magic casting enrol {actor} {cap} explicit disposable seeded representative campaign', read_seconds=.4)
         flush(); current = state(row)
@@ -612,8 +637,11 @@ def stock_campaign_smoke(session, phase, data, mapped):
             before_stamina = native_stamina() if key == 'arm.spell.second_breath' else None
             before_needs = native_needs() if key in ('arm.spell.desiccate', 'arm.spell.headlong_revel') else None
             before_delayed = delayed_alcohol() if key == 'arm.spell.headlong_revel' else None
+            before_wounds = None
+            if key == 'arm.spell.cinder_rain':
+                before_wounds = float(sql(f'SELECT IFNULL(SUM(CurrentDamage),0) FROM Wounds WHERE BodyId={physical_target["body"]}')[0][0])
             old = operations(row)
-            output = session.send(f'{row["invoked"]} cast "{installed[key]["name"]}" grade 1 on {row["target"]} via {cap}', read_seconds=.5)
+            output = session.send(f'{row["invoked"]} cast "{installed[key]["name"]}" grade 1 on {cast_target} via {cap}', read_seconds=.5)
             flush(); after = state(row); new = operations(row)
             added = [operation for operation in new if operation[0] not in {previous[0] for previous in old}]
             attempt_receipt = {'attempt': attempt, 'before': before, 'after': after, 'output': redact(output), 'operations': added}
@@ -633,6 +661,21 @@ def stock_campaign_smoke(session, phase, data, mapped):
                     before['balance'] - after['balance'] == cost and after['balance'] == 0 and after['grade'] == 1 and after['enrolments'] == 1,
                     'Campaign payment/grade/reserve conservation differs: ' + key)
             if payload.get('applied') == 'true':
+                if key == 'arm.spell.gust_hands':
+                    destination = int(receipt['campaign_exit_destination'])
+                    observed = sql(f'SELECT Location FROM Characters WHERE Id={physical_target["id"]}')
+                    deadline = time.monotonic() + 20
+                    while time.monotonic() < deadline and (len(observed) != 1 or observed[0][0] != str(destination)):
+                        session.read_for(.4); flush()
+                        observed = sql(f'SELECT Location FROM Characters WHERE Id={physical_target["id"]}')
+                    require(len(observed) == 1 and observed[0][0] == str(destination) and destination != physical_target['home'],
+                            'Paid Gust Hands did not move the exact physical NPC across the selected east exit.')
+                    attempt_receipt['native_relocation'] = {'before': physical_target['home'], 'after': destination}
+                if key == 'arm.spell.cinder_rain':
+                    after_wounds = float(sql(f'SELECT IFNULL(SUM(CurrentDamage),0) FROM Wounds WHERE BodyId={physical_target["body"]}')[0][0])
+                    require(after_wounds > before_wounds and math.isfinite(after_wounds),
+                            'Paid Cinder Rain did not persist positive native area injury on its local NPC.')
+                    attempt_receipt['native_area_damage'] = {'before': before_wounds, 'after': after_wounds}
                 if before_stamina is not None: require(attempt_receipt['native_stamina_observed']['after'] > before_stamina, 'Applied Second Breath did not persist a positive native stamina change.')
                 if key == 'arm.spell.desiccate':
                     observed = attempt_receipt['native_needs_observed']
@@ -942,6 +985,7 @@ def native_first_boot_scenario(session):
         home_location = receipt['initial_avatar'][3]
         moved_to = character_state()[3]
         require(moved_to != home_location, 'Native room dig did not move the avatar to a distinct room.')
+        receipt['campaign_exit_destination'] = moved_to
         original_mount_location = receipt['spawned_creatures']['arm.npc.earth_mount.g1'][1]
         session.send('room set type outdoors', read_seconds=2)
         session.send('room package submit S3 disposable movement acceptance', read_seconds=2)

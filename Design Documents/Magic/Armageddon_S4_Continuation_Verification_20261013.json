@@ -43,11 +43,11 @@
       "unqualified carrier producers"
     ]
   },
-  "canonical_definitions_declared": 118,
+  "canonical_definitions_declared": 121,
   "required_inventory": 152,
-  "required_not_yet_declared": 34,
+  "required_not_yet_declared": 31,
   "optional_inventory": 2,
-  "definition_audit": "PASS: 118 declared fixed definitions in focused Classic/Simple audit, including four new area harm entries. Runtime hydration passes for the four new entries. Repaired-source Classic native first/cold loaded only the preceding 114/114 definitions; paid grade-one needs samples are bounded below.",
+  "definition_audit": "PASS: 121 declared fixed definitions in focused Classic/Simple audit, including three new item-condition entries and the preceding four area harm entries. Native hydration and focused item-operation checks pass. One restored-world first boot loaded 121/121 exact definitions but its campaign failed before cold boot; the last complete Classic native first/cold certificate remains 114/114.",
   "checks": [
     {
       "name": "seeder-full-final-99",
@@ -474,6 +474,22 @@
     ],
     "qualification_limit": "The sampled paid Venom cast proves first-boot dose creation/payment, not a live cold dose; managed reload and isolated MySQL tests cover custody. No complete installed-stock, all-grade, Purge Toxin or Consuming Flame paid qualification is claimed."
   },
+  "item_condition_candidate": {
+    "base_revision": "74bd2817d0e57fbd5f933a63dc9b77ebab187ecc",
+    "declared_required_definitions": 121,
+    "required_not_yet_declared": 31,
+    "new_keys": ["arm.spell.shatter_stone", "arm.spell.restore_object", "arm.spell.erode_object"],
+    "focused_seeder": "PASS 3/0/0 finite definition contract plus Classic/Simple fixed installer audit",
+    "focused_core": "PASS 6/0/0 native hydration, item operation boundaries and explicit unsupported stored-scroll compatibility",
+    "full_core": "PASS 7141/0/0 Debug --no-build --no-restore; task/s4-item-condition/core-item-condition-final.trx",
+    "full_seeder": "PASS 1844/0/3 Debug --no-restore",
+    "native_paid_cold": "PENDING for item condition and 121-definition cold boot. A failed overall run loaded 121/121 exact first-boot definitions and separately proved one paid Gust Hands relocation; Cinder Rain's harness target refused before payment. A corrected-target rerun was interrupted without a final receipt.",
+    "partial_native_receipt": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-121-wind-area-retry2/boot-latest.json",
+    "partial_native_facts": "First boot 121/121 exact loaded definitions; grade-one Gust Hands paid 50 once with one Completed operation and saved disposable mount relocation 1->2. Overall status FAIL: Cinder Rain fixture used here with a character trigger and did not debit or write a Completed operation. No first/cold or package certificate is claimed.",
+    "interrupted_native_retry": "Corrected Cinder Rain target to the exact local mount; campaign helper 7/7 and harness build 0 errors. A fresh isolated rerun reached first boot but was interrupted before a receipt. Its stopped owned MySQL PID/port were verified; only that run's temporary data directory was removed after preserving mysql-interrupted.err under task/s4-121-native-package-retry3/20261013T222444Z_181a44254e804e3d9d894928e59e2b8b.",
+    "preceding_head_ci": "74bd2817d push and PR Linux/Windows default-gate checks all SUCCESS on GitHub; this new head awaits publication and its own checks.",
+    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+  },
   "area_harm_candidate": {
     "base_revision": "dfc4706ad09f287e9d32d8657d76abe923ae5706",
     "declared_required_definitions": 118,
@@ -483,8 +499,8 @@
     "focused_core": "PASS 1/0/0 native hydration/ReadyForGame for four authored area definitions",
     "full_core": "PASS 7136/0/0 Debug --no-build --no-restore",
     "full_seeder": "PASS 1843/0/3 Debug --no-build --no-restore",
-    "native_paid_cold": "PENDING; preceding 114-definition receipt must not be inferred to certify these four",
-    "wind_paid_movement": "PENDING; add explicit exit fixture and saved relocation assertion to the next consolidated campaign",
+    "native_paid_cold": "PENDING; Cinder Rain's first harness sample used here with a character trigger, refused before payment, and was corrected to the exact local mount. The corrected rerun was interrupted without a final receipt.",
+    "wind_paid_movement": "PARTIAL PASS in an overall failed first-boot campaign: grade-one Gust Hands spent 50, wrote one Completed operation and saved exact disposable mount relocation 1->2. Cold and package conservation remain pending.",
     "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
   },
   "current_unpublished_slice": {

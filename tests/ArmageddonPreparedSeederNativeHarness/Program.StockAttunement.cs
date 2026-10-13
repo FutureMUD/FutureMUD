@@ -87,10 +87,9 @@ internal static partial class GNHProgram
 		var stockInputs = installed.Select(x => PreparedStockDefinitionInput(db, x.Key, x.Spell)).ToArray();
 		var candidateSpecs = new (string Key, string Target, double Seconds)[]
 		{
-			// Earlier sealed campaigns retain their Fleet Step and Second Breath paid receipts.
-			// This bounded campaign samples the new native needs adapters and retained toxin custody.
-			("arm.spell.venom_touch", "self", 60),
-			("arm.spell.desiccate", "self", 0), ("arm.spell.headlong_revel", "self", 0)
+			// Earlier sealed campaigns retain paid needs/toxin receipts. Use this restored
+			// native lane for one explicit-exit wind sample and one physical-area sample.
+			("arm.spell.gust_hands", "mount east", 0), ("arm.spell.cinder_rain", "mount", 30)
 		};
 		var candidates = new List<object>
 		{
@@ -174,7 +173,7 @@ internal static partial class GNHProgram
 			trait = spell.CastingTraitDefinitionId, school = spell.MagicSchoolId, source = ids[ArmageddonProgressionInstaller.SourceResourceKey],
 			definition = spell.Definition, duration = spell.EffectDurationExpressionId,
 			stock_spells = stockInputs,
-			representative_campaign = new { version = 1, seed = 20261013, sample_limit = 4, candidates,
+			representative_campaign = new { version = 1, seed = 20261013, sample_limit = 3, candidates,
 				earth_mount = new { status = "PENDING", reason = "No explicit disposable paid Earth Mount admission and real-exit native follow observer." } },
 			prepared_source = new { path = preparationSource, sha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(preparationSource))) },
 			package_capabilities = db.SeederManagedRecords.AsNoTracking().Where(x => x.EntityType == nameof(Db.MagicCapability) && x.Module == ArmageddonProgressionInstaller.Module).Select(x => x.LogicalId).ToArray(),

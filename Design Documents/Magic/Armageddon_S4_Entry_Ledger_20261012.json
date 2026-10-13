@@ -37,14 +37,14 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 118,
+    "installed_canonical_spells": 121,
     "native_grade_one_stock_entries": 1,
-    "native_sampled_grade_one_spells": 8,
-    "declared_canonical_spells": 118,
-    "definition_audited_canonical_spells": 118,
+    "native_sampled_grade_one_spells": 9,
+    "declared_canonical_spells": 121,
+    "definition_audited_canonical_spells": 121,
     "latest_successful_native_loaded_spells": 114,
-    "required_not_yet_declared": 34,
-    "latest_partial_native_first_loaded_spells": 106
+    "required_not_yet_declared": 31,
+    "latest_partial_native_first_loaded_spells": 121
   },
   "path_discrepancies": [],
   "unselected_registration_name_guesses": [],
@@ -6526,16 +6526,9 @@
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
-      "registered_effect_candidates": [
-        {
-          "type": "itemdamage",
-          "class": "ItemDamageEffect",
-          "path": "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs",
-          "line": 282
-        }
-      ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonItemConditionSpellContent.cs",
+      "registered_effect_candidates": [{"type": "boundeditemcondition", "class": "BoundedItemConditionEffect", "path": "MudSharpCore/Magic/SpellEffects/BoundedItemConditionEffect.cs"}],
+      "candidate_scope": "finite selected-grade native item wound adapter; paid installed-stock qualification pending",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -6560,11 +6553,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Declared fixed stock definition and native item-condition adapter; focused operation/definition tests pass, paid native acceptance pending.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock invocation, representative native item custody and cold restart, and selected-grade boundaries before installed-stock promotion."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -6572,8 +6563,8 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": ["Armageddon_S4_Continuation_Verification_20261013.json"]
         },
         "direct": [],
         "inherited": [],
@@ -6581,7 +6572,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 65,
@@ -6593,9 +6585,9 @@
       "inventory_current_factory": null,
       "verified_paths": [],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
-      "registered_effect_candidates": [],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonItemConditionSpellContent.cs",
+      "registered_effect_candidates": [{"type": "boundeditemcondition", "class": "BoundedItemConditionEffect", "path": "MudSharpCore/Magic/SpellEffects/BoundedItemConditionEffect.cs"}],
+      "candidate_scope": "finite selected-grade native item wound adapter; paid installed-stock qualification pending",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -6620,11 +6612,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Declared fixed stock definition and native item-condition adapter; focused operation/definition tests pass, paid native acceptance pending.",
       "remaining": [
-        "No item-repair effect identified; native wound MendEffect is not an item repair adapter.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock invocation, representative native item custody and cold restart, and selected-grade boundaries before installed-stock promotion."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -6634,8 +6624,8 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": ["Armageddon_S4_Continuation_Verification_20261013.json"]
         },
         "direct": [],
         "inherited": [],
@@ -6643,7 +6633,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 66,
@@ -7273,7 +7264,7 @@
       },
       "current_code_note": "Selected-grade steps through an explicit eligible native exit, with no fall-exit traversal or false movement receipt.",
       "remaining": [
-        "Paid native movement through eligible exits, refusal paths, fall handling and cold behaviour remain unobserved."
+        "One grade-one paid native east-exit movement sample passed in an overall failed first-boot campaign; other grades, refusal paths, fall handling, complete package conservation and cold behaviour remain unobserved."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -7296,7 +7287,13 @@
           }
         ],
         "inherited": [],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS_PARTIAL_RUN",
+            "receipt": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-121-wind-area-retry2/boot-latest.json",
+            "scope": "Grade-one Gust Hands spent exactly 50 reserve, wrote one Completed operation and moved its exact disposable mount from room 1 to room 2. Overall run failed later at Cinder Rain before cold boot; no full installed-stock certificate."
+          }
+        ],
         "assumptions": [
           "Definition, managed adapter and bounded grade-one samples do not establish all-grade or complete installed-stock qualification; package and Release gates remain disabled."
         ],
@@ -13810,16 +13807,9 @@
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
-      "registered_effect_candidates": [
-        {
-          "type": "itemdamage",
-          "class": "ItemDamageEffect",
-          "path": "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs",
-          "line": 282
-        }
-      ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonItemConditionSpellContent.cs",
+      "registered_effect_candidates": [{"type": "boundeditemcondition", "class": "BoundedItemConditionEffect", "path": "MudSharpCore/Magic/SpellEffects/BoundedItemConditionEffect.cs"}],
+      "candidate_scope": "finite selected-grade native item wound adapter; paid installed-stock qualification pending",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -13844,11 +13834,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Declared fixed stock definition and native item-condition adapter; focused operation/definition tests pass, paid native acceptance pending.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock invocation, representative native item custody and cold restart, and selected-grade boundaries before installed-stock promotion."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -13856,8 +13844,8 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": ["Armageddon_S4_Continuation_Verification_20261013.json"]
         },
         "direct": [],
         "inherited": [],
@@ -13865,7 +13853,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 146,
@@ -14990,13 +14979,22 @@
   "S4_creature_definition_batch_sources_scope": "Historical tested Windows worktree bytes at published9790aeed; later content integration may change these files.",
   "current_batch_revision": "b58eba58e7dddedb04907753c2497cf42d97a8f2",
   "current_batch_verification": "Armageddon_S4_Continuation_Verification_20261013.json",
+  "item_condition_definition_candidate": {
+    "base_revision": "74bd2817d0e57fbd5f933a63dc9b77ebab187ecc",
+    "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonItemConditionSpellContent.cs",
+    "keys": ["arm.spell.shatter_stone", "arm.spell.restore_object", "arm.spell.erode_object"],
+    "definition_status": "Classic/Simple installer and finite-grade definition 3/3; native hydration, operation and compatibility 6/6; full Core 7141/0/0; full Seeder 1844/0/3.",
+    "installed_stock_qualification": "PENDING: first boot loaded 121/121 exact definitions, but no paid live item cast, cold continuity or all-grade certificate for these three.",
+    "latest_successful_native_loaded_spells": 114,
+    "next_consolidated_campaign": "Retain the partial paid Gust Hands relocation evidence; add paid area harm and item condition while retaining rollback, lost-ack, no-op, no player writes, first/cold and disabled-gate assertions."
+  },
   "area_harm_definition_candidate": {
     "base_revision": "dfc4706ad09f287e9d32d8657d76abe923ae5706",
     "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonAreaHarmSpellContent.cs",
     "keys": ["arm.spell.cinder_rain", "arm.spell.thunderclap", "arm.spell.scouring_gust", "arm.spell.caustic_spray"],
     "definition_status": "Classic/Simple installer audit 3/3 and runtime hydration 1/1 pass; four authored effects and area policies are declared.",
-    "installed_stock_qualification": "PENDING: no paid live area cast, cold continuity or all-grade certificate for these four.",
+    "installed_stock_qualification": "PENDING: Cinder Rain's first character-trigger fixture refused here before payment; its exact local-mount target is corrected, but no completed paid live area cast, cold continuity or all-grade certificate exists for these four.",
     "latest_successful_native_loaded_spells": 114,
-    "next_consolidated_campaign": "Add paid wind explicit-exit relocation and representative area harm while retaining rollback, lost-ack, no-op, no player writes, first/cold and disabled-gate assertions."
+    "next_consolidated_campaign": "Complete the corrected local-mount area sample and full first/cold package campaign; the separate Gust Hands paid movement sample passed in an overall failed run."
   }
 }

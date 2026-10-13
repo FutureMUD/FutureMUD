@@ -107,7 +107,9 @@ public static partial class ArmageddonStockSpellInstaller
 			ArmageddonAreaHarmSpellContent.ScouringGustKey, ArmageddonAreaHarmSpellContent.CausticSprayKey }.Select(key =>
 			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
 				ArmageddonAreaHarmSpellContent.Create(CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey))
-					.Single(x => x.Content.Key == key)))));
+					.Single(x => x.Content.Key == key)))))
+		.Concat(ArmageddonItemConditionSpellContent.Create().Select(x =>
+			(Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))));
 
 	private static ArmageddonInstallResult InstallContribution(Func<FuturemudDatabaseContext> factory,
 		Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution> resolve, Action<ArmageddonInstallCheckpoint>? checkpoint)

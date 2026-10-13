@@ -78,14 +78,25 @@ public partial class Body
 
     public void Dose(IDrug drug, DrugVector vector, double grams, object originator)
     {
+        Dose(drug, vector, grams, originator,
+            (originator as IPersistentDrugDoseOrigin)?.DrugDoseOriginId,
+            (originator as IPersistentDrugDoseOrigin)?.DrugDoseFamily,
+            (originator as IPersistentDrugDoseOrigin)?.DrugDoseFormula);
+    }
+
+    private void Dose(IDrug drug, DrugVector vector, double grams, object originator, Guid? spellOriginId,
+        string spellOriginFamily, string spellOriginFormula)
+    {
         DrugsChanged = true;
         DrugDosage latent = _latentDrugDosages.FirstOrDefault(x =>
             x.Drug == drug &&
             x.OriginalVector == vector &&
-            Equals(x.Originator, originator));
+            SameDoseOrigin(x, originator, spellOriginId));
         if (latent == null)
         {
-            latent = new DrugDosage { Drug = drug, OriginalVector = vector, Originator = originator };
+            latent = new DrugDosage { Drug = drug, OriginalVector = vector, Originator = originator,
+                SpellOriginId = spellOriginId, SpellOriginFamily = spellOriginFamily,
+                SpellOriginFormula = spellOriginFormula };
             _latentDrugDosages.Add(latent);
         }
 
@@ -95,6 +106,19 @@ public partial class Body
 
     public void DoseImmediate(IDrug drug, DrugVector vector, double grams, object originator)
     {
+        DoseImmediate(drug, vector, grams, originator,
+            (originator as IPersistentDrugDoseOrigin)?.DrugDoseOriginId,
+            (originator as IPersistentDrugDoseOrigin)?.DrugDoseFamily,
+            (originator as IPersistentDrugDoseOrigin)?.DrugDoseFormula);
+    }
+
+    private static bool SameDoseOrigin(DrugDosage dose, object originator, Guid? spellOriginId) =>
+        spellOriginId.HasValue ? dose.SpellOriginId == spellOriginId :
+            dose.SpellOriginId is null && Equals(dose.Originator, originator);
+
+    private void DoseImmediate(IDrug drug, DrugVector vector, double grams, object originator, Guid? spellOriginId,
+        string spellOriginFamily, string spellOriginFormula)
+    {
         if (grams <= 0.0)
         {
             return;
@@ -103,10 +127,12 @@ public partial class Body
         DrugsChanged = true;
         DrugDosage active = _activeDrugDosages.FirstOrDefault(x =>
             x.Drug == drug &&
-            Equals(x.Originator, originator));
+            SameDoseOrigin(x, originator, spellOriginId));
         if (active == null)
         {
-            active = new DrugDosage { Drug = drug, OriginalVector = vector, Originator = originator };
+            active = new DrugDosage { Drug = drug, OriginalVector = vector, Originator = originator,
+                SpellOriginId = spellOriginId, SpellOriginFamily = spellOriginFamily,
+                SpellOriginFormula = spellOriginFormula };
             _activeDrugDosages.Add(active);
         }
 
@@ -232,15 +258,10 @@ public partial class Body
 
             DrugDosage activeDose = _activeDrugDosages.FirstOrDefault(x =>
                 x.Drug == drug.Drug &&
-                Equals(x.Originator, drug.Originator));
+                SameDoseOrigin(x, drug.Originator, drug.SpellOriginId));
             if (activeDose == null)
             {
-                activeDose = new DrugDosage
-                {
-                    Drug = drug.Drug,
-                    OriginalVector = DrugVector.Injected,
-                    Originator = drug.Originator
-                };
+                activeDose = AbsorbedDrugDose(drug);
                 _activeDrugDosages.Add(activeDose);
             }
 
@@ -255,6 +276,16 @@ public partial class Body
             DrugsChanged = true;
         }
     }
+
+    internal static DrugDosage AbsorbedDrugDose(DrugDosage latent) => new()
+    {
+        Drug = latent.Drug,
+        OriginalVector = latent.SpellOriginId.HasValue ? latent.OriginalVector : DrugVector.Injected,
+        Originator = latent.Originator,
+        SpellOriginId = latent.SpellOriginId,
+        SpellOriginFamily = latent.SpellOriginFamily,
+        SpellOriginFormula = latent.SpellOriginFormula
+    };
 
     private DrugDependenceAdditionalInfo DependenceInfoFor(IDrug drug)
     {
@@ -1361,49 +1392,7 @@ public partial class Body
 
     private void SaveDrugs(MudSharp.Models.Body body)
     {
-        List<BodyDrugDose> drugsToDelete =
-            body.BodiesDrugDoses.Where(
-                x =>
-                    !_activeDrugDosages.Any(y => y.Drug.Id == x.DrugId && x.Active) &&
-                    !_latentDrugDosages.Any(y => y.Drug.Id == x.DrugId && !x.Active)).ToList();
-        foreach (BodyDrugDose drug in drugsToDelete)
-        {
-            body.BodiesDrugDoses.Remove(drug);
-        }
-
-        foreach (DrugDosage item in ActiveDrugDosages)
-        {
-            BodyDrugDose dbitem = body.BodiesDrugDoses.FirstOrDefault(x => x.Active && x.DrugId == item.Drug.Id);
-            if (dbitem == null)
-            {
-                dbitem = new Models.BodyDrugDose
-                {
-                    DrugId = item.Drug.Id,
-                    Active = true,
-                    OriginalVector = (int)item.OriginalVector
-                };
-                body.BodiesDrugDoses.Add(dbitem);
-            }
-
-            dbitem.Grams = item.Grams;
-        }
-
-        foreach (DrugDosage item in LatentDrugDosages)
-        {
-            BodyDrugDose dbitem = body.BodiesDrugDoses.FirstOrDefault(x => !x.Active && x.DrugId == item.Drug.Id);
-            if (dbitem == null)
-            {
-                dbitem = new Models.BodyDrugDose
-                {
-                    DrugId = item.Drug.Id,
-                    Active = false,
-                    OriginalVector = (int)item.OriginalVector
-                };
-                body.BodiesDrugDoses.Add(dbitem);
-            }
-
-            dbitem.Grams = item.Grams;
-        }
+        ReconcileDrugDoseRows(body.BodiesDrugDoses, _activeDrugDosages, _latentDrugDosages);
 
         List<BodyDrugExposure> exposuresToDelete =
             body.BodiesDrugExposures
@@ -1419,10 +1408,7 @@ public partial class Body
             BodyDrugExposure dbitem = body.BodiesDrugExposures.FirstOrDefault(x => x.DrugId == item.Drug.Id);
             if (dbitem is null)
             {
-                dbitem = new BodyDrugExposure
-                {
-                    DrugId = item.Drug.Id
-                };
+                dbitem = new BodyDrugExposure { DrugId = item.Drug.Id };
                 body.BodiesDrugExposures.Add(dbitem);
             }
 
@@ -1433,6 +1419,54 @@ public partial class Body
         }
 
         DrugsChanged = false;
+    }
+
+    internal static DrugDosage RestoreDrugDoseRow(BodyDrugDose row, IDrug drug) => new()
+    {
+        Drug = drug,
+        Grams = row.Grams,
+        OriginalVector = (DrugVector)row.OriginalVector,
+        SpellOriginId = row.SpellOriginId,
+        SpellOriginFamily = row.SpellOriginFamily,
+        SpellOriginFormula = row.SpellOriginFormula
+    };
+
+    internal static void ReconcileDrugDoseRows(ICollection<BodyDrugDose> rows,
+        IEnumerable<DrugDosage> active, IEnumerable<DrugDosage> latent)
+    {
+        var desired = active.Select(x => (Dose: x, Active: true))
+            .Concat(latent.Select(x => (Dose: x, Active: false))).ToArray();
+        List<BodyDrugDose> drugsToDelete =
+            rows.Where(x => !desired.Any(y => y.Dose.Drug.Id == x.DrugId && y.Active == x.Active &&
+                y.Dose.SpellOriginId == x.SpellOriginId)).ToList();
+        foreach (BodyDrugDose drug in drugsToDelete)
+        {
+            rows.Remove(drug);
+        }
+
+        foreach (var (item, isActive) in desired)
+        {
+            BodyDrugDose dbitem = rows.FirstOrDefault(x => x.Active == isActive && x.DrugId == item.Drug.Id &&
+                x.SpellOriginId == item.SpellOriginId);
+            if (dbitem == null)
+            {
+                dbitem = new Models.BodyDrugDose
+                {
+                    DrugId = item.Drug.Id,
+                    Active = isActive,
+                    OriginalVector = (int)item.OriginalVector,
+                    SpellOriginId = item.SpellOriginId,
+                    SpellOriginFamily = item.SpellOriginFamily,
+                    SpellOriginFormula = item.SpellOriginFormula
+                };
+                rows.Add(dbitem);
+            }
+
+            dbitem.Grams = item.Grams;
+            dbitem.OriginalVector = (int)item.OriginalVector;
+            dbitem.SpellOriginFamily = item.SpellOriginFamily;
+            dbitem.SpellOriginFormula = item.SpellOriginFormula;
+        }
     }
 
     #endregion

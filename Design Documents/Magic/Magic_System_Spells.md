@@ -377,7 +377,7 @@ Key runtime semantics:
 - `paralysis` uses the forced-paralysis health hook.
 - `flying` extends the normal flight checks without forcing a flying position state.
 - `waterbreathing` extends breathing logic by granting additional breathable fluids.
-- `poison` and `disease` create spell-owned payloads with origin metadata, and the matching removal effects only clear matching payloads created by those spell effects. Poison cleanup also recognises matching legacy originless saved payloads so older rows can be repaired without removing unrelated active poisons.
+- `poison` and `disease` create spell-owned payloads with origin metadata. Drug doses persist a per-spell origin ID, family and source formula separately from mundane doses. The owned `removepoison` form clears only the configured family, native drug, exposure vector and formula, including matching residual doses after the parent expires; legacy originless doses remain unowned. An ordinary non-owned poison effect removes only its own still-linked dose on expiry.
 - `detectmagick`, `detectinvisible`, `detectethereal`, and `infravision` rely on additive `IEffect.PerceptionGranting` support rather than replacing a target's base perception flags.
 - `detectmagick` also exposes active magical auras from ordinary character, item, and room description flows whenever the perceiver can sense magic.
 - `comprehendlanguage` bypasses language comprehension checks, but not illiteracy or unknown-script gating.

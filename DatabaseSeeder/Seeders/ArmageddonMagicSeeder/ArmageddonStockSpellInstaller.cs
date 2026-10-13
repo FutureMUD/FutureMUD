@@ -86,6 +86,7 @@ public static partial class ArmageddonStockSpellInstaller
 			(Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))))
 		.Concat(new[] { "arm.spell.ember_lance", "arm.spell.pillar_of_flame", "arm.spell.lightning_lance", "arm.spell.mind_scour" }.Select(key =>
 			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveDirectDamage(db, key)))))
+		.Append((Key: "arm.spell.consuming_flame", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveConsumingFlame))
 		.Append((Key: "arm.spell.false_presence", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveFalsePresence))
 		.Append((Key: "arm.spell.water_breathing", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveWaterBreathing))
 		.Concat(new[] { "arm.spell.fleet_step", "arm.spell.lightning_pace", "arm.spell.leadfoot" }.Select(key =>
@@ -93,7 +94,11 @@ public static partial class ArmageddonStockSpellInstaller
 		.Append((Key: ArmageddonImmolateSpellContent.Key,
 			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonImmolateSpellContent.Create())))
 		.Append((Key: ArmageddonSenseToxinSpellContent.Key,
-			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonSenseToxinSpellContent.Create())));
+			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonSenseToxinSpellContent.Create())))
+		.Concat(new[] { ArmageddonToxinSpellContent.VenomTouchKey, ArmageddonToxinSpellContent.PurgeToxinKey }.Select(key =>
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
+				ArmageddonToxinSpellContent.Create(CatalogueIdentity<Drug>(db, ArmageddonToxinSpellContent.OwnedFamily))
+					.Single(x => x.Content.Key == key)))));
 
 	private static ArmageddonInstallResult InstallContribution(Func<FuturemudDatabaseContext> factory,
 		Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution> resolve, Action<ArmageddonInstallCheckpoint>? checkpoint)

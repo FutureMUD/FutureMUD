@@ -3543,14 +3543,20 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.BodyDrugDose", b =>
                 {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<ulong>("Active")
+                        .HasColumnType("bit(1)");
+
                     b.Property<long>("BodyId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long>("DrugId")
                         .HasColumnType("bigint(20)");
-
-                    b.Property<ulong>("Active")
-                        .HasColumnType("bit(1)");
 
                     b.Property<double>("Grams")
                         .HasColumnType("double");
@@ -3558,8 +3564,21 @@ namespace MudSharp.Migrations
                     b.Property<int>("OriginalVector")
                         .HasColumnType("int(11)");
 
-                    b.HasKey("BodyId", "DrugId", "Active")
+                    b.Property<string>("SpellOriginFamily")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("SpellOriginFormula")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<Guid?>("SpellOriginId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id")
                         .HasName("PRIMARY");
+
+                    b.HasIndex("BodyId");
 
                     b.HasIndex("DrugId")
                         .HasDatabaseName("FK_Bodies_DrugDoses_Drugs_idx");

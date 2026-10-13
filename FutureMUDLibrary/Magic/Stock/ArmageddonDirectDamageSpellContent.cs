@@ -20,9 +20,16 @@ public sealed record ArmageddonDirectDamageSpellBindings(long ResistanceTraitId,
 	}
 }
 
-/// <summary>Four locked S4 single-target burst definitions. No admissions or delivery qualification.</summary>
+/// <summary>Locked S4 single-target burst definitions. No admissions or delivery qualification.</summary>
 public static class ArmageddonDirectDamageSpellContent
 {
+	public static ArmageddonCanonicalSpellContribution ConsumingFlame(long necromancyComponentTag)
+	{
+		ArmageddonPrimitiveSpellBindings.RequirePositive(necromancyComponentTag, nameof(necromancyComponentTag));
+		return Burst("fire", "consuming_flame", "Consuming Flame", DamageType.Burning,
+			33, 40, 8, 3, componentTag: necromancyComponentTag);
+	}
+
 	public static IReadOnlyList<ArmageddonCanonicalSpellContribution> Create(ArmageddonDirectDamageSpellBindings bindings)
 	{
 		ArgumentNullException.ThrowIfNull(bindings);
@@ -38,13 +45,15 @@ public static class ArmageddonDirectDamageSpellContent
 	}
 
 	private static ArmageddonCanonicalSpellContribution Burst(string school, string suffix, string name,
-		DamageType type, double minimum, int opening, int damage, int pain, long? resistance = null, Difficulty? difficulty = null)
+		DamageType type, double minimum, int opening, int damage, int pain, long? resistance = null,
+		Difficulty? difficulty = null, long? componentTag = null)
 	{
 		var key = "arm.spell." + suffix;
 		var content = new ArmageddonUtilitySpellContent(key, name,
 			$"Strike one visible local target for {damage}*external grade native damage, {pain}*grade pain and zero stun. " +
 			$"The editable native damage choice is {type}; all values are approved authored stock defaults. " +
 			"Native armour and prosthetics remain in the damage path. Frozen current identity, body, location and custody prevent callback redirection. " +
+			(componentTag is null ? "" : "One directly carried Necromancy component is consumed before the strike. ") +
 			(resistance is null ? "This stock strike is unopposed." : "The exact supplied native resistance trait and difficulty oppose the strike."),
 			"0", minimum, "$0 shape|shapes a striking enchantment against $1.", (resource, cost, filter) =>
 			{
@@ -58,6 +67,11 @@ public static class ArmageddonDirectDamageSpellContent
 						new XElement("Bodypart", 0), new XElement("Limb", -1),
 						new XElement("IdentitySafeDamage", new XAttribute("schema", 1), new XAttribute("version", 1))));
 				definition.Element("Trigger")!.SetElementValue("CanTargetSelf", false);
+				if (componentTag is { } tag)
+					definition.Element("Plan")!.Add(new XElement("Phase", new XElement("Action",
+						new XAttribute("state", "consumed"), new XAttribute("tag", tag),
+						new XAttribute("secondtag", 0), new XAttribute("quantity", 1),
+						new XAttribute("carriedonly", true))));
 				return definition;
 			}, ResistingTraitId: resistance, ResistingDifficulty: difficulty);
 		return new("arm.capability." + school, content);

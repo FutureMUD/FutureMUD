@@ -517,6 +517,22 @@ def stock_campaign_smoke(session, phase, data, mapped):
                           'children': [child.findtext('Type') for child in children],
                           'child_definitions': [ET.tostring(child.find('Effect'), encoding='unicode') for child in children]})
         return saved
+    def venom_doses(row):
+        definition = ET.fromstring(installed[row['key']]['definition'])
+        effect = definition.find('Effects/Effect')
+        require(effect is not None and effect.get('type') == 'poison', 'Paid Venom Touch lost its stock effect.')
+        drug = int(effect.findtext('Drug', '0'))
+        require(drug > 0, 'Paid Venom Touch has no bound native drug.')
+        rows = sql(mapped(f"SELECT SpellOriginId,SpellOriginFamily,SpellOriginFormula,OriginalVector,DrugId,Grams "
+                          f"FROM Bodies_DrugDoses WHERE BodyId={int(data['body'])} AND DrugId={drug} "
+                          "AND SpellOriginFamily='arm.effect.poison'"))
+        result = [{'origin': cells[0], 'family': cells[1], 'formula': cells[2],
+                   'vector': int(cells[3]), 'drug': int(cells[4]), 'grams': float(cells[5])} for cells in rows]
+        require(all(re.fullmatch(r'[0-9a-fA-F-]{36}', x['origin']) and x['family'] == 'arm.effect.poison' and
+                    x['formula'] == '0.001*grade' and x['vector'] == 8 and x['drug'] == drug and
+                    math.isfinite(x['grams']) and x['grams'] > 0 for x in result),
+                'Paid Venom Touch saved a dose with wrong origin, family, formula, vector or drug.')
+        return result
     for row, result in zip(selected, report['selected']):
         if result['coverage'] == 'inherited-original-read': continue
         key = row['key']; cap = int(row['capability']); cost = float(row['grade_one_cost'])
@@ -553,6 +569,12 @@ def stock_campaign_smoke(session, phase, data, mapped):
                             'Cold campaign effect identity/children/lifetime changed: ' + key)
                     result['phases']['cold']['effect_outcome'] = 'PASS-exact-native-parent-child-reload'
                 result['phases']['cold']['parents'] = current_parents
+                if key == 'arm.spell.venom_touch':
+                    doses = venom_doses(row)
+                    require(all(x['origin'].casefold() == result['dose_origin'].casefold() for x in doses),
+                            'Cold Venom Touch dose changed its persisted spell origin.')
+                    result['phases']['cold']['doses'] = doses
+                    result['phases']['cold']['dose_outcome'] = 'PASS-exact-native-dose-reload' if doses else 'CLEARED-physiologically-before-cold-observation'
             result['outcome'] = 'PASS'
             continue
         require(initial['balance'] == 0 and initial['grade'] == 0 and initial['enrolments'] == 0, 'Campaign preparation pregranted/refilled actor: ' + key)
@@ -608,6 +630,15 @@ def stock_campaign_smoke(session, phase, data, mapped):
                         effort = ET.fromstring(active[0]['child_definitions'][1])
                         require(math.isclose(float(effort.findtext('Multiplier', 'nan')), .95, rel_tol=1e-12),
                                 'Grade-one Fleet Step did not save its reduced native stamina expenditure.')
+                    if key == 'arm.spell.venom_touch':
+                        child_origin = child.findtext('DoseOriginId')
+                        doses = venom_doses(row)
+                        require(child_origin and 1 <= len(doses) <= 2 and
+                                all(x['origin'].casefold() == child_origin.casefold() for x in doses) and
+                                0 < sum(x['grams'] for x in doses) <= .001000001,
+                                'Grade-one paid Venom Touch did not save its exact native owned dose.')
+                        result['dose_origin'] = child_origin
+                        result['phases']['first']['doses'] = doses
                     result['saved_parents'] = active; result['saved_at_monotonic'] = time.monotonic()
                 result['outcome'] = 'FIRST-PASS-COLD-PENDING'
                 break

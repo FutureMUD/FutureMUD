@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-10-13T13:16:35+00:00",
-  "source_revision": "b58eba58e7dddedb04907753c2497cf42d97a8f2",
+  "generated_utc": "2026-10-13T16:12:00+00:00",
+  "source_revision": "6469ef82a5a3105a7898e0b61e4508c07b1188a1",
   "scope": "Coherent S4 content and adapter batch; broader S4 remains authorised and incomplete. No merge/deploy or availability changes.",
   "continuation_batch": {
     "source_revision": "29f4ff288122a278a4df0471244e96c7ae2b9c5f",
@@ -9,7 +9,10 @@
     "required_not_yet_declared": 50,
     "focused_seeder": "PASS 83/0/0",
     "full_seeder": "PASS 1831/0/3",
-    "new_keys": ["arm.spell.false_presence", "arm.spell.water_breathing"],
+    "new_keys": [
+      "arm.spell.false_presence",
+      "arm.spell.water_breathing"
+    ],
     "native_status": "FAILED_FIRST_BOOT_HARNESS_SQL_MARKER_AFTER_24_DISPLAYS; no 102-definition first/cold or new-spell paid certificate",
     "hosted_previous_head": "6efdc9513 push Linux/Windows passed; PR Linux passed, PR Windows failed TestReporting.Tests buildfail scenario with TIMEOUT instead of REPORTING_ERROR under five-second bootstrap budget",
     "reporting_fix_local": "buildfail budget 30 seconds; one-second bootstrap-hang retained; focused 1/1 and full TestReporting.Tests 38/38 passed"
@@ -18,7 +21,13 @@
     "source_revision": "b58eba58e7dddedb04907753c2497cf42d97a8f2",
     "declared_required_definitions": 107,
     "required_not_yet_declared": 45,
-    "new_keys": ["arm.spell.fleet_step", "arm.spell.lightning_pace", "arm.spell.leadfoot", "arm.spell.immolate", "arm.spell.sense_toxin"],
+    "new_keys": [
+      "arm.spell.fleet_step",
+      "arm.spell.lightning_pace",
+      "arm.spell.leadfoot",
+      "arm.spell.immolate",
+      "arm.spell.sense_toxin"
+    ],
     "full_core": "PASS 7116/0/0; TRX task/s4-b58-final-tests/core/core-final-b58.trx",
     "full_seeder": "PASS 1836/0/3; TRX task/s4-b58-final-tests/seeder/seeder-final-b58.trx",
     "full_library": "PASS 763/0/0; TRX task/s4-b58-final-tests/library/library-final-b58.trx",
@@ -27,11 +36,16 @@
     "focused_native_helper": "PASS Python campaign 6/6 and SQL retry 5/5; Python syntax and git diff --check pass",
     "native_status": "106/106 first-boot exact definitions; paid grade-one Fleet Step saved 0.9523809523809523 movement and 0.95 stamina children. Subsequent Second Breath Self funding exposed mandatory stamina price underpayment under active Fleet Step; exact-payment repair passes managed tests but has not been live-rerun. No 106 cold boot or paid Immolate/Sense Toxin certificate.",
     "qualification_limit": "Read Attunement retains its prior S4 qualification; new entries do not inherit live certification merely from declaration or a shared adapter.",
-    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ]
   },
-  "canonical_definitions_declared": 107,
+  "canonical_definitions_declared": 110,
   "required_inventory": 152,
-  "required_not_yet_declared": 45,
+  "required_not_yet_declared": 42,
   "optional_inventory": 2,
   "definition_audit": "PASS: 107 declared fixed definitions under final full Seeder 1836/0/3 at b58eba58e; native first boot loaded the earlier 106/106 at c04c7c855, and historical first/cold 100/100 remains at e2afd061e. Sense Toxin and exact gathering repair have no new live certificate.",
   "checks": [
@@ -225,7 +239,13 @@
       "head": "81c0f034532c555f6b988706058ae86c920b013a",
       "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
       "configuration": "Debug",
-      "counts": { "total": 7093, "executed": 7093, "passed": 7093, "failed": 0, "skipped": 0 },
+      "counts": {
+        "total": 7093,
+        "executed": 7093,
+        "passed": 7093,
+        "failed": 0,
+        "skipped": 0
+      },
       "source_stable": true,
       "binaries_stable": true,
       "source_sha256": "cd88a7b508ddc570e2bc717397c5d8172c8b2517bee17c661ec9b0d45daf8d78",
@@ -236,7 +256,13 @@
       "status": "PASS",
       "head": "e2afd061e659c417ebf38e807f09e1b876c55177",
       "project": "tests/ArmageddonPreparedSeederNativeHarness/PreparedStockCampaign.py",
-      "counts": { "total": 6, "executed": 6, "passed": 6, "failed": 0, "skipped": 0 },
+      "counts": {
+        "total": 6,
+        "executed": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0
+      },
       "scope": "Pure campaign assertions and Python syntax; the live first/cold certificate is in native_attempts."
     }
   ],
@@ -377,12 +403,13 @@
     }
   ],
   "immutable_base": {
-    "descriptor": ".artifacts/pre-armageddon-base-fixtures/20261013T115504Z_50636efe2adb41e082cbec84f3f63bbb/base-world.json",
-    "descriptor_sha256": "83E8D6F1D99293526D776F9D3923F1B31429B92C487160ADA98FAD5B538579E6",
-    "sql_sha256": "7722D20E19A69C1517717B5F7460825D7176B59EF2C24C1C29AD8C4CC2BD7656",
-    "capture_receipt": ".artifacts/s4-106-native-base-capture/20261013T114845Z_91fc550e1eb749a0bb7f84ddfbb5b8f3/base-world-run.json",
-    "foundational_reseeding": "one explicit fresh 29-step capture after exact source compatibility preflight refused the older sealed fixture; no repeat during package runs",
-    "workflow": "fresh owned MySQL base capture and hash-pinned isolated restores; subsequent Sense Toxin room-reference addition requires a new exact source-compatibility review before another reuse; old descriptor preserved"
+    "descriptor": ".artifacts/pre-armageddon-base-fixtures/20261013T153248Z_851f048bb492491991ec9d6f2eef1fc2/base-world.json",
+    "descriptor_sha256": "046019AE330D31425EFDA16DC27DB58F17200E40D9357C848BA4C552DBFF1827",
+    "sql_sha256": "CD4A27AF091E5BBEFF55B1474FB08961B9BF7E32474CF1875F75869634308D75",
+    "base_source_sha256": "A884575F9D6CD1C1517648C5B21BC9F975EC727E94AE8C5BC744A6A55B18E866",
+    "capture_receipt": "C:/Users/luker/Documents/Codex/2026-10-12/task/s4-110-base-final/20261013T152655Z_40ec9ac108fe4b378013387bfec95ea0/base-world-run.json",
+    "foundational_reseeding": "fresh 29-step capture after the new migration and committed blank snapshot changed the exact base schema/source fingerprint; second-prefix replay refused unchanged content",
+    "workflow": "isolated owned MySQL capture, exact descriptor/hash restore, Classic package and first/cold paid sample; earlier sealed fixtures and failed receipts preserved"
   },
   "gates": {
     "release": false,
@@ -392,17 +419,17 @@
   },
   "hosted_ci": {
     "baseline_resolved": "Component-export regression repaired at d5cdd6c; hosted 38233157601 passed Linux and Windows.",
-    "last_verified_head": "c04c7c8553b8b8a610e262e9ea93245f80f762ee",
-    "pull_request_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38390349700",
-    "push_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38390343703",
-    "last_verified_result": "All four push/PR Linux/Windows default-gate jobs passed; b58eba58e publication head awaits hosted verification after push."
+    "last_verified_head": "6469ef82a5a3105a7898e0b61e4508c07b1188a1",
+    "pull_request_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38405477361",
+    "push_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38405467162",
+    "last_verified_result": "Both push and PR Linux/Windows default-gate jobs passed on the preceding 107-definition head; new 110-definition head awaits hosted checks after publication."
   },
   "remaining_critical": [
-    "45 required definitions and their defining adapters/dependencies remain undeclared.",
+    "42 required definitions and their defining adapters/dependencies remain undeclared.",
     "Seven creature/controller representative mission/riding/custody cases remain pending.",
-    "Sheltering Veil and Consuming Flame require real Clerical/Necromancy rank5/6 supplies, rank hierarchy and the explicit water-plane conditional material rule.",
-    "Venom Touch/Purge Toxin require durable native dose origin/custody: BodyDrugDose persists only BodyId/DrugId/Active and coalesces originator on load; legacy SpellPoisonEffect removes matching unowned doses.",
-    "The 106-definition first boot and paid Fleet Step sample are bounded; exact gathering payment repair and Sense Toxin have no new native cold/paid acceptance. A later consolidated campaign must use an exact compatible sealed-base source pin.",
+    "Sheltering Veil remains held for its conditional Clerical component/plane rule; Consuming Flame's Necromancy rank-zero binding is declared but has no paid native sample.",
+    "Venom Touch has a paid first-boot owned-dose observation and managed reload coverage, but its tiny dose cleared before live cold observation; Purge Toxin has no paid native sample.",
+    "The 110-definition first/cold paid sample is bounded to grade one and four selected entries; Immolate, Sense Toxin and seven creature/controller defining cases remain without their own paid native samples.",
     "Deferred ten foci, two device blanks and twelve recipes require real qualified dependency allowlists.",
     "S5/S6 and N24/N25 remain separate."
   ],
@@ -410,5 +437,33 @@
   "candidate100_receipt": {
     "local_optional_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-consolidated-test-receipt\\candidate-100.json",
     "sha256": "ac6777392f204c25b0a42f31d7e057c41c3e268e71d03a22b83d584aeb64e1d8"
+  },
+  "current_unpublished_slice": {
+    "source_base": "6469ef82a5a3105a7898e0b61e4508c07b1188a1",
+    "declared_required_definitions": 110,
+    "required_not_yet_declared": 42,
+    "new_keys": [
+      "arm.spell.venom_touch",
+      "arm.spell.purge_toxin",
+      "arm.spell.consuming_flame"
+    ],
+    "focused_core": "PASS 34/0/0 ArmageddonToxinCustodyTests + ArmageddonConditionSpellContentTests",
+    "focused_persistence": "PASS 2/0/0 SpellDrugDoseCustodyModelTests",
+    "focused_definition": "PASS 6/0/0 ConsumingFlame, Toxin and Classic/Simple installed-definition tests",
+    "native_mysql_migration": "PASS isolated MySQL 8.0.45 legacy BodyId/DrugId/Active PK upgrade; old and new doses distinct, two FKs retained; owned instance stopped and removed",
+    "blank_snapshot": "PASS isolated MySQL refresh/fresh import at migration 20261013135303_SpellDrugDoseCustody; exact blank-snapshot tests 10/0/0",
+    "full_owning_suites": "PASS Core 7119/0/0; Seeder 1840/0/3; Library 763/0/0; persistence 279/0/0",
+    "native_paid_cold": "PASS 35 assertions; 110/110 exact stock definitions load first and cold; grade-one paid Venom Touch, Fleet Step, Second Breath and retained Read Attunement sampled via separate disposable builder capabilities. Venom saved exact SpellPoison child and native dose origin/family/formula/touched vector/drug with 50-unit payment; its dose and 60-second parent cleared before cold observation. Cold reserve/grade/enrolment/operation no-refill/no-replay passed. Purge Toxin and Consuming Flame paid samples pending.",
+    "native_paid_receipt": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-110-paid/boot-latest.json",
+    "native_package_receipt": "C:/Users/luker/Documents/Codex/2026-10-12/task/s4-110-paid-package/20261013T153353Z_0a0af56d424e4fefb16ebd8910e633f7/summary.json",
+    "native_package_integrity": "PASS actual-MySQL all-table precommit rollback, lost-ack resume, stable children, no-op checksum, no player writes, all ten package capabilities disabled, exact sealed base/dump unchanged, owned MUD/MySQL cleanup; source pin 8B4C09F45B06F4D49A9B445794FB01EFA70385A67AE2758C8F74D3AB39503124",
+    "hosted_baseline": "SUCCESS push 38405467162 and PR 38405477361 at 6469ef82a",
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ],
+    "qualification_limit": "The sampled paid Venom cast proves first-boot dose creation/payment, not a live cold dose; managed reload and isolated MySQL tests cover custody. No complete installed-stock, all-grade, Purge Toxin or Consuming Flame paid qualification is claimed."
   }
 }

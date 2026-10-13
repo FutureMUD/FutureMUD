@@ -89,7 +89,8 @@ internal static partial class GNHProgram
 		{
 			("arm.spell.night_eyes", "self", 60), ("arm.spell.second_breath", "self", 0),
 			("arm.spell.daylight", "here", 60), ("arm.spell.quickened_healing", "self", 120),
-			("arm.spell.earthen_strength", "self", 60), ("arm.spell.fleet_step", "self", 60)
+			("arm.spell.earthen_strength", "self", 60), ("arm.spell.fleet_step", "self", 60),
+			("arm.spell.venom_touch", "self", 60)
 		};
 		var candidates = new List<object>
 		{
@@ -132,6 +133,10 @@ internal static partial class GNHProgram
 		var sqlSchema = ((IEnumerable<object>)InstalledSqlSchema(db)).ToList();
 		sqlSchema.Add(PreparedStockSqlTable<Db.Room>(db, "Rooms", [nameof(Db.Room.Id), nameof(Db.Room.EffectData)]));
 		sqlSchema.Add(PreparedStockSqlTable<Db.Body>(db, "Bodies", [nameof(Db.Body.Id), nameof(Db.Body.CurrentStamina)]));
+		sqlSchema.Add(PreparedStockSqlTable<Db.BodyDrugDose>(db, "Bodies_DrugDoses",
+			[nameof(Db.BodyDrugDose.BodyId), nameof(Db.BodyDrugDose.DrugId), nameof(Db.BodyDrugDose.Grams),
+			 nameof(Db.BodyDrugDose.OriginalVector), nameof(Db.BodyDrugDose.SpellOriginId),
+			 nameof(Db.BodyDrugDose.SpellOriginFamily), nameof(Db.BodyDrugDose.SpellOriginFormula)]));
 		sqlSchema.Add(PreparedStockSqlTable<Db.MagicCapability>(db, "MagicCapabilities", [nameof(Db.MagicCapability.Id), nameof(Db.MagicCapability.Name)]));
 		sqlSchema.Add(PreparedStockSqlTable<Db.CharacterCastingEnrolment>(db, "CharacterCastingEnrolments", [nameof(Db.CharacterCastingEnrolment.CharacterId),
 			nameof(Db.CharacterCastingEnrolment.MagicCapabilityId), nameof(Db.CharacterCastingEnrolment.CompletedStartingGrantVersion)]));

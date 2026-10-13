@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-10-13T09:27:25+00:00",
-  "source_revision": "e2afd061e659c417ebf38e807f09e1b876c55177",
+  "generated_utc": "2026-10-13T14:32:08+00:00",
+  "source_revision": "6469ef82a5a3105a7898e0b61e4508c07b1188a1",
   "repository": "FutureMUD/FutureMUD",
   "scope": "All 154 locked candidates mapped; code candidates and bounded adapter evidence remain separate from complete installed-stock qualification.",
   "inputs": [
@@ -37,13 +37,13 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 107,
+    "installed_canonical_spells": 110,
     "native_grade_one_stock_entries": 1,
-    "native_sampled_grade_one_spells": 5,
-    "declared_canonical_spells": 107,
-    "definition_audited_canonical_spells": 107,
-    "latest_successful_native_loaded_spells": 100,
-    "required_not_yet_declared": 45,
+    "native_sampled_grade_one_spells": 6,
+    "declared_canonical_spells": 110,
+    "definition_audited_canonical_spells": 110,
+    "latest_successful_native_loaded_spells": 110,
+    "required_not_yet_declared": 42,
     "latest_partial_native_first_loaded_spells": 106
   },
   "path_discrepancies": [],
@@ -783,11 +783,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Identity-safe single fire strike with exact source grade damage and one directly carried consumed Necromancy rank-zero component.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock invocation, refusal, selected grades and first/cold restart with exact native state and no player-state mutation on rerun."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -797,16 +795,21 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ]
         },
         "direct": [],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
+        "assumptions": [
+          "Definition, focused managed tests and isolated migration SQL do not certify paid/cold installed-stock gameplay or complete S4 qualification."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 8,
@@ -2257,12 +2260,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Exact S3 stock drug, contact vector and selected-grade grams; persisted per-dose spell origin and formula.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify refusal, selected grades and first/cold restart with an active owned dose and exact native state; the grade-one paid sample cleared physiologically before cold observation."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -2272,16 +2272,30 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ]
         },
         "direct": [],
         "inherited": [],
-        "sampled": [],
-        "assumptions": [],
+        "sampled": [
+          {
+            "status": "PASS_BOUNDED_FIRST_BOOT",
+            "receipt": "C:/Users/luker/Documents/Codex/2026-10-12/task/s4-110-paid-package/20261013T153353Z_0a0af56d424e4fefb16ebd8910e633f7/summary.json",
+            "configuration": "Grade-one paid Venom Touch via disposable builder capability; native dose, GUID origin, family, formula, vector and 50-unit payment checked.",
+            "seed": 20261013,
+            "seeded_random_sample": true,
+            "scope": "First-boot owned-dose observation only; the small dose and its 60-second spell parent cleared before cold observation. Managed reload and isolated MySQL tests cover custody."
+          }
+        ],
+        "assumptions": [
+          "One paid grade-one sample and managed/SQL custody checks do not certify all-grade or live cold-dose installed-stock gameplay or complete S4 qualification."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 24,
@@ -2412,12 +2426,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Exact owned native drug/family/vector/formula cure of active, latent and residual doses; mundane and other formulas preserved.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock invocation, refusal, selected grades and first/cold restart with exact native state and no player-state mutation on rerun."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -2427,16 +2438,21 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ]
         },
         "direct": [],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
+        "assumptions": [
+          "Definition, focused managed tests and isolated migration SQL do not certify paid/cold installed-stock gameplay or complete S4 qualification."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 26,
@@ -6043,7 +6059,7 @@
             "configuration": "Grade-one self via disposable builder admission; exact 50-unit payment and saved movement/stamina children.",
             "seed": 20261013,
             "seeded_random_sample": true,
-            "scope": "No cold or actual movement-timing certificate; later gathering failed before the exact-price repair."
+        "scope": "A later 110-definition first/cold campaign confirms the exact-price repair and paid grade-one saved children; no actual movement-timing or all-grade certificate."
           }
         ],
         "assumptions": [

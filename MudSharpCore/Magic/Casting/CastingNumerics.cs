@@ -86,6 +86,8 @@ internal static class CastingNumerics
 					yield return $"{label}/{property.Name}: unsupported route-bound numerical field.";
 			if (effect is TraitBoostEffect { Trait: null }) yield return $"{label}/boost.Trait: missing trait.";
 			if (effect is DiseaseEffect { DefinitionError: { } diseaseError }) yield return $"{label}/disease: {diseaseError}";
+			if (effect is PoisonEffect { DefinitionError: { } poisonError }) yield return $"{label}/poison: {poisonError}";
+			if (effect is RemovePoisonEffect { DefinitionError: { } removePoisonError }) yield return $"{label}/removepoison: {removePoisonError}";
 			if (effect is DamageEffect { DefinitionError: { } damageError }) yield return $"{label}/damage: {damageError}";
 			if (effect is RemoveDiseaseEffect { DefinitionError: { } cureError }) yield return $"{label}/removedisease: {cureError}";
 			if (effect is NeedDeltaEffect { DefinitionError: { } needsError }) yield return $"{label}/needdelta: {needsError}";
@@ -164,6 +166,15 @@ internal static class CastingNumerics
 			disease.VirulenceExpression is not CastingExpression virulence ||
 			!virulence.TryEvaluateFixedInputs(out var multiplier, out _) || multiplier != 1.0)
 			throw new InvalidOperationException("Owned sickness requires fixed selected-grade intensity and unit virulence before payment.");
+	}
+
+	internal static void ValidateOwnedPoisonInputs(IMagicSpellEffectTemplate effect)
+	{
+		if (effect is not PoisonEffect { OwnedFamily: not null } poison) return;
+		if (poison.GramsExpression is not CastingExpression grams ||
+			!grams.TryEvaluateFixedInputs(out var amount, out _) ||
+			amount is null || !double.IsFinite(amount.Value) || amount <= 0)
+			throw new InvalidOperationException("Owned poison requires a fixed, finite positive selected-grade dose before payment.");
 	}
 
 	public static ITraitExpression Bind(ITraitExpression expression, ITraitDefinition trait, int grade, SpellPower power,

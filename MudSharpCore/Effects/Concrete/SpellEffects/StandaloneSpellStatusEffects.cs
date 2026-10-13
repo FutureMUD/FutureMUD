@@ -469,21 +469,24 @@ public class SpellDetectPoisonEffect : SimpleSpellStatusEffectBase, ISensePoison
 	protected override string SpecificEffectType => "SpellDetectPoison";
 }
 
-public class SpellPoisonEffect : SimpleSpellStatusEffectBase
+public class SpellPoisonEffect : SimpleSpellStatusEffectBase, IPersistentDrugDoseOrigin
 {
+	private readonly bool _loadedFromSave;
 	public static void InitialiseEffectType()
 	{
 		RegisterFactory("SpellPoison", (effect, owner) => new SpellPoisonEffect(effect, owner));
 	}
 
 	public SpellPoisonEffect(IPerceivable owner, IMagicSpellEffectParent parent, IDrug drug, DrugVector vector,
-		double grams, string gramsFormulaText, IFutureProg? prog = null)
+		double grams, string gramsFormulaText, IFutureProg? prog = null, string? ownedFamily = null)
 		: base(owner, parent, prog)
 	{
 		Drug = drug;
 		Vector = vector;
 		Grams = grams;
 		GramsFormulaText = gramsFormulaText;
+		DrugDoseOriginId = Guid.NewGuid();
+		OwnedFamily = ownedFamily;
 	}
 
 	private SpellPoisonEffect(XElement root, IPerceivable owner)
@@ -494,39 +497,38 @@ public class SpellPoisonEffect : SimpleSpellStatusEffectBase
 		Vector = (DrugVector)int.Parse(effect.Element("Vector")!.Value);
 		Grams = double.Parse(effect.Element("Grams")!.Value);
 		GramsFormulaText = effect.Element("GramsFormula")?.Value ?? "0";
+		DrugDoseOriginId = Guid.TryParse(effect.Element("DoseOriginId")?.Value, out var originId) && originId != Guid.Empty
+			? originId : Guid.NewGuid();
+		OwnedFamily = effect.Element("OwnedFamily")?.Value;
+		_loadedFromSave = true;
 	}
 
 	public IDrug Drug { get; } = null!;
 	public DrugVector Vector { get; }
 	public double Grams { get; }
 	public string GramsFormulaText { get; }
+	public Guid DrugDoseOriginId { get; }
+	public string? OwnedFamily { get; }
+	public string? DrugDoseFamily => OwnedFamily;
+	public string DrugDoseFormula => GramsFormulaText;
 
 	public override void InitialEffect()
 	{
 		base.InitialEffect();
-		if (Owner is ICharacter character)
+		if (!_loadedFromSave && Owner is ICharacter character)
 		{
-			character.Body.RemoveDrugDosages(IsLegacyUnownedDose);
 			character.Body.Dose(Drug, Vector, Grams, this);
 		}
 	}
 
 	public override void RemovalEffect()
 	{
-		if (Owner is ICharacter character)
+		if (OwnedFamily is null && Owner is ICharacter character)
 		{
-			character.Body.RemoveDrugDosages(x => ReferenceEquals(x.Originator, this) || IsLegacyUnownedDose(x));
+			character.Body.RemoveDrugDosages(x => x.SpellOriginId == DrugDoseOriginId);
 		}
 
 		base.RemovalEffect();
-	}
-
-	private bool IsLegacyUnownedDose(DrugDosage dosage)
-	{
-		return dosage.Originator is null &&
-		       dosage.Drug == Drug &&
-		       dosage.OriginalVector == Vector &&
-		       Math.Abs(dosage.Grams - Grams) < 0.001;
 	}
 
 	protected override XElement SaveDefinition()
@@ -535,6 +537,8 @@ public class SpellPoisonEffect : SimpleSpellStatusEffectBase
 			new XElement("Drug", Drug.Id),
 			new XElement("Vector", (int)Vector),
 			new XElement("Grams", Grams),
+			new XElement("DoseOriginId", DrugDoseOriginId),
+			OwnedFamily is null ? null : new XElement("OwnedFamily", OwnedFamily),
 			new XElement("GramsFormula", new XCData(GramsFormulaText))
 		);
 	}

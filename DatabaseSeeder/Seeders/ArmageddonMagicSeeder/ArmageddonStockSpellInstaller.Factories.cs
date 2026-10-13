@@ -206,6 +206,13 @@ public static partial class ArmageddonStockSpellInstaller
 		ArmageddonDirectDamageSpellContent.Create(new(CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey),
 			Difficulty.Normal, MudSharp.Health.DamageType.Arcane)).Single(x => x.Content.Key == key);
 
+	private static ArmageddonCanonicalSpellContribution ResolveConsumingFlame(FuturemudDatabaseContext db)
+	{
+		CataloguePrototype(db, "arm.material.necromancy.rank0");
+		return ArmageddonDirectDamageSpellContent.ConsumingFlame(
+			CatalogueIdentity<Tag>(db, "arm.material.necromancy.rank0.tag"));
+	}
+
 	private static ArmageddonCanonicalSpellContribution ResolveFalsePresence(FuturemudDatabaseContext db)
 	{
 		var settings = ArmageddonInstallation.Read(db) ?? throw new StockDependencyException("Fix the installation before False Presence.");

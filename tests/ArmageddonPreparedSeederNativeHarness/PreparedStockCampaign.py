@@ -10,11 +10,12 @@ SAFE_TARGETS = {
     'arm.spell.read_attunement': 'self', 'arm.spell.night_eyes': 'self',
     'arm.spell.second_breath': 'self', 'arm.spell.daylight': 'here',
     'arm.spell.quickened_healing': 'self', 'arm.spell.earthen_strength': 'self',
-    'arm.spell.fleet_step': 'self',
+    'arm.spell.fleet_step': 'self', 'arm.spell.venom_touch': 'self',
 }
 EXPECTED_CHILDREN = {'arm.spell.night_eyes': 'SpellInfravision', 'arm.spell.daylight': 'SpellRoomLight',
                      'arm.spell.quickened_healing': 'SpellHealingRate', 'arm.spell.earthen_strength': 'SpellTraitBoost',
-                     'arm.spell.fleet_step': ['SpellMovementTempo', 'SpellStaminaExpenditure']}
+                     'arm.spell.fleet_step': ['SpellMovementTempo', 'SpellStaminaExpenditure'],
+                     'arm.spell.venom_touch': 'SpellPoison'}
 REFERENCE_TABLES = {
     'MagicSchool': 'MagicSchools', 'TraitDefinition': 'TraitDefinitions',
     'TraitExpression': 'TraitExpression', 'MagicResource': 'MagicResources',

@@ -818,21 +818,11 @@ public partial class Body : PerceiverItem, IBody
         {
             if (drug.Active)
             {
-                _activeDrugDosages.Add(new DrugDosage
-                {
-                    Drug = Gameworld.Drugs.Get(drug.DrugId),
-                    Grams = drug.Grams,
-                    OriginalVector = (DrugVector)drug.OriginalVector
-                });
+                _activeDrugDosages.Add(RestoreDrugDoseRow(drug, Gameworld.Drugs.Get(drug.DrugId)));
             }
             else
             {
-                _latentDrugDosages.Add(new DrugDosage
-                {
-                    Drug = Gameworld.Drugs.Get(drug.DrugId),
-                    Grams = drug.Grams,
-                    OriginalVector = (DrugVector)drug.OriginalVector
-                });
+                _latentDrugDosages.Add(RestoreDrugDoseRow(drug, Gameworld.Drugs.Get(drug.DrugId)));
             }
         }
 

@@ -61,6 +61,7 @@ public partial class MagicSpell
 			foreach (var (field, expression, set) in ScrollSpellCompatibility.Expressions(effect))
 				set(CastingNumerics.Bind(expression, trait, grade, power, $"{label}/{field}", Gameworld, controlledGrade));
 			CastingNumerics.ValidateOwnedDiseaseInputs(effect, grade);
+			CastingNumerics.ValidateOwnedPoisonInputs(effect);
 		}
 		if (CastingNumerics.ConfigurationErrors(copy).FirstOrDefault() is { } boundError)
 			throw new InvalidOperationException(boundError);

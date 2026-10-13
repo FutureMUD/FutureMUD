@@ -7,7 +7,7 @@ using MudSharp.Body;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public class PoisonEffect : CharacterSpellEffectTemplateBase
+public class PoisonEffect : CharacterSpellEffectTemplateBase, IMagicSpellEffectOperation, IMagicSpellEffectPreparedSelection
 {
 	public const string HelpText = @"You can use the following options with this effect:
 	#3drug <which>#0 - sets which drug is applied as the poison
@@ -37,18 +37,25 @@ public class PoisonEffect : CharacterSpellEffectTemplateBase
 
 	public IDrug? Drug { get; private set; }
 	public DrugVector Vector { get; private set; }
-	public ITraitExpression GramsExpression { get; private set; } = null!;
+	public ITraitExpression GramsExpression { get; internal set; } = null!;
+	public string GramsFormulaText { get; private set; } = "0";
+	public string? OwnedFamily { get; private set; }
+	private ConditionBodySelection? _selection;
+	public string? DefinitionError => OwnedFamily is not null &&
+		(string.IsNullOrWhiteSpace(OwnedFamily) || OwnedFamily.Length > 255 ||
+		 GramsFormulaText.Length > 255 || Drug is null || Vector != DrugVector.Touched)
+		? "Owned poison requires a named family, a native drug and declared contact exposure." : null;
 
 	protected override string BuilderEffectType => "poison";
 	protected override string ShowText =>
-		$"Poison - {(Drug?.Name ?? "None")} via {Vector.Describe()} at {GramsExpression.OriginalFormulaText}";
+		$"Poison - {(Drug?.Name ?? "None")} via {Vector.Describe()} at {GramsFormulaText}";
 
 	public override string Show(ICharacter actor)
 	{
 		return SpellEffectPresentation.Describe(actor, "Poison",
 			("Drug", (Drug?.Name ?? "None").ColourValue()),
 			("Vector", Vector.Describe().ColourValue()),
-			("Grams", GramsExpression.OriginalFormulaText.ColourCommand()));
+			("Grams", GramsFormulaText.ColourCommand()));
 	}
 
 	protected override void LoadFromXml(XElement root)
@@ -62,14 +69,17 @@ public class PoisonEffect : CharacterSpellEffectTemplateBase
 		}
 
 		Vector = (DrugVector)int.Parse(root.Element("Vector")?.Value ?? ((int)DrugVector.Injected).ToString());
-		GramsExpression = new TraitExpression(root.Element("Formula")?.Value ?? "0", Gameworld);
+		GramsFormulaText = root.Element("Formula")?.Value ?? "0";
+		GramsExpression = new TraitExpression(GramsFormulaText, Gameworld);
+		OwnedFamily = root.Element("OwnedFamily")?.Value;
 	}
 
 	protected override void SaveToXml(XElement root)
 	{
 		root.Add(new XElement("Drug", Drug?.Id ?? 0L));
 		root.Add(new XElement("Vector", (int)Vector));
-		root.Add(new XElement("Formula", new XCData(GramsExpression.OriginalFormulaText)));
+		root.Add(new XElement("Formula", new XCData(GramsFormulaText)));
+		if (OwnedFamily is not null) root.Add(new XElement("OwnedFamily", OwnedFamily));
 	}
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -139,6 +149,7 @@ public class PoisonEffect : CharacterSpellEffectTemplateBase
 		}
 
 		GramsExpression = expression;
+		GramsFormulaText = expression.OriginalFormulaText;
 		Spell.Changed = true;
 		actor.OutputHandler.Send($"This poison effect now uses the formula {GramsExpression.OriginalFormulaText.ColourCommand()}.");
 		return true;
@@ -148,6 +159,9 @@ public class PoisonEffect : CharacterSpellEffectTemplateBase
 		OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent,
 		SpellAdditionalParameter[] additionalParameters)
 	{
+		if (DefinitionError is { } error) throw new InvalidOperationException(error);
+		if (OwnedFamily is not null && (_selection is null || !_selection.IsCurrent(target)))
+			throw new InvalidOperationException("The selected poison recipient or physical body changed before exposure.");
 		if (Drug is null)
 		{
 			return null;
@@ -158,18 +172,48 @@ public class PoisonEffect : CharacterSpellEffectTemplateBase
 			("power", (int)power),
 			("outcome", (int)outcome)
 		});
-		if (grams <= 0.0)
+		if (!double.IsFinite(grams) || grams <= 0.0)
 		{
 			return null;
 		}
 
-		return new SpellPoisonEffect(target, parent, Drug, Vector, grams, GramsExpression.OriginalFormulaText);
+		return new SpellPoisonEffect(target, parent, Drug, Vector, grams, GramsFormulaText,
+			ownedFamily: OwnedFamily);
+	}
+
+	public IMagicSpellEffectPreparedSelectionToken? CapturePreparedSelection(ICharacter caster, IPerceivable recipient) =>
+		OwnedFamily is null || recipient is not ICharacter target ? null : _selection = new(target, target.Body);
+
+	public bool TryReusePreparedSelection(IMagicSpellEffectPreparedSelectionToken selection, ICharacter caster,
+		IPerceivable recipient, out string? error)
+	{
+		error = null;
+		if (OwnedFamily is null) return true;
+		if (selection is not ConditionBodySelection body || !body.IsCurrent(recipient))
+		{ error = "The selected poison recipient or physical body changed."; return false; }
+		_selection = body;
+		return true;
+	}
+
+	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
+	{
+		error = OwnedFamily is not null && (_selection is null || !_selection.IsCurrent(recipient))
+			? "The selected poison recipient or physical body changed." : null;
+		return error is null;
+	}
+
+	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+	{
+		var child = GetOrApplyEffect(caster, target, outcome, power, parent, additionalParameters);
+		return new(OwnedFamily is null ? MagicEffectOperationStatus.Unknown :
+			child is null ? MagicEffectOperationStatus.NoChange : MagicEffectOperationStatus.Applied, child);
 	}
 
 	public override IMagicSpellEffectTemplate Clone() => new PoisonEffect(SaveToXml(), Spell);
 }
 
-public class RemovePoisonEffect : CharacterSpellEffectRemovalTemplateBase
+public class RemovePoisonEffect : CharacterSpellEffectRemovalTemplateBase, IMagicSpellEffectOperation, IMagicSpellEffectPreparedSelection
 {
 	public const string HelpText = @"You can use the following options with this effect:
 	#3drug <which>#0 - sets which drug payload is removed
@@ -200,6 +244,12 @@ public class RemovePoisonEffect : CharacterSpellEffectRemovalTemplateBase
 	public IDrug? Drug { get; private set; }
 	public DrugVector Vector { get; private set; }
 	public string FormulaText { get; private set; } = "0";
+	public string? OwnedFamily { get; private set; }
+	private ConditionBodySelection? _selection;
+	public string? DefinitionError => OwnedFamily is not null &&
+		(string.IsNullOrWhiteSpace(OwnedFamily) || OwnedFamily.Length > 255 ||
+		 FormulaText.Length > 255 || Drug is null || Vector != DrugVector.Touched)
+		? "Owned poison cure requires a named family, a native drug and declared contact exposure." : null;
 
 	protected override string BuilderEffectType => "removepoison";
 	protected override string ShowText => $"Remove Poison - {(Drug?.Name ?? "None")} via {Vector.Describe()} at {FormulaText}";
@@ -224,6 +274,7 @@ public class RemovePoisonEffect : CharacterSpellEffectRemovalTemplateBase
 
 		Vector = (DrugVector)int.Parse(root.Element("Vector")?.Value ?? ((int)DrugVector.Injected).ToString());
 		FormulaText = root.Element("Formula")?.Value ?? "0";
+		OwnedFamily = root.Element("OwnedFamily")?.Value;
 	}
 
 	protected override void SaveToXml(XElement root)
@@ -231,6 +282,7 @@ public class RemovePoisonEffect : CharacterSpellEffectRemovalTemplateBase
 		root.Add(new XElement("Drug", Drug?.Id ?? 0L));
 		root.Add(new XElement("Vector", (int)Vector));
 		root.Add(new XElement("Formula", new XCData(FormulaText)));
+		if (OwnedFamily is not null) root.Add(new XElement("OwnedFamily", OwnedFamily));
 	}
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -307,10 +359,72 @@ public class RemovePoisonEffect : CharacterSpellEffectRemovalTemplateBase
 
 	protected override void RemoveEffects(ICharacter target)
 	{
+		if (OwnedFamily is not null)
+		{
+			ApplyOwnedRemoval(target);
+			return;
+		}
 		target.RemoveAllEffects<SpellPoisonEffect>(x =>
 			x.Drug == Drug &&
 			x.Vector == Vector &&
 			x.GramsFormulaText.EqualTo(FormulaText), true);
+	}
+
+	private MagicEffectOperationStatus ApplyOwnedRemoval(ICharacter target)
+	{
+		if (DefinitionError is { } error) throw new InvalidOperationException(error);
+		var selected = _selection ?? new ConditionBodySelection(target, target.Body);
+		if (!selected.IsCurrent(target)) return MagicEffectOperationStatus.Rejected;
+		var matches = target.EffectsOfType<SpellPoisonEffect>().Where(x => x.OwnedFamily == OwnedFamily &&
+			x.Drug == Drug && x.Vector == Vector && x.GramsFormulaText.EqualTo(FormulaText)).ToArray();
+		bool OwnedDose(DrugDosage dose) => dose.SpellOriginId.HasValue &&
+			dose.SpellOriginFamily == OwnedFamily && dose.Drug == Drug &&
+			dose.OriginalVector == Vector && dose.SpellOriginFormula.EqualTo(FormulaText);
+		var hasDoses = selected.Body.ActiveDrugDosages.Any(OwnedDose) ||
+			selected.Body.LatentDrugDosages.Any(OwnedDose);
+		if (!selected.IsCurrent(target)) return MagicEffectOperationStatus.Rejected;
+		if (matches.Length == 0 && !hasDoses) return MagicEffectOperationStatus.NoChange;
+		foreach (var effect in matches)
+		{
+			if (!selected.IsCurrent(target)) throw new InvalidOperationException("Poison cure recipient changed after payment.");
+			target.RemoveEffect(effect, true);
+			if (!selected.IsCurrent(target)) throw new InvalidOperationException("Poison cure recipient changed during removal.");
+		}
+		selected.Body.RemoveDrugDosages(OwnedDose);
+		if (!selected.IsCurrent(target)) throw new InvalidOperationException("Poison cure recipient changed during dose removal.");
+		return MagicEffectOperationStatus.Applied;
+	}
+
+	public IMagicSpellEffectPreparedSelectionToken? CapturePreparedSelection(ICharacter caster, IPerceivable recipient) =>
+		OwnedFamily is null || recipient is not ICharacter target ? null : _selection = new(target, target.Body);
+
+	public bool TryReusePreparedSelection(IMagicSpellEffectPreparedSelectionToken selection, ICharacter caster,
+		IPerceivable recipient, out string? error)
+	{
+		error = null;
+		if (OwnedFamily is null) return true;
+		if (selection is not ConditionBodySelection body || !body.IsCurrent(recipient))
+		{ error = "The selected poison cure recipient or physical body changed."; return false; }
+		_selection = body;
+		return true;
+	}
+
+	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
+	{
+		error = OwnedFamily is not null && (_selection is null || !_selection.IsCurrent(recipient))
+			? "The selected poison cure recipient or physical body changed." : null;
+		return error is null;
+	}
+
+	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+	{
+		if (OwnedFamily is null)
+		{
+			GetOrApplyEffect(caster, target, outcome, power, parent, additionalParameters);
+			return new(MagicEffectOperationStatus.Unknown, null);
+		}
+		return new(target is ICharacter character ? ApplyOwnedRemoval(character) : MagicEffectOperationStatus.Rejected, null);
 	}
 
 	public override IMagicSpellEffectTemplate Clone() => new RemovePoisonEffect(SaveToXml(), Spell);

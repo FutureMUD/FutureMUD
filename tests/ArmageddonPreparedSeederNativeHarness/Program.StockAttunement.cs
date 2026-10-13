@@ -89,7 +89,7 @@ internal static partial class GNHProgram
 		{
 			("arm.spell.night_eyes", "self", 60), ("arm.spell.second_breath", "self", 0),
 			("arm.spell.daylight", "here", 60), ("arm.spell.quickened_healing", "self", 120),
-			("arm.spell.earthen_strength", "self", 60)
+			("arm.spell.earthen_strength", "self", 60), ("arm.spell.fleet_step", "self", 60)
 		};
 		var candidates = new List<object>
 		{

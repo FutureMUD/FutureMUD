@@ -10,9 +10,11 @@ SAFE_TARGETS = {
     'arm.spell.read_attunement': 'self', 'arm.spell.night_eyes': 'self',
     'arm.spell.second_breath': 'self', 'arm.spell.daylight': 'here',
     'arm.spell.quickened_healing': 'self', 'arm.spell.earthen_strength': 'self',
+    'arm.spell.fleet_step': 'self',
 }
 EXPECTED_CHILDREN = {'arm.spell.night_eyes': 'SpellInfravision', 'arm.spell.daylight': 'SpellRoomLight',
-                     'arm.spell.quickened_healing': 'SpellHealingRate', 'arm.spell.earthen_strength': 'SpellTraitBoost'}
+                     'arm.spell.quickened_healing': 'SpellHealingRate', 'arm.spell.earthen_strength': 'SpellTraitBoost',
+                     'arm.spell.fleet_step': ['SpellMovementTempo', 'SpellStaminaExpenditure']}
 REFERENCE_TABLES = {
     'MagicSchool': 'MagicSchools', 'TraitDefinition': 'TraitDefinitions',
     'TraitExpression': 'TraitExpression', 'MagicResource': 'MagicResources',
@@ -132,6 +134,7 @@ if __name__ == '__main__':
             a = select_campaign({'version': 1, 'seed': SEED, 'sample_limit': 4, 'candidates': rows}, installed)
             b = select_campaign({'version': 1, 'seed': SEED, 'sample_limit': 4, 'candidates': list(reversed(rows))}, installed)
             self.assertEqual([row['key'] for row in a], [row['key'] for row in b]); self.assertEqual(4, len(a))
+            self.assertIn('arm.spell.fleet_step', [row['key'] for row in a])
             self.assertTrue(all(row['grade'] == 1 for row in selection_receipt(a)['selected']))
         def test_invalid_configuration_refuses_before_native_io(self):
             rows = self.rows(); installed = {row['key']: {'id': row['spell'], 'trait': 30, 'school': 40} for row in rows}

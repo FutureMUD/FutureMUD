@@ -153,8 +153,27 @@ public class MagicPersistentSensoryCombatTests
 		{
 			fixture.Effect.RemovalEffect();
 			fixture.OwnerEffects.Remove(fixture.Effect);
-			Assert.ThrowsException<InvalidOperationException>(() =>
-				damage.MutationGuard.Validate(fixture.Body.Object, damage));
+			var rejected = false;
+			try { damage.MutationGuard.Validate(fixture.Body.Object, damage); }
+			catch (InvalidOperationException) { rejected = true; }
+			Assert.IsTrue(rejected);
+			return Array.Empty<IWound>();
+		});
+
+		fixture.Effect.ExpireEffect();
+
+		fixture.Target.Verify(x => x.Reschedule(fixture.Effect, It.IsAny<TimeSpan>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void SpellBurningEffect_NativeGuardRefusal_DoesNotEscapeScheduledTick()
+	{
+		var fixture = CreateBurningTickFixture();
+		fixture.Body.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Returns<IDamage>(damage =>
+		{
+			fixture.Effect.RemovalEffect();
+			fixture.OwnerEffects.Remove(fixture.Effect);
+			damage.MutationGuard.Validate(fixture.Body.Object, damage);
 			return Array.Empty<IWound>();
 		});
 
@@ -170,8 +189,10 @@ public class MagicPersistentSensoryCombatTests
 		fixture.Body.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Returns<IDamage>(damage =>
 		{
 			fixture.Target.SetupGet(x => x.Body).Returns(Mock.Of<IBody>());
-			Assert.ThrowsException<InvalidOperationException>(() =>
-				damage.MutationGuard.Validate(fixture.Body.Object, damage));
+			var rejected = false;
+			try { damage.MutationGuard.Validate(fixture.Body.Object, damage); }
+			catch (InvalidOperationException) { rejected = true; }
+			Assert.IsTrue(rejected);
 			return Array.Empty<IWound>();
 		});
 
@@ -193,6 +214,86 @@ public class MagicPersistentSensoryCombatTests
 		fixture.Effect.ExpireEffect();
 
 		fixture.Body.Verify(x => x.PassiveSufferDamage(It.IsAny<IDamage>()), Times.Once);
+		fixture.Target.Verify(x => x.Reschedule(fixture.Effect, TimeSpan.FromSeconds(10)), Times.Once);
+	}
+
+	[TestMethod]
+	public void SpellBurningEffect_NativeMutationGuard_AllowsCapturedWornArmourProjection()
+	{
+		var fixture = CreateBurningTickFixture();
+		var armour = new Mock<IGameItem>();
+		fixture.Body.SetupGet(x => x.WornItems).Returns([armour.Object]);
+		fixture.Body.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Returns<IDamage>(damage =>
+		{
+			var projection = new Damage(damage) { Bodypart = null };
+			projection.MutationGuard.Validate(armour.Object, projection);
+			return Array.Empty<IWound>();
+		});
+
+		fixture.Effect.ExpireEffect();
+
+		fixture.Target.Verify(x => x.Reschedule(fixture.Effect, TimeSpan.FromSeconds(10)), Times.Once);
+	}
+
+	[TestMethod]
+	public void SpellBurningEffect_NativeMutationGuard_AllowsCapturedBoneProjection()
+	{
+		var fixture = CreateBurningTickFixture();
+		var bone = new Mock<IBone>();
+		fixture.Body.SetupGet(x => x.Bones).Returns([bone.Object]);
+		fixture.Body.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Returns<IDamage>(damage =>
+		{
+			var projection = new Damage(damage) { Bodypart = bone.Object };
+			projection.MutationGuard.Validate(fixture.Body.Object, projection);
+			return Array.Empty<IWound>();
+		});
+
+		fixture.Effect.ExpireEffect();
+
+		fixture.Target.Verify(x => x.Reschedule(fixture.Effect, TimeSpan.FromSeconds(10)), Times.Once);
+	}
+
+	[TestMethod]
+	public void SpellBurningEffect_LostArmourCustody_StopsTickBeforeNativeLayerFence()
+	{
+		var fixture = CreateBurningTickFixture();
+		var armour = new Mock<IGameItem>();
+		var destroyed = false;
+		armour.SetupGet(x => x.Destroyed).Returns(() => destroyed);
+		IGameItem[] worn = [armour.Object];
+		fixture.Body.SetupGet(x => x.WornItems).Returns(() => worn);
+		fixture.Body.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Returns<IDamage>(damage =>
+		{
+			destroyed = true;
+			worn = [];
+			damage.MutationGuard.Validate(fixture.Body.Object, damage);
+			return Array.Empty<IWound>();
+		});
+
+		fixture.Effect.ExpireEffect();
+
+		fixture.Target.Verify(x => x.Reschedule(fixture.Effect, It.IsAny<TimeSpan>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void SpellBurningEffect_ProcessedArmourCanBeDestroyedBeforeRemainingBodyInjury()
+	{
+		var fixture = CreateBurningTickFixture();
+		var first = new Mock<IGameItem>();
+		var second = new Mock<IGameItem>();
+		IGameItem[] worn = [first.Object, second.Object];
+		fixture.Body.SetupGet(x => x.WornItems).Returns(() => worn);
+		fixture.Body.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Returns<IDamage>(damage =>
+		{
+			var firstProjection = new Damage(damage) { Bodypart = null };
+			firstProjection.MutationGuard.Validate(first.Object, firstProjection);
+			worn = [second.Object];
+			damage.MutationGuard.Validate(fixture.Body.Object, damage);
+			return Array.Empty<IWound>();
+		});
+
+		fixture.Effect.ExpireEffect();
+
 		fixture.Target.Verify(x => x.Reschedule(fixture.Effect, TimeSpan.FromSeconds(10)), Times.Once);
 	}
 

@@ -591,7 +591,9 @@ def stock_campaign_smoke(session, phase, data, mapped):
                 if before_stamina is not None: require(attempt_receipt['native_stamina_observed']['after'] > before_stamina, 'Applied Second Breath did not persist a positive native stamina change.')
                 if key in campaign.EXPECTED_CHILDREN:
                     active = parents(row)
-                    require(len(active) == 1 and active[0]['children'] == [campaign.EXPECTED_CHILDREN[key]] and
+                    expected_children = campaign.EXPECTED_CHILDREN[key]
+                    if isinstance(expected_children, str): expected_children = [expected_children]
+                    require(len(active) == 1 and active[0]['children'] == expected_children and
                             0 < active[0]['remaining_ms'] <= float(row['duration_seconds']) * 1000,
                             'Paid campaign did not persist its exact native child/lifetime: ' + key)
                     child = ET.fromstring(active[0]['child_definitions'][0])
@@ -600,6 +602,12 @@ def stock_campaign_smoke(session, phase, data, mapped):
                     if key == 'arm.spell.earthen_strength':
                         require(float(child.findtext('Bonus', 'nan')) == 1 and child.findtext('Trait') == ET.fromstring(installed[key]['definition']).find('Effects/Effect').get('trait'),
                                 'Grade-one strength did not boost the exact configured native attribute by one.')
+                    if key == 'arm.spell.fleet_step':
+                        require(math.isclose(float(child.findtext('Multiplier', 'nan')), 1/1.05, rel_tol=1e-12),
+                                'Grade-one Fleet Step did not save the selected-grade native movement delay multiplier.')
+                        effort = ET.fromstring(active[0]['child_definitions'][1])
+                        require(math.isclose(float(effort.findtext('Multiplier', 'nan')), .95, rel_tol=1e-12),
+                                'Grade-one Fleet Step did not save its reduced native stamina expenditure.')
                     result['saved_parents'] = active; result['saved_at_monotonic'] = time.monotonic()
                 result['outcome'] = 'FIRST-PASS-COLD-PENDING'
                 break

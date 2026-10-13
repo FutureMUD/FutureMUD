@@ -179,6 +179,7 @@ SpellLevitation
 SpellLiveBodyPossession
 SpellMagicalCopy
 SpellMagicTag
+SpellMovementTempo
 SpellNeedRate
 SpellPacifism
 SpellParalysis

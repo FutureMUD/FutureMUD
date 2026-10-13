@@ -1,5 +1,6 @@
 ﻿#nullable enable
 
+using System.Collections.Generic;
 using MudSharp.Body;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
@@ -120,7 +121,17 @@ public class SpellBurningEffect : MagicSpellEffectBase, IDescriptionAdditionEffe
 		}
 
 		if (!Attached()) return;
-		ApplyBurnDamage(Attached, body).ProcessPassiveWounds(body);
+		try
+		{
+			ApplyBurnDamage(Attached, body).ProcessPassiveWounds(body);
+		}
+		catch (StaleBurningTickException)
+		{
+			// A native injury checkpoint observed removal or target mutation. Consume this
+			// scheduled tick without letting an expected refusal stop the game loop.
+			if (Attached()) base.ExpireEffect();
+			return;
+		}
 		if (!Attached()) return;
 		ApplyThermalLoad(Attached);
 		if (Attached()) Owner.Reschedule(this, TickInterval);
@@ -201,25 +212,45 @@ public class SpellBurningEffect : MagicSpellEffectBase, IDescriptionAdditionEffe
 		}
 	}
 
+	private sealed class StaleBurningTickException : InvalidOperationException
+	{
+		public StaleBurningTickException() : base("The spell-owned burning target changed before native injury.") { }
+	}
+
 	private sealed class BurningTickGuard(IPerceivable target, IBody? body,
 		IBodypart? part, Func<bool> attached) : IDamageMutationGuard
 	{
 		private readonly IGameItem[] _bodyItems = body is null ? [] : body.WornItems
 			.Concat(body.Prosthetics.Select(x => x.Parent)).ToArray();
+		private readonly HashSet<IGameItem> _processedItems = new(ReferenceEqualityComparer.Instance);
 
 		public void Validate(IHaveWounds recipient, IDamage damage)
 		{
+			// BodyBiology holds a layer list while processing armour. Detect lost live
+			// custody here before its own untyped mutation fence can escape the tick.
+			var custodyValid = body is null || _bodyItems.All(item => _processedItems.Contains(item) ||
+				body.WornItems.Concat(body.Prosthetics.Select(x => x.Parent))
+					.Any(current => ReferenceEquals(current, item)));
 			var currentRecipient = body is null
 				? ReferenceEquals(recipient, target) && target is IGameItem { Deleted: false, Destroyed: false }
 				: ReferenceEquals(recipient, body) || recipient is IGameItem item &&
 					_bodyItems.Any(x => ReferenceEquals(x, item)) && !item.Deleted && !item.Destroyed &&
 					body.WornItems.Concat(body.Prosthetics.Select(x => x.Parent))
 						.Any(x => ReferenceEquals(x, item));
-			if (!currentRecipient || !attached() || !ReferenceEquals(damage.MutationGuard, this) ||
-			    !ReferenceEquals(damage.TargetBody, body) ||
-			    body is not null && (part is null || !ReferenceEquals(damage.Bodypart, part) ||
-			        !body.Bodyparts.Any(x => ReferenceEquals(x, part))))
-				throw new InvalidOperationException("The spell-owned burning target changed before native injury.");
+			// Native armour projects to an item with no bodypart, while internal bone/organ
+			// damage projects to another part of the same captured body.
+			var capturedPartValid = body is null || part is not null && damage.Bodypart is not null &&
+				body.Bodyparts.Any(x => ReferenceEquals(x, part)) &&
+				(body.Bodyparts.Any(x => ReferenceEquals(x, damage.Bodypart)) ||
+				 body.Bones.Any(x => ReferenceEquals(x, damage.Bodypart)) ||
+				 body.Organs.Any(x => ReferenceEquals(x, damage.Bodypart)));
+			if (body is not null && recipient is IGameItem && damage.Bodypart is null)
+				capturedPartValid = part is not null && body.Bodyparts.Any(x => ReferenceEquals(x, part));
+			if (!custodyValid || !currentRecipient || !attached() || !ReferenceEquals(damage.MutationGuard, this) ||
+			    !ReferenceEquals(damage.TargetBody, body) || !capturedPartValid)
+				throw new StaleBurningTickException();
+			if (body is not null && recipient is IGameItem processedItem)
+				_processedItems.Add(processedItem);
 		}
 	}
 

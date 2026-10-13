@@ -75,7 +75,9 @@ public static partial class ArmageddonStockSpellInstaller
 		.Concat(SimpleKeys.Select(key =>
 			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveSimple(db, key)))))
 		.Concat(UtilityKeys.Select(key =>
-			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveUtility(db, key)))));
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveUtility(db, key)))))
+		.Concat(new[] { "arm.spell.ember_lance", "arm.spell.pillar_of_flame", "arm.spell.lightning_lance", "arm.spell.mind_scour" }.Select(key =>
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveDirectDamage(db, key)))));
 
 	private static ArmageddonInstallResult InstallContribution(Func<FuturemudDatabaseContext> factory,
 		Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution> resolve, Action<ArmageddonInstallCheckpoint>? checkpoint)

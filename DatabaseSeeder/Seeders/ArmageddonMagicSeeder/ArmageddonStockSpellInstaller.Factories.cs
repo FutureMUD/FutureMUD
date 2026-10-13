@@ -202,4 +202,8 @@ public static partial class ArmageddonStockSpellInstaller
 		return ArmageddonCanonicalUtilityContent.Contributions(bindings).Single(x => x.Content.Key == key);
 	}
 
+	private static ArmageddonCanonicalSpellContribution ResolveDirectDamage(FuturemudDatabaseContext db, string key) =>
+		ArmageddonDirectDamageSpellContent.Create(new(CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey),
+			Difficulty.Normal, MudSharp.Health.DamageType.Arcane)).Single(x => x.Content.Key == key);
+
 }

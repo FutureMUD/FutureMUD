@@ -154,6 +154,7 @@ SpellComprehendLanguage
 SpellCorpsePossession
 SpellCorpsePreservation
 SpellCurse
+SpellDamagingExitBarrier
 SpellDeadSpeak
 SpellDeafness
 SpellDetectEthereal
@@ -173,6 +174,7 @@ SpellInfravision
 SpellInsomnia
 SpellInvisibility
 SpellItemEnchantment
+SpellLeechingEdge
 SpellLevitation
 SpellLiveBodyPossession
 SpellMagicalCopy

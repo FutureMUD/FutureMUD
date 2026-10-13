@@ -37,7 +37,9 @@ public class WrapperTests
 			start.Environment["FUTUREMUD_REPORTER_BOOTSTRAP_DOTNET"] = Fake;
 			start.Environment["FM_FAKE_SCENARIO"] = scenario.Item1;
 			using var process = Process.Start(start)!;
-			using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(20));
+			// The reporter's one-second child deadline also has bounded process-tree cleanup and log-drain time.
+			// Allow CI runner startup variance without relaxing the asserted reporter outcome.
+			using var deadline = new CancellationTokenSource(TimeSpan.FromSeconds(45));
 			try { await process.WaitForExitAsync(deadline.Token); }
 			catch (OperationCanceledException) { process.Kill(entireProcessTree: true); throw new AssertFailedException("Bootstrap wrapper hung."); }
 			var output = await process.StandardOutput.ReadToEndAsync();

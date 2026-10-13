@@ -140,6 +140,15 @@ public class RoomReferenceCorrectionTests
 	}
 
 	[TestMethod]
+	public void S4BarrierAndLeechingChildren_AreClassifiedAndRetainNativePayloadBytes()
+	{
+		// The new barrier's RoomIds are current-world anchor IDs, not historical containing-Room references.
+		const string children = "<Effect><Type>SpellDamagingExitBarrier</Type><Effect><DamageType>7</DamageType><DamageAmount>12</DamageAmount><Layer>0</Layer><Planes><Plane>4</Plane></Planes><Rooms><Room>9000</Room><Room>9001</Room></Rooms><ExpiryUtc>2026-10-14T00:00:00Z</ExpiryUtc></Effect></Effect><Effect><Type>SpellLeechingEdge</Type><Effect><Fraction>0.2</Fraction></Effect></Effect>";
+		var xml = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{children}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Items #1.EffectData"));
+	}
+
+	[TestMethod]
 	public void EffectFactories_CustomSerializer_RefusesAndBuiltInInventoryMatchesSource()
 	{
 		Assert.ThrowsException<InvalidOperationException>(() => RoomReferenceXml.Rewrite("<Effects><Effect><Type>CustomEffect</Type><Effect/></Effect></Effects>", false, Map(), "Bodies #8.EffectData"));

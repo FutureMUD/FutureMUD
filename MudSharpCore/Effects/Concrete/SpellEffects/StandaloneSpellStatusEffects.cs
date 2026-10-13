@@ -672,7 +672,9 @@ public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 
 	private void InfectionIdentityRegistered(ILateInitialisingItem item)
 	{
-		if (ReferenceEquals(item, _appliedInfection)) AppliedInfectionId = item.Id;
+		if (!ReferenceEquals(item, _appliedInfection)) return;
+		AppliedInfectionId = item.Id;
+		Changed = true;
 	}
 
 	private void RemoveOwnedEffect()
@@ -703,6 +705,7 @@ public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 	private void MarkOwnedDirty(ICharacter character)
 	{
 		character.Changed = true;
+		Changed = true;
 		if (_ownedBody is not null) _ownedBody.Changed = true;
 	}
 

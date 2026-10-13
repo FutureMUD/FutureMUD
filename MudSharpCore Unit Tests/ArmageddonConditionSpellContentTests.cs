@@ -22,7 +22,7 @@ using MudSharp.RPG.Checks;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class ArmageddonConditionSpellContentTests
+public partial class ArmageddonConditionSpellContentTests
 {
 	[TestMethod]
 	public void Factory_DiseasePairRoundTripsOwnedModeAndLeavesLegacyAbsent()
@@ -66,6 +66,7 @@ public class ArmageddonConditionSpellContentTests
 		Mock.Get(f.Base.World.Object.SaveManager).Verify(x => x.Flush(), Times.Never);
 		infection.InitialiseWithoutPersistence(91);
 		Assert.AreEqual(91L, effect.AppliedInfectionId);
+		Assert.IsTrue(f.Base.Actor.Object.EffectsChanged);
 		var saved = effect.SaveToXml(new Dictionary<IEffect, TimeSpan>());
 		Assert.AreEqual(91L, (long)saved.Element("Effect")!.Element("AppliedInfectionId")!);
 		Assert.AreEqual(200L, (long)saved.Element("Effect")!.Element("OwnedBodyId")!);
@@ -234,6 +235,7 @@ public class ArmageddonConditionSpellContentTests
 		{
 			SpellEffectFactory.SetupFactory(); SpellDiseaseEffect.InitialiseEffectType(); MagicSpellParent.InitialiseEffectType();
 			Base.Body.SetupProperty(x => x.Changed); Base.Actor.SetupProperty(x => x.Changed);
+			Base.Actor.SetupProperty(x => x.EffectsChanged);
 			Base.Body.SetupGet(x => x.PartInfections).Returns(() => Infections);
 			Base.Body.Setup(x => x.RemoveInfection(It.IsAny<IInfection>())).Callback<IInfection>(x => Infections.Remove(x));
 			Base.Actor.SetupGet(x => x.Effects).Returns(() => Effects);

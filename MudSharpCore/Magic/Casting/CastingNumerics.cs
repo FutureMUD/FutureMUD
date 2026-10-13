@@ -118,6 +118,7 @@ internal static class CastingNumerics
 		(RoomLightEffect, "roomlight", "AddedLuxPerPower") => true,
 		(RoomTemperatureEffect, "roomtemperature", "TemperatureDeltaPerPower") => true,
 		(ItemEnchantEffect, "itemenchant", "AttackCheckBonus") => true,
+		(TrackMarkEffect, "trackmark", "VisualTrackIntensityMultiplier") => true,
 		(HealingRateSpellEffect, "healingrate", "Multiplier") => true,
 		(NeedDeltaEffect, "needdelta", "DrunkDelta") => true,
 		_ => false
@@ -134,6 +135,7 @@ internal static class CastingNumerics
 			case ("roomlight", "AddedLuxPerPower"): effect.SetElementValue("AddedLuxPerPower", value); break;
 			case ("roomtemperature", "TemperatureDeltaPerPower"): effect.SetElementValue("TemperatureDeltaPerPower", value); break;
 			case ("itemenchant", "AttackCheckBonus"): effect.SetElementValue("AttackCheckBonus", value); break;
+			case ("trackmark", "VisualTrackIntensityMultiplier"): effect.SetElementValue("VisualMultiplier", value); break;
 			case ("healingrate", "Multiplier"): effect.SetElementValue("Multiplier", value); break;
 			case ("needdelta", "DrunkDelta"):
 				if ((bool?)effect.Element("DirectAlcoholRemoval") == true &&

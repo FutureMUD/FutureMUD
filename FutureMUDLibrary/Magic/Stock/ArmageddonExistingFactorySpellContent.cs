@@ -65,7 +65,7 @@ public static class ArmageddonExistingFactorySpellContent
 	{
 		var outputs = GradeItems(prototypes);
 		return Weapon("arm.spell.storm_spear", "Storm Spear", 20, StormLifetime, "primaryhand", outputs,
-			"Creates one temporary electrical spear of the requested grade in the recipient's free primary hand. Missing hand capacity refuses before payment.");
+			"Creates one temporary electrical spear of the requested grade in the recipient's free primary hand. Missing hand capacity refuses before payment.") with { DurationFormula = "0" };
 	}
 
 	public static ArmageddonUtilitySpellContent FlameKnife(ArmageddonFlameKnifeBindings bindings)
@@ -149,7 +149,7 @@ public static class ArmageddonExistingFactorySpellContent
 	}
 	private static ArmageddonUtilitySpellContent Emotion(string suffix, string name, string kind, double minimum,
 		long trait, long eligibility, IReadOnlyList<KeyValuePair<int, Difficulty>> saves, string description) =>
-		new("arm.spell." + suffix, name, description, GradeLifetime, minimum, "$0 shape|shapes an emotional enchantment.",
+		new("arm.spell." + suffix, name, description, "0", minimum, "$0 shape|shapes an emotional enchantment.",
 			(resource, cost, _) =>
 			{
 				var definition = Base("arm.spell." + suffix, "character", resource, cost, minimum,

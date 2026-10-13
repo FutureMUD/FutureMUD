@@ -20,6 +20,7 @@ public class SpellArmourEffect : CharacterSpellEffectTemplateBase, IMagicSpellEf
 	#3obscured#0 - toggles armour being hidden by items worn on the bodypart
 	#3desc <text>#0 - sets a full desc addendum when the armour affect applies
 	#3desc none#0 - clears a full desc addendum
+	#3finite#0 - toggles a hard finite protection budget
 	#3absorb <formula>#0 - sets the formula for maximum damage absorbed
 	#3applies <prog>#0 - sets a prog for whether the armour applies
 	#3armourtype <type>#0 - sets the armour type
@@ -93,6 +94,11 @@ public class SpellArmourEffect : CharacterSpellEffectTemplateBase, IMagicSpellEf
 	{
 		switch (command.PopForSwitch())
 		{
+			case "finite":
+				ArmourConfiguration.FiniteBudget = !ArmourConfiguration.FiniteBudget;
+				Spell.Changed = true;
+				actor.OutputHandler.Send($"Hard finite armour budget: {ArmourConfiguration.FiniteBudget.ToColouredString()}.");
+				return true;
 			case "part":
 			case "bodypart":
 			case "shape":
@@ -310,6 +316,7 @@ public class SpellArmourEffect : CharacterSpellEffectTemplateBase, IMagicSpellEf
 
 	public override IMagicSpellEffectTemplate Clone()
 	{
-		return new SpellArmourEffect(SaveToXml(), Spell);
+		return new SpellArmourEffect(SaveToXml(), Spell)
+		{ ArmourConfiguration = new MagicArmourConfiguration(ArmourConfiguration) };
 	}
 }

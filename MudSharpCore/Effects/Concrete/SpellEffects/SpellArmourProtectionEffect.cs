@@ -1,5 +1,7 @@
 ﻿#nullable enable
 using MudSharp.Body;
+using MudSharp.Body.Traits;
+using System.Globalization;
 using MudSharp.Combat;
 using MudSharp.GameItems;
 using MudSharp.Health;
@@ -19,6 +21,12 @@ public class SpellArmourProtectionEffect : SimpleSpellStatusEffectBase, IMagicAr
 		: base(owner, parent, prog)
 	{
 		ArmourConfiguration = new MagicArmourConfiguration(armourConfiguration);
+		if (ArmourConfiguration.FiniteBudget && owner is ICharacter character)
+		{
+			var budget = ArmourConfiguration.MaximumDamageAbsorbed.Evaluate(character);
+			if (!double.IsFinite(budget) || budget < 0) throw new InvalidOperationException("Finite armour requires a nonnegative finite budget.");
+			ArmourConfiguration.MaximumDamageAbsorbed = new TraitExpression(budget.ToString("R", CultureInfo.InvariantCulture), Gameworld);
+		}
 	}
 
 	private SpellArmourProtectionEffect(XElement root, IPerceivable owner)
@@ -26,13 +34,13 @@ public class SpellArmourProtectionEffect : SimpleSpellStatusEffectBase, IMagicAr
 	{
 		var effect = root.Element("Effect")!;
 		ArmourConfiguration = new MagicArmourConfiguration(effect, Gameworld);
-		TotalDamageAbsorbed = double.Parse(effect.Element("TotalDamageAbsorbed")?.Value ?? "0");
+		TotalDamageAbsorbed = double.Parse(effect.Element("TotalDamageAbsorbed")?.Value ?? "0", CultureInfo.InvariantCulture);
 	}
 
 	public MagicArmourConfiguration ArmourConfiguration { get; }
 	public double TotalDamageAbsorbed { get; protected set; }
 
-	public IDamage PreviewDamage(IDamage damage) => Owner is ICharacter character
+	public IDamage PreviewDamage(IDamage damage) => ArmourConfiguration.FiniteBudget ? ResolveFinite(damage, false) : Owner is ICharacter character
 		? ArmourType.AbsorbDamageViaSpell(damage, ArmourConfiguration.ArmourMaterial, Quality, character, true).PassedOn
 		: damage;
 
@@ -66,6 +74,7 @@ public class SpellArmourProtectionEffect : SimpleSpellStatusEffectBase, IMagicAr
 
 	public IDamage SufferDamage(IDamage damage, ref List<IWound> wounds)
 	{
+		if (ArmourConfiguration.FiniteBudget) return ResolveFinite(damage, true);
 		if (Owner is not ICharacter character)
 		{
 			return damage;
@@ -80,6 +89,7 @@ public class SpellArmourProtectionEffect : SimpleSpellStatusEffectBase, IMagicAr
 
 	public IDamage PassiveSufferDamage(IDamage damage, ref List<IWound> wounds)
 	{
+		if (ArmourConfiguration.FiniteBudget) return ResolveFinite(damage, true);
 		if (Owner is not ICharacter character)
 		{
 			return damage;
@@ -90,6 +100,49 @@ public class SpellArmourProtectionEffect : SimpleSpellStatusEffectBase, IMagicAr
 		TotalDamageAbsorbed += Math.Max(0.0, (self?.DamageAmount ?? 0.0) - (passOn?.DamageAmount ?? 0.0));
 		CheckDamageAbsorbed();
 		return passOn!;
+	}
+
+	/// <summary>Budget measures native damage prevented, including dissipation. Pain/stun mitigation
+	/// scales with the affordable fraction on the last hit; a partial hit keeps its original damage kind.</summary>
+	private IDamage ResolveFinite(IDamage damage, bool commit)
+	{
+		if (Owner is not ICharacter character) return damage;
+		var body = character.Body;
+		void Validate()
+		{
+			damage.MutationGuard?.Validate(body, damage);
+			if (!ReferenceEquals(character.Body, body) ||
+				(damage.TargetBody is not null && !ReferenceEquals(damage.TargetBody, body)))
+				throw new InvalidOperationException("The protected physical body changed during armour resolution.");
+		}
+		Validate();
+		var maximum = ArmourConfiguration.MaximumDamageAbsorbed.Evaluate(character);
+		var remaining = Math.Max(0, maximum - TotalDamageAbsorbed);
+		if (remaining <= 0) return damage;
+		var passed = ArmourType.AbsorbDamageViaSpell(damage, ArmourConfiguration.ArmourMaterial, Quality, character, true).PassedOn;
+		// Native penetration/health checks can call user policy. Fence those callbacks before spending capacity.
+		Validate();
+		remaining = Math.Max(0, maximum - TotalDamageAbsorbed);
+		if (remaining <= 0) return damage;
+		var prevented = Math.Max(0, damage.DamageAmount - (passed?.DamageAmount ?? 0));
+		var spent = Math.Min(remaining, prevented);
+		var fraction = prevented > 0 ? spent / prevented : 1.0;
+		var result = passed is null && fraction >= 1.0 ? null : new Damage(passed ?? damage)
+		{
+			TargetBody = damage.TargetBody,
+			MutationGuard = damage.MutationGuard,
+			VitalTransfer = damage.VitalTransfer,
+			DamageType = fraction < 1.0 ? damage.DamageType : passed?.DamageType ?? damage.DamageType,
+			DamageAmount = prevented > 0 ? damage.DamageAmount - spent : passed?.DamageAmount ?? 0,
+			PainAmount = damage.PainAmount + ((passed?.PainAmount ?? 0) - damage.PainAmount) * fraction,
+			StunAmount = damage.StunAmount + ((passed?.StunAmount ?? 0) - damage.StunAmount) * fraction
+		};
+		if (commit)
+		{
+			TotalDamageAbsorbed += spent;
+			if (TotalDamageAbsorbed >= maximum) Owner.RemoveEffect(this, true);
+		}
+		return result!;
 	}
 
 	public void ProcessPassiveWound(IWound wound)

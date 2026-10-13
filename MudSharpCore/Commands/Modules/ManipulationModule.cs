@@ -9,9 +9,11 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Units;
+using MudSharp.Health;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Prototypes;
@@ -423,7 +425,8 @@ The syntax is #3seal <target> with <stamp> [using <medium>]#0.", AutoHelp.HelpAr
 		@"The #3inspect#0 command supports focused item inspections.
 
 	#3inspect seal <target>#0 - inspects seal state and impression metadata
-	#3inspect calibration <instrument>#0 - inspects measuring-instrument calibration", AutoHelp.HelpArgOrNoArg)]
+	#3inspect calibration <instrument>#0 - inspects measuring-instrument calibration
+	#3inspect toxin [character]#0 - with Sense Toxin, inspects active and latent drug poison", AutoHelp.HelpArgOrNoArg)]
 	protected static void Inspect(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -437,10 +440,31 @@ The syntax is #3seal <target> with <stamp> [using <medium>]#0.", AutoHelp.HelpAr
 			case "cal":
 				InspectCalibration(actor, ss);
 				return;
+			case "toxin":
+				InspectToxin(actor, ss);
+				return;
 			default:
-				actor.OutputHandler.Send($"The syntax is {"inspect seal <target>".ColourCommand()} or {"inspect calibration <instrument>".ColourCommand()}.");
+				actor.OutputHandler.Send($"The syntax is {"inspect seal <target>".ColourCommand()}, {"inspect calibration <instrument>".ColourCommand()}, or {"inspect toxin [character]".ColourCommand()}.");
 				return;
 		}
+	}
+
+	private static void InspectToxin(ICharacter actor, StringStack ss)
+	{
+		if (!actor.EffectsOfType<ISensePoisonEffect>().Any(x => x.Applies()))
+		{
+			actor.OutputHandler.Send("You have no magical sense for hidden toxins.");
+			return;
+		}
+
+		var target = ss.IsFinished ? actor : actor.TargetActor(ss.SafeRemainingArgument);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You do not see that character here.");
+			return;
+		}
+
+		actor.OutputHandler.Send(DrugDosageDescriber.DescribeActiveAndLatentDrugDosages(target, actor, includeEmptyMessage: true));
 	}
 
 	private static void InspectSeal(ICharacter actor, StringStack ss)

@@ -451,6 +451,24 @@ public class SpellComprehendLanguageEffect : SimpleSpellStatusEffectBase, ICompr
 	protected override string SpecificEffectType => "SpellComprehendLanguage";
 }
 
+public class SpellDetectPoisonEffect : SimpleSpellStatusEffectBase, ISensePoisonEffect
+{
+	public static void InitialiseEffectType() =>
+		RegisterFactory("SpellDetectPoison", (effect, owner) => new SpellDetectPoisonEffect(effect, owner));
+
+	public SpellDetectPoisonEffect(IPerceivable owner, IMagicSpellEffectParent parent, IFutureProg? prog = null)
+		: base(owner, parent, prog)
+	{
+	}
+
+	private SpellDetectPoisonEffect(XElement root, IPerceivable owner) : base(root, owner)
+	{
+	}
+
+	public override string Describe(IPerceiver voyeur) => "Able to inspect active and latent drug poison.";
+	protected override string SpecificEffectType => "SpellDetectPoison";
+}
+
 public class SpellPoisonEffect : SimpleSpellStatusEffectBase
 {
 	public static void InitialiseEffectType()

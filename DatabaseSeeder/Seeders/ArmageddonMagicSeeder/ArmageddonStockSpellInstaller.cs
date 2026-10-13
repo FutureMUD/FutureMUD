@@ -98,7 +98,11 @@ public static partial class ArmageddonStockSpellInstaller
 		.Concat(new[] { ArmageddonToxinSpellContent.VenomTouchKey, ArmageddonToxinSpellContent.PurgeToxinKey }.Select(key =>
 			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
 				ArmageddonToxinSpellContent.Create(CatalogueIdentity<Drug>(db, ArmageddonToxinSpellContent.OwnedFamily))
-					.Single(x => x.Content.Key == key)))));
+					.Single(x => x.Content.Key == key)))))
+		.Concat(ArmageddonWindForceSpellContent.Create().Select(x =>
+			(Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))))
+		.Concat(ArmageddonNeedHarmSpellContent.Create().Select(x =>
+			(Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))));
 
 	private static ArmageddonInstallResult InstallContribution(Func<FuturemudDatabaseContext> factory,
 		Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution> resolve, Action<ArmageddonInstallCheckpoint>? checkpoint)

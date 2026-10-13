@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-10-13T16:12:00+00:00",
-  "source_revision": "6469ef82a5a3105a7898e0b61e4508c07b1188a1",
+  "generated_utc": "2026-10-13T19:26:00+00:00",
+  "source_revision": "b8f4760436cb21eb302cfb57c69e7c920df8e84e",
   "scope": "Coherent S4 content and adapter batch; broader S4 remains authorised and incomplete. No merge/deploy or availability changes.",
   "continuation_batch": {
     "source_revision": "29f4ff288122a278a4df0471244e96c7ae2b9c5f",
@@ -43,11 +43,11 @@
       "unqualified carrier producers"
     ]
   },
-  "canonical_definitions_declared": 110,
+  "canonical_definitions_declared": 114,
   "required_inventory": 152,
-  "required_not_yet_declared": 42,
+  "required_not_yet_declared": 38,
   "optional_inventory": 2,
-  "definition_audit": "PASS: 107 declared fixed definitions under final full Seeder 1836/0/3 at b58eba58e; native first boot loaded the earlier 106/106 at c04c7c855, and historical first/cold 100/100 remains at e2afd061e. Sense Toxin and exact gathering repair have no new live certificate.",
+  "definition_audit": "PASS: 114 declared fixed definitions in focused Classic/Simple audit, including Desiccate, Headlong Revel, Gust Hands and Driving Gust. Repaired-source Classic native first/cold loaded 114/114 exact definitions; paid grade-one needs samples are bounded below.",
   "checks": [
     {
       "name": "seeder-full-final-99",
@@ -411,6 +411,13 @@
     "foundational_reseeding": "fresh 29-step capture after the new migration and committed blank snapshot changed the exact base schema/source fingerprint; second-prefix replay refused unchanged content",
     "workflow": "isolated owned MySQL capture, exact descriptor/hash restore, Classic package and first/cold paid sample; earlier sealed fixtures and failed receipts preserved"
   },
+  "current_immutable_base": {
+    "descriptor": ".artifacts/pre-armageddon-base-fixtures/20261013T180838Z_af9bb338ea1a4dadaa714a3a4c48492b/base-world.json",
+    "descriptor_sha256": "CF9344FECD7C89E4F4D2D7E99DDA3BF38C89BA9F4C4AE316FD79607B28357C97",
+    "sql_sha256": "55BFBB4B364112E8042C1F0B09D8BD4A1CEC702FEE1319C7DE8D80664A1CC878",
+    "base_source_sha256": "EA02FB31FD8580AC2C41BFD34741DB698EAAB5B33EF802872DF1533DE89D84F0",
+    "reason": "The reviewed IBody selected-needs interface changed an exact base-source input, so the prior sealed descriptor correctly refused reuse. This fresh 29-step capture refused unchanged second-prefix replay; final restore used exact matching current base-source hash and preserved the earlier descriptor."
+  },
   "gates": {
     "release": false,
     "package_admissions": false,
@@ -419,17 +426,18 @@
   },
   "hosted_ci": {
     "baseline_resolved": "Component-export regression repaired at d5cdd6c; hosted 38233157601 passed Linux and Windows.",
-    "last_verified_head": "6469ef82a5a3105a7898e0b61e4508c07b1188a1",
-    "pull_request_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38405477361",
-    "push_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38405467162",
-    "last_verified_result": "Both push and PR Linux/Windows default-gate jobs passed on the preceding 107-definition head; new 110-definition head awaits hosted checks after publication."
+    "last_verified_head": "b8f4760436cb21eb302cfb57c69e7c920df8e84e",
+    "pull_request_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38429841017",
+    "push_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38429834088",
+    "last_verified_result": "Both push and PR Linux/Windows default-gate jobs passed on the published 110-definition head; the new 114-definition head requires fresh hosted checks after publication."
   },
   "remaining_critical": [
-    "42 required definitions and their defining adapters/dependencies remain undeclared.",
+    "38 required definitions and their defining adapters/dependencies remain undeclared; the 114 declared count is not complete S4 qualification.",
     "Seven creature/controller representative mission/riding/custody cases remain pending.",
     "Sheltering Veil remains held for its conditional Clerical component/plane rule; Consuming Flame's Necromancy rank-zero binding is declared but has no paid native sample.",
     "Venom Touch has a paid first-boot owned-dose observation and managed reload coverage, but its tiny dose cleared before live cold observation; Purge Toxin has no paid native sample.",
     "The 110-definition first/cold paid sample is bounded to grade one and four selected entries; Immolate, Sense Toxin and seven creature/controller defining cases remain without their own paid native samples.",
+    "The 114-definition paid sample adds only grade-one Desiccate and Headlong Revel on a disposable Active-needs Admin. Gust Hands and Driving Gust have managed native-effect tests but no paid path movement sample.",
     "Deferred ten foci, two device blanks and twelve recipes require real qualified dependency allowlists.",
     "S5/S6 and N24/N25 remain separate."
   ],
@@ -438,7 +446,7 @@
     "local_optional_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-consolidated-test-receipt\\candidate-100.json",
     "sha256": "ac6777392f204c25b0a42f31d7e057c41c3e268e71d03a22b83d584aeb64e1d8"
   },
-  "current_unpublished_slice": {
+  "previous_published_110_slice": {
     "source_base": "6469ef82a5a3105a7898e0b61e4508c07b1188a1",
     "declared_required_definitions": 110,
     "required_not_yet_declared": 42,
@@ -465,5 +473,29 @@
       "unqualified carrier producers"
     ],
     "qualification_limit": "The sampled paid Venom cast proves first-boot dose creation/payment, not a live cold dose; managed reload and isolated MySQL tests cover custody. No complete installed-stock, all-grade, Purge Toxin or Consuming Flame paid qualification is claimed."
+  },
+  "current_unpublished_slice": {
+    "source_base": "b8f4760436cb21eb302cfb57c69e7c920df8e84e",
+    "declared_required_definitions": 114,
+    "required_not_yet_declared": 38,
+    "new_keys": [
+      "arm.spell.desiccate",
+      "arm.spell.headlong_revel",
+      "arm.spell.gust_hands",
+      "arm.spell.driving_gust"
+    ],
+    "focused_core": "PASS 48/0/0 including multiplier cap, mid-fulfilment body swap and refused wind teleport regression checks; task/s4-114-repair-focused2.log",
+    "focused_seeder": "PASS 4/0/0 new definition and Classic/Simple installer audits",
+    "full_core": "PASS 7135/0/0; task/s4-114-repair-core-full.log",
+    "full_seeder": "PASS 1842/0/3; task/s4-114-repair-seeder-full.log",
+    "full_library": "PASS 763/0/0; task/s4-114-repair-library-full.log",
+    "pre_review_native_paid_cold": "PASS 35 assertions, 114/114 exact first/cold definitions, actual package rollback/lost-ack/no-op conservation/no player writes and disabled gates. This was the pre-review source 55488B655D9D32ABFC447C829E4CFF2540ED5466304F6AA582133D06E4B2A646; paid sample covered Venom Touch, Fleet Step, Second Breath and Read, not the newly added needs spells. Package: task/s4-114-paid-package/20261013T171503Z_e1613fdff09049eb8665681a5f7a48ad/summary.json; boot: 377e/prepared-catalogue-boot-native-s4-114/boot-latest.json.",
+    "native_paid_cold": "PASS 35 assertions on repaired source: 114/114 exact first/cold definitions; separate disposable Active-needs Admin and builder capability; paid grade-one Desiccate, Venom Touch, Headlong Revel and retained Read. Desiccate paid 50 and changed saved drink satiation 7.763333333333341 to 2.7633333333333407 hours. Headlong paid 50 and saved 0.0025 immediate alcohol plus three 0.0025 delayed body children. Cold balance, grade, enrolment and casting operation had no refill/replay. The final sample succeeded first attempt for each new needs spell; prior two-attempt Headlong MinorFail sample is preserved as a failed bounded receipt. Purge Toxin, Consuming Flame and both new wind spells remain unsampled in paid native gameplay.",
+    "native_paid_receipt": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-114-four-attempts/boot-latest.json",
+    "native_package_receipt": "C:/Users/luker/Documents/Codex/2026-10-12/task/s4-114-four-attempt-paid-package/20261013T190333Z_a5a57375466f4721877d6e0413f8dafd/summary.json",
+    "native_package_integrity": "PASS exact new descriptor restore, actual-MySQL all-table rollback, lost-ack resume, no-op checksum, no package player writes, ten disabled package capabilities, exact dump unchanged, source start/end 9B558A34ACEBAEE46BD4ED2A2E91B95A005EB8A4769D9E660E4C2E261B5892E8, both owned MUD processes stopped, database dropped and MySQL/datadir cleaned. Disposable Active-needs avatar setup occurred only after package conservation assertions.",
+    "native_failed_predecessors": ["The original sealed descriptor refused reuse after the shared IBody source changed; explicit new capture passed.", "A first paid-needs run refused the seeded NoNeeds Admin before payment; the fixture was changed to Active after package checks.", "A fixture ordering run correctly failed the no-player-change assertion before gameplay; its mutation was moved after that assertion.", "A two-attempt paid run passed Desiccate and Venom but Headlong twice rolled MinorFail; the bounded campaign now permits four separately funded attempts. All failed runs cleaned owned MySQL/MUD state."],
+    "qualification_limit": "The grade-one Desiccate and Headlong live samples establish only their recorded paid and saved needs behaviour; managed tests cover the selected-grade boundaries and custody guards. No additional complete installed-stock, all-grade, wind movement or release qualification is claimed.",
+    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
   }
 }

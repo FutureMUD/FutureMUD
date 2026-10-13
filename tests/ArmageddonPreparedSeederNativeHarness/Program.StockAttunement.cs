@@ -87,10 +87,10 @@ internal static partial class GNHProgram
 		var stockInputs = installed.Select(x => PreparedStockDefinitionInput(db, x.Key, x.Spell)).ToArray();
 		var candidateSpecs = new (string Key, string Target, double Seconds)[]
 		{
-			("arm.spell.night_eyes", "self", 60), ("arm.spell.second_breath", "self", 0),
-			("arm.spell.daylight", "here", 60), ("arm.spell.quickened_healing", "self", 120),
-			("arm.spell.earthen_strength", "self", 60), ("arm.spell.fleet_step", "self", 60),
-			("arm.spell.venom_touch", "self", 60)
+			// Earlier sealed campaigns retain their Fleet Step and Second Breath paid receipts.
+			// This bounded campaign samples the new native needs adapters and retained toxin custody.
+			("arm.spell.venom_touch", "self", 60),
+			("arm.spell.desiccate", "self", 0), ("arm.spell.headlong_revel", "self", 0)
 		};
 		var candidates = new List<object>
 		{
@@ -131,8 +131,10 @@ internal static partial class GNHProgram
 			});
 		}
 		var sqlSchema = ((IEnumerable<object>)InstalledSqlSchema(db)).ToList();
+		sqlSchema.Add(PreparedStockSqlTable<Db.Character>(db, "Characters",
+			[nameof(Db.Character.NeedsModel), nameof(Db.Character.DrinkSatiatedHours), nameof(Db.Character.AlcoholLitres)]));
 		sqlSchema.Add(PreparedStockSqlTable<Db.Room>(db, "Rooms", [nameof(Db.Room.Id), nameof(Db.Room.EffectData)]));
-		sqlSchema.Add(PreparedStockSqlTable<Db.Body>(db, "Bodies", [nameof(Db.Body.Id), nameof(Db.Body.CurrentStamina)]));
+		sqlSchema.Add(PreparedStockSqlTable<Db.Body>(db, "Bodies", [nameof(Db.Body.Id), nameof(Db.Body.CurrentStamina), nameof(Db.Body.EffectData)]));
 		sqlSchema.Add(PreparedStockSqlTable<Db.BodyDrugDose>(db, "Bodies_DrugDoses",
 			[nameof(Db.BodyDrugDose.BodyId), nameof(Db.BodyDrugDose.DrugId), nameof(Db.BodyDrugDose.Grams),
 			 nameof(Db.BodyDrugDose.OriginalVector), nameof(Db.BodyDrugDose.SpellOriginId),
@@ -151,11 +153,21 @@ internal static partial class GNHProgram
 		Require(db.MagicCapabilities.AsNoTracking().Where(x => packageCaps.Contains(x.Id)).AsEnumerable().All(x =>
 			XElement.Parse(x.Definition).Element("Casting") is { } casting && (bool?)casting.Attribute("enabled") == false && !casting.Elements("Admission").Any()),
 			"Campaign preparation changed a package casting gate.");
+		// The seeded Admin deliberately has NoNeeds. All package/player conservation
+		// checks are complete before this disposable paid-casting-only change.
+		var needsActor = db.Characters.Single(x => x.Id == actor.Id);
+		Require(needsActor.NeedsModel == "NoNeeds", "Disposable needs fixture did not select the seeded Admin baseline.");
+		needsActor.NeedsModel = "Active";
+		needsActor.DrinkSatiatedHours = 8.0;
+		needsActor.FoodSatiatedHours = 16.0;
+		needsActor.WaterLitres = 3.0;
+		db.SaveChanges();
 		var input = Path.Combine(Directory.GetParent(CatalogueRepository)!.FullName, "prepared-stock-attunement-input_" + Guid.NewGuid().ToString("N") + ".json");
 		var preparationSource = Path.Combine(CatalogueRepository, "tests", "ArmageddonPreparedSeederNativeHarness", "Program.StockAttunement.cs");
 		File.WriteAllText(input, JsonSerializer.Serialize(new
 		{
 			sql_schema = sqlSchema, typed_reference_schema = referenceSchema,
+			fixture_needs_model = "Active",
 			mode = settings.Mode.ToString(), classes_enabled = settings.ClassesEnabled,
 			character = actor.Id, body = actor.BodyId, spell = spell.Id, resource = reserve, capability = cap.Id, merit = merit.Id,
 			capability_name = cap.Name,
@@ -169,7 +181,7 @@ internal static partial class GNHProgram
 			limits = "Explicit separate builder qualification capability; native enrolment starts grade one, no stock roster activation, no S5 natural progression/affordability certificate."
 		}, new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.SnakeCaseLower }));
 		Environment.SetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_INPUT", input);
-		Console.WriteLine("ARMS4-attunement-qualification-input=" + input + " separate-builder-fixture no-player-mutation");
+		Console.WriteLine("ARMS4-attunement-qualification-input=" + input + " separate-builder-fixture disposable-Admin-native-needs-model");
 	}
 
 	private static (long Capability, long Merit, string Name) PreparedStockCampaignRoute(MudSharp.Database.FuturemudDatabaseContext db,

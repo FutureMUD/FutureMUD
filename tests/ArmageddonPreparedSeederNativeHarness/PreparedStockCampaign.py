@@ -11,6 +11,7 @@ SAFE_TARGETS = {
     'arm.spell.second_breath': 'self', 'arm.spell.daylight': 'here',
     'arm.spell.quickened_healing': 'self', 'arm.spell.earthen_strength': 'self',
     'arm.spell.fleet_step': 'self', 'arm.spell.venom_touch': 'self',
+    'arm.spell.desiccate': 'self', 'arm.spell.headlong_revel': 'self',
 }
 EXPECTED_CHILDREN = {'arm.spell.night_eyes': 'SpellInfravision', 'arm.spell.daylight': 'SpellRoomLight',
                      'arm.spell.quickened_healing': 'SpellHealingRate', 'arm.spell.earthen_strength': 'SpellTraitBoost',

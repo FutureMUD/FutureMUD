@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_utc": "2026-10-13T14:32:08+00:00",
-  "source_revision": "6469ef82a5a3105a7898e0b61e4508c07b1188a1",
+  "source_revision": "b8f4760436cb21eb302cfb57c69e7c920df8e84e",
   "repository": "FutureMUD/FutureMUD",
   "scope": "All 154 locked candidates mapped; code candidates and bounded adapter evidence remain separate from complete installed-stock qualification.",
   "inputs": [
@@ -37,13 +37,13 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 110,
+    "installed_canonical_spells": 114,
     "native_grade_one_stock_entries": 1,
-    "native_sampled_grade_one_spells": 6,
-    "declared_canonical_spells": 110,
-    "definition_audited_canonical_spells": 110,
-    "latest_successful_native_loaded_spells": 110,
-    "required_not_yet_declared": 42,
+    "native_sampled_grade_one_spells": 8,
+    "declared_canonical_spells": 114,
+    "definition_audited_canonical_spells": 114,
+    "latest_successful_native_loaded_spells": 114,
+    "required_not_yet_declared": 38,
     "latest_partial_native_first_loaded_spells": 106
   },
   "path_discrepancies": [],
@@ -1246,11 +1246,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Selected-grade native thirst loss bounded after active rate modifiers, plus identity-safe selected-grade burning injury.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify other grades, eligible recipients, injury outcomes and source-informed policy branches in paid native gameplay."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -1258,16 +1256,36 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ]
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "Armageddon_S4_Continuation_Verification_20261013.json",
+            "scope": "ArmageddonNeedHarmCastingTests: selected-grade amount, observed native needs change, rate cap, and captured-body guard."
+          }
+        ],
         "inherited": [],
-        "sampled": [],
-        "assumptions": [],
+        "sampled": [
+          {
+            "status": "PASS_BOUNDED_FIRST_COLD",
+            "receipt": "C:/Users/luker/Documents/Codex/2026-10-12/task/s4-114-four-attempt-paid-package/20261013T190333Z_a5a57375466f4721877d6e0413f8dafd/summary.json",
+            "configuration": "Grade-one paid self cast via separate disposable builder capability and Active native needs Admin fixture.",
+            "seed": 20261013,
+            "seeded_random_sample": true,
+            "scope": "Grade-one paid self cast saved a five-hour drink-satiation decrease and one 50-unit reserve debit; cold state found no refill or replay."
+          }
+        ],
+        "assumptions": [
+          "Definition, managed adapter and bounded grade-one samples do not establish all-grade or complete installed-stock qualification; package and Release gates remain disabled."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 14,
@@ -3811,11 +3829,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Selected-grade native alcohol load through guarded needs fulfilment and owned delayed body effects.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify other grades, delayed expiry and source-informed policy branches in paid native gameplay."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -3823,16 +3839,36 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ]
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "Armageddon_S4_Continuation_Verification_20261013.json",
+            "scope": "ArmageddonNeedHarmCastingTests: selected-grade amount, observed native needs change, and body-swap delayed-effect custody."
+          }
+        ],
         "inherited": [],
-        "sampled": [],
-        "assumptions": [],
+        "sampled": [
+          {
+            "status": "PASS_BOUNDED_FIRST_COLD",
+            "receipt": "C:/Users/luker/Documents/Codex/2026-10-12/task/s4-114-four-attempt-paid-package/20261013T190333Z_a5a57375466f4721877d6e0413f8dafd/summary.json",
+            "configuration": "Grade-one paid self cast via separate disposable builder capability and Active native needs Admin fixture.",
+            "seed": 20261013,
+            "seeded_random_sample": true,
+            "scope": "Grade-one paid self cast saved 0.0025 immediate alcohol and three 0.0025 delayed native children with one 50-unit debit; cold state found no refill or replay."
+          }
+        ],
+        "assumptions": [
+          "Definition, managed adapter and bounded grade-one samples do not establish all-grade or complete installed-stock qualification; package and Release gates remain disabled."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 37,
@@ -6059,7 +6095,7 @@
             "configuration": "Grade-one self via disposable builder admission; exact 50-unit payment and saved movement/stamina children.",
             "seed": 20261013,
             "seeded_random_sample": true,
-        "scope": "A later 110-definition first/cold campaign confirms the exact-price repair and paid grade-one saved children; no actual movement-timing or all-grade certificate."
+            "scope": "A later 110-definition first/cold campaign confirms the exact-price repair and paid grade-one saved children; no actual movement-timing or all-grade certificate."
           }
         ],
         "assumptions": [
@@ -7235,11 +7271,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Selected-grade steps through an explicit eligible native exit, with no fall-exit traversal or false movement receipt.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Paid native movement through eligible exits, refusal paths, fall handling and cold behaviour remain unobserved."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -7249,16 +7283,27 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ]
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "Armageddon_S4_Continuation_Verification_20261013.json",
+            "scope": "ArmageddonWindForceCastingTests: selected-grade step binding, invalid numeric refusal, missing exit and native teleport refusal."
+          }
+        ],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
+        "assumptions": [
+          "Definition, managed adapter and bounded grade-one samples do not establish all-grade or complete installed-stock qualification; package and Release gates remain disabled."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 74,
@@ -7973,11 +8018,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "One guarded native forced-path step at every grade through an explicit eligible exit.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Paid native one-step movement, refusal paths, fall handling and cold behaviour remain unobserved."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -7987,16 +8030,27 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ]
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "Armageddon_S4_Continuation_Verification_20261013.json",
+            "scope": "ArmageddonWindForceCastingTests: one-step binding, missing exit and native teleport refusal."
+          }
+        ],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
+        "assumptions": [
+          "Definition, managed adapter and bounded grade-one samples do not establish all-grade or complete installed-stock qualification; package and Release gates remain disabled."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 81,

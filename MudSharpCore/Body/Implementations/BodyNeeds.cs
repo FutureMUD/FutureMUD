@@ -49,7 +49,22 @@ public partial class Body : IHaveNeeds, IEat
 
     public NeedsResult FulfilNeeds(INeedFulfiller fulfiller, bool ignoreDelays = false)
     {
-        if (NeedsModel.NeedsSave)
+        MarkImmediateNeedsChange(NeedsModel);
+        return NeedsModel.FulfilNeeds(fulfiller, ignoreDelays);
+    }
+
+    public NeedsResult FulfilNeedsOnSelectedBody(INeedFulfiller fulfiller, INeedsModel selectedModel, Func<bool> isCurrent)
+    {
+        if (!ReferenceEquals(Actor.Body, this) || !ReferenceEquals(NeedsModel, selectedModel) ||
+            selectedModel is not ChangingNeedsModelBase changing || !isCurrent())
+            throw new InvalidOperationException("The selected physical body or needs model changed before fulfilment.");
+        MarkImmediateNeedsChange(selectedModel);
+        return changing.FulfilNeedsOnSelectedBody(fulfiller, this, isCurrent);
+    }
+
+    private void MarkImmediateNeedsChange(INeedsModel model)
+    {
+        if (model.NeedsSave)
         {
             NeedsChanged = true;
 			// Needs live on Character rows; queuing only the Body loses a meal on reload.
@@ -61,8 +76,6 @@ public partial class Body : IHaveNeeds, IEat
                 Changed = true;
             }
         }
-
-        return NeedsModel.FulfilNeeds(fulfiller, ignoreDelays);
     }
 
     public void NeedsHeartbeat()

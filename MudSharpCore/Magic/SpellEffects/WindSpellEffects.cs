@@ -492,7 +492,7 @@ public class RemoveInvisibilityEffect : IMagicSpellEffectTemplate
 	public const string HelpText = "This effect has no additional builder options.";
 }
 
-public class ForcedPathMovementEffect : IMagicSpellEffectTemplate
+public class ForcedPathMovementEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation
 {
 	public static void RegisterFactory()
 	{
@@ -554,9 +554,15 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
+		return Apply(caster, target, outcome, power, parent, additionalParameters).Effect;
+	}
+
+	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+	{
 		if (target is not ICharacter characterTarget)
 		{
-			return null;
+			return new(MagicEffectOperationStatus.Rejected, null);
 		}
 
 		var exit = additionalParameters
@@ -564,10 +570,11 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate
 		           ?.Item as IRoomExit;
 		if (exit is null)
 		{
-			return null;
+			return new(MagicEffectOperationStatus.Rejected, null);
 		}
 
 		var direction = exit.OutboundDirection;
+		var moved = false;
 		for (var i = 0; i < Steps; i++)
 		{
 			if (!TryMoveTarget(caster, characterTarget, exit, out var why))
@@ -579,6 +586,7 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate
 
 				break;
 			}
+			moved = true;
 
 			if (direction == CardinalDirection.Unknown)
 			{
@@ -594,7 +602,7 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate
 			}
 		}
 
-		return null;
+		return new(moved ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
 	}
 
 	private bool TryMoveTarget(ICharacter caster, ICharacter target, IRoomExit exit, out string why)
@@ -646,10 +654,19 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate
 			return false;
 		}
 
+		var origin = target.Location;
+		var originLayer = target.RoomLayer;
 		target.Teleport(exit.Destination, transition.TargetLayer, false, true,
 			"@ is swept away by a sudden rush of wind.",
 			"@ is swept in by a sudden rush of wind.",
 			"A sudden rush of wind sweeps you away.");
+		if (ReferenceEquals(target.Location, origin) && target.RoomLayer == originLayer)
+		{
+			why = "The target did not complete the forced crossing.";
+			return false;
+		}
+		if (!ReferenceEquals(target.Location, exit.Destination) || target.RoomLayer != transition.TargetLayer)
+			throw new InvalidOperationException("The forced crossing ended outside the selected destination.");
 		ZeroGravityMovementHelper.EnsureFloating(target);
 		if (target.ShouldFall())
 		{

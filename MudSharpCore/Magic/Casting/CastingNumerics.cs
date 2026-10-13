@@ -123,6 +123,8 @@ internal static class CastingNumerics
 		(TrackMarkEffect, "trackmark", "VisualTrackIntensityMultiplier") => true,
 		(HealingRateSpellEffect, "healingrate", "Multiplier") => true,
 		(NeedDeltaEffect, "needdelta", "DrunkDelta") => true,
+		(NeedDeltaEffect, "needdelta", "ThirstDelta") => true,
+		(ForcedPathMovementEffect, "forcedpathmovement", "Steps") => true,
 		_ => false
 	};
 
@@ -140,10 +142,19 @@ internal static class CastingNumerics
 			case ("trackmark", "VisualTrackIntensityMultiplier"): effect.SetElementValue("VisualMultiplier", value); break;
 			case ("healingrate", "Multiplier"): effect.SetElementValue("Multiplier", value); break;
 			case ("needdelta", "DrunkDelta"):
-				if ((bool?)effect.Element("DirectAlcoholRemoval") == true &&
-					(value > 0 || value < -MagicBuilderValidation.MaximumNeedDeltaAlcoholLitres))
+				if (Math.Abs(value) > MagicBuilderValidation.MaximumNeedDeltaAlcoholLitres)
+					throw new InvalidOperationException("Alcohol change exceeds the native need limit before payment.");
+				if ((bool?)effect.Element("DirectAlcoholRemoval") == true && value > 0)
 					throw new InvalidOperationException("Exact alcohol removal requires a nonpositive bounded scalar before payment.");
 				effect.SetElementValue("Drunk", value); break;
+			case ("needdelta", "ThirstDelta"):
+				if (Math.Abs(value) > MagicBuilderValidation.MaximumNeedDeltaHours)
+					throw new InvalidOperationException("Thirst change exceeds the native need limit before payment.");
+				effect.SetElementValue("Thirst", value); break;
+			case ("forcedpathmovement", "Steps"):
+				if (value < 1 || value > MagicBuilderValidation.MaximumForcedPathMovementSteps || value != Math.Truncate(value))
+					throw new InvalidOperationException("Forced path steps must be a whole number within the native builder limit before payment.");
+				effect.SetElementValue("Steps", (int)value); break;
 			default: throw new InvalidOperationException($"{token}.{field}: unsupported scalar field.");
 		}
 	}

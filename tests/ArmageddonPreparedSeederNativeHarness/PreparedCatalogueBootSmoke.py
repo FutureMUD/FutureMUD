@@ -485,7 +485,7 @@ def stock_campaign_smoke(session, phase, data, mapped):
     report['configuration_source'] = receipt['stock_input_pin']
     require([row['key'] for row in report['selected']] == [row['key'] for row in selected], 'Campaign selection drift across cold restart.')
     report['sample_limit'] = config['sample_limit']
-    report['limits'] = 'Disposable builder admissions; grade one only; no package/Class/producer gates or natural progression claim. At most two paid RNG attempts per direct sample.'
+    report['limits'] = 'Disposable builder admissions; grade one only; no package/Class/producer gates or natural progression claim. At most four separately funded paid RNG attempts per direct sample.'
     receipt['earth_mount_sample'] = {'status': 'PENDING', 'reason': 'Earth Mount spawn/controller movement requires an explicit paid route plus disposable real-exit observation; this bounded representative lane does not fake AI proof.'}
     actor = int(data['character'])
     def flush():
@@ -504,6 +504,22 @@ def stock_campaign_smoke(session, phase, data, mapped):
         values = sql(mapped(f'SELECT CurrentStamina FROM Bodies WHERE Id={int(data["body"])}'))
         require(len(values) == 1 and math.isfinite(float(values[0][0])) and float(values[0][0]) >= 0, 'Campaign native saved stamina is invalid.')
         return float(values[0][0])
+    def native_needs():
+        values = sql(mapped(f'SELECT NeedsModel,DrinkSatiatedHours,AlcoholLitres FROM Characters WHERE Id={actor}'))
+        require(len(values) == 1 and len(values[0]) == 3 and values[0][0] == data['fixture_needs_model'] == 'Active' and
+                all(math.isfinite(float(value)) for value in values[0][1:]), 'Campaign saved native needs are invalid.')
+        return {'model': values[0][0], 'drink_satiated_hours': float(values[0][1]), 'alcohol_litres': float(values[0][2])}
+    def delayed_alcohol():
+        rows = sql(mapped(f'SELECT HEX(EffectData) FROM Bodies WHERE Id={int(data["body"])}'), (0,))
+        require(len(rows) == 1, 'Campaign needs body is missing.')
+        values = []
+        for wrapper in ET.fromstring(rows[0][0]).iter('Effect'):
+            if wrapper.findtext('Type') != 'DelayedNeedsFulfillment': continue
+            payload = wrapper.find('Effect')
+            require(payload is not None and math.isfinite(float(payload.get('AlcoholLitres', 'nan'))),
+                    'Campaign delayed native alcohol payload is invalid.')
+            values.append(float(payload.get('AlcoholLitres')))
+        return values
     def parents(row):
         table, identity = ('Characters', actor) if row['target'] == 'self' else ('Rooms', int(character_state()[3]))
         rows = sql(mapped(f'SELECT HEX(EffectData) FROM {table} WHERE Id={identity}'), (0,))
@@ -584,7 +600,7 @@ def stock_campaign_smoke(session, phase, data, mapped):
         require(current['balance'] == 0 and current['grade'] == 1 and current['raw'] == 100 and current['enrolments'] == 1, 'Campaign native enrolment did not acquire grade one: ' + key + ': ' + redact(enrol))
         result['phases'] = {'first': {'enrolled': current}}
         result['attempts'] = []
-        for attempt in range(1, 3):
+        for attempt in range(1, 5):
             require(state(row)['balance'] == 0, 'Campaign must fund only a depleted reserve.')
             session.send(f'{row["invoked"]} gather {cap} draw {cost:g}', read_seconds=.2)
             deadline = time.monotonic() + 15
@@ -594,6 +610,8 @@ def stock_campaign_smoke(session, phase, data, mapped):
             before = state(row)
             require(before['balance'] == cost, 'Campaign Self gathering did not fund exactly its finite cost: ' + key)
             before_stamina = native_stamina() if key == 'arm.spell.second_breath' else None
+            before_needs = native_needs() if key in ('arm.spell.desiccate', 'arm.spell.headlong_revel') else None
+            before_delayed = delayed_alcohol() if key == 'arm.spell.headlong_revel' else None
             old = operations(row)
             output = session.send(f'{row["invoked"]} cast "{installed[key]["name"]}" grade 1 on {row["target"]} via {cap}', read_seconds=.5)
             flush(); after = state(row); new = operations(row)
@@ -602,6 +620,11 @@ def stock_campaign_smoke(session, phase, data, mapped):
             if before_stamina is not None:
                 attempt_receipt['native_stamina_observed'] = {'before': before_stamina, 'after': native_stamina(),
                     'limits': 'Saved native observations include heartbeat regeneration; exact five-unit bounds are covered by deterministic native-effect tests.'}
+            if before_needs is not None:
+                attempt_receipt['native_needs_observed'] = {'before': before_needs, 'after': native_needs(),
+                    'limits': 'Saved native observations include heartbeat changes; exact selected-grade caps are covered by deterministic native-effect tests.'}
+            if before_delayed is not None:
+                attempt_receipt['native_delayed_alcohol_observed'] = {'before': before_delayed, 'after': delayed_alcohol()}
             result['attempts'].append(attempt_receipt) # Preserve the failed boundary before any assertion.
             require(len(added) == 1 and added[0][1] == 'Completed', 'Campaign did not persist one completed paid operation: ' + key)
             payload = ET.fromstring(added[0][2]); costs = payload.findall('Cost')
@@ -611,6 +634,16 @@ def stock_campaign_smoke(session, phase, data, mapped):
                     'Campaign payment/grade/reserve conservation differs: ' + key)
             if payload.get('applied') == 'true':
                 if before_stamina is not None: require(attempt_receipt['native_stamina_observed']['after'] > before_stamina, 'Applied Second Breath did not persist a positive native stamina change.')
+                if key == 'arm.spell.desiccate':
+                    observed = attempt_receipt['native_needs_observed']
+                    require(observed['after']['drink_satiated_hours'] < observed['before']['drink_satiated_hours'],
+                            'Applied Desiccate did not persist a native thirst increase.')
+                if key == 'arm.spell.headlong_revel':
+                    observed = attempt_receipt['native_delayed_alcohol_observed']
+                    added_alcohol = observed['after'][len(observed['before']):]
+                    require(len(added_alcohol) == 3 and all(value > 0 for value in added_alcohol) and
+                            sum(added_alcohol) <= .007500001,
+                            'Applied Headlong Revel did not persist its three bounded native delayed alcohol children.')
                 if key in campaign.EXPECTED_CHILDREN:
                     active = parents(row)
                     expected_children = campaign.EXPECTED_CHILDREN[key]

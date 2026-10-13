@@ -60,6 +60,7 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOpera
 				_directAlcoholLoadError = "Direct alcohol removal requires finite nonpositive alcohol and zero hunger/thirst.";
 			if (_directAlcoholLoadError is not null) _invalidDirectAlcoholDefinition = new XElement(root);
 		}
+		ReportObservedChange = bool.Parse(root.Element("ReportObservedChange")?.Value ?? "false");
     }
 
     public IMagicSpell Spell { get; }
@@ -67,6 +68,7 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOpera
     public double ThirstDelta { get; set; }
     public double DrunkDelta { get; set; }
 	public bool DirectAlcoholRemoval { get; private set; }
+	public bool ReportObservedChange { get; private set; }
 	public string? DefinitionError => _directAlcoholLoadError ?? (DirectAlcoholRemoval &&
 		(!double.IsFinite(DrunkDelta) || DrunkDelta > 0 ||
 		 DrunkDelta < -MagicBuilderValidation.MaximumNeedDeltaAlcoholLitres || HungerDelta != 0 || ThirstDelta != 0)
@@ -81,7 +83,8 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOpera
             new XElement("Hunger", HungerDelta),
             new XElement("Thirst", ThirstDelta),
             new XElement("Drunk", DrunkDelta),
-			DirectAlcoholRemoval ? new XElement("DirectAlcoholRemoval", true) : null
+			DirectAlcoholRemoval ? new XElement("DirectAlcoholRemoval", true) : null,
+			ReportObservedChange ? new XElement("ReportObservedChange", true) : null
         );
     }
 
@@ -209,17 +212,28 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOpera
 			Apply(caster, target, outcome, power, parent, additionalParameters);
 			return null!;
 		}
-        if (target is not ICharacter ch)
+        if (target is not ICharacter ch || ch.Body is null)
         {
             return null;
         }
+		var selected = _directAlcoholSelection;
+		if (selected is not null && (!ReferenceEquals(selected.Target, ch) || !selected.IsCurrent))
+			throw new InvalidOperationException("The selected needs recipient or physical body changed before application.");
 
-        ch.Body.FulfilNeeds(new NeedFulfiller
+        var payload = new NeedFulfiller
         {
             SatiationPoints = HungerDelta,
             ThirstPoints = ThirstDelta,
             AlcoholLitres = DrunkDelta
-        });
+        };
+		if (ReportObservedChange)
+		{
+			selected ??= new DirectAlcoholSelection(ch, ch.Body, ch.Body.NeedsModel);
+			if (selected.Needs is not ChangingNeedsModelBase || !selected.IsCurrent)
+				throw new InvalidOperationException("The selected native needs model is unavailable or changed.");
+			selected.Body.FulfilNeedsOnSelectedBody(payload, selected.Needs, () => selected.IsCurrent);
+		}
+		else (selected?.Body ?? ch.Body).FulfilNeeds(payload);
         return null;
     }
 
@@ -230,7 +244,7 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOpera
 
 	public IMagicSpellEffectPreparedSelectionToken? CapturePreparedSelection(ICharacter caster, IPerceivable recipient)
 	{
-		if (!DirectAlcoholRemoval || recipient is not ICharacter target || target.Body is null) return null;
+		if ((!DirectAlcoholRemoval && !ReportObservedChange) || recipient is not ICharacter target || target.Body is null) return null;
 		return _directAlcoholSelection = new(target, target.Body, target.Body.NeedsModel);
 	}
 
@@ -238,10 +252,11 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOpera
 		IPerceivable recipient, out string? error)
 	{
 		error = null;
-		if (!DirectAlcoholRemoval) return true;
-		if (selection is not DirectAlcoholSelection captured || !ReferenceEquals(captured.Target, recipient) || !captured.IsCurrent)
+		if (!DirectAlcoholRemoval && !ReportObservedChange) return true;
+		if (selection is not DirectAlcoholSelection captured || !ReferenceEquals(captured.Target, recipient) || !captured.IsCurrent ||
+		    ReportObservedChange && captured.Needs is not ChangingNeedsModelBase)
 		{
-			error = "The selected alcohol recipient, physical body or needs model changed.";
+			error = "The selected needs recipient, physical body or native needs model changed.";
 			return false;
 		}
 		_directAlcoholSelection = captured;
@@ -250,8 +265,9 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOpera
 
 	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
 	{
-		error = DirectAlcoholRemoval && (_directAlcoholSelection is not { IsCurrent: true } selected ||
-			!ReferenceEquals(selected.Target, recipient)) ? "The selected alcohol recipient, physical body or needs model changed." : null;
+		error = (DirectAlcoholRemoval || ReportObservedChange) && (_directAlcoholSelection is not { IsCurrent: true } selected ||
+			!ReferenceEquals(selected.Target, recipient) || ReportObservedChange && selected.Needs is not ChangingNeedsModelBase)
+			? "The selected needs recipient, physical body or native needs model changed." : null;
 		return error is null;
 	}
 
@@ -261,8 +277,25 @@ public class NeedDeltaEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOpera
 		if (DefinitionError is { } error) throw new InvalidOperationException(error);
 		if (!DirectAlcoholRemoval)
 		{
+			if (!ReportObservedChange)
+			{
+				GetOrApplyEffect(caster, target!, outcome, power, parent, additionalParameters);
+				return new(MagicEffectOperationStatus.Unknown, null);
+			}
+			if (target is not ICharacter ordinaryCharacter || ordinaryCharacter.Body is null)
+				return new(MagicEffectOperationStatus.Rejected, null);
+			var ordinarySelection = _directAlcoholSelection ?? new DirectAlcoholSelection(ordinaryCharacter, ordinaryCharacter.Body, ordinaryCharacter.Body.NeedsModel);
+			if (!ReferenceEquals(ordinarySelection.Target, ordinaryCharacter) || !ordinarySelection.IsCurrent ||
+			    ordinarySelection.Needs is not ChangingNeedsModelBase)
+				return new(MagicEffectOperationStatus.Rejected, null);
+			var foodBefore = ordinarySelection.Needs.FoodSatiatedHours;
+			var drinkBefore = ordinarySelection.Needs.DrinkSatiatedHours;
+			var alcoholBefore = ordinarySelection.Needs.AlcoholLitres;
 			GetOrApplyEffect(caster, target!, outcome, power, parent, additionalParameters);
-			return new(MagicEffectOperationStatus.Unknown, null);
+			if (!ordinarySelection.IsCurrent)
+				throw new InvalidOperationException("The paid needs recipient or physical body changed during application.");
+			return new(foodBefore != ordinarySelection.Needs.FoodSatiatedHours || drinkBefore != ordinarySelection.Needs.DrinkSatiatedHours ||
+				alcoholBefore != ordinarySelection.Needs.AlcoholLitres ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
 		}
 		if (target is not ICharacter character || character.Body is null) return new(MagicEffectOperationStatus.Rejected, null);
 		var selected = _directAlcoholSelection ?? new DirectAlcoholSelection(character, character.Body, character.Body.NeedsModel);

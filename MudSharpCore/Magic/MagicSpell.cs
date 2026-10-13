@@ -1954,6 +1954,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 				if (interdiction is not null) EchoInterdiction(originalTarget, interdiction, true);
 				if (!string.IsNullOrEmpty(TargetEmote))
 					actualTarget.OutputHandler.Handle(new EmoteOutput(new Emote(TargetEmote, magician, magician, actualTarget), flags: TargetEmoteFlags));
+				if (reflected && interdiction!.Use?.IsCurrent == false) return true;
 				var phase = BeginEmotionalResolution(magician, (ICharacter)actualTarget);
 				var sourceOutcome = baseOutcome;
 				var saved = phase.Recipient.Counter.Continue && emotional.Kind == Emotions.EmotionalSpellKind.Calm &&
@@ -1974,8 +1975,12 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			{
 				EchoInterdiction(originalTarget, interdiction, true);
 			}
+			if (reflected && interdiction!.Use?.IsCurrent == false) return true;
 			using var damageScope = area is null ? null : new SpellAreaDamageScope(magician, actualTarget, this, area.DamageMultiplier);
-			return !ApplySpellEffect(actualTarget, _spellEffects, outcome.Degree, true, !reflected, area is null ? null : area.StillEligible);
+			Func<bool>? applicationFence = reflected && interdiction!.Use is { } committedUse
+				? () => committedUse.IsCurrent && area?.StillEligible() != false
+				: area is null ? null : area.StillEligible;
+			return !ApplySpellEffect(actualTarget, _spellEffects, outcome.Degree, true, !reflected, applicationFence);
 		}
 
 		if (target is PerceivableGroup pg)

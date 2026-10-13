@@ -18,6 +18,7 @@ using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg;
 using MudSharp.Magic;
 using MudSharp.Magic.SpellEffects;
+using MudSharp.PerceptionEngine;
 using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 
@@ -156,6 +157,49 @@ public class ArmageddonTurnElementsTests
 		var invalid = x.WardSpell.SpellEffects.Single().SaveToXml(); invalid.SetElementValue("Mode", "Fail");
 		Assert.ThrowsException<FormatException>(() => SpellEffectFactory.LoadEffect(invalid, x.WardSpell));
 		Assert.AreEqual(100.0, x.F.Balances[x.F.Resources[1]]); Assert.AreEqual(0, x.F.Rolls);
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void PaidReflectionOutputCallback_HoldsPayloadAfterAuthorityChangesAndRetainsSpentUse(bool bodyChange)
+	{
+		var x = new Fixture(1); x.F.Acquire();
+		x.F.Actor.Setup(a => a.TargetActorOrCorpse("warded", It.IsAny<PerceiveIgnoreFlags>())).Returns(x.Target.Object);
+		Mock.Get(x.Target.Object.OutputHandler).Setup(a => a.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()))
+			.Callback<string, bool, bool>((text, _, _) =>
+			{
+				if (!text.Contains("Your ward reflects")) return;
+				if (bodyChange) x.Target.SetupGet(a => a.Body).Returns(Mock.Of<IBody>());
+				else x.TargetEffects.Remove(x.Parent);
+			});
+		var result = x.F.Service.Cast(x.F.Intent(1, false) with { Targets = "warded" });
+		Assert.IsTrue(x.Ward.Used, result.Message);
+		Assert.AreEqual(0, x.SourceEffects.OfType<SpellTrackMarkEffect>().Count(), result.Message);
+		Assert.AreEqual(0, x.TargetEffects.OfType<SpellTrackMarkEffect>().Count(), result.Message);
+		Assert.IsTrue(x.F.Balances[x.F.Resources[1]] < 100, result.Message);
+	}
+
+	[TestMethod]
+	public void PaidPayloadEmoteCallback_RechecksSameCommittedUseBeforeApplyingPayload()
+	{
+		var x = new Fixture(1); x.F.Acquire();
+		x.F.Actor.Setup(a => a.TargetActorOrCorpse("warded", It.IsAny<PerceiveIgnoreFlags>())).Returns(x.Target.Object);
+		((MagicSpell)x.F.Spells[0]).TargetEmote = "$0 shimmer|shimmers with incoming magic.";
+		x.F.Actor.SetupGet(a => a.Corpse).Returns((MudSharp.GameItems.Interfaces.ICorpse)null!);
+		Mock.Get(x.F.Actor.Object.Location).SetupGet(a => a.RouteDefinition).Returns((RouteRoomDefinition)null!);
+		Mock.Get(x.F.Actor.Object.Location).Setup(a => a.LayerCharacters(It.IsAny<RoomLayer>())).Returns([x.F.Actor.Object]);
+		Mock.Get(x.F.Actor.Object.OutputHandler).SetupGet(a => a.Perceiver).Returns(x.F.Actor.Object);
+		Mock.Get(x.F.Actor.Object.OutputHandler).Setup(a => a.Send(It.IsAny<IOutput>(), It.IsAny<bool>(), It.IsAny<bool>()))
+			.Callback<IOutput, bool, bool>((_, _, _) =>
+			{
+				if (x.Ward.Used) x.F.Actor.SetupGet(a => a.Body).Returns(Mock.Of<IBody>());
+			});
+		var result = x.F.Service.Cast(x.F.Intent(1, false) with { Targets = "warded" });
+		Assert.IsTrue(x.Ward.Used, result.Message);
+		Assert.AreEqual(0, x.SourceEffects.OfType<SpellTrackMarkEffect>().Count(), result.Message);
+		Assert.AreEqual(0, x.TargetEffects.OfType<SpellTrackMarkEffect>().Count(), result.Message);
+		Assert.IsTrue(x.F.Balances[x.F.Resources[1]] < 100, result.Message);
 	}
 
 	private sealed class Fixture

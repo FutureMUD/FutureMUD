@@ -73,7 +73,8 @@ public class ArmageddonPocketContentTests
 		var content = ArmageddonPocketContent.Create(Configuration()); var definition = content.BuildDefinition(3, 5, 0);
 		Assert.AreEqual("item", definition.Element("Trigger")!.Attribute("type")!.Value);
 		Assert.AreEqual("createpocket", definition.Element("Effects")!.Element("Effect")!.Attribute("type")!.Value);
-		Assert.AreEqual("12", definition.Element("ControlledPower")!.Element("Efficiency")!.Attribute("minimum")!.Value);
+		// Locked inventory source minimum mana is seven for Folded Pocket.
+		Assert.AreEqual("7", definition.Element("ControlledPower")!.Element("Efficiency")!.Attribute("minimum")!.Value);
 		Assert.IsFalse(content.SpellRow(1, 2, 3).ScrollInscriptionAllowed);
 		Assert.AreEqual(Configuration(), SpellPocketConfiguration.Load(definition.Element("Effects")!.Element("Effect")!.Element("Pocket")!));
 	}

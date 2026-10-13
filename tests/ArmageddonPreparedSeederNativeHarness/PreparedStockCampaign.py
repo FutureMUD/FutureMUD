@@ -19,7 +19,7 @@ REFERENCE_TABLES = {
     'FutureProg': 'FutureProgs', 'NpcTemplate': 'NPCTemplates',
     'GameItemProto': 'GameItemProtos', 'GameItemSkin': 'GameItemSkins',
     'Liquid': 'Liquids', 'Material': 'Materials', 'Tag': 'Tags',
-    'MagicCapability': 'MagicCapabilities', 'Terrain': 'Terrains',
+    'MagicCapability': 'MagicCapabilities', 'Terrain': 'Terrains', 'ArmourType': 'ArmourTypes',
     'BodyProto': 'BodyProtos', 'Race': 'Races', 'CharacteristicDefinition': 'CharacteristicDefinitions',
     'AutobuilderRoomTemplate': 'AutobuilderRoomTemplates', 'Room': 'Rooms',
     'ArtificialIntelligence': 'ArtificialIntelligences', 'Plane': 'Planes',

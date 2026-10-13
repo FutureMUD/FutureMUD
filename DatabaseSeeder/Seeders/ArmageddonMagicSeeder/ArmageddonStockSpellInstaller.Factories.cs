@@ -109,7 +109,7 @@ public static partial class ArmageddonStockSpellInstaller
 				content = ArmageddonExistingFactorySpellContent.FlameKnife(new(
 					Enumerable.Range(1, 6).Select(x => CataloguePrototype(db, $"arm.item.flame_knife.g{x}", "MeleeWeapon")).ToArray(),
 					Enumerable.Range(1, 8).Select(x => CataloguePrototype(db, $"arm.item.flame_knife.permanent_choice_{x}", "MeleeWeapon")).ToArray(),
-					CatalogueIdentity<Tag>(db, "arm.material.conjuration.rank6"),
+					CatalogueIdentity<Tag>(db, "arm.material.conjuration.rank6.tag"),
 					CatalogueProg(db, "arm.support.prog.weapon_eligibility", ProgVariableTypes.Boolean, character),
 					CatalogueProg(db, "arm.support.prog.flame_multiplier", ProgVariableTypes.Number, character)));
 				break;
@@ -168,7 +168,7 @@ public static partial class ArmageddonStockSpellInstaller
 				.ToDictionary(x => x, x => CataloguePrototype(db, $"arm.item.champion_blade.g{x}", "MeleeWeapon"))));
 		var temporaryFamily = key == "arm.spell.shadow_blade" ? "shadow_blade" : "spark_lash";
 		var temporary = Enumerable.Range(1, 6).Select(x => CataloguePrototype(db, $"arm.item.{temporaryFamily}.g{x}", "MeleeWeapon")).ToArray();
-		var tag = CatalogueIdentity<Tag>(db, "arm.material.conjuration.rank6");
+		var tag = CatalogueIdentity<Tag>(db, "arm.material.creation.rank6.tag");
 		var eligibility = CatalogueProg(db, ArmageddonStockSupportInstaller.WeaponEligibilityKey, ProgVariableTypes.Boolean, ProgVariableTypes.Character);
 		if (key == "arm.spell.shadow_blade") return new("arm.capability.shadow", ArmageddonGradedWeaponSpellContent.ShadowBlade(new(temporary,
 			Enumerable.Range(1, 8).Select(x => CataloguePrototype(db, ArmageddonStockSupportInstaller.ShadowStaffKey(x), "MeleeWeapon")).ToArray(), tag, eligibility,
@@ -205,5 +205,31 @@ public static partial class ArmageddonStockSpellInstaller
 	private static ArmageddonCanonicalSpellContribution ResolveDirectDamage(FuturemudDatabaseContext db, string key) =>
 		ArmageddonDirectDamageSpellContent.Create(new(CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey),
 			Difficulty.Normal, MudSharp.Health.DamageType.Arcane)).Single(x => x.Content.Key == key);
+
+	private static readonly (string Key, string School)[] ArmourKeys =
+	[
+		("flame_mantle", "fire"), ("unyielding_veil", "water"), ("mist_shield", "water"),
+		("earthen_ward", "earth"), ("stone_skin", "earth"), ("wind_mantle", "wind"),
+		("wind_shield", "wind"), ("shadow_mantle", "shadow"), ("charged_aegis", "lightning")
+	];
+
+	private static ArmageddonCanonicalSpellContribution ResolveArmour(FuturemudDatabaseContext db, string key, string school)
+	{
+		var settings = ArmageddonInstallation.Read(db) ?? throw new StockDependencyException("Fix package settings before finite armour.");
+		var material = settings.NativeBindings[ArmageddonNativeBinding.Stone];
+		if (!db.Materials.Any(x => x.Id == material && x.Density > 0))
+			throw new StockDependencyException("Retain the exact explicit native solid Stone material before finite armour.");
+		var agility = key == "arm.spell.stone_skin" ? ArmageddonCatalogueLinks.Bind(db,
+			"arm.binding.trait.agility", nameof(TraitDefinition), () =>
+			{
+				var candidates = db.TraitDefinitions.Where(x => x.Type == 1 && x.DerivedType == 0 && x.OwnerScope == 0 &&
+					x.TraitGroup == "Physical" && x.Alias == "agi").Select(x => x.Id).ToArray();
+				if (candidates.Length != 1) throw new StockDependencyException("Bind one ordinary native Physical Agility attribute; no new trait is created or claimed.");
+				return candidates[0];
+			}) : 0;
+		var profile = CatalogueIdentity<ArmourType>(db, key == "arm.spell.charged_aegis"
+			? "arm.support.armour.electrical" : "arm.support.armour.external");
+		return new("arm.capability." + school, ArmageddonArmourSpellContent.Create(key, profile, material, agility));
+	}
 
 }

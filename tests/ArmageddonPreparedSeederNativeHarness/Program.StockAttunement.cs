@@ -219,7 +219,8 @@ internal static partial class GNHProgram
 			["School"] = nameof(Db.MagicSchool), ["AI"] = nameof(Db.ArtificialIntelligence), ["BonusPlane"] = nameof(Db.Plane),
 			["Plane"] = nameof(Db.Plane), ["EffigyPrototype"] = nameof(Db.GameItemProto),
 			["CarrierPrototype"] = nameof(Db.GameItemProto), ["PermanentOutput"] = nameof(Db.GameItemProto),
-			["ViewerProg"] = nameof(Db.FutureProg), ["ApplicabilityProg"] = nameof(Db.FutureProg)
+			["ViewerProg"] = nameof(Db.FutureProg), ["ApplicabilityProg"] = nameof(Db.FutureProg),
+			["ArmourAppliesProg"] = nameof(Db.FutureProg), ["ArmourType"] = nameof(Db.ArmourType), ["ArmourMaterial"] = nameof(Db.Material)
 		};
 		foreach (var node in XElement.Parse(spell.Definition).Descendants())
 		{

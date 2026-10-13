@@ -25,7 +25,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var entries = manifest.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell").ToArray();
 		CollectionAssert.AreEquivalent(ArmageddonStockSpellInstaller.CanonicalKeys.ToArray(), claims.Select(x => x.StableKey).ToArray());
-		Assert.AreEqual(95, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
+		Assert.AreEqual(99, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var source = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId!.Value;
 		foreach (var claim in claims)
@@ -51,7 +51,7 @@ public partial class ArmageddonStockSpellInstallerTests
 				Assert.IsFalse(string.IsNullOrWhiteSpace(ArmageddonCanonicalUtilityContent.SustainMealTargetException));
 				expectedTarget = "room"; // Keep the locked caster-room food delivery, not character inventory placement.
 			}
-			if (claim.StableKey == "arm.spell.raise_servitor")
+			if (claim.StableKey is "arm.spell.raise_servitor" or "arm.spell.voice_of_remains")
 			{
 				Assert.AreEqual("corpse", expectedTarget);
 				expectedTarget = "item"; // Native corpse component admission specializes the item trigger.

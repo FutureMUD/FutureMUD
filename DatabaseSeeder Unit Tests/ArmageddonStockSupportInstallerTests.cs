@@ -27,7 +27,7 @@ public class ArmageddonStockSupportInstallerTests
 		var beforeItems = db.GameItemProtos.Count(); var beforeAttacks = db.WeaponAttacks.Count();
 		var first = ArmageddonStockSupportInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status, string.Join("\n", first.Messages)); db.ChangeTracker.Clear();
-		Assert.AreEqual(45, first.Identities.Count); Assert.AreEqual(beforeItems + 17, db.GameItemProtos.Count());
+		Assert.AreEqual(48, first.Identities.Count); Assert.AreEqual(beforeItems + 17, db.GameItemProtos.Count());
 		Assert.AreEqual(beforeAttacks + 16, db.WeaponAttacks.Count()); Assert.AreEqual(1, db.Planes.Count(x => x.IsDefault));
 		Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(0, db.Characters.Count()); Assert.AreEqual(0, db.MagicSpells.Count());
 		Assert.AreEqual(210, new ArmageddonStockCatalogue().Blueprints.Count);
@@ -93,10 +93,10 @@ public class ArmageddonStockSupportInstallerTests
 	}
 
 	[TestMethod]
-	public void Supports_AllEightOwnedProgBodiesCompileWithExactNativeSignatures()
+	public void Supports_AllDeclaredOwnedProgBodiesCompileWithExactNativeSignatures()
 	{
 		var definitions = ArmageddonStockSupportInstaller.ProgDefinitions(new(11, 12, 21, 22, 31, 47, 32, 23, 33, new[] { 41L, 42, 43, 44, 45, 46, 47 }));
-		Assert.AreEqual(8, definitions.Count); var id = 100L; foreach (var row in definitions.Values) row.Id = id++;
+		Assert.AreEqual(11, definitions.Count); var id = 100L; foreach (var row in definitions.Values) row.Id = id++;
 		using var compiler = new OfflineProgCompilation(definitions.Values);
 		foreach (var definition in definitions.Values)
 		{

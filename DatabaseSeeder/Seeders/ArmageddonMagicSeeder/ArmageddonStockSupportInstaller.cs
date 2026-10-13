@@ -54,6 +54,9 @@ public static partial class ArmageddonStockSupportInstaller
 	public const string PerceptionEligibilityKey = "arm.support.prog.perception_eligibility";
 	public const string LiquidEligibilityKey = "arm.support.prog.liquid_eligibility";
 	public const string MagicalEligibilityKey = "arm.support.prog.magical_eligibility";
+	public const string IdentifyTextKey = "arm.support.prog.identify_text";
+	public const string ReciteLinkKey = "arm.support.prog.recite_link";
+	public const string DeadSpeakLinkKey = "arm.support.prog.deadspeak_link";
 	public const string DefilerMeritKey = "arm.merit.defiler";
 	public const string VoidAffinityMeritKey = "arm.race.outsider.affinity";
 	public static IReadOnlyList<string> AffinityMeritKeys { get; } = Array.AsReadOnly(new[]
@@ -89,6 +92,14 @@ public static partial class ArmageddonStockSupportInstaller
 				"return " + siltAllowed, ("target", ProgVariableTypes.Character), ("caster", ProgVariableTypes.Character)),
 			[LiquidEligibilityKey] = Prog("arm_support_liquid_eligibility", ProgVariableTypes.Boolean,
 				$"return currentplaneid(@caster) != {bindings.FirePlane} and {siltAllowed}", ("target", ProgVariableTypes.Item), ("caster", ProgVariableTypes.Character)),
+			[IdentifyTextKey] = Prog("arm_support_identify_text", ProgVariableTypes.Text,
+				string.Join("\n", bindings.AffinityMerits.Select((id, index) =>
+					$"if (contains(@target.applicablemerits, tomerit({id})))\nreturn \"One explicitly recorded elemental affinity is {new[] { "Earth", "Earth", "Wind", "Wind", "Wind", "Shadow", "Void" }[index]}.\"\nend if")) +
+					"\nreturn \"No package-recorded elemental affinity is revealed.\"", ("target", ProgVariableTypes.Character), ("caster", ProgVariableTypes.Character)),
+			[ReciteLinkKey] = Prog("arm_support_recite_link", ProgVariableTypes.Character,
+				"return @caster", ("caster", ProgVariableTypes.Character), ("proxy", ProgVariableTypes.Character)),
+			[DeadSpeakLinkKey] = Prog("arm_support_deadspeak_link", ProgVariableTypes.Character,
+				"return @caster", ("caster", ProgVariableTypes.Character), ("proxy", ProgVariableTypes.Character)),
 			[MagicalEligibilityKey] = Prog("arm_support_magical_eligibility", ProgVariableTypes.Boolean,
 				$"return hasmagictag(@target, \"armageddon.magical_creature\") or contains(@target.applicablemerits, tomerit({bindings.MagicalExceptionMerit})) or " +
 				string.Join(" or ", bindings.AffinityMerits.Select(id => $"contains(@target.applicablemerits, tomerit({id}))")),
@@ -174,6 +185,7 @@ public static partial class ArmageddonStockSupportInstaller
 			foreach (var (key, desired) in ProgDefinitions(bindings))
 				ids.Add(key, owned.Put(key, desired, key switch
 				{
+					IdentifyTextKey => AffinityMeritKeys.ToArray(), ReciteLinkKey or DeadSpeakLinkKey => [],
 					TargetEligibilityKey => [UndeadMeritKey, VoidAffinityMeritKey, DefilerMeritKey],
 					CorpseEligibilityKey => [SiltTagKey, ShallowsTagKey], WeaponEligibilityKey => [WaterPlaneKey],
 					PerceptionEligibilityKey => [SiltTagKey], LiquidEligibilityKey => [FirePlaneKey, SiltTagKey],

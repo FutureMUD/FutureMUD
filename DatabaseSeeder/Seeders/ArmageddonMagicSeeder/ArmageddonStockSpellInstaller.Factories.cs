@@ -232,4 +232,14 @@ public static partial class ArmageddonStockSpellInstaller
 		return new("arm.capability." + school, ArmageddonArmourSpellContent.Create(key, profile, material, agility));
 	}
 
+	private static readonly string[] RetainedUtilityKeys =
+		["arm.spell.luminous_trail", "arm.spell.read_enchantment", "arm.spell.echo_servant", "arm.spell.voice_of_remains"];
+
+	private static ArmageddonCanonicalSpellContribution ResolveRetainedUtility(FuturemudDatabaseContext db, string key) =>
+		ArmageddonRetainedUtilityContent.Create(new(
+			CatalogueProg(db, ArmageddonStockSupportInstaller.IdentifyTextKey, ProgVariableTypes.Text, ProgVariableTypes.Character, ProgVariableTypes.Character),
+			CatalogueProg(db, ArmageddonStockSupportInstaller.ReciteLinkKey, ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Character),
+			CatalogueProg(db, ArmageddonStockSupportInstaller.DeadSpeakLinkKey, ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Character),
+			CorpseEligibilitySource: "return @target.iscorpse")).Single(x => x.Content.Key == key);
+
 }

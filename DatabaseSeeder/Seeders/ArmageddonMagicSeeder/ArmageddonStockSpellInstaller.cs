@@ -78,6 +78,8 @@ public static partial class ArmageddonStockSpellInstaller
 			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveUtility(db, key)))))
 		.Concat(RetainedUtilityKeys.Select(key =>
 			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveRetainedUtility(db, key)))))
+		.Append((Key: "arm.spell.turn_the_elements", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
+			ArmageddonTurnElementsContent.Create(ProgressionIdentity<MagicSchool>(db, "arm.school.fire")))))
 		.Concat(ArmourKeys.Select(x =>
 			(Key: "arm.spell." + x.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveArmour(db, "arm.spell." + x.Key, x.School)))))
 		.Concat(ArmageddonScalarUtilityContent.Create().Select(x =>

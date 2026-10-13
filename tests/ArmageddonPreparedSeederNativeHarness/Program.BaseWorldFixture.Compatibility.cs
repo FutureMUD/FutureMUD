@@ -19,7 +19,8 @@ internal static partial class GNHProgram
 	[
 		new("FutureMUDLibrary/Magic/IMagicVitalTransferDamage.cs", "ED326A0A1B9B5DCCA00E0F095D570CF2C443313BF6A2F2A2BD12048B6A494D7E"),
 		new("FutureMUDLibrary/Health/IDamageMutationGuard.cs", "6C937050BDFF2490FC7B8B63AF166D094472CC5E2B261865ABEA072E9ACC3F9D"),
-		new("FutureMUDLibrary/Effects/Interfaces/IExitBarrierTraversalEffect.cs", "E373823D741CC0D7868483AAF3CAA40D536CA717A968FC1103CFC9E6BE9B8011")
+		new("FutureMUDLibrary/Effects/Interfaces/IExitBarrierTraversalEffect.cs", "E373823D741CC0D7868483AAF3CAA40D536CA717A968FC1103CFC9E6BE9B8011"),
+		new("FutureMUDLibrary/Effects/Interfaces/IMagicInterdictionUseEffect.cs", "DCEFF3284A853030A6D48568790512C688455AAC4520A89DE3C4A50DEC3D2F9A")
 	];
 
 	private static bool CompatibleBaseSources(BaseWorldFixture receipt, IReadOnlyList<BaseSource> current, out string? rule)
@@ -40,7 +41,7 @@ internal static partial class GNHProgram
 		if (!recorded.TryGetValue(DamageInterfacePath, out var oldDamage) || oldDamage.Sha256 != BaseDamageInterfaceHash ||
 			!projected.TryGetValue(DamageInterfacePath, out var newDamage) || newDamage.Sha256 != ReviewedDamageInterfaceHash) return false;
 		// The exact reviewed changes add default-null invocation-local receipt/mutation hooks and inert interfaces.
-		// The pre-Armageddon prefix performs no live damage or traversal; schema, answers and restored content remain sealed.
+		// The pre-Armageddon prefix performs no live damage, traversal or spell interdiction; schema, answers and restored content remain sealed.
 		// No health/schema subtree is excluded; every other input still compares byte-for-byte.
 		projected[DamageInterfacePath] = oldDamage;
 		var compatible = BaseValueHash(projected.Values.OrderBy(x => x.Path, StringComparer.Ordinal).ToArray()) == receipt.BaseSourceSha256;

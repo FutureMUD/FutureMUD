@@ -49,7 +49,7 @@ public class SpellRoomLightEffect : MagicSpellEffectBase, IDescriptionAdditionEf
         return $"Room Light - {GlowLux.ToString("N3", voyeur).ColourValue()} lux - {GetAdditionalText(voyeur, true)}";
     }
 
-    protected override string SpecificEffectType => "SpellGlow";
+    protected override string SpecificEffectType => "SpellRoomLight";
 
     #endregion
 

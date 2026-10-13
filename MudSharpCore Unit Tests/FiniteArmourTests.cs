@@ -131,7 +131,7 @@ public class FiniteArmourTests
 		var f = new Fixture(); f.Cast(1); f.Hit(8);
 		var parent = f.Effects.OfType<MagicSpellParent>().Single(); var saved = parent.SaveToXml([]);
 		f.Effects.Clear(); MagicSpellParent.InitialiseEffectType(); SpellArmourProtectionEffect.InitialiseEffectType();
-		var loaded = (MagicSpellParent)Effect.LoadEffect(saved, f.Victim.Object);
+		var loaded = (MagicSpellParent)Effect.LoadEffect(saved, f.Victim.Object); f.Effects.Add(loaded);
 		var armour = (SpellArmourProtectionEffect)loaded.SpellEffects.Single();
 		Assert.AreEqual(4, armour.TotalDamageAbsorbed); Assert.AreEqual(10, armour.ArmourConfiguration.MaximumDamageAbsorbed.Evaluate(f.Victim.Object));
 		f.Hit(20); Assert.AreEqual(10, armour.TotalDamageAbsorbed); Assert.AreEqual(18, f.Body.Wounds.Sum(x => x.CurrentDamage), 1e-8);
@@ -165,7 +165,9 @@ public class FiniteArmourTests
 	{
 		var f = new Fixture(); var config = new MagicArmourConfiguration(((SpellArmourEffect)f.Spell.SpellEffects.First()).ArmourConfiguration)
 		{ MaximumDamageAbsorbed = new TraitExpression("0", f.F.World.Object) };
-		var effect = new SpellArmourProtectionEffect(f.Victim.Object, new MagicSpellParent(f.Victim.Object, f.Spell, f.F.Actor.Object), config);
+		var parent = new MagicSpellParent(f.Victim.Object, f.Spell, f.F.Actor.Object);
+		var effect = new SpellArmourProtectionEffect(f.Victim.Object, parent, config);
+		parent.AddSpellEffect(effect); f.Effects.Add(parent); f.Effects.Add(effect);
 		var damage = f.Packet(100); var wounds = new List<IWound>();
 		Assert.AreSame(damage, effect.PassiveSufferDamage(damage, ref wounds)); Assert.AreEqual(0, effect.TotalDamageAbsorbed);
 	}
@@ -197,6 +199,69 @@ public class FiniteArmourTests
 		Assert.AreEqual(777L, (long)definition.Element("Effects")!.Elements().First().Element("ArmourAppliesProg")!);
 		Assert.AreEqual(9L, (long)definition.Element("Effects")!.Elements().First().Element("ArmourType")!);
 		Assert.AreEqual(9L, (long)definition.Element("Effects")!.Elements().First().Element("ArmourMaterial")!);
+	}
+
+	[DataTestMethod, DataRow(false), DataRow(true)]
+	public void NativePenetrationCallback_RemovedChildOrParentCannotAttenuateOrSpend(bool removeParent)
+	{
+		var f = new Fixture(); f.Cast(1); var armour = f.Effects.OfType<SpellArmourProtectionEffect>().Single();
+		var parent = f.Effects.OfType<MagicSpellParent>().Single(); var reached = false;
+		var check = new Mock<ICheck>(); f.F.World.Setup(x => x.GetCheck(CheckType.PenetrationDefenseCheck)).Returns(check.Object);
+		check.Setup(x => x.Check(f.Victim.Object, Difficulty.Normal, (IPerceivable)null!, (IUseTrait)null!, 0.0, TraitUseType.Practical, It.IsAny<(string, object)[]>()))
+			.Callback(() => { reached = true; f.Victim.Object.RemoveEffect(removeParent ? parent : armour, true); })
+			.Returns(CheckOutcome.SimpleOutcome(CheckType.PenetrationDefenseCheck, Outcome.Pass));
+		f.Hit(8); Assert.IsTrue(reached); Assert.AreEqual(0, armour.TotalDamageAbsorbed);
+		Assert.AreEqual(8, f.Body.Wounds.Sum(x => x.CurrentDamage), 1e-8);
+		Assert.IsTrue(f.Body.Wounds.All(x => x.DamageType == DamageType.Slashing));
+	}
+	[TestMethod]
+	public void CommittedSpend_AfterCleanSaveMarksOwnerEffectsForPersistenceButPreviewAndZeroDoNot()
+	{
+		var f = new Fixture(); f.Cast(1); var armour = f.Effects.OfType<SpellArmourProtectionEffect>().Single();
+		var parent = f.Effects.OfType<MagicSpellParent>().Single(); parent.SaveToXml([]); f.Victim.Object.EffectsChanged = false;
+		armour.PreviewDamage(f.Packet(8)); Assert.IsFalse(f.Victim.Object.EffectsChanged); Assert.AreEqual(0, armour.TotalDamageAbsorbed);
+		var wounds = new List<IWound>(); armour.PassiveSufferDamage(f.Packet(0), ref wounds); Assert.IsFalse(f.Victim.Object.EffectsChanged);
+		// Entire native packet dissipates: no wound/removal can accidentally dirty the character for us.
+		var definition = new XElement("Definition");
+		foreach (var name in new[] { "DissipateExpressions", "AbsorbExpressions", "DissipateExpressionsPain", "AbsorbExpressionsPain", "DissipateExpressionsStun", "AbsorbExpressionsStun" })
+			definition.Add(new XElement(name, new XElement("Expression", new XAttribute("damagetype", (int)DamageType.Slashing), "0")));
+		armour.ArmourConfiguration.ArmourType = new ArmourType(new MudSharp.Models.ArmourType
+			{ Id = 19, Name = "Complete native mitigation", MinimumPenetrationDegree = (int)OpposedOutcomeDegree.Major, Definition = definition.ToString() }, f.F.World.Object);
+		f.Hit(4); Assert.IsFalse(f.Body.Wounds.Any()); Assert.IsTrue(f.Effects.Contains(armour)); Assert.AreEqual(4, armour.TotalDamageAbsorbed);
+		Assert.IsTrue(f.Victim.Object.EffectsChanged, "Character.Save writes retained children only when this native dirty flag is set.");
+		Assert.AreEqual(4.0, (double)parent.SaveToXml([]).Descendants("TotalDamageAbsorbed").Single());
+	}
+	[DataTestMethod, DataRow("-5", false), DataRow("NaN", false), DataRow("Infinity", false),
+	 DataRow("-5", true), DataRow("NaN", true), DataRow("Infinity", true)]
+	public void ColdMalformedFiniteState_IsRejectedBeforeDamageOrNativeRoll(string spent, bool maximum)
+	{
+		var f = new Fixture(); f.Cast(1); var saved = f.Effects.OfType<MagicSpellParent>().Single().SaveToXml([]);
+		saved.Descendants(maximum ? "MaximumDamageAbsorbed" : "TotalDamageAbsorbed").Single().Value = spent;
+		MagicSpellParent.InitialiseEffectType(); SpellArmourProtectionEffect.InitialiseEffectType();
+		Assert.ThrowsException<InvalidOperationException>(() => Effect.LoadEffect(saved, f.Victim.Object));
+		Assert.IsFalse(f.Body.Wounds.Any());
+		f.F.Check.Verify(x => x.Check(f.Victim.Object, Difficulty.Normal, (IPerceivable)null!, (IUseTrait)null!, 0.0, TraitUseType.Practical, It.IsAny<(string, object)[]>()), Times.Never);
+	}
+	[TestMethod]
+	public void ColdOverspent_IsExhaustedWithoutRefill()
+	{
+		var f = new Fixture(); f.Cast(1); var saved = f.Effects.OfType<MagicSpellParent>().Single().SaveToXml([]);
+		saved.Descendants("TotalDamageAbsorbed").Single().Value = "15"; f.Effects.Clear();
+		MagicSpellParent.InitialiseEffectType(); SpellArmourProtectionEffect.InitialiseEffectType();
+		var parent = (MagicSpellParent)Effect.LoadEffect(saved, f.Victim.Object); f.Effects.Add(parent);
+		f.Hit(8); Assert.AreEqual(8, f.Body.Wounds.Sum(x => x.CurrentDamage), 1e-8);
+		Assert.AreEqual(15, ((SpellArmourProtectionEffect)parent.SpellEffects.Single()).TotalDamageAbsorbed);
+	}
+
+	[DataTestMethod, DataRow(-5.0), DataRow(double.NaN), DataRow(double.PositiveInfinity)]
+	public void RuntimeMalformedSpent_IsRejectedBeforeNativeRollOrDirtyFlag(double spent)
+	{
+		var f = new Fixture(); f.Cast(1); var armour = f.Effects.OfType<SpellArmourProtectionEffect>().Single();
+		typeof(SpellArmourProtectionEffect).GetProperty(nameof(SpellArmourProtectionEffect.TotalDamageAbsorbed))!.SetValue(armour, spent);
+		f.Victim.Object.EffectsChanged = false;
+		Assert.ThrowsException<InvalidOperationException>(() => f.Hit(8));
+		Assert.IsFalse(f.Body.Wounds.Any()); Assert.IsFalse(f.Victim.Object.EffectsChanged);
+		f.F.Check.Verify(x => x.Check(f.Victim.Object, Difficulty.Normal, (IPerceivable)null!, (IUseTrait)null!, 0.0, TraitUseType.Practical, It.IsAny<(string, object)[]>()), Times.Never);
 	}
 
 	private sealed class CountGuard : IDamageMutationGuard
@@ -253,6 +318,7 @@ public class FiniteArmourTests
 			Victim.Setup(x => x.ProcessPassiveWound(It.IsAny<IWound>())).Callback<IWound>(Body.ProcessPassiveWound);
 
 			Victim.SetupGet(x => x.Effects).Returns(Effects);
+			Victim.SetupProperty(x => x.EffectsChanged);
 			Victim.Setup(x => x.EffectsOfType<IMagicArmour>(It.IsAny<Predicate<IMagicArmour>>())).Returns(() => Effects.OfType<IMagicArmour>());
 			Victim.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback<IEffect>(Effects.Add);
 			Victim.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>())).Callback<IEffect, TimeSpan>((effect, _) => Effects.Add(effect));

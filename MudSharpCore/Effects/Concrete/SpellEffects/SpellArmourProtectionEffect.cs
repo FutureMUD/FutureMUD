@@ -6,6 +6,7 @@ using MudSharp.Combat;
 using MudSharp.GameItems;
 using MudSharp.Health;
 using MudSharp.Magic;
+using MudSharp.NPC.AI;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
@@ -35,6 +36,7 @@ public class SpellArmourProtectionEffect : SimpleSpellStatusEffectBase, IMagicAr
 		var effect = root.Element("Effect")!;
 		ArmourConfiguration = new MagicArmourConfiguration(effect, Gameworld);
 		TotalDamageAbsorbed = double.Parse(effect.Element("TotalDamageAbsorbed")?.Value ?? "0", CultureInfo.InvariantCulture);
+		if (ArmourConfiguration.FiniteBudget && owner is ICharacter character) ValidateFiniteState();
 	}
 
 	public MagicArmourConfiguration ArmourConfiguration { get; }
@@ -107,21 +109,29 @@ public class SpellArmourProtectionEffect : SimpleSpellStatusEffectBase, IMagicAr
 	private IDamage ResolveFinite(IDamage damage, bool commit)
 	{
 		if (Owner is not ICharacter character) return damage;
+		// Validate persisted/runtime numbers before any policy callback or penetration roll.
+		var maximum = ValidateFiniteState();
 		var body = character.Body;
-		void Validate()
+		var parent = ParentEffect;
+		bool Attached() => parent is not null && ReferenceEquals(ParentEffect, parent) &&
+			ReferenceEquals(parent.Owner, Owner) && Owner.Effects.Any(x => ReferenceEquals(x, this)) &&
+			Owner.Effects.Any(x => ReferenceEquals(x, parent)) && parent.SpellEffects.Any(x => ReferenceEquals(x, this));
+		bool Continue()
 		{
+			if (!Attached() || !CommandExecutionScope.TryContinue()) return false;
 			damage.MutationGuard?.Validate(body, damage);
 			if (!ReferenceEquals(character.Body, body) ||
 				(damage.TargetBody is not null && !ReferenceEquals(damage.TargetBody, body)))
 				throw new InvalidOperationException("The protected physical body changed during armour resolution.");
+			return Attached();
 		}
-		Validate();
-		var maximum = ArmourConfiguration.MaximumDamageAbsorbed.Evaluate(character);
+		if (!Continue()) return damage;
 		var remaining = Math.Max(0, maximum - TotalDamageAbsorbed);
 		if (remaining <= 0) return damage;
 		var passed = ArmourType.AbsorbDamageViaSpell(damage, ArmourConfiguration.ArmourMaterial, Quality, character, true).PassedOn;
 		// Native penetration/health checks can call user policy. Fence those callbacks before spending capacity.
-		Validate();
+		if (!Continue()) return damage;
+		maximum = ValidateFiniteState();
 		remaining = Math.Max(0, maximum - TotalDamageAbsorbed);
 		if (remaining <= 0) return damage;
 		var prevented = Math.Max(0, damage.DamageAmount - (passed?.DamageAmount ?? 0));
@@ -140,9 +150,21 @@ public class SpellArmourProtectionEffect : SimpleSpellStatusEffectBase, IMagicAr
 		if (commit)
 		{
 			TotalDamageAbsorbed += spent;
+			if (spent > 0) Changed = true;
 			if (TotalDamageAbsorbed >= maximum) Owner.RemoveEffect(this, true);
 		}
 		return result!;
+	}
+
+	private double ValidateFiniteState()
+	{
+		// Finite children freeze this field to an invariant numeric literal at creation. Do not
+		// reinterpret corrupted saved literals (e.g. NaN) as unresolved expression parameters.
+		if (!double.TryParse(ArmourConfiguration.MaximumDamageAbsorbed.OriginalFormulaText,
+			NumberStyles.Float, CultureInfo.InvariantCulture, out var maximum) ||
+			!double.IsFinite(maximum) || maximum < 0 || !double.IsFinite(TotalDamageAbsorbed) || TotalDamageAbsorbed < 0)
+			throw new InvalidOperationException("Finite armour requires finite nonnegative capacity and spent protection.");
+		return maximum;
 	}
 
 	public void ProcessPassiveWound(IWound wound)

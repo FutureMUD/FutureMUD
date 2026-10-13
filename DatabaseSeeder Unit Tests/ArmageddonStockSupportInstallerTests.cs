@@ -114,7 +114,7 @@ public class ArmageddonStockSupportInstallerTests
 		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);
 		var uncertain = ArmageddonStockSupportInstaller.Install(factory, point =>
 		{ if (point == ArmageddonInstallCheckpoint.AfterCommit) throw new InvalidOperationException("confirmation fixture"); });
-		Assert.AreEqual(ArmageddonInstallStatus.CommittedConfirmationFailed, uncertain.Status); Assert.AreEqual(45, uncertain.Identities.Count);
+		Assert.AreEqual(ArmageddonInstallStatus.CommittedConfirmationFailed, uncertain.Status); Assert.AreEqual(48, uncertain.Identities.Count);
 		var rerun = ArmageddonStockSupportInstaller.Install(factory); Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
 		foreach (var entry in uncertain.Identities) Assert.AreEqual(entry.Value, rerun.Identities[entry.Key]);
 		db.ChangeTracker.Clear(); Assert.AreEqual(130, db.GameItemProtos.Count()); Assert.AreEqual(0, db.GameItems.Count());

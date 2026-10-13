@@ -34,6 +34,11 @@ spec = importlib.util.spec_from_file_location('lane_mud_session', REPO / '.agent
 helper = importlib.util.module_from_spec(spec)
 assert spec.loader
 spec.loader.exec_module(helper)
+campaign_path = REPO / 'tests/ArmageddonPreparedSeederNativeHarness/PreparedStockCampaign.py'
+campaign_spec = importlib.util.spec_from_file_location('prepared_stock_campaign', campaign_path)
+campaign = importlib.util.module_from_spec(campaign_spec)
+assert campaign_spec.loader
+campaign_spec.loader.exec_module(campaign)
 SECRETS = [CONNECTION, PASSWORD]
 BOOT_SCOPE = os.environ.get('FUTUREMUD_CATALOGUE_BOOT_SCOPE', 'catalogue')
 assert BOOT_SCOPE in ('catalogue', 'attunement-builder', 'attunement-stock'), 'Unknown catalogue boot scope.'
@@ -238,8 +243,10 @@ def attunement_stock_smoke(session, phase):
     require(prepared.parent == ROOT and prepared.name.startswith('prepared-stock-attunement-input_') and
             prepared.suffix == '.json', 'Stock Attunement requires its explicit local fixture input.')
     data = json.loads(prepared.read_text(encoding='utf-8'))
+    pin = {'path': str(prepared), 'sha256': sha(prepared)}
+    require(receipt.setdefault('stock_input_pin', pin) == pin, 'Prepared stock input changed across cold restart.')
     schema = data['sql_schema']
-    require(isinstance(schema, list) and len(schema) == 16, 'Missing bounded EF SQL schema contract.')
+    require(isinstance(schema, list) and len(schema) >= 16, 'Missing bounded EF SQL schema contract.')
     identifiers = {}
     for table in schema:
         for alias, name in [(table['alias'], table['table'])] + [(x['alias'], x['column']) for x in table['columns']]:
@@ -306,26 +313,36 @@ def attunement_stock_smoke(session, phase):
                 0 < initial['parents'][0]['remaining_ms'] <= saved['parents'][0]['remaining_ms'], 'Cold S4 parent/child identity or remaining duration was not retained.')
         assertions.append('S4 stock: cold restart retained paid reserve, grade, skill, completed enrolment and exact parent/child identity with decreasing lifetime')
 
-    # This validates real native load/readiness of the complete current definition batch.
-    # It is separate from paid creature creation/controller/all-grade qualification.
-    expected_stock_keys = {'arm.spell.read_attunement', 'arm.spell.earth_mount', 'arm.spell.clay_sentinel',
-                           'arm.spell.air_guardian', 'arm.spell.seeking_wind', 'arm.spell.wind_courier',
-                           'arm.spell.haunting_shape', 'arm.spell.call_outsider'}
     stock_spells = data.get('stock_spells', [])
-    require(len(stock_spells) >= 8 and len({entry['key'] for entry in stock_spells}) == len(stock_spells) and
-            expected_stock_keys.issubset({entry['key'] for entry in stock_spells}),
-            'Missing exact canonical creature definition inputs.')
+    require(stock_spells and len({entry['key'] for entry in stock_spells}) == len(stock_spells), 'Missing or duplicate canonical definition inputs.')
+    claimed = sql("SELECT StableKey,LogicalId FROM SeederManagedRecords WHERE Seeder='ArmageddonMagicSeeder' AND Module='stock-spells' AND EntityType='MagicSpell' AND Retired=0 ORDER BY StableKey")
+    require([(row[0], int(row[1])) for row in claimed] == sorted((entry['key'], int(entry['id'])) for entry in stock_spells),
+            'Prepared stock list does not cover every installed managed definition exactly once.')
+    require(any(entry['key'] == 'arm.spell.read_attunement' and int(entry['id']) == s for entry in stock_spells), 'Original Read identity is missing.')
+    resolved_refs = set()
     for entry in stock_spells:
+        _, refs = campaign.definition_contract(entry)
         actual = sql(f"SELECT HEX(Definition) FROM MagicSpells WHERE Id={int(entry['id'])}", (0,))
         require(len(actual) == 1 and actual[0][0] == entry['definition'],
                 'Canonical definition changed during native loader validation: ' + entry['key'])
-        shown = session.send(f"magic spell show {int(entry['id'])}", read_seconds=.3)
-        require(entry['name'] in shown and 'Building Error' not in shown,
+        native = sql(f"SELECT MagicSchoolId,CastingTraitDefinitionId,EffectDurationExpressionId,SpellKnownProgId FROM MagicSpells WHERE Id={int(entry['id'])}")
+        require(native == [[str(entry[field]) for field in ('school', 'trait', 'duration_expression', 'known_prog')]], 'Native spell metadata drift: ' + entry['key'])
+        for expression, formula in ((entry['duration_expression'], entry['duration_formula']), (entry['cost_expression'], entry['cost_formula'])):
+            require(sql(f'SELECT HEX(Expression) FROM TraitExpression WHERE Id={int(expression)}', (0,)) == [[formula]], 'Native duration/cost formula drift: ' + entry['key'])
+        for kind, identity in refs:
+            if (kind, identity) in resolved_refs: continue
+            table = campaign.REFERENCE_TABLES[kind]
+            require(sql(f'SELECT Id FROM `{table}` WHERE Id={identity}') == [[str(identity)]], 'Unresolved exact typed native reference: ' + kind + ':' + str(identity))
+            resolved_refs.add((kind, identity))
+        shown = session.send(f"magic spell show {int(entry['id'])}", read_seconds=.2)
+        require(entry['name'] in shown and 'Building Error' not in shown and 'Controlled Power Profile' in shown and
+                all(f'Grade {grade}:' in shown for grade in range(1, 8)),
                 'Native canonical spell loader/readiness failed: ' + entry['key'] + ': ' + redact(shown))
         receipt.setdefault('stock_definition_loader', {}).setdefault(phase, {})[entry['key']] = {
             'id': entry['id'], 'definition_sha256': hashlib.sha256(entry['definition'].encode('utf-8')).hexdigest(),
-            'shown': redact(shown)}
-    assertions.append(phase + ': all eight canonical stock definitions loaded ready with exact unchanged definitions; creature gameplay remains separate')
+            'typed_references': refs, 'shown': redact(shown), 'coverage': 'native-definition-readiness'}
+    assertions.append(f'{phase}: all {len(stock_spells)} installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready')
+    stock_campaign_smoke(session, phase, data, mapped)
 
     # A depleted reserve refuses before a roll/payment operation or overlay replacement.
     current = state()
@@ -344,6 +361,7 @@ def attunement_stock_smoke(session, phase):
         require('Assigned elemental affinities: Unassigned.' in looked and 'Learned magical affiliations: S4 Attunement Qualification (active).' in looked,
                 'Cold native overlay did not separate unassigned affinity and legitimately learned active fixture affiliation: ' + redact(looked))
         assertions.append('S4 stock: cold visible self overlay separated unassigned affinity from completed learned affiliation')
+        mark_inherited_read('cold')
         return
 
     session.send(f'armwater gather {cap} draw 100', read_seconds=.2)
@@ -389,6 +407,140 @@ def attunement_stock_smoke(session, phase):
     receipt['stock_attunement_first'] = state()
     receipt['stock_attunement_limits'] = data['limits'] + ' All seven grade costs/durations have deterministic pipeline tests; this Telnet lane casts grade one.'
     assertions.append('S4 stock: native visible overlay separated assigned affinity and learned affiliation; finite paid budget depleted before cold restart')
+    mark_inherited_read('first')
+
+def mark_inherited_read(phase):
+    report = receipt.get('representative_campaign', {})
+    for selected in report.get('selected', []):
+        if selected['coverage'] == 'inherited-original-read':
+            selected.setdefault('phases', {})[phase] = 'PASS-preserved-original-paid-read-assertions'
+            selected['outcome'] = 'PASS' if phase == 'cold' else 'FIRST-PASS-COLD-PENDING'
+    if phase == 'cold' and report.get('selected') and all(row['outcome'] == 'PASS' for row in report['selected']): report['status'] = 'PASS'
+
+def stock_campaign_smoke(session, phase, data, mapped):
+    config = data.get('representative_campaign')
+    if config is None:
+        receipt['representative_campaign'] = {'seed': campaign.SEED, 'status': 'PENDING', 'reason': 'No explicit disposable builder admission input; no campaign was executed.'}
+        receipt['earth_mount_sample'] = {'status': 'PENDING', 'reason': 'No paid Earth Mount route/exit observation fixture; native controller following is not certified.'}
+        return
+    installed = {entry['key']: entry for entry in data['stock_spells']}
+    selected = campaign.select_campaign(config, installed)
+    report = receipt.setdefault('representative_campaign', campaign.selection_receipt(selected))
+    require([row['key'] for row in report['selected']] == [row['key'] for row in selected], 'Campaign selection drift across cold restart.')
+    report['sample_limit'] = config['sample_limit']
+    report['limits'] = 'Disposable builder admissions; grade one only; no package/Class/producer gates or natural progression claim. At most two paid RNG attempts per direct sample.'
+    receipt['earth_mount_sample'] = {'status': 'PENDING', 'reason': 'Earth Mount spawn/controller movement requires an explicit paid route plus disposable real-exit observation; this bounded representative lane does not fake AI proof.'}
+    actor = int(data['character'])
+    def flush():
+        require('All queued saves have been flushed' in session.send('impdebug flush', read_seconds=.3), 'Campaign native save flush failed.')
+    def state(row):
+        resource, spell, cap, trait = (int(row[field]) for field in ('resource', 'spell', 'capability', 'trait'))
+        values = sql(mapped(f'SELECT IFNULL((SELECT Amount FROM CharactersMagicResources WHERE CharacterId={actor} AND MagicResourceId={resource}),0), '
+                     f'IFNULL((SELECT ControlledGrade FROM CharacterAcquiredSpells WHERE CharacterId={actor} AND MagicSpellId={spell}),0), '
+                     f'IFNULL((SELECT Value FROM CharacterTraits WHERE CharacterId={actor} AND TraitDefinitionId={trait}),0), '
+                     f'(SELECT COUNT(*) FROM CharacterCastingEnrolments WHERE CharacterId={actor} AND MagicCapabilityId={cap})'))
+        require(len(values) == 1 and len(values[0]) == 4, 'Campaign actor state is missing.')
+        return dict(zip(('balance', 'grade', 'raw', 'enrolments'), map(float, values[0])))
+    def operations(row):
+        return sql(mapped(f'SELECT HEX(Id),HEX(Stage),HEX(Definition) FROM MagicCastingOperations WHERE CharacterId={actor} AND MagicSpellId={int(row["spell"])} ORDER BY CreatedUtc,Id'), (0,1,2))
+    def parents(row):
+        table, identity = ('Characters', actor) if row['target'] == 'self' else ('Rooms', int(character_state()[3]))
+        rows = sql(mapped(f'SELECT HEX(EffectData) FROM {table} WHERE Id={identity}'), (0,))
+        require(len(rows) == 1, 'Campaign effect owner is missing.')
+        saved = []
+        for wrapper in ET.fromstring(rows[0][0]).iter('Effect'):
+            inner = wrapper.find('Effect')
+            if wrapper.findtext('Type') != 'MagicSpellParent' or inner is None or inner.findtext('Spell') != str(row['spell']): continue
+            children = list(inner.find('Children') or [])
+            saved.append({'identity': inner.findtext('Identity'), 'remaining_ms': int(wrapper.findtext('Remaining', '0')),
+                          'children': [child.findtext('Type') for child in children],
+                          'child_definitions': [ET.tostring(child.find('Effect'), encoding='unicode') for child in children]})
+        return saved
+    for row, result in zip(selected, report['selected']):
+        if result['coverage'] == 'inherited-original-read': continue
+        key = row['key']; cap = int(row['capability']); cost = float(row['grade_one_cost'])
+        definition = sql(f'SELECT HEX(Definition) FROM MagicCapabilities WHERE Id={cap}', (0,))
+        require(len(definition) == 1, 'Campaign capability is missing.')
+        capability_definition = ET.fromstring(definition[0][0])
+        casting = capability_definition.find('Casting')
+        gathering = capability_definition.findall('Gathering/Method')
+        require(cap not in [int(x) for x in data['package_capabilities']] and casting is not None and casting.get('enabled') == 'true' and
+                casting.get('passive') == 'false' and row['source'] == installed[key]['cost_resource'] and
+                all(casting.get(field) == str(row[expected]) for field, expected in (('trait','trait'), ('source','source'), ('reserve','resource'))) and
+                any(admission.get('spell') == str(row['spell']) and admission.get('starting') == 'true' and admission.get('min') == '1' for admission in casting.findall('Admission')),
+                'Campaign route is not its explicit separate grade-one builder admission: ' + key)
+        require(len(gathering) == 1 and all(gathering[0].get(field) == value for field, value in
+                (('alias','draw'), ('kind','Self'), ('destination',str(row['resource'])), ('ratio','1'), ('stamina','1'), ('min','1'), ('max','100'))),
+                'Campaign funding is not its bounded native Self method: ' + key)
+        result['route'] = {field: row[field] for field in ('capability','merit','trait','school','resource','source','invoked','grade_one_cost')}
+        capability_hash = hashlib.sha256(definition[0][0].encode()).hexdigest()
+        require(result.setdefault('capability_definition_sha256', capability_hash) == capability_hash, 'Campaign native capability changed across cold reload.')
+        flush(); initial = state(row)
+        if phase == 'cold':
+            require(initial == result['saved_state'] and operations(row) == result['saved_operations'], 'Cold campaign refilled/reacquired/replayed: ' + key)
+            result['phases']['cold'] = {'state': initial, 'outcome': 'PASS-no-refill-no-replay'}
+            if key in campaign.EXPECTED_CHILDREN:
+                current_parents = parents(row); saved = result['saved_parents']
+                elapsed_ms = (time.monotonic() - result['saved_at_monotonic']) * 1000
+                if not current_parents and elapsed_ms >= saved[0]['remaining_ms']:
+                    result['phases']['cold']['effect_outcome'] = 'EXPIRED-before-observation-no-cold-effect-certificate'
+                else:
+                    require(len(current_parents) == 1 and current_parents[0]['identity'] == saved[0]['identity'] and
+                            current_parents[0]['children'] == saved[0]['children'] and current_parents[0]['child_definitions'] == saved[0]['child_definitions'] and
+                            0 < current_parents[0]['remaining_ms'] <= saved[0]['remaining_ms'],
+                            'Cold campaign effect identity/children/lifetime changed: ' + key)
+                    result['phases']['cold']['effect_outcome'] = 'PASS-exact-native-parent-child-reload'
+                result['phases']['cold']['parents'] = current_parents
+            result['outcome'] = 'PASS'
+            continue
+        require(initial['balance'] == 0 and initial['grade'] == 0 and initial['enrolments'] == 0, 'Campaign preparation pregranted/refilled actor: ' + key)
+        session.send(f'givemerit me {int(row["merit"])}', read_seconds=.3)
+        enrol = session.send(f'magic casting enrol {actor} {cap} explicit disposable seeded representative campaign', read_seconds=.4)
+        flush(); current = state(row)
+        require(current['balance'] == 0 and current['grade'] == 1 and current['raw'] == 100 and current['enrolments'] == 1, 'Campaign native enrolment did not acquire grade one: ' + key + ': ' + redact(enrol))
+        result['phases'] = {'first': {'enrolled': current}}
+        result['attempts'] = []
+        for attempt in range(1, 3):
+            require(state(row)['balance'] == 0, 'Campaign must fund only a depleted reserve.')
+            session.send(f'{row["invoked"]} gather {cap} draw {cost:g}', read_seconds=.2)
+            deadline = time.monotonic() + 15
+            while time.monotonic() < deadline:
+                session.read_for(.4); flush()
+                if state(row)['balance'] == cost: break
+            before = state(row)
+            require(before['balance'] == cost, 'Campaign Self gathering did not fund exactly its finite cost: ' + key)
+            old = operations(row)
+            output = session.send(f'{row["invoked"]} cast "{installed[key]["name"]}" grade 1 on {row["target"]} via {cap}', read_seconds=.5)
+            flush(); after = state(row); new = operations(row)
+            added = [operation for operation in new if operation[0] not in {previous[0] for previous in old}]
+            attempt_receipt = {'attempt': attempt, 'before': before, 'after': after, 'output': redact(output), 'operations': added}
+            result['attempts'].append(attempt_receipt) # Preserve the failed boundary before any assertion.
+            require(len(added) == 1 and added[0][1] == 'Completed', 'Campaign did not persist one completed paid operation: ' + key)
+            payload = ET.fromstring(added[0][2]); costs = payload.findall('Cost')
+            require(payload.get('grade') == '1' and payload.get('controlledGrade') == '1' and len(costs) == 1 and
+                    costs[0].get('resource') == str(row['resource']) and float(costs[0].get('amount')) == cost and
+                    before['balance'] - after['balance'] == cost and after['balance'] == 0 and after['grade'] == 1 and after['enrolments'] == 1,
+                    'Campaign payment/grade/reserve conservation differs: ' + key)
+            if payload.get('applied') == 'true':
+                if key in campaign.EXPECTED_CHILDREN:
+                    active = parents(row)
+                    require(len(active) == 1 and active[0]['children'] == [campaign.EXPECTED_CHILDREN[key]] and
+                            0 < active[0]['remaining_ms'] <= float(row['duration_seconds']) * 1000,
+                            'Paid campaign did not persist its exact native child/lifetime: ' + key)
+                    child = ET.fromstring(active[0]['child_definitions'][0])
+                    if key == 'arm.spell.daylight': require(float(child.findtext('GlowLux', 'nan')) == 20, 'Grade-one Daylight did not persist twenty native lux.')
+                    if key == 'arm.spell.quickened_healing': require(float(child.findtext('Multiplier', 'nan')) == 1.1 and child.findtext('Stages') == '0', 'Grade-one healing multiplier/stages differ.')
+                    if key == 'arm.spell.earthen_strength':
+                        require(float(child.findtext('Bonus', 'nan')) == 1 and child.findtext('Trait') == ET.fromstring(installed[key]['definition']).find('Effects/Effect').get('trait'),
+                                'Grade-one strength did not boost the exact configured native attribute by one.')
+                    result['saved_parents'] = active; result['saved_at_monotonic'] = time.monotonic()
+                result['outcome'] = 'FIRST-PASS-COLD-PENDING'
+                break
+            require(payload.get('outcome') in ('MinorFail', 'Fail', 'MajorFail'), 'Campaign failed outside its defining RNG result: ' + key)
+        require(result['outcome'] == 'FIRST-PASS-COLD-PENDING', 'Campaign finite RNG budget exhausted: ' + key)
+        result['saved_state'] = state(row); result['saved_operations'] = operations(row)
+        assertions.append('Seeded representative paid grade-one ' + key + ': actual enrolment, native Self funding, one debit per attempt and defining result')
+    report['status'] = 'PASS' if phase == 'cold' and all(row['outcome'] == 'PASS' for row in report['selected']) else 'FIRST-PASS-COLD-PENDING'
 
 def food_bites(definition):
     # These catalogue provisions use the native Food component's Bites element.
@@ -830,6 +982,7 @@ try:
     receipt.update(external_email_disabled=True,discord_loopback_only=True,discord_reserved_endpoint=f'127.0.0.1:{discord_port}')
     assertions.append('Owned database only: disabled email and reserved non-listening loopback Discord bridge')
     receipt['script_sha256'] = sha(__file__)
+    receipt['campaign_helper'] = {'path': str(campaign_path), 'sha256': sha(campaign_path)}
     receipt['helper_source'] = {'path':str(spec.origin),'sha256':sha(spec.origin)}
     receipt['assemblies'] = [{'path':str(REPO/'MudSharpCore/bin/Debug/net10.0'/name),'sha256':sha(REPO/'MudSharpCore/bin/Debug/net10.0'/name)}
                             for name in ('MudSharp.dll','FutureMUDLibrary.dll','MudsharpDatabaseLibrary.dll','ExpressionEngine.dll')]
@@ -840,6 +993,7 @@ try:
     require(all(sha(row['path']) == row['sha256'] for row in receipt['assemblies']), 'Boot assembly source changed during qualification.')
     require(sha(__file__) == receipt['script_sha256'] and sha(spec.origin) == receipt['helper_source']['sha256'],
             'Boot script/helper source changed during qualification.')
+    require(sha(campaign_path) == receipt['campaign_helper']['sha256'], 'Campaign helper changed during qualification.')
     receipt['status'] = 'PASS'
 except BaseException as error:
     receipt['first_failure'] = redact(error)

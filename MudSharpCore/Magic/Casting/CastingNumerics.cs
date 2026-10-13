@@ -86,6 +86,8 @@ internal static class CastingNumerics
 					yield return $"{label}/{property.Name}: unsupported route-bound numerical field.";
 			if (effect is TraitBoostEffect { Trait: null }) yield return $"{label}/boost.Trait: missing trait.";
 			if (effect is NeedDeltaEffect { DefinitionError: { } needsError }) yield return $"{label}/needdelta: {needsError}";
+			if (effect is StaminaDeltaSpellEffect { DefinitionError: { } staminaError }) yield return $"{label}/staminadelta: {staminaError}";
+			if (effect is MagicResourceDeltaEffect { DefinitionError: { } resourceDeltaError }) yield return $"{label}/magicresourcedelta: {resourceDeltaError}";
 			if (effect is CreateNPCEffect { DefinitionError: { } creationError }) yield return $"{label}/createnpc: {creationError}";
 			if (effect is CreateShelterEffect { DefinitionError: { } shelterError }) yield return $"{label}/createshelter: {shelterError}";
 			if (effect is CreateLiquidEffect { DefinitionError: { } liquidError }) yield return $"{label}/createliquid: {liquidError}";

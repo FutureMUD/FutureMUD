@@ -5,6 +5,8 @@ using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body.Traits;
+using MudSharp.Body;
+using MudSharp.Character;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
@@ -15,6 +17,7 @@ using MudSharp.Health.Infections;
 using MudSharp.Magic;
 using MudSharp.Magic.SpellEffects;
 using MudSharp.RPG.Checks;
+using MudSharp.Planes;
 
 namespace MudSharp_Unit_Tests;
 
@@ -50,7 +53,7 @@ public partial class ArmageddonConditionSpellContentTests
 	[DataRow(7)]
 	public void SowSickness_PaidRouteCreatesOneRealNativeInfectionAtSelectedGrade(int grade)
 	{
-		var f = new Fixture(); LoadPaid(f, "sow_sickness");
+		var f = new Fixture(); using var time = RuntimeClock.Push(new TestClock(f.Base.Now)); LoadPaid(f, "sow_sickness");
 		var result = f.Base.Service.Cast(f.Base.Intent(grade, false));
 		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
 		var infection = (SownSicknessInfection)f.Infections.Single();
@@ -72,8 +75,35 @@ public partial class ArmageddonConditionSpellContentTests
 		Assert.AreEqual(1, f.Infections.Count); Assert.AreEqual(50.0, f.Base.Balances[f.Base.Resources[1]]);
 		Assert.IsTrue(f.Base.Store.Operations.Values.Any(x => x.Stage == "NeedsReview"));
 		Assert.IsTrue(f.Base.Body.Object.Changed);
+		f.Base.Actor.SetupGet(x => x.Body).Returns(f.Base.Body.Object);
 		Assert.AreEqual(MagicCastingStatus.Refused, f.Base.Service.Cast(f.Base.Intent(7, false)).Status);
 		Assert.AreEqual(1, f.Infections.Count); Assert.AreEqual(50.0, f.Base.Balances[f.Base.Resources[1]]); Assert.AreEqual(1, f.Base.Rolls);
+	}
+
+	[TestMethod]
+	public void SowSickness_ResistantRecipientUsesDeclaredNativeSaveAndReceivesNoInfection()
+	{
+		var f = new Fixture(); LoadPaid(f, "sow_sickness");
+		var recipient = new Mock<ICharacter>() { DefaultValue = DefaultValue.Mock };
+		var body = new Mock<IBody>() { DefaultValue = DefaultValue.Mock };
+		recipient.SetupGet(x => x.Id).Returns(101); recipient.SetupGet(x => x.InstanceId).Returns(101);
+		recipient.SetupGet(x => x.Gameworld).Returns(f.Base.World.Object); recipient.SetupGet(x => x.Body).Returns(body.Object);
+		recipient.SetupGet(x => x.GetObject).Returns(recipient.Object); recipient.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		recipient.SetupGet(x => x.Location).Returns(f.Base.Actor.Object.Location);
+		body.SetupGet(x => x.Id).Returns(201); body.SetupGet(x => x.Gameworld).Returns(f.Base.World.Object);
+		body.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1));
+		f.Base.Actor.Setup(x => x.TargetActorOrCorpse("recipient", It.IsAny<PerceiveIgnoreFlags>())).Returns(recipient.Object);
+		var resistance = new Mock<ICheck>();
+		resistance.Setup(x => x.CheckAgainstAllDifficulties(recipient.Object, Difficulty.Normal, f.Base.Traits[1],
+			f.Base.Actor.Object, It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()))
+			.Returns(Enum.GetValues<Difficulty>().ToDictionary(x => x, _ => CheckOutcome.SimpleOutcome(CheckType.ResistMagicSpellCheck, Outcome.MajorPass)));
+		f.Base.World.Setup(x => x.GetCheck(CheckType.ResistMagicSpellCheck)).Returns(resistance.Object);
+		var result = f.Base.Service.Cast(f.Base.Intent(7, false) with { Targets = "recipient" });
+		Assert.AreEqual(MagicCastingStatus.Failed, result.Status, result.Message);
+		Assert.AreEqual(50.0, f.Base.Balances[f.Base.Resources[1]]); Assert.AreEqual(0, f.Infections.Count);
+		body.Verify(x => x.AddInfection(It.IsAny<IInfection>()), Times.Never);
+		resistance.Verify(x => x.CheckAgainstAllDifficulties(recipient.Object, Difficulty.Normal, f.Base.Traits[1],
+			f.Base.Actor.Object, It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()), Times.Once);
 	}
 
 	[TestMethod]
@@ -87,6 +117,7 @@ public partial class ArmageddonConditionSpellContentTests
 		Assert.AreEqual(MagicCastingStatus.NeedsReview, result.Status, result.Message);
 		Assert.AreEqual(0, f.Infections.Count); Assert.AreEqual(1, f.Deleted.Count);
 		Assert.AreEqual(50.0, f.Base.Balances[f.Base.Resources[1]]);
+		f.Base.Actor.SetupGet(x => x.Body).Returns(f.Base.Body.Object);
 		Assert.AreEqual(MagicCastingStatus.Refused, f.Base.Service.Cast(f.Base.Intent(7, false)).Status);
 		Assert.AreEqual(1, f.Deleted.Count); Assert.AreEqual(50.0, f.Base.Balances[f.Base.Resources[1]]);
 	}
@@ -118,6 +149,20 @@ public partial class ArmageddonConditionSpellContentTests
 		Assert.AreEqual(0, f.Infections.Count); Assert.AreEqual(0, f.Base.Store.Operations.Count);
 	}
 
+	[TestMethod]
+	public void PurgeDisease_InvalidOwnedFamilySurvivesCloneAndRefusesBeforePaymentOrDeletion()
+	{
+		var f = new Fixture(); var row = LoadPaid(f, "purge_disease").SnapshotModel();
+		var definition = XElement.Parse(row.Definition); definition.Element("Effects")!.Elements().Single().Element("OwnedFamily")!.Value = "";
+		row.Definition = definition.ToString(); var invalid = new MagicSpell(row, f.Base.World.Object); f.Base.Spells[0] = invalid;
+		var template = (RemoveDiseaseEffect)invalid.SpellEffects.Single();
+		Assert.IsNotNull(template.DefinitionError); Assert.AreEqual("", template.Clone().SaveToXml().Element("OwnedFamily")!.Value);
+		f.Effects.Add(f.LoadOwned(91, "arm.effect.disease"));
+		Assert.AreEqual(MagicCastingStatus.Refused, f.Base.Service.Cast(f.Base.Intent(7, false)).Status);
+		Assert.AreEqual(100.0, f.Base.Balances[f.Base.Resources[1]]); Assert.AreEqual(0, f.Base.Rolls);
+		Assert.AreEqual(1, f.Infections.Count); Assert.AreEqual(0, f.Deleted.Count); Assert.AreEqual(0, f.Base.Store.Operations.Count);
+	}
+
 	private static MagicSpell LoadPaid(Fixture fixture, string suffix)
 	{
 		var f = fixture.Base;
@@ -128,7 +173,7 @@ public partial class ArmageddonConditionSpellContentTests
 		f.Expressions.Add(new TraitExpression(cost, f.World.Object)); f.Expressions.Add(new TraitExpression(duration, f.World.Object));
 		var row = content.SpellRow(1, 1, 1); row.Id = 1; row.EffectDurationExpressionId = 2; row.Definition = content.BuildDefinition(10, 1, 0).ToString();
 		var spell = new MagicSpell(row, f.World.Object); f.Spells[0] = spell; f.Skills[1] = 100; f.Acquire(7);
-		var clock = new TestClock(f.Now); var scheduler = new EffectScheduler(f.World.Object, clock); f.World.SetupGet(x => x.EffectScheduler).Returns(scheduler);
+		var scheduler = new EffectScheduler(f.World.Object, RuntimeClock.TimeProvider); f.World.SetupGet(x => x.EffectScheduler).Returns(scheduler);
 		f.Body.Setup(x => x.AddInfection(It.IsAny<IInfection>())).Callback<IInfection>(fixture.Infections.Add);
 		f.Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback<IEffect>(effect => { fixture.Effects.Add(effect); effect.InitialEffect(); });
 		f.Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>())).Callback<IEffect, TimeSpan>((effect, time) =>

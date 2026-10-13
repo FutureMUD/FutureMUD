@@ -20,7 +20,7 @@ public sealed record ArmageddonConditionSpellBindings(long DiseaseKind, long Res
 
 public static class ArmageddonConditionSpellContent
 {
-	/// <summary>Only the disease pair is qualified here. Toxin origin persistence and retained detection need separate adapters.</summary>
+	/// <summary>Provides the disease pair; installed-world qualification remains separate. Toxin origin persistence and retained detection need separate adapters.</summary>
 	public static IReadOnlyList<ArmageddonCanonicalSpellContribution> Create(ArmageddonConditionSpellBindings bindings)
 	{
 		ArgumentNullException.ThrowIfNull(bindings);

@@ -63,6 +63,7 @@ public partial class ArmageddonConditionSpellContentTests
 		Assert.IsFalse(infection.InfectionCanSpread());
 		Assert.AreSame(f.Base.Body.Object, infection.Owner);
 		Assert.AreSame(infection, effect.AppliedInfection);
+		f.Base.Body.Verify(x => x.StartHealthTick(false), Times.Once);
 		Mock.Get(f.Base.World.Object.SaveManager).Verify(x => x.Flush(), Times.Never);
 		infection.InitialiseWithoutPersistence(91);
 		Assert.AreEqual(91L, effect.AppliedInfectionId);
@@ -120,6 +121,38 @@ public partial class ArmageddonConditionSpellContentTests
 		natural.Verify(x => x.Delete(), Times.Never);
 		Assert.AreEqual(MagicEffectOperationStatus.NoChange, cure.Apply(f.Base.Actor.Object, f.Base.Actor.Object,
 			OpposedOutcomeDegree.Moderate, SpellPower.Standard, f.Parent, []).Status);
+	}
+
+	[TestMethod]
+	public void SowSickness_NativeInfectionRemapDuringExposureIsUncertainAndNeverDeletesRemappedState()
+	{
+		var f = new Fixture(); var replacement = new Mock<IBody>();
+		f.Base.Body.Setup(x => x.AddInfection(It.IsAny<IInfection>())).Callback<IInfection>(x =>
+		{ f.Infections.Add(x); ((Infection)x).RemapTo(replacement.Object, null!, null!); });
+		var template = (DiseaseEffect)f.Template("sow_sickness");
+		template.IntensityExpression = new MudSharp.Body.Traits.TraitExpression("1", f.Base.World.Object);
+		var effect = (SpellDiseaseEffect)template.GetOrApplyEffect(f.Base.Actor.Object, f.Base.Actor.Object,
+			OpposedOutcomeDegree.Moderate, SpellPower.Standard, f.Parent, [])!;
+		Assert.ThrowsException<InvalidOperationException>(effect.InitialEffect);
+		Assert.AreSame(replacement.Object, ((Infection)f.Infections.Single()).Owner);
+		Assert.ThrowsException<InvalidOperationException>(effect.RemovalEffect);
+		f.Base.Body.Verify(x => x.RemoveInfection(It.IsAny<IInfection>()), Times.Never);
+		Assert.IsTrue(f.Base.Body.Object.Changed);
+	}
+
+	[TestMethod]
+	public void SowSickness_NativeHealthActivationCallbackChangeRetainsExactInfectionForReview()
+	{
+		var f = new Fixture();
+		f.Base.Body.Setup(x => x.AddInfection(It.IsAny<IInfection>())).Callback<IInfection>(f.Infections.Add);
+		f.Base.Body.Setup(x => x.StartHealthTick(false)).Callback(f.ChangeBody);
+		var template = (DiseaseEffect)f.Template("sow_sickness");
+		template.IntensityExpression = new MudSharp.Body.Traits.TraitExpression("1", f.Base.World.Object);
+		var effect = (SpellDiseaseEffect)template.GetOrApplyEffect(f.Base.Actor.Object, f.Base.Actor.Object,
+			OpposedOutcomeDegree.Moderate, SpellPower.Standard, f.Parent, [])!;
+		Assert.ThrowsException<InvalidOperationException>(effect.InitialEffect);
+		Assert.AreSame(f.Infections.Single(), effect.AppliedInfection); Assert.AreSame(f.Base.Body.Object, effect.OwnedBody);
+		Assert.IsTrue(f.Base.Body.Object.Changed); f.Base.Body.Verify(x => x.StartHealthTick(false), Times.Once);
 	}
 
 	[TestMethod]

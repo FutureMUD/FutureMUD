@@ -663,8 +663,13 @@ public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 				throw new InvalidOperationException("Owned sickness body changed during native infection construction; the paid write is uncertain.");
 			_ownedBody.AddInfection(_appliedInfection);
 			MarkOwnedDirty(character);
-			if (!ReferenceEquals(character.Body, _ownedBody) || !_ownedBody.PartInfections.Any(x => ReferenceEquals(x, _appliedInfection)))
+			if (!ReferenceEquals(character.Body, _ownedBody) || !NativeInfectionStillOwned(_appliedInfection) ||
+				!_ownedBody.PartInfections.Any(x => ReferenceEquals(x, _appliedInfection)))
 				throw new InvalidOperationException("Owned sickness changed during native infection exposure; the paid write is uncertain.");
+			_ownedBody.StartHealthTick();
+			if (!ReferenceEquals(character.Body, _ownedBody) || !NativeInfectionStillOwned(_appliedInfection) ||
+				!_ownedBody.PartInfections.Any(x => ReferenceEquals(x, _appliedInfection)))
+				throw new InvalidOperationException("Owned sickness changed during native health activation; the paid write is uncertain.");
 		}
 		catch { MarkOwnedDirty(character); throw; }
 		finally { _applyingOwned = false; }
@@ -682,12 +687,16 @@ public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 		if (_removingOwned) throw new InvalidOperationException("Owned sickness removal cannot be re-entered.");
 		if (_ownedBody is null || _appliedInfection is null) return;
 		var infection = _appliedInfection;
+		if (!NativeInfectionStillOwned(infection))
+			throw new InvalidOperationException("Owned sickness native infection was remapped; cleanup is refused.");
 		_removingOwned = true;
 		try
 		{
 			// Expiry still cleans the original physical body when the character has changed bodies.
 			_ownedBody.RemoveInfection(infection);
 			if (Owner is ICharacter character) MarkOwnedDirty(character);
+			if (!NativeInfectionStillOwned(infection))
+				throw new InvalidOperationException("Owned sickness native infection was remapped during removal; the paid write is uncertain.");
 			if (infection is ILateInitialisingItem late)
 			{
 				late.IdRegistered -= InfectionIdentityRegistered;
@@ -701,6 +710,9 @@ public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 		}
 		finally { _removingOwned = false; }
 	}
+
+	private bool NativeInfectionStillOwned(IInfection infection) => infection is not Infection native ||
+		ReferenceEquals(native.Owner, _ownedBody) && native.Wound is null && native.Bodypart is null;
 
 	private void MarkOwnedDirty(ICharacter character)
 	{

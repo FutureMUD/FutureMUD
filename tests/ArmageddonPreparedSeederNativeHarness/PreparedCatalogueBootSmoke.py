@@ -245,6 +245,11 @@ def attunement_stock_smoke(session, phase):
     data = json.loads(prepared.read_text(encoding='utf-8'))
     pin = {'path': str(prepared), 'sha256': sha(prepared)}
     require(receipt.setdefault('stock_input_pin', pin) == pin, 'Prepared stock input changed across cold restart.')
+    preparation = data['prepared_source']
+    expected_source = REPO / 'tests/ArmageddonPreparedSeederNativeHarness/Program.StockAttunement.cs'
+    require(Path(preparation['path']).resolve() == expected_source and sha(expected_source) == preparation['sha256'], 'Stock C# preparation source differs from its pin.')
+    require(receipt.setdefault('stock_preparation_source', preparation) == preparation, 'Stock preparation source pin drift.')
+    reference_schema = campaign.reference_schema(data['typed_reference_schema'])
     schema = data['sql_schema']
     require(isinstance(schema, list) and len(schema) >= 16, 'Missing bounded EF SQL schema contract.')
     identifiers = {}
@@ -325,14 +330,15 @@ def attunement_stock_smoke(session, phase):
         actual = sql(f"SELECT HEX(Definition) FROM MagicSpells WHERE Id={int(entry['id'])}", (0,))
         require(len(actual) == 1 and actual[0][0] == entry['definition'],
                 'Canonical definition changed during native loader validation: ' + entry['key'])
-        native = sql(f"SELECT MagicSchoolId,CastingTraitDefinitionId,EffectDurationExpressionId,SpellKnownProgId FROM MagicSpells WHERE Id={int(entry['id'])}")
-        require(native == [[str(entry[field]) for field in ('school', 'trait', 'duration_expression', 'known_prog')]], 'Native spell metadata drift: ' + entry['key'])
+        native = sql(mapped(f"SELECT MagicSchoolId,CastingTraitDefinitionId,EffectDurationExpressionId,SpellKnownProgId,IFNULL(ResistingTraitDefinitionId,0) FROM MagicSpells WHERE Id={int(entry['id'])}"))
+        require(native == [[str(entry[field]) for field in ('school', 'trait', 'duration_expression', 'known_prog', 'resisting_trait')]], 'Native spell metadata drift: ' + entry['key'])
         for expression, formula in ((entry['duration_expression'], entry['duration_formula']), (entry['cost_expression'], entry['cost_formula'])):
-            require(sql(f'SELECT HEX(Expression) FROM TraitExpression WHERE Id={int(expression)}', (0,)) == [[formula]], 'Native duration/cost formula drift: ' + entry['key'])
+            require(sql(mapped(f'SELECT HEX(Expression) FROM TraitExpressions WHERE Id={int(expression)}'), (0,)) == [[formula]], 'Native duration/cost formula drift: ' + entry['key'])
         for kind, identity in refs:
             if (kind, identity) in resolved_refs: continue
-            table = campaign.REFERENCE_TABLES[kind]
-            require(sql(f'SELECT Id FROM `{table}` WHERE Id={identity}') == [[str(identity)]], 'Unresolved exact typed native reference: ' + kind + ':' + str(identity))
+            require(kind in reference_schema, 'Missing typed EF reference mapping: ' + kind)
+            binding = reference_schema[kind]; table = binding['table']; column = binding['id_column']
+            require(sql(f'SELECT DISTINCT `{column}` FROM `{table}` WHERE `{column}`={identity}') == [[str(identity)]], 'Unresolved exact typed native reference: ' + kind + ':' + str(identity))
             resolved_refs.add((kind, identity))
         shown = session.send(f"magic spell show {int(entry['id'])}", read_seconds=.2)
         require(entry['name'] in shown and 'Building Error' not in shown and 'Controlled Power Profile' in shown and
@@ -426,6 +432,9 @@ def stock_campaign_smoke(session, phase, data, mapped):
     installed = {entry['key']: entry for entry in data['stock_spells']}
     selected = campaign.select_campaign(config, installed)
     report = receipt.setdefault('representative_campaign', campaign.selection_receipt(selected))
+    config_hash = hashlib.sha256(json.dumps(config, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+    require(report.setdefault('configuration_sha256', config_hash) == config_hash, 'Campaign configuration changed across cold restart.')
+    report['configuration_source'] = receipt['stock_input_pin']
     require([row['key'] for row in report['selected']] == [row['key'] for row in selected], 'Campaign selection drift across cold restart.')
     report['sample_limit'] = config['sample_limit']
     report['limits'] = 'Disposable builder admissions; grade one only; no package/Class/producer gates or natural progression claim. At most two paid RNG attempts per direct sample.'
@@ -443,6 +452,10 @@ def stock_campaign_smoke(session, phase, data, mapped):
         return dict(zip(('balance', 'grade', 'raw', 'enrolments'), map(float, values[0])))
     def operations(row):
         return sql(mapped(f'SELECT HEX(Id),HEX(Stage),HEX(Definition) FROM MagicCastingOperations WHERE CharacterId={actor} AND MagicSpellId={int(row["spell"])} ORDER BY CreatedUtc,Id'), (0,1,2))
+    def native_stamina():
+        values = sql(mapped(f'SELECT CurrentStamina FROM Bodies WHERE Id={int(data["body"])}'))
+        require(len(values) == 1 and math.isfinite(float(values[0][0])) and float(values[0][0]) >= 0, 'Campaign native saved stamina is invalid.')
+        return float(values[0][0])
     def parents(row):
         table, identity = ('Characters', actor) if row['target'] == 'self' else ('Rooms', int(character_state()[3]))
         rows = sql(mapped(f'SELECT HEX(EffectData) FROM {table} WHERE Id={identity}'), (0,))
@@ -470,7 +483,8 @@ def stock_campaign_smoke(session, phase, data, mapped):
                 any(admission.get('spell') == str(row['spell']) and admission.get('starting') == 'true' and admission.get('min') == '1' for admission in casting.findall('Admission')),
                 'Campaign route is not its explicit separate grade-one builder admission: ' + key)
         require(len(gathering) == 1 and all(gathering[0].get(field) == value for field, value in
-                (('alias','draw'), ('kind','Self'), ('destination',str(row['resource'])), ('ratio','1'), ('stamina','1'), ('min','1'), ('max','100'))),
+                (('alias','draw'), ('kind','Self'), ('destination',str(row['resource'])), ('ratio','1'), ('min','1'), ('max','100'))) and
+                float(gathering[0].get('stamina', 'nan')) == float(row.get('gather_stamina_cost', 1)),
                 'Campaign funding is not its bounded native Self method: ' + key)
         result['route'] = {field: row[field] for field in ('capability','merit','trait','school','resource','source','invoked','grade_one_cost')}
         capability_hash = hashlib.sha256(definition[0][0].encode()).hexdigest()
@@ -509,11 +523,15 @@ def stock_campaign_smoke(session, phase, data, mapped):
                 if state(row)['balance'] == cost: break
             before = state(row)
             require(before['balance'] == cost, 'Campaign Self gathering did not fund exactly its finite cost: ' + key)
+            before_stamina = native_stamina() if key == 'arm.spell.second_breath' else None
             old = operations(row)
             output = session.send(f'{row["invoked"]} cast "{installed[key]["name"]}" grade 1 on {row["target"]} via {cap}', read_seconds=.5)
             flush(); after = state(row); new = operations(row)
             added = [operation for operation in new if operation[0] not in {previous[0] for previous in old}]
             attempt_receipt = {'attempt': attempt, 'before': before, 'after': after, 'output': redact(output), 'operations': added}
+            if before_stamina is not None:
+                attempt_receipt['native_stamina_observed'] = {'before': before_stamina, 'after': native_stamina(),
+                    'limits': 'Saved native observations include heartbeat regeneration; exact five-unit bounds are covered by deterministic native-effect tests.'}
             result['attempts'].append(attempt_receipt) # Preserve the failed boundary before any assertion.
             require(len(added) == 1 and added[0][1] == 'Completed', 'Campaign did not persist one completed paid operation: ' + key)
             payload = ET.fromstring(added[0][2]); costs = payload.findall('Cost')
@@ -522,6 +540,7 @@ def stock_campaign_smoke(session, phase, data, mapped):
                     before['balance'] - after['balance'] == cost and after['balance'] == 0 and after['grade'] == 1 and after['enrolments'] == 1,
                     'Campaign payment/grade/reserve conservation differs: ' + key)
             if payload.get('applied') == 'true':
+                if before_stamina is not None: require(attempt_receipt['native_stamina_observed']['after'] > before_stamina, 'Applied Second Breath did not persist a positive native stamina change.')
                 if key in campaign.EXPECTED_CHILDREN:
                     active = parents(row)
                     require(len(active) == 1 and active[0]['children'] == [campaign.EXPECTED_CHILDREN[key]] and

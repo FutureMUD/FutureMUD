@@ -21,6 +21,8 @@ REFERENCE_TABLES = {
     'Liquid': 'Liquids', 'Material': 'Materials', 'Tag': 'Tags',
     'MagicCapability': 'MagicCapabilities', 'Terrain': 'Terrains',
     'BodyProto': 'BodyProtos', 'Race': 'Races', 'CharacteristicDefinition': 'CharacteristicDefinitions',
+    'AutobuilderRoomTemplate': 'AutobuilderRoomTemplates', 'Room': 'Rooms',
+    'ArtificialIntelligence': 'ArtificialIntelligences', 'Plane': 'Planes',
 }
 
 def require(value, message):
@@ -29,6 +31,17 @@ def require(value, message):
 def positive(value, label):
     require(type(value) is int and value > 0, label + ' requires a positive typed native identity.')
     return value
+
+def reference_schema(rows):
+    result = {}
+    for row in rows:
+        kind = row['kind']
+        require(kind in REFERENCE_TABLES and kind not in result, 'Unknown or duplicate typed EF kind.')
+        for field in ('table', 'id_column'):
+            require(isinstance(row[field], str) and re.fullmatch(r'[A-Za-z_][A-Za-z_0-9]*', row[field]), 'Unsafe typed EF identifier.')
+        result[kind] = row
+    require(result, 'Missing explicit typed EF reference schema.')
+    return result
 
 def definition_contract(entry):
     key = entry['key']
@@ -52,6 +65,7 @@ def definition_contract(entry):
     expected = {('MagicSchool', entry['school']), ('TraitDefinition', entry['trait']),
                 ('TraitExpression', entry['duration_expression']), ('FutureProg', entry['known_prog']),
                 ('MagicResource', entry['cost_resource']), ('TraitExpression', entry['cost_expression'])}
+    if entry.get('resisting_trait', 0): expected.add(('TraitDefinition', positive(entry['resisting_trait'], 'Resisting trait')))
     # Explicit native XML labels only; no names/species or guessed numeric authority.
     labels = {'TargetFilterProg': 'FutureProg', 'FilterProg': 'FutureProg', 'OnLoadProg': 'FutureProg',
               'NPCPrototypeId': 'NpcTemplate', 'ItemPrototypeId': 'GameItemProto', 'ItemSkinId': 'GameItemSkin',
@@ -85,6 +99,8 @@ def select_campaign(config, installed):
         cost = row['grade_one_cost']
         require(type(cost) in (int, float) and math.isfinite(cost) and 0 < cost <= 100, 'Campaign cost exceeds finite Self-gather budget.')
         require(row.get('gather_alias', 'draw') == 'draw', 'Campaign needs the explicit Self draw fixture.')
+        stamina = row.get('gather_stamina_cost', 1)
+        require(type(stamina) in (int, float) and math.isfinite(stamina) and 0 < stamina <= 20, 'Campaign requires its explicit finite stamina expenditure.')
         require(type(row['duration_seconds']) in (int, float) and math.isfinite(row['duration_seconds']) and row['duration_seconds'] >= 0, 'Invalid expected grade-one duration.')
     return sorted(candidates, key=lambda row: (hashlib.sha256(f'{SEED}:{row["key"]}'.encode()).hexdigest(), row['key']))[:limit]
 
@@ -129,4 +145,10 @@ if __name__ == '__main__':
             for broken in (definition.replace('night_eyes','second_breath'), definition.replace('number="7"','number="8"'), definition.replace('resource="6"','resource="8"')):
                 with self.assertRaises(ValueError): definition_contract(dict(entry, definition=broken))
             with self.assertRaises(ValueError): definition_contract(dict(entry, typed_references=entry['typed_references'][:-1]))
+        def test_only_declared_typed_ef_identifiers_are_admitted(self):
+            row = {'kind': 'Room', 'table': 'Rooms', 'id_column': 'Id'}
+            self.assertEqual(row, reference_schema([row])['Room'])
+            for changed in (dict(row, table='Rooms;DROP TABLE Characters'), dict(row, kind='GuessedKind'), dict(row, id_column='Id` OR 1=1')):
+                with self.assertRaises(ValueError): reference_schema([changed])
+            with self.assertRaises(ValueError): reference_schema([row, row])
     unittest.main()

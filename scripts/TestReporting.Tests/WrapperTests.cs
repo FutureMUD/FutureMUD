@@ -30,7 +30,9 @@ public class WrapperTests
 			var windows = OperatingSystem.IsWindows();
 			var script = Path.Combine(scripts, windows ? "test-unit.ps1" : "test-unit.sh");
 			var start = new ProcessStartInfo(windows ? "powershell.exe" : "bash") { WorkingDirectory = Path.GetDirectoryName(scripts)!, UseShellExecute = false, RedirectStandardOutput = true, RedirectStandardError = true };
-			var budget = scenario.Item1 == "buildfail" ? "5" : "1";
+			// A cold Windows CI runner can spend more than five seconds starting PowerShell and the fake child.
+			// Keep the hanging-child case at one second while giving the build-failure case a stable budget.
+			var budget = scenario.Item1 == "buildfail" ? "30" : "1";
 			foreach (var argument in windows
 				? new[] { "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", script, "-OutputMode", "Json", "-TimeoutSeconds", budget }
 				: new[] { script, "--output-mode", "json", "--timeout-seconds", budget }) start.ArgumentList.Add(argument);

@@ -90,7 +90,8 @@ def sql(statement, hex_columns=()):
                             creationflags=subprocess.CREATE_NO_WINDOW)
     require(result.returncode == 0, 'Owned SQL failed: ' + redact(result.stderr))
     lines = result.stdout.rstrip('\r\n').splitlines()
-    require(len(lines) >= 2, 'Missing owned SQL descriptor/marker.')
+    require(len(lines) >= 2,
+            f'Missing owned SQL descriptor/marker (rows={len(lines)}, stdout_chars={len(result.stdout)}, stderr={redact(result.stderr)[:240]}).')
     descriptor = lines[0].split('\t')
     require(len(descriptor) == 3 and descriptor[0] == expected_uuid and int(descriptor[1]) == port and
             os.path.normcase(os.path.normpath(descriptor[2].replace('/', '\\'))) == expected_datadir,

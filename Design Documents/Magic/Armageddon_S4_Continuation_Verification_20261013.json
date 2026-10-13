@@ -3,6 +3,17 @@
   "generated_utc": "2026-10-13T09:27:25+00:00",
   "source_revision": "e2afd061e659c417ebf38e807f09e1b876c55177",
   "scope": "Coherent S4 content and adapter batch; broader S4 remains authorised and incomplete. No merge/deploy or availability changes.",
+  "continuation_batch": {
+    "source_revision": "29f4ff288122a278a4df0471244e96c7ae2b9c5f",
+    "declared_required_definitions": 102,
+    "required_not_yet_declared": 50,
+    "focused_seeder": "PASS 83/0/0",
+    "full_seeder": "PASS 1831/0/3",
+    "new_keys": ["arm.spell.false_presence", "arm.spell.water_breathing"],
+    "native_status": "FAILED_FIRST_BOOT_HARNESS_SQL_MARKER_AFTER_24_DISPLAYS; no 102-definition first/cold or new-spell paid certificate",
+    "hosted_previous_head": "6efdc9513 push Linux/Windows passed; PR Linux passed, PR Windows failed TestReporting.Tests buildfail scenario with TIMEOUT instead of REPORTING_ERROR under five-second bootstrap budget",
+    "reporting_fix_local": "buildfail budget 30 seconds; one-second bootstrap-hang retained; focused 1/1 and full TestReporting.Tests 38/38 passed"
+  },
   "canonical_definitions_declared": 100,
   "required_inventory": 152,
   "required_not_yet_declared": 52,
@@ -307,6 +318,18 @@
       "first_cold": "PASS: exact 100 identities/formulas/grades 1-7/typed references; Read overlay before cold sweep; grade-one paid Read, Second Breath, Earthen Strength and Quickened Healing samples; Quickened Healing exact child cold reload",
       "limitations": "Earthen Strength cold effect expired before observation; no all-grade, creature/controller matrix, S5 or Release claim",
       "cleanup": "both MUD processes graceful exit0; owned database removed and MySQL gracefully stopped/datadir deleted"
+    },
+    {
+      "receipt": ".artifacts/s4-102-native-first-cold/20261013T101150Z_5464ea53d0b94d949044d6a2f123db78/summary.json",
+      "status": "FAIL_FIRST_BOOT_SQL_OWNERSHIP_MARKER",
+      "head": "29f4ff288122a278a4df0471244e96c7ae2b9c5f",
+      "source_start_end_sha256": "905E9ECBEAF01D519DDC21814831A7570F5975D2A0E3CDDD2DED4113F9C38861",
+      "base_descriptor_sha256": "2F3FA0D5A837E4C9E7663AD8A2E24FBD16F66C4AEB9F1D6351B92DBD01B6039D",
+      "package": "PASS: actual-MySQL rollback, lost-ack resume, stable children, no-op checksum, no player writes, ten caps disabled",
+      "first_boot": "MUD ready, Admin login/LOOK and grade-one Read enrolment passed; 24 definition displays before PreparedCatalogueBootSmoke.py:93 reported Missing owned SQL descriptor/marker",
+      "cold_boot_and_remaining_definitions": "NOT_RUN",
+      "new_spell_paid_samples": "NOT_RUN",
+      "cleanup": "owned database dropped; exact MySQL instance gracefully shut down/datadir removed; failed MUD child exit1"
     }
   ],
   "immutable_base": {

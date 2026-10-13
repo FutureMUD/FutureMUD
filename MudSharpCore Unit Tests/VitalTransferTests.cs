@@ -14,6 +14,7 @@ using MudSharp.Character.Heritage;
 using MudSharp.CharacterCreation;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
+using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
@@ -27,6 +28,7 @@ using MudSharp.Health.Strategies;
 using MudSharp.Health.Wounds;
 using MudSharp.Magic;
 using MudSharp.Magic.SpellEffects;
+using MudSharp.NPC.AI;
 using MudSharp.PerceptionEngine;
 using MudSharp.RPG.Checks;
 using MudSharp.Testing.EnvironmentalMagic;
@@ -274,6 +276,71 @@ public class VitalTransferTests
 		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonVitalTransferSpellContent.VitalSiphon(0, "return true"));
 	}
 
+	[DataTestMethod]
+	[DataRow(false, 1.25)]
+	[DataRow(true, 0.625)]
+	public void NativeDamage_OrderedPolicyAggravatesMeasuredWound_OnlyFrozenDeltaHeals(bool edge, double healed)
+	{
+		var f = new Fixture();
+		f.SetNaturalArmour(0.25);
+		if (edge) f.Enchant(7);
+		var policyAddedDamage = false;
+		using var scope = f.EnterOrdered(() =>
+		{
+			if (!policyAddedDamage && f.Body.Wounds.SingleOrDefault() is { } wound)
+			{
+				policyAddedDamage = true;
+				wound.CurrentDamage += 80;
+			}
+			return true;
+		});
+		if (edge) f.Body.CommandSufferDamage(f.Damage(5, tool: f.Weapon.Object)).ToArray();
+		else f.Siphon(1).Apply(f.Source.Object, f.Victim.Object, OpposedOutcomeDegree.Total,
+			SpellPower.Standard, f.Parent.Object, []);
+		Assert.IsTrue(policyAddedDamage, "The actual command authority policy must execute after native injury.");
+		Assert.AreEqual(81.25, f.Body.Wounds.Single().CurrentDamage, 0.000001);
+		Assert.AreEqual(100 - healed, f.SourceWound.CurrentDamage, 0.000001);
+	}
+
+	[DataTestMethod]
+	[DataRow(false, "victim")]
+	[DataRow(true, "victim")]
+	[DataRow(true, "enchantment")]
+	[DataRow(true, "weapon")]
+	public void Healing_OrderedPolicyInvalidatesAfterMendEligibility_NoSetterMutation(bool edge, string change)
+	{
+		var f = new Fixture();
+		if (edge) f.Enchant(7);
+		var eligibilityReached = false;
+		var policyInvalidated = false;
+		f.Source.Setup(x => x.GetSeverityFor(It.IsAny<IWound>())).Returns<IWound>(wound =>
+		{
+			eligibilityReached = true;
+			return f.Source.Object.HealthStrategy.GetSeverityFor(wound, f.Source.Object);
+		});
+		using var scope = f.EnterOrdered(() =>
+		{
+			if (eligibilityReached && !policyInvalidated)
+			{
+				policyInvalidated = true;
+				switch (change)
+				{
+					case "victim": f.Victim.SetupGet(x => x.Body).Returns(new Mock<IBody>().Object); break;
+					case "enchantment": f.WeaponEffects.Clear(); break;
+					case "weapon": f.SourceBody.SetupGet(x => x.WieldedItems).Returns([]); break;
+				}
+			}
+			return true;
+		});
+		if (edge) f.Body.CommandSufferDamage(f.Damage(20, tool: f.Weapon.Object)).ToArray();
+		else f.Siphon(1).Apply(f.Source.Object, f.Victim.Object, OpposedOutcomeDegree.Total,
+			SpellPower.Standard, f.Parent.Object, []);
+		Assert.IsTrue(policyInvalidated, "Policy must invalidate at the continuation after native Mend eligibility.");
+		Assert.AreEqual(edge ? 20 : 5, f.Body.Wounds.Single().CurrentDamage);
+		Assert.AreEqual(100, f.SourceWound.CurrentDamage);
+		f.SourceBody.Verify(x => x.EvaluateWounds(), Times.Never);
+	}
+
 	private sealed class Fixture
 	{
 		internal Mock<IFuturemud> World { get; } = new() { DefaultValue = DefaultValue.Mock };
@@ -293,6 +360,7 @@ public class VitalTransferTests
 
 		internal Fixture()
 		{
+			Source.As<ICharacterInstance>();
 			World.SetupGet(x => x.SaveManager).Returns(Saves.Object);
 			World.SetupGet(x => x.Characters).Returns(new EnvironmentalMagicTestRegistry<ICharacter>());
 			var expression = new Mock<ITraitExpression>(); expression.SetupGet(x => x.Id).Returns(1);
@@ -340,6 +408,23 @@ public class VitalTransferTests
 			Weapon.Setup(x => x.GetItemType<IMeleeWeapon>()).Returns(new Mock<IMeleeWeapon>().Object);
 			SourceBody.SetupGet(x => x.WieldedItems).Returns([Weapon.Object]);
 			NativeSpell = new MagicCastingFixture().NewSpell(5, "Vital transfer", "");
+		}
+
+		internal IDisposable EnterOrdered(Func<bool> policy)
+		{
+			var identity = new Mock<ICharacterIdentity>();
+			identity.SetupGet(x => x.Id).Returns(1);
+			identity.SetupGet(x => x.Instances).Returns([(ICharacterInstance)Source.Object]);
+			Source.SetupGet(x => x.Identity).Returns(identity.Object);
+			Source.SetupGet(x => x.InstanceId).Returns(1);
+			var roots = new All<ICharacter>(); roots.Add(Source.Object);
+			World.SetupGet(x => x.Actors).Returns(roots);
+			World.SetupGet(x => x.NPCs).Returns(new All<ICharacter>());
+			World.SetupGet(x => x.CachedActors).Returns(new All<ICharacter>());
+			var room = new Mock<IRoom>(); room.SetupGet(x => x.Characters).Returns([Source.Object]);
+			Source.SetupGet(x => x.Location).Returns(room.Object);
+			var authority = CommandExecutionAuthority.Prepare(Source.Object, Source.Object, "vital transfer", policy);
+			return CommandExecutionScope.EnterDispatch(authority, Source.Object);
 		}
 
 		private static FieldInfo Field(string name)

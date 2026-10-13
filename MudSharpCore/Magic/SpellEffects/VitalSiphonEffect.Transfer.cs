@@ -58,7 +58,10 @@ internal sealed class VitalTransferReceipt : IMagicVitalTransferDamage, IDisposa
 
 	private bool Continue()
 	{
-		if (!IsCurrent || !_continuation() || !IsCurrent || !CommandExecutionScope.TryContinue())
+		// The command policy is callback-capable. Check the raw attachment again afterwards,
+		// ending on the captured body references without another policy invocation.
+		if (!IsCurrent || !_continuation() || !IsCurrent || !CommandExecutionScope.TryContinue() ||
+			!_continuation() || !IsCurrent)
 		{
 			_invalid = true;
 			return false;
@@ -84,7 +87,8 @@ internal sealed class VitalTransferReceipt : IMagicVitalTransferDamage, IDisposa
 		{
 			if (_completed) return;
 			_completed = true;
-			if (receipt._closed || !receipt.Continue()) return;
+			if (receipt._closed || !receipt.IsCurrent) return;
+			var delivered = new List<(IWound Wound, double Amount)>();
 			foreach (var wound in wounds.Distinct<IWound>(ReferenceEqualityComparer.Instance))
 			{
 				if (wound.IsFriendlyWound || !receipt._victimBody.Wounds.Any(x => ReferenceEquals(x, wound)) ||
@@ -93,6 +97,15 @@ internal sealed class VitalTransferReceipt : IMagicVitalTransferDamage, IDisposa
 				var current = wound.CurrentDamage;
 				if (!double.IsFinite(previous) || previous < 0 || !double.IsFinite(current) || current <= previous) continue;
 				var amount = current - previous;
+				delivered.Add((wound, amount));
+			}
+			// Freeze native deltas before a command policy can aggravate these same wounds.
+			// Afterwards policy may invalidate the receipt, but cannot enlarge its credit.
+			if (!receipt.Continue()) return;
+			foreach (var (wound, amount) in delivered)
+			{
+				if (wound.IsFriendlyWound || !receipt._victimBody.Wounds.Any(x => ReferenceEquals(x, wound)) ||
+					!(ReferenceEquals(wound.Parent, receipt._victim) || ReferenceEquals(wound.Parent, receipt._victimBody))) continue;
 				if (double.IsFinite(receipt._delivered + amount)) receipt._delivered += amount;
 			}
 		}

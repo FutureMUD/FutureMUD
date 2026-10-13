@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-10-13T06:08:57.440813+00:00",
-  "source_revision": "f594051d42dd4cb4d71faa7c528c2051777e2dfb",
+  "generated_utc": "2026-10-13T09:27:25+00:00",
+  "source_revision": "e2afd061e659c417ebf38e807f09e1b876c55177",
   "scope": "Coherent S4 content and adapter batch; broader S4 remains authorised and incomplete. No merge/deploy or availability changes.",
   "canonical_definitions_declared": 100,
   "required_inventory": 152,
   "required_not_yet_declared": 52,
   "optional_inventory": 2,
-  "definition_audit": "PASS: every100 definition Classic/Simple atf594051d42dd4cb4d71faa7c528c2051777e2dfb; candidate100 exact base safety30 alsoPASS",
+  "definition_audit": "PASS: every100 definition Classic/Simple atf594051d42dd4cb4d71faa7c528c2051777e2dfb; exact sealed-base compatibility31/31 and native first/cold100/100 at e2afd061e659c417ebf38e807f09e1b876c55177",
   "checks": [
     {
       "name": "seeder-full-final-99",
@@ -192,6 +192,26 @@
       "binaries_stable": true,
       "receipt_sha256": "0c9acbbd8d26fbd5922a59e59804b88389a9bf7441b37c034ce492403a3def7d",
       "local_optional_receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-consolidated-test-receipt\\seeder-definitions-100\\receipt.json"
+    },
+    {
+      "name": "core-full-surviving-persistent-child",
+      "status": "PASS",
+      "head": "81c0f034532c555f6b988706058ae86c920b013a",
+      "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "configuration": "Debug",
+      "counts": { "total": 7093, "executed": 7093, "passed": 7093, "failed": 0, "skipped": 0 },
+      "source_stable": true,
+      "binaries_stable": true,
+      "source_sha256": "cd88a7b508ddc570e2bc717397c5d8172c8b2517bee17c661ec9b0d45daf8d78",
+      "local_optional_receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-quickened-core-receipt\\receipt.json"
+    },
+    {
+      "name": "cold-overlay-harness-local",
+      "status": "PASS",
+      "head": "e2afd061e659c417ebf38e807f09e1b876c55177",
+      "project": "tests/ArmageddonPreparedSeederNativeHarness/PreparedStockCampaign.py",
+      "counts": { "total": 6, "executed": 6, "passed": 6, "failed": 0, "skipped": 0 },
+      "scope": "Pure campaign assertions and Python syntax; the live first/cold certificate is in native_attempts."
     }
   ],
   "focused_runtime": [
@@ -250,6 +270,43 @@
       "log_sha256": "2FA19E0838A0317052C1D093685CFB77DEC4ADDC21C97AD55DCC8DB94737C01A",
       "boot_and_samples": "NOT_RUN",
       "cleanup": "owned database/server removed"
+    },
+    {
+      "receipt": ".artifacts/s4-100-native-room-name-hash-fixed/20261013T074618Z_6b784d0df3044d118ab0b5acbfbe0208/summary.json",
+      "status": "FAIL_QUICKENED_HEALING_APPLIED_REPORT",
+      "diagnostic": "Actual MySQL package and first 100 definition displays passed, but the paid Quickened Healing MajorPass journalled applied=false despite an attached persistent child. Generic surviving-child reporting was repaired and unit-tested at 81c0f0345.",
+      "cold_boot": "NOT_RUN",
+      "cleanup": "owned database/server removed"
+    },
+    {
+      "receipt": ".artifacts/s4-100-native-persistent-child/20261013T082601Z_38d75c38513246759064acbe36eb240b/summary.json",
+      "status": "FAIL_LATE_COLD_READ_OVERLAY_CHECK",
+      "diagnostic": "Both boots loaded 100 definitions and the Quickened Healing paid/cold parent-child evidence passed, but the 60-second Read overlay was checked after the cold 100-definition display sweep and was absent. Exact lifetime check had passed at cold login. Harness check moved before the sweep at e2afd061e.",
+      "source_stable": true,
+      "cleanup": "owned database/server removed; cold MUD stopped after assertion failure"
+    },
+    {
+      "receipt": ".artifacts/s4-100-native-cold-overlay-window/20261013T085043Z_e34c32bf28d6487a84ac3a88a2f369d5/summary.json",
+      "status": "FAIL_BEFORE_BOOT_HANDOFF_PATH",
+      "diagnostic": "Actual MySQL package acceptance passed, then parent-path guard refused the checked-in script path. No MUD boot. Previous parent script was backed up and the exact byte-identical checked-in helper was copied to the required parent handoff path before rerun.",
+      "boot_and_samples": "NOT_RUN",
+      "cleanup": "owned database/server removed"
+    },
+    {
+      "receipt": ".artifacts/s4-100-native-cold-overlay-handoff-fixed/20261013T090458Z_11dd596cec92477fbf04d4f7276d0f1e/summary.json",
+      "status": "PASS_BOUNDED_CLASSIC_PACKAGE_FIRST_COLD",
+      "head": "e2afd061e659c417ebf38e807f09e1b876c55177",
+      "assertions": 23,
+      "first_native_loaded_definitions": 100,
+      "cold_native_loaded_definitions": 100,
+      "boot_receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-100-c741405522e8486f8a4546c47db25224\\boot-latest.json",
+      "source_start_end_sha256": "159285A7149ED214C3C31B3968203C502B483D9974B1CF9A5E0E70F97ABA25DB",
+      "base_descriptor_sha256": "2F3FA0D5A837E4C9E7663AD8A2E24FBD16F66C4AEB9F1D6351B92DBD01B6039D",
+      "boot_helper_sha256": "52D5EE168815F7703989C577D1ED6C418530A50B1FF821374CC359FDC0CCA66F",
+      "package": "PASS: targeted Armageddon Classic actual-MySQL rollback, lost-ack resume, stable children, no-op checksum, no player writes, ten caps disabled",
+      "first_cold": "PASS: exact 100 identities/formulas/grades 1-7/typed references; Read overlay before cold sweep; grade-one paid Read, Second Breath, Earthen Strength and Quickened Healing samples; Quickened Healing exact child cold reload",
+      "limitations": "Earthen Strength cold effect expired before observation; no all-grade, creature/controller matrix, S5 or Release claim",
+      "cleanup": "both MUD processes graceful exit0; owned database removed and MySQL gracefully stopped/datadir deleted"
     }
   ],
   "immutable_base": {
@@ -264,6 +321,13 @@
     "package_admissions": false,
     "class_availability": false,
     "unqualified_carrier_producers": false
+  },
+  "hosted_ci": {
+    "previous_published_head": "46fd47ef47027d86f869f0f25e6704887d89e2f6",
+    "pull_request_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38363369189",
+    "push_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38363364012",
+    "previous_result": "Linux passed; Windows test steps were cancelled at the workflow's 30-minute job timeout after the preceding Core suite passed, not by an assertion failure. Both Windows jobs remain unverified.",
+    "repair": "unit-tests.yml job timeout increased from 30 to 60 minutes at 94636956a; hosted result for the publication head must be checked after push"
   },
   "remaining_critical": [
     "52 required definitions and their defining adapters/dependencies remain undeclared.",

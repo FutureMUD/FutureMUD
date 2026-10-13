@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_utc": "2026-10-12T09:55:59.096872+00:00",
-  "source_revision": "92fdf3f93769d8f0008f0003f9ac5a2865184cdb",
+  "generated_utc": "2026-10-13T09:27:25+00:00",
+  "source_revision": "e2afd061e659c417ebf38e807f09e1b876c55177",
   "repository": "FutureMUD/FutureMUD",
   "scope": "All 154 locked candidates mapped; code candidates and bounded adapter evidence remain separate from complete installed-stock qualification.",
   "inputs": [
@@ -37,11 +37,12 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 8,
+    "installed_canonical_spells": 100,
     "native_grade_one_stock_entries": 1,
+    "native_sampled_grade_one_spells": 4,
     "declared_canonical_spells": 100,
     "definition_audited_canonical_spells": 100,
-    "latest_successful_native_loaded_spells": 8,
+    "latest_successful_native_loaded_spells": 100,
     "required_not_yet_declared": 52
   },
   "path_discrepancies": [],

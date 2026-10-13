@@ -172,6 +172,16 @@ public class RoomReferenceCorrectionTests
 		Assert.AreSame(direct, RoomReferenceXml.Rewrite(direct, false, Map(), "Bodies #1.EffectData"));
 	}
 
+	[TestMethod]
+	public void SensePoisonChild_DeclaresNoRoomLinksAndPreservesNativePayloadBytes()
+	{
+		const string child = "<Effect><Type>SpellDetectPoison</Type><Effect><ApplicabilityProg>0</ApplicabilityProg></Effect></Effect>";
+		var nested = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{child}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(nested, RoomReferenceXml.Rewrite(nested, false, Map(), "Characters #1.EffectData"));
+		var direct = $"<Effects>{child}</Effects>";
+		Assert.AreSame(direct, RoomReferenceXml.Rewrite(direct, false, Map(), "Bodies #1.EffectData"));
+	}
+
 	[DataTestMethod]
 	[DataRow("<Emote><Token TargetType='Room'/></Emote>")]
 	[DataRow("<Emote><Token TargetId='9000'/></Emote>")]

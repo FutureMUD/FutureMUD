@@ -160,6 +160,7 @@ SpellDeafness
 SpellDetectEthereal
 SpellDetectInvisible
 SpellDetectMagick
+SpellDetectPoison
 SpellDisease
 SpellExitBarrier
 SpellExposureResistance

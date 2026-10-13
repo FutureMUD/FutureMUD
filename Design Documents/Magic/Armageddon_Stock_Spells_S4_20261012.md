@@ -1,5 +1,9 @@
 # Armageddon canonical spell installation — S4 first contribution
 
+**Current batch, 13 October:** 100 required canonical definitions are wired; 52 required and two optional definitions remain outside this batch. The final owning suites pass Core7,074/0/0 and Seeder1,825/0/3 at their recorded pins. A stale shared-library Pocket expectation is closed by18 focused passes; exact supported-preset mobility mapping passes4 checks. New one-use reflection passes38 focused checks. Final100-definition and restored-world acceptance remain pending at this snapshot. Two native attempts stopped at Stone Skin's missing `agi` binding before any MUD boot; the durable diagnostic and focused mapping repair are preserved. Use the [portable verification record](Armageddon_S4_Continuation_Verification_20261013.json) for exact scope, failures and source pins. Release, admissions, Class availability and unqualified producers remain disabled; PR788 remains draft. Broader S4 is still authorised; the acceleration window ended and normal usage prioritisation resumes. Historical counts below retain their dated scope.
+
+Current qualification authority is the [13 October strategy](Armageddon_S4_Qualification_Strategy_20261013.md): cheap checks for every definition, named tested shared-contract inheritance, direct critical/boundary cases and representative/reproducible samples. Exhaustive native Cartesian products are superseded. Read Attunement qualifies S4 from the combined recorded evidence; S5/Release remain separate and disabled. Historical receipts/counts below retain their dated scope.
+
 The fixed development install now runs settings → staged progression → resumable S3 catalogue → canonical S4 spell contributions. The first contribution is Read Attunement. This is one installed canonical spell, not completion of the 152 required spells. Release, package admissions, Class availability and unqualified producers remain disabled. S5/S6, N24/N25 and final readiness remain separate.
 
 ## Content and ownership
@@ -24,7 +28,7 @@ This proves grade-one native self invocation/reload, not seven native grades, ot
 
 ## Next dependencies
 
-Complete Read Attunement's remaining native targets/wards/resistance/all-grade cases. Add the typed grade-specific NPC selector and bind the seven families/49 real templates; preserve Raise Servitor's corpse-animation path and genuine mission/controller bindings. Reconcile the five recorded legacy factory minimums plus Air Guardian's approved 33 versus legacy 9. Continue the other required content/adapters and twelve deferred focus/device prototypes/recipes, then the complete-package qualification gates. There is no current environment blocker.
+Assess remaining entries through their definition checks, named shared contracts and deliberate critical/representative cases under the approved strategy. Add the typed grade-specific NPC selector and bind the seven families/49 real templates; preserve Raise Servitor's corpse-animation path and genuine mission/controller bindings. Reconcile the five recorded legacy factory minimums plus Air Guardian's approved 33 versus legacy 9. Continue the other required content/adapters and twelve deferred focus/device prototypes/recipes, then the complete-package qualification gates. There is no current environment blocker.
 
 ## Second content batch: seven native creature families
 
@@ -33,3 +37,11 @@ The fixed installer now reconciles eight canonical contributions: Read Attunemen
 All creatures have their own `120*grade` second lifetime; the ordinary spell parent has zero duration. Air Guardian alone creates `grade` outputs; the other families create one. Seek/Courier/Haunt use explicit `roommission` parsing and typed inputs. Exact creator/current primary/controller authority is preserved. No universal active-summon cap, blanket reagent, scroll/charged/substance admission or partial package activation is introduced.
 
 Focused definition/ownership checks passed **26/0/0**; focused runtime/compatibility/guardian checks passed **259/0/0**, both with stable source. Earlier compile failures and the 257/2/0 fixture failure remain recorded. Native creation/mission/all-grade qualification is still pending for this new batch; full installed-stock qualified count remains zero. Larger systems, remaining content, deferred devices/recipes and S5/S6 continue under the existing authorisation.
+
+## Supplemental supports and current content boundary
+
+S4 adds16 genuine Shadow/Spark staff graphs, an exact Creation rank-six component/prototype/tag/recipe, two native armour profiles, explicit inert plane/tag/merit markers and11 typed editable policy progs. These are supplemental supports; the locked210 blueprint/49 melee original inventory is unchanged. Creation rank-six is a literal source requirement, distinct from Conjuration. Its .01kg/Craft90/seven blanks/420seconds recipe is an explicit authored adaptation of the approved high Conjuration recipe, not a historical recipe claim. Native Holdable/Stackable custody and real inputs/output are retained.
+
+The external armour profile explicitly covers physical/thermal/electrical/acid/arcane/sonic channels; internal hypoxia/cellular/necrotic/eldritch remain pass-through. Charged Aegis uses the separate electrical-only profile and the fixed native Stone material. Both profiles are owned and builder editable; no arbitrary existing armour name or first-row adoption occurs. Sheltering Veil remains held for its conditional Clerical consumption rule rather than installing free protection.
+
+Read Enchantment grants character LOOK information only. Its authored default reveals a package-recorded explicit affinity without debugging IDs; builders can edit the typed text prog. Echo/Voice link progs select the actual caster as the authorised speech source. Voice specialises the native item trigger with a real corpse predicate; native corpse spawning/restoration acceptance remains pending. Carrier admissions remain false for all canonical contributions.

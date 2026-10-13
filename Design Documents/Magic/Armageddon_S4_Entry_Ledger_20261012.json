@@ -33,12 +33,16 @@
     "entries_with_prototype_dependencies": 33,
     "missing_paths": 0,
     "whole_plan_rows_missing": 0,
-    "installed_stock_qualified": 0,
+    "installed_stock_qualified": 1,
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
     "installed_canonical_spells": 8,
-    "native_grade_one_stock_entries": 1
+    "native_grade_one_stock_entries": 1,
+    "declared_canonical_spells": 100,
+    "definition_audited_canonical_spells": 100,
+    "latest_successful_native_loaded_spells": 8,
+    "required_not_yet_declared": 52
   },
   "path_discrepancies": [],
   "unselected_registration_name_guesses": [],
@@ -109,13 +113,7 @@
       "resolution": "S4 second batch adds versioned typed grade selection and canonical bindings; exact native gameplay qualification remains pending."
     }
   ],
-  "qualification_boundary": {
-    "tests_run": false,
-    "builds_run": false,
-    "database_or_server_actions": false,
-    "repository_writes": false,
-    "all_installed_stock_pending": true
-  },
+  "qualification_boundary": "S4 qualification combines per-definition automated validation, direct critical cases and named shared/inherited/sampled evidence. Exhaustive native Cartesian products are superseded; S5/readiness and Release remain separate.",
   "entries": [
     {
       "ordinal": 1,
@@ -216,7 +214,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 2,
@@ -279,7 +295,25 @@
         "Stage2C room Fireball delivery variant native caster exclusion/full ally damage passes; this does not qualify the selected-character Ember Lance stock scenario."
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 3,
@@ -349,7 +383,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 4,
@@ -469,7 +515,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 5,
@@ -570,7 +634,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 6,
@@ -630,7 +712,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 7,
@@ -692,7 +792,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 8,
@@ -754,7 +866,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 9,
@@ -816,7 +946,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 10,
@@ -880,7 +1022,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 11,
@@ -942,7 +1102,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 12,
@@ -990,7 +1168,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 13,
@@ -1060,7 +1250,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 14,
@@ -1231,7 +1433,25 @@
         "Armageddon_FlameKnife_Stock_Verification.json"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 15,
@@ -1293,7 +1513,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 16,
@@ -1357,7 +1595,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 17,
@@ -1432,7 +1688,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 18,
@@ -1492,7 +1760,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 19,
@@ -1564,7 +1850,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 20,
@@ -1681,7 +1979,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 21,
@@ -1743,7 +2059,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 22,
@@ -1844,7 +2172,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 23,
@@ -1913,7 +2259,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 24,
@@ -1975,7 +2333,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 25,
@@ -2044,7 +2414,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 26,
@@ -2138,7 +2520,25 @@
         "Final continuation run 20261008T073200Z-d2f3219192f7: 8412 passed/four inherited blank-snapshot failures/zero skipped; native NOT_RUN."
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 27,
@@ -2242,7 +2642,7 @@
       "current_code_note": null,
       "remaining": [
         "Existing factory/content minimum 9 differs from locked approved minimum 7; hydration must use approved value via configurable seam rather than copying old defaults.",
-        "Reusable defining native system exists; approved exact grade/capacity/count/deadline/terrain/ward/projection bindings and installed-stock acceptance remain.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
         "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
@@ -2252,7 +2652,25 @@
         "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 28,
@@ -2314,7 +2732,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 29,
@@ -2354,7 +2790,7 @@
           "role": "S4 target-scoped adapter and real canonical fixed-install binding; complete native entry qualification pending"
         }
       ],
-      "candidate_scope": "Canonical fixed-install definition and stable children; all-seven-grade paid pipeline/application tests plus grade-one real native self/cold qualification. Complete installed-stock entry acceptance remains pending.",
+      "candidate_scope": "Canonical fixed-install Read Attunement qualifies S4 under the approved direct/shared/representative strategy; no S5 or Release qualification.",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -2381,14 +2817,13 @@
       },
       "current_code_note": "Approved20 source curve floor and60*grade seconds installed; normal operation reporting repaired from observed paid MajorPass/child with applied=false; no package activation.",
       "remaining": [
-        "Native all-seven-grade and other-target/ward/resistance defining-result qualification remains; deterministic seven-grade tests and grade-one self native evidence do not complete the entry.",
-        "S5 normal package learning/practice/production/affordability and later programme gates remain separately required."
+        "S5 normal full-package learning/practice/production/affordability and later readiness gates remain separately required."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
-      "installed_stock_qualification": "PENDING",
+      "installed_stock_qualification": "QUALIFIED_S4_DIRECT_SHARED_REPRESENTATIVE",
       "release_qualification": false,
       "s4_adapter_slice": {
         "status": "IMPLEMENTED_BOUNDED_ADAPTER_INSTALLED_STOCK_PENDING",
@@ -2687,7 +3122,76 @@
         "spell_admissions_enabled": false,
         "class_availability_enabled": false,
         "remaining_environment_blockers": []
-      }
+      },
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": ".artifacts/s4-creature-haunt-guard-core/20261012T235130Z-930d70e4602d/summary.json",
+            "tests": [
+              "CanonicalStock_AllGradesUseApprovedEfficiencyDurationAndPaidParent",
+              "Overlay_OnlyExactCasterInstanceCanReadItsSelectedTarget",
+              "Overlay_SeparatesAssignedAffinitiesFromLearnedHistoryAndSuppressesInvisibleTargets"
+            ],
+            "scope": "All seven approved paid costs/durations/actual child, unfunded refusal, exact disclosure and separate affinity/history facts."
+          }
+        ],
+        "inherited": [
+          {
+            "contract": "paid-casting-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Uses the same ordinary MagicCastingService paid path and valid native numerical/material policy; no alternate bypass."
+            ]
+          },
+          {
+            "contract": "character-resolution-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Uses ordinary typed character targeting and recipient resolution; resistance evidence applies only when configured. Room summons do not inherit opposed character resistance."
+            ]
+          },
+          {
+            "contract": "prepared-selection-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Effect implements the same prepared-selection/raw-frame contracts and does not bypass their payment or uncertainty checks."
+            ]
+          },
+          {
+            "contract": "read-attunement-parent-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Canonical readattunement helper/effect/child and ordinary parent remain unchanged; exact caster-instance disclosure and durable completed enrolment/explicit affinity inputs remain in force."
+            ]
+          }
+        ],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": ".artifacts/s4-creature-stock-native/20261012T233339Z_dabeb10f40f64914a36ef164cf88a996/summary.json",
+            "configuration": "Canonical grade-one self Read Attunement via separate disposable enrolled builder capability, native gathering/payment and cold restart.",
+            "seed": null,
+            "seeded_random_sample": false,
+            "scope": "Representative actual paid/cold20-assertion lane; distinct critical/managed all-grade checks establish numerical branches."
+          }
+        ],
+        "assumptions": [
+          "S4 qualification only: natural full-package progression/production/affordability is S5; package gates remain closed.",
+          "Relevant read/ordinary casting implementations are unchanged from the recorded full Core/native receipts; future changes invalidate applicable evidence.",
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 30,
@@ -2757,7 +3261,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 31,
@@ -2817,7 +3333,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 32,
@@ -2877,7 +3411,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 33,
@@ -2947,7 +3499,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 34,
@@ -3007,7 +3577,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 35,
@@ -3128,7 +3716,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 36,
@@ -3188,7 +3794,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 37,
@@ -3248,7 +3866,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 38,
@@ -3308,7 +3944,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 39,
@@ -3368,7 +4016,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 40,
@@ -3428,7 +4094,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 41,
@@ -3513,7 +4197,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 42,
@@ -3580,7 +4276,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 43,
@@ -3692,7 +4406,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 44,
@@ -3752,7 +4478,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 45,
@@ -3870,7 +4614,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 46,
@@ -3933,7 +4695,19 @@
         "Stage2C: native local caster4/ally12, ground/layer/staff/plane/filter/ward exclusions and stable physical targeting verified; nearby falls/full source protections and installed stock remain pending."
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 47,
@@ -3995,7 +4769,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 48,
@@ -4057,7 +4849,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 49,
@@ -4188,7 +4998,25 @@
         "Armageddon_SandKnife_Stock_Verification.json"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 50,
@@ -4254,7 +5082,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 51,
@@ -4314,7 +5160,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 52,
@@ -4362,7 +5226,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 53,
@@ -4448,7 +5324,7 @@
       "current_code_note": null,
       "remaining": [
         "Existing factory/content minimum 9 differs from locked approved minimum 20; hydration must use approved value via configurable seam rather than copying old defaults.",
-        "Reusable defining native system exists; approved exact grade/capacity/count/deadline/terrain/ward/projection bindings and installed-stock acceptance remain.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
         "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
@@ -4459,7 +5335,25 @@
         "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 54,
@@ -4521,7 +5415,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 55,
@@ -4615,7 +5527,25 @@
         "Final continuation run 20261008T073200Z-d2f3219192f7: 8412 passed/four inherited blank-snapshot failures/zero skipped; native NOT_RUN."
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 56,
@@ -4730,7 +5660,7 @@
       "current_code_note": null,
       "remaining": [
         "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
-        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
@@ -4747,7 +5677,42 @@
         "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
         "lifetime_seconds": "120*grade",
         "full_entry_qualification": false
-      }
+      },
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [
+          {
+            "contract": "paid-casting-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Uses the same ordinary MagicCastingService paid path and valid native numerical/material policy; no alternate bypass."
+            ]
+          },
+          {
+            "contract": "prepared-selection-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Effect implements the same prepared-selection/raw-frame contracts and does not bypass their payment or uncertainty checks."
+            ]
+          }
+        ],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [
+          "Representative defining native controller/output/custody case and deliberate boundary or behaviour-changing grades; shared grade-selector/lifecycle tests may be inherited with exact assumptions."
+        ],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 57,
@@ -4809,7 +5774,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 58,
@@ -4869,7 +5852,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 59,
@@ -4931,7 +5926,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 60,
@@ -5007,7 +6014,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 61,
@@ -5097,7 +6116,7 @@
       "current_code_note": null,
       "remaining": [
         "Existing factory/content minimum 9 differs from locked approved minimum 7; hydration must use approved value via configurable seam rather than copying old defaults.",
-        "Reusable defining native system exists; approved exact grade/capacity/count/deadline/terrain/ward/projection bindings and installed-stock acceptance remain.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
         "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
@@ -5107,7 +6126,25 @@
         "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 62,
@@ -5222,7 +6259,7 @@
       "current_code_note": null,
       "remaining": [
         "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
-        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
@@ -5237,7 +6274,42 @@
         "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
         "lifetime_seconds": "120*grade",
         "full_entry_qualification": false
-      }
+      },
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [
+          {
+            "contract": "paid-casting-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Uses the same ordinary MagicCastingService paid path and valid native numerical/material policy; no alternate bypass."
+            ]
+          },
+          {
+            "contract": "prepared-selection-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Effect implements the same prepared-selection/raw-frame contracts and does not bypass their payment or uncertainty checks."
+            ]
+          }
+        ],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [
+          "Representative defining native controller/output/custody case and deliberate boundary or behaviour-changing grades; shared grade-selector/lifecycle tests may be inherited with exact assumptions."
+        ],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 63,
@@ -5330,7 +6402,7 @@
       },
       "current_code_note": null,
       "remaining": [
-        "Reusable defining native system exists; approved exact grade/capacity/count/deadline/terrain/ward/projection bindings and installed-stock acceptance remain.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
         "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
@@ -5341,7 +6413,25 @@
         "Armageddon_Owned_Projections_Checkpoint_20261010.json"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 64,
@@ -5401,7 +6491,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 65,
@@ -5451,7 +6553,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 66,
@@ -5513,7 +6627,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 67,
@@ -5614,7 +6740,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 68,
@@ -5676,7 +6820,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 69,
@@ -5738,7 +6900,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 70,
@@ -5800,7 +6974,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 71,
@@ -5862,7 +7048,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 72,
@@ -5926,7 +7130,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 73,
@@ -5988,7 +7204,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 74,
@@ -6050,7 +7278,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 75,
@@ -6191,7 +7431,7 @@
       "current_code_note": null,
       "remaining": [
         "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
-        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "runtime_lifecycle_qualified_catalogue_parity_pending",
@@ -6210,7 +7450,42 @@
         "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
         "lifetime_seconds": "120*grade",
         "full_entry_qualification": false
-      }
+      },
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [
+          {
+            "contract": "paid-casting-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Uses the same ordinary MagicCastingService paid path and valid native numerical/material policy; no alternate bypass."
+            ]
+          },
+          {
+            "contract": "prepared-selection-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Effect implements the same prepared-selection/raw-frame contracts and does not bypass their payment or uncertainty checks."
+            ]
+          }
+        ],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [
+          "Representative defining native controller/output/custody case and deliberate boundary or behaviour-changing grades; shared grade-selector/lifecycle tests may be inherited with exact assumptions."
+        ],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 76,
@@ -6270,7 +7545,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 77,
@@ -6332,7 +7619,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 78,
@@ -6447,7 +7752,7 @@
       "current_code_note": null,
       "remaining": [
         "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
-        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
@@ -6462,7 +7767,42 @@
         "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
         "lifetime_seconds": "120*grade",
         "full_entry_qualification": false
-      }
+      },
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [
+          {
+            "contract": "paid-casting-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Uses the same ordinary MagicCastingService paid path and valid native numerical/material policy; no alternate bypass."
+            ]
+          },
+          {
+            "contract": "prepared-selection-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Effect implements the same prepared-selection/raw-frame contracts and does not bypass their payment or uncertainty checks."
+            ]
+          }
+        ],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [
+          "Representative defining native controller/output/custody case and deliberate boundary or behaviour-changing grades; shared grade-selector/lifecycle tests may be inherited with exact assumptions."
+        ],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 79,
@@ -6522,7 +7862,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 80,
@@ -6584,7 +7942,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 81,
@@ -6646,7 +8016,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 82,
@@ -6708,7 +8096,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 83,
@@ -6778,7 +8184,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 84,
@@ -6838,7 +8256,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 85,
@@ -6898,7 +8328,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 86,
@@ -7013,7 +8461,7 @@
       "current_code_note": null,
       "remaining": [
         "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
-        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
@@ -7030,7 +8478,42 @@
         "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
         "lifetime_seconds": "120*grade",
         "full_entry_qualification": false
-      }
+      },
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [
+          {
+            "contract": "paid-casting-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Uses the same ordinary MagicCastingService paid path and valid native numerical/material policy; no alternate bypass."
+            ]
+          },
+          {
+            "contract": "prepared-selection-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Effect implements the same prepared-selection/raw-frame contracts and does not bypass their payment or uncertainty checks."
+            ]
+          }
+        ],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [
+          "Representative defining native controller/output/custody case and deliberate boundary or behaviour-changing grades; shared grade-selector/lifecycle tests may be inherited with exact assumptions."
+        ],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 87,
@@ -7092,7 +8575,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 88,
@@ -7158,7 +8659,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 89,
@@ -7220,7 +8733,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 90,
@@ -7282,7 +8813,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 91,
@@ -7344,7 +8893,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 92,
@@ -7406,7 +8973,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 93,
@@ -7468,7 +9053,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 94,
@@ -7555,7 +9158,7 @@
       },
       "current_code_note": null,
       "remaining": [
-        "Reusable defining native system exists; approved exact grade/capacity/count/deadline/terrain/ward/projection bindings and installed-stock acceptance remain.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
       ],
@@ -7565,7 +9168,25 @@
         "Armageddon_Owned_Projections_Checkpoint_20261010.json"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 95,
@@ -7627,7 +9248,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 96,
@@ -7755,7 +9388,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 97,
@@ -7825,7 +9470,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 98,
@@ -7887,7 +9550,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 99,
@@ -7949,7 +9630,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 100,
@@ -8064,7 +9763,7 @@
       "current_code_note": null,
       "remaining": [
         "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
-        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
@@ -8079,7 +9778,42 @@
         "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
         "lifetime_seconds": "120*grade",
         "full_entry_qualification": false
-      }
+      },
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [
+          {
+            "contract": "paid-casting-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Uses the same ordinary MagicCastingService paid path and valid native numerical/material policy; no alternate bypass."
+            ]
+          },
+          {
+            "contract": "prepared-selection-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Effect implements the same prepared-selection/raw-frame contracts and does not bypass their payment or uncertainty checks."
+            ]
+          }
+        ],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [
+          "Representative defining native controller/output/custody case and deliberate boundary or behaviour-changing grades; shared grade-selector/lifecycle tests may be inherited with exact assumptions."
+        ],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 101,
@@ -8181,7 +9915,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 102,
@@ -8241,7 +9993,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 103,
@@ -8301,7 +10071,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 104,
@@ -8363,7 +10151,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 105,
@@ -8469,7 +10269,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 106,
@@ -8531,7 +10349,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 107,
@@ -8591,7 +10427,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 108,
@@ -8651,7 +10505,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 109,
@@ -8727,7 +10599,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 110,
@@ -8789,7 +10673,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 111,
@@ -8851,7 +10753,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 112,
@@ -8914,7 +10834,19 @@
         "Stage2C: native repeated random hits, quarter caster, full ally damage and immutable selected order verified; three-hit count provisional, EnergyShield/final source values/stock pending."
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 113,
@@ -8974,7 +10906,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 114,
@@ -9036,7 +10980,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 115,
@@ -9096,7 +11058,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 116,
@@ -9156,7 +11136,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 117,
@@ -9232,7 +11230,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 118,
@@ -9334,7 +11344,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 119,
@@ -9398,7 +11426,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 120,
@@ -9529,7 +11575,25 @@
         "Armageddon_StormSpear_Stock_Verification.json: paid controlled grades 1/7, real electrical wounds, primary-hand and expiry/restart conservation; authored statistics and controlled-host limits explicit"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 121,
@@ -9624,7 +11688,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 122,
@@ -9739,7 +11821,7 @@
       "current_code_note": null,
       "remaining": [
         "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
-        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
@@ -9756,7 +11838,42 @@
         "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
         "lifetime_seconds": "120*grade",
         "full_entry_qualification": false
-      }
+      },
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [
+          {
+            "contract": "paid-casting-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Uses the same ordinary MagicCastingService paid path and valid native numerical/material policy; no alternate bypass."
+            ]
+          },
+          {
+            "contract": "prepared-selection-v1",
+            "status": "PASS",
+            "assumptions": [
+              "Effect implements the same prepared-selection/raw-frame contracts and does not bypass their payment or uncertainty checks."
+            ]
+          }
+        ],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [
+          "Representative defining native controller/output/custody case and deliberate boundary or behaviour-changing grades; shared grade-selector/lifecycle tests may be inherited with exact assumptions."
+        ],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 123,
@@ -9818,7 +11935,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 124,
@@ -9868,7 +12003,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 125,
@@ -9928,7 +12075,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 126,
@@ -9998,7 +12157,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 127,
@@ -10062,7 +12239,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 128,
@@ -10122,7 +12311,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 129,
@@ -10211,7 +12418,7 @@
       },
       "current_code_note": null,
       "remaining": [
-        "Reusable defining native system exists; approved exact grade/capacity/count/deadline/terrain/ward/projection bindings and installed-stock acceptance remain.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
         "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
@@ -10221,7 +12428,25 @@
         "Armageddon_Ward_And_Bane_Checkpoint_20261010.json"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 130,
@@ -10306,7 +12531,7 @@
       },
       "current_code_note": null,
       "remaining": [
-        "Reusable defining native system exists; approved exact grade/capacity/count/deadline/terrain/ward/projection bindings and installed-stock acceptance remain.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
       ],
@@ -10315,7 +12540,25 @@
         "Armageddon_Ward_And_Bane_Checkpoint_20261010.json"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 131,
@@ -10377,7 +12620,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 132,
@@ -10439,7 +12700,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 133,
@@ -10499,7 +12772,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 134,
@@ -10568,7 +12859,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 135,
@@ -10656,7 +12965,7 @@
       "current_code_note": null,
       "remaining": [
         "Existing factory/content minimum 12 differs from locked approved minimum 7; hydration must use approved value via configurable seam rather than copying old defaults.",
-        "Reusable defining native system exists; approved exact grade/capacity/count/deadline/terrain/ward/projection bindings and installed-stock acceptance remain.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
         "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
@@ -10664,7 +12973,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 136,
@@ -10734,7 +13061,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 137,
@@ -10794,7 +13139,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 138,
@@ -10854,7 +13211,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 139,
@@ -10916,7 +13285,19 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 140,
@@ -10978,7 +13359,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 141,
@@ -11040,7 +13439,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 142,
@@ -11100,7 +13517,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 143,
@@ -11160,7 +13595,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 144,
@@ -11220,7 +13673,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 145,
@@ -11280,7 +13745,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 146,
@@ -11340,7 +13817,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 147,
@@ -11402,7 +13897,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 148,
@@ -11464,7 +13977,25 @@
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 149,
@@ -11512,7 +14043,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 150,
@@ -11587,7 +14130,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 151,
@@ -11647,7 +14208,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 152,
@@ -11719,7 +14292,25 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PASS",
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ],
+          "source_pin": "f594051d42dd4cb4d71faa7c528c2051777e2dfb"
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [
+          "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion."
+        ],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 153,
@@ -11780,7 +14371,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     },
     {
       "ordinal": 154,
@@ -11841,7 +14444,19 @@
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "qualification_evidence": {
+        "definition": {
+          "status": "PENDING",
+          "receipts": []
+        },
+        "direct": [],
+        "inherited": [],
+        "sampled": [],
+        "assumptions": [],
+        "outstanding_critical_cases": [],
+        "strategy": "20261013"
+      }
     }
   ],
   "source_code_fingerprints": [
@@ -12215,7 +14830,7 @@
     }
   ],
   "evidence_reuse": "Per-entry verified paths resolve to source_code_fingerprints; repeated hashes stored once.",
-  "status": "S4_STARTED_NO_INSTALLED_STOCK_ENTRY_QUALIFIED",
+  "status": "S4_INTEGRATION_DIRECT_SHARED_SAMPLED_ONE_ENTRY_QUALIFIED",
   "baseline_repair_commit": "d5cdd6ccc80079e335ca6480a775c9ee9063f9da",
   "source_revision_scope": "The source map and its existing-file fingerprints describe the initial 92fdf3f9 head. The added adapter paths below describe the first S4 working-tree slice separately.",
   "adapter_implementation_commit": "d427e02b0deefd5445fc9599d2a9f031f0cb8ac9",
@@ -12261,5 +14876,10 @@
     "assertions": 20,
     "full_qualified_entries": 0,
     "scope": "First/cold definition readiness and grade-one paid Read Attunement; no paid creature/controller qualification."
-  }
+  },
+  "qualification_strategy": "Armageddon_S4_Qualification_Strategy_20261013.json",
+  "S4_creature_definition_batch_source_revision": "9790aeed72fe3facb5520d1e7604465c014a4b2a",
+  "S4_creature_definition_batch_sources_scope": "Historical tested Windows worktree bytes at published9790aeed; later content integration may change these files.",
+  "current_batch_revision": "f594051d42dd4cb4d71faa7c528c2051777e2dfb",
+  "current_batch_verification": "Armageddon_S4_Continuation_Verification_20261013.json"
 }

@@ -476,5 +476,18 @@
     "native_paid_scope": "Grade-one Read Attunement self regression only; no paid creature/controller or all-grade qualification.",
     "native_precedes_final_haunt_guard": true,
     "remaining_environment_blockers": []
+  },
+  "current_qualification_strategy": "Armageddon_S4_Qualification_Strategy_20261013.json",
+  "current_s4_qualified_entries": 1,
+  "current_strategy_override": "Direct Luke approval20261013 supersedes exhaustive per-entry native combinations and repeatedbase seeding; reuse one verified immutable pre-Armageddon base then isolated restores. Historical counts retain their original date/scope.",
+  "current_batch": {
+    "verification": "Armageddon_S4_Continuation_Verification_20261013.json",
+    "declared_required": 100,
+    "undeclared_required": 52,
+    "qualified_s4": 1,
+    "native100": "PENDING",
+    "normal_usage_prioritisation": true,
+    "broader_s4_authorised": true,
+    "gates_closed": true
   }
 }

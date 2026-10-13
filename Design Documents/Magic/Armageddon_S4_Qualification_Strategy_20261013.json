@@ -1,0 +1,129 @@
+{
+  "schema_version": 1,
+  "approved_utc_date": "2026-10-13",
+  "authority": "Direct Luke approval relayed by parent thread01a11888-ef4f-743d-b70f-06eaf07af020; supersedes exhaustive native spell x grade x target combinations.",
+  "definition_validation": "Every installed required definition: exact inventory, references, approved cost/grade data, typed dependencies and ownership.",
+  "shared_contracts": {
+    "paid-casting-v1": {
+      "implementation": [
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.SelectionPayment.cs",
+          "sha256": "8c5783ec3625b1eb2e6d6719ac299f7be7f378a855c14563d1ab695266bad23b"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.PreparedSelection.cs",
+          "sha256": "92515fa8f113c429ce3412c6b9ddd3a5ff0f57f0731fec78d33006adba3e77b4"
+        }
+      ],
+      "tests": [
+        "Cast_FailedNativeCheck_PaysOnceAndConsumesSharedDeadlines",
+        "Cast_MissingActualComponentPlan_DoesNotCommitOrCheck",
+        "InvalidNumericalResult_RefusesBeforePaymentInsteadOfFreeCast"
+      ],
+      "assumptions": [
+        "Uses the same ordinary MagicCastingService paid path and valid native numerical/material policy; no alternate bypass."
+      ],
+      "status": "PASS",
+      "receipt": ".artifacts/s4-creature-haunt-guard-core/20261012T235130Z-930d70e4602d/summary.json",
+      "executed_source_fingerprint": "432a81562411a83464d8b54d43133af9d78282497777ca4fa10735d6328ac468"
+    },
+    "character-resolution-v1": {
+      "implementation": [
+        {
+          "path": "MudSharpCore/Magic/MagicSpell.cs",
+          "sha256": "511b8f07939ef4f9a6bca7ce0aa90b54e0c83b00e9945a6ed96d3ad48198aa6c"
+        }
+      ],
+      "tests": [
+        "CastSpell_GroupFirstMemberIsWardBlocked_LaterMembersResolveWithoutAResistanceCheck",
+        "CastSpell_GroupFirstMemberResists_LaterMembersResolveAndInvocationSucceeds",
+        "ConfiguredInvalidPolicies_RefuseBeforePaymentAndRetainReference"
+      ],
+      "assumptions": [
+        "Uses ordinary typed character targeting and recipient resolution; resistance evidence applies only when configured. Room summons do not inherit opposed character resistance."
+      ],
+      "status": "PASS",
+      "receipt": ".artifacts/s4-creature-haunt-guard-core/20261012T235130Z-930d70e4602d/summary.json",
+      "executed_source_fingerprint": "432a81562411a83464d8b54d43133af9d78282497777ca4fa10735d6328ac468"
+    },
+    "prepared-selection-v1": {
+      "implementation": [
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.PreparedSelection.cs",
+          "sha256": "92515fa8f113c429ce3412c6b9ddd3a5ff0f57f0731fec78d33006adba3e77b4"
+        }
+      ],
+      "tests": [
+        "FullCast_ReusesFirstChoiceAcrossBothPreparations_AndPreservesPaidUncertainty"
+      ],
+      "assumptions": [
+        "Effect implements the same prepared-selection/raw-frame contracts and does not bypass their payment or uncertainty checks."
+      ],
+      "status": "PASS",
+      "receipt": ".artifacts/s4-creature-haunt-guard-core/20261012T235130Z-930d70e4602d/summary.json",
+      "executed_source_fingerprint": "432a81562411a83464d8b54d43133af9d78282497777ca4fa10735d6328ac468"
+    },
+    "read-attunement-parent-v1": {
+      "implementation": [
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/ReadAttunementSpellEffect.cs",
+          "sha256": "8c9964ad5abd39a66ec8f94ed619282b5ba43e88a94b8695522cb434534108aa"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellReadAttunementEffect.cs",
+          "sha256": "84f0965505a45198050957c81d250e1dfd4599735696a4a1f5e909f09947f5fc"
+        },
+        {
+          "path": "MudSharpCore/Magic/Casting/MagicCastingService.Affiliations.cs",
+          "sha256": "e695c20704adf79e93641bd4ad76eba813a8deaac65a55ba3dfccdeb8d3e6391"
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonStockSpellContent.cs",
+          "sha256": "b43503c449e9274b2805d495f6e8014d97092c0e374d1fc2e55962e8c67f01be"
+        }
+      ],
+      "tests": [
+        "CanonicalStock_AllGradesUseApprovedEfficiencyDurationAndPaidParent",
+        "PaidCast_AttachesOverlayToNormalParentAndUnfundedRetryHasNoSideEffects",
+        "Overlay_TemplateAndSavedChildRoundTripThroughNativeFactories",
+        "Overlay_SeparatesAssignedAffinitiesFromLearnedHistoryAndSuppressesInvisibleTargets",
+        "Overlay_OnlyExactCasterInstanceCanReadItsSelectedTarget",
+        "LearnedAffiliations_RequiresExactCompletedEnrolmentAndDoesNotInferSharedKnowledge"
+      ],
+      "assumptions": [
+        "Canonical readattunement helper/effect/child and ordinary parent remain unchanged; exact caster-instance disclosure and durable completed enrolment/explicit affinity inputs remain in force."
+      ],
+      "status": "PASS",
+      "receipt": ".artifacts/s4-creature-haunt-guard-core/20261012T235130Z-930d70e4602d/summary.json",
+      "executed_source_fingerprint": "432a81562411a83464d8b54d43133af9d78282497777ca4fa10735d6328ac468"
+    }
+  },
+  "critical_cases": "New behaviour/bespoke adapters and boundary/behaviour-changing grades are deliberate focused checks.",
+  "sampling": "Representative end-to-end plus reproducible seeded-random samples; record seeds/configurations/coverage, expand around failures and retain regressions.",
+  "code_inspection_is_formal_proof": false,
+  "base_fixture": {
+    "status": "CAPTURE_AND_CLEAN_RESTORE_PASS",
+    "compatible_existing_base_found": false,
+    "existing_post_s3_dumps": 4,
+    "plan": "One immutable medieval-standard seeded prefix before ArmageddonMagicSeeder; restore into fresh owned disposable databases, fingerprint only relevant schema/base inputs.",
+    "selected_descriptor": ".artifacts/pre-armageddon-base-fixtures/20261013T011917Z_024ee64c6f334396b9d65cfe5ce6a02e/base-world.json",
+    "blank_schema_sql_sha256": "595FBA5B68CC94A9EE64C9BEFFBAAE25F3141D64BE90E199FFBBEBD3AB97B863",
+    "latest_migration": "20261012024208_TrackCharacterInstanceIdentity",
+    "descriptor_sha256": "2F3FA0D5A837E4C9E7663AD8A2E24FBD16F66C4AEB9F1D6351B92DBD01B6039D",
+    "sql_sha256": "44A91CF9B29AA7DA929E43E8805AF10EF3165E1FCA5D753D5C577E1241546184",
+    "base_source_sha256": "E53D9D8D19D3FE1AA1CC0363D1A8595CFDDABD019A626F45562ED4C8BD6B876C",
+    "schema_sha256": "2F72406145DDA130534D9E1CBEC3EE8ED63BC32122C7B722E86B5284B26F03EC",
+    "base_content_sha256": "DD89EE4268B7E934E065B657A17A260C60FF8D717043D11C52C5E0C4B3A7DCDB",
+    "migrations": 273,
+    "prefix_steps": 29,
+    "capture_receipt": ".artifacts/s4-base-capture-streamed/20261013T011237Z_b2067e53f92e4664a8af3d711501212f/summary.json",
+    "clean_restore_receipt": ".artifacts/s4-base-clean-restore/20261013T011953Z_b66dbd5974d84913aa0bbfc26feea14a/summary.json",
+    "foundational_seeders_on_restore": [],
+    "sql_immutable": true,
+    "source_compatibility_rule_pending_execution": "inert-vital-receipt-and-recorded-native-base-compilers-20261013",
+    "retained_failed_capture": ".artifacts/s4-base-capture/20261013T010043Z_1e45b1da8c96424896419fc7a599c9c4/summary.json"
+  },
+  "release_enabled": false,
+  "spell_admissions_enabled": false,
+  "class_availability_enabled": false
+}

@@ -1,0 +1,281 @@
+{
+  "schema_version": 1,
+  "generated_utc": "2026-10-13T06:08:57.440813+00:00",
+  "source_revision": "f594051d42dd4cb4d71faa7c528c2051777e2dfb",
+  "scope": "Coherent S4 content and adapter batch; broader S4 remains authorised and incomplete. No merge/deploy or availability changes.",
+  "canonical_definitions_declared": 100,
+  "required_inventory": 152,
+  "required_not_yet_declared": 52,
+  "optional_inventory": 2,
+  "definition_audit": "PASS: every100 definition Classic/Simple atf594051d42dd4cb4d71faa7c528c2051777e2dfb; candidate100 exact base safety30 alsoPASS",
+  "checks": [
+    {
+      "name": "seeder-full-final-99",
+      "status": "PASS",
+      "head": "7e16a7edfc2d0676c293236159b07f3b503ba447",
+      "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "configuration": "Debug",
+      "filter": "",
+      "counts": {
+        "total": 1828,
+        "executed": 1825,
+        "passed": 1825,
+        "failed": 0,
+        "skipped": 3,
+        "native_not_executed": 0,
+        "inconclusive": 0,
+        "aborted": 0,
+        "timeout": 0,
+        "result_elements": 1828,
+        "summary_outcome": "Completed"
+      },
+      "valid_trx": true,
+      "source_start": "6103557a524e74707296732c64a9b6a7de9364c9a262b552bf869d140f76de78",
+      "source_end": "6103557a524e74707296732c64a9b6a7de9364c9a262b552bf869d140f76de78",
+      "source_stable": true,
+      "binaries_stable": true,
+      "receipt_sha256": "0d7c53f5d0e549addeb598630062b9dda80a66c43d04256e46810beec23bb867",
+      "local_optional_receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-consolidated-test-receipt\\seeder-full-final-99\\receipt.json"
+    },
+    {
+      "name": "core-full-final-99",
+      "status": "PASS",
+      "head": "3c97e1b2e254f8fe3d4116282f41aa6f8cc06182",
+      "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "configuration": "Debug",
+      "filter": "",
+      "counts": {
+        "total": 7074,
+        "executed": 7074,
+        "passed": 7074,
+        "failed": 0,
+        "skipped": 0,
+        "native_not_executed": 0,
+        "inconclusive": 0,
+        "aborted": 0,
+        "timeout": 0,
+        "result_elements": 7074,
+        "summary_outcome": "Completed"
+      },
+      "valid_trx": true,
+      "source_start": "939bcec426a3800191373c6ea5e7d4c5175ad222c23803e60c5f6cdabb74e0ef",
+      "source_end": "939bcec426a3800191373c6ea5e7d4c5175ad222c23803e60c5f6cdabb74e0ef",
+      "source_stable": true,
+      "binaries_stable": true,
+      "receipt_sha256": "a6b406b5a094b84421c1d6dd3bb06e45d39b2c02b717a471cbb8ffa70e72a516",
+      "local_optional_receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-consolidated-test-receipt\\core-full-final-99\\receipt.json"
+    },
+    {
+      "name": "library-full-84",
+      "status": "FAIL",
+      "head": "aadd1c5e481f739e00710251328c796d18a0f27d",
+      "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "configuration": "Debug",
+      "filter": "",
+      "counts": {
+        "total": 763,
+        "executed": 763,
+        "passed": 762,
+        "failed": 1,
+        "skipped": 0,
+        "native_not_executed": 0,
+        "inconclusive": 0,
+        "aborted": 0,
+        "timeout": 0,
+        "result_elements": 763,
+        "summary_outcome": "Failed"
+      },
+      "valid_trx": true,
+      "source_start": "fc4fa224a9bf56696009c8920c1dd37ae8aaba1a9284e372efec82068e37b059",
+      "source_end": "fc4fa224a9bf56696009c8920c1dd37ae8aaba1a9284e372efec82068e37b059",
+      "source_stable": true,
+      "binaries_stable": true,
+      "receipt_sha256": "fe470e7eab7cc1eeb275555d9a76bc6b7cc68fb53f8b1fdc2ca90c86e2ae7669",
+      "local_optional_receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-consolidated-test-receipt\\library-full-84\\receipt.json"
+    },
+    {
+      "name": "library-pocket-repair",
+      "status": "PASS",
+      "head": "71b0005e9fb90b0af6d38393ede77ccfa6c97a5e",
+      "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~ArmageddonPocketContentTests",
+      "counts": {
+        "total": 18,
+        "executed": 18,
+        "passed": 18,
+        "failed": 0,
+        "skipped": 0,
+        "native_not_executed": 0,
+        "inconclusive": 0,
+        "aborted": 0,
+        "timeout": 0,
+        "result_elements": 18,
+        "summary_outcome": "Completed"
+      },
+      "valid_trx": true,
+      "source_start": "b10fd74e1d018e0a79e676c9a70dfe69c941bc5b38fa47e31905cbd8023c556b",
+      "source_end": "b10fd74e1d018e0a79e676c9a70dfe69c941bc5b38fa47e31905cbd8023c556b",
+      "source_stable": true,
+      "binaries_stable": true,
+      "receipt_sha256": "67a51c0b9771660ea9dbdc9036b3567262ab4a35b2539580482300690109f9e1",
+      "local_optional_receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-consolidated-test-receipt\\library-pocket-repair\\receipt.json"
+    },
+    {
+      "name": "seeder-release-final-99",
+      "status": "PASS",
+      "head": "7e16a7edfc2d0676c293236159b07f3b503ba447",
+      "project": "DatabaseSeeder/DatabaseSeeder.csproj",
+      "configuration": "Release",
+      "filter": "",
+      "counts": null,
+      "valid_trx": false,
+      "source_start": "6103557a524e74707296732c64a9b6a7de9364c9a262b552bf869d140f76de78",
+      "source_end": "6103557a524e74707296732c64a9b6a7de9364c9a262b552bf869d140f76de78",
+      "source_stable": true,
+      "binaries_stable": null,
+      "receipt_sha256": "86b7411501cf94c47855abdc97916b76cd8a2dfb149faeacb1f14098cf940722",
+      "local_optional_receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-consolidated-test-receipt\\seeder-release-final-99\\receipt.json"
+    },
+    {
+      "name": "seeder-mobility-closure",
+      "status": "PASS",
+      "head": "e9d40268a3c070685e6afcc70d18cc856401803c",
+      "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~StoneSkin_OrdinaryDexterityFallbackIsExplicitAndRetainedAfterAgilityAppears|FullyQualifiedName~StoneSkin_AmbiguousPhysicalMobilityFallbackHoldsWithoutNewAttributeOrSpell|FullyQualifiedName~CanonicalDefinitions_EveryInstalledEntryMatchesLockedCostsGradesAndTypedChildren",
+      "counts": {
+        "total": 4,
+        "executed": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "native_not_executed": 0,
+        "inconclusive": 0,
+        "aborted": 0,
+        "timeout": 0,
+        "result_elements": 4,
+        "summary_outcome": "Completed"
+      },
+      "valid_trx": true,
+      "source_start": "a0d25fef1ec2c97e34619934814682421c632b6a1efa11a766ba3c160feef03e",
+      "source_end": "a0d25fef1ec2c97e34619934814682421c632b6a1efa11a766ba3c160feef03e",
+      "source_stable": true,
+      "binaries_stable": true,
+      "receipt_sha256": "818dc3116a4c4e09da3310e85857432c08287d6d30a748f532da7e396ac5a47c",
+      "local_optional_receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-consolidated-test-receipt\\seeder-mobility-closure\\receipt.json"
+    },
+    {
+      "name": "seeder-definitions-100",
+      "status": "PASS",
+      "head": "f594051d42dd4cb4d71faa7c528c2051777e2dfb",
+      "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~CanonicalDefinitions_EveryInstalledEntryMatchesLockedCostsGradesAndTypedChildren",
+      "counts": {
+        "total": 2,
+        "executed": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "native_not_executed": 0,
+        "inconclusive": 0,
+        "aborted": 0,
+        "timeout": 0,
+        "result_elements": 2,
+        "summary_outcome": "Completed"
+      },
+      "valid_trx": true,
+      "source_start": "f464968c616e07b45966b485ab2c4529b3ab4822a607e12e77c2fdee2bfb449c",
+      "source_end": "f464968c616e07b45966b485ab2c4529b3ab4822a607e12e77c2fdee2bfb449c",
+      "source_stable": true,
+      "binaries_stable": true,
+      "receipt_sha256": "0c9acbbd8d26fbd5922a59e59804b88389a9bf7441b37c034ce492403a3def7d",
+      "local_optional_receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-consolidated-test-receipt\\seeder-definitions-100\\receipt.json"
+    }
+  ],
+  "focused_runtime": [
+    {
+      "slice": "Independent identity-safe direct damage",
+      "passed": 212,
+      "implementation_commit": "8fcfb106b",
+      "scope": "Native body/armour/gear/paid resistance and callback cases; overlapping legacy cases are not additional unique tests."
+    },
+    {
+      "slice": "Damage-bearing traversal barriers",
+      "passed": 35,
+      "implementation_commit": "b01f471fe",
+      "scope": "Actual native item/body harm and late traversal denial; no live-MUD traversal assertion."
+    },
+    {
+      "slice": "Finite armour after independent review",
+      "passed": 45,
+      "implementation_commit": "d41101ef2",
+      "scope": "Native paid/body cases, spent-capacity dirty flag, attachment callbacks and malformed cold state; no SQL armour replay."
+    },
+    {
+      "slice": "Scalar light/temperature/weapon content",
+      "passed": 9,
+      "implementation_commit": "b8ceff83e",
+      "scope": "Grade/power crossing, native child/model reload, weapon admission and finite scalar refusal."
+    },
+    {
+      "slice": "Retained tracking/information/speech",
+      "passed": 12,
+      "implementation_commit": "98f1d40e8",
+      "scope": "Native language output and character LOOK; corpse spawning/restoration not executed."
+    },
+    {
+      "slice": "Single-use reflection",
+      "passed": 38,
+      "implementation_commits": [
+        "b98a82b56",
+        "724be5cad"
+      ],
+      "scope": "Native paid reflection and output/payload callback fences, spent cold state, expiry and legacy cases; no health/DB claim."
+    }
+  ],
+  "native_attempts": [
+    {
+      "receipt": ".artifacts/s4-99-native/20261013T052914Z_6c18974a99da4b5fa572a136745d4cad/summary.json",
+      "status": "FAIL_BEFORE_BOOT",
+      "diagnostic": "Initial console exception clipped; recovered in second attempt, not treated as an environment ban.",
+      "boot_and_samples": "NOT_RUN",
+      "cleanup": "owned database/server removed"
+    },
+    {
+      "receipt": ".artifacts/s4-99-native-diagnostic/20261013T053859Z_20c09e12b1794eeca82719cb3b899d91/summary.json",
+      "status": "FAIL_PACKAGE_STONE_SKIN_AGILITY_BINDING",
+      "diagnostic": "Verified labmud preset has Dexterity, no Agility; explicit retained ordinary mobility mapping e9d40268 closes this case in4 focused checks.",
+      "log_sha256": "2FA19E0838A0317052C1D093685CFB77DEC4ADDC21C97AD55DCC8DB94737C01A",
+      "boot_and_samples": "NOT_RUN",
+      "cleanup": "owned database/server removed"
+    }
+  ],
+  "immutable_base": {
+    "descriptor": ".artifacts/pre-armageddon-base-fixtures/20261013T011917Z_024ee64c6f334396b9d65cfe5ce6a02e/base-world.json",
+    "descriptor_sha256": "2F3FA0D5A837E4C9E7663AD8A2E24FBD16F66C4AEB9F1D6351B92DBD01B6039D",
+    "sql_sha256": "44A91CF9B29AA7DA929E43E8805AF10EF3165E1FCA5D753D5C577E1241546184",
+    "foundational_reseeding": false,
+    "workflow": "fresh owned restore, targeted Armageddon package only; exact reviewed inert interface compatibility, sealed SQL unchanged"
+  },
+  "gates": {
+    "release": false,
+    "package_admissions": false,
+    "class_availability": false,
+    "unqualified_carrier_producers": false
+  },
+  "remaining_critical": [
+    "52 required definitions and their defining adapters/dependencies remain undeclared.",
+    "Seven creature/controller representative mission/riding/custody cases remain pending.",
+    "Sheltering Veil and Consuming Flame require real Clerical/Necromancy rank5/6 supplies, rank hierarchy and the explicit water-plane conditional material rule.",
+    "Venom/Purge Toxin require durable native dose origin/custody rather than heuristic drug adjustment.",
+    "Deferred ten foci, two device blanks and twelve recipes require real qualified dependency allowlists.",
+    "S5/S6 and N24/N25 remain separate."
+  ],
+  "environment_blockers": [],
+  "candidate100_receipt": {
+    "local_optional_path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-consolidated-test-receipt\\candidate-100.json",
+    "sha256": "ac6777392f204c25b0a42f31d7e057c41c3e268e71d03a22b83d584aeb64e1d8"
+  }
+}

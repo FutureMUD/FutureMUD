@@ -215,8 +215,11 @@ For Stone Skin with spell armour first and agility boost second, use
 `grades scalar add target 1 boost Bonus -grade`. The index is zero-based even though the
 ordinary effect editor uses one-based effect numbers. Reordering/removing effects must
 leave the binding's expected `boost` token, index, `Bonus` field and trait valid; otherwise
-readiness fails. Only this typed scalar adapter is supported. Omitting a binding retains
-the authored fixed bonus. A detached invocation receives -1 at grade 1 and -3 at grade 3;
+readiness fails. The supported typed fields are `boost.Bonus`,
+`roomlight.AddedLuxPerPower`, `healingrate.Multiplier` and `needdelta.DrunkDelta`.
+The same writer supplies detached invocations and frozen stored-spell copies. It rejects
+nonfinite results. Exact alcohol-removal bindings also reject positive or out-of-bounds
+amounts before payment. Omitting a binding retains the authored fixed value. A detached invocation receives -1 at grade 1 and -3 at grade 3;
 the catalogue scalar and saved template remain unchanged.
 
 The incantation fixture enables Say (energy x1, difficulty +0) and Whisper (x2, +1).
@@ -529,3 +532,38 @@ The optional shared `IMagicSpellEffectInvocationInputs` capability binds typed p
 Input binding draws no randomness and changes no shared spell definition, acquisition or player state. Native missions retain the captured exact target identity, instance, body and spatial state, and exact parcel identity, quantity, registry and held custody. Fresh invocation copies must agree on these inputs. Raw fences run after live admission callbacks, immediately before native creation, after load callbacks, and after controller authority/visibility callbacks immediately before mission construction. A stale input cannot be silently resampled. Failure after committed NPC creation retains a lifecycle hold and refuses replay. Normal controller primary-creator, current acquisition and attached enabled capability guards remain required.
 
 The [S4 checkpoint](Armageddon_S4_Checkpoint_20261012.md) distinguishes focused pipeline/fixture evidence from outstanding paid native creature acceptance.
+
+## Exact native maintenance and linked vitality
+
+S4 opt-in `DirectAlcoholRemoval`, `DirectStaminaAdjustment` and `ExactResourceDepletion`
+use the captured native needs model, stamina balance or explicitly selected reserve.
+They clamp to native limits, preserve unrelated needs/reserves, and do not call expenditure
+multipliers, second winds, caster-credit transfers or refill/grant paths. A missing exact
+reserve reports NoChange. Native setter/save-queue failures retain a hold rather than
+replaying an uncertain write; successful writes dirty their actual owners.
+
+Owned disease binds native SownSickness kind5, contact exposure, exact grade intensity,
+virulence1 and family `arm.effect.disease`. Intensity/virulence must be fixed, finite and
+exact before payment; this rule leaves ordinary unowned builder disease definitions intact.
+The native infection begins health processing and retains original body/infection identity
+across saved parents. Purge Disease removes only the matching owned family/infection.
+Toxin-origin persistence and retained toxin detection remain separate unresolved adapters.
+
+Vital Siphon and Devouring Touch heal at most both `5*grade` and new/aggravated native
+wound damage delivered to the captured victim body. Armour/item wounds, pain, stun and
+existing wounds earn no healing. Leeching Edge applies only to actual native melee-weapon
+harm and selects the strongest single fraction, `min(0.1*grade,0.5)`. Healing uses native
+Mend-eligible wounds worst first. Explicit resistance and target/caster progs supply world
+policy; native Arcane is an editable authored choice. Callback drift before native mutation
+refuses; uncertain postcommit work is held without refund or replay.
+
+Canonical contribution keys come from the installer's same resolver list used for execution.
+The MySQL lost-ack recovery case interrupts its current final contribution, then requires a
+true no-op rerun; it does not assume an older eight-definition endpoint. Definition counts,
+S4 gameplay qualification and S5/release admission remain distinct.
+
+## Opt-in one-use reflection and native mobility mappings
+
+Native school wards can set `OneUse` with Incoming/Reflect, editable with the existing ward `oneuse` command. Absence retains unlimited legacy behaviour. Queries do not consume the use. The paid successful reflection commits the exact admitted child/parent token, records spent state and marks owning effects dirty before later callbacks. The same token fences reflection text and downstream payload emote callbacks; stale authority holds the paid recipient, with no replay/refund. Used state and remaining lifetime survive native parent reload.
+
+Stock Turn the Elements selects the explicit S2 Fire school, no inferred union, with floor7 and30*grade seconds. The school is builder editable. Stone Skin binds ordinary physical Agility where unique, otherwise the supported ordinary Dexterity mobility equivalent (the labmud preset); ambiguous candidates hold. The alias retains its exact native ID when a later attribute appears. It creates no attribute, and the spell description records the actual mapped attribute name.

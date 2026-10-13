@@ -1073,3 +1073,32 @@ S4 canonical contributions bind the seven real S3 families/49 templates with `Te
 
 
 S4 initial Haunt assignment rechecks the exact durable primary instance after native authority/visibility/colocation callbacks, then checks its absolute deadline and retained paid physical frame before constructing a saved mission. The direct command and prepared invocation use the same final guard. A callback that changes only persisted primary status, or consumes the remaining lifetime, refuses without adding a mission or saving the NPC. The ordinary independent FMDB reader remains the runtime authority; injected owned-context readers exist only for deterministic unit verification.
+
+## Prepared shelters, pockets and damaging barriers
+
+Shelters may bind an exact native autobuilder presentation and selected-grade capacity before
+private room/exit birth. Folded Pocket binds an exact persisted held item and its custody,
+quantity, prototype/component revisions and carrier policy; it never borrows floor/container
+or projected custody. Both use a typed safe permanent-room fallback selected from the configured
+starting-location route, with no fixed Room1 assumption. Callback drift is checked before and
+inside native mutation, and postcommit uncertainty holds the owned graph without replay.
+
+Flame, Thorn and Blade Barrier use editable native Burning/Piercing/Slashing defaults,
+`3*grade` harm and `60*grade` parent lifetime. Their defining contact is an admitted crossing
+attempt after ordinary movement, door, guard and drag admission. The action consumes contact
+once, applies native guarded harm, then blocks passage; a successful relocation is unnecessary.
+CanCross/path queries remain pure. Late ordinary denial stops with no injury. Native planar
+bypass has no physical contact. Saved absolute deadlines preserve remaining life, and expired
+or orphan children stop blocking even before scheduled cleanup. Native body and item checkpoints
+recheck exact physical ownership after authority callbacks.
+
+Canonical Fury/Calm ordinary duration is0 because their source profiles own `60*grade` timing.
+Canonical Storm Spear ordinary duration is0 because its lifecycle caches the source random
+lifetime once; casting does not consume a discarded second random draw. Legacy runtime factories
+retain their earlier policies. Room-light children now save the correct `SpellRoomLight` token;
+older malformed SpellGlow payloads are not silently certified or migrated.
+
+The projection service's raw physical guard applies whether or not an effigy source exists.
+The optional-source condition is grouped before body/identity/location checks, so Walking
+Shadow cannot bypass those checks merely because it has no held source item. Native projection
+creation/retirement acceptance remains separately required.

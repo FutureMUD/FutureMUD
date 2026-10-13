@@ -71,9 +71,12 @@ internal sealed class VitalTransferReceipt : IMagicVitalTransferDamage, IDisposa
 
 	public IMagicVitalTransferMeasurement? BeginMeasurement(IBody body, IDamage damage)
 	{
-		if (_closed || !Continue() || !ReferenceEquals(body, _victimBody) ||
+		if (_closed || !ReferenceEquals(body, _victimBody) ||
 			!ReferenceEquals(damage.VitalTransfer, this) || !ReferenceEquals(damage.ActorOrigin, _source) ||
 			!ReferenceEquals(damage.ToolOrigin, _tool)) return null;
+		// A matched live packet is about to mutate the captured native body. Returning no
+		// measurement here would allow stale harm after the body's own authority callback.
+		if (!Continue()) throw new InvalidOperationException("The active vitality transfer lost its exact body or weapon before native injury.");
 		var before = new Dictionary<IWound, double>(ReferenceEqualityComparer.Instance);
 		foreach (var wound in body.Wounds) before.TryAdd(wound, wound.CurrentDamage);
 		return new Measurement(this, before);

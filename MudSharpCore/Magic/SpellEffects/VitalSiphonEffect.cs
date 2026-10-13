@@ -8,8 +8,58 @@ using MudSharp.RPG.Checks;
 namespace MudSharp.Magic.SpellEffects;
 
 /// <summary>One linked native injury/healing operation. Payment and resistance remain in MagicSpell.</summary>
-public sealed class VitalSiphonEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation
+public sealed class VitalSiphonEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation, IMagicSpellEffectPreparedSelection
 {
+	private readonly Dictionary<IPerceivable, Selection> _selections = new(ReferenceEqualityComparer.Instance);
+	private sealed record Selection(ICharacter Caster, IPerceivable Recipient, int Grade, string Definition,
+		Func<bool> Check) : IMagicSpellEffectPreparedSelectionRawToken
+	{ public bool IsCurrent => Check(); }
+
+	public IMagicSpellEffectPreparedSelectionToken CapturePreparedSelection(ICharacter caster, IPerceivable recipient)
+	{
+		if (_selections.TryGetValue(recipient, out var existing))
+		{
+			if (!TryConfirmPreparedSelection(caster, recipient, out var error)) throw new InvalidOperationException(error);
+			return existing;
+		}
+		if (recipient is not ICharacter victim || ReferenceEquals(caster, victim) ||
+			Spell is not MagicSpell { InvocationGrade: >= 1 and <= 7 } native ||
+			caster.Body is not { } sourceBody || victim.Body is not { } targetBody ||
+			!ReferenceEquals(sourceBody.Actor, caster) || !ReferenceEquals(targetBody.Actor, victim) ||
+			ReferenceEquals(sourceBody, targetBody) || !ReferenceEquals(caster.Gameworld, Gameworld) ||
+			!ReferenceEquals(victim.Gameworld, Gameworld))
+			throw new InvalidOperationException("Vital transfer requires a distinct current character body in this world and a selected grade.");
+		var sourceIdentity = caster.Identity; var targetIdentity = victim.Identity;
+		var sourceInstance = caster.InstanceId; var targetInstance = victim.InstanceId;
+		var sourceId = caster.Id; var targetId = victim.Id;
+		var sourceState = caster.State; var targetState = victim.State;
+		var grade = native.InvocationGrade.Value;
+		var definition = SaveToXml().ToString(SaveOptions.DisableFormatting);
+		var selection = new Selection(caster, victim, grade, definition, () =>
+			ReferenceEquals(caster.Gameworld, Gameworld) && ReferenceEquals(victim.Gameworld, Gameworld) &&
+			ReferenceEquals(caster.Body, sourceBody) && ReferenceEquals(sourceBody.Actor, caster) &&
+			ReferenceEquals(victim.Body, targetBody) && ReferenceEquals(targetBody.Actor, victim) &&
+			ReferenceEquals(caster.Identity, sourceIdentity) && ReferenceEquals(victim.Identity, targetIdentity) &&
+			caster.InstanceId == sourceInstance && victim.InstanceId == targetInstance && caster.Id == sourceId && victim.Id == targetId &&
+			caster.State == sourceState && victim.State == targetState && native.InvocationGrade == grade &&
+			SaveToXml().ToString(SaveOptions.DisableFormatting) == definition);
+		_selections.Add(recipient, selection);
+		return selection;
+	}
+	public bool TryReusePreparedSelection(IMagicSpellEffectPreparedSelectionToken selection, ICharacter caster,
+		IPerceivable recipient, out string? error)
+	{
+		error = "The prepared vitality transfer recipient, body or configuration changed.";
+		if (selection is not Selection token || !ReferenceEquals(token.Caster, caster) || !ReferenceEquals(token.Recipient, recipient) ||
+			!token.IsCurrent || Spell is not MagicSpell native || native.InvocationGrade != token.Grade ||
+			SaveToXml().ToString(SaveOptions.DisableFormatting) != token.Definition) return false;
+		_selections[recipient] = token; error = null; return true;
+	}
+	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
+	{
+		error = "The prepared vitality transfer recipient, body or configuration changed.";
+		return _selections.TryGetValue(recipient, out var token) && TryReusePreparedSelection(token, caster, recipient, out error);
+	}
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("vitalsiphon", (xml, spell) => new VitalSiphonEffect(xml, spell));
@@ -72,13 +122,16 @@ public sealed class VitalSiphonEffect : IMagicSpellEffectTemplate, IMagicSpellEf
 	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
+		if (target is not null && _selections.ContainsKey(target) && !TryConfirmPreparedSelection(caster, target, out var error))
+			throw new InvalidOperationException(error);
 		if (target is not ICharacter victim || ReferenceEquals(caster, victim) ||
 			Spell is not MagicSpell { InvocationGrade: >= 1 and <= 7 } native || caster.Body is null || victim.Body is null)
 			return new(MagicEffectOperationStatus.Rejected, null);
 		using var receipt = new VitalTransferReceipt(caster, victim);
 		var body = victim.Body;
 		var part = body.RandomBodypart;
-		if (part is null || !receipt.IsCurrent || !CommandExecutionScope.TryContinue())
+		if (part is null || !receipt.IsCurrent || !CommandExecutionScope.TryContinue() || !receipt.IsCurrent ||
+			_selections.ContainsKey(victim) && !TryConfirmPreparedSelection(caster, victim, out _))
 			return new(MagicEffectOperationStatus.Rejected, null);
 		var amount = Casting.SpellAreaDamageScope.ScaleDamage(caster, victim, Spell, DamagePerGrade * native.InvocationGrade.Value);
 		if (!double.IsFinite(amount) || amount <= 0) return new(MagicEffectOperationStatus.NoChange, null);

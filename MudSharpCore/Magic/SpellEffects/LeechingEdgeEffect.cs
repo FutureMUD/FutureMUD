@@ -8,8 +8,49 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public sealed class LeechingEdgeEffect : IMagicSpellEffectTemplate
+public sealed class LeechingEdgeEffect : IMagicSpellEffectTemplate, IMagicSpellEffectPreparedSelection
 {
+	private readonly Dictionary<IPerceivable, Selection> _selections = new(ReferenceEqualityComparer.Instance);
+	private sealed record Selection(ICharacter Caster, IPerceivable Recipient, int Grade, string Definition,
+		Func<bool> Check) : IMagicSpellEffectPreparedSelectionRawToken
+	{ public bool IsCurrent => Check(); }
+	public IMagicSpellEffectPreparedSelectionToken CapturePreparedSelection(ICharacter caster, IPerceivable recipient)
+	{
+		if (_selections.TryGetValue(recipient, out var existing))
+		{
+			if (!TryConfirmPreparedSelection(caster, recipient, out var error)) throw new InvalidOperationException(error);
+			return existing;
+		}
+		if (recipient is not IGameItem item || item.GetItemType<IMeleeWeapon>() is not { } weapon ||
+			!ReferenceEquals(weapon.Parent, item) || item.Deleted || item.Destroyed ||
+			Spell is not MagicSpell { InvocationGrade: >= 1 and <= 7 } native || caster.Body is not { } body ||
+			!ReferenceEquals(body.Actor, caster) || !ReferenceEquals(caster.Gameworld, Gameworld) || !ReferenceEquals(item.Gameworld, Gameworld))
+			throw new InvalidOperationException("Leeching Edge requires an existing native melee weapon in this world and a selected grade.");
+		var identity = caster.Identity; var instance = caster.InstanceId; var id = caster.Id; var itemId = item.Id;
+		var state = caster.State; var grade = native.InvocationGrade.Value;
+		var definition = SaveToXml().ToString(SaveOptions.DisableFormatting);
+		var selection = new Selection(caster, item, grade, definition, () =>
+			ReferenceEquals(caster.Gameworld, Gameworld) && ReferenceEquals(item.Gameworld, Gameworld) &&
+			ReferenceEquals(caster.Body, body) && ReferenceEquals(body.Actor, caster) && ReferenceEquals(caster.Identity, identity) &&
+			caster.InstanceId == instance && caster.Id == id && caster.State == state && item.Id == itemId && !item.Deleted && !item.Destroyed &&
+			ReferenceEquals(item.GetItemType<IMeleeWeapon>(), weapon) && ReferenceEquals(weapon.Parent, item) &&
+			native.InvocationGrade == grade && SaveToXml().ToString(SaveOptions.DisableFormatting) == definition);
+		_selections.Add(recipient, selection); return selection;
+	}
+	public bool TryReusePreparedSelection(IMagicSpellEffectPreparedSelectionToken selection, ICharacter caster,
+		IPerceivable recipient, out string? error)
+	{
+		error = "The prepared melee weapon, caster body or configuration changed.";
+		if (selection is not Selection token || !ReferenceEquals(token.Caster, caster) || !ReferenceEquals(token.Recipient, recipient) ||
+			!token.IsCurrent || Spell is not MagicSpell native || native.InvocationGrade != token.Grade ||
+			SaveToXml().ToString(SaveOptions.DisableFormatting) != token.Definition) return false;
+		_selections[recipient] = token; error = null; return true;
+	}
+	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
+	{
+		error = "The prepared melee weapon, caster body or configuration changed.";
+		return _selections.TryGetValue(recipient, out var token) && TryReusePreparedSelection(token, caster, recipient, out error);
+	}
 	public static void RegisterFactory()
 	{
 		SpellEffectFactory.RegisterLoadTimeFactory("leechingedge", (xml, spell) => new LeechingEdgeEffect(xml, spell));
@@ -54,6 +95,8 @@ public sealed class LeechingEdgeEffect : IMagicSpellEffectTemplate
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
+		if (target is not null && _selections.ContainsKey(target) && !TryConfirmPreparedSelection(caster, target, out var error))
+			throw new InvalidOperationException(error);
 		if (target is not IGameItem item || item.GetItemType<IMeleeWeapon>() is null ||
 			Spell is not MagicSpell { InvocationGrade: >= 1 and <= 7 } native) return null;
 		return new SpellLeechingEdgeEffect(item, parent, Math.Min(FractionPerGrade * native.InvocationGrade.Value, MaximumFraction));

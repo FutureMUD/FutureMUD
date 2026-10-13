@@ -167,6 +167,7 @@ public static partial class ArmageddonInstallation
 				nameof(Improver) => db.Improvers.Any(x => x.Id == record.LogicalId),
 				nameof(FutureProg) => db.FutureProgs.Any(x => x.Id == record.LogicalId),
 				nameof(Tag) => db.Tags.Any(x => x.Id == record.LogicalId),
+				nameof(Plane) => db.Planes.Any(x => x.Id == record.LogicalId),
 				nameof(Liquid) => db.Liquids.Any(x => x.Id == record.LogicalId),
 				nameof(WeaponType) => db.WeaponTypes.Any(x => x.Id == record.LogicalId),
 				nameof(WeaponAttack) => db.WeaponAttacks.Any(x => x.Id == record.LogicalId),

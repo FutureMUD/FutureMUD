@@ -18,6 +18,7 @@ internal sealed partial class ArmageddonCatalogueOwnership
 	private static readonly IReadOnlyDictionary<Type, string[]> OwnedFields = MedicalOwnedFields(CreatureOwnedFields(AnatomyOwnedFields(new Dictionary<Type, string[]>
 	{
 		[typeof(Tag)] = ["Name", "ParentId", "ShouldSeeProgId"],
+		[typeof(Plane)] = ["Name", "Alias", "Description", "RoomDescriptionAddendum", "RoomNameFormat", "RemoteObservationTag", "DisplayOrder", "IsDefault"],
 		[typeof(Liquid)] = ["Name", "Description", "LongDescription", "TasteText", "VagueTasteText", "SmellText", "VagueSmellText", "TasteIntensity", "SmellIntensity", "AlcoholLitresPerLitre", "WaterLitresPerLitre", "FoodSatiatedHoursPerLitre", "DrinkSatiatedHoursPerLitre", "Viscosity", "Density", "Organic", "ThermalConductivity", "ElectricalConductivity", "SpecificHeatCapacity", "IgnitionPoint", "FreezingPoint", "BoilingPoint", "DraughtProgId", "SolventId", "CountAsId", "CountAsQuality", "DisplayColour", "DampDescription", "WetDescription", "DrenchedDescription", "DampShortDescription", "WetShortDescription", "DrenchedShortDescription", "SolventVolumeRatio", "DriedResidueId", "DrugId", "DrugGramsPerUnitVolume", "InjectionConsequence", "ResidueVolumePercentage", "RelativeEnthalpy", "GasFormId", "LeaveResidueInRooms", "SurfaceReactionInfo", "StaleAfterSeconds", "SpoilAfterSeconds", "StaleLiquidId", "SpoiledLiquidId"],
 		[typeof(TraitExpression)] = ["Name", "Expression"],
 		[typeof(WeaponType)] = ["Name", "Classification", "AttackTraitId", "ParryTraitId", "ParryBonus", "Reach", "StaminaPerParry"],

@@ -46,6 +46,7 @@ internal static class ArmageddonCatalogueLinks
 		nameof(Terrain) => db.Terrains.Any(x => x.Id == alias.NativeId),
 		nameof(TraitDefinition) => db.TraitDefinitions.Any(x => x.Id == alias.NativeId && x.Type == 1 && x.DerivedType == 0 && x.OwnerScope == 0),
 		nameof(Room) => ArmageddonStockSpellInstaller.IsSafeFallback(db, alias.NativeId),
+		nameof(Plane) => db.Planes.Any(x => x.Id == alias.NativeId),
 		nameof(WeaponType) => db.WeaponTypes.Any(x => x.Id == alias.NativeId),
 		nameof(BodyProto) => db.BodyProtos.Any(x => x.Id == alias.NativeId),
 		nameof(PopulationBloodModel) => db.PopulationBloodModels.Any(x => x.Id == alias.NativeId),

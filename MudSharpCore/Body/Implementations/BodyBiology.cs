@@ -933,6 +933,7 @@ public partial class Body
 				if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return Enumerable.Empty<IWound>();
 				MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
                 var transferMeasurement = damage.VitalTransfer?.BeginMeasurement(this, damage);
+				damage.MutationGuard?.Validate(this, damage);
                 existingWound = HealthStrategy.SufferDamage(Actor, new Damage(damage) { TargetBody = this }, damage.Bodypart).FirstOrDefault();
                 if (existingWound == null)
                 {
@@ -953,6 +954,7 @@ public partial class Body
 			if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return Enumerable.Empty<IWound>();
 			MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
             var existingTransferMeasurement = damage.VitalTransfer?.BeginMeasurement(this, damage);
+			damage.MutationGuard?.Validate(this, damage);
             existingWound.OriginalDamage += damage.DamageAmount;
             existingWound.CurrentDamage += damage.DamageAmount;
             existingWound.CurrentPain += damage.PainAmount;
@@ -979,6 +981,14 @@ public partial class Body
             foreach (IArmour item in armour)
             {
                 if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return wounds;
+				if (damage.MutationGuard is { } armourGuard)
+				{
+					var parent = item.Parent;
+					armourGuard.Validate(this, damage);
+					if (!ReferenceEquals(item.Parent, parent) || !WornItemsProfilesFor(damage.Bodypart)
+						.Any(x => ReferenceEquals(x.Item1, parent) && !x.Item2.NoArmour) || !ReferenceEquals(parent.GetItemType<IArmour>(), item))
+						throw new InvalidOperationException("Captured armour changed before guarded injury.");
+				}
                 damage = item.PassiveSufferDamage(damage, ref wounds);
                 sb.AppendLine(
                     $"Armour ({item.Parent.HowSeen(item.Parent)}): Took {wounds.LastOrDefault(x => x.Parent == item.Parent)?.CurrentDamage.ToString("N2") ?? "None"}, Passed on: {(damage == null ? "Nothing" : $"#2{damage.DamageAmount:N2} #3{damage.DamageType.Describe()}#0".SubstituteANSIColour())}");
@@ -999,6 +1009,13 @@ public partial class Body
             if (targetProsthetic != null)
             {
                 sb.AppendLine($"Hit Prosthetic ({targetProsthetic.Parent.HowSeen(targetProsthetic.Parent)})");
+				if (damage.MutationGuard is { } prostheticGuard)
+				{
+					var parent = targetProsthetic.Parent;
+					prostheticGuard.Validate(this, damage);
+					if (!ReferenceEquals(targetProsthetic.Parent, parent) || !Prosthetics.Any(x => ReferenceEquals(x, targetProsthetic)))
+						throw new InvalidOperationException("Captured prosthetic changed before guarded injury.");
+				}
                 wounds.AddRange(targetProsthetic.Parent.PassiveSufferDamage(damage));
                 return wounds;
             }
@@ -1017,6 +1034,12 @@ public partial class Body
             }
 
             MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
+			if (damage.MutationGuard is { } magicArmourGuard)
+			{
+				magicArmourGuard.Validate(this, damage);
+				if (!CombinedEffectsOfType<IMagicArmour>().Any(x => ReferenceEquals(x, magicarmour)))
+					throw new InvalidOperationException("Captured magical armour changed before guarded injury.");
+			}
             damage = magicarmour.PassiveSufferDamage(damage, ref wounds);
             if (damage == null)
             {
@@ -1090,6 +1113,7 @@ public partial class Body
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return wounds;
 		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
         var transferMeasurementForWounds = damage.VitalTransfer?.BeginMeasurement(this, damage);
+		damage.MutationGuard?.Validate(this, damage);
         IWound[] newWounds = HealthStrategy.SufferDamage(Actor, new Damage(damage) { TargetBody = this }, damage.Bodypart).ToArray();
         IWound newWound = newWounds.FirstOrDefault(x => x is not BoneFracture);
         newWound?.SeveredBodypart = severedPart;

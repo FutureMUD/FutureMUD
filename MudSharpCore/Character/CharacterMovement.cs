@@ -309,7 +309,7 @@ public partial class Character
 			return (true, null);
 		}
 
-		if (exit.Exit.EffectsOfType<IExitBarrierEffect>().FirstOrDefault() is not null && !this.CanCrossMagicalBarriersPlanar())
+		if (exit.Exit.EffectsOfType<IExitBarrierEffect>().Any(x => MudSharp.Movement.ExitBarrierTraversal.Blocks(x, this, exit)) && !this.CanCrossMagicalBarriersPlanar())
 		{
 			return (false,
 				new EmoteOutput(

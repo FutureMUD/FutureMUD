@@ -7,6 +7,8 @@ namespace MudSharp.Health
 {
     public interface IDamage
     {
+		/// <summary>Optional runtime-only physical mutation fence; ordinary damage has none.</summary>
+		IDamageMutationGuard MutationGuard => null;
 		/// <summary>Optional invocation-local native wound measurement; never persisted.</summary>
 		MudSharp.Magic.IMagicVitalTransferDamage VitalTransfer => null;
 		/// <summary>The body receiving this injury, which may differ from its controller's active body.</summary>

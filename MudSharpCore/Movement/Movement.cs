@@ -1,4 +1,4 @@
-﻿using MoreLinq.Extensions;
+using MoreLinq.Extensions;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat;
 using MudSharp.Construction;
@@ -24,6 +24,7 @@ public class Movement : IMovement
     private readonly IVehicleOperationalReadinessService _vehicleOperationalReadinessService = new VehicleOperationalReadinessService();
     private readonly Dictionary<long, VehicleHitchGraphMovePlan> _vehicleDragMovePlans = new();
 	private readonly bool _ignoreSafeMovement;
+	private readonly HashSet<ICharacter> _barrierContacts = new(ReferenceEqualityComparer.Instance);
 
     #region Implementation of IMovement
 
@@ -850,12 +851,12 @@ public class Movement : IMovement
         }
 
         // Next try the same process but with crossing the threshold
-        List<ICharacter> stuck = CharacterMovers.Where(x => !x.CanCross(Exit).Success).ToList();
+        List<ICharacter> stuck = CharacterMovers.Where(x => !ExitBarrierTraversal.CanCrossForMovement(x, Exit, this).Success).ToList();
         if (stuck.Any())
         {
             foreach (ICharacter ch in stuck)
             {
-                (bool _, IEmoteOutput why) = ch.CanCross(Exit);
+                (bool _, IEmoteOutput why) = ExitBarrierTraversal.CanCrossForMovement(ch, Exit, this);
                 ch.OutputHandler.Handle(why);
                 CancelForMoverOnly(ch);
             }
@@ -972,6 +973,20 @@ public class Movement : IMovement
                 dragLeader, dragLeader, target), flags: OutputFlags.InnerWrap));
             CancelForMoverOnly(dragLeader);
         }
+
+		// An admitted movement action can contact a damaging barrier once. Queries never do.
+		var contactStopped = false;
+		foreach (var mover in CharacterMovers.ToArray())
+		{
+			if (Exit?.Exit?.Effects.OfType<IExitBarrierTraversalEffect>().Any(x => x.IsActive) != true) continue;
+			// A nested callback may re-enter this same movement while contact is pending.
+			// Consumed contact must stop that nested action, never admit an unchecked crossing.
+			if (_barrierContacts.Add(mover) && !ExitBarrierTraversal.Contact(mover, Exit, this)) continue;
+			contactStopped = true;
+			CancelForMoverOnly(mover);
+		}
+		if (contactStopped && Party?.LeaveNoneBehind == true) { Cancel(); return; }
+		if (!CharacterMovers.Any()) { Cancel(); return; }
 
         foreach (ICharacter mover in CharacterMovers)
         {

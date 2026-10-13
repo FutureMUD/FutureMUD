@@ -435,6 +435,7 @@ public class ArmourType : SaveableItem, IArmourType
         {
             ExposureContext = damage.ExposureContext,
 			VitalTransfer = damage.VitalTransfer,
+			MutationGuard = damage.MutationGuard,
             DamageType = damage.DamageType,
             ActorOrigin = damage.ActorOrigin,
             ToolOrigin = damage.ToolOrigin,
@@ -474,6 +475,7 @@ public class ArmourType : SaveableItem, IArmourType
         {
             ExposureContext = damage.ExposureContext,
 			VitalTransfer = damage.VitalTransfer,
+			MutationGuard = damage.MutationGuard,
             DamageType = newDamageType,
             ActorOrigin = damage.ActorOrigin,
             ToolOrigin = damage.ToolOrigin,
@@ -551,6 +553,7 @@ public class ArmourType : SaveableItem, IArmourType
         {
             ExposureContext = damage.ExposureContext,
 			VitalTransfer = damage.VitalTransfer,
+			MutationGuard = damage.MutationGuard,
             DamageType = damage.DamageType,
             ActorOrigin = damage.ActorOrigin,
             ToolOrigin = damage.ToolOrigin,
@@ -597,6 +600,7 @@ public class ArmourType : SaveableItem, IArmourType
         {
             ExposureContext = damage.ExposureContext,
 			VitalTransfer = damage.VitalTransfer,
+			MutationGuard = damage.MutationGuard,
             DamageType = newDamageType,
             ActorOrigin = damage.ActorOrigin,
             ToolOrigin = damage.ToolOrigin,
@@ -678,6 +682,7 @@ public class ArmourType : SaveableItem, IArmourType
         {
             ExposureContext = damage.ExposureContext,
 			VitalTransfer = damage.VitalTransfer,
+			MutationGuard = damage.MutationGuard,
             DamageType = damage.DamageType,
             ActorOrigin = damage.ActorOrigin,
             ToolOrigin = damage.ToolOrigin,
@@ -716,6 +721,7 @@ public class ArmourType : SaveableItem, IArmourType
         {
             ExposureContext = damage.ExposureContext,
 			VitalTransfer = damage.VitalTransfer,
+			MutationGuard = damage.MutationGuard,
             DamageType = newDamageType,
             ActorOrigin = damage.ActorOrigin,
             ToolOrigin = damage.ToolOrigin,

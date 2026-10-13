@@ -4,10 +4,10 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
-	private const string VitalReceiptBaseCompatibility = "inert-vital-receipt-and-recorded-native-base-compilers-20261013";
+	private const string S4DamageBaseCompatibility = "inert-damage-hooks-and-recorded-native-base-compilers-20261013";
 	private const string DamageInterfacePath = "FutureMUDLibrary/Health/IDamage.cs";
 	private const string BaseDamageInterfaceHash = "407A6C10C4EC149CE8E3DC57EC47EB58DAB4D6A327E2B505E54A596C120A4004";
-	private const string VitalDamageInterfaceHash = "DC4FDBB63B7569EA3D80243250A4905E31A8A8854ADB37C0A7B3DFB31F0DD5F4";
+	private const string ReviewedDamageInterfaceHash = "D05A7CD804266CFCBFF5C4CDA568207FBB4AF76E62F22D6B1574113170050EA6";
 	// Captured full-source evidence proves these base compiler inputs at the original capture.
 	// They are now explicit inputs for all new descriptors. The sealed original stays unchanged.
 	private static readonly BaseSource[] BaseCompilerPins =
@@ -17,7 +17,9 @@ internal static partial class GNHProgram
 	];
 	private static readonly BaseSource[] ReviewedS4SourceAdditions =
 	[
-		new("FutureMUDLibrary/Magic/IMagicVitalTransferDamage.cs", "ED326A0A1B9B5DCCA00E0F095D570CF2C443313BF6A2F2A2BD12048B6A494D7E")
+		new("FutureMUDLibrary/Magic/IMagicVitalTransferDamage.cs", "ED326A0A1B9B5DCCA00E0F095D570CF2C443313BF6A2F2A2BD12048B6A494D7E"),
+		new("FutureMUDLibrary/Health/IDamageMutationGuard.cs", "6C937050BDFF2490FC7B8B63AF166D094472CC5E2B261865ABEA072E9ACC3F9D"),
+		new("FutureMUDLibrary/Effects/Interfaces/IExitBarrierTraversalEffect.cs", "E373823D741CC0D7868483AAF3CAA40D536CA717A968FC1103CFC9E6BE9B8011")
 	];
 
 	private static bool CompatibleBaseSources(BaseWorldFixture receipt, IReadOnlyList<BaseSource> current, out string? rule)
@@ -36,12 +38,13 @@ internal static partial class GNHProgram
 			projected.Remove(addition.Path);
 		}
 		if (!recorded.TryGetValue(DamageInterfacePath, out var oldDamage) || oldDamage.Sha256 != BaseDamageInterfaceHash ||
-			!projected.TryGetValue(DamageInterfacePath, out var newDamage) || newDamage.Sha256 != VitalDamageInterfaceHash) return false;
-		// The exact reviewed change adds only a default-null, invocation-local receipt property.
+			!projected.TryGetValue(DamageInterfacePath, out var newDamage) || newDamage.Sha256 != ReviewedDamageInterfaceHash) return false;
+		// The exact reviewed changes add default-null invocation-local receipt/mutation hooks and inert interfaces.
+		// The pre-Armageddon prefix performs no live damage or traversal; schema, answers and restored content remain sealed.
 		// No health/schema subtree is excluded; every other input still compares byte-for-byte.
 		projected[DamageInterfacePath] = oldDamage;
 		var compatible = BaseValueHash(projected.Values.OrderBy(x => x.Path, StringComparer.Ordinal).ToArray()) == receipt.BaseSourceSha256;
-		if (compatible) rule = VitalReceiptBaseCompatibility;
+		if (compatible) rule = S4DamageBaseCompatibility;
 		return compatible;
 	}
 }

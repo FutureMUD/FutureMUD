@@ -151,7 +151,7 @@ public sealed partial class SpellOwnedProjectionService(IFuturemud world) : ISpe
 		var originalBody = caster.Body; var originalRoom = caster.Location; var originalLayer = caster.RoomLayer;
 		var originalInstance = caster.InstanceId; var originalIdentity = caster.Identity; var originalState = caster.State;
 		var originalPlane = world.Planes.Get(c.PlaneId); var originalPrototype = world.ItemProtos.Get(c.EffigyPrototypeId);
-		bool CurrentFrame() => sourceFrame is null || sourceFrame.IsCurrent && ReferenceEquals(caster.Body, originalBody) &&
+		bool CurrentFrame() => (sourceFrame is null || sourceFrame.IsCurrent) && ReferenceEquals(caster.Body, originalBody) &&
 			ReferenceEquals(caster.Identity, originalIdentity) && ReferenceEquals(caster.Location, originalRoom) && caster.RoomLayer == originalLayer &&
 			caster.InstanceId == originalInstance && caster.State == originalState && caster.RoutePositionMetres is null && caster.Movement is null &&
 			ReferenceEquals(world.Planes.Get(c.PlaneId), originalPlane) && ReferenceEquals(world.ItemProtos.Get(c.EffigyPrototypeId), originalPrototype);

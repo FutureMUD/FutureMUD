@@ -29,6 +29,13 @@ public static partial class ArmageddonStockSpellInstaller
 		var contributions = Contributions();
 		foreach (var contribution in contributions)
 		{
+			if (contribution.Key == ArmageddonExistingFactorySpellContent.Keys[0])
+			{
+				var supports = ArmageddonStockSupportInstaller.Install(factory);
+				messages.AddRange(supports.Messages);
+				if (supports.Status != ArmageddonInstallStatus.Completed)
+					return new(supports.Status, messages.AsReadOnly(), identities);
+			}
 			var result = InstallContribution(factory, contribution.Resolve, stage => checkpoint?.Invoke(contribution.Key, stage));
 			messages.AddRange(result.Messages);
 			foreach (var pair in result.Identities) identities.Add(pair.Key, pair.Value);
@@ -55,7 +62,20 @@ public static partial class ArmageddonStockSpellInstaller
 			.Select(x => (Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))))
 		.Append((Key: ArmageddonNativeReserveSpellContent.StealBreathKey, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonNativeReserveSpellContent.StealBreath())))
 		.Concat(new[] { "arm.spell.sow_sickness", "arm.spell.purge_disease" }.Select(key =>
-			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveCondition(db, key)))));
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveCondition(db, key)))))
+		.Concat(ArmageddonExistingFactorySpellContent.Keys.Select(key =>
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveExistingFactory(db, key)))))
+		.Concat(new[] { "arm.spell.vital_siphon", "arm.spell.devouring_touch", "arm.spell.leeching_edge" }.Select(key =>
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveVital(db, key)))))
+		.Concat(ArmageddonGradedWeaponSpellContent.Keys.Select(key =>
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveGradedWeapon(db, key)))))
+		.Concat(new[] { ("fire", ArmageddonBarrierSpellContent.FlameBarrier()), ("water", ArmageddonBarrierSpellContent.ThornBarrier()),
+			("void", ArmageddonBarrierSpellContent.BladeBarrier()) }.Select(x =>
+			(Key: x.Item2.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => new("arm.capability." + x.Item1, x.Item2)))))
+		.Concat(SimpleKeys.Select(key =>
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveSimple(db, key)))))
+		.Concat(UtilityKeys.Select(key =>
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveUtility(db, key)))));
 
 	private static ArmageddonInstallResult InstallContribution(Func<FuturemudDatabaseContext> factory,
 		Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution> resolve, Action<ArmageddonInstallCheckpoint>? checkpoint)

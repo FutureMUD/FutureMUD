@@ -216,7 +216,10 @@ internal static partial class GNHProgram
 			["LiquidId"] = nameof(Db.Liquid), ["Liquid"] = nameof(Db.Liquid), ["Resource"] = nameof(Db.MagicResource),
 			["AutobuilderTemplate"] = nameof(Db.AutobuilderRoomTemplate), ["TemplateRoom"] = nameof(Db.Room), ["FallbackRoom"] = nameof(Db.Room),
 			["WaterPrototype"] = nameof(Db.GameItemProto), ["Prototype"] = nameof(Db.GameItemProto), ["Terrain"] = nameof(Db.Terrain),
-			["School"] = nameof(Db.MagicSchool), ["AI"] = nameof(Db.ArtificialIntelligence), ["BonusPlane"] = nameof(Db.Plane)
+			["School"] = nameof(Db.MagicSchool), ["AI"] = nameof(Db.ArtificialIntelligence), ["BonusPlane"] = nameof(Db.Plane),
+			["Plane"] = nameof(Db.Plane), ["EffigyPrototype"] = nameof(Db.GameItemProto),
+			["CarrierPrototype"] = nameof(Db.GameItemProto), ["PermanentOutput"] = nameof(Db.GameItemProto),
+			["ViewerProg"] = nameof(Db.FutureProg), ["ApplicabilityProg"] = nameof(Db.FutureProg)
 		};
 		foreach (var node in XElement.Parse(spell.Definition).Descendants())
 		{

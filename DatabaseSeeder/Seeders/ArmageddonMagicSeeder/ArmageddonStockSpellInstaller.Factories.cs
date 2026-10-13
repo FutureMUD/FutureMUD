@@ -137,4 +137,69 @@ public static partial class ArmageddonStockSpellInstaller
 			_ => throw new StockDependencyException(key + ": no exact vitality factory is registered.")
 		};
 	}
+	private static readonly string[] SimpleKeys = ["arm.spell.fireworks", "arm.spell.distant_mirage", "arm.spell.shadowplay",
+		"arm.spell.sky_lantern", "arm.spell.phantasm", "arm.spell.veil_of_elements", "arm.spell.buoyant_lift",
+		"arm.spell.windborne_flight", "arm.spell.gentle_descent", "arm.spell.sand_barrier", "arm.spell.wind_barrier",
+		"arm.spell.clouded_will", "arm.spell.arcane_mark", "arm.spell.unmaking_ward", "arm.spell.bar_the_elements"];
+
+	private static long ProgressionIdentity<T>(FuturemudDatabaseContext db, string key) where T : class
+	{
+		var claim = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key);
+		if (claim is not { Retired: false, LogicalId: > 0, RevisionNumber: null, SeedBaseline: not null } ||
+			claim.Module != ArmageddonProgressionInstaller.Module || claim.ManifestVersion != ArmageddonProgressionInstaller.Version ||
+			claim.EntityType != typeof(T).Name || db.Find<T>(claim.LogicalId.Value) is null ||
+			db.SeederManagedRecords.Any(x => x.Id != claim.Id && x.EntityType == claim.EntityType && x.LogicalId == claim.LogicalId))
+			throw new StockDependencyException(key + ": restore the exact unique typed progression support identity.");
+		return claim.LogicalId.Value;
+	}
+
+	private static ArmageddonCanonicalSpellContribution ResolveSimple(FuturemudDatabaseContext db, string key) =>
+		ArmageddonSimpleStockContent.Create(new(ProgressionIdentity<MagicResource>(db, "arm.resource.void"),
+			ProgressionIdentity<MagicSchool>(db, "arm.school.fire"))).Single(x => x.Content.Key == key);
+
+	private static ArmageddonCanonicalSpellContribution ResolveGradedWeapon(FuturemudDatabaseContext db, string key)
+	{
+		if (key == "arm.spell.gather_puddle")
+			return new("arm.capability.water", ArmageddonGradedWeaponSpellContent.GatherPuddle(
+				ArmageddonCatalogueLinks.Bind(db, "arm.liquid.water", nameof(Liquid), () =>
+					throw new StockDependencyException("Retain the explicit native clean-water catalogue alias before puddle creation."))));
+		if (key == "arm.spell.champion_blade")
+			return new("arm.capability.shadow", ArmageddonGradedWeaponSpellContent.ChampionBlade(Enumerable.Range(1, 7)
+				.ToDictionary(x => x, x => CataloguePrototype(db, $"arm.item.champion_blade.g{x}", "MeleeWeapon"))));
+		var temporaryFamily = key == "arm.spell.shadow_blade" ? "shadow_blade" : "spark_lash";
+		var temporary = Enumerable.Range(1, 6).Select(x => CataloguePrototype(db, $"arm.item.{temporaryFamily}.g{x}", "MeleeWeapon")).ToArray();
+		var tag = CatalogueIdentity<Tag>(db, "arm.material.conjuration.rank6");
+		var eligibility = CatalogueProg(db, ArmageddonStockSupportInstaller.WeaponEligibilityKey, ProgVariableTypes.Boolean, ProgVariableTypes.Character);
+		if (key == "arm.spell.shadow_blade") return new("arm.capability.shadow", ArmageddonGradedWeaponSpellContent.ShadowBlade(new(temporary,
+			Enumerable.Range(1, 8).Select(x => CataloguePrototype(db, ArmageddonStockSupportInstaller.ShadowStaffKey(x), "MeleeWeapon")).ToArray(), tag, eligibility,
+			CatalogueProg(db, ArmageddonStockSupportInstaller.ShadowMultiplierKey, ProgVariableTypes.Number, ProgVariableTypes.Character))));
+		if (key == "arm.spell.spark_lash") return new("arm.capability.lightning", ArmageddonGradedWeaponSpellContent.SparkLash(new(temporary,
+			Enumerable.Range(1, 8).Select(x => CataloguePrototype(db, ArmageddonStockSupportInstaller.SparkStaffKey(x), "MeleeWeapon")).ToArray(), tag, eligibility)));
+		throw new StockDependencyException(key + ": no exact graded native factory is registered.");
+	}
+
+	private static readonly string[] UtilityKeys = ["arm.spell.sense_enchantment", "arm.spell.mend_flesh", "arm.spell.draw_water",
+		"arm.spell.hovering_light", "arm.spell.draw_wine", "arm.spell.sustain_meal", "arm.spell.pierce_concealment", "arm.spell.apex_bane"];
+
+	private static ArmageddonCanonicalSpellContribution ResolveUtility(FuturemudDatabaseContext db, string key)
+	{
+		string Source(string progKey, ProgVariableTypes target)
+		{
+			var id = CatalogueProg(db, progKey, ProgVariableTypes.Boolean, target, ProgVariableTypes.Character);
+			return db.FutureProgs.AsNoTracking().Single(x => x.Id == id).FunctionText;
+		}
+		var bindings = new ArmageddonCanonicalUtilityBindings(
+			ArmageddonCatalogueLinks.Bind(db, "arm.liquid.water", nameof(Liquid), () =>
+				throw new StockDependencyException("Retain the typed S3 native clean-water alias before utilities.")),
+			CatalogueIdentity<Liquid>(db, "arm.liquid.wine"), CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.WaterPlaneKey),
+			CataloguePrototype(db, "arm.item.hovering_light", "Wearable"),
+			new[] { "arm.item.food.bread", "arm.item.food.fruit", "arm.item.food.stew" }.Select(x => CataloguePrototype(db, x, "Food")).ToArray(),
+			CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey),
+			Source(ArmageddonStockSupportInstaller.PerceptionEligibilityKey, ProgVariableTypes.Character),
+			Source(ArmageddonStockSupportInstaller.TargetEligibilityKey, ProgVariableTypes.Character),
+			Source(ArmageddonStockSupportInstaller.LiquidEligibilityKey, ProgVariableTypes.Item),
+			Source(ArmageddonStockSupportInstaller.MagicalEligibilityKey, ProgVariableTypes.Character));
+		return ArmageddonCanonicalUtilityContent.Contributions(bindings).Single(x => x.Content.Key == key);
+	}
+
 }

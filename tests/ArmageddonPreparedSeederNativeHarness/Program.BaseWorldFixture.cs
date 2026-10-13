@@ -345,9 +345,9 @@ internal static partial class GNHProgram
 			Require(!IsS4OnlyBaseSource("FutureMUDLibrary/Magic/MagicSchool.cs"), "General shared inputs remain fingerprinted."); checks++;
 			IReadOnlyList<BaseSource> compatibilitySources = [new(DamageInterfacePath, BaseDamageInterfaceHash), new("base.cs", new string('D', 64))];
 			var compatibilityReceipt = original with { BaseSources = compatibilitySources, BaseSourceSha256 = BaseValueHash(compatibilitySources) };
-			var live = compatibilitySources.Select(x => x.Path == DamageInterfacePath ? x with { Sha256 = VitalDamageInterfaceHash } : x)
+			var live = compatibilitySources.Select(x => x.Path == DamageInterfacePath ? x with { Sha256 = ReviewedDamageInterfaceHash } : x)
 				.Concat(BaseCompilerPins).Concat(ReviewedS4SourceAdditions).OrderBy(x => x.Path, StringComparer.Ordinal).ToArray();
-			Require(CompatibleBaseSources(compatibilityReceipt, live, out var applied) && applied == VitalReceiptBaseCompatibility, "Exact reviewed inert receipt compatibility must retain the sealed base."); checks++;
+			Require(CompatibleBaseSources(compatibilityReceipt, live, out var applied) && applied == S4DamageBaseCompatibility, "Exact reviewed inert receipt compatibility must retain the sealed base."); checks++;
 			foreach (var drift in new[]
 			{
 				live.Select(x => x.Path == "base.cs" ? x with { Sha256 = new string('E', 64) } : x).ToArray(),

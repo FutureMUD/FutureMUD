@@ -156,6 +156,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		ArmageddonInstallation.Prepare(factory, mode);
 		db.TraitDefinitions.Add(new() { Name = "Native Fixture Strength", Alias = "str", Type = 1, DerivedType = 0, OwnerScope = 0, TraitGroup = "Physical" });
 		db.FutureProgs.Single(x => x.Id == ArmageddonInstallation.Read(db)!.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg]).AcceptsAnyParameters = true;
+		db.Planes.Add(new() { Name = "Native fixture material plane", Alias = "material", Description = "Fixture", RoomDescriptionAddendum = "", RoomNameFormat = "{0}", RemoteObservationTag = "", IsDefault = true });
 		db.Gases.Single(x => x.Id == 1).Density = 1;
 		foreach (var terrain in db.Terrains)
 		{

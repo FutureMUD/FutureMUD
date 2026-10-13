@@ -1,10 +1,13 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Xml.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body.Traits;
+using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Framework;
 using MudSharp.Magic;
@@ -69,6 +72,62 @@ public class ArmageddonPrimitiveScalarContentTests
 		var f = new MagicCastingFixture();
 		var content = ArmageddonPrimitiveSpellContent.CreateScalarContributions().Single(x => x.Content.Key == "arm.spell." + suffix).Content;
 		AssertOutcome(f, Load(f, content), content.Key, grade, power);
+	}
+
+	[TestMethod]
+	public void QuickenedHealing_PaidNativeChild_ReportsApplied()
+	{
+		var fixture = new MagicCastingFixture();
+		var content = ArmageddonPrimitiveSpellContent.CreateScalarContributions()
+			.Single(x => x.Content.Key == "arm.spell.quickened_healing").Content;
+		fixture.Spells[0] = Load(fixture, content);
+		fixture.Acquire(1);
+		TrackEffects(fixture, false);
+		var result = fixture.Service.Cast(fixture.Intent(1, false));
+		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		var operation = fixture.Store.Operations[result.OperationId!.Value];
+		Assert.AreEqual("true", (string?)XElement.Parse(operation.Definition).Attribute("applied"));
+		fixture.Actor.Verify(x => x.AddEffect(It.IsAny<SpellHealingRateEffect>()), Times.Once);
+	}
+
+	[TestMethod]
+	public void QuickenedHealing_ChildRemovedDuringParentAttachment_DoesNotReportApplied()
+	{
+		var fixture = new MagicCastingFixture();
+		var content = ArmageddonPrimitiveSpellContent.CreateScalarContributions()
+			.Single(x => x.Content.Key == "arm.spell.quickened_healing").Content;
+		fixture.Spells[0] = Load(fixture, content);
+		fixture.Acquire(1);
+		var effects = TrackEffects(fixture, true);
+		var result = fixture.Service.Cast(fixture.Intent(1, false));
+		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		var operation = fixture.Store.Operations[result.OperationId!.Value];
+		Assert.AreEqual("false", (string?)XElement.Parse(operation.Definition).Attribute("applied"));
+		Assert.IsFalse(effects.OfType<SpellHealingRateEffect>().Any());
+		Assert.IsFalse(effects.OfType<MagicSpellParent>().Any());
+	}
+
+	private static List<IEffect> TrackEffects(MagicCastingFixture fixture, bool removeChildOnParent)
+	{
+		var effects = new List<IEffect>();
+		fixture.Actor.SetupGet(x => x.Effects).Returns(() => effects);
+		fixture.Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>())).Callback<IEffect>(effects.Add);
+		fixture.Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
+			.Callback<IEffect, TimeSpan>((effect, _) =>
+			{
+				effects.Add(effect);
+				if (!removeChildOnParent) return;
+				var child = effects.OfType<SpellHealingRateEffect>().Single();
+				effects.Remove(child);
+				child.RemovalEffect();
+			});
+		fixture.Actor.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>()))
+			.Callback<IEffect, bool>((effect, fire) =>
+			{
+				effects.Remove(effect);
+				if (fire) effect.RemovalEffect();
+			});
+		return effects;
 	}
 
 	[DataTestMethod]

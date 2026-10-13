@@ -1807,6 +1807,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 				LifetimeState = lifetime is null ? null : new(lifetime.Admission.Policy, lifetime.Grade)
 			};
 			var lifetimeOperationApplied = false;
+			var ordinaryChildren = new List<IMagicSpellEffect>();
+			bool OrdinaryChildStillAttached() => ordinaryChildren.Any(child =>
+				head.SpellEffects.Contains(child) && effectTarget.Effects.Contains(child));
 			var resolvedAny = templates.Length == 0;
 			try
 			{
@@ -1815,10 +1818,12 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 					if (stillEligible?.Invoke() == false) break;
 					resolvedAny = true;
 					IMagicSpellEffect? child;
+					var operationReported = false;
 					if (prepared.TryGetValue(effect, out var application))
 					{
 						if (invocation?.Configured is { } reporting && application is IMagicSpellEffectApplicationOperation operation)
 						{
+							operationReported = true;
 							var report = operation.Apply(head);
 							child = report.Effect;
 							if (intended && report.Status == MagicEffectOperationStatus.Applied)
@@ -1831,6 +1836,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 					}
 					else if (invocation?.Configured is { } reporting && effect is IMagicSpellEffectOperation operation)
 					{
+						operationReported = true;
 						var report = operation.Apply(magician, effectTarget, effectOutcome, power, head, additionalParameters);
 						child = report.Effect;
 						if (intended && report.Status == MagicEffectOperationStatus.Applied)
@@ -1847,6 +1853,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 
 					head.AddSpellEffect(child);
 					effectTarget.AddEffect(child);
+					if (intended && !operationReported) ordinaryChildren.Add(child);
 				}
 			}
 			catch (Exception applicationError)
@@ -1865,7 +1872,8 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 				if (lifetime is not null)
 				{
 					var changed = FinaliseLifetimeParent(head, lifetime, parentsAppliedThisCast, applicationComplete);
-					if (changed && lifetimeOperationApplied && invocation?.Configured is { } reporting) reporting.AppliedIntendedOperation = true;
+					if (changed && (lifetimeOperationApplied || applicationComplete && OrdinaryChildStillAttached()) &&
+					    invocation?.Configured is { } reporting) reporting.AppliedIntendedOperation = true;
 					return;
 				}
 				if (resolvedAny && AppliedEffectsAreExclusive && !(templates.Length == 0 && HasCasterLifetimePolicy))
@@ -1874,6 +1882,9 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 				{
 					effectTarget.AddEffect(head, duration);
 					parentsAppliedThisCast.Add(head);
+					if (applicationComplete && effectTarget.Effects.Contains(head) && OrdinaryChildStillAttached() &&
+					    invocation?.Configured is { } reporting)
+						reporting.AppliedIntendedOperation = true;
 				}
 			}
 			return resolvedAny;

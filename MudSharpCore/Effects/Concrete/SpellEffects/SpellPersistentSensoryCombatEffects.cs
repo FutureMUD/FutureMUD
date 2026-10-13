@@ -12,6 +12,8 @@ namespace MudSharp.Effects.Concrete.SpellEffects;
 
 public class SpellBurningEffect : MagicSpellEffectBase, IDescriptionAdditionEffect, ISDescAdditionEffect
 {
+	private bool _removed;
+
 	public static void InitialiseEffectType()
 	{
 		RegisterFactory("SpellBurning", (effect, owner) => new SpellBurningEffect(effect, owner));
@@ -94,17 +96,34 @@ public class SpellBurningEffect : MagicSpellEffectBase, IDescriptionAdditionEffe
 		Owner.Reschedule(this, TickInterval);
 	}
 
+	public override void RemovalEffect()
+	{
+		_removed = true;
+		base.RemovalEffect();
+	}
+
 	public override void ExpireEffect()
 	{
+		var parent = ParentEffect;
+		var body = (Owner as ICharacter)?.Body;
+		bool Attached() => !_removed && parent is not null && ReferenceEquals(ParentEffect, parent) &&
+			ReferenceEquals(parent.Owner, Owner) && Owner.Effects.Any(x => ReferenceEquals(x, this)) &&
+			Owner.Effects.Any(x => ReferenceEquals(x, parent)) &&
+			parent.SpellEffects.Any(x => ReferenceEquals(x, this)) &&
+			(Owner is not ICharacter character || body is not null &&
+				ReferenceEquals(character.Body, body) && ReferenceEquals(body.Actor, character));
+		if (!Attached()) return;
 		if (!CanSustainFire())
 		{
-			base.ExpireEffect();
+			if (Attached()) base.ExpireEffect();
 			return;
 		}
 
-		ApplyBurnDamage().ProcessPassiveWounds();
-		ApplyThermalLoad();
-		Owner.Reschedule(this, TickInterval);
+		if (!Attached()) return;
+		ApplyBurnDamage(Attached, body).ProcessPassiveWounds(body);
+		if (!Attached()) return;
+		ApplyThermalLoad(Attached);
+		if (Attached()) Owner.Reschedule(this, TickInterval);
 	}
 
 	private bool CanSustainFire()
@@ -117,7 +136,7 @@ public class SpellBurningEffect : MagicSpellEffectBase, IDescriptionAdditionEffe
 		return (Owner.Location?.Atmosphere as IGas)?.OxidationFactor >= MinimumOxidation;
 	}
 
-	private void ApplyThermalLoad()
+	private void ApplyThermalLoad(Func<bool> attached)
 	{
 		if (ThermalLoadPerTick <= 0.0 || Owner is not ICharacter character)
 		{
@@ -125,25 +144,37 @@ public class SpellBurningEffect : MagicSpellEffectBase, IDescriptionAdditionEffe
 		}
 
 		var thermal = character.CombinedEffectsOfType<ThermalImbalance>().FirstOrDefault();
+		if (!attached()) return;
 		if (thermal is null)
 		{
 			thermal = new ThermalImbalance(character);
 			character.AddEffect(thermal);
+			if (!attached())
+			{
+				character.RemoveEffect(thermal);
+				return;
+			}
 		}
 
-		thermal.ImbalanceProgress += ThermalLoadPerTick;
+		if (attached() && character.Effects.Any(x => ReferenceEquals(x, thermal)))
+			thermal.ImbalanceProgress += ThermalLoadPerTick;
 	}
 
-	private IEnumerable<IWound> ApplyBurnDamage()
+	private IEnumerable<IWound> ApplyBurnDamage(Func<bool> attached, IBody? capturedBody)
 	{
 		switch (Owner)
 		{
-			case ICharacter character:
-				var bodypart = character.Body.RandomBodypart;
-				return character.PassiveSufferDamage(new Damage
+			case ICharacter character when capturedBody is not null:
+				var bodypart = capturedBody.RandomBodypart;
+				if (bodypart is null || !attached() ||
+				    !capturedBody.Bodyparts.Any(x => ReferenceEquals(x, bodypart)))
+					return Enumerable.Empty<IWound>();
+				return capturedBody.PassiveSufferDamage(new Damage
 				{
 					ActorOrigin = ParentEffect?.Caster,
+					TargetBody = capturedBody,
 					Bodypart = bodypart,
+					MutationGuard = new BurningTickGuard(character, capturedBody, bodypart, attached),
 					DamageAmount = DamagePerTick,
 					PainAmount = PainPerTick,
 					StunAmount = StunPerTick,
@@ -152,10 +183,11 @@ public class SpellBurningEffect : MagicSpellEffectBase, IDescriptionAdditionEffe
 					AngleOfIncidentRadians = Math.PI * 0.5,
 					PenetrationOutcome = new CheckOutcome { Outcome = Outcome.MajorPass }
 				});
-			case IGameItem item:
+			case IGameItem item when !item.Deleted && !item.Destroyed && attached():
 				return item.PassiveSufferDamage(new Damage
 				{
 					ActorOrigin = ParentEffect?.Caster,
+					MutationGuard = new BurningTickGuard(item, null, null, attached),
 					DamageAmount = DamagePerTick,
 					PainAmount = 0.0,
 					StunAmount = 0.0,
@@ -166,6 +198,28 @@ public class SpellBurningEffect : MagicSpellEffectBase, IDescriptionAdditionEffe
 				});
 			default:
 				return Enumerable.Empty<IWound>();
+		}
+	}
+
+	private sealed class BurningTickGuard(IPerceivable target, IBody? body,
+		IBodypart? part, Func<bool> attached) : IDamageMutationGuard
+	{
+		private readonly IGameItem[] _bodyItems = body is null ? [] : body.WornItems
+			.Concat(body.Prosthetics.Select(x => x.Parent)).ToArray();
+
+		public void Validate(IHaveWounds recipient, IDamage damage)
+		{
+			var currentRecipient = body is null
+				? ReferenceEquals(recipient, target) && target is IGameItem { Deleted: false, Destroyed: false }
+				: ReferenceEquals(recipient, body) || recipient is IGameItem item &&
+					_bodyItems.Any(x => ReferenceEquals(x, item)) && !item.Deleted && !item.Destroyed &&
+					body.WornItems.Concat(body.Prosthetics.Select(x => x.Parent))
+						.Any(x => ReferenceEquals(x, item));
+			if (!currentRecipient || !attached() || !ReferenceEquals(damage.MutationGuard, this) ||
+			    !ReferenceEquals(damage.TargetBody, body) ||
+			    body is not null && (part is null || !ReferenceEquals(damage.Bodypart, part) ||
+			        !body.Bodyparts.Any(x => ReferenceEquals(x, part))))
+				throw new InvalidOperationException("The spell-owned burning target changed before native injury.");
 		}
 	}
 

@@ -2,6 +2,7 @@
 
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Construction;
@@ -10,6 +11,8 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
+using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.FutureProg;
 using MudSharp.Health;
 using MudSharp.Magic;
@@ -95,6 +98,102 @@ public class MagicPersistentSensoryCombatTests
 			SpellPower.ExtremelyWeak, parent.Object, []);
 		Assert.IsInstanceOfType(applied, typeof(SpellBurningEffect));
 		Assert.AreEqual(expected, ((SpellBurningEffect)applied).DamagePerTick, 1e-9);
+	}
+
+	[TestMethod]
+	public void SpellBurningEffect_RemovalDuringDamageCallback_DoesNotReschedule()
+	{
+		var fixture = CreateBurningTickFixture();
+		fixture.Body.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Returns<IDamage>(_ =>
+		{
+			fixture.Effect.RemovalEffect();
+			fixture.OwnerEffects.Remove(fixture.Effect);
+			return Array.Empty<IWound>();
+		});
+
+		fixture.Effect.ExpireEffect();
+
+		fixture.Body.Verify(x => x.PassiveSufferDamage(It.IsAny<IDamage>()), Times.Once);
+		fixture.Target.Verify(x => x.Reschedule(fixture.Effect, It.IsAny<TimeSpan>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void SpellBurningEffect_BodySwapDuringSelection_RejectsStaleTick()
+	{
+		var fixture = CreateBurningTickFixture();
+		fixture.Body.SetupGet(x => x.RandomBodypart).Returns(() =>
+		{
+			fixture.Target.SetupGet(x => x.Body).Returns(Mock.Of<IBody>());
+			return fixture.Part.Object;
+		});
+
+		fixture.Effect.ExpireEffect();
+
+		fixture.Body.Verify(x => x.PassiveSufferDamage(It.IsAny<IDamage>()), Times.Never);
+		fixture.Target.Verify(x => x.Reschedule(fixture.Effect, It.IsAny<TimeSpan>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void SpellBurningEffect_DetachedParent_RejectsTick()
+	{
+		var fixture = CreateBurningTickFixture();
+		fixture.OwnerEffects.Remove(fixture.Parent.Object);
+
+		fixture.Effect.ExpireEffect();
+
+		fixture.Body.Verify(x => x.PassiveSufferDamage(It.IsAny<IDamage>()), Times.Never);
+		fixture.Target.Verify(x => x.Reschedule(fixture.Effect, It.IsAny<TimeSpan>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void SpellBurningEffect_NativeMutationGuard_RejectsDispelledTarget()
+	{
+		var fixture = CreateBurningTickFixture();
+		fixture.Body.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Returns<IDamage>(damage =>
+		{
+			fixture.Effect.RemovalEffect();
+			fixture.OwnerEffects.Remove(fixture.Effect);
+			Assert.ThrowsException<InvalidOperationException>(() =>
+				damage.MutationGuard.Validate(fixture.Body.Object, damage));
+			return Array.Empty<IWound>();
+		});
+
+		fixture.Effect.ExpireEffect();
+
+		fixture.Target.Verify(x => x.Reschedule(fixture.Effect, It.IsAny<TimeSpan>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void SpellBurningEffect_NativeMutationGuard_RejectsBodySwap()
+	{
+		var fixture = CreateBurningTickFixture();
+		fixture.Body.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Returns<IDamage>(damage =>
+		{
+			fixture.Target.SetupGet(x => x.Body).Returns(Mock.Of<IBody>());
+			Assert.ThrowsException<InvalidOperationException>(() =>
+				damage.MutationGuard.Validate(fixture.Body.Object, damage));
+			return Array.Empty<IWound>();
+		});
+
+		fixture.Effect.ExpireEffect();
+
+		fixture.Target.Verify(x => x.Reschedule(fixture.Effect, It.IsAny<TimeSpan>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void SpellBurningEffect_AttachedNativeTick_ValidatesAndReschedulesOnce()
+	{
+		var fixture = CreateBurningTickFixture();
+		fixture.Body.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Returns<IDamage>(damage =>
+		{
+			damage.MutationGuard.Validate(fixture.Body.Object, damage);
+			return Array.Empty<IWound>();
+		});
+
+		fixture.Effect.ExpireEffect();
+
+		fixture.Body.Verify(x => x.PassiveSufferDamage(It.IsAny<IDamage>()), Times.Once);
+		fixture.Target.Verify(x => x.Reschedule(fixture.Effect, TimeSpan.FromSeconds(10)), Times.Once);
 	}
 
 	[TestMethod]
@@ -239,6 +338,36 @@ public class MagicPersistentSensoryCombatTests
 			new XElement("SDescAddendum", new XCData("(leaving shining tracks)")),
 			new XElement("AddendumColour", "bold cyan"));
 		yield return new XElement("Effect", new XAttribute("type", "tracktrail"));
+	}
+
+	private static (Mock<ICharacter> Target, Mock<IBody> Body, Mock<IBodypart> Part,
+		Mock<IMagicSpellEffectParent> Parent, SpellBurningEffect Effect, List<IEffect> OwnerEffects)
+		CreateBurningTickFixture()
+	{
+		var spell = CreateSpellMock();
+		var caster = CreateCharacter(7, "Caster", spell.Object.Gameworld);
+		var target = CreateCharacter(8, "Target", spell.Object.Gameworld);
+		var body = new Mock<IBody>();
+		var part = new Mock<IBodypart>();
+		body.SetupGet(x => x.Actor).Returns(target.Object);
+		body.SetupGet(x => x.RandomBodypart).Returns(part.Object);
+		body.SetupGet(x => x.Bodyparts).Returns([part.Object]);
+		body.SetupGet(x => x.WornItems).Returns(Array.Empty<IGameItem>());
+		body.SetupGet(x => x.Prosthetics).Returns(Array.Empty<IProsthetic>());
+		target.SetupGet(x => x.Body).Returns(body.Object);
+		var parent = CreateParent(spell.Object, caster.Object);
+		parent.SetupGet(x => x.Owner).Returns(target.Object);
+		var children = new List<IMagicSpellEffect>();
+		parent.SetupGet(x => x.SpellEffects).Returns(children);
+		parent.Setup(x => x.RemoveSpellEffect(It.IsAny<IMagicSpellEffect>()))
+			.Callback<IMagicSpellEffect>(child => children.Remove(child));
+		var effect = new SpellBurningEffect(target.Object, parent.Object, null, DamageType.Burning,
+			2, 0, 0, 0, 10, 0, true, "(burning)", "@ is burning.", Telnet.BoldRed);
+		children.Add(effect);
+		var ownerEffects = new List<IEffect> { parent.Object, effect };
+		target.SetupGet(x => x.Effects).Returns(ownerEffects);
+		body.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Returns(Array.Empty<IWound>());
+		return (target, body, part, parent, effect, ownerEffects);
 	}
 
 	private static Mock<IMagicSpellEffectParent> CreateParent(IMagicSpell spell, ICharacter caster)

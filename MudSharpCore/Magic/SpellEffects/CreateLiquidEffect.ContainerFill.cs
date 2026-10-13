@@ -23,7 +23,7 @@ public partial class CreateLiquidEffect
 	private string? _litresFormula;
 	public bool ContainerOnly { get; private set; }
 	public ITraitExpression? LitresExpression { get; internal set; }
-	public string? DefinitionError => _fillLoadError ?? RecipeError() ?? (!ContainerOnly ? null :
+	public string? DefinitionError => GatherPuddleDefinitionError() ?? _fillLoadError ?? RecipeError() ?? (!ContainerOnly ? null :
 		Liquid is null ? "Configure a source liquid for container filling." :
 		LitresExpression is null || LitresExpression.HasErrors() ? "Configure a valid litres formula." :
 		LitresExpression.NonTraitParameters.Contains("outcome", StringComparer.OrdinalIgnoreCase) ? "Liquid quantity must be determinable before payment; outcome is not supported." :
@@ -102,6 +102,7 @@ public partial class CreateLiquidEffect
 		SpellPower power, TimeSpan resolvedDuration, out IMagicSpellEffectApplication? application, out string? error)
 	{
 		application = null;
+		if (GatherPuddleOnly) return TryPreparePuddleApplication(caster, target, out application, out error);
 		if (!ValidateInvocation(caster, target, out error)) return false;
 		application = ContainerOnly ? new ContainerFill(this, caster, target, _preparedAmount!.Value, SelectedLiquid) :
 			new LegacyLiquidCreation(this, caster, target, outcome, power);

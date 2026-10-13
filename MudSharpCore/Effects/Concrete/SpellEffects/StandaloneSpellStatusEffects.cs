@@ -7,6 +7,8 @@ using MudSharp.Magic;
 using MudSharp.RPG.Checks;
 using MudSharp.Effects.Interfaces;
 using MudSharp.Framework.Scheduling;
+using MudSharp.Body;
+using MudSharp.Framework.Save;
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
@@ -530,6 +532,11 @@ public class SpellPoisonEffect : SimpleSpellStatusEffectBase
 public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 {
 	private IInfection? _appliedInfection;
+	private IBody? _ownedBody;
+	private long _ownedBodyId;
+	private bool _loadedOwned;
+	private bool _applyingOwned;
+	private bool _removingOwned;
 
 	public static void InitialiseEffectType()
 	{
@@ -538,7 +545,8 @@ public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 
 	public SpellDiseaseEffect(IPerceivable owner, IMagicSpellEffectParent parent, InfectionType infectionType,
 		Difficulty virulenceDifficulty, double intensity, double virulence, string intensityFormulaText,
-		string virulenceFormulaText, IFutureProg? prog = null)
+		string virulenceFormulaText, IFutureProg? prog = null, string? ownedFamily = null,
+		DrugVector exposureVector = default, IBody? ownedBody = null)
 		: base(owner, parent, prog)
 	{
 		InfectionType = infectionType;
@@ -547,6 +555,10 @@ public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 		Virulence = virulence;
 		IntensityFormulaText = intensityFormulaText;
 		VirulenceFormulaText = virulenceFormulaText;
+		OwnedFamily = ownedFamily;
+		ExposureVector = exposureVector;
+		_ownedBody = ownedFamily is null ? null : ownedBody ?? (owner as ICharacter)?.Body;
+		_ownedBodyId = _ownedBody?.Id ?? 0;
 	}
 
 	private SpellDiseaseEffect(XElement root, IPerceivable owner)
@@ -560,9 +572,18 @@ public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 		IntensityFormulaText = effect.Element("IntensityFormula")?.Value ?? "0";
 		VirulenceFormulaText = effect.Element("VirulenceFormula")?.Value ?? "1";
 		AppliedInfectionId = long.Parse(effect.Element("AppliedInfectionId")?.Value ?? "0");
+		OwnedFamily = effect.Element("OwnedFamily")?.Value;
+		ExposureVector = (DrugVector)((int?)effect.Element("ExposureVector") ?? 0);
+		_loadedOwned = OwnedFamily is not null;
+		_ownedBodyId = (long?)effect.Element("OwnedBodyId") ?? 0;
+		if (_loadedOwned && owner is ICharacter ownedCharacter &&
+			_ownedBodyId == ownedCharacter.Body.Id)
+			_ownedBody = ownedCharacter.Body;
 		if (owner is ICharacter character && AppliedInfectionId != 0)
 		{
-			_appliedInfection = character.Body.PartInfections.FirstOrDefault(x => x.Id == AppliedInfectionId);
+			_appliedInfection = (OwnedFamily is null ? character.Body : _ownedBody)?.PartInfections
+				.FirstOrDefault(x => x.Id == AppliedInfectionId && (OwnedFamily is null ||
+					x.InfectionType == InfectionType && x.Wound is null && x.Bodypart is null));
 		}
 	}
 
@@ -573,10 +594,19 @@ public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 	public string IntensityFormulaText { get; }
 	public string VirulenceFormulaText { get; }
 	public long AppliedInfectionId { get; private set; }
+	public string? OwnedFamily { get; }
+	public DrugVector ExposureVector { get; }
+	public IBody? OwnedBody => _ownedBody;
+	public IInfection? AppliedInfection => _appliedInfection;
 
 	public override void InitialEffect()
 	{
 		base.InitialEffect();
+		if (OwnedFamily is not null)
+		{
+			InitialOwnedEffect();
+			return;
+		}
 		if (_appliedInfection != null || Owner is not ICharacter character)
 		{
 			return;
@@ -590,6 +620,12 @@ public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 
 	public override void RemovalEffect()
 	{
+		if (OwnedFamily is not null)
+		{
+			RemoveOwnedEffect();
+			base.RemovalEffect();
+			return;
+		}
 		if (Owner is ICharacter character)
 		{
 			_appliedInfection ??= AppliedInfectionId == 0
@@ -607,6 +643,69 @@ public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 		base.RemovalEffect();
 	}
 
+	private void InitialOwnedEffect()
+	{
+		if (_applyingOwned) throw new InvalidOperationException("Owned sickness cannot be re-entered during native exposure.");
+		if (_appliedInfection is not null) return;
+		if (_loadedOwned) throw new InvalidOperationException("Saved owned sickness has no exact tracked infection; re-exposure is refused.");
+		if (Owner is not ICharacter character || _ownedBody is null || !ReferenceEquals(character.Body, _ownedBody) ||
+			string.IsNullOrWhiteSpace(OwnedFamily) || InfectionType != InfectionType.SownSickness ||
+			ExposureVector != DrugVector.Touched || VirulenceDifficulty != Difficulty.Normal ||
+			!double.IsFinite(Intensity) || Intensity is < 1 or > 7 || Virulence != 1)
+			throw new InvalidOperationException("Invalid owned sickness recipient, body or native exposure configuration.");
+		_applyingOwned = true;
+		try
+		{
+			_appliedInfection = Infection.LoadNewInfection(InfectionType, VirulenceDifficulty, Intensity, _ownedBody,
+				null, null, Virulence);
+			if (_appliedInfection is ILateInitialisingItem late) late.IdRegistered += InfectionIdentityRegistered;
+			if (!ReferenceEquals(character.Body, _ownedBody))
+				throw new InvalidOperationException("Owned sickness body changed during native infection construction; the paid write is uncertain.");
+			_ownedBody.AddInfection(_appliedInfection);
+			MarkOwnedDirty(character);
+			if (!ReferenceEquals(character.Body, _ownedBody) || !_ownedBody.PartInfections.Any(x => ReferenceEquals(x, _appliedInfection)))
+				throw new InvalidOperationException("Owned sickness changed during native infection exposure; the paid write is uncertain.");
+		}
+		catch { MarkOwnedDirty(character); throw; }
+		finally { _applyingOwned = false; }
+	}
+
+	private void InfectionIdentityRegistered(ILateInitialisingItem item)
+	{
+		if (ReferenceEquals(item, _appliedInfection)) AppliedInfectionId = item.Id;
+	}
+
+	private void RemoveOwnedEffect()
+	{
+		if (_removingOwned) throw new InvalidOperationException("Owned sickness removal cannot be re-entered.");
+		if (_ownedBody is null || _appliedInfection is null) return;
+		var infection = _appliedInfection;
+		_removingOwned = true;
+		try
+		{
+			// Expiry still cleans the original physical body when the character has changed bodies.
+			_ownedBody.RemoveInfection(infection);
+			if (Owner is ICharacter character) MarkOwnedDirty(character);
+			if (infection is ILateInitialisingItem late)
+			{
+				late.IdRegistered -= InfectionIdentityRegistered;
+				Gameworld.SaveManager.Abort(infection);
+			}
+			infection.Delete();
+			if (_ownedBody.PartInfections.Any(x => ReferenceEquals(x, infection)))
+				throw new InvalidOperationException("Owned sickness infection reappeared during deletion; the paid removal is uncertain.");
+			_appliedInfection = null;
+			AppliedInfectionId = 0;
+		}
+		finally { _removingOwned = false; }
+	}
+
+	private void MarkOwnedDirty(ICharacter character)
+	{
+		character.Changed = true;
+		if (_ownedBody is not null) _ownedBody.Changed = true;
+	}
+
 	protected override XElement SaveDefinition()
 	{
 		return SimpleSaveDefinition(
@@ -616,7 +715,10 @@ public class SpellDiseaseEffect : SimpleSpellStatusEffectBase
 			new XElement("Virulence", Virulence),
 			new XElement("IntensityFormula", new XCData(IntensityFormulaText)),
 			new XElement("VirulenceFormula", new XCData(VirulenceFormulaText)),
-			new XElement("AppliedInfectionId", _appliedInfection?.Id ?? AppliedInfectionId)
+			new XElement("AppliedInfectionId", _appliedInfection?.Id ?? AppliedInfectionId),
+			OwnedFamily is null ? null : new XElement("OwnedFamily", OwnedFamily),
+			OwnedFamily is null ? null : new XElement("ExposureVector", (int)ExposureVector),
+			OwnedFamily is null ? null : new XElement("OwnedBodyId", _ownedBodyId)
 		);
 	}
 

@@ -3,6 +3,7 @@ using MudSharp.Body.Traits;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
+using MudSharp.Body;
 
 namespace MudSharp.Magic.SpellEffects;
 
@@ -315,7 +316,7 @@ public class RemovePoisonEffect : CharacterSpellEffectRemovalTemplateBase
 	public override IMagicSpellEffectTemplate Clone() => new RemovePoisonEffect(SaveToXml(), Spell);
 }
 
-public class DiseaseEffect : CharacterSpellEffectTemplateBase
+public class DiseaseEffect : CharacterSpellEffectTemplateBase, IMagicSpellEffectOperation, IMagicSpellEffectPreparedSelection
 {
 	public const string HelpText = @"You can use the following options with this effect:
 	#3type <which>#0 - sets the infection type
@@ -347,8 +348,15 @@ public class DiseaseEffect : CharacterSpellEffectTemplateBase
 
 	public InfectionType InfectionType { get; private set; }
 	public Difficulty VirulenceDifficulty { get; private set; }
-	public ITraitExpression IntensityExpression { get; private set; } = null!;
-	public ITraitExpression VirulenceExpression { get; private set; } = null!;
+	public ITraitExpression IntensityExpression { get; set; } = null!;
+	public ITraitExpression VirulenceExpression { get; set; } = null!;
+	public string? OwnedFamily { get; private set; }
+	public DrugVector ExposureVector { get; private set; }
+	private ConditionBodySelection? _selection;
+	public string? DefinitionError => OwnedFamily is not null &&
+		(string.IsNullOrWhiteSpace(OwnedFamily) || InfectionType != InfectionType.SownSickness ||
+		 ExposureVector != DrugVector.Touched || VirulenceDifficulty != Difficulty.Normal)
+		? "Owned disease requires a nonempty family, SownSickness, declared contact exposure and Normal native virulence difficulty." : null;
 
 	protected override string BuilderEffectType => "disease";
 	protected override string ShowText =>
@@ -369,6 +377,8 @@ public class DiseaseEffect : CharacterSpellEffectTemplateBase
 		VirulenceDifficulty = (Difficulty)int.Parse(root.Element("VirulenceDifficulty")?.Value ?? ((int)Difficulty.Normal).ToString());
 		IntensityExpression = new TraitExpression(root.Element("IntensityFormula")?.Value ?? "0", Gameworld);
 		VirulenceExpression = new TraitExpression(root.Element("VirulenceFormula")?.Value ?? "1", Gameworld);
+		OwnedFamily = root.Element("OwnedFamily")?.Value;
+		ExposureVector = (DrugVector)((int?)root.Element("ExposureVector") ?? 0);
 	}
 
 	protected override void SaveToXml(XElement root)
@@ -377,6 +387,11 @@ public class DiseaseEffect : CharacterSpellEffectTemplateBase
 		root.Add(new XElement("VirulenceDifficulty", (int)VirulenceDifficulty));
 		root.Add(new XElement("IntensityFormula", new XCData(IntensityExpression.OriginalFormulaText)));
 		root.Add(new XElement("VirulenceFormula", new XCData(VirulenceExpression.OriginalFormulaText)));
+		if (OwnedFamily is not null)
+		{
+			root.Add(new XElement("OwnedFamily", OwnedFamily));
+			root.Add(new XElement("ExposureVector", (int)ExposureVector));
+		}
 	}
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -468,11 +483,16 @@ public class DiseaseEffect : CharacterSpellEffectTemplateBase
 		OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent,
 		SpellAdditionalParameter[] additionalParameters)
 	{
+		if (DefinitionError is { } error) throw new InvalidOperationException(error);
+		if (OwnedFamily is not null && _selection is { } selected && !selected.IsCurrent(target))
+			throw new InvalidOperationException("The selected disease recipient or physical body changed before application.");
 		double intensity = IntensityExpression.EvaluateWith(caster, values: new (string, object)[]
 		{
 			("power", (int)power),
 			("outcome", (int)outcome)
 		});
+		if (OwnedFamily is not null && (!double.IsFinite(intensity) || intensity is < 1 or > 7))
+			throw new InvalidOperationException("Owned sickness requires selected grade intensity 1..7.");
 		if (intensity <= 0.0)
 		{
 			return null;
@@ -483,15 +503,50 @@ public class DiseaseEffect : CharacterSpellEffectTemplateBase
 			("power", (int)power),
 			("outcome", (int)outcome)
 		});
+		if (OwnedFamily is not null && (!double.IsFinite(intensity) || intensity is < 1 or > 7 ||
+			!double.IsFinite(virulence) || virulence != 1))
+			throw new InvalidOperationException("Owned sickness requires selected grade intensity 1..7 and native virulence multiplier one.");
 		return new SpellDiseaseEffect(target, parent, InfectionType, VirulenceDifficulty, intensity,
 			System.Math.Max(0.0, virulence), IntensityExpression.OriginalFormulaText,
-			VirulenceExpression.OriginalFormulaText);
+			VirulenceExpression.OriginalFormulaText, ownedFamily: OwnedFamily, exposureVector: ExposureVector,
+			ownedBody: _selection?.Body ?? target.Body);
+	}
+
+	public IMagicSpellEffectPreparedSelectionToken? CapturePreparedSelection(ICharacter caster, IPerceivable recipient) =>
+		OwnedFamily is null || recipient is not ICharacter target ? null : _selection = new(target, target.Body);
+	public bool TryReusePreparedSelection(IMagicSpellEffectPreparedSelectionToken selection, ICharacter caster,
+		IPerceivable recipient, out string? error)
+	{
+		error = null;
+		if (OwnedFamily is null) return true;
+		if (selection is not ConditionBodySelection body || !body.IsCurrent(recipient))
+		{ error = "The selected disease recipient or physical body changed."; return false; }
+		_selection = body;
+		return true;
+	}
+	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
+	{
+		error = OwnedFamily is not null && (_selection is null || !_selection.IsCurrent(recipient))
+			? "The selected disease recipient or physical body changed." : null;
+		return error is null;
+	}
+	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+	{
+		var child = GetOrApplyEffect(caster, target, outcome, power, parent, additionalParameters);
+		return new(OwnedFamily is null ? MagicEffectOperationStatus.Unknown :
+			child is null ? MagicEffectOperationStatus.NoChange : MagicEffectOperationStatus.Applied, child);
 	}
 
 	public override IMagicSpellEffectTemplate Clone() => new DiseaseEffect(SaveToXml(), Spell);
 }
 
-public class RemoveDiseaseEffect : CharacterSpellEffectRemovalTemplateBase
+internal sealed record ConditionBodySelection(ICharacter Character, IBody Body) : IMagicSpellEffectPreparedSelectionToken
+{
+	public bool IsCurrent(IPerceivable recipient) => ReferenceEquals(Character, recipient) && ReferenceEquals(Character.Body, Body);
+}
+
+public class RemoveDiseaseEffect : CharacterSpellEffectRemovalTemplateBase, IMagicSpellEffectOperation, IMagicSpellEffectPreparedSelection
 {
 	public const string HelpText = @"You can use the following options with this effect:
 	#3type <which>#0 - sets the infection type that must match
@@ -525,6 +580,12 @@ public class RemoveDiseaseEffect : CharacterSpellEffectRemovalTemplateBase
 	public Difficulty VirulenceDifficulty { get; private set; }
 	public string IntensityFormulaText { get; private set; } = "0";
 	public string VirulenceFormulaText { get; private set; } = "1";
+	public string? OwnedFamily { get; private set; }
+	public DrugVector ExposureVector { get; private set; }
+	private ConditionBodySelection? _selection;
+	public string? DefinitionError => OwnedFamily is not null &&
+		(string.IsNullOrWhiteSpace(OwnedFamily) || InfectionType != InfectionType.SownSickness || ExposureVector != DrugVector.Touched)
+		? "Owned disease cure requires a nonempty family, SownSickness and declared contact exposure." : null;
 
 	protected override string BuilderEffectType => "removedisease";
 	protected override string ShowText =>
@@ -545,6 +606,8 @@ public class RemoveDiseaseEffect : CharacterSpellEffectRemovalTemplateBase
 		VirulenceDifficulty = (Difficulty)int.Parse(root.Element("VirulenceDifficulty")?.Value ?? ((int)Difficulty.Normal).ToString());
 		IntensityFormulaText = root.Element("IntensityFormula")?.Value ?? "0";
 		VirulenceFormulaText = root.Element("VirulenceFormula")?.Value ?? "1";
+		OwnedFamily = root.Element("OwnedFamily")?.Value;
+		ExposureVector = (DrugVector)((int?)root.Element("ExposureVector") ?? 0);
 	}
 
 	protected override void SaveToXml(XElement root)
@@ -553,6 +616,11 @@ public class RemoveDiseaseEffect : CharacterSpellEffectRemovalTemplateBase
 		root.Add(new XElement("VirulenceDifficulty", (int)VirulenceDifficulty));
 		root.Add(new XElement("IntensityFormula", new XCData(IntensityFormulaText)));
 		root.Add(new XElement("VirulenceFormula", new XCData(VirulenceFormulaText)));
+		if (OwnedFamily is not null)
+		{
+			root.Add(new XElement("OwnedFamily", OwnedFamily));
+			root.Add(new XElement("ExposureVector", (int)ExposureVector));
+		}
 	}
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
@@ -632,11 +700,63 @@ public class RemoveDiseaseEffect : CharacterSpellEffectRemovalTemplateBase
 
 	protected override void RemoveEffects(ICharacter target)
 	{
+		if (OwnedFamily is not null)
+		{
+			ApplyOwnedRemoval(target);
+			return;
+		}
 		target.RemoveAllEffects<SpellDiseaseEffect>(x =>
 			x.InfectionType == InfectionType &&
 			x.VirulenceDifficulty == VirulenceDifficulty &&
 			x.IntensityFormulaText.EqualTo(IntensityFormulaText) &&
 			x.VirulenceFormulaText.EqualTo(VirulenceFormulaText), true);
+	}
+
+	private MagicEffectOperationStatus ApplyOwnedRemoval(ICharacter target)
+	{
+		if (DefinitionError is { } error) throw new InvalidOperationException(error);
+		var selected = _selection ?? new ConditionBodySelection(target, target.Body);
+		if (!selected.IsCurrent(target)) return MagicEffectOperationStatus.Rejected;
+		var matches = target.EffectsOfType<SpellDiseaseEffect>().Where(x => x.OwnedFamily == OwnedFamily &&
+			x.ExposureVector == ExposureVector && x.InfectionType == InfectionType &&
+			ReferenceEquals(x.OwnedBody, selected.Body)).ToArray();
+		if (!selected.IsCurrent(target)) return MagicEffectOperationStatus.Rejected;
+		if (matches.Length == 0) return MagicEffectOperationStatus.NoChange;
+		foreach (var effect in matches)
+		{
+			if (!selected.IsCurrent(target)) throw new InvalidOperationException("Disease cure recipient changed after a paid removal.");
+			target.RemoveEffect(effect, true);
+			if (!selected.IsCurrent(target)) throw new InvalidOperationException("Disease cure recipient changed during a paid removal callback.");
+		}
+		return MagicEffectOperationStatus.Applied;
+	}
+	public IMagicSpellEffectPreparedSelectionToken? CapturePreparedSelection(ICharacter caster, IPerceivable recipient) =>
+		OwnedFamily is null || recipient is not ICharacter target ? null : _selection = new(target, target.Body);
+	public bool TryReusePreparedSelection(IMagicSpellEffectPreparedSelectionToken selection, ICharacter caster,
+		IPerceivable recipient, out string? error)
+	{
+		error = null;
+		if (OwnedFamily is null) return true;
+		if (selection is not ConditionBodySelection body || !body.IsCurrent(recipient))
+		{ error = "The selected disease cure recipient or physical body changed."; return false; }
+		_selection = body;
+		return true;
+	}
+	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
+	{
+		error = OwnedFamily is not null && (_selection is null || !_selection.IsCurrent(recipient))
+			? "The selected disease cure recipient or physical body changed." : null;
+		return error is null;
+	}
+	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+	{
+		if (OwnedFamily is null)
+		{
+			GetOrApplyEffect(caster, target, outcome, power, parent, additionalParameters);
+			return new(MagicEffectOperationStatus.Unknown, null);
+		}
+		return new(target is ICharacter character ? ApplyOwnedRemoval(character) : MagicEffectOperationStatus.Rejected, null);
 	}
 
 	public override IMagicSpellEffectTemplate Clone() => new RemoveDiseaseEffect(SaveToXml(), Spell);

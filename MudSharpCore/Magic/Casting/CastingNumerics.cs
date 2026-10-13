@@ -100,9 +100,33 @@ internal static class CastingNumerics
 		{
 			var location = $"ScalarBindings/{b.List}[{b.Index}]/{b.Effect}.{b.Field}";
 			var effects = b.List == "target" ? spell.SpellEffects.ToArray() : b.List == "caster" ? spell.CasterSpellEffects.ToArray() : [];
-			if (b.Index < 0 || b.Index >= effects.Length || b.Effect != "boost" || b.Field != "Bonus" || effects[b.Index] is not TraitBoostEffect { Trait: not null })
-				yield return $"{location}: invalid index, effect token, field or trait reference; only boost.Bonus is supported.";
+			if (b.Index < 0 || b.Index >= effects.Length || !SupportsScalarField(effects[b.Index], b.Effect, b.Field))
+				yield return $"{location}: invalid index, effect token, field or typed dependency for the supported scalar adapter.";
 			foreach (var error in Errors(new TraitExpression(b.Expression, spell.Gameworld), location)) yield return error;
+		}
+	}
+
+	internal static bool SupportsScalarField(IMagicSpellEffectTemplate effect, string token, string field) => (effect, token, field) switch
+	{
+		(TraitBoostEffect { Trait: not null }, "boost", "Bonus") => true,
+		(RoomLightEffect, "roomlight", "AddedLuxPerPower") => true,
+		(HealingRateSpellEffect, "healingrate", "Multiplier") => true,
+		(NeedDeltaEffect, "needdelta", "DrunkDelta") => true,
+		_ => false
+	};
+
+	internal static void WriteScalar(XElement effect, string token, string field, double value)
+	{
+		if (!double.IsFinite(value)) throw new InvalidOperationException($"{token}.{field}: non-finite scalar potency.");
+		if (effect.Name != "Effect" || (string?)effect.Attribute("type") != token)
+			throw new InvalidOperationException("The scalar effect discriminator changed.");
+		switch (token, field)
+		{
+			case ("boost", "Bonus"): effect.SetAttributeValue("bonus", value); break;
+			case ("roomlight", "AddedLuxPerPower"): effect.SetElementValue("AddedLuxPerPower", value); break;
+			case ("healingrate", "Multiplier"): effect.SetElementValue("Multiplier", value); break;
+			case ("needdelta", "DrunkDelta"): effect.SetElementValue("Drunk", value); break;
+			default: throw new InvalidOperationException($"{token}.{field}: unsupported scalar field.");
 		}
 	}
 

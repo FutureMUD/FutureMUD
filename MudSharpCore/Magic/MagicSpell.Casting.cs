@@ -27,8 +27,8 @@ public partial class MagicSpell
 		{
 			var value = CastingNumerics.Bind(new TraitExpression(b.Expression, Gameworld), trait, grade, power,
 				$"{b.List}[{b.Index}]/{b.Field}", Gameworld, controlledGrade).Evaluate(actor);
-			definition.Element(b.List == "target" ? "Effects" : "CasterEffects")!.Elements().ElementAt(b.Index)
-				.SetAttributeValue("bonus", value);
+			CastingNumerics.WriteScalar(definition.Element(b.List == "target" ? "Effects" : "CasterEffects")!.Elements().ElementAt(b.Index),
+				b.Effect, b.Field, value);
 		}
 		model.Definition = definition.ToString(SaveOptions.DisableFormatting);
 		var copy = new MagicSpell(model, Gameworld);

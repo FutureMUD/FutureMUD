@@ -24,7 +24,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		using var manifest = JsonDocument.Parse(ArmageddonStockManifest.Read());
 		var entries = manifest.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell").ToArray();
-		Assert.AreEqual(36, claims.Length);
+		Assert.AreEqual(39, claims.Length);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var source = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId!.Value;
 		foreach (var claim in claims)
@@ -34,6 +34,7 @@ public partial class ArmageddonStockSpellInstallerTests
 			var root = XElement.Parse(spell.Definition);
 			Assert.AreEqual(claim.StableKey, (string?)root.Element("StockIdentity"), claim.StableKey);
 			var entry = entries[claim.StableKey];
+			Assert.AreEqual("Armageddon " + entry.GetProperty("native_school").GetString(), db.MagicSchools.Single(x => x.Id == spell.MagicSchoolId).Name, claim.StableKey);
 			var minimum = entry.GetProperty("minimum_energy").GetDouble();
 			Assert.AreEqual(minimum, (double)root.Element("ControlledPower")!.Element("Efficiency")!.Attribute("minimum")!, claim.StableKey);
 			var expectedTarget = entry.GetProperty("target_type").GetString();
@@ -77,6 +78,27 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreNotEqual(db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId, payload);
 		Assert.AreEqual("-5*grade", Effect("empty_aura").Element("Formula")!.Value);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonStockSpellInstaller.Install(factory).Status);
+	}
+
+	[DataTestMethod]
+	[DataRow(ArmageddonProgressionMode.Classic)]
+	[DataRow(ArmageddonProgressionMode.Simple)]
+	public void ReserveAndDiseaseBindings_UseExactNativeModesAndCharacterResistance(ArmageddonProgressionMode mode)
+	{
+		using var db = Fixture(mode);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonStockSpellInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db)).Status);
+		var spells = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell")
+			.ToDictionary(x => x.StableKey, x => db.MagicSpells.Single(s => s.Id == x.LogicalId));
+		XElement Effect(string suffix) => XElement.Parse(spells["arm.spell." + suffix].Definition).Element("Effects")!.Elements().Single();
+		Assert.IsTrue((bool)Effect("second_breath").Element("DirectStaminaAdjustment")!);
+		Assert.IsTrue((bool)Effect("steal_breath").Element("DirectStaminaAdjustment")!);
+		Assert.IsTrue((bool)Effect("empty_aura").Element("ExactResourceDepletion")!);
+		Assert.AreEqual("Armageddon Lightning", db.MagicSchools.Single(x => x.Id == spells["arm.spell.steal_breath"].MagicSchoolId).Name);
+		var resistanceKey = mode == ArmageddonProgressionMode.Classic ? ArmageddonStockSpellContent.ReadAttunementKey + ".skill" : "arm.skill.water_casting";
+		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == resistanceKey).LogicalId, spells["arm.spell.sow_sickness"].ResistingTraitDefinitionId);
+		Assert.AreEqual(5L, (long)Effect("sow_sickness").Element("InfectionType")!);
+		Assert.AreEqual("arm.effect.disease", Effect("sow_sickness").Element("OwnedFamily")!.Value);
+		Assert.AreEqual("arm.effect.disease", Effect("purge_disease").Element("OwnedFamily")!.Value);
 	}
 
 	[DataTestMethod]

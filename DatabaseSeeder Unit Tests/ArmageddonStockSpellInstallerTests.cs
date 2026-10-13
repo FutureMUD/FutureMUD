@@ -27,7 +27,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var before = db.MagicCapabilities.ToDictionary(x => x.Id, x => x.Definition);
 		var installed = ArmageddonStockSpellInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, installed.Status, string.Join("\n", installed.Messages));
-		Assert.AreEqual(108, installed.Identities.Count);
+		Assert.AreEqual(117, installed.Identities.Count);
 		db.ChangeTracker.Clear();
 		var spell = db.MagicSpells.Single(x => x.Id == db.SeederManagedRecords.Single(y => y.StableKey == ArmageddonStockSpellContent.ReadAttunementKey).LogicalId);
 		var definition = XElement.Parse(spell.Definition);
@@ -127,8 +127,8 @@ public partial class ArmageddonStockSpellInstallerTests
 		var second = ArmageddonStockSpellInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, second.Status);
 		foreach (var pair in first.Identities) Assert.AreEqual(pair.Value, second.Identities[pair.Key]);
-		Assert.AreEqual(108, second.Identities.Count);
-		Assert.AreEqual(36, db.MagicSpells.Count());
+		Assert.AreEqual(117, second.Identities.Count);
+		Assert.AreEqual(39, db.MagicSpells.Count());
 	}
 
 	[TestMethod]

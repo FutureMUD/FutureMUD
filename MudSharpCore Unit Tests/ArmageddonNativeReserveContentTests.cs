@@ -21,6 +21,7 @@ public class ArmageddonNativeReserveContentTests
 		{
 			var expectedMinimum = entry.Content.Key == ArmageddonNativeReserveSpellContent.SecondBreathKey ? 20.0 : 7.0;
 			Assert.AreEqual(expectedMinimum, entry.Content.MinimumEnergy);
+			Assert.AreEqual(entry.Content.Key == ArmageddonNativeReserveSpellContent.EmptyAuraKey ? "arm.capability.void" : "arm.capability.lightning", entry.NativeCapabilityKey);
 			var xml = entry.Content.BuildDefinition(10, 11, 0);
 			Assert.AreEqual(expectedMinimum.ToString(System.Globalization.CultureInfo.InvariantCulture) + "*grade", entry.Content.CostRow(99).Expression);
 			Assert.AreEqual("character", xml.Element("Trigger")!.Attribute("type")!.Value);

@@ -35,7 +35,10 @@ public static partial class ArmageddonStockSpellInstaller
 			.Append((Key: "arm.spell.folded_pocket", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolvePocket))
 			.Concat(PrimitiveKeys.Select(key => (Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolvePrimitive(db, key)))))
 			.Concat(ArmageddonPrimitiveSpellContent.CreateScalarContributions().Append(ArmageddonPrimitiveSpellContent.CreateAlcoholRemovalContribution())
-				.Select(x => (Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))));
+				.Select(x => (Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))))
+			.Append((Key: ArmageddonNativeReserveSpellContent.StealBreathKey, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonNativeReserveSpellContent.StealBreath())))
+			.Concat(new[] { "arm.spell.sow_sickness", "arm.spell.purge_disease" }.Select(key =>
+				(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveCondition(db, key)))));
 		foreach (var contribution in contributions)
 		{
 			var result = InstallContribution(factory, contribution.Resolve, stage => checkpoint?.Invoke(contribution.Key, stage));

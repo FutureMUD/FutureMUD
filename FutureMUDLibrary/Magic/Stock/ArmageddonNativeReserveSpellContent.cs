@@ -36,7 +36,7 @@ public static class ArmageddonNativeReserveSpellContent
 		"Restore at most five stamina per selected grade, clamped to the native maximum. The signed native body adjustment bypasses expenditure multipliers and second winds.",
 		new XElement("Effect", new XAttribute("type", "staminadelta"), new XElement("Formula", new XCData("5*grade")),
 			new XElement("DirectStaminaAdjustment", true)));
-	public static ArmageddonCanonicalSpellContribution StealBreath() => Contribution("void", StealBreathKey,
+	public static ArmageddonCanonicalSpellContribution StealBreath() => Contribution("lightning", StealBreathKey,
 		"Steal Breath", 7, 30,
 		"Remove at most the current stamina or five stamina per selected grade, whichever is less. No stamina is transferred and no second wind or expenditure multiplier is invoked.",
 		new XElement("Effect", new XAttribute("type", "staminadelta"), new XElement("Formula", new XCData("-5*grade")),

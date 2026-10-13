@@ -52,6 +52,8 @@ public static partial class ArmageddonStockSpellInstaller
 			claim.EntityType != nameof(MagicResource) || !db.MagicResources.Any(x => x.Id == claim.LogicalId && x.MagicResourceType == 1) ||
 			db.SeederManagedRecords.Any(x => x.Id != claim.Id && x.EntityType == claim.EntityType && x.LogicalId == claim.LogicalId))
 			throw new StockDependencyException("Empty Aura requires its exact unique S2 Void reserve; no inferred target reserve or synthetic cost resource is used.");
+		if (key == ArmageddonNativeReserveSpellContent.SecondBreathKey) return ArmageddonNativeReserveSpellContent.SecondBreath();
+		if (key == ArmageddonNativeReserveSpellContent.EmptyAuraKey) return ArmageddonNativeReserveSpellContent.EmptyAura(claim.LogicalId.Value);
 		return ArmageddonPrimitiveSpellContent.Create(new(strength, resistance, applicability, claim.LogicalId.Value, Difficulty.Normal))
 			.Single(x => x.Content.Key == key);
 	}

@@ -15,7 +15,7 @@ public static class ArmageddonAirGuardianStock
 	public const string Family = "air-guardian";
 	// Authored native policy from the repertoire proposal, not recovered historical time units.
 	public const string ProposedLifetimeSeconds = "120*grade";
-	public const double MinimumNativeEnergy = 9;
+	public const double MinimumNativeEnergy = 33;
 
 	public static MagicSpell Create(IFuturemud world, IMagicSchool school, ITraitDefinition trait,
 		IMagicResource resource, INPCTemplate template, string lifetimeSeconds)
@@ -29,7 +29,7 @@ public static class ArmageddonAirGuardianStock
 			"Summon one living guardian per requested grade. Each protects and follows the creator through native combat and movement. " +
 			"The selected approved template supplies its anatomy, equipment and combat settings. Temporary guardians dissipate without a corpse; " +
 			"foreign possessions are conserved. Count, creator protection and lifecycle are editable. " +
-			"The shared source-efficiency curve has an authored nine-energy minimum. The explicitly selected real-second lifetime is authored native policy; historical duration units remain unverified.",
+			"The shared source-efficiency curve has an approved thirty-three-energy minimum. The explicitly selected real-second lifetime is authored native policy; historical duration units remain unverified.",
 			"0", MinimumNativeEnergy, "$0 summon|summons protecting spirits from the air.",
 			(resourceId, costId, _) => Definition(resourceId, costId, template.Id, lifetimeSeconds));
 	}

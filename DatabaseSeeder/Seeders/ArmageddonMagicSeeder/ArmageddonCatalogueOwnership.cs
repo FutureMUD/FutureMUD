@@ -14,7 +14,7 @@ namespace DatabaseSeeder.Seeders;
 internal sealed partial class ArmageddonCatalogueOwnership
 {
 	internal const string Module = "stock-catalogue";
-	private const string Version = "stock-catalogue-1";
+	internal const string Version = "stock-catalogue-1";
 	private static readonly IReadOnlyDictionary<Type, string[]> OwnedFields = MedicalOwnedFields(CreatureOwnedFields(AnatomyOwnedFields(new Dictionary<Type, string[]>
 	{
 		[typeof(Tag)] = ["Name", "ParentId", "ShouldSeeProgId"],

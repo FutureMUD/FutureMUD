@@ -21,9 +21,9 @@ internal static partial class GNHProgram
 		});
 		Require(stopped.Status == ArmageddonInstallStatus.Failed && before == PreparedDatabaseChecksum(database),
 			"S4 native precommit rollback changed tables or returned the wrong outcome.");
-		var lostAck = ArmageddonStockSpellInstaller.Install(factory, (_, stage) =>
+		var lostAck = ArmageddonStockSpellInstaller.Install(factory, (key, stage) =>
 		{
-			if (stage == ArmageddonInstallCheckpoint.AfterCommit) throw new IOException("S4 contribution lost acknowledgement");
+			if (key == ArmageddonCreatureSpellContent.Contributions.Last().Key && stage == ArmageddonInstallCheckpoint.AfterCommit) throw new IOException("S4 contribution lost acknowledgement");
 		});
 		Require(lostAck.Status == ArmageddonInstallStatus.CommittedConfirmationFailed, string.Join("\n", lostAck.Messages));
 		before = PreparedDatabaseChecksum(database);
@@ -82,6 +82,12 @@ internal static partial class GNHProgram
 			character = actor.Id, body = actor.BodyId, spell = spell.Id, resource = reserve, capability = cap.Id, merit = merit.Id,
 			trait = spell.CastingTraitDefinitionId, school = spell.MagicSchoolId, source = ids[ArmageddonProgressionInstaller.SourceResourceKey],
 			definition = spell.Definition, duration = spell.EffectDurationExpressionId,
+			stock_spells = (from claim in db.SeederManagedRecords.AsNoTracking()
+				join native in db.MagicSpells.AsNoTracking() on claim.LogicalId equals (long?)native.Id
+				where claim.Seeder == ArmageddonMagicInstaller.Package && claim.Module == ArmageddonStockSpellInstaller.Module &&
+					claim.EntityType == nameof(Db.MagicSpell) && !claim.Retired
+				orderby claim.StableKey
+				select new { key = claim.StableKey, id = native.Id, name = native.Name, definition = native.Definition }).ToArray(),
 			package_capabilities = db.SeederManagedRecords.AsNoTracking().Where(x => x.EntityType == nameof(Db.MagicCapability) && x.Module == ArmageddonProgressionInstaller.Module).Select(x => x.LogicalId).ToArray(),
 			limits = "Explicit separate builder qualification capability; native enrolment starts grade one, no stock roster activation, no S5 natural progression/affordability certificate."
 		}));

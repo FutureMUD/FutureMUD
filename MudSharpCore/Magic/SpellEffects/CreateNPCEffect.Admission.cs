@@ -16,14 +16,17 @@ public sealed partial class CreateNPCEffect
 
 	public IMagicSpellEffectPreparedSelectionToken? CapturePreparedSelection(ICharacter caster, IPerceivable recipient)
 	{
-		if (LifecycleMode is null && _loadError is null) return null;
+		if (LifecycleMode is null && _loadError is null && !HasGradeTemplatePolicy && !HasMissionPolicy) return null;
 		if (_preparedSelections.TryGetValue(recipient, out var existing))
 		{
 			if (!TryConfirmPreparedSelection(caster, recipient, out var error)) throw new InvalidOperationException(error);
 			return existing;
 		}
 		if (!ValidateBeforePayment(caster, recipient, out var knownSeconds, out var diagnostic)) throw new InvalidOperationException(diagnostic);
-		var template = (SimpleNPCTemplate)NPCTemplate;
+		var template = (SimpleNPCTemplate)NPCTemplate!;
+		var selectedTemplateId = SelectedTemplateId!.Value;
+		var selectedGrade = ((MagicSpell)Spell).InvocationGrade;
+		var missionInputs = _boundMissionInputs;
 		var checks = new List<Func<bool>>();
 		void Value<T>(Func<T> read) { var before = read(); checks.Add(() => EqualityComparer<T>.Default.Equals(before, read())); }
 		void Reference<T>(Func<T> read) where T : class? { var before = read(); checks.Add(() => ReferenceEquals(before, read())); }
@@ -42,7 +45,8 @@ public sealed partial class CreateNPCEffect
 		Value(() => caster.State); Value(() => Gameworld.Actors.Any(x => ReferenceEquals(x, caster)));
 		Reference(() => caster.Location); Value(() => caster.RoomLayer); Value(() => caster.RoutePositionMetres);
 		Reference(() => caster.Movement);
-		Reference(() => Gameworld.SpellOwnedNpcs); Reference(() => Gameworld.NpcTemplates.Get(_npcPrototypeId));
+		Reference(() => Gameworld.SpellOwnedNpcs); Reference(() => Gameworld.NpcTemplates.Get(selectedTemplateId));
+		Value(() => SelectedTemplateId); Value(() => ((MagicSpell)Spell).InvocationGrade);
 		Reference(() => template.Gameworld); Value(() => template.Id); Value(() => template.Status); Value(() => template.RevisionNumber);
 		Value(() => template.NativeCreationDefinition);
 		Value(() => SaveToXml().ToString(SaveOptions.DisableFormatting));
@@ -53,7 +57,8 @@ public sealed partial class CreateNPCEffect
 		checks.Add(() => NativeNpcCreationEligibility.TemplateError(template, Gameworld) is null);
 		// Recheck the captured scalar after later confirmations without evaluating the formula again.
 		if (knownSeconds is { } seconds) checks.Add(() => ValidLifetime(seconds, out _));
-		var token = new NpcSelection(caster, recipient, template, () => checks.All(check => check()));
+		checks.Add(CaptureMissionInputFence(caster));
+		var token = new NpcSelection(caster, recipient, template, selectedGrade, missionInputs, () => checks.All(check => check()));
 		_preparedSelections.Add(recipient, token);
 		return token;
 	}
@@ -62,7 +67,8 @@ public sealed partial class CreateNPCEffect
 		ICharacter caster, IPerceivable recipient, out string? error)
 	{
 		if (selection is not NpcSelection token || !ReferenceEquals(token.Caster, caster) ||
-			!ReferenceEquals(token.Recipient, recipient) || !ReferenceEquals(token.Template, NPCTemplate) || !token.IsCurrent)
+			!ReferenceEquals(token.Recipient, recipient) || !ReferenceEquals(token.Template, NPCTemplate) ||
+			token.Grade != (Spell as MagicSpell)?.InvocationGrade || !SameMissionInputs(token.Mission, _boundMissionInputs) || !token.IsCurrent)
 		{
 			error = "The prepared NPC template, caster or spawn frame changed.";
 			return false;
@@ -90,6 +96,7 @@ public sealed partial class CreateNPCEffect
 		knownSeconds = null;
 		error = DefinitionError;
 		if (error is not null) return false;
+		if (!ValidateMissionInvocation(caster, recipient, out error)) return false;
 		if (!CharacterState.Able.HasFlag(caster.State) || caster.State.HasFlag(CharacterState.Stasis) ||
 			!Gameworld.Actors.Any(x => ReferenceEquals(x, caster)))
 		{
@@ -158,7 +165,7 @@ public sealed partial class CreateNPCEffect
 	}
 
 	private sealed record NpcSelection(ICharacter Caster, IPerceivable Recipient, SimpleNPCTemplate Template,
-		Func<bool> Check) : IMagicSpellEffectPreparedSelectionRawToken
+		int? Grade, SpellNpcMissionInputs? Mission, Func<bool> Check) : IMagicSpellEffectPreparedSelectionRawToken
 	{
 		public bool IsCurrent => Check();
 	}

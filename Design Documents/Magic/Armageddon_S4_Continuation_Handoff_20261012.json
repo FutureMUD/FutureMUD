@@ -450,5 +450,31 @@
     "spell_admissions_enabled": false,
     "class_availability_enabled": false,
     "remaining_environment_blockers": []
+  },
+  "S4_creature_definition_batch": {
+    "base_revision": "2bdfdc3dfa63fed0aebdb6a9a48dc0a17f2d8814",
+    "canonical_definitions": 8,
+    "creature_template_bindings": 49,
+    "focused_seeder": "26/0/0",
+    "focused_core": "259/0/0",
+    "full_qualified_entries": 0,
+    "paid_native_creature_acceptance": "PENDING",
+    "next": "Continue native acceptance and remaining content/adapters; shelter presentation needs typed autobuilder adapter and selected-grade occupancy. Full S4 remains authorised, no elapsed CI cutoff.",
+    "full_fast_before_final_fence": "9606/0/3",
+    "final_full_core": "6593/0/0",
+    "final_native_harness_debug_build": "PASS,0 errors,30 warnings",
+    "final_seeder_release_build": "PASS,0 errors,160 warnings",
+    "final_haunt_regressions": "4/0/0",
+    "final_core_receipt": ".artifacts/s4-creature-haunt-guard-core/20261012T235130Z-930d70e4602d/summary.json",
+    "final_build_receipt": ".artifacts/s4-creature-haunt-guard-builds/verification-receipt.json",
+    "native_definition_loader": "PASS,8 exact canonical definitions ready on first/cold MUD",
+    "native_boot_assertions": 20,
+    "native_receipt": ".artifacts/s4-creature-stock-native/20261012T233339Z_dabeb10f40f64914a36ef164cf88a996/summary.json",
+    "native_boot_receipt_local_optional": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-creature-c9cc5aba452f4fddbe630f3f1a28cd36\\boot-latest.json",
+    "native_source_stable": true,
+    "native_source_fingerprint": "F3700DC19E66265F8BC7C31DF21D2CBCC70BB09B224B745DA1BA90C922841E18",
+    "native_paid_scope": "Grade-one Read Attunement self regression only; no paid creature/controller or all-grade qualification.",
+    "native_precedes_final_haunt_guard": true,
+    "remaining_environment_blockers": []
   }
 }

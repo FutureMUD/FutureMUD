@@ -16,6 +16,7 @@ namespace MudSharp.Effects.Concrete;
 /// <summary>Per-NPC persisted creator bond and order state for native spell-owned companions.</summary>
 public sealed partial class SpellNpcControlEffect : Effect, IGuardCharacterEffect, IAffectProximity, ISpellNpcMissionController
 {
+	private readonly Func<ICharacter, bool> _isDurablyPrimaryTarget = IsDurablyPrimaryTarget;
 	private bool _active;
 	private bool _retiring;
 	private bool _followHeartbeat;
@@ -35,8 +36,15 @@ public sealed partial class SpellNpcControlEffect : Effect, IGuardCharacterEffec
 	protected override string SpecificEffectType => "SpellNpcControl";
 	private ICharacter Creature => (ICharacter)Owner;
 
-	public SpellNpcControlEffect(ICharacter owner, SpellLifecycleOrigin origin, ICharacter creator, bool guardCreator = false) : base(owner)
+	public SpellNpcControlEffect(ICharacter owner, SpellLifecycleOrigin origin, ICharacter creator, bool guardCreator = false)
+		: this(owner, origin, creator, guardCreator, IsDurablyPrimaryTarget)
 	{
+	}
+
+	internal SpellNpcControlEffect(ICharacter owner, SpellLifecycleOrigin origin, ICharacter creator,
+		bool guardCreator, Func<ICharacter, bool> isDurablyPrimaryTarget) : base(owner)
+	{
+		_isDurablyPrimaryTarget = isDurablyPrimaryTarget;
 		LifecycleId = origin.Id; CreatorId = origin.CreatorId; CreatorInstanceId = creator.InstanceId; DeadlineUtc = origin.DeadlineUtc;
 		SpellId = origin.SpellId; Grade = origin.Grade;
 		if (guardCreator)
@@ -194,8 +202,8 @@ public sealed partial class SpellNpcControlEffect : Effect, IGuardCharacterEffec
 	}
 	public bool AssignSeeking(ICharacter commander, ICharacter exactTarget) => AssignMission(commander, "seek", exactTarget);
 	public bool AssignHaunting(ICharacter commander, ICharacter exactTarget) => exactTarget is not null && DeadlineUtc is { } deadline && deadline > RuntimeClock.UtcNow &&
-		IsDurablyPrimaryTarget(exactTarget) && AssignMission(commander, "haunt", exactTarget);
-	private static bool IsDurablyPrimaryTarget(ICharacter target)
+		_isDurablyPrimaryTarget(exactTarget) && AssignMission(commander, "haunt", exactTarget);
+	internal static bool IsDurablyPrimaryTarget(ICharacter target)
 	{
 		var characterId = CharacterInstanceIdentityComparer.IdentityId(target);
 		var bodyId = target.Body?.Id ?? 0;
@@ -204,21 +212,48 @@ public sealed partial class SpellNpcControlEffect : Effect, IGuardCharacterEffec
 		{
 			using var isolated = FMDB.BeginIndependentScope();
 			using var db = new FMDB();
-			if (!FMDB.Context.Characters.AsNoTracking().Any(x => x.Id == characterId && !x.IsArchived)) return false;
-			var primary = FMDB.Context.CharacterInstances.AsNoTracking().Where(x => x.CharacterId == characterId && x.IsPrimary)
-				.Select(x => new { x.Id, x.CharacterId, x.BodyId, x.IsPrimary }).ToArray();
-			return primary.Length == 1 && IsExactPrimaryFearTarget(primary[0].Id, primary[0].CharacterId,
-				primary[0].BodyId, primary[0].IsPrimary, target.InstanceId, characterId, bodyId);
+			return IsDurablyPrimaryTarget(FMDB.Context, target);
 		}
 		catch { return false; }
 	}
+	internal static bool IsDurablyPrimaryTarget(FuturemudDatabaseContext context, ICharacter target)
+	{
+		var characterId = CharacterInstanceIdentityComparer.IdentityId(target);
+		var bodyId = target.Body?.Id ?? 0;
+		if (characterId <= 0 || target.InstanceId <= 0 || bodyId <= 0 ||
+			!context.Characters.AsNoTracking().Any(x => x.Id == characterId && !x.IsArchived)) return false;
+		var primary = context.CharacterInstances.AsNoTracking()
+			.Where(x => x.CharacterId == characterId && x.IsPrimary)
+			.Select(x => new { x.Id, x.CharacterId, x.BodyId, x.IsPrimary })
+			.ToArray();
+		return primary.Length == 1 && IsExactPrimaryFearTarget(primary[0].Id, primary[0].CharacterId,
+			primary[0].BodyId, primary[0].IsPrimary, target.InstanceId, characterId, bodyId);
+	}
 	public bool AssignCourier(ICharacter commander, IGameItem exactParcel, ICharacter exactRecipient)
+		=> AssignCourierCore(commander, exactParcel, exactRecipient, null);
+	private bool AssignCourierCore(ICharacter commander, IGameItem exactParcel, ICharacter exactRecipient, Func<bool>? inputsCurrent)
 	{
 		if (!CanAcceptOrder(commander) || exactParcel is null || exactRecipient is null || exactRecipient.Id == Creature.Id ||
 			!ReferenceEquals(exactParcel.Gameworld, Gameworld) || !ReferenceEquals(Gameworld.Items.Get(exactParcel.Id), exactParcel) ||
-			!commander.Body.HeldOrWieldedItems.Any(x => ReferenceEquals(x, exactParcel)) || !IsExactLoaded(exactRecipient)) return false;
+			!commander.Body.HeldOrWieldedItems.Any(x => ReferenceEquals(x, exactParcel)) || !IsExactLoaded(exactRecipient) ||
+			inputsCurrent?.Invoke() == false) return false;
 		return ReplaceMission(new SpellNpcMissionEffect(Creature, "courier", exactRecipient, exactRecipient, exactParcel, DeadlineUtc));
 	}
+	/// <summary>Invocation-only assignment: preserve the paid physical frame after live authority/visibility callbacks.</summary>
+	internal bool AssignPreparedMission(ICharacter commander, SpellNpcMissionInputs inputs, Func<bool> inputsCurrent)
+	{
+		bool Current() => inputsCurrent() && !Creature.EffectsOfType<SpellNpcMissionEffect>().Any();
+		if (!Current()) return false;
+		return inputs.Kind switch
+		{
+			SpellNpcMissionKind.Seek => AssignMission(commander, "seek", inputs.ExactTarget, Current),
+			SpellNpcMissionKind.Courier when inputs.ExactParcel is { } parcel => AssignCourierCore(commander, parcel, inputs.ExactTarget, Current),
+			SpellNpcMissionKind.Haunt when DeadlineUtc is { } deadline && deadline > RuntimeClock.UtcNow &&
+				_isDurablyPrimaryTarget(inputs.ExactTarget) => AssignMission(commander, "haunt", inputs.ExactTarget, Current),
+			_ => false
+		};
+	}
+
 	public bool ClearMission(ICharacter commander)
 	{
 		if (!CanAcceptOrder(commander)) return false;
@@ -230,10 +265,14 @@ public sealed partial class SpellNpcControlEffect : Effect, IGuardCharacterEffec
 		_persistenceUncertain = true;
 		return false;
 	}
-	private bool AssignMission(ICharacter commander, string kind, ICharacter target)
+	private bool AssignMission(ICharacter commander, string kind, ICharacter target, Func<bool>? inputsCurrent = null)
 	{
 		if (!CanAcceptOrder(commander) || target is null || target.Id == Creature.Id || !IsExactLoaded(target) ||
-			!Creature.CanSee(target) || !Creature.ColocatedWith(target)) return false;
+			!Creature.CanSee(target) || !Creature.ColocatedWith(target) || inputsCurrent?.Invoke() == false) return false;
+		// Live callbacks may change persisted primary identity or consume the remaining lifetime.
+		// Check both after those callbacks, then fence the paid physical frame after the database read.
+		if (kind == "haunt" && (DeadlineUtc is not { } deadline || !_isDurablyPrimaryTarget(target) ||
+			deadline <= RuntimeClock.UtcNow || inputsCurrent?.Invoke() == false)) return false;
 		return ReplaceMission(new SpellNpcMissionEffect(Creature, kind, target, expiryUtc: DeadlineUtc));
 	}
 	private bool IsExactLoaded(ICharacter character) => ReferenceEquals(character.Gameworld, Gameworld) &&

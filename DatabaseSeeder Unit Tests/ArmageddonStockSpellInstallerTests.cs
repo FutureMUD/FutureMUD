@@ -13,7 +13,7 @@ using MagicSpell = MudSharp.Models.MagicSpell;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class ArmageddonStockSpellInstallerTests
+public partial class ArmageddonStockSpellInstallerTests
 {
 	[DataTestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
@@ -27,9 +27,9 @@ public class ArmageddonStockSpellInstallerTests
 		var before = db.MagicCapabilities.ToDictionary(x => x.Id, x => x.Definition);
 		var installed = ArmageddonStockSpellInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, installed.Status, string.Join("\n", installed.Messages));
-		Assert.AreEqual(3, installed.Identities.Count);
+		Assert.AreEqual(24, installed.Identities.Count);
 		db.ChangeTracker.Clear();
-		var spell = db.MagicSpells.Single();
+		var spell = db.MagicSpells.Single(x => x.Id == db.SeederManagedRecords.Single(y => y.StableKey == ArmageddonStockSpellContent.ReadAttunementKey).LogicalId);
 		var definition = XElement.Parse(spell.Definition);
 		Assert.AreEqual(ArmageddonStockSpellContent.ReadAttunementKey, (string?)definition.Element("StockIdentity"));
 		Assert.AreEqual("character", (string?)definition.Element("Trigger")!.Attribute("type"));
@@ -70,14 +70,14 @@ public class ArmageddonStockSpellInstallerTests
 	{
 		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonStockSpellInstaller.Install(factory).Status);
-		db.ChangeTracker.Clear(); var spell = db.MagicSpells.Single();
+		db.ChangeTracker.Clear(); var spell = db.MagicSpells.Single(x => x.Id == db.SeederManagedRecords.Single(y => y.StableKey == ArmageddonStockSpellContent.ReadAttunementKey).LogicalId);
 		spell.Name = "Builder's Attunement"; spell.Description = "Custom presentation";
 		var definition = XElement.Parse(spell.Definition); definition.Element("ControlledPower")!.Element("Efficiency")!.SetAttributeValue("minimum", 23);
 		spell.Definition = definition.ToString();
 		var duration = db.TraitExpressions.Single(x => x.Id == spell.EffectDurationExpressionId); duration.Expression = "90*grade";
 		var durationId = duration.Id; var spellId = spell.Id; db.SaveChanges();
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonStockSpellInstaller.Install(factory).Status);
-		db.ChangeTracker.Clear(); spell = db.MagicSpells.Single();
+		db.ChangeTracker.Clear(); spell = db.MagicSpells.Single(x => x.Id == db.SeederManagedRecords.Single(y => y.StableKey == ArmageddonStockSpellContent.ReadAttunementKey).LogicalId);
 		Assert.AreEqual(spellId, spell.Id); Assert.AreEqual(durationId, spell.EffectDurationExpressionId);
 		Assert.AreEqual("Builder's Attunement", spell.Name); Assert.AreEqual("Custom presentation", spell.Description);
 		Assert.AreEqual(23.0, (double)XElement.Parse(spell.Definition).Element("ControlledPower")!.Element("Efficiency")!.Attribute("minimum")!);
@@ -105,9 +105,9 @@ public class ArmageddonStockSpellInstallerTests
 		switch (corruption)
 		{
 			case "retired": record.Retired = true; break;
-			case "deleted": db.MagicSpells.Remove(db.MagicSpells.Single()); break;
-			case "child": db.TraitExpressions.Remove(db.TraitExpressions.Single(x => x.Id == db.MagicSpells.Single().EffectDurationExpressionId)); break;
-			case "identity": db.MagicSpells.Single().Definition = "<Definition/>"; break;
+			case "deleted": db.MagicSpells.Remove(db.MagicSpells.Single(x => x.Id == db.SeederManagedRecords.Single(y => y.StableKey == ArmageddonStockSpellContent.ReadAttunementKey).LogicalId)); break;
+			case "child": db.TraitExpressions.Remove(db.TraitExpressions.Single(x => x.Id == db.MagicSpells.Single(x => x.Id == db.SeederManagedRecords.Single(y => y.StableKey == ArmageddonStockSpellContent.ReadAttunementKey).LogicalId).EffectDurationExpressionId)); break;
+			case "identity": db.MagicSpells.Single(x => x.Id == db.SeederManagedRecords.Single(y => y.StableKey == ArmageddonStockSpellContent.ReadAttunementKey).LogicalId).Definition = "<Definition/>"; break;
 			case "module": record.Module = "unknown"; break;
 		}
 		db.SaveChanges(); var count = db.SeederManagedRecords.Count(); var spells = db.MagicSpells.Count(); var expressions = db.TraitExpressions.Count();
@@ -126,8 +126,9 @@ public class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual(ArmageddonInstallStatus.CommittedConfirmationFailed, first.Status);
 		var second = ArmageddonStockSpellInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, second.Status);
-		CollectionAssert.AreEquivalent(first.Identities.ToArray(), second.Identities.ToArray());
-		Assert.AreEqual(1, db.MagicSpells.Count());
+		foreach (var pair in first.Identities) Assert.AreEqual(pair.Value, second.Identities[pair.Key]);
+		Assert.AreEqual(24, second.Identities.Count);
+		Assert.AreEqual(8, db.MagicSpells.Count());
 	}
 
 	[TestMethod]
@@ -144,16 +145,17 @@ public class ArmageddonStockSpellInstallerTests
 		var installed = ArmageddonStockSpellInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, installed.Status, string.Join("\n", installed.Messages));
 		db.ChangeTracker.Clear();
-		Assert.AreEqual(id, db.MagicSpells.Single().CastingTraitDefinitionId);
+		Assert.AreEqual(id, db.MagicSpells.Single(x => x.Id == db.SeederManagedRecords.Single(y => y.StableKey == ArmageddonStockSpellContent.ReadAttunementKey).LogicalId).CastingTraitDefinitionId);
 		Assert.AreEqual(ArmageddonTraditionInstaller.Module, db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonStockSpellContent.ReadAttunementKey + ".skill").Module);
 	}
 
 	private static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)
 	{
-		var db = ArmageddonInstallationSettingsTests.Fixture(classes);
+		var db = ArmageddonCatalogueCreatureTests.Fixture(mode, classes);
 		var factory = ArmageddonInstallationSettingsTests.Factory(db);
 		ArmageddonInstallation.Prepare(factory, mode);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonProgressionInstaller.Install(factory).Status);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonCatalogueCreatures.Install(factory).Status);
 		return db;
 	}
 }

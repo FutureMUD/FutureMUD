@@ -521,3 +521,11 @@ prevent the same origin from being paid again.
 plus an optional child effect. The five ARM-02 adapters use one application path. Damage
 observes delivered native wound deltas; reportless legacy effects remain usable but cannot
 prove mastery. This progression result is separate from the existing invocation outcome.
+
+## Explicit native NPC mission inputs
+
+The optional shared `IMagicSpellEffectInvocationInputs` capability binds typed parser inputs on detached casting copies before prepared selections are captured or reused, and before effect application/payment. The `roommission` cast trigger resolves the creator's room plus an exact `SpellNpcMissionInputs` payload. Seek/Haunt syntax is `<target character>`; Courier syntax is `<held parcel> to <recipient>`. Native character/item parsers supply references, and missing inputs refuse before casting. Generic stored carriers remain unsupported for `createnpc`; complete target parsing is not carrier qualification.
+
+Input binding draws no randomness and changes no shared spell definition, acquisition or player state. Native missions retain the captured exact target identity, instance, body and spatial state, and exact parcel identity, quantity, registry and held custody. Fresh invocation copies must agree on these inputs. Raw fences run after live admission callbacks, immediately before native creation, after load callbacks, and after controller authority/visibility callbacks immediately before mission construction. A stale input cannot be silently resampled. Failure after committed NPC creation retains a lifecycle hold and refuses replay. Normal controller primary-creator, current acquisition and attached enabled capability guards remain required.
+
+The [S4 checkpoint](Armageddon_S4_Checkpoint_20261012.md) distinguishes focused pipeline/fixture evidence from outstanding paid native creature acceptance.

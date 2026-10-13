@@ -7,6 +7,7 @@ using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
 using MudSharp.Magic;
+using MudSharp.Framework.Revision;
 using MudSharp.Models;
 
 namespace DatabaseSeeder.Seeders;
@@ -22,10 +23,13 @@ public static class ArmageddonStockSpellInstaller
 	{
 		var messages = new List<string>();
 		var identities = new Dictionary<string, long>(StringComparer.Ordinal);
-		foreach (var contribution in ArmageddonStockSpellContent.Contributions)
+		var contributions = ArmageddonStockSpellContent.Contributions
+			.Select(x => (Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x)))
+			.Concat(ArmageddonCreatureSpellContent.Contributions.Select(x =>
+				(Key: x.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveCreature(db, x)))));
+		foreach (var contribution in contributions)
 		{
-			var content = contribution.Content;
-			var result = InstallContribution(factory, contribution, stage => checkpoint?.Invoke(content.Key, stage));
+			var result = InstallContribution(factory, contribution.Resolve, stage => checkpoint?.Invoke(contribution.Key, stage));
 			messages.AddRange(result.Messages);
 			foreach (var pair in result.Identities) identities.Add(pair.Key, pair.Value);
 			if (result.Status == ArmageddonInstallStatus.Completed) continue;
@@ -37,9 +41,8 @@ public static class ArmageddonStockSpellInstaller
 	}
 
 	private static ArmageddonInstallResult InstallContribution(Func<FuturemudDatabaseContext> factory,
-		ArmageddonCanonicalSpellContribution contribution, Action<ArmageddonInstallCheckpoint>? checkpoint)
+		Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution> resolve, Action<ArmageddonInstallCheckpoint>? checkpoint)
 	{
-		var content = contribution.Content;
 		using var db = factory();
 		var messages = new List<string>();
 		var ids = new Dictionary<string, long>(StringComparer.Ordinal);
@@ -51,6 +54,8 @@ public static class ArmageddonStockSpellInstaller
 			if (db.ChangeTracker.Entries().Any() || db.Database.CurrentTransaction is not null)
 				throw new InvalidOperationException("S4 contributions require a fresh dedicated context.");
 			using var transaction = db.Database.IsRelational() ? db.Database.BeginTransaction(IsolationLevel.Serializable) : null;
+			var contribution = resolve(db);
+			var content = contribution.Content;
 			var settings = ArmageddonInstallation.Read(db) ?? throw new InvalidOperationException("Fix package settings and install progression before S4 content.");
 			var stock = new ArmageddonStockProgression(settings.Mode);
 			// The canonical school/trait are defaults. Route-local admissions select their own trait and reserve.
@@ -123,12 +128,65 @@ public static class ArmageddonStockSpellInstaller
 			messages.Add($"{content.Key}: canonical spell and stable duration/cost children committed; no player refresh or admissions.");
 			return Result(ArmageddonInstallStatus.Completed);
 		}
+		catch (StockDependencyException error)
+		{
+			messages.Add(error.Message);
+			return Result(ArmageddonInstallStatus.Blocked);
+		}
 		catch (Exception error)
 		{
 			messages.Add((committed ? "Committed; confirmation failed. Inspect and rerun from a fresh context. " : committing ?
 				"Commit outcome unknown. Inspect and reconcile owned identities before retrying. " : "S4 contribution failed before commit. ") + error.Message);
 			return Result(committed ? ArmageddonInstallStatus.CommittedConfirmationFailed : committing ? ArmageddonInstallStatus.CommitOutcomeUnknown : ArmageddonInstallStatus.Failed);
 		}
+	}
+
+	private sealed class StockDependencyException(string message) : InvalidOperationException(message) { }
+
+	private static ArmageddonCanonicalSpellContribution ResolveCreature(FuturemudDatabaseContext db, ArmageddonCreatureSpellContent creature)
+	{
+		SeederManagedRecord Claim<T>(string key, bool revisioned) where T : class
+		{
+			var claims = db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key).ToArray();
+			if (claims.Length != 1 || claims[0] is not { Retired: false, LogicalId: > 0, SeedBaseline: not null } record ||
+				record.Module != ArmageddonCatalogueOwnership.Module || record.ManifestVersion != ArmageddonCatalogueOwnership.Version ||
+				record.EntityType != typeof(T).Name || (record.RevisionNumber is not null) != revisioned ||
+				db.SeederManagedRecords.Any(x => x.Id != record.Id && x.EntityType == record.EntityType && x.LogicalId == record.LogicalId))
+				throw new StockDependencyException($"{key}: complete unique typed S3 ownership is required before this S4 contribution; no name adoption.");
+			return record;
+		}
+		var aiClaim = Claim<ArtificialIntelligence>("arm.ai." + creature.NpcFamily, false);
+		var ai = db.ArtificialIntelligences.AsNoTracking().SingleOrDefault(x => x.Id == aiClaim.LogicalId);
+		XElement controller;
+		try { controller = XElement.Parse(ai?.Definition ?? ""); }
+		catch (System.Xml.XmlException) { throw new StockDependencyException($"{creature.Key}: the exact owned controller definition is unreadable."); }
+		if (ai?.Type != "SpellCompanion" || (string?)controller.Element("Purpose") != creature.ControllerPurpose ||
+			(string?)controller.Element("Mode") != (creature.NpcFamily == "outsider" ? "outsider" : "companion"))
+			throw new StockDependencyException($"{creature.Key}: restore the exact compatible owned native companion controller.");
+		long? riding = null;
+		if (creature.NpcFamily == "earth_mount")
+		{
+			var mount = Claim<ArtificialIntelligence>("arm.ai.earth_mount.riding", false);
+			if (!db.ArtificialIntelligences.Any(x => x.Id == mount.LogicalId && x.Type == "Mount"))
+				throw new StockDependencyException("Earth Mount requires its exact owned native riding AI.");
+			riding = mount.LogicalId;
+		}
+		var templates = new Dictionary<int, long>();
+		for (var grade = 1; grade <= 7; grade++)
+		{
+			var key = $"arm.npc.{creature.NpcFamily}.g{grade}";
+			var record = Claim<NpcTemplate>(key, true);
+			var template = db.NpcTemplates.AsNoTracking().Include(x => x.EditableItem)
+				.Include(x => x.NpctemplatesArtificalIntelligences).ThenInclude(x => x.Ai)
+				.SingleOrDefault(x => x.Id == record.LogicalId && x.RevisionNumber == record.RevisionNumber);
+			var controllers = template?.NpctemplatesArtificalIntelligences.Where(x => x.Ai?.Type == "SpellCompanion").ToArray();
+			if (template is null || template.Type != "Simple" || template.UniqueName != key ||
+				template.EditableItem?.RevisionStatus != (int)RevisionStatus.Current || controllers is not { Length: 1 } ||
+				controllers[0].AiId != ai!.Id || riding is { } mountId && !template.NpctemplatesArtificalIntelligences.Any(x => x.AiId == mountId))
+				throw new StockDependencyException($"{key}: its exact approved Simple revision and owned native controller links are required; preserve and resolve explicitly.");
+			templates.Add(grade, template.Id);
+		}
+		return new(creature.NativeCapabilityKey, creature.Bind(templates));
 	}
 
 	private static string? StockIdentity(string definition)

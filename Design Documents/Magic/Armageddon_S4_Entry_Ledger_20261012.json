@@ -37,7 +37,7 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 1,
+    "installed_canonical_spells": 8,
     "native_grade_one_stock_entries": 1
   },
   "path_discrepancies": [],
@@ -105,7 +105,8 @@
         "arm.spell.haunting_shape",
         "arm.spell.call_outsider"
       ],
-      "issue": "No typed selected-grade NPC template binding found: CreateNPCEffect reads one NPCPrototypeId and returns one NPCTemplate."
+      "issue": "No typed selected-grade NPC template binding found: CreateNPCEffect reads one NPCPrototypeId and returns one NPCTemplate.",
+      "resolution": "S4 second batch adds versioned typed grade selection and canonical bindings; exact native gameplay qualification remains pending."
     }
   ],
   "qualification_boundary": {
@@ -4652,7 +4653,11 @@
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": {
+        "type": "ArmageddonCreatureSpellContent",
+        "path": "FutureMUDLibrary/Magic/Stock/ArmageddonCreatureSpellContent.cs",
+        "scope": "managed definition/ownership qualification only; paid native gameplay pending"
+      },
       "registered_effect_candidates": [
         {
           "type": "createnpc",
@@ -4724,18 +4729,25 @@
       },
       "current_code_note": null,
       "remaining": [
-        "CreateNPCEffect uses one fixed NPCPrototypeId (constructor line46, NPCTemplate line74); no grade-template selector in current partials. Add declared typed grade binding for seven real S3 templates without mutating shared templates.",
-        "Reusable creator/controller/lifecycle runtime and S3 graded NPCs exist; hydrate exact grade templates, authorised mission and real paid origin; qualify creator-bound commands/ride/seek/courier/Haunt/Outsider as applicable.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
+        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "S4_creature_definition_batch": {
+        "base_revision": "2bdfdc3dfa63fed0aebdb6a9a48dc0a17f2d8814",
+        "managed_installation_tests": 26,
+        "managed_runtime_gate_tests": 259,
+        "native_tests": "NOT_RUN_FOR_THIS_CREATURE_BATCH",
+        "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
+        "lifetime_seconds": "120*grade",
+        "full_entry_qualification": false
+      }
     },
     {
       "ordinal": 57,
@@ -5133,7 +5145,11 @@
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": {
+        "type": "ArmageddonCreatureSpellContent",
+        "path": "FutureMUDLibrary/Magic/Stock/ArmageddonCreatureSpellContent.cs",
+        "scope": "managed definition/ownership qualification only; paid native gameplay pending"
+      },
       "registered_effect_candidates": [
         {
           "type": "createnpc",
@@ -5205,16 +5221,23 @@
       },
       "current_code_note": null,
       "remaining": [
-        "CreateNPCEffect uses one fixed NPCPrototypeId (constructor line46, NPCTemplate line74); no grade-template selector in current partials. Add declared typed grade binding for seven real S3 templates without mutating shared templates.",
-        "Reusable creator/controller/lifecycle runtime and S3 graded NPCs exist; hydrate exact grade templates, authorised mission and real paid origin; qualify creator-bound commands/ride/seek/courier/Haunt/Outsider as applicable.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
+        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "S4_creature_definition_batch": {
+        "base_revision": "2bdfdc3dfa63fed0aebdb6a9a48dc0a17f2d8814",
+        "managed_installation_tests": 26,
+        "managed_runtime_gate_tests": 259,
+        "native_tests": "NOT_RUN_FOR_THIS_CREATURE_BATCH",
+        "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
+        "lifetime_seconds": "120*grade",
+        "full_entry_qualification": false
+      }
     },
     {
       "ordinal": 63,
@@ -6091,7 +6114,11 @@
           "role": "existing_factory_or_definition_api_not_installed_stock_qualification"
         }
       ],
-      "typed_content_projection": null,
+      "typed_content_projection": {
+        "type": "ArmageddonCreatureSpellContent",
+        "path": "FutureMUDLibrary/Magic/Stock/ArmageddonCreatureSpellContent.cs",
+        "scope": "managed definition/ownership qualification only; paid native gameplay pending"
+      },
       "registered_effect_candidates": [
         {
           "type": "createnpc",
@@ -6163,11 +6190,9 @@
       },
       "current_code_note": null,
       "remaining": [
-        "CreateNPCEffect uses one fixed NPCPrototypeId (constructor line46, NPCTemplate line74); no grade-template selector in current partials. Add declared typed grade binding for seven real S3 templates without mutating shared templates.",
-        "Reusable creator/controller/lifecycle runtime and S3 graded NPCs exist; hydrate exact grade templates, authorised mission and real paid origin; qualify creator-bound commands/ride/seek/courier/Haunt/Outsider as applicable.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
+        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "runtime_lifecycle_qualified_catalogue_parity_pending",
       "previous_whole_plan_evidence": [
@@ -6176,7 +6201,16 @@
         "Armageddon_Guardian_Lifecycle_Modes_Checkpoint_20261009.json: same-template normal-builder paid lifecycle modes and cold restart; full catalogue parity pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "S4_creature_definition_batch": {
+        "base_revision": "2bdfdc3dfa63fed0aebdb6a9a48dc0a17f2d8814",
+        "managed_installation_tests": 26,
+        "managed_runtime_gate_tests": 259,
+        "native_tests": "NOT_RUN_FOR_THIS_CREATURE_BATCH",
+        "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
+        "lifetime_seconds": "120*grade",
+        "full_entry_qualification": false
+      }
     },
     {
       "ordinal": 76,
@@ -6336,7 +6370,11 @@
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": {
+        "type": "ArmageddonCreatureSpellContent",
+        "path": "FutureMUDLibrary/Magic/Stock/ArmageddonCreatureSpellContent.cs",
+        "scope": "managed definition/ownership qualification only; paid native gameplay pending"
+      },
       "registered_effect_candidates": [
         {
           "type": "createnpc",
@@ -6408,16 +6446,23 @@
       },
       "current_code_note": null,
       "remaining": [
-        "CreateNPCEffect uses one fixed NPCPrototypeId (constructor line46, NPCTemplate line74); no grade-template selector in current partials. Add declared typed grade binding for seven real S3 templates without mutating shared templates.",
-        "Reusable creator/controller/lifecycle runtime and S3 graded NPCs exist; hydrate exact grade templates, authorised mission and real paid origin; qualify creator-bound commands/ride/seek/courier/Haunt/Outsider as applicable.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
+        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "S4_creature_definition_batch": {
+        "base_revision": "2bdfdc3dfa63fed0aebdb6a9a48dc0a17f2d8814",
+        "managed_installation_tests": 26,
+        "managed_runtime_gate_tests": 259,
+        "native_tests": "NOT_RUN_FOR_THIS_CREATURE_BATCH",
+        "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
+        "lifetime_seconds": "120*grade",
+        "full_entry_qualification": false
+      }
     },
     {
       "ordinal": 79,
@@ -6891,7 +6936,11 @@
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": {
+        "type": "ArmageddonCreatureSpellContent",
+        "path": "FutureMUDLibrary/Magic/Stock/ArmageddonCreatureSpellContent.cs",
+        "scope": "managed definition/ownership qualification only; paid native gameplay pending"
+      },
       "registered_effect_candidates": [
         {
           "type": "createnpc",
@@ -6963,18 +7012,25 @@
       },
       "current_code_note": null,
       "remaining": [
-        "CreateNPCEffect uses one fixed NPCPrototypeId (constructor line46, NPCTemplate line74); no grade-template selector in current partials. Add declared typed grade binding for seven real S3 templates without mutating shared templates.",
-        "Reusable creator/controller/lifecycle runtime and S3 graded NPCs exist; hydrate exact grade templates, authorised mission and real paid origin; qualify creator-bound commands/ride/seek/courier/Haunt/Outsider as applicable.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
+        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "S4_creature_definition_batch": {
+        "base_revision": "2bdfdc3dfa63fed0aebdb6a9a48dc0a17f2d8814",
+        "managed_installation_tests": 26,
+        "managed_runtime_gate_tests": 259,
+        "native_tests": "NOT_RUN_FOR_THIS_CREATURE_BATCH",
+        "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
+        "lifetime_seconds": "120*grade",
+        "full_entry_qualification": false
+      }
     },
     {
       "ordinal": 87,
@@ -7931,7 +7987,11 @@
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": {
+        "type": "ArmageddonCreatureSpellContent",
+        "path": "FutureMUDLibrary/Magic/Stock/ArmageddonCreatureSpellContent.cs",
+        "scope": "managed definition/ownership qualification only; paid native gameplay pending"
+      },
       "registered_effect_candidates": [
         {
           "type": "createnpc",
@@ -8003,16 +8063,23 @@
       },
       "current_code_note": null,
       "remaining": [
-        "CreateNPCEffect uses one fixed NPCPrototypeId (constructor line46, NPCTemplate line74); no grade-template selector in current partials. Add declared typed grade binding for seven real S3 templates without mutating shared templates.",
-        "Reusable creator/controller/lifecycle runtime and S3 graded NPCs exist; hydrate exact grade templates, authorised mission and real paid origin; qualify creator-bound commands/ride/seek/courier/Haunt/Outsider as applicable.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
+        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "S4_creature_definition_batch": {
+        "base_revision": "2bdfdc3dfa63fed0aebdb6a9a48dc0a17f2d8814",
+        "managed_installation_tests": 26,
+        "managed_runtime_gate_tests": 259,
+        "native_tests": "NOT_RUN_FOR_THIS_CREATURE_BATCH",
+        "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
+        "lifetime_seconds": "120*grade",
+        "full_entry_qualification": false
+      }
     },
     {
       "ordinal": 101,
@@ -9595,7 +9662,11 @@
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": {
+        "type": "ArmageddonCreatureSpellContent",
+        "path": "FutureMUDLibrary/Magic/Stock/ArmageddonCreatureSpellContent.cs",
+        "scope": "managed definition/ownership qualification only; paid native gameplay pending"
+      },
       "registered_effect_candidates": [
         {
           "type": "createnpc",
@@ -9667,18 +9738,25 @@
       },
       "current_code_note": null,
       "remaining": [
-        "CreateNPCEffect uses one fixed NPCPrototypeId (constructor line46, NPCTemplate line74); no grade-template selector in current partials. Add declared typed grade binding for seven real S3 templates without mutating shared templates.",
-        "Reusable creator/controller/lifecycle runtime and S3 graded NPCs exist; hydrate exact grade templates, authorised mission and real paid origin; qualify creator-bound commands/ride/seek/courier/Haunt/Outsider as applicable.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock grade/template/body/controller outcomes and initial missions; riding/guard/follow/pursuit/delivery/Haunt/Outsider as applicable.",
+        "Validate native restart, expiry, custody, ward/resistance and zero-payment refusal across all grades.",
+        "Preserve disabled package admissions and all later S5/S6/N24/N25/readiness gates."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
       "installed_stock_qualification": "PENDING",
-      "release_qualification": false
+      "release_qualification": false,
+      "S4_creature_definition_batch": {
+        "base_revision": "2bdfdc3dfa63fed0aebdb6a9a48dc0a17f2d8814",
+        "managed_installation_tests": 26,
+        "managed_runtime_gate_tests": 259,
+        "native_tests": "NOT_RUN_FOR_THIS_CREATURE_BATCH",
+        "grade_template_binding": "exact unique typed S3 claim/current revision/controller for grades1-7",
+        "lifetime_seconds": "120*grade",
+        "full_entry_qualification": false
+      }
     },
     {
       "ordinal": 123,
@@ -12141,5 +12219,47 @@
   "baseline_repair_commit": "d5cdd6ccc80079e335ca6480a775c9ee9063f9da",
   "source_revision_scope": "The source map and its existing-file fingerprints describe the initial 92fdf3f9 head. The added adapter paths below describe the first S4 working-tree slice separately.",
   "adapter_implementation_commit": "d427e02b0deefd5445fc9599d2a9f031f0cb8ac9",
-  "latest_canonical_slice_base_revision": "4704da1acd840f523052b99af617e38861638fe9"
+  "latest_canonical_slice_base_revision": "4704da1acd840f523052b99af617e38861638fe9",
+  "S4_creature_definition_batch_sources": [
+    {
+      "path": "FutureMUDLibrary/Magic/IMagicSpellEffectInvocationInputs.cs",
+      "sha256": "1771065ef474cf1a7d81418fd2f13237f883127abcec3ac9c4d4f33b6e2ee9c2"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/SpellNpcMissionInputs.cs",
+      "sha256": "84b2fe293fecbf4d50d1ce6539145319c7baf878575ccde51b771a1ece179906"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/Stock/ArmageddonCreatureSpellContent.cs",
+      "sha256": "05faaa9f4fc41ad96cd16f84e76e003a57339f61d5a0fb42e6f7de3f04997b77"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateNPCEffect.GradeTemplates.cs",
+      "sha256": "3527b58704fbd4479911935b668e68d7867a0428759d453f164771b3cb630a2d"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CreateNPCEffect.Missions.cs",
+      "sha256": "662982f22639b690b76c8dd3ddde6a55cc8ae708dfc3c3f6de93fd688a4423db"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerRoomMission.cs",
+      "sha256": "5c3f2f4f98ffd5d8f532cd9c73d60b45727e97c00813471e12cf9397adbf5e01"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonStockSpellInstaller.cs",
+      "sha256": "fb0b4ec21af2a09240b33709b8c55d1e7805baf86a4deea82114267ba4091518"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellNpcControlEffect.cs",
+      "sha256": "be1c56a5b08a5f02ab0e2f1f0ada38a8d1c70fbeddc5906722200d3c4f802abc"
+    }
+  ],
+  "S4_creature_definition_native_loader_receipt": {
+    "native": ".artifacts/s4-creature-stock-native/20261012T233339Z_dabeb10f40f64914a36ef164cf88a996/summary.json",
+    "boot_local_optional": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-creature-c9cc5aba452f4fddbe630f3f1a28cd36\\boot-latest.json",
+    "canonical_definitions": 8,
+    "assertions": 20,
+    "full_qualified_entries": 0,
+    "scope": "First/cold definition readiness and grade-one paid Read Attunement; no paid creature/controller qualification."
+  }
 }

@@ -148,6 +148,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		if (intent.Mode != MagicCastingMode.Practice) copy.InvocationOriginId = intent.OriginId;
 		if (intent.Mode != MagicCastingMode.Practice)
 		{
+			copy.BindInvocationInputs(actor, target.Target, target.Parameters);
 			if (preparedSelectionSource is not null) ReusePreparedSelections(copy, preparedSelectionSource, actor, targets);
 			foreach (var (effect, recipients) in copy.SpellEffects.Select(x => (x, targets))
 				.Concat(copy.CasterSpellEffects.Select(x => (x, (IEnumerable<IPerceivable>)new[] { actor }))))

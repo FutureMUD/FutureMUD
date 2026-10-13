@@ -1670,6 +1670,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		var lifetimeAdmissions = new Dictionary<IPerceivable, LifetimeAdmission>(ReferenceEqualityComparer.Instance);
 		try
 		{
+			BindInvocationInputs(magician, target, additionalParameters);
 			if (LifetimeConfigurationError is { } lifetimeError) throw new InvalidOperationException(lifetimeError);
 			var recipients = target is PerceivableGroup lifetimeGroup ? lifetimeGroup.Members : target is null ? [] : new[] { target };
 			foreach (var recipient in recipients)

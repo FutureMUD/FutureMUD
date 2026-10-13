@@ -306,6 +306,27 @@ def attunement_stock_smoke(session, phase):
                 0 < initial['parents'][0]['remaining_ms'] <= saved['parents'][0]['remaining_ms'], 'Cold S4 parent/child identity or remaining duration was not retained.')
         assertions.append('S4 stock: cold restart retained paid reserve, grade, skill, completed enrolment and exact parent/child identity with decreasing lifetime')
 
+    # This validates real native load/readiness of the complete current definition batch.
+    # It is separate from paid creature creation/controller/all-grade qualification.
+    expected_stock_keys = {'arm.spell.read_attunement', 'arm.spell.earth_mount', 'arm.spell.clay_sentinel',
+                           'arm.spell.air_guardian', 'arm.spell.seeking_wind', 'arm.spell.wind_courier',
+                           'arm.spell.haunting_shape', 'arm.spell.call_outsider'}
+    stock_spells = data.get('stock_spells', [])
+    require(len(stock_spells) >= 8 and len({entry['key'] for entry in stock_spells}) == len(stock_spells) and
+            expected_stock_keys.issubset({entry['key'] for entry in stock_spells}),
+            'Missing exact canonical creature definition inputs.')
+    for entry in stock_spells:
+        actual = sql(f"SELECT HEX(Definition) FROM MagicSpells WHERE Id={int(entry['id'])}", (0,))
+        require(len(actual) == 1 and actual[0][0] == entry['definition'],
+                'Canonical definition changed during native loader validation: ' + entry['key'])
+        shown = session.send(f"magic spell show {int(entry['id'])}", read_seconds=.3)
+        require(entry['name'] in shown and 'Building Error' not in shown,
+                'Native canonical spell loader/readiness failed: ' + entry['key'] + ': ' + redact(shown))
+        receipt.setdefault('stock_definition_loader', {}).setdefault(phase, {})[entry['key']] = {
+            'id': entry['id'], 'definition_sha256': hashlib.sha256(entry['definition'].encode('utf-8')).hexdigest(),
+            'shown': redact(shown)}
+    assertions.append(phase + ': all eight canonical stock definitions loaded ready with exact unchanged definitions; creature gameplay remains separate')
+
     # A depleted reserve refuses before a roll/payment operation or overlay replacement.
     current = state()
     require(current['balance'] == 0, 'S4 depletion control must use a saved zero reserve.')

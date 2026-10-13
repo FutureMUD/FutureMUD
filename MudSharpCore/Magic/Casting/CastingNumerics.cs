@@ -116,6 +116,8 @@ internal static class CastingNumerics
 	{
 		(TraitBoostEffect { Trait: not null }, "boost", "Bonus") => true,
 		(RoomLightEffect, "roomlight", "AddedLuxPerPower") => true,
+		(RoomTemperatureEffect, "roomtemperature", "TemperatureDeltaPerPower") => true,
+		(ItemEnchantEffect, "itemenchant", "AttackCheckBonus") => true,
 		(HealingRateSpellEffect, "healingrate", "Multiplier") => true,
 		(NeedDeltaEffect, "needdelta", "DrunkDelta") => true,
 		_ => false
@@ -130,6 +132,8 @@ internal static class CastingNumerics
 		{
 			case ("boost", "Bonus"): effect.SetAttributeValue("bonus", value); break;
 			case ("roomlight", "AddedLuxPerPower"): effect.SetElementValue("AddedLuxPerPower", value); break;
+			case ("roomtemperature", "TemperatureDeltaPerPower"): effect.SetElementValue("TemperatureDeltaPerPower", value); break;
+			case ("itemenchant", "AttackCheckBonus"): effect.SetElementValue("AttackCheckBonus", value); break;
 			case ("healingrate", "Multiplier"): effect.SetElementValue("Multiplier", value); break;
 			case ("needdelta", "DrunkDelta"):
 				if ((bool?)effect.Element("DirectAlcoholRemoval") == true &&

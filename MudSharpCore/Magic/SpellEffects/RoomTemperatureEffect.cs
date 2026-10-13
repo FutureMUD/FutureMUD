@@ -196,7 +196,7 @@ public class RoomTemperatureEffect : IMagicSpellEffectTemplate
             return null;
         }
 
-        return new SpellRoomLightEffect(target, parent, null, TemperatureDeltaPerPower * (int)power, DescAddendum,
+        return new SpellRoomTemperatureEffect(target, parent, null, TemperatureDeltaPerPower * (int)power, DescAddendum,
             AddendumColour);
     }
 

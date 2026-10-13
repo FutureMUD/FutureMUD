@@ -89,7 +89,9 @@ public static partial class ArmageddonStockSpellInstaller
 		.Append((Key: "arm.spell.false_presence", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveFalsePresence))
 		.Append((Key: "arm.spell.water_breathing", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveWaterBreathing))
 		.Concat(new[] { "arm.spell.fleet_step", "arm.spell.lightning_pace", "arm.spell.leadfoot" }.Select(key =>
-			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveMovementTempo(db, key)))));
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveMovementTempo(db, key)))))
+		.Append((Key: ArmageddonImmolateSpellContent.Key,
+			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonImmolateSpellContent.Create())));
 
 	private static ArmageddonInstallResult InstallContribution(Func<FuturemudDatabaseContext> factory,
 		Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution> resolve, Action<ArmageddonInstallCheckpoint>? checkpoint)

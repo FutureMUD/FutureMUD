@@ -20,6 +20,7 @@ using MudSharp.RPG.Checks;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Xml.Linq;
 
 namespace MudSharp_Unit_Tests;
@@ -76,6 +77,24 @@ public class MagicPersistentSensoryCombatTests
 
 			Assert.AreEqual(expectedType, saved.Attribute("type")?.Value);
 		}
+	}
+
+	[DataTestMethod]
+	[DataRow(1, 2.0)]
+	[DataRow(7, 14.0)]
+	public void BurningEffect_SelectedExternalGrade_DeterminesPersistentTickDamage(int grade, double expected)
+	{
+		var fixture = new MagicCastingFixture();
+		typeof(MagicSpell).GetProperty("InvocationGrade", BindingFlags.Instance | BindingFlags.NonPublic)!
+			.SetValue(fixture.Spell, grade);
+		var root = ArmageddonImmolateSpellContent.Create().Content.BuildDefinition(10, 11, 0);
+		var effect = SpellEffectFactory.LoadEffect(root.Element("Effects")!.Elements().Last(), fixture.Spell);
+		var target = CreateCharacter(8, "Target", fixture.World.Object);
+		var parent = CreateParent(fixture.Spell, fixture.Actor.Object);
+		var applied = effect.GetOrApplyEffect(fixture.Actor.Object, target.Object, OpposedOutcomeDegree.None,
+			SpellPower.ExtremelyWeak, parent.Object, []);
+		Assert.IsInstanceOfType(applied, typeof(SpellBurningEffect));
+		Assert.AreEqual(expected, ((SpellBurningEffect)applied).DamagePerTick, 1e-9);
 	}
 
 	[TestMethod]

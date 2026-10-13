@@ -149,9 +149,12 @@ public class BurningEffect : IMagicSpellEffectTemplate
 			AddendumColour);
 	}
 
-	private static double Evaluate(Expression formula, OpposedOutcomeDegree outcome, SpellPower power)
+	private double Evaluate(Expression formula, OpposedOutcomeDegree outcome, SpellPower power)
 	{
-		return Math.Max(0.0, formula.EvaluateDoubleWith(("power", (int)power), ("outcome", (int)outcome)));
+		var grade = (Spell as MagicSpell)?.InvocationGrade;
+		return Math.Max(0.0, grade is { } selected
+			? formula.EvaluateDoubleWith(("power", (int)power), ("outcome", (int)outcome), ("grade", selected))
+			: formula.EvaluateDoubleWith(("power", (int)power), ("outcome", (int)outcome)));
 	}
 
 	public IMagicSpellEffectTemplate Clone()

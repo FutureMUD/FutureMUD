@@ -333,6 +333,29 @@ def attunement_stock_smoke(session, phase):
                 0 < initial['parents'][0]['remaining_ms'] <= saved['parents'][0]['remaining_ms'], 'Cold S4 parent/child identity or remaining duration was not retained.')
         assertions.append('S4 stock: cold restart retained paid reserve, grade, skill, completed enrolment and exact parent/child identity with decreasing lifetime')
 
+    def verify_refusal():
+        current = state()
+        require(current['balance'] == 0, 'S4 depletion control must use a saved zero reserve.')
+        old = operations()
+        refused = session.send(f'armwater cast "Read Attunement" grade 1 on self via {cap}', read_seconds=.3)
+        flush()
+        after_refusal = state()
+        require('Insufficient' in refused and operations() == old and
+                all(after_refusal[k] == current[k] for k in ('balance', 'grade', 'raw', 'enrolments')) and
+                [(x['identity'], x['children']) for x in after_refusal['parents']] == [(x['identity'], x['children']) for x in current['parents']],
+                'Unfunded S4 cast changed state or produced an operation: ' + redact(refused))
+        assertions.append(phase + ': S4 stock unfunded cast refused with no operation, debit, learning or overlay side effect')
+
+    if phase == 'cold':
+        # The grade-one overlay lives for 60 seconds. Inspect it before the
+        # 100-definition loader sweep, which can outlast that live effect.
+        verify_refusal()
+        looked = session.send('look me', read_seconds=.5)
+        if 'Assigned elemental affinities:' not in looked or 'Learned magical affiliations:' not in looked:
+            looked += session.read_for(2.0)
+        verify_overlay(looked)
+        assertions.append('S4 stock: cold visible self overlay separated unassigned affinity from completed learned affiliation')
+
     stock_spells = data.get('stock_spells', [])
     require(stock_spells and len({entry['key'] for entry in stock_spells}) == len(stock_spells), 'Missing or duplicate canonical definition inputs.')
     claimed = sql("SELECT StableKey,LogicalId FROM SeederManagedRecords WHERE Seeder='ArmageddonMagicSeeder' AND Module='stock-spells' AND EntityType='MagicSpell' AND Retired=0 ORDER BY StableKey")
@@ -371,24 +394,12 @@ def attunement_stock_smoke(session, phase):
     assertions.append(f'{phase}: all {len(stock_spells)} installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready')
     stock_campaign_smoke(session, phase, data, mapped)
 
-    # A depleted reserve refuses before a roll/payment operation or overlay replacement.
-    current = state()
-    require(current['balance'] == 0, 'S4 depletion control must use a saved zero reserve.')
-    old = operations()
-    refused = session.send(f'armwater cast "Read Attunement" grade 1 on self via {cap}', read_seconds=.3)
-    flush()
-    after_refusal = state()
-    require('Insufficient' in refused and operations() == old and
-            all(after_refusal[k] == current[k] for k in ('balance', 'grade', 'raw', 'enrolments')) and
-            [(x['identity'], x['children']) for x in after_refusal['parents']] == [(x['identity'], x['children']) for x in current['parents']],
-            'Unfunded S4 cast changed state or produced an operation: ' + redact(refused))
-    assertions.append(phase + ': S4 stock unfunded cast refused with no operation, debit, learning or overlay side effect')
     if phase == 'cold':
-        looked = session.send('look me', read_seconds=.5)
-        verify_overlay(looked)
-        assertions.append('S4 stock: cold visible self overlay separated unassigned affinity from completed learned affiliation')
         mark_inherited_read('cold')
         return
+
+    # A depleted reserve refuses before a roll/payment operation or overlay replacement.
+    verify_refusal()
 
     session.send(f'armwater gather {cap} draw 100', read_seconds=.2)
     deadline = time.monotonic() + 15

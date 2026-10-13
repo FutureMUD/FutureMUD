@@ -231,7 +231,26 @@ public static partial class ArmageddonStockSpellInstaller
 		var material = settings.NativeBindings[ArmageddonNativeBinding.Stone];
 		if (!db.Materials.Any(x => x.Id == material && x.Density > 0))
 			throw new StockDependencyException("Retain the exact explicit native solid Stone material before finite armour.");
-		var agility = key == "arm.spell.stone_skin" ? ArmageddonCatalogueLinks.Bind(db,
+		var agility = key == "arm.spell.stone_skin" ? ResolveOrdinaryAgility(db) : 0;
+		var profile = CatalogueIdentity<ArmourType>(db, key == "arm.spell.charged_aegis"
+			? "arm.support.armour.electrical" : "arm.support.armour.external");
+		if (agility > 0 && !db.TraitDefinitions.Any(x => x.Id == agility && x.Type == 1 && x.DerivedType == 0 && x.OwnerScope == 0 && x.TraitGroup == "Physical"))
+			throw new StockDependencyException("Retain the exact ordinary physical mobility attribute binding; no replacement or derived stat is adopted.");
+		var content = ArmageddonArmourSpellContent.Create(key, profile, material, agility);
+		if (agility > 0) content = content with { Description = content.Description +
+			" The retained native mobility attribute is " + db.TraitDefinitions.Single(x => x.Id == agility).Name + "." };
+		return new("arm.capability." + school, content);
+	}
+
+	private static ArmageddonCanonicalSpellContribution ResolveMovementTempo(FuturemudDatabaseContext db, string key)
+	{
+		var agility = ResolveOrdinaryAgility(db);
+		if (!db.TraitDefinitions.Any(x => x.Id == agility && x.Type == 1 && x.DerivedType == 0 && x.OwnerScope == 0 && x.TraitGroup == "Physical"))
+			throw new StockDependencyException("Retain the exact ordinary physical mobility attribute binding before movement spells.");
+		return ArmageddonMovementTempoSpellContent.Create(agility).Single(x => x.Content.Key == key);
+	}
+
+	private static long ResolveOrdinaryAgility(FuturemudDatabaseContext db) => ArmageddonCatalogueLinks.Bind(db,
 			"arm.binding.trait.agility", nameof(TraitDefinition), () =>
 			{
 				// The supported labmud preset represents physical flexibility with ordinary Dexterity.
@@ -242,16 +261,7 @@ public static partial class ArmageddonStockSpellInstaller
 				if (candidates.Length == 0) candidates = ordinary.Where(x => x.Alias == "dex").Select(x => x.Id).ToArray();
 				if (candidates.Length != 1) throw new StockDependencyException("Bind one ordinary native Physical mobility attribute (Agility, or the supported Dexterity equivalent); ambiguous identities are not adopted.");
 				return candidates[0];
-			}) : 0;
-		var profile = CatalogueIdentity<ArmourType>(db, key == "arm.spell.charged_aegis"
-			? "arm.support.armour.electrical" : "arm.support.armour.external");
-		if (agility > 0 && !db.TraitDefinitions.Any(x => x.Id == agility && x.Type == 1 && x.DerivedType == 0 && x.OwnerScope == 0 && x.TraitGroup == "Physical"))
-			throw new StockDependencyException("Retain the exact ordinary physical mobility attribute binding; no replacement or derived stat is adopted.");
-		var content = ArmageddonArmourSpellContent.Create(key, profile, material, agility);
-		if (agility > 0) content = content with { Description = content.Description +
-			" The retained native mobility attribute is " + db.TraitDefinitions.Single(x => x.Id == agility).Name + "." };
-		return new("arm.capability." + school, content);
-	}
+			});
 
 	private static readonly string[] RetainedUtilityKeys =
 		["arm.spell.luminous_trail", "arm.spell.read_enchantment", "arm.spell.echo_servant", "arm.spell.voice_of_remains"];

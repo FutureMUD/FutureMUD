@@ -25,7 +25,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var entries = manifest.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell").ToArray();
 		CollectionAssert.AreEquivalent(ArmageddonStockSpellInstaller.CanonicalKeys.ToArray(), claims.Select(x => x.StableKey).ToArray());
-		Assert.AreEqual(102, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
+		Assert.AreEqual(105, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var source = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId!.Value;
 		foreach (var claim in claims)
@@ -104,6 +104,37 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual("0", db.TraitExpressions.Single(x => x.Id == installed.Identities["arm.spell.water_breathing.duration"]).Expression);
 		Assert.AreEqual(0, db.CharacterCastingEnrolments.Count());
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonStockSpellInstaller.Install(factory).Status);
+	}
+
+	[DataTestMethod]
+	[DataRow(ArmageddonProgressionMode.Classic)]
+	[DataRow(ArmageddonProgressionMode.Simple)]
+	public void MovementTempo_InstalledChildrenRetainExactOrdinaryAgilityBinding(ArmageddonProgressionMode mode)
+	{
+		using var db = Fixture(mode);
+		var installed = ArmageddonStockSpellInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db));
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, installed.Status, string.Join("\n", installed.Messages));
+		using var agilityAlias = JsonDocument.Parse(db.SeederManagedRecords.Single(x =>
+			x.StableKey == "arm.binding.trait.agility").SeedBaseline!);
+		var agility = agilityAlias.RootElement.GetProperty("NativeId").GetInt64();
+		Assert.IsTrue(db.TraitDefinitions.Any(x => x.Id == agility && x.Type == 1 && x.DerivedType == 0 &&
+			x.OwnerScope == 0 && x.TraitGroup == "Physical"));
+		foreach (var key in new[] { "arm.spell.fleet_step", "arm.spell.lightning_pace", "arm.spell.leadfoot" })
+		{
+			var spell = db.MagicSpells.Single(x => x.Id == installed.Identities[key]);
+			var root = XElement.Parse(spell.Definition);
+			var effects = root.Element("Effects")!.Elements().ToArray();
+			Assert.AreEqual(2, effects.Length, key);
+			Assert.AreEqual("movementtempo", (string?)effects[0].Attribute("type"), key);
+			if (key == "arm.spell.fleet_step")
+				Assert.AreEqual("staminaexpendrate", (string?)effects[1].Attribute("type"), key);
+			else
+			{
+				Assert.AreEqual("boost", (string?)effects[1].Attribute("type"), key);
+				Assert.AreEqual(agility, (long)effects[1].Attribute("trait")!, key);
+			}
+		}
+		Assert.AreEqual(0, db.CharacterCastingEnrolments.Count());
 	}
 
 	[TestMethod]

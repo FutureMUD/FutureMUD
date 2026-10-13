@@ -78,20 +78,35 @@ def batch_cell(value):
     escapes = {'n':'\n', 'r':'\r', 't':'\t', '0':'\0', '\\':'\\'}
     return re.sub(r'\\([nrt0\\])', lambda match: escapes[match.group(1)], value)
 
-def sql(statement, hex_columns=()):
+def sql(statement, hex_columns=(), context=''):
     global marker
     env = os.environ.copy()
     env['MYSQL_PWD'] = sql_password
     command = [str(mysql), '--no-defaults', '--protocol=tcp', '--host=127.0.0.1', f'--port={port}',
                f'--user={user}', f'--database={database}', '--batch', '--skip-column-names',
                '--execute=SELECT @@server_uuid, @@port, @@datadir; SELECT RunToken FROM __gathering_harness_ownership; ' + statement]
-    result = subprocess.run(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                            text=True, encoding='utf-8', errors='replace', timeout=40,
-                            creationflags=subprocess.CREATE_NO_WINDOW)
-    require(result.returncode == 0, 'Owned SQL failed: ' + redact(result.stderr))
-    lines = result.stdout.rstrip('\r\n').splitlines()
+    query_hash = hashlib.sha256(statement.encode('utf-8')).hexdigest().upper()
+    def execute():
+        result = subprocess.run(command, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                text=True, encoding='utf-8', errors='replace', timeout=40,
+                                creationflags=subprocess.CREATE_NO_WINDOW)
+        require(result.returncode == 0, 'Owned SQL failed: ' + redact(result.stderr))
+        return result, result.stdout.rstrip('\r\n').splitlines()
+    result, lines = execute()
+    if len(lines) < 2:
+        anomaly = {'context': context, 'query_sha256': query_hash,
+                   'first_rows': len(lines), 'first_stdout_chars': len(result.stdout),
+                   'first_stdout_sha256': hashlib.sha256(result.stdout.encode('utf-8')).hexdigest().upper(),
+                   'first_stderr': redact(result.stderr)[:240]}
+        receipt.setdefault('sql_output_anomalies', []).append(anomaly)
+        # Retry only a single read-only SELECT. Mutations always fail closed on a missing marker.
+        if statement.lstrip().upper().startswith('SELECT ') and ';' not in statement:
+            result, lines = execute()
+            anomaly.update(retry_rows=len(lines), retry_stdout_chars=len(result.stdout),
+                           retry_stdout_sha256=hashlib.sha256(result.stdout.encode('utf-8')).hexdigest().upper(),
+                           retry_stderr=redact(result.stderr)[:240])
     require(len(lines) >= 2,
-            f'Missing owned SQL descriptor/marker (rows={len(lines)}, stdout_chars={len(result.stdout)}, stderr={redact(result.stderr)[:240]}).')
+            f'Missing owned SQL descriptor/marker (context={context}, query_sha256={query_hash}, rows={len(lines)}, stdout_chars={len(result.stdout)}, stderr={redact(result.stderr)[:240]}).')
     descriptor = lines[0].split('\t')
     require(len(descriptor) == 3 and descriptor[0] == expected_uuid and int(descriptor[1]) == port and
             os.path.normcase(os.path.normpath(descriptor[2].replace('/', '\\'))) == expected_datadir,
@@ -377,7 +392,9 @@ def attunement_stock_smoke(session, phase):
             if (kind, identity) in resolved_refs: continue
             require(kind in reference_schema, 'Missing typed EF reference mapping: ' + kind)
             binding = reference_schema[kind]; table = binding['table']; column = binding['id_column']
-            require(sql(f'SELECT DISTINCT `{column}` FROM `{table}` WHERE `{column}`={identity}') == [[str(identity)]], 'Unresolved exact typed native reference: ' + kind + ':' + str(identity))
+            require(sql(f'SELECT DISTINCT `{column}` FROM `{table}` WHERE `{column}`={identity}',
+                        context=entry['key'] + ':' + kind + ':' + str(identity)) == [[str(identity)]],
+                    'Unresolved exact typed native reference: ' + kind + ':' + str(identity))
             resolved_refs.add((kind, identity))
         shown = session.send(f"magic spell show {int(entry['id'])}", read_seconds=.2)
         def ready(text):

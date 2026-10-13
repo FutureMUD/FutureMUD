@@ -206,6 +206,18 @@ public static partial class ArmageddonStockSpellInstaller
 		ArmageddonDirectDamageSpellContent.Create(new(CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey),
 			Difficulty.Normal, MudSharp.Health.DamageType.Arcane)).Single(x => x.Content.Key == key);
 
+	private static ArmageddonCanonicalSpellContribution ResolveFalsePresence(FuturemudDatabaseContext db)
+	{
+		var settings = ArmageddonInstallation.Read(db) ?? throw new StockDependencyException("Fix the installation before False Presence.");
+		var applicability = settings.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg];
+		RequireProg(db, applicability, ProgVariableTypes.Boolean, ProgVariableTypes.Character);
+		return ArmageddonPrimitiveSpellContent.FalsePresence(applicability);
+	}
+
+	private static ArmageddonCanonicalSpellContribution ResolveWaterBreathing(FuturemudDatabaseContext db) =>
+		new("arm.capability.water", ArmageddonReviewedWaterSeeContent.WaterBreathing(
+			[CatalogueAlias(db, "arm.liquid.water", nameof(Liquid))]));
+
 	private static readonly (string Key, string School)[] ArmourKeys =
 	[
 		("flame_mantle", "fire"), ("unyielding_veil", "water"), ("mist_shield", "water"),

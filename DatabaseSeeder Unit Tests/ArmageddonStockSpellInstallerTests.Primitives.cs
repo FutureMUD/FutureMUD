@@ -25,7 +25,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var entries = manifest.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell").ToArray();
 		CollectionAssert.AreEquivalent(ArmageddonStockSpellInstaller.CanonicalKeys.ToArray(), claims.Select(x => x.StableKey).ToArray());
-		Assert.AreEqual(100, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
+		Assert.AreEqual(102, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var source = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId!.Value;
 		foreach (var claim in claims)
@@ -74,6 +74,58 @@ public partial class ArmageddonStockSpellInstallerTests
 			Assert.IsFalse(spell.ScrollInscriptionAllowed);
 			Assert.AreEqual(settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg], spell.SpellKnownProgId);
 		}
+	}
+
+	[DataTestMethod]
+	[DataRow(ArmageddonProgressionMode.Classic)]
+	[DataRow(ArmageddonProgressionMode.Simple)]
+	public void FixedConcealmentAndWaterBreathing_UseExactViewerAndWaterBindings(ArmageddonProgressionMode mode)
+	{
+		using var db = Fixture(mode);
+		var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		var installed = ArmageddonStockSpellInstaller.Install(factory);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, installed.Status, string.Join("\n", installed.Messages));
+		db.ChangeTracker.Clear();
+		XElement Definition(string key) => XElement.Parse(db.MagicSpells.Single(x => x.Id == installed.Identities[key]).Definition);
+		var concealment = Definition("arm.spell.false_presence");
+		Assert.AreEqual("invisibility", (string?)concealment.Element("Effects")!.Elements().Single().Attribute("type"));
+		Assert.AreEqual(ArmageddonInstallation.Read(db)!.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg],
+			(long)concealment.Element("Effects")!.Elements().Single().Element("FilterProg")!);
+		Assert.AreEqual("60*grade", db.TraitExpressions.Single(x => x.Id == installed.Identities["arm.spell.false_presence.duration"]).Expression);
+		var water = Definition("arm.spell.water_breathing");
+		var effect = water.Element("Effects")!.Elements().Single();
+		Assert.AreEqual("sourcewaterbreathing", (string?)effect.Attribute("type"));
+		var scope = effect.Element("WaterScope")!;
+		Assert.AreEqual(1, (int)scope.Attribute("version")!);
+		using var alias = JsonDocument.Parse(db.SeederManagedRecords.Single(x => x.StableKey == "arm.liquid.water").SeedBaseline!);
+		var waterId = alias.RootElement.GetProperty("NativeId").GetInt64();
+		Assert.AreEqual(waterId, (long)scope.Elements("Liquid").Single().Attribute("id")!);
+		Assert.IsTrue(db.Liquids.Any(x => x.Id == waterId && x.Density > 0));
+		Assert.AreEqual("0", db.TraitExpressions.Single(x => x.Id == installed.Identities["arm.spell.water_breathing.duration"]).Expression);
+		Assert.AreEqual(0, db.CharacterCastingEnrolments.Count());
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonStockSpellInstaller.Install(factory).Status);
+	}
+
+	[TestMethod]
+	public void FixedWaterBreathing_RefusesEarlierModuleOwnershipWithoutAdoption()
+	{
+		using var db = Fixture();
+		db.SeederManagedRecords.Add(new()
+		{
+			Seeder = ArmageddonMagicInstaller.Package,
+			Module = ArmageddonWaterSeeInstaller.Module,
+			StableKey = ArmageddonWaterSeeInstaller.WaterBreathingKey,
+			EntityType = nameof(MudSharp.Models.MagicSpell),
+			LogicalId = 987654,
+			ManifestVersion = ArmageddonWaterSeeInstaller.Version,
+			SeedBaseline = "{}"
+		});
+		db.SaveChanges();
+		var result = ArmageddonStockSpellInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db));
+		Assert.AreEqual(ArmageddonInstallStatus.Blocked, result.Status);
+		Assert.IsFalse(result.Identities.ContainsKey("arm.spell.water_breathing"));
+		Assert.AreEqual(ArmageddonWaterSeeInstaller.Module,
+			db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonWaterSeeInstaller.WaterBreathingKey).Module);
 	}
 
 	[TestMethod]

@@ -33,6 +33,16 @@ public sealed record ArmageddonPrimitiveSpellBindings(long StrengthTraitId, long
 /// </summary>
 public static partial class ArmageddonPrimitiveSpellContent
 {
+	/// <summary>Named Wind concealment; only the exact viewer applicability prog is required.</summary>
+	public static ArmageddonCanonicalSpellContribution FalsePresence(long applicabilityProgId)
+	{
+		ArmageddonPrimitiveSpellBindings.RequirePositive(applicabilityProgId, nameof(applicabilityProgId));
+		return Character("wind", "false_presence", "False Presence", 7, 40, "60*grade",
+			"Hide the selected recipient's visible presence for 60 seconds per grade without a trait modifier.",
+			new XElement("Effect", new XAttribute("type", "invisibility"),
+				new XElement("FilterProg", applicabilityProgId)));
+	}
+
 	/// <summary>
 	/// Strength must be an ordinary package-bound attribute. Invisibility uses the supplied applicability prog.
 	/// Still Limbs uses the supplied native resistance trait and difficulty; other entries retain unopposed

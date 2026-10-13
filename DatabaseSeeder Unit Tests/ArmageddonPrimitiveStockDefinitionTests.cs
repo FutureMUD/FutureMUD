@@ -17,6 +17,23 @@ public class ArmageddonPrimitiveStockDefinitionTests
 	private static ArmageddonPrimitiveSpellBindings Bindings => new(101, 102, 103, 104, Difficulty.Normal);
 
 	[TestMethod]
+	public void FalsePresence_UsesOnlyViewerPolicyAndLockedWindDuration()
+	{
+		var contribution = ArmageddonPrimitiveSpellContent.FalsePresence(103);
+		Assert.AreEqual("arm.capability.wind", contribution.NativeCapabilityKey);
+		Assert.AreEqual("arm.spell.false_presence", contribution.Content.Key);
+		Assert.AreEqual(7.0, contribution.Content.MinimumEnergy);
+		Assert.AreEqual("60*grade", contribution.Content.DurationFormula);
+		var definition = contribution.Content.BuildDefinition(201, 202, 0);
+		Assert.AreEqual("character", (string?)definition.Element("Trigger")!.Attribute("type"));
+		Assert.AreEqual(40, (int)definition.Element("ControlledPower")!.Attribute("openingSkill")!);
+		var effect = definition.Element("Effects")!.Elements().Single();
+		Assert.AreEqual("invisibility", (string?)effect.Attribute("type"));
+		Assert.AreEqual(103L, (long)effect.Element("FilterProg")!);
+		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonPrimitiveSpellContent.FalsePresence(0));
+	}
+
+	[TestMethod]
 	public void Create_EveryDefinitionMatchesLockedIdentitySchoolFloorAndNativeGrades()
 	{
 		using var manifest = JsonDocument.Parse(ArmageddonStockManifest.Read());

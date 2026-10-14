@@ -10913,7 +10913,7 @@
       "key": "arm.spell.leaping_lightning",
       "name": "Leaping Lightning",
       "required": true,
-      "completion_contract": "Source-informed bounded repeated random target selection; caster possible at quarter damage and Energy Shield protection; do not silently impose distinct targets or diminishing falloff",
+      "completion_contract": "Source-backed repeated random strikes with replacement; caster possible at quarter damage and complete Energy Shield absorption, with no diminishing falloff. Luke locked this source-shaped rule on 14 October at 12:18 UTC. Original loop makes level+1 strikes or 2*level+1 on Silt, Shallows, Water plane or Lightning plane; source samples one shared 3*level..5*level damage roll before doubling the loop level.",
       "inventory_classification": "small_missing_primitive",
       "inventory_current_factory": null,
       "verified_paths": [
@@ -10938,7 +10938,7 @@
       "policy": {
         "effect_profile": "chain",
         "target_type": "characters",
-        "approved_effect_configuration": "At most min(grade+1,8) distinct eligible room targets; damage 5*grade*0.75**jump; no repeated target or improvement.",
+        "approved_effect_configuration": "Map selected external grade to source level explicitly: grade+1 independent eligible-room draws normally, 2*grade+1 with typed Silt/Shallows terrain or Water/Lightning plane membership, allowing repeats. Sample one shared native electrical damage budget in [3*grade,5*grade] before any strike-count amplification; caster damage is one quarter, other eligible victims receive full damage, source Energy Shield-equivalent protection completely absorbs a selected bolt, and strikes do not decay. Verify all typed bindings and selected-grade behavior before stock declaration.",
         "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
         "minimum_energy": 7,
         "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
@@ -12816,12 +12816,16 @@
       "key": "arm.spell.linked_threshold",
       "name": "Linked Threshold",
       "required": true,
-      "completion_contract": "Create a bounded linked travel connection between authorised anchors.",
-      "inventory_classification": "existing_primitive_plus_bounded_policy_content",
+      "completion_contract": "Create one spell-owned two-room Nilaz passage from a seeded area template and carried marked anchor, distinct from direct Portal. Close external links on expiry; occupied expired rooms persist with idempotent suffocation until safely empty, preserving occupants and items through restart.",
+      "inventory_classification": "small_missing_primitive",
       "inventory_current_factory": null,
       "verified_paths": [
         {
           "path": "MudSharpCore/Magic/SpellEffects/PortalTopologySpellEffect.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/Lifecycle/SpellOwnedShelterService.cs",
           "exists": true
         }
       ],
@@ -12835,13 +12839,13 @@
           "line": 14
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "candidate_scope": "PortalTopologySpellEffect creates or links an existing network endpoint, not a temporary two-room area. SpellOwnedShelterService owns one room and evacuates visitors on retirement; neither directly supplies the Nilaz gate's occupied closing/suffocation lifecycle.",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
-        "effect_profile": "portal",
+        "effect_profile": "temporary_area",
         "target_type": "room",
-        "approved_effect_configuration": "One two-endpoint native portal for 120*grade seconds; lawful location/plane/ward gates and safe occupied closure.",
+        "approved_effect_configuration": "One owned two-room temporary passage for 120*grade seconds, with lawful marked-anchor, location, plane and ward gates. On expiry close external links, retain occupied rooms and items, apply idempotent source-backed suffocation while occupied, then retire empty rooms safely. The source JavaScript and exact source expiry cadence are absent; use the locked FutureMUD duration and verify native closure/restart semantics.",
         "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
         "minimum_energy": 33,
         "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
@@ -12862,7 +12866,7 @@
       },
       "current_code_note": null,
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
+        "Implement a dedicated spell-owned two-room temporary-area lifecycle with seeded template/behaviours, typed marked anchor, safe closure, retained occupants/items, and idempotent occupied-room suffocation/cleanup; existing portal/shelter primitives alone do not satisfy it.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
       ],

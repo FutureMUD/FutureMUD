@@ -13,11 +13,11 @@ public sealed partial class MagicCastingService
 {
 	private const int AreaInputBound = 512;
 	private sealed record AreaCandidate(ICharacter Target, IBody Body, SpellAreaTarget Receipt);
-	private sealed record AreaPlan(ControlledSpellArea Policy, IRoom Location, IBody CasterBody,
+	private sealed record AreaPlan(ControlledSpellArea Policy, int ApplicationCount, IRoom Location, IBody CasterBody,
 		long CasterInstance, RoomLayer CasterLayer, IReadOnlyList<AreaCandidate> Candidates)
 	{
 		public ResolvedMagicCastingArea Receipt => new(Policy.Scope, Policy.Selection, Policy.Identity,
-			Policy.MaximumApplications, Array.AsReadOnly(Candidates.Select(x => x.Receipt).ToArray()));
+			ApplicationCount, Array.AsReadOnly(Candidates.Select(x => x.Receipt).ToArray()));
 	}
 
 	private AreaPlan PrepareArea(MagicCastingIntent intent, MagicSpell spell)
@@ -29,6 +29,9 @@ public sealed partial class MagicCastingService
 		if (intent.Actor.Location.RouteDefinition is not null && policy.Scope == SpellAreaScope.RoomCharacters)
 			throw new InvalidOperationException("Whole-room area scope is unavailable in a spatial RouteRoom; explicitly author ImmediateCharacters for its native local neighbourhood.");
 		var actor = intent.Actor;
+		var applicationCount = policy.ApplicationsAtGrade(intent.Grade);
+		if (applicationCount is < 1 or > 256 || applicationCount > policy.MaximumApplications)
+			throw new InvalidOperationException("The selected grade exceeds the authored area application bound.");
 		var snapshot = AreaLocalCharacters(actor, policy).Take(AreaInputBound + 1).ToArray();
 		if (snapshot.Length > AreaInputBound)
 			throw new InvalidOperationException("The area exceeds the 512 physical input bound; no payment was made.");
@@ -45,7 +48,7 @@ public sealed partial class MagicCastingService
 		// Refuse overflow instead of silently protecting arbitrary late-sorted actors.
 		if (candidates.Length > policy.MaximumTargets)
 			throw new InvalidOperationException("The eligible area exceeds this spell's authored maximum targets; no payment was made.");
-		return new(policy, actor.Location, actor.Body, actor.InstanceId, actor.RoomLayer, Array.AsReadOnly(candidates));
+		return new(policy, applicationCount, actor.Location, actor.Body, actor.InstanceId, actor.RoomLayer, Array.AsReadOnly(candidates));
 	}
 
 	private static IEnumerable<ICharacter> AreaLocalCharacters(ICharacter actor, ControlledSpellArea policy) =>
@@ -104,9 +107,9 @@ public sealed partial class MagicCastingService
 	{
 		var pool = plan.Candidates.ToList();
 		if (plan.Policy.Selection == SpellAreaSelection.Ordered)
-			return Array.AsReadOnly(pool.Take(plan.Policy.MaximumApplications).ToArray());
+			return Array.AsReadOnly(pool.Take(plan.ApplicationCount).ToArray());
 		List<AreaCandidate> result = [];
-		for (var i = 0; i < plan.Policy.MaximumApplications && pool.Count > 0; i++)
+		for (var i = 0; i < plan.ApplicationCount && pool.Count > 0; i++)
 		{
 			var index = _areaRandom(pool.Count);
 			if (index < 0 || index >= pool.Count) throw new InvalidOperationException("Invalid area random selection.");
@@ -120,7 +123,7 @@ public sealed partial class MagicCastingService
 		new("Area", new XAttribute("scope", plan.Policy.Scope), new XAttribute("selection", plan.Policy.Selection),
 			new XAttribute("identity", plan.Policy.Identity), new XAttribute("plane", plan.Policy.Plane),
 			new XAttribute("cell", plan.Location.Id), new XAttribute("layer", (int)plan.CasterLayer),
-			new XAttribute("maximumTargets", plan.Policy.MaximumTargets), new XAttribute("maximumApplications", plan.Policy.MaximumApplications),
+			new XAttribute("maximumTargets", plan.Policy.MaximumTargets), new XAttribute("maximumApplications", plan.ApplicationCount),
 			new XAttribute("caster", plan.Policy.IncludeCaster), new XAttribute("allies", plan.Policy.IncludeAllies),
 			new XAttribute("others", plan.Policy.IncludeOthers), new XAttribute("sameLayer", plan.Policy.SameLayer),
 			new XAttribute("grounded", plan.Policy.GroundedOnly), new XAttribute("excludeStaff", plan.Policy.ExcludeStaff),

@@ -138,6 +138,41 @@ public partial class MagicCastingAreaTests
 	}
 
 	[TestMethod]
+	public void AreaApplications_SelectedGradeBoundsRepeatedDraws_AndSurvivesDefinitionReload()
+	{
+		var a = new AreaFixture("chainlightning"); var other = a.Target();
+		a.Build("grades area applications 8");
+		a.Build("grades area applicationsgrade 1 1");
+		Assert.IsFalse(a.F.Spell.BuildingCommand(a.F.Actor.Object,
+			new StringStack("grades area applicationsgrade 3 2")));
+		var cold = new MagicSpell(a.F.Spell.SnapshotModel(), a.F.World.Object);
+		Assert.AreEqual(3, cold.GradeProfile!.Area!.ApplicationsAtGrade(2));
+		Assert.AreEqual(4, cold.GradeProfile.Area.ApplicationsAtGrade(3));
+		var gradeTwo = a.Service.Quote(a.Intent() with { Grade = 2, Overreach = false });
+		Assert.IsTrue(gradeTwo.Allowed, gradeTwo.Reason);
+		Assert.AreEqual(3, gradeTwo.Invocation!.Area!.MaximumApplications);
+		var gradeThree = a.Service.Quote(a.Intent());
+		Assert.IsTrue(gradeThree.Allowed, gradeThree.Reason);
+		Assert.AreEqual(4, gradeThree.Invocation!.Area!.MaximumApplications);
+		Assert.AreEqual(0, a.AreaDraws);
+		a.Picks.Enqueue(0); a.Picks.Enqueue(1); a.Picks.Enqueue(0); a.Picks.Enqueue(1);
+		var result = a.Service.Cast(a.Intent());
+		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.AreEqual(4, a.AreaDraws);
+		CollectionAssert.AreEqual(new[] { a.F.Actor.Object, other.Object, a.F.Actor.Object, other.Object },
+			a.Damage.Select(x => x.Target).ToArray());
+		Assert.AreEqual(1, a.F.Rolls);
+		var receipt = XElement.Parse(a.F.Store.Operations[result.OperationId!.Value].Definition).Element("Area")!;
+		Assert.AreEqual(4, (int)receipt.Attribute("maximumApplications")!);
+		Assert.AreEqual(4, receipt.Elements("Application").Count());
+		a.Build("grades area applicationsgrade off");
+		var legacy = new MagicSpell(a.F.Spell.SnapshotModel(), a.F.World.Object);
+		Assert.AreEqual(8, legacy.GradeProfile!.Area!.ApplicationsAtGrade(3));
+		Assert.IsNull(XElement.Parse(legacy.SnapshotModel().Definition).Descendants("Area").Single()
+			.Attribute("applicationsPerGrade"));
+	}
+
+	[TestMethod]
 	public void RoomFireball_ExcludesCaster_IncludesAlly_PreservesDistinctBodiesOfOneIdentity()
 	{
 		var a = new AreaFixture("roomfireball"); var first = a.Target(101, identity: 500); var second = a.Target(102, identity: 500);

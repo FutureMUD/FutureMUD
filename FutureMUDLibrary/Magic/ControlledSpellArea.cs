@@ -13,7 +13,13 @@ public sealed record ControlledSpellArea(SpellAreaScope Scope, SpellAreaSelectio
 	SpellAreaIdentity Identity, SpellAreaPlane Plane, int MaximumTargets, int MaximumApplications,
 	bool IncludeCaster, bool IncludeAllies, bool IncludeOthers, bool SameLayer, bool GroundedOnly,
 	bool ExcludeStaff, double CasterDamageMultiplier, double OtherDamageMultiplier,
-	long FilterProgId, IReadOnlyList<ControlledSpellDelivery> Deliveries, string Provenance);
+	long FilterProgId, IReadOnlyList<ControlledSpellDelivery> Deliveries, string Provenance,
+	int ApplicationBase = 0, int ApplicationsPerGrade = 0)
+{
+	public int ApplicationsAtGrade(int grade) => ApplicationsPerGrade == 0
+		? MaximumApplications
+		: checked(ApplicationBase + ApplicationsPerGrade * grade);
+}
 
 public sealed record SpellAreaTarget(long CharacterId, long InstanceId, long BodyId, double DamageMultiplier);
 public sealed record ResolvedMagicCastingArea(SpellAreaScope Scope, SpellAreaSelection Selection,

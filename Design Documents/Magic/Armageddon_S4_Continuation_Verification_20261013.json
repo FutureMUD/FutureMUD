@@ -1,4 +1,22 @@
 {
+  "ethereal_129_candidate": {
+    "base_revision": "7526f0c2037b58627db088090a6497ab067adf02 with recorded dirty 129-definition source inventory",
+    "declared_required_definitions": 129,
+    "new_keys": ["arm.spell.unbodied_journey", "arm.spell.draw_into_flesh"],
+    "focused_core": "PASS 8/0/0 projection policy and selective/legacy planar removal",
+    "full_core": "PASS 7153/0/0 Debug --no-build --no-restore",
+    "full_library": "PASS 764/0/0 Debug --no-build --no-restore",
+    "full_seeder": "PASS 1850/0/3 Debug --no-restore; final school-binding focused check 1/1",
+    "fresh_base_descriptor": ".artifacts/pre-armageddon-base-fixtures/20261014T025028Z_a14b38572c354229afb486f7505c2d71/base-world.json",
+    "fresh_base_sha256": "C0A500E4C3549FF909C18C012A512EC0B96179A408FD94C79FD5A9107F7FD2D8",
+    "base_reason": "The preserved base refused changed RoomReferenceEffectTypes source after the persistence serializer inventory repair. Fresh 29-step capture passed unchanged-prefix replay refusal; the failed restore and its owned cleanup remain separate evidence.",
+    "native_package_receipt": "C:/Users/luker/Documents/Codex/2026-10-12/task/s4-129-native-stock/20261014T030451Z_f5fc6c79bc5f4c35b826b9db43f22120/summary.json",
+    "native_boot_receipt": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-129-stock-d5a4e06af64a4f5f937ed2690de1482a/boot-latest.json",
+    "native_result": "PASS actual-MySQL Classic restore/package, rollback, lost-ack resume, stable no-op, dump round trip and disabled gates; 35 first/cold assertions loaded all 129/129 exact definitions twice. Retained paid grade-one Gust Hands, character-target Cinder Rain, Erode Object and Read Attunement passed. Source stable; owned MUD processes stopped and isolated MySQL/datadir cleaned.",
+    "native_limit": "Unbodied Journey and Draw into Flesh have no paid installed-stock gameplay or cold-retirement sample. The earlier 22-assertion base-only run lacked the explicit S4 stock-smoke flag and is not counted as 129-definition coverage.",
+    "hosted_baseline": "Published 7526f0c2037b58627db088090a6497ab067adf02 push and PR Linux/Windows default gates all completed SUCCESS.",
+    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+  },
   "schema_version": 1,
   "generated_utc": "2026-10-13T19:26:00+00:00",
   "source_revision": "b8f4760436cb21eb302cfb57c69e7c920df8e84e",

@@ -118,6 +118,11 @@ public static partial class ArmageddonStockSpellInstaller
 			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
 				ArmageddonPlanarSpellContent.Create(CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.ShadowPlaneKey))
 					.Single(x => x.Content.Key == key)))))
+		.Append((Key: "arm.spell.unbodied_journey", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
+			new("arm.capability.void", ArmageddonExistingFactorySpellContent.UnbodiedJourney(
+				CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.ShadowPlaneKey))))))
+		.Append((Key: ArmageddonEtherealRemovalContent.Key,
+			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonEtherealRemovalContent.Create())))
 		.Append((Key: ArmageddonDrowningGripSpellContent.Key,
 			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
 				ArmageddonDrowningGripSpellContent.Create(CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey)))));

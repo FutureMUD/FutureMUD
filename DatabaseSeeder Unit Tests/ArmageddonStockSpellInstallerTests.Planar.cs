@@ -42,4 +42,31 @@ public partial class ArmageddonStockSpellInstallerTests
 			Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == "arm.school." + school).LogicalId, spell.MagicSchoolId, key);
 		}
 	}
+
+	[TestMethod]
+	public void EtherealDefinitions_BindOwnedProjectionAndSelectiveRemoval()
+	{
+		using var db = Fixture();
+		var installed = ArmageddonStockSpellInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db));
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, installed.Status, string.Join("\n", installed.Messages));
+		db.ChangeTracker.Clear();
+		var shadow = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonStockSupportInstaller.ShadowPlaneKey).LogicalId;
+		var journey = db.MagicSpells.Single(x => x.Id == installed.Identities["arm.spell.unbodied_journey"]);
+		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == "arm.school.void").LogicalId, journey.MagicSchoolId);
+		var journeyDefinition = XElement.Parse(journey.Definition);
+		var projection = journeyDefinition.Element("Effects")!.Element("Effect")!;
+		Assert.AreEqual("createprojection", (string?)projection.Attribute("type"));
+		var policy = projection.Element("Policy")!;
+		Assert.AreEqual(shadow, (long?)policy.Element("Plane"));
+		Assert.AreEqual("UnbodiedJourney", (string?)policy.Element("Kind"));
+		Assert.AreEqual(10, (int?)policy.Element("RequestedGradeRange")!.Attribute("perGrade"));
+		Assert.AreEqual("60*grade", db.TraitExpressions.Single(x => x.Id == journey.EffectDurationExpressionId).Expression);
+		Assert.AreEqual("12*grade", db.TraitExpressions.Single(x => x.Id == installed.Identities["arm.spell.unbodied_journey.cost"]).Expression);
+		var flesh = db.MagicSpells.Single(x => x.Id == installed.Identities[ArmageddonEtherealRemovalContent.Key]);
+		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == "arm.school.shadow").LogicalId, flesh.MagicSchoolId);
+		var removal = XElement.Parse(flesh.Definition).Element("Effects")!.Element("Effect")!;
+		Assert.AreEqual("removeplanarstate", (string?)removal.Attribute("type"));
+		Assert.AreEqual(true, (bool?)removal.Element("OnlySpellOwnedEthereal"));
+		Assert.AreEqual("7*grade", db.TraitExpressions.Single(x => x.Id == installed.Identities[ArmageddonEtherealRemovalContent.Key + ".cost"]).Expression);
+	}
 }

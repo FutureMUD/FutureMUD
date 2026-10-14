@@ -43,6 +43,21 @@ public static class ArmageddonExistingFactorySpellContent
 	}
 	public static ArmageddonUtilitySpellContent WalkingShadow(long planeId) =>
 		Projection(new(SpellProjectionKind.WalkingShadow, planeId, 0, 60, 10, 0, RoomDistancePerGrade: 10), "Walking Shadow", 7);
+	public static ArmageddonUtilitySpellContent UnbodiedJourney(long planeId)
+	{
+		var policy = new SpellProjectionConfiguration(SpellProjectionKind.UnbodiedJourney, planeId, 0, 60, 10, 0,
+			RoomDistancePerGrade: 10);
+		if (policy.Error(7) is { } error) throw new ArgumentException(error);
+		return new("arm.spell.unbodied_journey", "Unbodied Journey",
+			"Creates one focusable unbodied presence of the caster's existing identity on the exact owned Shadow plane for 60*external grade seconds. " +
+			"The primary body remains vulnerable and helpless while focus is on the projection. It may travel only through admitted native exits " +
+			"within an authored 10*grade room-edge range; physical manipulation, material combat, teleportation and closed-door bypass are unavailable. " +
+			"The native lifecycle owns expiry, reboot retirement, focus return and exact inventory custody; no new character or cloned skills are created.",
+			GradeLifetime, 12, "$0 let|lets $0's awareness journey beyond the body.",
+			(resource, cost, _) => Base("arm.spell.unbodied_journey", "self", resource, cost, 12,
+				new XElement("Effect", new XAttribute("type", "createprojection"), new XAttribute("version", 1),
+					SpellProjectionAnchor.Definition(policy))));
+	}
 	private static ArmageddonUtilitySpellContent Projection(SpellProjectionConfiguration policy, string name, double minimum)
 	{
 		if (policy.Error(7) is { } error) throw new ArgumentException(error);

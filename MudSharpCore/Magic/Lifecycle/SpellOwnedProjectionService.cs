@@ -127,8 +127,9 @@ public sealed partial class SpellOwnedProjectionService(IFuturemud world) : ISpe
 			return "Projection creation requires a stationary, living player character focused on its primary body.";
 		if (caster.RoutePositionMetres is not null || caster.Location.RouteDefinition is not null)
 			return "Owned projections currently require a native room outside a route.";
-		if (world.Planes.Get(c.PlaneId) is null || c.Kind == SpellProjectionKind.WalkingShadow && world.DefaultPlane.Id == c.PlaneId)
-			return "Select an available nonmaterial plane for Walking Shadow.";
+		if (world.Planes.Get(c.PlaneId) is null || (c.Kind is SpellProjectionKind.WalkingShadow or SpellProjectionKind.UnbodiedJourney) &&
+		    world.DefaultPlane.Id == c.PlaneId)
+			return "Select an available nonmaterial plane for this projection.";
 		if (c.Kind == SpellProjectionKind.SandEffigy && NativeItemCreationEligibility.Error(world.ItemProtos.Get(c.EffigyPrototypeId), world) is { } itemError)
 			return itemError;
 		if (caster.EffectsOfType<SpellProjectionTrance>().Any()) return "The existing shadow must collapse before creating another projection.";
@@ -169,8 +170,11 @@ public sealed partial class SpellOwnedProjectionService(IFuturemud world) : ISpe
 		var template = (SimpleCharacterTemplate)identity.GetCharacterTemplate();
 		template = template with { SkillValues = [], SelectedRoles = [], SelectedKnowledges = [], SelectedMerits = [], SelectedProstheses = [],
 			SelectedDisfigurements = [], SelectedScars = [], SelectedTattoos = [], MissingBodyparts = [], SelectedEntityDescriptionPatterns = [],
-			SelectedSdesc = c.Kind == SpellProjectionKind.SandEffigy ? $"a sand effigy of {identity.PersonalName.GetName(MudSharp.Character.Name.NameStyle.FullName)}" : "a walking shadow",
-			SelectedFullDesc = c.Kind == SpellProjectionKind.SandEffigy ? "An unmistakable sand effigy bound to a small figurine." : "A detached shadow, sustained by a distant consciousness." };
+			SelectedSdesc = c.Kind switch { SpellProjectionKind.SandEffigy => $"a sand effigy of {identity.PersonalName.GetName(MudSharp.Character.Name.NameStyle.FullName)}",
+				SpellProjectionKind.UnbodiedJourney => "an unbodied presence", _ => "a walking shadow" },
+			SelectedFullDesc = c.Kind switch { SpellProjectionKind.SandEffigy => "An unmistakable sand effigy bound to a small figurine.",
+				SpellProjectionKind.UnbodiedJourney => "An unbodied presence, anchored to a vulnerable living body.",
+				_ => "A detached shadow, sustained by a distant consciousness." } };
 		var body = new RuntimeBody(world, identity, template, deferInitialisation: true);
 		GameItem? item = c.Kind == SpellProjectionKind.SandEffigy ? new GameItem(world.ItemProtos.Get(c.EffigyPrototypeId), caster, ItemQuality.Standard, deferSpellInitialisation: true) : null;
 		MudSharp.Models.Body? bodyRow = null; MudSharp.Models.CharacterInstance? instanceRow = null; MudSharp.Models.GameItem? itemRow = null;
@@ -217,7 +221,8 @@ public sealed partial class SpellOwnedProjectionService(IFuturemud world) : ISpe
 			{
 				var presence = (ICharacter)instance;
 				presence.AddEffect(new SpellProjectionBoundary(presence, anchor));
-				if (c.Kind == SpellProjectionKind.WalkingShadow) identity.AddEffect(new SpellProjectionTrance(identity, instance.InstanceId));
+				if (c.Kind is SpellProjectionKind.WalkingShadow or SpellProjectionKind.UnbodiedJourney)
+					identity.AddEffect(new SpellProjectionTrance(identity, instance.InstanceId));
 				if (!CurrentFrame()) throw new InvalidOperationException("The borrowed source changed during native activation.");
 				Bind(life, presence, caster, item, sourceFrame);
 			});

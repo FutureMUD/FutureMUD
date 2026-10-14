@@ -73,6 +73,7 @@ public class SpellOwnedProjectionTests
 	[DataTestMethod]
 	[DataRow(SpellProjectionKind.SandEffigy, "arm.spell.sand_effigy")]
 	[DataRow(SpellProjectionKind.WalkingShadow, "arm.spell.walking_shadow")]
+	[DataRow(SpellProjectionKind.UnbodiedJourney, "arm.spell.unbodied_journey")]
 	public void Stocks_RetainExplicitPolicyAcrossSaveAndClone(SpellProjectionKind kind, string key)
 	{
 		var policy = new SpellProjectionConfiguration(kind, 21, kind == SpellProjectionKind.SandEffigy ? 22 : 0, 120, kind == SpellProjectionKind.SandEffigy ? 0 : 2, 3);
@@ -124,6 +125,7 @@ public class SpellOwnedProjectionTests
 	[DataTestMethod]
 	[DataRow(SpellProjectionKind.SandEffigy)]
 	[DataRow(SpellProjectionKind.WalkingShadow)]
+	[DataRow(SpellProjectionKind.UnbodiedJourney)]
 	public void Projection_CanObserveButCannotManipulateEvenWithNativeHands(SpellProjectionKind kind)
 	{
 		var (actor, world, rooms) = World();

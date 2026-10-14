@@ -13,6 +13,7 @@ public class SpellProjectionAnchorTests
 	[DataTestMethod]
 	[DataRow(SpellProjectionKind.SandEffigy)]
 	[DataRow(SpellProjectionKind.WalkingShadow)]
+	[DataRow(SpellProjectionKind.UnbodiedJourney)]
 	public void Anchor_RetainsExact64BitReferencesAndAuthoredPolicy(SpellProjectionKind kind)
 	{
 		var policy = new SpellProjectionConfiguration(kind, long.MaxValue, kind == SpellProjectionKind.SandEffigy ? long.MaxValue - 1 : 0,

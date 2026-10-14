@@ -129,14 +129,14 @@ public class PlanarStateSpellEffect : IMagicSpellEffectTemplate
 	}
 }
 
-public class RemovePlanarStateSpellEffect : IMagicSpellEffectTemplate
+public class RemovePlanarStateSpellEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation
 {
 	public static void RegisterFactory()
 	{
-		SpellEffectFactory.RegisterLoadTimeFactory("removeplanarstate", (root, spell) => new RemovePlanarStateSpellEffect(spell));
+		SpellEffectFactory.RegisterLoadTimeFactory("removeplanarstate", (root, spell) => new RemovePlanarStateSpellEffect(root, spell));
 		SpellEffectFactory.RegisterBuilderFactory("removeplanarstate", BuilderFactory,
 			"Removes planar state spell and saved overlays from the target",
-			"Has no configurable options.",
+			"Use effect set ethereal true to remove only one spell-owned ethereal overlay; false retains legacy broad removal.",
 			true,
 			true,
 			SpellTriggerFactory.MagicTriggerTypes.Where(x => PlanarStateSpellEffect.IsCompatibleWithTrigger(SpellTriggerFactory.BuilderInfoForType(x).TargetTypes)).ToArray());
@@ -152,37 +152,73 @@ public class RemovePlanarStateSpellEffect : IMagicSpellEffectTemplate
 		Spell = spell;
 	}
 
+	private RemovePlanarStateSpellEffect(XElement root, IMagicSpell spell) : this(spell)
+	{
+		OnlySpellOwnedEthereal = (bool?)root.Element("OnlySpellOwnedEthereal") ?? false;
+	}
+
 	public IMagicSpell Spell { get; }
 	public bool IsInstantaneous => true;
 	public bool RequiresTarget => true;
+	public bool OnlySpellOwnedEthereal { get; private set; }
 
 	public XElement SaveToXml()
 	{
-		return new XElement("Effect", new XAttribute("type", "removeplanarstate"));
+		return new XElement("Effect", new XAttribute("type", "removeplanarstate"),
+			OnlySpellOwnedEthereal ? new XElement("OnlySpellOwnedEthereal", true) : null);
 	}
 
 	public bool BuildingCommand(ICharacter actor, StringStack command)
 	{
-		actor.OutputHandler.Send("This effect has no configurable options.");
-		return false;
+		if (!command.PopSpeech().EqualTo("ethereal") || !bool.TryParse(command.PopSpeech(), out var enabled) || !command.IsFinished)
+		{
+			actor.OutputHandler.Send("Use #3effect set ethereal <true|false>#0 to limit removal to one spell-owned ethereal overlay.".SubstituteANSIColour());
+			return false;
+		}
+		OnlySpellOwnedEthereal = enabled;
+		Spell.Changed = true;
+		actor.OutputHandler.Send(enabled ? "This effect now removes one spell-owned ethereal overlay." : "This effect now uses the legacy broad planar removal.");
+		return true;
 	}
 
 	public string Show(ICharacter actor)
 	{
-		return SpellEffectPresentation.Describe(actor, "Remove Planar State");
+		return SpellEffectPresentation.Describe(actor, OnlySpellOwnedEthereal ? "Remove One Spell-Owned Ethereal State" : "Remove Planar State");
 	}
 
 	public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
-		target?.RemoveAllEffects<PlanarStateEffect>(x => true, true);
-		target?.RemoveAllEffects<SpellPlanarStateEffect>(x => true, true);
+		Remove(target);
 		return null;
+	}
+
+	public MagicEffectOperation Apply(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
+		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters) =>
+		new(Remove(target), null);
+
+	private MagicEffectOperationStatus Remove(IPerceivable target)
+	{
+		if (target is null) return MagicEffectOperationStatus.Rejected;
+		if (OnlySpellOwnedEthereal)
+		{
+			if (target is not ICharacter) return MagicEffectOperationStatus.Rejected;
+			var selected = target.EffectsOfType<SpellPlanarStateEffect>()
+				.FirstOrDefault(x => x.PlanarPresenceDefinition.VisibleToEtherealPerception &&
+					x.PlanarPresenceDefinition.SuspendsPhysicalContact);
+			if (selected is null) return MagicEffectOperationStatus.NoChange;
+			target.RemoveEffect(selected, true);
+			return MagicEffectOperationStatus.Applied;
+		}
+		var before = target.EffectsOfType<PlanarStateEffect>().Any() || target.EffectsOfType<SpellPlanarStateEffect>().Any();
+		target.RemoveAllEffects<PlanarStateEffect>(x => true, true);
+		target.RemoveAllEffects<SpellPlanarStateEffect>(x => true, true);
+		return before ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange;
 	}
 
 	public IMagicSpellEffectTemplate Clone()
 	{
-		return new RemovePlanarStateSpellEffect(Spell);
+		return new RemovePlanarStateSpellEffect(SaveToXml(), Spell);
 	}
 
 	public bool IsCompatibleWithTrigger(IMagicTrigger trigger)

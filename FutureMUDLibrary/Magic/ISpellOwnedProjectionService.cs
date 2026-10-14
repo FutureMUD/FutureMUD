@@ -9,7 +9,7 @@ using MudSharp.GameItems;
 
 namespace MudSharp.Magic;
 
-public enum SpellProjectionKind { SandEffigy, WalkingShadow }
+public enum SpellProjectionKind { SandEffigy, WalkingShadow, UnbodiedJourney }
 
 /// <summary>Authored native policy; seconds and room-edge distance are not legacy affect units.</summary>
 public sealed record SpellProjectionConfiguration(SpellProjectionKind Kind, long PlaneId, long EffigyPrototypeId,
@@ -23,7 +23,8 @@ public sealed record SpellProjectionConfiguration(SpellProjectionKind Kind, long
 	}
 	public bool HasValidRange => RoomDistancePerGrade == 0
 		? MaximumRoomDistance is >= 0 and <= 32 && RangeGrade == 0
-		: Kind == SpellProjectionKind.WalkingShadow && RoomDistancePerGrade == 10 && RangeGrade is >= 0 and <= 7 &&
+		: (Kind is SpellProjectionKind.WalkingShadow or SpellProjectionKind.UnbodiedJourney) &&
+		  RoomDistancePerGrade == 10 && RangeGrade is >= 0 and <= 7 &&
 		  MaximumRoomDistance == 10 * Math.Max(1, RangeGrade);
 	public string? Error(int grade) => !Enum.IsDefined(Kind) || grade is < 1 or > 7 || PlaneId <= 0 ||
 		!double.IsFinite(SecondsPerGrade) || SecondsPerGrade <= 0 || SecondsPerGrade * grade > 86400 ||

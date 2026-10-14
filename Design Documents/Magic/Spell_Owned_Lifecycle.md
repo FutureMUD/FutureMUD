@@ -4,8 +4,8 @@
 
 The `createprojection` effect uses the existing canonical character identity, secondary
 instance, focus and planar services. Sand Effigy creates one new temporary body/instance
-and one plain approved holdable figurine. Walking Shadow creates one new temporary
-body/instance on an explicitly selected nonmaterial plane. Neither creates a character,
+and one plain approved holdable figurine. Walking Shadow and Unbodied Journey each create one new temporary
+body/instance on an explicitly selected nonmaterial plane. None creates a character,
 borrows a permanent form, copies inventory nor inserts canonical skill or resource rows.
 The caster must be a living non-guest PC at its persisted primary instance in a stable
 ordinary room, outside route travel, riding and movement. One unfinished projection per
@@ -13,11 +13,11 @@ identity is admitted. Invalid policy, source, prototype or duplicate creation re
 payment; prepared selection retains the exact body/instance/location and authored policy.
 
 Builders explicitly choose occupied plane, seconds per grade (one day maximum), Walking
-Shadow range (0-32 native room edges), ordinary closed-door passage, positive energy cost
+Shadow or Unbodied Journey range (0-32 native room edges, or the fixed stock 10 edges per external grade), ordinary closed-door passage, positive energy cost
 and severing/damage backlash (0-1000 native cellular damage). Sand Effigy has zero range
 and remains visibly identifiable as sand. Both support observation and hearing; physical
 manipulation, combat, medical actions and other outgoing planar interactions are unavailable.
-Walking Shadow moves through admitted native exits on its anchored layer. Teleportation,
+Walking Shadow and Unbodied Journey move through admitted native exits on their anchored layer. Teleportation,
 layer changes, route travel and destinations beyond range refuse before displacement.
 Its primary body remains present and helpless while focus is on the shadow.
 
@@ -1102,3 +1102,5 @@ The projection service's raw physical guard applies whether or not an effigy sou
 The optional-source condition is grouped before body/identity/location checks, so Walking
 Shadow cannot bypass those checks merely because it has no held source item. Native projection
 creation/retirement acceptance remains separately required.
+
+The S4 Unbodied Journey stock reuses that guarded identity-projection family on the exact owned Shadow plane. It authorizes one focusable secondary presence for `60*grade` real seconds, with an anchored `10*grade` native room-edge limit, admitted exits only and no closed-door bypass. The primary body remains present and helpless while focused away; expiry and retirement return focus through the existing journal. Draw into Flesh adds an opt-in `removeplanarstate` mode that removes only the first eligible spell-owned noncorporeal/ethereal overlay from a character. Its XML flag is `OnlySpellOwnedEthereal`; absent or false retains the legacy broad removal contract. Ordinary planar state, manifested spell overlays and unrelated effects are outside the opt-in removal. A target without an eligible child reports no change.

@@ -31,10 +31,10 @@ public sealed class SpellProjectionBoundary(ICharacter owner, SpellProjectionAnc
 		if (destination.Room?.Id == owner.Location?.Id && destination.Layer == owner.RoomLayer && destination.RoutePositionMetres == owner.RoutePositionMetres)
 			return null;
 		if (!throughExit || destination.Layer != (RoomLayer)anchor.Layer || destination.RoutePositionMetres is not null)
-			return "The walking shadow may travel only through native exits on its anchored layer, outside route rooms.";
+			return "The projection may travel only through native exits on its anchored layer, outside route rooms.";
 		if (!anchor.Configuration.HasValidRange || anchor.Configuration.RoomDistancePerGrade != 0 && anchor.Configuration.RangeGrade == 0 ||
 			!WithinRange(Gameworld.Rooms.Get(anchor.RoomId), destination.Room, owner, anchor.Configuration.MaximumRoomDistance))
-			return "That destination is beyond the walking shadow's anchor range.";
+			return "That destination is beyond the projection's anchor range.";
 		return null;
 	}
 
@@ -65,5 +65,5 @@ public sealed class SpellProjectionTrance(ICharacter owner, long instanceId) : E
 	public override bool Applies(object? target) => Applies();
 	public override bool Applies(object? target, object? thirdparty) => Applies();
 	public override bool Applies(object? target, PerceiveIgnoreFlags flags) => Applies();
-	public override string Describe(IPerceiver voyeur) => "Helpless in a trance while focused through a walking shadow.";
+	public override string Describe(IPerceiver voyeur) => "Helpless in a trance while focused through a projection.";
 }

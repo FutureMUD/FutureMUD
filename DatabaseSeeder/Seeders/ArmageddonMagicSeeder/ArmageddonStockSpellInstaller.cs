@@ -89,6 +89,7 @@ public static partial class ArmageddonStockSpellInstaller
 		.Append((Key: "arm.spell.consuming_flame", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveConsumingFlame))
 		.Append((Key: "arm.spell.false_presence", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveFalsePresence))
 		.Append((Key: "arm.spell.water_breathing", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveWaterBreathing))
+		.Append((Key: "arm.spell.see_the_unbodied", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveSeeTheUnbodied))
 		.Concat(new[] { "arm.spell.fleet_step", "arm.spell.lightning_pace", "arm.spell.leadfoot" }.Select(key =>
 			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveMovementTempo(db, key)))))
 		.Append((Key: ArmageddonImmolateSpellContent.Key,

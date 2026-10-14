@@ -225,11 +225,31 @@ public static partial class ArmageddonStockSpellInstaller
 		new("arm.capability.water", ArmageddonReviewedWaterSeeContent.WaterBreathing(
 			[CatalogueAlias(db, "arm.liquid.water", nameof(Liquid))]));
 
+	private static ArmageddonCanonicalSpellContribution ResolveSeeTheUnbodied(FuturemudDatabaseContext db)
+	{
+		return new("arm.capability.shadow", ArmageddonReviewedWaterSeeContent.SeeTheUnbodiedOwned(
+			CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.SiltTagKey),
+			CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.ShadowPlaneKey), RankedComponentTags(db, "divination")));
+	}
+
+	private static long[] RankedComponentTags(FuturemudDatabaseContext db, string sphere) =>
+		Enumerable.Range(0, 5).Select(rank =>
+		{
+			var key = "arm.material." + sphere + ".rank" + rank;
+			CataloguePrototype(db, key, "Stackable");
+			var tag = CatalogueIdentity<Tag>(db, key + ".tag");
+			if (rank > 0 && db.Tags.AsNoTracking().Single(x => x.Id == tag).ParentId !=
+				CatalogueIdentity<Tag>(db, "arm.material." + sphere + ".rank" + (rank - 1) + ".tag"))
+				throw new StockDependencyException("Owned " + sphere + " rank tags must retain their ascending ancestry.");
+			return tag;
+		}).ToArray();
+
 	private static readonly (string Key, string School)[] ArmourKeys =
 	[
 		("flame_mantle", "fire"), ("unyielding_veil", "water"), ("mist_shield", "water"),
 		("earthen_ward", "earth"), ("stone_skin", "earth"), ("wind_mantle", "wind"),
-		("wind_shield", "wind"), ("shadow_mantle", "shadow"), ("charged_aegis", "lightning")
+		("wind_shield", "wind"), ("shadow_mantle", "shadow"), ("charged_aegis", "lightning"),
+		("sheltering_veil", "water")
 	];
 
 	private static ArmageddonCanonicalSpellContribution ResolveArmour(FuturemudDatabaseContext db, string key, string school)
@@ -243,7 +263,10 @@ public static partial class ArmageddonStockSpellInstaller
 			? "arm.support.armour.electrical" : "arm.support.armour.external");
 		if (agility > 0 && !db.TraitDefinitions.Any(x => x.Id == agility && x.Type == 1 && x.DerivedType == 0 && x.OwnerScope == 0 && x.TraitGroup == "Physical"))
 			throw new StockDependencyException("Retain the exact ordinary physical mobility attribute binding; no replacement or derived stat is adopted.");
-		var content = ArmageddonArmourSpellContent.Create(key, profile, material, agility);
+		var content = key == "arm.spell.sheltering_veil"
+			? ArmageddonArmourSpellContent.ShelteringVeil(profile, material,
+				CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.WaterPlaneKey), RankedComponentTags(db, "clerical"))
+			: ArmageddonArmourSpellContent.Create(key, profile, material, agility);
 		if (agility > 0) content = content with { Description = content.Description +
 			" The retained native mobility attribute is " + db.TraitDefinitions.Single(x => x.Id == agility).Name + "." };
 		return new("arm.capability." + school, content);

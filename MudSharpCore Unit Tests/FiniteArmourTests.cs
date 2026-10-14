@@ -21,6 +21,7 @@ using MudSharp.FutureProg;
 using MudSharp.Form.Material;
 using MudSharp.Form.Shape;
 using MudSharp.GameItems;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 using MudSharp.Health.Strategies;
 using MudSharp.Health.Wounds;
@@ -37,6 +38,60 @@ namespace MudSharp_Unit_Tests;
 [TestClass, DoNotParallelize]
 public class FiniteArmourTests
 {
+	[DataTestMethod]
+	[DataRow(1, 0)] [DataRow(4, 1)] [DataRow(7, 4)]
+	public void ShelteringVeil_OutsideWaterConsumesOneRankedClericalUnit(int grade, int rank)
+	{
+		var f = new Fixture("sheltering_veil", true, rank);
+		var result = f.F.Service.Cast(new MagicCastingIntent(f.F.Actor.Object, f.F.Earth.Id, 1, grade, false, "target", OriginId: Guid.NewGuid()));
+		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.AreEqual(2, f.ComponentQuantity); Assert.AreEqual(1, f.ComponentWrites);
+		Assert.IsTrue(f.Effects.OfType<SpellArmourProtectionEffect>().Any());
+	}
+
+	[TestMethod]
+	public void ShelteringVeil_MissingHighRankRefusesBeforePayment()
+	{
+		var f = new Fixture("sheltering_veil", true, 0);
+		var before = f.F.Balances[f.F.Resources[1]];
+		var result = f.F.Service.Cast(new MagicCastingIntent(f.F.Actor.Object, f.F.Earth.Id, 1, 7, false, "target", OriginId: Guid.NewGuid()));
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message);
+		Assert.IsNull(result.OperationId); Assert.AreEqual(before, f.F.Balances[f.F.Resources[1]]);
+		Assert.AreEqual(0, f.ComponentWrites); Assert.IsFalse(f.Effects.OfType<SpellArmourProtectionEffect>().Any());
+	}
+
+	[TestMethod]
+	public void ShelteringVeil_MultiplePlaneWaterMembershipWaivesOnlyMaterial()
+	{
+		var f = new Fixture("sheltering_veil", true, 0); f.WaterPresence = true; f.Components.Clear();
+		var result = f.F.Service.Cast(new MagicCastingIntent(f.F.Actor.Object, f.F.Earth.Id, 1, 7, false, "target", OriginId: Guid.NewGuid()));
+		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.AreEqual(0, f.ComponentWrites); Assert.IsTrue(f.Effects.OfType<SpellArmourProtectionEffect>().Any());
+	}
+
+	[TestMethod]
+	public void ShelteringVeil_WaterMembershipDriftBeforePaymentRefuses()
+	{
+		var f = new Fixture("sheltering_veil", true, 4);
+		var before = f.F.Balances[f.F.Resources[1]];
+		f.F.Checkpoint = stage => { if (stage == "BeforePayment") f.WaterPresence = true; };
+		var result = f.F.Service.Cast(new MagicCastingIntent(f.F.Actor.Object, f.F.Earth.Id, 1, 1, false, "target", OriginId: Guid.NewGuid()));
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message);
+		Assert.IsNull(result.OperationId); Assert.AreEqual(before, f.F.Balances[f.F.Resources[1]]);
+		Assert.AreEqual(0, f.ComponentWrites);
+	}
+
+	[TestMethod]
+	public void ShelteringVeil_DirectEffectFactoryCannotBypassMaterialExecution()
+	{
+		var f = new Fixture("sheltering_veil", true, 4);
+		var parent = new MagicSpellParent(f.Victim.Object, f.Spell, f.F.Actor.Object);
+		Assert.ThrowsException<InvalidOperationException>(() =>
+			f.Spell.SpellEffects.Single().GetOrApplyEffect(f.F.Actor.Object, f.Victim.Object,
+				default, SpellPower.Weak, parent, []));
+		Assert.AreEqual(0, f.ComponentWrites); Assert.IsFalse(f.Effects.Any());
+	}
+
 	[DataTestMethod,
 	 DataRow("flame_mantle", 1),
 	 DataRow("flame_mantle", 7),
@@ -277,7 +332,11 @@ public class FiniteArmourTests
 		internal List<IEffect> Effects { get; } = [];
 		internal NativeBody Body { get; }
 		internal MagicSpell Spell { get; }
-		internal Fixture(string key = "flame_mantle")
+		internal List<IGameItem> Components { get; } = [];
+		internal int ComponentQuantity { get; private set; } = 3;
+		internal int ComponentWrites { get; private set; }
+		internal bool WaterPresence { get; set; }
+		internal Fixture(string key = "flame_mantle", bool sourceMaterial = false, int componentRank = 4)
 		{
 			F.Body.SetupGet(x => x.Actor).Returns(F.Actor.Object);
 			var allowed = Mock.Get(F.World.Object.FutureProgs.Get(1));
@@ -335,7 +394,42 @@ public class FiniteArmourTests
 			F.World.SetupGet(x => x.Materials).Returns(MagicCastingFixture.Collection<ISolid>(() => [material]));
 			F.World.Setup(x => x.GetCheck(CheckType.PenetrationDefenseCheck)).Returns(F.Check.Object);
 			SpellArmourEffect.RegisterFactory(); F.Spells.Remove(F.Spell);
-			var content = ArmageddonArmourSpellContent.Create("arm.spell." + key, 9, 9, 3);
+			long[] rankIds = [];
+			if (sourceMaterial)
+			{
+				var ranks = Enumerable.Range(0, 5).Select(index =>
+				{
+					var tag = new Mock<ITag>(); tag.SetupGet(x => x.Id).Returns(index + 1);
+					tag.Setup(x => x.IsA(It.IsAny<ITag>())).Returns((ITag other) => other.Id <= index + 1);
+					return tag.Object;
+				}).ToArray();
+				for (var index = 1; index < ranks.Length; index++) Mock.Get(ranks[index]).SetupGet(x => x.Parent).Returns(ranks[index - 1]);
+				rankIds = ranks.Select(x => x.Id).ToArray();
+				F.World.SetupGet(x => x.Tags).Returns(MagicCastingFixture.Collection(() => ranks));
+				var water = Mock.Of<IPlane>(x => x.Id == 301);
+				F.World.SetupGet(x => x.Planes).Returns(MagicCastingFixture.Collection(() => new[] { water }));
+				F.Body.SetupGet(x => x.BasePlanarPresence).Returns(() => PlanarPresenceDefinition.DefaultMaterial(WaterPresence ? new long[] { 1, 301 } : new long[] { 1 }));
+				var item = new Mock<IGameItem>(); var stack = new Mock<IStackable>(); var prototype = new Mock<IGameItemProto>();
+				prototype.SetupGet(x => x.Id).Returns(999); prototype.SetupGet(x => x.Tags).Returns(new[] { ranks[componentRank] });
+				item.SetupGet(x => x.Id).Returns(123); item.SetupGet(x => x.Prototype).Returns(prototype.Object);
+				item.SetupGet(x => x.Tags).Returns(new[] { ranks[componentRank] });
+				item.SetupGet(x => x.Components).Returns(new[] { stack.Object });
+				item.Setup(x => x.GetItemType<IStackable>()).Returns(stack.Object);
+				item.Setup(x => x.IsA(It.IsAny<ITag>())).Returns((ITag tag) => tag.Id <= componentRank + 1);
+				item.Setup(x => x.Equals(It.IsAny<IGameItem>())).Returns((IGameItem other) => ReferenceEquals(other, item.Object));
+				item.SetupGet(x => x.InInventoryOf).Returns(F.Body.Object);
+				item.SetupGet(x => x.Quantity).Returns(() => ComponentQuantity);
+				item.SetupGet(x => x.DeepItems).Returns(new[] { item.Object });
+				stack.SetupGet(x => x.Quantity).Returns(() => ComponentQuantity);
+				stack.SetupSet(x => x.Quantity = It.IsAny<int>()).Callback<int>(value => { ComponentWrites++; ComponentQuantity = value; });
+				Components.Add(item.Object); F.World.SetupGet(x => x.Items).Returns(MagicCastingFixture.Collection(() => Components));
+				F.Actor.SetupGet(x => x.Inventory).Returns(() => Components);
+				F.Body.SetupGet(x => x.HeldItems).Returns(() => Components);
+				F.Body.SetupGet(x => x.HeldOrWieldedItems).Returns(() => Components);
+				F.Body.SetupGet(x => x.WieldedItems).Returns([]); F.Body.SetupGet(x => x.WornItems).Returns([]);
+			}
+			var content = sourceMaterial ? ArmageddonArmourSpellContent.ShelteringVeil(9, 9, 301, rankIds) :
+				ArmageddonArmourSpellContent.Create("arm.spell." + key, 9, 9, 3);
 			var cost = content.CostRow(1); cost.Id = 1; var duration = content.DurationRow(1); duration.Id = 2;
 			F.Expressions.RemoveAll(x => x.Id is 1 or 2); F.Expressions.Add(new TraitExpression(cost, F.World.Object)); F.Expressions.Add(new TraitExpression(duration, F.World.Object));
 			var row = content.SpellRow(1, 1, 1); row.Id = 1; row.EffectDurationExpressionId = 2; row.Definition = content.BuildDefinition(10, 1, 1).ToString();

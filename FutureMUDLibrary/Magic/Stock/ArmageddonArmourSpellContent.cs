@@ -1,5 +1,7 @@
 #nullable enable
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using MudSharp.Body.Traits;
 using MudSharp.GameItems;
@@ -11,6 +13,35 @@ namespace MudSharp.Magic;
 /// are resolved by the caller; no identity is inferred from an engine ID or setting-specific name.</summary>
 public static class ArmageddonArmourSpellContent
 {
+	public static ArmageddonUtilitySpellContent ShelteringVeil(long armourTypeId, long solidMaterialId,
+		long waterPlaneId, IReadOnlyList<long> clericalRanks)
+	{
+		ArgumentNullException.ThrowIfNull(clericalRanks);
+		var ranks = clericalRanks.ToArray();
+		if (waterPlaneId <= 0 || ranks.Length != 5 || ranks.Any(id => id <= 0) || ranks.Distinct().Count() != 5)
+			throw new ArgumentException("Sheltering Veil needs one native Water plane and five distinct Clerical rank tags.");
+		var baseContent = Create("arm.spell.sheltering_veil", armourTypeId, solidMaterialId, 0);
+		return baseContent with
+		{
+			Description = baseContent.Description + " Outside effective Water-plane presence consume exactly one directly carried Clerical rank unit, minimum ranks 0/0/0/1/2/3/4 by grade. Missing material refuses before energy payment; Water waives only this dedicated material action.",
+			BuildDefinition = (resource, cost, filter) =>
+			{
+				var definition = baseContent.BuildDefinition(resource, cost, filter);
+				definition.Element("Effects")!.Element("Effect")!.Add(new XElement("SourceArmourScope",
+					new XAttribute("version", 1), new XAttribute("waterPlane", waterPlaneId),
+					new XAttribute("component", "armageddon.sheltering.clerical")));
+				definition.Element("Plan")!.Add(new XElement("Phase", new XElement("Action",
+					new XAttribute("state", "consumed"), new XAttribute("tag", ranks[0]),
+					new XAttribute("secondtag", 0), new XAttribute("quantity", 1),
+					new XAttribute("carriedonly", true),
+					new XAttribute("originalreference", "armageddon.sheltering.clerical"),
+					new XElement("GradeRank", new XAttribute("offset", -3), ranks.Select((tag, rank) =>
+						new XElement("Rank", new XAttribute("minimum", rank), new XAttribute("tag", tag)))))));
+				return definition;
+			}
+		};
+	}
+
 	public static ArmageddonUtilitySpellContent Create(string key, long armourTypeId, long solidMaterialId,
 		long ordinaryAgilityTraitId)
 	{

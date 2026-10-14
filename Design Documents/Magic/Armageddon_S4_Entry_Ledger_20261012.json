@@ -37,13 +37,13 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 129,
+    "installed_canonical_spells": 131,
     "native_grade_one_stock_entries": 1,
     "native_sampled_grade_one_spells": 12,
-    "declared_canonical_spells": 129,
-    "definition_audited_canonical_spells": 129,
-    "latest_successful_native_loaded_spells": 129,
-    "required_not_yet_declared": 23,
+    "declared_canonical_spells": 131,
+    "definition_audited_canonical_spells": 131,
+    "latest_successful_native_loaded_spells": 131,
+    "required_not_yet_declared": 21,
     "latest_partial_native_first_loaded_spells": 121
   },
   "path_discrepancies": [],
@@ -2364,7 +2364,7 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Fixed S4 local candidate: owned Water plane, finite external armour, one directly carried Clerical rank unit outside Water, guarded prepayment and observed native consumption. Focused paid-cast and Classic/Simple definition checks pass; restored-world gameplay and cold expiry pending.",
       "remaining": [
         "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
@@ -9482,7 +9482,7 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Fixed S4 local candidate: owned Silt room/terrain tag refusal precedes effective Shadow-plane waiver of directly carried ranked Divination; version-one terrain builder binding preserved. Focused paid-cast and Classic/Simple definition checks pass; restored-world gameplay and cold expiry pending.",
       "remaining": [
         "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",

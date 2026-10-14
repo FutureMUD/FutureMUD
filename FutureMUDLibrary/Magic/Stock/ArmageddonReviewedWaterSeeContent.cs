@@ -27,17 +27,34 @@ public static class ArmageddonReviewedWaterSeeContent
 
 	public static ArmageddonUtilitySpellContent SeeTheUnbodied(long siltTerrain, long shadowTerrain,
 		IReadOnlyList<long> divinationRanks)
+		=> SeeTheUnbodiedCore(siltTerrain, shadowTerrain, divinationRanks, false);
+
+	/// <summary>The fixed S4 binding uses the owned Silt tag and Shadow plane, not terrain IDs.</summary>
+	public static ArmageddonUtilitySpellContent SeeTheUnbodiedOwned(long siltTag, long shadowPlane,
+		IReadOnlyList<long> divinationRanks)
+		=> SeeTheUnbodiedCore(siltTag, shadowPlane, divinationRanks, true);
+
+	private static ArmageddonUtilitySpellContent SeeTheUnbodiedCore(long silt, long shadow,
+		IReadOnlyList<long> divinationRanks, bool owned)
 	{
 		ArgumentNullException.ThrowIfNull(divinationRanks);
-		if (siltTerrain <= 0) throw new ArgumentOutOfRangeException(nameof(siltTerrain));
-		if (shadowTerrain <= 0) throw new ArgumentOutOfRangeException(nameof(shadowTerrain));
+		if (silt <= 0) throw new ArgumentOutOfRangeException(nameof(silt));
+		if (shadow <= 0) throw new ArgumentOutOfRangeException(nameof(shadow));
 		var ranks = divinationRanks.ToArray();
 		if (ranks.Length != 5 || ranks.Any(id => id <= 0) || ranks.Distinct().Count() != 5)
 			throw new ArgumentException("Select five distinct positive native Divination rank IDs.", nameof(divinationRanks));
-		return new("arm.spell.see_the_unbodied", "See the Unbodied", "Open your senses to eligible ethereal entities through native perception. Historical Detect Ethereal is self-only, refuses mapped Silt before mapped Shadow's component exemption, and adds three source hours per grade to remaining whole source hours up to 36 while retaining the strongest source grade. Each source hour is 600 real seconds; exact deadlines and saved remaining time offline are native adaptations. Outside mapped Shadow consume one directly carried Divination quantity unit of rank at least grade minus three, floored at zero, including grades one to three. Native quantity-unit consumption adapts historical whole-object extraction; higher descendants qualify. Edit the source terrain IDs, dedicated component reference, rank hierarchy and accumulated lifetime through the normal spell builders. The editable eligibility prog admits only self and the existing minimum-Standing mapping: standing variants and active movement including swimming, flying and riding; resting postures and combat refuse. Native character-target syntax requires explicit self; historical omitted-target self is not provided by this filter-bearing trigger. No opposed save, duration draw, blindness removal or unrestricted planar sight is supplied. Source setting guild/race component bypasses are not inferred. Pierce Concealment raw80 opens this spell at30, raw cap90, branches80, printed minimum energy7. Capability admission and acquisition remain separate; charged and area delivery are unsupported.",
+		var content = new ArmageddonUtilitySpellContent("arm.spell.see_the_unbodied", "See the Unbodied", "Open your senses to eligible ethereal entities through native perception. Historical Detect Ethereal is self-only, refuses mapped Silt before mapped Shadow's component exemption, and adds three source hours per grade to remaining whole source hours up to 36 while retaining the strongest source grade. Each source hour is 600 real seconds; exact deadlines and saved remaining time offline are native adaptations. Outside mapped Shadow consume one directly carried Divination quantity unit of rank at least grade minus three, floored at zero, including grades one to three. Native quantity-unit consumption adapts historical whole-object extraction; higher descendants qualify. Edit the source terrain IDs, dedicated component reference, rank hierarchy and accumulated lifetime through the normal spell builders. The editable eligibility prog admits only self and the existing minimum-Standing mapping: standing variants and active movement including swimming, flying and riding; resting postures and combat refuse. Native character-target syntax requires explicit self; historical omitted-target self is not provided by this filter-bearing trigger. No opposed save, duration draw, blindness removal or unrestricted planar sight is supplied. Source setting guild/race component bypasses are not inferred. Pierce Concealment raw80 opens this spell at30, raw cap90, branches80, printed minimum energy7. Capability admission and acquisition remain separate; charged and area delivery are unsupported.",
 			"1800*grade", 7, "$0 open|opens $0's senses to the unbodied.",
-			(resource, cost, filter) => SeeDefinition(resource, cost, filter, siltTerrain, shadowTerrain, ranks),
+			(resource, cost, filter) => SeeDefinition(resource, cost, filter, silt, shadow, ranks, owned),
 			SeeTheUnbodiedEligibilitySource);
+		return owned ? content with
+		{
+			Description = content.Description
+				.Replace("refuses mapped Silt before mapped Shadow's component exemption",
+					"refuses the owned Silt tag on the current room or terrain (including descendants) before effective Shadow-plane component exemption")
+				.Replace("Outside mapped Shadow", "Outside effective Shadow-plane presence")
+				.Replace("source terrain IDs", "owned Silt-tag and Shadow-plane IDs")
+		} : content;
 	}
 
 	private static XElement WaterDefinition(long resource, long cost, long filter, IReadOnlyList<long> water) =>
@@ -48,14 +65,16 @@ public static class ArmageddonReviewedWaterSeeContent
 					water.Select(id => new XElement("Liquid", new XAttribute("id", id))))));
 
 	private static XElement SeeDefinition(long resource, long cost, long filter, long silt, long shadow,
-		IReadOnlyList<long> ranks)
+		IReadOnlyList<long> ranks, bool owned)
 	{
 		var definition = ArmageddonUtilitySpellContent.Definition("arm.spell.see_the_unbodied", "character",
 			resource, cost, filter, 30, 7,
 			new XElement("Effect", new XAttribute("type", "detectethereal"),
 				LifetimePolicy("armageddon.detect_ethereal"),
-				new XElement("SourceScope", new XAttribute("version", 1), new XAttribute("silt", silt),
-					new XAttribute("shadow", shadow), new XAttribute("component", "armageddon.see_unbodied.divination"))));
+				new XElement("SourceScope", new XAttribute("version", owned ? 2 : 1),
+					new XAttribute(owned ? "siltTag" : "silt", silt),
+					new XAttribute(owned ? "shadowPlane" : "shadow", shadow),
+					new XAttribute("component", "armageddon.see_unbodied.divination"))));
 		definition.Element("Plan")!.Add(new XElement("Phase", new XElement("Action", new XAttribute("state", "consumed"),
 			new XAttribute("tag", ranks[0]), new XAttribute("secondtag", 0), new XAttribute("quantity", 1),
 			new XAttribute("carriedonly", true), new XAttribute("originalreference", "armageddon.see_unbodied.divination"),

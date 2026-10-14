@@ -25,7 +25,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var entries = manifest.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell").ToArray();
 		CollectionAssert.AreEquivalent(ArmageddonStockSpellInstaller.CanonicalKeys.ToArray(), claims.Select(x => x.StableKey).ToArray());
-		Assert.AreEqual(129, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
+		Assert.AreEqual(131, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var source = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId!.Value;
 		foreach (var claim in claims)
@@ -132,6 +132,43 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual(waterId, (long)scope.Elements("Liquid").Single().Attribute("id")!);
 		Assert.IsTrue(db.Liquids.Any(x => x.Id == waterId && x.Density > 0));
 		Assert.AreEqual("0", db.TraitExpressions.Single(x => x.Id == installed.Identities["arm.spell.water_breathing.duration"]).Expression);
+		var see = Definition("arm.spell.see_the_unbodied");
+		var sourceScope = see.Element("Effects")!.Elements().Single().Element("SourceScope")!;
+		Assert.AreEqual(2, (int)sourceScope.Attribute("version")!);
+		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonStockSupportInstaller.SiltTagKey).LogicalId,
+			(long)sourceScope.Attribute("siltTag")!);
+		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonStockSupportInstaller.ShadowPlaneKey).LogicalId,
+			(long)sourceScope.Attribute("shadowPlane")!);
+		var rankTags = Enumerable.Range(0, 5).Select(rank =>
+		{
+			var key = "arm.material.divination.rank" + rank;
+			Assert.IsTrue(db.SeederManagedRecords.Any(x => x.StableKey == key));
+			return db.SeederManagedRecords.Single(x => x.StableKey == key + ".tag").LogicalId!.Value;
+		}).ToArray();
+		for (var rank = 1; rank < rankTags.Length; rank++)
+			Assert.AreEqual(rankTags[rank - 1], db.Tags.Single(x => x.Id == rankTags[rank]).ParentId);
+		var action = see.Element("Plan")!.Element("Phase")!.Element("Action")!;
+		Assert.AreEqual(true, (bool)action.Attribute("carriedonly")!);
+		Assert.AreEqual(1, (int)action.Attribute("quantity")!);
+		Assert.AreEqual(-3, (int)action.Element("GradeRank")!.Attribute("offset")!);
+		CollectionAssert.AreEqual(rankTags, action.Element("GradeRank")!.Elements("Rank").Select(x => (long)x.Attribute("tag")!).ToArray());
+		var sheltering = Definition("arm.spell.sheltering_veil");
+		var shelterScope = sheltering.Element("Effects")!.Elements().Single().Element("SourceArmourScope")!;
+		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonStockSupportInstaller.WaterPlaneKey).LogicalId,
+			(long)shelterScope.Attribute("waterPlane")!);
+		var clerical = Enumerable.Range(0, 5).Select(rank =>
+		{
+			var key = "arm.material.clerical.rank" + rank;
+			Assert.IsTrue(db.SeederManagedRecords.Any(x => x.StableKey == key));
+			return db.SeederManagedRecords.Single(x => x.StableKey == key + ".tag").LogicalId!.Value;
+		}).ToArray();
+		for (var rank = 1; rank < clerical.Length; rank++)
+			Assert.AreEqual(clerical[rank - 1], db.Tags.Single(x => x.Id == clerical[rank]).ParentId);
+		var shelterAction = sheltering.Element("Plan")!.Element("Phase")!.Element("Action")!;
+		Assert.AreEqual(true, (bool)shelterAction.Attribute("carriedonly")!);
+		Assert.AreEqual(1, (int)shelterAction.Attribute("quantity")!);
+		Assert.AreEqual(-3, (int)shelterAction.Element("GradeRank")!.Attribute("offset")!);
+		CollectionAssert.AreEqual(clerical, shelterAction.Element("GradeRank")!.Elements("Rank").Select(x => (long)x.Attribute("tag")!).ToArray());
 		Assert.AreEqual(0, db.CharacterCastingEnrolments.Count());
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonStockSpellInstaller.Install(factory).Status);
 	}

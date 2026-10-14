@@ -12,7 +12,8 @@ using System.Globalization;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public class SpellArmourEffect : CharacterSpellEffectTemplateBase, IMagicSpellEffectOperation
+public partial class SpellArmourEffect : CharacterSpellEffectTemplateBase, IMagicSpellEffectOperation,
+	IMagicSpellEffectPreparedSelection, IMagicSpellEffectTemplate
 {
 	public const string HelpText = @"You can use the following options with this effect:
 	#3part <which>#0 - toggles a bodypart shape being covered
@@ -66,6 +67,7 @@ public class SpellArmourEffect : CharacterSpellEffectTemplateBase, IMagicSpellEf
 	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome, SpellPower power,
 		IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
+		ConfirmSourceArmourApplication(caster, target);
 		var child = GetOrApplyEffect(caster, target, outcome, power, parent, additionalParameters);
 		return new(child is null ? MagicEffectOperationStatus.Rejected : MagicEffectOperationStatus.Applied, child);
 	}
@@ -76,24 +78,28 @@ public class SpellArmourEffect : CharacterSpellEffectTemplateBase, IMagicSpellEf
 	protected override void LoadFromXml(XElement root)
 	{
 		ArmourConfiguration = new MagicArmourConfiguration(root, Gameworld);
+		LoadSourceArmourScope(root);
 	}
 
 	protected override void SaveToXml(XElement root)
 	{
 		ArmourConfiguration.SaveToXml(root);
+		SaveSourceArmourScope(root);
 	}
 
 	public override string Show(ICharacter actor)
 	{
 		return SpellEffectPresentation.Describe(actor, "Spell Armour",
 			("Configuration", ArmourConfiguration.Show(actor))
-		);
+		) + SourceArmourScopeShow;
 	}
 
 	public override bool BuildingCommand(ICharacter actor, StringStack command)
 	{
 		switch (command.PopForSwitch())
 		{
+			case "source":
+				return BuildSourceArmourScope(actor, command);
 			case "finite":
 				ArmourConfiguration.FiniteBudget = !ArmourConfiguration.FiniteBudget;
 				Spell.Changed = true;

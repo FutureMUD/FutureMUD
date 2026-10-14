@@ -1,4 +1,20 @@
 {
+  "conditional_source_131_candidate": {
+    "base_revision": "b27b010992abcacced5f27f3fe987f69b299b344 with recorded dirty 131-definition source inventory",
+    "declared_required_definitions": 131,
+    "new_keys": ["arm.spell.sheltering_veil", "arm.spell.see_the_unbodied"],
+    "focused_core": "PASS 113/0/0 finite armour and source ethereal suites, including new paid policy/legacy-compatibility scenarios",
+    "full_core": "PASS 7168/0/0 Debug --no-build --no-restore",
+    "focused_seeder": "PASS 4/0/0 Classic/Simple exact dependencies and all-definition audits",
+    "full_seeder": "PASS 1850/0/3 Debug --no-build --no-restore",
+    "full_library": "PASS 764/0/0 Debug --no-restore",
+    "native_package": "PASS sealed-base actual-MySQL Classic; 35 first/cold assertions, 131/131 exact definitions loaded twice, retained paid Gust Hands, Cinder Rain, Read Attunement and Erode Object routes PASS; stable source and owned process/database cleanup",
+    "native_package_receipt": "C:/Users/luker/Documents/Codex/2026-10-12/task/s4-131-native-full-extended/20261014T051640Z_44cd25c11a234ae1ac9373b2acc7a672/summary.json",
+    "native_boot_receipt": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-131-full-90de7ad7ddc84a15967728f3e2135103/boot-latest.json",
+    "native_attempts": "Stock-only scope failed before payment because the Wind sample had no east-exit fixture; first full-catalogue attempt exceeded the former 660-second parent deadline after cold login. Extended bounded deadline to 900 seconds and completed the full campaign.",
+    "native_limit": "Paid installed-stock Sheltering Veil and See the Unbodied casts, cold expiry and all-grade gameplay remain unverified; their managed paid policy and native definition-loading checks passed.",
+    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+  },
   "ethereal_129_candidate": {
     "base_revision": "7526f0c2037b58627db088090a6497ab067adf02 with recorded dirty 129-definition source inventory",
     "declared_required_definitions": 129,

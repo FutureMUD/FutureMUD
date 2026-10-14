@@ -63,6 +63,7 @@ public static class ArmageddonCatalogueSupplies
 			var stackable = Component(owned, "arm.catalogue.component.stackable", "Armageddon catalogue stackable", "Stackable",
 				new XElement("Definition", new XAttribute("Decorator", decorators[0].Id)), []);
 			var items = new Dictionary<string, GameItemProto>(StringComparer.Ordinal);
+			var rankedTags = new Dictionary<string, long>(StringComparer.Ordinal);
 			foreach (var blueprint in supplies)
 			{
 				var material = blueprint.Configuration.TryGetProperty("native_material", out var materialKey) ? materials[materialKey.GetString()!] : clay;
@@ -79,9 +80,19 @@ public static class ArmageddonCatalogueSupplies
 					item.GameItemProtosGameItemComponentProtos.Add(new() { GameItemComponentProtoId = stackable.Id, GameItemComponentRevision = stackable.RevisionNumber });
 				if (blueprint.Kind == ArmageddonBlueprintKind.ComponentSupply)
 				{
+					var sphere = blueprint.Configuration.GetProperty("sphere").GetString()!.ToLowerInvariant();
+					var rank = blueprint.Configuration.GetProperty("rank").GetInt32();
 					var name = blueprint.Configuration.TryGetProperty("native_tag", out var tagName) ? tagName.GetString()! :
-						blueprint.Configuration.GetProperty("sphere").GetString() + " rank " + blueprint.Configuration.GetProperty("rank").GetInt32().ToString(CultureInfo.InvariantCulture);
-					var tag = owned.Put(blueprint.Key + ".tag", new Tag { Name = name }, []);
+						blueprint.Configuration.GetProperty("sphere").GetString() + " rank " + rank.ToString(CultureInfo.InvariantCulture);
+					var rankedFamily = sphere is "clerical" or "divination";
+					var parentKey = sphere + ":" + (rank - 1).ToString(CultureInfo.InvariantCulture);
+					if (rankedFamily && rank > 0 && !rankedTags.ContainsKey(parentKey))
+						throw new InvalidOperationException("Owned Clerical and Divination component ranks must be installed in ascending order.");
+					var tag = owned.Put(blueprint.Key + ".tag", new Tag
+					{
+						Name = name, ParentId = rankedFamily && rank > 0 ? rankedTags[parentKey] : null
+					}, rankedFamily && rank > 0 ? ["arm.material." + sphere + ".rank" + (rank - 1).ToString(CultureInfo.InvariantCulture) + ".tag"] : []);
+					if (rankedFamily) rankedTags.Add(sphere + ":" + rank.ToString(CultureInfo.InvariantCulture), tag.Id);
 					item.GameItemProtosTags.Add(new() { TagId = tag.Id });
 				}
 				items.Add(blueprint.Key, owned.Put(blueprint.Key, item, blueprint.Dependencies));

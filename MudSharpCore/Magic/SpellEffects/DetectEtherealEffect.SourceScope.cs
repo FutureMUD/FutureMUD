@@ -2,12 +2,13 @@
 
 using MudSharp.Construction;
 using MudSharp.GameItems.Inventory.Plans;
+using MudSharp.Planes;
 
 namespace MudSharp.Magic.SpellEffects;
 
 public partial class DetectEtherealEffect
 {
-	private sealed record SourceEtherealScope(long Silt, long Shadow, string ComponentReference);
+	private sealed record SourceEtherealScope(int Version, long Silt, long Shadow, string ComponentReference);
 	private SourceEtherealScope? _sourceScope;
 	private XElement? _invalidSourceScope;
 	private string? _sourceScopeError;
@@ -17,9 +18,12 @@ public partial class DetectEtherealEffect
 		if (root.Element("SourceScope") is not { } scope) return;
 		try
 		{
-			if ((int?)scope.Attribute("version") != 1) throw new FormatException("Unsupported ethereal source scope version.");
-			var value = new SourceEtherealScope((long?)scope.Attribute("silt") ?? 0,
-				(long?)scope.Attribute("shadow") ?? 0, (string?)scope.Attribute("component") ?? "");
+			var version = (int?)scope.Attribute("version") ?? 0;
+			if (version is not (1 or 2)) throw new FormatException("Unsupported ethereal source scope version.");
+			var value = new SourceEtherealScope(version,
+				(long?)scope.Attribute(version == 1 ? "silt" : "siltTag") ?? 0,
+				(long?)scope.Attribute(version == 1 ? "shadow" : "shadowPlane") ?? 0,
+				(string?)scope.Attribute("component") ?? "");
 			ValidateScope(value); _sourceScope = value;
 		}
 		catch (Exception error) when (error is FormatException or ArgumentException or OverflowException)
@@ -28,8 +32,11 @@ public partial class DetectEtherealEffect
 
 	private void ValidateScope(SourceEtherealScope scope)
 	{
-		if (scope.Silt <= 0 || scope.Shadow <= 0 || Gameworld.Terrains.Get(scope.Silt) is null || Gameworld.Terrains.Get(scope.Shadow) is null)
-			throw new FormatException("Bind existing native Silt and Shadow terrain IDs explicitly.");
+		if (scope.Silt <= 0 || scope.Shadow <= 0 || scope.Version switch
+			{ 1 => Gameworld.Terrains.Get(scope.Silt) is null || Gameworld.Terrains.Get(scope.Shadow) is null,
+			  2 => Gameworld.Tags.Get(scope.Silt) is null || Gameworld.Planes.Get(scope.Shadow) is null,
+			  _ => true })
+			throw new FormatException("Bind existing native Silt and Shadow identities of the selected scope version explicitly.");
 		if (!ValidComponentReference(scope.ComponentReference))
 			throw new FormatException("Component reference must contain 1-128 ASCII letters, digits, dots, underscores or hyphens.");
 	}
@@ -37,12 +44,14 @@ public partial class DetectEtherealEffect
 	private void SaveSourceScope(XElement root)
 	{
 		if (_invalidSourceScope is not null) root.Add(new XElement(_invalidSourceScope));
-		else if (_sourceScope is { } scope) root.Add(new XElement("SourceScope", new XAttribute("version", 1),
-			new XAttribute("silt", scope.Silt), new XAttribute("shadow", scope.Shadow), new XAttribute("component", scope.ComponentReference)));
+		else if (_sourceScope is { } scope) root.Add(new XElement("SourceScope", new XAttribute("version", scope.Version),
+			new XAttribute(scope.Version == 1 ? "silt" : "siltTag", scope.Silt),
+			new XAttribute(scope.Version == 1 ? "shadow" : "shadowPlane", scope.Shadow),
+			new XAttribute("component", scope.ComponentReference)));
 	}
 
 	private string SourceScopeShow => _sourceScope is { } scope
-		? $"\nSource scope: Silt terrain #{scope.Silt}, Shadow terrain #{scope.Shadow}, dedicated component reference {scope.ComponentReference}. Silt takes precedence, including overlapping mappings."
+		? $"\nSource scope: Silt {(scope.Version == 1 ? "terrain" : "tag")} #{scope.Silt}, Shadow {(scope.Version == 1 ? "terrain" : "plane")} #{scope.Shadow}, dedicated component reference {scope.ComponentReference}. Silt takes precedence."
 		: _sourceScopeError is { } error ? $"\nInvalid source scope: {error}" : "\nSource scope: off (ordinary native ethereal detection).";
 
 	private bool BuildSourceScope(ICharacter actor, StringStack command)
@@ -76,12 +85,25 @@ public partial class DetectEtherealEffect
 			_sourceScope = null; _sourceScopeError = null; _invalidSourceScope = null; _sourceSelection = null;
 			Spell.Changed = true; actor.OutputHandler.Send(Show(actor)); return true;
 		}
+		if (mode.EqualTo("plane"))
+		{
+			var tag = Gameworld.Tags.GetByIdOrName(command.PopSpeech());
+			var plane = Gameworld.Planes.GetByIdOrName(command.PopSpeech());
+			var planeReference = command.PopSpeech();
+			if (tag is null || plane is null || !command.IsFinished)
+			{ actor.OutputHandler.Send("Use source plane <Silt tag ID/name> <Shadow plane ID/name> <unique component reference>."); return false; }
+			var candidate = new SourceEtherealScope(2, tag.Id, plane.Id, planeReference);
+			try { ValidateScope(candidate); }
+			catch (FormatException error) { actor.OutputHandler.Send(error.Message); return false; }
+			_sourceScope = candidate; _sourceScopeError = null; _invalidSourceScope = null; _sourceSelection = null;
+			Spell.Changed = true; actor.OutputHandler.Send(Show(actor)); return true;
+		}
 		var silt = Gameworld.Terrains.GetByIdOrName(mode);
 		var shadow = Gameworld.Terrains.GetByIdOrName(command.PopSpeech());
 		var reference = command.PopSpeech();
 		if (silt is null || shadow is null || !command.IsFinished)
 		{ actor.OutputHandler.Send("Use source <Silt terrain ID/name> <Shadow terrain ID/name> <unique component reference>, source component <consumed action number> <reference>, or source off."); return false; }
-		var scope = new SourceEtherealScope(silt.Id, shadow.Id, reference);
+		var scope = new SourceEtherealScope(1, silt.Id, shadow.Id, reference);
 		try { ValidateScope(scope); }
 		catch (FormatException error) { actor.OutputHandler.Send(error.Message); return false; }
 		_sourceScope = scope; _sourceScopeError = null; _invalidSourceScope = null; _sourceSelection = null;

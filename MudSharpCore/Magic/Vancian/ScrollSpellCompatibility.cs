@@ -35,6 +35,7 @@ public static class ScrollSpellCompatibility
 		Add("drowninggrip", "Exact living-body breathing admission and short spell-owned hypoxia window require a dedicated stored-delivery adapter; stock carriers remain disabled.");
 		Add("leechingedge", "Native wielded melee event delivery requires a dedicated stored-delivery adapter; carrier qualification is pending.");
 		Add("vitalsiphon", "Exact prepared victim identity and linked measured vitality transfer require a dedicated stored-delivery adapter; carrier qualification is pending.");
+		Add("windhammer", "The linked native hit, exact selected exit and post-hit movement require a dedicated stored-delivery adapter; direct configured casting only.");
 		Add("executeprog forcecommand reciteproxy", "Arbitrary script/command effects have no typed numerical snapshot adapter.");
 		Add("rejuvenateland", "Bounded scar treatment has no stored capture, dose or retained-lifecycle adapter; direct invocation only.");
 		Add("sourcewaterbreathing", "Source-specific random accumulated lifetime and explicit native water scope are not qualified for stored scroll delivery; ordinary direct invocation only.");
@@ -72,6 +73,9 @@ public static class ScrollSpellCompatibility
 				yield return ("DamageExpression", x.DamageExpression, e => x.DamageExpression = e);
 				if (x.PainExpression is { } pain) yield return ("PainExpression", pain, e => x.PainExpression = e);
 				if (x.StunExpression is { } stun) yield return ("StunExpression", stun, e => x.StunExpression = e);
+				break;
+			case WindHammerEffect x:
+				foreach (var binding in Expressions(x.Damage)) yield return binding;
 				break;
 			case SelfDamageEffect x: yield return ("DamageExpression", x.DamageExpression, e => x.DamageExpression = e); break;
 			case HealEffect x: yield return ("HealingAmount", x.HealingAmount, e => x.HealingAmount = e); break;

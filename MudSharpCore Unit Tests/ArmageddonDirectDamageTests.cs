@@ -47,7 +47,7 @@ using ConcreteBody = MudSharp.Body.Implementations.Body;
 namespace MudSharp_Unit_Tests;
 
 [TestClass, DoNotParallelize]
-public class ArmageddonDirectDamageTests
+public partial class ArmageddonDirectDamageTests
 {
 	[DataTestMethod]
 	[DataRow("arm.spell.ember_lance", 1, 5, 2, 20)]
@@ -327,7 +327,10 @@ public class ArmageddonDirectDamageTests
 			F.Body.SetupGet(x => x.WieldedItems).Returns([Item.Object]);
 			F.Actor.Setup(x => x.TargetActorOrCorpse("target")).Returns(Victim.Object); F.Actor.Setup(x => x.TargetItem("target")).Returns(Item.Object);
 			F.Spells.Remove(F.Spell);
-			var content = ArmageddonDirectDamageSpellContent.Create(new(1, Difficulty.Normal, DamageType.Arcane)).Single(x => x.Content.Key == key).Content;
+			var content = key == ArmageddonWindHammerSpellContent.Key
+				? ArmageddonWindHammerSpellContent.Create().Content
+				: ArmageddonDirectDamageSpellContent.Create(new(1, Difficulty.Normal, DamageType.Arcane))
+					.Single(x => x.Content.Key == key).Content;
 			var cost = content.CostRow(1); cost.Id = 61; F.Expressions.Add(new TraitExpression(cost, F.World.Object));
 			var duration = content.DurationRow(1); duration.Id = 62; F.Expressions.Add(new TraitExpression(duration, F.World.Object));
 			var model = content.SpellRow(1, 1, 1); model.Id = 1; model.EffectDurationExpressionId = 62;

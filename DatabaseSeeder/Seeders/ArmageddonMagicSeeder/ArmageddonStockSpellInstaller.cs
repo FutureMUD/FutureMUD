@@ -115,6 +115,8 @@ public static partial class ArmageddonStockSpellInstaller
 			(Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))))
 		.Append((Key: ArmageddonBorrowTheDeadSpellContent.Key,
 			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonBorrowTheDeadSpellContent.Create())))
+		.Append((Key: ArmageddonWindHammerSpellContent.Key,
+			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonWindHammerSpellContent.Create())))
 		.Concat(ArmageddonOwnedItemMarkSpellContent.Create().Select(x =>
 			(Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))))
 		.Append((Key: ArmageddonThresholdAlarmSpellContent.Key,

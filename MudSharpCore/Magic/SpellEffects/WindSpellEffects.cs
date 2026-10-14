@@ -559,6 +559,17 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate, IMagicSpellEf
 
 	public MagicEffectOperation Apply(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
+		=> ApplyPath(caster, target, additionalParameters, null);
+
+	internal MagicEffectOperation ApplyGuardedOneStep(ICharacter caster, IPerceivable? target,
+		SpellAdditionalParameter[] additionalParameters, Func<bool> selectionCurrent)
+	{
+		if (Steps != 1) throw new InvalidOperationException("A guarded selected exit requires exactly one step.");
+		return ApplyPath(caster, target, additionalParameters, selectionCurrent);
+	}
+
+	private MagicEffectOperation ApplyPath(ICharacter caster, IPerceivable? target,
+		SpellAdditionalParameter[] additionalParameters, Func<bool>? selectionCurrent)
 	{
 		if (target is not ICharacter characterTarget)
 		{
@@ -577,7 +588,7 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate, IMagicSpellEf
 		var moved = false;
 		for (var i = 0; i < Steps; i++)
 		{
-			if (!TryMoveTarget(caster, characterTarget, exit, out var why))
+			if (!TryMoveTarget(caster, characterTarget, exit, selectionCurrent, out var why))
 			{
 				if (!string.IsNullOrWhiteSpace(why))
 				{
@@ -605,9 +616,11 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate, IMagicSpellEf
 		return new(moved ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
 	}
 
-	private bool TryMoveTarget(ICharacter caster, ICharacter target, IRoomExit exit, out string why)
+	private bool TryMoveTarget(ICharacter caster, ICharacter target, IRoomExit exit,
+		Func<bool>? selectionCurrent, out string why)
 	{
 		why = string.Empty;
+		if (selectionCurrent is not null && !selectionCurrent()) return false;
 		if (!AllowFallExits && exit.IsFallExit)
 		{
 			why = "The wind cannot force you over that fall exit.";
@@ -653,6 +666,9 @@ public class ForcedPathMovementEffect : IMagicSpellEffectTemplate, IMagicSpellEf
 			why = "The target cannot be forced through that exit from this layer.";
 			return false;
 		}
+		// CanMove, CanCross and MovementTransition can invoke game callbacks. Never use a
+		// changed selected exit after any of those admissions have returned.
+		if (selectionCurrent is not null && !selectionCurrent()) return false;
 
 		var origin = target.Location;
 		var originLayer = target.RoomLayer;

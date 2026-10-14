@@ -25,7 +25,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var entries = manifest.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell").ToArray();
 		CollectionAssert.AreEquivalent(ArmageddonStockSpellInstaller.CanonicalKeys.ToArray(), claims.Select(x => x.StableKey).ToArray());
-		Assert.AreEqual(135, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
+		Assert.AreEqual(136, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var source = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId!.Value;
 		foreach (var claim in claims)
@@ -62,7 +62,8 @@ public partial class ArmageddonStockSpellInstallerTests
 				Assert.AreEqual("perceivable", expectedTarget);
 				expectedTarget = "character";
 			}
-			if (claim.StableKey is ArmageddonWindForceSpellContent.GustHandsKey or ArmageddonWindForceSpellContent.DrivingGustKey)
+			if (claim.StableKey is ArmageddonWindForceSpellContent.GustHandsKey or ArmageddonWindForceSpellContent.DrivingGustKey or
+				ArmageddonWindHammerSpellContent.Key)
 			{
 				Assert.AreEqual("character_and_exit", expectedTarget);
 				expectedTarget = "characterexit"; // Native two-part target trigger.

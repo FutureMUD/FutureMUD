@@ -3665,14 +3665,14 @@ Key: `arm.spell.wind_hammer`. Native school: **Wind**. Target: `character_and_ex
 
 **Observable effect:** Strike and then move a target through a selected exit only if the hit resolves.
 
-**Scaling:** Damage 5*g units; one legal exit movement only after resolved harm/admission. Energy base B=7; `B * grade * overreach_multiplier * quiet_multiplier * area_multiplier`.
+**Scaling:** Damage 5*g units; one legal exit movement only after resolved harm/admission. The locked stock minimum energy is 33 per grade; area and quiet variants remain disabled.
 
 **Membership/acquisition:**
 - Wind: acquired `arm.spell.pierce_concealment`, controlled grade >= 2, its route skill >= 20. Membership evidence: `coded_element_association_not_learnlist`. Default trait `arm.spell.wind_hammer.skill`; shared option `arm.skill.wind_casting`.
 
 **Physical plan:** speech: required; quiet only when explicitly enabled; manipulation: one free manipulating appendage, in addition to held focus if required; actor: focused permitted physical instance; native plane/body gates; target_constraint: accessible owned/consenting target or authorised hostile action; corpse controls retain native ownership and anchor checks.
 
-**Materials/foci:** retained held/wielded focus tagged for the selected tradition at grades 3-7; none at grades 1-2; consume 0 unit(s) of `arm.material.ritual_reagent` at commitment. Practice: retained tradition focus at all grades, no consumed materials. Historical component metadata: none.
+**Materials/foci:** no additional normal-cast focus or consumed material under this spell's approved component plan. Practice retains a matching tradition focus and consumes no material. Historical component metadata: none.
 
 **Practice:** enabled=true, 30 seconds, full energy, proficiency and mastery eligible under shared gates; no target/caster effects or target wards/resistance. Implementation: `missing_common_practice_slice`.
 
@@ -3680,17 +3680,19 @@ Key: `arm.spell.wind_hammer`. Native school: **Wind**. Target: `character_and_ex
 
 **Portable eligibility (proposal):** scroll=false, charged_wand_staff=false, substance=false, focus_role=true. Require every effect/trigger/retained numeric binding to pass the existing carrier-specific compatibility gate. Wands/staves and channelling production are missing integrations; never infer eligibility from registration.
 
-**Coverage:** `small_missing_primitive`; `proposed_gap_candidate`; approval `awaiting_roster_approval`. Traced existing effect method(s) for listed primitives; the complete proposed content and casting policy are not implemented.
+**Coverage:** `small_missing_primitive`; a fixed stock candidate now uses one `windhammer` composite effect with frozen native damage and an exact selected exit. Focused paid Core and Classic/Simple definition tests pass; actual installed-stock live and cold qualification remains pending.
 
-**Boundary/gap:** Requires ordered linked outcome handling; two independent effects could push a rejected target.
+**Boundary/gap:** The single composite applies native damage first and permits one guarded exit step only when the damage operation reports `Applied`. A no-harm or rejected hit never pushes the target. Wound and movement callbacks can change the world after payment; the one-step adapter reconfirms exact exit membership, original destination and ordered caster authority immediately before teleport. A lost step leaves the already applied hit intact.
 
 **Runtime evidence:**
+- `windhammer`: [MudSharpCore/Magic/SpellEffects/WindHammerEffect.cs](../../MudSharpCore/Magic/SpellEffects/WindHammerEffect.cs), linked native hit and frozen selected-exit guard in the current candidate.
+- `forcedpathmovement`: [MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs](../../MudSharpCore/Magic/SpellEffects/WindSpellEffects.cs), guarded one-step path in the current candidate.
 - `damage`: [MudSharpCore/Magic/SpellEffects/DamageEffect.cs:179](../../MudSharpCore/Magic/SpellEffects/DamageEffect.cs#L179), `DamageEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 - `forcedexitmovement`: [MudSharpCore/Magic/SpellEffects/ForcedExitMovementEffect.cs:55](../../MudSharpCore/Magic/SpellEffects/ForcedExitMovementEffect.cs#L55), `ForcedExitMovementEffect.GetOrApplyEffect` at `ec361d9c2911b31e4a09284acea8e574b9c7ebfa`.
 
 **Minimum acceptance â€” ARM-R-373 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Wind Hammer, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character_and_exit. Invoke Wind Hammer at grade 2 through the explicit route.
 
-- Commit 14 designated energy units once; preserve native school Wind.
+- Commit 66 designated energy units once under the locked 33-per-grade stock minimum; preserve native school Wind.
 - Strike and then move a target through a selected exit only if the hit resolves.
 - At grade 2 apply only this scaling contract: Damage 5*g units; one legal exit movement only after resolved harm/admission.
 - Reject absent admission or invalid body/target before payment; a resisted paid invocation cannot bypass costs or duplicate advancement.

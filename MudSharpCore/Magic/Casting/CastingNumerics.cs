@@ -89,6 +89,7 @@ internal static class CastingNumerics
 			if (effect is PoisonEffect { DefinitionError: { } poisonError }) yield return $"{label}/poison: {poisonError}";
 			if (effect is RemovePoisonEffect { DefinitionError: { } removePoisonError }) yield return $"{label}/removepoison: {removePoisonError}";
 			if (effect is DamageEffect { DefinitionError: { } damageError }) yield return $"{label}/damage: {damageError}";
+			if (effect is WindHammerEffect { DefinitionError: { } windHammerError }) yield return $"{label}/windhammer: {windHammerError}";
 			if (effect is RemoveDiseaseEffect { DefinitionError: { } cureError }) yield return $"{label}/removedisease: {cureError}";
 			if (effect is NeedDeltaEffect { DefinitionError: { } needsError }) yield return $"{label}/needdelta: {needsError}";
 			if (effect is StaminaDeltaSpellEffect { DefinitionError: { } staminaError }) yield return $"{label}/staminadelta: {staminaError}";

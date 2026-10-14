@@ -37,13 +37,13 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 131,
+    "installed_canonical_spells": 133,
     "native_grade_one_stock_entries": 1,
     "native_sampled_grade_one_spells": 12,
-    "declared_canonical_spells": 131,
-    "definition_audited_canonical_spells": 131,
+    "declared_canonical_spells": 133,
+    "definition_audited_canonical_spells": 133,
     "latest_successful_native_loaded_spells": 131,
-    "required_not_yet_declared": 21,
+    "required_not_yet_declared": 19,
     "latest_partial_native_first_loaded_spells": 121
   },
   "path_discrepancies": [],
@@ -1701,7 +1701,7 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": "S3 component plus durable owned-item consumption supports delayed one-use fire; exact stock cast origin/grade payload/lifetime remain.",
+      "current_code_note": "Fixed Ember Seed definition uses the exact owned prototype, character target, grade-bound one-use payload and 300*grade-second temporary lifecycle; Classic/Simple audits and existing native payload/reload tests pass. Paid installed-stock cast, delayed harm, expiry and cold gameplay remain unsampled.",
       "remaining": [
         "No defining reusable effect selected in this bounded map; review the contract before hydration.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
@@ -4249,7 +4249,7 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": "S3 native topical component and durable owned consumption support one use; exact grade budget/frozen paid payload and S5 dose calibration remain.",
+      "current_code_note": "Fixed Restorative Mud definition uses the exact owned one-gram prototype, local item anchor and grade-bound one-use native healing budget capped at 10*grade. Classic/Simple audits and existing payload/reload tests pass. Paid installed-stock application, cold gameplay and S5 substance calibration remain unsampled.",
       "remaining": [
         "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
@@ -9467,7 +9467,7 @@
         "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
         "minimum_energy": 7,
         "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
-      "source_component_note": "Approved 2026-10-14: owned Silt tag on current room or terrain, including descendants, absolutely refuses before effective owned Shadow-plane membership waives one directly carried Divination component. Outside Shadow minimum rank is max(grade-3,0), ranks 0..4.",
+      "source_component_note": "Approved clarification 2026-10-14: owned Silt tag on current terrain, including descendants, absolutely refuses before effective owned Shadow-plane membership waives one directly carried Divination component. Room/location-only Silt does not refuse this spell. Outside Shadow minimum rank is max(grade-3,0), ranks 0..4.",
         "normal_material_policy": "Only per-spell source/approved explicit component plan; no old blanket grade>=3 reagent/focus demand.",
         "practice_policy": "target-free full paid practice; retain matching focus, no reagent consumption; raw and controlled progression separately gated.",
         "variant_policy": {
@@ -9482,7 +9482,7 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": "Fixed S4 local candidate: owned Silt room/terrain tag refusal precedes effective Shadow-plane waiver of directly carried ranked Divination; version-one terrain builder binding preserved. Focused paid-cast and Classic/Simple definition checks pass; restored-world gameplay and cold expiry pending.",
+      "current_code_note": "Fixed S4 candidate: owned Silt terrain tag or descendant refusal precedes effective Shadow-plane waiver of directly carried ranked Divination; room-only Silt is ignored and version-one terrain builder binding is preserved. Focused paid-cast and Classic/Simple definition checks pass; restored-world gameplay and cold expiry pending.",
       "remaining": [
         "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
         "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",

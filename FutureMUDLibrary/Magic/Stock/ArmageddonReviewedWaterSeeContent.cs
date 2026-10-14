@@ -51,7 +51,7 @@ public static class ArmageddonReviewedWaterSeeContent
 		{
 			Description = content.Description
 				.Replace("refuses mapped Silt before mapped Shadow's component exemption",
-					"refuses the owned Silt tag on the current room or terrain (including descendants) before effective Shadow-plane component exemption")
+					"refuses the owned Silt tag on the current terrain (including descendants) before effective Shadow-plane component exemption")
 				.Replace("Outside mapped Shadow", "Outside effective Shadow-plane presence")
 				.Replace("source terrain IDs", "owned Silt-tag and Shadow-plane IDs")
 		} : content;

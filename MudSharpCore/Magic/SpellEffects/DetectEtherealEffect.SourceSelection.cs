@@ -54,7 +54,7 @@ public partial class DetectEtherealEffect : IMagicSpellEffectPreparedSelection, 
 		string AuthoredXml, InventoryPlanOptions Options, ActionState[] Actions, string SourceDefinition,
 		string EffectXml, SourceEtherealScope Scope, int Grade, ICharacter Caster, IBody Body, IRoom Room,
 		IRoomOverlay Overlay, RoomLayer Layer, TerrainState? Silt, TerrainState? Shadow, TerrainState Terrain,
-		ITag? SiltTag, IPlane? ShadowPlane, ITag[] RoomTags, TagState[] LocationTags,
+		ITag? SiltTag, IPlane? ShadowPlane, TagState[] TerrainTags,
 		long[] PresencePlaneIds, bool Exempt, TagState[] Tags, ITag Family, ITag MinimumRank, ComponentState? Component)
 		: IMagicSpellEffectPreparedSelectionToken;
 
@@ -75,18 +75,17 @@ public partial class DetectEtherealEffect : IMagicSpellEffectPreparedSelection, 
 		var siltTag = _sourceScope.Version == 2 ? Gameworld.Tags.Get(_sourceScope.Silt) : null;
 		var shadowPlane = _sourceScope.Version == 2 ? Gameworld.Planes.Get(_sourceScope.Shadow) : null;
 		// Silt always wins, including tagged terrain and overlapping plane presence.
-		if (_sourceScope.Version == 1 ? terrain.Id == _sourceScope.Silt : room.IsA(siltTag!) || terrain.IsA(siltTag!))
+		if (_sourceScope.Version == 1 ? terrain.Id == _sourceScope.Silt : terrain.IsA(siltTag!))
 			throw new InvalidOperationException("Source ethereal detection refuses Silt.");
 		var presence = _sourceScope.Version == 2 ? caster.GetPlanarPresence().PresencePlaneIds.OrderBy(x => x).ToArray() : [];
-		var roomTags = _sourceScope.Version == 2 ? room.Tags.ToArray() : [];
-		var locationTags = new Dictionary<ITag, TagState>(ReferenceEqualityComparer.Instance);
-		foreach (var tag in roomTags.Concat(_sourceScope.Version == 2 ? terrain.Tags : []))
+		var terrainTags = new Dictionary<ITag, TagState>(ReferenceEqualityComparer.Instance);
+		foreach (var tag in _sourceScope.Version == 2 ? terrain.Tags : [])
 		{
 			var visited = new HashSet<ITag>(ReferenceEqualityComparer.Instance);
 			for (var current = tag; current is not null; current = current.Parent)
 			{
-				if (!visited.Add(current)) throw new InvalidOperationException("Location tag hierarchy contains a cycle.");
-				locationTags.TryAdd(current, new(current, current.Id, current.Name, current.Parent));
+				if (!visited.Add(current)) throw new InvalidOperationException("Terrain tag hierarchy contains a cycle.");
+				terrainTags.TryAdd(current, new(current, current.Id, current.Name, current.Parent));
 			}
 		}
 		var authored = source.InventoryPlanTemplate;
@@ -124,7 +123,7 @@ public partial class DetectEtherealEffect : IMagicSpellEffectPreparedSelection, 
 			_sourceScope, grade, caster, caster.Body, room, room.CurrentOverlay, caster.RoomLayer,
 			_sourceScope.Version == 1 ? TerrainState.Capture(Gameworld.Terrains.Get(_sourceScope.Silt)!) : null,
 			_sourceScope.Version == 1 ? TerrainState.Capture(Gameworld.Terrains.Get(_sourceScope.Shadow)!) : null,
-			TerrainState.Capture(terrain), siltTag, shadowPlane, roomTags, locationTags.Values.ToArray(), presence,
+			TerrainState.Capture(terrain), siltTag, shadowPlane, terrainTags.Values.ToArray(), presence,
 			_sourceScope.Version == 1 ? terrain.Id == _sourceScope.Shadow : presence.Contains(_sourceScope.Shadow),
 			allTags.Select(x => new TagState(x, x.Id, x.Name, x.Parent)).ToArray(), consume.DesiredTag, rankTags[Math.Max(grade - 3, 0)], null);
 		ConfirmSource(token, caster, recipient);
@@ -191,7 +190,7 @@ public partial class DetectEtherealEffect : IMagicSpellEffectPreparedSelection, 
 	{
 		var currentPresence = token.Scope.Version == 2 ? caster.GetPlanarPresence().PresencePlaneIds.OrderBy(x => x).ToArray() : [];
 		var siltPresent = token.Scope.Version == 1 ? token.Terrain.Id == token.Scope.Silt :
-			token.Room.IsA(token.SiltTag!) || token.Terrain.Terrain.IsA(token.SiltTag!);
+			token.Terrain.Terrain.IsA(token.SiltTag!);
 		var exempt = token.Scope.Version == 1 ? token.Terrain.Id == token.Scope.Shadow : currentPresence.Contains(token.Scope.Shadow);
 		if (_sourceScopeError is not null || _sourceScope != token.Scope || Spell is not MagicSpell invocation ||
 			invocation.InvocationGrade != token.Grade || !ReferenceEquals(caster, recipient) || !ReferenceEquals(caster, token.Caster) ||
@@ -201,8 +200,7 @@ public partial class DetectEtherealEffect : IMagicSpellEffectPreparedSelection, 
 			token.Scope.Version == 1 && (token.Silt is null || token.Shadow is null || !token.Silt.Current(Gameworld) || !token.Shadow.Current(Gameworld)) ||
 			token.Scope.Version == 2 && (!ReferenceEquals(Gameworld.Tags.Get(token.Scope.Silt), token.SiltTag) ||
 				!ReferenceEquals(Gameworld.Planes.Get(token.Scope.Shadow), token.ShadowPlane) ||
-				!token.Room.Tags.SequenceEqual(token.RoomTags, ReferenceEqualityComparer.Instance) ||
-				token.LocationTags.Any(x => !x.Current(Gameworld)) || !currentPresence.SequenceEqual(token.PresencePlaneIds)) ||
+				token.TerrainTags.Any(x => !x.Current(Gameworld)) || !currentPresence.SequenceEqual(token.PresencePlaneIds)) ||
 			!token.Terrain.Current(Gameworld) ||
 			token.Tags.Any(x => !x.Current(Gameworld)) || !ReferenceEquals(Gameworld.MagicSpells.Get(token.Source.Id), token.Source) ||
 			!ReferenceEquals(token.Source.InventoryPlanTemplate, token.AuthoredPlan) || token.AuthoredPlan.Options != token.Options ||

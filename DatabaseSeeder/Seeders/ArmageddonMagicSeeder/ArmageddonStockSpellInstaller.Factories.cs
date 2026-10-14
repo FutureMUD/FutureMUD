@@ -4,6 +4,7 @@ extern alias EngineCompiler;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
@@ -136,6 +137,36 @@ public static partial class ArmageddonStockSpellInstaller
 			"arm.spell.devouring_touch" => new("arm.capability.void", ArmageddonVitalTransferSpellContent.DevouringTouch(resistance, source)),
 			_ => throw new StockDependencyException(key + ": no exact vitality factory is registered.")
 		};
+	}
+
+	private static ArmageddonCanonicalSpellContribution ResolveBoundConsumable(FuturemudDatabaseContext db, string key) =>
+		key switch
+		{
+			ArmageddonBoundConsumableSpellContent.EmberSeedKey => new("arm.capability.fire",
+				ArmageddonBoundConsumableSpellContent.EmberSeed(CataloguePrototype(db, "arm.item.ember_seed", "ArmageddonEmberSeed"))),
+			ArmageddonBoundConsumableSpellContent.RestorativeMudKey => new("arm.capability.water",
+				ArmageddonBoundConsumableSpellContent.RestorativeMud(RestorativeMudPrototype(db))),
+			_ => throw new StockDependencyException(key + ": no exact native bound consumable factory is registered.")
+		};
+
+	private static long RestorativeMudPrototype(FuturemudDatabaseContext db)
+	{
+		const string key = "arm.item.restorative_mud";
+		var id = CataloguePrototype(db, key, "TopicalCream");
+		var component = db.GameItemProtos.AsNoTracking()
+			.Include(x => x.GameItemProtosGameItemComponentProtos).ThenInclude(x => x.GameItemComponent)
+			.Single(x => x.Id == id && x.RevisionNumber == CatalogueClaim<GameItemProto>(db, key, true).RevisionNumber)
+			.GameItemProtosGameItemComponentProtos.Single(x => x.GameItemComponent.Type == "TopicalCream").GameItemComponent;
+		XElement definition;
+		try { definition = XElement.Parse(component.Definition); }
+		catch (System.Xml.XmlException) { throw new StockDependencyException(key + ": restore the approved native one-gram healing dose profile."); }
+		var dose = definition.Element("NativeHealingDose");
+		var valid = dose is not null && (string?)dose.Attribute("key") == key &&
+			double.TryParse((string?)dose.Attribute("grams"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var grams) && grams == 1.0 &&
+			double.TryParse((string?)dose.Attribute("budgetPerGrade"), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var budget) && budget > 0 && budget <= 10.0 &&
+			(string?)definition.Element("OnApplyProg") == "0" && definition.Element("Drugs") is { HasElements: false };
+		if (!valid) throw new StockDependencyException(key + ": restore the approved one-gram, at-most-10-per-grade unscripted healing dose profile.");
+		return id;
 	}
 	private static readonly string[] SimpleKeys = ["arm.spell.fireworks", "arm.spell.distant_mirage", "arm.spell.shadowplay",
 		"arm.spell.sky_lantern", "arm.spell.phantasm", "arm.spell.veil_of_elements", "arm.spell.buoyant_lift",

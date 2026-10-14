@@ -55,12 +55,23 @@ public class SeeTheUnbodiedSourceSelectionTests
 
 	[DataTestMethod]
 	[DataRow(true, false)] [DataRow(false, true)] [DataRow(true, true)]
-	public void OwnedScope_RoomOrTerrainDescendantSiltRefusesEvenInShadow(bool room, bool terrain)
+	public void OwnedScope_OnlyTerrainDescendantSiltRefusesEvenInShadow(bool room, bool terrain)
 	{
 		using var f = new Fixture(0, true); f.ShadowPresence = true; f.SiltOnRoom = room; f.SiltOnTerrain = terrain;
+		f.Items.Clear();
 		var result = f.Cast(1);
-		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message);
-		Assert.IsNull(result.OperationId); Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]);
+		if (terrain)
+		{
+			Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message);
+			Assert.IsNull(result.OperationId); Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]);
+		}
+		else
+		{
+			Assert.IsTrue(room, "The non-Silt case must exercise a room-only Silt tag.");
+			Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+			Assert.AreEqual(95.0, f.F.Balances[f.F.Resources[1]]);
+		}
+		Assert.AreEqual(0, f.ConsumptionWrites);
 	}
 
 	[TestMethod]

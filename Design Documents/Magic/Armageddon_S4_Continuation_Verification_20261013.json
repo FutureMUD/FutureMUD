@@ -1,4 +1,15 @@
 {
+  "bound_consumables_133_candidate": {
+    "base_revision": "db88ccc61d0973f07cb6f3452bb8a783bcff3f96 plus terrain-only Silt correction and Ember Seed/Restorative Mud source changes",
+    "declared_required_definitions": 133,
+    "required_not_yet_declared": 19,
+    "new_keys": ["arm.spell.ember_seed", "arm.spell.restorative_mud"],
+    "focused_see_terrain": "PASS 53/0/0 See the Unbodied source-selection tests including room-only Silt acceptance and terrain Silt refusal",
+    "focused_seeder": "PASS 5/0/0 Classic/Simple exact bound-consumable and all-definition audits plus over-budget topical profile refusal",
+    "focused_item_runtime": "PASS 37/0/0 existing one-use reload, Sown Sickness native mechanics and spell-created consumable suites",
+    "native_limit": "Latest complete actual-MySQL first/cold receipt is the prior 131/131 campaign at db88ccc61. No 133-definition native package, paid Ember Seed/Restorative Mud cast, application, expiry or cold gameplay receipt; the old receipt also predates terrain-only Silt correction.",
+    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+  },
   "conditional_source_131_candidate": {
     "base_revision": "b27b010992abcacced5f27f3fe987f69b299b344 with recorded dirty 131-definition source inventory",
     "declared_required_definitions": 131,

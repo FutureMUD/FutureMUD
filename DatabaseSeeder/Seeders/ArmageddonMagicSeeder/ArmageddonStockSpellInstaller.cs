@@ -65,6 +65,8 @@ public static partial class ArmageddonStockSpellInstaller
 			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveCondition(db, key)))))
 		.Concat(ArmageddonExistingFactorySpellContent.Keys.Select(key =>
 			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveExistingFactory(db, key)))))
+		.Concat(new[] { ArmageddonBoundConsumableSpellContent.EmberSeedKey, ArmageddonBoundConsumableSpellContent.RestorativeMudKey }
+			.Select(key => (Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveBoundConsumable(db, key)))))
 		.Concat(new[] { "arm.spell.vital_siphon", "arm.spell.devouring_touch", "arm.spell.leeching_edge" }.Select(key =>
 			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveVital(db, key)))))
 		.Concat(ArmageddonGradedWeaponSpellContent.Keys.Select(key =>

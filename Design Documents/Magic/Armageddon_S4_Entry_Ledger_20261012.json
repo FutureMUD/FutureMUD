@@ -42,7 +42,7 @@
     "native_sampled_grade_one_spells": 12,
     "declared_canonical_spells": 138,
     "definition_audited_canonical_spells": 138,
-    "latest_successful_native_loaded_spells": 135,
+    "latest_successful_native_loaded_spells": 138,
     "required_not_yet_declared": 14,
     "latest_partial_native_first_loaded_spells": 121
   },
@@ -1183,12 +1183,12 @@
       "qualification_evidence": {
         "definition": {
           "status": "FOCUSED_MANAGED_PASS",
-          "receipts": ["ArmageddonBurningDraughtDefinitionTests", "ArmageddonStockSpellInstallerTests Classic/Simple 69/69"]
+          "receipts": ["ArmageddonBurningDraughtDefinitionTests", "ArmageddonStockSpellInstallerTests Classic/Simple 69/69", "Owned MySQL Classic first/cold 138/138 exact native definition readiness, 35/35 boot assertions at 5f1b9e7fb"]
         },
         "direct": ["ArmageddonBurningDraughtTests focused Core 5/5: paid grade-two cast, exact-body admission, attached/detached native Burning packet and mutation fence, child reload, parent reload and explicit expiry; RoomReferenceCorrectionTests 40/40"],
         "inherited": [],
         "sampled": [],
-        "assumptions": ["Managed tests do not prove concrete Body Drink/SilentDrink liquid and needs behavior or actual MySQL-installed MUD boot."],
+        "assumptions": ["Native first/cold readiness loaded the installed definition but did not perform a paid Burning Draught cast or observe actual Body Drink/SilentDrink liquid and needs behavior."],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
       }

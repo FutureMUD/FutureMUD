@@ -573,6 +573,14 @@ def stock_campaign_smoke(session, phase, data, mapped):
         if phase == 'cold':
             require(initial == result['saved_state'] and operations(row) == result['saved_operations'], 'Cold campaign refilled/reacquired/replayed: ' + key)
             result['phases']['cold'] = {'state': initial, 'outcome': 'PASS-no-refill-no-replay'}
+            if key == 'arm.spell.erode_object':
+                item = result['physical_item']
+                current = sql(f'SELECT GameItemProtoId FROM GameItems WHERE Id={item["id"]}')
+                wounds = float(sql(f'SELECT IFNULL(SUM(CurrentDamage),0) FROM Wounds WHERE GameItemId={item["id"]}')[0][0])
+                require(len(current) == 1 and current[0][0] == str(item['prototype']) and
+                        math.isfinite(wounds) and wounds == result['saved_item_damage'],
+                        'Cold Erode Object changed the exact native item or replayed its wound.')
+                result['phases']['cold']['native_item_damage'] = wounds
             if key in campaign.EXPECTED_CHILDREN:
                 current_parents = parents(row); saved = result['saved_parents']
                 elapsed_ms = (time.monotonic() - result['saved_at_monotonic']) * 1000
@@ -619,6 +627,29 @@ def stock_campaign_smoke(session, phase, data, mapped):
             elif key == 'arm.spell.cinder_rain':
                 cast_target = '.'.join(rows[0][3].lower().split())
                 require(row['target'] == 'mount', 'Area sample lacks its approved local character target.')
+        if key == 'arm.spell.erode_object':
+            item_prototype = int(config['item_prototype'])
+            require(row['target'] == 'leaf' and item_prototype > 0, 'Item sample lacks its explicit native prototype.')
+            before_items = int(sql(f'SELECT COUNT(*) FROM GameItems gi JOIN Bodies_GameItems bgi ON bgi.GameItemId=gi.Id '
+                                   f'WHERE gi.GameItemProtoId={item_prototype} AND bgi.BodyId={int(data["body"])}')[0][0])
+            item_output = session.send('item load ' + item_command_reference(item_prototype), read_seconds=2)
+            flush()
+            item_rows = sql(f'SELECT gi.Id FROM GameItems gi JOIN Bodies_GameItems bgi ON bgi.GameItemId=gi.Id '
+                            f'WHERE gi.GameItemProtoId={item_prototype} AND bgi.BodyId={int(data["body"])} ORDER BY gi.Id DESC LIMIT 1')
+            require('you load ' in item_output.lower() and len(item_rows) == 1 and item_rows[0][0].isdigit() and
+                    int(sql(f'SELECT COUNT(*) FROM GameItems gi JOIN Bodies_GameItems bgi ON bgi.GameItemId=gi.Id '
+                            f'WHERE gi.GameItemProtoId={item_prototype} AND bgi.BodyId={int(data["body"])}')[0][0]) == before_items + 1,
+                    'Native Erode Object sample did not load one exact disposable organic item.')
+            result['physical_item'] = {'id': int(item_rows[0][0]), 'prototype': item_prototype}
+            result['physical_item_load_output'] = redact(item_output)
+            dropped = session.send('drop leaf', read_seconds=2)
+            flush()
+            room_item = sql(f'SELECT RoomId FROM Rooms_GameItems WHERE GameItemId={result["physical_item"]["id"]}')
+            require('you drop ' in dropped.lower() and len(room_item) == 1 and
+                    room_item[0][0] == character_state()[3] and
+                    int(sql(f'SELECT COUNT(*) FROM Bodies_GameItems WHERE GameItemId={result["physical_item"]["id"]}')[0][0]) == 0,
+                    'Native Erode Object item did not leave the caster with free hands in the exact local room.')
+            result['physical_item_drop_output'] = redact(dropped)
         session.send(f'givemerit me {int(row["merit"])}', read_seconds=.3)
         enrol = session.send(f'magic casting enrol {actor} {cap} explicit disposable seeded representative campaign', read_seconds=.4)
         flush(); current = state(row)
@@ -640,6 +671,8 @@ def stock_campaign_smoke(session, phase, data, mapped):
             before_wounds = None
             if key == 'arm.spell.cinder_rain':
                 before_wounds = float(sql(f'SELECT IFNULL(SUM(CurrentDamage),0) FROM Wounds WHERE BodyId={physical_target["body"]}')[0][0])
+            if key == 'arm.spell.erode_object':
+                before_wounds = float(sql(f'SELECT IFNULL(SUM(CurrentDamage),0) FROM Wounds WHERE GameItemId={result["physical_item"]["id"]}')[0][0])
             old = operations(row)
             output = session.send(f'{row["invoked"]} cast "{installed[key]["name"]}" grade 1 on {cast_target} via {cap}', read_seconds=.5)
             flush(); after = state(row); new = operations(row)
@@ -673,9 +706,18 @@ def stock_campaign_smoke(session, phase, data, mapped):
                     attempt_receipt['native_relocation'] = {'before': physical_target['home'], 'after': destination}
                 if key == 'arm.spell.cinder_rain':
                     after_wounds = float(sql(f'SELECT IFNULL(SUM(CurrentDamage),0) FROM Wounds WHERE BodyId={physical_target["body"]}')[0][0])
-                    require(after_wounds > before_wounds and math.isfinite(after_wounds),
-                            'Paid Cinder Rain did not persist positive native area injury on its local NPC.')
                     attempt_receipt['native_area_damage'] = {'before': before_wounds, 'after': after_wounds}
+                    require(math.isfinite(after_wounds), 'Paid Cinder Rain produced non-finite native injury.')
+                    if after_wounds <= before_wounds:
+                        attempt_receipt['outcome'] = 'APPLIED-NO-PERSISTED-WOUND-RETRY'
+                        continue
+                if key == 'arm.spell.erode_object':
+                    item_id = result['physical_item']['id']
+                    after_wounds = float(sql(f'SELECT IFNULL(SUM(CurrentDamage),0) FROM Wounds WHERE GameItemId={item_id}')[0][0])
+                    require(math.isfinite(after_wounds) and before_wounds < after_wounds <= before_wounds + 5,
+                            'Paid Erode Object did not persist damage inside its grade-one native item budget.')
+                    attempt_receipt['native_item_damage'] = {'before': before_wounds, 'after': after_wounds}
+                    result['saved_item_damage'] = after_wounds
                 if before_stamina is not None: require(attempt_receipt['native_stamina_observed']['after'] > before_stamina, 'Applied Second Breath did not persist a positive native stamina change.')
                 if key == 'arm.spell.desiccate':
                     observed = attempt_receipt['native_needs_observed']

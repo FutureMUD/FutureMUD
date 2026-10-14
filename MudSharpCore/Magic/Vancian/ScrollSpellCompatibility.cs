@@ -30,6 +30,7 @@ public static class ScrollSpellCompatibility
 		void Add(string types, string reason) { foreach (var type in types.Split(' ', StringSplitOptions.RemoveEmptyEntries)) entries.Add(type, reason); }
 		Add("damagingexitbarrier", "Physical exit contact and its prepared traversal route require a dedicated stored-delivery adapter; carrier qualification is pending.");
 		Add("boundeditemcondition", "Exact local item custody, material gate and selected-grade wound budget require a dedicated stored-delivery adapter; stock carriers remain disabled.");
+		Add("drowninggrip", "Exact living-body breathing admission and short spell-owned hypoxia window require a dedicated stored-delivery adapter; stock carriers remain disabled.");
 		Add("leechingedge", "Native wielded melee event delivery requires a dedicated stored-delivery adapter; carrier qualification is pending.");
 		Add("vitalsiphon", "Exact prepared victim identity and linked measured vitality transfer require a dedicated stored-delivery adapter; carrier qualification is pending.");
 		Add("executeprog forcecommand reciteproxy", "Arbitrary script/command effects have no typed numerical snapshot adapter.");

@@ -426,18 +426,18 @@
   },
   "hosted_ci": {
     "baseline_resolved": "Component-export regression repaired at d5cdd6c; hosted 38233157601 passed Linux and Windows.",
-    "last_verified_head": "b8f4760436cb21eb302cfb57c69e7c920df8e84e",
-    "pull_request_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38429841017",
-    "push_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38429834088",
-    "last_verified_result": "Both push and PR Linux/Windows default-gate jobs passed on the published 110-definition head; the new 114-definition head requires fresh hosted checks after publication."
+    "last_verified_head": "a59c7c346ddac1610224987549a9cf93ff3298c8",
+    "pull_request_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38479556092",
+    "push_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38479562794",
+    "last_verified_result": "Both push and PR Linux/Windows default-gate jobs passed on the published 121-definition head; the 122-definition candidate requires fresh hosted checks after publication."
   },
   "remaining_critical": [
-    "38 required definitions and their defining adapters/dependencies remain undeclared; the 114 declared count is not complete S4 qualification.",
+    "30 required definitions and their defining adapters/dependencies remain undeclared after the 122-definition candidate; declared count is not complete S4 qualification.",
     "Seven creature/controller representative mission/riding/custody cases remain pending.",
     "Sheltering Veil remains held for its conditional Clerical component/plane rule; Consuming Flame's Necromancy rank-zero binding is declared but has no paid native sample.",
     "Venom Touch has a paid first-boot owned-dose observation and managed reload coverage, but its tiny dose cleared before live cold observation; Purge Toxin has no paid native sample.",
     "The 110-definition first/cold paid sample is bounded to grade one and four selected entries; Immolate, Sense Toxin and seven creature/controller defining cases remain without their own paid native samples.",
-    "The 114-definition paid sample adds only grade-one Desiccate and Headlong Revel on a disposable Active-needs Admin. Gust Hands and Driving Gust have managed native-effect tests but no paid path movement sample.",
+    "The 122-definition first/cold lane adds paid grade-one Gust Hands relocation, character-target Cinder Rain injury and Erode Object item injury; Driving Gust, explicit controlled-area targeting, Drowning Grip paid breathing interruption, Shatter Stone and Restore Object remain without paid live samples.",
     "Deferred ten foci, two device blanks and twelve recipes require real qualified dependency allowlists.",
     "S5/S6 and N24/N25 remain separate."
   ],
@@ -474,6 +474,30 @@
     ],
     "qualification_limit": "The sampled paid Venom cast proves first-boot dose creation/payment, not a live cold dose; managed reload and isolated MySQL tests cover custody. No complete installed-stock, all-grade, Purge Toxin or Consuming Flame paid qualification is claimed."
   },
+  "drowning_grip_candidate_20261014": {
+    "source_base": "a59c7c346ddac1610224987549a9cf93ff3298c8",
+    "declared_required_definitions": 122,
+    "required_not_yet_declared": 30,
+    "new_key": "arm.spell.drowning_grip",
+    "definition_contract": "Water character-target spell, minimum energy 8, no component, resistible native breathing interruption for at most 5*grade seconds; exact local living-body selection before payment/application and one saved spell-owned IStopBreathing child. Native hypoxia, not direct damage, governs consequences.",
+    "focused_core": "PASS 19/0/0 hydration and lung/gill/blowhole/partless stop-and-restoration checks",
+    "focused_seeder": "PASS 4/0/0 Classic/Simple installed-definition and new native-effect contract checks",
+    "full_core": "PASS 7146/0/0 Debug --no-restore; task/s4-drowning-tests/s4-drowning-core-full-2.trx. An initial run failed one scroll compatibility omission; the explicit unsupported row was added and the full suite passed on rerun.",
+    "full_seeder": "PASS 1846/0/3 Debug --no-restore; task/s4-drowning-tests/s4-drowning-seeder-full.trx",
+    "harness_build": "PASS Debug --no-restore, 0 errors and 31 warnings",
+    "native_package_receipt": "C:/Users/luker/Documents/Codex/2026-10-12/task/s4-122-native-package-retry5/20261014T002939Z_0f048d6395504d768d5fa52f95d6c7a0/summary.json",
+    "native_paid_receipt": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-122-drowning-item-retry5/boot-latest.json",
+    "native_paid_cold": "PASS 35 assertions; 122/122 exact definitions loaded first and cold. Four selected routes passed: Read Attunement retained; grade-one Gust Hands spent 50 and moved the exact mount room 1->2; character-target Cinder Rain spent 50 and saved 2.46 native body-wound damage; Erode Object spent 50 and saved 1.25 native wound damage on an exact dropped organic parchment leaf, unchanged after cold restart. Each selected campaign route retained balance, grade, enrolment and operation without refill or replay.",
+    "native_package_integrity": "PASS actual-MySQL all-table rollback, lost-ack resume, stable children, no-op checksum, no package player writes, ten disabled package capabilities, source start/end stable, 0 native harness exit, owned MUD processes stopped and isolated MySQL/database/datadir cleaned.",
+    "failed_native_attempts": [
+      "First restore stopped before package acceptance because the item fixture queried the prototype keywords as its Name; owned MySQL cleanup passed.",
+      "Second run used attunement-stock boot scope, which skipped the real east-exit scenario required by the wind sample; first-boot failure and owned cleanup retained.",
+      "Third full-scope run paid Gust Hands and character-target Cinder Rain, then Erode Object refused before payment because item load occupied the caster's free hand; cleanup passed.",
+      "Fourth full-scope run paid Cinder Rain with an applied operation but no persisted wound on that particular grade-one hit; the campaign now retains such attempts and retries within four paid attempts without weakening the positive-wound acceptance condition. Cleanup passed."
+    ],
+    "qualification_limit": "Drowning Grip itself was loaded first/cold but not cast in paid live gameplay. The Cinder sample used its ordinary character target, not explicit controlled-area selection. Erode samples one organic item and grade. No installed-stock all-grade or Release qualification is claimed.",
+    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+  },
   "item_condition_candidate": {
     "base_revision": "74bd2817d0e57fbd5f933a63dc9b77ebab187ecc",
     "declared_required_definitions": 121,
@@ -483,7 +507,7 @@
     "focused_core": "PASS 6/0/0 native hydration, item operation boundaries and explicit unsupported stored-scroll compatibility",
     "full_core": "PASS 7141/0/0 Debug --no-build --no-restore; task/s4-item-condition/core-item-condition-final.trx",
     "full_seeder": "PASS 1844/0/3 Debug --no-restore",
-    "native_paid_cold": "PENDING for item condition and 121-definition cold boot. A failed overall run loaded 121/121 exact first-boot definitions and separately proved one paid Gust Hands relocation; Cinder Rain's harness target refused before payment. A corrected-target rerun was interrupted without a final receipt.",
+    "native_paid_cold": "SUPERSEDED by the 122-definition first/cold campaign: Erode Object has one paid grade-one exact organic-item wound and cold retention sample; Shatter Stone and Restore Object remain unsampled.",
     "partial_native_receipt": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-121-wind-area-retry2/boot-latest.json",
     "partial_native_facts": "First boot 121/121 exact loaded definitions; grade-one Gust Hands paid 50 once with one Completed operation and saved disposable mount relocation 1->2. Overall status FAIL: Cinder Rain fixture used here with a character trigger and did not debit or write a Completed operation. No first/cold or package certificate is claimed.",
     "interrupted_native_retry": "Corrected Cinder Rain target to the exact local mount; campaign helper 7/7 and harness build 0 errors. A fresh isolated rerun reached first boot but was interrupted before a receipt. Its stopped owned MySQL PID/port were verified; only that run's temporary data directory was removed after preserving mysql-interrupted.err under task/s4-121-native-package-retry3/20261013T222444Z_181a44254e804e3d9d894928e59e2b8b.",
@@ -499,7 +523,7 @@
     "focused_core": "PASS 1/0/0 native hydration/ReadyForGame for four authored area definitions",
     "full_core": "PASS 7136/0/0 Debug --no-build --no-restore",
     "full_seeder": "PASS 1843/0/3 Debug --no-build --no-restore",
-    "native_paid_cold": "PENDING; Cinder Rain's first harness sample used here with a character trigger, refused before payment, and was corrected to the exact local mount. The corrected rerun was interrupted without a final receipt.",
+    "native_paid_cold": "SUPERSEDED by the 122-definition first/cold campaign: Cinder Rain has a paid grade-one character-target wound sample; explicit controlled-area selection and the other area entries remain unsampled.",
     "wind_paid_movement": "PARTIAL PASS in an overall failed first-boot campaign: grade-one Gust Hands spent 50, wrote one Completed operation and saved exact disposable mount relocation 1->2. Cold and package conservation remain pending.",
     "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
   },

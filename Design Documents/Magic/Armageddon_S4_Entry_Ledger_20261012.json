@@ -37,13 +37,13 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 121,
+    "installed_canonical_spells": 122,
     "native_grade_one_stock_entries": 1,
-    "native_sampled_grade_one_spells": 9,
-    "declared_canonical_spells": 121,
-    "definition_audited_canonical_spells": 121,
-    "latest_successful_native_loaded_spells": 114,
-    "required_not_yet_declared": 31,
+    "native_sampled_grade_one_spells": 12,
+    "declared_canonical_spells": 122,
+    "definition_audited_canonical_spells": 122,
+    "latest_successful_native_loaded_spells": 122,
+    "required_not_yet_declared": 30,
     "latest_partial_native_first_loaded_spells": 121
   },
   "path_discrepancies": [],
@@ -351,7 +351,7 @@
           "line": 37
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "candidate_scope": "declared area-harm policy and native damage/burning effects; one paid grade-one character-target cast sampled, controlled-area invocation pending",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -376,11 +376,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "One paid grade-one character-target cast spent 50 reserve and saved 2.46 native body-wound damage on the exact local mount in a complete sealed-base Classic first/cold lane. This does not exercise the separate explicit controlled-area target route.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify paid explicit controlled-area selection and per-recipient effects, additional grades, timed burning and refusal boundaries before installed-stock promotion."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -388,12 +386,14 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": ["Armageddon_S4_Continuation_Verification_20261013.json"]
         },
         "direct": [],
         "inherited": [],
-        "sampled": [],
+        "sampled": [
+          {"status": "PASS", "receipt": "Armageddon_S4_Continuation_Verification_20261013.json", "scope": "Sealed-base Classic first/cold lane: one paid grade-one character-target cast, 50 reserve debit, 2.46 saved body-wound damage on exact local mount and no cold refill/replay; explicit controlled-area route not sampled."}
+        ],
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
@@ -7262,9 +7262,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": "Selected-grade steps through an explicit eligible native exit, with no fall-exit traversal or false movement receipt.",
+      "current_code_note": "Selected-grade steps through an explicit eligible native exit, with no fall-exit traversal or false movement receipt. A complete sealed-base Classic first/cold lane sampled one paid grade-one east exit relocation of the exact disposable mount from room 1 to 2.",
       "remaining": [
-        "One grade-one paid native east-exit movement sample passed in an overall failed first-boot campaign; other grades, refusal paths, fall handling, complete package conservation and cold behaviour remain unobserved."
+        "Other grades, refusal paths, fall handling and broader target behaviours remain unobserved in paid installed-stock gameplay; the grade-one relocation and cold conservation are sampled."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -7292,6 +7292,11 @@
             "status": "PASS_PARTIAL_RUN",
             "receipt": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-121-wind-area-retry2/boot-latest.json",
             "scope": "Grade-one Gust Hands spent exactly 50 reserve, wrote one Completed operation and moved its exact disposable mount from room 1 to room 2. Overall run failed later at Cinder Rain before cold boot; no full installed-stock certificate."
+          },
+          {
+            "status": "PASS",
+            "receipt": "Armageddon_S4_Continuation_Verification_20261013.json",
+            "scope": "Complete sealed-base Classic 122-definition first/cold lane: one paid grade-one 50-reserve debit, exact east-exit mount relocation room 1 to 2, no cold refill or replay."
           }
         ],
         "assumptions": [
@@ -13809,7 +13814,7 @@
       "existing_factory_apis": [],
       "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonItemConditionSpellContent.cs",
       "registered_effect_candidates": [{"type": "boundeditemcondition", "class": "BoundedItemConditionEffect", "path": "MudSharpCore/Magic/SpellEffects/BoundedItemConditionEffect.cs"}],
-      "candidate_scope": "finite selected-grade native item wound adapter; paid installed-stock qualification pending",
+      "candidate_scope": "finite selected-grade native item wound adapter; one paid grade-one installed-stock cast and exact cold item wound sampled",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -13834,9 +13839,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": "Declared fixed stock definition and native item-condition adapter; focused operation/definition tests pass, paid native acceptance pending.",
+      "current_code_note": "Declared fixed stock definition and native item-condition adapter. A paid grade-one cast on the exact organic, destroyable, dropped parchment leaf spent 50 reserve and saved 1.25 native item wound damage, retained unchanged at cold boot.",
       "remaining": [
-        "Qualify actual paid installed-stock invocation, representative native item custody and cold restart, and selected-grade boundaries before installed-stock promotion."
+        "Qualify selected-grade boundaries beyond the sampled grade one, negative/refusal material and custody cases, and other native item behaviours before installed-stock promotion."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -13849,7 +13854,9 @@
         },
         "direct": [],
         "inherited": [],
-        "sampled": [],
+        "sampled": [
+          {"status": "PASS", "receipt": "Armageddon_S4_Continuation_Verification_20261013.json", "scope": "Sealed-base Classic first/cold lane: exact dropped leaf, one 50-reserve debit, 1.25 saved native wound, unchanged after cold restart; no replay/refill."}
+        ],
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
@@ -14102,11 +14109,18 @@
       "completion_contract": "Interfere with breathing through a bounded, resistible temporary effect. Source entry has no bound function; hypoxia rather than generic damage needs a specific adapter and acceptance.",
       "inventory_classification": "small_missing_primitive",
       "inventory_current_factory": null,
-      "verified_paths": [],
+      "verified_paths": [
+        {"path": "MudSharpCore/Magic/SpellEffects/DrowningGripEffect.cs", "exists": true},
+        {"path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellDrowningGripEffect.cs", "exists": true},
+        {"path": "MudSharpCore/Health/Breathing/BreathingStrategyHelper.cs", "exists": true},
+        {"path": "FutureMUDLibrary/Magic/Stock/ArmageddonDrowningGripSpellContent.cs", "exists": true}
+      ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
-      "registered_effect_candidates": [],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonDrowningGripSpellContent.cs",
+      "registered_effect_candidates": [
+        {"type": "drowninggrip", "class": "DrowningGripEffect", "path": "MudSharpCore/Magic/SpellEffects/DrowningGripEffect.cs"}
+      ],
+      "candidate_scope": "declared finite native breathing-interruption effect and fixed Water stock definition; paid installed-stock invocation pending",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -14131,11 +14145,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Exact local living-body selection is checked before payment and application. All four native breathing strategies observe the spell-owned IStopBreathing child; expiration and dispel remove it. Focused hydration and strategy tests plus full Core and Seeder suites pass.",
       "remaining": [
-        "No breathing/hypoxia suppressor identified in surveyed spell effects; generic damage is not the defining mechanism.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify a paid installed-stock invocation and restart/expiry observation on an eligible native breathing body; the 122-definition first/cold lane loads this definition but did not cast it.",
+        "Qualify representative selected-grade limits, resisted/refused targets and applicable delivery boundaries before installed-stock promotion."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -14143,16 +14156,19 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": ["Armageddon_S4_Continuation_Verification_20261013.json"]
         },
-        "direct": [],
+        "direct": [
+          {"status": "PASS", "receipt": "Armageddon_S4_Continuation_Verification_20261013.json", "scope": "Managed native-effect hydration plus lung, gill, blowhole and partless breathing interruption/restoration; focused Core 19/19."}
+        ],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 150,
@@ -14984,17 +15000,26 @@
     "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonItemConditionSpellContent.cs",
     "keys": ["arm.spell.shatter_stone", "arm.spell.restore_object", "arm.spell.erode_object"],
     "definition_status": "Classic/Simple installer and finite-grade definition 3/3; native hydration, operation and compatibility 6/6; full Core 7141/0/0; full Seeder 1844/0/3.",
-    "installed_stock_qualification": "PENDING: first boot loaded 121/121 exact definitions, but no paid live item cast, cold continuity or all-grade certificate for these three.",
-    "latest_successful_native_loaded_spells": 114,
-    "next_consolidated_campaign": "Retain the partial paid Gust Hands relocation evidence; add paid area harm and item condition while retaining rollback, lost-ack, no-op, no player writes, first/cold and disabled-gate assertions."
+    "installed_stock_qualification": "PENDING overall: Erode Object has one paid grade-one exact organic-item wound and cold retention sample; Shatter Stone and Restore Object remain unsampled, as do broader selected-grade and negative cases.",
+    "latest_successful_native_loaded_spells": 122,
+    "native_sample": "Sealed-base Classic 35-assertion first/cold lane: 122/122 definitions loaded; paid Erode Object spent 50 and saved 1.25 native item wound damage on the exact dropped parchment leaf, unchanged after cold boot."
   },
   "area_harm_definition_candidate": {
     "base_revision": "dfc4706ad09f287e9d32d8657d76abe923ae5706",
     "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonAreaHarmSpellContent.cs",
     "keys": ["arm.spell.cinder_rain", "arm.spell.thunderclap", "arm.spell.scouring_gust", "arm.spell.caustic_spray"],
     "definition_status": "Classic/Simple installer audit 3/3 and runtime hydration 1/1 pass; four authored effects and area policies are declared.",
-    "installed_stock_qualification": "PENDING: Cinder Rain's first character-trigger fixture refused here before payment; its exact local-mount target is corrected, but no completed paid live area cast, cold continuity or all-grade certificate exists for these four.",
-    "latest_successful_native_loaded_spells": 114,
-    "next_consolidated_campaign": "Complete the corrected local-mount area sample and full first/cold package campaign; the separate Gust Hands paid movement sample passed in an overall failed run."
+    "installed_stock_qualification": "PENDING overall: Cinder Rain has one paid grade-one exact local character-target wound and cold conservation sample; explicit controlled-area selection, other entries and grades remain unsampled.",
+    "latest_successful_native_loaded_spells": 122,
+    "native_sample": "Sealed-base Classic 35-assertion first/cold lane: paid Cinder Rain spent 50 and saved 2.46 native body-wound damage on the exact local mount; no refill or replay at cold boot."
+  },
+  "drowning_grip_definition_candidate": {
+    "base_revision": "a59c7c346ddac1610224987549a9cf93ff3298c8",
+    "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonDrowningGripSpellContent.cs",
+    "key": "arm.spell.drowning_grip",
+    "definition_status": "Focused Core hydration and four-strategy breathing tests 19/19, focused Classic/Simple Seeder 4/4, full Core 7146/0/0 and full Seeder 1846/0/3; fixed installer declares 122/152 required definitions.",
+    "installed_stock_qualification": "PENDING: the 122/122 first/cold lane loaded Drowning Grip's exact definition but did not pay or observe its breathing effect on a live target.",
+    "latest_successful_native_loaded_spells": 122,
+    "gates": "Release, package admissions, Class availability and unqualified carrier producers remain disabled."
   }
 }

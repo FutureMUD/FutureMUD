@@ -25,7 +25,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var entries = manifest.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell").ToArray();
 		CollectionAssert.AreEquivalent(ArmageddonStockSpellInstaller.CanonicalKeys.ToArray(), claims.Select(x => x.StableKey).ToArray());
-		Assert.AreEqual(121, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
+		Assert.AreEqual(122, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var source = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId!.Value;
 		foreach (var claim in claims)
@@ -85,6 +85,25 @@ public partial class ArmageddonStockSpellInstallerTests
 			Assert.IsFalse(spell.ScrollInscriptionAllowed);
 			Assert.AreEqual(settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg], spell.SpellKnownProgId);
 		}
+	}
+
+	[DataTestMethod]
+	[DataRow(ArmageddonProgressionMode.Classic)]
+	[DataRow(ArmageddonProgressionMode.Simple)]
+	public void DrowningGrip_UsesNativeBreathingInterruptionAndBoundedResistedLifetime(ArmageddonProgressionMode mode)
+	{
+		using var db = Fixture(mode);
+		var result = ArmageddonStockSpellInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db));
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("\n", result.Messages));
+		var spell = db.MagicSpells.Single(x => x.Id == result.Identities[ArmageddonDrowningGripSpellContent.Key]);
+		var root = XElement.Parse(spell.Definition);
+		Assert.AreEqual("drowninggrip", (string?)root.Element("Effects")!.Elements().Single().Attribute("type"));
+		Assert.AreEqual("character", (string?)root.Element("Trigger")!.Attribute("type"));
+		Assert.AreEqual(false, (bool)root.Element("Trigger")!.Element("CanTargetSelf")!);
+		Assert.AreEqual("5*grade", db.TraitExpressions.Single(x => x.Id == result.Identities[ArmageddonDrowningGripSpellContent.Key + ".duration"]).Expression);
+		Assert.IsTrue(spell.ResistingTraitDefinitionId > 0);
+		Assert.AreEqual((int)Difficulty.Normal, spell.ResistingDifficulty);
+		Assert.AreEqual(0, root.Element("Plan")!.Elements().Count());
 	}
 
 	[DataTestMethod]

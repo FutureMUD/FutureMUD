@@ -85,11 +85,23 @@ internal static partial class GNHProgram
 		Require(installed.Length > 0 && installed.Select(x => x.Key).Distinct(StringComparer.Ordinal).Count() == installed.Length,
 			"S4 qualification requires every unique installed canonical spell claim.");
 		var stockInputs = installed.Select(x => PreparedStockDefinitionInput(db, x.Key, x.Spell)).ToArray();
+		// UsefulSeeder's exact disposable paper leaf is already organic, holdable and destroyable.
+		// Assert its typed components rather than adopting a numeric item identity by name alone.
+		var itemSample = db.GameItemProtos.AsNoTracking().Single(x => x.Name == "leaf" &&
+			x.Keywords == "leaf parchment codex page" && x.ShortDescription == "a parchment codex leaf" &&
+			x.RevisionNumber == 0);
+		var itemComponents = db.GameItemProtosGameItemComponentProtos.AsNoTracking()
+			.Where(x => x.GameItemProtoId == itemSample.Id && x.GameItemProtoRevision == itemSample.RevisionNumber)
+			.Select(x => x.GameItemComponent.Type).ToArray();
+		Require(db.Materials.AsNoTracking().Any(x => x.Id == itemSample.MaterialId && x.Organic) &&
+			itemComponents.Contains("Destroyable") && itemComponents.Contains("Holdable"),
+			"The disposable Erode Object sample requires its exact organic, holdable, destroyable native prototype.");
 		var candidateSpecs = new (string Key, string Target, double Seconds)[]
 		{
-			// Earlier sealed campaigns retain paid needs/toxin receipts. Use this restored
-			// native lane for one explicit-exit wind sample and one physical-area sample.
-			("arm.spell.gust_hands", "mount east", 0), ("arm.spell.cinder_rain", "mount", 30)
+			// Earlier sealed campaigns retain paid needs/toxin receipts. This lane samples
+			// exact exit movement, physical area injury and native item condition damage.
+			("arm.spell.gust_hands", "mount east", 0), ("arm.spell.cinder_rain", "mount", 30),
+			("arm.spell.erode_object", "leaf", 0)
 		};
 		var candidates = new List<object>
 		{
@@ -173,7 +185,8 @@ internal static partial class GNHProgram
 			trait = spell.CastingTraitDefinitionId, school = spell.MagicSchoolId, source = ids[ArmageddonProgressionInstaller.SourceResourceKey],
 			definition = spell.Definition, duration = spell.EffectDurationExpressionId,
 			stock_spells = stockInputs,
-			representative_campaign = new { version = 1, seed = 20261013, sample_limit = 3, candidates,
+			representative_campaign = new { version = 1, seed = 20261013, sample_limit = 4, candidates,
+				item_prototype = itemSample.Id,
 				earth_mount = new { status = "PENDING", reason = "No explicit disposable paid Earth Mount admission and real-exit native follow observer." } },
 			prepared_source = new { path = preparationSource, sha256 = Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(preparationSource))) },
 			package_capabilities = db.SeederManagedRecords.AsNoTracking().Where(x => x.EntityType == nameof(Db.MagicCapability) && x.Module == ArmageddonProgressionInstaller.Module).Select(x => x.LogicalId).ToArray(),

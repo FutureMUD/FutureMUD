@@ -144,6 +144,7 @@ Single Trait Bonus
 Sneak
 SneakSubtle
 SpellAnimatedCorpse
+SpellAnchorRune
 SpellArmourProtection
 SpellAstralProjection
 SpellBlindness
@@ -154,6 +155,7 @@ SpellComprehendLanguage
 SpellCorpsePossession
 SpellCorpsePreservation
 SpellCurse
+SpellCustodianGlyph
 SpellDamagingExitBarrier
 SpellDeadSpeak
 SpellDeafness
@@ -162,6 +164,7 @@ SpellDetectInvisible
 SpellDetectMagick
 SpellDetectPoison
 SpellDisease
+SpellDrowningGrip
 SpellExitBarrier
 SpellExposureResistance
 SpellFear
@@ -219,6 +222,7 @@ SpellStaminaExpenditure
 SpellStaminaRegen
 SpellSubjectiveDescription
 SpellTelepathy
+SpellThresholdAlarm
 SpellTrackMark
 SpellTrackmark
 SpellTraitBoost

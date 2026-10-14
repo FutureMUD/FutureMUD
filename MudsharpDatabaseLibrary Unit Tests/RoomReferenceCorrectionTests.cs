@@ -149,6 +149,14 @@ public class RoomReferenceCorrectionTests
 	}
 
 	[TestMethod]
+	public void S4OwnedMarksThresholdAndBreathingChildren_KeepCurrentWorldIdentities()
+	{
+		const string children = "<Effect><Type>SpellCustodianGlyph</Type><Effect><ItemId>9000</ItemId><OwnerType>Character</OwnerType><OwnerId>42</OwnerId></Effect></Effect><Effect><Type>SpellAnchorRune</Type><Effect><ItemId>9001</ItemId><OwnerType>Character</OwnerType><OwnerId>42</OwnerId></Effect></Effect><Effect><Type>SpellThresholdAlarm</Type><Effect><OwnerId>42</OwnerId><OwnerInstanceId>43</OwnerInstanceId><OwnerIdentityId>42</OwnerIdentityId></Effect></Effect><Effect><Type>SpellDrowningGrip</Type><Effect><ApplicabilityProg>0</ApplicabilityProg></Effect></Effect>";
+		var xml = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{children}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Items #1.EffectData"));
+	}
+
+	[TestMethod]
 	public void EffectFactories_CustomSerializer_RefusesAndBuiltInInventoryMatchesSource()
 	{
 		Assert.ThrowsException<InvalidOperationException>(() => RoomReferenceXml.Rewrite("<Effects><Effect><Type>CustomEffect</Type><Effect/></Effect></Effects>", false, Map(), "Bodies #8.EffectData"));

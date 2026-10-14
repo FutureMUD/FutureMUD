@@ -5938,7 +5938,7 @@
       "required": true,
       "completion_contract": "Notify the configured owner of eligible entry through a room alarm.",
       "inventory_classification": "existing_primitive_plus_bounded_policy_content",
-      "inventory_current_factory": null,
+      "inventory_current_factory": "thresholdalarm",
       "verified_paths": [
         {
           "path": "MudSharpCore/Magic/SpellEffects/RoomFlagEffect.cs",
@@ -5980,11 +5980,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Dedicated thresholdalarm room effect delivers one generic notice to the exact loaded caster on CharacterEnterRoomWitness, the native arrival event routed to room effects. It excludes the owner, never names the entrant, does not materialise an offline caster, and is removed with its spell parent. The legacy roomflag alarm broadcasts in-room and listens to the wrong event for this contract.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify paid installed-stock marking, entry notice, owner offline behavior, cold lifetime and expiry on an actual room.",
+        "Sample grade boundaries and alternate native movement entry routes; quiet and carrier delivery remain disabled."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -5994,16 +5993,17 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": ["ArmageddonThresholdAlarmDefinitionTests and Classic/Simple canonical installer: Earth room trigger, 33*grade energy, 120*grade duration, thresholdalarm child, locked manifest and disabled gates."]
         },
-        "direct": [],
+        "direct": ["ThresholdAlarmTests: the native room-arrival witness notifies the loaded owner without entrant identity; owner entry, wrong event and detached parent do not notify."],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": ["Paid native room entry, offline owner, first/cold expiry and representative grade boundary."],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 60,

@@ -7,6 +7,7 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
@@ -1359,6 +1360,11 @@ public partial class Body
             return false;
         }
 
+        if (item.EffectsOfType<IItemTakeInterdictionEffect>().Any(x => !x.AllowsTake(Actor)))
+        {
+            return false;
+        }
+
         IGameItem actualItem = quantity == 0 ? item : item.PeekSplit(quantity);
         switch (item.CanGet(quantity, ignoreFlags))
         {
@@ -1496,6 +1502,11 @@ public partial class Body
         if (item.Location?.CanGet(item, Actor) == false)
         {
             return Location.WhyCannotGet(item, Actor);
+        }
+
+        if (item.EffectsOfType<IItemTakeInterdictionEffect>().Any(x => !x.AllowsTake(Actor)))
+        {
+            return $"A custodian glyph prevents you from taking {item.HowSeen(Actor)}.";
         }
 
         IGameItem actualItem = quantity == 0 ? item : item.PeekSplit(quantity);

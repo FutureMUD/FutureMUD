@@ -898,7 +898,7 @@
       "required": true,
       "completion_contract": "Mark an item so unauthorised taking is refused while the glyph lasts. Metadata alone does not intercept taking; requires a bounded inventory permission effect.",
       "inventory_classification": "small_missing_primitive",
-      "inventory_current_factory": null,
+      "inventory_current_factory": "owneditemmark",
       "verified_paths": [
         {
           "path": "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs",
@@ -940,11 +940,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "The owneditemmark glyph child stores exact legal owner and item identity, and Body.CanGet/WhyCannotGet refuses non-owner taking while its parent is active. The configured casting path captures ownership/custody before payment; the child survives managed cold reload. Native paid taking and expiry remain unsampled.",
       "remaining": [
-        "MagicTag metadata is not an inventory permission intercept; bounded unauthorised-taking adapter remains.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify paid installed-stock marking, non-owner take refusal, owner retrieval and cold expiry on actual inventory paths.",
+        "Sample grade boundaries and changed custody; carrier and quiet delivery remain disabled."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -954,16 +953,17 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": ["ArmageddonOwnedItemMarkDefinitionTests: Fire item target, glyph mode, 10*grade energy and 60*grade duration; owning canonical installer test checks locked manifest and disabled gates."]
         },
-        "direct": [],
+        "direct": ["OwnedItemMarkTests: current owner permits take, another character is denied, changed legal ownership deactivates the mark, and managed cold reload preserves the exact owner/item binding."],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": ["Paid native non-owner get and owner get, cold expiry, representative grade boundary."],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 10,
@@ -8704,7 +8704,7 @@
       "required": true,
       "completion_contract": "Mark an owned item as an explicitly registered travel anchor.",
       "inventory_classification": "existing_primitive_plus_bounded_policy_content",
-      "inventory_current_factory": null,
+      "inventory_current_factory": "owneditemmark",
       "verified_paths": [
         {
           "path": "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs",
@@ -8750,11 +8750,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "The owneditemmark anchor child exposes an active typed owner and exact item identity through ISpellTravelAnchorEffect; no name or numeric search is admitted. The configured casting path captures ownership/custody before payment and managed cold reload retains the binding. Travel consumers and paid native sample remain outstanding.",
       "remaining": [
-        "MagicTag metadata alone does not prove registered authorised travel-anchor binding; PortalTopology seam needs stock configuration.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Wire later travel adapters to the exact active typed anchor; do not use legacy name/ID or MagicTag scans as authority.",
+        "Qualify paid installed-stock mark, cold expiry, ownership changes and representative grades; carrier and quiet delivery remain disabled."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -8764,16 +8763,17 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": ["ArmageddonOwnedItemMarkDefinitionTests: Wind item target, anchor mode, 50*grade energy and 300*grade duration; owning canonical installer test checks locked manifest and disabled gates."]
         },
-        "direct": [],
+        "direct": ["OwnedItemMarkTests: exact item and typed owner are exposed only while current; changed legal ownership deactivates the anchor, and managed cold reload retains both identities."],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": ["Paid native mark, cold expiry, representative grade boundary, and exact-anchor travel consumer acceptance."],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 89,

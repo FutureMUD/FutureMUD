@@ -37,13 +37,13 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 138,
+    "installed_canonical_spells": 140,
     "native_grade_one_stock_entries": 1,
     "native_sampled_grade_one_spells": 12,
-    "declared_canonical_spells": 138,
-    "definition_audited_canonical_spells": 138,
-    "latest_successful_native_loaded_spells": 138,
-    "required_not_yet_declared": 14,
+    "declared_canonical_spells": 140,
+    "definition_audited_canonical_spells": 140,
+    "latest_successful_native_loaded_spells": 140,
+    "required_not_yet_declared": 12,
     "latest_partial_native_first_loaded_spells": 121
   },
   "path_discrepancies": [],
@@ -12842,9 +12842,15 @@
           "class": "PortalTopologySpellEffect",
           "path": "MudSharpCore/Magic/SpellEffects/PortalTopologySpellEffect.cs",
           "line": 14
+        },
+        {
+          "type": "creategate",
+          "class": "CreateGateEffect",
+          "path": "MudSharpCore/Magic/SpellEffects/CreateGateEffect.cs",
+          "line": 17
         }
       ],
-      "candidate_scope": "PortalTopologySpellEffect creates or links an existing network endpoint, not a temporary two-room area. SpellOwnedShelterService owns one room and evacuates visitors on retirement; neither directly supplies the Nilaz gate's occupied closing/suffocation lifecycle.",
+      "candidate_scope": "CreateGateEffect now binds an exact directly carried marked item to distinct owned two-room topology and retirement services. PortalTopologySpellEffect and shelter evacuation remain separate primitives. Direct paid gate gameplay and occupied retirement still require native qualification.",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -12869,11 +12875,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": "A distinct owned Nilaz autobuilder passage template and atomic two-room/two-overlay/three-exit creation stage exist. There is no gate spell declaration or active gate service. Admission, external-link closure, occupied retention, durable suffocation cursor and final cleanup are still required; shelter retirement must not be reused.",
+      "current_code_note": "Canonical Void Linked Threshold is declared with an owned Nilaz presentation and typed undead merit. Its distinct gate service validates one saved-room Arcane Mark, endpoints and wards before payment; atomically debits the persisted mark use with seven topology claims; closes external links, retains occupied rooms/items, journals a native 60-second at-most-once hypoxia/stun pulse cursor, and cleans only empty safe topology. Classic actual-MySQL package and first/cold MUD boots loaded 140/140 definitions with 35 native assertions, but no paid gate cast or live occupied-retirement scenario was executed.",
       "remaining": [
-        "Implement a dedicated spell-owned two-room temporary-area lifecycle with seeded template/behaviours, typed marked anchor, safe closure, retained occupants/items, and idempotent occupied-room suffocation/cleanup; existing portal/shelter primitives alone do not satisfy it.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Execute a dedicated paid installed-stock gate and mark scenario across first/cold boot: source/destination custody, movement, mark debit, occupied expiry, pulse and safe cleanup with foreign goods retained.",
+        "Qualify all grades and source-informed refusal, area/quiet/material/lifetime boundaries; native 60-second cadence is an authored adaptation, not established source real-time parity."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -12883,16 +12888,18 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": ["Armageddon_S4_Continuation_Handoff_20261012.md"],
+          "scope": "Classic isolated actual-MySQL package and first/cold native MUD loaded 140/140 exact definitions; 35 shared stock assertions, not a direct Linked Threshold cast."
         },
         "direct": [],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
-        "outstanding_critical_cases": [],
+        "assumptions": ["At-most-once cursor claims prevent replay but a crash after claim can omit one pulse; source HP-above-half hit floor is not claimed."],
+        "outstanding_critical_cases": ["Paid gate creation and mark debit", "Occupied closed-room persistence and native pulse across cold restart", "Safe empty-room cleanup and foreign-goods conservation"],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 133,

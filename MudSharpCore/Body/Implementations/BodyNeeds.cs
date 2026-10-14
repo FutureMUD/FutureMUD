@@ -1,6 +1,7 @@
 ﻿using MudSharp.Body.Needs;
 using MudSharp.Body.PartProtos;
 using MudSharp.Events;
+using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.Health;
@@ -627,7 +628,8 @@ public partial class Body : IHaveNeeds, IEat
 
         LiquidMixture sip = new(container.LiquidMixture, quantity);
         this.ApplyIngestedDrugDoses(sip, container.Parent);
-        FulfilNeeds(sip.GetNeedFulfiller());
+		if (!SpellBurningDraughtEffect.TryBurnSip(Actor, this))
+			FulfilNeeds(sip.GetNeedFulfiller());
 
         sip.OnDraught(Actor, container);
         container.ReduceLiquidQuantity(quantity, Actor, "silentdrink");
@@ -654,7 +656,8 @@ public partial class Body : IHaveNeeds, IEat
 
         LiquidMixture sip = new(container.LiquidMixture, quantity);
         this.ApplyIngestedDrugDoses(sip, container.Parent);
-        FulfilNeeds(sip.GetNeedFulfiller());
+		if (!SpellBurningDraughtEffect.TryBurnSip(Actor, this))
+			FulfilNeeds(sip.GetNeedFulfiller());
 
         sip.OnDraught(Actor, container);
         container.ReduceLiquidQuantity(quantity, Actor, "drink");

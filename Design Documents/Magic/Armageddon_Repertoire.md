@@ -655,14 +655,14 @@ Key: `arm.spell.burning_draught_curse`. Native school: **Fire**. Target: `charac
 
 **Observable effect:** Make later drinking inflict configured burning harm instead of ordinary refreshment.
 
-**Scaling:** Duration 60*g seconds; binary effect unless its native definition specifies magnitude. Energy base B=8; `B * grade * overreach_multiplier * quiet_multiplier * area_multiplier`.
+**Scaling:** Duration 60*g seconds; binary curse lifetime with an editable native Burning injury of 0.1–100 damage per accepted sip (stock default 5). Locked minimum energy is 7; selected-grade cost retains shared controlled-efficiency accounting.
 
 **Membership/acquisition:**
 - Fire: acquired `arm.spell.sense_enchantment`, controlled grade >= 2, its route skill >= 20. Membership evidence: `coded_element_association_not_learnlist`. Default trait `arm.spell.burning_draught_curse.skill`; shared option `arm.skill.fire_casting`.
 
 **Physical plan:** speech: required; quiet only when explicitly enabled; manipulation: one free manipulating appendage, in addition to held focus if required; actor: focused permitted physical instance; native plane/body gates; target_constraint: accessible owned/consenting target or authorised hostile action; corpse controls retain native ownership and anchor checks.
 
-**Materials/foci:** retained held/wielded focus tagged for the selected tradition at grades 3-7; none at grades 1-2; consume 1 unit(s) of `arm.material.ritual_reagent` at commitment. Practice: retained tradition focus at all grades, no consumed materials. Historical component metadata: none.
+**Materials/foci:** No additional per-spell source component is evidenced. The native physical plan and any separately approved tradition policy still apply. Historical component metadata: none.
 
 **Practice:** enabled=true, 30 seconds, full energy, proficiency and mastery eligible under shared gates; no target/caster effects or target wards/resistance. Implementation: `missing_common_practice_slice`.
 
@@ -670,20 +670,20 @@ Key: `arm.spell.burning_draught_curse`. Native school: **Fire**. Target: `charac
 
 **Portable eligibility (proposal):** scroll=false, charged_wand_staff=false, substance=false, focus_role=true. Require every effect/trigger/retained numeric binding to pass the existing carrier-specific compatibility gate. Wands/staves and channelling production are missing integrations; never infer eligibility from registration.
 
-**Coverage:** `small_missing_primitive`; `proposed_gap_candidate`; approval `awaiting_roster_approval`. No direct manifestation primitive established for the required behavior.
+**Coverage:** `small_missing_primitive`; fixed installer now declares a schema-1 timed ingestion adapter. Restored-world gameplay qualification remains pending.
 
-**Boundary/gap:** Needs an ingestion event interceptor; an immediate damage or need delta is not equivalent.
+**Boundary:** Both accepted native liquid-drinking paths consult the attached curse after ordinary drug dosing and before needs fulfilment, then retain OnDraught and liquid reduction. An invalid sip does not call the adapter.
 
 **Runtime evidence:**
-- No direct manifestation primitive established; retain the explicit gap.
+- Focused managed paid grade-two cast, exact living-body refusal, per-sip native damage packet and cold child reload pass. Classic/Simple fixed installer and definition audit pass. Concrete player drinking, thirst ledger, expiry and first/cold MUD boot are not yet certified.
 
 **Minimum acceptance â€” ARM-R-179 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Fire admission, acquired Burning Draught Curse, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Burning Draught Curse at grade 2 through the explicit route.
 
-- Commit 16 designated energy units once; preserve native school Fire.
+- Charge the locked Fire minimum 7 through shared selected-grade controlled efficiency once; preserve native school Fire.
 - Make later drinking inflict configured burning harm instead of ordinary refreshment.
-- At grade 2 apply only this scaling contract: Duration 60*g seconds; binary effect unless its native definition specifies magnitude.
+- At grade 2 apply duration `60*grade` seconds and the configured per-sip native Burning amount; the curse does not gain an implied grade damage multiplier.
 - Reject absent admission or invalid body/target before payment; a resisted paid invocation cannot bypass costs or duplicate advancement.
-- Boundary assertion: Needs an ingestion event interceptor; an immediate damage or need delta is not equivalent.
+- Boundary assertion: prove delayed accepted-sip injury, omitted needs refreshment, normal consumption and no injury on refused drink in the restored-world lane; immediate cast damage is not equivalent.
 
 Historical metadata (not proposed policy): element Fire; sphere Nature; mood Neutral; targets character in room; minimum position Standing; minimum mana 0; base power 15; components none.
 

@@ -37,13 +37,13 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 137,
+    "installed_canonical_spells": 138,
     "native_grade_one_stock_entries": 1,
     "native_sampled_grade_one_spells": 12,
-    "declared_canonical_spells": 137,
-    "definition_audited_canonical_spells": 137,
+    "declared_canonical_spells": 138,
+    "definition_audited_canonical_spells": 138,
     "latest_successful_native_loaded_spells": 135,
-    "required_not_yet_declared": 15,
+    "required_not_yet_declared": 14,
     "latest_partial_native_first_loaded_spells": 121
   },
   "path_discrepancies": [],
@@ -1136,11 +1136,17 @@
       "completion_contract": "Make later drinking inflict configured burning harm instead of ordinary refreshment. Needs an ingestion event interceptor; an immediate damage or need delta is not equivalent.",
       "inventory_classification": "small_missing_primitive",
       "inventory_current_factory": null,
-      "verified_paths": [],
+      "verified_paths": [
+        { "path": "MudSharpCore/Magic/SpellEffects/BurningDraughtEffect.cs", "exists": true },
+        { "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellBurningDraughtEffect.cs", "exists": true },
+        { "path": "MudSharpCore/Body/Implementations/BodyNeeds.cs", "exists": true }
+      ],
       "existing_factory_apis": [],
       "typed_content_projection": null,
-      "registered_effect_candidates": [],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "registered_effect_candidates": [
+        { "type": "burningdraught", "class": "BurningDraughtEffect", "path": "MudSharpCore/Magic/SpellEffects/BurningDraughtEffect.cs" }
+      ],
+      "candidate_scope": "Fixed Fire definition and delayed accepted-sip native harm adapter pass focused managed paid Core and Classic/Simple installer checks; restored-world drinking and cold qualification pending",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -1165,11 +1171,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Schema-1 burningdraught admits an exact living body, keeps 60*grade timed parent and routes accepted ordinary/silent drinks to one guarded native Burning injury instead of needs refreshment; per-sip damage is finite builder-editable 0.1-100, stock 5",
       "remaining": [
-        "No ingestion-triggered harm adapter identified in the surveyed spell-effect files; immediate damage/need delta does not meet delayed ingestion contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock invocation, accepted ordinary/silent sip damage, no thirst refreshment, refused drink, parent expiry and cold replay in the restored-world lane.",
+        "Check all selected grades and source-informed physical-plan rules; do not enable area, quiet or carriers without qualification."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -1177,13 +1182,13 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "FOCUSED_MANAGED_PASS",
+          "receipts": ["ArmageddonBurningDraughtDefinitionTests", "ArmageddonStockSpellInstallerTests Classic/Simple 69/69"]
         },
-        "direct": [],
+        "direct": ["ArmageddonBurningDraughtTests focused Core 5/5: paid grade-two cast, exact-body admission, attached/detached native Burning packet and mutation fence, child reload, parent reload and explicit expiry; RoomReferenceCorrectionTests 40/40"],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
+        "assumptions": ["Managed tests do not prove concrete Body Drink/SilentDrink liquid and needs behavior or actual MySQL-installed MUD boot."],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
       }

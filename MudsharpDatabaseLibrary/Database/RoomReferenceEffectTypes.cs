@@ -170,6 +170,7 @@ SpellExposureResistance
 SpellFear
 SpellFeatherFall
 SpellFeignedDeath
+SpellBurningDraught
 SpellFlight
 SpellGlow
 SpellHealingRate

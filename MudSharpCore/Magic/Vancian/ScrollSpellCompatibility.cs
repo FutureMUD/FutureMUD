@@ -37,6 +37,7 @@ public static class ScrollSpellCompatibility
 		Add("vitalsiphon", "Exact prepared victim identity and linked measured vitality transfer require a dedicated stored-delivery adapter; carrier qualification is pending.");
 		Add("windhammer", "The linked native hit, exact selected exit and post-hit movement require a dedicated stored-delivery adapter; direct configured casting only.");
 		Add("feigndeath", "The living-body observation and action-break policy requires a dedicated stored-delivery adapter; direct configured casting only.");
+		Add("burningdraught", "The exact living-body ingestion hook requires a dedicated stored-delivery adapter; direct configured casting only.");
 		Add("executeprog forcecommand reciteproxy", "Arbitrary script/command effects have no typed numerical snapshot adapter.");
 		Add("rejuvenateland", "Bounded scar treatment has no stored capture, dose or retained-lifecycle adapter; direct invocation only.");
 		Add("sourcewaterbreathing", "Source-specific random accumulated lifetime and explicit native water scope are not qualified for stored scroll delivery; ordinary direct invocation only.");

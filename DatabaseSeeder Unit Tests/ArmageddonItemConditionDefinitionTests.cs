@@ -13,10 +13,10 @@ namespace MudSharp_Unit_Tests;
 public class ArmageddonItemConditionDefinitionTests
 {
 	[TestMethod]
-	public void ItemCondition_ThreeFiniteSelectedGradeDefinitions_KeepDistinctMaterialAndRepairPolicies()
+	public void ItemCondition_FourFiniteSelectedGradeDefinitions_KeepDistinctMaterialAndRepairPolicies()
 	{
 		var contributions = ArmageddonItemConditionSpellContent.Create().ToDictionary(x => x.Content.Key);
-		Assert.AreEqual(3, contributions.Count);
+		Assert.AreEqual(4, contributions.Count);
 		foreach (var (key, contribution) in contributions)
 		{
 			var content = contribution.Content;
@@ -48,5 +48,13 @@ public class ArmageddonItemConditionDefinitionTests
 		Assert.AreEqual("true", (string?)erosion.Element("OrganicOnly"));
 		Assert.AreEqual(-1, (int)erosion.Element("MaterialBehaviour")!);
 		Assert.AreEqual((int)DamageType.Chemical, (int)erosion.Element("DamageType")!);
+		var wither = contributions[ArmageddonItemConditionSpellContent.WitherGrowthKey];
+		Assert.AreEqual("arm.capability.water", wither.NativeCapabilityKey);
+		Assert.AreEqual(8.0, wither.Content.MinimumEnergy);
+		var plant = wither.Content.BuildDefinition(10, 11, 0).Element("Effects")!.Element("Effect")!;
+		Assert.AreEqual("damage", (string?)plant.Element("Mode"));
+		Assert.AreEqual((int)MaterialBehaviourType.Plant, (int)plant.Element("MaterialBehaviour")!);
+		Assert.AreEqual("true", (string?)plant.Element("OrganicOnly"));
+		Assert.AreEqual((int)DamageType.Chemical, (int)plant.Element("DamageType")!);
 	}
 }

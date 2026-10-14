@@ -60,6 +60,30 @@ public class ArmageddonItemConditionOperationTests
 	}
 
 	[TestMethod]
+	public void WitherGrowth_AcceptsOnlyLocalOrganicPlantItemsAndBoundsNativeDamage()
+	{
+		var f = new Fixture(ArmageddonItemConditionSpellContent.WitherGrowthKey, 4, MaterialBehaviourType.Wood, true);
+		Assert.ThrowsException<InvalidOperationException>(() => f.Effect.CapturePreparedSelection(f.Cast.Actor.Object, f.Item.Object));
+		f.Material.SetupGet(x => x.BehaviourType).Returns(MaterialBehaviourType.Plant);
+		f.Material.SetupGet(x => x.Organic).Returns(false);
+		Assert.ThrowsException<InvalidOperationException>(() => f.Effect.CapturePreparedSelection(f.Cast.Actor.Object, f.Item.Object));
+		f.Material.SetupGet(x => x.Organic).Returns(true);
+		f.Effect.CapturePreparedSelection(f.Cast.Actor.Object, f.Item.Object);
+		IDamage? delivered = null;
+		f.Item.Setup(x => x.SufferDamage(It.IsAny<IDamage>())).Returns<IDamage>(damage =>
+		{
+			damage.MutationGuard!.Validate(f.Item.Object, damage);
+			delivered = damage;
+			return [];
+		});
+		f.Effect.Apply(f.Cast.Actor.Object, f.Item.Object, OpposedOutcomeDegree.None,
+			SpellPower.ExtremelyWeak, null!, []);
+		Assert.IsNotNull(delivered);
+		Assert.AreEqual(20.0, delivered.DamageAmount);
+		Assert.AreEqual(DamageType.Chemical, delivered.DamageType);
+	}
+
+	[TestMethod]
 	public void StoneDamage_BoundsNativeMaterialMultiplierAndRefusesFragileTarget()
 	{
 		var f = new Fixture(ArmageddonItemConditionSpellContent.ShatterStoneKey, 7, MaterialBehaviourType.Stone, false);

@@ -14,6 +14,7 @@ public static class ArmageddonItemConditionSpellContent
 	public const string ShatterStoneKey = "arm.spell.shatter_stone";
 	public const string RestoreObjectKey = "arm.spell.restore_object";
 	public const string ErodeObjectKey = "arm.spell.erode_object";
+	public const string WitherGrowthKey = "arm.spell.wither_growth";
 
 	public static IReadOnlyList<ArmageddonCanonicalSpellContribution> Create() => Array.AsReadOnly(new[]
 	{
@@ -25,7 +26,10 @@ public static class ArmageddonItemConditionSpellContent
 			"Repair up to 5*external grade native damage on an eligible local item without changing material, wear or quality."),
 		Create(ErodeObjectKey, "Erode Object", "void", "damage", 7, DamageType.Chemical,
 			-1, true,
-			"Damage one local organic-material item for 5*external grade native condition damage.")
+			"Damage one local organic-material item for 5*external grade native condition damage."),
+		Create(WitherGrowthKey, "Wither Growth", "water", "damage", 8, DamageType.Chemical,
+			(int)MaterialBehaviourType.Plant, true,
+			"Damage one local plant-behaviour item for 5*external grade native condition damage. This item-only definition does not debit living land or crops, or transfer sap.")
 	});
 
 	private static ArmageddonCanonicalSpellContribution Create(string key, string name, string school, string mode,

@@ -37,13 +37,13 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 133,
+    "installed_canonical_spells": 135,
     "native_grade_one_stock_entries": 1,
     "native_sampled_grade_one_spells": 12,
-    "declared_canonical_spells": 133,
-    "definition_audited_canonical_spells": 133,
+    "declared_canonical_spells": 135,
+    "definition_audited_canonical_spells": 135,
     "latest_successful_native_loaded_spells": 131,
-    "required_not_yet_declared": 19,
+    "required_not_yet_declared": 17,
     "latest_partial_native_first_loaded_spells": 121
   },
   "path_discrepancies": [],
@@ -3997,10 +3997,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Fixed Water item-only definition uses the Plant behaviour and organic gates with at most 5*grade native condition damage. Exact local item/custody and contained-item refusal share the guarded bounded-item adapter. Focused Core and Classic/Simple definition tests pass; no living land/crop debit or sap transfer is claimed.",
       "remaining": [
-        "Item damage/tag gate exists; source sap transfer and living land/crop accounting need explicit ecological policy/adapter.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
+        "Living land/crop accounting and source sap transfer require a separately approved ecological adapter; this item-only stock spell does not invoke them.",
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
@@ -13321,11 +13320,9 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Fixed Void corpse-triggered stock definition uses native possession for 60*grade seconds and the locked minimum energy 33. A prepared selection freezes exact corpse, original body/character, caster primary anchor and room before payment. Focused hydration, refusal/drift and Classic/Simple definition checks pass; paid installed-stock possession and cold closure remain unsampled.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock invocation, all grades, corpse eligibility, body/identity custody and cold closure."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],

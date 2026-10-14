@@ -316,8 +316,15 @@ public sealed class SeizeBodySpellEffect : IMagicSpellEffectTemplate
 	}
 }
 
-public sealed class PossessCorpseSpellEffect : IMagicSpellEffectTemplate
+public sealed class PossessCorpseSpellEffect : IMagicSpellEffectTemplate, IMagicSpellEffectPreparedSelection
 {
+	private sealed record CorpseSelection(ICharacter Caster, IGameItem Item, Func<bool> Check)
+		: IMagicSpellEffectPreparedSelectionRawToken
+	{
+		public bool IsCurrent => Check();
+	}
+
+	private CorpseSelection? _preparedSelection;
 	public const string DefaultPossessionEcho = "Your will hauls the dead body into motion.";
 	public const string DefaultTargetEcho = "";
 	public const string DefaultRoomEcho = "@ jerk|jerks upright with a borrowed will.";
@@ -413,9 +420,72 @@ public sealed class PossessCorpseSpellEffect : IMagicSpellEffectTemplate
 		return trigger.TargetTypes == "item";
 	}
 
+	public IMagicSpellEffectPreparedSelectionToken? CapturePreparedSelection(ICharacter caster, IPerceivable recipient)
+	{
+		if (recipient is not IGameItem item || !CanPrepare(caster, item))
+			throw new InvalidOperationException("The selected corpse is not eligible for native possession before payment.");
+		var corpse = item.GetItemType<ICorpse>()!;
+		var body = corpse.OriginalBody;
+		var character = corpse.OriginalCharacter;
+		var anchor = caster.Identity.PrimaryInstance as ICharacter ?? caster;
+		var location = item.TrueLocations.First();
+		_preparedSelection = new(caster, item, () => CanPrepare(caster, item) &&
+			ReferenceEquals(item.GetItemType<ICorpse>(), corpse) && ReferenceEquals(corpse.OriginalBody, body) &&
+			ReferenceEquals(corpse.OriginalCharacter, character) &&
+			ReferenceEquals(caster.Identity.PrimaryInstance as ICharacter ?? caster, anchor) &&
+			ReferenceEquals(item.TrueLocations.FirstOrDefault(), location));
+		return _preparedSelection;
+	}
+
+	public bool TryReusePreparedSelection(IMagicSpellEffectPreparedSelectionToken selection,
+		ICharacter caster, IPerceivable recipient, out string? error)
+	{
+		error = null;
+		if (selection is CorpseSelection prepared && ReferenceEquals(prepared.Caster, caster) &&
+			ReferenceEquals(prepared.Item, recipient) && prepared.IsCurrent &&
+			recipient is IGameItem item && CanPrepare(caster, item))
+		{
+			_preparedSelection = prepared;
+			return true;
+		}
+		error = "The selected corpse or possession admission changed.";
+		return false;
+	}
+
+	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
+	{
+		error = null;
+		if (_preparedSelection is { } prepared && ReferenceEquals(prepared.Caster, caster) &&
+			ReferenceEquals(prepared.Item, recipient) && prepared.IsCurrent && CanPrepare(caster, prepared.Item)) return true;
+		error = "The selected corpse or possession admission changed before payment.";
+		return false;
+	}
+
+	private bool CanPrepare(ICharacter caster, IGameItem item)
+	{
+		var anchor = caster.Identity.PrimaryInstance as ICharacter ?? caster;
+		var corpse = item.GetItemType<ICorpse>();
+		if (corpse?.OriginalBody is null || !ReferenceEquals(caster.Gameworld, Gameworld) ||
+			!ReferenceEquals(item.Gameworld, Gameworld) || !ReferenceEquals(Gameworld.Items.Get(item.Id), item) ||
+			item.Deleted || item.Destroyed || item.ContainedIn is not null || item.InInventoryOf is not null ||
+			item.TrueLocations.FirstOrDefault() is not { } location || !ReferenceEquals(caster.Location, location) ||
+			item.AffectedBy<ICorpsePossessionEffect>() || anchor.InstanceId != caster.InstanceId ||
+			!anchor.IsPlayerCharacter || anchor.IsGuest ||
+			!_allowFinal && corpse.RepresentsFinalCharacterDeath ||
+			!_allowSkeletal && corpse.Decay == DecayState.Skeletal ||
+			corpse.OriginalCharacter.IsPlayerCharacter && (!_allowPcs || corpse.OriginalCharacter.IsGuest) ||
+			!corpse.OriginalCharacter.IsPlayerCharacter && !_allowNpcs ||
+			!_allowAdmins && DirectPossessionSecurity.HasProtectedStaffAuthority(corpse.OriginalCharacter) ||
+			PossessionControlService.AnyPossessionEffectsForAnchor(anchor)) return false;
+		return true;
+	}
+
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
+		if (_preparedSelection is { } prepared && (!ReferenceEquals(prepared.Caster, caster) ||
+			!ReferenceEquals(prepared.Item, target) || !prepared.IsCurrent))
+			throw new InvalidOperationException("The exact corpse or original body changed after possession payment.");
 		if (target is not IGameItem corpseItem || corpseItem.GetItemType<ICorpse>() is not { } corpse ||
 		    !TryGetAnchor(caster, out var anchor))
 		{

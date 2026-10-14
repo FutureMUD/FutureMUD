@@ -42,7 +42,7 @@
     "native_sampled_grade_one_spells": 12,
     "declared_canonical_spells": 135,
     "definition_audited_canonical_spells": 135,
-    "latest_successful_native_loaded_spells": 131,
+    "latest_successful_native_loaded_spells": 135,
     "required_not_yet_declared": 17,
     "latest_partial_native_first_loaded_spells": 121
   },
@@ -397,7 +397,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 4,
@@ -1723,7 +1724,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 18,
@@ -2387,7 +2389,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 25,
@@ -3317,7 +3320,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 31,
@@ -4017,7 +4021,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 39,
@@ -4270,7 +4275,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 42,
@@ -7210,7 +7216,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 73,
@@ -9505,7 +9512,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 97,
@@ -10269,7 +10277,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 105,
@@ -13339,7 +13348,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 139,
@@ -13802,7 +13812,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 145,
@@ -14340,7 +14351,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 152,

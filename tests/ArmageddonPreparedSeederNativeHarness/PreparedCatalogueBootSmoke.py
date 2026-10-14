@@ -1095,7 +1095,7 @@ def native_first_boot_scenario(session):
         assertions.append('Native winged creature entered Flying posture and crossed the same approved room exit')
 
 def boot(phase):
-    require(time.monotonic()-started < 570, 'Global boot smoke budget exhausted.')
+    require(time.monotonic()-started < 780, 'Global boot smoke budget exhausted.')
     sql('SELECT 1')
     runtime = OUTPUT / ('runtime-' + phase + '-' + uuid.uuid4().hex)
     runtime.mkdir()

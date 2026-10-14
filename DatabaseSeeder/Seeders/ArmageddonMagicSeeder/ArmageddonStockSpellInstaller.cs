@@ -114,6 +114,10 @@ public static partial class ArmageddonStockSpellInstaller
 			(Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))))
 		.Append((Key: ArmageddonThresholdAlarmSpellContent.Key,
 			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonThresholdAlarmSpellContent.Create())))
+		.Concat(new[] { ArmageddonPlanarSpellContent.ShadowPassageKey, ArmageddonPlanarSpellContent.CrossTheVeilKey }.Select(key =>
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
+				ArmageddonPlanarSpellContent.Create(CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.ShadowPlaneKey))
+					.Single(x => x.Content.Key == key)))))
 		.Append((Key: ArmageddonDrowningGripSpellContent.Key,
 			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
 				ArmageddonDrowningGripSpellContent.Create(CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey)))));

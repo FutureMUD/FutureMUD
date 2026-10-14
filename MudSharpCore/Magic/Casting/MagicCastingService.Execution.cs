@@ -74,10 +74,12 @@ public sealed partial class MagicCastingService
 					if (committed.Area is { } areaPlan)
 					{
 						// Select exactly once, after final revalidation. Quotes and recovery never draw or replay.
+						var sharedDamage = SampleAreaSharedDamage(areaPlan, intent.Grade);
 						var applications = SelectAreaApplications(areaPlan);
-						payload.Element("Area")!.ReplaceWith(AreaReceipt(areaPlan, applications));
+						payload.Element("Area")!.ReplaceWith(AreaReceipt(areaPlan, applications, sharedDamage));
 						execution.AreaApplications = Array.AsReadOnly(applications.Select(x => new ConfiguredAreaApplication(
-							x.Target, x.Receipt.DamageMultiplier, () => AreaStillEligible(actor, x, areaPlan, prepared.Spell))).ToArray());
+							x.Target, x.Receipt.DamageMultiplier, () => AreaStillEligible(actor, x, areaPlan, prepared.Spell),
+							sharedDamage)).ToArray());
 					}
 					var devicePaymentAdmission = AdmitDeviceFocusPayment(intent, committed);
 					var paymentAdmission = selectionAdmission is null ? devicePaymentAdmission :
@@ -163,7 +165,10 @@ public sealed partial class MagicCastingService
 		return a.Configuration == b.Configuration && x.Mode == y.Mode && x.Delivery == y.Delivery && x.ActorId == y.ActorId && x.BodyId == y.BodyId && x.CapabilityIdentity == y.CapabilityIdentity && x.AdmissionId == y.AdmissionId &&
 			(a.Area is null && b.Area is null || a.Area is { } areaA && b.Area is { } areaB &&
 				ReferenceEquals(areaA.Location, areaB.Location) && ReferenceEquals(areaA.CasterBody, areaB.CasterBody) &&
-				areaA.CasterLayer == areaB.CasterLayer && areaA.Candidates.Select(t => t.Receipt).SequenceEqual(areaB.Candidates.Select(t => t.Receipt)) &&
+				areaA.CasterLayer == areaB.CasterLayer && areaA.ApplicationCount == areaB.ApplicationCount &&
+				areaA.Amplified == areaB.Amplified && ReferenceEquals(areaA.SourceOverlay, areaB.SourceOverlay) &&
+				ReferenceEquals(areaA.SourceTerrain, areaB.SourceTerrain) && areaA.PresencePlaneIds.SequenceEqual(areaB.PresencePlaneIds) &&
+				areaA.Candidates.Select(t => t.Receipt).SequenceEqual(areaB.Candidates.Select(t => t.Receipt)) &&
 				areaA.Candidates.Select(t => t.Body).SequenceEqual(areaB.Candidates.Select(t => t.Body), ReferenceEqualityComparer.Instance)) &&
 			x.ProfileVersion == y.ProfileVersion && x.TraitId == y.TraitId && x.Grade == y.Grade && x.ControlledGrade == y.ControlledGrade && x.Difficulty == y.Difficulty &&
 			x.Costs.SequenceEqual(y.Costs) && a.Items.Order().SequenceEqual(b.Items.Order()) &&

@@ -1599,6 +1599,11 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
     private void CastSpellCore(ICharacter magician, IPerceivable target, SpellPower power,
 		SpellInvocationContext? invocation, params SpellAdditionalParameter[] additionalParameters)
 	{
+		if (GradeProfile?.Area?.ChainLightning is not null &&
+			(invocation?.Source != SpellInvocationSource.ConfiguredCasting || invocation.Configured is null))
+		{
+			magician.OutputHandler.Send("This chain spell requires its native area casting route."); return;
+		}
 		if (Gameworld.MagicCasting?.QuarantineReason(magician, Id, CastingTrait?.Id) is { } quarantine)
 		{
 			magician.OutputHandler.Send(quarantine.ColourError()); return;
@@ -1987,7 +1992,8 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 				EchoInterdiction(originalTarget, interdiction, true);
 			}
 			if (reflected && interdiction!.Use?.IsCurrent == false) return true;
-			using var damageScope = area is null ? null : new SpellAreaDamageScope(magician, actualTarget, this, area.DamageMultiplier);
+			using var damageScope = area is null ? null : new SpellAreaDamageScope(magician, actualTarget, this,
+				area.DamageMultiplier, area.SharedDamage);
 			Func<bool>? applicationFence = reflected && interdiction!.Use is { } committedUse
 				? () => committedUse.IsCurrent && area?.StillEligible() != false
 				: area is null ? null : area.StillEligible;

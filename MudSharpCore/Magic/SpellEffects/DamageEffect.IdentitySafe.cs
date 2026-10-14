@@ -147,8 +147,11 @@ public partial class DamageEffect : IMagicSpellEffectPreparedSelection
 		var body = selection.Body;
 		double Evaluate(ITraitExpression expression)
 		{
-			var result = SpellAreaDamageScope.ScaleDamage(caster, target, Spell, expression.EvaluateWith(caster,
-				values: [("power", (int)power), ("outcome", (int)outcome)]));
+			var amount = ReferenceEquals(expression, damageExpression) &&
+				SpellAreaDamageScope.SharedDamage(caster, target, Spell) is { } shared
+					? shared : expression.EvaluateWith(caster,
+						values: [("power", (int)power), ("outcome", (int)outcome)]);
+			var result = SpellAreaDamageScope.ScaleDamage(caster, target, Spell, amount);
 			if (!Current() || !double.IsFinite(result) || result < 0)
 				throw new InvalidOperationException("A damage evaluation changed its frozen selection or yielded invalid potency.");
 			return result;

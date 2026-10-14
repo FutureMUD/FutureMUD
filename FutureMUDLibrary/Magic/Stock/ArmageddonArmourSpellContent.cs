@@ -64,6 +64,7 @@ public static class ArmageddonArmourSpellContent
 		if (stone && ordinaryAgilityTraitId <= 0) throw new ArgumentOutOfRangeException(nameof(ordinaryAgilityTraitId));
 		return new(key, name,
 			$"Apply {budget}*external grade finite native protection for 60*grade seconds. Native armour type and solid material are editable authored package choices; their configured damage channels determine protection. " +
+			(key == "arm.spell.charged_aegis" ? "The same parent also completely absorbs incoming Leaping Lightning bolts while it remains active. " : "") +
 			(stone ? "Apply an ordinary agility penalty of -grade through the same spell parent. " : "") +
 			"The native parent owns expiry, dispel and saved remaining life. Spent protection never refills.",
 			"60*grade", minimum, "$0 surround|surrounds $1 with magical protection.", (resource, cost, filter) =>
@@ -74,6 +75,12 @@ public static class ArmageddonArmourSpellContent
 						new XElement("ArmourMaterial", solidMaterialId), new XElement("Quality", (int)ItemQuality.Standard),
 						new XElement("MaximumDamageAbsorbed", $"{budget}*grade"), new XElement("FullDescriptionAddendum", description),
 						new XElement("CanBeObscuredByInventory", false)));
+				if (key == "arm.spell.charged_aegis")
+					definition.Element("Effects")!.Add(new XElement("Effect", new XAttribute("type", "personaltagward"),
+						new XElement("Tag", new XCData(ArmageddonLeapingLightningSpellContent.ProtectionTag)),
+						new XElement("Value", new XCData(string.Empty)), new XElement("MatchValue", false),
+						new XElement("Mode", MagicInterdictionMode.Fail),
+						new XElement("Coverage", MagicInterdictionCoverage.Incoming), new XElement("Prog", 0)));
 				if (stone)
 				{
 					definition.Element("Effects")!.Add(new XElement("Effect", new XAttribute("type", "boost"),

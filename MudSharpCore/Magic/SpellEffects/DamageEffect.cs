@@ -7,7 +7,7 @@ using MudSharp.RPG.Checks;
 
 namespace MudSharp.Magic.SpellEffects;
 
-public partial class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation
+public partial class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation, IMagicInterdictionTagProvider
 {
     public static void RegisterFactory()
     {
@@ -44,6 +44,7 @@ public partial class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffect
 				throw new FormatException("Unsupported identity-safe damage policy; schema 1/version 1 is required.");
 			IdentitySafeDamage = true;
 		}
+		InterdictionTag = root.Element("InterdictionTag")?.Value;
         BodypartId = long.Parse(root.Element("Bodypart")?.Value ?? "0");
         Limb = (LimbType)int.Parse(root.Element("Limb")?.Value ?? "-1");
     }
@@ -54,6 +55,9 @@ public partial class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffect
 	public ITraitExpression? PainExpression { get; set; }
 	public ITraitExpression? StunExpression { get; set; }
 	public bool IdentitySafeDamage { get; private set; }
+	public string? InterdictionTag { get; }
+	public IEnumerable<MagicInterdictionTag> MagicInterdictionTags =>
+		InterdictionTag is { Length: > 0 } tag ? [new(tag, string.Empty)] : [];
     public long BodypartId { get; set; }
     public LimbType Limb { get; set; }
     public IFuturemud Gameworld => Spell.Gameworld;
@@ -87,6 +91,7 @@ public partial class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffect
 			PainExpression is null ? null : new XElement("PainExpression", new XCData(PainExpression.OriginalFormulaText)),
 			StunExpression is null ? null : new XElement("StunExpression", new XCData(StunExpression.OriginalFormulaText)),
 			IdentitySafeDamage ? new XElement("IdentitySafeDamage", new XAttribute("schema", 1), new XAttribute("version", 1)) : null,
+			InterdictionTag is { Length: > 0 } ? new XElement("InterdictionTag", new XCData(InterdictionTag)) : null,
             new XElement("Bodypart", BodypartId),
             new XElement("Limb", (int)Limb)
         );
@@ -259,8 +264,9 @@ public partial class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffect
         {
             return new(MagicEffectOperationStatus.Rejected, null);
         }
-		var amount = MudSharp.Magic.Casting.SpellAreaDamageScope.ScaleDamage(caster, target, Spell,
-			DamageExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) }));
+        var amount = MudSharp.Magic.Casting.SpellAreaDamageScope.ScaleDamage(caster, target, Spell,
+            MudSharp.Magic.Casting.SpellAreaDamageScope.SharedDamage(caster, target, Spell) ??
+            DamageExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) }));
 		var painAmount = PainExpression is null ? amount : MudSharp.Magic.Casting.SpellAreaDamageScope.ScaleDamage(caster, target, Spell,
 			PainExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) }));
 		var stunAmount = StunExpression is null ? amount : MudSharp.Magic.Casting.SpellAreaDamageScope.ScaleDamage(caster, target, Spell,

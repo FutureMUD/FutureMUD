@@ -4,7 +4,8 @@ using MudSharp.RPG.Checks;
 namespace MudSharp.Magic.Casting;
 
 internal sealed record CastingPayment(ICharacter Holder, IMagicResource Resource, double Amount);
-internal sealed record ConfiguredAreaApplication(ICharacter Target, double DamageMultiplier, Func<bool> StillEligible);
+internal sealed record ConfiguredAreaApplication(ICharacter Target, double DamageMultiplier, Func<bool> StillEligible,
+	double? SharedDamage = null);
 
 /// <summary>Explicit invocation-local engine state; never attached to the catalogue spell.</summary>
 internal sealed class ConfiguredCastingExecution(IReadOnlyList<CastingPayment> payments)

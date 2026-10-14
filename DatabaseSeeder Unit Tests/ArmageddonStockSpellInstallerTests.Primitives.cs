@@ -25,7 +25,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var entries = manifest.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell").ToArray();
 		CollectionAssert.AreEquivalent(ArmageddonStockSpellInstaller.CanonicalKeys.ToArray(), claims.Select(x => x.StableKey).ToArray());
-		Assert.AreEqual(138, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
+		Assert.AreEqual(139, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var source = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId!.Value;
 		foreach (var claim in claims)
@@ -69,7 +69,8 @@ public partial class ArmageddonStockSpellInstallerTests
 				expectedTarget = "characterexit"; // Native two-part target trigger.
 			}
 			if (claim.StableKey is ArmageddonAreaHarmSpellContent.CinderRainKey or ArmageddonAreaHarmSpellContent.ThunderclapKey or
-				ArmageddonAreaHarmSpellContent.ScouringGustKey or ArmageddonAreaHarmSpellContent.CausticSprayKey)
+				ArmageddonAreaHarmSpellContent.ScouringGustKey or ArmageddonAreaHarmSpellContent.CausticSprayKey or
+				ArmageddonLeapingLightningSpellContent.Key)
 			{
 				Assert.AreEqual("characters", expectedTarget);
 				expectedTarget = "character"; // The explicit controlled-area policy selects and guards physical character recipients.
@@ -85,6 +86,36 @@ public partial class ArmageddonStockSpellInstallerTests
 			Assert.AreEqual($"{minimum.ToString(System.Globalization.CultureInfo.InvariantCulture)}*grade", db.TraitExpressions.Single(x => x.Id == cost.LogicalId).Expression, claim.StableKey);
 			Assert.IsFalse(spell.ScrollInscriptionAllowed);
 			Assert.AreEqual(settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg], spell.SpellKnownProgId);
+			if (claim.StableKey == ArmageddonLeapingLightningSpellContent.Key)
+			{
+				var area = root.Element("ControlledPower")!.Element("Area")!;
+				Assert.AreEqual(1, (int)area.Attribute("applicationBase")!);
+				Assert.AreEqual(1, (int)area.Attribute("applicationsPerGrade")!);
+				Assert.AreEqual(15, (int)area.Attribute("applications")!);
+				Assert.AreEqual(0.25, (double)area.Attribute("casterDamage")!);
+				var chain = area.Element("ChainLightning")!;
+				foreach (var (attribute, key) in new[]
+				{
+					("siltTag", ArmageddonStockSupportInstaller.SiltTagKey),
+					("shallowsTag", ArmageddonStockSupportInstaller.ShallowsTagKey),
+					("waterPlane", ArmageddonStockSupportInstaller.WaterPlaneKey),
+					("lightningPlane", ArmageddonStockSupportInstaller.LightningPlaneKey)
+				})
+					Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == key).LogicalId,
+						(long?)chain.Attribute(attribute), key);
+				var damage = root.Element("Effects")!.Element("Effect")!;
+				Assert.AreEqual(11, (int)damage.Element("DamageType")!);
+				Assert.AreEqual(ArmageddonLeapingLightningSpellContent.ProtectionTag,
+					(string?)damage.Element("InterdictionTag"));
+				Assert.IsNotNull(damage.Element("IdentitySafeDamage"));
+			}
+			if (claim.StableKey == "arm.spell.charged_aegis")
+			{
+				var ward = root.Element("Effects")!.Elements("Effect").Single(x =>
+					(string?)x.Attribute("type") == "personaltagward");
+				Assert.AreEqual(ArmageddonLeapingLightningSpellContent.ProtectionTag, (string?)ward.Element("Tag"));
+				Assert.AreEqual(MagicInterdictionCoverage.Incoming.ToString(), (string?)ward.Element("Coverage"));
+			}
 		}
 	}
 

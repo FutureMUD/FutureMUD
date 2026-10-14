@@ -42,6 +42,7 @@ public static partial class ArmageddonStockSupportInstaller
 	public const string WaterPlaneKey = "arm.support.plane.water";
 	public const string ShadowPlaneKey = "arm.support.plane.shadow";
 	public const string FirePlaneKey = "arm.support.plane.fire";
+	public const string LightningPlaneKey = "arm.support.plane.lightning";
 	public const string SiltTagKey = "arm.support.tag.silt";
 	public const string ShallowsTagKey = "arm.support.tag.shallows";
 	public const string UndeadMeritKey = "arm.support.merit.undead";
@@ -165,7 +166,8 @@ public static partial class ArmageddonStockSupportInstaller
 			preflightComplete = true;
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.PreflightComplete);
 			InstallProtection(owned, protection, ids, messages);
-			foreach (var (key, name, order) in new[] { (WaterPlaneKey, "Water", 10), (ShadowPlaneKey, "Shadow", 20), (FirePlaneKey, "Fire", 30) })
+			foreach (var (key, name, order) in new[] { (WaterPlaneKey, "Water", 10), (ShadowPlaneKey, "Shadow", 20),
+				(FirePlaneKey, "Fire", 30), (LightningPlaneKey, "Lightning", 40) })
 			{
 				var plane = owned.Put(key, new Plane { Name = "Armageddon " + name, Alias = "armageddon" + name.ToLowerInvariant(),
 					Description = "An inert editable stock " + name.ToLowerInvariant() + " plane marker. Installation assigns no entities or rooms.",

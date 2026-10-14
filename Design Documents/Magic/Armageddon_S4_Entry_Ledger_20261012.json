@@ -10932,7 +10932,7 @@
           "line": 12
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "candidate_scope": "fixed Lightning contribution with typed Silt/Shallows terrain tags and Water/Lightning planes; managed repeated-strike, shared damage and protection checks pass; paid installed-stock gameplay pending",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -10957,11 +10957,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Native controlled-area chain policy resolves 1+grade or 1+2*grade independent replacement draws from typed terrain/plane state. One 3*grade..5*grade damage sample is shared by all selected strikes, caster hits are quartered, and Charged Aegis has a matching incoming tag ward that absorbs whole bolts. The fixed definition binds exact owned support identities and only the area route; no paid restored-world cast is yet claimed.",
       "remaining": [
-        "Damage primitive lacks source-shaped bounded repeat random targeting/caster-quarter/protection policy.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual paid installed-stock invocation, repeated strike and Charged Aegis samples, all grades, terrain/plane cases, prepayment refusal and cold reload in the restored-world lane.",
+        "Retain the no-quiet/no-carrier default and reconcile builder-owned stock edits without enabling package admissions."
       ],
       "previous_whole_plan_status": "partial_area_engine_and_native_fixture_stock_values_and_energy_shield_pending",
       "previous_whole_plan_evidence": [
@@ -10972,8 +10971,13 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "FOCUSED_MANAGED_PASS",
+          "receipts": [
+            "MagicCastingAreaTests focused 37/37 including repeated strikes, shared inclusive roll, caster quarter, typed amplification and matching ward",
+            "ArmageddonAreaHarmHydrationTests plus FiniteArmourTests 62/62 including all-seven-grade ready/cold definition reload",
+            "ArmageddonStockSpellInstallerTests Classic/Simple fixed definition 2/2 with exact typed support and Charged Aegis ward",
+            "Selected Seeder stock/manifest/reference checks 111/111 and Core area/hydration/armour checks 99/99"
+          ]
         },
         "direct": [],
         "inherited": [],
@@ -10981,7 +10985,8 @@
         "assumptions": [],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 113,

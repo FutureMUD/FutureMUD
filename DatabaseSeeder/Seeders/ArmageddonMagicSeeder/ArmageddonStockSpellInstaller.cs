@@ -88,6 +88,13 @@ public static partial class ArmageddonStockSpellInstaller
 			(Key: x.Content.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => x))))
 		.Concat(new[] { "arm.spell.ember_lance", "arm.spell.pillar_of_flame", "arm.spell.lightning_lance", "arm.spell.mind_scour" }.Select(key =>
 			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveDirectDamage(db, key)))))
+		.Append((Key: ArmageddonLeapingLightningSpellContent.Key,
+			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
+				ArmageddonLeapingLightningSpellContent.Create(
+					CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.SiltTagKey),
+					CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.ShallowsTagKey),
+					CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.WaterPlaneKey),
+					CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.LightningPlaneKey)))))
 		.Append((Key: "arm.spell.consuming_flame", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveConsumingFlame))
 		.Append((Key: "arm.spell.false_presence", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveFalsePresence))
 		.Append((Key: "arm.spell.water_breathing", Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveWaterBreathing))

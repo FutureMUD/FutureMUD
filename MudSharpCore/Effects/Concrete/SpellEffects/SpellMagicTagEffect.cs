@@ -1,9 +1,13 @@
 ﻿#nullable enable
 
 
+using MudSharp.Effects.Interfaces;
+using MudSharp.GameItems;
+using MudSharp.Magic;
+
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
-public class SpellMagicTagEffect : SimpleSpellStatusEffectBase, IMagicTagEffect
+public class SpellMagicTagEffect : SimpleSpellStatusEffectBase, IMagicTagEffect, ISpellMarkedRoomEffect
 {
 	public static void InitialiseEffectType()
 	{
@@ -11,10 +15,13 @@ public class SpellMagicTagEffect : SimpleSpellStatusEffectBase, IMagicTagEffect
 	}
 
 	public SpellMagicTagEffect(IPerceivable owner, IMagicSpellEffectParent parent, string tag, string value,
-		IFutureProg? prog = null) : base(owner, parent, prog)
+		IFutureProg? prog = null, long savedRoomId = 0, int remainingUses = 0) : base(owner, parent, prog)
 	{
 		Tag = tag.Trim();
 		Value = value;
+		SavedRoomId = savedRoomId;
+		ItemId = savedRoomId > 0 && owner is IGameItem item ? item.Id : 0;
+		RemainingUses = remainingUses;
 	}
 
 	private SpellMagicTagEffect(XElement root, IPerceivable owner) : base(root, owner)
@@ -22,17 +29,34 @@ public class SpellMagicTagEffect : SimpleSpellStatusEffectBase, IMagicTagEffect
 		var trueRoot = root.Element("Effect");
 		Tag = trueRoot?.Element("Tag")?.Value ?? string.Empty;
 		Value = trueRoot?.Element("Value")?.Value ?? string.Empty;
+		SavedRoomId = (long?)trueRoot?.Element("SavedRoomId") ?? 0;
+		ItemId = (long?)trueRoot?.Element("ItemId") ?? 0;
+		RemainingUses = (int?)trueRoot?.Element("RemainingUses") ?? 0;
 	}
 
 	public string Tag { get; }
 	public string Value { get; }
+	public long ItemId { get; }
+	public long SavedRoomId { get; }
+	public int RemainingUses { get; }
+	public bool IsActive => SavedRoomId > 0 && ItemId > 0 && RemainingUses > 0 &&
+		Tag == ArmageddonSimpleStockContent.ArcaneMarkTag &&
+		Owner is IGameItem item && item.Id == ItemId && !item.Deleted && !item.Destroyed &&
+		ParentEffect?.Spell is MagicSpell { StockIdentity: "arm.spell.arcane_mark" } &&
+		ReferenceEquals(ParentEffect.Owner, item) &&
+		item.Effects.Any(x => ReferenceEquals(x, this)) &&
+		item.Effects.Any(x => ReferenceEquals(x, ParentEffect)) &&
+		ParentEffect.SpellEffects.Any(x => ReferenceEquals(x, this));
 	public ICharacter? Caster => ParentEffect?.Caster;
 
 	protected override XElement SaveDefinition()
 	{
 		return SimpleSaveDefinition(
 			new XElement("Tag", new XCData(Tag)),
-			new XElement("Value", new XCData(Value))
+			new XElement("Value", new XCData(Value)),
+			SavedRoomId > 0 ? new XElement("SavedRoomId", SavedRoomId) : null,
+			ItemId > 0 ? new XElement("ItemId", ItemId) : null,
+			SavedRoomId > 0 ? new XElement("RemainingUses", RemainingUses) : null
 		);
 	}
 

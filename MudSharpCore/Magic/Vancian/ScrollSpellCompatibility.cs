@@ -31,6 +31,7 @@ public static class ScrollSpellCompatibility
 		Add("damagingexitbarrier", "Physical exit contact and its prepared traversal route require a dedicated stored-delivery adapter; carrier qualification is pending.");
 		Add("boundeditemcondition", "Exact local item custody, material gate and selected-grade wound budget require a dedicated stored-delivery adapter; stock carriers remain disabled.");
 		Add("owneditemmark", "The exact legal owner, item identity and live custody require a dedicated stored-delivery adapter; stock carriers remain disabled.");
+		Add("arcanemark", "The directly carried item, frozen caster room, selected-grade uses and later travel authority require a dedicated stored-delivery adapter; stock carriers remain disabled.");
 		Add("thresholdalarm", "Live room-entry events and owner notification require a dedicated stored-delivery adapter; stock carriers remain disabled.");
 		Add("drowninggrip", "Exact living-body breathing admission and short spell-owned hypoxia window require a dedicated stored-delivery adapter; stock carriers remain disabled.");
 		Add("leechingedge", "Native wielded melee event delivery requires a dedicated stored-delivery adapter; carrier qualification is pending.");

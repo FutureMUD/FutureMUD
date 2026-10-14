@@ -33,6 +33,7 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 		creation.ValidateBeforeSave();
 		FMDB.Context.SaveChanges();
 		creation.FinishShelterTopology();
+		creation.FinishGateTopology();
 		var claims = creation.SavedClaims();
 		if (claims.Any(x => x.Id <= 0) || claims.DistinctBy(x => (x.Kind, x.Id)).Count() != claims.Count)
 		{

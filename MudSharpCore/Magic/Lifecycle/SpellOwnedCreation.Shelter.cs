@@ -12,7 +12,7 @@ public sealed partial class SpellOwnedCreation
 
 	internal void StageShelterTopology(Models.Room room, Models.RoomOverlay overlay, long anchorId, long anchorOverlayId, string keyword)
 	{
-		if (_shelter is not null) throw new InvalidOperationException("One shelter topology per creation transaction.");
+		if (_shelter is not null || _gate is not null) throw new InvalidOperationException("One owned room topology per creation transaction.");
 		Context.Rooms.Add(room);
 		Context.RoomOverlays.Add(overlay);
 		Claim(SpellOwnedEntityKind.Room, room);

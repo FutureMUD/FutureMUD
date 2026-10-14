@@ -153,7 +153,8 @@ public class ArmageddonSimpleStockContentTests
 		var spell = Load(f, content); f.Spells.Add(spell);
 		Assert.IsFalse(spell.AppliedEffectsAreExclusive); Assert.IsFalse(new MagicSpell(spell.SnapshotModel(), f.World.Object).AppliedEffectsAreExclusive);
 		Assert.IsTrue(ArmageddonStockSpellContent.ReadAttunement().SpellRow(1, 1, 1).AppliedEffectsAreExclusive, "The ordinary stock default remains exclusive.");
-		var template = (MagicTagEffect)spell.SpellEffects.Single(); Assert.IsFalse(template.ReplaceExisting);
+		var template = (ArcaneMarkEffect)spell.SpellEffects.Single();
+		Assert.AreEqual("arcanemark", (string?)template.SaveToXml().Attribute("type"));
 		var item = new Mock<IGameItem>(); item.SetupGet(x => x.Id).Returns(700); item.SetupGet(x => x.Gameworld).Returns(f.World.Object);
 		var other = new Mock<ICharacter>(); other.SetupGet(x => x.Id).Returns(101); other.SetupGet(x => x.InstanceId).Returns(101); other.SetupGet(x => x.Gameworld).Returns(f.World.Object);
 		f.World.Setup(x => x.TryGetCharacter(100, true)).Returns(f.Actor.Object); f.World.Setup(x => x.TryGetCharacter(101, true)).Returns(other.Object);
@@ -162,17 +163,98 @@ public class ArmageddonSimpleStockContentTests
 		foreach (var caster in new[] { f.Actor.Object, other.Object })
 		{
 			var parent = new MagicSpellParent(item.Object, spell, caster);
-			var mark = (SpellMagicTagEffect)template.GetOrApplyEffect(caster, item.Object, default, default, parent, [])!;
+			var mark = new SpellMagicTagEffect(item.Object, parent, ArmageddonSimpleStockContent.ArcaneMarkTag,
+				template.Value, savedRoomId: 501, remainingUses: 7);
 			parent.AddSpellEffect(mark); Assert.AreSame(caster, mark.Caster); Assert.AreEqual(ArmageddonSimpleStockContent.ArcaneMarkTag, mark.Tag);
+			Assert.AreEqual(501L, mark.SavedRoomId); Assert.AreEqual(700L, mark.ItemId); Assert.AreEqual(7, mark.RemainingUses);
 			var row = parent.SaveToXml(new Dictionary<IEffect, TimeSpan> { [parent] = TimeSpan.FromSeconds(300) }); saved.Add(row);
 			Assert.AreEqual(caster.Id.ToString(), row.Element("Effect")!.Element("Caster")!.Value);
 			Assert.AreEqual(caster.InstanceId.ToString(), row.Element("Effect")!.Element("CasterInstance")!.Value);
 			var loaded = (MagicSpellParent)Effect.LoadEffect(row, item.Object);
 			var loadedMark = (SpellMagicTagEffect)loaded.SpellEffects.Single();
 			Assert.AreSame(caster, loadedMark.Caster); Assert.AreEqual(mark.Tag, loadedMark.Tag); Assert.AreEqual(mark.Value, loadedMark.Value);
+			Assert.AreEqual(501L, loadedMark.SavedRoomId); Assert.AreEqual(700L, loadedMark.ItemId); Assert.AreEqual(7, loadedMark.RemainingUses);
 		}
 		Assert.AreEqual(2, saved.Count); Assert.AreNotEqual(saved[0].Element("Effect")!.Element("Caster")!.Value, saved[1].Element("Effect")!.Element("Caster")!.Value);
 		item.Verify(x => x.RemoveAllEffects<IMagicTagEffect>(It.IsAny<Predicate<IMagicTagEffect>>(), It.IsAny<bool>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void ArcaneMark_SavedRoomIsTypedAndExact_DirectCustodyRequiredForTravel()
+	{
+		var f = Fixture(); var content = ArmageddonSimpleStockContent.Create(Bindings)
+			.Single(x => x.Content.Key == "arm.spell.arcane_mark").Content;
+		var spell = Load(f, content); f.Spells.Add(spell);
+		var source = f.Actor.Object.Location;
+		var saved = new Mock<IRoom>(); saved.SetupGet(x => x.Id).Returns(501);
+		saved.SetupGet(x => x.Gameworld).Returns(f.World.Object);
+		f.World.SetupGet(x => x.Rooms).Returns(MagicCastingFixture.Collection(() => new[] { source, saved.Object }));
+		f.Body.SetupGet(x => x.Actor).Returns(f.Actor.Object);
+		var item = new Mock<IGameItem>(); var effects = new List<IEffect>();
+		item.SetupGet(x => x.Id).Returns(700); item.SetupGet(x => x.Gameworld).Returns(f.World.Object);
+		item.SetupGet(x => x.Effects).Returns(() => effects);
+		item.SetupGet(x => x.TrueLocations).Returns(() => new[] { source });
+		item.Setup(x => x.IsOwnedBy(f.Actor.Object)).Returns(true);
+		MudSharp.Body.IBody? custodian = f.Body.Object;
+		item.SetupGet(x => x.InInventoryOf).Returns(() => custodian!);
+		f.World.SetupGet(x => x.Items).Returns(MagicCastingFixture.Collection(() => new[] { item.Object }));
+		var parent = new MagicSpellParent(item.Object, spell, f.Actor.Object);
+		var mark = new SpellMagicTagEffect(item.Object, parent, ArmageddonSimpleStockContent.ArcaneMarkTag,
+			"An angular arcane glyph.", savedRoomId: 501, remainingUses: 2);
+		parent.AddSpellEffect(mark); effects.Add(parent); effects.Add(mark);
+		Assert.IsTrue(mark.IsActive);
+		Assert.IsTrue(SpellTravelAnchorResolver.TryResolve(f.Actor.Object, item.Object,
+			SpellTravelAnchorMode.ArcaneMarkedRoom, out var resolved, out var error), error);
+		Assert.AreSame(saved.Object, resolved!.Destination);
+		Assert.IsTrue(resolved.IsCurrentFor(f.Actor.Object));
+		Assert.IsFalse(new SpellMagicTagEffect(item.Object, parent, ArmageddonSimpleStockContent.ArcaneMarkTag,
+			"Legacy informational tag").IsActive);
+		Assert.AreEqual(2, mark.RemainingUses);
+		effects.Clear();
+		Assert.IsFalse(resolved.IsCurrentFor(f.Actor.Object));
+		var exhaustedParent = new MagicSpellParent(item.Object, spell, f.Actor.Object);
+		var exhausted = new SpellMagicTagEffect(item.Object, exhaustedParent, ArmageddonSimpleStockContent.ArcaneMarkTag,
+			"An exhausted glyph.", savedRoomId: 501, remainingUses: 0);
+		exhaustedParent.AddSpellEffect(exhausted); effects.Add(exhaustedParent); effects.Add(exhausted);
+		Assert.IsFalse(exhausted.IsActive);
+		Assert.IsFalse(SpellTravelAnchorResolver.TryResolve(f.Actor.Object, item.Object,
+			SpellTravelAnchorMode.ArcaneMarkedRoom, out _, out _));
+		var exhaustedXml = exhaustedParent.SaveToXml(new Dictionary<IEffect, TimeSpan> { [exhaustedParent] = TimeSpan.FromSeconds(120) });
+		var loaded = (MagicSpellParent)Effect.LoadEffect(exhaustedXml, item.Object);
+		Assert.AreEqual(0, ((SpellMagicTagEffect)loaded.SpellEffects.Single()).RemainingUses);
+		custodian = null;
+		Assert.IsFalse(resolved.IsCurrentFor(f.Actor.Object));
+		Assert.IsFalse(SpellTravelAnchorResolver.TryResolve(f.Actor.Object, item.Object,
+			SpellTravelAnchorMode.ArcaneMarkedRoom, out _, out _));
+	}
+
+	[TestMethod]
+	public void ArcaneMark_AllGradesFreezeDirectItemCustodyAndRoomBeforePayment()
+	{
+		for (var grade = 1; grade <= 7; grade++)
+		{
+			var f = Fixture(); var content = ArmageddonSimpleStockContent.Create(Bindings)
+				.Single(x => x.Content.Key == "arm.spell.arcane_mark").Content;
+			var spell = Load(f, content);
+			var casting = spell.CastingCopy(f.Actor.Object, f.Traits[0], grade, SpellPower.Standard, Difficulty.Normal);
+			var template = (ArcaneMarkEffect)casting.SpellEffects.Single();
+			f.Body.SetupGet(x => x.Actor).Returns(f.Actor.Object);
+			var room = f.Actor.Object.Location;
+			f.World.SetupGet(x => x.Rooms).Returns(MagicCastingFixture.Collection(() => new[] { room }));
+			var item = new Mock<IGameItem>();
+			item.SetupGet(x => x.Id).Returns(700);
+			item.SetupGet(x => x.Gameworld).Returns(f.World.Object);
+			item.SetupGet(x => x.TrueLocations).Returns(() => new[] { room });
+			MudSharp.Body.IBody? custodian = f.Body.Object;
+			item.SetupGet(x => x.InInventoryOf).Returns(() => custodian!);
+			f.World.SetupGet(x => x.Items).Returns(MagicCastingFixture.Collection(() => new[] { item.Object }));
+			var token = template.CapturePreparedSelection(f.Actor.Object, item.Object);
+			Assert.IsTrue(((IMagicSpellEffectPreparedSelectionRawToken)token).IsCurrent);
+			Assert.IsTrue(template.TryPrepareApplication(f.Actor.Object, item.Object, default, default,
+				TimeSpan.FromSeconds(300 * grade), out _, out var error), error);
+			custodian = null;
+			Assert.IsFalse(template.TryConfirmPreparedSelection(f.Actor.Object, item.Object, out _));
+		}
 	}
 
 	[DataTestMethod]

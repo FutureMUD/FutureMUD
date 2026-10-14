@@ -20,3 +20,12 @@ public interface ISpellTravelAnchorEffect : IEffectSubtype
 	ItemOwnershipReference OwnerReference { get; }
 	bool IsActive { get; }
 }
+
+/// <summary>An Arcane Mark's frozen room, distinct from a rune item's current physical location.</summary>
+public interface ISpellMarkedRoomEffect : IEffectSubtype
+{
+	long ItemId { get; }
+	long SavedRoomId { get; }
+	int RemainingUses { get; }
+	bool IsActive { get; }
+}

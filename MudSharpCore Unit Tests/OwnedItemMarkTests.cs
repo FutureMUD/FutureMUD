@@ -6,12 +6,14 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Effects.Interfaces;
 using MudSharp.GameItems;
 using MudSharp.Magic;
+using MudSharp.Magic.SpellEffects;
 
 namespace MudSharp_Unit_Tests;
 
@@ -85,5 +87,38 @@ public class OwnedItemMarkTests
 		Assert.AreEqual(owner, anchor.OwnerReference);
 		Assert.AreEqual(210L, anchor.ItemId);
 		Assert.IsFalse(glyph.AllowsTake(new Mock<ICharacter>().Object));
+	}
+
+	[TestMethod]
+	public void AnchorRune_LiveRoomMovesWithExactOwnedItem_UnlikeSavedArcaneMark()
+	{
+		var fixture = new MagicCastingFixture();
+		fixture.Body.SetupGet(x => x.Actor).Returns(fixture.Actor.Object);
+		var first = new Mock<IRoom>(); first.SetupGet(x => x.Id).Returns(301);
+		var second = new Mock<IRoom>(); second.SetupGet(x => x.Id).Returns(302);
+		fixture.World.SetupGet(x => x.Rooms).Returns(MagicCastingFixture.Collection(() => new[] { first.Object, second.Object }));
+		var item = new Mock<IGameItem>(); var effects = new List<IEffect>();
+		var owner = new ItemOwnershipReference("Character", fixture.Actor.Object.Id);
+		item.SetupGet(x => x.Id).Returns(210);
+		item.SetupGet(x => x.Gameworld).Returns(fixture.World.Object);
+		item.SetupGet(x => x.OwnershipReference).Returns(owner);
+		item.SetupGet(x => x.Effects).Returns(() => effects);
+		item.Setup(x => x.IsOwnedBy(fixture.Actor.Object)).Returns(true);
+		IRoom[] locations = [first.Object];
+		item.SetupGet(x => x.TrueLocations).Returns(() => locations);
+		fixture.World.SetupGet(x => x.Items).Returns(MagicCastingFixture.Collection(() => new[] { item.Object }));
+		var parent = new MagicSpellParent(item.Object, fixture.Spell, fixture.Actor.Object);
+		var rune = new SpellAnchorRuneEffect(item.Object, parent, owner);
+		parent.AddSpellEffect(rune); effects.Add(parent); effects.Add(rune);
+		Assert.IsTrue(SpellTravelAnchorResolver.TryResolve(fixture.Actor.Object, item.Object,
+			SpellTravelAnchorMode.AnchorRuneLiveRoom, out var selected, out var error), error);
+		Assert.AreSame(first.Object, selected!.Destination);
+		locations = [second.Object];
+		Assert.IsFalse(selected.IsCurrentFor(fixture.Actor.Object));
+		Assert.IsTrue(SpellTravelAnchorResolver.TryResolve(fixture.Actor.Object, item.Object,
+			SpellTravelAnchorMode.AnchorRuneLiveRoom, out var current, out error), error);
+		Assert.AreSame(second.Object, current!.Destination);
+		Assert.IsFalse(SpellTravelAnchorResolver.TryResolve(fixture.Actor.Object, item.Object,
+			SpellTravelAnchorMode.ArcaneMarkedRoom, out _, out _));
 	}
 }

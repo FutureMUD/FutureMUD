@@ -9,6 +9,7 @@ using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Combat;
 using MudSharp.Body;
+using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -43,6 +44,7 @@ public static partial class ArmageddonStockSupportInstaller
 	public const string ShadowPlaneKey = "arm.support.plane.shadow";
 	public const string FirePlaneKey = "arm.support.plane.fire";
 	public const string LightningPlaneKey = "arm.support.plane.lightning";
+	public const string NilazPassageTemplateKey = "arm.support.roomtemplate.nilaz_passage";
 	public const string SiltTagKey = "arm.support.tag.silt";
 	public const string ShallowsTagKey = "arm.support.tag.shallows";
 	public const string UndeadMeritKey = "arm.support.merit.undead";
@@ -175,6 +177,22 @@ public static partial class ArmageddonStockSupportInstaller
 				if (plane.IsDefault) throw new InvalidOperationException($"{key}: a builder made the support plane default; resolve explicitly before reuse.");
 				ids.Add(key, plane.Id);
 			}
+			var passageTerrain = ArmageddonCatalogueLinks.Bind(db, "arm.binding.terrain.sheltered", nameof(Terrain), () =>
+			{
+				var candidates = db.Terrains.Where(x => x.Name == "Hallway").ToArray();
+				if (candidates.Length != 1) throw new InvalidOperationException("Exactly one CoreDataSeeder Hallway terrain is required for the Nilaz passage.");
+				return candidates[0].Id;
+			});
+			var passageDefinition = new XElement("Template", new XElement("ApplyAutobuilderTagsAsFrameworkTags", false),
+				new XElement("ShowCommandByline", new XCData("An Armageddon Nilaz passage template")),
+				new XElement("Default", new XElement("Terrain", new XElement("DefaultTerrain", passageTerrain),
+					new XElement("RoomName", new XCData("A Grey, Bleak Hallway")),
+					new XElement("RoomDescription", new XCData("Grey, rough stone encloses a lifeless passage. The air is stale, and the hall continues north and south.")),
+					new XElement("OutdoorsType", (int)RoomOutdoorsType.IndoorsNoLight),
+					new XElement("CellLightMultiplier", 1), new XElement("ForagableProfile", 0))), new XElement("Terrains"));
+			ids.Add(NilazPassageTemplateKey, owned.Put(NilazPassageTemplateKey,
+				new AutobuilderRoomTemplate { Name = "Armageddon Nilaz Passage", TemplateType = "room by terrain",
+					Definition = passageDefinition.ToString() }, ["arm.binding.terrain.sheltered"]).Id);
 			foreach (var (key, name) in new[] { (SiltTagKey, "Silt"), (ShallowsTagKey, "Shallows") })
 				ids.Add(key, owned.Put(key, new Tag { Name = "Armageddon " + name, ShouldSeeProgId = settings.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg] }, []).Id);
 			foreach (var (key, name) in new[] { (UndeadMeritKey, "undead marker"), (MagicalExceptionMeritKey, "magical exception marker") })
@@ -214,7 +232,7 @@ public static partial class ArmageddonStockSupportInstaller
 			}
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.ContentCreated); db.SaveChanges(); checkpoint?.Invoke(ArmageddonInstallCheckpoint.BeforeCommit);
 			committing = true; transaction?.Commit(); committed = true; checkpoint?.Invoke(ArmageddonInstallCheckpoint.AfterCommit);
-			messages.Add("Supplemental owned supports committed: 16 native staff graphs, eight exact S3 staff references, inert markers and eight typed editable policy progs. New staff numerics reuse authored grade-seven S3 staff defaults; Crushing/Electrical kinds are editable authored choices. No live entities or plane assignments changed; installed-world qualification remains separate.");
+			messages.Add("Supplemental owned supports committed: 16 native staff graphs, eight exact S3 staff references, inert markers, eight typed editable policy progs and one deterministic Nilaz passage template. New staff numerics reuse authored grade-seven S3 staff defaults; Crushing/Electrical kinds are editable authored choices. No live entities, temporary rooms or plane assignments changed; installed-world qualification remains separate.");
 			return new(ArmageddonInstallStatus.Completed, messages.AsReadOnly(), ids);
 		}
 		catch (Exception error)

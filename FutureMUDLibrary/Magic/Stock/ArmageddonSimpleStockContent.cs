@@ -125,10 +125,11 @@ public static class ArmageddonSimpleStockContent
 
 	private static ArmageddonCanonicalSpellContribution ArcaneMark() =>
 		Entry("void", "arcane_mark", "Arcane Mark", 25, 60, "item", "300*grade",
-			"Applies one informational metadata mark to the exact selected item for 300 seconds per grade. " +
-			"The native spell parent retains caster attribution. Authored editable text grants no identity, ownership or equipment rights; other casters' marks remain.",
-			new XElement("Effect", new XAttribute("type", "magictag"), new XElement("Tag", new XCData(ArcaneMarkTag)),
-				new XElement("Value", new XCData("An angular arcane glyph.")), new XElement("ReplaceExisting", false)), exclusive: false);
+			"Marks one directly carried item with the exact room of marking for 300 seconds per grade. " +
+			"The native spell parent retains caster attribution and independent marks. The text is informational; " +
+			"no arbitrary room number, ownership or equipment right is granted.",
+			new XElement("Effect", new XAttribute("type", "arcanemark"),
+				new XElement("Value", new XCData("An angular arcane glyph."))), exclusive: false);
 
 	private static XElement Ward(string type, long school) => new("Effect", new XAttribute("type", type),
 		new XElement("School", school), new XElement("Mode", MagicInterdictionMode.Fail), new XElement("Coverage", MagicInterdictionCoverage.Both),

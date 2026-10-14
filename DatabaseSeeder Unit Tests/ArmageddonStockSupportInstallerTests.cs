@@ -27,8 +27,12 @@ public class ArmageddonStockSupportInstallerTests
 		var beforeItems = db.GameItemProtos.Count(); var beforeAttacks = db.WeaponAttacks.Count();
 		var first = ArmageddonStockSupportInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status, string.Join("\n", first.Messages)); db.ChangeTracker.Clear();
-		Assert.AreEqual(48, first.Identities.Count); Assert.AreEqual(beforeItems + 17, db.GameItemProtos.Count());
+		Assert.AreEqual(50, first.Identities.Count); Assert.AreEqual(beforeItems + 17, db.GameItemProtos.Count());
 		Assert.AreEqual(beforeAttacks + 16, db.WeaponAttacks.Count()); Assert.AreEqual(1, db.Planes.Count(x => x.IsDefault));
+		var passage = db.AutobuilderRoomTemplates.Single(x => x.Id == first.Identities[ArmageddonStockSupportInstaller.NilazPassageTemplateKey]);
+		Assert.AreEqual("room by terrain", passage.TemplateType);
+		var passageXml = XElement.Parse(passage.Definition);
+		Assert.AreEqual("A Grey, Bleak Hallway", passageXml.Element("Default")?.Element("Terrain")?.Element("RoomName")?.Value);
 		Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(0, db.Characters.Count()); Assert.AreEqual(0, db.MagicSpells.Count());
 		Assert.AreEqual(210, new ArmageddonStockCatalogue().Blueprints.Count);
 		Assert.AreEqual(49, new ArmageddonStockCatalogue().Blueprints.Count(x => x.Kind == ArmageddonBlueprintKind.MeleeItem));
@@ -121,7 +125,7 @@ public class ArmageddonStockSupportInstallerTests
 		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);
 		var uncertain = ArmageddonStockSupportInstaller.Install(factory, point =>
 		{ if (point == ArmageddonInstallCheckpoint.AfterCommit) throw new InvalidOperationException("confirmation fixture"); });
-		Assert.AreEqual(ArmageddonInstallStatus.CommittedConfirmationFailed, uncertain.Status); Assert.AreEqual(48, uncertain.Identities.Count);
+		Assert.AreEqual(ArmageddonInstallStatus.CommittedConfirmationFailed, uncertain.Status); Assert.AreEqual(50, uncertain.Identities.Count);
 		var rerun = ArmageddonStockSupportInstaller.Install(factory); Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
 		foreach (var entry in uncertain.Identities) Assert.AreEqual(entry.Value, rerun.Identities[entry.Key]);
 		db.ChangeTracker.Clear(); Assert.AreEqual(130, db.GameItemProtos.Count()); Assert.AreEqual(0, db.GameItems.Count());

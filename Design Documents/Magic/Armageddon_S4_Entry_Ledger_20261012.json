@@ -2349,7 +2349,7 @@
         "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
         "minimum_energy": 7,
         "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
-        "source_component_note": "Clerical",
+      "source_component_note": "Approved 2026-10-14: exactly one directly carried Clerical rank 0/0/0/1/2/3/4 by grade outside effective owned Water-plane membership; Water waives it; missing required component refuses before energy payment.",
         "normal_material_policy": "Only per-spell source/approved explicit component plan; no old blanket grade>=3 reagent/focus demand.",
         "practice_policy": "target-free full paid practice; retain matching focus, no reagent consumption; raw and controlled progression separately gated.",
         "variant_policy": {
@@ -9467,7 +9467,7 @@
         "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
         "minimum_energy": 7,
         "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
-        "source_component_note": "Divination",
+      "source_component_note": "Approved 2026-10-14: owned Silt tag on current room or terrain, including descendants, absolutely refuses before effective owned Shadow-plane membership waives one directly carried Divination component. Outside Shadow minimum rank is max(grade-3,0), ranks 0..4.",
         "normal_material_policy": "Only per-spell source/approved explicit component plan; no old blanket grade>=3 reagent/focus demand.",
         "practice_policy": "target-free full paid practice; retain matching focus, no reagent consumption; raw and controlled progression separately gated.",
         "variant_policy": {

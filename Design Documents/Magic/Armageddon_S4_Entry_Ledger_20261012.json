@@ -37,13 +37,13 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 136,
+    "installed_canonical_spells": 137,
     "native_grade_one_stock_entries": 1,
     "native_sampled_grade_one_spells": 12,
-    "declared_canonical_spells": 136,
-    "definition_audited_canonical_spells": 136,
+    "declared_canonical_spells": 137,
+    "definition_audited_canonical_spells": 137,
     "latest_successful_native_loaded_spells": 135,
-    "required_not_yet_declared": 16,
+    "required_not_yet_declared": 15,
     "latest_partial_native_first_loaded_spells": 121
   },
   "path_discrepancies": [],
@@ -12096,11 +12096,43 @@
       "completion_contract": "Simulate death convincingly to configured observations while preserving the living character. Needs coordinated appearance, physiological observation and action restrictions; a corpse description alone is insufficient.",
       "inventory_classification": "small_missing_primitive",
       "inventory_current_factory": null,
-      "verified_paths": [],
+      "verified_paths": [
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/FeignDeathEffect.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellFeignedDeathEffect.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Commands/Modules/HealthModule.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Commands/CommandManager.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyPerception.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterMovement.cs",
+          "exists": true
+        }
+      ],
       "existing_factory_apis": [],
       "typed_content_projection": null,
-      "registered_effect_candidates": [],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "registered_effect_candidates": [
+        {
+          "type": "feigndeath",
+          "class": "FeignDeathEffect",
+          "path": "MudSharpCore/Magic/SpellEffects/FeignDeathEffect.cs",
+          "line": 15
+        }
+      ],
+      "candidate_scope": "Fixed Void definition plus timed living-body appearance adapter pass focused paid Core, Classic/Simple managed and persistence-inventory checks; restored-world qualification pending",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -12125,11 +12157,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Schema-1 feigndeath admits a living exact body before payment, adds ordinary-observer room/short/full and vitals appearance without changing physiology, and ends on voluntary commands, direct movement or parent expiry",
       "remaining": [
-        "No coordinating physiological-observation/appearance/action-restriction adapter identified in surveyed spell effects.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Qualify actual restored-world paid installed-stock cast, ordinary visual and vitals observation, refusal and cold expiry while preserving builder/player state.",
+        "Check all selected grades and source-informed physical-plan rules; do not enable area, quiet or carriers without qualification."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -12139,16 +12170,17 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "FOCUSED_MANAGED_PASS",
+          "receipts": ["ArmageddonFeignDeathDefinitionTests", "CanonicalDefinitions_EveryInstalledEntryMatchesLockedCostsGradesAndTypedChildren Classic/Simple"]
         },
-        "direct": [],
+        "direct": ["ArmageddonFeignDeathTests focused Core 13/13: paid grade-two cast, living-body admission, ordinary/self/staff observations, command-dispatch break, passive aliases, child and parent reload with explicit expiry; RoomReferenceCorrectionTests 40/40"],
         "inherited": [],
         "sampled": [],
-        "assumptions": [],
+        "assumptions": ["Managed paid fixture, cold effect reload and fixed installer tests do not certify an actual MySQL-installed live Feign Death cast or MUD cold boot."],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 125,

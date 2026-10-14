@@ -28,6 +28,7 @@ public partial class DispelMagicEffect : IMagicSpellEffectTemplate, IMagicSpellE
 			{ "any", _ => true },
 			{ "spell", _ => true },
 			{ "invisibility", x => x is SpellInvisibilityEffect },
+			{ "feigndeath", x => x is SpellFeignedDeathEffect },
 			{ "flight", x => x is IFlightEffect },
 			{ "levitation", x => x is ILevitationEffect },
 			{ "featherfall", x => x is IFallDamageMitigationEffect },

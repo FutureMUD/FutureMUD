@@ -12,6 +12,7 @@ using Room = MudSharp.Construction.Room;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
@@ -686,6 +687,7 @@ public partial class Character
         {
             return false;
         }
+		SpellFeignedDeathEffect.BreakOnVoluntaryAction(this, "move");
 
         if (RidingMount is not null)
         {

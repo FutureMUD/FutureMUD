@@ -169,6 +169,7 @@ SpellExitBarrier
 SpellExposureResistance
 SpellFear
 SpellFeatherFall
+SpellFeignedDeath
 SpellFlight
 SpellGlow
 SpellHealingRate

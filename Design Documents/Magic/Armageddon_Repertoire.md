@@ -3692,7 +3692,7 @@ Key: `arm.spell.wind_hammer`. Native school: **Wind**. Target: `character_and_ex
 
 **Minimum acceptance â€” ARM-R-373 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Wind admission, acquired Wind Hammer, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character_and_exit. Invoke Wind Hammer at grade 2 through the explicit route.
 
-- Commit 66 designated energy units once under the locked 33-per-grade stock minimum; preserve native school Wind.
+- Commit the shared controlled-efficiency charge once, respecting the locked 33-unit minimum; preserve native school Wind. The exact charge depends on controlled and requested grades.
 - Strike and then move a target through a selected exit only if the hit resolves.
 - At grade 2 apply only this scaling contract: Damage 5*g units; one legal exit movement only after resolved harm/admission.
 - Reject absent admission or invalid body/target before payment; a resisted paid invocation cannot bypass costs or duplicate advancement.
@@ -5415,14 +5415,14 @@ Key: `arm.spell.feign_death`. Native school: **Void**. Target: `character`. Life
 
 **Observable effect:** Simulate death convincingly to configured observations while preserving the living character.
 
-**Scaling:** Duration 60*g seconds; binary effect unless its native definition specifies magnitude. Energy base B=7; `B * grade * overreach_multiplier * quiet_multiplier * area_multiplier`.
+**Scaling:** Duration 60*g seconds; binary appearance with no trait or physiological change. The locked Void stock minimum energy is 20; the shared controlled-efficiency curve sets the actual paid charge.
 
 **Membership/acquisition:**
 - Void: acquired `arm.spell.arcane_mark`, controlled grade >= 2, its route skill >= 20. Membership evidence: `coded_element_association_not_learnlist`. Default trait `arm.spell.feign_death.skill`; shared option `arm.skill.void_casting`.
 
 **Physical plan:** speech: required; quiet only when explicitly enabled; manipulation: one free manipulating appendage, in addition to held focus if required; actor: focused permitted physical instance; native plane/body gates; target_constraint: accessible owned/consenting target or authorised hostile action; corpse controls retain native ownership and anchor checks.
 
-**Materials/foci:** retained held/wielded focus tagged for the selected tradition at grades 3-7; none at grades 1-2; consume 0 unit(s) of `arm.material.ritual_reagent` at commitment. Practice: retained tradition focus at all grades, no consumed materials. Historical component metadata: none.
+**Materials/foci:** no additional normal-cast focus or consumed material under this spell's approved component plan. Practice retains a matching tradition focus and consumes no material. Historical component metadata: none.
 
 **Practice:** enabled=true, 30 seconds, full energy, proficiency and mastery eligible under shared gates; no target/caster effects or target wards/resistance. Implementation: `missing_common_practice_slice`.
 
@@ -5430,16 +5430,18 @@ Key: `arm.spell.feign_death`. Native school: **Void**. Target: `character`. Life
 
 **Portable eligibility (proposal):** scroll=false, charged_wand_staff=false, substance=false, focus_role=true. Require every effect/trigger/retained numeric binding to pass the existing carrier-specific compatibility gate. Wands/staves and channelling production are missing integrations; never infer eligibility from registration.
 
-**Coverage:** `small_missing_primitive`; `proposed_gap_candidate`; approval `awaiting_roster_approval`. No direct manifestation primitive established for the required behavior.
+**Coverage:** `small_missing_primitive`; fixed stock candidate with a timed `feigndeath` child, managed paid cast, ordinary observer and lifecycle tests. Restored-world installed-stock and cold gameplay qualification remain pending.
 
-**Boundary/gap:** Needs coordinated appearance, physiological observation and action restrictions; a corpse description alone is insufficient.
+**Boundary/gap:** Ordinary visual and `vitals` observations show apparent death; the real living state, blood, breathing, pulse physiology, wounds and metabolism are never changed. Self/staff `vitals` show true health, and functional CPR remains physiological. Voluntary commands break the appearance before execution. This is an illusion of death, not corpse creation or medical suppression.
 
 **Runtime evidence:**
-- No direct manifestation primitive established; retain the explicit gap.
+- `feigndeath`: [MudSharpCore/Magic/SpellEffects/FeignDeathEffect.cs](../../MudSharpCore/Magic/SpellEffects/FeignDeathEffect.cs), living-body prepayment admission and timed child.
+- `SpellFeignedDeath`: [MudSharpCore/Effects/Concrete/SpellEffects/SpellFeignedDeathEffect.cs](../../MudSharpCore/Effects/Concrete/SpellEffects/SpellFeignedDeathEffect.cs), visual/vitals appearance and action break.
+- [HealthModule](../../MudSharpCore/Commands/Modules/HealthModule.cs) and [CommandManager](../../MudSharpCore/Commands/CommandManager.cs) apply the observer and voluntary-action hooks.
 
 **Minimum acceptance â€” ARM-R-57 (`NOT_RUN_PROPOSED_CONTENT`):** Non-admin fixture with Void admission, acquired Feign Death, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible character. Invoke Feign Death at grade 2 through the explicit route.
 
-- Commit 14 designated energy units once; preserve native school Void.
+- Commit one shared controlled-efficiency charge respecting the locked 20-unit minimum; the managed controlled-grade-two fixture pays 50 designated units. Preserve native school Void.
 - Simulate death convincingly to configured observations while preserving the living character.
 - At grade 2 apply only this scaling contract: Duration 60*g seconds; binary effect unless its native definition specifies magnitude.
 - Reject absent admission or invalid body/target before payment; a resisted paid invocation cannot bypass costs or duplicate advancement.

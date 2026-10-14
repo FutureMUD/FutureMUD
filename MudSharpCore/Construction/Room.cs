@@ -976,6 +976,12 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 				return;
 			}
 		}
+		if (Gameworld.SpellOwnedGates is { } gates && gates.OwnsRoom(Id) &&
+			!gates.CanEnter(this, movingCharacter, nativeLogin))
+		{
+			movingCharacter.OutputHandler.Send("That Nilaz passage is closing.".ColourError());
+			return;
+		}
 		var explicitlyAssignedPosition = receipt is not null ? receipt.RoutePosition : _routeDefinition is not null &&
 		                                 ReferenceEquals(movingCharacter.Location, this)
 			? movingCharacter.RoutePositionMetres
@@ -2061,6 +2067,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
     public void Destroy(IRoom fallbackRoom)
     {
 		if (Gameworld.SpellOwnedShelters?.RequestRetirement(Id, SpellRetirementReason.Dismissal) == true) return;
+		if (Gameworld.SpellOwnedGates?.RequestRetirement(Id, SpellRetirementReason.Dismissal) == true) return;
         Action action = DestroyWithDatabaseAction(fallbackRoom);
         Gameworld.SaveManager.Flush();
         Gameworld.LogManager.FlushLog();
@@ -2087,6 +2094,8 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
     {
 		if (Gameworld.SpellOwnedShelters?.OwnsRoom(Id) == true)
 			throw new InvalidOperationException("Spell-owned rooms retire through their exact shelter manifest.");
+		if (Gameworld.SpellOwnedGates?.OwnsRoom(Id) == true)
+			throw new InvalidOperationException("Nilaz rooms retire through their exact gate manifest.");
         _noSave = true;
         RoomRequestsDeletion?.Invoke(this, EventArgs.Empty);
         foreach (IGameItem item in _gameItems.ToList())

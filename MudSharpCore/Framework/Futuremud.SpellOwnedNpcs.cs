@@ -14,6 +14,8 @@ public partial class Futuremud
 	public ISpellOwnedItemService SpellOwnedItems => _spellOwnedItems ??= new SpellOwnedItemService(this);
 	private ISpellOwnedShelterService? _spellOwnedShelters;
 	public ISpellOwnedShelterService SpellOwnedShelters => _spellOwnedShelters ??= new SpellOwnedShelterService(this);
+	private ISpellOwnedGateService? _spellOwnedGates;
+	public ISpellOwnedGateService SpellOwnedGates => _spellOwnedGates ??= new SpellOwnedGateService(this);
 	private ISpellOwnedPocketService? _spellOwnedPockets;
 	public ISpellOwnedPocketService SpellOwnedPockets => _spellOwnedPockets ??= new SpellOwnedPocketService(this);
 	private ISpellOwnedProjectionService? _spellOwnedProjections;
@@ -31,6 +33,8 @@ public partial class Futuremud
 		catch (Exception ex) { SystemMessage("Corpse animation reconciliation needs attention: " + ex.Message, true); }
 		try { SpellOwnedShelters.ReconcileRetirements(RuntimeClock.UtcNow); }
 		catch (Exception ex) { SystemMessage("Spell-owned shelter reconciliation needs attention: " + ex.Message, true); }
+		try { SpellOwnedGates.ReconcileRetirements(RuntimeClock.UtcNow); }
+		catch (Exception ex) { SystemMessage("Spell-owned Nilaz gate reconciliation needs attention: " + ex.Message, true); }
 		try { SpellOwnedProjections.ReconcileRetirements(RuntimeClock.UtcNow); }
 		catch (Exception ex) { SystemMessage("Spell-owned projection reconciliation needs attention: " + ex.Message, true); }
 	}

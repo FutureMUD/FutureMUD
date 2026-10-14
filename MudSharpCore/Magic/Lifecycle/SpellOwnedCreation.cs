@@ -27,6 +27,8 @@ public sealed partial class SpellOwnedCreation
 	{
 		if (!Enum.IsDefined(kind) || !Enum.IsDefined(role) ||
 		    role == SpellOwnedEntityRole.GeneratedPossession && kind != SpellOwnedEntityKind.GameItem ||
+		    (role is SpellOwnedEntityRole.GateSourcePortal or SpellOwnedEntityRole.GateCorridor or SpellOwnedEntityRole.GateDestinationPortal) &&
+		    kind != SpellOwnedEntityKind.Exit ||
 		    Context.Entry(row).State != EntityState.Added || !Matches(kind, row) ||
 		    _claims.Any(x => ReferenceEquals(x.Row, row)))
 		{

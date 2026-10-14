@@ -9,7 +9,7 @@ public enum SpellLifecycleMode { Permanent, TemporaryCleanup, DeathOnExpiry }
 public enum SpellLifecycleState { Active, Retiring, RemainsPending, Completed }
 public enum SpellRetirementReason { Expiry, Dispel, Dismissal, CapabilityLoss, Logout, EarlyDeath, EarlyItemRemoval, AnchorSevered, ProjectionDamage, Reboot }
 public enum SpellOwnedEntityKind { GameItem, AutonomousCharacter, CharacterInstance, Body, Room, Exit, RoomOverlay }
-public enum SpellOwnedEntityRole { CreatedEntity, GeneratedPossession }
+public enum SpellOwnedEntityRole { CreatedEntity, GeneratedPossession, GateSourcePortal, GateCorridor, GateDestinationPortal }
 
 /// <summary>An exact created row, never ownership inferred from inventory or reachability.</summary>
 public sealed record SpellOwnedEntity(SpellOwnedEntityKind Kind, long Id,

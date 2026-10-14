@@ -96,6 +96,7 @@ internal static class CastingNumerics
 			if (effect is MagicResourceDeltaEffect { DefinitionError: { } resourceDeltaError }) yield return $"{label}/magicresourcedelta: {resourceDeltaError}";
 			if (effect is CreateNPCEffect { DefinitionError: { } creationError }) yield return $"{label}/createnpc: {creationError}";
 			if (effect is CreateShelterEffect { DefinitionError: { } shelterError }) yield return $"{label}/createshelter: {shelterError}";
+			if (effect is CreateGateEffect { DefinitionError: { } gateError }) yield return $"{label}/creategate: {gateError}";
 			if (effect is CreateLiquidEffect { DefinitionError: { } liquidError }) yield return $"{label}/createliquid: {liquidError}";
 			if (effect is CreateItemEffect { DefinitionError: { } itemCreationError }) yield return $"{label}/createitem: {itemCreationError}";
 			if (effect is AnimateCorpseSpellEffect { DefinitionError: { } animationError }) yield return $"{label}/animatecorpse: {animationError}";

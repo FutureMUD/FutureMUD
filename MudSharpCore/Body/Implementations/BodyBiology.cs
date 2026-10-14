@@ -958,6 +958,7 @@ public partial class Body
             existingWound.OriginalDamage += damage.DamageAmount;
             existingWound.CurrentDamage += damage.DamageAmount;
             existingWound.CurrentPain += damage.PainAmount;
+			existingWound.CurrentStun += damage.StunAmount;
             existingTransferMeasurement?.Complete(new[] { existingWound });
             Gameworld.LogManager.CustomLogEntry(LogEntryType.SufferHypoxiaCellularDamage, this, damage, existingWound);
             return new[] { existingWound };

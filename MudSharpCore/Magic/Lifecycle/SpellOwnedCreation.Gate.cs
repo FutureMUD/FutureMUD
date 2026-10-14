@@ -48,9 +48,9 @@ public sealed partial class SpellOwnedCreation
 		var destinationPortal = GateExit(gate.NorthRoom.Id, gate.DestinationRoomId,
 			CardinalDirection.Unknown, CardinalDirection.Unknown, "leave", "enter", "outside", "gate");
 		Context.Exits.AddRange(sourcePortal, corridor, destinationPortal);
-		Claim(SpellOwnedEntityKind.Exit, sourcePortal);
-		Claim(SpellOwnedEntityKind.Exit, corridor);
-		Claim(SpellOwnedEntityKind.Exit, destinationPortal);
+		Claim(SpellOwnedEntityKind.Exit, sourcePortal, SpellOwnedEntityRole.GateSourcePortal);
+		Claim(SpellOwnedEntityKind.Exit, corridor, SpellOwnedEntityRole.GateCorridor);
+		Claim(SpellOwnedEntityKind.Exit, destinationPortal, SpellOwnedEntityRole.GateDestinationPortal);
 		Context.RoomOverlaysExits.AddRange(
 			new RoomOverlayExit { RoomOverlayId = gate.SourceOverlayId, Exit = sourcePortal },
 			new RoomOverlayExit { RoomOverlay = gate.SouthOverlay, Exit = sourcePortal },

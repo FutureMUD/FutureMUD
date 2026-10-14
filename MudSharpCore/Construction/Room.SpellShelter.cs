@@ -72,4 +72,20 @@ public partial class Room
 		ReleaseEvents();
 		Dispose();
 	}
+
+	internal void FinishCommittedGateRemoval()
+	{
+		if (Characters.Any() || GameItems.Any(x => !x.Deleted))
+			throw new InvalidOperationException("Committed Nilaz room release still has occupants or goods.");
+		SetNoSave(true);
+		foreach (var overlay in _overlays)
+		{
+			if (overlay is RoomOverlay native) native.SetNoSave(true);
+			Gameworld.SaveManager.Abort(overlay);
+		}
+		Gameworld.SaveManager.Abort(this);
+		Gameworld.EffectScheduler.Destroy(this); Gameworld.Scheduler.Destroy(this);
+		ReleaseEvents();
+		Dispose();
+	}
 }

@@ -16179,6 +16179,12 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Family"), "utf8mb4");
 
+                    b.Property<DateTime?>("GateLastPulseUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("GateLinksClosedUtc")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("Grade")
                         .HasColumnType("int");
 

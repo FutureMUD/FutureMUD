@@ -59,7 +59,8 @@ public class ExitManager : IExitManager, IHaveFuturemud
             foreach (Models.Exit exit in exits)
             {
 				if ((Gameworld.Rooms.Get(exit.RoomId1) is null || Gameworld.Rooms.Get(exit.RoomId2) is null) &&
-					Gameworld.SpellOwnedShelters?.OwnsExit(exit.Id) == true) continue;
+					(Gameworld.SpellOwnedShelters?.OwnsExit(exit.Id) == true ||
+					 Gameworld.SpellOwnedGates?.OwnsExit(exit.Id) == true)) continue;
                 IExit newExit;
                 if (!MasterExitList.ContainsKey(exit.Id))
                 {

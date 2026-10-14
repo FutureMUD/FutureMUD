@@ -38,7 +38,7 @@ public class SpellMagicTagEffect : SimpleSpellStatusEffectBase, IMagicTagEffect,
 	public string Value { get; }
 	public long ItemId { get; }
 	public long SavedRoomId { get; }
-	public int RemainingUses { get; }
+	public int RemainingUses { get; private set; }
 	public bool IsActive => SavedRoomId > 0 && ItemId > 0 && RemainingUses > 0 &&
 		Tag == ArmageddonSimpleStockContent.ArcaneMarkTag &&
 		Owner is IGameItem item && item.Id == ItemId && !item.Deleted && !item.Destroyed &&
@@ -48,6 +48,21 @@ public class SpellMagicTagEffect : SimpleSpellStatusEffectBase, IMagicTagEffect,
 		item.Effects.Any(x => ReferenceEquals(x, ParentEffect)) &&
 		ParentEffect.SpellEffects.Any(x => ReferenceEquals(x, this));
 	public ICharacter? Caster => ParentEffect?.Caster;
+
+	/// <summary>Mirror a use already debited in the same durable transaction as its travel creation.</summary>
+	internal void AcceptCommittedMarkedRoomUse(int previousUses)
+	{
+		if (!IsActive || RemainingUses != previousUses || previousUses <= 0)
+			throw new InvalidOperationException("The live mark no longer matches its committed use debit.");
+		RemainingUses = previousUses - 1;
+		if (RemainingUses == 0)
+		{
+			Owner.RemoveEffect(this, true);
+			return;
+		}
+		Changed = true;
+		Owner.EffectsChanged = true;
+	}
 
 	protected override XElement SaveDefinition()
 	{

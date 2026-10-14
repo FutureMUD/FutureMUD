@@ -244,6 +244,7 @@ internal static partial class GNHProgram
 			["NPCPrototypeId"] = nameof(Db.NpcTemplate), ["ItemPrototypeId"] = nameof(Db.GameItemProto), ["ItemSkinId"] = nameof(Db.GameItemSkin),
 			["LiquidId"] = nameof(Db.Liquid), ["Liquid"] = nameof(Db.Liquid), ["Resource"] = nameof(Db.MagicResource),
 			["AutobuilderTemplate"] = nameof(Db.AutobuilderRoomTemplate), ["TemplateRoom"] = nameof(Db.Room), ["FallbackRoom"] = nameof(Db.Room),
+			["UndeadMerit"] = nameof(Db.Merit),
 			["WaterPrototype"] = nameof(Db.GameItemProto), ["Prototype"] = nameof(Db.GameItemProto), ["Terrain"] = nameof(Db.Terrain),
 			["School"] = nameof(Db.MagicSchool), ["AI"] = nameof(Db.ArtificialIntelligence), ["BonusPlane"] = nameof(Db.Plane),
 			["Plane"] = nameof(Db.Plane), ["EffigyPrototype"] = nameof(Db.GameItemProto),
@@ -296,6 +297,7 @@ internal static partial class GNHProgram
 		[nameof(Db.GameItemProto)] = typeof(Db.GameItemProto), [nameof(Db.GameItemSkin)] = typeof(Db.GameItemSkin),
 		[nameof(Db.Liquid)] = typeof(Db.Liquid), [nameof(Db.Tag)] = typeof(Db.Tag), [nameof(Db.Terrain)] = typeof(Db.Terrain),
 		[nameof(Db.Room)] = typeof(Db.Room), [nameof(Db.AutobuilderRoomTemplate)] = typeof(Db.AutobuilderRoomTemplate),
+		[nameof(Db.Merit)] = typeof(Db.Merit),
 		[nameof(Db.ArtificialIntelligence)] = typeof(Db.ArtificialIntelligence), [nameof(Db.Plane)] = typeof(Db.Plane),
 		[nameof(Db.ArmourType)] = typeof(Db.ArmourType), [nameof(Db.Material)] = typeof(Db.Material)
 	};

@@ -980,6 +980,9 @@ public partial class Character
 		{
 			return new CanMoveResponse { Result = false, ErrorMessage = "That shelter is full or closing." };
 		}
+		if (exit?.Destination is { } gateDestination && Gameworld?.SpellOwnedGates is { } gates &&
+			gates.OwnsRoom(gateDestination.Id) && !gates.CanEnter(gateDestination, this, false))
+			return new CanMoveResponse { Result = false, ErrorMessage = "That Nilaz passage is closing." };
         // Execution remains anchored to this room, including for Immwalk. Planning may inspect
         // a later edge without relocating the character; all other current-state checks remain
         // shared, and normal movement must revalidate the edge when the character reaches it.

@@ -20,6 +20,8 @@ public class MagicSpellLifecycle
 	public int State { get; set; }
 	public int? Reason { get; set; }
 	public DateTime? DeathObservedUtc { get; set; }
+	public DateTime? GateLinksClosedUtc { get; set; }
+	public DateTime? GateLastPulseUtc { get; set; }
 	public long? RemainsItemId { get; set; }
 	public DateTime? RemainsRemovalRequestedUtc { get; set; }
 	public DateTime? RemainsNotificationAttemptedUtc { get; set; }

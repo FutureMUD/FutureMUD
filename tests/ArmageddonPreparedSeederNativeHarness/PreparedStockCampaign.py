@@ -27,7 +27,7 @@ REFERENCE_TABLES = {
     'Liquid': 'Liquids', 'Material': 'Materials', 'Tag': 'Tags',
     'MagicCapability': 'MagicCapabilities', 'Terrain': 'Terrains', 'ArmourType': 'ArmourTypes',
     'BodyProto': 'BodyProtos', 'Race': 'Races', 'CharacteristicDefinition': 'CharacteristicDefinitions',
-    'AutobuilderRoomTemplate': 'AutobuilderRoomTemplates', 'Room': 'Rooms',
+    'AutobuilderRoomTemplate': 'AutobuilderRoomTemplates', 'Room': 'Rooms', 'Merit': 'Merits',
     'ArtificialIntelligence': 'ArtificialIntelligences', 'Plane': 'Planes',
 }
 

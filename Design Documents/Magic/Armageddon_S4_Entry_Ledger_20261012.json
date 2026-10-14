@@ -1191,7 +1191,8 @@
         "assumptions": ["Native first/cold readiness loaded the installed definition but did not perform a paid Burning Draught cast or observe actual Body Drink/SilentDrink liquid and needs behavior."],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
-      }
+      },
+      "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
     },
     {
       "ordinal": 13,

@@ -683,6 +683,7 @@
         "Bite",
         "Carnivore Bite",
         "Claw Swipe",
+        "Manticore Raking Backstab",
         "Tail Slap",
         "Tail Spike",
         "Wing Buffet"
@@ -2516,6 +2517,7 @@
         "Fanged Bite",
         "Hamstring Snap",
         "Raking Maul",
+        "Werewolf Savaging Backstab",
         "Wolf Trip"
       ],
       "RequiredBindings": [

@@ -1671,6 +1671,7 @@ It is classified as {WeaponType.Classification.Describe().Colour(Telnet.Green)}.
 		IsReadied = expectedReadied = false;
 		Changed = true;
 		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
+		MudSharp.Effects.Concrete.UnseenCombatOpening.Consume(actor, (originalTarget ?? target) as ICharacter);
 		var isJam = false;
 		if (misfire && !catastrophe)
 		{

@@ -29,7 +29,11 @@ public partial class SupernaturalSeeder
 		IReadOnlyList<string> Categories,
 		BuiltInCombatMoveType? MoveTypeOverride = null,
 		string? FixedTargetBodypartShape = null,
-		bool SharedStockAttack = false);
+		bool SharedStockAttack = false,
+		SupernaturalBackstabDefinition? Backstab = null);
+
+	internal sealed record SupernaturalBackstabDefinition(BackstabSeedConfiguration Configuration,
+		double Multiplier, double Stamina, double Delay, double Weighting);
 
 	private static readonly IReadOnlyDictionary<string, (string SourceBody, SupernaturalPlanarProfile PlanarProfile)> CustomBodyProfiles =
 		new Dictionary<string, (string SourceBody, SupernaturalPlanarProfile PlanarProfile)>(StringComparer.OrdinalIgnoreCase)
@@ -175,6 +179,10 @@ public partial class SupernaturalSeeder
 
 			["Raking Maul"] = AttackDefinition("Claw High Swipe",
 				"@ maul|mauls $1 with a raking swipe of &0's {0}.", "claw", "therianthrope"),
+			[BackstabSeederHelper.WerewolfBackstab] = new("Claw High Swipe",
+				"@ wheel|wheels behind $1 and rake|rakes at &1's back with &0's {0}", ["claw", "therianthrope"],
+				MoveTypeOverride: BuiltInCombatMoveType.BackstabAttackUnarmed,
+				Backstab: new(BackstabSeederHelper.WerewolfConfiguration, 1.25, 6, 1.3, 150)),
 			["Hamstring Snap"] = AttackDefinition("Carnivore Low Bite",
 				"@ snap|snaps low at $1 with a hamstringing bite from &0's {0}.", "bite", "therianthrope"),
 			["Crushing Pounce"] = AttackDefinition("Animal Barge",
@@ -496,6 +504,15 @@ public partial class SupernaturalSeeder
 			WeaponAttack donor = _context.WeaponAttacks.First(x => x.Name == definition.DonorName);
 			if (definition.SharedStockAttack)
 			{
+				continue;
+			}
+			if (definition.Backstab is { } backstab)
+			{
+				var existed = _context.WeaponAttacks.Any(x => x.Name == name && x.WeaponTypeId == null);
+				BackstabSeederHelper.EnsureNaturalAttack(_context, name, donor, backstab.Configuration,
+					backstab.Multiplier, backstab.Stamina, backstab.Delay, backstab.Weighting, definition.Message,
+					strengthDamage, strengthPain, strengthStun);
+				if (!existed) summary.AttacksAdded++;
 				continue;
 			}
 

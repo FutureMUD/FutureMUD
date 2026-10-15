@@ -95,6 +95,7 @@ public class NaturalAttackMove : WeaponAttackMove
         if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (!HostileAttackAdmission.TryNotify(Assailant, defenderMove.Assailant as ICharacter,
 			CanContinueCommand)) return CombatMoveResult.Irrelevant;
+		UnseenCombatOpening.Consume(Assailant, defenderMove.Assailant as ICharacter);
         Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
                                   .CheckAgainstAllDifficulties(Assailant, CheckDifficulty, null, defenderMove.Assailant,
                                       Assailant.OffensiveAdvantage);
@@ -238,7 +239,7 @@ public class NaturalAttackMove : WeaponAttackMove
                         wardResult?.WardWeapon?.Parent), style: OutputStyle.CombatMessage,
                     flags: OutputFlags.InnerWrap));
             selfWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
-            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(finalDamage));
+            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(finalDamage)));
             selfWounds.AddRange(Assailant.CommandSufferDamage(selfDamage));
             wounds.AddRange(block.Shield.Parent.CommandSufferDamage(finalDamage));
             wounds.ProcessPassiveWounds();
@@ -398,7 +399,7 @@ public class NaturalAttackMove : WeaponAttackMove
                         Assailant, Assailant, defenderMove.Assailant, null, parry.Weapon.Parent),
                     style: OutputStyle.CombatMessage,
                     flags: OutputFlags.InnerWrap));
-            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(finalDamage));
+            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(finalDamage)));
             selfWounds.AddRange(Assailant.CommandSufferDamage(selfDamage));
             wounds.AddRange(parry.Weapon.Parent.CommandSufferDamage(finalDamage));
             wounds.ProcessPassiveWounds();
@@ -592,7 +593,7 @@ public class NaturalAttackMove : WeaponAttackMove
                 defenderMove.Assailant.OutputHandler.Handle(new EmoteOutput(new Emote("@ slip|slips and fall|falls to the ground while dodging!", defenderMove.Assailant)));
             }
             selfWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
-            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(finalDamage));
+            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(finalDamage)));
             selfWounds.AddRange(Assailant.CommandSufferDamage(selfDamage));
             wounds.ProcessPassiveWounds();
             selfWounds.ProcessPassiveWounds();
@@ -671,7 +672,7 @@ public class NaturalAttackMove : WeaponAttackMove
                     Assailant,
                     Assailant, defenderMove.Assailant), style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
-        List<IWound> wounds = defenderHaveWounds.CommandSufferDamage(finalDamage).ToList();
+        List<IWound> wounds = defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(finalDamage)).ToList();
         IEnumerable<IWound> selfWounds = Assailant.CommandSufferDamage(selfDamage);
         wounds.ProcessPassiveWounds();
         selfWounds.ProcessPassiveWounds();

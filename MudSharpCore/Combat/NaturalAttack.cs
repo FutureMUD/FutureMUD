@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.GameItems;
 using MudSharp.Vehicles;
 
@@ -25,6 +25,7 @@ public class NaturalAttack : INaturalAttack
         params BuiltInCombatMoveType[] type)
     {
         return type.Contains(Attack.MoveType) &&
+		       (!BackstabCombat.IsBackstab(Attack.MoveType) || target is ICharacter victim && BackstabCombat.IsEligible(attacker, victim)) &&
 		       IsValidTarget(Attack, target) &&
 		       attacker.Body.Bodyparts.Contains(Bodypart) &&
                attacker.Body.CanUseBodypart(Bodypart) == CanUseBodypartResult.CanUse &&

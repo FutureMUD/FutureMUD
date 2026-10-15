@@ -1,4 +1,4 @@
-﻿using MailKit;
+using MailKit;
 using MudSharp.Body;
 using MudSharp.Climate;
 using MudSharp.Database;
@@ -472,6 +472,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
     {
         switch (type)
         {
+            case BuiltInCombatMoveType.BackstabAttack:
             case BuiltInCombatMoveType.UseWeaponAttack:
             case BuiltInCombatMoveType.RangedWeaponAttack:
             case BuiltInCombatMoveType.ClinchAttack:
@@ -492,6 +493,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 	$4 - the ward weapon, if any. This can be null, so use $?4 to check for null.
 	{1} - the bodypart the attack targets";
             case BuiltInCombatMoveType.AmbushAttack:
+            case BuiltInCombatMoveType.BackstabAttackUnarmed:
             case BuiltInCombatMoveType.NaturalWeaponAttack:
             case BuiltInCombatMoveType.ClinchUnarmedAttack:
             case BuiltInCombatMoveType.StaggeringBlowUnarmed:
@@ -679,6 +681,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
             // 2 perceivers
             case BuiltInCombatMoveType.RetrieveItem:
             case BuiltInCombatMoveType.AmbushAttack:
+            case BuiltInCombatMoveType.BackstabAttackUnarmed:
             case BuiltInCombatMoveType.NaturalWeaponAttack:
             case BuiltInCombatMoveType.ClinchUnarmedAttack:
             case BuiltInCombatMoveType.StaggeringBlowUnarmed:
@@ -724,6 +727,7 @@ public class CombatMessage : SaveableItem, ICombatMessage
 
                 break;
             // 3 perceivers
+            case BuiltInCombatMoveType.BackstabAttack:
             case BuiltInCombatMoveType.UseWeaponAttack:
             case BuiltInCombatMoveType.RangedWeaponAttack:
             case BuiltInCombatMoveType.ClinchAttack:

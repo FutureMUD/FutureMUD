@@ -115,6 +115,8 @@ Muskets still evaluate their direct `condition` jam and misfire formulas before 
 
 ## Manual Combat Commands
 
+The explicit `backstab [target]` command selects a weighted, usable weapon or natural backstab attack against a rear-facing target or through an unused unseen opening. That opening is captured at encounter start before concealment removal and is consumed by the first actual attack attempt, including a miss. Backstabs use normal attack defenses and damage formulas; optional victim resistance, reel, advantage, penetration, and worn-armour bypass settings are authored on the attack. See [Backstab Attacks](./Backstab_Attacks.md) for builder syntax and resolution details.
+
 Manual combat commands are builder-authored `ManualCombatCommand` rows that register verbs such as `kick` or `bash` without hardcoding a command method per move. The loader brings them in after weapon attacks, auxiliary actions, FutureProgs, and dynamic magic verbs are available. Startup registration validates the primary verb and aliases against existing command trees and already-claimed manual words; invalid or colliding aliases are skipped with console warnings instead of preventing command loading.
 
 The player and NPC syntax is `<verb> [target]`. Version 1 is combat-only, targets characters only, rejects self-targeting, and uses the actor's current combat target when no explicit target is supplied. `CombatModule.ManualCombatGeneric` pre-validates the request with `ManualCombatCommandResolver` and then queues a `SelectedCombatAction`; the selected action resolves the binding again at execution time so race actions, stamina, target state, position, and usability progs are checked against the live combat state.

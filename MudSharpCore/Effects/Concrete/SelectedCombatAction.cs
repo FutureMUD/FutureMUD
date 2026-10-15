@@ -12,6 +12,19 @@ namespace MudSharp.Effects.Concrete;
 
 public class SelectedCombatAction : CombatEffectBase, ISelectedCombatAction
 {
+	internal sealed class BackstabAction(BackstabChoice choice, ICharacter target) : CombatActionType
+	{
+		public override ICombatMove GetCombatMove(ICharacter actor)
+		{
+			if (BackstabCombat.Validate(actor, target, choice, out var error)) return choice.CreateMove(actor, target);
+			actor.OutputHandler.Send(error);
+			return null;
+		}
+		public override string Describe(IPerceiver voyeur) => $"backstabbing {target.HowSeen(voyeur)}";
+	}
+	internal static SelectedCombatAction GetEffectBackstab(ICharacter actor, ICharacter target, BackstabChoice choice) =>
+		new(actor, new BackstabAction(choice, target));
+
 	internal class MagicSmashAction : CombatActionType
 	{
 		public required Magic.Powers.IMagicSmashPower Power { get; init; }

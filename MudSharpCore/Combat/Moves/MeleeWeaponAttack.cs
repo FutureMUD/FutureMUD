@@ -109,6 +109,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
         if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
 		if (!HostileAttackAdmission.TryNotify(Assailant, defenderMove.Assailant as ICharacter,
 			CanContinueCommand)) return CombatMoveResult.Irrelevant;
+		UnseenCombatOpening.Consume(Assailant, defenderMove.Assailant as ICharacter);
         Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
                                   .CheckAgainstAllDifficulties(Assailant, CheckDifficulty,
                                       Weapon.WeaponType.AttackTrait,
@@ -259,10 +260,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                     2 * Attack.Profile.BaseAngleOfIncidence /
                     Math.PI,
                 PenetrationOutcome =
-                    Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
-                             .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType),
-                                 defenderMove.Assailant,
-                                 Weapon),
+                    RollTargetPenetration(defenderMove.Assailant, Weapon),
                 ShockAmount = 0,
                 StunAmount =
                     EvaluateAttackFormula(Attack.Profile.StunExpression, Assailant,
@@ -281,7 +279,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                         defenderMove.Shield.Parent, wardResult?.WardWeapon?.Parent),
                     style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
             wardWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
-            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(finalDamage));
+            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(finalDamage)));
             wounds.AddRange(defenderMove.Shield.Parent.CommandSufferDamage(finalDamage));
             CheckLodged(wounds);
             wardWounds.ProcessPassiveWounds();
@@ -454,10 +452,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                         TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, (int)Weapon.Parent.Quality) *
                     2 * finalAngle / Math.PI,
                 PenetrationOutcome =
-                    Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
-                             .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType),
-                                 defenderMove.Assailant,
-                                 Weapon),
+                    RollTargetPenetration(defenderMove.Assailant, Weapon),
                 ShockAmount = 0,
                 StunAmount =
                     EvaluateAttackFormula(Attack.Profile.StunExpression, Assailant,
@@ -473,7 +468,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                         $"{attackEmote}{string.Format(parryEmote, "", TargetBodypart.FullDescription())}".Fullstop(),
                         Assailant, Assailant, defenderMove.Assailant, Weapon.Parent, parry.Weapon.Parent, null),
                     style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(finalDamage));
+            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(finalDamage)));
             CheckLodged(wounds);
             wardWounds.AddRange(parry.Weapon.Parent.CommandSufferDamage(finalDamage));
             CheckLodged(wardWounds);
@@ -688,7 +683,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
             }
 
             selfWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
-            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(damage));
+            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(damage)));
             wounds.AddRange(Weapon.Parent.CommandSufferDamage(selfDamage));
             CheckLodged(wounds);
             CheckLodged(selfWounds);
@@ -766,7 +761,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                     Assailant, Assailant, defenderMove.Assailant, Weapon.Parent, null, null),
                 style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
-        List<IWound> wounds = defenderHaveWounds.CommandSufferDamage(damage).ToList();
+        List<IWound> wounds = defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(damage)).ToList();
         wounds.AddRange(Weapon.Parent.CommandSufferDamage(selfDamage));
         CheckLodged(wounds);
         wounds.ProcessPassiveWounds();

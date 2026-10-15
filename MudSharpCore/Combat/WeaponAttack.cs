@@ -1,4 +1,4 @@
-﻿using Humanizer;
+using Humanizer;
 using JetBrains.Annotations;
 using MudSharp.Body;
 using MudSharp.Body.Position;
@@ -127,6 +127,8 @@ public class WeaponAttack : CombatAction, IWeaponAttack
     {
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
         var permitted = types.Contains(MoveType) &&
+		       (!BackstabCombat.IsBackstab(MoveType) || attacker is ICharacter backstabber &&
+		        target is ICharacter victim && BackstabCombat.IsEligible(backstabber, victim)) &&
                HandednessMatches(attacker, weapon, handedness) &&
                Intentions.HasFlag((attacker as ICharacter)?.CombatSettings.RequiredIntentions ??
                                   CombatMoveIntentions.None) &&
@@ -162,6 +164,9 @@ public class WeaponAttack : CombatAction, IWeaponAttack
     {
         switch ((BuiltInCombatMoveType)attack.MoveType)
         {
+			case BuiltInCombatMoveType.BackstabAttack:
+			case BuiltInCombatMoveType.BackstabAttackUnarmed:
+				return new BackstabAttack(attack, gameworld);
 			case BuiltInCombatMoveType.AmbushAttack:
 				return new AmbushAttack(attack, gameworld);
             case BuiltInCombatMoveType.CoupDeGrace:
@@ -211,6 +216,9 @@ public class WeaponAttack : CombatAction, IWeaponAttack
     {
         switch (type)
         {
+			case BuiltInCombatMoveType.BackstabAttack:
+			case BuiltInCombatMoveType.BackstabAttackUnarmed:
+				return new BackstabAttack(gameworld, type);
 			case BuiltInCombatMoveType.AmbushAttack:
 				return new AmbushAttack(gameworld, type);
             case BuiltInCombatMoveType.CoupDeGrace:

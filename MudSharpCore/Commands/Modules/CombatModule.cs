@@ -27,6 +27,61 @@ public class CombatModule : Module<ICharacter>
 
     public static CombatModule Instance { get; } = new();
 
+	[PlayerCommand("Backstab", "backstab")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[NoMovementCommand]
+	[DelayBlock("general", "You must first stop {0} before you can backstab.")]
+	[HelpInfo("backstab", @"The #3backstab#0 command requests a weapon or natural backstab attack.
+You need an authored backstab attack and either an unused unseen opening or rear combat facing.
+
+	#3backstab <target>#0 - backstab someone, initiating combat if necessary
+	#3backstab#0 - backstab your current combat target
+
+An unseen opening lasts until your first attack attempt against that target, even if it misses.
+Backstabs can be defended normally. Their damage and optional reeling and armour benefits are builder-configured.", AutoHelp.HelpArg)]
+	protected static void Backstab(ICharacter actor, string command)
+	{
+		var arguments = new StringStack(command.RemoveFirstWord());
+		var target = arguments.IsFinished ? actor.CombatTarget as ICharacter :
+			actor.TargetActor(arguments.PopSpeech(), PerceiveIgnoreFlags.IgnoreSelf);
+		if (target is null || target == actor)
+		{
+			actor.OutputHandler.Send("Specify someone you can see to backstab, or select a combat target first.");
+			return;
+		}
+		if (!arguments.IsFinished)
+		{
+			actor.OutputHandler.Send("Use backstab [<target>].");
+			return;
+		}
+		if (actor.CombatSettings is null || !actor.CanSee(target) || !actor.ColocatedWith(target))
+		{
+			actor.OutputHandler.Send("You must be able to see and reach your target and have combat settings to backstab.");
+			return;
+		}
+		if (actor.CombatTarget != target && !actor.CanEngage(target))
+		{
+			actor.OutputHandler.Send(actor.WhyCannotEngage(target));
+			return;
+		}
+		var choice = BackstabCombat.FindAttack(actor, target, out var error);
+		if (choice is null)
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
+		if (actor.CombatTarget != target && !actor.Engage(target, false)) return;
+		if (!BackstabCombat.Validate(actor, target, choice, out error))
+		{
+			actor.OutputHandler.Send(error);
+			return;
+		}
+		if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectBackstab(actor, target, choice)) &&
+		    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
+			actor.OutputHandler.Send($"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Backstab {target.HowSeen(actor)}.");
+	}
+
     public override int CommandsDisplayOrder => 8;
 
     [PlayerCommand("Targets", "targets")]

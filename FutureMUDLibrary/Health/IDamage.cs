@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Character;
 using MudSharp.GameItems;
 using MudSharp.RPG.Checks;
@@ -21,5 +21,7 @@ namespace MudSharp.Health
         IGameItem LodgableItem { get; }
         double AngleOfIncidentRadians { get; }
         Outcome PenetrationOutcome { get; }
+		/// <summary>Skip worn armour layers while retaining natural and magical protection.</summary>
+		bool BypassWornArmour => false;
     }
 }

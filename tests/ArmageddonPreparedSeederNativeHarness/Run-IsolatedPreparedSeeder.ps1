@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param([string]$EvidenceRoot,
-	[ValidateSet('prepared', 'replay', 'settings', 'stock-progressions', 'stock-supplies', 'stock-anatomy', 'stock-catalogue', 'stock-catalogue-boot', 'catalogue-fixture-boot', 'base-fixture-capture', 'base-fixture-restore', 'base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore', 's3-runtime', 'snapshot-refresh', 'stock-progression-fixtures', 'installed', 'installed-sql', 'sense', 'sense-control')]
+	[ValidateSet('prepared', 'replay', 'settings', 'stock-progressions', 'stock-supplies', 'stock-anatomy', 'stock-catalogue', 'stock-catalogue-boot', 'catalogue-fixture-boot', 'base-fixture-capture', 'base-fixture-restore', 'base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore', 'focus-fixture-restore', 's3-runtime', 'snapshot-refresh', 'stock-progression-fixtures', 'installed', 'installed-sql', 'sense', 'sense-control')]
 	[string]$Mode = 'prepared',
 	[string]$BaseFixture,
 	[string]$BaseFixtureSha256,
@@ -8,11 +8,14 @@ param([string]$EvidenceRoot,
 	[string]$GateFixtureSha256,
 	[string]$ExchangeFixture,
 	[string]$ExchangeFixtureSha256,
+	[string]$FocusDeviceFixture,
+	[string]$FocusDeviceFixtureSha256,
 	[ValidateSet('Classic', 'Simple')][string]$PackageMode = 'Classic',
 	[ValidateSet('catalogue', 's4-stock')][string]$QualificationScope = 'catalogue',
 	[switch]$GateSmokeOnly,
 	[switch]$ExchangeSmokeOnly,
 	[switch]$RemainingSmokeOnly,
+	[switch]$FocusDeviceSmokeOnly,
 	[ValidateSet('PsionicsSeeder', 'EnvironmentalExposureSeeder')][string[]]$LaterSteps = @(),
 	[switch]$FreshInstallCheck)
 
@@ -39,17 +42,21 @@ foreach ($ownedName in $ownedEnvironmentNames) { $ownedPreviousEnvironment[$owne
 if ($GateSmokeOnly -and $QualificationScope -ne 's4-stock') { throw 'Gate-only native qualification requires -QualificationScope s4-stock.' }
 if ($ExchangeSmokeOnly -and ($GateSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -notin @('base-fixture-package', 'exchange-fixture-restore'))) { throw 'Exchange-only qualification requires a separate s4-stock package or exact Exchange restore run.' }
 if ($RemainingSmokeOnly -and ($GateSmokeOnly -or $ExchangeSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -ne 'base-fixture-package')) { throw 'Remaining-stock qualification requires its separate s4-stock package lane.' }
+if ($FocusDeviceSmokeOnly -and ($RemainingSmokeOnly -or $GateSmokeOnly -or $ExchangeSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -notin @('base-fixture-package','focus-fixture-restore'))) { throw 'Focus/device qualification requires its separate s4-stock package lane.' }
+$ownedEnvironmentNames += 'FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY'
+$ownedPreviousEnvironment['FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY'] = [Environment]::GetEnvironmentVariable('FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY')
+$env:FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY = if ($FocusDeviceSmokeOnly) { '1' } else { $null }
 $ownedEnvironmentNames += 'FUTUREMUD_S4_REMAINING_SMOKE_ONLY'
 $ownedPreviousEnvironment['FUTUREMUD_S4_REMAINING_SMOKE_ONLY'] = [Environment]::GetEnvironmentVariable('FUTUREMUD_S4_REMAINING_SMOKE_ONLY')
 $env:FUTUREMUD_S4_REMAINING_SMOKE_ONLY = if ($RemainingSmokeOnly) { '1' } else { $null }
 $ownedEnvironmentNames += 'FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY'
 $ownedPreviousEnvironment['FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY'] = [Environment]::GetEnvironmentVariable('FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY')
-foreach ($exchangeEnvironment in @('FUTUREMUD_S4_EXCHANGE_FIXTURE', 'FUTUREMUD_S4_EXCHANGE_FIXTURE_SHA256')) {
+foreach ($exchangeEnvironment in @('FUTUREMUD_S4_EXCHANGE_FIXTURE', 'FUTUREMUD_S4_EXCHANGE_FIXTURE_SHA256', 'FUTUREMUD_S4_FOCUS_DEVICE_FIXTURE', 'FUTUREMUD_S4_FOCUS_DEVICE_FIXTURE_SHA256')) {
 	$ownedEnvironmentNames += $exchangeEnvironment
 	$ownedPreviousEnvironment[$exchangeEnvironment] = [Environment]::GetEnvironmentVariable($exchangeEnvironment)
 }
 if ($QualificationScope -eq 's4-stock') {
-	if ($Mode -notin @('base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore') -or ($Mode -eq 'gate-fixture-restore' -and -not $GateSmokeOnly) -or ($Mode -eq 'exchange-fixture-restore' -and -not $ExchangeSmokeOnly)) { throw 'S4 stock qualification requires package mode or an explicit focused fixture restore.' }
+	if ($Mode -notin @('base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore', 'focus-fixture-restore') -or ($Mode -eq 'gate-fixture-restore' -and -not $GateSmokeOnly) -or ($Mode -eq 'exchange-fixture-restore' -and -not $ExchangeSmokeOnly) -or ($Mode -eq 'focus-fixture-restore' -and -not $FocusDeviceSmokeOnly)) { throw 'S4 stock qualification requires package mode or an explicit focused fixture restore.' }
 	$bootSource = Join-Path $PSScriptRoot 'PreparedCatalogueBootSmoke.py'
 	$bootCopy = Join-Path (Split-Path $workspaceRoot -Parent) 'PreparedCatalogueBootSmoke.py'
 	if (-not (Test-Path -LiteralPath $bootCopy) -or
@@ -60,7 +67,7 @@ if ($QualificationScope -eq 's4-stock') {
 elseif ($Mode -eq 'base-fixture-package' -and $env:FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE -eq '1') {
 	throw 'S4 stock flag was supplied without -QualificationScope s4-stock; refusing ambiguous catalogue-only qualification.'
 }
-if ($Mode -in @('base-fixture-restore', 'base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore')) {
+if ($Mode -in @('base-fixture-restore', 'base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore', 'focus-fixture-restore')) {
 	if (-not $BaseFixture -or $BaseFixtureSha256 -cnotmatch '^[A-F0-9]{64}$') { throw 'Restore requires an explicit base descriptor and its capture SHA256.' }
 	$baseFixtureFull = [IO.Path]::GetFullPath($BaseFixture)
 	$baseFixtureBoundary = (Join-Path $workspaceRoot '.artifacts\pre-armageddon-base-fixtures') + [IO.Path]::DirectorySeparatorChar
@@ -88,6 +95,12 @@ if ($Mode -eq 'exchange-fixture-restore') {
 		throw 'The focused Exchange fixture path or explicit digest is invalid.'
 	}
 }
+if ($Mode -eq 'focus-fixture-restore') {
+	$focusFixtureFull = [IO.Path]::GetFullPath($FocusDeviceFixture)
+	$focusFixtureBoundary = (Join-Path $workspaceRoot '.artifacts\s4-focus-device-fixtures') + [IO.Path]::DirectorySeparatorChar
+	if ($FocusDeviceFixtureSha256 -cnotmatch '^[A-F0-9]{64}$' -or -not $focusFixtureFull.StartsWith($focusFixtureBoundary, [StringComparison]::OrdinalIgnoreCase) -or
+		-not (Test-Path -LiteralPath $focusFixtureFull) -or (Get-FileHash -LiteralPath $focusFixtureFull -Algorithm SHA256).Hash -ne $FocusDeviceFixtureSha256) { throw 'Invalid explicit focus/device fixture descriptor or digest.' }
+}
 if ($FreshInstallCheck -and $Mode -ne 'base-fixture-capture') { throw 'FreshInstallCheck applies only to capture.' }
 if ($LaterSteps.Count -gt 0 -and $Mode -ne 'base-fixture-package') { throw 'LaterSteps applies only to targeted package mode.' }
 if ($QualificationScope -eq 's4-stock') {
@@ -96,6 +109,8 @@ if ($QualificationScope -eq 's4-stock') {
 	$env:FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY = if ($ExchangeSmokeOnly) { '1' } else { '0' }
 	$env:FUTUREMUD_S4_EXCHANGE_FIXTURE = $ExchangeFixture
 	$env:FUTUREMUD_S4_EXCHANGE_FIXTURE_SHA256 = $ExchangeFixtureSha256
+	$env:FUTUREMUD_S4_FOCUS_DEVICE_FIXTURE = $FocusDeviceFixture
+	$env:FUTUREMUD_S4_FOCUS_DEVICE_FIXTURE_SHA256 = $FocusDeviceFixtureSha256
 	$env:FUTUREMUD_CATALOGUE_BOOT_SCOPE = 'catalogue'
 	$env:FUTUREMUD_PREPARED_REPLAY_BOOT_SCRIPT = [IO.Path]::GetFullPath($bootCopy)
 	$env:FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT = Join-Path (Split-Path $workspaceRoot -Parent) ('prepared-catalogue-boot-native-s4-stock-' + [guid]::NewGuid().ToString('N'))
@@ -264,7 +279,7 @@ try {
 		try {
 			$stockBootReceipt = Join-Path $env:FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT 'boot-latest.json'
 			$boot = Get-Content -LiteralPath $stockBootReceipt -Raw | ConvertFrom-Json
-			if (-not $GateSmokeOnly -and -not $ExchangeSmokeOnly) {
+			if (-not $GateSmokeOnly -and -not $ExchangeSmokeOnly -and -not $FocusDeviceSmokeOnly) {
 				$stockFirstLoaded = @($boot.stock_definition_loader.first.PSObject.Properties).Count
 				$stockColdLoaded = @($boot.stock_definition_loader.cold.PSObject.Properties).Count
 			}
@@ -284,6 +299,10 @@ try {
 					throw 'Paid Nilaz gate first/cold or owned-process assertions are incomplete.'
 				}
 				Write-Output "s4GateQualification=verified assertions=$stockAssertions"
+			}
+			elseif ($FocusDeviceSmokeOnly) {
+				if ($boot.status -ne 'PASS' -or $boot.focus_devices.status -ne 'PASS' -or $boot.focus_devices.cold_status -ne 'PASS' -or -not $boot.owned_mud_processes_stopped) { throw 'Focus/device first/cold acceptance is incomplete.' }
+				Write-Output "s4FocusDeviceQualification=verified assertions=$stockAssertions"
 			}
 			elseif ($RemainingSmokeOnly) {
 				if ($boot.status -ne 'PASS' -or $boot.remaining_stock.status -ne 'PASS' -or $boot.remaining_stock.cold_status -ne 'PASS' -or
@@ -309,7 +328,7 @@ try {
 	$sourceEnd = Write-SourceEvidence 'source-end'
 	$sourceStable = $sourceStart -eq $sourceEnd
 	$qualificationLimits = if ($QualificationScope -eq 's4-stock') { 'Focused Telnet evidence is in stock_boot_receipt; no whole-package or S5 qualification.' } else { 'Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.' }
-	@{ revision = $revision; mode = $Mode; qualification_scope = $QualificationScope; gate_smoke_only = [bool]$GateSmokeOnly; exchange_smoke_only = [bool]$ExchangeSmokeOnly; remaining_smoke_only = [bool]$RemainingSmokeOnly; stock_first_loaded = $stockFirstLoaded; stock_cold_loaded = $stockColdLoaded; stock_assertions = $stockAssertions; stock_campaign_assertions = $stockCampaignAssertions; stock_boot_receipt = $stockBootReceipt; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
+	@{ revision = $revision; mode = $Mode; qualification_scope = $QualificationScope; gate_smoke_only = [bool]$GateSmokeOnly; exchange_smoke_only = [bool]$ExchangeSmokeOnly; remaining_smoke_only = [bool]$RemainingSmokeOnly; focus_device_smoke_only = [bool]$FocusDeviceSmokeOnly; focus_device_fixture = $FocusDeviceFixture; focus_device_fixture_sha256 = $FocusDeviceFixtureSha256; stock_first_loaded = $stockFirstLoaded; stock_cold_loaded = $stockColdLoaded; stock_assertions = $stockAssertions; stock_campaign_assertions = $stockCampaignAssertions; stock_boot_receipt = $stockBootReceipt; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
 		base_fixture = $BaseFixture; base_fixture_sha256 = $BaseFixtureSha256; gate_fixture = $GateFixture; gate_fixture_sha256 = $GateFixtureSha256; exchange_fixture = $ExchangeFixture; exchange_fixture_sha256 = $ExchangeFixtureSha256; package_mode = $PackageMode; later_steps = $LaterSteps; fresh_install_check = [bool]$FreshInstallCheck; base_receipt = (Join-Path $evidenceDirectory 'base-world-run.json'); process_root = $taskRoot; owned_port = $taskPort; limits = $qualificationLimits } |
 		ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $evidenceDirectory 'summary.json')
 	Write-Output "nativeSourceStable=$sourceStable sourceEnd=$sourceEnd"

@@ -72,7 +72,10 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 			var spells = ArmageddonStockSpellInstaller.Install(factory);
 			var spellReport = string.Join("\n", spells.Messages);
 			if (spells.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(progressionReport + "\n" + catalogueReport + "\n" + spellReport);
-			return $"Armageddon fixed settings ready: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Settings and shared answers are durable.\n{progressionReport}\n{catalogueReport}\n{spellReport}\nS4-S6 remain pending; the full magic package is not installed.";
+			var focusDevices = ArmageddonStockFocusDeviceInstaller.Install(factory);
+			var focusDeviceReport = string.Join("\n", focusDevices.Messages);
+			if (focusDevices.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(focusDeviceReport);
+			return $"Armageddon fixed settings ready: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Settings and shared answers are durable.\n{progressionReport}\n{catalogueReport}\n{spellReport}\n{focusDeviceReport}\nS4 gameplay qualification and S5-S6 remain pending; the full magic package is not installed.";
 		}
 		if (!questionAnswers.TryGetValue(InstallQuestion, out var answer) || !IsYes(answer))
 			return "Armageddon package declined. No package content or player state changed. Generic answer-memory housekeeping may still run.";

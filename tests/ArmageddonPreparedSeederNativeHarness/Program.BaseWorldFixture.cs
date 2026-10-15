@@ -314,7 +314,8 @@ internal static partial class GNHProgram
 			else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE") == "1")
 			{
 				PreparedStockAttunementAcceptance(database);
-				if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_REMAINING_SMOKE_ONLY") == "1") PrepareRemainingStockFixture(database);
+				if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY") == "1") PrepareFocusDeviceFixture(database);
+				else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_REMAINING_SMOKE_ONLY") == "1") PrepareRemainingStockFixture(database);
 			}
 			RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
 		}

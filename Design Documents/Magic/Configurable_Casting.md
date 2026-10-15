@@ -4,8 +4,8 @@
 
 The fixed installer declares all 152 required definitions. Definition installation,
 focused runtime checks and paid native qualification remain separate; the continuation
-verification JSON records their actual receipts. The two optional entries and twelve
-focus/device families retain their separate gates. Release, package admissions,
+verification JSON records their actual receipts. The two optional entries remain deferred. The twelve focus/device blueprints and
+recipes are installed with their separate availability gates disabled. Release, package admissions,
 Class availability, quiet/area variants and unqualified carriers remain disabled.
 
 Ground Tremor applies `3*grade` local crushing damage and one-third to its caster;
@@ -645,3 +645,27 @@ S4 gameplay qualification and S5/release admission remain distinct.
 Native school wards can set `OneUse` with Incoming/Reflect, editable with the existing ward `oneuse` command. Absence retains unlimited legacy behaviour. Queries do not consume the use. The paid successful reflection commits the exact admitted child/parent token, records spent state and marks owning effects dirty before later callbacks. The same token fences reflection text and downstream payload emote callbacks; stale authority holds the paid recipient, with no replay/refund. Used state and remaining lifetime survive native parent reload.
 
 Stock Turn the Elements selects the explicit S2 Fire school, no inferred union, with floor7 and30*grade seconds. The school is builder editable. Stone Skin binds ordinary physical Agility where unique, otherwise the supported ordinary Dexterity mobility equivalent (the labmud preset); ambiguous candidates hold. The alias retains its exact native ID when a later attribute appears. It creates no attribute, and the spell description records the actual mapped attribute name.
+
+## Gated S4 focus and device stock
+
+The fixed installer follows the152 spell definitions with `ArmageddonStockFocusDeviceInstaller`.
+It owns ten `arm.focus.<tradition>` prototypes and `arm.item.blank_wand` / `arm.item.blank_staff`,
+plus each exact `.recipe`. Foci use native Role.Focus and real references from the locked
+tradition rosters. Blanks use explicit Role.Dual, Caster eligibility, capacity5/10,
+empty instances and60-second paid production; only the existing compatible Mend Flesh
+payload is initially whitelisted. No item grants knowledge/mastery, and charged mode never
+falls back to personal casting. These content references do not automatically qualify
+all spell effects or broader S5 carrier production.
+
+Both item-use and craft availability progs remain false. Reruns preserve ordinary builder
+customisations and stable identities, while incompatible enabled availability progs refuse
+without overwriting the edit. Recipes consume the locked blanks/seals through real native
+SimpleItem inputs and SimpleProduct outputs. A timed work phase plus zero-duration final
+release phase supplies the actual60/120-second duration under native crafting semantics.
+
+The representative first/cold receipt in the continuation verification covers disposable
+availability-only copies, real recipe timers/custody, personal focus, target-free practice,
+a paid frozen Mend charge and exact cold bank/reserve retention. An empty explicit practice
+plan does not enforce possession of a focus; the sample proves retention while held.
+Actual per-entry material/focus requirements remain explicit qualification decisions.
+All stock/package/Class/variant/Release gates stay disabled; S5 remains separate.

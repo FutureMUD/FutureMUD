@@ -54,6 +54,7 @@ internal static partial class GNHProgram
 			"--base-fixture-package-run" => RestoreBaseWorldFixture(installPackage: true),
 			"--gate-fixture-restore-run" => RestoreNilazGateFixture(),
 			"--exchange-fixture-restore-run" => RestoreExchangeStockFixture(),
+			"--focus-fixture-restore-run" => RestoreFocusDeviceFixture(),
 			"--s3-runtime-run" => RunS3RuntimeAcceptanceChecks(),
 			"--snapshot-refresh-run" => RefreshOwnedBlankSnapshot(),
 			"--stock-anatomy-reader" => ReadStockAnatomyCatalogue(args[1]),

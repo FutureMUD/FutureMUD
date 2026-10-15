@@ -1371,5 +1371,129 @@
       "Class availability",
       "unqualified carrier producers"
     ]
+  },
+  "focus_devices_20261015": {
+    "status": "PASS_S4_CONTENT_AND_REPRESENTATIVE_NATIVE",
+    "required_keys": [
+      "arm.focus.earth",
+      "arm.focus.fire",
+      "arm.focus.water",
+      "arm.focus.wind",
+      "arm.focus.shadow",
+      "arm.focus.lightning",
+      "arm.focus.void",
+      "arm.focus.sorcerer",
+      "arm.focus.preserver",
+      "arm.focus.defiler",
+      "arm.item.blank_wand",
+      "arm.item.blank_staff"
+    ],
+    "managed": {
+      "seeder_full": {
+        "passed": 1860,
+        "failed": 0,
+        "skipped": 3,
+        "receipt": "C:/Temp/futuremud-s4-focus-managed/20261015T141958Z-2a2a07de4647/summary.json"
+      },
+      "shared_devices_practice": {
+        "passed": 145,
+        "failed": 0,
+        "receipt": "C:/Temp/futuremud-s4-focus-managed/20261015T143102Z-b4267973917c/summary.json"
+      },
+      "post_review_focused": {
+        "passed": 3,
+        "failed": 0,
+        "receipt": "C:/Temp/s4-focus-managed/s4-focus-repaired.trx",
+        "scope": "Gate edit refusal preserves customisations; canonical identities and timed work plus finish phases; all12 locked configurations in Classic/Simple."
+      }
+    },
+    "failed_native_attempts": [
+      {
+        "receipt": "C:/Temp/futuremud-s4-focus-native/20261015T143527Z_e6af19b081cd4c2f80780bf8b10364c0/summary.json",
+        "boot_receipt": "../prepared-catalogue-boot-native-s4-stock-c1cffb61d5aa41a99e0b568912cc9b22/boot-latest.json",
+        "source_start_end": "0183E019EEE1B0A840DF31C73FB546C081CA0FEE5A4FFAE2C720D2EA785AA49A",
+        "status": "FAIL",
+        "cause": "Harness missed flush acknowledgement with200ms read while observed native flush took1420ms. The first craft failed its ordinary skill roll; fixture incorrectly placed character-scope crafting90 in body Traits. No console crash trace; cleanup terminates the owned MUD after assertion failure.",
+        "repair": "CharacterTraits fixture, ordinary lit work room and explicit bounded six-second flush acknowledgement. No production runtime change.",
+        "cleanup": "Owned MUD stopped, database dropped, owned MySQL instance removed."
+      },
+      {
+        "receipt": "C:/Temp/futuremud-s4-focus-native/20261015T145537Z_11d82822ba5b46168c37157023aeccb0/summary.json",
+        "boot_receipt": "../prepared-catalogue-boot-native-s4-stock-602cf47bd27a432298ec84ee7609b134/boot-latest.json",
+        "source_start_end": "09A7F1D222A62071BADD2B1F93C826B4B10A133A34DE22F35A9190D9475730E1",
+        "status": "FAIL",
+        "scope_passed": "Conservation and corrected flush; the ordinary60-second focus recipe completed successfully and persisted its exact product after67.3seconds.",
+        "cause": "Harness targeted builder Keywords s4samplefocus. Native GameItem.GetKeywordsFor derives visible description words instead; GET did not select the product and exact custody assertion correctly failed.",
+        "repair": "Use visible focus/wand/staff selectors and retain exact item-ID custody checks. Capture a prepared-world fixture before gameplay for possible focused reuse. No production change.",
+        "cleanup": "Owned MUD stopped, database dropped, owned MySQL instance removed."
+      },
+      {
+        "receipt": "C:/Temp/futuremud-s4-focus-native/20261015T151625Z_4d626010f29d4d60b3631eab9e3cf725/summary.json",
+        "boot_receipt": "../prepared-catalogue-boot-native-s4-stock-4af58d996fda421ca867160ef33ce37e/boot-latest.json",
+        "source_start_end": "4F67FF9E2A1B048B1EF838AB4C9D76F29B66A2A8644FBDA1FC7ABC03E1189696",
+        "status": "FAIL_COLD_COMPARISON",
+        "scope_passed": "All first-boot assertions:67.7s focus/127.5s wand recipes, exact pickups, empty staff refusal, paid personal focus, completed30-second paid target-free practice, one60-second paid native Mend Flesh charge.",
+        "cause": "Combined cold assertion compared child XML including its outer indentation tail against a reparsed root without that tail. Reproduced failure on the same saved XML without restarting; GUID and actual cold payload differences were not separately retained in this failed run.",
+        "repair": "Remove only outer tail from frozen payload serialization; preserve all inner content and exact GUID comparison, and retain separate cold observations. Reuse pinned prepared-world fixture.",
+        "cleanup": "Owned MUD/MySQL/database cleanup complete."
+      }
+    ],
+    "limits": "Ten gated focus roster definitions and two gated carrier blanks; only Mend Flesh allowed as charged payload. Disposable native copies alter only availability, name/IDs and recipe output IDs. All original stock and package gates stay disabled; no S5 certificate.",
+    "prepared_fixture": {
+      "path": ".artifacts/s4-focus-device-fixtures/20261015T153028Z_2a5b3fe6b6194826b2c58aa943c9f3d1/focus-device.json",
+      "sha256": "77EAB5676682E617E21349A3E728EC18895B06F48E6D68E4040D456892A5459E",
+      "scope": "Captured pre-gameplay prepared world; exact hash-pinned descriptor, SQL, input, package source, runtime assemblies and schema restored into another fresh owned database. Original fixture files unchanged.",
+      "restore_status": "PASS",
+      "restore_receipt": "C:/Temp/futuremud-s4-focus-native/20261015T154049Z_5027985a9b7b4cedb83d77d913403c05/base-world-run.json",
+      "sql_sha256": "7C08501027C2CE6481B62E342C089835E41766407C7050E45DDFA91481207E88",
+      "input_sha256": "7D67A2BF7E26B06D0C1AC4325765FB3C5FD5351D24DB5DB91D940249B1810202"
+    },
+    "native": {
+      "status": "PASS",
+      "runner_receipt": "C:/Temp/futuremud-s4-focus-native/20261015T154049Z_5027985a9b7b4cedb83d77d913403c05/summary.json",
+      "boot_receipt": "../prepared-catalogue-boot-native-s4-stock-53bb0f4d2aea4f17b8dd3ba523ecace9/boot-latest.json",
+      "assertions": 15,
+      "source_start_end": "566ADD0F65370DB9DB7C1DDEB884FFCEA8EC73A25B120DB6CBEAC83A738EF0CB",
+      "source_stable": true,
+      "scope": "One consolidated focus/device first/cold sample restored from the exact prepared fixture without package replay:60-second Water focus and120-second empty wand recipes, exact native pickup, empty capacity10 staff refusal, paid explicit personal focus,30-second paid target-free practice retaining focus,60-second paid grade1 Mend Flesh production, exact charge GUID and complete frozen payload retained cold, reserves50 retained, empty focus/staff retained.",
+      "craft_elapsed_seconds": [
+        67.27715379999427,
+        127.37609279999742
+      ],
+      "cold_guid_equal": true,
+      "cold_frozen_payload_equal": true,
+      "cold_paid_reserve": 50,
+      "owned_mud_processes_stopped": true,
+      "owned_database_and_mysql_cleaned": true,
+      "definition_loader_scope": "This focused lane does not redisplay all152 definitions; loader counts0 are intentional. The unchanged canonical definitions retain their earlier152/152 native readiness receipt."
+    },
+    "definition_scope": {
+      "blueprints": 12,
+      "recipes": 12,
+      "total_approved_blueprints_installed": 210,
+      "focus_roles": "Ten native ChargedMagicDevice Role.Focus components, manifest tradition spell rosters with real canonical references. These are definition-qualified references, not automatic gameplay promotion.",
+      "blanks": "Role.Dual Caster, empty5/10 capacity,60seconds per paid charge; Mend Flesh is the single initial charged payload. No fallback unless explicit focus requested.",
+      "timing": "Native crafting needs a timed work phase plus final zero-duration release phase; both recipes observed above their60/120-second work duration.",
+      "ownership": "Stable owned IDs/children, ordinary field reconciliation, builder description preserved, modified enabled availability progs refuse without overwriting the edit. No live items/player writes during installation."
+    },
+    "remaining_scope": [
+      "Entry-specific S4 acceptance decisions and genuinely uncovered critical adapter/material cases remain in the spell ledger; no Cartesian native campaign is required.",
+      "S5 broader carrier activation/recharge/producer progression/exposure/calibration/affordability remains disabled and outside this slice.",
+      "All original use/craft/package/Class/variant/Release gates remain disabled."
+    ],
+    "hosted_baseline": {
+      "head": "e38f6e7d9a8a8d636502830fa4b353552073d3b4",
+      "push_run": "38746857938",
+      "pr_run": "38746866447",
+      "ubuntu_windows_push_pr": "SUCCESS all four; checked before publishing the new content slice."
+    },
+    "adjacent_findings": [
+      {
+        "location": "DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonCatalogueSupplies.cs:180; MudSharpCore/GameItems/Components/ActiveCraftGameItemComponent.cs:266",
+        "evidence": "Existing S3 supply recipes have one phase. Native DoNextPhase completes its final phase immediately and only schedules duration when another phase follows. DisplayCraft similarly excludes the final phase from total length.",
+        "impact": "Existing S3 recipe durations appear ineffective; no dedicated S3 native reproduction performed in this task. New twelve recipes use a separate finish phase and passed timed native samples.",
+        "disposition": "Deferred adjacent finding; no S3/runtime expansion."
+      }
+    ]
   }
 }

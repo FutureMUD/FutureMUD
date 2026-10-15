@@ -362,6 +362,7 @@ public class SupernaturalSeederTemplateTests
 			"Crypt Dust Breath",
 			"Deathly Pall",
 			"Raking Maul",
+			"Werewolf Savaging Backstab",
 			"Hamstring Snap",
 			"Crushing Pounce",
 			"Wolf Trip"
@@ -371,7 +372,7 @@ public class SupernaturalSeederTemplateTests
 			.ToArray();
 
 		CollectionAssert.IsSubsetOf(expectedAttacks, actualAttacks);
-		Assert.AreEqual(40, actualAttacks.Length);
+		Assert.AreEqual(41, actualAttacks.Length);
 		Assert.IsTrue(actualAttacks.Length >= 30);
 		Assert.AreEqual(expectedAttacks.Length, actualAttacks.Length);
 	}

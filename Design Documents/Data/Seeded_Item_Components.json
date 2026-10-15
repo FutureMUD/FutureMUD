@@ -4290,6 +4290,11 @@
         "Component Type":  "MeleeWeapon"
     },
     {
+        "Component Name":  "Melee_Blackjack",
+        "Component Description":  "Turns an item into a Blackjack melee weapon",
+        "Component Type":  "MeleeWeapon"
+    },
+    {
         "Component Name":  "Melee_Club",
         "Component Description":  "Turns an item into a Club melee weapon",
         "Component Type":  "MeleeWeapon"

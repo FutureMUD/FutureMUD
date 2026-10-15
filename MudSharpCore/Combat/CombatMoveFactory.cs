@@ -1,4 +1,4 @@
-﻿using MudSharp.Combat.Moves;
+using MudSharp.Combat.Moves;
 using MudSharp.GameItems;
 using MudSharp.Vehicles;
 
@@ -15,6 +15,8 @@ public static class CombatMoveFactory
 			{
 				case BuiltInCombatMoveType.CoupDeGrace:
 					return new CoupDeGrace(attack, singleTarget) { Assailant = assailant, Weapon = weapon };
+				case BuiltInCombatMoveType.BackstabAttack:
+					return new BackstabAttackMove(assailant, weapon, attack, singleTarget);
 				case BuiltInCombatMoveType.UseWeaponAttack:
 					return new MeleeWeaponAttack(assailant, weapon, attack, singleTarget);
 				case BuiltInCombatMoveType.StaggeringBlow:
@@ -37,6 +39,7 @@ public static class CombatMoveFactory
 				$"Invalid Move Type in CombatMoveFactory.CreateWeaponAttack: {attack.MoveType.Describe()}");
 		}
 
+		if (BackstabCombat.IsBackstab(attack.MoveType)) return CreateSingleTargetMove(target);
 		return MultiTargetCombatMove.WrapWeaponAttack(assailant, target, attack, weapon.Parent,
 			CreateSingleTargetMove);
 	}
@@ -57,6 +60,8 @@ public static class CombatMoveFactory
 			{
 				case BuiltInCombatMoveType.AmbushAttack:
 					return new AmbushAttackMove(assailant, attack, singleTarget);
+				case BuiltInCombatMoveType.BackstabAttackUnarmed:
+					return new BackstabAttackUnarmedMove(assailant, attack, singleTarget);
 				case BuiltInCombatMoveType.NaturalWeaponAttack:
 					return new NaturalAttackMove(assailant, attack, singleTarget);
 				case BuiltInCombatMoveType.EnvenomingAttack:
@@ -114,6 +119,7 @@ public static class CombatMoveFactory
 				$"Invalid Move Type in CombatMoveFactory.CreateNaturalWeaponAttack: {attack.Attack.MoveType.Describe()}");
 		}
 
+		if (BackstabCombat.IsBackstab(attack.Attack.MoveType)) return CreateSingleTargetMove(target);
 		return MultiTargetCombatMove.WrapWeaponAttack(assailant, target, attack.Attack, null,
 			CreateSingleTargetMove);
 	}

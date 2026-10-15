@@ -873,6 +873,7 @@ public sealed class ArtilleryPieceGameItemComponent : GameItemComponent, IArtill
 		}
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
 		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
+		MudSharp.Effects.Concrete.UnseenCombatOpening.Consume(actor, (originalTarget ?? target) as ICharacter);
 		var projectile = ammo.GetFiredItem ?? ammo.Parent;
 		var firedSeparateProjectile = projectile != ammo.Parent;
 		ammo.Fire(actor, firingTarget, shotOutcome, coverOutcome, defenseOutcome, bodypart, projectile, WeaponType, defenseEmote,

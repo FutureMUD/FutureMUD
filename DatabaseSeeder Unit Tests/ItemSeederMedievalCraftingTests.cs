@@ -308,7 +308,7 @@ public class ItemSeederMedievalCraftingTests
 			.Select(x => x.Groups["ref"].Value)
 			.ToArray();
 
-		Assert.AreEqual(142, weaponReferences.Length,
+		Assert.AreEqual(143, weaponReferences.Length,
 			"SeedMedievalWeaponsShieldsAccessories should contain exactly one direct CreateItem call for each melee, ranged, ammunition, and thrown catalogue row.");
 		Assert.AreEqual(239, armourReferences.Length,
 			"SeedMedievalArmour should contain exactly one direct CreateItem call for each armour, shield, and military carrying, storage, and support gear row.");
@@ -323,13 +323,15 @@ public class ItemSeederMedievalCraftingTests
 				"medieval_military_worn_fighting_knife",
 				"medieval_military_training_axe_headed_polearm",
 				"medieval_military_worn_ash_shortbow",
-				"medieval_military_short_throwing_spear"
+				"medieval_military_short_throwing_spear",
+				"medieval_military_blackjack_leather_wrapped"
 			},
 			new[]
 			{
 				weaponReferences.First(),
 				weaponReferences[76],
 				weaponReferences[77],
+				weaponReferences[^2],
 				weaponReferences.Last()
 			},
 			"The weapons partial should contain the melee and ranged/ammunition/thrown catalogue slices in source order.");
@@ -710,7 +712,7 @@ public class ItemSeederMedievalCraftingTests
 		AssertItemUses(weapons, "medieval_military_fine_horn_recurve_bow", "CompositeBow_War");
 		AssertItemUses(weapons, "medieval_military_wootz_war_sword", "Melee_Sabre");
 
-		Assert.AreEqual(381,
+		Assert.AreEqual(382,
 			Regex.Matches($"{armour}{Environment.NewLine}{weapons}", @"\bCreateItem\s*\(").Count,
 			"Fallback replacement must not change the Medieval catalogue size.");
 	}

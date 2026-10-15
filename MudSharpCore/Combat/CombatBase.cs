@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character.Name;
@@ -418,7 +418,7 @@ public abstract partial class CombatBase : ICombat
 		}
 		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(move);
 		CombatMoveResult result = MudSharp.NPC.AI.CommandExecutionScope.Resolve(move, targetResponse);
-		if (!result.DefenderResponseWasUsed) targetResponse = null;
+		if (ReferenceEquals(result, CombatMoveResult.Irrelevant) || !result.DefenderResponseWasUsed) targetResponse = null;
 
         Difficulty recovery = result.RecoveryDifficulty;
         if (perceiver is ICharacter character && character.Race.RaceUsesStamina && move.UsesStaminaWithResult(result))

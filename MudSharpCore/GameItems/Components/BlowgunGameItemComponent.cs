@@ -592,6 +592,7 @@ public class BlowgunGameItemComponent : GameItemComponent, IRangedWeapon, ICondi
 
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
 		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
+		MudSharp.Effects.Concrete.UnseenCombatOpening.Consume(actor, (originalTarget ?? target) as ICharacter);
 		IAmmo ammo = LoadedAmmo;
         var shotCompletion = new ProjectileCustodyCompletion(actor, ammo.Parent, target);
 		LoadedAmmo = null;

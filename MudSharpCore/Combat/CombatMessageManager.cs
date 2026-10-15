@@ -57,15 +57,22 @@ public class CombatMessageManager : ICombatMessageManager
         BuiltInCombatMoveType type, Outcome outcome, IBodypart bodypart)
     {
         return GetCombatMessageFor(character, target, weapon, attack, type, outcome, bodypart)?.Message ??
-               "Error - missing combat message";
+               BackstabFallback(type);
     }
 
     public string GetFailMessageFor(ICharacter character, IPerceiver target, IGameItem weapon, IWeaponAttack attack,
         BuiltInCombatMoveType type, Outcome outcome, IBodypart bodypart)
     {
         return GetCombatMessageFor(character, target, weapon, attack, type, outcome, bodypart)?.FailMessage ??
-               "Error - missing combat message";
+               BackstabFallback(type);
     }
+
+	internal static string BackstabFallback(BuiltInCombatMoveType type) => type switch
+	{
+		BuiltInCombatMoveType.BackstabAttack => "@ attempt|attempts to backstab $1 with $2",
+		BuiltInCombatMoveType.BackstabAttackUnarmed => "@ attempt|attempts to backstab $1 with &0's {0}",
+		_ => "Error - missing combat message"
+	};
 
     public string GetMessageFor(ICharacter character, IPerceiver target, IAuxiliaryCombatAction action, Outcome outcome)
     {
@@ -98,6 +105,7 @@ public class CombatMessageManager : ICombatMessageManager
                 .ToList();
         foreach (BuiltInCombatMoveType typeValue in Enum.GetValues(typeof(BuiltInCombatMoveType)).Cast<BuiltInCombatMoveType>())
         {
+			if (BackstabCombat.IsBackstab(typeValue)) continue; // These types have built-in fallback narration.
             if (_combatMessages.Any(x =>
                     x.Type == typeValue && (!x.Outcome.HasValue || x.Outcome == Outcome.None) &&
                     x.WeaponAttackProg?.ExecuteBool(null, null, null, 0, "") != false))

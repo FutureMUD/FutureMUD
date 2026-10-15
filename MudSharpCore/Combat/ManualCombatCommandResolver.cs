@@ -1,4 +1,4 @@
-﻿using MudSharp.Combat.Moves;
+using MudSharp.Combat.Moves;
 using MudSharp.NPC.AI;
 
 namespace MudSharp.Combat;
@@ -201,7 +201,7 @@ public static class ManualCombatCommandResolver
 		return ManualCombatMoveResolution.Failed("You do not currently have an available attack matching that manual combat command.");
 	}
 
-	private static IEnumerable<(IMeleeWeapon Weapon, int Preference)> WeaponSourcesInPreferenceOrder(ICharacter actor)
+	internal static IEnumerable<(IMeleeWeapon Weapon, int Preference)> WeaponSourcesInPreferenceOrder(ICharacter actor)
 	{
 		var preferenceIndex = 0;
 		foreach (var preference in actor.CombatSettings.MeleeAttackOrderPreferences)

@@ -211,6 +211,12 @@ public abstract partial class CreatureAIBase
 				move = new FleeMove { Assailant = actor };
 			return true;
 		}
+		if (hunt.Phase == AnimalHuntPhase.Opening && Hunting.Followup != AnimalHuntFollowup.VenomWithdrawal &&
+		    SelectHuntOpeningBackstab(actor, target) is { } backstab)
+		{
+			move = backstab;
+			return true;
+		}
 		if (hunt.Phase == AnimalHuntPhase.Opening && Hunting.Opening == AnimalHuntOpening.Ambush &&
 		    Hunting.Followup != AnimalHuntFollowup.VenomWithdrawal)
 		{
@@ -240,6 +246,17 @@ public abstract partial class CreatureAIBase
 		return false;
 	}
 
+	internal static ICombatMove? SelectHuntOpeningBackstab(ICharacter actor, ICharacter target)
+	{
+		if (!actor.ColocatedWith(target) || actor.RoomLayer != target.RoomLayer || !actor.MeleeRange ||
+		    !BackstabCombat.IsEligible(actor, target, false)) return null;
+		var attack = actor.Race.UsableNaturalWeaponAttacks(actor, target, false, BuiltInCombatMoveType.BackstabAttackUnarmed)
+			.Where(x => x.Attack is IBackstabAttack && x.Attack.Weighting > 0.0 &&
+			            BackstabCombat.Validate(actor, target, new(x.Attack, null, x), out _))
+			.GetWeightedRandom(x => x.Attack.Weighting);
+		return attack is null ? null : new BackstabAttackUnarmedMove(actor, attack, target);
+	}
+
 	protected ICombatMove? SelectExtraction(ICharacter actor, ICharacter target)
 	{
 		if (!Hunting.PreferredLayer.HasValue) return null;
@@ -266,6 +283,8 @@ public abstract partial class CreatureAIBase
 	internal void HuntMoveResolved(CreaturePursuitEffect hunt, ICombatMove move, CombatMoveResult result)
 	{
 		if (move is AmbushAttackMove) hunt.Phase = AnimalHuntPhase.Fighting;
+		if (move is BackstabAttackUnarmedMove && !ReferenceEquals(result, CombatMoveResult.Irrelevant))
+			hunt.Phase = AnimalHuntPhase.Fighting;
 		if (Hunting.Followup == AnimalHuntFollowup.VenomWithdrawal && !hunt.VenomDelivered && result.EnvenomDelivered &&
 		    move.CharacterTargets.Any(x => x.Id == hunt.TargetId))
 		{

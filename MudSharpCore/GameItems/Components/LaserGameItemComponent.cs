@@ -374,6 +374,7 @@ public class LaserGameItemComponent : GameItemComponent, IRangedWeapon, ISwitcha
         Changed = true;
         if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) return;
         MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(actor);
+		MudSharp.Effects.Concrete.UnseenCombatOpening.Consume(actor, (originalTarget ?? target) as ICharacter);
         PowerPack.Draw(_prototype.WattsPerShot);
         if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue(actor)) PowerPack.Fire(actor, target, shotOutcome, coverOutcome, defenseOutcome, bodypart, WeaponType,
             _prototype.PainMultiplier, _prototype.StunMultiplier, defenseEmote);

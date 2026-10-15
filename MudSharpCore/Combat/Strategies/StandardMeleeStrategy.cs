@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat.Moves;
@@ -992,6 +992,7 @@ public class StandardMeleeStrategy : StrategyBase
         BuiltInCombatMoveType[] attackTypes = new[]
         {
             BuiltInCombatMoveType.NaturalWeaponAttack,
+			BuiltInCombatMoveType.BackstabAttackUnarmed,
             BuiltInCombatMoveType.StaggeringBlowUnarmed,
             BuiltInCombatMoveType.UnbalancingBlowUnarmed,
             BuiltInCombatMoveType.PushbackUnarmed,
@@ -1105,6 +1106,7 @@ public class StandardMeleeStrategy : StrategyBase
         BuiltInCombatMoveType[] naturalTypes = new[]
         {
                         BuiltInCombatMoveType.NaturalWeaponAttack,
+			BuiltInCombatMoveType.BackstabAttackUnarmed,
                         BuiltInCombatMoveType.StaggeringBlowUnarmed,
                         BuiltInCombatMoveType.UnbalancingBlowUnarmed,
                         BuiltInCombatMoveType.PushbackUnarmed,

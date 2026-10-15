@@ -32,8 +32,11 @@ public static class SpellTravelEndpointPolicy
 	public static string? RelocationError(ICharacter caster, ICharacter mover, IRoom source,
 		IRoom destination, IMagicSpell spell, RoomLayer layer)
 	{
-		if (!ReferenceEquals(mover.Gameworld, caster.Gameworld) ||
-			!ReferenceEquals(mover.Location, source) || mover.Body is null ||
+		if (!ReferenceEquals(mover.Gameworld, caster.Gameworld) || mover.InstanceId <= 0 ||
+			!caster.Gameworld.Actors.Any(x => ReferenceEquals(x, mover)) ||
+			mover.Body is not { } body || !ReferenceEquals(body.Actor, mover) ||
+			!ReferenceEquals(caster.Gameworld.Bodies.Get(body.Id), body) ||
+			!ReferenceEquals(mover.Location, source) ||
 			mover.RoomLayer != layer ||
 			!caster.CanInteractPlanar(mover, PlanarInteractionKind.Magic))
 			return "The exact physical traveller is no longer eligible.";

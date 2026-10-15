@@ -1,0 +1,45 @@
+# Armageddon S5 qualification checkpoint - 15 October 2026
+
+S5 has started under the locked stock defaults; `content_design_questions_remaining` remains empty. S4 remains accepted for all 152 required entries, with two optional entries deferred. This checkpoint covers the approved Restorative Mud topical path. It does not close S5 or enable Release, package/Class availability, use/crafting gates, unqualified carriers or area variants. PR788 remains draft; no merge/deployment.
+
+## Built, configured and gameplay-qualified
+
+| Surface | Built/configured | Gameplay qualification |
+| --- | --- | --- |
+| Canonical stock |152 required spells and 210 approved blueprints; current S4 ledger governs defining contracts | Prior direct/shared/representative S4 acceptance retained; no repeated S4 campaign |
+| Charged devices | Blank caster-only wand5/staff10; explicit Mend Flesh whitelist;60 seconds per paid charge; no free fallback | Existing N23 Mend/recharge and S4 focus/device receipts retained within their exact scope; no universal candidate permission |
+| Restorative Mud | Permanent one-dose topical item;1 physical gram; maximum 10*grade native wound units; empty Drugs/no OnApply | PASS first/cold 15 recorded assertions; two exact10-unit applications; managed all-grade/provenance checks 64/64 |
+| Other charged/substance candidates |36 charged and32 substance candidates in the locked inventory; zero stock scrolls | Per-entry compatibility, explicit allowlist and producer qualification remain required; candidate flags do not enable delivery |
+| Classic/Simple progression | Complete typed stock graphs exist; installed package capabilities remain disabled and generators unattached | Real-stock ordinary acquisition, practice, funding and affordability across both modes remain pending. Synthetic S2 fixtures and the isolated raw 100 dose route are not certificates of these flows |
+
+## Correctness repair
+
+Stock Restorative Mud already creates a permanent item. Its producer finalises the lifecycle as Completed with no expiry. The shared consumable admission previously required TemporaryCleanup, Active and a future deadline, so it could not admit that real stock output. The repair admits only the exact native bound topical component, completed `restorative-mud` origin, null deadline and single matching persisted item claim. The original temporary-item expiry branch remains required for Ember Seed. A permanent generic item or foreign family/claim cannot use this path.
+
+The component latches its in-memory spent state before committing. The service therefore recognises a valid already-latched binding while still requiring durable `Spent=false` before save and `Spent=true` after save. Uncertain consumption produces no healing. Seven managed grade cases enforce exactly 10*grade once; focused negatives cover provenance, state, timing and claims.
+
+## Native evidence boundary
+
+The sample restores the immutable Classic installed-world SQL/input into a fresh owned MySQL database. A separate derived descriptor pins current package source and runtime binaries and records the compatibility assessment. Preparation compares restored production effects against the current approved factory and checks the exact topical component profile. It neither edits nor replays the package. All stock policies and availability gates stay disabled.
+
+A separate qualification capability opens the one spell at raw 100, grants controlled grade 1 through ordinary explicit enrolment and uses finite paid Self gathering to fund production. Its private health ceiling allows the prepared calibration injury; that setting does not change stock gathering. Its actor is the seeded Admin avatar. That scaffolding qualifies paid canonical production and native dose calibration, not normal stock enrolment/branching, elemental passive funding, player affordability, the Simple installed-world matrix or every native grade.
+
+The native scenario requires two independently paid grade-one productions, exact one-gram mass/creator/grade/origin, partial-dose refusal, one-use 10-unit wound healing, spent-item absence, cold retention of the second dose and its exact origin, and a second cold-loaded 10-unit application. The fixture prepares exact native SimpleOrganic Necrotic wound rows before boot: abdomen 30 and foreign left-hand 1. The ordinary MUD loader materialises these wounds. This avoids attack/armour randomness without changing the topical budget. Native `SimpleOrganicWound` explicitly skips natural online/offline healing for Necrotic damage, so exact 20-unit cold conservation is meaningful. The boot reader checks saved wound state before login as well as afterward. This controls a test variable; no health or substance policy changes. Source/binary/fixture pins and owned cleanup are mandatory.
+
+Five failed attempts are retained: the first stopped before dose assertions on a new Python parenthesis error; the second proved both paid productions but its random 30-unit wound disabled the actor's free hand, so native pickup refused. The third passed first-boot production and exact 30-to-20 application, then failed exact cold wound conservation without recording the observed cold value. That Cellular result remains unexplained; ordinary login offline healing is a source-established possible confound, not a proven diagnosis. A fourth run retained the native liver/abdomen injury split and stopped before application on the one-wound-total fixture assumption. A fifth run produced only 12 abdomen damage from a requested 30-unit attack because native armour is part of that path. The accepted run instead loads exact preboot native abdomen 30 and foreign left-hand 1 wounds; attack/armour delivery is outside this calibration. None of those failed attempts qualifies the complete first/cold sample. The corrections control fixture syntax, bodypart and natural healing while retaining exact healing and consumption assertions.
+
+## Next S5 slices
+
+Use the pinned clean base and post-install fixtures; avoid replaying accepted S4 campaigns. Qualify only explicit candidate combinations through shared adapter contracts and representative native production/recharge/exposure samples. Restorative Mud is the approved topical dose; do not invent a new drug/carrier policy.
+
+For representative real-stock progression, use actual full Earth roster policies with canonical Earthen Ward and Stone Skin in Classic and Simple. Current locked inventory gives Classic root 60/cap 90, parent threshold 80 and Stone Skin opening 40; Simple main opens 10 and Stone Skin unlocks at 15 (do not inherit 20 from historical synthetic S2 fixtures). Validate natural starting grants, a paid 30-second practice and exact route cost/reserve, branch/control behavior and cold conservation. The stock improver is chance 0.1/gain 0.5 with 60-second no-gain time; practice may legitimately award no gain. Explicit prethreshold setup must remain labelled and cannot establish opening-to-branch affordability. Keep source values locked; bring a material rebalance or genuinely new policy decision to Luke before changing it.
+
+## Receipts
+
+Focused Core 64/64, no failures/skips, stable source `027175ce75ea4e03d0dae756d8927287e8cfb551100606838afe0ee474b29365`. Full Core: 7,576 passed, zero failures/skips, stable source `a6bbeeef2f0a1a58cb027f80ad21c578d9d0a86b26d730924dda2001542a42a4`; `Design Documents\Magic\Armageddon_S5_Qualification_20261015.json` records the full receipt.
+
+Native first/cold PASS: `..\prepared-catalogue-boot-native-s4-stock-23ed2cb1c16d4b819ca3d4b7996d6b01\boot-latest.json`, SHA256 `7DBE23BA97D295C89080387635A385384CA862CC613D086E6A8E0FF02B8B73DE`; runner `C:\Temp\futuremud-s5-dose-native\20261015T231813Z_673114d21b16474b976ca5f0ff6711fa\summary.json`, SHA256 `E4DF22C803B5C59A86090F7E60667C91B4213EE204F533B27EE96FF5FF020A4D`. Native source start/end `6DD0B5027B18BDD935BCE995A8C1A1A367A5FD5F062DCBFA953E318C9670495D` agrees. Both boots shut down gracefully; exact owned database/MySQL cleanup completed.
+
+See [the portable receipt](Armageddon_S5_Qualification_20261015.json) for case values, exact fixture/binary/code hashes, all five preserved failures and remaining scope. Documentation closeout follows execution; tested code input hashes are recorded separately.
+
+Hosted baseline `78f2eb1a60608092ae1def263a148fde345fe462` passed all four Ubuntu/Windows push/PR default gates (runs38817502917 and38817507635). Check the newly published S5 head separately.

@@ -1190,3 +1190,10 @@ Projection admission verifies the exact caster/body membership in its canonical
 identity's Instances. The optional world Bodies cache is not proof that a primary body
 is loaded: normal primary-form construction need not populate it. Existing source,
 physical, location, focus, range, manipulation and ownership checks still apply.
+
+
+### S5 permanent topical consumption
+
+Restorative Mud is a permanent topical item whose committed creation lifecycle is Completed, with no deadline. Consumption recognises only its exact bound native topical component, `restorative-mud` family, creator/spell/grade and single persisted item claim. Other permanent items do not gain consumption authority. Temporary consumables retain the Active-state and future-expiry requirements.
+
+The component latches its spent state before healing. Origin admission therefore recognises that valid in-memory latch, while the transaction still requires durable `Spent=false`, saves `Spent=true` and confirms commitment before applying the wound budget. Ambiguous consumption gives no healing. All seven managed grades cap a single gram at10*grade; the [S5 checkpoint](Armageddon_S5_Qualification_Checkpoint_20261015.md) records the paid grade-one native first/cold sample and its controlled injury, ownership and qualification limits. No stock availability, new substance policy or generic permanent-item consumption is enabled.

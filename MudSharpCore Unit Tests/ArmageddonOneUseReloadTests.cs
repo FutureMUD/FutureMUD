@@ -23,7 +23,7 @@ using MudSharp.Magic;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class ArmageddonOneUseReloadTests
+public partial class ArmageddonOneUseReloadTests
 {
 	[TestMethod]
 	public void SpentTopicalDose_ColdLoadDoesNotDeleteParentAgain()
@@ -85,17 +85,18 @@ public class ArmageddonOneUseReloadTests
 		}
 	}
 
-	[TestMethod]
-	public void ConfirmedNativeDose_ConsumesOnceAndCapsHealingAtBoundGradeBudget()
+	[DataTestMethod]
+	[DataRow(1)] [DataRow(2)] [DataRow(3)] [DataRow(4)] [DataRow(5)] [DataRow(6)] [DataRow(7)]
+	public void ConfirmedNativeDose_ConsumesOnceAndCapsHealingAtBoundGradeBudget(int grade)
 	{
-		var f = MudFixture(activeOrigin: true, confirmed: true);
+		var f = MudFixture(activeOrigin: true, confirmed: true, grade: grade);
 		f.Component.Apply(f.Body.Object, f.Part.Object, 0.0, null!);
-		Assert.AreEqual(60.0, f.Wound.Object.CurrentDamage, 0.000001);
+		Assert.AreEqual(80.0 - 10.0 * grade, f.Wound.Object.CurrentDamage, 0.000001);
 		f.Service.Verify(x => x.TryCommitComponentConsumption(f.Component, f.Origin), Times.Once);
 		f.Parent.Verify(x => x.Delete(), Times.Once);
 
 		f.Component.Apply(f.Body.Object, f.Part.Object, 0.0, null!);
-		Assert.AreEqual(60.0, f.Wound.Object.CurrentDamage, 0.000001, "A second application must not replay the dose.");
+		Assert.AreEqual(80.0 - 10.0 * grade, f.Wound.Object.CurrentDamage, 0.000001, "A second application must not replay the dose.");
 		f.Service.Verify(x => x.TryCommitComponentConsumption(f.Component, f.Origin), Times.Once);
 	}
 
@@ -141,7 +142,7 @@ public class ArmageddonOneUseReloadTests
 		Mock<IBodypart> Part, Mock<IWound> Wound, Mock<IGameItem> Parent,
 		Mock<ISpellOwnedItemService> Service, SpellOwnedItemOrigin Origin);
 
-	private static MudFixtureData MudFixture(bool activeOrigin, bool confirmed, string? mutateAfterCarrier = null)
+	private static MudFixtureData MudFixture(bool activeOrigin, bool confirmed, string? mutateAfterCarrier = null, int grade = 2, bool permanent = false)
 	{
 		IBody? actorBody = null;
 		IRoom? actorLocation = null;
@@ -154,7 +155,8 @@ public class ArmageddonOneUseReloadTests
 		}).GetEnumerator());
 		world.SetupGet(x => x.MagicalSubstances).Returns(substances.Object);
 		var origin = new SpellOwnedItemOrigin(Guid.Parse("a4c16f26-f369-4d21-9736-9910e3d5dc5b"),
-			SpellLifecycleMode.TemporaryCleanup, new DateTime(2026, 10, 13, 0, 0, 0, DateTimeKind.Utc), 42, 85, 2);
+			permanent ? SpellLifecycleMode.Permanent : SpellLifecycleMode.TemporaryCleanup,
+			permanent ? null : new DateTime(2026, 10, 13, 0, 0, 0, DateTimeKind.Utc), 42, 85, grade);
 		var service = new Mock<ISpellOwnedItemService>();
 		service.Setup(x => x.HasActiveOrigin(It.IsAny<IGameItem>(), origin)).Returns(activeOrigin);
 		service.Setup(x => x.TryCommitComponentConsumption(It.IsAny<IGameItemComponent>(), origin)).Returns(confirmed);
@@ -179,8 +181,10 @@ public class ArmageddonOneUseReloadTests
 		parent.SetupGet(x => x.Prototype).Returns(itemProto.Object);
 		var proto = new TopicalProto(world.Object,
 			"<Definition><TotalGrams>1</TotalGrams><OnApplyProg>0</OnApplyProg><NativeHealingDose key=\"arm.item.restorative_mud\" grams=\"1\" budgetPerGrade=\"10\"/><Drugs /></Definition>");
-		var bindingXml = $"<Definition Grams=\"1\" LifecycleId=\"{origin.LifecycleId}\" SpellId=\"85\" Grade=\"2\" CreatorId=\"42\" CreatorInstanceId=\"43\" ReferenceGrams=\"1\" BudgetPerGrade=\"10\" Spent=\"false\" />";
+		var bindingXml = $"<Definition Grams=\"1\" LifecycleId=\"{origin.LifecycleId}\" SpellId=\"85\" Grade=\"{grade}\" CreatorId=\"42\" CreatorInstanceId=\"43\" ReferenceGrams=\"1\" BudgetPerGrade=\"10\" Spent=\"false\" />";
 		var component = new TopicalCreamGameItemComponent(new MudSharp.Models.GameItemComponent { Id = 4, Definition = bindingXml }, proto, parent.Object);
+		parent.SetupGet(x => x.Components).Returns([component]);
+		parent.Setup(x => x.GetItemType<IArmageddonTopicalDoseComponent>()).Returns(component);
 		return new(component, body, part, wound, parent, service, origin);
 	}
 

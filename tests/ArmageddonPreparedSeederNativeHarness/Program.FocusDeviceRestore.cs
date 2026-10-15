@@ -41,6 +41,7 @@ internal static partial class GNHProgram
 			if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_FAMILY_CASES") == "kindle") ReconcileS4Kindle(database, input);
 			PrepareS4FamilyFixture(database, input);
 		}
+		if (Environment.GetEnvironmentVariable("FUTUREMUD_S5_DOSE_SMOKE_ONLY") == "1") PrepareS5DoseFixture(database, input);
 		Console.WriteLine("ARMS4-focus-device-restored=" + manifest + " fresh-owned-database no package replay");
 		RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
 		Require(BaseHash(sql) == fixture.SqlSha256 && BaseHash(savedInput) == fixture.InputSha256, "Immutable focus/device fixture changed.");

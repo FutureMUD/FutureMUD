@@ -335,6 +335,13 @@ def attunement_stock_smoke(session, phase):
         require(casting is not None and casting.get('enabled') == 'false' and not casting.findall('Admission'),
                 'A partial package roster was enabled for qualification.')
 
+    if os.environ.get('FUTUREMUD_S5_DOSE_SMOKE_ONLY') == '1':
+        module_spec = importlib.util.spec_from_file_location('s5_dose_smoke', REPO / 'tests/ArmageddonPreparedSeederNativeHarness/PreparedS5DoseSmoke.py')
+        module = importlib.util.module_from_spec(module_spec)
+        module_spec.loader.exec_module(module)
+        module.run(globals(), session, phase, data, mapped)
+        return
+
     if os.environ.get('FUTUREMUD_S4_FAMILY_SMOKE_ONLY') == '1':
         module_spec = importlib.util.spec_from_file_location('family_acceptance_smoke', REPO / 'tests/ArmageddonPreparedSeederNativeHarness/PreparedS4FamilySmoke.py')
         module = importlib.util.module_from_spec(module_spec)
@@ -1430,6 +1437,13 @@ def boot(phase):
             raise
         require(collector.wait_for(helper.READY_TEXT,180), 'MUD did not reach ready state: '+collector.tail())
         assertions.append(phase+': native MUD ready')
+        if phase == 'cold' and os.environ.get('FUTUREMUD_S5_DOSE_SMOKE_ONLY') == '1':
+            dose_report = receipt['focus_devices']
+            saved_wound = sql(f'SELECT CurrentDamage FROM Wounds WHERE Id={int(dose_report["wound"])}')
+            dose_report['cold_wound_before_login'] = saved_wound
+            require(len(saved_wound) == 1 and abs(float(saved_wound[0][0]) - dose_report['remaining_damage']) < 1e-7,
+                    'Cold pre-login wound differs from exact saved topical remainder: ' + str(saved_wound))
+            assertions.append('S5 topical: cold pre-login SQL retains exact post-dose wound remainder before native login healing')
         helper.wait_for_port('127.0.0.1',mud_port,10)
         session = helper.MudSocket('127.0.0.1',mud_port,SECRETS)
         try:

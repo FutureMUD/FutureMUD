@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
+using Microsoft.EntityFrameworkCore.ValueGeneration.Internal;
 using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.GameItems;
@@ -129,11 +129,12 @@ public partial class SimpleMagicResource : BaseMagicResource
     public override double ResourceCap(IHaveMagicResource thing)
     {
 		if (HasAttributeCapacity && thing is ICharacter actor)
-			return TryAttributeCapacity(actor, out var cap, out _) ? cap : double.NaN;
+			return TryAttributeCapacity(actor, out var cap, out _) ? cap + EquippedCapacityBonus(actor) : double.NaN;
 		if (thing is MudSharp.Construction.IRoom room &&
 			Gameworld.EnvironmentalMagic?.TryInspectResource(room, this, out var output) == true)
 			return output.IsValid ? output.Maximum : double.NaN;
-        return ResourceCapProg?.ExecuteDouble(0.0, thing) ?? 0.0;
+        var legacyCap = ResourceCapProg?.ExecuteDouble(0.0, thing) ?? 0.0;
+		return double.IsFinite(legacyCap) && legacyCap >= 0 ? legacyCap + EquippedCapacityBonus(thing) : legacyCap;
     }
 
     public override string Show(ICharacter actor)

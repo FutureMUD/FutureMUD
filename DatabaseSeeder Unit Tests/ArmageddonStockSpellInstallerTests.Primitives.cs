@@ -1,4 +1,4 @@
-#nullable enable
+﻿#nullable enable
 
 using System;
 using System.Linq;
@@ -39,6 +39,11 @@ public partial class ArmageddonStockSpellInstallerTests
 			var minimum = entry.GetProperty("minimum_energy").GetDouble();
 			Assert.AreEqual(minimum, (double)root.Element("ControlledPower")!.Element("Efficiency")!.Attribute("minimum")!, claim.StableKey);
 			var expectedTarget = entry.GetProperty("target_type").GetString();
+			if (claim.StableKey == ArmageddonKindleContent.Key)
+			{
+				Assert.AreEqual("item", expectedTarget);
+				expectedTarget = "itemchoice"; // Selected attribute or capacity on one carried item.
+			}
 			if (claim.StableKey == ArmageddonOpenThresholdSpellContent.Key)
 			{
 				Assert.AreEqual("room", expectedTarget);

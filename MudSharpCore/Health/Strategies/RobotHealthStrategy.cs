@@ -192,12 +192,12 @@ public class RobotHealthStrategy : BaseHealthStrategy
 
     public override double MaxHP(IHaveWounds owner)
     {
-        return owner is not ICharacter charOwner ? 0.0 : MaximumHitPointsExpression.Evaluate(charOwner);
+        return owner is not ICharacter charOwner ? 0.0 : MaximumHitPointsExpression.Evaluate(charOwner) + MudSharp.Magic.EquippedItemBonuses.BonusFor(charOwner, MudSharp.Magic.EquippedItemBonusKind.Health);
     }
 
     public override double MaxStun(IHaveWounds owner)
     {
-        return owner is not ICharacter charOwner ? 0.0 : MaximumStunExpression.Evaluate(charOwner);
+        return owner is not ICharacter charOwner ? 0.0 : MaximumStunExpression.Evaluate(charOwner) + MudSharp.Magic.EquippedItemBonuses.BonusFor(charOwner, MudSharp.Magic.EquippedItemBonusKind.Stun);
     }
 
     public override double WoundPenaltyFor(IHaveWounds owner)
@@ -211,7 +211,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
             charOwner.Wounds.Sum(
                 x =>
                     x.CurrentDamage / PercentageHealthPerPenalty + x.CurrentStun / PercentageStunPerPenalty) /
-            (MaximumHitPointsExpression.Evaluate(charOwner) + MaximumStunExpression.Evaluate(charOwner));
+            (MaxHP(charOwner) + MaxStun(charOwner));
         return -1 * penalty;
     }
 
@@ -369,7 +369,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
             charOwner.Body.CurrentBloodVolumeLitres,
             HydraulicFluidParalysisThreshold,
             thing.Wounds.Sum(x => x.CurrentStun),
-            MaximumStunExpression.Evaluate(charOwner),
+            MaxStun(charOwner),
             charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()));
     }
 
@@ -414,7 +414,7 @@ public class RobotHealthStrategy : BaseHealthStrategy
     {
         ICharacter charOwner = (ICharacter)owner;
         double stunRatio = owner.Wounds.Sum(x => x.CurrentStun) /
-                        MaximumStunExpression.Evaluate(charOwner);
+                        MaxStun(charOwner);
         double painRatio = 0.0;
         double bloodlossRatio = charOwner.Body.CurrentBloodVolumeLitres / charOwner.Body.TotalBloodVolumeLitres;
         double totalBreath = charOwner.Body.HeldBreathPercentage;

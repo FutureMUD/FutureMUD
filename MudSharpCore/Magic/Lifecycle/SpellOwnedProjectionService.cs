@@ -54,7 +54,8 @@ public sealed partial class SpellOwnedProjectionService(IFuturemud world) : ISpe
 	{
 		if (source is not GameItem native || source.GetType() != typeof(GameItem) || !native.IdHasBeenRegistered || source.Prototype is not GameItemProto prototype || source.Id <= 0 || caster.Body.Id <= 0 || caster.InstanceId <= 0 ||
 			caster.Identity is null || !ReferenceEquals(caster.Identity.PrimaryInstance, caster) || !ReferenceEquals(caster.Body.Actor, caster) ||
-			!ReferenceEquals(world.Bodies.Get(caster.Body.Id), caster.Body) || !ReferenceEquals(world.Characters.Get(caster.Identity.Id), caster) ||
+			!caster.Identity.Instances.Any(instance => ReferenceEquals(instance, caster) && ReferenceEquals(instance.Body, caster.Body)) ||
+			!ReferenceEquals(world.Characters.Get(caster.Identity.Id), caster) ||
 			!ReferenceEquals(caster.Gameworld, world) || !ReferenceEquals(source.Gameworld, world) || !ReferenceEquals(world.Items.Get(source.Id), source) ||
 			!ReferenceEquals(world.ItemProtos.Get(prototype.Id), prototype) || !ReferenceEquals(world.ItemProtos.Get(prototype.Id, prototype.RevisionNumber), prototype) ||
 			prototype.Status != RevisionStatus.Current || !ReferenceEquals(prototype.Gameworld, world) || source.Deleted || source.Destroyed || source.Quantity != 1 ||

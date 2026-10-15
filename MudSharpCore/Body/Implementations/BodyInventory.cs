@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.NPC.AI;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
@@ -3869,6 +3869,7 @@ public partial class Body
                                         .Select(x => x.Parent))
                         .Concat(Wounds.Where(x => parts.Contains(x.Bodypart)).SelectNotNull(x => x.Lodged))
                         .Distinct().ToList();
+		ReconcileEquippedSpellBonuses();
 		if (Actor?.Gameworld is { } world) world.MagicCasting?.NotifyCapacityChange(Actor);
     }
 

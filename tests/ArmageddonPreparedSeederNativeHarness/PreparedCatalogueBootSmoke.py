@@ -1542,6 +1542,11 @@ try:
     receipt['assemblies'] = [{'path':str(REPO/'MudSharpCore/bin/Debug/net10.0'/name),'sha256':sha(REPO/'MudSharpCore/bin/Debug/net10.0'/name)}
                             for name in ('MudSharp.dll','FutureMUDLibrary.dll','MudsharpDatabaseLibrary.dll','ExpressionEngine.dll')]
     boot('first')
+    if os.environ.get('FUTUREMUD_S4_FAMILY_CASES') == 'pocket':
+        residual_spec = importlib.util.spec_from_file_location('s4_residual_cold', REPO / 'tests/ArmageddonPreparedSeederNativeHarness/PreparedS4ResidualSmoke.py')
+        residual = importlib.util.module_from_spec(residual_spec)
+        residual_spec.loader.exec_module(residual)
+        residual.prepare_cold(globals(), json.loads(Path(os.environ['FUTUREMUD_S4_ATTUNEMENT_STOCK_INPUT']).read_text(encoding='utf-8')))
     boot('cold')
     require(receipt['first_after_shutdown'][:4] == receipt['cold_after_shutdown'][:4], 'Cold restart did not retain seeded avatar identity/cell.')
     require(receipt['cold_after_flush'][4] > receipt['first_after_flush'][4], 'Cold login did not advance persisted login time.')

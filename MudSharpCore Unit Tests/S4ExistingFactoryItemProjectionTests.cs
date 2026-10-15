@@ -48,9 +48,11 @@ public class S4ExistingFactoryItemProjectionTests
 			Caster.SetupGet(x => x.Gameworld).Returns(F.World.Object); Caster.SetupGet(x => x.Body).Returns(F.Body.Object);
 			Caster.SetupGet(x => x.Location).Returns(F.Actor.Object.Location); Caster.SetupGet(x => x.State).Returns(CharacterState.Awake);
 			var identity = new Mock<ICharacterIdentity>(); identity.SetupGet(x => x.Id).Returns(100); identity.SetupGet(x => x.PrimaryInstance).Returns(Caster.Object);
+			identity.SetupGet(x => x.Instances).Returns([Caster.Object]);
 			Caster.SetupGet(x => x.Identity).Returns(identity.Object); F.Body.SetupGet(x => x.Actor).Returns(Caster.Object);
 			F.World.SetupGet(x => x.Characters).Returns(MagicCastingFixture.Collection<ICharacter>(() => [Caster.Object]));
-			F.World.SetupGet(x => x.Bodies).Returns(MagicCastingFixture.Collection<IBody>(() => [F.Body.Object]));
+			// Ordinary primary bodies are identity-owned; the optional global body cache is deliberately empty.
+			F.World.SetupGet(x => x.Bodies).Returns(MagicCastingFixture.Collection<IBody>(() => []));
 			SetProperty(Prototype, nameof(Prototype.Gameworld), F.World.Object); SetProperty(Prototype, nameof(Prototype.Status), RevisionStatus.Current);
 			SetField(typeof(FrameworkItem), Prototype, "_id", 93L);
 			var component = TestObjectFactory.CreateUninitialized<HoldableGameItemComponentProto>();
@@ -96,12 +98,13 @@ public class S4ExistingFactoryItemProjectionTests
 		Assert.IsTrue(XNode.DeepEquals(f.Effect.SaveToXml(), f.Effect.Clone().SaveToXml()));
 	}
 	[DataTestMethod]
-	[DataRow("registry")] [DataRow("holder")] [DataRow("body")] [DataRow("prototype")] [DataRow("quantity")] [DataRow("destroyed")] [DataRow("world")]
+	[DataRow("identity-membership")] [DataRow("registry")] [DataRow("holder")] [DataRow("body")] [DataRow("prototype")] [DataRow("quantity")] [DataRow("destroyed")] [DataRow("world")]
 	public void CapturedBorrowedSource_ExactRawDrift_RefusesBeforeAdoption(string drift)
 	{
 		var f = new Fixture(); var token = f.Effect.CapturePreparedSelection(f.Caster.Object, f.Source)!;
 		switch (drift)
 		{
+			case "identity-membership": Mock.Get(f.Caster.Object.Identity).SetupGet(x => x.Instances).Returns([]); break;
 			case "registry": f.Items.Remove(f.Source); f.Items.Add(Mock.Of<IGameItem>(x => x.Id == 91)); break;
 			case "holder": f.Hold.HeldBy = Mock.Of<IBody>(); break;
 			case "body": f.Caster.SetupGet(x => x.Body).Returns(Mock.Of<IBody>(x => x.Id == 80)); break;

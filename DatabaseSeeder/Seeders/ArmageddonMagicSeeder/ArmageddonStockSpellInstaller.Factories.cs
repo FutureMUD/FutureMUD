@@ -361,7 +361,7 @@ public static partial class ArmageddonStockSpellInstaller
 		ArmageddonRetainedUtilityContent.Create(new(
 			CatalogueProg(db, ArmageddonStockSupportInstaller.IdentifyTextKey, ProgVariableTypes.Text, ProgVariableTypes.Character, ProgVariableTypes.Character),
 			CatalogueProg(db, ArmageddonStockSupportInstaller.ReciteLinkKey, ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Character),
-			CatalogueProg(db, ArmageddonStockSupportInstaller.DeadSpeakLinkKey, ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Character),
+			CatalogueProg(db, ArmageddonStockSupportInstaller.DeadSpeakLinkKey, ProgVariableTypes.Character, ProgVariableTypes.Character, ProgVariableTypes.Item),
 			CorpseEligibilitySource: "return @target.iscorpse")).Single(x => x.Content.Key == key);
 
 }

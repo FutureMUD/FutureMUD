@@ -486,7 +486,7 @@ public sealed class PossessCorpseSpellEffect : IMagicSpellEffectTemplate, IMagic
 		if (_preparedSelection is { } prepared && (!ReferenceEquals(prepared.Caster, caster) ||
 			!ReferenceEquals(prepared.Item, target) || !prepared.IsCurrent))
 			throw new InvalidOperationException("The exact corpse or original body changed after possession payment.");
-		if (target is not IGameItem corpseItem || corpseItem.GetItemType<ICorpse>() is not { } corpse ||
+		if (target is not GameItem corpseItem || corpseItem.GetItemType<ICorpse>() is not { } corpse ||
 		    !TryGetAnchor(caster, out var anchor))
 		{
 			return null;
@@ -571,11 +571,11 @@ public sealed class PossessCorpseSpellEffect : IMagicSpellEffectTemplate, IMagic
 			return null;
 		}
 
-		location.Extract(corpseItem);
+		corpseItem.HideBorrowedCorpseForAnimation();
 		var control = PossessionControlService.BeginLivePossession(anchor, animated, string.Empty, string.Empty);
 		if (!control.Success || control.RuntimeState is null)
 		{
-			location.Insert(corpseItem, true);
+			corpseItem.InsertAtSpatialLocation(spawnLocation, true);
 			if (spawn.Instance is ICharacterInstance failedInstance)
 			{
 				CharacterInstanceService.Retire(failedInstance, out _, true, false, false);

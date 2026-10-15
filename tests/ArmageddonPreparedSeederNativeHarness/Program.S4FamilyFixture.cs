@@ -57,20 +57,44 @@ internal static partial class GNHProgram
 			ReturnTypeDefinition = (ProgVariableTypes.Collection | ProgVariableTypes.Item).ToStorageString(), FunctionComment = "Read-only isolated native custody diagnostic", Category = "Harness", Subcategory = "S4 Family" };
 		diagnostic.FutureProgsParameters.Add(new() { ParameterIndex = 0, ParameterName = "creature", ParameterTypeDefinition = ProgVariableTypes.Character.ToStorageString() });
 		db.Add(diagnostic); db.SaveChanges();
+		var cases = Environment.GetEnvironmentVariable("FUTUREMUD_S4_FAMILY_CASES") ?? "all";
 		var routes = new List<object>();
-		foreach (var (key, resource) in new[] { ("arm.spell.seeking_wind", "wind"), ("arm.spell.wind_courier", "wind"), ("arm.spell.haunting_shape", "shadow"), ("arm.spell.call_outsider", "void"), ("arm.spell.borrow_the_dead", "void") })
+		var keys = cases switch
+		{
+			"kindle" => new[] { "arm.spell.kindle_enchantment" },
+			"voice" => new[] { "arm.spell.voice_of_remains" },
+			"pocket" => new[] { "arm.spell.folded_pocket" },
+			"projection" => new[] { "arm.spell.sand_effigy", "arm.spell.unbodied_journey" },
+			_ => new[] { "arm.spell.seeking_wind", "arm.spell.wind_courier", "arm.spell.haunting_shape", "arm.spell.call_outsider", "arm.spell.borrow_the_dead" }
+		};
+		foreach (var key in keys)
 		{
 			var spell = db.MagicSpells.Single(x => x.Id == ids[key]);
-			var route = PreparedStockCampaignRoute(db, settings, key, spell, ids["arm.resource." + resource], ids[ArmageddonProgressionInstaller.SourceResourceKey], 1);
+			// Stock cost XML binds source energy; the enrolled route selects its school reserve.
+			var schoolKey = ids.Single(x => x.Key.StartsWith("arm.school.", StringComparison.Ordinal) && x.Value == spell.MagicSchoolId).Key;
+			var resource = ids[schoolKey.Replace("arm.school.", "arm.resource.", StringComparison.Ordinal)];
+			var route = PreparedStockCampaignRoute(db, settings, key, spell, resource, ids[ArmageddonProgressionInstaller.SourceResourceKey], 1);
 			var school = db.MagicSchools.Single(x => x.Id == spell.MagicSchoolId);
-			routes.Add(new { key, spell = spell.Id, name = spell.Name, capability = route.Capability, merit = route.Merit, resource = ids["arm.resource." + resource], invoked = school.SchoolVerb.ToLowerInvariant() });
+			routes.Add(new { key, spell = spell.Id, name = spell.Name, capability = route.Capability, merit = route.Merit, resource, invoked = school.SchoolVerb.ToLowerInvariant() });
 		}
 		var source = Path.Combine(CatalogueRepository, "tests", "ArmageddonPreparedSeederNativeHarness", "Program.S4FamilyFixture.cs");
 		input["family_acceptance"] = JsonSerializer.SerializeToNode(new { cases = Environment.GetEnvironmentVariable("FUTUREMUD_S4_FAMILY_CASES") ?? "all", origin = origin.Id, destination = destination.Id, exit = exit.Id, trackable_terrain = terrain.Id, can_get_prog = diagnostic.Id, routes,
 			quarry_template = ids["arm.npc.earth_mount.g1"], recipient_template = ids["arm.npc.clay_sentinel.g1"], parcel_prototype = ids["arm.item.component_blank"],
 			seek_template = ids["arm.npc.seeking_wind.g1"], courier_template = ids["arm.npc.wind_courier.g1"], haunt_template = ids["arm.npc.haunting_shape.g1"], outsider_template = ids["arm.npc.outsider.g1"],
 			source = new { path = source, sha256 = BaseHash(source) } });
+		if (cases is "voice" or "projection")
+		{
+			input["family_acceptance"]!["witness"] = PrepareS4Witness(db, actor, origin.Id);
+			input["family_acceptance"]!["sand_source_prototype"] = ids["arm.item.sand_effigy_anchor"];
+		}
+		if (cases == "pocket")
+		{
+			input["family_acceptance"]!["bag_prototype"] = PrepareS4PocketBag(db, ids["arm.item.component_blank"]);
+			var pocket = XElement.Parse(db.MagicSpells.Single(x => x.Id == ids["arm.spell.folded_pocket"]).Definition).Descendants("Pocket").Single();
+			input["family_acceptance"]!["fallback"] = (long)pocket.Element("FallbackRoom")!;
+		}
+		if (cases == "kindle") PrepareS4KindleProp(db, input, ids["arm.item.component_blank"]);
 		File.WriteAllText(path, input.ToJsonString());
-		Console.WriteLine("ARMS4-family-input=prepared five isolated grade-one routes two ordinary rooms no package gate changes");
+		Console.WriteLine($"ARMS4-family-input=prepared {routes.Count} isolated grade-one routes case={cases} two ordinary rooms no package gate changes");
 	}
 }

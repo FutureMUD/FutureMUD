@@ -1,4 +1,4 @@
-﻿using MudSharp.Body.Needs;
+using MudSharp.Body.Needs;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
@@ -41,7 +41,12 @@ public partial class Body
         }
     }
 
-    public double MaximumStamina { get; set; }
+    private double _maximumStamina;
+    public double MaximumStamina
+    {
+        get => _maximumStamina + MudSharp.Magic.EquippedItemBonuses.BonusFor(Actor, MudSharp.Magic.EquippedItemBonusKind.Stamina);
+        set => _maximumStamina = value;
+    }
 
     private double _staminaSpentInCurrentPeriod;
 

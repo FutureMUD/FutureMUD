@@ -29,7 +29,8 @@
       "reference_hours_per_day": 24,
       "meal_source_calories": 500,
       "meal_native_satiation_hours": 5
-    }
+    },
+    "kindle_selected_item_enchantment_20261015": "Approved source Empower-style selected attribute/resource-capacity item enchantment; no refill or casting-permission power. Native mappings and preserved locked duration/cost are in Armageddon_Kindle_Source_Trace_20261015.md."
   },
   "inventory_counts": {
     "candidates": 154,
@@ -24595,10 +24596,10 @@
         "Defiler"
       ],
       "membership_provenance": "user_adopted_master_list_plus_retained_authored_routes_and_exact_Sorcerer_tree",
-      "completion_contract": "Temporarily improve a selected weapon's damage through native enchantment hooks.",
+      "completion_contract": "Temporarily enchant one carried item with a selected attribute or resource-capacity bonus, active while worn or wielded; combat benefits flow through the selected native attribute.",
       "target_type": "item",
-      "defining_native_result": "Temporarily improve a selected weapon's damage through native enchantment hooks.",
-      "effect_configuration": "Weapon attack bonus grade for 60*grade seconds; does not alter base quality or stack identical owned bonuses.",
+      "defining_native_result": "Temporarily enchant one carried item with a selected attribute or resource-capacity bonus, active while worn or wielded; combat benefits flow through the selected native attribute.",
+      "effect_configuration": "Empower skill47 selected seven-grade attribute/capacity table for 60*grade seconds. Zero source bonuses refuse before payment. Explicit native trait/reserve mappings; no healing/refill, casting permission, direct weapon bonus, item destruction or grade-seven permanence. Same-spell item parents remain exclusive.",
       "effect_profile": "enchant",
       "numeric_provenance": "user_locked_stock_defaults_with_source_and_authored_origins_retained",
       "minimum_energy": 33,
@@ -24756,7 +24757,9 @@
       "classification": "existing_primitive_plus_bounded_policy_content",
       "current_factory": null,
       "primitive_evidence_paths": [
-        "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs"
+        "FutureMUDLibrary/Magic/Stock/ArmageddonKindleContent.cs",
+        "MudSharpCore/Magic/SpellEffects/ItemEmpowerEffect.cs",
+        "MudSharpCore/Effects/Concrete/SpellEffects/SpellEquippedItemBonusEffect.cs"
       ],
       "implementation_status": "not_qualified_as_complete_installed_stock",
       "acceptance": [
@@ -24781,6 +24784,12 @@
         "archive": "Design Documents/Armageddon/References/Armageddon_Info_Master_List_20261011.txt",
         "line": 944,
         "sha256": "4dd92656d32068e5e2726c15c1a59bb4586d2e99bc41f59a5e8bef9136524c93"
+      },
+      "source_decision_20261015": {
+        "authority": "Luke approved Empower-style selected item attribute/resource enchantment after the exact skill47 source/combat trace; supersedes flat attack/damage-only options.",
+        "trace": "Armageddon_Kindle_Source_Trace_20261015.md",
+        "source_sha256": "E44778F6A5FB9FD02DB5C3FF78D4C468B93AE6C854A058D5AF769DC0A95CD59F",
+        "verification": "Owning runtime, installer and native first/cold sample PASS; see s4_residual_completion_20261015 in portable verification."
       }
     },
     {

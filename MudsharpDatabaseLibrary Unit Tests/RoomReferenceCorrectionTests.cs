@@ -199,6 +199,15 @@ public class RoomReferenceCorrectionTests
 		Assert.AreSame(direct, RoomReferenceXml.Rewrite(direct, false, Map(), "Bodies #1.EffectData"));
 	}
 
+	[DataTestMethod]
+	[DataRow("Trait")] [DataRow("MagicResource")]
+	public void EquippedItemBonus_DeclaresNoRoomLinksAndPreservesSelectedCatalogueIdentity(string kind)
+	{
+		var child = $"<Effect><Type>SpellEquippedItemBonus</Type><Effect><Kind>{kind}</Kind><TargetId>9000</TargetId><Bonus>4</Bonus></Effect></Effect>";
+		var nested = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{child}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(nested, RoomReferenceXml.Rewrite(nested, false, Map(), "GameItems #1.EffectData"));
+	}
+
 	[TestMethod]
 	public void SensePoisonChild_DeclaresNoRoomLinksAndPreservesNativePayloadBytes()
 	{

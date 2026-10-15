@@ -3,7 +3,7 @@
   "generated_utc": "2026-10-13T14:32:08+00:00",
   "source_revision": "b8f4760436cb21eb302cfb57c69e7c920df8e84e",
   "repository": "FutureMUD/FutureMUD",
-  "scope": "All154 locked candidates mapped;152 required definitions audited;146 explicit S4 acceptances and6 specific residual entries. Native sample and later readiness scopes remain separate.",
+  "scope": "All 154 candidates mapped;152 required definitions and explicit S4 defining contracts accepted under direct/shared/representative strategy. Two optional entries deferred. S5/readiness/Release separate.",
   "inputs": [
     {
       "path": "Design Documents/Magic/Armageddon_Seeder_Completeness_Design_20261011.json",
@@ -33,7 +33,7 @@
     "entries_with_prototype_dependencies": 33,
     "missing_paths": 0,
     "whole_plan_rows_missing": 0,
-    "installed_stock_qualified": 146,
+    "installed_stock_qualified": 152,
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
@@ -45,12 +45,21 @@
     "required_not_yet_declared": 0,
     "historical_partial_native_first_loaded_spells": 121,
     "historical_native_sampled_grade_one_spells": 13,
-    "entries_with_named_native_sample_receipts": 17,
     "s4_focus_device_blueprints_installed": 12,
     "s4_focus_device_recipes_installed": 12,
     "approved_blueprints_installed": 210,
     "historical_installed_stock_qualified_before_acceptance": 1,
-    "required_s4_pending_critical": 6
+    "required_s4_pending_critical": 0,
+    "historical_entries_with_named_native_sample_receipts_before_residual": 17,
+    "residual_native_scenarios": 5,
+    "residual_direct_native_keys": [
+      8,
+      63,
+      135,
+      138,
+      144,
+      147
+    ]
   },
   "path_discrepancies": [],
   "unselected_registration_name_guesses": [],
@@ -1197,32 +1206,47 @@
       "key": "arm.spell.kindle_enchantment",
       "name": "Kindle Enchantment",
       "required": true,
-      "completion_contract": "Temporarily improve a selected weapon's damage through native enchantment hooks.",
+      "completion_contract": "Selected attribute or resource CAPACITY on an equipped carried item; source skill 47 tables, minimum 33,60*grade, no refill or casting permission. Supersedes flat weapon attack/damage conflict.",
       "inventory_classification": "existing_primitive_plus_bounded_policy_content",
       "inventory_current_factory": null,
       "verified_paths": [
         {
-          "path": "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs",
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonKindleContent.cs",
+          "exists": true
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/EquippedItemBonuses.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/ItemEmpowerEffect.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerItemChoice.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellEquippedItemBonusEffect.cs",
           "exists": true
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonKindleContent.cs",
       "registered_effect_candidates": [
         {
-          "type": "itemenchant",
-          "class": "ItemEnchantEffect",
-          "path": "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs",
-          "line": 533
+          "type": "itemempower",
+          "class": "ItemEmpowerEffect",
+          "path": "MudSharpCore/Magic/SpellEffects/ItemEmpowerEffect.cs"
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
+      "candidate_scope": "Executed S4 defining contract through named direct/shared/representative evidence; Release and later readiness remain separate.",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
         "effect_profile": "enchant",
         "target_type": "item",
-        "approved_effect_configuration": "Weapon attack bonus grade for 60*grade seconds; does not alter base quality or stack identical owned bonuses.",
+        "approved_effect_configuration": "Selected attribute or resource CAPACITY on an equipped carried item; source skill 47 tables, minimum 33,60*grade, no refill or casting permission. Supersedes flat weapon attack/damage conflict.",
         "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
         "minimum_energy": 33,
         "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
@@ -1241,37 +1265,47 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
-      "remaining": [
-        "Locked design contradicts itself: completion/defining result says weapon damage; detailed configuration and executed native hook test specify attack bonus only. User decision requested; neither contract is silently rewritten."
-      ],
+      "current_code_note": "Approved Empower-style choice replaces historical flat weapon enchantment.",
+      "remaining": [],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
-      "installed_stock_qualification": "PENDING_CRITICAL_CASE",
+      "installed_stock_qualification": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
           "status": "PASS",
           "receipts": [
-            "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+            "C:/Temp/s4-kindle-seeder-focused/20261015T210308Z-900a963b38f3/summary.json"
           ],
           "scope": "All152 locked costs/grades/real typed children, Classic/Simple.",
           "native_first_cold": {
             "status": "PASS",
-            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
-            "scope": "All152 native definition/reference/readiness displays only."
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-52d498b77f784cc48f45f7ce360756c1\\boot-latest.json",
+            "scope": "Fresh native first/cold Kindle capacity/equipment sample against current owned stock. The family lane does not repeat the separate152-definition count/readiness certificate; unchanged definition receipts retain their earlier scope."
+          },
+          "historical_pre_kindle_change": {
+            "status": "PASS",
+            "receipts": [
+              "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+            ],
+            "scope": "All152 locked costs/grades/real typed children, Classic/Simple.",
+            "native_first_cold": {
+              "status": "PASS",
+              "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+              "scope": "All152 native definition/reference/readiness displays only."
+            }
           }
         },
         "direct": [
           {
             "status": "PASS",
             "contracts": [
-              "weapon-enchantment-v1"
+              "equipped-item-bonus-v1"
             ],
-            "evidence_registry": "acceptance_contracts_20261015",
-            "scope": "Only the family assertions and exact configuration assumptions named in the registry; historical/new native sample scopes remain separate."
+            "receipt": "C:\\Temp\\s4-kindle-equipment-fix\\20261015T215853Z-04fd3ac600f7\\summary.json",
+            "scope": "Source grade tables; invalid/zero prepayment refusal; equipped gating; native attribute, six health strategies, stamina and canonical reserve capacity; saved child/parent."
           }
         ],
         "inherited": [
@@ -1291,7 +1325,15 @@
             "scope": "Exact ordinary parent serializer, remaining-time scheduler and child removal; independent lifecycle journals retain their own contracts."
           }
         ],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-52d498b77f784cc48f45f7ce360756c1\\boot-latest.json",
+            "sha256": "c72aa2c159d0e8613bc5d4c83175cb5309d4481e84f03757aed97e54e1bb4c00",
+            "checkpoint": "s4_residual_completion_20261015",
+            "scope": "kindle; see portable checkpoint assertions and limits."
+          }
+        ],
         "assumptions": [
           "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion.",
           "Exact current canonical definition, typed dependency, target/material policy and selected external-grade binding passed the152-entry audit and first/cold definition loader.",
@@ -1299,10 +1341,18 @@
           "Normal manifestation uses its actual authored component plan. Shared target-free practice proves payment/time/no manifestation; the current empty stock practice plan does not mandate a focus or consume reagents.",
           "Only the base required S4 spell contract is assessed; quiet/area options, carrier production/admission, S5 balance/progression and Release remain separately disabled."
         ],
-        "outstanding_critical_cases": [
-          "Locked design contradicts itself: completion/defining result says weapon damage; detailed configuration and executed native hook test specify attack bonus only. User decision requested; neither contract is silently rewritten."
-        ],
-        "strategy": "20261013"
+        "outstanding_critical_cases": [],
+        "strategy": "20261013",
+        "historical_direct_weapon_enchantment": [
+          {
+            "status": "PASS",
+            "contracts": [
+              "weapon-enchantment-v1"
+            ],
+            "evidence_registry": "acceptance_contracts_20261015",
+            "scope": "Only the family assertions and exact configuration assumptions named in the registry; historical/new native sample scopes remain separate."
+          }
+        ]
       },
       "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS",
       "definition_status": "DECLARED_AND_AUDITED_152",
@@ -1312,6 +1362,64 @@
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
       ],
       "s4_acceptance": {
+        "status": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
+        "assessed_revision": "ebceb165e96402ce2482e683fee1571610d8180a plus residual lifecycle/projection and approved Kindle change; source hashes below identify tested bytes.",
+        "accepted_scope": "Selected attribute or resource CAPACITY on an equipped carried item; source skill 47 tables, minimum 33,60*grade, no refill or casting permission. Supersedes flat weapon attack/damage conflict.",
+        "contracts": [
+          "configured-payment-v1",
+          "configured-practice-v1",
+          "ordinary-spell-parent-lifetime-v1",
+          "equipped-item-bonus-v1"
+        ],
+        "decision_basis": "Exact definition plus direct owning regression and named representative native first/cold evidence in residual checkpoint; stated shared-family inheritance and limits retained.",
+        "outstanding_critical_cases": [],
+        "release_qualified": false
+      },
+      "historical_pre_acceptance_remaining_20261015": [
+        "Assess the entry-specific defining contract against named direct/shared/sample evidence; only an identified uncovered critical behavior warrants further execution. Definition hydration and shared payment/practice plumbing are covered within their stated limits."
+      ],
+      "historical_configuration_before_residual_20261015": {
+        "completion_contract": "Temporarily improve a selected weapon's damage through native enchantment hooks.",
+        "policy": {
+          "effect_profile": "enchant",
+          "target_type": "item",
+          "approved_effect_configuration": "Weapon attack bonus grade for 60*grade seconds; does not alter base quality or stack identical owned bonuses.",
+          "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
+          "minimum_energy": 33,
+          "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
+          "source_component_note": "none",
+          "normal_material_policy": "Only per-spell source/approved explicit component plan; no old blanket grade>=3 reagent/focus demand.",
+          "practice_policy": "target-free full paid practice; retain matching focus, no reagent consumption; raw and controlled progression separately gated.",
+          "variant_policy": {
+            "quiet_candidate": false,
+            "area_candidate": null,
+            "status": "per-entry source/adapter qualification required before enabling; old generic group strings are not authority"
+          },
+          "carrier_policy": {
+            "scroll": false,
+            "charged_candidate": false,
+            "substance_candidate": false,
+            "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
+          }
+        },
+        "typed_content_projection": null,
+        "verified_paths": [
+          {
+            "path": "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs",
+            "exists": true
+          }
+        ],
+        "registered_effect_candidates": [
+          {
+            "type": "itemenchant",
+            "class": "ItemEnchantEffect",
+            "path": "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs",
+            "line": 533
+          }
+        ],
+        "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion"
+      },
+      "historical_acceptance_before_residual_20261015": {
         "status": "PENDING_CRITICAL_CASE",
         "assessed_revision": "5e6587060972023b78d30660666bfa5b03b8de0d plus S4FamilyIntegrationTests.cs",
         "accepted_scope": "Weapon attack bonus grade for 60*grade seconds; does not alter base quality or stack identical owned bonuses.",
@@ -1326,10 +1434,7 @@
           "Locked design contradicts itself: completion/defining result says weapon damage; detailed configuration and executed native hook test specify attack bonus only. User decision requested; neither contract is silently rewritten."
         ],
         "release_qualified": false
-      },
-      "historical_pre_acceptance_remaining_20261015": [
-        "Assess the entry-specific defining contract against named direct/shared/sample evidence; only an identified uncovered critical behavior warrants further execution. Definition hydration and shared payment/practice plumbing are covered within their stated limits."
-      ]
+      }
     },
     {
       "ordinal": 9,
@@ -9859,15 +9964,13 @@
         }
       },
       "current_code_note": null,
-      "remaining": [
-        "Actual projection Bind event wiring and damage/borrowed-anchor-loss retirement/focus return are not executed; boundary and source-custody predicates alone do not establish collapse."
-      ],
+      "remaining": [],
       "previous_whole_plan_status": "bounded_builder_stock_and_native_lifecycle_qualified_full_installer_source_and_grade_matrix_pending",
       "previous_whole_plan_evidence": [
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
         "Armageddon_Owned_Projections_Checkpoint_20261010.json"
       ],
-      "installed_stock_qualification": "PENDING_CRITICAL_CASE",
+      "installed_stock_qualification": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
@@ -9909,7 +10012,15 @@
             "scope": "Exact ordinary parent serializer, remaining-time scheduler and child removal; independent lifecycle journals retain their own contracts."
           }
         ],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-d6ee9648c19e4367a42fc041c03dc029\\boot-latest.json",
+            "sha256": "031fe5b24976c76e0401f60a44010848e0a85872fa2385e88dfc47809b8915f1",
+            "checkpoint": "s4_residual_completion_20261015",
+            "scope": "projection; see portable checkpoint assertions and limits."
+          }
+        ],
         "assumptions": [
           "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion.",
           "Exact current canonical definition, typed dependency, target/material policy and selected external-grade binding passed the152-entry audit and first/cold definition loader.",
@@ -9917,9 +10028,7 @@
           "Normal manifestation uses its actual authored component plan. Shared target-free practice proves payment/time/no manifestation; the current empty stock practice plan does not mandate a focus or consume reagents.",
           "Only the base required S4 spell contract is assessed; quiet/area options, carrier production/admission, S5 balance/progression and Release remain separately disabled."
         ],
-        "outstanding_critical_cases": [
-          "Actual projection Bind event wiring and damage/borrowed-anchor-loss retirement/focus return are not executed; boundary and source-custody predicates alone do not establish collapse."
-        ],
+        "outstanding_critical_cases": [],
         "strategy": "20261013"
       },
       "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS",
@@ -9929,6 +10038,79 @@
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
       ],
       "s4_acceptance": {
+        "status": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
+        "assessed_revision": "ebceb165e96402ce2482e683fee1571610d8180a plus residual lifecycle/projection and approved Kindle change; source hashes below identify tested bytes.",
+        "accepted_scope": "One figurine anchor and immobile owned secondary presence, 60*grade seconds; shared identity/skills/resources, no inventory clone; collapse on damage/anchor loss.",
+        "contracts": [
+          "projections-v1",
+          "configured-payment-v1",
+          "configured-practice-v1",
+          "ordinary-spell-parent-lifetime-v1",
+          "residual-projection-native-v2"
+        ],
+        "decision_basis": "Exact definition plus direct owning regression and named representative native first/cold evidence in residual checkpoint; stated shared-family inheritance and limits retained.",
+        "outstanding_critical_cases": [],
+        "release_qualified": false
+      },
+      "historical_pre_acceptance_remaining_20261015": [
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
+        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
+        "Assess the entry-specific defining contract against named direct/shared/sample evidence; only an identified uncovered critical behavior warrants further execution. Definition hydration and shared payment/practice plumbing are covered within their stated limits."
+      ],
+      "historical_configuration_before_residual_20261015": {
+        "completion_contract": "Bounded source-item-to-projection link using canonical identity, immobile copy/focus/anchor restrictions and safe collapse",
+        "policy": {
+          "effect_profile": "effigy",
+          "target_type": "item",
+          "approved_effect_configuration": "One figurine anchor and immobile owned secondary presence, 60*grade seconds; shared identity/skills/resources, no inventory clone; collapse on damage/anchor loss.",
+          "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
+          "minimum_energy": 20,
+          "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
+          "source_component_note": "none",
+          "normal_material_policy": "Only per-spell source/approved explicit component plan; no old blanket grade>=3 reagent/focus demand.",
+          "practice_policy": "target-free full paid practice; retain matching focus, no reagent consumption; raw and controlled progression separately gated.",
+          "variant_policy": {
+            "quiet_candidate": false,
+            "area_candidate": null,
+            "status": "per-entry source/adapter qualification required before enabling; old generic group strings are not authority"
+          },
+          "carrier_policy": {
+            "scroll": false,
+            "charged_candidate": false,
+            "substance_candidate": false,
+            "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
+          }
+        },
+        "typed_content_projection": null,
+        "verified_paths": [
+          {
+            "path": "MudSharpCore/Magic/ArmageddonProjectionStock.cs",
+            "exists": true
+          },
+          {
+            "path": "MudSharpCore/Magic/SpellEffects/CopyCloneSpellEffects.cs",
+            "exists": true
+          },
+          {
+            "path": "MudSharpCore/Magic/SpellEffects/CreateItemEffect.cs",
+            "exists": true
+          },
+          {
+            "path": "MudSharpCore/Magic/SpellEffects/CreateProjectionEffect.cs",
+            "exists": true
+          }
+        ],
+        "registered_effect_candidates": [
+          {
+            "type": "createprojection",
+            "class": "CreateProjectionEffect",
+            "path": "MudSharpCore/Magic/SpellEffects/CreateProjectionEffect.cs",
+            "line": 28
+          }
+        ],
+        "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion"
+      },
+      "historical_acceptance_before_residual_20261015": {
         "status": "PENDING_CRITICAL_CASE",
         "assessed_revision": "5e6587060972023b78d30660666bfa5b03b8de0d plus S4FamilyIntegrationTests.cs",
         "accepted_scope": "One figurine anchor and immobile owned secondary presence, 60*grade seconds; shared identity/skills/resources, no inventory clone; collapse on damage/anchor loss.",
@@ -9943,12 +10125,7 @@
           "Actual projection Bind event wiring and damage/borrowed-anchor-loss retirement/focus return are not executed; boundary and source-custody predicates alone do not establish collapse."
         ],
         "release_qualified": false
-      },
-      "historical_pre_acceptance_remaining_20261015": [
-        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
-        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
-        "Assess the entry-specific defining contract against named direct/shared/sample evidence; only an identified uncovered critical behavior warrants further execution. Definition hydration and shared payment/practice plumbing are covered within their stated limits."
-      ]
+      }
     },
     {
       "ordinal": 64,
@@ -14444,15 +14621,13 @@
         }
       },
       "current_code_note": null,
-      "remaining": [
-        "Actual shared projection create/focus/trance binding and native damage/anchor callback-to-retirement/focus return are not executed; existing mobile-edge/manipulation limits remain covered."
-      ],
+      "remaining": [],
       "previous_whole_plan_status": "bounded_builder_stock_and_native_lifecycle_qualified_full_installer_source_and_grade_matrix_pending",
       "previous_whole_plan_evidence": [
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending",
         "Armageddon_Owned_Projections_Checkpoint_20261010.json"
       ],
-      "installed_stock_qualification": "PENDING_CRITICAL_CASE",
+      "installed_stock_qualification": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
@@ -14494,7 +14669,15 @@
             "scope": "Exact ordinary parent serializer, remaining-time scheduler and child removal; independent lifecycle journals retain their own contracts."
           }
         ],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-d6ee9648c19e4367a42fc041c03dc029\\boot-latest.json",
+            "sha256": "031fe5b24976c76e0401f60a44010848e0a85872fa2385e88dfc47809b8915f1",
+            "checkpoint": "s4_residual_completion_20261015",
+            "scope": "projection; see portable checkpoint assertions and limits. Walking Shadow inherits shared projection runtime, not a separate native cast."
+          }
+        ],
         "assumptions": [
           "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion.",
           "Exact current canonical definition, typed dependency, target/material policy and selected external-grade binding passed the152-entry audit and first/cold definition loader.",
@@ -14502,9 +14685,7 @@
           "Normal manifestation uses its actual authored component plan. Shared target-free practice proves payment/time/no manifestation; the current empty stock practice plan does not mandate a focus or consume reagents.",
           "Only the base required S4 spell contract is assessed; quiet/area options, carrier production/admission, S5 balance/progression and Release remain separately disabled."
         ],
-        "outstanding_critical_cases": [
-          "Actual shared projection create/focus/trance binding and native damage/anchor callback-to-retirement/focus return are not executed; existing mobile-edge/manipulation limits remain covered."
-        ],
+        "outstanding_critical_cases": [],
         "strategy": "20261013"
       },
       "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS",
@@ -14514,6 +14695,78 @@
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
       ],
       "s4_acceptance": {
+        "status": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
+        "assessed_revision": "ebceb165e96402ce2482e683fee1571610d8180a plus residual lifecycle/projection and approved Kindle change; source hashes below identify tested bytes.",
+        "accepted_scope": "One focused native-exit mobile secondary presence, 60*grade seconds, max 10*grade room edges from primary anchor; vulnerable tranced primary body; no material combat/manipulation.",
+        "contracts": [
+          "projections-v1",
+          "configured-payment-v1",
+          "configured-practice-v1",
+          "ordinary-spell-parent-lifetime-v1",
+          "residual-projection-native-v2"
+        ],
+        "decision_basis": "Exact definition plus direct owning regression and named representative native first/cold evidence in residual checkpoint; stated shared-family inheritance and limits retained.",
+        "outstanding_critical_cases": [],
+        "release_qualified": false
+      },
+      "historical_pre_acceptance_remaining_20261015": [
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
+        "Assess the entry-specific defining contract against named direct/shared/sample evidence; only an identified uncovered critical behavior warrants further execution. Definition hydration and shared payment/practice plumbing are covered within their stated limits."
+      ],
+      "historical_configuration_before_residual_20261015": {
+        "completion_contract": "Controllable shadow instance with original body, canonical progress/resources, focus/anchor/plane limits and safe collapse",
+        "policy": {
+          "effect_profile": "projection",
+          "target_type": "self",
+          "approved_effect_configuration": "One focused native-exit mobile secondary presence, 60*grade seconds, max 10*grade room edges from primary anchor; vulnerable tranced primary body; no material combat/manipulation.",
+          "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
+          "minimum_energy": 7,
+          "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
+          "source_component_note": "none",
+          "normal_material_policy": "Only per-spell source/approved explicit component plan; no old blanket grade>=3 reagent/focus demand.",
+          "practice_policy": "target-free full paid practice; retain matching focus, no reagent consumption; raw and controlled progression separately gated.",
+          "variant_policy": {
+            "quiet_candidate": false,
+            "area_candidate": null,
+            "status": "per-entry source/adapter qualification required before enabling; old generic group strings are not authority"
+          },
+          "carrier_policy": {
+            "scroll": false,
+            "charged_candidate": false,
+            "substance_candidate": false,
+            "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
+          }
+        },
+        "typed_content_projection": null,
+        "verified_paths": [
+          {
+            "path": "MudSharpCore/Magic/ArmageddonProjectionStock.cs",
+            "exists": true
+          },
+          {
+            "path": "MudSharpCore/Magic/SpellEffects/AstralProjectionSpellEffect.cs",
+            "exists": true
+          },
+          {
+            "path": "MudSharpCore/Magic/SpellEffects/CopyCloneSpellEffects.cs",
+            "exists": true
+          },
+          {
+            "path": "MudSharpCore/Magic/SpellEffects/CreateProjectionEffect.cs",
+            "exists": true
+          }
+        ],
+        "registered_effect_candidates": [
+          {
+            "type": "createprojection",
+            "class": "CreateProjectionEffect",
+            "path": "MudSharpCore/Magic/SpellEffects/CreateProjectionEffect.cs",
+            "line": 28
+          }
+        ],
+        "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion"
+      },
+      "historical_acceptance_before_residual_20261015": {
         "status": "PENDING_CRITICAL_CASE",
         "assessed_revision": "5e6587060972023b78d30660666bfa5b03b8de0d plus S4FamilyIntegrationTests.cs",
         "accepted_scope": "One focused native-exit mobile secondary presence, 60*grade seconds, max 10*grade room edges from primary anchor; vulnerable tranced primary body; no material combat/manipulation.",
@@ -14528,11 +14781,7 @@
           "Actual shared projection create/focus/trance binding and native damage/anchor callback-to-retirement/focus return are not executed; existing mobile-edge/manipulation limits remain covered."
         ],
         "release_qualified": false
-      },
-      "historical_pre_acceptance_remaining_20261015": [
-        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
-        "Assess the entry-specific defining contract against named direct/shared/sample evidence; only an identified uncovered critical behavior warrants further execution. Definition hydration and shared payment/practice plumbing are covered within their stated limits."
-      ]
+      }
     },
     {
       "ordinal": 95,
@@ -20600,12 +20849,10 @@
         }
       },
       "current_code_note": null,
-      "remaining": [
-        "Nonempty native pocket Evacuate transaction and exact nested foreign-goods/fallback conservation are not executed. Retiring withdrawal tests mock the service; shelter evacuation does not substitute."
-      ],
+      "remaining": [],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
-      "installed_stock_qualification": "PENDING_CRITICAL_CASE",
+      "installed_stock_qualification": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
@@ -20647,7 +20894,15 @@
             "scope": "Exact ordinary parent serializer, remaining-time scheduler and child removal; independent lifecycle journals retain their own contracts."
           }
         ],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": "../prepared-catalogue-boot-native-s4-stock-2ff7b9524d28491c94c3f9c4b8295d72/boot-latest.json",
+            "sha256": "44e74869842541f139f190dcf0f5416179b60d0d88a583f991957efa57b77e50",
+            "checkpoint": "s4_residual_completion_20261015",
+            "scope": "pocket; see portable checkpoint assertions and limits."
+          }
+        ],
         "assumptions": [
           "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion.",
           "Exact current canonical definition, typed dependency, target/material policy and selected external-grade binding passed the152-entry audit and first/cold definition loader.",
@@ -20655,9 +20910,7 @@
           "Normal manifestation uses its actual authored component plan. Shared target-free practice proves payment/time/no manifestation; the current empty stock practice plan does not mandate a focus or consume reagents.",
           "Only the base required S4 spell contract is assessed; quiet/area options, carrier production/admission, S5 balance/progression and Release remain separately disabled."
         ],
-        "outstanding_critical_cases": [
-          "Nonempty native pocket Evacuate transaction and exact nested foreign-goods/fallback conservation are not executed. Retiring withdrawal tests mock the service; shelter evacuation does not substitute."
-        ],
+        "outstanding_critical_cases": [],
         "strategy": "20261013"
       },
       "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS",
@@ -20667,6 +20920,81 @@
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
       ],
       "s4_acceptance": {
+        "status": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
+        "assessed_revision": "ebceb165e96402ce2482e683fee1571610d8180a plus residual lifecycle/projection and approved Kindle change; source hashes below identify tested bytes.",
+        "accepted_scope": "Bearer-access finite pocket, 2*grade kilograms full-content weight, 300*grade seconds; reject direct/hidden nesting, living cargo and cycles; foreign goods conserved on occupied collapse.",
+        "contracts": [
+          "pocket-v1",
+          "configured-payment-v1",
+          "configured-practice-v1",
+          "ordinary-spell-parent-lifetime-v1",
+          "pocket-fallback-native-v2"
+        ],
+        "decision_basis": "Exact definition plus direct owning regression and named representative native first/cold evidence in residual checkpoint; stated shared-family inheritance and limits retained.",
+        "outstanding_critical_cases": [],
+        "release_qualified": false
+      },
+      "historical_pre_acceptance_remaining_20261015": [
+        "Existing factory/content minimum 12 differs from locked approved minimum 7; hydration must use approved value via configurable seam rather than copying old defaults.",
+        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
+        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
+        "Assess the entry-specific defining contract against named direct/shared/sample evidence; only an identified uncovered critical behavior warrants further execution. Definition hydration and shared payment/practice plumbing are covered within their stated limits."
+      ],
+      "historical_configuration_before_residual_20261015": {
+        "completion_contract": "Finite items-only pocket storage; no nesting/living occupants; persist access/ownership and conserve contents on collapse",
+        "policy": {
+          "effect_profile": "pocket",
+          "target_type": "item",
+          "approved_effect_configuration": "Bearer-access finite pocket, 2*grade kilograms full-content weight, 300*grade seconds; reject direct/hidden nesting, living cargo and cycles; foreign goods conserved on occupied collapse.",
+          "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
+          "minimum_energy": 7,
+          "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
+          "source_component_note": "none",
+          "normal_material_policy": "Only per-spell source/approved explicit component plan; no old blanket grade>=3 reagent/focus demand.",
+          "practice_policy": "target-free full paid practice; retain matching focus, no reagent consumption; raw and controlled progression separately gated.",
+          "variant_policy": {
+            "quiet_candidate": false,
+            "area_candidate": null,
+            "status": "per-entry source/adapter qualification required before enabling; old generic group strings are not authority"
+          },
+          "carrier_policy": {
+            "scroll": false,
+            "charged_candidate": false,
+            "substance_candidate": false,
+            "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
+          }
+        },
+        "typed_content_projection": {
+          "callable": "ArmageddonPocketContent.Create",
+          "evidence": {
+            "path": "FutureMUDLibrary/Magic/Stock/ArmageddonPocketContent.cs",
+            "exists": true,
+            "sha256": "239b7a3f4b2512a3f9fa237a43e759fd87fd20002993931d29c3e84ee15efba7",
+            "line": 11
+          },
+          "role": "typed_content_projection_not_installer_or_gameplay_proof"
+        },
+        "verified_paths": [
+          {
+            "path": "FutureMUDLibrary/Magic/Stock/ArmageddonPocketContent.cs",
+            "exists": true
+          },
+          {
+            "path": "MudSharpCore/Magic/SpellEffects/CreatePocketEffect.cs",
+            "exists": true
+          }
+        ],
+        "registered_effect_candidates": [
+          {
+            "type": "createpocket",
+            "class": "CreatePocketEffect",
+            "path": "MudSharpCore/Magic/SpellEffects/CreatePocketEffect.cs",
+            "line": 23
+          }
+        ],
+        "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion"
+      },
+      "historical_acceptance_before_residual_20261015": {
         "status": "PENDING_CRITICAL_CASE",
         "assessed_revision": "5e6587060972023b78d30660666bfa5b03b8de0d plus S4FamilyIntegrationTests.cs",
         "accepted_scope": "Bearer-access finite pocket, 2*grade kilograms full-content weight, 300*grade seconds; reject direct/hidden nesting, living cargo and cycles; foreign goods conserved on occupied collapse.",
@@ -20681,13 +21009,7 @@
           "Nonempty native pocket Evacuate transaction and exact nested foreign-goods/fallback conservation are not executed. Retiring withdrawal tests mock the service; shelter evacuation does not substitute."
         ],
         "release_qualified": false
-      },
-      "historical_pre_acceptance_remaining_20261015": [
-        "Existing factory/content minimum 12 differs from locked approved minimum 7; hydration must use approved value via configurable seam rather than copying old defaults.",
-        "Complete configuration validation and remaining critical/shared/sampled evidence under the approved20261013 strategy; no separate exhaustive native spell x grade x target matrix.",
-        "Bind owned native dependencies through declared schemas/serializers; grade outputs must use exact stable prototype keys.",
-        "Assess the entry-specific defining contract against named direct/shared/sample evidence; only an identified uncovered critical behavior warrants further execution. Definition hydration and shared payment/practice plumbing are covered within their stated limits."
-      ]
+      }
     },
     {
       "ordinal": 136,
@@ -21013,7 +21335,7 @@
       "remaining": [],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
-      "installed_stock_qualification": "QUALIFIED_S4_DIRECT_SHARED_REPRESENTATIVE",
+      "installed_stock_qualification": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
@@ -21068,6 +21390,13 @@
             "case": "borrow",
             "overall_receipt_status": "PASS",
             "scope": "Exact paid stock possession used original corpse identity/body and separate caster anchor. Real60-second closure conserved original corpse and foreign gear, retired the secondary row, and cold restart retained those outcomes."
+          },
+          {
+            "status": "PASS",
+            "receipt": "../prepared-catalogue-boot-native-s4-stock-e854e6e8f70f4e18bc99130d8de96f85/boot-latest.json",
+            "sha256": "6a2710f2d6fea4e2fc520325ea214de5e781904b2edce75167a4445bd293e527",
+            "checkpoint": "s4_residual_completion_20261015",
+            "scope": "borrow_strengthened; see portable checkpoint assertions and limits."
           }
         ],
         "assumptions": [
@@ -21083,6 +21412,66 @@
       "definition_status": "DECLARED_AND_AUDITED_152",
       "s4_acceptance": {
         "status": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
+        "assessed_revision": "ebceb165e96402ce2482e683fee1571610d8180a plus residual lifecycle/projection and approved Kindle change; source hashes below identify tested bytes.",
+        "accepted_scope": "One eligible corpse-linked presence for 60*grade seconds; restore exact identity/custody on closure.",
+        "contracts": [
+          "corpse-possession-v1",
+          "configured-payment-v1",
+          "configured-practice-v1",
+          "ordinary-spell-parent-lifetime-v1",
+          "npc-mission-corpse-v2",
+          "residual-corpse-native-v2"
+        ],
+        "decision_basis": "Exact definition plus direct owning regression and named representative native first/cold evidence in residual checkpoint; stated shared-family inheritance and limits retained.",
+        "outstanding_critical_cases": [],
+        "release_qualified": false
+      },
+      "historical_pre_acceptance_remaining_20261015": [
+        "Assess the corpse-eligibility, exact body/identity custody and cold-closure contract against existing direct/shared/native receipts; execute only identified uncovered critical cases."
+      ],
+      "historical_configuration_before_residual_20261015": {
+        "completion_contract": "Control an eligible corpse through the native shared-identity possession mechanism.",
+        "policy": {
+          "effect_profile": "corpse_control",
+          "target_type": "corpse",
+          "approved_effect_configuration": "One eligible corpse-linked presence for 60*grade seconds; restore exact identity/custody on closure.",
+          "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
+          "minimum_energy": 33,
+          "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
+          "source_component_note": "none",
+          "normal_material_policy": "Only per-spell source/approved explicit component plan; no old blanket grade>=3 reagent/focus demand.",
+          "practice_policy": "target-free full paid practice; retain matching focus, no reagent consumption; raw and controlled progression separately gated.",
+          "variant_policy": {
+            "quiet_candidate": false,
+            "area_candidate": null,
+            "status": "per-entry source/adapter qualification required before enabling; old generic group strings are not authority"
+          },
+          "carrier_policy": {
+            "scroll": false,
+            "charged_candidate": false,
+            "substance_candidate": false,
+            "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
+          }
+        },
+        "typed_content_projection": null,
+        "verified_paths": [
+          {
+            "path": "MudSharpCore/Magic/SpellEffects/DirectPossessionSpellEffects.cs",
+            "exists": true
+          }
+        ],
+        "registered_effect_candidates": [
+          {
+            "type": "possesscorpse",
+            "class": "PossessCorpseSpellEffect",
+            "path": "MudSharpCore/Magic/SpellEffects/DirectPossessionSpellEffects.cs",
+            "line": 341
+          }
+        ],
+        "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion"
+      },
+      "historical_acceptance_before_residual_20261015": {
+        "status": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
         "assessed_revision": "5e6587060972023b78d30660666bfa5b03b8de0d plus five bounded NPC runtime repairs and final regression tests",
         "accepted_scope": "One eligible corpse-linked presence for 60*grade seconds; restore exact identity/custody on closure.",
         "contracts": [
@@ -21095,10 +21484,7 @@
         "decision_basis": "Exact paid stock possession used original corpse identity/body and separate caster anchor. Real60-second closure conserved original corpse and foreign gear, retired the secondary row, and cold restart retained those outcomes.",
         "outstanding_critical_cases": [],
         "release_qualified": false
-      },
-      "historical_pre_acceptance_remaining_20261015": [
-        "Assess the corpse-eligibility, exact body/identity custody and cold-closure contract against existing direct/shared/native receipts; execute only identified uncovered critical cases."
-      ]
+      }
     },
     {
       "ordinal": 139,
@@ -21826,12 +22212,10 @@
         }
       },
       "current_code_note": null,
-      "remaining": [
-        "Actual shared projection create/focus/trance binding and callback retirement/focus return are not executed; existing policy and no-manipulation limits remain covered."
-      ],
+      "remaining": [],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
-      "installed_stock_qualification": "PENDING_CRITICAL_CASE",
+      "installed_stock_qualification": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
@@ -21873,16 +22257,22 @@
             "scope": "Exact ordinary parent serializer, remaining-time scheduler and child removal; independent lifecycle journals retain their own contracts."
           }
         ],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-d6ee9648c19e4367a42fc041c03dc029\\boot-latest.json",
+            "sha256": "031fe5b24976c76e0401f60a44010848e0a85872fa2385e88dfc47809b8915f1",
+            "checkpoint": "s4_residual_completion_20261015",
+            "scope": "projection; see portable checkpoint assertions and limits."
+          }
+        ],
         "assumptions": [
           "Exact current canonical definition, typed dependency, target/material policy and selected external-grade binding passed the152-entry audit and first/cold definition loader.",
           "Configured payment/practice and ordinary parent lifetime apply only through the named existing implementations. A shared test is not a claim of a dedicated native cast for this key.",
           "Normal manifestation uses its actual authored component plan. Shared target-free practice proves payment/time/no manifestation; the current empty stock practice plan does not mandate a focus or consume reagents.",
           "Only the base required S4 spell contract is assessed; quiet/area options, carrier production/admission, S5 balance/progression and Release remain separately disabled."
         ],
-        "outstanding_critical_cases": [
-          "Actual shared projection create/focus/trance binding and callback retirement/focus return are not executed; existing policy and no-manipulation limits remain covered."
-        ],
+        "outstanding_critical_cases": [],
         "strategy": "20261013"
       },
       "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS",
@@ -21893,6 +22283,65 @@
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
       ],
       "s4_acceptance": {
+        "status": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
+        "assessed_revision": "ebceb165e96402ce2482e683fee1571610d8180a plus residual lifecycle/projection and approved Kindle change; source hashes below identify tested bytes.",
+        "accepted_scope": "One canonical-identity secondary presence for 60*grade seconds; explicit anchor/focus/range and no material manipulation.",
+        "contracts": [
+          "projections-v1",
+          "configured-payment-v1",
+          "configured-practice-v1",
+          "ordinary-spell-parent-lifetime-v1",
+          "residual-projection-native-v2"
+        ],
+        "decision_basis": "Exact definition plus direct owning regression and named representative native first/cold evidence in residual checkpoint; stated shared-family inheritance and limits retained.",
+        "outstanding_critical_cases": [],
+        "release_qualified": false
+      },
+      "historical_pre_acceptance_remaining_20261015": [
+        "Assess the entry-specific defining contract against named direct/shared/sample evidence; only an identified uncovered critical behavior warrants further execution. Definition hydration and shared payment/practice plumbing are covered within their stated limits."
+      ],
+      "historical_configuration_before_residual_20261015": {
+        "completion_contract": "Create a focusable native projection while the anchor body remains.",
+        "policy": {
+          "effect_profile": "projection",
+          "target_type": "self",
+          "approved_effect_configuration": "One canonical-identity secondary presence for 60*grade seconds; explicit anchor/focus/range and no material manipulation.",
+          "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
+          "minimum_energy": 12,
+          "energy_status": "LOCKED_AUTHORED_STOCK_MINIMUM",
+          "source_component_note": "none",
+          "normal_material_policy": "Only per-spell source/approved explicit component plan; no old blanket grade>=3 reagent/focus demand.",
+          "practice_policy": "target-free full paid practice; retain matching focus, no reagent consumption; raw and controlled progression separately gated.",
+          "variant_policy": {
+            "quiet_candidate": false,
+            "area_candidate": null,
+            "status": "per-entry source/adapter qualification required before enabling; old generic group strings are not authority"
+          },
+          "carrier_policy": {
+            "scroll": false,
+            "charged_candidate": false,
+            "substance_candidate": false,
+            "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
+          }
+        },
+        "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonExistingFactorySpellContent.cs",
+        "verified_paths": [
+          {
+            "path": "MudSharpCore/Magic/SpellEffects/AstralProjectionSpellEffect.cs",
+            "exists": true
+          }
+        ],
+        "registered_effect_candidates": [
+          {
+            "type": "astralprojection",
+            "class": "AstralProjectionSpellEffect",
+            "path": "MudSharpCore/Magic/SpellEffects/AstralProjectionSpellEffect.cs",
+            "line": 40
+          }
+        ],
+        "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion"
+      },
+      "historical_acceptance_before_residual_20261015": {
         "status": "PENDING_CRITICAL_CASE",
         "assessed_revision": "5e6587060972023b78d30660666bfa5b03b8de0d plus S4FamilyIntegrationTests.cs",
         "accepted_scope": "One canonical-identity secondary presence for 60*grade seconds; explicit anchor/focus/range and no material manipulation.",
@@ -21907,10 +22356,7 @@
           "Actual shared projection create/focus/trance binding and callback retirement/focus return are not executed; existing policy and no-manipulation limits remain covered."
         ],
         "release_qualified": false
-      },
-      "historical_pre_acceptance_remaining_20261015": [
-        "Assess the entry-specific defining contract against named direct/shared/sample evidence; only an identified uncovered critical behavior warrants further execution. Definition hydration and shared payment/practice plumbing are covered within their stated limits."
-      ]
+      }
     },
     {
       "ordinal": 145,
@@ -22223,14 +22669,12 @@
         }
       },
       "current_code_note": null,
-      "remaining": [
-        "Positive corpse-bound speech spawn/extraction/relay/retirement/restoration is not executed. Existing non-corpse refusal and cold metadata test does not establish the dedicated linked-proxy lifecycle."
-      ],
+      "remaining": [],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
         "Armageddon_Stage1C_Verification.json: provisional source energy envelope only; runtime effect and installed stock acceptance remain pending"
       ],
-      "installed_stock_qualification": "PENDING_CRITICAL_CASE",
+      "installed_stock_qualification": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
@@ -22272,7 +22716,15 @@
             "scope": "Exact ordinary parent serializer, remaining-time scheduler and child removal; independent lifecycle journals retain their own contracts."
           }
         ],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": "../prepared-catalogue-boot-native-s4-stock-565625b1f0fc4b5f8ca69bf6994bfa87/boot-latest.json",
+            "sha256": "142f4818e6bf74ebd2d6b667621804880fdffb53b09cf2df6dd03e458e63615c",
+            "checkpoint": "s4_residual_completion_20261015",
+            "scope": "voice; see portable checkpoint assertions and limits."
+          }
+        ],
         "assumptions": [
           "Definition/managed fixture validation does not prove bespoke live controller, custody or SQL replay behaviour; no automatic promotion.",
           "Exact current canonical definition, typed dependency, target/material policy and selected external-grade binding passed the152-entry audit and first/cold definition loader.",
@@ -22280,9 +22732,7 @@
           "Normal manifestation uses its actual authored component plan. Shared target-free practice proves payment/time/no manifestation; the current empty stock practice plan does not mandate a focus or consume reagents.",
           "Only the base required S4 spell contract is assessed; quiet/area options, carrier production/admission, S5 balance/progression and Release remain separately disabled."
         ],
-        "outstanding_critical_cases": [
-          "Positive corpse-bound speech spawn/extraction/relay/retirement/restoration is not executed. Existing non-corpse refusal and cold metadata test does not establish the dedicated linked-proxy lifecycle."
-        ],
+        "outstanding_critical_cases": [],
         "strategy": "20261013"
       },
       "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS",
@@ -22293,6 +22743,65 @@
         "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
       ],
       "s4_acceptance": {
+        "status": "ACCEPTED_DIRECT_SHARED_REPRESENTATIVE",
+        "assessed_revision": "ebceb165e96402ce2482e683fee1571610d8180a plus residual lifecycle/projection and approved Kindle change; source hashes below identify tested bytes.",
+        "accepted_scope": "One corpse-bound speech proxy for 60*grade seconds; only recorded permitted knowledge; no resurrection or account access.",
+        "contracts": [
+          "trail-speech-v1",
+          "configured-payment-v1",
+          "configured-practice-v1",
+          "ordinary-spell-parent-lifetime-v1",
+          "residual-corpse-native-v2"
+        ],
+        "decision_basis": "Exact definition plus direct owning regression and named representative native first/cold evidence in residual checkpoint; stated shared-family inheritance and limits retained.",
+        "outstanding_critical_cases": [],
+        "release_qualified": false
+      },
+      "historical_pre_acceptance_remaining_20261015": [
+        "Assess the entry-specific defining contract against named direct/shared/sample evidence; only an identified uncovered critical behavior warrants further execution. Definition hydration and shared payment/practice plumbing are covered within their stated limits."
+      ],
+      "historical_configuration_before_residual_20261015": {
+        "completion_contract": "Raise a temporary corpse speech proxy using native corpse restoration rules.",
+        "policy": {
+          "effect_profile": "deadspeak",
+          "target_type": "corpse",
+          "approved_effect_configuration": "One corpse-bound speech proxy for 60*grade seconds; only recorded permitted knowledge; no resurrection or account access.",
+          "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
+          "minimum_energy": 33,
+          "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
+          "source_component_note": "none",
+          "normal_material_policy": "Only per-spell source/approved explicit component plan; no old blanket grade>=3 reagent/focus demand.",
+          "practice_policy": "target-free full paid practice; retain matching focus, no reagent consumption; raw and controlled progression separately gated.",
+          "variant_policy": {
+            "quiet_candidate": false,
+            "area_candidate": null,
+            "status": "per-entry source/adapter qualification required before enabling; old generic group strings are not authority"
+          },
+          "carrier_policy": {
+            "scroll": false,
+            "charged_candidate": false,
+            "substance_candidate": false,
+            "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
+          }
+        },
+        "typed_content_projection": null,
+        "verified_paths": [
+          {
+            "path": "MudSharpCore/Magic/SpellEffects/ArmageddonInformationSpellEffects.cs",
+            "exists": true
+          }
+        ],
+        "registered_effect_candidates": [
+          {
+            "type": "deadspeak",
+            "class": "DeadSpeakSpellEffect",
+            "path": "MudSharpCore/Magic/SpellEffects/ArmageddonInformationSpellEffects.cs",
+            "line": 455
+          }
+        ],
+        "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion"
+      },
+      "historical_acceptance_before_residual_20261015": {
         "status": "PENDING_CRITICAL_CASE",
         "assessed_revision": "5e6587060972023b78d30660666bfa5b03b8de0d plus S4FamilyIntegrationTests.cs",
         "accepted_scope": "One corpse-bound speech proxy for 60*grade seconds; only recorded permitted knowledge; no resurrection or account access.",
@@ -22307,10 +22816,7 @@
           "Positive corpse-bound speech spawn/extraction/relay/retirement/restoration is not executed. Existing non-corpse refusal and cold metadata test does not establish the dedicated linked-proxy lifecycle."
         ],
         "release_qualified": false
-      },
-      "historical_pre_acceptance_remaining_20261015": [
-        "Assess the entry-specific defining contract against named direct/shared/sample evidence; only an identified uncovered critical behavior warrants further execution. Definition hydration and shared payment/practice plumbing are covered within their stated limits."
-      ]
+      }
     },
     {
       "ordinal": 148,
@@ -23532,7 +24038,7 @@
     }
   ],
   "evidence_reuse": "Per-entry verified paths resolve to source_code_fingerprints; repeated hashes stored once.",
-  "status": "S4_NOT_ACCEPTED_146_OF_152",
+  "status": "S4_ACCEPTED_152_OF_152",
   "baseline_repair_commit": "d5cdd6ccc80079e335ca6480a775c9ee9063f9da",
   "source_revision_scope": "The source map and its existing-file fingerprints describe the initial 92fdf3f9 head. The added adapter paths below describe the first S4 working-tree slice separately.",
   "adapter_implementation_commit": "d427e02b0deefd5445fc9599d2a9f031f0cb8ac9",
@@ -26774,9 +27280,458 @@
         }
       ],
       "diagnostic_delta": "Both native receipts used a temporary full exception SystemMessage at the existing paid-operation catch. It was removed afterward; no admission, payment, effect, persistence or recovery behavior changed by removal. Final managed gate uses the shipping source."
+    },
+    "residual-projection-native-v2": {
+      "status": "PASS_WITH_RECORDED_LIMITS",
+      "entries": [
+        63,
+        94,
+        144
+      ],
+      "native": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-d6ee9648c19e4367a42fc041c03dc029\\boot-latest.json",
+      "checkpoint": "s4_residual_completion_20261015",
+      "limits": [
+        "Direct/shared/representative S4 acceptance, not a native Cartesian campaign or S5 readiness.",
+        "Sand source-drop sample manually returns focus first; actual focused damage-to-focus-return is observed on Unbodied Journey. Walking Shadow inherits their shared create/focus/Bind/retirement implementation plus its prior movement/manipulation checks.",
+        "Voice and Borrow native animation emitted Duplicated Item warnings. Native conservation/floor return/cold passed; live gear usability during animation was not asserted. Existing BodyInventory.LoadInventory skips a loaded item already in custody. No broad inventory repair claimed.",
+        "Route-coordinate corpse restoration uses actual removal regressions; native samples use ordinary rooms.",
+        "New Kindle native sample is grade-one named reserve capacity; all source rows/grades and native trait/health/stamina consumers have direct owning regression evidence.",
+        "Older Nilaz/Exchange/focus-device and mission receipts remain scoped and are not rerun. No new bonus exists on their exercised items.",
+        "Legacy generic AnimateCorpse later raw-Extract path remains an adjacent deferred finding; stock Voice/Borrow paths use native hide/restore."
+      ]
+    },
+    "residual-corpse-native-v2": {
+      "status": "PASS_WITH_RECORDED_LIMITS",
+      "entries": [
+        138,
+        147
+      ],
+      "native": "../prepared-catalogue-boot-native-s4-stock-565625b1f0fc4b5f8ca69bf6994bfa87/boot-latest.json",
+      "checkpoint": "s4_residual_completion_20261015",
+      "limits": [
+        "Direct/shared/representative S4 acceptance, not a native Cartesian campaign or S5 readiness.",
+        "Sand source-drop sample manually returns focus first; actual focused damage-to-focus-return is observed on Unbodied Journey. Walking Shadow inherits their shared create/focus/Bind/retirement implementation plus its prior movement/manipulation checks.",
+        "Voice and Borrow native animation emitted Duplicated Item warnings. Native conservation/floor return/cold passed; live gear usability during animation was not asserted. Existing BodyInventory.LoadInventory skips a loaded item already in custody. No broad inventory repair claimed.",
+        "Route-coordinate corpse restoration uses actual removal regressions; native samples use ordinary rooms.",
+        "New Kindle native sample is grade-one named reserve capacity; all source rows/grades and native trait/health/stamina consumers have direct owning regression evidence.",
+        "Older Nilaz/Exchange/focus-device and mission receipts remain scoped and are not rerun. No new bonus exists on their exercised items.",
+        "Legacy generic AnimateCorpse later raw-Extract path remains an adjacent deferred finding; stock Voice/Borrow paths use native hide/restore."
+      ]
+    },
+    "pocket-fallback-native-v2": {
+      "status": "PASS_WITH_RECORDED_LIMITS",
+      "entries": [
+        135
+      ],
+      "native": "../prepared-catalogue-boot-native-s4-stock-2ff7b9524d28491c94c3f9c4b8295d72/boot-latest.json",
+      "checkpoint": "s4_residual_completion_20261015",
+      "limits": [
+        "Direct/shared/representative S4 acceptance, not a native Cartesian campaign or S5 readiness.",
+        "Sand source-drop sample manually returns focus first; actual focused damage-to-focus-return is observed on Unbodied Journey. Walking Shadow inherits their shared create/focus/Bind/retirement implementation plus its prior movement/manipulation checks.",
+        "Voice and Borrow native animation emitted Duplicated Item warnings. Native conservation/floor return/cold passed; live gear usability during animation was not asserted. Existing BodyInventory.LoadInventory skips a loaded item already in custody. No broad inventory repair claimed.",
+        "Route-coordinate corpse restoration uses actual removal regressions; native samples use ordinary rooms.",
+        "New Kindle native sample is grade-one named reserve capacity; all source rows/grades and native trait/health/stamina consumers have direct owning regression evidence.",
+        "Older Nilaz/Exchange/focus-device and mission receipts remain scoped and are not rerun. No new bonus exists on their exercised items.",
+        "Legacy generic AnimateCorpse later raw-Extract path remains an adjacent deferred finding; stock Voice/Borrow paths use native hide/restore."
+      ]
+    },
+    "equipped-item-bonus-v1": {
+      "status": "PASS_WITH_RECORDED_LIMITS",
+      "entries": [
+        8
+      ],
+      "receipt": "C:\\Temp\\s4-kindle-equipment-fix\\20261015T215853Z-04fd3ac600f7\\summary.json",
+      "native": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-52d498b77f784cc48f45f7ce360756c1\\boot-latest.json",
+      "source_decision": "Armageddon_Kindle_Source_Trace_20261015.md",
+      "scope": "Selected attribute or resource CAPACITY on an equipped carried item; source skill 47 tables, minimum 33,60*grade, no refill or casting permission. Supersedes flat weapon attack/damage conflict."
     }
   },
   "s4_acceptance_20261015": {
+    "status": "ACCEPTED_REQUIRED_S4",
+    "required": 152,
+    "accepted": 152,
+    "pending": 0,
+    "optional_deferred": 2,
+    "base_revision": "5e6587060972023b78d30660666bfa5b03b8de0d",
+    "strategy": "Armageddon_S4_Qualification_Strategy_20261013.md",
+    "decision_boundary": "Required S4 defining behavior only; independent S5/S6/readiness/availability/Release gates stay closed. Source inspection maps assumptions; executed evidence supplies the behavioural decisions.",
+    "pending_entries": [],
+    "new_executed_receipt": "C:\\Temp\\futuremud-s4-acceptance-managed\\20261015T161742Z-845876acbf41\\summary.json",
+    "new_test_source_sha256": "285dc4d00e11f01ffdfe83a2ffbbb660e94ddd869243e344b76d2e5ad0a15f4a",
+    "new_test_scope": "Five concrete integration cases (planar has two rows) plus fifteen existing mark/alarm/guardian rows:20/20. Controlled in-memory world/save facade; no new MySQL/native server run.",
+    "source_reuse_check": {
+      "recorded_files": 126,
+      "unchanged": 124,
+      "changed_harness_only": [
+        "tests/ArmageddonPreparedSeederNativeHarness/PreparedCatalogueBootSmoke.py",
+        "tests/ArmageddonPreparedSeederNativeHarness/Program.BaseWorldFixture.cs"
+      ],
+      "runtime_library_persistence_diff_from_e38f6e7d9_to_5e6587060": "empty; the later focus/device production slice has its own1860/145/3 managed and15 native receipts"
+    },
+    "storm_disposition": "Earlier combined cursor/wound failure is INCONCLUSIVE and unexplained: separate values were not preserved. Later unchanged-runtime cursor2/wounds1.64/cold PASS is valid. Tissue armour is a plausible hypothesis, not an established cause; no reproducible defect was established.",
+    "environment_blockers": [],
+    "unexecuted_is_not_environment_blocked": true,
+    "preserved_successful_campaigns": "Existing Nilaz gate15+15, Exchange13, focus/device15 and all152 first/cold readiness receipts retained unchanged; none rerun.",
+    "new_execution_history": [
+      {
+        "receipt": "C:/Temp/futuremud-s4-acceptance-managed/20261015T161302Z-2f31f2801c77/summary.json",
+        "status": "BUILD_FAILED",
+        "disposition": "New test helper namespace omitted; no tests executed."
+      },
+      {
+        "receipt": "C:/Temp/futuremud-s4-acceptance-managed/20261015T161452Z-43fed17906ed/summary.json",
+        "status": "FAIL_1_PASS_3_FAIL",
+        "disposition": "Test fixture used List for native HashSet, default mock equality and a recursive mock route. Corrected fixture assumptions without changing production code or assertions."
+      },
+      {
+        "receipt": "C:/Temp/futuremud-s4-acceptance-managed/20261015T161604Z-94563bf03de2/summary.json",
+        "status": "PASS_4",
+        "disposition": "Concrete glyph/alarm/two planar rows."
+      },
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-acceptance-managed\\20261015T161742Z-845876acbf41\\summary.json",
+        "status": "PASS_20",
+        "disposition": "Final mount case plus affected mark/alarm/guardian group; source stable."
+      }
+    ],
+    "historical_initial_pending_11": [
+      {
+        "ordinal": 8,
+        "key": "arm.spell.kindle_enchantment",
+        "case": "Locked design contradicts itself: completion/defining result says weapon damage; detailed configuration and executed native hook test specify attack bonus only. User decision requested; neither contract is silently rewritten."
+      },
+      {
+        "ordinal": 63,
+        "key": "arm.spell.sand_effigy",
+        "case": "Actual projection Bind event wiring and damage/borrowed-anchor-loss retirement/focus return are not executed; boundary and source-custody predicates alone do not establish collapse."
+      },
+      {
+        "ordinal": 78,
+        "key": "arm.spell.seeking_wind",
+        "case": "Positive exact-quarry track processing through SpellNpcMissionEffect.Process (one bounded native exit, wrong/ambiguous track refusal) is not executed; existing track proof/input fences do not establish pursuit."
+      },
+      {
+        "ordinal": 86,
+        "key": "arm.spell.wind_courier",
+        "case": "Positive Process pickup/travel/delivery/return with durable exact exclusive parcel custody is not executed; save/proof tests and generic foreign-goods retirement do not establish mission completion."
+      },
+      {
+        "ordinal": 94,
+        "key": "arm.spell.walking_shadow",
+        "case": "Actual shared projection create/focus/trance binding and native damage/anchor callback-to-retirement/focus return are not executed; existing mobile-edge/manipulation limits remain covered."
+      },
+      {
+        "ordinal": 100,
+        "key": "arm.spell.haunting_shape",
+        "case": "Positive Process resistance-to-one-durable-fear-parent transition and exact owned fear cleanup are not executed; the callback invisibility refusal is covered."
+      },
+      {
+        "ordinal": 122,
+        "key": "arm.spell.call_outsider",
+        "case": "Configured Outsider control-loss command/tick path, durable loss and no reroll after reload lack an executed deterministic case; XML and grade policy alone are insufficient."
+      },
+      {
+        "ordinal": 135,
+        "key": "arm.spell.folded_pocket",
+        "case": "Nonempty native pocket Evacuate transaction and exact nested foreign-goods/fallback conservation are not executed. Retiring withdrawal tests mock the service; shelter evacuation does not substitute."
+      },
+      {
+        "ordinal": 138,
+        "key": "arm.spell.borrow_the_dead",
+        "case": "Positive native PossessCorpseSpellEffect spawn/control/teardown with exact original corpse identity/body, separate caster anchor and foreign gear across closure/cold recovery lacks a matching receipt; AnimateCorpse does not substitute."
+      },
+      {
+        "ordinal": 144,
+        "key": "arm.spell.unbodied_journey",
+        "case": "Actual shared projection create/focus/trance binding and callback retirement/focus return are not executed; existing policy and no-manipulation limits remain covered."
+      },
+      {
+        "ordinal": 147,
+        "key": "arm.spell.voice_of_remains",
+        "case": "Positive corpse-bound speech spawn/extraction/relay/retirement/restoration is not executed. Existing non-corpse refusal and cold metadata test does not establish the dedicated linked-proxy lifecycle."
+      }
+    ],
+    "native_mission_closure_checkpoint": {
+      "entries": [
+        78,
+        86,
+        100,
+        122,
+        138
+      ],
+      "scope": "Five bounded defining S4 NPC mission/corpse cases, exact installed grade-one routes; shared assumptions remain explicit. Stock/package/Class/variant/use/craft/Release gates stay disabled. No per-spell/all-grade native matrix.",
+      "native_missions": {
+        "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-3326437e3b5e4f449448920245ebce51\\boot-latest.json",
+        "overall_status": "FAIL",
+        "accepted_cases": [
+          "seek",
+          "haunt",
+          "courier",
+          "outsider"
+        ],
+        "cold_scope": "Courier exact recipient custody and Outsider saved control loss; Borrow failed and remains excluded from this receipt."
+      },
+      "native_corpse": {
+        "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-416f2f9cdaea44e98e76c9d2762569d7\\boot-latest.json",
+        "status": "PASS",
+        "assertions": 12,
+        "scope": "Borrow only; native deadline closure and exact corpse/foreign gear/secondary retirement first/cold."
+      },
+      "managed_track_and_cleanup": {
+        "receipt": "C:\\Temp\\s4-final-track-guards\\20261015T183538Z-6c135d891b79\\summary.json",
+        "passed": 6,
+        "tests": [
+          "MudSharp_Unit_Tests.SpellNpcMissionRuntimeTests.SeekingProcess_FollowsOnlyOneUnambiguousExactInstanceExit",
+          "MudSharp_Unit_Tests.SpellNpcMissionRuntimeTests.HauntCleanup_RemovesOnlyTheExactSavedFearParent",
+          "MudSharp_Unit_Tests.SpellNpcMissionRuntimeTests.SeekingProcess_FollowsOnlyOneUnambiguousExactInstanceExit",
+          "MudSharp_Unit_Tests.SpellNpcMissionRuntimeTests.SeekingProcess_FollowsOnlyOneUnambiguousExactInstanceExit",
+          "MudSharp_Unit_Tests.SpellNpcMissionRuntimeTests.SeekingProcess_FollowsOnlyOneUnambiguousExactInstanceExit",
+          "MudSharp_Unit_Tests.SpellNpcMissionRuntimeTests.SeekingProcess_FollowsOnlyOneUnambiguousExactInstanceExit"
+        ]
+      },
+      "current_production_sources": [
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs",
+          "sha256": "e09fa3e2b45ec5dcc7e0803288900c784d4a9697b21258edd3528b350fc2353b"
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerRoomMission.cs",
+          "sha256": "5b4641cbff9dc63491e737736d5edd3e28563bee67fd08689e103bd4ede6e333"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellNpcMissionEffect.cs",
+          "sha256": "e00611dc5a026317412e12281c19f307cf8ded0697b67e4bc8a5f47c5c22497e"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellNpcControlEffect.cs",
+          "sha256": "c1cfa467cb0d9ae455288e426d8f1b72342057654e1e4fc08b025cf8cae49500"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterInstanceService.cs",
+          "sha256": "ef807e049e636575f8e76c7dd66c391c95a36ca8b442aae459d4fb66a8db0cf6"
+        }
+      ],
+      "diagnostic_delta": "Both native receipts used a temporary full exception SystemMessage at the existing paid-operation catch. It was removed afterward; no admission, payment, effect, persistence or recovery behavior changed by removal. Final managed gate uses the shipping source."
+    },
+    "final_managed_gate": {
+      "status": "PASS",
+      "kind": "SCOPED_PROJECT_AGGREGATE",
+      "receipt": "C:/Temp/s4-final-verified-projects.json",
+      "execution_complete": true,
+      "counts_complete": true,
+      "source_stable": true,
+      "counts": {
+        "executed": 10708,
+        "passed": 10708,
+        "failed": 0,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 10711
+      },
+      "projects": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "source_scope": "Each project invocation had stable source. The default ten-project batch had two Core failures; only Core changed afterward (no-world legacy capacity guard and explicit unsupported itemempower stored-delivery classification). Full Core rerun replaces its failed result; nine unchanged project results are retained. This is an explicit project aggregate, not a claim that the original batch passed or that all projects were rerun at the final source hash.",
+      "native_reuse": "Final Core-only changes do not change real world-bearing holder capacity or direct configured item invocation. Native Kindle14 and previous lifecycle receipts retain their exact executed scope; none replayed for metadata/legacy-absent-world corrections.",
+      "original_full_run": {
+        "receipt": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json",
+        "sha256": "cb16115ef3233f2c0c7ae77b0656006ef221323371af8f870cb625f2370b042c",
+        "status": "FAIL",
+        "counts": {
+          "executed": 10708,
+          "passed": 10706,
+          "failed": 2,
+          "skipped": 3,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 10711
+        },
+        "source_start": "85ed83b9e15ad8caa86af91b5313449c598a1aabfb107165836c72ec77e658d9",
+        "source_end": "85ed83b9e15ad8caa86af91b5313449c598a1aabfb107165836c72ec77e658d9"
+      },
+      "corrected_full_core": {
+        "receipt": "C:\\Temp\\s4-final-core-repair\\20261015T222418Z-3936c41c26c6\\summary.json",
+        "sha256": "06b563cb23e506153cdf75117ce89c44942fac179bdf6f8ce399c89ad61116bc",
+        "status": "PASS",
+        "counts": {
+          "executed": 7551,
+          "passed": 7551,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7551
+        },
+        "source_start": "2c50f477cb9fe6b76dcc4ec1bf4d37b244a2abeae65ce1d107e1834d55bc9dee",
+        "source_end": "2c50f477cb9fe6b76dcc4ec1bf4d37b244a2abeae65ce1d107e1834d55bc9dee"
+      },
+      "invocations": [
+        {
+          "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 766,
+            "passed": 766,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 766
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 36,
+            "passed": 36,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 36
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 1863,
+            "passed": 1863,
+            "failed": 0,
+            "skipped": 3,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1866
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 285,
+            "passed": 285,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 285
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 22,
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 22
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 57,
+            "passed": 57,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 57
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 54,
+            "passed": 54,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 54
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 35,
+            "passed": 35,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 35
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 39,
+            "passed": 39,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 39
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 7551,
+            "passed": 7551,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 7551
+          },
+          "report": "C:\\Temp\\s4-final-core-repair\\20261015T222418Z-3936c41c26c6\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-final-core-repair\\20261015T222418Z-3936c41c26c6\\summary.json"
+        }
+      ],
+      "sha256": "3d8f0600a85b4cdb1ca9cc4e4eeed2575f002050efa22494c080ad7bcf42b08b"
+    },
+    "residual_checkpoint": "s4_residual_completion_20261015"
+  },
+  "historical_s4_acceptance_mission_checkpoint_20261015": {
     "status": "NOT_ACCEPTED",
     "required": 152,
     "accepted": 146,
@@ -27005,5 +27960,1148 @@
       "skips": "Three existing Unix launcher-permission cases on Windows.",
       "post_gate_change_scope": "Documentation/evidence result updates and trailing blank-line cleanup in one test file; executable behavior and assertions unchanged."
     }
+  },
+  "s4_residual_completion_20261015": {
+    "base_revision": "ebceb165e96402ce2482e683fee1571610d8180a",
+    "runtime_focused": {
+      "receipt": "C:\\Temp\\s4-kindle-equipment-fix\\20261015T215853Z-04fd3ac600f7\\summary.json",
+      "sha256": "392083b744e72c55be317143b01676078cf6d2ab7e8d5dbd8807beaeabb374f2",
+      "status": "PASS",
+      "counts": {
+        "executed": 125,
+        "passed": 125,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 125
+      },
+      "source_start": "f08569815af2d453284c556fcc72c89212b3938db13b518dbf66c2e885049161",
+      "source_end": "f08569815af2d453284c556fcc72c89212b3938db13b518dbf66c2e885049161",
+      "source_stable": true,
+      "duration_seconds": 46.4281637,
+      "execution_complete": true
+    },
+    "route_removal_and_dependants": {
+      "receipt": "C:/Temp/s4-residual-core/20261015T200017Z-a31af12aa430/summary.json",
+      "sha256": "fe8125a6b9b577ee18340ba922523bd48d69bbdcc091f704c7a82a84e40d05cc",
+      "status": "PASS",
+      "counts": {
+        "executed": 155,
+        "passed": 155,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 155
+      },
+      "source_start": "633b14a73be8ca640dd791f41cb8691f9d7df51db65189fb0592ebd460712edb",
+      "source_end": "633b14a73be8ca640dd791f41cb8691f9d7df51db65189fb0592ebd460712edb",
+      "source_stable": true,
+      "duration_seconds": 15.5576163,
+      "execution_complete": true
+    },
+    "seeder_before_kindle": {
+      "receipt": "C:/Temp/s4-residual-seeder-full-restart/20261015T201547Z-9818a94b470e/summary.json",
+      "sha256": "7b1bfbd6de7e11b3ebd5caa6891029e51cac08cc61465b899805d55267e6cd9d",
+      "status": "PASS",
+      "counts": {
+        "executed": 1861,
+        "passed": 1861,
+        "failed": 0,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 1864
+      },
+      "source_start": "013f8337d33eb8ad6658b16314a46dbc39f9c2b01293acc99ab9ebd061a06711",
+      "source_end": "013f8337d33eb8ad6658b16314a46dbc39f9c2b01293acc99ab9ebd061a06711",
+      "source_stable": true,
+      "duration_seconds": 657.9317267,
+      "execution_complete": true
+    },
+    "seeder_kindle_upgrade_and_all_definitions": {
+      "receipt": "C:/Temp/s4-kindle-seeder-focused/20261015T210308Z-900a963b38f3/summary.json",
+      "sha256": "833dfd412125bd9fa65aa8ad0280bba7514d4eb80eb9c54740889921a2b04a75",
+      "status": "PASS",
+      "counts": {
+        "executed": 4,
+        "passed": 4,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 4
+      },
+      "source_start": "1e7b39b004f3fcdc4ded3a38d637bee70528a8aaeca407fa835e469132a7e00c",
+      "source_end": "1e7b39b004f3fcdc4ded3a38d637bee70528a8aaeca407fa835e469132a7e00c",
+      "source_stable": true,
+      "duration_seconds": 55.6128764,
+      "execution_complete": true
+    },
+    "voice": {
+      "receipt": "../prepared-catalogue-boot-native-s4-stock-565625b1f0fc4b5f8ca69bf6994bfa87/boot-latest.json",
+      "sha256": "142f4818e6bf74ebd2d6b667621804880fdffb53b09cf2df6dd03e458e63615c",
+      "runner": "C:/Temp/futuremud-s4-residual-native/20261015T195006Z_f87edf604be54b0ea3621b27efd842a0/summary.json",
+      "runner_sha256": "cef1dbe0ea2f0657183431ab0bbc55d133fb9b05b414f3d89a183e184217eb0d",
+      "console": "C:/Temp/s4-voice-native-console5.log",
+      "status": "PASS",
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "Voice: paid exact stock cast animates original corpse identity/body with exact caster/corpse provenance, parent and speech proxy",
+        "Voice: independent native witness hears linked speech through hollow recite output without another casting operation",
+        "Voice: real deadline retires exact animation/proxy, restores same corpse and foreign gear, and ends speech relay",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "Voice: cold restart retains same original corpse/body/foreign gear, no animation or parent replay",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "source_start": "7ADAE645D839C4125F27E2F28E5E586485079548D38F70BD230F137D9EE13D14",
+      "source_end": "7ADAE645D839C4125F27E2F28E5E586485079548D38F70BD230F137D9EE13D14",
+      "source_stable": true,
+      "processes": [
+        {
+          "phase": "first",
+          "pid": 57504,
+          "endpoint": "127.0.0.1:51154",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-565625b1f0fc4b5f8ca69bf6994bfa87\\runtime-first-1ded2745fba94ec2b9e83fc02b1a5024",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        },
+        {
+          "phase": "cold",
+          "pid": 44480,
+          "endpoint": "127.0.0.1:49602",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-565625b1f0fc4b5f8ca69bf6994bfa87\\runtime-cold-5bc796c7e2384da1b765c6ac1f7b05f6",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        }
+      ],
+      "database_removed": true,
+      "mysql_removed": true,
+      "family": {
+        "status": "PASS",
+        "cases": "voice",
+        "scope": "Bounded installed-stock lifecycle sample; disposable admissions; stock gates disabled.",
+        "support_reconciliation": {
+          "prog": 3991,
+          "changed_tables": [
+            "futureprogs_parameters",
+            "seedermanagedrecords"
+          ],
+          "unrelated_claims_unchanged": true,
+          "rerun_noop": true,
+          "checksum": "FE5EC21ADD371A17167CA7D8A39AF0C78AF5F1CD8E58F6F862F3FE279F703809"
+        },
+        "corpse": 2,
+        "corpse_actor": 3,
+        "corpse_body": 3,
+        "gear": 1,
+        "secondary": 4,
+        "closure_observations": [
+          {
+            "phase": "first",
+            "corpse_room": [
+              [
+                "2",
+                "2"
+              ]
+            ],
+            "instances": [],
+            "gear_bodies": [
+              [
+                "3"
+              ]
+            ]
+          },
+          {
+            "phase": "cold",
+            "corpse_room": [
+              [
+                "2",
+                "2"
+              ]
+            ],
+            "instances": [],
+            "gear_bodies": [
+              [
+                "3"
+              ]
+            ]
+          }
+        ],
+        "cold_status": "PASS"
+      }
+    },
+    "pocket": {
+      "receipt": "../prepared-catalogue-boot-native-s4-stock-2ff7b9524d28491c94c3f9c4b8295d72/boot-latest.json",
+      "sha256": "44e74869842541f139f190dcf0f5416179b60d0d88a583f991957efa57b77e50",
+      "runner": "C:/Temp/futuremud-s4-residual-native/20261015T203113Z_649096c29b7f423286cf19c2af0f3331/summary.json",
+      "runner_sha256": "66c39972bedeefaf155603760fa3ed5ec0a00b74f4afeab18cfd187beccfe3ab",
+      "console": "C:/Temp/s4-pocket-final-console.log",
+      "status": "PASS",
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "Pocket: paid exact stock grade-one carrier holds ordinary native bag/child with original ownership and real deadline",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "Pocket: actual cold unlocated-carrier fallback selection, native nonempty nested evacuation, same foreign goods/ownership and completed carrier retirement",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "source_start": "96F1AA6FCFBFEA13DC7B6B062285A028F535EC46DAA5B2C83C537940196FEBDF",
+      "source_end": "96F1AA6FCFBFEA13DC7B6B062285A028F535EC46DAA5B2C83C537940196FEBDF",
+      "source_stable": true,
+      "processes": [
+        {
+          "phase": "first",
+          "pid": 21260,
+          "endpoint": "127.0.0.1:63842",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-2ff7b9524d28491c94c3f9c4b8295d72\\runtime-first-c850299304d44ed69d84511f979f423d",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        },
+        {
+          "phase": "cold",
+          "pid": 17028,
+          "endpoint": "127.0.0.1:53402",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-2ff7b9524d28491c94c3f9c4b8295d72\\runtime-cold-39ed7ac2868f45318cf7678df2519826",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        }
+      ],
+      "database_removed": true,
+      "mysql_removed": true,
+      "family": {
+        "status": "PASS",
+        "cases": "pocket",
+        "scope": "Bounded installed-stock lifecycle sample; disposable admissions; stock gates disabled.",
+        "support_reconciliation": {
+          "prog": 3991,
+          "changed_tables": [
+            "futureprogs_parameters",
+            "seedermanagedrecords"
+          ],
+          "unrelated_claims_unchanged": true,
+          "rerun_noop": true,
+          "checksum": "97FEE6156DD3A9F4D391040E1D3CD87E4E5E418BA08C07954825A64EDA7FA914"
+        },
+        "life": "61333435656564652D313332342D343235342D386634342D386236656139666534373133",
+        "carrier": 2,
+        "bag": 3,
+        "child": 4,
+        "source": 1,
+        "provenance": "<PocketAnchor version=\"1\"><SourceItem>1</SourceItem><Grade>1</Grade><Pocket version=\"1\"><Prototype>7000</Prototype><CapacityPerGrade>2000</CapacityPerGrade><MaximumSize>VeryLarge</MaximumSize><SecondsPerGrade>300</SecondsPerGrade><Access>Bearer</Access><FallbackRoom>1</FallbackRoom></Pocket></PocketAnchor>",
+        "deadline": "2026-10-15 20:39:39.041665",
+        "put_output": "You put a s4residualbag in a folded pocket vessel.\n\n\n<You are currently in no pain>\n<Stamina: 174/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+        "goods_before": [
+          [
+            "3",
+            "7037",
+            "0",
+            "5",
+            "NULL",
+            "NULL"
+          ],
+          [
+            "4",
+            "6881",
+            "0",
+            "5",
+            "NULL",
+            "NULL"
+          ]
+        ],
+        "first_status": "PASS_PREPARED_FOR_COLD_FAULT",
+        "cold_fault": "After graceful first shutdown only exact carrier body membership removed in owned disposable database; no lifecycle, deadline, goods or stock modification.",
+        "cold_lifecycle": [
+          [
+            "3",
+            "0",
+            ""
+          ]
+        ],
+        "cold_status": "PASS"
+      }
+    },
+    "borrow_strengthened": {
+      "receipt": "../prepared-catalogue-boot-native-s4-stock-e854e6e8f70f4e18bc99130d8de96f85/boot-latest.json",
+      "sha256": "6a2710f2d6fea4e2fc520325ea214de5e781904b2edce75167a4445bd293e527",
+      "runner": "C:/Temp/futuremud-s4-residual-native/20261015T204115Z_64c0afd1abc743d0979853f6ac86fa3f/summary.json",
+      "runner_sha256": "940bd9819b0b3556028b5a65d79c9adf498dc5b261706a62b022a86939bb437e",
+      "console": "C:/Temp/s4-corpse-final-console.log",
+      "status": "PASS",
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "S4 family: paid Borrow entered exact original corpse identity/body with separate caster anchor; deadline restored same corpse/foreign gear and retired secondary",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "S4 family: cold qualified custody/corpse gear/original corpse and retired possession retained",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "source_start": "96F1AA6FCFBFEA13DC7B6B062285A028F535EC46DAA5B2C83C537940196FEBDF",
+      "source_end": "96F1AA6FCFBFEA13DC7B6B062285A028F535EC46DAA5B2C83C537940196FEBDF",
+      "source_stable": true,
+      "processes": [
+        {
+          "phase": "first",
+          "pid": 15308,
+          "endpoint": "127.0.0.1:50432",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-e854e6e8f70f4e18bc99130d8de96f85\\runtime-first-710f13ade0fe4228aac012b350671034",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        },
+        {
+          "phase": "cold",
+          "pid": 54316,
+          "endpoint": "127.0.0.1:58542",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-e854e6e8f70f4e18bc99130d8de96f85\\runtime-cold-d4f7636f2d3e4fecb159e2102b2ffdb8",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        }
+      ],
+      "database_removed": true,
+      "mysql_removed": true,
+      "family": {
+        "status": "PASS",
+        "scope": "Exact Borrow the Dead grade-one possession/closure only through separate disposable admissions; original package/Class/use/craft/Release gates disabled.",
+        "cases": "corpse",
+        "random_scope": "Native RNG outcomes recorded; Outsider at most100 authorised follow orders, one loss opportunity per accepted order. No repeated successful campaign.",
+        "corpse": 2,
+        "corpse_body": 2,
+        "corpse_actor": 2,
+        "corpse_gear": 1,
+        "possession_instance": 3,
+        "possession_metadata": "<Effects><PossessedCorpse AnchorCharacterId=\"1\" AnchorInstanceId=\"1\" CorpseItemId=\"2\" OriginalCharacterId=\"2\" OriginalBodyId=\"2\" SourceSpellId=\"128\" PersistencePolicy=\"TemporaryEffectBound\" /></Effects>",
+        "restored_corpse_rooms": [
+          [
+            "2"
+          ]
+        ],
+        "borrow": {
+          "status": "PASS"
+        },
+        "cold_status": "PASS"
+      }
+    },
+    "runtime_before_equipment_fix": {
+      "receipt": "C:/Temp/s4-kindle-focused/20261015T205202Z-c2ddc2b5db92/summary.json",
+      "sha256": "046100b42706c1eccf619092248593b3c322781219a0945dfa53aa3902161eb5",
+      "status": "PASS",
+      "counts": {
+        "executed": 125,
+        "passed": 125,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 125
+      },
+      "source_start": "845eb6b672885be0e87365f1b4c991dbe638c242861272f7eb0ded002e67b5b7",
+      "source_end": "845eb6b672885be0e87365f1b4c991dbe638c242861272f7eb0ded002e67b5b7",
+      "source_stable": true,
+      "duration_seconds": 9.5257192,
+      "execution_complete": true
+    },
+    "projection": {
+      "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-d6ee9648c19e4367a42fc041c03dc029\\boot-latest.json",
+      "sha256": "031fe5b24976c76e0401f60a44010848e0a85872fa2385e88dfc47809b8915f1",
+      "runner": "C:\\Temp\\futuremud-s4-residual-native\\20261015T211843Z_0009c37e71c34c1a97bb02ec1513bf83\\summary.json",
+      "runner_sha256": "9ee5fac1a8e586c32ebac4f9bcb2d489b794739fd593accd099cf64d9c43730e",
+      "console": "C:/Temp/s4-projection-repaired-console2.log",
+      "status": "PASS",
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "Projection: arm.spell.sand_effigy paid create/focus, native bound callback reason 7, primary focus retained after manual return, exact temporary graph retirement",
+        "Projection: arm.spell.unbodied_journey paid create/focus, native bound callback reason 8, callback returns focus to primary, exact temporary graph retirement",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "Projection: cold completed journals and exact retired temporary graphs remain stable; borrowed Sand source survives",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "source_start": "3733070F8BA9C4ACDCF6FBA13FF0F27E30F22CC179D2C6598DC721B575A1682E",
+      "source_end": "3733070F8BA9C4ACDCF6FBA13FF0F27E30F22CC179D2C6598DC721B575A1682E",
+      "source_stable": true,
+      "processes": [
+        {
+          "phase": "first",
+          "pid": 32796,
+          "endpoint": "127.0.0.1:65035",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-d6ee9648c19e4367a42fc041c03dc029\\runtime-first-3e92d8a445964a40ab58c9d5783785f3",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        },
+        {
+          "phase": "cold",
+          "pid": 55592,
+          "endpoint": "127.0.0.1:65384",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-d6ee9648c19e4367a42fc041c03dc029\\runtime-cold-dc72b5cf185f416ebdc8affbab4bac13",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        }
+      ],
+      "database_removed": true,
+      "mysql_removed": true,
+      "family": {
+        "status": "PASS",
+        "cases": "projection",
+        "scope": "Bounded installed-stock lifecycle sample; disposable admissions; stock gates disabled.",
+        "support_reconciliation": {
+          "prog": 3991,
+          "changed_tables": [
+            "futureprogs_parameters",
+            "seedermanagedrecords"
+          ],
+          "unrelated_claims_unchanged": true,
+          "rerun_noop": true,
+          "checksum": "1F597A04129D0E9DA1C2556754190F7FFABFAF327D01BAAF2F983306865F7868"
+        },
+        "projections": [
+          {
+            "key": "arm.spell.sand_effigy",
+            "life": "35356134383735322D653362302D346330392D383733382D323861356234363933363433",
+            "instance": 3,
+            "body": 3,
+            "source": 1,
+            "claims": [
+              [
+                "0",
+                "2"
+              ],
+              [
+                "2",
+                "3"
+              ],
+              [
+                "3",
+                "3"
+              ]
+            ],
+            "provenance": "<ProjectionAnchor version=\"1\" instance=\"1\" body=\"1\" room=\"2\" layer=\"0\" point=\"\"><Policy><Kind>SandEffigy</Kind><Plane>1</Plane><EffigyPrototype>6999</EffigyPrototype><SecondsPerGrade>60</SecondsPerGrade><MaximumRoomDistance>0</MaximumRoomDistance><BacklashDamage>0</BacklashDamage><CrossClosedDoors>false</CrossClosedDoors><HeldSourceItem version=\"1\" /></Policy><BorrowedSourceItem version=\"1\" itemId=\"1\" prototypeId=\"6999\" prototypeRevision=\"0\" holderBodyId=\"1\" holderInstanceId=\"1\" quantity=\"1\" /></ProjectionAnchor>",
+            "focus_output": "S4 family origin\n\nExits: North\n\n  An ordinary permanent room in an isolated S4 family fixture.\n\n  Currently, the lighting is bright here.\n\nA sand effigy figurine is here.\nA girl with a beard is standing here.\nA $person with no beard is standing here.\n\nYour focus shifts to Organic Humanoid.\n\n\n<Focus: Organic Humanoid>\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Rest | Status: Awake>\n<You are standing here>\n\n+---+---------+---------+------------------+------------------+----------------+-----------+\n| # | Focused | Primary | Form             | Location         | State          | Control   |\n+---+---------+---------+------------------+------------------+----------------+-----------+\n| 1 | False   | True    | Organic Humanoid | S4 family origin | Awake / Active | Focusable |\n| 2 | True    | False   | Organic Humanoid | S4 family origin | Awake / Active | Focused   |\n+---+---------+---------+------------------+------------------+----------------+-----------+\n\n\n\n<Focus: Organic Humanoid>\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Rest | Status: Awake>\n<You are standing here>\n\n",
+            "trigger_output": "You drop a sand effigy figurine.\n\n\n<You are currently in no pain>\n<Stamina: 199/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+            "returned_focus_output": "+---+---------+---------+------------------+------------------+----------------+---------+\n| # | Focused | Primary | Form             | Location         | State          | Control |\n+---+---------+---------+------------------+------------------+----------------+---------+\n| 1 | True    | True    | Organic Humanoid | S4 family origin | Awake / Active | Focused |\n| 2 | False   | False   | Organic Humanoid | S4 family origin | Awake / Active | Passive |\n+---+---------+---------+------------------+------------------+----------------+---------+\n\n\n\n<You are currently in no pain>\n<Stamina: 199/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+            "status": "PASS",
+            "focus_scope": "Manual primary focus before Sand source drop; common callback focus-return inherited from focused Unbodied case."
+          },
+          {
+            "key": "arm.spell.unbodied_journey",
+            "life": "66353561303365352D363964662D343031302D613231372D393132336137323265353938",
+            "instance": 4,
+            "body": 4,
+            "source": null,
+            "claims": [
+              [
+                "2",
+                "4"
+              ],
+              [
+                "3",
+                "4"
+              ]
+            ],
+            "provenance": "<ProjectionAnchor version=\"1\" instance=\"1\" body=\"1\" room=\"2\" layer=\"0\" point=\"\"><Policy><Kind>UnbodiedJourney</Kind><Plane>4</Plane><EffigyPrototype>0</EffigyPrototype><SecondsPerGrade>60</SecondsPerGrade><MaximumRoomDistance>10</MaximumRoomDistance><BacklashDamage>0</BacklashDamage><CrossClosedDoors>false</CrossClosedDoors><RequestedGradeRange version=\"1\" perGrade=\"10\" grade=\"1\" /></Policy></ProjectionAnchor>",
+            "focus_output": "S4 family origin\n\nExits: North\n\n  An ordinary permanent room in an isolated S4 family fixture.\n\n  Currently, the lighting is bright here.\n\nA sand effigy figurine is here.\nA girl with a beard is standing here.\nA $person with no beard is standing here.\n\nYour focus shifts to Organic Humanoid.\n\n\n<Focus: Organic Humanoid>\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Rest | Status: Awake>\n<You are standing here>\n\n+---+---------+---------+------------------+------------------+----------------+-----------+\n| # | Focused | Primary | Form             | Location         | State          | Control   |\n+---+---------+---------+------------------+------------------+----------------+-----------+\n| 1 | False   | True    | Organic Humanoid | S4 family origin | Awake / Active | Focusable |\n| 2 | True    | False   | Organic Humanoid | S4 family origin | Awake / Active | Focused   |\n+---+---------+---------+------------------+------------------+----------------+-----------+\n\n\n\n<Focus: Organic Humanoid>\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Rest | Status: Awake>\n<You are standing here>\n\n",
+            "trigger_output": "A girl with a beard loads a sand effigy figurine.\n\n\n<You are currently in no pain>\n<Stamina: 125/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\nA girl with a beard shapes a sand effigy through a sand effigy figurine.\n\n\n<You are currently in no pain>\n<Stamina: 125/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\nA girl with a beard drops a sand effigy figurine.\n\n\n<You are currently in no pain>\n<Stamina: 150/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\nA girl with a beard lets a girl with a beard's awareness journey beyond the\nbody.\n\n\n<You are currently in no pain>\n<Stamina: 275/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\nYou wound a girl with a beard for 1d|0s|0p Cellular, causing the following\nwounds:\n  A superficial tissue death on left shoulder\n\n\n\n<You are currently in no pain>\n<Stamina: 300/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+            "positive_anchor_damage": 1.0,
+            "returned_focus_output": "+---+---------+---------+------------------+------------------+----------------+---------+\n| # | Focused | Primary | Form             | Location         | State          | Control |\n+---+---------+---------+------------------+------------------+----------------+---------+\n| 1 | True    | True    | Organic Humanoid | S4 family origin | Awake / Active | Focused |\n| 2 | False   | False   | Organic Humanoid | S4 family origin | Awake / Active | Passive |\n+---+---------+---------+------------------+------------------+----------------+---------+\n\n\n\n<You are currently in no pain>\n<Stamina: 348/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+            "status": "PASS",
+            "focus_scope": "Actual focused damage callback returned focus to primary."
+          }
+        ],
+        "cold_status": "PASS"
+      }
+    },
+    "kindle": {
+      "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-52d498b77f784cc48f45f7ce360756c1\\boot-latest.json",
+      "sha256": "c72aa2c159d0e8613bc5d4c83175cb5309d4481e84f03757aed97e54e1bb4c00",
+      "runner": "C:\\Temp\\futuremud-s4-residual-native\\20261015T220001Z_4ccf7e30751547a79f41a2681ef629d6\\summary.json",
+      "runner_sha256": "e875d91e0cf93e4c1c98eeaa52aa03d13ecb6bf7ef3481a4475c12076fdda92e",
+      "console": "C:/Temp/s4-kindle-native-console5.log",
+      "status": "PASS",
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "Kindle: exact stock paid cast, source mana grade-one amount and only the exact equal-grade 50-unit cost (configured minimum33); held-only item gives no capacity bonus",
+        "Kindle: native wield/drop/get/re-wield gates exact equipped capacity without refill or item mutation",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "Kindle: cold exact selected resource, resolved amount, equipped capacity and current balance retained",
+        "Kindle: real deadline removes only enchantment; same borrowed item, quality, ownership and reserve balance conserved",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "source_start": "98346BC3CF3891DCD7D23478D8043A28C20BEF1478E8F22AA76BE4BA06BD7429",
+      "source_end": "98346BC3CF3891DCD7D23478D8043A28C20BEF1478E8F22AA76BE4BA06BD7429",
+      "source_stable": true,
+      "processes": [
+        {
+          "phase": "first",
+          "pid": 36776,
+          "endpoint": "127.0.0.1:59467",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-52d498b77f784cc48f45f7ce360756c1\\runtime-first-20ab7d356bbb413b8e836a53b480ce96",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        },
+        {
+          "phase": "cold",
+          "pid": 54708,
+          "endpoint": "127.0.0.1:49376",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-52d498b77f784cc48f45f7ce360756c1\\runtime-cold-0cdb4a88452846699a91449c7e6934e0",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        }
+      ],
+      "database_removed": true,
+      "mysql_removed": true,
+      "family": {
+        "status": "PASS",
+        "cases": "kindle",
+        "scope": "Paid grade-one source-mana capacity, native equipment, cold/expiry; other source choices and all grades have focused owning regressions.",
+        "kindle_reconciliation": {
+          "spell": 99,
+          "changed_tables": [
+            "futureprogs",
+            "magicspells",
+            "seedermanagedrecords"
+          ],
+          "unrelated_rows_preserved": true,
+          "rerun_noop": true,
+          "checksum": "DA9230B59AAAA21F65093D116F2C70B91DCDC13B4F6745A863540A437D993275"
+        },
+        "support_reconciliation": {
+          "prog": 3991,
+          "changed_tables": [
+            "futureprogs_parameters",
+            "seedermanagedrecords"
+          ],
+          "unrelated_claims_unchanged": true,
+          "rerun_noop": true,
+          "checksum": "7DB7ADE87359BEDFF15370E4D33DA79D816D045772CFB0DAE51DB1029C5D7156"
+        },
+        "item": 1,
+        "identity": [
+          [
+            "1",
+            "7037",
+            "0",
+            "5",
+            "NULL",
+            "NULL"
+          ]
+        ],
+        "dub_output": "You dub a plain S4 kindle prop \"s4kindleprop\".\n\n\n<You are currently in no pain>\n<Stamina: 150/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+        "base_capacity": 136.0,
+        "attempts": [
+          {
+            "output": "You complete S4 campaign finite paid Self gathering and gain 100.00 Armageddon Fire reserve.\n\n\n<You are currently in no pain>\n<Stamina: 174/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+            "operations": [
+              [
+                "32386239666235652D383531332D343131622D623732612D336139303163333565396233",
+                "Completed",
+                "<Casting version=\"1\" admission=\"e4192803-0450-4221-9c68-bf6694e5f38f\" identity=\"a122aabd-0172-4f03-a54d-38abb50dd5da\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"90\" outcome=\"MajorPass\" applied=\"true\"><Targets><![CDATA[mana-fire s4kindleprop]]></Targets><Cost holder=\"1\" resource=\"3\" amount=\"50\" before=\"100\" /></Casting>"
+              ]
+            ],
+            "balance_before": 100.0,
+            "balance_after": 50.0
+          }
+        ],
+        "paid_cost": 50.0,
+        "final_balance": 50.0,
+        "operation_count": 2,
+        "cold_status": "PASS"
+      }
+    },
+    "default_full_run": {
+      "receipt": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json",
+      "sha256": "cb16115ef3233f2c0c7ae77b0656006ef221323371af8f870cb625f2370b042c",
+      "status": "FAIL",
+      "counts": {
+        "executed": 10708,
+        "passed": 10706,
+        "failed": 2,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 10711
+      },
+      "source_start": "85ed83b9e15ad8caa86af91b5313449c598a1aabfb107165836c72ec77e658d9",
+      "source_end": "85ed83b9e15ad8caa86af91b5313449c598a1aabfb107165836c72ec77e658d9",
+      "source_stable": true,
+      "duration_seconds": 726.147344,
+      "execution_complete": true
+    },
+    "final_fast": {
+      "status": "PASS",
+      "kind": "SCOPED_PROJECT_AGGREGATE",
+      "receipt": "C:/Temp/s4-final-verified-projects.json",
+      "execution_complete": true,
+      "counts_complete": true,
+      "source_stable": true,
+      "counts": {
+        "executed": 10708,
+        "passed": 10708,
+        "failed": 0,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 10711
+      },
+      "projects": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "source_scope": "Each project invocation had stable source. The default ten-project batch had two Core failures; only Core changed afterward (no-world legacy capacity guard and explicit unsupported itemempower stored-delivery classification). Full Core rerun replaces its failed result; nine unchanged project results are retained. This is an explicit project aggregate, not a claim that the original batch passed or that all projects were rerun at the final source hash.",
+      "native_reuse": "Final Core-only changes do not change real world-bearing holder capacity or direct configured item invocation. Native Kindle14 and previous lifecycle receipts retain their exact executed scope; none replayed for metadata/legacy-absent-world corrections.",
+      "original_full_run": {
+        "receipt": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json",
+        "sha256": "cb16115ef3233f2c0c7ae77b0656006ef221323371af8f870cb625f2370b042c",
+        "status": "FAIL",
+        "counts": {
+          "executed": 10708,
+          "passed": 10706,
+          "failed": 2,
+          "skipped": 3,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 10711
+        },
+        "source_start": "85ed83b9e15ad8caa86af91b5313449c598a1aabfb107165836c72ec77e658d9",
+        "source_end": "85ed83b9e15ad8caa86af91b5313449c598a1aabfb107165836c72ec77e658d9"
+      },
+      "corrected_full_core": {
+        "receipt": "C:\\Temp\\s4-final-core-repair\\20261015T222418Z-3936c41c26c6\\summary.json",
+        "sha256": "06b563cb23e506153cdf75117ce89c44942fac179bdf6f8ce399c89ad61116bc",
+        "status": "PASS",
+        "counts": {
+          "executed": 7551,
+          "passed": 7551,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 7551
+        },
+        "source_start": "2c50f477cb9fe6b76dcc4ec1bf4d37b244a2abeae65ce1d107e1834d55bc9dee",
+        "source_end": "2c50f477cb9fe6b76dcc4ec1bf4d37b244a2abeae65ce1d107e1834d55bc9dee"
+      },
+      "invocations": [
+        {
+          "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 766,
+            "passed": 766,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 766
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\FutureMUDLibrary_Unit_Tests-45c02d6c\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 36,
+            "passed": 36,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 36
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\ExpressionEngine_Unit_Tests-8cdb3e65\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 1863,
+            "passed": 1863,
+            "failed": 0,
+            "skipped": 3,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1866
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 285,
+            "passed": 285,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 285
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\MudsharpDatabaseLibrary_Unit_Tests-6ef1914c\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 22,
+            "passed": 22,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 22
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\DiscordBotCore_Unit_Tests-4ffa2b0e\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 57,
+            "passed": 57,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 57
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\RPI_Engine_Worldfile_Converter_Tests-14d87d34\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 54,
+            "passed": 54,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 54
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\FutureMUD.Web.Tests-ac492d08\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 35,
+            "passed": 35,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 35
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\TerrainPlanner.Tests-1085b5fa\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 39,
+            "passed": 39,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 39
+          },
+          "report": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\invocations\\TestReporting.Tests-25b07e44\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json"
+        },
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 7551,
+            "passed": 7551,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 7551
+          },
+          "report": "C:\\Temp\\s4-final-core-repair\\20261015T222418Z-3936c41c26c6\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+          "summary": "C:\\Temp\\s4-final-core-repair\\20261015T222418Z-3936c41c26c6\\summary.json"
+        }
+      ],
+      "sha256": "3d8f0600a85b4cdb1ca9cc4e4eeed2575f002050efa22494c080ad7bcf42b08b"
+    },
+    "post_gate_change_scope": "Acceptance/evidence documentation, Kindle source-decision verification, and stale Repertoire proposal reconciled to the approved already-installed33-unit selected-capacity contract; no executable C#/Python/PowerShell, installed spell amounts/trigger/options or schema change after the final fast gate. Native descriptor source pins identify their tested pre-documentation bytes. Four source files also normalize trailing blank lines/UTF-8 BOM only; tested pre-cleanup SHA256 values are preserved beside current fingerprints. No executable behavior or assertion changes.",
+    "generated_utc": "2026-10-15T22:27:25.715802+00:00",
+    "assessed_working_tree": "ebceb165e96402ce2482e683fee1571610d8180a plus residual lifecycle/projection and approved Kindle change; source hashes below identify tested bytes.",
+    "approved_kindle": "Selected attribute or resource CAPACITY on an equipped carried item; source skill 47 tables, minimum 33,60*grade, no refill or casting permission. Supersedes flat weapon attack/damage conflict.",
+    "gates": {
+      "release": false,
+      "package_admissions": false,
+      "class_availability": false,
+      "quiet_variants": false,
+      "area_variants": false,
+      "use": false,
+      "craft": false,
+      "unqualified_carriers": false
+    },
+    "environment_blockers": [],
+    "current_source_fingerprints": [
+      {
+        "path": "DatabaseSeeder Unit Tests/ArmageddonStockSpellInstallerTests.Kindle.cs",
+        "sha256": "df54fe907cf7788e9e020aa812a470ee82c132c06fc8a670650b3a12feb0cef7"
+      },
+      {
+        "path": "DatabaseSeeder Unit Tests/ArmageddonStockSpellInstallerTests.Primitives.cs",
+        "sha256": "a33ed970aaf84bee08c8a460328c2c970fa1488469b2210b6230445ee39ba6ee"
+      },
+      {
+        "path": "DatabaseSeeder Unit Tests/ArmageddonStockSpellInstallerTests.cs",
+        "sha256": "d3fc4e91edadad7d180de6ad7e57058b85bf5a1e7573ffdf561ba7653b5b20be"
+      },
+      {
+        "path": "DatabaseSeeder Unit Tests/ArmageddonStockSupportInstallerTests.cs",
+        "sha256": "620d3292ef2c49b35f330439cc03999e6b484218002f745a56ce35aa68640f8c"
+      },
+      {
+        "path": "DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonStockSpellInstaller.Factories.cs",
+        "sha256": "166f1b42c483828edc462dc14f79981c7fd0e5cc5896c8378f4110a318d20c40"
+      },
+      {
+        "path": "DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonStockSpellInstaller.Kindle.cs",
+        "sha256": "fb2d16956a507abc9f09e8b94d1ebaa7198fc9f2dbbf2568ddbab704fc3075b6"
+      },
+      {
+        "path": "DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonStockSpellInstaller.cs",
+        "sha256": "0500a9e0a2d5f0744ae46c92e32575ddd05087a16dfb73965f8001cc88e9328d"
+      },
+      {
+        "path": "DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonStockSupportInstaller.cs",
+        "sha256": "8533d59b07e2ba4762b5cac13491f98086f8a2e857f5ce22e1fb0a98576114d4"
+      },
+      {
+        "path": "FutureMUDLibrary/Magic/EquippedItemBonuses.cs",
+        "sha256": "a95ccaa5aba5835e8f7636cb0ed9594468ab7cf40a7ea981e939281ba52e8317",
+        "tested_pre_whitespace_sha256": "27a69fd85afe5dec3d79316fd04b91e4f9a722375c733344cf8b52dbdb3e8420"
+      },
+      {
+        "path": "FutureMUDLibrary/Magic/Stock/ArmageddonKindleContent.cs",
+        "sha256": "cc2bb449fcd3c634ad001be4f333e60396b4c33913cdc3a79ff9236620618d1e",
+        "tested_pre_whitespace_sha256": "8a74c3a07499226817ebbdb38e4062e4bdb2d8ff89771a428a72931254ef0c7e"
+      },
+      {
+        "path": "FutureMUDLibrary/Magic/Stock/ArmageddonScalarUtilityContent.cs",
+        "sha256": "d5d9e69ceba37ab57a7d2595fcdde24d3ef25b5657be2f67057e12dd9bf2d91b"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/ArmageddonScalarUtilityContentTests.cs",
+        "sha256": "0b4d62470242e727cb98a782c3b0bc4cb9c51b8b51f4422f11d80bb113c27b74"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/CorpseRestorationSpatialTests.cs",
+        "sha256": "fa118a58558fe3132080ab6692f56958d5ac282a840182104b1b6e0a018da590"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/KindleItemEnchantmentTests.cs",
+        "sha256": "e6fcf53983247ee9c3afe5c150ea5ae871a90fdbec98aa90f093c15ee9a1d634",
+        "tested_pre_whitespace_sha256": "91fda100f839e513086973b26fc022fe6ae937856740eb68f3b5fca69446cfbd"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/S4ExistingFactoryItemProjectionTests.cs",
+        "sha256": "b11c13a0dec7a57c01d0016dc257ae4f12c90eaee4a787ef7de5f07b928084cd"
+      },
+      {
+        "path": "MudSharpCore/Body/Implementations/Body.EmotionalStamina.cs",
+        "sha256": "ec924302e8f67603f485abd33625f473e3a8826660d05db51c617ba5aa28650b"
+      },
+      {
+        "path": "MudSharpCore/Body/Implementations/Body.EquippedItemBonuses.cs",
+        "sha256": "3a6837446b42f2757a2c6c09a00943b25531ae0db74a0926cd200ea2a900adfa"
+      },
+      {
+        "path": "MudSharpCore/Body/Implementations/BodyInventory.cs",
+        "sha256": "c56f23933dbd52986fb94cdb5b23df3cacf2b546674a0f6ed03ed9b713b9e414"
+      },
+      {
+        "path": "MudSharpCore/Body/Implementations/BodyMovement.cs",
+        "sha256": "1a2ca80a250b10bdd404f8880e7bcbdc2a0c919a7cd5b9cc37f79e1a211fcf3a"
+      },
+      {
+        "path": "MudSharpCore/Body/Implementations/BodyTraits.cs",
+        "sha256": "b48b2abe193fb68697c865ba7ad9ef9daf466a9cbba02e6bd3fe7872d8ef57f9"
+      },
+      {
+        "path": "MudSharpCore/Character/CharacterInstanceService.cs",
+        "sha256": "0eab1406e077beabc73f9bd29e9e150b0b971334442ee92a7de1ca072c97918f"
+      },
+      {
+        "path": "MudSharpCore/Character/CharacterTraits.cs",
+        "sha256": "1da5f577738298ce65e1852061359ccc2257198a346fd5e8bacc704e07b55bfa"
+      },
+      {
+        "path": "MudSharpCore/Effects/Concrete/SpellEffects/DirectPossessionSpellEffects.cs",
+        "sha256": "239cf15516e8a58c278af38b9fb5664b45c067cff9a5dc483673b7830e94f6d5"
+      },
+      {
+        "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellArmageddonInformationEffects.cs",
+        "sha256": "b3c833bbac4ef50db34ce567a8a751420e16c89aa284898445b9b0456a6007a6"
+      },
+      {
+        "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellEquippedItemBonusEffect.cs",
+        "sha256": "db9548838527a0dccb84f1b25c87e6bc5333f47be702d9f1f77874a173ca0df2"
+      },
+      {
+        "path": "MudSharpCore/Effects/EffectHandler.cs",
+        "sha256": "3240539975c4fc56ce656e53447fa88daa9c7ba15e1a3856fa04542f6738581b"
+      },
+      {
+        "path": "MudSharpCore/Health/Strategies/BrainConstructHealthStrategy.cs",
+        "sha256": "aabbc5bcb67a4b3c919a53787263f6c5ec0d2d2a87d1502cf95c0bbd11f05217"
+      },
+      {
+        "path": "MudSharpCore/Health/Strategies/BrainHitpointsStrategy.cs",
+        "sha256": "640b169754421b2d551c3d665edc7737f68bc4b418043acc3ad75e35d3384b36"
+      },
+      {
+        "path": "MudSharpCore/Health/Strategies/ComplexLivingHealthStrategy.cs",
+        "sha256": "bd1544f53c9b38430ab7a6054c705ea444075f5d66cf930925f3b5a31305e2e2"
+      },
+      {
+        "path": "MudSharpCore/Health/Strategies/ConstructHealthStrategy.cs",
+        "sha256": "21f6b248eca96bcbd6d29d628738146312d10047d3e9e3dfc9cd6e493f97635b"
+      },
+      {
+        "path": "MudSharpCore/Health/Strategies/RobotHealthStrategy.cs",
+        "sha256": "67d32ae8fe195e1d098aad63f03a8a1e7efafb580b9bd4eeff326081b28efd8a"
+      },
+      {
+        "path": "MudSharpCore/Health/Strategies/SimpleLivingHealthStrategy.cs",
+        "sha256": "807a625b4cd860a1ea107b55c0c2ab5aaa53c84a5fcdd32a353a45bf62c11bef"
+      },
+      {
+        "path": "MudSharpCore/Magic/Lifecycle/SpellOwnedProjectionService.cs",
+        "sha256": "70751022cad6c13f1fe2a418bfc11abffef9a1122544c7d4ec640356c6488d6f"
+      },
+      {
+        "path": "MudSharpCore/Magic/Resources/SimpleMagicResource.Capacity.cs",
+        "sha256": "d1b58e349fc93761ba829e01c262a725954667f59f4a6497e0e2f2cd40b84be9"
+      },
+      {
+        "path": "MudSharpCore/Magic/Resources/SimpleMagicResource.cs",
+        "sha256": "932ec833b504f400270e4d4637fed995501270bbed109c09fcbc6a49f945c43b"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/ArmageddonInformationSpellEffects.cs",
+        "sha256": "c5ebc81e04996181499195eae6d76bf5f9ac7de70c1b5c8dd21da987a7313250"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/DirectPossessionSpellEffects.cs",
+        "sha256": "ccf0cd8e921fba4ee2cb3c972aa2c2c3dbc3fbe3902025e9ce9d223737835744"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/ItemEmpowerEffect.cs",
+        "sha256": "00080299ec95812d4254c121eb712d85aa251e54a8bf3043616533c2202b6b92"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerItemChoice.cs",
+        "sha256": "6b698ec76bf57f848d3b8567820aadfba678d517938a68bff51f27c1baecb256"
+      },
+      {
+        "path": "MudSharpCore/Magic/Vancian/ScrollSpellCompatibility.cs",
+        "sha256": "493643ceafe7a6eb6e27742fc56f0714b4093fd0b33498f13c10f3d65741c128"
+      },
+      {
+        "path": "MudsharpDatabaseLibrary Unit Tests/RoomReferenceCorrectionTests.cs",
+        "sha256": "8922782e71675392c67f331f7d23b4f3ddac1e4e7f1c4c99cf8666c2f5caec3f"
+      },
+      {
+        "path": "MudsharpDatabaseLibrary/Database/RoomReferenceEffectTypes.cs",
+        "sha256": "b6d02219dabc2cf00e91ecbef95a69d66e4ad7eb3c7f72d6027fc0dfaeb39d94"
+      },
+      {
+        "path": "tests/ArmageddonPreparedSeederNativeHarness/PreparedCatalogueBootSmoke.py",
+        "sha256": "4fb583b73792d572e8d133f6dcd87162b8263e3f393ace2023aece375cdbcf23"
+      },
+      {
+        "path": "tests/ArmageddonPreparedSeederNativeHarness/PreparedS4FamilySmoke.py",
+        "sha256": "9fdbb7adb645f8bb720c0035251288fc13a9bc38628dd51c2f8497e4a2a471a4"
+      },
+      {
+        "path": "tests/ArmageddonPreparedSeederNativeHarness/PreparedS4KindleSmoke.py",
+        "sha256": "aa0b25ca790d6f49dc231ef29634dcc5d296c51fa813915879c4c07c4f82142a",
+        "tested_pre_whitespace_sha256": "e51401afdb25ea0de08778e637a0684d08b97730e9a56484a502e918fcf7088d"
+      },
+      {
+        "path": "tests/ArmageddonPreparedSeederNativeHarness/PreparedS4ResidualSmoke.py",
+        "sha256": "d26dd4d2941fa1c3e4616b03ba70bc888ff585f97722c09fa6c55443560a40d9"
+      },
+      {
+        "path": "tests/ArmageddonPreparedSeederNativeHarness/Program.FocusDeviceRestore.cs",
+        "sha256": "70a45574bf3447c43193f7365c6f372317e4e61b3469ab2aec5dad72a56f6602"
+      },
+      {
+        "path": "tests/ArmageddonPreparedSeederNativeHarness/Program.S4FamilyFixture.cs",
+        "sha256": "ca34497c0af3e01cff5c3c60fbf565ff9cd508c885dc766e1535cdbb6e974c67"
+      },
+      {
+        "path": "tests/ArmageddonPreparedSeederNativeHarness/Program.S4KindleFixture.cs",
+        "sha256": "ce4512afe6bb582b421d57bd449c221f7b8679d011eb110df0159e3f660a6713"
+      },
+      {
+        "path": "tests/ArmageddonPreparedSeederNativeHarness/Program.S4ResidualFixture.cs",
+        "sha256": "23308b19149ee5056ceef26e25f950fe5a9297c8737a6a63e6e30c860cbd8f1e"
+      },
+      {
+        "path": "tests/ArmageddonPreparedSeederNativeHarness/Run-IsolatedPreparedSeeder.ps1",
+        "sha256": "e099d9025262e836060d5f6a0f2e56e1469d2ccbeac90edd5f807bf5a610cbb3"
+      }
+    ],
+    "review": "Focused read-only review found no additional demonstrated defect after reserve-holder and native threshold-consumer corrections; not an executed gameplay test.",
+    "limits": [
+      "Direct/shared/representative S4 acceptance, not a native Cartesian campaign or S5 readiness.",
+      "Sand source-drop sample manually returns focus first; actual focused damage-to-focus-return is observed on Unbodied Journey. Walking Shadow inherits their shared create/focus/Bind/retirement implementation plus its prior movement/manipulation checks.",
+      "Voice and Borrow native animation emitted Duplicated Item warnings. Native conservation/floor return/cold passed; live gear usability during animation was not asserted. Existing BodyInventory.LoadInventory skips a loaded item already in custody. No broad inventory repair claimed.",
+      "Route-coordinate corpse restoration uses actual removal regressions; native samples use ordinary rooms.",
+      "New Kindle native sample is grade-one named reserve capacity; all source rows/grades and native trait/health/stamina consumers have direct owning regression evidence.",
+      "Older Nilaz/Exchange/focus-device and mission receipts remain scoped and are not rerun. No new bonus exists on their exercised items.",
+      "Legacy generic AnimateCorpse later raw-Extract path remains an adjacent deferred finding; stock Voice/Borrow paths use native hide/restore."
+    ],
+    "history": [
+      {
+        "status": "INCOMPLETE",
+        "receipt": "C:/Temp/s4-residual-seeder-full/20261015T200044Z-b11382ffc1ef",
+        "reason": "No summary/TRX and no live process; full owning suite restarted separately."
+      },
+      {
+        "status": "FAIL",
+        "receipt": "../prepared-catalogue-boot-native-s4-stock-7d8336f064364f6683826a475078d63d/boot-latest.json",
+        "reason": "Sand refused before payment: optional primary world.Bodies cache absent; replaced by exact canonical identity/body membership."
+      },
+      {
+        "status": "FAIL",
+        "receipt": "C:/Temp/s4-kindle-focused/20261015T205046Z-acc8a3c9037b/summary.json",
+        "reason": "79pass46fail: fixture CanSee and attribute HasTrait omitted; corrected fixture, final125pass."
+      },
+      {
+        "status": "FAIL",
+        "receipt": "C:/Temp/s4-kindle-seeder-focused/20261015T205555Z-4d61f500a9ad/summary.json",
+        "reason": "Invented Preserver/Defiler reserve keys; installer now derives actual eight S2 reserve keys. Source updated before final gates."
+      },
+      {
+        "status": "FAIL",
+        "receipt": "C:/Temp/s4-kindle-seeder-focused/20261015T205823Z-fbd1816083ad/summary.json",
+        "reason": "Old item selector expectation and unencoded simulated legacy field baselines. Corrected audit/fixture; production reconciler remains unchanged."
+      },
+      {
+        "status": "FAIL",
+        "console": "C:/Temp/s4-voice-native-console.log",
+        "reason": "Private witness fixture primary instance clone lacked source row; preboot failure."
+      },
+      {
+        "status": "FAIL",
+        "console": "C:/Temp/s4-voice-native-console2.log",
+        "reason": "Harness gathered synthetic source energy rather than named character reserve; no paid cast."
+      },
+      {
+        "status": "FAIL",
+        "console": "C:/Temp/s4-voice-native-console3.log",
+        "reason": "Harness incorrectly treated CharacterInstances metadata as proxy-effect storage; paid Voice worked."
+      },
+      {
+        "status": "FAIL",
+        "console": "C:/Temp/s4-voice-native-console4.log",
+        "reason": "Actual corpse floor return failed because raw extraction left stale Location; fixed stock Voice/Borrow through existing native hide helper."
+      },
+      {
+        "status": "FAIL",
+        "receipt": "../prepared-catalogue-boot-native-s4-stock-56d9fda5285742faa1177941967d2c63/boot-latest.json",
+        "reason": "Paid Sand succeeded; immediate SQL still reported source held after native drop. Identical source/created descriptions and missing post-drop flush left selection/persistence ambiguous. Harness now binds exact native dub and flushes before persisted custody assertion; no projection runtime change."
+      },
+      {
+        "status": "FAIL",
+        "receipt": "../prepared-catalogue-boot-native-s4-stock-aff910d243a24a8cb9f715e113340d82/boot-latest.json",
+        "reason": "Normal owned Kindle upgrade/preservation/rerun checks completed, then Python inner import shadowed global importlib before gameplay. Removed redundant local import; no production change."
+      },
+      {
+        "status": "FAIL",
+        "receipt": "../prepared-catalogue-boot-native-s4-stock-8a789e0aa1494a258f87d987301650af/boot-latest.json",
+        "reason": "Kindle refused before payment (no operation): private builder keyword s4kindleprop is absent from native visible-description keywords. Harness now dubs visible prop and verifies exact native Dubs target before casting/equipment commands. No production change."
+      },
+      {
+        "status": "FAIL",
+        "receipt": "../prepared-catalogue-boot-native-s4-stock-e105ad299b754aaab7bf2de71b6cbea9/boot-latest.json",
+        "reason": "Paid Kindle applied, exact reserve100 to50; harness confused configured minimum33 with equal-grade source-efficiency cost50. Added exact persisted grade/controlledGrade/Cost resource/amount/before plus balance assertions per ControlledSpellEfficiency.Cost(1,1), retaining normal policy."
+      },
+      {
+        "status": "FAIL",
+        "receipt": "../prepared-catalogue-boot-native-s4-stock-9f1c443b54a946aba270af16550d4e5e/boot-latest.json",
+        "reason": "Actual runtime defect (BodyInventory.Drop whole-item branch around2527): after wield/drop/pickup a retained PrimaryWieldedLocation granted a held bonus. Shared bonus helper now requires authoritative body WornItems/WieldedItems membership, with stale component-marker regressions; normal inventory mutation remains unchanged."
+      },
+      {
+        "status": "FAIL",
+        "receipt": "C:\\Temp\\s4-kindle-final-fast\\20261015T221131Z-faf8216bd749\\summary.json",
+        "reason": "Full default batch: two Core failures, legacy holder without Gameworld entered new reserve lookup and itemempower lacked explicit scroll compatibility inventory row. Other nine projects passed. Added zero extra bonus for absent-world legacy holder and explicit unsupported stored-delivery row; full owning Core rerun is the replacement evidence."
+      }
+    ],
+    "build_and_fixture_history": [
+      "C:/Temp/kindle-core-build.log: CS0136 legacy cap local shadow, fixed.",
+      "C:/Temp/kindle-core-build2.log: fixture ICharacter/ICharacterInstance mismatch, fixed.",
+      "C:/Temp/s4-kindle-harness-build.log: wrong guessed join-model type, fixed by typed navigation addition.",
+      "C:/Temp/s4-kindle-harness-build2.log and build3.log passed; final build4 passed.",
+      "C:/Temp/s4-residual-core/20261015T195758Z-4161f5bba13c and20261015T195917Z-778f1492e370: fixture compilation failures, no executed tests."
+    ]
   }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Xml.Linq;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
@@ -116,6 +117,9 @@ public class ArmageddonStockSupportInstallerTests
 		CollectionAssert.AreEqual(new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
 			definitions[ArmageddonStockSupportInstaller.CorpseEligibilityKey].FutureProgsParameters
 				.OrderBy(x => x.ParameterIndex).Select(x => ProgVariableTypes.FromStorageString(x.ParameterTypeDefinition)).ToArray());
+		CollectionAssert.AreEqual(new[] { ProgVariableTypes.Character, ProgVariableTypes.Item },
+			definitions[ArmageddonStockSupportInstaller.DeadSpeakLinkKey].FutureProgsParameters
+				.OrderBy(x => x.ParameterIndex).Select(x => ProgVariableTypes.FromStorageString(x.ParameterTypeDefinition)).ToArray());
 		using var compiler = new OfflineProgCompilation(definitions.Values);
 		foreach (var definition in definitions.Values)
 		{
@@ -157,4 +161,37 @@ public class ArmageddonStockSupportInstallerTests
 		db.Planes.Add(new Plane { Id = 1, Name = "Material", Alias = "material", IsDefault = true, Description = "Default", RoomDescriptionAddendum = "", RoomNameFormat = "{0}", RemoteObservationTag = "" });
 		db.SaveChanges(); db.ChangeTracker.Clear(); return db;
 	}
+	[TestMethod]
+	public void DeadSpeakLink_UneditedLegacySignatureUpgradesByOwnedIdentityAndThenRerunsUnchanged()
+	{
+		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		var first = ArmageddonStockSupportInstaller.Install(factory);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status, string.Join("\n", first.Messages));
+		db.ChangeTracker.Clear();
+		var record = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonStockSupportInstaller.DeadSpeakLinkKey);
+		var prog = db.FutureProgs.Include(x => x.FutureProgsParameters).Single(x => x.Id == record.LogicalId);
+		var old = prog.FutureProgsParameters.Single(x => x.ParameterIndex == 1);
+		old.ParameterName = "proxy"; old.ParameterTypeDefinition = ProgVariableTypes.Character.ToStorageString();
+		var baseline = JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline!)!;
+		baseline["Parameters"] = JsonSerializer.Serialize(prog.FutureProgsParameters.OrderBy(x => x.ParameterIndex)
+			.Select(x => new { Index = x.ParameterIndex, Name = x.ParameterName, Type = x.ParameterTypeDefinition }).ToArray());
+		record.SeedBaseline = JsonSerializer.Serialize(baseline); db.SaveChanges();
+		var id = prog.Id;
+
+		var upgrade = ArmageddonStockSupportInstaller.Install(factory);
+
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, upgrade.Status, string.Join("\n", upgrade.Messages));
+		db.ChangeTracker.Clear();
+		var upgraded = db.FutureProgs.Include(x => x.FutureProgsParameters).Single(x => x.Id == id);
+		var corpse = upgraded.FutureProgsParameters.Single(x => x.ParameterIndex == 1);
+		Assert.AreEqual("corpse", corpse.ParameterName);
+		Assert.AreEqual(ProgVariableTypes.Item, ProgVariableTypes.FromStorageString(corpse.ParameterTypeDefinition));
+		var after = db.SeederManagedRecords.Single(x => x.StableKey == record.StableKey);
+		var snapshot = (after.LogicalId, after.SeedBaseline, after.AppliedAt);
+		var rerun = ArmageddonStockSupportInstaller.Install(factory);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
+		db.ChangeTracker.Clear(); after = db.SeederManagedRecords.Single(x => x.StableKey == record.StableKey);
+		Assert.AreEqual(snapshot, (after.LogicalId, after.SeedBaseline, after.AppliedAt));
+	}
+
 }

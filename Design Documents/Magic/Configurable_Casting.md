@@ -669,3 +669,30 @@ a paid frozen Mend charge and exact cold bank/reserve retention. An empty explic
 plan does not enforce possession of a focus; the sample proves retention while held.
 Actual per-entry material/focus requirements remain explicit qualification decisions.
 All stock/package/Class/variant/Release gates stay disabled; S5 remains separate.
+
+### Selected equipped-item bonuses
+
+The builder effect `itemempower` uses the `itemchoice` trigger: one configured option
+followed by an exact accessible carried item. Configure an option with
+`option <name> <Trait|Health|Stun|Stamina|MagicResource> <target id or 0> <seven grade amounts>`.
+Trait and MagicResource require an exact current attribute/resource ID; other kinds
+require zero. Amounts must be finite and nonnegative. A zero amount at the selected
+grade refuses before payment. Choice, grade and exact custody are frozen and rechecked
+before payment and application; a changed paid target cannot silently receive another choice.
+
+The resolved child is `SpellEquippedItemBonus`, with `Kind`, `TargetId` and `Bonus`.
+The ordinary exclusive spell parent owns remaining duration, save/load, dispel and expiry.
+Its contribution requires exact membership in the holder's native WornItems/WieldedItems;
+a retained wearable owner or old wield-location marker cannot establish equipment.
+Held-only, contained, dropped, transferred or destroyed items give no stale contribution.
+Attribute choices flow through native effective trait expressions and combat consumers.
+Health/stun raise native wound-tolerance thresholds without removing wounds. Stamina
+raises maximum stamina; a MagicResource choice raises only the exact canonical holder's
+reserve capacity. Raising either maximum never adds current points. Removal/equipment
+changes use existing capacity reconciliation and clamps, preserving exertion and ticks.
+These bonuses grant no enrolment, capability or casting permission.
+
+The source-traced stock Kindle options, grade tables and bounded adaptation are recorded in
+[the Kindle source decision](Armageddon_Kindle_Source_Trace_20261015.md). The installed
+minimum remains33, with60*grade seconds and explicit native pool options. Its owned old
+weapon-filter program and spell identities reconcile in place; builder edits remain protected.

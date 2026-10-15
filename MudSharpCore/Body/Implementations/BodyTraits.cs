@@ -47,6 +47,7 @@ public partial class Body
                 .Where(x => x.Applies(Actor))
                 .Where(x => x.AppliesToTrait(trait))
                 .Sum(x => x.GetBonus(trait));
+        baseValue += MudSharp.Magic.EquippedItemBonuses.BonusFor(Actor, MudSharp.Magic.EquippedItemBonusKind.Trait, definition.Id);
         baseValue += Implants.OfType<IImplantTraitChange>().Sum(x => x.BonusForTrait(trait, context));
         baseValue += ExternalItems.SelectMany(x => x.GetItemTypes<IChangeTraitsInInventory>())
                                   .Sum(x => x.BonusForTrait(definition, context));

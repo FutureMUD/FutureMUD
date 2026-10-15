@@ -57,6 +57,7 @@ public static class ScrollSpellCompatibility
 		Add("waystep banishtraveller", "Exact live owned runes, typed weighted pools and post-payment destination sampling require direct configured casting.");
 		Add("openthreshold", "Exact threshold selectors and durable Arcane Mark use require direct configured casting.");
 		Add("compellingregard", "Persistent exact-body IC order grants require direct configured casting.");
+		Add("itemempower", "An explicit live item choice and equipped capacity context require direct configured casting; stored delivery is unsupported.");
 		Add("powertagsuppression", "Explicit native power-tag suppression requires direct configured casting.");
 		Add("stormlocus", "The durable room hazard pulse journal requires direct configured casting.");
 		Add("createprojection", "Owned identity, focus, anchor and body lifecycle require a dedicated stored-delivery adapter; direct invocation only.");

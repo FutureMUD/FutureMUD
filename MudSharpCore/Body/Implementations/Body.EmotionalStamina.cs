@@ -11,6 +11,6 @@ public partial class Body
 		if (!double.IsFinite(capacity) || capacity < 0)
 			throw new InvalidOperationException("The native maximum-stamina prog returned an invalid capacity.");
 		MaximumStamina = capacity;
-		CurrentStamina = Math.Min(CurrentStamina, capacity);
+		CurrentStamina = Math.Min(CurrentStamina, MaximumStamina);
 	}
 }

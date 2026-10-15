@@ -781,5 +781,14 @@
     "printed_minimum_energy_changes": 55,
     "genuine_incompatibilities": [],
     "further_design_decisions": []
+  },
+  "Kindle_20261015": {
+    "authority": "Luke approved Empower-style selected item attribute/resource enchantment after the exact skill47 source/combat trace; supersedes flat attack/damage-only options.",
+    "trace": "Armageddon_Kindle_Source_Trace_20261015.md",
+    "source_sha256": "E44778F6A5FB9FD02DB5C3FF78D4C468B93AE6C854A058D5AF769DC0A95CD59F",
+    "verification": "Pending completed owning checks/native sample; decision alone does not qualify S4.",
+    "contract": "Temporarily enchant one carried item with a selected attribute or resource-capacity bonus, active while worn or wielded; combat benefits flow through the selected native attribute.",
+    "refill": false,
+    "casting_permission": false
   }
 }

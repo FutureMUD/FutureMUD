@@ -111,7 +111,7 @@ public static partial class ArmageddonStockSupportInstaller
 			[ReciteLinkKey] = Prog("arm_support_recite_link", ProgVariableTypes.Character,
 				"return @caster", ("caster", ProgVariableTypes.Character), ("proxy", ProgVariableTypes.Character)),
 			[DeadSpeakLinkKey] = Prog("arm_support_deadspeak_link", ProgVariableTypes.Character,
-				"return @caster", ("caster", ProgVariableTypes.Character), ("proxy", ProgVariableTypes.Character)),
+				"return @caster", ("caster", ProgVariableTypes.Character), ("corpse", ProgVariableTypes.Item)),
 			[MagicalEligibilityKey] = Prog("arm_support_magical_eligibility", ProgVariableTypes.Boolean,
 				$"return hasmagictag(@target, \"armageddon.magical_creature\") or contains(@target.applicablemerits, tomerit({bindings.MagicalExceptionMerit})) or " +
 				string.Join(" or ", bindings.AffinityMerits.Select(id => $"contains(@target.applicablemerits, tomerit({id}))")),

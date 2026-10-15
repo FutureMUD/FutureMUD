@@ -1,12 +1,18 @@
 """Bounded native mission/corpse acceptance; exact installed spells, disposable routes only."""
 from pathlib import Path
 import time
+import importlib.util
 import xml.etree.ElementTree as ET
 
 
 def run(host, session, phase, data, mapped):
     sql, require, receipt, assertions = (host[k] for k in ('sql', 'require', 'receipt', 'assertions'))
     config = data['family_acceptance']
+    if config.get('cases') == 'kindle':
+        spec = importlib.util.spec_from_file_location('kindle_acceptance', host['REPO'] / 'tests/ArmageddonPreparedSeederNativeHarness/PreparedS4KindleSmoke.py')
+        module = importlib.util.module_from_spec(spec); spec.loader.exec_module(module)
+        module.run(host, session, phase, data, mapped)
+        return
     corpse_only = config.get('cases', 'all') == 'corpse'
     source = config['source']
     require(Path(source['path']).resolve() == host['REPO'] / 'tests/ArmageddonPreparedSeederNativeHarness/Program.S4FamilyFixture.cs'
@@ -72,13 +78,21 @@ def run(host, session, phase, data, mapped):
     def held(item, owner_body):
         return sql(f'SELECT GameItemId FROM Bodies_GameItems WHERE BodyId={int(owner_body)} AND GameItemId={int(item)}') == [[str(item)]]
 
+    if config.get('cases') in ('projection', 'voice', 'pocket'):
+        report = receipt.setdefault('family_acceptance', {'status':'FAIL', 'cases':config['cases'], 'scope':'Bounded installed-stock lifecycle sample; disposable admissions; stock gates disabled.'})
+        spec = importlib.util.spec_from_file_location('s4_residual', host['REPO'] / 'tests/ArmageddonPreparedSeederNativeHarness/PreparedS4ResidualSmoke.py')
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        module.run(host, session, phase, data, mapped, cast, load, flush, effect, held)
+        return
+
     if phase == 'cold':
         report = receipt['family_acceptance']
         flush()
         if report.get('courier',{}).get('status') == 'PASS':
             require(held(report['parcel'], report['recipient_body']), 'Cold restart changed delivered parcel custody.')
         require(held(report['corpse_gear'], report['corpse_body']), 'Cold restart changed exact corpse foreign gear.')
-        require(sql(f'SELECT Id FROM GameItems WHERE Id={report["corpse"]}') == [[str(report['corpse'])]], 'Cold restart lost original corpse.')
+        require(sql(f'SELECT RoomId FROM Rooms_GameItems WHERE GameItemId={report["corpse"]}') == [[str(origin)]], 'Cold restart lost original corpse floor custody.')
         if report.get('possession_instance'):
             require(not sql(f'SELECT Id FROM CharacterInstances WHERE Id={report["possession_instance"]}'), 'Cold restart revived retired corpse possession.')
         if report.get('outsider',{}).get('status') == 'PASS':
@@ -216,6 +230,9 @@ def run(host, session, phase, data, mapped):
         session.read_for(1)
     flush()
     require(not sql(f'SELECT Id FROM CharacterInstances WHERE Id={secondary}') and held(gear,corpse_body) and sql(f'SELECT Id FROM GameItems WHERE Id={corpse}')==[[str(corpse)]], 'Borrow closure did not retire exact secondary and conserve original corpse/body/gear.')
+    restored=sql(f'SELECT RoomId FROM Rooms_GameItems WHERE GameItemId={corpse}')
+    report['restored_corpse_rooms']=restored
+    require(restored==[[str(origin)]], 'Borrow closure did not restore exact corpse floor custody: '+str(restored))
     report['borrow']={'status':'PASS'}
     assertions.append('S4 family: paid Borrow entered exact original corpse identity/body with separate caster anchor; deadline restored same corpse/foreign gear and retired secondary')
     session.send(f'goto {origin}',read_seconds=.3);flush()

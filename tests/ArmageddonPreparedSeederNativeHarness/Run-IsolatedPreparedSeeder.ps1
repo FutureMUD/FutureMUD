@@ -17,7 +17,7 @@ param([string]$EvidenceRoot,
 	[switch]$RemainingSmokeOnly,
 	[switch]$FocusDeviceSmokeOnly,
 	[switch]$FamilySmokeOnly,
-	[ValidateSet('all', 'corpse')][string]$FamilySmokeCases = 'all',
+	[ValidateSet('all', 'corpse', 'projection', 'voice', 'pocket', 'kindle')][string]$FamilySmokeCases = 'all',
 	[ValidateSet('PsionicsSeeder', 'EnvironmentalExposureSeeder')][string[]]$LaterSteps = @(),
 	[switch]$FreshInstallCheck)
 

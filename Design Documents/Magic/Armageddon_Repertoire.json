@@ -1302,23 +1302,23 @@
       ],
       "native_school": "Fire",
       "target_type": "item",
-      "observable_effect": "Temporarily improve a selected weapon's damage through native enchantment hooks.",
+      "observable_effect": "Temporarily enchant one carried item with a selected attribute or resource-capacity bonus, active while worn or wielded; combat benefits flow through the selected native attribute.",
       "power_scaling": {
         "profile": "enchant",
         "grade_range": [
           1,
           7
         ],
-        "rule": "Weapon damage bonus g native units for 60*g seconds; other enchant bonuses zero.",
-        "energy_base_units": 8,
-        "energy_formula": "B * grade * overreach_multiplier * quiet_multiplier * area_multiplier"
+        "rule": "Selected Empower skill47 source-table attribute or capacity bonus for60*grade seconds; exact existing native trait/reserve binding; zero bonus refuses. No direct weapon modifier or refill.",
+        "energy_base_units": 33,
+        "energy_formula": "Existing configured source-efficiency curve with minimum33 and scale1; equal controlled/requested grades cost50 before ordinary enabled route multipliers."
       },
       "lifecycle": "timed",
       "physical_requirements": {
         "speech": "required; quiet only when explicitly enabled",
         "manipulation": "one free manipulating appendage, in addition to held focus if required",
         "actor": "focused permitted physical instance; native plane/body gates",
-        "target_constraint": "accessible owned/consenting target or authorised hostile action; corpse controls retain native ownership and anchor checks"
+        "target_constraint": "One exact accessible carried item, still in caster custody through admission/application; selected option must have a positive bonus at the chosen grade."
       },
       "materials_foci": {
         "normal_focus": "retained held/wielded focus tagged for the selected tradition at grades 3-7; none at grades 1-2",
@@ -1359,45 +1359,97 @@
       "coverage": {
         "classification": "existing_primitive_plus_bounded_policy_content",
         "release_disposition": "required_completion_candidate",
-        "approval_status": "approved_completion_scope_runtime_and_native_evidence_pending",
+        "approval_status": "S4_ACCEPTED_DIRECT_SHARED_REPRESENTATIVE_RELEASE_DISABLED",
         "runtime_evidence": [
           {
-            "token": "itemenchant",
-            "path": "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs",
-            "method": "ItemEnchantEffect.GetOrApplyEffect",
-            "line": 668,
-            "revision": "ec361d9c2911b31e4a09284acea8e574b9c7ebfa"
+            "token": "itemempower",
+            "path": "MudSharpCore/Magic/SpellEffects/ItemEmpowerEffect.cs",
+            "method": "ItemEmpowerEffect.GetOrApplyEffect",
+            "revision_scope": "ebceb165e96402ce2482e683fee1571610d8180a plus residual lifecycle/projection and approved Kindle change; source hashes below identify tested bytes."
           }
         ],
-        "observed_support": "Traced existing effect method(s) for listed primitives; the complete proposed content and casting policy are not implemented.",
-        "limitations": "No source stat menu, explosion gamble or arbitrary attribute/resource capacity increase.",
-        "common_gaps": [
-          "configured_casting_route",
-          "canonical_acquisition_mastery",
-          "route_trait_resource_binding",
-          "grade_scalar_bindings_where_required",
-          "effect_application_result_for_mastery",
-          "practice",
-          "preset_content",
-          "complete_roster_manifestation_acceptance_not_executed"
-        ],
+        "observed_support": "Selected item option, equipped native attribute/capacity consumers, saved resolved bonus and ordinary parent lifetime executed.",
+        "limitations": "No refill, casting permission, item destruction/explosion or grade-seven permanence. Representative native grade-one capacity; direct owning source-grade and consumer cases.",
+        "common_gaps": [],
         "entry_gap_required": false,
-        "test_status": "Existing primitive suite evidence only; complete entry acceptance NOT_RUN."
+        "test_status": "Owning runtime 125/125, Classic/Simple definition and upgrade4/4, native first/cold Kindle sample PASS; see residual checkpoint."
       },
       "minimum_acceptance": {
         "scenario_id": "ARM-R-47",
-        "execution_status": "NOT_RUN_PROPOSED_CONTENT",
-        "setup": "Non-admin fixture with Fire admission, acquired Kindle Enchantment, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item.",
-        "action": "Invoke Kindle Enchantment at grade 2 through the explicit route.",
+        "execution_status": "PASS_REPRESENTATIVE_GRADE_ONE_PLUS_DIRECT_SHARED_TESTS",
+        "setup": "Owned disposable native Admin fixture, real Fire route enrolment and finite gathering, one ordinary wieldable item; stock admission gates remain disabled.",
+        "action": "Paid grade-one mana-fire Kindle, then wield/drop/get/re-wield, graceful restart and actual60-second expiry.",
         "expected": [
-          "Commit 16 designated energy units once; preserve native school Fire.",
-          "Temporarily improve a selected weapon's damage through native enchantment hooks.",
-          "At grade 2 apply only this scaling contract: Weapon damage bonus g native units for 60*g seconds; other enchant bonuses zero.",
-          "Reject absent admission or invalid body/target before payment; a resisted paid invocation cannot bypass costs or duplicate advancement."
+          "Commit50 reserve units for each equal controlled/requested grade-one attempt under the source-efficiency curve; configured minimum remains33. No extra debit/refill during equipment/expiry.",
+          "Held-only item contributes zero; wielded item grants exactly+1 named reserve capacity without current energy.",
+          "Cold restart retains exact item/prototype/quality/ownership, selected bonus and current balance.",
+          "Actual expiry removes enchantment and capacity contribution, preserving original item and balance."
         ],
-        "boundary_assertion": "No source stat menu, explosion gamble or arbitrary attribute/resource capacity increase."
+        "boundary_assertion": "Direct owning tests cover source table grades, zero-bonus/invalid-choice prepayment refusal, native attribute/health/stamina consumers and saved parent lifetime. No per-grade native claim.",
+        "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-52d498b77f784cc48f45f7ce360756c1\\boot-latest.json"
       },
-      "completion_contract": "Temporarily improve a selected weapon's damage through native enchantment hooks."
+      "completion_contract": "Selected attribute or resource CAPACITY on an equipped carried item; source skill 47 tables, minimum 33,60*grade, no refill or casting permission. Supersedes flat weapon attack/damage conflict.",
+      "approved_override_20261015": "Armageddon_Kindle_Source_Trace_20261015.md",
+      "historical_before_approved_kindle_completion_20261015": {
+        "completion_contract": "Temporarily improve a selected weapon's damage through native enchantment hooks.",
+        "minimum_acceptance": {
+          "scenario_id": "ARM-R-47",
+          "execution_status": "NOT_RUN_PROPOSED_CONTENT",
+          "setup": "Non-admin fixture with Fire admission, acquired Kindle Enchantment, controlled grade 2, native route skill 42, 100 designated energy units and the specified physical plan; select an eligible item.",
+          "action": "Invoke Kindle Enchantment at grade 2 through the explicit route.",
+          "expected": [
+            "Commit 16 designated energy units once; preserve native school Fire.",
+            "Temporarily improve a selected weapon's damage through native enchantment hooks.",
+            "At grade 2 apply only this scaling contract: Weapon damage bonus g native units for 60*g seconds; other enchant bonuses zero.",
+            "Reject absent admission or invalid body/target before payment; a resisted paid invocation cannot bypass costs or duplicate advancement."
+          ],
+          "boundary_assertion": "No source stat menu, explosion gamble or arbitrary attribute/resource capacity increase."
+        },
+        "coverage": {
+          "classification": "existing_primitive_plus_bounded_policy_content",
+          "release_disposition": "required_completion_candidate",
+          "approval_status": "approved_completion_scope_runtime_and_native_evidence_pending",
+          "runtime_evidence": [
+            {
+              "token": "itemenchant",
+              "path": "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs",
+              "method": "ItemEnchantEffect.GetOrApplyEffect",
+              "line": 668,
+              "revision": "ec361d9c2911b31e4a09284acea8e574b9c7ebfa"
+            }
+          ],
+          "observed_support": "Traced existing effect method(s) for listed primitives; the complete proposed content and casting policy are not implemented.",
+          "limitations": "No source stat menu, explosion gamble or arbitrary attribute/resource capacity increase.",
+          "common_gaps": [
+            "configured_casting_route",
+            "canonical_acquisition_mastery",
+            "route_trait_resource_binding",
+            "grade_scalar_bindings_where_required",
+            "effect_application_result_for_mastery",
+            "practice",
+            "preset_content",
+            "complete_roster_manifestation_acceptance_not_executed"
+          ],
+          "entry_gap_required": false,
+          "test_status": "Existing primitive suite evidence only; complete entry acceptance NOT_RUN."
+        },
+        "power_scaling": {
+          "profile": "enchant",
+          "grade_range": [
+            1,
+            7
+          ],
+          "rule": "Selected Empower skill47 source-table attribute or capacity bonus for60*grade seconds; exact existing native trait/reserve binding; zero bonus refuses. No direct weapon modifier or refill.",
+          "energy_base_units": 8,
+          "energy_formula": "B * grade * overreach_multiplier * quiet_multiplier * area_multiplier"
+        },
+        "physical_requirements": {
+          "speech": "required; quiet only when explicitly enabled",
+          "manipulation": "one free manipulating appendage, in addition to held focus if required",
+          "actor": "focused permitted physical instance; native plane/body gates",
+          "target_constraint": "accessible owned/consenting target or authorised hostile action; corpse controls retain native ownership and anchor checks"
+        }
+      }
     },
     {
       "key": "arm.spell.custodian_glyph",

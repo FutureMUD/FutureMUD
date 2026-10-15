@@ -1,4 +1,30 @@
-# S4 acceptance checkpoint — 15 October 2026
+# S4 acceptance checkpoint - 15 October 2026
+
+All 152 required entries now have explicit S4 acceptance under the approved direct/shared/representative strategy; optional 153/154 stay deferred. This closes the six residual defining-contract gaps. All 152 spell definitions and 210 approved blueprints remain installed with Release, package/Class/variant/use/craft/unqualified-carrier gates disabled. PR #788 stays draft; no merge or deployment.
+
+Luke approved the source-traced Kindle replacement: selected attribute or named resource capacity on a worn/wielded item, no refill or casting permission. It retains minimum 33, 60*grade duration, owned identities and field-level reconciliation. Combat benefits flow through native effective attributes. See [the adopted source mapping](Armageddon_Kindle_Source_Trace_20261015.md).
+
+| Residual contract | Executed evidence | Bound |
+| --- | --- | --- |
+| Kindle | Core 125/125 including source rows/grades and native consumers; Classic/Simple installer 4/4; paid grade-one reserve capacity, wield/drop/get, cold and real expiry | No per-grade native campaign; no new current reserve points |
+| Sand Effigy / Walking Shadow / Unbodied Journey | Native first/cold PASS 13: exact paid create/focus, source-drop reason 7 and focused primary-damage reason 8, retirement and cold conservation | Walking Shadow inherits shared runtime plus its previous movement/manipulation checks; Sand focus returned manually before source drop |
+| Folded Pocket | Native first/cold PASS 12, actual 300-second deadline, unlocated-carrier fallback, exact nested foreign bag/child conservation | Cold fault removes only carrier custody after graceful shutdown; no journal/deadline/goods edits |
+| Voice of Remains | Native first/cold PASS 14, original corpse/body, independent witness hears linked speech, actual 60-second retirement/floor return | Ordinary-room native sample; route position has direct removal regressions |
+| Borrow the Dead | Strengthened native first/cold PASS 12 asserts actual exact corpse floor return and conserved foreign gear | Live gear usability during animation not asserted |
+
+The verified fast project aggregate is **10,708/0/3** across ten projects. The default batch completed with two Core failures; after the legacy no-world capacity guard and explicit stored-delivery classification repairs, the full Core suite passed. Nine unchanged project results are retained, with source stable per invocation. Aggregate receipt: `C:/Temp/s4-final-verified-projects.json`. Three existing Unix launcher-permission cases are skipped on Windows. Focused Core 125/125 and route/removal/dependant 155/155 are separate overlapping receipts, never added to the full total. The owning Seeder suite passes 1,863/0/3; the corrected full Core suite passes 7,551/0/0.
+
+Native evidence and exact hashes, assertions, cleanup and preserved failures are embedded in `s4_residual_completion_20261015` of [portable verification](Armageddon_S4_Continuation_Verification_20261013.json) and the entry ledger. All successful owned MUD boots shut down gracefully, and their owned databases/MySQL instances were removed. Percival native testing works; there is no current environment blocker.
+
+Both Voice and Borrow emitted a duplicate-item inventory warning. Exact corpse/foreign-item conservation, floor restoration and cold state passed. `BodyInventory.LoadInventory` skips an already loaded item in custody; live gear usability during animation remains an adjacent unverified limitation. The legacy generic AnimateCorpse raw-extraction path is also deferred; the repaired stock Voice/Borrow paths use the existing native corpse hide helper. No broader repair is claimed.
+
+Baseline ebceb165e has all four hosted push/PR Ubuntu/Windows jobs green. Check the newly published head separately. S5 progression/balance/exposure/carrier readiness and Release remain separate.
+
+Historical mission checkpoint below preserves earlier counts, conflicts and failed/incomplete runs; the current accepted contract above supersedes its pending decision packet.
+
+---
+
+## Historical mission checkpoint - 15 October 2026
 
 146 of152 required entries have explicit S4 acceptance under the approved direct/shared/representative strategy. All152 definitions are audited; six entries remain open. Optional153/154 stay deferred. Release and all package/Class/variant/use/craft/unqualified-carrier gates remain disabled; PR788 stays draft.
 

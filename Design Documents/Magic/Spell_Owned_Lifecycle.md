@@ -1169,3 +1169,24 @@ transaction. Courier custody additionally verifies exactly one persisted body ho
 the live parcel and no room/container custody before committing. A mismatch or exception
 holds the mission without replay. Corpse possession opens its FMDB scope before saving
 the original dead NPC instance, then creates the exact secondary within that same scope.
+
+### S4 corpse restoration and projection admission
+
+Voice of Remains and the stock Borrow the Dead path hide the borrowed corpse through
+`HideBorrowedCorpseForAnimation`, clearing native spatial custody. Raw room extraction
+alone can leave an item's Location set and prevent restoration. The original NPC save
+runs inside the existing FMDB scope. The owned DeadSpeak eligibility prog takes
+`(caster: Character, corpse: Item)` and returns the caster link.
+
+Their removal effects capture the animated instance's room, layer and route position
+before retirement, then restore the same corpse through `InsertAtSpatialLocation`.
+They borrow the original body, corpse and foreign gear; only the secondary animation is
+retired. Native first/cold receipts establish actual corpse floor return and conservation;
+route-coordinate removal regressions additionally establish the captured route point.
+An observed duplicate-item inventory warning is retained in the acceptance checkpoint:
+live foreign-gear usability during animation was not asserted by those native samples.
+
+Projection admission verifies the exact caster/body membership in its canonical
+identity's Instances. The optional world Bodies cache is not proof that a primary body
+is loaded: normal primary-form construction need not populate it. Existing source,
+physical, location, focus, range, manipulation and ownership checks still apply.

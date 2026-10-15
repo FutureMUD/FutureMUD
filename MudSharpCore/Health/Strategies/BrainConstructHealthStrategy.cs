@@ -158,7 +158,7 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
 
     public override double MaxHP(IHaveWounds owner)
     {
-        return MaximumHitPointsExpression.Evaluate(owner as IPerceivableHaveTraits);
+        return MaximumHitPointsExpression.Evaluate(owner as IPerceivableHaveTraits) + MudSharp.Magic.EquippedItemBonuses.BonusFor(owner as ICharacter, MudSharp.Magic.EquippedItemBonusKind.Health);
     }
 
     public override void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)
@@ -223,7 +223,7 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
             return HealthTickResult.Dead;
         }
 
-        if (MaximumHitPointsExpression.Evaluate(character) <= thing.Wounds.Sum(x => x.CurrentDamage))
+        if (MaxHP(character) <= thing.Wounds.Sum(x => x.CurrentDamage))
         {
             return HealthTickResult.Dead;
         }
@@ -244,7 +244,7 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
     public override bool IsCriticallyInjured(IHaveWounds owner)
     {
         return owner.Wounds.Sum(x => x.CurrentDamage * x.Bodypart?.DamageModifier) /
-               MaximumHitPointsExpression.Evaluate((ICharacter)owner) > CriticalInjuryThreshold &&
+               MaxHP((ICharacter)owner) > CriticalInjuryThreshold &&
                owner is ICharacter ch &&
                ch.State.HasFlag(CharacterState.Unconscious);
     }
@@ -267,7 +267,7 @@ public class BrainConstructHealthStrategy : BaseHealthStrategy
             statusString = $" - {"Power Core Failure".Colour(Telnet.BoldMagenta)}";
         }
 
-        double totalWounds = MaximumHitPointsExpression.Evaluate(character);
+        double totalWounds = MaxHP(character);
         return string.Format(character, "<HP: {0:N0}/{1:N0}{2}>",
             totalWounds - owner.Wounds.Sum(x => x.CurrentDamage * x.Bodypart?.DamageModifier), totalWounds,
             statusString);

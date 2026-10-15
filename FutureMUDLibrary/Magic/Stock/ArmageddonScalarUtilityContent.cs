@@ -9,8 +9,7 @@ namespace MudSharp.Magic;
 /// <summary>Pure scalar content; installed-world qualification remains separate.</summary>
 public static class ArmageddonScalarUtilityContent
 {
-	/// <param name="itemTargetEligibilitySource">Optional caller-authored additional item/caster policy. The native weapon predicate is always required.</param>
-	public static IReadOnlyList<ArmageddonCanonicalSpellContribution> Create(string? itemTargetEligibilitySource = null)
+	public static IReadOnlyList<ArmageddonCanonicalSpellContribution> Create()
 	{
 		var light = new XElement("Effect", new XAttribute("type", "roomlight"),
 			new XElement("AddedLuxPerPower", -10.0), new XElement("DescAddendum", new XCData("")),
@@ -18,20 +17,12 @@ public static class ArmageddonScalarUtilityContent
 		var temperature = new XElement("Effect", new XAttribute("type", "roomtemperature"),
 			new XElement("TemperatureDeltaPerPower", -0.5), new XElement("DescAddendum", new XCData("")),
 			new XElement("AddendumColour", "Bold Blue"));
-		var enchantment = new XElement("Effect", new XAttribute("type", "itemenchant"),
-			new XElement("SDescAddendum", new XCData("")), new XElement("DescAddendum", new XCData("")),
-			new XElement("Colour", "Bold Red"), new XElement("AttackCheckBonus", 0.0));
 		return Array.AsReadOnly(new[]
 		{
 			Build("shadow", "cooling_shade", "Cooling Shade", "room", 20, 60,
 				"Reduce room illumination by ten lux and ambient temperature by half a degree Celsius per selected grade for 60 seconds per grade, respecting native bounds.",
 				[light, temperature], [Binding(0, "roomlight", "AddedLuxPerPower", "-10*grade/power"),
-					Binding(1, "roomtemperature", "TemperatureDeltaPerPower", "-0.5*grade/power")], null),
-			Build("fire", "kindle_enchantment", "Kindle Enchantment", "item", 33, 40,
-				"Improve a weapon's attack checks by the selected grade for 60 seconds per grade. Base quality, damage, pain and stun are unchanged; identical spell parents are exclusive.",
-				[enchantment], [Binding(0, "itemenchant", "AttackCheckBonus", "grade")],
-				itemTargetEligibilitySource is null ? "return @target.isweapon" :
-					"if (not(@target.isweapon))\nreturn false\nend if\n" + itemTargetEligibilitySource)
+					Binding(1, "roomtemperature", "TemperatureDeltaPerPower", "-0.5*grade/power")], null)
 		});
 	}
 

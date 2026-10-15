@@ -637,23 +637,23 @@ public static class CharacterInstanceService
 		}
 
 		var ais = artificialIntelligences.Where(x => x is not null).Distinct().ToList();
-		foreach (var loaded in identity.Instances.OfType<Character>()
-		                                .Where(x => ReferenceEquals(x.Body, body) && x.IsEmbodied)
-		                                .ToList())
-		{
-			if (!loaded.State.IsDead() && !loaded.State.HasFlag(CharacterState.Stasis))
-			{
-				return new CharacterInstanceOperationResult(false,
-					"That corpse body already has a live embodied instance.");
-			}
-
-			loaded.SetInstanceEmbodied(false);
-			loaded.SetInstanceControllable(false);
-			loaded.Save();
-		}
-
 		using (new FMDB())
 		{
+			foreach (var loaded in identity.Instances.OfType<Character>()
+			                                .Where(x => ReferenceEquals(x.Body, body) && x.IsEmbodied)
+			                                .ToList())
+			{
+				if (!loaded.State.IsDead() && !loaded.State.HasFlag(CharacterState.Stasis))
+				{
+					return new CharacterInstanceOperationResult(false,
+						"That corpse body already has a live embodied instance.");
+				}
+
+				loaded.SetInstanceEmbodied(false);
+				loaded.SetInstanceControllable(false);
+				loaded.Save();
+			}
+
 			var dbchar = FMDB.Context.Characters.Find(identity.Id);
 			if (dbchar is null)
 			{

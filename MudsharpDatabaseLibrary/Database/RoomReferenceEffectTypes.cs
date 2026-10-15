@@ -181,6 +181,7 @@ SpellInfravision
 SpellInsomnia
 SpellInvisibility
 SpellItemEnchantment
+SpellEquippedItemBonus
 SpellLeechingEdge
 SpellLevitation
 SpellLiveBodyPossession

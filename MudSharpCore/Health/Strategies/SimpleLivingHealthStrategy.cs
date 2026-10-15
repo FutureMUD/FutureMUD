@@ -1051,8 +1051,8 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
     public override string ReportConditionPrompt(IHaveWounds owner, PromptType type)
     {
         ICharacter charOwner = (ICharacter)owner;
-        double maxHp = MaximumHitPointsExpression.Evaluate(charOwner);
-        double maxStun = MaximumStunExpression.Evaluate(charOwner);
+        double maxHp = MaxHP(charOwner);
+        double maxStun = MaxStun(charOwner);
         double maxPain = MaximumPainExpression.Evaluate(charOwner);
         double bloodlossRatio = charOwner.Body.CurrentBloodVolumeLitres / charOwner.Body.TotalBloodVolumeLitres;
         string extraStatusDescription;
@@ -1161,12 +1161,12 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
 
     public override double MaxHP(IHaveWounds owner)
     {
-        return owner is not ICharacter charOwner ? 0.0 : MaximumHitPointsExpression.Evaluate(charOwner);
+        return owner is not ICharacter charOwner ? 0.0 : MaximumHitPointsExpression.Evaluate(charOwner) + MudSharp.Magic.EquippedItemBonuses.BonusFor(charOwner, MudSharp.Magic.EquippedItemBonusKind.Health);
     }
 
     public override double MaxStun(IHaveWounds owner)
     {
-        return owner is not ICharacter charOwner ? 0.0 : MaximumStunExpression.Evaluate(charOwner);
+        return owner is not ICharacter charOwner ? 0.0 : MaximumStunExpression.Evaluate(charOwner) + MudSharp.Magic.EquippedItemBonuses.BonusFor(charOwner, MudSharp.Magic.EquippedItemBonusKind.Stun);
     }
 
     public override double MaxPain(IHaveWounds owner)
@@ -1182,7 +1182,7 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
             return HealthTickResult.Dead;
         }
 
-        double maxHP = MaximumHitPointsExpression.Evaluate(charOwner);
+        double maxHP = MaxHP(charOwner);
 
         double currentDamage = thing.Wounds.Sum(x => x.CurrentDamage);
         if (currentDamage >= maxHP * HPGrace)
@@ -1241,7 +1241,7 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
             (current, effect) => current * effect.StunUnconsciousThresholdMultiplier);
         var anesthesiaUnconsciousThresholdMultiplier = consciousnessModifiers.Aggregate(1.0,
             (current, effect) => current * effect.AnesthesiaUnconsciousThresholdMultiplier);
-        double maxStun = MaximumStunExpression.Evaluate(charOwner) * stunUnconsciousThresholdMultiplier;
+        double maxStun = MaxStun(charOwner) * stunUnconsciousThresholdMultiplier;
         double maxPain = MaximumPainExpression.Evaluate(charOwner) * painPassOutThresholdMultiplier;
 
         if (thing.Wounds.Sum(x => x.CurrentPain) >= maxPain &&
@@ -1353,7 +1353,7 @@ public class SimpleLivingHealthStrategy : BaseHealthStrategy
                 x =>
                     x.CurrentDamage / PercentageHealthPerPenalty + x.CurrentPain / PercentagePainPerPenalty +
                     x.CurrentStun / PercentageStunPerPenalty) /
-            (MaximumHitPointsExpression.Evaluate(charOwner) + MaximumStunExpression.Evaluate(charOwner) +
+            (MaxHP(charOwner) + MaxStun(charOwner) +
              MaximumPainExpression.Evaluate(charOwner));
         return -1 * (int)penalty;
     }

@@ -96,7 +96,7 @@ public class StaticCheck : FrameworkItem, ICheck
             : difficulty.StageUp((int)(-1 * bonus / StandardCheck.BonusesPerDifficultyLevel));
 
         // Roll versus target number w/difficulty mods, store outcome
-        return TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters) + Modifiers[difficulty];
+        return CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)];
     }
 
     public CheckOutcome Check(IPerceivableHaveTraits checkee, Difficulty difficulty, ITraitDefinition trait,
@@ -138,12 +138,12 @@ public class StaticCheck : FrameworkItem, ICheck
             : difficulty.StageUp((int)(-1 * bonus / StandardCheck.BonusesPerDifficultyLevel));
 
         // Roll versus target number w/difficulty mods, store outcome
-        double tnexp = TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters);
-        if (tnexp + Modifiers[difficulty] >= 100.0)
+        double tnexp = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        if (tnexp + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)] >= 100.0)
         {
-            if (tnexp + Modifiers[difficulty.StageUp(1)] >= 100.0)
+            if (tnexp + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters).StageUp(1)] >= 100.0)
             {
-                if (tnexp + Modifiers[difficulty.StageUp(2)] >= 100.0)
+                if (tnexp + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters).StageUp(2)] >= 100.0)
                 {
                     return new CheckOutcome { Outcome = Outcome.MajorPass };
                 }
@@ -154,9 +154,9 @@ public class StaticCheck : FrameworkItem, ICheck
             return new CheckOutcome { Outcome = Outcome.MinorPass };
         }
 
-        if (tnexp + Modifiers[difficulty.StageDown(1)] >= 100.0)
+        if (tnexp + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters).StageDown(1)] >= 100.0)
         {
-            if (tnexp + Modifiers[difficulty.StageDown(2)] >= 100.0)
+            if (tnexp + Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters).StageDown(2)] >= 100.0)
             {
                 return new CheckOutcome { Outcome = Outcome.MinorFail };
             }
@@ -216,7 +216,7 @@ public class StaticCheck : FrameworkItem, ICheck
 
         double bonus = bonuses.Sum(x => x.Item2);
         // Roll versus target number w/difficulty mods, store outcome
-        double targetNumber = TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters);
+        double targetNumber = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
         foreach (Difficulty evaluatedDifficulty in _allDifficulties)
         {
             Difficulty originalDifficulty = evaluatedDifficulty;
@@ -240,6 +240,7 @@ public class StaticCheck : FrameworkItem, ICheck
             }
 
 
+            difficultyplusburden = CheckEvaluationContext.Constrain(difficultyplusburden, customParameters);
             double difficultyModifier = Modifiers[difficultyplusburden];
             CheckOutcome result = targetNumber + difficultyModifier >= 100.0
                 ? new CheckOutcome() { Outcome = Outcome.MinorPass }

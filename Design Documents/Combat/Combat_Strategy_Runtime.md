@@ -1,5 +1,7 @@
 # Combat Strategy Runtime
 
+Physical melee accuracy and active physical defences use the shared [blind-fighting check](Blind_Fighting.md) when current sight is inadequate. Defence chance previews apply the same formula cap and difficulty floor without learning. Existing target acquisition and move eligibility remain authoritative.
+
 Magical defense selection runs after the ordinary strategy response. Active eligible powers compete with mundane choices; preference takes priority and mundane defense wins ties. Dedicated ranged magic uses ranged defense selection, while melee magic retains melee defense selection. Manual powers queue selected combat actions and both manual and automatic attacks revalidate before charging. See [Magical and Psychic Combat Powers](../Magic/Magic_Combat_Powers.md) for reaction modes, targeting and player controls.
 
 Successful magic attacks can deliver a separately configured attack-context spell, including caster effects. Full magical interception prevents that payload. Magical item smashes use selected combat actions without introducing a character defensive response for the item; their costs, target validity and payload compatibility are checked again at resolution.

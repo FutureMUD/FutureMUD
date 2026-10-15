@@ -110,7 +110,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
 		if (!HostileAttackAdmission.TryNotify(Assailant, defenderMove.Assailant as ICharacter,
 			CanContinueCommand)) return CombatMoveResult.Irrelevant;
 		UnseenCombatOpening.Consume(Assailant, defenderMove.Assailant as ICharacter);
-        Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
+        Dictionary<Difficulty, CheckOutcome> attackRoll = CombatCheck.For(Gameworld, Check)
                                   .CheckAgainstAllDifficulties(Assailant, CheckDifficulty,
                                       Weapon.WeaponType.AttackTrait,
                                       defenderMove.Assailant, Assailant.OffensiveAdvantage + magicAttackBonus);
@@ -206,7 +206,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
         double blockBonus = BlockMove.GetBlockBonus(this, defenderMove.Alignment, defenderMove.Shield);
         double targetBonus = Assailant.GetBonusForDefendersFromTargeting();
         Difficulty defenderDifficulty = Attack.Profile.BaseBlockDifficulty.StageUp(defenderMove.DifficultStageUps);
-        Dictionary<Difficulty, CheckOutcome> blockCheck = Gameworld.GetCheck(defenderMove.Check)
+        Dictionary<Difficulty, CheckOutcome> blockCheck = CombatCheck.For(Gameworld, defenderMove.Check)
                                   .CheckAgainstAllDifficulties(defenderMove.Assailant, defenderDifficulty,
                                       defenderMove.Shield.ShieldType.BlockTrait, Assailant,
                                       blockBonus - defenderMove.Assailant.GetDefensiveAdvantagePenaltyFromTargeting() +
@@ -379,7 +379,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
     {
         double targetBonus = Assailant.GetBonusForDefendersFromTargeting();
         Difficulty defenderDifficulty = Attack.Profile.BaseParryDifficulty.StageUp(parry.DifficultStageUps);
-        Dictionary<Difficulty, CheckOutcome> parryCheck = Gameworld.GetCheck(defenderMove.Check)
+        Dictionary<Difficulty, CheckOutcome> parryCheck = CombatCheck.For(Gameworld, defenderMove.Check)
                                   .CheckAgainstAllDifficulties(defenderMove.Assailant, defenderDifficulty,
                                       parry.Weapon.WeaponType.ParryTrait,
                                       Assailant,
@@ -599,7 +599,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
         bool echoSlipped = false;
         double targetBonus = Assailant.GetBonusForDefendersFromTargeting();
         Difficulty defenderDifficulty = Attack.Profile.BaseDodgeDifficulty.StageUp(dodge.DifficultStageUps);
-        Dictionary<Difficulty, CheckOutcome> dodgeCheck = Gameworld.GetCheck(defenderMove.Check)
+        Dictionary<Difficulty, CheckOutcome> dodgeCheck = CombatCheck.For(Gameworld, defenderMove.Check)
                                   .CheckAgainstAllDifficulties(defenderMove.Assailant, defenderDifficulty, null,
                                       Assailant,
                                       targetBonus - defenderMove.Assailant.GetDefensiveAdvantagePenaltyFromTargeting() +

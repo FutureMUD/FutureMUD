@@ -94,6 +94,14 @@ public class StandardCheck : FrameworkItem, ICheck
 
     public IFuturemud Gameworld { get; }
 
+	// Formula edits may retain historical parameter rows. For BF, only traits still
+	// referenced by the formula may fail a check, improve or branch. A constant must
+	// never retain a phantom skill requirement or learning opportunity.
+	private IEnumerable<TraitExpressionParameter> CheckedParameters => Type == CheckType.BlindFightingCheck
+		? TargetNumberExpression.Parameters.Where(x => TargetNumberExpression.Formula.ParameterNames
+			.Any(name => name.EqualTo(x.Key))).Select(x => x.Value)
+		: TargetNumberExpression.Parameters.Values;
+
     #endregion
 
     protected CheckOutcome HandleStandardCheck(IPerceivableHaveTraits checkee, IPerceivable target, Outcome outcome,
@@ -104,11 +112,11 @@ public class StandardCheck : FrameworkItem, ICheck
         bool abject = false;
 		permitBranchingAndImprovement &= !CheckImprovementScope.Suppresses(checkee, Type);
         // Handle checks that specify traits must be possessed by the owner
-        if (TargetNumberExpression.Parameters.Any() &&
+        if (CheckedParameters.Any() &&
             ((FailIfTraitMissing == FailIfTraitMissingType.FailIfAnyMissing &&
-              TargetNumberExpression.Parameters.Values.Any(x => !checkee.HasTrait(x.Trait))) ||
+              CheckedParameters.Any(x => !checkee.HasTrait(x.Trait))) ||
              (FailIfTraitMissing == FailIfTraitMissingType.FailIfAllMissing &&
-              TargetNumberExpression.Parameters.Values.All(x => !checkee.HasTrait(x.Trait)))))
+              CheckedParameters.All(x => !checkee.HasTrait(x.Trait)))))
         {
             outcome = Outcome.MajorFail;
             abject = true;
@@ -131,7 +139,7 @@ public class StandardCheck : FrameworkItem, ICheck
         if (ImproveTraits && permitBranchingAndImprovement)
         {
             foreach (
-                ITrait tr in TargetNumberExpression.Parameters.Values.Where(x => x.CanImprove)
+                ITrait tr in CheckedParameters.Where(x => x.CanImprove)
                                                 .Select(x => checkee.GetTrait(x.Trait)).Where(tr => tr != null))
             {
                 if (!CheckLearningScope.CanContinue(checkee)) break;
@@ -149,7 +157,7 @@ public class StandardCheck : FrameworkItem, ICheck
         }
 
         if (!CanTraitBranchIfMissing ||
-            (TargetNumberExpression.Parameters.Values.All(x => checkee.HasTrait(x.Trait)) &&
+            (CheckedParameters.All(x => checkee.HasTrait(x.Trait)) &&
              (trait == null || chTrait != null)))
         {
             return new CheckOutcome
@@ -165,7 +173,7 @@ public class StandardCheck : FrameworkItem, ICheck
         List<ITraitDefinition> newTraits = new();
         if (permitBranchingAndImprovement)
         {
-            foreach (TraitExpressionParameter item in TargetNumberExpression.Parameters.Values.Where(
+            foreach (TraitExpressionParameter item in CheckedParameters.Where(
                          x => x.CanBranch && !checkee.HasTrait(x.Trait)))
             {
                 if (!CheckLearningScope.CanContinue(checkee)) break;
@@ -240,11 +248,11 @@ public class StandardCheck : FrameworkItem, ICheck
 
     public virtual bool WouldBeAbjectFailure(IPerceivableHaveTraits checkee, ITraitDefinition trait)
     {
-        if (TargetNumberExpression.Parameters.Any() &&
+        if (CheckedParameters.Any() &&
             ((FailIfTraitMissing == FailIfTraitMissingType.FailIfAnyMissing &&
-              TargetNumberExpression.Parameters.Values.Any(x => !checkee.HasTrait(x.Trait))) ||
+              CheckedParameters.Any(x => !checkee.HasTrait(x.Trait))) ||
              (FailIfTraitMissing == FailIfTraitMissingType.FailIfAllMissing &&
-              TargetNumberExpression.Parameters.Values.All(x => !checkee.HasTrait(x.Trait)))))
+              CheckedParameters.All(x => !checkee.HasTrait(x.Trait)))))
         {
             return true;
         }
@@ -367,7 +375,7 @@ public class StandardCheck : FrameworkItem, ICheck
 
         double bonus = bonuses.Sum(x => x.Item2);
         // Roll versus target number w/difficulty mods, store outcome
-        double targetNumber = TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters);
+        double targetNumber = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
         double[] rolls = new[]
         {
             Constants.Random.NextDouble() * 100.0,
@@ -397,6 +405,7 @@ public class StandardCheck : FrameworkItem, ICheck
             }
 
 
+            difficultyplusburden = CheckEvaluationContext.Constrain(difficultyplusburden, customParameters);
             double difficultyModifier = Modifiers[difficultyplusburden];
             int successes = RandomUtilities.EvaluateConsecutiveSuccesses(rolls, targetNumber + difficultyModifier);
             Outcome outcome = GetOutcome(successes);
@@ -508,7 +517,9 @@ public class StandardCheck : FrameworkItem, ICheck
             Constants.Random.NextDouble() * 100.0
         };
 
-        double basetarget = TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters);
+        double basetarget = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        difficulty1plusburden = CheckEvaluationContext.Constrain(difficulty1plusburden, customParameters);
+        difficulty2plusburden = CheckEvaluationContext.Constrain(difficulty2plusburden, customParameters);
         double difficultyModifier1 = Modifiers[difficulty1plusburden];
         double difficultyModifier2 = Modifiers[difficulty2plusburden];
 
@@ -591,8 +602,8 @@ public class StandardCheck : FrameworkItem, ICheck
             difficultyplusburden = difficultyplusburden.StageUp(checkeeAsCharacter.CombatBurdenDefense);
         }
 
-        return TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters) +
-               Modifiers[difficultyplusburden];
+        return CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) +
+               Modifiers[CheckEvaluationContext.Constrain(difficultyplusburden, customParameters)];
     }
 
     public virtual CheckOutcome Check(IPerceivableHaveTraits checkee, Difficulty difficulty, ITraitDefinition trait,
@@ -626,7 +637,8 @@ public class StandardCheck : FrameworkItem, ICheck
                                 .Where(x => x.Applies(checkee, target))
                                 .Select(x => Tuple.Create(x.ToString(), x.CheckBonus(checkeeAsCharacter, target, Type))));
 
-        if (Type.IsVisionInfluencedCheck() && checkeeAsCharacter is not null)
+        if (Type.IsVisionInfluencedCheck() && checkeeAsCharacter is not null &&
+            CheckEvaluationContext.Find(customParameters)?.SuppressVisionPenalty != true)
         {
             double visionPercentage = checkeeAsCharacter.VisionPercentage;
             if (visionPercentage < 1.0)
@@ -664,7 +676,8 @@ public class StandardCheck : FrameworkItem, ICheck
         }
 
         // Roll versus target number w/difficulty mods, store outcome
-        double targetNumber = TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters);
+        double targetNumber = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        difficultyplusburden = CheckEvaluationContext.Constrain(difficultyplusburden, customParameters);
         double difficultyModifier = Modifiers[difficultyplusburden];
         Outcome outcome = RollAgainst(targetNumber + difficultyModifier, out List<double> rolls);
 

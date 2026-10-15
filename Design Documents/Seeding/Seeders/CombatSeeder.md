@@ -1,5 +1,7 @@
 # CombatSeeder
 
+Fresh combat installs seed the `Blind Fighting` skill and its ordinary trait-expression check. General skill seeders defer this check to combat setup. Existing constant or custom blind-fighting checks and existing skill configuration are preserved; this is not permission to rerun the whole foundational combat package. Worlds upgrading without seeding receive a missing-check formula of `100`, which removes the skill cap up to 100 but retains the sight difficulty floor. See [Blind Fighting](../../Combat/Blind_Fighting.md).
+
 ## Start here to add content
 
 Edit [CombatSeeder.RangedWeapons.cs](../../../DatabaseSeeder/Seeders/CombatSeeder/CombatSeeder.RangedWeapons.cs): **SeedDataGuns / SeedDataMuskets for firearms; corresponding melee/armour/check/style partials own other content**. Keep source identity and dependent references together. The worked entry below is the smallest existing path to follow before adding a new definition.

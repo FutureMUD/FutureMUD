@@ -44,10 +44,10 @@ public class OGLCheck : StandardCheck
         int roll = Dice.Roll(1, 20);
 
         Outcome outcome1 = GetOutcome(roll,
-            Modifiers[difficulty1] - TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters) -
+            Modifiers[CheckEvaluationContext.Constrain(difficulty1, customParameters)] - CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) -
             bonus);
         Outcome outcome2 = GetOutcome(roll,
-                        Modifiers[difficulty2] - TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters) -
+                        Modifiers[CheckEvaluationContext.Constrain(difficulty2, customParameters)] - CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) -
                         bonus);
 
         return Tuple.Create(HandleStandardCheck(checkee, target, outcome1, difficulty1, trait, true, traitUseType),
@@ -81,7 +81,7 @@ public class OGLCheck : StandardCheck
                    .Sum(x => x.CheckBonus(checkeeAsCharacter, target, Type)) +
             externalBonus;
 
-        return Modifiers[difficulty] - TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters) -
+        return Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)] - CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) -
                bonus;
     }
 
@@ -109,8 +109,8 @@ public class OGLCheck : StandardCheck
             externalBonus;
 
         // TODO: allowing for arbitrary DCs i.e. attacking someone.
-        Outcome outcome = RollAgainst(Modifiers[difficulty] -
-                                  TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters) -
+        Outcome outcome = RollAgainst(Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)] -
+                                  CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) -
                                   bonus);
 
         return HandleStandardCheck(checkee, target, outcome, difficulty, trait, true, traitUseType);

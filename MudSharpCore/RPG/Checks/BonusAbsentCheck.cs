@@ -11,6 +11,15 @@ public class BonusAbsentCheck : StandardCheck
     {
     }
 
+	public override double TargetNumber(IPerceivableHaveTraits checkee, Difficulty difficulty, ITraitDefinition trait,
+		IPerceivable target = null, double externalBonus = 0.0, params (string Parameter, object value)[] customParameters)
+	{
+		if (CheckEvaluationContext.Find(customParameters) is null)
+			return base.TargetNumber(checkee, difficulty, trait, target, externalBonus, customParameters);
+		return CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters) +
+			Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)];
+	}
+
     public override CheckOutcome Check(IPerceivableHaveTraits checkee, Difficulty difficulty,
         IPerceivable target = null, IUseTrait tool = null, double externalBonus = 0.0,
         TraitUseType traitUseType = TraitUseType.Practical,
@@ -26,8 +35,8 @@ public class BonusAbsentCheck : StandardCheck
         params (string Parameter, object value)[] customParameters)
     {
         using var learning = CheckLearningScope.Enter(checkee);
-        double targetNumber = TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters);
-        double difficultyModifier = Modifiers[difficulty];
+        double targetNumber = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        double difficultyModifier = Modifiers[CheckEvaluationContext.Constrain(difficulty, customParameters)];
         Outcome outcome = RollAgainst(targetNumber + difficultyModifier, out List<double> rolls);
 
         CheckOutcome result = HandleStandardCheck(checkee, target, outcome, difficulty, trait, true, traitUseType);
@@ -38,7 +47,7 @@ public class BonusAbsentCheck : StandardCheck
         result.ActiveBonuses = Enumerable.Empty<Tuple<string, double>>();
         result.OriginalDifficulty = difficulty;
         result.OriginalDifficultyModifier = 0;
-        result.FinalDifficulty = difficulty;
+        result.FinalDifficulty = CheckEvaluationContext.Constrain(difficulty, customParameters);
         result.FinalDifficultyModifier = difficultyModifier;
         result.Burden = 0;
         result.TargetNumber = targetNumber + difficultyModifier;
@@ -54,7 +63,7 @@ public class BonusAbsentCheck : StandardCheck
     {
         using var learning = CheckLearningScope.Enter(checkee);
         Dictionary<Difficulty, CheckOutcome> results = new();
-        double targetNumber = TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters);
+        double targetNumber = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
         double[] rolls = new[]
         {
             Constants.Random.NextDouble() * 100.0,
@@ -66,7 +75,7 @@ public class BonusAbsentCheck : StandardCheck
             Difficulty originalDifficulty = evaluatedDifficulty;
             double originalModifier = Modifiers[originalDifficulty];
 
-            double difficultyModifier = Modifiers[originalDifficulty];
+            double difficultyModifier = Modifiers[CheckEvaluationContext.Constrain(originalDifficulty, customParameters)];
             int successes = RandomUtilities.EvaluateConsecutiveSuccesses(rolls, targetNumber + difficultyModifier);
             Outcome outcome = GetOutcome(successes);
             CheckOutcome result = HandleStandardCheck(checkee, target, outcome, originalDifficulty, trait,
@@ -78,7 +87,7 @@ public class BonusAbsentCheck : StandardCheck
             result.ActiveBonuses = Enumerable.Empty<Tuple<string, double>>();
             result.OriginalDifficulty = referenceDifficulty;
             result.OriginalDifficultyModifier = 0;
-            result.FinalDifficulty = originalDifficulty;
+            result.FinalDifficulty = CheckEvaluationContext.Constrain(originalDifficulty, customParameters);
             result.FinalDifficultyModifier = 0;
             result.Burden = 0;
             result.TargetNumber = targetNumber + difficultyModifier;
@@ -108,9 +117,9 @@ public class BonusAbsentCheck : StandardCheck
             Constants.Random.NextDouble() * 100.0
         };
 
-        double basetarget = TargetNumberExpression.EvaluateWith(checkee, trait, values: customParameters);
-        double difficultyModifier1 = Modifiers[difficulty1];
-        double difficultyModifier2 = Modifiers[difficulty2];
+        double basetarget = CheckEvaluationContext.Evaluate(TargetNumberExpression, checkee, trait, customParameters);
+        double difficultyModifier1 = Modifiers[CheckEvaluationContext.Constrain(difficulty1, customParameters)];
+        double difficultyModifier2 = Modifiers[CheckEvaluationContext.Constrain(difficulty2, customParameters)];
 
         int successes1 = RandomUtilities.EvaluateConsecutiveSuccesses(rolls, basetarget + difficultyModifier1);
 
@@ -127,7 +136,7 @@ public class BonusAbsentCheck : StandardCheck
         result1.ActiveBonuses = Enumerable.Empty<Tuple<string, double>>();
         result1.OriginalDifficulty = originalDifficulty1;
         result1.OriginalDifficultyModifier = originalDifficultyModifier1;
-        result1.FinalDifficulty = difficulty1;
+        result1.FinalDifficulty = CheckEvaluationContext.Constrain(difficulty1, customParameters);
         result1.FinalDifficultyModifier = difficultyModifier1;
         result1.Burden = 0;
         result1.TargetNumber = basetarget + difficultyModifier1;
@@ -139,7 +148,7 @@ public class BonusAbsentCheck : StandardCheck
         result2.ActiveBonuses = Enumerable.Empty<Tuple<string, double>>();
         result2.OriginalDifficulty = originalDifficulty2;
         result2.OriginalDifficultyModifier = originalDifficultyModifier2;
-        result2.FinalDifficulty = difficulty2;
+        result2.FinalDifficulty = CheckEvaluationContext.Constrain(difficulty2, customParameters);
         result2.FinalDifficultyModifier = difficultyModifier2;
         result2.Burden = 0;
         result2.TargetNumber = basetarget + difficultyModifier2;

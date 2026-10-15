@@ -9216,6 +9216,9 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("TargetType"), "utf8");
 
+                    b.Property<bool?>("WasIdentityConcealed")
+                        .HasColumnType("tinyint(1)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CharacterId")
@@ -16211,6 +16214,12 @@ namespace MudSharp.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<DateTime?>("RemainsRemovalRequestedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("RoomHazardLastPulseUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("RoomHazardNextPulseUtc")
                         .HasColumnType("datetime(6)");
 
                     b.Property<long>("SpellId")

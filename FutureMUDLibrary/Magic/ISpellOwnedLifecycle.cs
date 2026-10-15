@@ -39,6 +39,8 @@ public sealed record SpellOwnedLifecycle(SpellLifecycleOrigin Origin, IReadOnlyL
 	public DateTime? RemainsRemovalRequestedUtc { get; init; }
 	public DateTime? RemainsNotificationAttemptedUtc { get; init; }
 	public DateTime? RemainsNotificationCompletedUtc { get; init; }
+	public DateTime? RoomHazardLastPulseUtc { get; init; }
+	public DateTime? RoomHazardNextPulseUtc { get; init; }
 	public bool MayRemoveOwnedEntities => Origin.Mode != SpellLifecycleMode.Permanent;
 	public bool RequiresNativeDeath => State == SpellLifecycleState.Retiring &&
 		Origin.Mode == SpellLifecycleMode.DeathOnExpiry && DeathObservedUtc is null;

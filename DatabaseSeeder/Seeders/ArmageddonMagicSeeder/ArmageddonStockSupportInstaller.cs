@@ -44,10 +44,17 @@ public static partial class ArmageddonStockSupportInstaller
 	public const string ShadowPlaneKey = "arm.support.plane.shadow";
 	public const string FirePlaneKey = "arm.support.plane.fire";
 	public const string LightningPlaneKey = "arm.support.plane.lightning";
+	public const string WindPlaneKey = "arm.support.plane.wind";
+	public const string VoidPlaneKey = "arm.support.plane.void";
+	public const string EarthPlaneKey = "arm.support.plane.earth";
 	public const string NilazPassageTemplateKey = "arm.support.roomtemplate.nilaz_passage";
 	public const string SiltTagKey = "arm.support.tag.silt";
 	public const string ShallowsTagKey = "arm.support.tag.shallows";
 	public const string TravelRestrictedTagKey = "arm.support.tag.travel_restricted";
+	public const string TravelDeathTagKey = "arm.support.tag.travel_death";
+	public const string TravelUrbanPoolTagKey = "arm.support.tag.travel_pool.urban";
+	public const string TravelWildPoolTagKey = "arm.support.tag.travel_pool.wild";
+	public const string TravelElementalPoolTagKey = "arm.support.tag.travel_pool.elemental";
 	public const string TravelPopulatedTagKey = "arm.support.tag.travel_populated";
 	public const string UndeadMeritKey = "arm.support.merit.undead";
 	public const string MagicalExceptionMeritKey = "arm.support.merit.magical_exception";
@@ -172,7 +179,7 @@ public static partial class ArmageddonStockSupportInstaller
 			InstallProtection(owned, protection, ids, messages);
 			InstallTravelSupports(db, owned, protection, ids, messages);
 			foreach (var (key, name, order) in new[] { (WaterPlaneKey, "Water", 10), (ShadowPlaneKey, "Shadow", 20),
-				(FirePlaneKey, "Fire", 30), (LightningPlaneKey, "Lightning", 40) })
+				(FirePlaneKey, "Fire", 30), (LightningPlaneKey, "Lightning", 40), (WindPlaneKey, "Wind", 50), (VoidPlaneKey, "Void", 60), (EarthPlaneKey, "Earth", 70) })
 			{
 				var plane = owned.Put(key, new Plane { Name = "Armageddon " + name, Alias = "armageddon" + name.ToLowerInvariant(),
 					Description = "An inert editable stock " + name.ToLowerInvariant() + " plane marker. Installation assigns no entities or rooms.",
@@ -248,6 +255,7 @@ public static partial class ArmageddonStockSupportInstaller
 		}
 	}
 
+	internal static long DefilerMeritId(FuturemudDatabaseContext db) => Require<Merit>(db, DefilerMeritKey, x => x.MeritScope == 2 && x.Type == "Magic Capability").Id;
 	private static T Require<T>(FuturemudDatabaseContext db, string key, Func<T, bool> compatible, string? requiredModule = null) where T : class
 	{
 		var record = db.SeederManagedRecords.AsNoTracking().SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key);

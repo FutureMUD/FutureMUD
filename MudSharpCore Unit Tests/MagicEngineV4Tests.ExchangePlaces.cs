@@ -255,6 +255,7 @@ public partial class MagicEngineV4Tests
 		public bool PouchOpen { get; set; } = true;
 		public bool SeverContactAfterFirstMove { get; set; }
 		public bool ThrowAfterFirstLeave { get; set; }
+		public bool ThrowAfterCasterArrival { get; set; }
 		public bool ThrowAfterTargetArrival { get; set; }
 		public Action? BeforeTargetMove { get; set; }
 		public ExchangeFixture(int rank = 5)
@@ -357,6 +358,7 @@ public partial class MagicEngineV4Tests
 				else { CasterLocation = (IRoom)call.Arguments[0]; CasterLayer = (RoomLayer)call.Arguments[1]; }
 				(ReferenceEquals(call.Arguments[0], Source.Object) ? SourceMembers : DestinationMembers).Add(actor);
 				ZoneMembers.Add(actor);
+				if (!target && Moves == 1 && ThrowAfterCasterArrival) throw new InvalidOperationException("Native arrival callback failed after publishing caster membership.");
 				if (target && ThrowAfterTargetArrival) throw new InvalidOperationException("Native arrival callback failed after publishing membership.");
 				if (!target && Moves == 1 && SeverContactAfterFirstMove) { CasterEffects.Clear(); TargetEffects.Clear(); }
 			}

@@ -31,7 +31,7 @@ public partial class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffect
             ), spell), string.Empty);
     }
 
-    protected DamageEffect(XElement root, IMagicSpell spell)
+    protected internal DamageEffect(XElement root, IMagicSpell spell)
     {
         Spell = spell;
         DamageType = (DamageType)int.Parse(root.Element("DamageType").Value);

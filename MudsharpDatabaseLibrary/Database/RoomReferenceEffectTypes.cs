@@ -152,6 +152,7 @@ SpellBodyBackup
 SpellBurning
 SpellChangeCharacteristic
 SpellComprehendLanguage
+SpellCompellingRegard
 SpellCorpsePossession
 SpellCorpsePreservation
 SpellCurse
@@ -195,7 +196,11 @@ SpellPhantomIllusion
 SpellPhysicalClone
 SpellPlanarState
 SpellPoison
+SpellOpenThreshold
 SpellPortal
+SpellPowerTagSuppression
+SpellReturnTether
+SpellStormLocus
 SpellPortalTopology
 SpellPossessedBody
 SpellNpcGuardian

@@ -47,6 +47,13 @@ public static class SpellTravelEndpointPolicy
 			mover.RoomLayer != sourceLayer ||
 			!caster.CanInteractPlanar(mover, PlanarInteractionKind.Magic))
 			return "The exact physical traveller is no longer eligible.";
+		return InFlightError(caster, mover, source, destination, spell, sourceLayer, destinationLayer);
+	}
+
+	/// <summary>Live transit policy using captured endpoints, valid before departure and after arrival.</summary>
+	internal static string? InFlightError(ICharacter caster, ICharacter mover, IRoom source,
+		IRoom destination, IMagicSpell spell, RoomLayer sourceLayer, RoomLayer destinationLayer)
+	{
 		var error = ConnectionError(caster, source, destination, spell, sourceLayer, destinationLayer);
 		if (error is not null) return error;
 		if (!mover.CanInteractPlanar(destination, PlanarInteractionKind.MovementBarrier) ||

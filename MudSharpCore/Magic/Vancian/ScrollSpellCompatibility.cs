@@ -50,6 +50,15 @@ public static class ScrollSpellCompatibility
 		Add("createshelter", "Occupied native topology, finite supply and return bindings require a dedicated stored-delivery adapter; direct invocation only.");
 		Add("creategate", "Exact carried Arcane Mark authority, owned passage topology and occupied retirement require a dedicated stored-delivery adapter; direct invocation only.");
 		Add("exchangeplaces", "Exact live mind contact, paired physical endpoints and separate retained/consumed components require direct configured casting.");
+		Add("groundtremor", "Independent room injury and nearby falls require direct configured casting.");
+		Add("returntether", "Durable delayed physical return requires direct configured casting and journal authority.");
+		Add("tracepath", "Exact recognised identity and permitted native route information require direct configured casting.");
+		Add("jointraveller drawtraveller", "Exact recognised remote identity, route-specific ranges and guarded solo displacement require direct configured casting.");
+		Add("waystep banishtraveller", "Exact live owned runes, typed weighted pools and post-payment destination sampling require direct configured casting.");
+		Add("openthreshold", "Exact threshold selectors and durable Arcane Mark use require direct configured casting.");
+		Add("compellingregard", "Persistent exact-body IC order grants require direct configured casting.");
+		Add("powertagsuppression", "Explicit native power-tag suppression requires direct configured casting.");
+		Add("stormlocus", "The durable room hazard pulse journal requires direct configured casting.");
 		Add("createprojection", "Owned identity, focus, anchor and body lifecycle require a dedicated stored-delivery adapter; direct invocation only.");
 		Add("createpocket", "Borrowed held focus, exact carrier binding and conserved foreign custody require a dedicated stored-delivery adapter; direct invocation only.");
 		Add("createtrap placetrap dispeltrap removetrap", "Nested prepared-payload and trap ownership require a dedicated adapter.");

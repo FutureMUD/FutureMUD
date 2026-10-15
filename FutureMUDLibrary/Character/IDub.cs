@@ -13,6 +13,8 @@ namespace MudSharp.Character
         string LastDescription { get; set; }
         DateTime LastUsage { get; set; }
         bool WasIdentityConcealed { get; set; }
+		/// <summary>Only explicitly observed, unobscured identity dubs establish remote identity authority.</summary>
+		bool HasVerifiedIdentity => false;
         string IntroducedName { get; set; }
         new IList<string> Keywords { get; }
         string HowSeen(ICharacter actor);

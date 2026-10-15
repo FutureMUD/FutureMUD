@@ -23,7 +23,9 @@ public static partial class ArmageddonStockSupportInstaller
 	private static void InstallTravelSupports(FuturemudDatabaseContext db, ArmageddonCatalogueOwnership owned,
 		ProtectionBindings bindings, Dictionary<string, long> ids, List<string> messages)
 	{
-		foreach (var (key, name) in new[] { (TravelRestrictedTagKey, "Travel Restricted"), (TravelPopulatedTagKey, "Populated Travel Destination") })
+		foreach (var (key, name) in new[] { (TravelRestrictedTagKey, "Travel Restricted"), (TravelPopulatedTagKey, "Populated Travel Destination"),
+			(TravelDeathTagKey, "Lethal Travel Destination"), (TravelUrbanPoolTagKey, "Urban Travel Pool"),
+			(TravelWildPoolTagKey, "Wilderness Travel Pool"), (TravelElementalPoolTagKey, "Elemental Travel Pool") })
 			ids.Add(key, owned.Put(key, new Tag { Name = "Armageddon " + name }, []).Id);
 		foreach (var sphere in new[] { "alteration", "teleportation" })
 		{

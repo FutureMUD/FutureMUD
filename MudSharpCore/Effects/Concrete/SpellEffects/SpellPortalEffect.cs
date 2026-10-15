@@ -33,7 +33,7 @@ public class SpellPortalEffect : MagicSpellEffectBase
 		TimeMultiplier = timeMultiplier;
 	}
 
-	private SpellPortalEffect(XElement root, IPerceivable owner) : base(root, owner)
+	protected SpellPortalEffect(XElement root, IPerceivable owner) : base(root, owner)
 	{
 		var trueRoot = root.Element("Effect");
 		if (Guid.TryParse(trueRoot?.Element("PortalInstanceId")?.Value, out var portalInstanceId))
@@ -98,11 +98,14 @@ public class SpellPortalEffect : MagicSpellEffectBase
 			return;
 		}
 
-		_registeredExit = new TransientExit(Gameworld, source, destination, Verb, OutboundKeyword, InboundKeyword,
-			OutboundTarget, InboundTarget, OutboundDescription, InboundDescription, TimeMultiplier,
-			ParentEffect?.Caster, Spell, this, $"spell-portal:{PortalInstanceId:D}");
+		_registeredExit = CreatePortalExit(source, destination);
 		Gameworld.ExitManager.RegisterTransientExit(_registeredExit);
 	}
+
+	protected IExit? RegisteredExit => _registeredExit;
+	protected virtual IExit CreatePortalExit(IRoom source, IRoom destination) => new TransientExit(Gameworld, source, destination, Verb, OutboundKeyword, InboundKeyword,
+		OutboundTarget, InboundTarget, OutboundDescription, InboundDescription, TimeMultiplier,
+		ParentEffect?.Caster, Spell, this, $"spell-portal:{PortalInstanceId:D}");
 
 	public override void RemovalEffect()
 	{

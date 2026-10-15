@@ -13,8 +13,58 @@ namespace MudSharp.Magic.Lifecycle;
 public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 {
 	public SpellOwnedLifecycle Create(SpellLifecycleOrigin origin, Action<SpellOwnedCreation> create, string initialDiagnostic = "")
+		=> CreateCore(origin, create, initialDiagnostic, false);
+
+	/// <summary>Journals a delayed return without acquiring ownership of its existing traveller or endpoint.</summary>
+	public SpellOwnedLifecycle CreateReturnJournal(SpellLifecycleOrigin origin)
+	{
+		ValidateReturnJournal(origin);
+		return CreateCore(origin, _ => { }, "Delayed return activation pending", true);
+	}
+
+	internal static void ValidateReturnJournal(SpellLifecycleOrigin origin)
 	{
 		origin.Validate();
+		var anchor = SpellReturnAnchor.Parse(origin.Provenance);
+		if (origin.Family != SpellReturnAnchor.Family || origin.Mode != SpellLifecycleMode.TemporaryCleanup ||
+		    origin.DeadlineUtc is null || anchor.CharacterId != origin.CreatorId)
+			throw new InvalidOperationException("Only an exact temporary delayed return may have a journal without ownership claims.");
+	}
+
+	public SpellOwnedLifecycle CreateHazardJournal(SpellLifecycleOrigin origin)
+	{
+		ValidateHazardJournal(origin);
+		return CreateCore(origin, _ => { }, "Room hazard activation pending", true);
+	}
+
+	internal static void ValidateHazardJournal(SpellLifecycleOrigin origin)
+	{
+		origin.Validate();
+		var anchor = SpellReturnAnchor.Parse(origin.Provenance);
+		if (origin.Family != SpellRoomHazardJournal.Family || origin.Mode != SpellLifecycleMode.TemporaryCleanup ||
+			origin.DeadlineUtc != origin.CreatedUtc.AddSeconds(30 * origin.Grade) || anchor.CharacterId != origin.CreatorId)
+			throw new InvalidOperationException("Only the exact bounded room hazard may use this pulse journal.");
+	}
+
+	public SpellOwnedLifecycle ClaimHazardPulse(Guid id, long expectedVersion, DateTime nowUtc) =>
+		Update(id, expectedVersion, nowUtc, (row, current) =>
+		{
+			ValidateHazardJournal(current.Origin);
+			if (current.State != SpellLifecycleState.Active || current.Diagnostic.StartsWith(SpellRoomHazardJournal.HeldPrefix, StringComparison.Ordinal) ||
+				current.RoomHazardNextPulseUtc is not { } due || nowUtc < due || nowUtc >= current.Origin.DeadlineUtc)
+				throw new InvalidOperationException("This room hazard pulse is not due or has already been consumed.");
+			row.RoomHazardLastPulseUtc = nowUtc;
+			row.RoomHazardNextPulseUtc = due.AddSeconds(10 * (Math.Floor((nowUtc - due).TotalSeconds / 10) + 1));
+			row.Diagnostic = "Room hazard pulse claimed before native injury; missed pulses are never replayed";
+			return true;
+		});
+
+	private static SpellOwnedLifecycle CreateCore(SpellLifecycleOrigin origin, Action<SpellOwnedCreation> create,
+		string initialDiagnostic, bool journalOnly)
+	{
+		origin.Validate();
+		if (!journalOnly && origin.Family is SpellReturnAnchor.Family or SpellRoomHazardJournal.Family)
+			throw new InvalidOperationException("Delayed returns require the dedicated journal-only creation path.");
 		if (initialDiagnostic is null || initialDiagnostic.Length > 2048) throw new ArgumentException("Invalid creation diagnostic.");
 		using var isolated = FMDB.BeginIndependentScope(requireWrites: true);
 		using var db = new FMDB();
@@ -30,7 +80,7 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 		}
 		var creation = new SpellOwnedCreation(FMDB.Context, origin.CreatorId);
 		create(creation);
-		creation.ValidateBeforeSave();
+		creation.ValidateBeforeSave(journalOnly);
 		FMDB.Context.SaveChanges();
 		creation.FinishShelterTopology();
 		creation.FinishGateTopology();
@@ -51,6 +101,7 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 			DeadlineUtc = origin.DeadlineUtc, Provenance = origin.Provenance,
 			State = (int)SpellLifecycleState.Active, UpdatedUtc = origin.CreatedUtc, Version = 1, Diagnostic = initialDiagnostic
 		};
+		if (origin.Family == SpellRoomHazardJournal.Family) row.RoomHazardNextPulseUtc = origin.CreatedUtc.AddSeconds(10);
 		foreach (var claim in claims)
 		{
 			row.Entities.Add(new() { Kind = (int)claim.Kind, EntityId = claim.Id, Role = (int)claim.Role, Lifecycle = row });
@@ -249,8 +300,22 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 		origin.Validate();
 		var claims = Array.AsReadOnly(row.Entities.Select(x => new SpellOwnedEntity((SpellOwnedEntityKind)x.Kind,
 			x.EntityId, (SpellOwnedEntityRole)x.Role)).OrderBy(x => x.Kind).ThenBy(x => x.Id).ToArray());
+		var returnJournal = origin.Family == SpellReturnAnchor.Family;
+		var hazardJournal = origin.Family == SpellRoomHazardJournal.Family;
+		if (returnJournal || hazardJournal)
+		{
+			if (returnJournal) ValidateReturnJournal(origin); else ValidateHazardJournal(origin);
+			if (claims.Count != 0 || row.DeathObservedUtc is not null || row.RemainsItemId is not null ||
+			    row.RemainsRemovalRequestedUtc is not null || row.RemainsNotificationAttemptedUtc is not null ||
+			    row.RemainsNotificationCompletedUtc is not null || (SpellLifecycleState)row.State == SpellLifecycleState.RemainsPending)
+				throw new InvalidOperationException("A delayed return journal cannot own entities or native remains.");
+		}
+		if (hazardJournal && (row.RoomHazardNextPulseUtc is not { } next || next < origin.CreatedUtc.AddSeconds(10) ||
+			row.RoomHazardLastPulseUtc is { } last && (last < origin.CreatedUtc || last > row.UpdatedUtc || next <= last)) ||
+			!hazardJournal && (row.RoomHazardLastPulseUtc is not null || row.RoomHazardNextPulseUtc is not null))
+			throw new InvalidOperationException("Invalid durable room hazard pulse cursor.");
 		if (!Enum.IsDefined((SpellLifecycleState)row.State) || row.Reason is { } reason && !Enum.IsDefined((SpellRetirementReason)reason) ||
-		    row.Version <= 0 || claims.Count is 0 or > 256 || Utc(row.UpdatedUtc) < origin.CreatedUtc ||
+		    row.Version <= 0 || !returnJournal && !hazardJournal && claims.Count == 0 || claims.Count > 256 || Utc(row.UpdatedUtc) < origin.CreatedUtc ||
 		    row.DeathObservedUtc is { } observed && Utc(observed) < origin.CreatedUtc || row.RemainsItemId is <= 0 ||
 		    row.RemainsItemId is not null && row.DeathObservedUtc is null ||
 		    row.RemainsRemovalRequestedUtc is { } requested && (origin.Mode == SpellLifecycleMode.Permanent || row.RemainsItemId is null ||
@@ -269,7 +334,9 @@ public sealed class SpellOwnedLifecycleStore : ISpellOwnedLifecycleStore
 		{
 			RemainsRemovalRequestedUtc = row.RemainsRemovalRequestedUtc is { } requestedUtc ? Utc(requestedUtc) : null,
 			RemainsNotificationAttemptedUtc = row.RemainsNotificationAttemptedUtc is { } attemptedUtc ? Utc(attemptedUtc) : null,
-			RemainsNotificationCompletedUtc = row.RemainsNotificationCompletedUtc is { } completedUtc ? Utc(completedUtc) : null
+			RemainsNotificationCompletedUtc = row.RemainsNotificationCompletedUtc is { } completedUtc ? Utc(completedUtc) : null,
+			RoomHazardLastPulseUtc = row.RoomHazardLastPulseUtc is { } lastUtc ? Utc(lastUtc) : null,
+			RoomHazardNextPulseUtc = row.RoomHazardNextPulseUtc is { } nextUtc ? Utc(nextUtc) : null
 		};
 	}
 }

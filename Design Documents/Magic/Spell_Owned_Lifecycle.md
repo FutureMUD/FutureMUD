@@ -1,5 +1,48 @@
 # Spell-owned lifecycle foundation
 
+## Unowned return and room-hazard journals
+
+The S4 `delayed-return` and `room-electrical-hazard` families claim no ownership of
+their existing actor, body or room. Only their dedicated validated journal creators
+may create an empty entity list; ordinary owned creation retains its entity rules.
+Their version-one provenance binds a current playable-room ID, overlay, terrain,
+layer, canonical character, physical instance and body. These are post-cutover room
+IDs and must not be remapped as historical containing-Room references.
+
+Return Tether commits Active to Retiring before its single native movement attempt,
+then completes after exact room/zone/shard membership is established. An uncertain
+claim, arrival or completion is held with `Delayed return needs review; no replay:`.
+Retiring returns never move again. Logout, death, body change, dispelling, missing
+exact attachments or invalid endpoints cancel the return. Reconciliation uses only
+loaded exact children; it does not load offline characters or replay an absent cast.
+
+Storm Locus adds nullable `RoomHazardLastPulseUtc` and `RoomHazardNextPulseUtc` to the
+lifecycle row. A versioned immediate transaction claims a pulse before any wound
+callback. Next pulse stays aligned to ten seconds and skips missed ticks. Cold load
+consumes an overdue cursor without harm; no offline catch-up or lazy creator lookup
+is permitted. Missing exact creator authority skips harm, and uncertain pulse claims
+are held without replay. Absolute expiry retires the journal and saved room child.
+Journal creation and deadlines use MySQL microsecond precision so persisted origin
+equality does not fail on sub-microsecond .NET ticks. EF-generated migrations and
+the refreshed blank snapshot accompany the nullable dub-provenance and cursor model.
+
+## Transient threshold mark commitment and closure
+
+Open Threshold uses a saved paired transient exit, not ownership over either existing
+room or any occupant. Arcane Mark use shares the exact persisted parent/child/item/
+saved-room/use-count debit with owned gate creation. The standalone threshold debit
+flushes pending mark state, requires writable independent FMDB authority and uses a
+serializable transaction. It verifies direct body custody and edits only that item's
+effect XML. Runtime use is mirrored only after commit. Lost acknowledgement leaves a
+paid operation requiring review; it cannot create a second portal or consume again.
+
+The saved child retains its portal UUID, endpoint and overlay IDs, layer, policy tags
+and UTC expiry. Loading does not extend it. Its opt-in native traversal admission
+refuses expired, detached, replaced or warded endpoints, including queued crossings
+that have not departed. Removal unregisters the transient boundary; it deletes no
+room, actor, body, inventory or ground item. An actor already past the crossing keeps
+its ordinary destination. The general builder portal serializer remains compatible.
+
 ## Bounded owned identity projections (N18)
 
 The `createprojection` effect uses the existing canonical character identity, secondary

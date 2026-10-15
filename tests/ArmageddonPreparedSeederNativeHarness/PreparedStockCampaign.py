@@ -20,6 +20,7 @@ EXPECTED_CHILDREN = {'arm.spell.night_eyes': 'SpellInfravision', 'arm.spell.dayl
                      'arm.spell.fleet_step': ['SpellMovementTempo', 'SpellStaminaExpenditure'],
                      'arm.spell.venom_touch': 'SpellPoison'}
 REFERENCE_TABLES = {
+	'MagicSpell': 'MagicSpells',
     'MagicSchool': 'MagicSchools', 'TraitDefinition': 'TraitDefinitions',
     'TraitExpression': 'TraitExpression', 'MagicResource': 'MagicResources',
     'FutureProg': 'FutureProgs', 'NpcTemplate': 'NPCTemplates',
@@ -75,7 +76,11 @@ def definition_contract(entry):
     # Explicit native XML labels only; no names/species or guessed numeric authority.
     labels = {'TargetFilterProg': 'FutureProg', 'FilterProg': 'FutureProg', 'OnLoadProg': 'FutureProg',
               'NPCPrototypeId': 'NpcTemplate', 'ItemPrototypeId': 'GameItemProto', 'ItemSkinId': 'GameItemSkin',
-              'LiquidId': 'Liquid', 'Resource': 'MagicResource'}
+              'LiquidId': 'Liquid', 'Resource': 'MagicResource', 'DefilerMerit': 'Merit', 'UndeadMerit': 'Merit',
+              'RestrictedTag': 'Tag', 'LethalTag': 'Tag',
+              'StoneSkinSpell': 'MagicSpell', 'AgilityTrait': 'TraitDefinition',
+              'ShadowPlane': 'Plane', 'WindPlane': 'Plane', 'WaterPlane': 'Plane', 'VoidPlane': 'Plane',
+              'SiltTag': 'Tag', 'LethalRoomTag': 'Tag', 'UrbanPoolTag': 'Tag', 'WildPoolTag': 'Tag', 'ElementalPoolTag': 'Tag'}
     for node in root.iter():
         if node.tag in labels and node.text and node.text.strip().isdigit() and int(node.text) > 0:
             expected.add((labels[node.tag], int(node.text)))

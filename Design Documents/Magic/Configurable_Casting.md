@@ -1,5 +1,83 @@
 # Configurable casting (ARM-02)
 
+## Remaining S4 definitions, 15 October 2026
+
+The fixed installer declares all 152 required definitions. Definition installation,
+focused runtime checks and paid native qualification remain separate; the continuation
+verification JSON records their actual receipts. The two optional entries and twelve
+focus/device families retain their separate gates. Release, package admissions,
+Class availability, quiet/area variants and unqualified carriers remain disabled.
+
+Ground Tremor applies `3*grade` local crushing damage and one-third to its caster;
+nearby permitted rooms receive diminishing messages and agility-based falls without
+remote damage. Airborne, nonphysical, staff, active Stone Skin and Shadow protections
+apply. Silt terrain, Water, Wind and Void interrupt propagation. Trace the Path uses
+one verified unobscured identity dub and at most `10*grade` ordinary permitted edges,
+including grade seven; hidden exits and closed doors do not qualify. Dubs now persist
+nullable concealment provenance: legacy unknown provenance does not establish verified
+personal recognition. Explicit native dubbing and introduction establish provenance.
+
+Return Tether retains the approved native physical-return adaptation for `30*grade`
+seconds. The archived source event reports a direction; it does not itself authorize
+arbitrary teleporting. The native return binds the exact original identity, instance,
+body, room, overlay, terrain and layer, and does not rewind health or inventory.
+
+Join Traveller moves the caster to a recognised visible traveller, while Draw
+Traveller resists and moves that traveller to the caster. Grade-one through six path
+bounds are respectively strictly less than and at most `20*grade`; grade seven waives
+only that distance bound. They keep distinct component plans. Draw uses the existing
+sparse Conjuration ranks through an explicit numeric minimum selector; it does not
+change the historical S3 rank hierarchy. Waystep selects either one legally owned
+active Anchor Rune's live room or a mapped weighted pool. Banish Traveller uses its
+own resisted local target and weighted pool; the archived rune/no-save exception
+refuses because no native authority for waiving that save is bound. Urban/wilderness
+weights are 10/90, then uniform zone and room selection, with a separate explicit
+same-zone elemental pool. Pool tags do not automatically mark existing world rooms.
+All relocation routes retain permanent endpoint, plane, projection, ward, body and
+native membership checks, with exact compensation or NeedsReview after uncertainty.
+
+Storm Locus is an outdoor Lightning room hazard for `30*grade` seconds. Each due
+ten-second pulse commits its cursor before applying `2*grade` native electrical
+damage to distinct eligible physical occupants, including the caster. There is no
+missed-pulse catch-up or pulse-based training. Water refuses; Void requires the exact
+owned Defiler merit. Its persistence and reboot rules are in Spell_Owned_Lifecycle.md.
+
+Native powers have explicit activation tags, edited with `tag <identifier>` in the
+power editor and saved under `PowerTags/Tag`. Identifiers are lowercase, bounded to
+64 characters and 64 distinct tags. The existing explicit `IsPsionic` classification
+contributes `psionic`; names and schools do not infer tags. `MagicPowerBase.CanInvokePower`
+checks matching active `IMagicPowerTagSuppression` effects before the existing
+invocation prog and rechecks after it. Existing invocation checks use that base
+method; the three older activation paths without such a check now call it directly.
+Cancellation remains available. There is no global effect-handler admission rule.
+
+Silence the Mind uses this generic tag effect to suppress `psionic` activation for
+`30*grade` seconds after normal resistance. It severs matching outbound and reciprocal
+native mind contacts. Staff, undead and overlapping active suppression refuse. The
+saved child binds physical identity, instance, body and absolute expiry. Riding does
+not grant immunity. Ordinary character, account and OOC commands remain available.
+
+Compelling Regard supplies resisted PC/NPC influence for `30*grade` seconds. Its
+effect editor has a per-spell `pcs` toggle. `compel <local target> <command>` admits
+only exact native `look`, `drop`, `give`, `stand`, `sit`, `kneel`, `prostrate`,
+`lounge`, `rest`, `sprawl` and `prone` commands. The target retains normal permission,
+state, combat, movement and delay checks. A final exact-command/actor/input admission
+rejects aliases, abbreviations, overrides, nested commands and queued continuations;
+staff/account/OOC commands are outside the whitelist. Controller/target physical
+bindings, locality, visibility and wards are rechecked around callbacks. Logout,
+death, body replacement or expiry ends the grant. This does not install a general
+follower AI or authorize movement/combat command queues.
+
+Open Threshold creates one native paired transient exit for `120*grade` seconds.
+Its typed selector accepts `mark <carried owned Arcane Mark keywords>` or
+`traveller <verified identity dub>`. It accepts no raw room IDs. Both permanent
+same-plane endpoints, current overlays, selected native layer, configured restricted
+and lethal tags and live wards are checked. A marked route durably debits one exact
+saved mark use before publishing its portal; uncertain commit enters NeedsReview
+without retry. Native traversal checks the portal's current attachment, endpoints,
+expiry and wards. Closure unregisters the exit and leaves occupants and goods in
+their existing real rooms. Existing general builder portals retain their behavior.
+
 This is the implementation guide for [ARM-02](ARM02_Configurable_Casting_Implementation_Brief.md).
 The broader [ARM-01 contract](Armageddon_Casting_Design.md) includes later features; this slice
 provides explicit acquisition, normal casting, controlled grades and prerequisite progression.

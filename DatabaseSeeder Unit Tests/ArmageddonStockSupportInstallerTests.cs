@@ -27,7 +27,7 @@ public class ArmageddonStockSupportInstallerTests
 		var beforeItems = db.GameItemProtos.Count(); var beforeAttacks = db.WeaponAttacks.Count();
 		var first = ArmageddonStockSupportInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status, string.Join("\n", first.Messages)); db.ChangeTracker.Clear();
-		Assert.AreEqual(60, first.Identities.Count); Assert.AreEqual(beforeItems + 19, db.GameItemProtos.Count());
+		Assert.AreEqual(67, first.Identities.Count); Assert.AreEqual(beforeItems + 19, db.GameItemProtos.Count());
 		Assert.AreEqual(beforeAttacks + 16, db.WeaponAttacks.Count()); Assert.AreEqual(1, db.Planes.Count(x => x.IsDefault));
 		var passage = db.AutobuilderRoomTemplates.Single(x => x.Id == first.Identities[ArmageddonStockSupportInstaller.NilazPassageTemplateKey]);
 		Assert.AreEqual("room by terrain", passage.TemplateType);
@@ -133,7 +133,7 @@ public class ArmageddonStockSupportInstallerTests
 		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);
 		var uncertain = ArmageddonStockSupportInstaller.Install(factory, point =>
 		{ if (point == ArmageddonInstallCheckpoint.AfterCommit) throw new InvalidOperationException("confirmation fixture"); });
-		Assert.AreEqual(ArmageddonInstallStatus.CommittedConfirmationFailed, uncertain.Status); Assert.AreEqual(60, uncertain.Identities.Count);
+		Assert.AreEqual(ArmageddonInstallStatus.CommittedConfirmationFailed, uncertain.Status); Assert.AreEqual(67, uncertain.Identities.Count);
 		var rerun = ArmageddonStockSupportInstaller.Install(factory); Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
 		foreach (var entry in uncertain.Identities) Assert.AreEqual(entry.Value, rerun.Identities[entry.Key]);
 		db.ChangeTracker.Clear(); Assert.AreEqual(132, db.GameItemProtos.Count()); Assert.AreEqual(0, db.GameItems.Count());

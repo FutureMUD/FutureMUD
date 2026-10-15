@@ -15,6 +15,8 @@ namespace MudSharp.Magic.SpellEffects;
 
 public partial class DamageEffect : IMagicSpellEffectPreparedSelection
 {
+	// Ground Tremor originates at ground level even when its caster is airborne in that room.
+	internal bool AdmitsGroundedRoomDamage { get; init; }
 	private readonly Dictionary<IPerceivable, DamageSelection> _damageSelections = new(ReferenceEqualityComparer.Instance);
 
 	private sealed record ItemState(IGameItem Item, long Id, IGameItemProto Prototype, IBody? Custodian,
@@ -48,7 +50,8 @@ public partial class DamageEffect : IMagicSpellEffectPreparedSelection
 			caster.Body is not { } sourceBody || victim.Body is not { } targetBody ||
 			!ReferenceEquals(caster.Gameworld, Gameworld) || !ReferenceEquals(victim.Gameworld, Gameworld) ||
 			!CommandExecutionAuthority.IsCurrent(caster, false) || !CommandExecutionAuthority.IsCurrent(victim, false) ||
-			!ReferenceEquals(caster.Location, victim.Location) || caster.RoomLayer != victim.RoomLayer)
+			!ReferenceEquals(caster.Location, victim.Location) ||
+			caster.RoomLayer != victim.RoomLayer && !(AdmitsGroundedRoomDamage && victim.RoomLayer == RoomLayer.GroundLevel))
 			throw new InvalidOperationException("Identity-safe damage requires exact current local character bodies and a selected grade.");
 		if (!Enum.IsDefined(DamageType)) throw new InvalidOperationException("Choose a defined native damage type.");
 		foreach (var expression in new[] { DamageExpression, PainExpression, StunExpression }.OfType<ITraitExpression>())

@@ -12,6 +12,7 @@ param([string]$EvidenceRoot,
 	[ValidateSet('catalogue', 's4-stock')][string]$QualificationScope = 'catalogue',
 	[switch]$GateSmokeOnly,
 	[switch]$ExchangeSmokeOnly,
+	[switch]$RemainingSmokeOnly,
 	[ValidateSet('PsionicsSeeder', 'EnvironmentalExposureSeeder')][string[]]$LaterSteps = @(),
 	[switch]$FreshInstallCheck)
 
@@ -37,6 +38,10 @@ $ownedPreviousEnvironment = @{}
 foreach ($ownedName in $ownedEnvironmentNames) { $ownedPreviousEnvironment[$ownedName] = [Environment]::GetEnvironmentVariable($ownedName) }
 if ($GateSmokeOnly -and $QualificationScope -ne 's4-stock') { throw 'Gate-only native qualification requires -QualificationScope s4-stock.' }
 if ($ExchangeSmokeOnly -and ($GateSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -notin @('base-fixture-package', 'exchange-fixture-restore'))) { throw 'Exchange-only qualification requires a separate s4-stock package or exact Exchange restore run.' }
+if ($RemainingSmokeOnly -and ($GateSmokeOnly -or $ExchangeSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -ne 'base-fixture-package')) { throw 'Remaining-stock qualification requires its separate s4-stock package lane.' }
+$ownedEnvironmentNames += 'FUTUREMUD_S4_REMAINING_SMOKE_ONLY'
+$ownedPreviousEnvironment['FUTUREMUD_S4_REMAINING_SMOKE_ONLY'] = [Environment]::GetEnvironmentVariable('FUTUREMUD_S4_REMAINING_SMOKE_ONLY')
+$env:FUTUREMUD_S4_REMAINING_SMOKE_ONLY = if ($RemainingSmokeOnly) { '1' } else { $null }
 $ownedEnvironmentNames += 'FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY'
 $ownedPreviousEnvironment['FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY'] = [Environment]::GetEnvironmentVariable('FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY')
 foreach ($exchangeEnvironment in @('FUTUREMUD_S4_EXCHANGE_FIXTURE', 'FUTUREMUD_S4_EXCHANGE_FIXTURE_SHA256')) {
@@ -104,7 +109,7 @@ function Write-SourceEvidence {
 	$sourcePaths = @(& git -c core.quotepath=false -C $workspaceRoot ls-files --cached --others --exclude-standard)
 	if ($LASTEXITCODE -ne 0) { throw 'Source inventory failed.' }
 	$sourcePaths = @($sourcePaths | Where-Object { $Mode -ne 'snapshot-refresh' -or $_ -notin @('DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.sql', 'DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.manifest.json') })
-	$records = @($sourcePaths | Where-Object { $_ -match '\.(cs|csproj|props|targets|sln|json|ps1|md|sql|sql\.gz)$' -or
+	$records = @($sourcePaths | Where-Object { $_ -match '\.(cs|csproj|props|targets|sln|json|ps1|md|sql|sql\.gz)$' -or $_ -like 'tests/ArmageddonPreparedSeederNativeHarness/*.py' -or
 		$_ -in @('tests/ArmageddonPreparedSeederNativeHarness/PreparedReplayBootSmoke.py', 'tests/ArmageddonPreparedSeederNativeHarness/PreparedInstalledMagicSmoke.py', 'tests/ArmageddonPreparedSeederNativeHarness/PreparedCatalogueBootSmoke.py') } | Sort-Object -Unique | ForEach-Object {
 		$sourcePath = Join-Path $workspaceRoot $_
 		if (-not (Test-Path -LiteralPath $sourcePath)) { throw "Source missing: $_" }
@@ -280,6 +285,11 @@ try {
 				}
 				Write-Output "s4GateQualification=verified assertions=$stockAssertions"
 			}
+			elseif ($RemainingSmokeOnly) {
+				if ($boot.status -ne 'PASS' -or $boot.remaining_stock.status -ne 'PASS' -or $boot.remaining_stock.cold_status -ne 'PASS' -or
+					$stockFirstLoaded -lt 1 -or $stockFirstLoaded -ne $stockColdLoaded -or -not $boot.owned_mud_processes_stopped) { throw 'Remaining-stock first/cold journals, native movement/injury, or loader assertions are incomplete.' }
+				Write-Output "s4RemainingQualification=verified first=$stockFirstLoaded cold=$stockColdLoaded assertions=$stockAssertions"
+			}
 			else {
 				if ($boot.status -ne 'PASS' -or $boot.scope -ne 'catalogue' -or
 					$boot.representative_campaign.status -ne 'PASS' -or $stockCampaignAssertions -lt 1 -or
@@ -299,7 +309,7 @@ try {
 	$sourceEnd = Write-SourceEvidence 'source-end'
 	$sourceStable = $sourceStart -eq $sourceEnd
 	$qualificationLimits = if ($QualificationScope -eq 's4-stock') { 'Focused Telnet evidence is in stock_boot_receipt; no whole-package or S5 qualification.' } else { 'Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.' }
-	@{ revision = $revision; mode = $Mode; qualification_scope = $QualificationScope; gate_smoke_only = [bool]$GateSmokeOnly; exchange_smoke_only = [bool]$ExchangeSmokeOnly; stock_first_loaded = $stockFirstLoaded; stock_cold_loaded = $stockColdLoaded; stock_assertions = $stockAssertions; stock_campaign_assertions = $stockCampaignAssertions; stock_boot_receipt = $stockBootReceipt; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
+	@{ revision = $revision; mode = $Mode; qualification_scope = $QualificationScope; gate_smoke_only = [bool]$GateSmokeOnly; exchange_smoke_only = [bool]$ExchangeSmokeOnly; remaining_smoke_only = [bool]$RemainingSmokeOnly; stock_first_loaded = $stockFirstLoaded; stock_cold_loaded = $stockColdLoaded; stock_assertions = $stockAssertions; stock_campaign_assertions = $stockCampaignAssertions; stock_boot_receipt = $stockBootReceipt; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
 		base_fixture = $BaseFixture; base_fixture_sha256 = $BaseFixtureSha256; gate_fixture = $GateFixture; gate_fixture_sha256 = $GateFixtureSha256; exchange_fixture = $ExchangeFixture; exchange_fixture_sha256 = $ExchangeFixtureSha256; package_mode = $PackageMode; later_steps = $LaterSteps; fresh_install_check = [bool]$FreshInstallCheck; base_receipt = (Join-Path $evidenceDirectory 'base-world-run.json'); process_root = $taskRoot; owned_port = $taskPort; limits = $qualificationLimits } |
 		ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $evidenceDirectory 'summary.json')
 	Write-Output "nativeSourceStable=$sourceStable sourceEnd=$sourceEnd"

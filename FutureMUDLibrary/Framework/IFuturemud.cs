@@ -105,6 +105,9 @@ namespace MudSharp.Framework
 		MudSharp.Magic.ISpellOwnedItemService? SpellOwnedItems => null;
 		MudSharp.Magic.ISpellOwnedShelterService? SpellOwnedShelters => null;
 		MudSharp.Magic.ISpellOwnedGateService? SpellOwnedGates => null;
+		MudSharp.Magic.ISpellReturnService? SpellReturns => null;
+		MudSharp.Magic.ISpellRoomHazardJournal? SpellRoomHazards => null;
+		MudSharp.Magic.ISpellMarkedRoomUseService? SpellMarkedRoomUses => null;
 		MudSharp.Magic.ISpellOwnedPocketService? SpellOwnedPockets => null;
 		MudSharp.Magic.ISpellOwnedProjectionService? SpellOwnedProjections => null;
 		MudSharp.Magic.ISpellOwnedCorpseAnimationService? SpellOwnedCorpseAnimations => null;

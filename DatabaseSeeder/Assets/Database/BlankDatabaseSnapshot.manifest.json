@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.7.0",
-  "LatestMigrationId": "20261014221452_AddSpellGateRetirementCursor",
-  "GeneratedUtc": "2026-10-14T22:34:34.7205147Z"
+  "LatestMigrationId": "20261015103829_PersistRoomHazardPulseCursor",
+  "GeneratedUtc": "2026-10-15T10:56:14.7575854Z"
 }

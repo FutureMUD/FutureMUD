@@ -2199,6 +2199,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     bool IControllable.ExecuteCommand(string command)
     {
+		if (MudSharp.Magic.SpellCompulsionExecution.RejectNestedCommand) return false;
 		using var commandOrigin = MagicSpeechContext.CharacterCommand(this);
 		MudSharp.Effects.Concrete.SpellEffects.SpellFeignedDeathEffect.BreakOnVoluntaryAction(this,
 			new StringStack(command).PopSpeech());

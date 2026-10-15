@@ -1,4 +1,558 @@
 {
+  "remaining_152_checkpoint_20261015": {
+    "base_revision": "4acdaf85af4c5281177152ba3041b1b56421e0b1",
+    "declared_required_definitions": 152,
+    "required_not_yet_declared": 0,
+    "optional_deferred": 2,
+    "new_keys": [
+      "arm.spell.ground_tremor",
+      "arm.spell.trace_the_path",
+      "arm.spell.return_tether",
+      "arm.spell.waystep",
+      "arm.spell.draw_traveller",
+      "arm.spell.join_traveller",
+      "arm.spell.banish_traveller",
+      "arm.spell.storm_locus",
+      "arm.spell.silence_the_mind",
+      "arm.spell.compelling_regard",
+      "arm.spell.open_threshold"
+    ],
+    "definition_audit": {
+      "status": "PASS",
+      "passed": 2,
+      "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json",
+      "scope": "Classic/Simple all152 locked costs, grades and typed children"
+    },
+    "focused_power_tags_silence_combat": {
+      "status": "PASS",
+      "passed": 61,
+      "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T112859Z-6ca5fa556150\\summary.json"
+    },
+    "focused_compulsion_threshold_gate_marks": {
+      "status": "PASS",
+      "passed": 51,
+      "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115250Z-35ee5031cd24\\summary.json",
+      "scope": "Includes final quote selector reference equality and callback locality repair; canonical audit subsequently corrected Compelling Regard minimum to33."
+    },
+    "snapshot_refresh": {
+      "status": "PASS",
+      "receipt": "C:\\Temp\\futuremud-s4-snapshot\\20261015T105253Z_60bfbc2f63774b2a954cf17a8cbcaf8a",
+      "latest_migration": "20261015103829_PersistRoomHazardPulseCursor",
+      "scope": "Real owned MySQL migration and blank snapshot regeneration/fresh import; model parity confirmed."
+    },
+    "prior_fast_gate": {
+      "status": "FAIL",
+      "passed": 10540,
+      "failed": 1,
+      "skipped": 3,
+      "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T110225Z-b0e93fae14f5\\summary.json",
+      "failure": "Room-reference effect-factory inventory omitted two new post-cutover current-room serializers. Classified with byte-preservation regression tests; consolidated rerun pending.",
+      "skips": "Three Unix permission cases skipped on Windows."
+    },
+    "failed_definition_audit": {
+      "status": "FAIL",
+      "failed": 2,
+      "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115540Z-f5efc732f55e\\summary.json",
+      "resolution": "Compelling Regard minimum20 corrected to locked33; subsequent152 audit passed."
+    },
+    "consolidated_fast_gate": {
+      "status": "PASS",
+      "passed": 10611,
+      "failed": 0,
+      "skipped": 3,
+      "projects": 10,
+      "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T120341Z-0048e8e298b4\\summary.json",
+      "source_start_end": "d48f607f1c189eca1bf797bcb7c7d73a075e258682aa6eb29481cc1f48b7b4a7",
+      "project_passed": {
+        "Library": 766,
+        "Expression": 36,
+        "Seeder": 1857,
+        "Core": 7462,
+        "Persistence": 283,
+        "DiscordBot": 22,
+        "Converter": 57,
+        "Website": 54,
+        "TerrainPlanner": 35,
+        "TestReporting": 39
+      },
+      "skips": "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions cases0/1/2 require a Unix host."
+    },
+    "native": {
+      "status": "PASS",
+      "runner_receipt": "C:\\Temp\\futuremud-s4-remaining-native\\20261015T133352Z_d0cdf7c0a5fb4dccb95a33ba52c5833f\\summary.json",
+      "boot_receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+      "source_start_end": "8567D51A17B2ADA32BE9A7CBE9D5EDFD929B89DAA4D194BEBB75C5AD7164DCC9",
+      "source_stable": true,
+      "first_loaded": 152,
+      "cold_loaded": 152,
+      "assertions": 18,
+      "owned_mud_processes_stopped": true,
+      "owned_mysql_database_cleanup": true,
+      "scope": "Restored exact base; all152 builder-loaded first/cold. Ordinary grade-one acquisition and finite paid gathering. Paid Waystep and at-most-once physical Return Tether, real hazard cursor/native wounds, bound Silence, exact native Compel LOOK and alias refusal, recognised threshold ENTER and durable final Arcane Mark use debit. Cold return/cursor/reserve retention and empty-pool no-payment refusal.",
+      "remaining_stock": {
+        "xml_transport": {
+          "raw_rows": [
+            [
+              "<Effects>"
+            ],
+            [
+              "\n<Type>transport-probe</Type></Effects>"
+            ]
+          ],
+          "hex_rows": [
+            [
+              "<Effects>\r\n<Type>transport-probe</Type></Effects>"
+            ]
+          ]
+        },
+        "attempts": {
+          "arm.spell.return_tether": [
+            {
+              "operation": "c6347bd6-6f59-49e0-98ae-1b722e15a186",
+              "payload": "<Casting version=\"1\" admission=\"49790bad-96c8-4f24-95fc-a686dc993d80\" identity=\"9c3d8730-fef6-4d35-b930-1577675f2987\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"90\" outcome=\"MinorPass\" applied=\"true\"><Targets><![CDATA[self]]></Targets><Cost holder=\"1\" resource=\"2\" amount=\"50\" before=\"100\" /></Casting>",
+              "output": "You bind a thread of earth to your present position.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+            }
+          ],
+          "arm.spell.waystep": [
+            {
+              "operation": "29d6c772-9270-4c20-9c5b-b9746f11cf9d",
+              "payload": "<Casting version=\"1\" admission=\"20a555ec-b6b4-4fe8-b5f0-6a63bb86e880\" identity=\"d349e84b-d26d-439c-8dbe-7310b44f5ef9\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"90\" outcome=\"MajorPass\" applied=\"true\"><Targets><![CDATA[random]]></Targets><Cost holder=\"1\" resource=\"5\" amount=\"50\" before=\"100\" /></Casting>",
+              "output": "You call upon the wind to carry you away.\n\nS4 mapped outdoor destination\nID[2] | Terrain[Void] | [SafeQuit] | Overlay[CoreData Autogenerated (#1r0)] | Coordinates[1,0,0]\nExits: \n\n  An ordinary permanent room in a disposable native qualification world.\n\n  Currently, it is pitch black here.\n\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 348/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+            }
+          ],
+          "arm.spell.silence_the_mind": [
+            {
+              "operation": "4d086bac-e180-449c-97fd-721b55ff38d1",
+              "payload": "<Casting version=\"1\" admission=\"01a66346-492b-496f-a50c-b30960c6abad\" identity=\"ec9d24eb-4e5c-41c3-a55f-e0915b98e6f1\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"90\" outcome=\"MajorPass\" applied=\"true\"><Targets><![CDATA[remaining-traveller]]></Targets><Cost holder=\"1\" resource=\"8\" amount=\"50\" before=\"100\" /></Casting>",
+              "output": "You impose a profound silence upon a conjured earth mount's mind.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+            }
+          ],
+          "arm.spell.compelling_regard": [
+            {
+              "operation": "f1db93bf-c997-4d5b-bd63-6e8a93822a41",
+              "payload": "<Casting version=\"1\" admission=\"30e62359-a3dc-456d-9c61-d781b9ccd250\" identity=\"01b6c720-f2c1-40ef-b0f2-6ea5fdd8a601\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"90\" outcome=\"MajorPass\" applied=\"true\"><Targets><![CDATA[remaining-traveller]]></Targets><Cost holder=\"1\" resource=\"8\" amount=\"50\" before=\"100\" /></Casting>",
+              "output": "You hold a conjured earth mount's attention with a compelling gaze.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 348/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+            }
+          ],
+          "arm.spell.open_threshold": [
+            {
+              "operation": "a4d20636-52fa-469a-85f9-8c65bba3436e",
+              "payload": "<Casting version=\"1\" admission=\"b60adaff-c9ab-4694-a780-9e9018c30d48\" identity=\"5351393a-f3e2-45a6-ab12-2717032d710d\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"90\" outcome=\"MinorPass\" applied=\"true\"><Targets><![CDATA[traveller remaining-traveller]]></Targets><Cost holder=\"1\" resource=\"8\" amount=\"50\" before=\"100\" /></Casting>",
+              "output": "You trace a shimmering threshold through the air.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+            },
+            {
+              "operation": "348e41b4-954a-4b7a-837e-853c34c7a605",
+              "payload": "<Casting version=\"1\" admission=\"b60adaff-c9ab-4694-a780-9e9018c30d48\" identity=\"5351393a-f3e2-45a6-ab12-2717032d710d\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"false\" masteryEligible=\"false\" skillBefore=\"90\" outcome=\"MajorPass\" applied=\"true\"><Targets><![CDATA[mark leaf]]></Targets><Cost holder=\"1\" resource=\"8\" amount=\"50\" before=\"100\" /></Casting>",
+              "output": "You trace a shimmering threshold through the air.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+            }
+          ],
+          "arm.spell.arcane_mark": [
+            {
+              "operation": "85e7086b-2e14-4f0c-b47e-f8270d4cf94f",
+              "payload": "<Casting version=\"1\" admission=\"8d7358f3-62f3-49cc-8023-87da4c04a354\" identity=\"569b92ce-f8c8-45f4-8bf6-64554b514391\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"90\" outcome=\"MajorPass\" applied=\"true\"><Targets><![CDATA[leaf]]></Targets><Cost holder=\"1\" resource=\"8\" amount=\"50\" before=\"100\" /></Casting>",
+              "output": "You shape an enchantment around a parchment codex leaf.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+            }
+          ],
+          "arm.spell.storm_locus": [
+            {
+              "operation": "372ca246-2da0-4fd1-9b7d-a3376c825785",
+              "payload": "<Casting version=\"1\" admission=\"514c94c6-d333-4323-8e7e-cacd66f080af\" identity=\"6345319c-3d4a-44bb-9d3c-3f32b971e466\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"90\" outcome=\"MajorPass\" applied=\"true\"><Targets><![CDATA[here]]></Targets><Cost holder=\"1\" resource=\"7\" amount=\"50\" before=\"100\" /></Casting>",
+              "output": "You call a crackling electrical storm into being.\n\nThe paid casting succeeded.\n\n\n<You are currently in no pain>\n<Stamina: 349/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+            }
+          ]
+        },
+        "return_origin": "32306332633766322D313730312D343163312D393333372D333531616239333838353432",
+        "silence_observation": {
+          "target_character": 2,
+          "target_body": 2,
+          "saved_character_effects": "<Effects>\r\n  <Effect>\r\n    <ApplicabilityProg>0</ApplicabilityProg>\r\n    <Type>IncreasedBranchChance</Type>\r\n    <Original>0</Original>\r\n    <Remaining>0</Remaining>\r\n    <Effect>\r\n      <Skills>\r\n        <Skill>\r\n          <SkillId>297</SkillId>\r\n          <Attempts>1</Attempts>\r\n        </Skill>\r\n      </Skills>\r\n      <Knowledges />\r\n    </Effect>\r\n  </Effect>\r\n  <Effect>\r\n    <ApplicabilityProg>0</ApplicabilityProg>\r\n    <Type>MagicSpellParent</Type>\r\n    <Original>29987</Original>\r\n    <Remaining>29987</Remaining>\r\n    <Effect>\r\n      <Identity>7d38926f-e495-4f83-85c8-fc7bd68612e9</Identity>\r\n      <Spell>150</Spell>\r\n      <Caster>1</Caster>\r\n      <CasterInstance>1</CasterInstance>\r\n      <SpellPower>2</SpellPower>\r\n      <OutcomeDegree>5</OutcomeDegree>\r\n      <Children>\r\n        <Effect>\r\n          <ApplicabilityProg>0</ApplicabilityProg>\r\n          <Type>SpellPowerTagSuppression</Type>\r\n          <Original>0</Original>\r\n          <Remaining>0</Remaining>\r\n          <Effect>\r\n            <Identity>2</Identity>\r\n            <Instance>2</Instance>\r\n            <Body>2</Body>\r\n            <ExpiryUtc>2026-10-15T13:49:50.8629872Z</ExpiryUtc>\r\n            <SeverMatchingMindContacts>true</SeverMatchingMindContacts>\r\n            <Tags>\r\n              <Tag>psionic</Tag>\r\n            </Tags>\r\n          </Effect>\r\n        </Effect>\r\n      </Children>\r\n    </Effect>\r\n  </Effect>\r\n</Effects>"
+        },
+        "storm_origin": "39616561356637632D613733352D343331622D616464612D633230353934613430396564",
+        "storm_samples": [
+          {
+            "cursor": [
+              "1",
+              "NULL",
+              "2026-10-15 13:50:03.887809"
+            ],
+            "wounds": 0.0,
+            "journal": [
+              [
+                "0",
+                "Room hazard activation pending",
+                "2026-10-15 13:49:53.887809",
+                "2026-10-15 13:50:23.887809",
+                "2026-10-15 13:49:53.887809"
+              ]
+            ]
+          },
+          {
+            "cursor": [
+              "1",
+              "NULL",
+              "2026-10-15 13:50:03.887809"
+            ],
+            "wounds": 0.0,
+            "journal": [
+              [
+                "0",
+                "Room hazard activation pending",
+                "2026-10-15 13:49:53.887809",
+                "2026-10-15 13:50:23.887809",
+                "2026-10-15 13:49:53.887809"
+              ]
+            ]
+          },
+          {
+            "cursor": [
+              "1",
+              "NULL",
+              "2026-10-15 13:50:03.887809"
+            ],
+            "wounds": 0.0,
+            "journal": [
+              [
+                "0",
+                "Room hazard activation pending",
+                "2026-10-15 13:49:53.887809",
+                "2026-10-15 13:50:23.887809",
+                "2026-10-15 13:49:53.887809"
+              ]
+            ]
+          },
+          {
+            "cursor": [
+              "1",
+              "NULL",
+              "2026-10-15 13:50:03.887809"
+            ],
+            "wounds": 0.0,
+            "journal": [
+              [
+                "0",
+                "Room hazard activation pending",
+                "2026-10-15 13:49:53.887809",
+                "2026-10-15 13:50:23.887809",
+                "2026-10-15 13:49:53.887809"
+              ]
+            ]
+          },
+          {
+            "cursor": [
+              "1",
+              "NULL",
+              "2026-10-15 13:50:03.887809"
+            ],
+            "wounds": 0.0,
+            "journal": [
+              [
+                "0",
+                "Room hazard activation pending",
+                "2026-10-15 13:49:53.887809",
+                "2026-10-15 13:50:23.887809",
+                "2026-10-15 13:49:53.887809"
+              ]
+            ]
+          },
+          {
+            "cursor": [
+              "1",
+              "NULL",
+              "2026-10-15 13:50:03.887809"
+            ],
+            "wounds": 0.0,
+            "journal": [
+              [
+                "0",
+                "Room hazard activation pending",
+                "2026-10-15 13:49:53.887809",
+                "2026-10-15 13:50:23.887809",
+                "2026-10-15 13:49:53.887809"
+              ]
+            ]
+          },
+          {
+            "cursor": [
+              "1",
+              "NULL",
+              "2026-10-15 13:50:03.887809"
+            ],
+            "wounds": 0.0,
+            "journal": [
+              [
+                "0",
+                "Room hazard activation pending",
+                "2026-10-15 13:49:53.887809",
+                "2026-10-15 13:50:23.887809",
+                "2026-10-15 13:49:53.887809"
+              ]
+            ]
+          },
+          {
+            "cursor": [
+              "1",
+              "NULL",
+              "2026-10-15 13:50:03.887809"
+            ],
+            "wounds": 0.0,
+            "journal": [
+              [
+                "0",
+                "Room hazard activation pending",
+                "2026-10-15 13:49:53.887809",
+                "2026-10-15 13:50:23.887809",
+                "2026-10-15 13:49:53.887809"
+              ]
+            ]
+          },
+          {
+            "cursor": [
+              "1",
+              "NULL",
+              "2026-10-15 13:50:03.887809"
+            ],
+            "wounds": 0.0,
+            "journal": [
+              [
+                "0",
+                "Room hazard activation pending",
+                "2026-10-15 13:49:53.887809",
+                "2026-10-15 13:50:23.887809",
+                "2026-10-15 13:49:53.887809"
+              ]
+            ]
+          },
+          {
+            "cursor": [
+              "1",
+              "NULL",
+              "2026-10-15 13:50:03.887809"
+            ],
+            "wounds": 0.0,
+            "journal": [
+              [
+                "0",
+                "Room hazard activation pending",
+                "2026-10-15 13:49:53.887809",
+                "2026-10-15 13:50:23.887809",
+                "2026-10-15 13:49:53.887809"
+              ]
+            ]
+          },
+          {
+            "cursor": [
+              "2",
+              "2026-10-15 13:50:04.873717",
+              "2026-10-15 13:50:13.887809"
+            ],
+            "wounds": 1.64,
+            "journal": [
+              [
+                "0",
+                "Room hazard pulse claimed before native injury; missed pulses are never replayed",
+                "2026-10-15 13:49:53.887809",
+                "2026-10-15 13:50:23.887809",
+                "2026-10-15 13:50:04.873717"
+              ]
+            ]
+          }
+        ],
+        "storm_version": 2,
+        "storm_wounds": 1.64,
+        "balances": {
+          "arm.spell.return_tether": 50.0,
+          "arm.spell.waystep": 50.0,
+          "arm.spell.storm_locus": 50.0,
+          "arm.spell.silence_the_mind": 50.0,
+          "arm.spell.compelling_regard": 50.0,
+          "arm.spell.open_threshold": 50.0,
+          "arm.spell.arcane_mark": 50.0
+        },
+        "status": "PASS",
+        "cold_status": "PASS"
+      }
+    },
+    "intentional_stopped_capture": {
+      "status": "NOT_COMPLETED",
+      "log": "C:\\Temp\\futuremud-s4-base-capture.log",
+      "reason": "Stopped before qualification when the shared power-tag contract changed; wrapper confirmed stable source and owned graceful cleanup. Not an environment blocker."
+    },
+    "release_enabled": false,
+    "package_admissions_enabled": false,
+    "classes_enabled": false,
+    "unqualified_carriers_enabled": false,
+    "base_fixture": {
+      "status": "PASS",
+      "receipt": "C:\\Temp\\futuremud-s4-base-final\\20261015T120317Z_baee525e92b54bb4ae746e1da91f92c4\\summary.json",
+      "descriptor": ".artifacts/pre-armageddon-base-fixtures/20261015T121003Z_c1b183833df74237b9eeeba5edaed680/base-world.json",
+      "descriptor_sha256": "0F94AF5BB637FF59DFEDED7ACCCC133828EF03375FE8C313D96710A4C1778E3B",
+      "owned_cleanup": true
+    },
+    "failed_native_attempts": [
+      {
+        "status": "FAIL",
+        "runner_receipt": "C:\\Temp\\futuremud-s4-remaining-native\\20261015T121046Z_db76c8e58d5948138765bc74407be45d\\summary.json",
+        "boot_receipt": "..\\prepared-catalogue-boot-native-s4-stock-04bf340722ea44bc87e97fd72301faf9\\boot-latest.json",
+        "first_loaded": 152,
+        "cold_loaded": 0,
+        "reason": "New fixture incorrectly assumed setting route minimum2 grants controlled grade2. Normal enrolment always grants1. Failed before gameplay; fixture now samples grade1. Production acquisition rules unchanged.",
+        "source_stable": true,
+        "owned_cleanup": true
+      },
+      {
+        "status": "FAIL",
+        "runner_receipt": "C:\\Temp\\futuremud-s4-remaining-native\\20261015T122836Z_12d0da5604714917b7f7e1eff97b5d6f\\summary.json",
+        "boot_receipt": "..\\prepared-catalogue-boot-native-s4-stock-f1f34a584bd4476385ce56f4e4973dd9\\boot-latest.json",
+        "first_loaded": 152,
+        "cold_loaded": 0,
+        "reason": "Paid Silence completed, but the fixture read Windows XML as raw mysql batch text. Unescaped CR split the cell, so only the opening Effects line was checked. HEX transport fixed the assertion; unchanged runtime passed next attempt.",
+        "source_stable": true,
+        "owned_cleanup": true
+      },
+      {
+        "status": "FAIL",
+        "runner_receipt": "C:\\Temp\\futuremud-s4-remaining-native\\20261015T125526Z_6f25092c256b4c5998399fc11994cdfa\\summary.json",
+        "boot_receipt": "..\\prepared-catalogue-boot-native-s4-stock-1d400badec904c6ebfdc78a1ec741fd2\\boot-latest.json",
+        "first_loaded": 152,
+        "cold_loaded": 0,
+        "reason": "Silence exact saved XML and Compel native LOOK/alias checks passed. Threshold hit the same raw Windows XML transport defect; all remaining persisted XML reads now use HEX. No runtime persistence changes.",
+        "source_stable": true,
+        "owned_cleanup": true
+      },
+      {
+        "status": "FAIL",
+        "runner_receipt": "C:\\Temp\\futuremud-s4-remaining-native\\20261015T131241Z_4032232a790440c1a0627a4164115bd8\\summary.json",
+        "boot_receipt": "..\\prepared-catalogue-boot-native-s4-stock-c2e0ceb6efaa4ff78921f25f524e4df1\\boot-latest.json",
+        "first_loaded": 152,
+        "cold_loaded": 0,
+        "reason": "All travel/return, Silence/Compel and recognised/marked portal assertions passed. The combined Storm cursor/native-wound assertion failed; subsequent diagnostic samples split those outcomes. See final native evidence for the resolved pulse result.",
+        "source_stable": true,
+        "owned_cleanup": true
+      }
+    ],
+    "xml_transport_regression": {
+      "status": "PASS",
+      "scope": "constant SELECT only on verified owned loopback MySQL",
+      "raw_bytes_hex": "3c456666656374733e0d5c6e3c547970653e7472616e73706f72742d70726f62653c2f547970653e3c2f456666656374733e0d0a",
+      "raw_parser_rows": [
+        "<Effects>",
+        "\\n<Type>transport-probe</Type></Effects>"
+      ],
+      "hex_round_trip": "<Effects>\r\n<Type>transport-probe</Type></Effects>",
+      "conclusion": "Raw Windows XML is split at unescaped CR; HEX preserves the exact cell."
+    },
+    "post_managed_gate_changes": "Only disposable native fixture grade settings, failure diagnostics, exact HEX XML transport and documentation/evidence changed; production, persistence and seeder code retain the final fast-gate bytes.",
+    "native_armour_observation": {
+      "source": "Read-only SELECT on the same verified owned MySQL instance during the final diagnostic run.",
+      "race": "Armageddon Earth Mount",
+      "race_id": 309,
+      "natural_armour_type_id": 1,
+      "natural_armour_type": "Human Racial Tissue Armour",
+      "natural_armour_quality": 2,
+      "health_strategy": "Human Full Model / ComplexLiving",
+      "electrical_damage_type": 11,
+      "dissipate_expression": "if(rand(1,100)<=min(65,max(0,(quality*9.0) + (strength/4500) - (damage*1.65))),0,damage)",
+      "limit": "This native armour can dissipate a hit entirely. The earlier combined Storm assertion did not preserve separate cursor values, so its exact cause is not established; the final diagnostic receipt independently records cursor and actual wound observations."
+    },
+    "preserved_failed_managed_attempts": [
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T090048Z-0e22ff0c6a47\\summary.json",
+        "first_failure": "GroundTremor_AllGradesApplyFullLocalDamageAndCasterThirdExactlyOnce (4)",
+        "failure_records": 10,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T092718Z-0e5c95030101\\summary.json",
+        "first_failure": "ReturnTether_UncertainUncommittedClaimRemainsBlockedAfterReload",
+        "failure_records": 1,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T093550Z-0c7f1f11a948\\summary.json",
+        "first_failure": "ReturnTether_UncertainUncommittedClaimRemainsBlockedAfterReload",
+        "failure_records": 1,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T094037Z-f6976b39b32f\\summary.json",
+        "first_failure": "EtherealDefinitions_BindOwnedProjectionAndSelectiveRemoval",
+        "failure_records": 33,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T095931Z-2c91cbb0066d\\summary.json",
+        "first_failure": "RemoteTravellers_GradeSevenRetainsItsSourceRangeExceptionWithoutBypassingEndpoints (True)",
+        "failure_records": 12,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T100208Z-794bf89f2db9\\summary.json",
+        "first_failure": "RemoteTravellers_JoinRepairsNativeDepartureGapAndQuarantinesUnrepairableMembership",
+        "failure_records": 1,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T100754Z-69a17c99b919\\summary.json",
+        "first_failure": "RemoteTravellers_JoinRepairsNativeDepartureGapAndQuarantinesUnrepairableMembership",
+        "failure_records": 1,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T101017Z-9597b8f24eee\\summary.json",
+        "first_failure": "RemoteTravellers_JoinCompensatesFailedArrivalAndQuarantinesUnrepairableMembership",
+        "failure_records": 1,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T101205Z-c85393d9efc3\\summary.json",
+        "first_failure": "CanonicalDefinitions_EveryInstalledEntryMatchesLockedCostsGradesAndTypedChildren (Simple)",
+        "failure_records": 2,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T104320Z-e8d665324401\\summary.json",
+        "first_failure": "StormLocus_AllGradesClaimBeforeDistinctNativeInjuryAndExpireWithoutTickTraining (6)",
+        "failure_records": 8,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T110225Z-b0e93fae14f5\\summary.json",
+        "first_failure": "EffectFactories_CustomSerializer_RefusesAndBuiltInInventoryMatchesSource",
+        "failure_records": 1,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T112516Z-5b1018d296e8\\summary.json",
+        "first_failure": "SilenceMind_SeversMatchingReciprocalNativeContactOnly",
+        "failure_records": 2,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T112749Z-5454d6f59d12\\summary.json",
+        "first_failure": "SilenceMind_SeversMatchingReciprocalNativeContactOnly",
+        "failure_records": 1,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T114347Z-37662ae82cc5\\summary.json",
+        "first_failure": "OpenThreshold_LiveWardAndOverlayChangesRefuseTraversalOfExistingPortal",
+        "failure_records": 11,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T114706Z-ce1e98b4a88d\\summary.json",
+        "first_failure": "OpenThreshold_AllGradesCreateOnePairedExitAndExpireWithoutRemovingOccupants (1)",
+        "failure_records": 12,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115540Z-f5efc732f55e\\summary.json",
+        "first_failure": "CanonicalDefinitions_EveryInstalledEntryMatchesLockedCostsGradesAndTypedChildren (Simple)",
+        "failure_records": 2,
+        "resolution": "Final consolidated managed gate passed; receipt retained."
+      }
+    ]
+  },
   "exchange_places_141_checkpoint_20261015": {
     "base_revision": "fb7e9df1385dcbd92a21af42e747fed123927c20 plus final Exchange source pinned by native and managed receipts",
     "declared_required_definitions": 141,
@@ -114,7 +668,12 @@
     "native_gate_restore": "PASS 15/15 pinned post-install Nilaz first/cold paid assertions; source start/end 4FF6252A4DDA93CDADB34791A6061385B9CC64DB8685895349610A2C8B742BE5, owned MUD/MySQL trees stopped",
     "native_gate_receipt": "../prepared-catalogue-boot-native-s4-stock-e00741295eca401cabc404455fc40a51/boot-latest.json",
     "limit": "The native run exercised shared connection admission but preceded a relocation-only mover ward addition; no relocation spell, new definition, all-grade or route-selector claim follows.",
-    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ]
   },
   "nilaz_direct_gate_140_qualification": {
     "base_revision": "fa1a26c062b3ef16b2161ae6ae450d0f4ee17d3f with focused native fixture and smoke changes",
@@ -127,13 +686,21 @@
     "direct_receipt": "../prepared-catalogue-boot-native-s4-stock-ce05aae72ffa4761bca2843ee964e939/boot-latest.json",
     "restore_receipt": "../prepared-catalogue-boot-native-s4-stock-fb309298504740808b6ca5fa3af3e641/boot-latest.json",
     "limits": "Grade-one direct Nilaz scenario only. Other grades, alternate destinations, refusal/custody permutations, producer gates and the remaining twelve required spells have no direct native qualification here.",
-    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ]
   },
   "item_corpse_135_candidate": {
     "base_revision": "0fe42446359c167a6b9012748b7173d235a82c33 plus Wither Growth and Borrow the Dead source changes",
     "declared_required_definitions": 135,
     "required_not_yet_declared": 17,
-    "new_keys": ["arm.spell.wither_growth", "arm.spell.borrow_the_dead"],
+    "new_keys": [
+      "arm.spell.wither_growth",
+      "arm.spell.borrow_the_dead"
+    ],
     "focused_core": "PASS 41/0/0 item-condition operation/hydration, corpse prepayment identity/refusal and dependent possession checks",
     "focused_seeder": "PASS 4/0/0 Wither/Borrow definitions and Classic/Simple complete fixed-definition audits",
     "native_package": "PASS at d2ee71cb5: sealed-base actual-MySQL Classic restore/package, rollback, lost-ack resume, stable children, no-op checksum, no player writes and ten disabled package capabilities; 35/35 first/cold assertions and 135/135 exact definitions loaded twice. Retained paid grade-one Gust Hands, Cinder Rain, Erode Object and Read Attunement routes passed. Source stayed stable; owned MUD, database and MySQL process cleanup passed.",
@@ -143,23 +710,39 @@
     "native_limit": "Wither Growth and Borrow the Dead loaded first/cold but have no paid installed-stock cast, possession closure or all-grade gameplay sample. Ember Seed, Restorative Mud and the terrain-only Silt correction likewise lack their own paid live sample. Definition loading and retained paid routes are not a substitute for those outcomes.",
     "hosted_baseline": "Both Unit Tests workflow runs at 0fe424463 completed SUCCESS on ubuntu-latest and windows-latest; the d2ee71cb5 continuation head has not yet been pushed for hosted CI.",
     "travel_design_blocker": "Legacy teleport and portal effects do not establish permission-aware destination selection, paired swap atomicity or guarded portal endpoints. Keep travel definitions undeclared pending a shared typed admission contract.",
-    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ]
   },
   "bound_consumables_133_candidate": {
     "base_revision": "db88ccc61d0973f07cb6f3452bb8a783bcff3f96 plus terrain-only Silt correction and Ember Seed/Restorative Mud source changes",
     "declared_required_definitions": 133,
     "required_not_yet_declared": 19,
-    "new_keys": ["arm.spell.ember_seed", "arm.spell.restorative_mud"],
+    "new_keys": [
+      "arm.spell.ember_seed",
+      "arm.spell.restorative_mud"
+    ],
     "focused_see_terrain": "PASS 53/0/0 See the Unbodied source-selection tests including room-only Silt acceptance and terrain Silt refusal",
     "focused_seeder": "PASS 5/0/0 Classic/Simple exact bound-consumable and all-definition audits plus over-budget topical profile refusal",
     "focused_item_runtime": "PASS 37/0/0 existing one-use reload, Sown Sickness native mechanics and spell-created consumable suites",
     "native_limit": "Latest complete actual-MySQL first/cold receipt is the prior 131/131 campaign at db88ccc61. No 133-definition native package, paid Ember Seed/Restorative Mud cast, application, expiry or cold gameplay receipt; the old receipt also predates terrain-only Silt correction.",
-    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ]
   },
   "conditional_source_131_candidate": {
     "base_revision": "b27b010992abcacced5f27f3fe987f69b299b344 with recorded dirty 131-definition source inventory",
     "declared_required_definitions": 131,
-    "new_keys": ["arm.spell.sheltering_veil", "arm.spell.see_the_unbodied"],
+    "new_keys": [
+      "arm.spell.sheltering_veil",
+      "arm.spell.see_the_unbodied"
+    ],
     "focused_core": "PASS 113/0/0 finite armour and source ethereal suites, including new paid policy/legacy-compatibility scenarios",
     "full_core": "PASS 7168/0/0 Debug --no-build --no-restore",
     "focused_seeder": "PASS 4/0/0 Classic/Simple exact dependencies and all-definition audits",
@@ -170,12 +753,20 @@
     "native_boot_receipt": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-131-full-90de7ad7ddc84a15967728f3e2135103/boot-latest.json",
     "native_attempts": "Stock-only scope failed before payment because the Wind sample had no east-exit fixture; first full-catalogue attempt exceeded the former 660-second parent deadline after cold login. Extended bounded deadline to 900 seconds and completed the full campaign.",
     "native_limit": "Paid installed-stock Sheltering Veil and See the Unbodied casts, cold expiry and all-grade gameplay remain unverified; their managed paid policy and native definition-loading checks passed.",
-    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ]
   },
   "ethereal_129_candidate": {
     "base_revision": "7526f0c2037b58627db088090a6497ab067adf02 with recorded dirty 129-definition source inventory",
     "declared_required_definitions": 129,
-    "new_keys": ["arm.spell.unbodied_journey", "arm.spell.draw_into_flesh"],
+    "new_keys": [
+      "arm.spell.unbodied_journey",
+      "arm.spell.draw_into_flesh"
+    ],
     "focused_core": "PASS 8/0/0 projection policy and selective/legacy planar removal",
     "full_core": "PASS 7153/0/0 Debug --no-build --no-restore",
     "full_library": "PASS 764/0/0 Debug --no-build --no-restore",
@@ -188,7 +779,12 @@
     "native_result": "PASS actual-MySQL Classic restore/package, rollback, lost-ack resume, stable no-op, dump round trip and disabled gates; 35 first/cold assertions loaded all 129/129 exact definitions twice. Retained paid grade-one Gust Hands, character-target Cinder Rain, Erode Object and Read Attunement passed. Source stable; owned MUD processes stopped and isolated MySQL/datadir cleaned.",
     "native_limit": "Unbodied Journey and Draw into Flesh have no paid installed-stock gameplay or cold-retirement sample. The earlier 22-assertion base-only run lacked the explicit S4 stock-smoke flag and is not counted as 129-definition coverage.",
     "hosted_baseline": "Published 7526f0c2037b58627db088090a6497ab067adf02 push and PR Linux/Windows default gates all completed SUCCESS.",
-    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ]
   },
   "schema_version": 1,
   "generated_utc": "2026-10-13T19:26:00+00:00",
@@ -687,13 +1283,22 @@
       "Fourth full-scope run paid Cinder Rain with an applied operation but no persisted wound on that particular grade-one hit; the campaign now retains such attempts and retries within four paid attempts without weakening the positive-wound acceptance condition. Cleanup passed."
     ],
     "qualification_limit": "Drowning Grip itself was loaded first/cold but not cast in paid live gameplay. The Cinder sample used its ordinary character target, not explicit controlled-area selection. Erode samples one organic item and grade. No installed-stock all-grade or Release qualification is claimed.",
-    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ]
   },
   "item_condition_candidate": {
     "base_revision": "74bd2817d0e57fbd5f933a63dc9b77ebab187ecc",
     "declared_required_definitions": 121,
     "required_not_yet_declared": 31,
-    "new_keys": ["arm.spell.shatter_stone", "arm.spell.restore_object", "arm.spell.erode_object"],
+    "new_keys": [
+      "arm.spell.shatter_stone",
+      "arm.spell.restore_object",
+      "arm.spell.erode_object"
+    ],
     "focused_seeder": "PASS 3/0/0 finite definition contract plus Classic/Simple fixed installer audit",
     "focused_core": "PASS 6/0/0 native hydration, item operation boundaries and explicit unsupported stored-scroll compatibility",
     "full_core": "PASS 7141/0/0 Debug --no-build --no-restore; task/s4-item-condition/core-item-condition-final.trx",
@@ -703,20 +1308,35 @@
     "partial_native_facts": "First boot 121/121 exact loaded definitions; grade-one Gust Hands paid 50 once with one Completed operation and saved disposable mount relocation 1->2. Overall status FAIL: Cinder Rain fixture used here with a character trigger and did not debit or write a Completed operation. No first/cold or package certificate is claimed.",
     "interrupted_native_retry": "Corrected Cinder Rain target to the exact local mount; campaign helper 7/7 and harness build 0 errors. A fresh isolated rerun reached first boot but was interrupted before a receipt. Its stopped owned MySQL PID/port were verified; only that run's temporary data directory was removed after preserving mysql-interrupted.err under task/s4-121-native-package-retry3/20261013T222444Z_181a44254e804e3d9d894928e59e2b8b.",
     "preceding_head_ci": "74bd2817d push and PR Linux/Windows default-gate checks all SUCCESS on GitHub; this new head awaits publication and its own checks.",
-    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ]
   },
   "area_harm_candidate": {
     "base_revision": "dfc4706ad09f287e9d32d8657d76abe923ae5706",
     "declared_required_definitions": 118,
     "required_not_yet_declared": 34,
-    "new_keys": ["arm.spell.cinder_rain", "arm.spell.thunderclap", "arm.spell.scouring_gust", "arm.spell.caustic_spray"],
+    "new_keys": [
+      "arm.spell.cinder_rain",
+      "arm.spell.thunderclap",
+      "arm.spell.scouring_gust",
+      "arm.spell.caustic_spray"
+    ],
     "focused_seeder": "PASS 3/0/0 four-definition contract plus Classic/Simple fixed installer audit",
     "focused_core": "PASS 1/0/0 native hydration/ReadyForGame for four authored area definitions",
     "full_core": "PASS 7136/0/0 Debug --no-build --no-restore",
     "full_seeder": "PASS 1843/0/3 Debug --no-build --no-restore",
     "native_paid_cold": "SUPERSEDED by the 122-definition first/cold campaign: Cinder Rain has a paid grade-one character-target wound sample; explicit controlled-area selection and the other area entries remain unsampled.",
     "wind_paid_movement": "PARTIAL PASS in an overall failed first-boot campaign: grade-one Gust Hands spent 50, wrote one Completed operation and saved exact disposable mount relocation 1->2. Cold and package conservation remain pending.",
-    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ]
   },
   "current_unpublished_slice": {
     "source_base": "b8f4760436cb21eb302cfb57c69e7c920df8e84e",
@@ -738,8 +1358,18 @@
     "native_paid_receipt": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-114-four-attempts/boot-latest.json",
     "native_package_receipt": "C:/Users/luker/Documents/Codex/2026-10-12/task/s4-114-four-attempt-paid-package/20261013T190333Z_a5a57375466f4721877d6e0413f8dafd/summary.json",
     "native_package_integrity": "PASS exact new descriptor restore, actual-MySQL all-table rollback, lost-ack resume, no-op checksum, no package player writes, ten disabled package capabilities, exact dump unchanged, source start/end 9B558A34ACEBAEE46BD4ED2A2E91B95A005EB8A4769D9E660E4C2E261B5892E8, both owned MUD processes stopped, database dropped and MySQL/datadir cleaned. Disposable Active-needs avatar setup occurred only after package conservation assertions.",
-    "native_failed_predecessors": ["The original sealed descriptor refused reuse after the shared IBody source changed; explicit new capture passed.", "A first paid-needs run refused the seeded NoNeeds Admin before payment; the fixture was changed to Active after package checks.", "A fixture ordering run correctly failed the no-player-change assertion before gameplay; its mutation was moved after that assertion.", "A two-attempt paid run passed Desiccate and Venom but Headlong twice rolled MinorFail; the bounded campaign now permits four separately funded attempts. All failed runs cleaned owned MySQL/MUD state."],
+    "native_failed_predecessors": [
+      "The original sealed descriptor refused reuse after the shared IBody source changed; explicit new capture passed.",
+      "A first paid-needs run refused the seeded NoNeeds Admin before payment; the fixture was changed to Active after package checks.",
+      "A fixture ordering run correctly failed the no-player-change assertion before gameplay; its mutation was moved after that assertion.",
+      "A two-attempt paid run passed Desiccate and Venom but Headlong twice rolled MinorFail; the bounded campaign now permits four separately funded attempts. All failed runs cleaned owned MySQL/MUD state."
+    ],
     "qualification_limit": "The grade-one Desiccate and Headlong live samples establish only their recorded paid and saved needs behaviour; managed tests cover the selected-grade boundaries and custody guards. No additional complete installed-stock, all-grade, wind movement or release qualification is claimed.",
-    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ]
   }
 }

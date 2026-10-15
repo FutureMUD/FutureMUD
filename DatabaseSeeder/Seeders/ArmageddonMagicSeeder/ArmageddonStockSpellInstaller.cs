@@ -151,7 +151,40 @@ public static partial class ArmageddonStockSpellInstaller
 				ArmageddonExchangePlacesSpellContent.Create(
 					CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelRestrictedTagKey),
 					CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelPopulatedTagKey),
-					RankedComponentTags(db, "teleportation", 6), RankedComponentTags(db, "alteration", 6)))));
+					RankedComponentTags(db, "teleportation", 6), RankedComponentTags(db, "alteration", 6)))))
+		.Append((Key: ArmageddonGroundTremorSpellContent.Key,
+			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
+				ArmageddonGroundTremorSpellContent.Create(CanonicalSpellIdentity(db, "arm.spell.stone_skin"),
+					ResolveOrdinaryAgility(db), CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.ShadowPlaneKey),
+					CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.WindPlaneKey),
+					CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.WaterPlaneKey),
+					CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.VoidPlaneKey),
+					CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.SiltTagKey)))))
+		.Append((Key: ArmageddonReturnTetherSpellContent.Key,
+			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonReturnTetherSpellContent.Create())))
+		.Append((Key: ArmageddonTracePathSpellContent.Key,
+			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(_ => ArmageddonTracePathSpellContent.Create())))
+		.Append((Key: ArmageddonRemoteTravellerSpellContent.DrawKey,
+			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ArmageddonRemoteTravellerSpellContent.Draw(
+				CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelRestrictedTagKey), ConjurationRankOptions(db),
+				CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey)))))
+		.Append((Key: ArmageddonRemoteTravellerSpellContent.JoinKey,
+			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ArmageddonRemoteTravellerSpellContent.Join(
+				CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelRestrictedTagKey), RankedComponentTags(db, "teleportation", 6)))))
+		.Concat(new[] { ArmageddonWeightedTravelSpellContent.WaystepKey, ArmageddonWeightedTravelSpellContent.BanishKey }.Select(key =>
+			(Key: key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db => ResolveWeightedTravel(db, key)))))
+		.Append((Key: ArmageddonStormLocusSpellContent.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
+			ArmageddonStormLocusSpellContent.Create(CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.WaterPlaneKey),
+				CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.VoidPlaneKey), ArmageddonStockSupportInstaller.DefilerMeritId(db)))))
+		.Append((Key: ArmageddonMindSilenceSpellContent.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
+			ArmageddonMindSilenceSpellContent.Create(CatalogueIdentity<Merit>(db, ArmageddonStockSupportInstaller.UndeadMeritKey),
+				CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey)))))
+		.Append((Key: ArmageddonCompellingRegardSpellContent.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
+			ArmageddonCompellingRegardSpellContent.Create(CatalogueIdentity<Merit>(db, ArmageddonStockSupportInstaller.UndeadMeritKey),
+				CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey)))))
+		.Append((Key: ArmageddonOpenThresholdSpellContent.Key, Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
+			ArmageddonOpenThresholdSpellContent.Create(CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelRestrictedTagKey),
+				CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelDeathTagKey)))));
 
 	private static ArmageddonInstallResult InstallContribution(Func<FuturemudDatabaseContext> factory,
 		Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution> resolve, Action<ArmageddonInstallCheckpoint>? checkpoint)

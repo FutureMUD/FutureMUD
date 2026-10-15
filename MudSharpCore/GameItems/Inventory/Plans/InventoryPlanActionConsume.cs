@@ -72,8 +72,10 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 	}
 	private XElement _gradeRankDefinition;
 	private int _gradeRankOffset;
+	private bool _explicitRankOptions;
 	private readonly Dictionary<int, long> _rankTags = new();
 	private ITag _boundRankTag;
+	private ITag[] _boundRankOptions;
 	public bool HasPersistedSelection => CarriedOnly || _gradeRankDefinition is not null || RequiredGrade is not null;
 	public bool HasGradeSelection => HasGradeRanks || RequiredGrade is not null;
 	public bool HasGradeRanks => _gradeRankDefinition is not null;
@@ -97,17 +99,23 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 		_rankTags.Clear();
 		_gradeRankOffset = 0;
 		_boundRankTag = null;
+		_boundRankOptions = null;
+		_explicitRankOptions = false;
 	}
 
 	private void LoadGradeRanks(XElement root)
 	{
 		var offset = int.Parse(root.Attribute("offset")?.Value ?? throw new FormatException("Missing rank offset."));
+		var explicitOptions = (string?)root.Attribute("selection") == "explicit";
+		if (root.Attribute("selection") is { } selection && selection.Value != "explicit") throw new FormatException("Unknown material rank selection.");
 		var ranks = root.Elements("Rank").Select(x => (Rank: int.Parse(x.Attribute("minimum")!.Value), Tag: long.Parse(x.Attribute("tag")!.Value))).ToArray();
 		if (offset is < -6 or > 0 || ranks.Length is < 1 or > 7 ||
-			!ranks.Select(x => x.Rank).SequenceEqual(Enumerable.Range(0, ranks.Length)) || ranks.Any(x => x.Tag <= 0) || ranks.Select(x => x.Tag).Distinct().Count() != ranks.Length ||
-			Math.Max(7 + offset, 0) >= ranks.Length)
+			(explicitOptions ? ranks.Any(x => x.Rank is < 0 or > 6) || ranks.Select(x => x.Rank).Distinct().Count() != ranks.Length ||
+				!ranks.Select(x => x.Rank).SequenceEqual(ranks.Select(x => x.Rank).Order()) || ranks[0].Rank != 0 || ranks[^1].Rank < Math.Max(7 + offset, 0) :
+				!ranks.Select(x => x.Rank).SequenceEqual(Enumerable.Range(0, ranks.Length)) || Math.Max(7 + offset, 0) >= ranks.Length) ||
+			ranks.Any(x => x.Tag <= 0) || ranks.Select(x => x.Tag).Distinct().Count() != ranks.Length)
 			throw new FormatException("Grade ranks require consecutive ranks from zero, positive tags and coverage of all seven grades.");
-		_gradeRankDefinition = new XElement(root); _gradeRankOffset = offset;
+		_gradeRankDefinition = new XElement(root); _gradeRankOffset = offset; _explicitRankOptions = explicitOptions;
 		foreach (var rank in ranks) _rankTags.Add(rank.Rank, rank.Tag);
 	}
 
@@ -119,6 +127,13 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 			throw new InvalidOperationException("The configured grade-dependent material tag is missing; repair the requirement before casting.");
 		if (_gradeRankDefinition is null) return;
 		var tags = _rankTags.OrderBy(x => x.Key).Select(x => Gameworld.Tags.Get(x.Value)).ToArray();
+		if (_explicitRankOptions)
+		{
+			if (tags.Any(x => x is null) || DesiredTagId > 0 && (DesiredTag is null || tags.Any(x => !x.IsA(DesiredTag))))
+				throw new InvalidOperationException("Explicit material rank options require their exact positive tags and optional root.");
+			_boundRankOptions = _rankTags.Where(x => x.Key >= Math.Max(grade + _gradeRankOffset, 0)).Select(x => Gameworld.Tags.Get(x.Value)).ToArray();
+			return;
+		}
 		if (DesiredTag is null || tags.Any(x => x is null) || !tags[0].IsA(DesiredTag) ||
 			tags.Skip(1).Where((tag, index) => !tag.IsA(tags[index])).Any())
 			throw new InvalidOperationException("Component ranks need existing tags in an ascending parent hierarchy under the Creation tag.");
@@ -129,7 +144,7 @@ public class InventoryPlanActionConsume : InventoryPlanAction
 		(!HasGradeSelection || DesiredTagId == 0 || DesiredTag is not null) &&
 		(RequiredGrade is null || RequiredGrade == _boundGrade) &&
 		(!CarriedOnly || ReferenceEquals(item.InInventoryOf, executor.Body) && item.ContainedIn is null) &&
-		(_gradeRankDefinition is null || _boundRankTag is not null && item.IsA(_boundRankTag));
+		(_gradeRankDefinition is null || (_explicitRankOptions ? _boundRankOptions?.Any(item.IsA) == true : _boundRankTag is not null && item.IsA(_boundRankTag)));
 
 	internal void RevalidateConsumption(ICharacter executor, IGameItem item)
 	{

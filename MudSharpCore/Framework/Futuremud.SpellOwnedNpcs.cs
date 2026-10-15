@@ -16,6 +16,12 @@ public partial class Futuremud
 	public ISpellOwnedShelterService SpellOwnedShelters => _spellOwnedShelters ??= new SpellOwnedShelterService(this);
 	private ISpellOwnedGateService? _spellOwnedGates;
 	public ISpellOwnedGateService SpellOwnedGates => _spellOwnedGates ??= new SpellOwnedGateService(this);
+	private ISpellReturnService? _spellReturns;
+	public ISpellReturnService SpellReturns => _spellReturns ??= new SpellReturnService(this);
+	private ISpellMarkedRoomUseService? _spellMarkedRoomUses;
+	public ISpellMarkedRoomUseService SpellMarkedRoomUses => _spellMarkedRoomUses ??= new SpellMarkedRoomUseService(this);
+	private ISpellRoomHazardJournal? _spellRoomHazards;
+	public ISpellRoomHazardJournal SpellRoomHazards => _spellRoomHazards ??= new SpellRoomHazardJournal();
 	private ISpellOwnedPocketService? _spellOwnedPockets;
 	public ISpellOwnedPocketService SpellOwnedPockets => _spellOwnedPockets ??= new SpellOwnedPocketService(this);
 	private ISpellOwnedProjectionService? _spellOwnedProjections;
@@ -37,5 +43,9 @@ public partial class Futuremud
 		catch (Exception ex) { SystemMessage("Spell-owned Nilaz gate reconciliation needs attention: " + ex.Message, true); }
 		try { SpellOwnedProjections.ReconcileRetirements(RuntimeClock.UtcNow); }
 		catch (Exception ex) { SystemMessage("Spell-owned projection reconciliation needs attention: " + ex.Message, true); }
+		try { SpellReturns.Reconcile(RuntimeClock.UtcNow); }
+		catch (Exception ex) { SystemMessage("Delayed return reconciliation needs attention: " + ex.Message, true); }
+		try { SpellRoomHazards.Reconcile(RuntimeClock.UtcNow); }
+		catch (Exception ex) { SystemMessage("Room hazard reconciliation needs attention: " + ex.Message, true); }
 	}
 }

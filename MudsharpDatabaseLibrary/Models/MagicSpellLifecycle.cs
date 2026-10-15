@@ -22,6 +22,8 @@ public class MagicSpellLifecycle
 	public DateTime? DeathObservedUtc { get; set; }
 	public DateTime? GateLinksClosedUtc { get; set; }
 	public DateTime? GateLastPulseUtc { get; set; }
+	public DateTime? RoomHazardLastPulseUtc { get; set; }
+	public DateTime? RoomHazardNextPulseUtc { get; set; }
 	public long? RemainsItemId { get; set; }
 	public DateTime? RemainsRemovalRequestedUtc { get; set; }
 	public DateTime? RemainsNotificationAttemptedUtc { get; set; }

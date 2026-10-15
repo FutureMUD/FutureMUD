@@ -311,7 +311,11 @@ internal static partial class GNHProgram
 				PrepareNilazGateFixture(database);
 				SaveNilazGateFixture(database, fixture.ManifestHash);
 			}
-			else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE") == "1") PreparedStockAttunementAcceptance(database);
+			else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE") == "1")
+			{
+				PreparedStockAttunementAcceptance(database);
+				if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_REMAINING_SMOKE_ONLY") == "1") PrepareRemainingStockFixture(database);
+			}
 			RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
 		}
 		Require(BaseHash(fixture.Sql) == fixture.Receipt.SqlSha256 &&

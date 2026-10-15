@@ -25,7 +25,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var entries = manifest.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell").ToArray();
 		CollectionAssert.AreEquivalent(ArmageddonStockSpellInstaller.CanonicalKeys.ToArray(), claims.Select(x => x.StableKey).ToArray());
-		Assert.AreEqual(141, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
+		Assert.AreEqual(152, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var source = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId!.Value;
 		foreach (var claim in claims)
@@ -39,6 +39,28 @@ public partial class ArmageddonStockSpellInstallerTests
 			var minimum = entry.GetProperty("minimum_energy").GetDouble();
 			Assert.AreEqual(minimum, (double)root.Element("ControlledPower")!.Element("Efficiency")!.Attribute("minimum")!, claim.StableKey);
 			var expectedTarget = entry.GetProperty("target_type").GetString();
+			if (claim.StableKey == ArmageddonOpenThresholdSpellContent.Key)
+			{
+				Assert.AreEqual("room", expectedTarget);
+				expectedTarget = "thresholddestination";
+			}
+			if (claim.StableKey is ArmageddonWeightedTravelSpellContent.WaystepKey or ArmageddonWeightedTravelSpellContent.BanishKey)
+				expectedTarget = claim.StableKey == ArmageddonWeightedTravelSpellContent.WaystepKey ? "waystepdestination" : "banishtraveller";
+			if (claim.StableKey is ArmageddonTracePathSpellContent.Key or ArmageddonRemoteTravellerSpellContent.JoinKey or ArmageddonRemoteTravellerSpellContent.DrawKey)
+			{
+				Assert.AreEqual(claim.StableKey == ArmageddonRemoteTravellerSpellContent.JoinKey ? "room" : "character", expectedTarget, claim.StableKey);
+				expectedTarget = "recognisedcharacter";
+			}
+			if (claim.StableKey == ArmageddonGroundTremorSpellContent.Key)
+			{
+				Assert.AreEqual("characters", expectedTarget);
+				expectedTarget = "room"; // The dedicated room adapter also runs when local protected bodies leave zero injury recipients.
+			}
+			if (claim.StableKey == ArmageddonReturnTetherSpellContent.Key)
+			{
+				Assert.AreEqual("character", expectedTarget);
+				expectedTarget = "self"; // The locked anchor always records and returns the caster's exact body.
+			}
 			if (claim.StableKey == ArmageddonExchangePlacesSpellContent.Key)
 			{
 				Assert.AreEqual("character", expectedTarget);

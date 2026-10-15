@@ -199,7 +199,7 @@ public partial class TelepathyPower : SustainedMagicPower
             return;
         }
 
-        if (CanInvokePowerProg?.ExecuteBool(actor) == false)
+        if (CanInvokePower(actor) == false)
         {
             actor.OutputHandler.Send(WhyCantInvokePowerProg.Execute(actor).ToString());
             return;

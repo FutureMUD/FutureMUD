@@ -37,13 +37,13 @@
     "entries_without_selected_reusable_effect": 5,
     "approved_catalogue_dependency_keys_missing": 0,
     "source_files_verified": 92,
-    "installed_canonical_spells": 141,
+    "installed_canonical_spells": 152,
     "native_grade_one_stock_entries": 1,
     "native_sampled_grade_one_spells": 13,
-    "declared_canonical_spells": 141,
-    "definition_audited_canonical_spells": 141,
-    "latest_successful_native_loaded_spells": 140,
-    "required_not_yet_declared": 11,
+    "declared_canonical_spells": 152,
+    "definition_audited_canonical_spells": 152,
+    "latest_successful_native_loaded_spells": 152,
+    "required_not_yet_declared": 0,
     "latest_partial_native_first_loaded_spells": 121
   },
   "path_discrepancies": [],
@@ -387,12 +387,18 @@
       "qualification_evidence": {
         "definition": {
           "status": "PASS",
-          "receipts": ["Armageddon_S4_Continuation_Verification_20261013.json"]
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ]
         },
         "direct": [],
         "inherited": [],
         "sampled": [
-          {"status": "PASS", "receipt": "Armageddon_S4_Continuation_Verification_20261013.json", "scope": "Sealed-base Classic first/cold lane: one paid grade-one character-target cast, 50 reserve debit, 2.46 saved body-wound damage on exact local mount and no cold refill/replay; explicit controlled-area route not sampled."}
+          {
+            "status": "PASS",
+            "receipt": "Armageddon_S4_Continuation_Verification_20261013.json",
+            "scope": "Sealed-base Classic first/cold lane: one paid grade-one character-target cast, 50 reserve debit, 2.46 saved body-wound damage on exact local mount and no cold refill/replay; explicit controlled-area route not sampled."
+          }
         ],
         "assumptions": [],
         "outstanding_critical_cases": [],
@@ -955,13 +961,19 @@
       "qualification_evidence": {
         "definition": {
           "status": "PASS",
-          "receipts": ["ArmageddonOwnedItemMarkDefinitionTests: Fire item target, glyph mode, 10*grade energy and 60*grade duration; owning canonical installer test checks locked manifest and disabled gates."]
+          "receipts": [
+            "ArmageddonOwnedItemMarkDefinitionTests: Fire item target, glyph mode, 10*grade energy and 60*grade duration; owning canonical installer test checks locked manifest and disabled gates."
+          ]
         },
-        "direct": ["OwnedItemMarkTests: current owner permits take, another character is denied, changed legal ownership deactivates the mark, and managed cold reload preserves the exact owner/item binding."],
+        "direct": [
+          "OwnedItemMarkTests: current owner permits take, another character is denied, changed legal ownership deactivates the mark, and managed cold reload preserves the exact owner/item binding."
+        ],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": ["Paid native non-owner get and owner get, cold expiry, representative grade boundary."],
+        "outstanding_critical_cases": [
+          "Paid native non-owner get and owner get, cold expiry, representative grade boundary."
+        ],
         "strategy": "20261013"
       },
       "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
@@ -1137,14 +1149,27 @@
       "inventory_classification": "small_missing_primitive",
       "inventory_current_factory": null,
       "verified_paths": [
-        { "path": "MudSharpCore/Magic/SpellEffects/BurningDraughtEffect.cs", "exists": true },
-        { "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellBurningDraughtEffect.cs", "exists": true },
-        { "path": "MudSharpCore/Body/Implementations/BodyNeeds.cs", "exists": true }
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/BurningDraughtEffect.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellBurningDraughtEffect.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Body/Implementations/BodyNeeds.cs",
+          "exists": true
+        }
       ],
       "existing_factory_apis": [],
       "typed_content_projection": null,
       "registered_effect_candidates": [
-        { "type": "burningdraught", "class": "BurningDraughtEffect", "path": "MudSharpCore/Magic/SpellEffects/BurningDraughtEffect.cs" }
+        {
+          "type": "burningdraught",
+          "class": "BurningDraughtEffect",
+          "path": "MudSharpCore/Magic/SpellEffects/BurningDraughtEffect.cs"
+        }
       ],
       "candidate_scope": "Fixed Fire definition and delayed accepted-sip native harm adapter pass focused managed paid Core and Classic/Simple installer checks; restored-world drinking and cold qualification pending",
       "prototype_dependencies": [],
@@ -1183,12 +1208,20 @@
       "qualification_evidence": {
         "definition": {
           "status": "FOCUSED_MANAGED_PASS",
-          "receipts": ["ArmageddonBurningDraughtDefinitionTests", "ArmageddonStockSpellInstallerTests Classic/Simple 69/69", "Owned MySQL Classic first/cold 138/138 exact native definition readiness, 35/35 boot assertions at 5f1b9e7fb"]
+          "receipts": [
+            "ArmageddonBurningDraughtDefinitionTests",
+            "ArmageddonStockSpellInstallerTests Classic/Simple 69/69",
+            "Owned MySQL Classic first/cold 138/138 exact native definition readiness, 35/35 boot assertions at 5f1b9e7fb"
+          ]
         },
-        "direct": ["ArmageddonBurningDraughtTests focused Core 5/5: paid grade-two cast, exact-body admission, attached/detached native Burning packet and mutation fence, child reload, parent reload and explicit expiry; RoomReferenceCorrectionTests 40/40"],
+        "direct": [
+          "ArmageddonBurningDraughtTests focused Core 5/5: paid grade-two cast, exact-body admission, attached/detached native Burning packet and mutation fence, child reload, parent reload and explicit expiry; RoomReferenceCorrectionTests 40/40"
+        ],
         "inherited": [],
         "sampled": [],
-        "assumptions": ["Native first/cold readiness loaded the installed definition but did not perform a paid Burning Draught cast or observe actual Body Drink/SilentDrink liquid and needs behavior."],
+        "assumptions": [
+          "Native first/cold readiness loaded the installed definition but did not perform a paid Burning Draught cast or observe actual Body Drink/SilentDrink liquid and needs behavior."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
       },
@@ -2357,7 +2390,7 @@
         "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
         "minimum_energy": 7,
         "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
-      "source_component_note": "Approved 2026-10-14: exactly one directly carried Clerical rank 0/0/0/1/2/3/4 by grade outside effective owned Water-plane membership; Water waives it; missing required component refuses before energy payment.",
+        "source_component_note": "Approved 2026-10-14: exactly one directly carried Clerical rank 0/0/0/1/2/3/4 by grade outside effective owned Water-plane membership; Water waives it; missing required component refuses before energy payment.",
         "normal_material_policy": "Only per-spell source/approved explicit component plan; no old blanket grade>=3 reagent/focus demand.",
         "practice_policy": "target-free full paid practice; retain matching focus, no reagent consumption; raw and controlled progression separately gated.",
         "variant_policy": {
@@ -4720,12 +4753,16 @@
       "inventory_current_factory": null,
       "verified_paths": [
         {
-          "path": "MudSharpCore/Magic/SpellEffects/DamageEffect.cs",
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonGroundTremorSpellContent.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/GroundTremorEffect.cs",
           "exists": true
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": "ArmageddonGroundTremorSpellContent -> room / GroundTremorEffect",
       "registered_effect_candidates": [
         {
           "type": "damage",
@@ -4759,11 +4796,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Grounded local damage, nearby diminishing permitted-edge falls and exact source protections.",
       "remaining": [
-        "Damage primitive alone does not establish grounded-target, caster-third, protection, falls and nearby-cell messaging policy.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Complete named native direct/shared/sample qualification and unsampled critical cases; this definition count is not an S4 or Release completion certificate.",
+        "Keep quiet/area/carriers disabled pending separate source/adapter and producer qualification."
       ],
       "previous_whole_plan_status": "partial_area_engine_and_native_fixture_stock_falls_protections_pending",
       "previous_whole_plan_evidence": [
@@ -4774,14 +4810,36 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+          ],
+          "scope": "All 152 required fixed definitions, exact locked energy and typed children, Classic/Simple.",
+          "native_first_cold": {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "All152 installed definitions loaded/displayed twice; metadata/reference readiness only."
+          }
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T093951Z-d537a69824c3\\summary.json",
+            "scope": "Grounded local damage, nearby diminishing permitted-edge falls and exact source protections. Focused automated evidence; receipt source precedes later integration where applicable."
+          },
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T120341Z-0048e8e298b4\\summary.json",
+            "scope": "Final consolidated owning and dependent suites; all production code in this batch."
+          }
+        ],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": [
+          "Qualification decision for direct/shared/sample evidence; a declared or sampled definition is not full S4 or Release qualification.",
+          "Unsampled alternate practice/producer/adversarial cases remain gated; see strategy and source-shaped entry contract."
+        ],
         "strategy": "20261013"
       }
     },
@@ -5264,9 +5322,18 @@
       "completion_contract": "Reveal a permitted bounded route toward a known target. Needs a permission-aware path information effect; teleport and track tokens are not proof of this behavior.",
       "inventory_classification": "small_missing_primitive",
       "inventory_current_factory": null,
-      "verified_paths": [],
+      "verified_paths": [
+        {
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonTracePathSpellContent.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/TracePathEffect.cs",
+          "exists": true
+        }
+      ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": "ArmageddonTracePathSpellContent -> recognisedcharacter / TracePathEffect",
       "registered_effect_candidates": [],
       "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
       "prototype_dependencies": [],
@@ -5293,11 +5360,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Verified unobscured identity provenance and at most 10*grade native admitted edges; no hidden-exit or closed-door bypass.",
       "remaining": [
-        "No bounded permission-aware route-information effect found in surveyed spell-effect files; exact target and permitted edges required.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Complete named native direct/shared/sample qualification and unsampled critical cases; this definition count is not an S4 or Release completion certificate.",
+        "Keep quiet/area/carriers disabled pending separate source/adapter and producer qualification."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -5305,14 +5371,36 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+          ],
+          "scope": "All 152 required fixed definitions, exact locked energy and typed children, Classic/Simple.",
+          "native_first_cold": {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "All152 installed definitions loaded/displayed twice; metadata/reference readiness only."
+          }
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T093951Z-d537a69824c3\\summary.json",
+            "scope": "Verified unobscured identity provenance and at most 10*grade native admitted edges; no hidden-exit or closed-door bypass. Focused automated evidence; receipt source precedes later integration where applicable."
+          },
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T120341Z-0048e8e298b4\\summary.json",
+            "scope": "Final consolidated owning and dependent suites; all production code in this batch."
+          }
+        ],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": [
+          "Qualification decision for direct/shared/sample evidence; a declared or sampled definition is not full S4 or Release qualification.",
+          "Unsampled alternate practice/producer/adversarial cases remain gated; see strategy and source-shaped entry contract."
+        ],
         "strategy": "20261013"
       }
     },
@@ -5880,12 +5968,16 @@
       "inventory_current_factory": null,
       "verified_paths": [
         {
-          "path": "MudSharpCore/Magic/SpellEffects/TeleportTargetEffect.cs",
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonReturnTetherSpellContent.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/ReturnTetherEffect.cs",
           "exists": true
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": "ArmageddonReturnTetherSpellContent -> self / ReturnTetherEffect",
       "registered_effect_candidates": [
         {
           "type": "teleporttarget",
@@ -5919,11 +6011,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Approved 30*grade physical return adaptation, exact saved body/position and durable at-most-once claim; no health/inventory rewind.",
       "remaining": [
-        "TeleportTargetEffect is immediate relocation; durable delayed return, exact body/instance identity, eligibility and cancellation remain.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Complete named native direct/shared/sample qualification and unsampled critical cases; this definition count is not an S4 or Release completion certificate.",
+        "Keep quiet/area/carriers disabled pending separate source/adapter and producer qualification."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -5931,14 +6022,42 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+          ],
+          "scope": "All 152 required fixed definitions, exact locked energy and typed children, Classic/Simple.",
+          "native_first_cold": {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "All152 installed definitions loaded/displayed twice; metadata/reference readiness only."
+          }
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T093951Z-d537a69824c3\\summary.json",
+            "scope": "Approved 30*grade physical return adaptation, exact saved body/position and durable at-most-once claim; no health/inventory rewind. Focused automated evidence; receipt source precedes later integration where applicable."
+          },
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T120341Z-0048e8e298b4\\summary.json",
+            "scope": "Final consolidated owning and dependent suites; all production code in this batch."
+          }
+        ],
         "inherited": [],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "Restored exact base; all152 builder-loaded first/cold. Ordinary grade-one acquisition and finite paid gathering. Paid Waystep and at-most-once physical Return Tether, real hazard cursor/native wounds, bound Silence, exact native Compel LOOK and alias refusal, recognised threshold ENTER and durable final Arcane Mark use debit. Cold return/cursor/reserve retention and empty-pool no-payment refusal."
+          }
+        ],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": [
+          "Qualification decision for direct/shared/sample evidence; a declared or sampled definition is not full S4 or Release qualification.",
+          "Unsampled alternate practice/producer/adversarial cases remain gated; see strategy and source-shaped entry contract."
+        ],
         "strategy": "20261013"
       }
     },
@@ -6005,13 +6124,19 @@
       "qualification_evidence": {
         "definition": {
           "status": "PASS",
-          "receipts": ["ArmageddonThresholdAlarmDefinitionTests and Classic/Simple canonical installer: Earth room trigger, 33*grade energy, 120*grade duration, thresholdalarm child, locked manifest and disabled gates."]
+          "receipts": [
+            "ArmageddonThresholdAlarmDefinitionTests and Classic/Simple canonical installer: Earth room trigger, 33*grade energy, 120*grade duration, thresholdalarm child, locked manifest and disabled gates."
+          ]
         },
-        "direct": ["ThresholdAlarmTests: the native room-arrival witness notifies the loaded owner without entrant identity; owner entry, wrong event and detached parent do not notify."],
+        "direct": [
+          "ThresholdAlarmTests: the native room-arrival witness notifies the loaded owner without entrant identity; owner entry, wrong event and detached parent do not notify."
+        ],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": ["Paid native room entry, offline owner, first/cold expiry and representative grade boundary."],
+        "outstanding_critical_cases": [
+          "Paid native room entry, offline owner, first/cold expiry and representative grade boundary."
+        ],
         "strategy": "20261013"
       },
       "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
@@ -6538,7 +6663,13 @@
       ],
       "existing_factory_apis": [],
       "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonItemConditionSpellContent.cs",
-      "registered_effect_candidates": [{"type": "boundeditemcondition", "class": "BoundedItemConditionEffect", "path": "MudSharpCore/Magic/SpellEffects/BoundedItemConditionEffect.cs"}],
+      "registered_effect_candidates": [
+        {
+          "type": "boundeditemcondition",
+          "class": "BoundedItemConditionEffect",
+          "path": "MudSharpCore/Magic/SpellEffects/BoundedItemConditionEffect.cs"
+        }
+      ],
       "candidate_scope": "finite selected-grade native item wound adapter; paid installed-stock qualification pending",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
@@ -6575,7 +6706,9 @@
       "qualification_evidence": {
         "definition": {
           "status": "PASS",
-          "receipts": ["Armageddon_S4_Continuation_Verification_20261013.json"]
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ]
         },
         "direct": [],
         "inherited": [],
@@ -6597,7 +6730,13 @@
       "verified_paths": [],
       "existing_factory_apis": [],
       "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonItemConditionSpellContent.cs",
-      "registered_effect_candidates": [{"type": "boundeditemcondition", "class": "BoundedItemConditionEffect", "path": "MudSharpCore/Magic/SpellEffects/BoundedItemConditionEffect.cs"}],
+      "registered_effect_candidates": [
+        {
+          "type": "boundeditemcondition",
+          "class": "BoundedItemConditionEffect",
+          "path": "MudSharpCore/Magic/SpellEffects/BoundedItemConditionEffect.cs"
+        }
+      ],
       "candidate_scope": "finite selected-grade native item wound adapter; paid installed-stock qualification pending",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
@@ -6636,7 +6775,9 @@
       "qualification_evidence": {
         "definition": {
           "status": "PASS",
-          "receipts": ["Armageddon_S4_Continuation_Verification_20261013.json"]
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ]
         },
         "direct": [],
         "inherited": [],
@@ -6657,12 +6798,16 @@
       "inventory_current_factory": null,
       "verified_paths": [
         {
-          "path": "MudSharpCore/Magic/SpellEffects/TeleportEffect.cs",
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonWeightedTravelSpellContent.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/WeightedTravelEffect.cs",
           "exists": true
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": "ArmageddonWeightedTravelSpellContent -> waystepdestination / WaystepEffect",
       "registered_effect_candidates": [
         {
           "type": "teleport",
@@ -6696,11 +6841,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Explicit weighted tagged destination pools or legally owned live Anchor Rune; one draw after payment.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Complete named native direct/shared/sample qualification and unsampled critical cases; this definition count is not an S4 or Release completion certificate.",
+        "Keep quiet/area/carriers disabled pending separate source/adapter and producer qualification."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -6710,14 +6854,42 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+          ],
+          "scope": "All 152 required fixed definitions, exact locked energy and typed children, Classic/Simple.",
+          "native_first_cold": {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "All152 installed definitions loaded/displayed twice; metadata/reference readiness only."
+          }
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T103103Z-18e657f1d075\\summary.json",
+            "scope": "Explicit weighted tagged destination pools or legally owned live Anchor Rune; one draw after payment. Focused automated evidence; receipt source precedes later integration where applicable."
+          },
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T120341Z-0048e8e298b4\\summary.json",
+            "scope": "Final consolidated owning and dependent suites; all production code in this batch."
+          }
+        ],
         "inherited": [],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "Restored exact base; all152 builder-loaded first/cold. Ordinary grade-one acquisition and finite paid gathering. Paid Waystep and at-most-once physical Return Tether, real hazard cursor/native wounds, bound Silence, exact native Compel LOOK and alias refusal, recognised threshold ENTER and durable final Arcane Mark use debit. Cold return/cursor/reserve retention and empty-pool no-payment refusal."
+          }
+        ],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": [
+          "Qualification decision for direct/shared/sample evidence; a declared or sampled definition is not full S4 or Release qualification.",
+          "Unsampled alternate practice/producer/adversarial cases remain gated; see strategy and source-shaped entry contract."
+        ],
         "strategy": "20261013"
       }
     },
@@ -6930,12 +7102,16 @@
       "inventory_current_factory": null,
       "verified_paths": [
         {
-          "path": "MudSharpCore/Magic/SpellEffects/TeleportTargetEffect.cs",
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonRemoteTravellerSpellContent.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/RemoteTravellerEffect.cs",
           "exists": true
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": "ArmageddonRemoteTravellerSpellContent -> recognisedcharacter / DrawTravellerEffect",
       "registered_effect_candidates": [
         {
           "type": "teleporttarget",
@@ -6969,11 +7145,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Resisted recognised traveller to caster, same plane and inclusive 20*grade distance through grade six; one ranked Conjuration consumed.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Complete named native direct/shared/sample qualification and unsampled critical cases; this definition count is not an S4 or Release completion certificate.",
+        "Keep quiet/area/carriers disabled pending separate source/adapter and producer qualification."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -6983,14 +7158,36 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+          ],
+          "scope": "All 152 required fixed definitions, exact locked energy and typed children, Classic/Simple.",
+          "native_first_cold": {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "All152 installed definitions loaded/displayed twice; metadata/reference readiness only."
+          }
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T101143Z-e6d436171936\\summary.json",
+            "scope": "Resisted recognised traveller to caster, same plane and inclusive 20*grade distance through grade six; one ranked Conjuration consumed. Focused automated evidence; receipt source precedes later integration where applicable."
+          },
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T120341Z-0048e8e298b4\\summary.json",
+            "scope": "Final consolidated owning and dependent suites; all production code in this batch."
+          }
+        ],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": [
+          "Qualification decision for direct/shared/sample evidence; a declared or sampled definition is not full S4 or Release qualification.",
+          "Unsampled alternate practice/producer/adversarial cases remain gated; see strategy and source-shaped entry contract."
+        ],
         "strategy": "20261013"
       }
     },
@@ -7004,12 +7201,16 @@
       "inventory_current_factory": null,
       "verified_paths": [
         {
-          "path": "MudSharpCore/Magic/SpellEffects/TeleportEffect.cs",
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonRemoteTravellerSpellContent.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/RemoteTravellerEffect.cs",
           "exists": true
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": "ArmageddonRemoteTravellerSpellContent -> recognisedcharacter / JoinTravellerEffect",
       "registered_effect_candidates": [
         {
           "type": "teleport",
@@ -7043,11 +7244,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Caster to recognised traveller, same plane and strictly less than 20*grade distance through grade six; one ranked Teleportation consumed.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Complete named native direct/shared/sample qualification and unsampled critical cases; this definition count is not an S4 or Release completion certificate.",
+        "Keep quiet/area/carriers disabled pending separate source/adapter and producer qualification."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -7057,14 +7257,36 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+          ],
+          "scope": "All 152 required fixed definitions, exact locked energy and typed children, Classic/Simple.",
+          "native_first_cold": {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "All152 installed definitions loaded/displayed twice; metadata/reference readiness only."
+          }
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T101143Z-e6d436171936\\summary.json",
+            "scope": "Caster to recognised traveller, same plane and strictly less than 20*grade distance through grade six; one ranked Teleportation consumed. Focused automated evidence; receipt source precedes later integration where applicable."
+          },
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T120341Z-0048e8e298b4\\summary.json",
+            "scope": "Final consolidated owning and dependent suites; all production code in this batch."
+          }
+        ],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": [
+          "Qualification decision for direct/shared/sample evidence; a declared or sampled definition is not full S4 or Release qualification.",
+          "Unsampled alternate practice/producer/adversarial cases remain gated; see strategy and source-shaped entry contract."
+        ],
         "strategy": "20261013"
       }
     },
@@ -7329,12 +7551,16 @@
       "inventory_current_factory": null,
       "verified_paths": [
         {
-          "path": "MudSharpCore/Magic/SpellEffects/TeleportTargetEffect.cs",
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonWeightedTravelSpellContent.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/WeightedTravelEffect.cs",
           "exists": true
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": "ArmageddonWeightedTravelSpellContent -> banishtraveller / BanishTravellerEffect",
       "registered_effect_candidates": [
         {
           "type": "teleporttarget",
@@ -7368,11 +7594,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Resisted exact local traveller into separately configured weighted pool. Unbound source rune/no-save waiver refuses.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Complete named native direct/shared/sample qualification and unsampled critical cases; this definition count is not an S4 or Release completion certificate.",
+        "Keep quiet/area/carriers disabled pending separate source/adapter and producer qualification."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -7382,14 +7607,36 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+          ],
+          "scope": "All 152 required fixed definitions, exact locked energy and typed children, Classic/Simple.",
+          "native_first_cold": {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "All152 installed definitions loaded/displayed twice; metadata/reference readiness only."
+          }
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T103103Z-18e657f1d075\\summary.json",
+            "scope": "Resisted exact local traveller into separately configured weighted pool. Unbound source rune/no-save waiver refuses. Focused automated evidence; receipt source precedes later integration where applicable."
+          },
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T120341Z-0048e8e298b4\\summary.json",
+            "scope": "Final consolidated owning and dependent suites; all production code in this batch."
+          }
+        ],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": [
+          "Qualification decision for direct/shared/sample evidence; a declared or sampled definition is not full S4 or Release qualification.",
+          "Unsampled alternate practice/producer/adversarial cases remain gated; see strategy and source-shaped entry contract."
+        ],
         "strategy": "20261013"
       }
     },
@@ -8367,12 +8614,19 @@
       "qualification_evidence": {
         "definition": {
           "status": "FOCUSED_MANAGED_PASS",
-          "receipts": ["ArmageddonWindHammerDefinitionTests", "CanonicalDefinitions_EveryInstalledEntryMatchesLockedCostsGradesAndTypedChildren Classic/Simple"]
+          "receipts": [
+            "ArmageddonWindHammerDefinitionTests",
+            "CanonicalDefinitions_EveryInstalledEntryMatchesLockedCostsGradesAndTypedChildren Classic/Simple"
+          ]
         },
-        "direct": ["ArmageddonDirectDamageTests.WindHammer focused paid native fixture 45/45: applied-hit step, no-harm refusal, post-hit movement refusal, exit removal, destination retarget, ordered authority revocation, exit drift before payment, grade binding and cold definition; full Core 7181/0/0"],
+        "direct": [
+          "ArmageddonDirectDamageTests.WindHammer focused paid native fixture 45/45: applied-hit step, no-harm refusal, post-hit movement refusal, exit removal, destination retarget, ordered authority revocation, exit drift before payment, grade binding and cold definition; full Core 7181/0/0"
+        ],
         "inherited": [],
         "sampled": [],
-        "assumptions": ["Managed paid fixture and fixed installer tests do not certify an actual MySQL-installed live Wind Hammer cast or cold restart."],
+        "assumptions": [
+          "Managed paid fixture and fixed installer tests do not certify an actual MySQL-installed live Wind Hammer cast or cold restart."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
       },
@@ -8846,13 +9100,19 @@
       "qualification_evidence": {
         "definition": {
           "status": "PASS",
-          "receipts": ["ArmageddonOwnedItemMarkDefinitionTests: Wind item target, anchor mode, 50*grade energy and 300*grade duration; owning canonical installer test checks locked manifest and disabled gates."]
+          "receipts": [
+            "ArmageddonOwnedItemMarkDefinitionTests: Wind item target, anchor mode, 50*grade energy and 300*grade duration; owning canonical installer test checks locked manifest and disabled gates."
+          ]
         },
-        "direct": ["OwnedItemMarkTests: exact item and typed owner are exposed only while current; changed legal ownership deactivates the anchor, and managed cold reload retains both identities."],
+        "direct": [
+          "OwnedItemMarkTests: exact item and typed owner are exposed only while current; changed legal ownership deactivates the anchor, and managed cold reload retains both identities."
+        ],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": ["Paid native mark, cold expiry, representative grade boundary, and exact-anchor travel consumer acceptance."],
+        "outstanding_critical_cases": [
+          "Paid native mark, cold expiry, representative grade boundary, and exact-anchor travel consumer acceptance."
+        ],
         "strategy": "20261013"
       },
       "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
@@ -9439,13 +9699,17 @@
       "qualification_evidence": {
         "definition": {
           "status": "PASS",
-          "receipts": ["ArmageddonStockSpellInstallerTests planar definition and Classic/Simple canonical audits: exact owned Shadow plane, 20*grade energy and 60*grade duration."]
+          "receipts": [
+            "ArmageddonStockSpellInstallerTests planar definition and Classic/Simple canonical audits: exact owned Shadow plane, 20*grade energy and 60*grade duration."
+          ]
         },
         "direct": [],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": ["Paid native noncorporeal transition, inventory ejection, perception, barrier/door refusal, cold expiry and grade boundary."],
+        "outstanding_critical_cases": [
+          "Paid native noncorporeal transition, inventory ejection, perception, barrier/door refusal, cold expiry and grade boundary."
+        ],
         "strategy": "20261013"
       },
       "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
@@ -9549,7 +9813,7 @@
         "grade_coordinates": "External grade 1..7, source index 0..6 and native SpellPower remain distinct; use native selected-grade numeric context.",
         "minimum_energy": 7,
         "energy_status": "USER_ADOPTED_MASTER_LIST_MINIMUM_MANA",
-      "source_component_note": "Approved clarification 2026-10-14: owned Silt tag on current terrain, including descendants, absolutely refuses before effective owned Shadow-plane membership waives one directly carried Divination component. Room/location-only Silt does not refuse this spell. Outside Shadow minimum rank is max(grade-3,0), ranks 0..4.",
+        "source_component_note": "Approved clarification 2026-10-14: owned Silt tag on current terrain, including descendants, absolutely refuses before effective owned Shadow-plane membership waives one directly carried Divination component. Room/location-only Silt does not refuse this spell. Outside Shadow minimum rank is max(grade-3,0), ranks 0..4.",
         "normal_material_policy": "Only per-spell source/approved explicit component plan; no old blanket grade>=3 reagent/focus demand.",
         "practice_policy": "target-free full paid practice; retain matching focus, no reagent consumption; raw and controlled progression separately gated.",
         "variant_policy": {
@@ -10296,7 +10560,7 @@
       ],
       "existing_factory_apis": [],
       "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonEtherealRemovalContent.cs",
-      "candidate_scope": "fixed Shadow contribution with opt-in single spell-owned ethereal removal; managed operation and installer checks pass; paid native gameplay pending",
+      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
       "registered_effect_candidates": [
         {
           "type": "removeplanarstate",
@@ -10305,7 +10569,6 @@
           "line": 136
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -11058,12 +11321,16 @@
       "inventory_current_factory": null,
       "verified_paths": [
         {
-          "path": "MudSharpCore/Magic/SpellEffects/DamageEffect.cs",
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonStormLocusSpellContent.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/StormLocusEffect.cs",
           "exists": true
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": "ArmageddonStormLocusSpellContent -> room / StormLocusEffect",
       "registered_effect_candidates": [
         {
           "type": "damage",
@@ -11097,11 +11364,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Outdoor 30*grade electrical hazard, 2*grade every ten seconds with committed cursor before native wounds, no offline catch-up/training.",
       "remaining": [
-        "Damage primitive lacks persistent owned local hazard ticks and expiry/retirement.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Complete named native direct/shared/sample qualification and unsampled critical cases; this definition count is not an S4 or Release completion certificate.",
+        "Keep quiet/area/carriers disabled pending separate source/adapter and producer qualification."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -11109,14 +11375,42 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+          ],
+          "scope": "All 152 required fixed definitions, exact locked energy and typed children, Classic/Simple.",
+          "native_first_cold": {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "All152 installed definitions loaded/displayed twice; metadata/reference readiness only."
+          }
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T104509Z-f21a651401a4\\summary.json",
+            "scope": "Outdoor 30*grade electrical hazard, 2*grade every ten seconds with committed cursor before native wounds, no offline catch-up/training. Focused automated evidence; receipt source precedes later integration where applicable."
+          },
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T120341Z-0048e8e298b4\\summary.json",
+            "scope": "Final consolidated owning and dependent suites; all production code in this batch."
+          }
+        ],
         "inherited": [],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "Restored exact base; all152 builder-loaded first/cold. Ordinary grade-one acquisition and finite paid gathering. Paid Waystep and at-most-once physical Return Tether, real hazard cursor/native wounds, bound Silence, exact native Compel LOOK and alias refusal, recognised threshold ENTER and durable final Arcane Mark use debit. Cold return/cursor/reserve retention and empty-pool no-payment refusal."
+          }
+        ],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": [
+          "Qualification decision for direct/shared/sample evidence; a declared or sampled definition is not full S4 or Release qualification.",
+          "Unsampled alternate practice/producer/adversarial cases remain gated; see strategy and source-shaped entry contract."
+        ],
         "strategy": "20261013"
       }
     },
@@ -12242,12 +12536,19 @@
       "qualification_evidence": {
         "definition": {
           "status": "FOCUSED_MANAGED_PASS",
-          "receipts": ["ArmageddonFeignDeathDefinitionTests", "CanonicalDefinitions_EveryInstalledEntryMatchesLockedCostsGradesAndTypedChildren Classic/Simple"]
+          "receipts": [
+            "ArmageddonFeignDeathDefinitionTests",
+            "CanonicalDefinitions_EveryInstalledEntryMatchesLockedCostsGradesAndTypedChildren Classic/Simple"
+          ]
         },
-        "direct": ["ArmageddonFeignDeathTests focused Core 13/13: paid grade-two cast, living-body admission, ordinary/self/staff observations, command-dispatch break, passive aliases, child and parent reload with explicit expiry; RoomReferenceCorrectionTests 40/40"],
+        "direct": [
+          "ArmageddonFeignDeathTests focused Core 13/13: paid grade-two cast, living-body admission, ordinary/self/staff observations, command-dispatch break, passive aliases, child and parent reload with explicit expiry; RoomReferenceCorrectionTests 40/40"
+        ],
         "inherited": [],
         "sampled": [],
-        "assumptions": ["Managed paid fixture, cold effect reload and fixed installer tests do not certify an actual MySQL-installed live Feign Death cast or MUD cold boot."],
+        "assumptions": [
+          "Managed paid fixture, cold effect reload and fixed installer tests do not certify an actual MySQL-installed live Feign Death cast or MUD cold boot."
+        ],
         "outstanding_critical_cases": [],
         "strategy": "20261013"
       },
@@ -12263,12 +12564,16 @@
       "inventory_current_factory": null,
       "verified_paths": [
         {
-          "path": "MudSharpCore/Magic/SpellEffects/TagWardSpellEffects.cs",
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonMindSilenceSpellContent.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/PowerTagSuppressionEffect.cs",
           "exists": true
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": "ArmageddonMindSilenceSpellContent -> character / PowerTagSuppressionEffect",
       "registered_effect_candidates": [
         {
           "type": "personaltagward",
@@ -12302,11 +12607,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Normal resisted 30*grade suppression of explicit psionic power tag, base CanInvokePower admission, exact saved body/expiry and matching native contact teardown.",
       "remaining": [
-        "Tag wards intercept only declared contexts; psionic active-link teardown and all relevant entry points still require inspection/coverage.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Complete named native direct/shared/sample qualification and unsampled critical cases; this definition count is not an S4 or Release completion certificate.",
+        "Keep quiet/area/carriers disabled pending separate source/adapter and producer qualification."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -12314,14 +12618,42 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+          ],
+          "scope": "All 152 required fixed definitions, exact locked energy and typed children, Classic/Simple.",
+          "native_first_cold": {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "All152 installed definitions loaded/displayed twice; metadata/reference readiness only."
+          }
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T112859Z-6ca5fa556150\\summary.json",
+            "scope": "Normal resisted 30*grade suppression of explicit psionic power tag, base CanInvokePower admission, exact saved body/expiry and matching native contact teardown. Focused automated evidence; receipt source precedes later integration where applicable."
+          },
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T120341Z-0048e8e298b4\\summary.json",
+            "scope": "Final consolidated owning and dependent suites; all production code in this batch."
+          }
+        ],
         "inherited": [],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "Restored exact base; all152 builder-loaded first/cold. Ordinary grade-one acquisition and finite paid gathering. Paid Waystep and at-most-once physical Return Tether, real hazard cursor/native wounds, bound Silence, exact native Compel LOOK and alias refusal, recognised threshold ENTER and durable final Arcane Mark use debit. Cold return/cursor/reserve retention and empty-pool no-payment refusal."
+          }
+        ],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": [
+          "Qualification decision for direct/shared/sample evidence; a declared or sampled definition is not full S4 or Release qualification.",
+          "Unsampled alternate practice/producer/adversarial cases remain gated; see strategy and source-shaped entry contract."
+        ],
         "strategy": "20261013"
       }
     },
@@ -12423,16 +12755,16 @@
       "inventory_current_factory": null,
       "verified_paths": [
         {
-          "path": "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs",
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonCompellingRegardSpellContent.cs",
           "exists": true
         },
         {
-          "path": "MudSharpCore/Framework/CommandExecutionGuards.cs",
+          "path": "MudSharpCore/Magic/SpellEffects/CompellingRegardEffect.cs",
           "exists": true
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": "ArmageddonCompellingRegardSpellContent -> character / CompellingRegardEffect",
       "registered_effect_candidates": [
         {
           "type": "forcecommand",
@@ -12466,11 +12798,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "Resisted persistent PC/NPC grant, PC toggle, exact synchronous native IC command whitelist, normal admission and final callback-safe actor/command guard.",
       "remaining": [
-        "ForceCommandEffect is instantaneous; persistent resisted PC/NPC charm, per-spell PC toggle and continued IC whitelist authority remain.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Complete named native direct/shared/sample qualification and unsampled critical cases; this definition count is not an S4 or Release completion certificate.",
+        "Keep quiet/area/carriers disabled pending separate source/adapter and producer qualification."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [],
@@ -12478,14 +12809,42 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+          ],
+          "scope": "All 152 required fixed definitions, exact locked energy and typed children, Classic/Simple.",
+          "native_first_cold": {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "All152 installed definitions loaded/displayed twice; metadata/reference readiness only."
+          }
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115250Z-35ee5031cd24\\summary.json",
+            "scope": "Resisted persistent PC/NPC grant, PC toggle, exact synchronous native IC command whitelist, normal admission and final callback-safe actor/command guard. Focused automated evidence; receipt source precedes later integration where applicable."
+          },
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T120341Z-0048e8e298b4\\summary.json",
+            "scope": "Final consolidated owning and dependent suites; all production code in this batch."
+          }
+        ],
         "inherited": [],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "Restored exact base; all152 builder-loaded first/cold. Ordinary grade-one acquisition and finite paid gathering. Paid Waystep and at-most-once physical Return Tether, real hazard cursor/native wounds, bound Silence, exact native Compel LOOK and alias refusal, recognised threshold ENTER and durable final Arcane Mark use debit. Cold return/cursor/reserve retention and empty-pool no-payment refusal."
+          }
+        ],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": [
+          "Qualification decision for direct/shared/sample evidence; a declared or sampled definition is not full S4 or Release qualification.",
+          "Unsampled alternate practice/producer/adversarial cases remain gated; see strategy and source-shaped entry contract."
+        ],
         "strategy": "20261013"
       }
     },
@@ -12949,14 +13308,22 @@
       "qualification_evidence": {
         "definition": {
           "status": "PASS",
-          "receipts": ["Armageddon_S4_Continuation_Handoff_20261012.md"],
+          "receipts": [
+            "Armageddon_S4_Continuation_Handoff_20261012.md"
+          ],
           "scope": "Classic isolated actual-MySQL package and first/cold native MUD loaded 140/140 exact definitions; 35 shared stock assertions, not a direct Linked Threshold cast."
         },
         "direct": [],
         "inherited": [],
         "sampled": [],
-        "assumptions": ["At-most-once cursor claims prevent replay but a crash after claim can omit one pulse; source HP-above-half hit floor is not claimed."],
-        "outstanding_critical_cases": ["Paid gate creation and mark debit", "Occupied closed-room persistence and native pulse across cold restart", "Safe empty-room cleanup and foreign-goods conservation"],
+        "assumptions": [
+          "At-most-once cursor claims prevent replay but a crash after claim can omit one pulse; source HP-above-half hit floor is not claimed."
+        ],
+        "outstanding_critical_cases": [
+          "Paid gate creation and mark debit",
+          "Occupied closed-room persistence and native pulse across cold restart",
+          "Safe empty-room cleanup and foreign-goods conservation"
+        ],
         "strategy": "20261013"
       },
       "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
@@ -13393,13 +13760,17 @@
       "qualification_evidence": {
         "definition": {
           "status": "PASS",
-          "receipts": ["ArmageddonStockSpellInstallerTests planar definition and Classic/Simple canonical audits: exact owned Shadow plane, 10*grade energy and 60*grade duration."]
+          "receipts": [
+            "ArmageddonStockSpellInstallerTests planar definition and Classic/Simple canonical audits: exact owned Shadow plane, 10*grade energy and 60*grade duration."
+          ]
         },
         "direct": [],
         "inherited": [],
         "sampled": [],
         "assumptions": [],
-        "outstanding_critical_cases": ["Paid native manifested transition, planar interaction, barrier/door refusal, cold expiry and grade boundary."],
+        "outstanding_critical_cases": [
+          "Paid native manifested transition, planar interaction, barrier/door refusal, cold expiry and grade boundary."
+        ],
         "strategy": "20261013"
       },
       "canonical_contribution": "DECLARED_WITH_REAL_TYPED_BINDINGS"
@@ -13485,12 +13856,16 @@
       "inventory_current_factory": null,
       "verified_paths": [
         {
-          "path": "MudSharpCore/Magic/SpellEffects/MagicPhase3Effects.cs",
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonOpenThresholdSpellContent.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/OpenThresholdEffect.cs",
           "exists": true
         }
       ],
       "existing_factory_apis": [],
-      "typed_content_projection": null,
+      "typed_content_projection": "ArmageddonOpenThresholdSpellContent -> thresholddestination / OpenThresholdEffect",
       "registered_effect_candidates": [
         {
           "type": "portal",
@@ -13524,11 +13899,10 @@
           "status": "explicit allowlist plus every effect/trigger/numeric-binding compatibility check and native production qualification"
         }
       },
-      "current_code_note": null,
+      "current_code_note": "One 120*grade native paired transient exit to exact carried Arcane Mark or recognised traveller; durable mark use before publication and live traversal/expiry checks.",
       "remaining": [
-        "Existing named primitive is a code candidate; inspect/configure its outcome and eligibility to meet this exact defining contract.",
-        "Hydrate/reconcile one canonical spell with real typed dependencies and preserve builder/player state.",
-        "Qualify actual paid installed-stock invocation, all grades, source-informed area/quiet/material/lifetime rules, refusal and restart/expiry/custody where applicable."
+        "Complete named native direct/shared/sample qualification and unsampled critical cases; this definition count is not an S4 or Release completion certificate.",
+        "Keep quiet/area/carriers disabled pending separate source/adapter and producer qualification."
       ],
       "previous_whole_plan_status": "pending_runtime_stock_and_native_acceptance",
       "previous_whole_plan_evidence": [
@@ -13538,14 +13912,42 @@
       "release_qualification": false,
       "qualification_evidence": {
         "definition": {
-          "status": "PENDING",
-          "receipts": []
+          "status": "PASS",
+          "receipts": [
+            "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115659Z-07e3778482f4\\summary.json"
+          ],
+          "scope": "All 152 required fixed definitions, exact locked energy and typed children, Classic/Simple.",
+          "native_first_cold": {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "All152 installed definitions loaded/displayed twice; metadata/reference readiness only."
+          }
         },
-        "direct": [],
+        "direct": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T115250Z-35ee5031cd24\\summary.json",
+            "scope": "One 120*grade native paired transient exit to exact carried Arcane Mark or recognised traveller; durable mark use before publication and live traversal/expiry checks. Focused automated evidence; receipt source precedes later integration where applicable."
+          },
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-remaining-s4\\20261015T120341Z-0048e8e298b4\\summary.json",
+            "scope": "Final consolidated owning and dependent suites; all production code in this batch."
+          }
+        ],
         "inherited": [],
-        "sampled": [],
+        "sampled": [
+          {
+            "status": "PASS",
+            "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-9251b23ccd7f4b2d851d95bec099b826\\boot-latest.json",
+            "scope": "Restored exact base; all152 builder-loaded first/cold. Ordinary grade-one acquisition and finite paid gathering. Paid Waystep and at-most-once physical Return Tether, real hazard cursor/native wounds, bound Silence, exact native Compel LOOK and alias refusal, recognised threshold ENTER and durable final Arcane Mark use debit. Cold return/cursor/reserve retention and empty-pool no-payment refusal."
+          }
+        ],
         "assumptions": [],
-        "outstanding_critical_cases": [],
+        "outstanding_critical_cases": [
+          "Qualification decision for direct/shared/sample evidence; a declared or sampled definition is not full S4 or Release qualification.",
+          "Unsampled alternate practice/producer/adversarial cases remain gated; see strategy and source-shaped entry contract."
+        ],
         "strategy": "20261013"
       }
     },
@@ -13881,7 +14283,7 @@
       ],
       "existing_factory_apis": [],
       "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonExistingFactorySpellContent.cs",
-      "candidate_scope": "fixed Void contribution reusing the owned Shadow-plane identity projection journal; 60*grade seconds and 10*grade room edges; managed policy and installer checks pass; paid native gameplay pending",
+      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
       "registered_effect_candidates": [
         {
           "type": "astralprojection",
@@ -13890,7 +14292,6 @@
           "line": 40
         }
       ],
-      "candidate_scope": "registration and source existence only; no defining gameplay or stock completeness assertion",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
       "policy": {
@@ -13955,7 +14356,13 @@
       ],
       "existing_factory_apis": [],
       "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonItemConditionSpellContent.cs",
-      "registered_effect_candidates": [{"type": "boundeditemcondition", "class": "BoundedItemConditionEffect", "path": "MudSharpCore/Magic/SpellEffects/BoundedItemConditionEffect.cs"}],
+      "registered_effect_candidates": [
+        {
+          "type": "boundeditemcondition",
+          "class": "BoundedItemConditionEffect",
+          "path": "MudSharpCore/Magic/SpellEffects/BoundedItemConditionEffect.cs"
+        }
+      ],
       "candidate_scope": "finite selected-grade native item wound adapter; one paid grade-one installed-stock cast and exact cold item wound sampled",
       "prototype_dependencies": [],
       "functional_support_dependencies": [],
@@ -13992,12 +14399,18 @@
       "qualification_evidence": {
         "definition": {
           "status": "PASS",
-          "receipts": ["Armageddon_S4_Continuation_Verification_20261013.json"]
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ]
         },
         "direct": [],
         "inherited": [],
         "sampled": [
-          {"status": "PASS", "receipt": "Armageddon_S4_Continuation_Verification_20261013.json", "scope": "Sealed-base Classic first/cold lane: exact dropped leaf, one 50-reserve debit, 1.25 saved native wound, unchanged after cold restart; no replay/refill."}
+          {
+            "status": "PASS",
+            "receipt": "Armageddon_S4_Continuation_Verification_20261013.json",
+            "scope": "Sealed-base Classic first/cold lane: exact dropped leaf, one 50-reserve debit, 1.25 saved native wound, unchanged after cold restart; no replay/refill."
+          }
         ],
         "assumptions": [],
         "outstanding_critical_cases": [],
@@ -14252,15 +14665,31 @@
       "inventory_classification": "small_missing_primitive",
       "inventory_current_factory": null,
       "verified_paths": [
-        {"path": "MudSharpCore/Magic/SpellEffects/DrowningGripEffect.cs", "exists": true},
-        {"path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellDrowningGripEffect.cs", "exists": true},
-        {"path": "MudSharpCore/Health/Breathing/BreathingStrategyHelper.cs", "exists": true},
-        {"path": "FutureMUDLibrary/Magic/Stock/ArmageddonDrowningGripSpellContent.cs", "exists": true}
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/DrowningGripEffect.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellDrowningGripEffect.cs",
+          "exists": true
+        },
+        {
+          "path": "MudSharpCore/Health/Breathing/BreathingStrategyHelper.cs",
+          "exists": true
+        },
+        {
+          "path": "FutureMUDLibrary/Magic/Stock/ArmageddonDrowningGripSpellContent.cs",
+          "exists": true
+        }
       ],
       "existing_factory_apis": [],
       "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonDrowningGripSpellContent.cs",
       "registered_effect_candidates": [
-        {"type": "drowninggrip", "class": "DrowningGripEffect", "path": "MudSharpCore/Magic/SpellEffects/DrowningGripEffect.cs"}
+        {
+          "type": "drowninggrip",
+          "class": "DrowningGripEffect",
+          "path": "MudSharpCore/Magic/SpellEffects/DrowningGripEffect.cs"
+        }
       ],
       "candidate_scope": "declared finite native breathing-interruption effect and fixed Water stock definition; paid installed-stock invocation pending",
       "prototype_dependencies": [],
@@ -14299,10 +14728,16 @@
       "qualification_evidence": {
         "definition": {
           "status": "PASS",
-          "receipts": ["Armageddon_S4_Continuation_Verification_20261013.json"]
+          "receipts": [
+            "Armageddon_S4_Continuation_Verification_20261013.json"
+          ]
         },
         "direct": [
-          {"status": "PASS", "receipt": "Armageddon_S4_Continuation_Verification_20261013.json", "scope": "Managed native-effect hydration plus lung, gill, blowhole and partless breathing interruption/restoration; focused Core 19/19."}
+          {
+            "status": "PASS",
+            "receipt": "Armageddon_S4_Continuation_Verification_20261013.json",
+            "scope": "Managed native-effect hydration plus lung, gill, blowhole and partless breathing interruption/restoration; focused Core 19/19."
+          }
         ],
         "inherited": [],
         "sampled": [],
@@ -15141,7 +15576,11 @@
   "item_condition_definition_candidate": {
     "base_revision": "74bd2817d0e57fbd5f933a63dc9b77ebab187ecc",
     "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonItemConditionSpellContent.cs",
-    "keys": ["arm.spell.shatter_stone", "arm.spell.restore_object", "arm.spell.erode_object"],
+    "keys": [
+      "arm.spell.shatter_stone",
+      "arm.spell.restore_object",
+      "arm.spell.erode_object"
+    ],
     "definition_status": "Classic/Simple installer and finite-grade definition 3/3; native hydration, operation and compatibility 6/6; full Core 7141/0/0; full Seeder 1844/0/3.",
     "installed_stock_qualification": "PENDING overall: Erode Object has one paid grade-one exact organic-item wound and cold retention sample; Shatter Stone and Restore Object remain unsampled, as do broader selected-grade and negative cases.",
     "latest_successful_native_loaded_spells": 122,
@@ -15150,7 +15589,12 @@
   "area_harm_definition_candidate": {
     "base_revision": "dfc4706ad09f287e9d32d8657d76abe923ae5706",
     "typed_content_projection": "FutureMUDLibrary/Magic/Stock/ArmageddonAreaHarmSpellContent.cs",
-    "keys": ["arm.spell.cinder_rain", "arm.spell.thunderclap", "arm.spell.scouring_gust", "arm.spell.caustic_spray"],
+    "keys": [
+      "arm.spell.cinder_rain",
+      "arm.spell.thunderclap",
+      "arm.spell.scouring_gust",
+      "arm.spell.caustic_spray"
+    ],
     "definition_status": "Classic/Simple installer audit 3/3 and runtime hydration 1/1 pass; four authored effects and area policies are declared.",
     "installed_stock_qualification": "PENDING overall: Cinder Rain has one paid grade-one exact local character-target wound and cold conservation sample; explicit controlled-area selection, other entries and grades remain unsampled.",
     "latest_successful_native_loaded_spells": 122,
@@ -15164,5 +15608,520 @@
     "installed_stock_qualification": "PENDING: the 122/122 first/cold lane loaded Drowning Grip's exact definition but did not pay or observe its breathing effect on a live target.",
     "latest_successful_native_loaded_spells": 122,
     "gates": "Release, package admissions, Class availability and unqualified carrier producers remain disabled."
-  }
+  },
+  "remaining_152_checkpoint_20261015": {
+    "base_revision": "4acdaf85af4c5281177152ba3041b1b56421e0b1",
+    "declared_required": 152,
+    "required_undeclared": 0,
+    "optional_deferred": 2,
+    "verification": "Armageddon_S4_Continuation_Verification_20261013.json",
+    "state": "IMPLEMENTED_DEFINITION_AUDITED_MANAGED_AND_SAMPLED_NATIVE_PASS",
+    "release_enabled": false
+  },
+  "remaining_152_source_fingerprints": [
+    {
+      "path": "DatabaseSeeder Unit Tests/ArmageddonStockSpellInstallerTests.Primitives.cs",
+      "sha256": "9a60e9b03f42fe7e3efea5b313fce16603d740f6a3cf6213501682f52701f3cf"
+    },
+    {
+      "path": "DatabaseSeeder Unit Tests/ArmageddonStockSupportInstallerTests.cs",
+      "sha256": "ef650e06d9803d6fd259a7d2f27d8c59385a8b9b2443018a203ea48d3d3ec2bd"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonStockSpellInstaller.Factories.cs",
+      "sha256": "7ae31a52e70fa176fbccfd77384f202cc0d5763961721bb70b51c03386df7ebb"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonStockSpellInstaller.cs",
+      "sha256": "dca175d1e9501c04ce3a16e4c6e26971c61425131a9415682848fc7a24ae49d4"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonStockSupportInstaller.Travel.cs",
+      "sha256": "c7271a97fcbe4583ba1f010259ea5ceec25aefc6ed51b629a332be87b0660890"
+    },
+    {
+      "path": "DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonStockSupportInstaller.cs",
+      "sha256": "f786614a10989f96cf1efddf6555c16d3e57fdccfb778f59852103cf38386001"
+    },
+    {
+      "path": "FutureMUDLibrary/Character/IDub.cs",
+      "sha256": "676ca93424d79835eda627226a2b0ca0cc31ef7eb09fe4978f965172260fbf37"
+    },
+    {
+      "path": "FutureMUDLibrary/Framework/IFuturemud.cs",
+      "sha256": "2f439fa5db9641f807249a7cbf1e494bb525c330f81e0836c7cebf6427674389"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/IMagicPower.cs",
+      "sha256": "b7d4e265293838889c8fe03dc37e92f1b4217fbb473ec1c031ebec91144cb1b1"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/ISpellOwnedLifecycle.cs",
+      "sha256": "d4a20f84f984c7a53e1a854bd0d5560b71591ea6a173d19ea9ae84252ec304b0"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicEngineV4Tests.ExchangePlaces.cs",
+      "sha256": "f2ae9531c121d0bf532ee67455ec3fd3ca00053dcbff0dc98783240842552427"
+    },
+    {
+      "path": "MudSharpCore/Character/Character.cs",
+      "sha256": "d597ca2ed2096cf03d49085cf72a6aa98cb40eadf6446bf7b4f80210d71447ab"
+    },
+    {
+      "path": "MudSharpCore/Character/CharacterMovement.cs",
+      "sha256": "bc6cc96b132733e6afae1639fc30ba50432e6fd9ac07a2a891cb495ac04f69bd"
+    },
+    {
+      "path": "MudSharpCore/Character/Dub.cs",
+      "sha256": "970ef2ebe83ef2114adf9793135988c1e5199ae827164baf2e7046c5b3a451c5"
+    },
+    {
+      "path": "MudSharpCore/Commands/Command.cs",
+      "sha256": "c60a60c6562e3d4393f81e1ccc6574f3694542a09719900cd5d553a7b1ef2129"
+    },
+    {
+      "path": "MudSharpCore/Commands/Modules/CharacterInformation.cs",
+      "sha256": "a6743ec1f168add7871208277544a7a1b8cf9a6d401a5aa7c012972dc88e2540"
+    },
+    {
+      "path": "MudSharpCore/Commands/Modules/PlayerOnlyModule.cs",
+      "sha256": "b26eb5b46eb8a52d2708ca9879252d7e07501f418ff27a4116dad6a64efbcc33"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellPortalEffect.cs",
+      "sha256": "8d17205901e0eba2418a1b25490e8892988d494bdc06f48388696ce7bcccd213"
+    },
+    {
+      "path": "MudSharpCore/Framework/Futuremud.SpellOwnedNpcs.cs",
+      "sha256": "9a7b03ec712d4df4ad1a1a91ebd1a643eb1c022b1e997fce942db160589eb2f2"
+    },
+    {
+      "path": "MudSharpCore/GameItems/Inventory/Plans/InventoryPlanActionConsume.cs",
+      "sha256": "a45b9b903e83d2e645ec45f4a57ab01719178a6697605ea95a43fc52c5c2445d"
+    },
+    {
+      "path": "MudSharpCore/Magic/Casting/CastingNumerics.cs",
+      "sha256": "647d4814fa27b541136999c32d4eae51da2c3260af738377bc23347b955b01c3"
+    },
+    {
+      "path": "MudSharpCore/Magic/Lifecycle/SpellOwnedCreation.GateMark.cs",
+      "sha256": "a3ccc86f3676edd811a560cec7a7001add5a4f1891e4a8b1e197b1136f74bcd5"
+    },
+    {
+      "path": "MudSharpCore/Magic/Lifecycle/SpellOwnedCreation.cs",
+      "sha256": "29cb28112ae419a637b6ffd51c2c9c063c133bee4e4e65721cd773d795d059a4"
+    },
+    {
+      "path": "MudSharpCore/Magic/Lifecycle/SpellOwnedLifecycleStore.cs",
+      "sha256": "6db60cee0490e67391f4569fffed812a52c0e56befbc34295dd841a1f7b0e6bf"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/ChokePower.cs",
+      "sha256": "54901415d690f745f87962c0e50b441a6487308984b28603d7f91bd2cdf2d2f0"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/ClairaudiencePower.cs",
+      "sha256": "f40fd35a485989e64f46f26b20c5dacf2038ca0aa599037a04e1e07748c46b97"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/ConnectMindPower.cs",
+      "sha256": "98d52bd51f895e59dfcc497aa3dd71c192e6ec027d161d841a1f66236cf8a6f5"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/InvisibilityPower.cs",
+      "sha256": "518075d224278c8ca6c721fdaf4e8f5ff13f8a55580cdb79a92509c8f6b2e815"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MagicArmourPower.cs",
+      "sha256": "0d6d1ba4f8a68eafde43d232e8983417032d0af162b49f95f3a15d51e821a8b6"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MagicAttackPower.cs",
+      "sha256": "1efaadc1228e39ae1f251e7ebc475fa3f975ba3a626c645be9cc304419685820"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MagicDefensePower.cs",
+      "sha256": "311002307a7cdced6a6df5de14326872d0f4c2d613aedb79e47bec2d491f7430"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MagicPowerBase.cs",
+      "sha256": "0e2b81e2361103760913d8218acab2c2282ff74da40bde8a0fa99b803e0fc4d3"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MagicSmashPower.cs",
+      "sha256": "c5868b1a5f82d49b2d44cea0a679c4f226295a4f1c7df3f6c6e5fb72e7df9c1c"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MindAnesthesiaPower.cs",
+      "sha256": "8ee5add1ce0c85c1cc0273a86a4c21108252ce7b0818a2d7df68fac57259163a"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MindAuditPower.cs",
+      "sha256": "dbb7346f0de4d262b7099a317ebae7adb147b2516bc289ee673c20173e13a5c5"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MindBarrierPower.cs",
+      "sha256": "18a2705b147da807b99f0807bea398f425df35cb3d9fce79d355c89ba40366d1"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MindBroadcastPower.cs",
+      "sha256": "391bbb99d15975ba007f5c64462b21bdd52cbea4ba62a77b1916cacd5201b795"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MindConcealPower.cs",
+      "sha256": "f7691aa242a951d7a0f6a3da470174b52489cc047bd1e3eb2d4d0f14d88d5b0e"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MindExpelPower.cs",
+      "sha256": "d8b039c1d1ebcaf7f149f941a1a57cf2cc1b2f216c68f0d9457b66f1a2e70312"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MindLookPower.cs",
+      "sha256": "20bdb19fdec8c857400963329a890a496eeb5035749c39635b78590a083d0c3e"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MindSayPower.cs",
+      "sha256": "8969abd90671ff258f892a85536fe7962766db6ef6912489f4fda23cacf3d661"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/PresciencePower.cs",
+      "sha256": "9dd31f6d76020bb100a0e92c31ccd90a789cf0e64c98f0922a5bf2f7f677b62c"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/PsionicSustainedSelfPowerBase.cs",
+      "sha256": "9e5b8f046e9b04949e0ab7627092e23fe8d9ffba129e012a8a216187d3c1075f"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/PsionicTargetedPowerBase.cs",
+      "sha256": "8e19062629977ca5a736e65de55911eb99609a244e67ac59f303085d161eb18c"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/PsychometryPower.cs",
+      "sha256": "67ac0dc9ba185021d7c933c983fc18ac774ea482370632e4ba36ac9e7dda643d"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/SelectiveForgettingPower.cs",
+      "sha256": "19ac407bb6937e0f9344b34593a379605f83df95c0ca5c65118c936a2f7ef73a"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/SensePower.cs",
+      "sha256": "e848e7c29f58d8af4a1e840b234550c8d7fe122f363e9fd4a55b04481f3046d3"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/SpellBackedPower.cs",
+      "sha256": "f893534a46ecda55b8b8aa9e32727ecb43ad2b12f7542028181c9fc700fa8e24"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/TelekinesisPower.cs",
+      "sha256": "74770c8e69fed3bfce4a1405b7717de34cfe6eee6adb207491d19e9cc9a25125"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/TelepathyPower.cs",
+      "sha256": "18fc4fa29c7f0e1c442d1c233953fc17aa23aa15a63f4466c5d37be6d238ac06"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DamageEffect.IdentitySafe.cs",
+      "sha256": "77c0cac16f8a3ca9fa78598cc49cf04277b1ffcf3122fdce78752a853079446f"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/DamageEffect.cs",
+      "sha256": "0e6b805f954c4943704a423851ea48b67f27adb7ef13e3d6d7ac5ace8d4a24e5"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/SpellTravelEndpointPolicy.cs",
+      "sha256": "93ba9b3bb471a55051fe982b82cee0808d32d130d9e3b2ce8cf709ba1b1fcf58"
+    },
+    {
+      "path": "MudSharpCore/Magic/Vancian/ScrollSpellCompatibility.cs",
+      "sha256": "dd231df8bd99eafa08049d9f0d6e523cf1b67fca38a592fb8ae3ed3dcee99c00"
+    },
+    {
+      "path": "MudSharpCore/Magic/Vancian/SpellTargetResolution.cs",
+      "sha256": "4d2786ce76dfa3dfc77ac004329b21fba8fd5a3f2ec79ccf0f1abbc4a2cfd2d3"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary Unit Tests/RoomReferenceCorrectionTests.cs",
+      "sha256": "4092084f998e0f628733e04dd6aada4981f6e4e54606243e42cfafd6ff16db10"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary Unit Tests/RoomTerminologyTests.cs",
+      "sha256": "50f9219e751ae6c68901aa146ae9a452b5cf938bf2db23cc885aabe22782778c"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary/Database/FuturemudDatabaseContextConfiguring2.cs",
+      "sha256": "d791f9cf696091ec5ddb6429102bfbaba5602178530888fffb0f5927373638d2"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary/Database/RoomReferenceEffectTypes.cs",
+      "sha256": "3b2dffeabc47e7f342aa05c08570d97fed8fc5b20b0adec82583809de1ec6f82"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary/Migrations/FutureMUDContextModelSnapshot.cs",
+      "sha256": "c1f0744107400707d9dedc416a7a9b90cd74b13fad02028620f705545979de38"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary/Models/MagicSpellLifecycle.cs",
+      "sha256": "efdbb546184dd988cef651a356c9e4ee2cd1f02ba1ce0f241139bac4ab55e5ed"
+    },
+    {
+      "path": "tests/ArmageddonPreparedSeederNativeHarness/PreparedCatalogueBootSmoke.py",
+      "sha256": "89524ba298617c74722b1c42f15f50828c35d8d26e643ab6b2c274dd9ea0780c"
+    },
+    {
+      "path": "tests/ArmageddonPreparedSeederNativeHarness/PreparedStockCampaign.py",
+      "sha256": "36b118945d93fba5f3a17de4ec04a006d84ecd20c167816aaee6beea0550a862"
+    },
+    {
+      "path": "tests/ArmageddonPreparedSeederNativeHarness/Program.BaseWorldFixture.cs",
+      "sha256": "eac1a99e3b8c535ba9aa20efee98de5be758a64399b1f4078cd37ddb4ee3a24f"
+    },
+    {
+      "path": "tests/ArmageddonPreparedSeederNativeHarness/Program.StockAttunement.cs",
+      "sha256": "0fba69ea05aadbce16a35fe40f287f50c0b5659b6dd56c24ca562b13285cd486"
+    },
+    {
+      "path": "FutureMUDLibrary/Effects/Interfaces/IAdmittedMagicPortalExit.cs",
+      "sha256": "4874c3975e463768497bb5f786d649d0c4d32caa1bcbc05d3521a2025184b73c"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/IMagicPowerTagSuppression.cs",
+      "sha256": "768d4533e18334084ccdbb746cad79158dd6ea7810db1382f6ebec1caa055a86"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/ISpellMarkedRoomUseService.cs",
+      "sha256": "fccaf37826a8a77d3921f5ef73113d34561ca3c446ee395714caddd8c794c61a"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/ISpellReturnService.cs",
+      "sha256": "b2b2c149454a03b32b86f1ef916bdab52d0e0d6194fce164cc8ea45bcd7516b9"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/ISpellRoomHazardJournal.cs",
+      "sha256": "5b5b7393fcc501b4af2e7def5bfab7f98f87a98ae182461650e316a916d372f2"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/SpellThresholdDestinationRequest.cs",
+      "sha256": "2703ac70dabf0373ad6bacdbb25aaf23e22f838b5b36d864f6ea3ca362229289"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/SpellTravelDestinationRequest.cs",
+      "sha256": "fda4e9d6764ccdf11559e3af564a74bad317bed3f6d435e0c112b376ede997ae"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/Stock/ArmageddonCompellingRegardSpellContent.cs",
+      "sha256": "37c625f41bdf8a3ec093c808faaf1ef7d91af9ac6c0120e27fbc266ea368e16c"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/Stock/ArmageddonGroundTremorSpellContent.cs",
+      "sha256": "07909e03780363d714756cbf6035798d6ea51f7b1f00bdfc4659ec7ffece1efa"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/Stock/ArmageddonMindSilenceSpellContent.cs",
+      "sha256": "215cd0cfc739bf15a08dc29ba4a5fa7b1a0fc7e43696ee6ac213899c99bc17a3"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/Stock/ArmageddonOpenThresholdSpellContent.cs",
+      "sha256": "e5eb04d362ac3567898b3f35f4cc54fd511182d16963c192a74931ca87e84b51"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/Stock/ArmageddonRemoteTravellerSpellContent.cs",
+      "sha256": "fe98f3f28f95b50131425d7294287eab76e3e05f3eb157deb0eabdaebab112bd"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/Stock/ArmageddonReturnTetherSpellContent.cs",
+      "sha256": "3c5a354575e215444dddefbbfff8f496d084f7f5f1a72a827f4d95575fead9c5"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/Stock/ArmageddonStormLocusSpellContent.cs",
+      "sha256": "f465cffe6888a672f621eeb3e5748d0a2729072eaf50d977546b68ae56d25b0e"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/Stock/ArmageddonTracePathSpellContent.cs",
+      "sha256": "a5e06dd913cfc10ccd485105b7052f966a29b7b575aabc9298e093a2d31eebf1"
+    },
+    {
+      "path": "FutureMUDLibrary/Magic/Stock/ArmageddonWeightedTravelSpellContent.cs",
+      "sha256": "ca2fc2dfa5aae892cf49217a8297aca91843c99eca2ca347c8676bd40a2d00b7"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicEngineV4Tests.CompellingRegard.cs",
+      "sha256": "401b75c76dfbe6950d112fbcd3ff7bd221f264e3e722e955d620e72188d86fb3"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicEngineV4Tests.GroundTremor.cs",
+      "sha256": "48c85455a3c3672b315bd97d868ba15357ac1e8d44543a87e2e8d955f9820cb2"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicEngineV4Tests.OpenThreshold.cs",
+      "sha256": "bcefb7c50826a165695b030eeeb1faa21167abd28cba0265e845fc34b8eea557"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicEngineV4Tests.PowerTags.cs",
+      "sha256": "f4aa9cbe600dccf0494f77fbaf9bef926e21632663acfd89ccaf766c6a75a188"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicEngineV4Tests.RemoteTravellers.cs",
+      "sha256": "7c408c9ecfab99d889cf6bfc9ef8737fae4a885fe9e8a38a3c0cb3ca0625505e"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicEngineV4Tests.ReturnTether.cs",
+      "sha256": "0e76d521e914e678e65ad5852d538dfe498527f6a061c1921dd0f731f56a8145"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicEngineV4Tests.StormLocus.cs",
+      "sha256": "b12a54547b6075a41d6b7b082dc5a31b784db03f3c432640472789d07c67753c"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicEngineV4Tests.TracePath.cs",
+      "sha256": "a3b986d0ca04c3fd2e2427a2fd9039e564c6ea405704a978bd376c648c21c4b3"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/MagicEngineV4Tests.WeightedTravel.cs",
+      "sha256": "d7e63b1fd404e64cb9bbdf057447d88745a1b62c710c9c42bd013151a41a661e"
+    },
+    {
+      "path": "MudSharpCore/Character/CharacterRecognitionAuthority.cs",
+      "sha256": "912ff43ce7711ad5459b6b0bf6e58fbf626924dbdcb87ea43aa44f4941cc9476"
+    },
+    {
+      "path": "MudSharpCore/Commands/Modules/MagicModule.CompellingRegard.cs",
+      "sha256": "fabc125d889cc9e4e3b320531b9387295c359dca53155266f145d7cd5b930d1d"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellCompellingRegardEffect.cs",
+      "sha256": "c5faa61765facea47615f046db12cc3a6a83e0f78451bc4ba332a714d46b58db"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellOpenThresholdEffect.cs",
+      "sha256": "b93d43800a761f88b84e2c68c3c99ba7467cd12e6927e359ce0d137beae8b1a4"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellPowerTagSuppressionEffect.cs",
+      "sha256": "0bf87bf1b6a868191eaa829256efc023aed980173a1481bf707120a698063adb"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellReturnTetherEffect.cs",
+      "sha256": "e19725014e9ee7397d3ea20500da6123ad3f90563815191951db2a99d9d7f7bb"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellStormLocusEffect.cs",
+      "sha256": "cad30189a33fb0c034266a4f96705f1045cc94a7ffcd566cdeb7bcb809243746"
+    },
+    {
+      "path": "MudSharpCore/Magic/Lifecycle/SpellMarkedRoomDebit.cs",
+      "sha256": "21aab27876b20487d454689088f6f75761ee723349d4b3db229ecd91cd8aa211"
+    },
+    {
+      "path": "MudSharpCore/Magic/Lifecycle/SpellMarkedRoomUseService.cs",
+      "sha256": "eba0f95a3d742acc6d0fbd5b085fface9743d3282da38f8f73b4c059f7275413"
+    },
+    {
+      "path": "MudSharpCore/Magic/Lifecycle/SpellReturnService.cs",
+      "sha256": "a2ee141f133095889abe25827882ecdd981dca2390207904e28892e649154c65"
+    },
+    {
+      "path": "MudSharpCore/Magic/Lifecycle/SpellRoomHazardJournal.cs",
+      "sha256": "93080a768942417ee01c25eac1ccf7cb39f746396bca1b1a00b2e9d319cbb4ac"
+    },
+    {
+      "path": "MudSharpCore/Magic/Powers/MagicPowerBase.PowerTags.cs",
+      "sha256": "d56c921561092a2efeba6d41b0565bd57eef8ea301d5d36457858226f673ebcd"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellCompulsionExecution.cs",
+      "sha256": "df2b4e1170112db8156cf918f684f91a2047052f2e9c3bb5373605b86f2caadf"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/CompellingRegardEffect.cs",
+      "sha256": "3797b555bace341eb33dba3e01c2925dab471b9f5369c54d5eb8f49eb98cbb53"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/GroundTremorEffect.Policy.cs",
+      "sha256": "4291f9778e61614af983e0046a5fce781a3af67f225feca57839014b5964e11f"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/GroundTremorEffect.cs",
+      "sha256": "e7a2d29bc936ec55f65ee47603a6f741d4ad9ebf589d4500ac917246dba7ffef"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/OpenThresholdEffect.cs",
+      "sha256": "ce6f6e6cb667708d64878d9a94c50ecc586d0b4a70ea554a86f445f8512740c4"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/PowerTagSuppressionEffect.cs",
+      "sha256": "5144afa3d50246b0cc9eb8b33c4cde9255b2ef25b696efc1158b49dca9c62313"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/RecognisedIdentitySnapshot.cs",
+      "sha256": "9072f26406152936c5797be06ee88629a01a2077ab2e3d67273808c461fdb1ed"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/RemoteTravellerEffect.cs",
+      "sha256": "ae38d1db9ba53a43a973352533b94a5ade95feb6138f06ed7c7d5767eee7cfd2"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/ReturnTetherEffect.cs",
+      "sha256": "dd50e00ddce431a6ebd955f5c3ee63bd3765ae4e632ee9c5ad62bdccff1a2d45"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/SpellPermittedPath.cs",
+      "sha256": "93e27d067b32d02f761d8dc4c86128bddadb0263efe67543782bed915184218e"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/SpellTravelSnapshot.cs",
+      "sha256": "a17dbdd3632ca50947c26b8fdf2a7a693a533e9bb341c1a8f4ac48a15f902646"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/StormLocusEffect.cs",
+      "sha256": "c1e4812b1a29ee240def9b7d26205d65bda628b6e1be378257069ef5cf737494"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/TracePathEffect.cs",
+      "sha256": "2806aafdf36f7a6adff0f5b061f04a4020be53b42ff0549fc4c5fc2aad662d06"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellEffects/WeightedTravelEffect.cs",
+      "sha256": "559d2f052951edef4426dc7906451de4e824ae32da65efe40db16c26a048dd5b"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerRecognisedCharacter.cs",
+      "sha256": "1a542a59d540f409655cd79371dac136603a46fe175c594e77fbd0ab7f1b81d7"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerThresholdDestination.cs",
+      "sha256": "95d1302a133a433b5fc703bacad0a428b7df38335f9e475d6e219e34c3fb4029"
+    },
+    {
+      "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerTravelDestination.cs",
+      "sha256": "829c75dd537981848b8c0f90a9c32103b3a0d5a685190aea96ee7885a0b9962a"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary/Migrations/20261015093439_PersistDubIdentityProvenance.Designer.cs",
+      "sha256": "b648b8104f510d10489736ee6cd9d97fa36c830928c6f95e989564fc22bdac9e"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary/Migrations/20261015093439_PersistDubIdentityProvenance.cs",
+      "sha256": "3b498922a10d21727f72e726d8b6e632328db3f6381d6d8b2d2574e3b8b3c142"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary/Migrations/20261015103829_PersistRoomHazardPulseCursor.Designer.cs",
+      "sha256": "bfb5b365b69984f708776d2dc9f482c354b5115734946b51aba946a8dbb66486"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary/Migrations/20261015103829_PersistRoomHazardPulseCursor.cs",
+      "sha256": "df4486174a9306efd7a43b8ee82faf1b89905c81e474c683ba874b8477899fb8"
+    },
+    {
+      "path": "MudsharpDatabaseLibrary/Models/Dub.IdentityProvenance.cs",
+      "sha256": "39e65a1760ae2a8aab52c3e30ef85f1d06790d1a5bd9637345f56333757a4062"
+    },
+    {
+      "path": "tests/ArmageddonPreparedSeederNativeHarness/PreparedRemainingStockSmoke.py",
+      "sha256": "9f9d8b8ba773bb3bc6975d54007174618ee2706305e72a71651c6cb7694730c5"
+    },
+    {
+      "path": "tests/ArmageddonPreparedSeederNativeHarness/Program.RemainingStockFixture.cs",
+      "sha256": "8666a9c4a31963e2e82c8993a78e2bfa74fdc97f29e54502e2a1f0d0f4df7f9c"
+    }
+  ]
 }

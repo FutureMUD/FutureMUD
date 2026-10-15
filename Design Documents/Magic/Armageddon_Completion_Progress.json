@@ -6961,5 +6961,15 @@
       "spell_admissions_enabled": false,
       "class_availability_enabled": false
     }
+  },
+  "remaining_152_checkpoint_20261015": {
+    "declared_required_definitions": 152,
+    "required_not_yet_declared": 0,
+    "optional_deferred": 2,
+    "verification": "Armageddon_S4_Continuation_Verification_20261013.json",
+    "status": "All152 required definitions implemented/audited;10611 managed passes and restored first/cold152 native loader plus named paid samples pass. Separate focus/device and unsampled qualification remain gated.",
+    "release_enabled": false,
+    "spell_admissions_enabled": false,
+    "class_availability_enabled": false
   }
 }

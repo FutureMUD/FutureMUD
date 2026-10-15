@@ -98,6 +98,15 @@ internal static class CastingNumerics
 			if (effect is CreateShelterEffect { DefinitionError: { } shelterError }) yield return $"{label}/createshelter: {shelterError}";
 			if (effect is CreateGateEffect { DefinitionError: { } gateError }) yield return $"{label}/creategate: {gateError}";
 			if (effect is ExchangePlacesEffect { DefinitionError: { } exchangeError }) yield return $"{label}/exchangeplaces: {exchangeError}";
+			if (effect is GroundTremorEffect { DefinitionError: { } tremorError }) yield return $"{label}/groundtremor: {tremorError}";
+			if (effect is ReturnTetherEffect { DefinitionError: { } returnError }) yield return $"{label}/returntether: {returnError}";
+			if (effect is TracePathEffect { DefinitionError: { } pathError }) yield return $"{label}/tracepath: {pathError}";
+			if (effect is RemoteTravellerEffect { DefinitionError: { } remoteError }) yield return $"{label}/remotetraveller: {remoteError}";
+			if (effect is WeightedTravelEffect { DefinitionError: { } weightedError }) yield return $"{label}/weightedtravel: {weightedError}";
+			if (effect is OpenThresholdEffect { DefinitionError: { } thresholdError }) yield return $"{label}/openthreshold: {thresholdError}";
+			if (effect is CompellingRegardEffect { DefinitionError: { } charmError }) yield return $"{label}/compellingregard: {charmError}";
+			if (effect is PowerTagSuppressionEffect { DefinitionError: { } tagsError }) yield return $"{label}/powertagsuppression: {tagsError}";
+			if (effect is StormLocusEffect { DefinitionError: { } stormError }) yield return $"{label}/stormlocus: {stormError}";
 			if (effect is CreateLiquidEffect { DefinitionError: { } liquidError }) yield return $"{label}/createliquid: {liquidError}";
 			if (effect is CreateItemEffect { DefinitionError: { } itemCreationError }) yield return $"{label}/createitem: {itemCreationError}";
 			if (effect is AnimateCorpseSpellEffect { DefinitionError: { } animationError }) yield return $"{label}/animatecorpse: {animationError}";

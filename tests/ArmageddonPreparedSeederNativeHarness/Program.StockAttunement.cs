@@ -263,6 +263,11 @@ internal static partial class GNHProgram
 			["LiquidId"] = nameof(Db.Liquid), ["Liquid"] = nameof(Db.Liquid), ["Resource"] = nameof(Db.MagicResource),
 			["AutobuilderTemplate"] = nameof(Db.AutobuilderRoomTemplate), ["TemplateRoom"] = nameof(Db.Room), ["FallbackRoom"] = nameof(Db.Room),
 			["UndeadMerit"] = nameof(Db.Merit),
+			["RestrictedTag"] = nameof(Db.Tag), ["LethalTag"] = nameof(Db.Tag),
+			["DefilerMerit"] = nameof(Db.Merit), ["StoneSkinSpell"] = nameof(Db.MagicSpell), ["AgilityTrait"] = nameof(Db.TraitDefinition),
+			["ShadowPlane"] = nameof(Db.Plane), ["WindPlane"] = nameof(Db.Plane), ["WaterPlane"] = nameof(Db.Plane), ["VoidPlane"] = nameof(Db.Plane),
+			["SiltTag"] = nameof(Db.Tag), ["LethalRoomTag"] = nameof(Db.Tag), ["UrbanPoolTag"] = nameof(Db.Tag),
+			["WildPoolTag"] = nameof(Db.Tag), ["ElementalPoolTag"] = nameof(Db.Tag),
 			["RestrictedRoomTag"] = nameof(Db.Tag), ["PopulatedRoomTag"] = nameof(Db.Tag), ["ConsumedRootTag"] = nameof(Db.Tag),
 			["WaterPrototype"] = nameof(Db.GameItemProto), ["Prototype"] = nameof(Db.GameItemProto), ["Terrain"] = nameof(Db.Terrain),
 			["School"] = nameof(Db.MagicSchool), ["AI"] = nameof(Db.ArtificialIntelligence), ["BonusPlane"] = nameof(Db.Plane),
@@ -317,6 +322,7 @@ internal static partial class GNHProgram
 		[nameof(Db.Liquid)] = typeof(Db.Liquid), [nameof(Db.Tag)] = typeof(Db.Tag), [nameof(Db.Terrain)] = typeof(Db.Terrain),
 		[nameof(Db.Room)] = typeof(Db.Room), [nameof(Db.AutobuilderRoomTemplate)] = typeof(Db.AutobuilderRoomTemplate),
 		[nameof(Db.Merit)] = typeof(Db.Merit),
+		[nameof(Db.MagicSpell)] = typeof(Db.MagicSpell),
 		[nameof(Db.ArtificialIntelligence)] = typeof(Db.ArtificialIntelligence), [nameof(Db.Plane)] = typeof(Db.Plane),
 		[nameof(Db.ArmourType)] = typeof(Db.ArmourType), [nameof(Db.Material)] = typeof(Db.Material)
 	};

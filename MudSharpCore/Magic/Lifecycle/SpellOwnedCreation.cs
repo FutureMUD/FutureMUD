@@ -37,9 +37,10 @@ public sealed partial class SpellOwnedCreation
 		_claims.Add((kind, role, row));
 	}
 
-	internal void ValidateBeforeSave()
+	internal void ValidateBeforeSave(bool journalOnly = false)
 	{
-		if (_claims.Count is 0 or > 256 || _claims.Any(x => Context.Entry(x.Row).State != EntityState.Added) ||
+		if (journalOnly && (_claims.Count != 0 || Context.ChangeTracker.HasChanges()) ||
+		    !journalOnly && _claims.Count == 0 || _claims.Count > 256 || _claims.Any(x => Context.Entry(x.Row).State != EntityState.Added) ||
 		    _claims.Count(x => x.Kind is SpellOwnedEntityKind.AutonomousCharacter or SpellOwnedEntityKind.CharacterInstance) > 1 ||
 		    Context.ChangeTracker.Entries().Any(x => (x.State is EntityState.Modified or EntityState.Deleted) && !IsExactBorrowedChange(x)) ||
 			_borrowedChanges.Keys.Any(x => !IsExactBorrowedChange(Context.Entry(x))))

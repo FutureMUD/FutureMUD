@@ -317,6 +317,11 @@ public class MindBarrierPower : SustainedMagicPower
 
     private void UseCommandBegin(ICharacter actor, StringStack command)
     {
+		if (!CanInvokePower(actor))
+		{
+			actor.OutputHandler.Send("You cannot invoke that power right now.");
+			return;
+		}
         List<MindBarrierEffect> effects = actor.EffectsOfType<MindBarrierEffect>().Where(x => x.PowerOrigin == this).ToList();
         if (effects.Any())
         {

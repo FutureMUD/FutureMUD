@@ -141,6 +141,7 @@ public class Command<T> : IExecutable<T>
             return false;
         }
 
+		if (argument is ICharacter actor && !MudSharp.Magic.SpellCompulsionExecution.Admit(actor, this, playerInput)) return false;
         _executeCommandGenericMethod(argument, playerInput);
         return true;
     }

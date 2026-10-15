@@ -254,6 +254,49 @@ def attunement_builder_smoke(session, phase):
         require(len(rows) == 1 and rows[0][0] == fixture['definition'], 'Cold builder fixture definition changed.')
         assertions.append('S4 adapter: cold native loader showed the saved Read Attunement template unchanged')
 
+def stock_definition_loading(session, phase, data, mapped):
+    reference_schema = campaign.reference_schema(data['typed_reference_schema'])
+    s = int(data['spell'])
+    stock_spells = data.get('stock_spells', [])
+    require(stock_spells and len({entry['key'] for entry in stock_spells}) == len(stock_spells), 'Missing or duplicate canonical definition inputs.')
+    claimed = sql("SELECT StableKey,LogicalId FROM SeederManagedRecords WHERE Seeder='ArmageddonMagicSeeder' AND Module='stock-spells' AND EntityType='MagicSpell' AND Retired=0 ORDER BY StableKey")
+    require([(row[0], int(row[1])) for row in claimed] == sorted((entry['key'], int(entry['id'])) for entry in stock_spells),
+            'Prepared stock list does not cover every installed managed definition exactly once.')
+    require(any(entry['key'] == 'arm.spell.read_attunement' and int(entry['id']) == s for entry in stock_spells), 'Original Read identity is missing.')
+    resolved_refs = set()
+    for entry in stock_spells:
+        _, refs = campaign.definition_contract(entry)
+        actual = sql(f"SELECT HEX(Definition) FROM MagicSpells WHERE Id={int(entry['id'])}", (0,))
+        require(len(actual) == 1 and actual[0][0] == entry['definition'],
+                'Canonical definition changed during native loader validation: ' + entry['key'])
+        native = sql(mapped(f"SELECT MagicSchoolId,CastingTraitDefinitionId,EffectDurationExpressionId,SpellKnownProgId,IFNULL(ResistingTraitDefinitionId,0) FROM MagicSpells WHERE Id={int(entry['id'])}"))
+        require(native == [[str(entry[field]) for field in ('school', 'trait', 'duration_expression', 'known_prog', 'resisting_trait')]], 'Native spell metadata drift: ' + entry['key'])
+        for expression, formula in ((entry['duration_expression'], entry['duration_formula']), (entry['cost_expression'], entry['cost_formula'])):
+            require(sql(mapped(f'SELECT HEX(Expression) FROM TraitExpressions WHERE Id={int(expression)}'), (0,)) == [[formula]], 'Native duration/cost formula drift: ' + entry['key'])
+        for kind, identity in refs:
+            if (kind, identity) in resolved_refs: continue
+            require(kind in reference_schema, 'Missing typed EF reference mapping: ' + kind)
+            binding = reference_schema[kind]; table = binding['table']; column = binding['id_column']
+            require(sql(f'SELECT DISTINCT `{column}` FROM `{table}` WHERE `{column}`={identity}',
+                        context=entry['key'] + ':' + kind + ':' + str(identity)) == [[str(identity)]],
+                    'Unresolved exact typed native reference: ' + kind + ':' + str(identity))
+            resolved_refs.add((kind, identity))
+        shown = session.send(f"magic spell show {int(entry['id'])}", read_seconds=.2)
+        def ready(text):
+            return (entry['name'] in text and 'Building Error' not in text and 'Controlled Power Profile' in text and
+                    all(f'Grade {grade}:' in text for grade in range(1, 8)))
+        if not ready(shown):
+            # A busy server may answer after the short fast-path read. Continue
+            # reading this command's response without issuing the command twice.
+            shown += session.read_for(5.0)
+        require(ready(shown),
+                'Native canonical spell loader/readiness failed: ' + entry['key'] + ': ' + redact(shown))
+        receipt.setdefault('stock_definition_loader', {}).setdefault(phase, {})[entry['key']] = {
+            'id': entry['id'], 'definition_sha256': hashlib.sha256(entry['definition'].encode('utf-8')).hexdigest(),
+            'typed_references': refs, 'shown': redact(shown), 'coverage': 'native-definition-readiness'}
+    assertions.append(f'{phase}: all {len(stock_spells)} installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready')
+
+
 def attunement_stock_smoke(session, phase):
     prepared = Path(os.environ['FUTUREMUD_S4_ATTUNEMENT_STOCK_INPUT']).resolve()
     require(prepared.parent == ROOT and prepared.name.startswith('prepared-stock-attunement-input_') and
@@ -291,6 +334,13 @@ def attunement_stock_smoke(session, phase):
         casting = ET.fromstring(definition[0][0]).find('Casting')
         require(casting is not None and casting.get('enabled') == 'false' and not casting.findall('Admission'),
                 'A partial package roster was enabled for qualification.')
+
+    if os.environ.get('FUTUREMUD_S4_REMAINING_SMOKE_ONLY') == '1':
+        module_spec = importlib.util.spec_from_file_location('remaining_stock_smoke', REPO / 'tests/ArmageddonPreparedSeederNativeHarness/PreparedRemainingStockSmoke.py')
+        module = importlib.util.module_from_spec(module_spec)
+        module_spec.loader.exec_module(module)
+        module.run(globals(), session, phase, data, mapped)
+        return
 
     def flush():
         require('All queued saves have been flushed' in session.send('impdebug flush', read_seconds=.3), 'S4 save flush did not confirm.')
@@ -372,44 +422,7 @@ def attunement_stock_smoke(session, phase):
         verify_overlay(looked)
         assertions.append('S4 stock: cold visible self overlay separated unassigned affinity from completed learned affiliation')
 
-    stock_spells = data.get('stock_spells', [])
-    require(stock_spells and len({entry['key'] for entry in stock_spells}) == len(stock_spells), 'Missing or duplicate canonical definition inputs.')
-    claimed = sql("SELECT StableKey,LogicalId FROM SeederManagedRecords WHERE Seeder='ArmageddonMagicSeeder' AND Module='stock-spells' AND EntityType='MagicSpell' AND Retired=0 ORDER BY StableKey")
-    require([(row[0], int(row[1])) for row in claimed] == sorted((entry['key'], int(entry['id'])) for entry in stock_spells),
-            'Prepared stock list does not cover every installed managed definition exactly once.')
-    require(any(entry['key'] == 'arm.spell.read_attunement' and int(entry['id']) == s for entry in stock_spells), 'Original Read identity is missing.')
-    resolved_refs = set()
-    for entry in stock_spells:
-        _, refs = campaign.definition_contract(entry)
-        actual = sql(f"SELECT HEX(Definition) FROM MagicSpells WHERE Id={int(entry['id'])}", (0,))
-        require(len(actual) == 1 and actual[0][0] == entry['definition'],
-                'Canonical definition changed during native loader validation: ' + entry['key'])
-        native = sql(mapped(f"SELECT MagicSchoolId,CastingTraitDefinitionId,EffectDurationExpressionId,SpellKnownProgId,IFNULL(ResistingTraitDefinitionId,0) FROM MagicSpells WHERE Id={int(entry['id'])}"))
-        require(native == [[str(entry[field]) for field in ('school', 'trait', 'duration_expression', 'known_prog', 'resisting_trait')]], 'Native spell metadata drift: ' + entry['key'])
-        for expression, formula in ((entry['duration_expression'], entry['duration_formula']), (entry['cost_expression'], entry['cost_formula'])):
-            require(sql(mapped(f'SELECT HEX(Expression) FROM TraitExpressions WHERE Id={int(expression)}'), (0,)) == [[formula]], 'Native duration/cost formula drift: ' + entry['key'])
-        for kind, identity in refs:
-            if (kind, identity) in resolved_refs: continue
-            require(kind in reference_schema, 'Missing typed EF reference mapping: ' + kind)
-            binding = reference_schema[kind]; table = binding['table']; column = binding['id_column']
-            require(sql(f'SELECT DISTINCT `{column}` FROM `{table}` WHERE `{column}`={identity}',
-                        context=entry['key'] + ':' + kind + ':' + str(identity)) == [[str(identity)]],
-                    'Unresolved exact typed native reference: ' + kind + ':' + str(identity))
-            resolved_refs.add((kind, identity))
-        shown = session.send(f"magic spell show {int(entry['id'])}", read_seconds=.2)
-        def ready(text):
-            return (entry['name'] in text and 'Building Error' not in text and 'Controlled Power Profile' in text and
-                    all(f'Grade {grade}:' in text for grade in range(1, 8)))
-        if not ready(shown):
-            # A busy server may answer after the short fast-path read. Continue
-            # reading this command's response without issuing the command twice.
-            shown += session.read_for(5.0)
-        require(ready(shown),
-                'Native canonical spell loader/readiness failed: ' + entry['key'] + ': ' + redact(shown))
-        receipt.setdefault('stock_definition_loader', {}).setdefault(phase, {})[entry['key']] = {
-            'id': entry['id'], 'definition_sha256': hashlib.sha256(entry['definition'].encode('utf-8')).hexdigest(),
-            'typed_references': refs, 'shown': redact(shown), 'coverage': 'native-definition-readiness'}
-    assertions.append(f'{phase}: all {len(stock_spells)} installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready')
+    stock_definition_loading(session, phase, data, mapped)
     stock_campaign_smoke(session, phase, data, mapped)
 
     if phase == 'cold':
@@ -1413,10 +1426,12 @@ def boot(phase):
             session.send('c',read_seconds=1)
             session.send('1',read_seconds=3)
             looked = session.send('look',read_seconds=3)
-            require('Guest Lounge' in looked or phase == 'cold' and os.environ.get('FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY') == '1', 'Native login/LOOK did not reach seeded Guest Lounge.')
+            require('Guest Lounge' in looked or phase == 'cold' and (os.environ.get('FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY') == '1' or os.environ.get('FUTUREMUD_S4_REMAINING_SMOKE_ONLY') == '1'), 'Native login/LOOK did not reach seeded Guest Lounge.')
             assertions.append(phase+': native Admin avatar login and LOOK')
             if phase == 'first' and BOOT_SCOPE == 'catalogue':
-                if os.environ.get('FUTUREMUD_S4_GATE_SMOKE_ONLY') == '1':
+                if os.environ.get('FUTUREMUD_S4_REMAINING_SMOKE_ONLY') == '1':
+                    pass  # Its mapped permanent destination was prepared before boot.
+                elif os.environ.get('FUTUREMUD_S4_GATE_SMOKE_ONLY') == '1':
                     nilaz_gate_destination(session)
                 elif os.environ.get('FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY') == '1':
                     nilaz_gate_destination(session, label='Exchange')

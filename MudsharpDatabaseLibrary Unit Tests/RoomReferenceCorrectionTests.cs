@@ -156,6 +156,25 @@ public class RoomReferenceCorrectionTests
 		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Items #1.EffectData"));
 	}
 
+	[DataTestMethod]
+	[DataRow("SpellReturnTether")]
+	[DataRow("SpellStormLocus")]
+	public void S4ReturnAndHazardAnchors_PreserveExplicitCurrentPlayableRoomNamespace(string factory)
+	{
+		// These version-1 anchors were introduced after containing-Room removal. Their room IDs
+		// identify playable rooms directly, even if the number collides with a historical parent.
+		var child = $"<Effect><Type>{factory}</Type><Effect><Anchor><![CDATA[<Return version='1' character='1' instance='2' body='3' room='9000' overlay='4' terrain='5' layer='0'/>]]></Anchor></Effect></Effect>";
+		var xml = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{child}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
+	}
+
+	[TestMethod]
+	public void PowerTagSuppressionChild_OnlyStoresCharacterAndBodyIdentities()
+	{
+		const string xml = "<Effects><Effect><Type>SpellPowerTagSuppression</Type><Effect><Identity>9000</Identity><Instance>8101</Instance><Body>77</Body><Tags><Tag>psionic</Tag></Tags></Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
+	}
+
 	[TestMethod]
 	public void EffectFactories_CustomSerializer_RefusesAndBuiltInInventoryMatchesSource()
 	{

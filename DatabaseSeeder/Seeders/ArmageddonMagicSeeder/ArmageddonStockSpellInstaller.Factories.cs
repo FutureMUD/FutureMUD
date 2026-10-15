@@ -18,6 +18,36 @@ namespace DatabaseSeeder.Seeders;
 
 public static partial class ArmageddonStockSpellInstaller
 {
+	private static ArmageddonCanonicalSpellContribution ResolveWeightedTravel(FuturemudDatabaseContext db, string key) =>
+		ArmageddonWeightedTravelSpellContent.Create(CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelRestrictedTagKey),
+			CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelDeathTagKey),
+			CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelUrbanPoolTagKey),
+			CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelWildPoolTagKey),
+			CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelElementalPoolTagKey),
+			new[] { ArmageddonStockSupportInstaller.EarthPlaneKey, ArmageddonStockSupportInstaller.WaterPlaneKey,
+				ArmageddonStockSupportInstaller.FirePlaneKey, ArmageddonStockSupportInstaller.WindPlaneKey,
+				ArmageddonStockSupportInstaller.LightningPlaneKey, ArmageddonStockSupportInstaller.ShadowPlaneKey,
+				ArmageddonStockSupportInstaller.VoidPlaneKey }.Select(plane => CatalogueIdentity<Plane>(db, plane)).ToArray(),
+			CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey)).Single(x => x.Content.Key == key);
+
+	private static long CanonicalSpellIdentity(FuturemudDatabaseContext db, string key)
+	{
+		var claims = db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key).ToArray();
+		if (claims.Length != 1 || claims[0] is not { Retired: false, LogicalId: > 0, RevisionNumber: null, SeedBaseline: not null } claim ||
+			claim.Module != Module || claim.ManifestVersion != Version || claim.EntityType != nameof(MagicSpell) ||
+			db.SeederManagedRecords.Any(x => x.Id != claim.Id && x.EntityType == claim.EntityType && x.LogicalId == claim.LogicalId) ||
+			db.MagicSpells.AsNoTracking().SingleOrDefault(x => x.Id == claim.LogicalId) is not { } spell || StockIdentity(spell.Definition) != key)
+			throw new StockDependencyException(key + ": restore the exact uniquely owned canonical S4 spell before its dependent contribution.");
+		return claim.LogicalId.Value;
+	}
+
+	private static (int Rank, long Tag)[] ConjurationRankOptions(FuturemudDatabaseContext db) => new[] { 0, 1, 2, 3, 4, 6 }.Select(rank =>
+	{
+		var key = "arm.material.conjuration.rank" + rank;
+		CataloguePrototype(db, key, "Stackable");
+		return (rank, CatalogueIdentity<Tag>(db, key + ".tag"));
+	}).ToArray();
+
 	private static long CatalogueIdentity<T>(FuturemudDatabaseContext db, string key) where T : class
 	{
 		var claim = CatalogueClaim<T>(db, key, false);

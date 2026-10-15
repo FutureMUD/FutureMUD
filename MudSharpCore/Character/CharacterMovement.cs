@@ -305,6 +305,8 @@ public partial class Character
 
 	public override (bool Success, IEmoteOutput FailureOutput) CanCross(IRoomExit exit)
 	{
+		if (exit.Exit is IAdmittedMagicPortalExit portal && !portal.AllowsTraversal(this, exit))
+			return (false, new EmoteOutput(new Emote("@ cannot cross the closed or warded threshold.", this, this)));
 		if (EffectHandler.AffectedBy<IImmwalkEffect>() || RidingMount?.AffectedBy<IImmwalkEffect>() == true)
 		{
 			return (true, null);

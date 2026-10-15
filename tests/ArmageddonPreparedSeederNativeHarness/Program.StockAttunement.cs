@@ -141,6 +141,23 @@ internal static partial class GNHProgram
 				grade_one_cost = cost, duration_seconds = spec.Seconds, gather_alias = "draw", gather_stamina_cost = gatherStamina
 			});
 		}
+		var gateSpells = new[] { "arm.spell.arcane_mark", ArmageddonGateSpellContent.Key };
+		var gateRoutes = gateSpells.Select(key =>
+		{
+			var native = installed.Single(x => x.Key == key).Spell;
+			var school = db.MagicSchools.AsNoTracking().Single(x => x.Id == native.MagicSchoolId);
+			var root = XElement.Parse(native.Definition);
+			var efficiency = root.Element("ControlledPower")!.Element("Efficiency")!;
+			var cost = new ControlledSpellEfficiency((double)efficiency.Attribute("minimum")!, (double)efficiency.Attribute("scale")!).Cost(1, 1);
+			var reserveId = ids["arm.resource.void"];
+			Require(native.MagicSchoolId == ids["arm.school.void"] && cost is > 0 and <= 100 &&
+				(long)root.Element("Costs")!.Element("Cost")!.Attribute("resource")! == ids[ArmageddonProgressionInstaller.SourceResourceKey],
+				"Nilaz qualification requires its exact Void school, source and bounded grade-one cost.");
+			var route = PreparedStockCampaignRoute(db, settings, key, native, reserveId,
+				ids[ArmageddonProgressionInstaller.SourceResourceKey], 1);
+			return new { key, spell = native.Id, capability = route.Capability, merit = route.Merit,
+				resource = reserveId, cost, invoked = school.SchoolVerb.ToLowerInvariant() };
+		}).ToArray();
 		var sqlSchema = ((IEnumerable<object>)InstalledSqlSchema(db)).ToList();
 		sqlSchema.Add(PreparedStockSqlTable<Db.Character>(db, "Characters",
 			[nameof(Db.Character.NeedsModel), nameof(Db.Character.DrinkSatiatedHours), nameof(Db.Character.AlcoholLitres)]));
@@ -185,6 +202,7 @@ internal static partial class GNHProgram
 			trait = spell.CastingTraitDefinitionId, school = spell.MagicSchoolId, source = ids[ArmageddonProgressionInstaller.SourceResourceKey],
 			definition = spell.Definition, duration = spell.EffectDurationExpressionId,
 			stock_spells = stockInputs,
+			nilaz_gate = new { routes = gateRoutes, item_prototype = itemSample.Id },
 			representative_campaign = new { version = 1, seed = 20261013, sample_limit = 4, candidates,
 				item_prototype = itemSample.Id,
 				earth_mount = new { status = "PENDING", reason = "No explicit disposable paid Earth Mount admission and real-exit native follow observer." } },

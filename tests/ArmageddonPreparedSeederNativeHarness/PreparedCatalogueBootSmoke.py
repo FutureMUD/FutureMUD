@@ -471,6 +471,192 @@ def mark_inherited_read(phase):
             selected['outcome'] = 'PASS' if phase == 'cold' else 'FIRST-PASS-COLD-PENDING'
     if phase == 'cold' and report.get('selected') and all(row['outcome'] == 'PASS' for row in report['selected']): report['status'] = 'PASS'
 
+def nilaz_gate_smoke(session, data):
+    config = data['nilaz_gate']
+    routes = {route['key']: route for route in config['routes']}
+    require(set(routes) == {'arm.spell.arcane_mark', 'arm.spell.linked_threshold'} and
+            'campaign_exit_destination' in receipt, 'Nilaz scenario needs the exact two paid spells and approved real east room.')
+    actor = int(data['character']); body = int(data['body'])
+    home = int(receipt['initial_avatar'][3]); destination = int(receipt['campaign_exit_destination'])
+    mark = routes['arm.spell.arcane_mark']; gate = routes['arm.spell.linked_threshold']
+    require(home != destination and all(int(route['resource']) == int(mark['resource']) and
+            int(route['capability']) not in [int(x) for x in data['package_capabilities']] for route in routes.values()),
+            'Nilaz route is not a separate Void builder admission.')
+    report = receipt['nilaz_gate'] = {'status': 'FAIL', 'routes': [], 'home': home, 'destination': destination, 'attempts': []}
+    def flush():
+        require('All queued saves have been flushed' in session.send('impdebug flush', read_seconds=.4), 'Nilaz save flush failed.')
+    def balance():
+        rows = sql(f'SELECT IFNULL((SELECT Amount FROM Characters_MagicResources WHERE CharacterId={actor} '
+                   f'AND MagicResourceId={int(mark["resource"])}),0)')
+        return float(rows[0][0])
+    def operations(route):
+        return sql(f'SELECT HEX(Id),HEX(Stage),HEX(Definition) FROM MagicCastingOperations WHERE '
+                   f'CharacterId={actor} AND MagicSpellId={int(route["spell"])} ORDER BY CreatedUtc,Id', (0,1,2))
+    def funded_cast(route, target):
+        cap = int(route['capability']); cost = float(route['cost'])
+        for attempt in range(4):
+            if balance() + 0.001 < cost:
+                top_up = int(100 - balance())
+                session.send(f'{route["invoked"]} gather {cap} draw {top_up}', read_seconds=.5)
+                deadline = time.monotonic() + 18
+                while time.monotonic() < deadline and balance() + 0.001 < cost:
+                    session.read_for(.5); flush()
+                require(balance() + 0.001 >= cost, 'Native Void gathering did not fund the next paid cast.')
+            before = balance(); old = operations(route)
+            output = session.send(f'{route["invoked"]} cast "{ "Arcane Mark" if route is mark else "Linked Threshold" }" '
+                                  f'grade 1 on {target} via {cap}', read_seconds=1)
+            flush()
+            added = [row for row in operations(route) if row[0] not in {entry[0] for entry in old}]
+            require(len(added) == 1 and added[0][1] == 'Completed', 'Nilaz paid operation missing: ' + redact(output))
+            payload = ET.fromstring(added[0][2]); costs = payload.findall('Cost')
+            require(payload.get('grade') == '1' and payload.get('controlledGrade') == '1' and
+                    len(costs) == 1 and costs[0].get('resource') == str(route['resource']) and
+                    float(costs[0].get('amount')) == cost and abs(before - balance() - cost) < .001,
+                    'Nilaz normal cast did not persist one exact grade-one resource payment.')
+            report['attempts'].append({'key':route['key'], 'payload':added[0][2], 'before':before, 'after':balance()})
+            if payload.get('applied') == 'true': return
+            require(payload.get('outcome') in ('MinorFail','Fail','MajorFail'), 'Unexpected Nilaz cast result.')
+        require(False, 'Four ordinary paid Nilaz attempts did not achieve a defining result.')
+    for route in (mark, gate):
+        cap = int(route['capability'])
+        session.send(f'givemerit me {int(route["merit"])}', read_seconds=.4)
+        session.send(f'magic casting enrol {actor} {cap} explicit disposable Nilaz acceptance', read_seconds=.5)
+        flush()
+        rows = sql(f'SELECT CompletedStartingGrantVersion FROM CharacterCastingEnrolments WHERE CharacterId={actor} '
+                   f'AND MagicCapabilityId={cap}')
+        require(len(rows) == 1 and int(rows[0][0]) > 0, 'Nilaz route was not natively enrolled.')
+        name = sql(f'SELECT Name FROM MagicCapabilities WHERE Id={cap}')[0][0]
+        report['routes'].append({'key':route['key'], 'capability':cap, 'capability_name':name})
+    # The earlier provision fixture leaves its bottle in one hand. Clear held
+    # fixtures before loading the mark leaf so the ordinary cast has a free hand.
+    session.send('drop all', read_seconds=1)
+    flush()
+    session.send(f'item load {item_command_reference(int(config["item_prototype"]))}', read_seconds=1)
+    flush()
+    held = sql(f'SELECT gi.Id FROM GameItems gi JOIN Bodies_GameItems bgi ON bgi.GameItemId=gi.Id WHERE '
+               f'gi.GameItemProtoId={int(config["item_prototype"])} AND bgi.BodyId={body} ORDER BY gi.Id DESC LIMIT 1')
+    require(len(held) == 1, 'Nilaz mark lacks an exact native carried leaf.')
+    report['marked_item'] = int(held[0][0])
+    claimed = session.send('ownership claim leaf', read_seconds=1)
+    flush()
+    ownership = sql(f'SELECT OwnerType,OwnerId FROM GameItems WHERE Id={report["marked_item"]}')
+    require('you claim ownership' in claimed.lower() and len(ownership) == 1 and
+            ownership[0][0] == 'Character' and int(ownership[0][1]) > 0,
+            'The exact carried leaf did not acquire ordinary character ownership before marking.')
+    report['marked_item_ownership'] = ownership[0]
+    session.send('east', read_seconds=1); flush()
+    require(int(character_state()[3]) == destination, 'Admin did not traverse the approved ordinary east exit to mark destination.')
+    funded_cast(mark, 'leaf')
+    session.send('west', read_seconds=1); flush()
+    require(int(character_state()[3]) == home, 'Admin did not return to the distinct Nilaz source room.')
+    funded_cast(gate, 'here')
+    lives = sql(f"SELECT HEX(Id),State,IFNULL(DATE_FORMAT(GateLinksClosedUtc,'%Y-%m-%dT%H:%i:%s.%f'),'NULL'),"
+                f"IFNULL(DATE_FORMAT(GateLastPulseUtc,'%Y-%m-%dT%H:%i:%s.%f'),'NULL') FROM MagicSpellLifecycles "
+                f"WHERE Family='native-nilaz-gate-v1' AND SpellId={int(gate['spell'])}")
+    require(len(lives) == 1 and lives[0][1] == '0', 'Paid Linked Threshold did not create one active durable Nilaz lifecycle.')
+    life = lives[0][0]; report['lifecycle'] = life
+    claims = sql(f'SELECT Kind,EntityId,Role FROM MagicSpellOwnedEntities WHERE HEX(LifecycleId)="{life}" ORDER BY Kind,Role')
+    require(len(claims) == 7 and sorted(int(x[0]) for x in claims) == [4,4,5,5,5,6,6],
+            'Nilaz did not claim exactly two rooms, two overlays and three exits.')
+    source_portal = next(int(x[1]) for x in claims if int(x[0]) == 5 and int(x[2]) == 2)
+    corridor = next(int(x[1]) for x in claims if int(x[0]) == 5 and int(x[2]) == 3)
+    destination_portal = next(int(x[1]) for x in claims if int(x[0]) == 5 and int(x[2]) == 4)
+    rooms = [int(x[1]) for x in claims if int(x[0]) == 4]
+    report['claims'] = claims
+    entered = session.send('enter gate', read_seconds=1); flush()
+    require(int(character_state()[3]) in rooms, 'Normal gate entry did not move Admin into a claimed temporary room: ' + redact(entered))
+    south = int(character_state()[3]); report['south'] = south
+    session.send('north', read_seconds=1); flush()
+    north = int(character_state()[3]); report['north'] = north
+    require(north in rooms and north != south, 'Admin did not cross the claimed internal north corridor.')
+    require(sql(f'SELECT RoomId1,RoomId2 FROM Exits WHERE Id={corridor}') == [[str(south),str(north)]],
+            'Native north traversal did not follow exact owned corridor endpoints.')
+    # Retirement is driven by the fuzzy-minute heartbeat after the 120-second
+    # grade-one deadline, so allow one full heartbeat plus scheduling slack.
+    deadline = time.monotonic() + 190
+    while time.monotonic() < deadline:
+        flush()
+        lives = sql(f"SELECT State,IFNULL(DATE_FORMAT(GateLinksClosedUtc,'%Y-%m-%dT%H:%i:%s.%f'),'NULL'),"
+                    f"IFNULL(DATE_FORMAT(GateLastPulseUtc,'%Y-%m-%dT%H:%i:%s.%f'),'NULL') FROM MagicSpellLifecycles WHERE HEX(Id)='{life}'")
+        if lives and lives[0][0] == '1' and lives[0][1] != 'NULL': break
+        time.sleep(2)
+    require(lives and lives[0][0] == '1' and lives[0][1] != 'NULL', 'Occupied Nilaz gate did not close by its native deadline.')
+    closed = lives[0][1]; report['closed_at'] = closed
+    require(int(character_state()[3]) == north and
+            sql(f'SELECT COUNT(*) FROM Exits WHERE Id IN ({source_portal},{destination_portal})')[0][0] == '0' and
+            sql(f'SELECT COUNT(*) FROM Exits WHERE Id={corridor}')[0][0] == '1' and
+            sql(f'SELECT COUNT(*) FROM Rooms WHERE Id IN ({south},{north})')[0][0] == '2',
+            'Occupied closure did not retain both rooms, internal corridor and Admin while deleting external links.')
+    assertions.append('S4 Nilaz: two normal paid casts created the exact seven owned claims and native traversal; occupied expiry closed external links without evacuation')
+    wound_before = int(sql(f'SELECT COUNT(*) FROM Wounds WHERE BodyId={body} AND DamageType=12')[0][0])
+    pulse_deadline = time.monotonic() + 145
+    while time.monotonic() < pulse_deadline:
+        flush()
+        pulse = sql(f"SELECT IFNULL(DATE_FORMAT(GateLastPulseUtc,'%Y-%m-%dT%H:%i:%s.%f'),'NULL') "
+                    f"FROM MagicSpellLifecycles WHERE HEX(Id)='{life}'")[0][0]
+        if pulse != closed: break
+        time.sleep(2)
+    hypoxia = sql(f'SELECT OriginalDamage,CurrentStun FROM Wounds WHERE BodyId={body} AND DamageType=12 ORDER BY Id DESC')
+    require(pulse != closed and int(character_state()[3]) == north and len(hypoxia) > wound_before and
+            any(float(row[0]) > 0 and float(row[1]) > 0 for row in hypoxia[:len(hypoxia)-wound_before]),
+            'Closed occupied Nilaz room did not persist a native hypoxia wound with stun after the durable pulse.')
+    report['pulse_at'] = pulse
+    report['wounds_after'] = sql(f'SELECT DamageType,OriginalDamage,CurrentDamage,CurrentStun FROM Wounds WHERE BodyId={body} ORDER BY Id DESC LIMIT 10')
+    assertions.append('S4 Nilaz: occupied closed-room suffocation advanced the durable native pulse cursor while retaining custody')
+    session.send(f'goto {home}', read_seconds=1); flush()
+    require(int(character_state()[3]) == home, 'Admin rescue did not leave the closed gate through its authorized staff command.')
+    cleanup_deadline = time.monotonic() + 145
+    while time.monotonic() < cleanup_deadline:
+        flush()
+        state = sql(f'SELECT State FROM MagicSpellLifecycles WHERE HEX(Id)="{life}"')[0][0]
+        if state == '3': break
+        time.sleep(2)
+    require(state == '3' and sql(f'SELECT COUNT(*) FROM Rooms WHERE Id IN ({south},{north})')[0][0] == '0' and
+            sql(f'SELECT COUNT(*) FROM Exits WHERE Id={corridor}')[0][0] == '0',
+            'Empty Nilaz gate was not safely retired after occupant left.')
+    report['status'] = 'PASS'
+    assertions.append('S4 Nilaz: empty closed topology reconciled to completed lifecycle with both rooms and corridor removed')
+
+def nilaz_gate_destination(session):
+    # Build only the ordinary east/west exit needed by this focused gate lane.
+    package_name = 'S4 Nilaz ' + uuid.uuid4().hex
+    session.send('room package new ' + package_name, read_seconds=1)
+    require('All queued saves have been flushed' in session.send('impdebug flush', read_seconds=.5),
+            'Nilaz room package save failed.')
+    rows = sql("SELECT Id FROM RoomOverlayPackages WHERE Name='" + package_name + "'")
+    require(len(rows) == 1, 'Nilaz ordinary destination package was not persisted.')
+    output = session.send('room dig east', read_seconds=2)
+    require(any(word in output.lower() for word in ('created', 'exit', 'room')),
+            'Nilaz ordinary east exit build failed: ' + redact(output))
+    require('All queued saves have been flushed' in session.send('impdebug flush', read_seconds=.5),
+            'Nilaz destination room save failed.')
+    destination = int(character_state()[3])
+    require(destination != int(receipt['initial_avatar'][3]), 'Nilaz destination is not distinct.')
+    session.send('room set type outdoors', read_seconds=1)
+    session.send('room package submit S4 Nilaz disposable destination', read_seconds=1)
+    session.send('room package review ' + rows[0][0], read_seconds=1)
+    session.send('accept edit S4 Nilaz disposable destination', read_seconds=1)
+    session.send('room package swap ' + rows[0][0], read_seconds=1)
+    session.send('west', read_seconds=1)
+    require('All queued saves have been flushed' in session.send('impdebug flush', read_seconds=.5) and
+            int(character_state()[3]) == int(receipt['initial_avatar'][3]),
+            'Nilaz normal west exit did not return to Guest Lounge.')
+    receipt['campaign_exit_destination'] = destination
+    assertions.append('S4 Nilaz: live builder created and traversed distinct ordinary east/west destination')
+
+def nilaz_gate_cold_smoke(session):
+    report = receipt['nilaz_gate']
+    require(report['status'] == 'PASS' and int(character_state()[3]) == report['home'],
+            'Cold Nilaz check lost the completed first-boot gate or rescued avatar location.')
+    life = report['lifecycle']; south = report['south']; north = report['north']
+    rows = sql(f'SELECT State,GateLinksClosedUtc,GateLastPulseUtc FROM MagicSpellLifecycles WHERE HEX(Id)="{life}"')
+    require(len(rows) == 1 and rows[0][0] == '3' and rows[0][1] != 'NULL' and rows[0][2] != 'NULL' and
+            sql(f'SELECT COUNT(*) FROM Rooms WHERE Id IN ({south},{north})')[0][0] == '0' and
+            sql(f'SELECT COUNT(*) FROM Exits WHERE Id IN ({ ",".join(str(row[1]) for row in report["claims"] if int(row[0]) == 5) })')[0][0] == '0',
+            'Cold restart resurrected a completed Nilaz gate, external link, room or corridor.')
+    report['cold_status'] = 'PASS'
+    assertions.append('S4 Nilaz: cold restart retained completed lifecycle, rescued avatar and no owned rooms or exits')
+
 def stock_campaign_smoke(session, phase, data, mapped):
     config = data.get('representative_campaign')
     if config is None:
@@ -1138,7 +1324,10 @@ def boot(phase):
             require('Guest Lounge' in looked, 'Native login/LOOK did not reach seeded Guest Lounge.')
             assertions.append(phase+': native Admin avatar login and LOOK')
             if phase == 'first' and BOOT_SCOPE == 'catalogue':
-                native_first_boot_scenario(session)
+                if os.environ.get('FUTUREMUD_S4_GATE_SMOKE_ONLY') == '1':
+                    nilaz_gate_destination(session)
+                else:
+                    native_first_boot_scenario(session)
             elif phase == 'cold' and 'food_component_instance' in receipt:
                 food_component_id = catalogue_record('arm.item.food.bread.component')[2]
                 persisted_food = sql(f"SELECT HEX(Definition) FROM GameItemComponents WHERE GameItemId={receipt['food_component_instance'][0]} AND GameItemComponentProtoId={food_component_id} ORDER BY Id LIMIT 1", (0,))
@@ -1151,7 +1340,12 @@ def boot(phase):
             if os.environ.get('FUTUREMUD_S4_ATTUNEMENT_BUILDER_SMOKE') == '1':
                 attunement_builder_smoke(session, phase)
             if os.environ.get('FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE') == '1':
-                attunement_stock_smoke(session, phase)
+                if os.environ.get('FUTUREMUD_S4_GATE_SMOKE_ONLY') == '1':
+                    if phase == 'first':
+                        nilaz_gate_smoke(session, json.loads(Path(os.environ['FUTUREMUD_S4_ATTUNEMENT_STOCK_INPUT']).read_text(encoding='utf-8')))
+                    else: nilaz_gate_cold_smoke(session)
+                else:
+                    attunement_stock_smoke(session, phase)
             flush = session.send('impdebug flush',read_seconds=3)
             require('All queued saves have been flushed' in flush, 'Native save queue flush did not confirm.')
             state = character_state()

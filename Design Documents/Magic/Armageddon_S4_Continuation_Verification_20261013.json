@@ -1,4 +1,17 @@
 {
+  "nilaz_direct_gate_140_qualification": {
+    "base_revision": "fa1a26c062b3ef16b2161ae6ae450d0f4ee17d3f with focused native fixture and smoke changes",
+    "declared_required_definitions": 140,
+    "required_not_yet_declared": 12,
+    "native_direct": "PASS: isolated Classic installed stock, 15/15 first/cold assertions; grade-one Arcane Mark and Linked Threshold each paid exactly 50 Void from 100 to 0; seven exact gate claims, ordinary traversal, occupied link closure, persisted hypoxia/stun, empty retirement and cold no-resurrection. Source stable, owned processes stopped.",
+    "native_restore": "PASS: hash-pinned post-install fixture restored into a different fresh owned MySQL database without package rerun; the same 15/15 first/cold direct assertions passed, source stable and owned processes stopped.",
+    "fixture_descriptor": ".artifacts/s4-nilaz-gate-fixtures/20261015T015300Z_037b98752955479cbcb95af731a125ca/gate-fixture.json",
+    "fixture_descriptor_sha256": "B5533962526965172A47C2FA5DFA8DF99E54B4094F59D5530F14B02481432CA8",
+    "direct_receipt": "../prepared-catalogue-boot-native-s4-stock-ce05aae72ffa4761bca2843ee964e939/boot-latest.json",
+    "restore_receipt": "../prepared-catalogue-boot-native-s4-stock-fb309298504740808b6ca5fa3af3e641/boot-latest.json",
+    "limits": "Grade-one direct Nilaz scenario only. Other grades, alternate destinations, refusal/custody permutations, producer gates and the remaining twelve required spells have no direct native qualification here.",
+    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+  },
   "item_corpse_135_candidate": {
     "base_revision": "0fe42446359c167a6b9012748b7173d235a82c33 plus Wither Growth and Borrow the Dead source changes",
     "declared_required_definitions": 135,

@@ -305,7 +305,12 @@ internal static partial class GNHProgram
 				var answers = ((IEnumerable)step.GetType().GetProperty("Answers")!.GetValue(step)!).Cast<object>().ToDictionary(x => (string)x.GetType().GetProperty("Id")!.GetValue(x)!, x => (string)x.GetType().GetProperty("Answer")!.GetValue(x)!);
 				ExecuteBaseTargetStep(database, (IDatabaseSeeder)Activator.CreateInstance(type)!, answers); executed.Add(type.FullName!);
 			}
-			if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE") == "1") PreparedStockAttunementAcceptance(database);
+			if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_GATE_SMOKE_ONLY") == "1")
+			{
+				PrepareNilazGateFixture(database);
+				SaveNilazGateFixture(database, fixture.ManifestHash);
+			}
+			else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE") == "1") PreparedStockAttunementAcceptance(database);
 			RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
 		}
 		Require(BaseHash(fixture.Sql) == fixture.Receipt.SqlSha256 &&

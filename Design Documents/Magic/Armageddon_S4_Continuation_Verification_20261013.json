@@ -1,4 +1,14 @@
 {
+  "travel_endpoint_groundwork_20261015": {
+    "declared_required_definitions": 140,
+    "required_not_yet_declared": 12,
+    "shared_contract": "Exact current permanent room endpoints, selected layer, planar reach and magical wards; relocation additionally checks physical mover, mover destination access and projection boundary. Route-specific destination and remote-character authority remain unimplemented.",
+    "focused_core": "PASS 8/0/0 focused owned-mark and gate topology tests after the shared gate admission change",
+    "native_gate_restore": "PASS 15/15 pinned post-install Nilaz first/cold paid assertions; source start/end 4FF6252A4DDA93CDADB34791A6061385B9CC64DB8685895349610A2C8B742BE5, owned MUD/MySQL trees stopped",
+    "native_gate_receipt": "../prepared-catalogue-boot-native-s4-stock-e00741295eca401cabc404455fc40a51/boot-latest.json",
+    "limit": "The native run exercised shared connection admission but preceded a relocation-only mover ward addition; no relocation spell, new definition, all-grade or route-selector claim follows.",
+    "disabled_gates": ["Release", "package admissions", "Class availability", "unqualified carrier producers"]
+  },
   "nilaz_direct_gate_140_qualification": {
     "base_revision": "fa1a26c062b3ef16b2161ae6ae450d0f4ee17d3f with focused native fixture and smoke changes",
     "declared_required_definitions": 140,

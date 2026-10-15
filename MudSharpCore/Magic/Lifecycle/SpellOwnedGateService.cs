@@ -13,7 +13,6 @@ using MudSharp.Framework.Revision;
 using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.Magic.SpellEffects;
-using MudSharp.Planes;
 
 namespace MudSharp.Magic.Lifecycle;
 
@@ -101,11 +100,9 @@ public sealed partial class SpellOwnedGateService : ISpellOwnedGateService
 			destination.RouteDefinition is not null || destination.CurrentOverlay.Package.Status != RevisionStatus.Current ||
 			!destination.Terrain(null).TerrainLayers.Contains(RoomLayer.GroundLevel))
 			return "Exactly one active owned Arcane Mark on a directly carried item must name a distinct permanent ground-level room.";
-		if (!caster.CanInteractPlanar(source, PlanarInteractionKind.MovementBarrier) ||
-			!caster.CanInteractPlanar(destination, PlanarInteractionKind.MovementBarrier) ||
-			MagicInterdictionHelper.GetInterdiction(caster, source, spell.School, false) is not null ||
-			MagicInterdictionHelper.GetInterdiction(caster, destination, spell.School, false) is not null)
-			return "A planar or magical ward prevents this Nilaz connection.";
+		if (SpellTravelEndpointPolicy.ConnectionError(caster, source, destination, spell,
+			RoomLayer.GroundLevel) is { } travelError)
+			return travelError;
 		if (_world.DefaultHooks.Any(x => x.PerceivableType.EqualTo("Room") || x.PerceivableType.EqualTo("Cell")))
 			return "Nilaz creation needs an adapter for configured default room hooks.";
 		return PresentationError(source, configuration, out _, out _) ??

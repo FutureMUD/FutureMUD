@@ -1,14 +1,17 @@
 [CmdletBinding()]
 param([string]$EvidenceRoot,
-	[ValidateSet('prepared', 'replay', 'settings', 'stock-progressions', 'stock-supplies', 'stock-anatomy', 'stock-catalogue', 'stock-catalogue-boot', 'catalogue-fixture-boot', 'base-fixture-capture', 'base-fixture-restore', 'base-fixture-package', 'gate-fixture-restore', 's3-runtime', 'snapshot-refresh', 'stock-progression-fixtures', 'installed', 'installed-sql', 'sense', 'sense-control')]
+	[ValidateSet('prepared', 'replay', 'settings', 'stock-progressions', 'stock-supplies', 'stock-anatomy', 'stock-catalogue', 'stock-catalogue-boot', 'catalogue-fixture-boot', 'base-fixture-capture', 'base-fixture-restore', 'base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore', 's3-runtime', 'snapshot-refresh', 'stock-progression-fixtures', 'installed', 'installed-sql', 'sense', 'sense-control')]
 	[string]$Mode = 'prepared',
 	[string]$BaseFixture,
 	[string]$BaseFixtureSha256,
 	[string]$GateFixture,
 	[string]$GateFixtureSha256,
+	[string]$ExchangeFixture,
+	[string]$ExchangeFixtureSha256,
 	[ValidateSet('Classic', 'Simple')][string]$PackageMode = 'Classic',
 	[ValidateSet('catalogue', 's4-stock')][string]$QualificationScope = 'catalogue',
 	[switch]$GateSmokeOnly,
+	[switch]$ExchangeSmokeOnly,
 	[ValidateSet('PsionicsSeeder', 'EnvironmentalExposureSeeder')][string[]]$LaterSteps = @(),
 	[switch]$FreshInstallCheck)
 
@@ -33,8 +36,15 @@ $ownedEnvironmentNames = @('FUTUREMUD_BASE_WORLD_FIXTURE', 'FUTUREMUD_BASE_WORLD
 $ownedPreviousEnvironment = @{}
 foreach ($ownedName in $ownedEnvironmentNames) { $ownedPreviousEnvironment[$ownedName] = [Environment]::GetEnvironmentVariable($ownedName) }
 if ($GateSmokeOnly -and $QualificationScope -ne 's4-stock') { throw 'Gate-only native qualification requires -QualificationScope s4-stock.' }
+if ($ExchangeSmokeOnly -and ($GateSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -notin @('base-fixture-package', 'exchange-fixture-restore'))) { throw 'Exchange-only qualification requires a separate s4-stock package or exact Exchange restore run.' }
+$ownedEnvironmentNames += 'FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY'
+$ownedPreviousEnvironment['FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY'] = [Environment]::GetEnvironmentVariable('FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY')
+foreach ($exchangeEnvironment in @('FUTUREMUD_S4_EXCHANGE_FIXTURE', 'FUTUREMUD_S4_EXCHANGE_FIXTURE_SHA256')) {
+	$ownedEnvironmentNames += $exchangeEnvironment
+	$ownedPreviousEnvironment[$exchangeEnvironment] = [Environment]::GetEnvironmentVariable($exchangeEnvironment)
+}
 if ($QualificationScope -eq 's4-stock') {
-	if ($Mode -notin @('base-fixture-package', 'gate-fixture-restore') -or ($Mode -eq 'gate-fixture-restore' -and -not $GateSmokeOnly)) { throw 'S4 stock qualification requires package mode or focused Nilaz fixture restore.' }
+	if ($Mode -notin @('base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore') -or ($Mode -eq 'gate-fixture-restore' -and -not $GateSmokeOnly) -or ($Mode -eq 'exchange-fixture-restore' -and -not $ExchangeSmokeOnly)) { throw 'S4 stock qualification requires package mode or an explicit focused fixture restore.' }
 	$bootSource = Join-Path $PSScriptRoot 'PreparedCatalogueBootSmoke.py'
 	$bootCopy = Join-Path (Split-Path $workspaceRoot -Parent) 'PreparedCatalogueBootSmoke.py'
 	if (-not (Test-Path -LiteralPath $bootCopy) -or
@@ -45,7 +55,7 @@ if ($QualificationScope -eq 's4-stock') {
 elseif ($Mode -eq 'base-fixture-package' -and $env:FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE -eq '1') {
 	throw 'S4 stock flag was supplied without -QualificationScope s4-stock; refusing ambiguous catalogue-only qualification.'
 }
-if ($Mode -in @('base-fixture-restore', 'base-fixture-package', 'gate-fixture-restore')) {
+if ($Mode -in @('base-fixture-restore', 'base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore')) {
 	if (-not $BaseFixture -or $BaseFixtureSha256 -cnotmatch '^[A-F0-9]{64}$') { throw 'Restore requires an explicit base descriptor and its capture SHA256.' }
 	$baseFixtureFull = [IO.Path]::GetFullPath($BaseFixture)
 	$baseFixtureBoundary = (Join-Path $workspaceRoot '.artifacts\pre-armageddon-base-fixtures') + [IO.Path]::DirectorySeparatorChar
@@ -64,11 +74,23 @@ if ($Mode -eq 'gate-fixture-restore') {
 		throw 'The focused Nilaz fixture path or explicit digest is invalid.'
 	}
 }
+if ($Mode -eq 'exchange-fixture-restore') {
+	$exchangeFixtureFull = [IO.Path]::GetFullPath($ExchangeFixture)
+	$exchangeFixtureBoundary = (Join-Path $workspaceRoot '.artifacts\s4-exchange-fixtures') + [IO.Path]::DirectorySeparatorChar
+	if ($ExchangeFixtureSha256 -cnotmatch '^[A-F0-9]{64}$' -or
+		-not $exchangeFixtureFull.StartsWith($exchangeFixtureBoundary, [StringComparison]::OrdinalIgnoreCase) -or
+		-not (Test-Path -LiteralPath $exchangeFixtureFull) -or (Get-FileHash -LiteralPath $exchangeFixtureFull -Algorithm SHA256).Hash -ne $ExchangeFixtureSha256) {
+		throw 'The focused Exchange fixture path or explicit digest is invalid.'
+	}
+}
 if ($FreshInstallCheck -and $Mode -ne 'base-fixture-capture') { throw 'FreshInstallCheck applies only to capture.' }
 if ($LaterSteps.Count -gt 0 -and $Mode -ne 'base-fixture-package') { throw 'LaterSteps applies only to targeted package mode.' }
 if ($QualificationScope -eq 's4-stock') {
 	$env:FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE = '1'
 	$env:FUTUREMUD_S4_GATE_SMOKE_ONLY = if ($GateSmokeOnly) { '1' } else { '0' }
+	$env:FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY = if ($ExchangeSmokeOnly) { '1' } else { '0' }
+	$env:FUTUREMUD_S4_EXCHANGE_FIXTURE = $ExchangeFixture
+	$env:FUTUREMUD_S4_EXCHANGE_FIXTURE_SHA256 = $ExchangeFixtureSha256
 	$env:FUTUREMUD_CATALOGUE_BOOT_SCOPE = 'catalogue'
 	$env:FUTUREMUD_PREPARED_REPLAY_BOOT_SCRIPT = [IO.Path]::GetFullPath($bootCopy)
 	$env:FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT = Join-Path (Split-Path $workspaceRoot -Parent) ('prepared-catalogue-boot-native-s4-stock-' + [guid]::NewGuid().ToString('N'))
@@ -237,13 +259,20 @@ try {
 		try {
 			$stockBootReceipt = Join-Path $env:FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT 'boot-latest.json'
 			$boot = Get-Content -LiteralPath $stockBootReceipt -Raw | ConvertFrom-Json
-			if (-not $GateSmokeOnly) {
+			if (-not $GateSmokeOnly -and -not $ExchangeSmokeOnly) {
 				$stockFirstLoaded = @($boot.stock_definition_loader.first.PSObject.Properties).Count
 				$stockColdLoaded = @($boot.stock_definition_loader.cold.PSObject.Properties).Count
 			}
 			$stockAssertions = @($boot.assertions).Count
 			$stockCampaignAssertions = @($boot.assertions | Where-Object { $_ -like '*S4 stock*' }).Count
-			if ($GateSmokeOnly) {
+			if ($ExchangeSmokeOnly) {
+				if ($boot.status -ne 'PASS' -or $boot.exchange_places.status -ne 'PASS' -or
+					$boot.exchange_places.cold_status -ne 'PASS' -or -not $boot.owned_mud_processes_stopped) {
+					throw 'Paid Exchange Places first/cold or owned-process assertions are incomplete.'
+				}
+				Write-Output "s4ExchangeQualification=verified assertions=$stockAssertions"
+			}
+			elseif ($GateSmokeOnly) {
 				if ($boot.status -ne 'PASS' -or $boot.scope -ne 'catalogue' -or
 					$boot.nilaz_gate.status -ne 'PASS' -or $boot.nilaz_gate.cold_status -ne 'PASS' -or
 					-not $boot.owned_mud_processes_stopped) {
@@ -269,8 +298,9 @@ try {
 	Write-Output "nativeHarnessExit=$runExit"
 	$sourceEnd = Write-SourceEvidence 'source-end'
 	$sourceStable = $sourceStart -eq $sourceEnd
-	@{ revision = $revision; mode = $Mode; qualification_scope = $QualificationScope; gate_smoke_only = [bool]$GateSmokeOnly; stock_first_loaded = $stockFirstLoaded; stock_cold_loaded = $stockColdLoaded; stock_assertions = $stockAssertions; stock_campaign_assertions = $stockCampaignAssertions; stock_boot_receipt = $stockBootReceipt; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
-		base_fixture = $BaseFixture; base_fixture_sha256 = $BaseFixtureSha256; gate_fixture = $GateFixture; gate_fixture_sha256 = $GateFixtureSha256; package_mode = $PackageMode; later_steps = $LaterSteps; fresh_install_check = [bool]$FreshInstallCheck; base_receipt = (Join-Path $evidenceDirectory 'base-world-run.json'); process_root = $taskRoot; owned_port = $taskPort; limits = 'Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.' } |
+	$qualificationLimits = if ($QualificationScope -eq 's4-stock') { 'Focused Telnet evidence is in stock_boot_receipt; no whole-package or S5 qualification.' } else { 'Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.' }
+	@{ revision = $revision; mode = $Mode; qualification_scope = $QualificationScope; gate_smoke_only = [bool]$GateSmokeOnly; exchange_smoke_only = [bool]$ExchangeSmokeOnly; stock_first_loaded = $stockFirstLoaded; stock_cold_loaded = $stockColdLoaded; stock_assertions = $stockAssertions; stock_campaign_assertions = $stockCampaignAssertions; stock_boot_receipt = $stockBootReceipt; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
+		base_fixture = $BaseFixture; base_fixture_sha256 = $BaseFixtureSha256; gate_fixture = $GateFixture; gate_fixture_sha256 = $GateFixtureSha256; exchange_fixture = $ExchangeFixture; exchange_fixture_sha256 = $ExchangeFixtureSha256; package_mode = $PackageMode; later_steps = $LaterSteps; fresh_install_check = [bool]$FreshInstallCheck; base_receipt = (Join-Path $evidenceDirectory 'base-world-run.json'); process_root = $taskRoot; owned_port = $taskPort; limits = $qualificationLimits } |
 		ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $evidenceDirectory 'summary.json')
 	Write-Output "nativeSourceStable=$sourceStable sourceEnd=$sourceEnd"
 	if (-not $sourceStable) { $runExit = 1 }

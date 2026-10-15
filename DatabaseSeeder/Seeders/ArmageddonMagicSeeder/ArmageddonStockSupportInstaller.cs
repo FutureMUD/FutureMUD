@@ -47,6 +47,8 @@ public static partial class ArmageddonStockSupportInstaller
 	public const string NilazPassageTemplateKey = "arm.support.roomtemplate.nilaz_passage";
 	public const string SiltTagKey = "arm.support.tag.silt";
 	public const string ShallowsTagKey = "arm.support.tag.shallows";
+	public const string TravelRestrictedTagKey = "arm.support.tag.travel_restricted";
+	public const string TravelPopulatedTagKey = "arm.support.tag.travel_populated";
 	public const string UndeadMeritKey = "arm.support.merit.undead";
 	public const string MagicalExceptionMeritKey = "arm.support.merit.magical_exception";
 	public const string CorpseEligibilityKey = "arm.support.prog.corpse_eligibility";
@@ -168,6 +170,7 @@ public static partial class ArmageddonStockSupportInstaller
 			preflightComplete = true;
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.PreflightComplete);
 			InstallProtection(owned, protection, ids, messages);
+			InstallTravelSupports(db, owned, protection, ids, messages);
 			foreach (var (key, name, order) in new[] { (WaterPlaneKey, "Water", 10), (ShadowPlaneKey, "Shadow", 20),
 				(FirePlaneKey, "Fire", 30), (LightningPlaneKey, "Lightning", 40) })
 			{

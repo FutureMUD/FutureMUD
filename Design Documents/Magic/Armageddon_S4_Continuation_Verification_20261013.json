@@ -1,4 +1,111 @@
 {
+  "exchange_places_141_checkpoint_20261015": {
+    "base_revision": "fb7e9df1385dcbd92a21af42e747fed123927c20 plus final Exchange source pinned by native and managed receipts",
+    "declared_required_definitions": 141,
+    "required_not_yet_declared": 11,
+    "latest_complete_native_loaded_spells": 140,
+    "new_key": "arm.spell.exchange_places",
+    "focused_core": {
+      "status": "PASS",
+      "passed": 333,
+      "failed": 0,
+      "skipped": 0,
+      "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-exchange-recovered\\20261015T083148Z-cb72c31eb76f\\summary.json",
+      "source_start_end": "3468853bec52f9efc42195e5082acc296cd4a7d57653f3e39ceb28ba05808af4",
+      "scope": "36 Exchange, 288 queued authority, 8 gate/mark, 1 contact selector; all seven paid grades, material/custody, frozen policy, compensation/NeedsReview and no replay"
+    },
+    "focused_seeder": {
+      "status": "PASS",
+      "passed": 76,
+      "failed": 0,
+      "skipped": 0,
+      "receipt": "C:\\Users\\luker\\AppData\\Local\\Temp\\futuremud-exchange-recovered\\20261015T073412Z-baf141450581\\summary.json",
+      "source_start_end": "d1a50c70c17f2689445f46f5999029c6456ccdfef55a8202c640f2be51ff293f",
+      "scope": "Owning stock spell/support installer classes, 141 locked definitions, Classic/Simple, rerun and typed dependencies; subsequent changes only runtime/native fixture"
+    },
+    "reporting_baseline": {
+      "commit": "fb7e9df1385dcbd92a21af42e747fed123927c20",
+      "focused_windows": "14/14 PASS, bounded exit observation and live-process negative control",
+      "hosted": "All four jobs SUCCESS on 38699425484 (push) and 38699432433 (pull_request), Ubuntu and Windows"
+    },
+    "native": {
+      "status": "PASS",
+      "assertions": 13,
+      "runner_receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-exchange-native\\20261015T083656Z_bb3923da83bd41e2ac040726793e573d\\summary.json",
+      "boot_receipt": "../prepared-catalogue-boot-native-s4-stock-5e3c593d87534618887e9e0eec35b5f2/boot-latest.json",
+      "source_start_end": "AD73AE946AE1A9DB8053DAA58F3B218B8CA3583E89AF86E73B6D88482AC7B79A",
+      "source_stable": true,
+      "owned_processes_database_cleaned": true,
+      "scope": "Restored installed stock; actual live outbound contact and paid grade-one exchange, worn-pouch retained Teleportation, one Alteration consumed per attempt, exact saved swapped locations/body identities, cold retention and no-contact no-payment repeat refusal",
+      "paid_attempts": 1,
+      "first_cold_catalogue_displays": "Not run in focused lane"
+    },
+    "fixture": {
+      "descriptor": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\s4-exchange-fixtures\\20261015T081718Z_2c870619d4134465beb1caaff3703f90\\exchange-stock.json",
+      "descriptor_sha256": "171A7A4A4F1870CFAE2C61A24BF93264FB0362CCBB6F716D832FB3BCE009DB7F",
+      "sql_sha256": "560F2BC96B58F3E5629E9264D0DC815B27C4B5B088A245F5C0AA3D5A2A1FD1DD",
+      "base_descriptor_sha256": "F2418E5578B92232B67FA897FA9A0661E3FA63A186FDCFDA183388BFBFF36F20"
+    },
+    "failed_native_attempts": [
+      {
+        "receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-exchange-native\\20261015T074647Z_0d3f8bef366b4e62a3a524dd775f70d6\\summary.json",
+        "native_exit": -1,
+        "source_start": "F28CECE86C4BDFE96CE46C2F5921326E86BD9511546577DB6675EE4D8540E823",
+        "source_stable": true,
+        "result": "Stopped obsolete harness before gameplay after movement safety review; no gameplay pass.",
+        "cleanup": "Owned MySQL/database cleaned; owned boot process stopped when started."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-exchange-native\\20261015T075218Z_32de37a1b561438e94a4ec9a39d3e73f\\summary.json",
+        "native_exit": 1,
+        "source_start": "1F67F3BB50979DEBAB146AA0B5D5BD17801E6CF2F3A38D174834B03D97D655D6",
+        "source_stable": true,
+        "result": "Fixture assumed an absent stock pouch; failed before gameplay.",
+        "cleanup": "Owned MySQL/database cleaned; owned boot process stopped when started."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-exchange-native\\20261015T080800Z_9d894d2aa0bb421f88a9a3d2fbf51263\\summary.json",
+        "native_exit": 1,
+        "source_start": "90C49C95FE6F05A3065283CBB3DD81D3943B11B5BC07D93FF7C6DF8DE0A4B0DB",
+        "source_stable": true,
+        "result": "Fixture initially searched only exact Human body instead of inherited Waist wear profiles; failed before gameplay.",
+        "cleanup": "Owned MySQL/database cleaned; owned boot process stopped when started."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-exchange-native\\20261015T081914Z_c03cb9d496b34149928d2d6b3c666c04\\summary.json",
+        "native_exit": 1,
+        "source_start": "CEA999CB5AC9E454B418878376FF818176EF956AFC60166E826E0B15A1FC4431",
+        "source_stable": true,
+        "result": "Invalid PUT grammar left both materials held; mandatory free-hand prepayment refusal, no paid operation.",
+        "cleanup": "Owned MySQL/database cleaned; owned boot process stopped when started."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-exchange-native\\20261015T082524Z_c8ca4a1c10c04cbe8855fe6847401aca\\summary.json",
+        "native_exit": 1,
+        "source_start": "E63C168CA1CEB4A5034864E04CAFB27B6E2D427D7D0B39E1E3389D9FDB2B7C26",
+        "source_stable": true,
+        "result": "Established native contact was rejected by optional Gameworld.Bodies cache dependency; no paid operation. Corrected exact identity-instance/body ownership checks subsequently passed.",
+        "cleanup": "Owned MySQL/database cleaned; owned boot process stopped when started."
+      },
+      {
+        "receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s4-exchange-native\\20261015T083318Z_90f8bf9e46074f31a7dda4394cd7d3d8\\summary.json",
+        "native_exit": 1,
+        "source_start": "4E292BE2C4B4969FF0A1020F45B748198D62C98A80B7740F9E74A61FA0D51BA2",
+        "source_stable": true,
+        "result": "Paid native swap succeeded and exact payment/retained component checks passed, then harness read stack Quantity as an element instead of its native XML attribute. Cold phase not run; corrected assertion subsequently passed.",
+        "cleanup": "Owned MySQL/database cleaned; owned boot process stopped when started."
+      }
+    ],
+    "native_harness_build": "Debug --no-restore -m:1 PASS, 0 errors, 31 existing warnings; C:/Temp/futuremud-exchange-harness-build5.log",
+    "environment_blockers": [],
+    "limits": "Representative grade-one native sample plus focused all-grade managed evidence; no whole-catalogue 141 display, all-grade native, practice, alternate invocation/carrier or complete S4/S5 qualification. Exchange installed_stock_qualification remains PENDING.",
+    "disabled_gates": [
+      "Release",
+      "package admissions",
+      "Class availability",
+      "unqualified carrier producers"
+    ]
+  },
   "travel_endpoint_groundwork_20261015": {
     "declared_required_definitions": 140,
     "required_not_yet_declared": 12,

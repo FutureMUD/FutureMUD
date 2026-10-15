@@ -37,11 +37,11 @@ public sealed class CastingTriggerMindContactCharacter : CastingTriggerBase
 		!CharacterInstanceIdentityComparer.SamePhysicalInstanceOrBody(actor, target) &&
 		actor.InstanceId > 0 && actor.Gameworld.Actors.Any(x => ReferenceEquals(x, actor)) &&
 		actor.Body is { Id: > 0 } casterBody && ReferenceEquals(casterBody.Actor, actor) &&
-		ReferenceEquals(actor.Gameworld.Bodies.Get(casterBody.Id), casterBody) &&
+		actor.Identity?.Instances.Any(x => ReferenceEquals(x, actor)) == true &&
 		ReferenceEquals(actor.Gameworld, target.Gameworld) && target.InstanceId > 0 &&
 		actor.Gameworld.Actors.Any(x => ReferenceEquals(x, target)) &&
 		target.Body is { Id: > 0 } body && ReferenceEquals(body.Actor, target) &&
-		ReferenceEquals(actor.Gameworld.Bodies.Get(body.Id), body) &&
+		target.Identity?.Instances.Any(x => ReferenceEquals(x, target)) == true &&
 		actor.EffectsOfType<ConnectMindEffect>().Any(effect =>
 			actor.Effects.Any(x => ReferenceEquals(x, effect)) &&
 			ReferenceEquals(effect.TargetCharacter, target) &&

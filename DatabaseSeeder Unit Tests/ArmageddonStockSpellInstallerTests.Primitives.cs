@@ -25,7 +25,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var entries = manifest.RootElement.GetProperty("entries").EnumerateArray().ToDictionary(x => x.GetProperty("key").GetString()!);
 		var claims = db.SeederManagedRecords.Where(x => x.Module == ArmageddonStockSpellInstaller.Module && x.EntityType == "MagicSpell").ToArray();
 		CollectionAssert.AreEquivalent(ArmageddonStockSpellInstaller.CanonicalKeys.ToArray(), claims.Select(x => x.StableKey).ToArray());
-		Assert.AreEqual(140, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
+		Assert.AreEqual(141, ArmageddonStockSpellInstaller.CanonicalKeys.Count);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var source = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonProgressionInstaller.SourceResourceKey).LogicalId!.Value;
 		foreach (var claim in claims)
@@ -39,6 +39,11 @@ public partial class ArmageddonStockSpellInstallerTests
 			var minimum = entry.GetProperty("minimum_energy").GetDouble();
 			Assert.AreEqual(minimum, (double)root.Element("ControlledPower")!.Element("Efficiency")!.Attribute("minimum")!, claim.StableKey);
 			var expectedTarget = entry.GetProperty("target_type").GetString();
+			if (claim.StableKey == ArmageddonExchangePlacesSpellContent.Key)
+			{
+				Assert.AreEqual("character", expectedTarget);
+				expectedTarget = "mindcontactcharacter"; // Source transference selects an exact active outbound contact.
+			}
 			if (claim.StableKey is "arm.spell.seeking_wind" or "arm.spell.wind_courier" or "arm.spell.haunting_shape")
 			{
 				// Inventory's room delivery has an exact typed mission-input trigger, documented in the casting contract.

@@ -263,8 +263,8 @@ public static partial class ArmageddonStockSpellInstaller
 			CatalogueIdentity<Plane>(db, ArmageddonStockSupportInstaller.ShadowPlaneKey), RankedComponentTags(db, "divination")));
 	}
 
-	private static long[] RankedComponentTags(FuturemudDatabaseContext db, string sphere) =>
-		Enumerable.Range(0, 5).Select(rank =>
+	private static long[] RankedComponentTags(FuturemudDatabaseContext db, string sphere, int count = 5) =>
+		Enumerable.Range(0, count).Select(rank =>
 		{
 			var key = "arm.material." + sphere + ".rank" + rank;
 			CataloguePrototype(db, key, "Stackable");

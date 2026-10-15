@@ -263,6 +263,7 @@ internal static partial class GNHProgram
 			["LiquidId"] = nameof(Db.Liquid), ["Liquid"] = nameof(Db.Liquid), ["Resource"] = nameof(Db.MagicResource),
 			["AutobuilderTemplate"] = nameof(Db.AutobuilderRoomTemplate), ["TemplateRoom"] = nameof(Db.Room), ["FallbackRoom"] = nameof(Db.Room),
 			["UndeadMerit"] = nameof(Db.Merit),
+			["RestrictedRoomTag"] = nameof(Db.Tag), ["PopulatedRoomTag"] = nameof(Db.Tag), ["ConsumedRootTag"] = nameof(Db.Tag),
 			["WaterPrototype"] = nameof(Db.GameItemProto), ["Prototype"] = nameof(Db.GameItemProto), ["Terrain"] = nameof(Db.Terrain),
 			["School"] = nameof(Db.MagicSchool), ["AI"] = nameof(Db.ArtificialIntelligence), ["BonusPlane"] = nameof(Db.Plane),
 			["Plane"] = nameof(Db.Plane), ["EffigyPrototype"] = nameof(Db.GameItemProto),

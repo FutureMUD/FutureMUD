@@ -19,6 +19,62 @@ namespace MudSharp_Unit_Tests;
 public partial class QueuedCommandAuthorityTests
 {
 	[TestMethod]
+	public void SoloDisplacement_RefusesNewCompanionsAndForeignNestedTravel()
+	{
+		var f = new Fixture();
+		using var solo = CommandExecutionScope.EnterSoloDisplacement(f.Actor.Object, () => true);
+		using var receipt = CommandExecutionScope.BeginDisplacement(f.Actor.Object, f.Actor.Object.Location, RoomLayer.GroundLevel);
+		Assert.IsNotNull(receipt);
+		Assert.IsFalse(receipt.CaptureCompanions([f.Commander.Object]));
+		using (CommandExecutionScope.EnterSoloDisplacement(f.Commander.Object, () => true))
+		{
+			Assert.IsFalse(CommandExecutionScope.TryContinue(f.Commander.Object));
+			Assert.IsNull(CommandExecutionScope.BeginDisplacement(f.Commander.Object, f.Actor.Object.Location, RoomLayer.GroundLevel));
+		}
+	}
+
+	[DataTestMethod]
+	[DataRow("guard")] [DataRow("body")] [DataRow("retirement")]
+	public void SoloDisplacement_RechecksExactBodyAndGuardBeforeDeparture(string change)
+	{
+		var f = new Fixture(); var allowed = true;
+		using var solo = CommandExecutionScope.EnterSoloDisplacement(f.Actor.Object, () => allowed);
+		using var receipt = CommandExecutionScope.BeginDisplacement(f.Actor.Object, f.Actor.Object.Location, RoomLayer.GroundLevel);
+		Assert.IsNotNull(receipt);
+		if (change == "guard") allowed = false;
+		if (change == "body") f.Actor.SetupGet(x => x.Body).Returns(Mock.Of<IBody>(x => x.Actor == f.Actor.Object));
+		if (change == "retirement") f.ActorInstances.Clear();
+		Assert.IsFalse(receipt.BeginLeave(f.Actor.Object));
+	}
+
+	[TestMethod]
+	public void SoloDisplacement_MembershipGapBelongsOnlyToReceipt()
+	{
+		var f = new Fixture();
+		using var solo = CommandExecutionScope.EnterSoloDisplacement(f.Actor.Object, () => true);
+		using var receipt = CommandExecutionScope.BeginDisplacement(f.Actor.Object, f.Actor.Object.Location, RoomLayer.GroundLevel);
+		Assert.IsNotNull(receipt); Assert.IsTrue(receipt.BeginLeave(f.Actor.Object));
+		f.RoomCharacters.RemoveAll(x => ReferenceEquals(x, f.Actor.Object));
+		Assert.IsTrue(receipt.Continue());
+		Assert.IsFalse(CommandExecutionScope.TryContinue(f.Actor.Object));
+	}
+
+	[TestMethod]
+	public void SoloDisplacement_OwnedSecondaryRetainsPrincipalAuthorityAndStickyRefusal()
+	{
+		var f = new Fixture();
+		using var principal = CommandExecutionScope.EnterDispatch(CommandExecutionAuthority.Prepare(f.Actor.Object, f.Commander.Object, "cast", () => f.Allowed), f.Actor.Object);
+		using (CommandExecutionScope.EnterSoloDisplacement(f.Commander.Object, () => true))
+		using (var receipt = CommandExecutionScope.BeginDisplacement(f.Commander.Object, f.Commander.Object.Location, RoomLayer.GroundLevel))
+		{
+			Assert.IsNotNull(receipt); f.Allowed = false;
+			Assert.IsFalse(receipt.Continue());
+		}
+		f.Allowed = true;
+		Assert.IsFalse(CommandExecutionScope.TryContinue(f.Actor.Object), "Disposing a failed owned secondary must not revive its principal.");
+	}
+
+	[TestMethod]
 	public void OrderedDisplacement_FullShelterRefusesBeforeTheCallerCanMoveCompanionsOrFloorItems()
 	{
 		var room = (Room)RuntimeHelpers.GetUninitializedObject(typeof(Room));

@@ -145,7 +145,13 @@ public static partial class ArmageddonStockSpellInstaller
 			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
 				ArmageddonDrowningGripSpellContent.Create(CharacterResistance(db, "water", ArmageddonStockSpellContent.ReadAttunementKey)))))
 		.Append((Key: ArmageddonGateSpellContent.Key,
-			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveGate));
+			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)ResolveGate))
+		.Append((Key: ArmageddonExchangePlacesSpellContent.Key,
+			Resolve: (Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution>)(db =>
+				ArmageddonExchangePlacesSpellContent.Create(
+					CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelRestrictedTagKey),
+					CatalogueIdentity<Tag>(db, ArmageddonStockSupportInstaller.TravelPopulatedTagKey),
+					RankedComponentTags(db, "teleportation", 6), RankedComponentTags(db, "alteration", 6)))));
 
 	private static ArmageddonInstallResult InstallContribution(Func<FuturemudDatabaseContext> factory,
 		Func<FuturemudDatabaseContext, ArmageddonCanonicalSpellContribution> resolve, Action<ArmageddonInstallCheckpoint>? checkpoint)

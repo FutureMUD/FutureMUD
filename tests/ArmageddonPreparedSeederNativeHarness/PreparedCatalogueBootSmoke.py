@@ -471,6 +471,98 @@ def mark_inherited_read(phase):
             selected['outcome'] = 'PASS' if phase == 'cold' else 'FIRST-PASS-COLD-PENDING'
     if phase == 'cold' and report.get('selected') and all(row['outcome'] == 'PASS' for row in report['selected']): report['status'] = 'PASS'
 
+def exchange_places_smoke(session, phase):
+    data = json.loads(Path(os.environ['FUTUREMUD_S4_ATTUNEMENT_STOCK_INPUT']).read_text(encoding='utf-8'))
+    route = data['exchange_places']; actor = int(data['character']); body = int(data['body'])
+    cap = int(route['capability']); resource = int(route['resource']); spell = int(route['spell'])
+    require(cap not in [int(x) for x in data['package_capabilities']], 'Exchange must use its separate disposable admission.')
+    def flush():
+        require('All queued saves have been flushed' in session.send('impdebug flush', read_seconds=.4), 'Exchange flush failed.')
+    def balance():
+        return float(sql(f'SELECT IFNULL((SELECT Amount FROM Characters_MagicResources WHERE CharacterId={actor} AND MagicResourceId={resource}),0)')[0][0])
+    def operations():
+        return sql(f'SELECT HEX(Id),HEX(Stage),HEX(Definition) FROM MagicCastingOperations WHERE CharacterId={actor} AND MagicSpellId={spell} ORDER BY CreatedUtc,Id', (0,1,2))
+    def materials():
+        return sql(f'SELECT gi.Id,gi.GameItemProtoId,HEX(gc.Definition) FROM GameItems gi '
+                   f'JOIN GameItemComponents gc ON gc.GameItemId=gi.Id JOIN GameItemComponentProtos cp ON cp.Id=gc.GameItemComponentProtoId '
+                   f'AND cp.RevisionNumber=gc.GameItemComponentProtoRevision WHERE cp.Type="Stackable" '
+                   f'AND gi.GameItemProtoId IN ({route["teleportation"]},{route["alteration"]}) ORDER BY gi.Id', (2,))
+    command = f'{route["invoked"]} cast "Exchange Places" grade 1 on mount via {cap}'
+    if phase == 'cold':
+        report = receipt['exchange_places']
+        target = sql(f'SELECT Location,BodyId FROM Characters WHERE Id={report["target"]}')
+        require(int(character_state()[3]) == report['destination'] and target == [[str(report['home']),str(report['target_body'])]],
+                'Cold exchange did not retain the exact swapped character/body locations.')
+        before = operations(); funds = balance(); items = materials()
+        session.send(command, read_seconds=1); flush()
+        require(before == operations() and funds == balance() and items == materials(), 'Cold cast without a live contact paid or moved again.')
+        report['cold_status'] = 'PASS'
+        assertions.append('S4 Exchange: cold restart retained both exact swapped bodies and refused a new cast without live contact without payment')
+        return
+    report = receipt['exchange_places'] = {'status':'FAIL', 'attempts':[], 'home':int(receipt['initial_avatar'][3]),
+                                          'destination':int(receipt['campaign_exit_destination'])}
+    session.send(f'givemerit me {route["merit"]}', read_seconds=.5)
+    session.send(f'magic casting enrol {actor} {cap} disposable Exchange acceptance', read_seconds=.5); flush()
+    require(sql(f'SELECT CompletedStartingGrantVersion FROM CharacterCastingEnrolments WHERE CharacterId={actor} AND MagicCapabilityId={cap}')[0][0] == '1', 'Exchange enrolment failed.')
+    session.send('east', read_seconds=1)
+    template = sql(f'SELECT UniqueName FROM NPCTemplates WHERE Id={route["target_template"]}')[0][0]
+    session.send('npc load ' + template, read_seconds=1); flush()
+    targets = sql(f'SELECT c.Id,c.BodyId,c.Location FROM Characters c JOIN Npcs n ON n.CharacterId=c.Id WHERE n.TemplateId={route["target_template"]} ORDER BY c.Id DESC LIMIT 1')
+    require(len(targets) == 1 and int(targets[0][2]) == report['destination'], 'Exchange target did not load outdoors.')
+    report.update(target=int(targets[0][0]), target_body=int(targets[0][1]))
+    for attempt in range(4):
+        output = session.send(f'{route["invoked"]} contact mount', read_seconds=1)
+        if 'connect your mind' in output.lower() or 'establish' in output.lower(): break
+    # The cast's exact native contact selector is the authority; the transcript is supplementary.
+    session.send('west', read_seconds=1)
+    session.send('drop all', read_seconds=.5)
+    session.send(f'item load {item_command_reference(int(route["pouch"]))}', read_seconds=.5)
+    session.send('wear pouch', read_seconds=.5); session.send('open pouch', read_seconds=.5)
+    session.send(f'item load {item_command_reference(int(route["teleportation"]))}', read_seconds=.5)
+    session.send('put teleportation pouch', read_seconds=.5)
+    session.send(f'item load 4 {item_command_reference(int(route["alteration"]))}', read_seconds=.5); flush()
+    initial = materials()
+    require(len(initial) == 2, 'Exchange lacks the exact retained and consumed carried stock components.')
+    custody = sql(f'SELECT retained.Id,pouch.Id,bgi.WearProfile FROM GameItems retained '
+                  f'JOIN GameItems pouch ON pouch.Id=retained.ContainerId '
+                  f'JOIN Bodies_GameItems bgi ON bgi.GameItemId=pouch.Id AND bgi.BodyId={body} '
+                  f'WHERE retained.GameItemProtoId={route["teleportation"]} AND pouch.GameItemProtoId={route["pouch"]} '
+                  f'AND bgi.WearProfile IS NOT NULL')
+    require(len(custody) == 1 and len(sql(f'SELECT gi.Id FROM GameItems gi '
+            f'JOIN Bodies_GameItems bgi ON bgi.GameItemId=gi.Id AND bgi.BodyId={body} '
+            f'WHERE gi.GameItemProtoId={route["alteration"]} AND gi.ContainerId IS NULL')) == 1,
+            'Exchange requires retained Teleportation in the worn pouch and directly carried Alteration.')
+    report['initial_custody'] = custody
+    for attempt in range(4):
+        if balance() < float(route['cost']):
+            session.send(f'{route["invoked"]} gather {cap} draw {int(100-balance())}', read_seconds=.5)
+            deadline = time.monotonic()+18
+            while time.monotonic() < deadline and balance() < float(route['cost']): session.read_for(.5); flush()
+        before = operations(); funds = balance(); items = materials()
+        output = session.send(command, read_seconds=1); flush()
+        added = [row for row in operations() if row[0] not in {old[0] for old in before}]
+        require(len(added) == 1 and added[0][1] == 'Completed', 'Exchange did not complete one paid native operation: '+redact(output))
+        payload = ET.fromstring(added[0][2]); costs = payload.findall('Cost')
+        require(payload.get('grade') == '1' and payload.get('controlledGrade') == '1' and len(costs) == 1 and
+                costs[0].get('resource') == str(resource) and float(costs[0].get('amount')) == float(route['cost']) and
+                abs(funds-balance()-float(route['cost'])) < .001, 'Exchange payment differs from the exact grade-one quote.')
+        after = materials()
+        retained = [row for row in items if row[1] == str(route['teleportation'])]
+        require(retained == [row for row in after if row[1] == str(route['teleportation'])], 'Exchange consumed or replaced retained Teleportation.')
+        prior = [row for row in items if row[1] == str(route['alteration'])]
+        remaining = [row for row in after if row[1] == str(route['alteration'])]
+        require(len(prior) == 1 and (int(ET.fromstring(prior[0][2]).get('Quantity'))-1 ==
+                (int(ET.fromstring(remaining[0][2]).get('Quantity')) if remaining else 0)), 'Exchange did not consume exactly one Alteration unit.')
+        report['attempts'].append({'operation':added[0][0], 'payload':added[0][2], 'before':funds, 'after':balance()})
+        if payload.get('applied') == 'true': break
+        require(payload.get('outcome') in ('MinorFail','Fail','MajorFail'), 'Exchange returned an unexpected non-applied operation.')
+    require(payload.get('applied') == 'true', 'Four bounded ordinary Exchange attempts did not succeed.')
+    target = sql(f'SELECT Location,BodyId FROM Characters WHERE Id={report["target"]}')
+    require(int(character_state()[3]) == report['destination'] and target == [[str(report['home']),str(report['target_body'])]], 'Exchange did not swap the two exact saved bodies.')
+    report['status'] = 'PASS'
+    assertions.append('S4 Exchange: exact native live-contact paid grade-one swap retained Teleportation, consumed one Alteration per attempt and saved both locations')
+
+
 def nilaz_gate_smoke(session, data):
     config = data['nilaz_gate']
     routes = {route['key']: route for route in config['routes']}
@@ -617,9 +709,9 @@ def nilaz_gate_smoke(session, data):
     report['status'] = 'PASS'
     assertions.append('S4 Nilaz: empty closed topology reconciled to completed lifecycle with both rooms and corridor removed')
 
-def nilaz_gate_destination(session):
+def nilaz_gate_destination(session, label='Nilaz'):
     # Build only the ordinary east/west exit needed by this focused gate lane.
-    package_name = 'S4 Nilaz ' + uuid.uuid4().hex
+    package_name = 'S4 ' + label + ' ' + uuid.uuid4().hex
     session.send('room package new ' + package_name, read_seconds=1)
     require('All queued saves have been flushed' in session.send('impdebug flush', read_seconds=.5),
             'Nilaz room package save failed.')
@@ -642,7 +734,7 @@ def nilaz_gate_destination(session):
             int(character_state()[3]) == int(receipt['initial_avatar'][3]),
             'Nilaz normal west exit did not return to Guest Lounge.')
     receipt['campaign_exit_destination'] = destination
-    assertions.append('S4 Nilaz: live builder created and traversed distinct ordinary east/west destination')
+    assertions.append(f'S4 {label}: live builder created and traversed distinct ordinary east/west destination')
 
 def nilaz_gate_cold_smoke(session):
     report = receipt['nilaz_gate']
@@ -1321,11 +1413,13 @@ def boot(phase):
             session.send('c',read_seconds=1)
             session.send('1',read_seconds=3)
             looked = session.send('look',read_seconds=3)
-            require('Guest Lounge' in looked, 'Native login/LOOK did not reach seeded Guest Lounge.')
+            require('Guest Lounge' in looked or phase == 'cold' and os.environ.get('FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY') == '1', 'Native login/LOOK did not reach seeded Guest Lounge.')
             assertions.append(phase+': native Admin avatar login and LOOK')
             if phase == 'first' and BOOT_SCOPE == 'catalogue':
                 if os.environ.get('FUTUREMUD_S4_GATE_SMOKE_ONLY') == '1':
                     nilaz_gate_destination(session)
+                elif os.environ.get('FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY') == '1':
+                    nilaz_gate_destination(session, label='Exchange')
                 else:
                     native_first_boot_scenario(session)
             elif phase == 'cold' and 'food_component_instance' in receipt:
@@ -1340,7 +1434,9 @@ def boot(phase):
             if os.environ.get('FUTUREMUD_S4_ATTUNEMENT_BUILDER_SMOKE') == '1':
                 attunement_builder_smoke(session, phase)
             if os.environ.get('FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE') == '1':
-                if os.environ.get('FUTUREMUD_S4_GATE_SMOKE_ONLY') == '1':
+                if os.environ.get('FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY') == '1':
+                    exchange_places_smoke(session, phase)
+                elif os.environ.get('FUTUREMUD_S4_GATE_SMOKE_ONLY') == '1':
                     if phase == 'first':
                         nilaz_gate_smoke(session, json.loads(Path(os.environ['FUTUREMUD_S4_ATTUNEMENT_STOCK_INPUT']).read_text(encoding='utf-8')))
                     else: nilaz_gate_cold_smoke(session)

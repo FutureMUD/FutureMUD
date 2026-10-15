@@ -56,8 +56,9 @@ internal sealed class MagicCastingFixture
 	public Action<string>? Checkpoint { get; set; }
 	public Outcome Outcome { get; set; } = Outcome.Pass;
 
-	public MagicCastingFixture()
+	public MagicCastingFixture(bool physicalInstance = false)
 	{
+		if (physicalInstance) Actor.As<ICharacterInstance>();
 		var school = new Mock<IMagicSchool>();
 		school.SetupGet(x => x.Id).Returns(1); school.SetupGet(x => x.Name).Returns("Earth");
 		school.SetupGet(x => x.SchoolVerb).Returns("earth"); school.SetupGet(x => x.SchoolAdjective).Returns("earthen");

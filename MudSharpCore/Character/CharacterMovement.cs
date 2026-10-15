@@ -110,7 +110,7 @@ public partial class Character
 
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return;
 		using var displacement = MudSharp.NPC.AI.CommandExecutionScope.BeginDisplacement(this, target, layer, spatialTarget.RoutePositionMetres);
-		if (MudSharp.NPC.AI.CommandExecutionScope.IsOrdered(this) && displacement is null) return;
+		if (MudSharp.NPC.AI.CommandExecutionScope.RequiresDisplacementReceipt(this) && displacement is null) return;
 		if (displacement is not null && (target is not Room || Location is not Room)) return;
         IRoom sourceLocation = Location;
         Movement?.CancelForMoverOnly(this);

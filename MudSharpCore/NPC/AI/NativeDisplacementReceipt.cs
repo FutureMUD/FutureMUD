@@ -45,6 +45,7 @@ internal sealed class NativeDisplacementReceipt : IDisposable
 	internal bool CaptureCompanions(IEnumerable<ICharacter> companions)
 	{
 		if (!Continue()) return false;
+		if (_owner.SoloDisplacement && companions.Any()) return false;
 		foreach (var companion in companions)
 		{
 			if (_participants.Any(x => ReferenceEquals(x.Actor, companion))) continue;

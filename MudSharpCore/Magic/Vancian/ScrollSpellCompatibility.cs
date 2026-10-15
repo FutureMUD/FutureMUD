@@ -49,6 +49,7 @@ public static class ScrollSpellCompatibility
 		Add("createitem createliquid createnpc corpsespawn", "Creation/template callbacks and referenced prototype lifecycle require a dedicated adapter.");
 		Add("createshelter", "Occupied native topology, finite supply and return bindings require a dedicated stored-delivery adapter; direct invocation only.");
 		Add("creategate", "Exact carried Arcane Mark authority, owned passage topology and occupied retirement require a dedicated stored-delivery adapter; direct invocation only.");
+		Add("exchangeplaces", "Exact live mind contact, paired physical endpoints and separate retained/consumed components require direct configured casting.");
 		Add("createprojection", "Owned identity, focus, anchor and body lifecycle require a dedicated stored-delivery adapter; direct invocation only.");
 		Add("createpocket", "Borrowed held focus, exact carrier binding and conserved foreign custody require a dedicated stored-delivery adapter; direct invocation only.");
 		Add("createtrap placetrap dispeltrap removetrap", "Nested prepared-payload and trap ownership require a dedicated adapter.");

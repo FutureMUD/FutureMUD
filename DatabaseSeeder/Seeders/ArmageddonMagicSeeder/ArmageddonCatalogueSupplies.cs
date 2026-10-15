@@ -84,10 +84,10 @@ public static class ArmageddonCatalogueSupplies
 					var rank = blueprint.Configuration.GetProperty("rank").GetInt32();
 					var name = blueprint.Configuration.TryGetProperty("native_tag", out var tagName) ? tagName.GetString()! :
 						blueprint.Configuration.GetProperty("sphere").GetString() + " rank " + rank.ToString(CultureInfo.InvariantCulture);
-					var rankedFamily = sphere is "clerical" or "divination";
+					var rankedFamily = sphere is "clerical" or "divination" or "alteration" or "teleportation";
 					var parentKey = sphere + ":" + (rank - 1).ToString(CultureInfo.InvariantCulture);
 					if (rankedFamily && rank > 0 && !rankedTags.ContainsKey(parentKey))
-						throw new InvalidOperationException("Owned Clerical and Divination component ranks must be installed in ascending order.");
+						throw new InvalidOperationException("Owned ranked component families must be installed in ascending order.");
 					var tag = owned.Put(blueprint.Key + ".tag", new Tag
 					{
 						Name = name, ParentId = rankedFamily && rank > 0 ? rankedTags[parentKey] : null

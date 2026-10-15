@@ -22,6 +22,8 @@ internal sealed class CommandExecutionScope : IDisposable
 	private bool _committed;
 	private bool _disposed;
 	private NativeDisplacementReceipt? _displacement;
+	private Func<bool>? _physicalGuard;
+	internal bool SoloDisplacement => _physicalGuard is not null;
 
 	private CommandExecutionScope(CommandExecutionAuthority? authority, ICharacter? executor, ICombatMove? move, bool suspendCapture)
 	{
@@ -42,6 +44,16 @@ internal sealed class CommandExecutionScope : IDisposable
 		return new CommandExecutionScope(bound?.Authority, bound?.Executor ?? move.Assailant, move, bound is null);
 	}
 	internal static IDisposable EnterIndependent() => new CommandExecutionScope(null, null, null, true);
+	// A spell-owned secondary keeps the originating principal's authority. The receipt
+	// separately validates the exact displaced body and its temporary membership gap.
+	internal static IDisposable EnterSoloDisplacement(ICharacter actor, Func<bool> guard)
+	{
+		var previous = Current.Value;
+		return new CommandExecutionScope(previous?._authority, actor, null, previous?._authority is null)
+		{
+			_physicalGuard = () => previous?._rejected != true && previous?._displacement is null && guard()
+		};
+	}
 	internal static object? LearningContext => Current.Value;
 	internal static Continuation CaptureContinuation(ICharacter executor) =>
 		new(Current.Value?._authority, executor);
@@ -62,7 +74,7 @@ internal sealed class CommandExecutionScope : IDisposable
 	internal static bool TryContinue(ICharacter? executor = null)
 	{
 		var scope = Current.Value;
-		if (scope?._authority is null || executor is not null && !ReferenceEquals(executor, scope._executor)) return true;
+		if (scope is null || scope._authority is null && scope._physicalGuard is null || executor is not null && !ReferenceEquals(executor, scope._executor)) return true;
 		return scope.Continue();
 	}
 
@@ -78,6 +90,13 @@ internal sealed class CommandExecutionScope : IDisposable
 	private bool Continue()
 	{
 		if (_disposed || _rejected) return false;
+		if (_physicalGuard is not null)
+		{
+			var current = _executor is not null && CommandExecutionAuthority.IsCurrent(_executor, false) &&
+				(_authority?.MayExecutePrincipal() ?? true) && _physicalGuard();
+			if (!current) _rejected = true;
+			return current;
+		}
 		var valid = _move is not null
 			? CommandExecutionAuthority.MayExecute(_move, _executor)
 			: _authority!.MayExecutePrincipal();
@@ -91,7 +110,7 @@ internal sealed class CommandExecutionScope : IDisposable
 	internal static NativeDisplacementReceipt? BeginDisplacement(ICharacter actor, IRoom destination, RoomLayer layer, double? routePosition = null)
 	{
 		var scope = Current.Value;
-		if (scope?._authority is null || !ReferenceEquals(actor, scope._executor)) return null;
+		if (scope is null || scope._authority is null && scope._physicalGuard is null || !ReferenceEquals(actor, scope._executor)) return null;
 		if (scope._displacement is not null || !TryContinue(actor))
 		{
 			scope._rejected = true;
@@ -105,8 +124,9 @@ internal sealed class CommandExecutionScope : IDisposable
 		if (!ReferenceEquals(Current.Value, this) || !ReferenceEquals(_displacement, receipt) ||
 		    _disposed || _rejected || !receipt.ExecutorsValid()) return false;
 		var valid = _move is null
-			? _authority?.MayExecutePrincipal(receipt) == true
+			? (_authority?.MayExecutePrincipal(receipt) ?? _physicalGuard is not null)
 			: CommandExecutionAuthority.ForMove(_move)?.MayExecute(receipt) == true;
+		valid &= _physicalGuard?.Invoke() ?? true;
 		if (valid && !_rejected && receipt.ExecutorsValid()) return true;
 		_rejected = true;
 		return false;
@@ -135,6 +155,8 @@ internal sealed class CommandExecutionScope : IDisposable
 	internal static bool RejectedBeforeCommit => Current.Value is { _rejected: true, _committed: false };
 	internal static bool HasCommitted => Current.Value is { _committed: true };
 	internal static bool IsOrdered(ICharacter actor) => Current.Value is { _authority: not null } scope && ReferenceEquals(actor, scope._executor);
+	internal static bool RequiresDisplacementReceipt(ICharacter actor) => Current.Value is { } scope &&
+		(scope._authority is not null || scope._physicalGuard is not null) && ReferenceEquals(actor, scope._executor);
 	internal static void MarkCommitted(ICharacter? executor = null)
 	{
 		if (Current.Value is { } scope && (executor is null || ReferenceEquals(executor, scope._executor)))

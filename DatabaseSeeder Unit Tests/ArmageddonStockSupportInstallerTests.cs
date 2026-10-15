@@ -27,7 +27,7 @@ public class ArmageddonStockSupportInstallerTests
 		var beforeItems = db.GameItemProtos.Count(); var beforeAttacks = db.WeaponAttacks.Count();
 		var first = ArmageddonStockSupportInstaller.Install(factory);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status, string.Join("\n", first.Messages)); db.ChangeTracker.Clear();
-		Assert.AreEqual(50, first.Identities.Count); Assert.AreEqual(beforeItems + 17, db.GameItemProtos.Count());
+		Assert.AreEqual(60, first.Identities.Count); Assert.AreEqual(beforeItems + 19, db.GameItemProtos.Count());
 		Assert.AreEqual(beforeAttacks + 16, db.WeaponAttacks.Count()); Assert.AreEqual(1, db.Planes.Count(x => x.IsDefault));
 		var passage = db.AutobuilderRoomTemplates.Single(x => x.Id == first.Identities[ArmageddonStockSupportInstaller.NilazPassageTemplateKey]);
 		Assert.AreEqual("room by terrain", passage.TemplateType);
@@ -36,6 +36,14 @@ public class ArmageddonStockSupportInstallerTests
 		Assert.AreEqual(0, db.GameItems.Count()); Assert.AreEqual(0, db.Characters.Count()); Assert.AreEqual(0, db.MagicSpells.Count());
 		Assert.AreEqual(210, new ArmageddonStockCatalogue().Blueprints.Count);
 		Assert.AreEqual(49, new ArmageddonStockCatalogue().Blueprints.Count(x => x.Kind == ArmageddonBlueprintKind.MeleeItem));
+		foreach (var sphere in new[] { "alteration", "teleportation" })
+		{
+			var key = ArmageddonStockSupportInstaller.TravelRankFiveKey(sphere);
+			var tag = db.Tags.Single(x => x.Id == first.Identities[key + ".tag"]);
+			Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == "arm.material." + sphere + ".rank4.tag").LogicalId, tag.ParentId);
+			var recipe = db.Crafts.Include(x => x.CraftProducts).Single(x => x.Id == first.Identities[key + ".recipe"]);
+			Assert.AreEqual(first.Identities[key], (long)XElement.Parse(recipe.CraftProducts.Single().Definition).Element("ProductProducedId")!);
+		}
 		var corpse = db.FutureProgs.Include(x => x.FutureProgsParameters)
 			.Single(x => x.Id == first.Identities[ArmageddonStockSupportInstaller.CorpseEligibilityKey]);
 		CollectionAssert.AreEqual(new[] { ProgVariableTypes.Character, ProgVariableTypes.Item }, corpse.FutureProgsParameters
@@ -125,10 +133,10 @@ public class ArmageddonStockSupportInstallerTests
 		using var db = Fixture(); var factory = ArmageddonInstallationSettingsTests.Factory(db);
 		var uncertain = ArmageddonStockSupportInstaller.Install(factory, point =>
 		{ if (point == ArmageddonInstallCheckpoint.AfterCommit) throw new InvalidOperationException("confirmation fixture"); });
-		Assert.AreEqual(ArmageddonInstallStatus.CommittedConfirmationFailed, uncertain.Status); Assert.AreEqual(50, uncertain.Identities.Count);
+		Assert.AreEqual(ArmageddonInstallStatus.CommittedConfirmationFailed, uncertain.Status); Assert.AreEqual(60, uncertain.Identities.Count);
 		var rerun = ArmageddonStockSupportInstaller.Install(factory); Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
 		foreach (var entry in uncertain.Identities) Assert.AreEqual(entry.Value, rerun.Identities[entry.Key]);
-		db.ChangeTracker.Clear(); Assert.AreEqual(130, db.GameItemProtos.Count()); Assert.AreEqual(0, db.GameItems.Count());
+		db.ChangeTracker.Clear(); Assert.AreEqual(132, db.GameItemProtos.Count()); Assert.AreEqual(0, db.GameItems.Count());
 	}
 
 	private static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)

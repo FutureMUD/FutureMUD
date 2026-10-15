@@ -201,7 +201,10 @@ public sealed class SpellNpcMissionEffect : Effect
 		var caster = control.ResolveCreatorForMission();
 		if (caster is null || !creature.ColocatedWith(target) || !creature.CanSee(target) || target.State.HasFlag(CharacterState.Dead)) return;
 		if (Gameworld.MagicSpells.Get(control.SpellId) is not MagicSpell spell || !spell.ReadyForGame) return;
-		var resistance = Gameworld.GetCheck(CheckType.ResistMagicSpellCheck).Check(target, spell.OpposedDifficulty ?? Difficulty.Normal, spell.OpposedTrait, caster);
+		// No top-level opposed trait means the mission uses the ordinary resistance check.
+		// An unopposed spell's loaded enum default is Automatic; it is not a configured mission override.
+		var difficulty = spell.OpposedTrait is null ? Difficulty.Normal : spell.OpposedDifficulty ?? Difficulty.Normal;
+		var resistance = Gameworld.GetCheck(CheckType.ResistMagicSpellCheck).Check(target, difficulty, spell.OpposedTrait, caster);
 		if (!creature.CanSee(target) || !control.CanPerformMission() || !ReferenceEquals(ResolveTarget(), target) || !ReferenceEquals(target.Body, targetBody) ||
 			target.SpatialLocation != targetLocation || !creature.ColocatedWith(target)) return;
 		if (resistance.IsPass()) { CompleteAndRelease(control); return; }

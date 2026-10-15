@@ -167,7 +167,8 @@ public sealed partial class SpellNpcControlEffect : Effect, IGuardCharacterEffec
 			using var transaction = FMDB.Context.Database.BeginTransaction();
 			if (!ApplyQueuedOfflineFearParentCleanup(out var cachedRemovals)) { _persistenceUncertain = true; return false; }
 			SaveMissionActors([Creature, .. relatedCharacters]);
-			if (FMDB.Context.SaveChanges() <= 0) { _persistenceUncertain = true; return false; }
+			// Body.Save may already flush inventory writes inside this transaction.
+			FMDB.Context.SaveChanges();
 			transaction.Commit();
 			CompleteQueuedOfflineFearParentCleanup(cachedRemovals);
 			return true;
@@ -183,7 +184,13 @@ public sealed partial class SpellNpcControlEffect : Effect, IGuardCharacterEffec
 			using var transaction = FMDB.Context.Database.BeginTransaction();
 			if (!ApplyQueuedOfflineFearParentCleanup(out var cachedRemovals)) { _persistenceUncertain = true; return false; }
 			SaveMissionActors([Creature, .. otherCharacters], item);
-			if (FMDB.Context.SaveChanges() <= 0) { _persistenceUncertain = true; return false; }
+			// Body.Save may already flush inventory writes inside this transaction.
+			FMDB.Context.SaveChanges();
+			var owners = FMDB.Context.BodiesGameItems.AsNoTracking().Where(x => x.GameItemId == item.Id).Select(x => x.BodyId).ToArray();
+			if (item.InInventoryOf is not { } holder || owners.Length != 1 || owners[0] != holder.Id ||
+				FMDB.Context.RoomsGameItems.AsNoTracking().Any(x => x.GameItemId == item.Id) ||
+				FMDB.Context.GameItems.AsNoTracking().Any(x => x.Id == item.Id && x.ContainerId != null))
+			{ _persistenceUncertain = true; return false; }
 			transaction.Commit();
 			CompleteQueuedOfflineFearParentCleanup(cachedRemovals);
 			return true;

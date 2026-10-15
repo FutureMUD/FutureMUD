@@ -239,6 +239,31 @@ public partial class SpellOwnedNpcAdmissionTests
 		Assert.IsTrue(ScrollSpellCompatibility.Errors(spell).Any(x => x.Contains("dedicated adapter", StringComparison.Ordinal)));
 	}
 
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void RoomMissionCourier_UsesHandSelectorAndRefusesParcelOutsideHands(bool inHands)
+	{
+		var (f, effect, inputs, parcel) = MissionFixture(SpellNpcMissionKind.Courier);
+		var spell = (MagicSpell)effect.Spell;
+		f.Actor.Setup(x => x.TargetActorOrCorpse("target", It.IsAny<PerceiveIgnoreFlags>())).Returns(f.Actor.Object);
+		Assert.IsTrue(spell.BuildingCommand(f.Actor.Object, new StringStack("trigger new roommission courier")));
+		// The room selector is deliberately a different, visible item with the same keyword.
+		f.Actor.Setup(x => x.TargetLocalItem("parcel")).Returns(Mock.Of<IGameItem>(x => x.Id == 501));
+		f.Body.SetupGet(x => x.HeldOrWieldedItems).Returns(inHands ? [parcel.Object] : []);
+		var resolution = SpellTargetCapture.Resolve(f.Actor.Object, spell, SpellPower.ExtremelyWeak,
+			new StringStack("parcel to target"), true);
+		if (inHands)
+		{
+			Assert.IsNotNull(resolution);
+			Assert.AreSame(inputs.ExactParcel, ((SpellNpcMissionInputs)resolution.Parameters[0].Item!).ExactParcel);
+		}
+		else Assert.IsNull(resolution);
+		f.Actor.Verify(x => x.TargetHeldItem("parcel"), Times.Once);
+		f.Actor.Verify(x => x.TargetLocalItem(It.IsAny<string>()), Times.Never);
+		Assert.AreEqual(0, f.Store.Operations.Count);
+	}
+
 	[TestMethod]
 	public void Quote_ExactMissionInputsBindBeforePreparedSelectionWithoutMutation()
 	{
@@ -308,7 +333,7 @@ public partial class SpellOwnedNpcAdmissionTests
 		parcel.SetupGet(x => x.Id).Returns(500); parcel.SetupGet(x => x.Gameworld).Returns(f.World.Object); parcel.SetupGet(x => x.Quantity).Returns(5);
 		f.World.SetupGet(x => x.Items).Returns(MagicCastingFixture.Collection(() => new[] { parcel.Object }));
 		f.Body.SetupGet(x => x.HeldOrWieldedItems).Returns([parcel.Object]);
-		f.Actor.Setup(x => x.TargetLocalItem("parcel")).Returns(parcel.Object);
+		f.Actor.Setup(x => x.TargetHeldItem("parcel")).Returns(parcel.Object);
 		f.Actor.Setup(x => x.CanSee(parcel.Object, It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
 		return (f, effect, new(kind, f.Actor.Object, kind == SpellNpcMissionKind.Courier ? parcel.Object : null), parcel);
 	}

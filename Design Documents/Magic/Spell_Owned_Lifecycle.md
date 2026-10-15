@@ -113,6 +113,11 @@ prostheses, role trait adjustments and merit-provided extra bodies refuse until 
 creation adapters exist. Role trait adjustments currently mutate independently queued
 traits and invoke native callbacks; refusing them preserves their ordinary creation semantics.
 
+Configured lifecycle NPC creation reports an applied operation after the entire admitted
+creation group and its load/mission callbacks complete. Its result does not require a
+retained spell child. A partial group failure throws into the paid review path and does
+not report completed application or grant successful-manifestation progress.
+
 Configured casting checks deterministic creation eligibility before preparing inventory or
 committing payment. Admission and native Character/Body constructors share scoped merit
 composition: selected merits, role additions, body-merit deduplication and one-level combo
@@ -1147,3 +1152,20 @@ Shadow cannot bypass those checks merely because it has no held source item. Nat
 creation/retirement acceptance remains separately required.
 
 The S4 Unbodied Journey stock reuses that guarded identity-projection family on the exact owned Shadow plane. It authorizes one focusable secondary presence for `60*grade` real seconds, with an anchored `10*grade` native room-edge limit, admitted exits only and no closed-door bypass. The primary body remains present and helpless while focused away; expiry and retirement return focus through the existing journal. Draw into Flesh adds an opt-in `removeplanarstate` mode that removes only the first eligible spell-owned noncorporeal/ethereal overlay from a character. Its XML flag is `OnlySpellOwnedEthereal`; absent or false retains the legacy broad removal contract. Ordinary planar state, manifested spell overlays and unrelated effects are outside the opt-in removal. A target without an eligible child reports no change.
+
+
+### Native mission selectors and resistance
+
+Courier mission input resolves an exact visible item in the caster's hands with the native
+held-item selector, including wielded items; floor, worn and contained items do not qualify.
+The same exact custody is checked again before assignment and native transfer.
+Haunt uses the configured opposed trait and difficulty when that trait exists. Otherwise
+its independent native resistance check uses Normal difficulty. An unopposed spell's unused
+Automatic enum default does not turn that independent check into automatic resistance.
+
+Mission persistence commits the surrounding transaction even when its final SaveChanges
+returns zero: native Body.SaveInventory can already have flushed its writes within that
+transaction. Courier custody additionally verifies exactly one persisted body holder matching
+the live parcel and no room/container custody before committing. A mismatch or exception
+holds the mission without replay. Corpse possession opens its FMDB scope before saving
+the original dead NPC instance, then creates the exact secondary within that same scope.

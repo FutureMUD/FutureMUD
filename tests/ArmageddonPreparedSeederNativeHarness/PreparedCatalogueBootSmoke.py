@@ -335,6 +335,13 @@ def attunement_stock_smoke(session, phase):
         require(casting is not None and casting.get('enabled') == 'false' and not casting.findall('Admission'),
                 'A partial package roster was enabled for qualification.')
 
+    if os.environ.get('FUTUREMUD_S4_FAMILY_SMOKE_ONLY') == '1':
+        module_spec = importlib.util.spec_from_file_location('family_acceptance_smoke', REPO / 'tests/ArmageddonPreparedSeederNativeHarness/PreparedS4FamilySmoke.py')
+        module = importlib.util.module_from_spec(module_spec)
+        module_spec.loader.exec_module(module)
+        module.run(globals(), session, phase, data, mapped)
+        return
+
     if os.environ.get('FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY') == '1':
         module_spec = importlib.util.spec_from_file_location('focus_device_smoke', REPO / 'tests/ArmageddonPreparedSeederNativeHarness/PreparedFocusDeviceSmoke.py')
         module = importlib.util.module_from_spec(module_spec)
@@ -1433,10 +1440,10 @@ def boot(phase):
             session.send('c',read_seconds=1)
             session.send('1',read_seconds=3)
             looked = session.send('look',read_seconds=3)
-            require('Guest Lounge' in looked or phase == 'cold' and (os.environ.get('FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY') == '1' or os.environ.get('FUTUREMUD_S4_REMAINING_SMOKE_ONLY') == '1'), 'Native login/LOOK did not reach seeded Guest Lounge.')
+            require('Guest Lounge' in looked or phase == 'cold' and (os.environ.get('FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY') == '1' or os.environ.get('FUTUREMUD_S4_REMAINING_SMOKE_ONLY') == '1' or os.environ.get('FUTUREMUD_S4_FAMILY_SMOKE_ONLY') == '1'), 'Native login/LOOK did not reach seeded Guest Lounge.')
             assertions.append(phase+': native Admin avatar login and LOOK')
             if phase == 'first' and BOOT_SCOPE == 'catalogue':
-                if os.environ.get('FUTUREMUD_S4_REMAINING_SMOKE_ONLY') == '1' or os.environ.get('FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY') == '1':
+                if any(os.environ.get(key) == '1' for key in ('FUTUREMUD_S4_REMAINING_SMOKE_ONLY', 'FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY', 'FUTUREMUD_S4_FAMILY_SMOKE_ONLY')):
                     pass  # Its mapped permanent destination was prepared before boot.
                 elif os.environ.get('FUTUREMUD_S4_GATE_SMOKE_ONLY') == '1':
                     nilaz_gate_destination(session)

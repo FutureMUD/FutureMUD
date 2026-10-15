@@ -84,7 +84,7 @@ public sealed class CastingTriggerRoomMission : CastingTriggerBase
 				actor.OutputHandler.Send("Specify a held parcel followed by to and its recipient.".ColourCommand());
 				return;
 			}
-			parcel = actor.TargetLocalItem(parcelText);
+			parcel = actor.TargetHeldItem(parcelText);
 			if (parcel is null || !actor.Body.HeldOrWieldedItems.Any(x => ReferenceEquals(x, parcel)))
 			{
 				actor.OutputHandler.Send("You must select one exact parcel you are holding or wielding.".ColourError());

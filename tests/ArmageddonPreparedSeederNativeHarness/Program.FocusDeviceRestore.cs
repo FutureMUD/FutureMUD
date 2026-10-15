@@ -35,6 +35,7 @@ internal static partial class GNHProgram
 		}
 		var input = Path.Combine(Directory.GetParent(CatalogueRepository)!.FullName, "prepared-stock-attunement-input_" + Guid.NewGuid().ToString("N") + ".json");
 		File.Copy(savedInput, input); Environment.SetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_INPUT", input);
+		if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_FAMILY_SMOKE_ONLY") == "1") PrepareS4FamilyFixture(database, input);
 		Console.WriteLine("ARMS4-focus-device-restored=" + manifest + " fresh-owned-database no package replay");
 		RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
 		Require(BaseHash(sql) == fixture.SqlSha256 && BaseHash(savedInput) == fixture.InputSha256, "Immutable focus/device fixture changed.");

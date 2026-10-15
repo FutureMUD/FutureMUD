@@ -222,9 +222,10 @@ public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicS
 	}
 
 	private sealed record NativeCreation(Guid[] LifecycleIds, CreateNPCEffect Effect, INPCTemplate Template, ICharacter Caster, IPerceivable Recipient,
-		SpatialLocation Location, int Grade, long CreatorId, double? Seconds, Guid? Invocation, SpellNpcMissionInputs? Mission, IMagicSpellEffectPreparedSelectionRawToken? Selection) : IMagicSpellEffectApplication
+		SpatialLocation Location, int Grade, long CreatorId, double? Seconds, Guid? Invocation, SpellNpcMissionInputs? Mission, IMagicSpellEffectPreparedSelectionRawToken? Selection) : IMagicSpellEffectApplicationOperation
 	{
-		public IMagicSpellEffect Create(IMagicSpellEffectParent parent)
+		public IMagicSpellEffect Create(IMagicSpellEffectParent parent) => Apply(parent).Effect!;
+		public MagicEffectOperation Apply(IMagicSpellEffectParent parent)
 		{
 			foreach (var lifecycleId in LifecycleIds)
 			{
@@ -235,7 +236,7 @@ public sealed partial class CreateNPCEffect : IMagicSpellEffectTemplate, IMagicS
 					throw new InvalidOperationException("The prepared NPC creator, template or spawn frame changed during group creation; do not replay the paid cast.");
 				CreateOne(lifecycleId, parent);
 			}
-			return null;
+			return new(LifecycleIds.Length > 0 ? MagicEffectOperationStatus.Applied : MagicEffectOperationStatus.NoChange, null);
 		}
 
 		private void CreateOne(Guid lifecycleId, IMagicSpellEffectParent parent)

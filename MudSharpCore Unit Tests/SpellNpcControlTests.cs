@@ -30,19 +30,26 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SpellNpcControlTests
 {
-	[TestMethod]
-	public void Haunt_RefusesFearWhenResistanceCallbackMakesExactTargetInvisible()
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void Haunt_RefusesFearWhenResistanceCallbackMakesExactTargetInvisible(bool configuredResistance)
 	{
 		var world = new Mock<IFuturemud> { DefaultValue = DefaultValue.Mock };
 		var schools = new All<IMagicSchool>(); schools.Add(Mock.Of<IMagicSchool>(x => x.Id == 1));
 		world.SetupGet(x => x.MagicSchools).Returns(schools);
 		world.SetupGet(x => x.FutureProgs).Returns(new All<IFutureProg>());
-		world.SetupGet(x => x.Traits).Returns(new All<ITraitDefinition>());
+		var trait = configuredResistance ? Mock.Of<ITraitDefinition>(x => x.Id == 4) : null;
+		var traits = new All<ITraitDefinition>();
+		if (trait is not null) traits.Add(trait);
+		world.SetupGet(x => x.Traits).Returns(traits);
 		world.SetupGet(x => x.TraitExpressions).Returns(new All<ITraitExpression>());
 		world.SetupGet(x => x.MagicResources).Returns(new All<IMagicResource>());
 		var spell = new MagicSpell(new MudSharp.Models.MagicSpell
 		{
 			Id = 2, Name = "Isolated Haunt resistance fixture", MagicSchoolId = 1,
+			ResistingTraitDefinitionId = configuredResistance ? 4 : null,
+			ResistingDifficulty = configuredResistance ? (int)Difficulty.VeryHard : null,
 			Definition = "<Definition><Trigger type='substancecharacter'/><Costs/><Effects/><CasterEffects/><Plan/></Definition>"
 		}, world.Object);
 		Assert.IsTrue(spell.ReadyForGame);
@@ -61,8 +68,8 @@ public class SpellNpcControlTests
 		creature.Setup(x => x.CanSee(target.Object)).Returns(() => visible);
 		creature.Setup(x => x.ColocatedWith(target.Object)).Returns(true);
 		var check = new Mock<ICheck>();
-		var opposedDifficulty = spell.OpposedDifficulty ?? Difficulty.Normal;
-		check.Setup(x => x.Check(target.Object, opposedDifficulty, (ITraitDefinition)null!, creator, 0.0,
+		var opposedDifficulty = configuredResistance ? Difficulty.VeryHard : Difficulty.Normal;
+		check.Setup(x => x.Check(target.Object, opposedDifficulty, trait!, creator, 0.0,
 			TraitUseType.Practical, It.IsAny<(string Parameter, object value)[]>()))
 			.Callback(() => visible = false)
 			.Returns(CheckOutcome.SimpleOutcome(CheckType.ResistMagicSpellCheck, Outcome.Fail));
@@ -72,7 +79,7 @@ public class SpellNpcControlTests
 			creator.Id, "fixture", SpellLifecycleMode.TemporaryCleanup, RuntimeClock.UtcNow, deadline), creator);
 		var mission = new SpellNpcMissionEffect(creature.Object, "haunt", target.Object, expiryUtc: deadline);
 		mission.Process(control);
-		check.Verify(x => x.Check(target.Object, opposedDifficulty, (ITraitDefinition)null!, creator, 0.0,
+		check.Verify(x => x.Check(target.Object, opposedDifficulty, trait!, creator, 0.0,
 			TraitUseType.Practical, It.IsAny<(string Parameter, object value)[]>()), Times.Once);
 		Assert.AreEqual("active", mission.Phase);
 		Assert.IsNull(mission.FearParentIdentity);

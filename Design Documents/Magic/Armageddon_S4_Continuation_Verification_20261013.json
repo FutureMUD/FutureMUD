@@ -1219,14 +1219,17 @@
     "last_verified_result": "Both push and PR Linux/Windows default-gate jobs passed on the published 121-definition head; the 122-definition candidate requires fresh hosted checks after publication."
   },
   "remaining_critical": [
-    "30 required definitions and their defining adapters/dependencies remain undeclared after the 122-definition candidate; declared count is not complete S4 qualification.",
-    "Seven creature/controller representative mission/riding/custody cases remain pending.",
-    "Sheltering Veil remains held for its conditional Clerical component/plane rule; Consuming Flame's Necromancy rank-zero binding is declared but has no paid native sample.",
-    "Venom Touch has a paid first-boot owned-dose observation and managed reload coverage, but its tiny dose cleared before live cold observation; Purge Toxin has no paid native sample.",
-    "The 110-definition first/cold paid sample is bounded to grade one and four selected entries; Immolate, Sense Toxin and seven creature/controller defining cases remain without their own paid native samples.",
-    "The 122-definition first/cold lane adds paid grade-one Gust Hands relocation, character-target Cinder Rain injury and Erode Object item injury; Driving Gust, explicit controlled-area targeting, Drowning Grip paid breathing interruption, Shatter Stone and Restore Object remain without paid live samples.",
-    "Deferred ten foci, two device blanks and twelve recipes require real qualified dependency allowlists.",
-    "S5/S6 and N24/N25 remain separate."
+    "8: arm.spell.kindle_enchantment: Locked design contradicts itself: completion/defining result says weapon damage; detailed configuration and executed native hook test specify attack bonus only. User decision requested; neither contract is silently rewritten.",
+    "63: arm.spell.sand_effigy: Actual projection Bind event wiring and damage/borrowed-anchor-loss retirement/focus return are not executed; boundary and source-custody predicates alone do not establish collapse.",
+    "78: arm.spell.seeking_wind: Positive exact-quarry track processing through SpellNpcMissionEffect.Process (one bounded native exit, wrong/ambiguous track refusal) is not executed; existing track proof/input fences do not establish pursuit.",
+    "86: arm.spell.wind_courier: Positive Process pickup/travel/delivery/return with durable exact exclusive parcel custody is not executed; save/proof tests and generic foreign-goods retirement do not establish mission completion.",
+    "94: arm.spell.walking_shadow: Actual shared projection create/focus/trance binding and native damage/anchor callback-to-retirement/focus return are not executed; existing mobile-edge/manipulation limits remain covered.",
+    "100: arm.spell.haunting_shape: Positive Process resistance-to-one-durable-fear-parent transition and exact owned fear cleanup are not executed; the callback invisibility refusal is covered.",
+    "122: arm.spell.call_outsider: Configured Outsider control-loss command/tick path, durable loss and no reroll after reload lack an executed deterministic case; XML and grade policy alone are insufficient.",
+    "135: arm.spell.folded_pocket: Nonempty native pocket Evacuate transaction and exact nested foreign-goods/fallback conservation are not executed. Retiring withdrawal tests mock the service; shelter evacuation does not substitute.",
+    "138: arm.spell.borrow_the_dead: Positive native PossessCorpseSpellEffect spawn/control/teardown with exact original corpse identity/body, separate caster anchor and foreign gear across closure/cold recovery lacks a matching receipt; AnimateCorpse does not substitute.",
+    "144: arm.spell.unbodied_journey: Actual shared projection create/focus/trance binding and callback retirement/focus return are not executed; existing policy and no-manipulation limits remain covered.",
+    "147: arm.spell.voice_of_remains: Positive corpse-bound speech spawn/extraction/relay/retirement/restoration is not executed. Existing non-corpse refusal and cold metadata test does not establish the dedicated linked-proxy lifecycle."
   ],
   "environment_blockers": [],
   "candidate100_receipt": {
@@ -1493,6 +1496,576 @@
         "evidence": "Existing S3 supply recipes have one phase. Native DoNextPhase completes its final phase immediately and only schedules duration when another phase follows. DisplayCraft similarly excludes the final phase from total length.",
         "impact": "Existing S3 recipe durations appear ineffective; no dedicated S3 native reproduction performed in this task. New twelve recipes use a separate finish phase and passed timed native samples.",
         "disposition": "Deferred adjacent finding; no S3/runtime expansion."
+      }
+    ]
+  },
+  "s4_acceptance_20261015": {
+    "status": "NOT_ACCEPTED",
+    "required": 152,
+    "accepted": 141,
+    "pending": 11,
+    "optional_deferred": 2,
+    "base_revision": "5e6587060972023b78d30660666bfa5b03b8de0d",
+    "strategy": "Armageddon_S4_Qualification_Strategy_20261013.md",
+    "decision_boundary": "Required S4 defining behavior only; independent S5/S6/readiness/availability/Release gates stay closed. Source inspection maps assumptions; executed evidence supplies the behavioural decisions.",
+    "pending_entries": [
+      {
+        "ordinal": 8,
+        "key": "arm.spell.kindle_enchantment",
+        "case": "Locked design contradicts itself: completion/defining result says weapon damage; detailed configuration and executed native hook test specify attack bonus only. User decision requested; neither contract is silently rewritten."
+      },
+      {
+        "ordinal": 63,
+        "key": "arm.spell.sand_effigy",
+        "case": "Actual projection Bind event wiring and damage/borrowed-anchor-loss retirement/focus return are not executed; boundary and source-custody predicates alone do not establish collapse."
+      },
+      {
+        "ordinal": 78,
+        "key": "arm.spell.seeking_wind",
+        "case": "Positive exact-quarry track processing through SpellNpcMissionEffect.Process (one bounded native exit, wrong/ambiguous track refusal) is not executed; existing track proof/input fences do not establish pursuit."
+      },
+      {
+        "ordinal": 86,
+        "key": "arm.spell.wind_courier",
+        "case": "Positive Process pickup/travel/delivery/return with durable exact exclusive parcel custody is not executed; save/proof tests and generic foreign-goods retirement do not establish mission completion."
+      },
+      {
+        "ordinal": 94,
+        "key": "arm.spell.walking_shadow",
+        "case": "Actual shared projection create/focus/trance binding and native damage/anchor callback-to-retirement/focus return are not executed; existing mobile-edge/manipulation limits remain covered."
+      },
+      {
+        "ordinal": 100,
+        "key": "arm.spell.haunting_shape",
+        "case": "Positive Process resistance-to-one-durable-fear-parent transition and exact owned fear cleanup are not executed; the callback invisibility refusal is covered."
+      },
+      {
+        "ordinal": 122,
+        "key": "arm.spell.call_outsider",
+        "case": "Configured Outsider control-loss command/tick path, durable loss and no reroll after reload lack an executed deterministic case; XML and grade policy alone are insufficient."
+      },
+      {
+        "ordinal": 135,
+        "key": "arm.spell.folded_pocket",
+        "case": "Nonempty native pocket Evacuate transaction and exact nested foreign-goods/fallback conservation are not executed. Retiring withdrawal tests mock the service; shelter evacuation does not substitute."
+      },
+      {
+        "ordinal": 138,
+        "key": "arm.spell.borrow_the_dead",
+        "case": "Positive native PossessCorpseSpellEffect spawn/control/teardown with exact original corpse identity/body, separate caster anchor and foreign gear across closure/cold recovery lacks a matching receipt; AnimateCorpse does not substitute."
+      },
+      {
+        "ordinal": 144,
+        "key": "arm.spell.unbodied_journey",
+        "case": "Actual shared projection create/focus/trance binding and callback retirement/focus return are not executed; existing policy and no-manipulation limits remain covered."
+      },
+      {
+        "ordinal": 147,
+        "key": "arm.spell.voice_of_remains",
+        "case": "Positive corpse-bound speech spawn/extraction/relay/retirement/restoration is not executed. Existing non-corpse refusal and cold metadata test does not establish the dedicated linked-proxy lifecycle."
+      }
+    ],
+    "new_executed_receipt": "C:\\Temp\\futuremud-s4-acceptance-managed\\20261015T161742Z-845876acbf41\\summary.json",
+    "new_test_source_sha256": "285dc4d00e11f01ffdfe83a2ffbbb660e94ddd869243e344b76d2e5ad0a15f4a",
+    "new_test_scope": "Five concrete integration cases (planar has two rows) plus fifteen existing mark/alarm/guardian rows:20/20. Controlled in-memory world/save facade; no new MySQL/native server run.",
+    "source_reuse_check": {
+      "recorded_files": 126,
+      "unchanged": 124,
+      "changed_harness_only": [
+        "tests/ArmageddonPreparedSeederNativeHarness/PreparedCatalogueBootSmoke.py",
+        "tests/ArmageddonPreparedSeederNativeHarness/Program.BaseWorldFixture.cs"
+      ],
+      "runtime_library_persistence_diff_from_e38f6e7d9_to_5e6587060": "empty; the later focus/device production slice has its own1860/145/3 managed and15 native receipts"
+    },
+    "storm_disposition": "Earlier combined cursor/wound failure is INCONCLUSIVE and unexplained: separate values were not preserved. Later unchanged-runtime cursor2/wounds1.64/cold PASS is valid. Tissue armour is a plausible hypothesis, not an established cause; no reproducible defect was established.",
+    "environment_blockers": [],
+    "unexecuted_is_not_environment_blocked": true,
+    "preserved_successful_campaigns": "Existing Nilaz gate15+15, Exchange13, focus/device15 and all152 first/cold readiness receipts retained unchanged; none rerun.",
+    "new_execution_history": [
+      {
+        "receipt": "C:/Temp/futuremud-s4-acceptance-managed/20261015T161302Z-2f31f2801c77/summary.json",
+        "status": "BUILD_FAILED",
+        "disposition": "New test helper namespace omitted; no tests executed."
+      },
+      {
+        "receipt": "C:/Temp/futuremud-s4-acceptance-managed/20261015T161452Z-43fed17906ed/summary.json",
+        "status": "FAIL_1_PASS_3_FAIL",
+        "disposition": "Test fixture used List for native HashSet, default mock equality and a recursive mock route. Corrected fixture assumptions without changing production code or assertions."
+      },
+      {
+        "receipt": "C:/Temp/futuremud-s4-acceptance-managed/20261015T161604Z-94563bf03de2/summary.json",
+        "status": "PASS_4",
+        "disposition": "Concrete glyph/alarm/two planar rows."
+      },
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-acceptance-managed\\20261015T161742Z-845876acbf41\\summary.json",
+        "status": "PASS_20",
+        "disposition": "Final mount case plus affected mark/alarm/guardian group; source stable."
+      }
+    ]
+  },
+  "s4_acceptance_mission_checkpoint_20261015": {
+    "status": "S4_NOT_ACCEPTED_146_OF_152",
+    "base_revision": "5e6587060972023b78d30660666bfa5b03b8de0d",
+    "accepted": 146,
+    "pending": [
+      {
+        "ordinal": 8,
+        "key": "arm.spell.kindle_enchantment",
+        "case": "Locked design contradicts itself: completion/defining result says weapon damage; detailed configuration and executed native hook test specify attack bonus only. User decision requested; neither contract is silently rewritten."
+      },
+      {
+        "ordinal": 63,
+        "key": "arm.spell.sand_effigy",
+        "case": "Actual projection Bind event wiring and damage/borrowed-anchor-loss retirement/focus return are not executed; boundary and source-custody predicates alone do not establish collapse."
+      },
+      {
+        "ordinal": 94,
+        "key": "arm.spell.walking_shadow",
+        "case": "Actual shared projection create/focus/trance binding and native damage/anchor callback-to-retirement/focus return are not executed; existing mobile-edge/manipulation limits remain covered."
+      },
+      {
+        "ordinal": 135,
+        "key": "arm.spell.folded_pocket",
+        "case": "Nonempty native pocket Evacuate transaction and exact nested foreign-goods/fallback conservation are not executed. Retiring withdrawal tests mock the service; shelter evacuation does not substitute."
+      },
+      {
+        "ordinal": 144,
+        "key": "arm.spell.unbodied_journey",
+        "case": "Actual shared projection create/focus/trance binding and callback retirement/focus return are not executed; existing policy and no-manipulation limits remain covered."
+      },
+      {
+        "ordinal": 147,
+        "key": "arm.spell.voice_of_remains",
+        "case": "Positive corpse-bound speech spawn/extraction/relay/retirement/restoration is not executed. Existing non-corpse refusal and cold metadata test does not establish the dedicated linked-proxy lifecycle."
+      }
+    ],
+    "contract": {
+      "entries": [
+        78,
+        86,
+        100,
+        122,
+        138
+      ],
+      "scope": "Five bounded defining S4 NPC mission/corpse cases, exact installed grade-one routes; shared assumptions remain explicit. Stock/package/Class/variant/use/craft/Release gates stay disabled. No per-spell/all-grade native matrix.",
+      "native_missions": {
+        "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-3326437e3b5e4f449448920245ebce51\\boot-latest.json",
+        "overall_status": "FAIL",
+        "accepted_cases": [
+          "seek",
+          "haunt",
+          "courier",
+          "outsider"
+        ],
+        "cold_scope": "Courier exact recipient custody and Outsider saved control loss; Borrow failed and remains excluded from this receipt."
+      },
+      "native_corpse": {
+        "receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-416f2f9cdaea44e98e76c9d2762569d7\\boot-latest.json",
+        "status": "PASS",
+        "assertions": 12,
+        "scope": "Borrow only; native deadline closure and exact corpse/foreign gear/secondary retirement first/cold."
+      },
+      "managed_track_and_cleanup": {
+        "receipt": "C:\\Temp\\s4-final-track-guards\\20261015T183538Z-6c135d891b79\\summary.json",
+        "passed": 6,
+        "tests": [
+          "MudSharp_Unit_Tests.SpellNpcMissionRuntimeTests.SeekingProcess_FollowsOnlyOneUnambiguousExactInstanceExit",
+          "MudSharp_Unit_Tests.SpellNpcMissionRuntimeTests.HauntCleanup_RemovesOnlyTheExactSavedFearParent",
+          "MudSharp_Unit_Tests.SpellNpcMissionRuntimeTests.SeekingProcess_FollowsOnlyOneUnambiguousExactInstanceExit",
+          "MudSharp_Unit_Tests.SpellNpcMissionRuntimeTests.SeekingProcess_FollowsOnlyOneUnambiguousExactInstanceExit",
+          "MudSharp_Unit_Tests.SpellNpcMissionRuntimeTests.SeekingProcess_FollowsOnlyOneUnambiguousExactInstanceExit",
+          "MudSharp_Unit_Tests.SpellNpcMissionRuntimeTests.SeekingProcess_FollowsOnlyOneUnambiguousExactInstanceExit"
+        ]
+      },
+      "current_production_sources": [
+        {
+          "path": "MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs",
+          "sha256": "e09fa3e2b45ec5dcc7e0803288900c784d4a9697b21258edd3528b350fc2353b"
+        },
+        {
+          "path": "MudSharpCore/Magic/SpellTriggers/CastingTriggerRoomMission.cs",
+          "sha256": "5b4641cbff9dc63491e737736d5edd3e28563bee67fd08689e103bd4ede6e333"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellNpcMissionEffect.cs",
+          "sha256": "e00611dc5a026317412e12281c19f307cf8ded0697b67e4bc8a5f47c5c22497e"
+        },
+        {
+          "path": "MudSharpCore/Effects/Concrete/SpellNpcControlEffect.cs",
+          "sha256": "c1cfa467cb0d9ae455288e426d8f1b72342057654e1e4fc08b025cf8cae49500"
+        },
+        {
+          "path": "MudSharpCore/Character/CharacterInstanceService.cs",
+          "sha256": "ef807e049e636575f8e76c7dd66c391c95a36ca8b442aae459d4fb66a8db0cf6"
+        }
+      ],
+      "diagnostic_delta": "Both native receipts used a temporary full exception SystemMessage at the existing paid-operation catch. It was removed afterward; no admission, payment, effect, persistence or recovery behavior changed by removal. Final managed gate uses the shipping source."
+    },
+    "native_execution_history": [
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-family-native\\20261015T163627Z_7bb1f3c94be84108957a4708fad0ff9a\\summary.json",
+        "status": "FAIL",
+        "native_exit": 1,
+        "source_stable": true,
+        "source_start": "CB0FA4626CB4C761B1D6E77B035381DC753D5B56417CC740930CEA2F6D622D56",
+        "source_end": "CB0FA4626CB4C761B1D6E77B035381DC753D5B56417CC740930CEA2F6D622D56",
+        "scope": "all",
+        "boot_receipt": null,
+        "disposition": "Strict runtime assembly pin refused the older descriptor; no gameplay."
+      },
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-family-native\\20261015T163925Z_4956a549582745239b3f4d2d68c57d22\\summary.json",
+        "status": "FAIL",
+        "native_exit": 1,
+        "source_stable": true,
+        "source_start": "CB0FA4626CB4C761B1D6E77B035381DC753D5B56417CC740930CEA2F6D622D56",
+        "source_end": "CB0FA4626CB4C761B1D6E77B035381DC753D5B56417CC740930CEA2F6D622D56",
+        "scope": "all",
+        "boot_receipt": null,
+        "disposition": "Fixture assumed an existing exit in the zero-exit base; failed during preparation."
+      },
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-family-native\\20261015T164625Z_02601d1ca38043b0b590a26f622e207a\\summary.json",
+        "status": "FAIL",
+        "native_exit": 1,
+        "source_stable": true,
+        "source_start": "F780713CADFDB259012505E30D4ADDD71950529BAE0F68CC8189BB778223C2A1",
+        "source_end": "F780713CADFDB259012505E30D4ADDD71950529BAE0F68CC8189BB778223C2A1",
+        "scope": "all",
+        "boot_receipt": null,
+        "disposition": "Native NPC creation completed but reported applied=false; repaired explicit operation reporting."
+      },
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-family-native\\20261015T165626Z_b08fec5b4f884a86880b7261b3b65de4\\summary.json",
+        "status": "FAIL",
+        "native_exit": 1,
+        "source_stable": true,
+        "source_start": "A9CBFA3B959AAB000A7CAF73073C607F17B1BC5059CE95700B7BE6B52E3D3E17",
+        "source_end": "A9CBFA3B959AAB000A7CAF73073C607F17B1BC5059CE95700B7BE6B52E3D3E17",
+        "scope": "all",
+        "boot_receipt": null,
+        "disposition": "Original Void terrain could not create tracks; positive pursuit not established."
+      },
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-family-native\\20261015T170306Z_ae3c4fd6ae8f47f4b3db04fa154da63c\\summary.json",
+        "status": "FAIL",
+        "native_exit": 1,
+        "source_stable": true,
+        "source_start": "4651391265C2556DF895822ECC77BD4DD6B6629ECFFA3FCE3400F55AE124625F",
+        "source_end": "4651391265C2556DF895822ECC77BD4DD6B6629ECFFA3FCE3400F55AE124625F",
+        "scope": "all",
+        "boot_receipt": null,
+        "disposition": "Real tracks existed, but grade-one native tracking was low-probability; Haunt automatically resisted and Courier floor selector refused."
+      },
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-family-native\\20261015T171744Z_ab301ab5671a4be68e3b2b6f00e80696\\summary.json",
+        "status": "FAIL",
+        "native_exit": 1,
+        "source_stable": true,
+        "source_start": "66735162AC4F2672BF36D3D6A43EB79539BBAD4960F9678B1E7146262F13CFFC",
+        "source_end": "66735162AC4F2672BF36D3D6A43EB79539BBAD4960F9678B1E7146262F13CFFC",
+        "scope": "all",
+        "boot_receipt": null,
+        "disposition": "Seek and Haunt passed; Courier pickup persisted neither phase nor custody."
+      },
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-family-native\\20261015T172717Z_e7339876207d4dd5a75072cc6de37a27\\summary.json",
+        "status": "FAIL",
+        "native_exit": 1,
+        "source_stable": true,
+        "source_start": "B99B98897CD443ED9A92558A84E74AC58158EAAD4F9BF1D73B399C551DB992CB",
+        "source_end": "B99B98897CD443ED9A92558A84E74AC58158EAAD4F9BF1D73B399C551DB992CB",
+        "scope": "all",
+        "boot_receipt": null,
+        "disposition": "Live Courier held parcel while SQL retained source; Borrow paid NRE remained quarantined."
+      },
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-family-native\\20261015T174213Z_dcb35eda56b5404eb999a1c88f9e2a72\\summary.json",
+        "status": "FAIL",
+        "native_exit": 1,
+        "source_stable": true,
+        "source_start": "A5BEBBD9B9FB18A9EEF955D9500FE70925AA3C204CEDB18781D06C851AF419D7",
+        "source_end": "A5BEBBD9B9FB18A9EEF955D9500FE70925AA3C204CEDB18781D06C851AF419D7",
+        "scope": "all",
+        "boot_receipt": null,
+        "disposition": "Outsider native loss passed; corpse preparation was blocked by lingering combat."
+      },
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-family-native\\20261015T181817Z_c8c0ed516c7f437b976b4ee1b10f44af\\summary.json",
+        "status": "FAIL",
+        "native_exit": 1,
+        "source_stable": true,
+        "source_start": "49D3E37DF4D64BD4E3EE02E282C067EE225580A3BD161901B9B24D3EB455E344",
+        "source_end": "49D3E37DF4D64BD4E3EE02E282C067EE225580A3BD161901B9B24D3EB455E344",
+        "scope": "all",
+        "boot_receipt": null,
+        "disposition": "Ordinary paid Seeking Wind MinorFail stopped diagnostics; preserved, then bounded new paid attempts added."
+      },
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-family-native\\20261015T182213Z_da2c46558bca4525846e85833325f2eb\\summary.json",
+        "status": "FAIL",
+        "native_exit": 1,
+        "source_stable": true,
+        "source_start": "8996835F7CEA9BB766A2CD708E1BF7CB53A9AA862E9E4165267762D00CB0194B",
+        "source_end": "8996835F7CEA9BB766A2CD708E1BF7CB53A9AA862E9E4165267762D00CB0194B",
+        "scope": "all",
+        "boot_receipt": null,
+        "disposition": "Four mission cases passed, including Courier/Outsider cold checks; Borrow failed before secondary birth, exact NPC.Save stack captured."
+      },
+      {
+        "receipt": "C:\\Temp\\futuremud-s4-family-native\\20261015T182848Z_04a188269f9a4d96abb2e4632dee03d5\\summary.json",
+        "status": "PASS",
+        "native_exit": 0,
+        "source_stable": true,
+        "source_start": "D3F709A460180318DDBD228C7C3E6E2F0651F86E19CE62021C2F679B68CB2233",
+        "source_end": "D3F709A460180318DDBD228C7C3E6E2F0651F86E19CE62021C2F679B68CB2233",
+        "scope": "corpse",
+        "boot_receipt": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-416f2f9cdaea44e98e76c9d2762569d7\\boot-latest.json",
+        "disposition": "Borrow-only paid possession, native deadline closure and cold checks passed12 assertions."
+      },
+      {
+        "receipt": "C:/Temp/futuremud-s4-family-native/20261015T174743Z_610c6994d3444bb6a99d0bfc786fc791",
+        "status": "INCOMPLETE",
+        "disposition": "Only source-start/assemblies remained; no final receipt or qualifying outcome. Do not infer cleanup or success from this interrupted attempt."
+      }
+    ],
+    "ci_baseline": {
+      "published_head": "5e6587060972023b78d30660666bfa5b03b8de0d",
+      "push_run": 38764276630,
+      "push_linux": "PASS",
+      "push_windows": "PASS",
+      "pr_run": 38764285511,
+      "pr_linux": "PASS",
+      "pr_windows": "FAIL",
+      "failed_tests": [
+        "WrapperTests.BootstrapFailureAndDeadlineEmitBoundedJson",
+        "WrapperTests.EveryPlatformWrapperForwardsJsonAndBlockedExit"
+      ],
+      "root_cause": "The outer watchdogs expired; startup contention is a hypothesis, not an established cause. Existing timed-out path did not drain streams or retain diagnostics.",
+      "repair": "Drain both streams concurrently, use bounded120s Windows/45s other-platform outer waits, retain bounded timeout diagnostics and owned cleanup. Inner30/1/0-second timeout arguments and assertions unchanged.",
+      "local_full_reporter": {
+        "receipt": "C:/Temp/s4-ci-wrapper-repair/20261015T164629Z-5dcfe5a86c3f/summary.json",
+        "passed": 39
+      },
+      "new_head_hosted_ci": "PENDING_PUBLICATION"
+    },
+    "final_managed_gate": {
+      "status": "PASS",
+      "receipt": "C:\\Temp\\s4-final-fast\\20261015T183908Z-c5c18ddfdd5c\\summary.json",
+      "counts": {
+        "executed": 10631,
+        "passed": 10631,
+        "failed": 0,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 10634
+      },
+      "projects": [
+        "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+      ],
+      "source_start": "b4430611fec91376ced684eb5fa4cc77fd8d84fc9057c3248c75cd72420833a7",
+      "source_end": "b4430611fec91376ced684eb5fa4cc77fd8d84fc9057c3248c75cd72420833a7",
+      "source_stable": true,
+      "duration_seconds": 692.5621286,
+      "skips": "Three existing Unix launcher-permission cases on Windows.",
+      "post_gate_change_scope": "Documentation/evidence result updates and trailing blank-line cleanup in one test file; executable behavior and assertions unchanged."
+    },
+    "kindle_decision": {
+      "status": "PENDING_LUKE",
+      "conflict": "Locked completion/defining result says weapon damage; effect_configuration says attack bonus only.",
+      "locked_reference": "Armageddon_Seeder_Completeness_Design_20261011.json:24587-24603",
+      "runtime": "FutureMUDLibrary/Magic/Stock/ArmageddonScalarUtilityContent.cs:30 attack bonus=grade; damage/pain/stun/quality=0",
+      "test": "ArmageddonScalarUtilityContentTests.Kindle_NativeWeaponEnhancementChangesOnlyAttackBonus (grades1/7, nativePower variation and roundtrip)",
+      "source_path": "C:/Users/luker/Downloads/codedump.c",
+      "source_sha256": "E44778F6A5FB9FD02DB5C3FF78D4C468B93AE6C854A058D5AF769DC0A95CD59F",
+      "source_reference": "cast_empower:218552-218735",
+      "recovered_behavior": "Carried-item selected mana/health/stun/stamina/strength/agility/wisdom/endurance/casting enchantment, seven tier tables, explosion chance. Casting removal uses(level+1)*3000; other bonuses(level+1)*3500. This broader source does not resolve the locked damage/attack conflict.",
+      "recommendation": "Prefer the detailed attack-bonus configuration as the least-change reconciliation, subject to Luke; do not silently choose or import broad historical attribute enchantment."
+    },
+    "environment": "Owned native MySQL/server operation succeeds on Percival. No blanket platform blocker. All completed native runs retained cleanup records; the interrupted174743 attempt has no final cleanup receipt.",
+    "gates": "Release/package/Class/variant/use/craft/unqualified-carrier disabled. Draft PR788; no merge/deploy.",
+    "managed_execution_history": [
+      {
+        "receipt": "C:\\Temp\\s4-final-track-guards\\20261015T183333Z-6dd05c78da92\\summary.json",
+        "status": "FAIL",
+        "counts": null,
+        "source_stable": true,
+        "issues": [
+          {
+            "kind": "BUILD_FAILED",
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "detail": "  ExpressionEngine -> C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\ExpressionEngine\\bin\\Debug\\net10.0\\ExpressionEngine.dll\r"
+          }
+        ]
+      },
+      {
+        "receipt": "C:\\Temp\\s4-final-track-guards\\20261015T183457Z-3d96ce908fd1\\summary.json",
+        "status": "FAIL",
+        "counts": null,
+        "source_stable": true,
+        "issues": [
+          {
+            "kind": "BUILD_FAILED",
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "detail": "  ExpressionEngine -> C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\ExpressionEngine\\bin\\Debug\\net10.0\\ExpressionEngine.dll\r"
+          }
+        ]
+      },
+      {
+        "receipt": "C:\\Temp\\s4-final-track-guards\\20261015T183538Z-6c135d891b79\\summary.json",
+        "status": "PASS",
+        "counts": {
+          "executed": 6,
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6
+        },
+        "source_stable": true,
+        "issues": []
+      },
+      {
+        "receipt": "C:\\Temp\\s4-npc-operation-reporting\\20261015T165110Z-6d3ff1a0be03\\summary.json",
+        "status": "FAIL",
+        "counts": null,
+        "source_stable": true,
+        "issues": [
+          {
+            "kind": "BUILD_FAILED",
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "detail": "  Determining projects to restore...\r"
+          }
+        ]
+      },
+      {
+        "receipt": "C:\\Temp\\s4-npc-operation-reporting\\20261015T165155Z-9904738dd37a\\summary.json",
+        "status": "FAIL",
+        "counts": {
+          "executed": 115,
+          "passed": 113,
+          "failed": 2,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 115
+        },
+        "source_stable": true,
+        "issues": [
+          {
+            "kind": "TEST_FAILED",
+            "project": null,
+            "detail": "2 failing test records"
+          }
+        ]
+      },
+      {
+        "receipt": "C:\\Temp\\s4-npc-operation-reporting\\20261015T165308Z-0cb62f65a55b\\summary.json",
+        "status": "PASS",
+        "counts": {
+          "executed": 116,
+          "passed": 116,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 116
+        },
+        "source_stable": true,
+        "issues": []
+      },
+      {
+        "receipt": "C:\\Temp\\s4-npc-operation-reporting\\20261015T165347Z-e74be2eb11f6\\summary.json",
+        "status": "FAIL",
+        "counts": {
+          "executed": 116,
+          "passed": 115,
+          "failed": 1,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 116
+        },
+        "source_stable": true,
+        "issues": [
+          {
+            "kind": "TEST_FAILED",
+            "project": null,
+            "detail": "1 failing test records"
+          }
+        ]
+      },
+      {
+        "receipt": "C:\\Temp\\s4-npc-operation-reporting\\20261015T165453Z-a95dc9e8be77\\summary.json",
+        "status": "PASS",
+        "counts": {
+          "executed": 116,
+          "passed": 116,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 116
+        },
+        "source_stable": true,
+        "issues": []
+      },
+      {
+        "receipt": "C:\\Temp\\s4-mission-repairs\\20261015T171521Z-44e1e984fc71\\summary.json",
+        "status": "PASS",
+        "counts": {
+          "executed": 140,
+          "passed": 140,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 140
+        },
+        "source_stable": true,
+        "issues": []
+      },
+      {
+        "receipt": "C:\\Temp\\s4-mission-repairs\\20261015T171627Z-103d88079555\\summary.json",
+        "status": "PASS",
+        "counts": {
+          "executed": 141,
+          "passed": 141,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 141
+        },
+        "source_stable": true,
+        "issues": []
+      },
+      {
+        "receipt": "C:\\Temp\\s4-ci-wrapper-repair\\20261015T164629Z-5dcfe5a86c3f\\summary.json",
+        "status": "PASS",
+        "counts": {
+          "executed": 39,
+          "passed": 39,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 39
+        },
+        "source_stable": true,
+        "issues": []
       }
     ]
   }

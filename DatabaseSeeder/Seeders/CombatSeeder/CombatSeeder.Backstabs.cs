@@ -1,5 +1,6 @@
 #nullable enable
 
+using System;
 using System.Linq;
 using System.Collections.Generic;
 using MudSharp.Body;
@@ -19,11 +20,12 @@ public partial class CombatSeeder
 		TraitExpression normal, TraitExpression good, SeedCombatMessageStyle messageStyle,
 		IReadOnlyCollection<string>? normalFormulaVariants = null)
 	{
+		var head = context.BodypartShapes.FirstOrDefault(x => x.Name == "Head Back") ??
+			throw new InvalidOperationException("Backstab stock requires the native Head Back bodypart shape. Install the supported human anatomy before combat content.");
 		var count = 0;
 		var lowDamage = BackstabSeederHelper.ScaleExpression(context, "Blackjack Damage", normal, 0.25, normalFormulaVariants);
 		var pain = BackstabSeederHelper.ScaleExpression(context, "Blackjack Pain", normal, 0.5, normalFormulaVariants);
 		var highStun = BackstabSeederHelper.ScaleExpression(context, "Blackjack Backstab Stun", normal, 2, normalFormulaVariants);
-		var head = context.BodypartShapes.First(x => x.Name == "Head");
 		const CombatMoveIntentions subdual = CombatMoveIntentions.Attack | CombatMoveIntentions.Wound |
 		                                     CombatMoveIntentions.Stun;
 

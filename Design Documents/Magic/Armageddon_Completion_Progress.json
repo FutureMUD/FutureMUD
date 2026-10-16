@@ -6977,5 +6977,20 @@
     "release_enabled": false,
     "spell_admissions_enabled": false,
     "class_availability_enabled": false
+  },
+  "master_integration_20261016": {
+    "status": "QUALIFIED",
+    "head": "76f45937375823eb3400f5fd1f07318973b57c03",
+    "receipt": "Armageddon_S6_Master_Integration_20261016.json",
+    "external_merge": "26e1d14e982b0260e5fa8a015cda2008d2ca50ce",
+    "pr788_state": "MERGED externally",
+    "continuation_branch": "codex/armageddon-s6-continuation-20261016",
+    "remaining": [
+      "S6 ash expiry/presentation",
+      "full chargen",
+      "N24 maintenance",
+      "N25 uncertain failure/restart"
+    ],
+    "availability": "disabled"
   }
 }

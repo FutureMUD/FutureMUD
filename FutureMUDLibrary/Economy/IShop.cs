@@ -17,6 +17,7 @@ namespace MudSharp.Economy;
 
 public interface IShop : IFrameworkItem, ISaveable, IProgVariable, IEmploymentHost
 {
+	HaggleSettings Haggling { get; }
     decimal CashBalance { get; set; }
     decimal ExpectedCashBalance { get; set; }
     IEconomicZone EconomicZone { get; set; }
@@ -102,8 +103,10 @@ public interface IShop : IFrameworkItem, ISaveable, IProgVariable, IEmploymentHo
     IEnumerable<IGameItem> BuyCommodityWeight(ICharacter actor, IMerchandise merchandise, double weight, IPaymentMethod method, IEnumerable<IGameItem> exactStockItems);
     (decimal Price, IEnumerable<IGameItem> Items) PreviewBuy(ICharacter actor, IMerchandise merchandise, int quantity, IPaymentMethod method, string extraArguments = null);
     IShopPriceCalculation GetPriceCalculation(ICharacter actor, IMerchandise merchandise, int quantity, ShopDealApplicability applicability = ShopDealApplicability.Sell);
+	IShopPriceCalculation GetPriceCalculation(ICharacter actor, IMerchandise merchandise, int quantity, ICharacter negotiatingCustomer, ShopDealApplicability applicability = ShopDealApplicability.Sell);
     decimal PriceForMerchandise(ICharacter actor, IMerchandise merchandise, int quantity);
     decimal PriceForMerchandiseWeight(ICharacter actor, IMerchandise merchandise, double weight);
+	decimal PriceForMerchandiseWeight(ICharacter actor, IMerchandise merchandise, double weight, IPaymentMethod method);
     (decimal TotalPrice, decimal IncludedTax, bool VolumeDealsExist) GetDetailedPriceInfo(ICharacter actor, IMerchandise merchandise);
     (bool Truth, string Reason) CanSell(ICharacter actor, IMerchandise merchandise, IPaymentMethod method, IGameItem item);
     void Sell(ICharacter actor, IMerchandise merchandise, IPaymentMethod method, IGameItem item);

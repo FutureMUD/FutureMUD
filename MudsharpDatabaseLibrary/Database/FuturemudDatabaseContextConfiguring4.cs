@@ -614,6 +614,8 @@ namespace MudSharp.Database
                     .HasCharSet("utf8")
                     .UseCollation("utf8_general_ci");
 
+				entity.Property(e => e.HagglingConfiguration).HasColumnType("mediumtext").HasCharSet("utf8mb4");
+
                 entity.Property(e => e.IsTrading).HasColumnType("bit(1)");
 
                 entity.Property(e => e.Name)

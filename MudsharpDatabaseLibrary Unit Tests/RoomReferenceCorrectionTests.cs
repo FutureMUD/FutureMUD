@@ -144,6 +144,15 @@ public class RoomReferenceCorrectionTests
 	}
 
 	[DataTestMethod]
+	[DataRow("HaggleShopNegotiationState")]
+	[DataRow("HaggleShopPriceEffect")]
+	public void HaggleEffects_StableShopIdsAndNarrative_AreNotRoomReferences(string factory)
+	{
+		var xml = $"<Effects><Effect><Type>{factory}</Type><Haggle Shop='9000' Scope='3' Expires='2026-10-16T06:00:00Z'><Reason>Room #9000 concession</Reason></Haggle></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
+	}
+
+	[DataTestMethod]
 	[DataRow("<Emote><Token TargetType='Room'/></Emote>")]
 	[DataRow("<Emote><Token TargetId='9000'/></Emote>")]
 	[DataRow("<Emote><Token OtherType='Room' OtherId='wat'/></Emote>")]

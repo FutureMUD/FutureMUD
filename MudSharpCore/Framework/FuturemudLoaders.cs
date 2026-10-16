@@ -4914,7 +4914,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                         Name = $"{checkType.DescribeEnum(true)} Check",
                         Expression = checkType switch
                         {
-                            CheckType.WritingComprehendCheck => "variable",
+                            CheckType.WritingComprehendCheck or CheckType.HaggleCheck => "variable",
                             CheckType.WeatherForecastCapability or CheckType.WeatherForecast => "0",
                             CheckType.ClimbTreetoTreeCheck => _checks.FirstOrDefault(x => x.Type == CheckType.ClimbCheck)?.TargetNumberExpression.OriginalFormulaText ?? "50",
                             _ => "50"

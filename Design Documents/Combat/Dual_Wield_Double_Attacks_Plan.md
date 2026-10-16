@@ -1,6 +1,6 @@
 # Dual Wield double attacks: design and implementation plan
 
-Status: approved design implemented on the dedicated branch, 16 October 2026; verification limitations remain. Luke subsequently requested “Start this one”. The approved mechanics remain normative. See the [runtime guide](./Dual_Wield_Double_Attacks.md) and [verification receipt](./Dual_Wield_Double_Attacks_Verification.md). This branch has not been published, merged or deployed.
+Status: approved design implemented on the dedicated branch, 16 October 2026; verification limitations remain. Luke subsequently requested “Start this one”, then PR publication and sequenced merge. The approved mechanics remain normative. See the [runtime guide](./Dual_Wield_Double_Attacks.md) and [verification receipt](./Dual_Wield_Double_Attacks_Verification.md). Merge waits for Haggle and Analyse receipts; deployment is not authorised.
 
 ## Revision and scope
 
@@ -15,7 +15,7 @@ Status: approved design implemented on the dedicated branch, 16 October 2026; ve
 
 The source repository was clean on local `master` (`2c89414cf119e538a5a3613f4ded72db25a25292`), two commits behind the fetched remote. The new worktree starts at the fetched commit. Its branch is separate from `codex/armageddon-continuation-20261008` and `codex/blind-fighting`; neither existing worktree is an implementation source or edit target.
 
-The original planning task authorised the worktree, branch and documents only. Luke's later “Start this one” expanded the task to implementation and proportionate verification. Publication, merge and deployment remain outside scope. Native restore and representative telnet verification subsequently passed in an owned disposable world; the verification receipt records the accepted approval retry, evidence and fixture limitations. There is no dependency on unpublished Armageddon changes. The wider nonmagic mapping exercise remains separate.
+The original planning task authorised the worktree, branch and documents only. Luke's later “Start this one” expanded the task to implementation and proportionate verification, followed by publication and sequenced merge authorisation. Dual Wield merges third, after the parent supplies Haggle and Analyse merge receipts. Deployment remains outside scope. Native restore and representative telnet verification passed in an owned disposable world; the verification receipt records the accepted approval retry, evidence and fixture limitations. There is no dependency on unpublished Armageddon changes. The wider nonmagic mapping exercise remains separate.
 
 ## Approved behaviour
 
@@ -94,7 +94,7 @@ An unaffordable pair never removes affordable single attacks. Preserve `TooExhau
 
 ## Coordination check and configuration
 
-Append `CheckType.DualWieldCoordinationCheck` to the **then-current** persisted enum tail. At this base the tail is `WeatherForecast = 226`. Do not reserve an ordinal now or renumber existing values; reconcile PR #792 before choosing it. Recommend including it in `IsPhysicalActivityCheck`, `IsOffensiveCombatAction` and `IsTargettedHostileCheck`, passing the captured opponent for normal contextual bonuses and merits. Exclude it from `IsVisionInfluencedCheck`. Current sight belongs to the two ordinary attack checks and their defences. Do not consume/copy `OffensiveAdvantage` for coordination; that remains the ordinary strikes' resource.
+Append `CheckType.DualWieldCoordinationCheck` without renumbering existing published values. Publication integration assigns **230**, preserving Haggle 227 and Analyse 229 in the authorised merge sequence. The earlier isolated native fixture used unpublished 227; its receipt remains historical. Blind Fighting #792 is unchanged and requires its own later integration review. Include coordination in `IsPhysicalActivityCheck`, `IsOffensiveCombatAction` and `IsTargettedHostileCheck`, passing the captured opponent for normal contextual bonuses and merits. Exclude it from `IsVisionInfluencedCheck`. Current sight belongs to the two ordinary attack checks and their defences. Do not consume/copy `OffensiveAdvantage` for coordination; that remains the ordinary strikes' resource.
 
 Use the existing `Checks -> TraitExpression -> CheckTemplate` schema. Runtime obtains the dedicated check, not a trait by display name. Example world binding: `dualwield:123{nobranch}`, where 123 is the selected world's skill ID. The formula is builder configurable and can include attributes or other modifiers. Use exactly one improvement-enabled Dual Wield parameter; supplementary trait parameters should be `{noimprove,nobranch}`. Do not supply the same coordination trait again through the `variable` argument. A valid binding resolves a character-skill ID through the dedicated check, has no duplicate improvement-enabled trait aliases, and uses the reviewed missing-trait/branching policy. A missing, generic-fallback or parameterless placeholder check is unbound and offers no pair candidates even if its enable setting is true. Validate this without runtime name lookup and diagnose it once per configuration change. Preserve unsupported custom formulas for builder review rather than rewriting them.
 
@@ -193,7 +193,7 @@ Likely overlap: `MeleeWeaponAttack`, `WeaponAttackMove`, `StandardMeleeStrategy`
 3. Add the dedicated move and immutable child difficulty adjustment; implement owned sequential resolution, live guards, per-child completion and single recovery. Add interruption, counter and defence-resource tests.
 4. Extend only the ordinary automatic weapon selection path with frozen pair candidates and normalized weighting. Add deterministic selection/eligibility tests; preserve fixed/manual/clinch paths and fallbacks.
 5. Add appended check/configuration, safe missing-check loading, native trait bindings and minimal additive installer support. Batch configuration/content verification rather than reseeding per tweak. If new workflow questions/replay contracts become necessary, use the repository database-seeder skill and its additional gates.
-6. Update runtime and builder/seeder documentation with final controls and limitations. Run the bounded automated and native checks below; review accounting and Blind Fighting conflicts before proposing any PR. Publishing, merging and deployment require a later request.
+6. Update runtime and builder/seeder documentation with final controls and limitations. Run the bounded automated and native checks below; review accounting and enum conflicts before publication. Publication is authorised; merge waits for the Haggle and Analyse receipts, and deployment requires a later request.
 
 ## Proportionate verification plan
 
@@ -253,4 +253,4 @@ Evidence gathered: repository/worktree/branch inspection; `git fetch origin mast
 
 **Blocking design choices: none.** Luke's implementation request has been received. Selection frequency, lead order, improvement-opportunity enforcement, partial recovery and rollout use the concrete defaults above. World-specific numeric binding and the disposable smoke fixture are operational inputs rather than unsettled product mechanics. The verification receipt records completed native verification and remaining test limitations. PR #792 remains an integration check, not a feature dependency.
 
-The later “Start this one” authorised implementation, now present on this branch. The verification receipt records automated results, unchanged snapshot failures and representative native smoke/restart results. Only the owned disposable native world was mutated. No production database mutation, PR, merge or deployment has occurred.
+The later “Start this one” authorised implementation, now present on this branch. The verification receipt records automated results, inherited snapshot failures and representative native smoke/restart results, followed by publication integration and its merge gate. Only the owned disposable native world was mutated. No production database mutation, merge or deployment has occurred.

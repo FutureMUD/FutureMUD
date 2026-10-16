@@ -1,6 +1,6 @@
 # Dual Wield double attacks
 
-Ordinary automatic melee selection can offer a coordinated pair alongside single attacks. Two distinct weapons attack the same captured target. Each strike retains its weapon-family skill, profile and fresh defence. The [approved plan](./Dual_Wield_Double_Attacks_Plan.md) defines the mechanics; the [verification receipt](./Dual_Wield_Double_Attacks_Verification.md) records checks and limitations. This branch is not published, merged or deployed.
+Ordinary automatic melee selection can offer a coordinated pair alongside single attacks. Two distinct weapons attack the same captured target. Each strike retains its weapon-family skill, profile and fresh defence. The [approved plan](./Dual_Wield_Double_Attacks_Plan.md) defines the mechanics; the [verification receipt](./Dual_Wield_Double_Attacks_Verification.md) records checks, limitations and the Haggle/Analyse merge gate.
 
 ## Coordination and selection
 
@@ -54,4 +54,4 @@ Existing-world builder workflow:
 
 Installer integrations may use `DualWieldCoordinationSeederHelper.BindExistingSkill(context, traitId, enableFeature: false)`. It validates IDs, replaces only a literal-zero placeholder, preserves custom formulas/settings and never grants skills. True enablement supplies only a missing flag, preserving explicit false. Do not rerun foundational CombatSeeder as an upgrade shortcut.
 
-Armageddon uses the same explicit native binding; source-tree opening/cap/enrollment and unpublished continuation work are not dependencies. Blind Fighting #792 remains absent at this base. Preserve its ordinary `CombatCheck` wrappers if merged, assessing sight per child/defence. Coordination is not vision influenced. Resolve its enum addition against this branch's `DualWieldCoordinationCheck = 227` during integration.
+Armageddon uses the same explicit native binding; source-tree opening/cap/enrollment and unpublished continuation work are not dependencies. Publication integration assigns `DualWieldCoordinationCheck = 230`, leaving Haggle 227 and Analyse 229 intact. The earlier isolated native fixture used the unpublished 227 assignment; it is historical evidence, not a production migration contract. No published Dual Wield ID is renumbered. Blind Fighting #792 remains absent at this base and is not changed here. Preserve its ordinary `CombatCheck` wrappers if merged later, assessing sight per child/defence. Coordination is not vision influenced.

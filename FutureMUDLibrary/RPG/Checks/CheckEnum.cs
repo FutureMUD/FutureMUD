@@ -233,7 +233,7 @@ namespace MudSharp.RPG.Checks
 		SignedLanguageUnderstandCheck = 224,
 		WeatherForecastCapability = 225,
 		WeatherForecast = 226,
-		DualWieldCoordinationCheck = 227
+		DualWieldCoordinationCheck = 230
     }
 
     public enum FailIfTraitMissingType

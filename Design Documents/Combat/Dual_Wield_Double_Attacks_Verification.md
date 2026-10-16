@@ -2,7 +2,7 @@
 
 Host Percival; branch `codex/dual-wield-double-attacks`; base `890abfd8c443abec70b10e2bc895535928257f5d`; approved plan commit `1d7ce5db3c6fedbff2ecec099e7de9318aec0f16`; implementation commit `6532fba94c603f0fa64e18a9c35279cf9627fe00`. Worktree: `C:\Users\luker\Documents\Codex\2026-10-16\task-3\FutureMUD-dual-wield`.
 
-Luke's later “Start this one” authorises implementation/verification. No PR, merge or deployment was requested. Other worktrees remain untouched. Master was refreshed and unchanged; #792 remains open at `8cd0da25470c5588923b3eefaeb983605ee69c5c`.
+Luke's “Start this one” authorised implementation/verification; his later instruction authorised publication and sequenced merge, as recorded below. Deployment remains outside scope. Other worktrees remain untouched. Master was refreshed and unchanged; #792 remains open at `8cd0da25470c5588923b3eefaeb983605ee69c5c`.
 
 ## Implementation
 
@@ -20,6 +20,8 @@ Windows-native SDK 10.0.401 and repository compact runner, single-node targeted 
 | `20261016T033937Z-a18973f910ff` | Runtime, seeder, library | 8,584 passed, 5 failed, 3 skipped, source stable |
 | `20261016T035030Z-9de7c02196b3` | Final focused runtime (`DualWield`) | PASS: 40 passed, no failures/skips, source stable |
 | `20261016T035346Z-572b64d07ffa` | Final coordination seeder and core-static installation tests | PASS: 24 passed, no failures/skips, source stable |
+| `20261016T062336Z-d0f782dbbbd1` | Publication check-ID 230 and runtime mechanics | PASS: 40 passed, no failures/skips, source stable |
+| `20261016T062718Z-f2d854452b4b` | Publication check-ID 230, coordination binding and CoreData installation | PASS: 24 passed, no failures/skips, source stable |
 
 Consolidated core: 6,258 passed. Library: 709 passed. Seeder: 1,617 passed, 5 failed, 3 Windows skips for Unix launcher permissions. One new seeder test's reflection argument mismatch was repaired afterward. Four failures involve unchanged blank-snapshot tests/assets/migrations:
 
@@ -57,6 +59,18 @@ The verified DLL SHA256 is `82B5893CFC24DEBAB53FDFB86DEA2D34FB430CD01A3D62CBC9A9
 
 Owned MUD and MySQL processes were stopped by 04:24:33 UTC. Ports 4009/34317 are closed. Existing MySQL listeners 3306/PID6852 and 3307/PID7020 retained their identities. Only disposable data and logs remain; production databases and other worktrees were not modified.
 
+## Publication integration and merge gate
+
+Luke subsequently authorised snapshot repair, PR publication and merge for Haggle, Analyse and Dual Wield. Merge order is **[Haggle #793](https://github.com/FutureMUD/FutureMUD/pull/793) first, [Analyse #794](https://github.com/FutureMUD/FutureMUD/pull/794) second, Dual Wield third**. The Dual Wield PR must wait for the parent's two preceding merge receipts; do not enable auto-merge or merge this PR while that gate is closed. Armageddon and Blind Fighting remain outside the edit/merge scope; deployment is not authorised.
+
+Inspection against fetched `origin/master` `890abfd8c443abec70b10e2bc895535928257f5d` found Haggle (`bce1dc35848490118bf7d6533ee538cd340b3d41`) uses check 227, while Analyse (`45a09e9dc18d3360a47368e2f1a9dbe0f8f1fe8d`) uses 229. Dual Wield's unpublished 227 assignment was changed to **230** before publication, with a persisted-ID uniqueness regression assertion. Earlier native SQL/receipts deliberately retain the old fixture ID and verified mechanics. Production has not received that unpublished ID, so this introduces no deployed-ID migration.
+
+Haggle already owns the inherited blank-snapshot/manifest repair and its `AddShopHaggling` migration. This branch changes neither snapshot nor EF migration/model snapshot. After both dependency merges, fetch and merge `origin/master` into this branch. Preserve Haggle 227, Analyse 229 and Dual Wield 230 in the enum; combine their check-specific skill-seeder and loader cases; preserve both sets of static defaults and all documentation index entries. `CoreDataSeeder` must continue deferring only the Dual Wield enable flag until fresh binding. Reuse the incoming repaired snapshot unchanged.
+
+Read-only checkout previews using `git merge-tree --write-tree` against each dependency found textual conflicts in `FutureMUDLibrary/RPG/Checks/CheckEnum.cs` and `MudSharpCore/Framework/FuturemudLoaders.cs`. The skill seeders, default static settings and documentation index auto-merged in those individual previews. These were virtual Git trees only; neither the checkout nor a branch/PR was merged. Review the composed merge after both dependencies land rather than treating the previews as integrated validation.
+
+Before releasing the merge gate, run focused Dual Wield/CoreData and Analyse/Haggle overlap checks, persisted-ID uniqueness, and the seeder snapshot gate on the integrated head. Fix actual integration regressions here; do not repeat the first branch's snapshot rebuild. Record the final master/head/check receipts in the PR. No runtime mechanics changed for the ID reservation; rerunning the existing native fixture would merely recreate the same isolated mechanics under a different lookup integer.
+
 ## Remaining limits
 
-Numerical stamina debits, one recovery action and the full first-hit/counter/callback interruption cases are covered by focused automated mechanics tests, rather than exhaustive native instrumentation. The representative native runs do not establish balance or every world-specific installer combination. The legacy trap/outfit findings are deferred outside this feature; fixture corrections were not runtime fixes. The seeder gate retains four unchanged snapshot failures and three platform skips. No feature EF migration is needed. No unresolved product choices or approval requests block this implementation; assess the existing snapshot gate and #792 enum/wrapper conflicts before publication. No PR, merge or deployment occurred.
+Numerical stamina debits, one recovery action and the full first-hit/counter/callback interruption cases are covered by focused automated mechanics tests, rather than exhaustive native instrumentation. The representative native runs do not establish balance or every world-specific installer combination. The legacy trap/outfit findings are deferred outside this feature; fixture corrections were not runtime fixes. Before dependency integration, the seeder gate retains four unchanged snapshot failures and three platform skips. No feature EF migration is needed. No unresolved product choices or approval requests block publication; the snapshot gate must be checked on the integrated head, and #792 remains a separate future integration. Merge remains gated and deployment is not authorised.

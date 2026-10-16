@@ -33,7 +33,9 @@ public class DualWieldDoubleAttackTests
 	[TestMethod]
 	public void Coordination_PersistedIdentityAndClassification_RemainsPhysicalOffensiveAndNotVisionLimited()
 	{
-		Assert.AreEqual((int)CheckType.WeatherForecast + 1, (int)CheckType.DualWieldCoordinationCheck);
+		Assert.AreEqual(230, (int)CheckType.DualWieldCoordinationCheck);
+		var identities = Enum.GetValues<CheckType>().Select(x => (int)x).ToArray();
+		Assert.AreEqual(identities.Length, identities.Distinct().Count(), "Persisted check IDs must remain unique across integrated features.");
 		Assert.IsTrue(CheckType.DualWieldCoordinationCheck.IsPhysicalActivityCheck());
 		Assert.IsTrue(CheckType.DualWieldCoordinationCheck.IsOffensiveCombatAction());
 		Assert.IsTrue(CheckType.DualWieldCoordinationCheck.IsTargettedHostileCheck());

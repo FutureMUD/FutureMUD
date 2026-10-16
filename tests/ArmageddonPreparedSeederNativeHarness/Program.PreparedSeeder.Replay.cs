@@ -138,7 +138,8 @@ internal static partial class GNHProgram
 			// closes the process scheduling race; every subsequently spawned MUD is in our job.
 			using (var readyReceipt = new FileStream(ready, FileMode.CreateNew, FileAccess.Write, FileShare.None))
 				readyReceipt.Write(Encoding.UTF8.GetBytes(token + ":" + child.Id));
-			if (!child.WaitForExit(900_000)) throw new TimeoutException("Owned boot child exceeded its 900-second handoff deadline.");
+			var deadlineMilliseconds = Environment.GetEnvironmentVariable("FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY") == "1" ? 1_200_000 : 900_000;
+			if (!child.WaitForExit(deadlineMilliseconds)) throw new TimeoutException("Owned boot child exceeded its explicit scenario deadline.");
 		}
 		finally
 		{

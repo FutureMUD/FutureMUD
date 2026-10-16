@@ -16,7 +16,7 @@ using MudSharp.RPG.Merits.Interfaces;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class ArmageddonStockProgressionRuntimeTests
+public partial class ArmageddonStockProgressionRuntimeTests
 {
 	[DataTestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, "earth")]

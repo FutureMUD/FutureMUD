@@ -4,6 +4,11 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
+	private const string S5BaseCompatibility = "inert-equipped-item-serializer-and-helper-20261016";
+	private const string S5BaseRoomTypesHash = "3B2DFFEABC47E7F342AA05C08570D97FED8FC5B20B0ADEC82583809DE1EC6F82";
+	private const string S5ReviewedRoomTypesHash = "B6D02219DABC2CF00E91ECBEF95A69D66E4AD7EB3C7F72D6027FC0DFAEB39D94";
+	private const string EquippedItemHelperPath = "FutureMUDLibrary/Magic/EquippedItemBonuses.cs";
+	private const string ReviewedEquippedItemHelperHash = "A95CCAA5ABA5835E8F7636CB0ED9594468AB7CF40A7EA981E939281BA52E8317";
 	private const string S4BaseCompatibility = "inert-damage-hooks-and-s4-room-reference-classifications-20261013";
 	private const string DamageInterfacePath = "FutureMUDLibrary/Health/IDamage.cs";
 	private const string BaseDamageInterfaceHash = "407A6C10C4EC149CE8E3DC57EC47EB58DAB4D6A327E2B505E54A596C120A4004";
@@ -35,6 +40,22 @@ internal static partial class GNHProgram
 			current.Select(x => x.Path).Distinct(StringComparer.Ordinal).Count() != current.Count) return false;
 		var projected = current.ToDictionary(x => x.Path, StringComparer.Ordinal);
 		var recorded = receipt.BaseSources.ToDictionary(x => x.Path, StringComparer.Ordinal);
+		// The 15 October clean prefix contains no equipped spell bonus effects or Armageddon content.
+		// This exact additive serializer classification and side-effect-free helper are inert during seeding.
+		// All other source bytes, answers, SQL, restored schema and content still require their original pins.
+		if (recorded.TryGetValue(RoomReferenceTypesPath, out var s5OldRoomTypes) && s5OldRoomTypes.Sha256 == S5BaseRoomTypesHash &&
+			projected.TryGetValue(RoomReferenceTypesPath, out var s5NewRoomTypes) && s5NewRoomTypes.Sha256 == S5ReviewedRoomTypesHash &&
+			!recorded.ContainsKey(EquippedItemHelperPath) && projected.TryGetValue(EquippedItemHelperPath, out var helper) && helper.Sha256 == ReviewedEquippedItemHelperHash)
+		{
+			var reviewed = projected.Values.Where(x => x.Path != EquippedItemHelperPath)
+				.Select(x => x.Path == RoomReferenceTypesPath ? s5OldRoomTypes : x)
+				.OrderBy(x => x.Path, StringComparer.Ordinal).ToArray();
+			if (BaseValueHash(reviewed) == receipt.BaseSourceSha256)
+			{
+				rule = S5BaseCompatibility;
+				return true;
+			}
+		}
 		foreach (var addition in BaseCompilerPins.Concat(ReviewedS4SourceAdditions))
 		{
 			if (recorded.ContainsKey(addition.Path)) continue;

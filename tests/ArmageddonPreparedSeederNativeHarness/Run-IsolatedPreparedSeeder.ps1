@@ -17,6 +17,7 @@ param([string]$EvidenceRoot,
 	[switch]$RemainingSmokeOnly,
 	[switch]$FocusDeviceSmokeOnly,
 	[switch]$S5DoseSmokeOnly,
+	[switch]$S5ProgressionSmokeOnly,
 	[switch]$FamilySmokeOnly,
 	[ValidateSet('all', 'corpse', 'projection', 'voice', 'pocket', 'kindle')][string]$FamilySmokeCases = 'all',
 	[ValidateSet('PsionicsSeeder', 'EnvironmentalExposureSeeder')][string[]]$LaterSteps = @(),
@@ -47,6 +48,10 @@ if ($ExchangeSmokeOnly -and ($GateSmokeOnly -or $QualificationScope -ne 's4-stoc
 if ($RemainingSmokeOnly -and ($GateSmokeOnly -or $ExchangeSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -ne 'base-fixture-package')) { throw 'Remaining-stock qualification requires its separate s4-stock package lane.' }
 if ($FamilySmokeOnly -and ($FocusDeviceSmokeOnly -or $RemainingSmokeOnly -or $GateSmokeOnly -or $ExchangeSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -ne 'focus-fixture-restore')) { throw 'Family acceptance requires its separate hash-pinned prepared-fixture restore.' }
 if ($FamilySmokeCases -ne 'all' -and -not $FamilySmokeOnly) { throw 'Family case selection requires -FamilySmokeOnly.' }
+if ($S5ProgressionSmokeOnly -and ($S5DoseSmokeOnly -or $FocusDeviceSmokeOnly -or $FamilySmokeOnly -or $RemainingSmokeOnly -or $GateSmokeOnly -or $ExchangeSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -ne 'base-fixture-package')) { throw 'S5 progression requires its own current-package install on the pinned clean base.' }
+$ownedEnvironmentNames += 'FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY'
+$ownedPreviousEnvironment['FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY'] = [Environment]::GetEnvironmentVariable('FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY')
+$env:FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY = if ($S5ProgressionSmokeOnly) { '1' } else { $null }
 if ($S5DoseSmokeOnly -and (-not $FocusDeviceSmokeOnly -or $Mode -ne 'focus-fixture-restore')) { throw 'S5 dose acceptance requires the isolated focus fixture restore and focused smoke lane.' }
 $ownedEnvironmentNames += 'FUTUREMUD_S5_DOSE_SMOKE_ONLY'
 $ownedPreviousEnvironment['FUTUREMUD_S5_DOSE_SMOKE_ONLY'] = [Environment]::GetEnvironmentVariable('FUTUREMUD_S5_DOSE_SMOKE_ONLY')
@@ -301,7 +306,11 @@ try {
 			}
 			$stockAssertions = @($boot.assertions).Count
 			$stockCampaignAssertions = @($boot.assertions | Where-Object { $_ -like '*S4 stock*' }).Count
-			if ($ExchangeSmokeOnly) {
+			if ($S5ProgressionSmokeOnly) {
+				if ($boot.status -ne 'PASS' -or $boot.s5_progression.status -ne 'PASS' -or $boot.s5_progression.cold_status -ne 'PASS' -or -not $boot.owned_mud_processes_stopped) { throw 'S5 normal progression/funding first/cold qualification is incomplete.' }
+				Write-Output "s5ProgressionQualification=verified assertions=$stockAssertions"
+			}
+			elseif ($ExchangeSmokeOnly) {
 				if ($boot.status -ne 'PASS' -or $boot.exchange_places.status -ne 'PASS' -or
 					$boot.exchange_places.cold_status -ne 'PASS' -or -not $boot.owned_mud_processes_stopped) {
 					throw 'Paid Exchange Places first/cold or owned-process assertions are incomplete.'
@@ -348,8 +357,8 @@ try {
 	Write-Output "nativeHarnessExit=$runExit"
 	$sourceEnd = Write-SourceEvidence 'source-end'
 	$sourceStable = $sourceStart -eq $sourceEnd
-	$qualificationLimits = if ($QualificationScope -eq 's4-stock') { 'Focused Telnet evidence is in stock_boot_receipt; no whole-package or S5 qualification.' } else { 'Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.' }
-	@{ revision = $revision; mode = $Mode; qualification_scope = $QualificationScope; gate_smoke_only = [bool]$GateSmokeOnly; exchange_smoke_only = [bool]$ExchangeSmokeOnly; remaining_smoke_only = [bool]$RemainingSmokeOnly; focus_device_smoke_only = [bool]$FocusDeviceSmokeOnly; s5_dose_smoke_only = [bool]$S5DoseSmokeOnly; family_smoke_only = [bool]$FamilySmokeOnly; family_smoke_cases = $FamilySmokeCases; focus_device_fixture = $FocusDeviceFixture; focus_device_fixture_sha256 = $FocusDeviceFixtureSha256; stock_first_loaded = $stockFirstLoaded; stock_cold_loaded = $stockColdLoaded; stock_assertions = $stockAssertions; stock_campaign_assertions = $stockCampaignAssertions; stock_boot_receipt = $stockBootReceipt; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
+	$qualificationLimits = if ($S5ProgressionSmokeOnly) { 'S5 full-stock Earth ordinary Player acquisition and real funding/practice first-cold sample; separate shared-contract branching and approved carrier receipts complete S5 scope; no S6/Release qualification.' } elseif ($QualificationScope -eq 's4-stock') { 'Focused Telnet evidence is in stock_boot_receipt; no whole-package or S5 qualification.' } else { 'Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.' }
+	@{ revision = $revision; mode = $Mode; qualification_scope = $QualificationScope; gate_smoke_only = [bool]$GateSmokeOnly; exchange_smoke_only = [bool]$ExchangeSmokeOnly; remaining_smoke_only = [bool]$RemainingSmokeOnly; focus_device_smoke_only = [bool]$FocusDeviceSmokeOnly; s5_dose_smoke_only = [bool]$S5DoseSmokeOnly; s5_progression_smoke_only = [bool]$S5ProgressionSmokeOnly; family_smoke_only = [bool]$FamilySmokeOnly; family_smoke_cases = $FamilySmokeCases; focus_device_fixture = $FocusDeviceFixture; focus_device_fixture_sha256 = $FocusDeviceFixtureSha256; stock_first_loaded = $stockFirstLoaded; stock_cold_loaded = $stockColdLoaded; stock_assertions = $stockAssertions; stock_campaign_assertions = $stockCampaignAssertions; stock_boot_receipt = $stockBootReceipt; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
 		base_fixture = $BaseFixture; base_fixture_sha256 = $BaseFixtureSha256; gate_fixture = $GateFixture; gate_fixture_sha256 = $GateFixtureSha256; exchange_fixture = $ExchangeFixture; exchange_fixture_sha256 = $ExchangeFixtureSha256; package_mode = $PackageMode; later_steps = $LaterSteps; fresh_install_check = [bool]$FreshInstallCheck; base_receipt = (Join-Path $evidenceDirectory 'base-world-run.json'); process_root = $taskRoot; owned_port = $taskPort; limits = $qualificationLimits } |
 		ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $evidenceDirectory 'summary.json')
 	Write-Output "nativeSourceStable=$sourceStable sourceEnd=$sourceEnd"

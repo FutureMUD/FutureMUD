@@ -1,5 +1,7 @@
 # Armageddon S5 qualification checkpoint - 15 October 2026
 
+**Current S5 qualification, 16 October:** Approved shared/representative S5 scope is qualified: Classic and Simple ordinary-Player full Earth enrolment, real zero-to-52 rest funding, paid 50/30-second practice and exact first/cold conservation each pass15 assertions; current Core 271/271 and Seeder 2/2 pass. Only Mend Flesh charged delivery and Restorative Mud topical delivery are approved; all other candidate carriers stay disabled. Native copied-body Willpower 25/capacity 136 and deterministic branch setup remain explicit. See [the current S5 checkpoint](Armageddon_S5_Qualification_Checkpoint_20261016.md) and [portable receipt](Armageddon_S5_Qualification_20261016.json) for exact scope, retained failures and pins. S4 remains152/152 required accepted. S6/N24/N25 and final readiness remain; PR #788 draft, all Release/availability gates disabled, no merge/deploy. Historical entries below retain their dated scope.
+
 S5 has started under the locked stock defaults; `content_design_questions_remaining` remains empty. S4 remains accepted for all 152 required entries, with two optional entries deferred. This checkpoint covers the approved Restorative Mud topical path. It does not close S5 or enable Release, package/Class availability, use/crafting gates, unqualified carriers or area variants. PR788 remains draft; no merge/deployment.
 
 ## Built, configured and gameplay-qualified

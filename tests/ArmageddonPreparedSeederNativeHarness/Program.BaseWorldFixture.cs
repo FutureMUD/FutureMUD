@@ -314,7 +314,8 @@ internal static partial class GNHProgram
 			else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE") == "1")
 			{
 				PreparedStockAttunementAcceptance(database);
-				if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY") == "1") PrepareFocusDeviceFixture(database);
+				if (Environment.GetEnvironmentVariable("FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY") == "1") PrepareS5ProgressionFixture(database, Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_INPUT")!);
+				else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY") == "1") PrepareFocusDeviceFixture(database);
 				else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_REMAINING_SMOKE_ONLY") == "1") PrepareRemainingStockFixture(database);
 			}
 			RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
@@ -377,6 +378,21 @@ internal static partial class GNHProgram
 				live.Select(x => x.Path == BaseCompilerPins[0].Path ? x with { Sha256 = new string('F', 64) } : x).ToArray(),
 				live.Where(x => x.Path != ReviewedS4SourceAdditions[0].Path).ToArray()
 			}) { Require(!CompatibleBaseSources(compatibilityReceipt, drift, out _), "Unreviewed source drift must invalidate the base."); checks++; }
+			IReadOnlyList<BaseSource> s5Sources = [new(RoomReferenceTypesPath, S5BaseRoomTypesHash), new("base.cs", new string('D', 64))];
+			var s5Receipt = original with { BaseSources = s5Sources, BaseSourceSha256 = BaseValueHash(s5Sources) };
+			var s5Live = s5Sources.Select(x => x.Path == RoomReferenceTypesPath ? x with { Sha256 = S5ReviewedRoomTypesHash } : x)
+				.Append(new(EquippedItemHelperPath, ReviewedEquippedItemHelperHash)).OrderBy(x => x.Path, StringComparer.Ordinal).ToArray();
+			Require(CompatibleBaseSources(s5Receipt, s5Live, out var s5Rule) && s5Rule == S5BaseCompatibility,
+				"Exact reviewed inert equipped-item source additions must preserve the sealed base."); checks++;
+			foreach (var drift in new[]
+			{
+				s5Live.Select(x => x.Path == "base.cs" ? x with { Sha256 = new string('F', 64) } : x).ToArray(),
+				s5Live.Select(x => x.Path == RoomReferenceTypesPath ? x with { Sha256 = new string('F', 64) } : x).ToArray(),
+				s5Live.Select(x => x.Path == EquippedItemHelperPath ? x with { Sha256 = new string('F', 64) } : x).ToArray(),
+				s5Live.Concat([new BaseSource("unreviewed.cs", new string('F', 64))]).ToArray(),
+				s5Live.Where(x => x.Path != EquippedItemHelperPath).ToArray(),
+				s5Live.Where(x => x.Path != RoomReferenceTypesPath).ToArray()
+			}) { Require(!CompatibleBaseSources(s5Receipt, drift, out _), "Unreviewed drift cannot use equipped-item compatibility."); checks++; }
 			Refuses(() => ReadBaseFixture(manifest, new string('0', 64), steps, sources));
 			foreach (var changed in new[] { original with { Kind = "post-S3" }, original with { SqlFile = "../fixture.sql" },
 				original with { Database = "user_database" }, original with { OwnershipMarker = "other" },

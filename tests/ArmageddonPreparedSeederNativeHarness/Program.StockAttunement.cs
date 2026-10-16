@@ -17,22 +17,27 @@ internal static partial class GNHProgram
 	{
 		Func<MudSharp.Database.FuturemudDatabaseContext> factory = () => NewIndependentContext(database.ConnectionString);
 		var players = TraditionPlayers(database);
-		var before = PreparedDatabaseChecksum(database);
-		var stopped = ArmageddonStockSpellInstaller.Install(factory, (_, stage) =>
+		// S5 starts from the pinned clean base and a current targeted package install.
+		// Its progression qualification does not repeat the already accepted S4 rollback/resume campaign.
+		if (Environment.GetEnvironmentVariable("FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY") != "1")
 		{
-			if (stage == ArmageddonInstallCheckpoint.BeforeCommit) throw new IOException("S4 contribution interruption before commit");
-		});
-		Require(stopped.Status == ArmageddonInstallStatus.Failed && before == PreparedDatabaseChecksum(database),
-			"S4 native precommit rollback changed tables or returned the wrong outcome.");
-		var lostAck = ArmageddonStockSpellInstaller.Install(factory, (key, stage) =>
-		{
-			if (key == ArmageddonStockSpellInstaller.CanonicalKeys.Last() && stage == ArmageddonInstallCheckpoint.AfterCommit) throw new IOException("S4 contribution lost acknowledgement");
-		});
-		Require(lostAck.Status == ArmageddonInstallStatus.CommittedConfirmationFailed, string.Join("\n", lostAck.Messages));
-		before = PreparedDatabaseChecksum(database);
-		var rerun = ArmageddonStockSpellInstaller.Install(factory);
-		Require(rerun.Status == ArmageddonInstallStatus.Completed && before == PreparedDatabaseChecksum(database) && players == TraditionPlayers(database),
-			"S4 reconciliation changed installed/player tables: " + string.Join("\n", rerun.Messages));
+			var before = PreparedDatabaseChecksum(database);
+			var stopped = ArmageddonStockSpellInstaller.Install(factory, (_, stage) =>
+			{
+				if (stage == ArmageddonInstallCheckpoint.BeforeCommit) throw new IOException("S4 contribution interruption before commit");
+			});
+			Require(stopped.Status == ArmageddonInstallStatus.Failed && before == PreparedDatabaseChecksum(database),
+				"S4 native precommit rollback changed tables or returned the wrong outcome.");
+			var lostAck = ArmageddonStockSpellInstaller.Install(factory, (key, stage) =>
+			{
+				if (key == ArmageddonStockSpellInstaller.CanonicalKeys.Last() && stage == ArmageddonInstallCheckpoint.AfterCommit) throw new IOException("S4 contribution lost acknowledgement");
+			});
+			Require(lostAck.Status == ArmageddonInstallStatus.CommittedConfirmationFailed, string.Join("\n", lostAck.Messages));
+			before = PreparedDatabaseChecksum(database);
+			var rerun = ArmageddonStockSpellInstaller.Install(factory);
+			Require(rerun.Status == ArmageddonInstallStatus.Completed && before == PreparedDatabaseChecksum(database) && players == TraditionPlayers(database),
+				"S4 reconciliation changed installed/player tables: " + string.Join("\n", rerun.Messages));
+		}
 		using var db = factory();
 		// Use collection instance Contains; span-based array overloads cannot be evaluated by EF9's parameter interpreter.
 		var capabilityKeys = new ArmageddonStockProgression(ArmageddonInstallation.Read(db)!.Mode).Capabilities.Select(x => x.Key).ToList();
@@ -43,7 +48,9 @@ internal static partial class GNHProgram
 		Require(db.MagicCapabilities.AsNoTracking().Where(x => packageCaps.Contains(x.Id)).AsEnumerable().All(x =>
 			XElement.Parse(x.Definition).Element("Casting") is { } casting && (bool?)casting.Attribute("enabled") == false && !casting.Elements("Admission").Any()),
 			"S4 installed a partial active package roster.");
-		Console.WriteLine("ARMS4-attunement-install=passed actual-MySQL precommit-all-table-rollback lost-ack-resume stable-children no-op-all-table-checksum no-player-writes all-ten-package-caps-disabled");
+		Console.WriteLine(Environment.GetEnvironmentVariable("FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY") == "1"
+			? "ARMS5-current-package=verified all-ten-package-caps-disabled; S4 rollback/resume campaign not repeated"
+			: "ARMS4-attunement-install=passed actual-MySQL precommit-all-table-rollback lost-ack-resume stable-children no-op-all-table-checksum no-player-writes all-ten-package-caps-disabled");
 		if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE") != "1") return;
 		// This separate, explicitly disposable builder capability qualifies the installed spell.
 		// It is never package-owned and never activates a partial Armageddon roster.

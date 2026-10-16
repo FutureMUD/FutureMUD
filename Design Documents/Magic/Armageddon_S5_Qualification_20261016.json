@@ -1,0 +1,794 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-16",
+  "status": "S5_APPROVED_STOCK_SCOPE_QUALIFIED",
+  "whole_s5_qualified": true,
+  "whole_programme_qualified": false,
+  "baseline_head": "97062229ce9907ac22f14eb60bfee90616a4e582",
+  "branch": "codex/armageddon-continuation-20261008",
+  "pr": 788,
+  "s4_required_accepted": 152,
+  "blueprints": 210,
+  "optional_deferred": 2,
+  "qualification_scope": "Approved shared-contract and representative-native S5 stock scope; both native modes PASS with stable inputs and owned cleanup",
+  "content_design_questions_remaining": [],
+  "locked_stock_value_sha256": "c62fe779be152cf948af7e0e289d76d8721584e408a06a9f6461dbce8464730c",
+  "availability": {
+    "release": false,
+    "package": false,
+    "classes": false,
+    "use": false,
+    "craft": false,
+    "variants": false,
+    "unqualified_carriers": false,
+    "merge": false,
+    "deploy": false
+  },
+  "production_runtime_changes_in_this_continuation": false,
+  "new_managed_cases": 8,
+  "built_configured_qualified": [
+    [
+      "Canonical content",
+      "152 required S4 contracts and 210 blueprints retained; two optional entries deferred.",
+      "S4 evidence strategy, no duplicate native campaign."
+    ],
+    [
+      "Natural acquisition/practice",
+      "Complete actual Earth roster, ordinary Player, no initial magic skill/knowledge/energy; Classic opening60 and Simple10; six roots grade1; real50energy/30seconds practice.",
+      "Two fresh owned base restores; original package gates false; explicit separate qualification capability. Not S6 chargen matrix."
+    ],
+    [
+      "Shared progression",
+      "Classic Stone Skin threshold80 opens40; Simple main threshold15; explicit threshold-.5 gain/no-gain tests; actual native improver callback; controlled grade separate; no repeat/restart gains.",
+      "Managed setup is labelled; no native opening-to-branch stochastic campaign claim."
+    ],
+    [
+      "Funding/affordability",
+      "Real native zero-to-first50 at rest,2/min*2; zero foreign pools; capacity from copied native rawWillpower, no refill; paid50 matching reserve debit.",
+      "Observe native tick cadence and actual elapsed per mode; no rebalance or direct funding."
+    ],
+    [
+      "Charged Mend Flesh",
+      "Sole initial charged allowlist; N23 paid production/recharge/releases/forced-crash receipts plus S4 actual stock wrappers; current271Core/2Seeder regressions.",
+      "No universal candidate promotion. Mend grade3 magnitude18 =2*grade^2."
+    ],
+    [
+      "Topical Restorative Mud",
+      "Only approved topical combination; historical native15 first/cold assertions, managed64, fullCore7576; exact permanent1g origin,10*grade single-use budget.",
+      "Grade1 live calibration, grades1-7 managed; preserve five historical failed attempts."
+    ],
+    [
+      "Other delivery",
+      "36charged/32substance candidates, zero stockscrolls; other35charged/31substance remain disabled.",
+      "Candidate flags provide no admission; no policy expansion."
+    ]
+  ],
+  "native": {
+    "Classic": {
+      "status": "PASS",
+      "runner": {
+        "path": "C:/Temp/futuremud-s5-progression-native/20261016T001044Z_742a485a6f3140b6ab474ce7fa4a7220/summary.json",
+        "sha256": "65E43D59219D55E29D12AEEAF3DBC511F71DD02BCB175898BA87BA56DABB04AF"
+      },
+      "boot": {
+        "path": "../prepared-catalogue-boot-native-s4-stock-8835fde82bdb4287aaa77154ecf9023c/boot-latest.json",
+        "sha256": "5BB429F121C20CCE20CCCD870995E5394FE70C0E573D9FB048B58D922B4B41EC"
+      },
+      "input": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-stock-attunement-input_95f006dec02743958b1dd035c0aac1df.json",
+        "sha256": "41C926877FD80A1F6FE8C88F54B2CF50CD4DF4B63932FDAF5845182866CC9E21"
+      },
+      "console": {
+        "path": "C:/Temp/s5-progression-native-classic4.log",
+        "sha256": "5E4A1A9822D77D48E06F19DBD596A7C66CF27F4C2993A2EAF1CE4A9B2D568E4B"
+      },
+      "source_start": "1DE1DF82724832CC2C956A39BD3C2F5392445D9DD5F23B123F69E94CAF66E6F4",
+      "source_end": "1DE1DF82724832CC2C956A39BD3C2F5392445D9DD5F23B123F69E94CAF66E6F4",
+      "source_stable": true,
+      "source_manifest": {
+        "path": "C:/Temp/futuremud-s5-progression-native/20261016T001044Z_742a485a6f3140b6ab474ce7fa4a7220/source-start.json",
+        "sha256": "1DE1DF82724832CC2C956A39BD3C2F5392445D9DD5F23B123F69E94CAF66E6F4"
+      },
+      "config": {
+        "mode": "Classic",
+        "capacity_attribute": 5,
+        "capacity_raw": 25,
+        "capacity": 136,
+        "opening": 60,
+        "threshold": 80,
+        "improver": "<Definition Chance='0.1' Expression='0.5' ImproveOnFail='true' ImproveOnSuccess='true' DifficultyThresholdInterval='0' NoGainSecondsDiceExpression='60' ImprovementProg='0'/>",
+        "generator": "<Definition>\r\n  <WhichResource>2</WhichResource>\r\n  <AmountPerMinute>2</AmountPerMinute>\r\n  <ConsciousOnly>true</ConsciousOnly>\r\n  <RestMultiplier>2</RestMultiplier>\r\n</Definition>",
+        "all_spells_count": 24,
+        "starting_roots_count": 6
+      },
+      "case_values": {
+        "status": "PASS",
+        "mode": "Classic",
+        "funding": [
+          {
+            "elapsed_seconds": 26.719,
+            "before": 0.0,
+            "after": 4.0
+          },
+          {
+            "elapsed_seconds": 88.627,
+            "before": 4.0,
+            "after": 8.0
+          },
+          {
+            "elapsed_seconds": 141.825,
+            "before": 8.0,
+            "after": 12.0
+          },
+          {
+            "elapsed_seconds": 203.581,
+            "before": 12.0,
+            "after": 16.0
+          },
+          {
+            "elapsed_seconds": 265.739,
+            "before": 16.0,
+            "after": 20.0
+          },
+          {
+            "elapsed_seconds": 327.988,
+            "before": 20.0,
+            "after": 24.0
+          },
+          {
+            "elapsed_seconds": 389.805,
+            "before": 24.0,
+            "after": 28.0
+          },
+          {
+            "elapsed_seconds": 442.9,
+            "before": 28.0,
+            "after": 32.0
+          },
+          {
+            "elapsed_seconds": 504.798,
+            "before": 32.0,
+            "after": 36.0
+          },
+          {
+            "elapsed_seconds": 566.632,
+            "before": 36.0,
+            "after": 40.0
+          },
+          {
+            "elapsed_seconds": 628.523,
+            "before": 40.0,
+            "after": 44.0
+          },
+          {
+            "elapsed_seconds": 682.105,
+            "before": 44.0,
+            "after": 48.0
+          },
+          {
+            "elapsed_seconds": 744.36,
+            "before": 48.0,
+            "after": 52.0
+          }
+        ],
+        "authority_by_phase": {
+          "first": [
+            [
+              "0",
+              "2"
+            ]
+          ],
+          "cold": [
+            [
+              "0",
+              "2"
+            ]
+          ]
+        },
+        "opening": 60.0,
+        "starting_roots": [
+          [
+            "20",
+            "1"
+          ],
+          [
+            "43",
+            "1"
+          ],
+          [
+            "69",
+            "1"
+          ],
+          [
+            "80",
+            "1"
+          ],
+          [
+            "91",
+            "1"
+          ],
+          [
+            "143",
+            "1"
+          ]
+        ],
+        "before_rest_balance": 0.0,
+        "funding_elapsed_seconds": 744.426,
+        "funded_balance": 52.0,
+        "reserve_before_practice": 52.0,
+        "reserve_after_payment": 2.0,
+        "raw_before": 60.0,
+        "raw_after": 60.0,
+        "paid": 50,
+        "saved_balance": 2.0,
+        "cold_status": "PASS",
+        "cold_balance": 2.0
+      },
+      "operation": {
+        "id": "e3dff366-bb7e-427d-9b3d-efd10a92caff",
+        "stage": "Completed",
+        "created_utc": "2026-10-16 00:31:36.534948",
+        "deadline_utc": "2026-10-16T00:32:06.5349488Z",
+        "skill_eligible": "true",
+        "mastery_eligible": "false",
+        "costs": [
+          {
+            "holder": "2",
+            "resource": "2",
+            "amount": "50",
+            "before": "52"
+          }
+        ]
+      },
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "S5 progression: normal full-stock enrolment grants only starting roots at grade one and native raw opening; empty reserve refuses paid practice",
+        "S5 funding: actual zero-to-first-50-energy reserve from native real-minute regeneration at rest; no direct credit or gather fallback",
+        "S5 progression: ordinary Player performs full-cost target-free thirty-second canonical practice; native zero-or-half-point gain, grade separation and persisted opportunity gate",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "S5 progression: pre-login cold SQL retains exact acquisitions, raw skills, opportunities, paid operation and resource balances",
+        "S5 progression: ordinary Player cold login preserves progress and paid terminal operation without replay/refund; only native passive increment allowed",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "assertion_count": 15,
+      "assemblies": [
+        {
+          "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll",
+          "sha256": "D3A9D9F9B82F6D2F8570091E812029A2FA1646AA2EDBA754E74487FB09545DC2"
+        },
+        {
+          "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll",
+          "sha256": "1493BE72A3E73A43319A176414437AA565CFFC66045567681E21A3BE2C71217B"
+        },
+        {
+          "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\MudsharpDatabaseLibrary.dll",
+          "sha256": "ED6DF4176B3BA3CD6E53613B1D657239678547B19D62051C5BF6E3EB57EE8259"
+        },
+        {
+          "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\ExpressionEngine.dll",
+          "sha256": "FE4181D4474F44877AEC9E5E1B5A398E64B389439941A4492E6D8B69002E5FB3"
+        }
+      ],
+      "boot_script_sha256": "866AD4AE8C69BE8F4B8667BEF9D23EDC4E541F31031D07CC545C4E4F3CE97AAB",
+      "native_helper": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.agents\\skills\\futuremud-mud-tester\\scripts\\mud_session.py",
+        "sha256": "D9FA6CF803BC10FEAF057A2675D89DABA9FC6987989F86277F53E298DA3A1A3D"
+      },
+      "owned_cleanup": {
+        "mud_stopped": true,
+        "database_deleted": true,
+        "mysql_gracefully_stopped_and_deleted": true
+      },
+      "base_run": {
+        "path": "C:/Temp/futuremud-s5-progression-native/20261016T001044Z_742a485a6f3140b6ab474ce7fa4a7220/base-world-run.json",
+        "sha256": "B7C21E2E26ED7E6A581997F768AD7DEDC737733635BC702E1CDC7BF3D38CBA5A"
+      },
+      "base_integrity": {
+        "Status": "RESTORED_AND_TARGETED_PACKAGE",
+        "ManifestHash": "0F94AF5BB637FF59DFEDED7ACCCC133828EF03375FE8C313D96710A4C1778E3B",
+        "SqlSha256": "D926190E1626FC866F83D159E4A25B230BEA3B8ABA8E9701952950B89A0F6A3C",
+        "BaseSourceCompatibilityRule": "inert-equipped-item-serializer-and-helper-20261016",
+        "ExecutedSeeders": [
+          "DatabaseSeeder.Seeders.ArmageddonMagicSeeder"
+        ],
+        "FullReplayExecuted": false,
+        "CanonicalSqlUnchanged": true,
+        "DumpRoundTripVerified": true,
+        "PackageMode": "Classic",
+        "LaterSteps": []
+      }
+    },
+    "Simple": {
+      "status": "PASS",
+      "runner": {
+        "path": "C:/Temp/futuremud-s5-progression-native/20261016T003348Z_3d5a86965e044178bf11597b9c9a9f42/summary.json",
+        "sha256": "A20B444621996C22377C18CFA26340303276E8E7896A5618AD80CDB2E649DBF3"
+      },
+      "boot": {
+        "path": "../prepared-catalogue-boot-native-s4-stock-8e4e5b2d32534b6999c99a71d4345062/boot-latest.json",
+        "sha256": "08C3C827F7A514A0A790D52718A780AE729EFFE8C8ECA43FB603A8C5434D280B"
+      },
+      "input": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-stock-attunement-input_df3d22d6b132415ab6911b9bf4df4237.json",
+        "sha256": "A4595AAC03C9697CC2DA26E0008C768E1B9AF00DC8D387412FC2A601A0034A80"
+      },
+      "console": {
+        "path": "C:/Temp/s5-progression-native-simple4.log",
+        "sha256": "83422A6B4EEEFF5D0AB6EBCF6A96BE82C59784DBA24D36E36CEA18F2480CC15D"
+      },
+      "source_start": "2C3D78D49C2CC3998FE181E96553C1EDC0D6904C3F5E284F8C173981CD7EEB5C",
+      "source_end": "2C3D78D49C2CC3998FE181E96553C1EDC0D6904C3F5E284F8C173981CD7EEB5C",
+      "source_stable": true,
+      "source_manifest": {
+        "path": "C:/Temp/futuremud-s5-progression-native/20261016T003348Z_3d5a86965e044178bf11597b9c9a9f42/source-start.json",
+        "sha256": "2C3D78D49C2CC3998FE181E96553C1EDC0D6904C3F5E284F8C173981CD7EEB5C"
+      },
+      "config": {
+        "mode": "Simple",
+        "capacity_attribute": 5,
+        "capacity_raw": 25,
+        "capacity": 136,
+        "opening": 10,
+        "threshold": 15,
+        "improver": "<Definition Chance='0.1' Expression='0.5' ImproveOnFail='true' ImproveOnSuccess='true' DifficultyThresholdInterval='0' NoGainSecondsDiceExpression='60' ImprovementProg='0'/>",
+        "generator": "<Definition>\r\n  <WhichResource>2</WhichResource>\r\n  <AmountPerMinute>2</AmountPerMinute>\r\n  <ConsciousOnly>true</ConsciousOnly>\r\n  <RestMultiplier>2</RestMultiplier>\r\n</Definition>",
+        "all_spells_count": 24,
+        "starting_roots_count": 6
+      },
+      "case_values": {
+        "status": "PASS",
+        "mode": "Simple",
+        "funding": [
+          {
+            "elapsed_seconds": 26.729,
+            "before": 0.0,
+            "after": 4.0
+          },
+          {
+            "elapsed_seconds": 88.473,
+            "before": 4.0,
+            "after": 8.0
+          },
+          {
+            "elapsed_seconds": 142.215,
+            "before": 8.0,
+            "after": 12.0
+          },
+          {
+            "elapsed_seconds": 204.375,
+            "before": 12.0,
+            "after": 16.0
+          },
+          {
+            "elapsed_seconds": 266.588,
+            "before": 16.0,
+            "after": 20.0
+          },
+          {
+            "elapsed_seconds": 328.714,
+            "before": 20.0,
+            "after": 24.0
+          },
+          {
+            "elapsed_seconds": 381.936,
+            "before": 24.0,
+            "after": 28.0
+          },
+          {
+            "elapsed_seconds": 444.123,
+            "before": 28.0,
+            "after": 32.0
+          },
+          {
+            "elapsed_seconds": 506.248,
+            "before": 32.0,
+            "after": 36.0
+          },
+          {
+            "elapsed_seconds": 568.109,
+            "before": 36.0,
+            "after": 40.0
+          },
+          {
+            "elapsed_seconds": 621.291,
+            "before": 40.0,
+            "after": 44.0
+          },
+          {
+            "elapsed_seconds": 683.412,
+            "before": 44.0,
+            "after": 48.0
+          },
+          {
+            "elapsed_seconds": 745.325,
+            "before": 48.0,
+            "after": 52.0
+          }
+        ],
+        "authority_by_phase": {
+          "first": [
+            [
+              "0",
+              "2"
+            ]
+          ],
+          "cold": [
+            [
+              "0",
+              "2"
+            ]
+          ]
+        },
+        "opening": 10.0,
+        "starting_roots": [
+          [
+            "20",
+            "1"
+          ],
+          [
+            "43",
+            "1"
+          ],
+          [
+            "69",
+            "1"
+          ],
+          [
+            "80",
+            "1"
+          ],
+          [
+            "91",
+            "1"
+          ],
+          [
+            "143",
+            "1"
+          ]
+        ],
+        "before_rest_balance": 0.0,
+        "funding_elapsed_seconds": 745.389,
+        "funded_balance": 52.0,
+        "reserve_before_practice": 52.0,
+        "reserve_after_payment": 2.0,
+        "raw_before": 10.0,
+        "raw_after": 10.0,
+        "paid": 50,
+        "saved_balance": 2.0,
+        "cold_status": "PASS",
+        "cold_balance": 2.0
+      },
+      "operation": {
+        "id": "b7c53889-dd1a-4a01-a5f5-3420c438e09d",
+        "stage": "Completed",
+        "created_utc": "2026-10-16 00:54:35.347393",
+        "deadline_utc": "2026-10-16T00:55:05.3473935Z",
+        "skill_eligible": "true",
+        "mastery_eligible": "false",
+        "costs": [
+          {
+            "holder": "2",
+            "resource": "2",
+            "amount": "50",
+            "before": "52"
+          }
+        ]
+      },
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "S5 progression: normal full-stock enrolment grants only starting roots at grade one and native raw opening; empty reserve refuses paid practice",
+        "S5 funding: actual zero-to-first-50-energy reserve from native real-minute regeneration at rest; no direct credit or gather fallback",
+        "S5 progression: ordinary Player performs full-cost target-free thirty-second canonical practice; native zero-or-half-point gain, grade separation and persisted opportunity gate",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "S5 progression: pre-login cold SQL retains exact acquisitions, raw skills, opportunities, paid operation and resource balances",
+        "S5 progression: ordinary Player cold login preserves progress and paid terminal operation without replay/refund; only native passive increment allowed",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "assertion_count": 15,
+      "assemblies": [
+        {
+          "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll",
+          "sha256": "D3A9D9F9B82F6D2F8570091E812029A2FA1646AA2EDBA754E74487FB09545DC2"
+        },
+        {
+          "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll",
+          "sha256": "1493BE72A3E73A43319A176414437AA565CFFC66045567681E21A3BE2C71217B"
+        },
+        {
+          "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\MudsharpDatabaseLibrary.dll",
+          "sha256": "ED6DF4176B3BA3CD6E53613B1D657239678547B19D62051C5BF6E3EB57EE8259"
+        },
+        {
+          "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\ExpressionEngine.dll",
+          "sha256": "FE4181D4474F44877AEC9E5E1B5A398E64B389439941A4492E6D8B69002E5FB3"
+        }
+      ],
+      "boot_script_sha256": "866AD4AE8C69BE8F4B8667BEF9D23EDC4E541F31031D07CC545C4E4F3CE97AAB",
+      "native_helper": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.agents\\skills\\futuremud-mud-tester\\scripts\\mud_session.py",
+        "sha256": "D9FA6CF803BC10FEAF057A2675D89DABA9FC6987989F86277F53E298DA3A1A3D"
+      },
+      "owned_cleanup": {
+        "mud_stopped": true,
+        "database_deleted": true,
+        "mysql_gracefully_stopped_and_deleted": true
+      },
+      "base_run": {
+        "path": "C:/Temp/futuremud-s5-progression-native/20261016T003348Z_3d5a86965e044178bf11597b9c9a9f42/base-world-run.json",
+        "sha256": "26A71CDA3CC267C31E6AFD6FFAB52C316AD4412C4417EA54514F7C93EDD916AA"
+      },
+      "base_integrity": {
+        "Status": "RESTORED_AND_TARGETED_PACKAGE",
+        "ManifestHash": "0F94AF5BB637FF59DFEDED7ACCCC133828EF03375FE8C313D96710A4C1778E3B",
+        "SqlSha256": "D926190E1626FC866F83D159E4A25B230BEA3B8ABA8E9701952950B89A0F6A3C",
+        "BaseSourceCompatibilityRule": "inert-equipped-item-serializer-and-helper-20261016",
+        "ExecutedSeeders": [
+          "DatabaseSeeder.Seeders.ArmageddonMagicSeeder"
+        ],
+        "FullReplayExecuted": false,
+        "CanonicalSqlUnchanged": true,
+        "DumpRoundTripVerified": true,
+        "PackageMode": "Simple",
+        "LaterSteps": []
+      }
+    }
+  },
+  "managed": [
+    {
+      "path": "C:/Temp/s5-completion-managed/core/20261015T234429Z-ff4d77585566/summary.json",
+      "sha256": "B246C887C9BB6DA6220E5600041843AAAB86CF39B8BB0DB0E99F2CDD427B9142",
+      "passed": 271,
+      "counts": {
+        "executed": 271,
+        "passed": 271,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 271
+      },
+      "filter": "FullyQualifiedName~ArmageddonStockProgressionRuntimeTests|FullyQualifiedName~MagicCastingPracticeTests|FullyQualifiedName~MagicCastingOwnershipTests|FullyQualifiedName~ChargedMagicDevice|FullyQualifiedName~ArmageddonOneUseReloadTests",
+      "source_start": "eb14907f3283b6644facb3a7d681e63a078777e0ee53f8e427abe5b60a3ab2b0",
+      "source_end": "eb14907f3283b6644facb3a7d681e63a078777e0ee53f8e427abe5b60a3ab2b0",
+      "source_stable": true,
+      "duration_seconds": 55.2554034,
+      "sdk": "10.0.401",
+      "configuration": "Debug"
+    },
+    {
+      "path": "C:/Temp/s5-completion-managed/seeder/20261015T234535Z-d3f6f76e9d20/summary.json",
+      "sha256": "5C773F345A981B5AB6AAB714A8EAF5835B04D0BF00F2063C128B8CA9FB25CB52",
+      "passed": 2,
+      "counts": {
+        "executed": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 2
+      },
+      "filter": "FullyQualifiedName~FocusDevices_LockedTwelveHaveNativeRecipesRealAllowListsAndDisabledGates",
+      "source_start": "78d3736c64dc4996219b512bb15e21bc7a4a30578cd76cdc9b4a15284e60aa97",
+      "source_end": "78d3736c64dc4996219b512bb15e21bc7a4a30578cd76cdc9b4a15284e60aa97",
+      "source_stable": true,
+      "duration_seconds": 30.3087791,
+      "sdk": "10.0.401",
+      "configuration": "Debug"
+    }
+  ],
+  "code_sha256": {
+    "MudSharpCore Unit Tests/ArmageddonStockProgressionRuntimeTests.cs": "FA757AD656B57D04DD706FD4E6B7D5AB79B1102629861CEE64FCAA87AA8A86D6",
+    "MudSharpCore Unit Tests/ArmageddonStockProgressionRuntimeTests.Practice.cs": "CF9F89A44D29A173AC75C12809AADCE322F8C21326821440FD40DE8F43BEAF0A",
+    "tests/ArmageddonPreparedSeederNativeHarness/PreparedCatalogueBootSmoke.py": "866AD4AE8C69BE8F4B8667BEF9D23EDC4E541F31031D07CC545C4E4F3CE97AAB",
+    "tests/ArmageddonPreparedSeederNativeHarness/PreparedS5ProgressionSmoke.py": "09FBEB075EC000C7CF183349CA5C9CE874F2FC6EDE9043A5317CD575019CCF86",
+    "tests/ArmageddonPreparedSeederNativeHarness/Program.BaseWorldFixture.cs": "D39F28CBBF422108AF28FE4169EC9B905D661C0C06E9D6ECB69C746737AAB16C",
+    "tests/ArmageddonPreparedSeederNativeHarness/Program.BaseWorldFixture.Compatibility.cs": "85D92E0183F4EEA3C66143A0BB1642B3C09F67771EF318A3B19245356348E809",
+    "tests/ArmageddonPreparedSeederNativeHarness/Program.PreparedSeeder.Replay.cs": "588BECD91E8A036900A25C17F759BD1D6F2A2E9F4057F5B43C1F245CF1996C7F",
+    "tests/ArmageddonPreparedSeederNativeHarness/Program.StockAttunement.cs": "ECBA9AD6C86CA57CA9BF3AB7F703358C3D0B6CE0CF60BA8B02B3DE1D40B45A57",
+    "tests/ArmageddonPreparedSeederNativeHarness/Program.S5ProgressionFixture.cs": "72CE6A6B5985FCBF10BC658BF5111C7415AC5A13F9D1549A5768AD2C69B3FFF5",
+    "tests/ArmageddonPreparedSeederNativeHarness/Run-IsolatedPreparedSeeder.ps1": "E51860D96A7A1897745989B30F25542F8430BB466AA2AAECBD359A8652C62CC4"
+  },
+  "cross_mode_inputs": {
+    "path_hash_records_identical": true,
+    "count": 8403,
+    "canonical_sorted_path_hash_map_sha256": "80A9FBBBB03F27306204916088CA2743E27155E62E04C5E97C3D06EDB88E84A1",
+    "note": "Raw serialized manifest digests differ, but every recorded path/hash pair is identical; each start/end digest is stable."
+  },
+  "base_fixture": {
+    "path": ".artifacts/pre-armageddon-base-fixtures/20261015T121003Z_c1b183833df74237b9eeeba5edaed680/base-world.json",
+    "sha256": "0F94AF5BB637FF59DFEDED7ACCCC133828EF03375FE8C313D96710A4C1778E3B",
+    "sql_sha256": "D926190E1626FC866F83D159E4A25B230BEA3B8ABA8E9701952950B89A0F6A3C",
+    "compatibility_rule": "inert-equipped-item-serializer-and-helper-20261016",
+    "audit": "2775 recorded inputs: one exact serializer classification change plus one exact side-effect-free helper addition; no other changed/added/removed base inputs.",
+    "strict_pins_retained": [
+      "all other source inputs",
+      "SQL",
+      "schema",
+      "content",
+      "answers",
+      "migrations",
+      "blank snapshot pins"
+    ],
+    "safety_checks": 38,
+    "safety": {
+      "path": "C:/Temp/s5-base-compat-safety.log",
+      "sha256": "FDB4D77FD2AFFE5CA6A3B861BD07F544FD197DB2FE76647C97E34CDBAC709A6A"
+    },
+    "actual_validation": {
+      "path": "C:/Temp/s5-base-compat-actual.log",
+      "sha256": "B33A067382B4D5658A274F385C92F0E0FA1C347C8660AC8BD1FCE7DB332881B4"
+    }
+  },
+  "charged_mend_flesh": {
+    "stock_allowlist": [
+      "arm.spell.mend_flesh"
+    ],
+    "historical_native": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-10c62a3e/receipt.json",
+      "sha256": "E511DAC76CE07561BA2ED6CCD599E211329E9B2E4E0881CE2AD86EB290965D2F"
+    },
+    "checkpoint": {
+      "path": "C:/Users/luker/.codex/worktrees/377e/FutureMUD/Design Documents/Magic/Armageddon_Recharge_Checkpoint_20261011.json",
+      "sha256": "FC706B7EFC504C83D1A0D5A65CC6CCAC4FF3A47814846F063E8352DD0A612795"
+    },
+    "assumptions": "Unchanged payment/device journal/state/component/Mend/stock-authoring paths. Generic snapshot writer changed typed scalar serialization, but Mend has no scalar bindings; its expression capture path is unchanged. Current managed device tests and stock allowlist checks pass.",
+    "native_values": "Two paid grade3 charges at100 each; five18-unit releases;8 produced/5 consumed/3 retained;11 refusal cases and paid forced-cold incomplete reservation without refund/replay. N23 remains bounded shared evidence, not all candidate payload qualification.",
+    "stock_wrapper": "S4 focus/device current-checkpoint15-assertion native sample and current Seeder2-case allowlist/gates regression retained."
+  },
+  "restorative_mud": {
+    "prior_portable_receipt": {
+      "path": "C:/Users/luker/.codex/worktrees/377e/FutureMUD/Design Documents/Magic/Armageddon_S5_Qualification_20261015.json",
+      "sha256": "E5507F52240F10E2B181382996DDDB5780AF2A2BCBD3F2C66DECD0E0027401A3"
+    },
+    "native_assertions": 15,
+    "native_grades": [
+      1
+    ],
+    "managed_grades": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "managed_focused_passed": 64,
+    "historical_full_core_passed": 7576,
+    "prior_failed_attempts": 5,
+    "scope": "Exact permanent one-gram bound dose,10*grade one-use budget, paid grade1 production/application/cold; prior controlled wound/raw100/Admin/Self-gather scaffolding remains explicit."
+  },
+  "candidates": {
+    "charged": 36,
+    "substance": 32,
+    "stock_scroll": 0,
+    "unapproved_charged_disabled": 35,
+    "unapproved_substance_disabled": 31
+  },
+  "analytical_affordability": {
+    "normal_grade1_cost": 50,
+    "ideal_standing_funding_minutes": 25,
+    "ideal_rest_funding_minutes": 12.5,
+    "next_grade_overreach_cost": 112.5,
+    "raw_attribute17_cap": 112,
+    "raw_attribute18_cap": 115,
+    "classic_boundary_expected_practices": 400,
+    "simple_boundary_expected_practices": 100,
+    "assumptions": "Expectation only: independent chance0.1/gain0.5, fixed controlledgrade1, cost50, Classicraw60→80 orSimple10→15; stochastic outcomes and other eligibility gates affect actual campaigns. Not native measured time."
+  },
+  "new_failed_native_attempts": [
+    {
+      "path": "C:/Temp/futuremud-s5-progression-native/20261015T234847Z_459889e18aa6433ca45037c165126216/summary.json",
+      "sha256": "676A90DA838A91EABF717034091B7D6FFD92F79868708402BCB848D5E680DFBC",
+      "reason": "Old post-install owned Kindle update refused extra FutureProgs_Parameters table; no learner/native funding; switched to current package on sealed clean base.",
+      "simple_status": "NOT_RUN",
+      "owned_cleanup_complete": true,
+      "native_exit": 1,
+      "source_stable": true,
+      "source_start": "2B3ACA52A8B1D589A494919192D4EE121FAA5A7094F1C8083A2F108A2863F842",
+      "source_end": "2B3ACA52A8B1D589A494919192D4EE121FAA5A7094F1C8083A2F108A2863F842"
+    },
+    {
+      "path": "C:/Temp/futuremud-s5-progression-native/20261015T235559Z_00c78f0e1540407ca352f4d7c3a9f078/summary.json",
+      "sha256": "292A7D017A93ED81DD1FEDFAF5A831F5C4ED5CADFD3CFE52E7E99A03052EFF22",
+      "reason": "Clean base source preflight rejected two reviewed inert input changes; no MUD or learner. Exact two-hash compatibility reversal plus full fingerprint safety checks added.",
+      "simple_status": "NOT_RUN",
+      "owned_cleanup_complete": true,
+      "native_exit": 1,
+      "source_stable": true,
+      "source_start": "18D70A0B89694DB19605E69BA717A701425826348F151922C17A48EFF5C79F69",
+      "source_end": "18D70A0B89694DB19605E69BA717A701425826348F151922C17A48EFF5C79F69"
+    },
+    {
+      "path": "C:/Temp/futuremud-s5-progression-native/20261016T000058Z_0c7178dcdca1449b9c2180de3e207094/summary.json",
+      "sha256": "14744DC9DDB24EC40C648073A920DD57D0285668A05C90C00471C18CD7170702",
+      "boot": "../prepared-catalogue-boot-native-s4-stock-40f27f51c4a9408ea90b65647ea6519e/boot-latest.json",
+      "boot_sha256": "65FA5C1BF974E87D145053B2187C94E8C8E4FCC0F8A1CFC6FE2729351FD6CF3B",
+      "reason": "Reached native startup but raw MySQL bit(1) comparison rejected learner non-admin check. Actual old SQL value was not retained; no ordinary player login/enrolment/funding/practice. Query now casts unsigned and records avatar/account authority.",
+      "simple_status": "NOT_RUN",
+      "owned_cleanup_complete": true,
+      "native_exit": 1,
+      "source_stable": true,
+      "source_start": "E2EA1142B3BBEBBA1CDC44CD6E7FB34E63EE7F77B7514ACAAA47439EF54283DB",
+      "source_end": "E2EA1142B3BBEBBA1CDC44CD6E7FB34E63EE7F77B7514ACAAA47439EF54283DB"
+    }
+  ],
+  "compile_failures": [
+    {
+      "path": "C:/Temp/s5-progression-build.log",
+      "reason": "New harness fixture PermissionLevel import missing; one compiler error; no native execution.",
+      "sha256": "CAE9F09AB3D321CCFAEB9606045E4E770790771AFB59010CF64EC1388F687CBB"
+    },
+    {
+      "path": "C:/Temp/s5-completion-managed/core/20261015T234232Z-272872ba680a/summary.json",
+      "sha256": "C1CBD94FACCFE933EE46267F77A2E8E72A35500936A64C1F020863EF33762E27",
+      "reason": "New test CharacterState namespace missing; no tests executed; Seeder not run."
+    },
+    {
+      "path": "C:/Temp/s5-completion-managed/core/20261015T234337Z-2fe4475b922b/summary.json",
+      "sha256": "67A0660484DCE38180FDDCFF66E59C47E52B1D4AAAE0F1837284FEDA56841054",
+      "reason": "New test TraitUseType namespace missing; no tests executed; Seeder not run."
+    }
+  ],
+  "bit_transport_probe": {
+    "query": "SELECT HEX(b'0'), CAST(b'0' AS UNSIGNED), b'0'",
+    "stdout_repr": "b'00\\t0\\t\\\\0\\r\\n'",
+    "sha256": "F9F3487C01C9CC73DAD60BD1FD19F0EBFC0FA32308CC5B95EE470AB80390ADBE",
+    "exit_code": 0,
+    "native_table_mutations": false,
+    "scope": "Literal-only read on owned Simple MySQL; raw false BIT batch transport differs from text0, numeric cast0."
+  },
+  "baseline_ci": {
+    "head": "97062229ce9907ac22f14eb60bfee90616a4e582",
+    "pr": {
+      "status": "PASS",
+      "platforms": [
+        "ubuntu-latest",
+        "windows-latest"
+      ],
+      "url": "https://github.com/FutureMUD/FutureMUD/actions/runs/38823633344",
+      "receipt": {
+        "path": "C:/Temp/s5-baseline-pr-run.json",
+        "sha256": "9065A4A683ACFB48C25FE40BF2D29FA509C493FF451F79930F56D147944C1A5D"
+      }
+    },
+    "push": {
+      "linux": "PASS",
+      "windows": "CANCELLED_NO_TEST_RESULT",
+      "url": "https://github.com/FutureMUD/FutureMUD/actions/runs/38823626241",
+      "job": {
+        "path": "C:/Temp/s5-baseline-windows-push-job.json",
+        "sha256": "2F6BBB08FCD893C37E3563F427B23FC6A1F0C524F2694B1FFAD07BDE85D8AFA8"
+      },
+      "run": {
+        "path": "C:/Temp/s5-baseline-push-run.json",
+        "sha256": "231E0EAE1D1987DE1C928E6732DCA3A69EEFE623789386B2CD901848D797528E"
+      },
+      "log_retrieval": "gh reported log not found; empty redirected file is not evidence of test execution or success."
+    },
+    "new_head": "Verify after publication; record outcome in PR/current task without making a recursive documentation-only CI commit."
+  },
+  "remaining_gates": [
+    "No native hours-long opening-to-branch campaign; deterministic prethreshold tests cover edge contracts.",
+    "No native Cartesian product for every spell/grade; current S4 inherited/direct/sampled strategy governs.",
+    "No S6 Classic/Simple x classes on/off fresh-install matrix, ordinary chargen guide, Debug/Release readiness, N24 ownership/rerun campaign or N25 cross-feature completion.",
+    "Release/package/Class/use/craft/quiet-area/unqualified-carrier gates disabled. No merge or deployment."
+  ],
+  "environment_blockers": [],
+  "power_tag_clarification": "Already resolved in MagicPowerBase.CanInvokePower: explicit matching tag suppression plus existing permission prog; no UseCommand wrapper or global effect-admission gate."
+}

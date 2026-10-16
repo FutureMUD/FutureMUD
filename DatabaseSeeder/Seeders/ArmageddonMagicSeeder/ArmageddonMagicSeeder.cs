@@ -75,7 +75,10 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 			var focusDevices = ArmageddonStockFocusDeviceInstaller.Install(factory);
 			var focusDeviceReport = string.Join("\n", focusDevices.Messages);
 			if (focusDevices.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(focusDeviceReport);
-			return $"Armageddon fixed settings ready: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Settings and shared answers are durable.\n{progressionReport}\n{catalogueReport}\n{spellReport}\n{focusDeviceReport}\nS4 gameplay qualification and S5-S6 remain pending; the full magic package is not installed.";
+			var completeProgression = ArmageddonProgressionInstaller.Install(factory, completeStock: true);
+			var completeProgressionReport = string.Join("\n", completeProgression.Messages);
+			if (completeProgression.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(completeProgressionReport);
+			return $"Armageddon fixed settings ready: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Settings and shared answers are durable.\n{progressionReport}\n{catalogueReport}\n{spellReport}\n{focusDeviceReport}\n{completeProgressionReport}\nComplete stock admission/support defaults are installed with availability disabled. S6 gathering integration and whole-programme readiness remain pending; Release is disabled.";
 		}
 		if (!questionAnswers.TryGetValue(InstallQuestion, out var answer) || !IsYes(answer))
 			return "Armageddon package declined. No package content or player state changed. Generic answer-memory housekeeping may still run.";

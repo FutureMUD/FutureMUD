@@ -24,7 +24,7 @@ public static partial class ArmageddonProgressionInstaller
 	private sealed record Spec(Type Type, string Key, string Name);
 
 	public static ArmageddonInstallResult Install(Func<FuturemudDatabaseContext> factory,
-		Action<ArmageddonInstallCheckpoint>? checkpoint = null)
+		Action<ArmageddonInstallCheckpoint>? checkpoint = null, bool completeStock = false)
 	{
 		using var db = factory();
 		var settings = ArmageddonInstallation.Read(db) ?? throw new InvalidOperationException("Fix Armageddon installation settings before progression content.");
@@ -52,6 +52,10 @@ public static partial class ArmageddonProgressionInstaller
 				}
 				else if (Collision(db, spec)) messages.Add($"{spec.Key}: unowned name/verb collision; no automatic adoption.");
 			}
+			if (messages.Count > 0) return new(ArmageddonInstallStatus.Blocked, messages.AsReadOnly(), ids);
+			var completedPolicies = records.Values.Where(x => x.EntityType == nameof(MagicCapability)).Select(HasCompleteStockPolicy).ToArray();
+			var hydrate = completeStock || completedPolicies.Any(x => x);
+			var spells = hydrate ? CompleteStockSpells(db, records, messages) : null;
 			if (messages.Count > 0) return new(ArmageddonInstallStatus.Blocked, messages.AsReadOnly(), ids);
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.PreflightComplete);
 			T Put<T>(string key, T value) where T : class => Apply(db, specs.Single(x => x.Key == key), value, records, messages);
@@ -105,12 +109,14 @@ public static partial class ArmageddonProgressionInstaller
 			}
 			foreach (var cap in stock.Capabilities)
 			{
-				var casting = stock.Casting(cap, traits, resourceIds[cap.ResourceKey], sourceResource: source.Id);
+				var casting = stock.Casting(cap, traits, resourceIds[cap.ResourceKey], spells, source.Id);
+				casting.SetAttributeValue("enabled", false);
 				var capability = Put(cap.Key, new MagicCapability { Name = "Armageddon " + cap.Name, CapabilityModel = "skilllevel", PowerLevel = 1,
 					MagicSchoolId = schoolIds[cap.ResourceKey.Replace("arm.resource.", "arm.school.", StringComparison.Ordinal)],
 					Definition = new XElement("Definition", new XElement("ConcentrationTrait", (long)casting.Attribute("trait")!),
 						new XElement("ConcentrationCapabilityExpression", "1"), new XElement("ConcentrationDifficultyExpression", "5"),
-						new XElement("Regenerators"), casting).ToString() });
+						new XElement("Regenerators", hydrate && generators.TryGetValue(cap.ResourceKey, out var generatorId)
+							? new XElement("Regenerator", generatorId) : null), casting).ToString() });
 				var merit = Put(cap.MeritKey, new Merit { Name = "Armageddon " + cap.Name + " caster", Type = "Magic Capability", MeritScope = 2, MeritType = 0,
 					Definition = new XElement("Definition", new XElement("ChargenAvailableProg", Native(ArmageddonNativeBinding.AlwaysFalseProg)),
 						new XElement("ApplicabilityProg", Native(ArmageddonNativeBinding.AlwaysTrueProg)),
@@ -132,7 +138,7 @@ public static partial class ArmageddonProgressionInstaller
 			transaction?.Commit();
 			committed = true;
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.AfterCommit);
-			messages.Add($"S2 progression foundations committed: {settings.Mode}, {traits.Count} native skills, ten capability/merit pairs, {(settings.ClassesEnabled ? 10 : 0)} Class roles, eight reserves and seven native regenerators. Complete {stock.Bindings.Count(x => !x.Support)} spell admission plans retained in the embedded approved graph. Policies and class availability remain disabled pending qualified S3/S4 stock; no partial active rosters. No player state changed.");
+			messages.Add($"Progression foundations committed: {settings.Mode}, {traits.Count} native skills, ten capability/merit pairs, {(settings.ClassesEnabled ? 10 : 0)} Class roles, eight reserves and seven native regenerators. {stock.Bindings.Count(x => !x.Support)} spell admission plans {(hydrate ? "materialised with real canonical identities and native support grants" : "retained in the embedded approved graph")}. Casting and Class availability remain disabled. Sorcerer gathering requires its separately authored source/economy policy. No player state changed.");
 			return new(ArmageddonInstallStatus.Completed, messages.AsReadOnly(), ids);
 		}
 		catch (Exception error)

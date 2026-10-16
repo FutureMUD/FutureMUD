@@ -84,6 +84,9 @@ def definition_contract(entry):
     for node in root.iter():
         if node.tag in labels and node.text and node.text.strip().isdigit() and int(node.text) > 0:
             expected.add((labels[node.tag], int(node.text)))
+        if node.tag == 'Option' and node.get('kind') in ('Trait', 'MagicResource'):
+            kind = 'TraitDefinition' if node.get('kind') == 'Trait' else 'MagicResource'
+            expected.add((kind, positive(int(node.get('target', '0')), 'Kindle option target')))
         if node.tag == 'Template' and node.get('grade'):
             expected.add(('NpcTemplate', int(node.text or '0')))
         if node.tag == 'Effect' and node.get('trait'):

@@ -18,6 +18,9 @@ param([string]$EvidenceRoot,
 	[switch]$FocusDeviceSmokeOnly,
 	[switch]$S5DoseSmokeOnly,
 	[switch]$S5ProgressionSmokeOnly,
+	[switch]$S6IntegrationSmokeOnly,
+	[switch]$S6ReplayCapture,
+	[ValidateSet('Off','On')][string]$EarlierClasses = 'Off',
 	[switch]$FamilySmokeOnly,
 	[ValidateSet('all', 'corpse', 'projection', 'voice', 'pocket', 'kindle')][string]$FamilySmokeCases = 'all',
 	[ValidateSet('PsionicsSeeder', 'EnvironmentalExposureSeeder')][string[]]$LaterSteps = @(),
@@ -43,6 +46,17 @@ $previousSnapshotConnection = $env:FUTUREMUD_SNAPSHOT_CONNECTION_STRING
 $ownedEnvironmentNames = @('FUTUREMUD_BASE_WORLD_FIXTURE', 'FUTUREMUD_BASE_WORLD_FIXTURE_SHA256', 'FUTUREMUD_BASE_PACKAGE_MODE', 'FUTUREMUD_BASE_LATER_STEPS', 'FUTUREMUD_BASE_WORLD_RECEIPT', 'FUTUREMUD_BASE_FRESH_INSTALL_CHECK', 'FUTUREMUD_GATHERING_TEST_CONNECTION', 'FUTUREMUD_OWNED_MYSQL_UUID', 'FUTUREMUD_OWNED_MYSQL_PORT', 'FUTUREMUD_OWNED_MYSQL_DATADIR', 'FUTUREMUD_CAPACITY_ACCEPTANCE_OUTPUT', 'FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE', 'FUTUREMUD_S4_GATE_SMOKE_ONLY', 'FUTUREMUD_S4_GATE_FIXTURE', 'FUTUREMUD_S4_GATE_FIXTURE_SHA256', 'FUTUREMUD_CATALOGUE_BOOT_SCOPE', 'FUTUREMUD_PREPARED_REPLAY_BOOT_SCRIPT', 'FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT')
 $ownedPreviousEnvironment = @{}
 foreach ($ownedName in $ownedEnvironmentNames) { $ownedPreviousEnvironment[$ownedName] = [Environment]::GetEnvironmentVariable($ownedName) }
+if ($S6IntegrationSmokeOnly -and ($S5ProgressionSmokeOnly -or $S5DoseSmokeOnly -or $FocusDeviceSmokeOnly -or $FamilySmokeOnly -or $RemainingSmokeOnly -or $GateSmokeOnly -or $ExchangeSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -ne 'base-fixture-package')) { throw 'S6 integration requires its own isolated pinned-base current-package lane.' }
+if ($S6ReplayCapture -and ($Mode -ne 'base-fixture-capture' -or $EarlierClasses -ne 'On')) { throw 'S6 full replay capture requires a fresh classes-on base capture.' }
+foreach ($entry in @{
+	FUTUREMUD_S6_INTEGRATION_SMOKE_ONLY = $(if ($S6IntegrationSmokeOnly) { '1' } else { $null })
+	FUTUREMUD_S6_REPLAY_CAPTURE = $(if ($S6ReplayCapture) { '1' } else { $null })
+	FUTUREMUD_BASE_EARLIER_CLASSES = $EarlierClasses
+}.GetEnumerator()) {
+	$ownedEnvironmentNames += $entry.Key
+	$ownedPreviousEnvironment[$entry.Key] = [Environment]::GetEnvironmentVariable($entry.Key)
+	[Environment]::SetEnvironmentVariable($entry.Key, $entry.Value)
+}
 if ($GateSmokeOnly -and $QualificationScope -ne 's4-stock') { throw 'Gate-only native qualification requires -QualificationScope s4-stock.' }
 if ($ExchangeSmokeOnly -and ($GateSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -notin @('base-fixture-package', 'exchange-fixture-restore'))) { throw 'Exchange-only qualification requires a separate s4-stock package or exact Exchange restore run.' }
 if ($RemainingSmokeOnly -and ($GateSmokeOnly -or $ExchangeSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -ne 'base-fixture-package')) { throw 'Remaining-stock qualification requires its separate s4-stock package lane.' }
@@ -306,7 +320,11 @@ try {
 			}
 			$stockAssertions = @($boot.assertions).Count
 			$stockCampaignAssertions = @($boot.assertions | Where-Object { $_ -like '*S4 stock*' }).Count
-			if ($S5ProgressionSmokeOnly) {
+			if ($S6IntegrationSmokeOnly) {
+				if ($boot.status -ne 'PASS' -or $boot.s6_integration.status -ne 'PASS' -or $boot.s6_integration.cold_status -ne 'PASS' -or $stockFirstLoaded -ne 152 -or $stockColdLoaded -ne 152 -or -not $boot.owned_mud_processes_stopped) { throw 'S6 integration requires all152 definitions and ordinary-player first/cold assertions.' }
+				Write-Output "s6IntegrationQualification=verified mode=$PackageMode classes=$EarlierClasses assertions=$stockAssertions"
+			}
+			elseif ($S5ProgressionSmokeOnly) {
 				if ($boot.status -ne 'PASS' -or $boot.s5_progression.status -ne 'PASS' -or $boot.s5_progression.cold_status -ne 'PASS' -or -not $boot.owned_mud_processes_stopped) { throw 'S5 normal progression/funding first/cold qualification is incomplete.' }
 				Write-Output "s5ProgressionQualification=verified assertions=$stockAssertions"
 			}
@@ -357,8 +375,8 @@ try {
 	Write-Output "nativeHarnessExit=$runExit"
 	$sourceEnd = Write-SourceEvidence 'source-end'
 	$sourceStable = $sourceStart -eq $sourceEnd
-	$qualificationLimits = if ($S5ProgressionSmokeOnly) { 'S5 full-stock Earth ordinary Player acquisition and real funding/practice first-cold sample; separate shared-contract branching and approved carrier receipts complete S5 scope; no S6/Release qualification.' } elseif ($QualificationScope -eq 's4-stock') { 'Focused Telnet evidence is in stock_boot_receipt; no whole-package or S5 qualification.' } else { 'Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.' }
-	@{ revision = $revision; mode = $Mode; qualification_scope = $QualificationScope; gate_smoke_only = [bool]$GateSmokeOnly; exchange_smoke_only = [bool]$ExchangeSmokeOnly; remaining_smoke_only = [bool]$RemainingSmokeOnly; focus_device_smoke_only = [bool]$FocusDeviceSmokeOnly; s5_dose_smoke_only = [bool]$S5DoseSmokeOnly; s5_progression_smoke_only = [bool]$S5ProgressionSmokeOnly; family_smoke_only = [bool]$FamilySmokeOnly; family_smoke_cases = $FamilySmokeCases; focus_device_fixture = $FocusDeviceFixture; focus_device_fixture_sha256 = $FocusDeviceFixtureSha256; stock_first_loaded = $stockFirstLoaded; stock_cold_loaded = $stockColdLoaded; stock_assertions = $stockAssertions; stock_campaign_assertions = $stockCampaignAssertions; stock_boot_receipt = $stockBootReceipt; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
+	$qualificationLimits = if ($S6IntegrationSmokeOnly) { 'S6 inactive admission/support graph install cell and ordinary Player enrolment/cold sample; selected-Class service tests are separate from complete chargen approval/UI. Gathering inputs pending; no complete S6 or Release qualification.' } elseif ($S5ProgressionSmokeOnly) { 'S5 full-stock Earth ordinary Player acquisition and real funding/practice first-cold sample; separate shared-contract branching and approved carrier receipts complete S5 scope; no S6/Release qualification.' } elseif ($QualificationScope -eq 's4-stock') { 'Focused Telnet evidence is in stock_boot_receipt; no whole-package or S5 qualification.' } else { 'Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.' }
+	@{ revision = $revision; mode = $Mode; earlier_classes = $EarlierClasses; s6_integration_smoke_only = [bool]$S6IntegrationSmokeOnly; s6_replay_capture = [bool]$S6ReplayCapture; qualification_scope = $QualificationScope; gate_smoke_only = [bool]$GateSmokeOnly; exchange_smoke_only = [bool]$ExchangeSmokeOnly; remaining_smoke_only = [bool]$RemainingSmokeOnly; focus_device_smoke_only = [bool]$FocusDeviceSmokeOnly; s5_dose_smoke_only = [bool]$S5DoseSmokeOnly; s5_progression_smoke_only = [bool]$S5ProgressionSmokeOnly; family_smoke_only = [bool]$FamilySmokeOnly; family_smoke_cases = $FamilySmokeCases; focus_device_fixture = $FocusDeviceFixture; focus_device_fixture_sha256 = $FocusDeviceFixtureSha256; stock_first_loaded = $stockFirstLoaded; stock_cold_loaded = $stockColdLoaded; stock_assertions = $stockAssertions; stock_campaign_assertions = $stockCampaignAssertions; stock_boot_receipt = $stockBootReceipt; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
 		base_fixture = $BaseFixture; base_fixture_sha256 = $BaseFixtureSha256; gate_fixture = $GateFixture; gate_fixture_sha256 = $GateFixtureSha256; exchange_fixture = $ExchangeFixture; exchange_fixture_sha256 = $ExchangeFixtureSha256; package_mode = $PackageMode; later_steps = $LaterSteps; fresh_install_check = [bool]$FreshInstallCheck; base_receipt = (Join-Path $evidenceDirectory 'base-world-run.json'); process_root = $taskRoot; owned_port = $taskPort; limits = $qualificationLimits } |
 		ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $evidenceDirectory 'summary.json')
 	Write-Output "nativeSourceStable=$sourceStable sourceEnd=$sourceEnd"

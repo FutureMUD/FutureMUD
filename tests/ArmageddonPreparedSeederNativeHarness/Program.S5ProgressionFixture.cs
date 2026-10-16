@@ -24,6 +24,13 @@ internal static partial class GNHProgram
 		var spells = spec.SpellKeys.ToDictionary(x => x, x => claims[x]);
 		var reserve = claims[spec.ResourceKey];
 		var casting = stock.Casting(spec, traits, reserve, spells, claims[ArmageddonProgressionInstaller.SourceResourceKey]);
+		if (S6Integration)
+		{
+			casting = new XElement(XElement.Parse(db.MagicCapabilities.Single(x => x.Id == claims[spec.Key]).Definition).Element("Casting")!);
+			Require((bool?)casting.Attribute("enabled") == false && casting.Elements("Admission").Count() == spec.SpellKeys.Count,
+				"S6 must use the complete persisted stock policy, not reconstruct a missing graph.");
+			casting.SetAttributeValue("enabled", true); // Only the separate disposable qualification copy.
+		}
 		casting.SetAttributeValue("identity", Guid.NewGuid());
 		var generator = db.MagicGenerators.Single(x => x.Id == claims["arm.generator.earth"]);
 		var regen = XElement.Parse(generator.Definition);
@@ -94,7 +101,10 @@ internal static partial class GNHProgram
 			trait = traits[root.TraitKey], root = spells[root.ContentKey], child = spells[child.ContentKey], opening = root.Opening,
 			threshold = settings.Mode == ArmageddonProgressionMode.Classic ? child.ParentThreshold : child.MainThreshold,
 			roots = stock.Bindings.Where(x => x.CapabilityKey == spec.Key && x.Starting && !x.Support).Select(x => spells[x.ContentKey]).ToArray(),
-			all_spells = spells.Values.ToArray(), skill_ids = ownedTraits, improver = improver.Definition, generator = generator.Definition,
+			all_spells = spells.Values.ToArray(), skill_ids = ownedTraits,
+			starting_skills = stock.Bindings.Where(x => x.CapabilityKey == spec.Key && x.Starting).GroupBy(x => traits[x.TraitKey])
+				.ToDictionary(x => x.Key, x => x.Max(y => y.Opening)),
+			resource_name = db.MagicResources.Single(x => x.Id == reserve).Name, improver = improver.Definition, generator = generator.Definition,
 			use_gate = claims[ArmageddonStockFocusDeviceInstaller.UseGateKey], craft_gate = claims[ArmageddonStockFocusDeviceInstaller.CraftGateKey],
 			capacity_attribute = settings.CapacityAttribute, capacity_raw = capacityRaw, capacity, invoked = "armearth", rest_funding_timeout_seconds = 900,
 			limits = "Actual full stock Earth graph on a separate enabled qualification capability; original package gates stay false. New Player account/body; no initial mana, knowledge, skill or grade injection. Native stochastic gain may be zero; full branching uses separate deterministic shared-contract coverage." });

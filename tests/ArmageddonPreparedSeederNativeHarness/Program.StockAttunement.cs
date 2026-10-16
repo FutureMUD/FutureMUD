@@ -19,7 +19,7 @@ internal static partial class GNHProgram
 		var players = TraditionPlayers(database);
 		// S5 starts from the pinned clean base and a current targeted package install.
 		// Its progression qualification does not repeat the already accepted S4 rollback/resume campaign.
-		if (Environment.GetEnvironmentVariable("FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY") != "1")
+		if (!S6Integration && Environment.GetEnvironmentVariable("FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY") != "1")
 		{
 			var before = PreparedDatabaseChecksum(database);
 			var stopped = ArmageddonStockSpellInstaller.Install(factory, (_, stage) =>
@@ -46,9 +46,10 @@ internal static partial class GNHProgram
 		Require(packageCaps.Count == 10 && packageCaps.All(x => x is > 0) && packageCaps.Distinct().Count() == 10,
 			"S4 requires the ten distinct typed package capability identities.");
 		Require(db.MagicCapabilities.AsNoTracking().Where(x => packageCaps.Contains(x.Id)).AsEnumerable().All(x =>
-			XElement.Parse(x.Definition).Element("Casting") is { } casting && (bool?)casting.Attribute("enabled") == false && !casting.Elements("Admission").Any()),
+			XElement.Parse(x.Definition).Element("Casting") is { } casting && (bool?)casting.Attribute("enabled") == false),
 			"S4 installed a partial active package roster.");
-		Console.WriteLine(Environment.GetEnvironmentVariable("FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY") == "1"
+		Console.WriteLine(S6Integration ? "ARMS6-current-package=verified all-ten-package-caps-disabled; prior S4 rollback/resume campaign not repeated"
+			: Environment.GetEnvironmentVariable("FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY") == "1"
 			? "ARMS5-current-package=verified all-ten-package-caps-disabled; S4 rollback/resume campaign not repeated"
 			: "ARMS4-attunement-install=passed actual-MySQL precommit-all-table-rollback lost-ack-resume stable-children no-op-all-table-checksum no-player-writes all-ten-package-caps-disabled");
 		if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE") != "1") return;
@@ -186,7 +187,7 @@ internal static partial class GNHProgram
 			.Select(kind => PreparedStockReferenceSchema(db, kind)).ToArray();
 		Require(players == TraditionPlayers(database), "S4 qualification preparation granted, refilled or changed a player.");
 		Require(db.MagicCapabilities.AsNoTracking().Where(x => packageCaps.Contains(x.Id)).AsEnumerable().All(x =>
-			XElement.Parse(x.Definition).Element("Casting") is { } casting && (bool?)casting.Attribute("enabled") == false && !casting.Elements("Admission").Any()),
+			XElement.Parse(x.Definition).Element("Casting") is { } casting && (bool?)casting.Attribute("enabled") == false),
 			"Campaign preparation changed a package casting gate.");
 		// The seeded Admin deliberately has NoNeeds. All package/player conservation
 		// checks are complete before this disposable paid-casting-only change.
@@ -291,6 +292,11 @@ internal static partial class GNHProgram
 			if (labels.TryGetValue(node.Name.LocalName, out var kind) && long.TryParse(node.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var id)) Add(kind, id);
 			if (node.Name == "Template" && node.Attribute("grade") is not null) Add(nameof(Db.NpcTemplate), (long?)node);
 			if (node.Name == "Cost") { Add(nameof(Db.MagicResource), (long?)node.Attribute("resource")); Add(nameof(Db.TraitExpression), (long?)node.Attribute("expression")); }
+			if (node.Name == "Option")
+			{
+				var targetKind = (string?)node.Attribute("kind") switch { "Trait" => nameof(Db.TraitDefinition), "MagicResource" => nameof(Db.MagicResource), _ => null };
+				if (targetKind is not null) Add(targetKind, (long?)node.Attribute("target"));
+			}
 			Add(nameof(Db.TraitDefinition), (long?)node.Attribute("trait"));
 			foreach (var field in new[] { "tag", "secondtag" }) Add(nameof(Db.Tag), (long?)node.Attribute(field));
 			Add(nameof(Db.FutureProg), (long?)node.Attribute("predicate")); Add(nameof(Db.FutureProg), (long?)node.Attribute("eligibility"));

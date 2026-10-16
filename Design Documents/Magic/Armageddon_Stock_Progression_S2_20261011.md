@@ -1,5 +1,7 @@
 # Armageddon stock progression S2 — 11 October 2026
 
+**S6 integration follow-up:** the complete fixed installer now materialises all419 real spell admissions and ten Classic/twenty Simple support grants after the152 canonical spells and focus/device batch. Casting stays disabled and Class availability stays false. Seven native elemental generators are bound but the disabled casting policy grants no passive entitlement. A versioned progression baseline marker retains this complete graph on later ordinary reconciliation; missing or incompatible canonical identities hold before mutation rather than restoring empty S2 policies. Builder field overrides are preserved. Sorcerer-family gathering economics and environmental source bindings remain a separate missing authored input; no generic test/builder defaults were promoted into stock. Qualification receipts distinguish this implementation from completed S6 acceptance.
+
 S2 extends the same development-only Armageddon seeder after the durable S1 settings transaction. It projects the approved, master-list-backed stock graph into native skill definitions, capability/merit pairs, resources and conditional Class roles. S3/S4 supply the real prototype and spell catalogue before these roles and policies become available. Release remains disabled.
 
 ## Installed foundations and ownership

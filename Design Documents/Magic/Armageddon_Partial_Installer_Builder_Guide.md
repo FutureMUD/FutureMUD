@@ -1,5 +1,7 @@
 # Development-only Armageddon installer: disabled in Release
 
+For the complete fixed-install route and ordinary-player integration, see [the integration guide](Armageddon_Installer_Integration_Guide.md). This document retains the legacy prepared-world route.
+
 Authority: `Armageddon_Magic_Completion_Implementation_Brief.md`, Library ID
 `libfile_a4606cd0097081918d6c9d9e220e6da0`, particularly N22/N23 and the installer/builder-guide requirements.
 This guide describes the reviewed partial modules, not a complete Armageddon preset.
@@ -181,7 +183,7 @@ exception, not a repair for an unavailable source path or a claim that this pack
 <schoolverb> gather cancel
 <schoolverb> spell "Sense Enchantment"
 <schoolverb> cast "Sense Enchantment" grade 1 on self via <capability>
-<schoolverb> practice "Sense Enchantment" grade 1 on self via <capability>
+<schoolverb> practice "Sense Enchantment" grade 1 via <capability>
 magicdevice show <held item>
 magicdevice focus <held item> <capability> <spell> <grade> <targets>
 magicdevice charge <held item> <capability> <spell> <grade> <missing-charge-count>

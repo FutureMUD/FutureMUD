@@ -41,6 +41,7 @@ internal static partial class GNHProgram
 		var profiles = (IEnumerable)assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
 			.GetProperty("All", ReplayFlags)!.GetValue(null)!;
 		var profile = profiles.Cast<object>().Single(x => (string)x.GetType().GetProperty("Id")!.GetValue(x)! == BaseProfileId);
+		profile = S6ClassProfile(profile);
 		var seeders = assembly.GetType("DatabaseSeeder.SeederCatalogue", true)!.GetMethod("GetEnabledSeeders", ReplayFlags)!.Invoke(null, null)!;
 		var validation = assembly.GetType("DatabaseSeeder.SeederReplayRunner", true)!.GetMethod("Validate", ReplayFlags)!.Invoke(null, [profile, seeders])!;
 		Require((bool)validation.GetType().GetProperty("IsValid", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(validation)!,
@@ -222,6 +223,7 @@ internal static partial class GNHProgram
 	}
 	private static int CaptureBaseWorldFixture()
 	{
+		if (Environment.GetEnvironmentVariable("FUTUREMUD_S6_REPLAY_CAPTURE") == "1") return CaptureS6ReplayBase();
 		var profile = BaseProfile(); var steps = BaseSteps(profile); var sources = BaseSources(steps);
 		if (Directory.Exists(BaseFixtureRoot) && Environment.GetEnvironmentVariable("FUTUREMUD_BASE_FRESH_INSTALL_CHECK") != "1")
 		{
@@ -292,6 +294,9 @@ internal static partial class GNHProgram
 		var executed = new List<string>();
 		if (installPackage)
 		{
+			var existingPlayers = TraditionPlayers(database);
+			int existingNpcs;
+			using (var db = NewPreparedReplayContext(database.ConnectionString)) existingNpcs = db.Npcs.Count();
 			long capacity;
 			using (var db = NewPreparedReplayContext(database.ConnectionString)) capacity = db.TraitDefinitions.Single(x => x.Name == "Willpower" && x.Type == 1 && x.OwnerScope == 0 && x.DerivedType == 0).Id;
 			ExecuteBaseTargetStep(database, new ArmageddonMagicSeeder(), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
@@ -299,6 +304,7 @@ internal static partial class GNHProgram
 				[ArmageddonMagicSeeder.InstallQuestion] = "no", [ArmageddonMagicSeeder.FullInstallQuestion] = "yes", [ArmageddonMagicSeeder.ModeQuestion] = mode,
 				[ArmageddonMagicSeeder.CapacityQuestion] = capacity.ToString(System.Globalization.CultureInfo.InvariantCulture), [ArmageddonMagicSeeder.NativeBindingsQuestion] = "{}", [ArmageddonMagicSeeder.BindingsQuestion] = "none"
 			}); executed.Add(typeof(ArmageddonMagicSeeder).FullName!);
+			if (S6Integration) AuditS6Installation(database, existingPlayers, existingNpcs);
 			foreach (var type in new[] { typeof(PsionicsSeeder), typeof(EnvironmentalExposureSeeder) }.Where(x => requested.Contains(x.Name)))
 			{
 				var step = ((IEnumerable)profile.GetType().GetProperty("Steps")!.GetValue(profile)!).Cast<object>().Single(x => (Type)x.GetType().GetProperty("SeederType")!.GetValue(x)! == type);
@@ -314,7 +320,7 @@ internal static partial class GNHProgram
 			else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE") == "1")
 			{
 				PreparedStockAttunementAcceptance(database);
-				if (Environment.GetEnvironmentVariable("FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY") == "1") PrepareS5ProgressionFixture(database, Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_INPUT")!);
+				if (S6Integration || Environment.GetEnvironmentVariable("FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY") == "1") PrepareS5ProgressionFixture(database, Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_INPUT")!);
 				else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY") == "1") PrepareFocusDeviceFixture(database);
 				else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_REMAINING_SMOKE_ONLY") == "1") PrepareRemainingStockFixture(database);
 			}

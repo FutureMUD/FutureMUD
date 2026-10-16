@@ -39,8 +39,8 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-continuation-20261008",
   "authorised_scope": "Complete plan in coherent stages; local commits and draft PR #788 authorized; no merge, deploy or shared/production DB",
-  "selected_stage": "S4 accepted for all152 required spells/210 blueprints; approved S5 shared/representative acquisition, practice, funding and Mend/Mud delivery qualification complete. S6/N24/N25 and final readiness remain; all Release/availability gates disabled.",
-  "current_qualification": {"date": "2026-10-16", "checkpoint": "Armageddon_S5_Qualification_Checkpoint_20261016.md", "receipt": "Armageddon_S5_Qualification_20261016.json", "scope": "Approved stock shared/representative S5; historical pending fields below retain dated scope"},
+  "selected_stage": "S4/S5 accepted scopes retained. S6 inactive419-admission/support installer graph qualified in all four Classic/Simple x earlier classes off/on native cells; gathering economics/profile coverage await approval. S6/N24/N25/final readiness incomplete; all Release/availability gates disabled.",
+  "current_qualification": {"date": "2026-10-16", "checkpoint": "Armageddon_S6_Installer_Integration_Checkpoint_20261016.md", "receipt": "Armageddon_S6_Installer_Integration_20261016.json", "scope": "Qualified inactive installer/integration slice only; gathering remains pending; S4/S5 prior qualified scopes retained"},
   "seeder_completeness_design": {
     "date": "2026-10-11",
     "document": "Armageddon_Seeder_Completeness_Design_20261011.md",

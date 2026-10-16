@@ -69,6 +69,8 @@ Haggle already owns the inherited blank-snapshot/manifest repair and its `AddSho
 
 Read-only checkout previews using `git merge-tree --write-tree` against each dependency found textual conflicts in `FutureMUDLibrary/RPG/Checks/CheckEnum.cs` and `MudSharpCore/Framework/FuturemudLoaders.cs`. The skill seeders, default static settings and documentation index auto-merged in those individual previews. These were virtual Git trees only; neither the checkout nor a branch/PR was merged. Review the composed merge after both dependencies land rather than treating the previews as integrated validation.
 
+The parent supplied Haggle's merge receipt `9429227f14eae012af8d2bea6650fe732e920eae` (07:16:50 UTC). That exact baseline was merged into the Dual Wield branch, resolving only the two anticipated conflicts: retain Haggle 227 and Dual Wield 230; use Haggle's `variable` check expression and Dual Wield's required-trait zero placeholder/template. Incoming snapshots, manifest, EF migration/model snapshot and Haggle implementations are preserved unchanged from that baseline. Analyse #794's merge receipt still gates final composed-head verification and PR #795 merge; no snapshot rebuild or PR merge is performed at this intermediate step.
+
 Before releasing the merge gate, run focused Dual Wield/CoreData and Analyse/Haggle overlap checks, persisted-ID uniqueness, and the seeder snapshot gate on the integrated head. Fix actual integration regressions here; do not repeat the first branch's snapshot rebuild. Record the final master/head/check receipts in the PR. No runtime mechanics changed for the ID reservation; rerunning the existing native fixture would merely recreate the same isolated mechanics under a different lookup integer.
 
 ## Remaining limits

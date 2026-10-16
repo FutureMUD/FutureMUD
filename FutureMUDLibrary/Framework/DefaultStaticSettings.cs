@@ -17,6 +17,13 @@ public static class DefaultStaticSettings
     public static readonly IReadOnlyDictionary<string, string> DefaultStaticConfigurations =
         new Dictionary<string, string>
         {
+			{ "HagglingEnabled", "false" },
+			{ "HaggleNegotiationScope", "Shared" },
+			{ "HaggleWindowDurationHours", "6" },
+			{ "HaggleActionDurationSeconds", "20" },
+			{ "HaggleDefaultDifficulty", "Normal" },
+			{ "HaggleTraitId", "0" },
+			{ "HaggleMinimumSpread", "0.05" },
 			{ "EnvironmentalExposureMode", "Legacy" },
 			{ "EnvironmentalExposureLiquids", "true" },
 			{ "EnvironmentalExposureGases", "true" },

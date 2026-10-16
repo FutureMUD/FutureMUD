@@ -6,6 +6,7 @@ using MudSharp.Combat;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.Magic.Vancian;
+using MudSharp.Magic.Casting;
 
 namespace MudSharp.Magic;
 
@@ -29,9 +30,15 @@ public class MagicArmourConfiguration
 		Quality = rhs.Quality;
 		ArmourMaterial = rhs.ArmourMaterial;
 		ArmourAppliesProg = rhs.ArmourAppliesProg;
-		MaximumDamageAbsorbed = rhs.MaximumDamageAbsorbed is ContextualSpellExpression contextual
-			? ContextualSpellExpression.LoadContext(contextual.SaveContext(), Gameworld)
-			: new TraitExpression(rhs.MaximumDamageAbsorbed.OriginalFormulaText, Gameworld);
+		// CastingExpression owns a detached input snapshot; its inherited formula text is only "0".
+		// Retain that invocation binding until CreateEffect freezes the caster-evaluated value.
+		MaximumDamageAbsorbed = rhs.MaximumDamageAbsorbed switch
+		{
+			CastingExpression bound => bound,
+			ContextualSpellExpression contextual => ContextualSpellExpression.LoadContext(contextual.SaveContext(), Gameworld),
+			_ => new TraitExpression(rhs.MaximumDamageAbsorbed.OriginalFormulaText, Gameworld)
+		};
+		FiniteBudget = rhs.FiniteBudget;
 		FullDescriptionAddendum = rhs.FullDescriptionAddendum;
 		ArmourCanBeObscuredByInventory = rhs.ArmourCanBeObscuredByInventory;
 		foreach (var shape in rhs.CoveredShapes)
@@ -47,6 +54,7 @@ public class MagicArmourConfiguration
 	public IFutureProg ArmourAppliesProg { get; set; } = null!;
 	public ITraitExpression MaximumDamageAbsorbed { get; set; } = null!;
 	public string FullDescriptionAddendum { get; set; } = string.Empty;
+	public bool FiniteBudget { get; set; }
 	public bool ArmourCanBeObscuredByInventory { get; set; }
 	public HashSet<IBodypartShape> CoveredShapes { get; } = new();
 
@@ -68,6 +76,7 @@ public class MagicArmourConfiguration
 				? Gameworld.Materials.Get(value) as ISolid
 				: Gameworld.Materials.GetByName(root.Element("ArmourMaterial")?.Value ?? "") as ISolid) ??
 			throw new ApplicationException("Invalid armour material in magic armour configuration.");
+		FiniteBudget = bool.Parse(root.Element("FiniteBudget")?.Value ?? "false");
 		FullDescriptionAddendum = root.Element("FullDescriptionAddendum")?.Value ?? string.Empty;
 		ArmourCanBeObscuredByInventory = bool.Parse(root.Element("CanBeObscuredByInventory")?.Value ?? "false");
 		MaximumDamageAbsorbed = root.Element("ContextualExpression") is { } contextual
@@ -94,7 +103,8 @@ public class MagicArmourConfiguration
 
 	public void SaveToXml(XElement root)
 	{
-		root.Add(new XElement("ArmourAppliesProg", ArmourAppliesProg?.Id ?? 0L));
+		root.Add(new XElement("FiniteBudget", FiniteBudget),
+			new XElement("ArmourAppliesProg", ArmourAppliesProg?.Id ?? 0L));
 		root.Add(new XElement("Quality", (int)Quality));
 		root.Add(new XElement("ArmourType", ArmourType?.Id ?? 0L));
 		root.Add(new XElement("ArmourMaterial", ArmourMaterial?.Id ?? 0L));
@@ -121,6 +131,6 @@ public class MagicArmourConfiguration
 	public string Show(ICharacter actor)
 	{
 		return
-			$"Armour Type: {ArmourType.Name.ColourValue()}, Quality: {Quality.Describe().ColourValue()}, Material: {ArmourMaterial.Name.ColourValue()}, Absorb: {MaximumDamageAbsorbed.OriginalFormulaText.ColourCommand()}";
+			$"Armour Type: {ArmourType.Name.ColourValue()}, Quality: {Quality.Describe().ColourValue()}, Material: {ArmourMaterial.Name.ColourValue()}, Finite: {FiniteBudget.ToColouredString()}, Absorb: {MaximumDamageAbsorbed.OriginalFormulaText.ColourCommand()}";
 	}
 }

@@ -18,6 +18,7 @@ public partial class CreateLiquidEffect : IMagicSpellEffectPreparedSelection
 		ILiquid Liquid, IPerceivable Recipient) : IMagicSpellEffectPreparedSelectionToken;
 	public IMagicSpellEffectPreparedSelectionToken? CapturePreparedSelection(ICharacter caster, IPerceivable recipient)
 	{
+		if (GatherPuddleOnly) return CapturePuddleSelection(caster, recipient);
 		if (_preparedRecipe is null) return null;
 		if (_preparedRecipeRecipient is not null && !ReferenceEquals(_preparedRecipeRecipient, recipient))
 			throw new InvalidOperationException("Recipes require a single unchanged recipient.");
@@ -26,6 +27,7 @@ public partial class CreateLiquidEffect : IMagicSpellEffectPreparedSelection
 	}
 	public bool TryReusePreparedSelection(IMagicSpellEffectPreparedSelectionToken selection, ICharacter caster, IPerceivable recipient, out string? error)
 	{
+		if (GatherPuddleOnly) return TryReusePuddleSelection(selection, caster, recipient, out error);
 		error = RecipeError();
 		if (error is not null) return false;
 		if (selection is not RecipeSelection token || !ReferenceEquals(token.Recipient, recipient) || !token.Frame.Matches(caster) || token.Stamp != RecipeStamp()) {
@@ -41,6 +43,7 @@ public partial class CreateLiquidEffect : IMagicSpellEffectPreparedSelection
 		}));
 	public bool TryConfirmPreparedSelection(ICharacter caster, IPerceivable recipient, out string? error)
 	{
+		if (GatherPuddleOnly) return TryConfirmPuddleSelection(caster, recipient, out error);
 		error = "The liquid recipe was not prepared for this recipient.";
 		return _preparedRecipe is not null && ReferenceEquals(_preparedRecipeRecipient, recipient) && TryPrepareRecipe(caster, out error);
 	}

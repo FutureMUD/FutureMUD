@@ -7,7 +7,8 @@ namespace MudSharp.Magic;
 internal sealed record MagicInterdictionResult(
 	IMagicInterdictionEffect Effect,
 	IPerceivable Owner,
-	MagicInterdictionMode Mode
+	MagicInterdictionMode Mode,
+	IMagicInterdictionUse? Use = null
 );
 
 internal static class MagicInterdictionHelper
@@ -24,12 +25,15 @@ internal static class MagicInterdictionHelper
 		var context = new MagicInterdictionContext(source, target, school, tags.ToList(), additionalParameters.ToList());
 		foreach ((IMagicInterdictionEffect effect, IPerceivable owner) in GetRelevantEffects(source, target, additionalParameters))
 		{
+			var limited = effect is IMagicInterdictionUseEffect { UsesAreLimited: true };
+			var use = limited ? ((IMagicInterdictionUseEffect)effect).CaptureUse(context) : null;
+			if (limited && use is null) continue;
 			var shouldInterdict =
 				effect is IMagicContextualInterdictionEffect contextual
 					? contextual.ShouldInterdict(context)
 					: effect.ShouldInterdict(source, school);
 
-			if (!shouldInterdict)
+			if (!shouldInterdict && use?.IsCurrent != false)
 			{
 				continue;
 			}
@@ -37,12 +41,16 @@ internal static class MagicInterdictionHelper
 			return new MagicInterdictionResult(
 				effect,
 				owner,
-				allowReflection ? effect.Mode : MagicInterdictionMode.Fail
+				allowReflection ? effect.Mode : MagicInterdictionMode.Fail,
+				use
 			);
 		}
 
 		return null;
 	}
+
+	public static bool TryCommitReflection(MagicInterdictionResult result) =>
+		result.Mode == MagicInterdictionMode.Reflect && (result.Use?.TryCommit() ?? true);
 
 	private static IEnumerable<(IMagicInterdictionEffect Effect, IPerceivable Owner)> GetRelevantEffects(
 		ICharacter source,

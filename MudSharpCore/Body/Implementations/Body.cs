@@ -447,7 +447,9 @@ public partial class Body : PerceiverItem, IBody
 
         EndStaminaTick(true);
         EndDrugTick();
-        EndHealthTick();
+        // Unloading only unregisters health callbacks. Damage reevaluation can create
+        // derived effects and perform gameplay mutations after the save boundary.
+        EndHealthTickRegistration();
         CacheScheduledEffects();
         Gameworld.EffectScheduler.Destroy(this, true);
         Gameworld.Scheduler.Destroy(this);
@@ -816,21 +818,11 @@ public partial class Body : PerceiverItem, IBody
         {
             if (drug.Active)
             {
-                _activeDrugDosages.Add(new DrugDosage
-                {
-                    Drug = Gameworld.Drugs.Get(drug.DrugId),
-                    Grams = drug.Grams,
-                    OriginalVector = (DrugVector)drug.OriginalVector
-                });
+                _activeDrugDosages.Add(RestoreDrugDoseRow(drug, Gameworld.Drugs.Get(drug.DrugId)));
             }
             else
             {
-                _latentDrugDosages.Add(new DrugDosage
-                {
-                    Drug = Gameworld.Drugs.Get(drug.DrugId),
-                    Grams = drug.Grams,
-                    OriginalVector = (DrugVector)drug.OriginalVector
-                });
+                _latentDrugDosages.Add(RestoreDrugDoseRow(drug, Gameworld.Drugs.Get(drug.DrugId)));
             }
         }
 

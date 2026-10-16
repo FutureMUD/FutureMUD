@@ -8,10 +8,11 @@ namespace MudSharp.Framework;
 
 public sealed partial class Futuremud
 {
-	internal static Futuremud CreateOfflineProgCompilationWorld()
+	internal static Futuremud CreateOfflineProgCompilationWorld(IEnumerable<Models.VariableDefinition>? registerDefinitions = null)
 	{
 		var world = new Futuremud(null!);
 		world._staticConfigurations["DisplayProgsInDarkMode"] = "false";
+		if (registerDefinitions is not null) world.VariableRegister = new VariableRegister(world, registerDefinitions);
 		return world;
 	}
 }
@@ -25,10 +26,11 @@ public sealed class OfflineProgCompilation : IDisposable
 	private readonly Futuremud _world;
 	private readonly Dictionary<long, IFutureProg> _progs = new();
 
-	public OfflineProgCompilation(IEnumerable<Models.FutureProg> definitions)
+	public OfflineProgCompilation(IEnumerable<Models.FutureProg> definitions,
+		IEnumerable<Models.VariableDefinition>? registerDefinitions = null)
 	{
 		MudSharp.FutureProg.FutureProg.Initialise();
-		_world = Futuremud.CreateOfflineProgCompilationWorld();
+		_world = Futuremud.CreateOfflineProgCompilationWorld(registerDefinitions);
 		try
 		{
 			foreach (var definition in definitions)

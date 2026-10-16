@@ -201,7 +201,7 @@ public partial class MagicAttackPower : MagicPowerBase, IMagicAttackPower
     public virtual bool CanInvokePower(ICharacter invoker, ICharacter target)
     {
 		if (!CanAttackTarget(invoker, target)) return false;
-        if (CanInvokePowerProg?.Execute<bool?>(invoker, target) == false)
+        if (base.CanInvokePower(invoker, new object[] { target }) == false)
         {
             return false;
         }

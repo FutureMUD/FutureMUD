@@ -700,7 +700,10 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 	{
 		healthPlan = null;
 		error = null;
-		if (stamina > 0.0 && (!double.IsFinite(actor.CurrentStamina) || actor.CurrentStamina < stamina + minimumStamina || !actor.CanSpendStamina(stamina)))
+		double currentStamina = actor.Body?.CurrentStamina ?? double.NaN;
+		double remainingStamina = currentStamina - stamina;
+		if (stamina > 0.0 && (!double.IsFinite(currentStamina) || !double.IsFinite(remainingStamina) ||
+			remainingStamina < minimumStamina || remainingStamina >= currentStamina))
 		{
 			error = "You do not have enough stamina while preserving the configured minimum remainder.";
 			return false;
@@ -781,14 +784,19 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 
 		if (quote.StaminaCost > 0.0)
 		{
-			double before = actor.CurrentStamina;
-			if (!actor.CanSpendStamina(quote.StaminaCost) || before < quote.StaminaCost + quote.MinimumStamina)
+			IBody? body = actor.Body;
+			double before = body?.CurrentStamina ?? double.NaN;
+			double expected = before - quote.StaminaCost;
+			if (body is null || !double.IsFinite(before) || !double.IsFinite(expected) ||
+				expected < quote.MinimumStamina || expected >= before)
 			{
 				error = "Stamina is no longer available at the committed price.";
 				return false;
 			}
-			actor.SpendStamina(quote.StaminaCost);
-			if (!double.IsFinite(actor.CurrentStamina) || actor.CurrentStamina > before - quote.StaminaCost + 0.000001 || actor.CurrentStamina < quote.MinimumStamina - 0.000001)
+			// A gathering price is exact; ordinary expenditure modifiers must not discount or amplify it.
+			body.CurrentStamina = expected;
+			if (!ReferenceEquals(actor.Body, body) || !double.IsFinite(body.CurrentStamina) ||
+				!Same(body.CurrentStamina, expected) || !Same(before - body.CurrentStamina, quote.StaminaCost))
 			{
 				error = "The stamina price did not apply with the required minimum remainder.";
 				return false;

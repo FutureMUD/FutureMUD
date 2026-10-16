@@ -312,6 +312,57 @@ public class SeederReplayTests
 		Assert.IsTrue(changedQuestionValidation.Errors.Any(x => x.Contains("old-question", StringComparison.Ordinal)));
 	}
 
+	[TestMethod]
+	public void PrefixReplay_ExecutesOnlyEarlierStepsAndRefusesRerunWithoutMutation()
+	{
+		SuccessfulReplaySeeder.Reset();
+		LaterReplaySeeder.Reset();
+		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString("N"))
+			.Options;
+		FuturemudDatabaseContext CreateContext() => new(options);
+		var profile = new SeederReplayProfile("prefix", "Prefix", "Bounded fixture",
+		[
+			new SeederReplayStep(typeof(SuccessfulReplaySeeder), [new SeederReplayAnswer("answer", "ok")]),
+			new SeederReplayStep(typeof(LaterReplaySeeder), [])
+		]);
+		IDatabaseSeeder[] seeders = [new SuccessfulReplaySeeder(), new LaterReplaySeeder()];
+		var first = SeederReplayRunner.RunPrefixBefore(profile, seeders, typeof(LaterReplaySeeder), CreateContext, new Version(1, 0));
+		Assert.IsTrue(first.Success);
+		Assert.AreEqual(1, SuccessfulReplaySeeder.RunCount);
+		Assert.AreEqual(0, LaterReplaySeeder.RunCount);
+		Assert.AreEqual(1, first.Profile.Steps.Count);
+		using var before = CreateContext();
+		var choices = before.SeederChoices.Count();
+		Assert.IsTrue(choices > 0);
+		var second = SeederReplayRunner.RunPrefixBefore(profile, seeders, typeof(LaterReplaySeeder), CreateContext, new Version(1, 0));
+		Assert.IsFalse(second.Success);
+		StringAssert.Contains(second.Failure!, "freshly migrated, unseeded");
+		Assert.AreEqual(1, SuccessfulReplaySeeder.RunCount);
+		using var after = CreateContext();
+		Assert.AreEqual(choices, after.SeederChoices.Count());
+		Assert.IsFalse(SeederReplayRunner.Validate(first.Profile, seeders).IsValid,
+			"Ordinary replay validation must continue rejecting truncated profiles.");
+	}
+
+	[TestMethod]
+	public void PrefixReplay_RejectsSuffixInventoryDriftAndInvalidBoundariesBeforeOpeningDatabase()
+	{
+		var profile = new SeederReplayProfile("prefix", "Prefix", "Bounded fixture",
+		[
+			new SeederReplayStep(typeof(SuccessfulReplaySeeder), [new SeederReplayAnswer("answer", "ok")]),
+			new SeederReplayStep(typeof(LaterReplaySeeder), [])
+		]);
+		IDatabaseSeeder[] seeders = [new SuccessfulReplaySeeder(), new LaterReplaySeeder()];
+		FuturemudDatabaseContext MustNotOpen() => throw new AssertFailedException("Invalid prefix opened the database.");
+		foreach (var boundary in new[] { typeof(SuccessfulReplaySeeder), typeof(AddedReplaySeeder) })
+			Assert.IsFalse(SeederReplayRunner.RunPrefixBefore(profile, seeders, boundary, MustNotOpen, new Version(1, 0)).Success);
+		var drift = profile with { Steps = [profile.Steps[0], profile.Steps[1] with { Answers = [new("unknown", "yes")] }] };
+		var result = SeederReplayRunner.RunPrefixBefore(drift, seeders, typeof(LaterReplaySeeder), MustNotOpen, new Version(1, 0));
+		Assert.IsFalse(result.Success);
+		Assert.IsTrue(result.Validation.Errors.Any(x => x.Contains("unknown", StringComparison.Ordinal)));
+	}
+
 	private sealed class SuccessfulReplaySeeder : IDatabaseSeeder
 	{
 		internal static int RunCount { get; private set; }

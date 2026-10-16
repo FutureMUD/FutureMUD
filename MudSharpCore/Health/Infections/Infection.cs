@@ -234,6 +234,8 @@ public abstract class Infection : LateInitialisingItem, IInfection
                 return new Gangrene(virulenceDifficulty, intensity, owner, wound, bodypart, virulence);
             case InfectionType.FungalGrowth:
                 return new FungalInfection(virulenceDifficulty, intensity, owner, wound, bodypart, virulence);
+            case InfectionType.SownSickness:
+                return new SownSicknessInfection(virulenceDifficulty, intensity, owner, wound, bodypart, virulence);
         }
 
         throw new ApplicationException("Unknown Infection Type");
@@ -256,6 +258,8 @@ public abstract class Infection : LateInitialisingItem, IInfection
                 return new Gangrene(infection, body, wound, bodypart);
             case InfectionType.FungalGrowth:
                 return new FungalInfection(infection, body, wound, bodypart);
+            case InfectionType.SownSickness:
+                return new SownSicknessInfection(infection, body, wound, bodypart);
         }
 
         throw new ApplicationException("Unknown Infection Type");

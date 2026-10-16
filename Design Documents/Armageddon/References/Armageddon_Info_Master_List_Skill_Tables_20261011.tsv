@@ -1,0 +1,546 @@
+guild	source_line	historical_name	depth	parent_source_line	parent_historical_name	printed_st	printed_max	printed_min_mana	inferred_parent_threshold	canonical_key	parent_canonical_key	printed_go_on
+Water Elementalist	348	create water	0			60	90	7		arm.spell.draw_water		80
+Water Elementalist	350	oasis	1	348	create water	40	90	7	80	arm.spell.spring_haven	arm.spell.draw_water	80
+Water Elementalist	352	create wine	2	350	oasis	40	90	7	80	arm.spell.draw_wine	arm.spell.spring_haven	80
+Water Elementalist	354	create food	3	352	create wine	40	90	7	80	arm.spell.sustain_meal	arm.spell.draw_wine	80
+Water Elementalist	356	mirage	1	348	create water	40	90	7	80	arm.spell.distant_mirage	arm.spell.draw_water	80
+Water Elementalist	358	detect poison	0			60	90	7		arm.spell.sense_toxin		80
+Water Elementalist	360	cure poison	1	358	detect poison	40	90	7	80	arm.spell.purge_toxin	arm.spell.sense_toxin	80
+Water Elementalist	362	poison	2	360	cure poison	40	90	7	80	arm.spell.venom_touch	arm.spell.purge_toxin	80
+Water Elementalist	364	determine relationship	1	358	detect poison	40	90	20	80	arm.spell.read_attunement	arm.spell.sense_toxin	80
+Water Elementalist	366	identify	1	358	detect poison	40	90	7	80	arm.spell.read_enchantment	arm.spell.sense_toxin	80
+Water Elementalist	368	heal	0			60	90	20		arm.spell.mend_flesh		80
+Water Elementalist	370	health drain	1	368	heal	40	90	7	80	arm.spell.vital_siphon	arm.spell.mend_flesh	80
+Water Elementalist	372	calm	0			60	90	7		arm.spell.still_anger		80
+Water Elementalist	374	silence	1	372	calm	40	90	33	80	arm.spell.seal_voice	arm.spell.still_anger	80
+Water Elementalist	376	sober	1	372	calm	40	90	7	80	arm.spell.clear_head	arm.spell.still_anger	80
+Water Elementalist	378	intoxication	2	376	sober	40	90	7	80	arm.spell.headlong_revel	arm.spell.clear_head	80
+Water Elementalist	380	invulnerability	0			60	90	7		arm.spell.unyielding_veil		80
+Water Elementalist	382	sanctuary	1	380	invulnerability	40	90	7	80	arm.spell.sheltering_veil	arm.spell.unyielding_veil	80
+Water Elementalist	384	gate	2	382	sanctuary	40	90	50	80	arm.spell.call_outsider	arm.spell.sheltering_veil	80
+Water Elementalist	386	breathe water	2	382	sanctuary	40	90	20	80	arm.spell.water_breathing	arm.spell.sheltering_veil	80
+Water Elementalist	388	mount	1	380	invulnerability	40	90	20	80	arm.spell.earth_mount	arm.spell.unyielding_veil	80
+Water Elementalist	390	wall of thorns	2	388	mount	40	90	10	80	arm.spell.thorn_barrier	arm.spell.earth_mount	80
+Water Elementalist	392	shield of mist	3	390	wall of thorns	10	90	20	80	arm.spell.mist_shield	arm.spell.thorn_barrier	80
+Water Elementalist	394	thunder	0			60	90	7		arm.spell.thunderclap		80
+Water Elementalist	396	deafness	1	394	thunder	40	90	7	80	arm.spell.hush_hearing	arm.spell.thunderclap	80
+Water Elementalist	398	component crafting	1	394	thunder	20	90		80	arm.support.component_crafting	arm.spell.thunderclap	80
+Water Elementalist	400	contact	0			20	80			arm.support.contact		70
+Water Elementalist	402	barrier	0			5	80			arm.support.barrier		70
+Water Elementalist	404	expel	1	402	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Water Elementalist	406	dual wield	0			5	20			arm.support.dual_wield		10
+Water Elementalist	408	shield use	0			5	10			arm.support.shield_use		0
+Water Elementalist	410	forage	0			10	50			arm.support.forage		40
+Water Elementalist	412	cooking	0			5	60			arm.support.cooking		50
+Water Elementalist	414	analyze	0			10	90			arm.support.analyze		80
+Water Elementalist	416	two handed	0			5	20			arm.support.two_handed		10
+Stone Elementalist	422	armor	0			60	90	7		arm.spell.earthen_ward		80
+Stone Elementalist	424	stone skin	1	422	armor	40	90	7	80	arm.spell.stone_skin	arm.spell.earthen_ward	80
+Stone Elementalist	426	alarm	1	422	armor	40	90	33	80	arm.spell.threshold_alarm	arm.spell.earthen_ward	80
+Stone Elementalist	428	create food	0			60	90	7		arm.spell.sustain_meal		80
+Stone Elementalist	430	sand jambiya	1	428	create food	40	90	7	80	arm.spell.sand_knife	arm.spell.sustain_meal	80
+Stone Elementalist	432	gate	2	430	sand jambiya	40	90	50	80	arm.spell.call_outsider	arm.spell.sand_knife	80
+Stone Elementalist	434	mount	1	428	create food	40	90	20	80	arm.spell.earth_mount	arm.spell.sustain_meal	80
+Stone Elementalist	436	sand statue	2	434	mount	40	90	20	80	arm.spell.sand_effigy	arm.spell.earth_mount	80
+Stone Elementalist	438	weaken	0			60	90	7		arm.spell.sapping_weight		80
+Stone Elementalist	440	strength	1	438	weaken	40	90	20	80	arm.spell.earthen_strength	arm.spell.sapping_weight	80
+Stone Elementalist	442	feeblemind	1	438	weaken	40	90	20	80	arm.spell.clouded_will	arm.spell.sapping_weight	80
+Stone Elementalist	444	sleep	2	442	feeblemind	40	90	20	80	arm.spell.heavy_slumber	arm.spell.clouded_will	80
+Stone Elementalist	446	fury	0			60	90	20		arm.spell.roused_fury		80
+Stone Elementalist	448	godspeed	1	446	fury	40	90	10	80	arm.spell.fleet_step	arm.spell.roused_fury	80
+Stone Elementalist	450	wall of sand	0			60	90	10		arm.spell.sand_barrier		80
+Stone Elementalist	452	earthquake	1	450	wall of sand	40	90	7	80	arm.spell.ground_tremor	arm.spell.sand_barrier	80
+Stone Elementalist	454	burrow	1	450	wall of sand	40	90	20	80	arm.spell.burrow_refuge	arm.spell.sand_barrier	80
+Stone Elementalist	456	sand shelter	2	454	burrow	40	90	7	80	arm.spell.sand_shelter	arm.spell.burrow_refuge	80
+Stone Elementalist	458	rewind	0			60	90	7		arm.spell.return_tether		80
+Stone Elementalist	460	component crafting	1	458	rewind	20	90		80	arm.support.component_crafting	arm.spell.return_tether	80
+Stone Elementalist	462	identify	1	458	rewind	40	90	7	80	arm.spell.read_enchantment	arm.spell.return_tether	80
+Stone Elementalist	464	repair item	2	462	identify	40	90	7	80	arm.spell.restore_object	arm.spell.read_enchantment	80
+Stone Elementalist	466	contact	0			20	80			arm.support.contact		70
+Stone Elementalist	468	barrier	0			5	80			arm.support.barrier		70
+Stone Elementalist	470	expel	1	468	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Stone Elementalist	472	dual wield	0			5	20			arm.support.dual_wield		10
+Stone Elementalist	474	shield use	0			5	10			arm.support.shield_use		0
+Stone Elementalist	476	skinning	0			15	40					30
+Stone Elementalist	478	forage	0			10	85			arm.support.forage		75
+Stone Elementalist	480	cooking	0			5	60			arm.support.cooking		50
+Stone Elementalist	482	analyze	0			10	90			arm.support.analyze		80
+Stone Elementalist	484	two handed	0			5	20			arm.support.two_handed		10
+Fire Elementalist	490	detect magick	0			60	90	7		arm.spell.sense_enchantment		80
+Fire Elementalist	492	tongues	1	490	detect magick	40	90	7	80	arm.spell.borrowed_tongues	arm.spell.sense_enchantment	80
+Fire Elementalist	494	identify	1	490	detect magick	40	90	7	80	arm.spell.read_enchantment	arm.spell.sense_enchantment	80
+Fire Elementalist	496	ball of light	0			60	90	7		arm.spell.hovering_light		80
+Fire Elementalist	498	pyrotechnics	1	496	ball of light	40	90	7	80	arm.spell.fireworks	arm.spell.hovering_light	80
+Fire Elementalist	500	fire armor	2	498	pyrotechnics	40	90	7	80	arm.spell.flame_mantle	arm.spell.fireworks	80
+Fire Elementalist	502	wall of fire	3	500	fire armor	40	90	10	80	arm.spell.flame_barrier	arm.spell.flame_mantle	80
+Fire Elementalist	504	dispel magick	0			60	90	7		arm.spell.unravel_enchantment		80
+Fire Elementalist	506	mount	1	504	dispel magick	40	90	20	80	arm.spell.earth_mount	arm.spell.unravel_enchantment	80
+Fire Elementalist	508	gate	2	506	mount	40	90	50	80	arm.spell.call_outsider	arm.spell.earth_mount	80
+Fire Elementalist	510	flamestrike	0			60	90	7		arm.spell.pillar_of_flame		80
+Fire Elementalist	512	fireball	1	510	flamestrike	40	90	20	80	arm.spell.ember_lance	arm.spell.pillar_of_flame	80
+Fire Elementalist	514	rain of fire	2	512	fireball	40	90	7	80	arm.spell.cinder_rain	arm.spell.ember_lance	80
+Fire Elementalist	516	fire seed	3	514	rain of fire	40	90	20	80	arm.spell.ember_seed	arm.spell.cinder_rain	80
+Fire Elementalist	518	immolate	2	512	fireball	40	90	20	80	arm.spell.immolate	arm.spell.ember_lance	80
+Fire Elementalist	520	demonfire	3	518	immolate	40	90	33	80	arm.spell.consuming_flame	arm.spell.immolate	80
+Fire Elementalist	522	glyph	0			60	90	10		arm.spell.custodian_glyph		80
+Fire Elementalist	524	empower	1	522	glyph	40	90	33	80	arm.spell.kindle_enchantment	arm.spell.custodian_glyph	80
+Fire Elementalist	526	fire jambiya	2	524	empower	40	90	7	80	arm.spell.flame_knife	arm.spell.kindle_enchantment	80
+Fire Elementalist	528	component crafting	2	524	empower	20	90		80	arm.support.component_crafting	arm.spell.kindle_enchantment	80
+Fire Elementalist	530	contact	0			20	80			arm.support.contact		70
+Fire Elementalist	532	barrier	0			5	80			arm.support.barrier		70
+Fire Elementalist	534	expel	1	532	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Fire Elementalist	536	dual wield	0			5	25			arm.support.dual_wield		15
+Fire Elementalist	538	parch	0			60	90	7		arm.spell.desiccate		80
+Fire Elementalist	540	firebreather	1	538	parch	40	90	7	80	arm.spell.burning_draught_curse	arm.spell.desiccate	80
+Fire Elementalist	542	shield use	0			5	15			arm.support.shield_use		5
+Fire Elementalist	544	forage	0			10	50			arm.support.forage		40
+Fire Elementalist	546	cooking	0			5	65			arm.support.cooking		55
+Fire Elementalist	548	analyze	0			10	90			arm.support.analyze		80
+Fire Elementalist	550	two handed	0			5	25			arm.support.two_handed		15
+Wind Elementalist	556	teleport	0			60	90	7		arm.spell.waystep		80
+Wind Elementalist	558	summon	1	556	teleport	40	90	50	80	arm.spell.draw_traveller	arm.spell.waystep	80
+Wind Elementalist	560	gate	2	558	summon	40	90	50	80	arm.spell.call_outsider	arm.spell.draw_traveller	80
+Wind Elementalist	562	relocate	1	556	teleport	40	90	7	80	arm.spell.join_traveller	arm.spell.waystep	80
+Wind Elementalist	564	create rune	2	562	relocate	40	90	50	80	arm.spell.anchor_rune	arm.spell.join_traveller	80
+Wind Elementalist	566	transference	1	556	teleport	40	90	33	80	arm.spell.exchange_places	arm.spell.waystep	80
+Wind Elementalist	568	detect invisible	0			60	90	7		arm.spell.pierce_concealment		80
+Wind Elementalist	570	invisibility	1	568	detect invisible	40	90	7	80	arm.spell.veil_from_sight	arm.spell.pierce_concealment	80
+Wind Elementalist	572	delusion	2	570	invisibility	40	90	7	80	arm.spell.false_presence	arm.spell.veil_from_sight	80
+Wind Elementalist	574	dispel invisibility	2	570	invisibility	40	90	7	80	arm.spell.reveal_the_hidden	arm.spell.veil_from_sight	80
+Wind Elementalist	576	identify	1	568	detect invisible	40	90	7	80	arm.spell.read_enchantment	arm.spell.pierce_concealment	80
+Wind Elementalist	578	levitate	0			60	90	7		arm.spell.buoyant_lift		80
+Wind Elementalist	580	fly	1	578	levitate	40	90	25	80	arm.spell.windborne_flight	arm.spell.buoyant_lift	80
+Wind Elementalist	582	hands of wind	0			60	90	7		arm.spell.gust_hands		80
+Wind Elementalist	584	banishment	1	582	hands of wind	40	90	7	80	arm.spell.banish_traveller	arm.spell.gust_hands	80
+Wind Elementalist	586	wind fist	2	584	banishment	40	90	33	80	arm.spell.wind_hammer	arm.spell.banish_traveller	80
+Wind Elementalist	588	repel	1	582	hands of wind	40	90	7	80	arm.spell.driving_gust	arm.spell.gust_hands	80
+Wind Elementalist	590	wall of wind	2	588	repel	40	90	10	80	arm.spell.wind_barrier	arm.spell.driving_gust	80
+Wind Elementalist	592	shield of wind	3	590	wall of wind	40	90	20	80	arm.spell.wind_shield	arm.spell.wind_barrier	80
+Wind Elementalist	594	wind armor	2	588	repel	40	90	7	80	arm.spell.wind_mantle	arm.spell.driving_gust	80
+Wind Elementalist	596	guardian	0			60	90	33		arm.spell.air_guardian		80
+Wind Elementalist	598	mount	1	596	guardian	40	90	20	80	arm.spell.earth_mount	arm.spell.air_guardian	80
+Wind Elementalist	600	component crafting	2	598	mount	20	90		80	arm.support.component_crafting	arm.spell.earth_mount	80
+Wind Elementalist	602	messenger	1	596	guardian	40	90	7	80	arm.spell.wind_courier	arm.spell.air_guardian	80
+Wind Elementalist	604	stalker	2	602	messenger	40	90	20	80	arm.spell.seeking_wind	arm.spell.wind_courier	80
+Wind Elementalist	606	feather fall	0			60	90	20		arm.spell.gentle_descent		80
+Wind Elementalist	608	sandstorm	1	606	feather fall	40	90	7	80	arm.spell.scouring_gust	arm.spell.gentle_descent	80
+Wind Elementalist	610	contact	0			20	80			arm.support.contact		70
+Wind Elementalist	612	barrier	0			5	80			arm.support.barrier		70
+Wind Elementalist	614	expel	1	612	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Wind Elementalist	616	dual wield	0			5	25			arm.support.dual_wield		15
+Wind Elementalist	618	shield use	0			5	15			arm.support.shield_use		5
+Wind Elementalist	620	forage	0			10	50			arm.support.forage		40
+Wind Elementalist	622	cooking	0			5	50			arm.support.cooking		40
+Wind Elementalist	624	analyze	0			10	90			arm.support.analyze		80
+Wind Elementalist	626	two handed	0			5	25			arm.support.two_handed		15
+Lightning Elementalist	632	lightning bolt	0			60	90	20		arm.spell.lightning_lance		80
+Lightning Elementalist	634	chain lightning	1	632	lightning bolt	40	90	7	80	arm.spell.leaping_lightning	arm.spell.lightning_lance	80
+Lightning Elementalist	636	lightning storm	2	634	chain lightning	40	90	20	80	arm.spell.storm_locus	arm.spell.leaping_lightning	80
+Lightning Elementalist	638	lightning spear	3	636	lightning storm	40	90	20	80	arm.spell.storm_spear	arm.spell.storm_locus	80
+Lightning Elementalist	640	lightning whip	2	634	chain lightning	40	90	7	80	arm.spell.spark_lash	arm.spell.leaping_lightning	80
+Lightning Elementalist	642	refresh	0			60	90	20		arm.spell.second_breath		80
+Lightning Elementalist	644	regenerate	1	642	refresh	40	90	7	80	arm.spell.quickened_healing	arm.spell.second_breath	80
+Lightning Elementalist	646	insomnia	0			60	90	20		arm.spell.wakeful_mind		80
+Lightning Elementalist	648	mount	1	646	insomnia	40	90	20	80	arm.spell.earth_mount	arm.spell.wakeful_mind	80
+Lightning Elementalist	650	gate	2	648	mount	60	90	50	80	arm.spell.call_outsider	arm.spell.earth_mount	80
+Lightning Elementalist	652	slow	0			60	90	33		arm.spell.leadfoot		80
+Lightning Elementalist	654	quickening	1	652	slow	40	90	33	80	arm.spell.lightning_pace	arm.spell.leadfoot	80
+Lightning Elementalist	656	paralyze	2	654	quickening	40	90	20	80	arm.spell.still_limbs	arm.spell.lightning_pace	80
+Lightning Elementalist	658	illuminant	1	652	slow	40	90	7	80	arm.spell.sky_lantern	arm.spell.leadfoot	80
+Lightning Elementalist	660	contact	0			20	80			arm.support.contact		70
+Lightning Elementalist	662	barrier	0			5	80			arm.support.barrier		70
+Lightning Elementalist	664	expel	1	662	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Lightning Elementalist	666	stamina drain	0			60	90	7		arm.spell.steal_breath		80
+Lightning Elementalist	668	energy shield	1	666	stamina drain	40	90	7	80	arm.spell.charged_aegis	arm.spell.steal_breath	80
+Lightning Elementalist	670	ball of light	2	668	energy shield	40	90	7	80	arm.spell.hovering_light	arm.spell.charged_aegis	80
+Lightning Elementalist	672	dual wield	0			5	25			arm.support.dual_wield		15
+Lightning Elementalist	674	fluorescent footsteps	0			60	90	7		arm.spell.luminous_trail		80
+Lightning Elementalist	676	component crafting	1	674	fluorescent footsteps	20	90		80	arm.support.component_crafting	arm.spell.luminous_trail	80
+Lightning Elementalist	678	identify	1	674	fluorescent footsteps	20	90	7	80	arm.spell.read_enchantment	arm.spell.luminous_trail	80
+Lightning Elementalist	680	shield use	0			5	15			arm.support.shield_use		5
+Lightning Elementalist	682	forage	0			10	50			arm.support.forage		40
+Lightning Elementalist	684	cooking	0			5	50			arm.support.cooking		40
+Lightning Elementalist	686	analyze	0			10	90			arm.support.analyze		80
+Lightning Elementalist	688	two handed	0			5	25			arm.support.two_handed		15
+Drov Elementalist	694	cure blindness	0			60	90	7		arm.spell.clear_eyes		80
+Drov Elementalist	696	blind	1	694	cure blindness	40	90	7	80	arm.spell.shroud_eyes	arm.spell.clear_eyes	80
+Drov Elementalist	698	remove curse	0			60	90	7		arm.spell.lift_hex		80
+Drov Elementalist	700	curse	1	698	remove curse	40	90	7	80	arm.spell.clinging_hex	arm.spell.lift_hex	80
+Drov Elementalist	702	shadow sword	2	700	curse	40	90	7	80	arm.spell.shadow_blade	arm.spell.clinging_hex	80
+Drov Elementalist	704	component crafting	1	698	remove curse	20	90		80	arm.support.component_crafting	arm.spell.lift_hex	80
+Drov Elementalist	706	infravision	0			60	90	7		arm.spell.night_eyes		80
+Drov Elementalist	708	detect ethereal	0			60	90	7		arm.spell.see_the_unbodied		80
+Drov Elementalist	710	ethereal	1	708	detect ethereal	40	90	20	80	arm.spell.shadow_passage	arm.spell.see_the_unbodied	80
+Drov Elementalist	712	shadow armor	2	710	ethereal	40	90	7	80	arm.spell.shadow_mantle	arm.spell.shadow_passage	80
+Drov Elementalist	714	dispel ethereal	2	710	ethereal	40	90	7	80	arm.spell.draw_into_flesh	arm.spell.shadow_passage	80
+Drov Elementalist	716	identify	1	708	detect ethereal	40	90	7	80	arm.spell.read_enchantment	arm.spell.see_the_unbodied	80
+Drov Elementalist	718	restful shade	0			60	90	20		arm.spell.cooling_shade		80
+Drov Elementalist	720	send shadow	1	718	restful shade	40	90	7	80	arm.spell.walking_shadow	arm.spell.cooling_shade	80
+Drov Elementalist	722	gate	2	720	send shadow	40	90	50	80	arm.spell.call_outsider	arm.spell.walking_shadow	80
+Drov Elementalist	724	mount	1	718	restful shade	40	90	20	80	arm.spell.earth_mount	arm.spell.cooling_shade	80
+Drov Elementalist	726	haunt	2	724	mount	40	90	25	80	arm.spell.haunting_shape	arm.spell.earth_mount	80
+Drov Elementalist	728	contact	0			20	80			arm.support.contact		70
+Drov Elementalist	730	barrier	0			5	80			arm.support.barrier		70
+Drov Elementalist	732	expel	1	730	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Drov Elementalist	734	dual wield	0			5	25			arm.support.dual_wield		15
+Drov Elementalist	736	create darkness	0			60	90	7		arm.spell.deep_darkness		80
+Drov Elementalist	738	fear	1	736	create darkness	40	90	7	80	arm.spell.dread_presence	arm.spell.deep_darkness	80
+Drov Elementalist	740	shadowplay	1	736	create darkness	40	90	7	80	arm.spell.shadowplay	arm.spell.deep_darkness	80
+Drov Elementalist	742	shield use	0			5	15			arm.support.shield_use		5
+Drov Elementalist	744	forage	0			10	50			arm.support.forage		40
+Drov Elementalist	746	cooking	0			5	30			arm.support.cooking		20
+Drov Elementalist	748	analyze	0			10	90			arm.support.analyze		80
+Drov Elementalist	750	two handed	0			5	25			arm.support.two_handed		15
+Void Elementalist	756	mark	0			60	90	25		arm.spell.arcane_mark		80
+Void Elementalist	758	travel gate	1	756	mark	40	90	33	80	arm.spell.linked_threshold	arm.spell.arcane_mark	80
+Void Elementalist	760	portal	2	758	travel gate	40	90	33	80	arm.spell.open_threshold	arm.spell.linked_threshold	80
+Void Elementalist	762	pseudo death	0			60	90	20		arm.spell.feign_death		80
+Void Elementalist	764	animate dead	1	762	pseudo death	40	90	7	80	arm.spell.raise_servitor	arm.spell.feign_death	80
+Void Elementalist	766	vloran	2	764	animate dead	40	100		80	arm.support.vloran	arm.spell.raise_servitor	90
+Void Elementalist	768	dead speak	2	764	animate dead	40	90	33	80	arm.spell.voice_of_remains	arm.spell.raise_servitor	80
+Void Elementalist	770	possess corpse	3	768	dead speak	40	90	33	80	arm.spell.borrow_the_dead	arm.spell.voice_of_remains	80
+Void Elementalist	772	mount	1	762	pseudo death	40	90	20	80	arm.spell.earth_mount	arm.spell.feign_death	80
+Void Elementalist	774	gate	2	772	mount	40	90	50	80	arm.spell.call_outsider	arm.spell.earth_mount	80
+Void Elementalist	776	psionic suppression	0			60	90	20		arm.spell.silence_the_mind		80
+Void Elementalist	778	aura drain	1	776	psionic suppression	40	90	7	80	arm.spell.empty_aura	arm.spell.silence_the_mind	80
+Void Elementalist	780	charm person	2	778	aura drain	40	90	33	80	arm.spell.compelling_regard	arm.spell.empty_aura	80
+Void Elementalist	782	psionic drain	1	776	psionic suppression	40	90	20	80	arm.spell.mind_scour	arm.spell.silence_the_mind	80
+Void Elementalist	784	shield of nilaz	0			60	90	25		arm.spell.unmaking_ward		80
+Void Elementalist	786	forbid elements	1	784	shield of nilaz	40	90	33	80	arm.spell.bar_the_elements	arm.spell.unmaking_ward	80
+Void Elementalist	788	blade barrier	2	786	forbid elements	40	90	10	80	arm.spell.blade_barrier	arm.spell.bar_the_elements	80
+Void Elementalist	790	contact	0			20	80			arm.support.contact		70
+Void Elementalist	792	barrier	0			5	80			arm.support.barrier		70
+Void Elementalist	794	expel	1	792	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Void Elementalist	796	dual wield	0			5	25			arm.support.dual_wield		15
+Void Elementalist	798	portable hole	0			60	90	7		arm.spell.folded_pocket		80
+Void Elementalist	800	phantasm	1	798	portable hole	40	90	7	80	arm.spell.phantasm	arm.spell.folded_pocket	80
+Void Elementalist	802	vampiric blade	2	800	phantasm	40	90	25	80	arm.spell.leeching_edge	arm.spell.phantasm	80
+Void Elementalist	804	elemental fog	0			60	90	20		arm.spell.veil_of_elements		80
+Void Elementalist	806	turn element	1	804	elemental fog	40	90	7	80	arm.spell.turn_the_elements	arm.spell.veil_of_elements	80
+Void Elementalist	808	identify	1	804	elemental fog	40	90	7	80	arm.spell.read_enchantment	arm.spell.veil_of_elements	80
+Void Elementalist	810	component crafting	2	808	identify	40	90		80	arm.support.component_crafting	arm.spell.read_enchantment	80
+Void Elementalist	812	shield use	0			5	15			arm.support.shield_use		5
+Void Elementalist	814	forage	0			10	50			arm.support.forage		40
+Void Elementalist	816	cooking	0			5	50			arm.support.cooking		40
+Void Elementalist	818	analyze	0			10	90			arm.support.analyze		80
+Void Elementalist	820	two handed	0			5	25			arm.support.two_handed		15
+Psionicist	826	contact	0			60	80			arm.support.contact		70
+Psionicist	828	allspeak	1	826	contact	10	90		70		arm.support.contact	80
+Psionicist	830	babble	2	828	allspeak	10	90		80			80
+Psionicist	832	barrier	0			20	80			arm.support.barrier		70
+Psionicist	834	expel	1	832	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Psionicist	836	dome	1	832	barrier	10	90		70		arm.support.barrier	80
+Psionicist	838	locate	0			20	90					80
+Psionicist	840	trace	1	838	locate	20	90		80			80
+Psionicist	842	hear	2	840	trace	10	90		80			80
+Psionicist	844	clairaudience	2	840	trace	10	90		80			80
+Psionicist	846	sense presence	1	838	locate	10	90		80			80
+Psionicist	848	probe	2	846	sense presence	10	90		80			80
+Psionicist	850	thoughtsense	2	846	sense presence	10	90		80			80
+Psionicist	852	empathy	0			10	90					80
+Psionicist	854	disorient	1	852	empathy	10	90		80			80
+Psionicist	856	mindwipe	2	854	disorient	10	90		80			80
+Psionicist	858	mindblast	3	856	mindwipe	10	90		80			80
+Psionicist	860	project	1	852	empathy	10	90		80			80
+Psionicist	862	rejuvenate	1	852	empathy	10	90		80			80
+Psionicist	864	conceal	0			10	90					80
+Psionicist	866	masquerade	1	864	conceal	10	90		80			80
+Psionicist	868	illusion	2	866	masquerade	10	90		80			80
+Psionicist	870	suggest	1	864	conceal	10	90		80			80
+Psionicist	872	compel	2	870	suggest	10	90		80			80
+Psionicist	874	control	3	872	compel	10	90		80			80
+Psionicist	876	vanish	1	864	conceal	10	90		80			80
+Psionicist	878	shadowwalk	2	876	vanish	10	90		80			80
+Psionicist	880	dual wield	0			5	50			arm.support.dual_wield		40
+Psionicist	882	piercing weapons	0			5	40					30
+Psionicist	884	shield use	0			5	20			arm.support.shield_use		10
+Psionicist	886	forage	0			10	50			arm.support.forage		40
+Psionicist	888	cooking	0			5	50			arm.support.cooking		40
+Psionicist	890	analyze	0			10	90			arm.support.analyze		80
+Psionicist	892	two handed	0			5	50			arm.support.two_handed		40
+Sorcerer	898	detect magick	0			60	90	7		arm.spell.sense_enchantment		80
+Sorcerer	900	detect invisible	1	898	detect magick	30	90	7	80	arm.spell.pierce_concealment	arm.spell.sense_enchantment	80
+Sorcerer	902	infravision	2	900	detect invisible	30	90	7	80	arm.spell.night_eyes	arm.spell.pierce_concealment	80
+Sorcerer	904	cure blindness	3	902	infravision	30	90	7	80	arm.spell.clear_eyes	arm.spell.night_eyes	80
+Sorcerer	906	remove curse	3	902	infravision	30	90	7	80	arm.spell.lift_hex	arm.spell.night_eyes	80
+Sorcerer	908	detect ethereal	2	900	detect invisible	30	90	7	80	arm.spell.see_the_unbodied	arm.spell.pierce_concealment	80
+Sorcerer	910	detect poison	3	908	detect ethereal	30	90	7	80	arm.spell.sense_toxin	arm.spell.see_the_unbodied	80
+Sorcerer	912	tongues	3	908	detect ethereal	30	90	7	80	arm.spell.borrowed_tongues	arm.spell.see_the_unbodied	80
+Sorcerer	914	invisibility	1	898	detect magick	30	90	7	80	arm.spell.veil_from_sight	arm.spell.sense_enchantment	80
+Sorcerer	916	send shadow	2	914	invisibility	30	90	7	80	arm.spell.walking_shadow	arm.spell.veil_from_sight	80
+Sorcerer	918	glyph	3	916	send shadow	30	90	10	80	arm.spell.custodian_glyph	arm.spell.walking_shadow	80
+Sorcerer	920	curse	3	916	send shadow	30	90	7	80	arm.spell.clinging_hex	arm.spell.walking_shadow	80
+Sorcerer	922	ethereal	2	914	invisibility	30	90	20	80	arm.spell.shadow_passage	arm.spell.veil_from_sight	80
+Sorcerer	924	determine relationship	3	922	ethereal	30	90	20	80	arm.spell.read_attunement	arm.spell.shadow_passage	80
+Sorcerer	926	component crafting	3	922	ethereal	30	90		80	arm.support.component_crafting	arm.spell.shadow_passage	80
+Sorcerer	928	identify	4	926	component crafting	30	90	7	80	arm.spell.read_enchantment	arm.support.component_crafting	80
+Sorcerer	930	dispel ethereal	3	922	ethereal	30	90	7	80	arm.spell.draw_into_flesh	arm.spell.shadow_passage	80
+Sorcerer	932	dispel invisibility	2	914	invisibility	30	90	7	80	arm.spell.reveal_the_hidden	arm.spell.veil_from_sight	80
+Sorcerer	934	dispel magick	0			60	90	7		arm.spell.unravel_enchantment		80
+Sorcerer	936	create water	1	934	dispel magick	30	90	7	80	arm.spell.draw_water	arm.spell.unravel_enchantment	80
+Sorcerer	938	create food	2	936	create water	30	90	7	80	arm.spell.sustain_meal	arm.spell.draw_water	80
+Sorcerer	940	ball of light	3	938	create food	30	90	7	80	arm.spell.hovering_light	arm.spell.sustain_meal	80
+Sorcerer	942	alarm	4	940	ball of light	30	90	33	80	arm.spell.threshold_alarm	arm.spell.hovering_light	80
+Sorcerer	944	empower	3	938	create food	30	90	33	80	arm.spell.kindle_enchantment	arm.spell.sustain_meal	80
+Sorcerer	946	repair item	3	938	create food	30	90	7	80	arm.spell.restore_object	arm.spell.sustain_meal	80
+Sorcerer	948	mount	2	936	create water	30	90	20	80	arm.spell.earth_mount	arm.spell.draw_water	80
+Sorcerer	950	gate	3	948	mount	30	90	50	80	arm.spell.call_outsider	arm.spell.earth_mount	80
+Sorcerer	952	guardian	3	948	mount	30	90	33	80	arm.spell.air_guardian	arm.spell.earth_mount	80
+Sorcerer	954	sand statue	4	952	guardian	30	90	20	80	arm.spell.sand_effigy	arm.spell.air_guardian	80
+Sorcerer	956	messenger	4	952	guardian	30	90	7	80	arm.spell.wind_courier	arm.spell.air_guardian	80
+Sorcerer	958	create wine	2	936	create water	30	90	7	80	arm.spell.draw_wine	arm.spell.draw_water	80
+Sorcerer	960	breathe water	3	958	create wine	30	90	20	80	arm.spell.water_breathing	arm.spell.draw_wine	80
+Sorcerer	962	fury	1	934	dispel magick	30	90	20	80	arm.spell.roused_fury	arm.spell.unravel_enchantment	80
+Sorcerer	964	blind	2	962	fury	30	90	7	80	arm.spell.shroud_eyes	arm.spell.roused_fury	80
+Sorcerer	966	poison	3	964	blind	30	90	7	80	arm.spell.venom_touch	arm.spell.shroud_eyes	80
+Sorcerer	968	feeblemind	4	966	poison	30	90	20	80	arm.spell.clouded_will	arm.spell.venom_touch	80
+Sorcerer	970	create darkness	4	966	poison	30	90	7	80	arm.spell.deep_darkness	arm.spell.venom_touch	80
+Sorcerer	972	pseudo death	3	964	blind	30	90	20	80	arm.spell.feign_death	arm.spell.shroud_eyes	80
+Sorcerer	974	sleep	4	972	pseudo death	30	90	20	80	arm.spell.heavy_slumber	arm.spell.feign_death	80
+Sorcerer	976	paralyze	5	974	sleep	30	90	20	80	arm.spell.still_limbs	arm.spell.heavy_slumber	80
+Sorcerer	978	animate dead	4	972	pseudo death	30	90	7	80	arm.spell.raise_servitor	arm.spell.feign_death	80
+Sorcerer	980	vloran	5	978	animate dead	40	100		80	arm.support.vloran	arm.spell.raise_servitor	90
+Sorcerer	982	dead speak	5	978	animate dead	30	90	33	80	arm.spell.voice_of_remains	arm.spell.raise_servitor	80
+Sorcerer	984	recite	6	982	dead speak	30	90	7	80	arm.spell.echo_servant	arm.spell.voice_of_remains	80
+Sorcerer	986	calm	2	962	fury	30	90	7	80	arm.spell.still_anger	arm.spell.roused_fury	80
+Sorcerer	988	heal	3	986	calm	30	60	20	80	arm.spell.mend_flesh	arm.spell.still_anger	50
+Sorcerer	990	cure poison	3	986	calm	30	90	7	80	arm.spell.purge_toxin	arm.spell.still_anger	80
+Sorcerer	992	hands of wind	0			60	90	7		arm.spell.gust_hands		80
+Sorcerer	994	teleport	1	992	hands of wind	30	90	7	80	arm.spell.waystep	arm.spell.gust_hands	80
+Sorcerer	996	banishment	2	994	teleport	30	90	7	80	arm.spell.banish_traveller	arm.spell.waystep	80
+Sorcerer	998	summon	3	996	banishment	30	90	50	80	arm.spell.draw_traveller	arm.spell.banish_traveller	80
+Sorcerer	1000	slow	3	996	banishment	30	90	33	80	arm.spell.leadfoot	arm.spell.banish_traveller	80
+Sorcerer	1002	repel	2	994	teleport	30	90	7	80	arm.spell.driving_gust	arm.spell.waystep	80
+Sorcerer	1004	portal	3	1002	repel	30	90	33	80	arm.spell.open_threshold	arm.spell.driving_gust	80
+Sorcerer	1006	wall of wind	3	1002	repel	30	90	10	80	arm.spell.wind_barrier	arm.spell.driving_gust	80
+Sorcerer	1008	levitate	1	992	hands of wind	30	90	7	80	arm.spell.buoyant_lift	arm.spell.gust_hands	80
+Sorcerer	1010	mark	2	1008	levitate	30	90	25	80	arm.spell.arcane_mark	arm.spell.buoyant_lift	80
+Sorcerer	1012	godspeed	3	1010	mark	30	90	10	80	arm.spell.fleet_step	arm.spell.arcane_mark	80
+Sorcerer	1014	quickening	4	1012	godspeed	30	90	33	80	arm.spell.lightning_pace	arm.spell.fleet_step	80
+Sorcerer	1016	travel gate	3	1010	mark	30	90	33	80	arm.spell.linked_threshold	arm.spell.arcane_mark	80
+Sorcerer	1018	fly	2	1008	levitate	30	90	25	80	arm.spell.windborne_flight	arm.spell.buoyant_lift	80
+Sorcerer	1020	relocate	3	1018	fly	30	90	7	80	arm.spell.join_traveller	arm.spell.windborne_flight	80
+Sorcerer	1022	create rune	4	1020	relocate	30	90	50	80	arm.spell.anchor_rune	arm.spell.join_traveller	80
+Sorcerer	1024	burrow	3	1018	fly	30	90	20	80	arm.spell.burrow_refuge	arm.spell.windborne_flight	80
+Sorcerer	1026	invulnerability	0			60	90	7		arm.spell.unyielding_veil		80
+Sorcerer	1028	lightning bolt	1	1026	invulnerability	30	90	20	80	arm.spell.lightning_lance	arm.spell.unyielding_veil	80
+Sorcerer	1030	fireball	2	1028	lightning bolt	30	90	20	80	arm.spell.ember_lance	arm.spell.lightning_lance	80
+Sorcerer	1032	earthquake	3	1030	fireball	30	90	7	80	arm.spell.ground_tremor	arm.spell.ember_lance	80
+Sorcerer	1034	chain lightning	3	1030	fireball	30	90	7	80	arm.spell.leaping_lightning	arm.spell.ember_lance	80
+Sorcerer	1036	lightning spear	4	1034	chain lightning	30	90	20	80	arm.spell.storm_spear	arm.spell.leaping_lightning	80
+Sorcerer	1038	fire jambiya	2	1028	lightning bolt	30	90	7	80	arm.spell.flame_knife	arm.spell.lightning_lance	80
+Sorcerer	1040	fear	3	1038	fire jambiya	30	90	7	80	arm.spell.dread_presence	arm.spell.flame_knife	80
+Sorcerer	1042	aura drain	4	1040	fear	30	90	7	80	arm.spell.empty_aura	arm.spell.dread_presence	80
+Sorcerer	1044	stamina drain	4	1040	fear	30	90	7	80	arm.spell.steal_breath	arm.spell.dread_presence	80
+Sorcerer	1046	immolate	3	1038	fire jambiya	30	90	20	80	arm.spell.immolate	arm.spell.flame_knife	80
+Sorcerer	1048	demonfire	4	1046	immolate	30	90	33	80	arm.spell.consuming_flame	arm.spell.immolate	80
+Sorcerer	1050	energy shield	1	1026	invulnerability	30	90	7	80	arm.spell.charged_aegis	arm.spell.unyielding_veil	80
+Sorcerer	1052	wall of sand	2	1050	energy shield	30	90	10	80	arm.spell.sand_barrier	arm.spell.charged_aegis	80
+Sorcerer	1054	sanctuary	3	1052	wall of sand	30	90	7	80	arm.spell.sheltering_veil	arm.spell.sand_barrier	80
+Sorcerer	1056	stone skin	3	1052	wall of sand	30	90	7	80	arm.spell.stone_skin	arm.spell.sand_barrier	80
+Sorcerer	1058	strength	4	1056	stone skin	30	90	20	80	arm.spell.earthen_strength	arm.spell.stone_skin	80
+Sorcerer	1060	blade barrier	2	1050	energy shield	30	90	10	80	arm.spell.blade_barrier	arm.spell.charged_aegis	80
+Sorcerer	1062	wall of fire	3	1060	blade barrier	30	90	10	80	arm.spell.flame_barrier	arm.spell.blade_barrier	80
+Sorcerer	1064	wind armor	2	1050	energy shield	30	90	7	80	arm.spell.wind_mantle	arm.spell.charged_aegis	80
+Sorcerer	1066	contact	0			20	80			arm.support.contact		70
+Sorcerer	1068	barrier	0			5	80			arm.support.barrier		70
+Sorcerer	1070	expel	1	1068	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Sorcerer	1072	dual wield	0			5	20			arm.support.dual_wield		10
+Sorcerer	1074	shield use	0			5	10			arm.support.shield_use		0
+Sorcerer	1076	forage	0			5	50			arm.support.forage		40
+Sorcerer	1078	cooking	0			5	80			arm.support.cooking		70
+Sorcerer	1080	analyze	0			10	90			arm.support.analyze		80
+Sorcerer	1082	two handed	0			5	20			arm.support.two_handed		10
+Sorcerer	1084	gather	0			10	90			arm.support.gather		80
+Pick-pocket	1090	contact	0			20	80			arm.support.contact		70
+Pick-pocket	1092	barrier	0			5	80			arm.support.barrier		70
+Pick-pocket	1094	expel	1	1092	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Pick-pocket	1096	peek	0			15	95					85
+Pick-pocket	1098	scan	1	1096	peek	5	80		85			70
+Pick-pocket	1100	sneak	0			10	95					85
+Pick-pocket	1102	hide	1	1100	sneak	10	80		85			70
+Pick-pocket	1104	listen	1	1100	sneak	5	70		85			60
+Pick-pocket	1106	sap	1	1100	sneak	10	50		85			40
+Pick-pocket	1108	steal	0			20	95					85
+Pick-pocket	1110	sleight of hand	1	1108	steal	10	90		85			80
+Pick-pocket	1112	haggle	0			10	85					75
+Pick-pocket	1114	climb	0			10	60					50
+Pick-pocket	1116	dual wield	0			10	40			arm.support.dual_wield		30
+Pick-pocket	1118	parry	1	1116	dual wield	5	45		30		arm.support.dual_wield	35
+Pick-pocket	1120	piercing weapons	0			5	40					30
+Pick-pocket	1122	slashing weapons	0			5	30					20
+Pick-pocket	1124	shield use	0			10	25			arm.support.shield_use		15
+Pick-pocket	1126	forage	0			5	50			arm.support.forage		40
+Pick-pocket	1128	flee	0			10	30					20
+Pick-pocket	1130	cooking	0			5	90			arm.support.cooking		80
+Pick-pocket	1132	analyze	0			10	90			arm.support.analyze		80
+Pick-pocket	1134	two handed	0			10	40			arm.support.two_handed		30
+Burglar	1140	contact	0			20	80			arm.support.contact		70
+Burglar	1142	barrier	0			5	80			arm.support.barrier		70
+Burglar	1144	expel	1	1142	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Burglar	1146	peek	0			5	60					50
+Burglar	1148	sneak	0			10	95					85
+Burglar	1150	hide	0			10	90					80
+Burglar	1152	search	1	1150	hide	10	40		80			30
+Burglar	1154	steal	0			10	60					50
+Burglar	1156	poisoning	1	1154	steal	10	40		50			30
+Burglar	1158	brew	1	1154	steal	10	40		50			30
+Burglar	1160	sleight of hand	1	1154	steal	10	80		50			70
+Burglar	1162	pick	0			30	90					80
+Burglar	1164	trap	1	1162	pick	10	50		80			40
+Burglar	1166	pick making	1	1162	pick	20	80		80			70
+Burglar	1168	listen	0			10	90					80
+Burglar	1170	haggle	0			15	40					30
+Burglar	1172	value	1	1170	haggle	10	60		30			50
+Burglar	1174	climb	0			15	90					80
+Burglar	1176	dual wield	0			5	50			arm.support.dual_wield		40
+Burglar	1178	backstab	1	1176	dual wield	5	40		40		arm.support.dual_wield	30
+Burglar	1180	throw	0			10	90					80
+Burglar	1182	piercing weapons	0			5	40					30
+Burglar	1184	slashing weapons	0			5	30					20
+Burglar	1186	shield use	0			5	30			arm.support.shield_use		20
+Burglar	1188	forage	0			5	50			arm.support.forage		40
+Burglar	1190	cooking	0			20	90			arm.support.cooking		80
+Burglar	1192	analyze	0			10	90			arm.support.analyze		80
+Burglar	1194	two handed	0			5	50			arm.support.two_handed		40
+Warrior	1200	contact	0			20	80			arm.support.contact		70
+Warrior	1202	barrier	0			5	80			arm.support.barrier		70
+Warrior	1204	expel	1	1202	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Warrior	1206	kick	0			15	80					70
+Warrior	1208	bash	0			15	80					70
+Warrior	1210	rescue	0			15	90					80
+Warrior	1212	bandage	1	1210	rescue	10	50		80			40
+Warrior	1214	disarm	0			5	70					60
+Warrior	1216	parry	0			5	65					55
+Warrior	1218	archery	1	1216	parry	10	65		55			55
+Warrior	1220	fletchery	2	1218	archery	5	60		55			50
+Warrior	1222	throw	1	1216	parry	15	70		55			60
+Warrior	1224	blind fighting	1	1216	parry	5	70		55			60
+Warrior	1226	dual wield	0			10	90			arm.support.dual_wield		80
+Warrior	1228	subdue	0			10	50					40
+Warrior	1230	guarding	0			60	95					85
+Warrior	1232	piercing weapons	0			10	70					60
+Warrior	1234	trident weapons	1	1232	piercing weapons	10	80		60			70
+Warrior	1236	slashing weapons	0			10	70					60
+Warrior	1238	knife weapons	1	1236	slashing weapons	10	80		60			70
+Warrior	1240	razor weapons	1	1236	slashing weapons	10	80		60			70
+Warrior	1242	chopping weapons	0			10	70					60
+Warrior	1244	polearm weapons	1	1242	chopping weapons	10	80		60			70
+Warrior	1246	bludgeoning weapons	0			10	70					60
+Warrior	1248	pike weapons	1	1246	bludgeoning weapons	10	80		60			70
+Warrior	1250	shield use	0			15	45			arm.support.shield_use		35
+Warrior	1252	skinning	0			15	50					40
+Warrior	1254	forage	0			10	50			arm.support.forage		40
+Warrior	1256	flee	0			5	80					70
+Warrior	1258	cooking	0			5	50			arm.support.cooking		40
+Warrior	1260	analyze	0			10	90			arm.support.analyze		80
+Warrior	1262	two handed	0			10	90			arm.support.two_handed		80
+Assassin	1268	contact	0			20	80			arm.support.contact		70
+Assassin	1270	barrier	0			5	80			arm.support.barrier		70
+Assassin	1272	expel	1	1270	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Assassin	1274	sneak	0			5	95					85
+Assassin	1276	listen	1	1274	sneak	5	80		85			70
+Assassin	1278	climb	1	1274	sneak	15	50		85			40
+Assassin	1280	hide	0			5	90					80
+Assassin	1282	hunt	1	1280	hide	5	50		80			40
+Assassin	1284	scan	2	1282	hunt	5	80		40			70
+Assassin	1286	blind fighting	3	1284	scan	5	80		70			70
+Assassin	1288	backstab	0			5	90					80
+Assassin	1290	sap	1	1288	backstab	5	80		80			70
+Assassin	1292	dual wield	0			15	70			arm.support.dual_wield		60
+Assassin	1294	parry	1	1292	dual wield	10	40		60		arm.support.dual_wield	30
+Assassin	1296	throw	0			5	80					70
+Assassin	1298	poisoning	0			5	85					75
+Assassin	1300	brew	1	1298	poisoning	10	90		75			80
+Assassin	1302	trap	2	1300	brew	5	90		80			80
+Assassin	1304	piercing weapons	0			10	70					60
+Assassin	1306	knife making	1	1304	piercing weapons	10	50		60			40
+Assassin	1308	bludgeoning weapons	0			10	70					60
+Assassin	1310	shield use	0			5	25			arm.support.shield_use		15
+Assassin	1312	forage	0			10	50			arm.support.forage		40
+Assassin	1314	cooking	0			5	60			arm.support.cooking		50
+Assassin	1316	sleight of hand	0			10	70					60
+Assassin	1318	pick	1	1316	sleight of hand	15	60		60			50
+Assassin	1320	pick making	2	1318	pick	10	40		50			30
+Assassin	1322	analyze	0			10	90			arm.support.analyze		80
+Assassin	1324	two handed	0			15	70			arm.support.two_handed		60
+Ranger	1330	contact	0			20	80			arm.support.contact		70
+Ranger	1332	barrier	0			5	80			arm.support.barrier		70
+Ranger	1334	expel	1	1332	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Ranger	1336	archery	0			20	90					80
+Ranger	1338	throw	1	1336	archery	20	80		80			70
+Ranger	1340	fletchery	1	1336	archery	15	60		80			50
+Ranger	1342	rescue	0			15	95					85
+Ranger	1344	guarding	1	1342	rescue	15	75		85			65
+Ranger	1346	listen	0			5	80					70
+Ranger	1348	sneak	1	1346	listen	10	80		70			70
+Ranger	1350	hunt	0			15	85					75
+Ranger	1352	climb	1	1350	hunt	15	90		75			80
+Ranger	1354	poisoning	1	1350	hunt	5	75		75			65
+Ranger	1356	brew	1	1350	hunt	15	90		75			80
+Ranger	1358	bandage	0			10	95					85
+Ranger	1360	bandagemaking	1	1358	bandage	10	60		85			50
+Ranger	1362	dual wield	0			15	85			arm.support.dual_wield		75
+Ranger	1364	parry	1	1362	dual wield	10	50		75		arm.support.dual_wield	40
+Ranger	1366	scan	0			10	90					80
+Ranger	1368	hide	1	1366	scan	10	80		80			70
+Ranger	1370	blind fighting	1	1366	scan	10	70		80			60
+Ranger	1372	ride	0			40	95					85
+Ranger	1374	charge	1	1372	ride	15	80		85			70
+Ranger	1376	piercing weapons	0			10	70					60
+Ranger	1378	slashing weapons	0			10	70					60
+Ranger	1380	chopping weapons	0			10	70					60
+Ranger	1382	bludgeoning weapons	0			10	70					60
+Ranger	1384	shield use	0			10	20			arm.support.shield_use		10
+Ranger	1386	skinning	0			30	95					85
+Ranger	1388	tanning	1	1386	skinning	10	50		85			40
+Ranger	1390	forage	0			10	75			arm.support.forage		65
+Ranger	1392	flee	0			5	40					30
+Ranger	1394	cooking	0			5	60			arm.support.cooking		50
+Ranger	1396	analyze	0			5	40			arm.support.analyze		30
+Ranger	1398	two handed	0			15	85			arm.support.two_handed		75
+Ranger	1400	direction sense	0			60	95					85
+Merchant	1406	contact	0			20	80			arm.support.contact		70
+Merchant	1408	barrier	0			5	80			arm.support.barrier		70
+Merchant	1410	expel	1	1408	barrier	5	80		70	arm.support.expel	arm.support.barrier	70
+Merchant	1412	cavilish	0			100	100					90
+Merchant	1414	listen	0			5	80					70
+Merchant	1416	haggle	0			30	95					85
+Merchant	1418	bandage	0			10	90					80
+Merchant	1420	bandagemaking	1	1418	bandage	10	80		80			70
+Merchant	1422	dual wield	0			5	30			arm.support.dual_wield		20
+Merchant	1424	scan	0			10	80					70
+Merchant	1426	value	0			20	95					85
+Merchant	1428	ride	0			15	95					85
+Merchant	1430	pilot	0			40	95					85
+Merchant	1432	shield use	0			5	15			arm.support.shield_use		5
+Merchant	1434	skinning	0			20	50					40
+Merchant	1436	tanning	0			10	90					80
+Merchant	1438	dyeing	1	1436	tanning	40	90		80			80
+Merchant	1440	feather working	2	1438	dyeing	10	90		80			80
+Merchant	1442	floristry	2	1438	dyeing	30	50		80			40
+Merchant	1444	leather working	1	1436	tanning	10	90		80			80
+Merchant	1446	tentmaking	2	1444	leather working	10	90		80			80
+Merchant	1448	armor repair	2	1444	leather working	10	90		80			80
+Merchant	1450	armor making	3	1448	armor repair	10	90		80			80
+Merchant	1452	rope making	1	1436	tanning	30	80		80			70
+Merchant	1454	clothworking	1	1436	tanning	20	80		80			70
+Merchant	1456	forage	0			20	50			arm.support.forage		40
+Merchant	1458	basketweaving	1	1456	forage	10	80		40		arm.support.forage	70
+Merchant	1460	stonecrafting	1	1456	forage	20	90		40		arm.support.forage	80
+Merchant	1462	jewelrymaking	2	1460	stonecrafting	20	90		80			80
+Merchant	1464	toolmaking	1	1456	forage	15	90		40		arm.support.forage	80
+Merchant	1466	instrument making	2	1464	toolmaking	10	90		80			80
+Merchant	1468	fletchery	0			10	90					80
+Merchant	1470	bow making	1	1468	fletchery	10	90		80			80
+Merchant	1472	knife making	1	1468	fletchery	10	90		80			80
+Merchant	1474	swordmaking	2	1472	knife making	10	90		80			80
+Merchant	1476	spearmaking	2	1472	knife making	10	90		80			80
+Merchant	1478	lumberjacking	0			10	50					40
+Merchant	1480	woodworking	1	1478	lumberjacking	10	80		40			70
+Merchant	1482	wagonmaking	2	1480	woodworking	10	90		70			80
+Merchant	1484	club making	2	1480	woodworking	10	80		70			70
+Merchant	1486	axe making	1	1478	lumberjacking	10	80		40			70
+Merchant	1488	cooking	0			5	90			arm.support.cooking		80
+Merchant	1490	analyze	0			10	90			arm.support.analyze		80
+Merchant	1492	two handed	0			5	30			arm.support.two_handed		20

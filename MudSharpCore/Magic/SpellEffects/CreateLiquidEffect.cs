@@ -40,6 +40,7 @@ public partial class CreateLiquidEffect : IMagicSpellEffectTemplate, IMagicSpell
         _liquidId = long.Parse((root.Element("LiquidId") ?? root.Element("Liquid"))!.Value);
         AmountFormula = new Expression(root.Element("AmountFormula").Value);
 		LoadContainerFill(root.Element("ContainerFill"));
+		LoadGatherPuddle(root);
     }
     public IFuturemud Gameworld => Spell.Gameworld;
 
@@ -53,11 +54,12 @@ public partial class CreateLiquidEffect : IMagicSpellEffectTemplate, IMagicSpell
 
     public XElement SaveToXml()
     {
+		if (_unreadablePuddleDefinition is not null) return new(_unreadablePuddleDefinition);
         return new XElement("Effect",
             new XAttribute("type", "createliquid"),
             new XElement("LiquidId", _liquidId),
             new XElement("AmountFormula", new XCData(AmountFormula.OriginalExpression)),
-			SaveContainerFill()
+			SaveContainerFill(), _gatherPuddlePolicy is null ? null : new XElement(_gatherPuddlePolicy)
         );
     }
 
@@ -66,6 +68,7 @@ public partial class CreateLiquidEffect : IMagicSpellEffectTemplate, IMagicSpell
 
     public bool IsCompatibleWithTrigger(IMagicTrigger types)
     {
+		if (GatherPuddleOnly) return DefinitionError is null && types.TargetTypes == "room";
         return IsCompatibleWithTrigger(types.TargetTypes);
     }
 
@@ -90,7 +93,7 @@ public partial class CreateLiquidEffect : IMagicSpellEffectTemplate, IMagicSpell
     public IMagicSpellEffect GetOrApplyEffect(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome,
         SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
     {
-		if (ContainerOnly || _fillLoadError is not null)
+		if (ContainerOnly || _fillLoadError is not null || GatherPuddleOnly)
 		{
 			if (!TryPrepareApplication(caster, target, outcome, power, TimeSpan.Zero, out var application, out var error))
 				throw new InvalidOperationException(error);

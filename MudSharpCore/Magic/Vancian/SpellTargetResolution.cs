@@ -19,7 +19,7 @@ internal sealed class SpellTargetCapture : IDisposable
 	private SpellTargetCapture(ICharacter actor, IMagicSpell spell, SpellPower power)
 	{ _actor = actor; _spell = spell; _power = power; _previous = Current.Value; Current.Value = this; }
 	private static bool UsesWholeTargetText(IMagicTrigger? trigger) => trigger is CastingTriggerCharacter or CastingTriggerItem or CastingTriggerCorpse or
-		CastingTriggerLocalItem or CastingTriggerCharacterVicinity or CastingTriggerVicinity or CastingTriggerCharacterProgRoom;
+		CastingTriggerLocalItem or CastingTriggerCharacterVicinity or CastingTriggerVicinity or CastingTriggerCharacterProgRoom or CastingTriggerRoomMission or CastingTriggerMindContactCharacter or CastingTriggerRecognisedCharacter or CastingTriggerWaystepDestination or CastingTriggerBanishTraveller or CastingTriggerThresholdDestination;
 	public static bool SupportsCompleteSpecification(IMagicTrigger? trigger) => UsesWholeTargetText(trigger) ||
 		trigger is CastingTriggerSelf or CastingTriggerRoom or CastingTriggerParty or CastingTriggerExit or CastingTriggerCharacterExit;
 	public static SpellTargetResolution? Resolve(ICharacter actor, IMagicSpell spell, SpellPower power, StringStack targets,

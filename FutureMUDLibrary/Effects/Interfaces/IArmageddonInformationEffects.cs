@@ -4,6 +4,10 @@ using MudSharp.Character;
 
 namespace MudSharp.Effects.Interfaces;
 
+public interface ISensePoisonEffect : IEffectSubtype
+{
+}
+
 public interface IIdentifyLookEffect : IEffectSubtype
 {
 	long CasterId { get; }

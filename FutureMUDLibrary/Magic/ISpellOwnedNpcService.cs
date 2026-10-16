@@ -16,6 +16,13 @@ public interface ISpellOwnedNpcService
 	void ObserveNativeDeath(ICharacter character, IGameItem? remains);
 	int ReconcilePersistedDeaths(DateTime nowUtc, int limit = 100);
 	bool SuppressNativeRemains(ICharacter character);
+	/// <summary>Read exact NPC/body claims and durable retirement intent without loading other actors.</summary>
+	bool HasPendingRetirement(ICharacter character, long creatorId);
+	/// <summary>Pure, no-cost revalidation for a native spell summon command order.</summary>
+	bool HasCommandAuthority(ICharacter controlled, ICharacter commander, Guid lifecycleId, long creatorId,
+		long creatorInstanceId, long spellId, int grade);
+	/// <summary>Admits only the exact physical creator to mount their live spell companion.</summary>
+	bool HasCreatorMountAdmission(ICharacter mount, ICharacter rider);
 	bool TryPrepareRemainsRemoval(IGameItem remains, out string diagnostic, bool morphing = false);
 	bool TryNotifyRemainsDeletion(IGameItem remains, Action notify);
 	int ReconcileRetirements(DateTime nowUtc, int limit = 100);

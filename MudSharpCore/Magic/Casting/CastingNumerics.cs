@@ -11,6 +11,26 @@ internal sealed class CastingExpression(ITraitExpression source, ITraitDefinitio
 {
 	private readonly TraitExpression _expression = Snapshot(source, gameworld, location);
 
+	/// <summary>Null means deferred. Never read traits or run functions before the casting roll.</summary>
+	internal bool TryEvaluateFixedInputs(out double? value, out string? error)
+	{
+		value = null;
+		error = null;
+		var inputs = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase)
+		{
+			["grade"] = grade, ["power"] = (int)power, ["mastery"] = controlledGrade
+		};
+		if (_expression.Parameters.Count != 0 || _expression.Formula.FunctionNames.Any() ||
+			_expression.Formula.ParameterNames.Any(name => !inputs.ContainsKey(name))) return true;
+		if (!_expression.Formula.TryEvaluateDoubleWith(inputs, out var result, out var diagnostic))
+		{
+			error = $"{location}: {diagnostic}";
+			return false;
+		}
+		value = result;
+		return true;
+	}
+
 	private static TraitExpression Snapshot(ITraitExpression expression, IFuturemud world, string field)
 	{
 		if (expression is not TraitExpression native)
@@ -65,7 +85,28 @@ internal static class CastingNumerics
 				if (property.GetValue(effect) is ITraitExpression expression && !bindings.Any(x => ReferenceEquals(x.Expression, expression)))
 					yield return $"{label}/{property.Name}: unsupported route-bound numerical field.";
 			if (effect is TraitBoostEffect { Trait: null }) yield return $"{label}/boost.Trait: missing trait.";
+			if (effect is DiseaseEffect { DefinitionError: { } diseaseError }) yield return $"{label}/disease: {diseaseError}";
+			if (effect is PoisonEffect { DefinitionError: { } poisonError }) yield return $"{label}/poison: {poisonError}";
+			if (effect is RemovePoisonEffect { DefinitionError: { } removePoisonError }) yield return $"{label}/removepoison: {removePoisonError}";
+			if (effect is DamageEffect { DefinitionError: { } damageError }) yield return $"{label}/damage: {damageError}";
+			if (effect is WindHammerEffect { DefinitionError: { } windHammerError }) yield return $"{label}/windhammer: {windHammerError}";
+			if (effect is RemoveDiseaseEffect { DefinitionError: { } cureError }) yield return $"{label}/removedisease: {cureError}";
+			if (effect is NeedDeltaEffect { DefinitionError: { } needsError }) yield return $"{label}/needdelta: {needsError}";
+			if (effect is StaminaDeltaSpellEffect { DefinitionError: { } staminaError }) yield return $"{label}/staminadelta: {staminaError}";
+			if (effect is MagicResourceDeltaEffect { DefinitionError: { } resourceDeltaError }) yield return $"{label}/magicresourcedelta: {resourceDeltaError}";
 			if (effect is CreateNPCEffect { DefinitionError: { } creationError }) yield return $"{label}/createnpc: {creationError}";
+			if (effect is CreateShelterEffect { DefinitionError: { } shelterError }) yield return $"{label}/createshelter: {shelterError}";
+			if (effect is CreateGateEffect { DefinitionError: { } gateError }) yield return $"{label}/creategate: {gateError}";
+			if (effect is ExchangePlacesEffect { DefinitionError: { } exchangeError }) yield return $"{label}/exchangeplaces: {exchangeError}";
+			if (effect is GroundTremorEffect { DefinitionError: { } tremorError }) yield return $"{label}/groundtremor: {tremorError}";
+			if (effect is ReturnTetherEffect { DefinitionError: { } returnError }) yield return $"{label}/returntether: {returnError}";
+			if (effect is TracePathEffect { DefinitionError: { } pathError }) yield return $"{label}/tracepath: {pathError}";
+			if (effect is RemoteTravellerEffect { DefinitionError: { } remoteError }) yield return $"{label}/remotetraveller: {remoteError}";
+			if (effect is WeightedTravelEffect { DefinitionError: { } weightedError }) yield return $"{label}/weightedtravel: {weightedError}";
+			if (effect is OpenThresholdEffect { DefinitionError: { } thresholdError }) yield return $"{label}/openthreshold: {thresholdError}";
+			if (effect is CompellingRegardEffect { DefinitionError: { } charmError }) yield return $"{label}/compellingregard: {charmError}";
+			if (effect is PowerTagSuppressionEffect { DefinitionError: { } tagsError }) yield return $"{label}/powertagsuppression: {tagsError}";
+			if (effect is StormLocusEffect { DefinitionError: { } stormError }) yield return $"{label}/stormlocus: {stormError}";
 			if (effect is CreateLiquidEffect { DefinitionError: { } liquidError }) yield return $"{label}/createliquid: {liquidError}";
 			if (effect is CreateItemEffect { DefinitionError: { } itemCreationError }) yield return $"{label}/createitem: {itemCreationError}";
 			if (effect is AnimateCorpseSpellEffect { DefinitionError: { } animationError }) yield return $"{label}/animatecorpse: {animationError}";
@@ -79,9 +120,54 @@ internal static class CastingNumerics
 		{
 			var location = $"ScalarBindings/{b.List}[{b.Index}]/{b.Effect}.{b.Field}";
 			var effects = b.List == "target" ? spell.SpellEffects.ToArray() : b.List == "caster" ? spell.CasterSpellEffects.ToArray() : [];
-			if (b.Index < 0 || b.Index >= effects.Length || b.Effect != "boost" || b.Field != "Bonus" || effects[b.Index] is not TraitBoostEffect { Trait: not null })
-				yield return $"{location}: invalid index, effect token, field or trait reference; only boost.Bonus is supported.";
+			if (b.Index < 0 || b.Index >= effects.Length || !SupportsScalarField(effects[b.Index], b.Effect, b.Field))
+				yield return $"{location}: invalid index, effect token, field or typed dependency for the supported scalar adapter.";
 			foreach (var error in Errors(new TraitExpression(b.Expression, spell.Gameworld), location)) yield return error;
+		}
+	}
+
+	internal static bool SupportsScalarField(IMagicSpellEffectTemplate effect, string token, string field) => (effect, token, field) switch
+	{
+		(TraitBoostEffect { Trait: not null }, "boost", "Bonus") => true,
+		(RoomLightEffect, "roomlight", "AddedLuxPerPower") => true,
+		(RoomTemperatureEffect, "roomtemperature", "TemperatureDeltaPerPower") => true,
+		(ItemEnchantEffect, "itemenchant", "AttackCheckBonus") => true,
+		(TrackMarkEffect, "trackmark", "VisualTrackIntensityMultiplier") => true,
+		(HealingRateSpellEffect, "healingrate", "Multiplier") => true,
+		(NeedDeltaEffect, "needdelta", "DrunkDelta") => true,
+		(NeedDeltaEffect, "needdelta", "ThirstDelta") => true,
+		(ForcedPathMovementEffect, "forcedpathmovement", "Steps") => true,
+		_ => false
+	};
+
+	internal static void WriteScalar(XElement effect, string token, string field, double value)
+	{
+		if (!double.IsFinite(value)) throw new InvalidOperationException($"{token}.{field}: non-finite scalar potency.");
+		if (effect.Name != "Effect" || (string?)effect.Attribute("type") != token)
+			throw new InvalidOperationException("The scalar effect discriminator changed.");
+		switch (token, field)
+		{
+			case ("boost", "Bonus"): effect.SetAttributeValue("bonus", value); break;
+			case ("roomlight", "AddedLuxPerPower"): effect.SetElementValue("AddedLuxPerPower", value); break;
+			case ("roomtemperature", "TemperatureDeltaPerPower"): effect.SetElementValue("TemperatureDeltaPerPower", value); break;
+			case ("itemenchant", "AttackCheckBonus"): effect.SetElementValue("AttackCheckBonus", value); break;
+			case ("trackmark", "VisualTrackIntensityMultiplier"): effect.SetElementValue("VisualMultiplier", value); break;
+			case ("healingrate", "Multiplier"): effect.SetElementValue("Multiplier", value); break;
+			case ("needdelta", "DrunkDelta"):
+				if (Math.Abs(value) > MagicBuilderValidation.MaximumNeedDeltaAlcoholLitres)
+					throw new InvalidOperationException("Alcohol change exceeds the native need limit before payment.");
+				if ((bool?)effect.Element("DirectAlcoholRemoval") == true && value > 0)
+					throw new InvalidOperationException("Exact alcohol removal requires a nonpositive bounded scalar before payment.");
+				effect.SetElementValue("Drunk", value); break;
+			case ("needdelta", "ThirstDelta"):
+				if (Math.Abs(value) > MagicBuilderValidation.MaximumNeedDeltaHours)
+					throw new InvalidOperationException("Thirst change exceeds the native need limit before payment.");
+				effect.SetElementValue("Thirst", value); break;
+			case ("forcedpathmovement", "Steps"):
+				if (value < 1 || value > MagicBuilderValidation.MaximumForcedPathMovementSteps || value != Math.Truncate(value))
+					throw new InvalidOperationException("Forced path steps must be a whole number within the native builder limit before payment.");
+				effect.SetElementValue("Steps", (int)value); break;
+			default: throw new InvalidOperationException($"{token}.{field}: unsupported scalar field.");
 		}
 	}
 
@@ -93,6 +179,25 @@ internal static class CastingNumerics
 		var allowed = new[] { "variable", "grade", "power", "mastery" }.Concat(contextParameters);
 		foreach (var name in expression.NonTraitParameters.Where(x => !allowed.Contains(x, StringComparer.OrdinalIgnoreCase)))
 			yield return $"{location}: unsupported numerical parameter {name}.";
+	}
+
+	internal static void ValidateOwnedDiseaseInputs(IMagicSpellEffectTemplate effect, int grade)
+	{
+		if (effect is not DiseaseEffect { OwnedFamily: not null } disease) return;
+		if (disease.IntensityExpression is not CastingExpression intensity ||
+			!intensity.TryEvaluateFixedInputs(out var strength, out _) || strength != grade ||
+			disease.VirulenceExpression is not CastingExpression virulence ||
+			!virulence.TryEvaluateFixedInputs(out var multiplier, out _) || multiplier != 1.0)
+			throw new InvalidOperationException("Owned sickness requires fixed selected-grade intensity and unit virulence before payment.");
+	}
+
+	internal static void ValidateOwnedPoisonInputs(IMagicSpellEffectTemplate effect)
+	{
+		if (effect is not PoisonEffect { OwnedFamily: not null } poison) return;
+		if (poison.GramsExpression is not CastingExpression grams ||
+			!grams.TryEvaluateFixedInputs(out var amount, out _) ||
+			amount is null || !double.IsFinite(amount.Value) || amount <= 0)
+			throw new InvalidOperationException("Owned poison requires a fixed, finite positive selected-grade dose before payment.");
 	}
 
 	public static ITraitExpression Bind(ITraitExpression expression, ITraitDefinition trait, int grade, SpellPower power,

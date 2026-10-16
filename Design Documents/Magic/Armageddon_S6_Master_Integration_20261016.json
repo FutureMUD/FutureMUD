@@ -1,0 +1,188 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-16",
+  "recorded_at_utc": "2026-10-16T09:13:21.991387+00:00",
+  "scope": "Master integration baseline, focused contracts and freshly regenerated/imported combined blank schema; prior native gameplay retains its dated mechanism scope.",
+  "branch": "codex/armageddon-continuation-20261008",
+  "armageddon_parent": "62cb612ece3614dcdf6b92b90bf45eae9bd62b09",
+  "merged_master": "90a9343ace517b926e11209a3f5347a586a88646",
+  "integration_status": "MASTER_COMPOSED_FOCUSED_CHECKS_PASSED",
+  "final_consolidated_and_hosted_receipts": "https://github.com/FutureMUD/FutureMUD/pull/788",
+  "final_gate_rule": "Require the corrected exact published head to pass its full owning Seeder followup and Ubuntu/Windows push/PR fast gates. Preserve the initial consolidated failure and nine unchanged project passes; do not call the original failed run PASS.",
+  "check_ids": {
+    "HaggleCheck": 227,
+    "AnalyzeEligibilityCheck": 229,
+    "DualWieldCoordinationCheck": 230
+  },
+  "parry_repair": "Fresh CombatSeeder separate Parry is character-owned. Catalogue/support preflights now accept existing body or character skill ownership, reject invalid scopes, and preserve exact native Parry IDs without changing attack skill rules or player state.",
+  "focused": {
+    "seeder": {
+      "passed": 42,
+      "failed": 0,
+      "skipped": 0,
+      "trx": {
+        "path": "C:/Temp/armageddon-master-integration/focused/seeder-integration.trx",
+        "sha256": "6BAD27F842FC1C119CDF8331A2D44F82AED9D960E3F5B1D27C9BE5E86AC5F61F"
+      }
+    },
+    "core": {
+      "passed": 26,
+      "failed": 0,
+      "skipped": 0,
+      "trx": {
+        "path": "C:/Temp/armageddon-master-integration/focused/core-integration.trx",
+        "sha256": "85BF0A741CDC993C841DEE646A4E029E7F9A4C4424C46F9D8BF7452EE5526FC1"
+      }
+    },
+    "persistence": {
+      "passed": 67,
+      "failed": 0,
+      "skipped": 0,
+      "trx": {
+        "path": "C:/Temp/armageddon-master-integration/focused/persistence-integration.trx",
+        "sha256": "7C0DE231DFE23F1067517F576A58104F4D8F93834F10E16CA195DAD257D87C86"
+      }
+    }
+  },
+  "snapshot": {
+    "summary": {
+      "path": "C:/Temp/armageddon-master-integration/snapshot/20261016T090109Z_5ce93dc1014c433dbc17ce29e6171d58/summary.json",
+      "sha256": "7ECD525FF189D14935192CC730C8823F1BA50791BFB0F4E8F625F3A3A0E150CC"
+    },
+    "log": {
+      "path": "C:/Temp/armageddon-master-integration-snapshot.log",
+      "sha256": "6397C091D93CAC132F8EEC7238ABF6E9C226F6700E32E6A47A376098BD55790E"
+    },
+    "sql": {
+      "path": "C:/Users/luker/.codex/worktrees/377e/FutureMUD/DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.sql",
+      "sha256": "AFF64369F215FED139B0F4D61033F5E94DCF9968D1644B239DF26497AF10110D"
+    },
+    "manifest": {
+      "path": "C:/Users/luker/.codex/worktrees/377e/FutureMUD/DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.manifest.json",
+      "sha256": "EFD01D6713544FC99B5768BEB3781E6D9DB97134CC2ADD388649929A5141C29C"
+    },
+    "latest_migration": "20261016052024_AddShopHaggling",
+    "method": "Existing owned snapshot refresher applies all merged migrations, exports and independently imports the generated dump; no hand-written migration or either-side snapshot selection.",
+    "model_parity": "PASS no pending model changes",
+    "migration_history": "PASS exact equality to current assembly",
+    "combined_schema": "PASS Haggle shop configuration, Armageddon hazard/gathering columns and stable track identity foreign key",
+    "owned_databases_deleted": 2,
+    "owned_mysql_cleanup": "PASS",
+    "source_stable": true,
+    "source_start": "1749627657F9546BF986D37CE7E82C2299A0AB022A58D19FE81D8A61673D7089",
+    "source_end": "1749627657F9546BF986D37CE7E82C2299A0AB022A58D19FE81D8A61673D7089"
+  },
+  "builds": {
+    "debug_native_harness": "PASS",
+    "release_seeder": "PASS; zero errors,200 existing Core warnings",
+    "release_log": {
+      "path": "C:/Temp/armageddon-master-integration-release.log",
+      "sha256": "099509EDB76FFC9FA90374D4E940C34965A9DB691D5FB8FADB30E6F4487363F1"
+    },
+    "debug_probe": {
+      "configuration": "Debug",
+      "armageddonEnabled": true,
+      "replayProfiles": true,
+      "replayRunner": true,
+      "sha256": "FC567A88F71D95CF309C997DE812B1E646F146C698419FA87094125D94C616A8"
+    },
+    "release_probe": {
+      "configuration": "Release",
+      "armageddonEnabled": false,
+      "replayProfiles": false,
+      "replayRunner": false,
+      "sha256": "D2404E49B1282903C1439B1934AA8635B1D6AE03CDF438BE0B283E303AEB0985"
+    }
+  },
+  "reused_native_evidence": {
+    "receipt": "Armageddon_Gathering_Source_Qualification_20261016.json",
+    "checkpoint": "Armageddon_Gathering_Source_Checkpoint_20261016.md",
+    "source_head": "62cb612ece3614dcdf6b92b90bf45eae9bd62b09",
+    "rationale": "Gathering formulas, methods, payment helper, health capacity functions, registers and ash callback are unchanged. Incoming armour bypass defaults false and applies only to ordinary damage armour routing; extended trait options now use their explicit world. Focused organic/authoring checks and the consolidated runtime gate cover those shared contracts. The materially changed blank schema was regenerated/imported natively, and the fresh Parry installer overlap is directly regressed. No whole merged-head native gameplay certificate or relaxed fixture pins is inferred."
+  },
+  "retained_failed_attempts": [
+    {
+      "attempt": "initial focused seeder compile",
+      "result": "New regression imported two TraitDefinition classes; replaced the broad runtime import with a TraitOwnerScope alias. Same focused plan then passed42/42.",
+      "log": {
+        "path": "C:/Temp/armageddon-master-integration-focused-seeder.log",
+        "sha256": "5EF87D0A1B93C5B8BFC68AA86B56DE68AF223FB34535C27360104E48C65CF601"
+      }
+    }
+  ],
+  "remaining_readiness": [
+    {
+      "gate": "S6 ecological presentation/coverage",
+      "remaining": "Source-style ash dissipation broadcast and real-time expiry qualification remain unimplemented/unrun; explicit local life-owner/profile and terrain bindings are builder choices, not automatically assigned vegetation."
+    },
+    {
+      "gate": "S6 complete character construction",
+      "remaining": "Selected-Class service tests and copied-body native samples do not qualify the complete chargen approval/UI path."
+    },
+    {
+      "gate": "N24 installed-stock rerun safety",
+      "remaining": "Execute the named rename/edit/delete/retire/clone/interruption campaign against complete installed stock; preserve player and builder state, stable IDs and owned-only repairs."
+    },
+    {
+      "gate": "N25 cross-feature uncertain failure",
+      "remaining": "Execute the named provider-failure-after-debit/effect/progression/lifecycle scenario, cross-body/route retry and restart; require quarantine/conservation without replay, refund, duplicate grade or second corpse."
+    },
+    {
+      "gate": "Final programme/release readiness",
+      "remaining": "Complete the remaining bounded programme gates and documented balance review. Release, package/casting/Class/gathering/use/craft/variant availability stay false until separately authorised; unapproved carriers remain disabled."
+    }
+  ],
+  "genuine_user_decisions_required": [],
+  "whole_s6_qualified": false,
+  "whole_programme_qualified": false,
+  "availability": {
+    "release": false,
+    "package": false,
+    "casting": false,
+    "classes": false,
+    "gathering": false,
+    "use": false,
+    "craft": false,
+    "variants": false,
+    "unqualified_carriers": false,
+    "pr_merge": false,
+    "deployment": false
+  },
+  "environment_blockers": [],
+  "integration_merge_commit": "57d88ae64a49ce78cf16fd82c6eb62af54dc64a9",
+  "consolidated_attempt": {
+    "status": "FAIL_PRESERVED",
+    "summary": {
+      "path": "C:/Temp/armageddon-master-integration/consolidated/20261016T091503Z-00b6d23d0bd7/summary.json",
+      "sha256": "3A535EB542B0F6C9761F09FADBAE262D70B95CA697EC0F49399E90437848BB73"
+    },
+    "failures": {
+      "path": "C:/Temp/armageddon-master-integration/consolidated/20261016T091503Z-00b6d23d0bd7/failures.json",
+      "sha256": "2B4F59D95F6A49A37F02E5443AAEAA043ABEC624841CEEF091965BBF2E99B711"
+    },
+    "counts": {
+      "executed": 10969,
+      "passed": 10955,
+      "failed": 14,
+      "skipped": 3,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 10972
+    },
+    "source_start": "ffa49c78b856f139f0a0286fa3d8369813f1f85f762c05f69963a5cb0ded9527",
+    "source_end": "ffa49c78b856f139f0a0286fa3d8369813f1f85f762c05f69963a5cb0ded9527",
+    "source_stable": true,
+    "cause": "All14 Seeder failures are TargetParameterCountException in S4ProtectionSupportTests:136. The shared private Fixture gained an optional third argument, but reflective callers supply exactly two. Other nine projects passed.",
+    "repair": "Restore original two-argument Fixture; forward to distinctly named FixtureWithCombat for the new Parry setup. No production code, assertions or skipped tests changed.",
+    "focused_correction": {
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "trx": {
+        "path": "C:/Temp/armageddon-master-integration/focused/fixture-correction.trx",
+        "sha256": "397F3DCD9903BB3CD42F739DB8979D980B272B400ED84C7A9CD83C641CA871BA"
+      }
+    },
+    "owning_followup": "One full DatabaseSeeder suite on corrected head; retain nine unaffected project receipts. Final receipt on PR788."
+  }
+}

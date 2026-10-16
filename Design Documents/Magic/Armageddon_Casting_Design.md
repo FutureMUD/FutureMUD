@@ -195,10 +195,12 @@ A manifested success qualifies when the cast check meets the spell's success thr
 and at least one intended manifestation reports an actual applied operation; a valid
 non-targeted utility invocation may qualify on its explicit applied-operation report.
 The proposed result distinguishes `Applied`, `NoChange`, `Rejected` and `Unknown`.
-Existing target-resolution success and a non-null persistent child are insufficient:
-instantaneous damage returns no child, while removing blindness from an unaffected
-target also returns none. Adapters report the operation once; unknown legacy effects
-retain their ordinary casting behavior but cannot establish mastery eligibility.
+Target resolution or merely constructing a persistent child is insufficient: ordinary
+prepared applications qualify from a child only when it remains attached to the
+intended recipient and finalized spell parent. Instantaneous damage returns no child,
+while removing blindness from an unaffected target also returns none. Adapters
+report their operation once; reportless applications without a surviving intended
+child retain their ordinary casting behavior but cannot establish mastery eligibility.
 Empty groups, no-op removals, every target warded or resistant, or rejected effect
 admission do not advance mastery. Caster effects alone cannot rescue a rejected/no-op
 targeted invocation. Native

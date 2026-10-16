@@ -12,7 +12,8 @@ namespace MudSharp.Health
         Necrotic,
         Infectious,
         Gangrene,
-        FungalGrowth
+        FungalGrowth,
+        SownSickness
     }
 
     //A general indication about how advanced the infection is
@@ -67,6 +68,8 @@ namespace MudSharp.Health
                     return "gangrene";
                 case InfectionType.FungalGrowth:
                     return "fungal growth";
+                case InfectionType.SownSickness:
+                    return "sown sickness";
                 default:
                     throw new NotImplementedException("InfectionType does not have a string for Describe.");
             }

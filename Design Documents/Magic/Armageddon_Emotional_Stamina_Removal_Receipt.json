@@ -1,0 +1,668 @@
+{
+  "schema_version": 1,
+  "scope": "Departing Fury bonus exclusion in actual native EffectHandler/Body lifecycle, with mocked world/character and explicit fixture capacity prog",
+  "source_commit": "da9af18a57634cf77b92999810a9aad0102fa41c",
+  "reviewed_groundwork_source": "a53f1d15e6a1195d0ba28c075816894605cbad84",
+  "previous_documents_checkpoint": "d683eebca21ca75f518f2087f2310c455d5bfcff",
+  "branch": "codex/armageddon-five-stock-spells",
+  "worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock",
+  "native_lifecycle_fixture_verified": true,
+  "database_native_verified": false,
+  "paid_emotional_casts_verified": false,
+  "runtime_casting_combat_hooks_wired": false,
+  "stock_implemented": false,
+  "completion_clear": false,
+  "independent_review_pending": true,
+  "fixture": {
+    "trait_id": 844,
+    "raw_trait": 10,
+    "capacity_prog": "100 + Body.TraitValue(explicit attribute) * 10",
+    "units_per_source_point": 1,
+    "default_mapping_authorised": false,
+    "departing_endurance": 4,
+    "retained_endurance": 2,
+    "removal_paths": [
+      "Actual EffectScheduler -> parent expiry -> EffectHandler removal",
+      "Registered DispelMagicEffect.Apply -> parent removal -> EffectHandler removal"
+    ],
+    "assertions": [
+      "No refill on attach",
+      "Parent and child removed/unscheduled",
+      "Capacity200 baseline or220 with second Fury retained",
+      "Current stamina clamped to final capacity",
+      "Remaining Fury keeps its parent schedule and effective trait bonus",
+      "Exertion and heartbeat-active flags unchanged"
+    ]
+  },
+  "reproduced_failure": {
+    "summary": {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/summary.json",
+      "sha256": "92445219760764fdcbc66f2721b0cfde6491b3edcb756561c29de1035dce44e1"
+    },
+    "failures": {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/failures.json",
+      "sha256": "f642e21bc40379733ff78001634ada7af6a625142229d2461a1abba7d3cb8e42"
+    },
+    "passed": 0,
+    "failed": 4,
+    "source": "d683eebca21ca75f518f2087f2310c455d5bfcff plus final uncommitted regression fixture, before production fix",
+    "result": "Native expiry and native dispel both retained stale240 rather than200, or stale260 rather than220 when a second Fury survived"
+  },
+  "unit": {
+    "status": "PASS",
+    "run_id": "20261005T145402Z-f314ff920add",
+    "counts": {
+      "executed": 7511,
+      "passed": 7511,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7511
+    },
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+      "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+      "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+      "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+      "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+      "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+    ],
+    "sdk": "10.0.401",
+    "execution_complete": true,
+    "counts_complete": true,
+    "source_stable": true,
+    "source_start": "b60e3fc24b0687a680b6f48a67074faec970f0374a8c06493f2d60ac1d821a95",
+    "source_end": "b60e3fc24b0687a680b6f48a67074faec970f0374a8c06493f2d60ac1d821a95",
+    "summary": {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/summary.json",
+      "sha256": "141d66787adbb9f28a5bc613ab0a0c74756ec6a7e018283832e8a6b409d43b47"
+    },
+    "focused": {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/focused-cases.json",
+      "sha256": "ad70ddd55dedcccbfcb7046aefc1df6b27a62e852cd18f44d57bdea9c0621b1c"
+    },
+    "lifecycle_cases": 4,
+    "policy_cases": 30,
+    "pierce_cases": 57
+  },
+  "source_files": [
+    {
+      "path": "Design Documents/Magic/Armageddon_Emotional_Stamina_Removal_Fix.md",
+      "sha256": "f5cc54227d51a574d63bc454a2e8c3b43a774c294d4df3dfbfe2d4df0ec6567c",
+      "git_blob_sha1": "777f5678b3434550491141454cdd113b30a2ad1d"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/EmotionalStaminaLifecycleTests.cs",
+      "sha256": "284737641b1be3955360d8989dedc57ca0fd3be39f99bc698c8c9afb1cc19aee",
+      "git_blob_sha1": "e98ebbe96a8690829539114757b34576dafd2ac5"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellEmotionalEffect.cs",
+      "sha256": "5db278f8422455403c0e50984e42bd1e39b02ef0e340a4218b82738ead2bd2f7",
+      "git_blob_sha1": "012e35d21c13d9b3141fde7fc05ed4c3abcc6951"
+    }
+  ],
+  "executed_assemblies": [
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "06dacd1a2c8df27a72f653b5913b664ac03d856320f943967bc8bb938811eef8"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharpCore Unit Tests.dll",
+      "sha256": "2b8660fa58e99ceca695903329d8e48fbf9b63d905eaffa935f9436dc6e2c8a0"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "9512206114839616167f329ba0e0a83c87c7afe062e2b394d6785be5e1574dbd"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/run.json",
+      "sha256": "82b80783e185748a0099ff65d3017f2224762f2c301f7d74df9d6a7a5d275cf9"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/source-end.json",
+      "sha256": "40eaf49abf978f6f8ae7b1683bb9fc265b2680f61ab385fcc6c6d4dc440f7195"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/source-start.json",
+      "sha256": "13f07640d8b6683eaa56307eb3cf75e01c3baaf8d282e3d7dccae127ed97fc5f"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/summary.json",
+      "sha256": "141d66787adbb9f28a5bc613ab0a0c74756ec6a7e018283832e8a6b409d43b47"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/summary.txt",
+      "sha256": "5b89d7cee5d616f5bcf67a3758035d24e20f07920a566fa463f994be376af835"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/test-results.json",
+      "sha256": "f831dd8f3eed95874cd3322a27d6a729758f909973cf906363b49dffedd40684"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "f1fa4d251e882c9fa840fbcab2db4cc731ebfdd6cf7dd4f9520341ce1b62bbb9"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "1e3f3e34fdb42a163a626a3f45d98ea8e07d453654ead399d0c40fc3e3e06ed5"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "be0551fa6bf96f43b8d6fcc68dbe34d93f095b5a4b79f90f6fc3f233770a00ea"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stdout.log",
+      "sha256": "d25d1dbd518c202a6658e8c465f0dfcfb6805731cbf92b1aa90ca1af906363bf"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "383dcd0a376df5be9ab515f555bca21790fdd063b4adc9dfa0357e015680b622"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stdout.log",
+      "sha256": "866bda85e2a39178455e92723289762ef76c163c26693e785543a27c8a9ba22a"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stdout.log",
+      "sha256": "54457e3831e986358a3452b45f1ee19b8e6fe22ff15c1ffc5b995adb5271a9b8"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "b7577a5b26ce49d6ad3eebb84e1b5df8ea180a53294b412dc26505ba8c763128"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stdout.log",
+      "sha256": "65cd8c16986e7a8ddead144ce541e34465473acf833695f265a4ca9afff1b4c5"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stdout.log",
+      "sha256": "f9bef308a68bd6cb79a02a80124a63b4bf8047ed338aae825c976a0c8337c3f0"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "74b016475fe0411835e236c41378906e59497d8ef27a6264be0592947b1b0933"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stdout.log",
+      "sha256": "297325ea43e442bfe68ef4f18016420c00a6ad3f6bd363ec4241861f78936818"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stdout.log",
+      "sha256": "f704954d5e0f219fe5358103d8f9243c2f54d586e65ea16965e5bafebbc3f611"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "93169eed899f5f7418e3d5a674939d306740086898d2e18a47bfcf7066f96cb8"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stdout.log",
+      "sha256": "ad62704817f31a4e31a1d7c2ed66d12f2c46b625a49387fca54981c0bd95d817"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "d012e64294202ed6a880f3085cb30de23a687994b3b7667e4519d16299f9b208"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "8c0c76b9d8d1a7fa7cb9a0f738ab4bb47e2a3b4e87f6e3d4df19e79bc9233ec3"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "6d735854908ed3a13a878dd49f9882466ed3986eb3bd1ab4b532a4bf07258326"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/luker_PERCIVAL_2026-10-06_01_55_34/In/8c433285-36b6-4217-ba14-fb644b865238/PERCIVAL/authored-celestial-performance.json",
+      "sha256": "7c4d708ddc2f2eccb42573402bb54908f92f6cbf4a38829eadd9849371eeb05d"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "8ac28dd9a1e7e68e20cc5cf53c3788472a92923c02d8b8e2206c2bb63706052b"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "5313c499beb5df717e225687e6de3db5ceeaa1b22c06d0920702503fb575b628"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "19793fb1b9329862401239ea835ef572181cb9c179c39e1c6a73cb906683b92f"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stdout.log",
+      "sha256": "770e5624273441f3d62c5c0c1f4d3884c26c0d7d7abe0b55a092fb27215980b5"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "a63a5a1b4f2b3cfb95a2b77e592a5175ef04ac7aafbea2c70e1d7a1a44d94cea"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stdout.log",
+      "sha256": "4636d211c246bb03db2d91cca1dd03319b5e2ee08f166378f91291d356785d4d"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stdout.log",
+      "sha256": "724ad8d184bc9ec772700f9e78b81efd0a11e9b76204be3bb0dd16f3594c91f5"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "a0191fec1bed86eecfd97994460bf4bacdfbf593f199a482ec55ed1ef16f0dd6"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stdout.log",
+      "sha256": "341468e8cf2c2a096aa5bfac7d384f998c1f5a3571ed23889128ec67b13e0817"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/TestReporting.Tests-25b07e44/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/TestReporting.Tests-25b07e44/build/build.stdout.log",
+      "sha256": "113a9d2735d878b21c9a1649441eaf72552aab0127efe8c579d36b76f9423c69"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "3f4062ef4b3513c7b1ad9cb807e33c6ba05cc5b6309c987f6f00d069962d449f"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stdout.log",
+      "sha256": "c9d869a80237304decdc76872bca6a87723e652b7b1cb1d8cc5520b47dde17d0"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-final-01/20261005T145402Z-f314ff920add/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    }
+  ],
+  "diagnostic_artifacts": [
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-01/20261005T144729Z-c02213d4f0f1/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-01/20261005T144729Z-c02213d4f0f1/run.json",
+      "sha256": "a8c9e374f0f4dc271991474c163fb5d5c5096749f101456dfb6dee4de92f206f"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-01/20261005T144729Z-c02213d4f0f1/source-end.json",
+      "sha256": "c9d8cf2d3f01f3a47d5e6b86e30381890467de6d27659d14c2dd6b11b2e1ad1b"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-01/20261005T144729Z-c02213d4f0f1/source-start.json",
+      "sha256": "904a851519890d69cedbba4c643874c9cd44c40dd146b41548098915a0b59b76"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-01/20261005T144729Z-c02213d4f0f1/summary.json",
+      "sha256": "bf71f5b55399ed35ccb7b1be23458ea3bdbf43e3574753465f41597dedd68acc"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-01/20261005T144729Z-c02213d4f0f1/summary.txt",
+      "sha256": "d86c3c1893f6cafa3f82b83dbaeacf90b297d4ad6b908b6e731e8578dc335691"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-01/20261005T144729Z-c02213d4f0f1/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-01/20261005T144729Z-c02213d4f0f1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-01/20261005T144729Z-c02213d4f0f1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "2e2e07e3f7ea607952634cebd21402ae0390eeab93e8dc1c786e29c4a5140f38"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-01/20261005T144729Z-c02213d4f0f1/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-01/20261005T144729Z-c02213d4f0f1/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-01.log",
+      "sha256": "125c96f8659434a72bc16d2176d9c3437da2207c38794d71c86a038239c596f1"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-02/20261005T144916Z-c45d7315da42/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-02/20261005T144916Z-c45d7315da42/run.json",
+      "sha256": "11bd0128362e11a52e1dde08f8ea77ebfafa003a20eaa747096f1ed39862c453"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-02/20261005T144916Z-c45d7315da42/source-end.json",
+      "sha256": "6baf4ff0517fdb60a6d1b23e545471a0cab5e170fd06e075583424e41f2d1aba"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-02/20261005T144916Z-c45d7315da42/source-start.json",
+      "sha256": "382eb290dfee2b2babfdc05082acb02dcfd14b03980ff9828089ae560dedeb78"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-02/20261005T144916Z-c45d7315da42/summary.json",
+      "sha256": "a10b53a6933c614d21350653a3ec5b2611b765083ad257e62f1a2fdef156d6c4"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-02/20261005T144916Z-c45d7315da42/summary.txt",
+      "sha256": "b0e2598289e213126e41f27ee18a1d8ccab5363a4036f5a9a6818d50c2d1a964"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-02/20261005T144916Z-c45d7315da42/test-results.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-02/20261005T144916Z-c45d7315da42/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-02/20261005T144916Z-c45d7315da42/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "f726316ea67578cc4659e74a746f03ba848afb426844e6c1af00de2e581f307e"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-02/20261005T144916Z-c45d7315da42/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-02/20261005T144916Z-c45d7315da42/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-02.log",
+      "sha256": "d2505e1bb5cb9581b8737208c6ecd89c8cc94091e0bc9e6154aecd7cb6059bf1"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/failures.json",
+      "sha256": "964f2450e736ac17bec54a6b4d6c1406aa7cb3bbee05f1bd7505c9190d6e49d7"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/run.json",
+      "sha256": "e7569ecf7afcb46d7fe94d4ff8cd5e3d00b62f64ac651c5a1a8d546018364246"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/source-end.json",
+      "sha256": "dc4424c21b3d1ab4de678757b3e61b9b25b625d418a742c68bac7c79c661e4e8"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/source-start.json",
+      "sha256": "df7ac1f804d4a30d3724d4a68d662b05c98d963b7f1aea41b9701379d1d2bbb3"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/summary.json",
+      "sha256": "ed8da34d4d16a66c99d0016f2b4478640f686ad5930208874f9f3a14d906f0df"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/summary.txt",
+      "sha256": "3eb4c01c6c9ecbfeb80891fb39b19810bd1b1a2da3cedf3d2c3f8acec23a89f4"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/test-results.json",
+      "sha256": "964f2450e736ac17bec54a6b4d6c1406aa7cb3bbee05f1bd7505c9190d6e49d7"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "fdb0ced06c7a88957d5db313474bb3fa9ca01562234716b6cde591d1476db2dc"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "42e55aae2b84d8e278d69369526ae028b4d5b4d49f12867eef3ee69be74f7eab"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "640c95cb9617398c4aaca5d951af7e6cb072e786d012ecabf025ea6e74a462f2"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03/20261005T145016Z-ab03affbb2af/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-03.log",
+      "sha256": "f0c5754403bf73afb18cdc2f920f5548d56ecf9f28baf58dab7e69a8e41ae724"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/failures.json",
+      "sha256": "f642e21bc40379733ff78001634ada7af6a625142229d2461a1abba7d3cb8e42"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/run.json",
+      "sha256": "03fec06fbdcf665f0f8389917abf4b86ed4ec1acd52f021da43343e8597bdb5d"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/source-end.json",
+      "sha256": "355d16bbd880042c44c02f760fd0a1b1c8654e90a258cec0a45347f5730652c5"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/source-start.json",
+      "sha256": "83a661adafd559258e66282522c89cc57614a53dbebc3062317e16687dc948d9"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/summary.json",
+      "sha256": "92445219760764fdcbc66f2721b0cfde6491b3edcb756561c29de1035dce44e1"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/summary.txt",
+      "sha256": "38b30bf9f2f82d59703644f0f7a2b7493ec4b64ea30a8abe41cbae1f1dee214c"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/test-results.json",
+      "sha256": "f642e21bc40379733ff78001634ada7af6a625142229d2461a1abba7d3cb8e42"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "fd015d3373ea0ebca3c505fbe809e5e7f88287c2acb72bcffa502bd61ade90df"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "cd144acea2cd4317234c49d9d73129819c20542ad80c30deff8f003fe16d4cca"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "2b5cafa4bdfd96f09302ffeb951bda2572a51ba8edb22189e003537f02b2f848"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04/20261005T145110Z-74e3b0dfb30c/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-repro-04.log",
+      "sha256": "3b15dc3d662938605588a3192b07a47d3371752157fc6fe7d42bb6594764e196"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/run.json",
+      "sha256": "c0229b912ae0ef48ca6d69ac4cf7662de318cc1e02d5695afc2a4557851542f3"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/source-end.json",
+      "sha256": "5ec4ae4ddf17291efcb07cf308311bd6dd5e4c9f5255d73fcf633b04ef2636d0"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/source-start.json",
+      "sha256": "5a756f74713be68d0f3400d19564a4e81940745e65e891093e06fe2ec7647e51"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/summary.json",
+      "sha256": "3bb8a1675b2855429b46788917638b6b789e4ea7ec694d00a92e8220a7d9422b"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/summary.txt",
+      "sha256": "c253b3951dc15522b689bb8af0eb4d09f54cd147dd64eee51f000f7d89026fbe"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/test-results.json",
+      "sha256": "bc88829b7415ee07c97293629995a894eac10e1ee1f6acd8e9473699437c7f6c"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "2455ecfd74849599507ea2712334d71b162bdf5584c6f6b1d527c082882098ac"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "a8b38e07dc6ff53352bbe20f54fbfb2833957b6d25edcdc111aa099117ee3d0e"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "0516e80775fdd50f53d2a5ef269bf989314341a5f12d2a045f31b64608341820"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01/20261005T145215Z-3b8bd6aec8b5/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-stamina-fix-focused-01.log",
+      "sha256": "3d8aeac8d8ca2282e5de610009ba7971663ba8301edd15466175221a4a3f09ce"
+    }
+  ],
+  "proposal": {
+    "caller_patch": {
+      "path": "Design Documents/Magic/Armageddon_Emotional_Casting_Callers_Proposal.patch",
+      "sha256": "77f58b5f8a0fcf70e6965632cc83da7c9d471fa557f669f48eb0620222d779c6"
+    },
+    "contract": {
+      "path": "Design Documents/Magic/Armageddon_Emotional_Casting_Hook_Proposal.md",
+      "sha256": "07775b0f282903b9e1cd8215f0a2b9a7776243926da97dce25c52ceb5183fca1"
+    },
+    "live_caller_git_blob": "6d6ab01e83dcd0e8333b0aae1cf39ceca11bcbff",
+    "live_caller_working_bytes_sha256": "a0b98a77494c27b46b372db352d7ac526d2659186665bd5ce36adbe3fefbbdb1",
+    "cached_dry_run_passed": true,
+    "worktree_dry_run_passed": true,
+    "applied": false,
+    "compiled": false,
+    "new_private_contracts_implemented": false
+  },
+  "limitations": [
+    "Mocked world/character and explicit fixture capacity prog; no seeded compiled-world prog or database boot/reload qualification",
+    "No paid Fury/Calm casts, selective combat cessation, combat authority, or stock defaults qualified",
+    "No endurance default or Calm attack-break hook authored",
+    "Unapplied casting patch alone would not compile; requires agreed new partial/template contracts",
+    "Historical and earlier entry receipts remain unchanged"
+  ]
+}

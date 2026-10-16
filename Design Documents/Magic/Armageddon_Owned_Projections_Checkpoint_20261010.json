@@ -1,0 +1,403 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-10",
+  "status": "PASS_BOUNDED_N18_BUILDER_INSTALLED",
+  "branch": "codex/armageddon-continuation-20261008",
+  "base_head": "db9136e45a8c4f5bb41ff0b16cf970820257ae1d",
+  "source_brief": "Armageddon_Magic_Completion_Implementation_Brief.md",
+  "candidates": [
+    "arm.spell.sand_effigy",
+    "arm.spell.walking_shadow"
+  ],
+  "reference_authority": [
+    "Declared EF foreign keys",
+    "Strict versioned ProjectionAnchor primary instance/body/room/layer/route and policy",
+    "Exact creation claims and native instance metadata AnchorCharacterId/AnchorInstanceId",
+    "Existing concrete typed physical-reference codecs and runtime providers"
+  ],
+  "numeric_text_scans": false,
+  "guessed_identity_fields": false,
+  "schema_migration_required": false,
+  "runtime_source_sha256": {
+    "FutureMUDLibrary Unit Tests/SpellProjectionAnchorTests.cs": "9301b0c75383d84cfd415e7d36e6683dd2364603297d316508c9c272877ad953",
+    "FutureMUDLibrary/Body/ManualActionExtensions.cs": "486dd4a1e04b44a604568cf2505c38cc508cec6db4d2264f97a5b4bcfa29d082",
+    "FutureMUDLibrary/Framework/IFuturemud.cs": "98faa0ca256ef742a0991bb20e9c43d89e696c1d84e90b310ab445926aee601a",
+    "FutureMUDLibrary/Magic/ISpellOwnedLifecycle.cs": "47d68e72aa1dddfefe2f52c4512b6ddd01bca4899ddd5b5a2b92f76dc316934f",
+    "FutureMUDLibrary/Magic/ISpellOwnedProjectionService.cs": "920f4fc374f76eefffdba699e84fcd51535a852884d28561505ac48ed0d448ee",
+    "FutureMUDLibrary/Magic/SpellProjectionAnchor.cs": "946a114eb9869bca115ffd22ecfc03c8ee4f5b890fe9b3b569b1d62ee893eb50",
+    "FutureMUDLibrary/Planes/PlanarPresenceExtensions.cs": "ac5b126905a84beeedfbed0729c8bacdf52a3a15f74b61d9a429b72d4ddbf893",
+    "MudSharpCore Unit Tests/EnvironmentalExposureIntegrationTests.cs": "6de0b219378250b143fa09ed968f0af4f105e10884b20a02ab36100f9934964d",
+    "MudSharpCore Unit Tests/SpellOwnedProjectionTests.cs": "f4004b964e51600d63084b1e89ebacefbdf1d8788e8ea8a8e7d39b9eabda475b",
+    "MudSharpCore/Body/Implementations/Body.Archival.cs": "0365a4516cdff0663de4981c32842841e4e4d8c4c6a0a31233dc2d4fa460514d",
+    "MudSharpCore/Character/CharacterArchival.cs": "29aaf54a7e0feb3a30adb06af8308c85083e4315edadc0014eec9bf8f5806547",
+    "MudSharpCore/Character/CharacterArchiveService.cs": "5aaf48dbacf9b9db9236d6f056030392c94ff6fffa992f414affe4a72ac8aa40",
+    "MudSharpCore/Character/CharacterInstanceService.cs": "68602613993ce9033a6a608e48b27d24b5df22d08eacc604de6bd39aead9d575",
+    "MudSharpCore/Character/CharacterInstances.cs": "10a22c2b53fb2aaf043925d4566eb61fac0a7394867f0be5a28b198cdcc9155f",
+    "MudSharpCore/Character/CharacterMovement.cs": "3ad39b3363b2d9cc0ceca638e528f8be634eaea86a610a836cba36f753e6f9aa",
+    "MudSharpCore/Character/PhysicalReferenceCodecs.cs": "b45bd1983a26a3477e80c29d318cdf674daace5e4af6d2d0032b05adf21e34c4",
+    "MudSharpCore/Character/ProjectionSpatialPolicy.cs": "5634f9302c59af8bacd5f76e25eb80bc68c5ed6acfe252ee557cb00baa415f3d",
+    "MudSharpCore/Combat/Moves/CombatForcedMovementUtilities.cs": "6a2b402661316266b4f9fa42266f6cb7e4e8c28e417d98d2e8a06fc0da2c23cc",
+    "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Projections.cs": "87b315b7c22e96048da5ca1e08f0264a18366be71e196952508b747697f6f388",
+    "MudSharpCore/Commands/Helpers/EditableItemHelperMagic.Stock.cs": "6f7e0488831b33fe1428b2b34d4265aa7cd4d32096dbd312264230f7429bf137",
+    "MudSharpCore/Construction/Room.cs": "6d9ce30da35cd4ded9f464e6cafd73eb92b3c2c56ca545999aa5f55b210c1179",
+    "MudSharpCore/Effects/Concrete/SpellProjectionBoundary.cs": "483e1769cb493e731f9679751c0867e7d6554a4b5dbf9d38efe44bf4b030a12f",
+    "MudSharpCore/Effects/EffectHandler.cs": "6988f5087e1d2d0c516fa4880b33be106736e483d9f5310de4e64386a61c4ac6",
+    "MudSharpCore/Form/Material/EnvironmentalExposureService.cs": "91f9e08240a6854e8fdd7014cbaacfc44da737c9a685dcb2a935ed19ed567385",
+    "MudSharpCore/Framework/Futuremud.SpellOwnedNpcs.cs": "24a649ff30af5508a9f46427e26a25bc8598e8eec60781151edd46bf6996943b",
+    "MudSharpCore/Framework/PerceivedItem.cs": "b11021fdabca9a8806ce908aca336e3a4f63dfb7535861d84727cd29c5b7b9e6",
+    "MudSharpCore/Magic/ArmageddonProjectionStock.cs": "aec4bab02a5b8b41ce7b66fd69f49f77436bfc1d112c87934e7eb191c0e8aa97",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedItemService.cs": "da357d557287d65b0ee7ecdbd1648b23bac4f18d148c83f6f5e3947bdd18dc42",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedNpcService.Retirement.cs": "22be977ace7a8be3480f0f4716ca86f300215e7ab55595ab93b5fca63b5b2707",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedProjectionService.Retirement.cs": "f23d2c561d34c400b01d203cba2b930d7f7b8367dd1eaeb624aa1fd7dbb927f9",
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedProjectionService.cs": "182b845d7fa85fe41d87c5e2cdb93e5ca1d34d82f593bb0f5e48322d4bee44ee",
+    "MudSharpCore/Magic/SpellEffects/CreateProjectionEffect.cs": "54801d519f86f9fa151a86440ec3e65f0c6205e1251cbea222aa7bc32da52607",
+    "MudSharpCore/Magic/Vancian/ScrollSpellCompatibility.cs": "a4ece169b52223b52e54296ada9ec3991fbd56c7aeb8a315f3421070710fa243",
+    "scripts/FuryCalmSmokeWorld/OwnedProjectionFixtures.cs": "9ef7e41db04049f608576f0419678593f57ed3a239392b1cbaa4e846f8e62bdc",
+    "scripts/FuryCalmSmokeWorld/Program.cs": "1536adbec5c6169bddf281377e28e4eb9de8f08b8eabe59ccab2576fb4265362"
+  },
+  "code_changed_after_final_managed_checks": false,
+  "harness_change_after_managed_checks": "Only the native quit assertion was corrected to the actual account-menu Connect to a character entry; the final native receipt captures its hash.",
+  "managed": {
+    "run_id": "20261010T063319Z-002c1b496a98",
+    "head": "db9136e45a8c4f5bb41ff0b16cf970820257ae1d",
+    "status": "PASS",
+    "counts": {
+      "executed": 7136,
+      "passed": 7136,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7136
+    },
+    "source_start": "d561791279ded615dee09155385c706f4be07dd2ea18b7a9e17b19bf47cd8ec3",
+    "source_end": "d561791279ded615dee09155385c706f4be07dd2ea18b7a9e17b19bf47cd8ec3",
+    "source_stable": true,
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "filter": null,
+    "configuration": "Debug",
+    "receipt": {
+      "path": ".artifacts/test-runs/20261010T063319Z-002c1b496a98/summary.json",
+      "sha256": "aa79802ffd2cae70bea5183435a23effa68c95d44a7d57bbc998e56c8c2f97d7"
+    },
+    "project_counts": {
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
+        "executed": 728,
+        "passed": 728,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 728
+      },
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
+        "executed": 6408,
+        "passed": 6408,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6408
+      }
+    }
+  },
+  "builds": {
+    "managed_core_warnings": 203,
+    "managed_library_warnings": 0,
+    "errors": 0,
+    "fixture_log": {
+      "path": ".artifacts/n18-fixture-build-final.log",
+      "sha256": "abd6152ffc5e20f7189a04ef96af7f38ab347f22fac3f193786ff291ba76e802"
+    },
+    "fixture_warnings": 0
+  },
+  "native": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-0f84866c/receipt.json",
+      "sha256": "03a68787f028e02b8e0d32f5c24c7fc8761a1dfc72e3d47658a11c6e767c55c0"
+    },
+    "status": "PASS",
+    "milestone_qualified": true,
+    "assertions": 166,
+    "inputs_sha256": {
+      "scripts\\FuryCalmSmokeWorld\\smoke.py": "7638d3cb7abfeb88bd4a191555aa7f6f2fc324373de745c527e1b471160afa40",
+      "scripts\\FuryCalmSmokeWorld\\Program.cs": "1536adbec5c6169bddf281377e28e4eb9de8f08b8eabe59ccab2576fb4265362",
+      "scripts\\AuthoredCelestialSmokeWorld\\native.py": "18fca1b93f3a85551d9b0907ebe4f7b8fa11c625517abab470c67cf155f265f8",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "f42562ebe535b548db12f913a76572d22240845840fed713ea55d616b1ef031d",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "d12201cdeb99f859bc0faeb053fdcfc45101ff86352cd7ed62a175ea482b9830",
+      "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "7106705864af6ecab7ea0e076ad4902506129eef0b3973575aa079db1611ca3f",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+      "scripts\\FuryCalmSmokeWorld\\projections.py": "fc0f1807a17c17a875c6e3d56447292a61d060b7c782357ec52c6b1739679a3f",
+      "scripts\\FuryCalmSmokeWorld\\OwnedProjectionFixtures.cs": "9ef7e41db04049f608576f0419678593f57ed3a239392b1cbaa4e846f8e62bdc"
+    },
+    "objects": {
+      "player": 1,
+      "spells": {
+        "sand-effigy": 36,
+        "walking-shadow": 37
+      },
+      "fixtures": {
+        "Status": "PASS",
+        "Rooms": [
+          31,
+          32,
+          33
+        ],
+        "ShadowPlane": 3,
+        "MaterialPlane": 1,
+        "EffigyPrototype": 6897,
+        "ForeignPrototype": 6898
+      }
+    },
+    "lifecycles": [
+      {
+        "id": "4eae6265-f304-43ec-8d58-fb037cc5a618",
+        "claims": {
+          "0": 182,
+          "2": 512,
+          "3": 512
+        },
+        "retirement": "3\t7"
+      },
+      {
+        "id": "3d14e8f1-c166-440b-b84d-7f8cc719599d",
+        "claims": {
+          "0": 183,
+          "2": 513,
+          "3": 513
+        },
+        "retirement": "3\t8"
+      },
+      {
+        "id": "b602c2ac-af44-4c58-bfbf-150dcd23bdcd",
+        "claims": {
+          "0": 184,
+          "2": 514,
+          "3": 514
+        },
+        "retirement": "3\t8"
+      },
+      {
+        "id": "7763e3d3-ed25-43b0-bb76-b9f06efc2189",
+        "claims": {
+          "0": 185,
+          "2": 515,
+          "3": 515
+        },
+        "retirement": "3\t7"
+      },
+      {
+        "id": "1bdce77d-ec9e-406d-a440-899e0453a2cd",
+        "claims": {
+          "0": 186,
+          "2": 516,
+          "3": 516
+        },
+        "retirement": "3\t0"
+      },
+      {
+        "id": "522f91e2-d934-49ea-a425-3bd0ef514256",
+        "claims": {
+          "2": 517,
+          "3": 517
+        },
+        "retirement": "3\t9"
+      },
+      {
+        "id": "6331d4f2-26e5-49c8-a71a-b8fc2cc590bc",
+        "claims": {
+          "2": 518,
+          "3": 518
+        },
+        "retirement": "3\t4"
+      },
+      {
+        "id": "d034d761-bb19-43da-b7bd-ceba8b4fe3e1",
+        "claims": {
+          "2": 519,
+          "3": 519
+        },
+        "retirement": "3\t8"
+      },
+      {
+        "id": "49f6817d-c090-4188-a5b6-2467014e07fd",
+        "claims": {
+          "2": 520,
+          "3": 520
+        },
+        "retirement": "3\t0"
+      }
+    ],
+    "foreign_custody": {
+      "item": 187,
+      "projectionBody": 517,
+      "destination": 31
+    },
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-1.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-2.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "mysql_stopped_by_owned_handle": true,
+    "cleanup": {
+      "path": ".artifacts/n18-cleanup.json",
+      "sha256": "4403e2752d37f8db2af38c631be9934523a379bc8ce4a1aceacca3e6f1f274ba"
+    }
+  },
+  "payment": {
+    "normal_paid_grade_one_casts": 9,
+    "authored_energy_per_cast": 10,
+    "reserve_before": 1000,
+    "reserve_after": 910,
+    "total_spent": 90,
+    "duplicate_refusal_spent": 0,
+    "restart_and_logout_preserve_paid_reserve": true
+  },
+  "fixture_preparation": [
+    "Owned disposable MySQL database and exact data directory; previously qualified replay refuses a second install without mutation",
+    "Native three-room chain, material and explicitly nonmaterial plane, distinct plain approved effigy and foreign-item prototypes",
+    "Actual Admin PC, explicit caster merit/enrolment/entries/grants; mortal casting avoids Admin Sight capability selection",
+    "Server stopped before capacity attributes, mastery and initial reserve fixture; no reserve reset or refund after the first qualified cast",
+    "Ordinary item load followed by stopped native Bodies_GameItems custody fixture for cold recovery; the item has no ownership claim"
+  ],
+  "acceptance": [
+    "Paid creation for both stocks and prepayment duplicate refusal",
+    "Focused observation, immobile visible Sand Effigy and unavailable physical interaction",
+    "Walking Shadow native exit travel with exact instance location and preserved primary anchor; range and teleport refusal",
+    "Native secondary-body damage, lethal collapse, anchor-item destruction and primary-body damage",
+    "Foreign native Admin Sight effect holds all owned rows before deletion; native detachment resumes cleanup",
+    "Real scheduled focused expiry for both stocks",
+    "Actual cold startup deletes the exact owned graph, conserves ordinary foreign goods at the recorded room and preserves canonical skills/resources",
+    "Native logout/relogin retires the shadow with Logout reason and preserved payment; focus returns to primary"
+  ],
+  "implementation": [
+    "One canonical identity with new temporary secondary body/instance; Sand additionally claims one created figurine; no character, inventory, skill or resource clone",
+    "Boundary installed before native exposure; authored plane, range, layer, route and closed-door restrictions",
+    "Durable retirement intent disables control and returns focus before deferred post-health-callback cleanup",
+    "Backlash attempt journalled before native delivery; incomplete attempts hold rather than replay",
+    "Native foreign-custody rollback, typed references and declared incoming EF relations guard physical cleanup",
+    "Cold cleanup uses an unexposed exact secondary custodian; committed release unregisters room/route/exposure/effects/ticks without room-leave or effect-removal callbacks"
+  ],
+  "retained_failed_managed": [
+    {
+      "run_id": "20261010T062313Z-fc09e4d22f71",
+      "status": "FAIL",
+      "counts": null,
+      "source_stable": true,
+      "receipt": {
+        "path": ".artifacts/test-runs/20261010T062313Z-fc09e4d22f71/summary.json",
+        "sha256": "152193449daccad696bbeff3c84f27efcfb3f510ef05ac25dc752a80eb389dce"
+      }
+    },
+    {
+      "run_id": "20261010T062557Z-e8fcbb225aac",
+      "status": "FAIL",
+      "counts": {
+        "executed": 7136,
+        "passed": 7134,
+        "failed": 2,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 7136
+      },
+      "source_stable": true,
+      "receipt": {
+        "path": ".artifacts/test-runs/20261010T062557Z-e8fcbb225aac/summary.json",
+        "sha256": "33330eb7b69b33a79628869e361292ee9ae0d7c28a8921ad594a25cd24c1e100"
+      }
+    }
+  ],
+  "retained_failed_native": [
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-2207d45f/receipt.json",
+        "sha256": "98c3840365a5a4be059b67d6fccff1ef5af9d58938605ebac5061d8b7dbecf32"
+      },
+      "error": "quit: Welcome, Admin!\n\n========== Options ===========\n\nC) Connect to a character\nG) Login as a guest\nN) Create a new character\nE) Change your email address\nP) Change your password\n\nX) Disconnect from the game\n",
+      "qualified": false
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-28f3ee24/receipt.json",
+        "sha256": "61a981af5f2f39392ab1e43617f15282a05082bac1557572eea17311cf65c7f0"
+      },
+      "error": "instances: +---+---------+---------+------------------+---------------+----------------+-----------+\n| # | Focused | Primary | Form             | Location      | State          | Control   |\n+---+---------+---------+------------------+---------------+----------------+-----------+\n| 1 | True    | True    | Organic Humanoid | QA N18 Room 0 | Awake / Active | Focused   |\n| 2 | False   | False   | Organic Humanoid | QA N18 Room 0 | Awake / Active | Focusable |\n+---+---------+---------+------------------+---------------+----------------+-----------+\n\n\n\n<You are currently in no pain>\n<Stamina: 350/3",
+      "qualified": false
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-568baa9b/receipt.json",
+        "sha256": "5d292f49d55ec472e176c0939b5db4531534468807bf2c5748b3c4ff49900da5"
+      },
+      "error": "qamagi cast \"QA_N18_sand_effigy_20439c\" grade 1 on me via 5: Use qamagi vancian <capability> cast <repertoire> <allowance> \"QA_N18_Sand_Effigy_20439c\" <ordinal|next|atwill> [targets] to spend a Vancian casting.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "qualified": false
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-63803bb0/receipt.json",
+        "sha256": "1b95d65f8a9f831240640e1d3ada4fbedda59e05a88891c1a0a62fe77913a7ed"
+      },
+      "error": "get qasandeffigy: a qasandeffigy figurine is not physically present to you on a plane you can affect.\n\n\n<Focus: Organic Humanoid>\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Rest | Status: Awake>\n<You are standing here>\n\n",
+      "qualified": false
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-c64427f7/receipt.json",
+        "sha256": "64721a88b234c31dd00063fbf276f80154e700e41f919a02fa0544aaa9d01e57"
+      },
+      "error": "goto 31: You are already there!\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "qualified": false
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-ca048845/receipt.json",
+        "sha256": "3ff46c3f36ca90497f3adbbca947874252661c41f0e68f5869d6dddd22396c8a"
+      },
+      "error": "north: You begin strolling away towards the North.\n\n\n\n<Focus: Organic Humanoid>\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Rest | Status: Awake>\n<You are standing here>\n\n",
+      "qualified": false
+    }
+  ],
+  "counts_are_not_added": true,
+  "review": {
+    "role": "fm_reviewer",
+    "scope": "Focused retirement, custody, cold loading, activation failure and post-commit callback review",
+    "result": "No further concrete defect after repairs; source review only",
+    "final_regression_repairs": "Preserved original no-argument Body archival helper and added explicit unsupported scroll compatibility row; subsequent full gate passed"
+  },
+  "limits": [
+    "Builder-installed grade-one native qualification; full installer/prerequisite composition and all-grade native matrix remain pending",
+    "Exact historical two-stage Sand figurine casting, high-power resemblance, affect-unit timing and full source/balance parity remain pending; selected seconds, room range, energy and backlash are authored fixtures",
+    "The available renamed legacy source sample does not establish byte identity with the originally named dump",
+    "Stored scroll/device delivery explicitly unsupported; compatibility inventory records createprojection",
+    "Native route/layer/closed-door variants, high-volume projection churn, activation fault injection and interrupted backlash delivery are not qualified by this run; managed policy checks and fail-closed recovery do not substitute for them"
+  ],
+  "inventory_counts": {
+    "candidates": 154,
+    "required": 152,
+    "optional": 2,
+    "sorcerer_spells": 82,
+    "roots": 4,
+    "support_rows": 12,
+    "larger_systems": 8
+  },
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "next_bounded_milestone": "N19: map and implement bounded Severing Refuge and Apex Bane policies; qualify allowed/blocked element interactions and eligible/ineligible native beings through normal paid invocation. Use explicit native categories and known code-proven links; preserve resisted outcomes, ownership and custody. Full installer/source parity and other catalogue/readiness gates remain pending."
+}

@@ -434,8 +434,12 @@ public class ArmourType : SaveableItem, IArmourType
         Damage partDamage = new()
         {
             ExposureContext = damage.ExposureContext,
+			VitalTransfer = damage.VitalTransfer,
+			MutationGuard = damage.MutationGuard,
+			TargetBody = damage.TargetBody,
             DamageType = damage.DamageType,
             ActorOrigin = damage.ActorOrigin,
+            ToolOrigin = damage.ToolOrigin,
             AngleOfIncidentRadians = damage.AngleOfIncidentRadians,
             Bodypart = damage.Bodypart,
             DamageAmount = newDamage,
@@ -471,8 +475,12 @@ public class ArmourType : SaveableItem, IArmourType
         return (partDamage, new Damage
         {
             ExposureContext = damage.ExposureContext,
+			VitalTransfer = damage.VitalTransfer,
+			MutationGuard = damage.MutationGuard,
+			TargetBody = damage.TargetBody,
             DamageType = newDamageType,
             ActorOrigin = damage.ActorOrigin,
+            ToolOrigin = damage.ToolOrigin,
             AngleOfIncidentRadians = damage.AngleOfIncidentRadians,
             Bodypart = damage.Bodypart,
             DamageAmount = newDamage,
@@ -546,8 +554,12 @@ public class ArmourType : SaveableItem, IArmourType
         Damage armourDamage = new()
         {
             ExposureContext = damage.ExposureContext,
+			VitalTransfer = damage.VitalTransfer,
+			MutationGuard = damage.MutationGuard,
+			TargetBody = damage.TargetBody,
             DamageType = damage.DamageType,
             ActorOrigin = damage.ActorOrigin,
+            ToolOrigin = damage.ToolOrigin,
             AngleOfIncidentRadians = damage.AngleOfIncidentRadians,
             Bodypart = null,
             DamageAmount = newDamage,
@@ -590,8 +602,12 @@ public class ArmourType : SaveableItem, IArmourType
         return new Damage
         {
             ExposureContext = damage.ExposureContext,
+			VitalTransfer = damage.VitalTransfer,
+			MutationGuard = damage.MutationGuard,
+			TargetBody = damage.TargetBody,
             DamageType = newDamageType,
             ActorOrigin = damage.ActorOrigin,
+            ToolOrigin = damage.ToolOrigin,
             AngleOfIncidentRadians = damage.AngleOfIncidentRadians,
             Bodypart = damage.Bodypart,
             DamageAmount = newDamage,
@@ -669,8 +685,12 @@ public class ArmourType : SaveableItem, IArmourType
         Damage armourDamage = new()
         {
             ExposureContext = damage.ExposureContext,
+			VitalTransfer = damage.VitalTransfer,
+			MutationGuard = damage.MutationGuard,
+			TargetBody = damage.TargetBody,
             DamageType = damage.DamageType,
             ActorOrigin = damage.ActorOrigin,
+            ToolOrigin = damage.ToolOrigin,
             AngleOfIncidentRadians = damage.AngleOfIncidentRadians,
             Bodypart = null,
             DamageAmount = newDamage,
@@ -705,8 +725,12 @@ public class ArmourType : SaveableItem, IArmourType
         return (new Damage
         {
             ExposureContext = damage.ExposureContext,
+			VitalTransfer = damage.VitalTransfer,
+			MutationGuard = damage.MutationGuard,
+			TargetBody = damage.TargetBody,
             DamageType = newDamageType,
             ActorOrigin = damage.ActorOrigin,
+            ToolOrigin = damage.ToolOrigin,
             AngleOfIncidentRadians = damage.AngleOfIncidentRadians,
             Bodypart = damage.Bodypart,
             DamageAmount = newDamage,

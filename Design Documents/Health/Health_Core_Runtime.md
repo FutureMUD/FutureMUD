@@ -106,6 +106,13 @@ Health is advanced over time, not only when a wound is created.
 
 Those outcomes depend on aggregate wound state, blood volume, organ performance, breathing status, and sometimes merit or effect modifiers.
 
+Body logout/unload and post-archive runtime release stop health heartbeat subscriptions
+without recalculating limb or bodypart damage. Reevaluation belongs to live health
+processing: performing it after the unload save boundary can introduce derived effects,
+drop items or change posture, including for a cold-loaded dead body whose organ cache has
+not been initialized. The gameplay `EndHealthTick` path retains its existing reevaluation;
+shutdown uses registration-only teardown, as native death already does.
+
 For `ComplexLivingHealthStrategy`, temperature exposure is now processed as a staged continuum:
 
 - very mild stages are informational only

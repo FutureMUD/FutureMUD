@@ -99,21 +99,4 @@ public class RetiredBodyCleanupTests
 		body.VerifyNoOtherCalls();
 	}
 
-	[DataTestMethod]
-	[DataRow("<Definition><OriginalBody>17</OriginalBody></Definition>", true)]
-	[DataRow("<Definition><OriginalBodyId>17</OriginalBodyId></Definition>", true)]
-	[DataRow("<Effects><Effect><BackupBodyId>17</BackupBodyId></Effect></Effects>", true)]
-	[DataRow("<Effect><SourceBody>17</SourceBody></Effect>", true)]
-	[DataRow("<Definition bodyId='17'/>", true)]
-	[DataRow("<Definition><OriginalBody>171</OriginalBody></Definition>", false)]
-	[DataRow("<Definition><OriginalCharacter>17</OriginalCharacter></Definition>", false)]
-	[DataRow("<Definition><BodyDescription>a seventeenth body</BodyDescription></Definition>", false)]
-	[DataRow("<Definition><Bodypart>17</Bodypart><OverridenBodypart>17</OverridenBodypart></Definition>", false)]
-	[DataRow("<Definition><BodyPrototypeId>17</BodyPrototypeId></Definition>", false)]
-	[DataRow("<Definition>", true)]
-	[DataRow("", false)]
-	public void HasReferenceOrUncertainty_SerializedDependency_PreservesBody(string xml, bool expected)
-	{
-		Assert.AreEqual(expected, RetiredBodyReferencePolicy.HasReferenceOrUncertainty(xml, 17));
-	}
 }

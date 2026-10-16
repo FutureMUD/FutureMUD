@@ -17,7 +17,7 @@ namespace MudSharp.GameItems;
 
 public partial class GameItem
 {
-	/// <summary>Only native detection effects with their exact save wrapper have no custody callbacks.</summary>
+	/// <summary>Exact native metadata and wrapped detection effects have no custody callbacks.</summary>
 	internal static bool SpellRemovalEffectsArePassive(IPerceivable custodian)
 	{
 		var effects = custodian.Effects.ToArray();
@@ -29,6 +29,10 @@ public partial class GameItem
 			effect.ApplicabilityProg is null && ReferenceEquals(effect.Owner, custodian);
 		foreach (var effect in effects)
 		{
+			if ((effect.GetType() == typeof(AdminSight) || effect.GetType() == typeof(Immwalk) ||
+				effect.GetType() == typeof(AdminTelepathy) || effect.GetType() == typeof(NewPlayerHintsShown) ||
+				effect.GetType() == typeof(IncreasedBranchChance)) &&
+				effect.ApplicabilityProg is null && ReferenceEquals(effect.Owner, custodian)) continue;
 			if (effect.GetType() == typeof(MagicSpellParent) && effect is MagicSpellParent parent)
 			{
 				var children = parent.SpellEffects.ToArray();
@@ -43,24 +47,33 @@ public partial class GameItem
 		return true;
 	}
 
-	/// <summary>Commit exact leaf removal and custodian persistence together before releasing runtime roots.</summary>
-	private void DeleteSpellOwnedItem()
+	internal string? SpellRemovalCustodianError()
 	{
 		if (Components.Any(x => x is not (HoldableGameItemComponent or MeleeWeaponGameItemComponent or SalvageableGameItemComponent or
-			FoodGameItemComponent or WearableGameItemComponent or ProgLightGameItemComponent)))
-			throw new InvalidOperationException("Created item removal needs an adapter for this component graph.");
+			FoodGameItemComponent or WearableGameItemComponent or ProgLightGameItemComponent or FoldedPocketGameItemComponent)))
+			return "Created item removal needs an adapter for this component graph.";
 		var parent = ContainedIn as GameItem;
 		if (ContainedIn is not null && parent is null || parent is not null &&
 			(parent.Effects.Any() || parent.Hooks.Any() || !parent.Components.Any(x => x is ContainerGameItemComponent or SheathGameItemComponent)))
-			throw new InvalidOperationException("Created item removal needs a native callback-free container or sheath custodian.");
+			return "Created item removal needs a native callback-free container or sheath custodian.";
 		var body = InInventoryOf as NativeBody;
 		if (InInventoryOf is not null && body is null || body is not null &&
 			(!SpellRemovalEffectsArePassive(body) || !SpellRemovalEffectsArePassive(body.Actor) ||
 			 body.Actor.PositionTarget is not null || body.PositionTarget is not null))
-			throw new InvalidOperationException("Created item removal needs a native callback-free body custodian.");
+			return "Created item removal needs a native callback-free body custodian.";
 		var location = Location;
 		if (location is not null && location is not ICustodyRollbackLocation)
-			throw new InvalidOperationException("Created item removal needs a native location rollback adapter.");
+			return "Created item removal needs a native location rollback adapter.";
+		return null;
+	}
+
+	/// <summary>Commit exact leaf removal and custodian persistence together before releasing runtime roots.</summary>
+	private void DeleteSpellOwnedItem()
+	{
+		if (SpellRemovalCustodianError() is { } error) throw new InvalidOperationException(error);
+		var parent = ContainedIn as GameItem;
+		var body = InInventoryOf as NativeBody;
+		var location = Location;
 		var graph = parent is null ? new[] { this } : new[] { this, parent };
 		var restoreItems = graph.Select(x => x.CaptureCustodyRollback()).ToArray();
 		var restoreSaves = graph.Select(x => x.CaptureCustodySaveRollback()).ToArray();
@@ -99,6 +112,10 @@ public partial class GameItem
 					parent?.Save();
 					foreach (var component in parent?.Components.Where(x => x.Changed) ?? []) component.Save();
 					body?.Save();
+					if (IsItemType<ISpellPocket>() && !MudSharp.Character.CharacterArchiveService.ProjectionItemReferencesAreClear(context, row, out var pocketError))
+						throw new InvalidOperationException(pocketError);
+					if (IsItemType<ISpellPocket>() && !MudSharp.Magic.Lifecycle.SpellOwnedPocketService.ReferencesAreClear(context, this, out var referenceError))
+						throw new InvalidOperationException(referenceError);
 					context.GameItems.Remove(row);
 					context.SaveChanges();
 				}

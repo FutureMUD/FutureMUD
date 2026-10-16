@@ -701,6 +701,7 @@ public partial class Chargen : FrameworkItem, IChargen
             Models.Chargen dbitem = FMDB.Context.Chargens.Find(Id);
             Character.Character character = new(Gameworld, this);
             Gameworld.SaveManager.Flush();
+            EnrolSelectedClassMagic(character);
             long id = character.Id;
             lock (Gameworld.Connections)
             {
@@ -783,6 +784,7 @@ public partial class Chargen : FrameworkItem, IChargen
 
             Character.Character newChar = new(Gameworld, this);
             Gameworld.SaveManager.Flush();
+            EnrolSelectedClassMagic(newChar);
             //var id = Character.Character.CreateCharacterFromTemplate(this, Account);
             Models.Character dbchar = FMDB.Context.Characters.Find(newChar.Id);
             long id = newChar.Id;

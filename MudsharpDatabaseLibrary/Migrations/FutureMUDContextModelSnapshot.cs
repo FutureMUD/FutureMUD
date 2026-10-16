@@ -3543,14 +3543,20 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.BodyDrugDose", b =>
                 {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<ulong>("Active")
+                        .HasColumnType("bit(1)");
+
                     b.Property<long>("BodyId")
                         .HasColumnType("bigint(20)");
 
                     b.Property<long>("DrugId")
                         .HasColumnType("bigint(20)");
-
-                    b.Property<ulong>("Active")
-                        .HasColumnType("bit(1)");
 
                     b.Property<double>("Grams")
                         .HasColumnType("double");
@@ -3558,8 +3564,21 @@ namespace MudSharp.Migrations
                     b.Property<int>("OriginalVector")
                         .HasColumnType("int(11)");
 
-                    b.HasKey("BodyId", "DrugId", "Active")
+                    b.Property<string>("SpellOriginFamily")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<string>("SpellOriginFormula")
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<Guid?>("SpellOriginId")
+                        .HasColumnType("char(36)");
+
+                    b.HasKey("Id")
                         .HasName("PRIMARY");
+
+                    b.HasIndex("BodyId");
 
                     b.HasIndex("DrugId")
                         .HasDatabaseName("FK_Bodies_DrugDoses_Drugs_idx");
@@ -9196,6 +9215,9 @@ namespace MudSharp.Migrations
                         .UseCollation("utf8_general_ci");
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("TargetType"), "utf8");
+
+                    b.Property<bool?>("WasIdentityConcealed")
+                        .HasColumnType("tinyint(1)");
 
                     b.HasKey("Id");
 
@@ -16160,6 +16182,12 @@ namespace MudSharp.Migrations
 
                     MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Family"), "utf8mb4");
 
+                    b.Property<DateTime?>("GateLastPulseUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("GateLinksClosedUtc")
+                        .HasColumnType("datetime(6)");
+
                     b.Property<int>("Grade")
                         .HasColumnType("int");
 
@@ -16186,6 +16214,12 @@ namespace MudSharp.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.Property<DateTime?>("RemainsRemovalRequestedUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("RoomHazardLastPulseUtc")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<DateTime?>("RoomHazardNextPulseUtc")
                         .HasColumnType("datetime(6)");
 
                     b.Property<long>("SpellId")
@@ -23239,6 +23273,9 @@ namespace MudSharp.Migrations
                     b.Property<long?>("CharacterId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<long?>("CharacterInstanceId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<int>("ExertionLevel")
                         .HasColumnType("int(11)");
 
@@ -23293,6 +23330,9 @@ namespace MudSharp.Migrations
                     b.HasIndex("BodyPrototypeId");
 
                     b.HasIndex("CharacterId");
+
+                    b.HasIndex("CharacterInstanceId")
+                        .HasDatabaseName("FK_Tracks_CharacterInstances_idx");
 
                     b.HasIndex("FromDirectionExitId");
 
@@ -36529,6 +36569,12 @@ namespace MudSharp.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("FK_Tracks_Characters");
 
+                    b.HasOne("MudSharp.Models.CharacterInstance", "CharacterInstance")
+                        .WithMany()
+                        .HasForeignKey("CharacterInstanceId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Tracks_CharacterInstances");
+
                     b.HasOne("MudSharp.Models.Exit", "FromDirectionExit")
                         .WithMany()
                         .HasForeignKey("FromDirectionExitId")
@@ -36569,6 +36615,8 @@ namespace MudSharp.Migrations
                     b.Navigation("BodyPrototype");
 
                     b.Navigation("Character");
+
+                    b.Navigation("CharacterInstance");
 
                     b.Navigation("FromDirectionExit");
 

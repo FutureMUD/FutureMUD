@@ -7,9 +7,9 @@ namespace MudSharp.Magic;
 
 public enum SpellLifecycleMode { Permanent, TemporaryCleanup, DeathOnExpiry }
 public enum SpellLifecycleState { Active, Retiring, RemainsPending, Completed }
-public enum SpellRetirementReason { Expiry, Dispel, Dismissal, CapabilityLoss, Logout, EarlyDeath, EarlyItemRemoval }
-public enum SpellOwnedEntityKind { GameItem, AutonomousCharacter, CharacterInstance, Body, Room, Exit }
-public enum SpellOwnedEntityRole { CreatedEntity, GeneratedPossession }
+public enum SpellRetirementReason { Expiry, Dispel, Dismissal, CapabilityLoss, Logout, EarlyDeath, EarlyItemRemoval, AnchorSevered, ProjectionDamage, Reboot }
+public enum SpellOwnedEntityKind { GameItem, AutonomousCharacter, CharacterInstance, Body, Room, Exit, RoomOverlay }
+public enum SpellOwnedEntityRole { CreatedEntity, GeneratedPossession, GateSourcePortal, GateCorridor, GateDestinationPortal }
 
 /// <summary>An exact created row, never ownership inferred from inventory or reachability.</summary>
 public sealed record SpellOwnedEntity(SpellOwnedEntityKind Kind, long Id,
@@ -39,6 +39,8 @@ public sealed record SpellOwnedLifecycle(SpellLifecycleOrigin Origin, IReadOnlyL
 	public DateTime? RemainsRemovalRequestedUtc { get; init; }
 	public DateTime? RemainsNotificationAttemptedUtc { get; init; }
 	public DateTime? RemainsNotificationCompletedUtc { get; init; }
+	public DateTime? RoomHazardLastPulseUtc { get; init; }
+	public DateTime? RoomHazardNextPulseUtc { get; init; }
 	public bool MayRemoveOwnedEntities => Origin.Mode != SpellLifecycleMode.Permanent;
 	public bool RequiresNativeDeath => State == SpellLifecycleState.Retiring &&
 		Origin.Mode == SpellLifecycleMode.DeathOnExpiry && DeathObservedUtc is null;

@@ -30,12 +30,39 @@ internal static partial class GNHProgram
 	internal static int PreparedSeederMain(string[] args)
 	{
 		if (args.FirstOrDefault() == "--installed-components-check") return PreparedInstalledComponentPreflight();
+		if (args.FirstOrDefault() == "--base-fixture-check-run") return BaseFixtureSafetyChecks();
+		if (args.FirstOrDefault() == "--base-fixture-validate-run")
+		{
+			Require(args.Length == 3, "Base fixture validation requires an explicit descriptor path and SHA-256.");
+			return ValidateBaseWorldFixture(args[1], args[2]);
+		}
 		OwnedConnections.Install();
 		return args.FirstOrDefault() switch
 		{
 			"--prepared-run" => PreparedSeederNative(),
 			"--prepared-reader" => PreparedSeederReader(args[1]),
 			"--replay-run" => PreparedSeederReplayNative(),
+			"--settings-run" => PreparedSeederReplayNative(settings: true),
+			"--stock-progressions-run" => PreparedSeederReplayNative(progression: true),
+			"--stock-supplies-run" => PreparedSeederReplayNative(supplies: true),
+			"--stock-anatomy-run" => PreparedSeederReplayNative(anatomy: true),
+			"--stock-catalogue-run" => PreparedSeederReplayNative(catalogue: true),
+			"--stock-catalogue-boot-run" => PreparedSeederReplayNative(catalogue: true, catalogueBootOnly: true),
+			"--catalogue-fixture-boot-run" => RunCatalogueFixtureBoot(),
+			"--base-fixture-capture-run" => CaptureBaseWorldFixture(),
+			"--base-fixture-restore-run" => RestoreBaseWorldFixture(installPackage: false),
+			"--base-fixture-package-run" => RestoreBaseWorldFixture(installPackage: true),
+			"--gate-fixture-restore-run" => RestoreNilazGateFixture(),
+			"--exchange-fixture-restore-run" => RestoreExchangeStockFixture(),
+			"--focus-fixture-restore-run" => RestoreFocusDeviceFixture(),
+			"--s3-runtime-run" => RunS3RuntimeAcceptanceChecks(),
+			"--snapshot-refresh-run" => RefreshOwnedBlankSnapshot(),
+			"--stock-anatomy-reader" => ReadStockAnatomyCatalogue(args[1]),
+			"--stock-supplies-reader" => ReadStockSupplyCatalogue(args[1]),
+			"--stock-weapons-reader" => ReadStockWeaponCatalogue(args[1]),
+			"--stock-provisions-reader" => ReadStockProvisionCatalogue(args[1]),
+			"--stock-progression-fixtures-run" => RunStockProgressionFixturesOnly(),
+			"--stock-progression-reader" => ReadStockProgressionFixture(args[1]),
 			"--installed-sql-run" => PreparedInstalledSqlPreflight(),
 			"--installed-run" => PreparedSeederReplayNative(true),
 			"--sense-run" => TraditionNative(true, true),

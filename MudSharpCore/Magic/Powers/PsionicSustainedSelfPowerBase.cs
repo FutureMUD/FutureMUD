@@ -104,7 +104,7 @@ public abstract class PsionicSustainedSelfPowerBase : SustainedMagicPower
 			return;
 		}
 
-		if (CanInvokePowerProg.ExecuteBool(actor) == false)
+		if (CanInvokePower(actor) == false)
 		{
 			actor.OutputHandler.Send(WhyCantInvokePowerProg.Execute(actor)?.ToString() ?? "You cannot use that power right now.");
 			return;

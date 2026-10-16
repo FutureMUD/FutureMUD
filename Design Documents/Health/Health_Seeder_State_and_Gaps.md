@@ -379,6 +379,8 @@ These stock drugs now exercise a much larger share of the runtime drug framework
 
 Drug delivery component seeding now covers ingested, touched, and inhaled vectors through `Pill_*`, `TopicalCream_*`, and `Smokeable_*` component prototypes.
 
+The native restorative topical dose profile reuses `TopicalCream`'s touched vector and persisted remaining-grams state. A valid one-gram binding carries a grade 1–7 healing budget of ten damage per grade; it requires a wound on the selected bodypart, no drug or on-apply prog side effects, and a full-dose application. Consumption is flushed before wound damage is reduced, and copies of a bound dose start spent.
+
 This is much broader than the old stock seeding, but it is still narrower than the full runtime drug framework.
 
 ### Item seeders
@@ -451,6 +453,7 @@ The following table separates runtime capability from stock seeding.
 | `Simple` infection | Runtime implemented | Reached through organic wound logic rather than a named stock seeding block |
 | `Gangrene` infection | Runtime implemented | Reached through infection progression rather than dedicated stock content |
 | `Necrotic`, `Infectious`, `FungalGrowth` infection types | Runtime implemented | Concrete infection classes now exist, but stock seeding still does little to showcase them |
+| `SownSickness` infection | Runtime implemented | Native infection progression and antibiotic treatment; it cannot spread and owns a grade-bounded fever/fatigue effect rebuilt with the infection and removed with that exact instance. The native thermal status is Very Mild Hyperthermia at grades 1–3, Mild at 4–6 and Moderate at 7; ambient exposure remains a separate thermal effect. |
 | `StandardCorpseModel` | Seeded | Human and animal seeders create standard corpse models |
 | `NonDecayingCorpseModel` | Not broadly stock seeded | Runtime support exists |
 | `NoNeeds`, `Passive`, `Active` needs models | Runtime supported | `NoNeeds` is the most explicit stock default in current seeding paths |

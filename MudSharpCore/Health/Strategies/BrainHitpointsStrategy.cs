@@ -212,7 +212,7 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
 
     public override double MaxHP(IHaveWounds owner)
     {
-        return MaximumHitPointsExpression.Evaluate(owner as IPerceivableHaveTraits);
+        return MaximumHitPointsExpression.Evaluate(owner as IPerceivableHaveTraits) + MudSharp.Magic.EquippedItemBonuses.BonusFor(owner as ICharacter, MudSharp.Magic.EquippedItemBonusKind.Health);
     }
 
     public override void InjectedLiquid(IHaveWounds owner, LiquidMixture mixture)
@@ -323,7 +323,7 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
             return HealthTickResult.Dead;
         }
 
-        if (MaximumHitPointsExpression.Evaluate(character) <= thing.Wounds.Sum(x => x.CurrentDamage))
+        if (MaxHP(character) <= thing.Wounds.Sum(x => x.CurrentDamage))
         {
             return HealthTickResult.Dead;
         }
@@ -335,7 +335,7 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
 
         if (KnockoutOnCritical)
         {
-            if (character.Wounds.Sum(x => x.CurrentDamage) / MaximumHitPointsExpression.Evaluate(character) >
+            if (character.Wounds.Sum(x => x.CurrentDamage) / MaxHP(character) >
                 CriticalInjuryThreshold)
             {
                 if (!character.AffectedBy<CriticalInjureKnockout>())
@@ -358,7 +358,7 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
     public override bool IsCriticallyInjured(IHaveWounds owner)
     {
         return owner.Wounds.Sum(x => x.CurrentDamage) /
-               MaximumHitPointsExpression.Evaluate((ICharacter)owner) > CriticalInjuryThreshold &&
+               MaxHP((ICharacter)owner) > CriticalInjuryThreshold &&
                owner is ICharacter ch &&
                ch.State.HasFlag(CharacterState.Unconscious);
     }
@@ -376,7 +376,7 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
             statusString = $" - {"Cardiac Arrest".Colour(Telnet.BoldRed)}";
         }
 
-        double totalWounds = MaximumHitPointsExpression.Evaluate(character);
+        double totalWounds = MaxHP(character);
         return string.Format(character, "<HP: {0:N0}/{1:N0}{2}>",
             totalWounds - owner.Wounds.Sum(x => x.CurrentDamage), totalWounds, statusString);
     }
@@ -410,7 +410,7 @@ public class BrainHitpointsStrategy : BaseHealthStrategy
 
         double penalty =
             charOwner.Wounds.Sum(x => x.CurrentDamage / PercentageHealthPerPenalty) /
-            MaximumHitPointsExpression.Evaluate(charOwner);
+            MaxHP(charOwner);
         return -1 * penalty;
     }
 }

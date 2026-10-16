@@ -18,6 +18,11 @@ public class GillBreather : IBreathingStrategy
 
     public bool CanBreathe(IBody body)
     {
+        if (BreathingStrategyHelper.IsStoppedByEffect(body))
+        {
+            return false;
+        }
+
         if (!BreathingStrategyHelper.CanBreatheFluid(body, BreathingFluid(body)))
         {
             return false;

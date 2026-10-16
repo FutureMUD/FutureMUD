@@ -38,6 +38,7 @@ public class Track : LateInitialisingItem, ITrack
         TrackIntensityOlfactory = track.TrackIntensityOlfactory;
         TurnedAround = track.TurnedAround;
         _characterId = track.CharacterId;
+		_characterInstanceId = track.CharacterInstanceId;
 		_vehicleId = track.VehicleId;
         _mudDateTimeText = track.MudDateTime;
 		RoutePositionMetres = track.RoutePosition.HasValue ? (double)track.RoutePosition.Value : null;
@@ -82,6 +83,7 @@ public class Track : LateInitialisingItem, ITrack
         Gameworld = gameworld;
         _character = who;
         _characterId = who.Id;
+		_characterInstanceId = who.InstanceId;
         _bodyProtoType = who.Body.Prototype;
 		_bodyProtoTypeId = who.Body.Prototype.Id;
         ExertionLevel = who.Body.CurrentExertion;
@@ -117,6 +119,7 @@ public class Track : LateInitialisingItem, ITrack
 		Gameworld = gameworld;
 		_character = who;
 		_characterId = who.Id;
+		_characterInstanceId = who.InstanceId;
 		_bodyProtoType = who.Body.Prototype;
 		_bodyProtoTypeId = who.Body.Prototype.Id;
 		ExertionLevel = who.Body.CurrentExertion;
@@ -178,6 +181,7 @@ public class Track : LateInitialisingItem, ITrack
         dbitem.TrackCircumstances = (int)TrackCircumstances;
         dbitem.RoomId = Room.Id;
         dbitem.CharacterId = _characterId;
+		dbitem.CharacterInstanceId = _characterInstanceId;
 		dbitem.VehicleId = _vehicleId;
         dbitem.MudDateTime = MudDateTime.GetDateTimeString();
         dbitem.FromMoveSpeedId = FromSpeed?.Id;
@@ -204,6 +208,7 @@ public class Track : LateInitialisingItem, ITrack
             TrackCircumstances = (int)TrackCircumstances,
             RoomId = Room.Id,
             CharacterId = _characterId,
+			CharacterInstanceId = _characterInstanceId,
 			VehicleId = _vehicleId,
             MudDateTime = MudDateTime.GetDateTimeString(),
             FromMoveSpeedId = FromSpeed?.Id,
@@ -262,6 +267,9 @@ public class Track : LateInitialisingItem, ITrack
     }
 
 	private readonly long? _characterId;
+	public long? CharacterId => _characterId;
+	private readonly long? _characterInstanceId;
+	public long? CharacterInstanceId => _characterInstanceId;
     private ICharacter? _character;
 
     /// <inheritdoc />

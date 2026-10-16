@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework.Save;
+using MudSharp.Framework.Save;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Magic.Environment;
 
@@ -129,13 +129,24 @@ public class EffectHandler : IEffectHandler
         }
     }
 
+	// Only a retirement adapter that has checked every exact effect and committed
+	// row removal may use this. Its scheduler has already been deregistered.
+	internal void ForgetCommittedRetirementEffects()
+	{
+		_effects.Clear();
+		_hasSaveableScheduledEffects = false;
+	}
+
 	private void NotifyCastingInputChange(IEffect effect)
 	{
 		var physicalInput = effect is ISilencedEffect or IBodypartIneffectiveEffect or ILimbIneffectiveEffect or IForceParalysisEffect;
-		var capacityInput = effect is ITraitBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect;
+		var capacityInput = effect is ITraitBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect or MudSharp.Magic.IEquippedItemBonusEffect;
 		if (!physicalInput && !capacityInput) return;
-		var actor = Parent as MudSharp.Character.ICharacter ?? (Parent as MudSharp.Body.IBody)?.Actor;
+		var actor = Parent as MudSharp.Character.ICharacter ?? (Parent as MudSharp.Body.IBody)?.Actor ??
+			(Parent as MudSharp.GameItems.IGameItem)?.InInventoryOf?.Actor;
 		if (actor is null) return;
+		if (effect is MudSharp.Magic.IEquippedItemBonusEffect && actor.Body is MudSharp.Body.Implementations.Body body)
+			body.ReconcileEquippedSpellBonuses();
 		if (physicalInput) Gameworld.MagicCasting?.NotifyPracticeInputsChanged(actor);
 		if (capacityInput) Gameworld.MagicCasting?.NotifyCapacityChange(actor);
 	}
@@ -144,7 +155,7 @@ public class EffectHandler : IEffectHandler
 	{
 		if (!effects.Any(x => x is ITraitBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect ||
 			x is IMagicSpellEffectParent parent && parent.SpellEffects.Any(child =>
-				child is ITraitBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect))) return null;
+				child is ITraitBonusEffect or MudSharp.Effects.Concrete.PsychicSuppressionEffect or MudSharp.Magic.IEquippedItemBonusEffect))) return null;
 		var actor = Parent as MudSharp.Character.Character ??
 			(Parent as MudSharp.Body.IBody)?.Actor as MudSharp.Character.Character;
 		return actor?.DeferCastingCapacityReconciliationForMutation();

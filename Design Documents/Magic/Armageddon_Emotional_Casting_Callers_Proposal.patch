@@ -1,0 +1,85 @@
+--- a/MudSharpCore/Magic/MagicSpell.cs
++++ b/MudSharpCore/Magic/MagicSpell.cs
+@@ -1678,6 +1678,7 @@
+ 				CaptureLifetimeAdmission(magician, magician, _spellEffects, power) is { } reflectedAdmission)
+ 				lifetimeAdmissions.Add(magician, reflectedAdmission);
+ 			if (CaptureLifetimeAdmission(magician, magician, _casterSpellEffects, power) is { } casterAdmission) lifetimeAdmissions.Add(magician, casterAdmission);
++			PrepareEmotionalInvocation(magician, target, power, Trigger.TargetTypes == "character");
+ 		}
+ 		catch (Exception error)
+ 		{
+@@ -1687,6 +1688,7 @@
+ 		void Pay()
+ 		{
+ 			ConfirmPendingLifetimeAdmissions();
++			ConfirmPendingEmotionalAdmissions();
+ 			if (invocation?.Configured is { } configured)
+ 			{
+ 				foreach (var payment in configured.Payments)
+@@ -1744,7 +1746,7 @@
+         magician.OutputHandler.Handle(new EmoteOutput(new Emote(CastingEmote, magician, magician, target),
+             flags: CastingEmoteFlags));
+ 		TimeSpan duration = TimeSpan.Zero;
+-		if (EffectDurationExpression is not null)
++		if (!HasEmotionalEffects && EffectDurationExpression is not null)
+ 		{
+ 			try
+ 			{
+@@ -1899,17 +1901,19 @@
+ 					: "Your ward turns the magic aside.");
+ 		}
+ 
+-		bool TargetResisted(IPerceivable spellTarget, out OpposedOutcome outcome, bool reflected = false)
++		bool TargetResisted(IPerceivable spellTarget, out OpposedOutcome outcome, bool reflected = false,
++			Difficulty? saveDifficulty = null, bool includeSelf = false)
+ 		{
+ 			outcome = baseOutcome;
+-			if (OpposedTrait is null || spellTarget is not ICharacter tch || (tch == magician && !reflected))
++			if (OpposedTrait is null || spellTarget is not ICharacter tch || (tch == magician && !reflected && !includeSelf))
+ 			{
+ 				return false;
+ 			}
+ 
++			var difficulty = saveDifficulty ?? OpposedDifficulty ?? Difficulty.Normal;
+ 			Dictionary<Difficulty, CheckOutcome> resist =
+-				resistCheck.CheckAgainstAllDifficulties(tch, OpposedDifficulty ?? Difficulty.Normal, OpposedTrait, magician);
+-			outcome = new OpposedOutcome(result, resist, CastingDifficulty, OpposedDifficulty ?? Difficulty.Normal);
++				resistCheck.CheckAgainstAllDifficulties(tch, difficulty, OpposedTrait, magician);
++			outcome = new OpposedOutcome(result, resist, CastingDifficulty, difficulty);
+ 			if (outcome.Outcome != OpposedOutcomeDirection.Opponent)
+ 			{
+ 				return false;
+@@ -1941,6 +1945,21 @@
+ 				return true;
+ 			}
+ 
++			if (HasEmotionalEffects)
++			{
++				if (interdiction is not null) EchoInterdiction(originalTarget, interdiction, true);
++				var emotional = BeginEmotionalResolution(magician, actualTarget, power);
++				var emotionalOutcome = baseOutcome;
++				var saved = emotional.Continue && emotional.RequiresSave &&
++					TargetResisted(actualTarget, out emotionalOutcome, reflected, emotional.SaveDifficulty, includeSelf: true);
++				var report = CompleteEmotionalResolution(emotional, saved, emotionalOutcome.Degree);
++				if (report.Status == MagicEffectOperationStatus.Unknown)
++					throw new InvalidOperationException("The emotional spell's final mutation could not be verified.");
++				if (!reflected && report.Status == MagicEffectOperationStatus.Applied && invocation?.Configured is { } reporting)
++					reporting.AppliedIntendedOperation = true;
++				return report.Status == MagicEffectOperationStatus.Rejected;
++			}
++
+ 			if (TargetResisted(actualTarget, out OpposedOutcome outcome, reflected))
+ 			{
+ 				return true;
+@@ -2026,6 +2045,11 @@
+ 		var lifetimeParents = new HashSet<MagicSpellParent>(ReferenceEqualityComparer.Instance);
+ 		if (target is null && _spellEffects.Any(x => x.RequiresTarget))
+ 		{
++			return;
++		}
++		if (HasEmotionalEffects)
++		{
++			ResolvePreparedEmotionalSpell(magician, target, power, attackOutcome, attackPayload);
+ 			return;
+ 		}
+ 		var targetLifetimeAdmission = target is null ? null : CaptureLifetimeAdmission(magician, target, _spellEffects, power);

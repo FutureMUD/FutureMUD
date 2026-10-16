@@ -1,3 +1,5 @@
+#nullable enable
+
 using MudSharp.Construction.Autobuilder.Areas;
 using MudSharp.Database;
 using MudSharp.Form.Material;
@@ -8,7 +10,7 @@ using System.Dynamic;
 
 namespace MudSharp.Construction.Autobuilder.Rooms;
 
-public class AutobuilderRoomSimple : AutobuilderRoomBase
+public class AutobuilderRoomSimple : AutobuilderRoomBase, IAutobuilderRoomPresentation
 {
     public static void RegisterAutobuilderLoader()
     {
@@ -127,17 +129,29 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase
         return CreateRoomCore(builder, specifiedTerrain, deferDescription, frameworkTags, tags);
     }
 
+	public string PresentationDefinition => SaveToXml().ToString(SaveOptions.DisableFormatting);
+	public AutobuilderRoomPresentationSnapshot CaptureDefaultPresentation()
+	{
+		var presentation = ResolvePresentation();
+		var definition = PresentationDefinition;
+		return new(presentation, definition, () => ReferenceEquals(DefaultTerrain, presentation.Terrain) &&
+			ReferenceEquals(ForagableProfile, presentation.ForagableProfile) && PresentationDefinition == definition);
+	}
+	public AutobuilderRoomPresentation ResolvePresentation(ITerrain? specifiedTerrain = null) =>
+		new(RoomName, RoomDescription, specifiedTerrain ?? DefaultTerrain, OutdoorsType, AmbientLightFactor, ForagableProfile);
+
     private IRoom CreateRoomCore(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         IReadOnlyCollection<ITag> frameworkTags, string[] tags)
     {
         IRoom room = new Room(builder.CurrentOverlayPackage, builder.Location.OwningZone);
         IEditableRoomOverlay overlay = room.GetOrCreateOverlay(builder.CurrentOverlayPackage);
-        overlay.RoomName = RoomName;
-        overlay.RoomDescription = RoomDescription;
-        overlay.AmbientLightFactor = AmbientLightFactor;
-        overlay.OutdoorsType = OutdoorsType;
-        overlay.Terrain = specifiedTerrain ?? DefaultTerrain;
-        room.ForagableProfile = ForagableProfile;
+        var presentation = ResolvePresentation(specifiedTerrain);
+        overlay.RoomName = presentation.RoomName;
+        overlay.RoomDescription = presentation.RoomDescription;
+        overlay.AmbientLightFactor = presentation.AmbientLightFactor;
+        overlay.OutdoorsType = presentation.OutdoorsType;
+        overlay.Terrain = presentation.Terrain;
+        room.ForagableProfile = presentation.ForagableProfile;
         ApplyTagsToRoom(room, frameworkTags, tags);
         return room;
     }

@@ -88,7 +88,7 @@ public sealed class SelectiveForgettingPower : PsychicTechniquePower
 		var crime = SelectIncident(actor, command.PopSpeech());
 		if (crime is null || crime.CrimeLocation != actor.Location || RuntimeClock.UtcNow - crime.RealTimeOfCrime > TimeSpan.FromHours(24))
 		{ actor.OutputHandler.Send("You must be at the scene of a known incident from the last day."); return; }
-		if (CanInvokePowerProg.ExecuteBool(actor, actor) == false ||
+		if (CanInvokePower(actor, actor) == false ||
 		    MagicInterdictionHelper.GetInterdiction(actor, actor.Location, School, false) is not null) return;
 		foreach (var memory in crime.WitnessMemories.Where(x => x.Kind == CrimeWitnessSourceKind.Virtual && !x.PermanentlyForgotten).Take(VirtualSourceLimit))
 		{

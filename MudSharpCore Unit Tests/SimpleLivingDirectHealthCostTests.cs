@@ -24,10 +24,12 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class SimpleLivingDirectHealthCostTests
 {
-	[TestMethod]
-	public void DirectHealthContract_DispatchesSimpleLivingImplementationThroughIHealthStrategy()
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void DirectHealthContract_DispatchesOrganicImplementationThroughIHealthStrategy(bool complex)
 	{
-		using NativeHealthFixture fixture = new();
+		using NativeHealthFixture fixture = new(complex: complex);
 		IHealthStrategy strategy = fixture.Strategy;
 
 		Assert.AreEqual(DirectHealthCostChannels.Damage | DirectHealthCostChannels.Pain |
@@ -38,11 +40,13 @@ public class SimpleLivingDirectHealthCostTests
 			typeof(SimpleOrganicWound));
 	}
 
-	[TestMethod]
-	public void DirectHealthPlan_UsesNativeModifiersAndUpdatesAnExistingCellularWound()
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void DirectHealthPlan_UsesNativeModifiersAndUpdatesAnExistingCellularWound(bool complex)
 	{
-		using NativeHealthFixture fixture = new();
-		SimpleLivingHealthStrategy strategy = fixture.Strategy;
+		using NativeHealthFixture fixture = new(complex: complex);
+		IHealthStrategy strategy = fixture.Strategy;
 
 		Assert.IsTrue(strategy.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart.Object, 6.0, 9.0, 12.0,
 			WoundSeverity.Horrifying, out DirectHealthCostPlan firstPlan, out string firstError), firstError);
@@ -74,11 +78,13 @@ public class SimpleLivingDirectHealthCostTests
 			"Increasing an existing cellular wound must not queue a duplicate wound record.");
 	}
 
-	[TestMethod]
-	public void DirectHealthPlan_RefusesANearCapPartBeforeMutatingAnyNativeWound()
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void DirectHealthPlan_RefusesANearCapPartBeforeMutatingAnyNativeWound(bool complex)
 	{
-		using NativeHealthFixture fixture = new(capacity: 10.0);
-		SimpleLivingHealthStrategy strategy = fixture.Strategy;
+		using NativeHealthFixture fixture = new(capacity: 10.0, complex: complex);
+		IHealthStrategy strategy = fixture.Strategy;
 
 		Assert.IsTrue(strategy.TryPlanDirectHealthCost(fixture.Actor.Object, fixture.Bodypart.Object, 8.0, 0.0, 0.0,
 			WoundSeverity.Horrifying, out DirectHealthCostPlan firstPlan, out string firstError), firstError);
@@ -99,9 +105,9 @@ public class SimpleLivingDirectHealthCostTests
 		public Mock<IBodypart> Bodypart { get; } = new();
 		public Mock<ISaveManager> Saves { get; } = new();
 		public List<IWound> Wounds { get; } = [];
-		public SimpleLivingHealthStrategy Strategy { get; }
+		public IHealthStrategy Strategy { get; }
 
-		public NativeHealthFixture(double capacity = 100.0)
+		public NativeHealthFixture(double capacity = 100.0, bool complex = false)
 		{
 			Mock<IFuturemud> gameworld = new() { DefaultValue = DefaultValue.Mock };
 			gameworld.SetupGet(x => x.SaveManager).Returns(Saves.Object);
@@ -123,6 +129,7 @@ public class SimpleLivingDirectHealthCostTests
 			Body.Setup(x => x.HitpointsForBodypart(Bodypart.Object)).Returns(capacity);
 
 			Mock<IRace> race = new();
+			race.SetupGet(x => x.PainToleranceMultiplier).Returns(1.0);
 			race.SetupGet(x => x.BloodLiquid).Returns((MudSharp.Form.Material.ILiquid)null!);
 			Actor.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
 			Actor.SetupGet(x => x.Body).Returns(Body.Object);
@@ -130,13 +137,14 @@ public class SimpleLivingDirectHealthCostTests
 			Actor.SetupGet(x => x.Wounds).Returns(() => Wounds);
 			Actor.SetupGet(x => x.Effects).Returns(Array.Empty<IEffect>());
 
-			Strategy = LoadStrategy(gameworld.Object);
+			Strategy = LoadStrategy(gameworld.Object, complex);
 			Actor.SetupGet(x => x.HealthStrategy).Returns(Strategy);
 		}
 
-		private static SimpleLivingHealthStrategy LoadStrategy(IFuturemud gameworld)
+		private static IHealthStrategy LoadStrategy(IFuturemud gameworld, bool complex)
 		{
 			SimpleLivingHealthStrategy.RegisterHealthStrategyLoader();
+			ComplexLivingHealthStrategy.RegisterHealthStrategyLoader();
 			var definition = new XElement("Definition",
 				new XElement("MaximumHitPointsExpression", 1),
 				new XElement("MaximumStunExpression", 1),
@@ -144,11 +152,11 @@ public class SimpleLivingDirectHealthCostTests
 				new XElement("HealingTickDamageExpression", 1),
 				new XElement("HealingTickStunExpression", 1),
 				new XElement("HealingTickPainExpression", 1));
-			return (SimpleLivingHealthStrategy)BaseHealthStrategy.LoadStrategy(new Db.HealthStrategy
+			return BaseHealthStrategy.LoadStrategy(new Db.HealthStrategy
 			{
 				Id = 1,
 				Name = "Native direct-health test strategy",
-				Type = "SimpleLiving",
+				Type = complex ? "ComplexLiving" : "SimpleLiving",
 				Definition = definition.ToString()
 			}, gameworld);
 		}

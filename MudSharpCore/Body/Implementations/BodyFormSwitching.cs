@@ -549,7 +549,10 @@ public partial class Body
 				Drug = x.Drug,
 				Grams = x.Grams,
 				OriginalVector = x.OriginalVector,
-				Originator = x.Originator
+				Originator = x.Originator,
+				SpellOriginId = x.SpellOriginId,
+				SpellOriginFamily = x.SpellOriginFamily,
+				SpellOriginFormula = x.SpellOriginFormula
 			}));
 			_latentDrugDosages.Clear();
 			_latentDrugDosages.AddRange(source._latentDrugDosages.Select(x => new DrugDosage
@@ -557,7 +560,10 @@ public partial class Body
 				Drug = x.Drug,
 				Grams = x.Grams,
 				OriginalVector = x.OriginalVector,
-				Originator = x.Originator
+				Originator = x.Originator,
+				SpellOriginId = x.SpellOriginId,
+				SpellOriginFamily = x.SpellOriginFamily,
+				SpellOriginFormula = x.SpellOriginFormula
 			}));
 			DrugsChanged = true;
 

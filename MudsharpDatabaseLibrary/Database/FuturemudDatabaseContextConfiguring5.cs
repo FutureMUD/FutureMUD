@@ -118,6 +118,7 @@ namespace MudSharp.Database
                 });
                 entity.Property(e => e.Id).HasColumnType("bigint(20)");
                 entity.Property(e => e.CharacterId).HasColumnType("bigint(20)").IsRequired(false);
+                entity.Property(e => e.CharacterInstanceId).HasColumnType("bigint(20)").IsRequired(false);
                 entity.Property(e => e.BodyPrototypeId).HasColumnType("bigint(20)").IsRequired(false);
                 entity.Property(e => e.VehicleId).HasColumnType("bigint(20)").IsRequired(false);
                 entity.Property(e => e.RoomId).HasColumnType("bigint(20)");
@@ -137,6 +138,7 @@ namespace MudSharp.Database
                       .UseCollation("utf8_general_ci");
                 entity.HasKey(e => e.Id).HasName("PRIMARY");
                 entity.HasIndex(e => e.VehicleId).HasDatabaseName("FK_Tracks_Vehicles_idx");
+                entity.HasIndex(e => e.CharacterInstanceId).HasDatabaseName("FK_Tracks_CharacterInstances_idx");
 
                 entity
                     .HasOne(e => e.Room)
@@ -151,6 +153,13 @@ namespace MudSharp.Database
                     .HasForeignKey(e => e.CharacterId)
                     .HasConstraintName("FK_Tracks_Characters")
                     .OnDelete(DeleteBehavior.Cascade);
+
+                entity
+                    .HasOne(e => e.CharacterInstance)
+                    .WithMany()
+                    .HasForeignKey(e => e.CharacterInstanceId)
+                    .HasConstraintName("FK_Tracks_CharacterInstances")
+                    .OnDelete(DeleteBehavior.SetNull);
 
                 entity
                     .HasOne(e => e.BodyPrototype)

@@ -289,3 +289,10 @@ The modern-package marker list and repeatability test own this complete media se
 - Prefer deterministic, stock-owned lookup keys over “anything exists” installed-state checks.
 - If a seeder cannot yet be made repeatable safely, document why in this file instead of implying support.
 
+
+
+## Armageddon fixed installation settings (S1)
+
+The development-only Armageddon seeder now prepares one fixed Classic/Simple direction, the earlier Chargen class setting, and typed native foundation IDs. First opt-in validates the embedded approved stock graph and native dependencies, then commits the dedicated null-LogicalId installation metadata record and three shared-answer mirrors atomically before catalogue modules. Later runs preserve choices; corrupt/missing/competing ownership and conflicting mirrors fail closed. Generic answer persistence remains after SeedData, so the dedicated initial transaction preserves choices across a later module failure. Chargen class answers now mirror `use-classes`; existing own answers remain accepted when the actual RolePicker agrees.
+
+The three strict Debug profiles declare all six current question IDs and still decline this optional package. Existing prepared-world APIs retain their historical bindings, but cannot bypass fixed full-package settings. S1 creates no catalogue/player content. The same opt-in entrypoint now continues through S2's independently committed progression foundations and the S3 catalogue composite: supplies, weapons, provisions, anatomy, races/ethnicities/culture, controllers, NPC templates and specialised stock. Successful earlier batches survive later failures and fixed-choice reruns resume/repair using retained identities and builder-preserving baselines. Dependencies include installed time, health, human, combat and item foundations. No questions, order or standard replay answers changed; admissions remain disabled. S4-S6 and N24 remain separate gates. See [S1 contract and acceptance](../Magic/Armageddon_Installation_Settings_S1_20261011.md) and [S2 progression/staging](../Magic/Armageddon_Stock_Progression_S2_20261011.md).

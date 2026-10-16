@@ -10,7 +10,7 @@ using System.Xml.XPath;
 
 namespace MudSharp.Magic.Powers;
 
-public abstract class MagicPowerBase : SaveableItem, IMagicPower
+public abstract partial class MagicPowerBase : SaveableItem, IMagicPower
 {
 	private readonly string _seededIdentity;
 
@@ -23,6 +23,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         School = Gameworld.MagicSchools.Get(power.MagicSchoolId);
         _showHelpText = power.ShowHelp;
         XElement root = XElement.Parse(power.Definition);
+		LoadPowerTags(root);
 		_seededIdentity = (string)root.Element("SeededIdentity");
         XElement psionicElement = root.Element("IsPsionic");
         if (psionicElement != null && bool.TryParse(psionicElement.Value, out bool psi))
@@ -458,6 +459,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
 	#3why <prog>#0 - sets a prog that controls an error message if prog can't be used
 	#3help#0 - drops you into an editor to write the player help file
 	#3cost <verb> <which> <number>#0 - sets the cost of using a particular verb
+	#3tag <name>#0 - toggles an explicit power activation tag
 	#3psionic#0 - toggles whether this power is psionic for crime and policy purposes
 	#3trace#0 - toggles durable psionic trace creation
 	#3traceduration <timespan|seconds>#0 - sets how long durable traces last
@@ -489,6 +491,8 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
                 return BuildingCommandCost(actor, command);
             case "school":
                 return BuildingCommandSchool(actor, command);
+            case "tag":
+                return BuildingCommandPowerTag(actor, command);
             case "psionic":
             case "psi":
                 return BuildingCommandPsionic(actor);
@@ -821,6 +825,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
         sb.AppendLine($"Type: {PowerType.ColourValue()}");
         sb.AppendLine($"School: {School.Name.Colour(School.PowerListColour)}");
         sb.AppendLine($"Psionic: {IsPsionic.ToColouredString()}");
+		sb.AppendLine($"Power Tags: {PowerTags.Select(x => x.ColourName()).ListToString()}");
         sb.AppendLine($"Leaves Traces: {CreatesPsionicTrace.ToColouredString()}");
         if (CreatesPsionicTrace)
         {
@@ -861,6 +866,7 @@ public abstract class MagicPowerBase : SaveableItem, IMagicPower
     {
         if (!string.IsNullOrEmpty(_seededIdentity)) root.Add(new XElement("SeededIdentity", _seededIdentity));
         root.Add(new XElement("IsPsionic", IsPsionic));
+		root.Add(new XElement("PowerTags", _powerTags.Order(StringComparer.Ordinal).Select(x => new XElement("Tag", x))));
         root.Add(new XElement("PsionicTrace",
             new XElement("Enabled", CreatesPsionicTrace),
             new XElement("DurationSeconds", PsionicTraceDuration.TotalSeconds),

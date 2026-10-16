@@ -14,8 +14,10 @@ internal static class CommandDamageExtensions
 	internal static IEnumerable<IWound> CommandSufferDamage(this IHaveWounds target, IDamage damage)
 	{
 		if (!CommandExecutionScope.TryContinue()) return [];
-		var wounds = target.PassiveSufferDamage(damage).ToArray();
+		using var transfer = MudSharp.Effects.Concrete.SpellEffects.SpellLeechingEdgeEffect.BeginHit(target, damage, out var fraction);
+		var wounds = target.PassiveSufferDamage(transfer is null ? damage : new Damage(damage) { VitalTransfer = transfer }).ToArray();
 		if (wounds.Length > 0) CommandExecutionScope.MarkCommitted();
+		transfer?.Settle(fraction, double.MaxValue);
 		return wounds;
 	}
 

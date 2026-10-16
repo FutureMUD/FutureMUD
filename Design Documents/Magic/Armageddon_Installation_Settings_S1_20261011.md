@@ -1,0 +1,21 @@
+# Armageddon S1 — fixed installation settings
+
+Bounded S1 acceptance passed: 139 focused managed tests, 1,649 full Seeder tests with three Unix-permission cases skipped, six Release gate tests, Debug/Release builds and an isolated MySQL settings run. The [machine-readable receipt](Armageddon_Installation_Settings_S1_20261011.json) preserves exact inputs and earlier failures. S2 is next.
+
+S1 adds the development-only fixed settings stage to the existing Armageddon seeder. It validates the [updated stock inventory](Armageddon_Seeder_Completeness_Design_20261011.json) and native foundations, then saves one game-wide Classic/Simple mode, the earlier class direction, capacity attribute and fourteen typed foundation IDs. Catalogue installation remains in S2-S6; this stage creates no capabilities, spells, class roles, NPCs or items. Release remains disabled.
+
+`install-armageddon` defaults to No on every visit. First opt-in asks for Classic/Simple. It asks for a capacity attribute only when ordinary native mappings are missing or ambiguous, and for declared native primitives only when stock mappings are missing, ambiguous or incompatible. Stock NPC/item prototypes require no questions. Later runs read the saved choices and reject contradictory direction or IDs. No conversion or edition-management path is added.
+
+Class direction comes from the latest `ChargenSeeder:class` answer (also mirrored as `use-classes` on new runs) and the actual native RolePicker Class `CanSelectNone` setting. A disagreement blocks before saving. Changing global class direction after installation is outside the approved scope; the magic seeder diagnoses disagreement and does not rewrite chargen.
+
+The existing `SeederManagedRecord` stores the dedicated `arm.package.installation` record with null LogicalId and RevisionNumber. Strict JSON, declared schema, fingerprint, ownership and the exact three shared-answer mirrors are checked on read. The sentinel and mirrors commit in one serializable transaction through a fresh context, before independently committed catalogue modules. A missing, corrupt, retired or competing record, or missing/conflicting mirror, fails closed. Latest answers cannot reconstruct a lost record.
+
+Preflight follows declared prototype dependencies, recipe input keys, native material/race/AI/culture reference fields and Classic parent bindings. It validates required spell coverage, optional isolation, Simple route roots/parents, skill/check/prog foundations, anatomy/health, culture/language, materials/liquids, positive zero-offset units and the content-author account. There are no ID text searches or inferred links from arbitrary definitions.
+
+Historical prepared-world claims are classified by their known module and entity type and verified against actual IDs/revisions. S1 preserves their identities and baselines. Unresolved, retired, missing or competing claims block. Later content modules must explicitly reuse only eligible owned content. The old prepared-world API remains usable without fixed full-package settings and is blocked once those settings exist.
+
+All three strict Debug replay profiles contain the four new question IDs plus the two retained legacy IDs, including inactive answers. They continue to decline Armageddon. Shared executor persistence does not duplicate the three dedicated settings mirrors. The original seeder name remains stable for historical answer ownership.
+
+The [acceptance receipt](Armageddon_Installation_Settings_S1_20261011.json) records checks and retained failures. Managed tests cover all four mode/class combinations and corruption/failure boundaries. The isolated MySQL settings scenario runs the actual complete Debug replay, proves its second invocation refuses without mutation, injects settings failure before commit, loses acknowledgement after commit, resumes without audit churn and rejects a contradictory mode. It compares every table for rollback/refusal/rerun, and every table except the two settings metadata tables for content/player preservation.
+
+These are S1 settings checks, not the S6 complete catalogue matrix or N24 full installer rerun proof. S2 next implements 429 Classic bindings, 419 Simple spell admissions, required crafting, ten capabilities/merits and conditional classes with natural progression.

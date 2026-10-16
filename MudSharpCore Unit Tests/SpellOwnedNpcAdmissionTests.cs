@@ -27,7 +27,8 @@ using MudSharp.RPG.Merits.Interfaces;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class SpellOwnedNpcAdmissionTests
+[DoNotParallelize]
+public partial class SpellOwnedNpcAdmissionTests
 {
 	[DataTestMethod]
 	[DataRow("direct")]
@@ -132,6 +133,7 @@ public class SpellOwnedNpcAdmissionTests
 
 	private static MagicSpell Configure(MagicCastingFixture f, SimpleNPCTemplate template)
 	{
+		f.World.SetupGet(x => x.Actors).Returns(MagicCastingFixture.Collection(() => new[] { f.Actor.Object }));
 		var templates = new Mock<IUneditableRevisableAll<INPCTemplate>>(); templates.Setup(x => x.Get(44)).Returns(template);
 		f.World.SetupGet(x => x.NpcTemplates).Returns(templates.Object);
 		f.World.SetupGet(x => x.SpellOwnedNpcs).Returns(Mock.Of<ISpellOwnedNpcService>());
@@ -146,9 +148,13 @@ public class SpellOwnedNpcAdmissionTests
 	private static SimpleNPCTemplate Template(IFuturemud world)
 	{
 		var template = (SimpleNPCTemplate)RuntimeHelpers.GetUninitializedObject(typeof(SimpleNPCTemplate));
+		typeof(SimpleNPCTemplate).GetMethod("Initialise", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(template, null);
+		foreach (var field in typeof(NPCTemplateBase).GetFields(BindingFlags.NonPublic | BindingFlags.Instance)
+			.Where(x => x.FieldType.IsGenericType && x.FieldType.GetGenericTypeDefinition() == typeof(List<>) && x.GetValue(template) is null))
+			field.SetValue(template, Activator.CreateInstance(field.FieldType));
 		SetField(template, "_gameworld", world); SetField(template, "_id", 44L);
 		SetProperty(template, "Status", RevisionStatus.Current);
-		template.SelectedMerits = []; template.SelectedRoles = [];
+		template.SelectedMerits = []; template.SelectedRoles = []; template.SelectedKnowledges = []; template.MissingBodyparts = [];
 		return template;
 	}
 

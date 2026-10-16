@@ -110,6 +110,15 @@ Vancian books or available administrative powers. Existing native Vancian data r
 unchanged. If an existing world opts into this policy, staff enrolment/grants establish
 its explicit starting state without a silent bulk conversion.
 
+Implemented S2 integration: native Casting policies may opt into `enrolOnClassSelection`
+(builder `casting classenrol on|off`, default false for legacy XML). Both chargen approval
+paths call the selected Class's permanent capability-merit route after the new character
+has durable IDs. Enabled valid policies use the existing authored idempotent enrolment
+service; no login/startup/ordinary-merit enrolment is introduced. A failure is reported
+for an explicit retry against the already-created character rather than reconstructing it.
+See [S2 stock progression](Armageddon_Stock_Progression_S2_20261011.md) for staging and
+the common source-cost unit mapped to the selected route's reserve.
+
 Make character-owned skill additions/lookups coherent for secondary simultaneous instances
 and canonical identity. Retain body-owned trait routing. Evaluate checks against the
 acting body, but route this invocation's one native `TraitUsed`/improver call and

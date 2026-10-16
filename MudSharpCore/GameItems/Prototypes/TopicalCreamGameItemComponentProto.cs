@@ -2,6 +2,7 @@
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems.Components;
+using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
 
 #nullable enable
@@ -9,7 +10,7 @@ using MudSharp.Health;
 
 namespace MudSharp.GameItems.Prototypes;
 
-public class TopicalCreamGameItemComponentProto : GameItemComponentProto, IApplyPrototype
+public class TopicalCreamGameItemComponentProto : GameItemComponentProto, IArmageddonTopicalDoseComponentPrototype
 {
     public class CreamDrug
     {
@@ -21,6 +22,7 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto, IApply
     public List<CreamDrug> Drugs { get; } = new();
     public double TotalGrams { get; set; }
     public IFutureProg? OnApplyProg { get; set; }
+    public ArmageddonTopicalDoseProfile? NativeDoseProfile { get; set; }
 
     public override string TypeDescription => "TopicalCream";
 
@@ -38,8 +40,13 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto, IApply
 
     protected override void LoadFromXml(XElement root)
     {
-        TotalGrams = double.Parse(root.Element("TotalGrams")?.Value ?? "0");
+        TotalGrams = (double?)root.Element("TotalGrams") ?? 0.0;
         OnApplyProg = Gameworld.FutureProgs.Get(long.Parse(root.Element("OnApplyProg")?.Value ?? "0"));
+        var dose = root.Element("NativeHealingDose");
+        NativeDoseProfile = dose is null ? null : new ArmageddonTopicalDoseProfile(
+            (string?)dose.Attribute("key") ?? string.Empty,
+            (double?)dose.Attribute("grams") ?? 0.0,
+            (double?)dose.Attribute("budgetPerGrade") ?? 0.0);
         Drugs.Clear();
 
         XElement drugs = root.Element("Drugs");
@@ -59,8 +66,8 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto, IApply
             Drugs.Add(new CreamDrug
             {
                 Drug = drug,
-                GramsPerGram = double.Parse(element.Attribute("grams")?.Value ?? "0"),
-                AbsorptionFraction = double.Parse(element.Attribute("absorption")?.Value ?? "0")
+                GramsPerGram = (double?)element.Attribute("grams") ?? 0.0,
+                AbsorptionFraction = (double?)element.Attribute("absorption") ?? 0.0
             });
         }
     }
@@ -70,6 +77,9 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto, IApply
         return new XElement("Definition",
             new XElement("TotalGrams", TotalGrams),
             new XElement("OnApplyProg", OnApplyProg?.Id ?? 0),
+            NativeDoseProfile is null ? null : new XElement("NativeHealingDose",
+                new XAttribute("key", NativeDoseProfile.CatalogueKey), new XAttribute("grams", NativeDoseProfile.ReferenceDoseGrams),
+                new XAttribute("budgetPerGrade", NativeDoseProfile.BudgetPerGrade)),
             new XElement("Drugs",
                 from drug in Drugs
                 select new XElement("Drug",
@@ -91,7 +101,8 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto, IApply
             $"{"Topical Cream Item Component".Colour(Telnet.Cyan)} (#{Id:N0}r{RevisionNumber:N0}, {Name})\n\n" +
             $"This topical cream has {Gameworld.UnitManager.DescribeExact(TotalGrams, UnitType.Mass, actor).Colour(Telnet.Green)} available.\n" +
             $"It delivers the following drugs: {drugs}.\n" +
-            $"On apply prog: {OnApplyProg?.MXPClickableFunctionNameWithId() ?? "None".ColourError()}";
+			$"On apply prog: {OnApplyProg?.MXPClickableFunctionNameWithId() ?? "None".ColourError()}\n" +
+			$"Native healing dose profile: {(NativeDoseProfile is { IsValid: true } dose ? $"{dose.CatalogueKey}, {dose.ReferenceDoseGrams:N3} physical g reference, {dose.BudgetPerGrade:N1} direct wound damage per bound grade" : "None".ColourError())}";
     }
 
     public static void RegisterComponentInitialiser(GameItemComponentManager manager)
@@ -129,10 +140,12 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto, IApply
 	#3name <name>#0 - sets the name of the component
 	#3desc <desc>#0 - sets the description
 	#3quantity <weight>#0 - sets total weight of cream
+	#3nativehealingdose <physical grams> <damage budget per grade|clear>#0 - configures/clears one full native restorative dose profile
 	#3drug add <which> <grams per gram> <absorption>#0 - adds or edits a drug
 	#3drug remove <which>#0 - removes a drug
 	#3prog <which>#0 - sets a prog to execute when the cream is applied
 	#3prog clear#0 - removes the on-apply prog";
+
 
     public override string ShowBuildingHelp => BuildingHelpText;
 
@@ -148,10 +161,39 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto, IApply
             case "prog":
             case "onapply":
                 return BuildingCommandOnApplyProg(actor, command);
+			case "nativehealingdose":
+				return BuildingCommandNativeHealingDose(actor, command);
             default:
                 return base.BuildingCommand(actor, command.GetUndo());
         }
     }
+
+	private bool BuildingCommandNativeHealingDose(ICharacter actor, StringStack command)
+	{
+		if (command.PopForSwitch().EqualTo("clear"))
+		{
+			NativeDoseProfile = null;
+			Changed = true;
+			actor.Send("This topical cream no longer has a native bounded healing dose.");
+			return true;
+		}
+
+		if (command.IsFinished || !double.TryParse(command.PopSpeech(), out var grams) || !double.IsFinite(grams) || grams <= 0.0)
+		{
+			actor.Send("Specify the physical reference grams for one dose, or use 'clear'.");
+			return false;
+		}
+		if (command.IsFinished || !double.TryParse(command.PopSpeech(), out var budget) || !double.IsFinite(budget) || budget <= 0.0 || budget > 100.0)
+		{
+			actor.Send("Specify the bounded direct wound damage budget per grade (0 to 100).");
+			return false;
+		}
+		NativeDoseProfile = new ArmageddonTopicalDoseProfile("arm.item.restorative_mud", grams, budget);
+		TotalGrams = grams / (Gameworld.UnitManager.BaseWeightToKilograms * 1000.0);
+		Changed = true;
+		actor.Send($"This cream now carries a {grams:N3} physical gram one-dose profile with {budget:N1} direct wound damage budget per bound grade; its item quantity was set to exactly one dose.");
+		return true;
+	}
 
     private bool BuildingCommandQuantity(ICharacter actor, StringStack command)
     {
@@ -167,6 +209,12 @@ public class TopicalCreamGameItemComponentProto : GameItemComponentProto, IApply
             actor.Send("That is not a valid amount of cream.");
             return false;
         }
+		if (NativeDoseProfile is { IsValid: true } profile &&
+		    Math.Abs(value * Gameworld.UnitManager.BaseWeightToKilograms * 1000.0 - profile.ReferenceDoseGrams) > 0.000001)
+		{
+			actor.Send("The configured restorative dose must remain exactly one native physical reference dose.");
+			return false;
+		}
 
         TotalGrams = value;
         Changed = true;

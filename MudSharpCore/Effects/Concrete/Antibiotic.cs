@@ -27,6 +27,7 @@ public class Antibiotic : Effect, IInfectionResistanceEffect
             case InfectionType.Infectious:
             case InfectionType.Necrotic:
             case InfectionType.Gangrene:
+            case InfectionType.SownSickness:
                 return true;
             default:
                 return false;

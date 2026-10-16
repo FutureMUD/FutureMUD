@@ -36,7 +36,8 @@ public sealed record MagicCastingAdmission(Guid Key, long SpellId, long? TraitId
 
 public sealed record MagicCastingPolicy(int Version, Guid Identity, bool Enabled, long DefaultTraitId,
 	long SourceResourceId, long ReserveResourceId, bool PassiveEntitlement, int StartingGrantVersion,
-	IReadOnlyList<MagicCastingAdmission> Admissions, IReadOnlyList<MagicCastingSupportGrant>? SupportGrants = null)
+	IReadOnlyList<MagicCastingAdmission> Admissions, IReadOnlyList<MagicCastingSupportGrant>? SupportGrants = null,
+	bool EnrolOnClassSelection = false)
 {
 	public IReadOnlyList<MagicCastingSupportGrant> Supports => SupportGrants ?? Array.Empty<MagicCastingSupportGrant>();
 }

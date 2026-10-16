@@ -20,7 +20,7 @@ public class Dub : SaveableItem, IDub
         LastDescription = dub.LastDescription;
         LastUsage = dub.LastUsage;
         _introducedName = dub.IntroducedName;
-        // TODO - save/load identity concealed
+		_wasIdentityConcealed = dub.WasIdentityConcealed;
     }
 
     public override string Name => Keywords.First();
@@ -31,7 +31,13 @@ public class Dub : SaveableItem, IDub
     public IList<string> Keywords { get; }
     public string LastDescription { get; set; }
     public DateTime LastUsage { get; set; }
-    public bool WasIdentityConcealed { get; set; }
+	private bool? _wasIdentityConcealed;
+	public bool HasVerifiedIdentity => _wasIdentityConcealed == false && TargetType == CharacterInstanceIdentityComparer.CharacterRecognitionTargetType;
+	public bool WasIdentityConcealed
+	{
+		get => _wasIdentityConcealed ?? false;
+		set { _wasIdentityConcealed = value; Changed = true; }
+	}
 
     public string IntroducedName
     {
@@ -54,6 +60,7 @@ public class Dub : SaveableItem, IDub
         dbitem.LastUsage = LastUsage;
         dbitem.LastDescription = LastDescription;
         dbitem.IntroducedName = IntroducedName;
+		dbitem.WasIdentityConcealed = _wasIdentityConcealed;
         Changed = false;
     }
 

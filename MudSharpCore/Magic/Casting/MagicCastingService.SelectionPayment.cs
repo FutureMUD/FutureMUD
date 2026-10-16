@@ -24,6 +24,9 @@ public sealed partial class MagicCastingService
 			.Select(x => ((IMagicSpellEffectPreparedSelection)x.effect, x.recipient)).ToArray();
 		if (selections.Length == 0) return null;
 		var checks = new List<Func<bool>>();
+		foreach (var (effect, recipient) in selections)
+			if (effect.CapturePreparedSelection(actor, recipient) is IMagicSpellEffectPreparedSelectionRawToken raw)
+				checks.Add(() => raw.IsCurrent);
 		void Value<T>(Func<T> read) { var before = read(); checks.Add(() => EqualityComparer<T>.Default.Equals(before, read())); }
 		void Reference<T>(Func<T> read) where T : class? { var before = read(); checks.Add(() => ReferenceEquals(before, read())); }
 		void Sequence<T>(Func<IEnumerable<T>> read) where T : class

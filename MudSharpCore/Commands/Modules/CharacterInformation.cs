@@ -1847,8 +1847,11 @@ Syntax:
 
         IDub targetDub =
             actor.Dubs.FirstOrDefault(x => x.TargetId == targetKey.TargetId && x.TargetType == targetKey.TargetType);
+		var identityConcealed = recognitionScope != CharacterRecognitionScope.Identity ||
+			target is not ICharacter recognisedCharacter || CharacterRecognitionAuthority.IsObscured(recognisedCharacter, actor);
         if (targetDub != null)
         {
+			if (!identityConcealed) targetDub.WasIdentityConcealed = false;
             if (targetDub.Keywords.Any(x => x.Equals(keywordText, StringComparison.InvariantCultureIgnoreCase)))
             {
                 actor.Send("You have already dubbed {0} with that keyword.", target.HowSeen(actor));
@@ -1870,6 +1873,7 @@ Syntax:
                 dbdub.Keywords = keywordText;
                 dbdub.TargetId = targetKey.TargetId;
                 dbdub.TargetType = targetKey.TargetType;
+				dbdub.WasIdentityConcealed = identityConcealed;
                 FMDB.Context.SaveChanges();
                 actor.Dubs.Add(new Dub(dbdub, actor, actor.Gameworld));
             }

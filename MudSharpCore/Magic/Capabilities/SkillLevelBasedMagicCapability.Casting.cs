@@ -27,7 +27,8 @@ public partial class SkillLevelBasedMagicCapability
 					(double?)x.Attribute("rawCap"), (bool?)x.Attribute("capRelative") ?? false)).ToArray()),
 				Array.AsReadOnly(root.Elements("SupportGrant").Select(x => new MagicCastingSupportGrant(
 					Guid.Parse((string)x.Attribute("key")!), (long)x.Attribute("trait")!, (double)x.Attribute("opening")!,
-					(double?)x.Attribute("rawCap"), (bool?)x.Attribute("starting") ?? false, LoadPrerequisites(x))).ToArray()));
+					(double?)x.Attribute("rawCap"), (bool?)x.Attribute("starting") ?? false, LoadPrerequisites(x))).ToArray()),
+				(bool?)root.Attribute("enrolOnClassSelection") ?? false);
 		}
 		catch (Exception ex)
 		{
@@ -44,6 +45,7 @@ public partial class SkillLevelBasedMagicCapability
 			new XAttribute("enabled", p.Enabled), new XAttribute("trait", p.DefaultTraitId),
 			new XAttribute("source", p.SourceResourceId), new XAttribute("reserve", p.ReserveResourceId),
 			new XAttribute("passive", p.PassiveEntitlement), new XAttribute("startingVersion", p.StartingGrantVersion),
+			new XAttribute("enrolOnClassSelection", p.EnrolOnClassSelection),
 			p.Admissions.Select(x => new XElement("Admission", new XAttribute("key", x.Key), new XAttribute("spell", x.SpellId),
 				x.TraitId.HasValue ? new XAttribute("trait", x.TraitId.Value) : null, new XAttribute("starting", x.Starting),
 				new XAttribute("min", x.MinimumGrade), new XAttribute("max", x.MaximumGrade),
@@ -136,6 +138,7 @@ public partial class SkillLevelBasedMagicCapability
 		{
 			sb.AppendLine($"  Enabled: {p.Enabled.ToColouredString()} Identity: {p.Identity} Trait: {p.DefaultTraitId.ToString("N0", actor).ColourValue()}");
 			sb.AppendLine($"  Energy: {p.SourceResourceId} -> {p.ReserveResourceId}; passive: {p.PassiveEntitlement.ToColouredString()}; starting version: {p.StartingGrantVersion}");
+			sb.AppendLine($"  Enrol after new-character Class selection: {p.EnrolOnClassSelection.ToColouredString()}");
 			foreach (var a in p.Admissions)
 			{
 				sb.AppendLine($"  {a.Key}: spell {a.SpellId}, trait {a.TraitId ?? p.DefaultTraitId}, grades {a.MinimumGrade}-{a.MaximumGrade}, starting {a.Starting.ToColouredString()}");

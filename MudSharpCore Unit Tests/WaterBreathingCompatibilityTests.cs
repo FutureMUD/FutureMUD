@@ -39,6 +39,19 @@ public class WaterBreathingCompatibilityTests
 		f.Race.Setup(x => x.CanBreatheFluid(f.Gas)).Returns((true, 1.0)); Assert.IsTrue(f.Strategy.CanBreathe(f.Body.Object));
 	}
 
+	[DataTestMethod, DataRow("simple"), DataRow("gills"), DataRow("blowhole"), DataRow("partless")]
+	public void SpellOwnedBreathingInterruption_StopsAndRestoresNativeBreathing(string strategy)
+	{
+		var f = new Fixture(strategy);
+		f.Effects.Add(f.Scoped);
+		Assert.IsTrue(f.Strategy.CanBreathe(f.Body.Object));
+		var grip = new SpellDrowningGripEffect(f.Actor.Object, f.Parent);
+		f.Effects.Add(grip);
+		Assert.IsFalse(f.Strategy.CanBreathe(f.Body.Object));
+		f.Effects.Remove(grip);
+		Assert.IsTrue(f.Strategy.CanBreathe(f.Body.Object));
+	}
+
 	[DataTestMethod, DataRow("simple"), DataRow("blowhole"), DataRow("gills")]
 	public void MappedMagic_DoesNotBypassOrgansOrWorkingParts(string strategy)
 	{
@@ -125,6 +138,7 @@ public class WaterBreathingCompatibilityTests
 				(IBodypart)RuntimeHelpers.GetUninitializedObject(typeof(BlowholeProto)) });
 			Body.Setup(x => x.WornItemsFor(It.IsAny<IBodypart>())).Returns(Array.Empty<MudSharp.GameItems.IGameItem>());
 			Body.Setup(x => x.CombinedEffectsOfType<IAdditionalBreathableFluidEffect>()).Returns(() => Effects.OfType<IAdditionalBreathableFluidEffect>());
+			Body.Setup(x => x.CombinedEffectsOfType<IStopBreathing>()).Returns(() => Effects.OfType<IStopBreathing>());
 			Parent = new MagicSpellParent(Actor.Object, Mock.Of<IMagicSpell>(x => x.Gameworld == world.Object), Actor.Object);
 			Scoped = new(Actor.Object, Parent, new WaterBreathingFluidScope([Water]));
 		}

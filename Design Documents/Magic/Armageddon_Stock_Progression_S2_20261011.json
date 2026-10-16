@@ -1,0 +1,639 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "status": "PASS_BOUNDED_S2_STAGED_PROGRESSION",
+  "scope": "Approved Classic/Simple native progression foundations, ten capability merits, conditional Class roles and generic durable new-character Class enrolment. Complete production spell/prototype dependencies remain S3/S4 work.",
+  "tested_base_head": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+  "tested_working_tree": "dirty implementation over S1 head; exact input fingerprints and native assemblies retained",
+  "approved_inventory": "Armageddon_Seeder_Completeness_Design_20261011.json",
+  "approved_inventory_sha256": "99afe9500c420b1bfd08a11ae188a22ce2944bc34358b77c48d62f884aaafc15",
+  "source_adoption": "Armageddon_Master_List_Validation_20261011.json",
+  "content": {
+    "classic_spell_admissions": 419,
+    "classic_crafting_supports": 10,
+    "classic_native_skills": 153,
+    "simple_spell_admissions": 419,
+    "simple_starting_supports": 20,
+    "simple_native_skills": 11,
+    "capabilities": 10,
+    "permanent_merits": 10,
+    "class_roles_when_classes_enabled": 10,
+    "reserve_pools": 8,
+    "common_cost_units": 1,
+    "unattached_elemental_regenerators": 7,
+    "staged_admissions": 0,
+    "fabricated_spell_ids": 0,
+    "existing_player_writes": 0
+  },
+  "managed_full": {
+    "run_id": "20261011T113437Z-e22d260c6a9c",
+    "head": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+    "configuration": "Debug",
+    "filter": null,
+    "counts": {
+      "executed": 8877,
+      "passed": 8877,
+      "failed": 0,
+      "skipped": 3,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 8880
+    },
+    "counts_complete": true,
+    "execution_complete": true,
+    "source_start": "37f200838f9c652531997bec3dd3d23bb93d6877b516623f1979b61a6595d56b",
+    "source_end": "37f200838f9c652531997bec3dd3d23bb93d6877b516623f1979b61a6595d56b",
+    "source_stable": true,
+    "status": "PASS",
+    "projects": [
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "summary": ".artifacts/test-runs/20261011T113437Z-e22d260c6a9c/summary.json",
+    "summary_sha256": "759ad4b8cf789a0dd8f1ab2b7aa5e24610702d43168eb21f93f9e529b690ebda",
+    "project_counts": [
+      {
+        "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 1656,
+          "passed": 1656,
+          "failed": 0,
+          "skipped": 3,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 1659
+        }
+      },
+      {
+        "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 758,
+          "passed": 758,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 758
+        }
+      },
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 6463,
+          "passed": 6463,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6463
+        }
+      }
+    ]
+  },
+  "managed_release_gate": {
+    "run_id": "20261011T110843Z-4e8a4ef06aa1",
+    "head": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+    "configuration": "Release",
+    "filter": "FullyQualifiedName~ArmageddonReleaseGateTests",
+    "counts": {
+      "executed": 6,
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 6
+    },
+    "counts_complete": true,
+    "execution_complete": true,
+    "source_start": "975490f099ad9e4e2e660c8797f6d0f721a4dec85c6230259eaf08a3659003d1",
+    "source_end": "975490f099ad9e4e2e660c8797f6d0f721a4dec85c6230259eaf08a3659003d1",
+    "source_stable": true,
+    "status": "PASS",
+    "projects": [
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+    ],
+    "summary": ".artifacts/test-runs/20261011T110843Z-4e8a4ef06aa1/summary.json",
+    "summary_sha256": "01ed331b9a8273271ab108b4aabc709dbcaad3978ae4473fe0758c58f3070e41",
+    "project_counts": [
+      {
+        "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 6,
+          "passed": 6,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6
+        }
+      }
+    ]
+  },
+  "earlier_focused_checks": [
+    {
+      "run_id": "20261011T104704Z-0129a2b1ecb1",
+      "head": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~ArmageddonStockProgressionTests|FullyQualifiedName~ArmageddonInstallationSettingsTests|FullyQualifiedName~SeederReplayTests",
+      "counts": {
+        "executed": 48,
+        "passed": 48,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 48
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_start": "45db477c1c3ca53ed32a0e3efd44dfb25c005a0be960889d3f6b264dacfd1d66",
+      "source_end": "45db477c1c3ca53ed32a0e3efd44dfb25c005a0be960889d3f6b264dacfd1d66",
+      "source_stable": true,
+      "status": "PASS",
+      "projects": [
+        "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+      ],
+      "summary": ".artifacts/test-runs/20261011T104704Z-0129a2b1ecb1/summary.json",
+      "summary_sha256": "4d5799178eade855eb5e7358454243bebb30c21fb815c7b941dd4bcc71d79972",
+      "project_counts": [
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 48,
+            "passed": 48,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 48
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "20261011T104833Z-911cc00b156f",
+      "head": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~ArmageddonStockProgressionRuntimeTests|FullyQualifiedName~MagicCasting|FullyQualifiedName~Chargen",
+      "counts": {
+        "executed": 412,
+        "passed": 412,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 412
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_start": "cc0db05cf7bb0bf7f3e024af3725259524f7a308766839a00c968873d1495453",
+      "source_end": "cc0db05cf7bb0bf7f3e024af3725259524f7a308766839a00c968873d1495453",
+      "source_stable": true,
+      "status": "PASS",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "summary": ".artifacts/test-runs/20261011T104833Z-911cc00b156f/summary.json",
+      "summary_sha256": "e572969b0c9a8f6963f192d3b795c93a9b6f5c61c50ce9b4018dd136afba157f",
+      "project_counts": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 412,
+            "passed": 412,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 412
+          }
+        }
+      ]
+    },
+    {
+      "run_id": "20261011T113344Z-750449e9e679",
+      "head": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~MagicCastingPracticeTests.Practice_PaidCompletion_AutomaticallyAcquiresBranchAfterRawOrGradeProgress",
+      "counts": {
+        "executed": 2,
+        "passed": 2,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 2
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_start": "63b3876ae09b2e5e9b068f5963d8aa9d87971c42fac4d515677ed92b633c2c95",
+      "source_end": "63b3876ae09b2e5e9b068f5963d8aa9d87971c42fac4d515677ed92b633c2c95",
+      "source_stable": true,
+      "status": "PASS",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "summary": ".artifacts/test-runs/20261011T113344Z-750449e9e679/summary.json",
+      "summary_sha256": "104a6d32e191f063aebc2b7c031b9b628147111fd6571b1a63bd791935807db5",
+      "project_counts": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 2,
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 2
+          }
+        }
+      ]
+    }
+  ],
+  "earlier_full_before_practice_fix": {
+    "run_id": "20261011T110028Z-148b673710d7",
+    "head": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+    "configuration": "Debug",
+    "filter": null,
+    "counts": {
+      "executed": 8875,
+      "passed": 8875,
+      "failed": 0,
+      "skipped": 3,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 8878
+    },
+    "counts_complete": true,
+    "execution_complete": true,
+    "source_start": "15a4cf4a6006e2efe05e52d944819d734fa0cec626ef4a700b577156887139d3",
+    "source_end": "15a4cf4a6006e2efe05e52d944819d734fa0cec626ef4a700b577156887139d3",
+    "source_stable": true,
+    "status": "PASS",
+    "projects": [
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+    ],
+    "summary": ".artifacts/test-runs/20261011T110028Z-148b673710d7/summary.json",
+    "summary_sha256": "6437e39272788e3c77458b95e7c8f4c86db2f0bb2dcbe58d4eb76a687756d579",
+    "project_counts": [
+      {
+        "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 1656,
+          "passed": 1656,
+          "failed": 0,
+          "skipped": 3,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 1659
+        }
+      },
+      {
+        "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 758,
+          "passed": 758,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 758
+        }
+      },
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "status": "PASS",
+        "counts": {
+          "executed": 6461,
+          "passed": 6461,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6461
+        }
+      }
+    ]
+  },
+  "skipped_checks": {
+    "count": 3,
+    "name": "StartupScriptGeneratorTests.EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions",
+    "cases": [
+      0,
+      1,
+      2
+    ],
+    "reason": "Native Unix filesystem permissions require a Unix host."
+  },
+  "builds": [
+    {
+      "configuration": "Debug",
+      "exit_code": 0,
+      "errors": 0,
+      "warnings": 0,
+      "log": ".artifacts/s2-acceptance/seeder-debug.log",
+      "sha256": "60813a01afaf4a17f5ebbb7478db767abba2badc0fb5977878044351765dfbca"
+    },
+    {
+      "configuration": "Release",
+      "exit_code": 0,
+      "errors": 0,
+      "warnings": 144,
+      "log": ".artifacts/s2-acceptance/seeder-release.log",
+      "sha256": "e293415d0a9cfddc03da4d028308a8df13f15bbe0c21390a971dead709275a9d"
+    },
+    {
+      "configuration": "Debug native harness",
+      "exit_code": 0,
+      "errors": 0,
+      "warnings": 26,
+      "log": ".artifacts/s2-acceptance/harness-build-acceptance.log",
+      "sha256": "9ddaa3cbd17f2e2b629b7d95e7ebd99ca89104c77b6924eea400cc293c2428df"
+    }
+  ],
+  "native_final": {
+    "owned_port": 62961,
+    "limits": "Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.",
+    "native_exit": 0,
+    "source_start": "10AE5B41F5D275D72C5D4336E42D6BEFCF49EC78FC4AA0C4D9F529512DFCB00A",
+    "source_stable": true,
+    "source_end": "10AE5B41F5D275D72C5D4336E42D6BEFCF49EC78FC4AA0C4D9F529512DFCB00A",
+    "process_root": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\t\\futuremud-prepared-seeder-mysql_d187b77110884a6cb603d3925da85feb",
+    "revision": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+    "mode": "stock-progressions",
+    "summary": ".artifacts/s2-native/20261011T114029Z_69a91c20783c43b299021b8697155489/summary.json",
+    "summary_sha256": "db2faba474b42f183193ada618dca200e1aee0d89ec8e50f6aa09d7e79a3816d",
+    "log": ".artifacts/s2-acceptance/native-acceptance.log",
+    "log_sha256": "b8d9e2bf799fd9c130bea977a01e3b01085d9cf63e8093d50fe14fd151da9671",
+    "owned_cleanup": "PASS",
+    "assertion_receipts": [
+      "ARMPREP-replay-refusal=passed actual-Debug-runner all-table-content-sha256:21E509A7C3BAEFF6CE26CE75B757311726D5A6F1EEC1EC1001B923266DBB65BD",
+      "ARMPREP-replay-completion=passed complete-medieval-profile optional-Armageddon-declined",
+      "ARMS2-rollback=passed actual-MySQL all-table-checksums-preserved",
+      "ARMS2-installation=passed Simple/classes-off native-seeder batch lost-ack recovery stable-IDs no-rerun-churn builder-edits-preserved no-player-writes; four-mode-class matrix:managed-tests; complete-stock-gameplay:NOT_RUN",
+      "ARMS2-restart-fixture=passed mode:Classic raw-grade-reserve-deadline preserved",
+      "ARMS2-progression-fixture=passed mode:Classic complete-Earth-graph:24 real-native-fixture-spells paid-practice:30s raw:80 automatic-child-grade:1 separate-process-reload production-spell-effects:NOT_QUALIFIED",
+      "ARMS2-restart-fixture=passed mode:Simple raw-grade-reserve-deadline preserved",
+      "ARMS2-progression-fixture=passed mode:Simple complete-Earth-graph:24 real-native-fixture-spells paid-practice:30s raw:20 automatic-child-grade:1 separate-process-reload production-spell-effects:NOT_QUALIFIED"
+    ],
+    "source_manifest": ".artifacts/s2-native/20261011T114029Z_69a91c20783c43b299021b8697155489/source-start.json",
+    "assemblies": ".artifacts/s2-native/20261011T114029Z_69a91c20783c43b299021b8697155489/assemblies.json",
+    "assemblies_sha256": "7fabbbe19e5eff649f97740f11c3d445e4b53ce443b352a700fc7e723da0d5d6"
+  },
+  "independent_owned_cleanup_audit": {
+    "checked_utc": "2026-10-11T11:49:54.4539851Z",
+    "process_query_succeeded": true,
+    "remaining_owned_mysql_processes": 0,
+    "remaining_owned_native_processes": 0,
+    "remaining_owned_temporary_server_roots": 0
+  },
+  "native_progression_confirmation": {
+    "source_stable": true,
+    "revision": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+    "limits": "Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.",
+    "native_exit": 0,
+    "mode": "stock-progression-fixtures",
+    "source_start": "F9AE02C7E8F480A194C04DD54B30587DACCD5541F934620B3A3DC1C33393A617",
+    "owned_port": 60175,
+    "process_root": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\t\\futuremud-prepared-seeder-mysql_7930dabb18b54555a6e45070b78fd752",
+    "source_end": "F9AE02C7E8F480A194C04DD54B30587DACCD5541F934620B3A3DC1C33393A617",
+    "summary": ".artifacts/s2-native/20261011T113851Z_1f5caeaa871545508f4e712e44fd4674/summary.json",
+    "summary_sha256": "c797290426963c53b32b5bacdfb18c2c710f54b8d6e7fa7475f360f70294c2fa",
+    "log": ".artifacts/s2-acceptance/native-progression-confirmation.log",
+    "log_sha256": "825959b6ee71351858ce99ab6636c512cca9e76d9252da0afd40d12120f74f31",
+    "owned_cleanup": "PASS",
+    "assertion_receipts": [
+      "ARMS2-restart-fixture=passed mode:Classic raw-grade-reserve-deadline preserved",
+      "ARMS2-progression-fixture=passed mode:Classic complete-Earth-graph:24 real-native-fixture-spells paid-practice:30s raw:80 automatic-child-grade:1 separate-process-reload production-spell-effects:NOT_QUALIFIED",
+      "ARMS2-restart-fixture=passed mode:Simple raw-grade-reserve-deadline preserved",
+      "ARMS2-progression-fixture=passed mode:Simple complete-Earth-graph:24 real-native-fixture-spells paid-practice:30s raw:20 automatic-child-grade:1 separate-process-reload production-spell-effects:NOT_QUALIFIED"
+    ],
+    "source_manifest": ".artifacts/s2-native/20261011T113851Z_1f5caeaa871545508f4e712e44fd4674/source-start.json",
+    "assemblies": ".artifacts/s2-native/20261011T113851Z_1f5caeaa871545508f4e712e44fd4674/assemblies.json",
+    "assemblies_sha256": "f68c8fa80e9bdffb0c3df623ee3ba8d2bf58549d54ccdad3f32e4050a9d13278"
+  },
+  "retained_failures": {
+    "compiler_attempts": [
+      {
+        "run_id": "20261011T103021Z-57721cda9002",
+        "head": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~ArmageddonStockProgressionTests|FullyQualifiedName~ArmageddonInstallationSettingsTests|FullyQualifiedName~SeederReplayTests",
+        "counts": null,
+        "counts_complete": false,
+        "execution_complete": false,
+        "source_start": "b43689d90cc1bee2257cec3e780f3bd1a45b3f4817f47ed12c6a327a227b3e00",
+        "source_end": "b43689d90cc1bee2257cec3e780f3bd1a45b3f4817f47ed12c6a327a227b3e00",
+        "source_stable": true,
+        "status": "FAIL",
+        "projects": [
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+        ],
+        "summary": ".artifacts/test-runs/20261011T103021Z-57721cda9002/summary.json",
+        "summary_sha256": "ca024cfaee03a76e1f392b04209634ced1c5e20d570fdab2f68296f3d418b1c0",
+        "project_counts": [
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "status": "NOT_RUN",
+            "counts": null
+          }
+        ]
+      },
+      {
+        "run_id": "20261011T104225Z-2210d636f02c",
+        "head": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~ArmageddonStockProgressionTests|FullyQualifiedName~ArmageddonInstallationSettingsTests|FullyQualifiedName~SeederReplayTests",
+        "counts": null,
+        "counts_complete": false,
+        "execution_complete": false,
+        "source_start": "b279a2d641c33a0dff3bf4777ee9107abe4e5aa7505d7b81cd95a895da267d37",
+        "source_end": "b279a2d641c33a0dff3bf4777ee9107abe4e5aa7505d7b81cd95a895da267d37",
+        "source_stable": true,
+        "status": "FAIL",
+        "projects": [
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+        ],
+        "summary": ".artifacts/test-runs/20261011T104225Z-2210d636f02c/summary.json",
+        "summary_sha256": "19f42f5135ec4f4b5c7a3f343fbf1814e8d1bfab97a0a62af60978ed81274e61",
+        "project_counts": [
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "status": "NOT_RUN",
+            "counts": null
+          }
+        ]
+      }
+    ],
+    "compiler_resolution": "Missing role namespace, report shadowing, CultureInfo ambiguity and expression-tree range usage corrected; compilation failures did not execute tests.",
+    "native_before_provider_default_fix": {
+      "source_start": "984CAC33B68734582ED9000230582384CBF5ABF78F0BCD3603ECAD408542E1DC",
+      "source_stable": true,
+      "process_root": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\t\\futuremud-prepared-seeder-mysql_dcf62b95b3844b88b30cf673d0b1fad6",
+      "source_end": "984CAC33B68734582ED9000230582384CBF5ABF78F0BCD3603ECAD408542E1DC",
+      "limits": "Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.",
+      "revision": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+      "native_exit": 1,
+      "owned_port": 60787,
+      "mode": "stock-progressions",
+      "summary": ".artifacts/s2-native/20261011T105109Z_7b52fda229c44eeab3905d5f68c9fc1e/summary.json",
+      "summary_sha256": "fa7a8cd8ffd19836bfa947c0d00faf5bed19ea26702a011bb53ceb802745f547",
+      "log": ".artifacts/s2-acceptance/native.log",
+      "log_sha256": "2e4bfc7c56fc4b67ffd9573b4efeafdda1f84c6112027c4baf82b17bdbf68340",
+      "owned_cleanup": "PASS",
+      "assertion_receipts": [
+        "ARMPREP-replay-refusal=passed actual-Debug-runner all-table-content-sha256:0790FF0F1EAE77350ED9F9F3F4601F8F646780C4FD60989EB648A7CBB430E186",
+        "ARMPREP-replay-completion=passed complete-medieval-profile optional-Armageddon-declined",
+        "ARMS2-rollback=passed actual-MySQL all-table-checksums-preserved"
+      ],
+      "source_manifest": ".artifacts/s2-native/20261011T105109Z_7b52fda229c44eeab3905d5f68c9fc1e/source-start.json",
+      "assemblies": ".artifacts/s2-native/20261011T105109Z_7b52fda229c44eeab3905d5f68c9fc1e/assemblies.json",
+      "assemblies_sha256": "c442988735a28e5da46fb27506ba451721c9170ce504bc58570f320687876380"
+    },
+    "native_failure": "First owned rerun changed all-table checksum; progression fixtures NOT_RUN in that attempt.",
+    "native_resolution": "Capture explicit owned stock values before SaveChanges can replace zero with SQL defaults. The first installation now durably stores BranchMultiplier zero and baselines that value; native first-install and no-churn assertions pass.",
+    "native_before_fixture_room_repair": {
+      "source_start": "5488079412E81BFD6195844DA4373DF41BBC74CE63E159CBFA7D427C630DD911",
+      "process_root": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\t\\futuremud-prepared-seeder-mysql_1ca80cfb079a4ff1a0bc14eeb6d31e08",
+      "revision": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+      "mode": "stock-progressions",
+      "source_stable": true,
+      "source_end": "5488079412E81BFD6195844DA4373DF41BBC74CE63E159CBFA7D427C630DD911",
+      "limits": "Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.",
+      "native_exit": 1,
+      "owned_port": 54589,
+      "summary": ".artifacts/s2-native/20261011T111031Z_b1140425c4e746e39db9db6e6ee2fd5b/summary.json",
+      "summary_sha256": "dbe31c1cea79139271336f03c23ec17e836c4cc8c3ecc92bb6a1dc0257f9dcf4",
+      "log": ".artifacts/s2-acceptance/native-final.log",
+      "log_sha256": "5a41dfd6df4a445dd167095639ee22565dd33e6f1cfc7a36d32f96fc09bcd8f0",
+      "owned_cleanup": "PASS",
+      "assertion_receipts": [
+        "ARMPREP-replay-refusal=passed actual-Debug-runner all-table-content-sha256:C1A06558FC50CAEB0A2F9AF916EB0B2011CC285E4C775840CD03940A9AA4AA32",
+        "ARMPREP-replay-completion=passed complete-medieval-profile optional-Armageddon-declined",
+        "ARMS2-rollback=passed actual-MySQL all-table-checksums-preserved",
+        "ARMS2-installation=passed Simple/classes-off native-seeder batch lost-ack recovery stable-IDs no-rerun-churn builder-edits-preserved no-player-writes; four-mode-class matrix:managed-tests; complete-stock-gameplay:NOT_RUN"
+      ],
+      "source_manifest": ".artifacts/s2-native/20261011T111031Z_b1140425c4e746e39db9db6e6ee2fd5b/source-start.json",
+      "assemblies": ".artifacts/s2-native/20261011T111031Z_b1140425c4e746e39db9db6e6ee2fd5b/assemblies.json",
+      "assemblies_sha256": "f44e3edfb3fb7ae14fac4bf49bafff0209791e59f7b82e845f35bacbbe21db51"
+    },
+    "fixture_room_first_correction": {
+      "source_start": "3D3D4E3202E9B0669288B8D91569AF3594F28609577F2566FD07910551FA19B0",
+      "revision": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+      "limits": "Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.",
+      "native_exit": 1,
+      "source_end": "3D3D4E3202E9B0669288B8D91569AF3594F28609577F2566FD07910551FA19B0",
+      "owned_port": 59954,
+      "process_root": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\t\\futuremud-prepared-seeder-mysql_e96f07210cd242da92ed126db743a467",
+      "mode": "stock-progression-fixtures",
+      "source_stable": true,
+      "summary": ".artifacts/s2-native/20261011T112121Z_bb7e16041cf247169ac7456b05d43235/summary.json",
+      "summary_sha256": "ebe949c29944208c13c22c634b33f0a4ba54fb890bce272baac1fe992dcad904",
+      "log": ".artifacts/s2-acceptance/native-fixtures.log",
+      "log_sha256": "f14bb12f04ddfa87661129d4f55e194671170522b0791093a0da73033d5b250b",
+      "owned_cleanup": "PASS",
+      "assertion_receipts": [],
+      "source_manifest": ".artifacts/s2-native/20261011T112121Z_bb7e16041cf247169ac7456b05d43235/source-start.json",
+      "assemblies": ".artifacts/s2-native/20261011T112121Z_bb7e16041cf247169ac7456b05d43235/assemblies.json",
+      "assemblies_sha256": "d0c5acea6f28c54ed3043024f689f849c3923a4ce2458ef77dcd0b5a713d2399"
+    },
+    "fixture_room_resolution": "Shared native fixture now detects the declared current playable-Room schema and supplies ZoneId, coordinates and EffectData. Earlier attempts omitted required EffectData, then the spatial-ownership ZoneId; both failed before progression qualification.",
+    "native_before_practice_notification_fix": {
+      "source_stable": true,
+      "mode": "stock-progression-fixtures",
+      "native_exit": 1,
+      "source_start": "358530A44A9F307C8B17B932F194F6BFBACB69C54DA6C3DBC5C105F341C0B2E4",
+      "process_root": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\t\\futuremud-prepared-seeder-mysql_7869d806d63f410893fef613dbcc60af",
+      "source_end": "358530A44A9F307C8B17B932F194F6BFBACB69C54DA6C3DBC5C105F341C0B2E4",
+      "revision": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+      "limits": "Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.",
+      "owned_port": 52811,
+      "summary": ".artifacts/s2-native/20261011T112345Z_fed2ef4a70ff425c821f42e3b1265033/summary.json",
+      "summary_sha256": "5fc8ce94425d92c75222faf2425a5d78469c8fc46ceddfee4fa9db5de44d2376",
+      "log": ".artifacts/s2-acceptance/native-fixtures-final.log",
+      "log_sha256": "c7bc5b78f1b8972135f841c325d3225b138c830275cf510bc4d189c995b0003c",
+      "owned_cleanup": "PASS",
+      "assertion_receipts": [],
+      "source_manifest": ".artifacts/s2-native/20261011T112345Z_fed2ef4a70ff425c821f42e3b1265033/source-start.json",
+      "assemblies": ".artifacts/s2-native/20261011T112345Z_fed2ef4a70ff425c821f42e3b1265033/assemblies.json",
+      "assemblies_sha256": "e195f9541dd4e83338129c52e2164f2168432da77fa4c34ca0ad4426d9122578"
+    },
+    "practice_notification_resolution": "Paid practice improved Classic Earth raw60 to80, but NotifyProgress was suppressed while the mutation fence remained held. Completion now durably records its result, releases that fence and evaluates typed raw/grade edges under the owner guard; repeated expiry does not repeat progress.",
+    "regression_fixture_before_index_reload": {
+      "run_id": "20261011T113155Z-a85767cb17f2",
+      "head": "00c90b8662120ac7afd68fb7ad10aee7c6641632",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~MagicCastingPracticeTests.Practice_PaidCompletion_AutomaticallyAcquiresBranchAfterRawOrGradeProgress",
+      "counts": {
+        "executed": 2,
+        "passed": 0,
+        "failed": 2,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 2
+      },
+      "counts_complete": true,
+      "execution_complete": true,
+      "source_start": "364a55a6e02d670544475181356d173101c2c1018ada93b28796e9bd2c67c9dd",
+      "source_end": "364a55a6e02d670544475181356d173101c2c1018ada93b28796e9bd2c67c9dd",
+      "source_stable": true,
+      "status": "FAIL",
+      "projects": [
+        "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+      ],
+      "summary": ".artifacts/test-runs/20261011T113155Z-a85767cb17f2/summary.json",
+      "summary_sha256": "388d99a7e73fb5e77a5c5427d3b6a29cce07eb7c2de26e40515a2dffddd946f1",
+      "project_counts": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "FAIL",
+          "counts": {
+            "executed": 2,
+            "passed": 0,
+            "failed": 2,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 2
+          }
+        }
+      ]
+    },
+    "regression_fixture_resolution": "The new regression replaced authored definitions after Setup had built the old prerequisite index; restart the service with those definitions before enrolment. Both raw/grade cases then pass without manual reconciliation."
+  },
+  "review": {
+    "mode": "read-only focused review; no test evidence from reviewer",
+    "resolved": [
+      "Simple distinct native Class trait links",
+      "One canonical spell common cost unit mapped into selected reserve",
+      "Provider-default capture before initial insertion preserves desired baseline and builder edits",
+      "Paid-practice post-completion branching under retained owner guard"
+    ],
+    "remaining_actionable_findings": 0
+  },
+  "verification_limits": [
+    "Installed full production spell roster is disabled pending real S3/S4 content and validation.",
+    "Full mode/classes matrix is managed evidence; staged MySQL install is Simple/classes-off.",
+    "Classic/Simple paid practice uses complete Earth policy with distinct real isolated native fixture spells, controlled world/check catalogue and deliberately accelerated improver; production spell effects are not qualified.",
+    "Ordinary/external chargen approval hook ordering is source-reviewed and relevant managed suites pass; full UI/Telnet approval is NOT_RUN in S2.",
+    "No fresh N23 full-server gameplay rerun claimed.",
+    "Release remains disabled; S3-S6 and N24/N25/final readiness remain pending."
+  ],
+  "code_inputs_match_final_native_manifest": true,
+  "documentation_closeout": "Only owning design documentation and this receipt may be updated after final native evidence; production/test/build inputs remain identical to the native source manifest."
+}

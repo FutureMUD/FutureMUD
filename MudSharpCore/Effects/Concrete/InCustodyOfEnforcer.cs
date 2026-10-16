@@ -121,6 +121,9 @@ public class InCustodyOfEnforcer : Effect, IEffect
 
     #region Overrides of Effect
 
+	public override IEnumerable<PhysicalEntityReference> PhysicalReferences =>
+		[new PhysicalEntityReference(PhysicalEntityKind.Character, _enforcerId, "Enforcer")];
+
     protected override string SpecificEffectType => "InCustodyOfEnforcer";
 
     public override string Describe(IPerceiver voyeur)

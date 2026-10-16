@@ -335,7 +335,7 @@ public class ConnectMindPower : SustainedMagicPower
 			List<MindConnectedToEffect> potentialTargets = actor.EffectsOfType<MindConnectedToEffect>().Where(x =>
 				actor.EffectsOfType<ConnectMindEffect>().All(y => y.TargetCharacter != x.OriginatorCharacter)).ToList();
 			List<MindConnectedToEffect> eligable = potentialTargets
-			               .Where(x => CanInvokePowerProg?.ExecuteBool(actor, x.OriginatorCharacter) != false &&
+			               .Where(x => CanInvokePower(actor, x.OriginatorCharacter) != false &&
 			                           TargetFilterFunction(actor, x.OriginatorCharacter) &&
 			                           TargetIsInRange(actor, x.OriginatorCharacter, PowerDistance) &&
 			                           MagicInterdictionHelper.GetInterdiction(actor, x.OriginatorCharacter, School, false) is null).ToList();
@@ -412,7 +412,7 @@ public class ConnectMindPower : SustainedMagicPower
 			return;
 		}
 
-		if (!TargetFilterFunction(actor, target) || CanInvokePowerProg.ExecuteBool(actor, target) == false)
+		if (!TargetFilterFunction(actor, target) || CanInvokePower(actor, target) == false)
 		{
             actor.OutputHandler.Send(string.Format(
                 WhyCantInvokePowerProg.Execute(actor, target)?.ToString() ??

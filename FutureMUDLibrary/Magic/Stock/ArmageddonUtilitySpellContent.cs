@@ -11,16 +11,18 @@ namespace MudSharp.Magic;
 /// <summary>Pure row and definition contribution shared by runtime builders and the optional installer.</summary>
 public sealed record ArmageddonUtilitySpellContent(string Key, string Name, string Description,
 	string DurationFormula, double MinimumEnergy, string Emote, Func<long, long, long, XElement> BuildDefinition,
-	string? EligibilitySource = null, ProgVariableTypes? TargetType = null)
+	string? EligibilitySource = null, ProgVariableTypes? TargetType = null,
+	long? ResistingTraitId = null, Difficulty? ResistingDifficulty = null, bool ExclusiveEffects = true)
 {
 	public Db.MagicSpell SpellRow(long school, long trait, long knownProg) => new()
 	{
 		Name = Name, MagicSchoolId = school, CastingTraitDefinitionId = trait, SpellKnownProgId = knownProg,
 		Blurb = Description.Split('.').First() + ".", Description = Description,
 		CastingDifficulty = (int)Difficulty.Normal, MinimumSuccessThreshold = (int)Outcome.MinorPass,
+		ResistingTraitDefinitionId = ResistingTraitId, ResistingDifficulty = (int?)ResistingDifficulty,
 		CastingEmote = Emote, FailCastingEmote = "$0 fail|fails to shape the enchantment.", TargetEmote = "",
 		TargetNullEmote = "The enchantment finds no suitable target.", TargetResistedEmote = "",
-		AppliedEffectsAreExclusive = true, ScrollInscriptionAllowed = false, Definition = "<Definition />"
+		AppliedEffectsAreExclusive = ExclusiveEffects, ScrollInscriptionAllowed = false, Definition = "<Definition />"
 	};
 	public Db.TraitExpression DurationRow(long spell) => new() { Name = $"{Name} #{spell} duration", Expression = DurationFormula };
 	public Db.TraitExpression CostRow(long spell) => new() { Name = $"{Name} #{spell} energy", Expression = $"{MinimumEnergy.ToString(CultureInfo.InvariantCulture)}*grade" };

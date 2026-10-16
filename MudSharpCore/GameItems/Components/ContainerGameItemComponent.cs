@@ -17,6 +17,8 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
 
     protected ContainerGameItemComponentProto _prototype;
+	protected virtual double WeightCapacity => _prototype.WeightLimit;
+	protected virtual SizeCategory MaximumContentsSize => _prototype.MaximumContentsSize;
     public override IGameItemComponentProto Prototype => _prototype;
 
     public override void Delete()
@@ -81,7 +83,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
         {
             case DescriptionType.Evaluate:
                 sb.AppendLine(
-                    $"It can hold {Gameworld.UnitManager.DescribeMostSignificantExact(_prototype.WeightLimit, Framework.Units.UnitType.Mass, voyeur).Colour(Telnet.Green)} of items up to {_prototype.MaximumContentsSize.Describe().ColourValue()} size.");
+                    $"It can hold {Gameworld.UnitManager.DescribeMostSignificantExact(WeightCapacity, Framework.Units.UnitType.Mass, voyeur).Colour(Telnet.Green)} of items up to {MaximumContentsSize.Describe().ColourValue()} size.");
                 if (_prototype.OnceOnly)
                 {
                     sb.AppendLine("It looks like it designed to be opened a single time only.".Colour(Telnet.Yellow));
@@ -128,7 +130,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
                 if (IsOpen || Transparent)
                 {
                     sb.AppendLine(
-                        $"It is {(_contents.Sum(x => x.Weight) / _prototype.WeightLimit).ToString("P2", voyeur).Colour(Telnet.Green)} full.");
+                        $"It is {(_contents.Sum(x => x.Weight) / WeightCapacity).ToString("P2", voyeur).Colour(Telnet.Green)} full.");
                 }
 
                 if (Locks.Any())
@@ -156,6 +158,9 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public override bool SwapInPlace(IGameItem existingItem, IGameItem newItem)
     {
+		// In-place transformations have no actor or prepared pocket admission. Keep
+		// the original custody rather than adopting an unchecked replacement.
+		if (SpellPocketContainment.HasPocketAncestor(Parent)) return false;
         if (_contents.Contains(existingItem))
         {
             _contents[_contents.IndexOf(existingItem)] = newItem;
@@ -326,28 +331,31 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
     public IEnumerable<IGameItem> Contents => _contents;
 
     public string ContentsPreposition => _prototype.ContentsPreposition;
-    public bool CanPut(IGameItem item)
+    public virtual bool CanPut(IGameItem item)
     {
         return
             item != Parent &&
+			SpellPocketContainment.AdmissionError(item, Parent) is null &&
             IsOpen &&
             TagRulesAccept(item) &&
-            (item.Size <= _prototype.MaximumContentsSize || item.IsItemType<ICommodity>()) &&
-            _contents.Sum(x => x.Weight) + item.Weight <= _prototype.WeightLimit;
+            (item.Size <= MaximumContentsSize || item.IsItemType<ICommodity>()) &&
+            _contents.Sum(x => x.Weight) + item.Weight <= WeightCapacity;
     }
 
-    public int CanPutAmount(IGameItem item)
+    public virtual int CanPutAmount(IGameItem item)
     {
-        if (!IsOpen || !TagRulesAccept(item))
+        if (!IsOpen || !TagRulesAccept(item) || item.Quantity <= 0 ||
+			SpellPocketContainment.AdmissionError(item, Parent) is not null)
         {
             return 0;
         }
 
-        return (int)((_prototype.WeightLimit - _contents.Sum(x => x.Weight)) / (item.Weight / item.Quantity));
+        return (int)((WeightCapacity - _contents.Sum(x => x.Weight)) / (item.Weight / item.Quantity));
     }
 
-    public void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
+    public virtual void Put(ICharacter? putter, IGameItem item, bool allowMerge = true)
     {
+		if (!SpellPocketContainment.CanAccess(putter, Parent)) return;
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(putter)) return;
 		ForeignCustodyTransferContext.EnsurePair(Parent, item);
 		// Room.Extract preserves the direct pointer for removal listeners. Adopt only that
@@ -362,7 +370,8 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 			ReferenceEquals(ComponentItemTransfer.DirectLocationOf(item), extractedRoom) &&
 			item.RoomLayer == sourceLayer && item.RoutePositionMetres == sourceRoute &&
 			(extractedRoom is null || !extractedRoom.GameItems.Any(x => ReferenceEquals(x, item)));
-		bool Ready() => MudSharp.NPC.AI.CommandExecutionScope.TryContinue(putter) && SourceReady() && !Parent.Deleted && !Parent.Destroyed;
+		bool Ready() => MudSharp.NPC.AI.CommandExecutionScope.TryContinue(putter) && SourceReady() && !Parent.Deleted && !Parent.Destroyed &&
+			SpellPocketContainment.CanAccess(putter, Parent) && SpellPocketContainment.AdmissionError(item, Parent) is null;
 		void ClearExtractedSource()
 		{
 			if (extractedRoom is not null) nativeItem!.ClearPreparedContainerSourcePosition();
@@ -417,7 +426,7 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
         Changed = true;
     }
 
-    public WhyCannotPutReason WhyCannotPut(IGameItem item)
+    public virtual WhyCannotPutReason WhyCannotPut(IGameItem item)
     {
         if (item == Parent)
         {
@@ -434,15 +443,16 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
             return WhyCannotPutReason.NotCorrectItemType;
         }
 
-        if (item.Size > _prototype.MaximumContentsSize)
+        if (SpellPocketContainment.AdmissionError(item, Parent) is not null) return WhyCannotPutReason.NotCorrectItemType;
+        if (item.Size > MaximumContentsSize)
         {
             return WhyCannotPutReason.ItemTooLarge;
         }
 
-        if (_contents.Sum(x => x.Weight) + item.Weight > _prototype.WeightLimit)
+        if (_contents.Sum(x => x.Weight) + item.Weight > WeightCapacity)
         {
             int capacity =
-                (int)((_prototype.WeightLimit - _contents.Sum(x => x.Weight)) / (item.Weight / item.Quantity));
+                (int)((WeightCapacity - _contents.Sum(x => x.Weight)) / (item.Weight / item.Quantity));
             if (item.Quantity <= 1 || capacity <= 0)
             {
                 return WhyCannotPutReason.ContainerFull;
@@ -464,13 +474,14 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
         return !_prototype.AllowedTags.Any() || _prototype.AllowedTags.Any(item.IsA);
     }
 
-    public bool CanTake(ICharacter taker, IGameItem item, int quantity)
+    public virtual bool CanTake(ICharacter taker, IGameItem item, int quantity)
     {
-        return IsOpen && _contents.Contains(item) && item.CanGet(quantity).AsBool();
+        return SpellPocketContainment.CanAccess(taker, Parent) && IsOpen && _contents.Contains(item) && item.CanGet(quantity).AsBool();
     }
 
-    public IGameItem Take(ICharacter taker, IGameItem item, int quantity)
+    public virtual IGameItem Take(ICharacter taker, IGameItem item, int quantity)
     {
+		if (!SpellPocketContainment.CanAccess(taker, Parent)) throw new InvalidOperationException("Pocket access refuses this transfer.");
 		ForeignCustodyTransferContext.EnsurePair(Parent, item);
         Changed = true;
         if (quantity == 0 || item.DropsWhole(quantity))
@@ -483,8 +494,9 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
         return item.Get(null, quantity);
     }
 
-    public WhyCannotGetContainerReason WhyCannotTake(ICharacter taker, IGameItem item)
+    public virtual WhyCannotGetContainerReason WhyCannotTake(ICharacter taker, IGameItem item)
     {
+		if (!SpellPocketContainment.CanAccess(taker, Parent)) return WhyCannotGetContainerReason.UnlawfulAction;
         if (!IsOpen)
         {
             return WhyCannotGetContainerReason.ContainerClosed;
@@ -497,8 +509,26 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
 
     public bool Transparent => _prototype.Transparent;
 
-    public void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
+    public virtual void Empty(ICharacter emptier, IContainer intoContainer, IEmote? playerEmote = null)
     {
+		if (!SpellPocketContainment.CanAccess(emptier, Parent)) return;
+		if (SpellPocketContainment.HasPocketAncestor(Parent) || intoContainer is not null && SpellPocketContainment.HasPocketAncestor(intoContainer.Parent))
+		{
+			if (emptier is null || emptier.Location is null || intoContainer is not null && !SpellPocketContainment.CanAccess(emptier, intoContainer.Parent)) return;
+			var pocketTargets = intoContainer is null ? new[] { Parent } : new[] { Parent, intoContainer.Parent };
+			if (!ItemManipulationGuard.CanManipulate(emptier, out var pocketReason, pocketTargets) || Contents.Any(x => !CanTake(emptier, x, 0)))
+			{ emptier.Send(pocketReason ?? "You cannot take all of those contents."); return; }
+			emptier.OutputHandler.Handle(new MixedEmoteOutput(new Emote("@ empty|empties $0.", emptier, Parent)).Append(playerEmote));
+			foreach (var item in Contents.ToArray())
+			{
+				if (emptier.Location is null || !ItemManipulationGuard.CanManipulate(emptier, out _, pocketTargets) || !CanTake(emptier, item, 0) || !ReferenceEquals(item.ContainedIn, Parent)) continue;
+				Take(emptier, item, 0);
+				if (!ComponentItemTransfer.IsDetached(item)) continue;
+				if (intoContainer?.CanPut(item) == true) intoContainer.Put(emptier, item);
+				if (ComponentItemTransfer.IsDetached(item)) InsertAtParentSpatialLocation(item, emptier.Location, preferredSource: emptier);
+			}
+			return;
+		}
         if (emptier is not null)
         {
             var targets = intoContainer is null ? new[] { Parent } : new[] { Parent, intoContainer.Parent };
@@ -751,8 +781,10 @@ public class ContainerGameItemComponent : GameItemComponent, IContainer, IOpenab
     private readonly List<ILock> _locks = new();
     public IEnumerable<ILock> Locks => _locks;
 
-    public bool InstallLock(ILock theLock, ICharacter? actor = null)
+    public virtual bool InstallLock(ILock theLock, ICharacter? actor = null)
     {
+		if (!_noSave && (!SpellPocketContainment.CanAccess(actor, Parent) ||
+			SpellPocketContainment.AdmissionError(theLock.Parent, Parent) is not null)) return false;
 		ForeignCustodyTransferContext.EnsurePair(Parent, theLock.Parent);
         _locks.Add(theLock);
         if (_noSave)

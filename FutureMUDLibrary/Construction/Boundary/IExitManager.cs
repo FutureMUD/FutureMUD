@@ -83,6 +83,9 @@ namespace MudSharp.Construction.Boundary
 
         void PreloadCriticalExits();
         void DeleteRoom(IRoom room);
+		/// <summary>Release only explicitly committed/deleted exits and the removed room's cached topology.</summary>
+		void ForgetCommittedTopology(long roomId, IReadOnlyCollection<long> exitIds) =>
+			throw new NotSupportedException("This exit manager has no exact committed-topology release adapter.");
         void InitialiseRoom(IRoom room, IRoomOverlay overlay);
     }
 }

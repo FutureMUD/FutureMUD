@@ -43,7 +43,7 @@ public class PersonalWardEffect : WardSpellEffectBase
 	protected override IMagicSpellEffect CreateWardEffect(IPerceivable target, IMagicSpellEffectParent parent)
 	{
 		return target is ICharacter
-			? new SpellPersonalWardEffect(target, parent, School, Mode, Coverage, IncludesSubschools, Prog)
+			? new SpellPersonalWardEffect(target, parent, School, Mode, Coverage, IncludesSubschools, Prog, OneUse)
 			: null;
 	}
 

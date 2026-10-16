@@ -172,8 +172,14 @@ public class EnvironmentalMagicSurfaceTests
 	{
 		var fixture = new Fixture(admin: false);
 		const string command = "magic environment damage here 4 3 81c55c90-4858-4d40-ab53-bb7e3586f840 test";
-		Assert.IsFalse(PlayerCommandTree.Instance.Commands.Execute(fixture.Actor.Object, command,
+		// The ordinary device command makes "magic" its player-tree abbreviation.
+		// It must never route that input into the staff environment operation.
+		var playerInput = command;
+		Assert.AreEqual("MagicDevice", PlayerCommandTree.Instance.Commands.LocateCommand(fixture.Actor.Object,
+			ref playerInput)?.Name);
+		Assert.IsTrue(PlayerCommandTree.Instance.Commands.Execute(fixture.Actor.Object, command,
 			CharacterState.Awake, PermissionLevel.Player));
+		Assert.IsTrue(fixture.Output.Any(x => x.Contains("Select a held charged magic device")));
 		Assert.IsFalse(AdminCommandTree.StandardAdminCommandTree.Commands.Execute(fixture.Actor.Object, command,
 			CharacterState.Awake, PermissionLevel.Player));
 		MagicModule.MagicEnvironment(fixture.Actor.Object,

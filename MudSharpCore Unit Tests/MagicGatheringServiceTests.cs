@@ -1012,6 +1012,27 @@ public class MagicGatheringServiceTests
 		Assert.AreEqual(5.0, fixture.DestinationBalance, 0.000001);
 	}
 
+	[DataTestMethod]
+	[DataRow(0.95)]
+	[DataRow(1.10)]
+	public void SelfGathering_ExactQuotedPriceIgnoresOrdinaryStaminaModifiers(double multiplier)
+	{
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Self, stamina: 3.0);
+		fixture.OrdinarySpendMultiplier = multiplier;
+		MagicGatheringResult started = fixture.Service.Begin(fixture.Actor.Object, fixture.Capability.Object, "draw", 5.0);
+		Assert.IsTrue(started.Success, started.Message);
+		fixture.Advance(Duration);
+
+		MagicGatheringResult completed = fixture.Service.Complete(fixture.Actor.Object, started.OperationId!.Value);
+
+		Assert.IsTrue(completed.Success, completed.Message);
+		Assert.AreEqual(7.0, fixture.Stamina, 0.000001, "Mandatory gathering must pay its exact quoted three stamina.");
+		Assert.AreEqual(5.0, fixture.DestinationBalance, 0.000001);
+		Assert.AreEqual("Completed", fixture.Store.Operation(started.OperationId.Value)?.Status);
+		fixture.Actor.Verify(x => x.SpendStamina(It.IsAny<double>()), Times.Never,
+			"Ordinary stamina expenditure applies optional discounts and cannot pay an exact gathering quote.");
+	}
+
 	[TestMethod]
 	public void GentleGathering_RealCoordinatorTransfersExactRecordedStockAndDoesNotCreateEcologicalReceipt()
 	{
@@ -1945,6 +1966,7 @@ public class MagicGatheringServiceTests
 		public List<IWound> PersistedWounds { get; } = [];
 		public List<string> Output { get; } = [];
 		public double Stamina { get; private set; } = 10.0;
+		public double OrdinarySpendMultiplier { get; set; } = 1.0;
 		public bool PersistSucceeds { get; set; } = true;
 		public int SourceCheckpointCalls { get; private set; }
 		public bool PersistWoundsSucceeds { get; set; } = true;
@@ -2022,6 +2044,8 @@ public class MagicGatheringServiceTests
 			Capability.Setup(x => x.GatheringConfigurationErrors()).Returns(Array.Empty<string>());
 
 			_body.SetupGet(x => x.Id).Returns(33L);
+			_body.SetupGet(x => x.CurrentStamina).Returns(() => Stamina);
+			_body.SetupSet(x => x.CurrentStamina = It.IsAny<double>()).Callback<double>(value => Stamina = value);
 			_bodypart.SetupGet(x => x.Id).Returns(44L);
 			_bodypart.SetupGet(x => x.DamageModifier).Returns(1.0);
 			_bodypart.SetupGet(x => x.PainModifier).Returns(1.0);
@@ -2060,7 +2084,7 @@ public class MagicGatheringServiceTests
 			});
 			Actor.SetupGet(x => x.CurrentStamina).Returns(() => Stamina);
 			Actor.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns<double>(amount => amount <= Stamina);
-			Actor.Setup(x => x.SpendStamina(It.IsAny<double>())).Callback<double>(amount => Stamina -= amount);
+			Actor.Setup(x => x.SpendStamina(It.IsAny<double>())).Callback<double>(amount => Stamina -= amount * OrdinarySpendMultiplier);
 			Actor.SetupGet(x => x.HealthStrategy).Returns(_health.Object);
 			Actor.SetupGet(x => x.Wounds).Returns(() => Wounds);
 			Actor.Setup(x => x.AddWounds(It.IsAny<IEnumerable<IWound>>())).Callback<IEnumerable<IWound>>(wounds => Wounds.AddRange(wounds));
@@ -2131,6 +2155,8 @@ public class MagicGatheringServiceTests
 			Capability.SetupGet(x => x.GatheringMethods).Returns(() => [Method]);
 			Capability.Setup(x => x.GatheringConfigurationErrors()).Returns(Array.Empty<string>());
 			_body.SetupGet(x => x.Id).Returns(34L);
+			_body.SetupGet(x => x.CurrentStamina).Returns(() => Stamina);
+			_body.SetupSet(x => x.CurrentStamina = It.IsAny<double>()).Callback<double>(value => Stamina = value);
 			Actor.SetupGet(x => x.Id).Returns(12L);
 			Actor.SetupGet(x => x.Name).Returns("Second Gatherer");
 			Actor.SetupGet(x => x.FrameworkItemType).Returns("Character");
@@ -2158,7 +2184,7 @@ public class MagicGatheringServiceTests
 			});
 			Actor.SetupGet(x => x.CurrentStamina).Returns(() => Stamina);
 			Actor.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns<double>(amount => amount <= Stamina);
-			Actor.Setup(x => x.SpendStamina(It.IsAny<double>())).Callback<double>(amount => Stamina -= amount);
+			Actor.Setup(x => x.SpendStamina(It.IsAny<double>())).Callback<double>(amount => Stamina -= amount * OrdinarySpendMultiplier);
 			Actor.SetupGet(x => x.HealthStrategy).Returns(_health.Object);
 			Actor.SetupGet(x => x.Wounds).Returns(() => Wounds);
 			Actor.Setup(x => x.SufferDamage(It.IsAny<IDamage>())).Returns(Array.Empty<IWound>());

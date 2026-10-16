@@ -11,6 +11,7 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
     private bool _removingSpellEffects;
 	private bool _loaded;
 	public Guid Identity { get; private set; } = Guid.NewGuid();
+	public bool RemoveWhenLoadedChildrenExpire { get; set; }
 	public TimeSpan ResolvedDuration { get; init; }
 	public MagicSpellLifetimeState? LifetimeState { get; init; }
 	public string? LifetimePolicyError { get; private set; }
@@ -38,6 +39,7 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 		_loaded = true;
         XElement trueRoot = root.Element("Effect");
 		Identity = Guid.TryParse(trueRoot.Element("Identity")?.Value, out var identity) ? identity : Guid.Empty;
+		RemoveWhenLoadedChildrenExpire = bool.TryParse(trueRoot.Element("RemoveWhenLoadedChildrenExpire")?.Value, out var removeEmpty) && removeEmpty;
         Spell = trueRoot.Element("StoredSpell") is { } snapshot
             ? StoredSpellSnapshot.Load(snapshot).CreateSpell(Gameworld, false)
             : Gameworld.MagicSpells.Get(long.Parse(trueRoot.Element("Spell").Value));
@@ -78,6 +80,11 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 
 	public override void InitialEffect()
 	{
+		if (RemoveWhenLoadedChildrenExpire && !_spellEffects.Any())
+		{
+			Owner.RemoveEffect(this, true);
+			return;
+		}
 		if (!_loaded) foreach (var treatment in _spellEffects.OfType<ILandRejuvenationEffect>().ToArray()) treatment.ActivateTreatment();
 	}
 
@@ -109,6 +116,12 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 		Owner.EffectsChanged = true;
 	}
 
+	public override IEnumerable<PhysicalEntityReference> PhysicalReferences =>
+		base.PhysicalReferences
+			.Append(new(PhysicalEntityKind.Character, _casterId, "Caster"))
+			.Append(new(PhysicalEntityKind.CharacterInstance, _casterInstanceId ?? 0, "CasterInstance"))
+			.Concat(_spellEffects.OfType<IPhysicalEntityReferenceProvider>().SelectMany(x => x.PhysicalReferences));
+
     protected override string SpecificEffectType => "MagicSpellParent";
 
     public override bool SavingEffect => true;
@@ -118,6 +131,7 @@ public class MagicSpellParent : Effect, IMagicSpellEffectParent
 		foreach (var treatment in _spellEffects.OfType<ILandRejuvenationEffect>().ToArray()) treatment.CheckpointTreatment();
         return new XElement("Effect",
 			new XElement("Identity", Identity),
+			RemoveWhenLoadedChildrenExpire ? new XElement("RemoveWhenLoadedChildrenExpire", true) : null,
             new XElement("Spell", Spell?.Id ?? 0),
             new XElement("Caster", _casterId),
             _casterInstanceId.HasValue ? new XElement("CasterInstance", _casterInstanceId.Value) : null,

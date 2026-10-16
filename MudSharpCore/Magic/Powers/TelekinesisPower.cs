@@ -26,7 +26,7 @@ public sealed class TelekinesisPower : PsychicTechniquePower
 			    !actor.CanInteractPlanar(value, PlanarInteractionKind.Physical) ||
 			    !MagicPowerSpatialTargeting.AcquireTargets(actor, MagicPowerDistance.SameLocationOnly).Contains(value) ||
 			    actor.Location.CanGetAccess(value, actor) == false ||
-			    MagicInterdictionHelper.GetInterdiction(actor, value, School, false) is not null || CanInvokePowerProg.ExecuteBool(actor, value) == false) return false;
+			    MagicInterdictionHelper.GetInterdiction(actor, value, School, false) is not null || CanInvokePower(actor, value) == false) return false;
 			affected.Add(value);
 			return true;
 		}

@@ -23,6 +23,7 @@ using MudSharp.GameItems.Inventory.Plans;
 using MudSharp.Magic;
 using MudSharp.Magic.Casting;
 using MudSharp.Magic.SpellEffects;
+using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp_Unit_Tests;
@@ -32,6 +33,56 @@ public class SeeTheUnbodiedSourceSelectionTests
 {
 	private const string Reference = "see.divination";
 	private const string Group = "armageddon.detect_ethereal";
+
+	[DataTestMethod]
+	[DataRow(1, 0)] [DataRow(4, 1)] [DataRow(7, 4)]
+	public void OwnedScope_OutsideShadowConsumesDirectRankedComponent(int grade, int rank)
+	{
+		using var f = new Fixture(rank, true);
+		var result = f.Cast(grade);
+		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.AreEqual(2, f.Quantity); Assert.AreEqual(1, f.ConsumptionWrites);
+	}
+
+	[TestMethod]
+	public void OwnedScope_MultiplePlaneMembershipWaivesOnlyComponent()
+	{
+		using var f = new Fixture(0, true); f.ShadowPresence = true; f.Items.Clear();
+		var result = f.Cast(7);
+		Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+		Assert.AreEqual(0, f.ConsumptionWrites);
+	}
+
+	[DataTestMethod]
+	[DataRow(true, false)] [DataRow(false, true)] [DataRow(true, true)]
+	public void OwnedScope_OnlyTerrainDescendantSiltRefusesEvenInShadow(bool room, bool terrain)
+	{
+		using var f = new Fixture(0, true); f.ShadowPresence = true; f.SiltOnRoom = room; f.SiltOnTerrain = terrain;
+		f.Items.Clear();
+		var result = f.Cast(1);
+		if (terrain)
+		{
+			Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message);
+			Assert.IsNull(result.OperationId); Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]);
+		}
+		else
+		{
+			Assert.IsTrue(room, "The non-Silt case must exercise a room-only Silt tag.");
+			Assert.AreEqual(MagicCastingStatus.Succeeded, result.Status, result.Message);
+			Assert.AreEqual(95.0, f.F.Balances[f.F.Resources[1]]);
+		}
+		Assert.AreEqual(0, f.ConsumptionWrites);
+	}
+
+	[TestMethod]
+	public void OwnedScope_PlaneChangeBeforePaymentRefusesFrozenSelection()
+	{
+		using var f = new Fixture(0, true);
+		f.F.Checkpoint = stage => { if (stage == "BeforePayment") f.ShadowPresence = true; };
+		var result = f.Cast(1);
+		Assert.AreEqual(MagicCastingStatus.Refused, result.Status, result.Message);
+		Assert.IsNull(result.OperationId); Assert.AreEqual(100.0, f.F.Balances[f.F.Resources[1]]);
+	}
 
 	[DataTestMethod]
 	[DataRow(1, 0)] [DataRow(2, 0)] [DataRow(3, 0)] [DataRow(4, 1)]
@@ -299,7 +350,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		Assert.AreEqual(Reference, f.Spell.InventoryPlanTemplate.Phases.Single().Actions.Single().OriginalReference);
 		Assert.IsFalse(f.Effect.BuildingCommand(f.F.Actor.Object, new StringStack("source component 1 invalid/reference")));
 		Assert.IsTrue(XNode.DeepEquals(original, f.Effect.Clone().SaveToXml()));
-		var invalid = new XElement(original); invalid.Element("SourceScope")!.SetAttributeValue("version", 2);
+		var invalid = new XElement(original); invalid.Element("SourceScope")!.SetAttributeValue("version", 3);
 		var loaded = SpellEffectFactory.LoadEffect(invalid, f.Spell);
 		Assert.IsNotNull(((IMagicSpellEffectLifetimePolicy)loaded).LifetimePolicyError);
 		Assert.IsTrue(XNode.DeepEquals(invalid, loaded.SaveToXml()));
@@ -321,6 +372,9 @@ public class SeeTheUnbodiedSourceSelectionTests
 		public List<IGameItem> Items { get; } = [];
 		public ITerrain Outside { get; } public ITerrain Silt { get; } public ITerrain Shadow { get; }
 		public ITerrain CurrentTerrain { get; set; }
+		public bool ShadowPresence { get; set; }
+		public bool SiltOnRoom { get; set; }
+		public bool SiltOnTerrain { get; set; }
 		public InventoryPlanActionConsume Material { get; }
 		public int Quantity { get; set; } = 3;
 		public IBody? Custodian { get; set; }
@@ -329,7 +383,7 @@ public class SeeTheUnbodiedSourceSelectionTests
 		private readonly IDisposable _time;
 		private readonly EffectHandler _handler;
 		public IEnumerable<MagicSpellParent> Parents => _handler.Effects.OfType<MagicSpellParent>();
-		public Fixture(int rank = 4)
+		public Fixture(int rank = 4, bool owned = false)
 		{
 			_time = RuntimeClock.Push(new Clock(F.Now));
 			F.World.SetupGet(x => x.EffectScheduler).Returns(new EffectScheduler(F.World.Object));
@@ -345,14 +399,28 @@ public class SeeTheUnbodiedSourceSelectionTests
 				tag.Setup(x => x.IsA(It.IsAny<ITag>())).Returns((ITag other) => other.Id <= index + 1); Tags.Add(tag.Object); return tag.Object;
 			}).ToArray();
 			for (var index = 1; index < Ranks.Length; ++index) Mock.Get(Ranks[index]).SetupGet(x => x.Parent).Returns(Ranks[index - 1]);
+			var siltTag = new Mock<ITag>(); siltTag.SetupGet(x => x.Id).Returns(201);
+			var siltChild = new Mock<ITag>(); siltChild.SetupGet(x => x.Id).Returns(202);
+			siltChild.SetupGet(x => x.Parent).Returns(siltTag.Object);
+			siltChild.Setup(x => x.IsA(It.IsAny<ITag>())).Returns((ITag tag) => ReferenceEquals(tag, siltTag.Object) || ReferenceEquals(tag, siltChild.Object));
+			Tags.Add(siltTag.Object); Tags.Add(siltChild.Object);
 			F.World.SetupGet(x => x.Tags).Returns(Tags);
+			var plane = Mock.Of<IPlane>(x => x.Id == 301);
+			F.World.SetupGet(x => x.Planes).Returns(MagicCastingFixture.Collection(() => new[] { plane }));
+			F.Body.SetupGet(x => x.BasePlanarPresence).Returns(() => PlanarPresenceDefinition.DefaultMaterial(ShadowPresence ? new long[] { 1, 301 } : new long[] { 1 }));
+			Mock.Get(F.Actor.Object.Location).SetupGet(x => x.Tags).Returns(() => SiltOnRoom ? new[] { siltChild.Object } : []);
+			Mock.Get(F.Actor.Object.Location).Setup(x => x.IsA(It.IsAny<ITag>())).Returns((ITag tag) => SiltOnRoom && siltChild.Object.IsA(tag));
 			ITerrain Terrain(long id, string name) => Mock.Of<ITerrain>(x => x.Id == id && x.Name == name &&
 				x.TerrainBehaviourString == "land" && x.TerrainLayers == new[] { RoomLayer.GroundLevel } && x.Tags == Array.Empty<ITag>());
 			Outside = Terrain(100, "Outside"); Silt = Terrain(101, "Silt"); Shadow = Terrain(102, "Shadow"); CurrentTerrain = Outside;
+			Mock.Get(Outside).SetupGet(x => x.Tags).Returns(() => SiltOnTerrain ? new[] { siltChild.Object } : []);
+			Mock.Get(Outside).Setup(x => x.IsA(It.IsAny<ITag>())).Returns((ITag tag) => SiltOnTerrain && siltChild.Object.IsA(tag));
 			F.World.SetupGet(x => x.Terrains).Returns(MagicCastingFixture.Collection(() => new[] { Outside, Silt, Shadow }));
 			Mock.Get(F.Actor.Object.Location.CurrentOverlay).SetupGet(x => x.Terrain).Returns(() => CurrentTerrain);
 			F.Spells.Remove(F.Spell);
-			Spell = F.NewSpell(1, "Source ethereal adapter", $"<Effect type='detectethereal'><LifetimePolicy version='1' mode='accumulate' group='{Group}' unitSeconds='600' maximumUnits='36' retainStrongestGrade='true'/><SourceScope version='1' silt='101' shadow='102' component='{Reference}'/></Effect>");
+			var scope = owned ? $"<SourceScope version='2' siltTag='201' shadowPlane='301' component='{Reference}'/>" :
+				$"<SourceScope version='1' silt='101' shadow='102' component='{Reference}'/>";
+			Spell = F.NewSpell(1, "Source ethereal adapter", $"<Effect type='detectethereal'><LifetimePolicy version='1' mode='accumulate' group='{Group}' unitSeconds='600' maximumUnits='36' retainStrongestGrade='true'/>{scope}</Effect>");
 			Assert.IsTrue(Spell.BuildingCommand(F.Actor.Object, new StringStack("grades fixture")));
 			Assert.IsTrue(Spell.BuildingCommand(F.Actor.Object, new StringStack("exclusiveeffect")));
 			Spell.EffectDurationExpression = new TraitExpression("1800*grade", F.World.Object);

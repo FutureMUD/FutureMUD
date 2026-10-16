@@ -2,6 +2,7 @@
 using MudSharp.Commands.Modules;
 using MudSharp.Commands.Socials;
 using MudSharp.Effects;
+using MudSharp.Effects.Concrete.SpellEffects;
 using System.Reflection;
 
 namespace MudSharp.Commands;
@@ -643,6 +644,7 @@ public class CharacterCommandManager : CommandManager<ICharacter>, ICharacterCom
         }
 
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(argument)) return false;
+		SpellFeignedDeathEffect.BreakOnVoluntaryAction(argument, command.Name);
         return command.Execute(argument, playerInput, state, permissionLevel, outputHandler);
     }
 

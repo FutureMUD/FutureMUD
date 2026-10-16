@@ -10,6 +10,9 @@ namespace MudSharp.Health.Breathing;
 
 internal static class BreathingStrategyHelper
 {
+	public static bool IsStoppedByEffect(IBody body) =>
+		body.CombinedEffectsOfType<IStopBreathing>().Any(x => x.Applies());
+
 	public static void ExposeToMagic(IBody body, IFluid? fluid, bool supplied = false)
 	{
 		if (fluid is null || !HasAirflow(body)) { EnvironmentalExposureService.For(body.Gameworld).NoInhalation(body); return; }
@@ -32,7 +35,7 @@ internal static class BreathingStrategyHelper
 
 	public static bool HasAirflow(IBody body)
 	{
-		if (!body.BreathingStrategy.NeedsToBreathe || body.CombinedEffectsOfType<IStopBreathing>().Any(x => x.Applies()) ||
+		if (!body.BreathingStrategy.NeedsToBreathe || IsStoppedByEffect(body) ||
 			body.EffectsOfType<Anesthesia>().Sum(x => x.IntensityPerGramMass) >= 5 * body.RespirationBreathingDriveMultiplier()) return false;
 		if (body.BreathingStrategy.Name == "partless") return true;
 		if (body.OrganFunction<HeartProto>() <= 0) return false;

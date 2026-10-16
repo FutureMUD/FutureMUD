@@ -45,9 +45,7 @@ public sealed partial class SpellOwnedCreation
 	internal static string? PersistedCorpseError(FuturemudDatabaseContext context, long corpseId, long ownerId, long bodyId, long cellId)
 	{
 		if (BorrowedBodyOwnershipError(context, ownerId, bodyId) is { } ownershipError) return ownershipError;
-		var token = $" corpse=\"{corpseId}\"";
-		if (context.MagicSpellLifecycles.Any(x => x.State != (int)SpellLifecycleState.Completed &&
-			x.Provenance.StartsWith("<CorpseAnimation ") && x.Provenance.Contains(token)))
+		if (SpellOwnedCorpseAnimationService.HasUnfinishedBorrow(context, corpseId))
 			return "That saved corpse is already borrowed by an unfinished animation.";
 		var corpse = context.GameItems.AsNoTracking().SingleOrDefault(x => x.Id == corpseId);
 		if (corpse is null || corpse.ContainerId is not null || corpse.RoutePosition is not null ||
@@ -56,7 +54,7 @@ public sealed partial class SpellOwnedCreation
 			!context.RoomsGameItems.Any(x => x.GameItemId == corpseId && x.RoomId == cellId))
 			return "The saved corpse must be directly in its current room, outside a route or inventory.";
 		if (!context.Characters.Any(x => x.Id == ownerId && !x.IsArchived) || !context.Bodies.Any(x => x.Id == bodyId) ||
-			!context.GameItemComponents.AsNoTracking().Where(x => x.GameItemId == corpseId).Select(x => x.Definition)
+			!PhysicalReferenceGuard.RemainsComponents(context).Where(x => x.ItemId == corpseId && x.Type == "Corpse").Select(x => x.Definition)
 				.AsEnumerable().Any(x => IsExactCorpseDefinition(x, ownerId, bodyId)))
 			return "The saved corpse must retain its exact original character and body.";
 		if (!((CharacterState)context.Characters.Where(x => x.Id == ownerId).Select(x => x.State).Single()).IsDead())

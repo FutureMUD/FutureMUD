@@ -56,6 +56,9 @@ public class WitnessedClanMemberDeath : Effect
 
     #region Overrides of Effect
 
+	public override IEnumerable<PhysicalEntityReference> PhysicalReferences =>
+		[new PhysicalEntityReference(PhysicalEntityKind.Character, _clanMemberId, "Member")];
+
     protected override string SpecificEffectType => "WitnessedClanMemberDeath";
 
     public override string Describe(IPerceiver voyeur)

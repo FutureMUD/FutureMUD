@@ -12,6 +12,7 @@ using Room = MudSharp.Construction.Room;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
@@ -103,11 +104,13 @@ public partial class Character
 		{
 			throw new ArgumentException(spatialError, nameof(routePositionMetres));
 		}
+		if (ProjectionSpatialPolicy.Error(this, spatialTarget, false) is { } projectionError)
+		{ OutputHandler.Send(projectionError.ColourError()); return; }
 
 
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return;
 		using var displacement = MudSharp.NPC.AI.CommandExecutionScope.BeginDisplacement(this, target, layer, spatialTarget.RoutePositionMetres);
-		if (MudSharp.NPC.AI.CommandExecutionScope.IsOrdered(this) && displacement is null) return;
+		if (MudSharp.NPC.AI.CommandExecutionScope.RequiresDisplacementReceipt(this) && displacement is null) return;
 		if (displacement is not null && (target is not Room || Location is not Room)) return;
         IRoom sourceLocation = Location;
         Movement?.CancelForMoverOnly(this);
@@ -302,12 +305,14 @@ public partial class Character
 
 	public override (bool Success, IEmoteOutput FailureOutput) CanCross(IRoomExit exit)
 	{
+		if (exit.Exit is IAdmittedMagicPortalExit portal && !portal.AllowsTraversal(this, exit))
+			return (false, new EmoteOutput(new Emote("@ cannot cross the closed or warded threshold.", this, this)));
 		if (EffectHandler.AffectedBy<IImmwalkEffect>() || RidingMount?.AffectedBy<IImmwalkEffect>() == true)
 		{
 			return (true, null);
 		}
 
-		if (exit.Exit.EffectsOfType<IExitBarrierEffect>().FirstOrDefault() is not null && !this.CanCrossMagicalBarriersPlanar())
+		if (exit.Exit.EffectsOfType<IExitBarrierEffect>().Any(x => MudSharp.Movement.ExitBarrierTraversal.Blocks(x, this, exit)) && !this.CanCrossMagicalBarriersPlanar())
 		{
 			return (false,
 				new EmoteOutput(
@@ -684,6 +689,7 @@ public partial class Character
         {
             return false;
         }
+		SpellFeignedDeathEffect.BreakOnVoluntaryAction(this, "move");
 
         if (RidingMount is not null)
         {
@@ -785,6 +791,11 @@ public partial class Character
     private CanMoveResponse CanMoveInternal(CanMoveFlags flags, IPositionState movingPositionOverride,
 		IRoomExit vehicleInteriorExit = null)
     {
+		if (EffectsOfType<MudSharp.Magic.ISpellProjectionBoundary>().Any(x => x.Kind == MudSharp.Magic.SpellProjectionKind.SandEffigy))
+			return new CanMoveResponse { Result = false, ErrorMessage = "The sand effigy cannot move from its anchor." };
+		if (vehicleInteriorExit?.Destination is { } projectionDestination &&
+			ProjectionSpatialPolicy.Error(this, new SpatialLocation(projectionDestination, RoomLayer), true) is { } projectionError)
+			return new CanMoveResponse { Result = false, ErrorMessage = projectionError };
         var vehicle = Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(this));
         if (vehicle is not null && !IsPermittedVehicleInteriorExit(vehicle, Location, vehicleInteriorExit))
         {
@@ -966,6 +977,14 @@ public partial class Character
 
 	private CanMoveResponse CanMoveThroughExit(IRoomExit exit, CanMoveFlags flags, bool requireCurrentOrigin)
     {
+		if (exit?.Destination is { } destination && Gameworld?.SpellOwnedShelters is { } shelters &&
+			shelters.OwnsRoom(destination.Id) && !shelters.CanEnter(destination, this))
+		{
+			return new CanMoveResponse { Result = false, ErrorMessage = "That shelter is full or closing." };
+		}
+		if (exit?.Destination is { } gateDestination && Gameworld?.SpellOwnedGates is { } gates &&
+			gates.OwnsRoom(gateDestination.Id) && !gates.CanEnter(gateDestination, this, false))
+			return new CanMoveResponse { Result = false, ErrorMessage = "That Nilaz passage is closing." };
         // Execution remains anchored to this room, including for Immwalk. Planning may inspect
         // a later edge without relocating the character; all other current-state checks remain
         // shared, and normal movement must revalidate the edge when the character reaches it.
@@ -1646,6 +1665,9 @@ public partial class Character
 
     public void ExecuteMove(IMovement movement, IMoveSpeed speedOverride = null)
     {
+		if (movement?.Exit?.Destination is { } projectionDestination &&
+			ProjectionSpatialPolicy.Error(this, new SpatialLocation(projectionDestination, RoomLayer), true) is { } projectionError)
+		{ OutputHandler.Send(projectionError.ColourError()); movement.CancelForMoverOnly(this); return; }
         if (RidingMount is null && !EffectHandler.AffectedBy<IImmwalkEffect>())
         {
             SpendStamina(StaminaForMovement(PositionState, speedOverride ?? CurrentSpeed, movement.StaminaMultiplier, PositionState.IgnoreTerrainStaminaCostsForMovement));

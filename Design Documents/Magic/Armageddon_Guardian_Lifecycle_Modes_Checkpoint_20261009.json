@@ -1,0 +1,393 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-09",
+  "status": "PASS_BOUNDED_N15_BUILDER_INSTALLED",
+  "branch": "codex/armageddon-continuation-20261008",
+  "scope": "N15 builder-installed same-template guardian lifecycle modes; authored timing, not full catalogue parity",
+  "runtime_integration": {
+    "pr_number": 789,
+    "url": "https://github.com/FutureMUD/FutureMUD/pull/789",
+    "head": "7590560af235342716f33733599e2197a162a20f",
+    "merge_commit": "dac1deee031f4e4726597e88d07af47d5cda3e27",
+    "conflicts": false,
+    "scope": "Merge into continuation branch; upstream PR and draft PR remain unmerged"
+  },
+  "scenario_revision": "1c78b8c2b2b74d82b1db2b030e41e9c892ad9779",
+  "scenario_path": "scripts/FuryCalmSmokeWorld/guardian_lifecycle_modes.py",
+  "source_changes_after_managed": [
+    "scripts/FuryCalmSmokeWorld/guardian_lifecycle_modes.py"
+  ],
+  "environment": {
+    "database": "authored_celestial_smoke",
+    "world": ".artifacts/authored-celestials/run-8f52a54633e3",
+    "owned_instance_record": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/mysql-instance.json",
+      "sha256": "d7faff6e1492b115c535daf392d8a76c8cb44220d374c10671e0383df8ba6897"
+    }
+  },
+  "native_build": {
+    "receipt": {
+      "path": ".artifacts/n15-20261009/native-build.log",
+      "sha256": "0a97148097accb5a4e482d3918bec1acd3daf5e279f331083378e940b339aa2a"
+    },
+    "configuration": "Debug",
+    "exit_code": 0,
+    "warnings": 0,
+    "errors": 0
+  },
+  "managed": {
+    "run_id": "20261009T065727Z-8042d1a51080",
+    "head": "dac1deee031f4e4726597e88d07af47d5cda3e27",
+    "status": "PASS",
+    "counts": {
+      "executed": 9199,
+      "passed": 9199,
+      "failed": 0,
+      "skipped": 3,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 9202
+    },
+    "source_start": "42a310927f3e03680d6f9fdc54a8cd5b67842f4286d35c57a022eb5c3387aaf1",
+    "source_end": "42a310927f3e03680d6f9fdc54a8cd5b67842f4286d35c57a022eb5c3387aaf1",
+    "source_stable": true,
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+      "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+      "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+      "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+      "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+      "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+    ],
+    "filter": null,
+    "receipt": {
+      "path": ".artifacts/n15-20261009/integrated-default/20261009T065727Z-8042d1a51080/summary.json",
+      "sha256": "64254b1b654661ccd039f9fca4ff51d1c0cb1ffce3a5d0b4835992281e6da6d7"
+    },
+    "per_project": [
+      {
+        "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+        "counts": {
+          "executed": 709,
+          "passed": 709,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 709
+        }
+      },
+      {
+        "project": "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+        "counts": {
+          "executed": 36,
+          "passed": 36,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 36
+        }
+      },
+      {
+        "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+        "counts": {
+          "executed": 1617,
+          "passed": 1617,
+          "failed": 0,
+          "skipped": 3,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 1620
+        }
+      },
+      {
+        "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+        "counts": {
+          "executed": 6357,
+          "passed": 6357,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6357
+        }
+      },
+      {
+        "project": "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+        "counts": {
+          "executed": 274,
+          "passed": 274,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 274
+        }
+      },
+      {
+        "project": "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+        "counts": {
+          "executed": 22,
+          "passed": 22,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 22
+        }
+      },
+      {
+        "project": "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+        "counts": {
+          "executed": 57,
+          "passed": 57,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 57
+        }
+      },
+      {
+        "project": "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+        "counts": {
+          "executed": 54,
+          "passed": 54,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 54
+        }
+      },
+      {
+        "project": "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+        "counts": {
+          "executed": 35,
+          "passed": 35,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 35
+        }
+      },
+      {
+        "project": "scripts/TestReporting.Tests/TestReporting.Tests.csproj",
+        "counts": {
+          "executed": 38,
+          "passed": 38,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 38
+        }
+      }
+    ],
+    "skipped_cases": [
+      {
+        "fully_qualified_name": "MudSharp_Unit_Tests.StartupScriptGeneratorTests.EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions",
+        "name": "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (1)",
+        "outcome": "SKIPPED",
+        "message": "Assert.Inconclusive failed. Native Unix filesystem permissions require a Unix host."
+      },
+      {
+        "fully_qualified_name": "MudSharp_Unit_Tests.StartupScriptGeneratorTests.EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions",
+        "name": "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (0)",
+        "outcome": "SKIPPED",
+        "message": "Assert.Inconclusive failed. Native Unix filesystem permissions require a Unix host."
+      },
+      {
+        "fully_qualified_name": "MudSharp_Unit_Tests.StartupScriptGeneratorTests.EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions",
+        "name": "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (2)",
+        "outcome": "SKIPPED",
+        "message": "Assert.Inconclusive failed. Native Unix filesystem permissions require a Unix host."
+      }
+    ]
+  },
+  "native": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/guardian-lifecycle-modes-passed.json",
+      "sha256": "b060c12d8fa292f049461944a5a4664141b0b0167814b77936cfacca96f91a3b"
+    },
+    "invocation_receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-9e4127aae615/receipt.json",
+      "sha256": "b060c12d8fa292f049461944a5a4664141b0b0167814b77936cfacca96f91a3b"
+    },
+    "assertions_passed": 124,
+    "assertions_failed": 0,
+    "revision": "1c78b8c2b2b74d82b1db2b030e41e9c892ad9779",
+    "captured_inputs": {
+      "scripts\\FuryCalmSmokeWorld\\smoke.py": "7638d3cb7abfeb88bd4a191555aa7f6f2fc324373de745c527e1b471160afa40",
+      "scripts\\FuryCalmSmokeWorld\\Program.cs": "10cf1847dcef732de0fe2a6edd6651583890f65803995cf7bcf56262c85d36ec",
+      "scripts\\AuthoredCelestialSmokeWorld\\native.py": "21ef19f7fa888edf402f14b43d8bfce17d02b3ffb06072b5651518f3d3eb8227",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "36d9f42677bdb9425b164772c6001fc2ae63099c0447f19ba98c0de8310a14bf",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "97997b29739a222b9f8ef1f77a5f9e9251cc22578c7f538fbeb23c029f9c2d0b",
+      "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "6315d6d7874b92b4a392bab2a87803c141ece412744c9063f331a265f70f93e5",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+      "scripts/FuryCalmSmokeWorld/guardian_lifecycle_modes.py": "51e3f8c238798697e54fb8bafd37b441da56b89f8acfc197d5d34a632848f4a3",
+      "MudSharpCore/Magic/ArmageddonAirGuardianStock.cs": "cc8882c17817e88575728758a51f101732e9f6bd22c3c5b96331859c211d46c0",
+      "MudSharpCore/Magic/SpellEffects/CreateNPCEffect.cs": "525e9bc9bfad403f47685db9e6a11d818a58969dbfce302a229c4d22d332f750",
+      "MudSharpCore/Magic/SpellEffects/CreateNPCEffect.Admission.cs": "27b2e44848217c983b8d6de9cb5df0918bdab9aa3a889b6e22948c438b66580f",
+      "MudSharpCore/Magic/Lifecycle/SpellOwnedNpcService.cs": "23b35dcc70a26002d61711656010c16da9e0db76b4da93f62e30dc37b5b2e459",
+      "MudSharpCore/Magic/Lifecycle/SpellOwnedNpcService.Retirement.cs": "b08bb7ae172756d7d2043acf5410fb547a5ab313746f3661c1bcf3bac044e91f",
+      "MudSharpCore/Magic/Lifecycle/SpellOwnedLifecycleStore.cs": "caf00f7414f0d8c80bb5ddd51732e9bb88485c05384a9dbcbd17796897ac8e4e",
+      "MudSharpCore/Effects/Concrete/SpellNpcGuardian.cs": "1d5197bd4fe955eeea484f9bad5a68935231d68856f86995d17e3828ee05111e",
+      "MudSharpCore/Body/RetirementBodyEffects.cs": "794933aceff1a9c53d360d67fa21702968c4809daf5580c297983b16da43d203",
+      "MudSharpCore/Character/CharacterArchiveService.cs": "f6543553ef46331d6b5bd8846ab2ffbf0f2b09556a1681b53819519952e1b92c",
+      "MudSharpCore/Character/PhysicalReferenceCodecs.cs": "65acc8e6ec024a17c3f407ed5bff4f7d1865d16153051b17e2678b909222b670",
+      "MudSharpCore/GameItems/Components/CorpseGameItemComponent.cs": "cdf64bd0ed822b2e95e560f39de0745ab40d57f369d21774b404518b117f871e",
+      "FutureMUDLibrary/Magic/ISpellOwnedLifecycle.cs": "7bfcdc48209e82a1ed2f8183839efdbf6893d5393bc2fec63d7cd48c0d3a0714",
+      "MudsharpDatabaseLibrary/Models/MagicSpellLifecycle.cs": "a0ee22e6038c0792546cbec07578f111e1300e4bf2502c48e3760bd23e9dfbad"
+    },
+    "inputs_unchanged": true,
+    "objects": {
+      "caster": 2,
+      "target": 3,
+      "other": 4,
+      "enemy": 5,
+      "fury": 16,
+      "calm": 17,
+      "capability": 5,
+      "reserve": 5,
+      "guardianSpell": 22,
+      "guardianTemplate": 8,
+      "foreignPrototype": 6894
+    },
+    "authored_timing": {
+      "temporaryLifetimeSeconds": "45*grade",
+      "corpseTimedDecaySeconds": 60,
+      "permanentObservedBeyondSeconds": 45,
+      "offlineMorphPolicy": "native paused remaining duration"
+    },
+    "lifecycles": [
+      {
+        "id": "357887c7-f519-4d41-945c-4adf3f08cbd5",
+        "mode": "temporarycleanup",
+        "character": 23,
+        "body": 23,
+        "room": 1,
+        "activatedJournal": "357887c7-f519-4d41-945c-4adf3f08cbd5\t22\t1\t2\t6169722D677561726469616E\t1\t2026-10-09 07:11:17.277049\t2026-10-09 07:12:02.277049\t6E61746976652D6372656174656E70633B2074656D706C6174653D382F303B20696E766F636174696F6E3D3B20706172656E743D66373132613961392D666364612D343161312D613830352D383365373535613034306432\t0\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\t2026-10-09 07:11:17.416402\t2",
+        "claims": "1\t23\t0\n3\t23\t0",
+        "terminalJournal": "357887c7-f519-4d41-945c-4adf3f08cbd5\t22\t1\t2\t6169722D677561726469616E\t1\t2026-10-09 07:11:17.277049\t2026-10-09 07:12:02.277049\t6E61746976652D6372656174656E70633B2074656D706C6174653D382F303B20696E766F636174696F6E3D3B20706172656E743D66373132613961392D666364612D343161312D613830352D383365373535613034306432\t3\t0\t2026-10-09 07:12:19.287834\tNULL\tNULL\tNULL\tNULL\t2026-10-09 07:12:19.287834\t5",
+        "foreignItem": 15,
+        "terminalRestartJournal": "357887c7-f519-4d41-945c-4adf3f08cbd5\t22\t1\t2\t6169722D677561726469616E\t1\t2026-10-09 07:11:17.277049\t2026-10-09 07:12:02.277049\t6E61746976652D6372656174656E70633B2074656D706C6174653D382F303B20696E766F636174696F6E3D3B20706172656E743D66373132613961392D666364612D343161312D613830352D383365373535613034306432\t3\t0\t2026-10-09 07:12:19.287834\tNULL\tNULL\tNULL\tNULL\t2026-10-09 07:12:19.287834\t5"
+      },
+      {
+        "id": "1dec7db4-78e4-4a3e-bd7c-fb07d9a91633",
+        "mode": "deathonexpiry",
+        "character": 24,
+        "body": 24,
+        "room": 1,
+        "activatedJournal": "1dec7db4-78e4-4a3e-bd7c-fb07d9a91633\t22\t1\t2\t6169722D677561726469616E\t2\t2026-10-09 07:13:05.750047\t2026-10-09 07:13:50.750047\t6E61746976652D6372656174656E70633B2074656D706C6174653D382F303B20696E766F636174696F6E3D3B20706172656E743D38306236396339632D303035312D343637662D616235622D346138363765663365306339\t0\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\t2026-10-09 07:13:05.887895\t2",
+        "claims": "1\t24\t0\n3\t24\t0",
+        "corpse": 17,
+        "terminalJournal": "1dec7db4-78e4-4a3e-bd7c-fb07d9a91633\t22\t1\t2\t6169722D677561726469616E\t2\t2026-10-09 07:13:05.750047\t2026-10-09 07:13:50.750047\t6E61746976652D6372656174656E70633B2074656D706C6174653D382F303B20696E766F636174696F6E3D3B20706172656E743D38306236396339632D303035312D343637662D616235622D346138363765663365306339\t3\t0\t2026-10-09 07:14:16.725536\t17\t2026-10-09 07:15:16.899690\t2026-10-09 07:15:16.936980\t2026-10-09 07:15:16.942657\t2026-10-09 07:16:16.790738\t9",
+        "foreignItem": 16,
+        "terminalRestartJournal": "1dec7db4-78e4-4a3e-bd7c-fb07d9a91633\t22\t1\t2\t6169722D677561726469616E\t2\t2026-10-09 07:13:05.750047\t2026-10-09 07:13:50.750047\t6E61746976652D6372656174656E70633B2074656D706C6174653D382F303B20696E766F636174696F6E3D3B20706172656E743D38306236396339632D303035312D343637662D616235622D346138363765663365306339\t3\t0\t2026-10-09 07:14:16.725536\t17\t2026-10-09 07:15:16.899690\t2026-10-09 07:15:16.936980\t2026-10-09 07:15:16.942657\t2026-10-09 07:16:16.790738\t9"
+      },
+      {
+        "id": "a0b09a7d-c2d2-4905-9be6-b0cd5b6bed28",
+        "mode": "permanent",
+        "character": 25,
+        "body": 25,
+        "room": 1,
+        "activatedJournal": "a0b09a7d-c2d2-4905-9be6-b0cd5b6bed28\t22\t1\t2\t6169722D677561726469616E\t0\t2026-10-09 07:17:03.435695\tNULL\t6E61746976652D6372656174656E70633B2074656D706C6174653D382F303B20696E766F636174696F6E3D3B20706172656E743D36363364316233332D363265662D343737342D393866332D313238633331396461343637\t3\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\t2026-10-09 07:17:03.570946\t2",
+        "claims": "1\t25\t0\n3\t25\t0",
+        "restartedJournal": "a0b09a7d-c2d2-4905-9be6-b0cd5b6bed28\t22\t1\t2\t6169722D677561726469616E\t0\t2026-10-09 07:17:03.435695\tNULL\t6E61746976652D6372656174656E70633B2074656D706C6174653D382F303B20696E766F636174696F6E3D3B20706172656E743D36363364316233332D363265662D343737342D393866332D313238633331396461343637\t3\tNULL\tNULL\tNULL\tNULL\tNULL\tNULL\t2026-10-09 07:17:03.570946\t2",
+        "retainedAsOrdinaryDurableNpc": true
+      }
+    ],
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-1.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-2.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-3.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-4.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "cleanup": {
+      "mysqlStopped": true,
+      "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+    }
+  },
+  "retained_failed_attempts": [
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-8350d94e5c4e/receipt.json",
+        "sha256": "5ed8b8ece9e75ffbd3dfaf6f9c02079b2a60dd58c01083b94c3f1a2bbcfa6813"
+      },
+      "revision": "76b4520843cf23bf2d751fac6ebddedd5a4bf942",
+      "status": "FAIL",
+      "error": "same exact builder-installed stock and approved template retained: ",
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      },
+      "explanation": "Pre-server fixture assertion assumed a template display name. Corrected to the exact stock/template IDs in the N14 qualified receipt; no runtime repair or assertion weakening."
+    }
+  ],
+  "review": {
+    "status": "CLEAR_AFTER_COVERAGE_CORRECTIONS",
+    "scope": "Read-only N15 scenario and three finding closure checks",
+    "addressed": [
+      "Exact original evacuation room before/after restart",
+      "Zero/one exact new corpse prototype rows",
+      "Exact birth claims and NPC/body identity sets across creation/restart"
+    ],
+    "execution_claimed": false
+  },
+  "inventory_counts": {
+    "candidates": 154,
+    "required": 152,
+    "optional": 2,
+    "sorcerer_spells": 82,
+    "roots": 4,
+    "support_rows": 12,
+    "classification_all_candidates": {
+      "existing_primitive_configuration": 38,
+      "existing_primitive_plus_bounded_policy_content": 65,
+      "small_missing_primitive": 43,
+      "larger_supporting_system": 8
+    }
+  },
+  "n15_builder_installed_qualified": true,
+  "full_air_guardian_catalogue_qualified": false,
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "next_bounded_milestone": "N16: repeat normal builder-installed guardian summon/use/kill/expire with a cold restart on every cycle; qualify stable eligible heavy-row, timer and subscription counts and explain retained canonical history, claims and the ordinary permanent fixture. Full Air Guardian catalogue and historical timing parity remain pending. Use only code-proven references; no static-definition classifier stage.",
+  "validation_boundary": "Full managed gate ran clean integrated C# source at dac1deee0. Subsequent changes add only the Python scenario and documentation. Native Debug binaries were refreshed before the run and captured inputs remained unchanged. Earlier N14 evidence is retained separately and was not rerun.",
+  "limits": [
+    "Explicit authored approved template and 45*grade real seconds; 60-second native corpse policy is restored exactly.",
+    "Permanent output intentionally remains as an ordinary durable NPC in the stopped disposable world; its completed journal grants no removal authority.",
+    "Exactly-once proof compares the complete persisted terminal row/version, exact claims and physical graph across a later process; no independent callback invocation-count instrumentation is claimed.",
+    "No full wind-template, stats, components, liking, prerequisites, seeder catalogue, historical timing, balance or N16 high-volume/per-cycle restart qualification.",
+    "Only the retained owned loopback world was used. No shared/production world, merge to master, release or deployment."
+  ]
+}

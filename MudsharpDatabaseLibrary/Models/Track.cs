@@ -17,6 +17,8 @@ public class Track
 
     public long? CharacterId { get; set; }
     public virtual Character Character { get; set; }
+    public long? CharacterInstanceId { get; set; }
+    public virtual CharacterInstance CharacterInstance { get; set; }
     public long? BodyPrototypeId { get; set; }
     public virtual BodyProto BodyPrototype { get; set; }
     public long? VehicleId { get; set; }

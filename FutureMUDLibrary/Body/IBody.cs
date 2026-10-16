@@ -49,6 +49,8 @@ namespace MudSharp.Body
         IBodyPrototype Prototype { get; }
 
         ICharacter Actor { get; set; }
+        /// <summary>Apply a selected spell's needs payload only while this physical body and needs model remain current.</summary>
+        NeedsResult FulfilNeedsOnSelectedBody(INeedFulfiller fulfiller, INeedsModel selectedModel, Func<bool> isCurrent);
         ICharacterInstance EmbodiedInstance { get; }
         Alignment Handedness { get; set; }
 

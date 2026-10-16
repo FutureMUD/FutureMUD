@@ -129,7 +129,7 @@ internal class StartCombat : BuiltInFunction
         }
 
         ProgCombat combat = new(description, gerund, reference, friendly, joinprog, leaveprog, endprog, moveprog,
-            hitprog);
+            hitprog) { Gameworld = Gameworld };
         combat.JoinCombat(fighter1, RPG.Checks.Difficulty.Automatic);
         combat.JoinCombat(fighter2, RPG.Checks.Difficulty.Automatic);
 

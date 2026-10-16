@@ -11,6 +11,7 @@ public partial class EffectScheduler : IScheduler, IHaveFuturemud, IEffectSchedu
 	private readonly TimeProvider _timeProvider;
 	public DateTime? NextTriggerUtc => _schedules.TryPeek(out var next) ? next.TriggerUtc : null;
 	public int LastCheckFiredCount { get; private set; }
+	public int ScheduleCount => _schedules.Count;
 
 	public IFuturemud Gameworld { get; protected set; }
 

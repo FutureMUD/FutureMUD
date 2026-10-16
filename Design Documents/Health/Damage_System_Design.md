@@ -458,3 +458,23 @@ Second-pass candidates:
 - whether `BallisticArmourPiercing` should also get explicit flesh-layer neutralisation rather than following the engine default transform
 - whether head-specific worn armour families need a dedicated pass beyond generic family tuning
 - whether some modern armour families should be flattened in the same way as the medieval families
+
+## Invocation-local damage fences and vitality measurement
+
+`IDamage.VitalTransfer` and `IDamage.MutationGuard` default to null. They are invocation-local
+metadata and are never persisted in a wound. Damage copies and armour transformations retain
+them. Ordinary packets keep the same native route when both are absent.
+
+The optional mutation guard validates the exact `IHaveWounds` recipient after authority
+callbacks immediately before native body or item wound mutation. A guarded physical operation
+may admit only its captured body and exact worn/prosthetic items. Removed/transferred gear,
+body switches, changed exit state or stale command authority cannot redirect guarded harm or
+apply stale armour attenuation. A later check cannot undo an earlier mutation, so native item
+and body checkpoints both require the guard.
+
+Vitality measurement observes positive newly delivered/aggravated eligible native wound damage
+on the captured victim body before event callbacks. Item wounds, pain, stun and unrelated
+existing wounds never enlarge the healing budget. Subsequent owner/authority drift holds
+healing; the ordinary damage already delivered is not replayed or refunded.
+
+Finite spell armour is opt-in; absent `FiniteBudget` preserves legacy handling. Native prevented damage, including dissipation, spends the frozen invocation budget. The last partly affordable hit scales pain/stun mitigation and retains its original damage kind. Positive committed spending marks effects dirty for the normal Character save gate. Exact child/parent membership and body/mutation authority are rechecked around native callbacks; detached protection returns the original packet without spending. Negative/nonfinite frozen maximum or saved spend is rejected; valid overspent state remains exhausted. XML reload tests and save-dirty flags do not assert an unexecuted SQL armour replay.

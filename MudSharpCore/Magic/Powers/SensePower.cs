@@ -263,7 +263,7 @@ public class SensePower : MagicPowerBase
             return;
         }
 
-        if (CanInvokePowerProg?.Execute<bool?>(actor) == false)
+        if (CanInvokePower(actor) == false)
         {
             actor.OutputHandler.Send(WhyCantInvokePowerProg.Execute(actor)?.ToString() ??
                                      "You can't use that power at this time.");

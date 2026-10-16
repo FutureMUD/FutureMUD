@@ -17,6 +17,8 @@ namespace MudSharp.Magic;
 /// <summary>Recovered Fire Jambiya grade/component/lifetime rules with explicit authored native profiles.</summary>
 public static class ArmageddonFlameKnifeStock
 {
+	public static ArmageddonUtilitySpellContent Content(ArmageddonFlameKnifeBindings bindings) =>
+		ArmageddonExistingFactorySpellContent.FlameKnife(bindings);
 	public const string Key = "arm.spell.flame_knife";
 	public const string Name = "Flame Knife";
 	public const string LifetimeSeconds = "(grade+1)*1500*0.75";

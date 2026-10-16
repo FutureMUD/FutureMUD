@@ -507,23 +507,23 @@ public static class CharacterInstanceService
 				$"There is no valid location for the possessed corpse: {spatialError}");
 		}
 
-		foreach (var loaded in identity.Instances.OfType<Character>()
-		                                .Where(x => ReferenceEquals(x.Body, body) && x.IsEmbodied)
-		                                .ToList())
-		{
-			if (!loaded.State.IsDead() && !loaded.State.HasFlag(CharacterState.Stasis))
-			{
-				return new CharacterInstanceOperationResult(false,
-					"That corpse body already has a live embodied instance.");
-			}
-
-			loaded.SetInstanceEmbodied(false);
-			loaded.SetInstanceControllable(false);
-			loaded.Save();
-		}
-
 		using (new FMDB())
 		{
+			foreach (var loaded in identity.Instances.OfType<Character>()
+			                                .Where(x => ReferenceEquals(x.Body, body) && x.IsEmbodied)
+			                                .ToList())
+			{
+				if (!loaded.State.IsDead() && !loaded.State.HasFlag(CharacterState.Stasis))
+				{
+					return new CharacterInstanceOperationResult(false,
+						"That corpse body already has a live embodied instance.");
+				}
+
+				loaded.SetInstanceEmbodied(false);
+				loaded.SetInstanceControllable(false);
+				loaded.Save();
+			}
+
 			var dbchar = FMDB.Context.Characters.Find(identity.Id);
 			if (dbchar is null)
 			{
@@ -637,23 +637,23 @@ public static class CharacterInstanceService
 		}
 
 		var ais = artificialIntelligences.Where(x => x is not null).Distinct().ToList();
-		foreach (var loaded in identity.Instances.OfType<Character>()
-		                                .Where(x => ReferenceEquals(x.Body, body) && x.IsEmbodied)
-		                                .ToList())
-		{
-			if (!loaded.State.IsDead() && !loaded.State.HasFlag(CharacterState.Stasis))
-			{
-				return new CharacterInstanceOperationResult(false,
-					"That corpse body already has a live embodied instance.");
-			}
-
-			loaded.SetInstanceEmbodied(false);
-			loaded.SetInstanceControllable(false);
-			loaded.Save();
-		}
-
 		using (new FMDB())
 		{
+			foreach (var loaded in identity.Instances.OfType<Character>()
+			                                .Where(x => ReferenceEquals(x.Body, body) && x.IsEmbodied)
+			                                .ToList())
+			{
+				if (!loaded.State.IsDead() && !loaded.State.HasFlag(CharacterState.Stasis))
+				{
+					return new CharacterInstanceOperationResult(false,
+						"That corpse body already has a live embodied instance.");
+				}
+
+				loaded.SetInstanceEmbodied(false);
+				loaded.SetInstanceControllable(false);
+				loaded.Save();
+			}
+
 			var dbchar = FMDB.Context.Characters.Find(identity.Id);
 			if (dbchar is null)
 			{
@@ -1311,6 +1311,16 @@ public static class CharacterInstanceService
 		if (!bypassCorpseLifecycle && secondary.InstanceKind == CharacterInstanceKind.AnimatedCorpse &&
 			secondary.Gameworld.SpellOwnedCorpseAnimations is { } animations && animations.OwnsInstance(secondary.InstanceId))
 			return animations.TryRetire(secondary.InstanceId, deathRetirement ? MudSharp.Magic.SpellRetirementReason.EarlyDeath : MudSharp.Magic.SpellRetirementReason.Dismissal, out whyNot);
+		if (!bypassCorpseLifecycle && secondary.Gameworld.SpellOwnedProjections is { } projections && projections.OwnsInstance(secondary.InstanceId))
+		{
+			if (deathRetirement)
+			{
+				projections.RequestRetirement(secondary, MudSharp.Magic.SpellRetirementReason.ProjectionDamage);
+				whyNot = "";
+				return true;
+			}
+			return projections.TryRetire(secondary.InstanceId, MudSharp.Magic.SpellRetirementReason.Dismissal, out whyNot);
+		}
 
 		var owner = secondary.Identity as Character;
 		if (removeOwningEffects &&
@@ -1498,6 +1508,12 @@ public static class CharacterInstanceService
 			if (instance.PersistencePolicy == CharacterInstancePersistencePolicy.Persistent)
 			{
 				UnloadPersistentSecondary(identity, instance);
+				continue;
+			}
+
+			if (instance.Gameworld.SpellOwnedProjections is { } projections && projections.OwnsInstance(instance.InstanceId))
+			{
+				projections.TryRetire(instance.InstanceId, MudSharp.Magic.SpellRetirementReason.Logout, out _);
 				continue;
 			}
 

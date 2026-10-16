@@ -29,12 +29,14 @@ public partial class Body
 
 		foreach (var dosage in source.ActiveDrugDosages)
 		{
-			DoseImmediate(dosage.Drug, dosage.OriginalVector, dosage.Grams, dosage.Originator);
+			DoseImmediate(dosage.Drug, dosage.OriginalVector, dosage.Grams, dosage.Originator,
+				dosage.SpellOriginId, dosage.SpellOriginFamily, dosage.SpellOriginFormula);
 		}
 
 		foreach (var dosage in source.LatentDrugDosages)
 		{
-			Dose(dosage.Drug, dosage.OriginalVector, dosage.Grams, dosage.Originator);
+			Dose(dosage.Drug, dosage.OriginalVector, dosage.Grams, dosage.Originator,
+				dosage.SpellOriginId, dosage.SpellOriginFamily, dosage.SpellOriginFormula);
 		}
 
 		var woundMap = new Dictionary<IWound, IWound>(ReferenceEqualityComparer.Instance);

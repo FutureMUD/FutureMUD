@@ -67,8 +67,8 @@ public sealed partial class StoredSpellSnapshot
 			var value = CastingNumerics.Bind(scalarExpression, trait, grade, power,
 				$"{binding.List}[{binding.Index}]/{binding.Field}", spell.Gameworld, mastery).Evaluate(creator);
 			if (!double.IsFinite(value)) throw new InvalidOperationException("Non-finite stored scalar potency.");
-			definition.Element(binding.List == "target" ? "Effects" : "CasterEffects")!.Elements().ElementAt(binding.Index)
-				.SetAttributeValue("bonus", value);
+			CastingNumerics.WriteScalar(definition.Element(binding.List == "target" ? "Effects" : "CasterEffects")!.Elements().ElementAt(binding.Index),
+				binding.Effect, binding.Field, value);
 		}
 		model.Definition = definition.ToString(SaveOptions.DisableFormatting);
 		var context = new SpellNumericalContext(spell.SpellLevel, spell.SpellLevel, 0, power, Outcome.Pass, true, grade, mastery);

@@ -12,12 +12,18 @@ internal sealed class SpellAreaDamageScope : IDisposable
 	private readonly IPerceivable _target;
 	private readonly IMagicSpell _spell;
 	private readonly double _multiplier;
-	public SpellAreaDamageScope(ICharacter caster, IPerceivable target, IMagicSpell spell, double multiplier)
+	private readonly double? _sharedDamage;
+	public SpellAreaDamageScope(ICharacter caster, IPerceivable target, IMagicSpell spell, double multiplier,
+		double? sharedDamage = null)
 	{
 		_prior = Current.Value;
-		_caster = caster; _target = target; _spell = spell; _multiplier = multiplier;
+		_caster = caster; _target = target; _spell = spell; _multiplier = multiplier; _sharedDamage = sharedDamage;
 		Current.Value = this;
 	}
+	public static double? SharedDamage(ICharacter caster, IPerceivable target, IMagicSpell spell) =>
+		Current.Value is { } scope && ReferenceEquals(scope._caster, caster) &&
+		ReferenceEquals(scope._target, target) && ReferenceEquals(scope._spell, spell)
+			? scope._sharedDamage : null;
 	public static double ScaleDamage(ICharacter caster, IPerceivable target, IMagicSpell spell, double amount)
 	{
 		if (Current.Value is not { } scope || !ReferenceEquals(scope._caster, caster) || !ReferenceEquals(scope._target, target) ||

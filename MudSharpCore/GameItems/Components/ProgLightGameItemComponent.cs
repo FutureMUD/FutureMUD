@@ -14,6 +14,7 @@ public class ProgLightGameItemComponent : GameItemComponent, ILightable, IProduc
 	}
     protected bool _lit;
     protected ProgLightGameItemComponentProto _prototype;
+	private bool _copiedWithoutSpellGradeAuthority;
 
     public virtual bool Lit
     {
@@ -66,7 +67,19 @@ public class ProgLightGameItemComponent : GameItemComponent, ILightable, IProduc
 
     #region IProduceLight Members
 
-    public double CurrentIllumination => Lit ? _prototype.IlluminationProvided : 0.0;
+	public double CurrentIllumination
+	{
+		get
+		{
+			if (!Lit) return 0.0;
+			if (!_prototype.MultiplyIlluminationBySpellGrade) return _prototype.IlluminationProvided;
+			// Native activation/cold load supplies the immutable committed origin. Copies cannot
+			// borrow its grade, even when their parent still carries the source item's origin.
+			return !_copiedWithoutSpellGradeAuthority && Parent.SpellCreationOrigin is { Grade: >= 1 and <= 7 } origin
+				? _prototype.IlluminationProvided * origin.Grade
+				: 0.0;
+		}
+	}
 
     #endregion
 
@@ -81,6 +94,7 @@ public class ProgLightGameItemComponent : GameItemComponent, ILightable, IProduc
         base(rhs, newParent, temporary)
     {
         _prototype = rhs._prototype;
+		_copiedWithoutSpellGradeAuthority = true;
         Lit = rhs.Lit;
     }
 
@@ -106,7 +120,8 @@ public class ProgLightGameItemComponent : GameItemComponent, ILightable, IProduc
         return new XElement("Definition",
             new object[]
             {
-                new XElement("Lit", Lit)
+                new XElement("Lit", Lit),
+				new XElement("CopiedWithoutSpellGradeAuthority", _copiedWithoutSpellGradeAuthority)
             }
         ).ToString();
     }
@@ -114,6 +129,7 @@ public class ProgLightGameItemComponent : GameItemComponent, ILightable, IProduc
     protected void LoadFromXml(XElement root)
     {
         Lit = bool.Parse(root.Element("Lit").Value);
+		_copiedWithoutSpellGradeAuthority = (bool?)root.Element("CopiedWithoutSpellGradeAuthority") ?? false;
     }
 
     #endregion

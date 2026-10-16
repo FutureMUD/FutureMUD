@@ -1,6 +1,6 @@
 # Dual Wield double attacks: design and implementation plan
 
-Status: planning only, 16 October 2026. This document proposes future implementation; it does not describe a shipped feature. The approved behaviour below is distinct from the tuning and scope recommendations awaiting Luke's review.
+Status: implementation-ready plan, 16 October 2026; documentation only. Luke has approved the core mechanics and the three coordination/profile/untrained defaults recorded below. Optional balancing and engineering recommendations remain labelled separately. This document describes future implementation, not a shipped feature or permission to begin runtime work.
 
 ## Revision and scope
 
@@ -26,15 +26,24 @@ This task authorises the worktree, branch and planning documents. It does not au
 - Stop the second strike if the first strike or its counter incapacitates either participant, or if the second weapon becomes unusable.
 - Preserve the semantics of existing ordinary dual-only attacks. Current handedness classification can label **both** weapons as dual wielded. There is no privileged main/off hand. `Dagger Dual Feint` is an existing single-hit profile.
 
-## Decisions requested
+## Approved coordination, profile scope and untrained defaults
 
-Three questions have been presented to Luke. Until answered, the following are recommendations, not approvals:
+On 16 October 2026 Luke replied **“Agree”** to the question specifying a Normal coordination check, exceptional success making both attacks one stage easier, ordinary success leaving them unchanged, failure making them one stage harder (two on major failure), ordinary single-target profiles excluding special manoeuvres, and untrained attempts at the major-failure penalty without automatic skill acquisition. These three defaults and the corresponding stage table are approved:
 
-1. **Coordination policy:** one Normal check; Major Pass gives -1 difficulty stage, Pass/Minor Pass 0, Minor Fail/Fail +1, Major Fail +2. At most one Dual Wield improvement opportunity per pair; no automatic acquisition of a missing Dual Wield skill.
-2. **First-release profile scope:** ordinary single-target damage strikes only, excluding specialised moves and existing `DualWieldOnly` profiles. This keeps a feint that already narrates two blades from becoming a child of another paired action.
-3. **Untrained use:** allow the attempt; missing required coordination skill resolves as Major Fail, applying +2 stages to both strikes under the proposed table. Do not grant or branch the skill. Alternative: require a trained coordination skill before offering the pair.
+1. **Coordination policy:** one Normal check modifies both attacks according to the table below. Failure never gates the second strike.
+2. **First-release profile scope:** ordinary single-target damage strikes only, excluding specialised moves. The initial eligibility rules below also keep existing `DualWieldOnly` profiles such as `Dagger Dual Feint` outside the pair, preserving their existing single-hit semantics.
+3. **Untrained use:** allow the attempt; missing required Dual Wield skill resolves as Major Fail, applying +2 stages to both strikes. Do not grant or branch the missing skill. A trained-only eligibility gate is not the chosen policy.
 
-Recommended engineering/balancing defaults for implementation review: preselect both child profiles before the outer weighted draw; require their summed stamina at admission; choose the lead with an unbiased draw frozen with the pair; give the pair 0.25 times the eligible ordinary attacks' total selection weight; and use the first child's ordinary recovery if only it executes. These are also proposals. The approved 1.5 delay multiplier does not imply approval of these other details.
+| Coordination outcome | Signed difficulty stages on each attack |
+| --- | --- |
+| Major Pass | `-1` (one stage easier) |
+| Pass | `0` |
+| Minor Pass | `0` |
+| Minor Fail | `+1` (one stage harder) |
+| Fail | `+1` (one stage harder) |
+| Major Fail, including missing Dual Wield | `+2` (two stages harder) |
+
+Recommended engineering/balancing defaults for implementation: preselect both child profiles before the outer weighted draw; require their summed stamina at admission; choose the lead with an unbiased draw frozen with the pair; give the pair 0.25 times the eligible ordinary attacks' total selection weight; permit at most one Dual Wield improvement opportunity per pair; and use the first child's ordinary recovery if only it executes. These recommendations are available starting points, not additional mechanics approved by Luke's “Agree”. They do not require another product-design decision before implementation. The approved 1.5 delay multiplier and coordination table are distinct from these optional tuning/engineering choices.
 
 Here, “no automatic skill branching” means the pair does not acquire **missing Dual Wield** through its coordination check. Preserve existing world-owned unlock trees when an already-known skill improves. `BranchingImprover` may evaluate those trees independently of a check's missing-trait branching flag. A prohibition on all downstream unlocks would require a separate learning-policy change and is not recommended for this feature.
 
@@ -62,7 +71,7 @@ Paths and line anchors below refer to the recorded base; relocate symbols before
 
 Implement a dedicated `DualWieldDoubleAttackMove` containing a frozen plan for two distinct weapon item IDs, two attack profile IDs, the captured physical target/combat and execution order. It is a new runtime action composed of ordinary strikes, not a reinterpretation of a persisted `WeaponAttack` row. The first version needs no persisted double-attack profile, new attack-family enum value, or automatic manual verb. Both children retain `UseWeaponAttack` for defence, messaging and weapon skill purposes.
 
-Recommended initial eligibility:
+Initial eligibility implementing the approved ordinary single-target scope:
 
 - The actor and target are characters in the same combat, colocated, in valid ordinary melee contact, able to participate, and permitted by current strategy policy. Use current `WillAttack`/settings, vehicle-boundary, position and authority checks.
 - Two distinct, usable, wielded `IMeleeWeapon` items, each held in one hand; neither is a shield, implant or prosthetic. Check actual items and hand counts, including races with more than two arms. Having a preferred dual-wield loadout is neither sufficient nor required if the actual equipment qualifies.
@@ -93,20 +102,20 @@ Create a dedicated Standard check template with improvement enabled, required mi
 
 Apply the resulting **signed stages** to each child's effective attack difficulty after the ordinary tool/profile difficulty, clamping with existing difficulty helpers to Automatic-Impossible. Cache that adjusted difficulty per child so every `attackRoll[CheckDifficulty]` access uses the same key. A coordination failure never suppresses child two. Damage expressions, weapon-family traits, penetration, defence difficulty and recovery difficulty are not directly altered by this coordination modifier. Ordinary offensive advantage remains consumed by the first ordinary strike under current semantics; do not clone it onto both strikes.
 
-Proposed static configuration, stored through existing facilities:
+Planned static configuration, stored through existing facilities. Names and configuration plumbing are engineering recommendations; the coordination difficulty, six outcome values and 1.5 recovery multiplier are approved initial values:
 
-| Key | Recommended value/policy |
+| Key | Initial value/policy and approval status |
 | --- | --- |
-| `DualWieldDoubleAttacksEnabled` | Runtime/upgrade default `false`; explicit fresh-install enablement only after valid binding. A false/invalid value bypasses the entire candidate path. |
-| `DualWieldDoubleAttackWeightMultiplier` | `0.25`; finite, nonnegative; zero disables pair selection. |
-| `DualWieldDoubleAttackRecoveryMultiplier` | `1.5`; finite, positive. |
-| `DualWieldCoordinationDifficulty` | `5` / Normal; valid `Difficulty` integer 0-10. |
-| `DualWieldCoordinationMajorPassStages` | `-1` |
-| `DualWieldCoordinationPassStages` | `0` |
-| `DualWieldCoordinationMinorPassStages` | `0` |
-| `DualWieldCoordinationMinorFailStages` | `1` |
-| `DualWieldCoordinationFailStages` | `1` |
-| `DualWieldCoordinationMajorFailStages` | `2` |
+| `DualWieldDoubleAttacksEnabled` | Recommended rollout: runtime/upgrade default `false`; explicit fresh-install enablement only after valid binding. A false/invalid value bypasses the entire candidate path. |
+| `DualWieldDoubleAttackWeightMultiplier` | Recommended `0.25`; finite, nonnegative; zero disables pair selection. Optional balancing. |
+| `DualWieldDoubleAttackRecoveryMultiplier` | Approved initial `1.5`; finite, positive and configurable. |
+| `DualWieldCoordinationDifficulty` | Approved initial `5` / Normal; valid `Difficulty` integer 0-10. |
+| `DualWieldCoordinationMajorPassStages` | Approved initial `-1` |
+| `DualWieldCoordinationPassStages` | Approved initial `0` |
+| `DualWieldCoordinationMinorPassStages` | Approved initial `0` |
+| `DualWieldCoordinationMinorFailStages` | Approved initial `1` |
+| `DualWieldCoordinationFailStages` | Approved initial `1` |
+| `DualWieldCoordinationMajorFailStages` | Approved initial `2`; also used for missing Dual Wield. |
 
 Outcome stage values must be integers in -10..10. Validate settings before use and provide an actionable configuration diagnostic. Invalid enable/weight/binding disables only paired candidates; invalid tuning uses the documented safe default with a diagnostic. `None`/`NotTested` is not a coordination success: abort an uncommitted pair without costs rather than inventing a second check. Use existing static-setting cache invalidation for edits; do not add a second stale cache.
 
@@ -177,9 +186,9 @@ The proposed PR replaces selected attack/defence calls with `CombatCheck` and pa
 
 Likely overlap: `MeleeWeaponAttack`, `WeaponAttackMove`, `StandardMeleeStrategy`, `CheckEnum`, `FuturemudLoaders`, static defaults and skill/combat seeders. Resolve the new enum ordinal against the merged tail, preserve both dedicated loader/seed policies and feature flags, and test their composition. Blind Fighting can remain disabled or absent without changing this feature's approved contract; this planning branch neither merges nor cherry-picks that PR.
 
-## Implementation sequence after approval
+## Implementation sequence after a separate implementation request
 
-1. Record Luke's three decisions and any altered defaults here. Refresh master/PR status and rebase the implementation branch deliberately, retaining the planning-base evidence.
+1. Use the approved mechanics, Normal coordination table, ordinary single-target scope and untrained policy recorded above. Refresh master/PR status and rebase the implementation branch deliberately, retaining the planning-base evidence. Use the labelled engineering recommendations unless implementation evidence warrants an adjustment; surface a change to approved behaviour rather than reopening settled choices.
 2. Define the shared sequence/child-resolution and separate budget/accounting contract; add focused lifecycle tests before extracting the ordinary completion helper. Keep legacy multi-target behaviour stable.
 3. Add the dedicated move and immutable child difficulty adjustment; implement owned sequential resolution, live guards, per-child completion and single recovery. Add interruption, counter and defence-resource tests.
 4. Extend only the ordinary automatic weapon selection path with frozen pair candidates and normalized weighting. Add deterministic selection/eligibility tests; preserve fixed/manual/clinch paths and fallbacks.
@@ -240,6 +249,8 @@ Set connection/credential values outside tracked files. Inspect the helper's cur
 
 ## Planning-task evidence and remaining boundary
 
-Evidence gathered: repository/worktree/branch inspection; `git fetch origin master`; source and repository-skill inspection against the recorded base; read-only PR #792 status and branch-diff inspection. Planning verification checks document links, references, whitespace and the final diff only. Future implementation/test paths and proposed configuration keys above are intentionally labelled as such.
+Evidence gathered: repository/worktree/branch inspection; `git fetch origin master`; source and repository-skill inspection against the recorded base; read-only PR #792 status and branch-diff inspection; Luke's explicit “Agree” approving the three defaults on 16 October 2026. Planning verification checks document links, references, whitespace and the final diff only. Future implementation/test paths and planned configuration keys above are intentionally labelled as such.
 
-Remaining design decisions are the three review questions, plus acceptance or adjustment of the expressly proposed selection frequency/order, partial-recovery and rollout defaults. There is no runtime or database change in this branch. Implementation begins only after a later implementation request; answering tuning questions alone does not expand this planning task's scope.
+**Blocking design choices: none.** The plan is ready for implementation once separately requested. Selection frequency, lead-order implementation, improvement-opportunity enforcement, partial-recovery policy and rollout defaults have concrete recommendations above; optional tuning or routine engineering choices do not block starting that later work. A target world's numeric skill binding and a disposable smoke-test fixture are implementation/verification inputs to resolve in that environment, not unsettled product mechanics. PR #792 status and enum numbering must be refreshed during integration, but this feature does not depend on that PR merging.
+
+There is no runtime or database change in this branch. Luke's approval authorises this plan update only; a later implementation request is still required. No PR, merge or deployment is authorised by this approval.

@@ -57,3 +57,11 @@ Cleanup confirmed **STOPPED at 05:26:37 UTC**, owned PID 53968 exited, Telnet 40
 ## Readiness and remaining limitations
 
 Implementation is ready for review. The full seeder gate remains red because of the four baseline snapshot failures above; no claim of a fully green repository is made. Dynamic products without explicit matchers remain unsupported by design. Future Armageddon seeder binding is documented, not installed. No PR was published.
+
+## Haggle-first integration follow-up
+
+Analyse was subsequently published as PR **794**. Its prerequisite, Haggle PR **793**, was independently verified merged at `9429227f14eae012af8d2bea6650fe732e920eae` on 2026-10-16 07:16:51 UTC, from feature head `1d9c235418d0997d9b75181e29f5ae9466c66740`. That current master was merged into this branch before final validation.
+
+The enum conflict retains `HaggleCheck = 227` and `AnalyzeEligibilityCheck = 229`. The loader conflict retains the deterministic disabled Analyse expression and Haggle's variable expression. Both seeder cases remain present. Haggle's snapshot, manifest, schema, migration and reference-correction fixes are incorporated unchanged from master; Analyse adds no duplicate baseline repair or migration. The four failures described above are historical results on the original base, not a claim about this integrated head.
+
+Final integration validation and exact-head Linux/Windows CI results are recorded on PR 794 and in the local `.artifacts/analyse-integration/` evidence directory. The original native acceptance evidence above remains intact. No deployment is part of this operation.

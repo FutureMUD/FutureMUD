@@ -233,6 +233,7 @@ namespace MudSharp.RPG.Checks
 		SignedLanguageUnderstandCheck = 224,
 		WeatherForecastCapability = 225,
 		WeatherForecast = 226,
+		HaggleCheck = 227,
 		AnalyzeEligibilityCheck = 229
     }
 

@@ -40,6 +40,18 @@ The current stock seeder path now covers two useful starting points:
 - `EconomySeeder` for a template economic zone shell, one market, market categories derived from `UsefulSeeder` market tags, seeded weighted combination-category examples for setting-agnostic family baskets, stock influence templates, broader era-specific populations including priestly and monastic households, and matching `SimpleShopper` records
 
 ## Minimum Viable Economy Setup
+### Enabling and authoring Haggle
+
+Set `HaggleTraitId` to a real skill, then opt in with `HagglingEnabled`. The dedicated `HaggleCheck` is seeded for new worlds and automatically created with a `variable` formula for existing worlds. Armageddon or another content package can bind its own trait without an engine dependency on that package. `HaggleDefaultDifficulty=Normal`, `HaggleActionDurationSeconds=20`, `HaggleWindowDurationHours=6`, `HaggleNegotiationScope=Shared`, and `HaggleMinimumSpread=0.05` are game-wide configuration. Only the global duration controls expiry.
+
+Customers use `haggle` in Shared mode, or `haggle buy` / `haggle sell` in PerDirection mode. Buy/sell in command syntax always describe the customer's action. `haggle status` displays signed terms, next difficulty and UTC expiry. `stop` cancels before completion. Both buying and selling are blocked during a negotiation.
+
+Proprietors/admins use `shop set haggle show`, `toggle`, `difficulty <name|default>`, `limits <sale-discount> <sale-markup> <buy-bonus> <buy-penalty>`, `exclude <merchandise-id>`, `pricing <present-employee>`, and `audit`. Limits accept nonnegative percentages; discount/penalty cannot exceed 99%, markup/bonus 1000%. Exclude and pricing commands toggle explicit IDs. Managers/proprietors/admins inherently have pricing authority; ordinary employees require an explicit grant and current employment.
+
+Pricing-authorised employees use `haggle terms <customer> <both|buy|sell> <sale-percent> <buyback-percent> <reason>`. Shared mode requires `both`; PerDirection requires `buy` or `sell`. Both percentage arguments are always supplied; the uncovered side is ignored. Values outside the shop's corresponding limits are rejected. Replacement records issuer/reason and uses the same price effects as a skill result, preserving retry difficulty and expiry. With no window, it starts one at base difficulty with zero completed attempts. `haggle clear <customer> <reason>` requires manager/proprietor/admin authority and removes both terms and retry history. Editing or clearing a customer with a pending negotiation is refused.
+
+Optional responses use `HaggleResult` on the customer or `WitnessHaggleResult` on local event handlers. Payload order is documented by `show event`; outcome is `NotTested` for an employee replacement and issuer is null for a skill result. The mechanic and transaction remain valid without any event consumer or NPC.
+
 The current runtime supports a lot of optional depth, but the minimum viable path is smaller.
 
 ### Recommended build order

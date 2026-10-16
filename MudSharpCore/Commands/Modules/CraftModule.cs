@@ -18,7 +18,7 @@ using MudSharp.Work.Projects.ConcreteTypes;
 
 namespace MudSharp.Commands.Modules;
 
-internal class CraftModule : Module<ICharacter>
+internal partial class CraftModule : Module<ICharacter>
 {
     private CraftModule() : base("Craft")
     {

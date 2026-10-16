@@ -234,6 +234,7 @@ namespace MudSharp.RPG.Checks
 		WeatherForecastCapability = 225,
 		WeatherForecast = 226,
 		HaggleCheck = 227,
+		AnalyzeEligibilityCheck = 229,
 		DualWieldCoordinationCheck = 230
     }
 
@@ -251,6 +252,7 @@ namespace MudSharp.RPG.Checks
             switch (type)
             {
                 case CheckType.ExactTimeCheck:
+                case CheckType.AnalyzeEligibilityCheck:
                 case CheckType.WeatherForecastCapability:
                 case CheckType.VagueTimeCheck:
                 case CheckType.AccentAcquireCheck:

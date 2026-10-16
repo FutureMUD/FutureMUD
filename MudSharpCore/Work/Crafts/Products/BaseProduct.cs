@@ -143,6 +143,8 @@ public abstract class BaseProduct : LateInitialisingItem, ICraftProduct
         return false;
     }
 
+    public virtual bool MatchesForAnalysis(IGameItem item) => false;
+
     #region Implementation of ICraftProduct
 
     public abstract ICraftProductData ProduceProduct(IActiveCraftGameItemComponent component,

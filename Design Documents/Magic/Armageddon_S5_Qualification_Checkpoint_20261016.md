@@ -36,6 +36,12 @@ Three new native prerequisite failures remain failures: old post-install Kindle 
 
 Exact paths, hashes, filters, code/binary/input pins, funding samples, inherited carrier assumptions, failed attempts and cleanup evidence are in [the portable receipt](Armageddon_S5_Qualification_20261016.json). The previous topical milestone remains [preserved separately](Armageddon_S5_Qualification_Checkpoint_20261015.md).
 
+## Hosted CI follow-up
+
+Qualification head7f8219b91 passes both Ubuntu full gates:10,744 direct-head tests and10,831 PR-merge tests, zero failures/skips, stable source. Both Windows jobs explicitly report exceeding the one-hour job allowance. Their nine completed suites include full Core7,584/7,657 with zero failures/skips; Seeder has no final result and is not counted as passed. The complete hosted gate is therefore not green.
+
+The Windows push log records a35m40s first build before the remaining build batch/tests. The workflow follow-up allows Windows90 minutes while retaining Linux60 and every test/failure check. No runtime source changed and the S5 native/shared receipts remain within their recorded scope. Verify the follow-up head in PR788 before final hosted-CI acceptance; do not repeat accepted native campaigns for this CI-only change. Exact completed logs, API metadata and timeout annotations are retained in the portable receipt.
+
 ## Publication and next gate
 
 Baseline97062229c PR CI passed Ubuntu and Windows (run38823633344). Its separate push Linux job passed; push Windows was cancelled after65 minutes without an available test log/result (run38823626241). That cancellation is retained, not counted as a pass. Verify the newly published head separately in PR #788; this checkpoint records tested code hashes because its documentation is written after execution.

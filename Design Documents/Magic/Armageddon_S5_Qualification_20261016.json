@@ -790,5 +790,214 @@
     "Release/package/Class/use/craft/quiet-area/unqualified-carrier gates disabled. No merge or deployment."
   ],
   "environment_blockers": [],
-  "power_tag_clarification": "Already resolved in MagicPowerBase.CanInvokePower: explicit matching tag suppression plus existing permission prog; no UseCommand wrapper or global effect-admission gate."
+  "power_tag_clarification": "Already resolved in MagicPowerBase.CanInvokePower: explicit matching tag suppression plus existing permission prog; no UseCommand wrapper or global effect-admission gate.",
+  "published_head_ci": {
+    "head": "7f8219b91764e7cc01389d4b7673f525404024ab",
+    "status": "WINDOWS_JOB_TIMEOUT_FOLLOWUP_REQUIRED",
+    "all_checks_green": false,
+    "confirmed_cancellation_reason": "The job has exceeded the maximum execution time of 1h0m0s",
+    "runs": {
+      "pr": {
+        "url": "https://github.com/FutureMUD/FutureMUD/actions/runs/38832966071",
+        "metadata": {
+          "path": "C:/Temp/s5-final-pr-ci.json",
+          "sha256": "C20209C55F0CDD874917AD0DB76FE97B0C66F9C8323D5C08E49C334866D204A4"
+        },
+        "linux": {
+          "status": "PASS",
+          "passed": 10831,
+          "failed": 0,
+          "skipped": 0,
+          "projects": 10,
+          "source_stable": true,
+          "log": {
+            "path": "C:/Temp/s5-ci-38832966071-ubuntu.log",
+            "sha256": "50326662B2EBD5E297D0488E4AF22DE7523C407EBE42370795600DAF232845CD"
+          }
+        },
+        "windows": {
+          "status": "CANCELLED_JOB_TIME_LIMIT",
+          "full_gate_pass": false,
+          "completed_projects": [
+            {
+              "passed": 36,
+              "skipped": 0,
+              "total": 36,
+              "project": "ExpressionEngine Unit Tests.dll"
+            },
+            {
+              "passed": 22,
+              "skipped": 0,
+              "total": 22,
+              "project": "DiscordBotCore Unit Tests.dll"
+            },
+            {
+              "passed": 57,
+              "skipped": 0,
+              "total": 57,
+              "project": "RPI Engine Worldfile Converter Tests.dll"
+            },
+            {
+              "passed": 766,
+              "skipped": 0,
+              "total": 766,
+              "project": "FutureMUDLibrary Unit Tests.dll"
+            },
+            {
+              "passed": 35,
+              "skipped": 0,
+              "total": 35,
+              "project": "TerrainPlanner.Tests.dll"
+            },
+            {
+              "passed": 54,
+              "skipped": 0,
+              "total": 54,
+              "project": "FutureMUD.Web.Tests.dll"
+            },
+            {
+              "passed": 285,
+              "skipped": 0,
+              "total": 285,
+              "project": "MudsharpDatabaseLibrary Unit Tests.dll"
+            },
+            {
+              "passed": 39,
+              "skipped": 0,
+              "total": 39,
+              "project": "TestReporting.Tests.dll"
+            },
+            {
+              "passed": 7657,
+              "skipped": 0,
+              "total": 7657,
+              "project": "MudSharpCore Unit Tests.dll"
+            }
+          ],
+          "seeder_suite": "No final result before cancellation; not counted as pass or failure.",
+          "job": {
+            "path": "C:/Temp/s5-final-pr-windows-job.json",
+            "sha256": "3A418ED9D6A7B847C18C7477C012F9584460E544D7F148543D20694235F8CAE9"
+          },
+          "log": {
+            "path": "C:/Temp/s5-final-pr-windows.log",
+            "sha256": "22F96FF236CF61CE7099E5D2C955A263F0878F29C8D76C2F8DECD6C66E31CE19"
+          },
+          "annotations": {
+            "path": "C:/Temp/s5-final-pr-annotations.json",
+            "sha256": "0F74E8CE387F7FB55220D65EFEF14C7ED20F89E545AA182950FC35D6D9632B9C"
+          },
+          "failure_annotations": [
+            "The job has exceeded the maximum execution time of 1h0m0s",
+            "The operation was canceled."
+          ]
+        }
+      },
+      "push": {
+        "url": "https://github.com/FutureMUD/FutureMUD/actions/runs/38832960550",
+        "metadata": {
+          "path": "C:/Temp/s5-final-push-ci.json",
+          "sha256": "F3422F21805BBFEBF6671A84C724A5331691AE3CD2EE33245BF143F5768C3C37"
+        },
+        "linux": {
+          "status": "PASS",
+          "passed": 10744,
+          "failed": 0,
+          "skipped": 0,
+          "projects": 10,
+          "source_stable": true,
+          "log": {
+            "path": "C:/Temp/s5-ci-38832960550-ubuntu.log",
+            "sha256": "DD7BBECE201BF1542886D71EB71DA6C1F48D8FACD498F2D15C43EDD855FC5377"
+          }
+        },
+        "windows": {
+          "status": "CANCELLED_JOB_TIME_LIMIT",
+          "full_gate_pass": false,
+          "completed_projects": [
+            {
+              "passed": 22,
+              "skipped": 0,
+              "total": 22,
+              "project": "DiscordBotCore Unit Tests.dll"
+            },
+            {
+              "passed": 36,
+              "skipped": 0,
+              "total": 36,
+              "project": "ExpressionEngine Unit Tests.dll"
+            },
+            {
+              "passed": 57,
+              "skipped": 0,
+              "total": 57,
+              "project": "RPI Engine Worldfile Converter Tests.dll"
+            },
+            {
+              "passed": 766,
+              "skipped": 0,
+              "total": 766,
+              "project": "FutureMUDLibrary Unit Tests.dll"
+            },
+            {
+              "passed": 35,
+              "skipped": 0,
+              "total": 35,
+              "project": "TerrainPlanner.Tests.dll"
+            },
+            {
+              "passed": 54,
+              "skipped": 0,
+              "total": 54,
+              "project": "FutureMUD.Web.Tests.dll"
+            },
+            {
+              "passed": 285,
+              "skipped": 0,
+              "total": 285,
+              "project": "MudsharpDatabaseLibrary Unit Tests.dll"
+            },
+            {
+              "passed": 39,
+              "skipped": 0,
+              "total": 39,
+              "project": "TestReporting.Tests.dll"
+            },
+            {
+              "passed": 7584,
+              "skipped": 0,
+              "total": 7584,
+              "project": "MudSharpCore Unit Tests.dll"
+            }
+          ],
+          "seeder_suite": "No final result before cancellation; not counted as pass or failure.",
+          "job": {
+            "path": "C:/Temp/s5-final-push-windows-job.json",
+            "sha256": "3A199D0BF4E0BC2FC4E5FA82C75E0D3AB7B230DDF606CBA95A35EAC99A34E3B5"
+          },
+          "log": {
+            "path": "C:/Temp/s5-final-push-windows.log",
+            "sha256": "29977F6EEF16B1773A1A24CCB5BEAB6E61FC5D0D67B8374A21048F871297E5F7"
+          },
+          "annotations": {
+            "path": "C:/Temp/s5-final-push-annotations.json",
+            "sha256": "DC6ED16C126937690DE2D64AA08B423DA8AC72C9C9F5D9D2FACDCF768D131312"
+          },
+          "failure_annotations": [
+            "The job has exceeded the maximum execution time of 1h0m0s",
+            "The operation was canceled."
+          ]
+        }
+      }
+    },
+    "followup": {
+      "workflow": ".github/workflows/unit-tests.yml",
+      "windows_job_minutes": 90,
+      "linux_job_minutes": 60,
+      "test_selection_changed": false,
+      "assertions_weakened": false,
+      "runtime_code_changed": false,
+      "new_head_outcome": "Verify in draft PR788 after publication; no recursive result-only commit."
+    }
+  }
 }

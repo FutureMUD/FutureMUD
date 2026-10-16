@@ -21,6 +21,8 @@ Crafting is not implemented as a single isolated module. It is a distributed sub
 | Cross-system integration | Item skins, tool items, tags, liquids, NPC templates, AI, inventory plans, economy search | multiple runtime locations described below |
 
 ## Main Public Contracts
+
+The optional [Analyse capability](./Analyse_Capability.md) provides a read-only reverse recipe view. It uses a binary static eligibility check, current recipe visibility/use restrictions and explicit product matchers. It never starts a craft or establishes an item's manufacture history.
 The crafting subsystem is anchored around the following public interfaces:
 
 - `ICraft`

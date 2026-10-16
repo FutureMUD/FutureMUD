@@ -39,6 +39,7 @@ public class Damage : IDamage
         LodgableItem = rhs.LodgableItem;
         AngleOfIncidentRadians = rhs.AngleOfIncidentRadians;
         PenetrationOutcome = rhs.PenetrationOutcome;
+		BypassWornArmour = rhs.BypassWornArmour;
     }
 
     public Damage(IDamage rhs, double damageMultipliers)
@@ -58,6 +59,7 @@ public class Damage : IDamage
         LodgableItem = rhs.LodgableItem;
         AngleOfIncidentRadians = rhs.AngleOfIncidentRadians;
         PenetrationOutcome = rhs.PenetrationOutcome;
+		BypassWornArmour = rhs.BypassWornArmour;
     }
 
     #region IDamage Members
@@ -87,6 +89,7 @@ public class Damage : IDamage
     public double AngleOfIncidentRadians { get; init; } = Math.PI / 2;
 
     public Outcome PenetrationOutcome { get; init; } = Outcome.NotTested;
+	public bool BypassWornArmour { get; init; }
 
     #endregion
 }

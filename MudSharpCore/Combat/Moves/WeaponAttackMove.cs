@@ -21,6 +21,14 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
 
     public virtual double BloodSprayMultiplier => 0.0;
 
+	/// <summary>Modify only damage delivered to the selected body, leaving shared equipment/self damage intact.</summary>
+	protected virtual IDamage PrepareTargetDamage(IDamage damage) => damage;
+	protected virtual double TargetPenetrationBonus => 0.0;
+	protected Outcome RollTargetPenetration(IPerceivable target, IUseTrait tool = null,
+		CheckType check = CheckType.MeleeWeaponPenetrateCheck) =>
+		Gameworld.GetCheck(check).Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType),
+			target, tool, externalBonus: ReferenceEquals(target, PrimaryCharacterTarget) ? TargetPenetrationBonus : 0.0);
+
     protected static double EvaluateAttackFormula(ITraitExpression formula, IHaveTraits owner,
         TraitBonusContext context, object degree, object quality)
     {
@@ -227,8 +235,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
                 DamageType = Attack.Profile.DamageType,
                 PainAmount = painResult * 2.0 * attackAngle / Math.PI,
                 PenetrationOutcome =
-                        Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
-                                 .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType), target),
+                        RollTargetPenetration(target),
                 ShockAmount = 0,
                 StunAmount = stunResult * 2.0 * attackAngle / Math.PI
             },
@@ -246,8 +253,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
             DamageType = Attack.Profile.DamageType,
             PainAmount = painResult * relativeHardness * 2.0 * attackAngle / Math.PI,
             PenetrationOutcome =
-                Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
-                         .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType), target),
+                RollTargetPenetration(target),
             ShockAmount = 0,
             StunAmount = stunResult * relativeHardness * 2.0 * attackAngle / Math.PI
         };
@@ -300,12 +306,10 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
             DamageType = attack.Attack.Profile.DamageType,
             PainAmount = painResult * relativeHardness * 2 * attackAngle / Math.PI,
             PenetrationOutcome =
-                Gameworld.GetCheck(Attack.MoveType is BuiltInCombatMoveType.RangedNaturalAttack or
+                RollTargetPenetration(target, check: Attack.MoveType is BuiltInCombatMoveType.RangedNaturalAttack or
 					BuiltInCombatMoveType.BreathWeaponAttack or BuiltInCombatMoveType.SpitNaturalAttack or
 					BuiltInCombatMoveType.ExplosiveNaturalAttack or BuiltInCombatMoveType.BuffetingNaturalAttack
-						? CheckType.RangedWeaponPenetrateCheck
-						: CheckType.MeleeWeaponPenetrateCheck)
-                         .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType), target),
+						? CheckType.RangedWeaponPenetrateCheck : CheckType.MeleeWeaponPenetrateCheck),
             ShockAmount = 0,
             StunAmount = stunResult * relativeHardness * 2 * attackAngle / Math.PI
         };
@@ -396,6 +400,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
     {
         IBodypart targetBodypart = aggressor.Body.RandomBodyPartGeometry(weaponAttack.Orientation,
             weaponAttack.Alignment, Facing.Front);
+        UnseenCombatOpening.Consume(defender, aggressor);
         CheckOutcome attackRoll = Gameworld.GetCheck(CheckType.MeleeWeaponCheck)
                                   .Check(defender, weaponAttack.Profile.BaseAttackerDifficulty,
                                       wardResult.WardWeapon.WeaponType.AttackTrait, aggressor);
@@ -510,6 +515,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
     {
         IBodypart targetBodypart = aggressor.Body.RandomBodyPartGeometry(naturalAttack.Attack.Orientation,
             naturalAttack.Attack.Alignment, Facing.Front);
+        UnseenCombatOpening.Consume(defender, aggressor);
         CheckOutcome attackRoll = Gameworld.GetCheck(CheckType.NaturalWeaponAttack)
                                   .Check(defender, naturalAttack.Attack.Profile.BaseAttackerDifficulty, aggressor);
         CheckOutcome defenseRoll = Gameworld.GetCheck(CheckType.DodgeCheck)

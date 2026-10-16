@@ -42,6 +42,9 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Multiple Simultaneous Body Instances Design](./Characters/Multiple_Simultaneous_Body_Instances_Design.md)
 
 ## Combat
+- [Dual Wield Double Attacks](./Combat/Dual_Wield_Double_Attacks.md) - runtime, configuration and existing-world binding.
+- [Dual Wield Double Attacks Plan](./Combat/Dual_Wield_Double_Attacks_Plan.md) - approved design and integration plan.
+- [Dual Wield Double Attacks Verification](./Combat/Dual_Wield_Double_Attacks_Verification.md) - receipts and remaining verification gaps.
 - [Accelerated Combat Simulation](./Combat/Accelerated_Combat_Simulation.md)
 - [Animal Combat Balance Second Pass](./Combat/Animal_Combat_Balance_Second_Pass.md)
 - [Mythical and Supernatural Combat Balance Pass](./Combat/Mythical_Supernatural_Combat_Balance_Pass.md)
@@ -49,6 +52,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Combat Arenas Design](./Combat/Combat_Arenas_Design.md)
 - [Combat Arenas Implementation Plan](./Combat/Combat_Arenas_Implementation_Plan.md)
 - [Combat Settings Defaults Design](./Combat/Combat_Settings_Defaults_Design.md)
+- [Backstab Attacks](./Combat/Backstab_Attacks.md)
 - [Combat Strategy Runtime](./Combat/Combat_Strategy_Runtime.md)
 - [Mounted Combat](./Combat/Mounted_Combat.md)
 - [Multi-Target Combat Attacks](./Combat/Multi_Target_Combat_Attacks.md)
@@ -110,6 +114,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Medieval Shared Food Admission Manifest](./Seeding/FutureMUD_Medieval_Shared_Food_Admission_Manifest.md)
 - [Butchering System](./Crafting/Butchering_System.md)
 - [Crafting System Overview](./Crafting/Crafting_System_Overview.md)
+- [Analyse Capability](./Crafting/Analyse_Capability.md)
 - [Crafting System Runtime and Extensibility](./Crafting/Crafting_System_Runtime_and_Extensibility.md)
 - [Crafting System Builder Workflows](./Crafting/Crafting_System_Builder_Workflows.md)
 - [Food and Cooking System](./Crafting/Food_and_Cooking_System.md)

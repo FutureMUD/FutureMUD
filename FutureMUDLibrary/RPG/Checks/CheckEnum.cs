@@ -232,7 +232,10 @@ namespace MudSharp.RPG.Checks
 		SignedLanguageExpressCheck = 223,
 		SignedLanguageUnderstandCheck = 224,
 		WeatherForecastCapability = 225,
-		WeatherForecast = 226
+		WeatherForecast = 226,
+		HaggleCheck = 227,
+		AnalyzeEligibilityCheck = 229,
+		DualWieldCoordinationCheck = 230
     }
 
     public enum FailIfTraitMissingType
@@ -249,6 +252,7 @@ namespace MudSharp.RPG.Checks
             switch (type)
             {
                 case CheckType.ExactTimeCheck:
+                case CheckType.AnalyzeEligibilityCheck:
                 case CheckType.WeatherForecastCapability:
                 case CheckType.VagueTimeCheck:
                 case CheckType.AccentAcquireCheck:
@@ -265,6 +269,7 @@ namespace MudSharp.RPG.Checks
         {
             switch (type)
             {
+                case CheckType.DualWieldCoordinationCheck:
 
                 case CheckType.HideCheck:
                 case CheckType.SneakCheck:
@@ -486,6 +491,7 @@ namespace MudSharp.RPG.Checks
         {
             switch (type)
             {
+                case CheckType.DualWieldCoordinationCheck:
                 case CheckType.MeleeWeaponCheck:
                 case CheckType.MeleeWeaponPenetrateCheck:
                 case CheckType.NaturalWeaponAttack:
@@ -552,6 +558,7 @@ namespace MudSharp.RPG.Checks
         {
             switch (type)
             {
+                case CheckType.DualWieldCoordinationCheck:
                 case CheckType.MeleeWeaponCheck:
                 case CheckType.MeleeWeaponPenetrateCheck:
                 case CheckType.NaturalWeaponAttack:

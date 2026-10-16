@@ -4867,6 +4867,30 @@ For information on the syntax to use in emotes (such as those included in bracke
         ConsoleUtilities.WriteLine("Loaded #2{0}#0 Clock{1}", count, count == 1 ? "" : "s");
     }
 
+    private Models.CheckTemplate CreateDualWieldCheckTemplate()
+    {
+        const string name = "Dual Wield Coordination Check";
+        var existing = FMDB.Context.CheckTemplates.Include(x => x.CheckTemplateDifficulties)
+            .FirstOrDefault(x => x.Name == name);
+        if (existing is not null) return existing;
+        var ordinary = FMDB.Context.CheckTemplates.Include(x => x.CheckTemplateDifficulties)
+            .FirstOrDefault(x => x.Name == "Skill Check" || x.Name == "SkillCheck");
+        int[] modifiers = [100, 75, 50, 33, 15, 0, -10, -20, -33, -50, -100];
+        var template = new Models.CheckTemplate
+        {
+            Name = name, CheckMethod = "Standard", ImproveTraits = true,
+            CanBranchIfTraitMissing = false, FailIfTraitMissingMode = (short)FailIfTraitMissingType.FailIfAnyMissing
+        };
+        foreach (var difficulty in Enum.GetValues<Difficulty>())
+            template.CheckTemplateDifficulties.Add(new Models.CheckTemplateDifficulty
+            {
+                Difficulty = (int)difficulty,
+                Modifier = ordinary?.CheckTemplateDifficulties.FirstOrDefault(x => x.Difficulty == (int)difficulty)?.Modifier ?? modifiers[(int)difficulty]
+            });
+        FMDB.Context.CheckTemplates.Add(template);
+        return template;
+    }
+
     void IFuturemudLoader.LoadChecks()
     {
         ConsoleUtilities.WriteLine("\nLoading #5Checks#0...");
@@ -4895,11 +4919,44 @@ For information on the syntax to use in emotes (such as those included in bracke
 
             if (!_checksIDs.ContainsKey(checkType))
             {
+                // Existing worlds acquire this optional capability disabled, with a deterministic check.
+                // Never use the ordinary missing-check fallback (50% skill check) for entitlement.
+                CheckTemplate analysisTemplate = null;
+                if (checkType == CheckType.AnalyzeEligibilityCheck)
+                {
+                    analysisTemplate = FMDB.Context.CheckTemplates
+                        .Include(x => x.CheckTemplateDifficulties)
+                        .FirstOrDefault(x => x.Name == "Static Check" && x.CheckMethod == "Static");
+                    if (analysisTemplate is null ||
+                        Enum.GetValues<Difficulty>().Any(d =>
+                            !analysisTemplate.CheckTemplateDifficulties.Any(x => x.Difficulty == (int)d && x.Modifier == 0)))
+                    {
+                        analysisTemplate = new CheckTemplate
+                        {
+                            Name = "Analyze Eligibility Static Check",
+                            CheckMethod = "Static",
+                            ImproveTraits = false,
+                            CanBranchIfTraitMissing = false,
+                            FailIfTraitMissingMode = 1
+                        };
+                        foreach (var difficulty in Enum.GetValues<Difficulty>())
+                        {
+                            analysisTemplate.CheckTemplateDifficulties.Add(new CheckTemplateDifficulty
+                            {
+                                Difficulty = (int)difficulty,
+                                Modifier = 0
+                            });
+                        }
+                    }
+                }
+
                 Check newCheck = new()
                 {
                     CheckTemplate =
                         checkType switch
                         {
+                            CheckType.DualWieldCoordinationCheck => CreateDualWieldCheckTemplate(),
+                            CheckType.AnalyzeEligibilityCheck => analysisTemplate,
                             CheckType.WritingComprehendCheck or CheckType.WeatherForecastCapability => FMDB.Context.CheckTemplates.FirstOrDefault(x =>
                                 x.Name == "CapabilityCheck" || x.Name == "Capability Check"),
                             _ => FMDB.Context.CheckTemplates.FirstOrDefault(x =>
@@ -4914,8 +4971,9 @@ For information on the syntax to use in emotes (such as those included in bracke
                         Name = $"{checkType.DescribeEnum(true)} Check",
                         Expression = checkType switch
                         {
-                            CheckType.WritingComprehendCheck => "variable",
-                            CheckType.WeatherForecastCapability or CheckType.WeatherForecast => "0",
+                            CheckType.AnalyzeEligibilityCheck => "0",
+                            CheckType.WritingComprehendCheck or CheckType.HaggleCheck => "variable",
+                            CheckType.WeatherForecastCapability or CheckType.WeatherForecast or CheckType.DualWieldCoordinationCheck => "0",
                             CheckType.ClimbTreetoTreeCheck => _checks.FirstOrDefault(x => x.Type == CheckType.ClimbCheck)?.TargetNumberExpression.OriginalFormulaText ?? "50",
                             _ => "50"
                         }

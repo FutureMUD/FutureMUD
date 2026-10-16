@@ -21,6 +21,11 @@ public class CommodityProduct : BaseProduct
     public ITag Tag { get; set; }
     public Dictionary<ICharacteristicDefinition, CommodityCharacteristicOutputRule> CharacteristicOutputs { get; } = new();
 
+    public override bool MatchesForAnalysis(IGameItem item) =>
+        !MaterialDefiningInputIndex.HasValue &&
+        CharacteristicOutputs.Values.All(x => x.FixedValue is not null && !x.InputIndex.HasValue) &&
+        IsItem(item);
+
     /// <inheritdoc />
     public override bool RefersToTag(ITag tag)
     {

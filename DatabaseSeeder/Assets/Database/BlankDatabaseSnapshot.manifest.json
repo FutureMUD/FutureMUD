@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.7.0",
-  "LatestMigrationId": "20261015103829_PersistRoomHazardPulseCursor",
-  "GeneratedUtc": "2026-10-15T10:56:14.7575854Z"
+  "LatestMigrationId": "20261016052024_AddShopHaggling",
+  "GeneratedUtc": "2026-10-16T09:04:25.8128535Z"
 }

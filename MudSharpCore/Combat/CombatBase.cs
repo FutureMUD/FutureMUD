@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character.Name;
@@ -406,7 +406,7 @@ public abstract partial class CombatBase : ICombat
         }
 
 		perceiver.RemoveAllEffects(x => x.IsEffectType<IdleCombatant>());
-		ICombatMove targetResponse = move is MultiTargetCombatMove
+		ICombatMove targetResponse = move is MultiTargetCombatMove or ICombatMoveSequence
 			? null
 			: move.CharacterTargets.FirstOrDefault()?.ResponseToMove(move, perceiver);
 		// A defensive response can invoke callbacks. Check again immediately before resolution.
@@ -417,37 +417,19 @@ public abstract partial class CombatBase : ICombat
 			return;
 		}
 		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(move);
-		CombatMoveResult result = MudSharp.NPC.AI.CommandExecutionScope.Resolve(move, targetResponse);
-		if (!result.DefenderResponseWasUsed) targetResponse = null;
+		CombatMoveResult result = move is ICombatMoveSequence sequence
+			? ResolveSequence(sequence)
+			: MudSharp.NPC.AI.CommandExecutionScope.Resolve(move, targetResponse);
+		if (move is ICombatMoveSequence && ReferenceEquals(result, CombatMoveResult.Irrelevant))
+		{
+			CombatAction(perceiver, null);
+			return;
+		}
+		if (ReferenceEquals(result, CombatMoveResult.Irrelevant) || !result.DefenderResponseWasUsed) targetResponse = null;
 
         Difficulty recovery = result.RecoveryDifficulty;
-        if (perceiver is ICharacter character && character.Race.RaceUsesStamina && move.UsesStaminaWithResult(result))
-        {
-#if DEBUG
-            Console.WriteLine(
-                $"Character {character.CurrentName.GetName(NameStyle.SimpleFull)} used {move.StaminaCost:N2} stamina on {move.Description}.");
-#endif
-            character.SpendStamina(move.StaminaCost);
-        }
-
-        if (targetResponse?.Assailant is ICharacter tcharacter && tcharacter.Race.RaceUsesStamina &&
-            (targetResponse?.UsesStaminaWithResult(result) ?? false))
-        {
-#if DEBUG
-            Console.WriteLine(
-                $"Character {tcharacter.CurrentName.GetName(NameStyle.SimpleFull)} used {targetResponse.StaminaCost:N2} stamina on {targetResponse.Description}.");
-#endif
-            tcharacter.SpendStamina(targetResponse.StaminaCost);
-        }
-
-		// Completed damage/child work pays its normal costs even if a callback removed the attacker.
+		if (move is not ICombatMoveSequence) CompleteMoveResolution(perceiver, move, targetResponse, result);
 		if (!ReferenceEquals(perceiver.Combat, this) || !_combatants.Any(x => ReferenceEquals(x, perceiver))) return;
-		if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue())
-		{
-			if (!ReferenceEquals(result, CombatMoveResult.Irrelevant)) FireOnUseProg(move);
-			if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) HandleCombatResult(perceiver, move, targetResponse, result);
-			if (MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) (move as WeaponAttackMove)?.ResolveBloodSpray(result);
-		}
 
 		foreach (var tactic in perceiver.EffectsOfType<ICombatTacticEffect>().ToList())
 		{

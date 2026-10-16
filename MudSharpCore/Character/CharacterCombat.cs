@@ -553,6 +553,10 @@ public partial class Character
             return false;
         }
         if (!CommandExecutionScope.TryContinue(this)) return false;
+		var unseenOpening = target is ICharacter && !target.CanSee(this);
+		if (!CommandExecutionScope.TryContinue(this)) return false;
+		using var openingCapture = target is ICharacter openingTarget
+			? UnseenCombatOpening.Capture(this, openingTarget, unseenOpening) : null;
 		RemoveAllEffects<MudSharp.Effects.Concrete.AttentionSuppressionEffect>();
 
         ICombat combat;

@@ -771,6 +771,12 @@ namespace MudSharp.Events
 		CharacterSignsDirectWitness = 151,
 
 		[EventInfo("Fires on a trap creator after its restraint payload actually catches prey. The creator must still perceive the prey before reacting.", ["character", "character", "text"], ["creator", "prey", "trapid"], [ProgVariableTypeCode.Character, ProgVariableTypeCode.Character, ProgVariableTypeCode.Text])]
-		TrapCaughtPrey = 152
+		TrapCaughtPrey = 152,
+
+		[EventInfo("Fires on a customer after completed skill or employee price negotiation.", ["character", "shop", "text", "number", "number", "number", "character"], ["customer", "shop", "scope", "outcome", "saleadjustment", "buyadjustment", "issuer"])]
+		HaggleResult = 153,
+
+		[EventInfo("Fires on local witnesses after a customer completes shop price negotiation; issuer is null for a skill result.", ["character", "perceivable", "shop", "text", "number", "number", "number", "character"], ["customer", "witness", "shop", "scope", "outcome", "saleadjustment", "buyadjustment", "issuer"])]
+		WitnessHaggleResult = 154
     }
 }

@@ -1,5 +1,23 @@
 # Armageddon S6 inactive installer integration - 16 October 2026
 
+## Master integration follow-up - 16 October 2026
+
+Master `90a9343ace517b926e11209a3f5347a586a88646` (Haggle 793, Analyse 794, Dual Wield 795) is incorporated into the Armageddon continuation branch from `62cb612ec`. Master and other worktrees are unchanged. The merged EF model needs no new migration. The existing owned refresher rebuilt the blank snapshot from all merged migrations and independently imported it: exact migration history, no pending model changes, Haggle configuration, Armageddon hazard/gathering columns and the stable track identity foreign key all pass. Both owned databases and MySQL were cleaned up.
+
+The overlap review found one fresh-install regression: separate CombatSeeder Parry is now character-owned while Armageddon required body ownership. Both catalogue and support preflights accept those two valid native skill scopes, preserve the selected Parry ID, and still reject invalid ownership. Attack-skill requirements and player state are unchanged. Persisted check IDs remain Haggle 227, Analyse 229 and Dual Wield 230; all loader and skill-seeder branches are retained.
+
+Focused checks pass **Seeder 42/42, Core 26/26 and persistence 67/67**, without skips. Debug/native and Release builds pass; isolated probes confirm Release admission/replay false. The [integration receipt](Armageddon_S6_Master_Integration_20261016.json) records exact paths/hashes, the retained fixture compile repair, and native-receipt reuse boundaries. One consolidated fast validation and the resolved exact-head Ubuntu/Windows push/PR receipts are maintained on [draft PR #788](https://github.com/FutureMUD/FutureMUD/pull/788); earlier 62cb checks are not merged-head qualification. Final validation may update the PR evidence without changing these tested inputs.
+
+Remaining readiness is explicit:
+
+- Implement/qualify source-style ash dissipation presentation and real-time expiry; room-local life/profile/terrain assignment stays an explicit builder operation.
+- Qualify the complete chargen approval/UI path separately from selected-Class services and copied-body samples.
+- Execute N24's complete-stock rename/edit/delete/retire/clone/interruption campaign, preserving builders, players and stable identities.
+- Execute N25's provider-failure/cross-body-or-route/restart conservation scenario without replay/refund/duplicate grade/corpse.
+- Finish the bounded programme/balance gates before any stock availability or Release decision. Other carriers retain their disabled dispositions.
+
+**No new user design decision is required for this integration.** Prior S4/S5 and source-gathering native receipts retain their dated scopes; the unchanged gathering mechanisms are reused rather than rerun as a new gameplay certificate. Sealed fixture pins are not relaxed or recaptured. Whole S6/N24/N25 and final readiness remain open. Release, stock casting/Class/gathering and all other Armageddon availability gates stay disabled; PR #788 stays draft, with no PR merge or deployment.
+
 **Dated scope:** This records the earlier inactive installer slice. Later [source gathering qualification](Armageddon_Gathering_Source_Checkpoint_20261016.md) supersedes its gathering proposal and pending-authority statements; the original four-cell results below retain their actual earlier inputs and scope.
 
 The complete inactive spell-admission/support installation slice is qualified in all four Classic/Simple x earlier Chargen classes off/on cells. **S6 remains incomplete:** numerical gathering economics and generic environmental profile/coverage choices await approval. All Release/package/Class/use/craft/variant/unqualified-carrier availability stays disabled; PR #788 remains draft. No merge or deployment.

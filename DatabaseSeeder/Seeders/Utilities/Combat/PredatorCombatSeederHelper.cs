@@ -27,6 +27,7 @@ internal static class PredatorCombatSeederHelper
 		OrganicCorpseMaterialSeederHelper.EnsureStockModels(context);
 		AnimalSeeder.EnsureStockAirBreathing(context);
 		EnsureSerpentAttacks(context);
+		BackstabSeederHelper.EnsureAnimalBackstabs(context);
 		var names = Ambushers.Concat(Droppers).Concat(["Giant Spider", "Giant Scorpion", "Giant Centipede"]).Distinct().ToArray();
 		foreach (var race in context.Races.Include(x => x.DefaultCombatSetting).Where(x => names.Contains(x.Name)).ToList())
 		{

@@ -16,9 +16,27 @@ namespace MudSharp.Combat.Moves;
 
 public class MeleeWeaponAttack : WeaponAttackMove
 {
-    public MeleeWeaponAttack(ICharacter owner, IMeleeWeapon weapon, IWeaponAttack attack, ICharacter target)
+    private readonly int? _coordinationStages;
+    private readonly Func<bool> _physicalGuard;
+    private Difficulty? _coordinatedDifficulty;
+    internal bool AttackWasAttempted { get; private set; }
+    internal bool DefenceWasAttempted { get; private set; }
+    private Outcome _attemptOutcome = Outcome.NotTested;
+    private Outcome _attemptDefenderOutcome = Outcome.NotTested;
+    private readonly IBody _originalDefenderBody;
+    private bool CanContinueStrike() => CanContinueCommand() && (_physicalGuard?.Invoke() ?? true);
+    private CombatMoveResult InterruptedStrike() => _coordinationStages.HasValue && AttackWasAttempted
+        ? new CombatMoveResult { AttackerOutcome = _attemptOutcome, DefenderOutcome = _attemptDefenderOutcome, RecoveryDifficulty = RecoveryDifficultyFailure,
+            DefenderResponseWasUsed = DefenceWasAttempted }
+        : CombatMoveResult.Irrelevant;
+
+    public MeleeWeaponAttack(ICharacter owner, IMeleeWeapon weapon, IWeaponAttack attack, ICharacter target,
+        int? coordinationStages = null, Func<bool> physicalGuard = null)
         : base(attack)
     {
+        _coordinationStages = coordinationStages;
+        _physicalGuard = physicalGuard;
+        _originalDefenderBody = target?.Body;
 #if DEBUG
         if (!owner.ColocatedWith(target))
         {
@@ -70,8 +88,9 @@ public class MeleeWeaponAttack : WeaponAttackMove
     public override Difficulty RecoveryDifficultyFailure => Attack.RecoveryDifficultyFailure;
     public override Difficulty RecoveryDifficultySuccess => Attack.RecoveryDifficultySuccess;
 
-    public override Difficulty CheckDifficulty =>
-        Assailant.GetDifficultyForTool(Weapon.Parent, Attack.Profile.BaseAttackerDifficulty);
+    public override Difficulty CheckDifficulty => _coordinationStages is { } stages
+        ? _coordinatedDifficulty ??= Assailant.GetDifficultyForTool(Weapon.Parent, Attack.Profile.BaseAttackerDifficulty).StageUp(stages)
+        : Assailant.GetDifficultyForTool(Weapon.Parent, Attack.Profile.BaseAttackerDifficulty);
 
     public override CheckType Check => CheckType.MeleeWeaponCheck;
     public override int Reach => Weapon.WeaponType.Reach; // TODO - natural reach
@@ -79,10 +98,10 @@ public class MeleeWeaponAttack : WeaponAttackMove
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
 		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
-		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		if (!CanContinueStrike()) return InterruptedStrike();
 		using var hostileAttempt = HostileAttackAdmission.BeginAttempt(Assailant, PrimaryCharacterTarget);
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
-		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		if (!CanContinueStrike()) return InterruptedStrike();
 		using var scope = new MagicDefenseDamageScope(this, defenderMove);
 		return scope.Finish(ResolveAttackWithDefense(defenderMove));
     }
@@ -103,17 +122,22 @@ public class MeleeWeaponAttack : WeaponAttackMove
         }
 
         WorsenCombatPosition(defenderMove.Assailant, Assailant);
-        if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+        if (!CanContinueStrike()) return InterruptedStrike();
         var magicAttackBonus = ApplicableWeaponEnhancements(Weapon.Parent, defenderMove.Assailant)
             .Sum(x => x.AttackCheckBonus);
-        if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+        if (!CanContinueStrike()) return InterruptedStrike();
 		if (!HostileAttackAdmission.TryNotify(Assailant, defenderMove.Assailant as ICharacter,
-			CanContinueCommand)) return CombatMoveResult.Irrelevant;
+			CanContinueStrike)) return InterruptedStrike();
+		if (_physicalGuard?.Invoke() == false) return CombatMoveResult.Irrelevant;
+		UnseenCombatOpening.Consume(Assailant, defenderMove.Assailant as ICharacter);
+        AttackWasAttempted = true;
+        if (_coordinationStages.HasValue) MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
         Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
                                   .CheckAgainstAllDifficulties(Assailant, CheckDifficulty,
                                       Weapon.WeaponType.AttackTrait,
                                       defenderMove.Assailant, Assailant.OffensiveAdvantage + magicAttackBonus);
-		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+        _attemptOutcome = attackRoll[CheckDifficulty].Outcome;
+		if (!CanContinueStrike()) return InterruptedStrike();
         Assailant.OffensiveAdvantage = 0;
         if (defenderMove.Assailant is not IHaveWounds defenderHaveWounds)
         {
@@ -128,12 +152,12 @@ public class MeleeWeaponAttack : WeaponAttackMove
                 Gameworld.CombatMessageManager.GetMessageFor(Assailant, defenderMove.Assailant, Weapon.Parent,
                     Attack, MoveType, attackRoll[CheckDifficulty], null), "",
                 TargetBodypart.FullDescription());
-		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		if (!CanContinueStrike()) return InterruptedStrike();
 
         if (defenderMove is MagicDefenseMove magicalDefense)
         {
 			if (magicalDefense.TryDefend(this, attackRoll[CheckDifficulty], out var magicResult)) return magicResult;
-			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+			if (!CanContinueStrike()) return InterruptedStrike();
 			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
         }
 
@@ -146,8 +170,9 @@ public class MeleeWeaponAttack : WeaponAttackMove
         WardResult wardResult = null;
         if (ward != null)
         {
+            DefenceWasAttempted = true;
             wardResult = ResolveWard(ward);
-			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+			if (!CanContinueStrike()) return InterruptedStrike();
             if (wardResult.WardSucceeded)
             {
                 Assailant.OutputHandler.Handle(
@@ -162,15 +187,15 @@ public class MeleeWeaponAttack : WeaponAttackMove
 			var warder = defenderMove.Assailant;
             WardBeaten newEffect = new(warder, warder.Combat);
             warder.AddEffect(newEffect);
-			try { if (!CanContinueCommand()) return CombatMoveResult.Irrelevant; defenderMove = warder.ResponseToMove(this, Assailant) ?? new HelplessDefenseMove { Assailant = warder }; }
+			try { if (!CanContinueStrike()) return InterruptedStrike(); defenderMove = warder.ResponseToMove(this, Assailant) ?? new HelplessDefenseMove { Assailant = warder }; }
 			finally { warder.RemoveEffect(newEffect); }
-			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+			if (!CanContinueStrike()) return InterruptedStrike();
         }
 
         if (defenderMove is MagicDefenseMove fallbackMagic)
         {
 			if (fallbackMagic.TryDefend(this, attackRoll[CheckDifficulty], out var fallbackResult)) return fallbackResult;
-			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+			if (!CanContinueStrike()) return InterruptedStrike();
 			defenderMove = new HelplessDefenseMove { Assailant = fallbackMagic.Assailant };
         }
 
@@ -181,16 +206,19 @@ public class MeleeWeaponAttack : WeaponAttackMove
 
         if (defenderMove is DodgeMove dodge)
         {
+            DefenceWasAttempted = true;
             return ResolveDodge(defenderMove, attackRoll, defenderHaveWounds, attackEmote, dodge, wardResult);
         }
 
         if (defenderMove is ParryMove parry)
         {
+            DefenceWasAttempted = true;
             return ResolveParry(defenderMove, attackRoll, defenderHaveWounds, attackEmote, parry);
         }
 
         if (defenderMove is BlockMove block)
         {
+            DefenceWasAttempted = true;
             return ResolveBlock(block, attackRoll, defenderHaveWounds, attackEmote, wardResult);
         }
 
@@ -213,6 +241,13 @@ public class MeleeWeaponAttack : WeaponAttackMove
                                                   defenderMove.Shield.ShieldType.BlockBonus +
                                                   defenderMove.Assailant.DefensiveAdvantage -
                                                   GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
+        _attemptDefenderOutcome = blockCheck[defenderDifficulty].Outcome;
+        if (_coordinationStages.HasValue && !CanContinueStrike())
+        {
+            if (blockCheck[defenderDifficulty].FailureDegrees() >= 2)
+                _originalDefenderBody.SpendStamina(Gameworld.GetStaticDouble("BlockFailureAdditionalStamina"));
+            return InterruptedStrike();
+        }
         defenderMove.Assailant.DefensiveAdvantage = 0;
         int bsuccess = blockCheck[defenderDifficulty].SuccessDegrees();
         if (bsuccess > 0)
@@ -259,10 +294,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                     2 * Attack.Profile.BaseAngleOfIncidence /
                     Math.PI,
                 PenetrationOutcome =
-                    Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
-                             .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType),
-                                 defenderMove.Assailant,
-                                 Weapon),
+                    RollTargetPenetration(defenderMove.Assailant, Weapon),
                 ShockAmount = 0,
                 StunAmount =
                     EvaluateAttackFormula(Attack.Profile.StunExpression, Assailant,
@@ -281,7 +313,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                         defenderMove.Shield.Parent, wardResult?.WardWeapon?.Parent),
                     style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
             wardWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
-            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(finalDamage));
+            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(finalDamage)));
             wounds.AddRange(defenderMove.Shield.Parent.CommandSufferDamage(finalDamage));
             CheckLodged(wounds);
             wardWounds.ProcessPassiveWounds();
@@ -389,6 +421,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
                                       defenderMove.Assailant.GetDefensiveAdvantagePenaltyFromTargeting() + targetBonus +
                                       parry.Assailant.DefensiveAdvantage -
                                                   GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
+        _attemptDefenderOutcome = parryCheck[defenderDifficulty].Outcome;
+        if (_coordinationStages.HasValue && !CanContinueStrike()) return InterruptedStrike();
         parry.Assailant.DefensiveAdvantage = 0;
         double parryDelay = Gameworld.GetStaticDouble("ParryDelaySeconds") *
                            (1.0 - parryCheck[defenderDifficulty].CheckDegrees() / 6.0);
@@ -454,10 +488,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                         TraitBonusContext.ArmedDamageCalculation, (int)result.Degree, (int)Weapon.Parent.Quality) *
                     2 * finalAngle / Math.PI,
                 PenetrationOutcome =
-                    Gameworld.GetCheck(CheckType.MeleeWeaponPenetrateCheck)
-                             .Check(Assailant, GetPenetrationDifficulty(Attack.Profile.DamageType),
-                                 defenderMove.Assailant,
-                                 Weapon),
+                    RollTargetPenetration(defenderMove.Assailant, Weapon),
                 ShockAmount = 0,
                 StunAmount =
                     EvaluateAttackFormula(Attack.Profile.StunExpression, Assailant,
@@ -473,7 +504,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                         $"{attackEmote}{string.Format(parryEmote, "", TargetBodypart.FullDescription())}".Fullstop(),
                         Assailant, Assailant, defenderMove.Assailant, Weapon.Parent, parry.Weapon.Parent, null),
                     style: OutputStyle.CombatMessage, flags: OutputFlags.InnerWrap));
-            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(finalDamage));
+            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(finalDamage)));
             CheckLodged(wounds);
             wardWounds.AddRange(parry.Weapon.Parent.CommandSufferDamage(finalDamage));
             CheckLodged(wardWounds);
@@ -610,6 +641,8 @@ public class MeleeWeaponAttack : WeaponAttackMove
                                       targetBonus - defenderMove.Assailant.GetDefensiveAdvantagePenaltyFromTargeting() +
                                       dodge.Assailant.DefensiveAdvantage -
                                                   GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
+        _attemptDefenderOutcome = dodgeCheck[defenderDifficulty].Outcome;
+        if (_coordinationStages.HasValue && !CanContinueStrike()) return InterruptedStrike();
         dodge.Assailant.DefensiveAdvantage = 0;
         double dodgeDelay = Gameworld.GetStaticDouble("DodgeDelaySeconds") *
                            (1.0 - dodgeCheck[defenderDifficulty].CheckDegrees() / 6.0);
@@ -688,7 +721,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
             }
 
             selfWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
-            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(damage));
+            wounds.AddRange(defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(damage)));
             wounds.AddRange(Weapon.Parent.CommandSufferDamage(selfDamage));
             CheckLodged(wounds);
             CheckLodged(selfWounds);
@@ -766,7 +799,7 @@ public class MeleeWeaponAttack : WeaponAttackMove
                     Assailant, Assailant, defenderMove.Assailant, Weapon.Parent, null, null),
                 style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
-        List<IWound> wounds = defenderHaveWounds.CommandSufferDamage(damage).ToList();
+        List<IWound> wounds = defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(damage)).ToList();
         wounds.AddRange(Weapon.Parent.CommandSufferDamage(selfDamage));
         CheckLodged(wounds);
         wounds.ProcessPassiveWounds();

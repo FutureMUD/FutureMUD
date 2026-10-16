@@ -1,6 +1,8 @@
 # FutureMUD Economy System: Seeder State and Gaps
 
 ## Scope
+Haggle is generic runtime support with opt-in static defaults. SkillPackageSeeder creates the dedicated improving `HaggleCheck` using a variable trait; operators or later content seeders select `HaggleTraitId`. No setting-specific Haggle trait, shopkeeper, retail shop, merchandise exclusions or employee grants are installed automatically. Shop configuration is nullable XML in a dedicated column, preserving existing shop behaviour until whole-game enablement. The accompanying code-first migration and refreshed installer blank snapshot must ship together.
+
 This document explains:
 
 1. what economy content is currently seeded

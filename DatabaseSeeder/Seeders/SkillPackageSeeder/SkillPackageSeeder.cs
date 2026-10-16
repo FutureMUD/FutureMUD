@@ -667,10 +667,18 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
         {
             switch (check)
             {
+                case CheckType.DualWieldCoordinationCheck:
+                    // CombatSeeder owns the native skill binding; preserve configured existing worlds.
+                    DualWieldCoordinationSeederHelper.EnsureUnboundCheck(context);
+                    continue;
                 case CheckType.None:
                     // Default Fall Back
                     AddCheck(check, new TraitExpression { Expression = "variable" },
                         templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
+                    continue;
+                case CheckType.AnalyzeEligibilityCheck:
+                    AddCheck(check, new TraitExpression { Expression = "0" }, templates["Static Check"].Id,
+                        Difficulty.Normal);
                     continue;
                 case CheckType.ProjectLabourCheck:
                     // Special Project Check
@@ -752,6 +760,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                     AddCheck(check, new TraitExpression { Expression = "variable" },
                         templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
                     continue;
+				case CheckType.HaggleCheck:
+					AddCheck(check, new TraitExpression { Expression = "variable" },
+						templates["Skill Check"].Id, Difficulty.Impossible);
+					continue;
                 case CheckType.GenericListenCheck:
                     AddCheck(check, new TraitExpression { Expression = $"listen:{listenTrait.Id}+10" },
                         templates["Perception Check"].Id, Difficulty.Impossible);

@@ -20,11 +20,15 @@ public partial class MythicalAnimalSeeder
 	private static readonly string[] MythicalSignatureAttackNames =
 	[
 		"Western Dragonfire Breath",
-		"Eastern Dragonfire Breath"
+		"Eastern Dragonfire Breath",
+		BackstabSeederHelper.ManticoreBackstab
 	];
 
 	private void EnsureMythicalSignatureAttacks()
 	{
+		BackstabSeederHelper.EnsureNaturalAttack(_context, BackstabSeederHelper.ManticoreBackstab,
+			_context.WeaponAttacks.First(x => x.Name == "Claw Swipe"), BackstabSeederHelper.ManticoreConfiguration,
+			1.5, 6, 1.5, 150, "@ circle|circles behind $1 and lash|lashes out with &0's {0}");
 		WeaponAttack donor = _context.WeaponAttacks.First(x => x.Name == "Dragonfire Breath");
 		BodypartShape mouth = _context.BodypartShapes.First(x => x.Name == "Mouth");
 		long waterTagId = _context.Tags.First(x => x.Name == "Water").Id;

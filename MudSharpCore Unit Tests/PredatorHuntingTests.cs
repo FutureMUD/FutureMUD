@@ -38,6 +38,74 @@ namespace MudSharp_Unit_Tests;
 public class PredatorHuntingTests
 {
 	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void HuntOpening_PrefersBackstabAndRevalidatesWhileCrossLayerKeepsAmbush(bool crossLayer)
+	{
+		var f = new Fixture();
+		f.Ai.Hunting.People = AnimalPeoplePreyPolicy.Eligible;
+		f.Ai.Hunting.Opening = AnimalHuntOpening.Ambush;
+		f.Ai.Hunting.Followup = AnimalHuntFollowup.Fight;
+		var combat = new Mock<ICombat>(); combat.SetupGet(x => x.Combatants).Returns([f.Actor.Object, f.Target.Object]);
+		f.Actor.SetupGet(x => x.Combat).Returns(combat.Object); f.Target.SetupGet(x => x.Combat).Returns(combat.Object);
+		f.Actor.SetupGet(x => x.CombatTarget).Returns(f.Target.Object);
+		f.Actor.SetupGet(x => x.MeleeRange).Returns(true);
+		f.Actor.Setup(x => x.ColocatedWith(f.Target.Object)).Returns(true);
+		f.Actor.Setup(x => x.GetFacingFor(f.Target.Object, false)).Returns(Facing.Rear);
+		f.Actor.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns(true);
+		f.World.Setup(x => x.TryGetCharacter(20, true)).Returns(f.Target.Object);
+		typeof(CombatBase).GetProperty("PowerMoveStaminaCost", BindingFlags.Static | BindingFlags.NonPublic)!
+			.SetValue(null, new MudSharp.Body.Traits.TraitExpression("1", f.World.Object));
+		var backstab = new Mock<IBackstabAttack>(); backstab.SetupGet(x => x.Weighting).Returns(100);
+		var natural = new NaturalAttack { Attack = backstab.Object, Bodypart = Mock.Of<IBodypart>() };
+		var ambush = new Mock<IAmbushAttack>();
+		ambush.SetupGet(x => x.SourceLayers).Returns([RoomLayer.InTrees]);
+		ambush.SetupGet(x => x.DestinationLayers).Returns([RoomLayer.GroundLevel]);
+		var naturalAmbush = new NaturalAttack { Attack = ambush.Object, Bodypart = natural.Bodypart };
+		f.Actor.Setup(x => x.Race.UsableNaturalWeaponAttacks(f.Actor.Object, f.Target.Object, false, It.IsAny<BuiltInCombatMoveType[]>()))
+			.Returns((ICharacter _, IPerceiver _, bool _, BuiltInCombatMoveType[] types) =>
+				types.Contains(BuiltInCombatMoveType.BackstabAttackUnarmed) ? [natural] : [naturalAmbush]);
+		if (crossLayer)
+		{
+			f.Actor.SetupGet(x => x.RoomLayer).Returns(RoomLayer.InTrees);
+			f.Room.Setup(x => x.Terrain(f.Actor.Object).TerrainLayers).Returns([RoomLayer.GroundLevel, RoomLayer.InTrees]);
+			f.Actor.Setup(x => x.CanClimbDown()).Returns((true, ""));
+		}
+		var hunt = new AnimalHuntEffect(f.Actor.Object, f.Ai, f.Target.Object) { Phase = AnimalHuntPhase.Opening };
+		Assert.IsTrue(f.Ai.SelectHuntMove(f.Actor.Object, hunt, out var move));
+		Assert.IsInstanceOfType(move, crossLayer ? typeof(AmbushAttackMove) : typeof(BackstabAttackUnarmedMove));
+		if (!crossLayer)
+		{
+			f.Actor.Setup(x => x.CanSpendStamina(It.IsAny<double>())).Returns(false);
+			var cancelled = move!.ResolveMove(null!);
+			Assert.AreSame(CombatMoveResult.Irrelevant, cancelled);
+			f.Ai.HuntMoveResolved(hunt, move, cancelled);
+			Assert.AreEqual(AnimalHuntPhase.Opening, hunt.Phase);
+		}
+		hunt.Phase = AnimalHuntPhase.Fighting;
+		Assert.IsFalse(f.Ai.SelectHuntMove(f.Actor.Object, hunt, out _));
+	}
+
+	[DataTestMethod]
+	[DataRow("miss", AnimalHuntPhase.Fighting)]
+	[DataRow("defended", AnimalHuntPhase.Fighting)]
+	[DataRow("hit", AnimalHuntPhase.Fighting)]
+	[DataRow("cancelled", AnimalHuntPhase.Opening)]
+	public void BackstabHunt_OnlyExecutedAttemptEndsOpening(string outcome, AnimalHuntPhase expected)
+	{
+		var f = new Fixture();
+		var hunt = new AnimalHuntEffect(f.Actor.Object, f.Ai, f.Target.Object) { Phase = AnimalHuntPhase.Opening };
+		var attack = new Mock<INaturalAttack>(); attack.SetupGet(x => x.Attack).Returns(Mock.Of<IBackstabAttack>());
+		var move = new BackstabAttackUnarmedMove(f.Actor.Object, attack.Object, f.Target.Object);
+		var result = outcome == "cancelled" ? CombatMoveResult.Irrelevant : new CombatMoveResult
+		{
+			MoveWasSuccessful = outcome == "hit", DefenderResponseWasUsed = outcome == "defended"
+		};
+		f.Ai.HuntMoveResolved(hunt, move, result);
+		Assert.AreEqual(expected, hunt.Phase);
+	}
+
+	[DataTestMethod]
 	[DataRow("flying")]
 	[DataRow("climbing")]
 	[DataRow("swimming")]

@@ -311,9 +311,23 @@ public class EraItemDependencyCompletionTests
 			["installweapons"] = "yes",
 			["installranged"] = "yes"
 		};
+		var dagger = context.WeaponTypes.Single(x => x.Name == "Dagger");
+		var backstab = new WeaponAttack
+		{
+			Name = "Dagger Backstab", WeaponType = dagger,
+			MoveType = (int)MudSharp.Combat.BuiltInCombatMoveType.BackstabAttack,
+			RequiredPositionStateIds = "1", AdditionalInfo = "<Backstab />",
+			DamageExpressionId = 1, PainExpressionId = 1, StunExpressionId = 1
+		};
+		context.WeaponAttacks.Add(backstab);
+		context.SaveChanges();
 
 		seeder.EnsureEraDependencyCombatContentForTesting(context, answers);
 		seeder.EnsureEraDependencyCombatContentForTesting(context, answers);
+		Assert.AreEqual(1, context.WeaponAttacks.Count(x => x.MoveType == (int)MudSharp.Combat.BuiltInCombatMoveType.BackstabAttack),
+			"Era weapon clones must not spread the dagger's backstab to bayonets.");
+		Assert.AreEqual(dagger.Id, context.WeaponAttacks.Single(x => x.MoveType ==
+			(int)MudSharp.Combat.BuiltInCombatMoveType.BackstabAttack).WeaponTypeId);
 
 		foreach (string name in CombatSeeder.EraDependencyCombatComponentNamesForTesting
 			         .Where(x => !x.StartsWith("MusketPaperCartridge_", StringComparison.OrdinalIgnoreCase))

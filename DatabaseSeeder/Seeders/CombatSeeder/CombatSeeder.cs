@@ -196,10 +196,12 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         CombatAuxiliarySeederHelper.EnsureStockAuxiliaryContent(context);
         ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context);
 		NPCSkillPackageSeederHelper.EnsureCombatPackages(context);
+		var coordinationSkill = skills.GetValueOrDefault("Dual-Wielding") ?? skills["Dual-Wield"];
+		var coordination = DualWieldCoordinationSeederHelper.InstallFresh(context, coordinationSkill);
 
         context.Database.CommitTransaction();
 
-        return "The operation completed successfully.";
+        return $"The operation completed successfully. {coordination.Message}";
     }
 
     private string RefreshExistingCombatSeederContent(FuturemudDatabaseContext context,
@@ -583,6 +585,9 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             staffParry, 2.0, 4, 2.0);
         WeaponType trainingQuarterstaff = EnsureWeaponType("Training Quarterstaff", WeaponClassification.Training,
             staffAttack, staffParry, 2.0, 4, 1.5);
+		var club = GetExistingWeaponType("Club");
+		var blackjack = EnsureWeaponType("Blackjack", WeaponClassification.NonLethal,
+			club.AttackTrait, club.ParryTrait, -1.0, 1, 2.0);
 
         TraitDefinition polearmAttack = ResolveAttackSkill(
             ["Polearms", "Polearm", "Spears", "Heavy-Pierce", "Two Handed Weapons"], "Halberd", "Long Spear");
@@ -1330,6 +1335,12 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
             DamageType.Crushing, intentions: CombatMoveIntentions.Attack | CombatMoveIntentions.Training,
             handedness: AttackHandednessOptions.SwordAndBoardOnly);
 
+		var normalFormulaVariants = new[] { "static", "partial", "random", "rebalance" }
+			.Select(x => BuildWeaponDamageExpressions(strength.Id, new Dictionary<string, string>
+			{
+				["balance"] = x == "rebalance" ? "combat-rebalance" : "stock", ["random"] = x
+			})["Weapon Damage - Normal"]).ToArray();
+		weaponAttacksAdded += EnsureBackstabAttacks(context, blackjack, normalDamage, goodDamage, messageStyle, normalFormulaVariants);
         return new CombatStockExpansionResult(shieldTypesAdded, weaponTypesAdded, weaponAttacksAdded,
             componentsAdded);
     }

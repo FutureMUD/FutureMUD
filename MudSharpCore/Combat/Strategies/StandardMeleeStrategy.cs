@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat.Moves;
@@ -962,6 +962,13 @@ public class StandardMeleeStrategy : StrategyBase
         }
 
 
+        var paired = DualWieldCombat.Candidate(combatant, weaponsAndAttacks);
+        if (paired is { } pair && Constants.Random.NextDouble() *
+            (weaponsAndAttacks.Sum(x => x.Weight) + pair.Weight) < pair.Weight)
+        {
+            return pair.Move;
+        }
+
         (IMeleeWeapon Weapon, IWeaponAttack Attack, double Weight) attack = weaponsAndAttacks.GetWeightedRandom(x => x.Weight);
         if (attack == default)
         {
@@ -992,6 +999,7 @@ public class StandardMeleeStrategy : StrategyBase
         BuiltInCombatMoveType[] attackTypes = new[]
         {
             BuiltInCombatMoveType.NaturalWeaponAttack,
+			BuiltInCombatMoveType.BackstabAttackUnarmed,
             BuiltInCombatMoveType.StaggeringBlowUnarmed,
             BuiltInCombatMoveType.UnbalancingBlowUnarmed,
             BuiltInCombatMoveType.PushbackUnarmed,
@@ -1105,6 +1113,7 @@ public class StandardMeleeStrategy : StrategyBase
         BuiltInCombatMoveType[] naturalTypes = new[]
         {
                         BuiltInCombatMoveType.NaturalWeaponAttack,
+			BuiltInCombatMoveType.BackstabAttackUnarmed,
                         BuiltInCombatMoveType.StaggeringBlowUnarmed,
                         BuiltInCombatMoveType.UnbalancingBlowUnarmed,
                         BuiltInCombatMoveType.PushbackUnarmed,

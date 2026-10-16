@@ -43,6 +43,7 @@ Use these to test the craft as a player would see it:
 - `materials <craft>`
 - `craft categories`
 - `craft find <item>`
+- `analyse <carried item>` / `analyze <carried item>` — optional binary capability; see [configuration and matching limits](./Analyse_Capability.md)
 
 ### Builder-facing commands
 Use these to author and review craft content:

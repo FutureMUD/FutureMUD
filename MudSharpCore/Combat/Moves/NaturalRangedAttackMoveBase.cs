@@ -231,6 +231,7 @@ public abstract class NaturalRangedAttackMoveBase : WeaponAttackMove, IRangedAtt
         defenderMove ??= new HelplessDefenseMove { Assailant = targetCharacter };
 		if (!HostileAttackAdmission.TryNotify(Assailant, targetCharacter, () => CanContinueCommand() &&
 			TargetIsInRange(Assailant, targetCharacter, RangedAttack.RangeInRooms))) return CombatMoveResult.Irrelevant;
+		MudSharp.Effects.Concrete.UnseenCombatOpening.Consume(Assailant, targetCharacter);
         Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
                                   .CheckAgainstAllDifficulties(Assailant, CheckDifficulty, null, targetCharacter,
                                       Assailant.OffensiveAdvantage);

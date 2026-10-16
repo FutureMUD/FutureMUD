@@ -16,6 +16,8 @@ The strategy contract lives in `FutureMUDLibrary/Combat/ICombatStrategy.cs`. Con
 
 ## Shared Contract
 
+Ordinary automatic melee weapon selection can also offer a configured [Dual Wield double attack](./Dual_Wield_Double_Attacks.md). The frozen pair attacks one target, uses each weapon's skill and a fresh defence per strike, stages both attack difficulties with one coordination check, charges only executed children and schedules one recovery. Existing dual-only profiles remain single-hit attacks. Upgraded worlds stay disabled until their dedicated coordination check is bound and the feature is enabled.
+
 Every strategy exposes:
 
 - `Mode`: the `CombatStrategyMode` represented by the strategy.
@@ -118,6 +120,8 @@ The default use-loss formulas are small: `0.00025` for melee attacks, parries, w
 Muskets still evaluate their direct `condition` jam and misfire formulas before the shot's condition loss is applied. Modern firearms only receive the shared effective-quality degradation in this slice; no new jamming or misfire mechanic is introduced for them.
 
 ## Manual Combat Commands
+
+The explicit `backstab [target]` command selects a weighted, usable weapon or natural backstab attack against a rear-facing target or through an unused unseen opening. That opening is captured at encounter start before concealment removal and is consumed by the first actual attack attempt, including a miss. Backstabs use normal attack defenses and damage formulas; optional victim resistance, reel, advantage, penetration, and worn-armour bypass settings are authored on the attack. See [Backstab Attacks](./Backstab_Attacks.md) for builder syntax and resolution details.
 
 Manual combat commands are builder-authored `ManualCombatCommand` rows that register verbs such as `kick` or `bash` without hardcoding a command method per move. The loader brings them in after weapon attacks, auxiliary actions, FutureProgs, and dynamic magic verbs are available. Startup registration validates the primary verb and aliases against existing command trees and already-claimed manual words; invalid or colliding aliases are skipped with console warnings instead of preventing command loading.
 

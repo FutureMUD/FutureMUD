@@ -60,6 +60,10 @@ public class CookedFoodProduct : BaseProduct
 		return ProductProducedId == item.Prototype.Id && Skin?.Id == item.Skin?.Id;
 	}
 
+	public override bool MatchesForAnalysis(IGameItem item) =>
+		GetType() == typeof(CookedFoodProduct) && !MaterialDefiningInputIndex.HasValue &&
+		IsItem(item) && item.Material == Gameworld.ItemProtos.Get(ProductProducedId)?.Material;
+
 	public override bool RefersToItemProto(long id)
 	{
 		return ProductProducedId == id;

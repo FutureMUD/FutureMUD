@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace MudSharp.Combat
 {
@@ -153,6 +153,8 @@ namespace MudSharp.Combat
 		AquaticVehicleCharge,
 		MagicPowerSmashItem,
 		AmbushAttack,
+		BackstabAttack,
+		BackstabAttackUnarmed,
 	}
 
     [Flags]

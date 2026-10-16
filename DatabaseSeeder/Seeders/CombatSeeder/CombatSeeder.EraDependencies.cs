@@ -480,7 +480,8 @@ public partial class CombatSeeder
 		EnsureArmour("Coat of Plates", "Armour_CoatOfPlates", "Platemail", 1, 2, 3);
 		EnsureArmour("Splinted", "Armour_Splinted", "Studded Leather", 1, 1, 2);
 
-		EnsureWeapon("Bayonet", "Melee_Bayonet", "Dagger", WeaponClassification.Lethal, 2);
+		EnsureWeapon("Bayonet", "Melee_Bayonet", "Dagger", WeaponClassification.Lethal, 2,
+			excludedMoveTypes: [BuiltInCombatMoveType.BackstabAttack]);
 		var hookedPolearm = EnsureWeapon("Hooked Polearm", "Melee_HookedPolearm", "Halberd", WeaponClassification.Lethal, 4);
 		var lance = EnsureWeapon("Lance", "Melee_Lance", "Long Spear", WeaponClassification.Lethal, 5,
 			excludedMoveTypes: new[] { BuiltInCombatMoveType.CouchedLanceAttack });

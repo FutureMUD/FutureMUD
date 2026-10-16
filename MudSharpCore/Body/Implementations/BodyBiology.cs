@@ -974,7 +974,7 @@ public partial class Body
         {
             List<IArmour> armour =
                 WornItemsProfilesFor(damage.Bodypart)
-                    .Where(x => !x.Item2.NoArmour)
+                    .Where(x => !damage.BypassWornArmour && !x.Item2.NoArmour)
                     .SelectNotNull(x => x.Item1.GetItemType<IArmour>())
                     .Reverse() // Last items worn are the first hit
                     .ToList();

@@ -1428,6 +1428,7 @@ The syntax is as follows:
     }
 
     [PlayerCommand("Buy", "buy")]
+	[DelayBlock("general", "You must first stop {0} before buying.")]
     [RequiredCharacterState(CharacterState.Conscious)]
     [NoCombatCommand]
     [NoHideCommand]
@@ -1608,7 +1609,7 @@ The syntax for this command is as follows:
         }
 
         (decimal Price, IEnumerable<IGameItem> Items) preview = commodityWeight.HasValue
-            ? (shop.PriceForMerchandiseWeight(actor, merch, commodityWeight.Value),
+            ? (shop.PriceForMerchandiseWeight(actor, merch, commodityWeight.Value, payment),
                 shop.StockedItems(merch).Where(x => x.GetItemType<ICommodity>() is not null))
             : shop.PreviewBuy(actor, merch, quantity, payment);
         var previewItems = preview.Items.ToList();
@@ -1673,6 +1674,7 @@ The syntax for this command is as follows:
 
     }
     [PlayerCommand("Sell", "Sell")]
+	[DelayBlock("general", "You must first stop {0} before selling.")]
     [RequiredCharacterState(CharacterState.Conscious)]
     [NoCombatCommand]
     [NoHideCommand]

@@ -169,6 +169,7 @@ public class PredatorCatalogueTests
 		context.FutureProgs.AddRange(new FutureProg { Id = 1, FunctionName = "AlwaysTrue" },
 			new FutureProg { Id = 2, FunctionName = "IsHumanoid" });
 		var race = new Race { Id = 1, Name = "Leopard" };
+		context.TraitExpressions.Add(new TraitExpression { Id = 5, Name = "Animal Claw Damage", Expression = "20" });
 		var part = new BodypartProto { Id = 2, Name = "rclaw", BodypartShapeId = 3 };
 		var attack = new WeaponAttack { Id = 4, Name = "Claw Swipe", MoveType = (int)BuiltInCombatMoveType.NaturalWeaponAttack,
 			RequiredPositionStateIds = "1 16 17", Weighting = 100, DamageExpressionId = 5, PainExpressionId = 5, StunExpressionId = 5, BodypartShapeId = 3 };

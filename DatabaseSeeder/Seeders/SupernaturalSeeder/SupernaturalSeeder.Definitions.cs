@@ -438,6 +438,7 @@ public partial class SupernaturalSeeder
 		};
 		var werewolfHybridAttacks = new[]
 		{
+			Attack(BackstabSeederHelper.WerewolfBackstab, ItemQuality.Good, "rhand", "lhand"),
 			Attack("Fanged Bite", ItemQuality.VeryGood, "mouth"),
 			Attack("Hamstring Snap", ItemQuality.Good, "mouth"),
 			Attack("Wolf Trip", ItemQuality.Good, "rfoot", "lfoot"),

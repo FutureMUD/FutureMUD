@@ -261,6 +261,7 @@ public class ThrownWeaponGameItemComponent : GameItemComponent, IRangedWeapon, I
             actor.Body.Take(Parent);
             completion.ArmAfterDetach();
             if (!completion.IsUnclaimed) return;
+			MudSharp.Effects.Concrete.UnseenCombatOpening.Consume(actor, (originalTarget ?? target) as ICharacter);
             void FinishDetachedThrow() => completion.Finish();
             void PlaceThrownProjectile(bool preventPickup = false)
             {

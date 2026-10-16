@@ -22,10 +22,17 @@ internal static partial class GNHProgram
 		Require(!sql.Contains(OwnershipTable, StringComparison.OrdinalIgnoreCase), "Snapshot contains a harness marker.");
 		using var imported = TestDatabase.CreateFresh("futuremud_land_"); // Imports the just-generated snapshot.
 		using var db = NewIndependentContext(imported.ConnectionString);
-		Require(db.Database.GetAppliedMigrations().Last() == manifest.LatestMigrationId && !db.Database.GetPendingMigrations().Any(),
+		Require(db.Database.GetAppliedMigrations().Last() == manifest.LatestMigrationId && !db.Database.GetPendingMigrations().Any() && !db.Database.HasPendingModelChanges(),
 			"Fresh snapshot import did not match the current migration assembly.");
 		Require(imported.ForeignKeys("tracks").Contains("CharacterInstanceId->characterinstances.Id", StringComparer.OrdinalIgnoreCase),
 			"Imported track identity foreign key is missing.");
+		var mergedColumns = db.Database.SqlQueryRaw<int>(@"SELECT COUNT(*) AS Value FROM information_schema.COLUMNS
+WHERE TABLE_SCHEMA=DATABASE() AND ((LOWER(TABLE_NAME)='shops' AND COLUMN_NAME='HagglingConfiguration')
+OR (LOWER(TABLE_NAME)='magicspelllifecycles' AND COLUMN_NAME IN ('RoomHazardLastPulseUtc','RoomHazardNextPulseUtc'))
+OR (LOWER(TABLE_NAME)='magicgatheringoperations' AND COLUMN_NAME='BodilyCostApplied'))").Single();
+		Require(mergedColumns == 4, "Merged snapshot lost Haggle or Armageddon lifecycle/gathering columns.");
+		Require(db.Database.GetAppliedMigrations().SequenceEqual(db.Database.GetMigrations()), "Merged snapshot migration history differs from the current assembly.");
+		Console.WriteLine("ARMS6-snapshot-integration=passed model-parity:no-pending merged-columns:4 exact-migration-history stable-track-foreign-key");
 		Console.WriteLine($"ARMS3-snapshot=passed real-refresh fresh-import migration:{manifest.LatestMigrationId} version:{manifest.ProductVersion} no-harness-marker-in-dump");
 		return 0;
 	}

@@ -722,6 +722,7 @@ public partial class MythicalAnimalSeeder
                     Attack("Bite", ItemQuality.Standard, "mouth"),
                     Attack("Claw Swipe", ItemQuality.Good, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
                     Attack("Tail Slap", ItemQuality.Good, "ltail"),
+					Attack(BackstabSeederHelper.ManticoreBackstab, ItemQuality.Good, "rfpaw", "lfpaw", "rrpaw", "lrpaw"),
                     Attack("Tail Spike", ItemQuality.Good, "stinger"),
                     Attack("Wing Buffet", ItemQuality.Standard, "rwingbase", "lwingbase")
                 ],
@@ -1882,6 +1883,7 @@ public partial class MythicalAnimalSeeder
         };
         HashSet<string> validAttackNames = new(StringComparer.OrdinalIgnoreCase)
         {
+			BackstabSeederHelper.ManticoreBackstab,
             "Carnivore Bite",
             "Bite",
             "Claw Swipe",

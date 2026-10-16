@@ -2847,5 +2847,22 @@ public partial class ItemSeeder
 			null,
 			null,
 			null);
+
+		CreateItem(
+			"medieval_military_blackjack_leather_wrapped",
+			"blackjack sap",
+			"a leather-covered blackjack",
+			null,
+			"A compact lead weight fills the rounded head of this short blackjack. Dark leather is stitched tightly around the weight and continues down into a narrow, flexible grip, with a small loop at its end. The smooth covering conceals the dense core beneath it.",
+			SizeCategory.Small,
+			ItemQuality.Standard,
+			450.0,
+			12.0m,
+			true,
+			false,
+			"lead",
+			[ "Era / Medieval Era", "Functions / Military Equipment / Military Weapons", "Market / Military Goods / Weapons", "Market / Military Goods / Weapons / Clubs" ],
+			[ "Holdable", "Melee_Blackjack", "Destroyable_Weapon" ],
+			null, null, null, null);
 	}
 }

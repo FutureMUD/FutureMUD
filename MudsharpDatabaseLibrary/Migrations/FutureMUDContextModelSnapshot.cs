@@ -21895,6 +21895,11 @@ namespace MudSharp.Migrations
                     b.Property<decimal>("ExpectedCashBalance")
                         .HasColumnType("decimal(65,30)");
 
+                    b.Property<string>("HagglingConfiguration")
+                        .HasColumnType("mediumtext");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("HagglingConfiguration"), "utf8mb4");
+
                     b.Property<ulong>("IsTrading")
                         .HasColumnType("bit(1)");
 

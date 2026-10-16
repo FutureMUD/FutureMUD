@@ -13,6 +13,7 @@ internal sealed class HostileAttackAdmission : IDisposable
 	private static readonly AsyncLocal<HostileAttackAdmission?> Current = new();
 	private readonly HostileAttackAdmission? _previous;
 	private readonly ICharacter _attacker;
+	private readonly ICharacter? _recipient;
 	private readonly object? _execution;
 	private readonly HashSet<ICharacter> _recipients = new(ReferenceEqualityComparer.Instance);
 	private readonly Func<bool> _initialIdentity;
@@ -21,13 +22,19 @@ internal sealed class HostileAttackAdmission : IDisposable
 	private bool _shotCommitted;
 
 	internal static void RecordShotAdmissionRefused() { if (Current.Value is { } current) current._shotAdmissionRefused = true; }
-	internal static void RecordShotCommitted() { if (Current.Value is { } current) current._shotCommitted = true; }
+	internal static void RecordShotCommitted()
+	{
+		if (Current.Value is not { } current) return;
+		current._shotCommitted = true;
+		MudSharp.Effects.Concrete.UnseenCombatOpening.Consume(current._attacker, current._recipient);
+	}
 	internal static bool ShotRefusedBeforeCommit => Current.Value is { _shotAdmissionRefused: true, _shotCommitted: false };
 
 	private HostileAttackAdmission(ICharacter attacker, ICharacter? recipient)
 	{
 		_previous = Current.Value;
 		_attacker = attacker;
+		_recipient = recipient;
 		_execution = CommandExecutionScope.LearningContext;
 		var attackerPin = Pin(attacker);
 		var recipientPin = recipient is null ? null : Pin(recipient);

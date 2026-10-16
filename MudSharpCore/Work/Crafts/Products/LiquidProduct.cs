@@ -67,6 +67,10 @@ public class LiquidProduct : BaseProduct
 		return countsAs.Truth && container.LiquidVolume >= LiquidVolume;
 	}
 
+	public override bool MatchesForAnalysis(IGameItem item) =>
+		!MaterialDefiningInputIndex.HasValue && IsItem(item) &&
+		item.Material == Gameworld.ItemProtos.Get(ProductProducedId)?.Material;
+
 	public override ICraftProductData ProduceProduct(IActiveCraftGameItemComponent component,
 		ItemQuality referenceQuality)
 	{

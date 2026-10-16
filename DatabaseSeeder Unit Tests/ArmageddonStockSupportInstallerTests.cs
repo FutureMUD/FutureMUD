@@ -143,9 +143,11 @@ public partial class ArmageddonStockSupportInstallerTests
 		db.ChangeTracker.Clear(); Assert.AreEqual(132, db.GameItemProtos.Count()); Assert.AreEqual(0, db.GameItems.Count());
 	}
 
-	private static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)
+	private static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false,
+		Action<FuturemudDatabaseContext>? configureCombat = null)
 	{
 		var db = ArmageddonCatalogueWeaponTests.Fixture(mode, classes); var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		configureCombat?.Invoke(db);
 		var weapons = ArmageddonCatalogueWeapons.Install(factory); Assert.AreEqual(ArmageddonInstallStatus.Completed, weapons.Status, string.Join("\n", weapons.Messages)); db.ChangeTracker.Clear();
 		// Minimal genuine native S3 affinity dependency rows; avoids unrelated anatomy/creature graph generation.
 		var settings = ArmageddonInstallation.Read(db)!; var owned = new ArmageddonCatalogueOwnership(db, settings.NativeBindings[ArmageddonNativeBinding.BuilderAccount], []);

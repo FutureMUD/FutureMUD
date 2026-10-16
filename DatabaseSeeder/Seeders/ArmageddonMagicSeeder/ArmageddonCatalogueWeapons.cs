@@ -57,7 +57,7 @@ public static class ArmageddonCatalogueWeapons
 				var foundation = db.WeaponTypes.AsNoTracking().Single(x => x.Id == id);
 				if (foundation.AttackTraitId is null || foundation.ParryTraitId is null ||
 					!db.TraitDefinitions.Any(x => x.Id == foundation.AttackTraitId && x.Type == 0 && x.OwnerScope == 0) ||
-					!db.TraitDefinitions.Any(x => x.Id == foundation.ParryTraitId && x.Type == 0 && x.OwnerScope == 0))
+					!db.TraitDefinitions.Any(x => x.Id == foundation.ParryTraitId && x.Type == 0 && (x.OwnerScope == 0 || x.OwnerScope == 1)))
 					throw new InvalidOperationException($"The fixed {shape} combat foundation no longer has valid native attack/parry skills.");
 				foundations.Add(shape, foundation);
 			}

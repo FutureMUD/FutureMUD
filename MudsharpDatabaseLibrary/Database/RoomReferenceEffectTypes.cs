@@ -58,6 +58,8 @@ GoodBehaviourBond
 GraffitiEffect
 GuardingExit
 GuardItem
+HaggleShopNegotiationState
+HaggleShopPriceEffect
 HarmfulBloodAdditive
 HasLegalCounsel
 HealingRateEffect

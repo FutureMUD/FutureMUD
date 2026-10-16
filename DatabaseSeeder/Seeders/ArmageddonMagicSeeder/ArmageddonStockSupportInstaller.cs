@@ -156,7 +156,7 @@ public static partial class ArmageddonStockSupportInstaller
 			var foundation = db.WeaponTypes.Single(x => x.Id == alias.NativeId);
 			if (foundation.AttackTraitId is null || foundation.ParryTraitId is null ||
 				!db.TraitDefinitions.Any(x => x.Id == foundation.AttackTraitId && x.Type == 0 && x.OwnerScope == 0) ||
-				!db.TraitDefinitions.Any(x => x.Id == foundation.ParryTraitId && x.Type == 0 && x.OwnerScope == 0))
+				!db.TraitDefinitions.Any(x => x.Id == foundation.ParryTraitId && x.Type == 0 && (x.OwnerScope == 0 || x.OwnerScope == 1)))
 				throw new InvalidOperationException("The retained Club foundation must have valid native attack and parry skills.");
 			var catalogue = new ArmageddonStockCatalogue();
 			var protection = ProtectionPreflight(db, settings);

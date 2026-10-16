@@ -1,4 +1,4 @@
-﻿using ExpressionEngine;
+using ExpressionEngine;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.RPG.Checks;
@@ -13,6 +13,7 @@ public static class CombatExtensions
     public static BuiltInCombatMoveType[] StandardMeleeWeaponAttacks =
     {
             BuiltInCombatMoveType.UseWeaponAttack,
+			BuiltInCombatMoveType.BackstabAttack,
             BuiltInCombatMoveType.StaggeringBlow,
             BuiltInCombatMoveType.UnbalancingBlow,
 			BuiltInCombatMoveType.Pushback,
@@ -1075,6 +1076,8 @@ public static class CombatExtensions
     {
         switch (type)
         {
+			case BuiltInCombatMoveType.BackstabAttack:
+			case BuiltInCombatMoveType.BackstabAttackUnarmed:
 			case BuiltInCombatMoveType.AmbushAttack:
             case BuiltInCombatMoveType.UseWeaponAttack:
             case BuiltInCombatMoveType.NaturalWeaponAttack:
@@ -1308,6 +1311,10 @@ public static class CombatExtensions
                 return "Swoop Attack";
             case BuiltInCombatMoveType.SwoopAttackUnarmed:
                 return "Unarmed Swoop Attack";
+			case BuiltInCombatMoveType.BackstabAttack:
+				return "Backstab Attack";
+			case BuiltInCombatMoveType.BackstabAttackUnarmed:
+				return "Natural Backstab Attack";
 			case BuiltInCombatMoveType.AmbushAttack:
 				return "Ambush Attack";
             case BuiltInCombatMoveType.EnvenomingAttack:

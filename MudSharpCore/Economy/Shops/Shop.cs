@@ -99,6 +99,7 @@ public abstract partial class Shop : SaveableItem, IShop
 
     protected Shop(Models.Shop shop, IFuturemud gameworld)
     {
+		Haggling = HaggleSettings.Load(shop.HagglingConfiguration);
         Gameworld = gameworld;
         _id = shop.Id;
         _name = shop.Name;
@@ -175,6 +176,7 @@ public abstract partial class Shop : SaveableItem, IShop
         dbitem.MinimumFloatToBuyItems = MinimumFloatToBuyItems;
         dbitem.MarketId = MarketForPricingPurposes?.Id;
         dbitem.AutopayTaxes = AutoPayTaxes;
+		dbitem.HagglingConfiguration = Haggling.Save().ToString();
         dbitem.EmployeeRecords = new XElement("Employees",
             from employee in EmployeeRecords
             select employee.SaveToXml()
@@ -604,7 +606,11 @@ public abstract partial class Shop : SaveableItem, IShop
                                  ?.ToString() ?? "of an unknown reason");
         }
 
-        decimal price = GetPriceCalculation(actor, merchandise!, item.Quantity, ShopDealApplicability.Buy).TotalPrice;
+        decimal price = BuybackPriceForItem(actor, merchandise, item).Price;
+		if (price <= 0M && HaggleService.Enabled(this))
+		{
+			return (false, "no positive buyback price preserves this shop's minimum resale spread");
+		}
 
         switch (method)
         {
@@ -689,14 +695,19 @@ public abstract partial class Shop : SaveableItem, IShop
     public void Sell(ICharacter actor, IMerchandise merchandise, IPaymentMethod method, IGameItem item)
     {
 		SpellOwnedItemValuePolicy.RequireOrdinaryValue(item, "selling");
+		var calculation = BuybackPriceForItem(actor, merchandise, item);
+		if (calculation.Price <= 0M && HaggleService.Enabled(this))
+		{
+			actor.OutputHandler.Send("There is no positive buyback price preserving this shop's minimum resale spread.");
+			return;
+		}
         item.AddEffect(new ItemOnDisplayInShop(item, this, merchandise));
         item.SetOwner(this);
-        IShopPriceCalculation calculation = GetPriceCalculation(actor, merchandise, item.Quantity, ShopDealApplicability.Buy);
-        decimal price = calculation.TotalPrice;
+        decimal price = calculation.Price;
         actor.OutputHandler.Handle(new EmoteOutput(new Emote($"@ sell|sells $1 to {Name.TitleCase().ColourName()} for $2.", actor, actor, item, new DummyPerceivable(Currency.Describe(price, CurrencyDescriptionPatternType.ShortDecimal).ColourValue()))));
         AddTransaction(new TransactionRecord(ShopTransactionType.Purchase, Currency, this,
             EconomicZone.ZoneForTimePurposes.DateTime(), actor,
-             calculation.TotalPretaxPrice * -1, calculation.IncludedTax, merchandise));
+             calculation.Pretax * -1, calculation.Tax, merchandise));
         _stockedMerchandise.Add(merchandise, item.Id);
         _stockedMerchandiseCounts.Add(merchandise, item.Quantity);
         item.InInventoryOf?.Take(item);
@@ -784,10 +795,11 @@ public abstract partial class Shop : SaveableItem, IShop
 
                 break;
             case LineOfCreditPayment loc:
-                price = PriceForMerchandise(
+                price = GetPriceCalculation(
                     loc.Account.IsAccountOwner(actor)
                         ? actor
-                        : Gameworld.TryGetCharacter(loc.Account.AccountOwnerId, true), merchandise, quantity);
+                        : Gameworld.TryGetCharacter(loc.Account.AccountOwnerId, true), merchandise, quantity,
+					negotiatingCustomer: actor).TotalPrice;
                 switch (loc.Account.IsAuthorisedToUse(actor, price))
                 {
                     case LineOfCreditAuthorisationFailureReason.NotAuthorisedAccountUser:
@@ -943,7 +955,7 @@ public abstract partial class Shop : SaveableItem, IShop
                 price = PriceForMerchandiseWeight(
                     loc.Account.IsAccountOwner(actor)
                         ? actor
-                        : Gameworld.TryGetCharacter(loc.Account.AccountOwnerId, true), merchandise, weight);
+                        : Gameworld.TryGetCharacter(loc.Account.AccountOwnerId, true), merchandise, weight, actor);
                 switch (loc.Account.IsAuthorisedToUse(actor, price))
                 {
                     case LineOfCreditAuthorisationFailureReason.NotAuthorisedAccountUser:
@@ -1145,7 +1157,8 @@ public abstract partial class Shop : SaveableItem, IShop
                 IShopPriceCalculation locCalculation = GetPriceCalculation(
                     loc.Account.IsAccountOwner(actor)
                         ? actor
-                        : Gameworld.TryGetCharacter(loc.Account.AccountOwnerId, true), merchandise, quantity);
+                        : Gameworld.TryGetCharacter(loc.Account.AccountOwnerId, true), merchandise, quantity,
+					negotiatingCustomer: actor);
                 price = locCalculation.TotalPrice;
                 tax = locCalculation.IncludedTax;
                 pretax = locCalculation.TotalPretaxPrice;
@@ -1264,7 +1277,9 @@ public abstract partial class Shop : SaveableItem, IShop
         }
 
         RecalculateStockedItems(merchandise, removedStockCount);
-        var calculation = PriceAndTaxForMerchandiseWeight(actor, merchandise, weight);
+		var dealCustomer = method is LineOfCreditPayment accountPayment && !accountPayment.Account.IsAccountOwner(actor)
+			? Gameworld.TryGetCharacter(accountPayment.Account.AccountOwnerId, true) : actor;
+        var calculation = PriceAndTaxForMerchandiseWeight(dealCustomer, merchandise, weight, negotiatingCustomer: actor);
         var price = calculation.Price;
         var tax = calculation.Tax;
         var pretax = calculation.Pretax;
@@ -1489,11 +1504,15 @@ public abstract partial class Shop : SaveableItem, IShop
                 price = PriceForMerchandise(actor, merchandise, quantity);
                 break;
             case LineOfCreditPayment loc:
-                price = PriceForMerchandise(
+                price = GetPriceCalculation(
                     loc.Account.IsAccountOwner(actor)
                         ? actor
-                        : Gameworld.TryGetCharacter(loc.Account.AccountOwnerId, true), merchandise, quantity);
+                        : Gameworld.TryGetCharacter(loc.Account.AccountOwnerId, true), merchandise, quantity,
+					negotiatingCustomer: actor).TotalPrice;
                 break;
+			default:
+				price = PriceForMerchandise(actor, merchandise, quantity);
+				break;
         }
 
         return (price, boughtItems);
@@ -1504,13 +1523,34 @@ public abstract partial class Shop : SaveableItem, IShop
         return GetPriceCalculation(actor, merchandise, quantity).TotalPrice;
     }
 
+	private (decimal Price, decimal Tax, decimal Pretax) BuybackPriceForItem(ICharacter actor, IMerchandise merchandise, IGameItem item)
+	{
+		if (merchandise.MerchandiseType == MerchandiseType.Commodity && item.GetItemType<ICommodity>() is { } commodity)
+			return PriceAndTaxForMerchandiseWeight(actor, merchandise, commodity.Weight, ShopDealApplicability.Buy);
+		var calculation = GetPriceCalculation(actor, merchandise, item.Quantity, ShopDealApplicability.Buy);
+		return (calculation.TotalPrice, calculation.IncludedTax, calculation.TotalPretaxPrice);
+	}
+
     public decimal PriceForMerchandiseWeight(ICharacter actor, IMerchandise merchandise, double weight)
     {
         return PriceAndTaxForMerchandiseWeight(actor, merchandise, weight).Price;
     }
 
+	public decimal PriceForMerchandiseWeight(ICharacter actor, IMerchandise merchandise, double weight, IPaymentMethod method)
+	{
+		var dealCustomer = method is LineOfCreditPayment credit && !credit.Account.IsAccountOwner(actor)
+			? Gameworld.TryGetCharacter(credit.Account.AccountOwnerId, true) ?? actor : actor;
+		return PriceAndTaxForMerchandiseWeight(dealCustomer, merchandise, weight, negotiatingCustomer: actor).Price;
+	}
+
+	private decimal PriceForMerchandiseWeight(ICharacter actor, IMerchandise merchandise, double weight, ICharacter customer)
+	{
+		return PriceAndTaxForMerchandiseWeight(actor, merchandise, weight, negotiatingCustomer: customer).Price;
+	}
+
     private (decimal Price, decimal Tax, decimal Pretax) PriceAndTaxForMerchandiseWeight(ICharacter actor,
-        IMerchandise merchandise, double weight, ShopDealApplicability applicability = ShopDealApplicability.Sell)
+        IMerchandise merchandise, double weight, ShopDealApplicability applicability = ShopDealApplicability.Sell,
+		ICharacter negotiatingCustomer = null)
     {
         MudDateTime now = EconomicZone.ZoneForTimePurposes.DateTime();
         var pricingWeight = PricingWeightFor(merchandise);
@@ -1535,6 +1575,7 @@ public abstract partial class Shop : SaveableItem, IShop
 
         var totalAdjustment = selectedDeals.Sum(x => x.PriceAdjustmentPercentage);
         var adjustedWeightPrice = Math.Max(0.0M, baseWeightPrice * (1.0M + totalAdjustment));
+		adjustedWeightPrice = ApplyHagglePrice(negotiatingCustomer ?? actor, merchandise, applicability, adjustedWeightPrice);
         var weightMultiplier = (decimal)(weight / pricingWeight);
         var unitTax = applicability == ShopDealApplicability.Buy
             ? 0.0M
@@ -1954,6 +1995,9 @@ public abstract partial class Shop : SaveableItem, IShop
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+			case "haggle":
+			case "haggling":
+				return BuildingCommandHaggle(actor, command);
             case "can":
             case "canprog":
             case "can_prog":

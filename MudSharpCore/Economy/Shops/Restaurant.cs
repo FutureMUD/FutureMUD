@@ -1465,7 +1465,7 @@ Use #3order takeaway <item> [quantity]#0 to pay in advance and order for takeawa
 			!lineOfCredit.Account.IsAccountOwner(orderer)
 			? Gameworld.TryGetCharacter(lineOfCredit.Account.AccountOwnerId, true) ?? orderer
 			: orderer;
-		var calculation = GetPriceCalculation(pricingActor, menuItem.Merchandise, quantity);
+		var calculation = GetPriceCalculation(pricingActor, menuItem.Merchandise, quantity, negotiatingCustomer: orderer);
 		if (orderType == RestaurantOrderType.Takeaway && !CanTakePayment(paymentMethod, calculation.TotalPrice, out var paymentReason))
 		{
 			return RestaurantOperationResult.Fail(paymentReason);

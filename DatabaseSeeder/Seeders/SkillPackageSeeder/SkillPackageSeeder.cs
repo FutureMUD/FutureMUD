@@ -752,6 +752,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                     AddCheck(check, new TraitExpression { Expression = "variable" },
                         templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
                     continue;
+				case CheckType.HaggleCheck:
+					AddCheck(check, new TraitExpression { Expression = "variable" },
+						templates["Skill Check"].Id, Difficulty.Impossible);
+					continue;
                 case CheckType.GenericListenCheck:
                     AddCheck(check, new TraitExpression { Expression = $"listen:{listenTrait.Id}+10" },
                         templates["Perception Check"].Id, Difficulty.Impossible);

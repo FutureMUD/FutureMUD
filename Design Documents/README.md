@@ -111,6 +111,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Medieval Shared Food Admission Manifest](./Seeding/FutureMUD_Medieval_Shared_Food_Admission_Manifest.md)
 - [Butchering System](./Crafting/Butchering_System.md)
 - [Crafting System Overview](./Crafting/Crafting_System_Overview.md)
+- [Analyse Capability](./Crafting/Analyse_Capability.md)
 - [Crafting System Runtime and Extensibility](./Crafting/Crafting_System_Runtime_and_Extensibility.md)
 - [Crafting System Builder Workflows](./Crafting/Crafting_System_Builder_Workflows.md)
 - [Food and Cooking System](./Crafting/Food_and_Cooking_System.md)

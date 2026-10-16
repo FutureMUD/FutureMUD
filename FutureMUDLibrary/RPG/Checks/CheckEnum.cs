@@ -232,7 +232,8 @@ namespace MudSharp.RPG.Checks
 		SignedLanguageExpressCheck = 223,
 		SignedLanguageUnderstandCheck = 224,
 		WeatherForecastCapability = 225,
-		WeatherForecast = 226
+		WeatherForecast = 226,
+		AnalyzeEligibilityCheck = 229
     }
 
     public enum FailIfTraitMissingType
@@ -249,6 +250,7 @@ namespace MudSharp.RPG.Checks
             switch (type)
             {
                 case CheckType.ExactTimeCheck:
+                case CheckType.AnalyzeEligibilityCheck:
                 case CheckType.WeatherForecastCapability:
                 case CheckType.VagueTimeCheck:
                 case CheckType.AccentAcquireCheck:

@@ -22,6 +22,11 @@ namespace MudSharp.Work.Crafts
         bool RefersToTag(ITag tag);
         bool RefersToLiquid(ILiquid liquid);
         bool IsItem(IGameItem item);
+        /// <summary>
+        /// Matches a possible successful output without executing production or inferring its history.
+        /// Dynamic product types must explicitly implement a defensible match; search hints are insufficient.
+        /// </summary>
+        bool MatchesForAnalysis(IGameItem item) => false;
         string ProductType { get; }
     }
 }

@@ -672,6 +672,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                     AddCheck(check, new TraitExpression { Expression = "variable" },
                         templates["Skill Check No Improvement"].Id, Difficulty.Automatic);
                     continue;
+                case CheckType.AnalyzeEligibilityCheck:
+                    AddCheck(check, new TraitExpression { Expression = "0" }, templates["Static Check"].Id,
+                        Difficulty.Normal);
+                    continue;
                 case CheckType.ProjectLabourCheck:
                     // Special Project Check
                     AddCheck(check, new TraitExpression { Expression = "variable" }, templates["Project Check"].Id,

@@ -8,7 +8,7 @@
   "merged_master": "90a9343ace517b926e11209a3f5347a586a88646",
   "integration_status": "MASTER_COMPOSED_FOCUSED_CHECKS_PASSED",
   "final_consolidated_and_hosted_receipts": "https://github.com/FutureMUD/FutureMUD/pull/788",
-  "final_gate_rule": "One consolidated scripts/test-unit.ps1 fast run plus Ubuntu/Windows push and PR checks on the resolved exact published head. Old 62cb612ec checks do not establish integration green. Final completion/counts/run URLs are recorded on PR788.",
+  "final_gate_rule": "Require the corrected exact published head to pass its full owning Seeder followup and Ubuntu/Windows push/PR fast gates. Preserve the initial consolidated failure and nine unchanged project passes; do not call the original failed run PASS.",
   "check_ids": {
     "HaggleCheck": 227,
     "AnalyzeEligibilityCheck": 229,
@@ -148,5 +148,41 @@
     "pr_merge": false,
     "deployment": false
   },
-  "environment_blockers": []
+  "environment_blockers": [],
+  "integration_merge_commit": "57d88ae64a49ce78cf16fd82c6eb62af54dc64a9",
+  "consolidated_attempt": {
+    "status": "FAIL_PRESERVED",
+    "summary": {
+      "path": "C:/Temp/armageddon-master-integration/consolidated/20261016T091503Z-00b6d23d0bd7/summary.json",
+      "sha256": "3A535EB542B0F6C9761F09FADBAE262D70B95CA697EC0F49399E90437848BB73"
+    },
+    "failures": {
+      "path": "C:/Temp/armageddon-master-integration/consolidated/20261016T091503Z-00b6d23d0bd7/failures.json",
+      "sha256": "2B4F59D95F6A49A37F02E5443AAEAA043ABEC624841CEEF091965BBF2E99B711"
+    },
+    "counts": {
+      "executed": 10969,
+      "passed": 10955,
+      "failed": 14,
+      "skipped": 3,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 10972
+    },
+    "source_start": "ffa49c78b856f139f0a0286fa3d8369813f1f85f762c05f69963a5cb0ded9527",
+    "source_end": "ffa49c78b856f139f0a0286fa3d8369813f1f85f762c05f69963a5cb0ded9527",
+    "source_stable": true,
+    "cause": "All14 Seeder failures are TargetParameterCountException in S4ProtectionSupportTests:136. The shared private Fixture gained an optional third argument, but reflective callers supply exactly two. Other nine projects passed.",
+    "repair": "Restore original two-argument Fixture; forward to distinctly named FixtureWithCombat for the new Parry setup. No production code, assertions or skipped tests changed.",
+    "focused_correction": {
+      "passed": 17,
+      "failed": 0,
+      "skipped": 0,
+      "trx": {
+        "path": "C:/Temp/armageddon-master-integration/focused/fixture-correction.trx",
+        "sha256": "397F3DCD9903BB3CD42F739DB8979D980B272B400ED84C7A9CD83C641CA871BA"
+      }
+    },
+    "owning_followup": "One full DatabaseSeeder suite on corrected head; retain nine unaffected project receipts. Final receipt on PR788."
+  }
 }

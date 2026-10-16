@@ -18,7 +18,7 @@ public partial class ArmageddonStockSupportInstallerTests
 	public void MasterIntegration_SeparateNativeParrySupportsLegacyAndCurrentOwnership(TraitOwnerScope scope)
 	{
 		long parryId = 0;
-		using var db = Fixture(configureCombat: context =>
+		using var db = FixtureWithCombat(ArmageddonProgressionMode.Simple, false, context =>
 		{
 			context.TraitDefinitions.AddRange(
 				new TraitDefinition { Name = "Strength", Alias = "str", Type = 1 },

@@ -8,6 +8,8 @@ The overlap review found one fresh-install regression: separate CombatSeeder Par
 
 Focused checks pass **Seeder 42/42, Core 26/26 and persistence 67/67**, without skips. Debug/native and Release builds pass; isolated probes confirm Release admission/replay false. The [integration receipt](Armageddon_S6_Master_Integration_20261016.json) records exact paths/hashes, the retained fixture compile repair, and native-receipt reuse boundaries. One consolidated fast validation and the resolved exact-head Ubuntu/Windows push/PR receipts are maintained on [draft PR #788](https://github.com/FutureMUD/FutureMUD/pull/788); earlier 62cb checks are not merged-head qualification. Final validation may update the PR evidence without changing these tested inputs.
 
+The first consolidated local run on `57d88ae64` completed with10,955 passes,14 failures and3 Windows skips, with stable source. All14 failures occurred before S4 protection installation because reflective callers supplied two arguments to the newly extended private test fixture. The original two-argument fixture contract is restored, with a separately named configurable helper; all17 affected S4/Parry checks pass. No production code, assertions or skip policy changed. The nine unaffected project passes are retained; one full owning Seeder follow-up and corrected-head hosted gates provide the remaining validation, with final receipts on PR #788. The failed consolidated receipt remains explicit in the integration JSON.
+
 Remaining readiness is explicit:
 
 - Implement/qualify source-style ash dissipation presentation and real-time expiry; room-local life/profile/terrain assignment stays an explicit builder operation.

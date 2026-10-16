@@ -143,8 +143,11 @@ public partial class ArmageddonStockSupportInstallerTests
 		db.ChangeTracker.Clear(); Assert.AreEqual(132, db.GameItemProtos.Count()); Assert.AreEqual(0, db.GameItems.Count());
 	}
 
-	private static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false,
-		Action<FuturemudDatabaseContext>? configureCombat = null)
+	private static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)
+		=> FixtureWithCombat(mode, classes, null);
+
+	private static FuturemudDatabaseContext FixtureWithCombat(ArmageddonProgressionMode mode, bool classes,
+		Action<FuturemudDatabaseContext>? configureCombat)
 	{
 		var db = ArmageddonCatalogueWeaponTests.Fixture(mode, classes); var factory = ArmageddonInstallationSettingsTests.Factory(db);
 		configureCombat?.Invoke(db);

@@ -28,6 +28,7 @@ public partial class BackstabAttackTests
 		.GetField("_bonusesPerDifficultyLevel", BindingFlags.Static | BindingFlags.NonPublic)!.SetValue(null, _originalBlindFightingBonusScale);
 	private static Mock<ICheck> ConfigureBlindFighting(Fixture f)
 	{
+		f.World.Setup(x => x.GetStaticConfiguration("BlindFightingEnabled")).Returns("true");
 		typeof(StandardCheck).GetField("_bonusesPerDifficultyLevel", BindingFlags.Static | BindingFlags.NonPublic)!.SetValue(null, 10);
 		var blind = new Mock<ICheck>();
 		blind.SetupGet(x => x.TargetNumberExpression).Returns(new TraitExpression("40", f.World.Object));

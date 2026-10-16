@@ -1,9 +1,11 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using MudSharp.Framework;
@@ -15,11 +17,59 @@ namespace MudSharp_Unit_Tests;
 public class CoreDataSeederStaticSettingsTests
 {
 	[DataTestMethod]
-	[DataRow(false, false)]
-	[DataRow(true, false)]
-	[DataRow(true, true)]
+	[DataRow(null)]
+	[DataRow("false")]
+	[DataRow("true")]
+	public void SeedData_ExistingWorldRerun_PreservesBlindFightingEnableSetting(string? definition)
+	{
+		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString())
+			.ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning)).Options);
+		context.SeederChoices.Add(new SeederChoice
+		{
+			Seeder = "Core", Version = "test", Choice = "gamename", Answer = "Existing MUD", DateTime = DateTime.UtcNow
+		});
+		// An installed world includes the bootstrap Void terrain, used by catalogue reconciliation.
+		context.Terrains.Add(new Terrain
+		{
+			Id = 1, Name = "Void", DefaultTerrain = true,
+			TerrainANSIColour = "7", TerrainEditorColour = "#FFFFFFFF", TerrainBehaviourMode = "outdoors",
+			AtmosphereType = "Gas", TerrainEditorText = "Vo", TagInformation = string.Empty
+		});
+		context.CharacteristicValues.Add(new CharacteristicValue
+		{
+			Id = 1, Name = "prior", Value = "prior",
+			Definition = new CharacteristicDefinition
+			{
+				Id = 9000, Name = "Prior stock characteristic", Pattern = "^prior$", Model = "standard", Description = "Prior stock"
+			}
+		});
+		if (definition is not null)
+		{
+			context.StaticConfigurations.Add(new StaticConfiguration
+			{
+				SettingName = "BlindFightingEnabled", Definition = definition
+			});
+		}
+		context.SaveChanges();
+		context.ChangeTracker.Clear();
+
+		new CoreDataSeeder().SeedData(context, new Dictionary<string, string>());
+
+		var setting = context.StaticConfigurations.SingleOrDefault(x => x.SettingName == "BlindFightingEnabled");
+		Assert.AreEqual(definition, setting?.Definition);
+		Assert.AreEqual("false", DefaultStaticSettings.DefaultStaticConfigurations["BlindFightingEnabled"],
+			"An existing world with no stored setting must continue to use the disabled runtime default.");
+	}
+
+	[DataTestMethod]
+	[DataRow(false, false, null)]
+	[DataRow(true, false, "false")]
+	[DataRow(true, true, "false")]
+	[DataRow(true, false, "true")]
+	[DataRow(true, true, "true")]
 	public void SeedStaticStringsAndSettings_InstallsMissingDefaultsAndPreservesExistingValues(
-		bool prepopulateSettings, bool clearTracking)
+		bool prepopulateSettings, bool clearTracking, string? blindFightingEnabled)
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString())
@@ -48,6 +98,14 @@ public class CoreDataSeederStaticSettingsTests
 				new StaticConfiguration { SettingName = "EconomyAnalyticsRolloverSnapshotsEnabled", Definition = "false" });
 		}
 
+		if (blindFightingEnabled is not null)
+		{
+			context.StaticConfigurations.Add(new StaticConfiguration
+			{
+				SettingName = "BlindFightingEnabled", Definition = blindFightingEnabled
+			});
+		}
+
 		context.SaveChanges();
 		if (clearTracking)
 		{
@@ -68,6 +126,7 @@ public class CoreDataSeederStaticSettingsTests
 		Assert.AreEqual(prepopulateSettings ? "false" : "true", settings["EconomyAnalyticsSnapshotsEnabled"]);
 		Assert.AreEqual(prepopulateSettings ? "720" : "1440", settings["EconomyAnalyticsSnapshotIntervalMinutes"]);
 		Assert.AreEqual(prepopulateSettings ? "false" : "true", settings["EconomyAnalyticsRolloverSnapshotsEnabled"]);
+		Assert.AreEqual(blindFightingEnabled ?? "true", settings["BlindFightingEnabled"]);
 		Assert.AreEqual("41", settings["PlayersCanCreateClansProg"]);
 		Assert.AreEqual("42", settings["OnCreateClanProg"]);
 		Assert.AreEqual("43", settings["TooManyItemsGameItemGroup"]);

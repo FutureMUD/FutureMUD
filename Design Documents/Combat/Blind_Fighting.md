@@ -2,6 +2,14 @@
 
 Blind fighting limits physical melee accuracy and active physical defences against a known opponent when sight is inadequate. It does not discover opponents, grant senses, change range or bypass a move's eligibility requirements. Adequate sight uses the existing check unchanged.
 
+## Enable setting
+
+`BlindFightingEnabled` is a boolean static configuration independent of the check formula. Its runtime default is `false`: existing worlds and upgrades with no stored setting keep pre-feature combat behaviour. Fresh CoreDataSeeder bootstrap installs `true` when the setting is absent; CombatSeeder then supplies the skill and check. Explicit stored values are preserved, and rerunning CoreDataSeeder on an installed world does not enable the feature or add a missing enable setting.
+
+Use `show config BlindFightingEnabled` to inspect it, and `editstaticconfig BlindFightingEnabled` to edit the value to `true` or `false`. Changes take effect on subsequent checks without a restart. Invalid values are treated as disabled by combat assessment.
+
+When disabled, combat uses the original checks without the blind-fighting TN cap, sight-difficulty floor, merit adjustment, auxiliary learning/branching check, or visibility assessment. Legacy vision penalties, native check caching, normal skill advancement and strategy previews retain their pre-feature behaviour. Disabling does not remove or rewrite the configured check, skill, merits or sight settings.
+
 ## Check calculation
 
 `CombatCheck` wraps explicitly selected combat checks. The original check keeps its concrete roller, prerequisites, check type, trait expression, bonuses, burden, outcome and normal learning difficulty. `CheckEvaluationContext`, carried in the existing custom-parameter API, constrains resolution only:
@@ -23,7 +31,7 @@ Blind fighting is an ordinary configurable trait-expression check, not a hard-co
 
 The general skill seeders defer this check to CombatSeeder. Existing worlds booting without seeding receive a missing-check default of `100`. Existing checks and builder configuration are never replaced by the upgrade loader or blind-fighting seeding helper. An existing constant/custom check does not cause the seeder to invent a skill. This does not make the entire foundational CombatSeeder safe to rerun.
 
-Use `show checks` to locate the check's trait expression and the normal `traitexpression`/`te` editor to alter it. Replacing a skill term with `100` removes skill-dependent limitation for ordinary base TNs up to 100, and the constant has no traits to improve or branch. It does **not** fully disable this mechanic: ordinary base TNs above 100 are still capped at 100, and the harder blind-fighting difficulty still applies. No separate enable/disable switch is introduced. A larger constant can remove the TN cap over a larger range; difficulty policy is configured independently below. The reserved expression variable `variable` is not bound to the original combat skill.
+Use `show checks` to locate the check's trait expression and the normal `traitexpression`/`te` editor to alter it. While the feature is enabled, replacing a skill term with `100` removes skill-dependent limitation for ordinary base TNs up to 100, and the constant has no traits to improve or branch. The formula does **not** disable the mechanic: ordinary base TNs above 100 are still capped at 100, and the harder blind-fighting difficulty still applies. Use `BlindFightingEnabled=false` for a complete bypass. A larger constant can remove the TN cap over a larger range; difficulty policy is configured independently below. The reserved expression variable `variable` is not bound to the original combat skill.
 
 ## Sight and configurable difficulties
 

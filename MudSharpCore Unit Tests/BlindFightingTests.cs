@@ -36,6 +36,97 @@ public class BlindFightingTests
 	[TestCleanup]
 	public void RestoreBonusScale() => typeof(StandardCheck)
 		.GetField("_bonusesPerDifficultyLevel", BindingFlags.Static | BindingFlags.NonPublic)!.SetValue(null, _originalBonusScale);
+
+	[DataTestMethod]
+	[DataRow("single")]
+	[DataRow("all")]
+	[DataRow("multi")]
+	public void Check_Disabled_PreservesNativeResolutionAndSkipsBlindFighting(string entry)
+	{
+		var f = new Fixture();
+		f.World.Setup(x => x.GetStaticConfiguration("BlindFightingEnabled")).Returns("false");
+		f.Actor.SetupGet(x => x.VisionPercentage).Returns(0);
+		f.World.Setup(x => x.GetStaticDouble("BlindnessCheckBonus")).Returns(-10);
+		var merit = new Mock<IBlindFightingMerit>();
+		merit.SetupGet(x => x.DifficultyStages).Returns(2);
+		f.Actor.SetupGet(x => x.Merits).Returns([merit.Object]);
+
+		Assert.AreSame(f.Ordinary, CombatCheck.For(f.World.Object, CheckType.MeleeWeaponCheck));
+		List<CheckOutcome> Resolve(ICheck check)
+		{
+			using var random = Constants.PushRandom(new Random(17));
+			return entry switch
+			{
+				"all" => check.CheckAgainstAllDifficulties(f.Actor.Object, Difficulty.Normal,
+					f.Weapon.Object, f.Opponent.Object).Values.ToList(),
+				"multi" => ResolveMulti(check),
+				_ => [check.Check(f.Actor.Object, Difficulty.Normal, f.Weapon.Object, f.Opponent.Object)]
+			};
+		}
+		List<CheckOutcome> ResolveMulti(ICheck check)
+		{
+			var result = check.MultiDifficultyCheck(f.Actor.Object, Difficulty.Normal, Difficulty.Hard,
+				f.Opponent.Object, f.Weapon.Object);
+			return [result.Item1, result.Item2];
+		}
+
+		var expected = Resolve(f.Ordinary);
+		// A wrapper obtained before disabling must also bypass every feature adjustment.
+		var actual = Resolve(f.Combat);
+
+		CollectionAssert.AreEqual(expected.Select(x => x.TargetNumber).ToArray(), actual.Select(x => x.TargetNumber).ToArray());
+		CollectionAssert.AreEqual(expected.Select(x => x.FinalDifficulty).ToArray(), actual.Select(x => x.FinalDifficulty).ToArray());
+		CollectionAssert.AreEqual(expected.Select(x => x.Outcome).ToArray(), actual.Select(x => x.Outcome).ToArray());
+		if (entry == "single") Assert.IsTrue(actual[0].ActiveBonuses.Any(x => x.Item1 == "vision"));
+		Assert.AreEqual(0, f.Blind.CheckCount);
+		Assert.AreEqual(0, f.Blind.RollCount);
+		f.World.Verify(x => x.GetCheck(CheckType.BlindFightingCheck), Times.Never);
+		f.Actor.Verify(x => x.CanSee(It.IsAny<IPerceivable>(), It.IsAny<PerceiveIgnoreFlags>()), Times.Never);
+		f.Actor.Verify(x => x.IlluminationSightDifficulty(It.IsAny<IRoom>()), Times.Never);
+		merit.Verify(x => x.Applies(It.IsAny<IHaveMerits>(), It.IsAny<IPerceivable>()), Times.Never);
+		f.BlindSkill.Verify(x => x.TraitUsed(It.IsAny<IHaveTraits>(), It.IsAny<Outcome>(), It.IsAny<Difficulty>(),
+			It.IsAny<TraitUseType>(), It.IsAny<IEnumerable<Tuple<string, double>>>()), Times.Never);
+	}
+
+	[DataTestMethod]
+	[DataRow(null)]
+	[DataRow("false")]
+	[DataRow("invalid")]
+	public void TargetNumber_MissingInvalidOrDisabledEnableSetting_BypassesConstraints(string? setting)
+	{
+		Assert.AreEqual("false", DefaultStaticSettings.DefaultStaticConfigurations["BlindFightingEnabled"]);
+		var f = new Fixture();
+		f.World.Setup(x => x.GetStaticConfiguration("BlindFightingEnabled")).Returns(setting!);
+		f.Actor.SetupGet(x => x.VisionPercentage).Returns(0);
+
+		Assert.AreSame(f.Ordinary, CombatCheck.For(f.World.Object, CheckType.MeleeWeaponCheck));
+		Assert.AreEqual(70.0, f.Combat.TargetNumber(f.Actor.Object, Difficulty.Normal, f.Weapon.Object, f.Opponent.Object));
+		Assert.AreEqual(100.0, ((CombatCheck)f.Combat).ImpairedTargetNumberOrDefault(
+			f.Actor.Object, Difficulty.Normal, f.Opponent.Object, 100.0));
+		f.World.Verify(x => x.GetCheck(CheckType.BlindFightingCheck), Times.Never);
+		Assert.AreEqual(0, f.Ordinary.RollCount);
+		Assert.AreEqual(0, f.Blind.CheckCount);
+	}
+
+	[TestMethod]
+	public void Check_EnableSettingChangedAtRuntime_ResumesConstraintsAndLearning()
+	{
+		var f = new Fixture();
+		f.Actor.SetupGet(x => x.VisionPercentage).Returns(0);
+		f.World.Setup(x => x.GetStaticConfiguration("BlindFightingEnabled")).Returns("false");
+		var disabled = f.Combat.Check(f.Actor.Object, Difficulty.Normal, f.Weapon.Object, f.Opponent.Object);
+		Assert.AreEqual(70.0, disabled.TargetNumber);
+		Assert.AreEqual(0, f.Blind.CheckCount);
+
+		f.World.Setup(x => x.GetStaticConfiguration("BlindFightingEnabled")).Returns("true");
+		var enabled = f.Combat.Check(f.Actor.Object, Difficulty.Normal, f.Weapon.Object, f.Opponent.Object);
+		Assert.AreEqual(10.0, enabled.TargetNumber);
+		Assert.AreEqual(Difficulty.ExtremelyHard, enabled.FinalDifficulty);
+		Assert.AreEqual(1, f.Blind.RollCount);
+		f.BlindSkill.Verify(x => x.TraitUsed(f.Actor.Object, It.IsAny<Outcome>(), Difficulty.ExtremelyHard,
+			TraitUseType.Practical, It.IsAny<IEnumerable<Tuple<string, double>>>()), Times.Once);
+	}
+
 	[TestMethod]
 	public void Check_UnseenOpponent_CapsBaseAndAppliesHarderDifficultyModifierOnce()
 	{
@@ -540,6 +631,7 @@ public class BlindFightingTests
 			typeof(StandardCheck).GetField("_bonusesPerDifficultyLevel", BindingFlags.Static | BindingFlags.NonPublic)!
 				.SetValue(null, 10);
 			World.SetupGet(x => x.TraitExpressions).Returns(_expressions);
+			World.Setup(x => x.GetStaticConfiguration("BlindFightingEnabled")).Returns("true");
 			Actor.SetupGet(x => x.Gameworld).Returns(World.Object);
 			Actor.SetupGet(x => x.Location).Returns(Room.Object);
 			Opponent.SetupGet(x => x.Location).Returns(Room.Object);

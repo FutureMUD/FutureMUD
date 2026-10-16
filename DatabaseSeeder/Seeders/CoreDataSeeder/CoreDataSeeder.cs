@@ -2067,7 +2067,9 @@ R) Recover a lost account"
 				continue;
 			}
 
-            context.StaticConfigurations.Add(new StaticConfiguration { SettingName = ss.Key, Definition = ss.Value });
+			// This helper runs only during fresh bootstrap. Upgrades retain the runtime's off default.
+			var definition = ss.Key == "BlindFightingEnabled" ? "true" : ss.Value;
+            context.StaticConfigurations.Add(new StaticConfiguration { SettingName = ss.Key, Definition = definition });
         }
 
         context.StaticConfigurations.Add(new StaticConfiguration

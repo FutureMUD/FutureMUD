@@ -10,7 +10,15 @@ namespace MudSharp.Combat;
 /// <summary>Opt-in accuracy/active defence checks against a known melee opponent.</summary>
 internal sealed class CombatCheck(ICheck inner, IFuturemud gameworld) : ICheck
 {
-	public static ICheck For(IFuturemud gameworld, CheckType type) => new CombatCheck(gameworld.GetCheck(type), gameworld);
+	public static ICheck For(IFuturemud gameworld, CheckType type)
+	{
+		var check = gameworld.GetCheck(type);
+		return IsEnabled(gameworld) ? new CombatCheck(check, gameworld) : check;
+	}
+
+	private static bool IsEnabled(IFuturemud gameworld) =>
+		bool.TryParse(gameworld.GetStaticConfiguration("BlindFightingEnabled"), out var enabled) && enabled;
+
 	internal static ICheck ForDefense(IFuturemud gameworld, CheckType type, ICombatMove attack) =>
 		CoversPhysicalDefense(attack) ? For(gameworld, type) : gameworld.GetCheck(type);
 
@@ -55,6 +63,8 @@ internal sealed class CombatCheck(ICheck inner, IFuturemud gameworld) : ICheck
 		IPerceivableHaveTraits actor, IPerceivable? opponent, (string Parameter, object value)[] parameters,
 		bool stageSharedBonus = true)
 	{
+		// Recheck here so a retained wrapper also honours a live configuration change.
+		if (!IsEnabled(Gameworld)) return default;
 		if (actor is not ICharacter character || opponent is not ICharacter target ||
 			!character.ColocatedWith(target)) return default;
 		var blind = Gameworld.GetCheck(CheckType.BlindFightingCheck);

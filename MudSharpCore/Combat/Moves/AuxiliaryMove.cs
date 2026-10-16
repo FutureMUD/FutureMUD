@@ -72,7 +72,7 @@ internal class AuxiliaryMove : CombatMoveBase
 
         WorsenCombatPosition(defenderMove.Assailant, Assailant);
 		if (!CanContinueCommand()) return CompletedResult();
-        CheckOutcome attackRoll = Gameworld.GetCheck(Check)
+        CheckOutcome attackRoll = CombatCheck.For(Gameworld, Check)
                                   .Check(Assailant, CheckDifficulty, _action.CheckTrait,
                                       defenderMove.Assailant,
                                       Assailant.OffensiveAdvantage);

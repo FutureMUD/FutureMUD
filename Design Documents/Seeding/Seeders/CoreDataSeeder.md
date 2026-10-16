@@ -1,5 +1,7 @@
 # CoreDataSeeder
 
+Fresh bootstrap seeds `BlindFightingEnabled=true` only when absent, preserving explicit values. Runtime upgrades default this setting to `false`; installed-world foundation reconciliation leaves the setting unchanged, including when missing. CombatSeeder owns the associated skill and check. See [Blind Fighting](../../Combat/Blind_Fighting.md).
+
 ## Start here to add content
 
 Edit [CoreDataSeeder.Materials.cs](../../../DatabaseSeeder/Seeders/CoreDataSeeder/CoreDataSeeder.Materials.cs): **SeedMaterials / AddMaterial; use the owning partial for gases, terrain, units, colours, planes and hearing**. This is an authored C# seam unless the data-source section below identifies linked/embedded inputs or generated outputs. Do not edit emitted database rows or exported inventories as a substitute for the source definition.

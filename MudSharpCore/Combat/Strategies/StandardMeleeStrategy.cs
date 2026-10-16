@@ -177,9 +177,9 @@ public class StandardMeleeStrategy : StrategyBase
             move.Attack.Profile.BaseParryDifficulty.ApplyBonus(parry?.WeaponType.ParryBonus ?? 0.0);
         Difficulty finalDodgeDifficulty = move.Attack.Profile.BaseDodgeDifficulty;
 
-        double finalBlockTargetNumber = defender.Gameworld.GetCheck(CheckType.BlockCheck).TargetNumber(defender, finalBlockDifficulty, shield?.ShieldType.BlockTrait, assailant);
-        double finalParryTargetNumber = defender.Gameworld.GetCheck(CheckType.ParryCheck).TargetNumber(defender, finalParryDifficulty, parry?.WeaponType.ParryTrait, assailant);
-        double finalDodgeTargetNumber = defender.Gameworld.GetCheck(CheckType.DodgeCheck).TargetNumber(defender, finalDodgeDifficulty, null, assailant);
+        double finalBlockTargetNumber = CombatCheck.ForDefense(defender.Gameworld, CheckType.BlockCheck, move).TargetNumber(defender, finalBlockDifficulty, shield?.ShieldType.BlockTrait, assailant);
+        double finalParryTargetNumber = CombatCheck.ForDefense(defender.Gameworld, CheckType.ParryCheck, move).TargetNumber(defender, finalParryDifficulty, parry?.WeaponType.ParryTrait, assailant);
+        double finalDodgeTargetNumber = CombatCheck.ForDefense(defender.Gameworld, CheckType.DodgeCheck, move).TargetNumber(defender, finalDodgeDifficulty, null, assailant);
 
         bool canBlock = shield is not null && !clinching && move.Attack.Profile.BaseBlockDifficulty != Difficulty.Impossible && defender.CanSpendStamina(BlockMove.MoveStaminaCost(assailant, defender, shield));
         bool canParry = parry is not null && !defender.EffectsOfType<IWardBeatenEffect>().Any() && !clinching && move.Attack.Profile.BaseParryDifficulty != Difficulty.Impossible && defender.CanSpendStamina(ParryMove.MoveStaminaCost(assailant, defender, parry));
@@ -307,9 +307,9 @@ public class StandardMeleeStrategy : StrategyBase
             move.Attack.Profile.BaseParryDifficulty.ApplyBonus(parry?.WeaponType.ParryBonus ?? 0.0);
         Difficulty finalDodgeDifficulty = move.Attack.Profile.BaseDodgeDifficulty;
 
-        double finalBlockTargetNumber = defender.Gameworld.GetCheck(CheckType.BlockCheck).TargetNumber(defender, finalBlockDifficulty, shield?.ShieldType.BlockTrait, assailant);
-        double finalParryTargetNumber = defender.Gameworld.GetCheck(CheckType.ParryCheck).TargetNumber(defender, finalParryDifficulty, parry?.WeaponType.ParryTrait, assailant);
-        double finalDodgeTargetNumber = defender.Gameworld.GetCheck(CheckType.DodgeCheck).TargetNumber(defender, finalDodgeDifficulty, null, assailant);
+        double finalBlockTargetNumber = CombatCheck.ForDefense(defender.Gameworld, CheckType.BlockCheck, move).TargetNumber(defender, finalBlockDifficulty, shield?.ShieldType.BlockTrait, assailant);
+        double finalParryTargetNumber = CombatCheck.ForDefense(defender.Gameworld, CheckType.ParryCheck, move).TargetNumber(defender, finalParryDifficulty, parry?.WeaponType.ParryTrait, assailant);
+        double finalDodgeTargetNumber = CombatCheck.ForDefense(defender.Gameworld, CheckType.DodgeCheck, move).TargetNumber(defender, finalDodgeDifficulty, null, assailant);
 
         bool canBlock = shield is not null && !clinching && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Block) && move.Attack.Profile.BaseBlockDifficulty != Difficulty.Impossible && defender.CanSpendStamina(BlockMove.MoveStaminaCost(assailant, defender, shield));
         bool canParry = parry is not null && !defender.EffectsOfType<IWardBeatenEffect>().Any() && !clinching && move.AttackPower.ValidDefenseTypes.Contains(DefenseType.Parry) && move.Attack.Profile.BaseParryDifficulty != Difficulty.Impossible && defender.CanSpendStamina(ParryMove.MoveStaminaCost(assailant, defender, parry));

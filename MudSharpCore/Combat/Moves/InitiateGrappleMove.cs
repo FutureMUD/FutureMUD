@@ -41,7 +41,7 @@ public class InitiateGrappleMove : NaturalAttackMove
         double offset = (attackerSize - defenderSize) *
                      Gameworld.GetStaticDouble("InitiateGrappleOffsetPerSizeDifference");
         Difficulty attackerDifficulty = CheckDifficulty.ApplyBonus(offset);
-        Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
+        Dictionary<Difficulty, CheckOutcome> attackRoll = CombatCheck.For(Gameworld, Check)
                                   .CheckAgainstAllDifficulties(Assailant, attackerDifficulty, null, CharacterTarget,
                                       Assailant.OffensiveAdvantage);
         string attackEmote =
@@ -80,7 +80,7 @@ public class InitiateGrappleMove : NaturalAttackMove
         Difficulty attackerDifficulty)
     {
         Difficulty defenderDifficulty = Attack.Profile.BaseParryDifficulty.ApplyBonus(-1 * offset);
-        Dictionary<Difficulty, CheckOutcome> counterCheck = Gameworld.GetCheck(defenderMove.Check)
+        Dictionary<Difficulty, CheckOutcome> counterCheck = CombatCheck.For(Gameworld, defenderMove.Check)
                                     .CheckAgainstAllDifficulties(CharacterTarget, defenderDifficulty, null, Assailant,
                                         CharacterTarget.DefensiveAdvantage -
                                         GetPositionPenalty(Assailant.GetFacingFor(CharacterTarget)));
@@ -134,7 +134,7 @@ public class InitiateGrappleMove : NaturalAttackMove
         Difficulty attackerDifficulty)
     {
         Difficulty defenderDifficulty = Attack.Profile.BaseDodgeDifficulty.ApplyBonus(-1 * offset);
-        Dictionary<Difficulty, CheckOutcome> dodgeCheck = Gameworld.GetCheck(defenderMove.Check)
+        Dictionary<Difficulty, CheckOutcome> dodgeCheck = CombatCheck.For(Gameworld, defenderMove.Check)
                                   .CheckAgainstAllDifficulties(CharacterTarget, defenderDifficulty, null, Assailant,
                                       CharacterTarget.DefensiveAdvantage -
                                       GetPositionPenalty(Assailant.GetFacingFor(CharacterTarget)));

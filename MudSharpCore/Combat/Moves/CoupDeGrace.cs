@@ -27,7 +27,7 @@ public class CoupDeGrace : WeaponAttackMove
     {
 		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
 		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
-        CheckOutcome attackRoll = Gameworld.GetCheck(Check)
+        CheckOutcome attackRoll = CombatCheck.For(Gameworld, Check)
                                   .Check(Assailant, CheckDifficulty, Weapon.WeaponType.AttackTrait, Target,
                                       Assailant.OffensiveAdvantage);
         string attackEmote =

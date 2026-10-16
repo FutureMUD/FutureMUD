@@ -100,7 +100,7 @@ public class StartClinchMove : WeaponAttackMove
 
         defenderMove = defenderMove ?? new HelplessDefenseMove() { Assailant = CharacterTarget };
         WorsenCombatPosition(defenderMove.Assailant, Assailant);
-        Dictionary<Difficulty, CheckOutcome> attackRoll = Gameworld.GetCheck(Check)
+        Dictionary<Difficulty, CheckOutcome> attackRoll = CombatCheck.For(Gameworld, Check)
                                   .CheckAgainstAllDifficulties(Assailant, CheckDifficulty, null, defenderMove.Assailant,
                                       Assailant.OffensiveAdvantage);
         Assailant.OffensiveAdvantage = 0;
@@ -171,7 +171,7 @@ public class StartClinchMove : WeaponAttackMove
             dodgeDifficulty = Difficulty.VeryHard;
         }
 
-        Dictionary<Difficulty, CheckOutcome> dodgeCheck = Gameworld.GetCheck(CheckType.ResistClinch)
+        Dictionary<Difficulty, CheckOutcome> dodgeCheck = CombatCheck.For(Gameworld, CheckType.ResistClinch)
                                   .CheckAgainstAllDifficulties(CharacterTarget, dodgeDifficulty, null, Assailant,
                                       dodge.Assailant.DefensiveAdvantage -
                                       GetPositionPenalty(Assailant.GetFacingFor(CharacterTarget)));

@@ -79,7 +79,7 @@ public class ClinchAttackMove : WeaponAttackMove
         }
 
         WorsenCombatPosition(defenderMove.Assailant, Assailant);
-        CheckOutcome attackRoll = Gameworld.GetCheck(Check)
+        CheckOutcome attackRoll = CombatCheck.For(Gameworld, Check)
                                   .Check(Assailant, CheckDifficulty, Weapon.WeaponType.AttackTrait,
                                       defenderMove.Assailant,
                                       Assailant.OffensiveAdvantage);
@@ -121,7 +121,7 @@ public class ClinchAttackMove : WeaponAttackMove
 
     private CombatMoveResult ResolveDodge(CheckOutcome attackRoll, string attackEmote, DodgeMove dodge)
     {
-        CheckOutcome dodgeCheck = Gameworld.GetCheck(dodge.Check)
+        CheckOutcome dodgeCheck = CombatCheck.For(Gameworld, dodge.Check)
                                   .Check(CharacterTarget, Attack.Profile.BaseDodgeDifficulty, Assailant, null,
                                       dodge.Assailant.DefensiveAdvantage -
                                       GetPositionPenalty(Assailant.GetFacingFor(CharacterTarget)));

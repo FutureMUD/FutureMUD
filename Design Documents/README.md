@@ -42,6 +42,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Multiple Simultaneous Body Instances Design](./Characters/Multiple_Simultaneous_Body_Instances_Design.md)
 
 ## Combat
+- [Blind Fighting](./Combat/Blind_Fighting.md)
 - [Accelerated Combat Simulation](./Combat/Accelerated_Combat_Simulation.md)
 - [Animal Combat Balance Second Pass](./Combat/Animal_Combat_Balance_Second_Pass.md)
 - [Mythical and Supernatural Combat Balance Pass](./Combat/Mythical_Supernatural_Combat_Balance_Pass.md)

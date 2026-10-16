@@ -116,9 +116,13 @@ public sealed class MagicDefenseMove : CombatMoveBase, IDefenseMove
 			case BlockMove block: trait = block.Shield.ShieldType.BlockTrait; difficulty = (profile?.BaseBlockDifficulty ?? ranged?.BaseBlockDifficulty ?? difficulty).ApplyBonus(block.Shield.ShieldType.BlockBonus); break;
 			case ParryMove parry: trait = parry.Weapon.WeaponType.ParryTrait; difficulty = (profile?.BaseParryDifficulty ?? difficulty).ApplyBonus(parry.Weapon.WeaponType.ParryBonus); break;
 			case DodgeMove or DodgeRangeMove: difficulty = profile?.BaseDodgeDifficulty ?? ranged?.BaseDodgeDifficulty ?? difficulty; break;
-			case WardDefenseMove: return 100.0;
+			case WardDefenseMove ward:
+				return attack is IWeaponAttackMove incoming && CombatCheck.ForDefense(actor.Gameworld, CheckType.Ward, attack) is CombatCheck wardCheck
+					? wardCheck.ImpairedTargetNumberOrDefault(actor, ward.GetWarderDifficulty(incoming), attack.Assailant, 100.0)
+					: 100.0;
 		}
 		if (defense is IDefenseMove dm) difficulty = difficulty.StageUp(dm.DifficultStageUps);
-		return actor.Gameworld.GetCheck(defense.Check).TargetNumber(actor, difficulty, trait, attack.Assailant);
+		return CombatCheck.ForDefense(actor.Gameworld, defense.Check, attack)
+			.TargetNumber(actor, difficulty, trait, attack.Assailant);
 	}
 }

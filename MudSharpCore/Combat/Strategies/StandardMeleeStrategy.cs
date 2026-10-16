@@ -962,6 +962,13 @@ public class StandardMeleeStrategy : StrategyBase
         }
 
 
+        var paired = DualWieldCombat.Candidate(combatant, weaponsAndAttacks);
+        if (paired is { } pair && Constants.Random.NextDouble() *
+            (weaponsAndAttacks.Sum(x => x.Weight) + pair.Weight) < pair.Weight)
+        {
+            return pair.Move;
+        }
+
         (IMeleeWeapon Weapon, IWeaponAttack Attack, double Weight) attack = weaponsAndAttacks.GetWeightedRandom(x => x.Weight);
         if (attack == default)
         {

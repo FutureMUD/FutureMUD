@@ -196,10 +196,12 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         CombatAuxiliarySeederHelper.EnsureStockAuxiliaryContent(context);
         ManualCombatCommandSeederHelper.EnsureStockManualCombatCommands(context);
 		NPCSkillPackageSeederHelper.EnsureCombatPackages(context);
+		var coordinationSkill = skills.GetValueOrDefault("Dual-Wielding") ?? skills["Dual-Wield"];
+		var coordination = DualWieldCoordinationSeederHelper.InstallFresh(context, coordinationSkill);
 
         context.Database.CommitTransaction();
 
-        return "The operation completed successfully.";
+        return $"The operation completed successfully. {coordination.Message}";
     }
 
     private string RefreshExistingCombatSeederContent(FuturemudDatabaseContext context,

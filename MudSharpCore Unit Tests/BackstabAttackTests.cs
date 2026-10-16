@@ -41,7 +41,7 @@ using MudSharp.NPC.AI;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class BackstabAttackTests
+public partial class BackstabAttackTests
 {
 	private sealed class Fixture
 	{

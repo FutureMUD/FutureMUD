@@ -4,6 +4,10 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
+	private const string SourceCompilerCompatibility = "optional-compile-only-register-types-20261016";
+	private const string RegisterCompilerPath = "MudSharpCore/Framework/OfflineProgCompilation.cs";
+	private const string OriginalRegisterCompilerHash = "7408E0390824FF31CF165452F1F577736593753DDFE83CD5E4C2EA3AFE2546F7";
+	private const string ReviewedRegisterCompilerHash = "66D961EA6884BCC324998F3988EFDD7AB2130D6002D0B34045DA2372C14D880C";
 	private const string S5BaseCompatibility = "inert-equipped-item-serializer-and-helper-20261016";
 	private const string S5BaseRoomTypesHash = "3B2DFFEABC47E7F342AA05C08570D97FED8FC5B20B0ADEC82583809DE1EC6F82";
 	private const string S5ReviewedRoomTypesHash = "B6D02219DABC2CF00E91ECBEF95A69D66E4AD7EB3C7F72D6027FC0DFAEB39D94";
@@ -40,6 +44,21 @@ internal static partial class GNHProgram
 			current.Select(x => x.Path).Distinct(StringComparer.Ordinal).Count() != current.Count) return false;
 		var projected = current.ToDictionary(x => x.Path, StringComparer.Ordinal);
 		var recorded = receipt.BaseSources.ToDictionary(x => x.Path, StringComparer.Ordinal);
+		// Exact reviewed optional compiler type-view addition. Every prefix caller omits
+		// registerDefinitions, retaining the old new-Futuremud/no-register behavior;
+		// this introduces no seed/default/value writes, execution or schema change.
+		// Normalize only these two exact file digests, then apply all existing pins.
+		if (recorded.TryGetValue(RegisterCompilerPath, out var oldCompiler) && oldCompiler.Sha256 == OriginalRegisterCompilerHash &&
+			projected.TryGetValue(RegisterCompilerPath, out var newCompiler) && newCompiler.Sha256 == ReviewedRegisterCompilerHash)
+		{
+			var normalized = current.Select(x => x.Path == RegisterCompilerPath ? oldCompiler : x).ToArray();
+			if (CompatibleBaseSources(receipt, normalized, out var priorRule))
+			{
+				rule = SourceCompilerCompatibility + (priorRule is null ? "" : "+" + priorRule);
+				return true;
+			}
+			return false;
+		}
 		// The 15 October clean prefix contains no equipped spell bonus effects or Armageddon content.
 		// This exact additive serializer classification and side-effect-free helper are inert during seeding.
 		// All other source bytes, answers, SQL, restored schema and content still require their original pins.

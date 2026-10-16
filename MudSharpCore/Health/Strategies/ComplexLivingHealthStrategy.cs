@@ -18,7 +18,7 @@ using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 
 namespace MudSharp.Health.Strategies;
 
-public class ComplexLivingHealthStrategy : BaseHealthStrategy
+public partial class ComplexLivingHealthStrategy : BaseHealthStrategy
 {
     public override HealthStateModel HealthStateModel => HealthStateModel.Organic;
 

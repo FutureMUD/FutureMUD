@@ -56,6 +56,8 @@ public static partial class ArmageddonProgressionInstaller
 		next["$stockProgression"] = JsonSerializer.Serialize(Version);
 		if (desired is MagicCapability capability && System.Xml.Linq.XElement.Parse(capability.Definition).Element("Casting")!.Elements("Admission").Any())
 			next[CompleteStockMarker] = JsonSerializer.Serialize(CompleteStockVersion);
+		if (desired is MagicCapability gatheringCapability && System.Xml.Linq.XElement.Parse(gatheringCapability.Definition).Element("Gathering") is not null)
+			next[SourceGatheringMarker] = JsonSerializer.Serialize(SourceGatheringVersion);
 		var baseline = record!.SeedBaseline is null ? null : JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline);
 		foreach (var metadata in baseline?.Where(x => x.Key.StartsWith("$", StringComparison.Ordinal)) ?? []) actual[metadata.Key] = metadata.Value;
 		if (row is ChargenRole role && baseline?.ContainsKey("RoleMerits") == true)

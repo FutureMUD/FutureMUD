@@ -1,5 +1,7 @@
 # Armageddon S6 inactive installer integration - 16 October 2026
 
+**Dated scope:** This records the earlier inactive installer slice. Later [source gathering qualification](Armageddon_Gathering_Source_Checkpoint_20261016.md) supersedes its gathering proposal and pending-authority statements; the original four-cell results below retain their actual earlier inputs and scope.
+
 The complete inactive spell-admission/support installation slice is qualified in all four Classic/Simple x earlier Chargen classes off/on cells. **S6 remains incomplete:** numerical gathering economics and generic environmental profile/coverage choices await approval. All Release/package/Class/use/craft/variant/unqualified-carrier availability stays disabled; PR #788 remains draft. No merge or deployment.
 
 ## Concrete installer repair

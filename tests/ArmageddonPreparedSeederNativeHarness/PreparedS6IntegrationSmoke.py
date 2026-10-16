@@ -4,6 +4,7 @@ The player is a disposable copied-body fixture, not a chargen-UI certificate.
 Canonical availability stays false; only a separate full Earth policy is enabled.
 """
 import time
+import importlib.util
 
 
 def run(host, admin, phase, data, mapped):
@@ -70,6 +71,10 @@ def run(host, admin, phase, data, mapped):
         require(reserve < 50 and f'Insufficient {cfg['resource_name']} for the combined cost.' in out, 'S6 did not reach the native insufficient-reserve admission check: ' + host['redact'](out))
         require(state() == before, 'Unfunded S6 ordinary-player practice created progress/payment work: ' + host['redact'](out))
         assertions.append('S6 integration: ordinary Player login, denied administrator command and unfunded target-free practice refusal preserve progress')
+        gather_spec = importlib.util.spec_from_file_location('s6_gathering', host['REPO'] / 'tests/ArmageddonPreparedSeederNativeHarness/PreparedS6GatheringSmoke.py')
+        gather_module = importlib.util.module_from_spec(gather_spec)
+        gather_spec.loader.exec_module(gather_module)
+        gather_module.run(host, admin, player, phase, data, mapped, flush)
         if phase == 'cold': report['cold_status'] = 'PASS'
         else: report['status'] = 'PASS'
     finally:

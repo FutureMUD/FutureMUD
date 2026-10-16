@@ -148,6 +148,11 @@ public static partial class ArmageddonInstallation
 		var records = db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey != SettingsKey).ToArray();
 		foreach (var record in records)
 		{
+			if (record.Module == ArmageddonGatheringRegisters.Module)
+			{
+				if (!ArmageddonGatheringRegisters.Valid(db, record)) errors.Add($"Existing Armageddon {record.StableKey} has invalid typed gathering register ownership.");
+				continue;
+			}
 			if (record.Module == ArmageddonCatalogueLinks.Module)
 			{
 				if (!ArmageddonCatalogueLinks.Valid(db, record)) errors.Add($"Existing Armageddon {record.StableKey} has invalid typed catalogue reference ownership.");

@@ -153,6 +153,10 @@ internal static partial class GNHProgram
 			var spells = cap.SpellKeys.ToDictionary(x => x, x => claims[x].LogicalId!.Value);
 			var expectedCasting = stock.Casting(cap, traits, claims[cap.ResourceKey].LogicalId!.Value, spells, claims[ArmageddonProgressionInstaller.SourceResourceKey].LogicalId!.Value);
 			expectedCasting.SetAttributeValue("enabled", false);
+			if (ArmageddonStockProgression.IsSorcerer(cap)) expectedCasting.Add(new XElement("SupportGrant",
+				new XAttribute("key", ArmageddonStockProgression.Identity(cap.Key, ArmageddonProgressionInstaller.GatheringTraitKey)),
+				new XAttribute("trait", claims[ArmageddonProgressionInstaller.GatheringTraitKey].LogicalId!.Value),
+				new XAttribute("starting", true), new XAttribute("opening", 10), new XAttribute("rawCap", 90)));
 			Require(XNode.DeepEquals(expectedCasting, casting), "Installed inactive admission/support graph differs from the locked complete policy: " + cap.Key);
 			var merit = db.Merits.Single(x => x.Id == claims[cap.MeritKey].LogicalId);
 			Require((long?)XElement.Parse(merit.Definition).Element("Capabilities")?.Element("Capability") == capability.Id, "Capability merit references the wrong native identity.");
@@ -163,14 +167,15 @@ internal static partial class GNHProgram
 				db.ChargenRolesMerits.Where(x => x.ChargenRoleId == roleId).Select(x => x.MeritId).ToArray().SequenceEqual([merit.Id]), "Class availability/merit identity differs.");
 			var expected = stock.Bindings.Where(x => x.CapabilityKey == cap.Key && x.Starting)
 				.GroupBy(x => claims[x.TraitKey].LogicalId!.Value).ToDictionary(x => x.Key, x => x.Max(y => y.Opening));
+			if (ArmageddonStockProgression.IsSorcerer(cap)) expected.Add(claims[ArmageddonProgressionInstaller.GatheringTraitKey].LogicalId!.Value, 10);
 			var actual = db.ChargenRolesTraits.Where(x => x.ChargenRoleId == roleId).ToDictionary(x => x.TraitId, x => x.Amount);
 			Require(actual.Count == expected.Count && expected.All(x => actual.TryGetValue(x.Key, out var amount) && amount == x.Value), "Class starting skills/supports differ from selected mode.");
 		}
 		Require(stock.Capabilities.Count == 10 && stock.Bindings.All(x => claims.ContainsKey(x.TraitKey)), "Incomplete capability/support graph.");
 		var receipt = new { Status = "PASS", Mode = settings.Mode.ToString(), EarlierClasses = S6Classes, Capabilities = 10,
 			Merits = 10, ClassRoles = roles.Length, CanonicalSpells = 152, Blueprints = 210,
-			ProgressionBindings = stock.Bindings.Count, SpellAdmissions = stock.Bindings.Count(x => !x.Support), SupportGrants = stock.Bindings.Count(x => x.Support),
-			GatheringPolicyStatus = "PENDING-approved-source-and-economy-inputs", ExistingPlayerStateUnchanged = true, NoLiveNpcsSpawned = true, PackageAvailabilityDisabled = true,
+			ProgressionBindings = stock.Bindings.Count + 3, SpellAdmissions = stock.Bindings.Count(x => !x.Support), SupportGrants = stock.Bindings.Count(x => x.Support) + 3,
+			GatheringPolicyStatus = "CONFIGURED-independent-availability-false", ExistingPlayerStateUnchanged = true, NoLiveNpcsSpawned = true, PackageAvailabilityDisabled = true,
 			ClassMeritsAndStartingTraitsExact = true };
 		var path = Environment.GetEnvironmentVariable("FUTUREMUD_BASE_WORLD_RECEIPT")!;
 		File.WriteAllText(Path.Combine(Path.GetDirectoryName(path)!, "s6-installation.json"), JsonSerializer.Serialize(receipt, BaseJsonOptions));

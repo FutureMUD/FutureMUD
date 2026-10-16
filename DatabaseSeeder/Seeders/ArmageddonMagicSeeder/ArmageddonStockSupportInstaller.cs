@@ -89,6 +89,7 @@ public static partial class ArmageddonStockSupportInstaller
 		var siltAllowed = $"not (istagged(@caster.location, tag({bindings.SiltTag})) or istagged(@caster.location.terrain, tag({bindings.SiltTag})))";
 		return new Dictionary<string, FutureProg>(StringComparer.Ordinal)
 		{
+			[GatheringAvailabilityKey] = GatheringAvailabilityProg(),
 			[CorpseEligibilityKey] = Prog("arm_support_corpse_eligibility", ProgVariableTypes.Boolean,
 				"return " + locationAllowed, ("caster", ProgVariableTypes.Character), ("corpse", ProgVariableTypes.Item)),
 			[WeaponEligibilityKey] = Prog("arm_support_weapon_eligibility", ProgVariableTypes.Boolean,
@@ -142,6 +143,7 @@ public static partial class ArmageddonStockSupportInstaller
 		{
 			messages.AddRange(ArmageddonInstallation.ValidateFoundations(db, settings));
 			if (messages.Count != 0) return new(ArmageddonInstallStatus.Blocked, messages.AsReadOnly(), ids);
+			ValidateClosedGatheringGate(db);
 			var holdable = Require<GameItemComponentProto>(db, "arm.catalogue.component.holdable", x => x.Type == "Holdable");
 			var defiler = Require<Merit>(db, DefilerMeritKey, x => x.MeritScope == 2 && x.Type == "Magic Capability");
 			var affinities = AffinityMeritKeys.ToDictionary(key => key, key => Require<Merit>(db, key,
@@ -215,7 +217,7 @@ public static partial class ArmageddonStockSupportInstaller
 			foreach (var (key, desired) in ProgDefinitions(bindings))
 				ids.Add(key, owned.Put(key, desired, key switch
 				{
-					IdentifyTextKey => AffinityMeritKeys.ToArray(), ReciteLinkKey or DeadSpeakLinkKey => [],
+					IdentifyTextKey => AffinityMeritKeys.ToArray(), ReciteLinkKey or DeadSpeakLinkKey or GatheringAvailabilityKey => [],
 					TargetEligibilityKey => [UndeadMeritKey, VoidAffinityMeritKey, DefilerMeritKey],
 					CorpseEligibilityKey => [SiltTagKey, ShallowsTagKey], WeaponEligibilityKey => [WaterPlaneKey],
 					PerceptionEligibilityKey => [SiltTagKey], LiquidEligibilityKey => [FirePlaneKey, SiltTagKey],
@@ -242,7 +244,7 @@ public static partial class ArmageddonStockSupportInstaller
 			}
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.ContentCreated); db.SaveChanges(); checkpoint?.Invoke(ArmageddonInstallCheckpoint.BeforeCommit);
 			committing = true; transaction?.Commit(); committed = true; checkpoint?.Invoke(ArmageddonInstallCheckpoint.AfterCommit);
-			messages.Add("Supplemental owned supports committed: 16 native staff graphs, eight exact S3 staff references, inert markers, eight typed editable policy progs and one deterministic Nilaz passage template. New staff numerics reuse authored grade-seven S3 staff defaults; Crushing/Electrical kinds are editable authored choices. No live entities, temporary rooms or plane assignments changed; installed-world qualification remains separate.");
+			messages.Add("Supplemental owned supports committed: 16 native staff graphs, eight exact S3 staff references, inert markers, typed editable policy progs, an independently disabled gathering permission and one deterministic Nilaz passage template. New staff numerics reuse authored grade-seven S3 staff defaults; Crushing/Electrical kinds are editable authored choices. No live entities, temporary rooms or plane assignments changed; installed-world qualification remains separate.");
 			return new(ArmageddonInstallStatus.Completed, messages.AsReadOnly(), ids);
 		}
 		catch (Exception error)

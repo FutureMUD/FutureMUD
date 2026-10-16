@@ -1,0 +1,721 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-16",
+  "recorded_at_utc": "2026-10-16T08:45:08.533914+00:00",
+  "status": "SOURCE_GATHERING_SHARED_REPRESENTATIVE_SLICE_QUALIFIED_STOCK_CLOSED",
+  "tested_start_head": "acb8163c3f1af30df1a43d5112ec77df3af61013",
+  "branch": "codex/armageddon-continuation-20261008",
+  "pr": 788,
+  "whole_s6_qualified": false,
+  "whole_programme_qualified": false,
+  "scope": "Source-derived Self/Land stock configuration, native organic payment/authoring support, strict false admission and retained variant boundaries; representative ordinary-Player first/cold sampling in both progression modes.",
+  "authority": {
+    "source_translation": "Armageddon_Gathering_Source_Translation_20261016.md",
+    "variant_boundaries": {
+      "Sorcerer": [
+        "Self",
+        "Land"
+      ],
+      "Preserver": [
+        "Self"
+      ],
+      "Defiler": [
+        "Land"
+      ]
+    },
+    "gentle": "Removed from Armageddon stock only; generic engine option retained"
+  },
+  "availability": {
+    "release": false,
+    "package": false,
+    "classes": false,
+    "casting": false,
+    "gathering": false,
+    "use": false,
+    "craft": false,
+    "variants": false,
+    "unqualified_carriers": false,
+    "merge": false,
+    "deploy": false
+  },
+  "configured_graph": {
+    "spell_admissions": 419,
+    "spells": 152,
+    "blueprints": 210,
+    "gathering_methods": 4,
+    "classic_support_grants": 13,
+    "simple_support_grants": 23,
+    "gather_opening": 10,
+    "gather_cap": 90,
+    "ambient_energy_output": 0,
+    "automatic_existing_room_bindings": 0,
+    "player_state_rewrites": 0
+  },
+  "managed": {
+    "core_full": {
+      "artifact": {
+        "path": "C:/Temp/armageddon-source-gather/full-managed-authorised/core/core-full.trx",
+        "sha256": "BE9230D2FB22A336BA40003D6B576D6A34E465326B5BA35B3A61F07E9D0EB6C7"
+      },
+      "counters": {
+        "total": 7606,
+        "executed": 7606,
+        "passed": 7606,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "skipped": 0,
+      "skipped_names": []
+    },
+    "seeder_full": {
+      "artifact": {
+        "path": "C:/Temp/armageddon-source-gather/full-managed-authorised/seeder/seeder-full.trx",
+        "sha256": "FF071BE0AF54222EB3A50CC9556C5E5E3093EDFBDC8E3456E5FA30342405712D"
+      },
+      "counters": {
+        "total": 1895,
+        "executed": 1892,
+        "passed": 1892,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "skipped": 3,
+      "skipped_names": [
+        "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (2)",
+        "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (1)",
+        "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (0)"
+      ]
+    },
+    "runner_receipt": {
+      "path": "C:/Temp/armageddon-source-gather/full-managed-authorised/receipt.json",
+      "sha256": "F5E93CC46A25E904196E1D0A166E272D35AD808837A7312297A6DE2A09C50150"
+    },
+    "binary_sha256": {
+      "DatabaseSeeder Unit Tests/bin/Debug/net10.0/DatabaseSeeder.dll": "05F449D0602638E24302A27EAF59E8A79DB501E4B84754A3050AE5649F5657E3",
+      "DatabaseSeeder Unit Tests/bin/Debug/net10.0/DatabaseSeeder Unit Tests.dll": "C24ABECE2A364C3815DF1286BDB36B418BE41FD5837CBB3EDE7697DC0C084083",
+      "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharpCore Unit Tests.dll": "F26C5695ADFE0A88A086A25A65478A0776202BDFB9BB30C0B7D08F3094538499",
+      "DatabaseSeeder Unit Tests/bin/Debug/net10.0/MudSharp.dll": "8ABAF613FEE4A88096016ABE17CB0CE024A7C3CDA8B59476AB0582B5F085B47D",
+      "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll": "8ABAF613FEE4A88096016ABE17CB0CE024A7C3CDA8B59476AB0582B5F085B47D"
+    },
+    "binary_hashes_stable": true,
+    "focused_generic": {
+      "artifact": {
+        "path": "C:/Temp/armageddon-source-gather/authoring-support-fixed/authoring-support.trx",
+        "sha256": "A423AFE63C4F52D77335F4D8A0A9A3EB94DFAF3B2D747F630AEEA9CD59AF154B"
+      },
+      "counters": {
+        "total": 106,
+        "executed": 106,
+        "passed": 106,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "skipped": 0,
+      "skipped_names": []
+    },
+    "focused_gate_source": {
+      "artifact": {
+        "path": "C:/Temp/armageddon-source-gather/guards-final/source-guards-final.trx",
+        "sha256": "CA5307E0C08D4DD20A8721B779DB9FD1A2D92D00A5D54003ED19D94CC1764100"
+      },
+      "counters": {
+        "total": 19,
+        "executed": 19,
+        "passed": 19,
+        "failed": 0,
+        "error": 0,
+        "timeout": 0,
+        "aborted": 0,
+        "inconclusive": 0,
+        "passedButRunAborted": 0,
+        "notRunnable": 0,
+        "notExecuted": 0,
+        "disconnected": 0,
+        "warning": 0,
+        "completed": 0,
+        "inProgress": 0,
+        "pending": 0
+      },
+      "skipped": 0,
+      "skipped_names": []
+    },
+    "fixture_safety": {
+      "passed": 44,
+      "failed": 0,
+      "database_used": false,
+      "log": {
+        "path": "C:/Temp/armageddon-source-gather-compatibility-check.log",
+        "sha256": "D2500D884E11C76CCDD2E2F47531BD73100DDBE6A6664AD8A3902D12C675CF73"
+      }
+    },
+    "counts_overlap": true,
+    "commands": "Full suites use --no-build --no-restore -m:1 with verified current test/runtime DLL identities; no build or source changes during execution.",
+    "local_warning_options": "NoWarn=NU1902;NU1510 only on local direct .NET invocations; no committed warning suppression."
+  },
+  "native": [
+    {
+      "mode": "Classic",
+      "earlier_classes": "Off",
+      "status": "PASS",
+      "summary": {
+        "path": "C:/Temp/armageddon-source-gather/native-classic-5/20261016T081209Z_02a537c496c44698bc2425a16d1d2c3a/summary.json",
+        "sha256": "9348E2748B5A4BDD86765459F770BEB795CC57D683C62BFF09C4D462257EE520"
+      },
+      "boot": {
+        "path": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-stock-e3298851f7d24868ac30a8b5096260f3/boot-latest.json",
+        "sha256": "76BC061EDD6BFB1FA0A71B4866088B187B4DD2CF5C54703C9EBA5350E153015F"
+      },
+      "log": {
+        "path": "C:/Temp/armageddon-source-gather-native-classic-5.log",
+        "sha256": "FBA1B1405DA8A8FC15C08D78DA3EA412DBE1D2E2F9BE00EB57A6245ED9CFBBB1"
+      },
+      "base_run": {
+        "path": "C:/Temp/armageddon-source-gather/native-classic-5/20261016T081209Z_02a537c496c44698bc2425a16d1d2c3a/base-world-run.json",
+        "sha256": "B8ADDC26415A8A0F7A950A92804737DA71F17642F088BA224E65AB774DF762D7"
+      },
+      "assemblies": {
+        "path": "C:/Temp/armageddon-source-gather/native-classic-5/20261016T081209Z_02a537c496c44698bc2425a16d1d2c3a/assemblies.json",
+        "sha256": "15B02F9BDFD92805C55ABF90D00B5223DA19EFA770CC9BDC9C739AAED2978754"
+      },
+      "source_inventory": {
+        "path": "C:/Temp/armageddon-source-gather/native-classic-5/20261016T081209Z_02a537c496c44698bc2425a16d1d2c3a/source-start.json",
+        "sha256": "5539A7E1A5318C02FFA8EB252AC2E3046D8B4843DF774C9200D04DE5CC8DA336"
+      },
+      "source_start": "5539A7E1A5318C02FFA8EB252AC2E3046D8B4843DF774C9200D04DE5CC8DA336",
+      "source_end": "5539A7E1A5318C02FFA8EB252AC2E3046D8B4843DF774C9200D04DE5CC8DA336",
+      "source_stable": true,
+      "definitions_first": 152,
+      "definitions_cold": 152,
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready",
+        "S6 integration: normal permanent-merit enrolment grants exact stock roots at grade one and selected-mode raw openings; repeat is idempotent",
+        "S6 integration: ordinary Player login, denied administrator command and unfunded target-free practice refusal preserve progress",
+        "S6 gathering: retained stock false gate and fractional/oversized-request refusals preserve payment, receipt and land state",
+        "S6 gathering: paid self amount1, exact native bodily price, reserve1, life10 and scar0",
+        "S6 gathering: paid land amount1, exact native bodily price, reserve2, life9 and scar1",
+        "S6 gathering: paid land amount2, exact native bodily price, reserve4, life8 and scar2",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "cold: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready",
+        "S6 integration: cold pre-login retains exact starting knowledge, raw skills and enrolment without production or opportunity replay",
+        "S6 integration: ordinary Player login, denied administrator command and unfunded target-free practice refusal preserve progress",
+        "S6 gathering: exact cold receipts, reserve, one-unit life debits, scars, cooldown/ash registers and single ash addendum persist without replay",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "assertion_count": 21,
+      "gathering_status": "PASS",
+      "gathering_cold_status": "PASS",
+      "paid_actions": [
+        {
+          "kind": "self",
+          "amount": 1,
+          "body_before": [
+            175.0,
+            200.0,
+            350.0,
+            175.0,
+            200.0,
+            175.0,
+            10.0
+          ],
+          "receipt": [
+            "39636362343630372D326238302D343935322D393735372D643834363839616664306536",
+            "Completed",
+            "Self",
+            "1",
+            "2",
+            "2.285714285714286",
+            "4",
+            "0",
+            "1",
+            "1",
+            "1",
+            "1",
+            "0"
+          ],
+          "wounds_before": [],
+          "wounds_after": [
+            [
+              "1",
+              "2",
+              "2",
+              "2.285714285714286",
+              "0",
+              "SimpleOrganic"
+            ]
+          ]
+        },
+        {
+          "kind": "land",
+          "amount": 1,
+          "body_before": [
+            175.0,
+            200.0,
+            350.0,
+            173.0,
+            197.714285714286,
+            171.0,
+            10.0
+          ],
+          "receipt": [
+            "38656137613239312D333538322D343234392D393531362D313037323938376264353566",
+            "Completed",
+            "Land",
+            "1",
+            "0.2",
+            "0.2285714285714286",
+            "0.4",
+            "0",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "wounds_before": [
+            [
+              "1",
+              "2",
+              "2",
+              "2.285714285714286",
+              "0",
+              "SimpleOrganic"
+            ]
+          ],
+          "wounds_after": [
+            [
+              "1",
+              "2.2",
+              "2.2",
+              "2.5142857142857147",
+              "0",
+              "SimpleOrganic"
+            ]
+          ]
+        },
+        {
+          "kind": "land",
+          "amount": 2,
+          "body_before": [
+            175.0,
+            200.0,
+            350.0,
+            172.8,
+            197.485714285714,
+            170.6,
+            10.0
+          ],
+          "receipt": [
+            "39363034663530622D623561382D343231332D396532392D343964393435636265346366",
+            "Completed",
+            "Land",
+            "2",
+            "0.315",
+            "0.36",
+            "0.63",
+            "0",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "wounds_before": [
+            [
+              "1",
+              "2.2",
+              "2.2",
+              "2.5142857142857147",
+              "0",
+              "SimpleOrganic"
+            ]
+          ],
+          "wounds_after": [
+            [
+              "1",
+              "2.515",
+              "2.515",
+              "2.8742857142857146",
+              "0",
+              "SimpleOrganic"
+            ]
+          ]
+        }
+      ],
+      "ordinary_player_limits": "Separate enabled copy, source permission checks retained, stock gate false. Disposable real pasture/fertile room, native standard human health model; no initial mana/Gather skill injection. Regional life is adapted to local yield units. No real-time ash-expiry wait.",
+      "owned_cleanup_complete": true,
+      "base_fixture": ".artifacts/pre-armageddon-base-fixtures/20261015T121003Z_c1b183833df74237b9eeeba5edaed680/base-world.json",
+      "base_fixture_sha256": "0F94AF5BB637FF59DFEDED7ACCCC133828EF03375FE8C313D96710A4C1778E3B"
+    },
+    {
+      "mode": "Simple",
+      "earlier_classes": "Off",
+      "status": "PASS",
+      "summary": {
+        "path": "C:/Temp/armageddon-source-gather/native-simple-final/20261016T082743Z_8f361be749bb41b29e9cb112a7489221/summary.json",
+        "sha256": "B316E7DFAE632C72498714B41EAC77F48CBE43298F6302EF624D6EE1972B7314"
+      },
+      "boot": {
+        "path": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-stock-24495c0b847b4e78898a721e54ba6ea1/boot-latest.json",
+        "sha256": "D6E37A07BFB30BAEBA26363A4CD357E64F7381F1B94CAD6F526E30BAC234B5A5"
+      },
+      "log": {
+        "path": "C:/Temp/armageddon-source-gather-native-simple-final.log",
+        "sha256": "B8768D2C52B5AF41C222F172B948EFE077554CC5067A52A146E16D1FCF651306"
+      },
+      "base_run": {
+        "path": "C:/Temp/armageddon-source-gather/native-simple-final/20261016T082743Z_8f361be749bb41b29e9cb112a7489221/base-world-run.json",
+        "sha256": "F2B0CBC48AF25633D78063938C5C6E2B6B616BAC6113CA22D05A738B4B727104"
+      },
+      "assemblies": {
+        "path": "C:/Temp/armageddon-source-gather/native-simple-final/20261016T082743Z_8f361be749bb41b29e9cb112a7489221/assemblies.json",
+        "sha256": "15B02F9BDFD92805C55ABF90D00B5223DA19EFA770CC9BDC9C739AAED2978754"
+      },
+      "source_inventory": {
+        "path": "C:/Temp/armageddon-source-gather/native-simple-final/20261016T082743Z_8f361be749bb41b29e9cb112a7489221/source-start.json",
+        "sha256": "5539A7E1A5318C02FFA8EB252AC2E3046D8B4843DF774C9200D04DE5CC8DA336"
+      },
+      "source_start": "5539A7E1A5318C02FFA8EB252AC2E3046D8B4843DF774C9200D04DE5CC8DA336",
+      "source_end": "5539A7E1A5318C02FFA8EB252AC2E3046D8B4843DF774C9200D04DE5CC8DA336",
+      "source_stable": true,
+      "definitions_first": 152,
+      "definitions_cold": 152,
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready",
+        "S6 integration: normal permanent-merit enrolment grants exact stock roots at grade one and selected-mode raw openings; repeat is idempotent",
+        "S6 integration: ordinary Player login, denied administrator command and unfunded target-free practice refusal preserve progress",
+        "S6 gathering: retained stock false gate and fractional/oversized-request refusals preserve payment, receipt and land state",
+        "S6 gathering: paid self amount1, exact native bodily price, reserve1, life10 and scar0",
+        "S6 gathering: paid land amount1, exact native bodily price, reserve2, life9 and scar1",
+        "S6 gathering: paid land amount2, exact native bodily price, reserve4, life8 and scar2",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "cold: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready",
+        "S6 integration: cold pre-login retains exact starting knowledge, raw skills and enrolment without production or opportunity replay",
+        "S6 integration: ordinary Player login, denied administrator command and unfunded target-free practice refusal preserve progress",
+        "S6 gathering: exact cold receipts, reserve, one-unit life debits, scars, cooldown/ash registers and single ash addendum persist without replay",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "assertion_count": 21,
+      "gathering_status": "PASS",
+      "gathering_cold_status": "PASS",
+      "paid_actions": [
+        {
+          "kind": "self",
+          "amount": 1,
+          "body_before": [
+            175.0,
+            200.0,
+            350.0,
+            175.0,
+            200.0,
+            175.0,
+            10.0
+          ],
+          "receipt": [
+            "37643231333239662D323864322D343733632D393365662D643833343630636636376538",
+            "Completed",
+            "Self",
+            "1",
+            "2",
+            "2.285714285714286",
+            "4",
+            "0",
+            "1",
+            "1",
+            "1",
+            "1",
+            "0"
+          ],
+          "wounds_before": [],
+          "wounds_after": [
+            [
+              "1",
+              "2",
+              "2",
+              "2.285714285714286",
+              "0",
+              "SimpleOrganic"
+            ]
+          ]
+        },
+        {
+          "kind": "land",
+          "amount": 1,
+          "body_before": [
+            175.0,
+            200.0,
+            350.0,
+            173.0,
+            197.714285714286,
+            171.0,
+            10.0
+          ],
+          "receipt": [
+            "31656661653731662D396166632D343634392D396362312D326566623263653862313636",
+            "Completed",
+            "Land",
+            "1",
+            "0.2",
+            "0.2285714285714286",
+            "0.4",
+            "0",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "wounds_before": [
+            [
+              "1",
+              "2",
+              "2",
+              "2.285714285714286",
+              "0",
+              "SimpleOrganic"
+            ]
+          ],
+          "wounds_after": [
+            [
+              "1",
+              "2.2",
+              "2.2",
+              "2.5142857142857147",
+              "0",
+              "SimpleOrganic"
+            ]
+          ]
+        },
+        {
+          "kind": "land",
+          "amount": 2,
+          "body_before": [
+            175.0,
+            200.0,
+            350.0,
+            172.8,
+            197.485714285714,
+            195.6,
+            10.0
+          ],
+          "receipt": [
+            "65666534393638332D396431382D346537632D626137342D616162353264616536643138",
+            "Completed",
+            "Land",
+            "2",
+            "0.315",
+            "0.36",
+            "0.63",
+            "0",
+            "1",
+            "1",
+            "1",
+            "1",
+            "1"
+          ],
+          "wounds_before": [
+            [
+              "1",
+              "2.2",
+              "2.2",
+              "2.5142857142857147",
+              "0",
+              "SimpleOrganic"
+            ]
+          ],
+          "wounds_after": [
+            [
+              "1",
+              "2.515",
+              "2.515",
+              "2.8742857142857146",
+              "0",
+              "SimpleOrganic"
+            ]
+          ]
+        }
+      ],
+      "ordinary_player_limits": "Separate enabled copy, source permission checks retained, stock gate false. Disposable real pasture/fertile room, native standard human health model; no initial mana/Gather skill injection. Regional life is adapted to local yield units. No real-time ash-expiry wait.",
+      "owned_cleanup_complete": true,
+      "base_fixture": ".artifacts/pre-armageddon-base-fixtures/20261015T121003Z_c1b183833df74237b9eeeba5edaed680/base-world.json",
+      "base_fixture_sha256": "0F94AF5BB637FF59DFEDED7ACCCC133828EF03375FE8C313D96710A4C1778E3B"
+    }
+  ],
+  "tested_input_identity": {
+    "native_maps_equal": true,
+    "path_count": 8431,
+    "deterministic_sorted_map_sha256": "FDFF1D521567D0A228404917C0CC147DB5D850BC4AF2902081A1506D8874C63A",
+    "documentation_followup_only": "This receipt, checkpoint and current progress/handoff annotations were written after the frozen tests; executable source and embedded content inputs remain unchanged.",
+    "post_test_changes": [
+      {
+        "path": "Design Documents/Magic/Armageddon_Completion_Progress.json",
+        "tested_sha256": "1E457A176748475D21F4EC7DFFA55E978FAEEF19AD01DB07A33320A9EC55C67B",
+        "publication_sha256": "5A3827E844274189834F260D29F7D3F3C45EFB4D29FEA486AAD5D57E260474E3"
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Completion_Progress.md",
+        "tested_sha256": "D9E525F8D7394F8D2055D9AFEA47D53D8C9CDBBC7EACA238EC4ED817735204B2",
+        "publication_sha256": "A4DEE6B3F0C6FCBAEA22489C8FCEB83A945699316F6FE86FC0F4DDE12AAAE539"
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_Gathering_Source_Translation_20261016.md",
+        "tested_sha256": "A2EEFF15510F66AB46681389E58F56D5457E89628C2A095C3A9F995E6B64FCFA",
+        "publication_sha256": "E82C28DB2DF51B2A626788555C5B69F89FCAFDE5564E5C559ED94297264D6E84"
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_S4_Continuation_Handoff_20261012.md",
+        "tested_sha256": "39347D22AF9B9B052E36E19864FD6308C31E9C91A3D985A570EA1BC4481FD894",
+        "publication_sha256": "154DD1052F21ED5D0C5E6DB62A955FEA1958C44D9AE43F273CED56D462DBBF50"
+      },
+      {
+        "path": "Design Documents/Magic/Armageddon_S6_Installer_Integration_Checkpoint_20261016.md",
+        "tested_sha256": "9502F8BC15F6FD4891600761647EE7BEB8C9D802742C91BDEEB59641C0F213EA",
+        "publication_sha256": "384D5954BA9465D07E2BDA66E696FA5E7005C14481B7FC01AADB4FC08CD513A5"
+      }
+    ],
+    "executable_and_embedded_inputs_unchanged": true
+  },
+  "builds": {
+    "release": {
+      "status": "PASS",
+      "errors": 0,
+      "warnings": 200,
+      "warnings_scope": "Existing Core compiler warnings in clean Release build",
+      "log": {
+        "path": "C:/Temp/armageddon-source-gather-release-build.log",
+        "sha256": "E98DA34498EB048A9848A83C33EC1681E0DA917A77B8FC0708B30006C013E50C"
+      }
+    },
+    "debug_probe": {
+      "configuration": "Debug",
+      "armageddonEnabled": true,
+      "replayProfiles": true,
+      "replayRunner": true,
+      "assemblySha256": "05F449D0602638E24302A27EAF59E8A79DB501E4B84754A3050AE5649F5657E3",
+      "recordedAtUtc": "2026-10-16T08:23:13.5782494Z"
+    },
+    "release_probe": {
+      "configuration": "Release",
+      "armageddonEnabled": false,
+      "replayProfiles": false,
+      "replayRunner": false,
+      "assemblySha256": "5292C3036E6C0F26D9F88E4814918C77C41859EC7AA624A1864E798740E3DA51",
+      "recordedAtUtc": "2026-10-16T08:23:11.9607197Z"
+    },
+    "probe_artifacts": [
+      {
+        "path": "C:/Temp/armageddon-source-gather/Debug-probe.json",
+        "sha256": "3039551B22CDC0F8E5C2978C54EAFAC1CD2656B627A7F8A19E5A48E1F3F96FC4"
+      },
+      {
+        "path": "C:/Temp/armageddon-source-gather/Release-probe.json",
+        "sha256": "099007F289A0C58CA8AA3B8573AED6E7E853EDBAAEEC28151E250881FC2B7CB2"
+      }
+    ]
+  },
+  "sealed_base_compatibility": {
+    "rule": "optional-compile-only-register-types-20261016",
+    "old_compiler_sha256": "7408E0390824FF31CF165452F1F577736593753DDFE83CD5E4C2EA3AFE2546F7",
+    "new_compiler_sha256": "66D961EA6884BCC324998F3988EFDD7AB2130D6002D0B34045DA2372C14D880C",
+    "constraint": "Only the exact compile-only optional-register type adapter pair is normalised. All other original prefix/dump/schema/answer/migration/target checks remain; no base recapture or foundational replay."
+  },
+  "ci_baseline": {
+    "head": "acb8163c3f1af30df1a43d5112ec77df3af61013",
+    "push_run": 38857202276,
+    "pull_request_run": 38857208774,
+    "all_four_jobs": "PASS",
+    "receipt": {
+      "path": "C:/Temp/armageddon-s6-ci-acb8163c3/receipt.json",
+      "sha256": "73171DD9B395D64D9AADDDD920AACB86BFA5F151ADF278A71A61B48C3668F316"
+    },
+    "publication_head_ci": "Separate new-head hosted execution; the baseline result is not a new-head pass claim."
+  },
+  "retained_attempts": [
+    {
+      "attempt": "initial native invocation",
+      "result": "Refused before process/database: FreshInstallCheck is capture-only; corrected invocation removes the flag."
+    },
+    {
+      "attempt": "native-classic-2",
+      "result": "Exact prefix compiler source pin refused before package installation; owned cleanup passed. The bounded compile-only compatibility rule and 44 pure refusal checks resolve it."
+    },
+    {
+      "attempt": "native-classic-3",
+      "result": "152 definitions loaded and existing integration checks passed; fixture incorrectly required absence of zero-balance reserve rows. Corrected to zero funding; normal runtime reconciliation creates zero rows."
+    },
+    {
+      "attempt": "native-classic-4",
+      "result": "Self1 and first Land1 actually completed and paid. Fixture incorrectly required a new wound row per action; native planner intentionally updates the existing cellular wound. Corrected to exact cumulative OriginalDamage increment; no production payment fix."
+    },
+    {
+      "attempt": "initial full managed restricted-shell run",
+      "result": "Both testhost connections timed out; zero tests executed and C:/Temp receipt write denied. Failed evidence retained under LocalAppData/Temp/armageddon-source-gather/full-managed-no-build. The authorised exact-command retry passed; this is a sandbox boundary, not a platform restriction."
+    },
+    {
+      "attempt": "draft compile repairs",
+      "result": "Retained logs include missing import/alias, invalid FutureProg UDF negation syntax and Python default-encoding BOM corruption. Explicit UTF-8 repair and current focused/full/build checks pass."
+    }
+  ],
+  "limits": [
+    "Representative shared Sorcerer Self/Land paid sample in Classic/Simple with earlier Classes Off; all four mode/Class entry-point combinations are managed installer contracts. Prior inactive four-cell native receipt retains only its earlier scope.",
+    "Disposable enabled copies and a real pasture/fertile-room binding; installed stock gates stay false. No complete chargen approval/UI campaign or automatic existing-world ecological setup.",
+    "Source regional life/fallback plants adapt to one room-local real native yield unit per action, with one total persistent scar; no ambient mana production or ash-triggered ecological healing.",
+    "Cold compares exact receipts, reserves, skill, life/scar accounting, registers and ash addendum. Current wounds/stamina may naturally heal and are not claimed byte-identical cold.",
+    "Ash deadlines and additive extension are verified; no real-time 270-second expiry wait or source-style dissipation broadcast is qualified. The broadcast remains unimplemented.",
+    "Source zero delay adapts to generic positive 0.25-second action duration. Native learning checks, integral request bounds and local ecology units remain documented adaptations.",
+    "Existing player enrolment/instance values remain untouched; retroactive migration is an explicit administrator decision. N24/N25, whole S6 and final Release readiness remain open."
+  ],
+  "environment_blockers": [],
+  "checkpoint": {
+    "path": "C:/Users/luker/.codex/worktrees/377e/FutureMUD/Design Documents/Magic/Armageddon_Gathering_Source_Checkpoint_20261016.md",
+    "sha256": "597119689DD2B11CCA62FC4B66D17CA07653CC11B7339DDE7C923043A438B332"
+  }
+}

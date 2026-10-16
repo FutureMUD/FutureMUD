@@ -30,6 +30,7 @@
       "meal_source_calories": 500,
       "meal_native_satiation_hours": 5
     },
+    "gathering_source_fidelity_20261016": "Source semantics supersede Gentle stock grants and stamina-only Self; generic Gentle is retained. See Armageddon_Gathering_Source_Translation_20261016.md. Luke explicitly retained Sorcerer Self/Land, Preserver Self and Defiler Land.",
     "kindle_selected_item_enchantment_20261015": "Approved source Empower-style selected attribute/resource-capacity item enchantment; no refill or casting-permission power. Native mappings and preserved locked duration/cost are in Armageddon_Kindle_Source_Trace_20261015.md."
   },
   "inventory_counts": {
@@ -11144,7 +11145,7 @@
         "arm.spell.unyielding_veil"
       ],
       "classic_progression_status": "exact_selected_historical_tree",
-      "gathering_policy": "configured_Self_Gentle_Land",
+      "gathering_policy": "configured_Self_Land",
       "spell_definitions_shared_between_routes": true
     },
     {
@@ -11251,7 +11252,7 @@
         "arm.spell.unyielding_veil"
       ],
       "classic_progression_status": "exact_selected_historical_tree",
-      "gathering_policy": "configured_Self_Gentle",
+      "gathering_policy": "configured_Self",
       "spell_definitions_shared_between_routes": true
     },
     {
@@ -53052,7 +53053,7 @@
     {
       "id": "S2",
       "name": "Complete progression/capabilities/classes",
-      "exit": "Implement final typed Classic bindings and419 Simple admissions, only required Component Crafting supports, ten capabilities/merits and conditional classes; natural raw/grade progression. No remaining roster/identity/numeric design gate."
+      "exit": "Implement final typed Classic bindings and419 Simple admissions, required Component Crafting and16 October Gather supports, ten capabilities/merits and conditional classes; natural raw/grade progression. No remaining roster/identity/numeric design gate."
     },
     {
       "id": "S3",
@@ -53623,5 +53624,25 @@
     "printed_minimum_energy_changes": 55,
     "genuine_incompatibilities": [],
     "further_design_decisions": []
+  },
+  "source_gathering_support_20261016": {
+    "authority": "Luke retained Sorcerer Self/Land, Preserver Self, Defiler Land after selecting source fidelity; Gather is required gathering support.",
+    "trait_key": "arm.support.gather.skill",
+    "opening": 10,
+    "raw_cap": 90,
+    "capability_keys": [
+      "arm.capability.sorcerer",
+      "arm.capability.preserver",
+      "arm.capability.defiler"
+    ],
+    "additional_support_grants": 3,
+    "complete_classic_bindings": 432,
+    "complete_classic_supports": 13,
+    "complete_simple_spell_admissions": 419,
+    "complete_simple_supports": 23,
+    "archived_base_rows_unchanged": true,
+    "record": "Armageddon_Gathering_Source_Translation_20261016.md",
+    "availability_enabled": false,
+    "release_enabled": false
   }
 }

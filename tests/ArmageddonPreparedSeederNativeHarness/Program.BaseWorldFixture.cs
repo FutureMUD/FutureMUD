@@ -399,6 +399,18 @@ internal static partial class GNHProgram
 				s5Live.Where(x => x.Path != EquippedItemHelperPath).ToArray(),
 				s5Live.Where(x => x.Path != RoomReferenceTypesPath).ToArray()
 			}) { Require(!CompatibleBaseSources(s5Receipt, drift, out _), "Unreviewed drift cannot use equipped-item compatibility."); checks++; }
+			IReadOnlyList<BaseSource> compilerSources = [new(RegisterCompilerPath, OriginalRegisterCompilerHash), new("base.cs", new string('D', 64))];
+			var compilerReceipt = original with { BaseSources = compilerSources, BaseSourceSha256 = BaseValueHash(compilerSources) };
+			var compilerLive = compilerSources.Select(x => x.Path == RegisterCompilerPath ? x with { Sha256 = ReviewedRegisterCompilerHash } : x).ToArray();
+			Require(BaseHash(Path.Combine(CatalogueRepository, RegisterCompilerPath)) == ReviewedRegisterCompilerHash, "Reviewed optional compiler digest drifted."); checks++;
+			Require(CompatibleBaseSources(compilerReceipt, compilerLive, out var compilerRule) && compilerRule == SourceCompilerCompatibility,
+				"Exact optional compile-only register view must preserve prefix bytes and content."); checks++;
+			foreach (var drift in new[] {
+				compilerLive.Select(x => x.Path == RegisterCompilerPath ? x with { Sha256 = new string('F', 64) } : x).ToArray(),
+				compilerLive.Select(x => x.Path == "base.cs" ? x with { Sha256 = new string('F', 64) } : x).ToArray(),
+				compilerLive.Where(x => x.Path != RegisterCompilerPath).ToArray(),
+				compilerLive.Append(new BaseSource("unreviewed.cs", new string('F', 64))).ToArray() })
+			{ Require(!CompatibleBaseSources(compilerReceipt, drift, out _), "Unknown compiler or prefix drift cannot reuse the sealed base."); checks++; }
 			Refuses(() => ReadBaseFixture(manifest, new string('0', 64), steps, sources));
 			foreach (var changed in new[] { original with { Kind = "post-S3" }, original with { SqlFile = "../fixture.sql" },
 				original with { Database = "user_database" }, original with { OwnershipMarker = "other" },

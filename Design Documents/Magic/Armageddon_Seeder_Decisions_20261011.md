@@ -1,5 +1,7 @@
 # Armageddon final seeder decisions — 11 October 2026
 
+**16 October source-fidelity supersession:** Luke selected source-backed bodily Self and destructive, terrain-priced Land, with no Armageddon Gentle or invented ambient pool. Generic Gentle remains. This supersedes the earlier gathering proposal; see [the source translation record](Armageddon_Gathering_Source_Translation_20261016.md). Luke retained Sorcerer Self/Land, Preserver Self and Defiler Land; source-supported numeric defaults and required Gather support are implemented behind false availability; current native qualification is recorded separately.
+
 The user approved all five decision-gate configurations, with one overriding correction: **exclude non-spell class skills except required prerequisites**. This closes the content design gate. The [decision record](Armageddon_Seeder_Decisions_20261011.json), [stock inventory](Armageddon_Seeder_Completeness_Design_20261011.json), [Classic rows](Armageddon_Seeder_Completeness_Design_20261011_Classic_Progression.tsv) and [Simple rows](Armageddon_Seeder_Completeness_Design_20261011_Simple_Progression.tsv) are the implementation inputs. Research remains evidence; the direct human approval selects stock policy.
 
 ## Identity and supplemental admissions
@@ -41,9 +43,9 @@ The exact 94-row Sorcerer source contains one non-spell parent of a spell: **Rea
 
 Classic installs Component Crafting at its source/researched guild position, opening20/cap90 in six elemental guilds, opening40/cap90 in Void, and opening30/cap90 in the three Sorcerer variants. Simple grants it on legitimate permanent capability enrolment for all ten capabilities, opening10/cap 90. Simple never grants Classic per-spell proficiency traits. Installing/rerunning content never grants skills or spells to existing players.
 
-Vloran is an after-spell language side grant, not a spell prerequisite, so it is deferred. Contact, Barrier, Expel, Dual Wield, Shield Use, Forage, Cooking, Analyze, Two Handed and Gather are also deferred in both modes. Their historical rows remain evidence for the later non-magical class/full-skills pass. Native NPC combat stats and required magic-supply crafting remain part of the magic package.
+Vloran is an after-spell language side grant, not a spell prerequisite, so it is deferred. Contact, Barrier, Expel, Dual Wield, Shield Use, Forage, Cooking, Analyze, and Two Handed are also deferred in both modes. Their historical rows remain evidence for the later non-magical class/full-skills pass. Native NPC combat stats and required magic-supply crafting remain part of the magic package.
 
-Classic has 429 install rows: 173 elemental spell memberships, seven elemental crafting bindings and three variants of 82 Sorcerer spells plus one crafting support each. Simple has 419 spell admissions and ten crafting grants. All 152 required canonical spells have routes; Wardcraft and Renew Earth remain optional and unadmitted. All 154 candidates and 210 prototype blueprints remain in the completion inventory.
+The retained base graph has429 Classic rows: 173 elemental spell memberships, seven elemental crafting bindings and three variants of 82 Sorcerer spells plus one crafting support each. Simple has 419 spell admissions and ten crafting grants. The16 October required Gather exception adds three normal support grants: Classic432 total bindings/13 supports and Simple23 supports including its ten main casting skills. Archived source/base tables stay unchanged. All152 required canonical spells have routes; Wardcraft and Renew Earth remain optional and unadmitted. All 154 candidates and 210 prototype blueprints remain in the completion inventory.
 
 ## Final stock defaults and implementation boundary
 

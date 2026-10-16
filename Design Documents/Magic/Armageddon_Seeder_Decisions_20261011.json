@@ -790,5 +790,19 @@
     "contract": "Temporarily enchant one carried item with a selected attribute or resource-capacity bonus, active while worn or wielded; combat benefits flow through the selected native attribute.",
     "refill": false,
     "casting_permission": false
+  },
+  "Gathering_20261016": {
+    "authority": "Luke, 16 October 2026 06:27 UTC: For the Armageddon seeder, we should lean towards faithful to the source material. The code now exists for others to implement a gentle gathering if they prefer it for their setting",
+    "supersedes": [
+      "Armageddon stock Gentle grants",
+      "stamina-only Self proposal",
+      "arbitrary ambient-pool gathering proposal"
+    ],
+    "generic_gentle_retained": true,
+    "self": "Source-backed bodily sacrifice translated to native health, stun and stamina",
+    "land": "Terrain-dependent bodily sacrifice and actual ecological destruction; distinguish ash expiry from vegetation restoration",
+    "variant_grants": "Luke explicitly selected retain variant boundaries: Sorcerer Self/Land, Preserver Self, Defiler Land. These are retained preset restrictions, not class restrictions proved by the handler.",
+    "record": "Armageddon_Gathering_Source_Translation_20261016.md",
+    "implementation_status": "Four source Self/Land methods, three required Gather support grants and typed mutable ecology/cooldown/ash defaults implemented with independent false availability. Native qualification is separately recorded. No activation or Release authority."
   }
 }

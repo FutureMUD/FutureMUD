@@ -24,7 +24,7 @@ public static partial class ArmageddonProgressionInstaller
 	private sealed record Spec(Type Type, string Key, string Name);
 
 	public static ArmageddonInstallResult Install(Func<FuturemudDatabaseContext> factory,
-		Action<ArmageddonInstallCheckpoint>? checkpoint = null, bool completeStock = false)
+		Action<ArmageddonInstallCheckpoint>? checkpoint = null, bool completeStock = false, bool completeGathering = false)
 	{
 		using var db = factory();
 		var settings = ArmageddonInstallation.Read(db) ?? throw new InvalidOperationException("Fix Armageddon installation settings before progression content.");
@@ -54,7 +54,10 @@ public static partial class ArmageddonProgressionInstaller
 			}
 			if (messages.Count > 0) return new(ArmageddonInstallStatus.Blocked, messages.AsReadOnly(), ids);
 			var completedPolicies = records.Values.Where(x => x.EntityType == nameof(MagicCapability)).Select(HasCompleteStockPolicy).ToArray();
-			var hydrate = completeStock || completedPolicies.Any(x => x);
+			var gatheringPolicies = records.Values.Where(x => x.EntityType == nameof(MagicCapability)).Select(HasSourceGatheringPolicy).ToArray();
+			var hydrateGathering = completeGathering || gatheringPolicies.Any(x => x);
+			var gather = hydrateGathering ? ArmageddonStockGatheringInstaller.Resolve(db) : null;
+			var hydrate = completeStock || completedPolicies.Any(x => x) || hydrateGathering;
 			var spells = hydrate ? CompleteStockSpells(db, records, messages) : null;
 			if (messages.Count > 0) return new(ArmageddonInstallStatus.Blocked, messages.AsReadOnly(), ids);
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.PreflightComplete);
@@ -111,12 +114,18 @@ public static partial class ArmageddonProgressionInstaller
 			{
 				var casting = stock.Casting(cap, traits, resourceIds[cap.ResourceKey], spells, source.Id);
 				casting.SetAttributeValue("enabled", false);
+				var definition = new XElement("Definition", new XElement("ConcentrationTrait", (long)casting.Attribute("trait")!),
+					new XElement("ConcentrationCapabilityExpression", "1"), new XElement("ConcentrationDifficultyExpression", "5"),
+					new XElement("Regenerators", hydrate && generators.TryGetValue(cap.ResourceKey, out var generatorId)
+						? new XElement("Regenerator", generatorId) : null), casting);
+				if (gather is not null && ArmageddonStockProgression.IsSorcerer(cap))
+				{
+					casting.Add(ArmageddonStockGatheringInstaller.Support(cap.Key, gather));
+					definition.Add(ArmageddonStockGatheringInstaller.Methods(cap.Key, resourceIds[cap.ResourceKey], gather));
+				}
 				var capability = Put(cap.Key, new MagicCapability { Name = "Armageddon " + cap.Name, CapabilityModel = "skilllevel", PowerLevel = 1,
 					MagicSchoolId = schoolIds[cap.ResourceKey.Replace("arm.resource.", "arm.school.", StringComparison.Ordinal)],
-					Definition = new XElement("Definition", new XElement("ConcentrationTrait", (long)casting.Attribute("trait")!),
-						new XElement("ConcentrationCapabilityExpression", "1"), new XElement("ConcentrationDifficultyExpression", "5"),
-						new XElement("Regenerators", hydrate && generators.TryGetValue(cap.ResourceKey, out var generatorId)
-							? new XElement("Regenerator", generatorId) : null), casting).ToString() });
+					Definition = definition.ToString() });
 				var merit = Put(cap.MeritKey, new Merit { Name = "Armageddon " + cap.Name + " caster", Type = "Magic Capability", MeritScope = 2, MeritType = 0,
 					Definition = new XElement("Definition", new XElement("ChargenAvailableProg", Native(ArmageddonNativeBinding.AlwaysFalseProg)),
 						new XElement("ApplicabilityProg", Native(ArmageddonNativeBinding.AlwaysTrueProg)),
@@ -127,8 +136,10 @@ public static partial class ArmageddonProgressionInstaller
 				var role = Put(cap.RoleKey, new ChargenRole { Name = RoleName(cap), Type = (int)ChargenRoleType.Class,
 					PosterId = Native(ArmageddonNativeBinding.BuilderAccount), ChargenBlurb = "Armageddon " + cap.Name + " magic (" + settings.Mode + "). Stock activation awaits the complete spell catalogue.",
 					AvailabilityProgId = Native(ArmageddonNativeBinding.AlwaysFalseProg), MaximumNumberAlive = 0, MaximumNumberTotal = 0 });
-				RoleLinks(db, role, records[cap.RoleKey], merit.Id, stock.Bindings.Where(x => x.CapabilityKey == cap.Key && x.Starting)
-					.GroupBy(x => traits[x.TraitKey]).ToDictionary(x => x.Key, x => x.Max(y => y.Opening)), messages);
+				var starting = stock.Bindings.Where(x => x.CapabilityKey == cap.Key && x.Starting)
+					.GroupBy(x => traits[x.TraitKey]).ToDictionary(x => x.Key, x => x.Max(y => y.Opening));
+				if (gather is not null && ArmageddonStockProgression.IsSorcerer(cap)) starting.Add(gather.Trait, 10);
+				RoleLinks(db, role, records[cap.RoleKey], merit.Id, starting, messages);
 			}
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.ContentCreated);
 			db.SaveChanges();
@@ -138,7 +149,7 @@ public static partial class ArmageddonProgressionInstaller
 			transaction?.Commit();
 			committed = true;
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.AfterCommit);
-			messages.Add($"Progression foundations committed: {settings.Mode}, {traits.Count} native skills, ten capability/merit pairs, {(settings.ClassesEnabled ? 10 : 0)} Class roles, eight reserves and seven native regenerators. {stock.Bindings.Count(x => !x.Support)} spell admission plans {(hydrate ? "materialised with real canonical identities and native support grants" : "retained in the embedded approved graph")}. Casting and Class availability remain disabled. Sorcerer gathering requires its separately authored source/economy policy. No player state changed.");
+			messages.Add($"Progression foundations committed: {settings.Mode}, {traits.Count} native skills, ten capability/merit pairs, {(settings.ClassesEnabled ? 10 : 0)} Class roles, eight reserves and seven native regenerators. {stock.Bindings.Count(x => !x.Support)} spell admission plans {(hydrate ? "materialised with real canonical identities and native support grants" : "retained in the embedded approved graph")}. Casting and Class availability remain disabled. {(hydrateGathering ? "Four source Self/Land methods and three Gather support grants are installed behind independent false availability." : "Source gathering remains a separate resumable policy stage.")} No player state changed.");
 			return new(ArmageddonInstallStatus.Completed, messages.AsReadOnly(), ids);
 		}
 		catch (Exception error)

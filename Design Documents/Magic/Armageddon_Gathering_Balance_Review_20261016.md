@@ -1,5 +1,7 @@
 # Armageddon gathering: revised balance and concrete bindings
 
+**16 October source-fidelity supersession:** Luke selected source-backed bodily Self and destructive, terrain-priced Land, with no Armageddon Gentle or invented ambient pool. Generic Gentle remains. This supersedes the earlier gathering proposal; see [the source translation record](Armageddon_Gathering_Source_Translation_20261016.md). Luke retained Sorcerer Self/Land, Preserver Self and Defiler Land; source-supported numeric translation and implementation qualification remain pending.
+
 Proposal only; no values below are approved or implemented. This supersedes the numerical recommendation in Library proposal libfile_60b0bbb2e1948191a71be9d2fb96aad6. The independent inactive-installer matrix continues unchanged.
 
 ## Why revise the first rate

@@ -36,18 +36,41 @@ public partial class ArmageddonStockSpellInstallerTests
 			var actualSpells = casting.Elements("Admission").Select(x => (long)x.Attribute("spell")!).ToArray();
 			CollectionAssert.AreEquivalent(spec.SpellKeys.Select(x => claims[x].LogicalId!.Value).ToArray(), actualSpells, spec.Key);
 			Assert.AreEqual(6, casting.Elements("Admission").Count(x => (bool)x.Attribute("starting")!) + (spec.Key.Contains("sorcerer") || spec.Key.Contains("preserver") || spec.Key.Contains("defiler") ? 2 : 0), spec.Key);
-			Assert.AreEqual(mode == ArmageddonProgressionMode.Classic ? 1 : 2, casting.Elements("SupportGrant").Count(), spec.Key);
+			var sorcerer = ArmageddonStockProgression.IsSorcerer(spec);
+			Assert.AreEqual((mode == ArmageddonProgressionMode.Classic ? 1 : 2) + (sorcerer ? 1 : 0), casting.Elements("SupportGrant").Count(), spec.Key);
 			Assert.AreEqual(spec.Key is "arm.capability.sorcerer" or "arm.capability.preserver" or "arm.capability.defiler" ? 0 : 1,
 				root.Element("Regenerators")!.Elements().Count(), spec.Key);
-			Assert.IsNull(root.Element("Gathering"), "Unauthored gathering economics must not be invented.");
+			var methods = root.Element("Gathering")?.Elements("Method").ToArray() ?? [];
+			CollectionAssert.AreEqual(spec.Key switch
+			{
+				"arm.capability.sorcerer" => new[] { "Self", "Land" },
+				"arm.capability.preserver" => ["Self"], "arm.capability.defiler" => ["Land"], _ => Array.Empty<string>()
+			}, methods.Select(x => (string)x.Attribute("kind")!).ToArray(), spec.Key);
+			foreach (var method in methods)
+			{
+				Assert.AreEqual(0.25, (double)method.Attribute("duration")!);
+				Assert.IsTrue((long)method.Attribute("permission")! > 0);
+				Assert.IsTrue((long)method.Attribute("damageProg")! > 0);
+				Assert.AreEqual(claims[spec.ResourceKey].LogicalId, (long)method.Attribute("destination")!);
+			}
+			if (sorcerer)
+			{
+				var grant = casting.Elements("SupportGrant").Single(x => (long)x.Attribute("trait")! == claims[ArmageddonProgressionInstaller.GatheringTraitKey].LogicalId);
+				Assert.AreEqual(10.0, (double)grant.Attribute("opening")!); Assert.AreEqual(90.0, (double)grant.Attribute("rawCap")!);
+			}
 			admissions += actualSpells.Length; supports += casting.Elements("SupportGrant").Count();
 		}
 		Assert.AreEqual(419, admissions);
-		Assert.AreEqual(mode == ArmageddonProgressionMode.Classic ? 10 : 20, supports);
+		Assert.AreEqual(mode == ArmageddonProgressionMode.Classic ? 13 : 23, supports);
 		Assert.AreEqual(classes ? 10 : 0, db.ChargenRoles.Count());
 		Assert.IsTrue(db.ChargenRoles.All(x => x.AvailabilityProgId == ArmageddonInstallation.Read(db)!.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg]));
 		Assert.AreEqual(0, db.CharacterAcquiredSpells.Count()); Assert.AreEqual(0, db.CharacterCastingEnrolments.Count());
 		Assert.AreEqual(0, db.CharactersMagicResources.Count());
+		Assert.AreEqual(0, db.VariableValues.Count());
+		var ordinaryRerun = ArmageddonProgressionInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db));
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, ordinaryRerun.Status, string.Join("\n", ordinaryRerun.Messages));
+		db.ChangeTracker.Clear();
+		Assert.AreEqual(4, db.MagicCapabilities.AsEnumerable().Sum(x => XElement.Parse(x.Definition).Element("Gathering")?.Elements("Method").Count() ?? 0));
 		var before = db.SeederManagedRecords.ToDictionary(x => x.StableKey, x => (x.LogicalId, x.RevisionNumber, x.SeedBaseline, x.AppliedAt));
 		new ArmageddonMagicSeeder().SeedData(db, answers);
 		db.ChangeTracker.Clear();

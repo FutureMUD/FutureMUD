@@ -35,6 +35,8 @@ All named fields and calls above are authored source. The addition steps are sta
 
 ## Declared rerun and ownership contract
 
+Fresh combat installation ensures a native Dual-Wielding skill and binds the dedicated coordination check numerically before supplying a missing `DualWieldDoubleAttacksEnabled` setting as true. CoreData defers that one enable key; stored true/false values are preserved. General skill installers create only an unbound placeholder. Existing combat refreshes do not enable or bind double attacks, and no character receives a skill automatically. Use the explicit existing-skill binding workflow in [Dual Wield double attacks](../../Combat/Dual_Wield_Double_Attacks.md) for existing worlds; do not rerun foundational combat content as an upgrade shortcut.
+
 Metadata declares `Idempotent / FullReconcile`.
 
 Reruns reconcile installed combat modules by their stable stock identities without removing builder content.

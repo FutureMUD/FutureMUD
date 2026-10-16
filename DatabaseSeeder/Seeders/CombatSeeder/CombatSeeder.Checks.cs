@@ -119,6 +119,7 @@ public partial class CombatSeeder
             {
                 Name = name,
                 Type = (int)TraitType.Skill,
+                OwnerScope = (int)TraitOwnerScope.Character,
                 Expression = expression,
                 TraitGroup = "Combat",
                 AvailabilityProg = context.FutureProgs.First(x => x.FunctionName == "AlwaysTrue"),
@@ -145,6 +146,11 @@ public partial class CombatSeeder
         EnsureSkill(gerund ? "Wrestling" : "Subdue");
         EnsureSkill(gerund ? "Warding" : "Ward");
         EnsureSkill(gerund ? "Throwing" : "Throwing");
+		// Every weapon package needs coordination; SOI's later weapon pass reuses this same skill.
+		var coordinationName = gerund ? "Dual-Wielding" : "Dual-Wield";
+		skills[coordinationName] = skills.GetValueOrDefault(coordinationName) ??
+			skills.GetValueOrDefault("Dual-Wielding") ?? skills.GetValueOrDefault("Dual-Wield") ??
+			EnsureSkill(coordinationName);
 		EnsureSkill("Gunnery");
 		EnsureSkill(gerund ? "Riding" : "Ride");
 		EnsureSkill(gerund ? "Driving" : "Drive");

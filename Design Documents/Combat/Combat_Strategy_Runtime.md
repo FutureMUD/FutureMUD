@@ -12,6 +12,8 @@ The strategy contract lives in `FutureMUDLibrary/Combat/ICombatStrategy.cs`. Con
 
 ## Shared Contract
 
+Ordinary automatic melee weapon selection can also offer a configured [Dual Wield double attack](./Dual_Wield_Double_Attacks.md). The frozen pair attacks one target, uses each weapon's skill and a fresh defence per strike, stages both attack difficulties with one coordination check, charges only executed children and schedules one recovery. Existing dual-only profiles remain single-hit attacks. Upgraded worlds stay disabled until their dedicated coordination check is bound and the feature is enabled.
+
 Every strategy exposes:
 
 - `Mode`: the `CombatStrategyMode` represented by the strategy.

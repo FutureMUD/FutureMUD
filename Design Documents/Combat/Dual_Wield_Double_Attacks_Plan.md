@@ -1,6 +1,6 @@
 # Dual Wield double attacks: design and implementation plan
 
-Status: implementation-ready plan, 16 October 2026; documentation only. Luke has approved the core mechanics and the three coordination/profile/untrained defaults recorded below. Optional balancing and engineering recommendations remain labelled separately. This document describes future implementation, not a shipped feature or permission to begin runtime work.
+Status: approved design implemented on the dedicated branch, 16 October 2026; verification limitations remain. Luke subsequently requested “Start this one”. The approved mechanics remain normative. See the [runtime guide](./Dual_Wield_Double_Attacks.md) and [verification receipt](./Dual_Wield_Double_Attacks_Verification.md). This branch has not been published, merged or deployed.
 
 ## Revision and scope
 
@@ -15,7 +15,7 @@ Status: implementation-ready plan, 16 October 2026; documentation only. Luke has
 
 The source repository was clean on local `master` (`2c89414cf119e538a5a3613f4ded72db25a25292`), two commits behind the fetched remote. The new worktree starts at the fetched commit. Its branch is separate from `codex/armageddon-continuation-20261008` and `codex/blind-fighting`; neither existing worktree is an implementation source or edit target.
 
-This task authorises the worktree, branch and planning documents. It does not authorise runtime implementation, seeded content changes, database mutations, a PR, merge or deployment. No implementation dependency on unpublished Armageddon changes is proposed. The wider nonmagic mapping exercise remains separate.
+The original planning task authorised the worktree, branch and documents only. Luke's later “Start this one” expanded the task to implementation and proportionate verification. Publication, merge and deployment remain outside scope. Native restore testing is paused at the automatic-approval boundary in the verification receipt. There is no dependency on unpublished Armageddon changes. The wider nonmagic mapping exercise remains separate.
 
 ## Approved behaviour
 
@@ -186,7 +186,7 @@ The proposed PR replaces selected attack/defence calls with `CombatCheck` and pa
 
 Likely overlap: `MeleeWeaponAttack`, `WeaponAttackMove`, `StandardMeleeStrategy`, `CheckEnum`, `FuturemudLoaders`, static defaults and skill/combat seeders. Resolve the new enum ordinal against the merged tail, preserve both dedicated loader/seed policies and feature flags, and test their composition. Blind Fighting can remain disabled or absent without changing this feature's approved contract; this planning branch neither merges nor cherry-picks that PR.
 
-## Implementation sequence after a separate implementation request
+## Implementation sequence authorised by the later request
 
 1. Use the approved mechanics, Normal coordination table, ordinary single-target scope and untrained policy recorded above. Refresh master/PR status and rebase the implementation branch deliberately, retaining the planning-base evidence. Use the labelled engineering recommendations unless implementation evidence warrants an adjustment; surface a change to approved behaviour rather than reopening settled choices.
 2. Define the shared sequence/child-resolution and separate budget/accounting contract; add focused lifecycle tests before extracting the ordinary completion helper. Keep legacy multi-target behaviour stable.
@@ -251,6 +251,6 @@ Set connection/credential values outside tracked files. Inspect the helper's cur
 
 Evidence gathered: repository/worktree/branch inspection; `git fetch origin master`; source and repository-skill inspection against the recorded base; read-only PR #792 status and branch-diff inspection; Luke's explicit “Agree” approving the three defaults on 16 October 2026. Planning verification checks document links, references, whitespace and the final diff only. Future implementation/test paths and planned configuration keys above are intentionally labelled as such.
 
-**Blocking design choices: none.** The plan is ready for implementation once separately requested. Selection frequency, lead-order implementation, improvement-opportunity enforcement, partial-recovery policy and rollout defaults have concrete recommendations above; optional tuning or routine engineering choices do not block starting that later work. A target world's numeric skill binding and a disposable smoke-test fixture are implementation/verification inputs to resolve in that environment, not unsettled product mechanics. PR #792 status and enum numbering must be refreshed during integration, but this feature does not depend on that PR merging.
+**Blocking design choices: none.** Luke's implementation request has been received. Selection frequency, lead order, improvement-opportunity enforcement, partial recovery and rollout use the concrete defaults above. World-specific numeric binding and the disposable smoke fixture are operational inputs rather than unsettled product mechanics. The verification receipt identifies the current native-test approval blocker. PR #792 remains an integration check, not a feature dependency.
 
-There is no runtime or database change in this branch. Luke's approval authorises this plan update only; a later implementation request is still required. No PR, merge or deployment is authorised by this approval.
+The later “Start this one” authorised implementation, now present on this branch. The verification receipt records automated results, unchanged snapshot failures and blocked native smoke. No live database mutation, PR, merge or deployment has occurred.

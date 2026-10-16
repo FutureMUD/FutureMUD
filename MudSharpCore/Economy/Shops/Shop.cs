@@ -611,6 +611,10 @@ public abstract partial class Shop : SaveableItem, IShop
 		{
 			return (false, "no positive buyback price preserves this shop's minimum resale spread");
 		}
+		if (!CanSettleExactlyInCash(method, price))
+		{
+			return (false, "that payout cannot be paid exactly with this currency's cash denominations; use bank or credit payment");
+		}
 
         switch (method)
         {
@@ -701,6 +705,11 @@ public abstract partial class Shop : SaveableItem, IShop
 			actor.OutputHandler.Send("There is no positive buyback price preserving this shop's minimum resale spread.");
 			return;
 		}
+		if (!CanSettleExactlyInCash(method, calculation.Price))
+		{
+			actor.OutputHandler.Send("That payout cannot be paid exactly with this currency's cash denominations; use bank or credit payment.");
+			return;
+		}
         item.AddEffect(new ItemOnDisplayInShop(item, this, merchandise));
         item.SetOwner(this);
         decimal price = calculation.Price;
@@ -786,6 +795,8 @@ public abstract partial class Shop : SaveableItem, IShop
                 break;
             case ShopCashPayment cash:
                 price = PriceForMerchandise(actor, merchandise, quantity);
+				if (!CanSettleExactlyInCash(method, price))
+					return (false, "that total cannot be paid exactly with this currency's cash denominations; use bank or credit payment");
                 decimal cashonhand = cash.AccessibleMoneyForPayment();
                 if (cashonhand < price)
                 {
@@ -943,6 +954,8 @@ public abstract partial class Shop : SaveableItem, IShop
             case null:
                 break;
             case ShopCashPayment cash:
+				if (!CanSettleExactlyInCash(method, price))
+					return (false, "that total cannot be paid exactly with this currency's cash denominations; use bank or credit payment");
                 var cashonhand = cash.AccessibleMoneyForPayment();
                 if (cashonhand < price)
                 {
@@ -1522,6 +1535,13 @@ public abstract partial class Shop : SaveableItem, IShop
     {
         return GetPriceCalculation(actor, merchandise, quantity).TotalPrice;
     }
+
+	private bool CanSettleExactlyInCash(IPaymentMethod method, decimal price)
+	{
+		if (method is not ShopCashPayment) return true;
+		Currency.FindCoinsForAmount(price, out var exactMatch);
+		return exactMatch;
+	}
 
 	private (decimal Price, decimal Tax, decimal Pretax) BuybackPriceForItem(ICharacter actor, IMerchandise merchandise, IGameItem item)
 	{

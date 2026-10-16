@@ -5,10 +5,13 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Character;
 using MudSharp.Economy;
+using MudSharp.Economy.Currency;
 using MudSharp.Economy.Shops;
+using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
 using MudSharp.Economy.Payment;
 using MudSharp.Framework;
+using MudSharp.Framework.Units;
 using MudSharp.GameItems.Interfaces;
 
 namespace MudSharp_Unit_Tests;
@@ -111,6 +114,62 @@ public partial class ShopTests
 		Assert.IsTrue(-record.PretaxValue < 1M);
 		payment.Verify(x => x.GivePayment(-record.PretaxValue), Times.Once);
 		Assert.AreEqual(0M, record.Tax);
+	}
+
+	[TestMethod]
+	[DataRow(.01)]
+	[DataRow(.04)]
+	public void Haggle_CommodityCashBuyback_RefusesUnrepresentablePayoutBeforeMutation(double weight)
+	{
+		EnableHaggle();
+		var model = new MudSharp.Models.Currency { Id = 1, Name = "test cash" };
+		model.Coins.Add(new MudSharp.Models.Coin { Id = 1, Name = "unit", Value = 1M, UseForChange = true });
+		var currency = new Currency(model, _gameworld.Object);
+		_shop.Currency = currency;
+		var material = RegisterMaterial(660, "cash metal");
+		var proto = RegisterPrototype(661);
+		var merchandise = new Merchandise(_shop, "cash metal", proto.Object, material.Object, null, 100M, 1.0, false, null, null);
+		_shop.AddMerchandise(merchandise);
+		var item = CreateCommodityItem(662, proto.Object, material.Object, weight);
+		var actor = CreateBankPaymentActor().Actor; Terms(actor);
+		var payment = new ShopCashPayment(currency, _shop, actor.Object);
+		var result = _shop.CanSell(actor.Object, merchandise, payment, item.Object);
+		Assert.IsFalse(result.Truth);
+		StringAssert.Contains(result.Reason, "cash denominations");
+		_shop.Sell(actor.Object, merchandise, payment, item.Object);
+		Assert.IsFalse(_shop.TransactionRecords.Any());
+		item.Verify(x => x.AddEffect(It.IsAny<IEffect>()), Times.Never);
+		Assert.IsFalse(_shop.StockedItems(merchandise).Any(x => ReferenceEquals(x, item.Object)));
+	}
+
+	[TestMethod]
+	public void Haggle_CommodityCashPurchase_RefusesUnsupportedChangeBeforeTakingStock()
+	{
+		EnableHaggle();
+		var model = new MudSharp.Models.Currency { Id = 1, Name = "test cash" };
+		model.Coins.Add(new MudSharp.Models.Coin { Id = 1, Name = "unit", Value = 1M, UseForChange = true });
+		var currency = new Currency(model, _gameworld.Object);
+		_shop.Currency = currency;
+		_gameworld.SetupGet(x => x.UnitManager).Returns(Mock.Of<IUnitManager>());
+		var material = RegisterMaterial(670, "cash purchase metal");
+		var proto = RegisterPrototype(671);
+		var merchandise = new Merchandise(_shop, "cash purchase metal", proto.Object, material.Object, null, 100M, 1.0, false, null, null);
+		_shop.AddMerchandise(merchandise);
+		var item = CreateCommodityItem(672, proto.Object, material.Object, .01);
+		_shop.AddToStock(null, item.Object, merchandise);
+		var actor = CreateBankPaymentActor().Actor; Terms(actor);
+		var payment = new ShopCashPayment(currency, _shop, actor.Object);
+		Assert.AreEqual(.9M, _shop.PriceForMerchandiseWeight(actor.Object, merchandise, .01));
+		var before = _shop.TransactionRecords.Count();
+		Assert.IsTrue(_shop.StockedItems(merchandise).Any(x => ReferenceEquals(x, item.Object)));
+		var result = _shop.CanBuyCommodityWeight(actor.Object, merchandise, .01, payment, [item.Object]);
+		Assert.IsFalse(result.Truth);
+		StringAssert.Contains(result.Reason, "cash denominations");
+		Assert.IsFalse(_shop.BuyCommodityWeight(actor.Object, merchandise, .01, payment, [item.Object]).Any());
+		Assert.AreEqual(before, _shop.TransactionRecords.Count());
+		Assert.IsTrue(_shop.StockedItems(merchandise).Any(x => ReferenceEquals(x, item.Object)));
+		item.Verify(x => x.RemoveAllEffects<ItemOnDisplayInShop>(It.IsAny<Predicate<ItemOnDisplayInShop>>(), true), Times.Never);
+		Assert.AreEqual(.01, item.Object.GetItemType<ICommodity>().Weight);
 	}
 
 	[TestMethod]

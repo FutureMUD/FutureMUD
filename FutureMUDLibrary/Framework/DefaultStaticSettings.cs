@@ -17,6 +17,13 @@ public static class DefaultStaticSettings
     public static readonly IReadOnlyDictionary<string, string> DefaultStaticConfigurations =
         new Dictionary<string, string>
         {
+			{ "BlindFightingEnabled", "false" },
+			{ "BlindFightingMinimumSightDifficulty", "6" },
+			{ "BlindFightingSightHardDifficulty", "4" },
+			{ "BlindFightingSightVeryHardDifficulty", "5" },
+			{ "BlindFightingSightExtremelyHardDifficulty", "6" },
+			{ "BlindFightingSightInsaneDifficulty", "7" },
+			{ "BlindFightingUnseenDifficulty", "8" },
 			{ "DirectionSenseEnabled", "false" },
 			{ "DirectionSenseObscurationProg", "0" },
 			{ "DirectionSenseDifficulty", "Normal" },

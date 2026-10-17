@@ -674,6 +674,9 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
         {
             switch (check)
             {
+				// CombatSeeder binds this check after its combat skills exist.
+				case CheckType.BlindFightingCheck:
+					continue;
                 case CheckType.DirectionSenseCheck:
                 case CheckType.DirectionSenseRecoveryCheck:
                     DirectionSenseSeederHelper.EnsureUnboundChecks(context);

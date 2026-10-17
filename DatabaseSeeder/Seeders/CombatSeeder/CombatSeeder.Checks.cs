@@ -24,6 +24,7 @@ public partial class CombatSeeder
         IReadOnlyDictionary<string, string> questionAnswers)
     {
         IReadOnlyDictionary<string, TraitDefinition> skills = SeedUniversalSkills(context, questionAnswers);
+		EnsureBlindFighting(context);
         if (!context.CombatMessages.Any(x => x.Type == (int)BuiltInCombatMoveType.Dodge))
         {
             SeedUnarmedCombatMessage(context, questionAnswers);

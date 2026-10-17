@@ -344,7 +344,7 @@ Use negative values for offense/defense bonus to indicate penalties.
             return;
         }
 
-        ICheck defenseCheck = Gameworld.GetCheck(CheckType.CombatMoveCheck);
+        ICheck defenseCheck = CombatCheck.For(Gameworld, CheckType.CombatMoveCheck);
         CheckOutcome defenderOutcome = defenseCheck.Check(tch, DefenseDifficulty, DefenseTrait, attacker);
         OpposedOutcome opposed = new(outcome, defenderOutcome);
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return;

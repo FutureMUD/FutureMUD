@@ -34,6 +34,10 @@ public class TimeboundCheck : StandardCheck
         TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        // Cached outcomes do not contain rolls or the invocation's sight constraints.
+        // Do not reuse or populate that unqualified cache for a contextual combat check.
+        if (CheckEvaluationContext.Find(customParameters) is not null)
+            return base.Check(checkee, difficulty, trait, target, externalBonus, traitUseType, customParameters);
         Outcome existing = ExistingOutcome(checkee, difficulty, target, trait, null, externalBonus);
         if (existing != Outcome.None)
         {
@@ -56,6 +60,8 @@ public class TimeboundCheck : StandardCheck
         IUseTrait tool = null, double externalBonus = 0.0, TraitUseType traitUseType = TraitUseType.Practical,
         params (string Parameter, object value)[] customParameters)
     {
+        if (CheckEvaluationContext.Find(customParameters) is not null)
+            return base.Check(checkee, difficulty, target, tool, externalBonus, traitUseType, customParameters);
         Outcome existing = ExistingOutcome(checkee, difficulty, target, tool?.Trait, tool, externalBonus);
         if (existing != Outcome.None)
         {

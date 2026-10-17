@@ -241,7 +241,8 @@ namespace MudSharp.RPG.Checks
 		PeekCheck = 236,
 		PeekRevealCheck = 237,
 		GuardingExitChallengeCheck = 240,
-		GuardingItemChallengeCheck = 241
+		GuardingItemChallengeCheck = 241,
+		BlindFightingCheck = 242
     }
 
     public enum FailIfTraitMissingType

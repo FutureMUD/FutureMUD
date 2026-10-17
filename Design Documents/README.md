@@ -42,6 +42,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Multiple Simultaneous Body Instances Design](./Characters/Multiple_Simultaneous_Body_Instances_Design.md)
 
 ## Combat
+- [Blind Fighting](./Combat/Blind_Fighting.md)
 - [Dual Wield Double Attacks](./Combat/Dual_Wield_Double_Attacks.md) - runtime, configuration and existing-world binding.
 - [Dual Wield Double Attacks Plan](./Combat/Dual_Wield_Double_Attacks_Plan.md) - approved design and integration plan.
 - [Dual Wield Double Attacks Verification](./Combat/Dual_Wield_Double_Attacks_Verification.md) - receipts and remaining verification gaps.

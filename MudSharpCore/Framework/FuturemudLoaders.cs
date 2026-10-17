@@ -4974,6 +4974,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 							? $"{checkType} Formula" : $"{checkType.DescribeEnum(true)} Check",
                         Expression = checkType switch
                         {
+                            CheckType.BlindFightingCheck => "100",
                             CheckType.AnalyzeEligibilityCheck or CheckType.PeekCheck or CheckType.PeekRevealCheck => "0",
                             CheckType.WritingComprehendCheck or CheckType.HaggleCheck => "variable",
                             CheckType.WeatherForecastCapability or CheckType.WeatherForecast or CheckType.DualWieldCoordinationCheck => "0",

@@ -31,12 +31,12 @@ public class RescueMove : CombatMoveBase
             return CombatMoveResult.Irrelevant;
         }
 
-        ICheck check = Gameworld.GetCheck(CheckType.RescueCheck);
+        ICheck check = CombatCheck.For(Gameworld, CheckType.RescueCheck);
         Difficulty difficultyRescuer = Difficulty.Normal;
         difficultyRescuer =
             difficultyRescuer.StageUp(Assailant.Combat.Combatants.Count(x => x.CombatTarget == Assailant));
         CheckOutcome resultRescuer = check.Check(Assailant, difficultyRescuer, targetAssailant);
-        ICheck defenseCheck = Gameworld.GetCheck(CheckType.OpposeRescueCheck);
+        ICheck defenseCheck = CombatCheck.For(Gameworld, CheckType.OpposeRescueCheck);
         CheckOutcome resultAssailant = defenseCheck.Check(targetAssailant, Difficulty.Hard, Assailant);
 
         OpposedOutcome outcome = new(resultRescuer, resultAssailant);

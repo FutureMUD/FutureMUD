@@ -92,21 +92,21 @@ public class MagicPowerAttackMove : WeaponAttackMove, IMagicPowerAttackMove
 				if (!CanContinueCommand()) return Failed(attackRoll.Outcome);
 				break;
 			case BlockMove block:
-				defenseRoll = Gameworld.GetCheck(block.Check).Check(target,
+				defenseRoll = CombatCheck.ForDefense(Gameworld, block.Check, this).Check(target,
 					AttackPower.BaseBlockDifficulty.StageUp(block.DifficultStageUps), block.Shield.ShieldType.BlockTrait,
 					Assailant, target.DefensiveAdvantage + block.Shield.ShieldType.BlockBonus);
 				break;
 			case ParryMove parry:
-				defenseRoll = Gameworld.GetCheck(parry.Check).Check(target,
+				defenseRoll = CombatCheck.ForDefense(Gameworld, parry.Check, this).Check(target,
 					AttackPower.BaseParryDifficulty.StageUp(parry.DifficultStageUps), parry.Weapon.WeaponType.ParryTrait,
 					Assailant, target.DefensiveAdvantage);
 				break;
 			case DodgeMove dodge:
-				defenseRoll = Gameworld.GetCheck(dodge.Check).Check(target,
+				defenseRoll = CombatCheck.ForDefense(Gameworld, dodge.Check, this).Check(target,
 					AttackPower.BaseDodgeDifficulty.StageUp(dodge.DifficultStageUps), null, Assailant, target.DefensiveAdvantage);
 				break;
 			case DodgeRangeMove dodge:
-				defenseRoll = Gameworld.GetCheck(dodge.Check).Check(target,
+				defenseRoll = CombatCheck.ForDefense(Gameworld, dodge.Check, this).Check(target,
 					AttackPower.BaseDodgeDifficulty, null, Assailant, target.DefensiveAdvantage);
 				break;
 		}

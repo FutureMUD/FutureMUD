@@ -180,6 +180,9 @@ Again, the choices you make here can be fixed later so don't stress it too great
         {
             switch (check)
             {
+				// CombatSeeder binds this check after its combat skills exist.
+				case CheckType.BlindFightingCheck:
+					continue;
                 case CheckType.DirectionSenseCheck:
                 case CheckType.DirectionSenseRecoveryCheck:
                     DirectionSenseSeederHelper.EnsureUnboundChecks(context);

@@ -401,10 +401,10 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
         IBodypart targetBodypart = aggressor.Body.RandomBodyPartGeometry(weaponAttack.Orientation,
             weaponAttack.Alignment, Facing.Front);
         UnseenCombatOpening.Consume(defender, aggressor);
-        CheckOutcome attackRoll = Gameworld.GetCheck(CheckType.MeleeWeaponCheck)
+        CheckOutcome attackRoll = CombatCheck.For(Gameworld, CheckType.MeleeWeaponCheck)
                                   .Check(defender, weaponAttack.Profile.BaseAttackerDifficulty,
                                       wardResult.WardWeapon.WeaponType.AttackTrait, aggressor);
-        CheckOutcome defenseRoll = Gameworld.GetCheck(CheckType.DodgeCheck)
+        CheckOutcome defenseRoll = CombatCheck.For(Gameworld, CheckType.DodgeCheck)
                                    .Check(aggressor, weaponAttack.Profile.BaseDodgeDifficulty, defender);
         OpposedOutcome result = new(attackRoll, defenseRoll);
         string attackEmote = Gameworld.CombatMessageManager
@@ -516,9 +516,9 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
         IBodypart targetBodypart = aggressor.Body.RandomBodyPartGeometry(naturalAttack.Attack.Orientation,
             naturalAttack.Attack.Alignment, Facing.Front);
         UnseenCombatOpening.Consume(defender, aggressor);
-        CheckOutcome attackRoll = Gameworld.GetCheck(CheckType.NaturalWeaponAttack)
+        CheckOutcome attackRoll = CombatCheck.For(Gameworld, CheckType.NaturalWeaponAttack)
                                   .Check(defender, naturalAttack.Attack.Profile.BaseAttackerDifficulty, aggressor);
-        CheckOutcome defenseRoll = Gameworld.GetCheck(CheckType.DodgeCheck)
+        CheckOutcome defenseRoll = CombatCheck.For(Gameworld, CheckType.DodgeCheck)
                                    .Check(aggressor, naturalAttack.Attack.Profile.BaseDodgeDifficulty, defender);
         OpposedOutcome result = new(attackRoll, defenseRoll);
 
@@ -693,7 +693,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
     protected WardResult ResolveWard(WardDefenseMove ward)
     {
         Difficulty warderDifficulty = ward.GetWarderDifficulty(this);
-        Dictionary<Difficulty, CheckOutcome> wardCheck = Gameworld.GetCheck(CheckType.Ward)
+        Dictionary<Difficulty, CheckOutcome> wardCheck = CombatCheck.For(Gameworld, CheckType.Ward)
                                  .CheckAgainstAllDifficulties(ward.Assailant, warderDifficulty, null, Assailant,
                                      ward.Assailant.DefensiveAdvantage -
                                      GetPositionPenalty(Assailant.GetFacingFor(ward.Assailant)));
@@ -701,7 +701,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
         string wardEmote = Gameworld.CombatMessageManager.GetMessageFor(ward.Assailant, Assailant,
             ward.WardWeapon?.Parent, Attack, BuiltInCombatMoveType.WardDefense, wardCheck[warderDifficulty], null);
         Difficulty wardeeDifficulty = ward.GetWardeeDifficulty(this);
-        Dictionary<Difficulty, CheckOutcome> wardOpponentCheck = Gameworld.GetCheck(CheckType.WardDefense)
+        Dictionary<Difficulty, CheckOutcome> wardOpponentCheck = CombatCheck.For(Gameworld, CheckType.WardDefense)
                                          .CheckAgainstAllDifficulties(Assailant, wardeeDifficulty, null,
                                              ward.Assailant);
         OpposedOutcome result = new(wardCheck, wardOpponentCheck, warderDifficulty, wardeeDifficulty);

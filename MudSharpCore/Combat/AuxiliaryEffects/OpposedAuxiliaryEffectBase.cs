@@ -161,7 +161,9 @@ internal abstract class OpposedAuxiliaryEffectBase : IAuxiliaryEffect
 			return false;
 		}
 
-		var defenderOutcome = Gameworld.GetCheck(CheckType.CombatMoveCheck)
+		var check = this is Disarm or FacingChange
+			? CombatCheck.For(Gameworld, CheckType.CombatMoveCheck) : Gameworld.GetCheck(CheckType.CombatMoveCheck);
+		var defenderOutcome = check
 		                               .Check(tch, DefenseDifficulty, DefenseTrait, attacker);
 		opposed = new OpposedOutcome(outcome, defenderOutcome);
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;

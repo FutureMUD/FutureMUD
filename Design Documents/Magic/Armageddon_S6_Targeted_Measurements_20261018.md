@@ -1,5 +1,7 @@
 # S6 targeted measurements, 18 October 2026
 
+**v1.0 priority revision, 18 October:** [The current readiness scope](Armageddon_V1_Readiness_20261018.md) supersedes earlier mandatory edge-case/full-matrix and final-balance gates. Normal gameplay, installation and persistence scopes retain their passing evidence. The injected Borrow DELETE failure remains a recorded FAIL, deferred as `ARM-V1-FOLLOWUP-001`, and does not block v1.0. Proceed with required CI and ordinary release preparation. Locked values and Release/stock/Class availability are unchanged; no merge or deployment is authorised.
+
 This is a distinct harness-only follow-up to frozen checkpoint `e2536fcaffe6e9eb01811a071ef71c6c10af556c` on draft [PR #801](https://github.com/FutureMUD/FutureMUD/pull/801). Original UTC artifact timestamps and dated names are retained. [The portable receipt](Armageddon_S6_Targeted_Measurements_20261018.json) preserves every failed/interrupted attempt and its exact inputs. The older [17 October qualification receipt](Armageddon_S6_Readiness_Qualification_20261017.json) is unchanged.
 
 | Latest targeted scope | Result | Definitions first/cold | Passed assertions |

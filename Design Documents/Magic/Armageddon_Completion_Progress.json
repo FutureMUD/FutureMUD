@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-s6-continuation-20261016",
   "authorised_scope": "Complete authorised slices, commit/push and publish fresh draft successor to externally merged PR788; no merge, deploy, Release enablement or shared/production database.",
-  "selected_stage": "S4/S5 and frozen S6 accepted scopes retained; distinct targeted Simple/classes-on measurements recorded. Borrow retirement provider failure crashes server; recovery and final balance/Release readiness remain open.",
+  "selected_stage": "S4/S5 and representative S6 normal gameplay/install/persistence accepted for v1.0 scope; exceptional Borrow database-failure recovery and wider fault/balance campaigns deferred. Final-head CI and release preparation remain; existing activation/merge/deploy restrictions retained.",
   "current_qualification": {
     "date": "2026-10-17",
     "checkpoint": "Armageddon_S6_Readiness_Checkpoint_20261016.md",
@@ -6641,7 +6641,7 @@
     "receipt": "Design Documents/Magic/Armageddon_Installation_Settings_S1_20261011.json",
     "next": "S2: implement429 Classic bindings,419 Simple spell admissions and required crafting, ten capabilities/merits and conditional classes with natural progression; S3-S6 then N24 remain."
   },
-  "current_status_authority": "Design Documents/Magic/Armageddon_S6_Targeted_Measurements_20261018.json",
+  "current_status_authority": "Design Documents/Magic/Armageddon_V1_Readiness_20261018.json",
   "S2_staged_progression": {
     "status": "PASS_BOUNDED_S2_STOCK_PROGRESSION",
     "receipt": "Design Documents/Magic/Armageddon_Stock_Progression_S2_20261011.json",
@@ -7029,5 +7029,20 @@
     "release_enabled": false,
     "stock_and_class_availability_enabled": false,
     "full_plan_complete": false
+  },
+  "v1_readiness_20261018": {
+    "policy": "Armageddon_V1_Readiness_20261018.json",
+    "report": "Armageddon_V1_Readiness_20261018.md",
+    "authority": "Direct current user priority: v1.0 ordinary-use readiness; defer exceptional database failure matrices.",
+    "s6_essential_status": "NORMAL_GAMEPLAY_INSTALLATION_AND_PERSISTENCE_SCOPES_QUALIFIED_CI_PENDING",
+    "injected_borrow_failure_v1_blocker": false,
+    "balance_retuning_required": false,
+    "remaining": [
+      "Complete final-head ordinary hosted CI and fix any actual required-check regression.",
+      "Use the installer/player guide and this bounded checklist for release handoff; retain known issues and dated evidence."
+    ],
+    "original_outcomes_preserved": true,
+    "release_enabled": false,
+    "merge_or_deploy_authorized": false
   }
 }

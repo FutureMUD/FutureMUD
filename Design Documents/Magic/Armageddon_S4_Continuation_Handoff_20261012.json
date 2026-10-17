@@ -495,7 +495,7 @@
   "original_handoff_branch": "codex/armageddon-continuation-20261008",
   "original_handoff_pr": "https://github.com/FutureMUD/FutureMUD/pull/788",
   "successor_pr_lookup_by_head": "codex/armageddon-s6-continuation-20261016",
-  "current_status_authority": "Design Documents/Magic/Armageddon_S6_Targeted_Measurements_20261018.json",
+  "current_status_authority": "Design Documents/Magic/Armageddon_V1_Readiness_20261018.json",
   "updated_utc": "2026-10-17T14:34:21.313730+00:00",
   "readiness_continuation_20261017": {
     "checkpoint": "Armageddon_S6_Readiness_Checkpoint_20261016.md",
@@ -528,5 +528,20 @@
     "release_enabled": false,
     "stock_and_class_availability_enabled": false,
     "full_plan_complete": false
+  },
+  "v1_readiness_20261018": {
+    "policy": "Armageddon_V1_Readiness_20261018.json",
+    "report": "Armageddon_V1_Readiness_20261018.md",
+    "authority": "Direct current user priority: v1.0 ordinary-use readiness; defer exceptional database failure matrices.",
+    "s6_essential_status": "NORMAL_GAMEPLAY_INSTALLATION_AND_PERSISTENCE_SCOPES_QUALIFIED_CI_PENDING",
+    "injected_borrow_failure_v1_blocker": false,
+    "balance_retuning_required": false,
+    "remaining": [
+      "Complete final-head ordinary hosted CI and fix any actual required-check regression.",
+      "Use the installer/player guide and this bounded checklist for release handoff; retain known issues and dated evidence."
+    ],
+    "original_outcomes_preserved": true,
+    "release_enabled": false,
+    "merge_or_deploy_authorized": false
   }
 }

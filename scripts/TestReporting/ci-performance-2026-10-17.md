@@ -57,6 +57,32 @@ Only the first class's repeated prerequisites are optimized. Its real progressio
 
 Snapshot capture uses tracked reads for shadow values and named shared sets for dictionary join rows; restore copies all mapped scalar/FK values using EF value comparers. Keyless read-only views cannot contain persisted fixture rows. Unsupported owned/inheritance mapping shapes fail explicitly. The helper accepts only the InMemory provider and is not a substitute for database-default or relational regressions.
 
-The first isolation attempt failed two cases on the real model's shared join mapping. Review also identified the risk of losing shadow values with detached reads. The corrected helper passed **3/3** isolation cases, including a populated shared join, a nondefault shadow FK, complete persisted-scalar fingerprints, navigation hydration, generated-ID advancement and mutation/deletion/addition isolation. This failure is retained in local evidence rather than counted as a pass. Full after-run results follow when complete.
+The first isolation attempt failed two cases on the real model's shared join mapping. Review also identified the risk of losing shadow values with detached reads. The corrected helper passed **3/3** isolation cases, including a populated shared join, a nondefault shadow FK, complete persisted-scalar fingerprints, navigation hydration, generated-ID advancement and mutation/deletion/addition isolation. This failure is retained in local evidence rather than counted as a pass. Independent re-review confirmed both corrections.
 
 Other validation: reporter suite **40/40 passed**, workflow coverage scenarios **16/16 passed**, and `actionlint` 1.7.12 passed. The explicitly requested agent correction is included as a separate cherry-pick: reviewer and QA now use `gpt-6.1-sol`; their reasoning levels and service tiers are unchanged, as are Luna/Astra roles.
+
+## Comparable full-suite result
+
+The after suite ran at `d382c39e6f93433aaf3b1b9431fb12c59ca6568c`, with a clean worktree and identical test-assembly SHA256 before and after execution. Both runs used the same Windows machine (Ryzen 9 9950X3D, 16 cores/32 logical processors, about 61.6 GiB physical RAM), SDK/configuration and command shape:
+
+```powershell
+dotnet test 'DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj' --no-build --no-restore -m:1 --logger 'console;verbosity=detailed' --logger 'trx;LogFileName=baseline.trx' --results-directory ..\seeder-baseline
+```
+
+The after command changed only the output filename/directory to `after.trx` and `seeder-after`. Native output was redirected to sibling `.log` files. This comparison excludes builds/restores and is one full run per revision, not a statistical benchmark.
+
+| Measurement | Before | After |
+| --- | ---: | ---: |
+| TRX run start-to-finish | 908.158 s | 672.077 s |
+| Passed / skipped / total | 1,932 / 3 / 1,935 | 1,935 / 3 / 1,938 |
+| StockSpell summed native durations | 563.425 s (83 cases) | 339.152 s (86 cases) |
+| Eight uncached full-integration cases | 134.197 s | 130.024 s |
+| Unchanged StockSupport control class | 51.779 s | 51.712 s |
+
+The observed suite span fell **236.081 seconds (26.0%)**; the optimized class fell **39.8%**, including its three added isolation cases. All 1,935 original class/test-name identities remain, with exactly the same outcomes. The three skips remain `EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (0)`, `(1)` and `(2)`. No old test is missing or newly skipped.
+
+TRX spans are the primary comparable timings. Console totals were 15.1358 and 11.2011 minutes. Log creation-to-final-write spans were approximately 908.745 and 672.666 seconds; these are file timestamp proxies, **not independently measured command stopwatch wall times**. Summed case durations are a separate measurement and should not be equated with elapsed time when tests run concurrently. Other native workloads were present, free-memory samples were roughly 40 GiB, and the uncached controls drifted about 3.1%; do not extrapolate the full reduction to hosted hardware without its completed receipts.
+
+The first hosted duplicate check was observed working: [push 39031931616](https://github.com/FutureMUD/FutureMUD/actions/runs/39031931616) completed its Linux/Windows jobs in 9/13 seconds after identifying [matching PR run 39031934806](https://github.com/FutureMUD/FutureMUD/actions/runs/39031934806). That PR's guard scenarios passed on both OSes and its full gates were still running when this report was written. This validates duplicate routing, not hosted test success or artifact upload completion. Subsequent documentation commits trigger fresh hosted checks.
+
+Raw local evidence remains in `C:\Users\luker\Documents\Codex\2026-10-17\task-4`: `seeder-baseline/baseline.trx`, `seeder-after/after.trx`, their sibling logs, `seeder-comparison.json`, `compare-seeder.py`, `after-head.txt`, `after-status-before.txt`, `after-status-end.txt`, `after-binary-before.json`, `after-binary-end.json`, `hardware.json`, `resource-baseline.json`, `resource-after.json`, `reporter-validation/reporter.trx`, `snapshot-isolation/isolation.trx` (initial failure), `snapshot-isolation-fixed/isolation.trx`, `baseline-jobs.json`, `baseline-master.log`, `baseline-pr-jobs.json`, `baseline-push-jobs.json`, `dedup-after-jobs.json` and `dedup-after.log`. Raw logs are intentionally not committed.

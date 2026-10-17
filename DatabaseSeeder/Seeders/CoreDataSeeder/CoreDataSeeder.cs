@@ -2062,7 +2062,9 @@ R) Recover a lost account"
 			.ToHashSet(StringComparer.OrdinalIgnoreCase);
         foreach (KeyValuePair<string, string> ss in DefaultStaticSettings.DefaultStaticConfigurations)
         {
-			if (!existingSettings.Add(ss.Key))
+			// CombatSeeder owns fresh opt-in after the native coordination skill is bound. The
+			// runtime default remains false without turning it into an explicit fresh-world disable.
+			if (ss.Key == DualWieldCoordinationSeederHelper.EnabledSetting || !existingSettings.Add(ss.Key))
 			{
 				continue;
 			}

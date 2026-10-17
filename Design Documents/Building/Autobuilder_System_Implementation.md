@@ -214,3 +214,17 @@ When adding a new autobuilder type:
 - Terrain Planner creates both terrain and multi-tag feature masks and preserves project JSON locally in the browser.
 - Tag-driven description variation only matters when the chosen area template actually supplies tags.
 - The stock wilderness package assumes the seeded terrain catalogue and its `Terrain` tag root already exist before the Useful autobuilder package is installed.
+
+## Detached presentation for spell-owned shelters
+
+`IAutobuilderRoomPresentation` returns a detached deterministic presentation for an exact
+terrain. The native Simple and ByTerrain templates share this presentation with ordinary
+room creation. It contains terrain identity, name/description, outdoors policy, light,
+atmosphere, forage and room-layer inputs; it does not create a room or invoke builder UI.
+
+An optional shelter `AutobuilderTemplate` binds the exact current S3 template. Selected-grade
+capacity, its presentation and the original caster/room/terrain/route/registry frame are frozen
+before payment and rechecked after callbacks and inside private topology creation. Temporary
+rooms and exits are born through the protected lifecycle transaction. Invalid or changed
+presentation refuses; legacy definitions without the template retain their existing behavior.
+These prepared adapter checks do not themselves certify live-world occupancy or cold cleanup.

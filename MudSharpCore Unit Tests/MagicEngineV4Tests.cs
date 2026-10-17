@@ -29,8 +29,64 @@ using System.Xml.Linq;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class MagicEngineV4Tests
+public partial class MagicEngineV4Tests
 {
+	[TestMethod]
+	public void MindContactSpellSelector_RequiresLiveExactPairedPhysicalContact()
+	{
+		var world = CreateGameworld();
+		world.SetupGet(x => x.HeartbeatManager).Returns(Mock.Of<MudSharp.Framework.Scheduling.IHeartbeatManager>());
+		var model = CreateConnectMindModel(0);
+		var definition = XElement.Parse(model.Definition);
+		definition.SetElementValue("PowerDistance", (int)MagicPowerDistance.SameZoneOnly);
+		model.Definition = definition.ToString();
+		var power = (ConnectMindPower)MagicPowerFactory.LoadPower(model, world.Object);
+		var zone = CreateZone(1);
+		var room = CreateRoom(1, world.Object, zone.Object);
+		var actor = CreateCharacter(1, world.Object, room.Object, physicalInstance: true);
+		var target = CreateCharacter(2, world.Object, room.Object, physicalInstance: true);
+		actor.SetupGet(x => x.Identity).Returns(Mock.Of<ICharacterIdentity>(x => x.Id == 1 && x.Instances == new[] { (ICharacterInstance)actor.Object }));
+		target.SetupGet(x => x.Identity).Returns(Mock.Of<ICharacterIdentity>(x => x.Id == 2 && x.Instances == new[] { (ICharacterInstance)target.Object }));
+		actor.SetupGet(x => x.InstanceId).Returns(11);
+		target.SetupGet(x => x.InstanceId).Returns(22);
+		var actorBody = new Mock<MudSharp.Body.IBody>();
+		var targetBody = new Mock<MudSharp.Body.IBody>();
+		actorBody.SetupGet(x => x.Id).Returns(101);
+		targetBody.SetupGet(x => x.Id).Returns(102);
+		actorBody.SetupGet(x => x.Actor).Returns(actor.Object);
+		targetBody.SetupGet(x => x.Actor).Returns(target.Object);
+		actor.SetupGet(x => x.Body).Returns(actorBody.Object);
+		target.SetupGet(x => x.Body).Returns(targetBody.Object);
+		world.SetupGet(x => x.Actors).Returns(CreateCollectionMock(actor.Object, target.Object).Object);
+		// Ordinary loaded character bodies belong to their identity; the world body cache is optional.
+		world.SetupGet(x => x.Bodies).Returns(CreateCollectionMock<MudSharp.Body.IBody>().Object);
+		var contact = new ConnectMindEffect(actor.Object, target.Object, power);
+		actor.Setup(x => x.EffectsOfType<ConnectMindEffect>(It.IsAny<Predicate<ConnectMindEffect>?>()))
+			.Returns<Predicate<ConnectMindEffect>?>(predicate => predicate is null || predicate(contact) ? [contact] : []);
+		actor.Setup(x => x.CombinedEffectsOfType<ConnectMindEffect>()).Returns([contact]);
+		IReadOnlyCollection<IEffect> actorEffects = [contact];
+		actor.SetupGet(x => x.Effects).Returns(() => actorEffects);
+		IReadOnlyCollection<IEffect> targetEffects = [contact.ChildEffect];
+		target.SetupGet(x => x.Effects).Returns(() => targetEffects);
+		target.Setup(x => x.HasKeyword("traveller", actor.Object, true, false)).Returns(true);
+
+		Assert.IsTrue(CastingTriggerMindContactCharacter.IsCurrentContact(actor.Object, target.Object));
+		Assert.AreSame(target.Object, CastingTriggerMindContactCharacter.Resolve(actor.Object, "traveller"));
+		Assert.IsNull(CastingTriggerMindContactCharacter.Resolve(actor.Object, "self"));
+		actorEffects = [];
+		Assert.IsFalse(CastingTriggerMindContactCharacter.IsCurrentContact(actor.Object, target.Object));
+		actorEffects = [contact];
+		targetEffects = [];
+		Assert.IsFalse(CastingTriggerMindContactCharacter.IsCurrentContact(actor.Object, target.Object));
+		Assert.IsNull(CastingTriggerMindContactCharacter.Resolve(actor.Object, "traveller"));
+		targetEffects = [contact.ChildEffect];
+		target.SetupGet(x => x.Identity).Returns(Mock.Of<ICharacterIdentity>(x => x.Id == 2 && x.Instances == Array.Empty<ICharacterInstance>()));
+		Assert.IsFalse(CastingTriggerMindContactCharacter.IsCurrentContact(actor.Object, target.Object));
+		target.SetupGet(x => x.Identity).Returns(Mock.Of<ICharacterIdentity>(x => x.Id == 2 && x.Instances == new[] { (ICharacterInstance)target.Object }));
+		world.SetupGet(x => x.Actors).Returns(CreateCollectionMock(actor.Object).Object);
+		Assert.IsFalse(CastingTriggerMindContactCharacter.IsCurrentContact(actor.Object, target.Object));
+	}
+
 	[DataTestMethod]
 	[DataRow("{")]
 	[DataRow("}")]
@@ -1133,9 +1189,10 @@ public class MagicEngineV4Tests
 		return membership;
 	}
 
-	private static Mock<ICharacter> CreateCharacter(long id, IFuturemud gameworld, IRoom? location = null)
+	private static Mock<ICharacter> CreateCharacter(long id, IFuturemud gameworld, IRoom? location = null, bool physicalInstance = false)
 	{
 		var character = new Mock<ICharacter>();
+		if (physicalInstance) character.As<ICharacterInstance>();
 		character.SetupGet(x => x.Id).Returns(id);
 		character.SetupGet(x => x.Name).Returns($"Character {id}");
 		character.SetupGet(x => x.FrameworkItemType).Returns("Character");

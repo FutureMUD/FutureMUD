@@ -1,12 +1,12 @@
 -- MySqlBackup.NET 2.6.5.0
--- Dump Time: 2026-10-07 03:49:38
+-- Dump Time: 2026-10-16 20:04:23
 -- --------------------------------------
 -- Server version 8.0.45 MySQL Community Server - GPL
 
 
 
 DROP DATABASE `__FUTUREMUD_DATABASE__`;
-CREATE DATABASE IF NOT EXISTS `__FUTUREMUD_DATABASE__` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
+CREATE DATABASE IF NOT EXISTS `__FUTUREMUD_DATABASE__` /*!40100 DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci */ /*!80016 DEFAULT ENCRYPTION='N' */;
 USE `__FUTUREMUD_DATABASE__`;
 
 
@@ -39,7 +39,7 @@ CREATE TABLE IF NOT EXISTS `__efmigrationshistory` (
 --
 
 /*!40000 ALTER TABLE `__efmigrationshistory` DISABLE KEYS */;
-INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20200626070704_InitialDatabase','9.0.11'),('20200728125151_MoveChargenToTables','9.0.11'),('20200807044450_EnforcementUpdate','9.0.11'),('20200810141606_ClanVoting','9.0.11'),('20200817061844_Elections','9.0.11'),('20200830233741_TerrainUpdate','9.0.11'),('20200905062837_CurrencyPatternEnhancement','9.0.11'),('20200928025908_KnowledgeBuilding','9.0.11'),('20201013213328_CheckFixing','9.0.11'),('20201014230837_FixingEmailTemplates','9.0.11'),('20201106014706_LineOfCreditAccounts','9.0.11'),('20201106040133_AttributesUpdate','9.0.11'),('20201108122141_EconomicZoneUpdate','9.0.11'),('20201113050353_EconomicZonesTouchup','9.0.11'),('20201120022913_EnforcermentAndMisc','9.0.11'),('20201120045951_MinorFixForCrime','9.0.11'),('20201129225407_SafeQuit','9.0.11'),('20201130014025_JournalUpdates','9.0.11'),('20201130041538_JournalUpdate','9.0.11'),('20201201052916_DrugReform','9.0.11'),('20201217051236_Changes','9.0.11'),('20201217051726_ExtraDescriptions','9.0.11'),('20201218014631_RacialBreathingChange','9.0.11'),('20201221031703_ClanFame','9.0.11'),('20201227120935_CantRemember','9.0.11'),('20210113052107_IndexFixForBodyparts','9.0.11'),('20210114010706_IndexAdditions','9.0.11'),('20210116210204_MagicSpells','9.0.11'),('20210118053537_MoreSpellStuff','9.0.11'),('20210119034150_MoreSpellStuff2','9.0.11'),('20210119035740_MoreSpellStuff3','9.0.11'),('20210120031933_MoreSpellStuff4','9.0.11'),('20210127032929_Jan21EnforcementWorkaround','9.0.11'),('20210202002906_RemovingChildClans','9.0.11'),('20210211035327_GameStatistics','9.0.11'),('20210224105856_NewSun','9.0.11'),('20210302112347_OngoingCheckForCharacteristics','9.0.11'),('20210331025006_BanksV1','9.0.11'),('20210423014825_WeaponAttackAddPositionRequirement','9.0.11'),('20210626110830_AuctionHouses','9.0.11'),('20210810123837_PropertyV1','9.0.11'),('20210902052233_PropertyV2','9.0.11'),('20210914132733_Sep21LawUpdate','9.0.11'),('20211025020630_JusticeOverhaulOct21','9.0.11'),('20211217034326_TerrainMapColourAddition','9.0.11'),('20211220045847_Skins','9.0.11'),('20211222033658_Skins-Pt2','9.0.11'),('20211226134159_ClanBankAccounts','9.0.11'),('20211229004501_PlayerBoards','9.0.11'),('20220104134109_JobsV1','9.0.11'),('20220105004035_ProjectsJobsUpdate','9.0.11'),('20220108004307_BoardBugFix','9.0.11'),('20220117102755_BoardsDescriptions','9.0.11'),('20220210215752_LongerAuthorFullDescs','9.0.11'),('20220225125641_ClanFKFixing','9.0.11'),('20220327052829_NPCSpawners','9.0.11'),('20220421132846_BodyCharacteristicsFix','9.0.11'),('20220625122517_ClanDiscordUpdate','9.0.11'),('20220625125136_ChargenResourcesAsDouble','9.0.11'),('20220718132632_MaterialsRefactor','9.0.11'),('20220731064708_TheoreticalCraftChecks','9.0.11'),('20220807101509_IntToDoubleParryBonus','9.0.11'),('20220814231930_RaceDefaultHwModels','9.0.11'),('20221030044209_ShopBankAccountsAndFinance','9.0.11'),('20221030125929_BankPaymentsAtShops','9.0.11'),('20221031113757_MagicSpellExclusivity','9.0.11'),('20221201081057_NameCulturesGenderExpansion','9.0.11'),('20221201133628_NameCulturesChargenExpansion','9.0.11'),('20230101133831_CurrencyPatternRegexCaseFix','9.0.11'),('20230110120837_RelativeEnthalpyForLiquids','9.0.11'),('20230124124618_SurgicalProcedureCheckTraits','9.0.11'),('20230311060208_SurgeryBodyUpdate','9.0.11'),('20230407151210_OpenAIv1','9.0.11'),('20230428004425_GlobalCurrencyChanges','9.0.11'),('20230603125906_CraftUseToolDuration','9.0.11'),('20230706055610_AuxiliaryMoves','9.0.11'),('20230714035824_AuxiliaryMoves2','9.0.11'),('20230727121209_SeasonsDisplayUpdate','9.0.11'),('20230731055842_SeederChoices','9.0.11'),('20230810071403_CellForeignKeyUpdates','9.0.11'),('20230825052231_NpcSpawnerMulti','9.0.11'),('20230825061651_ShopTypes','9.0.11'),('20230914142042_ScriptedEvents','9.0.11'),('20230917131132_ClanForeignKeyUpdate','9.0.11'),('20231031085439_MagicResourceColours','9.0.11'),('20231102120820_NewPlayerHints','9.0.11'),('20231110224309_HungerThirstRatesForRaces','9.0.11'),('20231125084220_ClimateModelSimplification','9.0.11'),('20231208235024_HeritageChargenCostBugFix','9.0.11'),('20240112055830_ChargenResourcesControlProg','9.0.11'),('20240119120217_CoinsChangeFlag','9.0.11'),('20240129025113_CurrencyForeignKeyUpdateJan24','9.0.11'),('20240305110906_BuyingMerchandise','9.0.11'),('20240325104238_MarketsV1','9.0.11'),('20240418112441_MarketsShopIntegration','9.0.11'),('20240427013621_MarketPopulations','9.0.11'),('20240601141550_DiscordOutputForChannels','9.0.11'),('20240615065145_ShopAutopayTaxes','9.0.11'),('20240730123726_TrackingV1','9.0.11'),('20240804070126_FixDatabaseAutoTrueBug','9.0.11'),('20240808232211_TrackingNameForBodyProtos','9.0.11'),('20240809155707_BMIUnits','9.0.11'),('20240816134208_ArmourPenaltyToDouble','9.0.11'),('20240817112644_HeightWeightModelDirectSetWeights','9.0.11'),('20240828105208_AutoReacquireTargetsSetting','9.0.11'),('20240828124859_CombatSettingsAugust24','9.0.11'),('20240831005804_BodypartGroupDescribersAugust2024','9.0.11'),('20240925062238_CrimesUpdate2024Sep25','9.0.11'),('20241011073405_StockroomNonMorphing','9.0.11'),('20241016054103_ItemProtoIsHiddenFromPlayers','9.0.11'),('20241016123415_BodyOverrideHealthStrategy','9.0.11'),('20241018071518_LiquidLeaveResidueInRooms','9.0.11'),('20241121010653_RemovingBreathableFluidsRaces','9.0.11'),('20241129002416_CriminalDescUpdates','9.0.11'),('20241216062012_RandomNamesBinaryUnicodeSort','9.0.11'),('20241220091815_EthnicitiesNameCultures','9.0.11'),('20241231030836_TagsForTerrains','9.0.11'),('20250101232454_SkewnessForHWModels','9.0.11'),('20250210095915_Shoppers','9.0.11'),('20250210233555_ShopsFeb25','9.0.11'),('20250211100238_ShopsFeb25P2','9.0.11'),('20250304042559_PreserveRegisterVariablesItemFlag','9.0.11'),('20250304104024_CraftPhaseExertionAndStamina','9.0.11'),('20250304114440_MerchandiseTransactionRecordsFix','9.0.11'),('20250424052852_SpellTriggerNullTargets','9.0.11'),('20250628230040_PropertyRekeyOnLeaseEnd','9.0.11'),('20251110082110_CombatArenaSchema','9.0.11'),('20251115120000_ArenaSignupEcho','9.0.11'),('20260211095519_AIStorytellers','9.0.11'),('20260211124139_AIStorytellerEventSubscriptions','9.0.11'),('20260216092441_AIStorytellerTimeSystemPrompt','9.0.11'),('20260216095426_AIStorytellerScopedModelReasoning','9.0.11'),('20260218120142_ArenaAutoScheduling','9.0.11'),('20260221112947_AIStorytellerSituationScopes','9.0.11'),('20260222081900_ArenaEventTypeEliminationModes','9.0.11'),('20260222112522_ArenaNpcCompletionRestore','9.0.11'),('20260225115630_ArenaStageNameProfile','9.0.11'),('20260225233442_ArenaEloStrategyOptions','9.0.11'),('20260226124500_ArenaSideRatingRanges','9.0.11'),('20260227120000_ArenaPhaseProgAppearancePayouts','9.0.11'),('20260308065322_ClimateDescriptions','9.0.11'),('20260309072751_WeatherModelSimplification','9.0.11'),('20260309222608_ReplaceCharacterCaloriesWithSatiationReserve','9.0.11'),('20260309225356_DropObsoleteNutritionCalories','9.0.11'),('20260310122815_InfectionVirulenceMultiplier','9.0.11'),('20260316112529_NaturalRangedAttacksAndElementalContact','9.0.11'),('20260320180000_CombatSettingPriorityAndRaceDefault','9.0.11'),('20260321102002_FutureProgTypeDefinitionsStage1','9.0.11'),('20260321102139_FutureProgTypeDefinitionsStage2','9.0.11'),('20260327103014_ShopDeals','9.0.11'),('20260327124234_EstateProbateAuctionLiquidation','9.0.11'),('20260328123631_EstateProbateMorgueWorkflow','9.0.11'),('20260329110346_EconomicZoneEstatesEnabledToggle','9.0.11'),('20260329223130_EstateWillsPayoutsAndPropertyShares','9.0.11'),('20260331222122_AddSolidMaterialAliases','9.0.11'),('20260402053811_RemoveOldSunCelestialDefault','9.0.11'),('20260415122407_MarketPopulationIncomeAndPricePressure','9.0.11'),('20260415225956_MarketCombinationCategoriesAndStressHysteresisReady','9.0.11'),('20260416225128_AddCharacterComputerWorkspace','9.0.11'),('20260418111319_AddComputerMailService','9.0.11'),('20260420105205_AddBodypartSeverFormula','9.0.11'),('20260421064024_ProjectQueueAndCancellationContinuity','9.0.11'),('20260422035105_Phase1MultiBodyForms','9.0.11'),('20260423090353_Phase15BodyFormProvisioning','9.0.11'),('20260423093000_CharacterBodyTraumaMode','9.0.11'),('20260423114308_Phase15FormTransformationEcho','9.0.11'),('20260424000000_RaceAttributeAlterations','9.0.11'),('20260424035904_RaceSatiationLimits','9.0.11'),('20260424040025_PlanesAndPlanarData','9.0.11'),('20260424044647_PlaneRoomPresentation','9.0.11'),('20260425131140_HotelRoomRentals','9.0.11'),('20260425131520_StableMountStabling','9.0.11'),('20260425132107_AddTerrainGravity','9.0.11'),('20260426114113_DefaultFormTransformationEchoNonSelf','9.0.11'),('20260427110022_RecurringIntervalOrdinalFields','9.0.11'),('20260501090000_PlaneRemoteObservationTag','9.0.11'),('20260501132243_RaceAgeColumnsNoDatabaseDefaults','9.0.11'),('20260506102652_PrintedWritingAuthorNullable','9.0.11'),('20260506103358_ClanBudgetsAndPayrollHistory','9.0.11'),('20260507091523_VirtualCashLedgerAndBanklessSettlement','9.0.11'),('20260507092824_ClanBudgetVirtualTreasuryFallback','9.0.11'),('20260510212610_PatrolRouteStrategyData','9.0.11'),('20260513234412_ManualCombatCommands','9.0.11'),('20260515130602_VehiclesHybridModel','9.0.11'),('20260515232922_VehicleSystemsPhase2','9.0.11'),('20260519132419_VehicleCharacterHitchPullMultiplier','9.0.11'),('20260520000533_VehiclePersistentHitchLinks','9.0.11'),('20260520011927_AgricultureSystem','9.0.11'),('20260523000000_CommoditySpoilageRules','9.0.11'),('20260523125349_ItemProtoUniqueNameBuilderNotes','9.0.11'),('20260523134149_NpcTemplateUniqueNameBuilderNotes','9.0.11'),('20260523205847_ForagableCommodityOutput','9.0.11'),('20260526091744_UnifiedEmploymentPersistence','9.0.11'),('20260526120456_SurfaceLiquidState','9.0.11'),('20260529001356_EmploymentPayrollLiabilities','9.0.11'),('20260529025718_EmploymentActionStepOperationalState','9.0.11'),('20260529230237_MagicPortalTopology','9.0.11'),('20260530235915_EmploymentScheduledRuleStatus','9.0.11'),('20260601012012_AutomaticCrimeContext','9.0.11'),('20260601111355_HotelNormalizedPersistence','9.0.11'),('20260601122909_CommodityMerchandiseWeightedSales','9.0.11'),('20260606072630_RichEmploymentScheduledRuleExpressions','9.0.11'),('20260606103736_OutfitTemplates','9.0.11'),('20260612134150_CharacterInstances','9.0.11'),('20260614233932_CharacterInstanceNpcPatrolStableInstances','9.0.11'),('20260615024353_CharacterInstanceActorReferences','9.0.11'),('20260615120000_CharacterInstanceProjectLabour','9.0.11'),('20260616135417_DrugExpansionDependenceExposures','9.0.11'),('20260620054424_EmploymentApplicationSnapshots','9.0.11'),('20260627000000_VehicleTowStressPolicy','9.0.11'),('20260701121756_AlertEmotes','9.0.11'),('20260701122720_ClanHallCellsForEmploymentHosts','9.0.11'),('20260703095705_WritingCollections','9.0.11'),('20260703125041_HospitalServicesAndEmploymentHosts','9.0.11'),('20260703143217_HospitalAnesthesiaBloodStockPolicies','9.0.11'),('20260703232840_HospitalCannulationAndCombinedServices','9.0.11'),('20260706141430_ActiveProjectPaymentSettings','9.0.11'),('20260708120000_HospitalClinicalPlanning','9.0.11'),('20260719104654_VehicleSurfaceWaterMovementProfiles','9.0.11'),('20260719124626_VehicleSurfaceWaterPropulsion','9.0.11'),('20260720063425_VehicleBoatCombat','9.0.11'),('20260721125028_MultiTargetCombatActions','9.0.11'),('20260722063400_RouteCellSpatialFoundation','9.0.11'),('20260722071041_RoomScaleVehicleInteriors','9.0.11'),('20260722100951_VehicleRoutesAndServices','9.0.11'),('20260726211600_VehicleTerrestrialEnginePower','9.0.11'),('20260726211712_VehicleRiderPoweredPropulsion','9.0.11'),('20260727101435_CombatPositionAttackPreference','9.0.11'),('20260730053720_FirearmAttachmentsAndProjectileAmmunition','9.0.11'),('20260804125523_SeederManagedRecordProvenance','9.0.11'),('20260805124030_ProjectQueueSchedulingAndLaunchEntries','9.0.11'),('20260808112940_AddBodypartLimbSeverDescription','9.0.11'),('20260810130800_AddTrapTemplates','9.0.11'),('20260816012516_HospitalServiceConsentPolicy','9.0.11'),('20260816094719_AddLootTables','9.0.11'),('20260822054945_AddRestaurantServiceSystem','9.0.11'),('20260822233623_AddRestaurantServicePresentation','9.0.11'),('20260823090841_RestaurantServiceWorkflowImprovements','9.0.11'),('20260825022721_AddRacePainToleranceMultiplier','9.0.11'),('20260827113842_AddRangedWeaponMinimumFiringPosition','9.0.11'),('20260828014622_AddNPCSkillPackages','9.0.11'),('20260829031447_AddSignedLanguageCommunication','9.0.11'),('20260829082253_AddOutfitTemplateItemSkin','9.0.11'),('20260830080041_AddGameItemProtoRefrigerationSensitivity','9.0.11'),('20260830121659_AddMediaRecordingStorage','9.0.11'),('20260904015558_AddLiquidFreshness','9.0.11'),('20260904111218_AddEconomyAnalytics','9.0.11'),('20260905072550_PsychicWitnessMemory','9.0.11'),('20260907085537_ChargenSkillSelectionGroups','9.0.11'),('20260907235156_SeederManagedRecordBaselines','9.0.11'),('20260910112225_NativeLanguagesAndAccentRoles','9.0.11'),('20260911080024_MagicalSubstances','9.0.11'),('20260912061254_VancianMagic','9.0.11'),('20260913105616_EnvironmentalMagic','9.0.11'),('20260914130508_MagicGatheringOperations','9.0.11'),('20260920025846_LandGatheringSourceAccounting','9.0.11'),('20260922124142_AddGameItemDescriptionOverrides','9.0.11'),('20260926094429_LandRejuvenationTreatments','9.0.11'),('20260926115932_WidenCelestialDefinition','9.0.11'),('20260926124947_AddEnvironmentalExposureDefinitions','9.0.11'),('20260926145630_ExpandLiquidExposureDefinitions','9.0.11'),('20260927050300_ConfigurableCasting','9.0.11'),('20260927132805_WeatherForecastSchedule','9.0.11'),('20261002205954_SpellOwnedLifecycleFoundation','9.0.11'),('20261002225323_OrdinaryBodyRetirement','9.0.11'),('20261003023907_SpellNpcArchival','9.0.11'),('20261003170627_SpellOwnedRemainsRemovalIntent','9.0.11'),('20261006135343_CellUniqueNames','9.0.11'),('20261006143539_CellSpatialExpansion','9.0.11'),('20261006161646_CellSpatialContraction','9.0.11');
+INSERT INTO `__efmigrationshistory`(`MigrationId`,`ProductVersion`) VALUES('20200626070704_InitialDatabase','9.0.11'),('20200728125151_MoveChargenToTables','9.0.11'),('20200807044450_EnforcementUpdate','9.0.11'),('20200810141606_ClanVoting','9.0.11'),('20200817061844_Elections','9.0.11'),('20200830233741_TerrainUpdate','9.0.11'),('20200905062837_CurrencyPatternEnhancement','9.0.11'),('20200928025908_KnowledgeBuilding','9.0.11'),('20201013213328_CheckFixing','9.0.11'),('20201014230837_FixingEmailTemplates','9.0.11'),('20201106014706_LineOfCreditAccounts','9.0.11'),('20201106040133_AttributesUpdate','9.0.11'),('20201108122141_EconomicZoneUpdate','9.0.11'),('20201113050353_EconomicZonesTouchup','9.0.11'),('20201120022913_EnforcermentAndMisc','9.0.11'),('20201120045951_MinorFixForCrime','9.0.11'),('20201129225407_SafeQuit','9.0.11'),('20201130014025_JournalUpdates','9.0.11'),('20201130041538_JournalUpdate','9.0.11'),('20201201052916_DrugReform','9.0.11'),('20201217051236_Changes','9.0.11'),('20201217051726_ExtraDescriptions','9.0.11'),('20201218014631_RacialBreathingChange','9.0.11'),('20201221031703_ClanFame','9.0.11'),('20201227120935_CantRemember','9.0.11'),('20210113052107_IndexFixForBodyparts','9.0.11'),('20210114010706_IndexAdditions','9.0.11'),('20210116210204_MagicSpells','9.0.11'),('20210118053537_MoreSpellStuff','9.0.11'),('20210119034150_MoreSpellStuff2','9.0.11'),('20210119035740_MoreSpellStuff3','9.0.11'),('20210120031933_MoreSpellStuff4','9.0.11'),('20210127032929_Jan21EnforcementWorkaround','9.0.11'),('20210202002906_RemovingChildClans','9.0.11'),('20210211035327_GameStatistics','9.0.11'),('20210224105856_NewSun','9.0.11'),('20210302112347_OngoingCheckForCharacteristics','9.0.11'),('20210331025006_BanksV1','9.0.11'),('20210423014825_WeaponAttackAddPositionRequirement','9.0.11'),('20210626110830_AuctionHouses','9.0.11'),('20210810123837_PropertyV1','9.0.11'),('20210902052233_PropertyV2','9.0.11'),('20210914132733_Sep21LawUpdate','9.0.11'),('20211025020630_JusticeOverhaulOct21','9.0.11'),('20211217034326_TerrainMapColourAddition','9.0.11'),('20211220045847_Skins','9.0.11'),('20211222033658_Skins-Pt2','9.0.11'),('20211226134159_ClanBankAccounts','9.0.11'),('20211229004501_PlayerBoards','9.0.11'),('20220104134109_JobsV1','9.0.11'),('20220105004035_ProjectsJobsUpdate','9.0.11'),('20220108004307_BoardBugFix','9.0.11'),('20220117102755_BoardsDescriptions','9.0.11'),('20220210215752_LongerAuthorFullDescs','9.0.11'),('20220225125641_ClanFKFixing','9.0.11'),('20220327052829_NPCSpawners','9.0.11'),('20220421132846_BodyCharacteristicsFix','9.0.11'),('20220625122517_ClanDiscordUpdate','9.0.11'),('20220625125136_ChargenResourcesAsDouble','9.0.11'),('20220718132632_MaterialsRefactor','9.0.11'),('20220731064708_TheoreticalCraftChecks','9.0.11'),('20220807101509_IntToDoubleParryBonus','9.0.11'),('20220814231930_RaceDefaultHwModels','9.0.11'),('20221030044209_ShopBankAccountsAndFinance','9.0.11'),('20221030125929_BankPaymentsAtShops','9.0.11'),('20221031113757_MagicSpellExclusivity','9.0.11'),('20221201081057_NameCulturesGenderExpansion','9.0.11'),('20221201133628_NameCulturesChargenExpansion','9.0.11'),('20230101133831_CurrencyPatternRegexCaseFix','9.0.11'),('20230110120837_RelativeEnthalpyForLiquids','9.0.11'),('20230124124618_SurgicalProcedureCheckTraits','9.0.11'),('20230311060208_SurgeryBodyUpdate','9.0.11'),('20230407151210_OpenAIv1','9.0.11'),('20230428004425_GlobalCurrencyChanges','9.0.11'),('20230603125906_CraftUseToolDuration','9.0.11'),('20230706055610_AuxiliaryMoves','9.0.11'),('20230714035824_AuxiliaryMoves2','9.0.11'),('20230727121209_SeasonsDisplayUpdate','9.0.11'),('20230731055842_SeederChoices','9.0.11'),('20230810071403_CellForeignKeyUpdates','9.0.11'),('20230825052231_NpcSpawnerMulti','9.0.11'),('20230825061651_ShopTypes','9.0.11'),('20230914142042_ScriptedEvents','9.0.11'),('20230917131132_ClanForeignKeyUpdate','9.0.11'),('20231031085439_MagicResourceColours','9.0.11'),('20231102120820_NewPlayerHints','9.0.11'),('20231110224309_HungerThirstRatesForRaces','9.0.11'),('20231125084220_ClimateModelSimplification','9.0.11'),('20231208235024_HeritageChargenCostBugFix','9.0.11'),('20240112055830_ChargenResourcesControlProg','9.0.11'),('20240119120217_CoinsChangeFlag','9.0.11'),('20240129025113_CurrencyForeignKeyUpdateJan24','9.0.11'),('20240305110906_BuyingMerchandise','9.0.11'),('20240325104238_MarketsV1','9.0.11'),('20240418112441_MarketsShopIntegration','9.0.11'),('20240427013621_MarketPopulations','9.0.11'),('20240601141550_DiscordOutputForChannels','9.0.11'),('20240615065145_ShopAutopayTaxes','9.0.11'),('20240730123726_TrackingV1','9.0.11'),('20240804070126_FixDatabaseAutoTrueBug','9.0.11'),('20240808232211_TrackingNameForBodyProtos','9.0.11'),('20240809155707_BMIUnits','9.0.11'),('20240816134208_ArmourPenaltyToDouble','9.0.11'),('20240817112644_HeightWeightModelDirectSetWeights','9.0.11'),('20240828105208_AutoReacquireTargetsSetting','9.0.11'),('20240828124859_CombatSettingsAugust24','9.0.11'),('20240831005804_BodypartGroupDescribersAugust2024','9.0.11'),('20240925062238_CrimesUpdate2024Sep25','9.0.11'),('20241011073405_StockroomNonMorphing','9.0.11'),('20241016054103_ItemProtoIsHiddenFromPlayers','9.0.11'),('20241016123415_BodyOverrideHealthStrategy','9.0.11'),('20241018071518_LiquidLeaveResidueInRooms','9.0.11'),('20241121010653_RemovingBreathableFluidsRaces','9.0.11'),('20241129002416_CriminalDescUpdates','9.0.11'),('20241216062012_RandomNamesBinaryUnicodeSort','9.0.11'),('20241220091815_EthnicitiesNameCultures','9.0.11'),('20241231030836_TagsForTerrains','9.0.11'),('20250101232454_SkewnessForHWModels','9.0.11'),('20250210095915_Shoppers','9.0.11'),('20250210233555_ShopsFeb25','9.0.11'),('20250211100238_ShopsFeb25P2','9.0.11'),('20250304042559_PreserveRegisterVariablesItemFlag','9.0.11'),('20250304104024_CraftPhaseExertionAndStamina','9.0.11'),('20250304114440_MerchandiseTransactionRecordsFix','9.0.11'),('20250424052852_SpellTriggerNullTargets','9.0.11'),('20250628230040_PropertyRekeyOnLeaseEnd','9.0.11'),('20251110082110_CombatArenaSchema','9.0.11'),('20251115120000_ArenaSignupEcho','9.0.11'),('20260211095519_AIStorytellers','9.0.11'),('20260211124139_AIStorytellerEventSubscriptions','9.0.11'),('20260216092441_AIStorytellerTimeSystemPrompt','9.0.11'),('20260216095426_AIStorytellerScopedModelReasoning','9.0.11'),('20260218120142_ArenaAutoScheduling','9.0.11'),('20260221112947_AIStorytellerSituationScopes','9.0.11'),('20260222081900_ArenaEventTypeEliminationModes','9.0.11'),('20260222112522_ArenaNpcCompletionRestore','9.0.11'),('20260225115630_ArenaStageNameProfile','9.0.11'),('20260225233442_ArenaEloStrategyOptions','9.0.11'),('20260226124500_ArenaSideRatingRanges','9.0.11'),('20260227120000_ArenaPhaseProgAppearancePayouts','9.0.11'),('20260308065322_ClimateDescriptions','9.0.11'),('20260309072751_WeatherModelSimplification','9.0.11'),('20260309222608_ReplaceCharacterCaloriesWithSatiationReserve','9.0.11'),('20260309225356_DropObsoleteNutritionCalories','9.0.11'),('20260310122815_InfectionVirulenceMultiplier','9.0.11'),('20260316112529_NaturalRangedAttacksAndElementalContact','9.0.11'),('20260320180000_CombatSettingPriorityAndRaceDefault','9.0.11'),('20260321102002_FutureProgTypeDefinitionsStage1','9.0.11'),('20260321102139_FutureProgTypeDefinitionsStage2','9.0.11'),('20260327103014_ShopDeals','9.0.11'),('20260327124234_EstateProbateAuctionLiquidation','9.0.11'),('20260328123631_EstateProbateMorgueWorkflow','9.0.11'),('20260329110346_EconomicZoneEstatesEnabledToggle','9.0.11'),('20260329223130_EstateWillsPayoutsAndPropertyShares','9.0.11'),('20260331222122_AddSolidMaterialAliases','9.0.11'),('20260402053811_RemoveOldSunCelestialDefault','9.0.11'),('20260415122407_MarketPopulationIncomeAndPricePressure','9.0.11'),('20260415225956_MarketCombinationCategoriesAndStressHysteresisReady','9.0.11'),('20260416225128_AddCharacterComputerWorkspace','9.0.11'),('20260418111319_AddComputerMailService','9.0.11'),('20260420105205_AddBodypartSeverFormula','9.0.11'),('20260421064024_ProjectQueueAndCancellationContinuity','9.0.11'),('20260422035105_Phase1MultiBodyForms','9.0.11'),('20260423090353_Phase15BodyFormProvisioning','9.0.11'),('20260423093000_CharacterBodyTraumaMode','9.0.11'),('20260423114308_Phase15FormTransformationEcho','9.0.11'),('20260424000000_RaceAttributeAlterations','9.0.11'),('20260424035904_RaceSatiationLimits','9.0.11'),('20260424040025_PlanesAndPlanarData','9.0.11'),('20260424044647_PlaneRoomPresentation','9.0.11'),('20260425131140_HotelRoomRentals','9.0.11'),('20260425131520_StableMountStabling','9.0.11'),('20260425132107_AddTerrainGravity','9.0.11'),('20260426114113_DefaultFormTransformationEchoNonSelf','9.0.11'),('20260427110022_RecurringIntervalOrdinalFields','9.0.11'),('20260501090000_PlaneRemoteObservationTag','9.0.11'),('20260501132243_RaceAgeColumnsNoDatabaseDefaults','9.0.11'),('20260506102652_PrintedWritingAuthorNullable','9.0.11'),('20260506103358_ClanBudgetsAndPayrollHistory','9.0.11'),('20260507091523_VirtualCashLedgerAndBanklessSettlement','9.0.11'),('20260507092824_ClanBudgetVirtualTreasuryFallback','9.0.11'),('20260510212610_PatrolRouteStrategyData','9.0.11'),('20260513234412_ManualCombatCommands','9.0.11'),('20260515130602_VehiclesHybridModel','9.0.11'),('20260515232922_VehicleSystemsPhase2','9.0.11'),('20260519132419_VehicleCharacterHitchPullMultiplier','9.0.11'),('20260520000533_VehiclePersistentHitchLinks','9.0.11'),('20260520011927_AgricultureSystem','9.0.11'),('20260523000000_CommoditySpoilageRules','9.0.11'),('20260523125349_ItemProtoUniqueNameBuilderNotes','9.0.11'),('20260523134149_NpcTemplateUniqueNameBuilderNotes','9.0.11'),('20260523205847_ForagableCommodityOutput','9.0.11'),('20260526091744_UnifiedEmploymentPersistence','9.0.11'),('20260526120456_SurfaceLiquidState','9.0.11'),('20260529001356_EmploymentPayrollLiabilities','9.0.11'),('20260529025718_EmploymentActionStepOperationalState','9.0.11'),('20260529230237_MagicPortalTopology','9.0.11'),('20260530235915_EmploymentScheduledRuleStatus','9.0.11'),('20260601012012_AutomaticCrimeContext','9.0.11'),('20260601111355_HotelNormalizedPersistence','9.0.11'),('20260601122909_CommodityMerchandiseWeightedSales','9.0.11'),('20260606072630_RichEmploymentScheduledRuleExpressions','9.0.11'),('20260606103736_OutfitTemplates','9.0.11'),('20260612134150_CharacterInstances','9.0.11'),('20260614233932_CharacterInstanceNpcPatrolStableInstances','9.0.11'),('20260615024353_CharacterInstanceActorReferences','9.0.11'),('20260615120000_CharacterInstanceProjectLabour','9.0.11'),('20260616135417_DrugExpansionDependenceExposures','9.0.11'),('20260620054424_EmploymentApplicationSnapshots','9.0.11'),('20260627000000_VehicleTowStressPolicy','9.0.11'),('20260701121756_AlertEmotes','9.0.11'),('20260701122720_ClanHallCellsForEmploymentHosts','9.0.11'),('20260703095705_WritingCollections','9.0.11'),('20260703125041_HospitalServicesAndEmploymentHosts','9.0.11'),('20260703143217_HospitalAnesthesiaBloodStockPolicies','9.0.11'),('20260703232840_HospitalCannulationAndCombinedServices','9.0.11'),('20260706141430_ActiveProjectPaymentSettings','9.0.11'),('20260708120000_HospitalClinicalPlanning','9.0.11'),('20260719104654_VehicleSurfaceWaterMovementProfiles','9.0.11'),('20260719124626_VehicleSurfaceWaterPropulsion','9.0.11'),('20260720063425_VehicleBoatCombat','9.0.11'),('20260721125028_MultiTargetCombatActions','9.0.11'),('20260722063400_RouteCellSpatialFoundation','9.0.11'),('20260722071041_RoomScaleVehicleInteriors','9.0.11'),('20260722100951_VehicleRoutesAndServices','9.0.11'),('20260726211600_VehicleTerrestrialEnginePower','9.0.11'),('20260726211712_VehicleRiderPoweredPropulsion','9.0.11'),('20260727101435_CombatPositionAttackPreference','9.0.11'),('20260730053720_FirearmAttachmentsAndProjectileAmmunition','9.0.11'),('20260804125523_SeederManagedRecordProvenance','9.0.11'),('20260805124030_ProjectQueueSchedulingAndLaunchEntries','9.0.11'),('20260808112940_AddBodypartLimbSeverDescription','9.0.11'),('20260810130800_AddTrapTemplates','9.0.11'),('20260816012516_HospitalServiceConsentPolicy','9.0.11'),('20260816094719_AddLootTables','9.0.11'),('20260822054945_AddRestaurantServiceSystem','9.0.11'),('20260822233623_AddRestaurantServicePresentation','9.0.11'),('20260823090841_RestaurantServiceWorkflowImprovements','9.0.11'),('20260825022721_AddRacePainToleranceMultiplier','9.0.11'),('20260827113842_AddRangedWeaponMinimumFiringPosition','9.0.11'),('20260828014622_AddNPCSkillPackages','9.0.11'),('20260829031447_AddSignedLanguageCommunication','9.0.11'),('20260829082253_AddOutfitTemplateItemSkin','9.0.11'),('20260830080041_AddGameItemProtoRefrigerationSensitivity','9.0.11'),('20260830121659_AddMediaRecordingStorage','9.0.11'),('20260904015558_AddLiquidFreshness','9.0.11'),('20260904111218_AddEconomyAnalytics','9.0.11'),('20260905072550_PsychicWitnessMemory','9.0.11'),('20260907085537_ChargenSkillSelectionGroups','9.0.11'),('20260907235156_SeederManagedRecordBaselines','9.0.11'),('20260910112225_NativeLanguagesAndAccentRoles','9.0.11'),('20260911080024_MagicalSubstances','9.0.11'),('20260912061254_VancianMagic','9.0.11'),('20260913105616_EnvironmentalMagic','9.0.11'),('20260914130508_MagicGatheringOperations','9.0.11'),('20260920025846_LandGatheringSourceAccounting','9.0.11'),('20260922124142_AddGameItemDescriptionOverrides','9.0.11'),('20260926094429_LandRejuvenationTreatments','9.0.11'),('20260926115932_WidenCelestialDefinition','9.0.11'),('20260926124947_AddEnvironmentalExposureDefinitions','9.0.11'),('20260926145630_ExpandLiquidExposureDefinitions','9.0.11'),('20260927050300_ConfigurableCasting','9.0.11'),('20260927132805_WeatherForecastSchedule','9.0.11'),('20261002205954_SpellOwnedLifecycleFoundation','9.0.11'),('20261002225323_OrdinaryBodyRetirement','9.0.11'),('20261003023907_SpellNpcArchival','9.0.11'),('20261003170627_SpellOwnedRemainsRemovalIntent','9.0.11'),('20261006135343_CellUniqueNames','9.0.11'),('20261006143539_CellSpatialExpansion','9.0.11'),('20261006161646_CellSpatialContraction','9.0.11'),('20261007043900_RoomTerminology','9.0.11'),('20261008024603_TargetedLegacyRoomReferences','9.0.11'),('20261012024208_TrackCharacterInstanceIdentity','9.0.11'),('20261013135303_SpellDrugDoseCustody','9.0.11'),('20261014221452_AddSpellGateRetirementCursor','9.0.11'),('20261015093439_PersistDubIdentityProvenance','9.0.11'),('20261015103829_PersistRoomHazardPulseCursor','9.0.11'),('20261016052024_AddShopHaggling','9.0.11');
 /*!40000 ALTER TABLE `__efmigrationshistory` ENABLE KEYS */;
 
 --
@@ -82,71 +82,6 @@ CREATE TABLE IF NOT EXISTS `agriculturefieldprofiles` (
 
 /*!40000 ALTER TABLE `agriculturefieldprofiles` DISABLE KEYS */;
 /*!40000 ALTER TABLE `agriculturefieldprofiles` ENABLE KEYS */;
-
---
--- Definition of agriculturefields
---
-
-DROP TABLE IF EXISTS `agriculturefields`;
-CREATE TABLE IF NOT EXISTS `agriculturefields` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `CellId` bigint NOT NULL,
-  `ProfileId` bigint NOT NULL,
-  `CurrentUse` int NOT NULL,
-  `Moisture` int NOT NULL,
-  `Drainage` int NOT NULL,
-  `Nutrients` int NOT NULL,
-  `Salinity` int NOT NULL,
-  `Topsoil` int NOT NULL,
-  `Tilth` int NOT NULL,
-  `Rockiness` int NOT NULL,
-  `Weeds` int NOT NULL,
-  `Pests` int NOT NULL,
-  `Fence` int NOT NULL,
-  `Pasture` int NOT NULL,
-  `Condition` int NOT NULL,
-  `LastTickMudDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `Definition` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  PRIMARY KEY (`Id`),
-  UNIQUE KEY `IX_AgricultureFields_CellId` (`CellId`),
-  KEY `FK_AgricultureFields_Profiles_idx` (`ProfileId`),
-  CONSTRAINT `FK_AgricultureFields_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_AgricultureFields_Profiles` FOREIGN KEY (`ProfileId`) REFERENCES `agriculturefieldprofiles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table agriculturefields
---
-
-/*!40000 ALTER TABLE `agriculturefields` DISABLE KEYS */;
-/*!40000 ALTER TABLE `agriculturefields` ENABLE KEYS */;
-
---
--- Definition of agriculturefieldcrops
---
-
-DROP TABLE IF EXISTS `agriculturefieldcrops`;
-CREATE TABLE IF NOT EXISTS `agriculturefieldcrops` (
-  `AgricultureFieldId` bigint NOT NULL,
-  `CropDefinitionId` bigint NOT NULL,
-  `Stage` int NOT NULL,
-  `GrowthDays` int NOT NULL,
-  `Health` int NOT NULL,
-  `YieldPotential` int NOT NULL,
-  `PlantedMudDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `Definition` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  PRIMARY KEY (`AgricultureFieldId`),
-  KEY `FK_AgricultureFieldCrops_Crops_idx` (`CropDefinitionId`),
-  CONSTRAINT `FK_AgricultureFieldCrops_Crops` FOREIGN KEY (`CropDefinitionId`) REFERENCES `agriculturecropdefinitions` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_AgricultureFieldCrops_Fields` FOREIGN KEY (`AgricultureFieldId`) REFERENCES `agriculturefields` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table agriculturefieldcrops
---
-
-/*!40000 ALTER TABLE `agriculturefieldcrops` DISABLE KEYS */;
-/*!40000 ALTER TABLE `agriculturefieldcrops` ENABLE KEYS */;
 
 --
 -- Definition of agriculturewoodlanddefinitions
@@ -232,7 +167,7 @@ CREATE TABLE IF NOT EXISTS `armourtypes` (
   `StackedDifficultyDegrees` double NOT NULL,
   `Definition` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table armourtypes
@@ -252,7 +187,7 @@ CREATE TABLE IF NOT EXISTS `artificialintelligences` (
   `Type` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Definition` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table artificialintelligences
@@ -279,7 +214,7 @@ CREATE TABLE IF NOT EXISTS `authoritygroups` (
   `PlanesLevel` int NOT NULL,
   `RoomsLevel` int NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table authoritygroups
@@ -330,7 +265,7 @@ CREATE TABLE IF NOT EXISTS `accounts` (
   PRIMARY KEY (`Id`),
   KEY `FK_Accounts_AuthorityGroups` (`AuthorityGroupId`),
   CONSTRAINT `FK_Accounts_AuthorityGroups` FOREIGN KEY (`AuthorityGroupId`) REFERENCES `authoritygroups` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table accounts
@@ -350,7 +285,7 @@ CREATE TABLE IF NOT EXISTS `autobuilderareatemplates` (
   `TemplateType` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Definition` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table autobuilderareatemplates
@@ -370,7 +305,7 @@ CREATE TABLE IF NOT EXISTS `autobuilderroomtemplates` (
   `TemplateType` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Definition` longtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`ID`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table autobuilderroomtemplates
@@ -393,7 +328,7 @@ CREATE TABLE IF NOT EXISTS `bans` (
   PRIMARY KEY (`Id`),
   KEY `FK_Bans_Accounts` (`BannerAccountId`),
   CONSTRAINT `FK_Bans_Accounts` FOREIGN KEY (`BannerAccountId`) REFERENCES `accounts` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bans
@@ -411,7 +346,7 @@ CREATE TABLE IF NOT EXISTS `bloodmodels` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
   `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bloodmodels
@@ -429,7 +364,7 @@ CREATE TABLE IF NOT EXISTS `bloodtypeantigens` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
   `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bloodtypeantigens
@@ -447,7 +382,7 @@ CREATE TABLE IF NOT EXISTS `bloodtypes` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
   `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bloodtypes
@@ -468,7 +403,7 @@ CREATE TABLE IF NOT EXISTS `bloodmodels_bloodtypes` (
   KEY `FK_BloodModels_Bloodtypes_Bloodtypes_idx` (`BloodtypeId`),
   CONSTRAINT `FK_BloodModels_Bloodtypes_BloodModels` FOREIGN KEY (`BloodModelId`) REFERENCES `bloodmodels` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_BloodModels_Bloodtypes_Bloodtypes` FOREIGN KEY (`BloodtypeId`) REFERENCES `bloodtypes` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bloodmodels_bloodtypes
@@ -489,7 +424,7 @@ CREATE TABLE IF NOT EXISTS `bloodtypes_bloodtypeantigens` (
   KEY `FK_Bloodtypes_BloodtypeAntigens_BloodtypeAntigens_idx` (`BloodtypeAntigenId`),
   CONSTRAINT `FK_Bloodtypes_BloodtypeAntigens_BloodtypeAntigens` FOREIGN KEY (`BloodtypeAntigenId`) REFERENCES `bloodtypeantigens` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Bloodtypes_BloodtypeAntigens_Bloodtypes` FOREIGN KEY (`BloodtypeId`) REFERENCES `bloodtypes` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bloodtypes_bloodtypeantigens
@@ -507,7 +442,7 @@ CREATE TABLE IF NOT EXISTS `bodypartshape` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
   `Name` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodypartshape
@@ -530,7 +465,7 @@ CREATE TABLE IF NOT EXISTS `bodypartgroupdescribers_shapecount` (
   KEY `FK_BGD_ShapeCount_BodypartShape` (`TargetId`),
   CONSTRAINT `FK_BGD_ShapeCount_BodypartGroupDescribers` FOREIGN KEY (`BodypartGroupDescriptionRuleId`) REFERENCES `bodypartgroupdescribers` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_BGD_ShapeCount_BodypartShape` FOREIGN KEY (`TargetId`) REFERENCES `bodypartshape` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodypartgroupdescribers_shapecount
@@ -551,7 +486,7 @@ CREATE TABLE IF NOT EXISTS `bodypartshapecountview` (
   `MaxCount` tinyint NOT NULL,
   `TargetId` tinyint NOT NULL,
   `Name` tinyint NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodypartshapecountview
@@ -571,7 +506,7 @@ CREATE TABLE IF NOT EXISTS `calendars` (
   `Date` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `FeedClockId` bigint NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table calendars
@@ -593,7 +528,7 @@ CREATE TABLE IF NOT EXISTS `boards` (
   PRIMARY KEY (`Id`),
   KEY `IX_Boards_CalendarId` (`CalendarId`),
   CONSTRAINT `FK_Boards_Calendars` FOREIGN KEY (`CalendarId`) REFERENCES `calendars` (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table boards
@@ -623,7 +558,7 @@ CREATE TABLE IF NOT EXISTS `boardposts` (
   KEY `FK_BoardsPosts_Accounts_idx` (`AuthorId`),
   KEY `FK_BoardPosts_Boards_idx` (`BoardId`),
   CONSTRAINT `FK_BoardPosts_Boards` FOREIGN KEY (`BoardId`) REFERENCES `boards` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table boardposts
@@ -646,7 +581,7 @@ CREATE TABLE IF NOT EXISTS `celestials` (
   `LastYearBump` int NOT NULL,
   `CelestialType` varchar(30) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT 'Sun',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table celestials
@@ -654,90 +589,6 @@ CREATE TABLE IF NOT EXISTS `celestials` (
 
 /*!40000 ALTER TABLE `celestials` DISABLE KEYS */;
 /*!40000 ALTER TABLE `celestials` ENABLE KEYS */;
-
---
--- Definition of cellroomareacontractionledger
---
-
-DROP TABLE IF EXISTS `cellroomareacontractionledger`;
-CREATE TABLE IF NOT EXISTS `cellroomareacontractionledger` (
-  `AreaId` bigint NOT NULL,
-  `RoomId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`AreaId`,`RoomId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table cellroomareacontractionledger
---
-
-/*!40000 ALTER TABLE `cellroomareacontractionledger` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cellroomareacontractionledger` ENABLE KEYS */;
-
---
--- Definition of cellroomareamigrationledger
---
-
-DROP TABLE IF EXISTS `cellroomareamigrationledger`;
-CREATE TABLE IF NOT EXISTS `cellroomareamigrationledger` (
-  `AreaId` bigint NOT NULL,
-  `RoomId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`AreaId`,`RoomId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table cellroomareamigrationledger
---
-
-/*!40000 ALTER TABLE `cellroomareamigrationledger` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cellroomareamigrationledger` ENABLE KEYS */;
-
---
--- Definition of cellroomcontractionledger
---
-
-DROP TABLE IF EXISTS `cellroomcontractionledger`;
-CREATE TABLE IF NOT EXISTS `cellroomcontractionledger` (
-  `RoomId` bigint NOT NULL,
-  `CellId` bigint DEFAULT NULL,
-  `ZoneId` bigint NOT NULL,
-  `X` int NOT NULL,
-  `Y` int NOT NULL,
-  `Z` int NOT NULL,
-  `Warning` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  PRIMARY KEY (`RoomId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table cellroomcontractionledger
---
-
-/*!40000 ALTER TABLE `cellroomcontractionledger` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cellroomcontractionledger` ENABLE KEYS */;
-
---
--- Definition of cellroommigrationledger
---
-
-DROP TABLE IF EXISTS `cellroommigrationledger`;
-CREATE TABLE IF NOT EXISTS `cellroommigrationledger` (
-  `RoomId` bigint NOT NULL,
-  `CellId` bigint DEFAULT NULL,
-  `ZoneId` bigint NOT NULL,
-  `X` int NOT NULL,
-  `Y` int NOT NULL,
-  `Z` int NOT NULL,
-  `Warning` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  PRIMARY KEY (`RoomId`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table cellroommigrationledger
---
-
-/*!40000 ALTER TABLE `cellroommigrationledger` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cellroommigrationledger` ENABLE KEYS */;
 
 --
 -- Definition of characterinstances
@@ -785,7 +636,7 @@ CREATE TABLE IF NOT EXISTS `characterinstances` (
   UNIQUE KEY `UQ_CharacterInstances_PrimaryCharacter` (`PrimaryCharacterId`),
   KEY `FK_CharacterInstances_AnchorInstance_idx` (`AnchorInstanceId`),
   KEY `FK_CharacterInstances_Bodies_idx` (`BodyId`),
-  KEY `FK_CharacterInstances_Cells_idx` (`LocationId`),
+  KEY `FK_CharacterInstances_Rooms_idx` (`LocationId`),
   KEY `FK_CharacterInstances_Characters_idx` (`CharacterId`),
   KEY `IX_CharacterInstances_Location_Layer` (`LocationId`,`RoomLayer`),
   KEY `FK_CharacterInstances_ActiveProjects_idx` (`CurrentProjectId`),
@@ -818,7 +669,7 @@ CREATE TABLE IF NOT EXISTS `characteristicdefinitions` (
   PRIMARY KEY (`Id`),
   KEY `FK_CharacteristicDefinitions_Parent` (`ParentId`),
   CONSTRAINT `FK_CharacteristicDefinitions_Parent` FOREIGN KEY (`ParentId`) REFERENCES `characteristicdefinitions` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table characteristicdefinitions
@@ -842,7 +693,7 @@ CREATE TABLE IF NOT EXISTS `characteristicprofiles` (
   PRIMARY KEY (`Id`),
   KEY `FK_CharacteristicProfiles_CharacteristicDefinitions` (`TargetDefinitionId`),
   CONSTRAINT `FK_CharacteristicProfiles_CharacteristicDefinitions` FOREIGN KEY (`TargetDefinitionId`) REFERENCES `characteristicdefinitions` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table characteristicprofiles
@@ -869,7 +720,7 @@ CREATE TABLE IF NOT EXISTS `chargens` (
   PRIMARY KEY (`Id`),
   KEY `FK_Chargens_Accounts` (`AccountId`),
   CONSTRAINT `FK_Chargens_Accounts` FOREIGN KEY (`AccountId`) REFERENCES `accounts` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargens
@@ -885,13 +736,13 @@ CREATE TABLE IF NOT EXISTS `chargens` (
 DROP TABLE IF EXISTS `chargenscreenstoryboards`;
 CREATE TABLE IF NOT EXISTS `chargenscreenstoryboards` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
-  `ChargenType` varchar(50) DEFAULT NULL,
+  `ChargenType` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `ChargenStage` int NOT NULL,
   `Order` int NOT NULL,
   `StageDefinition` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `NextStage` int NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenscreenstoryboards
@@ -911,7 +762,7 @@ CREATE TABLE IF NOT EXISTS `chargenscreenstoryboarddependentstages` (
   PRIMARY KEY (`OwnerId`,`Dependency`),
   KEY `FK_ChargenScreenStoryboardDependentStages_Owner` (`OwnerId`),
   CONSTRAINT `FK_ChargenScreenStoryboardDependentStages_Owner` FOREIGN KEY (`OwnerId`) REFERENCES `chargenscreenstoryboards` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenscreenstoryboarddependentstages
@@ -934,7 +785,7 @@ CREATE TABLE IF NOT EXISTS `checktemplates` (
   `FailIfTraitMissingMode` smallint NOT NULL,
   `CanBranchIfTraitMissing` bit(1) NOT NULL DEFAULT b'0',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table checktemplates
@@ -955,7 +806,7 @@ CREATE TABLE IF NOT EXISTS `checktemplatedifficulties` (
   PRIMARY KEY (`Difficulty`,`CheckTemplateId`),
   KEY `FK_CheckTemplateDifficulties_CheckTemplates` (`CheckTemplateId`),
   CONSTRAINT `FK_CheckTemplateDifficulties_CheckTemplates` FOREIGN KEY (`CheckTemplateId`) REFERENCES `checktemplates` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table checktemplatedifficulties
@@ -978,7 +829,7 @@ CREATE TABLE IF NOT EXISTS `climatemodels` (
   `MinuteFlavourEchoChance` double NOT NULL,
   `Description` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table climatemodels
@@ -1000,7 +851,7 @@ CREATE TABLE IF NOT EXISTS `clocks` (
   `Hours` int NOT NULL,
   `PrimaryTimezoneId` bigint NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table clocks
@@ -1023,7 +874,7 @@ CREATE TABLE IF NOT EXISTS `colours` (
   `Blue` int NOT NULL,
   `Fancy` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table colours
@@ -1095,7 +946,7 @@ CREATE TABLE IF NOT EXISTS `corpsemodels` (
   `Definition` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   `Type` varchar(45) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table corpsemodels
@@ -1114,7 +965,7 @@ CREATE TABLE IF NOT EXISTS `cultureinfos` (
   `DisplayName` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Order` int NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table cultureinfos
@@ -1133,7 +984,7 @@ CREATE TABLE IF NOT EXISTS `currencies` (
   `Name` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `BaseCurrencyToGlobalBaseCurrencyConversion` decimal(58,29) NOT NULL DEFAULT '1.00000000000000000000000000000',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table currencies
@@ -1155,7 +1006,7 @@ CREATE TABLE IF NOT EXISTS `bankcurrencyreserves` (
   KEY `IX_BankCurrencyReserves_CurrencyId` (`CurrencyId`),
   CONSTRAINT `FK_BankCurrencyReserves_Banks` FOREIGN KEY (`BankId`) REFERENCES `banks` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_BankCurrencyReserves_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bankcurrencyreserves
@@ -1180,7 +1031,7 @@ CREATE TABLE IF NOT EXISTS `bankexchangerates` (
   CONSTRAINT `FK_BankExchangeRates_Banks` FOREIGN KEY (`BankId`) REFERENCES `banks` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_BankExchangeRates_Currencies_From` FOREIGN KEY (`FromCurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_BankExchangeRates_Currencies_To` FOREIGN KEY (`ToCurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bankexchangerates
@@ -1202,7 +1053,7 @@ CREATE TABLE IF NOT EXISTS `chargenroles_currencies` (
   KEY `FK_ChargenRoles_Currencies_Currencies` (`CurrencyId`),
   CONSTRAINT `FK_ChargenRoles_Currencies_ChargenRoles` FOREIGN KEY (`ChargenRoleId`) REFERENCES `chargenroles` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ChargenRoles_Currencies_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenroles_currencies
@@ -1300,7 +1151,7 @@ CREATE TABLE IF NOT EXISTS `clanmemberships_backpay` (
   KEY `FK_ClanMemberships_Backpay_ClanMemberships` (`ClanId`,`CharacterId`),
   CONSTRAINT `FK_ClanMemberships_Backpay_ClanMemberships` FOREIGN KEY (`ClanId`, `CharacterId`) REFERENCES `clanmemberships` (`ClanId`, `CharacterId`) ON DELETE CASCADE,
   CONSTRAINT `FK_ClanMemberships_Backpay_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table clanmemberships_backpay
@@ -1328,7 +1179,7 @@ CREATE TABLE IF NOT EXISTS `coins` (
   PRIMARY KEY (`Id`),
   KEY `FK_Coins_Currencies` (`CurrencyId`),
   CONSTRAINT `FK_Coins_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table coins
@@ -1351,7 +1202,7 @@ CREATE TABLE IF NOT EXISTS `currencydivisions` (
   PRIMARY KEY (`Id`),
   KEY `FK_CurrencyDivisions_Currencies` (`CurrencyId`),
   CONSTRAINT `FK_CurrencyDivisions_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table currencydivisions
@@ -1381,7 +1232,7 @@ CREATE TABLE IF NOT EXISTS `currencydescriptionpatternelements` (
   KEY `FK_CDPE_CurrencyDivisions` (`CurrencyDivisionId`),
   CONSTRAINT `FK_CDPE_CurrencyDescriptionPatterns` FOREIGN KEY (`CurrencyDescriptionPatternId`) REFERENCES `currencydescriptionpatterns` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_CDPE_CurrencyDivisions` FOREIGN KEY (`CurrencyDivisionId`) REFERENCES `currencydivisions` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table currencydescriptionpatternelements
@@ -1402,7 +1253,7 @@ CREATE TABLE IF NOT EXISTS `currencydescriptionpatternelementspecialvalues` (
   PRIMARY KEY (`Value`,`CurrencyDescriptionPatternElementId`),
   KEY `FK_CDPESV_CDPE` (`CurrencyDescriptionPatternElementId`),
   CONSTRAINT `FK_CDPESV_CDPE` FOREIGN KEY (`CurrencyDescriptionPatternElementId`) REFERENCES `currencydescriptionpatternelements` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table currencydescriptionpatternelementspecialvalues
@@ -1422,7 +1273,7 @@ CREATE TABLE IF NOT EXISTS `currencydivisionabbreviations` (
   PRIMARY KEY (`Pattern`,`CurrencyDivisionId`),
   KEY `FK_CurrencyDivisionAbbreviations_CurrencyDivisions` (`CurrencyDivisionId`),
   CONSTRAINT `FK_CurrencyDivisionAbbreviations_CurrencyDivisions` FOREIGN KEY (`CurrencyDivisionId`) REFERENCES `currencydivisions` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table currencydivisionabbreviations
@@ -1444,7 +1295,7 @@ CREATE TABLE IF NOT EXISTS `damagepatterns` (
   `Sides` int NOT NULL,
   `Bonus` int NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table damagepatterns
@@ -1465,7 +1316,7 @@ CREATE TABLE IF NOT EXISTS `drugs` (
   `IntensityPerGram` double NOT NULL,
   `RelativeMetabolisationRate` double NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table drugs
@@ -1485,11 +1336,16 @@ CREATE TABLE IF NOT EXISTS `bodies_drugdoses` (
   `Active` bit(1) NOT NULL,
   `Grams` double NOT NULL,
   `OriginalVector` int NOT NULL,
-  PRIMARY KEY (`BodyId`,`DrugId`,`Active`),
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `SpellOriginFamily` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `SpellOriginId` char(36) CHARACTER SET ascii COLLATE ascii_general_ci DEFAULT NULL,
+  `SpellOriginFormula` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  PRIMARY KEY (`Id`),
   KEY `FK_Bodies_DrugDoses_Drugs_idx` (`DrugId`),
+  KEY `IX_Bodies_DrugDoses_BodyId` (`BodyId`),
   CONSTRAINT `FK_Bodies_DrugDoses_Bodies` FOREIGN KEY (`BodyId`) REFERENCES `bodies` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Bodies_DrugDoses_Drugs` FOREIGN KEY (`DrugId`) REFERENCES `drugs` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodies_drugdoses
@@ -1535,7 +1391,7 @@ CREATE TABLE IF NOT EXISTS `drugsintensities` (
   `AdditionalEffects` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`DrugId`,`DrugType`),
   CONSTRAINT `FK_Drugs_DrugIntensities` FOREIGN KEY (`DrugId`) REFERENCES `drugs` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table drugsintensities
@@ -1561,7 +1417,7 @@ CREATE TABLE IF NOT EXISTS `editableitems` (
   `ReviewerDate` datetime DEFAULT NULL,
   `ObsoleteDate` datetime DEFAULT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table editableitems
@@ -1569,28 +1425,6 @@ CREATE TABLE IF NOT EXISTS `editableitems` (
 
 /*!40000 ALTER TABLE `editableitems` DISABLE KEYS */;
 /*!40000 ALTER TABLE `editableitems` ENABLE KEYS */;
-
---
--- Definition of celloverlaypackages
---
-
-DROP TABLE IF EXISTS `celloverlaypackages`;
-CREATE TABLE IF NOT EXISTS `celloverlaypackages` (
-  `Id` bigint NOT NULL,
-  `RevisionNumber` int NOT NULL,
-  `Name` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `EditableItemId` bigint NOT NULL,
-  PRIMARY KEY (`Id`,`RevisionNumber`),
-  KEY `FK_CellOverlayPackages_EditableItems` (`EditableItemId`),
-  CONSTRAINT `FK_CellOverlayPackages_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table celloverlaypackages
---
-
-/*!40000 ALTER TABLE `celloverlaypackages` DISABLE KEYS */;
-/*!40000 ALTER TABLE `celloverlaypackages` ENABLE KEYS */;
 
 --
 -- Definition of disfigurementtemplates
@@ -1609,7 +1443,7 @@ CREATE TABLE IF NOT EXISTS `disfigurementtemplates` (
   PRIMARY KEY (`Id`,`RevisionNumber`),
   KEY `FK_DisfigurementTemplates_EditableItems_idx` (`EditableItemId`),
   CONSTRAINT `FK_DisfigurementTemplates_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table disfigurementtemplates
@@ -1629,7 +1463,7 @@ CREATE TABLE IF NOT EXISTS `emailtemplates` (
   `Subject` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `ReturnAddress` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`TemplateType`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table emailtemplates
@@ -1702,8 +1536,8 @@ CREATE TABLE IF NOT EXISTS `employmentactionsteps` (
   `AmountCurrencyId` bigint DEFAULT NULL,
   `Amount` decimal(58,29) DEFAULT NULL,
   `ExistingFinancialRecord` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `DestinationCellId` bigint DEFAULT NULL,
-  `ExecutionCellId` bigint DEFAULT NULL,
+  `DestinationRoomId` bigint DEFAULT NULL,
+  `ExecutionRoomId` bigint DEFAULT NULL,
   `CommandName` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `CommandArguments` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
   `AccountName` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
@@ -2199,7 +2033,7 @@ CREATE TABLE IF NOT EXISTS `entitydescriptions` (
   `FullDescription` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `DisplaySex` smallint NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table entitydescriptions
@@ -2220,7 +2054,7 @@ CREATE TABLE IF NOT EXISTS `entitydescriptionpatterns_entitydescriptions` (
   KEY `FK_EDP_EntityDescriptions_EntityDescriptions` (`EntityDescriptionId`),
   CONSTRAINT `FK_EDP_EntityDescriptions_EntityDescriptionPatterns` FOREIGN KEY (`PatternId`) REFERENCES `entitydescriptionpatterns` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_EDP_EntityDescriptions_EntityDescriptions` FOREIGN KEY (`EntityDescriptionId`) REFERENCES `entitydescriptions` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table entitydescriptionpatterns_entitydescriptions
@@ -2236,7 +2070,7 @@ CREATE TABLE IF NOT EXISTS `entitydescriptionpatterns_entitydescriptions` (
 DROP TABLE IF EXISTS `environmentalmagicoperations`;
 CREATE TABLE IF NOT EXISTS `environmentalmagicoperations` (
   `Id` char(36) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
-  `CellId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
   `Kind` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `RequestedDamage` double NOT NULL,
   `RequestedPressure` double NOT NULL,
@@ -2250,7 +2084,7 @@ CREATE TABLE IF NOT EXISTS `environmentalmagicoperations` (
   `Status` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `Diagnostic` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`Id`),
-  KEY `IX_EnvironmentalMagicOperations_CellId_AtUtc` (`CellId`,`AtUtc`)
+  KEY `IX_EnvironmentalMagicOperations_RoomId_AtUtc` (`RoomId`,`AtUtc`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -2269,8 +2103,8 @@ CREATE TABLE IF NOT EXISTS `exits` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
   `Keywords1` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `Keywords2` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `CellId1` bigint NOT NULL,
-  `CellId2` bigint NOT NULL,
+  `RoomId1` bigint NOT NULL,
+  `RoomId2` bigint NOT NULL,
   `DoorId` bigint DEFAULT NULL,
   `Direction1` int NOT NULL,
   `Direction2` int NOT NULL,
@@ -2291,12 +2125,12 @@ CREATE TABLE IF NOT EXISTS `exits` (
   `DoorSize` int DEFAULT NULL,
   `MaximumSizeToEnter` int NOT NULL DEFAULT '12',
   `MaximumSizeToEnterUpright` int NOT NULL DEFAULT '12',
-  `FallCell` bigint DEFAULT NULL,
+  `FallRoom` bigint DEFAULT NULL,
   `IsClimbExit` bit(1) NOT NULL DEFAULT b'0',
   `ClimbDifficulty` int NOT NULL DEFAULT '5',
   `BlockedLayers` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table exits
@@ -2304,27 +2138,6 @@ CREATE TABLE IF NOT EXISTS `exits` (
 
 /*!40000 ALTER TABLE `exits` DISABLE KEYS */;
 /*!40000 ALTER TABLE `exits` ENABLE KEYS */;
-
---
--- Definition of celloverlays_exits
---
-
-DROP TABLE IF EXISTS `celloverlays_exits`;
-CREATE TABLE IF NOT EXISTS `celloverlays_exits` (
-  `CellOverlayId` bigint NOT NULL,
-  `ExitId` bigint NOT NULL,
-  PRIMARY KEY (`CellOverlayId`,`ExitId`),
-  KEY `FK_CellOverlays_Exits_Exits` (`ExitId`),
-  CONSTRAINT `FK_CellOverlays_Exits_CellOverlays` FOREIGN KEY (`CellOverlayId`) REFERENCES `celloverlays` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_CellOverlays_Exits_Exits` FOREIGN KEY (`ExitId`) REFERENCES `exits` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table celloverlays_exits
---
-
-/*!40000 ALTER TABLE `celloverlays_exits` DISABLE KEYS */;
-/*!40000 ALTER TABLE `celloverlays_exits` ENABLE KEYS */;
 
 --
 -- Definition of foragableprofiles
@@ -2339,7 +2152,7 @@ CREATE TABLE IF NOT EXISTS `foragableprofiles` (
   PRIMARY KEY (`Id`,`RevisionNumber`),
   KEY `FK_ForagableProfiles_EditableItems_idx` (`EditableItemId`),
   CONSTRAINT `FK_ForagableProfiles_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table foragableprofiles
@@ -2359,7 +2172,7 @@ CREATE TABLE IF NOT EXISTS `foragableprofiles_foragables` (
   `ForagableId` bigint NOT NULL,
   PRIMARY KEY (`ForagableProfileId`,`ForagableProfileRevisionNumber`,`ForagableId`),
   CONSTRAINT `FK_ForagableProfiles_Foragables_ForagableProfiles` FOREIGN KEY (`ForagableProfileId`, `ForagableProfileRevisionNumber`) REFERENCES `foragableprofiles` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table foragableprofiles_foragables
@@ -2380,7 +2193,7 @@ CREATE TABLE IF NOT EXISTS `foragableprofiles_hourlyyieldgains` (
   `Yield` double NOT NULL,
   PRIMARY KEY (`ForagableProfileId`,`ForagableProfileRevisionNumber`,`ForageType`),
   CONSTRAINT `FK_ForagableProfiles_HourlyYieldGains_ForagableProfiles` FOREIGN KEY (`ForagableProfileId`, `ForagableProfileRevisionNumber`) REFERENCES `foragableprofiles` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table foragableprofiles_hourlyyieldgains
@@ -2401,7 +2214,7 @@ CREATE TABLE IF NOT EXISTS `foragableprofiles_maximumyields` (
   `Yield` double NOT NULL,
   PRIMARY KEY (`ForagableProfileId`,`ForagableProfileRevisionNumber`,`ForageType`),
   CONSTRAINT `FK_ForagableProfiles_MaximumYields_ForagableProfiles` FOREIGN KEY (`ForagableProfileId`, `ForagableProfileRevisionNumber`) REFERENCES `foragableprofiles` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table foragableprofiles_maximumyields
@@ -2435,7 +2248,7 @@ CREATE TABLE IF NOT EXISTS `foragables` (
   PRIMARY KEY (`Id`,`RevisionNumber`),
   KEY `FK_Foragables_EditableItems` (`EditableItemId`),
   CONSTRAINT `FK_Foragables_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table foragables
@@ -2461,7 +2274,7 @@ CREATE TABLE IF NOT EXISTS `futureprogs` (
   `StaticType` int NOT NULL,
   `ReturnTypeDefinition` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table futureprogs
@@ -2569,7 +2382,7 @@ CREATE TABLE IF NOT EXISTS `appointments` (
   CONSTRAINT `FK_Appointments_Ranks` FOREIGN KEY (`MinimumRankId`) REFERENCES `ranks` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Appointments_Ranks_2` FOREIGN KEY (`MinimumRankToAppointId`) REFERENCES `ranks` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Appointments_WhyCantNominateProg` FOREIGN KEY (`WhyCantNominateProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table appointments
@@ -2593,7 +2406,7 @@ CREATE TABLE IF NOT EXISTS `appointments_abbreviations` (
   KEY `FK_Appointments_Abbreviations_FutureProgs` (`FutureProgId`),
   CONSTRAINT `FK_Appointments_Abbreviations_Appointments` FOREIGN KEY (`AppointmentId`) REFERENCES `appointments` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Appointments_Abbreviations_FutureProgs` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table appointments_abbreviations
@@ -2617,7 +2430,7 @@ CREATE TABLE IF NOT EXISTS `appointments_titles` (
   KEY `FK_Appointments_Titles_FutureProgs` (`FutureProgId`),
   CONSTRAINT `FK_Appointments_Titles_Appointments` FOREIGN KEY (`AppointmentId`) REFERENCES `appointments` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Appointments_Titles_FutureProgs` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table appointments_titles
@@ -2986,7 +2799,7 @@ CREATE TABLE IF NOT EXISTS `bankaccounttypes` (
   CONSTRAINT `FK_BankAccountTypes_CharacterProgs` FOREIGN KEY (`CanOpenAccountProgCharacterId`) REFERENCES `futureprogs` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_BankAccountTypes_ClanProgs` FOREIGN KEY (`CanOpenAccountProgClanId`) REFERENCES `futureprogs` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_BankAccountTypes_ShopProgs` FOREIGN KEY (`CanOpenAccountProgShopId`) REFERENCES `futureprogs` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bankaccounttypes
@@ -3012,7 +2825,7 @@ CREATE TABLE IF NOT EXISTS `butcheryproducts` (
   KEY `FK_ButcheryProducts_BodyProtos_idx` (`TargetBodyId`),
   CONSTRAINT `FK_ButcheryProducts_BodyProtos` FOREIGN KEY (`TargetBodyId`) REFERENCES `bodyprotos` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ButcheryProducts_FutureProgs` FOREIGN KEY (`CanProduceProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table butcheryproducts
@@ -3038,7 +2851,7 @@ CREATE TABLE IF NOT EXISTS `butcheryproductitems` (
   PRIMARY KEY (`Id`),
   KEY `FK_ButcheryProductItems_ButcheryProducts_idx` (`ButcheryProductId`),
   CONSTRAINT `FK_ButcheryProductItems_ButcheryProducts` FOREIGN KEY (`ButcheryProductId`) REFERENCES `butcheryproducts` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table butcheryproductitems
@@ -3059,7 +2872,7 @@ CREATE TABLE IF NOT EXISTS `butcheryproducts_bodypartprotos` (
   KEY `FK_ButcheryProducts_BodypartProtos_BodypartProtos_idx` (`BodypartProtoId`),
   CONSTRAINT `FK_ButcheryProducts_BodypartProtos_BodypartProtos` FOREIGN KEY (`BodypartProtoId`) REFERENCES `bodypartproto` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ButcheryProducts_BodypartProtos_ButcheryProducts` FOREIGN KEY (`ButcheryProductId`) REFERENCES `butcheryproducts` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table butcheryproducts_bodypartprotos
@@ -3090,7 +2903,7 @@ CREATE TABLE IF NOT EXISTS `channels` (
   KEY `FK_Channels_FutureProgs_Speaker` (`ChannelSpeakerProgId`),
   CONSTRAINT `FK_Channels_FutureProgs_Listener` FOREIGN KEY (`ChannelListenerProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Channels_FutureProgs_Speaker` FOREIGN KEY (`ChannelSpeakerProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table channels
@@ -3110,7 +2923,7 @@ CREATE TABLE IF NOT EXISTS `channelcommandwords` (
   PRIMARY KEY (`Word`),
   KEY `FK_ChannelCommandWords_Channels` (`ChannelId`),
   CONSTRAINT `FK_ChannelCommandWords_Channels` FOREIGN KEY (`ChannelId`) REFERENCES `channels` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table channelcommandwords
@@ -3131,7 +2944,7 @@ CREATE TABLE IF NOT EXISTS `channelignorers` (
   KEY `FK_ChannelIgnorers_Accounts` (`AccountId`),
   CONSTRAINT `FK_ChannelIgnorers_Accounts` FOREIGN KEY (`AccountId`) REFERENCES `accounts` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ChannelIgnorers_Channels` FOREIGN KEY (`ChannelId`) REFERENCES `channels` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table channelignorers
@@ -3230,7 +3043,7 @@ CREATE TABLE IF NOT EXISTS `charactercombatsettings` (
   CONSTRAINT `FK_CharacterCombatSettings_Characters` FOREIGN KEY (`CharacterOwnerId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_CharacterCombatSettings_FutureProgs` FOREIGN KEY (`AvailabilityProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_CharacterCombatSettings_PriorityProg` FOREIGN KEY (`PriorityProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table charactercombatsettings
@@ -3254,7 +3067,7 @@ CREATE TABLE IF NOT EXISTS `characterintrotemplates` (
   PRIMARY KEY (`Id`),
   KEY `FK_CharacterIntroTemplates_FutureProgs_idx` (`AppliesToCharacterProgId`),
   CONSTRAINT `FK_CharacterIntroTemplates_FutureProgs` FOREIGN KEY (`AppliesToCharacterProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table characterintrotemplates
@@ -3285,7 +3098,7 @@ CREATE TABLE IF NOT EXISTS `characteristicvalues` (
   CONSTRAINT `FK_CharacteristicValues_CharacteristicDefinitions` FOREIGN KEY (`DefinitionId`) REFERENCES `characteristicdefinitions` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_CharacteristicValues_FutureProgs` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_CharacteristicValues_FutureProgs_Ongoing` FOREIGN KEY (`OngoingValidityProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table characteristicvalues
@@ -3307,7 +3120,7 @@ CREATE TABLE IF NOT EXISTS `characteristics` (
   KEY `FK_Characteristics_CharacteristicValues` (`CharacteristicId`),
   CONSTRAINT `FK_Characteristics_Bodies` FOREIGN KEY (`BodyId`) REFERENCES `bodies` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Characteristics_CharacteristicValues` FOREIGN KEY (`CharacteristicId`) REFERENCES `characteristicvalues` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table characteristics
@@ -3330,7 +3143,7 @@ CREATE TABLE IF NOT EXISTS `chargenadvices` (
   PRIMARY KEY (`Id`),
   KEY `FK_ChargenAdvices_FutureProgs_idx` (`ShouldShowAdviceProgId`),
   CONSTRAINT `FK_ChargenAdvices_FutureProgs` FOREIGN KEY (`ShouldShowAdviceProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenadvices
@@ -3364,7 +3177,7 @@ CREATE TABLE IF NOT EXISTS `chargenresources` (
   PRIMARY KEY (`Id`),
   KEY `IX_ChargenResources_FK_ChargenResources_FutureProgs` (`FK_ChargenResources_FutureProgs`),
   CONSTRAINT `FK_ChargenResources_FutureProgs_FK_ChargenResources_FutureProgs` FOREIGN KEY (`FK_ChargenResources_FutureProgs`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenresources
@@ -3387,7 +3200,7 @@ CREATE TABLE IF NOT EXISTS `accounts_chargenresources` (
   KEY `FK_Accounts_ChargenResources_ChargenResources` (`ChargenResourceId`),
   CONSTRAINT `FK_Accounts_ChargenResources_Accounts` FOREIGN KEY (`AccountId`) REFERENCES `accounts` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Accounts_ChargenResources_ChargenResources` FOREIGN KEY (`ChargenResourceId`) REFERENCES `chargenresources` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table accounts_chargenresources
@@ -3418,7 +3231,7 @@ CREATE TABLE IF NOT EXISTS `chargenroles` (
   KEY `FK_ChargenRoles_Accounts` (`PosterId`),
   CONSTRAINT `FK_ChargenRoles_Accounts` FOREIGN KEY (`PosterId`) REFERENCES `accounts` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_ChargenRoles_FutureProgs` FOREIGN KEY (`AvailabilityProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenroles
@@ -3439,7 +3252,7 @@ CREATE TABLE IF NOT EXISTS `characters_chargenroles` (
   KEY `FK_Characters_ChargenRoles_ChargenRoles` (`ChargenRoleId`),
   CONSTRAINT `FK_Characters_ChargenRoles_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Characters_ChargenRoles_ChargenRoles` FOREIGN KEY (`ChargenRoleId`) REFERENCES `chargenroles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table characters_chargenroles
@@ -3460,7 +3273,7 @@ CREATE TABLE IF NOT EXISTS `chargenadvices_chargenroles` (
   KEY `FK_ChargenAdvices_ChargenRoles_ChargenRoles_idx` (`ChargenRoleId`),
   CONSTRAINT `FK_ChargenAdvices_ChargenRoles_ChargenAdvices` FOREIGN KEY (`ChargenAdviceId`) REFERENCES `chargenadvices` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ChargenAdvices_ChargenRoles_ChargenRoles` FOREIGN KEY (`ChargenRoleId`) REFERENCES `chargenroles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenadvices_chargenroles
@@ -3481,7 +3294,7 @@ CREATE TABLE IF NOT EXISTS `chargenroles_approvers` (
   KEY `FK_ChargenRoles_Approvers_Accounts` (`ApproverId`),
   CONSTRAINT `FK_ChargenRoles_Approvers_Accounts` FOREIGN KEY (`ApproverId`) REFERENCES `accounts` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_ChargenRoles_Approvers_ChargenRoles` FOREIGN KEY (`ChargenRoleId`) REFERENCES `chargenroles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenroles_approvers
@@ -3504,7 +3317,7 @@ CREATE TABLE IF NOT EXISTS `chargenroles_costs` (
   KEY `FK_ChargenRoles_Costs_ChargenResources` (`ChargenResourceId`),
   CONSTRAINT `FK_ChargenRoles_Costs_ChargenResources` FOREIGN KEY (`ChargenResourceId`) REFERENCES `chargenresources` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ChargenRoles_Costs_ChargenRoles` FOREIGN KEY (`ChargenRoleId`) REFERENCES `chargenroles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenroles_costs
@@ -3589,7 +3402,7 @@ CREATE TABLE IF NOT EXISTS `clans` (
   CONSTRAINT `FK_Clans_Characters` FOREIGN KEY (`PaymasterId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Clans_Clans_ClanId` FOREIGN KEY (`ClanId`) REFERENCES `clans` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Clans_FutureProgs` FOREIGN KEY (`OnPayProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table clans
@@ -3706,7 +3519,7 @@ CREATE TABLE IF NOT EXISTS `chargenroles_clanmemberships` (
   KEY `FK_ChargenRoles_ClanMemberships_Clans` (`ClanId`),
   CONSTRAINT `FK_ChargenRoles_ClanMemberships_ChargenRoles` FOREIGN KEY (`ChargenRoleId`) REFERENCES `chargenroles` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ChargenRoles_ClanMemberships_Clans` FOREIGN KEY (`ClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenroles_clanmemberships
@@ -3726,7 +3539,7 @@ CREATE TABLE IF NOT EXISTS `chargenroles_clanmemberships_appointments` (
   `AppointmentId` bigint NOT NULL,
   PRIMARY KEY (`ChargenRoleId`,`ClanId`,`AppointmentId`),
   CONSTRAINT `FK_CRCMA_ChargenRoles_ClanMemberships` FOREIGN KEY (`ChargenRoleId`, `ClanId`) REFERENCES `chargenroles_clanmemberships` (`ChargenRoleId`, `ClanId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenroles_clanmemberships_appointments
@@ -3734,69 +3547,6 @@ CREATE TABLE IF NOT EXISTS `chargenroles_clanmemberships_appointments` (
 
 /*!40000 ALTER TABLE `chargenroles_clanmemberships_appointments` DISABLE KEYS */;
 /*!40000 ALTER TABLE `chargenroles_clanmemberships_appointments` ENABLE KEYS */;
-
---
--- Definition of clans_administrationcells
---
-
-DROP TABLE IF EXISTS `clans_administrationcells`;
-CREATE TABLE IF NOT EXISTS `clans_administrationcells` (
-  `ClanId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`ClanId`,`CellId`),
-  KEY `FK_Clans_AdministrationCells_Cells_idx` (`CellId`),
-  CONSTRAINT `FK_Clans_AdministrationCells_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Clans_AdministrationCells_Clans` FOREIGN KEY (`ClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table clans_administrationcells
---
-
-/*!40000 ALTER TABLE `clans_administrationcells` DISABLE KEYS */;
-/*!40000 ALTER TABLE `clans_administrationcells` ENABLE KEYS */;
-
---
--- Definition of clans_hallcells
---
-
-DROP TABLE IF EXISTS `clans_hallcells`;
-CREATE TABLE IF NOT EXISTS `clans_hallcells` (
-  `ClanId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`ClanId`,`CellId`),
-  KEY `FK_Clans_HallCells_Cells_idx` (`CellId`),
-  CONSTRAINT `FK_Clans_HallCells_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Clans_HallCells_Clans` FOREIGN KEY (`ClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table clans_hallcells
---
-
-/*!40000 ALTER TABLE `clans_hallcells` DISABLE KEYS */;
-/*!40000 ALTER TABLE `clans_hallcells` ENABLE KEYS */;
-
---
--- Definition of clans_treasurycells
---
-
-DROP TABLE IF EXISTS `clans_treasurycells`;
-CREATE TABLE IF NOT EXISTS `clans_treasurycells` (
-  `ClanId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`ClanId`,`CellId`),
-  KEY `FK_Clans_TreasuryCells_Cells_idx` (`CellId`),
-  CONSTRAINT `FK_Clans_TreasuryCells_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Clans_TreasuryCells_Clans` FOREIGN KEY (`ClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table clans_treasurycells
---
-
-/*!40000 ALTER TABLE `clans_treasurycells` DISABLE KEYS */;
-/*!40000 ALTER TABLE `clans_treasurycells` ENABLE KEYS */;
 
 --
 -- Definition of combatmessages
@@ -3819,7 +3569,7 @@ CREATE TABLE IF NOT EXISTS `combatmessages` (
   KEY `IX_CombatMessages_AuxiliaryProgId` (`AuxiliaryProgId`),
   CONSTRAINT `FK_CombatMessages_FutureProgs` FOREIGN KEY (`ProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_CombatMessages_FutureProgs_Auxiliary` FOREIGN KEY (`AuxiliaryProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table combatmessages
@@ -3854,7 +3604,7 @@ CREATE TABLE IF NOT EXISTS `cultures` (
   CONSTRAINT `FK_Cultures_AvailabilityProg` FOREIGN KEY (`AvailabilityProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Cultures_Languages_NativeLanguageId` FOREIGN KEY (`NativeLanguageId`) REFERENCES `languages` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Cultures_SkillStartingProg` FOREIGN KEY (`SkillStartingValueProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table cultures
@@ -3875,7 +3625,7 @@ CREATE TABLE IF NOT EXISTS `chargenadvices_cultures` (
   KEY `FK_ChargenAdvices_Cultures_Cultures_idx` (`CultureId`),
   CONSTRAINT `FK_ChargenAdvices_Cultures_ChargenAdvices` FOREIGN KEY (`ChargenAdviceId`) REFERENCES `chargenadvices` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ChargenAdvices_Cultures_Cultures` FOREIGN KEY (`CultureId`) REFERENCES `cultures` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenadvices_cultures
@@ -3898,7 +3648,7 @@ CREATE TABLE IF NOT EXISTS `cultures_chargenresources` (
   KEY `IX_Cultures_ChargenResources_ChargenResourceId` (`ChargenResourceId`),
   CONSTRAINT `FK_Cultures_ChargenResources_ChargenResources_ChargenResourceId` FOREIGN KEY (`ChargenResourceId`) REFERENCES `chargenresources` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Cultures_ChargenResources_Cultures_CultureId` FOREIGN KEY (`CultureId`) REFERENCES `cultures` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table cultures_chargenresources
@@ -3925,7 +3675,7 @@ CREATE TABLE IF NOT EXISTS `currencydescriptionpatterns` (
   KEY `FK_CurrencyDescriptionPatterns_FutureProgs` (`FutureProgId`),
   CONSTRAINT `FK_CurrencyDescriptionPatterns_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_CurrencyDescriptionPatterns_FutureProgs` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table currencydescriptionpatterns
@@ -3954,7 +3704,7 @@ CREATE TABLE IF NOT EXISTS `dreams` (
   CONSTRAINT `FK_Dreams_FutureProgs_CanDream` FOREIGN KEY (`CanDreamProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Dreams_FutureProgs_OnDream` FOREIGN KEY (`OnDreamProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Dreams_FutureProgs_OnWake` FOREIGN KEY (`OnWakeDuringDreamingProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table dreams
@@ -3976,7 +3726,7 @@ CREATE TABLE IF NOT EXISTS `dream_phases` (
   `WaitSeconds` int NOT NULL DEFAULT '30',
   PRIMARY KEY (`DreamId`,`PhaseId`),
   CONSTRAINT `FK_Dream_Phases_Dreams` FOREIGN KEY (`DreamId`) REFERENCES `dreams` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table dream_phases
@@ -3997,7 +3747,7 @@ CREATE TABLE IF NOT EXISTS `dreams_already_dreamt` (
   KEY `FK_Dreams_Dreamt_Characters_idx` (`CharacterId`),
   CONSTRAINT `FK_Dreams_Dreamt_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Dreams_Dreamt_Dreams` FOREIGN KEY (`DreamId`) REFERENCES `dreams` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table dreams_already_dreamt
@@ -4018,7 +3768,7 @@ CREATE TABLE IF NOT EXISTS `dreams_characters` (
   KEY `FK_Dreams_Characters_Characters_idx` (`CharacterId`),
   CONSTRAINT `FK_Dreams_Characters_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Dreams_Characters_Dreams` FOREIGN KEY (`DreamId`) REFERENCES `dreams` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table dreams_characters
@@ -4035,17 +3785,17 @@ DROP TABLE IF EXISTS `economiczonetaxes`;
 CREATE TABLE IF NOT EXISTS `economiczonetaxes` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
   `EconomicZoneId` bigint NOT NULL,
-  `Name` varchar(200) DEFAULT NULL,
-  `MerchantDescription` varchar(200) DEFAULT NULL,
+  `Name` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `MerchantDescription` varchar(200) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `MerchandiseFilterProgId` bigint DEFAULT NULL,
-  `TaxType` varchar(50) DEFAULT NULL,
+  `TaxType` varchar(50) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `Definition` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
   PRIMARY KEY (`Id`),
   KEY `FK_EconomicZoneTaxes_EconomicZones_idx` (`EconomicZoneId`),
   KEY `FK_EconomicZoneTaxes_FutureProgs_idx` (`MerchandiseFilterProgId`),
   CONSTRAINT `FK_EconomicZoneTaxes_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_EconomicZoneTaxes_FutureProgs` FOREIGN KEY (`MerchandiseFilterProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table economiczonetaxes
@@ -4062,10 +3812,10 @@ DROP TABLE IF EXISTS `elections`;
 CREATE TABLE IF NOT EXISTS `elections` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
   `AppointmentId` bigint NOT NULL,
-  `NominationStartDate` varchar(100) DEFAULT NULL,
-  `VotingStartDate` varchar(100) DEFAULT NULL,
-  `VotingEndDate` varchar(100) DEFAULT NULL,
-  `ResultsInEffectDate` varchar(100) DEFAULT NULL,
+  `NominationStartDate` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `VotingStartDate` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `VotingEndDate` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `ResultsInEffectDate` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `IsFinalised` bit(1) NOT NULL,
   `NumberOfAppointments` int NOT NULL,
   `IsByElection` bit(1) NOT NULL,
@@ -4073,7 +3823,7 @@ CREATE TABLE IF NOT EXISTS `elections` (
   PRIMARY KEY (`Id`),
   KEY `FK_Elections_Appointments_idx` (`AppointmentId`),
   CONSTRAINT `FK_Elections_Appointments` FOREIGN KEY (`AppointmentId`) REFERENCES `appointments` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table elections
@@ -4096,7 +3846,7 @@ CREATE TABLE IF NOT EXISTS `electionsnominees` (
   KEY `FK_ElectionsNominees_ClanMemberships_idx` (`NomineeClanId`,`NomineeId`),
   CONSTRAINT `FK_ElectionsNominees_ClanMemberships` FOREIGN KEY (`NomineeClanId`, `NomineeId`) REFERENCES `clanmemberships` (`ClanId`, `CharacterId`) ON DELETE CASCADE,
   CONSTRAINT `FK_ElectionsNominees_Elections` FOREIGN KEY (`ElectionId`) REFERENCES `elections` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table electionsnominees
@@ -4119,7 +3869,7 @@ CREATE TABLE IF NOT EXISTS `entitydescriptionpatterns` (
   PRIMARY KEY (`Id`),
   KEY `FK_EntityDescriptionPatterns_FutureProgs` (`ApplicabilityProgId`),
   CONSTRAINT `FK_EntityDescriptionPatterns_FutureProgs` FOREIGN KEY (`ApplicabilityProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table entitydescriptionpatterns
@@ -4147,7 +3897,7 @@ CREATE TABLE IF NOT EXISTS `externalclancontrols` (
   CONSTRAINT `FK_ECC_Appointments_Controlling` FOREIGN KEY (`ControllingAppointmentId`) REFERENCES `appointments` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ECC_Clans_Liege` FOREIGN KEY (`LiegeClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ECC_Clans_Vassal` FOREIGN KEY (`VassalClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table externalclancontrols
@@ -4171,7 +3921,7 @@ CREATE TABLE IF NOT EXISTS `externalclancontrols_appointments` (
   KEY `FK_ECC_Appointments_ExternalClanControls` (`VassalClanId`,`LiegeClanId`,`ControlledAppointmentId`),
   CONSTRAINT `FK_ECC_Appointments_ClanMemberships` FOREIGN KEY (`VassalClanId`, `CharacterId`) REFERENCES `clanmemberships` (`ClanId`, `CharacterId`) ON DELETE RESTRICT,
   CONSTRAINT `FK_ECC_Appointments_ExternalClanControls` FOREIGN KEY (`VassalClanId`, `LiegeClanId`, `ControlledAppointmentId`) REFERENCES `externalclancontrols` (`VassalClanId`, `LiegeClanId`, `ControlledAppointmentId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table externalclancontrols_appointments
@@ -4192,7 +3942,7 @@ CREATE TABLE IF NOT EXISTS `futureprogs_parameters` (
   `ParameterTypeDefinition` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '',
   PRIMARY KEY (`FutureProgId`,`ParameterIndex`),
   CONSTRAINT `FK_FutureProgs_Parameters_FutureProgs` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table futureprogs_parameters
@@ -4217,7 +3967,7 @@ CREATE TABLE IF NOT EXISTS `gameitemcomponentprotos` (
   PRIMARY KEY (`Id`,`RevisionNumber`),
   KEY `FK_GameItemComponentProtos_EditableItems` (`EditableItemId`),
   CONSTRAINT `FK_GameItemComponentProtos_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gameitemcomponentprotos
@@ -4238,7 +3988,7 @@ CREATE TABLE IF NOT EXISTS `gameitemeditingview` (
   `ProtoMaterial` tinyint NOT NULL,
   `Quality` tinyint NOT NULL,
   `Size` tinyint NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gameitemeditingview
@@ -4280,7 +4030,7 @@ CREATE TABLE IF NOT EXISTS `gameitems` (
   KEY `FK_GameItems_GameItems_Containers_idx` (`ContainerId`),
   KEY `IX_GameItems_RoutePosition` (`RoutePosition`),
   CONSTRAINT `FK_GameItems_GameItems_Containers` FOREIGN KEY (`ContainerId`) REFERENCES `gameitems` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gameitems
@@ -4304,7 +4054,7 @@ CREATE TABLE IF NOT EXISTS `bodies_gameitems` (
   KEY `FK_Bodies_GameItems_GameItems` (`GameItemId`),
   CONSTRAINT `FK_Bodies_GameItems_Bodies` FOREIGN KEY (`BodyId`) REFERENCES `bodies` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Bodies_GameItems_GameItems` FOREIGN KEY (`GameItemId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodies_gameitems
@@ -4325,7 +4075,7 @@ CREATE TABLE IF NOT EXISTS `bodies_implants` (
   KEY `FK_Bodies_Implants_GameItems_idx` (`ImplantId`),
   CONSTRAINT `FK_Bodies_Implants_Bodies` FOREIGN KEY (`BodyId`) REFERENCES `bodies` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Bodies_Implants_GameItems` FOREIGN KEY (`ImplantId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodies_implants
@@ -4346,7 +4096,7 @@ CREATE TABLE IF NOT EXISTS `bodies_prosthetics` (
   KEY `FK_Bodies_Prosthetics_GameItems_idx` (`ProstheticId`),
   CONSTRAINT `FK_Bodies_Prosthetics_Bodies` FOREIGN KEY (`BodyId`) REFERENCES `bodies` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Bodies_Prosthetics_GameItems` FOREIGN KEY (`ProstheticId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodies_prosthetics
@@ -4354,27 +4104,6 @@ CREATE TABLE IF NOT EXISTS `bodies_prosthetics` (
 
 /*!40000 ALTER TABLE `bodies_prosthetics` DISABLE KEYS */;
 /*!40000 ALTER TABLE `bodies_prosthetics` ENABLE KEYS */;
-
---
--- Definition of cells_gameitems
---
-
-DROP TABLE IF EXISTS `cells_gameitems`;
-CREATE TABLE IF NOT EXISTS `cells_gameitems` (
-  `CellId` bigint NOT NULL,
-  `GameItemId` bigint NOT NULL,
-  PRIMARY KEY (`CellId`,`GameItemId`),
-  KEY `FK_Cells_GameItems_GameItems` (`GameItemId`),
-  CONSTRAINT `FK_Cells_GameItems_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Cells_GameItems_GameItems` FOREIGN KEY (`GameItemId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table cells_gameitems
---
-
-/*!40000 ALTER TABLE `cells_gameitems` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cells_gameitems` ENABLE KEYS */;
 
 --
 -- Definition of computermaildomains
@@ -4441,7 +4170,7 @@ CREATE TABLE IF NOT EXISTS `gameitemcomponents` (
   PRIMARY KEY (`Id`),
   KEY `FK_GameItemComponents_GameItems` (`GameItemId`),
   CONSTRAINT `FK_GameItemComponents_GameItems` FOREIGN KEY (`GameItemId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gameitemcomponents
@@ -4536,7 +4265,7 @@ CREATE TABLE IF NOT EXISTS `grids` (
   `GridType` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Definition` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table grids
@@ -4555,7 +4284,7 @@ CREATE TABLE IF NOT EXISTS `groupaitemplates` (
   `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Definition` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table groupaitemplates
@@ -4578,7 +4307,7 @@ CREATE TABLE IF NOT EXISTS `groupais` (
   PRIMARY KEY (`Id`),
   KEY `FK_GroupAIs_GroupAITemplates_idx` (`GroupAITemplateId`),
   CONSTRAINT `FK_GroupAIs_GroupAITemplates` FOREIGN KEY (`GroupAITemplateId`) REFERENCES `groupaitemplates` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table groupais
@@ -4598,7 +4327,7 @@ CREATE TABLE IF NOT EXISTS `healthstrategies` (
   `Type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   `Definition` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table healthstrategies
@@ -4619,7 +4348,7 @@ CREATE TABLE IF NOT EXISTS `hearingprofiles` (
   `Type` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `SurveyDescription` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table hearingprofiles
@@ -4647,7 +4376,7 @@ CREATE TABLE IF NOT EXISTS `heightweightmodels` (
   `SkewnessHeight` double DEFAULT NULL,
   `SkewnessWeight` double DEFAULT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table heightweightmodels
@@ -4675,7 +4404,7 @@ CREATE TABLE IF NOT EXISTS `helpfiles` (
   PRIMARY KEY (`Id`),
   KEY `FK_Helpfiles_FutureProgs` (`RuleId`),
   CONSTRAINT `FK_Helpfiles_FutureProgs` FOREIGN KEY (`RuleId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table helpfiles
@@ -4698,7 +4427,7 @@ CREATE TABLE IF NOT EXISTS `helpfiles_extratexts` (
   KEY `FK_Helpfiles_ExtraTexts_FutureProgs` (`RuleId`),
   CONSTRAINT `FK_Helpfiles_ExtraTexts_FutureProgs` FOREIGN KEY (`RuleId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Helpfiles_ExtraTexts_Helpfiles` FOREIGN KEY (`HelpfileId`) REFERENCES `helpfiles` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table helpfiles_extratexts
@@ -4720,7 +4449,7 @@ CREATE TABLE IF NOT EXISTS `hooks` (
   `Category` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `TargetEventType` int NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table hooks
@@ -4742,7 +4471,7 @@ CREATE TABLE IF NOT EXISTS `defaulthooks` (
   KEY `FK_DefaultHooks_Futureprogs_idx` (`FutureProgId`),
   CONSTRAINT `FK_DefaultHooks_Futureprogs` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_DefaultHooks_Hooks` FOREIGN KEY (`HookId`) REFERENCES `hooks` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table defaulthooks
@@ -4762,7 +4491,7 @@ CREATE TABLE IF NOT EXISTS `improvers` (
   `Definition` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Type` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table improvers
@@ -4781,7 +4510,7 @@ CREATE TABLE IF NOT EXISTS `itemgroups` (
   `Name` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `Keywords` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table itemgroups
@@ -4831,7 +4560,7 @@ CREATE TABLE IF NOT EXISTS `gameitemprotos` (
   KEY `IX_GameItemProtos_UniqueName` (`UniqueName`),
   CONSTRAINT `FK_GameItemProtos_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_GameItemProtos_ItemGroups` FOREIGN KEY (`ItemGroupId`) REFERENCES `itemgroups` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gameitemprotos
@@ -4857,7 +4586,7 @@ CREATE TABLE IF NOT EXISTS `gameitemprotoextradescriptions` (
   KEY `IX_GameItemProtoExtraDescriptions_ApplicabilityProgId` (`ApplicabilityProgId`),
   CONSTRAINT `FK_GameItemProtoExtraDescriptions_FutureProgs` FOREIGN KEY (`ApplicabilityProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_GameItemProtoExtraDescriptions_GameItemProtos` FOREIGN KEY (`GameItemProtoId`, `GameItemProtoRevisionNumber`) REFERENCES `gameitemprotos` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gameitemprotoextradescriptions
@@ -4878,7 +4607,7 @@ CREATE TABLE IF NOT EXISTS `gameitemprotos_defaultvariables` (
   `VariableValue` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`GameItemProtoId`,`GameItemProtoRevNum`,`VariableName`),
   CONSTRAINT `FK_GameItemProtos_DefaultValues_GameItemProtos` FOREIGN KEY (`GameItemProtoId`, `GameItemProtoRevNum`) REFERENCES `gameitemprotos` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gameitemprotos_defaultvariables
@@ -4902,7 +4631,7 @@ CREATE TABLE IF NOT EXISTS `gameitemprotos_gameitemcomponentprotos` (
   KEY `FK_GIPGICP_GameItemProtos` (`GameItemProtoId`,`GameItemProtoRevision`),
   CONSTRAINT `FK_GIPGICP_GameItemComponentProtos` FOREIGN KEY (`GameItemComponentProtoId`, `GameItemComponentRevision`) REFERENCES `gameitemcomponentprotos` (`Id`, `RevisionNumber`) ON DELETE CASCADE,
   CONSTRAINT `FK_GIPGICP_GameItemProtos` FOREIGN KEY (`GameItemProtoId`, `GameItemProtoRevision`) REFERENCES `gameitemprotos` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gameitemprotos_gameitemcomponentprotos
@@ -4924,7 +4653,7 @@ CREATE TABLE IF NOT EXISTS `gameitemprotos_onloadprogs` (
   KEY `FK_GameItemProtos_OnLoadProgs_FutureProgs_idx` (`FutureProgId`),
   CONSTRAINT `FK_GameItemProtos_OnLoadProgs_FutureProgs` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_GameItemProtos_OnLoadProgs_GameItemProtos` FOREIGN KEY (`GameItemProtoId`, `GameItemProtoRevisionNumber`) REFERENCES `gameitemprotos` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gameitemprotos_onloadprogs
@@ -4946,7 +4675,7 @@ CREATE TABLE IF NOT EXISTS `itemgroupforms` (
   PRIMARY KEY (`Id`),
   KEY `FK_ItemGroupForms_ItemGroups_idx` (`ItemGroupId`),
   CONSTRAINT `FK_ItemGroupForms_ItemGroups` FOREIGN KEY (`ItemGroupId`) REFERENCES `itemgroups` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table itemgroupforms
@@ -4978,7 +4707,7 @@ CREATE TABLE IF NOT EXISTS `knowledges` (
   KEY `FK_KNOWLEDGES_FUTUREPROGS_LEARN_idx` (`CanLearnProgId`),
   CONSTRAINT `FK_KNOWLEDGES_FUTUREPROGS_ACQUIRE` FOREIGN KEY (`CanAcquireProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_KNOWLEDGES_FUTUREPROGS_LEARN` FOREIGN KEY (`CanLearnProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table knowledges
@@ -5004,7 +4733,7 @@ CREATE TABLE IF NOT EXISTS `characterknowledges` (
   KEY `FK_CHARACTERKNOWLEDGES_KNOWLEDGES_idx` (`KnowledgeId`),
   CONSTRAINT `FK_CHARACTERKNOWLEDGES_CHARACTERS` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_CHARACTERKNOWLEDGES_KNOWLEDGES` FOREIGN KEY (`KnowledgeId`) REFERENCES `knowledges` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table characterknowledges
@@ -5027,7 +4756,7 @@ CREATE TABLE IF NOT EXISTS `knowledgescosts` (
   KEY `FK_KnowledgesCosts_Knowledges_idx` (`KnowledgeId`),
   CONSTRAINT `FK_KnowledgesCosts_ChargenResources` FOREIGN KEY (`ChargenResourceId`) REFERENCES `chargenresources` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_KnowledgesCosts_Knowledges` FOREIGN KEY (`KnowledgeId`) REFERENCES `knowledges` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table knowledgescosts
@@ -5043,12 +4772,12 @@ CREATE TABLE IF NOT EXISTS `knowledgescosts` (
 DROP TABLE IF EXISTS `landrejuvenationtreatments`;
 CREATE TABLE IF NOT EXISTS `landrejuvenationtreatments` (
   `Id` char(36) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
-  `CellId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
   `Revision` bigint NOT NULL,
   `Status` varchar(40) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `Checkpoint` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   PRIMARY KEY (`Id`),
-  KEY `IX_LandRejuvenationTreatments_CellId_Status` (`CellId`,`Status`)
+  KEY `IX_LandRejuvenationTreatments_RoomId_Status` (`RoomId`,`Status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -5069,7 +4798,7 @@ CREATE TABLE IF NOT EXISTS `languagedifficultymodels` (
   `Type` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table languagedifficultymodels
@@ -5147,7 +4876,7 @@ CREATE TABLE IF NOT EXISTS `liquids` (
   CONSTRAINT `FK_Liquids_Materials` FOREIGN KEY (`DriedResidueId`) REFERENCES `materials` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Liquids_SpoiledLiquid` FOREIGN KEY (`SpoiledLiquidId`) REFERENCES `liquids` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Liquids_StaleLiquid` FOREIGN KEY (`StaleLiquidId`) REFERENCES `liquids` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table liquids
@@ -5190,7 +4919,7 @@ CREATE TABLE IF NOT EXISTS `gases` (
   CONSTRAINT `FK_Gases_Drugs` FOREIGN KEY (`DrugId`) REFERENCES `drugs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Gases_Gases` FOREIGN KEY (`CountAsId`) REFERENCES `gases` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Gases_Liquids` FOREIGN KEY (`PrecipitateId`) REFERENCES `liquids` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gases
@@ -5210,7 +4939,7 @@ CREATE TABLE IF NOT EXISTS `locks` (
   `Style` int NOT NULL,
   `Strength` int NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table locks
@@ -5233,7 +4962,7 @@ CREATE TABLE IF NOT EXISTS `doors` (
   PRIMARY KEY (`Id`),
   KEY `FK_Doors_Locks` (`LockedWith`),
   CONSTRAINT `FK_Doors_Locks` FOREIGN KEY (`LockedWith`) REFERENCES `locks` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table doors
@@ -5255,7 +4984,7 @@ CREATE TABLE IF NOT EXISTS `loginips` (
   PRIMARY KEY (`IpAddress`,`AccountId`),
   KEY `FK_LoginIPs_Accounts` (`AccountId`),
   CONSTRAINT `FK_LoginIPs_Accounts` FOREIGN KEY (`AccountId`) REFERENCES `accounts` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table loginips
@@ -5350,7 +5079,7 @@ CREATE TABLE IF NOT EXISTS `magicgatheringoperations` (
   `MagicCapabilityId` bigint NOT NULL,
   `MethodKey` char(36) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
   `MethodVersion` int NOT NULL,
-  `CellId` bigint DEFAULT NULL,
+  `RoomId` bigint DEFAULT NULL,
   `SourceProfileId` bigint DEFAULT NULL,
   `SourceProfileRevision` bigint DEFAULT NULL,
   `SourceResourceId` bigint DEFAULT NULL,
@@ -5376,7 +5105,7 @@ CREATE TABLE IF NOT EXISTS `magicgatheringoperations` (
   `LandDetailJson` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   PRIMARY KEY (`Id`),
   KEY `IX_MagicGatheringOperations_Capability_Method` (`MagicCapabilityId`,`MethodKey`),
-  KEY `IX_MagicGatheringOperations_Cell_Source_Status` (`CellId`,`SourceResourceId`,`Status`),
+  KEY `IX_MagicGatheringOperations_Room_Source_Status` (`RoomId`,`SourceResourceId`,`Status`),
   KEY `IX_MagicGatheringOperations_OwnerId_Status` (`OwnerId`,`Status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -5395,9 +5124,9 @@ DROP TABLE IF EXISTS `magicgatheringparticipants`;
 CREATE TABLE IF NOT EXISTS `magicgatheringparticipants` (
   `OperationId` char(36) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
   `SourceKey` varchar(150) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
-  `CellId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
   PRIMARY KEY (`OperationId`,`SourceKey`),
-  KEY `IX_MagicGatheringParticipants_Cell_Source` (`CellId`,`SourceKey`)
+  KEY `IX_MagicGatheringParticipants_Room_Source` (`RoomId`,`SourceKey`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -5418,7 +5147,7 @@ CREATE TABLE IF NOT EXISTS `magicgenerators` (
   `Type` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Definition` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table magicgenerators
@@ -5443,7 +5172,7 @@ CREATE TABLE IF NOT EXISTS `magicresources` (
   `ShortName` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `TopColour` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT '[0m[38;5;171m',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table magicresources
@@ -5451,28 +5180,6 @@ CREATE TABLE IF NOT EXISTS `magicresources` (
 
 /*!40000 ALTER TABLE `magicresources` DISABLE KEYS */;
 /*!40000 ALTER TABLE `magicresources` ENABLE KEYS */;
-
---
--- Definition of cells_magicresources
---
-
-DROP TABLE IF EXISTS `cells_magicresources`;
-CREATE TABLE IF NOT EXISTS `cells_magicresources` (
-  `CellId` bigint NOT NULL,
-  `MagicResourceId` bigint NOT NULL,
-  `Amount` double NOT NULL,
-  PRIMARY KEY (`CellId`,`MagicResourceId`),
-  KEY `FK_Cells_MagicResources_MagicResources_idx` (`MagicResourceId`),
-  CONSTRAINT `FK_Cells_MagicResources_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Cells_MagicResources_MagicResources` FOREIGN KEY (`MagicResourceId`) REFERENCES `magicresources` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table cells_magicresources
---
-
-/*!40000 ALTER TABLE `cells_magicresources` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cells_magicresources` ENABLE KEYS */;
 
 --
 -- Definition of characters_magicresources
@@ -5487,7 +5194,7 @@ CREATE TABLE IF NOT EXISTS `characters_magicresources` (
   KEY `FK_Characters_MagicResources_MagicResources_idx` (`MagicResourceId`),
   CONSTRAINT `FK_Characters_MagicResources_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Characters_MagicResources_MagicResources` FOREIGN KEY (`MagicResourceId`) REFERENCES `magicresources` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table characters_magicresources
@@ -5509,7 +5216,7 @@ CREATE TABLE IF NOT EXISTS `gameitems_magicresources` (
   KEY `FK_GameItems_MagicResources_MagicResources_idx` (`MagicResourceId`),
   CONSTRAINT `FK_GameItems_MagicResources_GameItems` FOREIGN KEY (`GameItemId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_GameItems_MagicResources_MagicResources` FOREIGN KEY (`MagicResourceId`) REFERENCES `magicresources` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gameitems_magicresources
@@ -5533,7 +5240,7 @@ CREATE TABLE IF NOT EXISTS `magicschools` (
   PRIMARY KEY (`Id`),
   KEY `FK_MagicSchools_MagicSchools_idx` (`ParentSchoolId`),
   CONSTRAINT `FK_MagicSchools_MagicSchools` FOREIGN KEY (`ParentSchoolId`) REFERENCES `magicschools` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table magicschools
@@ -5557,7 +5264,7 @@ CREATE TABLE IF NOT EXISTS `magiccapabilities` (
   PRIMARY KEY (`Id`),
   KEY `FK_MagicCapabilities_MagicSchools_idx` (`MagicSchoolId`),
   CONSTRAINT `FK_MagicCapabilities_MagicSchools` FOREIGN KEY (`MagicSchoolId`) REFERENCES `magicschools` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table magiccapabilities
@@ -5605,7 +5312,7 @@ CREATE TABLE IF NOT EXISTS `magicpowers` (
   PRIMARY KEY (`Id`),
   KEY `FK_MagicPowers_MagicSchools_idx` (`MagicSchoolId`),
   CONSTRAINT `FK_MagicPowers_MagicSchools` FOREIGN KEY (`MagicSchoolId`) REFERENCES `magicschools` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table magicpowers
@@ -5639,6 +5346,10 @@ CREATE TABLE IF NOT EXISTS `magicspelllifecycles` (
   `RemainsNotificationAttemptedUtc` datetime(6) DEFAULT NULL,
   `RemainsNotificationCompletedUtc` datetime(6) DEFAULT NULL,
   `RemainsRemovalRequestedUtc` datetime(6) DEFAULT NULL,
+  `GateLastPulseUtc` datetime(6) DEFAULT NULL,
+  `GateLinksClosedUtc` datetime(6) DEFAULT NULL,
+  `RoomHazardLastPulseUtc` datetime(6) DEFAULT NULL,
+  `RoomHazardNextPulseUtc` datetime(6) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `IX_MagicSpellLifecycles_CreatorId_Family_State` (`CreatorId`,`Family`,`State`),
   KEY `IX_MagicSpellLifecycles_State_DeadlineUtc` (`State`,`DeadlineUtc`)
@@ -5735,7 +5446,7 @@ CREATE TABLE IF NOT EXISTS `materials` (
   `Absorbency` double NOT NULL DEFAULT '0.25',
   `ExposureInfo` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table materials
@@ -5794,7 +5505,7 @@ CREATE TABLE IF NOT EXISTS `bodypartproto` (
   CONSTRAINT `FK_BodypartProto_BodypartShape` FOREIGN KEY (`BodypartShapeId`) REFERENCES `bodypartshape` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_BodypartProto_BodyPrototype` FOREIGN KEY (`BodyId`) REFERENCES `bodyprotos` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_BodypartProto_Materials` FOREIGN KEY (`DefaultMaterialId`) REFERENCES `materials` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodypartproto
@@ -5815,7 +5526,7 @@ CREATE TABLE IF NOT EXISTS `bodies_severedparts` (
   KEY `FK_Bodies_SeveredParts_BodypartProtos_idx` (`BodypartProtoId`),
   CONSTRAINT `FK_Bodies_SeveredParts_Bodies` FOREIGN KEY (`BodiesId`) REFERENCES `bodies` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Bodies_SeveredParts_BodypartProtos` FOREIGN KEY (`BodypartProtoId`) REFERENCES `bodypartproto` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodies_severedparts
@@ -5837,7 +5548,7 @@ CREATE TABLE IF NOT EXISTS `bodypartgroupdescribers_bodypartprotos` (
   KEY `FK_BGD_BodypartProtos_BodypartProto` (`BodypartProtoId`),
   CONSTRAINT `FK_BGD_BodypartProtos_BodypartGroupDescribers` FOREIGN KEY (`BodypartGroupDescriberId`) REFERENCES `bodypartgroupdescribers` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_BGD_BodypartProtos_BodypartProto` FOREIGN KEY (`BodypartProtoId`) REFERENCES `bodypartproto` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodypartgroupdescribers_bodypartprotos
@@ -5862,7 +5573,7 @@ CREATE TABLE IF NOT EXISTS `bodypartinternalinfos` (
   KEY `FK_BodypartInternalInfos_BodypartProtos_idx` (`BodypartProtoId`),
   CONSTRAINT `FK_BodypartInternalInfos_BodypartProtos` FOREIGN KEY (`BodypartProtoId`) REFERENCES `bodypartproto` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_BodypartInternalInfos_BodypartProtos_Internal` FOREIGN KEY (`InternalPartId`) REFERENCES `bodypartproto` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodypartinternalinfos
@@ -5884,7 +5595,7 @@ CREATE TABLE IF NOT EXISTS `bodypartproto_alignmenthits` (
   PRIMARY KEY (`Id`),
   KEY `FK_BodypartProto_AlignmentHits_BodypartProto` (`BodypartProtoId`),
   CONSTRAINT `FK_BodypartProto_AlignmentHits_BodypartProto` FOREIGN KEY (`BodypartProtoId`) REFERENCES `bodypartproto` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodypartproto_alignmenthits
@@ -5905,7 +5616,7 @@ CREATE TABLE IF NOT EXISTS `bodypartproto_bodypartproto_upstream` (
   KEY `FKParent` (`Parent`),
   CONSTRAINT `FKChild` FOREIGN KEY (`Child`) REFERENCES `bodypartproto` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FKParent` FOREIGN KEY (`Parent`) REFERENCES `bodypartproto` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodypartproto_bodypartproto_upstream
@@ -5927,7 +5638,7 @@ CREATE TABLE IF NOT EXISTS `bodypartproto_orientationhits` (
   PRIMARY KEY (`Id`),
   KEY `FK_BodypartProto_OrientationHits_BodypartProto` (`BodypartProtoId`),
   CONSTRAINT `FK_BodypartProto_OrientationHits_BodypartProto` FOREIGN KEY (`BodypartProtoId`) REFERENCES `bodypartproto` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodypartproto_orientationhits
@@ -5949,7 +5660,7 @@ CREATE TABLE IF NOT EXISTS `boneorgancoverages` (
   KEY `FK_BoneOrganCoverages_BodypartProto_Organ_idx` (`OrganId`),
   CONSTRAINT `FK_BoneOrganCoverages_BodypartProto_Bone` FOREIGN KEY (`BoneId`) REFERENCES `bodypartproto` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_BoneOrganCoverages_BodypartProto_Organ` FOREIGN KEY (`OrganId`) REFERENCES `bodypartproto` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table boneorgancoverages
@@ -6120,7 +5831,7 @@ CREATE TABLE IF NOT EXISTS `merits` (
   PRIMARY KEY (`Id`),
   KEY `FK_Merits_Merits_idx` (`ParentId`),
   CONSTRAINT `FK_Merits_Merits` FOREIGN KEY (`ParentId`) REFERENCES `merits` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table merits
@@ -6141,7 +5852,7 @@ CREATE TABLE IF NOT EXISTS `chargenroles_merits` (
   KEY `FK_ChargenRoles_Merits_Merits_idx` (`MeritId`),
   CONSTRAINT `FK_ChargenRoles_Merits_ChargenRoles` FOREIGN KEY (`ChargenRoleId`) REFERENCES `chargenroles` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ChargenRoles_Merits_Merits` FOREIGN KEY (`MeritId`) REFERENCES `merits` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenroles_merits
@@ -6164,7 +5875,7 @@ CREATE TABLE IF NOT EXISTS `merits_chargenresources` (
   KEY `FK_Merits_ChargenResources_ChargenResources_idx` (`ChargenResourceId`),
   CONSTRAINT `FK_Merits_ChargenResources_ChargenResources` FOREIGN KEY (`ChargenResourceId`) REFERENCES `chargenresources` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Merits_ChargenResources_Merits` FOREIGN KEY (`MeritId`) REFERENCES `merits` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table merits_chargenresources
@@ -6183,7 +5894,7 @@ CREATE TABLE IF NOT EXISTS `nameculture` (
   `Name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Definition` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table nameculture
@@ -6274,7 +5985,7 @@ CREATE TABLE IF NOT EXISTS `noncardinalexittemplates` (
   `OutboundVerb` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `InboundVerb` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table noncardinalexittemplates
@@ -6335,27 +6046,6 @@ CREATE TABLE IF NOT EXISTS `npcspawners` (
 /*!40000 ALTER TABLE `npcspawners` ENABLE KEYS */;
 
 --
--- Definition of npcspawnercells
---
-
-DROP TABLE IF EXISTS `npcspawnercells`;
-CREATE TABLE IF NOT EXISTS `npcspawnercells` (
-  `NPCSpawnerId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`NPCSpawnerId`,`CellId`),
-  KEY `IX_NPCSpawnerCells_CellId` (`CellId`),
-  CONSTRAINT `FK_NPCSpawnerCells_Cell` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_NPCSpawnerCells_NPCSpawner` FOREIGN KEY (`NPCSpawnerId`) REFERENCES `npcspawners` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table npcspawnercells
---
-
-/*!40000 ALTER TABLE `npcspawnercells` DISABLE KEYS */;
-/*!40000 ALTER TABLE `npcspawnercells` ENABLE KEYS */;
-
---
 -- Definition of npctemplates
 --
 
@@ -6373,7 +6063,7 @@ CREATE TABLE IF NOT EXISTS `npctemplates` (
   KEY `FK_NPCTemplates_EditableItems` (`EditableItemId`),
   KEY `IX_NPCTemplates_UniqueName` (`UniqueName`),
   CONSTRAINT `FK_NPCTemplates_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table npctemplates
@@ -6450,7 +6140,7 @@ CREATE TABLE IF NOT EXISTS `npcs` (
   CONSTRAINT `FK_NPCs_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_NPCs_Characters_Bodyguard` FOREIGN KEY (`BodyguardCharacterId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_NPCs_NPCTemplates` FOREIGN KEY (`TemplateId`, `TemplateRevnum`) REFERENCES `npctemplates` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table npcs
@@ -6471,7 +6161,7 @@ CREATE TABLE IF NOT EXISTS `npcs_artificialintelligences` (
   KEY `FK_NPCs_ArtificialIntelligences_NPCs` (`NPCId`),
   CONSTRAINT `FK_NPCs_ArtificialIntelligences_ArtificialIntelligences` FOREIGN KEY (`ArtificialIntelligenceId`) REFERENCES `artificialintelligences` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_NPCs_ArtificialIntelligences_NPCs` FOREIGN KEY (`NPCId`) REFERENCES `npcs` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table npcs_artificialintelligences
@@ -6494,7 +6184,7 @@ CREATE TABLE IF NOT EXISTS `npctemplates_artificalintelligences` (
   KEY `FK_NTAI_NPCTemplates` (`NPCTemplateId`,`NPCTemplateRevisionNumber`),
   CONSTRAINT `FK_NTAI_ArtificalIntelligences` FOREIGN KEY (`AIId`) REFERENCES `artificialintelligences` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_NTAI_NPCTemplates` FOREIGN KEY (`NPCTemplateId`, `NPCTemplateRevisionNumber`) REFERENCES `npctemplates` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table npctemplates_artificalintelligences
@@ -6541,7 +6231,7 @@ CREATE TABLE IF NOT EXISTS `paygrades` (
   KEY `FK_Paygrades_Currencies` (`CurrencyId`),
   CONSTRAINT `FK_Paygrades_Clans` FOREIGN KEY (`ClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Paygrades_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table paygrades
@@ -6590,7 +6280,7 @@ CREATE TABLE IF NOT EXISTS `playeractivitysnapshots` (
   `UniquePCLocations` int NOT NULL,
   `OnlineGuests` int NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table playeractivitysnapshots
@@ -6608,7 +6298,7 @@ CREATE TABLE IF NOT EXISTS `populationbloodmodels` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
   `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table populationbloodmodels
@@ -6630,7 +6320,7 @@ CREATE TABLE IF NOT EXISTS `populationbloodmodels_bloodtypes` (
   KEY `FK_PopulationBloodModels_Bloodtypes_PopulationBloodModels_idx` (`PopulationBloodModelId`),
   CONSTRAINT `FK_PopulationBloodModels_Bloodtypes_Bloodtypes` FOREIGN KEY (`BloodtypeId`) REFERENCES `bloodtypes` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_PopulationBloodModels_Bloodtypes_PopulationBloodModels` FOREIGN KEY (`PopulationBloodModelId`) REFERENCES `populationbloodmodels` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table populationbloodmodels_bloodtypes
@@ -6658,7 +6348,7 @@ CREATE TABLE IF NOT EXISTS `progschedules` (
   PRIMARY KEY (`Id`),
   KEY `FK_ProgSchedules_FutureProgs_idx` (`FutureProgId`),
   CONSTRAINT `FK_ProgSchedules_FutureProgs` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table progschedules
@@ -6721,7 +6411,7 @@ CREATE TABLE IF NOT EXISTS `projects` (
   PRIMARY KEY (`Id`,`RevisionNumber`),
   KEY `FK_Projects_EditableItems_idx` (`EditableItemId`),
   CONSTRAINT `FK_Projects_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table projects
@@ -6729,41 +6419,6 @@ CREATE TABLE IF NOT EXISTS `projects` (
 
 /*!40000 ALTER TABLE `projects` DISABLE KEYS */;
 /*!40000 ALTER TABLE `projects` ENABLE KEYS */;
-
---
--- Definition of activeprojects
---
-
-DROP TABLE IF EXISTS `activeprojects`;
-CREATE TABLE IF NOT EXISTS `activeprojects` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `ProjectId` bigint NOT NULL,
-  `ProjectRevisionNumber` int NOT NULL,
-  `CurrentPhaseId` bigint NOT NULL,
-  `CharacterId` bigint DEFAULT NULL,
-  `CellId` bigint DEFAULT NULL,
-  `PaymentCurrencyId` bigint DEFAULT NULL,
-  `RoomLayer` int NOT NULL DEFAULT '0',
-  `RoutePosition` decimal(18,3) DEFAULT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_ActiveProjects_Cells_idx` (`CellId`),
-  KEY `FK_ActiveProjects_Characters_idx` (`CharacterId`),
-  KEY `FK_ActiveProjects_ProjectPhases_idx` (`CurrentPhaseId`),
-  KEY `FK_ActiveProjects_Projects_idx` (`ProjectId`,`ProjectRevisionNumber`),
-  KEY `IX_ActiveProjects_PaymentCurrencyId` (`PaymentCurrencyId`),
-  CONSTRAINT `FK_ActiveProjects_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_ActiveProjects_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_ActiveProjects_PaymentCurrencies` FOREIGN KEY (`PaymentCurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_ActiveProjects_ProjectPhases` FOREIGN KEY (`CurrentPhaseId`) REFERENCES `projectphases` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_ActiveProjects_Projects` FOREIGN KEY (`ProjectId`, `ProjectRevisionNumber`) REFERENCES `projects` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table activeprojects
---
-
-/*!40000 ALTER TABLE `activeprojects` DISABLE KEYS */;
-/*!40000 ALTER TABLE `activeprojects` ENABLE KEYS */;
 
 --
 -- Definition of agricultureoperations
@@ -6841,7 +6496,7 @@ CREATE TABLE IF NOT EXISTS `projectphases` (
   PRIMARY KEY (`Id`),
   KEY `FK_ProjectPhases_Projects_idx` (`ProjectId`,`ProjectRevisionNumber`),
   CONSTRAINT `FK_ProjectPhases_Projects` FOREIGN KEY (`ProjectId`, `ProjectRevisionNumber`) REFERENCES `projects` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table projectphases
@@ -6866,7 +6521,7 @@ CREATE TABLE IF NOT EXISTS `projectactions` (
   PRIMARY KEY (`Id`),
   KEY `FK_ProjectActions_ProjectPhases_idx` (`ProjectPhaseId`),
   CONSTRAINT `FK_ProjectActions_ProjectPhases` FOREIGN KEY (`ProjectPhaseId`) REFERENCES `projectphases` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table projectactions
@@ -6892,7 +6547,7 @@ CREATE TABLE IF NOT EXISTS `projectlabourrequirements` (
   PRIMARY KEY (`Id`),
   KEY `FK_ProjectLabourRequirements_ProjectPhases_idx` (`ProjectPhaseId`),
   CONSTRAINT `FK_ProjectLabourRequirements_ProjectPhases` FOREIGN KEY (`ProjectPhaseId`) REFERENCES `projectphases` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table projectlabourrequirements
@@ -6915,7 +6570,7 @@ CREATE TABLE IF NOT EXISTS `activeprojectlabours` (
   KEY `FK_ActiveProjectLabours_ProjectLabourRequirements_idx` (`ProjectLabourRequirementsId`),
   CONSTRAINT `FK_ActiveProjectLabours_ActiveProjects` FOREIGN KEY (`ActiveProjectId`) REFERENCES `activeprojects` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ActiveProjectLabours_ProjectLabourRequirements` FOREIGN KEY (`ProjectLabourRequirementsId`) REFERENCES `projectlabourrequirements` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table activeprojectlabours
@@ -6940,7 +6595,7 @@ CREATE TABLE IF NOT EXISTS `projectlabourimpacts` (
   PRIMARY KEY (`Id`),
   KEY `FK_ProjectLabourImpacts_ProjectLabourRequirements_idx` (`ProjectLabourRequirementId`),
   CONSTRAINT `FK_ProjectLabourImpacts_ProjectLabourRequirements` FOREIGN KEY (`ProjectLabourRequirementId`) REFERENCES `projectlabourrequirements` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table projectlabourimpacts
@@ -7004,7 +6659,7 @@ CREATE TABLE IF NOT EXISTS `projectmaterialrequirements` (
   PRIMARY KEY (`Id`),
   KEY `FK_ProjectMaterialRequirements_ProjectPhases_idx` (`ProjectPhaseId`),
   CONSTRAINT `FK_ProjectMaterialRequirements_ProjectPhases` FOREIGN KEY (`ProjectPhaseId`) REFERENCES `projectphases` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table projectmaterialrequirements
@@ -7027,7 +6682,7 @@ CREATE TABLE IF NOT EXISTS `activeprojectmaterials` (
   KEY `FK_ActiveProjectMaterials_ProjectMaterialRequirements_idx` (`ProjectMaterialRequirementsId`),
   CONSTRAINT `FK_ActiveProjectMaterials_ActiveProjects` FOREIGN KEY (`ActiveProjectId`) REFERENCES `activeprojects` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ActiveProjectMaterials_ProjectMaterialRequirements` FOREIGN KEY (`ProjectMaterialRequirementsId`) REFERENCES `projectmaterialrequirements` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table activeprojectmaterials
@@ -7145,7 +6800,7 @@ CREATE TABLE IF NOT EXISTS `races` (
   CONSTRAINT `FK_Races_Materials` FOREIGN KEY (`NaturalArmourMaterialId`) REFERENCES `materials` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Races_RaceButcheryProfiles` FOREIGN KEY (`RaceButcheryProfileId`) REFERENCES `racebutcheryprofiles` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Races_Races` FOREIGN KEY (`ParentRaceId`) REFERENCES `races` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table races
@@ -7196,7 +6851,7 @@ CREATE TABLE IF NOT EXISTS `bodies` (
   CONSTRAINT `FK_Bodies_Ethnicities` FOREIGN KEY (`EthnicityId`) REFERENCES `ethnicities` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Bodies_HealthStrategies_HealthStrategyId` FOREIGN KEY (`HealthStrategyId`) REFERENCES `healthstrategies` (`Id`),
   CONSTRAINT `FK_Bodies_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodies
@@ -7217,7 +6872,7 @@ CREATE TABLE IF NOT EXISTS `chargenadvices_races` (
   KEY `FK_ChargenAdvices_Races_Races_idx` (`RaceId`),
   CONSTRAINT `FK_ChargenAdvices_Races_ChargenAdvices` FOREIGN KEY (`ChargenAdviceId`) REFERENCES `chargenadvices` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ChargenAdvices_Races_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenadvices_races
@@ -7252,7 +6907,7 @@ CREATE TABLE IF NOT EXISTS `ethnicities` (
   CONSTRAINT `FK_Ethnicities_Languages_NativeLanguageId` FOREIGN KEY (`NativeLanguageId`) REFERENCES `languages` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Ethnicities_PopulationBloodModels` FOREIGN KEY (`PopulationBloodModelId`) REFERENCES `populationbloodmodels` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Ethnicities_Races` FOREIGN KEY (`ParentRaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table ethnicities
@@ -7273,7 +6928,7 @@ CREATE TABLE IF NOT EXISTS `chargenadvices_ethnicities` (
   KEY `FK_ChargenAdvices_Ethnicities_Ethnicities_idx` (`EthnicityId`),
   CONSTRAINT `FK_ChargenAdvices_Ethnicities_ChargenAdvices` FOREIGN KEY (`ChargenAdviceId`) REFERENCES `chargenadvices` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ChargenAdvices_Ethnicities_Ethnicities` FOREIGN KEY (`EthnicityId`) REFERENCES `ethnicities` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenadvices_ethnicities
@@ -7297,7 +6952,7 @@ CREATE TABLE IF NOT EXISTS `ethnicities_characteristics` (
   CONSTRAINT `FK_Ethnicities_Characteristics_CharacteristicDefinitions` FOREIGN KEY (`CharacteristicDefinitionId`) REFERENCES `characteristicdefinitions` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Ethnicities_Characteristics_CharacteristicProfiles` FOREIGN KEY (`CharacteristicProfileId`) REFERENCES `characteristicprofiles` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Ethnicities_Characteristics_Ethnicities` FOREIGN KEY (`EthnicityId`) REFERENCES `ethnicities` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table ethnicities_characteristics
@@ -7320,7 +6975,7 @@ CREATE TABLE IF NOT EXISTS `ethnicities_chargenresources` (
   KEY `IX_Ethnicities_ChargenResources_ChargenResourceId` (`ChargenResourceId`),
   CONSTRAINT `FK_Ethnicities_ChargenResources_ChargenResources_ChargenResourc~` FOREIGN KEY (`ChargenResourceId`) REFERENCES `chargenresources` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Ethnicities_ChargenResources_Ethnicities_EthnicityId` FOREIGN KEY (`EthnicityId`) REFERENCES `ethnicities` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table ethnicities_chargenresources
@@ -7345,7 +7000,7 @@ CREATE TABLE IF NOT EXISTS `raceedibleforagableyields` (
   `EatEmote` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '@ eat|eats {0} from the location.',
   PRIMARY KEY (`RaceId`,`YieldType`),
   CONSTRAINT `FK_RaceEdibleForagableYields_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table raceedibleforagableyields
@@ -7368,7 +7023,7 @@ CREATE TABLE IF NOT EXISTS `races_additionalbodyparts` (
   KEY `FK_Races_AdditionalBodyparts_Races` (`RaceId`),
   CONSTRAINT `FK_Races_AdditionalBodyparts_BodypartProto` FOREIGN KEY (`BodypartId`) REFERENCES `bodypartproto` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Races_AdditionalBodyparts_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table races_additionalbodyparts
@@ -7390,7 +7045,7 @@ CREATE TABLE IF NOT EXISTS `races_additionalcharacteristics` (
   KEY `FK_RAC_CharacteristicDefinitions` (`CharacteristicDefinitionId`),
   CONSTRAINT `FK_RAC_CharacteristicDefinitions` FOREIGN KEY (`CharacteristicDefinitionId`) REFERENCES `characteristicdefinitions` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_RAC_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table races_additionalcharacteristics
@@ -7412,7 +7067,7 @@ CREATE TABLE IF NOT EXISTS `races_breathablegases` (
   KEY `FK_Races-BreathableGases_Gases_idx` (`GasId`),
   CONSTRAINT `FK_Races_BreathableGases_Gases` FOREIGN KEY (`GasId`) REFERENCES `gases` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Races_BreathableGases_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table races_breathablegases
@@ -7434,7 +7089,7 @@ CREATE TABLE IF NOT EXISTS `races_breathableliquids` (
   KEY `FK_Races_BreathableLiquids_Liquids_idx` (`LiquidId`),
   CONSTRAINT `FK_Races_BreathableLiquids_Liquids` FOREIGN KEY (`LiquidId`) REFERENCES `liquids` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Races_BreathableLiquids_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table races_breathableliquids
@@ -7457,7 +7112,7 @@ CREATE TABLE IF NOT EXISTS `races_chargenresources` (
   KEY `FK_Races_ChargenResources_ChargenResources` (`ChargenResourceId`),
   CONSTRAINT `FK_Races_ChargenResources_ChargenResources_ChargenResourceId` FOREIGN KEY (`ChargenResourceId`) REFERENCES `chargenresources` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Races_ChargenResources_Races_RaceId` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table races_chargenresources
@@ -7503,7 +7158,7 @@ CREATE TABLE IF NOT EXISTS `races_ediblematerials` (
   KEY `FK_Races_EdibleMaterials_Materials_idx` (`MaterialId`),
   CONSTRAINT `FK_Races_EdibleMaterials_Materials` FOREIGN KEY (`MaterialId`) REFERENCES `materials` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Races_EdibleMaterials_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table races_ediblematerials
@@ -7591,7 +7246,7 @@ CREATE TABLE IF NOT EXISTS `randomnameprofiles` (
   KEY `IX_RandomNameProfiles_UseForChargenSuggestionsProgId` (`UseForChargenSuggestionsProgId`),
   CONSTRAINT `FK_RandomNameProfiles_FutureProgs_UseForChargenSuggestionsProgId` FOREIGN KEY (`UseForChargenSuggestionsProgId`) REFERENCES `futureprogs` (`Id`),
   CONSTRAINT `FK_RandomNameProfiles_NameCulture` FOREIGN KEY (`NameCultureId`) REFERENCES `nameculture` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table randomnameprofiles
@@ -7611,7 +7266,7 @@ CREATE TABLE IF NOT EXISTS `randomnameprofiles_diceexpressions` (
   `DiceExpression` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`RandomNameProfileId`,`NameUsage`),
   CONSTRAINT `FK_RandomNameProfiles_DiceExpressions_RandomNameProfiles` FOREIGN KEY (`RandomNameProfileId`) REFERENCES `randomnameprofiles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table randomnameprofiles_diceexpressions
@@ -7632,7 +7287,7 @@ CREATE TABLE IF NOT EXISTS `randomnameprofiles_elements` (
   `Weighting` int NOT NULL,
   PRIMARY KEY (`RandomNameProfileId`,`NameUsage`,`Name`),
   CONSTRAINT `FK_RandomNameProfiles_Elements_RandomNameProfiles` FOREIGN KEY (`RandomNameProfileId`) REFERENCES `randomnameprofiles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table randomnameprofiles_elements
@@ -7657,7 +7312,7 @@ CREATE TABLE IF NOT EXISTS `rangedcovers` (
   `MaximumSimultaneousCovers` int NOT NULL,
   `CoverStaysWhileMoving` bit(1) NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table rangedcovers
@@ -7665,27 +7320,6 @@ CREATE TABLE IF NOT EXISTS `rangedcovers` (
 
 /*!40000 ALTER TABLE `rangedcovers` DISABLE KEYS */;
 /*!40000 ALTER TABLE `rangedcovers` ENABLE KEYS */;
-
---
--- Definition of cells_rangedcovers
---
-
-DROP TABLE IF EXISTS `cells_rangedcovers`;
-CREATE TABLE IF NOT EXISTS `cells_rangedcovers` (
-  `CellId` bigint NOT NULL,
-  `RangedCoverId` bigint NOT NULL,
-  PRIMARY KEY (`CellId`,`RangedCoverId`),
-  KEY `FK_Cells_RangedCovers_RangedCovers_idx` (`RangedCoverId`),
-  CONSTRAINT `FK_Cells_RangedCovers_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Cells_RangedCovers_RangedCovers` FOREIGN KEY (`RangedCoverId`) REFERENCES `rangedcovers` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table cells_rangedcovers
---
-
-/*!40000 ALTER TABLE `cells_rangedcovers` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cells_rangedcovers` ENABLE KEYS */;
 
 --
 -- Definition of ranks
@@ -7707,7 +7341,7 @@ CREATE TABLE IF NOT EXISTS `ranks` (
   KEY `FK_Ranks_GameItemProtos` (`InsigniaGameItemId`,`InsigniaGameItemRevnum`),
   CONSTRAINT `FK_Ranks_Clans` FOREIGN KEY (`ClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Ranks_GameItemProtos` FOREIGN KEY (`InsigniaGameItemId`, `InsigniaGameItemRevnum`) REFERENCES `gameitemprotos` (`Id`, `RevisionNumber`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table ranks
@@ -7865,7 +7499,7 @@ CREATE TABLE IF NOT EXISTS `ranks_abbreviations` (
   KEY `FK_Ranks_Abbreviations_FutureProgs` (`FutureProgId`),
   CONSTRAINT `FK_Ranks_Abbreviations_FutureProgs` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Ranks_Abbreviations_Ranks` FOREIGN KEY (`RankId`) REFERENCES `ranks` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table ranks_abbreviations
@@ -7887,7 +7521,7 @@ CREATE TABLE IF NOT EXISTS `ranks_paygrades` (
   KEY `FK_Ranks_Paygrades_Paygrades` (`PaygradeId`),
   CONSTRAINT `FK_Ranks_Paygrades_Paygrades` FOREIGN KEY (`PaygradeId`) REFERENCES `paygrades` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Ranks_Paygrades_Ranks` FOREIGN KEY (`RankId`) REFERENCES `ranks` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table ranks_paygrades
@@ -7910,7 +7544,7 @@ CREATE TABLE IF NOT EXISTS `ranks_titles` (
   KEY `FK_Ranks_Titles_FutureProgs` (`FutureProgId`),
   CONSTRAINT `FK_Ranks_Titles_FutureProgs` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Ranks_Titles_Ranks` FOREIGN KEY (`RankId`) REFERENCES `ranks` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table ranks_titles
@@ -7932,7 +7566,7 @@ CREATE TABLE IF NOT EXISTS `regionalclimates` (
   `TemperatureFluctuationPeriodMinutes` int NOT NULL DEFAULT '0',
   `TemperatureFluctuationStandardDeviation` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table regionalclimates
@@ -7940,6 +7574,112 @@ CREATE TABLE IF NOT EXISTS `regionalclimates` (
 
 /*!40000 ALTER TABLE `regionalclimates` DISABLE KEYS */;
 /*!40000 ALTER TABLE `regionalclimates` ENABLE KEYS */;
+
+--
+-- Definition of roomoverlaypackages
+--
+
+DROP TABLE IF EXISTS `roomoverlaypackages`;
+CREATE TABLE IF NOT EXISTS `roomoverlaypackages` (
+  `Id` bigint NOT NULL,
+  `RevisionNumber` int NOT NULL,
+  `Name` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `EditableItemId` bigint NOT NULL,
+  PRIMARY KEY (`Id`,`RevisionNumber`),
+  KEY `FK_RoomOverlayPackages_EditableItems` (`EditableItemId`),
+  CONSTRAINT `FK_RoomOverlayPackages_EditableItems` FOREIGN KEY (`EditableItemId`) REFERENCES `editableitems` (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table roomoverlaypackages
+--
+
+/*!40000 ALTER TABLE `roomoverlaypackages` DISABLE KEYS */;
+/*!40000 ALTER TABLE `roomoverlaypackages` ENABLE KEYS */;
+
+--
+-- Definition of roomspatialareacontractionledger
+--
+
+DROP TABLE IF EXISTS `roomspatialareacontractionledger`;
+CREATE TABLE IF NOT EXISTS `roomspatialareacontractionledger` (
+  `AreaId` bigint NOT NULL,
+  `LegacyRoomId` bigint NOT NULL,
+  `RoomId` bigint DEFAULT NULL,
+  PRIMARY KEY (`AreaId`,`LegacyRoomId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table roomspatialareacontractionledger
+--
+
+/*!40000 ALTER TABLE `roomspatialareacontractionledger` DISABLE KEYS */;
+/*!40000 ALTER TABLE `roomspatialareacontractionledger` ENABLE KEYS */;
+
+--
+-- Definition of roomspatialareamigrationledger
+--
+
+DROP TABLE IF EXISTS `roomspatialareamigrationledger`;
+CREATE TABLE IF NOT EXISTS `roomspatialareamigrationledger` (
+  `AreaId` bigint NOT NULL,
+  `LegacyRoomId` bigint NOT NULL,
+  `RoomId` bigint DEFAULT NULL,
+  PRIMARY KEY (`AreaId`,`LegacyRoomId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table roomspatialareamigrationledger
+--
+
+/*!40000 ALTER TABLE `roomspatialareamigrationledger` DISABLE KEYS */;
+/*!40000 ALTER TABLE `roomspatialareamigrationledger` ENABLE KEYS */;
+
+--
+-- Definition of roomspatialcontractionledger
+--
+
+DROP TABLE IF EXISTS `roomspatialcontractionledger`;
+CREATE TABLE IF NOT EXISTS `roomspatialcontractionledger` (
+  `LegacyRoomId` bigint NOT NULL,
+  `RoomId` bigint DEFAULT NULL,
+  `ZoneId` bigint NOT NULL,
+  `X` int NOT NULL,
+  `Y` int NOT NULL,
+  `Z` int NOT NULL,
+  `Warning` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  PRIMARY KEY (`LegacyRoomId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table roomspatialcontractionledger
+--
+
+/*!40000 ALTER TABLE `roomspatialcontractionledger` DISABLE KEYS */;
+/*!40000 ALTER TABLE `roomspatialcontractionledger` ENABLE KEYS */;
+
+--
+-- Definition of roomspatialmigrationledger
+--
+
+DROP TABLE IF EXISTS `roomspatialmigrationledger`;
+CREATE TABLE IF NOT EXISTS `roomspatialmigrationledger` (
+  `LegacyRoomId` bigint NOT NULL,
+  `RoomId` bigint DEFAULT NULL,
+  `ZoneId` bigint NOT NULL,
+  `X` int NOT NULL,
+  `Y` int NOT NULL,
+  `Z` int NOT NULL,
+  `Warning` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  PRIMARY KEY (`LegacyRoomId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table roomspatialmigrationledger
+--
+
+/*!40000 ALTER TABLE `roomspatialmigrationledger` DISABLE KEYS */;
+/*!40000 ALTER TABLE `roomspatialmigrationledger` ENABLE KEYS */;
 
 --
 -- Definition of scriptedevents
@@ -8059,7 +7799,7 @@ CREATE TABLE IF NOT EXISTS `scripts` (
   PRIMARY KEY (`Id`),
   KEY `FK_Scripts_Knowledges_idx` (`KnowledgeId`),
   CONSTRAINT `FK_Scripts_Knowledges` FOREIGN KEY (`KnowledgeId`) REFERENCES `knowledges` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table scripts
@@ -8149,7 +7889,7 @@ CREATE TABLE IF NOT EXISTS `characters` (
   KEY `FK_Characters_ProjectLabourRequirements_idx` (`CurrentProjectLabourId`),
   KEY `FK_Characters_Scripts_idx` (`CurrentScriptId`),
   KEY `FK_Characters_Languages_Written_idx` (`CurrentWritingLanguageId`),
-  KEY `FK_Characters_Cells` (`Location`),
+  KEY `FK_Characters_Rooms` (`Location`),
   KEY `IX_Characters_Location_Layer_RoutePosition` (`Location`,`RoomLayer`,`RoutePosition`),
   KEY `FK_Characters_CurrentSignedLanguage_idx` (`CurrentSignedLanguageId`),
   KEY `FK_Characters_CurrentSignedLanguageVariety_idx` (`CurrentSignedLanguageVarietyId`),
@@ -8158,7 +7898,6 @@ CREATE TABLE IF NOT EXISTS `characters` (
   CONSTRAINT `FK_Characters_Accounts` FOREIGN KEY (`AccountId`) REFERENCES `accounts` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Characters_ActiveProjects` FOREIGN KEY (`CurrentProjectId`) REFERENCES `activeprojects` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Characters_Bodies` FOREIGN KEY (`BodyId`) REFERENCES `bodies` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_Characters_Cells` FOREIGN KEY (`Location`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Characters_Chargens` FOREIGN KEY (`ChargenId`) REFERENCES `chargens` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Characters_Cultures` FOREIGN KEY (`CultureId`) REFERENCES `cultures` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Characters_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT,
@@ -8168,9 +7907,10 @@ CREATE TABLE IF NOT EXISTS `characters` (
   CONSTRAINT `FK_Characters_Languages_Spoken` FOREIGN KEY (`CurrentLanguageId`) REFERENCES `languages` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Characters_Languages_Written` FOREIGN KEY (`CurrentWritingLanguageId`) REFERENCES `languages` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Characters_ProjectLabourRequirements` FOREIGN KEY (`CurrentProjectLabourId`) REFERENCES `projectlabourrequirements` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Characters_Rooms` FOREIGN KEY (`Location`) REFERENCES `rooms` (`Id`),
   CONSTRAINT `FK_Characters_Scripts` FOREIGN KEY (`CurrentScriptId`) REFERENCES `scripts` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `CK_Characters_BodyOrArchive` CHECK (((`BodyId` is not null) or (`IsArchived` = 1)))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table characters
@@ -8201,7 +7941,7 @@ CREATE TABLE IF NOT EXISTS `accountnotes` (
   CONSTRAINT `FK_AccountNotes_Accounts` FOREIGN KEY (`AccountId`) REFERENCES `accounts` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_AccountNotes_Author` FOREIGN KEY (`AuthorId`) REFERENCES `accounts` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_AccountNotes_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table accountnotes
@@ -8237,36 +7977,6 @@ CREATE TABLE IF NOT EXISTS `aistorytellercharactermemories` (
 /*!40000 ALTER TABLE `aistorytellercharactermemories` ENABLE KEYS */;
 
 --
--- Definition of aistorytellersituations
---
-
-DROP TABLE IF EXISTS `aistorytellersituations`;
-CREATE TABLE IF NOT EXISTS `aistorytellersituations` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `AIStorytellerId` bigint NOT NULL,
-  `Name` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `SituationText` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `CreatedOn` datetime(6) NOT NULL,
-  `IsResolved` tinyint(1) NOT NULL,
-  `ScopeCharacterId` bigint DEFAULT NULL,
-  `ScopeRoomId` bigint DEFAULT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `IX_AIStorytellerSituations_AIStorytellerId` (`AIStorytellerId`),
-  KEY `IX_AIStorytellerSituations_ScopeCharacterId` (`ScopeCharacterId`),
-  KEY `IX_AIStorytellerSituations_ScopeRoomId` (`ScopeRoomId`),
-  CONSTRAINT `FK_AIStorytellerSituations_AIStorytellers_AIStorytellerId` FOREIGN KEY (`AIStorytellerId`) REFERENCES `aistorytellers` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_AIStorytellerSituations_Cells_ScopeRoomId` FOREIGN KEY (`ScopeRoomId`) REFERENCES `cells` (`Id`),
-  CONSTRAINT `FK_AIStorytellerSituations_Characters_ScopeCharacterId` FOREIGN KEY (`ScopeCharacterId`) REFERENCES `characters` (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table aistorytellersituations
---
-
-/*!40000 ALTER TABLE `aistorytellersituations` DISABLE KEYS */;
-/*!40000 ALTER TABLE `aistorytellersituations` ENABLE KEYS */;
-
---
 -- Definition of allies
 --
 
@@ -8279,7 +7989,7 @@ CREATE TABLE IF NOT EXISTS `allies` (
   KEY `FK_Allies_Characters_Target_idx` (`AllyId`),
   CONSTRAINT `FK_Allies_Characters_Owner` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Allies_Characters_Target` FOREIGN KEY (`AllyId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table allies
@@ -8386,7 +8096,7 @@ CREATE TABLE IF NOT EXISTS `bankmanagerauditlogs` (
   KEY `IX_BankManagerAuditLogs_CharacterId` (`CharacterId`),
   CONSTRAINT `FK_BankManagerAuditLogs_Banks` FOREIGN KEY (`BankId`) REFERENCES `banks` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_BankManagerAuditLogs_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bankmanagerauditlogs
@@ -8407,7 +8117,7 @@ CREATE TABLE IF NOT EXISTS `bankmanagers` (
   KEY `IX_BankManagers_CharacterId` (`CharacterId`),
   CONSTRAINT `FK_BankManagers_Banks` FOREIGN KEY (`BankId`) REFERENCES `banks` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_BankManagers_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bankmanagers
@@ -8605,35 +8315,6 @@ CREATE TABLE IF NOT EXISTS `charactercomputerprogramprocesses` (
 /*!40000 ALTER TABLE `charactercomputerprogramprocesses` ENABLE KEYS */;
 
 --
--- Definition of characterlog
---
-
-DROP TABLE IF EXISTS `characterlog`;
-CREATE TABLE IF NOT EXISTS `characterlog` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `AccountId` bigint DEFAULT NULL,
-  `CharacterId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  `Command` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Time` datetime NOT NULL,
-  `IsPlayerCharacter` bit(1) NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_CharacterLog_Accounts_idx` (`AccountId`),
-  KEY `FK_CharacterLog_Cells_idx` (`CellId`),
-  KEY `FK_CharacterLog_Characters_idx` (`CharacterId`),
-  CONSTRAINT `FK_CharacterLog_Accounts` FOREIGN KEY (`AccountId`) REFERENCES `accounts` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_CharacterLog_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_CharacterLog_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table characterlog
---
-
-/*!40000 ALTER TABLE `characterlog` DISABLE KEYS */;
-/*!40000 ALTER TABLE `characterlog` ENABLE KEYS */;
-
---
 -- Definition of characters_accents
 --
 
@@ -8647,7 +8328,7 @@ CREATE TABLE IF NOT EXISTS `characters_accents` (
   KEY `FK_Characters_Accents_Accents_idx` (`AccentId`),
   CONSTRAINT `FK_Characters_Accents_Accents` FOREIGN KEY (`AccentId`) REFERENCES `accents` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Characters_Accents_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table characters_accents
@@ -8668,7 +8349,7 @@ CREATE TABLE IF NOT EXISTS `characters_scripts` (
   KEY `FK_Characters_Scripts_Scripts_idx` (`ScriptId`),
   CONSTRAINT `FK_Characters_Scripts_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Characters_Scripts_Scripts` FOREIGN KEY (`ScriptId`) REFERENCES `scripts` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table characters_scripts
@@ -8697,7 +8378,7 @@ CREATE TABLE IF NOT EXISTS `clanmemberships` (
   CONSTRAINT `FK_ClanMemberships_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ClanMemberships_Clans` FOREIGN KEY (`ClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ClanMemberships_Manager` FOREIGN KEY (`ManagerId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table clanmemberships
@@ -8719,7 +8400,7 @@ CREATE TABLE IF NOT EXISTS `clanmemberships_appointments` (
   KEY `FK_ClanMemberships_Appointments_Appointments` (`AppointmentId`),
   CONSTRAINT `FK_ClanMemberships_Appointments_Appointments` FOREIGN KEY (`AppointmentId`) REFERENCES `appointments` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ClanMemberships_Appointments_ClanMemberships` FOREIGN KEY (`ClanId`, `CharacterId`) REFERENCES `clanmemberships` (`ClanId`, `CharacterId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table clanmemberships_appointments
@@ -8752,9 +8433,9 @@ CREATE TABLE IF NOT EXISTS `crimes` (
   `ConvictionRecorded` bit(1) NOT NULL,
   `IsCriminalIdentityKnown` bit(1) NOT NULL,
   `BailHasBeenPosted` bit(1) NOT NULL DEFAULT b'0',
-  `ThirdPartyIItemType` varchar(100) DEFAULT NULL,
+  `ThirdPartyIItemType` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `ThirdPartyId` bigint DEFAULT NULL,
-  `WitnessIds` varchar(1000) DEFAULT NULL,
+  `WitnessIds` varchar(1000) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `CalculatedBail` decimal(58,29) NOT NULL DEFAULT '0.00000000000000000000000000000',
   `CustodialSentenceLength` double NOT NULL DEFAULT '0',
   `FineRecorded` decimal(58,29) NOT NULL DEFAULT '0.00000000000000000000000000000',
@@ -8774,9 +8455,9 @@ CREATE TABLE IF NOT EXISTS `crimes` (
   CONSTRAINT `FK_Crimes_Accuser` FOREIGN KEY (`AccuserId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Crimes_Criminal` FOREIGN KEY (`CriminalId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Crimes_Laws` FOREIGN KEY (`LawId`) REFERENCES `laws` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Crimes_Location` FOREIGN KEY (`LocationId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Crimes_Location` FOREIGN KEY (`LocationId`) REFERENCES `rooms` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Crimes_Victim` FOREIGN KEY (`VictimId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table crimes
@@ -8801,7 +8482,7 @@ CREATE TABLE IF NOT EXISTS `drawings` (
   PRIMARY KEY (`Id`),
   KEY `FK_Drawings_Characters_idx` (`AuthorId`),
   CONSTRAINT `FK_Drawings_Characters` FOREIGN KEY (`AuthorId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table drawings
@@ -8824,10 +8505,11 @@ CREATE TABLE IF NOT EXISTS `dubs` (
   `LastUsage` datetime NOT NULL,
   `CharacterId` bigint NOT NULL,
   `IntroducedName` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `WasIdentityConcealed` tinyint(1) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `FK_Dubs_Characters` (`CharacterId`),
   CONSTRAINT `FK_Dubs_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table dubs
@@ -8855,7 +8537,7 @@ CREATE TABLE IF NOT EXISTS `electionsvotes` (
   CONSTRAINT `FK_ElectionsVotes_Elections` FOREIGN KEY (`ElectionId`) REFERENCES `elections` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ElectionsVotes_Nominees` FOREIGN KEY (`NomineeClanId`, `NomineeId`) REFERENCES `clanmemberships` (`ClanId`, `CharacterId`) ON DELETE CASCADE,
   CONSTRAINT `FK_ElectionsVotes_Voters` FOREIGN KEY (`VoterClanId`, `VoterId`) REFERENCES `clanmemberships` (`ClanId`, `CharacterId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table electionsvotes
@@ -8873,7 +8555,7 @@ CREATE TABLE IF NOT EXISTS `guests` (
   `CharacterId` bigint NOT NULL,
   PRIMARY KEY (`CharacterId`),
   CONSTRAINT `FK_Guests_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table guests
@@ -8901,7 +8583,7 @@ CREATE TABLE IF NOT EXISTS `perceivermerits` (
   CONSTRAINT ` FK_PerceiverMerits_Merits` FOREIGN KEY (`MeritId`) REFERENCES `merits` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_PerceiverMerits_Bodies` FOREIGN KEY (`BodyId`) REFERENCES `bodies` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_PerceiverMerits_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table perceivermerits
@@ -8922,7 +8604,7 @@ CREATE TABLE IF NOT EXISTS `scripts_designedlanguages` (
   KEY `FK_Scripts_DesignedLanguages_Languages_idx` (`LanguageId`),
   CONSTRAINT `FK_Scripts_DesignedLanguages_Languages` FOREIGN KEY (`LanguageId`) REFERENCES `languages` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Scripts_DesignedLanguages_Scripts` FOREIGN KEY (`ScriptId`) REFERENCES `scripts` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table scripts_designedlanguages
@@ -8946,7 +8628,7 @@ CREATE TABLE IF NOT EXISTS `seasons` (
   PRIMARY KEY (`Id`),
   KEY `FK_Seasons_Celestials_idx` (`CelestialId`),
   CONSTRAINT `FK_Seasons_Celestials` FOREIGN KEY (`CelestialId`) REFERENCES `celestials` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table seasons
@@ -8991,7 +8673,7 @@ CREATE TABLE IF NOT EXISTS `regionalclimates_seasons` (
   KEY `FK_RegionalClimates_Seasons_Seasons_idx` (`SeasonId`),
   CONSTRAINT `FK_RegionalClimates_Seasons_RegionalClimates` FOREIGN KEY (`RegionalClimateId`) REFERENCES `regionalclimates` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_RegionalClimates_Seasons_Seasons` FOREIGN KEY (`SeasonId`) REFERENCES `seasons` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table regionalclimates_seasons
@@ -9060,7 +8742,7 @@ CREATE TABLE IF NOT EXISTS `skydescriptiontemplates` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
   `Name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table skydescriptiontemplates
@@ -9083,7 +8765,7 @@ CREATE TABLE IF NOT EXISTS `shards` (
   PRIMARY KEY (`Id`),
   KEY `FK_Shards_SkyDescriptionTemplates` (`SkyDescriptionTemplateId`),
   CONSTRAINT `FK_Shards_SkyDescriptionTemplates` FOREIGN KEY (`SkyDescriptionTemplateId`) REFERENCES `skydescriptiontemplates` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table shards
@@ -9102,7 +8784,7 @@ CREATE TABLE IF NOT EXISTS `shards_calendars` (
   `CalendarId` bigint NOT NULL,
   PRIMARY KEY (`ShardId`,`CalendarId`),
   CONSTRAINT `FK_Shards_Calendars_Shards` FOREIGN KEY (`ShardId`) REFERENCES `shards` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table shards_calendars
@@ -9121,7 +8803,7 @@ CREATE TABLE IF NOT EXISTS `shards_celestials` (
   `CelestialId` bigint NOT NULL,
   PRIMARY KEY (`ShardId`,`CelestialId`),
   CONSTRAINT `FK_Shards_Celestials_Shards` FOREIGN KEY (`ShardId`) REFERENCES `shards` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table shards_celestials
@@ -9140,7 +8822,7 @@ CREATE TABLE IF NOT EXISTS `shards_clocks` (
   `ClockId` bigint NOT NULL,
   PRIMARY KEY (`ShardId`,`ClockId`),
   CONSTRAINT `FK_Shards_Clocks_Shards` FOREIGN KEY (`ShardId`) REFERENCES `shards` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table shards_clocks
@@ -9161,7 +8843,7 @@ CREATE TABLE IF NOT EXISTS `skydescriptiontemplates_values` (
   `Description` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`SkyDescriptionTemplateId`,`LowerBound`),
   CONSTRAINT `FK_SkyDescriptionTemplates_Values_SkyDescriptionTemplates` FOREIGN KEY (`SkyDescriptionTemplateId`) REFERENCES `skydescriptiontemplates` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table skydescriptiontemplates_values
@@ -9185,7 +8867,7 @@ CREATE TABLE IF NOT EXISTS `socials` (
   PRIMARY KEY (`Name`),
   KEY `FK_Socials_FutureProgs` (`FutureProgId`),
   CONSTRAINT `FK_Socials_FutureProgs` FOREIGN KEY (`FutureProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table socials
@@ -9193,166 +8875,6 @@ CREATE TABLE IF NOT EXISTS `socials` (
 
 /*!40000 ALTER TABLE `socials` DISABLE KEYS */;
 /*!40000 ALTER TABLE `socials` ENABLE KEYS */;
-
---
--- Definition of stables
---
-
-DROP TABLE IF EXISTS `stables`;
-CREATE TABLE IF NOT EXISTS `stables` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `EconomicZoneId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  `BankAccountId` bigint DEFAULT NULL,
-  `IsTrading` bit(1) NOT NULL DEFAULT b'1',
-  `LodgeFee` decimal(58,29) NOT NULL,
-  `DailyFee` decimal(58,29) NOT NULL,
-  `LodgeFeeProgId` bigint DEFAULT NULL,
-  `DailyFeeProgId` bigint DEFAULT NULL,
-  `CanStableProgId` bigint DEFAULT NULL,
-  `WhyCannotStableProgId` bigint DEFAULT NULL,
-  `EmployeeRecords` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_Stables_BankAccounts_idx` (`BankAccountId`),
-  KEY `FK_Stables_Cells_idx` (`CellId`),
-  KEY `FK_Stables_EconomicZones_idx` (`EconomicZoneId`),
-  KEY `FK_Stables_FutureProgs_Can_idx` (`CanStableProgId`),
-  KEY `FK_Stables_FutureProgs_Daily_idx` (`DailyFeeProgId`),
-  KEY `FK_Stables_FutureProgs_Lodge_idx` (`LodgeFeeProgId`),
-  KEY `FK_Stables_FutureProgs_Why_idx` (`WhyCannotStableProgId`),
-  CONSTRAINT `FK_Stables_BankAccounts` FOREIGN KEY (`BankAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Stables_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Stables_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Stables_FutureProgs_Can` FOREIGN KEY (`CanStableProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Stables_FutureProgs_Daily` FOREIGN KEY (`DailyFeeProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Stables_FutureProgs_Lodge` FOREIGN KEY (`LodgeFeeProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Stables_FutureProgs_Why` FOREIGN KEY (`WhyCannotStableProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table stables
---
-
-/*!40000 ALTER TABLE `stables` DISABLE KEYS */;
-/*!40000 ALTER TABLE `stables` ENABLE KEYS */;
-
---
--- Definition of stableaccounts
---
-
-DROP TABLE IF EXISTS `stableaccounts`;
-CREATE TABLE IF NOT EXISTS `stableaccounts` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `StableId` bigint NOT NULL,
-  `AccountName` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `AccountOwnerId` bigint NOT NULL,
-  `AccountOwnerName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `Balance` decimal(58,29) NOT NULL,
-  `CreditLimit` decimal(58,29) NOT NULL,
-  `IsSuspended` bit(1) NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_StableAccounts_Characters_idx` (`AccountOwnerId`),
-  KEY `FK_StableAccounts_Stables_idx` (`StableId`),
-  CONSTRAINT `FK_StableAccounts_Characters` FOREIGN KEY (`AccountOwnerId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_StableAccounts_Stables` FOREIGN KEY (`StableId`) REFERENCES `stables` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table stableaccounts
---
-
-/*!40000 ALTER TABLE `stableaccounts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `stableaccounts` ENABLE KEYS */;
-
---
--- Definition of stableaccountusers
---
-
-DROP TABLE IF EXISTS `stableaccountusers`;
-CREATE TABLE IF NOT EXISTS `stableaccountusers` (
-  `StableAccountId` bigint NOT NULL,
-  `AccountUserId` bigint NOT NULL,
-  `AccountUserName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `SpendingLimit` decimal(58,29) DEFAULT NULL,
-  PRIMARY KEY (`StableAccountId`,`AccountUserId`),
-  KEY `FK_StableAccountUsers_Characters_idx` (`AccountUserId`),
-  CONSTRAINT `FK_StableAccountUsers_Characters` FOREIGN KEY (`AccountUserId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_StableAccountUsers_StableAccounts` FOREIGN KEY (`StableAccountId`) REFERENCES `stableaccounts` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table stableaccountusers
---
-
-/*!40000 ALTER TABLE `stableaccountusers` DISABLE KEYS */;
-/*!40000 ALTER TABLE `stableaccountusers` ENABLE KEYS */;
-
---
--- Definition of stablestays
---
-
-DROP TABLE IF EXISTS `stablestays`;
-CREATE TABLE IF NOT EXISTS `stablestays` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `StableId` bigint NOT NULL,
-  `MountId` bigint NOT NULL,
-  `OriginalOwnerId` bigint NOT NULL,
-  `OriginalOwnerName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `LodgedDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `LastDailyFeeDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `ClosedDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `Status` int NOT NULL,
-  `TicketItemId` bigint DEFAULT NULL,
-  `TicketToken` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `AmountOwing` decimal(58,29) NOT NULL,
-  `MountInstanceId` bigint DEFAULT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_StableStays_Characters_Mount_idx` (`MountId`),
-  KEY `FK_StableStays_Characters_Owner_idx` (`OriginalOwnerId`),
-  KEY `FK_StableStays_GameItems_Ticket_idx` (`TicketItemId`),
-  KEY `FK_StableStays_Stables_idx` (`StableId`),
-  KEY `FK_StableStays_CharacterInstances_Mount_idx` (`MountInstanceId`),
-  CONSTRAINT `FK_StableStays_Characters_Mount` FOREIGN KEY (`MountId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_StableStays_Characters_Owner` FOREIGN KEY (`OriginalOwnerId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_StableStays_GameItems_Ticket` FOREIGN KEY (`TicketItemId`) REFERENCES `gameitems` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_StableStays_Stables` FOREIGN KEY (`StableId`) REFERENCES `stables` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table stablestays
---
-
-/*!40000 ALTER TABLE `stablestays` DISABLE KEYS */;
-/*!40000 ALTER TABLE `stablestays` ENABLE KEYS */;
-
---
--- Definition of stablestayledgerentries
---
-
-DROP TABLE IF EXISTS `stablestayledgerentries`;
-CREATE TABLE IF NOT EXISTS `stablestayledgerentries` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `StableStayId` bigint NOT NULL,
-  `EntryType` int NOT NULL,
-  `MudDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `ActorId` bigint DEFAULT NULL,
-  `ActorName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
-  `Amount` decimal(58,29) NOT NULL,
-  `Note` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_StableStayLedgerEntries_Characters_idx` (`ActorId`),
-  KEY `FK_StableStayLedgerEntries_StableStays_idx` (`StableStayId`),
-  CONSTRAINT `FK_StableStayLedgerEntries_Characters` FOREIGN KEY (`ActorId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_StableStayLedgerEntries_StableStays` FOREIGN KEY (`StableStayId`) REFERENCES `stablestays` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table stablestayledgerentries
---
-
-/*!40000 ALTER TABLE `stablestayledgerentries` DISABLE KEYS */;
-/*!40000 ALTER TABLE `stablestayledgerentries` ENABLE KEYS */;
 
 --
 -- Definition of stackdecorators
@@ -9366,7 +8888,7 @@ CREATE TABLE IF NOT EXISTS `stackdecorators` (
   `Definition` varchar(10000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Description` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table stackdecorators
@@ -9384,7 +8906,7 @@ CREATE TABLE IF NOT EXISTS `staticconfigurations` (
   `SettingName` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Definition` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`SettingName`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table staticconfigurations
@@ -9403,7 +8925,7 @@ CREATE TABLE IF NOT EXISTS `staticstrings` (
   `Id` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Text` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table staticstrings
@@ -9427,7 +8949,7 @@ CREATE TABLE IF NOT EXISTS `tags` (
   KEY `FK_Tags_Futureprogs_idx` (`ShouldSeeProgId`),
   CONSTRAINT `FK_Tags_Futureprogs` FOREIGN KEY (`ShouldSeeProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Tags_Parent` FOREIGN KEY (`ParentId`) REFERENCES `tags` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table tags
@@ -9435,27 +8957,6 @@ CREATE TABLE IF NOT EXISTS `tags` (
 
 /*!40000 ALTER TABLE `tags` DISABLE KEYS */;
 /*!40000 ALTER TABLE `tags` ENABLE KEYS */;
-
---
--- Definition of cells_tags
---
-
-DROP TABLE IF EXISTS `cells_tags`;
-CREATE TABLE IF NOT EXISTS `cells_tags` (
-  `CellId` bigint NOT NULL,
-  `TagId` bigint NOT NULL,
-  PRIMARY KEY (`CellId`,`TagId`),
-  KEY `FK_Cells_Tags_Tags_idx` (`TagId`),
-  CONSTRAINT `FK_Cells_Tags_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Cells_Tags_Tags` FOREIGN KEY (`TagId`) REFERENCES `tags` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table cells_tags
---
-
-/*!40000 ALTER TABLE `cells_tags` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cells_tags` ENABLE KEYS */;
 
 --
 -- Definition of commodityspoilagerules
@@ -9510,7 +9011,7 @@ CREATE TABLE IF NOT EXISTS `gameitemprotos_tags` (
   KEY `FK_GameItemProtos_Tags_GameItemProtos` (`GameItemProtoId`,`GameItemProtoRevisionNumber`),
   CONSTRAINT `FK_GameItemProtos_Tags_GameItemProtos` FOREIGN KEY (`GameItemProtoId`, `GameItemProtoRevisionNumber`) REFERENCES `gameitemprotos` (`Id`, `RevisionNumber`) ON DELETE CASCADE,
   CONSTRAINT `FK_GameItemProtos_Tags_Tags` FOREIGN KEY (`TagId`) REFERENCES `tags` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gameitemprotos_tags
@@ -9531,7 +9032,7 @@ CREATE TABLE IF NOT EXISTS `gases_tags` (
   KEY `FK_Gases_Tags_Tags_idx` (`TagId`),
   CONSTRAINT `FK_Gases_Tags_Gases` FOREIGN KEY (`GasId`) REFERENCES `gases` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Gases_Tags_Tags` FOREIGN KEY (`TagId`) REFERENCES `tags` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table gases_tags
@@ -9552,7 +9053,7 @@ CREATE TABLE IF NOT EXISTS `liquids_tags` (
   KEY `FK_Liquids_Tags_Tags_idx` (`TagId`),
   CONSTRAINT `FK_Liquids_Tags_Liquids` FOREIGN KEY (`LiquidId`) REFERENCES `liquids` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Liquids_Tags_Tags` FOREIGN KEY (`TagId`) REFERENCES `tags` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table liquids_tags
@@ -9597,7 +9098,7 @@ CREATE TABLE IF NOT EXISTS `materials_tags` (
   KEY `Materials_Tags_Tags_idx` (`TagId`),
   CONSTRAINT `Materials_Tags_Materials` FOREIGN KEY (`MaterialId`) REFERENCES `materials` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `Materials_Tags_Tags` FOREIGN KEY (`TagId`) REFERENCES `tags` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table materials_tags
@@ -9626,7 +9127,7 @@ CREATE TABLE IF NOT EXISTS `racebutcheryprofiles` (
   CONSTRAINT `FK_RaceButcheryProfiles_FutureProgs_Can` FOREIGN KEY (`CanButcherProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_RaceButcheryProfiles_FutureProgs_Why` FOREIGN KEY (`WhyCannotButcherProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_RaceButcheryProfiles_Tags` FOREIGN KEY (`RequiredToolTagId`) REFERENCES `tags` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table racebutcheryprofiles
@@ -9648,7 +9149,7 @@ CREATE TABLE IF NOT EXISTS `racebutcheryprofiles_breakdownemotes` (
   `Delay` double NOT NULL,
   PRIMARY KEY (`RaceButcheryProfileId`,`Subcategory`,`Order`),
   CONSTRAINT `FK_RaceButcheryProfiles_BreakdownEmotes_RaceButcheryProfiles` FOREIGN KEY (`RaceButcheryProfileId`) REFERENCES `racebutcheryprofiles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table racebutcheryprofiles_breakdownemotes
@@ -9669,7 +9170,7 @@ CREATE TABLE IF NOT EXISTS `racebutcheryprofiles_butcheryproducts` (
   KEY `FK_RaceButcheryProfiles_ButcheryProducts_ButcheryProducts_idx` (`ButcheryProductId`),
   CONSTRAINT `FK_RaceButcheryProfiles_ButcheryProducts_ButcheryProducts` FOREIGN KEY (`ButcheryProductId`) REFERENCES `butcheryproducts` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_RaceButcheryProfiles_ButcheryProducts_RaceButcheryProfiles` FOREIGN KEY (`RaceButcheryProfileId`) REFERENCES `racebutcheryprofiles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table racebutcheryprofiles_butcheryproducts
@@ -9691,7 +9192,7 @@ CREATE TABLE IF NOT EXISTS `racebutcheryprofiles_skinningemotes` (
   `Delay` double NOT NULL,
   PRIMARY KEY (`RaceButcheryProfileId`,`Subcategory`,`Order`),
   CONSTRAINT `FK_RaceButcheryProfiles_SkinningEmotes_RaceButcheryProfiles` FOREIGN KEY (`RaceButcheryProfileId`) REFERENCES `racebutcheryprofiles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table racebutcheryprofiles_skinningemotes
@@ -9699,6 +9200,27 @@ CREATE TABLE IF NOT EXISTS `racebutcheryprofiles_skinningemotes` (
 
 /*!40000 ALTER TABLE `racebutcheryprofiles_skinningemotes` DISABLE KEYS */;
 /*!40000 ALTER TABLE `racebutcheryprofiles_skinningemotes` ENABLE KEYS */;
+
+--
+-- Definition of rooms_tags
+--
+
+DROP TABLE IF EXISTS `rooms_tags`;
+CREATE TABLE IF NOT EXISTS `rooms_tags` (
+  `RoomId` bigint NOT NULL,
+  `TagId` bigint NOT NULL,
+  PRIMARY KEY (`RoomId`,`TagId`),
+  KEY `FK_Rooms_Tags_Tags_idx` (`TagId`),
+  CONSTRAINT `FK_Rooms_Tags_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Rooms_Tags_Tags` FOREIGN KEY (`TagId`) REFERENCES `tags` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table rooms_tags
+--
+
+/*!40000 ALTER TABLE `rooms_tags` DISABLE KEYS */;
+/*!40000 ALTER TABLE `rooms_tags` ENABLE KEYS */;
 
 --
 -- Definition of shopdeals
@@ -9747,7 +9269,7 @@ CREATE TABLE IF NOT EXISTS `timezoneinfos` (
   `Display` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Order` decimal(58,29) NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table timezoneinfos
@@ -9771,7 +9293,7 @@ CREATE TABLE IF NOT EXISTS `timezones` (
   PRIMARY KEY (`Id`),
   KEY `FK_Timezones_Clocks` (`ClockId`),
   CONSTRAINT `FK_Timezones_Clocks` FOREIGN KEY (`ClockId`) REFERENCES `clocks` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table timezones
@@ -9825,10 +9347,10 @@ CREATE TABLE IF NOT EXISTS `economiczones` (
   CONSTRAINT `FK_EconomicZones_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_EconomicZones_EstateAuctionHouses` FOREIGN KEY (`EstateAuctionHouseId`) REFERENCES `auctionhouses` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_EconomicZones_FinancialPeriods` FOREIGN KEY (`CurrentFinancialPeriodId`) REFERENCES `financialperiods` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_EconomicZones_MorgueOfficeLocations` FOREIGN KEY (`MorgueOfficeLocationId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_EconomicZones_MorgueStorageLocations` FOREIGN KEY (`MorgueStorageLocationId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_EconomicZones_MorgueOfficeLocations` FOREIGN KEY (`MorgueOfficeLocationId`) REFERENCES `rooms` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_EconomicZones_MorgueStorageLocations` FOREIGN KEY (`MorgueStorageLocationId`) REFERENCES `rooms` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_EconomicZones_Timezones` FOREIGN KEY (`ReferenceClockId`) REFERENCES `timezones` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table economiczones
@@ -9836,37 +9358,6 @@ CREATE TABLE IF NOT EXISTS `economiczones` (
 
 /*!40000 ALTER TABLE `economiczones` DISABLE KEYS */;
 /*!40000 ALTER TABLE `economiczones` ENABLE KEYS */;
-
---
--- Definition of auctionhouses
---
-
-DROP TABLE IF EXISTS `auctionhouses`;
-CREATE TABLE IF NOT EXISTS `auctionhouses` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `EconomicZoneId` bigint NOT NULL,
-  `AuctionHouseCellId` bigint NOT NULL,
-  `ProfitsBankAccountId` bigint DEFAULT NULL,
-  `AuctionListingFeeFlat` decimal(58,29) NOT NULL,
-  `AuctionListingFeeRate` decimal(58,29) NOT NULL,
-  `Definition` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `DefaultListingTime` double NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `IX_AuctionHouses_AuctionHouseCellId` (`AuctionHouseCellId`),
-  KEY `IX_AuctionHouses_EconomicZoneId` (`EconomicZoneId`),
-  KEY `IX_AuctionHouses_ProfitsBankAccountId` (`ProfitsBankAccountId`),
-  CONSTRAINT `FK_AuctionHouses_BankAccounts` FOREIGN KEY (`ProfitsBankAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_AuctionHouses_Cells` FOREIGN KEY (`AuctionHouseCellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_AuctionHouses_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table auctionhouses
---
-
-/*!40000 ALTER TABLE `auctionhouses` DISABLE KEYS */;
-/*!40000 ALTER TABLE `auctionhouses` ENABLE KEYS */;
 
 --
 -- Definition of banks
@@ -9885,7 +9376,7 @@ CREATE TABLE IF NOT EXISTS `banks` (
   KEY `IX_Banks_PrimaryCurrencyId` (`PrimaryCurrencyId`),
   CONSTRAINT `FK_Banks_Currencies` FOREIGN KEY (`PrimaryCurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Banks_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table banks
@@ -9893,27 +9384,6 @@ CREATE TABLE IF NOT EXISTS `banks` (
 
 /*!40000 ALTER TABLE `banks` DISABLE KEYS */;
 /*!40000 ALTER TABLE `banks` ENABLE KEYS */;
-
---
--- Definition of conveyancinglocations
---
-
-DROP TABLE IF EXISTS `conveyancinglocations`;
-CREATE TABLE IF NOT EXISTS `conveyancinglocations` (
-  `EconomicZoneId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`EconomicZoneId`,`CellId`),
-  KEY `IX_ConveyancingLocations_CellId` (`CellId`),
-  CONSTRAINT `FK_ConveyancingLocations_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_ConveyancingLocations_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table conveyancinglocations
---
-
-/*!40000 ALTER TABLE `conveyancinglocations` DISABLE KEYS */;
-/*!40000 ALTER TABLE `conveyancinglocations` ENABLE KEYS */;
 
 --
 -- Definition of estates
@@ -10041,7 +9511,7 @@ CREATE TABLE IF NOT EXISTS `financialperiods` (
   PRIMARY KEY (`Id`),
   KEY `FK_FinancialPeriods_EconomicZones_idx` (`EconomicZoneId`),
   CONSTRAINT `FK_FinancialPeriods_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table financialperiods
@@ -10112,7 +9582,7 @@ CREATE TABLE IF NOT EXISTS `economiczonerevenues` (
   KEY `FK_EconomicZoneRevenues_FinancialPeriods_idx` (`FinancialPeriodId`),
   CONSTRAINT `FK_EconomicZoneRevenues` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_EconomicZoneRevenues_FinancialPeriods` FOREIGN KEY (`FinancialPeriodId`) REFERENCES `financialperiods` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table economiczonerevenues
@@ -10230,29 +9700,6 @@ CREATE TABLE IF NOT EXISTS `hospitalbloodstockpolicies` (
 /*!40000 ALTER TABLE `hospitalbloodstockpolicies` ENABLE KEYS */;
 
 --
--- Definition of hospitallocations
---
-
-DROP TABLE IF EXISTS `hospitallocations`;
-CREATE TABLE IF NOT EXISTS `hospitallocations` (
-  `HospitalId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  `Role` int NOT NULL,
-  PRIMARY KEY (`HospitalId`,`CellId`,`Role`),
-  KEY `FK_HospitalLocations_Cells_idx` (`CellId`),
-  KEY `IX_HospitalLocations_Hospital_Role` (`HospitalId`,`Role`),
-  CONSTRAINT `FK_HospitalLocations_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_HospitalLocations_Hospitals` FOREIGN KEY (`HospitalId`) REFERENCES `hospitals` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table hospitallocations
---
-
-/*!40000 ALTER TABLE `hospitallocations` DISABLE KEYS */;
-/*!40000 ALTER TABLE `hospitallocations` ENABLE KEYS */;
-
---
 -- Definition of hospitalpatientdebtaccounts
 --
 
@@ -10280,27 +9727,6 @@ CREATE TABLE IF NOT EXISTS `hospitalpatientdebtaccounts` (
 
 /*!40000 ALTER TABLE `hospitalpatientdebtaccounts` DISABLE KEYS */;
 /*!40000 ALTER TABLE `hospitalpatientdebtaccounts` ENABLE KEYS */;
-
---
--- Definition of jobfindinglocations
---
-
-DROP TABLE IF EXISTS `jobfindinglocations`;
-CREATE TABLE IF NOT EXISTS `jobfindinglocations` (
-  `EconomicZoneId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`EconomicZoneId`,`CellId`),
-  KEY `IX_JobFindingLocations_CellId` (`CellId`),
-  CONSTRAINT `FK_JobFindingLocations_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_JobFindingLocations_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table jobfindinglocations
---
-
-/*!40000 ALTER TABLE `jobfindinglocations` DISABLE KEYS */;
-/*!40000 ALTER TABLE `jobfindinglocations` ENABLE KEYS */;
 
 --
 -- Definition of markets
@@ -10408,27 +9834,6 @@ CREATE TABLE IF NOT EXISTS `marketpopulations` (
 /*!40000 ALTER TABLE `marketpopulations` ENABLE KEYS */;
 
 --
--- Definition of probatelocations
---
-
-DROP TABLE IF EXISTS `probatelocations`;
-CREATE TABLE IF NOT EXISTS `probatelocations` (
-  `EconomicZoneId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`EconomicZoneId`,`CellId`),
-  KEY `IX_ProbateLocations_CellId` (`CellId`),
-  CONSTRAINT `FK_ProbateLocations_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_ProbateLocations_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table probatelocations
---
-
-/*!40000 ALTER TABLE `probatelocations` DISABLE KEYS */;
-/*!40000 ALTER TABLE `probatelocations` ENABLE KEYS */;
-
---
 -- Definition of shoppers
 --
 
@@ -10478,637 +9883,6 @@ CREATE TABLE IF NOT EXISTS `shopperlogs` (
 /*!40000 ALTER TABLE `shopperlogs` ENABLE KEYS */;
 
 --
--- Definition of shops
---
-
-DROP TABLE IF EXISTS `shops`;
-CREATE TABLE IF NOT EXISTS `shops` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `WorkshopCellId` bigint DEFAULT NULL,
-  `StockroomCellId` bigint DEFAULT NULL,
-  `CanShopProgId` bigint DEFAULT NULL,
-  `WhyCannotShopProgId` bigint DEFAULT NULL,
-  `CurrencyId` bigint NOT NULL,
-  `IsTrading` bit(1) NOT NULL,
-  `EconomicZoneId` bigint NOT NULL,
-  `EmployeeRecords` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `BankAccountId` bigint DEFAULT NULL,
-  `CashBalance` decimal(58,29) NOT NULL DEFAULT '0.00000000000000000000000000000',
-  `ShopType` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT 'Permanent',
-  `MinimumFloatToBuyItems` decimal(65,30) NOT NULL DEFAULT '0.000000000000000000000000000000',
-  `MarketId` bigint DEFAULT NULL,
-  `AutopayTaxes` bit(1) NOT NULL DEFAULT b'1',
-  `ExpectedCashBalance` decimal(65,30) NOT NULL DEFAULT '0.000000000000000000000000000000',
-  PRIMARY KEY (`Id`),
-  KEY `FK_Shops_FutureProgs_Can_idx` (`CanShopProgId`),
-  KEY `FK_Shops_Currencies_idx` (`CurrencyId`),
-  KEY `FK_Shops_EconomicZonesa_idx` (`EconomicZoneId`),
-  KEY `FK_Shops_Cells_Stockroom_idx` (`StockroomCellId`),
-  KEY `FK_Shops_FutureProgs_WhyCant_idx` (`WhyCannotShopProgId`),
-  KEY `FK_Shops_Cells_Workshop_idx` (`WorkshopCellId`),
-  KEY `IX_Shops_BankAccountId` (`BankAccountId`),
-  KEY `IX_Shops_MarketId` (`MarketId`),
-  CONSTRAINT `FK_Shops_BankAccounts` FOREIGN KEY (`BankAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Shops_Cells_Stockroom` FOREIGN KEY (`StockroomCellId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Shops_Cells_Workshop` FOREIGN KEY (`WorkshopCellId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Shops_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_Shops_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Shops_FutureProgs_Can` FOREIGN KEY (`CanShopProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Shops_FutureProgs_WhyCant` FOREIGN KEY (`WhyCannotShopProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Shops_Markets_MarketId` FOREIGN KEY (`MarketId`) REFERENCES `markets` (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table shops
---
-
-/*!40000 ALTER TABLE `shops` DISABLE KEYS */;
-/*!40000 ALTER TABLE `shops` ENABLE KEYS */;
-
---
--- Definition of bankaccounts
---
-
-DROP TABLE IF EXISTS `bankaccounts`;
-CREATE TABLE IF NOT EXISTS `bankaccounts` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `AccountNumber` int NOT NULL,
-  `BankId` bigint NOT NULL,
-  `BankAccountTypeId` bigint NOT NULL,
-  `CurrentBalance` decimal(58,29) NOT NULL,
-  `AccountOwnerCharacterId` bigint DEFAULT NULL,
-  `AccountOwnerClanId` bigint DEFAULT NULL,
-  `AccountOwnerShopId` bigint DEFAULT NULL,
-  `NominatedBenefactorAccountId` bigint DEFAULT NULL,
-  `AccountCreationDate` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `AccountStatus` int NOT NULL,
-  `CurrentMonthInterest` decimal(58,29) NOT NULL,
-  `CurrentMonthFees` decimal(58,29) NOT NULL,
-  `AuthorisedBankPaymentItems` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `AccountOwnerFrameworkItemId` bigint DEFAULT NULL,
-  `AccountOwnerFrameworkItemType` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `IX_BankAccounts_AccountOwnerCharacterId` (`AccountOwnerCharacterId`),
-  KEY `IX_BankAccounts_AccountOwnerClanId` (`AccountOwnerClanId`),
-  KEY `IX_BankAccounts_AccountOwnerShopId` (`AccountOwnerShopId`),
-  KEY `IX_BankAccounts_BankAccountTypeId` (`BankAccountTypeId`),
-  KEY `IX_BankAccounts_BankId` (`BankId`),
-  KEY `IX_BankAccounts_NominatedBenefactorAccountId` (`NominatedBenefactorAccountId`),
-  CONSTRAINT `FK_BankAccounts_BankAccounts` FOREIGN KEY (`NominatedBenefactorAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_BankAccounts_BankAccountTypes` FOREIGN KEY (`BankAccountTypeId`) REFERENCES `bankaccounttypes` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_BankAccounts_Banks` FOREIGN KEY (`BankId`) REFERENCES `banks` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_BankAccounts_Characters` FOREIGN KEY (`AccountOwnerCharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_BankAccounts_Clans` FOREIGN KEY (`AccountOwnerClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_BankAccounts_Shops` FOREIGN KEY (`AccountOwnerShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table bankaccounts
---
-
-/*!40000 ALTER TABLE `bankaccounts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bankaccounts` ENABLE KEYS */;
-
---
--- Definition of bankaccounttransactions
---
-
-DROP TABLE IF EXISTS `bankaccounttransactions`;
-CREATE TABLE IF NOT EXISTS `bankaccounttransactions` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `BankAccountId` bigint NOT NULL,
-  `TransactionType` int NOT NULL,
-  `Amount` decimal(58,29) NOT NULL,
-  `TransactionTime` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `TransactionDescription` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `AccountBalanceAfter` decimal(58,29) NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `IX_BankAccountTransactions_BankAccountId` (`BankAccountId`),
-  CONSTRAINT `FK_BankAccountTransactions_BankAccounts` FOREIGN KEY (`BankAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table bankaccounttransactions
---
-
-/*!40000 ALTER TABLE `bankaccounttransactions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bankaccounttransactions` ENABLE KEYS */;
-
---
--- Definition of economiczoneshoptaxes
---
-
-DROP TABLE IF EXISTS `economiczoneshoptaxes`;
-CREATE TABLE IF NOT EXISTS `economiczoneshoptaxes` (
-  `EconomicZoneId` bigint NOT NULL,
-  `ShopId` bigint NOT NULL,
-  `OutstandingProfitTaxes` decimal(58,29) NOT NULL,
-  `OutstandingSalesTaxes` decimal(58,29) NOT NULL,
-  `TaxesInCredits` decimal(58,29) NOT NULL,
-  PRIMARY KEY (`EconomicZoneId`,`ShopId`),
-  KEY `FK_EconomicZoneShopTaxes_Shops_idx` (`ShopId`),
-  CONSTRAINT `FK_EconomicZoneShopTaxes_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_EconomicZoneShopTaxes_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table economiczoneshoptaxes
---
-
-/*!40000 ALTER TABLE `economiczoneshoptaxes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `economiczoneshoptaxes` ENABLE KEYS */;
-
---
--- Definition of lineofcreditaccounts
---
-
-DROP TABLE IF EXISTS `lineofcreditaccounts`;
-CREATE TABLE IF NOT EXISTS `lineofcreditaccounts` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `AccountName` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  `ShopId` bigint NOT NULL,
-  `IsSuspended` bit(1) NOT NULL,
-  `AccountLimit` decimal(58,29) NOT NULL,
-  `OutstandingBalance` decimal(58,29) NOT NULL,
-  `AccountOwnerId` bigint NOT NULL,
-  `AccountOwnerName` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
-  PRIMARY KEY (`Id`),
-  KEY `FK_LineOfCreditAccounts_Characters_idx` (`AccountOwnerId`),
-  KEY `FK_LineOfCreditAccounts_Shops_idx` (`ShopId`),
-  CONSTRAINT `FK_LineOfCreditAccounts_Characters` FOREIGN KEY (`AccountOwnerId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_LineOfCreditAccounts_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table lineofcreditaccounts
---
-
-/*!40000 ALTER TABLE `lineofcreditaccounts` DISABLE KEYS */;
-/*!40000 ALTER TABLE `lineofcreditaccounts` ENABLE KEYS */;
-
---
--- Definition of lineofcreditaccountusers
---
-
-DROP TABLE IF EXISTS `lineofcreditaccountusers`;
-CREATE TABLE IF NOT EXISTS `lineofcreditaccountusers` (
-  `LineOfCreditAccountId` bigint NOT NULL,
-  `AccountUserId` bigint NOT NULL,
-  `AccountUserName` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
-  `SpendingLimit` decimal(58,29) DEFAULT NULL,
-  PRIMARY KEY (`LineOfCreditAccountId`,`AccountUserId`),
-  KEY `FK_LineOfCreditAccountUsers_Characters_idx` (`AccountUserId`),
-  KEY `FK_LineOfCreditAccountUsers_LineOfCreditAccounts_idx` (`LineOfCreditAccountId`),
-  CONSTRAINT `FK_LineOfCreditAccountUsers_Characters` FOREIGN KEY (`AccountUserId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_LineOfCreditAccountUsers_LineOfCreditAccounts` FOREIGN KEY (`LineOfCreditAccountId`) REFERENCES `lineofcreditaccounts` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table lineofcreditaccountusers
---
-
-/*!40000 ALTER TABLE `lineofcreditaccountusers` DISABLE KEYS */;
-/*!40000 ALTER TABLE `lineofcreditaccountusers` ENABLE KEYS */;
-
---
--- Definition of merchandises
---
-
-DROP TABLE IF EXISTS `merchandises`;
-CREATE TABLE IF NOT EXISTS `merchandises` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `ShopId` bigint NOT NULL,
-  `AutoReordering` bit(1) NOT NULL,
-  `AutoReorderPrice` decimal(58,29) NOT NULL,
-  `BasePrice` decimal(58,29) NOT NULL,
-  `DefaultMerchandiseForItem` bit(1) NOT NULL,
-  `ItemProtoId` bigint NOT NULL,
-  `PreferredDisplayContainerId` bigint DEFAULT NULL,
-  `ListDescription` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `MinimumStockLevels` int NOT NULL,
-  `MinimumStockLevelsByWeight` double NOT NULL,
-  `PreserveVariablesOnReorder` bit(1) NOT NULL,
-  `SkinId` bigint DEFAULT NULL,
-  `BaseBuyModifier` decimal(58,29) NOT NULL DEFAULT '0.30000000000000000000000000000',
-  `MaximumStockLevelsToBuy` int NOT NULL DEFAULT '0',
-  `MinimumConditionToBuy` double NOT NULL DEFAULT '0.95',
-  `WillBuy` bit(1) NOT NULL DEFAULT b'0',
-  `WillSell` bit(1) NOT NULL DEFAULT b'1',
-  `IgnoreMarketPricing` tinyint(1) NOT NULL DEFAULT '0',
-  `PermitItemDecayOnStockedItems` tinyint(1) NOT NULL DEFAULT '0',
-  `SalesMarkupMultiplier` decimal(65,30) DEFAULT NULL,
-  `CommodityCharacteristics` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
-  `CommodityMaterialId` bigint DEFAULT NULL,
-  `CommodityPricingWeight` double NOT NULL DEFAULT '1',
-  `CommodityTagId` bigint DEFAULT NULL,
-  `MerchandiseType` int NOT NULL DEFAULT '0',
-  PRIMARY KEY (`Id`),
-  KEY `FK_Merchandises_GameItems_idx` (`PreferredDisplayContainerId`),
-  KEY `FK_Merchandises_Shops_idx` (`ShopId`),
-  CONSTRAINT `FK_Merchandises_GameItems` FOREIGN KEY (`PreferredDisplayContainerId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Merchandises_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table merchandises
---
-
-/*!40000 ALTER TABLE `merchandises` DISABLE KEYS */;
-/*!40000 ALTER TABLE `merchandises` ENABLE KEYS */;
-
---
--- Definition of restaurants
---
-
-DROP TABLE IF EXISTS `restaurants`;
-CREATE TABLE IF NOT EXISTS `restaurants` (
-  `ShopId` bigint NOT NULL,
-  `AutomatedService` bit(1) NOT NULL DEFAULT b'0',
-  `SimulateCrafting` bit(1) NOT NULL DEFAULT b'0',
-  `HandlingSeconds` int NOT NULL DEFAULT '15',
-  `MaximumBatchWaitSeconds` int NOT NULL DEFAULT '90',
-  `ChefOpenEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ open|opens $0 for service.',
-  `ChefPlateEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ plate|plates $0 on $1.',
-  `ChefReadyEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ finish|finishes preparing $0 for service.',
-  `ChefStartEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ begin|begins preparing $0.',
-  `CleanupIntervalSeconds` int NOT NULL DEFAULT '120',
-  `ServerClearEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ clear|clears $0 from $1.',
-  `ServerReturnEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ put|puts $0 aside in the kitchen.',
-  `ServerServeEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ place|places $0 before $1 on $2.',
-  `TakeawayBagPrototypeId` bigint DEFAULT NULL,
-  `TakeawayBagPrototypeRevisionNumber` int DEFAULT NULL,
-  PRIMARY KEY (`ShopId`),
-  CONSTRAINT `FK_Restaurants_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table restaurants
---
-
-/*!40000 ALTER TABLE `restaurants` DISABLE KEYS */;
-/*!40000 ALTER TABLE `restaurants` ENABLE KEYS */;
-
---
--- Definition of restaurantcells
---
-
-DROP TABLE IF EXISTS `restaurantcells`;
-CREATE TABLE IF NOT EXISTS `restaurantcells` (
-  `RestaurantShopId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  `Role` int NOT NULL,
-  PRIMARY KEY (`RestaurantShopId`,`CellId`,`Role`),
-  KEY `IX_RestaurantCells_Cell` (`CellId`),
-  KEY `IX_RestaurantCells_Restaurant_Role` (`RestaurantShopId`,`Role`),
-  CONSTRAINT `FK_RestaurantCells_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table restaurantcells
---
-
-/*!40000 ALTER TABLE `restaurantcells` DISABLE KEYS */;
-/*!40000 ALTER TABLE `restaurantcells` ENABLE KEYS */;
-
---
--- Definition of restaurantmenuitems
---
-
-DROP TABLE IF EXISTS `restaurantmenuitems`;
-CREATE TABLE IF NOT EXISTS `restaurantmenuitems` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `RestaurantShopId` bigint NOT NULL,
-  `MerchandiseId` bigint NOT NULL,
-  `Description` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `FulfilmentMode` int NOT NULL,
-  `IsActive` bit(1) NOT NULL DEFAULT b'1',
-  `DineInAvailable` bit(1) NOT NULL DEFAULT b'1',
-  `TakeawayAvailable` bit(1) NOT NULL DEFAULT b'1',
-  `PreparationSeconds` int NOT NULL,
-  `CraftId` bigint DEFAULT NULL,
-  `CraftRevisionNumber` int DEFAULT NULL,
-  `ServingContainerPrototypeId` bigint DEFAULT NULL,
-  `ServingContainerPrototypeRevisionNumber` int DEFAULT NULL,
-  `TakeawayContainerPrototypeId` bigint DEFAULT NULL,
-  `TakeawayContainerPrototypeRevisionNumber` int DEFAULT NULL,
-  `SortOrder` int NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_RestaurantMenuItems_Merchandises_idx` (`MerchandiseId`),
-  KEY `FK_RestaurantMenuItems_Restaurants_idx` (`RestaurantShopId`),
-  KEY `IX_RestaurantMenuItems_Restaurant_Sort` (`RestaurantShopId`,`SortOrder`),
-  CONSTRAINT `FK_RestaurantMenuItems_Merchandises` FOREIGN KEY (`MerchandiseId`) REFERENCES `merchandises` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_RestaurantMenuItems_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table restaurantmenuitems
---
-
-/*!40000 ALTER TABLE `restaurantmenuitems` DISABLE KEYS */;
-/*!40000 ALTER TABLE `restaurantmenuitems` ENABLE KEYS */;
-
---
--- Definition of restaurantstoragecontainers
---
-
-DROP TABLE IF EXISTS `restaurantstoragecontainers`;
-CREATE TABLE IF NOT EXISTS `restaurantstoragecontainers` (
-  `RestaurantShopId` bigint NOT NULL,
-  `GameItemId` bigint NOT NULL,
-  `Roles` int NOT NULL,
-  PRIMARY KEY (`RestaurantShopId`,`GameItemId`),
-  KEY `IX_RestaurantStorageContainers_GameItem` (`GameItemId`),
-  CONSTRAINT `FK_RestaurantStorageContainers_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table restaurantstoragecontainers
---
-
-/*!40000 ALTER TABLE `restaurantstoragecontainers` DISABLE KEYS */;
-/*!40000 ALTER TABLE `restaurantstoragecontainers` ENABLE KEYS */;
-
---
--- Definition of restauranttables
---
-
-DROP TABLE IF EXISTS `restauranttables`;
-CREATE TABLE IF NOT EXISTS `restauranttables` (
-  `RestaurantShopId` bigint NOT NULL,
-  `GameItemId` bigint NOT NULL,
-  PRIMARY KEY (`RestaurantShopId`,`GameItemId`),
-  KEY `IX_RestaurantTables_GameItem` (`GameItemId`),
-  CONSTRAINT `FK_RestaurantTables_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table restauranttables
---
-
-/*!40000 ALTER TABLE `restauranttables` DISABLE KEYS */;
-/*!40000 ALTER TABLE `restauranttables` ENABLE KEYS */;
-
---
--- Definition of restauranttablesessions
---
-
-DROP TABLE IF EXISTS `restauranttablesessions`;
-CREATE TABLE IF NOT EXISTS `restauranttablesessions` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `RestaurantShopId` bigint NOT NULL,
-  `TableGameItemId` bigint NOT NULL,
-  `Status` int NOT NULL,
-  `CreatedAtUtc` datetime(6) NOT NULL,
-  `LastUpdatedAtUtc` datetime(6) NOT NULL,
-  `ClosedAtUtc` datetime(6) DEFAULT NULL,
-  `AbandonmentPendingAtUtc` datetime(6) DEFAULT NULL,
-  `AbandonmentReported` bit(1) NOT NULL DEFAULT b'0',
-  PRIMARY KEY (`Id`),
-  KEY `FK_RestaurantTableSessions_Restaurants_idx` (`RestaurantShopId`),
-  KEY `IX_RestaurantTableSessions_Table_Status` (`RestaurantShopId`,`TableGameItemId`,`Status`),
-  CONSTRAINT `FK_RestaurantTableSessions_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table restauranttablesessions
---
-
-/*!40000 ALTER TABLE `restauranttablesessions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `restauranttablesessions` ENABLE KEYS */;
-
---
--- Definition of restaurantorders
---
-
-DROP TABLE IF EXISTS `restaurantorders`;
-CREATE TABLE IF NOT EXISTS `restaurantorders` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `RestaurantShopId` bigint NOT NULL,
-  `RestaurantTableSessionId` bigint DEFAULT NULL,
-  `RestaurantMenuItemId` bigint NOT NULL,
-  `OrderType` int NOT NULL,
-  `Status` int NOT NULL,
-  `OrdererCharacterId` bigint NOT NULL,
-  `OrdererCharacterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `RecipientCharacterId` bigint NOT NULL,
-  `RecipientCharacterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `Quantity` int NOT NULL,
-  `PretaxPrice` decimal(58,29) NOT NULL,
-  `Tax` decimal(58,29) NOT NULL,
-  `Price` decimal(58,29) NOT NULL,
-  `AmountPaid` decimal(58,29) NOT NULL,
-  `RevenueRecognised` bit(1) NOT NULL DEFAULT b'0',
-  `CreatedAtUtc` datetime(6) NOT NULL,
-  `LastUpdatedAtUtc` datetime(6) NOT NULL,
-  `ExpectedReadyAtUtc` datetime(6) DEFAULT NULL,
-  `ReadyAtUtc` datetime(6) DEFAULT NULL,
-  `ServedAtUtc` datetime(6) DEFAULT NULL,
-  `PreparedByEmployeeId` bigint DEFAULT NULL,
-  `ServedByEmployeeId` bigint DEFAULT NULL,
-  `OperationalNotes` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_RestaurantOrders_MenuItems_idx` (`RestaurantMenuItemId`),
-  KEY `FK_RestaurantOrders_Restaurants_idx` (`RestaurantShopId`),
-  KEY `FK_RestaurantOrders_Sessions_idx` (`RestaurantTableSessionId`),
-  KEY `IX_RestaurantOrders_Restaurant_Status` (`RestaurantShopId`,`Status`),
-  KEY `IX_RestaurantOrders_Session_Debtor` (`RestaurantTableSessionId`,`OrdererCharacterId`),
-  CONSTRAINT `FK_RestaurantOrders_MenuItems` FOREIGN KEY (`RestaurantMenuItemId`) REFERENCES `restaurantmenuitems` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_RestaurantOrders_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE,
-  CONSTRAINT `FK_RestaurantOrders_Sessions` FOREIGN KEY (`RestaurantTableSessionId`) REFERENCES `restauranttablesessions` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table restaurantorders
---
-
-/*!40000 ALTER TABLE `restaurantorders` DISABLE KEYS */;
-/*!40000 ALTER TABLE `restaurantorders` ENABLE KEYS */;
-
---
--- Definition of restaurantorderitems
---
-
-DROP TABLE IF EXISTS `restaurantorderitems`;
-CREATE TABLE IF NOT EXISTS `restaurantorderitems` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `RestaurantOrderId` bigint NOT NULL,
-  `GameItemId` bigint DEFAULT NULL,
-  `Role` int NOT NULL,
-  `Delivered` bit(1) NOT NULL DEFAULT b'0',
-  `CreatedAtUtc` datetime(6) NOT NULL,
-  `DeliveredAtUtc` datetime(6) DEFAULT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_RestaurantOrderItems_Orders_idx` (`RestaurantOrderId`),
-  KEY `IX_RestaurantOrderItems_GameItem` (`GameItemId`),
-  CONSTRAINT `FK_RestaurantOrderItems_Orders` FOREIGN KEY (`RestaurantOrderId`) REFERENCES `restaurantorders` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table restaurantorderitems
---
-
-/*!40000 ALTER TABLE `restaurantorderitems` DISABLE KEYS */;
-/*!40000 ALTER TABLE `restaurantorderitems` ENABLE KEYS */;
-
---
--- Definition of restaurantpayments
---
-
-DROP TABLE IF EXISTS `restaurantpayments`;
-CREATE TABLE IF NOT EXISTS `restaurantpayments` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `RestaurantOrderId` bigint NOT NULL,
-  `PayerCharacterId` bigint NOT NULL,
-  `PayerCharacterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `Amount` decimal(58,29) NOT NULL,
-  `IsRefund` bit(1) NOT NULL DEFAULT b'0',
-  `PaymentMethod` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `Reference` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `PaidAtUtc` datetime(6) NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_RestaurantPayments_Orders_idx` (`RestaurantOrderId`),
-  CONSTRAINT `FK_RestaurantPayments_Orders` FOREIGN KEY (`RestaurantOrderId`) REFERENCES `restaurantorders` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table restaurantpayments
---
-
-/*!40000 ALTER TABLE `restaurantpayments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `restaurantpayments` ENABLE KEYS */;
-
---
--- Definition of restauranttableparticipants
---
-
-DROP TABLE IF EXISTS `restauranttableparticipants`;
-CREATE TABLE IF NOT EXISTS `restauranttableparticipants` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `RestaurantTableSessionId` bigint NOT NULL,
-  `CharacterId` bigint NOT NULL,
-  `CharacterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `Accepted` bit(1) NOT NULL,
-  `JoinedAtUtc` datetime(6) NOT NULL,
-  `LeftAtUtc` datetime(6) DEFAULT NULL,
-  PRIMARY KEY (`Id`),
-  UNIQUE KEY `IX_RestaurantTableParticipants_Session_Character` (`RestaurantTableSessionId`,`CharacterId`),
-  KEY `FK_RestaurantTableParticipants_Sessions_idx` (`RestaurantTableSessionId`),
-  CONSTRAINT `FK_RestaurantTableParticipants_Sessions` FOREIGN KEY (`RestaurantTableSessionId`) REFERENCES `restauranttablesessions` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table restauranttableparticipants
---
-
-/*!40000 ALTER TABLE `restauranttableparticipants` DISABLE KEYS */;
-/*!40000 ALTER TABLE `restauranttableparticipants` ENABLE KEYS */;
-
---
--- Definition of shopfinancialperiodresults
---
-
-DROP TABLE IF EXISTS `shopfinancialperiodresults`;
-CREATE TABLE IF NOT EXISTS `shopfinancialperiodresults` (
-  `EconomicZoneId` bigint NOT NULL,
-  `ShopId` bigint NOT NULL,
-  `FinancialPeriodId` bigint NOT NULL,
-  `GrossRevenue` decimal(58,29) NOT NULL,
-  `NetRevenue` decimal(58,29) NOT NULL,
-  `SalesTax` decimal(58,29) NOT NULL,
-  `ProfitsTax` decimal(58,29) NOT NULL,
-  PRIMARY KEY (`EconomicZoneId`,`ShopId`,`FinancialPeriodId`),
-  KEY `FK_ShopFinancialPeriodResults_FinancialPeriods_idx` (`FinancialPeriodId`),
-  KEY `FK_ShopFinancialPeriodResults_Shops_idx` (`ShopId`),
-  CONSTRAINT `FK_ShopFinancialPeriodResults_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_ShopFinancialPeriodResults_FinancialPeriods` FOREIGN KEY (`FinancialPeriodId`) REFERENCES `financialperiods` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_ShopFinancialPeriodResults_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table shopfinancialperiodresults
---
-
-/*!40000 ALTER TABLE `shopfinancialperiodresults` DISABLE KEYS */;
-/*!40000 ALTER TABLE `shopfinancialperiodresults` ENABLE KEYS */;
-
---
--- Definition of shops_storeroomcells
---
-
-DROP TABLE IF EXISTS `shops_storeroomcells`;
-CREATE TABLE IF NOT EXISTS `shops_storeroomcells` (
-  `ShopId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`ShopId`,`CellId`),
-  KEY `FK_Shops_StoreroomCells_Cells_idx` (`CellId`),
-  CONSTRAINT `FK_Shops_StoreroomCells_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Shops_StoreroomCells_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table shops_storeroomcells
---
-
-/*!40000 ALTER TABLE `shops_storeroomcells` DISABLE KEYS */;
-/*!40000 ALTER TABLE `shops_storeroomcells` ENABLE KEYS */;
-
---
--- Definition of shopstills
---
-
-DROP TABLE IF EXISTS `shopstills`;
-CREATE TABLE IF NOT EXISTS `shopstills` (
-  `ShopId` bigint NOT NULL,
-  `GameItemId` bigint NOT NULL,
-  PRIMARY KEY (`ShopId`,`GameItemId`),
-  KEY `FK_ShopTills_GameItems_idx` (`GameItemId`),
-  CONSTRAINT `FK_ShopTills_GameItems` FOREIGN KEY (`GameItemId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_ShopTills_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table shopstills
---
-
-/*!40000 ALTER TABLE `shopstills` DISABLE KEYS */;
-/*!40000 ALTER TABLE `shopstills` ENABLE KEYS */;
-
---
--- Definition of shoptransactionrecords
---
-
-DROP TABLE IF EXISTS `shoptransactionrecords`;
-CREATE TABLE IF NOT EXISTS `shoptransactionrecords` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `CurrencyId` bigint NOT NULL,
-  `PretaxValue` decimal(58,29) NOT NULL,
-  `Tax` decimal(58,29) NOT NULL,
-  `TransactionType` int NOT NULL,
-  `ShopId` bigint NOT NULL,
-  `ThirdPartyId` bigint DEFAULT NULL,
-  `RealDateTime` datetime NOT NULL,
-  `MudDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `MerchandiseId` bigint DEFAULT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_ShopTransactionRecords_Currencies_idx` (`CurrencyId`),
-  KEY `FK_ShopTransactionRecords_Shops_idx` (`ShopId`),
-  KEY `IX_ShopTransactionRecords_MerchandiseId` (`MerchandiseId`),
-  CONSTRAINT `FK_ShopTransactionRecords_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_ShopTransactionRecords_Merchandises` FOREIGN KEY (`MerchandiseId`) REFERENCES `merchandises` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_ShopTransactionRecords_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table shoptransactionrecords
---
-
-/*!40000 ALTER TABLE `shoptransactionrecords` DISABLE KEYS */;
-/*!40000 ALTER TABLE `shoptransactionrecords` ENABLE KEYS */;
-
---
 -- Definition of traitdecorators
 --
 
@@ -11119,7 +9893,7 @@ CREATE TABLE IF NOT EXISTS `traitdecorators` (
   `Type` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Contents` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table traitdecorators
@@ -11138,7 +9912,7 @@ CREATE TABLE IF NOT EXISTS `traitexpression` (
   `Expression` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT 'Unnamed Expression',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table traitexpression
@@ -11162,7 +9936,7 @@ CREATE TABLE IF NOT EXISTS `checks` (
   KEY `FK_Checks_TraitExpression` (`TraitExpressionId`),
   CONSTRAINT `FK_Checks_CheckTemplates` FOREIGN KEY (`CheckTemplateId`) REFERENCES `checktemplates` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Checks_TraitExpression` FOREIGN KEY (`TraitExpressionId`) REFERENCES `traitexpression` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table checks
@@ -11213,7 +9987,7 @@ CREATE TABLE IF NOT EXISTS `magicspells` (
   CONSTRAINT `FK_MagicSpells_TraitDefinitions_Casting` FOREIGN KEY (`CastingTraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_MagicSpells_TraitDefinitions_Resisting` FOREIGN KEY (`ResistingTraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_MagicSpells_TraitExpressions` FOREIGN KEY (`EffectDurationExpressionId`) REFERENCES `traitexpression` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table magicspells
@@ -11248,77 +10022,6 @@ CREATE TABLE IF NOT EXISTS `characteracquiredspells` (
 
 /*!40000 ALTER TABLE `characteracquiredspells` DISABLE KEYS */;
 /*!40000 ALTER TABLE `characteracquiredspells` ENABLE KEYS */;
-
---
--- Definition of magicportalendpoints
---
-
-DROP TABLE IF EXISTS `magicportalendpoints`;
-CREATE TABLE IF NOT EXISTS `magicportalendpoints` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `MagicPortalNetworkId` bigint NOT NULL,
-  `Key` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `AnchorType` int NOT NULL,
-  `CellId` bigint DEFAULT NULL,
-  `GameItemId` bigint DEFAULT NULL,
-  `IsActive` bit(1) NOT NULL DEFAULT b'1',
-  `CreatedByCharacterId` bigint DEFAULT NULL,
-  `CreatedBySpellId` bigint DEFAULT NULL,
-  `CreatedDateTime` datetime NOT NULL,
-  PRIMARY KEY (`Id`),
-  UNIQUE KEY `IX_MagicPortalEndpoints_Network_Key` (`MagicPortalNetworkId`,`Key`),
-  KEY `FK_MagicPortalEndpoints_Cells_idx` (`CellId`),
-  KEY `FK_MagicPortalEndpoints_Characters_idx` (`CreatedByCharacterId`),
-  KEY `FK_MagicPortalEndpoints_GameItems_idx` (`GameItemId`),
-  KEY `FK_MagicPortalEndpoints_MagicSpells_idx` (`CreatedBySpellId`),
-  CONSTRAINT `FK_MagicPortalEndpoints_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_MagicPortalEndpoints_Characters` FOREIGN KEY (`CreatedByCharacterId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_MagicPortalEndpoints_GameItems` FOREIGN KEY (`GameItemId`) REFERENCES `gameitems` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_MagicPortalEndpoints_MagicPortalNetworks` FOREIGN KEY (`MagicPortalNetworkId`) REFERENCES `magicportalnetworks` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_MagicPortalEndpoints_MagicSpells` FOREIGN KEY (`CreatedBySpellId`) REFERENCES `magicspells` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table magicportalendpoints
---
-
-/*!40000 ALTER TABLE `magicportalendpoints` DISABLE KEYS */;
-/*!40000 ALTER TABLE `magicportalendpoints` ENABLE KEYS */;
-
---
--- Definition of magicportallinks
---
-
-DROP TABLE IF EXISTS `magicportallinks`;
-CREATE TABLE IF NOT EXISTS `magicportallinks` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `MagicPortalNetworkId` bigint NOT NULL,
-  `SourceEndpointId` bigint NOT NULL,
-  `DestinationEndpointId` bigint NOT NULL,
-  `IsActive` bit(1) NOT NULL DEFAULT b'1',
-  `CreatedByCharacterId` bigint DEFAULT NULL,
-  `CreatedBySpellId` bigint DEFAULT NULL,
-  `CreatedDateTime` datetime NOT NULL,
-  PRIMARY KEY (`Id`),
-  UNIQUE KEY `IX_MagicPortalLinks_Network_Source_Destination` (`MagicPortalNetworkId`,`SourceEndpointId`,`DestinationEndpointId`),
-  KEY `FK_MagicPortalLinks_Characters_idx` (`CreatedByCharacterId`),
-  KEY `FK_MagicPortalLinks_DestinationEndpoints_idx` (`DestinationEndpointId`),
-  KEY `FK_MagicPortalLinks_MagicSpells_idx` (`CreatedBySpellId`),
-  KEY `FK_MagicPortalLinks_SourceEndpoints_idx` (`SourceEndpointId`),
-  CONSTRAINT `FK_MagicPortalLinks_Characters` FOREIGN KEY (`CreatedByCharacterId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_MagicPortalLinks_DestinationEndpoints` FOREIGN KEY (`DestinationEndpointId`) REFERENCES `magicportalendpoints` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_MagicPortalLinks_MagicPortalNetworks` FOREIGN KEY (`MagicPortalNetworkId`) REFERENCES `magicportalnetworks` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_MagicPortalLinks_MagicSpells` FOREIGN KEY (`CreatedBySpellId`) REFERENCES `magicspells` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_MagicPortalLinks_SourceEndpoints` FOREIGN KEY (`SourceEndpointId`) REFERENCES `magicportalendpoints` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table magicportallinks
---
-
-/*!40000 ALTER TABLE `magicportallinks` DISABLE KEYS */;
-/*!40000 ALTER TABLE `magicportallinks` ENABLE KEYS */;
 
 --
 -- Definition of magicportalnetworks
@@ -11396,7 +10099,7 @@ CREATE TABLE IF NOT EXISTS `traitdefinitions` (
   CONSTRAINT `FK_TraitDefinitions_LearnableProg` FOREIGN KEY (`LearnableProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_TraitDefinitions_TeachableProg` FOREIGN KEY (`TeachableProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_TraitDefinitions_TraitExpression` FOREIGN KEY (`ExpressionId`) REFERENCES `traitexpression` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table traitdefinitions
@@ -11465,7 +10168,7 @@ CREATE TABLE IF NOT EXISTS `chargenroles_traits` (
   KEY `FK_ChargenRoles_Traits_Currencies` (`TraitId`),
   CONSTRAINT `FK_ChargenRoles_Traits_ChargenRoles` FOREIGN KEY (`ChargenRoleId`) REFERENCES `chargenroles` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_ChargenRoles_Traits_Currencies` FOREIGN KEY (`TraitId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table chargenroles_traits
@@ -11601,7 +10304,7 @@ CREATE TABLE IF NOT EXISTS `crafts` (
   CONSTRAINT `FK_Crafts_FutureProgs_OnUseProgStart` FOREIGN KEY (`OnUseProgStartId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Crafts_FutureProgs_WhyCannotUseProg` FOREIGN KEY (`WhyCannotUseProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Crafts_TraitDefinitions` FOREIGN KEY (`CheckTraitId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table crafts
@@ -11626,7 +10329,7 @@ CREATE TABLE IF NOT EXISTS `craftinputs` (
   PRIMARY KEY (`Id`),
   KEY `FK_CraftInputs_Crafts_idx` (`CraftId`,`CraftRevisionNumber`),
   CONSTRAINT `FK_CraftInputs_Crafts` FOREIGN KEY (`CraftId`, `CraftRevisionNumber`) REFERENCES `crafts` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table craftinputs
@@ -11651,7 +10354,7 @@ CREATE TABLE IF NOT EXISTS `craftphases` (
   `StaminaUsage` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`CraftPhaseId`,`CraftPhaseRevisionNumber`,`PhaseNumber`),
   CONSTRAINT `FK_CraftPhases_Crafts` FOREIGN KEY (`CraftPhaseId`, `CraftPhaseRevisionNumber`) REFERENCES `crafts` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table craftphases
@@ -11677,7 +10380,7 @@ CREATE TABLE IF NOT EXISTS `craftproducts` (
   PRIMARY KEY (`Id`),
   KEY `FK_CraftProducts_Crafts_idx` (`CraftId`,`CraftRevisionNumber`),
   CONSTRAINT `FK_CraftProducts_Crafts` FOREIGN KEY (`CraftId`, `CraftRevisionNumber`) REFERENCES `crafts` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table craftproducts
@@ -11704,7 +10407,7 @@ CREATE TABLE IF NOT EXISTS `crafttools` (
   PRIMARY KEY (`Id`),
   KEY `FK_CraftTools_Crafts_idx` (`CraftId`,`CraftRevisionNumber`),
   CONSTRAINT `FK_CraftTools_Crafts` FOREIGN KEY (`CraftId`, `CraftRevisionNumber`) REFERENCES `crafts` (`Id`, `RevisionNumber`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table crafttools
@@ -11730,7 +10433,7 @@ CREATE TABLE IF NOT EXISTS `languages` (
   KEY `FK_Languages_TraitDefinitions` (`LinkedTraitId`),
   CONSTRAINT `FK_Languages_LanguageDifficultyModels` FOREIGN KEY (`DifficultyModel`) REFERENCES `languagedifficultymodels` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Languages_TraitDefinitions` FOREIGN KEY (`LinkedTraitId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table languages
@@ -11758,7 +10461,7 @@ CREATE TABLE IF NOT EXISTS `accents` (
   PRIMARY KEY (`Id`),
   KEY `FK_Accents_Languages` (`LanguageId`),
   CONSTRAINT `FK_Accents_Languages` FOREIGN KEY (`LanguageId`) REFERENCES `languages` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table accents
@@ -11803,7 +10506,7 @@ CREATE TABLE IF NOT EXISTS `characters_languages` (
   CONSTRAINT `FK_Characters_Languages_Accents_AcquisitionAccentId` FOREIGN KEY (`AcquisitionAccentId`) REFERENCES `accents` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Characters_Languages_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Characters_Languages_Languages` FOREIGN KEY (`LanguageId`) REFERENCES `languages` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table characters_languages
@@ -11825,7 +10528,7 @@ CREATE TABLE IF NOT EXISTS `mutualintelligabilities` (
   KEY `FK_Languages_MutualIntelligabilities_Target_idx` (`TargetLanguageId`),
   CONSTRAINT `FK_Languages_MutualIntelligabilities_Listener` FOREIGN KEY (`ListenerLanguageId`) REFERENCES `languages` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Languages_MutualIntelligabilities_Target` FOREIGN KEY (`TargetLanguageId`) REFERENCES `languages` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table mutualintelligabilities
@@ -11873,7 +10576,7 @@ CREATE TABLE IF NOT EXISTS `racebutcheryprofiles_breakdownchecks` (
   KEY `FK_RaceButcheryProfiles_BreakdownChecks_TraitDefinitions_idx` (`TraitDefinitionId`),
   CONSTRAINT `FK_RaceButcheryProfiles_BreakdownChecks_RaceButcheryProfiles` FOREIGN KEY (`RaceButcheryProfileId`) REFERENCES `racebutcheryprofiles` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_RaceButcheryProfiles_BreakdownChecks_TraitDefinitions` FOREIGN KEY (`TraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table racebutcheryprofiles_breakdownchecks
@@ -11897,7 +10600,7 @@ CREATE TABLE IF NOT EXISTS `races_attributes` (
   KEY `FK_Races_Attributes_TraitDefinitions` (`AttributeId`),
   CONSTRAINT `FK_Races_Attributes_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Races_Attributes_TraitDefinitions` FOREIGN KEY (`AttributeId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table races_attributes
@@ -11941,7 +10644,7 @@ CREATE TABLE IF NOT EXISTS `rangedweapontypes` (
   KEY `FK_RangedWeaponTypes_TraitDefinitions_Operate_idx` (`OperateTraitId`),
   CONSTRAINT `FK_RangedWeaponTypes_TraitDefinitions_Fire` FOREIGN KEY (`FireTraitId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_RangedWeaponTypes_TraitDefinitions_Operate` FOREIGN KEY (`OperateTraitId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table rangedweapontypes
@@ -11974,7 +10677,7 @@ CREATE TABLE IF NOT EXISTS `ammunitiontypes` (
   `ScatterType` int DEFAULT NULL,
   `SpreadPenalty` double NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table ammunitiontypes
@@ -12000,7 +10703,7 @@ CREATE TABLE IF NOT EXISTS `shieldtypes` (
   KEY `FK_ShieldTypes_ArmourTypes_idx` (`EffectiveArmourTypeId`),
   CONSTRAINT `FK_ShieldTypes_ArmourTypes` FOREIGN KEY (`EffectiveArmourTypeId`) REFERENCES `armourtypes` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_ShieldTypes_TraitDefinitions` FOREIGN KEY (`BlockTraitId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table shieldtypes
@@ -12212,7 +10915,7 @@ CREATE TABLE IF NOT EXISTS `surgicalprocedures` (
   CONSTRAINT `FK_SurgicalProcedures_FutureProgs_WhyCannotUseProg` FOREIGN KEY (`WhyCannotUseProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_SurgicalProcedures_Knowledges` FOREIGN KEY (`KnowledgeRequiredId`) REFERENCES `knowledges` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_SurgicalProcedures_TraitDefinitions` FOREIGN KEY (`CheckTraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table surgicalprocedures
@@ -12278,68 +10981,6 @@ CREATE TABLE IF NOT EXISTS `hospitalservices` (
 /*!40000 ALTER TABLE `hospitalservices` ENABLE KEYS */;
 
 --
--- Definition of hospitalservicerequests
---
-
-DROP TABLE IF EXISTS `hospitalservicerequests`;
-CREATE TABLE IF NOT EXISTS `hospitalservicerequests` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `HospitalId` bigint NOT NULL,
-  `HospitalServiceId` bigint NOT NULL,
-  `RequesterId` bigint NOT NULL,
-  `RequesterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `PatientId` bigint NOT NULL,
-  `PatientName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `Status` int NOT NULL,
-  `PaymentMethod` int NOT NULL,
-  `Price` decimal(58,29) NOT NULL,
-  `AmountPaid` decimal(58,29) NOT NULL,
-  `DebtCharged` decimal(58,29) NOT NULL,
-  `EmploymentTaskId` varchar(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
-  `AssignedEmployeeId` bigint DEFAULT NULL,
-  `OperatingTheatreCellId` bigint DEFAULT NULL,
-  `UsedInPlaceFallback` bit(1) NOT NULL,
-  `SupplyPrepared` bit(1) NOT NULL,
-  `PreparedByEmployeeId` bigint DEFAULT NULL,
-  `PreparedAtUtc` datetime(6) DEFAULT NULL,
-  `RecoveryRoomCellId` bigint DEFAULT NULL,
-  `ReturnCellId` bigint DEFAULT NULL,
-  `CreatedAtUtc` datetime(6) NOT NULL,
-  `LastUpdatedAtUtc` datetime(6) NOT NULL,
-  `CompletedAtUtc` datetime(6) DEFAULT NULL,
-  `OperationalNotes` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `ProcedureParameters` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT (_utf8mb4''),
-  PRIMARY KEY (`Id`),
-  KEY `FK_HospitalServiceRequests_Cells_Recovery_idx` (`RecoveryRoomCellId`),
-  KEY `FK_HospitalServiceRequests_Cells_Return_idx` (`ReturnCellId`),
-  KEY `FK_HospitalServiceRequests_Cells_Theatre_idx` (`OperatingTheatreCellId`),
-  KEY `FK_HospitalServiceRequests_Characters_Employee_idx` (`AssignedEmployeeId`),
-  KEY `FK_HospitalServiceRequests_Characters_Patient_idx` (`PatientId`),
-  KEY `FK_HospitalServiceRequests_Characters_PreparedBy_idx` (`PreparedByEmployeeId`),
-  KEY `FK_HospitalServiceRequests_Characters_Requester_idx` (`RequesterId`),
-  KEY `FK_HospitalServiceRequests_Hospitals_idx` (`HospitalId`),
-  KEY `FK_HospitalServiceRequests_HospitalServices_idx` (`HospitalServiceId`),
-  KEY `IX_HospitalServiceRequests_EmploymentTaskId` (`EmploymentTaskId`),
-  KEY `IX_HospitalServiceRequests_Hospital_Status` (`HospitalId`,`Status`),
-  CONSTRAINT `FK_HospitalServiceRequests_Cells_Recovery` FOREIGN KEY (`RecoveryRoomCellId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_HospitalServiceRequests_Cells_Return` FOREIGN KEY (`ReturnCellId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_HospitalServiceRequests_Cells_Theatre` FOREIGN KEY (`OperatingTheatreCellId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_HospitalServiceRequests_Characters_Employee` FOREIGN KEY (`AssignedEmployeeId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_HospitalServiceRequests_Characters_Patient` FOREIGN KEY (`PatientId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_HospitalServiceRequests_Characters_PreparedBy` FOREIGN KEY (`PreparedByEmployeeId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_HospitalServiceRequests_Characters_Requester` FOREIGN KEY (`RequesterId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_HospitalServiceRequests_Hospitals` FOREIGN KEY (`HospitalId`) REFERENCES `hospitals` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_HospitalServiceRequests_HospitalServices` FOREIGN KEY (`HospitalServiceId`) REFERENCES `hospitalservices` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table hospitalservicerequests
---
-
-/*!40000 ALTER TABLE `hospitalservicerequests` DISABLE KEYS */;
-/*!40000 ALTER TABLE `hospitalservicerequests` ENABLE KEYS */;
-
---
 -- Definition of surgicalprocedurephases
 --
 
@@ -12356,7 +10997,7 @@ CREATE TABLE IF NOT EXISTS `surgicalprocedurephases` (
   KEY `FK_SurgicalProcedurePhases_FutureProgs_OnPhaseProg_idx` (`OnPhaseProgId`),
   CONSTRAINT `FK_SurgicalProcedurePhases_FutureProgs_OnPhaseProg` FOREIGN KEY (`OnPhaseProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_SurgicalProcedurePhases_SurgicalProcudres` FOREIGN KEY (`SurgicalProcedureId`) REFERENCES `surgicalprocedures` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table surgicalprocedurephases
@@ -12379,7 +11020,7 @@ CREATE TABLE IF NOT EXISTS `traitdefinitions_chargenresources` (
   KEY `FK_TraitDefinitions_ChargenResources_ChargenResources` (`ChargenResourceId`),
   CONSTRAINT `FK_TraitDefinitions_ChargenResources_ChargenResources` FOREIGN KEY (`ChargenResourceId`) REFERENCES `chargenresources` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_TraitDefinitions_ChargenResources_Races` FOREIGN KEY (`TraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table traitdefinitions_chargenresources
@@ -12404,7 +11045,7 @@ CREATE TABLE IF NOT EXISTS `traitexpressionparameters` (
   KEY `FK_TraitExpressionParameters_TraitExpression` (`TraitExpressionId`),
   CONSTRAINT `FK_TraitExpressionParameters_TraitDefinitions` FOREIGN KEY (`TraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_TraitExpressionParameters_TraitExpression` FOREIGN KEY (`TraitExpressionId`) REFERENCES `traitexpression` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table traitexpressionparameters
@@ -12427,7 +11068,7 @@ CREATE TABLE IF NOT EXISTS `traits` (
   KEY `FK_Traits_TraitDefinitions` (`TraitDefinitionId`),
   CONSTRAINT `FK_Traits_Bodies` FOREIGN KEY (`BodyId`) REFERENCES `bodies` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Traits_TraitDefinitions` FOREIGN KEY (`TraitDefinitionId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table traits
@@ -12478,7 +11119,7 @@ CREATE TABLE IF NOT EXISTS `unitofmeasure` (
   `System` varchar(50) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `DefaultUnitForSystem` bit(1) NOT NULL DEFAULT b'0',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table unitofmeasure
@@ -12528,7 +11169,7 @@ CREATE TABLE IF NOT EXISTS `variabledefaults` (
   `DefaultValue` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `OwnerTypeDefinition` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`OwnerTypeDefinition`,`Property`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table variabledefaults
@@ -12547,7 +11188,7 @@ CREATE TABLE IF NOT EXISTS `variabledefinitions` (
   `ContainedTypeDefinition` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `OwnerTypeDefinition` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   PRIMARY KEY (`OwnerTypeDefinition`,`Property`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table variabledefinitions
@@ -12568,7 +11209,7 @@ CREATE TABLE IF NOT EXISTS `variablevalues` (
   `ReferenceTypeDefinition` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `ValueTypeDefinition` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   PRIMARY KEY (`ReferenceTypeDefinition`,`ReferenceId`,`ReferenceProperty`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table variablevalues
@@ -13039,10 +11680,10 @@ CREATE TABLE IF NOT EXISTS `vehicleroutesteps` (
   `VehicleRouteLegId` bigint NOT NULL,
   `Sequence` int NOT NULL,
   `StepType` int NOT NULL,
-  `OriginCellId` bigint NOT NULL,
+  `OriginRoomId` bigint NOT NULL,
   `OriginRoomLayer` int NOT NULL,
   `OriginRoutePositionMetres` decimal(18,3) DEFAULT NULL,
-  `DestinationCellId` bigint NOT NULL,
+  `DestinationRoomId` bigint NOT NULL,
   `DestinationRoomLayer` int NOT NULL,
   `DestinationRoutePositionMetres` decimal(18,3) DEFAULT NULL,
   `DistanceMetres` decimal(18,3) DEFAULT NULL,
@@ -13053,17 +11694,17 @@ CREATE TABLE IF NOT EXISTS `vehicleroutesteps` (
   `ExitId` bigint DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UX_VehicleRouteSteps_Leg_Sequence` (`VehicleRouteLegId`,`Sequence`),
-  KEY `FK_VehicleRouteSteps_DestinationCells_idx` (`DestinationCellId`),
+  KEY `FK_VehicleRouteSteps_DestinationRooms_idx` (`DestinationRoomId`),
   KEY `FK_VehicleRouteSteps_Exits_idx` (`ExitId`),
-  KEY `FK_VehicleRouteSteps_OriginCells_idx` (`OriginCellId`),
-  CONSTRAINT `FK_VehicleRouteSteps_DestinationCells` FOREIGN KEY (`DestinationCellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
+  KEY `FK_VehicleRouteSteps_OriginRooms_idx` (`OriginRoomId`),
+  CONSTRAINT `FK_VehicleRouteSteps_DestinationRooms` FOREIGN KEY (`DestinationRoomId`) REFERENCES `rooms` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_VehicleRouteSteps_Exits` FOREIGN KEY (`ExitId`) REFERENCES `exits` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_VehicleRouteSteps_OriginCells` FOREIGN KEY (`OriginCellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleRouteSteps_OriginRooms` FOREIGN KEY (`OriginRoomId`) REFERENCES `rooms` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_VehicleRouteSteps_VehicleRouteLegs` FOREIGN KEY (`VehicleRouteLegId`) REFERENCES `vehicleroutelegs` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `CK_VehicleRouteSteps_Positions` CHECK ((((`OriginRoutePositionMetres` is null) or (`OriginRoutePositionMetres` >= 0)) and ((`DestinationRoutePositionMetres` is null) or (`DestinationRoutePositionMetres` >= 0)) and (((`OriginRoutePositionMetres` is null) and (`PinnedTopologyVersion` is null)) or ((`OriginRoutePositionMetres` is not null) and (`PinnedTopologyVersion` is not null) and (`PinnedTopologyVersion` >= 1))) and (((`DestinationRoutePositionMetres` is null) and (`DestinationTopologyVersion` is null)) or ((`DestinationRoutePositionMetres` is not null) and (`DestinationTopologyVersion` is not null) and (`DestinationTopologyVersion` >= 1))))),
   CONSTRAINT `CK_VehicleRouteSteps_RoomEquivalentCost` CHECK ((`RoomEquivalentCost` >= 0)),
   CONSTRAINT `CK_VehicleRouteSteps_Sequence` CHECK ((`Sequence` >= 0)),
-  CONSTRAINT `CK_VehicleRouteSteps_TypedPayload` CHECK ((((`StepType` = 0) and (`ExitId` is null) and (`Direction` is not null) and (`Direction` in (-(1),1)) and (`PinnedTopologyVersion` is not null) and (`DestinationTopologyVersion` = `PinnedTopologyVersion`) and (`DistanceMetres` is not null) and (`DistanceMetres` >= 0) and (`OriginRoutePositionMetres` is not null) and (`DestinationRoutePositionMetres` is not null) and (`OriginCellId` = `DestinationCellId`) and (`OriginRoomLayer` = `DestinationRoomLayer`)) or ((`StepType` = 1) and (`ExitId` is not null) and (`Direction` is null) and (`DistanceMetres` is null))))
+  CONSTRAINT `CK_VehicleRouteSteps_TypedPayload` CHECK ((((`StepType` = 0) and (`ExitId` is null) and (`Direction` is not null) and (`Direction` in (-(1),1)) and (`PinnedTopologyVersion` is not null) and (`DestinationTopologyVersion` = `PinnedTopologyVersion`) and (`DistanceMetres` is not null) and (`DistanceMetres` >= 0) and (`OriginRoutePositionMetres` is not null) and (`DestinationRoutePositionMetres` is not null) and (`OriginRoomId` = `DestinationRoomId`) and (`OriginRoomLayer` = `DestinationRoomLayer`)) or ((`StepType` = 1) and (`ExitId` is not null) and (`Direction` is null) and (`DistanceMetres` is null))))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
@@ -13084,15 +11725,15 @@ CREATE TABLE IF NOT EXISTS `vehicleroutestops` (
   `VehicleRouteRevision` int NOT NULL,
   `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `Sequence` int NOT NULL,
-  `CellId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
   `RoomLayer` int NOT NULL,
   `RoutePositionMetres` decimal(18,3) DEFAULT NULL,
   `DwellDurationMilliseconds` bigint NOT NULL DEFAULT '0',
   PRIMARY KEY (`Id`),
   UNIQUE KEY `AK_VehicleRouteStops_Id_Route` (`Id`,`VehicleRouteId`,`VehicleRouteRevision`),
   UNIQUE KEY `UX_VehicleRouteStops_Route_Sequence` (`VehicleRouteId`,`VehicleRouteRevision`,`Sequence`),
-  KEY `FK_VehicleRouteStops_Cells_idx` (`CellId`),
-  CONSTRAINT `FK_VehicleRouteStops_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
+  KEY `FK_VehicleRouteStops_Rooms_idx` (`RoomId`),
+  CONSTRAINT `FK_VehicleRouteStops_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_VehicleRouteStops_VehicleRoutes` FOREIGN KEY (`VehicleRouteId`, `VehicleRouteRevision`) REFERENCES `vehicleroutes` (`Id`, `RevisionNumber`) ON DELETE CASCADE,
   CONSTRAINT `CK_VehicleRouteStops_Dwell` CHECK ((`DwellDurationMilliseconds` >= 0)),
   CONSTRAINT `CK_VehicleRouteStops_RoutePosition` CHECK (((`RoutePositionMetres` is null) or (`RoutePositionMetres` >= 0))),
@@ -13114,15 +11755,15 @@ DROP TABLE IF EXISTS `vehiclerouteplatformbindings`;
 CREATE TABLE IF NOT EXISTS `vehiclerouteplatformbindings` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
   `VehicleRouteStopId` bigint NOT NULL,
-  `PlatformCellId` bigint NOT NULL,
+  `PlatformRoomId` bigint NOT NULL,
   `VehicleAccessPointProtoId` bigint NOT NULL,
   `DockingToleranceMetres` decimal(18,3) NOT NULL DEFAULT '2.000',
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `UX_VehicleRoutePlatformBindings_Stop_Platform_AccessPoint` (`VehicleRouteStopId`,`PlatformCellId`,`VehicleAccessPointProtoId`),
+  UNIQUE KEY `UX_VehicleRoutePlatformBindings_Stop_Platform_AccessPoint` (`VehicleRouteStopId`,`PlatformRoomId`,`VehicleAccessPointProtoId`),
   KEY `FK_VehicleRoutePlatformBindings_AccessPointProtos_idx` (`VehicleAccessPointProtoId`),
-  KEY `FK_VehicleRoutePlatformBindings_Cells_idx` (`PlatformCellId`),
+  KEY `FK_VehicleRoutePlatformBindings_Rooms_idx` (`PlatformRoomId`),
   CONSTRAINT `FK_VehicleRoutePlatformBindings_AccessPointProtos` FOREIGN KEY (`VehicleAccessPointProtoId`) REFERENCES `vehicleaccesspointprotos` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_VehicleRoutePlatformBindings_Cells` FOREIGN KEY (`PlatformCellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleRoutePlatformBindings_Rooms` FOREIGN KEY (`PlatformRoomId`) REFERENCES `rooms` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_VehicleRoutePlatformBindings_VehicleRouteStops` FOREIGN KEY (`VehicleRouteStopId`) REFERENCES `vehicleroutestops` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `CK_VehicleRoutePlatformBindings_Tolerance` CHECK ((`DockingToleranceMetres` >= 0))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -13142,11 +11783,11 @@ DROP TABLE IF EXISTS `vehicleroutetopologypins`;
 CREATE TABLE IF NOT EXISTS `vehicleroutetopologypins` (
   `VehicleRouteId` bigint NOT NULL,
   `VehicleRouteRevision` int NOT NULL,
-  `RouteCellId` bigint NOT NULL,
+  `RouteRoomId` bigint NOT NULL,
   `TopologyVersion` bigint NOT NULL,
-  PRIMARY KEY (`VehicleRouteId`,`VehicleRouteRevision`,`RouteCellId`),
-  KEY `FK_VehicleRouteTopologyPins_RouteCells_idx` (`RouteCellId`),
-  CONSTRAINT `FK_VehicleRouteTopologyPins_RouteCells` FOREIGN KEY (`RouteCellId`) REFERENCES `routecells` (`CellId`) ON DELETE RESTRICT,
+  PRIMARY KEY (`VehicleRouteId`,`VehicleRouteRevision`,`RouteRoomId`),
+  KEY `FK_VehicleRouteTopologyPins_RouteRooms_idx` (`RouteRoomId`),
+  CONSTRAINT `FK_VehicleRouteTopologyPins_RouteRooms` FOREIGN KEY (`RouteRoomId`) REFERENCES `routerooms` (`RoomId`) ON DELETE RESTRICT,
   CONSTRAINT `FK_VehicleRouteTopologyPins_VehicleRoutes` FOREIGN KEY (`VehicleRouteId`, `VehicleRouteRevision`) REFERENCES `vehicleroutes` (`Id`, `RevisionNumber`) ON DELETE CASCADE,
   CONSTRAINT `CK_VehicleRouteTopologyPins_Version` CHECK ((`TopologyVersion` >= 1))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -13170,11 +11811,11 @@ CREATE TABLE IF NOT EXISTS `vehicles` (
   `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
   `ExteriorItemId` bigint DEFAULT NULL,
   `LocationType` int NOT NULL,
-  `CurrentCellId` bigint DEFAULT NULL,
+  `CurrentRoomId` bigint DEFAULT NULL,
   `CurrentRoomLayer` int NOT NULL,
   `MovementStatus` int NOT NULL,
   `CurrentExitId` bigint DEFAULT NULL,
-  `DestinationCellId` bigint DEFAULT NULL,
+  `DestinationRoomId` bigint DEFAULT NULL,
   `MovementProfileProtoId` bigint DEFAULT NULL,
   `CreatedDateTime` datetime NOT NULL,
   `LastMovementDateTime` datetime DEFAULT NULL,
@@ -13182,19 +11823,19 @@ CREATE TABLE IF NOT EXISTS `vehicles` (
   `CurrentRoutePosition` decimal(18,3) DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `FK_Vehicles_GameItems_Exterior_idx` (`ExteriorItemId`),
-  KEY `FK_Vehicles_Cells_Current_idx` (`CurrentCellId`),
-  KEY `FK_Vehicles_Cells_Destination_idx` (`DestinationCellId`),
+  KEY `FK_Vehicles_Rooms_Current_idx` (`CurrentRoomId`),
+  KEY `FK_Vehicles_Rooms_Destination_idx` (`DestinationRoomId`),
   KEY `FK_Vehicles_Exits_idx` (`CurrentExitId`),
   KEY `FK_Vehicles_MovementProfileProtos_idx` (`MovementProfileProtoId`),
   KEY `FK_Vehicles_VehicleProtos_idx` (`VehicleProtoId`,`VehicleProtoRevision`),
   KEY `FK_Vehicles_PropulsionProfileProtos_idx` (`ActivePropulsionProfileProtoId`),
-  KEY `IX_Vehicles_Cell_Layer_RoutePosition` (`CurrentCellId`,`CurrentRoomLayer`,`CurrentRoutePosition`),
-  CONSTRAINT `FK_Vehicles_Cells_Current` FOREIGN KEY (`CurrentCellId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Vehicles_Cells_Destination` FOREIGN KEY (`DestinationCellId`) REFERENCES `cells` (`Id`) ON DELETE SET NULL,
+  KEY `IX_Vehicles_Room_Layer_RoutePosition` (`CurrentRoomId`,`CurrentRoomLayer`,`CurrentRoutePosition`),
   CONSTRAINT `FK_Vehicles_Exits` FOREIGN KEY (`CurrentExitId`) REFERENCES `exits` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Vehicles_GameItems_Exterior` FOREIGN KEY (`ExteriorItemId`) REFERENCES `gameitems` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Vehicles_MovementProfileProtos` FOREIGN KEY (`MovementProfileProtoId`) REFERENCES `vehiclemovementprofileprotos` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Vehicles_PropulsionProfileProtos` FOREIGN KEY (`ActivePropulsionProfileProtoId`) REFERENCES `vehiclepropulsionprofileprotos` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Vehicles_Rooms_Current` FOREIGN KEY (`CurrentRoomId`) REFERENCES `rooms` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Vehicles_Rooms_Destination` FOREIGN KEY (`DestinationRoomId`) REFERENCES `rooms` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Vehicles_VehicleProtos` FOREIGN KEY (`VehicleProtoId`, `VehicleProtoRevision`) REFERENCES `vehicleprotos` (`Id`, `RevisionNumber`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
@@ -13214,7 +11855,7 @@ CREATE TABLE IF NOT EXISTS `tracks` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
   `CharacterId` bigint DEFAULT NULL,
   `BodyPrototypeId` bigint DEFAULT NULL,
-  `CellId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
   `RoomLayer` int NOT NULL,
   `MudDateTime` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `FromDirectionExitId` bigint DEFAULT NULL,
@@ -13229,6 +11870,7 @@ CREATE TABLE IF NOT EXISTS `tracks` (
   `RouteDirection` int DEFAULT NULL,
   `RoutePosition` decimal(18,3) DEFAULT NULL,
   `VehicleId` bigint DEFAULT NULL,
+  `CharacterInstanceId` bigint DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `IX_Tracks_BodyPrototypeId` (`BodyPrototypeId`),
   KEY `IX_Tracks_CharacterId` (`CharacterId`),
@@ -13236,15 +11878,17 @@ CREATE TABLE IF NOT EXISTS `tracks` (
   KEY `IX_Tracks_FromMoveSpeedId` (`FromMoveSpeedId`),
   KEY `IX_Tracks_ToDirectionExitId` (`ToDirectionExitId`),
   KEY `IX_Tracks_ToMoveSpeedId` (`ToMoveSpeedId`),
-  KEY `IX_Tracks_Cell_Layer_RoutePosition` (`CellId`,`RoomLayer`,`RoutePosition`),
+  KEY `IX_Tracks_Room_Layer_RoutePosition` (`RoomId`,`RoomLayer`,`RoutePosition`),
   KEY `FK_Tracks_Vehicles_idx` (`VehicleId`),
+  KEY `FK_Tracks_CharacterInstances_idx` (`CharacterInstanceId`),
   CONSTRAINT `FK_Tracks_BodyProtos` FOREIGN KEY (`BodyPrototypeId`) REFERENCES `bodyprotos` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Tracks_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Tracks_CharacterInstances` FOREIGN KEY (`CharacterInstanceId`) REFERENCES `characterinstances` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Tracks_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Tracks_Exits_From` FOREIGN KEY (`FromDirectionExitId`) REFERENCES `exits` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Tracks_Exits_To` FOREIGN KEY (`ToDirectionExitId`) REFERENCES `exits` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Tracks_MoveSpeeds_From` FOREIGN KEY (`FromMoveSpeedId`) REFERENCES `movespeeds` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Tracks_MoveSpeeds_To` FOREIGN KEY (`ToMoveSpeedId`) REFERENCES `movespeeds` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Tracks_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Tracks_Vehicles` FOREIGN KEY (`VehicleId`) REFERENCES `vehicles` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `CK_Tracks_Owner` CHECK ((((`VehicleId` is null) and (`CharacterId` is not null) and (`BodyPrototypeId` is not null)) or ((`VehicleId` is not null) and (`CharacterId` is null) and (`BodyPrototypeId` is null))))
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -13348,12 +11992,12 @@ CREATE TABLE IF NOT EXISTS `vehiclecompartments` (
   `VehicleId` bigint NOT NULL,
   `VehicleCompartmentProtoId` bigint NOT NULL,
   `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `InteriorCellId` bigint DEFAULT NULL,
+  `InteriorRoomId` bigint DEFAULT NULL,
   PRIMARY KEY (`Id`),
-  UNIQUE KEY `UX_VehicleCompartments_InteriorCell` (`InteriorCellId`),
+  UNIQUE KEY `UX_VehicleCompartments_InteriorRoom` (`InteriorRoomId`),
   KEY `FK_VehicleCompartments_Protos_idx` (`VehicleCompartmentProtoId`),
   KEY `FK_VehicleCompartments_Vehicles_idx` (`VehicleId`),
-  CONSTRAINT `FK_VehicleCompartments_InteriorCells` FOREIGN KEY (`InteriorCellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleCompartments_InteriorRooms` FOREIGN KEY (`InteriorRoomId`) REFERENCES `rooms` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_VehicleCompartments_Protos` FOREIGN KEY (`VehicleCompartmentProtoId`) REFERENCES `vehiclecompartmentprotos` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_VehicleCompartments_Vehicles` FOREIGN KEY (`VehicleId`) REFERENCES `vehicles` (`Id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -13401,19 +12045,19 @@ CREATE TABLE IF NOT EXISTS `vehicledockings` (
   `VehicleId` bigint NOT NULL,
   `VehicleAccessPointId` bigint NOT NULL,
   `VehicleCompartmentId` bigint NOT NULL,
-  `ExteriorCellId` bigint NOT NULL,
+  `ExteriorRoomId` bigint NOT NULL,
   `ExteriorRoomLayer` int NOT NULL,
   `State` int NOT NULL DEFAULT '0',
   `VehicleRouteStopId` bigint DEFAULT NULL,
   PRIMARY KEY (`Id`),
   UNIQUE KEY `UX_VehicleDockings_AccessPoint` (`VehicleAccessPointId`),
   KEY `FK_VehicleDockings_Compartments_idx` (`VehicleCompartmentId`),
-  KEY `IX_VehicleDockings_ExteriorCell_Layer` (`ExteriorCellId`,`ExteriorRoomLayer`),
+  KEY `IX_VehicleDockings_ExteriorRoom_Layer` (`ExteriorRoomId`,`ExteriorRoomLayer`),
   KEY `IX_VehicleDockings_Vehicle_State` (`VehicleId`,`State`),
   KEY `FK_VehicleDockings_VehicleRouteStops_idx` (`VehicleRouteStopId`),
   CONSTRAINT `FK_VehicleDockings_AccessPoints` FOREIGN KEY (`VehicleAccessPointId`) REFERENCES `vehicleaccesspoints` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_VehicleDockings_Compartments` FOREIGN KEY (`VehicleCompartmentId`) REFERENCES `vehiclecompartments` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_VehicleDockings_ExteriorCells` FOREIGN KEY (`ExteriorCellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_VehicleDockings_ExteriorRooms` FOREIGN KEY (`ExteriorRoomId`) REFERENCES `rooms` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_VehicleDockings_VehicleRouteStops` FOREIGN KEY (`VehicleRouteStopId`) REFERENCES `vehicleroutestops` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_VehicleDockings_Vehicles` FOREIGN KEY (`VehicleId`) REFERENCES `vehicles` (`Id`) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
@@ -13818,7 +12462,7 @@ CREATE TABLE IF NOT EXISTS `weapontypes` (
   KEY `FK_WeaponTypes_TraitDefinitions_Parry_idx` (`ParryTraitId`),
   CONSTRAINT `FK_WeaponTypes_TraitDefinitions_Attack` FOREIGN KEY (`AttackTraitId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_WeaponTypes_TraitDefinitions_Parry` FOREIGN KEY (`ParryTraitId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table weapontypes
@@ -13874,7 +12518,7 @@ CREATE TABLE IF NOT EXISTS `weaponattacks` (
   CONSTRAINT `FK_WeaponAttacks_TraitExpression_Pain` FOREIGN KEY (`PainExpressionId`) REFERENCES `traitexpression` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_WeaponAttacks_TraitExpression_Stun` FOREIGN KEY (`StunExpressionId`) REFERENCES `traitexpression` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_WeaponAttacks_WeaponTypes` FOREIGN KEY (`WeaponTypeId`) REFERENCES `weapontypes` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table weaponattacks
@@ -13895,7 +12539,7 @@ CREATE TABLE IF NOT EXISTS `combatmessages_weaponattacks` (
   KEY `FK_CombatMessages_WeaponAttacks_WeaponAttacks_idx` (`WeaponAttackId`),
   CONSTRAINT `FK_CombatMessages_WeaponAttacks_CombatMessages` FOREIGN KEY (`CombatMessageId`) REFERENCES `combatmessages` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_CombatMessages_WeaponAttacks_WeaponAttacks` FOREIGN KEY (`WeaponAttackId`) REFERENCES `weaponattacks` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table combatmessages_weaponattacks
@@ -13977,7 +12621,7 @@ CREATE TABLE IF NOT EXISTS `races_weaponattacks` (
   CONSTRAINT `FK_Races_WeaponAttacks_BodypartProto` FOREIGN KEY (`BodypartId`) REFERENCES `bodypartproto` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Races_WeaponAttacks_Races` FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Races_WeaponAttacks_WeaponAttacks` FOREIGN KEY (`WeaponAttackId`) REFERENCES `weaponattacks` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table races_weaponattacks
@@ -14008,7 +12652,7 @@ CREATE TABLE IF NOT EXISTS `wearablesizeparameterrule` (
   PRIMARY KEY (`Id`),
   KEY `FK_WearableSizeParameterRule_TraitDefinitions` (`TraitId`),
   CONSTRAINT `FK_WearableSizeParameterRule_TraitDefinitions` FOREIGN KEY (`TraitId`) REFERENCES `traitdefinitions` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table wearablesizeparameterrule
@@ -14045,7 +12689,7 @@ CREATE TABLE IF NOT EXISTS `bodyprotos` (
   CONSTRAINT `FK_BodyPrototype_Bodyparts` FOREIGN KEY (`DefaultSmashingBodypartId`) REFERENCES `bodypartproto` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_BodyPrototype_BodyPrototype` FOREIGN KEY (`CountsAsId`) REFERENCES `bodyprotos` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_BodyPrototype_WearableSizeParameterRule` FOREIGN KEY (`WearSizeParameterId`) REFERENCES `wearablesizeparameterrule` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodyprotos
@@ -14068,7 +12712,7 @@ CREATE TABLE IF NOT EXISTS `bodypartgroupdescribers` (
   PRIMARY KEY (`Id`),
   KEY `IX_BodypartGroupDescribers_BodyProtoId` (`BodyProtoId`),
   CONSTRAINT `FK_BodypartGroupDescribers_BodyProtos_BodyProtoId` FOREIGN KEY (`BodyProtoId`) REFERENCES `bodyprotos` (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodypartgroupdescribers
@@ -14089,7 +12733,7 @@ CREATE TABLE IF NOT EXISTS `bodypartgroupdescribers_bodyprotos` (
   KEY `FK_BGD_BodyProtos_BodyProtos` (`BodyProtoId`),
   CONSTRAINT `FK_BGD_BodyProtos_BodypartGroupDescribers` FOREIGN KEY (`BodypartGroupDescriberId`) REFERENCES `bodypartgroupdescribers` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_BGD_BodyProtos_BodyProtos` FOREIGN KEY (`BodyProtoId`) REFERENCES `bodyprotos` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodypartgroupdescribers_bodyprotos
@@ -14112,7 +12756,7 @@ CREATE TABLE IF NOT EXISTS `bodyprotos_additionalbodyparts` (
   KEY `FK_BodyProtos_AdditionalBodyparts_BodyProtos_idx` (`BodyProtoId`),
   CONSTRAINT `FK_BodyProtos_AdditionalBodyparts_BodypartProto` FOREIGN KEY (`BodypartId`) REFERENCES `bodypartproto` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_BodyProtos_AdditionalBodyparts_BodyProtos` FOREIGN KEY (`BodyProtoId`) REFERENCES `bodyprotos` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodyprotos_additionalbodyparts
@@ -14132,7 +12776,7 @@ CREATE TABLE IF NOT EXISTS `bodyprotospositions` (
   PRIMARY KEY (`BodyProtoId`,`Position`),
   KEY `FK_BodyProtosPositions_BodyProtos_idx` (`BodyProtoId`),
   CONSTRAINT `FK_BodyProtosPositions_BodyProtos` FOREIGN KEY (`BodyProtoId`) REFERENCES `bodyprotos` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table bodyprotospositions
@@ -14159,7 +12803,7 @@ CREATE TABLE IF NOT EXISTS `limbs` (
   KEY `FK_Limbs_BodypartProto_idx` (`RootBodypartId`),
   CONSTRAINT `FK_Limbs_BodypartProto` FOREIGN KEY (`RootBodypartId`) REFERENCES `bodypartproto` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Limbs_BodyProtos` FOREIGN KEY (`RootBodyId`) REFERENCES `bodyprotos` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table limbs
@@ -14180,7 +12824,7 @@ CREATE TABLE IF NOT EXISTS `limbs_bodypartproto` (
   KEY `FK_Limbs_BodypartProto_Limbs_idx` (`LimbId`),
   CONSTRAINT `FK_Limbs_BodypartProto_BodypartProto` FOREIGN KEY (`BodypartProtoId`) REFERENCES `bodypartproto` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Limbs_BodypartProto_Limbs` FOREIGN KEY (`LimbId`) REFERENCES `limbs` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table limbs_bodypartproto
@@ -14201,7 +12845,7 @@ CREATE TABLE IF NOT EXISTS `limbs_spinalparts` (
   KEY `FK_Limbs_SpinalParts_BodypartProtos_idx` (`BodypartProtoId`),
   CONSTRAINT `FK_Limbs_SpinalParts_BodypartProtos` FOREIGN KEY (`BodypartProtoId`) REFERENCES `bodypartproto` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Limbs_SpinalParts_Limbs` FOREIGN KEY (`LimbId`) REFERENCES `limbs` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table limbs_spinalparts
@@ -14228,7 +12872,7 @@ CREATE TABLE IF NOT EXISTS `movespeeds` (
   PRIMARY KEY (`Id`),
   KEY `FK_MoveSpeeds_BodyPrototype` (`BodyProtoId`),
   CONSTRAINT `FK_MoveSpeeds_BodyPrototype` FOREIGN KEY (`BodyProtoId`) REFERENCES `bodyprotos` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table movespeeds
@@ -14250,7 +12894,7 @@ CREATE TABLE IF NOT EXISTS `wearablesizes` (
   `TraitValue` double DEFAULT NULL,
   `BodyPrototypeId` bigint NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table wearablesizes
@@ -14277,7 +12921,7 @@ CREATE TABLE IF NOT EXISTS `wearprofiles` (
   `Description` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
   `RequireContainerIsEmpty` bit(1) NOT NULL DEFAULT b'0',
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table wearprofiles
@@ -14347,7 +12991,7 @@ CREATE TABLE IF NOT EXISTS `weatherevents` (
   PRIMARY KEY (`Id`),
   KEY `FK_WeatherEvents_WeatherEvents_idx` (`CountsAsId`),
   CONSTRAINT `FK_WeatherEvents_WeatherEvents` FOREIGN KEY (`CountsAsId`) REFERENCES `weatherevents` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table weatherevents
@@ -14422,7 +13066,7 @@ CREATE TABLE IF NOT EXISTS `weathercontrollers` (
   CONSTRAINT `FK_WeatherControllers_Seasons` FOREIGN KEY (`CurrentSeasonId`) REFERENCES `seasons` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_WeatherControllers_TimeZones` FOREIGN KEY (`FeedClockTimeZoneId`) REFERENCES `timezones` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_WeatherControllers_WeatherEvents` FOREIGN KEY (`CurrentWeatherEventId`) REFERENCES `weatherevents` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table weathercontrollers
@@ -14443,7 +13087,7 @@ CREATE TABLE IF NOT EXISTS `areas` (
   PRIMARY KEY (`Id`),
   KEY `FK_Areas_WeatherControllers_idx` (`WeatherControllerId`),
   CONSTRAINT `FK_Areas_WeatherControllers` FOREIGN KEY (`WeatherControllerId`) REFERENCES `weathercontrollers` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table areas
@@ -14474,8 +13118,8 @@ CREATE TABLE IF NOT EXISTS `terrains` (
   `AtmosphereType` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
   `TerrainEditorColour` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '#FFFFFFFF',
   `WeatherControllerId` bigint DEFAULT NULL,
-  `DefaultCellOutdoorsType` int NOT NULL DEFAULT '0',
-  `TerrainEditorText` varchar(45) DEFAULT NULL,
+  `DefaultRoomOutdoorsType` int NOT NULL DEFAULT '0',
+  `TerrainEditorText` varchar(45) COLLATE utf8mb4_general_ci DEFAULT NULL,
   `TerrainANSIColour` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT '7',
   `CanHaveTracks` bit(1) NOT NULL DEFAULT b'1',
   `TrackIntensityMultiplierOlfactory` double NOT NULL DEFAULT '1',
@@ -14490,7 +13134,7 @@ CREATE TABLE IF NOT EXISTS `terrains` (
   KEY `IX_Terrains_EnvironmentalMagicProfileId` (`EnvironmentalMagicProfileId`),
   CONSTRAINT `FK_Terrains_AgricultureFieldProfiles` FOREIGN KEY (`DefaultAgricultureFieldProfileId`) REFERENCES `agriculturefieldprofiles` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Terrains_WeatherControllers` FOREIGN KEY (`WeatherControllerId`) REFERENCES `weathercontrollers` (`Id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table terrains
@@ -14500,18 +13144,18 @@ CREATE TABLE IF NOT EXISTS `terrains` (
 /*!40000 ALTER TABLE `terrains` ENABLE KEYS */;
 
 --
--- Definition of celloverlays
+-- Definition of roomoverlays
 --
 
-DROP TABLE IF EXISTS `celloverlays`;
-CREATE TABLE IF NOT EXISTS `celloverlays` (
+DROP TABLE IF EXISTS `roomoverlays`;
+CREATE TABLE IF NOT EXISTS `roomoverlays` (
   `Id` bigint NOT NULL AUTO_INCREMENT,
   `Name` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `CellName` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `CellDescription` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `CellOverlayPackageId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  `CellOverlayPackageRevisionNumber` int NOT NULL,
+  `RoomName` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `RoomDescription` varchar(4000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `RoomOverlayPackageId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  `RoomOverlayPackageRevisionNumber` int NOT NULL,
   `TerrainId` bigint NOT NULL,
   `HearingProfileId` bigint DEFAULT NULL,
   `OutdoorsType` int NOT NULL,
@@ -14521,22 +13165,2337 @@ CREATE TABLE IF NOT EXISTS `celloverlays` (
   `AtmosphereType` varchar(45) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT 'gas',
   `SafeQuit` bit(1) NOT NULL,
   PRIMARY KEY (`Id`),
-  KEY `FK_CellOverlays_Cells` (`CellId`),
-  KEY `FK_CellOverlays_HearingProfiles` (`HearingProfileId`),
-  KEY `FK_CellOverlays_Terrains` (`TerrainId`),
-  KEY `FK_CellOverlays_CellOverlayPackages` (`CellOverlayPackageId`,`CellOverlayPackageRevisionNumber`),
-  CONSTRAINT `FK_CellOverlays_CellOverlayPackages` FOREIGN KEY (`CellOverlayPackageId`, `CellOverlayPackageRevisionNumber`) REFERENCES `celloverlaypackages` (`Id`, `RevisionNumber`) ON DELETE CASCADE,
-  CONSTRAINT `FK_CellOverlays_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_CellOverlays_HearingProfiles` FOREIGN KEY (`HearingProfileId`) REFERENCES `hearingprofiles` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_CellOverlays_Terrains` FOREIGN KEY (`TerrainId`) REFERENCES `terrains` (`Id`) ON DELETE RESTRICT
+  KEY `FK_RoomOverlays_Rooms` (`RoomId`),
+  KEY `FK_RoomOverlays_HearingProfiles` (`HearingProfileId`),
+  KEY `FK_RoomOverlays_Terrains` (`TerrainId`),
+  KEY `FK_RoomOverlays_RoomOverlayPackages` (`RoomOverlayPackageId`,`RoomOverlayPackageRevisionNumber`),
+  CONSTRAINT `FK_RoomOverlays_HearingProfiles` FOREIGN KEY (`HearingProfileId`) REFERENCES `hearingprofiles` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_RoomOverlays_RoomOverlayPackages` FOREIGN KEY (`RoomOverlayPackageId`, `RoomOverlayPackageRevisionNumber`) REFERENCES `roomoverlaypackages` (`Id`, `RevisionNumber`) ON DELETE CASCADE,
+  CONSTRAINT `FK_RoomOverlays_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_RoomOverlays_Terrains` FOREIGN KEY (`TerrainId`) REFERENCES `terrains` (`Id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table roomoverlays
+--
+
+/*!40000 ALTER TABLE `roomoverlays` DISABLE KEYS */;
+/*!40000 ALTER TABLE `roomoverlays` ENABLE KEYS */;
+
+--
+-- Definition of roomoverlays_exits
+--
+
+DROP TABLE IF EXISTS `roomoverlays_exits`;
+CREATE TABLE IF NOT EXISTS `roomoverlays_exits` (
+  `RoomOverlayId` bigint NOT NULL,
+  `ExitId` bigint NOT NULL,
+  PRIMARY KEY (`RoomOverlayId`,`ExitId`),
+  KEY `FK_RoomOverlays_Exits_Exits` (`ExitId`),
+  CONSTRAINT `FK_RoomOverlays_Exits_Exits` FOREIGN KEY (`ExitId`) REFERENCES `exits` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_RoomOverlays_Exits_RoomOverlays` FOREIGN KEY (`RoomOverlayId`) REFERENCES `roomoverlays` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table roomoverlays_exits
+--
+
+/*!40000 ALTER TABLE `roomoverlays_exits` DISABLE KEYS */;
+/*!40000 ALTER TABLE `roomoverlays_exits` ENABLE KEYS */;
+
+--
+-- Definition of rooms
+--
+
+DROP TABLE IF EXISTS `rooms`;
+CREATE TABLE IF NOT EXISTS `rooms` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `CurrentOverlayId` bigint DEFAULT NULL,
+  `ForagableProfileId` bigint DEFAULT NULL,
+  `Temporary` bit(1) NOT NULL DEFAULT b'0',
+  `EffectData` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `SurfaceLiquidData` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `HostedVehicleCompartmentId` bigint DEFAULT NULL,
+  `HostedVehicleId` bigint DEFAULT NULL,
+  `EnvironmentalMagicBindingMode` int NOT NULL DEFAULT '0',
+  `EnvironmentalMagicProfileId` bigint DEFAULT NULL,
+  `UniqueName` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `X` int NOT NULL DEFAULT '0',
+  `Y` int NOT NULL DEFAULT '0',
+  `Z` int NOT NULL DEFAULT '0',
+  `ZoneId` bigint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_Rooms_HostedVehicleCompartments` (`HostedVehicleCompartmentId`),
+  KEY `FK_Rooms_RoomOverlays` (`CurrentOverlayId`),
+  KEY `FK_Rooms_HostedVehicles_idx` (`HostedVehicleId`),
+  KEY `IX_Rooms_EnvironmentalMagicProfileId` (`EnvironmentalMagicProfileId`),
+  KEY `IX_Rooms_UniqueName` (`UniqueName`),
+  KEY `IX_Rooms_ZoneId` (`ZoneId`),
+  CONSTRAINT `FK_Rooms_HostedVehicleCompartments` FOREIGN KEY (`HostedVehicleCompartmentId`) REFERENCES `vehiclecompartments` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_Rooms_HostedVehicles` FOREIGN KEY (`HostedVehicleId`) REFERENCES `vehicles` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_Rooms_OwningZone` FOREIGN KEY (`ZoneId`) REFERENCES `zones` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_Rooms_RoomOverlays` FOREIGN KEY (`CurrentOverlayId`) REFERENCES `roomoverlays` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `CK_Rooms_HostedVehicleOwnership` CHECK ((((`HostedVehicleId` is null) and (`HostedVehicleCompartmentId` is null)) or ((`HostedVehicleId` is not null) and (`HostedVehicleCompartmentId` is not null))))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table rooms
+--
+
+/*!40000 ALTER TABLE `rooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `rooms` ENABLE KEYS */;
+
+--
+-- Definition of activeprojects
+--
+
+DROP TABLE IF EXISTS `activeprojects`;
+CREATE TABLE IF NOT EXISTS `activeprojects` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `ProjectId` bigint NOT NULL,
+  `ProjectRevisionNumber` int NOT NULL,
+  `CurrentPhaseId` bigint NOT NULL,
+  `CharacterId` bigint DEFAULT NULL,
+  `RoomId` bigint DEFAULT NULL,
+  `PaymentCurrencyId` bigint DEFAULT NULL,
+  `RoomLayer` int NOT NULL DEFAULT '0',
+  `RoutePosition` decimal(18,3) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_ActiveProjects_Rooms_idx` (`RoomId`),
+  KEY `FK_ActiveProjects_Characters_idx` (`CharacterId`),
+  KEY `FK_ActiveProjects_ProjectPhases_idx` (`CurrentPhaseId`),
+  KEY `FK_ActiveProjects_Projects_idx` (`ProjectId`,`ProjectRevisionNumber`),
+  KEY `IX_ActiveProjects_PaymentCurrencyId` (`PaymentCurrencyId`),
+  CONSTRAINT `FK_ActiveProjects_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_ActiveProjects_PaymentCurrencies` FOREIGN KEY (`PaymentCurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_ActiveProjects_ProjectPhases` FOREIGN KEY (`CurrentPhaseId`) REFERENCES `projectphases` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_ActiveProjects_Projects` FOREIGN KEY (`ProjectId`, `ProjectRevisionNumber`) REFERENCES `projects` (`Id`, `RevisionNumber`) ON DELETE CASCADE,
+  CONSTRAINT `FK_ActiveProjects_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table activeprojects
+--
+
+/*!40000 ALTER TABLE `activeprojects` DISABLE KEYS */;
+/*!40000 ALTER TABLE `activeprojects` ENABLE KEYS */;
+
+--
+-- Definition of agriculturefields
+--
+
+DROP TABLE IF EXISTS `agriculturefields`;
+CREATE TABLE IF NOT EXISTS `agriculturefields` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RoomId` bigint NOT NULL,
+  `ProfileId` bigint NOT NULL,
+  `CurrentUse` int NOT NULL,
+  `Moisture` int NOT NULL,
+  `Drainage` int NOT NULL,
+  `Nutrients` int NOT NULL,
+  `Salinity` int NOT NULL,
+  `Topsoil` int NOT NULL,
+  `Tilth` int NOT NULL,
+  `Rockiness` int NOT NULL,
+  `Weeds` int NOT NULL,
+  `Pests` int NOT NULL,
+  `Fence` int NOT NULL,
+  `Pasture` int NOT NULL,
+  `Condition` int NOT NULL,
+  `LastTickMudDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `Definition` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `IX_AgricultureFields_RoomId` (`RoomId`),
+  KEY `FK_AgricultureFields_Profiles_idx` (`ProfileId`),
+  CONSTRAINT `FK_AgricultureFields_Profiles` FOREIGN KEY (`ProfileId`) REFERENCES `agriculturefieldprofiles` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_AgricultureFields_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
--- Dumping data for table celloverlays
+-- Dumping data for table agriculturefields
 --
 
-/*!40000 ALTER TABLE `celloverlays` DISABLE KEYS */;
-/*!40000 ALTER TABLE `celloverlays` ENABLE KEYS */;
+/*!40000 ALTER TABLE `agriculturefields` DISABLE KEYS */;
+/*!40000 ALTER TABLE `agriculturefields` ENABLE KEYS */;
+
+--
+-- Definition of agriculturefieldcrops
+--
+
+DROP TABLE IF EXISTS `agriculturefieldcrops`;
+CREATE TABLE IF NOT EXISTS `agriculturefieldcrops` (
+  `AgricultureFieldId` bigint NOT NULL,
+  `CropDefinitionId` bigint NOT NULL,
+  `Stage` int NOT NULL,
+  `GrowthDays` int NOT NULL,
+  `Health` int NOT NULL,
+  `YieldPotential` int NOT NULL,
+  `PlantedMudDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `Definition` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`AgricultureFieldId`),
+  KEY `FK_AgricultureFieldCrops_Crops_idx` (`CropDefinitionId`),
+  CONSTRAINT `FK_AgricultureFieldCrops_Crops` FOREIGN KEY (`CropDefinitionId`) REFERENCES `agriculturecropdefinitions` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_AgricultureFieldCrops_Fields` FOREIGN KEY (`AgricultureFieldId`) REFERENCES `agriculturefields` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table agriculturefieldcrops
+--
+
+/*!40000 ALTER TABLE `agriculturefieldcrops` DISABLE KEYS */;
+/*!40000 ALTER TABLE `agriculturefieldcrops` ENABLE KEYS */;
+
+--
+-- Definition of aistorytellersituations
+--
+
+DROP TABLE IF EXISTS `aistorytellersituations`;
+CREATE TABLE IF NOT EXISTS `aistorytellersituations` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `AIStorytellerId` bigint NOT NULL,
+  `Name` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `SituationText` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `CreatedOn` datetime(6) NOT NULL,
+  `IsResolved` tinyint(1) NOT NULL,
+  `ScopeCharacterId` bigint DEFAULT NULL,
+  `ScopeRoomId` bigint DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `IX_AIStorytellerSituations_AIStorytellerId` (`AIStorytellerId`),
+  KEY `IX_AIStorytellerSituations_ScopeCharacterId` (`ScopeCharacterId`),
+  KEY `IX_AIStorytellerSituations_ScopeRoomId` (`ScopeRoomId`),
+  CONSTRAINT `FK_AIStorytellerSituations_AIStorytellers_AIStorytellerId` FOREIGN KEY (`AIStorytellerId`) REFERENCES `aistorytellers` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_AIStorytellerSituations_Characters_ScopeCharacterId` FOREIGN KEY (`ScopeCharacterId`) REFERENCES `characters` (`Id`),
+  CONSTRAINT `FK_AIStorytellerSituations_Rooms_ScopeRoomId` FOREIGN KEY (`ScopeRoomId`) REFERENCES `rooms` (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table aistorytellersituations
+--
+
+/*!40000 ALTER TABLE `aistorytellersituations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `aistorytellersituations` ENABLE KEYS */;
+
+--
+-- Definition of areas_rooms
+--
+
+DROP TABLE IF EXISTS `areas_rooms`;
+CREATE TABLE IF NOT EXISTS `areas_rooms` (
+  `AreaId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`AreaId`,`RoomId`),
+  KEY `IX_Areas_Rooms_RoomId` (`RoomId`),
+  CONSTRAINT `FK_Areas_Rooms_Areas` FOREIGN KEY (`AreaId`) REFERENCES `areas` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Areas_Rooms_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table areas_rooms
+--
+
+/*!40000 ALTER TABLE `areas_rooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `areas_rooms` ENABLE KEYS */;
+
+--
+-- Definition of arenarooms
+--
+
+DROP TABLE IF EXISTS `arenarooms`;
+CREATE TABLE IF NOT EXISTS `arenarooms` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `ArenaId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  `Role` int NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_ArenaRooms_Arenas` (`ArenaId`),
+  KEY `FK_ArenaRooms_Rooms` (`RoomId`),
+  CONSTRAINT `FK_ArenaRooms_Arenas` FOREIGN KEY (`ArenaId`) REFERENCES `arenas` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_ArenaRooms_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table arenarooms
+--
+
+/*!40000 ALTER TABLE `arenarooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `arenarooms` ENABLE KEYS */;
+
+--
+-- Definition of auctionhouses
+--
+
+DROP TABLE IF EXISTS `auctionhouses`;
+CREATE TABLE IF NOT EXISTS `auctionhouses` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `EconomicZoneId` bigint NOT NULL,
+  `AuctionHouseRoomId` bigint NOT NULL,
+  `ProfitsBankAccountId` bigint DEFAULT NULL,
+  `AuctionListingFeeFlat` decimal(58,29) NOT NULL,
+  `AuctionListingFeeRate` decimal(58,29) NOT NULL,
+  `Definition` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `DefaultListingTime` double NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `IX_AuctionHouses_AuctionHouseRoomId` (`AuctionHouseRoomId`),
+  KEY `IX_AuctionHouses_EconomicZoneId` (`EconomicZoneId`),
+  KEY `IX_AuctionHouses_ProfitsBankAccountId` (`ProfitsBankAccountId`),
+  CONSTRAINT `FK_AuctionHouses_BankAccounts` FOREIGN KEY (`ProfitsBankAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_AuctionHouses_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_AuctionHouses_Rooms` FOREIGN KEY (`AuctionHouseRoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table auctionhouses
+--
+
+/*!40000 ALTER TABLE `auctionhouses` DISABLE KEYS */;
+/*!40000 ALTER TABLE `auctionhouses` ENABLE KEYS */;
+
+--
+-- Definition of bankbranches
+--
+
+DROP TABLE IF EXISTS `bankbranches`;
+CREATE TABLE IF NOT EXISTS `bankbranches` (
+  `BankId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`BankId`,`RoomId`),
+  KEY `IX_BankBranches_RoomId` (`RoomId`),
+  CONSTRAINT `FK_BankBranches_Banks` FOREIGN KEY (`BankId`) REFERENCES `banks` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_BankBranches_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table bankbranches
+--
+
+/*!40000 ALTER TABLE `bankbranches` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bankbranches` ENABLE KEYS */;
+
+--
+-- Definition of characterlog
+--
+
+DROP TABLE IF EXISTS `characterlog`;
+CREATE TABLE IF NOT EXISTS `characterlog` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `AccountId` bigint DEFAULT NULL,
+  `CharacterId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  `Command` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Time` datetime NOT NULL,
+  `IsPlayerCharacter` bit(1) NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_CharacterLog_Accounts_idx` (`AccountId`),
+  KEY `FK_CharacterLog_Rooms_idx` (`RoomId`),
+  KEY `FK_CharacterLog_Characters_idx` (`CharacterId`),
+  CONSTRAINT `FK_CharacterLog_Accounts` FOREIGN KEY (`AccountId`) REFERENCES `accounts` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_CharacterLog_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_CharacterLog_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table characterlog
+--
+
+/*!40000 ALTER TABLE `characterlog` DISABLE KEYS */;
+/*!40000 ALTER TABLE `characterlog` ENABLE KEYS */;
+
+--
+-- Definition of clans_administrationrooms
+--
+
+DROP TABLE IF EXISTS `clans_administrationrooms`;
+CREATE TABLE IF NOT EXISTS `clans_administrationrooms` (
+  `ClanId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`ClanId`,`RoomId`),
+  KEY `FK_Clans_AdministrationRooms_Rooms_idx` (`RoomId`),
+  CONSTRAINT `FK_Clans_AdministrationRooms_Clans` FOREIGN KEY (`ClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Clans_AdministrationRooms_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table clans_administrationrooms
+--
+
+/*!40000 ALTER TABLE `clans_administrationrooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `clans_administrationrooms` ENABLE KEYS */;
+
+--
+-- Definition of clans_hallrooms
+--
+
+DROP TABLE IF EXISTS `clans_hallrooms`;
+CREATE TABLE IF NOT EXISTS `clans_hallrooms` (
+  `ClanId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`ClanId`,`RoomId`),
+  KEY `FK_Clans_HallRooms_Rooms_idx` (`RoomId`),
+  CONSTRAINT `FK_Clans_HallRooms_Clans` FOREIGN KEY (`ClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Clans_HallRooms_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table clans_hallrooms
+--
+
+/*!40000 ALTER TABLE `clans_hallrooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `clans_hallrooms` ENABLE KEYS */;
+
+--
+-- Definition of clans_treasuryrooms
+--
+
+DROP TABLE IF EXISTS `clans_treasuryrooms`;
+CREATE TABLE IF NOT EXISTS `clans_treasuryrooms` (
+  `ClanId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`ClanId`,`RoomId`),
+  KEY `FK_Clans_TreasuryRooms_Rooms_idx` (`RoomId`),
+  CONSTRAINT `FK_Clans_TreasuryRooms_Clans` FOREIGN KEY (`ClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Clans_TreasuryRooms_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table clans_treasuryrooms
+--
+
+/*!40000 ALTER TABLE `clans_treasuryrooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `clans_treasuryrooms` ENABLE KEYS */;
+
+--
+-- Definition of conveyancinglocations
+--
+
+DROP TABLE IF EXISTS `conveyancinglocations`;
+CREATE TABLE IF NOT EXISTS `conveyancinglocations` (
+  `EconomicZoneId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`EconomicZoneId`,`RoomId`),
+  KEY `IX_ConveyancingLocations_RoomId` (`RoomId`),
+  CONSTRAINT `FK_ConveyancingLocations_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_ConveyancingLocations_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table conveyancinglocations
+--
+
+/*!40000 ALTER TABLE `conveyancinglocations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `conveyancinglocations` ENABLE KEYS */;
+
+--
+-- Definition of corpserecoveryreports
+--
+
+DROP TABLE IF EXISTS `corpserecoveryreports`;
+CREATE TABLE IF NOT EXISTS `corpserecoveryreports` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `LegalAuthorityId` bigint NOT NULL,
+  `EconomicZoneId` bigint NOT NULL,
+  `CorpseId` bigint NOT NULL,
+  `SourceRoomId` bigint NOT NULL,
+  `DestinationRoomId` bigint NOT NULL,
+  `ReporterId` bigint DEFAULT NULL,
+  `AssignedPatrolId` bigint DEFAULT NULL,
+  `Status` int NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `IX_CorpseRecoveryReports_AssignedPatrolId` (`AssignedPatrolId`),
+  KEY `IX_CorpseRecoveryReports_CorpseId` (`CorpseId`),
+  KEY `IX_CorpseRecoveryReports_DestinationRoomId` (`DestinationRoomId`),
+  KEY `IX_CorpseRecoveryReports_EconomicZoneId` (`EconomicZoneId`),
+  KEY `IX_CorpseRecoveryReports_LegalAuthorityId` (`LegalAuthorityId`),
+  KEY `IX_CorpseRecoveryReports_ReporterId` (`ReporterId`),
+  KEY `IX_CorpseRecoveryReports_SourceRoomId` (`SourceRoomId`),
+  CONSTRAINT `FK_CorpseRecoveryReports_Characters` FOREIGN KEY (`ReporterId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_CorpseRecoveryReports_DestinationRooms` FOREIGN KEY (`DestinationRoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_CorpseRecoveryReports_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_CorpseRecoveryReports_GameItems` FOREIGN KEY (`CorpseId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_CorpseRecoveryReports_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_CorpseRecoveryReports_Patrols` FOREIGN KEY (`AssignedPatrolId`) REFERENCES `patrols` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_CorpseRecoveryReports_SourceRooms` FOREIGN KEY (`SourceRoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table corpserecoveryreports
+--
+
+/*!40000 ALTER TABLE `corpserecoveryreports` DISABLE KEYS */;
+/*!40000 ALTER TABLE `corpserecoveryreports` ENABLE KEYS */;
+
+--
+-- Definition of hospitallocations
+--
+
+DROP TABLE IF EXISTS `hospitallocations`;
+CREATE TABLE IF NOT EXISTS `hospitallocations` (
+  `HospitalId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  `Role` int NOT NULL,
+  PRIMARY KEY (`HospitalId`,`RoomId`,`Role`),
+  KEY `FK_HospitalLocations_Rooms_idx` (`RoomId`),
+  KEY `IX_HospitalLocations_Hospital_Role` (`HospitalId`,`Role`),
+  CONSTRAINT `FK_HospitalLocations_Hospitals` FOREIGN KEY (`HospitalId`) REFERENCES `hospitals` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_HospitalLocations_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table hospitallocations
+--
+
+/*!40000 ALTER TABLE `hospitallocations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `hospitallocations` ENABLE KEYS */;
+
+--
+-- Definition of hospitalservicerequests
+--
+
+DROP TABLE IF EXISTS `hospitalservicerequests`;
+CREATE TABLE IF NOT EXISTS `hospitalservicerequests` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `HospitalId` bigint NOT NULL,
+  `HospitalServiceId` bigint NOT NULL,
+  `RequesterId` bigint NOT NULL,
+  `RequesterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `PatientId` bigint NOT NULL,
+  `PatientName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Status` int NOT NULL,
+  `PaymentMethod` int NOT NULL,
+  `Price` decimal(58,29) NOT NULL,
+  `AmountPaid` decimal(58,29) NOT NULL,
+  `DebtCharged` decimal(58,29) NOT NULL,
+  `EmploymentTaskId` varchar(36) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `AssignedEmployeeId` bigint DEFAULT NULL,
+  `OperatingTheatreRoomId` bigint DEFAULT NULL,
+  `UsedInPlaceFallback` bit(1) NOT NULL,
+  `SupplyPrepared` bit(1) NOT NULL,
+  `PreparedByEmployeeId` bigint DEFAULT NULL,
+  `PreparedAtUtc` datetime(6) DEFAULT NULL,
+  `RecoveryRoomId` bigint DEFAULT NULL,
+  `ReturnRoomId` bigint DEFAULT NULL,
+  `CreatedAtUtc` datetime(6) NOT NULL,
+  `LastUpdatedAtUtc` datetime(6) NOT NULL,
+  `CompletedAtUtc` datetime(6) DEFAULT NULL,
+  `OperationalNotes` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `ProcedureParameters` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT (_utf8mb4''),
+  PRIMARY KEY (`Id`),
+  KEY `FK_HospitalServiceRequests_Rooms_Recovery_idx` (`RecoveryRoomId`),
+  KEY `FK_HospitalServiceRequests_Rooms_Return_idx` (`ReturnRoomId`),
+  KEY `FK_HospitalServiceRequests_Rooms_Theatre_idx` (`OperatingTheatreRoomId`),
+  KEY `FK_HospitalServiceRequests_Characters_Employee_idx` (`AssignedEmployeeId`),
+  KEY `FK_HospitalServiceRequests_Characters_Patient_idx` (`PatientId`),
+  KEY `FK_HospitalServiceRequests_Characters_PreparedBy_idx` (`PreparedByEmployeeId`),
+  KEY `FK_HospitalServiceRequests_Characters_Requester_idx` (`RequesterId`),
+  KEY `FK_HospitalServiceRequests_Hospitals_idx` (`HospitalId`),
+  KEY `FK_HospitalServiceRequests_HospitalServices_idx` (`HospitalServiceId`),
+  KEY `IX_HospitalServiceRequests_EmploymentTaskId` (`EmploymentTaskId`),
+  KEY `IX_HospitalServiceRequests_Hospital_Status` (`HospitalId`,`Status`),
+  CONSTRAINT `FK_HospitalServiceRequests_Characters_Employee` FOREIGN KEY (`AssignedEmployeeId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_HospitalServiceRequests_Characters_Patient` FOREIGN KEY (`PatientId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_HospitalServiceRequests_Characters_PreparedBy` FOREIGN KEY (`PreparedByEmployeeId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_HospitalServiceRequests_Characters_Requester` FOREIGN KEY (`RequesterId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_HospitalServiceRequests_Hospitals` FOREIGN KEY (`HospitalId`) REFERENCES `hospitals` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_HospitalServiceRequests_HospitalServices` FOREIGN KEY (`HospitalServiceId`) REFERENCES `hospitalservices` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_HospitalServiceRequests_Rooms_Recovery` FOREIGN KEY (`RecoveryRoomId`) REFERENCES `rooms` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_HospitalServiceRequests_Rooms_Return` FOREIGN KEY (`ReturnRoomId`) REFERENCES `rooms` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_HospitalServiceRequests_Rooms_Theatre` FOREIGN KEY (`OperatingTheatreRoomId`) REFERENCES `rooms` (`Id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table hospitalservicerequests
+--
+
+/*!40000 ALTER TABLE `hospitalservicerequests` DISABLE KEYS */;
+/*!40000 ALTER TABLE `hospitalservicerequests` ENABLE KEYS */;
+
+--
+-- Definition of hotelrooms
+--
+
+DROP TABLE IF EXISTS `hotelrooms`;
+CREATE TABLE IF NOT EXISTS `hotelrooms` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `HotelId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Listed` bit(1) NOT NULL,
+  `PricePerDay` decimal(58,29) NOT NULL,
+  `SecurityDeposit` decimal(58,29) NOT NULL,
+  `MinimumDurationTicks` bigint NOT NULL,
+  `MaximumDurationTicks` bigint NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `IX_HotelRooms_Hotel_Room` (`HotelId`,`RoomId`),
+  KEY `FK_HotelRooms_Rooms_idx` (`RoomId`),
+  KEY `FK_HotelRooms_Hotels_idx` (`HotelId`),
+  CONSTRAINT `FK_HotelRooms_Hotels` FOREIGN KEY (`HotelId`) REFERENCES `hotels` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_HotelRooms_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table hotelrooms
+--
+
+/*!40000 ALTER TABLE `hotelrooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `hotelrooms` ENABLE KEYS */;
+
+--
+-- Definition of hotelroomfurnishings
+--
+
+DROP TABLE IF EXISTS `hotelroomfurnishings`;
+CREATE TABLE IF NOT EXISTS `hotelroomfurnishings` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `HotelRoomId` bigint NOT NULL,
+  `GameItemId` bigint NOT NULL,
+  `Description` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `ReplacementValue` decimal(58,29) NOT NULL,
+  `OriginalCondition` double NOT NULL,
+  `OriginalDamageCondition` double NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_HotelRoomFurnishings_HotelRooms_idx` (`HotelRoomId`),
+  KEY `IX_HotelRoomFurnishings_GameItem` (`GameItemId`),
+  CONSTRAINT `FK_HotelRoomFurnishings_HotelRooms` FOREIGN KEY (`HotelRoomId`) REFERENCES `hotelrooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table hotelroomfurnishings
+--
+
+/*!40000 ALTER TABLE `hotelroomfurnishings` DISABLE KEYS */;
+/*!40000 ALTER TABLE `hotelroomfurnishings` ENABLE KEYS */;
+
+--
+-- Definition of hotelroomrentals
+--
+
+DROP TABLE IF EXISTS `hotelroomrentals`;
+CREATE TABLE IF NOT EXISTS `hotelroomrentals` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `HotelRoomId` bigint NOT NULL,
+  `GuestId` bigint NOT NULL,
+  `StartTime` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `EndTime` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `RentalCharge` decimal(58,29) NOT NULL,
+  `SecurityDeposit` decimal(58,29) NOT NULL,
+  `TaxCharged` decimal(58,29) NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `IX_HotelRoomRentals_Room` (`HotelRoomId`),
+  KEY `IX_HotelRoomRentals_Guest` (`GuestId`),
+  CONSTRAINT `FK_HotelRoomRentals_HotelRooms` FOREIGN KEY (`HotelRoomId`) REFERENCES `hotelrooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table hotelroomrentals
+--
+
+/*!40000 ALTER TABLE `hotelroomrentals` DISABLE KEYS */;
+/*!40000 ALTER TABLE `hotelroomrentals` ENABLE KEYS */;
+
+--
+-- Definition of jobfindinglocations
+--
+
+DROP TABLE IF EXISTS `jobfindinglocations`;
+CREATE TABLE IF NOT EXISTS `jobfindinglocations` (
+  `EconomicZoneId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`EconomicZoneId`,`RoomId`),
+  KEY `IX_JobFindingLocations_RoomId` (`RoomId`),
+  CONSTRAINT `FK_JobFindingLocations_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_JobFindingLocations_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table jobfindinglocations
+--
+
+/*!40000 ALTER TABLE `jobfindinglocations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `jobfindinglocations` ENABLE KEYS */;
+
+--
+-- Definition of legalauthorities
+--
+
+DROP TABLE IF EXISTS `legalauthorities`;
+CREATE TABLE IF NOT EXISTS `legalauthorities` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `CurrencyId` bigint NOT NULL,
+  `EnforcerStowingLocationId` bigint DEFAULT NULL,
+  `MarshallingLocationId` bigint DEFAULT NULL,
+  `PlayersKnowTheirCrimes` bit(1) NOT NULL DEFAULT b'0',
+  `PreparingLocationId` bigint DEFAULT NULL,
+  `PrisonLocationId` bigint DEFAULT NULL,
+  `OnImprisonProgId` bigint DEFAULT NULL,
+  `OnReleaseProgId` bigint DEFAULT NULL,
+  `PrisonBelongingsLocationId` bigint DEFAULT NULL,
+  `PrisonReleaseLocationId` bigint DEFAULT NULL,
+  `AutomaticConvictionTime` double NOT NULL DEFAULT '0',
+  `AutomaticallyConvict` tinyint(1) NOT NULL DEFAULT '0',
+  `BailCalculationProgId` bigint DEFAULT NULL,
+  `BankAccountId` bigint DEFAULT NULL,
+  `CourtLocationId` bigint DEFAULT NULL,
+  `GuardianDiscordChannel` decimal(20,0) DEFAULT NULL,
+  `JailLocationId` bigint DEFAULT NULL,
+  `OnHoldProgId` bigint DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_LegalAuthorities_Currencies_idx` (`CurrencyId`),
+  KEY `FK_LegalAuthorities_MarshallingRooms_idx` (`MarshallingLocationId`),
+  KEY `FK_LegalAuthorities_PreparingRooms_idx` (`PreparingLocationId`),
+  KEY `FK_LegalAuthorities_PrisonRooms_idx` (`PrisonLocationId`),
+  KEY `FK_LegalAuthorities_StowingRooms_idx` (`EnforcerStowingLocationId`),
+  KEY `FK_LegalAuthorities_FutureprogsImprison_idx` (`OnImprisonProgId`),
+  KEY `FK_LegalAuthorities_FutureprogsRelease_idx` (`OnReleaseProgId`),
+  KEY `FK_LegalAuthorities_PrisonBelongingsRooms_idx` (`PrisonBelongingsLocationId`),
+  KEY `FK_LegalAuthorities_PrisonReleaseRooms_idx` (`PrisonReleaseLocationId`),
+  KEY `IX_LegalAuthorities_BailCalculationProgId` (`BailCalculationProgId`),
+  KEY `IX_LegalAuthorities_BankAccountId` (`BankAccountId`),
+  KEY `IX_LegalAuthorities_CourtLocationId` (`CourtLocationId`),
+  KEY `IX_LegalAuthorities_JailLocationId` (`JailLocationId`),
+  KEY `IX_LegalAuthorities_OnHoldProgId` (`OnHoldProgId`),
+  CONSTRAINT `FK_LegalAuthorities_BankAccounts_BankAccountId` FOREIGN KEY (`BankAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_LegalAuthorities_CourtroomRoom` FOREIGN KEY (`CourtLocationId`) REFERENCES `rooms` (`Id`),
+  CONSTRAINT `FK_LegalAuthorities_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_LegalAuthorities_FutureprogsBailCalc` FOREIGN KEY (`BailCalculationProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_LegalAuthorities_FutureprogsHold` FOREIGN KEY (`OnHoldProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_LegalAuthorities_FutureprogsImprison` FOREIGN KEY (`OnImprisonProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_LegalAuthorities_FutureprogsRelease` FOREIGN KEY (`OnReleaseProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_LegalAuthorities_MarshallingRooms` FOREIGN KEY (`MarshallingLocationId`) REFERENCES `rooms` (`Id`),
+  CONSTRAINT `FK_LegalAuthorities_PreparingRooms` FOREIGN KEY (`PreparingLocationId`) REFERENCES `rooms` (`Id`),
+  CONSTRAINT `FK_LegalAuthorities_PrisonBelongingsRooms` FOREIGN KEY (`PrisonBelongingsLocationId`) REFERENCES `rooms` (`Id`),
+  CONSTRAINT `FK_LegalAuthorities_PrisonJailRooms` FOREIGN KEY (`JailLocationId`) REFERENCES `rooms` (`Id`),
+  CONSTRAINT `FK_LegalAuthorities_PrisonReleaseRooms` FOREIGN KEY (`PrisonReleaseLocationId`) REFERENCES `rooms` (`Id`),
+  CONSTRAINT `FK_LegalAuthorities_PrisonRooms` FOREIGN KEY (`PrisonLocationId`) REFERENCES `rooms` (`Id`),
+  CONSTRAINT `FK_LegalAuthorities_StowingRooms` FOREIGN KEY (`EnforcerStowingLocationId`) REFERENCES `rooms` (`Id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table legalauthorities
+--
+
+/*!40000 ALTER TABLE `legalauthorities` DISABLE KEYS */;
+/*!40000 ALTER TABLE `legalauthorities` ENABLE KEYS */;
+
+--
+-- Definition of enforcementauthorities
+--
+
+DROP TABLE IF EXISTS `enforcementauthorities`;
+CREATE TABLE IF NOT EXISTS `enforcementauthorities` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `LegalAuthorityId` bigint NOT NULL,
+  `Priority` int NOT NULL,
+  `CanAccuse` bit(1) NOT NULL,
+  `CanForgive` bit(1) NOT NULL,
+  `CanConvict` bit(1) NOT NULL,
+  `FilterProgId` bigint DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_EnforcementAuthorities_LegalAuthorities_idx` (`LegalAuthorityId`),
+  KEY `FK_EnforcementAuthorities_FutureProgs_idx` (`FilterProgId`),
+  CONSTRAINT `FK_EnforcementAuthorities_FutureProgs` FOREIGN KEY (`FilterProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_EnforcementAuthorities_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table enforcementauthorities
+--
+
+/*!40000 ALTER TABLE `enforcementauthorities` DISABLE KEYS */;
+/*!40000 ALTER TABLE `enforcementauthorities` ENABLE KEYS */;
+
+--
+-- Definition of enforcementauthorities_parentauthorities
+--
+
+DROP TABLE IF EXISTS `enforcementauthorities_parentauthorities`;
+CREATE TABLE IF NOT EXISTS `enforcementauthorities_parentauthorities` (
+  `ParentId` bigint NOT NULL,
+  `ChildId` bigint NOT NULL,
+  PRIMARY KEY (`ParentId`,`ChildId`),
+  KEY `FK_EnforcementAuthorities_ParentAuthorities_Child_idx` (`ChildId`),
+  CONSTRAINT `FK_EnforcementAuthorities_ParentAuthorities_Child` FOREIGN KEY (`ChildId`) REFERENCES `enforcementauthorities` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_EnforcementAuthorities_ParentAuthorities_Parent` FOREIGN KEY (`ParentId`) REFERENCES `enforcementauthorities` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table enforcementauthorities_parentauthorities
+--
+
+/*!40000 ALTER TABLE `enforcementauthorities_parentauthorities` DISABLE KEYS */;
+/*!40000 ALTER TABLE `enforcementauthorities_parentauthorities` ENABLE KEYS */;
+
+--
+-- Definition of laws
+--
+
+DROP TABLE IF EXISTS `laws`;
+CREATE TABLE IF NOT EXISTS `laws` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `LegalAuthorityId` bigint NOT NULL,
+  `CrimeType` int NOT NULL,
+  `ActivePeriod` double NOT NULL,
+  `EnforcementStrategy` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `LawAppliesProgId` bigint DEFAULT NULL,
+  `EnforcementPriority` int NOT NULL,
+  `CanBeAppliedAutomatically` bit(1) NOT NULL,
+  `CanBeArrested` bit(1) NOT NULL,
+  `CanBeOfferedBail` bit(1) NOT NULL,
+  `DoNotAutomaticallyApplyRepeats` bit(1) NOT NULL DEFAULT b'0',
+  `PunishmentStrategy` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_Laws_FutureProgs_idx` (`LawAppliesProgId`),
+  KEY `FK_Laws_LegalAuthority_idx` (`LegalAuthorityId`),
+  CONSTRAINT `FK_Laws_FutureProgs` FOREIGN KEY (`LawAppliesProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Laws_LegalAuthority` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table laws
+--
+
+/*!40000 ALTER TABLE `laws` DISABLE KEYS */;
+/*!40000 ALTER TABLE `laws` ENABLE KEYS */;
+
+--
+-- Definition of legalauthoritiyrooms
+--
+
+DROP TABLE IF EXISTS `legalauthoritiyrooms`;
+CREATE TABLE IF NOT EXISTS `legalauthoritiyrooms` (
+  `LegalAuthorityId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`LegalAuthorityId`,`RoomId`),
+  KEY `FK_LegalAuthoritiesRooms_Rooms_idx` (`RoomId`),
+  KEY `FK_LegalAuthoritiesRooms_LegalAuthorities_idx` (`LegalAuthorityId`),
+  CONSTRAINT `FK_LegalAuthoritiesRooms_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_LegalAuthoritiesRooms_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table legalauthoritiyrooms
+--
+
+/*!40000 ALTER TABLE `legalauthoritiyrooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `legalauthoritiyrooms` ENABLE KEYS */;
+
+--
+-- Definition of legalauthorityfines
+--
+
+DROP TABLE IF EXISTS `legalauthorityfines`;
+CREATE TABLE IF NOT EXISTS `legalauthorityfines` (
+  `LegalAuthorityId` bigint NOT NULL,
+  `CharacterId` bigint NOT NULL,
+  `FinesOwned` decimal(58,29) NOT NULL,
+  `PaymentRequiredBy` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`LegalAuthorityId`,`CharacterId`),
+  KEY `IX_LegalAuthorityFines_CharacterId` (`CharacterId`),
+  CONSTRAINT `FK_LegalAuthorityFines_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_LegalAuthorityFines_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table legalauthorityfines
+--
+
+/*!40000 ALTER TABLE `legalauthorityfines` DISABLE KEYS */;
+/*!40000 ALTER TABLE `legalauthorityfines` ENABLE KEYS */;
+
+--
+-- Definition of legalauthorityjailrooms
+--
+
+DROP TABLE IF EXISTS `legalauthorityjailrooms`;
+CREATE TABLE IF NOT EXISTS `legalauthorityjailrooms` (
+  `LegalAuthorityId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`LegalAuthorityId`,`RoomId`),
+  KEY `FK_LegalAuthoritiesRooms_Rooms_Jail_idx` (`RoomId`),
+  KEY `FK_LegalAuthoritiesRooms_LegalAuthorities_Jail_idx` (`LegalAuthorityId`),
+  CONSTRAINT `FK_LegalAuthoritiesRooms_LegalAuthorities_Jail` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_LegalAuthoritiesRooms_Rooms_Jail` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table legalauthorityjailrooms
+--
+
+/*!40000 ALTER TABLE `legalauthorityjailrooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `legalauthorityjailrooms` ENABLE KEYS */;
+
+--
+-- Definition of legalclasses
+--
+
+DROP TABLE IF EXISTS `legalclasses`;
+CREATE TABLE IF NOT EXISTS `legalclasses` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `LegalAuthorityId` bigint NOT NULL,
+  `LegalClassPriority` int NOT NULL,
+  `MembershipProgId` bigint NOT NULL,
+  `CanBeDetainedUntilFinesPaid` bit(1) NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_LegalClasses_LegalAuthorities_idx` (`LegalAuthorityId`),
+  KEY `FK_LegalClasses_FutureProgs_idx` (`MembershipProgId`),
+  CONSTRAINT `FK_LegalClasses_FutureProgs` FOREIGN KEY (`MembershipProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_LegalClasses_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table legalclasses
+--
+
+/*!40000 ALTER TABLE `legalclasses` DISABLE KEYS */;
+/*!40000 ALTER TABLE `legalclasses` ENABLE KEYS */;
+
+--
+-- Definition of enforcementauthorities_accusableclasses
+--
+
+DROP TABLE IF EXISTS `enforcementauthorities_accusableclasses`;
+CREATE TABLE IF NOT EXISTS `enforcementauthorities_accusableclasses` (
+  `EnforcementAuthorityId` bigint NOT NULL,
+  `LegalClassId` bigint NOT NULL,
+  PRIMARY KEY (`EnforcementAuthorityId`,`LegalClassId`),
+  KEY `FK_EnforcementAuthorities_AccusableClasses_LegalClasses_idx` (`LegalClassId`),
+  CONSTRAINT `FK_EnforcementAuthorities_AccusableClasses_Enforce` FOREIGN KEY (`EnforcementAuthorityId`) REFERENCES `enforcementauthorities` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_EnforcementAuthorities_AccusableClasses_LegalClasses` FOREIGN KEY (`LegalClassId`) REFERENCES `legalclasses` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table enforcementauthorities_accusableclasses
+--
+
+/*!40000 ALTER TABLE `enforcementauthorities_accusableclasses` DISABLE KEYS */;
+/*!40000 ALTER TABLE `enforcementauthorities_accusableclasses` ENABLE KEYS */;
+
+--
+-- Definition of enforcementauthoritiesarrestableclasses
+--
+
+DROP TABLE IF EXISTS `enforcementauthoritiesarrestableclasses`;
+CREATE TABLE IF NOT EXISTS `enforcementauthoritiesarrestableclasses` (
+  `EnforcementAuthorityId` bigint NOT NULL,
+  `LegalClassId` bigint NOT NULL,
+  PRIMARY KEY (`EnforcementAuthorityId`,`LegalClassId`),
+  KEY `FK_EnforcementAuthoritiesArrestableLegalClasses_Enforce_idx` (`EnforcementAuthorityId`),
+  KEY `FK_EnforcementAuthoritiesArrestableLegalClasses_LegalClasses_idx` (`LegalClassId`),
+  CONSTRAINT `FK_EnforcementAuthoritiesArrestableLegalClasses_Enforce` FOREIGN KEY (`EnforcementAuthorityId`) REFERENCES `enforcementauthorities` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_EnforcementAuthoritiesArrestableLegalClasses_LegalClasses` FOREIGN KEY (`LegalClassId`) REFERENCES `legalclasses` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table enforcementauthoritiesarrestableclasses
+--
+
+/*!40000 ALTER TABLE `enforcementauthoritiesarrestableclasses` DISABLE KEYS */;
+/*!40000 ALTER TABLE `enforcementauthoritiesarrestableclasses` ENABLE KEYS */;
+
+--
+-- Definition of laws_offenderclasses
+--
+
+DROP TABLE IF EXISTS `laws_offenderclasses`;
+CREATE TABLE IF NOT EXISTS `laws_offenderclasses` (
+  `LawId` bigint NOT NULL,
+  `LegalClassId` bigint NOT NULL,
+  PRIMARY KEY (`LawId`,`LegalClassId`),
+  KEY `FK_Laws_OffenderClasses_LegalClasses_idx` (`LegalClassId`),
+  CONSTRAINT `FK_Laws_OffenderClasses_Laws` FOREIGN KEY (`LawId`) REFERENCES `laws` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Laws_OffenderClasses_LegalClasses` FOREIGN KEY (`LegalClassId`) REFERENCES `legalclasses` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table laws_offenderclasses
+--
+
+/*!40000 ALTER TABLE `laws_offenderclasses` DISABLE KEYS */;
+/*!40000 ALTER TABLE `laws_offenderclasses` ENABLE KEYS */;
+
+--
+-- Definition of laws_victimclasses
+--
+
+DROP TABLE IF EXISTS `laws_victimclasses`;
+CREATE TABLE IF NOT EXISTS `laws_victimclasses` (
+  `LawId` bigint NOT NULL,
+  `LegalClassId` bigint NOT NULL,
+  PRIMARY KEY (`LawId`,`LegalClassId`),
+  KEY `FK_Laws_VictimClasses_LegalClasses_idx` (`LegalClassId`),
+  CONSTRAINT `FK_Laws_VictimClasses_Laws` FOREIGN KEY (`LawId`) REFERENCES `laws` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Laws_VictimClasses_LegalClasses` FOREIGN KEY (`LegalClassId`) REFERENCES `legalclasses` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table laws_victimclasses
+--
+
+/*!40000 ALTER TABLE `laws_victimclasses` DISABLE KEYS */;
+/*!40000 ALTER TABLE `laws_victimclasses` ENABLE KEYS */;
+
+--
+-- Definition of magicportalendpoints
+--
+
+DROP TABLE IF EXISTS `magicportalendpoints`;
+CREATE TABLE IF NOT EXISTS `magicportalendpoints` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `MagicPortalNetworkId` bigint NOT NULL,
+  `Key` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `AnchorType` int NOT NULL,
+  `RoomId` bigint DEFAULT NULL,
+  `GameItemId` bigint DEFAULT NULL,
+  `IsActive` bit(1) NOT NULL DEFAULT b'1',
+  `CreatedByCharacterId` bigint DEFAULT NULL,
+  `CreatedBySpellId` bigint DEFAULT NULL,
+  `CreatedDateTime` datetime NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `IX_MagicPortalEndpoints_Network_Key` (`MagicPortalNetworkId`,`Key`),
+  KEY `FK_MagicPortalEndpoints_Rooms_idx` (`RoomId`),
+  KEY `FK_MagicPortalEndpoints_Characters_idx` (`CreatedByCharacterId`),
+  KEY `FK_MagicPortalEndpoints_GameItems_idx` (`GameItemId`),
+  KEY `FK_MagicPortalEndpoints_MagicSpells_idx` (`CreatedBySpellId`),
+  CONSTRAINT `FK_MagicPortalEndpoints_Characters` FOREIGN KEY (`CreatedByCharacterId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_MagicPortalEndpoints_GameItems` FOREIGN KEY (`GameItemId`) REFERENCES `gameitems` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_MagicPortalEndpoints_MagicPortalNetworks` FOREIGN KEY (`MagicPortalNetworkId`) REFERENCES `magicportalnetworks` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_MagicPortalEndpoints_MagicSpells` FOREIGN KEY (`CreatedBySpellId`) REFERENCES `magicspells` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_MagicPortalEndpoints_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table magicportalendpoints
+--
+
+/*!40000 ALTER TABLE `magicportalendpoints` DISABLE KEYS */;
+/*!40000 ALTER TABLE `magicportalendpoints` ENABLE KEYS */;
+
+--
+-- Definition of magicportallinks
+--
+
+DROP TABLE IF EXISTS `magicportallinks`;
+CREATE TABLE IF NOT EXISTS `magicportallinks` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `MagicPortalNetworkId` bigint NOT NULL,
+  `SourceEndpointId` bigint NOT NULL,
+  `DestinationEndpointId` bigint NOT NULL,
+  `IsActive` bit(1) NOT NULL DEFAULT b'1',
+  `CreatedByCharacterId` bigint DEFAULT NULL,
+  `CreatedBySpellId` bigint DEFAULT NULL,
+  `CreatedDateTime` datetime NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `IX_MagicPortalLinks_Network_Source_Destination` (`MagicPortalNetworkId`,`SourceEndpointId`,`DestinationEndpointId`),
+  KEY `FK_MagicPortalLinks_Characters_idx` (`CreatedByCharacterId`),
+  KEY `FK_MagicPortalLinks_DestinationEndpoints_idx` (`DestinationEndpointId`),
+  KEY `FK_MagicPortalLinks_MagicSpells_idx` (`CreatedBySpellId`),
+  KEY `FK_MagicPortalLinks_SourceEndpoints_idx` (`SourceEndpointId`),
+  CONSTRAINT `FK_MagicPortalLinks_Characters` FOREIGN KEY (`CreatedByCharacterId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_MagicPortalLinks_DestinationEndpoints` FOREIGN KEY (`DestinationEndpointId`) REFERENCES `magicportalendpoints` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_MagicPortalLinks_MagicPortalNetworks` FOREIGN KEY (`MagicPortalNetworkId`) REFERENCES `magicportalnetworks` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_MagicPortalLinks_MagicSpells` FOREIGN KEY (`CreatedBySpellId`) REFERENCES `magicspells` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_MagicPortalLinks_SourceEndpoints` FOREIGN KEY (`SourceEndpointId`) REFERENCES `magicportalendpoints` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table magicportallinks
+--
+
+/*!40000 ALTER TABLE `magicportallinks` DISABLE KEYS */;
+/*!40000 ALTER TABLE `magicportallinks` ENABLE KEYS */;
+
+--
+-- Definition of npcspawnerrooms
+--
+
+DROP TABLE IF EXISTS `npcspawnerrooms`;
+CREATE TABLE IF NOT EXISTS `npcspawnerrooms` (
+  `NPCSpawnerId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`NPCSpawnerId`,`RoomId`),
+  KEY `IX_NPCSpawnerRooms_RoomId` (`RoomId`),
+  CONSTRAINT `FK_NPCSpawnerRooms_NPCSpawner` FOREIGN KEY (`NPCSpawnerId`) REFERENCES `npcspawners` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_NPCSpawnerRooms_Room` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table npcspawnerrooms
+--
+
+/*!40000 ALTER TABLE `npcspawnerrooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `npcspawnerrooms` ENABLE KEYS */;
+
+--
+-- Definition of patrolroutes
+--
+
+DROP TABLE IF EXISTS `patrolroutes`;
+CREATE TABLE IF NOT EXISTS `patrolroutes` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `LegalAuthorityId` bigint NOT NULL,
+  `LingerTimeMajorNode` double NOT NULL,
+  `LingerTimeMinorNode` double NOT NULL,
+  `Priority` int NOT NULL,
+  `PatrolStrategy` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `StartPatrolProgId` bigint DEFAULT NULL,
+  `IsReady` bit(1) NOT NULL DEFAULT b'0',
+  `StrategyData` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  PRIMARY KEY (`Id`),
+  KEY `FK_PatrolRoutes_LegalAuthorities_idx` (`LegalAuthorityId`),
+  KEY `IX_PatrolRoutes_StartPatrolProgId` (`StartPatrolProgId`),
+  CONSTRAINT `FK_PatrolRoutes_FutureProgs_StartPatrolProgId` FOREIGN KEY (`StartPatrolProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_PatrolRoutes_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table patrolroutes
+--
+
+/*!40000 ALTER TABLE `patrolroutes` DISABLE KEYS */;
+/*!40000 ALTER TABLE `patrolroutes` ENABLE KEYS */;
+
+--
+-- Definition of patrolroutesnodes
+--
+
+DROP TABLE IF EXISTS `patrolroutesnodes`;
+CREATE TABLE IF NOT EXISTS `patrolroutesnodes` (
+  `PatrolRouteId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  `Order` int NOT NULL,
+  PRIMARY KEY (`PatrolRouteId`,`RoomId`),
+  KEY `FK_PatrolRoutesNodes_Rooms_idx` (`RoomId`),
+  KEY `FK_PatrolRoutesNodes_PatrolRoutes_idx` (`PatrolRouteId`),
+  CONSTRAINT `FK_PatrolRoutesNodes_PatrolRoutes` FOREIGN KEY (`PatrolRouteId`) REFERENCES `patrolroutes` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_PatrolRoutesNodes_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table patrolroutesnodes
+--
+
+/*!40000 ALTER TABLE `patrolroutesnodes` DISABLE KEYS */;
+/*!40000 ALTER TABLE `patrolroutesnodes` ENABLE KEYS */;
+
+--
+-- Definition of patrolroutesnumbers
+--
+
+DROP TABLE IF EXISTS `patrolroutesnumbers`;
+CREATE TABLE IF NOT EXISTS `patrolroutesnumbers` (
+  `PatrolRouteId` bigint NOT NULL,
+  `EnforcementAuthorityId` bigint NOT NULL,
+  `NumberRequired` int NOT NULL,
+  PRIMARY KEY (`PatrolRouteId`,`EnforcementAuthorityId`),
+  KEY `FK_PatrolRoutesNumbers_EnforcementAuthorities_idx` (`EnforcementAuthorityId`),
+  KEY `FK_PatrolRoutesNumbers_PatrolRoutes_idx` (`PatrolRouteId`),
+  CONSTRAINT `FK_PatrolRoutesNumbers_EnforcementAuthorities` FOREIGN KEY (`EnforcementAuthorityId`) REFERENCES `enforcementauthorities` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_PatrolRoutesNumbers_PatrolRoutes` FOREIGN KEY (`PatrolRouteId`) REFERENCES `patrolroutes` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table patrolroutesnumbers
+--
+
+/*!40000 ALTER TABLE `patrolroutesnumbers` DISABLE KEYS */;
+/*!40000 ALTER TABLE `patrolroutesnumbers` ENABLE KEYS */;
+
+--
+-- Definition of patrolroutestimesofday
+--
+
+DROP TABLE IF EXISTS `patrolroutestimesofday`;
+CREATE TABLE IF NOT EXISTS `patrolroutestimesofday` (
+  `PatrolRouteId` bigint NOT NULL,
+  `TimeOfDay` int NOT NULL,
+  PRIMARY KEY (`PatrolRouteId`,`TimeOfDay`),
+  KEY `FK_PatrolRoutesTimesOfDay_PatrolRoutes_idx` (`PatrolRouteId`),
+  CONSTRAINT `FK_PatrolRoutesTimesOfDay_PatrolRoutes` FOREIGN KEY (`PatrolRouteId`) REFERENCES `patrolroutes` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table patrolroutestimesofday
+--
+
+/*!40000 ALTER TABLE `patrolroutestimesofday` DISABLE KEYS */;
+/*!40000 ALTER TABLE `patrolroutestimesofday` ENABLE KEYS */;
+
+--
+-- Definition of patrols
+--
+
+DROP TABLE IF EXISTS `patrols`;
+CREATE TABLE IF NOT EXISTS `patrols` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `PatrolRouteId` bigint NOT NULL,
+  `LegalAuthorityId` bigint NOT NULL,
+  `PatrolPhase` int NOT NULL,
+  `LastMajorNodeId` bigint DEFAULT NULL,
+  `NextMajorNodeId` bigint DEFAULT NULL,
+  `PatrolLeaderId` bigint DEFAULT NULL,
+  `CharacterId` bigint DEFAULT NULL,
+  `PatrolLeaderInstanceId` bigint DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_Patrols_Characters_idx` (`PatrolLeaderId`),
+  KEY `FK_Patrols_LastMajorNode_idx` (`LastMajorNodeId`),
+  KEY `FK_Patrols_LegalAuthorities_idx` (`LegalAuthorityId`),
+  KEY `FK_Patrols_NextMajorNode_idx` (`NextMajorNodeId`),
+  KEY `FK_Patrols_PatrolRoutes_idx` (`PatrolRouteId`),
+  KEY `IX_Patrols_CharacterId` (`CharacterId`),
+  KEY `FK_Patrols_CharacterInstances_Leader_idx` (`PatrolLeaderInstanceId`),
+  CONSTRAINT `FK_Patrols_Characters` FOREIGN KEY (`PatrolLeaderId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_Patrols_Characters_CharacterId` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_Patrols_LastMajorNode` FOREIGN KEY (`LastMajorNodeId`) REFERENCES `rooms` (`Id`),
+  CONSTRAINT `FK_Patrols_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Patrols_NextMajorNode` FOREIGN KEY (`NextMajorNodeId`) REFERENCES `rooms` (`Id`),
+  CONSTRAINT `FK_Patrols_PatrolRoutes` FOREIGN KEY (`PatrolRouteId`) REFERENCES `patrolroutes` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table patrols
+--
+
+/*!40000 ALTER TABLE `patrols` DISABLE KEYS */;
+/*!40000 ALTER TABLE `patrols` ENABLE KEYS */;
+
+--
+-- Definition of patrolmembers
+--
+
+DROP TABLE IF EXISTS `patrolmembers`;
+CREATE TABLE IF NOT EXISTS `patrolmembers` (
+  `PatrolId` bigint NOT NULL,
+  `CharacterId` bigint NOT NULL,
+  `CharacterInstanceId` bigint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`PatrolId`,`CharacterId`),
+  KEY `IX_PatrolMembers_CharacterId` (`CharacterId`),
+  KEY `FK_PatrolMembers_CharacterInstances_idx` (`CharacterInstanceId`),
+  CONSTRAINT `FK_PatrolMembers_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_PatrolsMembers_Patrols` FOREIGN KEY (`PatrolId`) REFERENCES `patrols` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table patrolmembers
+--
+
+/*!40000 ALTER TABLE `patrolmembers` DISABLE KEYS */;
+/*!40000 ALTER TABLE `patrolmembers` ENABLE KEYS */;
+
+--
+-- Definition of probatelocations
+--
+
+DROP TABLE IF EXISTS `probatelocations`;
+CREATE TABLE IF NOT EXISTS `probatelocations` (
+  `EconomicZoneId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`EconomicZoneId`,`RoomId`),
+  KEY `IX_ProbateLocations_RoomId` (`RoomId`),
+  CONSTRAINT `FK_ProbateLocations_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_ProbateLocations_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table probatelocations
+--
+
+/*!40000 ALTER TABLE `probatelocations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `probatelocations` ENABLE KEYS */;
+
+--
+-- Definition of propertylocations
+--
+
+DROP TABLE IF EXISTS `propertylocations`;
+CREATE TABLE IF NOT EXISTS `propertylocations` (
+  `PropertyId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`PropertyId`,`RoomId`),
+  KEY `IX_PropertyLocations_RoomId` (`RoomId`),
+  CONSTRAINT `FK_PropertyLocations_Property` FOREIGN KEY (`PropertyId`) REFERENCES `properties` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_PropertyLocations_Room` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table propertylocations
+--
+
+/*!40000 ALTER TABLE `propertylocations` DISABLE KEYS */;
+/*!40000 ALTER TABLE `propertylocations` ENABLE KEYS */;
+
+--
+-- Definition of roomenvironmentalstates
+--
+
+DROP TABLE IF EXISTS `roomenvironmentalstates`;
+CREATE TABLE IF NOT EXISTS `roomenvironmentalstates` (
+  `RoomId` bigint NOT NULL,
+  `SchemaVersion` int NOT NULL DEFAULT '1',
+  `Revision` bigint NOT NULL DEFAULT '0',
+  `ScarDamage` double NOT NULL DEFAULT '0',
+  `LastDefileUtc` datetime(6) DEFAULT NULL,
+  `RecentPressure` double NOT NULL DEFAULT '0',
+  `PressureReferenceUtc` datetime(6) DEFAULT NULL,
+  `PressureHalfLifeSeconds` double NOT NULL DEFAULT '3600',
+  `PressureProfileId` bigint DEFAULT NULL,
+  `PressureDecayAnchor` double NOT NULL DEFAULT '0',
+  PRIMARY KEY (`RoomId`),
+  CONSTRAINT `FK_RoomEnvironmentalStates_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `CK_RoomEnvironmentalStates_Pressure` CHECK (((`RecentPressure` >= 0) and (`PressureHalfLifeSeconds` > 0))),
+  CONSTRAINT `CK_RoomEnvironmentalStates_ScarDamage` CHECK ((`ScarDamage` >= 0)),
+  CONSTRAINT `CK_RoomEnvironmentalStates_Versions` CHECK (((`SchemaVersion` >= 1) and (`Revision` >= 0)))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table roomenvironmentalstates
+--
+
+/*!40000 ALTER TABLE `roomenvironmentalstates` DISABLE KEYS */;
+/*!40000 ALTER TABLE `roomenvironmentalstates` ENABLE KEYS */;
+
+--
+-- Definition of rooms_foragableyields
+--
+
+DROP TABLE IF EXISTS `rooms_foragableyields`;
+CREATE TABLE IF NOT EXISTS `rooms_foragableyields` (
+  `RoomId` bigint NOT NULL,
+  `ForagableType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Yield` double NOT NULL,
+  PRIMARY KEY (`RoomId`,`ForagableType`),
+  CONSTRAINT `FK_Rooms_ForagableYields_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table rooms_foragableyields
+--
+
+/*!40000 ALTER TABLE `rooms_foragableyields` DISABLE KEYS */;
+/*!40000 ALTER TABLE `rooms_foragableyields` ENABLE KEYS */;
+
+--
+-- Definition of rooms_gameitems
+--
+
+DROP TABLE IF EXISTS `rooms_gameitems`;
+CREATE TABLE IF NOT EXISTS `rooms_gameitems` (
+  `RoomId` bigint NOT NULL,
+  `GameItemId` bigint NOT NULL,
+  PRIMARY KEY (`RoomId`,`GameItemId`),
+  KEY `FK_Rooms_GameItems_GameItems` (`GameItemId`),
+  CONSTRAINT `FK_Rooms_GameItems_GameItems` FOREIGN KEY (`GameItemId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Rooms_GameItems_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table rooms_gameitems
+--
+
+/*!40000 ALTER TABLE `rooms_gameitems` DISABLE KEYS */;
+/*!40000 ALTER TABLE `rooms_gameitems` ENABLE KEYS */;
+
+--
+-- Definition of rooms_magicresources
+--
+
+DROP TABLE IF EXISTS `rooms_magicresources`;
+CREATE TABLE IF NOT EXISTS `rooms_magicresources` (
+  `RoomId` bigint NOT NULL,
+  `MagicResourceId` bigint NOT NULL,
+  `Amount` double NOT NULL,
+  PRIMARY KEY (`RoomId`,`MagicResourceId`),
+  KEY `FK_Rooms_MagicResources_MagicResources_idx` (`MagicResourceId`),
+  CONSTRAINT `FK_Rooms_MagicResources_MagicResources` FOREIGN KEY (`MagicResourceId`) REFERENCES `magicresources` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Rooms_MagicResources_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table rooms_magicresources
+--
+
+/*!40000 ALTER TABLE `rooms_magicresources` DISABLE KEYS */;
+/*!40000 ALTER TABLE `rooms_magicresources` ENABLE KEYS */;
+
+--
+-- Definition of rooms_rangedcovers
+--
+
+DROP TABLE IF EXISTS `rooms_rangedcovers`;
+CREATE TABLE IF NOT EXISTS `rooms_rangedcovers` (
+  `RoomId` bigint NOT NULL,
+  `RangedCoverId` bigint NOT NULL,
+  PRIMARY KEY (`RoomId`,`RangedCoverId`),
+  KEY `FK_Rooms_RangedCovers_RangedCovers_idx` (`RangedCoverId`),
+  CONSTRAINT `FK_Rooms_RangedCovers_RangedCovers` FOREIGN KEY (`RangedCoverId`) REFERENCES `rangedcovers` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Rooms_RangedCovers_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table rooms_rangedcovers
+--
+
+/*!40000 ALTER TABLE `rooms_rangedcovers` DISABLE KEYS */;
+/*!40000 ALTER TABLE `rooms_rangedcovers` ENABLE KEYS */;
+
+--
+-- Definition of routerooms
+--
+
+DROP TABLE IF EXISTS `routerooms`;
+CREATE TABLE IF NOT EXISTS `routerooms` (
+  `RoomId` bigint NOT NULL,
+  `LengthMetres` decimal(18,3) NOT NULL,
+  `DefaultPositionMetres` decimal(18,3) NOT NULL,
+  `PositiveDirectionName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `NegativeDirectionName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `MetresPerRoomEquivalent` decimal(18,3) NOT NULL,
+  `TopologyVersion` bigint NOT NULL DEFAULT '1',
+  PRIMARY KEY (`RoomId`),
+  CONSTRAINT `FK_RouteRooms_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `CK_RouteRooms_DefaultPosition` CHECK (((`DefaultPositionMetres` >= 0) and (`DefaultPositionMetres` <= `LengthMetres`))),
+  CONSTRAINT `CK_RouteRooms_Length` CHECK ((`LengthMetres` > 0)),
+  CONSTRAINT `CK_RouteRooms_RoomEquivalent` CHECK ((`MetresPerRoomEquivalent` > 0)),
+  CONSTRAINT `CK_RouteRooms_TopologyVersion` CHECK ((`TopologyVersion` >= 1))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table routerooms
+--
+
+/*!40000 ALTER TABLE `routerooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `routerooms` ENABLE KEYS */;
+
+--
+-- Definition of activeroutemotions
+--
+
+DROP TABLE IF EXISTS `activeroutemotions`;
+CREATE TABLE IF NOT EXISTS `activeroutemotions` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `MoverType` int NOT NULL,
+  `MoverId` bigint NOT NULL,
+  `RouteRoomId` bigint NOT NULL,
+  `RoomLayer` int NOT NULL,
+  `CheckpointPositionMetres` decimal(18,3) NOT NULL,
+  `TargetMinimumPositionMetres` decimal(18,3) NOT NULL,
+  `TargetMaximumPositionMetres` decimal(18,3) NOT NULL,
+  `Direction` int NOT NULL,
+  `SpeedMetresPerSecond` decimal(18,6) NOT NULL,
+  `RemainingDurationMilliseconds` bigint NOT NULL,
+  `TopologyVersion` bigint NOT NULL,
+  `Status` int NOT NULL,
+  `OperationId` varchar(64) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `CheckpointSequence` bigint NOT NULL,
+  `SelectedExitId` bigint DEFAULT NULL,
+  `StateData` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
+  `CreatedDateTime` datetime(6) NOT NULL,
+  `LastCheckpointDateTime` datetime(6) NOT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_ActiveRouteMotions_Mover` (`MoverType`,`MoverId`),
+  UNIQUE KEY `UX_ActiveRouteMotions_Operation` (`OperationId`),
+  KEY `FK_ActiveRouteMotions_Exits_idx` (`SelectedExitId`),
+  KEY `IX_ActiveRouteMotions_RouteRoom_Layer_Status` (`RouteRoomId`,`RoomLayer`,`Status`),
+  CONSTRAINT `FK_ActiveRouteMotions_Exits` FOREIGN KEY (`SelectedExitId`) REFERENCES `exits` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_ActiveRouteMotions_RouteRooms` FOREIGN KEY (`RouteRoomId`) REFERENCES `routerooms` (`RoomId`) ON DELETE CASCADE,
+  CONSTRAINT `CK_ActiveRouteMotions_Checkpoint` CHECK ((`CheckpointPositionMetres` >= 0)),
+  CONSTRAINT `CK_ActiveRouteMotions_Direction` CHECK ((`Direction` in (-(1),1))),
+  CONSTRAINT `CK_ActiveRouteMotions_RemainingDuration` CHECK ((`RemainingDurationMilliseconds` >= 0)),
+  CONSTRAINT `CK_ActiveRouteMotions_Sequence` CHECK ((`CheckpointSequence` >= 0)),
+  CONSTRAINT `CK_ActiveRouteMotions_Speed` CHECK ((`SpeedMetresPerSecond` > 0)),
+  CONSTRAINT `CK_ActiveRouteMotions_TargetBand` CHECK (((`TargetMinimumPositionMetres` >= 0) and (`TargetMaximumPositionMetres` >= `TargetMinimumPositionMetres`))),
+  CONSTRAINT `CK_ActiveRouteMotions_TopologyVersion` CHECK ((`TopologyVersion` >= 1))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table activeroutemotions
+--
+
+/*!40000 ALTER TABLE `activeroutemotions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `activeroutemotions` ENABLE KEYS */;
+
+--
+-- Definition of routeexitanchors
+--
+
+DROP TABLE IF EXISTS `routeexitanchors`;
+CREATE TABLE IF NOT EXISTS `routeexitanchors` (
+  `ExitId` bigint NOT NULL,
+  `RouteRoomId` bigint NOT NULL,
+  `MinimumPositionMetres` decimal(18,3) NOT NULL,
+  `MaximumPositionMetres` decimal(18,3) NOT NULL,
+  `ArrivalPositionMetres` decimal(18,3) NOT NULL,
+  PRIMARY KEY (`ExitId`,`RouteRoomId`),
+  KEY `IX_RouteExitAnchors_RouteRoom_Band` (`RouteRoomId`,`MinimumPositionMetres`,`MaximumPositionMetres`),
+  CONSTRAINT `FK_RouteExitAnchors_Exits` FOREIGN KEY (`ExitId`) REFERENCES `exits` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_RouteExitAnchors_RouteRooms` FOREIGN KEY (`RouteRoomId`) REFERENCES `routerooms` (`RoomId`) ON DELETE CASCADE,
+  CONSTRAINT `CK_RouteExitAnchors_Arrival` CHECK (((`ArrivalPositionMetres` >= `MinimumPositionMetres`) and (`ArrivalPositionMetres` <= `MaximumPositionMetres`))),
+  CONSTRAINT `CK_RouteExitAnchors_Band` CHECK (((`MinimumPositionMetres` >= 0) and (`MaximumPositionMetres` >= `MinimumPositionMetres`)))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table routeexitanchors
+--
+
+/*!40000 ALTER TABLE `routeexitanchors` DISABLE KEYS */;
+/*!40000 ALTER TABLE `routeexitanchors` ENABLE KEYS */;
+
+--
+-- Definition of routemotionresourceledgers
+--
+
+DROP TABLE IF EXISTS `routemotionresourceledgers`;
+CREATE TABLE IF NOT EXISTS `routemotionresourceledgers` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `ActiveRouteMotionId` bigint NOT NULL,
+  `CheckpointSequence` bigint NOT NULL,
+  `IdempotencyKey` varchar(200) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
+  `ResourceOwnerType` int NOT NULL,
+  `ResourceOwnerId` bigint NOT NULL,
+  `ResourceType` int NOT NULL,
+  `ResourceReferenceId` bigint DEFAULT NULL,
+  `ResourceKey` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `ReservedAmount` decimal(18,6) NOT NULL,
+  `ConsumedAmount` decimal(18,6) NOT NULL,
+  `Status` int NOT NULL,
+  `CreatedDateTime` datetime(6) NOT NULL,
+  `CommittedDateTime` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `UX_RouteMotionResourceLedgers_Idempotency` (`IdempotencyKey`),
+  KEY `IX_RouteMotionResourceLedgers_Motion_Sequence` (`ActiveRouteMotionId`,`CheckpointSequence`),
+  CONSTRAINT `FK_RouteMotionResourceLedgers_ActiveRouteMotions` FOREIGN KEY (`ActiveRouteMotionId`) REFERENCES `activeroutemotions` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `CK_RouteMotionResourceLedgers_Amounts` CHECK (((`ReservedAmount` >= 0) and (`ConsumedAmount` >= 0) and (`ConsumedAmount` <= `ReservedAmount`))),
+  CONSTRAINT `CK_RouteMotionResourceLedgers_Sequence` CHECK ((`CheckpointSequence` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table routemotionresourceledgers
+--
+
+/*!40000 ALTER TABLE `routemotionresourceledgers` DISABLE KEYS */;
+/*!40000 ALTER TABLE `routemotionresourceledgers` ENABLE KEYS */;
+
+--
+-- Definition of routeroomlandmarks
+--
+
+DROP TABLE IF EXISTS `routeroomlandmarks`;
+CREATE TABLE IF NOT EXISTS `routeroomlandmarks` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RouteRoomId` bigint NOT NULL,
+  `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Keywords` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `PositionMetres` decimal(18,3) NOT NULL,
+  `DisplayOrder` int NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `IX_RouteRoomLandmarks_RouteRoom_Position` (`RouteRoomId`,`PositionMetres`),
+  CONSTRAINT `FK_RouteRoomLandmarks_RouteRooms` FOREIGN KEY (`RouteRoomId`) REFERENCES `routerooms` (`RoomId`) ON DELETE CASCADE,
+  CONSTRAINT `CK_RouteRoomLandmarks_Position` CHECK ((`PositionMetres` >= 0))
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table routeroomlandmarks
+--
+
+/*!40000 ALTER TABLE `routeroomlandmarks` DISABLE KEYS */;
+/*!40000 ALTER TABLE `routeroomlandmarks` ENABLE KEYS */;
+
+--
+-- Definition of shops
+--
+
+DROP TABLE IF EXISTS `shops`;
+CREATE TABLE IF NOT EXISTS `shops` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `WorkshopRoomId` bigint DEFAULT NULL,
+  `StockroomId` bigint DEFAULT NULL,
+  `CanShopProgId` bigint DEFAULT NULL,
+  `WhyCannotShopProgId` bigint DEFAULT NULL,
+  `CurrencyId` bigint NOT NULL,
+  `IsTrading` bit(1) NOT NULL,
+  `EconomicZoneId` bigint NOT NULL,
+  `EmployeeRecords` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `BankAccountId` bigint DEFAULT NULL,
+  `CashBalance` decimal(58,29) NOT NULL DEFAULT '0.00000000000000000000000000000',
+  `ShopType` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL DEFAULT 'Permanent',
+  `MinimumFloatToBuyItems` decimal(65,30) NOT NULL DEFAULT '0.000000000000000000000000000000',
+  `MarketId` bigint DEFAULT NULL,
+  `AutopayTaxes` bit(1) NOT NULL DEFAULT b'1',
+  `ExpectedCashBalance` decimal(65,30) NOT NULL DEFAULT '0.000000000000000000000000000000',
+  `HagglingConfiguration` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  PRIMARY KEY (`Id`),
+  KEY `FK_Shops_FutureProgs_Can_idx` (`CanShopProgId`),
+  KEY `FK_Shops_Currencies_idx` (`CurrencyId`),
+  KEY `FK_Shops_EconomicZonesa_idx` (`EconomicZoneId`),
+  KEY `FK_Shops_Rooms_Stockroom_idx` (`StockroomId`),
+  KEY `FK_Shops_FutureProgs_WhyCant_idx` (`WhyCannotShopProgId`),
+  KEY `FK_Shops_Rooms_Workshop_idx` (`WorkshopRoomId`),
+  KEY `IX_Shops_BankAccountId` (`BankAccountId`),
+  KEY `IX_Shops_MarketId` (`MarketId`),
+  CONSTRAINT `FK_Shops_BankAccounts` FOREIGN KEY (`BankAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Shops_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_Shops_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Shops_FutureProgs_Can` FOREIGN KEY (`CanShopProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Shops_FutureProgs_WhyCant` FOREIGN KEY (`WhyCannotShopProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Shops_Markets_MarketId` FOREIGN KEY (`MarketId`) REFERENCES `markets` (`Id`),
+  CONSTRAINT `FK_Shops_Rooms_Stockroom` FOREIGN KEY (`StockroomId`) REFERENCES `rooms` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Shops_Rooms_Workshop` FOREIGN KEY (`WorkshopRoomId`) REFERENCES `rooms` (`Id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table shops
+--
+
+/*!40000 ALTER TABLE `shops` DISABLE KEYS */;
+/*!40000 ALTER TABLE `shops` ENABLE KEYS */;
+
+--
+-- Definition of bankaccounts
+--
+
+DROP TABLE IF EXISTS `bankaccounts`;
+CREATE TABLE IF NOT EXISTS `bankaccounts` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `AccountNumber` int NOT NULL,
+  `BankId` bigint NOT NULL,
+  `BankAccountTypeId` bigint NOT NULL,
+  `CurrentBalance` decimal(58,29) NOT NULL,
+  `AccountOwnerCharacterId` bigint DEFAULT NULL,
+  `AccountOwnerClanId` bigint DEFAULT NULL,
+  `AccountOwnerShopId` bigint DEFAULT NULL,
+  `NominatedBenefactorAccountId` bigint DEFAULT NULL,
+  `AccountCreationDate` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `AccountStatus` int NOT NULL,
+  `CurrentMonthInterest` decimal(58,29) NOT NULL,
+  `CurrentMonthFees` decimal(58,29) NOT NULL,
+  `AuthorisedBankPaymentItems` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `AccountOwnerFrameworkItemId` bigint DEFAULT NULL,
+  `AccountOwnerFrameworkItemType` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `IX_BankAccounts_AccountOwnerCharacterId` (`AccountOwnerCharacterId`),
+  KEY `IX_BankAccounts_AccountOwnerClanId` (`AccountOwnerClanId`),
+  KEY `IX_BankAccounts_AccountOwnerShopId` (`AccountOwnerShopId`),
+  KEY `IX_BankAccounts_BankAccountTypeId` (`BankAccountTypeId`),
+  KEY `IX_BankAccounts_BankId` (`BankId`),
+  KEY `IX_BankAccounts_NominatedBenefactorAccountId` (`NominatedBenefactorAccountId`),
+  CONSTRAINT `FK_BankAccounts_BankAccounts` FOREIGN KEY (`NominatedBenefactorAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_BankAccounts_BankAccountTypes` FOREIGN KEY (`BankAccountTypeId`) REFERENCES `bankaccounttypes` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_BankAccounts_Banks` FOREIGN KEY (`BankId`) REFERENCES `banks` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_BankAccounts_Characters` FOREIGN KEY (`AccountOwnerCharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_BankAccounts_Clans` FOREIGN KEY (`AccountOwnerClanId`) REFERENCES `clans` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_BankAccounts_Shops` FOREIGN KEY (`AccountOwnerShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table bankaccounts
+--
+
+/*!40000 ALTER TABLE `bankaccounts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bankaccounts` ENABLE KEYS */;
+
+--
+-- Definition of bankaccounttransactions
+--
+
+DROP TABLE IF EXISTS `bankaccounttransactions`;
+CREATE TABLE IF NOT EXISTS `bankaccounttransactions` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `BankAccountId` bigint NOT NULL,
+  `TransactionType` int NOT NULL,
+  `Amount` decimal(58,29) NOT NULL,
+  `TransactionTime` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `TransactionDescription` varchar(255) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `AccountBalanceAfter` decimal(58,29) NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `IX_BankAccountTransactions_BankAccountId` (`BankAccountId`),
+  CONSTRAINT `FK_BankAccountTransactions_BankAccounts` FOREIGN KEY (`BankAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table bankaccounttransactions
+--
+
+/*!40000 ALTER TABLE `bankaccounttransactions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `bankaccounttransactions` ENABLE KEYS */;
+
+--
+-- Definition of economiczoneshoptaxes
+--
+
+DROP TABLE IF EXISTS `economiczoneshoptaxes`;
+CREATE TABLE IF NOT EXISTS `economiczoneshoptaxes` (
+  `EconomicZoneId` bigint NOT NULL,
+  `ShopId` bigint NOT NULL,
+  `OutstandingProfitTaxes` decimal(58,29) NOT NULL,
+  `OutstandingSalesTaxes` decimal(58,29) NOT NULL,
+  `TaxesInCredits` decimal(58,29) NOT NULL,
+  PRIMARY KEY (`EconomicZoneId`,`ShopId`),
+  KEY `FK_EconomicZoneShopTaxes_Shops_idx` (`ShopId`),
+  CONSTRAINT `FK_EconomicZoneShopTaxes_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_EconomicZoneShopTaxes_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table economiczoneshoptaxes
+--
+
+/*!40000 ALTER TABLE `economiczoneshoptaxes` DISABLE KEYS */;
+/*!40000 ALTER TABLE `economiczoneshoptaxes` ENABLE KEYS */;
+
+--
+-- Definition of lineofcreditaccounts
+--
+
+DROP TABLE IF EXISTS `lineofcreditaccounts`;
+CREATE TABLE IF NOT EXISTS `lineofcreditaccounts` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `AccountName` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
+  `ShopId` bigint NOT NULL,
+  `IsSuspended` bit(1) NOT NULL,
+  `AccountLimit` decimal(58,29) NOT NULL,
+  `OutstandingBalance` decimal(58,29) NOT NULL,
+  `AccountOwnerId` bigint NOT NULL,
+  `AccountOwnerName` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  PRIMARY KEY (`Id`),
+  KEY `FK_LineOfCreditAccounts_Characters_idx` (`AccountOwnerId`),
+  KEY `FK_LineOfCreditAccounts_Shops_idx` (`ShopId`),
+  CONSTRAINT `FK_LineOfCreditAccounts_Characters` FOREIGN KEY (`AccountOwnerId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_LineOfCreditAccounts_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table lineofcreditaccounts
+--
+
+/*!40000 ALTER TABLE `lineofcreditaccounts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lineofcreditaccounts` ENABLE KEYS */;
+
+--
+-- Definition of lineofcreditaccountusers
+--
+
+DROP TABLE IF EXISTS `lineofcreditaccountusers`;
+CREATE TABLE IF NOT EXISTS `lineofcreditaccountusers` (
+  `LineOfCreditAccountId` bigint NOT NULL,
+  `AccountUserId` bigint NOT NULL,
+  `AccountUserName` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `SpendingLimit` decimal(58,29) DEFAULT NULL,
+  PRIMARY KEY (`LineOfCreditAccountId`,`AccountUserId`),
+  KEY `FK_LineOfCreditAccountUsers_Characters_idx` (`AccountUserId`),
+  KEY `FK_LineOfCreditAccountUsers_LineOfCreditAccounts_idx` (`LineOfCreditAccountId`),
+  CONSTRAINT `FK_LineOfCreditAccountUsers_Characters` FOREIGN KEY (`AccountUserId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_LineOfCreditAccountUsers_LineOfCreditAccounts` FOREIGN KEY (`LineOfCreditAccountId`) REFERENCES `lineofcreditaccounts` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table lineofcreditaccountusers
+--
+
+/*!40000 ALTER TABLE `lineofcreditaccountusers` DISABLE KEYS */;
+/*!40000 ALTER TABLE `lineofcreditaccountusers` ENABLE KEYS */;
+
+--
+-- Definition of merchandises
+--
+
+DROP TABLE IF EXISTS `merchandises`;
+CREATE TABLE IF NOT EXISTS `merchandises` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(1000) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `ShopId` bigint NOT NULL,
+  `AutoReordering` bit(1) NOT NULL,
+  `AutoReorderPrice` decimal(58,29) NOT NULL,
+  `BasePrice` decimal(58,29) NOT NULL,
+  `DefaultMerchandiseForItem` bit(1) NOT NULL,
+  `ItemProtoId` bigint NOT NULL,
+  `PreferredDisplayContainerId` bigint DEFAULT NULL,
+  `ListDescription` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `MinimumStockLevels` int NOT NULL,
+  `MinimumStockLevelsByWeight` double NOT NULL,
+  `PreserveVariablesOnReorder` bit(1) NOT NULL,
+  `SkinId` bigint DEFAULT NULL,
+  `BaseBuyModifier` decimal(58,29) NOT NULL DEFAULT '0.30000000000000000000000000000',
+  `MaximumStockLevelsToBuy` int NOT NULL DEFAULT '0',
+  `MinimumConditionToBuy` double NOT NULL DEFAULT '0.95',
+  `WillBuy` bit(1) NOT NULL DEFAULT b'0',
+  `WillSell` bit(1) NOT NULL DEFAULT b'1',
+  `IgnoreMarketPricing` tinyint(1) NOT NULL DEFAULT '0',
+  `PermitItemDecayOnStockedItems` tinyint(1) NOT NULL DEFAULT '0',
+  `SalesMarkupMultiplier` decimal(65,30) DEFAULT NULL,
+  `CommodityCharacteristics` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `CommodityMaterialId` bigint DEFAULT NULL,
+  `CommodityPricingWeight` double NOT NULL DEFAULT '1',
+  `CommodityTagId` bigint DEFAULT NULL,
+  `MerchandiseType` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`Id`),
+  KEY `FK_Merchandises_GameItems_idx` (`PreferredDisplayContainerId`),
+  KEY `FK_Merchandises_Shops_idx` (`ShopId`),
+  CONSTRAINT `FK_Merchandises_GameItems` FOREIGN KEY (`PreferredDisplayContainerId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Merchandises_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table merchandises
+--
+
+/*!40000 ALTER TABLE `merchandises` DISABLE KEYS */;
+/*!40000 ALTER TABLE `merchandises` ENABLE KEYS */;
+
+--
+-- Definition of restaurants
+--
+
+DROP TABLE IF EXISTS `restaurants`;
+CREATE TABLE IF NOT EXISTS `restaurants` (
+  `ShopId` bigint NOT NULL,
+  `AutomatedService` bit(1) NOT NULL DEFAULT b'0',
+  `SimulateCrafting` bit(1) NOT NULL DEFAULT b'0',
+  `HandlingSeconds` int NOT NULL DEFAULT '15',
+  `MaximumBatchWaitSeconds` int NOT NULL DEFAULT '90',
+  `ChefOpenEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ open|opens $0 for service.',
+  `ChefPlateEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ plate|plates $0 on $1.',
+  `ChefReadyEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ finish|finishes preparing $0 for service.',
+  `ChefStartEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ begin|begins preparing $0.',
+  `CleanupIntervalSeconds` int NOT NULL DEFAULT '120',
+  `ServerClearEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ clear|clears $0 from $1.',
+  `ServerReturnEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ put|puts $0 aside in the kitchen.',
+  `ServerServeEmote` varchar(1000) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL DEFAULT '@ place|places $0 before $1 on $2.',
+  `TakeawayBagPrototypeId` bigint DEFAULT NULL,
+  `TakeawayBagPrototypeRevisionNumber` int DEFAULT NULL,
+  PRIMARY KEY (`ShopId`),
+  CONSTRAINT `FK_Restaurants_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurants
+--
+
+/*!40000 ALTER TABLE `restaurants` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurants` ENABLE KEYS */;
+
+--
+-- Definition of restaurantmenuitems
+--
+
+DROP TABLE IF EXISTS `restaurantmenuitems`;
+CREATE TABLE IF NOT EXISTS `restaurantmenuitems` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RestaurantShopId` bigint NOT NULL,
+  `MerchandiseId` bigint NOT NULL,
+  `Description` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `FulfilmentMode` int NOT NULL,
+  `IsActive` bit(1) NOT NULL DEFAULT b'1',
+  `DineInAvailable` bit(1) NOT NULL DEFAULT b'1',
+  `TakeawayAvailable` bit(1) NOT NULL DEFAULT b'1',
+  `PreparationSeconds` int NOT NULL,
+  `CraftId` bigint DEFAULT NULL,
+  `CraftRevisionNumber` int DEFAULT NULL,
+  `ServingContainerPrototypeId` bigint DEFAULT NULL,
+  `ServingContainerPrototypeRevisionNumber` int DEFAULT NULL,
+  `TakeawayContainerPrototypeId` bigint DEFAULT NULL,
+  `TakeawayContainerPrototypeRevisionNumber` int DEFAULT NULL,
+  `SortOrder` int NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_RestaurantMenuItems_Merchandises_idx` (`MerchandiseId`),
+  KEY `FK_RestaurantMenuItems_Restaurants_idx` (`RestaurantShopId`),
+  KEY `IX_RestaurantMenuItems_Restaurant_Sort` (`RestaurantShopId`,`SortOrder`),
+  CONSTRAINT `FK_RestaurantMenuItems_Merchandises` FOREIGN KEY (`MerchandiseId`) REFERENCES `merchandises` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_RestaurantMenuItems_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurantmenuitems
+--
+
+/*!40000 ALTER TABLE `restaurantmenuitems` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurantmenuitems` ENABLE KEYS */;
+
+--
+-- Definition of restaurantrooms
+--
+
+DROP TABLE IF EXISTS `restaurantrooms`;
+CREATE TABLE IF NOT EXISTS `restaurantrooms` (
+  `RestaurantShopId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  `Role` int NOT NULL,
+  PRIMARY KEY (`RestaurantShopId`,`RoomId`,`Role`),
+  KEY `IX_RestaurantRooms_Room` (`RoomId`),
+  KEY `IX_RestaurantRooms_Restaurant_Role` (`RestaurantShopId`,`Role`),
+  CONSTRAINT `FK_RestaurantRooms_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurantrooms
+--
+
+/*!40000 ALTER TABLE `restaurantrooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurantrooms` ENABLE KEYS */;
+
+--
+-- Definition of restaurantstoragecontainers
+--
+
+DROP TABLE IF EXISTS `restaurantstoragecontainers`;
+CREATE TABLE IF NOT EXISTS `restaurantstoragecontainers` (
+  `RestaurantShopId` bigint NOT NULL,
+  `GameItemId` bigint NOT NULL,
+  `Roles` int NOT NULL,
+  PRIMARY KEY (`RestaurantShopId`,`GameItemId`),
+  KEY `IX_RestaurantStorageContainers_GameItem` (`GameItemId`),
+  CONSTRAINT `FK_RestaurantStorageContainers_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurantstoragecontainers
+--
+
+/*!40000 ALTER TABLE `restaurantstoragecontainers` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurantstoragecontainers` ENABLE KEYS */;
+
+--
+-- Definition of restauranttables
+--
+
+DROP TABLE IF EXISTS `restauranttables`;
+CREATE TABLE IF NOT EXISTS `restauranttables` (
+  `RestaurantShopId` bigint NOT NULL,
+  `GameItemId` bigint NOT NULL,
+  PRIMARY KEY (`RestaurantShopId`,`GameItemId`),
+  KEY `IX_RestaurantTables_GameItem` (`GameItemId`),
+  CONSTRAINT `FK_RestaurantTables_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restauranttables
+--
+
+/*!40000 ALTER TABLE `restauranttables` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restauranttables` ENABLE KEYS */;
+
+--
+-- Definition of restauranttablesessions
+--
+
+DROP TABLE IF EXISTS `restauranttablesessions`;
+CREATE TABLE IF NOT EXISTS `restauranttablesessions` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RestaurantShopId` bigint NOT NULL,
+  `TableGameItemId` bigint NOT NULL,
+  `Status` int NOT NULL,
+  `CreatedAtUtc` datetime(6) NOT NULL,
+  `LastUpdatedAtUtc` datetime(6) NOT NULL,
+  `ClosedAtUtc` datetime(6) DEFAULT NULL,
+  `AbandonmentPendingAtUtc` datetime(6) DEFAULT NULL,
+  `AbandonmentReported` bit(1) NOT NULL DEFAULT b'0',
+  PRIMARY KEY (`Id`),
+  KEY `FK_RestaurantTableSessions_Restaurants_idx` (`RestaurantShopId`),
+  KEY `IX_RestaurantTableSessions_Table_Status` (`RestaurantShopId`,`TableGameItemId`,`Status`),
+  CONSTRAINT `FK_RestaurantTableSessions_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restauranttablesessions
+--
+
+/*!40000 ALTER TABLE `restauranttablesessions` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restauranttablesessions` ENABLE KEYS */;
+
+--
+-- Definition of restaurantorders
+--
+
+DROP TABLE IF EXISTS `restaurantorders`;
+CREATE TABLE IF NOT EXISTS `restaurantorders` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RestaurantShopId` bigint NOT NULL,
+  `RestaurantTableSessionId` bigint DEFAULT NULL,
+  `RestaurantMenuItemId` bigint NOT NULL,
+  `OrderType` int NOT NULL,
+  `Status` int NOT NULL,
+  `OrdererCharacterId` bigint NOT NULL,
+  `OrdererCharacterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `RecipientCharacterId` bigint NOT NULL,
+  `RecipientCharacterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Quantity` int NOT NULL,
+  `PretaxPrice` decimal(58,29) NOT NULL,
+  `Tax` decimal(58,29) NOT NULL,
+  `Price` decimal(58,29) NOT NULL,
+  `AmountPaid` decimal(58,29) NOT NULL,
+  `RevenueRecognised` bit(1) NOT NULL DEFAULT b'0',
+  `CreatedAtUtc` datetime(6) NOT NULL,
+  `LastUpdatedAtUtc` datetime(6) NOT NULL,
+  `ExpectedReadyAtUtc` datetime(6) DEFAULT NULL,
+  `ReadyAtUtc` datetime(6) DEFAULT NULL,
+  `ServedAtUtc` datetime(6) DEFAULT NULL,
+  `PreparedByEmployeeId` bigint DEFAULT NULL,
+  `ServedByEmployeeId` bigint DEFAULT NULL,
+  `OperationalNotes` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_RestaurantOrders_MenuItems_idx` (`RestaurantMenuItemId`),
+  KEY `FK_RestaurantOrders_Restaurants_idx` (`RestaurantShopId`),
+  KEY `FK_RestaurantOrders_Sessions_idx` (`RestaurantTableSessionId`),
+  KEY `IX_RestaurantOrders_Restaurant_Status` (`RestaurantShopId`,`Status`),
+  KEY `IX_RestaurantOrders_Session_Debtor` (`RestaurantTableSessionId`,`OrdererCharacterId`),
+  CONSTRAINT `FK_RestaurantOrders_MenuItems` FOREIGN KEY (`RestaurantMenuItemId`) REFERENCES `restaurantmenuitems` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_RestaurantOrders_Restaurants` FOREIGN KEY (`RestaurantShopId`) REFERENCES `restaurants` (`ShopId`) ON DELETE CASCADE,
+  CONSTRAINT `FK_RestaurantOrders_Sessions` FOREIGN KEY (`RestaurantTableSessionId`) REFERENCES `restauranttablesessions` (`Id`) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurantorders
+--
+
+/*!40000 ALTER TABLE `restaurantorders` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurantorders` ENABLE KEYS */;
+
+--
+-- Definition of restaurantorderitems
+--
+
+DROP TABLE IF EXISTS `restaurantorderitems`;
+CREATE TABLE IF NOT EXISTS `restaurantorderitems` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RestaurantOrderId` bigint NOT NULL,
+  `GameItemId` bigint DEFAULT NULL,
+  `Role` int NOT NULL,
+  `Delivered` bit(1) NOT NULL DEFAULT b'0',
+  `CreatedAtUtc` datetime(6) NOT NULL,
+  `DeliveredAtUtc` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_RestaurantOrderItems_Orders_idx` (`RestaurantOrderId`),
+  KEY `IX_RestaurantOrderItems_GameItem` (`GameItemId`),
+  CONSTRAINT `FK_RestaurantOrderItems_Orders` FOREIGN KEY (`RestaurantOrderId`) REFERENCES `restaurantorders` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurantorderitems
+--
+
+/*!40000 ALTER TABLE `restaurantorderitems` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurantorderitems` ENABLE KEYS */;
+
+--
+-- Definition of restaurantpayments
+--
+
+DROP TABLE IF EXISTS `restaurantpayments`;
+CREATE TABLE IF NOT EXISTS `restaurantpayments` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RestaurantOrderId` bigint NOT NULL,
+  `PayerCharacterId` bigint NOT NULL,
+  `PayerCharacterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Amount` decimal(58,29) NOT NULL,
+  `IsRefund` bit(1) NOT NULL DEFAULT b'0',
+  `PaymentMethod` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Reference` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `PaidAtUtc` datetime(6) NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_RestaurantPayments_Orders_idx` (`RestaurantOrderId`),
+  CONSTRAINT `FK_RestaurantPayments_Orders` FOREIGN KEY (`RestaurantOrderId`) REFERENCES `restaurantorders` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restaurantpayments
+--
+
+/*!40000 ALTER TABLE `restaurantpayments` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurantpayments` ENABLE KEYS */;
+
+--
+-- Definition of restauranttableparticipants
+--
+
+DROP TABLE IF EXISTS `restauranttableparticipants`;
+CREATE TABLE IF NOT EXISTS `restauranttableparticipants` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `RestaurantTableSessionId` bigint NOT NULL,
+  `CharacterId` bigint NOT NULL,
+  `CharacterName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Accepted` bit(1) NOT NULL,
+  `JoinedAtUtc` datetime(6) NOT NULL,
+  `LeftAtUtc` datetime(6) DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  UNIQUE KEY `IX_RestaurantTableParticipants_Session_Character` (`RestaurantTableSessionId`,`CharacterId`),
+  KEY `FK_RestaurantTableParticipants_Sessions_idx` (`RestaurantTableSessionId`),
+  CONSTRAINT `FK_RestaurantTableParticipants_Sessions` FOREIGN KEY (`RestaurantTableSessionId`) REFERENCES `restauranttablesessions` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table restauranttableparticipants
+--
+
+/*!40000 ALTER TABLE `restauranttableparticipants` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restauranttableparticipants` ENABLE KEYS */;
+
+--
+-- Definition of shopfinancialperiodresults
+--
+
+DROP TABLE IF EXISTS `shopfinancialperiodresults`;
+CREATE TABLE IF NOT EXISTS `shopfinancialperiodresults` (
+  `EconomicZoneId` bigint NOT NULL,
+  `ShopId` bigint NOT NULL,
+  `FinancialPeriodId` bigint NOT NULL,
+  `GrossRevenue` decimal(58,29) NOT NULL,
+  `NetRevenue` decimal(58,29) NOT NULL,
+  `SalesTax` decimal(58,29) NOT NULL,
+  `ProfitsTax` decimal(58,29) NOT NULL,
+  PRIMARY KEY (`EconomicZoneId`,`ShopId`,`FinancialPeriodId`),
+  KEY `FK_ShopFinancialPeriodResults_FinancialPeriods_idx` (`FinancialPeriodId`),
+  KEY `FK_ShopFinancialPeriodResults_Shops_idx` (`ShopId`),
+  CONSTRAINT `FK_ShopFinancialPeriodResults_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_ShopFinancialPeriodResults_FinancialPeriods` FOREIGN KEY (`FinancialPeriodId`) REFERENCES `financialperiods` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_ShopFinancialPeriodResults_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table shopfinancialperiodresults
+--
+
+/*!40000 ALTER TABLE `shopfinancialperiodresults` DISABLE KEYS */;
+/*!40000 ALTER TABLE `shopfinancialperiodresults` ENABLE KEYS */;
+
+--
+-- Definition of shops_storeroomrooms
+--
+
+DROP TABLE IF EXISTS `shops_storeroomrooms`;
+CREATE TABLE IF NOT EXISTS `shops_storeroomrooms` (
+  `ShopId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  PRIMARY KEY (`ShopId`,`RoomId`),
+  KEY `FK_Shops_StoreroomRooms_Rooms_idx` (`RoomId`),
+  CONSTRAINT `FK_Shops_StoreroomRooms_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Shops_StoreroomRooms_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table shops_storeroomrooms
+--
+
+/*!40000 ALTER TABLE `shops_storeroomrooms` DISABLE KEYS */;
+/*!40000 ALTER TABLE `shops_storeroomrooms` ENABLE KEYS */;
+
+--
+-- Definition of shopstills
+--
+
+DROP TABLE IF EXISTS `shopstills`;
+CREATE TABLE IF NOT EXISTS `shopstills` (
+  `ShopId` bigint NOT NULL,
+  `GameItemId` bigint NOT NULL,
+  PRIMARY KEY (`ShopId`,`GameItemId`),
+  KEY `FK_ShopTills_GameItems_idx` (`GameItemId`),
+  CONSTRAINT `FK_ShopTills_GameItems` FOREIGN KEY (`GameItemId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_ShopTills_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table shopstills
+--
+
+/*!40000 ALTER TABLE `shopstills` DISABLE KEYS */;
+/*!40000 ALTER TABLE `shopstills` ENABLE KEYS */;
+
+--
+-- Definition of shoptransactionrecords
+--
+
+DROP TABLE IF EXISTS `shoptransactionrecords`;
+CREATE TABLE IF NOT EXISTS `shoptransactionrecords` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `CurrencyId` bigint NOT NULL,
+  `PretaxValue` decimal(58,29) NOT NULL,
+  `Tax` decimal(58,29) NOT NULL,
+  `TransactionType` int NOT NULL,
+  `ShopId` bigint NOT NULL,
+  `ThirdPartyId` bigint DEFAULT NULL,
+  `RealDateTime` datetime NOT NULL,
+  `MudDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `MerchandiseId` bigint DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_ShopTransactionRecords_Currencies_idx` (`CurrencyId`),
+  KEY `FK_ShopTransactionRecords_Shops_idx` (`ShopId`),
+  KEY `IX_ShopTransactionRecords_MerchandiseId` (`MerchandiseId`),
+  CONSTRAINT `FK_ShopTransactionRecords_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_ShopTransactionRecords_Merchandises` FOREIGN KEY (`MerchandiseId`) REFERENCES `merchandises` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_ShopTransactionRecords_Shops` FOREIGN KEY (`ShopId`) REFERENCES `shops` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table shoptransactionrecords
+--
+
+/*!40000 ALTER TABLE `shoptransactionrecords` DISABLE KEYS */;
+/*!40000 ALTER TABLE `shoptransactionrecords` ENABLE KEYS */;
+
+--
+-- Definition of stables
+--
+
+DROP TABLE IF EXISTS `stables`;
+CREATE TABLE IF NOT EXISTS `stables` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `EconomicZoneId` bigint NOT NULL,
+  `RoomId` bigint NOT NULL,
+  `BankAccountId` bigint DEFAULT NULL,
+  `IsTrading` bit(1) NOT NULL DEFAULT b'1',
+  `LodgeFee` decimal(58,29) NOT NULL,
+  `DailyFee` decimal(58,29) NOT NULL,
+  `LodgeFeeProgId` bigint DEFAULT NULL,
+  `DailyFeeProgId` bigint DEFAULT NULL,
+  `CanStableProgId` bigint DEFAULT NULL,
+  `WhyCannotStableProgId` bigint DEFAULT NULL,
+  `EmployeeRecords` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_Stables_BankAccounts_idx` (`BankAccountId`),
+  KEY `FK_Stables_Rooms_idx` (`RoomId`),
+  KEY `FK_Stables_EconomicZones_idx` (`EconomicZoneId`),
+  KEY `FK_Stables_FutureProgs_Can_idx` (`CanStableProgId`),
+  KEY `FK_Stables_FutureProgs_Daily_idx` (`DailyFeeProgId`),
+  KEY `FK_Stables_FutureProgs_Lodge_idx` (`LodgeFeeProgId`),
+  KEY `FK_Stables_FutureProgs_Why_idx` (`WhyCannotStableProgId`),
+  CONSTRAINT `FK_Stables_BankAccounts` FOREIGN KEY (`BankAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Stables_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Stables_FutureProgs_Can` FOREIGN KEY (`CanStableProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Stables_FutureProgs_Daily` FOREIGN KEY (`DailyFeeProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Stables_FutureProgs_Lodge` FOREIGN KEY (`LodgeFeeProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Stables_FutureProgs_Why` FOREIGN KEY (`WhyCannotStableProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_Stables_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table stables
+--
+
+/*!40000 ALTER TABLE `stables` DISABLE KEYS */;
+/*!40000 ALTER TABLE `stables` ENABLE KEYS */;
+
+--
+-- Definition of stableaccounts
+--
+
+DROP TABLE IF EXISTS `stableaccounts`;
+CREATE TABLE IF NOT EXISTS `stableaccounts` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `StableId` bigint NOT NULL,
+  `AccountName` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `AccountOwnerId` bigint NOT NULL,
+  `AccountOwnerName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `Balance` decimal(58,29) NOT NULL,
+  `CreditLimit` decimal(58,29) NOT NULL,
+  `IsSuspended` bit(1) NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_StableAccounts_Characters_idx` (`AccountOwnerId`),
+  KEY `FK_StableAccounts_Stables_idx` (`StableId`),
+  CONSTRAINT `FK_StableAccounts_Characters` FOREIGN KEY (`AccountOwnerId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_StableAccounts_Stables` FOREIGN KEY (`StableId`) REFERENCES `stables` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table stableaccounts
+--
+
+/*!40000 ALTER TABLE `stableaccounts` DISABLE KEYS */;
+/*!40000 ALTER TABLE `stableaccounts` ENABLE KEYS */;
+
+--
+-- Definition of stableaccountusers
+--
+
+DROP TABLE IF EXISTS `stableaccountusers`;
+CREATE TABLE IF NOT EXISTS `stableaccountusers` (
+  `StableAccountId` bigint NOT NULL,
+  `AccountUserId` bigint NOT NULL,
+  `AccountUserName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `SpendingLimit` decimal(58,29) DEFAULT NULL,
+  PRIMARY KEY (`StableAccountId`,`AccountUserId`),
+  KEY `FK_StableAccountUsers_Characters_idx` (`AccountUserId`),
+  CONSTRAINT `FK_StableAccountUsers_Characters` FOREIGN KEY (`AccountUserId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_StableAccountUsers_StableAccounts` FOREIGN KEY (`StableAccountId`) REFERENCES `stableaccounts` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table stableaccountusers
+--
+
+/*!40000 ALTER TABLE `stableaccountusers` DISABLE KEYS */;
+/*!40000 ALTER TABLE `stableaccountusers` ENABLE KEYS */;
+
+--
+-- Definition of stablestays
+--
+
+DROP TABLE IF EXISTS `stablestays`;
+CREATE TABLE IF NOT EXISTS `stablestays` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `StableId` bigint NOT NULL,
+  `MountId` bigint NOT NULL,
+  `OriginalOwnerId` bigint NOT NULL,
+  `OriginalOwnerName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `LodgedDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `LastDailyFeeDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `ClosedDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci DEFAULT NULL,
+  `Status` int NOT NULL,
+  `TicketItemId` bigint DEFAULT NULL,
+  `TicketToken` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `AmountOwing` decimal(58,29) NOT NULL,
+  `MountInstanceId` bigint DEFAULT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_StableStays_Characters_Mount_idx` (`MountId`),
+  KEY `FK_StableStays_Characters_Owner_idx` (`OriginalOwnerId`),
+  KEY `FK_StableStays_GameItems_Ticket_idx` (`TicketItemId`),
+  KEY `FK_StableStays_Stables_idx` (`StableId`),
+  KEY `FK_StableStays_CharacterInstances_Mount_idx` (`MountInstanceId`),
+  CONSTRAINT `FK_StableStays_Characters_Mount` FOREIGN KEY (`MountId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_StableStays_Characters_Owner` FOREIGN KEY (`OriginalOwnerId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_StableStays_GameItems_Ticket` FOREIGN KEY (`TicketItemId`) REFERENCES `gameitems` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_StableStays_Stables` FOREIGN KEY (`StableId`) REFERENCES `stables` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table stablestays
+--
+
+/*!40000 ALTER TABLE `stablestays` DISABLE KEYS */;
+/*!40000 ALTER TABLE `stablestays` ENABLE KEYS */;
+
+--
+-- Definition of stablestayledgerentries
+--
+
+DROP TABLE IF EXISTS `stablestayledgerentries`;
+CREATE TABLE IF NOT EXISTS `stablestayledgerentries` (
+  `Id` bigint NOT NULL AUTO_INCREMENT,
+  `StableStayId` bigint NOT NULL,
+  `EntryType` int NOT NULL,
+  `MudDateTime` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  `ActorId` bigint DEFAULT NULL,
+  `ActorName` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
+  `Amount` decimal(58,29) NOT NULL,
+  `Note` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
+  PRIMARY KEY (`Id`),
+  KEY `FK_StableStayLedgerEntries_Characters_idx` (`ActorId`),
+  KEY `FK_StableStayLedgerEntries_StableStays_idx` (`StableStayId`),
+  CONSTRAINT `FK_StableStayLedgerEntries_Characters` FOREIGN KEY (`ActorId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_StableStayLedgerEntries_StableStays` FOREIGN KEY (`StableStayId`) REFERENCES `stablestays` (`Id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+--
+-- Dumping data for table stablestayledgerentries
+--
+
+/*!40000 ALTER TABLE `stablestayledgerentries` DISABLE KEYS */;
+/*!40000 ALTER TABLE `stablestayledgerentries` ENABLE KEYS */;
 
 --
 -- Definition of terrains_rangedcovers
@@ -14550,7 +15509,7 @@ CREATE TABLE IF NOT EXISTS `terrains_rangedcovers` (
   KEY `FK_Terrains_RangedCovers_RangedCovers_idx` (`RangedCoverId`),
   CONSTRAINT `FK_Terrains_RangedCovers_RangedCovers` FOREIGN KEY (`RangedCoverId`) REFERENCES `rangedcovers` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Terrains_RangedCovers_Terrains` FOREIGN KEY (`TerrainId`) REFERENCES `terrains` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table terrains_rangedcovers
@@ -14607,7 +15566,7 @@ CREATE TABLE IF NOT EXISTS `weeklystatistics` (
   `PlayerDeaths` int NOT NULL,
   `NonPlayerDeaths` int NOT NULL,
   PRIMARY KEY (`Id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table weeklystatistics
@@ -14639,7 +15598,7 @@ CREATE TABLE IF NOT EXISTS `witnessprofiles` (
   KEY `FK_WitnessProfiles_MultiplierProg_idx` (`ReportingMultiplierProgId`),
   CONSTRAINT `FK_WitnessProfiles_IdentityProg` FOREIGN KEY (`IdentityKnownProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_WitnessProfiles_MultiplierProg` FOREIGN KEY (`ReportingMultiplierProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table witnessprofiles
@@ -14660,7 +15619,7 @@ CREATE TABLE IF NOT EXISTS `witnessprofiles_cooperatingauthorities` (
   KEY `FK_WitnessProfiles_CooperatingAuthorities_LegalAuthorities_idx` (`LegalAuthorityId`),
   CONSTRAINT `FK_WitnessProfiles_CooperatingAuthorities_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_WitnessProfiles_CooperatingAuthorities_WitnessProfiles` FOREIGN KEY (`WitnessProfileId`) REFERENCES `witnessprofiles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table witnessprofiles_cooperatingauthorities
@@ -14681,7 +15640,7 @@ CREATE TABLE IF NOT EXISTS `witnessprofiles_ignoredcriminalclasses` (
   KEY `FK_WitnessProfiles_IgnoredCriminalClasses_LegalClasses_idx` (`LegalClassId`),
   CONSTRAINT `FK_WitnessProfiles_IgnoredCriminalClasses_LegalClasses` FOREIGN KEY (`LegalClassId`) REFERENCES `legalclasses` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_WitnessProfiles_IgnoredCriminalClasses_WitnessProfiles` FOREIGN KEY (`WitnessProfileId`) REFERENCES `witnessprofiles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table witnessprofiles_ignoredcriminalclasses
@@ -14702,7 +15661,7 @@ CREATE TABLE IF NOT EXISTS `witnessprofiles_ignoredvictimclasses` (
   KEY `FK_WitnessProfiles_IgnoredVictimClasses_LegalClasses_idx` (`LegalClassId`),
   CONSTRAINT `FK_WitnessProfiles_IgnoredVictimClasses_LegalClasses` FOREIGN KEY (`LegalClassId`) REFERENCES `legalclasses` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_WitnessProfiles_IgnoredVictimClasses_WitnessProfiles` FOREIGN KEY (`WitnessProfileId`) REFERENCES `witnessprofiles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table witnessprofiles_ignoredvictimclasses
@@ -14751,7 +15710,7 @@ CREATE TABLE IF NOT EXISTS `wounds` (
   CONSTRAINT `FK_Wounds_GameItems_Tool` FOREIGN KEY (`ToolOriginId`) REFERENCES `gameitems` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Wounds_VehicleDamageZones` FOREIGN KEY (`VehicleDamageZoneId`) REFERENCES `vehicledamagezones` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Wounds_Vehicles` FOREIGN KEY (`VehicleId`) REFERENCES `vehicles` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table wounds
@@ -14782,7 +15741,7 @@ CREATE TABLE IF NOT EXISTS `infections` (
   CONSTRAINT `FK_Infections_Bodies` FOREIGN KEY (`OwnerId`) REFERENCES `bodies` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Infections_Bodyparts` FOREIGN KEY (`BodypartId`) REFERENCES `bodypartproto` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Infections_Wounds` FOREIGN KEY (`WoundId`) REFERENCES `wounds` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table infections
@@ -14841,7 +15800,7 @@ CREATE TABLE IF NOT EXISTS `writings` (
   CONSTRAINT `FK_Writings_Characters_TrueAuthor` FOREIGN KEY (`TrueAuthorId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
   CONSTRAINT `FK_Writings_Languages` FOREIGN KEY (`LanguageId`) REFERENCES `languages` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Writings_Scripts` FOREIGN KEY (`ScriptId`) REFERENCES `scripts` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table writings
@@ -14891,18 +15850,18 @@ CREATE TABLE IF NOT EXISTS `zones` (
   `Latitude` double NOT NULL,
   `Longitude` double NOT NULL,
   `Elevation` double NOT NULL,
-  `DefaultCellId` bigint DEFAULT NULL,
+  `DefaultRoomId` bigint DEFAULT NULL,
   `AmbientLightPollution` double NOT NULL,
   `ForagableProfileId` bigint DEFAULT NULL,
   `WeatherControllerId` bigint DEFAULT NULL,
   PRIMARY KEY (`Id`),
-  KEY `FK_Zones_Cells` (`DefaultCellId`),
+  KEY `FK_Zones_Rooms` (`DefaultRoomId`),
   KEY `FK_Zones_Shards` (`ShardId`),
   KEY `FK_Zones_WeatherControllers_idx` (`WeatherControllerId`),
-  CONSTRAINT `FK_Zones_Cells` FOREIGN KEY (`DefaultCellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
+  CONSTRAINT `FK_Zones_Rooms` FOREIGN KEY (`DefaultRoomId`) REFERENCES `rooms` (`Id`),
   CONSTRAINT `FK_Zones_Shards` FOREIGN KEY (`ShardId`) REFERENCES `shards` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Zones_WeatherControllers` FOREIGN KEY (`WeatherControllerId`) REFERENCES `weathercontrollers` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table zones
@@ -14910,203 +15869,6 @@ CREATE TABLE IF NOT EXISTS `zones` (
 
 /*!40000 ALTER TABLE `zones` DISABLE KEYS */;
 /*!40000 ALTER TABLE `zones` ENABLE KEYS */;
-
---
--- Definition of cells
---
-
-DROP TABLE IF EXISTS `cells`;
-CREATE TABLE IF NOT EXISTS `cells` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `CurrentOverlayId` bigint DEFAULT NULL,
-  `ForagableProfileId` bigint DEFAULT NULL,
-  `Temporary` bit(1) NOT NULL DEFAULT b'0',
-  `EffectData` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `SurfaceLiquidData` mediumtext CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci,
-  `HostedVehicleCompartmentId` bigint DEFAULT NULL,
-  `HostedVehicleId` bigint DEFAULT NULL,
-  `EnvironmentalMagicBindingMode` int NOT NULL DEFAULT '0',
-  `EnvironmentalMagicProfileId` bigint DEFAULT NULL,
-  `UniqueName` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `X` int NOT NULL DEFAULT '0',
-  `Y` int NOT NULL DEFAULT '0',
-  `Z` int NOT NULL DEFAULT '0',
-  `ZoneId` bigint NOT NULL DEFAULT '0',
-  PRIMARY KEY (`Id`),
-  UNIQUE KEY `UX_Cells_HostedVehicleCompartments` (`HostedVehicleCompartmentId`),
-  KEY `FK_Cells_CellOverlays` (`CurrentOverlayId`),
-  KEY `FK_Cells_HostedVehicles_idx` (`HostedVehicleId`),
-  KEY `IX_Cells_EnvironmentalMagicProfileId` (`EnvironmentalMagicProfileId`),
-  KEY `IX_Cells_UniqueName` (`UniqueName`),
-  KEY `IX_Cells_ZoneId` (`ZoneId`),
-  CONSTRAINT `FK_Cells_CellOverlays` FOREIGN KEY (`CurrentOverlayId`) REFERENCES `celloverlays` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Cells_HostedVehicleCompartments` FOREIGN KEY (`HostedVehicleCompartmentId`) REFERENCES `vehiclecompartments` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_Cells_HostedVehicles` FOREIGN KEY (`HostedVehicleId`) REFERENCES `vehicles` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_Cells_OwningZone` FOREIGN KEY (`ZoneId`) REFERENCES `zones` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `CK_Cells_HostedVehicleOwnership` CHECK ((((`HostedVehicleId` is null) and (`HostedVehicleCompartmentId` is null)) or ((`HostedVehicleId` is not null) and (`HostedVehicleCompartmentId` is not null))))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table cells
---
-
-/*!40000 ALTER TABLE `cells` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cells` ENABLE KEYS */;
-
---
--- Definition of areas_cells
---
-
-DROP TABLE IF EXISTS `areas_cells`;
-CREATE TABLE IF NOT EXISTS `areas_cells` (
-  `AreaId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`AreaId`,`CellId`),
-  KEY `IX_Areas_Cells_CellId` (`CellId`),
-  CONSTRAINT `FK_Areas_Cells_Areas` FOREIGN KEY (`AreaId`) REFERENCES `areas` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Areas_Cells_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table areas_cells
---
-
-/*!40000 ALTER TABLE `areas_cells` DISABLE KEYS */;
-/*!40000 ALTER TABLE `areas_cells` ENABLE KEYS */;
-
---
--- Definition of arenacells
---
-
-DROP TABLE IF EXISTS `arenacells`;
-CREATE TABLE IF NOT EXISTS `arenacells` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `ArenaId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  `Role` int NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_ArenaCells_Arenas` (`ArenaId`),
-  KEY `FK_ArenaCells_Cells` (`CellId`),
-  CONSTRAINT `FK_ArenaCells_Arenas` FOREIGN KEY (`ArenaId`) REFERENCES `arenas` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_ArenaCells_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table arenacells
---
-
-/*!40000 ALTER TABLE `arenacells` DISABLE KEYS */;
-/*!40000 ALTER TABLE `arenacells` ENABLE KEYS */;
-
---
--- Definition of bankbranches
---
-
-DROP TABLE IF EXISTS `bankbranches`;
-CREATE TABLE IF NOT EXISTS `bankbranches` (
-  `BankId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`BankId`,`CellId`),
-  KEY `IX_BankBranches_CellId` (`CellId`),
-  CONSTRAINT `FK_BankBranches_Banks` FOREIGN KEY (`BankId`) REFERENCES `banks` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_BankBranches_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table bankbranches
---
-
-/*!40000 ALTER TABLE `bankbranches` DISABLE KEYS */;
-/*!40000 ALTER TABLE `bankbranches` ENABLE KEYS */;
-
---
--- Definition of cellenvironmentalstates
---
-
-DROP TABLE IF EXISTS `cellenvironmentalstates`;
-CREATE TABLE IF NOT EXISTS `cellenvironmentalstates` (
-  `CellId` bigint NOT NULL,
-  `SchemaVersion` int NOT NULL DEFAULT '1',
-  `Revision` bigint NOT NULL DEFAULT '0',
-  `ScarDamage` double NOT NULL DEFAULT '0',
-  `LastDefileUtc` datetime(6) DEFAULT NULL,
-  `RecentPressure` double NOT NULL DEFAULT '0',
-  `PressureReferenceUtc` datetime(6) DEFAULT NULL,
-  `PressureHalfLifeSeconds` double NOT NULL DEFAULT '3600',
-  `PressureProfileId` bigint DEFAULT NULL,
-  `PressureDecayAnchor` double NOT NULL DEFAULT '0',
-  PRIMARY KEY (`CellId`),
-  CONSTRAINT `FK_CellEnvironmentalStates_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `CK_CellEnvironmentalStates_Pressure` CHECK (((`RecentPressure` >= 0) and (`PressureHalfLifeSeconds` > 0))),
-  CONSTRAINT `CK_CellEnvironmentalStates_ScarDamage` CHECK ((`ScarDamage` >= 0)),
-  CONSTRAINT `CK_CellEnvironmentalStates_Versions` CHECK (((`SchemaVersion` >= 1) and (`Revision` >= 0)))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table cellenvironmentalstates
---
-
-/*!40000 ALTER TABLE `cellenvironmentalstates` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cellenvironmentalstates` ENABLE KEYS */;
-
---
--- Definition of cells_foragableyields
---
-
-DROP TABLE IF EXISTS `cells_foragableyields`;
-CREATE TABLE IF NOT EXISTS `cells_foragableyields` (
-  `CellId` bigint NOT NULL,
-  `ForagableType` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Yield` double NOT NULL,
-  PRIMARY KEY (`CellId`,`ForagableType`),
-  CONSTRAINT `FK_Cells_ForagableYields_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table cells_foragableyields
---
-
-/*!40000 ALTER TABLE `cells_foragableyields` DISABLE KEYS */;
-/*!40000 ALTER TABLE `cells_foragableyields` ENABLE KEYS */;
-
---
--- Definition of corpserecoveryreports
---
-
-DROP TABLE IF EXISTS `corpserecoveryreports`;
-CREATE TABLE IF NOT EXISTS `corpserecoveryreports` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `LegalAuthorityId` bigint NOT NULL,
-  `EconomicZoneId` bigint NOT NULL,
-  `CorpseId` bigint NOT NULL,
-  `SourceCellId` bigint NOT NULL,
-  `DestinationCellId` bigint NOT NULL,
-  `ReporterId` bigint DEFAULT NULL,
-  `AssignedPatrolId` bigint DEFAULT NULL,
-  `Status` int NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `IX_CorpseRecoveryReports_AssignedPatrolId` (`AssignedPatrolId`),
-  KEY `IX_CorpseRecoveryReports_CorpseId` (`CorpseId`),
-  KEY `IX_CorpseRecoveryReports_DestinationCellId` (`DestinationCellId`),
-  KEY `IX_CorpseRecoveryReports_EconomicZoneId` (`EconomicZoneId`),
-  KEY `IX_CorpseRecoveryReports_LegalAuthorityId` (`LegalAuthorityId`),
-  KEY `IX_CorpseRecoveryReports_ReporterId` (`ReporterId`),
-  KEY `IX_CorpseRecoveryReports_SourceCellId` (`SourceCellId`),
-  CONSTRAINT `FK_CorpseRecoveryReports_Characters` FOREIGN KEY (`ReporterId`) REFERENCES `characters` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_CorpseRecoveryReports_DestinationCells` FOREIGN KEY (`DestinationCellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_CorpseRecoveryReports_EconomicZones` FOREIGN KEY (`EconomicZoneId`) REFERENCES `economiczones` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_CorpseRecoveryReports_GameItems` FOREIGN KEY (`CorpseId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_CorpseRecoveryReports_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_CorpseRecoveryReports_Patrols` FOREIGN KEY (`AssignedPatrolId`) REFERENCES `patrols` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_CorpseRecoveryReports_SourceCells` FOREIGN KEY (`SourceCellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table corpserecoveryreports
---
-
-/*!40000 ALTER TABLE `corpserecoveryreports` DISABLE KEYS */;
-/*!40000 ALTER TABLE `corpserecoveryreports` ENABLE KEYS */;
 
 --
 -- Definition of hooks_perceivables
@@ -15119,25 +15881,25 @@ CREATE TABLE IF NOT EXISTS `hooks_perceivables` (
   `BodyId` bigint DEFAULT NULL,
   `CharacterId` bigint DEFAULT NULL,
   `GameItemId` bigint DEFAULT NULL,
-  `CellId` bigint DEFAULT NULL,
+  `RoomId` bigint DEFAULT NULL,
   `ZoneId` bigint DEFAULT NULL,
   `ShardId` bigint DEFAULT NULL,
   PRIMARY KEY (`Id`),
   KEY `FK_Hooks_Perceivables_Bodies_idx` (`BodyId`),
-  KEY `FK_Hooks_Perceivables_Cells_idx` (`CellId`),
+  KEY `FK_Hooks_Perceivables_Rooms_idx` (`RoomId`),
   KEY `FK_Hooks_Perceivables_Characters_idx` (`CharacterId`),
   KEY `FK_Hooks_Perceivables_GameItems_idx` (`GameItemId`),
   KEY `FK_Hooks_Perceivables_Hooks_idx` (`HookId`),
   KEY `FK_Hooks_Perceivables_Shards_idx` (`ShardId`),
   KEY `FK_Hooks_Perceivables_Zones_idx` (`ZoneId`),
   CONSTRAINT `FK_Hooks_Perceivables_Bodies` FOREIGN KEY (`BodyId`) REFERENCES `bodies` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Hooks_Perceivables_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Hooks_Perceivables_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Hooks_Perceivables_GameItems` FOREIGN KEY (`GameItemId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Hooks_Perceivables_Hooks` FOREIGN KEY (`HookId`) REFERENCES `hooks` (`Id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_Hooks_Perceivables_Rooms` FOREIGN KEY (`RoomId`) REFERENCES `rooms` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Hooks_Perceivables_Shards` FOREIGN KEY (`ShardId`) REFERENCES `shards` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_Hooks_Perceivables_Zones` FOREIGN KEY (`ZoneId`) REFERENCES `zones` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table hooks_perceivables
@@ -15145,152 +15907,6 @@ CREATE TABLE IF NOT EXISTS `hooks_perceivables` (
 
 /*!40000 ALTER TABLE `hooks_perceivables` DISABLE KEYS */;
 /*!40000 ALTER TABLE `hooks_perceivables` ENABLE KEYS */;
-
---
--- Definition of legalauthorities
---
-
-DROP TABLE IF EXISTS `legalauthorities`;
-CREATE TABLE IF NOT EXISTS `legalauthorities` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `CurrencyId` bigint NOT NULL,
-  `EnforcerStowingLocationId` bigint DEFAULT NULL,
-  `MarshallingLocationId` bigint DEFAULT NULL,
-  `PlayersKnowTheirCrimes` bit(1) NOT NULL DEFAULT b'0',
-  `PreparingLocationId` bigint DEFAULT NULL,
-  `PrisonLocationId` bigint DEFAULT NULL,
-  `OnImprisonProgId` bigint DEFAULT NULL,
-  `OnReleaseProgId` bigint DEFAULT NULL,
-  `PrisonBelongingsLocationId` bigint DEFAULT NULL,
-  `PrisonReleaseLocationId` bigint DEFAULT NULL,
-  `AutomaticConvictionTime` double NOT NULL DEFAULT '0',
-  `AutomaticallyConvict` tinyint(1) NOT NULL DEFAULT '0',
-  `BailCalculationProgId` bigint DEFAULT NULL,
-  `BankAccountId` bigint DEFAULT NULL,
-  `CourtLocationId` bigint DEFAULT NULL,
-  `GuardianDiscordChannel` decimal(20,0) DEFAULT NULL,
-  `JailLocationId` bigint DEFAULT NULL,
-  `OnHoldProgId` bigint DEFAULT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_LegalAuthorities_Currencies_idx` (`CurrencyId`),
-  KEY `FK_LegalAuthorities_MarshallingCells_idx` (`MarshallingLocationId`),
-  KEY `FK_LegalAuthorities_PreparingCells_idx` (`PreparingLocationId`),
-  KEY `FK_LegalAuthorities_PrisonCells_idx` (`PrisonLocationId`),
-  KEY `FK_LegalAuthorities_StowingCells_idx` (`EnforcerStowingLocationId`),
-  KEY `FK_LegalAuthorities_FutureprogsImprison_idx` (`OnImprisonProgId`),
-  KEY `FK_LegalAuthorities_FutureprogsRelease_idx` (`OnReleaseProgId`),
-  KEY `FK_LegalAuthorities_PrisonBelongingsCells_idx` (`PrisonBelongingsLocationId`),
-  KEY `FK_LegalAuthorities_PrisonReleaseCells_idx` (`PrisonReleaseLocationId`),
-  KEY `IX_LegalAuthorities_BailCalculationProgId` (`BailCalculationProgId`),
-  KEY `IX_LegalAuthorities_BankAccountId` (`BankAccountId`),
-  KEY `IX_LegalAuthorities_CourtLocationId` (`CourtLocationId`),
-  KEY `IX_LegalAuthorities_JailLocationId` (`JailLocationId`),
-  KEY `IX_LegalAuthorities_OnHoldProgId` (`OnHoldProgId`),
-  CONSTRAINT `FK_LegalAuthorities_BankAccounts_BankAccountId` FOREIGN KEY (`BankAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_LegalAuthorities_CourtroomCell` FOREIGN KEY (`CourtLocationId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_LegalAuthorities_Currencies` FOREIGN KEY (`CurrencyId`) REFERENCES `currencies` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_LegalAuthorities_FutureprogsBailCalc` FOREIGN KEY (`BailCalculationProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_LegalAuthorities_FutureprogsHold` FOREIGN KEY (`OnHoldProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_LegalAuthorities_FutureprogsImprison` FOREIGN KEY (`OnImprisonProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_LegalAuthorities_FutureprogsRelease` FOREIGN KEY (`OnReleaseProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_LegalAuthorities_MarshallingCells` FOREIGN KEY (`MarshallingLocationId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_LegalAuthorities_PreparingCells` FOREIGN KEY (`PreparingLocationId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_LegalAuthorities_PrisonBelongingsCells` FOREIGN KEY (`PrisonBelongingsLocationId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_LegalAuthorities_PrisonCells` FOREIGN KEY (`PrisonLocationId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_LegalAuthorities_PrisonJailCells` FOREIGN KEY (`JailLocationId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_LegalAuthorities_PrisonReleaseCells` FOREIGN KEY (`PrisonReleaseLocationId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_LegalAuthorities_StowingCells` FOREIGN KEY (`EnforcerStowingLocationId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table legalauthorities
---
-
-/*!40000 ALTER TABLE `legalauthorities` DISABLE KEYS */;
-/*!40000 ALTER TABLE `legalauthorities` ENABLE KEYS */;
-
---
--- Definition of enforcementauthorities
---
-
-DROP TABLE IF EXISTS `enforcementauthorities`;
-CREATE TABLE IF NOT EXISTS `enforcementauthorities` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `LegalAuthorityId` bigint NOT NULL,
-  `Priority` int NOT NULL,
-  `CanAccuse` bit(1) NOT NULL,
-  `CanForgive` bit(1) NOT NULL,
-  `CanConvict` bit(1) NOT NULL,
-  `FilterProgId` bigint DEFAULT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_EnforcementAuthorities_LegalAuthorities_idx` (`LegalAuthorityId`),
-  KEY `FK_EnforcementAuthorities_FutureProgs_idx` (`FilterProgId`),
-  CONSTRAINT `FK_EnforcementAuthorities_FutureProgs` FOREIGN KEY (`FilterProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_EnforcementAuthorities_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table enforcementauthorities
---
-
-/*!40000 ALTER TABLE `enforcementauthorities` DISABLE KEYS */;
-/*!40000 ALTER TABLE `enforcementauthorities` ENABLE KEYS */;
-
---
--- Definition of enforcementauthorities_parentauthorities
---
-
-DROP TABLE IF EXISTS `enforcementauthorities_parentauthorities`;
-CREATE TABLE IF NOT EXISTS `enforcementauthorities_parentauthorities` (
-  `ParentId` bigint NOT NULL,
-  `ChildId` bigint NOT NULL,
-  PRIMARY KEY (`ParentId`,`ChildId`),
-  KEY `FK_EnforcementAuthorities_ParentAuthorities_Child_idx` (`ChildId`),
-  CONSTRAINT `FK_EnforcementAuthorities_ParentAuthorities_Child` FOREIGN KEY (`ChildId`) REFERENCES `enforcementauthorities` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_EnforcementAuthorities_ParentAuthorities_Parent` FOREIGN KEY (`ParentId`) REFERENCES `enforcementauthorities` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table enforcementauthorities_parentauthorities
---
-
-/*!40000 ALTER TABLE `enforcementauthorities_parentauthorities` DISABLE KEYS */;
-/*!40000 ALTER TABLE `enforcementauthorities_parentauthorities` ENABLE KEYS */;
-
---
--- Definition of laws
---
-
-DROP TABLE IF EXISTS `laws`;
-CREATE TABLE IF NOT EXISTS `laws` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `LegalAuthorityId` bigint NOT NULL,
-  `CrimeType` int NOT NULL,
-  `ActivePeriod` double NOT NULL,
-  `EnforcementStrategy` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `LawAppliesProgId` bigint DEFAULT NULL,
-  `EnforcementPriority` int NOT NULL,
-  `CanBeAppliedAutomatically` bit(1) NOT NULL,
-  `CanBeArrested` bit(1) NOT NULL,
-  `CanBeOfferedBail` bit(1) NOT NULL,
-  `DoNotAutomaticallyApplyRepeats` bit(1) NOT NULL DEFAULT b'0',
-  `PunishmentStrategy` text CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_Laws_FutureProgs_idx` (`LawAppliesProgId`),
-  KEY `FK_Laws_LegalAuthority_idx` (`LegalAuthorityId`),
-  CONSTRAINT `FK_Laws_FutureProgs` FOREIGN KEY (`LawAppliesProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_Laws_LegalAuthority` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table laws
---
-
-/*!40000 ALTER TABLE `laws` DISABLE KEYS */;
-/*!40000 ALTER TABLE `laws` ENABLE KEYS */;
 
 --
 -- Definition of legalauthorities_zones
@@ -15304,7 +15920,7 @@ CREATE TABLE IF NOT EXISTS `legalauthorities_zones` (
   KEY `FK_LegalAuthorities_Zones_LegalAuthorities_idx` (`LegalAuthorityId`),
   CONSTRAINT `FK_LegalAuthorities_Zones_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_LegalAuthorities_Zones_Zones` FOREIGN KEY (`ZoneId`) REFERENCES `zones` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table legalauthorities_zones
@@ -15312,184 +15928,6 @@ CREATE TABLE IF NOT EXISTS `legalauthorities_zones` (
 
 /*!40000 ALTER TABLE `legalauthorities_zones` DISABLE KEYS */;
 /*!40000 ALTER TABLE `legalauthorities_zones` ENABLE KEYS */;
-
---
--- Definition of legalauthoritiycells
---
-
-DROP TABLE IF EXISTS `legalauthoritiycells`;
-CREATE TABLE IF NOT EXISTS `legalauthoritiycells` (
-  `LegalAuthorityId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`LegalAuthorityId`,`CellId`),
-  KEY `FK_LegalAuthoritiesCells_Cells_idx` (`CellId`),
-  KEY `FK_LegalAuthoritiesCells_LegalAuthorities_idx` (`LegalAuthorityId`),
-  CONSTRAINT `FK_LegalAuthoritiesCells_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_LegalAuthoritiesCells_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table legalauthoritiycells
---
-
-/*!40000 ALTER TABLE `legalauthoritiycells` DISABLE KEYS */;
-/*!40000 ALTER TABLE `legalauthoritiycells` ENABLE KEYS */;
-
---
--- Definition of legalauthorityfines
---
-
-DROP TABLE IF EXISTS `legalauthorityfines`;
-CREATE TABLE IF NOT EXISTS `legalauthorityfines` (
-  `LegalAuthorityId` bigint NOT NULL,
-  `CharacterId` bigint NOT NULL,
-  `FinesOwned` decimal(58,29) NOT NULL,
-  `PaymentRequiredBy` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  PRIMARY KEY (`LegalAuthorityId`,`CharacterId`),
-  KEY `IX_LegalAuthorityFines_CharacterId` (`CharacterId`),
-  CONSTRAINT `FK_LegalAuthorityFines_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_LegalAuthorityFines_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table legalauthorityfines
---
-
-/*!40000 ALTER TABLE `legalauthorityfines` DISABLE KEYS */;
-/*!40000 ALTER TABLE `legalauthorityfines` ENABLE KEYS */;
-
---
--- Definition of legalauthorityjailcells
---
-
-DROP TABLE IF EXISTS `legalauthorityjailcells`;
-CREATE TABLE IF NOT EXISTS `legalauthorityjailcells` (
-  `LegalAuthorityId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`LegalAuthorityId`,`CellId`),
-  KEY `FK_LegalAuthoritiesCells_Cells_Jail_idx` (`CellId`),
-  KEY `FK_LegalAuthoritiesCells_LegalAuthorities_Jail_idx` (`LegalAuthorityId`),
-  CONSTRAINT `FK_LegalAuthoritiesCells_Cells_Jail` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_LegalAuthoritiesCells_LegalAuthorities_Jail` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table legalauthorityjailcells
---
-
-/*!40000 ALTER TABLE `legalauthorityjailcells` DISABLE KEYS */;
-/*!40000 ALTER TABLE `legalauthorityjailcells` ENABLE KEYS */;
-
---
--- Definition of legalclasses
---
-
-DROP TABLE IF EXISTS `legalclasses`;
-CREATE TABLE IF NOT EXISTS `legalclasses` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(250) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `LegalAuthorityId` bigint NOT NULL,
-  `LegalClassPriority` int NOT NULL,
-  `MembershipProgId` bigint NOT NULL,
-  `CanBeDetainedUntilFinesPaid` bit(1) NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_LegalClasses_LegalAuthorities_idx` (`LegalAuthorityId`),
-  KEY `FK_LegalClasses_FutureProgs_idx` (`MembershipProgId`),
-  CONSTRAINT `FK_LegalClasses_FutureProgs` FOREIGN KEY (`MembershipProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_LegalClasses_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table legalclasses
---
-
-/*!40000 ALTER TABLE `legalclasses` DISABLE KEYS */;
-/*!40000 ALTER TABLE `legalclasses` ENABLE KEYS */;
-
---
--- Definition of enforcementauthorities_accusableclasses
---
-
-DROP TABLE IF EXISTS `enforcementauthorities_accusableclasses`;
-CREATE TABLE IF NOT EXISTS `enforcementauthorities_accusableclasses` (
-  `EnforcementAuthorityId` bigint NOT NULL,
-  `LegalClassId` bigint NOT NULL,
-  PRIMARY KEY (`EnforcementAuthorityId`,`LegalClassId`),
-  KEY `FK_EnforcementAuthorities_AccusableClasses_LegalClasses_idx` (`LegalClassId`),
-  CONSTRAINT `FK_EnforcementAuthorities_AccusableClasses_Enforce` FOREIGN KEY (`EnforcementAuthorityId`) REFERENCES `enforcementauthorities` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_EnforcementAuthorities_AccusableClasses_LegalClasses` FOREIGN KEY (`LegalClassId`) REFERENCES `legalclasses` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table enforcementauthorities_accusableclasses
---
-
-/*!40000 ALTER TABLE `enforcementauthorities_accusableclasses` DISABLE KEYS */;
-/*!40000 ALTER TABLE `enforcementauthorities_accusableclasses` ENABLE KEYS */;
-
---
--- Definition of enforcementauthoritiesarrestableclasses
---
-
-DROP TABLE IF EXISTS `enforcementauthoritiesarrestableclasses`;
-CREATE TABLE IF NOT EXISTS `enforcementauthoritiesarrestableclasses` (
-  `EnforcementAuthorityId` bigint NOT NULL,
-  `LegalClassId` bigint NOT NULL,
-  PRIMARY KEY (`EnforcementAuthorityId`,`LegalClassId`),
-  KEY `FK_EnforcementAuthoritiesArrestableLegalClasses_Enforce_idx` (`EnforcementAuthorityId`),
-  KEY `FK_EnforcementAuthoritiesArrestableLegalClasses_LegalClasses_idx` (`LegalClassId`),
-  CONSTRAINT `FK_EnforcementAuthoritiesArrestableLegalClasses_Enforce` FOREIGN KEY (`EnforcementAuthorityId`) REFERENCES `enforcementauthorities` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_EnforcementAuthoritiesArrestableLegalClasses_LegalClasses` FOREIGN KEY (`LegalClassId`) REFERENCES `legalclasses` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table enforcementauthoritiesarrestableclasses
---
-
-/*!40000 ALTER TABLE `enforcementauthoritiesarrestableclasses` DISABLE KEYS */;
-/*!40000 ALTER TABLE `enforcementauthoritiesarrestableclasses` ENABLE KEYS */;
-
---
--- Definition of laws_offenderclasses
---
-
-DROP TABLE IF EXISTS `laws_offenderclasses`;
-CREATE TABLE IF NOT EXISTS `laws_offenderclasses` (
-  `LawId` bigint NOT NULL,
-  `LegalClassId` bigint NOT NULL,
-  PRIMARY KEY (`LawId`,`LegalClassId`),
-  KEY `FK_Laws_OffenderClasses_LegalClasses_idx` (`LegalClassId`),
-  CONSTRAINT `FK_Laws_OffenderClasses_Laws` FOREIGN KEY (`LawId`) REFERENCES `laws` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Laws_OffenderClasses_LegalClasses` FOREIGN KEY (`LegalClassId`) REFERENCES `legalclasses` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table laws_offenderclasses
---
-
-/*!40000 ALTER TABLE `laws_offenderclasses` DISABLE KEYS */;
-/*!40000 ALTER TABLE `laws_offenderclasses` ENABLE KEYS */;
-
---
--- Definition of laws_victimclasses
---
-
-DROP TABLE IF EXISTS `laws_victimclasses`;
-CREATE TABLE IF NOT EXISTS `laws_victimclasses` (
-  `LawId` bigint NOT NULL,
-  `LegalClassId` bigint NOT NULL,
-  PRIMARY KEY (`LawId`,`LegalClassId`),
-  KEY `FK_Laws_VictimClasses_LegalClasses_idx` (`LegalClassId`),
-  CONSTRAINT `FK_Laws_VictimClasses_Laws` FOREIGN KEY (`LawId`) REFERENCES `laws` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Laws_VictimClasses_LegalClasses` FOREIGN KEY (`LegalClassId`) REFERENCES `legalclasses` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table laws_victimclasses
---
-
-/*!40000 ALTER TABLE `laws_victimclasses` DISABLE KEYS */;
-/*!40000 ALTER TABLE `laws_victimclasses` ENABLE KEYS */;
 
 --
 -- Definition of npcspawnerzones
@@ -15513,326 +15951,6 @@ CREATE TABLE IF NOT EXISTS `npcspawnerzones` (
 /*!40000 ALTER TABLE `npcspawnerzones` ENABLE KEYS */;
 
 --
--- Definition of patrolroutes
---
-
-DROP TABLE IF EXISTS `patrolroutes`;
-CREATE TABLE IF NOT EXISTS `patrolroutes` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `Name` varchar(100) DEFAULT NULL,
-  `LegalAuthorityId` bigint NOT NULL,
-  `LingerTimeMajorNode` double NOT NULL,
-  `LingerTimeMinorNode` double NOT NULL,
-  `Priority` int NOT NULL,
-  `PatrolStrategy` varchar(100) DEFAULT NULL,
-  `StartPatrolProgId` bigint DEFAULT NULL,
-  `IsReady` bit(1) NOT NULL DEFAULT b'0',
-  `StrategyData` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci,
-  PRIMARY KEY (`Id`),
-  KEY `FK_PatrolRoutes_LegalAuthorities_idx` (`LegalAuthorityId`),
-  KEY `IX_PatrolRoutes_StartPatrolProgId` (`StartPatrolProgId`),
-  CONSTRAINT `FK_PatrolRoutes_FutureProgs_StartPatrolProgId` FOREIGN KEY (`StartPatrolProgId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_PatrolRoutes_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table patrolroutes
---
-
-/*!40000 ALTER TABLE `patrolroutes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `patrolroutes` ENABLE KEYS */;
-
---
--- Definition of patrolroutesnodes
---
-
-DROP TABLE IF EXISTS `patrolroutesnodes`;
-CREATE TABLE IF NOT EXISTS `patrolroutesnodes` (
-  `PatrolRouteId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  `Order` int NOT NULL,
-  PRIMARY KEY (`PatrolRouteId`,`CellId`),
-  KEY `FK_PatrolRoutesNodes_Cells_idx` (`CellId`),
-  KEY `FK_PatrolRoutesNodes_PatrolRoutes_idx` (`PatrolRouteId`),
-  CONSTRAINT `FK_PatrolRoutesNodes_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_PatrolRoutesNodes_PatrolRoutes` FOREIGN KEY (`PatrolRouteId`) REFERENCES `patrolroutes` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table patrolroutesnodes
---
-
-/*!40000 ALTER TABLE `patrolroutesnodes` DISABLE KEYS */;
-/*!40000 ALTER TABLE `patrolroutesnodes` ENABLE KEYS */;
-
---
--- Definition of patrolroutesnumbers
---
-
-DROP TABLE IF EXISTS `patrolroutesnumbers`;
-CREATE TABLE IF NOT EXISTS `patrolroutesnumbers` (
-  `PatrolRouteId` bigint NOT NULL,
-  `EnforcementAuthorityId` bigint NOT NULL,
-  `NumberRequired` int NOT NULL,
-  PRIMARY KEY (`PatrolRouteId`,`EnforcementAuthorityId`),
-  KEY `FK_PatrolRoutesNumbers_EnforcementAuthorities_idx` (`EnforcementAuthorityId`),
-  KEY `FK_PatrolRoutesNumbers_PatrolRoutes_idx` (`PatrolRouteId`),
-  CONSTRAINT `FK_PatrolRoutesNumbers_EnforcementAuthorities` FOREIGN KEY (`EnforcementAuthorityId`) REFERENCES `enforcementauthorities` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_PatrolRoutesNumbers_PatrolRoutes` FOREIGN KEY (`PatrolRouteId`) REFERENCES `patrolroutes` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table patrolroutesnumbers
---
-
-/*!40000 ALTER TABLE `patrolroutesnumbers` DISABLE KEYS */;
-/*!40000 ALTER TABLE `patrolroutesnumbers` ENABLE KEYS */;
-
---
--- Definition of patrolroutestimesofday
---
-
-DROP TABLE IF EXISTS `patrolroutestimesofday`;
-CREATE TABLE IF NOT EXISTS `patrolroutestimesofday` (
-  `PatrolRouteId` bigint NOT NULL,
-  `TimeOfDay` int NOT NULL,
-  PRIMARY KEY (`PatrolRouteId`,`TimeOfDay`),
-  KEY `FK_PatrolRoutesTimesOfDay_PatrolRoutes_idx` (`PatrolRouteId`),
-  CONSTRAINT `FK_PatrolRoutesTimesOfDay_PatrolRoutes` FOREIGN KEY (`PatrolRouteId`) REFERENCES `patrolroutes` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table patrolroutestimesofday
---
-
-/*!40000 ALTER TABLE `patrolroutestimesofday` DISABLE KEYS */;
-/*!40000 ALTER TABLE `patrolroutestimesofday` ENABLE KEYS */;
-
---
--- Definition of patrols
---
-
-DROP TABLE IF EXISTS `patrols`;
-CREATE TABLE IF NOT EXISTS `patrols` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `PatrolRouteId` bigint NOT NULL,
-  `LegalAuthorityId` bigint NOT NULL,
-  `PatrolPhase` int NOT NULL,
-  `LastMajorNodeId` bigint DEFAULT NULL,
-  `NextMajorNodeId` bigint DEFAULT NULL,
-  `PatrolLeaderId` bigint DEFAULT NULL,
-  `CharacterId` bigint DEFAULT NULL,
-  `PatrolLeaderInstanceId` bigint DEFAULT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_Patrols_Characters_idx` (`PatrolLeaderId`),
-  KEY `FK_Patrols_LastMajorNode_idx` (`LastMajorNodeId`),
-  KEY `FK_Patrols_LegalAuthorities_idx` (`LegalAuthorityId`),
-  KEY `FK_Patrols_NextMajorNode_idx` (`NextMajorNodeId`),
-  KEY `FK_Patrols_PatrolRoutes_idx` (`PatrolRouteId`),
-  KEY `IX_Patrols_CharacterId` (`CharacterId`),
-  KEY `FK_Patrols_CharacterInstances_Leader_idx` (`PatrolLeaderInstanceId`),
-  CONSTRAINT `FK_Patrols_Characters` FOREIGN KEY (`PatrolLeaderId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_Patrols_Characters_CharacterId` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_Patrols_LastMajorNode` FOREIGN KEY (`LastMajorNodeId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_Patrols_LegalAuthorities` FOREIGN KEY (`LegalAuthorityId`) REFERENCES `legalauthorities` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_Patrols_NextMajorNode` FOREIGN KEY (`NextMajorNodeId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_Patrols_PatrolRoutes` FOREIGN KEY (`PatrolRouteId`) REFERENCES `patrolroutes` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table patrols
---
-
-/*!40000 ALTER TABLE `patrols` DISABLE KEYS */;
-/*!40000 ALTER TABLE `patrols` ENABLE KEYS */;
-
---
--- Definition of patrolmembers
---
-
-DROP TABLE IF EXISTS `patrolmembers`;
-CREATE TABLE IF NOT EXISTS `patrolmembers` (
-  `PatrolId` bigint NOT NULL,
-  `CharacterId` bigint NOT NULL,
-  `CharacterInstanceId` bigint NOT NULL DEFAULT '0',
-  PRIMARY KEY (`PatrolId`,`CharacterId`),
-  KEY `IX_PatrolMembers_CharacterId` (`CharacterId`),
-  KEY `FK_PatrolMembers_CharacterInstances_idx` (`CharacterInstanceId`),
-  CONSTRAINT `FK_PatrolMembers_Characters` FOREIGN KEY (`CharacterId`) REFERENCES `characters` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_PatrolsMembers_Patrols` FOREIGN KEY (`PatrolId`) REFERENCES `patrols` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table patrolmembers
---
-
-/*!40000 ALTER TABLE `patrolmembers` DISABLE KEYS */;
-/*!40000 ALTER TABLE `patrolmembers` ENABLE KEYS */;
-
---
--- Definition of routecells
---
-
-DROP TABLE IF EXISTS `routecells`;
-CREATE TABLE IF NOT EXISTS `routecells` (
-  `CellId` bigint NOT NULL,
-  `LengthMetres` decimal(18,3) NOT NULL,
-  `DefaultPositionMetres` decimal(18,3) NOT NULL,
-  `PositiveDirectionName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `NegativeDirectionName` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `MetresPerRoomEquivalent` decimal(18,3) NOT NULL,
-  `TopologyVersion` bigint NOT NULL DEFAULT '1',
-  PRIMARY KEY (`CellId`),
-  CONSTRAINT `FK_RouteCells_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `CK_RouteCells_DefaultPosition` CHECK (((`DefaultPositionMetres` >= 0) and (`DefaultPositionMetres` <= `LengthMetres`))),
-  CONSTRAINT `CK_RouteCells_Length` CHECK ((`LengthMetres` > 0)),
-  CONSTRAINT `CK_RouteCells_RoomEquivalent` CHECK ((`MetresPerRoomEquivalent` > 0)),
-  CONSTRAINT `CK_RouteCells_TopologyVersion` CHECK ((`TopologyVersion` >= 1))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table routecells
---
-
-/*!40000 ALTER TABLE `routecells` DISABLE KEYS */;
-/*!40000 ALTER TABLE `routecells` ENABLE KEYS */;
-
---
--- Definition of activeroutemotions
---
-
-DROP TABLE IF EXISTS `activeroutemotions`;
-CREATE TABLE IF NOT EXISTS `activeroutemotions` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `MoverType` int NOT NULL,
-  `MoverId` bigint NOT NULL,
-  `RouteCellId` bigint NOT NULL,
-  `RoomLayer` int NOT NULL,
-  `CheckpointPositionMetres` decimal(18,3) NOT NULL,
-  `TargetMinimumPositionMetres` decimal(18,3) NOT NULL,
-  `TargetMaximumPositionMetres` decimal(18,3) NOT NULL,
-  `Direction` int NOT NULL,
-  `SpeedMetresPerSecond` decimal(18,6) NOT NULL,
-  `RemainingDurationMilliseconds` bigint NOT NULL,
-  `TopologyVersion` bigint NOT NULL,
-  `Status` int NOT NULL,
-  `OperationId` varchar(64) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
-  `CheckpointSequence` bigint NOT NULL,
-  `SelectedExitId` bigint DEFAULT NULL,
-  `StateData` mediumtext CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci,
-  `CreatedDateTime` datetime(6) NOT NULL,
-  `LastCheckpointDateTime` datetime(6) NOT NULL,
-  PRIMARY KEY (`Id`),
-  UNIQUE KEY `UX_ActiveRouteMotions_Mover` (`MoverType`,`MoverId`),
-  UNIQUE KEY `UX_ActiveRouteMotions_Operation` (`OperationId`),
-  KEY `FK_ActiveRouteMotions_Exits_idx` (`SelectedExitId`),
-  KEY `IX_ActiveRouteMotions_RouteCell_Layer_Status` (`RouteCellId`,`RoomLayer`,`Status`),
-  CONSTRAINT `FK_ActiveRouteMotions_Exits` FOREIGN KEY (`SelectedExitId`) REFERENCES `exits` (`Id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_ActiveRouteMotions_RouteCells` FOREIGN KEY (`RouteCellId`) REFERENCES `routecells` (`CellId`) ON DELETE CASCADE,
-  CONSTRAINT `CK_ActiveRouteMotions_Checkpoint` CHECK ((`CheckpointPositionMetres` >= 0)),
-  CONSTRAINT `CK_ActiveRouteMotions_Direction` CHECK ((`Direction` in (-(1),1))),
-  CONSTRAINT `CK_ActiveRouteMotions_RemainingDuration` CHECK ((`RemainingDurationMilliseconds` >= 0)),
-  CONSTRAINT `CK_ActiveRouteMotions_Sequence` CHECK ((`CheckpointSequence` >= 0)),
-  CONSTRAINT `CK_ActiveRouteMotions_Speed` CHECK ((`SpeedMetresPerSecond` > 0)),
-  CONSTRAINT `CK_ActiveRouteMotions_TargetBand` CHECK (((`TargetMinimumPositionMetres` >= 0) and (`TargetMaximumPositionMetres` >= `TargetMinimumPositionMetres`))),
-  CONSTRAINT `CK_ActiveRouteMotions_TopologyVersion` CHECK ((`TopologyVersion` >= 1))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table activeroutemotions
---
-
-/*!40000 ALTER TABLE `activeroutemotions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `activeroutemotions` ENABLE KEYS */;
-
---
--- Definition of routecelllandmarks
---
-
-DROP TABLE IF EXISTS `routecelllandmarks`;
-CREATE TABLE IF NOT EXISTS `routecelllandmarks` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `RouteCellId` bigint NOT NULL,
-  `Name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Keywords` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `Description` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `PositionMetres` decimal(18,3) NOT NULL,
-  `DisplayOrder` int NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `IX_RouteCellLandmarks_RouteCell_Position` (`RouteCellId`,`PositionMetres`),
-  CONSTRAINT `FK_RouteCellLandmarks_RouteCells` FOREIGN KEY (`RouteCellId`) REFERENCES `routecells` (`CellId`) ON DELETE CASCADE,
-  CONSTRAINT `CK_RouteCellLandmarks_Position` CHECK ((`PositionMetres` >= 0))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table routecelllandmarks
---
-
-/*!40000 ALTER TABLE `routecelllandmarks` DISABLE KEYS */;
-/*!40000 ALTER TABLE `routecelllandmarks` ENABLE KEYS */;
-
---
--- Definition of routeexitanchors
---
-
-DROP TABLE IF EXISTS `routeexitanchors`;
-CREATE TABLE IF NOT EXISTS `routeexitanchors` (
-  `ExitId` bigint NOT NULL,
-  `RouteCellId` bigint NOT NULL,
-  `MinimumPositionMetres` decimal(18,3) NOT NULL,
-  `MaximumPositionMetres` decimal(18,3) NOT NULL,
-  `ArrivalPositionMetres` decimal(18,3) NOT NULL,
-  PRIMARY KEY (`ExitId`,`RouteCellId`),
-  KEY `IX_RouteExitAnchors_RouteCell_Band` (`RouteCellId`,`MinimumPositionMetres`,`MaximumPositionMetres`),
-  CONSTRAINT `FK_RouteExitAnchors_Exits` FOREIGN KEY (`ExitId`) REFERENCES `exits` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_RouteExitAnchors_RouteCells` FOREIGN KEY (`RouteCellId`) REFERENCES `routecells` (`CellId`) ON DELETE CASCADE,
-  CONSTRAINT `CK_RouteExitAnchors_Arrival` CHECK (((`ArrivalPositionMetres` >= `MinimumPositionMetres`) and (`ArrivalPositionMetres` <= `MaximumPositionMetres`))),
-  CONSTRAINT `CK_RouteExitAnchors_Band` CHECK (((`MinimumPositionMetres` >= 0) and (`MaximumPositionMetres` >= `MinimumPositionMetres`)))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table routeexitanchors
---
-
-/*!40000 ALTER TABLE `routeexitanchors` DISABLE KEYS */;
-/*!40000 ALTER TABLE `routeexitanchors` ENABLE KEYS */;
-
---
--- Definition of routemotionresourceledgers
---
-
-DROP TABLE IF EXISTS `routemotionresourceledgers`;
-CREATE TABLE IF NOT EXISTS `routemotionresourceledgers` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `ActiveRouteMotionId` bigint NOT NULL,
-  `CheckpointSequence` bigint NOT NULL,
-  `IdempotencyKey` varchar(200) CHARACTER SET ascii COLLATE ascii_general_ci NOT NULL,
-  `ResourceOwnerType` int NOT NULL,
-  `ResourceOwnerId` bigint NOT NULL,
-  `ResourceType` int NOT NULL,
-  `ResourceReferenceId` bigint DEFAULT NULL,
-  `ResourceKey` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `ReservedAmount` decimal(18,6) NOT NULL,
-  `ConsumedAmount` decimal(18,6) NOT NULL,
-  `Status` int NOT NULL,
-  `CreatedDateTime` datetime(6) NOT NULL,
-  `CommittedDateTime` datetime(6) DEFAULT NULL,
-  PRIMARY KEY (`Id`),
-  UNIQUE KEY `UX_RouteMotionResourceLedgers_Idempotency` (`IdempotencyKey`),
-  KEY `IX_RouteMotionResourceLedgers_Motion_Sequence` (`ActiveRouteMotionId`,`CheckpointSequence`),
-  CONSTRAINT `FK_RouteMotionResourceLedgers_ActiveRouteMotions` FOREIGN KEY (`ActiveRouteMotionId`) REFERENCES `activeroutemotions` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `CK_RouteMotionResourceLedgers_Amounts` CHECK (((`ReservedAmount` >= 0) and (`ConsumedAmount` >= 0) and (`ConsumedAmount` <= `ReservedAmount`))),
-  CONSTRAINT `CK_RouteMotionResourceLedgers_Sequence` CHECK ((`CheckpointSequence` >= 0))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table routemotionresourceledgers
---
-
-/*!40000 ALTER TABLE `routemotionresourceledgers` DISABLE KEYS */;
-/*!40000 ALTER TABLE `routemotionresourceledgers` ENABLE KEYS */;
-
---
 -- Definition of zones_timezones
 --
 
@@ -15843,7 +15961,7 @@ CREATE TABLE IF NOT EXISTS `zones_timezones` (
   `TimezoneId` bigint NOT NULL,
   PRIMARY KEY (`ZoneId`,`ClockId`,`TimezoneId`),
   CONSTRAINT `FK_Zones_Timezones_Zones` FOREIGN KEY (`ZoneId`) REFERENCES `zones` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table zones_timezones
@@ -15926,32 +16044,6 @@ CREATE TABLE IF NOT EXISTS `hotelpatronbalances` (
 /*!40000 ALTER TABLE `hotelpatronbalances` ENABLE KEYS */;
 
 --
--- Definition of hotelroomfurnishings
---
-
-DROP TABLE IF EXISTS `hotelroomfurnishings`;
-CREATE TABLE IF NOT EXISTS `hotelroomfurnishings` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `HotelRoomId` bigint NOT NULL,
-  `GameItemId` bigint NOT NULL,
-  `Description` varchar(500) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `ReplacementValue` decimal(58,29) NOT NULL,
-  `OriginalCondition` double NOT NULL,
-  `OriginalDamageCondition` double NOT NULL,
-  PRIMARY KEY (`Id`),
-  KEY `FK_HotelRoomFurnishings_HotelRooms_idx` (`HotelRoomId`),
-  KEY `IX_HotelRoomFurnishings_GameItem` (`GameItemId`),
-  CONSTRAINT `FK_HotelRoomFurnishings_HotelRooms` FOREIGN KEY (`HotelRoomId`) REFERENCES `hotelrooms` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table hotelroomfurnishings
---
-
-/*!40000 ALTER TABLE `hotelroomfurnishings` DISABLE KEYS */;
-/*!40000 ALTER TABLE `hotelroomfurnishings` ENABLE KEYS */;
-
---
 -- Definition of hotelroomkeys
 --
 
@@ -15971,63 +16063,6 @@ CREATE TABLE IF NOT EXISTS `hotelroomkeys` (
 
 /*!40000 ALTER TABLE `hotelroomkeys` DISABLE KEYS */;
 /*!40000 ALTER TABLE `hotelroomkeys` ENABLE KEYS */;
-
---
--- Definition of hotelroomrentals
---
-
-DROP TABLE IF EXISTS `hotelroomrentals`;
-CREATE TABLE IF NOT EXISTS `hotelroomrentals` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `HotelRoomId` bigint NOT NULL,
-  `GuestId` bigint NOT NULL,
-  `StartTime` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `EndTime` varchar(100) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `RentalCharge` decimal(58,29) NOT NULL,
-  `SecurityDeposit` decimal(58,29) NOT NULL,
-  `TaxCharged` decimal(58,29) NOT NULL,
-  PRIMARY KEY (`Id`),
-  UNIQUE KEY `IX_HotelRoomRentals_Room` (`HotelRoomId`),
-  KEY `IX_HotelRoomRentals_Guest` (`GuestId`),
-  CONSTRAINT `FK_HotelRoomRentals_HotelRooms` FOREIGN KEY (`HotelRoomId`) REFERENCES `hotelrooms` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table hotelroomrentals
---
-
-/*!40000 ALTER TABLE `hotelroomrentals` DISABLE KEYS */;
-/*!40000 ALTER TABLE `hotelroomrentals` ENABLE KEYS */;
-
---
--- Definition of hotelrooms
---
-
-DROP TABLE IF EXISTS `hotelrooms`;
-CREATE TABLE IF NOT EXISTS `hotelrooms` (
-  `Id` bigint NOT NULL AUTO_INCREMENT,
-  `HotelId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  `Name` varchar(200) CHARACTER SET utf8mb3 COLLATE utf8mb3_general_ci NOT NULL,
-  `Listed` bit(1) NOT NULL,
-  `PricePerDay` decimal(58,29) NOT NULL,
-  `SecurityDeposit` decimal(58,29) NOT NULL,
-  `MinimumDurationTicks` bigint NOT NULL,
-  `MaximumDurationTicks` bigint NOT NULL,
-  PRIMARY KEY (`Id`),
-  UNIQUE KEY `IX_HotelRooms_Hotel_Cell` (`HotelId`,`CellId`),
-  KEY `FK_HotelRooms_Cells_idx` (`CellId`),
-  KEY `FK_HotelRooms_Hotels_idx` (`HotelId`),
-  CONSTRAINT `FK_HotelRooms_Cells` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE RESTRICT,
-  CONSTRAINT `FK_HotelRooms_Hotels` FOREIGN KEY (`HotelId`) REFERENCES `hotels` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table hotelrooms
---
-
-/*!40000 ALTER TABLE `hotelrooms` DISABLE KEYS */;
-/*!40000 ALTER TABLE `hotelrooms` ENABLE KEYS */;
 
 --
 -- Definition of hotels
@@ -16085,7 +16120,7 @@ CREATE TABLE IF NOT EXISTS `properties` (
   CONSTRAINT `FK_Properties_Lease` FOREIGN KEY (`LeaseId`) REFERENCES `propertyleases` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Properties_LeaseOrder` FOREIGN KEY (`LeaseOrderId`) REFERENCES `propertyleaseorders` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_Properties_SaleOrder` FOREIGN KEY (`SaleOrderId`) REFERENCES `propertysalesorders` (`Id`) ON DELETE RESTRICT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table properties
@@ -16112,7 +16147,7 @@ CREATE TABLE IF NOT EXISTS `propertykeys` (
   KEY `IX_PropertyKeys_PropertyId` (`PropertyId`),
   CONSTRAINT `FK_PropertyKeys_GameItems` FOREIGN KEY (`GameItemId`) REFERENCES `gameitems` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_PropertyKeys_Property` FOREIGN KEY (`PropertyId`) REFERENCES `properties` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table propertykeys
@@ -16150,7 +16185,7 @@ CREATE TABLE IF NOT EXISTS `propertyleaseorders` (
   CONSTRAINT `FK_PropertyLeaseOrders_FutureProgs_Character` FOREIGN KEY (`CanLeaseProgCharacterId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_PropertyLeaseOrders_FutureProgs_Clan` FOREIGN KEY (`CanLeaseProgClanId`) REFERENCES `futureprogs` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_PropertyLeaseOrders_Property` FOREIGN KEY (`PropertyId`) REFERENCES `properties` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table propertyleaseorders
@@ -16185,7 +16220,7 @@ CREATE TABLE IF NOT EXISTS `propertyleases` (
   KEY `IX_PropertyLeases_PropertyId` (`PropertyId`),
   CONSTRAINT `FK_PropertyLeases_Property` FOREIGN KEY (`PropertyId`) REFERENCES `properties` (`Id`) ON DELETE CASCADE,
   CONSTRAINT `FK_PropertyLeases_PropertyLeaseOrders` FOREIGN KEY (`LeaseOrderId`) REFERENCES `propertyleaseorders` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table propertyleases
@@ -16193,27 +16228,6 @@ CREATE TABLE IF NOT EXISTS `propertyleases` (
 
 /*!40000 ALTER TABLE `propertyleases` DISABLE KEYS */;
 /*!40000 ALTER TABLE `propertyleases` ENABLE KEYS */;
-
---
--- Definition of propertylocations
---
-
-DROP TABLE IF EXISTS `propertylocations`;
-CREATE TABLE IF NOT EXISTS `propertylocations` (
-  `PropertyId` bigint NOT NULL,
-  `CellId` bigint NOT NULL,
-  PRIMARY KEY (`PropertyId`,`CellId`),
-  KEY `IX_PropertyLocations_CellId` (`CellId`),
-  CONSTRAINT `FK_PropertyLocations_Cell` FOREIGN KEY (`CellId`) REFERENCES `cells` (`Id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_PropertyLocations_Property` FOREIGN KEY (`PropertyId`) REFERENCES `properties` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
---
--- Dumping data for table propertylocations
---
-
-/*!40000 ALTER TABLE `propertylocations` DISABLE KEYS */;
-/*!40000 ALTER TABLE `propertylocations` ENABLE KEYS */;
 
 --
 -- Definition of propertyowners
@@ -16232,7 +16246,7 @@ CREATE TABLE IF NOT EXISTS `propertyowners` (
   KEY `IX_PropertyOwners_RevenueAccountId` (`RevenueAccountId`),
   CONSTRAINT `FK_PropertyOwners_BankAccounts` FOREIGN KEY (`RevenueAccountId`) REFERENCES `bankaccounts` (`Id`) ON DELETE RESTRICT,
   CONSTRAINT `FK_PropertyOwners_Properties` FOREIGN KEY (`PropertyId`) REFERENCES `properties` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table propertyowners
@@ -16257,7 +16271,7 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
   PRIMARY KEY (`Id`),
   KEY `IX_PropertySalesOrders_PropertyId` (`PropertyId`),
   CONSTRAINT `FK_PropertySaleOrders_Property` FOREIGN KEY (`PropertyId`) REFERENCES `properties` (`Id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table propertysalesorders
@@ -16277,5 +16291,5 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 
--- Dump completed on 2026-10-07 03:49:40
--- Total time: 0:0:0:1:856 (d:h:m:s:ms)
+-- Dump completed on 2026-10-16 20:04:25
+-- Total time: 0:0:0:1:816 (d:h:m:s:ms)

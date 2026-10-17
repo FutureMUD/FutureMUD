@@ -1,0 +1,493 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-12",
+  "purpose": "Portable current continuation with resolved CI baseline, canonical fixed-install Read Attunement and bounded grade-one paid/cold native evidence; full S4 qualification pending.",
+  "markdown": "Design Documents/Magic/Armageddon_S4_Continuation_Handoff_20261012.md",
+  "repository": "FutureMUD/FutureMUD",
+  "branch": "codex/armageddon-continuation-20261008",
+  "pr": "https://github.com/FutureMUD/FutureMUD/pull/788",
+  "pr_remains_draft": true,
+  "s3_implementation_commit": "8d503f6e789e5d68e03fceb4ae64b0a66f1fabd3",
+  "resume_latest_branch_not_reset_to_s3": true,
+  "s4_started": true,
+  "n24_started": false,
+  "release_enabled": false,
+  "spell_admissions_enabled": false,
+  "class_availability_enabled": false,
+  "primary_sources": [
+    "Design Documents/Magic/Armageddon_Seeder_Decisions_20261011.md",
+    "Design Documents/Magic/Armageddon_Seeder_Completeness_Design_20261011.json",
+    "Design Documents/Magic/Armageddon_Master_List_Adoption_20261011.md",
+    "Design Documents/Magic/Armageddon_Catalogue_S3_Completion_20261012.json",
+    "Design Documents/Magic/Armageddon_S4_Checkpoint_20261012.md",
+    "Design Documents/Magic/Armageddon_S4_Entry_Ledger_20261012.json",
+    "Design Documents/Magic/Armageddon_Stock_Spells_S4_20261012.md"
+  ],
+  "brief_archive": {
+    "path": "Design Documents/Armageddon/References/Armageddon_Magic_Completion_Implementation_Brief_20261002.md",
+    "original_path": "C:/Users/luker/Downloads/Armageddon_Magic_Completion_Implementation_Brief.md",
+    "edition_date": "2026-10-02",
+    "archived_date": "2026-10-12",
+    "bytes": 131071,
+    "lines": 905,
+    "original_bytes_sha256": "16B67175354DA916DA20A388895C7FADAB77FB452C63D47B40DD1D03A2A51B42",
+    "utf8_no_bom_lf_sha256": "16B67175354DA916DA20A388895C7FADAB77FB452C63D47B40DD1D03A2A51B42",
+    "authority": "Original scope/source contracts; later direct user decisions and current approved inventory supersede conflicting proposals. Preparation-only permissions/baselines are historical, not active execution instructions."
+  },
+  "fixed_requirements": {
+    "one_installation_per_mud": true,
+    "game_wide_mode": [
+      "Classic",
+      "Simple"
+    ],
+    "mode_conversion": false,
+    "always_capabilities_and_merits": 10,
+    "class_roles_if_earlier_classes_enabled": 10,
+    "required_spells": 152,
+    "optional_spells": 2,
+    "sorcerer_roster": 82,
+    "prototype_blueprints": 210,
+    "s3_reconciled_blueprints": 198,
+    "s4_deferred_foci": 10,
+    "s4_deferred_device_blanks": 2,
+    "s4_deferred_recipes": 12,
+    "read_attunement": "Explicit assigned affinities and legitimate learned affiliations separately; no inference",
+    "non_spell_player_skills": "Only required Component Crafting/proven prerequisites; other mundane/psychic grants deferred",
+    "nutrition": "Native satiation, no calorie model",
+    "infection": "Native infection system; Sown Sickness kind 5",
+    "identity_references": "Only native FK/known typed serializer/explicit manifest fields; no arbitrary numeric text scans or guessed Id reflection",
+    "reruns": "Preserve builder edits/native IDs and all player state; fixed direction only"
+  },
+  "hosted_followup": {
+    "status": "RESOLVED_HOSTED_TEST_BASELINE",
+    "head": "d5cdd6ccc80079e335ca6480a775c9ee9063f9da",
+    "workflow": "https://github.com/FutureMUD/FutureMUD/actions/runs/38233157601",
+    "linux": {
+      "status": "PASS",
+      "passed": 9509,
+      "failed": 0,
+      "skipped": 0
+    },
+    "windows": {
+      "status": "PASS",
+      "passed": 9506,
+      "failed": 0,
+      "skipped": 3
+    },
+    "duplicate_workflow": "https://github.com/FutureMUD/FutureMUD/actions/runs/38233166333",
+    "duplicate_windows": "CANCELLED; not counted as a pass",
+    "scope": "Exact component audit baseline repair. Later S4 head checks must be inspected separately.",
+    "next_action": "Continue S4 real stock hydration and per-entry qualification under locked design."
+  },
+  "order": [
+    "Component-export CI baseline resolved at d5cdd6c; continue latest branch head",
+    "S4 full required spell catalogue/real adapters/foci/devices/recipes",
+    "S5 production/substance/progression qualification",
+    "S6 four fresh-install cells",
+    "N24 full owned-content/player-state rerun qualification",
+    "N25 cross-feature uncertain-failure qualification",
+    "Original final readiness/per-spell/balance/guide gates"
+  ],
+  "portable_without_old_chat_or_local_artifacts": true,
+  "local_artifacts_optional_and_private": true,
+  "new_host_recreates_disposable_fixtures": true,
+  "running_children_or_test_databases_to_resume": false,
+  "authorization_boundary": "New task follows its human prompt and live AGENTS/skills; no automatic merge/deploy/release or policy redesign.",
+  "previous_hosted_failure_observation": {
+    "status": "UNRESOLVED_HOSTED_TEST_BASELINE",
+    "head": "8d503f6e789e5d68e03fceb4ae64b0a66f1fabd3",
+    "inspected_workflow": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223319636",
+    "second_workflow": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223314696",
+    "live_check_snapshot": [
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-12T08:44:01Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223319636/job/114724629095",
+        "name": "default-gate (ubuntu-latest)",
+        "startedAt": "2026-10-12T08:23:59Z",
+        "status": "COMPLETED",
+        "workflowName": "Unit Tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-12T08:40:03Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223314696/job/114724613124",
+        "name": "default-gate (ubuntu-latest)",
+        "startedAt": "2026-10-12T08:23:57Z",
+        "status": "COMPLETED",
+        "workflowName": "Unit Tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-12T08:49:26Z",
+        "conclusion": "FAILURE",
+        "detailsUrl": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223319636/job/114724629320",
+        "name": "default-gate (windows-latest)",
+        "startedAt": "2026-10-12T08:24:00Z",
+        "status": "COMPLETED",
+        "workflowName": "Unit Tests"
+      },
+      {
+        "__typename": "CheckRun",
+        "completedAt": "2026-10-12T08:54:59Z",
+        "conclusion": "CANCELLED",
+        "detailsUrl": "https://github.com/FutureMUD/FutureMUD/actions/runs/38223314696/job/114724613448",
+        "name": "default-gate (windows-latest)",
+        "startedAt": "2026-10-12T08:23:57Z",
+        "status": "COMPLETED",
+        "workflowName": "Unit Tests"
+      }
+    ],
+    "failures": [
+      {
+        "test": "ComponentMetadata_CoversRuntimeRegistryAndEveryCatalogueBinding",
+        "path": "DatabaseSeeder Unit Tests/IndustrialisedItemCatalogueTests.cs",
+        "line": 100,
+        "expected": 248,
+        "actual": 249
+      },
+      {
+        "test": "ComponentTypeAndPrerequisiteAudits_ContainExactCurrentBaseline",
+        "path": "DatabaseSeeder Unit Tests/IndustrialisedPrerequisiteAuditTests.cs",
+        "line": 36,
+        "expected": 248,
+        "actual": 249
+      }
+    ],
+    "also_inspect": "Uniqueness expectation 248 and header-inclusive component TSV expectation 249 in IndustrialisedPrerequisiteAuditTests; current catalogue has 249 rows.",
+    "observed_linux_default_gate": {
+      "passed": 9507,
+      "failed": 2,
+      "skipped": 0
+    },
+    "observed_linux_core": {
+      "passed": 6514,
+      "failed": 0,
+      "skipped": 0
+    },
+    "observed_windows_seeder": {
+      "passed": 1711,
+      "failed": 2,
+      "skipped": 3
+    },
+    "repair_or_rerun_in_handoff_task": false,
+    "next_action": "Verify exact runtime/JSON/TSV contents, reconcile obsolete test expectations without weakening coverage, run focused/full relevant Seeder checks and inspect new hosted results before S4."
+  },
+  "S4_first_slice": {
+    "status": "BOUNDED_READ_ATTUNEMENT_ADAPTER_VERIFIED_STOCK_PENDING",
+    "implementation_commit": "d427e02b0deefd5445fc9599d2a9f031f0cb8ac9",
+    "checkpoint": "Design Documents/Magic/Armageddon_S4_Checkpoint_20261012.md",
+    "ledger": "Design Documents/Magic/Armageddon_S4_Entry_Ledger_20261012.json",
+    "candidates_mapped": 154,
+    "required": 152,
+    "optional": 2,
+    "installed_stock_entries_qualified": 0,
+    "adapter": "readattunement: ordinary selected-target parent/child, explicit assigned affinities and exact completed enrolment history, current body permission and exact caster-instance disclosure",
+    "qualification_boundary": "Unit paid-pipeline fixture and native builder/cold-template evidence only. The builder spell has no trigger and remains unready. Canonical stock20 minimum, 60*grade duration, all grades, real paid stock targets/wards/resistance/restart remain pending.",
+    "verification": [
+      {
+        "scope": "Ten-project fast gate before final affiliation availability correction; overlapping tests are not additive.",
+        "receipt": ".artifacts/s4-final-fast-repaired/20261012T102507Z-2c0249dbe3c9/summary.json",
+        "status": "PASS",
+        "head_before_uncommitted_slice": "d5cdd6ccc80079e335ca6480a775c9ee9063f9da",
+        "counts": {
+          "executed": 9516,
+          "passed": 9516,
+          "failed": 0,
+          "skipped": 3,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 9519
+        },
+        "source_start": "0387984991855d7d1f341cce2b6a673b91da4e18af3159ff365f1ef0b0adc80f",
+        "source_end": "0387984991855d7d1f341cce2b6a673b91da4e18af3159ff365f1ef0b0adc80f"
+      },
+      {
+        "scope": "Complete Core gate after final affiliation availability correction.",
+        "receipt": ".artifacts/s4-final-core/20261012T110027Z-30dc624db544/summary.json",
+        "status": "PASS",
+        "head_before_uncommitted_slice": "d5cdd6ccc80079e335ca6480a775c9ee9063f9da",
+        "counts": {
+          "executed": 6523,
+          "passed": 6523,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6523
+        },
+        "source_start": "5eb4a1b9e1fc3847784cd14cd1ef58d89ff369446d149ad8ab5d5e78dc508ea9",
+        "source_end": "5eb4a1b9e1fc3847784cd14cd1ef58d89ff369446d149ad8ab5d5e78dc508ea9"
+      },
+      {
+        "scope": "Restored first/cold MUD boots, explicitly attunement-builder only; no S3 gameplay or paid installed-stock Attunement qualification.",
+        "receipt": ".artifacts/s4-native-builder/20261012T112038Z_6d8775dad57447fc89e92eedba2ac662/summary.json",
+        "status": "PASS",
+        "assertions": 12,
+        "s4_builder_assertions": 2,
+        "mud_processes": 2,
+        "mud_shutdowns_graceful": true,
+        "source_start": "3B3EA68F5BFA06FD798C913CE2C3150A50C3C2568F85620A20FF8B043762E8A7",
+        "source_end": "3B3EA68F5BFA06FD798C913CE2C3150A50C3C2568F85620A20FF8B043762E8A7",
+        "boot_receipt_local_optional": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-builder-f4acd8b0d36c465bb903d1cb497c24a7\\boot-latest.json"
+      }
+    ],
+    "release_enabled": false,
+    "spell_admissions_enabled": false,
+    "class_availability_enabled": false,
+    "full_plan_complete": false,
+    "n24_started": false,
+    "environment_blockers": [],
+    "next_bounded_milestone": "Hydrate and qualify canonical Read Attunement; add typed grade-specific NPC template selection for seven real creature families; preserve all qualification fences. Full S4 then S5/S6, N24/N25 and final readiness remain.",
+    "resolved_check_failures": [
+      {
+        "receipt": ".artifacts/s4-native-qualified/20261012T111135Z_25c55d1a5e1141a487bdace580fdf846/summary.json",
+        "status": "FAIL",
+        "scope": "Broader default S3 catalogue smoke, before Attunement assertions or cold phase",
+        "assertions_before_failure": 12,
+        "failure": "Winged creature entered native Flying posture but did not cross the live room exit within the unchanged 45-second assertion.",
+        "disposition": "Resolved by native cooldown observation and unchanged crossing acceptance; see validation_followthrough."
+      }
+    ],
+    "remaining_check_failures": [],
+    "validation_followthrough": {
+      "status": "PASS_AFFECTED_LOCAL_GATES_HARNESS_TIMING_REPAIRED",
+      "harness_repair_commit": "fbf827f55c93b6cafc39ed2f771e8092aa8ce36e",
+      "classification": "HARNESS_TIMING_DEFECT",
+      "cause": "Native Fly adds a five-second BlockLayerChange movement blocker. The old smoke assumed client read intervals guaranteed scheduler expiry, issued east once, then polled Location after a private NPC refusal.",
+      "evidence_boundary": "The original retained attempt did not capture its private refusal. New native reproduction observes the exact five-second blocker and refusal, unchanged Location, actual expiry and successful crossing without product changes.",
+      "product_rules_changed": false,
+      "movement_timeout_seconds_unchanged": 45,
+      "cooldown_observation_timeout_seconds": 10,
+      "harness_path": "tests/ArmageddonPreparedSeederNativeHarness/PreparedCatalogueBootSmoke.py",
+      "harness_sha256": "9bf6799e72a8810abb1994c819e93b124ec8892aa9d714bd61677edbbfffbd48",
+      "review": "Focused read-only review closed with no actionable defects; AS controller restoration is in finally and effect polling observes real native membership.",
+      "verification": [
+        {
+          "scope": "Affected Movement, CarriedFlightSecurity, BodyPrototypeMovementSpeed, CommandExecutionSecurity and ReadAttunement regressions",
+          "status": "PASS",
+          "passed": 59,
+          "failed": 0,
+          "skipped": 0,
+          "receipt": ".artifacts/s4-followthrough-regressions/20261012T114522Z-95149c2fef25/summary.json",
+          "head_before_harness_commit": "020d871706667b33a16bcf07b0e496dfafdafdbd",
+          "source_start": "980ef9724ce9e86ff75aba661384bb30d97c517bacf3681e8c80260027313985",
+          "source_end": "980ef9724ce9e86ff75aba661384bb30d97c517bacf3681e8c80260027313985"
+        },
+        {
+          "scope": "Full restored catalogue first/cold MUD/Admin/Telnet lane plus two S4 builder/template assertions; no paid installed-stock Attunement qualification",
+          "status": "PASS",
+          "assertions": 24,
+          "s4_builder_assertions": 2,
+          "receipt": ".artifacts/s4-native-cooldown/20261012T113733Z_8b90782c778f44ae8f7364ad22ce868a/summary.json",
+          "source_start": "91978DFFBAF8FE0F005E5D2BC55F1BC5DED8977B35943E88CD9200D2A2C84AF6",
+          "source_end": "91978DFFBAF8FE0F005E5D2BC55F1BC5DED8977B35943E88CD9200D2A2C84AF6",
+          "source_stable": true,
+          "mud_processes": 2,
+          "mud_shutdowns_graceful": true,
+          "owned_database_dropped": true,
+          "owned_mysql_shutdown_and_datadir_removed": true,
+          "boot_receipt_local_optional": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-cooldown-d59a5baacc564dbfb573ef2a4b9bfbbc\\boot-latest.json"
+        }
+      ],
+      "hosted_ci_publication_source": "https://github.com/FutureMUD/FutureMUD/pull/788",
+      "hosted_ci_scope": "Exact latest published-head results and run URLs are recorded in the PR validation section; earlier-head success never qualifies a later head.",
+      "remaining_local_check_failures": [],
+      "installed_stock_entries_qualified": 0,
+      "release_enabled": false,
+      "spell_admissions_enabled": false,
+      "class_availability_enabled": false
+    }
+  },
+  "S4_canonical_slice": {
+    "status": "CANONICAL_INSTALLED_GRADE_ONE_NATIVE_PASS_COMPLETE_ENTRY_PENDING",
+    "base_revision_before_changes": "4704da1acd840f523052b99af617e38861638fe9",
+    "design": "Design Documents/Magic/Armageddon_Stock_Spells_S4_20261012.md",
+    "module": "stock-spells",
+    "canonical_spells_installed": 1,
+    "owned_rows": 3,
+    "minimum_source_efficiency": 20,
+    "duration_seconds": "60*grade",
+    "grade_one_controlled_grade_one_actual_cost": 50,
+    "operation_report_repair": "Live MajorPass paid and attached child but lacked IMagicSpellEffectOperation; actual constructed child now reports Applied, incompatible targets Rejected. Normal mastery/unknown-operation rules unchanged.",
+    "classic_legacy_compatibility": "S2 retains earlier module while stamping stock-progression version; S4 reuses that exact typed ID/version pair.",
+    "native_scope": [
+      "S4 canonical grade-one paid self cast and cold overlay reload through a separate disposable builder capability. No partial package roster activation, S3 gameplay matrix, native all-grade/ward/resistance or S5 learning/affordability certificate."
+    ],
+    "source_files": [
+      {
+        "path": "FutureMUDLibrary/Magic/Stock/ArmageddonStockSpellContent.cs",
+        "sha256": "b43503c449e9274b2805d495f6e8014d97092c0e374d1fc2e55962e8c67f01be"
+      },
+      {
+        "path": "DatabaseSeeder/Seeders/ArmageddonMagicSeeder/ArmageddonStockSpellInstaller.cs",
+        "sha256": "f162bf5fb015c59cd3aeecd01b6e87d0ddeed8ba7d9f0698cbb1566748148562"
+      },
+      {
+        "path": "DatabaseSeeder Unit Tests/ArmageddonStockSpellInstallerTests.cs",
+        "sha256": "b6fc5934e9268d5d99b70abc5e6380093b57ba7c6287e8ff42ed372247e1c126"
+      },
+      {
+        "path": "MudSharpCore/Magic/SpellEffects/ReadAttunementSpellEffect.cs",
+        "sha256": "8c9964ad5abd39a66ec8f94ed619282b5ba43e88a94b8695522cb434534108aa"
+      },
+      {
+        "path": "MudSharpCore Unit Tests/ReadAttunementTests.cs",
+        "sha256": "5e8877c86aaee4e15d2477b7c6044909ecdad19a1b56a4613b86336b832d3ea1"
+      },
+      {
+        "path": "tests/ArmageddonPreparedSeederNativeHarness/Program.StockAttunement.cs",
+        "sha256": "a7e248a8038bd29efca24ca58cef823385875aafc857be32de8474134ba2449a"
+      },
+      {
+        "path": "tests/ArmageddonPreparedSeederNativeHarness/PreparedCatalogueBootSmoke.py",
+        "sha256": "68a445c8614a9ec44bcb89a3b2728ac2bf6906863a355eb88d17f1f6c9b7b2a6"
+      }
+    ],
+    "verification": [
+      {
+        "scope": "Consolidated ten-project before final owning repairs; unaffected suites reused",
+        "receipt": ".artifacts/s4-stock-read-fast/20261012T202733Z-255dffa870d8/summary.json",
+        "status": "PASS",
+        "counts": {
+          "executed": 9537,
+          "passed": 9537,
+          "failed": 0,
+          "skipped": 3,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 9540
+        },
+        "source_start": "db973e1e9ae25cc470a217381637f835f738dd26f134c3cc7d927b2959f24406",
+        "source_end": "db973e1e9ae25cc470a217381637f835f738dd26f134c3cc7d927b2959f24406",
+        "source_stable": true
+      },
+      {
+        "scope": "Final Seeder ownership repair",
+        "receipt": ".artifacts/s4-stock-read-seeder-final/20261012T205033Z-166df90de760/summary.json",
+        "status": "PASS",
+        "counts": {
+          "executed": 1728,
+          "passed": 1728,
+          "failed": 0,
+          "skipped": 3,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 1731
+        },
+        "source_start": "a2184c274b9b6c8706984c173c638c201434237e04f6304eb5d7a60413b35173",
+        "source_end": "a2184c274b9b6c8706984c173c638c201434237e04f6304eb5d7a60413b35173",
+        "source_stable": true
+      },
+      {
+        "scope": "Final Core operation-report repair",
+        "receipt": ".artifacts/s4-stock-read-core-operation-final/20261012T212055Z-19904600c6b3/summary.json",
+        "status": "PASS",
+        "counts": {
+          "executed": 6531,
+          "passed": 6531,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 6531
+        },
+        "source_start": "d32b9657998d76172396c7d8d077d18fedc602d75ce052902a93e834552d4062",
+        "source_end": "d32b9657998d76172396c7d8d077d18fedc602d75ce052902a93e834552d4062",
+        "source_stable": true
+      },
+      {
+        "scope": "Restored actual-SQL S4 contribution and grade-one native Admin self paid/cold MUD lane through separate disposable builder capability; no full package activation",
+        "status": "PASS",
+        "receipt": ".artifacts/s4-stock-read-native-operation/20261012T212411Z_601cebb4f3de441282dcf61c693040b7/summary.json",
+        "boot_receipt_local_optional": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-read-2de99628d0884d26ad14aac073bcb604\\boot-latest.json",
+        "assertions": 18,
+        "source_start": "84888C743C1B67D262DF43E77BD3B318F33C55F8648A0051AC6A6ABA6081FB1E",
+        "source_end": "84888C743C1B67D262DF43E77BD3B318F33C55F8648A0051AC6A6ABA6081FB1E",
+        "source_stable": true,
+        "mud_processes": 2,
+        "mud_shutdowns_graceful": true,
+        "owned_database_dropped": true,
+        "owned_mysql_shutdown_and_datadir_removed": true
+      }
+    ],
+    "retained_failed_native_attempts": [
+      {
+        "receipt": ".artifacts/s4-stock-read-native/20261012T203704Z_6fc4ca802ff3456cb75ae75b92135645/summary.json",
+        "classification": "HARNESS_ASSERTION_SCOPE",
+        "failure": "Unrelated Psionics capabilities lack Casting; limit assertion to ten declared typed package identities.",
+        "mud_phases_run": 0
+      },
+      {
+        "receipt": ".artifacts/s4-stock-read-native-repaired/20261012T205828Z_7f2feae8267c4a6ca7f99db5e7814de4/summary.json",
+        "classification": "HARNESS_EF_PARAMETER_OVERLOAD",
+        "failure": "Span-based array Contains cannot be interpreted by EF; use list instance Contains.",
+        "mud_phases_run": 0
+      },
+      {
+        "receipt": ".artifacts/s4-stock-read-native-restored/20261012T211054Z_f45131d9f85147b08079e6314fc15beb/summary.json",
+        "classification": "HARNESS_SQL_MAPPING",
+        "failure": "Logical DbSet table name; use existing explicit EF store schema.",
+        "mud_phases_run": 1,
+        "cold_or_graceful_mud_qualified": false
+      },
+      {
+        "receipt": ".artifacts/s4-stock-read-native-mapped/20261012T211605Z_7080910c98094aa5aab5bb41387056d6/summary.json",
+        "classification": "PRODUCT_ADAPTER_OPERATION_REPORT",
+        "failure": "Paid MajorPass saved child but reported applied=false.",
+        "mud_phases_run": 1,
+        "cold_or_graceful_mud_qualified": false
+      }
+    ],
+    "remaining": [
+      "Native all-seven-grade and other-target/ward/resistance defining-result qualification remains; deterministic seven-grade tests and grade-one self native evidence do not complete the entry.",
+      "S5 normal package learning/practice/production/affordability and later programme gates remain separately required."
+    ],
+    "installed_stock_entries_completely_qualified": 0,
+    "release_enabled": false,
+    "spell_admissions_enabled": false,
+    "class_availability_enabled": false,
+    "remaining_environment_blockers": []
+  },
+  "S4_creature_definition_batch": {
+    "base_revision": "2bdfdc3dfa63fed0aebdb6a9a48dc0a17f2d8814",
+    "canonical_definitions": 8,
+    "creature_template_bindings": 49,
+    "focused_seeder": "26/0/0",
+    "focused_core": "259/0/0",
+    "full_qualified_entries": 0,
+    "paid_native_creature_acceptance": "PENDING",
+    "next": "Continue native acceptance and remaining content/adapters; shelter presentation needs typed autobuilder adapter and selected-grade occupancy. Full S4 remains authorised, no elapsed CI cutoff.",
+    "full_fast_before_final_fence": "9606/0/3",
+    "final_full_core": "6593/0/0",
+    "final_native_harness_debug_build": "PASS,0 errors,30 warnings",
+    "final_seeder_release_build": "PASS,0 errors,160 warnings",
+    "final_haunt_regressions": "4/0/0",
+    "final_core_receipt": ".artifacts/s4-creature-haunt-guard-core/20261012T235130Z-930d70e4602d/summary.json",
+    "final_build_receipt": ".artifacts/s4-creature-haunt-guard-builds/verification-receipt.json",
+    "native_definition_loader": "PASS,8 exact canonical definitions ready on first/cold MUD",
+    "native_boot_assertions": 20,
+    "native_receipt": ".artifacts/s4-creature-stock-native/20261012T233339Z_dabeb10f40f64914a36ef164cf88a996/summary.json",
+    "native_boot_receipt_local_optional": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-creature-c9cc5aba452f4fddbe630f3f1a28cd36\\boot-latest.json",
+    "native_source_stable": true,
+    "native_source_fingerprint": "F3700DC19E66265F8BC7C31DF21D2CBCC70BB09B224B745DA1BA90C922841E18",
+    "native_paid_scope": "Grade-one Read Attunement self regression only; no paid creature/controller or all-grade qualification.",
+    "native_precedes_final_haunt_guard": true,
+    "remaining_environment_blockers": []
+  },
+  "current_qualification_strategy": "Armageddon_S4_Qualification_Strategy_20261013.json",
+  "current_s4_qualified_entries": 1,
+  "current_strategy_override": "Direct Luke approval20261013 supersedes exhaustive per-entry native combinations and repeatedbase seeding; reuse one verified immutable pre-Armageddon base then isolated restores. Historical counts retain their original date/scope.",
+  "current_batch": {
+    "verification": "Armageddon_S4_Continuation_Verification_20261013.json",
+    "declared_required": 100,
+    "undeclared_required": 52,
+    "qualified_s4": 1,
+    "native100": "PENDING",
+    "normal_usage_prioritisation": true,
+    "broader_s4_authorised": true,
+    "gates_closed": true
+  }
+}

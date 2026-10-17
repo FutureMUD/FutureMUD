@@ -103,7 +103,8 @@ public class OnFire : Effect
             return;
         }
 
-        ThermalImbalance thermal = ch.CombinedEffectsOfType<ThermalImbalance>().FirstOrDefault();
+		ThermalImbalance thermal = ThermalImbalance.DominantAmbientExposureEffect(
+			ch.CombinedEffectsOfType<ThermalImbalance>());
         if (thermal is null)
         {
             thermal = new ThermalImbalance(ch);

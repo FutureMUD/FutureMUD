@@ -22,6 +22,8 @@ using MudSharp.Health;
 using MudSharp.Magic;
 using MudSharp.Magic.Casting;
 using MudSharp.RPG.Checks;
+using MudSharp.RPG.Merits;
+using MudSharp.RPG.Merits.Interfaces;
 
 #nullable enable
 namespace MudSharp_Unit_Tests;
@@ -66,6 +68,53 @@ public class MagicCastingPracticeTests
 
 	private static MagicCastingIntent Intent(MagicCastingFixture f, int grade = 2, bool overreach = true) =>
 		new(f.Actor.Object, f.Earth.Id, f.Spell.Id, grade, overreach, "", MagicCastingMode.Practice);
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void Practice_PaidCompletion_AutomaticallyAcquiresBranchAfterRawOrGradeProgress(bool gradePrerequisite)
+	{
+		var (f, effects) = Setup();
+		var child = f.NewSpell(2, "Practice branch", "<Effect type='personaltagward'/>");
+		Assert.IsTrue(child.BuildingCommand(f.Actor.Object, new StringStack("grades fixture")));
+		var root = MagicCastingFixture.Admission(1);
+		var branch = MagicCastingFixture.Admission(2);
+		branch.SetAttributeValue("starting", false);
+		branch.Add(new XElement("Prerequisite", new XAttribute("key", Guid.NewGuid()), new XAttribute("spell", 1),
+			new XAttribute("grade", gradePrerequisite ? 2 : 1), new XAttribute("proficiency", gradePrerequisite ? 0 : 43)));
+		f.Capabilities.Clear(); f.ActiveCapabilities.Clear();
+		var cap = f.NewCapability(90, 1, 11, true, new XElement("Casting", new XAttribute("version", 1),
+			new XAttribute("identity", Guid.NewGuid()), new XAttribute("enabled", true), new XAttribute("trait", 1),
+			new XAttribute("source", 10), new XAttribute("reserve", 11), new XAttribute("passive", true),
+			new XAttribute("startingVersion", 1), root, branch));
+		Assert.AreEqual(0, cap.CastingConfigurationErrors().Count, string.Join(';', cap.CastingConfigurationErrors()));
+		f.ActiveCapabilities.Add(cap);
+		var merit = new Mock<IMagicCapabilityMerit>();
+		merit.Setup(x => x.Applies(f.Actor.Object)).Returns(true);
+		merit.SetupGet(x => x.Capabilities).Returns(new[] { cap });
+		f.Actor.SetupGet(x => x.Merits).Returns(new IMerit[] { merit.Object });
+		f.Restart();
+		Assert.IsTrue(f.Service.Enrol(f.Staff.Object, f.Actor.Object, cap.Id, "Practice branch regression").Allowed);
+		Assert.IsNull(f.Service.Acquisition(f.Actor.Object, 2));
+		f.NativeSkill.Setup(x => x.TraitUsed(f.Actor.Object, It.IsAny<Outcome>(), It.IsAny<Difficulty>(),
+			It.IsAny<TraitUseType>(), It.IsAny<IEnumerable<Tuple<string, double>>>()))
+			.Returns(() => { f.Skills[1]++; f.Service.NotifyProgress(f.Actor.Object, traitId: 1); return true; });
+		var result = f.Service.Cast(Intent(f) with { CapabilityId = cap.Id });
+		Assert.AreEqual(MagicCastingStatus.Started, result.Status, result.Message);
+		Assert.IsNull(f.Service.Acquisition(f.Actor.Object, 2));
+		f.Now += TimeSpan.FromSeconds(30);
+		var action = effects.OfType<MagicPracticeAction>().Single();
+		action.ExpireEffect();
+		Assert.AreEqual("Completed", f.Store.Operation(result.OperationId!.Value)!.Stage);
+		Assert.AreEqual(43.0, f.Skills[1]);
+		Assert.AreEqual(1, f.Service.Acquisition(f.Actor.Object, 2)!.ControlledGrade);
+		Assert.AreEqual(1L, f.Service.Acquisition(f.Actor.Object, 2)!.Version);
+		var writes = f.Store.Writes;
+		action.ExpireEffect();
+		Assert.AreEqual(writes, f.Store.Writes);
+		Assert.AreEqual(43.0, f.Skills[1]);
+		Assert.AreEqual(85.0, f.Balances[f.Resources[1]]);
+	}
 
 	[TestMethod]
 	public void Quote_PracticeWithoutTarget_IsPureAndUsesFullSharedCost()

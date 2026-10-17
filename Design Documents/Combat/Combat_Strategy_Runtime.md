@@ -6,6 +6,10 @@ Magical defense selection runs after the ordinary strategy response. Active elig
 
 Successful magic attacks can deliver a separately configured attack-context spell, including caster effects. Full magical interception prevents that payload. Magical item smashes use selected combat actions without introducing a character defensive response for the item; their costs, target validity and payload compatibility are checked again at resolution.
 
+Native melee target damage retains both the attacker and exact weapon item as its actor/tool origins, including ordinary dodge/helpless-defense resolution with weapon wear enabled or disabled. Persisted wounds can therefore identify the actual causing weapon. This provenance does not alter damage, pain, stun or weapon-wear formulas.
+
+Natural, worn and spell armour preserve the incoming tool origin on absorbed and passed-through packets. Armour calculations continue to apply their configured dissipation, absorption and type transformations; they do not replace the identity of the causing weapon with the armour item.
+
 ## Scope
 
 This document describes the current runtime behaviour of the built-in `ICombatStrategy` implementations. It is intended as a practical reference for maintainers and AI agents auditing combat behaviour, especially around cases where a strategy may otherwise choose no move.
@@ -13,6 +17,8 @@ This document describes the current runtime behaviour of the built-in `ICombatSt
 The strategy contract lives in `FutureMUDLibrary/Combat/ICombatStrategy.cs`. Concrete strategies live in `MudSharpCore/Combat/Strategies`.
 
 ## Shared Contract
+
+Ordinary automatic melee weapon selection can also offer a configured [Dual Wield double attack](./Dual_Wield_Double_Attacks.md). The frozen pair attacks one target, uses each weapon's skill and a fresh defence per strike, stages both attack difficulties with one coordination check, charges only executed children and schedules one recovery. Existing dual-only profiles remain single-hit attacks. Upgraded worlds stay disabled until their dedicated coordination check is bound and the feature is enabled.
 
 Every strategy exposes:
 

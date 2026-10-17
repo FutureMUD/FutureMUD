@@ -20,7 +20,11 @@ public partial class MagicSpell
 			Array.AsReadOnly(root.Elements("Method").Select(x => new ControlledSpellDelivery(
 				(string?)x.Attribute("name") ?? throw new FormatException("Area method requires a name."),
 				(AudioVolume)(int)x.Attribute("volume")!, (double)x.Attribute("energy")!, (int)x.Attribute("difficulty")!)).ToArray()),
-			(string?)root.Attribute("provenance") ?? throw new FormatException("Area requires provenance."));
+			(string?)root.Attribute("provenance") ?? throw new FormatException("Area requires provenance."),
+			(int?)root.Attribute("applicationBase") ?? 0, (int?)root.Attribute("applicationsPerGrade") ?? 0,
+			root.Element("ChainLightning") is { } chain ? new SpellAreaChainLightning(
+				(long)chain.Attribute("siltTag")!, (long)chain.Attribute("shallowsTag")!,
+				(long)chain.Attribute("waterPlane")!, (long)chain.Attribute("lightningPlane")!) : null);
 	}
 	private XElement? SaveArea() => GradeProfile?.Area is not { } p ? null :
 		new("Area", new XAttribute("schema", 1), new XAttribute("scope", (int)p.Scope),
@@ -31,9 +35,15 @@ public partial class MagicSpell
 			new XAttribute("layer", p.SameLayer), new XAttribute("grounded", p.GroundedOnly),
 			new XAttribute("staff", p.ExcludeStaff), new XAttribute("casterDamage", p.CasterDamageMultiplier),
 			new XAttribute("otherDamage", p.OtherDamageMultiplier), new XAttribute("filter", p.FilterProgId),
-			new XAttribute("provenance", p.Provenance), p.Deliveries.Select(x => new XElement("Method",
+			new XAttribute("provenance", p.Provenance),
+			p.ApplicationsPerGrade > 0 ? new XAttribute("applicationBase", p.ApplicationBase) : null,
+			p.ApplicationsPerGrade > 0 ? new XAttribute("applicationsPerGrade", p.ApplicationsPerGrade) : null,
+			p.Deliveries.Select(x => new XElement("Method",
 				new XAttribute("name", x.Method), new XAttribute("volume", (int)x.Volume),
-				new XAttribute("energy", x.EnergyMultiplier), new XAttribute("difficulty", x.DifficultySteps))));
+				new XAttribute("energy", x.EnergyMultiplier), new XAttribute("difficulty", x.DifficultySteps))),
+			p.ChainLightning is { } chain ? new XElement("ChainLightning", new XAttribute("siltTag", chain.SiltTagId),
+				new XAttribute("shallowsTag", chain.ShallowsTagId), new XAttribute("waterPlane", chain.WaterPlaneId),
+				new XAttribute("lightningPlane", chain.LightningPlaneId)) : null);
 
 	private IReadOnlyList<string> AreaConfigurationErrors(ControlledSpellArea? p)
 	{
@@ -44,14 +54,26 @@ public partial class MagicSpell
 			errors.Add("Area: native trigger forbids self; enable its self eligibility before including the caster.");
 		if (!Enum.IsDefined(p.Scope) || !Enum.IsDefined(p.Selection) || !Enum.IsDefined(p.Identity) || !Enum.IsDefined(p.Plane) ||
 			p.MaximumTargets is < 1 or > 256 || p.MaximumApplications is < 1 or > 256 ||
+			p.ApplicationBase < 0 || p.ApplicationsPerGrade < 0 ||
+			p.ApplicationsPerGrade == 0 && p.ApplicationBase != 0 ||
+			p.ApplicationsPerGrade > 0 && Enumerable.Range(1, 7).Any(grade =>
+				(long)p.ApplicationBase + (long)p.ApplicationsPerGrade * grade > p.MaximumApplications) ||
 			!double.IsFinite(p.CasterDamageMultiplier) || p.CasterDamageMultiplier < 0 ||
 			!double.IsFinite(p.OtherDamageMultiplier) || p.OtherDamageMultiplier < 0 ||
 			string.IsNullOrWhiteSpace(p.Provenance) || p.Provenance.Length > 512)
-			errors.Add("Area: invalid scope, selection, identity, plane, positive bounds (1..256), non-negative damage multipliers or provenance.");
+			errors.Add("Area: invalid scope, selection, identity, plane, positive bounds (1..256), per-grade applications within the maximum, non-negative damage multipliers or provenance.");
 		if (p.FilterProgId != 0 && (Gameworld.FutureProgs.Get(p.FilterProgId) is not { } filter ||
 			!filter.ReturnType.CompatibleWith(ProgVariableTypes.Boolean) ||
 			!filter.MatchesParameters([ProgVariableTypes.Character, ProgVariableTypes.Character])))
 			errors.Add("Area: filter must be a boolean Prog accepting target character and caster character.");
+		if (p.ChainLightning is { } chain && (p.Selection != SpellAreaSelection.RandomWithReplacement ||
+			p.Scope != SpellAreaScope.RoomCharacters || p.ApplicationBase != 1 || p.ApplicationsPerGrade != 1 ||
+			p.MaximumApplications < 15 || !p.IncludeCaster || !p.IncludeAllies || !p.IncludeOthers ||
+			p.CasterDamageMultiplier != 0.25 || p.OtherDamageMultiplier != 1 || p.GroundedOnly ||
+			chain.SiltTagId <= 0 || chain.ShallowsTagId <= 0 || chain.WaterPlaneId <= 0 || chain.LightningPlaneId <= 0 ||
+			Gameworld.Tags.Get(chain.SiltTagId) is null || Gameworld.Tags.Get(chain.ShallowsTagId) is null ||
+			Gameworld.Planes.Get(chain.WaterPlaneId) is null || Gameworld.Planes.Get(chain.LightningPlaneId) is null))
+			errors.Add("Area: chain lightning requires typed Silt/Shallows tags and Water/Lightning planes, 1+grade or 1+2*grade bounded replacement draws, caster quarter damage and full other damage.");
 		if (p.Deliveries.Count == 0 || p.Deliveries.Select(x => x.Method).Distinct(StringComparer.OrdinalIgnoreCase).Count() != p.Deliveries.Count ||
 			p.Deliveries.Any(x => !MagicCastingMethods.TryVolume(x.Method, out var volume) || volume != x.Volume ||
 				!double.IsFinite(x.EnergyMultiplier) || x.EnergyMultiplier <= 0 || x.DifficultySteps is < -10 or > 10))
@@ -64,6 +86,10 @@ public partial class MagicSpell
 		sb.AppendLine($"  Area {p.Scope}/{p.Selection}/{p.Identity}/{p.Plane}; targets {p.MaximumTargets}, applications {p.MaximumApplications}; stable identity/body ordering");
 		sb.AppendLine($"  Include caster {p.IncludeCaster}, allies {p.IncludeAllies}, others {p.IncludeOthers}; same layer {p.SameLayer}, grounded {p.GroundedOnly}, exclude staff {p.ExcludeStaff}");
 		sb.AppendLine($"  Damage caster x{p.CasterDamageMultiplier.ToString("N4", actor)}, others x{p.OtherDamageMultiplier.ToString("N4", actor)}; filter #{p.FilterProgId}; {p.Provenance}");
+		if (p.ApplicationsPerGrade > 0)
+			sb.AppendLine($"  Applications by selected grade: {p.ApplicationBase} + grade * {p.ApplicationsPerGrade}, capped by {p.MaximumApplications}.");
+		if (p.ChainLightning is { } chain)
+			sb.AppendLine($"  Chain lightning: Silt tag #{chain.SiltTagId}, Shallows tag #{chain.ShallowsTagId}, Water plane #{chain.WaterPlaneId}, Lightning plane #{chain.LightningPlaneId}; amplified count 1 + 2*grade, one shared 3*grade..5*grade damage roll.");
 		foreach (var d in p.Deliveries) sb.AppendLine($"  Area native {d.Method}: total energy x{d.EnergyMultiplier.ToString("N2", actor)}, difficulty {d.DifficultySteps:+0;-0;0}");
 	}
 	private bool BuildingCommandArea(ICharacter actor, StringStack command, ControlledSpellProfile profile)
@@ -101,6 +127,23 @@ public partial class MagicSpell
 				case "plane": p = p with { Plane = Enum.Parse<SpellAreaPlane>(command.PopSpeech(), true) }; break;
 				case "targets": p = p with { MaximumTargets = Integer() }; break;
 				case "applications": p = p with { MaximumApplications = Integer() }; break;
+				case "applicationsgrade":
+					if (command.PeekSpeech().EqualTo("off"))
+					{
+						command.PopSpeech();
+						p = p with { ApplicationBase = 0, ApplicationsPerGrade = 0 };
+					}
+					else p = p with { ApplicationBase = Integer(), ApplicationsPerGrade = Integer() };
+					break;
+				case "chain":
+					if (command.PeekSpeech().EqualTo("off")) { command.PopSpeech(); p = p with { ChainLightning = null }; break; }
+					var silt = Gameworld.Tags.GetByIdOrName(command.PopSpeech());
+					var shallows = Gameworld.Tags.GetByIdOrName(command.PopSpeech());
+					var water = Gameworld.Planes.GetByIdOrName(command.PopSpeech());
+					var lightning = Gameworld.Planes.GetByIdOrName(command.PopSpeech());
+					if (silt is null || shallows is null || water is null || lightning is null)
+						throw new FormatException("Specify existing Silt/Shallows tags and Water/Lightning planes.");
+					p = p with { ChainLightning = new(silt.Id, shallows.Id, water.Id, lightning.Id) }; break;
 				case "layer": p = p with { SameLayer = bool.Parse(command.PopSpeech()) }; break;
 				case "grounded": p = p with { GroundedOnly = bool.Parse(command.PopSpeech()) }; break;
 				case "staff": p = p with { ExcludeStaff = bool.Parse(command.PopSpeech()) }; break;
@@ -114,7 +157,7 @@ public partial class MagicSpell
 					else { MagicCastingMethods.TryVolume(method, out var volume); methods.Add(new(method, volume, Number(), Integer())); }
 					p = p with { Deliveries = methods.AsReadOnly() }; break;
 				case "provenance": p = p with { Provenance = command.SafeRemainingArgument }; command = new StringStack(""); break;
-				default: throw new FormatException("Area options: fixture/off, include, damage, scope, selection, identity, plane, targets, applications, layer, grounded, staff, filter, method, provenance.");
+				default: throw new FormatException("Area options: fixture/off, include, damage, scope, selection, identity, plane, targets, applications, applicationsgrade <base> <per grade>|off, chain <silt tag> <shallows tag> <water plane> <lightning plane>|off, layer, grounded, staff, filter, method, provenance.");
 			}
 		}
 		if (!command.IsFinished) throw new FormatException("Unexpected trailing area input.");

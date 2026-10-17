@@ -170,7 +170,7 @@ public class MagicArmourPower : SustainedMagicPower
             return;
         }
 
-        if (CanInvokePowerProg?.Execute<bool?>(actor) == false)
+        if (CanInvokePower(actor) == false)
         {
             actor.OutputHandler.Send(WhyCantInvokePowerProg?.Execute<string>(actor) ?? "You cannot use that power.");
             return;

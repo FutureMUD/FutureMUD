@@ -284,6 +284,9 @@ public static class CombatForcedMovementUtilities
 			why = "That exit is a fall exit, and cannot be used for controlled forced movement.";
 			return false;
 		}
+		if (exit?.Destination is { } destination && MudSharp.Character.ProjectionSpatialPolicy.Error(target,
+			new SpatialLocation(destination, target.RoomLayer), false) is { } projectionError)
+		{ why = projectionError; return false; }
 
 		if (exit?.Origin != target.Location)
 		{
@@ -410,6 +413,8 @@ public static class CombatForcedMovementUtilities
 	{
 		why = string.Empty;
 		var terrain = target.Location.Terrain(target);
+		if (MudSharp.Character.ProjectionSpatialPolicy.Error(target, new SpatialLocation(target.Location, layer, target.RoutePositionMetres), false) is { } projectionError)
+		{ why = projectionError; return false; }
 		if (!terrain.TerrainLayers.Contains(layer))
 		{
 			why = "That layer does not exist in the target's current location.";

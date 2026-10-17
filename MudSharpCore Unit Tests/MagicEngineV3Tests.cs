@@ -186,6 +186,42 @@ public class MagicEngineV3Tests
 	}
 
 	[TestMethod]
+	public void DetectPoisonEffect_RetainedPermissionRoundTripsAndCreatesNativeStatus()
+	{
+		var source = ArmageddonSenseToxinSpellContent.Create().Content.BuildDefinition(10, 11, 0)
+			.Element("Effects")!.Elements().Single();
+		var template = SpellEffectFactory.LoadEffect(source, CreateSpellMock().Object);
+		Assert.IsFalse(template.IsInstantaneous);
+		Assert.IsTrue(XNode.DeepEquals(source, template.SaveToXml()));
+		Assert.IsTrue(XNode.DeepEquals(source, template.Clone().SaveToXml()));
+		var actor = CreateCharacter(1, CreateGameworldWithUnits().Object);
+		var child = template.GetOrApplyEffect(actor.Object, actor.Object, OpposedOutcomeDegree.None,
+			SpellPower.Standard, CreateParent().Object, []);
+		Assert.IsInstanceOfType(child, typeof(SpellDetectPoisonEffect));
+		Assert.IsInstanceOfType(child, typeof(ISensePoisonEffect));
+		SpellDetectPoisonEffect.InitialiseEffectType();
+		var saved = child.SaveToXml(new Dictionary<IEffect, TimeSpan>());
+		var loaded = Effect.LoadEffect(saved, actor.Object);
+		Assert.IsInstanceOfType(loaded, typeof(ISensePoisonEffect));
+	}
+
+	[TestMethod]
+	public void DetectPoisonEffect_BuilderCanEditRetainedPermissionWithoutChangingLegacyDefault()
+	{
+		var template = SpellEffectFactory.LoadEffect(new XElement("Effect", new XAttribute("type", "detectpoison")),
+			CreateSpellMock().Object);
+		Assert.IsTrue(template.IsInstantaneous);
+		var actor = CreateCharacter(1, CreateGameworldWithUnits().Object);
+		actor.SetupGet(x => x.OutputHandler).Returns(new Mock<IOutputHandler>().Object);
+		Assert.IsTrue(template.BuildingCommand(actor.Object, new StringStack("retained true")));
+		Assert.IsFalse(template.IsInstantaneous);
+		Assert.AreEqual(true, (bool)template.SaveToXml().Element("RetainedPermission")!);
+		Assert.IsTrue(template.BuildingCommand(actor.Object, new StringStack("retained false")));
+		Assert.IsTrue(template.IsInstantaneous);
+		Assert.IsNull(template.SaveToXml().Element("RetainedPermission"));
+	}
+
+	[TestMethod]
 	public void DetectPoisonEffect_ReportsNoDrugEffects()
 	{
 		var gameworld = CreateGameworldWithUnits();

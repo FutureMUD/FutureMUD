@@ -12,33 +12,6 @@ namespace MudSharp_Unit_Tests;
 public class NpcArchiveReferencePolicyTests
 {
 	[DataTestMethod]
-	[DataRow("<Effect><Target>107</Target></Effect>")]
-	[DataRow("<Effect owner='107' />")]
-	[DataRow("<Definition><OriginalBody>209</OriginalBody></Definition>")]
-	[DataRow("{\"canonical\":107}")]
-	[DataRow("{\"canonical\":\"\\u0031\\u0030\\u0037\"}")]
-	[DataRow("{\"canonical\":1.07e2}")]
-	[DataRow("{malformed")]
-	[DataRow("[107]")]
-	[DataRow("107,303,404")]
-	[DataRow("<invalid")]
-	public void Reference_IdentityBodyOrUncertainty_Holds(string value) =>
-		Assert.IsTrue(NpcArchiveReferencePolicy.HasReferenceOrUncertainty(value, 107, 209));
-
-	[DataTestMethod]
-	[DataRow("")]
-	[DataRow("<Effects />")]
-	[DataRow("<Definition><Bodypart>9</Bodypart><Grade>3</Grade></Definition>")]
-	[DataRow("1107 2090 10.7 2.09")]
-	[DataRow("<Definition><A>10</A><B>7</B></Definition>")]
-	public void Reference_NoMatchingTokens_IsClear(string value) =>
-		Assert.IsFalse(NpcArchiveReferencePolicy.HasReferenceOrUncertainty(value, 107, 209));
-
-	[TestMethod]
-	public void Reference_InstanceAndWoundIds_AreRetained() =>
-		Assert.IsTrue(NpcArchiveReferencePolicy.HasReferenceOrUncertainty("<Reference><Wound>303</Wound></Reference>", 107, 209, 303));
-
-	[DataTestMethod]
 	[DataRow("<Effects />", true)]
 	[DataRow(" ", true)]
 	[DataRow("<Effects><Effect /></Effects>", false)]

@@ -12,6 +12,8 @@
 "Design Documents/Seeding/CultureSeederRedesignHandoff/**" -whitespace
 # Round-two source archive includes a byte-exact manifest and authored whitespace.
 "Design Documents/Seeding/CultureSeederRound2Handoff/**" -text -whitespace
+# User-supplied Armageddon archive is preserved byte for byte, including authored whitespace.
+"Design Documents/Armageddon/References/Armageddon_Info_Master_List_20261011.txt" -text -whitespace
 "Design Documents/Verification/CultureSeeder_Redesign_*Telnet.txt" -whitespace
 
 ###############################################################################

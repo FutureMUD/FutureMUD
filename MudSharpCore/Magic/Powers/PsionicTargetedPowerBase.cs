@@ -104,7 +104,7 @@ public abstract class PsionicTargetedPowerBase : MagicPowerBase
 			return false;
 		}
 
-		if (CanInvokePowerProg.ExecuteBool(actor, target) == false)
+		if (CanInvokePower(actor, target) == false)
 		{
 			actor.OutputHandler.Send(WhyCantInvokePowerProg.Execute(actor, target)?.ToString() ??
 			                         $"You cannot use that power on {target.HowSeen(actor)}.");

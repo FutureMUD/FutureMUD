@@ -27,6 +27,12 @@ public abstract partial class Shop
 
     public IShopPriceCalculation GetPriceCalculation(ICharacter actor, IMerchandise merchandise, int quantity,
         ShopDealApplicability applicability = ShopDealApplicability.Sell)
+	{
+		return GetPriceCalculation(actor, merchandise, quantity, actor, applicability);
+	}
+
+	public IShopPriceCalculation GetPriceCalculation(ICharacter actor, IMerchandise merchandise, int quantity,
+		ICharacter negotiatingCustomer, ShopDealApplicability applicability = ShopDealApplicability.Sell)
     {
         MudDateTime now = EconomicZone.ZoneForTimePurposes.DateTime();
         decimal baseUnitPrice = applicability switch
@@ -54,6 +60,7 @@ public abstract partial class Shop
 
         decimal totalAdjustment = selectedDeals.Sum(x => x.PriceAdjustmentPercentage);
         decimal adjustedUnitPrice = Math.Max(0.0M, baseUnitPrice * (1.0M + totalAdjustment));
+		adjustedUnitPrice = ApplyHagglePrice(negotiatingCustomer ?? actor, merchandise, applicability, adjustedUnitPrice);
         decimal unitTax = applicability == ShopDealApplicability.Buy
             ? 0.0M
             : Math.Round(
@@ -78,7 +85,7 @@ public abstract partial class Shop
             TotalPretaxPrice = totalPretax,
             IncludedTax = includedTax,
             TotalPrice = totalPrice,
-            TotalPriceAdjustmentPercentage = totalAdjustment,
+            TotalPriceAdjustmentPercentage = baseUnitPrice == 0M ? 0M : adjustedUnitPrice / baseUnitPrice - 1M,
             VolumeDealsExist = Deals.Any(x => VolumeDealWouldApplyAtThreshold(x, merchandise, actor, applicability, now)),
             AppliedDeals = selectedDeals
         };
@@ -99,7 +106,7 @@ public abstract partial class Shop
     {
         IShopPriceCalculation calculation = GetPriceCalculation(purchaser, merchandise, 1);
         List<string> summary = new();
-        if (calculation.AppliedDeals.Any())
+        if (calculation.AppliedDeals.Any() || calculation.TotalPriceAdjustmentPercentage != 0M)
         {
             summary.Add(ShopDeal.DescribePercentage(calculation.TotalPriceAdjustmentPercentage, voyeur));
         }

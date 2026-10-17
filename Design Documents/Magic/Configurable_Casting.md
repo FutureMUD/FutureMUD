@@ -1,5 +1,83 @@
 # Configurable casting (ARM-02)
 
+## Remaining S4 definitions, 15 October 2026
+
+The fixed installer declares all 152 required definitions. Definition installation,
+focused runtime checks and paid native qualification remain separate; the continuation
+verification JSON records their actual receipts. The two optional entries remain deferred. The twelve focus/device blueprints and
+recipes are installed with their separate availability gates disabled. Release, package admissions,
+Class availability, quiet/area variants and unqualified carriers remain disabled.
+
+Ground Tremor applies `3*grade` local crushing damage and one-third to its caster;
+nearby permitted rooms receive diminishing messages and agility-based falls without
+remote damage. Airborne, nonphysical, staff, active Stone Skin and Shadow protections
+apply. Silt terrain, Water, Wind and Void interrupt propagation. Trace the Path uses
+one verified unobscured identity dub and at most `10*grade` ordinary permitted edges,
+including grade seven; hidden exits and closed doors do not qualify. Dubs now persist
+nullable concealment provenance: legacy unknown provenance does not establish verified
+personal recognition. Explicit native dubbing and introduction establish provenance.
+
+Return Tether retains the approved native physical-return adaptation for `30*grade`
+seconds. The archived source event reports a direction; it does not itself authorize
+arbitrary teleporting. The native return binds the exact original identity, instance,
+body, room, overlay, terrain and layer, and does not rewind health or inventory.
+
+Join Traveller moves the caster to a recognised visible traveller, while Draw
+Traveller resists and moves that traveller to the caster. Grade-one through six path
+bounds are respectively strictly less than and at most `20*grade`; grade seven waives
+only that distance bound. They keep distinct component plans. Draw uses the existing
+sparse Conjuration ranks through an explicit numeric minimum selector; it does not
+change the historical S3 rank hierarchy. Waystep selects either one legally owned
+active Anchor Rune's live room or a mapped weighted pool. Banish Traveller uses its
+own resisted local target and weighted pool; the archived rune/no-save exception
+refuses because no native authority for waiving that save is bound. Urban/wilderness
+weights are 10/90, then uniform zone and room selection, with a separate explicit
+same-zone elemental pool. Pool tags do not automatically mark existing world rooms.
+All relocation routes retain permanent endpoint, plane, projection, ward, body and
+native membership checks, with exact compensation or NeedsReview after uncertainty.
+
+Storm Locus is an outdoor Lightning room hazard for `30*grade` seconds. Each due
+ten-second pulse commits its cursor before applying `2*grade` native electrical
+damage to distinct eligible physical occupants, including the caster. There is no
+missed-pulse catch-up or pulse-based training. Water refuses; Void requires the exact
+owned Defiler merit. Its persistence and reboot rules are in Spell_Owned_Lifecycle.md.
+
+Native powers have explicit activation tags, edited with `tag <identifier>` in the
+power editor and saved under `PowerTags/Tag`. Identifiers are lowercase, bounded to
+64 characters and 64 distinct tags. The existing explicit `IsPsionic` classification
+contributes `psionic`; names and schools do not infer tags. `MagicPowerBase.CanInvokePower`
+checks matching active `IMagicPowerTagSuppression` effects before the existing
+invocation prog and rechecks after it. Existing invocation checks use that base
+method; the three older activation paths without such a check now call it directly.
+Cancellation remains available. There is no global effect-handler admission rule.
+
+Silence the Mind uses this generic tag effect to suppress `psionic` activation for
+`30*grade` seconds after normal resistance. It severs matching outbound and reciprocal
+native mind contacts. Staff, undead and overlapping active suppression refuse. The
+saved child binds physical identity, instance, body and absolute expiry. Riding does
+not grant immunity. Ordinary character, account and OOC commands remain available.
+
+Compelling Regard supplies resisted PC/NPC influence for `30*grade` seconds. Its
+effect editor has a per-spell `pcs` toggle. `compel <local target> <command>` admits
+only exact native `look`, `drop`, `give`, `stand`, `sit`, `kneel`, `prostrate`,
+`lounge`, `rest`, `sprawl` and `prone` commands. The target retains normal permission,
+state, combat, movement and delay checks. A final exact-command/actor/input admission
+rejects aliases, abbreviations, overrides, nested commands and queued continuations;
+staff/account/OOC commands are outside the whitelist. Controller/target physical
+bindings, locality, visibility and wards are rechecked around callbacks. Logout,
+death, body replacement or expiry ends the grant. This does not install a general
+follower AI or authorize movement/combat command queues.
+
+Open Threshold creates one native paired transient exit for `120*grade` seconds.
+Its typed selector accepts `mark <carried owned Arcane Mark keywords>` or
+`traveller <verified identity dub>`. It accepts no raw room IDs. Both permanent
+same-plane endpoints, current overlays, selected native layer, configured restricted
+and lethal tags and live wards are checked. A marked route durably debits one exact
+saved mark use before publishing its portal; uncertain commit enters NeedsReview
+without retry. Native traversal checks the portal's current attachment, endpoints,
+expiry and wards. Closure unregisters the exit and leaves occupants and goods in
+their existing real rooms. Existing general builder portals retain their behavior.
+
 This is the implementation guide for [ARM-02](ARM02_Configurable_Casting_Implementation_Brief.md).
 The broader [ARM-01 contract](Armageddon_Casting_Design.md) includes later features; this slice
 provides explicit acquisition, normal casting, controlled grades and prerequisite progression.
@@ -215,8 +293,11 @@ For Stone Skin with spell armour first and agility boost second, use
 `grades scalar add target 1 boost Bonus -grade`. The index is zero-based even though the
 ordinary effect editor uses one-based effect numbers. Reordering/removing effects must
 leave the binding's expected `boost` token, index, `Bonus` field and trait valid; otherwise
-readiness fails. Only this typed scalar adapter is supported. Omitting a binding retains
-the authored fixed bonus. A detached invocation receives -1 at grade 1 and -3 at grade 3;
+readiness fails. The supported typed fields are `boost.Bonus`,
+`roomlight.AddedLuxPerPower`, `healingrate.Multiplier` and `needdelta.DrunkDelta`.
+The same writer supplies detached invocations and frozen stored-spell copies. It rejects
+nonfinite results. Exact alcohol-removal bindings also reject positive or out-of-bounds
+amounts before payment. Omitting a binding retains the authored fixed value. A detached invocation receives -1 at grade 1 and -3 at grade 3;
 the catalogue scalar and saved template remain unchanged.
 
 The incantation fixture enables Say (energy x1, difficulty +0) and Whisper (x2, +1).
@@ -305,6 +386,11 @@ Author and verify an appropriate profile for stock practice; a separate stock pr
 maximum must not be introduced. Invalid policy/XML prevents readiness and preserves the
 unreadable XML for repair. Practice plan edits reject trailing input without changing the
 saved plan.
+
+Paid practice records completion and releases its mutation fence before notifying the
+typed prerequisite index, while retaining the character's owner guard. Raw proficiency
+or controlled-grade progress can therefore acquire eligible branches immediately.
+Interrupted, uncertain and replayed completions do not trigger this notification.
 
 `variable` binds the selected attribute. Other expression parameters must explicitly
 bind native body attributes. Skills, mastery, extended options, unknown parameters and
@@ -447,6 +533,19 @@ this hook automatically. A failed authored enrolment can be retried directly.
 
 ## Persistence and extension seams
 
+`IMagicCastingService.LearnedAffiliations` is a pure query of exact completed canonical
+capability enrolments. Completion follows durable starting acquisitions; incomplete or
+misbound records are excluded. Shared canonical spell knowledge cannot infer another
+teaching route. Learning history remains when permanent permission becomes inactive.
+The active flag checks the supplied physical body's currently attached capability and
+enabled valid policy, without demanding current energy or casting posture. A temporary
+attachment can reactivate an already learned route; it cannot create learning history.
+The Read Attunement adapter uses this query separately from explicit affinity merits in
+a description overlay on its actual spell target. Only its exact casting instance can
+read that overlay while it can see the target; ordinary casting retains target wards and
+resistance. See the [S4 checkpoint](Armageddon_S4_Checkpoint_20261012.md) for the bounded
+verification and outstanding installed-stock bindings.
+
 The generated `ConfigurableCasting` migration introduces empty acquired-spell,
 trait-opportunity, enrolment and paid-operation tables. No historical knowledge, Vancian
 book, scroll, skill or administrative power is converted automatically. Acquired rows
@@ -503,3 +602,97 @@ prevent the same origin from being paid again.
 plus an optional child effect. The five ARM-02 adapters use one application path. Damage
 observes delivered native wound deltas; reportless legacy effects remain usable but cannot
 prove mastery. This progression result is separate from the existing invocation outcome.
+
+## Explicit native NPC mission inputs
+
+The optional shared `IMagicSpellEffectInvocationInputs` capability binds typed parser inputs on detached casting copies before prepared selections are captured or reused, and before effect application/payment. The `roommission` cast trigger resolves the creator's room plus an exact `SpellNpcMissionInputs` payload. Seek/Haunt syntax is `<target character>`; Courier syntax is `<held parcel> to <recipient>`. Native character/item parsers supply references, and missing inputs refuse before casting. Generic stored carriers remain unsupported for `createnpc`; complete target parsing is not carrier qualification.
+
+Input binding draws no randomness and changes no shared spell definition, acquisition or player state. Native missions retain the captured exact target identity, instance, body and spatial state, and exact parcel identity, quantity, registry and held custody. Fresh invocation copies must agree on these inputs. Raw fences run after live admission callbacks, immediately before native creation, after load callbacks, and after controller authority/visibility callbacks immediately before mission construction. A stale input cannot be silently resampled. Failure after committed NPC creation retains a lifecycle hold and refuses replay. Normal controller primary-creator, current acquisition and attached enabled capability guards remain required.
+
+The [S4 checkpoint](Armageddon_S4_Checkpoint_20261012.md) distinguishes focused pipeline/fixture evidence from outstanding paid native creature acceptance.
+
+## Exact native maintenance and linked vitality
+
+S4 opt-in `DirectAlcoholRemoval`, `DirectStaminaAdjustment` and `ExactResourceDepletion`
+use the captured native needs model, stamina balance or explicitly selected reserve.
+They clamp to native limits, preserve unrelated needs/reserves, and do not call expenditure
+multipliers, second winds, caster-credit transfers or refill/grant paths. A missing exact
+reserve reports NoChange. Native setter/save-queue failures retain a hold rather than
+replaying an uncertain write; successful writes dirty their actual owners.
+
+Owned disease binds native SownSickness kind5, contact exposure, exact grade intensity,
+virulence1 and family `arm.effect.disease`. Intensity/virulence must be fixed, finite and
+exact before payment; this rule leaves ordinary unowned builder disease definitions intact.
+The native infection begins health processing and retains original body/infection identity
+across saved parents. Purge Disease removes only the matching owned family/infection.
+Toxin-origin persistence and retained toxin detection remain separate unresolved adapters.
+
+Vital Siphon and Devouring Touch heal at most both `5*grade` and new/aggravated native
+wound damage delivered to the captured victim body. Armour/item wounds, pain, stun and
+existing wounds earn no healing. Leeching Edge applies only to actual native melee-weapon
+harm and selects the strongest single fraction, `min(0.1*grade,0.5)`. Healing uses native
+Mend-eligible wounds worst first. Explicit resistance and target/caster progs supply world
+policy; native Arcane is an editable authored choice. Callback drift before native mutation
+refuses; uncertain postcommit work is held without refund or replay.
+
+Canonical contribution keys come from the installer's same resolver list used for execution.
+The MySQL lost-ack recovery case interrupts its current final contribution, then requires a
+true no-op rerun; it does not assume an older eight-definition endpoint. Definition counts,
+S4 gameplay qualification and S5/release admission remain distinct.
+
+## Opt-in one-use reflection and native mobility mappings
+
+Native school wards can set `OneUse` with Incoming/Reflect, editable with the existing ward `oneuse` command. Absence retains unlimited legacy behaviour. Queries do not consume the use. The paid successful reflection commits the exact admitted child/parent token, records spent state and marks owning effects dirty before later callbacks. The same token fences reflection text and downstream payload emote callbacks; stale authority holds the paid recipient, with no replay/refund. Used state and remaining lifetime survive native parent reload.
+
+Stock Turn the Elements selects the explicit S2 Fire school, no inferred union, with floor7 and30*grade seconds. The school is builder editable. Stone Skin binds ordinary physical Agility where unique, otherwise the supported ordinary Dexterity mobility equivalent (the labmud preset); ambiguous candidates hold. The alias retains its exact native ID when a later attribute appears. It creates no attribute, and the spell description records the actual mapped attribute name.
+
+## Gated S4 focus and device stock
+
+The fixed installer follows the152 spell definitions with `ArmageddonStockFocusDeviceInstaller`.
+It owns ten `arm.focus.<tradition>` prototypes and `arm.item.blank_wand` / `arm.item.blank_staff`,
+plus each exact `.recipe`. Foci use native Role.Focus and real references from the locked
+tradition rosters. Blanks use explicit Role.Dual, Caster eligibility, capacity5/10,
+empty instances and60-second paid production; only the existing compatible Mend Flesh
+payload is initially whitelisted. No item grants knowledge/mastery, and charged mode never
+falls back to personal casting. These content references do not automatically qualify
+all spell effects or broader S5 carrier production.
+
+Both item-use and craft availability progs remain false. Reruns preserve ordinary builder
+customisations and stable identities, while incompatible enabled availability progs refuse
+without overwriting the edit. Recipes consume the locked blanks/seals through real native
+SimpleItem inputs and SimpleProduct outputs. A timed work phase plus zero-duration final
+release phase supplies the actual60/120-second duration under native crafting semantics.
+
+The representative first/cold receipt in the continuation verification covers disposable
+availability-only copies, real recipe timers/custody, personal focus, target-free practice,
+a paid frozen Mend charge and exact cold bank/reserve retention. An empty explicit practice
+plan does not enforce possession of a focus; the sample proves retention while held.
+Actual per-entry material/focus requirements remain explicit qualification decisions.
+All stock/package/Class/variant/Release gates stay disabled; S5 remains separate.
+
+### Selected equipped-item bonuses
+
+The builder effect `itemempower` uses the `itemchoice` trigger: one configured option
+followed by an exact accessible carried item. Configure an option with
+`option <name> <Trait|Health|Stun|Stamina|MagicResource> <target id or 0> <seven grade amounts>`.
+Trait and MagicResource require an exact current attribute/resource ID; other kinds
+require zero. Amounts must be finite and nonnegative. A zero amount at the selected
+grade refuses before payment. Choice, grade and exact custody are frozen and rechecked
+before payment and application; a changed paid target cannot silently receive another choice.
+
+The resolved child is `SpellEquippedItemBonus`, with `Kind`, `TargetId` and `Bonus`.
+The ordinary exclusive spell parent owns remaining duration, save/load, dispel and expiry.
+Its contribution requires exact membership in the holder's native WornItems/WieldedItems;
+a retained wearable owner or old wield-location marker cannot establish equipment.
+Held-only, contained, dropped, transferred or destroyed items give no stale contribution.
+Attribute choices flow through native effective trait expressions and combat consumers.
+Health/stun raise native wound-tolerance thresholds without removing wounds. Stamina
+raises maximum stamina; a MagicResource choice raises only the exact canonical holder's
+reserve capacity. Raising either maximum never adds current points. Removal/equipment
+changes use existing capacity reconciliation and clamps, preserving exertion and ticks.
+These bonuses grant no enrolment, capability or casting permission.
+
+The source-traced stock Kindle options, grade tables and bounded adaptation are recorded in
+[the Kindle source decision](Armageddon_Kindle_Source_Trace_20261015.md). The installed
+minimum remains33, with60*grade seconds and explicit native pool options. Its owned old
+weapon-filter program and spell identities reconcile in place; builder edits remain protected.

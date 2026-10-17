@@ -47,10 +47,24 @@ public class GitProcessTests
 		catch (ArgumentException) { /* Already exited and reaped. */ }
 	}
 
-	internal static void AssertExited(int pid)
+	internal static void AssertExited(int pid, int timeoutMilliseconds = 5000)
 	{
-		try { using var process = Process.GetProcessById(pid); Assert.IsTrue(process.HasExited, "Owned process survived: " + pid); }
+		// Tree termination is asynchronous; waiting for its parent does not wait for descendants.
+		// Observe completion without killing here, so a genuinely surviving child still fails.
+		try { using var process = Process.GetProcessById(pid); Assert.IsTrue(process.WaitForExit(timeoutMilliseconds), "Owned process survived: " + pid); }
 		catch (ArgumentException) { /* Process no longer exists. */ }
+	}
+
+	[TestMethod]
+	public async Task ExitAssertionRejectsLiveProcessWithoutTerminatingIt()
+	{
+		using var control = new Control();
+		var start = new ProcessStartInfo(Fake) { UseShellExecute = false };
+		foreach (var arg in new[] { "probe", "quiet", control.DirectoryPath }) start.ArgumentList.Add(arg);
+		using var process = Process.Start(start)!;
+		await Ready(Path.Combine(control.DirectoryPath, "ready"));
+		Assert.ThrowsException<AssertFailedException>(() => AssertExited(process.Id, 50));
+		Assert.IsFalse(process.HasExited, "The exit assertion must not terminate the fixture itself.");
 	}
 
 	internal static async Task Ready(string marker)

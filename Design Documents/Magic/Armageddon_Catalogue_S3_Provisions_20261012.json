@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "milestone": "S3",
+  "checkpoint": "native-decisions-provisions-liquid-mass",
+  "dated": "2026-10-12",
+  "milestone_complete": false,
+  "release_enabled": false,
+  "base_revision": "dc6ee0917da1d0b83fad3041522686a434a13f85",
+  "tested_inputs": "Dirty implementation at base_revision; this receipt/document and index additions follow final gates.",
+  "decisions": {
+    "infections": "Existing native infections; expand native types only if required for approved symptoms.",
+    "focus_devices": "Ten foci/two device blanks and twelve recipes deferred to S4 with real spell dependencies.",
+    "nutrition": "500 source calories translated to 5 native satiation hours using 2400/day; no runtime/persistence calorie model."
+  },
+  "native_stock": {
+    "foods": 3,
+    "food_weight_kilograms": 0.25,
+    "food_satiation_hours": 5,
+    "food_bites": 5,
+    "food_water_litres": 0.1,
+    "empty_bottles": 1,
+    "bottle_capacity_litres": 1,
+    "liquids": 1,
+    "retained_water_bindings": 1,
+    "wine_density_kg_per_cubic_metre": 990,
+    "wine_water_litres_per_litre": 0.88,
+    "wine_alcohol_litres_per_litre": 0.12,
+    "live_items": 0,
+    "live_npcs": 0,
+    "player_nutrition_writes": 0
+  },
+  "shared_change": {
+    "file": "FutureMUDLibrary/Form/Material/LiquidMixture.cs",
+    "contract": "Stored density is kg/m3; native fluid volume is converted to litres, then m3, before kilograms/native-weight conversion.",
+    "before": "1 litre water at 1000 kg/m3 produced 1000 kg.",
+    "after": "1 litre water produces 1 kg; approved wine produces .99 kg.",
+    "persistence": "Computed mass is recalculated from persisted constituents; no schema/data migration.",
+    "impact": "Existing fluid contents use correct physical mass, including fluid-bearing component weight."
+  },
+  "qualification": {
+    "managed": {
+      "status": "PASS",
+      "run_id": "20261011T223827Z-691b499e82a0",
+      "configuration": "Debug",
+      "sdk": "10.0.401",
+      "passed": 8906,
+      "failed": 0,
+      "skipped": 3,
+      "total": 8909,
+      "counts_complete": true,
+      "source_stable": true,
+      "source_start": "d5af32e40f961904b81ad90e00f2804d4cabfc365a3af950b1d64871a8bda9bb",
+      "source_end": "d5af32e40f961904b81ad90e00f2804d4cabfc365a3af950b1d64871a8bda9bb",
+      "issues": [],
+      "suites": [
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "passed": 1680,
+          "failed": 0,
+          "skipped": 3
+        },
+        {
+          "project": "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+          "passed": 763,
+          "failed": 0,
+          "skipped": 0
+        },
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "passed": 6463,
+          "failed": 0,
+          "skipped": 0
+        }
+      ],
+      "artifacts": ".artifacts/s3-provisions-managed/20261011T223827Z-691b499e82a0",
+      "new_checks": [
+        "Four fixed mode/classes combinations",
+        "Exact food satiation/bites/water and unit conversion; no calorie XML",
+        "Native partial/exhausted food component and empty bottle reload",
+        "Builder nutrition/liquid edits and renamed shared material preserve IDs",
+        "Twelve foci/devices explicitly deferred with their recipes",
+        "Density/mass across fluid/weight unit systems, mixture resizing and saved-mixture reload"
+      ]
+    },
+    "release_build": {
+      "status": "PASS",
+      "warnings": 144,
+      "errors": 0,
+      "log": ".artifacts/s3-provisions-managed/fresh2-databaseseeder-release.log"
+    },
+    "harness_debug_build": {
+      "status": "PASS",
+      "warnings": 26,
+      "errors": 0,
+      "log": ".artifacts/s3-provisions-managed/fresh2-native-harness-debug-build.log"
+    },
+    "native": {
+      "mode": "stock-supplies",
+      "run_id": "20261011T224634Z_39207a4132dc4ac1b9fadee5f14d8b16",
+      "exit_code": 0,
+      "source_stable": true,
+      "source_start": "8AA0C9A47CEC2659971E28FC58416920E6B3FDA4CC43C5DE90C1F65116B8F30B",
+      "source_end": "8AA0C9A47CEC2659971E28FC58416920E6B3FDA4CC43C5DE90C1F65116B8F30B",
+      "artifacts": ".artifacts/s3-provisions-native/20261011T224634Z_39207a4132dc4ac1b9fadee5f14d8b16",
+      "transcript": ".artifacts/s3-provisions-native/stock-supplies-native.log",
+      "coverage": [
+        "Fresh Medieval replay and unchanged second-run refusal",
+        "Supply/weapon persistence and factories requalified",
+        "Provision actual-MySQL rollback, lost acknowledgement, stable native IDs and all-table no-op checksums",
+        "Builder edits and renamed shared food material preserved; no player writes/live items",
+        "Fresh-process native Food/Liquid Container/Liquid factories",
+        "Two/zero bites retain saved component state; empty bottle does not refill",
+        "One litre of actual native wine weighs .99 kg and native bottle ComponentWeight propagates it"
+      ],
+      "cleanup": {
+        "owned_database_deleted": true,
+        "exact_owned_mysql_gracefully_stopped_and_deleted": true,
+        "temp_tmp_restored": true
+      },
+      "limits": "Controlled factory readers with native persisted prototypes and bounded world registries; no full-MUD/Telnet gameplay certificate."
+    },
+    "review": {
+      "status": "No remaining actionable production defects",
+      "scope": "Read-only provision/ownership/native XML/units/liquid-mass review",
+      "resolved": "Missing native-reader drug registry supplied; no tests executed by reviewer."
+    }
+  },
+  "retained_failures": [
+    {
+      "type": "Test compilation",
+      "detail": "Initial Seeder test used unavailable generic Assert.IsInstanceOfType; corrected to supported MSTest API.",
+      "evidence": "Initial command output in this task; corrected targeted run passed separately."
+    },
+    {
+      "type": "Invalid dispatch",
+      "detail": "Wrong Core project path rejected before execution.",
+      "evidence": ".artifacts/s3-provisions-managed/dispatch-compact.log"
+    },
+    {
+      "type": "Build failure",
+      "run_id": "20261011T223210Z-1ff65398f4d3",
+      "detail": "Library test referenced Core's concrete All<T>."
+    },
+    {
+      "type": "Build failure",
+      "run_id": "20261011T223426Z-e941c49f9077",
+      "detail": "Namespace-only correction insufficient; concrete Core dependency replaced with library IUneditableAll mock."
+    }
+  ],
+  "not_run": [
+    "Actual eating/drinking gameplay",
+    "Actual craft execution",
+    "Actual wield/combat execution",
+    "Full MUD boot with new stock catalogue",
+    "Complete S3 creature/catalogue gate",
+    "Full installed-stock gameplay"
+  ],
+  "remaining": [
+    "Seven owned anatomy/race/ethnicity bundles, one culture and 49 NPC templates",
+    "Real mount/guard/seeking/courier/haunting/Outsider controller behavior and qualification",
+    "Remaining light/Haven water/projection/pocket/medical native families and real adapters",
+    "Ten foci/two devices/twelve recipes in S4",
+    "S4 full spell hydration, S5 carriers, S6 complete fresh-install matrix, then N24+ readiness gates"
+  ]
+}

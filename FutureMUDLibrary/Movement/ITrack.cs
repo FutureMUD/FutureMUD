@@ -30,6 +30,8 @@ public enum TrackCircumstances
 public interface ITrack : IFrameworkItem, ISaveable
 {
     ICharacter? Character { get; }
+    long? CharacterId { get; }
+    long? CharacterInstanceId => null;
     IBodyPrototype? BodyProtoType { get; }
     IVehicle? Vehicle { get; }
     IRoom Room { get; }

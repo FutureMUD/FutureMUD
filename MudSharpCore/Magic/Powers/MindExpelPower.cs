@@ -152,6 +152,11 @@ public class MindExpelPower : MagicPowerBase
 
     public override void UseCommand(ICharacter actor, string verb, StringStack command)
     {
+		if (!CanInvokePower(actor))
+		{
+			actor.OutputHandler.Send("You cannot invoke that power right now.");
+			return;
+		}
         (bool truth, IMagicResource missing) = CanAffordToInvokePower(actor, verb);
         if (!truth)
         {

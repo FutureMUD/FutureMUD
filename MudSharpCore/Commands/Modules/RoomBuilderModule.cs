@@ -701,8 +701,11 @@ Enter your text below:");
                         return;
                     }
 
-                    actor.OutputHandler.Send($"You delete {location.GetFriendlyReference(actor)}.");
+                    var reference = location.GetFriendlyReference(actor);
                     location.Destroy(fallback);
+                    actor.OutputHandler.Send(actor.Gameworld.Rooms.Any(x => ReferenceEquals(x, location))
+                        ? $"Deletion of {reference} is held for recovery; the room is retained."
+                        : $"You delete {reference}.");
                 },
                 RejectAction = text =>
                 {

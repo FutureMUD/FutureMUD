@@ -9,6 +9,7 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
@@ -388,6 +389,14 @@ public partial class Body
 
     public string GetPositionDescription(IPerceiver voyeur, bool proper, bool colour, PerceiveIgnoreFlags flags)
     {
+		if (voyeur is ICharacter observer &&
+			SpellFeignedDeathEffect.ApparentPositionDescription(observer, Actor,
+				HowSeen(voyeur, proper, DescriptionType.Short, colour, flags),
+				voyeur.IsSelf(this) && !flags.HasFlag(PerceiveIgnoreFlags.IgnoreSelf) || !IsSingleEntity) is { } apparent)
+		{
+			return apparent;
+		}
+
         List<string> parts = new();
         if (Actor.State.HasFlag(CharacterState.Unconscious))
         {

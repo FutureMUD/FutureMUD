@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "milestone": "S3",
+  "checkpoint": "supplies-shelter-templates-melee-weapons",
+  "historical_checkpoint": true,
+  "current_status_authority": "Armageddon_Catalogue_S3_Completion_20261012.json",
+  "dated": "2026-10-12",
+  "milestone_complete": false,
+  "release_enabled": false,
+  "normal_interactive_installer": "S1/S2; composite S3 wiring pending",
+  "base_revision": "3a3048eedc63fd78b98b7c29f6848a33c8d15218",
+  "tested_input": "Dirty implementation at base_revision; owning checkpoint documents added after the final gates.",
+  "content": {
+    "supplies": 64,
+    "ranked_supplies": 61,
+    "base_supplies": 3,
+    "crafts": 64,
+    "craft_gate_progs": 64,
+    "tags": 61,
+    "foragables": 1,
+    "room_templates": 4,
+    "melee_item_prototypes": 49,
+    "weapon_types": 49,
+    "weapon_attacks": 49,
+    "combat_messages": 49,
+    "weapon_components": 49,
+    "weapon_expressions": 147,
+    "total_item_prototypes": 113,
+    "live_items": 0,
+    "live_npcs": 0,
+    "live_rooms": 0
+  },
+  "identity_contract": {
+    "graph": "Known typed inventory reference fields only; no narrative or arbitrary definition ID scans.",
+    "ownership": "Explicit native scalar/collection whitelist with three-way stock reconciliation; typed retained shared aliases.",
+    "transactions": "Each native batch is Serializable and atomic with ownership; no global cross-batch transaction claim.",
+    "craft_updates": "Compatible updates retain native input/product/phase rows. Native DATETIME Kind is canonicalised in current/desired/historical baseline fields. Incompatible referenced child layouts/types require native craft revision."
+  },
+  "qualification": {
+    "managed": {
+      "run_id": "20261011T210910Z-4dcafd806773",
+      "suite": "DatabaseSeeder Unit Tests",
+      "configuration": "Debug",
+      "framework": "net10.0",
+      "sdk": "10.0.401",
+      "status": "PASS",
+      "passed": 1673,
+      "failed": 0,
+      "skipped": 3,
+      "total": 1676,
+      "attempt": 1,
+      "source_start": "21a8fc179fbdb38ec42149e67282540bb840041748a127ad3622b586a6d70d4c",
+      "source_end": "21a8fc179fbdb38ec42149e67282540bb840041748a127ad3622b586a6d70d4c",
+      "source_stable": true,
+      "issues": [],
+      "artifacts": ".artifacts/s3-combined-managed/20261011T210910Z-4dcafd806773",
+      "coverage": [
+        "Four Classic/Simple and classes-on/off combinations",
+        "Exact approved quantities, recipe thresholds/durations and weapon values",
+        "Real native FutureProg recipe threshold execution and renamed trait ID binding",
+        "Native weapon expression/attack/type/component loading and standing eligibility",
+        "Typed graph errors; missing/noncurrent ownership rejection; builder edit preservation",
+        "Historical timestamp stock repair and input/product ID preservation; incompatible input type rejection"
+      ]
+    },
+    "release_build": {
+      "project": "DatabaseSeeder/DatabaseSeeder.csproj",
+      "status": "PASS",
+      "warnings": 0,
+      "errors": 0,
+      "log": ".artifacts/s3-combined-managed/databaseseeder-release-build.log"
+    },
+    "native": {
+      "run_id": "20261011T211322Z_0753351c2f9b466895f6ed97019da5a0",
+      "mode": "stock-supplies",
+      "exit_code": 0,
+      "source_start": "60EE752AFF3D6B17CF6B26E7EC0561F78013D6F12DC2485C37016577E3646124",
+      "source_end": "60EE752AFF3D6B17CF6B26E7EC0561F78013D6F12DC2485C37016577E3646124",
+      "source_stable": true,
+      "artifacts": ".artifacts/s3-combined-native/20261011T211322Z_0753351c2f9b466895f6ed97019da5a0",
+      "transcript": ".artifacts/s3-combined-native/stock-supplies-native.log",
+      "coverage": [
+        "Full 32-step Medieval replay and unchanged nonblank second-replay refusal",
+        "Actual MySQL rollback, lost acknowledgement recovery, durable identities and all-table no-op checksum conservation",
+        "64 supply prototypes/recipes, 61 tags and four templates, stock repair and builder edits/removed shared forage join",
+        "49 weapon prototypes/types/attacks/messages, builder edits and renamed shared native combat binding",
+        "Separate-process native component/item/craft/FutureProg/forage/template and weapon factories; no reader/player-state writes"
+      ],
+      "cleanup": {
+        "owned_database_deleted": true,
+        "owned_mysql_gracefully_stopped_and_deleted": true,
+        "temp_environment_restored": true
+      },
+      "factory_external_references": "Bounded material/terrain/trait mocks; these are not full-world gameplay runs."
+    },
+    "review": {
+      "status": "No actionable defects reported",
+      "scope": "Read-only supply datetime/in-place child repair and weapon native construction review; no test execution by reviewer."
+    }
+  },
+  "unexecuted": [
+    "Actual craft execution",
+    "Actual wield/combat move execution",
+    "Complete MUD boot with this stock catalogue",
+    "Saved active craft resume after stock repair",
+    "Separate phase-layout rejection scenario",
+    "Complete S3 and installed-stock gameplay"
+  ],
+  "retained_failed_attempts": [
+    {
+      "problem": "Quoted numeric ToTrait IDs resolve names",
+      "correction": "Use and execute numeric overload"
+    },
+    {
+      "problem": "Native DATETIME timezone marker caused false builder warnings; compatible child replacement risked saved references",
+      "correction": "Canonicalise current/desired/historical timestamps and update compatible native children in place"
+    },
+    {
+      "problem": "Test/harness compilation and fixture preconditions",
+      "correction": "Correct native constructor/namespace and bounded fixture setup; final combined gate passed"
+    }
+  ],
+  "remaining": [
+    "Creature race/body/ethnicity/culture and 49 NPC templates",
+    "Riding/guard/seeking/courier/haunting/Outsider runtime AI qualification",
+    "Focus/device, meal/liquid/light/trigger/projection/pocket and medical catalogue families",
+    "Composite S3 installer wiring after required dependencies",
+    "S4 payload hydration/activation, S5 carriers, S6 complete fresh-install matrix and later N24+ gates"
+  ],
+  "pending_user_decisions": [
+    {
+      "topic": "Disease",
+      "choices": [
+        "Retained typed infection profile consumed by existing spell infection effect",
+        "New builder-editable reusable disease-profile subsystem"
+      ]
+    },
+    {
+      "topic": "Focus/device spell dependencies",
+      "choices": [
+        "Create real disabled spell records alongside S3 dependencies; finish payload qualification in S4",
+        "Keep device definitions under design until S4"
+      ]
+    },
+    {
+      "topic": "Meal nutrition",
+      "choices": [
+        "Five native satiation hours for 500 calories using an explicit 2400-calorie/day conversion",
+        "Extend native engine with a calorie model"
+      ]
+    }
+  ],
+  "deferred_findings": [
+    {
+      "file": "DatabaseSeeder/Seeders/ItemSeeder/ItemSeeder.Crafting.cs",
+      "lines": [
+        758,
+        3019,
+        3067
+      ],
+      "finding": "Numeric trait IDs interpolated into the quoted ToTrait(string) name overload.",
+      "scope": "Adjacent ItemSeeder gates unchanged; not certified by this checkpoint."
+    }
+  ]
+}

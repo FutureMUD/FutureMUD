@@ -92,9 +92,17 @@ public partial class SimpleMagicResource : IMagicResourceCapacity
 		}
 	}
 
+	private double EquippedCapacityBonus(IHaveMagicResource holder) => holder is ICharacter { Gameworld: not null } actor ?
+		EquippedItemBonuses.BonusFor(MagicCastingService.ReserveHolder(actor, Id), EquippedItemBonusKind.MagicResource, Id) : 0;
+
 	public bool TryGetResourceCap(IHaveMagicResource holder, out double cap, out string? error)
 	{
-		if (HasAttributeCapacity && holder is ICharacter actor) return TryAttributeCapacity(actor, out cap, out error);
+		if (HasAttributeCapacity && holder is ICharacter actor)
+		{
+			if (!TryAttributeCapacity(actor, out cap, out error)) return false;
+			cap += EquippedCapacityBonus(actor);
+			return true;
+		}
 		cap = ResourceCap(holder); error = null;
 		return true;
 	}

@@ -1,0 +1,429 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-09",
+  "status": "STOCK_ARMOUR_REPAIRED_NATIVE_RETIREMENT_BLOCKED_AI_REFERENCES",
+  "branch": "codex/armageddon-continuation-20261008",
+  "user_request": "Execute the suggested stock-armour repair and unchanged NPC retirement retry milestone.",
+  "previous_checkpoint": {
+    "path": "Design Documents/Magic/Armageddon_Npc_Archival_Checkpoint_20261009.json",
+    "sha256": "662d98113656190f55949c638ce4becc053a67d4a9a9a715e37fc034aa165605"
+  },
+  "implementation_commits": [
+    {
+      "sha": "e21da34d3e17203a89780f60bc74952ca1fc4268",
+      "subject": "Repair natural bone armour formulas and guard owned-world reconciliation"
+    },
+    {
+      "sha": "0c88d5054a87d3b1f2ecf6f4cc3a4b5900be27c9",
+      "subject": "Handle MySQL table casing and qualify repaired armour retries"
+    },
+    {
+      "sha": "baa4ad851c998b7e83863b8bcbf84e2ba3d4d5a6",
+      "subject": "Retain concrete AI definitions in NPC archival diagnostics"
+    }
+  ],
+  "stock_armour_repair_qualified": true,
+  "native_retirement_qualified": false,
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "publication_authorized": false,
+  "implementation": [
+    "Corrected chopping defaults in Human and Non-Human Natural Bone Armour; all other XML elements, attributes and values preserved. Human literal extracted to a private definition factory; comment/whitespace trivia is excluded from the semantic comparison.",
+    "New seeder test loads both emitted definitions through runtime ArmourType, checks all six formula maps and strictly evaluates floor, zero-quality and above-floor cases.",
+    "Owned repair pins the exact retained receipt and complete old Definition bytes, identities and metadata. Builder-edited, unknown or mixed rows refuse before writes; both updates lock/compare in one transaction.",
+    "Corrected-baseline probe reinstates known old input only in an uncommitted transaction, then exercises actual repair/rollback. Malformed input is never committed.",
+    "Case-insensitive ArmourTypes checksum exclusion matches Windows information_schema names; every other table remains checked. Complete CHECKING diagnostics are retained before a preservation assertion can fail.",
+    "Read-only exact AI Id/Name/Type/Definition capture added for the next observed hold. No archive policy, limit, assertion or AI row changed."
+  ],
+  "managed": [
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-npc-armour-repair-20261009/seeder-tests/20261008T215709Z-68a06ebd0820/summary.json",
+        "sha256": "5cf889e8a53e92b26010e88182ada4377b236dbf80377611f3461cbca0140c9a"
+      },
+      "run": "20261008T215709Z-68a06ebd0820",
+      "status": "PASS",
+      "scope": "Full DatabaseSeeder Unit Tests",
+      "configuration": "Debug",
+      "filter": null,
+      "head_during_execution": "13658ca1e6926a378ea716579bd35be40f36b94b",
+      "counts": {
+        "executed": 1613,
+        "passed": 1613,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 1613
+      },
+      "source_start": "173687737dacc558c1f205b90d412e28374c26f33d789046de9c62fd25537cab",
+      "source_end": "173687737dacc558c1f205b90d412e28374c26f33d789046de9c62fd25537cab",
+      "source_stable": true,
+      "process_exit_codes": [
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "build": 0,
+          "test": 0
+        }
+      ]
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-npc-armour-repair-20261009/core-contract-tests/20261008T220412Z-66b9a95c6eb3/summary.json",
+        "sha256": "b1ff6cb637613c3c748bd75a2559f3977af8611e2f404b99c74046e026739ddc"
+      },
+      "run": "20261008T220412Z-66b9a95c6eb3",
+      "status": "PASS",
+      "scope": "NpcArchiveReferencePolicyTests and BodyShutdownHealthTests only",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~NpcArchiveReferencePolicyTests|FullyQualifiedName~BodyShutdownHealthTests",
+      "head_during_execution": "13658ca1e6926a378ea716579bd35be40f36b94b",
+      "counts": {
+        "executed": 102,
+        "passed": 102,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 102
+      },
+      "source_start": "a732c451c80852021d2bc334d69e32d0555a727daf5235130f2661e45835a7ee",
+      "source_end": "a732c451c80852021d2bc334d69e32d0555a727daf5235130f2661e45835a7ee",
+      "source_stable": true,
+      "process_exit_codes": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "build": 0,
+          "test": 0
+        }
+      ]
+    }
+  ],
+  "managed_attribution": "Separate fresh runs on HEAD13658ca1 plus the subsequently committed unchanged Seeder sources/tests. Later changes affect only the owned fixture/Python diagnostics. Full Core and combined suites were not rerun for this stage.",
+  "historical_full_core": {
+    "receipt": {
+      "path": ".artifacts/armageddon-npc-archive-20261009/core-acceptance/20261008T213247Z-75e88331ffa4/summary.json",
+      "sha256": "6ed279967880349857197f14e55785fb6631fc198bfada7ab394559c9e3dab15"
+    },
+    "passed": 5980,
+    "attribution": "Historical preceding codec/shutdown implementation; not a fresh full-Core run."
+  },
+  "stock_repair": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-8dc7c1e3/fixture-armour-repair.json",
+      "sha256": "2167475b2e475d9a62894936c188739359676b811569d88def6ae547e8d4395c"
+    },
+    "source_receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-880b44100290/receipt.json",
+      "sha256": "4406b47b2b151d7108e3c2b4f608931ac110cc7ab72ae16342fcbdc0b1403e4b"
+    },
+    "definition_changes": [
+      {
+        "id": 5,
+        "name": "Human Natural Bone Armour",
+        "old_sha256": "3f4bb17654c206cde067995385fc1aee8fa3df5e176bee01956c70f45767cbed",
+        "new_sha256": "b6d80b02b71ae09d9919b36efd698498db48bf8b942aa7341f3bd0f5c742ad84",
+        "only_change": "One extra closing parenthesis removed in DissipateExpressions/Expression[@damagetype=1]"
+      },
+      {
+        "id": 42,
+        "name": "Non-Human Natural Bone Armour",
+        "old_sha256": "3f4bb17654c206cde067995385fc1aee8fa3df5e176bee01956c70f45767cbed",
+        "new_sha256": "b6d80b02b71ae09d9919b36efd698498db48bf8b942aa7341f3bd0f5c742ad84",
+        "only_change": "One extra closing parenthesis removed in DissipateExpressions/Expression[@damagetype=1]"
+      }
+    ],
+    "other_44_armour_definitions_unchanged": true,
+    "metadata_and_other_rows_preserved": true,
+    "final_summary": {
+      "Status": "PASS",
+      "ChangedRows": 0,
+      "BuilderEditRefusals": [
+        "5:definition:REFUSED",
+        "5:metadata:REFUSED",
+        "42:definition:REFUSED",
+        "42:metadata:REFUSED"
+      ],
+      "RollbackProbe": "PASS_SECOND_COMPARE_FAILED_FIRST_UPDATE_ROLLED_BACK",
+      "CorrectedBaselineRoundTripRows": 2,
+      "RerunChangedRows": 0,
+      "ChangedTables": []
+    },
+    "all_table_checksums_equal_on_corrected_baseline": true,
+    "table_count": 587,
+    "first_attempt_attribution": "Exact two-row repair committed, then failed because a case-sensitive exclusion treated lower-case armourtypes as another table. That attempt stays FAIL and never started a MUD. Corrected fixture proves exact corrected content, transactional rollback/repair round-trip and all-table no-op preservation. No retained pre-update checksum receipt is claimed for the first failed attempt."
+  },
+  "native": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-a386dc9e4f2e/receipt.json",
+      "sha256": "2c02c13cf1593cd9278bdc093f175d4780402123f318aeaa68fbd42de1ce828f"
+    },
+    "status": "FAIL",
+    "database": "authored_celestial_smoke",
+    "endpoint": "127.0.0.1:58998",
+    "server_uuid": "ac3f13f9-c311-11f1-b8a6-30560f3c3fde",
+    "owned_data": ".artifacts/authored-celestials/run-8f52a54633e3/mysql/data",
+    "created_lifecycles": [
+      {
+        "id": "476b6713-766b-4f23-b8e9-c1693c29220c",
+        "formula": "grade*45",
+        "seconds": 45.0,
+        "character": 10,
+        "body": 10
+      },
+      {
+        "id": "9a536f89-f899-461b-9111-a11b2ede595b",
+        "formula": "45+outcome*5",
+        "seconds": 70.0,
+        "character": 11,
+        "body": 11
+      }
+    ],
+    "assertions": {
+      "total": 18,
+      "passed": 17,
+      "failed": 1
+    },
+    "error": "real native scheduled expiry completes without a hold: 2\t0\tNative retirement held: Unresolved serialized reference or scan limit in ArtificialIntelligence.Definition; retain the physical graph.",
+    "physical_evidence_after_failure": {
+      "476b6713-766b-4f23-b8e9-c1693c29220c": "2\t1\t0\t1\t1\t1\t1\t0",
+      "9a536f89-f899-461b-9111-a11b2ede595b": "2\t1\t0\t1\t1\t1\t1\t0"
+    },
+    "physical_evidence_column_order": [
+      "State",
+      "Mode",
+      "Reason",
+      "NpcCount",
+      "BodyCount",
+      "InstanceCount",
+      "UnarchivedCanonicalWithExactBodyCount",
+      "ArchiveCount"
+    ],
+    "fury_preserved": true,
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "cleanup": {
+      "mysqlStopped": true,
+      "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+    },
+    "owned_port_free": true,
+    "qualification_marker_absent": true,
+    "inputs": {
+      "scripts\\FuryCalmSmokeWorld\\smoke.py": "7638d3cb7abfeb88bd4a191555aa7f6f2fc324373de745c527e1b471160afa40",
+      "scripts\\FuryCalmSmokeWorld\\Program.cs": "10cf1847dcef732de0fe2a6edd6651583890f65803995cf7bcf56262c85d36ec",
+      "scripts\\AuthoredCelestialSmokeWorld\\native.py": "21ef19f7fa888edf402f14b43d8bfce17d02b3ffb06072b5651518f3d3eb8227",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "14562dc518cba06f60015830d5ebccc2d944e0569d37e610faf5be775beff3ac",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "78d6557ffd04af54de0298459ce9c6021f9a6b2f27591ac59162dfd5aeef767c",
+      "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "44b0dc57d641d167f48cbf1fd12686de4c2c1d263ca31ffc79aa747f21741d85",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+      "scripts/FuryCalmSmokeWorld/npc_archival.py": "aa10d292038494cec7deca293a03cc605e26e6d811d39eb9aa64ceaab2558ee5",
+      "MudSharpCore/Character/CharacterArchiveService.cs": "cf47aa9609ae68b99aa3e465da1c00c5d311fe2b8e38972fc7f8e283810353bf",
+      "scripts/FuryCalmSmokeWorld/OwnedBoneArmourRepair.cs": "2b412fdd086c96078471860a7ab104636d665ff2613354f9c42eb5a25c18bc8b",
+      "DatabaseSeeder/Seeders/HumanSeeder/HumanSeeder.Bodyparts.cs": "3f7dec6c3d0b43f85e6b0c51a597a6c4b1de45f6acce849393a4cf87bd796a81",
+      "DatabaseSeeder/Seeders/AnimalSeeder/AnimalSeeder.Races.cs": "650be66aebe2a548f35ddcb975615aca34af002b0c94323396985799c84c372e",
+      "MudSharpCore/Character/NpcArchiveReferencePolicy.cs": "2ae01e69360df0bae2e9cd8995adcd0dafbd3e65bfa92d67eacd78f1060ba5f8",
+      "MudSharpCore/Character/NpcArchiveReferencePolicy.Agriculture.cs": "10758cd6a9dc3b241ade67401e660d16b9b68112a79e9eae8b5b940ce1f258fe",
+      "MudSharpCore/Character/NpcArchiveReferencePolicy.Combat.cs": "26a138180e8f99a68d9d5f7f221c05245318c68b0205cc886d3ef635dbe25462",
+      "MudSharpCore/Body/Implementations/Body.cs": "1eb9bf569c223549890f66528b7db60593a2f5c6e0bd5344f61901f5be3ba455",
+      "MudSharpCore/Body/Implementations/Body.Archival.cs": "a1703980e50aed95d79203d63ec7c93e603ed9ba2d9effe6938837359a3f41fa"
+    },
+    "all_input_hashes_match_after_code_commits": true,
+    "not_run": [
+      "Successful physical-release assertions after first failed wait",
+      "Second NPC successful retirement gate",
+      "Separate-process completed lifecycle/archive no-op retry"
+    ]
+  },
+  "retained_native_attempts": [
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-80e86fcbe96e/receipt.json",
+        "sha256": "7e46de6e0499188e4e4f7ba7d3d1841fa6379fe3c3bb920b23fa713165008e19"
+      },
+      "status": "FAIL",
+      "runner_status": "FAIL",
+      "error": "native fixture armour-repair: Unhandled exception. System.InvalidOperationException: Repair changed another database table.\n   at OwnedBoneArmourRepair.Require(Boolean test, String reason) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\OwnedBoneArmourRepair.cs:line 135\n   at OwnedBoneArmourRepair.Run(MySqlConnection sql, String runRoot, String receiptPath, Func`1 checksums) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\OwnedBoneArmourRepair.cs:line 123\n   at Program.<Main>$(String[] args) in C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\scripts\\FuryCalmSmokeWorld\\Program.cs:line 106\n",
+      "assertions": {
+        "total": 5,
+        "passed": 4,
+        "failed": 1
+      },
+      "server_processes": [],
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      }
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-23e089e84903/receipt.json",
+        "sha256": "b3f852394c66616ede9309676e850715014fab060cd6e6f9a562c20d9fe6cbb4"
+      },
+      "status": "FAIL",
+      "runner_status": "FAIL",
+      "error": "real native scheduled expiry completes without a hold: 2\t0\tNative retirement held: Unresolved serialized reference or scan limit in ArtificialIntelligence.Definition; retain the physical graph.",
+      "assertions": {
+        "total": 18,
+        "passed": 17,
+        "failed": 1
+      },
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        }
+      ],
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      }
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/smoke-invocation-a386dc9e4f2e/receipt.json",
+        "sha256": "2c02c13cf1593cd9278bdc093f175d4780402123f318aeaa68fbd42de1ce828f"
+      },
+      "status": "FAIL",
+      "runner_status": "FAIL",
+      "error": "real native scheduled expiry completes without a hold: 2\t0\tNative retirement held: Unresolved serialized reference or scan limit in ArtificialIntelligence.Definition; retain the physical graph.",
+      "assertions": {
+        "total": 18,
+        "passed": 17,
+        "failed": 1
+      },
+      "server_processes": [
+        {
+          "output": "server-output-0.log",
+          "returncode": 0,
+          "collectorStopped": true
+        }
+      ],
+      "cleanup": {
+        "mysqlStopped": true,
+        "dataPreserved": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\authored-celestials\\run-8f52a54633e3\\mysql\\data"
+      }
+    }
+  ],
+  "unchanged_gate": {
+    "path": ".artifacts/armageddon-npc-armour-repair-20261009/physical-gate-comparison.json",
+    "sha256": "aa52cd55a8034084222e62a62d09fd7beb0d4e8e6a05fc7d9edbbce5654a438e"
+  },
+  "source_semantics": {
+    "path": ".artifacts/armageddon-npc-armour-repair-20261009/source-semantics.json",
+    "sha256": "265c5267e7ba33032192c7406399cf81f1d1f63d920c96c5532607acbb09567d"
+  },
+  "fixture_builds": [
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-npc-armour-repair-20261009/fixture-build.log",
+        "sha256": "5cb3b83fdc2c9aef9d41d608e9524238fff6f2b5e65428a56e49d2f54599aed2"
+      },
+      "exit_code": 0,
+      "warnings": 0,
+      "errors": 0
+    },
+    {
+      "receipt": {
+        "path": ".artifacts/armageddon-npc-armour-repair-20261009/fixture-build-correction.log",
+        "sha256": "7175f50ba4588d499967e330f01e042d073051285175289b5c77f06f92f903d6"
+      },
+      "exit_code": 0,
+      "warnings": 144,
+      "errors": 0,
+      "attribution": "Existing dependency warnings; no warning suppression added."
+    }
+  ],
+  "blocker": {
+    "entity": "ArtificialIntelligence.Definition",
+    "kind": "Current native conservative reference hold; no tool/approval restriction.",
+    "ai_rows": 112,
+    "ai_types": {
+      "Enforcer": 1,
+      "Judge": 1,
+      "Lawyer": 1,
+      "Commandable": 2,
+      "Doorguard": 1,
+      "CombatEnd": 1,
+      "Wanderer": 1,
+      "Aggressor": 1,
+      "Rescuer": 1,
+      "Scavenge": 1,
+      "TrackingAggressor": 1,
+      "SelfCare": 1,
+      "Mount": 1,
+      "ArenaParticipant": 1,
+      "ArborealWanderer": 1,
+      "DenBuilder": 1,
+      "LairScavenger": 1,
+      "Animal": 80,
+      "Monster": 12,
+      "NaturalTrap": 2
+    },
+    "digit_collision_rows_diagnostic_only": {
+      "Judge": 1,
+      "Mount": 1,
+      "Animal": 75,
+      "Monster": 12
+    },
+    "samples": [
+      {
+        "id": 2,
+        "name": "JudgeDebugAuthority",
+        "type": "Judge",
+        "collision": "Trial emote text containing10and11"
+      },
+      {
+        "id": 14,
+        "name": "BasicMount",
+        "type": "Mount",
+        "collision": "MountNonConsensualMountDifficulty=10"
+      }
+    ],
+    "census_limit": "Diagnostic token collisions do not classify/exempt a row or prove exact first hold ordering.",
+    "source_mapping": [
+      "ArtificialIntelligenceBase.LoadIntelligence dispatches using exact row.Type.",
+      "JudgeAI Definition: delays, trial emote text and FutureProg references; no persisted physical identities.",
+      "MountAI Definition: difficulties, emotes, rider count and FutureProg references; persisted enum cast unchecked.",
+      "AnimalAI/CreatureAIBase Definition: tuning, text, enums and static FutureProg/craft references.",
+      "MonsterAI/MonsterActivityWindow Definition: tuning, text, enums and static prog/calendar/celestial references."
+    ],
+    "disposition": "Hold retained; no AI row edited, graph removed or blanket serialized-column exemption."
+  },
+  "review": {
+    "status": "CLEAR",
+    "scope": "Independent bounded source/guard review and correction/transaction follow-up; reviewer did not execute tests/native."
+  },
+  "restore_and_restrictions": {
+    "new_backup_restore": "NOT_RUN. No new import/replay. Earlier Fury/Calm qualification retains production backup/restore checksum proof.",
+    "current_denial": false,
+    "historical_restriction": "No identifiable previously denied command/reason established; historical restriction wording is not claimed cleared.",
+    "publication_merge_release_deployment_shared_or_production_db_mutation": false
+  },
+  "next_bounded_milestone": "Add discriminator-aware strict classification for the observed Judge, Mount, Animal and Monster AI Definition codecs, with collision/unknown/malformed regression coverage, then rerun the unchanged physical-release and completed cold-retry gates for both retained NPCs. Preserve every unknown/malformed hold and all other serialized contracts.",
+  "preserved_scope": {
+    "candidates": 154,
+    "required": 152,
+    "optional": 2,
+    "sorcerer_spells": 82,
+    "roots": 4,
+    "supports": 12,
+    "required_larger_features": [
+      "Spring Haven",
+      "Burrow Refuge",
+      "Sand Shelter",
+      "Sand Effigy",
+      "Walking Shadow",
+      "Severing Refuge",
+      "Apex Bane",
+      "Folded Pocket"
+    ],
+    "candidate_inventory_sha256": "e8b87e0d4a42ac54ff91196088201d95cb0ee316aa2451a3053ed991a6698555"
+  }
+}

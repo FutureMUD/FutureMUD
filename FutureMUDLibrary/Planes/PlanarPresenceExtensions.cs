@@ -62,6 +62,8 @@ public static class PlanarPresenceExtensions
 
 	public static bool CanInteractPlanar(this IPerceivable actor, IPerceivable target, PlanarInteractionKind kind)
 	{
+		if (actor is ICharacter character && character.EffectsOfType<MudSharp.Magic.ISpellProjectionBoundary>().Any() &&
+			kind is not (PlanarInteractionKind.Observe or PlanarInteractionKind.Hear)) return false;
 		return actor.GetPlanarPresence().CanInteract(target.GetPlanarPresence(), kind);
 	}
 

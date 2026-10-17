@@ -23,8 +23,11 @@ public class TraitExpressionMeritOption : TraitExpressionExtendedOption
     public IEnumerable<IMerit> _merits;
     public readonly IEnumerable<string> _meritOptions;
 
-    public TraitExpressionMeritOption(string values)
+    private readonly IFuturemud _gameworld;
+
+    public TraitExpressionMeritOption(string values, IFuturemud gameworld)
     {
+        _gameworld = gameworld;
         _meritOptions = values.Split(',');
     }
 
@@ -33,7 +36,7 @@ public class TraitExpressionMeritOption : TraitExpressionExtendedOption
         if (_merits == null)
         {
             List<IMerit> races = new();
-            IFuturemud game = Futuremud.Games.First();
+            IFuturemud game = _gameworld;
             foreach (string option in _meritOptions)
             {
                 IMerit merit = long.TryParse(option, out long value)
@@ -67,8 +70,11 @@ public class TraitExpressionRaceOption : TraitExpressionExtendedOption
     public IEnumerable<IRace> _races;
     public readonly IEnumerable<string> _raceOptions;
 
-    public TraitExpressionRaceOption(string values)
+    private readonly IFuturemud _gameworld;
+
+    public TraitExpressionRaceOption(string values, IFuturemud gameworld)
     {
+        _gameworld = gameworld;
         _raceOptions = values.Split(',');
     }
 
@@ -77,7 +83,7 @@ public class TraitExpressionRaceOption : TraitExpressionExtendedOption
         if (_races == null)
         {
             List<IRace> races = new();
-            IFuturemud game = Futuremud.Games.First();
+            IFuturemud game = _gameworld;
             foreach (string option in _raceOptions)
             {
                 IRace race = long.TryParse(option, out long value) ? game.Races.Get(value) : game.Races.GetByName(option);
@@ -109,8 +115,11 @@ public class TraitExpressionCultureOption : TraitExpressionExtendedOption
     public IEnumerable<ICulture> _cultures;
     public readonly IEnumerable<string> _cultureOptions;
 
-    public TraitExpressionCultureOption(string values)
+    private readonly IFuturemud _gameworld;
+
+    public TraitExpressionCultureOption(string values, IFuturemud gameworld)
     {
+        _gameworld = gameworld;
         _cultureOptions = values.Split(',');
     }
 
@@ -119,7 +128,7 @@ public class TraitExpressionCultureOption : TraitExpressionExtendedOption
         if (_cultures == null)
         {
             List<ICulture> cultures = new();
-            IFuturemud game = Futuremud.Games.First();
+            IFuturemud game = _gameworld;
             foreach (string option in _cultureOptions)
             {
                 ICulture culture = long.TryParse(option, out long value)
@@ -154,8 +163,11 @@ public class TraitExpressionRoleOption : TraitExpressionExtendedOption
     public readonly IEnumerable<string> _roleOptions;
     public IEnumerable<ChargenRoleType> _roleTypes;
 
-    public TraitExpressionRoleOption(string values)
+    private readonly IFuturemud _gameworld;
+
+    public TraitExpressionRoleOption(string values, IFuturemud gameworld)
     {
+        _gameworld = gameworld;
         _roleOptions = values.Split(',');
     }
 
@@ -164,7 +176,7 @@ public class TraitExpressionRoleOption : TraitExpressionExtendedOption
         if (_roles == null)
         {
             List<IChargenRole> roles = new();
-            IFuturemud game = Futuremud.Games.First();
+            IFuturemud game = _gameworld;
             foreach (string option in _roleOptions)
             {
                 List<IChargenRole> roleChoices = game.Roles.Where(x => _roleTypes.Contains(x.RoleType)).ToList();

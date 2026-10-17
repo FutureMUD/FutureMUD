@@ -106,7 +106,7 @@ public sealed partial class MagicDefensePower : SustainedMagicPower, IMagicDefen
 		    !CanAffordToInvokePower(defender, ReactionVerb).Truth || (RequiresUpright && !defender.PositionState.Upright) ||
 		    defender.Body.FunctioningFreeHands.Count() < FreeHands || (RequiresVision && !defender.CanSee(attack.Assailant)) ||
 		    (RequiresAttackerVision && !attack.Assailant.CanSee(defender)) ||
-		    CanInvokePowerProg?.ExecuteBool(defender, attack.Assailant) == false ||
+		    CanInvokePower(defender, attack.Assailant) == false ||
 		    EligibilityProg?.ExecuteBool(defender, attack.Assailant) == false) return false;
 		if (attack is IMagicPowerAttackMove powerAttack && !powerAttack.AttackPower.ValidDefenseTypes.Contains(DefenseType.Magic)) return false;
 		var threat = MagicDefenseMove.Classify(attack);
@@ -134,7 +134,7 @@ public sealed partial class MagicDefensePower : SustainedMagicPower, IMagicDefen
 		if (verb.EqualTo(EndVerb)) { ExpireSustainedEffect(actor); return; }
 		if (actor.EffectsOfType<MagicDefense>().Any(x => x.Power == this)) { actor.Send("You already maintain that defense."); return; }
 		if (!actor.Powers.Contains(this) || !actor.State.IsAble() || actor.Movement is not null || actor.IsBlocked("general").Truth ||
-		    !CanAffordToInvokePower(actor, BeginVerb).Truth || CanInvokePowerProg?.ExecuteBool(actor, actor) == false)
+		    !CanAffordToInvokePower(actor, BeginVerb).Truth || CanInvokePower(actor, actor) == false)
 		{ actor.Send("You cannot activate that defense at present."); return; }
 		ConsumePowerCosts(actor, BeginVerb);
 		var outcome = Gameworld.GetCheck(CheckType.GenericSkillCheck).Check(actor, DefenseDifficulty, DefenseTrait);

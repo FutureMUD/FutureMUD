@@ -74,17 +74,17 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             {
                 case "race":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionRaceOption(match.Groups["value"].Value)
+                        new TraitExpressionRaceOption(match.Groups["value"].Value, Gameworld)
                         { Name = match.Groups["name"].Value.ToLowerInvariant() };
                     break;
                 case "culture":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionCultureOption(match.Groups["value"].Value)
+                        new TraitExpressionCultureOption(match.Groups["value"].Value, Gameworld)
                         { Name = match.Groups["name"].Value.ToLowerInvariant() };
                     break;
                 case "role":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionRoleOption(match.Groups["value"].Value)
+                        new TraitExpressionRoleOption(match.Groups["value"].Value, Gameworld)
                         {
                             Name = match.Groups["name"].Value.ToLowerInvariant(),
                             _roleTypes =
@@ -94,7 +94,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
                     break;
                 case "class":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionRoleOption(match.Groups["value"].Value)
+                        new TraitExpressionRoleOption(match.Groups["value"].Value, Gameworld)
                         {
                             Name = match.Groups["name"].Value.ToLowerInvariant(),
                             _roleTypes = new List<ChargenRoleType>
@@ -105,7 +105,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
                     break;
                 case "merit":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionMeritOption(match.Groups["value"].Value)
+                        new TraitExpressionMeritOption(match.Groups["value"].Value, Gameworld)
                         { Name = match.Groups["name"].Value.ToLowerInvariant() };
                     break;
                 default:
@@ -192,17 +192,17 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             {
                 case "race":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionRaceOption(match.Groups["value"].Value)
+                        new TraitExpressionRaceOption(match.Groups["value"].Value, Gameworld)
                         { Name = match.Groups["name"].Value.ToLowerInvariant() };
                     break;
                 case "culture":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionCultureOption(match.Groups["value"].Value)
+                        new TraitExpressionCultureOption(match.Groups["value"].Value, Gameworld)
                         { Name = match.Groups["name"].Value.ToLowerInvariant() };
                     break;
                 case "role":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionRoleOption(match.Groups["value"].Value)
+                        new TraitExpressionRoleOption(match.Groups["value"].Value, Gameworld)
                         {
                             Name = match.Groups["name"].Value.ToLowerInvariant(),
                             _roleTypes =
@@ -212,7 +212,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
                     break;
                 case "class":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionRoleOption(match.Groups["value"].Value)
+                        new TraitExpressionRoleOption(match.Groups["value"].Value, Gameworld)
                         {
                             Name = match.Groups["name"].Value.ToLowerInvariant(),
                             _roleTypes = new List<ChargenRoleType>
@@ -223,7 +223,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
                     break;
                 case "merit":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionMeritOption(match.Groups["value"].Value)
+                        new TraitExpressionMeritOption(match.Groups["value"].Value, Gameworld)
                         { Name = match.Groups["name"].Value.ToLowerInvariant() };
                     break;
                 default:
@@ -271,6 +271,20 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
     public Expression Formula { get; protected set; }
 
     private Dictionary<string, TraitExpressionParameter> _parameters = new();
+
+	public IReadOnlyDictionary<string, long> TraitReferenceIds
+	{
+		get
+		{
+			var names = Formula.ParameterNames.ToHashSet(StringComparer.Ordinal);
+			var references = _parameters.Where(x => names.Contains(x.Key)).ToDictionary(x => x.Key, x => x.Value.Trait.Id);
+			// A builder formula edit may replace an already loaded parameter. The pending
+			// native parse takes precedence, just as it does in ProcessLazyLoading.
+			foreach (var reference in _parameterIndexes)
+				if (names.Contains(reference.Key)) references[reference.Key] = reference.Value;
+			return references;
+		}
+	}
 
     public Dictionary<string, TraitExpressionParameter> Parameters
     {
@@ -611,17 +625,17 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
             {
                 case "race":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionRaceOption(match.Groups["value"].Value)
+                        new TraitExpressionRaceOption(match.Groups["value"].Value, Gameworld)
                         { Name = match.Groups["name"].Value.ToLowerInvariant() };
                     break;
                 case "culture":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionCultureOption(match.Groups["value"].Value)
+                        new TraitExpressionCultureOption(match.Groups["value"].Value, Gameworld)
                         { Name = match.Groups["name"].Value.ToLowerInvariant() };
                     break;
                 case "role":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionRoleOption(match.Groups["value"].Value)
+                        new TraitExpressionRoleOption(match.Groups["value"].Value, Gameworld)
                         {
                             Name = match.Groups["name"].Value.ToLowerInvariant(),
                             _roleTypes =
@@ -631,7 +645,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
                     break;
                 case "class":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionRoleOption(match.Groups["value"].Value)
+                        new TraitExpressionRoleOption(match.Groups["value"].Value, Gameworld)
                         {
                             Name = match.Groups["name"].Value.ToLowerInvariant(),
                             _roleTypes = new List<ChargenRoleType>
@@ -642,7 +656,7 @@ public partial class TraitExpression : SaveableItem, ITraitExpression
                     break;
                 case "merit":
                     _options[match.Groups["name"].Value.ToLowerInvariant()] =
-                        new TraitExpressionMeritOption(match.Groups["value"].Value)
+                        new TraitExpressionMeritOption(match.Groups["value"].Value, Gameworld)
                         { Name = match.Groups["name"].Value.ToLowerInvariant() };
                     break;
                 default:

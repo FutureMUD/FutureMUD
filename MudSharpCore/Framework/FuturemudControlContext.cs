@@ -115,6 +115,7 @@ public sealed class FuturemudControlContext : IFuturemudControlContext
         _connection = null;
         Account?.Gameworld.SystemMessage($"Account {Account.Name.Proper()} has disconnected.", true);
         ICharacter characterContext = _context as ICharacter;
+		if (characterContext is not null) MudSharp.Economy.Shops.HaggleService.CancelPending(characterContext);
         if (characterContext is not null)
         {
             CharacterInstanceFocusService.TryReturnFocusToPrimary(characterContext, string.Empty, false);

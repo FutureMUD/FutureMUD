@@ -17,6 +17,8 @@ namespace MudSharp.Magic;
 /// <summary>Source-informed stock using a declared native weapon profile and Creation rank tags.</summary>
 public static class ArmageddonStormSpearStock
 {
+	public static ArmageddonUtilitySpellContent Content(IReadOnlyDictionary<int, long> prototypes) =>
+		ArmageddonExistingFactorySpellContent.StormSpear(prototypes);
 	public const string Key = "arm.spell.storm_spear";
 	public const string Name = "Storm Spear";
 	// Recovered event heap: four units per twelve quarter-second pulses, nominally 0.75 seconds/unit.

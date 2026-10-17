@@ -12,6 +12,7 @@ public class Scheduler : IScheduler
 	private readonly IRuntimePerformanceMonitor _performanceMonitor;
 	public DateTime? NextTriggerUtc => _schedules.TryPeek(out var next) ? next.TriggerUtc : null;
 	public int LastCheckFiredCount { get; private set; }
+	public int ScheduleCount => _schedules.Count;
 
 	public Scheduler(TimeProvider timeProvider = null, IRuntimePerformanceMonitor performanceMonitor = null)
 	{

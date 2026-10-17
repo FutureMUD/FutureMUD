@@ -16,19 +16,86 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 30
+    # Hosted Windows builds plus the complete Seeder suite can exceed one hour.
+    timeout-minutes: ${{ matrix.os == 'windows-latest' && 90 || 60 }}
     steps:
+      - name: Check whether this push already has PR coverage
+        id: coverage
+        shell: pwsh
+        timeout-minutes: 1
+        continue-on-error: true
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          REPO_OWNER: ${{ github.repository_owner }}
+          HEAD_BRANCH: ${{ github.ref_name }}
+          HEAD_SHA: ${{ github.sha }}
+          DEFAULT_BRANCH: ${{ github.event.repository.default_branch }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+        run: |
+          $skip = $false
+          if ($env:EVENT_NAME -eq 'push' -and $env:REF_TYPE -eq 'branch' -and $env:HEAD_BRANCH -ne $env:DEFAULT_BRANCH) {
+            try {
+              $json = gh api --method GET "repos/$env:REPOSITORY/pulls" -f state=open -f "head=$($env:REPO_OWNER):$($env:HEAD_BRANCH)" -f per_page=100
+              if ($LASTEXITCODE -eq 0) {
+                $prs = @($json | ConvertFrom-Json)
+                $numbers = @($prs | Where-Object { $_.head.sha -eq $env:HEAD_SHA -and $_.head.repo.full_name -eq $env:REPOSITORY } | ForEach-Object { $_.number })
+                if ($numbers.Count -gt 0) {
+                  # An open PR alone is insufficient: conflicts can prevent its workflow from starting.
+                  $runsJson = gh api --method GET "repos/$env:REPOSITORY/actions/workflows/unit-tests.yml/runs" -f event=pull_request -f "head_sha=$env:HEAD_SHA" -f per_page=100
+                  if ($LASTEXITCODE -eq 0) {
+                    $runs = ($runsJson | ConvertFrom-Json).workflow_runs
+                    $skip = @($runs | Where-Object {
+                      $_.head_sha -eq $env:HEAD_SHA -and
+                      ($_.status -in @('queued', 'in_progress') -or ($_.status -eq 'completed' -and $_.conclusion -in @('success', 'failure', 'timed_out'))) -and
+                      @($_.pull_requests | Where-Object { $_.number -in $numbers }).Count -gt 0
+                    }).Count -gt 0
+                  } else {
+                    Write-Warning 'Workflow lookup failed; retaining push coverage.'
+                  }
+                }
+              } else {
+                Write-Warning 'PR lookup failed; retaining push coverage.'
+              }
+            } catch {
+              Write-Warning 'PR lookup could not be parsed; retaining push coverage.'
+            }
+          }
+          "skip=$($skip.ToString().ToLowerInvariant())" >> $env:GITHUB_OUTPUT
+          if ($skip) { Write-Host 'This exact revision is covered by an open PR on both operating systems.' }
+          exit 0
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        if: steps.coverage.outputs.skip != 'true'
         with:
           persist-credentials: false
+      - name: Validate CI coverage guard
+        if: steps.coverage.outputs.skip != 'true'
+        shell: pwsh
+        run: pwsh -NoProfile -File scripts/tests/test-ci-push-coverage.ps1
       - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        if: steps.coverage.outputs.skip != 'true'
         with:
           dotnet-version: '10.0.x'
       - name: Run default unit-test gate on Linux
-        if: runner.os == 'Linux'
+        if: steps.coverage.outputs.skip != 'true' && runner.os == 'Linux'
         shell: bash
         run: bash ./scripts/test-unit.sh
       - name: Run default unit-test gate on Windows
-        if: runner.os == 'Windows'
+        if: steps.coverage.outputs.skip != 'true' && runner.os == 'Windows'
         shell: pwsh
         run: '& .\scripts\test-unit.ps1'
+      - name: Retain structured test evidence
+        if: always() && steps.coverage.outputs.skip != 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: unit-test-evidence-${{ matrix.os }}
+          path: |
+            .artifacts/test-runs/**/run.json
+            .artifacts/test-runs/**/summary.json
+            .artifacts/test-runs/**/summary.txt
+            .artifacts/test-runs/**/test-results.json
+            .artifacts/test-runs/**/failures.json
+          include-hidden-files: true
+          if-no-files-found: warn
+          retention-days: 14

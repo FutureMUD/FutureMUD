@@ -25,6 +25,8 @@ public class Damage : IDamage
     public Damage(IDamage rhs)
     {
 		TargetBody = rhs.TargetBody;
+		VitalTransfer = rhs.VitalTransfer;
+		MutationGuard = rhs.MutationGuard;
 		ExposureContext = rhs.ExposureContext;
         DamageType = rhs.DamageType;
         DamageAmount = rhs.DamageAmount;
@@ -43,6 +45,8 @@ public class Damage : IDamage
     public Damage(IDamage rhs, double damageMultipliers)
     {
 		TargetBody = rhs.TargetBody;
+		VitalTransfer = rhs.VitalTransfer;
+		MutationGuard = rhs.MutationGuard;
 		ExposureContext = rhs.ExposureContext;
         DamageType = rhs.DamageType;
         DamageAmount = rhs.DamageAmount * damageMultipliers;
@@ -62,6 +66,8 @@ public class Damage : IDamage
 
     public DamageType DamageType { get; init; }
 	public IBody TargetBody { get; init; }
+	public MudSharp.Magic.IMagicVitalTransferDamage VitalTransfer { get; init; }
+	public IDamageMutationGuard MutationGuard { get; init; }
 	public MudSharp.Form.Material.ExposureDamageContext ExposureContext { get; init; }
 
     public double DamageAmount { get; init; }

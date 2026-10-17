@@ -13,8 +13,8 @@ public class SpellRoomWardEffect : MagicInterdictionSpellEffectBase
 	}
 
 	public SpellRoomWardEffect(IPerceivable owner, IMagicSpellEffectParent parent, IMagicSchool school,
-		MagicInterdictionMode mode, MagicInterdictionCoverage coverage, bool includesSubschools, IFutureProg? prog)
-		: base(owner, parent, school, mode, coverage, includesSubschools, prog)
+		MagicInterdictionMode mode, MagicInterdictionCoverage coverage, bool includesSubschools, IFutureProg? prog, bool oneUse = false)
+		: base(owner, parent, school, mode, coverage, includesSubschools, prog, oneUse)
 	{
 	}
 

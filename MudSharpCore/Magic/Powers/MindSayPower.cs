@@ -225,7 +225,7 @@ public class MindSayPower : MagicPowerBase
             }
         }
 
-        if (CanInvokePowerProg.ExecuteBool(actor, effect.TargetCharacter) == false)
+        if (CanInvokePower(actor, effect.TargetCharacter) == false)
         {
             actor.OutputHandler.Send(string.Format(
                 WhyCantInvokePowerProg.Execute(actor, effect.TargetCharacter)?.ToString() ??

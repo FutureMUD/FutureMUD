@@ -1,0 +1,928 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "status": "PASS_BOUNDED_N23_RECHARGE",
+  "branch": "codex/armageddon-continuation-20261008",
+  "base_head": "7f04faaf51fe56a4b15e52fb17a625e1b3dced15",
+  "reference_authority": "Known typed/code-proven links only",
+  "numeric_text_scans": false,
+  "guessed_identity_fields": false,
+  "runtime_implementation_changed": false,
+  "schema_migration_required": false,
+  "changed_source_sha256": {
+    "MudSharpCore Unit Tests/ChargedMagicDeviceRechargeTests.cs": "b9173ca30291a7b971e56f35542b263981a7fb8be67a262c557c84a45ea22503",
+    "scripts/FuryCalmSmokeWorld/Program.cs": "4c1f55637c5e8a302d0bf3819e33525f75c3e463d2fe75e4c3e09b4e1c502fda",
+    "scripts/FuryCalmSmokeWorld/RechargeFixtures.cs": "96041851341f20674948c27333d8a11650bab337d8bdd77db8735c354faf98de",
+    "scripts/FuryCalmSmokeWorld/recharge.py": "5e43edc8951d4f6419206631e7139545bb836ed994fb0124227059fe5e528571"
+  },
+  "managed": {
+    "run_id": "20261011T021441Z-e423f6e2011c",
+    "head": "7f04faaf51fe56a4b15e52fb17a625e1b3dced15",
+    "status": "PASS",
+    "counts": {
+      "executed": 7208,
+      "passed": 7208,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7208
+    },
+    "source_start": "ec53203540af107287cee4aa25ff506a123207a9ba47bd83fd177f40316f057b",
+    "source_end": "ec53203540af107287cee4aa25ff506a123207a9ba47bd83fd177f40316f057b",
+    "source_stable": true,
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj"
+    ],
+    "filter": null,
+    "configuration": "Debug",
+    "receipt": {
+      "path": ".artifacts/test-runs/20261011T021441Z-e423f6e2011c/summary.json",
+      "sha256": "74e1c4aa3762dc88e89c472d83ddb2ffd50354e04085934bb31577a6a00f449c"
+    },
+    "project_counts": {
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
+        "executed": 6450,
+        "passed": 6450,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6450
+      },
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
+        "executed": 758,
+        "passed": 758,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 758
+      }
+    }
+  },
+  "managed_native_binary_matches": {
+    "MudSharp.dll": {
+      "test_path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+      "native_path": "MudSharpCore/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "d2a9f5ec9c5609964bb0913bfa1c25352433e0bdda51e69c7804e86d0e00086f"
+    },
+    "FutureMUDLibrary.dll": {
+      "test_path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "native_path": "MudSharpCore/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "bde286e476b03c55cafa1b935df29a00dd2b4b163e76d6ed11634ca399f21326"
+    }
+  },
+  "managed_native_scope": {
+    "csharp_inputs_unchanged_after_managed": true,
+    "csharp_comparison_receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-a6341ab1/receipt.json",
+      "sha256": "b2365121ef3ca54fe2c14477a398deb502cc521c5cfddc56eb494efd57a06baa"
+    },
+    "native_only_followup": "Python terminal/reservation guards, explicit EF TraitExpression mapping, native per-character cap evaluation, JSON-transport old-bank observation, save flush after material drop and native stop-response text corrected before the current managed gate. After that gate, the cold-restart response guard was corrected to the earlier structural reservation refusal and SELECT-only JSON observations gained at most three decoding attempts with malformed-row/hash retention; exact bank/player/journal invariance assertions remain unchanged. The temporary Core diagnostic trace was restored byte-for-byte and rebuilt/retested before final native acceptance. Stock releases now precede deliberately unresolved production quarantine. Cap evaluation, material custody/payment and cold-restart refusals execute in the final full replay. The optional prior-fixture guard executed during a retained failed replay; its terminal-state evidence is also bound to the completed read-only audit. CSharp sources and tested/native runtime assemblies unchanged between the current managed gate and final replay."
+  },
+  "fixture_build": {
+    "status": "PASS",
+    "configuration": "Debug",
+    "warnings": 0,
+    "errors": 0,
+    "receipt": {
+      "path": ".artifacts/n23-fixture-build-2.log",
+      "sha256": "e588b18e4a09d2d0b4f8153ecb7188375b41e7dc3491dded4cf67c2e9ded7cba"
+    }
+  },
+  "setup_audits": [
+    {
+      "scope": "Read-only prior failed operation, bank and paid balance; no MUD gameplay",
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-7109f174/prior-operation-audit.json",
+        "sha256": "4c11cc86c44f344b217027f0b7d7846162fc95ea4bf9fb9f6a1421d100a203d2"
+      }
+    },
+    {
+      "scope": "Read-only eighth-replay early cancellation: exact operation, item, owner and deadline; no MUD gameplay",
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-e42caef8/timeout-operation-audit.json",
+        "sha256": "4e22d04302eaa92de3cba42109c1bc8748f3b75cf8f45a0decb7a2cd5d4a377e"
+      }
+    },
+    {
+      "scope": "Exact failed ninth-replay crash acknowledged natively for setup only; full reserved bank, player state and paid reserve 600 preserved; no refund/replay or N23 gameplay qualification",
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-524777e9/failed-crash-acknowledgement.json",
+        "sha256": "a4fc2645dd5f7f7a184a6409fb264e7b2ea99a68ca311b1fe2af3e9c9a7e4ea6"
+      }
+    },
+    {
+      "scope": "Exact failed twelfth-replay crash acknowledged natively for setup only; full reserved bank, player state and paid reserve 600 preserved; no refund/replay or N23 gameplay qualification",
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-9c2820a3/failed-crash-acknowledgement.json",
+        "sha256": "7c413f5125497c5ad2d7129ec866884eab7abced84f90543f3ab004e98483181"
+      },
+      "helper": {
+        "path": ".artifacts/n23_ack_failed_crash.py",
+        "sha256": "8153df39a5ac4e9f4d7fe5876ab8d7b0281f27e07b366e89101555402a3fc087"
+      }
+    },
+    {
+      "scope": "Read-only SQL transport audit after eleventh replay; same exact journal query returns 64 valid JSON rows, no MUD or gameplay",
+      "receipt": {
+        "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-183c5b81/json-transport-audit.json",
+        "sha256": "eaa9914f40507c516b0b56174c7435c528dbd8828b1231b58dd56e498e7b7cd9"
+      },
+      "helper": {
+        "path": ".artifacts/n23_read_transport.py",
+        "sha256": "cdb1579e0c03be7e132dc864278e0b3414a244eddfd394e0e7258c285748730e"
+      }
+    }
+  ],
+  "n22_skill_input_clarification": {
+    "database_setup": 60,
+    "recorded_production_raw": 50,
+    "qualification_unchanged": true,
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-55393b26/receipt.json",
+      "sha256": "248f7fe19435e0f844002b5a99825b709a33bcf98c62ad47bf3a9877a1dfcfc3"
+    }
+  },
+  "previous_head_hosted_checks": {
+    "head": "7f04faaf51fe56a4b15e52fb17a625e1b3dced15",
+    "observed_before_n23_publication": true,
+    "successful_checks": 3,
+    "failed_checks": 1,
+    "failed_windows_job": "https://github.com/FutureMUD/FutureMUD/actions/runs/38094649389/job/114337958468",
+    "failure": "MatchesPattern_AuthoredSyntaxAndBacktracking_ReturnsSafely (^(hair|eyes)$,HAIR,True): expected true, actual false",
+    "companion_windows_check": "SUCCESS",
+    "log": {
+      "path": ".artifacts/n22-hosted-windows-failure.log",
+      "sha256": "8af875b5b71cd9eb550b755a72bfd7c370356d0124cff39139a34f68ef5e1b0c"
+    },
+    "n23_hosted_outcome_qualified": false
+  },
+  "native": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-10c62a3e/receipt.json",
+      "sha256": "e511dac76ce07561ba2ed6ccd599e211329e9b2e4e0881ce2ad86eb290965d2f"
+    },
+    "status": "PASS",
+    "milestone_qualified": true,
+    "assertions": 1052,
+    "inputs_sha256": {
+      "scripts\\FuryCalmSmokeWorld\\smoke.py": "7638d3cb7abfeb88bd4a191555aa7f6f2fc324373de745c527e1b471160afa40",
+      "scripts\\FuryCalmSmokeWorld\\Program.cs": "4c1f55637c5e8a302d0bf3819e33525f75c3e463d2fe75e4c3e09b4e1c502fda",
+      "scripts\\AuthoredCelestialSmokeWorld\\native.py": "18fca1b93f3a85551d9b0907ebe4f7b8fa11c625517abab470c67cf155f265f8",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "797b5234f179ee29490d99f2a24c08a240d5e69af8c55fac7903e2d8fa34d6b2",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "be89e64cc8f505961f00f6b2cd0ffb7c13f7e49e583f2c687699213d9536bfa0",
+      "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "d2a9f5ec9c5609964bb0913bfa1c25352433e0bdda51e69c7804e86d0e00086f",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+      "scripts\\FuryCalmSmokeWorld\\devices.py": "ca83c9083d9fb027acf44dd9f275703f99ba90708cda509a929e1751bba674e5",
+      "scripts\\FuryCalmSmokeWorld\\DeviceFixtures.cs": "255b07da873ed52ec6c11c456de0b537217bb0f24323c7530602d0ebdbecff8b",
+      "MudSharpCore\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll": "bde286e476b03c55cafa1b935df29a00dd2b4b163e76d6ed11634ca399f21326",
+      "MudSharpCore\\Magic\\Casting\\MagicCastingService.Devices.cs": "558539a3d470d41f0b4f930e1f0714e767e6302c5405def322c0e12a0e13bd65",
+      "MudSharpCore\\Commands\\Modules\\MagicModule.Devices.cs": "36a0991770d2cba7dc21bf1e05f2da52d78239ac9cfecd59e115a4b7a2656827",
+      "MudSharpCore\\Commands\\Modules\\InventoryModule.Devices.cs": "a67f3b33841665079a437ffa8f020177311e02cf1894dbe33692bd1f0f376996",
+      "MudSharpCore\\GameItems\\Components\\ChargedMagicDeviceGameItemComponent.cs": "c58cb66a415eb7df9b24c485e7ffda0c50c5dc153212ce0efd420ec9a75db7e7",
+      "scripts\\FuryCalmSmokeWorld\\recharge.py": "5e43edc8951d4f6419206631e7139545bb836ed994fb0124227059fe5e528571",
+      "scripts\\FuryCalmSmokeWorld\\RechargeFixtures.cs": "96041851341f20674948c27333d8a11650bab337d8bdd77db8735c354faf98de",
+      "MudSharpCore\\Magic\\Vancian\\StoredSpellSnapshot.Devices.cs": "44057f501cc793296670dd3ec31af6f454b9ac518511deb423b481afeddfef1f",
+      "MudSharpCore Unit Tests\\ChargedMagicDeviceRechargeTests.cs": "b9173ca30291a7b971e56f35542b263981a7fb8be67a262c557c84a45ea22503"
+    },
+    "objects": {
+      "Status": "PASS",
+      "Players": {
+        "caster": {
+          "Character": 499,
+          "Body": 521,
+          "Instance": 521,
+          "Account": 2,
+          "AccountName": "n22caster",
+          "Permission": 2,
+          "Keyword": "qan22caster"
+        },
+        "reader": {
+          "Character": 500,
+          "Body": 522,
+          "Instance": 522,
+          "Account": 3,
+          "AccountName": "n22reader",
+          "Permission": 2,
+          "Keyword": "qan22reader"
+        }
+      },
+      "Room": 64,
+      "Stock": {
+        "wand": 6893,
+        "staff": 6894
+      },
+      "PrivateDevice": 7224,
+      "PrivateComponent": 3944,
+      "Material": 7225,
+      "MaterialWearable": 119,
+      "Mend": 12,
+      "Trait": 299,
+      "Focus": 96,
+      "Merit": 89,
+      "Capability": 5,
+      "Reserve": 5,
+      "MendAdmitted": true,
+      "StockComponent": 3855,
+      "Scope": "N23 recharge; independent private fixtures, native ordinary accounts retained",
+      "AlternateCapability": 34,
+      "AlternateMerit": 118,
+      "WrongCapability": 35,
+      "WrongMerit": 119,
+      "InterruptDevice": 7226,
+      "InterruptComponent": 3945,
+      "MaterialTag": 2673
+    },
+    "ordinary_account_creation_receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-ea07d026/receipt.json",
+      "sha256": "de5a9a4cab1b4cc68e4475cb2b4846d99532da9807d632ca172fb0ea02871e32"
+    },
+    "refusals": [
+      {
+        "case": "incompatible admitted route",
+        "device": "wand",
+        "actor": 500,
+        "capability": 35,
+        "spell": 12,
+        "grade": 3,
+        "count": 1
+      },
+      {
+        "case": "original capability is unavailable to recipient",
+        "device": "wand",
+        "actor": 500,
+        "capability": 5,
+        "spell": 12,
+        "grade": 3,
+        "count": 1
+      },
+      {
+        "case": "unacquired stored spell",
+        "device": "wand",
+        "actor": 500,
+        "capability": 34,
+        "spell": 12,
+        "grade": 3,
+        "count": 1
+      },
+      {
+        "case": "insufficient controlled grade",
+        "device": "wand",
+        "actor": 500,
+        "capability": 34,
+        "spell": 12,
+        "grade": 3,
+        "count": 1
+      },
+      {
+        "case": "insufficient reproducible raw potency",
+        "device": "wand",
+        "actor": 500,
+        "capability": 34,
+        "spell": 12,
+        "grade": 3,
+        "count": 1
+      },
+      {
+        "case": "incompatible grade in a nonempty bank",
+        "device": "wand",
+        "actor": 500,
+        "capability": 34,
+        "spell": 12,
+        "grade": 2,
+        "count": 1
+      },
+      {
+        "case": "request exceeds missing capacity",
+        "device": "wand",
+        "actor": 499,
+        "capability": 5,
+        "spell": 12,
+        "grade": 3,
+        "count": 2
+      },
+      {
+        "case": "insufficient reserve for one legitimate recharge",
+        "device": "wand",
+        "actor": 500,
+        "capability": 34,
+        "spell": 12,
+        "grade": 3,
+        "count": 1
+      },
+      {
+        "case": "aggregate supplies cannot fund two charges with one item",
+        "device": "private",
+        "actor": 499,
+        "capability": 5,
+        "spell": 12,
+        "grade": 3,
+        "count": 2
+      },
+      {
+        "case": "different whitelisted payload in an existing bank",
+        "device": "private",
+        "actor": 499,
+        "capability": 5,
+        "spell": 96,
+        "grade": 3,
+        "count": 1
+      },
+      {
+        "case": "persisted incomplete work refuses automatic recharge",
+        "device": "interrupt",
+        "actor": 499,
+        "capability": 5,
+        "spell": 12,
+        "grade": 3,
+        "count": 1
+      }
+    ],
+    "production": [
+      {
+        "device": "wand",
+        "actor": 499,
+        "capability": 5,
+        "count": 2,
+        "operation": "08cdda44-68b2-4d3e-a934-0fc8f3a9099e",
+        "paid": 100,
+        "newGuids": [
+          "1827de27-e9cc-4d8c-bd09-0a5fe3508580",
+          "a99392ca-36df-4166-b308-4b1779d2d1a8"
+        ],
+        "materials": [],
+        "before_bank": {
+          "item": 329,
+          "component": 587,
+          "prototype": 3855,
+          "revision": 0,
+          "charges": [],
+          "reservation": null,
+          "producer": {
+            "capability": "0",
+            "trait": "0",
+            "raw": "0"
+          },
+          "definition_sha256": "396c04203f0ae3c202203c1062aa7aa2b9c9a230f004b521c5431382aa602230",
+          "snapshot_sha256": null
+        },
+        "after_bank": {
+          "item": 329,
+          "component": 587,
+          "prototype": 3855,
+          "revision": 0,
+          "charges": [
+            "1827de27-e9cc-4d8c-bd09-0a5fe3508580",
+            "a99392ca-36df-4166-b308-4b1779d2d1a8"
+          ],
+          "reservation": null,
+          "producer": {
+            "capability": "5",
+            "trait": "299",
+            "raw": "45"
+          },
+          "definition_sha256": "5221f5cb1d1e0ef6bf9451a7d52f0608f68ad2b7bb3737280139ec6258684cbf",
+          "snapshot_sha256": "7e77e39f20c0240376e9f2dd643b92cfad263ab9c60f5ab18bf8c2ec3b2a447b"
+        }
+      },
+      {
+        "device": "wand",
+        "actor": 500,
+        "capability": 34,
+        "count": 2,
+        "operation": "1e82936c-930e-4eb1-b105-20fef47ee209",
+        "paid": 100,
+        "newGuids": [
+          "d8f55540-ab19-4232-9512-67f6c162f8c6",
+          "eb6f0fc0-2ed5-4a7a-a594-fe9fa2ffafd1"
+        ],
+        "materials": [],
+        "before_bank": {
+          "item": 329,
+          "component": 587,
+          "prototype": 3855,
+          "revision": 0,
+          "charges": [
+            "a99392ca-36df-4166-b308-4b1779d2d1a8"
+          ],
+          "reservation": null,
+          "producer": {
+            "capability": "5",
+            "trait": "299",
+            "raw": "45"
+          },
+          "definition_sha256": "8ffd45f04db2a45f01c2990b38055e689c76425083908661dec7b614a6b82bcf",
+          "snapshot_sha256": "7e77e39f20c0240376e9f2dd643b92cfad263ab9c60f5ab18bf8c2ec3b2a447b"
+        },
+        "after_bank": {
+          "item": 329,
+          "component": 587,
+          "prototype": 3855,
+          "revision": 0,
+          "charges": [
+            "a99392ca-36df-4166-b308-4b1779d2d1a8",
+            "d8f55540-ab19-4232-9512-67f6c162f8c6",
+            "eb6f0fc0-2ed5-4a7a-a594-fe9fa2ffafd1"
+          ],
+          "reservation": null,
+          "producer": {
+            "capability": "5",
+            "trait": "299",
+            "raw": "45"
+          },
+          "definition_sha256": "38d15254181be52193a533fd3944664cf0b8783724e42b9aa273f643cfcdfb1f",
+          "snapshot_sha256": "7e77e39f20c0240376e9f2dd643b92cfad263ab9c60f5ab18bf8c2ec3b2a447b"
+        }
+      },
+      {
+        "device": "wand",
+        "actor": 499,
+        "capability": 5,
+        "count": 1,
+        "operation": "e1b5f7eb-8393-4b62-ac75-21e41475148e",
+        "paid": 50,
+        "newGuids": [
+          "324af74a-5ee8-424f-a1d2-6680599e0a0e"
+        ],
+        "materials": [],
+        "before_bank": {
+          "item": 329,
+          "component": 587,
+          "prototype": 3855,
+          "revision": 0,
+          "charges": [
+            "a99392ca-36df-4166-b308-4b1779d2d1a8",
+            "d8f55540-ab19-4232-9512-67f6c162f8c6",
+            "eb6f0fc0-2ed5-4a7a-a594-fe9fa2ffafd1"
+          ],
+          "reservation": null,
+          "producer": {
+            "capability": "5",
+            "trait": "299",
+            "raw": "45"
+          },
+          "definition_sha256": "38d15254181be52193a533fd3944664cf0b8783724e42b9aa273f643cfcdfb1f",
+          "snapshot_sha256": "7e77e39f20c0240376e9f2dd643b92cfad263ab9c60f5ab18bf8c2ec3b2a447b"
+        },
+        "after_bank": {
+          "item": 329,
+          "component": 587,
+          "prototype": 3855,
+          "revision": 0,
+          "charges": [
+            "a99392ca-36df-4166-b308-4b1779d2d1a8",
+            "d8f55540-ab19-4232-9512-67f6c162f8c6",
+            "eb6f0fc0-2ed5-4a7a-a594-fe9fa2ffafd1",
+            "324af74a-5ee8-424f-a1d2-6680599e0a0e"
+          ],
+          "reservation": null,
+          "producer": {
+            "capability": "5",
+            "trait": "299",
+            "raw": "45"
+          },
+          "definition_sha256": "896247ee22ceaf2e9a39437d567cadfa3206532b1b4d907b96d0b7738d6e95c1",
+          "snapshot_sha256": "7e77e39f20c0240376e9f2dd643b92cfad263ab9c60f5ab18bf8c2ec3b2a447b"
+        }
+      },
+      {
+        "device": "private",
+        "actor": 499,
+        "capability": 5,
+        "count": 2,
+        "operation": "114f3492-4d41-4a54-86d9-ddbcb78a39e7",
+        "paid": 100,
+        "newGuids": [
+          "79e245c8-253f-4221-b145-f454becfbed5",
+          "60e3361b-c574-4b82-b7b4-16f31c5d2c41"
+        ],
+        "materials": [
+          331,
+          332
+        ],
+        "before_bank": {
+          "item": 330,
+          "component": 589,
+          "prototype": 3944,
+          "revision": 0,
+          "charges": [],
+          "reservation": null,
+          "producer": {
+            "capability": "0",
+            "trait": "0",
+            "raw": "0"
+          },
+          "definition_sha256": "396c04203f0ae3c202203c1062aa7aa2b9c9a230f004b521c5431382aa602230",
+          "snapshot_sha256": null
+        },
+        "after_bank": {
+          "item": 330,
+          "component": 589,
+          "prototype": 3944,
+          "revision": 0,
+          "charges": [
+            "79e245c8-253f-4221-b145-f454becfbed5",
+            "60e3361b-c574-4b82-b7b4-16f31c5d2c41"
+          ],
+          "reservation": null,
+          "producer": {
+            "capability": "5",
+            "trait": "299",
+            "raw": "45"
+          },
+          "definition_sha256": "9f386a1f433a031fcbc80a4b903c6f5650499f54426dae9a38d40b6bd283aa42",
+          "snapshot_sha256": "2ae5e0a3dd143f91fac657f6b2d8c22c8d4de43a090fea35234c91c4c9d7de55"
+        }
+      },
+      {
+        "device": "interrupt",
+        "actor": 499,
+        "capability": 5,
+        "count": 1,
+        "operation": "f0fd6e7b-0c15-43df-ac7a-aebf332a04bd",
+        "paid": 50,
+        "newGuids": [
+          "86682fdd-5c90-4273-87bb-bf7a6bfd7749"
+        ],
+        "materials": [],
+        "before_bank": {
+          "item": 333,
+          "component": 595,
+          "prototype": 3945,
+          "revision": 0,
+          "charges": [],
+          "reservation": null,
+          "producer": {
+            "capability": "0",
+            "trait": "0",
+            "raw": "0"
+          },
+          "definition_sha256": "396c04203f0ae3c202203c1062aa7aa2b9c9a230f004b521c5431382aa602230",
+          "snapshot_sha256": null
+        },
+        "after_bank": {
+          "item": 333,
+          "component": 595,
+          "prototype": 3945,
+          "revision": 0,
+          "charges": [
+            "86682fdd-5c90-4273-87bb-bf7a6bfd7749"
+          ],
+          "reservation": null,
+          "producer": {
+            "capability": "5",
+            "trait": "299",
+            "raw": "45"
+          },
+          "definition_sha256": "97abd6e9e63c8e77eefe4928dbfff2e2ec9590db9d10ddc560d2ef4a4fa0a472",
+          "snapshot_sha256": "5f2c15a1052f82cf2f9a3f23a2f59b072d5fa4f63ceb2e4fd995364ab357d9cf"
+        }
+      }
+    ],
+    "releases": [
+      {
+        "device": "wand",
+        "actor": 499,
+        "charge": "1827de27-e9cc-4d8c-bd09-0a5fe3508580",
+        "healed": 18.0
+      },
+      {
+        "device": "wand",
+        "actor": 499,
+        "charge": "a99392ca-36df-4166-b308-4b1779d2d1a8",
+        "healed": 18.0
+      },
+      {
+        "device": "wand",
+        "actor": 499,
+        "charge": "d8f55540-ab19-4232-9512-67f6c162f8c6",
+        "healed": 18.0
+      },
+      {
+        "device": "wand",
+        "actor": 499,
+        "charge": "eb6f0fc0-2ed5-4a7a-a594-fe9fa2ffafd1",
+        "healed": 18.0
+      },
+      {
+        "device": "wand",
+        "actor": 499,
+        "charge": "324af74a-5ee8-424f-a1d2-6680599e0a0e",
+        "healed": 18.0
+      }
+    ],
+    "cancelled_work": {
+      "operation": "3d2dc716-f78b-4c54-8985-8e7556737f08",
+      "paid": 50,
+      "old_charges_preserved": true,
+      "refund": 0
+    },
+    "incomplete_work": {
+      "operation": "0732267c-71c3-4515-8c1f-444a23471ed9",
+      "paid": 50,
+      "bank": {
+        "item": 333,
+        "component": 595,
+        "prototype": 3945,
+        "revision": 0,
+        "charges": [
+          "86682fdd-5c90-4273-87bb-bf7a6bfd7749"
+        ],
+        "reservation": "0732267c-71c3-4515-8c1f-444a23471ed9",
+        "producer": {
+          "capability": "5",
+          "trait": "299",
+          "raw": "45"
+        },
+        "definition_sha256": "c1744f69a49375a02547ce11b37394008c1a8eb5a763d563016ece7cd1962a4a",
+        "snapshot_sha256": "5f2c15a1052f82cf2f9a3f23a2f59b072d5fa4f63ceb2e4fd995364ab357d9cf"
+      },
+      "automatic_replay": false,
+      "refund": 0
+    },
+    "final_banks": {
+      "wand": {
+        "item": 329,
+        "component": 587,
+        "prototype": 3855,
+        "revision": 0,
+        "charges": [],
+        "reservation": null,
+        "producer": {
+          "capability": "5",
+          "trait": "299",
+          "raw": "45"
+        },
+        "definition_sha256": "4d171476fb91f3e707806b15b3c2dde05d58136a09cb9d3e0681a6a28b514e18",
+        "snapshot_sha256": "7e77e39f20c0240376e9f2dd643b92cfad263ab9c60f5ab18bf8c2ec3b2a447b"
+      },
+      "private": {
+        "item": 330,
+        "component": 589,
+        "prototype": 3944,
+        "revision": 0,
+        "charges": [
+          "79e245c8-253f-4221-b145-f454becfbed5",
+          "60e3361b-c574-4b82-b7b4-16f31c5d2c41"
+        ],
+        "reservation": null,
+        "producer": {
+          "capability": "5",
+          "trait": "299",
+          "raw": "45"
+        },
+        "definition_sha256": "9f386a1f433a031fcbc80a4b903c6f5650499f54426dae9a38d40b6bd283aa42",
+        "snapshot_sha256": "2ae5e0a3dd143f91fac657f6b2d8c22c8d4de43a090fea35234c91c4c9d7de55"
+      },
+      "interrupt": {
+        "item": 333,
+        "component": 595,
+        "prototype": 3945,
+        "revision": 0,
+        "charges": [
+          "86682fdd-5c90-4273-87bb-bf7a6bfd7749"
+        ],
+        "reservation": "0732267c-71c3-4515-8c1f-444a23471ed9",
+        "producer": {
+          "capability": "5",
+          "trait": "299",
+          "raw": "45"
+        },
+        "definition_sha256": "c1744f69a49375a02547ce11b37394008c1a8eb5a763d563016ece7cd1962a4a",
+        "snapshot_sha256": "5f2c15a1052f82cf2f9a3f23a2f59b072d5fa4f63ceb2e4fd995364ab357d9cf"
+      }
+    },
+    "final_reserves": {
+      "caster": 600.0,
+      "reader": 49.0
+    },
+    "reserve_conditioning": {
+      "actor": 500,
+      "before": 900.0,
+      "after": 49,
+      "fixtureWithdrawn": 851.0,
+      "reason": "Explicit insufficient-reserve negative input; never restored or used to refund production"
+    },
+    "reader_acquisition_before_negative_setup": [
+      [
+        12,
+        3,
+        "Staff 1: N23 explicit alternate grant",
+        1
+      ]
+    ],
+    "paid_production": 400,
+    "paid_interrupted_work": 100,
+    "produced_charges": 8,
+    "consumed_charges": 5,
+    "remaining_charges": 3,
+    "expected_forced_stops": [
+      {
+        "index": 4,
+        "operation": "0732267c-71c3-4515-8c1f-444a23471ed9",
+        "returncode": 1,
+        "reason": "N23 crash during paid recharge before completion; MySQL remains owned and running"
+      }
+    ],
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-1.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-2.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-3.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-4.log",
+        "returncode": 1,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-5.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "capability_definition_restored": true,
+    "mysql_stopped_by_owned_handle": true,
+    "mysql_port_closed": true,
+    "sql_observations": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-10c62a3e/sql-observations.jsonl",
+      "sha256": "6af4428449852902f1f48f1bdbc776f3dca0390efa795651c6b990d47cc173ea"
+    },
+    "native_skill_cap": {
+      "trait": 299,
+      "expression": 9,
+      "formula": "min(99,2*str:1 + 3*con:2)",
+      "original": 45,
+      "weaker": 44,
+      "stronger": 49,
+      "reason": "Native Skill.Value is capped; stored database values alone do not prove runtime raw proficiency",
+      "evaluations": [
+        {
+          "role": "caster",
+          "character": 499,
+          "cap": 50.0,
+          "output": "Evaluating Trait Expression #9 (Swimming Skill Cap) for a qan22caster man...\nResult: 50.000\n\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+        },
+        {
+          "role": "reader",
+          "character": 500,
+          "cap": 50.0,
+          "output": "Evaluating Trait Expression #9 (Swimming Skill Cap) for a qan22reader man...\nResult: 50.000\n\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+        },
+        {
+          "role": "reader",
+          "character": 500,
+          "cap": 50.0,
+          "output": "Evaluating Trait Expression #9 (Swimming Skill Cap) for a qan22reader man...\nResult: 50.000\n\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+        }
+      ]
+    },
+    "prior_failed_fixture_disposition": null,
+    "scalar_read_retries": [
+      {
+        "purpose": "caster wound total",
+        "query_sha256": "13dfdb0332ffcebf281d60e3e209938f007efd0b8b2fde0de57b500fc410559c",
+        "first_result": "EMPTY"
+      }
+    ],
+    "rowset_read_retries": [],
+    "malformed_rowset_reads": []
+  },
+  "review": {
+    "scope": "Read-only N23 fixtures, scenario and regression diff",
+    "result": "Material-payment timing gap resolved by the 60-second private timer and exact material absence while DeviceProducing before fill. Cap-clamped fixture correction reviewed; exact prior reservation-to-operation assertion added before any native acknowledgement. Earlier tail review identified the native stop-response mismatch. After the ninth replay exposed the earlier structural reservation message, a focused follow-up verified both corrected cold-restart refusal guards against their concrete runtime call order and confirmed activation cannot clear an unrelated production reservation. A final narrow review confirmed SELECT-only decoding retries retain malformed rows, re-raise the third failure and cannot retry gameplay/payment. A final sequence review confirmed releasing the stock bank before crash respects producer quarantine and preserves the same ledger. Review did not execute gameplay."
+  },
+  "retained_unqualified_receipts": [
+    {
+      "path": ".artifacts/test-runs/20261011T003455Z-a23acbfcc7ff/summary.json",
+      "sha256": "818500f589b7bc9f4aff30e470f66446e26057995f1927e4582f7460a4bb47fa"
+    },
+    {
+      "path": ".artifacts/n23-fixture-build.log",
+      "sha256": "6ef7fb6029a7c0d3fae1bc7da8746a57b356e30accae3ebbef8d009a46aa026f"
+    },
+    {
+      "path": ".artifacts/n23-diagnostic-build.log",
+      "sha256": "211451fd1b18c2a6170ac2648e5f052f120644176b32cab1a6c8fe260802b5be"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-a6341ab1/receipt.json",
+      "sha256": "b2365121ef3ca54fe2c14477a398deb502cc521c5cfddc56eb494efd57a06baa"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-262b5955/receipt.json",
+      "sha256": "3f5fe2b0fb7ebe81cb2447aac3dfa7f084d589d7e3f48d5bfb809585366e1ef5"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-b92c34b2/receipt.json",
+      "sha256": "4812ced1355de7ed57b4493d7d1cfd95d9d9f1888a87e0ed78e1d2ae0e4060ec"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-2a9b1a2a/receipt.json",
+      "sha256": "464d4df6099a817489f5e630d07b8a8856a7159038277147e2b4c7c84342e555"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-179058f4/receipt.json",
+      "sha256": "be27f7ff093d3ae8ec3c213fa18ed5b8fa65cdd738b1c42e628f34d03fdbc835"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-4bc9cae6/receipt.json",
+      "sha256": "b1b15d11513c7271c9d13f8c4addbc2978b884cf70241f5f3a90e721ea6fba0e"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-b5d60aeb/receipt.json",
+      "sha256": "db1c800f8bfb67af4599e88040737e6764175ee3c4a68462d748b70ee36c4e4c"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-8ecac441/receipt.json",
+      "sha256": "d554f2d79d42657620310734d267ac967b3137ac7fb361ec5bbd8d5702374c40"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-332ddc9c/receipt.json",
+      "sha256": "1c01ed9d34ea96b9f284a9f8385829b130418d13204c4b07cd16801ab30b1f56"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-a9a35caf/receipt.json",
+      "sha256": "442aceb62b706b71e3735e4b053000fdbfc187463e70d1b2f70b5091d06bfc39"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-b9acb492/receipt.json",
+      "sha256": "24475a1db95eb37b44c35f429660641956d0b5310e5448f685a15363f624adcf"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-7f3e3d60/receipt.json",
+      "sha256": "2dcad05c82976d443a36bdf32e84c9aadd441c9599958d3b1938cb13bfe39b7f"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-e1288459/receipt.json",
+      "sha256": "8bc0a946260baf55e20234b028b3bdf1ae22e846d910c0ab4e6457fa8577325d"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-601abf88/failed-crash-acknowledgement.json",
+      "sha256": "1a2fac6816ad5fab56f9db866ae874b2a3d955e2066779371554052b0fe93121"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-9a7aa8c5/failed-crash-acknowledgement.json",
+      "sha256": "44ecdda7d8c11ecf60eef015d63e27fd62d3a687d226b39f80440d53a7ca6191"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-58258f71/failed-crash-acknowledgement.json",
+      "sha256": "94203a00974e41bc0a21ad9b37490b638addfc6748244763993505d2cb2a51cc"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-2f934647/failed-crash-acknowledgement.json",
+      "sha256": "731b273f23daffff487ff0ef475a98d65c051ace9d2feb3083a4a98527a0525e"
+    }
+  ],
+  "verification_limits": [
+    "Real ordinary N22 accounts, Human bodies and primary instances are reused. Capability merits and acquisition are explicit private fixture grants; natural prerequisite progression and affordability remain unqualified.",
+    "Native stock wand and both private carriers keep 60 seconds per charge. The material carrier consumes one nearby tagged item per charge before timed work completes. These private definitions are not stock installer changes.",
+    "Mend is the only payload produced/released. Other adapters, temporary-bonus/nonmonotonic reproduction and injected provider faults retain their stated managed/controlled-native scopes.",
+    "The eighth replay cancelled its first paid batch after about 40 seconds while the harness issued no producer command; exact stopped-world audit confirms terminal no-charge/no-refund interruption and cleared reservation. The generic diagnostic discarded the predicate. A bounded temporary trace probe completed that batch without reproducing cancellation. Its precise cause remains undetermined. The diagnostic source was restored byte-for-byte and rebuilt/retested before final native acceptance. No diagnostic-probe counts qualify this milestone; every changing physical/policy input and N25 provider faults remain unqualified.",
+    "The ninth replay completed all five batches, player cancellation and the forced-stop/cold-retention checks, then failed a harness response expectation. The code returns the earlier structural custody/bank/reservation refusal before the later reserved/staff-review message. The final harness matches that exact existing refusal for recharge and activation, retaining exact bank/player/journal invariance checks. The ninth replay remains failed and its counts are not added.",
+    "The tenth replay stopped at fixture grants because the exact ninth-replay DeviceProducing operation quarantined the caster. A separate owned setup helper binds its operation/item/component/cost/owner/body through typed receipt fields and natively acknowledges only that operation as Reconciled. The full reserved bank, both player states and caster reserve 600 remain unchanged, with no refund/replay. Its reservation remains on the old fixture item. Initial helper failures occurred before MUD startup or acknowledgement and retain clean MySQL shutdown; these audits/setup outcomes add no native acceptance counts.",
+    "The eleventh replay passed setup but failed before its first payment when a JSON journal observation could not parse. A stopped-world read of the same exact query returned 64 valid rows; stored-data corruption is not established and the original transport cause remains undetermined. The final Python harness retries only SELECT JSON observations, at most three attempts, retaining malformed row contents and hashes; a third malformed observation still fails. Gameplay/payment commands are never retried. This Python-only follow-up changes no managed CSharp input or runtime binary.",
+    "The twelfth replay passed production, payment, cancellation, crash and cold reserved-item refusals, then incorrectly expected the crashed producer to release another stock item. Its unresolved operation correctly quarantined that producer's spell/trait/reserve inputs. The final scenario consumes the stock bank before deliberately establishing that unresolved quarantine. The exact failed operation is separately acknowledged for setup without changing its bank, reserved GUID, both player states or paid reserve 600. The final replay's incomplete work remains unresolved. The failed twelfth replay and setup acknowledgement add no acceptance counts.",
+    "The wrong-type case is a real entitled capability with no Mend admission. A separate entitled, acquired, admitted alternate route legitimately succeeds; recorded original producer capability remains provenance, not a blanket identity lock.",
+    "The reader Mend acquisition is captured and removed while stopped to establish the negative input, then natively granted. Original/weak/strong raw inputs 45/44/49 are below the unchanged native cap evaluated for each player through the engine trait-expression command and its exact expression FK. The bank records actual raw 45. Initial reserve 1000 is setup; the later 900-to-49 conditioning withdraws 851 and is never restored. No qualifying paid operation receives a refund.",
+    "The first native weak-producer probe failed because database input 60 was clamped to native raw 50; reader input 59 legitimately qualified. That receipt remains failed. Its paid work was natively cancelled during disconnect, with the old charge retained, reservation cleared and debit preserved. An owned read-only audit and setup in retained failed replay 6 verify that terminal state without staff resolve. The final replay omits this optional prior-fixture check because subsequent failed attempts independently conditioned the reader reserve; it does not rewrite that balance to recreate the earlier audit. N22 input 60 likewise meant database input rather than uncapped runtime raw 60; its native receipt already records raw 50 and grade-three 18-point release result is unchanged.",
+    "One owned MUD process is intentionally forcibly stopped during paid recharge. It is not a graceful shutdown pass. Five other server phases exit zero; all collectors and owned MySQL close. The stranded bank/reservation and unresolved receipt remain for explicit staff reconciliation.",
+    "No runtime implementation, schema, blank snapshot, installer catalogue, stock capacity/timer or full Seeder changes. Whole-programme and Release gates remain false."
+  ],
+  "inventory_counts": {
+    "candidates": 154,
+    "required": 152,
+    "optional": 2,
+    "sorcerer_spells": 82,
+    "roots": 4,
+    "support_rows": 12,
+    "classification_all_candidates": {
+      "existing_primitive_configuration": 38,
+      "existing_primitive_plus_bounded_policy_content": 65,
+      "small_missing_primitive": 43,
+      "larger_supporting_system": 8
+    }
+  },
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "next_bounded_milestone": "N24: qualify installer ownership/rerun safety for edited/renamed stock, retired or deleted entries, clones and interrupted owned installation; preserve stable IDs, customisations and every player-state table. N24 has not started. Full installer, historical parity and whole-programme readiness remain pending."
+}

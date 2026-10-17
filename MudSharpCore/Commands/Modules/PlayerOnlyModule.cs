@@ -770,6 +770,10 @@ The syntax is #3INTRODUCE ME#0 or #3INTRODUCE <person>#0. You can append a brack
                 dbdub.TargetId = targetDubId;
                 dbdub.TargetType = target.FrameworkItemType;
                 dbdub.IntroducedName = targetName;
+				// Hearing an introduction alone does not establish the visible person's exact identity.
+				dbdub.WasIdentityConcealed = !tch.CanSee(target) || CharacterRecognitionAuthority.IsObscured(target, tch) ||
+					!(CharacterInstanceIdentityComparer.SameIdentity(actor, target) ||
+						actor.Dubs.Any(x => x.TargetId == targetDubId && x.TargetType == target.FrameworkItemType && x.HasVerifiedIdentity));
                 addedDubs.Add((tch, dbdub));
             }
 

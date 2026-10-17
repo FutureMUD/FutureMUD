@@ -19,7 +19,7 @@ public class LungBreather : IBreathingStrategy
 
     public bool CanBreathe(IBody body)
     {
-        if (body.EffectsOfType<IStopBreathing>().Any(x => x.Applies()))
+        if (BreathingStrategyHelper.IsStoppedByEffect(body))
         {
             return false;
         }

@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-15",
+  "status": "S5_IN_PROGRESS_TOPICAL_SLICE_ACCEPTED",
+  "whole_s5_qualified": false,
+  "s4_required_accepted": 152,
+  "optional_deferred": 2,
+  "baseline_head": "78f2eb1a60608092ae1def263a148fde345fe462",
+  "content_design_questions_remaining": [],
+  "locked_stock_value_sha256": "c62fe779be152cf948af7e0e289d76d8721584e408a06a9f6461dbce8464730c",
+  "availability": {
+    "release": false,
+    "package": false,
+    "classes": false,
+    "use": false,
+    "craft": false,
+    "unqualified_carriers": false,
+    "merge": false,
+    "deploy": false,
+    "variants": false
+  },
+  "built_configured_qualified": {
+    "built": "152 canonical spells and210 approved blueprints; S4 entry ledger remains authoritative.",
+    "charged_stock_allowlist": [
+      "arm.spell.mend_flesh"
+    ],
+    "charged_qualification": "Existing N23 and S4 focus/device receipts retained only within recorded native/shared representative scope. No new charged payload enabled.",
+    "topical_stock": "arm.spell.restorative_mud: permanent one-gram exact bound dose; maximum10*grade; empty Drugs and no OnApply.",
+    "topical_native_grades": [
+      1
+    ],
+    "topical_managed_grades": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "natural_stock_progression": "NOT_RUN in this slice; Classic/Simple source graphs exist but package policies remain disabled; isolated raw100 route/paid Self gathering is scaffolding.",
+    "charged_candidate_count": 36,
+    "substance_candidate_count": 32,
+    "stock_scroll_count": 0
+  },
+  "candidate_sets": {
+    "charged": [
+      "arm.spell.sense_enchantment",
+      "arm.spell.ember_lance",
+      "arm.spell.pillar_of_flame",
+      "arm.spell.borrowed_tongues",
+      "arm.spell.mend_flesh",
+      "arm.spell.sheltering_veil",
+      "arm.spell.purge_toxin",
+      "arm.spell.still_anger",
+      "arm.spell.unyielding_veil",
+      "arm.spell.hush_hearing",
+      "arm.spell.seal_voice",
+      "arm.spell.clear_head",
+      "arm.spell.purge_disease",
+      "arm.spell.water_breathing",
+      "arm.spell.earthen_ward",
+      "arm.spell.heavy_slumber",
+      "arm.spell.earthen_strength",
+      "arm.spell.stone_skin",
+      "arm.spell.sapping_weight",
+      "arm.spell.pierce_concealment",
+      "arm.spell.veil_from_sight",
+      "arm.spell.windborne_flight",
+      "arm.spell.shroud_eyes",
+      "arm.spell.clear_eyes",
+      "arm.spell.lift_hex",
+      "arm.spell.dread_presence",
+      "arm.spell.night_eyes",
+      "arm.spell.see_the_unbodied",
+      "arm.spell.clinging_hex",
+      "arm.spell.lightning_lance",
+      "arm.spell.second_breath",
+      "arm.spell.wakeful_mind",
+      "arm.spell.steal_breath",
+      "arm.spell.still_limbs",
+      "arm.spell.quickened_healing",
+      "arm.spell.empty_aura"
+    ],
+    "substance": [
+      "arm.spell.sense_enchantment",
+      "arm.spell.borrowed_tongues",
+      "arm.spell.mend_flesh",
+      "arm.spell.sheltering_veil",
+      "arm.spell.purge_toxin",
+      "arm.spell.still_anger",
+      "arm.spell.unyielding_veil",
+      "arm.spell.hush_hearing",
+      "arm.spell.seal_voice",
+      "arm.spell.clear_head",
+      "arm.spell.restorative_mud",
+      "arm.spell.purge_disease",
+      "arm.spell.water_breathing",
+      "arm.spell.earthen_ward",
+      "arm.spell.heavy_slumber",
+      "arm.spell.earthen_strength",
+      "arm.spell.stone_skin",
+      "arm.spell.sapping_weight",
+      "arm.spell.pierce_concealment",
+      "arm.spell.veil_from_sight",
+      "arm.spell.windborne_flight",
+      "arm.spell.shroud_eyes",
+      "arm.spell.clear_eyes",
+      "arm.spell.lift_hex",
+      "arm.spell.dread_presence",
+      "arm.spell.night_eyes",
+      "arm.spell.see_the_unbodied",
+      "arm.spell.clinging_hex",
+      "arm.spell.second_breath",
+      "arm.spell.wakeful_mind",
+      "arm.spell.still_limbs",
+      "arm.spell.quickened_healing"
+    ]
+  },
+  "repair": "Exact bound native topical component may consume a Permanent/Completed restorative-mud origin with null deadline and one exact persisted item claim. Temporary/Active/future expiry retained. In-memory spent latch remains eligible; durable false-to-true spent commit precedes healing.",
+  "managed": {
+    "focused": {
+      "path": "C:\\Temp\\s5-dose-core\\20261015T225400Z-6aadf6e8fbf2\\summary.json",
+      "sha256": "665425FDC09D1F09CDF55B7ADC934F30885C7A9B3F74317D708A56AC01824A66"
+    },
+    "counts": {
+      "executed": 64,
+      "passed": 64,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 64
+    },
+    "source_start": "027175ce75ea4e03d0dae756d8927287e8cfb551100606838afe0ee474b29365",
+    "source_end": "027175ce75ea4e03d0dae756d8927287e8cfb551100606838afe0ee474b29365",
+    "source_stable": true,
+    "full_core": {
+      "path": "C:\\Temp\\s5-dose-full-core\\20261015T232250Z-ab714e3000ea\\summary.json",
+      "sha256": "F0A71471DC79817E702C4DAE978FD6B3C85D495F0258213691FA315A85F3C947",
+      "counts": {
+        "executed": 7576,
+        "passed": 7576,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 7576
+      },
+      "source_start": "a6bbeeef2f0a1a58cb027f80ad21c578d9d0a86b26d730924dda2001542a42a4",
+      "source_end": "a6bbeeef2f0a1a58cb027f80ad21c578d9d0a86b26d730924dda2001542a42a4",
+      "source_stable": true,
+      "configuration": "Debug",
+      "sdk": "10.0.401"
+    }
+  },
+  "native": {
+    "boot": {
+      "path": "..\\prepared-catalogue-boot-native-s4-stock-23ed2cb1c16d4b819ca3d4b7996d6b01\\boot-latest.json",
+      "sha256": "7DBE23BA97D295C89080387635A385384CA862CC613D086E6A8E0FF02B8B73DE"
+    },
+    "runner": {
+      "path": "C:\\Temp\\futuremud-s5-dose-native\\20261015T231813Z_673114d21b16474b976ca5f0ff6711fa\\summary.json",
+      "sha256": "E4DF22C803B5C59A86090F7E60667C91B4213EE204F533B27EE96FF5FF020A4D"
+    },
+    "source_start": "6DD0B5027B18BDD935BCE995A8C1A1A367A5FD5F062DCBFA953E318C9670495D",
+    "source_end": "6DD0B5027B18BDD935BCE995A8C1A1A367A5FD5F062DCBFA953E318C9670495D",
+    "source_stable": true,
+    "assertions": [
+      "Matching parent-ready receipt before owned SQL or MUD startup",
+      "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+      "first: native MUD ready",
+      "first: native Admin avatar login and LOOK",
+      "S5 topical: two actual acquired-route grade-one casts each pay exactly50 Water energy and create one independently bound native one-gram dose",
+      "S5 topical: native half-dose refusal; exact full gram consumed before ten-unit wound healing; repeated application cannot heal again; second origin remains unspent",
+      "first: native flush and independent persisted LastLoginTime",
+      "first: graceful shutdown, persisted avatar/cell and logout",
+      "cold: native MUD ready",
+      "S5 topical: cold pre-login SQL retains exact post-dose wound remainder before native login healing",
+      "cold: native Admin avatar login and LOOK",
+      "S5 topical: cold retains exact unspent one-gram origin/grade, spent absence, paid balance and wound remainder without production replay",
+      "S5 topical: cold-loaded dose consumes once and heals exactly ten more native wound units; half-dose and repeated use refuse",
+      "cold: native flush and independent persisted LastLoginTime",
+      "cold: graceful shutdown, persisted avatar/cell and logout"
+    ],
+    "assemblies": [
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll",
+        "sha256": "1785509BAC87DA5132D2C635E9A6654A05409B7B84F5382E0849CD8477A7C57D"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll",
+        "sha256": "2F3211F5DF23C7D586FDD0A0CC3A930C719D82F0AAAAAB1CAE85BD88C20EA2B1"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\MudsharpDatabaseLibrary.dll",
+        "sha256": "9E03BE6C7E258F4A4D258C5075A9852DC5C5CF1B08FE416AC6084C36A6059AFC"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\ExpressionEngine.dll",
+        "sha256": "96FCC3E82CA3A616733958670853937DC0DFA05C91B8A442A4D28D8C462592A2"
+      }
+    ],
+    "case": {
+      "status": "PASS",
+      "stage": "S5",
+      "scenario": "restorative-mud",
+      "mode": "Classic",
+      "scope": "Real stock grade-one paid production and one-gram topical calibration only. Separate builder route opens100 and uses finite paid Self gathering with a private Horrifying health ceiling for the prepared calibration injury. Natural stock acquisition, full progression and affordability are not qualified.",
+      "applications": [
+        {
+          "item": 2,
+          "before": 30.0,
+          "after": 20.0,
+          "healed": 10.0,
+          "grams_consumed": 1
+        },
+        {
+          "item": 3,
+          "before": 20.0,
+          "after": 10.0,
+          "healed": 10.0,
+          "grams_consumed": 1
+        }
+      ],
+      "production_attempts": [
+        {
+          "operation": "397c1d58-4d3f-446c-a0cf-2f74ca0df7b3",
+          "paid": 50,
+          "applied": "true",
+          "produced": [
+            2
+          ]
+        },
+        {
+          "operation": "fa912cc2-1a30-4f33-b693-f72c35ae9545",
+          "paid": 50,
+          "applied": "true",
+          "produced": [
+            3
+          ]
+        }
+      ],
+      "first": 2,
+      "first_lifecycle": "f72fec5b-5063-4064-9e36-4af3b693e14a",
+      "second": 3,
+      "second_lifecycle": "00dd10a0-2b9b-431e-abfc-567b262c6e55",
+      "prepared_wounds": [
+        [
+          "1",
+          "abdomen",
+          "30"
+        ],
+        [
+          "2",
+          "lhand",
+          "1"
+        ]
+      ],
+      "wound_setup": "Preboot native SimpleOrganic Necrotic rows: abdomen30, foreign left hand1; native armour/attack and natural healing are outside calibration.",
+      "wound": 1,
+      "part": "abdomen",
+      "other_wounds": [
+        [
+          "2",
+          "1"
+        ]
+      ],
+      "remaining_damage": 20.0,
+      "balance": 50.0,
+      "operation_count": 3,
+      "cold_wound_before_login": [
+        [
+          "20"
+        ]
+      ],
+      "cold_damage_after_login": 20.0,
+      "cold_status": "PASS"
+    },
+    "owned_mud_processes_stopped": true,
+    "cleanup": "Both MUD boots graceful; exact owned database and MySQL instance removed; see retained runner console and boot processes."
+  },
+  "fixtures": {
+    "derived": {
+      "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\.artifacts\\s4-focus-device-fixtures\\s5-dose-20261015T225507Z\\focus-device.json",
+      "sha256": "E653FD5AB8DA6FD4E705EDD27F91646A4ED1BCE43D6BD92C2729B726FB4413D6",
+      "package_sha256": "DEF1F59D15B8618E561723A97984A79AFF6E2FB49CCDF1EB3B5AD5F4D61FCF93",
+      "original_sha256": "77EAB5676682E617E21349A3E728EC18895B06F48E6D68E4040D456892A5459E"
+    },
+    "original": {
+      "path": ".artifacts\\s4-focus-device-fixtures\\20261015T153028Z_2a5b3fe6b6194826b2c58aa943c9f3d1\\focus-device.json",
+      "sha256": "77EAB5676682E617E21349A3E728EC18895B06F48E6D68E4040D456892A5459E"
+    },
+    "base": {
+      "path": ".artifacts\\pre-armageddon-base-fixtures\\20261015T121003Z_c1b183833df74237b9eeeba5edaed680\\base-world.json",
+      "sha256": "0F94AF5BB637FF59DFEDED7ACCCC133828EF03375FE8C313D96710A4C1778E3B"
+    },
+    "original_sql_input_preserved": true,
+    "package_replay": false
+  },
+  "preserved_failures": [
+    {
+      "runner": {
+        "path": "C:\\Temp\\futuremud-s5-dose-native\\20261015T225534Z_d769a90063fa4a28952cedf493984a72\\summary.json",
+        "sha256": "0610409C5F3286D05433FC077FD151E66E3FB300EECAE62819499122CCB13C7E"
+      },
+      "boot": {
+        "path": "..\\prepared-catalogue-boot-native-s4-stock-e43cddfa37d9444cb020440f78d421be\\boot-latest.json",
+        "sha256": "88AA02ED829EC9C52C5979E57557EB363D4E009C25BA818A76DE0AE7EAF35775"
+      },
+      "status": "FAIL",
+      "first_failure": "unmatched ')' (PreparedS5DoseSmoke.py, line 102)",
+      "interpretation": "New Python syntax failure before dose assertions; fixed without runtime changes.",
+      "source_stable": true,
+      "owned_cleanup_completed": true
+    },
+    {
+      "runner": {
+        "path": "C:\\Temp\\futuremud-s5-dose-native\\20261015T225842Z_6eb26e5f11f64e0b89ee3819b58dc80b\\summary.json",
+        "sha256": "E8FC83B69B3C3C5BDF2A8D4B59CD0F44E946E449C1ACF19776BB299A89D79CEA"
+      },
+      "boot": {
+        "path": "..\\prepared-catalogue-boot-native-s4-stock-022ef1b1cb5a4c52b2b36849b6668815\\boot-latest.json",
+        "sha256": "0173833C1F0F5CA7CB0CE46CF3CA979F729892396056B0B83654EF8E39284FCD"
+      },
+      "status": "FAIL",
+      "first_failure": "The exact produced dose is not in native held custody.",
+      "interpretation": "Both paid productions passed; random injury disabled free hand and native pickup refused. No application/cold qualification.",
+      "source_stable": true,
+      "owned_cleanup_completed": true
+    },
+    {
+      "runner": {
+        "path": "C:\\Temp\\futuremud-s5-dose-native\\20261015T230220Z_3b791928355440048250dc1572294eea\\summary.json",
+        "sha256": "2CBEE4DBE2C59C704CE0C8AE197DD52D0E405B2EC428BE7A1EE8BF68A5437B5C"
+      },
+      "boot": {
+        "path": "..\\prepared-catalogue-boot-native-s4-stock-d7f3fed3e42c4e1bbdd0e9c05cbed684\\boot-latest.json",
+        "sha256": "231822030FA959E47B87B54F57FAF30CAD42CEC91E8801B19FA42B074B4B8B03"
+      },
+      "status": "FAIL",
+      "first_failure": "Cold restart changed the calibrated wound remainder.",
+      "interpretation": "Cellular first application proved30-to20. Cold remainder mismatch lacks actual observed value and remains UNEXPLAINED; ordinary offline healing is a possible confound, not a proven diagnosis.",
+      "source_stable": true,
+      "owned_cleanup_completed": true
+    },
+    {
+      "runner": {
+        "path": "C:\\Temp\\futuremud-s5-dose-native\\20261015T230806Z_eb9d9e8cb4bc40b18aaa787082346a40\\summary.json",
+        "sha256": "36F17CEBA0DC78B47426856D0083F37D8C146322BC8A8A21F3EF44011F67E8FF"
+      },
+      "boot": {
+        "path": "..\\prepared-catalogue-boot-native-s4-stock-3faa1136cb8b4629ae7b86c3ee4a8529\\boot-latest.json",
+        "sha256": "A627E7BF577D05D00A2921262DD05C844B4E9C8FF496DFE10194AC0F71FD2CD8"
+      },
+      "status": "FAIL",
+      "first_failure": "Need one accessible native wound with at least twenty units for two calibrated doses: [['1', 'liver', '20.639999999999997'], ['2', 'abdomen', '24.599999999999998']]",
+      "interpretation": "Native Necrotic injury split into liver and abdomen wounds; one-wound-total fixture precondition failed. Final sample measures exact selected bodypart and separately conserves foreign wounds.",
+      "source_stable": true,
+      "owned_cleanup_completed": true
+    },
+    {
+      "runner": {
+        "path": "C:\\Temp\\futuremud-s5-dose-native\\20261015T231205Z_4e12568856a347dcbe8e14f2de3f6642\\summary.json",
+        "sha256": "80C2C4F7E1D1F311132DD1BB060C36F42C5FFB4BBE77DC83D0B4AE97147DC83D"
+      },
+      "boot": {
+        "path": "..\\prepared-catalogue-boot-native-s4-stock-5ce819c62fdb4f8e864b01ab810e7451\\boot-latest.json",
+        "sha256": "D0EC4132CF8A99A1652E6F8A2E6196362E8523ED6D3135A1C21D98882CD671C9"
+      },
+      "status": "FAIL",
+      "first_failure": "Need one accessible abdomen wound with at least twenty units for two calibrated doses: [['1', 'abdomen', '12']]",
+      "interpretation": "Native armour changed a requested30-unit injury into12 abdomen damage, below the two-dose calibration precondition. Final setup loads exact preboot native wounds; no attack/armour qualification claimed.",
+      "source_stable": true,
+      "owned_cleanup_completed": true
+    }
+  ],
+  "code_input_sha256": {
+    "MudSharpCore/Magic/Lifecycle/SpellOwnedItemService.Consumption.cs": "28BB61C96E1F74B5DFCDD1A66E90C63E0776742BC400F9B27D882E0592E1AB4C",
+    "MudSharpCore Unit Tests/ArmageddonOneUseReloadTests.cs": "BA7A62392A127B877BDEE830734A6830DCDE8AACA30D6E76024AE2CFCF675FA1",
+    "MudSharpCore Unit Tests/ArmageddonOneUseReloadTests.Consumption.cs": "741414A25D5B5A7B201A6DB957A3D3F5E647678983878EAFF18CFB4D729DD07E",
+    "tests/ArmageddonPreparedSeederNativeHarness/Program.S5DoseFixture.cs": "471E84E1647586015CA334D1B7D0A510687AC741327E83AFA5BE3BD5D60DE203",
+    "tests/ArmageddonPreparedSeederNativeHarness/PreparedS5DoseSmoke.py": "7B18679475273DCB7EEE2CF4F082578B00ACF34B66418907DFCEF2925129FAF8",
+    "tests/ArmageddonPreparedSeederNativeHarness/PreparedCatalogueBootSmoke.py": "9DF71E2035CB880E118F83A37285A13A165AD6C7FD80372193A277CC72A927A2",
+    "tests/ArmageddonPreparedSeederNativeHarness/Program.FocusDeviceRestore.cs": "A67B480D9801E7199F1397A7D6A80266C7D194EEE87A7A3E650CEB5940572003",
+    "tests/ArmageddonPreparedSeederNativeHarness/Run-IsolatedPreparedSeeder.ps1": "6C19C34D222CB36721AD466BEAAF274AF45C29C267FD229CC77A9FE232333969"
+  },
+  "remaining": [
+    "Representative real-stock normal enrolment/acquisition, paid practice, opportunity/branch/control/cost and cold conservation in Classic and Simple. Current Simple Earth StoneSkin threshold15, not historical20.",
+    "Other explicit carrier candidate compatibility/allowlists, representative frozen production/recharge and native exposure calibration; no universal or group opt-in.",
+    "Ordinary stock funding/affordability qualification under locked values. Material rebalance or a genuinely new policy returns to Luke before implementation.",
+    "S6/fresh-install four-mode-class matrix and Release remain outside this slice."
+  ],
+  "environment_blockers": [],
+  "hosted_baseline": {
+    "head": "78f2eb1a60608092ae1def263a148fde345fe462",
+    "status": "PASS",
+    "push_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38817502917",
+    "pr_run": "https://github.com/FutureMUD/FutureMUD/actions/runs/38817507635",
+    "jobs": "Ubuntu and Windows default gates passed in both runs. Published S5 head requires separate CI."
+  }
+}

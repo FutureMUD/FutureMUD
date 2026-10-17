@@ -408,7 +408,7 @@ public class MindAnesthesiaPower : SustainedMagicPower
             return;
         }
 
-        if (!CanInvokePowerProg.ExecuteBool(actor, target))
+        if (!CanInvokePower(actor, target))
         {
             actor.OutputHandler.Send(string.Format(
                 WhyCantInvokePowerProg.Execute(actor, target)?.ToString() ??

@@ -12,6 +12,7 @@ using Room = MudSharp.Construction.Room;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Events;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
@@ -103,11 +104,13 @@ public partial class Character
 		{
 			throw new ArgumentException(spatialError, nameof(routePositionMetres));
 		}
+		if (ProjectionSpatialPolicy.Error(this, spatialTarget, false) is { } projectionError)
+		{ OutputHandler.Send(projectionError.ColourError()); return; }
 
 
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue(this)) return;
 		using var displacement = MudSharp.NPC.AI.CommandExecutionScope.BeginDisplacement(this, target, layer, spatialTarget.RoutePositionMetres);
-		if (MudSharp.NPC.AI.CommandExecutionScope.IsOrdered(this) && displacement is null) return;
+		if (MudSharp.NPC.AI.CommandExecutionScope.RequiresDisplacementReceipt(this) && displacement is null) return;
 		if (displacement is not null && (target is not Room || Location is not Room)) return;
         IRoom sourceLocation = Location;
         Movement?.CancelForMoverOnly(this);
@@ -302,12 +305,14 @@ public partial class Character
 
 	public override (bool Success, IEmoteOutput FailureOutput) CanCross(IRoomExit exit)
 	{
+		if (exit.Exit is IAdmittedMagicPortalExit portal && !portal.AllowsTraversal(this, exit))
+			return (false, new EmoteOutput(new Emote("@ cannot cross the closed or warded threshold.", this, this)));
 		if (EffectHandler.AffectedBy<IImmwalkEffect>() || RidingMount?.AffectedBy<IImmwalkEffect>() == true)
 		{
 			return (true, null);
 		}
 
-		if (exit.Exit.EffectsOfType<IExitBarrierEffect>().FirstOrDefault() is not null && !this.CanCrossMagicalBarriersPlanar())
+		if (exit.Exit.EffectsOfType<IExitBarrierEffect>().Any(x => MudSharp.Movement.ExitBarrierTraversal.Blocks(x, this, exit)) && !this.CanCrossMagicalBarriersPlanar())
 		{
 			return (false,
 				new EmoteOutput(
@@ -333,9 +338,10 @@ public partial class Character
 
             if (ch.EffectsOfType<IGuardExitEffect>()
                   .Any(x =>
-                      !x.PermittedToCross(this, exit) ||
+                      (!x.PermittedToCross(this, exit) ||
                       !x.PermittedToCross(RidingMount, exit) ||
-                      _riders.Any(y => !x.PermittedToCross(y, exit))
+                      _riders.Any(y => !x.PermittedToCross(y, exit))) &&
+                      HostileGuardChallenge.Current?.Bypasses(this, exit, x) != true
                     ))
             {
                 guardCharacter = ch;
@@ -678,16 +684,23 @@ public partial class Character
         DoFallDamage(0.5);
     }
 
-    public bool Move(IRoomExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
+    public bool Move(IRoomExit exit, IEmote? emote = null, bool ignoreSafeMovement = false) =>
+        MoveCore(exit, emote, ignoreSafeMovement, false);
+
+    private bool MoveCore(IRoomExit exit, IEmote? emote, bool ignoreSafeMovement, bool silent,
+        bool mountControlChecked = false)
     {
         if (Movement != null)
         {
             return false;
         }
+		SpellFeignedDeathEffect.BreakOnVoluntaryAction(this, "move");
 
         if (RidingMount is not null)
         {
-            return RidingMount.RiderMove(exit, this, emote, ignoreSafeMovement);
+            if (!mountControlChecked && !silent) return RidingMount.RiderMove(exit, this, emote, ignoreSafeMovement);
+            if (!mountControlChecked && !MountGearService.CanControlMount(RidingMount, this)) return false;
+            return RidingMount is Character mount && mount.MoveCore(exit, emote, ignoreSafeMovement, silent);
         }
 
         ConvertGrapplesToDrags();
@@ -701,12 +714,12 @@ public partial class Character
         CanMoveResponse response = CanMove(exit, flags);
         if (!response.Result)
         {
-            OutputHandler.Send(response.ErrorMessage);
-            HandleEvent(EventType.CharacterCannotMove, this, Location, exit);
+            if (!silent) OutputHandler.Send(response.ErrorMessage);
+            if (!silent) HandleEvent(EventType.CharacterCannotMove, this, Location, exit);
             return false;
         }
 
-        IMovement movement = MudSharp.Movement.Movement.CreateMovement(this, exit, emote, ignoreSafeMovement);
+        IMovement movement = MudSharp.Movement.Movement.CreateMovement(this, exit, emote, ignoreSafeMovement, silent);
         if (movement is null)
         {
             return false;
@@ -785,6 +798,11 @@ public partial class Character
     private CanMoveResponse CanMoveInternal(CanMoveFlags flags, IPositionState movingPositionOverride,
 		IRoomExit vehicleInteriorExit = null)
     {
+		if (EffectsOfType<MudSharp.Magic.ISpellProjectionBoundary>().Any(x => x.Kind == MudSharp.Magic.SpellProjectionKind.SandEffigy))
+			return new CanMoveResponse { Result = false, ErrorMessage = "The sand effigy cannot move from its anchor." };
+		if (vehicleInteriorExit?.Destination is { } projectionDestination &&
+			ProjectionSpatialPolicy.Error(this, new SpatialLocation(projectionDestination, RoomLayer), true) is { } projectionError)
+			return new CanMoveResponse { Result = false, ErrorMessage = projectionError };
         var vehicle = Gameworld.Vehicles.FirstOrDefault(x => x.IsOccupant(this));
         if (vehicle is not null && !IsPermittedVehicleInteriorExit(vehicle, Location, vehicleInteriorExit))
         {
@@ -966,6 +984,14 @@ public partial class Character
 
 	private CanMoveResponse CanMoveThroughExit(IRoomExit exit, CanMoveFlags flags, bool requireCurrentOrigin)
     {
+		if (exit?.Destination is { } destination && Gameworld?.SpellOwnedShelters is { } shelters &&
+			shelters.OwnsRoom(destination.Id) && !shelters.CanEnter(destination, this))
+		{
+			return new CanMoveResponse { Result = false, ErrorMessage = "That shelter is full or closing." };
+		}
+		if (exit?.Destination is { } gateDestination && Gameworld?.SpellOwnedGates is { } gates &&
+			gates.OwnsRoom(gateDestination.Id) && !gates.CanEnter(gateDestination, this, false))
+			return new CanMoveResponse { Result = false, ErrorMessage = "That Nilaz passage is closing." };
         // Execution remains anchored to this room, including for Immwalk. Planning may inspect
         // a later edge without relocating the character; all other current-state checks remain
         // shared, and normal movement must revalidate the edge when the character reaches it.
@@ -1407,13 +1433,18 @@ public partial class Character
 
     public bool Move(string rawInput)
     {
+		if (!GuardChallengeSyntax.TryExtract(rawInput, out var parsedInput, out var challenge, out var syntaxError, minimumWords: 1))
+		{
+			OutputHandler.Send(syntaxError);
+			return false;
+		}
         var vehicleMoveResult = VehicleMovementCommand.TryMoveControlledVehicle(this, rawInput, false);
         if (vehicleMoveResult != VehicleMovementCommandResult.NotVehicleController)
         {
             return vehicleMoveResult == VehicleMovementCommandResult.StartedOrQueued;
         }
 
-        StringStack ss = new(rawInput);
+        StringStack ss = new(parsedInput);
         string direction = ss.PopSpeech();
         bool force = false;
         if (ss.Peek().EqualTo("!"))
@@ -1432,10 +1463,44 @@ public partial class Character
             QueuedMoveCommands.Clear();
             return false;
         }
+		if (challenge)
+		{
+			if (!ss.IsFinished || Movement is not null)
+			{
+				OutputHandler.Send("Guard challenges cannot be queued. Finish moving before challenging an exit guard.");
+				return false;
+			}
+			var challengedExit = Location.GetExit(direction, target, this);
+			if (challengedExit is null && string.IsNullOrEmpty(target) &&
+			    Constants.CardinalDirectionStringToDirection.TryGetValue(direction, out var cardinal))
+				challengedExit = Location.GetExit(cardinal, this);
+			if (challengedExit is null || !Body.CanSee(Location, challengedExit))
+			{
+				OutputHandler.Send("You cannot move in that direction.");
+				return false;
+			}
+			var attempt = HostileGuardChallenge.ForExit(this, challengedExit);
+			if (attempt is null) return false;
+            if (!attempt.HasBlockingExitGuards)
+            {
+                attempt.Dispose();
+                OutputHandler.Send("There is no eligible guard blocking that action to challenge.");
+                return false;
+            }
+			using var authority = attempt.Enter();
+			var moved = challengedExit is not INonCardinalRoomExit &&
+                Constants.CardinalDirectionStringToDirection.TryGetValue(direction, out var requestedDirection) &&
+                DirectionSenseMovement.IsCompassDirection(requestedDirection)
+                ? MoveManualCompass(challengedExit, emote, force)
+                : Move(challengedExit, emote, force);
+            // A random alternative never owns the challenge captured for the requested exit.
+            if (!moved || attempt.PendingMovement(this, challengedExit) is not null) attempt.Dispose();
+			return moved;
+		}
 
         // Check non-cardinal exits.
         bool exitFound = false;
-        if (TryMove(direction, target, emote, force, out exitFound))
+        if (TryMove(direction, target, emote, force, out exitFound, manualCommand: true))
         {
             return true;
         }
@@ -1448,7 +1513,10 @@ public partial class Character
             if (exit != null && Body.CanSee(Location, exit))
             {
                 exitFound = true;
-                if (Move(exit, emote, force))
+
+                if (DirectionSenseMovement.IsCompassDirection(targetDirection)
+                    ? MoveManualCompass(exit, emote, force)
+                    : Move(exit, emote, force))
                 {
                     return true;
                 }
@@ -1468,6 +1536,56 @@ public partial class Character
         return false;
     }
 
+    private bool MoveManualCompass(IRoomExit exit, IEmote emote, bool force)
+    {
+        if (DirectionSenseMovement.IsActive(this, Location))
+        {
+            if (RidingMount is not null &&
+                (!RidingMount.IsPrimaryRider(this) || !RidingMount.PermitControl(this)))
+            {
+                return Move(exit, emote, force);
+            }
+
+            var initiatingMover = RidingMount ?? this;
+            var flags = force ? CanMoveFlags.IgnoreSafeMovement : CanMoveFlags.None;
+            // A blocked request follows the ordinary failure path without an orientation roll.
+            if (Movement is null && initiatingMover.CanMove(exit, flags).Result &&
+                MudSharp.Movement.Movement.CanStartMovement(initiatingMover, exit, force))
+            {
+                // Resolve the existing rider control check once, before a direction check can learn.
+                if (RidingMount is not null && !MountGearService.CanControlMount(RidingMount, this)) return false;
+
+                var selected = DirectionSenseMovement.Resolve(this, exit, Location.ExitsFor(this), candidate =>
+                    initiatingMover.CanMove(candidate, CanMoveFlags.None).Result &&
+                    MudSharp.Movement.Movement.CanStartMovement(initiatingMover, candidate, requireSafe: true));
+                if (selected is null)
+                {
+                    DirectionSenseMovement.NoProgress(this);
+                    return false;
+                }
+
+                if (!ReferenceEquals(selected, exit))
+                {
+                    if (!Location.ExitsFor(this).Contains(selected) ||
+                        !DirectionSenseMovement.IsSafeVisibleCompassExit(this, Location, selected) ||
+                        !initiatingMover.CanMove(selected, CanMoveFlags.None).Result ||
+                        !MudSharp.Movement.Movement.CanStartMovement(initiatingMover, selected, requireSafe: true) ||
+                        !MoveCore(selected, emote, false, true, mountControlChecked: true))
+                    {
+                        DirectionSenseMovement.NoProgress(this);
+                        return false;
+                    }
+
+                    return true;
+                }
+
+                return MoveCore(exit, emote, force, false, mountControlChecked: true);
+            }
+        }
+
+        return Move(exit, emote, force);
+    }
+
     public bool Move(CardinalDirection direction, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         IRoomExit exit = Location.GetExit(direction, this);
@@ -1485,7 +1603,7 @@ public partial class Character
         return TryMove(cmd, target, emote, ignoreSafeMovement, out _);
     }
 
-    private bool TryMove(string cmd, string target, IEmote emote, bool ignoreSafeMovement, out bool exitFound)
+    private bool TryMove(string cmd, string target, IEmote emote, bool ignoreSafeMovement, out bool exitFound, bool manualCommand = false)
     {
         IRoomExit exit = Location.GetExit(cmd, target, this);
         if (exit == null || !Body.CanSee(Location, exit))
@@ -1496,7 +1614,11 @@ public partial class Character
         }
 
         exitFound = true;
-        return Move(exit, emote, ignoreSafeMovement);
+        return manualCommand && exit is not INonCardinalRoomExit &&
+               Constants.CardinalDirectionStringToDirection.TryGetValue(cmd, out var direction) &&
+               DirectionSenseMovement.IsCompassDirection(direction)
+            ? MoveManualCompass(exit, emote, ignoreSafeMovement)
+            : Move(exit, emote, ignoreSafeMovement);
     }
 
     private string _cannotMoveReason = "You cannot move.";
@@ -1646,6 +1768,9 @@ public partial class Character
 
     public void ExecuteMove(IMovement movement, IMoveSpeed speedOverride = null)
     {
+		if (movement?.Exit?.Destination is { } projectionDestination &&
+			ProjectionSpatialPolicy.Error(this, new SpatialLocation(projectionDestination, RoomLayer), true) is { } projectionError)
+		{ OutputHandler.Send(projectionError.ColourError()); movement.CancelForMoverOnly(this); return; }
         if (RidingMount is null && !EffectHandler.AffectedBy<IImmwalkEffect>())
         {
             SpendStamina(StaminaForMovement(PositionState, speedOverride ?? CurrentSpeed, movement.StaminaMultiplier, PositionState.IgnoreTerrainStaminaCostsForMovement));

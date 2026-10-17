@@ -228,7 +228,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
             {
                 ActorOrigin = Assailant,
                 LodgableItem = null,
-                ToolOrigin = null,
+                ToolOrigin = weapon.Parent,
                 AngleOfIncidentRadians = attackAngle,
                 Bodypart = targetBodypart,
                 DamageAmount = damageResult * 2.0 * attackAngle / Math.PI,
@@ -246,7 +246,7 @@ public abstract class WeaponAttackMove : CombatMoveBase, IWeaponAttackMove
         {
             ActorOrigin = Assailant,
             LodgableItem = null,
-            ToolOrigin = null,
+            ToolOrigin = weapon.Parent,
             AngleOfIncidentRadians = attackAngle,
             Bodypart = targetBodypart,
             DamageAmount = damageResult * relativeHardness * 2.0 * attackAngle / Math.PI,

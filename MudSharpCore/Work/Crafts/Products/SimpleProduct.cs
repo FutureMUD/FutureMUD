@@ -33,6 +33,11 @@ public class SimpleProduct : BaseProduct
         return ProductProducedId == item.Prototype.Id && Skin?.Id == item.Skin?.Id;
     }
 
+    // Derived variable/prog products must opt in with their own output constraints.
+    public override bool MatchesForAnalysis(IGameItem item) =>
+        GetType() == typeof(SimpleProduct) && !MaterialDefiningInputIndex.HasValue &&
+        IsItem(item) && item.Material == Gameworld.ItemProtos.Get(ProductProducedId)?.Material;
+
     /// <inheritdoc />
     public override bool RefersToItemProto(long id)
     {

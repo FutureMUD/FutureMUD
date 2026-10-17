@@ -1,4 +1,4 @@
-﻿using MoreLinq.Extensions;
+using MoreLinq.Extensions;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat;
 using MudSharp.Construction;
@@ -24,6 +24,8 @@ public class Movement : IMovement
     private readonly IVehicleOperationalReadinessService _vehicleOperationalReadinessService = new VehicleOperationalReadinessService();
     private readonly Dictionary<long, VehicleHitchGraphMovePlan> _vehicleDragMovePlans = new();
 	private readonly bool _ignoreSafeMovement;
+	private readonly HashSet<ICharacter> _barrierContacts = new(ReferenceEqualityComparer.Instance);
+	private readonly HostileGuardChallenge? _guardChallenge;
 
     #region Implementation of IMovement
 
@@ -101,7 +103,8 @@ public class Movement : IMovement
         List<IPerceivable> targets,
         List<Dragging> dragEffects,
         bool ignoreSafeMovement,
-        bool ignoreNotLeadDragger
+        bool ignoreNotLeadDragger,
+        bool preflight = false
         )
     {
         if (character is null)
@@ -162,8 +165,10 @@ public class Movement : IMovement
         {
             nonConsensualMovers.Add(character);
             if (!considered.Contains(character.RidingMount) &&
-                (!MountGearService.CanControlMount(character.RidingMount, character) ||
-                 !EvaluateCharacterForAdditionToMovement(party, character.RidingMount, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, ignoreNotLeadDragger)))
+                (!(preflight
+				    ? character.RidingMount.IsPrimaryRider(character) && character.RidingMount.PermitControl(character)
+				    : MountGearService.CanControlMount(character.RidingMount, character)) ||
+                 !EvaluateCharacterForAdditionToMovement(party, character.RidingMount, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, ignoreNotLeadDragger, preflight)))
             {
                 return false;
             }
@@ -176,7 +181,7 @@ public class Movement : IMovement
 
         foreach (ICharacter rider in character.Riders)
         {
-            EvaluateCharacterForAdditionToMovement(party, rider, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, ignoreNotLeadDragger);
+            EvaluateCharacterForAdditionToMovement(party, rider, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, ignoreNotLeadDragger, preflight);
         }
 
         if (effect is null)
@@ -192,10 +197,10 @@ public class Movement : IMovement
                 draggers.Add(character);
                 foreach (ICharacter helper in dragging.Helpers)
                 {
-                    EvaluateCharacterForAdditionToMovement(party, helper, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, true);
+                    EvaluateCharacterForAdditionToMovement(party, helper, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, true, preflight);
                 }
 
-                EvaluateCharacterForAdditionToMovement(party, dragging.Target as ICharacter, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, true);
+                EvaluateCharacterForAdditionToMovement(party, dragging.Target as ICharacter, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, true, preflight);
                 if (dragging.Target is IGameItem)
                 {
                     targets.Add(dragging.Target);
@@ -209,8 +214,22 @@ public class Movement : IMovement
         return true;
     }
 
-    public static IMovement CreateMovement(ICharacter originalMover, IRoomExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
+    public static bool CanStartMovement(ICharacter originalMover, IRoomExit exit, bool ignoreSafeMovement = false,
+        bool requireSafe = false) =>
+        TryPrepareMovement(originalMover, exit, null, ignoreSafeMovement, true, true, requireSafe, out _);
+
+    public static IMovement CreateMovement(ICharacter originalMover, IRoomExit exit, IEmote? emote = null,
+        bool ignoreSafeMovement = false, bool silent = false) =>
+        TryPrepareMovement(originalMover, exit, emote, ignoreSafeMovement, silent, false, false, out var create)
+            ? create!() : null;
+
+    private static bool TryPrepareMovement(ICharacter originalMover, IRoomExit exit, IEmote? emote,
+        bool ignoreSafeMovement, bool silent, bool preflight, bool requireSafe, out Func<IMovement>? create)
     {
+        create = null;
+        // Preview may use matching exit authority, but must not bind or consume it.
+        var guardChallenge = HostileGuardChallenge.Current?.PendingMovement(originalMover, exit);
+        using var guardPreflight = guardChallenge is null ? HostileGuardChallenge.Suspend() : guardChallenge.Enter();
         // First get all of the party members who are present
         List<ICharacter> primaryMovers = new();
         if (originalMover.Party is not null &&
@@ -237,7 +256,7 @@ public class Movement : IMovement
         {
 			if (!EvaluateCharacterForAdditionToMovement(originalMover.Party, mover, exit, consideredMovers,
 			        nondraggers, mounts, draggers, helpers, nonConsensualMovers, targets, effects,
-			        ignoreSafeMovement, false))
+			        ignoreSafeMovement, false, preflight))
             {
                 failedMovers.Add(mover);
             }
@@ -258,8 +277,8 @@ public class Movement : IMovement
                 message = "You cannot move.";
             }
 
-            originalMover.OutputHandler.Send(message);
-            return null;
+            if (!silent) originalMover.OutputHandler.Send(message);
+            return false;
         }
 
         // The Leave None Behind setting will fail to move if anybody at all can't move
@@ -277,8 +296,8 @@ public class Movement : IMovement
 
             if (failedMovers.Count > 0)
             {
-                originalMover.OutputHandler.Send($"You decide not to move because {failedMovers.Select(x => x.HowSeen(originalMover)).ListToString()} cannot move with you.\n{"Note: To disable this setting, turn off your party's leave none behind setting.".ColourCommand()}");
-                return null;
+                if (!silent) originalMover.OutputHandler.Send($"You decide not to move because {failedMovers.Select(x => x.HowSeen(originalMover)).ListToString()} cannot move with you.\n{"Note: To disable this setting, turn off your party's leave none behind setting.".ColourCommand()}");
+                return false;
             }
         }
 
@@ -288,13 +307,39 @@ public class Movement : IMovement
             .Concat(mounts)
             .DistinctPhysicalInstances()
             .ToList();
-        if (AutomaticCrimeExtensions.CheckLawfulMovement(voluntaryMovers, exit, originalMover))
+        if (guardChallenge is not null)
         {
-            return null;
+            var cohort = voluntaryMovers.Concat(targets.OfType<ICharacter>()).DistinctPhysicalInstances().ToArray();
+            if (preflight)
+            {
+                if (!guardChallenge.HasBlockingExitGuardsFor(cohort)) return false;
+            }
+            else
+            {
+                if (!guardChallenge.BindCohort(cohort) || !guardChallenge.IsValid) return false;
+                foreach (var mover in cohort)
+                {
+                    var crossing = mover.CanCross(exit);
+                    if (crossing.Success) continue;
+                    if (!silent && crossing.FailureOutput is not null) originalMover.OutputHandler.Handle(crossing.FailureOutput);
+                    return false;
+                }
+            }
         }
+        if (requireSafe && (exit.IsFallExit || voluntaryMovers.Any(x =>
+                exit.MovementTransition(x).TransitionType is RoomMovementTransition.FallExit or RoomMovementTransition.NoViableTransition)))
+        {
+            return false;
+        }
+        if (AutomaticCrimeExtensions.CheckLawfulMovement(voluntaryMovers, exit, originalMover, silent))
+        {
+            return false;
+        }
+		if (!preflight && guardChallenge is not null && !guardChallenge.Resolve()) return false;
 
-		return new Movement(originalMover, originalMover.Party, draggers, helpers, nondraggers, mounts, targets,
-			effects, exit, ignoreSafeMovement);
+        create = () => new Movement(originalMover, originalMover.Party, draggers, helpers, nondraggers, mounts, targets,
+            effects, exit, ignoreSafeMovement, guardChallenge);
+        return true;
     }
 
     public Movement(
@@ -307,11 +352,13 @@ public class Movement : IMovement
             IEnumerable<IPerceivable> targets,
             IEnumerable<Dragging> dragEffects,
 			IRoomExit exit,
-			bool ignoreSafeMovement = false
+			bool ignoreSafeMovement = false,
+			HostileGuardChallenge? guardChallenge = null
         )
     {
         _originalMover = originalMover;
 		_ignoreSafeMovement = ignoreSafeMovement;
+		_guardChallenge = guardChallenge;
         Exit = exit;
         Phase = MovementPhase.OriginalRoom;
         Party = party;
@@ -385,6 +432,7 @@ public class Movement : IMovement
     /// <inheritdoc />
     public bool Cancel()
     {
+		_guardChallenge?.Dispose();
         Cancelled = true;
         foreach (ICharacter mover in CharacterMovers)
         {
@@ -794,6 +842,14 @@ public class Movement : IMovement
         {
             return;
         }
+		if (_guardChallenge is not null &&
+		    (!_guardChallenge.IsValid || !_guardChallenge.MatchesCohort(CharacterMovers)))
+		{
+			_originalMover.OutputHandler.Send("You can no longer complete that guard challenge.");
+			Cancel();
+			return;
+		}
+		using var guardAuthority = _guardChallenge is null ? HostileGuardChallenge.Suspend() : _guardChallenge.Enter();
 
 		var moveFlags = _ignoreSafeMovement ? CanMoveFlags.IgnoreSafeMovement : CanMoveFlags.None;
         List<ICharacter> nonMovers = new();
@@ -850,12 +906,12 @@ public class Movement : IMovement
         }
 
         // Next try the same process but with crossing the threshold
-        List<ICharacter> stuck = CharacterMovers.Where(x => !x.CanCross(Exit).Success).ToList();
+        List<ICharacter> stuck = CharacterMovers.Where(x => !ExitBarrierTraversal.CanCrossForMovement(x, Exit, this).Success).ToList();
         if (stuck.Any())
         {
             foreach (ICharacter ch in stuck)
             {
-                (bool _, IEmoteOutput why) = ch.CanCross(Exit);
+                (bool _, IEmoteOutput why) = ExitBarrierTraversal.CanCrossForMovement(ch, Exit, this);
                 ch.OutputHandler.Handle(why);
                 CancelForMoverOnly(ch);
             }
@@ -973,6 +1029,37 @@ public class Movement : IMovement
             CancelForMoverOnly(dragLeader);
         }
 
+		// No event or delayed check may redirect a challenge to a changed cohort or exit.
+		if (_guardChallenge is not null &&
+		    (!_guardChallenge.IsValid || !_guardChallenge.MatchesCohort(CharacterMovers) ||
+		     CharacterMovers.Any(x => !ExitBarrierTraversal.CanCrossForMovement(x, Exit, this).Success) ||
+		     Mounts.Any(x => !x.CanMove(Exit, moveFlags).Result) ||
+		     Draggers.Concat(Helpers).Concat(NonDraggers)
+		         .Any(x => x.RidingMount is null && !x.CanMove(Exit, moveFlags).Result)))
+		{
+			Cancel();
+			return;
+		}
+		// An admitted movement action can contact a damaging barrier once. Queries never do.
+		var contactStopped = false;
+		foreach (var mover in CharacterMovers.ToArray())
+		{
+			if (Exit?.Exit?.Effects.OfType<IExitBarrierTraversalEffect>().Any(x => x.IsActive) != true) continue;
+			// A nested callback may re-enter this same movement while contact is pending.
+			// Consumed contact must stop that nested action, never admit an unchecked crossing.
+			if (_barrierContacts.Add(mover) && !ExitBarrierTraversal.Contact(mover, Exit, this)) continue;
+			contactStopped = true;
+			CancelForMoverOnly(mover);
+		}
+		if (contactStopped && Party?.LeaveNoneBehind == true) { Cancel(); return; }
+		if (!CharacterMovers.Any()) { Cancel(); return; }
+
+		if (_guardChallenge is not null && (!_guardChallenge.IsValid || !_guardChallenge.MatchesCohort(CharacterMovers)))
+		{
+			Cancel();
+			return;
+		}
+		_guardChallenge?.Dispose();
         foreach (ICharacter mover in CharacterMovers)
         {
             mover.ExecuteMove(this);

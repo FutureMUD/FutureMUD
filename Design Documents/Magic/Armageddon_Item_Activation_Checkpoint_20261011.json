@@ -1,0 +1,993 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-11",
+  "status": "PASS_BOUNDED_N22_CHARGED_DEVICE_ACTIVATION",
+  "branch": "codex/armageddon-continuation-20261008",
+  "base_head": "93f7ba9a4b465ec44b40ac51b4f114e9b0a9d53d",
+  "reference_authority": "Known typed/code-proven links only",
+  "numeric_text_scans": false,
+  "guessed_identity_fields": false,
+  "runtime_implementation_changed": true,
+  "runtime_change": "Single magicdevice registration moved from staff-only MagicModule to shared InventoryModule; existing parser and service retained",
+  "schema_migration_required": false,
+  "changed_source_sha256": {
+    "MudSharpCore Unit Tests/ChargedMagicDeviceCommandTests.cs": "cd3d838e5cc461e534b2d5b80863abbf8e2d4dae6858e2aaee5e13cc368306f5",
+    "MudSharpCore Unit Tests/EnvironmentalMagicSurfaceTests.cs": "38e6e5b71c58c277676a09959a30953ebde7b76500feabedfe357f4a7b2dc82a",
+    "MudSharpCore/Commands/Modules/InventoryModule.Devices.cs": "a67f3b33841665079a437ffa8f020177311e02cf1894dbe33692bd1f0f376996",
+    "MudSharpCore/Commands/Modules/MagicModule.Devices.cs": "36a0991770d2cba7dc21bf1e05f2da52d78239ac9cfecd59e115a4b7a2656827",
+    "scripts/FuryCalmSmokeWorld/DeviceFixtures.cs": "255b07da873ed52ec6c11c456de0b537217bb0f24323c7530602d0ebdbecff8b",
+    "scripts/FuryCalmSmokeWorld/Program.cs": "2ce6f6dfc01c7abbbbf49ac2af10656c746a4112119720ea76b7d1fae44fad9b",
+    "scripts/FuryCalmSmokeWorld/devices.py": "ca83c9083d9fb027acf44dd9f275703f99ba90708cda509a929e1751bba674e5"
+  },
+  "managed": {
+    "run_id": "20261010T214749Z-2e0d61e079f2",
+    "head": "93f7ba9a4b465ec44b40ac51b4f114e9b0a9d53d",
+    "status": "PASS",
+    "counts": {
+      "executed": 7201,
+      "passed": 7201,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7201
+    },
+    "source_start": "dd3f0e5fe3c721805ac79f5997126168d6674866e1c707d629a67b8d9569f74a",
+    "source_end": "dd3f0e5fe3c721805ac79f5997126168d6674866e1c707d629a67b8d9569f74a",
+    "source_stable": true,
+    "projects": [
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj"
+    ],
+    "filter": null,
+    "configuration": "Debug",
+    "receipt": {
+      "path": ".artifacts/test-runs/20261010T214749Z-2e0d61e079f2/summary.json",
+      "sha256": "348db9d5734f083281a76efcdd06b291c52ef53e2d00c064e36594c87abbd581"
+    },
+    "project_counts": {
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj": {
+        "executed": 6443,
+        "passed": 6443,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6443
+      },
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj": {
+        "executed": 758,
+        "passed": 758,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 758
+      }
+    }
+  },
+  "managed_native_binary_matches": {
+    "MudSharp.dll": {
+      "test_path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+      "native_path": "MudSharpCore/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "42430e5c406f48ad4540a81a71361bf3e8274b8fe2962d3db95ee67c9de9a481"
+    },
+    "FutureMUDLibrary.dll": {
+      "test_path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "native_path": "MudSharpCore/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "c5d03ad36d728d39fbe72cdb4e59b3903371aaecbd90de52f1cbfd8efc808555"
+    }
+  },
+  "runtime_code_changed_after_managed_gate": false,
+  "harness_only_corrections_after_managed_gate": true,
+  "native": {
+    "receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-55393b26/receipt.json",
+      "sha256": "248f7fe19435e0f844002b5a99825b709a33bcf98c62ad47bf3a9877a1dfcfc3"
+    },
+    "status": "PASS",
+    "milestone_qualified": true,
+    "assertions": 870,
+    "inputs_sha256": {
+      "scripts\\FuryCalmSmokeWorld\\smoke.py": "7638d3cb7abfeb88bd4a191555aa7f6f2fc324373de745c527e1b471160afa40",
+      "scripts\\FuryCalmSmokeWorld\\Program.cs": "2ce6f6dfc01c7abbbbf49ac2af10656c746a4112119720ea76b7d1fae44fad9b",
+      "scripts\\AuthoredCelestialSmokeWorld\\native.py": "18fca1b93f3a85551d9b0907ebe4f7b8fa11c625517abab470c67cf155f265f8",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\FuryCalmSmokeWorld.dll": "a660aa0b5579a4d2b196a4111a07ef455650be42da87d8ccf10a44c68a5c3052",
+      "scripts\\FuryCalmSmokeWorld\\bin\\Debug\\net10.0\\DatabaseSeeder.dll": "a04ce87fae74aa9ac6134761367069fece0c90a652fe9c75ed4f6da9ee57ff36",
+      "MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll": "42430e5c406f48ad4540a81a71361bf3e8274b8fe2962d3db95ee67c9de9a481",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.sql": "0ff4eaed304cf9ce1ab842184f08dc3fc604d86946b023dc50a37a27bde4c3fd",
+      "DatabaseSeeder\\Assets\\Database\\BlankDatabaseSnapshot.manifest.json": "05efa4885d324eb4aa73a14bfe7d61289a2321ea312743849b77ad5c45f4aab1",
+      "scripts\\FuryCalmSmokeWorld\\devices.py": "ca83c9083d9fb027acf44dd9f275703f99ba90708cda509a929e1751bba674e5",
+      "scripts\\FuryCalmSmokeWorld\\DeviceFixtures.cs": "255b07da873ed52ec6c11c456de0b537217bb0f24323c7530602d0ebdbecff8b",
+      "MudSharpCore\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll": "c5d03ad36d728d39fbe72cdb4e59b3903371aaecbd90de52f1cbfd8efc808555",
+      "MudSharpCore\\Magic\\Casting\\MagicCastingService.Devices.cs": "558539a3d470d41f0b4f930e1f0714e767e6302c5405def322c0e12a0e13bd65",
+      "MudSharpCore\\Commands\\Modules\\MagicModule.Devices.cs": "36a0991770d2cba7dc21bf1e05f2da52d78239ac9cfecd59e115a4b7a2656827",
+      "MudSharpCore\\Commands\\Modules\\InventoryModule.Devices.cs": "a67f3b33841665079a437ffa8f020177311e02cf1894dbe33692bd1f0f376996",
+      "MudSharpCore\\GameItems\\Components\\ChargedMagicDeviceGameItemComponent.cs": "c58cb66a415eb7df9b24c485e7ffda0c50c5dc153212ce0efd420ec9a75db7e7"
+    },
+    "objects": {
+      "Status": "PASS",
+      "Players": {
+        "caster": {
+          "Character": 499,
+          "Body": 521,
+          "Instance": 521,
+          "Account": 2,
+          "AccountName": "n22caster",
+          "Permission": 2,
+          "Keyword": "qan22caster"
+        },
+        "reader": {
+          "Character": 500,
+          "Body": 522,
+          "Instance": 522,
+          "Account": 3,
+          "AccountName": "n22reader",
+          "Permission": 2,
+          "Keyword": "qan22reader"
+        }
+      },
+      "Room": 50,
+      "Stock": {
+        "wand": 6893,
+        "staff": 6894
+      },
+      "PrivateDevice": 7183,
+      "PrivateComponent": 3917,
+      "Material": 7184,
+      "MaterialWearable": 119,
+      "Mend": 12,
+      "Trait": 299,
+      "Focus": 82,
+      "Merit": 89,
+      "Capability": 5,
+      "Reserve": 5,
+      "MendAdmitted": true,
+      "StockComponent": 3855
+    },
+    "ordinary_account_creation_receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-ea07d026/receipt.json",
+      "sha256": "de5a9a4cab1b4cc68e4475cb2b4846d99532da9807d632ca172fb0ea02871e32"
+    },
+    "production": [
+      {
+        "device": "wand",
+        "beforeReserve": 1000.0,
+        "afterReserve": 900.0,
+        "bank": {
+          "item": 303,
+          "component": 535,
+          "prototype": 3855,
+          "revision": 0,
+          "charges": [
+            "06b60afe-e301-4e1e-b410-3b85d94e1364",
+            "6265d643-9719-4e26-aa19-ec8da933ae03"
+          ],
+          "definition_sha256": "b7a98c38043f6f755fc3a6bd91806c1499ed338d405d5e4dc9940a40cf58e300",
+          "snapshot_sha256": "fe5e4444a265b118d1bba41049b7e434c4ef7deacad026df922a29cd6b8c8589"
+        }
+      },
+      {
+        "device": "staff",
+        "beforeReserve": 900.0,
+        "afterReserve": 850.0,
+        "bank": {
+          "item": 304,
+          "component": 537,
+          "prototype": 3856,
+          "revision": 0,
+          "charges": [
+            "a216a6b9-2709-4e55-842c-6329b581e5c4"
+          ],
+          "definition_sha256": "aacd96c1b4f2fcbf24aea25d1f97f380462ec6b96edb217799e28836f0f2600f",
+          "snapshot_sha256": "fea1a815319ef0c03cdbcd1e4495d66f84c3b5da416860f3e4df148f9f918575"
+        }
+      },
+      {
+        "device": "private",
+        "beforeReserve": 850.0,
+        "afterReserve": 750.0,
+        "bank": {
+          "item": 305,
+          "component": 539,
+          "prototype": 3917,
+          "revision": 0,
+          "charges": [
+            "f45eef72-0e60-4a8d-80a5-db49c31dafc6",
+            "8bda8d01-ec96-4d8a-a2f9-ecbb402c0732"
+          ],
+          "definition_sha256": "50a6fdd87c0013bd8fce4993a06c005659143dd8a1049d558ea75e233aa2fd8c",
+          "snapshot_sha256": "da100f733c9cc128af3f9e2f6dbbce0bc01c610f41c97f5b83f38b62a30332e4"
+        }
+      }
+    ],
+    "releases": [
+      {
+        "device": "wand",
+        "actor": 499,
+        "charge": "06b60afe-e301-4e1e-b410-3b85d94e1364",
+        "healed": 18.0
+      },
+      {
+        "device": "wand",
+        "actor": 499,
+        "charge": "6265d643-9719-4e26-aa19-ec8da933ae03",
+        "healed": 18.0
+      },
+      {
+        "device": "staff",
+        "actor": 499,
+        "charge": "a216a6b9-2709-4e55-842c-6329b581e5c4",
+        "healed": 18.0
+      },
+      {
+        "device": "private",
+        "actor": 500,
+        "charge": "f45eef72-0e60-4a8d-80a5-db49c31dafc6",
+        "healed": 18.0
+      },
+      {
+        "device": "private",
+        "actor": 500,
+        "charge": "8bda8d01-ec96-4d8a-a2f9-ecbb402c0732",
+        "healed": 18.0
+      }
+    ],
+    "private_policy_revisions": [
+      {
+        "settings": [
+          "eligibility anyone",
+          "mingrade 3",
+          "spell add 82"
+        ],
+        "revision": 1,
+        "bank": {
+          "item": 305,
+          "component": 539,
+          "prototype": 3917,
+          "revision": 1,
+          "charges": [
+            "f45eef72-0e60-4a8d-80a5-db49c31dafc6",
+            "8bda8d01-ec96-4d8a-a2f9-ecbb402c0732"
+          ],
+          "definition_sha256": "50a6fdd87c0013bd8fce4993a06c005659143dd8a1049d558ea75e233aa2fd8c",
+          "snapshot_sha256": "da100f733c9cc128af3f9e2f6dbbce0bc01c610f41c97f5b83f38b62a30332e4"
+        }
+      },
+      {
+        "settings": [
+          "mingrade 0"
+        ],
+        "revision": 2,
+        "bank": {
+          "item": 305,
+          "component": 539,
+          "prototype": 3917,
+          "revision": 2,
+          "charges": [
+            "f45eef72-0e60-4a8d-80a5-db49c31dafc6",
+            "8bda8d01-ec96-4d8a-a2f9-ecbb402c0732"
+          ],
+          "definition_sha256": "50a6fdd87c0013bd8fce4993a06c005659143dd8a1049d558ea75e233aa2fd8c",
+          "snapshot_sha256": "da100f733c9cc128af3f9e2f6dbbce0bc01c610f41c97f5b83f38b62a30332e4"
+        }
+      }
+    ],
+    "producer_before": {
+      "raw_skill": 60,
+      "controlled_grade": 3
+    },
+    "producer_after": {
+      "raw_skill": 30,
+      "controlled_grade": 1
+    },
+    "focus_attempts": [
+      {
+        "refused": true,
+        "material": null,
+        "beforeReserve": 750.0,
+        "afterReserve": 750.0,
+        "healed": 0.0,
+        "bank": {
+          "item": 305,
+          "component": 539,
+          "prototype": 3917,
+          "revision": 2,
+          "charges": [],
+          "definition_sha256": "113592d0ee1a2551f8d2a04f78375de56b41743c09e0df088a2510b37ecee813",
+          "snapshot_sha256": "da100f733c9cc128af3f9e2f6dbbce0bc01c610f41c97f5b83f38b62a30332e4"
+        }
+      },
+      {
+        "refused": true,
+        "material": null,
+        "beforeReserve": 750.0,
+        "afterReserve": 750.0,
+        "healed": 0.0,
+        "bank": {
+          "item": 305,
+          "component": 539,
+          "prototype": 3917,
+          "revision": 2,
+          "charges": [],
+          "definition_sha256": "113592d0ee1a2551f8d2a04f78375de56b41743c09e0df088a2510b37ecee813",
+          "snapshot_sha256": "da100f733c9cc128af3f9e2f6dbbce0bc01c610f41c97f5b83f38b62a30332e4"
+        }
+      },
+      {
+        "refused": true,
+        "material": 306,
+        "beforeReserve": 750.0,
+        "afterReserve": 750.0,
+        "healed": 0.0,
+        "bank": {
+          "item": 305,
+          "component": 539,
+          "prototype": 3917,
+          "revision": 2,
+          "charges": [],
+          "definition_sha256": "113592d0ee1a2551f8d2a04f78375de56b41743c09e0df088a2510b37ecee813",
+          "snapshot_sha256": "da100f733c9cc128af3f9e2f6dbbce0bc01c610f41c97f5b83f38b62a30332e4"
+        }
+      },
+      {
+        "refused": false,
+        "material": 306,
+        "beforeReserve": 750.0,
+        "afterReserve": 700.0,
+        "healed": 2.0,
+        "bank": {
+          "item": 305,
+          "component": 539,
+          "prototype": 3917,
+          "revision": 2,
+          "charges": [],
+          "definition_sha256": "113592d0ee1a2551f8d2a04f78375de56b41743c09e0df088a2510b37ecee813",
+          "snapshot_sha256": "da100f733c9cc128af3f9e2f6dbbce0bc01c610f41c97f5b83f38b62a30332e4"
+        }
+      }
+    ],
+    "final_banks": {
+      "wand": {
+        "item": 303,
+        "component": 535,
+        "prototype": 3855,
+        "revision": 0,
+        "charges": [],
+        "definition_sha256": "76b7fceb298e25eb60252f34c33ecf12fa9556fc46c23bc9f405549a4b40eea2",
+        "snapshot_sha256": "fe5e4444a265b118d1bba41049b7e434c4ef7deacad026df922a29cd6b8c8589"
+      },
+      "staff": {
+        "item": 304,
+        "component": 537,
+        "prototype": 3856,
+        "revision": 0,
+        "charges": [],
+        "definition_sha256": "812b0eb4f23c0a83d3e5b31bd6596002ffc315447cd6e278bfb2422943692358",
+        "snapshot_sha256": "fea1a815319ef0c03cdbcd1e4495d66f84c3b5da416860f3e4df148f9f918575"
+      },
+      "private": {
+        "item": 305,
+        "component": 539,
+        "prototype": 3917,
+        "revision": 2,
+        "charges": [],
+        "definition_sha256": "113592d0ee1a2551f8d2a04f78375de56b41743c09e0df088a2510b37ecee813",
+        "snapshot_sha256": "da100f733c9cc128af3f9e2f6dbbce0bc01c610f41c97f5b83f38b62a30332e4"
+      }
+    },
+    "final_reserves": {
+      "caster": 700.0,
+      "reader": 1000.0
+    },
+    "material_custody": {
+      "item": 306,
+      "body": 521,
+      "worn": [
+        [
+          521,
+          110,
+          null
+        ]
+      ]
+    },
+    "production_reserve_spent": 250,
+    "focus_reserve_spent": 50,
+    "charged_reserve_spent": 0,
+    "wound_baselines": [
+      {
+        "role": "caster",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            86,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                86,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "reader",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            87,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                87,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "caster",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            88,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                88,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "reader",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            89,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                89,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "reader",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            90,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                90,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "reader",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            91,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                91,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "reader",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            92,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                92,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "caster",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            93,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                93,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "caster",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            94,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                94,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "reader",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            95,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                95,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "reader",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            96,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                96,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "caster",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            97,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                97,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "caster",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            98,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                98,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "reader",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            99,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                99,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "caster",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            100,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                100,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "caster",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            101,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                101,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "caster",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            102,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                102,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      },
+      {
+        "role": "caster",
+        "requested": 60,
+        "observed": 30.0,
+        "wounds": [
+          [
+            103,
+            30.0,
+            "rbuttock"
+          ]
+        ],
+        "preparations": [
+          {
+            "requested": 60,
+            "observed": 30.0,
+            "wounds": [
+              [
+                103,
+                30.0,
+                "rbuttock"
+              ]
+            ]
+          }
+        ]
+      }
+    ],
+    "capability_definition_restored": true,
+    "server_processes": [
+      {
+        "output": "server-output-0.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-1.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-2.log",
+        "returncode": 0,
+        "collectorStopped": true
+      },
+      {
+        "output": "server-output-3.log",
+        "returncode": 0,
+        "collectorStopped": true
+      }
+    ],
+    "mysql_stopped_by_owned_handle": true,
+    "mysql_port_closed": true
+  },
+  "sql_observation_evidence": {
+    "log": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-55393b26/sql-observations.jsonl",
+      "sha256": "3d745e2343bc6ed1ce037d7fdf6dea13259b53608becce8cab122c768469b20a"
+    },
+    "scalar_read_retries": [],
+    "rowset_read_retries": [],
+    "syntax_audit_receipt": {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-4e507314/receipt.json",
+      "sha256": "a6510bb5124dba970767ebf41bd888bb1325a1090ac2b9f189010bc32798bbcb"
+    },
+    "missing_output_cause": "Unconfirmed; retained failure is not qualified and missing output is never treated as zero"
+  },
+  "typed_link_ledger": [
+    {
+      "path": "scripts/FuryCalmSmokeWorld/DeviceFixtures.cs",
+      "links": "SeederManagedRecords StableKey/EntityType/LogicalId; actual approved item/component revision FKs; Accounts AuthorityGroup; Characters AccountId/BodyId; primary embodied CharacterInstances; declared capability-merit XML"
+    },
+    {
+      "path": "scripts/FuryCalmSmokeWorld/devices.py",
+      "links": "Actual item/component/prototype/revision IDs and Bodies_GameItems custody; Wounds.BodyId and nullable BodypartProtoId with LEFT JOIN to BodypartProto.Id; known Charge/StoredSpell schema; exact GUID operation primary key, Item/@id, Casting/@charge and character/instance/body receipt columns; explicit progression/reserve columns"
+    },
+    {
+      "path": "MudSharpCore/Commands/Modules/InventoryModule.Devices.cs",
+      "links": "One shared native command registration delegates to existing MagicModule parser and MagicCastingService"
+    }
+  ],
+  "review": {
+    "scope": "Read-only N22 fixture/scenario, command-registration, latest wound-preparation query, focus material-custody and SQL observation guards",
+    "result": "Wound reset corrected to cure all; bounded native preparation loop retained strict healing acceptance; LEFT JOIN and exact single-row damage check close nullable-bodypart hidden-wound gap; native worn-material custody retains free-hand/carried-only policy; required scalar and exact empty-rowset count guards retain owned-datadir and exit-status checks; bounded reviews clear"
+  },
+  "retained_unqualified_native_receipts": [
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-07c0b00c/receipt.json",
+      "sha256": "85c3db8d38aa4801c7334a2bb420e18bb12a9be92bbf9cac9491073b81e8a75f"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-7a1e3921/receipt.json",
+      "sha256": "0dcfc3266c58543cf61551395e59a46a9d0f85c3f1efafaf3edfc126529c1a2b"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-e997e64e/receipt.json",
+      "sha256": "9852e3f7f4082c4c7b8279bd53339b5ae71ad874ca2343bdcdfa034d1c629bff"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-ad44c378/receipt.json",
+      "sha256": "f3a75f9ab14fb19c015a5fad98aa6af70ca1458c82d12f0ae5e8b8936f4a0a20"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-1fa20e90/receipt.json",
+      "sha256": "24bbad8bf6f68aae3de8c2a7674578d3b20bb83983600b80ffcbc9ff5aa30ba2"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-ceabcbf5/receipt.json",
+      "sha256": "de5792e5bcff1ff1008e8f81e2c724f8c6a4b1e8f3eab62c0ba852b66cb0537e"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-23b49ef0/receipt.json",
+      "sha256": "6695c5abe854cbd2e2d6b930a2ce2afefc751f8d1b7f8387a9cf9ce933a56d05"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-f58b53cb/receipt.json",
+      "sha256": "0683fce909baf24084f5aa2272c2f0e1490357de16bc1c9626a0e95600919bff"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-98966a43/receipt.json",
+      "sha256": "d1de1125321715107dea264c7fad1a6014d8a8079fc01898bd693e971121d25e"
+    },
+    {
+      "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-e0a07641/receipt.json",
+      "sha256": "cfdab6e5a761964164d925e1af7a8ee8d3130a4ef87dd5cd54748ebd3787d41e"
+    }
+  ],
+  "prerequisite_health_audit_receipt": {
+    "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-0622f135/receipt.json",
+    "sha256": "6bf6c859914c7acc8c32a81ec9315c9e0de9ee4438c1cb54a37fa1b1867682b8"
+  },
+  "interrupted_cleanup_audit_receipt": {
+    "path": ".artifacts/authored-celestials/run-8f52a54633e3/fury-calm-5c7d3312/receipt.json",
+    "sha256": "d325309331c8652457098dbadebb89e52d594a5a990251ede58ac1bdc1abbe65"
+  },
+  "retained_failed_managed_receipt": {
+    "path": ".artifacts/test-runs/20261010T214418Z-5fa5c114fb05/summary.json",
+    "sha256": "5fbb1a07367481f1cb31f6341599f051ef7d3de5575adb71b7424fb4962a9557"
+  },
+  "failed_managed_disposition": "Existing environment security test assumed player magic was unknown. It now verifies exact MagicDevice abbreviation/refusal plus unchanged staff permission/direct guard and VerifyNoOtherCalls; no environment mutation is permitted.",
+  "verification_limits": [
+    "Real ordinary Player accounts and Human characters were created through native account creation, chargen, staff approval and first login. The N22 fixture requires those existing accounts; it does not clone accounts/bodies or invent password hashes.",
+    "The caster receives an explicit capability merit, enrolment, administrative Mend/private-focus grants, database skill input 60 (native capped raw 50)/controlled grade 3 and initial reserve 1000. The reader has no casting capability/grant. Natural stock acquisition, progression, affordability and gathering are not qualified.",
+    "Stock wand/staff retain Dual/Caster/Mend-only configuration and 60 seconds per charge. One independent private clone uses one second per charge, native Anyone policy revisions and a grade0 exception. This shorter private timing is fixture policy, not stock/source parity.",
+    "Mend Flesh is the only stored payload invoked. Private focus copies its native healing with an ordinary carried-only material plan and Automatic difficulty. Its private material adds the approved Wear_Ring component so ordinary free-hand policy can remain enforced. Other adapters, wards/resistance, activation-control failures and multi-target payloads retain existing managed/controlled-native coverage; no new full-server qualification is claimed for them.",
+    "Initial banks are produced through native paid commands solely to establish N22 activation inputs. N23 wrong-type, acquisition, insufficient-grade and potency/recharge matrix is still pending.",
+    "Charged release freezes acquisition, traits, mastery/opportunity, enrolment and reserve rows for both players. Explicit focus deliberately uses ordinary paid casting and retains normal progression.",
+    "The fixture restores the captured pre-run capability definition after shutdown. Its ordinary PCs, explicit acquisition state, private definitions and spent reserves remain in the disposable world. It does not restore paid reserves or recreate charges.",
+    "An earlier SQL client returned empty stdout for a required damage aggregate. Its cause remains unconfirmed. Required scalar observations now demand a numeric result; empty rowsets require a separate exact-query count. One read-only retry may recover missing output; no gameplay command, mutation or payment is retried.",
+    "No schema migration, blank snapshot, installer/seeder content or full Seeder run. Earlier catalogue/seeder/source receipts remain historical; this is a bounded N22 checkpoint, not whole-repertoire or Release readiness."
+  ],
+  "inventory_counts": {
+    "total_candidates": 154,
+    "required": 152,
+    "optional": 2,
+    "sorcerer_spells": 82,
+    "sorcerer_roots": 4,
+    "support_skills": 12,
+    "larger_systems": 8
+  },
+  "full_plan_complete": false,
+  "package_release_enabled": false,
+  "next_bounded_milestone": "N23: qualify legitimate homogeneous recharge through acquired/admitted production, magic-type and controlled-grade checks, reproducible potency, exact per-charge payment and cold restart without mixed payload, duplicate charge, replay or refund. N23 has not started. Use only known typed/code-proven links; full installer, historical parity and whole-programme gates remain pending.",
+  "n23_skill_input_clarification": {
+    "database_setup": 60,
+    "native_skill_cap": 50,
+    "recorded_production_raw": 50,
+    "later_database_input": 30,
+    "grade_three_healing": 18,
+    "qualification_unchanged": true,
+    "reference": "Armageddon_Recharge_Checkpoint_20261011.json"
+  }
+}

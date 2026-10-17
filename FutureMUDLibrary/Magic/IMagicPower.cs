@@ -23,5 +23,8 @@ namespace MudSharp.Magic
         /// True if this power is considered psionic rather than magical
         /// </summary>
         bool IsPsionic { get; }
+
+		/// <summary>Explicit activation categories; existing psionic classification contributes its native tag.</summary>
+		IReadOnlyCollection<string> PowerTags => IsPsionic ? new[] { "psionic" } : Array.Empty<string>();
     }
 }

@@ -359,6 +359,7 @@ public sealed class SpellCorpsePossessionEffect : SimpleSpellStatusEffectBase, I
 			var animated = AnimatedCharacter();
 			var restoreLocation = animated?.Location;
 			var restoreLayer = animated?.RoomLayer;
+			var restoreRoutePosition = animated?.RoutePositionMetres;
 			if (_runtimeState is not null)
 			{
 				PossessionControlService.RestoreLivePossession(anchor, animated, _runtimeState);
@@ -375,7 +376,7 @@ public sealed class SpellCorpsePossessionEffect : SimpleSpellStatusEffectBase, I
 					false);
 			}
 
-			RestoreCorpseItem(animated, restoreLocation, restoreLayer);
+			RestoreCorpseItem(animated, restoreLocation, restoreLayer, restoreRoutePosition);
 			base.RemovalEffect();
 		}
 		finally
@@ -389,7 +390,7 @@ public sealed class SpellCorpsePossessionEffect : SimpleSpellStatusEffectBase, I
 		RemovalEffect();
 	}
 
-	private void RestoreCorpseItem(ICharacter? animated, IRoom? animatedLocation, RoomLayer? animatedLayer)
+	private void RestoreCorpseItem(ICharacter? animated, IRoom? animatedLocation, RoomLayer? animatedLayer, double? animatedRoutePosition)
 	{
 		if (Owner is not IGameItem corpse || corpse.Location is not null)
 		{
@@ -407,7 +408,7 @@ public sealed class SpellCorpsePossessionEffect : SimpleSpellStatusEffectBase, I
 
 		var layer = animatedLayer ?? (RoomLayer)OriginalRoomLayer;
 		corpse.RoomLayer = layer;
-		location.Insert(corpse, true);
+		corpse.InsertAtSpatialLocation(new SpatialLocation(location, layer, animatedRoutePosition ?? location.RouteDefinition?.DefaultPositionMetres), true);
 		if (animated is not null && !string.IsNullOrWhiteSpace(RestoreEcho))
 		{
 			location.Handle(

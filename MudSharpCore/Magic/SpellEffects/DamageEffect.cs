@@ -3,9 +3,11 @@ using MudSharp.Body.Traits;
 using MudSharp.Health;
 using MudSharp.RPG.Checks;
 
+#nullable enable
+
 namespace MudSharp.Magic.SpellEffects;
 
-public class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation
+public partial class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperation, IMagicInterdictionTagProvider
 {
     public static void RegisterFactory()
     {
@@ -29,11 +31,20 @@ public class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperatio
             ), spell), string.Empty);
     }
 
-    protected DamageEffect(XElement root, IMagicSpell spell)
+    protected internal DamageEffect(XElement root, IMagicSpell spell)
     {
         Spell = spell;
         DamageType = (DamageType)int.Parse(root.Element("DamageType").Value);
         DamageExpression = new TraitExpression(root.Element("DamageExpression").Value, Gameworld);
+		PainExpression = root.Element("PainExpression") is { } pain ? new TraitExpression(pain.Value, Gameworld) : null;
+		StunExpression = root.Element("StunExpression") is { } stun ? new TraitExpression(stun.Value, Gameworld) : null;
+		if (root.Element("IdentitySafeDamage") is { } policy)
+		{
+			if ((int?)policy.Attribute("schema") != 1 || (int?)policy.Attribute("version") != 1 || policy.HasElements)
+				throw new FormatException("Unsupported identity-safe damage policy; schema 1/version 1 is required.");
+			IdentitySafeDamage = true;
+		}
+		InterdictionTag = root.Element("InterdictionTag")?.Value;
         BodypartId = long.Parse(root.Element("Bodypart")?.Value ?? "0");
         Limb = (LimbType)int.Parse(root.Element("Limb")?.Value ?? "-1");
     }
@@ -41,9 +52,35 @@ public class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperatio
     public IMagicSpell Spell { get; }
     public DamageType DamageType { get; set; }
     public ITraitExpression DamageExpression { get; set; }
+	public ITraitExpression? PainExpression { get; set; }
+	public ITraitExpression? StunExpression { get; set; }
+	public bool IdentitySafeDamage { get; private set; }
+	public string? InterdictionTag { get; }
+	public IEnumerable<MagicInterdictionTag> MagicInterdictionTags =>
+		InterdictionTag is { Length: > 0 } tag ? [new(tag, string.Empty)] : [];
     public long BodypartId { get; set; }
     public LimbType Limb { get; set; }
     public IFuturemud Gameworld => Spell.Gameworld;
+
+	/// <summary>Static builder readiness checks; live callback-dependent potency is rechecked before mutation.</summary>
+	public string? DefinitionError
+	{
+		get
+		{
+			if (!Enum.IsDefined(DamageType)) return "Choose a defined native damage type.";
+			if (BodypartId < 0 || Limb != (LimbType)(-1) && !Enum.IsDefined(Limb)) return "Choose a valid native bodypart or limb.";
+			foreach (var expression in new[] { DamageExpression, PainExpression, StunExpression }.OfType<ITraitExpression>())
+			{
+				if (expression.HasErrors()) return "A damage, pain or stun expression is invalid.";
+				if (expression is not TraitExpression native || native.Parameters.Count != 0 ||
+					native.Formula.FunctionNames.Any() || native.Formula.ParameterNames.Any()) continue;
+				if (!native.Formula.TryEvaluateDoubleWith(new Dictionary<string, object>(), out var amount, out _) ||
+					!double.IsFinite(amount) || amount < 0)
+					return "Fixed damage, pain and stun amounts must be finite and nonnegative.";
+			}
+			return null;
+		}
+	}
 
     public XElement SaveToXml()
     {
@@ -51,6 +88,10 @@ public class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperatio
             new XAttribute("type", "damage"),
             new XElement("DamageType", (int)DamageType),
             new XElement("DamageExpression", new XCData(DamageExpression.OriginalFormulaText)),
+			PainExpression is null ? null : new XElement("PainExpression", new XCData(PainExpression.OriginalFormulaText)),
+			StunExpression is null ? null : new XElement("StunExpression", new XCData(StunExpression.OriginalFormulaText)),
+			IdentitySafeDamage ? new XElement("IdentitySafeDamage", new XAttribute("schema", 1), new XAttribute("version", 1)) : null,
+			InterdictionTag is { Length: > 0 } ? new XElement("InterdictionTag", new XCData(InterdictionTag)) : null,
             new XElement("Bodypart", BodypartId),
             new XElement("Limb", (int)Limb)
         );
@@ -59,6 +100,9 @@ public class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperatio
     public const string HelpText = @"Options:
     #3type <damage type>#0 - sets the damage type
     #3formula <expr>#0 - sets damage expression
+	#3pain <expr|damage>#0 - sets pain expression or restores equal damage
+	#3stun <expr|damage>#0 - sets stun expression or restores equal damage
+	#3identitysafe#0 - toggles frozen native damage identity/custody checks
     #3bodypart <which>#0 - target a specific bodypart
     #3limb <which>#0 - target a limb";
 
@@ -70,6 +114,15 @@ public class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperatio
                 return BuildingCommandType(actor, command);
             case "formula":
                 return BuildingCommandFormula(actor, command);
+			case "pain":
+				return BuildingCommandIndependentFormula(actor, command, true);
+			case "stun":
+				return BuildingCommandIndependentFormula(actor, command, false);
+			case "identitysafe":
+				IdentitySafeDamage = !IdentitySafeDamage;
+				Spell.Changed = true;
+				actor.OutputHandler.Send($"Frozen damage identity and custody checks: {IdentitySafeDamage.ToColouredString()}.");
+				return true;
             case "bodypart":
                 return BuildingCommandBodypart(actor, command);
             case "limb":
@@ -108,6 +161,27 @@ public class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperatio
         DamageExpression = expr;
         Spell.Changed = true;
         actor.OutputHandler.Send($"Damage formula set to {expr.OriginalFormulaText.ColourCommand()}.");
+		return true;
+	}
+
+	private bool BuildingCommandIndependentFormula(ICharacter actor, StringStack command, bool pain)
+	{
+		var text = command.SafeRemainingArgument;
+		if (string.IsNullOrWhiteSpace(text))
+		{
+			actor.OutputHandler.Send("Specify a formula or damage to restore the equal-damage default.");
+			return false;
+		}
+		ITraitExpression? expression = text.EqualTo("damage") ? null : new TraitExpression(text, Gameworld);
+		if (expression?.HasErrors() == true)
+		{
+			actor.OutputHandler.Send(expression.Error);
+			return false;
+		}
+		if (pain) PainExpression = expression;
+		else StunExpression = expression;
+		Spell.Changed = true;
+		actor.OutputHandler.Send($"{(pain ? "Pain" : "Stun")} formula set to {(expression?.OriginalFormulaText ?? "equal damage").ColourCommand()}.");
         return true;
     }
 
@@ -153,6 +227,10 @@ public class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperatio
         return SpellEffectPresentation.Describe(actor, "Damage",
             ("Type", DamageType.DescribeEnum().ColourValue()),
             ("Formula", DamageExpression.OriginalFormulaText.ColourCommand()),
+			("Pain", (PainExpression?.OriginalFormulaText ?? "equal damage").ColourCommand()),
+			("Stun", (StunExpression?.OriginalFormulaText ?? "equal damage").ColourCommand()),
+			("Identity safe", IdentitySafeDamage.ToColouredString()),
+			("Validity", DefinitionError?.ColourError() ?? "valid".ColourValue()),
             ("Target", target.ColourValue()));
     }
 
@@ -181,12 +259,20 @@ public class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperatio
 
     public MagicEffectOperation Apply(ICharacter caster, IPerceivable target, OpposedOutcomeDegree outcome, SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
     {
+		if (IdentitySafeDamage) return ApplyIdentitySafe(caster, target, outcome, power);
         if (target is not ICharacter tch)
         {
             return new(MagicEffectOperationStatus.Rejected, null);
         }
-		var amount = MudSharp.Magic.Casting.SpellAreaDamageScope.ScaleDamage(caster, target, Spell,
-			DamageExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) }));
+        var amount = MudSharp.Magic.Casting.SpellAreaDamageScope.ScaleDamage(caster, target, Spell,
+            MudSharp.Magic.Casting.SpellAreaDamageScope.SharedDamage(caster, target, Spell) ??
+            DamageExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) }));
+		var painAmount = PainExpression is null ? amount : MudSharp.Magic.Casting.SpellAreaDamageScope.ScaleDamage(caster, target, Spell,
+			PainExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) }));
+		var stunAmount = StunExpression is null ? amount : MudSharp.Magic.Casting.SpellAreaDamageScope.ScaleDamage(caster, target, Spell,
+			StunExpression.EvaluateWith(caster, values: new (string, object)[] { ("power", (int)power), ("outcome", (int)outcome) }));
+		if (!double.IsFinite(amount) || amount < 0 || !double.IsFinite(painAmount) || painAmount < 0 ||
+			!double.IsFinite(stunAmount) || stunAmount < 0) return new(MagicEffectOperationStatus.Rejected, null);
         IBodypart part = BodypartId != 0 ? tch.Body.Bodyparts.FirstOrDefault(x => x.Id == BodypartId) : null;
         if (part == null && Limb != (LimbType)(-1))
         {
@@ -198,8 +284,8 @@ public class DamageEffect : IMagicSpellEffectTemplate, IMagicSpellEffectOperatio
         {
             DamageType = DamageType,
             DamageAmount = amount,
-            PainAmount = amount,
-            StunAmount = amount,
+			PainAmount = painAmount,
+			StunAmount = stunAmount,
             Bodypart = part,
             ActorOrigin = caster
         };

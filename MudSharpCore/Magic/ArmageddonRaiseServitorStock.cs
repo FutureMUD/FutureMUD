@@ -13,6 +13,8 @@ namespace MudSharp.Magic;
 /// <summary>A bounded stock spell, independently installable through the normal spell builder.</summary>
 public static class ArmageddonRaiseServitorStock
 {
+	public static ArmageddonUtilitySpellContent Content(ArmageddonServitorBindings bindings) =>
+		ArmageddonExistingFactorySpellContent.RaiseServitor(bindings);
 	public const string Key = "arm.spell.raise_servitor";
 	public const string Name = "Raise Servitor";
 	// codedump.c affect_to_char: time(NULL) + RT_ZAL_HOUR * duration - 1; RT_ZAL_HOUR = 600.

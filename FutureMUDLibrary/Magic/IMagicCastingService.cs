@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using MudSharp.Character;
+using MudSharp.CharacterCreation.Roles;
 using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 
@@ -37,12 +38,16 @@ public sealed record MagicCastingQuote(ResolvedMagicCastingInvocation? Invocatio
 public enum MagicCastingStatus { Refused, Failed, Succeeded, NeedsReview, Started }
 public sealed record MagicCastingResult(MagicCastingStatus Status, string Message, Guid? OperationId = null);
 public sealed record MagicCastingGrant(bool Changed, bool Allowed, string Message);
+public sealed record MagicCastingClassEnrolment(long CapabilityId, MagicCastingGrant Result);
+public sealed record MagicCastingAffiliation(long CapabilityId, string Name, bool Active);
 
 /// <summary>World-local authority for acquired knowledge, explicit routes, paid casting and progression.</summary>
 public interface IMagicCastingService
 {
 	AcquiredSpell? Acquisition(ICharacter character, long spellId);
 	bool HasAnyAcquisition(ICharacter character, IReadOnlyCollection<long> spellIds);
+	/// <summary>Pure completed enrolment history, with current explicit route permission on this body.</summary>
+	IReadOnlyList<MagicCastingAffiliation> LearnedAffiliations(ICharacter character);
 	IReadOnlyList<MagicCastingRoute> Routes(ICharacter actor, long? spellId = null);
 	string? Preflight(ICharacter actor, long capabilityId, long spellId, int grade, bool overreach);
 	MagicCastingQuote Quote(MagicCastingIntent intent);
@@ -52,6 +57,8 @@ public interface IMagicCastingService
 		MagicCastingSpeech? speech = null) => new(MagicCastingStatus.Refused, "Formula casting is unavailable.");
 	MagicCastingGrant Grant(ICharacter authority, ICharacter target, long capabilityId, long spellId, string reason);
 	MagicCastingGrant Enrol(ICharacter authority, ICharacter target, long capabilityId, string reason);
+	/// <summary>New-character finalisation only, after permanent identity and selected class merits are saved.</summary>
+	IReadOnlyList<MagicCastingClassEnrolment> EnrolFromSelectedClass(ICharacter target, IChargenRole selectedClass) => Array.Empty<MagicCastingClassEnrolment>();
 	void NotifyProgress(ICharacter character, long? traitId = null, long? spellId = null);
 	void Reconcile(ICharacter actor);
 	/// <summary>Interrupts owned prepaid practice without refund or progress; does not resume work.</summary>

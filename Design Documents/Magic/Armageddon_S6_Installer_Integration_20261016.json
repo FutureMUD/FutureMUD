@@ -1,0 +1,665 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-16",
+  "status": "S6_INACTIVE_INSTALLER_MATRIX_QUALIFIED_GATHERING_PENDING",
+  "whole_s6_qualified": false,
+  "whole_programme_qualified": false,
+  "baseline_head": "586a7474b5a67b3c1298ad5182d221d6b2838534",
+  "branch": "codex/armageddon-continuation-20261008",
+  "pr": 788,
+  "scope": "Repair complete inactive installer admissions/supports and qualify the four-cell installation/integration slice; gathering economy and environmental bindings remain unauthored.",
+  "production_runtime_changes": false,
+  "production_seeder_changes": true,
+  "availability": {
+    "release": false,
+    "package": false,
+    "classes": false,
+    "use": false,
+    "craft": false,
+    "variants": false,
+    "unqualified_carriers": false,
+    "merge": false,
+    "deploy": false
+  },
+  "repair": {
+    "defect": "Complete fixed installation left all ten capability Casting policies at inert S2 empty-admission defaults; S5 reconstructed a separate full Earth fixture rather than qualifying installation of the whole graph.",
+    "installed_defaults": {
+      "capabilities": 10,
+      "merits": 10,
+      "spell_admissions": 419,
+      "classic_support_grants": 10,
+      "simple_support_grants": 20,
+      "elemental_generator_links": 7,
+      "sorcerer_generator_links": 0,
+      "casting_enabled": false,
+      "class_availability": false
+    },
+    "ownership": "Versioned completion marker retains hydration during ordinary reconciliation. All marker versions and real canonical identities are checked before progression writes; unknown versions or missing/retired/incompatible/competing identities refuse. Existing builder Definition edits use the existing three-way merge.",
+    "typed_alias_audit": "All210 blueprint claims retained. Four keys across MaterialBinding/LiquidBinding/Disease intentionally have null LogicalId/revision and bind shared native targets through the established typed alias validator; other primaries require live correctly typed native rows.",
+    "no_gathering_economy_invented": true
+  },
+  "managed": {
+    "final_seeder": {
+      "status": "PASS",
+      "passed": 1873,
+      "failed": 0,
+      "skipped": 3,
+      "skip_reason": "Existing generated-launcher Unix permission cases on Windows",
+      "new_cases": 10,
+      "duration_seconds": 807.5654163,
+      "path": "C:/Temp/armageddon-s6-final-managed/20261016T042318Z-8f9a72a77e8f/summary.json",
+      "sha256": "80AB296CB5B3D4A7DD506737147B349790CC7C123F0E74B3F7E80B3884708F87",
+      "source_start": "09afe4092c974a26cdf1990978e03b58f8ba81107bc750a74e50576c5f8cc189",
+      "source_end": "09afe4092c974a26cdf1990978e03b58f8ba81107bc750a74e50576c5f8cc189",
+      "source_stable": true,
+      "trx": {
+        "path": "C:\\Temp\\armageddon-s6-final-managed\\20261016T042318Z-8f9a72a77e8f\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\results.trx",
+        "sha256": "FCF475DCFA394E8B952F814C15767ECD47982CF4BC0D4FD270B45CBC3465808E"
+      },
+      "skipped_names": [
+        "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (1)",
+        "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (2)",
+        "EnsureStartScript_UnixGeneratedLauncher_CreatesAndRepairsOwnerOnlyPermissions (0)"
+      ]
+    },
+    "core_shared_contracts": {
+      "status": "PASS_REUSED_RUNTIME_UNCHANGED",
+      "passed": 65,
+      "failed": 0,
+      "skipped": 0,
+      "filter": "ArmageddonStockProgressionRuntimeTests|MagicCastingTests|MagicCastingSupportTests",
+      "path": "C:/Temp/armageddon-s6-managed/core/20261016T035030Z-df7b93783afb/summary.json",
+      "sha256": "5018E6FED99F77CF58AC881478771955FAEC8B5BF284DE9D0137C34B942B4005",
+      "limits": "Named selected-Class enrolment, permanent entitlement, explicit enrolment, native branch boundaries and supports; not complete chargen approval/UI."
+    },
+    "fixture_safety": {
+      "status": "PASS",
+      "passed": 38,
+      "path": "C:/Temp/armageddon-s6-base-safety2.log",
+      "database_created": false
+    },
+    "sealed_base_validation": {
+      "Off": "PASS",
+      "On": "PASS",
+      "direction_environment_exact": true,
+      "recapture": false
+    },
+    "build_and_reflection": {
+      "harness_debug": "PASS: zero errors,31 existing warnings",
+      "seeder_release": "PASS: zero errors/warnings",
+      "debug_replay_types": true,
+      "debug_armageddon_enabled": true,
+      "release_replay_types": false,
+      "release_armageddon_enabled": false
+    }
+  },
+  "immutable_bases": {
+    "Off": {
+      "descriptor": ".artifacts/pre-armageddon-base-fixtures/20261015T121003Z_c1b183833df74237b9eeeba5edaed680/base-world.json",
+      "descriptor_sha256": "0F94AF5BB637FF59DFEDED7ACCCC133828EF03375FE8C313D96710A4C1778E3B",
+      "sql_sha256": "D926190E1626FC866F83D159E4A25B230BEA3B8ABA8E9701952950B89A0F6A3C",
+      "base_source_sha256": "17F5774C8F9A81499B2D06433780DF5A24BE79AFFFDBAD6AF77B8E4BE70EE22B",
+      "earlier_class_answer": "no"
+    },
+    "On": {
+      "descriptor": ".artifacts/pre-armageddon-base-fixtures/20261016T035852Z_509de48bc1534e3a9b0ad4f2e930b1fa/base-world.json",
+      "descriptor_sha256": "39D28D21614CEB4BB623BFC55BE3C39929E61EE6C8C0A5357ECDF6068C97EA59",
+      "sql_sha256": "0EE91B1E2A68EC8AB70C8D2972901EBA23EA260727BEC9C131CDDD2055D617E9",
+      "base_source_sha256": "9A748BEE34D28727098C8B986887253BD9ACA030A98183A0200C625BBD1B970A",
+      "earlier_class_answer": "yes"
+    },
+    "schema_sha256": "0A97BF9B33131F08AA11899A9980A673D45E9D66814E95469A844F8A416DFD14",
+    "prefix_steps": 29,
+    "migrations": 277
+  },
+  "classes_on_capture": {
+    "status": "PASS_HISTORICAL_DECLINE_SCOPE",
+    "path": "C:/Temp/armageddon-s6-native/capture/20261016T035256Z_34d67b466b134ab3b30c7d84f2f09141/base-world-run.json",
+    "sha256": "D7F8A1304C38480DC6EE15CB3ED2C72905A8F2BEE24F490EE5D3F8BBE5BA8456",
+    "full_maintained_replay_steps": 32,
+    "armageddon_declined": true,
+    "second_replay_refused_before_steps": true,
+    "all_table_content_unchanged": true,
+    "owned_cleanup": "PASS",
+    "source_start_end": "D467AE6FCC676EFE9B7DDF49830B858E94AC62BCDBA83E99B57D0C556D1EC198",
+    "limits": "Captures authentic earlier classes-on prefix and completes the full profile with optional Armageddon declined. This is not a full-profile yes-install certificate for the current repair. Four targeted restored fresh Armageddon installs exercise the current complete entry point."
+  },
+  "native_matrix": [
+    {
+      "cell": "classic-off",
+      "status": "PASS",
+      "runner": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\classic-off\\20261016T043742Z_dc1eaa18bde041f881260018186d992c\\summary.json",
+        "sha256": "F30D9AF25CFF872D04C1E915DEBF35DFB04BFBB7FB65582AE2BEFD69DD74AD7F"
+      },
+      "installation": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\classic-off\\20261016T043742Z_dc1eaa18bde041f881260018186d992c\\s6-installation.json",
+        "sha256": "E86FAD125AC003CF522F994E9DEB5273F119CD53C7F4DE912A49940653EC484D",
+        "result": {
+          "Status": "PASS",
+          "Mode": "Classic",
+          "EarlierClasses": false,
+          "Capabilities": 10,
+          "Merits": 10,
+          "ClassRoles": 0,
+          "CanonicalSpells": 152,
+          "Blueprints": 210,
+          "ProgressionBindings": 429,
+          "SpellAdmissions": 419,
+          "SupportGrants": 10,
+          "GatheringPolicyStatus": "PENDING-approved-source-and-economy-inputs",
+          "ExistingPlayerStateUnchanged": true,
+          "NoLiveNpcsSpawned": true,
+          "PackageAvailabilityDisabled": true,
+          "ClassMeritsAndStartingTraitsExact": true
+        }
+      },
+      "boot": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-87c835d4613848ddb0f98f965e318f19\\boot-latest.json",
+        "sha256": "723774DA0A2942B87CF3398BC9E78C4D2876E2ED5EDC1AD47E40C0B2E1734A4D"
+      },
+      "console": {
+        "path": "C:\\Temp\\armageddon-s6-final-classic-off.log",
+        "sha256": "34670E7C79982B803E38B182138B606AA1EE75823C67BAB293736B8561A8C6B1"
+      },
+      "base_receipt": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\classic-off\\20261016T043742Z_dc1eaa18bde041f881260018186d992c\\base-world-run.json",
+        "sha256": "E06391386CADA4440AA410FD4464E582FA4E28A3C69508E73A0A51957EDFB5FC"
+      },
+      "native_exit": 0,
+      "first_loaded": 152,
+      "cold_loaded": 152,
+      "assertions": 16,
+      "integration_status": "PASS",
+      "integration_cold_status": "PASS",
+      "source_start": "806E3067F5AE929519F16755DC79A0907F6C7C89347AE855F309303051F0B1E0",
+      "source_end": "806E3067F5AE929519F16755DC79A0907F6C7C89347AE855F309303051F0B1E0",
+      "source_stable": true,
+      "source_start_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\classic-off\\20261016T043742Z_dc1eaa18bde041f881260018186d992c\\source-start.json",
+        "sha256": "806E3067F5AE929519F16755DC79A0907F6C7C89347AE855F309303051F0B1E0"
+      },
+      "source_end_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\classic-off\\20261016T043742Z_dc1eaa18bde041f881260018186d992c\\source-end.json",
+        "sha256": "806E3067F5AE929519F16755DC79A0907F6C7C89347AE855F309303051F0B1E0"
+      },
+      "source_entry_count": 8410,
+      "deterministic_sorted_path_sha256": "1C5FD85CFCA28F8E3FBF8B7E8F2F413541A3CA0D77D8D5D1175D96749196F545",
+      "changed_added_removed_source_paths": [],
+      "source_matches_first_cell": true,
+      "binary_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\classic-off\\20261016T043742Z_dc1eaa18bde041f881260018186d992c\\assemblies.json",
+        "sha256": "594E94772966C74970418E51C9CCF1D75C23436105907BCDC207435B598A401F"
+      },
+      "harness_binary_map": {
+        "GatheringNativePersistenceHarness.dll": "F963BEBE136AF9BBB8BEDE5C36E4B1B6AEE35D2AC0C36D0C14844EDEA16EA1EC",
+        "GatheringNativePersistenceHarness.deps.json": "033EACC982F83AB10D33058BF31FA1D31DCDC9CBA2422F045CE5291484906F97",
+        "GatheringNativePersistenceHarness.runtimeconfig.json": "99B3B87037CC9002BDFB6251465F17A7F7079B18A0AAED46DDBCDBDC1652B433",
+        "MudSharp.dll": "A20BECDB24309BD43F7A7AF7379AE929BA96F1965D244E73A3396170B3BFFC44",
+        "FutureMUDLibrary.dll": "279F735A8C021BA19041B3CFEC2B8F550B5CED86658699B9F0FC2F0AABFF3BB6",
+        "MudsharpDatabaseLibrary.dll": "75AA453EEF77D61B097F8BEB0038710EB8322930D6153E3BCB346E1EC5F85F0F",
+        "ExpressionEngine.dll": "940607321FF72503BE3750F9FB3633EC17BF2F513FAA78C18B20F394CE74FFEF",
+        "DatabaseSeeder.dll": "9E0F9FC8B945F69E137E7AC251F9CE6BBDB24E8CD98489F600751169CDB45A3A"
+      },
+      "runtime_binary_map": {
+        "MudSharp.dll": "A20BECDB24309BD43F7A7AF7379AE929BA96F1965D244E73A3396170B3BFFC44",
+        "FutureMUDLibrary.dll": "279F735A8C021BA19041B3CFEC2B8F550B5CED86658699B9F0FC2F0AABFF3BB6",
+        "MudsharpDatabaseLibrary.dll": "75AA453EEF77D61B097F8BEB0038710EB8322930D6153E3BCB346E1EC5F85F0F",
+        "ExpressionEngine.dll": "940607321FF72503BE3750F9FB3633EC17BF2F513FAA78C18B20F394CE74FFEF"
+      },
+      "binary_maps_match_first_cell": true,
+      "package_content_source_sha256": "BAA70E0D9CC2E25353C8671E45973D876CF288015C726FE14403F60EDF751EB5",
+      "cleanup": {
+        "owned_mud_processes_stopped": true,
+        "parent_job_active_processes_zero": true,
+        "database_deleted": true,
+        "mysql_stopped_and_instance_deleted": true
+      }
+    },
+    {
+      "cell": "simple-off",
+      "status": "PASS",
+      "runner": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\simple-off\\20261016T045220Z_2115c7c4acf94a3e9a8d58aac15e15cd\\summary.json",
+        "sha256": "60365629EE9A76510125AAF147B09C0F9BCABF491F609203E65A7DEABE4877CF"
+      },
+      "installation": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\simple-off\\20261016T045220Z_2115c7c4acf94a3e9a8d58aac15e15cd\\s6-installation.json",
+        "sha256": "E42E5834247CC56CF15B67920F7D368AC82A559D5DCAEABC41110C0AC1507498",
+        "result": {
+          "Status": "PASS",
+          "Mode": "Simple",
+          "EarlierClasses": false,
+          "Capabilities": 10,
+          "Merits": 10,
+          "ClassRoles": 0,
+          "CanonicalSpells": 152,
+          "Blueprints": 210,
+          "ProgressionBindings": 439,
+          "SpellAdmissions": 419,
+          "SupportGrants": 20,
+          "GatheringPolicyStatus": "PENDING-approved-source-and-economy-inputs",
+          "ExistingPlayerStateUnchanged": true,
+          "NoLiveNpcsSpawned": true,
+          "PackageAvailabilityDisabled": true,
+          "ClassMeritsAndStartingTraitsExact": true
+        }
+      },
+      "boot": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-333bf4e563374926b08858c1d650a7f7\\boot-latest.json",
+        "sha256": "A5903BEE367EE3DBC76528B7EEE7490DC010354EB47CABF84DA95012544CF61E"
+      },
+      "console": {
+        "path": "C:\\Temp\\armageddon-s6-final-simple-off.log",
+        "sha256": "6BBB46C4D3735B1EC1BCED11B7D97FE582E902ABEC2B09C01DAF92820E54ADD8"
+      },
+      "base_receipt": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\simple-off\\20261016T045220Z_2115c7c4acf94a3e9a8d58aac15e15cd\\base-world-run.json",
+        "sha256": "784A8EA806A845809BBAB7ABA4F96B74B46CB7BE29AEE5D3EA73333F20E49CFE"
+      },
+      "native_exit": 0,
+      "first_loaded": 152,
+      "cold_loaded": 152,
+      "assertions": 16,
+      "integration_status": "PASS",
+      "integration_cold_status": "PASS",
+      "source_start": "806E3067F5AE929519F16755DC79A0907F6C7C89347AE855F309303051F0B1E0",
+      "source_end": "806E3067F5AE929519F16755DC79A0907F6C7C89347AE855F309303051F0B1E0",
+      "source_stable": true,
+      "source_start_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\simple-off\\20261016T045220Z_2115c7c4acf94a3e9a8d58aac15e15cd\\source-start.json",
+        "sha256": "806E3067F5AE929519F16755DC79A0907F6C7C89347AE855F309303051F0B1E0"
+      },
+      "source_end_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\simple-off\\20261016T045220Z_2115c7c4acf94a3e9a8d58aac15e15cd\\source-end.json",
+        "sha256": "806E3067F5AE929519F16755DC79A0907F6C7C89347AE855F309303051F0B1E0"
+      },
+      "source_entry_count": 8410,
+      "deterministic_sorted_path_sha256": "1C5FD85CFCA28F8E3FBF8B7E8F2F413541A3CA0D77D8D5D1175D96749196F545",
+      "changed_added_removed_source_paths": [],
+      "source_matches_first_cell": true,
+      "binary_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\simple-off\\20261016T045220Z_2115c7c4acf94a3e9a8d58aac15e15cd\\assemblies.json",
+        "sha256": "594E94772966C74970418E51C9CCF1D75C23436105907BCDC207435B598A401F"
+      },
+      "harness_binary_map": {
+        "GatheringNativePersistenceHarness.dll": "F963BEBE136AF9BBB8BEDE5C36E4B1B6AEE35D2AC0C36D0C14844EDEA16EA1EC",
+        "GatheringNativePersistenceHarness.deps.json": "033EACC982F83AB10D33058BF31FA1D31DCDC9CBA2422F045CE5291484906F97",
+        "GatheringNativePersistenceHarness.runtimeconfig.json": "99B3B87037CC9002BDFB6251465F17A7F7079B18A0AAED46DDBCDBDC1652B433",
+        "MudSharp.dll": "A20BECDB24309BD43F7A7AF7379AE929BA96F1965D244E73A3396170B3BFFC44",
+        "FutureMUDLibrary.dll": "279F735A8C021BA19041B3CFEC2B8F550B5CED86658699B9F0FC2F0AABFF3BB6",
+        "MudsharpDatabaseLibrary.dll": "75AA453EEF77D61B097F8BEB0038710EB8322930D6153E3BCB346E1EC5F85F0F",
+        "ExpressionEngine.dll": "940607321FF72503BE3750F9FB3633EC17BF2F513FAA78C18B20F394CE74FFEF",
+        "DatabaseSeeder.dll": "9E0F9FC8B945F69E137E7AC251F9CE6BBDB24E8CD98489F600751169CDB45A3A"
+      },
+      "runtime_binary_map": {
+        "MudSharp.dll": "A20BECDB24309BD43F7A7AF7379AE929BA96F1965D244E73A3396170B3BFFC44",
+        "FutureMUDLibrary.dll": "279F735A8C021BA19041B3CFEC2B8F550B5CED86658699B9F0FC2F0AABFF3BB6",
+        "MudsharpDatabaseLibrary.dll": "75AA453EEF77D61B097F8BEB0038710EB8322930D6153E3BCB346E1EC5F85F0F",
+        "ExpressionEngine.dll": "940607321FF72503BE3750F9FB3633EC17BF2F513FAA78C18B20F394CE74FFEF"
+      },
+      "binary_maps_match_first_cell": true,
+      "package_content_source_sha256": "BAA70E0D9CC2E25353C8671E45973D876CF288015C726FE14403F60EDF751EB5",
+      "cleanup": {
+        "owned_mud_processes_stopped": true,
+        "parent_job_active_processes_zero": true,
+        "database_deleted": true,
+        "mysql_stopped_and_instance_deleted": true
+      }
+    },
+    {
+      "cell": "classic-on",
+      "status": "PASS",
+      "runner": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\classic-on\\20261016T050618Z_f130b49b0bda47d0a4003e113460ea07\\summary.json",
+        "sha256": "990DC1874DB128EA90D8655CC1BDD00C1981F9A3214A7169109166B99CC5BC76"
+      },
+      "installation": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\classic-on\\20261016T050618Z_f130b49b0bda47d0a4003e113460ea07\\s6-installation.json",
+        "sha256": "81B5E328E543322D723C1B940C5D0817678D3100EE677650F0FA2E201018CED0",
+        "result": {
+          "Status": "PASS",
+          "Mode": "Classic",
+          "EarlierClasses": true,
+          "Capabilities": 10,
+          "Merits": 10,
+          "ClassRoles": 10,
+          "CanonicalSpells": 152,
+          "Blueprints": 210,
+          "ProgressionBindings": 429,
+          "SpellAdmissions": 419,
+          "SupportGrants": 10,
+          "GatheringPolicyStatus": "PENDING-approved-source-and-economy-inputs",
+          "ExistingPlayerStateUnchanged": true,
+          "NoLiveNpcsSpawned": true,
+          "PackageAvailabilityDisabled": true,
+          "ClassMeritsAndStartingTraitsExact": true
+        }
+      },
+      "boot": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-aa95cc17c55d49db94f058a30e1f7011\\boot-latest.json",
+        "sha256": "00B6A3C30CF22DA71C14D9818FC8449317D5BB06A4225DBF9D9911A453511536"
+      },
+      "console": {
+        "path": "C:\\Temp\\armageddon-s6-final-classic-on.log",
+        "sha256": "BB1CF294FBE53E30C619DEDD6457C30A189AA2CE6132C542780A1E4DE70FAED7"
+      },
+      "base_receipt": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\classic-on\\20261016T050618Z_f130b49b0bda47d0a4003e113460ea07\\base-world-run.json",
+        "sha256": "076A3475751BE3C3B9E95BCBCA46C36D9C9D8E695C44580B45CA8532FFA6AFF7"
+      },
+      "native_exit": 0,
+      "first_loaded": 152,
+      "cold_loaded": 152,
+      "assertions": 16,
+      "integration_status": "PASS",
+      "integration_cold_status": "PASS",
+      "source_start": "806E3067F5AE929519F16755DC79A0907F6C7C89347AE855F309303051F0B1E0",
+      "source_end": "806E3067F5AE929519F16755DC79A0907F6C7C89347AE855F309303051F0B1E0",
+      "source_stable": true,
+      "source_start_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\classic-on\\20261016T050618Z_f130b49b0bda47d0a4003e113460ea07\\source-start.json",
+        "sha256": "806E3067F5AE929519F16755DC79A0907F6C7C89347AE855F309303051F0B1E0"
+      },
+      "source_end_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\classic-on\\20261016T050618Z_f130b49b0bda47d0a4003e113460ea07\\source-end.json",
+        "sha256": "806E3067F5AE929519F16755DC79A0907F6C7C89347AE855F309303051F0B1E0"
+      },
+      "source_entry_count": 8410,
+      "deterministic_sorted_path_sha256": "1C5FD85CFCA28F8E3FBF8B7E8F2F413541A3CA0D77D8D5D1175D96749196F545",
+      "changed_added_removed_source_paths": [],
+      "source_matches_first_cell": true,
+      "binary_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\classic-on\\20261016T050618Z_f130b49b0bda47d0a4003e113460ea07\\assemblies.json",
+        "sha256": "594E94772966C74970418E51C9CCF1D75C23436105907BCDC207435B598A401F"
+      },
+      "harness_binary_map": {
+        "GatheringNativePersistenceHarness.dll": "F963BEBE136AF9BBB8BEDE5C36E4B1B6AEE35D2AC0C36D0C14844EDEA16EA1EC",
+        "GatheringNativePersistenceHarness.deps.json": "033EACC982F83AB10D33058BF31FA1D31DCDC9CBA2422F045CE5291484906F97",
+        "GatheringNativePersistenceHarness.runtimeconfig.json": "99B3B87037CC9002BDFB6251465F17A7F7079B18A0AAED46DDBCDBDC1652B433",
+        "MudSharp.dll": "A20BECDB24309BD43F7A7AF7379AE929BA96F1965D244E73A3396170B3BFFC44",
+        "FutureMUDLibrary.dll": "279F735A8C021BA19041B3CFEC2B8F550B5CED86658699B9F0FC2F0AABFF3BB6",
+        "MudsharpDatabaseLibrary.dll": "75AA453EEF77D61B097F8BEB0038710EB8322930D6153E3BCB346E1EC5F85F0F",
+        "ExpressionEngine.dll": "940607321FF72503BE3750F9FB3633EC17BF2F513FAA78C18B20F394CE74FFEF",
+        "DatabaseSeeder.dll": "9E0F9FC8B945F69E137E7AC251F9CE6BBDB24E8CD98489F600751169CDB45A3A"
+      },
+      "runtime_binary_map": {
+        "MudSharp.dll": "A20BECDB24309BD43F7A7AF7379AE929BA96F1965D244E73A3396170B3BFFC44",
+        "FutureMUDLibrary.dll": "279F735A8C021BA19041B3CFEC2B8F550B5CED86658699B9F0FC2F0AABFF3BB6",
+        "MudsharpDatabaseLibrary.dll": "75AA453EEF77D61B097F8BEB0038710EB8322930D6153E3BCB346E1EC5F85F0F",
+        "ExpressionEngine.dll": "940607321FF72503BE3750F9FB3633EC17BF2F513FAA78C18B20F394CE74FFEF"
+      },
+      "binary_maps_match_first_cell": true,
+      "package_content_source_sha256": "BAA70E0D9CC2E25353C8671E45973D876CF288015C726FE14403F60EDF751EB5",
+      "cleanup": {
+        "owned_mud_processes_stopped": true,
+        "parent_job_active_processes_zero": true,
+        "database_deleted": true,
+        "mysql_stopped_and_instance_deleted": true
+      }
+    },
+    {
+      "cell": "simple-on",
+      "status": "PASS",
+      "runner": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\simple-on\\20261016T052148Z_c606299ad7544b34aed28b45452a4220\\summary.json",
+        "sha256": "FE4AAB8D5C0130689E269E7C5E03EE3EA08A5C3FCA788C35761DAB300F1350B3"
+      },
+      "installation": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\simple-on\\20261016T052148Z_c606299ad7544b34aed28b45452a4220\\s6-installation.json",
+        "sha256": "E4387E810D309BF98D98199AF9943C5AC8AAF811742C661845E2EB07F4ABBA4A",
+        "result": {
+          "Status": "PASS",
+          "Mode": "Simple",
+          "EarlierClasses": true,
+          "Capabilities": 10,
+          "Merits": 10,
+          "ClassRoles": 10,
+          "CanonicalSpells": 152,
+          "Blueprints": 210,
+          "ProgressionBindings": 439,
+          "SpellAdmissions": 419,
+          "SupportGrants": 20,
+          "GatheringPolicyStatus": "PENDING-approved-source-and-economy-inputs",
+          "ExistingPlayerStateUnchanged": true,
+          "NoLiveNpcsSpawned": true,
+          "PackageAvailabilityDisabled": true,
+          "ClassMeritsAndStartingTraitsExact": true
+        }
+      },
+      "boot": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-52b727159f4a47aaa5ebc36186a46a96\\boot-latest.json",
+        "sha256": "F9C72311A0A667822AE6D08E046252B6E7BBA6D7B3583BB5D0746328F08FDB62"
+      },
+      "console": {
+        "path": "C:\\Temp\\armageddon-s6-final-simple-on.log",
+        "sha256": "507FCF5DA43FCFEAEC4B0AA20D28D0C7F3CF4580897DC9758D8EBCE1C501D5AD"
+      },
+      "base_receipt": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\simple-on\\20261016T052148Z_c606299ad7544b34aed28b45452a4220\\base-world-run.json",
+        "sha256": "F49C77490996893A118AD07A89CC198829769A0AF59DF0410774D357C118124A"
+      },
+      "native_exit": 0,
+      "first_loaded": 152,
+      "cold_loaded": 152,
+      "assertions": 16,
+      "integration_status": "PASS",
+      "integration_cold_status": "PASS",
+      "source_start": "0ADF9C73D82F26F3E406F91BC09E0876FAD84B14F8A48B4061E31AAC7C9DE7AB",
+      "source_end": "0ADF9C73D82F26F3E406F91BC09E0876FAD84B14F8A48B4061E31AAC7C9DE7AB",
+      "source_stable": true,
+      "source_start_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\simple-on\\20261016T052148Z_c606299ad7544b34aed28b45452a4220\\source-start.json",
+        "sha256": "0ADF9C73D82F26F3E406F91BC09E0876FAD84B14F8A48B4061E31AAC7C9DE7AB"
+      },
+      "source_end_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\simple-on\\20261016T052148Z_c606299ad7544b34aed28b45452a4220\\source-end.json",
+        "sha256": "0ADF9C73D82F26F3E406F91BC09E0876FAD84B14F8A48B4061E31AAC7C9DE7AB"
+      },
+      "source_entry_count": 8410,
+      "deterministic_sorted_path_sha256": "1C5FD85CFCA28F8E3FBF8B7E8F2F413541A3CA0D77D8D5D1175D96749196F545",
+      "changed_added_removed_source_paths": [],
+      "source_matches_first_cell": true,
+      "binary_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-final-native\\simple-on\\20261016T052148Z_c606299ad7544b34aed28b45452a4220\\assemblies.json",
+        "sha256": "958AF6C513420797C35C79FE9A720A33D915FE6C0C70D9586C2BD68615662D01"
+      },
+      "harness_binary_map": {
+        "GatheringNativePersistenceHarness.dll": "F963BEBE136AF9BBB8BEDE5C36E4B1B6AEE35D2AC0C36D0C14844EDEA16EA1EC",
+        "GatheringNativePersistenceHarness.deps.json": "033EACC982F83AB10D33058BF31FA1D31DCDC9CBA2422F045CE5291484906F97",
+        "GatheringNativePersistenceHarness.runtimeconfig.json": "99B3B87037CC9002BDFB6251465F17A7F7079B18A0AAED46DDBCDBDC1652B433",
+        "MudSharp.dll": "A20BECDB24309BD43F7A7AF7379AE929BA96F1965D244E73A3396170B3BFFC44",
+        "FutureMUDLibrary.dll": "279F735A8C021BA19041B3CFEC2B8F550B5CED86658699B9F0FC2F0AABFF3BB6",
+        "MudsharpDatabaseLibrary.dll": "75AA453EEF77D61B097F8BEB0038710EB8322930D6153E3BCB346E1EC5F85F0F",
+        "ExpressionEngine.dll": "940607321FF72503BE3750F9FB3633EC17BF2F513FAA78C18B20F394CE74FFEF",
+        "DatabaseSeeder.dll": "9E0F9FC8B945F69E137E7AC251F9CE6BBDB24E8CD98489F600751169CDB45A3A"
+      },
+      "runtime_binary_map": {
+        "MudSharp.dll": "A20BECDB24309BD43F7A7AF7379AE929BA96F1965D244E73A3396170B3BFFC44",
+        "FutureMUDLibrary.dll": "279F735A8C021BA19041B3CFEC2B8F550B5CED86658699B9F0FC2F0AABFF3BB6",
+        "MudsharpDatabaseLibrary.dll": "75AA453EEF77D61B097F8BEB0038710EB8322930D6153E3BCB346E1EC5F85F0F",
+        "ExpressionEngine.dll": "940607321FF72503BE3750F9FB3633EC17BF2F513FAA78C18B20F394CE74FFEF"
+      },
+      "binary_maps_match_first_cell": true,
+      "package_content_source_sha256": "BAA70E0D9CC2E25353C8671E45973D876CF288015C726FE14403F60EDF751EB5",
+      "cleanup": {
+        "owned_mud_processes_stopped": true,
+        "parent_job_active_processes_zero": true,
+        "database_deleted": true,
+        "mysql_stopped_and_instance_deleted": true
+      }
+    }
+  ],
+  "retained_failures": [
+    {
+      "path": "C:\\Temp\\armageddon-s6-native\\classic-off\\20261016T035955Z_028946d1dffe433280d361fa39f80683\\summary.json",
+      "sha256": "80A8B3115B345A467F06DA04A9AB47589D42FF65869A4D74604EC4B3113445D2",
+      "status": "FAIL",
+      "scope": "Original pre-MUD S6 blueprint predicate rejected four valid native null-ID aliases; no gameplay assertions executed; owned cleanup completed. Corrected four cells are separate receipts."
+    },
+    {
+      "path": "C:\\Temp\\armageddon-s6-harness-build.log",
+      "sha256": "8A44D8B014C0A3608F35E4C7BAF7FEE7D31740EF2F3F4072A071CAA76F85D0E1",
+      "status": "FAIL",
+      "scope": "Initial missing-import harness compilation failure, preserved."
+    },
+    {
+      "path": "C:\\Temp\\armageddon-s6-base-safety.log",
+      "sha256": "17C5ADBB37F2EB1E395A14929BB6836A5C56B5BCABDBC6D2FD52AEC5254E7CC0",
+      "status": "INVOCATION_FAILURE",
+      "scope": "First pure launch referenced incorrect AssemblyName DLL; no checks executed. Corrected safety2 invocation passed 38 checks."
+    }
+  ],
+  "gathering": {
+    "status": "PENDING_APPROVED_NUMERICAL_AND_ENVIRONMENTAL_POLICY",
+    "locked_method_matrix": {
+      "Sorcerer": [
+        "Self",
+        "Gentle",
+        "Land"
+      ],
+      "Preserver": [
+        "Self",
+        "Gentle"
+      ],
+      "Defiler": [
+        "Land"
+      ]
+    },
+    "missing": [
+      "Approval of the proposed numerical gathering economy and generic environmental profile/coverage policy"
+    ],
+    "proposal_only": "Armageddon_Gathering_Balance_Review_20261016.md",
+    "proposed_values_implemented": false,
+    "casting_enabled_alone_disables_gathering": false,
+    "current_stock_methods": 0,
+    "dedicated_deny_permission": "Required with exact native signature before any stock gathering methods are configured; current no-method policies grant no gathering. Casting disabled alone is insufficient."
+  },
+  "limits": [
+    "No complete chargen approval/UI certificate; native Player is an explicitly copied-body fixture.",
+    "Native integration uses a separate enabled copy of the persisted complete Earth Casting policy; canonical defaults remain disabled.",
+    "S5 paid rest funding/practice and Mend/Mud delivery receipts retain their earlier scopes and are not rerun or broadened by this matrix.",
+    "No approved gathering economy is inferred from method-kind selection or Self-only fixtures.",
+    "S6 remains incomplete; N24/N25 and final readiness remain open.",
+    "All counts are separate overlapping receipts, not additive."
+  ],
+  "hosted_ci": {
+    "new_head": "PENDING_AT_PUBLICATION_SEE_DRAFT_PR_788_FOR_EXACT_HEAD_RESULTS",
+    "baseline_586a7474b": "All four push/PR Ubuntu/Windows default-gate jobs PASS; preserve preceding Windows timeout history in S5 receipt."
+  },
+  "execution_packet": {
+    "path": "C:\\Temp\\armageddon-s6-final-aggregate.json",
+    "sha256": "E7089A1461B7D180CA60F45A53FD76728417D42190A9E4278D25DD7562BEAA49"
+  },
+  "builds": {
+    "harness_debug": {
+      "path": "C:\\Temp\\armageddon-s6-final-build-harness.log",
+      "sha256": "C8BE0559D26FB1AABF84B44CF9BE4D034D00E181E3B89204C33845A68D5E925F",
+      "status": "PASS",
+      "errors": 0,
+      "warnings": 31
+    },
+    "seeder_release": {
+      "path": "C:\\Temp\\armageddon-s6-final-build-release.log",
+      "sha256": "D8324306574411A649C93F886C91F2BB3F3A47CDFD8C1F45EE2572EDB2CDE156",
+      "status": "PASS",
+      "errors": 0,
+      "warnings": 0
+    },
+    "reflection": {
+      "path": "C:\\Temp\\armageddon-s6-final-build-probe.log",
+      "sha256": "848F8B8CBFAFD95EE9FC385840D1310E2EC32C8144A3A4C85C84F4231DA85BF5",
+      "status": "PASS",
+      "release": {
+        "replayProfiles": false,
+        "replayRunner": false,
+        "armageddonEnabled": false
+      },
+      "debug": {
+        "replayProfiles": true,
+        "replayRunner": true,
+        "armageddonEnabled": true
+      }
+    }
+  },
+  "pure_validation": {
+    "off": {
+      "path": "C:\\Temp\\armageddon-s6-final-base-off.log",
+      "sha256": "B33A067382B4D5658A274F385C92F0E0FA1C347C8660AC8BD1FCE7DB332881B4",
+      "status": "PASS",
+      "descriptor_sha256": "0F94AF5BB637FF59DFEDED7ACCCC133828EF03375FE8C313D96710A4C1778E3B"
+    },
+    "on": {
+      "path": "C:\\Temp\\armageddon-s6-final-base-on.log",
+      "sha256": "93016D8033A34D5FDCA52ABBF238DB1B845718204F108EAF2F835AC04440B062",
+      "status": "PASS",
+      "descriptor_sha256": "39D28D21614CEB4BB623BFC55BE3C39929E61EE6C8C0A5357ECDF6068C97EA59"
+    }
+  },
+  "source_inventory": {
+    "entries": 8410,
+    "deterministic_sorted_path_sha256": "1C5FD85CFCA28F8E3FBF8B7E8F2F413541A3CA0D77D8D5D1175D96749196F545",
+    "all_four_maps_identical": true,
+    "all_start_end_maps_identical": true,
+    "raw_serialization_note": "Simple-On raw JSON property order differs; exact raw hashes retained. All path-to-content-SHA entries match across all four runs."
+  },
+  "all_binary_maps_identical": true,
+  "boot_handoff": {
+    "source": {
+      "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\tests\\ArmageddonPreparedSeederNativeHarness\\PreparedCatalogueBootSmoke.py",
+      "sha256": "C7B60B3508BF9960C64C2268FE641F07CC986B17E6F486B47887C9D6677AA24F"
+    },
+    "parent": {
+      "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\PreparedCatalogueBootSmoke.py",
+      "sha256": "C7B60B3508BF9960C64C2268FE641F07CC986B17E6F486B47887C9D6677AA24F"
+    },
+    "byte_identical": true
+  },
+  "initial_proposal_library_artifact": {
+    "library_file_id": "libfile_60b0bbb2e1948191a71be9d2fb96aad6",
+    "file_id": "file_00000000525081f5a7fd9cee557aeb82",
+    "name": "Armageddon_Gathering_Policy_Proposal_20261016.md",
+    "size_bytes": 5229,
+    "approved": false
+  },
+  "gathering_proposal_library_artifact": {
+    "library_file_id": "libfile_826e4bf12e4881919cec34a9d7dad2a0",
+    "file_id": "file_000000007c5081f5a59e68e7224096b9",
+    "name": "Armageddon_Gathering_Balance_Review_20261016.md",
+    "size_bytes": 7997,
+    "approved": false
+  },
+  "post_native_snapshot_changes": "Only the stale FullInstallQuestion presentation sentence and documentation/receipts changed after the frozen native batch; no executable policy, runtime code, defaults, validators or filters changed.",
+  "post_native_prompt_validation": {
+    "debug": {
+      "status": "PASS",
+      "path": "C:\\Temp\\armageddon-s6-prompt-debug.log",
+      "sha256": "C7572DA04ABC4B3974993FCA941174C680572A089CDAC270FC244E9D0795759F"
+    },
+    "release": {
+      "status": "PASS",
+      "path": "C:\\Temp\\armageddon-s6-prompt-release.log",
+      "sha256": "B8FD42B7BA71DD1A762C2AF6A72F09D1612B13819CCE241098D32A76965D0312"
+    },
+    "reflection": {
+      "status": "PASS",
+      "path": "C:\\Temp\\armageddon-s6-prompt-probe.log",
+      "sha256": "848F8B8CBFAFD95EE9FC385840D1310E2EC32C8144A3A4C85C84F4231DA85BF5",
+      "results": [
+        {
+          "configuration": "Release",
+          "replayProfiles": false,
+          "replayRunner": false,
+          "armageddonEnabled": false
+        },
+        {
+          "configuration": "Debug",
+          "replayProfiles": true,
+          "replayRunner": true,
+          "armageddonEnabled": true
+        }
+      ]
+    },
+    "syntax_and_new_document_links": "PASS"
+  }
+}

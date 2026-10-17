@@ -327,6 +327,57 @@ public class MagicEngineV2Tests
 		}
 	}
 
+	[TestMethod]
+	public void EtherealRemoval_RemovesOneSpellChildWithoutTouchingOrdinaryOrManifestedState()
+	{
+		var plane = CreatePlane(8);
+		var world = CreateGameworld(planes: [plane.Object]);
+		var spell = CreateSpellMock(20, world.Object);
+		var target = CreateCharacter(11, world.Object);
+		var parent = CreateParent(spell.Object);
+		var ethereal = new SpellPlanarStateEffect(target.Object, parent.Object,
+			PlanarPresenceDefinition.NonCorporeal(plane.Object));
+		var manifested = new SpellPlanarStateEffect(target.Object, parent.Object,
+			PlanarPresenceDefinition.Manifested(plane.Object));
+		var ordinary = new PlanarStateEffect(target.Object, PlanarPresenceDefinition.NonCorporeal(plane.Object));
+		target.Setup(x => x.EffectsOfType<SpellPlanarStateEffect>(It.IsAny<Predicate<SpellPlanarStateEffect>>()))
+			.Returns([manifested, ethereal]);
+		var effect = (RemovePlanarStateSpellEffect)SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "removeplanarstate"), new XElement("OnlySpellOwnedEthereal", true)), spell.Object);
+
+		Assert.AreEqual(MagicEffectOperationStatus.Applied,
+			effect.Apply(target.Object, target.Object, default, default, parent.Object, []).Status);
+		target.Verify(x => x.RemoveEffect(ethereal, true), Times.Once);
+		target.Verify(x => x.RemoveEffect(manifested, true), Times.Never);
+		target.Verify(x => x.RemoveEffect(ordinary, true), Times.Never);
+		Assert.IsTrue(XNode.DeepEquals(effect.SaveToXml(), effect.Clone().SaveToXml()));
+	}
+
+	[TestMethod]
+	public void EtherealRemoval_ReportsNoChangeWithoutEligibleChildAndPreservesLegacyBroadDefault()
+	{
+		var plane = CreatePlane(8);
+		var world = CreateGameworld(planes: [plane.Object]);
+		var spell = CreateSpellMock(20, world.Object);
+		var target = CreateCharacter(11, world.Object);
+		var parent = CreateParent(spell.Object);
+		var manifested = new SpellPlanarStateEffect(target.Object, parent.Object,
+			PlanarPresenceDefinition.Manifested(plane.Object));
+		target.Setup(x => x.EffectsOfType<SpellPlanarStateEffect>(It.IsAny<Predicate<SpellPlanarStateEffect>>()))
+			.Returns([manifested]);
+		var selective = (RemovePlanarStateSpellEffect)SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "removeplanarstate"), new XElement("OnlySpellOwnedEthereal", true)), spell.Object);
+		Assert.AreEqual(MagicEffectOperationStatus.NoChange,
+			selective.Apply(target.Object, target.Object, default, default, parent.Object, []).Status);
+		target.Verify(x => x.RemoveEffect(It.IsAny<SpellPlanarStateEffect>(), true), Times.Never);
+
+		var legacy = (RemovePlanarStateSpellEffect)SpellEffectFactory.LoadEffect(new XElement("Effect",
+			new XAttribute("type", "removeplanarstate")), spell.Object);
+		Assert.IsFalse(legacy.OnlySpellOwnedEthereal);
+		legacy.Apply(target.Object, target.Object, default, default, parent.Object, []);
+		target.Verify(x => x.RemoveAllEffects<SpellPlanarStateEffect>(It.IsAny<Predicate<SpellPlanarStateEffect>>(), true), Times.Once);
+	}
+
 	private static MagicPower CreateMindConcealModel()
 	{
 		return new MagicPower

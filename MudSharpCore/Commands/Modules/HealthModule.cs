@@ -5,6 +5,7 @@ using MudSharp.Body.PartProtos;
 using MudSharp.Combat;
 using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Concrete.SpellEffects;
 using MudSharp.Events;
 using MudSharp.Framework.Units;
 using MudSharp.GameItems;
@@ -212,12 +213,15 @@ The syntax is:
                 }
             }
 
+            (pulseDescription, breathingDescription) = SpellFeignedDeathEffect.ObservedVitalSigns(actor, target,
+                pulseDescription, breathingDescription);
             actor.OutputHandler.Send(
                 new EmoteOutput(new Emote($"@ have|has {pulseDescription} and are|is {breathingDescription}.",
                     target, target)));
         }
 
-        if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor) && CharacterState.Able.HasFlag(target.State))
+        if (!CharacterInstanceIdentityComparer.SamePhysicalInstance(target, actor) &&
+            CharacterState.Able.HasFlag(target.State) && !SpellFeignedDeathEffect.AppearsDeadTo(actor, target))
         {
             actor.OutputHandler.Handle(
                 new EmoteOutput(new Emote("@ propose|proposes to check $1's vitals.", actor, actor, target)));

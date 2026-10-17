@@ -10,6 +10,11 @@ public static class ManualActionExtensions
 {
 	public static bool CanPerformManualAction(this IBody body, out string reason)
 	{
+		if (body.Actor?.EffectsOfType<MudSharp.Magic.ISpellProjectionBoundary>().Any() == true)
+		{
+			reason = "This projected presence cannot manipulate physical objects.";
+			return false;
+		}
 		if (body.HoldLocs.Any(x => body.CanUseBodypart(x) == CanUseBodypartResult.CanUse))
 		{
 			reason = string.Empty;

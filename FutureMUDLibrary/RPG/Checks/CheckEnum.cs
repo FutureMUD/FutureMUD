@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -233,7 +233,16 @@ namespace MudSharp.RPG.Checks
 		SignedLanguageUnderstandCheck = 224,
 		WeatherForecastCapability = 225,
 		WeatherForecast = 226,
-		BlindFightingCheck = 227
+		HaggleCheck = 227,
+		AnalyzeEligibilityCheck = 229,
+		DualWieldCoordinationCheck = 230,
+		DirectionSenseCheck = 234,
+		DirectionSenseRecoveryCheck = 235,
+		PeekCheck = 236,
+		PeekRevealCheck = 237,
+		GuardingExitChallengeCheck = 240,
+		GuardingItemChallengeCheck = 241,
+		BlindFightingCheck = 242
     }
 
     public enum FailIfTraitMissingType
@@ -250,6 +259,7 @@ namespace MudSharp.RPG.Checks
             switch (type)
             {
                 case CheckType.ExactTimeCheck:
+                case CheckType.AnalyzeEligibilityCheck:
                 case CheckType.WeatherForecastCapability:
                 case CheckType.VagueTimeCheck:
                 case CheckType.AccentAcquireCheck:
@@ -266,6 +276,9 @@ namespace MudSharp.RPG.Checks
         {
             switch (type)
             {
+                case CheckType.DualWieldCoordinationCheck:
+				case CheckType.GuardingExitChallengeCheck:
+				case CheckType.GuardingItemChallengeCheck:
 
                 case CheckType.HideCheck:
                 case CheckType.SneakCheck:
@@ -487,6 +500,7 @@ namespace MudSharp.RPG.Checks
         {
             switch (type)
             {
+                case CheckType.DualWieldCoordinationCheck:
                 case CheckType.MeleeWeaponCheck:
                 case CheckType.MeleeWeaponPenetrateCheck:
                 case CheckType.NaturalWeaponAttack:
@@ -553,6 +567,7 @@ namespace MudSharp.RPG.Checks
         {
             switch (type)
             {
+                case CheckType.DualWieldCoordinationCheck:
                 case CheckType.MeleeWeaponCheck:
                 case CheckType.MeleeWeaponPenetrateCheck:
                 case CheckType.NaturalWeaponAttack:
@@ -619,6 +634,10 @@ namespace MudSharp.RPG.Checks
         {
             switch (type)
             {
+				case CheckType.GuardingExitChallengeCheck:
+				case CheckType.GuardingItemChallengeCheck:
+				case CheckType.PeekCheck:
+				case CheckType.PeekRevealCheck:
                 case CheckType.GenericSpotCheck:
                 case CheckType.NoticeCheck:
                 case CheckType.HideCheck:
@@ -733,6 +752,8 @@ namespace MudSharp.RPG.Checks
         {
             switch (type)
             {
+				case CheckType.PeekCheck:
+				case CheckType.PeekRevealCheck:
                 case CheckType.GenericListenCheck:
                 case CheckType.GenericSpotCheck:
                 case CheckType.LanguageListenCheck:

@@ -45,7 +45,7 @@ public sealed class MagicSmashPower : MagicAttackPower, IMagicSmashPower
 		    !CanAffordToInvokePower(actor, Verbs.First()).Truth || (!DealsDamage && AttackSpell is null) ||
 		    target.InInventoryOf is not null && target.InInventoryOf != actor.Body) return false;
 		if (WeaponAttack.RequiredPositionStates.Any() && !WeaponAttack.RequiredPositionStates.Contains(actor.PositionState)) return false;
-		if (CanInvokePowerProg?.ExecuteBool(actor, target) == false || WeaponAttack.UsabilityProg?.ExecuteBool(actor, null, target) == false) return false;
+		if (base.CanInvokePower(actor, new object[] { target }) == false || WeaponAttack.UsabilityProg?.ExecuteBool(actor, null, target) == false) return false;
 		return target.InInventoryOf == actor.Body || (AttackRange == MagicAttackRange.Ranged
 			? NaturalRangedAttackMoveBase.TargetIsInRange(actor, target, RangeInRooms) : actor.ColocatedWith(target));
 	}

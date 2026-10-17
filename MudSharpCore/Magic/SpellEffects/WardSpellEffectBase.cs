@@ -15,6 +15,9 @@ public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
 		Coverage = Enum.Parse<MagicInterdictionCoverage>(root.Element("Coverage")?.Value ?? nameof(MagicInterdictionCoverage.Both), true);
 		IncludesSubschools = bool.Parse(root.Element("IncludesSubschools")?.Value ?? "true");
 		Prog = Gameworld.FutureProgs.Get(long.Parse(root.Element("Prog")?.Value ?? "0"));
+		OneUse = bool.Parse(root.Element("OneUse")?.Value ?? "false");
+		if (OneUse && (Mode != MagicInterdictionMode.Reflect || Coverage != MagicInterdictionCoverage.Incoming))
+			throw new FormatException("One-use wards require incoming reflection.");
 	}
 
 	protected WardSpellEffectBase(IMagicSpell spell)
@@ -33,6 +36,7 @@ public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
 	public MagicInterdictionCoverage Coverage { get; protected set; }
 	public bool IncludesSubschools { get; protected set; }
 	public IFutureProg? Prog { get; protected set; }
+	public bool OneUse { get; private set; }
 
 	protected abstract string EffectType { get; }
 	protected abstract string EffectName { get; }
@@ -47,7 +51,8 @@ public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
 			new XElement("Mode", Mode),
 			new XElement("Coverage", Coverage),
 			new XElement("IncludesSubschools", IncludesSubschools),
-			new XElement("Prog", Prog?.Id ?? 0L)
+			new XElement("Prog", Prog?.Id ?? 0L),
+			OneUse ? new XElement("OneUse", true) : null
 		);
 	}
 
@@ -84,6 +89,7 @@ public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
 			("Coverage", Coverage.DescribeEnum().ColourValue()),
 			("Mode", Mode.DescribeEnum().ColourValue()),
 			("Includes Subschools", IncludesSubschools.ToColouredString()),
+			("One Use", OneUse.ToColouredString()),
 			("Prog", Prog?.MXPClickableFunctionName() ?? "None".ColourError()));
 	}
 
@@ -102,6 +108,13 @@ public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
 				return BuildingCommandSubschools(actor);
 			case "prog":
 				return BuildingCommandProg(actor, command);
+			case "oneuse":
+				if (!OneUse && (Mode != MagicInterdictionMode.Reflect || Coverage != MagicInterdictionCoverage.Incoming))
+				{
+					actor.OutputHandler.Send("Set incoming reflection before enabling one-use consumption."); return false;
+				}
+				OneUse = !OneUse; Spell.Changed = true;
+				actor.OutputHandler.Send($"One-use consumption is now {OneUse.ToColouredString()}."); return true;
 		}
 
 		actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
@@ -144,6 +157,7 @@ public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
 		}
 
 		Mode = mode;
+		if (OneUse && mode != MagicInterdictionMode.Reflect) { Mode = MagicInterdictionMode.Reflect; actor.Send("Disable one-use consumption before changing reflection mode."); return false; }
 		Spell.Changed = true;
 		actor.OutputHandler.Send($"This ward will now {mode.DescribeEnum().ToLowerInvariant().ColourValue()} matching invocations.");
 		return true;
@@ -164,6 +178,7 @@ public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
 		}
 
 		Coverage = coverage;
+		if (OneUse && coverage != MagicInterdictionCoverage.Incoming) { Coverage = MagicInterdictionCoverage.Incoming; actor.Send("Disable one-use consumption before changing incoming coverage."); return false; }
 		Spell.Changed = true;
 		actor.OutputHandler.Send($"This ward now applies to {coverage.DescribeEnum().ToLowerInvariant().ColourValue()} magic.");
 		return true;
@@ -217,5 +232,6 @@ public abstract class WardSpellEffectBase : IMagicSpellEffectTemplate
 	#3mode fail|reflect#0 - sets whether matching invocations fail or reflect
 	#3coverage incoming|outgoing|both#0 - sets whether the ward catches incoming, outgoing, or both
 	#3subschools#0 - toggles whether child schools also match
+	#3oneuse#0 - toggles consuming an incoming reflection ward on its first admitted reflection
 	#3prog <prog>|none#0 - sets or clears an optional custom prog";
 }

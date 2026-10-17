@@ -512,6 +512,9 @@ namespace MudSharp.Body
 
         void Give(IGameItem item, IBody target, int quantity = 0, IEmote? playerEmote = null);
 
+        /// <summary>Transfers one complete item through ordinary give checks/events without merging it into another stack.</summary>
+        IGameItem? GiveWithoutMerge(IGameItem item, IBody target, IEmote? playerEmote = null);
+
         void Give(ICurrency currency, IBody target, decimal amount, bool exact, IEmote? playerEmote = null);
 
         bool CanGive(IGameItem item, ICorpse target, int quantity = 0);

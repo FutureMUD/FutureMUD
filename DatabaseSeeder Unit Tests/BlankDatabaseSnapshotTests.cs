@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 using DatabaseSeeder;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
@@ -34,6 +34,19 @@ public class BlankDatabaseSnapshotTests
 		var table = ReadTableDeclaration(snapshot, "celestials");
 		StringAssert.Contains(table, "`Definition` longtext");
 		StringAssert.Contains(table, "PRIMARY KEY (`Id`)");
+	}
+
+	[TestMethod]
+	public void CommittedBlankSnapshot_PreservesMergedHaggleAndArmageddonSchema()
+	{
+		var snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory()));
+		StringAssert.Contains(ReadTableDeclaration(snapshot, "shops"), "`HagglingConfiguration` mediumtext");
+		StringAssert.Contains(ReadTableDeclaration(snapshot, "tracks"), "FOREIGN KEY (`CharacterInstanceId`) REFERENCES `characterinstances` (`Id`) ON DELETE SET NULL");
+		var lifecycle = ReadTableDeclaration(snapshot, "magicspelllifecycles");
+		StringAssert.Contains(lifecycle, "`RoomHazardLastPulseUtc` datetime(6)");
+		StringAssert.Contains(lifecycle, "`RoomHazardNextPulseUtc` datetime(6)");
+		StringAssert.Contains(snapshot, "('20261015103829_PersistRoomHazardPulseCursor',");
+		StringAssert.Contains(snapshot, "('20261016052024_AddShopHaggling',");
 	}
 
 	private const string LatestMigrationId = "20260829082253_AddOutfitTemplateItemSkin";

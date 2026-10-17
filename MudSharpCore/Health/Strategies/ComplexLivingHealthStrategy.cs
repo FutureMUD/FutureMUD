@@ -18,7 +18,7 @@ using TraitExpression = MudSharp.Body.Traits.TraitExpression;
 
 namespace MudSharp.Health.Strategies;
 
-public class ComplexLivingHealthStrategy : BaseHealthStrategy
+public partial class ComplexLivingHealthStrategy : BaseHealthStrategy
 {
     public override HealthStateModel HealthStateModel => HealthStateModel.Organic;
 
@@ -686,7 +686,8 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
         double temperature = character.Location.CurrentTemperature(character);
         Temperature subjective =
             TemperatureExtensions.SubjectiveTemperature(temperature, floor, ceiling);
-        ThermalImbalance effect = DominantThermalImbalanceEffect(character);
+		ThermalImbalance effect = ThermalImbalance.DominantAmbientExposureEffect(
+			character.CombinedEffectsOfType<ThermalImbalance>());
         if (effect == null && subjective == Temperature.Temperate)
         {
             return;
@@ -1106,7 +1107,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
     {
         ICharacter charOwner = (ICharacter)owner;
         double stunRatio = owner.Wounds.Sum(x => x.CurrentStun) /
-                        MaximumStunExpression.Evaluate(charOwner);
+                        MaxStun(charOwner);
         double painRatio = owner.Wounds.Sum(x => x.CurrentPain) / EffectiveMaximumPain(charOwner).IfZero(1.0);
         double bloodlossRatio = charOwner.Body.CurrentBloodVolumeLitres / charOwner.Body.TotalBloodVolumeLitres;
         double totalBreath = charOwner.Body.HeldBreathPercentage;
@@ -1408,7 +1409,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
                 x =>
                     x.CurrentDamage / PercentageHealthPerPenalty + x.CurrentPain / PercentagePainPerPenalty +
                     x.CurrentStun / PercentageStunPerPenalty) /
-            (MaximumHitPointsExpression.Evaluate(charOwner) + MaximumStunExpression.Evaluate(charOwner) +
+            (MaxHP(charOwner) + MaxStun(charOwner) +
              EffectiveMaximumPain(charOwner));
         return -1 * penalty;
     }
@@ -1506,12 +1507,12 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
 
     public override double MaxHP(IHaveWounds owner)
     {
-        return owner is not ICharacter charOwner ? 0.0 : MaximumHitPointsExpression.Evaluate(charOwner);
+        return owner is not ICharacter charOwner ? 0.0 : MaximumHitPointsExpression.Evaluate(charOwner) + MudSharp.Magic.EquippedItemBonuses.BonusFor(charOwner, MudSharp.Magic.EquippedItemBonusKind.Health);
     }
 
     public override double MaxStun(IHaveWounds owner)
     {
-        return owner is not ICharacter charOwner ? 0.0 : MaximumStunExpression.Evaluate(charOwner);
+        return owner is not ICharacter charOwner ? 0.0 : MaximumStunExpression.Evaluate(charOwner) + MudSharp.Magic.EquippedItemBonuses.BonusFor(charOwner, MudSharp.Magic.EquippedItemBonusKind.Stun);
     }
 
     public override double MaxPain(IHaveWounds owner)
@@ -1568,7 +1569,7 @@ public class ComplexLivingHealthStrategy : BaseHealthStrategy
             (current, effect) => current * effect.StunUnconsciousThresholdMultiplier);
         var anesthesiaUnconsciousThresholdMultiplier = consciousnessModifiers.Aggregate(1.0,
             (current, effect) => current * effect.AnesthesiaUnconsciousThresholdMultiplier);
-        double maxStun = MaximumStunExpression.Evaluate(charOwner) * stunUnconsciousThresholdMultiplier;
+        double maxStun = MaxStun(charOwner) * stunUnconsciousThresholdMultiplier;
         double painRatio = charOwner.Wounds.Sum(x => x.CurrentPain) / EffectiveMaximumPain(charOwner).IfZero(1.0);
         if (painRatio >= PainPassOutThreshold * painPassOutThresholdMultiplier && !charOwner.Body.EffectsOfType<IPreventPassOut>().Any(x => x.Applies()))
         {

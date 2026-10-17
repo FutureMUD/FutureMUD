@@ -9,9 +9,11 @@ using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Characteristics;
 using MudSharp.Form.Material;
 using MudSharp.Framework.Units;
+using MudSharp.Health;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Prototypes;
@@ -423,7 +425,8 @@ The syntax is #3seal <target> with <stamp> [using <medium>]#0.", AutoHelp.HelpAr
 		@"The #3inspect#0 command supports focused item inspections.
 
 	#3inspect seal <target>#0 - inspects seal state and impression metadata
-	#3inspect calibration <instrument>#0 - inspects measuring-instrument calibration", AutoHelp.HelpArgOrNoArg)]
+	#3inspect calibration <instrument>#0 - inspects measuring-instrument calibration
+	#3inspect toxin [character]#0 - with Sense Toxin, inspects active and latent drug poison", AutoHelp.HelpArgOrNoArg)]
 	protected static void Inspect(ICharacter actor, string command)
 	{
 		var ss = new StringStack(command.RemoveFirstWord());
@@ -437,10 +440,31 @@ The syntax is #3seal <target> with <stamp> [using <medium>]#0.", AutoHelp.HelpAr
 			case "cal":
 				InspectCalibration(actor, ss);
 				return;
+			case "toxin":
+				InspectToxin(actor, ss);
+				return;
 			default:
-				actor.OutputHandler.Send($"The syntax is {"inspect seal <target>".ColourCommand()} or {"inspect calibration <instrument>".ColourCommand()}.");
+				actor.OutputHandler.Send($"The syntax is {"inspect seal <target>".ColourCommand()}, {"inspect calibration <instrument>".ColourCommand()}, or {"inspect toxin [character]".ColourCommand()}.");
 				return;
 		}
+	}
+
+	private static void InspectToxin(ICharacter actor, StringStack ss)
+	{
+		if (!actor.EffectsOfType<ISensePoisonEffect>().Any(x => x.Applies()))
+		{
+			actor.OutputHandler.Send("You have no magical sense for hidden toxins.");
+			return;
+		}
+
+		var target = ss.IsFinished ? actor : actor.TargetActor(ss.SafeRemainingArgument);
+		if (target is null)
+		{
+			actor.OutputHandler.Send("You do not see that character here.");
+			return;
+		}
+
+		actor.OutputHandler.Send(DrugDosageDescriber.DescribeActiveAndLatentDrugDosages(target, actor, includeEmptyMessage: true));
 	}
 
 	private static void InspectSeal(ICharacter actor, StringStack ss)
@@ -5373,6 +5397,14 @@ The syntax is:
 
             character.OutputHandler.Handle(new EmoteOutput(new Emote("@ junk|junks $0.", character, item),
                 flags: OutputFlags.SuppressObscured));
+			if (item.IsItemType<ISpellPocket>())
+			{
+				// The pocket adapter commits borrowed contents before removing its
+				// carrier. Retain the current hand if that retirement is held.
+				item.Delete();
+				if (!item.Deleted) character.Send("The pocket's contents or dependencies prevent safe collapse; it remains in your custody.");
+				return;
+			}
             character.Body.Take(item);
             item.Delete();
         }
@@ -5465,9 +5497,21 @@ The common syntax is:
 	#3open <exit|item>#0
 	#3open <door> <exit>#0
 	#3open <character> <external item>#0
-	#3open <item|exit> <panel|housing>#0", AutoHelp.HelpArgOrNoArg)]
+	#3open <item|exit> <panel|housing>#0
+
+On worlds enabling hostile guard challenges, append #3!!#0 before an optional emote to challenge an item guard: #3open chest !!#0 or #3open north !!#0. This supports room items and installed doors, and preserves locks and all other access rules. Opening a door does not challenge an exit guard or authorise passage. Other-character items and automation panels do not support challenges.", AutoHelp.HelpArgOrNoArg)]
     protected static void Open(ICharacter actor, string command)
     {
+		if (!GuardChallengeSyntax.TryExtract(command, out var parsedCommand, out var challenge, out var syntaxError))
+		{
+			actor.Send(syntaxError);
+			return;
+		}
+		if (challenge)
+		{
+			OpenWithGuardChallenge(actor, parsedCommand);
+			return;
+		}
         StringStack ss = new(command.RemoveFirstWord());
         string cmd = ss.PopSafe();
         string cmd2 = ss.PopSafe();

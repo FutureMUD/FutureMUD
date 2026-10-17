@@ -10,6 +10,8 @@ namespace MudSharp.Body.Traits
     {
         Expression Formula { get; }
         Dictionary<string, TraitExpressionParameter> Parameters { get; }
+		/// <summary>Exact references parsed by the native expression grammar, without loading traits or running it.</summary>
+		IReadOnlyDictionary<string, long> TraitReferenceIds { get; }
         double Evaluate(IHaveTraits owner, ITraitDefinition variable = null, TraitBonusContext context = TraitBonusContext.None);
 
         double EvaluateWith(IHaveTraits owner, ITraitDefinition variable = null,

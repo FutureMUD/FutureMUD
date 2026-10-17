@@ -30,7 +30,7 @@ using System.Linq;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class ShopTests
+public partial class ShopTests
 {
     private Mock<IFuturemud> _gameworld = null!;
     private Mock<IUneditableAll<IEconomicZone>> _zones = null!;

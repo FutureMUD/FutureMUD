@@ -130,6 +130,52 @@ public class RoomReferenceCorrectionTests
 	}
 
 	[TestMethod]
+	public void SourceEmotionalChildren_HaveNoRoomReferencesAndPreserveExactPayloadBytes()
+	{
+		const string children = "<Effect><Type>SpellSourceFury</Type><Effect version='1' group='Room narrative' unitSeconds='600' capUnits='36' grade='3' nativePower='5' intensity='1' endurancePoints='4' enduranceTrait='9000' unitsPerSourcePoint='0.5'/></Effect><Effect><Type>SpellSourceCalm</Type><Effect version='1' group='calm' unitSeconds='600' capUnits='24' grade='2' nativePower='4' intensity='1' endurancePoints='0' attackbreak='true'/></Effect>";
+		var xml = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{children}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
+		var direct = $"<Effects>{children}</Effects>";
+		Assert.AreSame(direct, RoomReferenceXml.Rewrite(direct, false, Map(), "Bodies #1.EffectData"));
+	}
+
+	[TestMethod]
+	public void S4BarrierAndLeechingChildren_AreClassifiedAndRetainNativePayloadBytes()
+	{
+		// The new barrier's RoomIds are current-world anchor IDs, not historical containing-Room references.
+		const string children = "<Effect><Type>SpellDamagingExitBarrier</Type><Effect><DamageType>7</DamageType><DamageAmount>12</DamageAmount><Layer>0</Layer><Planes><Plane>4</Plane></Planes><Rooms><Room>9000</Room><Room>9001</Room></Rooms><ExpiryUtc>2026-10-14T00:00:00Z</ExpiryUtc></Effect></Effect><Effect><Type>SpellLeechingEdge</Type><Effect><Fraction>0.2</Fraction></Effect></Effect>";
+		var xml = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{children}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Items #1.EffectData"));
+	}
+
+	[TestMethod]
+	public void S4OwnedMarksThresholdAndBreathingChildren_KeepCurrentWorldIdentities()
+	{
+		const string children = "<Effect><Type>SpellCustodianGlyph</Type><Effect><ItemId>9000</ItemId><OwnerType>Character</OwnerType><OwnerId>42</OwnerId></Effect></Effect><Effect><Type>SpellAnchorRune</Type><Effect><ItemId>9001</ItemId><OwnerType>Character</OwnerType><OwnerId>42</OwnerId></Effect></Effect><Effect><Type>SpellThresholdAlarm</Type><Effect><OwnerId>42</OwnerId><OwnerInstanceId>43</OwnerInstanceId><OwnerIdentityId>42</OwnerIdentityId></Effect></Effect><Effect><Type>SpellDrowningGrip</Type><Effect><ApplicabilityProg>0</ApplicabilityProg></Effect></Effect>";
+		var xml = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{children}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Items #1.EffectData"));
+	}
+
+	[DataTestMethod]
+	[DataRow("SpellReturnTether")]
+	[DataRow("SpellStormLocus")]
+	public void S4ReturnAndHazardAnchors_PreserveExplicitCurrentPlayableRoomNamespace(string factory)
+	{
+		// These version-1 anchors were introduced after containing-Room removal. Their room IDs
+		// identify playable rooms directly, even if the number collides with a historical parent.
+		var child = $"<Effect><Type>{factory}</Type><Effect><Anchor><![CDATA[<Return version='1' character='1' instance='2' body='3' room='9000' overlay='4' terrain='5' layer='0'/>]]></Anchor></Effect></Effect>";
+		var xml = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{child}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
+	}
+
+	[TestMethod]
+	public void PowerTagSuppressionChild_OnlyStoresCharacterAndBodyIdentities()
+	{
+		const string xml = "<Effects><Effect><Type>SpellPowerTagSuppression</Type><Effect><Identity>9000</Identity><Instance>8101</Instance><Body>77</Body><Tags><Tag>psionic</Tag></Tags></Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
+	}
+
+	[TestMethod]
 	public void EffectFactories_CustomSerializer_RefusesAndBuiltInInventoryMatchesSource()
 	{
 		Assert.ThrowsException<InvalidOperationException>(() => RoomReferenceXml.Rewrite("<Effects><Effect><Type>CustomEffect</Type><Effect/></Effect></Effects>", false, Map(), "Bodies #8.EffectData"));
@@ -141,6 +187,44 @@ public class RoomReferenceCorrectionTests
 		foreach (var file in Directory.EnumerateFiles(Path.Combine(root!.FullName, "MudSharpCore", directory), "*.cs", SearchOption.AllDirectories))
 		foreach (Match registration in Regex.Matches(File.ReadAllText(file), "RegisterFactory\\s*\\(\\s*\"([^\"]+)\"")) names.Add(registration.Groups[1].Value);
 		CollectionAssert.AreEquivalent(names.ToArray(), RoomReferenceEffectTypes.Names.ToArray());
+	}
+
+	[TestMethod]
+	public void ReadAttunementChildren_DeclareNoRoomLinksAndPreserveCasterIdentityBytes()
+	{
+		const string child = "<Effect><Type>SpellReadAttunement</Type><Effect><CasterId>9000</CasterId><CasterInstanceId>9001</CasterInstanceId></Effect></Effect>";
+		var nested = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{child}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(nested, RoomReferenceXml.Rewrite(nested, false, Map(), "Characters #1.EffectData"));
+		var direct = $"<Effects>{child}</Effects>";
+		Assert.AreSame(direct, RoomReferenceXml.Rewrite(direct, false, Map(), "Bodies #1.EffectData"));
+	}
+
+	[DataTestMethod]
+	[DataRow("Trait")] [DataRow("MagicResource")]
+	public void EquippedItemBonus_DeclaresNoRoomLinksAndPreservesSelectedCatalogueIdentity(string kind)
+	{
+		var child = $"<Effect><Type>SpellEquippedItemBonus</Type><Effect><Kind>{kind}</Kind><TargetId>9000</TargetId><Bonus>4</Bonus></Effect></Effect>";
+		var nested = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{child}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(nested, RoomReferenceXml.Rewrite(nested, false, Map(), "GameItems #1.EffectData"));
+	}
+
+	[TestMethod]
+	public void SensePoisonChild_DeclaresNoRoomLinksAndPreservesNativePayloadBytes()
+	{
+		const string child = "<Effect><Type>SpellDetectPoison</Type><Effect><ApplicabilityProg>0</ApplicabilityProg></Effect></Effect>";
+		var nested = $"<Effects><Effect><Type>MagicSpellParent</Type><Effect><Children>{child}</Children></Effect></Effect></Effects>";
+		Assert.AreSame(nested, RoomReferenceXml.Rewrite(nested, false, Map(), "Characters #1.EffectData"));
+		var direct = $"<Effects>{child}</Effects>";
+		Assert.AreSame(direct, RoomReferenceXml.Rewrite(direct, false, Map(), "Bodies #1.EffectData"));
+	}
+
+	[DataTestMethod]
+	[DataRow("HaggleShopNegotiationState")]
+	[DataRow("HaggleShopPriceEffect")]
+	public void HaggleEffects_StableShopIdsAndNarrative_AreNotRoomReferences(string factory)
+	{
+		var xml = $"<Effects><Effect><Type>{factory}</Type><Haggle Shop='9000' Scope='3' Expires='2026-10-16T06:00:00Z'><Reason>Room #9000 concession</Reason></Haggle></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
 	}
 
 	[DataTestMethod]

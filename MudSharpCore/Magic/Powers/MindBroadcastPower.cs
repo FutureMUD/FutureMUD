@@ -216,7 +216,7 @@ public class MindBroadcastPower : MagicPowerBase
             return;
         }
 
-        if (CanInvokePowerProg.ExecuteBool(actor) == false)
+        if (CanInvokePower(actor) == false)
         {
             actor.OutputHandler.Send(WhyCantInvokePowerProg.Execute(actor)?.ToString() ??
                                      "You cannot send any broadcasts.");

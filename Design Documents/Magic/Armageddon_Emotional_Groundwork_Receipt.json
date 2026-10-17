@@ -1,0 +1,400 @@
+{
+  "schema_version": 1,
+  "scope": "Independent source math, persisted children and unwired combat query only",
+  "source_commit": "a53f1d15e6a1195d0ba28c075816894605cbad84",
+  "base_checkpoint": "93014d28667b582ad507fe2c555c3636706ab0ea",
+  "branch": "codex/armageddon-five-stock-spells",
+  "worktree": "C:\\Users\\luker\\Documents\\Codex\\2026-10-05\\task-4\\FutureMUD-five-stock",
+  "source_policy_unit_verified": true,
+  "stock_implemented": false,
+  "runtime_hooks_wired": false,
+  "native_verified": false,
+  "completion_clear": false,
+  "independent_review_pending": true,
+  "historical_source": {
+    "library_file_id": "libfile_befb4ae78d1c8191aaa2640c49912d9d",
+    "file_id": "file_00000000438871faac40c5042679ce3a",
+    "windows": [
+      "83142-83244 Calm",
+      "87470-87590 Fury",
+      "236270-236278 inclusive number helper"
+    ],
+    "break_search": {
+      "SPELL_CALM": 26,
+      "CHAR_AFF_CALM": 7,
+      "IS_CALMED": 18,
+      "outcome": "No incoming-attack removal hook recovered in these full-dump symbol searches; absence outside the supplied dump is not established."
+    },
+    "access": "Supported Library reads/find; no cloud path or failed-transfer bypass."
+  },
+  "proposed_endurance_mapping": "Explicit selected endurance attribute; editable positive attribute-units/source-point multiplier; proposed multiplier1, not authored as stock default. Existing capacity prog; no refill/exertion reset.",
+  "break_choice": "Stock default not authored. Recovered executable expiry/dispel/Fury cancellation versus explicitly chosen admitted-hostile-attempt adaptation needs coordinator decision.",
+  "unit": {
+    "status": "PASS",
+    "run_id": "20261005T142259Z-dabcb4b119d1",
+    "counts": {
+      "executed": 7507,
+      "passed": 7507,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7507
+    },
+    "projects": [
+      "FutureMUDLibrary Unit Tests/FutureMUDLibrary Unit Tests.csproj",
+      "ExpressionEngine Unit Tests/ExpressionEngine Unit Tests.csproj",
+      "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+      "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+      "MudsharpDatabaseLibrary Unit Tests/MudsharpDatabaseLibrary Unit Tests.csproj",
+      "DiscordBotCore Unit Tests/DiscordBotCore Unit Tests.csproj",
+      "RPI Engine Worldfile Converter Tests/RPI Engine Worldfile Converter Tests.csproj",
+      "FutureMUD.Web.Tests/FutureMUD.Web.Tests.csproj",
+      "TerrainPlanner/TerrainPlanner.Tests/TerrainPlanner.Tests.csproj",
+      "scripts/TestReporting.Tests/TestReporting.Tests.csproj"
+    ],
+    "sdk": "10.0.401",
+    "execution_complete": true,
+    "counts_complete": true,
+    "source_stable": true,
+    "source_start": "fdc62eaaa3c247db97f13b7f9b8400111b19255992a8e01fffeaf8315f3a88fc",
+    "source_end": "fdc62eaaa3c247db97f13b7f9b8400111b19255992a8e01fffeaf8315f3a88fc",
+    "emotional_cases": 30,
+    "pierce_cases": 57,
+    "focused_cases": 87,
+    "summary": {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/summary.json",
+      "sha256": "5bfa29898ad4c4da047515090ad99d96ed61bcb482d2b34f39e1c5bce4ad4bed"
+    },
+    "focused": {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/focused-cases.json",
+      "sha256": "3313b9fabfb7c1b557bd5df460d5764a5339fb059bb290bdcd8135a5e7e4c659"
+    }
+  },
+  "source_files": [
+    {
+      "path": "Design Documents/Magic/Armageddon_Emotional_Policy_Integration.md",
+      "sha256": "bec8da1820d9651abdf863151fed00b08101a37e6a019c09543375f9c9bd4429",
+      "git_blob_sha1": "5c7cb8f1226f1f732ea3ea75f09241c9203a3453"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/EmotionalSpellPolicyTests.cs",
+      "sha256": "9c62ae99e73bde0e5b2dcab3a7363a74febeeb7d136ba7632677d7994b8b4aed",
+      "git_blob_sha1": "efe259e4f3123b060c65eba6db607c55e2bf17f1"
+    },
+    {
+      "path": "MudSharpCore/Body/Implementations/Body.EmotionalStamina.cs",
+      "sha256": "bbe9efd0ccff45bc17b5029de8389346ccb860ef68a8fd7a3aeaa42787197524",
+      "git_blob_sha1": "4f1041d04f450d324295cbd29f4395fb8cdb6256"
+    },
+    {
+      "path": "MudSharpCore/Combat/EmotionalCombatPolicy.cs",
+      "sha256": "69f9f856e884ddf7841701b8fb6c58e1a43f894affedb9a18370d5e8e46d8b16",
+      "git_blob_sha1": "29406b9eed91b32f0acd50f0b066d45515491d5c"
+    },
+    {
+      "path": "MudSharpCore/Effects/Concrete/SpellEffects/SpellEmotionalEffect.cs",
+      "sha256": "f98e8106935ab44805f48a50f47cac6d30eaec90db4220ea23c2d0d7281e88d7",
+      "git_blob_sha1": "9154e2cdfd83e672a0c09b33fb16f92e0f3a826d"
+    },
+    {
+      "path": "MudSharpCore/Magic/Emotions/EmotionalSpellPolicy.cs",
+      "sha256": "431d60e43000d21bf2a6f719a0db9d04cc61a0a8dd39b24fda967cf66617378d",
+      "git_blob_sha1": "53056f91f432ad2d4600f7c96c0cea02b470e250"
+    }
+  ],
+  "assemblies": [
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharp.dll",
+      "sha256": "779f08b06995c4df1616d160c54ef6862aa95a40c893d8038999f12ffb5d0c93"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/MudSharpCore Unit Tests.dll",
+      "sha256": "bac1bb3d1ad7877eda67eb5a19b6c325f51905fdcfaae0c7b49dc52995037533"
+    },
+    {
+      "path": "MudSharpCore Unit Tests/bin/Debug/net10.0/FutureMUDLibrary.dll",
+      "sha256": "275aae44ab1b929f75cd7b0dedfc261d3e243abacad1a156305f8c5bbcfa87e8"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01.log",
+      "sha256": "7a42bdff47123d31bdf1e1a03cb2fc34112bdf889766af89b7f6d2dbbebbf6bb"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/failures.json",
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/build/build.stdout.log",
+      "sha256": "b8ee90b23a3a787d343970139347029c3797b83901bbb96c029866170df1ad05"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+      "sha256": "0a6a1af9ee4941bfdfd41b64a87353f09ae508dc196a8b846ac9a6b1fe9e9402"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/test.stdout.log",
+      "sha256": "6c7b64d61139c159eea27c951ab7d7ff5792ad0bab2c7b73cbd1cf5552a1e6ac"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/build/build.stdout.log",
+      "sha256": "89419c63bb605b59631b9ad932388751f4685f4bf8f91a58fb75d26a97cc78c7"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/results.trx",
+      "sha256": "cb70029aebe4818407788d4657c6ae3cc47fc8afe67954f4f030188c5f3319fa"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/DiscordBotCore_Unit_Tests-4ffa2b0e/net10-41544e89/1/test.stdout.log",
+      "sha256": "da1ea7c4b37a8aad120954e2017d5b96833302d65c3c2a1af5c8cf573f2fd638"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/build/build.stdout.log",
+      "sha256": "88e138751fbd8c258320977d326387b6c25c164e004460703adef6be8c00c9ce"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/results.trx",
+      "sha256": "428105ee6173fc1eb574b0db1b018c48909789d53ed29dfea049da89e6d434df"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/ExpressionEngine_Unit_Tests-8cdb3e65/net10-41544e89/1/test.stdout.log",
+      "sha256": "6be8f17bf304978070cc3998026bac331530f623d2b4de2c672b88342bd2e649"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/FutureMUD.Web.Tests-ac492d08/build/build.stdout.log",
+      "sha256": "1fffa0ad9b3e852b1254b5e9b6f03c33365c4cf6eff87a9c60c8cba16b58e362"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/results.trx",
+      "sha256": "45df4fc4eba783f662897fd8420f13a1665cb307afeb19c0b2931f0a50e3ea15"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/FutureMUD.Web.Tests-ac492d08/net10-41544e89/1/test.stdout.log",
+      "sha256": "91c4d0930c12aeafae77961af16317153bffc3ac84125c3343f356a00f1163b6"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/build/build.stdout.log",
+      "sha256": "dc51fdf94df0b3bb3be08c754dad2b5c84cac0de1c37fd93d48cde35787af326"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/results.trx",
+      "sha256": "dec2f116bff9332c3de488c1a4c67b1f498b7ab7eb8ddf5af6bd41ab2d12527b"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/FutureMUDLibrary_Unit_Tests-45c02d6c/net10-41544e89/1/test.stdout.log",
+      "sha256": "f1a3d9dbc8a8e87c4f76c04656c3d1bf8ec858203d062a89fec4b08efc098dd8"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/build/build.stdout.log",
+      "sha256": "36e5afb42a6dca61e6dd5ffa54605115332d6bb7c46a50c1cd66e1af862cc8e0"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/luker_PERCIVAL_2026-10-06_01_24_32/In/1bff1e53-81d5-4000-aa51-427d0bad94da/PERCIVAL/authored-celestial-performance.json",
+      "sha256": "67213113dd4df79fae8be3bf151de2cdcc9cdf8ebf47ed78b5eda74fa12a1830"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+      "sha256": "bffa79b4264260d658bc5be9c8c05c6eae8c4dbf3b488f5f2205ba76ad39fa49"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/test.stdout.log",
+      "sha256": "29d5bca46ad01528b1a8e37293edda3dc074a3bb61870b4e35e5495045287ca6"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/build/build.stdout.log",
+      "sha256": "19f2aa535341bdbb2eb236fbcdad705edfdd0fe9f9b3eb2e2c472362584a00c0"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/results.trx",
+      "sha256": "486bbedb8258d99795efef02f21f7fef1dfe7ba5b78793ec3e52403e922b53c7"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/MudsharpDatabaseLibrary_Unit_Tests-6ef1914c/net10-41544e89/1/test.stdout.log",
+      "sha256": "268831d4fbce89f17b5e051027b77ac20ca90f0f07a0b5841e85aaf9e8dd9ede"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/build/build.stdout.log",
+      "sha256": "7ebe2dc45040081181f10f7c236f62a067df3f1f9174f4fbd1c00fd10fc893f3"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/results.trx",
+      "sha256": "92280180965e18d9d35398f8851b58bbb69a7e2fafc655ec07d10bee593e6727"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/RPI_Engine_Worldfile_Converter_Tests-14d87d34/net10-41544e89/1/test.stdout.log",
+      "sha256": "681e6311f17be6a09cc351aeab90855c4ce94c92f3c4e6680a2da7f6d89f1981"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/TerrainPlanner.Tests-1085b5fa/build/build.stdout.log",
+      "sha256": "c1e5df695f6917c90a9b87576297e87ecd3c9804e587955db75954e8d16030b9"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/results.trx",
+      "sha256": "004fec547825c25ef84bedfab2da53f1dda3039f28b90012d18d0a476f3e45da"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/TerrainPlanner.Tests-1085b5fa/net10-41544e89/1/test.stdout.log",
+      "sha256": "927db1cc9d47eda9899d45b539d4d8b5dcf22f91ce3f0caae6aecf2aa4e294c5"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/TestReporting.Tests-25b07e44/build/build.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/TestReporting.Tests-25b07e44/build/build.stdout.log",
+      "sha256": "b8922279594dcc0767ce46a07aec05dc0552c6a3904c9d2a127b820b073f971e"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/results.trx",
+      "sha256": "39599ca45f339e6145239a6b2b8686228cb9061ded24a984c2e11bb01441aeb5"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/invocations/TestReporting.Tests-25b07e44/net10-41544e89/1/test.stdout.log",
+      "sha256": "916ee0ec11da1313159d9eb0154a9a2bb4c08c0d6617e29c688f5d247d5358da"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/run.json",
+      "sha256": "7a8c284886f7197aa83b5dd0d63719ca83e6cc21135c0f8cfeb4c32c171d1ab6"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/sdk/sdk.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/sdk/sdk.stdout.log",
+      "sha256": "3db6bca4b50618b2e0d2d55d23b3d0541fe039ab6f731df0e9c47317b400ce52"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/source-end.json",
+      "sha256": "7a7db4e6308866541a2dce5f3ec4a3672f03a077515ab706d03bde8e14cc32e7"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/source-start.json",
+      "sha256": "cce570c8141d5a952f25b23ab2773aa3cc7a827dd7483509019eb7c8f10dd036"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/summary.json",
+      "sha256": "5bfa29898ad4c4da047515090ad99d96ed61bcb482d2b34f39e1c5bce4ad4bed"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/summary.txt",
+      "sha256": "5fce6d94e143e7f003e8f549aaddee6a37d59a4c57a3093bd02d3a572adbfdd5"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/20261005T142259Z-dabcb4b119d1/test-results.json",
+      "sha256": "59b0661e5feac01278c83782970cd1ec2e599828d88c4ca02df64ecb731fc0f6"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-groundwork-final-01/focused-cases.json",
+      "sha256": "3313b9fabfb7c1b557bd5df460d5764a5339fb059bb290bdcd8135a5e7e4c659"
+    }
+  ],
+  "diagnostic_artifacts": [
+    {
+      "path": ".artifacts/test-runs/fury-calm-policy-build-01.log",
+      "sha256": "471b9b87c0393eff0c3fee14f66678a39108240cb3df6a8c7ff22587eaf9c0e2"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-independent-01.log",
+      "sha256": "8a5154a0a1af0fc9ee27466073f8bef1427ece059d2b650aee1896ba962e365b"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-independent-02.log",
+      "sha256": "3627ec03855c7c434c8592c46ae2faebd0c0fbf4b17489687145987bf6243cce"
+    },
+    {
+      "path": ".artifacts/test-runs/fury-calm-independent-03.log",
+      "sha256": "30d62937ab31c74da9ad5212424d037c2b75ed1f90ffd46ec797a750c5178b37"
+    }
+  ],
+  "evidence_limits": [
+    "Pure source math and child XML tests use mocked surrounding state.",
+    "Actual native stamina recomputation, selective combat cessation, paid casts, refusal, mastery and independent-process reload are not qualified.",
+    "No existing combat/casting method or Pierce factory has been edited.",
+    "No emotional stock row or acquisition closure is claimed."
+  ],
+  "remaining_dependencies": [
+    "Coordinator decision on endurance default and Calm break policy.",
+    "Allocation of the source-ordered counter-before-save / cessation-after-save hook in current casting routes.",
+    "Main owner integration of canonical applicable query and final harmful-action guard.",
+    "Stock construction, mutation/reporting integration and dedicated native combat/restart qualification."
+  ]
+}

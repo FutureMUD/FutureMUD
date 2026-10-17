@@ -1,0 +1,15 @@
+# Armageddon master-list adoption — 11 October 2026
+
+The user approved updating the existing source tree where the supplied master list differs, then resuming S1. No genuine incompatibility or new decision remains. The [byte-exact archive](../Armageddon/References/Armageddon_Info_Master_List_20261011.txt) remains available for other classes; its SHA256 is `4dd92656d32068e5e2726c15c1a59bb4586d2e99bc41f59a5e8bef9136524c93`. The [original review](../Armageddon/References/Armageddon_Info_Master_List_Review_20261011.md) records all 15 guild tables and the earlier comparison.
+
+The [active elemental source tree](Armageddon_Elementalist_Source_Tree.json) contains 161 exact line-referenced rows: 153 spells, seven Component Crafting bindings and deferred Vloran. Printed openings, caps, branch values, minimum mana and indentation-derived parent links supersede differing reconstructed defaults. Canonical identities and existing stable binding keys are preserved. The previous Page research stays available as historical evidence.
+
+Water Breathing now follows Sheltering Veil, Mist Shield follows Thorn Barrier, Void Leeching Edge follows Veiled Phantasm, and Lightning gains the existing Hovering Light spell after Energy Shield. Water Mend Flesh uses cap90 and branches80. Component Crafting opens20 in six elemental guilds and40 in Void. Sorcerer's 94 source rows match exactly and are unchanged. The source's Travel Gate resolves to the existing Linked Threshold identity.
+
+Twenty approved authored memberships absent from the file remain. The final [Classic table](Armageddon_Seeder_Completeness_Design_20261011_Classic_Progression.tsv) has 429 installation rows; the [Simple table](Armageddon_Seeder_Completeness_Design_20261011_Simple_Progression.tsv) has 419 spell admissions. Simple elemental values follow the already approved depth/source-order formula; all 246 Sorcerer-family rows remain unchanged.
+
+Printed minimum mana is adopted as the stock minimum energy for 134 canonical spells, changing 55 minima. The [machine-readable adoption](Armageddon_Master_List_Adoption_20261011.json) records each before/after value. Effect magnitudes, durations, reserve formulas, NPC/item stats, recipes and device settings retain their prior approval. Runtime factories must consume the revised minima in S4; this source checkpoint alone does not requalify existing installed stock.
+
+The non-spell exclusion remains binding: only required Component Crafting is installed, with Read Enchantment80 required only for Sorcerer/Preserver/Defiler. Other class skills, races and subguild details remain archived for later work. Affinities and learned affiliations remain separate Read Attunement results. One fixed game-wide mode, one package, conditional classes and automatic NPC/items remain unchanged.
+
+The [current structural validation](Armageddon_Master_List_Validation_20261011.json) and independent source comparison establish source/design agreement. They do not establish historical authorship/version or complete gameplay parity. S1 uses the updated inventory for typed preflight; S2-S6 and N24 remain separate implementation and qualification gates.

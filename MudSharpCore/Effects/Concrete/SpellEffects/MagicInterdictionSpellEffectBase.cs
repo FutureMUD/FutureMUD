@@ -5,16 +5,19 @@
 
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
-public abstract class MagicInterdictionSpellEffectBase : MagicSpellEffectBase, IMagicInterdictionEffect
+public abstract partial class MagicInterdictionSpellEffectBase : MagicSpellEffectBase, IMagicInterdictionUseEffect
 {
 	protected MagicInterdictionSpellEffectBase(IPerceivable owner, IMagicSpellEffectParent parent, IMagicSchool school,
-		MagicInterdictionMode mode, MagicInterdictionCoverage coverage, bool includesSubschools, IFutureProg? prog)
+		MagicInterdictionMode mode, MagicInterdictionCoverage coverage, bool includesSubschools, IFutureProg? prog, bool oneUse = false)
 		: base(owner, parent, prog)
 	{
 		School = school;
 		Mode = mode;
 		Coverage = coverage;
 		IncludesSubschools = includesSubschools;
+		OneUse = oneUse;
+		if (OneUse && (Mode != MagicInterdictionMode.Reflect || Coverage != MagicInterdictionCoverage.Incoming))
+			throw new ArgumentException("One-use wards require incoming reflection.");
 	}
 
 	protected MagicInterdictionSpellEffectBase(XElement root, IPerceivable owner)
@@ -25,6 +28,11 @@ public abstract class MagicInterdictionSpellEffectBase : MagicSpellEffectBase, I
 		Mode = Enum.Parse<MagicInterdictionMode>(trueRoot.Element("Mode").Value, true);
 		Coverage = Enum.Parse<MagicInterdictionCoverage>(trueRoot.Element("Coverage").Value, true);
 		IncludesSubschools = bool.Parse(trueRoot.Element("IncludesSubschools").Value);
+		OneUse = bool.Parse(trueRoot.Element("OneUse")?.Value ?? "false");
+		Used = bool.Parse(trueRoot.Element("Used")?.Value ?? "false");
+		if (Used && !OneUse) throw new FormatException("An unlimited ward cannot have spent bounded-use state.");
+		if (OneUse && (Mode != MagicInterdictionMode.Reflect || Coverage != MagicInterdictionCoverage.Incoming))
+			throw new FormatException("One-use wards require incoming reflection.");
 	}
 
 	public IMagicSchool School { get; protected set; }
@@ -34,6 +42,7 @@ public abstract class MagicInterdictionSpellEffectBase : MagicSpellEffectBase, I
 
 	public bool ShouldInterdict(ICharacter source, IMagicSchool school)
 	{
+		if (OneUse && (Used || _removed)) return false;
 		if (school != School && (!IncludesSubschools || !school.IsChildSchool(School)))
 		{
 			return false;
@@ -69,7 +78,9 @@ public abstract class MagicInterdictionSpellEffectBase : MagicSpellEffectBase, I
 			new XElement("School", School.Id),
 			new XElement("Mode", Mode),
 			new XElement("Coverage", Coverage),
-			new XElement("IncludesSubschools", IncludesSubschools)
+			new XElement("IncludesSubschools", IncludesSubschools),
+			OneUse ? new XElement("OneUse", true) : null,
+			OneUse ? new XElement("Used", Used) : null
 		);
 	}
 

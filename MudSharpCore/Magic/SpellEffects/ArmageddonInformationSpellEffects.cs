@@ -547,7 +547,7 @@ public sealed class DeadSpeakSpellEffect : IMagicSpellEffectTemplate
 	public IMagicSpellEffect? GetOrApplyEffect(ICharacter caster, IPerceivable? target, OpposedOutcomeDegree outcome,
 		SpellPower power, IMagicSpellEffectParent parent, SpellAdditionalParameter[] additionalParameters)
 	{
-		if (target is not IGameItem corpseItem || corpseItem.GetItemType<ICorpse>() is not { } corpse)
+		if (target is not GameItem corpseItem || corpseItem.GetItemType<ICorpse>() is not { } corpse)
 		{
 			return null;
 		}
@@ -641,7 +641,7 @@ public sealed class DeadSpeakSpellEffect : IMagicSpellEffectTemplate
 			return null;
 		}
 
-		location.Extract(corpseItem);
+		corpseItem.HideBorrowedCorpseForAnimation();
 		animated.AddEffect(new CorpseAnimationDispelProxyEffect(animated, corpseItem.Id));
 		return new SpellDeadSpeakEffect(
 			corpseItem,

@@ -1,0 +1,578 @@
+{
+  "schema_version": 2,
+  "date": "2026-10-11",
+  "baseline_revision": "fe2f750133bcb5a56645390db0d57227a90c4713",
+  "status": "PASS_STRUCTURAL_DESIGN_ONLY",
+  "scope": "Final human-locked design: explicit source/stock separation, excluded support grants, exact spell routes, numeric value preservation, typed graph/TSV/hash/link checks. No gameplay, builds, DB writes or historical numeric parity.",
+  "decision_gate": "Armageddon_Seeder_Decisions_20261011.json",
+  "counts": {
+    "candidates": 154,
+    "required": 152,
+    "optional": 2,
+    "capabilities": 10,
+    "sorcerer_spells_per_variant": 82,
+    "sorcerer_roots_per_variant": 4,
+    "sorcerer_support_rows": 12,
+    "larger_required_systems": 8,
+    "prototype_blueprints": 210,
+    "simple_admissions": 418,
+    "classic_elemental_research_spell_bindings": 149,
+    "classic_elemental_research_support_bindings": 8,
+    "classic_elemental_stock_spell_bindings": 172,
+    "classic_elemental_stock_support_bindings": 7,
+    "classic_elemental_supplemental_spell_bindings": 23,
+    "sorcerer_installed_support_rows_per_variant": 1,
+    "sorcerer_deferred_support_rows": 11,
+    "simple_non_spell_support_grants": 10
+  },
+  "checks": [
+    {
+      "name": "final_human_gate_closed",
+      "status": "PASS",
+      "evidence": "all five configurations plus overriding non-spell exclusion; no implementation qualification implied"
+    },
+    {
+      "name": "full_exact_inventory",
+      "status": "PASS",
+      "evidence": 154
+    },
+    {
+      "name": "required_optional_partition",
+      "status": "PASS",
+      "evidence": [
+        "arm.spell.renew_earth",
+        "arm.spell.wardcraft"
+      ]
+    },
+    {
+      "name": "eight_required_larger_systems",
+      "status": "PASS",
+      "evidence": 8
+    },
+    {
+      "name": "exact94_source_rows_evidence_preserved",
+      "status": "PASS",
+      "evidence": "82 spell/12 support rows; all values, order and parents exact"
+    },
+    {
+      "name": "exact82_sorcerer_spells_four_roots",
+      "status": "PASS",
+      "evidence": [
+        "arm.spell.sense_enchantment",
+        "arm.spell.unravel_enchantment",
+        "arm.spell.gust_hands",
+        "arm.spell.unyielding_veil"
+      ]
+    },
+    {
+      "name": "source_graph_acyclic_resolved",
+      "status": "PASS",
+      "evidence": "explicit parent_key only"
+    },
+    {
+      "name": "only_proven_spell_support_dependency",
+      "status": "PASS",
+      "evidence": [
+        "arm.support.component_crafting"
+      ]
+    },
+    {
+      "name": "sorcerer_install_rows_filtered",
+      "status": "PASS",
+      "evidence": "82 spells plus Component Crafting"
+    },
+    {
+      "name": "all11_nonrequired_source_supports_deferred",
+      "status": "PASS",
+      "evidence": "no Barrier/Shield Use/Contact/Expel/Vloran or other class grants"
+    },
+    {
+      "name": "ten_capabilities_conditional_classes",
+      "status": "PASS",
+      "evidence": "ten capabilities; zero or ten Class roles"
+    },
+    {
+      "name": "source_claim_count_and_numbers_preserved",
+      "status": "PASS",
+      "evidence": "149 source spell claims,8 support claims; unknown historical numbers remain null"
+    },
+    {
+      "name": "source_projection_includes_only_required_support",
+      "status": "PASS",
+      "evidence": "149 spell memberships plus7 Components; Vloran retained only as deferred source evidence"
+    },
+    {
+      "name": "exact23_approved_supplemental_rows",
+      "status": "PASS",
+      "evidence": "human-selected table order and caps/parent thresholds"
+    },
+    {
+      "name": "supplementals_not_historical_claims",
+      "status": "PASS",
+      "evidence": "typed authored bindings separate from source graph"
+    },
+    {
+      "name": "final_elemental_binding_counts",
+      "status": "PASS",
+      "evidence": "172 spells plus7 required craft bindings"
+    },
+    {
+      "name": "no_unresolved_identity_chains",
+      "status": "PASS",
+      "evidence": "all parents typed and resolved"
+    },
+    {
+      "name": "PortalGate_explicit_user_identity",
+      "status": "PASS",
+      "evidence": "Arcane Mark -> Linked Threshold -> Open Threshold; identity choice is not historical alias proof"
+    },
+    {
+      "name": "shared_mount_identity",
+      "status": "PASS",
+      "evidence": "no new elemental mount definitions"
+    },
+    {
+      "name": "source_identity_provenance_unchanged_except_user_selection",
+      "status": "PASS",
+      "evidence": "exact known source.name field; no numeric-ID scans"
+    },
+    {
+      "name": "Classic_graph_Earth",
+      "status": "PASS",
+      "evidence": 25
+    },
+    {
+      "name": "Classic_values_Earth",
+      "status": "PASS",
+      "evidence": "parent guild cap minus10; cap-relative mastery"
+    },
+    {
+      "name": "Simple_roster_roots_Earth",
+      "status": "PASS",
+      "evidence": 24
+    },
+    {
+      "name": "Simple_depth_source_order_Earth",
+      "status": "PASS",
+      "evidence": "parent depth, selected source order, supplemental sibling order"
+    },
+    {
+      "name": "Simple_formula_and_parent_order_Earth",
+      "status": "PASS",
+      "evidence": "roots10; nonroots15..90, strict parent-before-child"
+    },
+    {
+      "name": "Classic_graph_Fire",
+      "status": "PASS",
+      "evidence": 23
+    },
+    {
+      "name": "Classic_values_Fire",
+      "status": "PASS",
+      "evidence": "parent guild cap minus10; cap-relative mastery"
+    },
+    {
+      "name": "Simple_roster_roots_Fire",
+      "status": "PASS",
+      "evidence": 22
+    },
+    {
+      "name": "Simple_depth_source_order_Fire",
+      "status": "PASS",
+      "evidence": "parent depth, selected source order, supplemental sibling order"
+    },
+    {
+      "name": "Simple_formula_and_parent_order_Fire",
+      "status": "PASS",
+      "evidence": "roots10; nonroots15..90, strict parent-before-child"
+    },
+    {
+      "name": "Classic_graph_Water",
+      "status": "PASS",
+      "evidence": 33
+    },
+    {
+      "name": "Classic_values_Water",
+      "status": "PASS",
+      "evidence": "parent guild cap minus10; cap-relative mastery"
+    },
+    {
+      "name": "Simple_roster_roots_Water",
+      "status": "PASS",
+      "evidence": 32
+    },
+    {
+      "name": "Simple_depth_source_order_Water",
+      "status": "PASS",
+      "evidence": "parent depth, selected source order, supplemental sibling order"
+    },
+    {
+      "name": "Simple_formula_and_parent_order_Water",
+      "status": "PASS",
+      "evidence": "roots10; nonroots15..90, strict parent-before-child"
+    },
+    {
+      "name": "Classic_graph_Wind",
+      "status": "PASS",
+      "evidence": 27
+    },
+    {
+      "name": "Classic_values_Wind",
+      "status": "PASS",
+      "evidence": "parent guild cap minus10; cap-relative mastery"
+    },
+    {
+      "name": "Simple_roster_roots_Wind",
+      "status": "PASS",
+      "evidence": 26
+    },
+    {
+      "name": "Simple_depth_source_order_Wind",
+      "status": "PASS",
+      "evidence": "parent depth, selected source order, supplemental sibling order"
+    },
+    {
+      "name": "Simple_formula_and_parent_order_Wind",
+      "status": "PASS",
+      "evidence": "roots10; nonroots15..90, strict parent-before-child"
+    },
+    {
+      "name": "Classic_graph_Shadow",
+      "status": "PASS",
+      "evidence": 21
+    },
+    {
+      "name": "Classic_values_Shadow",
+      "status": "PASS",
+      "evidence": "parent guild cap minus10; cap-relative mastery"
+    },
+    {
+      "name": "Simple_roster_roots_Shadow",
+      "status": "PASS",
+      "evidence": 20
+    },
+    {
+      "name": "Simple_depth_source_order_Shadow",
+      "status": "PASS",
+      "evidence": "parent depth, selected source order, supplemental sibling order"
+    },
+    {
+      "name": "Simple_formula_and_parent_order_Shadow",
+      "status": "PASS",
+      "evidence": "roots10; nonroots15..90, strict parent-before-child"
+    },
+    {
+      "name": "Classic_graph_Lightning",
+      "status": "PASS",
+      "evidence": 19
+    },
+    {
+      "name": "Classic_values_Lightning",
+      "status": "PASS",
+      "evidence": "parent guild cap minus10; cap-relative mastery"
+    },
+    {
+      "name": "Simple_roster_roots_Lightning",
+      "status": "PASS",
+      "evidence": 18
+    },
+    {
+      "name": "Simple_depth_source_order_Lightning",
+      "status": "PASS",
+      "evidence": "parent depth, selected source order, supplemental sibling order"
+    },
+    {
+      "name": "Simple_formula_and_parent_order_Lightning",
+      "status": "PASS",
+      "evidence": "roots10; nonroots15..90, strict parent-before-child"
+    },
+    {
+      "name": "Classic_graph_Void",
+      "status": "PASS",
+      "evidence": 31
+    },
+    {
+      "name": "Classic_values_Void",
+      "status": "PASS",
+      "evidence": "parent guild cap minus10; cap-relative mastery"
+    },
+    {
+      "name": "Simple_roster_roots_Void",
+      "status": "PASS",
+      "evidence": 30
+    },
+    {
+      "name": "Simple_depth_source_order_Void",
+      "status": "PASS",
+      "evidence": "parent depth, selected source order, supplemental sibling order"
+    },
+    {
+      "name": "Simple_formula_and_parent_order_Void",
+      "status": "PASS",
+      "evidence": "roots10; nonroots15..90, strict parent-before-child"
+    },
+    {
+      "name": "Simple418_unique_reachable_grade1",
+      "status": "PASS",
+      "evidence": "172 elemental and246 Sorcerer-family admissions"
+    },
+    {
+      "name": "Simple_main_trait_opening10_cap100",
+      "status": "PASS",
+      "evidence": "one main trait per capability, no Classic Mend cap on shared trait"
+    },
+    {
+      "name": "Sorcerer_Simple246_rows_unchanged",
+      "status": "PASS",
+      "evidence": "all fields preserved as JSON values"
+    },
+    {
+      "name": "Sorcerer_roster_parent_order_Sorcerer",
+      "status": "PASS",
+      "evidence": "exact82/four starts, strict spell-parent threshold ordering"
+    },
+    {
+      "name": "Sorcerer_roster_parent_order_Preserver",
+      "status": "PASS",
+      "evidence": "exact82/four starts, strict spell-parent threshold ordering"
+    },
+    {
+      "name": "Sorcerer_roster_parent_order_Defiler",
+      "status": "PASS",
+      "evidence": "exact82/four starts, strict spell-parent threshold ordering"
+    },
+    {
+      "name": "all152_required_Classic_routes",
+      "status": "PASS",
+      "evidence": 152
+    },
+    {
+      "name": "all152_required_Simple_routes",
+      "status": "PASS",
+      "evidence": 152
+    },
+    {
+      "name": "optional_routes_isolated",
+      "status": "PASS",
+      "evidence": "Wardcraft/Renew Earth not installed admissions or prerequisites"
+    },
+    {
+      "name": "ReadEnchantment_craft80_route_scoped",
+      "status": "PASS",
+      "evidence": "three Sorcerer admission predicates; no global or elemental casting restriction"
+    },
+    {
+      "name": "Void_Identify_Components_no_cycle",
+      "status": "PASS",
+      "evidence": "Identify follows its source spell parent; Components later"
+    },
+    {
+      "name": "Simple_required_support_timing",
+      "status": "PASS",
+      "evidence": "Component Crafting10/cap90 on enrolment; no language/psychic/mundane class grants"
+    },
+    {
+      "name": "no_excluded_support_in_install_projection",
+      "status": "PASS",
+      "evidence": "historical rows never drive installation"
+    },
+    {
+      "name": "per_entry_admissions_match_final_tables",
+      "status": "PASS",
+      "evidence": "entry overlays match exact finalized rows"
+    },
+    {
+      "name": "entry_memberships_match_final_bindings",
+      "status": "PASS",
+      "evidence": "no leftover authored family roster or implicit school inference"
+    },
+    {
+      "name": "all20_prior_roster_gaps_closed",
+      "status": "PASS",
+      "evidence": "historical gap ledger retained; every required missing spell now admitted"
+    },
+    {
+      "name": "210_prototypes_unchanged",
+      "status": "PASS",
+      "evidence": "exact locked catalogue preserved"
+    },
+    {
+      "name": "154_effect_configs_and_minima_unchanged",
+      "status": "PASS",
+      "evidence": "no numeric or effect rebalance from approved baseline"
+    },
+    {
+      "name": "locked_value_hash_matches",
+      "status": "PASS",
+      "evidence": "ef22ce5ec6f9f50a225a86c169560e5737987e1327e4843010b316902a3366ce"
+    },
+    {
+      "name": "stock_defaults_final_not_placeholder",
+      "status": "PASS",
+      "evidence": "origins retained separately; active defaults locked"
+    },
+    {
+      "name": "prototype_dependencies_typed_resolved_acyclic",
+      "status": "PASS",
+      "evidence": "known dependencies fields only"
+    },
+    {
+      "name": "structured_recipe_inputs_resolve",
+      "status": "PASS",
+      "evidence": "positive finite inputs; exact typed dependencies"
+    },
+    {
+      "name": "required_magic_supply_craft_support_declared",
+      "status": "PASS",
+      "evidence": "61 component supplies plus binding seal explicitly use min_component_crafting; craft cap90 reaches every threshold"
+    },
+    {
+      "name": "native_template_material_fields_resolve",
+      "status": "PASS",
+      "evidence": "race_bundle, ai_bundle, culture, native_material"
+    },
+    {
+      "name": "automatic_NPC_weapon_counts",
+      "status": "PASS",
+      "evidence": "49 NPC/49 weapon templates; no prototype questions"
+    },
+    {
+      "name": "grade7_flame_tier_distinct",
+      "status": "PASS",
+      "evidence": "six timed knives/eight permanent staves"
+    },
+    {
+      "name": "fixed_single_installation",
+      "status": "PASS",
+      "evidence": "one fixed direction; ordinary repair/update reruns"
+    },
+    {
+      "name": "ReadAttunement_separate_facts",
+      "status": "PASS",
+      "evidence": "explicit affinity; separate learned affiliation; pure query"
+    },
+    {
+      "name": "four_install_matrix_cells",
+      "status": "PASS",
+      "evidence": 4
+    },
+    {
+      "name": "finite_energy_minima",
+      "status": "PASS",
+      "evidence": "locked current-factory/printed/authored values"
+    },
+    {
+      "name": "placeholder_retired",
+      "status": "PASS",
+      "evidence": "no old flattened graph or pending Simple design input"
+    },
+    {
+      "name": "source_hashes_match",
+      "status": "PASS",
+      "evidence": "canonical UTF8/LF input hashes"
+    },
+    {
+      "name": "factory_and_input_paths_exist",
+      "status": "PASS",
+      "evidence": "known path fields only"
+    },
+    {
+      "name": "157_source_graph_claims_match_snapshot",
+      "status": "PASS",
+      "evidence": "all155 full-seven rows plus2 Earth additions; final supplemental claims not injected into source"
+    },
+    {
+      "name": "complete111block_source_hash",
+      "status": "PASS",
+      "evidence": "source snapshot unchanged"
+    },
+    {
+      "name": "Simple_TSV_all_fields_match",
+      "status": "PASS",
+      "evidence": 418
+    },
+    {
+      "name": "Classic_TSV_all_fields_match",
+      "status": "PASS",
+      "evidence": 428
+    },
+    {
+      "name": "research_TSV_source_and_disposition_match",
+      "status": "PASS",
+      "evidence": 157
+    },
+    {
+      "name": "document_links_resolve",
+      "status": "PASS",
+      "evidence": "all relative design/decision/research links"
+    },
+    {
+      "name": "inventory_summary_matches_final_data",
+      "status": "PASS",
+      "evidence": {
+        "candidates": 154,
+        "required": 152,
+        "optional": 2,
+        "capabilities": 10,
+        "sorcerer_spells_per_variant": 82,
+        "sorcerer_roots_per_variant": 4,
+        "sorcerer_support_rows": 12,
+        "larger_required_systems": 8,
+        "prototype_blueprints": 210,
+        "simple_admissions": 418,
+        "classic_elemental_research_spell_bindings": 149,
+        "classic_elemental_research_support_bindings": 8,
+        "classic_elemental_stock_spell_bindings": 172,
+        "classic_elemental_stock_support_bindings": 7,
+        "classic_elemental_supplemental_spell_bindings": 23,
+        "sorcerer_installed_support_rows_per_variant": 1,
+        "sorcerer_deferred_support_rows": 11,
+        "simple_non_spell_support_grants": 10
+      }
+    },
+    {
+      "name": "all7_checkpoint_JSON_documents_parse",
+      "status": "PASS",
+      "evidence": [
+        "Design Documents\\Magic\\Armageddon_Completion_Progress.json",
+        "Design Documents\\Magic\\Armageddon_Continuation_20261008.json",
+        "Design Documents\\Magic\\Armageddon_Elementalist_Research_Adoption_20261011.json",
+        "Design Documents\\Magic\\Armageddon_Repertoire.json",
+        "Design Documents\\Magic\\Armageddon_Seeder_Completeness_Design_20261011.json",
+        "Design Documents\\Magic\\Armageddon_Seeder_Completeness_Validation_20261011.json",
+        "Design Documents\\Magic\\Armageddon_Seeder_Decisions_20261011.json"
+      ]
+    }
+  ],
+  "content_design_questions_remaining": [],
+  "retained_validation_failures": [
+    {
+      "scope": "Final design validation helper before acceptance",
+      "outcome": "A prewrite ledger assertion expected61 craft recipes; the actual explicit recipe field also appears on the binding seal, giving62. That assertion changed no tracked file. The following structural run failed its same62-recipe coverage condition. Corrected the expected inventory and declared all62 exact recipe-field requirements without changing a recipe, threshold, support selection or numeric default. Failed runs are not counted as passing."
+    }
+  ],
+  "known_open_gates": [
+    "S1-S6 implementation",
+    "four fresh-install matrix cells and natural progression",
+    "N24 full installer rerun/native conservation",
+    "N25/final whole-programme qualification"
+  ],
+  "research_adoption": {
+    "document": "Armageddon_Elementalist_Research_Adoption_20261011.json",
+    "source_blocks_read": 111,
+    "selected_source_bindings": 157,
+    "stock_elemental_bindings": 179,
+    "historical_numbers_unrecovered": true,
+    "blocks_current_implementation": false,
+    "unresolved_identities": 0,
+    "historical_parity_qualified": false
+  },
+  "independent_review": {
+    "status": "NO_ACTIONABLE_DEFECT_FOUND",
+    "role": "fm_reviewer",
+    "date": "2026-10-11",
+    "baseline_revision": "fe2f750133bcb5a56645390db0d57227a90c4713",
+    "scope": "Read-only final locked design, selected support exclusion, source/install separation, Portal Gate selection, supplemental/Classic/Simple projections, numeric value preservation and structural acceptance coverage. No tests, code edits or database operations.",
+    "limits": "Installed acquisition, save/load, reruns and gameplay remain unverified. Subsequent receipt additions declare existing recipe-field support prerequisites and check unchanged Sorcerer roster/order and summary/JSON parity."
+  }
+}

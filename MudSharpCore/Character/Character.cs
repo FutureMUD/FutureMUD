@@ -2199,7 +2199,10 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     bool IControllable.ExecuteCommand(string command)
     {
+		if (MudSharp.Magic.SpellCompulsionExecution.RejectNestedCommand) return false;
 		using var commandOrigin = MagicSpeechContext.CharacterCommand(this);
+		MudSharp.Effects.Concrete.SpellEffects.SpellFeignedDeathEffect.BreakOnVoluntaryAction(this,
+			new StringStack(command).PopSpeech());
 		if (!IsPrimaryInstance && State.IsConscious() && !State.HasFlag(CharacterState.Sleeping) && Identity?.PrimaryInstance is Character primary)
 			primary.InterruptVancianWork();
         Gameworld?.LogManager.LogCharacterCommand(this, command);

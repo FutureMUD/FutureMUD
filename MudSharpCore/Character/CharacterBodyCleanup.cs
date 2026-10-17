@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using MudSharp.Body;
 using MudSharp.Database;
@@ -7,6 +7,7 @@ using System.Data;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Magic;
 using MudSharp.Effects;
+using MudSharp.Framework;
 
 namespace MudSharp.Character;
 
@@ -38,14 +39,14 @@ public partial class Character
 		return Gameworld.Characters
 			.Any(x => x.Identity.Instances.Any(instance => instance.Body.Id == body.Id) ||
 				x.EffectsOfType<IBodyBackupEffect>().Any(effect => effect.BackupBodyId == body.Id) ||
-				HasSavedRuntimeBodyReference(x.Effects, body.Id) || HasSavedRuntimeBodyReference(x.Body.Effects, body.Id)) ||
+				HasLiveBodyReference(x.Effects, body.Id) || HasLiveBodyReference(x.Body.Effects, body.Id)) ||
 			Gameworld.Items.Where(x => !x.Deleted)
-				.Any(x => HasSavedRuntimeBodyReference(x.Effects, body.Id));
+				.Any(x => HasLiveBodyReference(x.Effects, body.Id));
 	}
 
-	private static bool HasSavedRuntimeBodyReference(IEnumerable<IEffect> effects, long bodyId) =>
-		effects.Where(x => x.SavingEffect).Any(x => RetiredBodyReferencePolicy.HasReferenceOrUncertainty(
-			x.SaveToXml(new Dictionary<IEffect, TimeSpan>()).ToString(), bodyId));
+	private static bool HasLiveBodyReference(IEnumerable<IEffect> effects, long bodyId) =>
+		PhysicalReferenceGuard.HasLiveReference(effects, new PhysicalReferenceTargets(
+			[new MudSharp.Framework.PhysicalEntityReference(MudSharp.Framework.PhysicalEntityKind.Body, bodyId, "BodyId")]));
 
 	private bool DeleteRetiredBodyDatabaseState(IBody body, long? excludingItemId)
 	{
@@ -119,25 +120,18 @@ public partial class Character
 
 	private bool HasPersistedReferenceToRetiredBody(long bodyId, long? excludingItemId)
 	{
-		return FMDB.Context.GameItemComponents.AsNoTracking()
-			.Where(x => excludingItemId == null || x.GameItemId != excludingItemId)
-			.Select(x => x.Definition).AsEnumerable()
-			.Any(x => RetiredBodyReferencePolicy.HasReferenceOrUncertainty(x, bodyId)) ||
-			FMDB.Context.Characters.AsNoTracking().Select(x => x.EffectData).AsEnumerable()
-				.Any(x => RetiredBodyReferencePolicy.HasReferenceOrUncertainty(x, bodyId)) ||
-			FMDB.Context.CharacterInstances.AsNoTracking().Select(x => x.EffectData).AsEnumerable()
-				.Any(x => RetiredBodyReferencePolicy.HasReferenceOrUncertainty(x, bodyId)) ||
-			FMDB.Context.Bodies.AsNoTracking().Where(x => x.Id != bodyId).Select(x => x.EffectData).AsEnumerable()
-				.Any(x => RetiredBodyReferencePolicy.HasReferenceOrUncertainty(x, bodyId)) ||
-			FMDB.Context.GameItems.AsNoTracking().Where(x => excludingItemId == null || x.Id != excludingItemId)
-				.Select(x => x.EffectData).AsEnumerable()
-				.Any(x => RetiredBodyReferencePolicy.HasReferenceOrUncertainty(x, bodyId));
+		var wounds = FMDB.Context.Wounds.Where(x => x.BodyId == bodyId).Select(x => x.Id).ToArray();
+		var targets = new PhysicalReferenceTargets(wounds.Select(x => new PhysicalEntityReference(PhysicalEntityKind.Wound, x, "Body/Wound"))
+			.Append(new(PhysicalEntityKind.Body, bodyId, "BodyId")));
+		return !PhysicalReferenceGuard.PersistedReferencesAreClear(FMDB.Context, targets, [], [bodyId], [], excludingItemId, out _);
 	}
 
 	public bool TryCleanupRetiredBody(IBody body, IGameItem? excludingReference = null)
 	{
 		if (FMDB.WritesAreSuppressed || body is null || body.AllItems.Any() ||
 		    HasLiveRuntimeReferenceToRetiredBody(body) ||
+		    !PhysicalReferenceGuard.RuntimeReferencesAreClear(Gameworld, new PhysicalReferenceTargets(
+			    [new MudSharp.Framework.PhysicalEntityReference(MudSharp.Framework.PhysicalEntityKind.Body, body.Id, "BodyId")])) ||
 		    HasPhysicalReferenceToRetiredBody(body.Id, excludingReference))
 		{
 			return false;

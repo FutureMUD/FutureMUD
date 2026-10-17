@@ -83,6 +83,8 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		if (overreach && Owner(actor).TraitRawValue(trait) < requiredProficiency) return $"Overreach into grade {grade} requires raw proficiency {requiredProficiency}.";
 		if (!Enum.IsDefined(mode)) return "Unknown casting mode.";
 		if (mode == MagicCastingMode.Area && profile.Area is null) return "Area casting is unavailable until a separate explicit area policy is authored.";
+		if (mode != MagicCastingMode.Area && mode != MagicCastingMode.Practice && profile.Area?.ChainLightning is not null)
+			return "This chain spell requires its native area casting route.";
 		var practice = mode == MagicCastingMode.Practice ? profile.Practice : null;
 		if (mode == MagicCastingMode.Practice && practice is not { Enabled: true }) return "Practice is not enabled for this spell.";
 		if (practice?.MaximumGrade is { } maximum && grade > maximum) return "That grade exceeds this spell's configured practice maximum.";
@@ -148,6 +150,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 		if (intent.Mode != MagicCastingMode.Practice) copy.InvocationOriginId = intent.OriginId;
 		if (intent.Mode != MagicCastingMode.Practice)
 		{
+			copy.BindInvocationInputs(actor, target.Target, target.Parameters);
 			if (preparedSelectionSource is not null) ReusePreparedSelections(copy, preparedSelectionSource, actor, targets);
 			foreach (var (effect, recipients) in copy.SpellEffects.Select(x => (x, targets))
 				.Concat(copy.CasterSpellEffects.Select(x => (x, (IEnumerable<IPerceivable>)new[] { actor }))))

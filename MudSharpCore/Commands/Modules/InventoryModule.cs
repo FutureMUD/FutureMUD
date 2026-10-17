@@ -926,9 +926,21 @@ The syntax is:
 	#3get [exactly] <currency> [<container>] [(<emote>)]#0
 	#3get <weight> <commodity> [<container>] [(<emote>)]#0
 
-	For example, #3get sword#0, #3get 2 apple basket#0, or #3get 500g flour sack#0. If the named container is a corpse, the command follows the same rules as taking from a corpse.", AutoHelp.HelpArgOrNoArg)]
+	For example, #3get sword#0, #3get 2 apple basket#0, or #3get 500g flour sack#0. If the named container is a corpse, the command follows the same rules as taking from a corpse.
+
+On worlds enabling hostile guard challenges, #3get sword !!#0 or #3get gem chest !!#0 challenges guards on that room item or its containing items. Put #3!!#0 before any emote. Currency, weight, combat, corpse and other-character forms do not support challenges.", AutoHelp.HelpArgOrNoArg)]
 	protected static void Get(ICharacter actor, string input)
     {
+		if (!GuardChallengeSyntax.TryExtract(input, out var parsedInput, out var challenge, out var syntaxError))
+		{
+			actor.OutputHandler.Send(syntaxError);
+			return;
+		}
+		if (challenge)
+		{
+			GetWithGuardChallenge(actor, parsedInput);
+			return;
+		}
         if (new StringStack(input.RemoveFirstWord()).IsFinished)
         {
             actor.Send("What is it that you want to get?");

@@ -13,6 +13,39 @@ namespace MudSharp_Unit_Tests;
 public class HeartbeatPerformanceTests
 {
 	[TestMethod]
+	public void AppendPerformanceReport_LongFuzzyCadences_CountsAllGenerationsAndRemoval()
+	{
+		var heartbeat = new HeartbeatManager(new Mock<IFuturemud>().Object);
+		HeartbeatManagerDelegate callback = () => Assert.Fail("Census must not fire callbacks");
+		for (var i = 0; i < 7; i++)
+		{
+			heartbeat.FuzzyFiveMinuteHeartbeat += callback;
+			heartbeat.FuzzyTenMinuteHeartbeat += callback;
+			heartbeat.FuzzyThirtyMinuteHeartbeat += callback;
+			heartbeat.FuzzyHourHeartbeat += callback;
+		}
+		var report = new StringBuilder();
+		heartbeat.AppendPerformanceReport(report);
+		foreach (var name in new[] { "Five Minute", "Ten Minute", "Thirty Minute", "Hour" })
+		{
+			StringAssert.Contains(report.ToString(), $"Fuzzy {name}: 7");
+		}
+		for (var i = 0; i < 2; i++)
+		{
+			heartbeat.FuzzyFiveMinuteHeartbeat -= callback;
+			heartbeat.FuzzyTenMinuteHeartbeat -= callback;
+			heartbeat.FuzzyThirtyMinuteHeartbeat -= callback;
+			heartbeat.FuzzyHourHeartbeat -= callback;
+		}
+		report.Clear();
+		heartbeat.AppendPerformanceReport(report);
+		foreach (var name in new[] { "Five Minute", "Ten Minute", "Thirty Minute", "Hour" })
+		{
+			StringAssert.Contains(report.ToString(), $"Fuzzy {name}: 0");
+		}
+	}
+
+	[TestMethod]
 	public void ManuallyFireHeartbeatSecond_DiagnosticsEnabled_PreservesSubscriberOrder()
 	{
 		var monitor = new RuntimePerformanceMonitor();

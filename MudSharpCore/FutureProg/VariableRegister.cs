@@ -57,6 +57,17 @@ internal class VariableRegister : SaveableItem, IVariableRegister
 
     #region Constructors
 
+    // Compiler-only type view: no world/database load, defaults, live values or dirty writes.
+    internal VariableRegister(IFuturemud gameworld, IEnumerable<Models.VariableDefinition> definitions)
+    {
+        Gameworld = gameworld;
+        _types = definitions.GroupBy(x => ProgVariableTypes.FromStorageString(x.OwnerTypeDefinition))
+            .ToDictionary(x => x.Key, x => x.ToDictionary(y => y.Property.ToLowerInvariant(),
+                y => ProgVariableTypes.FromStorageString(y.ContainedTypeDefinition)));
+        _defaultValues = new();
+        _values = new();
+    }
+
     public VariableRegister(IFuturemud gameworld)
     {
         Gameworld = gameworld;

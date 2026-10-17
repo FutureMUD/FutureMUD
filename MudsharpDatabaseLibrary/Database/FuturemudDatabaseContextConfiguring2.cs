@@ -1781,6 +1781,8 @@ namespace MudSharp.Database
 
                 entity.Property(e => e.LastUsage).HasColumnType("datetime");
 
+				entity.Property(e => e.WasIdentityConcealed).HasColumnType("tinyint(1)");
+
                 entity.Property(e => e.TargetId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.TargetType)

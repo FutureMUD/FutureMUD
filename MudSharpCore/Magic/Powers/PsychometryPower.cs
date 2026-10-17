@@ -18,7 +18,7 @@ public sealed class PsychometryPower : PsychicTechniquePower
 		var text = command.SafeRemainingArgument;
 		IPerceivable? target = text.EqualToAny("here", "room", "cell") ? actor.Location : actor.TargetItem(text);
 		if (target is null || MagicInterdictionHelper.GetInterdiction(actor, target, School, false) is not null ||
-		    CanInvokePowerProg.ExecuteBool(actor, target) == false) { actor.OutputHandler.Send("You cannot read impressions there."); return; }
+		    CanInvokePower(actor, target) == false) { actor.OutputHandler.Send("You cannot read impressions there."); return; }
 		ConsumePowerCosts(actor, Verb);
 		var outcome = CheckPower(actor, actor, CheckType.MagicTelepathyCheck);
 		if (outcome.Outcome < MinimumSuccessThreshold) { Complete(actor, null, "an unsuccessful psychometric reading"); SendFailure(actor, actor); return; }

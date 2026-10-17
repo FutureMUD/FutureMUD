@@ -321,7 +321,7 @@ public class ChokePower : SustainedMagicPower
             return;
         }
 
-        if (CanInvokePowerProg.ExecuteBool(actor, target) == false)
+        if (CanInvokePower(actor, target) == false)
         {
             actor.OutputHandler.Send(string.Format(
                 WhyCantInvokePowerProg.Execute(actor, target)?.ToString() ??

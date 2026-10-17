@@ -9,8 +9,9 @@ using System.Reflection;
 
 namespace MudSharp.Effects;
 
-public abstract partial class Effect : FrameworkItem, IEffect
+public abstract partial class Effect : FrameworkItem, IEffect, IPhysicalEntityReferenceProvider
 {
+	public virtual IEnumerable<PhysicalEntityReference> PhysicalReferences => EffectPhysicalReferences.Read(this);
     private static readonly Dictionary<string, Func<XElement, IPerceivable, IEffect>> EffectFactories =
         new();
 

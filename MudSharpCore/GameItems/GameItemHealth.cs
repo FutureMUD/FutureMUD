@@ -183,6 +183,7 @@ public partial class GameItem : IHaveWounds
 
         damage = destroyable?.GetActualDamage(damage) ?? damage;
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return wounds;
+		damage.MutationGuard?.Validate(this, damage);
 		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
         List<IWound> newWounds = HealthStrategy.SufferDamage(this, damage, null).ToList();
         foreach (IWound newWound in newWounds.ToArray())

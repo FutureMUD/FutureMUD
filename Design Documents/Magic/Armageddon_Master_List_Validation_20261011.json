@@ -1,0 +1,139 @@
+{
+  "schema_version": 1,
+  "status": "PASS_SOURCE_DESIGN_ONLY",
+  "baseline_revision": "a3f5fd4affd3cd431fc63d4ab2c47bae6296bb97",
+  "checks": [
+    {
+      "name": "byte_exact_archive",
+      "status": "PASS",
+      "evidence": "40439 bytes, all fifteen guilds preserved"
+    },
+    {
+      "name": "exact_source_values_and_parent_links",
+      "status": "PASS",
+      "evidence": "161 line-referenced source rows; 153 spell memberships"
+    },
+    {
+      "name": "active_source_projection",
+      "status": "PASS",
+      "evidence": "deferred Vloran; 160 source rows plus20 approved supplements"
+    },
+    {
+      "name": "sorcerer_exact_unchanged",
+      "status": "PASS",
+      "evidence": "94 evidence rows,83 installed per variant"
+    },
+    {
+      "name": "simple_sorcerer_246_unchanged",
+      "status": "PASS",
+      "evidence": "all JSON fields unchanged"
+    },
+    {
+      "name": "exact_spell_inventory",
+      "status": "PASS",
+      "evidence": "optional entries remain unadmitted"
+    },
+    {
+      "name": "all_required_routes",
+      "status": "PASS",
+      "evidence": "all152 required; no excluded supports"
+    },
+    {
+      "name": "no_excluded_supports",
+      "status": "PASS",
+      "evidence": "only Component Crafting is retained"
+    },
+    {
+      "name": "classic_graph",
+      "status": "PASS",
+      "evidence": "declared parent_binding_key only"
+    },
+    {
+      "name": "simple_formula_Earth",
+      "status": "PASS",
+      "evidence": "six roots10, parent depth/source order, nonroots15..90"
+    },
+    {
+      "name": "simple_formula_Fire",
+      "status": "PASS",
+      "evidence": "six roots10, parent depth/source order, nonroots15..90"
+    },
+    {
+      "name": "simple_formula_Water",
+      "status": "PASS",
+      "evidence": "six roots10, parent depth/source order, nonroots15..90"
+    },
+    {
+      "name": "simple_formula_Wind",
+      "status": "PASS",
+      "evidence": "six roots10, parent depth/source order, nonroots15..90"
+    },
+    {
+      "name": "simple_formula_Shadow",
+      "status": "PASS",
+      "evidence": "six roots10, parent depth/source order, nonroots15..90"
+    },
+    {
+      "name": "simple_formula_Lightning",
+      "status": "PASS",
+      "evidence": "six roots10, parent depth/source order, nonroots15..90"
+    },
+    {
+      "name": "simple_formula_Void",
+      "status": "PASS",
+      "evidence": "six roots10, parent depth/source order, nonroots15..90"
+    },
+    {
+      "name": "simple_unique_count",
+      "status": "PASS",
+      "evidence": "173 elemental and246 Sorcerer-family rows"
+    },
+    {
+      "name": "prototype_catalogue_unchanged",
+      "status": "PASS",
+      "evidence": "all configurations/stats/recipes unchanged"
+    },
+    {
+      "name": "effects_unchanged",
+      "status": "PASS",
+      "evidence": "only minimum-energy source updates"
+    },
+    {
+      "name": "typed_blueprint_graph",
+      "status": "PASS",
+      "evidence": "known dependency fields only"
+    },
+    {
+      "name": "printed_minimum_energy",
+      "status": "PASS",
+      "evidence": "134 exact stock minima;55 changed"
+    },
+    {
+      "name": "locked_value_hash",
+      "status": "PASS",
+      "evidence": "c62fe779be152cf948af7e0e289d76d8721584e408a06a9f6461dbce8464730c"
+    },
+    {
+      "name": "input_source_hashes",
+      "status": "PASS",
+      "evidence": "portable UTF8/LF except byte-exact source"
+    },
+    {
+      "name": "Classic_TSV",
+      "status": "PASS",
+      "evidence": 429
+    },
+    {
+      "name": "Simple_TSV",
+      "status": "PASS",
+      "evidence": 419
+    },
+    {
+      "name": "input_bindings_overlay",
+      "status": "PASS",
+      "evidence": "entry overlays exact final tables"
+    }
+  ],
+  "independent_review": "153 spell identities and161 values/parents checked against source; zero discrepancies; no builds/DB writes",
+  "limits": "Not gameplay, installed-stock parity, historical authorship or S2-S6 qualification"
+}

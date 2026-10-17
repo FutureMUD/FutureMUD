@@ -183,10 +183,30 @@ Again, the choices you make here can be fixed later so don't stress it too great
 				// CombatSeeder binds this check after its combat skills exist.
 				case CheckType.BlindFightingCheck:
 					continue;
+                case CheckType.DirectionSenseCheck:
+                case CheckType.DirectionSenseRecoveryCheck:
+                    DirectionSenseSeederHelper.EnsureUnboundChecks(context);
+                    continue;
+				case CheckType.PeekCheck:
+				case CheckType.PeekRevealCheck:
+					PeekSeederHelper.EnsureUnboundChecks(context);
+					continue;
+                case CheckType.DualWieldCoordinationCheck:
+                    // CombatSeeder owns the native skill binding; preserve configured existing worlds.
+                    DualWieldCoordinationSeederHelper.EnsureUnboundCheck(context);
+                    continue;
+				case CheckType.GuardingExitChallengeCheck:
+				case CheckType.GuardingItemChallengeCheck:
+					GuardingCheckSeederHelper.EnsureChecks(context);
+					continue;
                 case CheckType.None:
                     // Default Fall Back
                     AddCheck(check, new TraitExpression { Name = "Default Fallback Check", Expression = "variable" }, 3,
                         Difficulty.Automatic);
+                    continue;
+                case CheckType.AnalyzeEligibilityCheck:
+                    AddCheck(check, new TraitExpression { Name = "Analyze Eligibility", Expression = "0" },
+                        12, Difficulty.Normal);
                     continue;
                 case CheckType.ProjectLabourCheck:
                     // Special Project Check

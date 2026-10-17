@@ -27,6 +27,8 @@ public sealed partial class SpellOwnedCreation
 	{
 		if (!Enum.IsDefined(kind) || !Enum.IsDefined(role) ||
 		    role == SpellOwnedEntityRole.GeneratedPossession && kind != SpellOwnedEntityKind.GameItem ||
+		    (role is SpellOwnedEntityRole.GateSourcePortal or SpellOwnedEntityRole.GateCorridor or SpellOwnedEntityRole.GateDestinationPortal) &&
+		    kind != SpellOwnedEntityKind.Exit ||
 		    Context.Entry(row).State != EntityState.Added || !Matches(kind, row) ||
 		    _claims.Any(x => ReferenceEquals(x.Row, row)))
 		{
@@ -35,9 +37,10 @@ public sealed partial class SpellOwnedCreation
 		_claims.Add((kind, role, row));
 	}
 
-	internal void ValidateBeforeSave()
+	internal void ValidateBeforeSave(bool journalOnly = false)
 	{
-		if (_claims.Count is 0 or > 256 || _claims.Any(x => Context.Entry(x.Row).State != EntityState.Added) ||
+		if (journalOnly && (_claims.Count != 0 || Context.ChangeTracker.HasChanges()) ||
+		    !journalOnly && _claims.Count == 0 || _claims.Count > 256 || _claims.Any(x => Context.Entry(x.Row).State != EntityState.Added) ||
 		    _claims.Count(x => x.Kind is SpellOwnedEntityKind.AutonomousCharacter or SpellOwnedEntityKind.CharacterInstance) > 1 ||
 		    Context.ChangeTracker.Entries().Any(x => (x.State is EntityState.Modified or EntityState.Deleted) && !IsExactBorrowedChange(x)) ||
 			_borrowedChanges.Keys.Any(x => !IsExactBorrowedChange(Context.Entry(x))))
@@ -73,13 +76,14 @@ public sealed partial class SpellOwnedCreation
 		SpellOwnedEntityKind.Body => row is Models.Body,
 		SpellOwnedEntityKind.Room => row is Room,
 		SpellOwnedEntityKind.Exit => row is Exit,
+		SpellOwnedEntityKind.RoomOverlay => row is RoomOverlay,
 		_ => false
 	};
 
 	private static long Id(object row) => row switch
 	{
 		GameItem x => x.Id, Models.Character x => x.Id, Models.CharacterInstance x => x.Id,
-		Models.Body x => x.Id, Room x => x.Id, Exit x => x.Id,
+		Models.Body x => x.Id, Room x => x.Id, Exit x => x.Id, RoomOverlay x => x.Id,
 		_ => throw new InvalidOperationException("Unsupported owned entity row.")
 	};
 }

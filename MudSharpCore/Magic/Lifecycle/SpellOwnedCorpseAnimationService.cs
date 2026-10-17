@@ -153,11 +153,15 @@ public sealed class SpellOwnedCorpseAnimationService(IFuturemud world) : ISpellO
 	}
 	public bool IsBorrowedCorpse(long corpseId)
 	{
-		using var isolated = FMDB.BeginIndependentScope(); using var db = new FMDB();
-		var token = $" corpse=\"{corpseId}\"";
-		return FMDB.Context.MagicSpellLifecycles.Any(x => x.State != (int)SpellLifecycleState.Completed &&
-			x.Provenance.StartsWith(Prefix) && x.Provenance.Contains(token));
+		using var isolated = FMDB.BeginIndependentScope();
+		using var db = new FMDB();
+		return HasUnfinishedBorrow(FMDB.Context, corpseId);
 	}
+
+	internal static bool HasUnfinishedBorrow(FuturemudDatabaseContext context, long corpseId) =>
+		context.MagicSpellLifecycles.AsNoTracking().Include(x => x.Entities)
+			.Where(x => x.State != (int)SpellLifecycleState.Completed && x.Provenance.StartsWith(Prefix))
+			.AsEnumerable().Any(x => Borrow.Read(SpellOwnedLifecycleStore.Read(x)).Corpse == corpseId);
 
 	public bool TryRetire(long instanceId, SpellRetirementReason reason, out string diagnostic)
 	{

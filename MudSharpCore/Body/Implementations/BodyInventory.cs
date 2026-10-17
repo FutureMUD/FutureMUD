@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.NPC.AI;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
@@ -7,6 +7,7 @@ using MudSharp.Construction;
 using MudSharp.Database;
 using MudSharp.Economy.Currency;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
@@ -1359,6 +1360,11 @@ public partial class Body
             return false;
         }
 
+        if (item.EffectsOfType<IItemTakeInterdictionEffect>().Any(x => !x.AllowsTake(Actor)))
+        {
+            return false;
+        }
+
         IGameItem actualItem = quantity == 0 ? item : item.PeekSplit(quantity);
         switch (item.CanGet(quantity, ignoreFlags))
         {
@@ -1496,6 +1502,11 @@ public partial class Body
         if (item.Location?.CanGet(item, Actor) == false)
         {
             return Location.WhyCannotGet(item, Actor);
+        }
+
+        if (item.EffectsOfType<IItemTakeInterdictionEffect>().Any(x => !x.AllowsTake(Actor)))
+        {
+            return $"A custodian glyph prevents you from taking {item.HowSeen(Actor)}.";
         }
 
         IGameItem actualItem = quantity == 0 ? item : item.PeekSplit(quantity);
@@ -1919,6 +1930,7 @@ public partial class Body
 		bool triggerEvents = true)
 	{
 		var executor = Actor;
+		var guardChallenge = HostileGuardChallenge.CurrentItem;
 		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
 		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
 		if (!CanContinue()) return null;
@@ -1933,8 +1945,12 @@ public partial class Body
 		var whole = quantity == 0 || item.DropsWhole(quantity);
 		var placement = PrepareGetPlacement(whole ? item : item.PeekSplit(quantity), allowMerge);
 		if (placement is null || !CanContinue()) return null;
+		if (guardChallenge is not null &&
+		    (!CanGet(item, quantity, ignoreFlags) ||
+		     !guardChallenge.CanCommitItemAction(executor, item, null, GuardChallengeAction.Get))) return null;
 		CommandExecutionScope.MarkCommitted(executor);
 		var gottenItem = whole ? item.Get(this) : item.Get(this, quantity);
+		guardChallenge?.Dispose();
 		if (!CompleteGetPlacementWithResult(gottenItem, placement, out gottenItem, consumeNativeStack: true)) return null;
 		if (gottenItem.Deleted || gottenItem.Destroyed) return null;
 		var output = new MixedEmoteOutput(new Emote("@ get|gets $0", this, gottenItem), flags: OutputFlags.SuppressObscured);
@@ -1990,7 +2006,8 @@ public partial class Body
 	}
 
 	private IGameItem? GivePhysicalItem(IGameItem item, IBody receiver, int quantity, MudSharp.Character.ICharacter executor,
-		int expectedQuantity, IHoldable? expectedHolder, bool whole, MudSharp.Character.ICharacter receiverExecutor, Func<bool> canGive, Func<bool> receiverUnchanged)
+		int expectedQuantity, IHoldable? expectedHolder, bool whole, MudSharp.Character.ICharacter receiverExecutor, Func<bool> canGive, Func<bool> receiverUnchanged,
+		bool allowMerge = true)
 	{
 		bool OriginalSource() => !item.Deleted && !item.Destroyed && item.Quantity == expectedQuantity &&
 			ReferenceEquals(item.GetItemType<IHoldable>(), expectedHolder) && ReferenceEquals(expectedHolder?.HeldBy, this) &&
@@ -1998,7 +2015,7 @@ public partial class Body
 			item.ContainedIn is null && ComponentItemTransfer.DirectLocationOf(item) is null;
 		if (!OriginalSource()) return null;
 		if (receiver is not Body destination) return null;
-		var placement = destination.PrepareGetPlacement(whole ? item : item.PeekSplit(quantity), true);
+		var placement = destination.PrepareGetPlacement(whole ? item : item.PeekSplit(quantity), allowMerge);
 		if (placement is null || !ReferenceEquals(receiver.Actor, receiverExecutor) || !canGive() ||
 			!CommandExecutionScope.TryContinue(executor) || !ReferenceEquals(Actor, executor) ||
 			!ReferenceEquals(receiver.Actor, receiverExecutor) || !receiverUnchanged() || !OriginalSource()) return null;
@@ -2027,6 +2044,7 @@ public partial class Body
         ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers)
     {
 		var executor = Actor;
+		var guardChallenge = HostileGuardChallenge.CurrentItem;
 		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
 		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
 		if (!CanContinue()) return null;
@@ -2054,10 +2072,12 @@ public partial class Body
 
         if (!CanContinue()) return null;
 		var placement = PrepareGetPlacement(whole ? item : item.PeekSplit(quantity), true);
-		if (placement is null || !CanGet(item, containerItem, quantity, ignoreFlags) || !CanContinue() || !OriginalSource()) return null;
+		if (placement is null || !CanGet(item, containerItem, quantity, ignoreFlags) || !CanContinue() || !OriginalSource() ||
+		    guardChallenge?.CanCommitItemAction(executor, item, containerItem, GuardChallengeAction.Get) == false) return null;
 
         CommandExecutionScope.MarkCommitted(executor);
 		var takenItem = containerComp.Take(executor, item, quantity);
+		guardChallenge?.Dispose();
 		if (takenItem is null || takenItem.Deleted || takenItem.Destroyed || takenItem.ContainedIn is not null ||
 			takenItem.InInventoryOf is not null || takenItem.Location is not null) return null;
 		takenItem.Get(this);
@@ -2626,6 +2646,42 @@ public partial class Body
             default:
                 return target.HowSeen(this, true) + " cannot hold " + dummy.HowSeen(this) + ".";
         }
+    }
+
+    public IGameItem? GiveWithoutMerge(IGameItem item, IBody target, IEmote? playerEmote = null)
+    {
+		var executor = Actor;
+		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
+		if (!CommandExecutionScope.TryContinue(executor)) return null;
+		ForeignCustodyTransferContext.EnsureBody(this, item);
+		var sourceQuantity = item.Quantity;
+		var sourceHolder = item.GetItemType<IHoldable>();
+		var receiver = target;
+		var receiverExecutor = receiver.Actor;
+		var receiverCurrentBody = receiverExecutor.Body;
+		var receiverRoom = receiverExecutor.Location;
+		var receiverLayer = receiverExecutor.RoomLayer;
+		var receiverPosition = receiverExecutor.RoutePositionMetres;
+		bool ReceiverUnchanged() => ReferenceEquals(receiverExecutor.Body, receiverCurrentBody) && ReferenceEquals(receiverExecutor.Location, receiverRoom) &&
+			receiverExecutor.RoomLayer == receiverLayer && receiverExecutor.RoutePositionMetres == receiverPosition;
+		if (!CanGive(item, target, 0) || !ReferenceEquals(Actor, executor) || !CommandExecutionScope.TryContinue(executor)) return null;
+		var wasWielded = _heldItems.All(x => x.Item1 != item);
+		var givenItem = GivePhysicalItem(item, receiver, 0, executor, sourceQuantity, sourceHolder, true, receiverExecutor,
+			() => CanGive(item, target, 0), ReceiverUnchanged, allowMerge: false);
+		if (givenItem is null) return null;
+		var output = new MixedEmoteOutput(new Emote("@ give|gives $0 to $1", this, givenItem, target), flags: OutputFlags.SuppressObscured);
+		output.Append(playerEmote); OutputHandler.Handle(output);
+		InventoryChanged = true; target.InventoryChanged = true;
+		OnInventoryChange?.Invoke(wasWielded ? InventoryState.Wielded : InventoryState.Held, InventoryState.Dropped, givenItem);
+		givenItem.InvokeInventoryChange(wasWielded ? InventoryState.Wielded : InventoryState.Held, InventoryState.Dropped);
+		HandleEvent(EventType.CharacterGiveItemGiver, Actor, target.Actor, givenItem);
+		target.HandleEvent(EventType.CharacterGiveItemReceiver, Actor, target.Actor, givenItem);
+		givenItem.HandleEvent(EventType.ItemGiven, Actor, target.Actor, givenItem);
+		foreach (var witness in Location.EventHandlersFor(Actor).Except(new IHandleEvents[] { Actor, target.Actor }))
+			witness.HandleEvent(EventType.CharacterGiveItemWitness, Actor, target.Actor, givenItem, witness);
+		foreach (var witness in ExternalItems)
+			witness.HandleEvent(EventType.CharacterGiveItemWitness, Actor, target.Actor, givenItem, witness);
+		return givenItem;
     }
 
     public void Give(IGameItem item, IBody target, int quantity = 0, IEmote? playerEmote = null)
@@ -3821,6 +3877,7 @@ public partial class Body
                                         .Select(x => x.Parent))
                         .Concat(Wounds.Where(x => parts.Contains(x.Bodypart)).SelectNotNull(x => x.Lodged))
                         .Distinct().ToList();
+		ReconcileEquippedSpellBonuses();
 		if (Actor?.Gameworld is { } world) world.MagicCasting?.NotifyCapacityChange(Actor);
     }
 

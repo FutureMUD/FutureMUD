@@ -24,6 +24,16 @@ Created leaf-item removal also admits exact native passive detection effects on 
 
 ## Physical manipulation and reach
 
+FoldedPocket is a spell-bound native container. Its frozen instance binding
+supplies capacity, maximum size and Bearer/Creator access; prototype container
+limits do not replace those values. Stored contents contribute their full native
+weight. Nested bags use the outer pocket's admission and access rules at native
+transfer boundaries. Copies are empty and unbound; pocket carriers refuse locks
+and in-place replacement. `empty` transfers each admitted item separately and
+places refused detached goods safely in the current room. `junk` retains the
+carrier's custody when conservation is held. See [Folded Pocket lifecycle and
+conservation limits](../Magic/Spell_Owned_Lifecycle.md#folded-pocket).
+
 Ordinary manual actions require at least one current `IBody.HoldLocs` part for which `CanUseBodypart` succeeds. Occupied manipulators still count; inventory and weapon plans keep their stricter free-location requirements. Missing parts and restrained limbs fail at the body capability layer, including wield-only locations.
 
 `CanReachItem` follows containment and automation mount hosts, checking planar interaction, closed ancestor containers, inventory-owner proximity/permission, cell/layer or installed-door adjacency, and room guard access. External locks remain reachable on closed doors. `Character.CanManipulateItem` combines reach, manual capability and mounted restrictions. Eating, drinking, swallowing and bodypart-operated devices use reach with their own anatomy rules.
@@ -121,6 +131,8 @@ It owns the reusable definition of:
 - default `PlanarData` for corporeality and metaphysical visibility
 
 Prototype methods like `CreateNew(...)` instantiate a `GameItem`, create one runtime component per attached component prototype, apply variable initialisation, and execute on-load progs.
+
+Liquid density uses kg/m³. `LiquidMixture.TotalWeight` converts its native volume to litres, then to cubic metres, before applying density and converting kilograms to native weight units. With litre/gram base units, one litre of water at 1,000 kg/m³ contributes 1,000 grams; one litre of wine at 990 kg/m³ contributes 990 grams. Liquid containers and other fluid-bearing components consume this shared mass. The total is recomputed from stored constituents, so correcting the conversion needs no persisted-total migration.
 
 The public `GameItem(IGameItemProto, ICharacter, ItemQuality)` constructor retains its
 three-argument binary signature and optional loader/quality defaults. It forwards to normal

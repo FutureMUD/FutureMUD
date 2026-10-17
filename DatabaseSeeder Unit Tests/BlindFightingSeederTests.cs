@@ -19,6 +19,35 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class BlindFightingSeederTests
 {
+	[TestMethod]
+	public void EnsureBlindFighting_ExistingHaggleCheck_PreservesItAndCreatesSeparateCheck()
+	{
+		using var context = Context();
+		var haggle = new Check
+		{
+			Type = 227,
+			CheckTemplate = context.CheckTemplates.Single(x => x.Name == "Skill Check"),
+			MaximumDifficultyForImprovement = (int)Difficulty.Hard,
+			TraitExpression = new TraitExpression { Name = "Builder Haggle", Expression = "variable + 12" }
+		};
+		context.Checks.Add(haggle);
+		context.SaveChanges();
+		var expressionId = haggle.TraitExpressionId;
+
+		Assert.IsTrue(CombatSeeder.EnsureBlindFighting(context));
+		context.ChangeTracker.Clear();
+
+		Assert.AreEqual(227, (int)CheckType.HaggleCheck, "Preserve the shipped Haggle check identity.");
+		var preserved = context.Checks.Include(x => x.TraitExpression)
+			.Single(x => x.Type == (int)CheckType.HaggleCheck);
+		Assert.AreEqual(expressionId, preserved.TraitExpressionId);
+		Assert.AreEqual("variable + 12", preserved.TraitExpression.Expression);
+		Assert.AreEqual((int)Difficulty.Hard, preserved.MaximumDifficultyForImprovement);
+		Assert.IsTrue(context.Checks.Any(x => x.Type == (int)CheckType.BlindFightingCheck));
+		Assert.AreEqual(1, Enum.GetValues<CheckType>().Count(x => (int)x == (int)CheckType.BlindFightingCheck),
+			"Blind Fighting must have its own persisted identity.");
+	}
+
 	[DataTestMethod]
 	[DataRow(false)]
 	[DataRow(true)]

@@ -1,5 +1,7 @@
 # Development-only Armageddon installer: disabled in Release
 
+For the complete fixed-install route and ordinary-player integration, see [the integration guide](Armageddon_Installer_Integration_Guide.md). This document retains the legacy prepared-world route.
+
 Authority: `Armageddon_Magic_Completion_Implementation_Brief.md`, Library ID
 `libfile_a4606cd0097081918d6c9d9e220e6da0`, particularly N22/N23 and the installer/builder-guide requirements.
 This guide describes the reviewed partial modules, not a complete Armageddon preset.
@@ -54,6 +56,24 @@ The installer creates no recipes, food prototypes, nutrition values, classes, ch
 The existing owned spell-skill definitions are configuration records, not player grants.
 
 ## Binding document
+
+### Optional Fury/Calm mappings
+
+The bounded [Fury/Calm runtime](Armageddon_Fury_Calm_Runtime.md) adds optional `Emotions` to the same binding JSON. Leave it omitted/null to preserve an existing six-record owned module without running it. To select it, provide:
+
+| Field | Required selection |
+| --- | --- |
+| `FuryAttribute` | Positive ordinary body-owned attribute ID, or null when exactly one Constitution/Physique/Endurance/Body attribute exists. Missing, ambiguous and derived-only inference refuses. |
+| `UnitsPerSourcePoint` | Authored finite positive attribute units per source endurance point; no inferred numerical scale. |
+| `FuryIntensity`, `CalmIntensity` | Authored finite nonnegative native intensity values. |
+| `FuryEligibilityProg`, `CalmEligibilityProg` | Existing compiled Boolean progs with `(target character, caster character)` parameters. These remain builder-owned. |
+| `CalmSaveTrait` | Existing native character skill or body attribute used for the opposed save. |
+| `CalmSaves` | Exactly seven named native `Difficulty` values, in source grades 1–7 order. Numeric enums are rejected. |
+| `Terrains` | Object containing `Air`, `City`, `Inside`, `Hills`, `Mountain`, `Thornlands`, `Earth`, each a distinct positive existing terrain ID. |
+
+These selections extend the source Unravel → Fury → Calm → Mend path using owned tradition skills. The six new owned rows are two spells and their duration/cost expressions. With provisions and Water/See also selected, managed composition is 217 records, 12 payload definitions and 12 stored source admissions per variant, leaving 70 of 82 unavailable. Native installed-world/restart acceptance remains unrun; this does not enable the full Release package. No player state is granted/refreshed. Explicit stock/profile, expression and capability edits remain preserved on selected and null reruns.
+
+### Existing binding schema
 
 Use one JSON line at the prompt. This formatted schema is deliberately **not runnable**: replace every zero ID with
 the selected actual ID, use the approved revision numbers (zero is a valid revision), and keep `Install` true.
@@ -163,7 +183,7 @@ exception, not a repair for an unavailable source path or a claim that this pack
 <schoolverb> gather cancel
 <schoolverb> spell "Sense Enchantment"
 <schoolverb> cast "Sense Enchantment" grade 1 on self via <capability>
-<schoolverb> practice "Sense Enchantment" grade 1 on self via <capability>
+<schoolverb> practice "Sense Enchantment" grade 1 via <capability>
 magicdevice show <held item>
 magicdevice focus <held item> <capability> <spell> <grade> <targets>
 magicdevice charge <held item> <capability> <spell> <grade> <missing-charge-count>
@@ -177,15 +197,83 @@ roots open at raw 60/grade 1; real parent proficiency 80 opens the appropriate c
 The runtime enforces the entire current source path and per-spell grade policy.
 
 Blank wand/staff templates have capacity 5/10, explicit dual modes, current-caster activation eligibility, and a Mend-only
-carrier whitelist. The partial graph has no attainable Mend path, so stock device production/recharge is **unattainable**
-through this package. A builder-authored compatible payload/route can use the production service; that adaptation is
-not implicit approval or source completion. No stock scrolls, free charges or fabricated Vancian enrolment are installed.
+carrier whitelist. The base partial package without the optional prerequisite composition supplies no attainable
+Mend path. Optional Fury/Calm extends the source chain; inspect the actual stored admissions and acquisition report
+before enabling production. Natural Mend/device prerequisite acceptance remains pending. A builder-authored compatible
+payload/route can use the service; that adaptation is not implicit source completion. No stock scrolls, free charges
+or fabricated Vancian enrolment are installed.
 Legitimate production requires currently acquired/admitted reproducible control, pays per charge and per-item supplies,
 and creates a homogeneous bank. Interruption after payment gives no refund. Charged use consumes a charge and refuses
 depletion; it never falls back to focus or teaches/improves the spell. Stored production potency is frozen while current
 activation eligibility and live target resistance/wards are rechecked. Copying a device produces an empty bank.
 
+The ordinary player `magicdevice` command uses the shared inventory command tree;
+its four modes above delegate to the same service as staff use. Keep `charged`
+and `focus` explicit. Changing one private component to `eligibility anyone`
+does not remove its `mingrade` requirement or grant a focus route. Submit/review/
+approve revisions and run native component updates before testing the instance.
+The [N22 ordinary-player checkpoint](Armageddon_Item_Activation_Checkpoint_20261011.md)
+qualifies stock gates, a private Anyone exception, frozen potency, exact charge
+consumption, depletion and paid material-bearing focus in a full server. Its
+explicit grants and deterministic inputs do not qualify natural stock progression
+or broader installer/readiness gates. The later
+[N23 recharge checkpoint](Armageddon_Recharge_Checkpoint_20261011.md) qualifies
+current route/acquisition/grade/raw-power checks and legitimate top-ups, including
+a stronger alternate admitted producer. Existing charges retain their original
+potency and ordered GUIDs. The whole batch pays before timed production; native
+cancellation refunds nothing. Paid incomplete work retained after a forced stop
+refuses use or recharge pending explicit staff reconciliation. These controlled
+inputs do not qualify natural stock progression, affordability or N24 rerun safety.
+
 ## Reports, ownership and reruns
+
+### Separately authored N19 ward and bane stocks
+
+Create these definitions explicitly and add/grant them through the intended
+configured capability:
+
+```text
+magic spell edit new stock severing-refuge <school> <casting skill> <resource> <indoor template room> <source terrain> <fallback room> <seconds per grade> <capacity> school|tag <selector> Incoming|Outgoing|Both
+magic spell edit new stock apex-bane <school> <casting skill> <resource> <Boolean eligibility prog (target,caster)> <resistance trait> <difficulty> <damage per grade> <maximum damage> <damage type>
+magic spell set effect 1 ward school <school>
+magic spell set effect 1 ward tag <tag name>
+magic spell set effect 1 ward coverage Incoming|Outgoing|Both
+magic spell set effect 1 ward subschools true|false
+```
+
+Quote names containing spaces. The refuge uses ordinary `enter refuge` / `leave
+outside` movement, shelter capacity and safe evacuation. Its ward matches selected
+schools (optionally descendants) or invocation tag names through native magic
+interdiction. School/tag editor commands toggle selectors, retaining at least one.
+Ordinary physical hazards remain subject to native room mechanics.
+Apex Bane accepts the builder's compiled eligibility predicate, native resistance
+trait and damage type; its grade damage is capped by the selected maximum. An
+ineligible target refuses before payment. Native paid ward/resistance failures
+retain payment. The [lifecycle contract](Spell_Owned_Lifecycle.md) records exact
+ward authority and occupied teardown. These builder definitions do not extend
+the partial installer or the fixed Sorcerer roster.
+
+### Separately authored N18 projection stocks
+
+These stocks use the shared paid casting route and are installed explicitly by a builder:
+
+```text
+magic spell edit new stock sand-effigy <school> <casting skill> <resource> <plane> <plain holdable prototype> <seconds per grade> <backlash damage> <energy per grade>
+magic spell edit new stock walking-shadow <school> <casting skill> <resource> <nonmaterial plane> <seconds per grade> <range in room edges> <backlash damage> <energy per grade> <cross closed doors true|false>
+magic spell set effect 1 lifetime <seconds per grade>
+magic spell set effect 1 range <0-32>
+magic spell set effect 1 backlash <0-1000>
+```
+
+Quote names containing spaces. Add the new spell to the intended configured capability and
+grant/acquire it through that route; creating its definition gives no automatic entitlement.
+Cast normally on `self`, use `instances` and the numbered `focus` selection, then `focus primary`
+to return. Both are observation presences with shared canonical skills/resources and empty
+inventory. Sand Effigy is immobile and its figurine is the exact destructible anchor. Walking
+Shadow travels through native exits within range while the primary is vulnerable in a trance.
+Expiry, damage, severance and logout/reboot collapse their owned temporary graph.
+The [lifecycle contract](Spell_Owned_Lifecycle.md) describes custody holds and authored-policy
+limits. These definitions do not change the partial installer's inventory or qualify historical parity.
 
 Successful base composition owns 196 records: 21 utility/device, 171 tradition, four Pierce. It creates six payload
 definitions but only four prerequisite-closed source admissions per unedited variant: Sense, Unravel, Water and Pierce;
@@ -215,6 +303,58 @@ collisions block rather than resurrect/adopt. Preserve historical ownership reco
 For paid gameplay uncertainty use the existing staff reconciliation command
 `magic casting resolve <character> <operation-guid> <reconciliation reason>`; seeder reruns never resolve player receipts.
 
+## Builder-installed Folded Pocket
+
+Create and approve an item prototype with exactly Holdable and FoldedPocket
+components. The folded-pocket component type uses ordinary container open/size
+editing; the spell freezes its actual instance capacity and size policy.
+
+```
+magic spell edit new stock folded-pocket <school> <casting skill> <resource> <pocket prototype> "<mass per grade>" <maximum size> <real seconds per grade> Bearer|Creator <permanent fallback room>
+```
+
+For example, `"2 kilograms" Normal 300 Bearer` is an authored mapping, not
+verified historical balance. Configure native capability membership and
+acquisition separately, then cast on an ordinary held item. The focus survives;
+one new carrier is created. `effect 1` edits prototype, fallback, capacity, size,
+lifetime or access for future invocations. Existing pockets retain their original
+binding and deadline. Full weight, finite capacity, no pocket nesting or living
+occupants, conservation on collapse and withdrawal from held retirements are
+described in [the lifecycle contract](Spell_Owned_Lifecycle.md#folded-pocket).
+This stock does not change the partial installer's roster or admission counts.
+
+## Builder-installed Flame Knife
+
+Select six distinct approved temporary weapon prototypes in grade order and eight
+distinct approved permanent staff prototypes. All fourteen must have usable native
+burning melee attacks and pass plain-item creation admission. Supply an existing
+Conjuration component tag representing rank six; descendant tags represent higher
+ranks under this authored policy.
+
+```
+magic spell edit new stock flame-knife <school> <casting skill> <resource> <knife1> <knife2> <knife3> <knife4> <knife5> <knife6> <staff1> <staff2> <staff3> <staff4> <staff5> <staff6> <staff7> <staff8> <component tag>
+```
+
+Configure capability membership and acquisition separately. Grades one through six
+create one temporary weapon without consuming material. Grade seven (`mon`)
+consumes one directly carried tagged component and selects one of the eight
+permanent staffs. Ground, contained, unsuitable and temporary spell-created
+material cannot satisfy that plan. Normal paid invocation creates the item in
+ordinary inventory or at the caster's location; native equipment commands wield it.
+Permanent output has no expiry and can enter ordinary salvage and trade. Temporary
+origin prevents conversion to permanent value through the existing typed guards.
+
+The stock's terrain-name progs block Water Plane and halve temporary lifetime on
+Shadow Plane. Edit those progs to map the game world. The stock duration
+`(grade+1)*1500*0.75` uses a nominal seconds conversion: recovered source establishes
+the event-unit expression and Shadow halving, but does not prove that conversion.
+The directly carried rank-six policy and all native weapon profiles are authored
+adaptations. Historical prototypes, staff payloads and exact balance remain
+unavailable. See [the lifecycle contract](Spell_Owned_Lifecycle.md) and
+[historical qualification limits](Armageddon_FlameKnife_Stock_Verification.json).
+This builder stock does not extend the partial installer's roster or Sorcerer
+membership, and stored scroll/device delivery is unsupported.
+
 ## Verification boundary
 
 The dedicated `tests/ArmageddonPreparedSeederNativeHarness` runs on a UUID-named owned disposable database/server with
@@ -225,7 +365,7 @@ Debug Medieval profile and verifies second-run refusal with an all-table content
 reported as blocked; it does not qualify full replay. All five profile inventories/default declines have focused tests.
 Read exact checkpoint receipts for outcomes. Native controlled-world scenarios do not certify Telnet/login or a full
 running server. Read the separately retained installed Active Sense eating/reload qualification for the consumption repair.
-The unattainable stock Mend/device prerequisite path remains an explicit limit.
+Natural stock Mend/device prerequisite acceptance remains an explicit limit; the separate N22 activation fixture uses administrative acquisition.
 
 The separate installed Sense smoke uses legitimate native enrolment, timed paid Self gathering and ordinary paid
 grade-one command/speech casting in a running MUD. Normal random failures remain paid failed operations; bounded retries
@@ -245,4 +385,4 @@ Parent and child process jobs enforce bounded cleanup and verify zero active own
 The Python child waits for a unique matching parent-ready receipt after job attachment before SQL or MUD startup,
 so process scheduling cannot put MUD children outside the database owner's job.
 Read the exact boot receipt for outcomes or the first substantive failure. Default replay runs no boot child. This basic
-server smoke does not certify the whole Armageddon repertoire or remove the stock Mend/device prerequisite limit.
+server smoke does not certify the whole Armageddon repertoire or qualify natural stock Mend/device acquisition.

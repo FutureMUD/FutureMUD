@@ -26,6 +26,27 @@ public abstract class ChangingNeedsModelBase : INeedsModel
 
     public NeedsResult FulfilNeeds(INeedFulfiller fulfiller, bool ignoreDelays = false)
     {
+        return FulfilNeedsCore(fulfiller, ignoreDelays, null, null);
+    }
+
+    public NeedsResult FulfilNeedsOnSelectedBody(INeedFulfiller fulfiller, IBody selectedBody, Func<bool> isCurrent)
+    {
+        ArgumentNullException.ThrowIfNull(selectedBody);
+        ArgumentNullException.ThrowIfNull(isCurrent);
+        return FulfilNeedsCore(fulfiller, false, selectedBody, isCurrent);
+    }
+
+    private NeedsResult FulfilNeedsCore(INeedFulfiller fulfiller, bool ignoreDelays, IBody selectedBody,
+        Func<bool> isCurrent)
+    {
+        void EnsureSelected()
+        {
+            if (selectedBody is not null && (!ReferenceEquals(Owner.Body, selectedBody) ||
+                !ReferenceEquals(selectedBody.NeedsModel, this) || !isCurrent()))
+                throw new InvalidOperationException("The selected needs body or model changed during fulfilment.");
+        }
+
+        EnsureSelected();
         NeedsResult oldStatus = Status;
 
         List<INeedRateEffect> effects = Owner.CombinedEffectsOfType<INeedRateEffect>().Where(x => x.AppliesToActive).ToList();
@@ -34,8 +55,19 @@ public abstract class ChangingNeedsModelBase : INeedsModel
         double drunkMult = effects.Aggregate(1.0, (x, y) => x * y.DrunkennessMultiplier);
         double satiationDelta = fulfiller.SatiationPoints * hungerMult;
         double thirstDelta = fulfiller.ThirstPoints * thirstMult;
+        double alcoholDelta = fulfiller.AlcoholLitres * drunkMult;
+        if (selectedBody is not null)
+        {
+            if (!double.IsFinite(satiationDelta) || !double.IsFinite(thirstDelta) || !double.IsFinite(alcoholDelta))
+                throw new InvalidOperationException("The selected native needs multiplier is not finite.");
+            if (fulfiller.ThirstPoints < 0)
+                thirstDelta = Math.Clamp(thirstDelta, fulfiller.ThirstPoints, 0.0);
+            if (fulfiller.AlcoholLitres > 0)
+                alcoholDelta = Math.Clamp(alcoholDelta, 0.0, fulfiller.AlcoholLitres);
+        }
         double previousFoodSatiatedHours = FoodSatiatedHours;
 
+        EnsureSelected();
         if (TracksThirst)
         {
             WaterLitres += fulfiller.WaterLitres;
@@ -49,43 +81,41 @@ public abstract class ChangingNeedsModelBase : INeedsModel
         SatiationReserve =
             ApplySatiationReserveFromFulfiller(SatiationReserve, previousFoodSatiatedHours, satiationDelta,
                 FoodSatiationLimit);
-        if (!ignoreDelays && fulfiller.AlcoholLitres > 0.0)
+        EnsureSelected();
+        if (!ignoreDelays && (selectedBody is null ? fulfiller.AlcoholLitres > 0.0 : alcoholDelta > 0.0))
         {
-            AlcoholLitres += fulfiller.AlcoholLitres * 0.25 * drunkMult;
+            AlcoholLitres += alcoholDelta * 0.25;
+            EnsureSelected();
             TimeSpan timespan = TimeSpan.FromMinutes(Math.Max(1.0,
                 15.0 * (1.0 + FoodSatiatedHours / GetFoodAbsolutelyStuffedThreshold(FoodSatiationLimit)) *
                 RealSecondsToInGameSeconds));
-            Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
-                new NeedFulfiller
-                {
-                    AlcoholLitres = fulfiller.AlcoholLitres * 0.25 * drunkMult
-                }
-            ), timespan);
-            Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
-                new NeedFulfiller
-                {
-                    AlcoholLitres = fulfiller.AlcoholLitres * 0.25 * drunkMult
-                }
-            ), timespan + timespan);
-            Owner.Body.AddEffect(new DelayedNeedsFulfillment(Owner.Body,
-                new NeedFulfiller
-                {
-                    AlcoholLitres = fulfiller.AlcoholLitres * 0.25 * drunkMult
-                }
-            ), timespan + timespan + timespan);
+            for (var i = 1; i <= 3; i++)
+            {
+                EnsureSelected();
+                var body = selectedBody ?? Owner.Body;
+                body.AddEffect(new DelayedNeedsFulfillment(body,
+                    new NeedFulfiller { AlcoholLitres = alcoholDelta * 0.25 }),
+                    TimeSpan.FromTicks(checked(timespan.Ticks * i)));
+                EnsureSelected();
+            }
         }
         else
         {
-            AlcoholLitres += fulfiller.AlcoholLitres * drunkMult;
+            AlcoholLitres += alcoholDelta;
+            EnsureSelected();
         }
 
-        NormaliseValues();
+        EnsureSelected();
+        NormaliseValues(selectedBody);
+        EnsureSelected();
 
-        return NeedsChanged(oldStatus, fulfiller.SatiationPoints < 0, TracksThirst && fulfiller.ThirstPoints < 0,
-            fulfiller.AlcoholLitres > 0);
+        var result = NeedsChanged(oldStatus, fulfiller.SatiationPoints < 0, TracksThirst && fulfiller.ThirstPoints < 0,
+            selectedBody is null ? fulfiller.AlcoholLitres > 0 : alcoholDelta > 0);
+        EnsureSelected();
+        return result;
     }
 
-    protected void NormaliseValues()
+    protected void NormaliseValues(IBody selectedBody = null)
     {
         double foodLimit = FoodSatiationLimit;
         if (FoodSatiatedHours > foodLimit)
@@ -113,9 +143,9 @@ public abstract class ChangingNeedsModelBase : INeedsModel
                 DrinkSatiatedHours = drinkMinimum;
             }
 
-            if (WaterLitres > Owner.Body.CurrentBloodVolumeLitres / 6.0)
+            if (WaterLitres > (selectedBody ?? Owner.Body).CurrentBloodVolumeLitres / 6.0)
             {
-                WaterLitres = Owner.Body.CurrentBloodVolumeLitres / 6.0;
+                WaterLitres = (selectedBody ?? Owner.Body).CurrentBloodVolumeLitres / 6.0;
             }
         }
         else

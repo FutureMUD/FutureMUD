@@ -1,3 +1,5 @@
+#nullable enable
+
 using ExpressionEngine;
 using MoreLinq.Extensions;
 using MudSharp.Database;
@@ -9,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace MudSharp.Construction.Autobuilder.Rooms;
 
-public class AutobuilderRoomByTerrain : AutobuilderRoomBase
+public class AutobuilderRoomByTerrain : AutobuilderRoomBase, IAutobuilderRoomPresentation
 {
     public static void RegisterAutobuilderLoader()
     {
@@ -113,6 +115,25 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
 
     private readonly Regex _terrainInfoRegex = new("\\$terrain", RegexOptions.IgnoreCase);
 
+	public string PresentationDefinition => SaveToXml().ToString(SaveOptions.DisableFormatting);
+
+	public AutobuilderRoomPresentationSnapshot CaptureDefaultPresentation()
+	{
+		var info = DefaultInfo;
+		var presentation = ResolvePresentation();
+		var definition = PresentationDefinition;
+		return new(presentation, definition, () => ReferenceEquals(DefaultInfo, info) && PresentationDefinition == definition);
+	}
+
+	public AutobuilderRoomPresentation ResolvePresentation(ITerrain? specifiedTerrain = null)
+	{
+		var info = specifiedTerrain is not null && TerrainInfos.TryGetValue(specifiedTerrain, out var selected)
+			? selected : DefaultInfo;
+		return new(_terrainInfoRegex.Replace(info.RoomName, _ => info.DefaultTerrain.Name),
+			_terrainInfoRegex.Replace(info.RoomDescription, _ => info.DefaultTerrain.Name),
+			specifiedTerrain ?? info.DefaultTerrain, info.OutdoorsType, info.AmbientLightFactor, info.ForagableProfile);
+	}
+
     public override IRoom CreateRoom(ICharacter builder, ITerrain specifiedTerrain, bool deferDescription,
         params string[] tags)
     {
@@ -130,15 +151,13 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase
     {
         IRoom room = new Room(builder.CurrentOverlayPackage, builder.Location.OwningZone);
         IEditableRoomOverlay overlay = room.GetOrCreateOverlay(builder.CurrentOverlayPackage);
-        AutobuilderRoomInfo info = specifiedTerrain != null && TerrainInfos.ContainsKey(specifiedTerrain)
-            ? TerrainInfos[specifiedTerrain]
-            : DefaultInfo;
-        overlay.RoomName = _terrainInfoRegex.Replace(info.RoomName, match => info.DefaultTerrain.Name);
-        overlay.RoomDescription = _terrainInfoRegex.Replace(info.RoomDescription, match => info.DefaultTerrain.Name);
-        overlay.AmbientLightFactor = info.AmbientLightFactor;
-        overlay.OutdoorsType = info.OutdoorsType;
-        overlay.Terrain = specifiedTerrain ?? info.DefaultTerrain;
-        room.ForagableProfile = info.ForagableProfile;
+        var presentation = ResolvePresentation(specifiedTerrain);
+        overlay.RoomName = presentation.RoomName;
+        overlay.RoomDescription = presentation.RoomDescription;
+        overlay.AmbientLightFactor = presentation.AmbientLightFactor;
+        overlay.OutdoorsType = presentation.OutdoorsType;
+        overlay.Terrain = presentation.Terrain;
+        room.ForagableProfile = presentation.ForagableProfile;
         ApplyTagsToRoom(room, frameworkTags, tags);
         return room;
     }

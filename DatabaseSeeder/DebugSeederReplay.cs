@@ -186,6 +186,30 @@ internal static class SeederReplayRunner
 		Version version,
 		Action<string>? progress = null)
 	{
+		return RunInternal(profile, seeders, contextFactory, version, progress, null);
+	}
+
+	// Fixture preparation still validates the full inventory. This API only bounds execution;
+	// it cannot accept an incomplete profile or resume a previously seeded target.
+	internal static SeederReplayRunResult RunPrefixBefore(
+		SeederReplayProfile profile,
+		IEnumerable<IDatabaseSeeder> seeders,
+		Type stopBeforeSeederType,
+		Func<FuturemudDatabaseContext> contextFactory,
+		Version version,
+		Action<string>? progress = null)
+	{
+		return RunInternal(profile, seeders, contextFactory, version, progress, stopBeforeSeederType);
+	}
+
+	private static SeederReplayRunResult RunInternal(
+		SeederReplayProfile profile,
+		IEnumerable<IDatabaseSeeder> seeders,
+		Func<FuturemudDatabaseContext> contextFactory,
+		Version version,
+		Action<string>? progress,
+		Type? stopBeforeSeederType)
+	{
 		var seederList = seeders
 			.Where(x => x.Enabled)
 			.ToList();
@@ -194,6 +218,20 @@ internal static class SeederReplayRunner
 		{
 			return FailureResult(profile, [], null, null, "The selected replay profile is no longer valid.", null,
 				validation);
+		}
+
+		if (stopBeforeSeederType is not null)
+		{
+			var boundary = profile.Steps.ToList().FindIndex(x => x.SeederType == stopBeforeSeederType);
+			if (boundary <= 0)
+			{
+				validation = new SeederReplayValidationResult([
+					"A replay prefix requires a declared boundary after at least one seeder step."
+				]);
+				return FailureResult(profile, [], null, null, "The selected replay prefix is invalid.", null, validation);
+			}
+
+			profile = profile with { Steps = profile.Steps.Take(boundary).ToList() };
 		}
 
 		try
@@ -507,6 +545,8 @@ internal static class DebugSeederReplayProfiles
 				("random", "static"),
 				("messagestyle", "sparse")),
 			Step<ArmageddonMagicSeeder>((ArmageddonMagicSeeder.InstallQuestion, "no"),
+				(ArmageddonMagicSeeder.FullInstallQuestion, "no"), (ArmageddonMagicSeeder.ModeQuestion, "Classic"),
+				(ArmageddonMagicSeeder.CapacityQuestion, "0"), (ArmageddonMagicSeeder.NativeBindingsQuestion, "{}"),
 				(ArmageddonMagicSeeder.BindingsQuestion, "none")),
 			Step<PsionicsSeeder>(("install-psionics", "yes")),
 			Step<EnvironmentalExposureSeeder>(("natural", "yes"), ("fantasy", "yes"))

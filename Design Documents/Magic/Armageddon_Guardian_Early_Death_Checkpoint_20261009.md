@@ -1,0 +1,23 @@
+# Builder-installed guardian early-death checkpoint — 9 October 2026
+
+N14 passes in the retained disposable `authored_celestial_smoke` world. Runtime commit: `f8f28735e98d98bc6205fba99875f1874fd2c3e8`. Draft [PR #788](https://github.com/FutureMUD/FutureMUD/pull/788) remains unmerged. Exact hashes, objects, claims, failures and cleanup are in the [JSON receipt](Armageddon_Guardian_Early_Death_Checkpoint_20261009.json).
+
+The normal stock builder creates Air Guardian from an explicitly approved native simple template and real-second lifetime. Requested grade creates that many independent NPC/body claims from one paid operation. Creator state or membership loss in an on-load callback stops remaining outputs without replay. Its persistent creator/instance bond uses native following and guard combat, including response from an existing fight. Retirement releases that exact owned bond after durable intent and handles stale or persisted-dead reloads. No numeric definition scans or guessed ID-field checks are introduced.
+
+Native testing exposed two retirement blockers. A suspended guardian effect remained attached after expiry death; exact lifecycle ownership now releases it. Native spinal impairment effects appeared after dead-body reload despite empty saved effect XML. The narrow predicate preserves only the exact unscheduled, unsaved native class, with its captured body/limb references and no applicability prog; membership and eligibility are checked after transfer callbacks. Arbitrary effects, foreign state, persisted effects and external dependencies remain holds. The derived health state is preserved throughout custody transfer.
+
+## Qualification
+
+- Final unfiltered default gate: **8,739 passed, zero failed/skipped**, ten projects, stable source fingerprint `c9e6ae284c6141a1af3b06455dfa2b106c2003d5d69d6f64bb1cc708ed637b44`. Final focused subset: **184 passed**, included separately and not added to the full total.
+- Native: **77 passing assertions**, normal paid two-guardian cast, one exact nine-energy minimum debit at controlled seven, saved creator bonds and already-fighting protection. Early native death preserves the same corpse/death and foreign item through original expiry and cold restart. Actual scheduled decay then releases custody, archives both exact physical graphs and preserves canonical attribution/claims. Separate grade-one default dissipation preserves its foreign carried item without remains.
+- Every owned server process exits successfully, its stdout collector stops, and MySQL stops with disposable data retained. The corpse prototype policy is restored exactly and Fury definition bytes remain unchanged.
+- A separate read-only journal audit confirms both early deaths preceded their original deadlines and the expiry death followed its deadline. All native source/binary inputs remain unchanged. This audit adds no gameplay runs to the 77-assertion result.
+- Independent bounded source review reports no actionable finding. It does not supply native or automated-test evidence.
+
+Managed checks ran frozen dirty implementation at `d758cd6`, then committed as `f8f28735e`. Only owning contract text and Python input-hash coverage changed after the full run. The native harness was rebuilt at `f8f28735e`. Commit `384503a68` changes only the Python room-item assertion and receipt fields; the runtime binaries are unchanged, and the native receipt captures that later revision and source/binary inputs. Later checkpoint edits are documentation only. Prior managed build/assertion failures, the cancelled superseded run and five native failures remain retained; the JSON links the failed receipts. Diagnostic-only probes do not count as N14 qualification.
+
+## Remaining scope
+
+The template and `45*grade`/240-second corpse timing are explicit fixture mappings. Historical duration units have not been recovered. Full Air Guardian wind-template/stats/components/liking/prerequisite/seeder parity and world balance remain pending. The shared source-efficiency curve and nine-energy minimum are preserved; cost is not nine per output. The 154 candidates, 152 required/two optional, 82 Sorcerer spells/four roots/12 supports and eight larger systems remain intact. Full programme completion and package Release stay disabled.
+
+Next: N15: exercise the same approved guardian template through normal builder-installed casting as permanent, temporary cleanup and death-on-expiry; prove permanent no-expiry persistence across restart and exactly one terminal transition for each temporary mode. N16 high-volume/per-cycle restart remains separate; full Air Guardian catalogue and historical timing parity remain pending. No static-schema classifier stage.

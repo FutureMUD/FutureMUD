@@ -1401,7 +1401,7 @@ namespace MudSharp.Database
 
             modelBuilder.Entity<BodyDrugDose>(entity =>
             {
-                entity.HasKey(e => new { e.BodyId, e.DrugId, e.Active })
+                entity.HasKey(e => e.Id)
                     .HasName("PRIMARY");
 
                 entity.ToTable("Bodies_DrugDoses");
@@ -1409,6 +1409,7 @@ namespace MudSharp.Database
                 entity.HasIndex(e => e.DrugId)
                     .HasDatabaseName("FK_Bodies_DrugDoses_Drugs_idx");
 
+                entity.Property(e => e.Id).HasColumnType("bigint(20)").ValueGeneratedOnAdd();
                 entity.Property(e => e.BodyId).HasColumnType("bigint(20)");
 
                 entity.Property(e => e.DrugId).HasColumnType("bigint(20)");
@@ -1416,6 +1417,11 @@ namespace MudSharp.Database
                 entity.Property(e => e.Active).HasColumnType("bit(1)");
 
                 entity.Property(e => e.OriginalVector).HasColumnType("int(11)");
+                entity.Property(e => e.SpellOriginId).HasColumnType("char(36)");
+                entity.Property(e => e.SpellOriginFamily).HasMaxLength(255);
+                entity.Property(e => e.SpellOriginFormula).HasMaxLength(255);
+
+                entity.HasIndex(e => e.BodyId);
 
                 entity.HasOne(d => d.Body)
                     .WithMany(p => p.BodiesDrugDoses)

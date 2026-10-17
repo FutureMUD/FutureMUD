@@ -1,0 +1,564 @@
+{
+  "schema_version": 1,
+  "status": "PASS_SOURCE_ADOPTION",
+  "authority": "Please update the approved existing source tree to match the supplied file where it differs. If there are any genuine incompatibilities or further decisions - raise them to me - otherwise resume S1 with the updated master list",
+  "source": {
+    "supplied_path": "C:/Users/luker/OneDrive/Armageddon Info Master List.txt",
+    "archive_path": "Design Documents/Armageddon/References/Armageddon_Info_Master_List_20261011.txt",
+    "sha256": "4dd92656d32068e5e2726c15c1a59bb4586d2e99bc41f59a5e8bef9136524c93",
+    "size_bytes": 40439,
+    "line_count": 1619,
+    "encoding": "UTF-8 without BOM",
+    "line_endings": "CRLF",
+    "final_newline": true,
+    "filesystem_last_write_utc": "2026-04-21T00:11:37.7003465Z",
+    "author": null,
+    "publication_date": null,
+    "source_url": null,
+    "historical_version": null,
+    "provenance_limits": "Filesystem modification time is not publication time. This text does not identify an author, URL, date or historical version for its skill tables.",
+    "read_windows": [
+      [
+        1,
+        345
+      ],
+      [
+        346,
+        823
+      ],
+      [
+        824,
+        1100
+      ],
+      [
+        1101,
+        1619
+      ]
+    ],
+    "complete_content_read": true
+  },
+  "baseline_revision": "a3f5fd4affd3cd431fc63d4ab2c47bae6296bb97",
+  "elemental_source_rows": 161,
+  "elemental_source_spell_rows": 153,
+  "active_elemental_rows": 180,
+  "Classic_install_rows": 429,
+  "Simple_spell_admissions": 419,
+  "retained_authored_memberships": [
+    {
+      "capability": "arm.capability.fire",
+      "spell": "arm.spell.daylight",
+      "parent": "arm.spell.hovering_light",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.wither_growth",
+      "parent": "arm.spell.thorn_barrier",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.restorative_mud",
+      "parent": "arm.spell.mend_flesh",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.purge_disease",
+      "parent": "arm.spell.purge_toxin",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.drowning_grip",
+      "parent": "arm.spell.water_breathing",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.sow_sickness",
+      "parent": "arm.spell.venom_touch",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.caustic_spray",
+      "parent": "arm.spell.venom_touch",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.water",
+      "spell": "arm.spell.gather_puddle",
+      "parent": "arm.spell.draw_water",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.earth",
+      "spell": "arm.spell.trace_the_path",
+      "parent": "arm.spell.return_tether",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.earth",
+      "spell": "arm.spell.clay_sentinel",
+      "parent": "arm.spell.earth_mount",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.earth",
+      "spell": "arm.spell.shatter_stone",
+      "parent": "arm.spell.earthen_strength",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.shadow",
+      "spell": "arm.spell.champion_blade",
+      "parent": "arm.spell.shadow_blade",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.devouring_touch",
+      "parent": "arm.spell.empty_aura",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.severing_refuge",
+      "parent": "arm.spell.bar_the_elements",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.apex_bane",
+      "parent": "arm.spell.turn_the_elements",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.cross_the_veil",
+      "parent": "arm.spell.linked_threshold",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.unbodied_journey",
+      "parent": "arm.spell.feign_death",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.erode_object",
+      "parent": "arm.spell.arcane_mark",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.echo_servant",
+      "parent": "arm.spell.voice_of_remains",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    },
+    {
+      "capability": "arm.capability.void",
+      "spell": "arm.spell.sow_sickness",
+      "parent": "arm.spell.erode_object",
+      "opening": 30,
+      "raw_cap": 90,
+      "parent_threshold": 80,
+      "controlled_grade": 1
+    }
+  ],
+  "minimum_energy_changes": [
+    {
+      "key": "arm.spell.cinder_rain",
+      "before": 9,
+      "after": 7,
+      "source_line": 514
+    },
+    {
+      "key": "arm.spell.pillar_of_flame",
+      "before": 8,
+      "after": 7,
+      "source_line": 510
+    },
+    {
+      "key": "arm.spell.fireworks",
+      "before": 4,
+      "after": 7,
+      "source_line": 498
+    },
+    {
+      "key": "arm.spell.burning_draught_curse",
+      "before": 8,
+      "after": 7,
+      "source_line": 540
+    },
+    {
+      "key": "arm.spell.desiccate",
+      "before": 5,
+      "after": 7,
+      "source_line": 538
+    },
+    {
+      "key": "arm.spell.flame_mantle",
+      "before": 5,
+      "after": 7,
+      "source_line": 500
+    },
+    {
+      "key": "arm.spell.ember_seed",
+      "before": 7,
+      "after": 20,
+      "source_line": 516
+    },
+    {
+      "key": "arm.spell.spring_haven",
+      "before": 9,
+      "after": 7,
+      "source_line": 350
+    },
+    {
+      "key": "arm.spell.thunderclap",
+      "before": 8,
+      "after": 7,
+      "source_line": 394
+    },
+    {
+      "key": "arm.spell.hush_hearing",
+      "before": 4,
+      "after": 7,
+      "source_line": 396
+    },
+    {
+      "key": "arm.spell.seal_voice",
+      "before": 5,
+      "after": 33,
+      "source_line": 374
+    },
+    {
+      "key": "arm.spell.vital_siphon",
+      "before": 8,
+      "after": 7,
+      "source_line": 370
+    },
+    {
+      "key": "arm.spell.thorn_barrier",
+      "before": 8,
+      "after": 10,
+      "source_line": 390
+    },
+    {
+      "key": "arm.spell.headlong_revel",
+      "before": 4,
+      "after": 7,
+      "source_line": 378
+    },
+    {
+      "key": "arm.spell.clear_head",
+      "before": 4,
+      "after": 7,
+      "source_line": 376
+    },
+    {
+      "key": "arm.spell.distant_mirage",
+      "before": 5,
+      "after": 7,
+      "source_line": 356
+    },
+    {
+      "key": "arm.spell.mist_shield",
+      "before": 6,
+      "after": 20,
+      "source_line": 392
+    },
+    {
+      "key": "arm.spell.earthen_ward",
+      "before": 4,
+      "after": 7,
+      "source_line": 422
+    },
+    {
+      "key": "arm.spell.sand_knife",
+      "before": 5,
+      "after": 7,
+      "source_line": 430
+    },
+    {
+      "key": "arm.spell.sapping_weight",
+      "before": 4,
+      "after": 7,
+      "source_line": 438
+    },
+    {
+      "key": "arm.spell.burrow_refuge",
+      "before": 9,
+      "after": 20,
+      "source_line": 1024
+    },
+    {
+      "key": "arm.spell.return_tether",
+      "before": 8,
+      "after": 7,
+      "source_line": 458
+    },
+    {
+      "key": "arm.spell.sand_shelter",
+      "before": 9,
+      "after": 7,
+      "source_line": 456
+    },
+    {
+      "key": "arm.spell.sand_effigy",
+      "before": 10,
+      "after": 20,
+      "source_line": 954
+    },
+    {
+      "key": "arm.spell.scouring_gust",
+      "before": 8,
+      "after": 7,
+      "source_line": 608
+    },
+    {
+      "key": "arm.spell.air_guardian",
+      "before": 9,
+      "after": 33,
+      "source_line": 952
+    },
+    {
+      "key": "arm.spell.exchange_places",
+      "before": 8,
+      "after": 33,
+      "source_line": 566
+    },
+    {
+      "key": "arm.spell.seeking_wind",
+      "before": 10,
+      "after": 20,
+      "source_line": 604
+    },
+    {
+      "key": "arm.spell.gentle_descent",
+      "before": 4,
+      "after": 20,
+      "source_line": 606
+    },
+    {
+      "key": "arm.spell.wind_hammer",
+      "before": 7,
+      "after": 33,
+      "source_line": 586
+    },
+    {
+      "key": "arm.spell.false_presence",
+      "before": 5,
+      "after": 7,
+      "source_line": 572
+    },
+    {
+      "key": "arm.spell.wind_shield",
+      "before": 6,
+      "after": 20,
+      "source_line": 592
+    },
+    {
+      "key": "arm.spell.walking_shadow",
+      "before": 10,
+      "after": 7,
+      "source_line": 916
+    },
+    {
+      "key": "arm.spell.cooling_shade",
+      "before": 5,
+      "after": 20,
+      "source_line": 718
+    },
+    {
+      "key": "arm.spell.haunting_shape",
+      "before": 8,
+      "after": 25,
+      "source_line": 726
+    },
+    {
+      "key": "arm.spell.shadow_blade",
+      "before": 6,
+      "after": 7,
+      "source_line": 702
+    },
+    {
+      "key": "arm.spell.shadowplay",
+      "before": 4,
+      "after": 7,
+      "source_line": 740
+    },
+    {
+      "key": "arm.spell.shadow_mantle",
+      "before": 5,
+      "after": 7,
+      "source_line": 712
+    },
+    {
+      "key": "arm.spell.second_breath",
+      "before": 4,
+      "after": 20,
+      "source_line": 642
+    },
+    {
+      "key": "arm.spell.wakeful_mind",
+      "before": 4,
+      "after": 20,
+      "source_line": 646
+    },
+    {
+      "key": "arm.spell.storm_locus",
+      "before": 12,
+      "after": 20,
+      "source_line": 636
+    },
+    {
+      "key": "arm.spell.luminous_trail",
+      "before": 5,
+      "after": 7,
+      "source_line": 674
+    },
+    {
+      "key": "arm.spell.spark_lash",
+      "before": 6,
+      "after": 7,
+      "source_line": 640
+    },
+    {
+      "key": "arm.spell.sky_lantern",
+      "before": 4,
+      "after": 7,
+      "source_line": 658
+    },
+    {
+      "key": "arm.spell.silence_the_mind",
+      "before": 8,
+      "after": 20,
+      "source_line": 776
+    },
+    {
+      "key": "arm.spell.compelling_regard",
+      "before": 9,
+      "after": 33,
+      "source_line": 780
+    },
+    {
+      "key": "arm.spell.unmaking_ward",
+      "before": 8,
+      "after": 25,
+      "source_line": 784
+    },
+    {
+      "key": "arm.spell.bar_the_elements",
+      "before": 10,
+      "after": 33,
+      "source_line": 786
+    },
+    {
+      "key": "arm.spell.turn_the_elements",
+      "before": 9,
+      "after": 7,
+      "source_line": 806
+    },
+    {
+      "key": "arm.spell.folded_pocket",
+      "before": 12,
+      "after": 7,
+      "source_line": 798
+    },
+    {
+      "key": "arm.spell.veil_of_elements",
+      "before": 8,
+      "after": 20,
+      "source_line": 804
+    },
+    {
+      "key": "arm.spell.borrow_the_dead",
+      "before": 12,
+      "after": 33,
+      "source_line": 770
+    },
+    {
+      "key": "arm.spell.mind_scour",
+      "before": 8,
+      "after": 20,
+      "source_line": 782
+    },
+    {
+      "key": "arm.spell.phantasm",
+      "before": 6,
+      "after": 7,
+      "source_line": 800
+    },
+    {
+      "key": "arm.spell.leeching_edge",
+      "before": 10,
+      "after": 25,
+      "source_line": 802
+    }
+  ],
+  "preserved": "Exact94 Sorcerer rows and246 Simple Sorcerer-family rows, all154 canonical identities,152 required/two optional,210 prototypes,effect/resource/variant defaults,non-spell exclusion",
+  "genuine_incompatibilities": [],
+  "further_design_decisions": [],
+  "native_implementation": "Source/design update; runtime factories are qualified in later S4, not altered by this script."
+}

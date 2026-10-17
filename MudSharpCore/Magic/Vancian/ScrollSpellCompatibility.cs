@@ -28,15 +28,44 @@ public static class ScrollSpellCompatibility
 	{
 		var entries = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
 		void Add(string types, string reason) { foreach (var type in types.Split(' ', StringSplitOptions.RemoveEmptyEntries)) entries.Add(type, reason); }
+		Add("damagingexitbarrier", "Physical exit contact and its prepared traversal route require a dedicated stored-delivery adapter; carrier qualification is pending.");
+		Add("boundeditemcondition", "Exact local item custody, material gate and selected-grade wound budget require a dedicated stored-delivery adapter; stock carriers remain disabled.");
+		Add("owneditemmark", "The exact legal owner, item identity and live custody require a dedicated stored-delivery adapter; stock carriers remain disabled.");
+		Add("arcanemark", "The directly carried item, frozen caster room, selected-grade uses and later travel authority require a dedicated stored-delivery adapter; stock carriers remain disabled.");
+		Add("thresholdalarm", "Live room-entry events and owner notification require a dedicated stored-delivery adapter; stock carriers remain disabled.");
+		Add("drowninggrip", "Exact living-body breathing admission and short spell-owned hypoxia window require a dedicated stored-delivery adapter; stock carriers remain disabled.");
+		Add("leechingedge", "Native wielded melee event delivery requires a dedicated stored-delivery adapter; carrier qualification is pending.");
+		Add("vitalsiphon", "Exact prepared victim identity and linked measured vitality transfer require a dedicated stored-delivery adapter; carrier qualification is pending.");
+		Add("windhammer", "The linked native hit, exact selected exit and post-hit movement require a dedicated stored-delivery adapter; direct configured casting only.");
+		Add("feigndeath", "The living-body observation and action-break policy requires a dedicated stored-delivery adapter; direct configured casting only.");
+		Add("burningdraught", "The exact living-body ingestion hook requires a dedicated stored-delivery adapter; direct configured casting only.");
 		Add("executeprog forcecommand reciteproxy", "Arbitrary script/command effects have no typed numerical snapshot adapter.");
 		Add("rejuvenateland", "Bounded scar treatment has no stored capture, dose or retained-lifecycle adapter; direct invocation only.");
 		Add("sourcewaterbreathing", "Source-specific random accumulated lifetime and explicit native water scope are not qualified for stored scroll delivery; ordinary direct invocation only.");
+		Add("movementtempo", "Selected-grade movement timing and active native movement context require a dedicated stored-delivery adapter; ordinary direct invocation only.");
+		Add("sourcefury sourcecalm", "Source-ordered emotional counters, residual saves, retained attribute state and prepared selective combat cessation require character/self invocation; stored scroll delivery is unsupported.");
 		Add("changecharacteristic", "Characteristic profile/value selection and its live referenced definitions require a dedicated compatibility adapter.");
 		Add("astralprojection bodybackup createclone createcopy animatecorpse possesscorpse seizebody possessbody resurrect transformform", "Identity/body lifecycle and control-transfer configuration requires a dedicated snapshot adapter.");
 		Add("createitem createliquid createnpc corpsespawn", "Creation/template callbacks and referenced prototype lifecycle require a dedicated adapter.");
+		Add("createshelter", "Occupied native topology, finite supply and return bindings require a dedicated stored-delivery adapter; direct invocation only.");
+		Add("creategate", "Exact carried Arcane Mark authority, owned passage topology and occupied retirement require a dedicated stored-delivery adapter; direct invocation only.");
+		Add("exchangeplaces", "Exact live mind contact, paired physical endpoints and separate retained/consumed components require direct configured casting.");
+		Add("groundtremor", "Independent room injury and nearby falls require direct configured casting.");
+		Add("returntether", "Durable delayed physical return requires direct configured casting and journal authority.");
+		Add("tracepath", "Exact recognised identity and permitted native route information require direct configured casting.");
+		Add("jointraveller drawtraveller", "Exact recognised remote identity, route-specific ranges and guarded solo displacement require direct configured casting.");
+		Add("waystep banishtraveller", "Exact live owned runes, typed weighted pools and post-payment destination sampling require direct configured casting.");
+		Add("openthreshold", "Exact threshold selectors and durable Arcane Mark use require direct configured casting.");
+		Add("compellingregard", "Persistent exact-body IC order grants require direct configured casting.");
+		Add("itemempower", "An explicit live item choice and equipped capacity context require direct configured casting; stored delivery is unsupported.");
+		Add("powertagsuppression", "Explicit native power-tag suppression requires direct configured casting.");
+		Add("stormlocus", "The durable room hazard pulse journal requires direct configured casting.");
+		Add("createprojection", "Owned identity, focus, anchor and body lifecycle require a dedicated stored-delivery adapter; direct invocation only.");
+		Add("createpocket", "Borrowed held focus, exact carrier binding and conserved foreign custody require a dedicated stored-delivery adapter; direct invocation only.");
 		Add("createtrap placetrap dispeltrap removetrap", "Nested prepared-payload and trap ownership require a dedicated adapter.");
 		Add("exitbarrier magicaltether portal portalnetwork", "Retained topology/attachment lifecycle requires a dedicated snapshot adapter.");
 		Add("deadspeak identify detectpoison telepathy phantomillusion subjectivedesc subjectivesdesc", "Information or subjective-perception policy scripts require an explicit live-context adapter.");
+		Add("readattunement", "Live canonical enrolment and exact casting-instance disclosure require separate carrier qualification; stock carriers remain disabled.");
 		Add("dispelmagic personalward roomward personaltagward roomtagward", "Active interception/dispelling policies require a dedicated compatibility adapter.");
 		Add("corpseconsume corpsemark corpsepreserve destroyitem itemdamage itemenchant", "Item/corpse mutation and nested item configuration require a dedicated compatibility adapter.");
 		Add("burning ignite trackmark tracktrail", "Periodic damage/tracking expressions require a dedicated retained-context adapter.");
@@ -55,10 +84,24 @@ public static class ScrollSpellCompatibility
 	{
 		switch (effect)
 		{
-			case DamageEffect x: yield return ("DamageExpression", x.DamageExpression, e => x.DamageExpression = e); break;
+			case DamageEffect x:
+				yield return ("DamageExpression", x.DamageExpression, e => x.DamageExpression = e);
+				if (x.PainExpression is { } pain) yield return ("PainExpression", pain, e => x.PainExpression = e);
+				if (x.StunExpression is { } stun) yield return ("StunExpression", stun, e => x.StunExpression = e);
+				break;
+			case WindHammerEffect x:
+				foreach (var binding in Expressions(x.Damage)) yield return binding;
+				break;
 			case SelfDamageEffect x: yield return ("DamageExpression", x.DamageExpression, e => x.DamageExpression = e); break;
 			case HealEffect x: yield return ("HealingAmount", x.HealingAmount, e => x.HealingAmount = e); break;
 			case MendEffect x: yield return ("HealingAmount", x.HealingAmount, e => x.HealingAmount = e); break;
+			case DiseaseEffect x:
+				yield return ("IntensityExpression", x.IntensityExpression, e => x.IntensityExpression = e);
+				yield return ("VirulenceExpression", x.VirulenceExpression, e => x.VirulenceExpression = e);
+				break;
+			case PoisonEffect x:
+				yield return ("GramsExpression", x.GramsExpression, e => x.GramsExpression = e);
+				break;
 			case StaminaDeltaSpellEffect x: yield return ("Formula", x.AmountExpression, e => x.AmountExpression = e); break;
 			case MagicResourceDeltaEffect x: yield return ("Formula", x.DeltaExpression, e => x.DeltaExpression = e); break;
 			case SpellArmourEffect x: yield return ("MaximumDamageAbsorbed", x.ArmourConfiguration.MaximumDamageAbsorbed, e => x.ArmourConfiguration.MaximumDamageAbsorbed = e); break;
@@ -98,6 +141,7 @@ public static class ScrollSpellCompatibility
 				if (expression is not TraitExpression || expression.HasErrors()) errors.Add($"{label}/{field}: unsupported or invalid expression.");
 			if (effect is TraitBoostEffect { Trait: null }) errors.Add($"{label}: missing boost trait.");
 			if (effect is MagicResourceDeltaEffect { Resource: null }) errors.Add($"{label}: missing magic resource.");
+			if (effect is DamageEffect { IdentitySafeDamage: true }) errors.Add($"{label}: identity-safe damage requires the live prepared victim and selected invocation grade; stored carrier qualification is pending.");
 			if (effect is DamageEffect { BodypartId: > 0 } damage && spell.Gameworld.BodypartPrototypes.Get(damage.BodypartId) is null) errors.Add($"{label}: missing damage bodypart.");
 			if (effect is ExposureResistanceSpellEffect { PartId: > 0 } resistance && spell.Gameworld.BodypartPrototypes.Get(resistance.PartId) is null) errors.Add($"{label}: missing exposure-resistance bodypart.");
 			if (effect is SpellArmourEffect armour && (armour.ArmourConfiguration.ArmourType is null || armour.ArmourConfiguration.ArmourMaterial is null)) errors.Add($"{label}: missing armour type/material.");

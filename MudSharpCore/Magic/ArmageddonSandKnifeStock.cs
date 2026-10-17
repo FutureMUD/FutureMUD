@@ -18,6 +18,8 @@ namespace MudSharp.Magic;
 /// <summary>Recovered Sand Jambiya rules with explicitly selected native weapon and environment mappings.</summary>
 public static class ArmageddonSandKnifeStock
 {
+	public static ArmageddonUtilitySpellContent Content(IReadOnlyDictionary<int, long> prototypes) =>
+		ArmageddonExistingFactorySpellContent.SandKnife(prototypes);
 	public const string Key = "arm.spell.sand_knife";
 	public const string Name = "Sand Knife";
 	// Source (grade+1)*3000/2 heap units, at the shared event loop's nominal 0.75 seconds/unit.

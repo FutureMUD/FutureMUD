@@ -1,0 +1,27 @@
+# Armageddon S3 creature foundations — 12 October 2026
+
+The anatomy and creature-foundation batches provide seven independently owned native body/race/ethnicity bundles and one Conjured Creatures culture. The composite installer now connects them to 49 graded NPC templates, eight controller bundles and the specialised item/medical stock. S4 owns spell hydration, grade/lifetime invocation bindings and the twelve deferred foci/devices. Release activation remains gated. The original foundation-only acceptance boundary below is historical; current integration acceptance is recorded separately.
+
+## Native foundations
+
+`ArmageddonCatalogueAnatomy` follows the fixed Human race's explicit BaseBody/CountsAs chain. It flattens and owns parts, organs, bone coverage, hit tables, limbs, spinal links, positions and movement speeds. Both FK endpoints of inherited links must belong to that chain: shared links serving unrelated derived AnimalSeeder bodies are excluded. Humanoid families have two standing legs; quadrupeds have four native leg limbs and standing parts, retaining separate grasping forepaws for courier custody. Winged families have two wing limbs and native flight data. An inherited native flight speed is copied once; non-winged families exclude flight data. The zero-gravity compatibility speed is authored because the native loader would otherwise insert it during boot.
+
+`ArmageddonCatalogueCreatureFoundations` copies declared native race scalar settings and flattens known race attribute and breathable-fluid links. ParentRace is cleared. Health strategy, ordinary breathing, stamina, hunger, thirst and blood settings derive from the installed foundation rather than fictional missing organs. A compatible blood population is bound through the source race's ethnicities and blood-model/type joins. Fixed stock size comes from the approved inventory. Attribute caps accommodate the approved 10 + 2×grade values. Butchery profiles, inherited natural attacks, characteristic requirements and player chargen availability are not added to these conjured races.
+
+One native blunt strike per family uses its owned grasping parts. Its native trait expression references an ordinary body attribute declared by the source race. Every seeded stock attribute will be 10 + 2×grade, producing the approved 3×grade damage, grade pain, zero stun and five stamina. The clamp prevents negative damage if a builder later lowers the attribute. Native combat skill/check admission remains separate from damage. Fixed dimensions and template skill values are later template-batch obligations.
+
+The shared culture uses the fixed installed language, calendar, skill-starting prog and five gendered native name-culture links. Race and ethnicity availability use the ordinary constant false prog. These batches create catalogue content only, not live NPCs, characters, bodies or items.
+
+## Explicit affinity and expression references
+
+The reusable `Elemental Affinity` character merit stores builder-assigned labels in `ElementalAffinities/Affinity` XML. `merit set affinity <label>` toggles a label; `merit set affinity clear` clears them. The character's `DeclaredElementalAffinities()` helper reads attached providers only, deduplicates labels and never executes applicability progs or infers affinity from race, name, skills or learned capabilities. Applicability controls ordinary merit behaviour; these labels are descriptive assignment metadata. They grant no magic. Stock family merits declare Earth, Wind, Shadow or Void from the approved inventory. S4 Read Attunement reports these independently from learned magical affiliations.
+
+`ITraitExpression.TraitReferenceIds` exposes the exact parameter references already parsed by the native expression loader, before or after lazy trait loading. It performs no evaluation or world lookup. The creature template seeder can obtain installed combat/tracking dependencies through typed Check→TraitExpression links without scanning arbitrary definitions for numbers or duplicating the expression grammar.
+
+## Ownership and verification boundary
+
+The existing stock ownership reconciler has explicit scalar whitelists and child schemas for these native types. It retains IDs, fails on missing/retired/competing ownership, and preserves builder edits. Composite relationships are updated in place by their declared keys. Newly staged graph rows retain their authored values even where SQL INSERT defaults replace CLR-zero sentinels; a second update restores only fresh rows in the same transaction before acceptance. Each batch is atomic; earlier successful batches remain available if a later batch fails.
+
+Native movement aliases are scoped to their owning body. A new source speed cannot create another alias already retained by an owned speed; this structural change fails explicitly rather than replacing the retained identity or inserting an ambiguous speed. Scalar source changes continue through ordinary reconciliation.
+
+The original foundation-only checkpoint ended before actual NPC creation, movement/combat or full MUD boot. Later composite acceptance adds four fixed-direction managed combinations, grade-expression evaluation, inherited-flight coverage, builder preservation and native MySQL rollback/lost-ack/no-op/cold-reader checks. Controlled factory readers use explicit mock registries for external references. Current native gameplay coverage and its limits belong to the composite S3 acceptance receipt; the original foundation-only scope is historical.

@@ -55,7 +55,7 @@ public sealed class SpellBackedPower : MagicPowerBase
 	public override void UseCommand(ICharacter actor, string verb, StringStack command)
 	{
 		if (Spell is null || !Spell.ReadyForGame || Spell.School != School || Spell.Trigger is not ICastMagicTrigger trigger ||
-		    !Spell.CharacterKnowsSpell(actor) || CanInvokePowerProg.ExecuteBool(actor) == false)
+		    !Spell.CharacterKnowsSpell(actor) || CanInvokePower(actor) == false)
 		{
 			actor.OutputHandler.Send("You cannot invoke the spell associated with this power.");
 			return;

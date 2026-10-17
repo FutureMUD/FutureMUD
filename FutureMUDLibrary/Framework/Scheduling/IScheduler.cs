@@ -7,6 +7,8 @@ namespace MudSharp.Framework.Scheduling
     {
 		DateTime? NextTriggerUtc { get; }
 		int LastCheckFiredCount { get; }
+		/// <summary>The number of schedules currently retained by this scheduler.</summary>
+		int ScheduleCount { get; }
         void AddSchedule(ISchedule schedule);
         void AddOrDelaySchedule(ISchedule schedule, IFrameworkItem item);
         void CheckSchedules();

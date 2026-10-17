@@ -29,6 +29,16 @@ namespace MudSharp.Health
         public double Grams { get; set; }
         public DrugVector OriginalVector { get; init; }
         public object Originator { get; init; }
+        public Guid? SpellOriginId { get; init; }
+        public string SpellOriginFamily { get; init; }
+        public string SpellOriginFormula { get; init; }
+    }
+
+    public interface IPersistentDrugDoseOrigin
+    {
+        Guid DrugDoseOriginId { get; }
+        string DrugDoseFamily { get; }
+        string DrugDoseFormula { get; }
     }
 
     public abstract class DrugAdditionalInfo

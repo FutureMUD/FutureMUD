@@ -43,6 +43,10 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 ## Combat
 - [Blind Fighting](./Combat/Blind_Fighting.md)
+- [Dual Wield Double Attacks](./Combat/Dual_Wield_Double_Attacks.md) - runtime, configuration and existing-world binding.
+- [Dual Wield Double Attacks Plan](./Combat/Dual_Wield_Double_Attacks_Plan.md) - approved design and integration plan.
+- [Dual Wield Double Attacks Verification](./Combat/Dual_Wield_Double_Attacks_Verification.md) - receipts and remaining verification gaps.
+- [Explicit Hostile Guard Challenges](./Combat/Hostile_Guard_Challenges.md)
 - [Accelerated Combat Simulation](./Combat/Accelerated_Combat_Simulation.md)
 - [Animal Combat Balance Second Pass](./Combat/Animal_Combat_Balance_Second_Pass.md)
 - [Mythical and Supernatural Combat Balance Pass](./Combat/Mythical_Supernatural_Combat_Balance_Pass.md)
@@ -112,6 +116,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Medieval Shared Food Admission Manifest](./Seeding/FutureMUD_Medieval_Shared_Food_Admission_Manifest.md)
 - [Butchering System](./Crafting/Butchering_System.md)
 - [Crafting System Overview](./Crafting/Crafting_System_Overview.md)
+- [Analyse Capability](./Crafting/Analyse_Capability.md)
 - [Crafting System Runtime and Extensibility](./Crafting/Crafting_System_Runtime_and_Extensibility.md)
 - [Crafting System Builder Workflows](./Crafting/Crafting_System_Builder_Workflows.md)
 - [Food and Cooking System](./Crafting/Food_and_Cooking_System.md)
@@ -172,9 +177,26 @@ This folder is organised by subsystem so implementation notes, builder workflows
 
 ## Magic
 
+- [Armageddon S4 Continuation Handoff](./Magic/Armageddon_S4_Continuation_Handoff_20261012.md) — start here in a new task: current state, locked decisions, full archived brief, hosted test follow-up, S4 execution and later gates.
 - [ARM-01 Configurable Casting Design and Candidate Repertoire](./Magic/Armageddon_Casting_Design.md)
 - [ARM-02 Configurable Casting Player, Builder and FutureProg Guide](./Magic/Configurable_Casting.md)
 - [ARM-02 Implementation and Verification Handover](./Magic/Configurable_Casting_Handover.md)
+- [Armageddon Continuation Checkpoint](./Magic/Armageddon_Continuation_20261008.md)
+- [Armageddon Recharge Checkpoint](./Magic/Armageddon_Recharge_Checkpoint_20261011.md)
+- [Armageddon Seeder Completeness Design](./Magic/Armageddon_Seeder_Completeness_Design_20261011.md)
+- [Armageddon Master List Adoption](./Magic/Armageddon_Master_List_Adoption_20261011.md)
+- [Armageddon S1 Installation Settings](./Magic/Armageddon_Installation_Settings_S1_20261011.md)
+- [Armageddon S2 Stock Progression](./Magic/Armageddon_Stock_Progression_S2_20261011.md)
+- [Armageddon S3 Catalogue Checkpoint](./Magic/Armageddon_Catalogue_S3_Checkpoint_20261012.md) — historical supply, shelter-template and melee-weapon qualification.
+- [Armageddon S3 Native Decisions](./Magic/Armageddon_Catalogue_S3_Decisions_20261012.md) — native infections, S4 focus/device dependencies and source nutrition translated into satiation.
+- [Armageddon S3 Provisions](./Magic/Armageddon_Catalogue_S3_Provisions_20261012.md) — native food/drink prototypes, conservative reruns and corrected shared liquid mass.
+- [Armageddon S3 Catalogue Completion](./Magic/Armageddon_Catalogue_S3_Completion_20261012.md) — composite catalogue, creature controllers, native special mechanics and bounded qualification.
+- [Armageddon S3 Creature Foundations](./Magic/Armageddon_Catalogue_S3_Creature_Foundations_20261012.md) — seven owned anatomy/race/ethnicity bundles, native traits and explicit affinity merits.
+- [Armageddon S3 Native Special Mechanics](./Magic/Armageddon_S3_Native_Special_Mechanics.md) — durable one-use Ember/Mud, native infection symptoms and S4/S5 dependencies.
+- [Armageddon Final Seeder Decisions](./Magic/Armageddon_Seeder_Decisions_20261011.md)
+- [Armageddon Master List Archive and Review](./Armageddon/References/Armageddon_Info_Master_List_Review_20261011.md) — preserved full source, 15 guild tables and comparison with locked magic decisions; source adoption complete; other classes retained for later work.
+- [Armageddon Elementalist Research Adoption](./Magic/Armageddon_Elementalist_Research_Adoption_20261011.md) — selected seven-guild graphs, explicit numeric reconstruction and identity/provenance boundaries.
+- [Armageddon Fury/Calm Runtime and Installer](./Magic/Armageddon_Fury_Calm_Runtime.md)
 - [Vancian Magic Runtime and Persistence](./Magic/Vancian_Magic_Runtime.md)
 - [Vancian Magic Player Guide](./Magic/Vancian_Magic_Player_Guide.md)
 - [Vancian Magic Builder Guide and Examples](./Magic/Vancian_Magic_Builder_Guide.md)

@@ -1,6 +1,7 @@
 #nullable enable
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Body.Traits;
@@ -52,7 +53,9 @@ public static class PeekSeederHelper
 				return new(false, false, $"Existing {template.Name} policy was preserved. No configuration changed.");
 		}
 
+		using var transaction = db.Database.IsRelational() ? db.Database.BeginTransaction() : null;
 		var changed = false;
+		var createdParameters = new List<(TraitExpressionParameters Parameter, bool Improve)>();
 		foreach (var type in Types)
 		{
 			var check = Find(db, type);
@@ -68,10 +71,12 @@ public static class PeekSeederHelper
 				Name = $"{type} Formula",
 				Expression = $"peek:{traitId}{{{(reveal ? "noimprove,nobranch" : "nobranch")}}}"
 			};
-			expression.TraitExpressionParameters.Add(new TraitExpressionParameters
+			var parameter = new TraitExpressionParameters
 			{
 				Parameter = "peek", TraitDefinition = skill, CanImprove = !reveal, CanBranch = false
-			});
+			};
+			expression.TraitExpressionParameters.Add(parameter);
+			createdParameters.Add((parameter, !reveal));
 			check.TraitExpression = expression;
 			check.CheckTemplate = EnsureTemplate(db, type);
 			check.MaximumDifficultyForImprovement = (int)Difficulty.Impossible;
@@ -85,6 +90,17 @@ public static class PeekSeederHelper
 			changed = true;
 		}
 		db.SaveChanges();
+		// These legacy bit columns default to true. EF can treat false on insert as a
+		// generated default; explicitly persist the intended flags on our new rows.
+		foreach (var (parameter, improve) in createdParameters)
+		{
+			parameter.CanBranch = false;
+			parameter.CanImprove = improve;
+			db.Entry(parameter).Property(x => x.CanBranch).IsModified = true;
+			db.Entry(parameter).Property(x => x.CanImprove).IsModified = true;
+		}
+		if (createdParameters.Count > 0) db.SaveChanges();
+		transaction?.Commit();
 		return new(true, changed, $"Peek checks bound to native skill #{traitId}; player values and existing settings preserved.");
 	}
 

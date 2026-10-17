@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Body.Traits;
 using MudSharp.Database;
@@ -22,6 +23,41 @@ public class PeekSeederTests
 	private static FuturemudDatabaseContext Context() => new(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 		.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options);
 	private static TraitDefinition Skill() => new() { Id = 10, Name = "Peek", Type = 0, OwnerScope = (int)TraitOwnerScope.Character };
+
+	private sealed class GeneratedParameterDefaults : SaveChangesInterceptor
+	{
+		public override InterceptionResult<int> SavingChanges(DbContextEventData data, InterceptionResult<int> result)
+		{
+			// Reproduce the legacy MySQL bit(1) true defaults applied to new false flags.
+			foreach (var entry in data.Context!.ChangeTracker.Entries<TraitExpressionParameters>()
+				.Where(x => x.State == EntityState.Added))
+			{
+				entry.Entity.CanImprove = true;
+				entry.Entity.CanBranch = true;
+			}
+			return result;
+		}
+	}
+
+	[TestMethod]
+	public void GeneratedTrueParameterDefaults_AreOverriddenOnlyOnNewBindingsBeforeRerun()
+	{
+		using var db = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false))
+			.AddInterceptors(new GeneratedParameterDefaults()).Options);
+		db.Add(Skill()); db.SaveChanges();
+		Assert.IsTrue(PeekSeederHelper.BindExistingSkill(db, 10).Success);
+		db.ChangeTracker.Clear();
+		var checks = db.Checks.Include(x => x.TraitExpression).ThenInclude(x => x.TraitExpressionParameters).ToArray();
+		foreach (var check in checks)
+		{
+			var parameter = check.TraitExpression.TraitExpressionParameters.Single();
+			Assert.IsFalse(parameter.CanBranch);
+			Assert.AreEqual(check.Type == (int)CheckType.PeekCheck, parameter.CanImprove);
+		}
+		var rerun = PeekSeederHelper.BindExistingSkill(db, 10);
+		Assert.IsTrue(rerun.Success, rerun.Message); Assert.IsFalse(rerun.Changed);
+	}
 
 	[TestMethod]
 	public void BindPair_RerunRetainsIdsCustomisationAndExistingPlayerValues()

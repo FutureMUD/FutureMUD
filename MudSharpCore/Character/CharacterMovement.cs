@@ -683,7 +683,11 @@ public partial class Character
         DoFallDamage(0.5);
     }
 
-    public bool Move(IRoomExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
+    public bool Move(IRoomExit exit, IEmote? emote = null, bool ignoreSafeMovement = false) =>
+        MoveCore(exit, emote, ignoreSafeMovement, false);
+
+    private bool MoveCore(IRoomExit exit, IEmote? emote, bool ignoreSafeMovement, bool silent,
+        bool mountControlChecked = false)
     {
         if (Movement != null)
         {
@@ -693,7 +697,9 @@ public partial class Character
 
         if (RidingMount is not null)
         {
-            return RidingMount.RiderMove(exit, this, emote, ignoreSafeMovement);
+            if (!mountControlChecked && !silent) return RidingMount.RiderMove(exit, this, emote, ignoreSafeMovement);
+            if (!mountControlChecked && !MountGearService.CanControlMount(RidingMount, this)) return false;
+            return RidingMount is Character mount && mount.MoveCore(exit, emote, ignoreSafeMovement, silent);
         }
 
         ConvertGrapplesToDrags();
@@ -707,12 +713,12 @@ public partial class Character
         CanMoveResponse response = CanMove(exit, flags);
         if (!response.Result)
         {
-            OutputHandler.Send(response.ErrorMessage);
-            HandleEvent(EventType.CharacterCannotMove, this, Location, exit);
+            if (!silent) OutputHandler.Send(response.ErrorMessage);
+            if (!silent) HandleEvent(EventType.CharacterCannotMove, this, Location, exit);
             return false;
         }
 
-        IMovement movement = MudSharp.Movement.Movement.CreateMovement(this, exit, emote, ignoreSafeMovement);
+        IMovement movement = MudSharp.Movement.Movement.CreateMovement(this, exit, emote, ignoreSafeMovement, silent);
         if (movement is null)
         {
             return false;
@@ -1454,7 +1460,7 @@ public partial class Character
 
         // Check non-cardinal exits.
         bool exitFound = false;
-        if (TryMove(direction, target, emote, force, out exitFound))
+        if (TryMove(direction, target, emote, force, out exitFound, manualCommand: true))
         {
             return true;
         }
@@ -1467,7 +1473,10 @@ public partial class Character
             if (exit != null && Body.CanSee(Location, exit))
             {
                 exitFound = true;
-                if (Move(exit, emote, force))
+
+                if (DirectionSenseMovement.IsCompassDirection(targetDirection)
+                    ? MoveManualCompass(exit, emote, force)
+                    : Move(exit, emote, force))
                 {
                     return true;
                 }
@@ -1487,6 +1496,56 @@ public partial class Character
         return false;
     }
 
+    private bool MoveManualCompass(IRoomExit exit, IEmote emote, bool force)
+    {
+        if (DirectionSenseMovement.IsActive(this, Location))
+        {
+            if (RidingMount is not null &&
+                (!RidingMount.IsPrimaryRider(this) || !RidingMount.PermitControl(this)))
+            {
+                return Move(exit, emote, force);
+            }
+
+            var initiatingMover = RidingMount ?? this;
+            var flags = force ? CanMoveFlags.IgnoreSafeMovement : CanMoveFlags.None;
+            // A blocked request follows the ordinary failure path without an orientation roll.
+            if (Movement is null && initiatingMover.CanMove(exit, flags).Result &&
+                MudSharp.Movement.Movement.CanStartMovement(initiatingMover, exit, force))
+            {
+                // Resolve the existing rider control check once, before a direction check can learn.
+                if (RidingMount is not null && !MountGearService.CanControlMount(RidingMount, this)) return false;
+
+                var selected = DirectionSenseMovement.Resolve(this, exit, Location.ExitsFor(this), candidate =>
+                    initiatingMover.CanMove(candidate, CanMoveFlags.None).Result &&
+                    MudSharp.Movement.Movement.CanStartMovement(initiatingMover, candidate, requireSafe: true));
+                if (selected is null)
+                {
+                    DirectionSenseMovement.NoProgress(this);
+                    return false;
+                }
+
+                if (!ReferenceEquals(selected, exit))
+                {
+                    if (!Location.ExitsFor(this).Contains(selected) ||
+                        !DirectionSenseMovement.IsSafeVisibleCompassExit(this, Location, selected) ||
+                        !initiatingMover.CanMove(selected, CanMoveFlags.None).Result ||
+                        !MudSharp.Movement.Movement.CanStartMovement(initiatingMover, selected, requireSafe: true) ||
+                        !MoveCore(selected, emote, false, true, mountControlChecked: true))
+                    {
+                        DirectionSenseMovement.NoProgress(this);
+                        return false;
+                    }
+
+                    return true;
+                }
+
+                return MoveCore(exit, emote, force, false, mountControlChecked: true);
+            }
+        }
+
+        return Move(exit, emote, force);
+    }
+
     public bool Move(CardinalDirection direction, IEmote? emote = null, bool ignoreSafeMovement = false)
     {
         IRoomExit exit = Location.GetExit(direction, this);
@@ -1504,7 +1563,7 @@ public partial class Character
         return TryMove(cmd, target, emote, ignoreSafeMovement, out _);
     }
 
-    private bool TryMove(string cmd, string target, IEmote emote, bool ignoreSafeMovement, out bool exitFound)
+    private bool TryMove(string cmd, string target, IEmote emote, bool ignoreSafeMovement, out bool exitFound, bool manualCommand = false)
     {
         IRoomExit exit = Location.GetExit(cmd, target, this);
         if (exit == null || !Body.CanSee(Location, exit))
@@ -1515,7 +1574,11 @@ public partial class Character
         }
 
         exitFound = true;
-        return Move(exit, emote, ignoreSafeMovement);
+        return manualCommand && exit is not INonCardinalRoomExit &&
+               Constants.CardinalDirectionStringToDirection.TryGetValue(cmd, out var direction) &&
+               DirectionSenseMovement.IsCompassDirection(direction)
+            ? MoveManualCompass(exit, emote, ignoreSafeMovement)
+            : Move(exit, emote, ignoreSafeMovement);
     }
 
     private string _cannotMoveReason = "You cannot move.";

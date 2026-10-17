@@ -305,6 +305,7 @@ internal static partial class GNHProgram
 				[ArmageddonMagicSeeder.CapacityQuestion] = capacity.ToString(System.Globalization.CultureInfo.InvariantCulture), [ArmageddonMagicSeeder.NativeBindingsQuestion] = "{}", [ArmageddonMagicSeeder.BindingsQuestion] = "none"
 			}); executed.Add(typeof(ArmageddonMagicSeeder).FullName!);
 			if (S6Integration) AuditS6Installation(database, existingPlayers, existingNpcs);
+			if (S6Readiness && Environment.GetEnvironmentVariable("FUTUREMUD_S6_N24_REUSED") != "1") QualifyS6Maintenance(database, fixture.Sql, fixture.Receipt.Database);
 			foreach (var type in new[] { typeof(PsionicsSeeder), typeof(EnvironmentalExposureSeeder) }.Where(x => requested.Contains(x.Name)))
 			{
 				var step = ((IEnumerable)profile.GetType().GetProperty("Steps")!.GetValue(profile)!).Cast<object>().Single(x => (Type)x.GetType().GetProperty("SeederType")!.GetValue(x)! == type);

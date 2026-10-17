@@ -44,7 +44,7 @@ public class BackstabSeederTests
 		context.Add(parry);
 		context.AddRange(new FutureProg { FunctionName = "AlwaysTrue" }, new FutureProg { FunctionName = "AlwaysFalse" },
 			new Improver { Name = "Skill Improver" }, new TraitDecorator { Name = "General Skill" },
-			new ArmourType { Name = "Shield Armour" }, new ShieldType { Name = "Existing Shield" }, new BodypartShape { Name = "Head" });
+			new ArmourType { Name = "Shield Armour" }, new ShieldType { Name = "Existing Shield" }, new BodypartShape { Name = "Head Back" });
 		foreach (var name in new[] { "throat", "scalp", "bneck", "rhand", "lhand", "rshin", "lshin", "rbreast", "belly" })
 			context.Add(new BodypartProto { Name = name });
 		foreach (var name in new[] { "DefaultBowMeleeWeaponType", "DefaultCrossbowMeleeWeaponType", "DefaultGunMeleeWeaponType", "DefaultMusketMeleeWeaponType" })
@@ -97,7 +97,7 @@ public class BackstabSeederTests
 		var good = new TraitExpression { Name = "Good", Expression = "30" };
 		var blackjack = new WeaponType { Name = "Blackjack" };
 		context.AddRange(normal, good, blackjack, new WeaponType { Name = "Knife" }, new WeaponType { Name = "Dagger" },
-			new WeaponType { Name = "Club" }, new WeaponType { Name = "Training Dagger" }, new BodypartShape { Name = "Head" });
+			new WeaponType { Name = "Club" }, new WeaponType { Name = "Training Dagger" }, new BodypartShape { Name = "Head Back" });
 		context.SaveChanges();
 		return (normal, good, blackjack);
 	}
@@ -130,7 +130,7 @@ public class BackstabSeederTests
 		AssertProfile(dagger, 4, 1, 200, 0, 0, 10, 0.1);
 		var sap = context.WeaponAttacks.Single(x => x.Name == "Blackjack Sapping Blow");
 		AssertProfile(sap, 4, 1.1, 300, 0.75, 5, 0, 0);
-		Assert.AreEqual("Head", context.BodypartShapes.Find(sap.BodypartShapeId)!.Name);
+		Assert.AreEqual("Head Back", context.BodypartShapes.Find(sap.BodypartShapeId)!.Name);
 		Assert.AreEqual("0.25 * (20)", sap.DamageExpression.Expression);
 		Assert.AreEqual("0.5 * (20)", sap.PainExpression.Expression);
 		Assert.AreEqual("2 * (20)", sap.StunExpression.Expression);
@@ -146,6 +146,23 @@ public class BackstabSeederTests
 				Assert.AreEqual(3.0, attack.StaminaCost);
 			}
 		}
+	}
+
+	[TestMethod]
+	public void WeaponBackstabs_MissingNativeHeadBackRefusesBeforeCreatingContent()
+	{
+		using var context = Context();
+		var f = Weapons(context);
+		context.BodypartShapes.Remove(context.BodypartShapes.Single());
+		context.BodypartShapes.Add(new BodypartShape { Name = "Head" }); // A synthetic generic head is not native Head Back.
+		context.SaveChanges();
+		var expressions = context.TraitExpressions.Count();
+		var error = Assert.ThrowsException<InvalidOperationException>(() =>
+			CombatSeeder.EnsureBackstabAttacks(context, f.Blackjack, f.Normal, f.Good, SeedCombatMessageStyle.Compact));
+		StringAssert.Contains(error.Message, "Head Back");
+		Assert.AreEqual(expressions, context.TraitExpressions.Count());
+		Assert.AreEqual(0, context.WeaponAttacks.Count());
+		Assert.AreEqual(0, context.CombatMessages.Count());
 	}
 
 	[TestMethod]

@@ -37,3 +37,23 @@ Use `-Mode base-fixture-package -QualificationScope s4-stock -S6IntegrationSmoke
 The player is a copied-body fixture with the existing raw25 capacity boundary; this lane does not certify complete chargen approval/UI or repeat S5's paid practice/rest funding. Pair it with the named selected-Class/shared acquisition tests and preserved S5 receipts. `s6-installation.json`, `base-world-run.json`, `summary.json` and the linked boot receipt record separate scopes. No S6 test opens Release availability.
 
 The original S6 Classic/off attempt failed an over-restrictive positive-ID blueprint audit before MUD boot. Native aliases use validated targets in their serialized binding records and deliberately own no target row ID. Corrected receipts preserve that failure. Sorcerer-family gathering economics/environmental bindings remain unauthored; graph-matrix PASS does not declare complete S6 acceptance.
+
+## Separate S6 measurement scopes
+
+The later source-gathering checkpoint authors the retained Sorcerer Self/Land, Preserver Self and Defiler Land policies behind false availability gates. The preceding historical matrix statement about unauthored gathering describes its original receipt, not the current package.
+
+The explicit `-S6MeasurementScope ui-funding|progression-faults|borrow-retirement` lanes are separate representative measurements. Each requires `-Mode base-fixture-package -QualificationScope s4-stock -S6IntegrationSmokeOnly -PackageMode Simple -EarlierClasses On` and an explicitly pinned compatible classes-on base. They do not execute/reuse N24 or wait for ash expiry. The original readiness maintenance guard is unchanged.
+
+```powershell
+.\Run-IsolatedPreparedSeeder.ps1 -Mode base-fixture-package -QualificationScope s4-stock -S6IntegrationSmokeOnly -PackageMode Simple -EarlierClasses On -BaseFixture <base-world.json> -BaseFixtureSha256 <pin> -S6MeasurementScope ui-funding -ReadinessCommands <explicit-ui-files.json> -EvidenceRoot <fresh-owned-evidence-root>
+.\Run-IsolatedPreparedSeeder.ps1 -Mode base-fixture-package -QualificationScope s4-stock -S6IntegrationSmokeOnly -PackageMode Simple -EarlierClasses On -BaseFixture <base-world.json> -BaseFixtureSha256 <pin> -S6MeasurementScope progression-faults -EvidenceRoot <fresh-owned-evidence-root>
+.\Run-IsolatedPreparedSeeder.ps1 -Mode base-fixture-package -QualificationScope s4-stock -S6IntegrationSmokeOnly -PackageMode Simple -EarlierClasses On -BaseFixture <base-world.json> -BaseFixtureSha256 <pin> -S6MeasurementScope borrow-retirement -EvidenceRoot <fresh-owned-evidence-root>
+```
+
+The UI file maps `sorcerer` and `earth` to explicit ordinary chargen answer files. Only UI funding accepts this argument. It creates new normal accounts/bodies, performs real approval and measures unmodified capacity/health, full-price source funding and actual minute regeneration/practice. Legitimate affordability refusal and native stochastic gain/no-gain are recorded. There is no attribute or reserve injection.
+
+Progression faults use explicitly controlled positive native gain/mastery on private copies; canonical definitions and prices remain unchanged. The provider rejects `SkillRecorded` after raw flush and `Completed` after grade persistence; quarantine must persist `NeedsReview` with the exact prior boundary in its diagnostic. Alternate routes/bodies, unrelated use, cold recovery and twice-same-GUID reconciliation must conserve payment and progress.
+
+Borrow retirement targets the accepted canonical `possesscorpse` adapter, an exact secondary `CharacterInstances` DELETE and the original corpse/body/foreign item. It does not substitute the corpse-animation lifecycle journal. `AWAITING_COLD` is intermediate; overall PASS requires actual cold conservation and repeat-idempotent recovery. The 18 October measurement exposes a production exception terminating the server at this boundary; recovery remains unqualified. See [the targeted measurement report](../../Design%20Documents/Magic/Armageddon_S6_Targeted_Measurements_20261018.md).
+
+Freeze tested inputs, use one operator per owned database, stop at the first assertion/protocol/ownership failure and preserve every FAIL/NOT_RUN. Fixed overall operator budgets are65/45/30 minutes respectively; driver/parent limits are separately bounded. Run receipts pin source/build/base inputs and exact first/cold assertions. Both server stops, database drop and owned MySQL/datadir cleanup must be verified; socket closure alone is insufficient. No lane enables original stock/Class or Release availability, merges or deploys.

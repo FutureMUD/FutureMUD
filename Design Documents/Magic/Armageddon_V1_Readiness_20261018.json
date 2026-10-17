@@ -1,0 +1,136 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-18",
+  "scope": "Armageddon contribution to FutureMUD v1.0; this does not certify every engine product or publish a release.",
+  "authority": "Direct user instruction: prioritize readiness for v1.0 and stop treating obscure injected database edge cases as necessary release blockers.",
+  "supersedes": "Earlier S6 requirements for an exhaustive provider-fault/full-matrix campaign and subjective final balance approval as prerequisites for this v1.0 slice. Actual recorded outcomes are unchanged.",
+  "implementation_branch": "codex/armageddon-s6-continuation-20261016",
+  "code_and_native_evidence_head": "b201212a074a0d031ee614869168481853f90c7d",
+  "pr": "https://github.com/FutureMUD/FutureMUD/pull/801",
+  "s6_essential_status": "NORMAL_GAMEPLAY_INSTALLATION_AND_PERSISTENCE_SCOPES_QUALIFIED_CI_PENDING",
+  "release_blocker_rule": "Block on reproduced ordinary-use failure of supported installation/upgrade, core player workflows, permissions, persistence/custody, or required build/CI checks. Expand testing only for a concrete gap or reproduced normal-use failure.",
+  "essential_gates": [
+    {
+      "key": "required-content-and-installer",
+      "status": "PASS_WITH_DATED_SCOPE",
+      "evidence": [
+        "Armageddon_S4_Acceptance_Checkpoint_20261015.md",
+        "Armageddon_S6_Installer_Integration_20261016.json"
+      ],
+      "scope": "152 required spells,210 blueprints,ten capability/merit pairs; Classic/Simple x earlier Classes on/off installs, normal second-replay refusal and no unsolicited player mutation."
+    },
+    {
+      "key": "ordinary-player-workflows",
+      "status": "PASS",
+      "evidence": [
+        "Armageddon_S6_Readiness_Qualification_20261017.json",
+        "Armageddon_S6_Targeted_Measurements_20261018.json",
+        "Armageddon_S5_Qualification_20261016.json"
+      ],
+      "scope": "Actual Classic/Simple Class UI/approval, authored grants and ordinary funded paid casting/practice; separate existing class-off and approved carrier evidence retain their dated scopes."
+    },
+    {
+      "key": "ordinary-lifetime-and-restart",
+      "status": "PASS_WITH_DATED_SCOPE",
+      "evidence": [
+        "Armageddon_S4_Entry_Ledger_20261012.json",
+        "Armageddon_S6_Readiness_Qualification_20261017.json"
+      ],
+      "scope": "Named direct/shared/representative lifetime and custody contracts. Borrow normal paid grade-one60-second expiry and cold conservation passed12 assertions; exact local receipt hash rechecked. This is not a newly executed native test."
+    },
+    {
+      "key": "supported-upgrade-and-maintenance",
+      "status": "PASS_WITH_DATED_SCOPE",
+      "evidence": [
+        "Armageddon_S6_Master_Integration_20261016.json",
+        "Armageddon_S6_Readiness_Qualification_20261017.json"
+      ],
+      "scope": "Existing migration/snapshot checks and completed N24 ownership reconciliation/player-state conservation. No repeat campaign solely to fill matrix labels."
+    },
+    {
+      "key": "builder-player-documentation-and-initial-balance",
+      "status": "DOCUMENTED_V1_BASELINE",
+      "evidence": [
+        "Armageddon_Installer_Integration_Guide.md",
+        "Armageddon_S6_Targeted_Measurements_20261018.json"
+      ],
+      "scope": "Keep locked values. Document actual capacity97 at attribute12, first practice50, Earth0-to52 in767.338seconds, Self50 selected-bodypart refusal and successful fertile Land50. First overreach112.5 needs effective attribute18 under the installed expression; this is arithmetic, not a new native refusal test. No exhaustive grind or statistical calibration gate."
+    },
+    {
+      "key": "required-build-and-ci",
+      "status": "PENDING_CURRENT_HEAD_CI",
+      "evidence": [
+        "Armageddon_S6_Readiness_Qualification_20261017.json"
+      ],
+      "scope": "Retain passed owning builds/tests and current native harness checks; require final-head normal hosted jobs. No skips/assertion weakening introduced."
+    }
+  ],
+  "normal_borrow_evidence": {
+    "portable_registry": "Armageddon_S4_Entry_Ledger_20261012.json#s4_residual_completion_20261015.borrow_strengthened",
+    "receipt": "../prepared-catalogue-boot-native-s4-stock-e854e6e8f70f4e18bc99130d8de96f85/boot-latest.json",
+    "sha256": "6a2710f2d6fea4e2fc520325ea214de5e781904b2edce75167a4445bd293e527",
+    "assertions": 12,
+    "scope": "Paid exact original corpse/body with foreign gear, actual60-second floor return and secondary retirement; cold state conserved. Dated15October scope retained.",
+    "current_check": "LOCAL_RECEIPT_HASH_RECHECKED_NO_NATIVE_RERUN"
+  },
+  "deferred_followups": [
+    {
+      "id": "ARM-V1-FOLLOWUP-001",
+      "title": "Recover native possessed-corpse retirement after a rejected database DELETE",
+      "v1_blocker": false,
+      "status": "KNOWN_DEFECT_DEFERRED_BY_USER_PRIORITY",
+      "actual_test_status": "FAIL",
+      "risk": "The deliberate exact-secondary MySQL DELETE rejection escapes expiry cleanup and terminates the test server. Recovery after the failure remains unverified.",
+      "evidence": "Armageddon_S6_Targeted_Measurements_20261018.json",
+      "preserve": [
+        "Original failure/exception and exact paid cast GUID.",
+        "Alternate/live/repeated/cold recovery remain NOT_RUN.",
+        "No actual subsequent custody loss or successful recovery is asserted."
+      ],
+      "reopen_as_blocker_if": "Ordinary expiry/restart reproduces a failure, field evidence shows the condition is common, or ordinary operation loses/corrupts identities, items or payment."
+    },
+    {
+      "id": "ARM-V1-FOLLOWUP-002",
+      "title": "Additional exceptional provider/crash permutations and exhaustive configuration campaigns",
+      "v1_blocker": false,
+      "status": "DEFERRED",
+      "scope": "Do not expand fault injection, all-grade/native cross-products, repeated long timers or high-volume campaigns without a concrete release-relevant gap."
+    },
+    {
+      "id": "ARM-V1-FOLLOWUP-003",
+      "title": "Further balance and progression tuning",
+      "v1_blocker": false,
+      "status": "DEFERRED_UNLESS_NORMAL_USE_IS_BLOCKED",
+      "scope": "Use recorded initial values and measurements for v1.0. No new acceptable-grind target, numerical retuning or class/source boundary change is made."
+    }
+  ],
+  "next_actions": [
+    "Complete final-head ordinary hosted CI and fix any actual required-check regression.",
+    "Use the installer/player guide and this bounded checklist for release handoff; retain known issues and dated evidence."
+  ],
+  "release_enabled": false,
+  "stock_and_class_availability_enabled": false,
+  "release_activation_or_publication_authorized": false,
+  "merge_authorized": false,
+  "deploy_authorized": false,
+  "full_original_programme_complete": false,
+  "evidence_pins": [
+    {
+      "path": "Armageddon_S6_Targeted_Measurements_20261018.json",
+      "sha256": "513182436876530726B31711803D94A331BF3DDDFFD5D51911CFE7FAA46FD345"
+    },
+    {
+      "path": "Armageddon_S6_Readiness_Qualification_20261017.json",
+      "sha256": "3A3A57EE4DED0198D3706F0A4D76F825159F354E6A135DDEFC8F7E6937E7C6BC"
+    },
+    {
+      "path": "Armageddon_S6_Installer_Integration_20261016.json",
+      "sha256": "A92B6AE6A275288392A81E01ADA087E0F56D988C554B7066DB81F3664B7FFFFA"
+    },
+    {
+      "path": "Armageddon_S4_Entry_Ledger_20261012.json",
+      "sha256": "868771CC010B916CAC2B8F0522DA5C09BAB78DC69DEAFF8CA96CFA7FCAA47DEF"
+    }
+  ],
+  "verification_boundary": "Policy/documentation revision only. No runtime, seeder content, database, tests, numerical balance, feature availability or CI configuration changed."
+}

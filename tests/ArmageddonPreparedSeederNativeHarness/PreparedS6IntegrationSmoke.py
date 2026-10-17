@@ -75,6 +75,18 @@ def run(host, admin, phase, data, mapped):
         gather_module = importlib.util.module_from_spec(gather_spec)
         gather_spec.loader.exec_module(gather_module)
         gather_module.run(host, admin, player, phase, data, mapped, flush)
+        if host['os'].environ.get('FUTUREMUD_S6_READINESS_SMOKE_ONLY') == '1':
+            def load(name):
+                spec = importlib.util.spec_from_file_location(name, host['REPO'] / ('tests/ArmageddonPreparedSeederNativeHarness/' + name + '.py'))
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
+                return module
+            load('PreparedS6ChargenSmoke').run(host, admin, phase, data, mapped, flush)
+            ash = load('PreparedS6AshExpirySmoke')
+            if phase == 'first': ash.expire(host, admin, player, data, mapped, flush)
+            else: ash.cold(host, player)
+            load('PreparedS6UncertaintySmoke').run(host, admin, phase, data, mapped, flush)
+            report['limits'] = 'Separate full Earth Player enrolment plus actual empty-account chargen UI/finalisation, real ash expiry, native MySQL provider fault and cold conservation; explicit readiness lane. Original stock gates disabled.'
         if phase == 'cold': report['cold_status'] = 'PASS'
         else: report['status'] = 'PASS'
     finally:

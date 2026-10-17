@@ -110,6 +110,28 @@ public class RouteOutputLocalityTests
 			"An explicit whole-RouteCell broadcast remains available to topology-wide observers.");
 	}
 
+	[TestMethod]
+	public void DescriptionExpiry_RoutedCharacterAnnouncement_UsesItsCoordinate()
+	{
+		var fixture = CreateFixture();
+		var source = Mock.Get((ICharacter)fixture.SourceHandler.Object.Perceiver);
+		var effects = new System.Collections.Generic.List<MudSharp.Effects.IEffect>();
+		source.SetupGet(x => x.Effects).Returns(effects);
+		source.Setup(x => x.RemoveEffect(It.IsAny<MudSharp.Effects.IEffect>(), It.IsAny<bool>()))
+			.Callback<MudSharp.Effects.IEffect, bool>((effect, _) => effects.Remove(effect));
+		const string message = "The temporary description fades.";
+		var effect = new MudSharp.Effects.Concrete.DescriptionAddition(source.Object, "A temporary mark.", false, null!);
+		effect.SetExpiration(MudSharp.Framework.Scheduling.RuntimeClock.UtcNow.AddSeconds(-10), message);
+		effects.Add(effect);
+
+		effect.ExpireEffect();
+
+		Assert.AreEqual(0, effects.Count);
+		fixture.SourceRecipient.Verify(x => x.Send(message, true, false), Times.Once);
+		fixture.NearRecipient.Verify(x => x.Send(message, true, false), Times.Once);
+		fixture.FarRecipient.Verify(x => x.Send(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>()), Times.Never);
+	}
+
 	private static OutputFixture CreateFixture()
 	{
 		var gameworld = new Mock<IFuturemud>();

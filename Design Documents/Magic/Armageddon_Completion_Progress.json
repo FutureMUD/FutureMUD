@@ -37,14 +37,14 @@
     "rendered_content_utf8_bytes": 131070
   },
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
-  "implementation_branch": "codex/armageddon-continuation-20261008",
-  "authorised_scope": "Complete plan in coherent stages; local commits and draft PR #788 authorized; no merge, deploy or shared/production DB",
-  "selected_stage": "S4/S5 accepted scopes retained. Source gathering shared/representative slice qualified in both modes behind false stock admission. Prior inactive four-cell installer evidence retained. Whole S6/N24/N25/final readiness remain incomplete; all Release/availability gates disabled.",
+  "implementation_branch": "codex/armageddon-s6-continuation-20261016",
+  "authorised_scope": "Complete authorised slices, commit/push and publish fresh draft successor to externally merged PR788; no merge, deploy, Release enablement or shared/production database.",
+  "selected_stage": "S4/S5 and representative S6 normal gameplay/install/persistence accepted for v1.0 scope; exceptional Borrow database-failure recovery and wider fault/balance campaigns deferred. Final-head CI and release preparation remain; existing activation/merge/deploy restrictions retained.",
   "current_qualification": {
-    "date": "2026-10-16",
-    "checkpoint": "Armageddon_Gathering_Source_Checkpoint_20261016.md",
-    "receipt": "Armageddon_Gathering_Source_Qualification_20261016.json",
-    "scope": "Source gathering shared/representative slice only; prior S4/S5 and inactive installer scopes retained; stock closed"
+    "date": "2026-10-17",
+    "checkpoint": "Armageddon_S6_Readiness_Checkpoint_20261016.md",
+    "receipt": "Armageddon_S6_Readiness_Qualification_20261017.json",
+    "scope": "Classic with earlier Classes on; full normal chargen UI and approval, exact authored openings, actual additive ash expiry and representative provider-failure/body/cold conservation in native09. Four actual complete-stock N24 maintenance cases retain their fresh native08 scope and are reused after exact scoped-input verification. Isolated qualification copies; all original gates false."
   },
   "seeder_completeness_design": {
     "date": "2026-10-11",
@@ -56,7 +56,7 @@
     "runtime_baseline": "aae875af09cf62e6324bb31eba79f58b72249e13",
     "read_attunement": "Explicit elemental affinities and learned magical affiliations reported separately",
     "one_fixed_mode_installation": true,
-    "n24_started": false,
+    "n24_started": true,
     "classic_elemental_research": "Selected research graph with final supplemental admissions and user-selected Portal Gate -> Linked Threshold; historical numeric unknowns retained as provenance.",
     "superseded_classic_elemental_placeholders": "Armageddon_Seeder_Completeness_Design_20261011_Classic_Elemental_Placeholders.tsv",
     "elemental_research_adoption": "Armageddon_Elementalist_Research_Adoption_20261011.json",
@@ -111,14 +111,14 @@
       "name": "Author full stock and installer",
       "scope": "New owning `DatabaseSeeder/Seeders/ArmageddonMagicSeeder/` or equivalent agreed name; shared ownership framework; manifests; replay metadata and profiles",
       "exit_evidence": "Complete usable stock, exact 82, classless and optional-class installs, safe reruns and conflict receipts",
-      "status": "partial_optional_installer_utilities_provisions_pierce_water_see_and_fury_calm_managed_checkpoint_full_stock_pending"
+      "status": "S4_required_stock_and_optional_inactive_installer_qualified_native08_N24_checked_reuse_native09"
     },
     {
       "id": 6,
       "name": "Native release qualification",
       "scope": "Core/library/seeder/persistence test owners, disposable MySQL fixtures and ordinary non-admin installed-world scenarios; update guides/receipts",
       "exit_evidence": "All production-readiness gates below, complete per-spell evidence, balance report and no hidden unrun blockers",
-      "status": "pending"
+      "status": "partial_bounded_S6_readiness_qualified_final_balance_full_matrices_and_production_readiness_pending"
     }
   ],
   "decisions": [
@@ -252,8 +252,11 @@
       "name": "Optional classes",
       "scenario": "Classes enabled, opt into matching roles, choose one on a disposable new character",
       "required_result": "Correct merit/support/enrolment wiring; existing roles/settings/players untouched",
-      "status": "not_run",
-      "evidence": []
+      "status": "qualified_Classic_classes_on_normal_UI_approval_exact_authored_openings_and_cold_Class_grants_other_combinations_not_repeated",
+      "evidence": [
+        "Armageddon_S6_Readiness_Qualification_20261017.json",
+        "Armageddon_S6_Readiness_Checkpoint_20261016.md"
+      ]
     },
     {
       "id": "N03",
@@ -581,17 +584,22 @@
       "name": "Rerun safety",
       "scenario": "Rename/edit stock; intentionally delete/retire one entry; clone another; interrupt install; rerun",
       "required_result": "Preserve edits/clones/players, report conflicts, honour retirement, repair only owned partial work and preserve stable IDs",
-      "status": "not_run",
-      "evidence": []
+      "status": "qualified_native08_fresh_complete_stock_four_case_maintenance_checked_reuse_native09_no_new_execution",
+      "evidence": [
+        "Armageddon_S6_Readiness_Qualification_20261017.json",
+        "Armageddon_S6_Readiness_Checkpoint_20261016.md"
+      ]
     },
     {
       "id": "N25",
       "name": "Cross-feature uncertain failure",
       "scenario": "Inject provider failure after debit/effect/progression or lifecycle transition; retry via another body/route and restart",
       "required_result": "Conservative quarantine/reconciliation, no replay/refund/double grade/second corpse; unrelated records remain usable",
-      "status": "controlled_native_dependency_partial_installed_stock_not_run",
+      "status": "qualified_representative_debit_effect_alternate_route_body_cold_conservation_full_fault_matrix_pending",
       "evidence": [
-        "Armageddon_Stage3C_NativeItems_Verification.json"
+        "Armageddon_Stage3C_NativeItems_Verification.json",
+        "Armageddon_S6_Readiness_Qualification_20261017.json",
+        "Armageddon_S6_Readiness_Checkpoint_20261016.md"
       ]
     }
   ],
@@ -3889,7 +3897,7 @@
     "current_guardian_churn_receipt": "Design Documents/Magic/Armageddon_Guardian_Churn_Checkpoint_20261009.json",
     "current_occupied_shelters_receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json",
     "historical_checkpoint": true,
-    "current_status_authority": "Design Documents/Magic/Armageddon_Catalogue_S3_Completion_20261012.json"
+    "current_status_authority": "Design Documents/Magic/Armageddon_S6_Readiness_Qualification_20261017.json"
   },
   "deferred_consultation": {
     "source_task": "01a0fc1f-ccd4-7359-95f2-f8c03724b0b1",
@@ -6571,7 +6579,8 @@
     "url": "https://github.com/FutureMUD/FutureMUD/pull/788",
     "number": 788,
     "draft": true,
-    "merge_authorized": false
+    "merge_authorized": false,
+    "historical_record": true
   },
   "guardian_lifecycle_modes_20261009": {
     "status": "PASS_BOUNDED_N15_BUILDER_INSTALLED",
@@ -6590,7 +6599,7 @@
     "full_air_guardian_catalogue_qualified": false,
     "next_bounded_milestone": "N17: map and implement the bounded occupied-shelter dependencies for Spring Haven, Burrow Refuge and Sand Shelter, then qualify real utility, finite water, occupied expiry/destruction and safe fallback with preserved actors and foreign goods. Full Air Guardian catalogue/timing parity and other stock/readiness gates remain pending. Use only code-proven references; no static-definition classifier stage."
   },
-  "next_bounded_milestone": "Hydrate and qualify canonical Read Attunement; add typed grade-specific NPC template selection for seven real creature families; preserve all qualification fences. Full S4 then S5/S6, N24/N25 and final readiness remain.",
+  "next_bounded_milestone": "Final affordability/balance and remaining full mode/Class/provider-fault qualification. Preserve dated S4/S5/N24 scopes and reusable prerequisite base; keep stock/Release gates false. No merge/deploy.",
   "occupied_shelters_20261010": {
     "status": "PASS_BOUNDED_N17_BUILDER_INSTALLED",
     "receipt": "Design Documents/Magic/Armageddon_Occupied_Shelters_Checkpoint_20261010.json",
@@ -6632,7 +6641,7 @@
     "receipt": "Design Documents/Magic/Armageddon_Installation_Settings_S1_20261011.json",
     "next": "S2: implement429 Classic bindings,419 Simple spell admissions and required crafting, ten capabilities/merits and conditional classes with natural progression; S3-S6 then N24 remain."
   },
-  "current_status_authority": "Design Documents/Magic/Armageddon_S4_Continuation_Handoff_20261012.json",
+  "current_status_authority": "Design Documents/Magic/Armageddon_V1_Readiness_20261018.json",
   "S2_staged_progression": {
     "status": "PASS_BOUNDED_S2_STOCK_PROGRESSION",
     "receipt": "Design Documents/Magic/Armageddon_Stock_Progression_S2_20261011.json",
@@ -6977,5 +6986,63 @@
     "release_enabled": false,
     "spell_admissions_enabled": false,
     "class_availability_enabled": false
+  },
+  "master_integration_20261016": {
+    "status": "QUALIFIED",
+    "head": "76f45937375823eb3400f5fd1f07318973b57c03",
+    "receipt": "Armageddon_S6_Master_Integration_20261016.json",
+    "external_merge": "26e1d14e982b0260e5fa8a015cda2008d2ca50ce",
+    "pr788_state": "MERGED externally",
+    "continuation_branch": "codex/armageddon-s6-continuation-20261016",
+    "remaining": [
+      "S6 ash expiry/presentation",
+      "full chargen",
+      "N24 maintenance",
+      "N25 uncertain failure/restart"
+    ],
+    "availability": "disabled"
+  },
+  "current_publication": {
+    "head_branch": "codex/armageddon-s6-continuation-20261016",
+    "lookup": "Find the draft successor by exact head branch on FutureMUD/FutureMUD.",
+    "scope": "Bounded S6 continuation after externally merged PR788",
+    "draft_required": true,
+    "merge_authorized": false,
+    "deploy_authorized": false,
+    "url": "https://github.com/FutureMUD/FutureMUD/pull/801"
+  },
+  "targeted_measurements_20261018": {
+    "report": "Armageddon_S6_Targeted_Measurements_20261018.md",
+    "receipt": "Armageddon_S6_Targeted_Measurements_20261018.json",
+    "baseline_head": "e2536fcaffe6e9eb01811a071ef71c6c10af556c",
+    "latest_case_status": {
+      "ordinary-ui-funding": "PASS",
+      "progression-write-faults": "PASS",
+      "borrowed-corpse-retirement": "FAIL"
+    },
+    "remaining": [
+      "Borrow the Dead provider-failure handling and native alternate/live/cold/idempotent recovery after repair.",
+      "Owner affordability/playability assessment; any material rebalance needs an explicit decision.",
+      "Whole-programme production readiness and Release acceptance remain separate; older receipts retain dated scopes."
+    ],
+    "runtime_repair_performed": false,
+    "release_enabled": false,
+    "stock_and_class_availability_enabled": false,
+    "full_plan_complete": false
+  },
+  "v1_readiness_20261018": {
+    "policy": "Armageddon_V1_Readiness_20261018.json",
+    "report": "Armageddon_V1_Readiness_20261018.md",
+    "authority": "Direct current user priority: v1.0 ordinary-use readiness; defer exceptional database failure matrices.",
+    "s6_essential_status": "NORMAL_GAMEPLAY_INSTALLATION_AND_PERSISTENCE_SCOPES_QUALIFIED_CI_PENDING",
+    "injected_borrow_failure_v1_blocker": false,
+    "balance_retuning_required": false,
+    "remaining": [
+      "Complete final-head ordinary hosted CI and fix any actual required-check regression.",
+      "Use the installer/player guide and this bounded checklist for release handoff; retain known issues and dated evidence."
+    ],
+    "original_outcomes_preserved": true,
+    "release_enabled": false,
+    "merge_or_deploy_authorized": false
   }
 }

@@ -136,10 +136,9 @@ public static partial class ArmageddonProgressionInstaller
 				var role = Put(cap.RoleKey, new ChargenRole { Name = RoleName(cap), Type = (int)ChargenRoleType.Class,
 					PosterId = Native(ArmageddonNativeBinding.BuilderAccount), ChargenBlurb = "Armageddon " + cap.Name + " magic (" + settings.Mode + "). Stock activation awaits the complete spell catalogue.",
 					AvailabilityProgId = Native(ArmageddonNativeBinding.AlwaysFalseProg), MaximumNumberAlive = 0, MaximumNumberTotal = 0 });
-				var starting = stock.Bindings.Where(x => x.CapabilityKey == cap.Key && x.Starting)
-					.GroupBy(x => traits[x.TraitKey]).ToDictionary(x => x.Key, x => x.Max(y => y.Opening));
-				if (gather is not null && ArmageddonStockProgression.IsSorcerer(cap)) starting.Add(gather.Trait, 10);
-				RoleLinks(db, role, records[cap.RoleKey], merit.Id, starting, messages);
+				// Selected-Class enrolment owns magic openings. Native role adjustments would also
+				// add culture starting values and then boost those same skills during construction.
+				RoleLinks(db, role, records[cap.RoleKey], merit.Id, messages);
 			}
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.ContentCreated);
 			db.SaveChanges();

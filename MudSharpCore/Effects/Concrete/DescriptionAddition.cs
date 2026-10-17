@@ -1,8 +1,8 @@
-﻿using MudSharp.GameItems;
+using MudSharp.GameItems;
 
 namespace MudSharp.Effects.Concrete;
 
-public class DescriptionAddition : Effect, IDescriptionAdditionEffect
+public partial class DescriptionAddition : Effect, IDescriptionAdditionEffect
 {
     public DescriptionAddition(IPerceivable owner, string description, bool playerSet, ANSIColour colour,
         IFutureProg applicabilityProg = null) : base(owner, applicabilityProg)
@@ -18,6 +18,7 @@ public class DescriptionAddition : Effect, IDescriptionAdditionEffect
         AdditionalText = definition.Element("AdditionalText")?.Value ?? "";
         PlayerSet = bool.Parse(definition.Element("PlayerSet")?.Value ?? "true");
         Colour = Telnet.GetColour(definition.Element("Colour")?.Value);
+		LoadExpiration(definition);
     }
 
     public static void InitialiseEffectType()
@@ -33,10 +34,10 @@ public class DescriptionAddition : Effect, IDescriptionAdditionEffect
 
     protected override XElement SaveDefinition()
     {
-        return new XElement("Effect",
+        return WithExpiration(new XElement("Effect",
             new XElement("AdditionalText", new XCData(AdditionalText)),
             new XElement("PlayerSet", PlayerSet),
-            new XElement("Colour", Colour?.Name ?? "None"));
+            new XElement("Colour", Colour?.Name ?? "None")));
     }
 
     #endregion
@@ -56,7 +57,7 @@ public class DescriptionAddition : Effect, IDescriptionAdditionEffect
     {
         if (oldItem == Owner)
         {
-            return new DescriptionAddition(newItem, AdditionalText, PlayerSet, Colour, ApplicabilityProg);
+            return CopyExpirationTo(new DescriptionAddition(newItem, AdditionalText, PlayerSet, Colour, ApplicabilityProg));
         }
 
         return null;

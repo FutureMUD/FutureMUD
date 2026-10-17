@@ -6,9 +6,9 @@
   "branch": "codex/armageddon-continuation-20261008",
   "armageddon_parent": "62cb612ece3614dcdf6b92b90bf45eae9bd62b09",
   "merged_master": "90a9343ace517b926e11209a3f5347a586a88646",
-  "integration_status": "MASTER_COMPOSED_FOCUSED_CHECKS_PASSED",
+  "integration_status": "MASTER_INTEGRATION_QUALIFIED",
   "final_consolidated_and_hosted_receipts": "https://github.com/FutureMUD/FutureMUD/pull/788",
-  "final_gate_rule": "Require the corrected exact published head to pass its full owning Seeder followup and Ubuntu/Windows push/PR fast gates. Preserve the initial consolidated failure and nine unchanged project passes; do not call the original failed run PASS.",
+  "final_gate_rule": "Integration is qualified only at76f459373 and its recorded synthetic merge. New S6 work needs separate current-source targeted/native and consolidated receipts; historical gameplay scopes remain unchanged.",
   "check_ids": {
     "HaggleCheck": 227,
     "AnalyzeEligibilityCheck": 229,
@@ -184,5 +184,79 @@
       }
     },
     "owning_followup": "One full DatabaseSeeder suite on corrected head; retain nine unaffected project receipts. Final receipt on PR788."
+  },
+  "closed_at_utc": "2026-10-16T10:45:30.481840+00:00",
+  "qualified_head": "76f45937375823eb3400f5fd1f07318973b57c03",
+  "final_owning_seeder": {
+    "head": "76f45937375823eb3400f5fd1f07318973b57c03",
+    "passed": 1932,
+    "failed": 0,
+    "skipped": 3,
+    "source_stable": true,
+    "source_fingerprint": "0abe861e86a39f4cbeffa31e67398fce57770deac977ff24cc9120a82070494d",
+    "summary_path": "C:/Temp/armageddon-master-integration/seeder-correction/20261016T093804Z-83d7ad1596fd/summary.json",
+    "summary_sha256": "414E6A8575099B9E1DCEE44B007A2126A22DC98428152D7FCE59484C55B5FC9B"
+  },
+  "final_hosted": {
+    "receipt_path": "C:/Temp/armageddon-master-integration/ci-76f459373/ci-receipt.json",
+    "receipt_sha256": "7BB8BC76BA558F90E17E95CACA713C79F3D425F00AD8C384DA1CE0A8EA7EC190",
+    "all_four_jobs_success": true,
+    "synthetic_merge": "cba6149fc1d657b5112c3d4111b72092316c939a",
+    "jobs": [
+      {
+        "key": "push-ubuntu",
+        "runId": 38881807023,
+        "jobId": 116910554744,
+        "checkoutRevision": "76f45937375823eb3400f5fd1f07318973b57c03",
+        "conclusion": "success",
+        "sourceStable": true,
+        "passed": 10972,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "key": "push-windows",
+        "runId": 38881807023,
+        "jobId": 116910554317,
+        "checkoutRevision": "76f45937375823eb3400f5fd1f07318973b57c03",
+        "conclusion": "success",
+        "sourceStable": true,
+        "passed": 10969,
+        "failed": 0,
+        "skipped": 3
+      },
+      {
+        "key": "pr-ubuntu",
+        "runId": 38881816268,
+        "jobId": 116910434756,
+        "checkoutRevision": "cba6149fc1d657b5112c3d4111b72092316c939a",
+        "conclusion": "success",
+        "sourceStable": true,
+        "passed": 10972,
+        "failed": 0,
+        "skipped": 0
+      },
+      {
+        "key": "pr-windows",
+        "runId": 38881816268,
+        "jobId": 116910434470,
+        "checkoutRevision": "cba6149fc1d657b5112c3d4111b72092316c939a",
+        "conclusion": "success",
+        "sourceStable": true,
+        "passed": 10969,
+        "failed": 0,
+        "skipped": 3
+      }
+    ],
+    "fingerprint_scope": "Compact hosted logs emit sourceStable=True, not start/end digest values; no workflow artifacts uploaded. Local owner run includes exact equal fingerprints."
+  },
+  "external_publication_state": {
+    "pr": 788,
+    "state": "MERGED",
+    "merged_at_utc": "2026-10-16T10:15:23Z",
+    "merged_by": "FutureMUD",
+    "merge_commit": "26e1d14e982b0260e5fa8a015cda2008d2ca50ce",
+    "coordinator_did_not_merge": true,
+    "successor_branch": "codex/armageddon-s6-continuation-20261016"
   }
 }

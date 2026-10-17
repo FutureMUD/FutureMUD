@@ -1,0 +1,1668 @@
+{
+  "schema_version": 1,
+  "report_date": "2026-10-18",
+  "report_timezone": "Australia/Sydney",
+  "evidence_timestamp_basis": "Original artifact timestamps and dated names retain UTC; no relabelling.",
+  "frozen_baseline_head": "e2536fcaffe6e9eb01811a071ef71c6c10af556c",
+  "scope": "Separately authorized targeted Simple/classes-on normal UI/ordinary funding, two controlled progression provider faults and exact installed Borrow the Dead retirement failure. Dated older scopes retained; no whole-programme or balance/Release qualification.",
+  "no_n24_execution_or_reuse": true,
+  "no_timed_ash_repeat": true,
+  "stock_and_class_availability_enabled": false,
+  "release_enabled": false,
+  "coordinator_merge_or_deployment_performed": false,
+  "runs": [
+    {
+      "case": "ordinary-ui-funding",
+      "attempt": 1,
+      "status": "FAIL",
+      "summary": {
+        "path": "C:\\Temp\\armageddon-s6-ui-funding-01\\20261017T155713Z_4532658686184f5a9f9538231f38dd2f\\summary.json",
+        "sha256": "3E61C3FC322D3BEC1FE8D0F32BFC19D5D0F6C522F4EC5D27834D849B95F20B4D"
+      },
+      "log": {
+        "path": "C:\\Temp\\armageddon-s6-ui-funding-01.log",
+        "sha256": "F86FABF31A6892F6E9237395381BDD9C804944D4C663B9183CE8BE540B06CF18"
+      },
+      "boot": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-ff24e6eae4fe49efb8cd857285549d39\\boot-latest.json",
+        "sha256": "2495A913488FC9573AE57551FC9EBAD33F3C4171392087D6364D2D072C823F20"
+      },
+      "first_failure": "Earned Sorcerer reserve did not pay one native thirty-second practice: You have not acquired that spell.\n\n\n<You are currently in no pain, dizzy>\n<Stamina: 209/220 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+      "assembly_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-ui-funding-01\\20261017T155713Z_4532658686184f5a9f9538231f38dd2f\\assemblies.json",
+        "sha256": "210C830A931D67A48BABD4B828EB5E57E4026145B6E396C6CC34BE5EC7F5E398"
+      },
+      "installation_audit": {
+        "path": "C:\\Temp\\armageddon-s6-ui-funding-01\\20261017T155713Z_4532658686184f5a9f9538231f38dd2f\\s6-installation.json",
+        "sha256": "AA8E475CA2A5312C8F9B472E8DC3228F5EDD0FF1E531ADCE7CB5BF0847724D65"
+      },
+      "base_fixture_sha256": "27F335A23264601AA63EE303FA3A5172CAD077CB1BD757B4C998B7D7CD725415",
+      "mode": "Simple",
+      "earlier_classes": "On",
+      "source_start": "C826EB66BD13FB4CC544D8677BA65093992AE0EA14C3E7336347EDA9C53F0135",
+      "source_end": "C826EB66BD13FB4CC544D8677BA65093992AE0EA14C3E7336347EDA9C53F0135",
+      "source_stable": true,
+      "source_manifests": [
+        {
+          "path": "C:\\Temp\\armageddon-s6-ui-funding-01\\20261017T155713Z_4532658686184f5a9f9538231f38dd2f\\source-start.json",
+          "sha256": "C826EB66BD13FB4CC544D8677BA65093992AE0EA14C3E7336347EDA9C53F0135"
+        },
+        {
+          "path": "C:\\Temp\\armageddon-s6-ui-funding-01\\20261017T155713Z_4532658686184f5a9f9538231f38dd2f\\source-end.json",
+          "sha256": "C826EB66BD13FB4CC544D8677BA65093992AE0EA14C3E7336347EDA9C53F0135"
+        }
+      ],
+      "n24_evidence_mode": "not-requested",
+      "native_exit": 1,
+      "actual_first_loaded": 152,
+      "actual_cold_loaded": 0,
+      "wrapper_first_loaded": 0,
+      "wrapper_cold_loaded": 0,
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready",
+        "S6 chargen: empty ordinary account completes actual UI, selects isolated Class, submits pending application and receives one real approved identity/body with full-policy merit, authored grade-one roots/support openings and zero mana",
+        "S6 chargen: empty ordinary account completes actual UI, selects isolated Class, submits pending application and receives one real approved identity/body with full-policy merit, authored grade-one roots/support openings and zero mana"
+      ],
+      "processes": [
+        {
+          "phase": "first",
+          "pid": 48812,
+          "endpoint": "127.0.0.1:61092",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-ff24e6eae4fe49efb8cd857285549d39\\runtime-first-8816b67ab4c14d9ea4cbd308049d47dc",
+          "stopped": true,
+          "graceful": false,
+          "exit": 1
+        }
+      ],
+      "owned_mud_processes_stopped": true,
+      "owned_database_and_mysql_cleanup_confirmed": true,
+      "owned_temp_directory_absent": true,
+      "normal_ui": {
+        "sorcerer": {
+          "status": "PASS",
+          "cold_status": null,
+          "actor": 3,
+          "body": 3,
+          "application": 1,
+          "approved_identity": [
+            [
+              "3",
+              "3",
+              "NULL",
+              "0"
+            ]
+          ],
+          "starting_roots": [
+            [
+              "2",
+              "1"
+            ],
+            [
+              "75",
+              "1"
+            ],
+            [
+              "89",
+              "1"
+            ],
+            [
+              "116",
+              "1"
+            ]
+          ],
+          "starting_raw_skills": [
+            [
+              "297",
+              "10"
+            ],
+            [
+              "300",
+              "10"
+            ],
+            [
+              "301",
+              "10"
+            ]
+          ],
+          "starting_reserve": [
+            [
+              "0"
+            ]
+          ],
+          "starting_enrolment": [
+            [
+              "19",
+              "1"
+            ]
+          ],
+          "typed_authorisation_receipts": 5,
+          "normal_ui_steps": 82,
+          "approval_editor_completed": true
+        },
+        "earth": {
+          "status": "PASS",
+          "cold_status": null,
+          "actor": 4,
+          "body": 4,
+          "application": 2,
+          "approved_identity": [
+            [
+              "4",
+              "4",
+              "NULL",
+              "0"
+            ]
+          ],
+          "starting_roots": [
+            [
+              "20",
+              "1"
+            ],
+            [
+              "43",
+              "1"
+            ],
+            [
+              "69",
+              "1"
+            ],
+            [
+              "80",
+              "1"
+            ],
+            [
+              "91",
+              "1"
+            ],
+            [
+              "143",
+              "1"
+            ]
+          ],
+          "starting_raw_skills": [
+            [
+              "290",
+              "10"
+            ],
+            [
+              "300",
+              "10"
+            ]
+          ],
+          "starting_reserve": [
+            [
+              "0"
+            ]
+          ],
+          "starting_enrolment": [
+            [
+              "20",
+              "1"
+            ]
+          ],
+          "typed_authorisation_receipts": 4,
+          "normal_ui_steps": 82,
+          "approval_editor_completed": true
+        }
+      },
+      "measurement_status": {
+        "status": "FAIL",
+        "cold_status": null,
+        "limits": "Two empty Player accounts complete actual Simple/Class UI. No copied applicant bodies, forced attributes, resource credit, deterministic gain, N24 or timed ash wait. Private Class/capability/permission copies retain all stock policies except independent availability. Original gates remain false; ordinary affordability may legitimately refuse."
+      },
+      "sorcerer": {
+        "status": "FAIL",
+        "body": {
+          "actor": 3,
+          "body": 3,
+          "attribute": 5,
+          "raw_attribute": 12.0,
+          "effective_attribute": 12.0,
+          "basis": "effective",
+          "native_capacity": 97.0,
+          "native_reserve": 0.0,
+          "max_hp_stun_stamina": [
+            136.0,
+            135.0,
+            220.0
+          ],
+          "remaining_hp_stun_stamina": [
+            136.0,
+            135.0,
+            220.0
+          ],
+          "native_gather": 10.0
+        },
+        "self_preview": "The selected body part cannot safely absorb that health cost.\n\n\n<You are currently in no pain>\n<Stamina: 220/220 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+        "land_preview": "Destructive Land gathering: gain 50.00 personal units from 1.00 pasture; scar 1.00, pressure 0.00; body price stamina 11.32, damage 7.00, pain 0.00, stun 6.95; duration 0.25\nseconds.\n\n\n<You are currently in no pain>\n<Stamina: 220/220 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+        "land_affordable": true,
+        "saved_reserve": [
+          [
+            "50"
+          ]
+        ],
+        "paid_source": {
+          "gathering": [
+            [
+              "63666630376438612D623138322D346637372D393632342D633731616132613164663234",
+              "Completed",
+              "Land",
+              "50",
+              "7",
+              "6.9485294117647065",
+              "11.323529411764705",
+              "0",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1"
+            ]
+          ],
+          "field": [
+            [
+              "9",
+              "<Field>\r\n  <NativeOrganicAccounting version=\"2\" pastureAssessment=\"assessed\">\r\n    <Source kind=\"Crop\" generation=\"0\" revision=\"0\" prepaid=\"0\" healthRemainder=\"0\" yieldRemainder=\"0\" biomassRemainder=\"0\" />\r\n    <Source kind=\"Woodland\" generation=\"0\" revision=\"0\" prepaid=\"0\" healthRemainder=\"0\" yieldRemainder=\"0\" biomassRemainder=\"0\" />\r\n    <Source kind=\"Pasture\" generation=\"1\" revision=\"1\" prepaid=\"0\" healthRemainder=\"0\" yieldRemainder=\"0\" biomassRemainder=\"0\" />\r\n  </NativeOrganicAccounting>\r\n  <CustomScores />\r\n</Field>"
+            ]
+          ],
+          "ecology": [
+            [
+              "1",
+              "0"
+            ]
+          ],
+          "wounds": [
+            [
+              "1",
+              "7",
+              "7"
+            ]
+          ]
+        }
+      },
+      "earth": {
+        "body": null
+      },
+      "unrun_after_failure": [
+        "Earth capacity/funding/practice",
+        "cold UI/source/practice/progression"
+      ]
+    },
+    {
+      "case": "ordinary-ui-funding",
+      "attempt": 2,
+      "status": "INTERRUPTED_TRANSPORT_NO_ACCEPTANCE",
+      "interruption_receipt": {
+        "path": "C:\\Temp\\armageddon-s6-ui-funding-02\\20261017T211727Z_af80c11828dd47a293b945993ea90d26\\interruption-receipt.json",
+        "sha256": "FDB2ACD971632964CC82D62471A2EAF686A7D0449D8B3B24C6ADD0EEE7EA6A53"
+      },
+      "facts": {
+        "status": "INTERRUPTED_TRANSPORT_NO_ACCEPTANCE",
+        "reported_error": "executor key changed during session recovery",
+        "evidence": "C:\\Temp\\armageddon-s6-ui-funding-02\\20261017T211727Z_af80c11828dd47a293b945993ea90d26",
+        "source_start": "CB02CA36F0079948386EA8D65741D158B37219952336F86D6595D647561CEFD7",
+        "final_source_fingerprint_available": false,
+        "ui_funding_cold_status": "NOT_RUN_NOT_ESTABLISHED",
+        "installation_audit": {
+          "path": "C:\\Temp\\armageddon-s6-ui-funding-02\\20261017T211727Z_af80c11828dd47a293b945993ea90d26\\s6-installation.json",
+          "sha256": "AA8E475CA2A5312C8F9B472E8DC3228F5EDD0FF1E531ADCE7CB5BF0847724D65"
+        },
+        "owned_mysql_root": "C:/Users/luker/AppData/Local/Temp/futuremud-prepared-seeder-mysql_af988077854d4d01a3eb831284a436fa",
+        "harness_pid": 14904,
+        "mysql_pid": 47272,
+        "mysql_port": 56788,
+        "owned_database": "futuremud_land_20261017211737_3ab54524aa",
+        "harness_and_mysql_pids_absent_on_exact_reads": true,
+        "no_listening_socket_for_owned_port": true,
+        "graceful_database_or_server_cleanup_confirmed": false,
+        "data_preserved_for_evidence": true,
+        "other_owned_r3_and_shared_servers_preserved": true,
+        "artifact_attribution_correction": "Earlier R1 child global-latest runtime claim referred to R2 directory1dc898... and is withdrawn."
+      }
+    },
+    {
+      "case": "ordinary-ui-funding",
+      "attempt": 3,
+      "status": "PASS",
+      "summary": {
+        "path": "C:\\Temp\\armageddon-s6-ui-funding-03\\20261017T214719Z_fac9693a281b44b0816bd37f639a133a\\summary.json",
+        "sha256": "754CC1D62C0A90C79F19517B775B65AD06EFCAF11A3EFD19B640A81CBF8C6CDB"
+      },
+      "log": {
+        "path": "C:\\Temp\\armageddon-s6-ui-funding-03.log",
+        "sha256": "15D6B5A6BC9E65FC5C93351DF03FFF9BF0FDDEC734766F1AD560DB13453ABF83"
+      },
+      "boot": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-d0e6cc826a0b4152a36e40034a006a07\\boot-latest.json",
+        "sha256": "61B65DF274EA1B2BA18F1083DFA4712F0CDE49FB964275589B87D2E254EB22C1"
+      },
+      "first_failure": null,
+      "assembly_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-ui-funding-03\\20261017T214719Z_fac9693a281b44b0816bd37f639a133a\\assemblies.json",
+        "sha256": "A4B9C25AE06FD600AA6358F89009175CCDCB842FFFC10653D1A5D8CEA4310D85"
+      },
+      "installation_audit": {
+        "path": "C:\\Temp\\armageddon-s6-ui-funding-03\\20261017T214719Z_fac9693a281b44b0816bd37f639a133a\\s6-installation.json",
+        "sha256": "AA8E475CA2A5312C8F9B472E8DC3228F5EDD0FF1E531ADCE7CB5BF0847724D65"
+      },
+      "base_fixture_sha256": "27F335A23264601AA63EE303FA3A5172CAD077CB1BD757B4C998B7D7CD725415",
+      "mode": "Simple",
+      "earlier_classes": "On",
+      "source_start": "BAFB42EF7FFEA94372B94966145A2862EA1083710C8762A080CA39FED1FDF997",
+      "source_end": "BAFB42EF7FFEA94372B94966145A2862EA1083710C8762A080CA39FED1FDF997",
+      "source_stable": true,
+      "source_manifests": [
+        {
+          "path": "C:\\Temp\\armageddon-s6-ui-funding-03\\20261017T214719Z_fac9693a281b44b0816bd37f639a133a\\source-start.json",
+          "sha256": "BAFB42EF7FFEA94372B94966145A2862EA1083710C8762A080CA39FED1FDF997"
+        },
+        {
+          "path": "C:\\Temp\\armageddon-s6-ui-funding-03\\20261017T214719Z_fac9693a281b44b0816bd37f639a133a\\source-end.json",
+          "sha256": "BAFB42EF7FFEA94372B94966145A2862EA1083710C8762A080CA39FED1FDF997"
+        }
+      ],
+      "n24_evidence_mode": "not-requested",
+      "native_exit": 0,
+      "actual_first_loaded": 152,
+      "actual_cold_loaded": 152,
+      "wrapper_first_loaded": 152,
+      "wrapper_cold_loaded": 152,
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready",
+        "S6 chargen: empty ordinary account completes actual UI, selects isolated Class, submits pending application and receives one real approved identity/body with full-policy merit, authored grade-one roots/support openings and zero mana",
+        "S6 chargen: empty ordinary account completes actual UI, selects isolated Class, submits pending application and receives one real approved identity/body with full-policy merit, authored grade-one roots/support openings and zero mana",
+        "S6 ordinary Sorcerer: actual normal-body full-price Self/Land previews; Land50 costs seven HP plus native proportional channels, one yield/scar, then pays canonical thirty-second practice",
+        "S5 progression: normal full-stock enrolment grants only starting roots at grade one and native raw opening; empty reserve refuses paid practice",
+        "S5 funding: actual zero-to-first-50-energy reserve from native real-minute regeneration at rest; no direct credit or gather fallback",
+        "S5 progression: ordinary Player performs full-cost target-free thirty-second canonical practice; native zero-or-half-point gain, grade separation and persisted opportunity gate",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "cold: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready",
+        "S6 chargen: exact real UI-created identity, class merit, roots, supports and saved reserve/progress survive cold restart without replay",
+        "S6 chargen: exact real UI-created identity, class merit, roots, supports and saved reserve/progress survive cold restart without replay",
+        "S5 progression: pre-login cold SQL retains exact acquisitions, raw skills, opportunities, paid operation and resource balances",
+        "S5 progression: ordinary Player cold login preserves progress and paid terminal operation without replay/refund; only native passive increment allowed",
+        "S6 targeted funding: exact ordinary UI identities, paid source/practice receipts and progress survive cold without replay/refund",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "processes": [
+        {
+          "phase": "first",
+          "pid": 49468,
+          "endpoint": "127.0.0.1:51220",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-d0e6cc826a0b4152a36e40034a006a07\\runtime-first-80b326f1937b43389ab9f97ec40d1134",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        },
+        {
+          "phase": "cold",
+          "pid": 36144,
+          "endpoint": "127.0.0.1:55458",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-d0e6cc826a0b4152a36e40034a006a07\\runtime-cold-9465357119fb49db8353c02a9da7c560",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        }
+      ],
+      "owned_mud_processes_stopped": true,
+      "owned_database_and_mysql_cleanup_confirmed": true,
+      "owned_temp_directory_absent": true,
+      "normal_ui": {
+        "sorcerer": {
+          "status": "PASS",
+          "cold_status": "PASS",
+          "actor": 3,
+          "body": 3,
+          "application": 1,
+          "approved_identity": [
+            [
+              "3",
+              "3",
+              "NULL",
+              "0"
+            ]
+          ],
+          "starting_roots": [
+            [
+              "2",
+              "1"
+            ],
+            [
+              "75",
+              "1"
+            ],
+            [
+              "89",
+              "1"
+            ],
+            [
+              "116",
+              "1"
+            ]
+          ],
+          "starting_raw_skills": [
+            [
+              "297",
+              "10"
+            ],
+            [
+              "300",
+              "10"
+            ],
+            [
+              "301",
+              "10"
+            ]
+          ],
+          "starting_reserve": [
+            [
+              "0"
+            ]
+          ],
+          "starting_enrolment": [
+            [
+              "19",
+              "1"
+            ]
+          ],
+          "typed_authorisation_receipts": 5,
+          "normal_ui_steps": 82,
+          "approval_editor_completed": true
+        },
+        "earth": {
+          "status": "PASS",
+          "cold_status": "PASS",
+          "actor": 4,
+          "body": 4,
+          "application": 2,
+          "approved_identity": [
+            [
+              "4",
+              "4",
+              "NULL",
+              "0"
+            ]
+          ],
+          "starting_roots": [
+            [
+              "20",
+              "1"
+            ],
+            [
+              "43",
+              "1"
+            ],
+            [
+              "69",
+              "1"
+            ],
+            [
+              "80",
+              "1"
+            ],
+            [
+              "91",
+              "1"
+            ],
+            [
+              "143",
+              "1"
+            ]
+          ],
+          "starting_raw_skills": [
+            [
+              "290",
+              "10"
+            ],
+            [
+              "300",
+              "10"
+            ]
+          ],
+          "starting_reserve": [
+            [
+              "0"
+            ]
+          ],
+          "starting_enrolment": [
+            [
+              "20",
+              "1"
+            ]
+          ],
+          "typed_authorisation_receipts": 4,
+          "normal_ui_steps": 82,
+          "approval_editor_completed": true
+        }
+      },
+      "measurement_status": {
+        "status": "PASS",
+        "cold_status": "PASS",
+        "limits": "Two empty Player accounts complete actual Simple/Class UI. No copied applicant bodies, forced attributes, resource credit, deterministic gain, N24 or timed ash wait. Private Class/capability/permission copies retain all stock policies except independent availability. Original gates remain false; ordinary affordability may legitimately refuse."
+      },
+      "sorcerer": {
+        "status": "PASS",
+        "body": {
+          "actor": 3,
+          "body": 3,
+          "attribute": 5,
+          "raw_attribute": 12.0,
+          "effective_attribute": 12.0,
+          "basis": "effective",
+          "native_capacity": 97.0,
+          "native_reserve": 0.0,
+          "max_hp_stun_stamina": [
+            136.0,
+            135.0,
+            220.0
+          ],
+          "remaining_hp_stun_stamina": [
+            136.0,
+            135.0,
+            220.0
+          ],
+          "native_gather": 10.0
+        },
+        "self_preview": "The selected body part cannot safely absorb that health cost.\n\n\n<You are currently in no pain>\n<Stamina: 220/220 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+        "land_preview": "Destructive Land gathering: gain 50.00 personal units from 1.00 pasture; scar 1.00, pressure 0.00; body price stamina 11.32, damage 7.00, pain 0.00, stun 6.95; duration 0.25\nseconds.\n\n\n<You are currently in no pain>\n<Stamina: 220/220 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+        "land_affordable": true,
+        "paid": 50,
+        "raw_before": 10.0,
+        "raw_after": 10.0,
+        "practice": [
+          "61366532653764312D636561652D343634382D386232302D613532616166306639656233",
+          "Completed",
+          "<Casting version=\"1\" mode=\"Practice\" admission=\"907545a3-53d5-8bac-a9f1-c3617b881300\" identity=\"06d7d846-7f3a-40e1-9bd5-5fe3615dc9d2\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"10\" deadlineUtc=\"2026-10-17T22:02:41.7842103Z\" location=\"1\" outcome=\"MinorFail\"><Targets></Targets><PracticePlan><Plan><Phase /></Plan></PracticePlan><Cost holder=\"3\" resource=\"9\" amount=\"50\" before=\"50\" /></Casting>"
+        ],
+        "saved_reserve": [
+          [
+            "0"
+          ]
+        ],
+        "paid_source": {
+          "gathering": [
+            [
+              "61653261353335652D396662622D343630382D626132342D346231376635643730393532",
+              "Completed",
+              "Land",
+              "50",
+              "7",
+              "6.9485294117647065",
+              "11.323529411764705",
+              "0",
+              "1",
+              "1",
+              "1",
+              "1",
+              "1"
+            ]
+          ],
+          "field": [
+            [
+              "9",
+              "<Field>\r\n  <NativeOrganicAccounting version=\"2\" pastureAssessment=\"assessed\">\r\n    <Source kind=\"Crop\" generation=\"0\" revision=\"0\" prepaid=\"0\" healthRemainder=\"0\" yieldRemainder=\"0\" biomassRemainder=\"0\" />\r\n    <Source kind=\"Woodland\" generation=\"0\" revision=\"0\" prepaid=\"0\" healthRemainder=\"0\" yieldRemainder=\"0\" biomassRemainder=\"0\" />\r\n    <Source kind=\"Pasture\" generation=\"1\" revision=\"1\" prepaid=\"0\" healthRemainder=\"0\" yieldRemainder=\"0\" biomassRemainder=\"0\" />\r\n  </NativeOrganicAccounting>\r\n  <CustomScores />\r\n</Field>"
+            ]
+          ],
+          "ecology": [
+            [
+              "1",
+              "0"
+            ]
+          ],
+          "wounds": [
+            [
+              "1",
+              "7",
+              "7"
+            ]
+          ]
+        }
+      },
+      "earth": {
+        "body": {
+          "actor": 4,
+          "body": 4,
+          "attribute": 5,
+          "raw_attribute": 12.0,
+          "effective_attribute": 12.0,
+          "basis": "effective",
+          "native_capacity": 97.0,
+          "native_reserve": 0.0,
+          "max_hp_stun_stamina": [
+            136.0,
+            135.0,
+            220.0
+          ],
+          "remaining_hp_stun_stamina": [
+            136.0,
+            135.0,
+            220.0
+          ],
+          "native_gather": 0.0
+        },
+        "status": "PASS",
+        "cold_status": "PASS",
+        "scope": "Actual normal Simple Earth Class UI-created Player body, native unmodified attributes, zero authored reserve, real minute regeneration and canonical paid practice; no administrator enrolment, direct credit or forced gains.",
+        "opening": 10.0,
+        "starting_roots": [
+          [
+            "20",
+            "1"
+          ],
+          [
+            "43",
+            "1"
+          ],
+          [
+            "69",
+            "1"
+          ],
+          [
+            "80",
+            "1"
+          ],
+          [
+            "91",
+            "1"
+          ],
+          [
+            "143",
+            "1"
+          ]
+        ],
+        "funding": [
+          {
+            "elapsed_seconds": 43.876,
+            "before": 0.0,
+            "after": 4.0
+          },
+          {
+            "elapsed_seconds": 105.81,
+            "before": 4.0,
+            "after": 8.0
+          },
+          {
+            "elapsed_seconds": 167.873,
+            "before": 8.0,
+            "after": 12.0
+          },
+          {
+            "elapsed_seconds": 220.932,
+            "before": 12.0,
+            "after": 16.0
+          },
+          {
+            "elapsed_seconds": 282.352,
+            "before": 16.0,
+            "after": 20.0
+          },
+          {
+            "elapsed_seconds": 344.115,
+            "before": 20.0,
+            "after": 24.0
+          },
+          {
+            "elapsed_seconds": 405.536,
+            "before": 24.0,
+            "after": 28.0
+          },
+          {
+            "elapsed_seconds": 467.579,
+            "before": 28.0,
+            "after": 32.0
+          },
+          {
+            "elapsed_seconds": 520.462,
+            "before": 32.0,
+            "after": 36.0
+          },
+          {
+            "elapsed_seconds": 582.105,
+            "before": 36.0,
+            "after": 40.0
+          },
+          {
+            "elapsed_seconds": 644.099,
+            "before": 40.0,
+            "after": 44.0
+          },
+          {
+            "elapsed_seconds": 705.673,
+            "before": 44.0,
+            "after": 48.0
+          },
+          {
+            "elapsed_seconds": 767.277,
+            "before": 48.0,
+            "after": 52.0
+          }
+        ],
+        "funding_elapsed_seconds": 767.338,
+        "funded_balance": 52.0,
+        "paid": 50,
+        "raw_before": 10.0,
+        "raw_after": 10.0,
+        "reserve_before_practice": 52.0,
+        "reserve_after_payment": 2.0,
+        "saved_balance": 2.0,
+        "cold_balance": 2.0
+      },
+      "unrun_after_failure": []
+    },
+    {
+      "case": "progression-write-faults",
+      "attempt": 1,
+      "status": "FAIL",
+      "summary": {
+        "path": "C:\\Temp\\armageddon-s6-progression-faults-01\\20261017T211854Z_97f67abd3da14b15beb8c01031aa443b\\summary.json",
+        "sha256": "E3CEE97668475C5914D9A83BD2C3A82B66DC2D9AB09A501E57C186C82DB7935F"
+      },
+      "log": {
+        "path": "C:\\Temp\\armageddon-s6-progression-faults-01.log",
+        "sha256": "0049AFF358B027C6ECB7D5BAB99535A6E09C5026DC22DC7D23BFC3E2711C5EB6"
+      },
+      "boot": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-1dc898d3de3f48d49b19aa0286f023ae\\boot-latest.json",
+        "sha256": "7725DD77D54284D7BADAE3B734D0EC516ED7A9E7CA588C53A5DFE38C9AC07A7D"
+      },
+      "first_failure": "run() missing 1 required positional argument: 'flush'",
+      "assembly_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-progression-faults-01\\20261017T211854Z_97f67abd3da14b15beb8c01031aa443b\\assemblies.json",
+        "sha256": "A4B9C25AE06FD600AA6358F89009175CCDCB842FFFC10653D1A5D8CEA4310D85"
+      },
+      "installation_audit": {
+        "path": "C:\\Temp\\armageddon-s6-progression-faults-01\\20261017T211854Z_97f67abd3da14b15beb8c01031aa443b\\s6-installation.json",
+        "sha256": "AA8E475CA2A5312C8F9B472E8DC3228F5EDD0FF1E531ADCE7CB5BF0847724D65"
+      },
+      "base_fixture_sha256": "27F335A23264601AA63EE303FA3A5172CAD077CB1BD757B4C998B7D7CD725415",
+      "mode": "Simple",
+      "earlier_classes": "On",
+      "source_start": "082D9EDC811F6D63DF245D0B81567989BF69255409772E6F7C9F71F454885DF8",
+      "source_end": "082D9EDC811F6D63DF245D0B81567989BF69255409772E6F7C9F71F454885DF8",
+      "source_stable": true,
+      "source_manifests": [
+        {
+          "path": "C:\\Temp\\armageddon-s6-progression-faults-01\\20261017T211854Z_97f67abd3da14b15beb8c01031aa443b\\source-start.json",
+          "sha256": "082D9EDC811F6D63DF245D0B81567989BF69255409772E6F7C9F71F454885DF8"
+        },
+        {
+          "path": "C:\\Temp\\armageddon-s6-progression-faults-01\\20261017T211854Z_97f67abd3da14b15beb8c01031aa443b\\source-end.json",
+          "sha256": "082D9EDC811F6D63DF245D0B81567989BF69255409772E6F7C9F71F454885DF8"
+        }
+      ],
+      "n24_evidence_mode": "not-requested",
+      "native_exit": 1,
+      "actual_first_loaded": 152,
+      "actual_cold_loaded": 0,
+      "wrapper_first_loaded": 0,
+      "wrapper_cold_loaded": 0,
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready"
+      ],
+      "processes": [
+        {
+          "phase": "first",
+          "pid": 41524,
+          "endpoint": "127.0.0.1:58938",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-1dc898d3de3f48d49b19aa0286f023ae\\runtime-first-6d562ba1a28146819d7a4b3d63657cd3",
+          "stopped": true,
+          "graceful": false,
+          "exit": 1
+        }
+      ],
+      "owned_mud_processes_stopped": true,
+      "owned_database_and_mysql_cleanup_confirmed": true,
+      "owned_temp_directory_absent": true,
+      "provider_measurement": {
+        "saved": {
+          "skills": null,
+          "acquired": null,
+          "mastery": null,
+          "opportunities": null,
+          "resources": null
+        },
+        "reconciled": {
+          "skills": null,
+          "acquired": null,
+          "mastery": null,
+          "opportunities": null,
+          "resources": null
+        }
+      }
+    },
+    {
+      "case": "progression-write-faults",
+      "attempt": 2,
+      "status": "PASS",
+      "summary": {
+        "path": "C:\\Temp\\armageddon-s6-progression-faults-02\\20261017T214658Z_6036d5737417493d9240d93d8f8126f8\\summary.json",
+        "sha256": "BB0AA606E45A14D6922487024328BB0C62BC9E7B2F4814C6832C1D427727CA80"
+      },
+      "log": {
+        "path": "C:\\Temp\\armageddon-s6-progression-faults-02.log",
+        "sha256": "D191F95BF7A11FA3F27BF75E905DEB7AA99205A155B76D78034A29E8A85D44CB"
+      },
+      "boot": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-bc7f315b9b8c47b48907005c1cdb7ad4\\boot-latest.json",
+        "sha256": "322742FF2AE274489049E5A408435C7607B22185C2A073392E33906F061257F4"
+      },
+      "first_failure": null,
+      "assembly_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-progression-faults-02\\20261017T214658Z_6036d5737417493d9240d93d8f8126f8\\assemblies.json",
+        "sha256": "82955430D7725DEE96EEAA5283E9D386D5DB6A0BEC8874F52EEBA5A9943EAB94"
+      },
+      "installation_audit": {
+        "path": "C:\\Temp\\armageddon-s6-progression-faults-02\\20261017T214658Z_6036d5737417493d9240d93d8f8126f8\\s6-installation.json",
+        "sha256": "AA8E475CA2A5312C8F9B472E8DC3228F5EDD0FF1E531ADCE7CB5BF0847724D65"
+      },
+      "base_fixture_sha256": "27F335A23264601AA63EE303FA3A5172CAD077CB1BD757B4C998B7D7CD725415",
+      "mode": "Simple",
+      "earlier_classes": "On",
+      "source_start": "3E9F232384B50A02FF46F655C47C9D67F197102315983BF4B74E3A87869E2CF9",
+      "source_end": "3E9F232384B50A02FF46F655C47C9D67F197102315983BF4B74E3A87869E2CF9",
+      "source_stable": true,
+      "source_manifests": [
+        {
+          "path": "C:\\Temp\\armageddon-s6-progression-faults-02\\20261017T214658Z_6036d5737417493d9240d93d8f8126f8\\source-start.json",
+          "sha256": "3E9F232384B50A02FF46F655C47C9D67F197102315983BF4B74E3A87869E2CF9"
+        },
+        {
+          "path": "C:\\Temp\\armageddon-s6-progression-faults-02\\20261017T214658Z_6036d5737417493d9240d93d8f8126f8\\source-end.json",
+          "sha256": "3E9F232384B50A02FF46F655C47C9D67F197102315983BF4B74E3A87869E2CF9"
+        }
+      ],
+      "n24_evidence_mode": "not-requested",
+      "native_exit": 0,
+      "actual_first_loaded": 152,
+      "actual_cold_loaded": 152,
+      "wrapper_first_loaded": 152,
+      "wrapper_cold_loaded": 152,
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready",
+        "S6 progression faults: real MySQL errors after flushed positive raw gain and persisted positive grade quarantine original GUIDs; alternate capability/body cannot replay or repay; unrelated route remains usable",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "cold: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready",
+        "S6 progression faults: cold exact positive raw/grade/mastery sample/opportunities, same-GUID twice-idempotent staff reconciliation, actual secondary retirement and no replay/refund/second projection",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "processes": [
+        {
+          "phase": "first",
+          "pid": 36144,
+          "endpoint": "127.0.0.1:51177",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-bc7f315b9b8c47b48907005c1cdb7ad4\\runtime-first-facbb1b58ca24cc9af348262226db940",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        },
+        {
+          "phase": "cold",
+          "pid": 53168,
+          "endpoint": "127.0.0.1:52690",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-bc7f315b9b8c47b48907005c1cdb7ad4\\runtime-cold-acf5d7dfbfcc46c7bee45449f1eda4cd",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        }
+      ],
+      "owned_mud_processes_stopped": true,
+      "owned_database_and_mysql_cleanup_confirmed": true,
+      "owned_temp_directory_absent": true,
+      "provider_measurement": {
+        "status": "PASS",
+        "cold_status": "PASS",
+        "limits": "Controlled provider mechanism copies only: separate copied character-owned skills/improvers and spells, positive native 0.5 gain, mastery chance1 and permissive manifestation threshold. Stock prices, canonical definitions and original gates unchanged. Copied-body Player capacity136 funds125 through two finite paid native draws; not ordinary balance evidence. Actual MySQL errors after flushed raw gain and persisted grade; quarantine writes allowed.",
+        "faults": [
+          {
+            "hex": "66323965353735332D666231302D346631372D613232622D363634343138333636363535",
+            "guid": "f29e5753-fb10-4f17-a22b-664418366655",
+            "stage": "SkillRecorded",
+            "receipt": [
+              "66323965353735332D666231302D346631372D613232622D363634343138333636363535",
+              "NeedsReview",
+              "2",
+              "3",
+              "19",
+              "153",
+              "2",
+              "<Casting version=\"1\" admission=\"0e9f65b0-ef43-4734-b703-cbd684685b7a\" identity=\"0f6af7f6-537e-4caf-b31e-ca4bdaa5f56e\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"60\" outcome=\"MajorPass\" applied=\"true\"><Targets><![CDATA[self]]></Targets><Cost holder=\"3\" resource=\"2\" amount=\"50\" before=\"100\" /></Casting>",
+              "At ImprovingSkill: An error occurred while saving the entity changes. See the inner exception for details. (N25 actual provider SkillRecorded)"
+            ]
+          },
+          {
+            "hex": "32646164336134622D383532662D343366312D393739362D373134623462353263343332",
+            "guid": "2dad3a4b-852f-43f1-9796-714b4b52c432",
+            "stage": "Completed",
+            "receipt": [
+              "32646164336134622D383532662D343366312D393739362D373134623462353263343332",
+              "NeedsReview",
+              "2",
+              "3",
+              "21",
+              "154",
+              "8",
+              "<Casting version=\"1\" admission=\"810cd397-a2fc-427f-b51e-eda3aab5627b\" identity=\"adea3dda-877a-4530-8893-03d0dee3b6d8\" grade=\"2\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"true\" skillBefore=\"60\" outcome=\"Fail\" applied=\"true\" masterySample=\"0.7918512416185315\" masteryAdvance=\"true\"><Targets><![CDATA[self]]></Targets><Cost holder=\"3\" resource=\"8\" amount=\"112.5\" before=\"125\" /></Casting>",
+              "At MasterySampleRecorded: An error occurred while saving the entity changes. See the inner exception for details. (N25 actual provider Completed)"
+            ]
+          }
+        ],
+        "funding": [
+          {
+            "alias": "debit",
+            "receipt": [
+              "61643664643063312D303634612D343065362D393566322D366337663664643164363864",
+              "Completed",
+              "Self",
+              "100",
+              "2",
+              "1",
+              "0",
+              "0",
+              "0",
+              "1",
+              "1",
+              "1",
+              "1"
+            ]
+          },
+          {
+            "alias": "effect",
+            "receipt": [
+              "30353030343935322D373666302D343365332D626333332D346164616633626563376666",
+              "Completed",
+              "Self",
+              "100",
+              "8",
+              "1",
+              "0",
+              "0",
+              "0",
+              "1",
+              "1",
+              "1",
+              "1"
+            ]
+          },
+          {
+            "alias": "effect",
+            "receipt": [
+              "34333430623234302D626336302D346132612D396638312D323339396162356631336634",
+              "Completed",
+              "Self",
+              "25",
+              "8",
+              "1",
+              "0",
+              "0",
+              "0",
+              "1",
+              "1",
+              "1",
+              "1"
+            ]
+          },
+          {
+            "alias": "unrelated",
+            "receipt": [
+              "37316438633137652D363465342D343435352D616538382D303463363461643739303933",
+              "Completed",
+              "Self",
+              "100",
+              "9",
+              "1",
+              "0",
+              "0",
+              "0",
+              "1",
+              "1",
+              "1",
+              "1"
+            ]
+          }
+        ],
+        "projection": {
+          "life": "33363539346439362D623866342D343561342D623832622D313937333136623332333266",
+          "instance": 3,
+          "body": 4,
+          "claims": [
+            [
+              "2",
+              "3"
+            ],
+            [
+              "3",
+              "4"
+            ]
+          ]
+        },
+        "quarantine_outputs": [
+          "Casting operation f29e5753-fb10-4f17-a22b-664418366655 (NeedsReview) needs staff review: At ImprovingSkill: An error occurred while saving the entity changes. See the inner\nexception for details. (N25 actual provider SkillRecorded). Its spell, trait, reserves and physical inputs are quarantined.\n\n\n<You are currently in no pain>\n<Stamina: 171/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+          "Casting operation f29e5753-fb10-4f17-a22b-664418366655 (NeedsReview) needs staff review: At ImprovingSkill: An error occurred while saving the entity changes. See the inner\nexception for details. (N25 actual provider SkillRecorded). Its spell, trait, reserves and physical inputs are quarantined.\n\n\n<Focus: Organic Humanoid>\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Rest | Status: Awake>\n<You are standing here>\n\n",
+          "Casting operation 2dad3a4b-852f-43f1-9796-714b4b52c432 (NeedsReview) needs staff review: At MasterySampleRecorded: An error occurred while saving the entity changes. See the inner\nexception for details. (N25 actual provider Completed). Its spell, trait, reserves and physical inputs are quarantined.\n\n\n<Focus: Organic Humanoid>\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Rest | Status: Awake>\n<You are standing here>\n\n",
+          "Casting operation 2dad3a4b-852f-43f1-9796-714b4b52c432 (NeedsReview) needs staff review: At MasterySampleRecorded: An error occurred while saving the entity changes. See the inner\nexception for details. (N25 actual provider Completed). Its spell, trait, reserves and physical inputs are quarantined.\n\n\n<You are currently in no pain>\n<Stamina: 196/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+          "Casting operation f29e5753-fb10-4f17-a22b-664418366655 (NeedsReview) needs staff review: At ImprovingSkill: An error occurred while saving the entity changes. See the inner\nexception for details. (N25 actual provider SkillRecorded). Its spell, trait, reserves and physical inputs are quarantined.\n\n\n<You are currently in no pain>\n<Stamina: 271/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+          "Casting operation 2dad3a4b-852f-43f1-9796-714b4b52c432 (NeedsReview) needs staff review: At MasterySampleRecorded: An error occurred while saving the entity changes. See the inner\nexception for details. (N25 actual provider Completed). Its spell, trait, reserves and physical inputs are quarantined.\n\n\n<You are currently in no pain>\n<Stamina: 271/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n"
+        ],
+        "saved": {
+          "skills": [
+            [
+              "133",
+              "200"
+            ],
+            [
+              "292",
+              "100"
+            ],
+            [
+              "302",
+              "60.5"
+            ],
+            [
+              "303",
+              "60.5"
+            ]
+          ],
+          "acquired": [
+            [
+              "1",
+              "1"
+            ],
+            [
+              "153",
+              "1"
+            ],
+            [
+              "154",
+              "2"
+            ]
+          ],
+          "mastery": [
+            [
+              "1",
+              "1",
+              "1970-01-01 00:00:00.000000",
+              "1"
+            ],
+            [
+              "153",
+              "1",
+              "1970-01-01 00:00:00.000000",
+              "1"
+            ],
+            [
+              "154",
+              "2",
+              "2026-10-17 22:08:23.414307",
+              "3"
+            ]
+          ],
+          "opportunities": [
+            [
+              "292",
+              "2026-10-17 21:59:31.174902",
+              "1"
+            ],
+            [
+              "302",
+              "2026-10-17 21:59:20.374330",
+              "1"
+            ],
+            [
+              "303",
+              "2026-10-17 21:59:23.414307",
+              "1"
+            ]
+          ],
+          "resources": [
+            [
+              "2",
+              "50"
+            ],
+            [
+              "3",
+              "0"
+            ],
+            [
+              "4",
+              "0"
+            ],
+            [
+              "5",
+              "0"
+            ],
+            [
+              "6",
+              "0"
+            ],
+            [
+              "7",
+              "0"
+            ],
+            [
+              "8",
+              "12.5"
+            ],
+            [
+              "9",
+              "50"
+            ]
+          ]
+        },
+        "reconciled": {
+          "skills": [
+            [
+              "133",
+              "200"
+            ],
+            [
+              "292",
+              "100"
+            ],
+            [
+              "302",
+              "60.5"
+            ],
+            [
+              "303",
+              "60.5"
+            ]
+          ],
+          "acquired": [
+            [
+              "1",
+              "1"
+            ],
+            [
+              "153",
+              "1"
+            ],
+            [
+              "154",
+              "2"
+            ]
+          ],
+          "mastery": [
+            [
+              "1",
+              "1",
+              "1970-01-01 00:00:00.000000",
+              "1"
+            ],
+            [
+              "153",
+              "1",
+              "1970-01-01 00:00:00.000000",
+              "1"
+            ],
+            [
+              "154",
+              "2",
+              "2026-10-17 22:08:23.414307",
+              "3"
+            ]
+          ],
+          "opportunities": [
+            [
+              "292",
+              "2026-10-17 21:59:31.174902",
+              "1"
+            ],
+            [
+              "302",
+              "2026-10-17 21:59:20.374330",
+              "1"
+            ],
+            [
+              "303",
+              "2026-10-17 21:59:23.414307",
+              "1"
+            ]
+          ],
+          "resources": [
+            [
+              "2",
+              "50"
+            ],
+            [
+              "3",
+              "0"
+            ],
+            [
+              "4",
+              "0"
+            ],
+            [
+              "5",
+              "0"
+            ],
+            [
+              "6",
+              "0"
+            ],
+            [
+              "7",
+              "0"
+            ],
+            [
+              "8",
+              "12.5"
+            ],
+            [
+              "9",
+              "50"
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "case": "borrowed-corpse-retirement",
+      "attempt": 1,
+      "status": "FAIL",
+      "summary": {
+        "path": "C:\\Temp\\armageddon-s6-borrow-fault-01\\20261017T213317Z_265228f145c84f6ca09e101c76d0e06e\\summary.json",
+        "sha256": "7B38B134D32A4869A4C70420412B0A647A442B2B7E26B216DCA26E6DC9E9D824"
+      },
+      "log": {
+        "path": "C:\\Temp\\armageddon-s6-borrow-fault-01.log",
+        "sha256": "160D10A14784DB4FAC61DF28C5476318C55E19AEA80A4B8AE953AE09C67C3D22"
+      },
+      "boot": {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-091f40c25cf143e5bd746977d54b0413\\boot-latest.json",
+        "sha256": "6F66F2F6E409EF5ED3ED1F37CD5E7B3365193557B5D6B1880C5CF7E3B3139D8F"
+      },
+      "first_failure": "[WinError 10054] An existing connection was forcibly closed by the remote host",
+      "assembly_manifest": {
+        "path": "C:\\Temp\\armageddon-s6-borrow-fault-01\\20261017T213317Z_265228f145c84f6ca09e101c76d0e06e\\assemblies.json",
+        "sha256": "A4B9C25AE06FD600AA6358F89009175CCDCB842FFFC10653D1A5D8CEA4310D85"
+      },
+      "installation_audit": {
+        "path": "C:\\Temp\\armageddon-s6-borrow-fault-01\\20261017T213317Z_265228f145c84f6ca09e101c76d0e06e\\s6-installation.json",
+        "sha256": "AA8E475CA2A5312C8F9B472E8DC3228F5EDD0FF1E531ADCE7CB5BF0847724D65"
+      },
+      "base_fixture_sha256": "27F335A23264601AA63EE303FA3A5172CAD077CB1BD757B4C998B7D7CD725415",
+      "mode": "Simple",
+      "earlier_classes": "On",
+      "source_start": "082D9EDC811F6D63DF245D0B81567989BF69255409772E6F7C9F71F454885DF8",
+      "source_end": "082D9EDC811F6D63DF245D0B81567989BF69255409772E6F7C9F71F454885DF8",
+      "source_stable": true,
+      "source_manifests": [
+        {
+          "path": "C:\\Temp\\armageddon-s6-borrow-fault-01\\20261017T213317Z_265228f145c84f6ca09e101c76d0e06e\\source-start.json",
+          "sha256": "082D9EDC811F6D63DF245D0B81567989BF69255409772E6F7C9F71F454885DF8"
+        },
+        {
+          "path": "C:\\Temp\\armageddon-s6-borrow-fault-01\\20261017T213317Z_265228f145c84f6ca09e101c76d0e06e\\source-end.json",
+          "sha256": "082D9EDC811F6D63DF245D0B81567989BF69255409772E6F7C9F71F454885DF8"
+        }
+      ],
+      "n24_evidence_mode": "not-requested",
+      "native_exit": 1,
+      "actual_first_loaded": 152,
+      "actual_cold_loaded": 0,
+      "wrapper_first_loaded": 0,
+      "wrapper_cold_loaded": 0,
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready"
+      ],
+      "processes": [
+        {
+          "phase": "first",
+          "pid": 24236,
+          "endpoint": "127.0.0.1:62452",
+          "runtime": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-091f40c25cf143e5bd746977d54b0413\\runtime-first-a1d83e2fde3d4e9a9011c333e343013e",
+          "stopped": true,
+          "graceful": false,
+          "exit": 3762504530
+        }
+      ],
+      "owned_mud_processes_stopped": true,
+      "owned_database_and_mysql_cleanup_confirmed": true,
+      "owned_temp_directory_absent": true,
+      "provider_measurement": {
+        "status": "FAIL",
+        "limits": "Exact installed Borrow the Dead possession adapter; copied-body ordinary Player with separate high-opening admissions, native finite paid funding. One exact original corpse/body/foreign item. Actual secondary-instance DELETE provider fault; no fabricated animation journal or refund. MyISAM harness-only trigger-hit observer persists the rejected DELETE attempt. Native hold/recovery/cold must be measured; absence is a failure, not inferred from other adapters.",
+        "corpse_actor": 4,
+        "corpse_body": 4,
+        "corpse": 2,
+        "gear": 1,
+        "secondary": 4,
+        "provider_hits": [
+          [
+            "4"
+          ]
+        ],
+        "paid_cast_count": 1,
+        "paid_activations": [
+          {
+            "guid": "cd1a08ca-3146-4fad-9346-f0ea76072890",
+            "receipt": [
+              "63643161303863612D333134362D346661642D393334362D663065613736303732383930",
+              "Completed",
+              "<Casting version=\"1\" admission=\"2dfd3bb8-2ed3-43b8-8330-05d892dc31f0\" identity=\"8353a5f8-0ab1-4d18-9bd4-8857d9fe567e\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"100\" outcome=\"MajorPass\" applied=\"true\"><Targets><![CDATA[corpse]]></Targets><Cost holder=\"3\" resource=\"8\" amount=\"50\" before=\"100\" /></Casting>",
+              ""
+            ]
+          }
+        ],
+        "states": {
+          "active": {
+            "caster_body": [
+              [
+                "3"
+              ]
+            ],
+            "corpse_identity": [
+              [
+                "4",
+                "4"
+              ]
+            ],
+            "corpse_item": [
+              [
+                "2"
+              ]
+            ],
+            "corpse_rooms": [],
+            "gear": [
+              [
+                "4",
+                "1"
+              ]
+            ],
+            "instances": [
+              [
+                "4",
+                "4",
+                "4",
+                "1",
+                "<Effects><PossessedCorpse AnchorCharacterId=\"3\" AnchorInstanceId=\"3\" CorpseItemId=\"2\" OriginalCharacterId=\"4\" OriginalBodyId=\"4\" SourceSpellId=\"128\" PersistencePolicy=\"TemporaryEffectBound\" /></Effects>"
+              ]
+            ],
+            "resources": [
+              [
+                "2",
+                "0"
+              ],
+              [
+                "3",
+                "0"
+              ],
+              [
+                "4",
+                "0"
+              ],
+              [
+                "5",
+                "0"
+              ],
+              [
+                "6",
+                "0"
+              ],
+              [
+                "7",
+                "0"
+              ],
+              [
+                "8",
+                "50"
+              ],
+              [
+                "9",
+                "0"
+              ]
+            ],
+            "operation_rows_count": 2
+          },
+          "hold": {
+            "caster_body": [
+              [
+                "3"
+              ]
+            ],
+            "corpse_identity": [
+              [
+                "4",
+                "4"
+              ]
+            ],
+            "corpse_item": [
+              [
+                "2"
+              ]
+            ],
+            "corpse_rooms": [],
+            "gear": [
+              [
+                "4",
+                "1"
+              ]
+            ],
+            "instances": [
+              [
+                "4",
+                "4",
+                "4",
+                "1",
+                "<Effects><PossessedCorpse AnchorCharacterId=\"3\" AnchorInstanceId=\"3\" CorpseItemId=\"2\" OriginalCharacterId=\"4\" OriginalBodyId=\"4\" SourceSpellId=\"128\" PersistencePolicy=\"TemporaryEffectBound\" /></Effects>"
+              ]
+            ],
+            "resources": [
+              [
+                "2",
+                "0"
+              ],
+              [
+                "3",
+                "0"
+              ],
+              [
+                "4",
+                "0"
+              ],
+              [
+                "5",
+                "0"
+              ],
+              [
+                "6",
+                "0"
+              ],
+              [
+                "7",
+                "0"
+              ],
+              [
+                "8",
+                "50"
+              ],
+              [
+                "9",
+                "0"
+              ]
+            ],
+            "operation_rows_count": 2
+          }
+        },
+        "live_recovery": [],
+        "cold_recovery": []
+      }
+    }
+  ],
+  "latest_case_status": {
+    "ordinary-ui-funding": "PASS",
+    "progression-write-faults": "PASS",
+    "borrowed-corpse-retirement": "FAIL"
+  },
+  "status": "PARTIAL_MEASUREMENTS_WITH_RETAINED_FAILURES_OR_UNRUN_CHECKS",
+  "ordinary_ui_operator_receipt": {
+    "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-12\\task\\s6-ui-funding-native03-operator-receipt.json",
+    "sha256": "3BAF1F34C57C2EBEB64114DD08F1A15B53F2A890F52D3551270AD5E1DBD576EA"
+  },
+  "confirmed_borrow_runtime_defect": {
+    "status": "CONFIRMED_PRODUCTION_FAILURE_HANDLING_DEFECT",
+    "scope": "Exact installed Borrow the Dead possesscorpse retirement; no production repair or additional native recovery execution.",
+    "crash_evidence": {
+      "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\prepared-catalogue-boot-native-s4-stock-091f40c25cf143e5bd746977d54b0413\\runtime-first-a1d83e2fde3d4e9a9011c333e343013e\\process-output.txt",
+      "sha256": "EF990A8E7FEEA26AF483915236FF8855579E4AFB1593CB95D337D521A3513354"
+    },
+    "observed": [
+      "Exact secondary DELETE provider rejection recorded once.",
+      "Hold snapshot conserved original corpse/body/gear/secondary and paid operation/reserve.",
+      "Unhandled DbUpdateException/MySqlException escaped expiry callback and terminated MUD.",
+      "Alternate command received WinError10054; alternate/live/idempotent/cold recovery unexecuted."
+    ],
+    "source_ordering": [
+      {
+        "path": "MudSharpCore/Character/CharacterInstanceService.cs",
+        "lines": [
+          555,
+          1311,
+          1368,
+          1413,
+          1439
+        ],
+        "meaning": "PossessedCorpse is separate from journal-owned AnimatedCorpse; runtime teardown precedes failing DELETE SaveChanges."
+      },
+      {
+        "path": "MudSharpCore/Effects/Concrete/SpellEffects/DirectPossessionSpellEffects.cs",
+        "lines": [
+          358,
+          365,
+          375,
+          379,
+          380
+        ],
+        "meaning": "Restore controller, retire secondary, then restore original corpse and base effect cleanup; exception skips latter steps."
+      },
+      {
+        "path": "MudSharpCore/Effects/EffectHandler.cs",
+        "lines": [
+          104
+        ],
+        "meaning": "Removal callback precedes effect-list removal."
+      },
+      {
+        "path": "MudSharpCore/Effects/EffectScheduler.cs",
+        "lines": [
+          108,
+          110
+        ],
+        "meaning": "Schedule removed before callback fire; no local containment/requeue."
+      }
+    ],
+    "proposed_repair_boundary": "Native possessed-corpse retirement/effect plus startup reconciliation: preserve exact identities and retry/provenance through provider failure; durable placement and secondary retirement before destructive detachment; contain expected persistence failure locally and explicitly retry. Catch-only or enum substitution is insufficient.",
+    "required_checks": [
+      "Same exact DELETE rejection leaves server alive and exact objects held.",
+      "Clearing fault recovers exactly one original corpse and retires secondary; repeated same-instance retirement is idempotent.",
+      "Alternate route does not duplicate corpse/instance/payment.",
+      "Cold after failed retirement conserves original NPC/body/gear/paid GUID/reserve.",
+      "Crash after durable commit before runtime cleanup reconciles safely."
+    ],
+    "unproven_risks": [
+      "Subsequent custody loss or cold restoration was not observed.",
+      "Source suggests stale runtime/unscheduled cleanup; do not report this as an executed recovery outcome."
+    ],
+    "source_pins": [
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\Character\\CharacterInstanceService.cs",
+        "sha256": "0EAB1406E077BEABC73F9BD29E9E150B0B971334442EE92A7DE1CA072C97918F"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\Effects\\Concrete\\SpellEffects\\DirectPossessionSpellEffects.cs",
+        "sha256": "239CF15516E8A58C278AF38B9FB5664B45C067CFF9A5DC483673B7830E94F6D5"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\Effects\\EffectHandler.cs",
+        "sha256": "CD57538B8F460BA356D327FE8A1500D57F7FDACDD9420098CC2FC06638CA14F7"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\MudSharpCore\\Effects\\EffectScheduler.cs",
+        "sha256": "67672BBE320EEFAFCCE32A9D8CA049805432BFFB27361CBD6DF2714B43FCC753"
+      }
+    ]
+  },
+  "production_binary_equivalence": {
+    "baseline": "e2536fcaffe6e9eb01811a071ef71c6c10af556c",
+    "files": [
+      {
+        "name": "MudSharp.dll",
+        "sha256": "801CB51903BCEFA9CD2DF99997F0B44D293EF90ED57F59767F4486E322D43F14",
+        "unchanged": true
+      },
+      {
+        "name": "FutureMUDLibrary.dll",
+        "sha256": "26034EFA87B6671C3F7769DB339AF3511F81C9E6D02D751109F2BBFB40629F3A",
+        "unchanged": true
+      },
+      {
+        "name": "MudsharpDatabaseLibrary.dll",
+        "sha256": "89DFD3FB53B27D4FDDAA1D4FA8C799E1047A65081A3890A647A33B92ED8DADDF",
+        "unchanged": true
+      },
+      {
+        "name": "ExpressionEngine.dll",
+        "sha256": "67391BC79C45FE88B8A4D9E1207C787A4F7EAD6A29AC993C4C053D5213D0BA51",
+        "unchanged": true
+      },
+      {
+        "name": "DatabaseSeeder.dll",
+        "sha256": "CFEE54B710B7B0C7D92650EDF5463C4CAA9B716A935F31F35674AA3C2BE8656E",
+        "unchanged": true
+      }
+    ]
+  },
+  "production_repair_performed": false,
+  "remote_state_observed_before_publication": {
+    "master": "e7674c889d01e4eeaf306577c5d96d2c9c86e66c",
+    "continuation_remote_head": "e2536fcaffe6e9eb01811a071ef71c6c10af556c",
+    "pr": 801,
+    "state": "OPEN_DRAFT_MERGEABLE",
+    "scope_note": "Newer master changes were observed after qualification; native receipts retain their exact frozen branch source/build inputs."
+  },
+  "concurrent_source_equivalence": {
+    "status": "EXACT_SOURCE_PIN_EQUIVALENCE",
+    "manifests": [
+      "C:\\Temp\\armageddon-s6-ui-funding-03\\20261017T214719Z_fac9693a281b44b0816bd37f639a133a\\source-start.json",
+      "C:\\Temp\\armageddon-s6-progression-faults-02\\20261017T214658Z_6036d5737417493d9240d93d8f8126f8\\source-start.json"
+    ],
+    "pins_each": 8496,
+    "all_path_hash_pairs_equal": true,
+    "raw_manifest_sha_equivalence_claimed": false,
+    "note": "PowerShell JSON property order can differ; original raw manifests are unchanged."
+  },
+  "ordinary_affordability_interpretation": "Report native capacity and exact planner refusal separately. A cap below112.5 cannot hold the first overreach quote (arithmetic only, no new native overreach test). Self50 selected-bodypart refusal is not proof every smaller batch or total-body health is unaffordable. No acceptable grind target or rebalance is invented.",
+  "remaining": [
+    "Borrow the Dead provider-failure handling and native alternate/live/cold/idempotent recovery after repair.",
+    "Owner affordability/playability assessment; any material rebalance needs an explicit decision.",
+    "Whole-programme production readiness and Release acceptance remain separate; older receipts retain dated scopes."
+  ]
+}

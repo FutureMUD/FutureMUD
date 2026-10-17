@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Character;
+using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
 
 namespace MudSharp.Commands.Modules;
@@ -17,7 +18,7 @@ public partial class StealthModule
 	#3peek <character>#0 - inspect carried and worn equipment, including a chance to identify covered equipment
 	#3peek <character> <container>#0 - inspect eligible contents of one visible, open container
 
-You must know the Peek skill, even when the target is helpless. Inspection and being noticed are separate: you may see little while unnoticed, or learn something while being noticed. Only people who notice receive an alert. Peek never opens containers, takes items or automatically reports a crime. Closed containers, invisible items and inaccessible belongings remain protected.", AutoHelp.HelpArg)]
+Each attempt takes five seconds. You must know the Peek skill, even when the target is helpless. Inspection and being noticed are separate: you may see little while unnoticed, or learn something while being noticed. Only people who notice receive an alert. Peek never opens containers, takes items or automatically reports a crime. Closed containers, invisible items and inaccessible belongings remain protected.", AutoHelp.HelpArg)]
 	protected static void Peek(ICharacter actor, string command)
 	{
 		if (!PeekInspection.CanUse(actor))
@@ -50,15 +51,20 @@ You must know the Peek skill, even when the target is helpless. Inspection and b
 			return;
 		}
 
-		var result = PeekInspection.Inspect(actor, target, container);
-		if (result.Interrupted)
+		actor.AddEffect(new PeekInspectionAction(actor, _ =>
 		{
-			actor.OutputHandler.Send("You cannot finish your covert inspection.");
-			return;
-		}
+			// Inventory, visibility, reach and skill bindings are revalidated at completion.
+			var result = PeekInspection.Inspect(actor, target, container);
+			if (result.Interrupted)
+			{
+				actor.OutputHandler.Send("You cannot finish your covert inspection.");
+				return;
+			}
 
-		actor.OutputHandler.Send(result.Items.Count == 0
-			? "You cannot make out any belongings from that attempt."
-			: $"You make out the following belongings:\n{string.Join("\n", result.Items.Select(x => $"\t{x.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSpotting)}"))}");
+			actor.OutputHandler.Send(result.Items.Count == 0
+				? "You cannot make out any belongings from that attempt."
+				: $"You make out the following belongings:\n{string.Join("\n", result.Items.Select(x => $"\t{x.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSpotting)}"))}");
+		}), TimeSpan.FromSeconds(5));
+		actor.OutputHandler.Send("You begin covertly inspecting their belongings.");
 	}
 }

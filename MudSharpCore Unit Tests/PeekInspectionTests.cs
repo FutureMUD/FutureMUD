@@ -11,6 +11,9 @@ using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.Commands.Modules;
 using MudSharp.Construction;
+using MudSharp.Effects;
+using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
@@ -76,8 +79,19 @@ public class PeekInspectionTests
 		public Action? OnAttempt, OnReveal;
 		public Action<IPerceivableHaveTraits>? OnSpot;
 		public List<IGameItem> Worn = [], Held = [], Exposed = [];
+		public List<IEffect> Effects = [];
+		public List<TimeSpan> ActionDelays = [];
 		public Fixture()
 		{
+			Actor.SetupGet(x => x.Effects).Returns(Effects);
+			Actor.Setup(x => x.AddEffect(It.IsAny<IEffect>(), It.IsAny<TimeSpan>()))
+				.Callback<IEffect, TimeSpan>((effect, delay) =>
+				{
+					Effects.Add(effect); ActionDelays.Add(delay); effect.InitialEffect();
+				});
+			Actor.Setup(x => x.RemoveEffect(It.IsAny<IEffect>(), It.IsAny<bool>()))
+				.Callback<IEffect, bool>((effect, fire) => { Effects.Remove(effect); if (fire) effect.RemovalEffect(); });
+			Actor.Setup(x => x.TargetActor("target", PerceiveIgnoreFlags.None)).Returns(Target.Object);
 			Skill.SetupGet(x => x.Id).Returns(10);
 			Skill.SetupGet(x => x.TraitType).Returns(TraitType.Skill);
 			Skill.SetupGet(x => x.OwnerScope).Returns(TraitOwnerScope.Character);
@@ -155,6 +169,8 @@ public class PeekInspectionTests
 			return (item, container, openable);
 		}
 		public PeekInspectionResult Inspect(IGameItem? container = null) => PeekInspection.Inspect(Actor.Object, Target.Object, container);
+		public void Command(string command = "peek target") => typeof(StealthModule)
+			.GetMethod("Peek", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [Actor.Object, command]);
 		public static int Alerts(Mock<ICharacter> ch) => Mock.Get(ch.Object.OutputHandler).Invocations.Count(x =>
 			x.Method.Name == "Send" && x.Arguments.OfType<string>().Any(s => s.Contains("trying to peek")));
 	}
@@ -339,6 +355,7 @@ public class PeekInspectionTests
 		noticed.Actor.Setup(x => x.TargetActor("target", PerceiveIgnoreFlags.None)).Returns(noticed.Target.Object);
 		typeof(StealthModule).GetMethod("Peek", BindingFlags.Static | BindingFlags.NonPublic)!
 			.Invoke(null, [noticed.Actor.Object, "peek target"]);
+		noticed.Effects.OfType<PeekInspectionAction>().Single().ExpireEffect();
 		Assert.AreEqual(1, Fixture.Alerts(noticed.Target)); Assert.AreEqual(1, Fixture.Alerts(noticed.Witness));
 		Assert.IsFalse(concealed.Invocations.Any(x => x.Method.Name == "HowSeen"));
 	}
@@ -372,5 +389,64 @@ public class PeekInspectionTests
 		f.Body.Setup(x => x.HoldOrWieldLocFor(bag.Object)).Returns(grab.Object);
 		Assert.IsTrue(f.Inspect(bag.Object).Interrupted);
 		container.VerifyGet(x => x.Contents, Times.Never);
+	}
+
+	[TestMethod]
+	public void Command_DelaysEachAttemptFiveSecondsWithoutPublicDisclosureOrAdditionalCooldown()
+	{
+		var f = new Fixture(); f.Item(); f.Command();
+		Assert.AreEqual(TimeSpan.FromSeconds(5), f.ActionDelays.Single());
+		Assert.AreEqual(0, f.Attempts); Assert.AreEqual(0, f.Reveals);
+		Assert.AreEqual(0, Fixture.Alerts(f.Target) + Fixture.Alerts(f.Witness));
+		f.Body.VerifyGet(x => x.WornItems, Times.Never);
+		var action = f.Effects.OfType<PeekInspectionAction>().Single();
+		Assert.IsTrue(action.IsBlockingEffect("general"));
+		Assert.AreEqual("general", typeof(StealthModule).GetMethod("Peek", BindingFlags.Static | BindingFlags.NonPublic)!
+			.GetCustomAttribute<DelayBlock>()!.DelayType);
+		Assert.IsTrue(action.IsBlockingEffect("movement"));
+		Assert.IsTrue(action.IsBlockingEffect("combat"));
+		Assert.IsFalse(action.SuffixApplies()); Assert.IsFalse(action.SavingEffect);
+		action.ExpireEffect();
+		Assert.AreEqual(1, f.Attempts); Assert.AreEqual(1, f.Reveals); Assert.AreEqual(0, f.Effects.Count);
+		f.Command();
+		Assert.AreEqual(TimeSpan.FromSeconds(5), f.ActionDelays[1]); Assert.AreEqual(1, f.Attempts);
+		f.Effects.OfType<PeekInspectionAction>().Single().ExpireEffect();
+		Assert.AreEqual(2, f.Attempts); Assert.AreEqual(0, f.Effects.Count);
+	}
+
+	[TestMethod]
+	public void Command_CancelledOrQuitAttempt_CannotResolveFromStaleExpiry()
+	{
+		foreach (var quit in new[] { false, true })
+		{
+			var f = new Fixture(); f.Command();
+			var action = f.Effects.OfType<PeekInspectionAction>().Single();
+			Assert.IsTrue(action is IRemoveOnCombatStart);
+			Assert.IsTrue(((IRemoveOnMovementEffect)action).ShouldRemove());
+			Assert.IsTrue(action.ShouldRemove(CharacterState.Unconscious));
+			if (quit) f.Actor.Raise(x => x.OnQuit += null, f.Actor.Object);
+			else f.Actor.Object.RemoveEffect(action, true);
+			action.ExpireEffect();
+			Assert.AreEqual(0, f.Attempts); Assert.AreEqual(0, f.Effects.Count);
+			Assert.AreEqual(0, Fixture.Alerts(f.Target) + Fixture.Alerts(f.Witness));
+		}
+	}
+
+	[TestMethod]
+	public void Command_DelayRevalidatesSkillTargetAndContainerBeforeAnyRollOrDisclosure()
+	{
+		foreach (var reason in new[] { "moved", "closed", "skill", "state", "combat" })
+		{
+			var f = new Fixture(); var (bag, contents, openable) = f.Container(true);
+			f.Command("peek target #1");
+			if (reason == "moved") f.Target.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>());
+			if (reason == "skill") f.Actor.Setup(x => x.HasTrait(f.Skill.Object)).Returns(false);
+			if (reason == "state") f.Actor.SetupGet(x => x.State).Returns(CharacterState.Unconscious);
+			if (reason == "closed") openable.SetupGet(x => x.IsOpen).Returns(false);
+			if (reason == "combat") f.Actor.SetupGet(x => x.Combat).Returns(Mock.Of<MudSharp.Combat.ICombat>());
+			f.Effects.OfType<PeekInspectionAction>().Single().ExpireEffect();
+			Assert.AreEqual(0, f.Attempts); Assert.AreEqual(0, f.Reveals); Assert.AreEqual(0, f.Effects.Count);
+			contents.VerifyGet(x => x.Contents, Times.Never);
+		}
 	}
 }

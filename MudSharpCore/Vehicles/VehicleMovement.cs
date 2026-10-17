@@ -34,6 +34,12 @@ internal static class VehicleMovementCommand
 			return VehicleMovementCommandResult.NotVehicleController;
 		}
 
+		if (rawInput.Contains("!!", StringComparison.Ordinal))
+		{
+			actor.OutputHandler.Send("Hostile guard challenges are not supported while controlling a vehicle.");
+			return VehicleMovementCommandResult.Failed;
+		}
+
 		if (VehicleRouteMovementCommand.IsRouteAction(rawInput) &&
 			(vehicle.Location?.RouteDefinition is not null ||
 			 new StringStack(rawInput).PeekSpeech().EqualToAny("route", "stop")))

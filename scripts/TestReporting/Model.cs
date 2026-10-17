@@ -45,6 +45,7 @@ internal sealed class TestRecord
 	public string? FullyQualifiedName { get; set; }
 	public string NativeOutcome { get; set; } = "";
 	public string Outcome { get; set; } = "";
+	public double? DurationSeconds { get; set; }
 	public string? Message { get; set; }
 	public string? Stack { get; set; }
 	public string Report { get; set; } = "";

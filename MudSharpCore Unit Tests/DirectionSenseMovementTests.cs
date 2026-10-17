@@ -16,6 +16,7 @@ using MudSharp.Construction.Boundary;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.Effects;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Shape;
 using MudSharp.FutureProg;
 using MudSharp.GameItems;
@@ -45,6 +46,51 @@ public class DirectionSenseMovementTests
 		Assert.IsNull(actor.Movement);
 		f.Origin.Verify(x => x.RegisterMovement(It.IsAny<IMovement>()), Times.Never);
 		f.Output.Verify(x => x.Send(DirectionSenseMovement.NoProgressMessage, true, false), Times.Once);
+	}
+
+	[DataTestMethod]
+	[DataRow(Outcome.Pass)]
+	[DataRow(Outcome.Fail)]
+	public void CharacterMove_GuardChallenge_StillChecksOrientationBeforeAnyGuardRoll(Outcome recovery)
+	{
+		var f = new Fixture(Outcome.Fail, recovery);
+		var actor = f.RealCharacter();
+		typeof(MudSharp.Character.Character).GetField("_state", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(actor, CharacterState.Awake);
+		f.World.Setup(x => x.GetStaticBool(HostileGuardChallenge.EnabledSetting)).Returns(true);
+		f.Origin.Setup(x => x.GetExit("north", "", actor)).Returns(f.Intended.Object);
+		f.Origin.Setup(x => x.ExitsFor(actor, false)).Returns([f.Intended.Object]);
+		var guard = new Mock<ICharacter>();
+		guard.SetupGet(x => x.Location).Returns(f.Origin.Object);
+		guard.SetupGet(x => x.State).Returns(CharacterState.Awake);
+		guard.Setup(x => x.ColocatedWith(actor)).Returns(true);
+		guard.Setup(x => x.CanSee(actor, PerceiveIgnoreFlags.None)).Returns(true);
+		var effect = new Mock<IGuardExitEffect>();
+		effect.SetupGet(x => x.Exit).Returns(f.Intended.Object);
+		effect.Setup(x => x.Applies()).Returns(true);
+		guard.Setup(x => x.EffectsOfType<IGuardExitEffect>(It.IsAny<Predicate<IGuardExitEffect>>())).Returns([effect.Object]);
+		f.Origin.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([guard.Object]);
+		Assert.IsFalse(actor.CanCross(f.Intended.Object).Success, "The actual guard must block ordinary crossing.");
+
+		Assert.IsFalse(actor.Move("north !!"));
+
+		Assert.AreEqual(1, f.InitialRolls);
+		Assert.AreEqual(1, f.RecoveryRolls);
+		Assert.IsNull(actor.Movement);
+		f.World.Verify(x => x.GetCheck(CheckType.GuardingExitChallengeCheck), Times.Never);
+		f.Origin.Verify(x => x.RegisterMovement(It.IsAny<IMovement>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void CharacterMove_ChallengeWithoutGuard_DoesNotRollOrientation()
+	{
+		var f = new Fixture();
+		var actor = f.RealCharacter();
+		f.World.Setup(x => x.GetStaticBool(HostileGuardChallenge.EnabledSetting)).Returns(true);
+		f.Origin.Setup(x => x.GetExit("north", "", actor)).Returns(f.Intended.Object);
+		Assert.IsFalse(actor.Move("north !!"));
+		Assert.AreEqual(0, f.InitialRolls);
+		Assert.AreEqual(0, f.RecoveryRolls);
+		f.Output.Verify(x => x.Send("There is no eligible guard blocking that action to challenge.", true, false), Times.Once);
 	}
 
 	[TestMethod]

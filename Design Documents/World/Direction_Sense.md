@@ -2,6 +2,8 @@
 
 Direction Sense is an opt-in engine movement mechanic for an initiating manual horizontal compass command (north, northeast, east, southeast, south, southwest, west or northwest), on foot, mounted, or while driving a controlled vehicle. It is inactive in existing worlds by default. Named/non-cardinal exits, up/down, direct or scripted exit movement, follower reactions, vehicle route actions and autopilot do not start orientation checks.
 
+An explicit compass guard challenge (`north !!`) also checks orientation. Eligibility previews may use challenge authority only for the requested exit, without binding its cohort or rolling guards. Recovery or no valid alternative consumes no guard challenge; a random alternative never inherits that authority. A successful intended move resolves the ordinary guard challenge after movement eligibility checks.
+
 ## Command outcomes
 
 The requested exit must resolve, be visible to the initiator under the existing exit visibility rules, and pass movement readiness before orientation is attempted. The ordinary rejection path handles invalid or blocked requests without a Direction Sense roll.

@@ -246,6 +246,12 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 @"The $0 skill is used to pick people's pockets, plant items on other people and other illegal activities."),
         };
 
+    private IEnumerable<SkillDetails> CovertInspectionSkills =>
+    [
+		new("Peek", "Peek", "Stealth", "min(99,3*per + 1*dex + 1*int)", "General", "General", true,
+			1.0, "The $0 skill covertly inspects belongings. Revelation and detection are separate, and it never moves items or opens closed containers.")
+    ];
+
     private IEnumerable<SkillDetails> SimpleStealthSkills =>
         new[]
         {
@@ -522,6 +528,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
         AthleticSkills
             .Concat(PerceptionSkills)
             .Concat(StealthSkills)
+            .Concat(CovertInspectionSkills)
             .Concat(MedicalSkills)
             .Concat(UniversalCraftSkills)
             .Concat(FunctionalCraftSkills)
@@ -671,10 +678,23 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                 case CheckType.DirectionSenseRecoveryCheck:
                     DirectionSenseSeederHelper.EnsureUnboundChecks(context);
                     continue;
+				case CheckType.PeekCheck:
+				case CheckType.PeekRevealCheck:
+					if (skills.TryGetValue("Peek", out var peekSkill))
+					{
+						var binding = PeekSeederHelper.BindExistingSkill(context, peekSkill.Id);
+						if (!binding.Success) throw new InvalidOperationException(binding.Message);
+					}
+					else PeekSeederHelper.EnsureUnboundChecks(context);
+					continue;
                 case CheckType.DualWieldCoordinationCheck:
                     // CombatSeeder owns the native skill binding; preserve configured existing worlds.
                     DualWieldCoordinationSeederHelper.EnsureUnboundCheck(context);
                     continue;
+				case CheckType.GuardingExitChallengeCheck:
+				case CheckType.GuardingItemChallengeCheck:
+					GuardingCheckSeederHelper.EnsureChecks(context);
+					continue;
                 case CheckType.None:
                     // Default Fall Back
                     AddCheck(check, new TraitExpression { Expression = "variable" },
@@ -1570,6 +1590,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                      BroadAthleticSkills
                          .Concat(BroadPerceptionSkills)
                          .Concat(SimpleStealthSkills)
+                         .Concat(CovertInspectionSkills)
                          .Concat(SimpleMedicalSkills)
                          .Concat(SimpleUniversalCraftSkills)
                          .Concat(FunctionalCraftSkills)
@@ -1587,6 +1608,7 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                      AthleticSkills
                          .Concat(PerceptionSkills)
                          .Concat(StealthSkills)
+                         .Concat(CovertInspectionSkills)
                          .Concat(MedicalSkills)
                          .Concat(UniversalCraftSkills)
                          .Concat(FunctionalCraftSkills)

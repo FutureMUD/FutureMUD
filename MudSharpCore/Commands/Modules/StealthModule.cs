@@ -14,7 +14,7 @@ using MudSharp.Planes;
 
 namespace MudSharp.Commands.Modules;
 
-public class StealthModule : Module<ICharacter>
+public partial class StealthModule : Module<ICharacter>
 {
     private StealthModule()
         : base("Stealth")

@@ -59,7 +59,7 @@ else
 eco = max(-100, @eco - 1)
 end if
 setregister @owner "{{ArmageddonGatheringRegisters.Ecology}}" @eco
-setregister @owner "{{ArmageddonGatheringRegisters.AlignmentUntil}}" (now() + timespanfromseconds(600 * (min(floor(@skill / 15) + 1, 7) + random(0, 2)) - 1))
+setregister @owner "{{ArmageddonGatheringRegisters.AlignmentUntil}}" (now() + timespanfromseconds((600 * (min(floor(@skill / 15) + 1, 7) + random(0, 2))) - 1))
 end if
 var ash as datetime
 ash = getregister(@room, "{{ArmageddonGatheringRegisters.AshUntil}}")
@@ -67,7 +67,7 @@ if (@ash < now())
 ash = now()
 end if
 setregister @room "{{ArmageddonGatheringRegisters.AshUntil}}" (@ash + timespanfromseconds(270 * @amount))
-adddescriptionaddition(@room, "Grey, lifeless ash collects on the ground.", {{ashVisibleId}})
+adddescriptionaddition(@room, "Grey, lifeless ash collects on the ground.", {{ashVisibleId}}, getregister(@room, "{{ArmageddonGatheringRegisters.AshUntil}}"), "The grey ash on the ground dissipates.")
 """ : "";
 			success += $"\ncheck(@owner, totrait({skill}), 5)\nreturn";
 			result.Add(PolicyKey(kind, "success"), Policy("ArmageddonGather" + kind + "Success", ProgVariableTypes.Void, success,

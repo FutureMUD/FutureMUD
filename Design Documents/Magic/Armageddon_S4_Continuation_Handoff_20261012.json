@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
   "date": "2026-10-12",
-  "purpose": "Portable current continuation with resolved CI baseline, canonical fixed-install Read Attunement and bounded grade-one paid/cold native evidence; full S4 qualification pending.",
+  "purpose": "Portable current continuation: retained accepted S4/S5 scopes and bounded Classic/classes-on S6 normal chargen, actual ash expiry, native08 N24 with checked native09 reuse, and representative N25 first/cold conservation. Final balance, full matrices and production readiness remain pending; all original stock and Release gates remain false.",
   "markdown": "Design Documents/Magic/Armageddon_S4_Continuation_Handoff_20261012.md",
   "repository": "FutureMUD/FutureMUD",
-  "branch": "codex/armageddon-continuation-20261008",
-  "pr": "https://github.com/FutureMUD/FutureMUD/pull/788",
+  "branch": "codex/armageddon-s6-continuation-20261016",
+  "pr": null,
   "pr_remains_draft": true,
   "s3_implementation_commit": "8d503f6e789e5d68e03fceb4ae64b0a66f1fabd3",
   "resume_latest_branch_not_reset_to_s3": true,
   "s4_started": true,
-  "n24_started": false,
+  "n24_started": true,
   "release_enabled": false,
   "spell_admissions_enabled": false,
   "class_availability_enabled": false,
@@ -173,7 +173,9 @@
       "skipped": 3
     },
     "repair_or_rerun_in_handoff_task": false,
-    "next_action": "Verify exact runtime/JSON/TSV contents, reconcile obsolete test expectations without weakening coverage, run focused/full relevant Seeder checks and inspect new hosted results before S4."
+    "next_action": "Verify exact runtime/JSON/TSV contents, reconcile obsolete test expectations without weakening coverage, run focused/full relevant Seeder checks and inspect new hosted results before S4.",
+    "historical_record": true,
+    "superseded_by": "Design Documents/Magic/Armageddon_S6_Master_Integration_20261016.json"
   },
   "S4_first_slice": {
     "status": "BOUNDED_READ_ATTUNEMENT_ADAPTER_VERIFIED_STOCK_PENDING",
@@ -489,5 +491,23 @@
     "normal_usage_prioritisation": true,
     "broader_s4_authorised": true,
     "gates_closed": true
+  },
+  "original_handoff_branch": "codex/armageddon-continuation-20261008",
+  "original_handoff_pr": "https://github.com/FutureMUD/FutureMUD/pull/788",
+  "successor_pr_lookup_by_head": "codex/armageddon-s6-continuation-20261016",
+  "current_status_authority": "Design Documents/Magic/Armageddon_S6_Readiness_Qualification_20261017.json",
+  "updated_utc": "2026-10-17T14:34:21.313730+00:00",
+  "readiness_continuation_20261017": {
+    "checkpoint": "Armageddon_S6_Readiness_Checkpoint_20261016.md",
+    "receipt": "Armageddon_S6_Readiness_Qualification_20261017.json",
+    "scope": "Classic with earlier Classes on; full normal chargen UI and approval, exact authored openings, actual additive ash expiry and representative provider-failure/body/cold conservation in native09. Four actual complete-stock N24 maintenance cases retain their fresh native08 scope and are reused after exact scoped-input verification. Isolated qualification copies; all original gates false.",
+    "remaining": [
+      "Final affordability and balance review.",
+      "Full corpse/progression provider-fault matrix and all mode/Class combinations remain unqualified.",
+      "Earlier S4/S5 and Classic/Simple gathering receipts retain their dated inputs; overlapping counts are not added.",
+      "Live routed-room/item-morph scenarios have managed coverage only."
+    ],
+    "full_plan_complete": false,
+    "older_batch_fields_are_historical": true
   }
 }

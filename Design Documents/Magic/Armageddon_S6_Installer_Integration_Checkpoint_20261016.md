@@ -1,5 +1,7 @@
 # Armageddon S6 inactive installer integration - 16 October 2026
 
+**Integration closeout,16 October:** Exact head `76f45937375823eb3400f5fd1f07318973b57c03` passes all four hosted push/PR Ubuntu/Windows jobs: Linux10,972/0/0, Windows10,969/0/3 each; all ten projects and stable source. The owning Seeder follow-up passes1,932/0/3 with exact equal source fingerprints. The initial14 fixture failures remain recorded. PR #788 was externally merged by account `FutureMUD` at10:15:23 UTC as `26e1d14e9`; this coordinator performed no PR merge/deployment. Its tree equals the qualified head. Remaining authorised S6 work continues on `codex/armageddon-s6-continuation-20261016` with a new draft successor. Release and stock gates remain disabled. Historical draft-state statements below retain their original dates.
+
 ## Master integration follow-up - 16 October 2026
 
 Master `90a9343ace517b926e11209a3f5347a586a88646` (Haggle 793, Analyse 794, Dual Wield 795) is incorporated into the Armageddon continuation branch from `62cb612ec`. Master and other worktrees are unchanged. The merged EF model needs no new migration. The existing owned refresher rebuilt the blank snapshot from all merged migrations and independently imported it: exact migration history, no pending model changes, Haggle configuration, Armageddon hazard/gathering columns and the stable track identity foreign key all pass. Both owned databases and MySQL were cleaned up.

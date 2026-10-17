@@ -85,7 +85,7 @@ public class EffectHandler : IEffectHandler
         AddEffect(effect);
         if (duration >= TimeSpan.Zero && duration != TimeSpan.MaxValue)
         {
-            Gameworld.EffectScheduler.AddSchedule(new EffectSchedule(effect, duration));
+            Gameworld.EffectScheduler.Reschedule(effect, duration);
             if (effect.SavingEffect)
             {
                 _hasSaveableScheduledEffects = true;

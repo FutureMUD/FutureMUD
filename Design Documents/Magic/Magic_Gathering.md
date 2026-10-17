@@ -54,6 +54,8 @@ For proportional policies, pure FutureProg `healthcapacity(character, text chann
 
 `adddescriptionaddition(perceivable, text, number applicabilityProgId)` creates one persistent non-player addendum governed by a compatible non-static boolean owner/perceiver Prog. Repeated identical authoring is idempotent; different retained text under that Prog refuses without replacement. The applicability Prog can hide a temporary marker after its expiry without altering a builder's room description or restoring ecological resources.
 
+The optional overload `adddescriptionaddition(perceivable, text, number applicabilityProgId, datetime expiresUtc, text expirationMessage)` records an absolute UTC deadline (offline time counts) and a bounded nonempty local message. Identical text/prog/message repeats update the existing deadline; conflicting retained text or messages refuse. Live expiry removes the addendum and emits one native announcement. A room-owned addendum uses an explicit whole-room broadcast, including all coordinates of a route room and rooms without an output handler. Routed character/item owners use their own coordinate for local output. An overdue cold load retires the record silently. Item morphing preserves the absolute expiry deadline and retains one scheduled callback; an explicit duration addition replaces any schedule created during effect initialisation. Untimed addenda keep their original contract; neither overload repairs life or scars.
+
 ## Player and script surfaces
 
 Gathering remains within an owned school's existing player/NPC verb; there is no global `gather` command:

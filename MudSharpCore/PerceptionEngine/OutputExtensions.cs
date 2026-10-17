@@ -1,4 +1,4 @@
-﻿using MudSharp.Construction;
+using MudSharp.Construction;
 using MudSharp.Form.Shape;
 using MudSharp.GameItems;
 
@@ -134,7 +134,8 @@ public static class OutputExtensions
 		// consume a local RouteRoom event without leaking it across the entire linear room.
 	}
 
-	private static void HandleWholeLocation(ILocation location, string text)
+	/// <summary>Explicit whole-location broadcast, including every coordinate of a route room.</summary>
+	public static void HandleWholeLocation(this ILocation location, string text)
 	{
 		foreach (var character in location?.Characters ?? [])
 		{

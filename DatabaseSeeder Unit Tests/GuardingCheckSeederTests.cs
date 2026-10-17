@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using MudSharp.Models;
@@ -16,6 +17,47 @@ public class GuardingCheckSeederTests
 {
 	private static FuturemudDatabaseContext Context() => new(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 		.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options);
+
+	private sealed class LegacyTrueDefaults : SaveChangesInterceptor
+	{
+		public override InterceptionResult<int> SavingChanges(DbContextEventData eventData, InterceptionResult<int> result)
+		{
+			// Model the legacy MySQL generated defaults on newly inserted parameter flags.
+			foreach (var entry in eventData.Context!.ChangeTracker.Entries<TraitExpressionParameters>()
+			         .Where(x => x.State == EntityState.Added))
+			{
+				entry.Entity.CanBranch = true;
+				entry.Entity.CanImprove = true;
+			}
+			return result;
+		}
+	}
+
+	[TestMethod]
+	public void BindExistingSkill_GeneratedTrueDefaults_NonbranchingPolicySurvivesReloadAndRerun()
+	{
+		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false))
+			.AddInterceptors(new LegacyTrueDefaults()).Options);
+		context.TraitDefinitions.Add(new TraitDefinition { Id = 42, Type = 0, OwnerScope = 1 });
+		context.SaveChanges();
+		Assert.IsTrue(GuardingCheckSeederHelper.BindExistingSkill(context, 42, out var message), message);
+		context.ChangeTracker.Clear();
+		var checks = context.Checks.Include(x => x.TraitExpression).ThenInclude(x => x.TraitExpressionParameters).ToArray();
+		Assert.AreEqual(2, checks.Length);
+		foreach (var check in checks)
+		{
+			var parameter = check.TraitExpression.TraitExpressionParameters.Single();
+			Assert.IsFalse(parameter.CanBranch);
+			Assert.IsTrue(parameter.CanImprove);
+		}
+		var ids = checks.ToDictionary(x => x.Type, x => x.TraitExpressionId);
+		Assert.IsTrue(GuardingCheckSeederHelper.BindExistingSkill(context, 42, out message), message);
+		context.ChangeTracker.Clear();
+		foreach (var check in context.Checks) Assert.AreEqual(ids[check.Type], check.TraitExpressionId);
+		Assert.AreEqual("false", context.StaticConfigurations.Single().Definition);
+		Assert.AreEqual(0, context.CharacterTraits.Count()); Assert.AreEqual(0, context.Traits.Count());
+	}
 
 	[TestMethod]
 	public void EnsureChecks_FreshAndRepeated_DefaultOffAndUntrainedFloorWithoutTraitGrants()

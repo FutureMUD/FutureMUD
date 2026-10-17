@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
@@ -61,20 +62,36 @@ public static class GuardingCheckSeederHelper
 			message = "Existing Guarding formula or template is customised; review it explicitly. No configuration changed.";
 			return false;
 		}
+		using var transaction = context.Database.IsRelational() && context.Database.CurrentTransaction is null
+			? context.Database.BeginTransaction() : null;
 		EnsureChecks(context);
+		var createdParameters = new List<TraitExpressionParameters>();
 		foreach (var type in Types)
 		{
 			var check = context.Checks.Include(x => x.TraitExpression).Single(x => x.Type == (int)type);
 			if (check.TraitExpression.Expression == formula) continue;
 			// Replace, never edit a possibly shared expression row.
 			var expression = new TraitExpression { Name = ExpressionName(type), Expression = formula };
-			expression.TraitExpressionParameters.Add(new TraitExpressionParameters
+			var parameter = new TraitExpressionParameters
 			{
 				Parameter = "guarding", TraitDefinition = skill, CanImprove = true, CanBranch = false
-			});
+			};
+			expression.TraitExpressionParameters.Add(parameter);
+			createdParameters.Add(parameter);
 			check.TraitExpression = expression;
 		}
 		context.SaveChanges();
+		// Legacy bit columns default to true; EF may omit false values on insert.
+		// Persist explicit policy only on the new parameter rows owned by this binding.
+		foreach (var parameter in createdParameters)
+		{
+			parameter.CanBranch = false;
+			parameter.CanImprove = true;
+			context.Entry(parameter).Property(x => x.CanBranch).IsModified = true;
+			context.Entry(parameter).Property(x => x.CanImprove).IsModified = true;
+		}
+		if (createdParameters.Count > 0) context.SaveChanges();
+		transaction?.Commit();
 		message = $"Both Guarding reactions now use existing character skill #{traitId}. Settings and player values were preserved.";
 		return true;
 	}

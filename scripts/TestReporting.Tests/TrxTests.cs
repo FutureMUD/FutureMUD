@@ -39,6 +39,33 @@ public class TrxTests
 	}
 
 	[TestMethod]
+	public void OptionalDurationsPreserveSubsecondPrecisionWithoutChangingOutcomes()
+	{
+		var path = TempFixture(doc =>
+		{
+			var ns = doc.Root!.Name.Namespace;
+			var rows = doc.Root.Element(ns + "Results")!.Elements(ns + "UnitTestResult").ToList();
+			rows[0].SetAttributeValue("duration", "00:01:02.1234567");
+			rows[1].SetAttributeValue("duration", null);
+			rows[2].SetAttributeValue("duration", "invalid");
+			rows[3].SetAttributeValue("duration", "-00:00:01");
+			rows[4].SetAttributeValue("duration", "00:00:00");
+		});
+		try
+		{
+			var result = Parse(path);
+			Assert.IsNull(result.Problem);
+			Assert.AreEqual(36, result.Counts.Passed);
+			Assert.AreEqual(62.1234567, result.Records[0].DurationSeconds!.Value, 0.00000001);
+			Assert.IsNull(result.Records[1].DurationSeconds);
+			Assert.IsNull(result.Records[2].DurationSeconds);
+			Assert.IsNull(result.Records[3].DurationSeconds);
+			Assert.AreEqual(0.0, result.Records[4].DurationSeconds!.Value);
+		}
+		finally { File.Delete(path); }
+	}
+
+	[TestMethod]
 	public void FailedAndSkippedRecordsRemainDistinct()
 	{
 		var path = TempFixture(doc =>

@@ -180,6 +180,10 @@ Again, the choices you make here can be fixed later so don't stress it too great
         {
             switch (check)
             {
+                case CheckType.DirectionSenseCheck:
+                case CheckType.DirectionSenseRecoveryCheck:
+                    DirectionSenseSeederHelper.EnsureUnboundChecks(context);
+                    continue;
                 case CheckType.DualWieldCoordinationCheck:
                     // CombatSeeder owns the native skill binding; preserve configured existing worlds.
                     DualWieldCoordinationSeederHelper.EnsureUnboundCheck(context);

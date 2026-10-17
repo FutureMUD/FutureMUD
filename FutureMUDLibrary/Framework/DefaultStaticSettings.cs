@@ -17,6 +17,13 @@ public static class DefaultStaticSettings
     public static readonly IReadOnlyDictionary<string, string> DefaultStaticConfigurations =
         new Dictionary<string, string>
         {
+			{ "DirectionSenseEnabled", "false" },
+			{ "DirectionSenseObscurationProg", "0" },
+			{ "DirectionSenseDifficulty", "Normal" },
+			{ "DirectionSenseRecoveryDifficulty", "Normal" },
+			{ "DirectionSenseNoProgressDelaySeconds", "10" },
+			{ "DirectionSenseMinimumSightDifficulty", "VeryHard" },
+			{ "DirectionSenseMaximumObscuringWeatherLightMultiplier", "0.3" },
 			{ "HagglingEnabled", "false" },
 			{ "HaggleNegotiationScope", "Shared" },
 			{ "HaggleWindowDurationHours", "6" },

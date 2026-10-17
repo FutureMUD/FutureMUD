@@ -235,7 +235,9 @@ namespace MudSharp.RPG.Checks
 		WeatherForecast = 226,
 		HaggleCheck = 227,
 		AnalyzeEligibilityCheck = 229,
-		DualWieldCoordinationCheck = 230
+		DualWieldCoordinationCheck = 230,
+		DirectionSenseCheck = 234,
+		DirectionSenseRecoveryCheck = 235
     }
 
     public enum FailIfTraitMissingType

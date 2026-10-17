@@ -96,6 +96,8 @@ For item positions, `_positionItemRegex` parses command, item, optional modifier
 
 ## Movement Flow
 
+Enabled worlds apply [Direction Sense](Direction_Sense.md) at the initiating manual horizontal compass command when sight is sufficiently obscured, including mounted movement. Only the initiator rolls; selected alternatives retain all normal movement eligibility and never inherit the intended direction's safety override.
+
 `CharacterMovement.GetRequiredMovementPosition` chooses mandatory movement states from exits and terrain:
 
 - climb exits require `PositionClimbing`;

@@ -22,7 +22,8 @@ public partial class ArmageddonStockSpellInstallerTests
 	[DataRow(ArmageddonProgressionMode.Simple, true)]
 	public void Install_FixedDirectionCanonicalDefaultsStableChildrenAndClosedAdmissions(ArmageddonProgressionMode mode, bool classes)
 	{
-		using var db = Fixture(mode, classes);
+		// Keep the full real prerequisite-to-spell integration matrix uncached.
+		using var db = FreshFixture(mode, classes);
 		var factory = ArmageddonInstallationSettingsTests.Factory(db);
 		var before = db.MagicCapabilities.ToDictionary(x => x.Id, x => x.Definition);
 		var installed = ArmageddonStockSpellInstaller.Install(factory);
@@ -149,7 +150,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual(ArmageddonTraditionInstaller.Module, db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonStockSpellContent.ReadAttunementKey + ".skill").Module);
 	}
 
-	private static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)
+	private static FuturemudDatabaseContext FreshFixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)
 	{
 		var db = ArmageddonCatalogueInstallerTests.Fixture(mode, classes);
 		var factory = ArmageddonInstallationSettingsTests.Factory(db);

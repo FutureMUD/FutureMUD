@@ -338,9 +338,10 @@ public partial class Character
 
             if (ch.EffectsOfType<IGuardExitEffect>()
                   .Any(x =>
-                      !x.PermittedToCross(this, exit) ||
+                      (!x.PermittedToCross(this, exit) ||
                       !x.PermittedToCross(RidingMount, exit) ||
-                      _riders.Any(y => !x.PermittedToCross(y, exit))
+                      _riders.Any(y => !x.PermittedToCross(y, exit))) &&
+                      HostileGuardChallenge.Current?.Bypasses(this, exit, x) != true
                     ))
             {
                 guardCharacter = ch;
@@ -1426,13 +1427,18 @@ public partial class Character
 
     public bool Move(string rawInput)
     {
+		if (!GuardChallengeSyntax.TryExtract(rawInput, out var parsedInput, out var challenge, out var syntaxError, minimumWords: 1))
+		{
+			OutputHandler.Send(syntaxError);
+			return false;
+		}
         var vehicleMoveResult = VehicleMovementCommand.TryMoveControlledVehicle(this, rawInput, false);
         if (vehicleMoveResult != VehicleMovementCommandResult.NotVehicleController)
         {
             return vehicleMoveResult == VehicleMovementCommandResult.StartedOrQueued;
         }
 
-        StringStack ss = new(rawInput);
+        StringStack ss = new(parsedInput);
         string direction = ss.PopSpeech();
         bool force = false;
         if (ss.Peek().EqualTo("!"))
@@ -1451,6 +1457,29 @@ public partial class Character
             QueuedMoveCommands.Clear();
             return false;
         }
+		if (challenge)
+		{
+			if (!ss.IsFinished || Movement is not null)
+			{
+				OutputHandler.Send("Guard challenges cannot be queued. Finish moving before challenging an exit guard.");
+				return false;
+			}
+			var challengedExit = Location.GetExit(direction, target, this);
+			if (challengedExit is null && string.IsNullOrEmpty(target) &&
+			    Constants.CardinalDirectionStringToDirection.TryGetValue(direction, out var cardinal))
+				challengedExit = Location.GetExit(cardinal, this);
+			if (challengedExit is null || !Body.CanSee(Location, challengedExit))
+			{
+				OutputHandler.Send("You cannot move in that direction.");
+				return false;
+			}
+			var attempt = HostileGuardChallenge.ForExit(this, challengedExit);
+			if (attempt is null) return false;
+			using var authority = attempt.Enter();
+			var moved = Move(challengedExit, emote, force);
+			if (!moved) attempt.Dispose();
+			return moved;
+		}
 
         // Check non-cardinal exits.
         bool exitFound = false;

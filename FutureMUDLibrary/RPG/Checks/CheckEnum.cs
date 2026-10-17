@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -235,7 +235,9 @@ namespace MudSharp.RPG.Checks
 		WeatherForecast = 226,
 		HaggleCheck = 227,
 		AnalyzeEligibilityCheck = 229,
-		DualWieldCoordinationCheck = 230
+		DualWieldCoordinationCheck = 230,
+		GuardingExitChallengeCheck = 240,
+		GuardingItemChallengeCheck = 241
     }
 
     public enum FailIfTraitMissingType
@@ -270,6 +272,8 @@ namespace MudSharp.RPG.Checks
             switch (type)
             {
                 case CheckType.DualWieldCoordinationCheck:
+				case CheckType.GuardingExitChallengeCheck:
+				case CheckType.GuardingItemChallengeCheck:
 
                 case CheckType.HideCheck:
                 case CheckType.SneakCheck:
@@ -625,6 +629,8 @@ namespace MudSharp.RPG.Checks
         {
             switch (type)
             {
+				case CheckType.GuardingExitChallengeCheck:
+				case CheckType.GuardingItemChallengeCheck:
                 case CheckType.GenericSpotCheck:
                 case CheckType.NoticeCheck:
                 case CheckType.HideCheck:

@@ -184,6 +184,10 @@ Again, the choices you make here can be fixed later so don't stress it too great
                     // CombatSeeder owns the native skill binding; preserve configured existing worlds.
                     DualWieldCoordinationSeederHelper.EnsureUnboundCheck(context);
                     continue;
+				case CheckType.GuardingExitChallengeCheck:
+				case CheckType.GuardingItemChallengeCheck:
+					GuardingCheckSeederHelper.EnsureChecks(context);
+					continue;
                 case CheckType.None:
                     // Default Fall Back
                     AddCheck(check, new TraitExpression { Name = "Default Fallback Check", Expression = "variable" }, 3,

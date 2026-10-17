@@ -671,6 +671,10 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
                     // CombatSeeder owns the native skill binding; preserve configured existing worlds.
                     DualWieldCoordinationSeederHelper.EnsureUnboundCheck(context);
                     continue;
+				case CheckType.GuardingExitChallengeCheck:
+				case CheckType.GuardingItemChallengeCheck:
+					GuardingCheckSeederHelper.EnsureChecks(context);
+					continue;
                 case CheckType.None:
                     // Default Fall Back
                     AddCheck(check, new TraitExpression { Expression = "variable" },

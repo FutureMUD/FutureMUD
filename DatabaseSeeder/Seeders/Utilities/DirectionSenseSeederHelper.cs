@@ -77,7 +77,10 @@ public static class DirectionSenseSeederHelper
 				return new(false, false, $"Existing {ExpressionName(recovery)} configuration conflicts; preserved without changes.");
 		}
 
+		using var transaction = context.Database.IsRelational() && context.Database.CurrentTransaction is null
+			? context.Database.BeginTransaction() : null;
 		var changed = false;
+		var createdParameters = new List<(TraitExpressionParameters Parameter, bool Improve)>();
 		foreach (var recovery in new[] { false, true })
 		{
 			var check = FindCheck(context, recovery);
@@ -94,10 +97,12 @@ public static class DirectionSenseSeederHelper
 				Name = ExpressionName(recovery),
 				Expression = $"directionsense:{skill.Id}{{nobranch{(recovery ? ",noimprove" : "")}}}"
 			};
-			expression.TraitExpressionParameters.Add(new TraitExpressionParameters
+			var parameter = new TraitExpressionParameters
 			{
 				Parameter = "directionsense", TraitDefinition = skill, CanImprove = !recovery, CanBranch = false
-			});
+			};
+			expression.TraitExpressionParameters.Add(parameter);
+			createdParameters.Add((parameter, !recovery));
 			check.TraitExpression = expression;
 			check.CheckTemplate = EnsureTemplate(context, recovery);
 			check.MaximumDifficultyForImprovement = (int)Difficulty.Impossible;
@@ -105,6 +110,17 @@ public static class DirectionSenseSeederHelper
 		}
 
 		context.SaveChanges();
+		// Legacy bit columns default to true; EF may omit false values during insert.
+		// Persist explicit policy on our new rows after generated defaults have been read.
+		foreach (var (parameter, improve) in createdParameters)
+		{
+			parameter.CanBranch = false;
+			parameter.CanImprove = improve;
+			context.Entry(parameter).Property(x => x.CanBranch).IsModified = true;
+			context.Entry(parameter).Property(x => x.CanImprove).IsModified = true;
+		}
+		if (createdParameters.Count > 0) context.SaveChanges();
+		transaction?.Commit();
 		return new(true, changed, $"Both Direction Sense checks bind {TraitKey} to character skill #{traitId}; world activation unchanged.");
 	}
 

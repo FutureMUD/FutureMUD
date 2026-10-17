@@ -48,12 +48,14 @@ The helper exposes `TraitKey`, `CheckBindings`, `InitialCheckKey` and `RecoveryC
 
 Repeated binding preserves compatible check/expression/template IDs, custom difficulty modifiers, trait caps, display-name changes and player values. Conflicting builder formulas are preserved and require explicit review. Placeholder replacement creates a new expression instead of modifying a potentially shared expression row. The helper never changes world activation or any character trait row. Runtime also refuses fallback/mismatched or unsafe check policies without rolling.
 
+Legacy MySQL parameter bit columns default to true. New bindings explicitly persist their improvement/branch flags after insert, within the caller's transaction or an owned relational transaction, so the initial parameter cannot branch and the recovery parameter can neither branch nor improve after reload.
+
 No schema migration is required. Existing worlds remain disabled and retain their existing traits/check bindings until explicitly configured. Before integrating parallel feature branches, recheck enum uniqueness and the common skill installer switch cases; the contemporaneous Peek IDs are 236–237 and Guarding IDs are 240–241.
 
 ## Qualification boundary
 
 Managed tests exercise the outcome sequence, one initial/recovery call, invalid recovery/fallback policy, candidate filtering, no-progress behavior, command-parser routing, silent party readiness and additive seeder binding/rerun refusal.
 
-Native gameplay qualification must be scheduled with the parent task because Armageddon S6 uses native resources concurrently. Proposed disposable database: `direction_sense_20261017_ds234`; proposed game port: `4534`. Obtain an immutable clean base from the coordinator and restore it once into the owned database. Never reseed or operate S6's database, fixtures, listeners or processes. Do not treat managed tests or a build as evidence that native gameplay passed. Native work remains held while S6 native05 is active.
+Native gameplay qualification must be scheduled with the parent task because Armageddon S6 uses native resources concurrently. Allocated disposable database: `direction_sense_20261017_ds234`; allocated game port: `4534`. Obtain an immutable clean base from the coordinator and restore it once into the owned database, with separate MySQL data and binaries. Never reseed or operate S6's database, fixtures, listeners or processes. Do not treat managed tests, a build or production-loaded in-process checks as evidence that a real client flow passed. Start only after the coordinator releases the slot, and verify owned-resource cleanup before handing it to the next task.
 
 The scheduled native scenario should batch representative walking, mounted party and manual vehicle intended/no-progress/wrong-direction cases, invalid/hidden/fall/unsafe exits, forced intended input, LeaveNoneBehind, late readiness failure, follower/occupant/tow no-reroll, route/autopilot exclusion, restart/ID preservation and the configured darkness/dust threshold boundaries. Verify no-progress stamina, ten-second delay and generic error output explicitly.

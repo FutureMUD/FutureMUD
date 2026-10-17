@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DatabaseSeeder.Seeders;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MudSharp.Database;
 using MudSharp.Models;
@@ -15,6 +16,45 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class DirectionSenseSeederTests
 {
+	private sealed class LegacyTrueDefaults : SaveChangesInterceptor
+	{
+		public override InterceptionResult<int> SavingChanges(DbContextEventData eventData,
+			InterceptionResult<int> result)
+		{
+			foreach (var entry in eventData.Context!.ChangeTracker.Entries<TraitExpressionParameters>()
+				         .Where(x => x.State == EntityState.Added))
+			{
+				entry.Entity.CanBranch = true;
+				entry.Entity.CanImprove = true;
+			}
+			return result;
+		}
+	}
+
+	[TestMethod]
+	public void BindOwnedTrait_LegacyGeneratedTrueDefaults_ExplicitPoliciesSurviveReload()
+	{
+		using var context = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
+			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false))
+			.AddInterceptors(new LegacyTrueDefaults()).Options);
+		AddSkill(context);
+		context.SaveChanges();
+
+		Assert.IsTrue(DirectionSenseSeederHelper.BindOwnedTrait(context, Owned()).Success);
+		context.ChangeTracker.Clear();
+		var checks = context.Checks.Include(x => x.TraitExpression)
+			.ThenInclude(x => x.TraitExpressionParameters).ToArray();
+
+		Assert.AreEqual(2, checks.Length);
+		foreach (var check in checks)
+		{
+			var parameter = check.TraitExpression.TraitExpressionParameters.Single();
+			Assert.IsFalse(parameter.CanBranch);
+			Assert.AreEqual(check.Type == (int)CheckType.DirectionSenseCheck, parameter.CanImprove);
+		}
+		Assert.IsTrue(DirectionSenseSeederHelper.BindOwnedTrait(context, Owned()) is { Success: true, Changed: false });
+	}
+
 	private static FuturemudDatabaseContext Context() => new(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 		.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options);
 

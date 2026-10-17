@@ -23,6 +23,7 @@ public class BlindFightingSeederTests
 	public void EnsureBlindFighting_ExistingHaggleCheck_PreservesItAndCreatesSeparateCheck()
 	{
 		using var context = Context();
+		SeedCombatSkills(context);
 		var haggle = new Check
 		{
 			Type = 227,

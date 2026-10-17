@@ -24,6 +24,7 @@ public static class DefaultStaticSettings
 			{ "HaggleDefaultDifficulty", "Normal" },
 			{ "HaggleTraitId", "0" },
 			{ "HaggleMinimumSpread", "0.05" },
+			{ "ArmageddonHostileGuardAttemptsEnabled", "false" },
 			{ "EnvironmentalExposureMode", "Legacy" },
 			{ "EnvironmentalExposureLiquids", "true" },
 			{ "EnvironmentalExposureGases", "true" },

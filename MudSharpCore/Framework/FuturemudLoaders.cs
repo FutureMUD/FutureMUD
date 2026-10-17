@@ -4957,6 +4957,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                         {
                             CheckType.DualWieldCoordinationCheck => CreateDualWieldCheckTemplate(),
                             CheckType.AnalyzeEligibilityCheck => analysisTemplate,
+							CheckType.GuardingExitChallengeCheck or CheckType.GuardingItemChallengeCheck => GuardingCheckDefaults.EnsureTemplate(FMDB.Context),
                             CheckType.WritingComprehendCheck or CheckType.WeatherForecastCapability => FMDB.Context.CheckTemplates.FirstOrDefault(x =>
                                 x.Name == "CapabilityCheck" || x.Name == "Capability Check"),
                             _ => FMDB.Context.CheckTemplates.FirstOrDefault(x =>
@@ -4968,12 +4969,14 @@ For information on the syntax to use in emotes (such as those included in bracke
                     Type = (int)checkType,
                     TraitExpression = new Models.TraitExpression
                     {
-                        Name = $"{checkType.DescribeEnum(true)} Check",
+                        Name = checkType is CheckType.GuardingExitChallengeCheck or CheckType.GuardingItemChallengeCheck
+							? $"{checkType} Formula" : $"{checkType.DescribeEnum(true)} Check",
                         Expression = checkType switch
                         {
                             CheckType.AnalyzeEligibilityCheck => "0",
                             CheckType.WritingComprehendCheck or CheckType.HaggleCheck => "variable",
                             CheckType.WeatherForecastCapability or CheckType.WeatherForecast or CheckType.DualWieldCoordinationCheck => "0",
+							CheckType.GuardingExitChallengeCheck or CheckType.GuardingItemChallengeCheck => "15",
                             CheckType.ClimbTreetoTreeCheck => _checks.FirstOrDefault(x => x.Type == CheckType.ClimbCheck)?.TargetNumberExpression.OriginalFormulaText ?? "50",
                             _ => "50"
                         }

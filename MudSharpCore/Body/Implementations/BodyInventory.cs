@@ -1930,6 +1930,7 @@ public partial class Body
 		bool triggerEvents = true)
 	{
 		var executor = Actor;
+		var guardChallenge = HostileGuardChallenge.CurrentItem;
 		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
 		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
 		if (!CanContinue()) return null;
@@ -1944,8 +1945,12 @@ public partial class Body
 		var whole = quantity == 0 || item.DropsWhole(quantity);
 		var placement = PrepareGetPlacement(whole ? item : item.PeekSplit(quantity), allowMerge);
 		if (placement is null || !CanContinue()) return null;
+		if (guardChallenge is not null &&
+		    (!CanGet(item, quantity, ignoreFlags) ||
+		     !guardChallenge.CanCommitItemAction(executor, item, null, GuardChallengeAction.Get))) return null;
 		CommandExecutionScope.MarkCommitted(executor);
 		var gottenItem = whole ? item.Get(this) : item.Get(this, quantity);
+		guardChallenge?.Dispose();
 		if (!CompleteGetPlacementWithResult(gottenItem, placement, out gottenItem, consumeNativeStack: true)) return null;
 		if (gottenItem.Deleted || gottenItem.Destroyed) return null;
 		var output = new MixedEmoteOutput(new Emote("@ get|gets $0", this, gottenItem), flags: OutputFlags.SuppressObscured);
@@ -2039,6 +2044,7 @@ public partial class Body
         ItemCanGetIgnore ignoreFlags, IEnumerable<IHandleEvents> witnessHandlers)
     {
 		var executor = Actor;
+		var guardChallenge = HostileGuardChallenge.CurrentItem;
 		using var execution = CommandExecutionScope.EnterBodyOperation(executor);
 		bool CanContinue() => ReferenceEquals(Actor, executor) && CommandExecutionScope.TryContinue(executor);
 		if (!CanContinue()) return null;
@@ -2066,10 +2072,12 @@ public partial class Body
 
         if (!CanContinue()) return null;
 		var placement = PrepareGetPlacement(whole ? item : item.PeekSplit(quantity), true);
-		if (placement is null || !CanGet(item, containerItem, quantity, ignoreFlags) || !CanContinue() || !OriginalSource()) return null;
+		if (placement is null || !CanGet(item, containerItem, quantity, ignoreFlags) || !CanContinue() || !OriginalSource() ||
+		    guardChallenge?.CanCommitItemAction(executor, item, containerItem, GuardChallengeAction.Get) == false) return null;
 
         CommandExecutionScope.MarkCommitted(executor);
 		var takenItem = containerComp.Take(executor, item, quantity);
+		guardChallenge?.Dispose();
 		if (takenItem is null || takenItem.Deleted || takenItem.Destroyed || takenItem.ContainedIn is not null ||
 			takenItem.InInventoryOf is not null || takenItem.Location is not null) return null;
 		takenItem.Get(this);

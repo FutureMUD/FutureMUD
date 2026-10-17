@@ -2173,8 +2173,9 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
                                                  .Any(
                                                      x =>
                                                          x.EffectsOfType<IGuardItemEffect>()
-                                                          .Any(y => (y.Applies() && y.TargetItem == item) ||
+                                                          .Any(y => ((y.Applies() && y.TargetItem == item) ||
                                                                     vicinity.Contains(y.TargetItem)) &&
+                                                                    HostileGuardChallenge.Current?.Bypasses(getter, item, y) != true) &&
                                                          !x.TrustedAllyIDs.Contains(getter.Id) &&
                                                          !x.AllyIDs.Contains(getter.Id));
     }
@@ -2199,8 +2200,9 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
                                              .Where(
                                                  x =>
                                                      x.EffectsOfType<IGuardItemEffect>()
-                                                      .Any(y => (y.Applies() && y.TargetItem == item) ||
+                                                      .Any(y => ((y.Applies() && y.TargetItem == item) ||
                                                                 vicinity.Contains(y.TargetItem)) &&
+                                                                HostileGuardChallenge.Current?.Bypasses(getter, item, y) != true) &&
                                                      !x.TrustedAllyIDs.Contains(getter.Id) &&
                                                      !x.AllyIDs.Contains(getter.Id))
                                              .ToList();

@@ -212,7 +212,7 @@ public class MovementTests
         string moveMethod = movementSource[moveStart..staminaStart];
         int mountedGuard = moveMethod.IndexOf("if (RidingMount is not null)", StringComparison.Ordinal);
         int riderMove = moveMethod.IndexOf("return RidingMount.RiderMove(exit, this, emote, ignoreSafeMovement);", StringComparison.Ordinal);
-        int createMovement = moveMethod.IndexOf("Movement.CreateMovement(this, exit, emote, ignoreSafeMovement)", StringComparison.Ordinal);
+        int createMovement = moveMethod.IndexOf("Movement.CreateMovement(this, exit, emote, ignoreSafeMovement, silent)", StringComparison.Ordinal);
 
         Assert.IsTrue(mountedGuard >= 0, "Mounted riders must be handled before generic movement creation.");
         Assert.IsTrue(riderMove > mountedGuard, "Mounted rider movement must delegate through RiderMove.");

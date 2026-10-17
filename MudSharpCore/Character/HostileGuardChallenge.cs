@@ -54,6 +54,12 @@ public sealed class HostileGuardChallenge : IGuardChallengeContext
 		_exit = exit;
 	}
 
+	internal bool HasBlockingExitGuards => _exitGuards.Count > 0;
+    internal bool HasBlockingExitGuardsFor(IEnumerable<ICharacter> movers)
+    {
+        var cohort = movers.ToArray();
+        return _exitGuards.Any(x => cohort.Any(ch => ExitGuardBlocks(x.Guard, x.Effect, ch, _exit!)));
+    }
 	public ICharacter Actor { get; }
 	public IRoom Origin { get; }
 	public bool IsValid => !_disposed && !_blocked &&

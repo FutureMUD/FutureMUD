@@ -329,6 +329,45 @@ public class HostileGuardChallengeTests
 	}
 
 	[TestMethod]
+	public void CanStartMovement_ChallengePreview_DoesNotBindOrRollBeforeActualCreation()
+	{
+		var f = new Fixture(); f.AddExitGuard(10, Outcome.Fail);
+		using var attempt = HostileGuardChallenge.ForExit(f.Actor.Object, f.Exit.Object)!;
+		using var scope = attempt.Enter();
+		Assert.IsTrue(Movement.CanStartMovement(f.Actor.Object, f.Exit.Object));
+		Assert.IsTrue(Movement.CanStartMovement(f.Actor.Object, f.Exit.Object));
+		Assert.AreEqual(0, f.Rolls.Count);
+		Assert.IsNotNull(Movement.CreateMovement(f.Actor.Object, f.Exit.Object));
+		Assert.AreEqual(1, f.Rolls.Count);
+	}
+
+	[TestMethod]
+	public void CanStartMovement_ChallengeOnlyBlocksLeftBehindMember_RejectsWithoutConsumingChallenge()
+	{
+		var f = new Fixture(); var guard = f.AddExitGuard(10, Outcome.Fail);
+		var member = new Mock<ICharacter>();
+		member.SetupGet(x => x.Location).Returns(f.Room);
+		member.SetupGet(x => x.Riders).Returns([]);
+		member.Setup(x => x.EffectsOfType<IDragParticipant>(It.IsAny<Predicate<IDragParticipant>>())).Returns([]);
+		member.Setup(x => x.CanMove(f.Exit.Object, CanMoveFlags.None)).Returns(new CanMoveResponse { Result = false, ErrorMessage = "Cannot move" });
+		var effect = guard.EffectsOfType<IGuardExitEffect>().Single();
+		Mock.Get(effect).Setup(x => x.PermittedToCross(f.Actor.Object, f.Exit.Object)).Returns(true);
+		Mock.Get(effect).Setup(x => x.PermittedToCross(null!, f.Exit.Object)).Returns(true);
+		var party = new Mock<IParty>();
+		party.SetupGet(x => x.Leader).Returns(f.Actor.Object);
+		party.SetupGet(x => x.CharacterMembers).Returns([f.Actor.Object, member.Object]);
+		f.Actor.SetupGet(x => x.Party).Returns(party.Object);
+		f.Actor.Setup(x => x.SamePhysicalInstance(f.Actor.Object)).Returns(true);
+		using var attempt = HostileGuardChallenge.ForExit(f.Actor.Object, f.Exit.Object)!;
+		using var scope = attempt.Enter();
+		Assert.IsTrue(attempt.HasBlockingExitGuards, "Prospective party must have a guard to challenge.");
+		Assert.IsFalse(Movement.CanStartMovement(f.Actor.Object, f.Exit.Object));
+		Assert.AreEqual(0, f.Rolls.Count);
+		Assert.IsNull(Movement.CreateMovement(f.Actor.Object, f.Exit.Object));
+		Assert.AreEqual(0, f.Rolls.Count);
+	}
+
+	[TestMethod]
 	public void ExitChallenge_ClosedDoorPreflight_DoesNotRoll()
 	{
 		var f = new Fixture(); f.AddExitGuard(10, Outcome.Fail);

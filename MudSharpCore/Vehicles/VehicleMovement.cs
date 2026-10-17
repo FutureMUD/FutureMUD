@@ -96,7 +96,36 @@ internal static class VehicleMovementCommand
 			return VehicleMovementCommandResult.Failed;
 		}
 
-		new VehicleMovement(vehicle, actor, exit).InitialAction();
+		var misdirected = false;
+		if (exit is not INonCardinalRoomExit &&
+		    Constants.CardinalDirectionStringToDirection.TryGetValue(direction, out var manualDirection) &&
+		    DirectionSenseMovement.IsCompassDirection(manualDirection) &&
+		    DirectionSenseMovement.IsActive(actor, vehicle.Location))
+		{
+			// Use the same full tow/propulsion/motive-cohort readiness as execution, without committing it.
+			if (!VehicleMovement.CanStartManualMove(vehicle, actor, exit, out reason))
+			{
+				actor.OutputHandler.Send(reason);
+				actor.QueuedMoveCommands.Clear();
+				return VehicleMovementCommandResult.Failed;
+			}
+
+			var selected = DirectionSenseMovement.Resolve(actor, exit,
+				vehicle.Location.ExitsFor(vehicle.ExteriorItem ?? (IPerceiver)actor),
+				candidate => vehicle.CanMove(actor, candidate, out _) &&
+				             VehicleMovement.CanStartManualMove(vehicle, actor, candidate, out _, requireSafe: true),
+				vehicle.Prototype.Scale == VehicleScale.RoomScale ? vehicle.ExteriorItem : actor);
+			if (selected is null)
+			{
+				DirectionSenseMovement.NoProgress(actor);
+				return VehicleMovementCommandResult.Failed;
+			}
+
+			misdirected = !ReferenceEquals(selected, exit);
+			exit = selected;
+		}
+
+		new VehicleMovement(vehicle, actor, exit, misdirected).InitialAction();
 		return VehicleMovementCommandResult.StartedOrQueued;
 	}
 
@@ -147,9 +176,11 @@ public class VehicleMovement : IMovement
 	private VehicleMovementReadinessResult _readiness;
 	private VehiclePropulsionMovePlan _propulsionPlan;
 	private VehicleMotiveCohort _motiveCohort;
+	private readonly bool _misdirected;
 
-	public VehicleMovement(IVehicle vehicle, ICharacter originalMover, IRoomExit exit)
+	public VehicleMovement(IVehicle vehicle, ICharacter originalMover, IRoomExit exit, bool misdirected = false)
 	{
+		_misdirected = misdirected;
 		_vehicle = vehicle;
 		_originalMover = originalMover;
 		Exit = exit;
@@ -307,9 +338,19 @@ public class VehicleMovement : IMovement
 
 	public void InitialAction()
 	{
+		if (_misdirected &&
+		    (!_vehicle.Location.ExitsFor(_vehicle.ExteriorItem ?? (IPerceiver)_originalMover).Contains(Exit) ||
+		     !DirectionSenseMovement.IsSafeVisibleCompassExit(_originalMover, _vehicle.Location, Exit,
+			     _vehicle.Prototype.Scale == VehicleScale.RoomScale ? _vehicle.ExteriorItem : _originalMover) ||
+		     !CanStartManualMove(_vehicle, _originalMover, Exit, out _, requireSafe: true)))
+		{
+			DirectionSenseMovement.NoProgress(_originalMover);
+			return;
+		}
+
 		if (!RefreshMove(false, out var reason))
 		{
-			_originalMover.OutputHandler.Send(reason);
+			SendFailure(reason);
 			return;
 		}
 
@@ -320,7 +361,7 @@ public class VehicleMovement : IMovement
 			    !VehicleMotiveCohortService.CanTraverseExit(_motiveCohort, _readiness.MovePlan!, Exit,
 				    _originalMover, out reason))
 			{
-				_originalMover.OutputHandler.Send(reason);
+				SendFailure(reason);
 				return;
 			}
 
@@ -341,7 +382,7 @@ public class VehicleMovement : IMovement
 
 		if (!_strategy.TryCommitPropulsion(_readiness, out _propulsionPlan, out reason))
 		{
-			_originalMover.OutputHandler.Send(reason);
+			SendFailure(reason);
 			return;
 		}
 
@@ -400,7 +441,7 @@ public class VehicleMovement : IMovement
 
 		if (!RefreshMove(true, out var reason))
 		{
-			_originalMover.OutputHandler.Send(reason);
+			SendFailure(reason);
 			StopMovement();
 			return;
 		}
@@ -481,6 +522,43 @@ public class VehicleMovement : IMovement
 	{
 		return _strategy.TryPrepareMove(_vehicle, _originalMover, Exit, rollTowCatastrophe, out _towTrain,
 			out _transition, out _readiness, out reason, _propulsionPlan);
+	}
+
+	private void SendFailure(string reason)
+	{
+		if (_misdirected) DirectionSenseMovement.NoProgress(_originalMover);
+		else _originalMover.OutputHandler.Send(reason);
+	}
+
+	/// <summary>Silent, read-only full readiness; never commits propulsion or rolls tow catastrophe.</summary>
+	public static bool CanStartManualMove(IVehicle vehicle, ICharacter actor, IRoomExit exit,
+		out string reason, bool requireSafe = false)
+	{
+		var strategy = new RoomExitVehicleMovementStrategy();
+		if (!strategy.TryPrepareMove(vehicle, actor, exit, false, out _, out var transition,
+			    out var readiness, out reason))
+		{
+			return false;
+		}
+
+		if (requireSafe && (exit.IsFallExit || transition.TransitionType is
+		    RoomMovementTransition.FallExit or RoomMovementTransition.NoViableTransition))
+		{
+			reason = DirectionSenseMovement.NoProgressMessage;
+			return false;
+		}
+
+		if (readiness.ExternalPullers?.Any() != true) return true;
+		var service = new VehicleMotiveCohortService();
+		if (!service.TryBuild(readiness.ExternalPullers,
+			    RouteSpatialService.Instance.GetEffectiveLocation(vehicle.ExteriorItem), out var cohort, out reason)) return false;
+		if (requireSafe && cohort.StaminaMovers.Any(x => exit.MovementTransition(x).TransitionType is
+		    RoomMovementTransition.FallExit or RoomMovementTransition.NoViableTransition))
+		{
+			reason = DirectionSenseMovement.NoProgressMessage;
+			return false;
+		}
+		return VehicleMotiveCohortService.CanTraverseExit(cohort, readiness.MovePlan!, exit, actor, out reason);
 	}
 
 	private string DescribeBeginMove(IPerceiver voyeur)

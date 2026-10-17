@@ -350,8 +350,10 @@ public class AutomaticCrimeExtensionsTests
 		Assert.IsTrue(AutomaticCrimeExtensions.CheckLawfulMovement(actor.Object, exit.Object));
 	}
 
-	[TestMethod]
-	public void CheckLawfulMovement_LawfulFollowerWouldTrespass_BlocksWholeMovement()
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void CheckLawfulMovement_LawfulFollowerWouldTrespass_BlocksWholeMovement(bool silent)
 	{
 		Mock<IFuturemud> gameworld = CreateGameworld(out Mock<ILegalAuthority> authority, out All<IProperty> properties,
 			out _);
@@ -377,13 +379,13 @@ public class AutomaticCrimeExtensionsTests
 			.Returns(true);
 
 		var blocked = AutomaticCrimeExtensions.CheckLawfulMovement(new[] { leader.Object, follower.Object }, exit.Object,
-			leader.Object);
+			leader.Object, silent);
 
 		Assert.IsTrue(blocked);
 		followerOutput.Verify(x => x.Send(It.Is<string>(s => s.Contains("That movement would be a crime")),
-			It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);
+			It.IsAny<bool>(), It.IsAny<bool>()), silent ? Times.Never() : Times.Once());
 		leaderOutput.Verify(x => x.Send(It.Is<string>(s => s.Contains("refuses to move")),
-			It.IsAny<bool>(), It.IsAny<bool>()), Times.Once);
+			It.IsAny<bool>(), It.IsAny<bool>()), silent ? Times.Never() : Times.Once());
 	}
 
 	[TestMethod]

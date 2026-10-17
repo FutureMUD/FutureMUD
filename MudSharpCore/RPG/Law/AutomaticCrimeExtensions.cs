@@ -214,7 +214,7 @@ public static class AutomaticCrimeExtensions
 		return CheckLawfulMovement(new[] { actor }, exit, actor);
 	}
 
-	public static bool CheckLawfulMovement(IEnumerable<ICharacter> actors, IRoomExit exit, ICharacter movementLeader = null)
+	public static bool CheckLawfulMovement(IEnumerable<ICharacter> actors, IRoomExit exit, ICharacter movementLeader = null, bool silent = false)
 	{
 		foreach (var actor in actors.Where(x => x is not null).Distinct())
 		{
@@ -229,8 +229,8 @@ public static class AutomaticCrimeExtensions
 				continue;
 			}
 
-			actor.OutputHandler.Send($"That movement would be a crime.\n{CrimeExtensions.StandardDisableIllegalFlagText}");
-			if (movementLeader is not null && movementLeader != actor)
+			if (!silent) actor.OutputHandler.Send($"That movement would be a crime.\n{CrimeExtensions.StandardDisableIllegalFlagText}");
+			if (!silent && movementLeader is not null && movementLeader != actor)
 			{
 				movementLeader.OutputHandler.Send(
 					$"{actor.HowSeen(movementLeader, true)} refuses to move because that movement would be a crime.");

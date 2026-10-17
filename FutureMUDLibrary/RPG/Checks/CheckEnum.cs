@@ -236,10 +236,12 @@ namespace MudSharp.RPG.Checks
 		HaggleCheck = 227,
 		AnalyzeEligibilityCheck = 229,
 		DualWieldCoordinationCheck = 230,
+		DirectionSenseCheck = 234,
+		DirectionSenseRecoveryCheck = 235,
+		PeekCheck = 236,
+		PeekRevealCheck = 237,
 		GuardingExitChallengeCheck = 240,
 		GuardingItemChallengeCheck = 241
-		PeekCheck = 236,
-		PeekRevealCheck = 237
     }
 
     public enum FailIfTraitMissingType

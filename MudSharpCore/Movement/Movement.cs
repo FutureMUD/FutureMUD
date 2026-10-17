@@ -103,7 +103,8 @@ public class Movement : IMovement
         List<IPerceivable> targets,
         List<Dragging> dragEffects,
         bool ignoreSafeMovement,
-        bool ignoreNotLeadDragger
+        bool ignoreNotLeadDragger,
+        bool preflight = false
         )
     {
         if (character is null)
@@ -164,8 +165,10 @@ public class Movement : IMovement
         {
             nonConsensualMovers.Add(character);
             if (!considered.Contains(character.RidingMount) &&
-                (!MountGearService.CanControlMount(character.RidingMount, character) ||
-                 !EvaluateCharacterForAdditionToMovement(party, character.RidingMount, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, ignoreNotLeadDragger)))
+                (!(preflight
+				    ? character.RidingMount.IsPrimaryRider(character) && character.RidingMount.PermitControl(character)
+				    : MountGearService.CanControlMount(character.RidingMount, character)) ||
+                 !EvaluateCharacterForAdditionToMovement(party, character.RidingMount, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, ignoreNotLeadDragger, preflight)))
             {
                 return false;
             }
@@ -178,7 +181,7 @@ public class Movement : IMovement
 
         foreach (ICharacter rider in character.Riders)
         {
-            EvaluateCharacterForAdditionToMovement(party, rider, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, ignoreNotLeadDragger);
+            EvaluateCharacterForAdditionToMovement(party, rider, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, ignoreNotLeadDragger, preflight);
         }
 
         if (effect is null)
@@ -194,10 +197,10 @@ public class Movement : IMovement
                 draggers.Add(character);
                 foreach (ICharacter helper in dragging.Helpers)
                 {
-                    EvaluateCharacterForAdditionToMovement(party, helper, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, true);
+                    EvaluateCharacterForAdditionToMovement(party, helper, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, true, preflight);
                 }
 
-                EvaluateCharacterForAdditionToMovement(party, dragging.Target as ICharacter, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, true);
+                EvaluateCharacterForAdditionToMovement(party, dragging.Target as ICharacter, exit, considered, nonDraggers, mounts, draggers, helpers, nonConsensualMovers, targets, dragEffects, ignoreSafeMovement, true, preflight);
                 if (dragging.Target is IGameItem)
                 {
                     targets.Add(dragging.Target);
@@ -211,10 +214,22 @@ public class Movement : IMovement
         return true;
     }
 
-    public static IMovement CreateMovement(ICharacter originalMover, IRoomExit exit, IEmote? emote = null, bool ignoreSafeMovement = false)
+    public static bool CanStartMovement(ICharacter originalMover, IRoomExit exit, bool ignoreSafeMovement = false,
+        bool requireSafe = false) =>
+        TryPrepareMovement(originalMover, exit, null, ignoreSafeMovement, true, true, requireSafe, out _);
+
+    public static IMovement CreateMovement(ICharacter originalMover, IRoomExit exit, IEmote? emote = null,
+        bool ignoreSafeMovement = false, bool silent = false) =>
+        TryPrepareMovement(originalMover, exit, emote, ignoreSafeMovement, silent, false, false, out var create)
+            ? create!() : null;
+
+    private static bool TryPrepareMovement(ICharacter originalMover, IRoomExit exit, IEmote? emote,
+        bool ignoreSafeMovement, bool silent, bool preflight, bool requireSafe, out Func<IMovement>? create)
     {
-		var guardChallenge = HostileGuardChallenge.Current?.PendingMovement(originalMover, exit);
-		using var guardPreflight = guardChallenge is null ? HostileGuardChallenge.Suspend() : guardChallenge.Enter();
+        create = null;
+        // Preview may use matching exit authority, but must not bind or consume it.
+        var guardChallenge = HostileGuardChallenge.Current?.PendingMovement(originalMover, exit);
+        using var guardPreflight = guardChallenge is null ? HostileGuardChallenge.Suspend() : guardChallenge.Enter();
         // First get all of the party members who are present
         List<ICharacter> primaryMovers = new();
         if (originalMover.Party is not null &&
@@ -241,7 +256,7 @@ public class Movement : IMovement
         {
 			if (!EvaluateCharacterForAdditionToMovement(originalMover.Party, mover, exit, consideredMovers,
 			        nondraggers, mounts, draggers, helpers, nonConsensualMovers, targets, effects,
-			        ignoreSafeMovement, false))
+			        ignoreSafeMovement, false, preflight))
             {
                 failedMovers.Add(mover);
             }
@@ -262,8 +277,8 @@ public class Movement : IMovement
                 message = "You cannot move.";
             }
 
-            originalMover.OutputHandler.Send(message);
-            return null;
+            if (!silent) originalMover.OutputHandler.Send(message);
+            return false;
         }
 
         // The Leave None Behind setting will fail to move if anybody at all can't move
@@ -281,8 +296,8 @@ public class Movement : IMovement
 
             if (failedMovers.Count > 0)
             {
-                originalMover.OutputHandler.Send($"You decide not to move because {failedMovers.Select(x => x.HowSeen(originalMover)).ListToString()} cannot move with you.\n{"Note: To disable this setting, turn off your party's leave none behind setting.".ColourCommand()}");
-                return null;
+                if (!silent) originalMover.OutputHandler.Send($"You decide not to move because {failedMovers.Select(x => x.HowSeen(originalMover)).ListToString()} cannot move with you.\n{"Note: To disable this setting, turn off your party's leave none behind setting.".ColourCommand()}");
+                return false;
             }
         }
 
@@ -292,26 +307,39 @@ public class Movement : IMovement
             .Concat(mounts)
             .DistinctPhysicalInstances()
             .ToList();
-		if (guardChallenge is not null)
-		{
-			var cohort = voluntaryMovers.Concat(targets.OfType<ICharacter>()).DistinctPhysicalInstances().ToArray();
-			if (!guardChallenge.BindCohort(cohort) || !guardChallenge.IsValid) return null;
-			foreach (var mover in cohort)
-			{
-				var crossing = mover.CanCross(exit);
-				if (crossing.Success) continue;
-				if (crossing.FailureOutput is not null) originalMover.OutputHandler.Handle(crossing.FailureOutput);
-				return null;
-			}
-		}
-        if (AutomaticCrimeExtensions.CheckLawfulMovement(voluntaryMovers, exit, originalMover))
+        if (guardChallenge is not null)
         {
-            return null;
+            var cohort = voluntaryMovers.Concat(targets.OfType<ICharacter>()).DistinctPhysicalInstances().ToArray();
+            if (preflight)
+            {
+                if (!guardChallenge.HasBlockingExitGuardsFor(cohort)) return false;
+            }
+            else
+            {
+                if (!guardChallenge.BindCohort(cohort) || !guardChallenge.IsValid) return false;
+                foreach (var mover in cohort)
+                {
+                    var crossing = mover.CanCross(exit);
+                    if (crossing.Success) continue;
+                    if (!silent && crossing.FailureOutput is not null) originalMover.OutputHandler.Handle(crossing.FailureOutput);
+                    return false;
+                }
+            }
         }
-		if (guardChallenge is not null && !guardChallenge.Resolve()) return null;
+        if (requireSafe && (exit.IsFallExit || voluntaryMovers.Any(x =>
+                exit.MovementTransition(x).TransitionType is RoomMovementTransition.FallExit or RoomMovementTransition.NoViableTransition)))
+        {
+            return false;
+        }
+        if (AutomaticCrimeExtensions.CheckLawfulMovement(voluntaryMovers, exit, originalMover, silent))
+        {
+            return false;
+        }
+		if (!preflight && guardChallenge is not null && !guardChallenge.Resolve()) return false;
 
-		return new Movement(originalMover, originalMover.Party, draggers, helpers, nondraggers, mounts, targets,
-			effects, exit, ignoreSafeMovement, guardChallenge);
+        create = () => new Movement(originalMover, originalMover.Party, draggers, helpers, nondraggers, mounts, targets,
+            effects, exit, ignoreSafeMovement, guardChallenge);
+        return true;
     }
 
     public Movement(

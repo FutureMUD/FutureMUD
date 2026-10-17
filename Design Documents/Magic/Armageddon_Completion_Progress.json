@@ -39,7 +39,7 @@
   "preparation_baseline": "b0e4339d57bf15bc6e6a6f21fbdd5edc73006e38",
   "implementation_branch": "codex/armageddon-s6-continuation-20261016",
   "authorised_scope": "Complete authorised slices, commit/push and publish fresh draft successor to externally merged PR788; no merge, deploy, Release enablement or shared/production database.",
-  "selected_stage": "S4/S5 accepted scopes retained; bounded S6 Classic/classes-on normal chargen, corrected authored openings, actual ash expiry and representative N25 first/cold cases qualified in native09. Fresh native08 N24 maintenance cases reused after exact scoped-input checks. Final balance and production readiness pending; stock/Release gates false.",
+  "selected_stage": "S4/S5 and frozen S6 accepted scopes retained; distinct targeted Simple/classes-on measurements recorded. Borrow retirement provider failure crashes server; recovery and final balance/Release readiness remain open.",
   "current_qualification": {
     "date": "2026-10-17",
     "checkpoint": "Armageddon_S6_Readiness_Checkpoint_20261016.md",
@@ -6641,7 +6641,7 @@
     "receipt": "Design Documents/Magic/Armageddon_Installation_Settings_S1_20261011.json",
     "next": "S2: implement429 Classic bindings,419 Simple spell admissions and required crafting, ten capabilities/merits and conditional classes with natural progression; S3-S6 then N24 remain."
   },
-  "current_status_authority": "Design Documents/Magic/Armageddon_S6_Readiness_Qualification_20261017.json",
+  "current_status_authority": "Design Documents/Magic/Armageddon_S6_Targeted_Measurements_20261018.json",
   "S2_staged_progression": {
     "status": "PASS_BOUNDED_S2_STOCK_PROGRESSION",
     "receipt": "Design Documents/Magic/Armageddon_Stock_Progression_S2_20261011.json",
@@ -7008,6 +7008,26 @@
     "scope": "Bounded S6 continuation after externally merged PR788",
     "draft_required": true,
     "merge_authorized": false,
-    "deploy_authorized": false
+    "deploy_authorized": false,
+    "url": "https://github.com/FutureMUD/FutureMUD/pull/801"
+  },
+  "targeted_measurements_20261018": {
+    "report": "Armageddon_S6_Targeted_Measurements_20261018.md",
+    "receipt": "Armageddon_S6_Targeted_Measurements_20261018.json",
+    "baseline_head": "e2536fcaffe6e9eb01811a071ef71c6c10af556c",
+    "latest_case_status": {
+      "ordinary-ui-funding": "PASS",
+      "progression-write-faults": "PASS",
+      "borrowed-corpse-retirement": "FAIL"
+    },
+    "remaining": [
+      "Borrow the Dead provider-failure handling and native alternate/live/cold/idempotent recovery after repair.",
+      "Owner affordability/playability assessment; any material rebalance needs an explicit decision.",
+      "Whole-programme production readiness and Release acceptance remain separate; older receipts retain dated scopes."
+    ],
+    "runtime_repair_performed": false,
+    "release_enabled": false,
+    "stock_and_class_availability_enabled": false,
+    "full_plan_complete": false
   }
 }

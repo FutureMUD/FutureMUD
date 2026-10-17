@@ -21,6 +21,7 @@ param([string]$EvidenceRoot,
 	[switch]$S6IntegrationSmokeOnly,
 	[switch]$S6ReplayCapture,
 	[switch]$S6ReadinessSmokeOnly,
+	[ValidateSet('','ui-funding','progression-faults','borrow-retirement')][string]$S6MeasurementScope = '',
 	[string]$ReadinessCommands,
 	[string]$S6MaintenanceQualification,
 	[string]$S6MaintenanceQualificationSha256,
@@ -57,13 +58,24 @@ if (($S6MaintenanceQualification -or $S6MaintenanceQualificationSha256) -and
 	$S6MaintenanceQualificationSha256 -cnotmatch '^[A-F0-9]{64}$' -or -not (Test-Path -LiteralPath $S6MaintenanceQualification -PathType Leaf))) {
 	throw 'N24 evidence reuse requires the readiness lane and an explicit qualified receipt path and SHA256 pair.'
 }
+if ($S6MeasurementScope -and (-not $S6IntegrationSmokeOnly -or $S6ReadinessSmokeOnly -or $PackageMode -ne 'Simple' -or $EarlierClasses -ne 'On' -or $S6MaintenanceQualification -or $S6MaintenanceQualificationSha256)) { throw 'Targeted S6 measurement requires its own Simple/classes-on pinned-base integration lane; no N24 reuse or readiness scope.' }
+if ($S6MeasurementScope -and $S6MeasurementScope -ne 'ui-funding' -and $ReadinessCommands) { throw 'Provider-fault measurements do not accept chargen UI answers.' }
+if ($S6MeasurementScope -eq 'ui-funding') {
+ if (-not [IO.Path]::IsPathFullyQualified($ReadinessCommands) -or -not (Test-Path -LiteralPath $ReadinessCommands -PathType Leaf)) { throw 'UI/funding requires an explicit existing answer-map path.' }
+ $uiFiles = Get-Content -LiteralPath $ReadinessCommands -Raw | ConvertFrom-Json
+ foreach ($key in @('sorcerer','earth')) {
+  $uiPath = $uiFiles.$key
+  if (-not $uiPath -or -not [IO.Path]::IsPathFullyQualified($uiPath) -or -not (Test-Path -LiteralPath $uiPath -PathType Leaf)) { throw "Missing explicit $key UI answer file." }
+ }
+}
 $n24ReuseVerified = $false
 if ($S6ReplayCapture -and ($Mode -ne 'base-fixture-capture' -or $EarlierClasses -ne 'On')) { throw 'S6 full replay capture requires a fresh classes-on base capture.' }
 foreach ($entry in @{
 	FUTUREMUD_S6_INTEGRATION_SMOKE_ONLY = $(if ($S6IntegrationSmokeOnly) { '1' } else { $null })
 	FUTUREMUD_S6_READINESS_SMOKE_ONLY = $(if ($S6ReadinessSmokeOnly) { '1' } else { $null })
 	FUTUREMUD_S6_N24_REUSED = $null
-	FUTUREMUD_S6_UI_COMMANDS = $(if ($S6ReadinessSmokeOnly) { $ReadinessCommands } else { $null })
+	FUTUREMUD_S6_MEASUREMENT_SCOPE = $(if ($S6MeasurementScope) { $S6MeasurementScope } else { $null })
+	FUTUREMUD_S6_UI_COMMANDS = $(if ($S6ReadinessSmokeOnly -or $S6MeasurementScope -eq 'ui-funding') { $ReadinessCommands } else { $null })
 	FUTUREMUD_S6_REPLAY_CAPTURE = $(if ($S6ReplayCapture) { '1' } else { $null })
 	FUTUREMUD_BASE_EARLIER_CLASSES = $EarlierClasses
 }.GetEnumerator()) {
@@ -344,7 +356,13 @@ try {
 			}
 			$stockAssertions = @($boot.assertions).Count
 			$stockCampaignAssertions = @($boot.assertions | Where-Object { $_ -like '*S4 stock*' }).Count
-			if ($S6IntegrationSmokeOnly) {
+			if ($S6MeasurementScope) {
+				$measurementKey = switch ($S6MeasurementScope) { 'ui-funding' { 's6_ui_funding' } 'progression-faults' { 's6_progression_faults' } 'borrow-retirement' { 's6_borrow_fault' } }
+				$measurement = $boot.$measurementKey
+				if ($boot.status -ne 'PASS' -or $measurement.status -ne 'PASS' -or $measurement.cold_status -ne 'PASS' -or $stockFirstLoaded -ne 152 -or $stockColdLoaded -ne 152 -or -not $boot.owned_mud_processes_stopped) { throw "Targeted $S6MeasurementScope requires its exact first/cold measurements and152 loaders." }
+				Write-Output "s6MeasurementQualification=verified scope=$S6MeasurementScope noN24Execution=true noTimedAshExecution=true"
+			}
+			elseif ($S6IntegrationSmokeOnly) {
 				if ($boot.status -ne 'PASS' -or $boot.s6_integration.status -ne 'PASS' -or $boot.s6_integration.cold_status -ne 'PASS' -or $boot.s6_gathering.status -ne 'PASS' -or $boot.s6_gathering.cold_status -ne 'PASS' -or $stockFirstLoaded -ne 152 -or $stockColdLoaded -ne 152 -or -not $boot.owned_mud_processes_stopped) { throw 'S6 integration requires all152 definitions and ordinary-player first/cold assertions.' }
 				if ($S6ReadinessSmokeOnly) {
 					foreach ($case in @('s6_chargen', 's6_ash_expiry', 's6_uncertainty')) {
@@ -411,10 +429,10 @@ try {
 	Write-Output "nativeHarnessExit=$runExit"
 	$sourceEnd = Write-SourceEvidence 'source-end'
 	$sourceStable = $sourceStart -eq $sourceEnd
-	$qualificationLimits = if ($S6ReadinessSmokeOnly) { 'Current classes-on ordinary chargen UI/approval, actual additive ash expiry, complete-stock N24 maintenance, actual provider debit/effect failure and secondary-body/cold N25 conservation; separate disposable qualification copies. Historical S4/S5 scopes retained; no final balance or Release qualification.' } elseif ($S6IntegrationSmokeOnly) { 'S6 inactive admission/support graph install cell and ordinary Player enrolment/cold sample; selected-Class service tests are separate from complete chargen approval/UI. Source Self/Land bodily payment, real life debit, scar and callback first/cold sample on separate enabled copies; no complete S6, chargen UI or Release qualification.' } elseif ($S5ProgressionSmokeOnly) { 'S5 full-stock Earth ordinary Player acquisition and real funding/practice first-cold sample; separate shared-contract branching and approved carrier receipts complete S5 scope; no S6/Release qualification.' } elseif ($QualificationScope -eq 's4-stock') { 'Focused Telnet evidence is in stock_boot_receipt; no whole-package or S5 qualification.' } else { 'Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.' }
+	$qualificationLimits = if ($S6MeasurementScope) { $measurementLimits = switch ($S6MeasurementScope) { 'ui-funding' { 'Targeted Simple/classes-on normal UI and ordinary-body affordability/funding only.' } 'progression-faults' { 'Two controlled positive progression provider failures; actual raw/grade mutation, quarantine and conservative cold recovery. No ordinary balance claim.' } 'borrow-retirement' { 'Exact installed Borrow the Dead secondary DELETE failure; original corpse/body/foreign item hold and actual recovery observations.' } }; $measurementLimits + ' No N24 execution/reuse, timed ash rerun, balance change or Release qualification.' } elseif ($S6ReadinessSmokeOnly) { 'Current classes-on ordinary chargen UI/approval, actual additive ash expiry, complete-stock N24 maintenance, actual provider debit/effect failure and secondary-body/cold N25 conservation; separate disposable qualification copies. Historical S4/S5 scopes retained; no final balance or Release qualification.' } elseif ($S6IntegrationSmokeOnly) { 'S6 inactive admission/support graph install cell and ordinary Player enrolment/cold sample; selected-Class service tests are separate from complete chargen approval/UI. Source Self/Land bodily payment, real life debit, scar and callback first/cold sample on separate enabled copies; no complete S6, chargen UI or Release qualification.' } elseif ($S5ProgressionSmokeOnly) { 'S5 full-stock Earth ordinary Player acquisition and real funding/practice first-cold sample; separate shared-contract branching and approved carrier receipts complete S5 scope; no S6/Release qualification.' } elseif ($QualificationScope -eq 's4-stock') { 'Focused Telnet evidence is in stock_boot_receipt; no whole-package or S5 qualification.' } else { 'Native Character/Body/items/skills/resources/database with controlled world/check catalogue; no Telnet/login certificate.' }
 	$n24EvidenceMode = if ($n24ReuseVerified) { 'reused-qualified' } elseif ($S6ReadinessSmokeOnly) { 'fresh-execution' } else { 'not-requested' }
 	if ($n24ReuseVerified) { $qualificationLimits += ' N24 retains the original completed four-case campaign scope via exact scoped source/base pins; no fresh maintenance execution is claimed.' }
-	@{ n24_evidence_mode = $n24EvidenceMode; n24_qualification = $S6MaintenanceQualification; n24_qualification_sha256 = $S6MaintenanceQualificationSha256; revision = $revision; mode = $Mode; earlier_classes = $EarlierClasses; s6_integration_smoke_only = [bool]$S6IntegrationSmokeOnly; s6_replay_capture = [bool]$S6ReplayCapture; s6_readiness_smoke_only = [bool]$S6ReadinessSmokeOnly; ui_answers = $ReadinessCommands; qualification_scope = $QualificationScope; gate_smoke_only = [bool]$GateSmokeOnly; exchange_smoke_only = [bool]$ExchangeSmokeOnly; remaining_smoke_only = [bool]$RemainingSmokeOnly; focus_device_smoke_only = [bool]$FocusDeviceSmokeOnly; s5_dose_smoke_only = [bool]$S5DoseSmokeOnly; s5_progression_smoke_only = [bool]$S5ProgressionSmokeOnly; family_smoke_only = [bool]$FamilySmokeOnly; family_smoke_cases = $FamilySmokeCases; focus_device_fixture = $FocusDeviceFixture; focus_device_fixture_sha256 = $FocusDeviceFixtureSha256; stock_first_loaded = $stockFirstLoaded; stock_cold_loaded = $stockColdLoaded; stock_assertions = $stockAssertions; stock_campaign_assertions = $stockCampaignAssertions; stock_boot_receipt = $stockBootReceipt; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
+	@{ s6_measurement_scope = $S6MeasurementScope; n24_evidence_mode = $n24EvidenceMode; n24_qualification = $S6MaintenanceQualification; n24_qualification_sha256 = $S6MaintenanceQualificationSha256; revision = $revision; mode = $Mode; earlier_classes = $EarlierClasses; s6_integration_smoke_only = [bool]$S6IntegrationSmokeOnly; s6_replay_capture = [bool]$S6ReplayCapture; s6_readiness_smoke_only = [bool]$S6ReadinessSmokeOnly; ui_answers = $ReadinessCommands; qualification_scope = $QualificationScope; gate_smoke_only = [bool]$GateSmokeOnly; exchange_smoke_only = [bool]$ExchangeSmokeOnly; remaining_smoke_only = [bool]$RemainingSmokeOnly; focus_device_smoke_only = [bool]$FocusDeviceSmokeOnly; s5_dose_smoke_only = [bool]$S5DoseSmokeOnly; s5_progression_smoke_only = [bool]$S5ProgressionSmokeOnly; family_smoke_only = [bool]$FamilySmokeOnly; family_smoke_cases = $FamilySmokeCases; focus_device_fixture = $FocusDeviceFixture; focus_device_fixture_sha256 = $FocusDeviceFixtureSha256; stock_first_loaded = $stockFirstLoaded; stock_cold_loaded = $stockColdLoaded; stock_assertions = $stockAssertions; stock_campaign_assertions = $stockCampaignAssertions; stock_boot_receipt = $stockBootReceipt; source_start = $sourceStart; source_end = $sourceEnd; source_stable = $sourceStable; native_exit = $runExit;
 		base_fixture = $BaseFixture; base_fixture_sha256 = $BaseFixtureSha256; gate_fixture = $GateFixture; gate_fixture_sha256 = $GateFixtureSha256; exchange_fixture = $ExchangeFixture; exchange_fixture_sha256 = $ExchangeFixtureSha256; package_mode = $PackageMode; later_steps = $LaterSteps; fresh_install_check = [bool]$FreshInstallCheck; base_receipt = (Join-Path $evidenceDirectory 'base-world-run.json'); process_root = $taskRoot; owned_port = $taskPort; limits = $qualificationLimits } |
 		ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $evidenceDirectory 'summary.json')
 	Write-Output "nativeSourceStable=$sourceStable sourceEnd=$sourceEnd"

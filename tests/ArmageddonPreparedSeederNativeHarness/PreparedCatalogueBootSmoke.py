@@ -337,6 +337,13 @@ def attunement_stock_smoke(session, phase):
 
     if os.environ.get('FUTUREMUD_S6_INTEGRATION_SMOKE_ONLY') == '1':
         stock_definition_loading(session, phase, data, mapped)
+        if os.environ.get('FUTUREMUD_S6_MEASUREMENT_SCOPE'):
+            measurement_file = {'ui-funding':'PreparedS6UiFundingSmoke.py', 'progression-faults':'PreparedS6ProgressionFaultSmoke.py', 'borrow-retirement':'PreparedS6BorrowFaultSmoke.py'}[os.environ['FUTUREMUD_S6_MEASUREMENT_SCOPE']]
+            module_spec = importlib.util.spec_from_file_location('s6_measurement', REPO / 'tests/ArmageddonPreparedSeederNativeHarness' / measurement_file)
+            module = importlib.util.module_from_spec(module_spec)
+            module_spec.loader.exec_module(module)
+            module.run(globals(), session, phase, data, mapped)
+            return
         module_spec = importlib.util.spec_from_file_location('s6_integration_smoke', REPO / 'tests/ArmageddonPreparedSeederNativeHarness/PreparedS6IntegrationSmoke.py')
         module = importlib.util.module_from_spec(module_spec)
         module_spec.loader.exec_module(module)
@@ -1423,7 +1430,7 @@ def native_first_boot_scenario(session):
 
 def boot(phase):
     # Leave one minute for owned teardown before the readiness parent's 45-minute limit.
-    budget = 2640 if os.environ.get('FUTUREMUD_S6_READINESS_SMOKE_ONLY') == '1' else (
+    budget = {'ui-funding':3240, 'progression-faults':2580, 'borrow-retirement':1680}[os.environ['FUTUREMUD_S6_MEASUREMENT_SCOPE']] if os.environ.get('FUTUREMUD_S6_MEASUREMENT_SCOPE') else 2640 if os.environ.get('FUTUREMUD_S6_READINESS_SMOKE_ONLY') == '1' else (
         1140 if os.environ.get('FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY') == '1' else 780)
     require(time.monotonic()-started < budget, 'Global boot smoke budget exhausted.')
     sql('SELECT 1')

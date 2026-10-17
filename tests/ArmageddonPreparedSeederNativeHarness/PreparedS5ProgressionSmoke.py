@@ -51,7 +51,12 @@ def run(host, admin, phase, data, mapped):
         assertions.append('S5 progression: pre-login cold SQL retains exact acquisitions, raw skills, opportunities, paid operation and resource balances')
     else:
         report = receipt['s5_progression'] = {'status': 'FAIL', 'mode': cfg['mode'], 'scope': cfg['limits'], 'funding': []}
-        require(balance() == 0 and raw() is None and not state()['acquired'], 'New ordinary learner did not start with zero energy and no magic knowledge/skill.')
+        if cfg.get('normal_chargen'):
+            require(balance() == 0 and raw() == float(cfg['opening']) and
+                    sorted(int(x[0]) for x in state()['acquired']) == sorted(cfg['roots']),
+                    'Normal Class creation did not retain zero energy and exact authored openings.')
+        else:
+            require(balance() == 0 and raw() is None and not state()['acquired'], 'New ordinary learner did not start with zero energy and no magic knowledge/skill.')
     authority = sql(mapped(f'SELECT CAST(c.IsAdminAvatar AS UNSIGNED),g.AuthorityLevel FROM Characters c JOIN Accounts a ON a.Id=c.AccountId JOIN AuthorityGroups g ON g.Id=a.AuthorityGroupId WHERE c.Id={actor}'))
     report.setdefault('authority_by_phase', {})[phase] = authority
     require(authority == [['0', '2']], 'S5 learner requires a non-admin avatar and Player account authority; observed: ' + repr(authority))
@@ -67,6 +72,8 @@ def run(host, admin, phase, data, mapped):
         require('Guest Lounge' in looked, 'Ordinary S5 player login failed: ' + host['redact'](looked))
         denied = player.send('impdebug flush', read_seconds=.3)
         require('All queued saves have been flushed' not in denied, 'Ordinary learner unexpectedly has administrator command authority.')
+        if phase == 'first' and host.get('on_s5_player_login'):
+            host['on_s5_player_login'](player)
         if phase == 'cold':
             flush()
             current = state()
@@ -76,7 +83,8 @@ def run(host, admin, phase, data, mapped):
             report.update(cold_status='PASS', cold_balance=balance())
             assertions.append('S5 progression: ordinary Player cold login preserves progress and paid terminal operation without replay/refund; only native passive increment allowed')
             return
-        admin.send(f'magic casting enrol participant {cap} isolated full-stock S5 qualification', read_seconds=.5)
+        if not cfg.get('normal_chargen'):
+            admin.send(f'magic casting enrol participant {cap} isolated full-stock S5 qualification', read_seconds=.5)
         flush()
         acquired = state()['acquired']
         require(sorted(int(x[0]) for x in acquired) == sorted(cfg['roots']) and all(x[1] == '1' for x in acquired),
@@ -89,6 +97,9 @@ def run(host, admin, phase, data, mapped):
         flush()
         require(state()['operations'] == prior['operations'] and balance() < 50, 'Insufficient ordinary reserve did not refuse before payment/operation: ' + host['redact'](out))
         assertions.append('S5 progression: normal full-stock enrolment grants only starting roots at grade one and native raw opening; empty reserve refuses paid practice')
+        if cfg.get('normal_chargen') and cfg['capacity'] < 50:
+            report.update(status='PASS', measurement_outcome='actual ordinary capacity cannot hold the first stock50 quote; no forced attribute or funding')
+            return
         player.send('sit', read_seconds=.4)
         begin = time.monotonic()
         last = balance()

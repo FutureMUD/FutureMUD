@@ -109,6 +109,9 @@ internal static partial class GNHProgram
 			capacity_attribute = settings.CapacityAttribute, capacity_raw = capacityRaw, capacity, invoked = "armearth", rest_funding_timeout_seconds = 900,
 			limits = "Actual full stock Earth graph on a separate enabled qualification capability; original package gates stay false. New Player account/body; no initial mana, knowledge, skill or grade injection. Native stochastic gain may be zero; full branching uses separate deterministic shared-contract coverage." });
 		if (S6Integration) PrepareS6GatheringFixture(db, input, actor, claims);
+		if (S6UiFunding) PrepareS6UiFundingFixture(db, input, claims);
+		if (S6ProgressionFaults) PrepareS6ProgressionFaultFixture(db, input, actor, claims);
+		if (S6BorrowFault) PrepareS6BorrowFaultFixture(db, input, actor, claims);
 		if (S6Readiness)
 		{
 			PrepareS6ChargenFixture(db, input, claims);

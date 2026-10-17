@@ -13,18 +13,19 @@ internal static partial class GNHProgram
 {
 	private static bool S6Readiness => Environment.GetEnvironmentVariable("FUTUREMUD_S6_READINESS_SMOKE_ONLY") == "1";
 
-	private static void PrepareS6ChargenFixture(MudSharp.Database.FuturemudDatabaseContext db, JsonObject input, IReadOnlyDictionary<string, long> claims)
+	private static void PrepareS6ChargenFixture(MudSharp.Database.FuturemudDatabaseContext db, JsonObject input, IReadOnlyDictionary<string, long> claims,
+		string capabilityKey = "arm.capability.sorcerer", string accountName = "S6Applicant", string storageKey = "s6_chargen")
 	{
 		Require(S6Classes, "Full UI qualification requires an authentic classes-on base.");
 		var settings = ArmageddonInstallation.Read(db)!;
 		var stock = new ArmageddonStockProgression(settings.Mode);
-		var spec = stock.Capabilities.Single(x => x.Key == "arm.capability.sorcerer");
+		var spec = stock.Capabilities.Single(x => x.Key == capabilityKey);
 		var original = db.ChargenRoles.AsNoTracking().Single(x => x.Id == claims[spec.RoleKey]);
 		var stockCapability = db.MagicCapabilities.AsNoTracking().Single(x => x.Id == claims[spec.Key]);
 		var capability = new Db.MagicCapability();
 		db.Entry(capability).CurrentValues.SetValues(stockCapability);
 		capability.Id = 0;
-		capability.Name = "S6 UI complete Sorcerer qualification";
+		capability.Name = $"S6 UI complete {spec.Name} qualification";
 		var definition = XElement.Parse(capability.Definition);
 		Require((bool?)definition.Element("Casting")!.Attribute("enabled") == false &&
 			(bool?)definition.Element("Casting")!.Attribute("enrolOnClassSelection") == true, "UI source must retain inactive stock policy and normal selected-Class enrolment.");
@@ -36,7 +37,7 @@ internal static partial class GNHProgram
 		var meritCopy = new Db.Merit();
 		db.Entry(meritCopy).CurrentValues.SetValues(db.Merits.AsNoTracking().Single(x => x.Id == claims[spec.MeritKey]));
 		meritCopy.Id = 0;
-		meritCopy.Name = "S6 UI complete Sorcerer qualification caster";
+		meritCopy.Name = $"S6 UI complete {spec.Name} qualification caster";
 		var meritDefinition = XElement.Parse(meritCopy.Definition);
 		Require((long?)meritDefinition.Element("Capabilities")!.Element("Capability") == stockCapability.Id, "UI source merit must reference its canonical capability.");
 		meritDefinition.Element("Capabilities")!.Element("Capability")!.Value = capability.Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
@@ -46,7 +47,7 @@ internal static partial class GNHProgram
 		var role = new Db.ChargenRole();
 		db.Entry(role).CurrentValues.SetValues(original);
 		role.Id = 0;
-		role.Name = "S6 Qualification Sorcerer";
+		role.Name = capabilityKey == "arm.capability.sorcerer" ? "S6 Qualification Sorcerer" : "S6 Qualification Earth";
 		role.AvailabilityProgId = settings.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg];
 		db.ChargenRoles.Add(role);
 		db.SaveChanges();
@@ -61,7 +62,7 @@ internal static partial class GNHProgram
 		var account = new Db.Account();
 		db.Entry(account).CurrentValues.SetValues(template);
 		account.Id = 0;
-		account.Name = "S6Applicant";
+		account.Name = accountName;
 		account.Email = string.Empty;
 		account.LastLoginTime = null;
 		account.AuthorityGroupId = db.AuthorityGroups.Single(x => x.AuthorityLevel == (int)PermissionLevel.Player).Id;
@@ -78,11 +79,13 @@ internal static partial class GNHProgram
 			.GroupBy(x => (long)x.Attribute("trait")!)
 			.ToDictionary(x => x.Key, x => x.Max(y => (double)y.Attribute("opening")!));
 		Require(!db.ChargenRolesTraits.Any(x => x.ChargenRoleId == original.Id), "UI source Class must leave magic openings to authored enrolment.");
-		input["s6_chargen"] = JsonSerializer.SerializeToNode(new { account = account.Name, account_id = account.Id, role = role.Id, role_name = role.Name,
-			original_role = original.Id, capability = capability.Id, merit = meritCopy.Id, original_capability = stockCapability.Id, original_merit = claims[spec.MeritKey], resource = claims[spec.ResourceKey],
+		input[storageKey] = JsonSerializer.SerializeToNode(new { account = account.Name, account_id = account.Id, role = role.Id, role_name = role.Name,
+			report_key = storageKey, original_role = original.Id, capability = capability.Id, merit = meritCopy.Id, original_capability = stockCapability.Id, original_merit = claims[spec.MeritKey], resource = claims[spec.ResourceKey],
 			roots = stock.Bindings.Where(x => x.CapabilityKey == spec.Key && x.Starting && !x.Support).Select(x => claims[x.ContentKey]).ToArray(),
-			expected_skills = startingTraits,
+			expected_skills = startingTraits, invoked = db.MagicSchools.Single(x => x.Id == capability.MagicSchoolId).SchoolVerb,
+			trait = (long)definition.Element("Casting")!.Attribute("trait")!, capacity_attribute = settings.CapacityAttribute,
+			resource_name = db.MagicResources.Single(x => x.Id == claims[spec.ResourceKey]).Name,
 			limits = "New empty ordinary Player account; actual normal UI selection, submission, staff review/approval and character creation. One available disposable Class copy retains stock traits with separate complete capability/merit copies; all original gates remain false. No copied applicant body/character or injected magic state." });
-		Console.WriteLine("ARMS6-chargen-input=new empty Player account and separate available Sorcerer Class copy; original stock gates untouched");
+		Console.WriteLine($"ARMS6-chargen-input=new empty Player account and separate available {spec.Name} Class copy; original stock gates untouched");
 	}
 }

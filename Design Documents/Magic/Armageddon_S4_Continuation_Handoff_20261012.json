@@ -5,7 +5,7 @@
   "markdown": "Design Documents/Magic/Armageddon_S4_Continuation_Handoff_20261012.md",
   "repository": "FutureMUD/FutureMUD",
   "branch": "codex/armageddon-s6-continuation-20261016",
-  "pr": null,
+  "pr": "https://github.com/FutureMUD/FutureMUD/pull/801",
   "pr_remains_draft": true,
   "s3_implementation_commit": "8d503f6e789e5d68e03fceb4ae64b0a66f1fabd3",
   "resume_latest_branch_not_reset_to_s3": true,
@@ -495,7 +495,7 @@
   "original_handoff_branch": "codex/armageddon-continuation-20261008",
   "original_handoff_pr": "https://github.com/FutureMUD/FutureMUD/pull/788",
   "successor_pr_lookup_by_head": "codex/armageddon-s6-continuation-20261016",
-  "current_status_authority": "Design Documents/Magic/Armageddon_S6_Readiness_Qualification_20261017.json",
+  "current_status_authority": "Design Documents/Magic/Armageddon_S6_Targeted_Measurements_20261018.json",
   "updated_utc": "2026-10-17T14:34:21.313730+00:00",
   "readiness_continuation_20261017": {
     "checkpoint": "Armageddon_S6_Readiness_Checkpoint_20261016.md",
@@ -509,5 +509,24 @@
     ],
     "full_plan_complete": false,
     "older_batch_fields_are_historical": true
+  },
+  "targeted_measurements_20261018": {
+    "report": "Armageddon_S6_Targeted_Measurements_20261018.md",
+    "receipt": "Armageddon_S6_Targeted_Measurements_20261018.json",
+    "baseline_head": "e2536fcaffe6e9eb01811a071ef71c6c10af556c",
+    "latest_case_status": {
+      "ordinary-ui-funding": "PASS",
+      "progression-write-faults": "PASS",
+      "borrowed-corpse-retirement": "FAIL"
+    },
+    "remaining": [
+      "Borrow the Dead provider-failure handling and native alternate/live/cold/idempotent recovery after repair.",
+      "Owner affordability/playability assessment; any material rebalance needs an explicit decision.",
+      "Whole-programme production readiness and Release acceptance remain separate; older receipts retain dated scopes."
+    ],
+    "runtime_repair_performed": false,
+    "release_enabled": false,
+    "stock_and_class_availability_enabled": false,
+    "full_plan_complete": false
   }
 }

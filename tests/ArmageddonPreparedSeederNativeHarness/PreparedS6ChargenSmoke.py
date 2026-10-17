@@ -10,7 +10,7 @@ def run(host, admin, phase, data, mapped, flush):
     sql, require, receipt, assertions = (host[k] for k in ('sql', 'require', 'receipt', 'assertions'))
     cfg = data['s6_chargen']
     account = int(cfg['account_id'])
-    report = receipt.setdefault('s6_chargen', {'status': 'FAIL', 'limits': cfg['limits'], 'steps': []})
+    report = receipt.setdefault(cfg.get('report_key', 's6_chargen'), {'status': 'FAIL', 'limits': cfg['limits'], 'steps': []})
 
     def state():
         actors = sql(mapped(f'SELECT Id,BodyId,ChargenId,CAST(IsAdminAvatar AS UNSIGNED) FROM Characters WHERE AccountId={account} ORDER BY Id'))
@@ -32,12 +32,12 @@ def run(host, admin, phase, data, mapped, flush):
     if phase == 'cold':
         require(state() == report['saved'], 'Cold process boot changed actual UI-created character/class enrolment or duplicated magic state.')
         report['cold_status'] = 'PASS'
-        assertions.append('S6 chargen: exact real UI-created identity, class merit, roots, supports and zero reserve survive cold restart without replay')
+        assertions.append('S6 chargen: exact real UI-created identity, class merit, roots, supports and saved reserve/progress survive cold restart without replay')
         return
     require(not state()['applications'] and not state()['characters'], 'Applicant account inherited a character or application.')
     authority = sql(f'SELECT g.AuthorityLevel FROM Accounts a JOIN AuthorityGroups g ON g.Id=a.AuthorityGroupId WHERE a.Id={account}')
     require(authority == [['2']], 'Applicant is not an ordinary Player.')
-    path = Path(os.environ['FUTUREMUD_S6_UI_COMMANDS']).resolve()
+    path = Path(cfg.get('commands_file', os.environ['FUTUREMUD_S6_UI_COMMANDS'])).resolve()
     prompt_path = path.with_suffix('.prompt.json')
     player = host['helper'].MudSocket('127.0.0.1', int(receipt['processes'][-1]['endpoint'].rsplit(':', 1)[1]), host['SECRETS'])
     started = time.monotonic()
@@ -92,7 +92,7 @@ def run(host, admin, phase, data, mapped, flush):
                 saved['approval_notes'][0][2] == 'Approved for the isolated S6 Class qualification.',
                 'Normal approval did not persist the exact reviewer and comment audit.')
         require([str(cfg['role'])] in saved['roles'] and [str(cfg['merit'])] in saved['merits'], 'Actual selected Class and permanent qualification capability merit were not retained.')
-        require(sorted(int(x[0]) for x in saved['acquired']) == sorted(cfg['roots']) and all(x[1] == '1' for x in saved['acquired']), 'Class finalisation did not grant exactly four Sorcerer roots at grade one.')
+        require(sorted(int(x[0]) for x in saved['acquired']) == sorted(cfg['roots']) and all(x[1] == '1' for x in saved['acquired']), 'Class finalisation did not grant exactly the authored roots at grade one.')
         require({str(x[0]): float(x[1]) for x in saved['skills']} == cfg['expected_skills'], 'UI finalisation raw starting/casting/support skills differ from selected-mode Class grants.')
         require(any(int(x[0]) == int(cfg['capability']) and int(x[1]) > 0 for x in saved['enrolment']), 'Selected Class hook did not persist selected full-policy enrolment.')
         require(all(float(x[0]) == 0 for x in saved['reserve']) and not saved['opportunities'], 'UI-created caster received reserve or paid progression opportunity work without earning it.')
@@ -135,7 +135,9 @@ def run(host, admin, phase, data, mapped, flush):
                 len(recorded_supports) == len(supports) and set(recorded_supports) == supports.keys(),
                 'Class creation lacks exact durable starting cap/support authorisations.')
         report.update(status='PASS', actor=int(actor), body=int(body), application=application, saved=saved, review=host['redact'](review), approval=host['redact'](approval))
-        assertions.append('S6 chargen: empty ordinary account completes actual UI, selects isolated Class, submits pending application and receives one real approved identity/body with full-policy merit, four grade-one roots, Gather10 and zero mana')
+        assertions.append('S6 chargen: empty ordinary account completes actual UI, selects isolated Class, submits pending application and receives one real approved identity/body with full-policy merit, authored grade-one roots/support openings and zero mana')
     finally:
-        (Path(receipt['runtime_paths'][-1]) / 's6-chargen-transcript.txt').write_text(player.full_transcript(), encoding='utf-8')
+        (Path(receipt['runtime_paths'][-1]) / cfg.get('transcript_name', 's6-chargen-transcript.txt')).write_text(player.full_transcript(), encoding='utf-8')
         player.close()
+
+    return state

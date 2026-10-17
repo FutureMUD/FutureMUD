@@ -257,7 +257,7 @@ public class DualWieldCoordinationSeederTests
 
 		SeedChecks();
 		Assert.AreEqual("0", Coordination(context).TraitExpression.Expression);
-		Assert.AreEqual(0, context.StaticConfigurations.Count());
+		Assert.IsFalse(context.StaticConfigurations.Any(x => x.SettingName.StartsWith("DualWield")));
 		Assert.IsTrue(DualWieldCoordinationSeederHelper.BindExistingSkill(context, skill.Id).Success);
 		var boundId = Coordination(context).TraitExpressionId;
 

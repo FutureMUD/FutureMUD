@@ -1,4 +1,4 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -236,6 +236,8 @@ namespace MudSharp.RPG.Checks
 		HaggleCheck = 227,
 		AnalyzeEligibilityCheck = 229,
 		DualWieldCoordinationCheck = 230,
+		GuardingExitChallengeCheck = 240,
+		GuardingItemChallengeCheck = 241
 		PeekCheck = 236,
 		PeekRevealCheck = 237
     }
@@ -272,6 +274,8 @@ namespace MudSharp.RPG.Checks
             switch (type)
             {
                 case CheckType.DualWieldCoordinationCheck:
+				case CheckType.GuardingExitChallengeCheck:
+				case CheckType.GuardingItemChallengeCheck:
 
                 case CheckType.HideCheck:
                 case CheckType.SneakCheck:
@@ -627,6 +631,8 @@ namespace MudSharp.RPG.Checks
         {
             switch (type)
             {
+				case CheckType.GuardingExitChallengeCheck:
+				case CheckType.GuardingItemChallengeCheck:
 				case CheckType.PeekCheck:
 				case CheckType.PeekRevealCheck:
                 case CheckType.GenericSpotCheck:

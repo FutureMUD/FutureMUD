@@ -34,9 +34,16 @@ The syntax is:
 	#3north#0, #3south#0, #3east#0, #3west#0, #3up#0 or #3down#0
 	#3northeast#0, #3northwest#0, #3southeast#0 or #3southwest#0
 	#3enter#0 or #3leave#0
-	#3<direction> (<emote>)#0", AutoHelp.HelpArg)]
+	#3<direction> (<emote>)#0
+
+Append #3!#0 to override safe movement. On worlds enabling hostile guard challenges, #3north !!#0 challenges exit guards while retaining safe movement, and #3north ! !!#0 explicitly requests both. Put #3!!#0 after the target and before any emote. Challenges cannot be queued or used while controlling a vehicle.", AutoHelp.HelpArg)]
     protected static void Move(ICharacter actor, string input)
     {
+		if (actor.Movement is not null && input.Contains("!!", StringComparison.Ordinal))
+		{
+			actor.Send("Guard challenges cannot be queued. Finish moving before challenging an exit guard.");
+			return;
+		}
         if (actor.Combat != null && actor.MeleeRange)
         {
             actor.Send("You must escape melee combat before you can move anywhere!");

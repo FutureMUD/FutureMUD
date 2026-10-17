@@ -219,6 +219,7 @@ public partial class Body
     public void Open(IOpenable openable, ICharacter openableOwner, IEmote playerEmote, bool useCouldLogic = false)
     {
 		var executor = Actor;
+		var guardChallenge = HostileGuardChallenge.CurrentItem;
 		using var execution = MudSharp.NPC.AI.CommandExecutionScope.EnterBodyOperation(executor);
 		bool CanContinue() => ReferenceEquals(Actor, executor) && MudSharp.NPC.AI.CommandExecutionScope.TryContinue(executor);
 		if (!CanContinue()) return;
@@ -306,8 +307,11 @@ public partial class Body
         }
 
 		if (!CanContinue()) return;
+		if (guardChallenge is not null &&
+		    (!CanOpen(openable) || !guardChallenge.CanCommitItemAction(executor, openable.Parent, null, GuardChallengeAction.Open))) return;
 		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted(executor);
         openable.Open();
+		guardChallenge?.Dispose();
         HandleCharacterItemEvent(EventType.CharacterOpenedItem, EventType.ItemOpened,
             EventType.CharacterOpenedItemWitness, openable.Parent);
     }

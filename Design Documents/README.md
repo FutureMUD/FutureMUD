@@ -45,6 +45,7 @@ This folder is organised by subsystem so implementation notes, builder workflows
 - [Dual Wield Double Attacks](./Combat/Dual_Wield_Double_Attacks.md) - runtime, configuration and existing-world binding.
 - [Dual Wield Double Attacks Plan](./Combat/Dual_Wield_Double_Attacks_Plan.md) - approved design and integration plan.
 - [Dual Wield Double Attacks Verification](./Combat/Dual_Wield_Double_Attacks_Verification.md) - receipts and remaining verification gaps.
+- [Explicit Hostile Guard Challenges](./Combat/Hostile_Guard_Challenges.md)
 - [Accelerated Combat Simulation](./Combat/Accelerated_Combat_Simulation.md)
 - [Animal Combat Balance Second Pass](./Combat/Animal_Combat_Balance_Second_Pass.md)
 - [Mythical and Supernatural Combat Balance Pass](./Combat/Mythical_Supernatural_Combat_Balance_Pass.md)

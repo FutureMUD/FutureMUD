@@ -5497,9 +5497,21 @@ The common syntax is:
 	#3open <exit|item>#0
 	#3open <door> <exit>#0
 	#3open <character> <external item>#0
-	#3open <item|exit> <panel|housing>#0", AutoHelp.HelpArgOrNoArg)]
+	#3open <item|exit> <panel|housing>#0
+
+On worlds enabling hostile guard challenges, append #3!!#0 before an optional emote to challenge an item guard: #3open chest !!#0 or #3open north !!#0. This supports room items and installed doors, and preserves locks and all other access rules. Opening a door does not challenge an exit guard or authorise passage. Other-character items and automation panels do not support challenges.", AutoHelp.HelpArgOrNoArg)]
     protected static void Open(ICharacter actor, string command)
     {
+		if (!GuardChallengeSyntax.TryExtract(command, out var parsedCommand, out var challenge, out var syntaxError))
+		{
+			actor.Send(syntaxError);
+			return;
+		}
+		if (challenge)
+		{
+			OpenWithGuardChallenge(actor, parsedCommand);
+			return;
+		}
         StringStack ss = new(command.RemoveFirstWord());
         string cmd = ss.PopSafe();
         string cmd2 = ss.PopSafe();

@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Xml;
 using System.Xml.Linq;
 
@@ -102,6 +103,8 @@ internal static class Trx
 					FullyQualifiedName = definitions?.GetValueOrDefault(testId),
 					NativeOutcome = native,
 					Outcome = outcome,
+					DurationSeconds = TimeSpan.TryParse((string?)result.Attribute("duration"), CultureInfo.InvariantCulture, out var duration) && duration >= TimeSpan.Zero
+						? duration.TotalSeconds : null,
 					Message = (string?)error?.Element(ns + "Message"),
 					Stack = (string?)error?.Element(ns + "StackTrace"),
 					Report = path

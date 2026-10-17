@@ -15,7 +15,7 @@ using Db = MudSharp.Models;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class GatheringAuthoringSupportTests
+public partial class GatheringAuthoringSupportTests
 {
 	[TestMethod]
 	public void OfflineCompiler_UsesDeclaredRegisterTypesWithoutLoadingDatabaseOrLiveValues()

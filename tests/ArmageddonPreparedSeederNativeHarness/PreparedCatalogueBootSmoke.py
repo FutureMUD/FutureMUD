@@ -1422,7 +1422,9 @@ def native_first_boot_scenario(session):
         assertions.append('Native winged creature entered Flying posture and crossed the same approved room exit')
 
 def boot(phase):
-    budget = 1140 if os.environ.get('FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY') == '1' else 780
+    # Leave one minute for owned teardown before the readiness parent's 45-minute limit.
+    budget = 2640 if os.environ.get('FUTUREMUD_S6_READINESS_SMOKE_ONLY') == '1' else (
+        1140 if os.environ.get('FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY') == '1' else 780)
     require(time.monotonic()-started < budget, 'Global boot smoke budget exhausted.')
     sql('SELECT 1')
     runtime = OUTPUT / ('runtime-' + phase + '-' + uuid.uuid4().hex)

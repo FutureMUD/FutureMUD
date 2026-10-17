@@ -53,6 +53,10 @@ This document explains how the item system is structured in code and at runtime:
 - revision updates
 - morph and destruction behaviour
 
+## Timed effects on item morph
+
+Timed description addenda transferred by the native item morph path retain their absolute UTC expiry deadline. Adding the transferred effect with its remaining duration replaces any schedule created by `InitialEffect`, so one effect has one queued expiry callback. Overdue cold storage retires silently; live expiry announces once. See [the description-addendum contract](../Magic/Magic_Gathering.md).
+
 ## Wearable numeric persistence
 
 Wear eligibility rejects a profile when its required bodyparts or bodypart shapes cannot be mapped to the wearer. A null profile mapping is an ordinary fit failure; automatic selection may continue to another compatible profile.

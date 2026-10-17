@@ -165,18 +165,15 @@ internal static partial class GNHProgram
 			var role = db.ChargenRoles.Single(x => x.Id == roleId);
 			Require(role.AvailabilityProgId == settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg] &&
 				db.ChargenRolesMerits.Where(x => x.ChargenRoleId == roleId).Select(x => x.MeritId).ToArray().SequenceEqual([merit.Id]), "Class availability/merit identity differs.");
-			var expected = stock.Bindings.Where(x => x.CapabilityKey == cap.Key && x.Starting)
-				.GroupBy(x => claims[x.TraitKey].LogicalId!.Value).ToDictionary(x => x.Key, x => x.Max(y => y.Opening));
-			if (ArmageddonStockProgression.IsSorcerer(cap)) expected.Add(claims[ArmageddonProgressionInstaller.GatheringTraitKey].LogicalId!.Value, 10);
-			var actual = db.ChargenRolesTraits.Where(x => x.ChargenRoleId == roleId).ToDictionary(x => x.TraitId, x => x.Amount);
-			Require(actual.Count == expected.Count && expected.All(x => actual.TryGetValue(x.Key, out var amount) && amount == x.Value), "Class starting skills/supports differ from selected mode.");
+			Require(!db.ChargenRolesTraits.Any(x => x.ChargenRoleId == roleId),
+				"Class has duplicate magic opening adjustments; authored enrolment must own starting skills/supports.");
 		}
 		Require(stock.Capabilities.Count == 10 && stock.Bindings.All(x => claims.ContainsKey(x.TraitKey)), "Incomplete capability/support graph.");
 		var receipt = new { Status = "PASS", Mode = settings.Mode.ToString(), EarlierClasses = S6Classes, Capabilities = 10,
 			Merits = 10, ClassRoles = roles.Length, CanonicalSpells = 152, Blueprints = 210,
 			ProgressionBindings = stock.Bindings.Count + 3, SpellAdmissions = stock.Bindings.Count(x => !x.Support), SupportGrants = stock.Bindings.Count(x => x.Support) + 3,
 			GatheringPolicyStatus = "CONFIGURED-independent-availability-false", ExistingPlayerStateUnchanged = true, NoLiveNpcsSpawned = true, PackageAvailabilityDisabled = true,
-			ClassMeritsAndStartingTraitsExact = true };
+			ClassMeritsAndEnrolmentOpeningsExact = true };
 		var path = Environment.GetEnvironmentVariable("FUTUREMUD_BASE_WORLD_RECEIPT")!;
 		File.WriteAllText(Path.Combine(Path.GetDirectoryName(path)!, "s6-installation.json"), JsonSerializer.Serialize(receipt, BaseJsonOptions));
 		Console.WriteLine("ARMS6-installation=" + JsonSerializer.Serialize(receipt));

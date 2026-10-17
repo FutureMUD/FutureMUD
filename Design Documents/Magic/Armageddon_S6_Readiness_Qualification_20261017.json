@@ -1,0 +1,666 @@
+{
+  "schema_version": 2,
+  "date": "2026-10-17",
+  "status": "QUALIFIED_BOUNDED_S6_READINESS",
+  "implementation_branch": "codex/armageddon-s6-continuation-20261016",
+  "tested_head": "76df9be20ae79b355739b95e1cbf201c8ace3cef",
+  "tested_head_scope": "Base HEAD plus the frozen uncommitted implementation. Source manifests and assembly digests identify the tested inputs; publication adds closeout documentation after owned cleanup. Hosted checks must be resolved against the actual successor PR head.",
+  "scope": "Classic with earlier Classes on; full normal chargen UI and approval, exact authored openings, actual additive ash expiry and representative provider-failure/body/cold conservation in native09. Four actual complete-stock N24 maintenance cases retain their fresh native08 scope and are reused after exact scoped-input verification. Isolated qualification copies; all original gates false.",
+  "native": {
+    "summary": {
+      "path": "C:/Temp/armageddon-s6-readiness-native-09/20261017T140457Z_f83cf4a9efd74384a36b6ec7dd547173/summary.json",
+      "sha256": "49905DBC74631A798E40482AE6364FDC8577B0CB3C128D2D0606CD928340F07B"
+    },
+    "boot": {
+      "path": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-stock-faab42cc3b974a60a23954e3cda83dd8/boot-latest.json",
+      "sha256": "79AEEF7EE07E891BFBD21647F68B8946D87AB1DF1E6451CC8102789AAD4D7FD9"
+    },
+    "outer_run_log": {
+      "path": "C:/Temp/armageddon-s6-readiness-native-09.log",
+      "sha256": "430282F8AAB9DDA11D9D0ED27A404F3C9DE38C5A1DB6E884705C7D68703EACAE"
+    },
+    "source_start": {
+      "path": "C:/Temp/armageddon-s6-readiness-native-09/20261017T140457Z_f83cf4a9efd74384a36b6ec7dd547173/source-start.json",
+      "sha256": "32F87526D197473C5B99709ED4EF4020AF75793C27F6CCA7469B72CCAB32E8AE"
+    },
+    "source_end": {
+      "path": "C:/Temp/armageddon-s6-readiness-native-09/20261017T140457Z_f83cf4a9efd74384a36b6ec7dd547173/source-end.json",
+      "sha256": "32F87526D197473C5B99709ED4EF4020AF75793C27F6CCA7469B72CCAB32E8AE"
+    },
+    "assemblies": [
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Debug\\net10.0\\GatheringNativePersistenceHarness.dll",
+        "sha256": "C8C9C08D17AA986E1594DBD5251B65F49CC8AF74986E89F2104EC51B1B52A6B7"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Debug\\net10.0\\GatheringNativePersistenceHarness.deps.json",
+        "sha256": "033EACC982F83AB10D33058BF31FA1D31DCDC9CBA2422F045CE5291484906F97"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Debug\\net10.0\\GatheringNativePersistenceHarness.runtimeconfig.json",
+        "sha256": "99B3B87037CC9002BDFB6251465F17A7F7079B18A0AAED46DDBCDBDC1652B433"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Debug\\net10.0\\MudSharp.dll",
+        "sha256": "801CB51903BCEFA9CD2DF99997F0B44D293EF90ED57F59767F4486E322D43F14"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll",
+        "sha256": "26034EFA87B6671C3F7769DB339AF3511F81C9E6D02D751109F2BBFB40629F3A"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Debug\\net10.0\\MudsharpDatabaseLibrary.dll",
+        "sha256": "89DFD3FB53B27D4FDDAA1D4FA8C799E1047A65081A3890A647A33B92ED8DADDF"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Debug\\net10.0\\ExpressionEngine.dll",
+        "sha256": "67391BC79C45FE88B8A4D9E1207C787A4F7EAD6A29AC993C4C053D5213D0BA51"
+      },
+      {
+        "path": "C:\\Users\\luker\\.codex\\worktrees\\377e\\FutureMUD\\tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Debug\\net10.0\\DatabaseSeeder.dll",
+        "sha256": "CFEE54B710B7B0C7D92650EDF5463C4CAA9B716A935F31F35674AA3C2BE8656E"
+      }
+    ],
+    "installation_audit": {
+      "path": "C:/Temp/armageddon-s6-readiness-native-09/20261017T140457Z_f83cf4a9efd74384a36b6ec7dd547173/s6-installation.json",
+      "sha256": "0DFD6F7B7414F2322AE3AF46EBD06AC06274D3DC2D4EB6D5BD431367FDA8E65B"
+    },
+    "mode": "Classic",
+    "earlier_classes": "On",
+    "first_loaded": 152,
+    "cold_loaded": 152,
+    "assertion_count": 27,
+    "assertions": [
+      "Matching parent-ready receipt before owned SQL or MUD startup",
+      "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+      "first: native MUD ready",
+      "first: native Admin avatar login and LOOK",
+      "first: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready",
+      "S6 integration: normal permanent-merit enrolment grants exact stock roots at grade one and selected-mode raw openings; repeat is idempotent",
+      "S6 integration: ordinary Player login, denied administrator command and unfunded target-free practice refusal preserve progress",
+      "S6 gathering: retained stock false gate and fractional/oversized-request refusals preserve payment, receipt and land state",
+      "S6 gathering: paid self amount1, exact native bodily price, reserve1, life10 and scar0",
+      "S6 gathering: paid land amount1, exact native bodily price, reserve2, life9 and scar1",
+      "S6 gathering: paid land amount2, exact native bodily price, reserve4, life8 and scar2",
+      "S6 chargen: empty ordinary account completes actual UI, selects isolated Class, submits pending application and receives one real approved identity/body with full-policy merit, four grade-one roots, Gather10 and zero mana",
+      "S6 ash: actual270+540-second additive deadline expires once locally, removes persisted presentation and leaves life/scars/reserve unchanged",
+      "N25: real MySQL errors after debit and actual projection effect quarantine original GUIDs; alternate capability and actual secondary body cannot replay or repay; unrelated record remains usable",
+      "first: native flush and independent persisted LastLoginTime",
+      "first: graceful shutdown, persisted avatar/cell and logout",
+      "cold: native MUD ready",
+      "cold: native Admin avatar login and LOOK",
+      "cold: all 152 installed canonical definitions retained exact identity, cost/duration formulas, grades 1..7 and typed references and loaded ready",
+      "S6 integration: cold pre-login retains exact starting knowledge, raw skills and enrolment without production or opportunity replay",
+      "S6 integration: ordinary Player login, denied administrator command and unfunded target-free practice refusal preserve progress",
+      "S6 gathering: exact cold receipts, reserve, one-unit life debits, scars and callback registers persist without replay; ash follows the explicitly selected lane deadline",
+      "S6 chargen: exact real UI-created identity, class merit, roots, supports and zero reserve survive cold restart without replay",
+      "S6 ash: cold process restart retains retirement without a second announcement or ecological repair",
+      "N25: cold actual provider quarantine, exact paid reserves/grade/GUIDs, same-ID idempotent staff reconciliation and reboot retirement conserve canonical body without replay/refund/second projection",
+      "cold: native flush and independent persisted LastLoginTime",
+      "cold: graceful shutdown, persisted avatar/cell and logout"
+    ],
+    "cases": {
+      "s6_integration": {
+        "status": "PASS",
+        "mode": "Classic",
+        "earlier_classes": true,
+        "qualification_capability": 17,
+        "limits": "Separate full Earth Player enrolment plus actual empty-account chargen UI/finalisation, real ash expiry, native MySQL provider fault and cold conservation; explicit readiness lane. Original stock gates disabled.",
+        "cold_status": "PASS"
+      },
+      "s6_gathering": {
+        "status": "PASS",
+        "limits": "Separate enabled copy, source permission checks retained, stock gate false. Disposable real pasture/fertile room, native standard human health model; no initial mana/Gather skill injection. Regional life is adapted to local yield units. No real-time ash-expiry wait.",
+        "last_output": "You begin gathering Gather from land. It will take less than a second if uninterrupted.\n\n\n<You are currently in no pain>\n<Stamina: 196/350 | Exertion: Low | Status: Awake>\n<You are standing here, gathering gather from land.>\n\nYou complete Gather from land and gain 2.00 Armageddon Sorcerer reserve.\n\n\n<You are currently in no pain>\n<Stamina: 195/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+        "first_source_cooldown_seconds": 598.998957,
+        "cold_status": "PASS"
+      },
+      "s6_chargen": {
+        "status": "PASS",
+        "limits": "New empty ordinary Player account; actual normal UI selection, submission, staff review/approval and character creation. One available disposable Class copy retains stock traits with separate complete capability/merit copies; all original gates remain false. No copied applicant body/character or injected magic state.",
+        "approval_editor_completed": true,
+        "actor": 4,
+        "body": 4,
+        "application": 1,
+        "review": "Character Application #1\n\nAccount: S6Applicant                                        Approval Level: Guest                                       Times Rejected: 0\nTotal Cost: \nName: Cedric Ashford                                                                                                    Gender: Male\nRace: Human                                                 Ethnicity: English                                          Culture: Western European Free Farmers\nClass: S6 Qualification Sorcerer                            Subclass: None\nHeight: 1 metre 75 centimetres                              Weight: 75 kilograms\nAge: 25 years old                                           Category: Young Adult                                       Birthday: 20/11/1274\n\nShort Description: an oval-eyed man with round ears\nFull Description:\n\n  This man is a male human that is 1 metre 75 centimetres tall and about the\n  same height as you. You would describe him as normal, as he is of a perfectly\n  ordinary build, with little excess fat or muscle and ordinary proportions. He\n  has grey oval eyes that are a pure shade of grey, which sit above a\n  medium-sized round nose. His hair is a pure shade of brown, and has been\n  styled so that he has short hair pulled back behind the head into a small\n  ponytail, with barely enough hair to make it work. He does not have any facial\n  hair, with a clean, smooth chin. His ears are decidedly round at the top. He\n  has a strong and broad jawline.\n\nAttributes:\n\n  Strength [12]\n  Constitution [12]\n  Dexterity [12]\n  Intelligence [12]\n  Willpower [12]\n  Perception [12]\n\nSkills:\n\n  Middle English (mandatory)           Farming (ordinary)                   Forage (ordinary)                    Survival (ordinary)                  Climb (ordinary)\n  Swimming (ordinary)\n\nNative Language: Middle English\n\nLanguages and Accents:\n\n  Middle English (London)\n\nRoles:\n\n  #1: Default Starting Location\n\n\nBackground Comment:\n\n  Cedric grew up helping his family tend their small farm. He learned to forage\n  and swim while carrying supplies between nearby villages. He is patient with\n  difficult work and curious about unfamiliar customs. He hopes to make\n  dependable friends and build a quiet life of his own.\n\n\n\nUse the accept and decline commands to review this application.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+        "approval": "Please enter any comments you have to the applicant.\n\nYou are now entering an editor, use @ on a blank line to exit and *help to see help.\n\n|------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------|\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n]The Guest Lounge\nID[1] | Terrain[Void] | [NoQuit] | Overlay[CoreData Autogenerated (#1r0)] | Coordinates[0,0,0]\nExits: \n\n  This is the guest lounge, where guests to the MUD can log in and chat with\nguides, administrators or each other as well as test out features of the engine\nbefore their first character is approved.\n\n  Grey, lifeless ash collects on the ground.\n  Currently, the lighting is bright here.\n\nA stock learning participant is standing here.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+        "cold_status": "PASS",
+        "ui_steps": 82,
+        "created_characters": 1,
+        "roots": [
+          [
+            "2",
+            "1"
+          ],
+          [
+            "75",
+            "1"
+          ],
+          [
+            "89",
+            "1"
+          ],
+          [
+            "116",
+            "1"
+          ]
+        ],
+        "starting_skills": [
+          [
+            "306",
+            "60"
+          ],
+          [
+            "333",
+            "60"
+          ],
+          [
+            "339",
+            "60"
+          ],
+          [
+            "362",
+            "60"
+          ],
+          [
+            "443",
+            "10"
+          ]
+        ],
+        "authored_audit_stages": [
+          "EnrolmentRecorded",
+          "SkillCapRecorded",
+          "SkillCapRecorded",
+          "SkillCapRecorded",
+          "CappedSupportGranted",
+          "SkillCapRecorded"
+        ],
+        "zero_reserve": true,
+        "no_paid_opportunities": true
+      },
+      "s6_ash_expiry": {
+        "status": "PASS",
+        "deadline_utc": "2026-10-17T14:29:53.430171+00:00",
+        "nominal_first_land_seconds": 270,
+        "additional_two_mana_seconds": 540,
+        "limits": "Actual unaccelerated wall clock and one local observer; no ecological restoration.",
+        "observer_started_utc": "2026-10-17T14:18:25.539310+00:00",
+        "message_observed_utc": "2026-10-17T14:29:54.133311+00:00",
+        "observed_messages": 1,
+        "waited_seconds": 693.142,
+        "expired_look": "The Guest Lounge\n\nExits: \n\n  This is the guest lounge, where guests to the MUD can log in and chat with\nguides, administrators or each other as well as test out features of the engine\nbefore their first character is approved.\n\n  Currently, the lighting is bright here.\n\nA full-bearded elderly woman is standing here.\n\n\n<You are currently in no pain>\n<Stamina: 350/350 | Exertion: Low | Status: Awake>\n<You are standing here>\n\n",
+        "cold_status": "PASS"
+      },
+      "s6_uncertainty": {
+        "status": "PASS",
+        "limits": "Copied-body ordinary Player; separate explicit high-opening qualification routes invoke unchanged native stock spells. Funding uses finite paid native gathering, not injected balances. Actual MySQL SIGNAL after debit and successful projection effect; actual secondary-body retry and reboot retirement. Natural affordability/mastery statistics remain in their existing separate qualification scopes.",
+        "cold_status": "PASS",
+        "faults": [
+          {
+            "hex": "63383930373736362D396233652D343036352D613166392D663135616661613162396261",
+            "guid": "c8907766-9b3e-4065-a1f9-f15afaa1b9ba",
+            "stage": "Committed",
+            "receipt": [
+              "63383930373736362D396233652D343036352D613166392D663135616661613162396261",
+              "NeedsReview",
+              "4",
+              "3",
+              "20",
+              "91",
+              "2",
+              "<Casting version=\"1\" admission=\"3e5b3441-7ba7-4846-81a1-d2c88bebb90a\" identity=\"b6b7cc35-224f-4d13-a907-b3315598ded5\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"90\"><Targets><![CDATA[self]]></Targets><Cost holder=\"3\" resource=\"2\" amount=\"50\" before=\"100\" /></Casting>",
+              "At PaymentMutated: An error occurred while saving the entity changes. See the inner exception for details. (N25 actual provider Committed)"
+            ]
+          },
+          {
+            "hex": "66623839646562372D376363662D346364362D393665642D666464633030313734376162",
+            "guid": "fb89deb7-7ccf-4cd6-96ed-fddc001747ab",
+            "stage": "EffectsExecuted",
+            "receipt": [
+              "66623839646562372D376363662D346364362D393665642D666464633030313734376162",
+              "NeedsReview",
+              "4",
+              "3",
+              "22",
+              "137",
+              "8",
+              "<Casting version=\"1\" admission=\"e24f865d-447d-434c-a884-f2fd2356bf17\" identity=\"f99f2174-57a1-4cc0-89f4-726d87ebed37\" grade=\"1\" profile=\"1\" priorGrade=\"1\" controlledGrade=\"1\" skillEligible=\"true\" masteryEligible=\"false\" skillBefore=\"90\"><Targets><![CDATA[self]]></Targets><Cost holder=\"3\" resource=\"8\" amount=\"50\" before=\"100\" /></Casting>",
+              "At Committed: An error occurred while saving the entity changes. See the inner exception for details. (N25 actual provider EffectsExecuted)"
+            ]
+          }
+        ],
+        "projection": {
+          "life": "39626631643733662D343161322D343231612D626239652D656662313636306130616435",
+          "instance": 5,
+          "body": 5,
+          "claims": [
+            [
+              "2",
+              "5"
+            ],
+            [
+              "3",
+              "5"
+            ]
+          ]
+        }
+      }
+    },
+    "n24_evidence_mode": "reused-qualified",
+    "n24_original_run": "native08",
+    "n24_checked_reference": {
+      "path": "C:/Temp/armageddon-s6-readiness-native-09/20261017T140457Z_f83cf4a9efd74384a36b6ec7dd547173/n24-qualified-reference.json",
+      "sha256": "6A058385CB43E09F63D421FFBBA7919E92E040FFE0EBE37FED8D9E5F0C7FFD23"
+    },
+    "n24_reuse_validation": {
+      "path": "C:/Temp/armageddon-s6-n24-reuse-validation-08/receipt.json",
+      "sha256": "0A8874A9EF4A16638FAFE6F1B7A74FC58B1E31833AC3FFCE4115D5D1A6A8A938"
+    },
+    "n24_matched_scoped_inputs": 6236,
+    "n24_receipt": {
+      "path": "C:/Temp/armageddon-s6-readiness-native-08/20261017T124240Z_47539eebc53f471ba5b2dbfe8426ff39/n24-maintenance/receipt.json",
+      "sha256": "BB97B7C54F8941F44AF7FB1E98A7F47FF77559F3F1B207243F80C09B53AD24D8"
+    },
+    "n24_cases": [
+      {
+        "Case": "retained-edit-clone",
+        "Status": "PASS",
+        "FullReruns": 2,
+        "CanonicalSpells": 152,
+        "Blueprints": 210,
+        "StableIdentities": 3967,
+        "SpellId": 76,
+        "CapabilityId": 8,
+        "CloneId": 153,
+        "RetainedFields": "name/blurb/native capability definition",
+        "CloneUnowned": true,
+        "PlayerStateUnchanged": true
+      },
+      {
+        "Case": "retired",
+        "Status": "PASS",
+        "ConflictKey": "arm.spell.mend_flesh",
+        "Diagnostic": "Existing Armageddon arm.spell.mend_flesh has unknown/incomplete/retired/competing typed ownership; preserve and resolve it before the full installation.",
+        "AllTableContentUnchanged": true,
+        "PlayerStateUnchanged": true,
+        "NoResurrection": true
+      },
+      {
+        "Case": "deleted",
+        "Status": "PASS",
+        "ConflictKey": "arm.spell.mend_flesh",
+        "Diagnostic": "Existing Armageddon arm.spell.mend_flesh has unknown/incomplete/retired/competing typed ownership; preserve and resolve it before the full installation.",
+        "AllTableContentUnchanged": true,
+        "PlayerStateUnchanged": true,
+        "NoResurrection": true
+      },
+      {
+        "Case": "genuine-interrupted-first-install",
+        "Status": "PASS",
+        "FaultPoint": "arm.spell.open_threshold:BeforeCommit",
+        "RetainedCanonicalSpells": 151,
+        "CompletedCanonicalSpells": 152,
+        "EarlierIdentitiesPreserved": true,
+        "PlayerStateUnchanged": true
+      }
+    ],
+    "n24_scope": "Complete current stock, native MySQL maintenance with fixture-authored builder edits and clone; no claim to builder UI coverage",
+    "n24_child_databases_disposed": 4,
+    "n24_current_execution": false,
+    "n24_original_world_unchanged": true,
+    "owned_mud_processes_stopped": true,
+    "owned_mysql_instance_removed": true,
+    "limits": "Current classes-on ordinary chargen UI/approval, actual additive ash expiry, complete-stock N24 maintenance, actual provider debit/effect failure and secondary-body/cold N25 conservation; separate disposable qualification copies. Historical S4/S5 scopes retained; no final balance or Release qualification. N24 retains the original completed four-case campaign scope via exact scoped source/base pins; no fresh maintenance execution is claimed."
+  },
+  "base_fixture": {
+    "descriptor": {
+      "path": "C:/Users/luker/.codex/worktrees/377e/FutureMUD/.artifacts/pre-armageddon-base-fixtures/20261016T112712Z_6617c9f2464a4690b51264494544321c/base-world.json",
+      "sha256": "27F335A23264601AA63EE303FA3A5172CAD077CB1BD757B4C998B7D7CD725415"
+    },
+    "qualified_replay_receipt": "C:/Temp/armageddon-s6-current-base-fixed/20261016T111943Z_1db37c5bd55540a1b1827429fef78e9a/summary.json"
+  },
+  "managed": {
+    "debug": {
+      "summary": {
+        "path": "C:/Temp/armageddon-s6-final-owning-20261017/debug/20261017T124147Z-c7e274297dbe/summary.json",
+        "sha256": "B7CD09DA71B0D933ABBB92DA420F58D316687DE25C5FE2A177082BBD67C845A7"
+      },
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 7753,
+            "passed": 7753,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 7753
+          },
+          "report": {
+            "path": "C:/Temp/armageddon-s6-final-owning-20261017/debug/20261017T124147Z-c7e274297dbe/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+            "sha256": "A5D19D30FF0906BBE03B98A1469B6A25968066D72560223A5C5B166AE4E0B9A8"
+          }
+        },
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 1945,
+            "passed": 1945,
+            "failed": 0,
+            "skipped": 3,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 1948
+          },
+          "report": {
+            "path": "C:/Temp/armageddon-s6-final-owning-20261017/debug/20261017T124147Z-c7e274297dbe/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+            "sha256": "C8AE8E30120A3BC3630606526E588C8B9F3224DD409ED8FA6628F5BBF4028D1E"
+          }
+        }
+      ],
+      "run_id": "20261017T124147Z-c7e274297dbe",
+      "configuration": "Debug",
+      "filter": null,
+      "counts": {
+        "executed": 9698,
+        "passed": 9698,
+        "failed": 0,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 9701
+      },
+      "source_start": "9969d135de51cc600a7362381ac7bcdc68c5af8bb52bf682b3f94af29d2428de",
+      "source_end": "9969d135de51cc600a7362381ac7bcdc68c5af8bb52bf682b3f94af29d2428de",
+      "started_utc": "2026-10-17T12:41:47.2825210+00:00",
+      "ended_utc": "2026-10-17T12:57:18.7841388+00:00",
+      "duration_seconds": 931.5016437
+    },
+    "release_gate": {
+      "summary": {
+        "path": "C:/Temp/armageddon-s6-final-owning-20261017/release-gate/20261017T124118Z-be8a0293b49c/summary.json",
+        "sha256": "6C0CB00607E42A4F3CBE0FF811CBE3A3E85200BAF9369B9B9BEBFA50F4D79B0D"
+      },
+      "projects": [
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 6,
+            "passed": 6,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 6
+          },
+          "report": {
+            "path": "C:/Temp/armageddon-s6-final-owning-20261017/release-gate/20261017T124118Z-be8a0293b49c/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+            "sha256": "2E4364F29F75065BB8E412B72B79D341283BF4C723DF18CD960862ECFEB823EF"
+          }
+        }
+      ],
+      "run_id": "20261017T124118Z-be8a0293b49c",
+      "configuration": "Release",
+      "filter": "FullyQualifiedName~ArmageddonReleaseGateTests",
+      "counts": {
+        "executed": 6,
+        "passed": 6,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6
+      },
+      "source_start": "7fc70f340f427df9d9ae6e0bd17df560d9032b9269a50c02e1b5224893b67744",
+      "source_end": "7fc70f340f427df9d9ae6e0bd17df560d9032b9269a50c02e1b5224893b67744",
+      "started_utc": "2026-10-17T12:41:18.8646396+00:00",
+      "ended_utc": "2026-10-17T12:41:38.5169898+00:00",
+      "duration_seconds": 19.65237
+    }
+  },
+  "expiry_review": {
+    "scope": "Explicit whole-room expiry broadcast, routed character/item locality and one callback on item morph transfer; integrated before the current native campaign.",
+    "before": {
+      "summary": {
+        "path": "C:/Temp/armageddon-s6-expiry-review/before/20261017T114803Z-07b5d66b18f3/summary.json",
+        "sha256": "9A167E04F39A267F9A39A372EA2E1F079EE3222849A06CBE242D97612EA1CA1D"
+      },
+      "counts": {
+        "executed": 6,
+        "passed": 2,
+        "failed": 4,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6
+      }
+    },
+    "focused_after": {
+      "summary": {
+        "path": "C:/Temp/armageddon-s6-expiry-review/after/20261017T114921Z-560c24bbc0cc/summary.json",
+        "sha256": "7CA417FF6E7F58D04A0B2C70B5C2EF109FC6D530074761295FC7DAA97D61FCF5"
+      },
+      "projects": [
+        {
+          "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 34,
+            "passed": 34,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 34
+          },
+          "report": {
+            "path": "C:/Temp/armageddon-s6-expiry-review/after/20261017T114921Z-560c24bbc0cc/invocations/MudSharpCore_Unit_Tests-8fa3ea0d/net10-41544e89/1/results.trx",
+            "sha256": "BD3BD5B02CC66AC9121FE7F2C26172E9C3424975494BF297D809D856334B037C"
+          }
+        }
+      ],
+      "run_id": "20261017T114921Z-560c24bbc0cc",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~GatheringAuthoringSupportTests|FullyQualifiedName~RouteOutputLocalityTests|FullyQualifiedName~EffectScheduleDiagnosticsTests|FullyQualifiedName~ItemMorphBootTests",
+      "counts": {
+        "executed": 34,
+        "passed": 34,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 34
+      },
+      "source_start": "ac3805d5c2f14c25c85d4dc949f773542d0965986870cf89f9fd5cd0c6baf714",
+      "source_end": "ac3805d5c2f14c25c85d4dc949f773542d0965986870cf89f9fd5cd0c6baf714",
+      "started_utc": "2026-10-17T11:49:21.5145836+00:00",
+      "ended_utc": "2026-10-17T11:49:46.9014656+00:00",
+      "duration_seconds": 25.3869021
+    },
+    "current_full_core_counts": {
+      "executed": 7753,
+      "passed": 7753,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 7753
+    },
+    "independent_review": "No actionable findings in the bounded read-only review.",
+    "live_route_room_and_item_morph_scenarios": "NOT_RUN; managed regressions exercise actual routing, native effect handler and scheduler branches. Current native campaign includes these runtime corrections but uses an ordinary room and no item morph."
+  },
+  "class_opening_review": {
+    "scope": "Selected-Class capability enrolment is sole owner of stock magic openings; default RoleTraits arrays empty; canonical legacy arrays reconcile away, whole builder-edited arrays remain preserved/reported. Existing characters unchanged.",
+    "before": {
+      "summary": {
+        "path": "C:/Temp/armageddon-s6-class-openings/before/20261017T122859Z-66d816982203/summary.json",
+        "sha256": "745422682A27E5D21297110FF960BF40BB57A78D8E45649BF56C4B27799DDF2A"
+      },
+      "counts": {
+        "executed": 6,
+        "passed": 2,
+        "failed": 4,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 6
+      }
+    },
+    "focused_after": {
+      "summary": {
+        "path": "C:/Temp/armageddon-s6-class-openings/after/20261017T122958Z-de5cd7b83fce/summary.json",
+        "sha256": "11CBE1C58F7FB0F52C58EF7DB61EAEE353135F17E040EB2EBA7BE8A579CA808A"
+      },
+      "projects": [
+        {
+          "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+          "status": "PASS",
+          "counts": {
+            "executed": 13,
+            "passed": 13,
+            "failed": 0,
+            "skipped": 0,
+            "inconclusive": 0,
+            "other": 0,
+            "total": 13
+          },
+          "report": {
+            "path": "C:/Temp/armageddon-s6-class-openings/after/20261017T122958Z-de5cd7b83fce/invocations/DatabaseSeeder_Unit_Tests-e14dcedb/net10-41544e89/1/results.trx",
+            "sha256": "57546EFC0C57205EEC3E5FC9C55D492417B5FAB83D388467056EC77EE3CBC897"
+          }
+        }
+      ],
+      "run_id": "20261017T122958Z-de5cd7b83fce",
+      "configuration": "Debug",
+      "filter": "FullyQualifiedName~ArmageddonStockProgressionTests",
+      "counts": {
+        "executed": 13,
+        "passed": 13,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 13
+      },
+      "source_start": "c5abb466514af77ed64465e30ca704d6e703c5e524f417c5ff9dadaf6db8295f",
+      "source_end": "c5abb466514af77ed64465e30ca704d6e703c5e524f417c5ff9dadaf6db8295f",
+      "started_utc": "2026-10-17T12:29:58.9709387+00:00",
+      "ended_utc": "2026-10-17T12:30:29.5220987+00:00",
+      "duration_seconds": 30.5511794
+    },
+    "independent_review": "Recommendation and actual diff reviewed; no actionable remaining finding.",
+    "locked_values_changed": false
+  },
+  "retained_native_failures": [
+    {
+      "run": "native04",
+      "classification": "AUTHORED_COOLDOWN_DEFECT",
+      "summary": {
+        "path": "C:/Temp/armageddon-s6-readiness-native-04/20261017T092559Z_fddf585646784bb79242d03448469836/summary.json",
+        "sha256": "EBC0D593186193ACF36B0684F3E87CCF49E5A517828543A215858432B1EF7025"
+      },
+      "boot": {
+        "path": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-stock-3b2112f2441248e7ba39dd0801b1f15a/boot-latest.json",
+        "sha256": "FA1925B2B625EC546F170515ADAEAAC776EBF7273E7696D20A2A053DC6D012AD"
+      },
+      "outcome": "Ungrouped installed multiplication produced zero seconds for band1/roll0. Grouped stock expression repaired; shared parser unchanged."
+    },
+    {
+      "run": "native05",
+      "classification": "HARNESS_APPROVAL_EDITOR_DIALOGUE_DEFECT",
+      "summary": {
+        "path": "C:/Temp/armageddon-s6-readiness-native-05/20261017T101120Z_91bb4b0e43b44bdcbe050dac30489345/summary.json",
+        "sha256": "8490D85F3FB53805C4767115F9D15AF7CC4F0C1C29AEA1F8AEE55C519509619E"
+      },
+      "boot": {
+        "path": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-stock-ce359206fad54434b433e063a2cd30a1/boot-latest.json",
+        "sha256": "31CC4A5E7808776BF9551DC6F141A0156FC536F83313602271A1B9443EED6E9D"
+      },
+      "outcome": "Fresh N24 four-case campaign and first gathering passed, then normal staff acceptance opened an unfinished comment editor. Later readiness checks not established."
+    },
+    {
+      "run": "native06",
+      "classification": "HARNESS_UNUSED_LEGACY_BACKLINK_ASSERTION",
+      "summary": {
+        "path": "C:/Temp/armageddon-s6-readiness-native-06/20261017T114639Z_bd8c753bdec54178a8e2f441175eb8f8/summary.json",
+        "sha256": "D5CF04FA990179536B8E337C028A6745B871CA2836F9061844850BD54CEAE7E2"
+      },
+      "boot": {
+        "path": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-stock-8a78303c4faf4d1394c92046c043a3e4/boot-latest.json",
+        "sha256": "C8CE8A4E084397FD803AB40063A8D96E8DD6019C224979DF20D339701052F0E1"
+      },
+      "outcome": "Normal approval succeeded before the unused nullable Characters.ChargenId assertion failed. Replaced with actual identity/name and reviewer-note checks."
+    },
+    {
+      "run": "native07",
+      "classification": "REAL_CLASS_OPENING_CONTENT_DEFECT",
+      "summary": {
+        "path": "C:/Temp/armageddon-s6-readiness-native-07/20261017T121019Z_e6f99c4da04e464a9b8762b052014de8/summary.json",
+        "sha256": "19802B06C1ACEB5EAA7F24A17A09A43BB0CD8607D30091ED07880526603999A0"
+      },
+      "boot": {
+        "path": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-stock-c1ea8170a3404236898c9661931bb115/boot-latest.json",
+        "sha256": "B98A1AC75966046EB705C4504BAF65296CF2E76A19C1D8E356E4F240CC90BF00"
+      },
+      "outcome": "Normal UI/approval exposed culture20 plus role root60/Gather10 yielding raw80/Gather30 and12 grade-one acquisitions. Removed duplicate stock role links while retaining locked values and exact four-root assertion."
+    },
+    {
+      "run": "native08",
+      "classification": "HARNESS_GLOBAL_DEADLINE_AT_COLD_ENTRY",
+      "summary": {
+        "path": "C:/Temp/armageddon-s6-readiness-native-08/20261017T124240Z_47539eebc53f471ba5b2dbfe8426ff39/summary.json",
+        "sha256": "A84979539620847B4AE10360CBAF449317EFE191B4DABA0201D08B5812E48BBF"
+      },
+      "boot": {
+        "path": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-stock-4f13710e3f024591adae037036705c77/boot-latest.json",
+        "sha256": "F66AAE960AF61643FA86945620DB50D10029C5B68C914CCBF82F46505D3EA79A"
+      },
+      "outcome": "All four fresh N24 cases and all five first-boot scenarios passed. Python retained its780-second default and failed at cold entry after1025.626 seconds; no cold process ran. S6 now receives2640 seconds within the existing2700-second parent bound. Owned cleanup deleted post-gameplay state; only a pre-gameplay SQL dump survives, so cold-only resumption is impossible and native09 recreates gameplay state while reusing checked N24. Overall native08 remains FAIL; matching first-boot receipts remain valid.",
+      "first_boot_cases": {
+        "s6_integration": "PASS",
+        "s6_gathering": "PASS",
+        "s6_chargen": "PASS",
+        "s6_ash_expiry": "PASS",
+        "s6_uncertainty": "PASS"
+      },
+      "ash_utc": {
+        "observer_started_utc": "2026-10-17T13:44:37.179389+00:00",
+        "deadline_utc": "2026-10-17T13:56:05.106737+00:00",
+        "message_observed_utc": "2026-10-17T13:56:06.075782+00:00"
+      },
+      "cold_execution": "NOT_RUN"
+    }
+  ],
+  "interrupted_managed_attempt": {
+    "path": "C:/Temp/armageddon-s6-final-owning-20261017/debug/20261017T123213Z-f1323df0b083",
+    "status": "NOT_QUALIFIED_NO_FINAL_RECEIPT",
+    "reason": "Root initially selected600 seconds; verified previous identical suite required1228 seconds. Owned run cancelled at389 seconds before replacing it with a fixed1800-second plan; unrelated processes untouched."
+  },
+  "adjacent_observations": [
+    {
+      "scope": "Native05 ordinary chargen knowledge picker, steps46-67",
+      "evidence": {
+        "path": "C:/Users/luker/.codex/worktrees/377e/prepared-catalogue-boot-native-s4-stock-ce359206fad54434b433e063a2cd30a1/runtime-first-e5c97230a99c43d095309c9acc9b0058/s6-chargen-transcript.txt",
+        "sha256": "4AF5C55E73741618355C4A390426D3CF8820A1CED27F33B5A104950237CD5BA6"
+      },
+      "observation": "Robotic diagnostic, maintenance and replacement knowledges were offered for every displayed skill. No optional knowledges selected.",
+      "likely_impact": "The ordinary picker may offer unrelated robotic knowledges with unrelated skills.",
+      "disposition": "Deferred stock-knowledge/chargen availability review; not investigated or changed."
+    }
+  ],
+  "remaining": [
+    "Final affordability and balance review.",
+    "Full corpse/progression provider-fault matrix and all mode/Class combinations remain unqualified.",
+    "Earlier S4/S5 and Classic/Simple gathering receipts retain their dated inputs; overlapping counts are not added.",
+    "Live routed-room/item-morph scenarios have managed coverage only."
+  ],
+  "package_release_enabled": false,
+  "original_stock_availability_enabled": false,
+  "full_plan_complete": false,
+  "merged_by_this_task": false,
+  "deployed": false
+}

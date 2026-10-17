@@ -10,7 +10,7 @@ using MudSharp.Models;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class ArmageddonStockProgressionTests
+public partial class ArmageddonStockProgressionTests
 {
 	[DataTestMethod]
 	[DataRow(ArmageddonProgressionMode.Classic, false)]
@@ -28,7 +28,7 @@ public class ArmageddonStockProgressionTests
 		Assert.AreEqual(10, db.Merits.Count());
 		Assert.AreEqual(classes ? 10 : 0, db.ChargenRoles.Count());
 		Assert.AreEqual(classes ? 10 : 0, db.ChargenRolesMerits.Count());
-		if (classes && mode == ArmageddonProgressionMode.Simple) Assert.AreEqual(20, db.ChargenRolesTraits.Count());
+		Assert.AreEqual(0, db.ChargenRolesTraits.Count());
 		Assert.AreEqual(mode == ArmageddonProgressionMode.Classic ? 153 : 11,
 			db.TraitDefinitions.Count(x => x.OwnerScope == 1));
 		Assert.IsTrue(db.TraitDefinitions.Where(x => x.OwnerScope == 1).All(x => x.BranchMultiplier == 0));
@@ -57,8 +57,10 @@ public class ArmageddonStockProgressionTests
 		skill.ChargenBlurb = "Builder customisation";
 		if (classes)
 		{
-			var join = db.ChargenRolesTraits.First();
-			join.Amount = 5;
+			db.ChargenRolesTraits.Add(new ChargenRolesTrait
+			{
+				ChargenRoleId = db.ChargenRoles.First().Id, TraitId = skill.Id, Amount = 5, GiveIfDoesntHave = true
+			});
 			db.ChargenRoles.First().ChargenBlurb = "Custom class blurb";
 		}
 		db.SaveChanges();

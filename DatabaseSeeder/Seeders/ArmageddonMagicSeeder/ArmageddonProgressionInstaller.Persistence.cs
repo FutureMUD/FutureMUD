@@ -78,7 +78,7 @@ public static partial class ArmageddonProgressionInstaller
 	}
 
 	private static void RoleLinks(FuturemudDatabaseContext db, ChargenRole role, SeederManagedRecord record, long meritId,
-		IReadOnlyDictionary<long, double> startingTraits, List<string> messages)
+		List<string> messages)
 	{
 		var merits = db.ChargenRolesMerits.Where(x => x.ChargenRoleId == role.Id).ToArray();
 		var traits = db.ChargenRolesTraits.Where(x => x.ChargenRoleId == role.Id).ToArray();
@@ -90,7 +90,7 @@ public static partial class ArmageddonProgressionInstaller
 		var desired = new Dictionary<string, string>(baseline)
 		{
 			["RoleMerits"] = JsonSerializer.Serialize(new[] { meritId }),
-			["RoleTraits"] = JsonSerializer.Serialize(startingTraits.OrderBy(x => x.Key).Select(x => new RoleTrait(x.Key, x.Value, true)).ToArray())
+			["RoleTraits"] = JsonSerializer.Serialize(Array.Empty<RoleTrait>())
 		};
 		var newLinks = !baseline.ContainsKey("RoleMerits") && !baseline.ContainsKey("RoleTraits") && merits.Length == 0 && traits.Length == 0;
 		var merged = SeederManagedRecordReconciler.Reconcile(record, current, desired, newLinks, messages);

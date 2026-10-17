@@ -30,10 +30,14 @@ def run(host, admin, player, phase, data, mapped, flush):
         current = state()
         for key in ('operations', 'reserve', 'gather_skill', 'field', 'ecology', 'registers', 'room_effects'):
             require(current[key] == report['saved'][key], 'Cold source gathering changed ' + key)
-        require('Grey, lifeless ash collects on the ground.' in player.send('look', read_seconds=.3), 'Cold source ash addendum missing.')
+        looked = player.send('look', read_seconds=.3)
+        if host['os'].environ.get('FUTUREMUD_S6_READINESS_SMOKE_ONLY') == '1':
+            require('Grey, lifeless ash collects on the ground.' not in looked, 'Cold readiness resurrected expired ash.')
+        else:
+            require('Grey, lifeless ash collects on the ground.' in looked, 'Cold source ash addendum missing.')
         require(len(current['operations']) == 3, 'Cold login replayed a gathering callback or credit.')
         report['cold_status'] = 'PASS'
-        assertions.append('S6 gathering: exact cold receipts, reserve, one-unit life debits, scars, cooldown/ash registers and single ash addendum persist without replay')
+        assertions.append('S6 gathering: exact cold receipts, reserve, one-unit life debits, scars and callback registers persist without replay; ash follows the explicitly selected lane deadline')
         return
 
     before = state()
@@ -103,6 +107,10 @@ def run(host, admin, player, phase, data, mapped, flush):
                 require(255 < delta <= 271, 'Nominal source ash duration differs from270 real seconds per mana.')
                 until = datetime.datetime.fromisoformat(cooldown.replace('Z', '+00:00'))
                 require(580 < (until - datetime.datetime.now(datetime.timezone.utc)).total_seconds() < 1810, 'Source Gather affect cooldown outside skill10 native window.')
+                duration = (until - (ash - datetime.timedelta(seconds=270))).total_seconds()
+                require(any(math.isclose(duration, expected, abs_tol=.1) for expected in (599, 1199, 1799)),
+                        'Source Gather cooldown does not retain exact skill-band multiplication minus one: '+str(duration))
+                report['first_source_cooldown_seconds'] = duration
                 first_cooldown = cooldown
             else:
                 require((ash - previous_ash).total_seconds() == 540 and cooldown == first_cooldown, 'Repeat Land did not extend ash additively while retaining the alignment cooldown.')

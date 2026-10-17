@@ -1,9 +1,11 @@
 #nullable enable
 using System;
+using SystemDateTime = System.DateTime;
 using System.Collections.Generic;
 using System.Linq;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework;
+using MudSharp.Framework.Scheduling;
 using MudSharp.FutureProg.Variables;
 
 namespace MudSharp.FutureProg.Functions.Effects;
@@ -14,14 +16,26 @@ internal sealed class AddDescriptionAdditionFunction(IList<IFunction> parameters
 {
 	public override ProgVariableTypes ReturnType { get => ProgVariableTypes.Boolean; protected set { } }
 
-	public static void RegisterFunctionCompiler() => FutureProg.RegisterBuiltInFunctionCompiler(
-		new FunctionCompilerInformation("adddescriptionaddition",
-			[ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Number],
-			(pars, world) => new AddDescriptionAdditionFunction(pars, world), ["owner", "text", "applicabilityProgId"],
-			["The perceivable receiving an addendum", "The additional description text",
-				"A non-static boolean prog accepting this owner type and a perceiver"],
-			"Adds a persistent non-player description addendum controlled by an exact applicability prog. Repeating identical text and prog is idempotent; a different text under that prog is refused without replacing existing authoring.",
-			"Effects", ProgVariableTypes.Boolean));
+	public static void RegisterFunctionCompiler()
+	{
+		foreach (var timed in new[] { false, true })
+		{
+			var types = new List<ProgVariableTypes> { ProgVariableTypes.Perceivable, ProgVariableTypes.Text, ProgVariableTypes.Number };
+			var names = new List<string> { "owner", "text", "applicabilityProgId" };
+			var help = new List<string> { "The perceivable receiving an addendum", "The additional description text",
+				"A non-static boolean prog accepting this owner type and a perceiver" };
+			if (timed)
+			{
+				types.AddRange([ProgVariableTypes.DateTime, ProgVariableTypes.Text]);
+				names.AddRange(["expiresUtc", "expirationMessage"]);
+				help.AddRange(["The absolute UTC expiry; offline time counts", "The local message sent once on live expiry"]);
+			}
+			FutureProg.RegisterBuiltInFunctionCompiler(new FunctionCompilerInformation("adddescriptionaddition", types,
+				(pars, world) => new AddDescriptionAdditionFunction(pars, world), names, help,
+				"Adds a persistent non-player description controlled by an exact applicability prog. Identical text/prog repeats once; conflicting retained text or expiry messages refuse. The optional UTC expiry removes the addendum and announces it locally; overdue cold loads retire silently.",
+				"Effects", ProgVariableTypes.Boolean));
+		}
+	}
 
 	public override StatementResult Execute(IVariableSpace variables)
 	{
@@ -41,14 +55,35 @@ internal sealed class AddDescriptionAdditionFunction(IList<IFunction> parameters
 			ErrorMessage = "The description applicability prog has no compatible exact live signature.";
 			return StatementResult.Error;
 		}
+		SystemDateTime? expires = null;
+		string? expirationMessage = null;
+		if (ParameterFunctions.Count == 5)
+		{
+			if (ParameterFunctions[3].Result?.GetObject is not SystemDateTime deadline ||
+				ParameterFunctions[4].Result?.GetObject is not string message || string.IsNullOrWhiteSpace(message) || message.Length > 4000)
+			{
+				ErrorMessage = "A future UTC expiry and bounded nonempty expiration message are required.";
+				return StatementResult.Error;
+			}
+			expires = deadline.Kind == DateTimeKind.Local ? deadline.ToUniversalTime() : SystemDateTime.SpecifyKind(deadline, DateTimeKind.Utc);
+			if (expires <= RuntimeClock.UtcNow)
+			{
+				ErrorMessage = "The description expiry must be in the future.";
+				return StatementResult.Error;
+			}
+			expirationMessage = message;
+		}
 		var existing = owner.Effects.OfType<DescriptionAddition>()
 			.Where(x => !x.PlayerSet && x.ApplicabilityProg?.Id == prog.Id).ToArray();
-		if (existing.Length > 1 || existing.Any(x => x.AdditionalText != text))
+		if (existing.Length > 1 || existing.Any(x => x.AdditionalText != text || expires is not null &&
+			!string.IsNullOrEmpty(x.ExpirationMessage) && x.ExpirationMessage != expirationMessage))
 		{
 			ErrorMessage = "An existing addendum with this applicability prog differs; resolve the retained authoring explicitly.";
 			return StatementResult.Error;
 		}
-		if (existing.Length == 0) owner.AddEffect(new DescriptionAddition(owner, text, false, null!, prog));
+		var effect = existing.SingleOrDefault() ?? new DescriptionAddition(owner, text, false, null!, prog);
+		if (expires is { } until) effect.SetExpiration(until, expirationMessage!);
+		if (existing.Length == 0) owner.AddEffect(effect);
 		Result = new BooleanVariable(true);
 		return StatementResult.Normal;
 	}

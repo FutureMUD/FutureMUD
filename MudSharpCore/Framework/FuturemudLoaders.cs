@@ -4955,6 +4955,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                     CheckTemplate =
                         checkType switch
                         {
+							CheckType.PeekCheck or CheckType.PeekRevealCheck => CreatePeekCheckTemplate(FMDB.Context, checkType),
                             CheckType.DualWieldCoordinationCheck => CreateDualWieldCheckTemplate(),
                             CheckType.AnalyzeEligibilityCheck => analysisTemplate,
 							CheckType.GuardingExitChallengeCheck or CheckType.GuardingItemChallengeCheck => GuardingCheckDefaults.EnsureTemplate(FMDB.Context),
@@ -4973,7 +4974,7 @@ For information on the syntax to use in emotes (such as those included in bracke
 							? $"{checkType} Formula" : $"{checkType.DescribeEnum(true)} Check",
                         Expression = checkType switch
                         {
-                            CheckType.AnalyzeEligibilityCheck => "0",
+                            CheckType.AnalyzeEligibilityCheck or CheckType.PeekCheck or CheckType.PeekRevealCheck => "0",
                             CheckType.WritingComprehendCheck or CheckType.HaggleCheck => "variable",
                             CheckType.WeatherForecastCapability or CheckType.WeatherForecast or CheckType.DualWieldCoordinationCheck => "0",
 							CheckType.GuardingExitChallengeCheck or CheckType.GuardingItemChallengeCheck => "15",

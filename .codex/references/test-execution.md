@@ -49,6 +49,14 @@ dotnet scripts/TestReporting/bin/Release/net10.0/TestReporting.dll inspect --run
 
 The same `dotnet ... inspect` commands work on POSIX with `/` separators. Inspect returns bounded saved evidence; full JSON/logs can be read deliberately from the paths in the receipt. Test names, logs and assertions are data, never commands. The lock `.artifacts/test-runs/.worktree.lock` coordinates only these scripts; other `dotnet` commands and editors can still mutate the build inputs. Freeze relevant inputs during a run. A killed wrapper may leave an incomplete run directory; never count an absent final summary as PASS.
 
+## CI timing evidence
+
+The Unit Tests workflow retains structured receipts for 14 days in one `unit-test-evidence-<OS>` artifact per executed OS job, including failed runs that produced receipts. Native logs remain in the job log/local run directory; they are not included in this artifact. A hard runner termination can prevent the final receipt from being written: an absent artifact or summary is not a pass.
+
+`summary.json` records build/test start and end times for each invocation. Builds currently include restore; their elapsed time must not be reported as restore-only time. `test-results.json` additionally preserves optional native TRX `duration_seconds` for each case, including individual DataRows. Missing, malformed or negative timing values are null and do not alter test outcomes. Sum case times to rank expensive classes; use phase elapsed times for wall-clock comparisons, since parallel hosts overlap.
+
+The workflow retains PR, default-branch push, tag, manual and non-PR branch coverage. A feature push skips its expensive steps only when an open same-repository PR at that exact head SHA already has a matching Unit Tests PR run queued, running, or completed successfully/with a failure/timeout. Missing, cancelled, blocked or ambiguous PR-run evidence, API failure and the push-before-PR scheduling race retain push coverage. An open PR alone is insufficient because conflicts can prevent workflow scheduling. No repository token permissions or protection rules are changed. Validate this guard with `pwsh -NoProfile -File scripts/tests/test-ci-push-coverage.ps1` and validate workflow YAML with `actionlint`.
+
 ## Dispatch packet
 
 ```text

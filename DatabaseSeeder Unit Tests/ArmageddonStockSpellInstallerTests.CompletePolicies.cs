@@ -20,7 +20,8 @@ public partial class ArmageddonStockSpellInstallerTests
 	[DataRow(ArmageddonProgressionMode.Simple, true)]
 	public void CompleteInstall_MaterialisesAllInactiveAdmissionsAndSupports_PreservesRerun(ArmageddonProgressionMode mode, bool classes)
 	{
-		using var db = Fixture(mode, classes);
+		// Exercise the complete real installer chain in every progression/class mode.
+		using var db = FreshFixture(mode, classes);
 		var answers = new Dictionary<string, string> { [ArmageddonMagicSeeder.FullInstallQuestion] = "yes", [ArmageddonMagicSeeder.ModeQuestion] = mode.ToString() };
 		var report = new ArmageddonMagicSeeder().SeedData(db, answers);
 		StringAssert.Contains(report, "availability disabled");

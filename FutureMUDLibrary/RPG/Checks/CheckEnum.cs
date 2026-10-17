@@ -238,6 +238,8 @@ namespace MudSharp.RPG.Checks
 		DualWieldCoordinationCheck = 230,
 		GuardingExitChallengeCheck = 240,
 		GuardingItemChallengeCheck = 241
+		PeekCheck = 236,
+		PeekRevealCheck = 237
     }
 
     public enum FailIfTraitMissingType
@@ -631,6 +633,8 @@ namespace MudSharp.RPG.Checks
             {
 				case CheckType.GuardingExitChallengeCheck:
 				case CheckType.GuardingItemChallengeCheck:
+				case CheckType.PeekCheck:
+				case CheckType.PeekRevealCheck:
                 case CheckType.GenericSpotCheck:
                 case CheckType.NoticeCheck:
                 case CheckType.HideCheck:
@@ -745,6 +749,8 @@ namespace MudSharp.RPG.Checks
         {
             switch (type)
             {
+				case CheckType.PeekCheck:
+				case CheckType.PeekRevealCheck:
                 case CheckType.GenericListenCheck:
                 case CheckType.GenericSpotCheck:
                 case CheckType.LanguageListenCheck:

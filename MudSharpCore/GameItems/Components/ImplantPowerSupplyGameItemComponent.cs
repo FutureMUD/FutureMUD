@@ -119,6 +119,14 @@ public class ImplantPowerSupplyGameItemComponent : GameItemComponent, IImplantPo
         return PowerPlant?.DrawdownSpike(wattage) ?? false;
     }
 
+	public bool CanDrawdownSpike(double wattage, TimeSpan duration) =>
+		double.IsFinite(wattage) && wattage >= 0.0 && duration > TimeSpan.Zero &&
+		(PowerPlant?.CanDrawdownSpike(wattage, duration) ?? false);
+
+	public bool DrawdownSpike(double wattage, TimeSpan duration) =>
+		double.IsFinite(wattage) && wattage >= 0.0 && duration > TimeSpan.Zero &&
+		(PowerPlant?.DrawdownSpike(wattage, duration) ?? false);
+
     #endregion
 
     #region Overrides of GameItemComponent

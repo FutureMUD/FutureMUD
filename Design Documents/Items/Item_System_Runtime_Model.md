@@ -862,6 +862,8 @@ Liquid-instance XML preserves magical lot and charge state through splits, mixin
 
 Discrete power requests retain watts as the instantaneous load. The legacy one-argument `IProducePower.DrawdownSpike(wattage)` contract represents an instantaneous spike and remains suitable for continuous producers. Consumers whose operation has a measurable duration use the duration-aware overload instead. Finite stores such as `BatteryPowered` and `PowerBank` convert watts multiplied by elapsed hours into watt-hours for availability checks and debit, while continuous producers validate the same watt load without inventing stored-energy accounting. `PowerTool` uses this duration-aware path for both preflight and consumption, so a tool rated in watts no longer passes watt-seconds into an API whose argument is watts.
 
+Direct forwarding supplies, sockets, feeders and implant power proxies preserve both watts and duration when delegating to their upstream producer. A chain leading to a finite bank therefore checks and debits the full operation's watt-hours and preserves upstream refusal when stored energy is insufficient. Electrical/telecommunications grid allocation retains its existing grid contract.
+
 
 ## Pending state during spell-owned custody evacuation
 

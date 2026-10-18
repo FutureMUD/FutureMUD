@@ -317,6 +317,14 @@ public class ElectricGridFeederGameItemComponent : GameItemComponent, ICanConnec
         return _connectedPowerSource?.DrawdownSpike(wattage) ?? false;
     }
 
+	public bool CanDrawdownSpike(double wattage, TimeSpan duration) =>
+		double.IsFinite(wattage) && wattage >= 0.0 && duration > TimeSpan.Zero &&
+		(_connectedPowerSource?.CanDrawdownSpike(wattage, duration) ?? false);
+
+	public bool DrawdownSpike(double wattage, TimeSpan duration) =>
+		double.IsFinite(wattage) && wattage >= 0.0 && duration > TimeSpan.Zero &&
+		(_connectedPowerSource?.DrawdownSpike(wattage, duration) ?? false);
+
     public bool ProducingPower => _connectedPowerSource?.ProducingPower ?? false;
 
     private IProducePower _connectedPowerSource;

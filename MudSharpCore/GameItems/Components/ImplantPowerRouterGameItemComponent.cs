@@ -268,6 +268,24 @@ public class ImplantPowerRouterGameItemComponent : GameItemComponent, IImplantPo
 
     #region IImplantReportStatus
 
+	public bool CanDrawdownSpike(double wattage, TimeSpan duration)
+	{
+		if (!double.IsFinite(wattage) || wattage < 0.0 || duration <= TimeSpan.Zero) return false;
+		CheckPowerPlants();
+		return _connectedPowerPlants.Any(x => x.CanDrawdownSpike(wattage, duration));
+	}
+
+	public bool DrawdownSpike(double wattage, TimeSpan duration)
+	{
+		if (!double.IsFinite(wattage) || wattage < 0.0 || duration <= TimeSpan.Zero) return false;
+		CheckPowerPlants();
+		foreach (var plant in _connectedPowerPlants)
+		{
+			if (plant.CanDrawdownSpike(wattage, duration)) return plant.DrawdownSpike(wattage, duration);
+		}
+		return false;
+	}
+
     public string ReportStatus()
     {
         CheckPowerPlants();

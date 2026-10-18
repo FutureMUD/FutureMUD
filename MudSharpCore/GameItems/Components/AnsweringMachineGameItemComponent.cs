@@ -855,6 +855,14 @@ public class AnsweringMachineGameItemComponent : GameItemComponent, IAnsweringMa
         return ProducingPower && (_connectedPowerSource?.DrawdownSpike(wattage) ?? true);
     }
 
+	public bool CanDrawdownSpike(double wattage, TimeSpan duration) =>
+		double.IsFinite(wattage) && wattage >= 0.0 && duration > TimeSpan.Zero &&
+		ProducingPower && (_connectedPowerSource?.CanDrawdownSpike(wattage, duration) ?? true);
+
+	public bool DrawdownSpike(double wattage, TimeSpan duration) =>
+		double.IsFinite(wattage) && wattage >= 0.0 && duration > TimeSpan.Zero &&
+		ProducingPower && (_connectedPowerSource?.DrawdownSpike(wattage, duration) ?? true);
+
     public bool ManualTransmit => true;
     public string TransmitPremote => _prototype.TransmitPremote;
 

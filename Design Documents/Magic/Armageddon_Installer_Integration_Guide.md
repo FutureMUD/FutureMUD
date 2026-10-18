@@ -4,14 +4,14 @@ Armageddon v1 is an optional Release and Debug installer package: ten capability
 
 ## Availability policy
 
-Draft review note: the current branch opens all ten fresh Class roles, but the final choice for Defiler admission is pending Luke's answer. Defiler can fund only from configured Land; no Land bindings are installed automatically. The narrow proposed alternative is to leave only its Class admission closed until a builder configures Land and explicitly enables it. Do not interpret this draft as final enablement approval. The [packaging receipt](Armageddon_V1_Release_Packaging_20261018.md) records the completed independent verification and remaining decision.
+Luke explicitly approved offering Defiler immediately alongside the other Classes on fresh classes-on installs. Defiler funds from builder-configured Land; no region or room is bound automatically. PR803 is merged and its reviewed-head checks passed. The [packaging receipt](Armageddon_V1_Release_Packaging_20261018.md) retains its dated execution scope; the [regional qualification](Armageddon_Regional_Land_Qualification_20261018.md) records the new follow-up and its own final-head CI boundary.
 
 | Surface | Fresh explicit full install | Existing installation / builder ownership |
 | --- | --- | --- |
 | Release package menu | Available; installation defaults to **No on every visit** | Downloading/upgrading binaries performs no installation or activation |
 | Complete casting and Classes | Enabled only after complete canonical admissions exist; ten Class roles only if earlier Chargen chose classes | Prior activation defaults retained; edited capability XML and Class availability preserved |
 | Magic skills and permanent merits | Skills excluded from generic chargen/teaching; Class selection or explicit staff merit plus enrolment owns starting grants | Existing characters, acquired spells, grades, skill opportunities and reserves untouched |
-| Source gathering | Independent permission open; Sorcerer Self/Land, Preserver Self, Defiler Land | Edited permission bodies preserved; builder supplies eligible real Land/profile/terrain/life bindings |
+| Source gathering | Independent permission open; Sorcerer Self/Land/Wildland, Preserver Self, Defiler Land/Wildland | Edited permission bodies preserved; builder supplies eligible real Land/profile/terrain/life bindings |
 | Focus/device use and crafts | Editable permission open; native entitlement, knowledge, skill, materials, time and payment checks still apply | Edited policy bodies preserved; incompatible signatures/ownership refuse explicitly |
 | Carrier scope and creature foundations | Mend Flesh charged and Restorative Mud topical only; conjured race/culture/ethnicity chargen stays closed | Other candidate carriers and optional variants stay unchanged |
 
@@ -32,7 +32,7 @@ Inspect the installation report and resolve any typed preflight refusal before c
 
 ## Attach a character
 
-For a fresh v1 install, the complete policies and matching Class route are ready. Start with an Earth Elementalist to use native passive rest funding without Land setup. Before offering Land-dependent Classes such as Defiler, configure and preview an eligible living-land binding. Installation creates no vegetation or room bindings.
+For a fresh v1 install, the complete policies and matching Class route are ready. Start with an Earth Elementalist to use native passive rest funding without Land setup. Defiler is offered immediately by the approved fresh Class policy; builders should configure and preview usable Land before players need its Land-only funding. Installation creates no vegetation or region/room bindings.
 
 With classes enabled, the matching selected Class supplies its permanent capability merit during ordinary character construction. Character approval flushes the durable character, then invokes selected-Class casting enrolment. The fresh complete stock policies explicitly opt in to that hook. Enrolment owns the authored starting spell knowledge and skill/support openings, once, at controlled grade 1. Package Class roles have no duplicate magic trait adjustments: those would enter the mandatory skill picker, receive a culture starting value, then add the role amount before enrolment. Supported reconciliation removes untouched legacy stock trait links, preserves and reports a builder-edited link array as a whole, and never changes existing characters. A retry uses the same durable enrolment instead of creating a second character or repeating starting grants.
 
@@ -56,7 +56,7 @@ armearth cast "Earthen Ward" grade 1 on self via <Earth capability>
 
 Practice is target-free. When authored, it pays the full quote and completes its timed work without manifesting the spell. It can advance raw proficiency through normal skill opportunities; knowledge, raw proficiency and controlled grade remain separate. Normal acquisition opens only eligible branches. Practice does not grant grade seven automatically. An empty reserve refuses before payment or work creation.
 
-Elemental reserves regenerate only through their configured native rules: the stock base is 2 per minute, with the authored resting multiplier. Sorcerer-family gathering is installed under the [source-fidelity decision](Armageddon_Gathering_Source_Translation_20261016.md): Sorcerer Self/Land, Preserver Self and Defiler Land, with bodily sacrifice and real Land destruction. Generic Gentle remains available to other settings. The earlier magical ambient-pool proposal is superseded. The four methods and three normal Gather support grants use an independent editable availability prog, open for a fresh v1 installation. Existing player skills/resources are preserved. Land requires an explicit real life-owner/profile binding; stock installation does not assign rooms, terrains or vegetation. Its zero-output marker is accounting only. See the source translation record for body, terrain, life-unit and clock adaptations and the qualification receipt for executed scope. To inspect and use a capability's gathering methods:
+Elemental reserves regenerate only through their configured native rules: the stock base is 2 per minute, with the authored resting multiplier. Sorcerer-family gathering follows the [source-fidelity decision](Armageddon_Gathering_Source_Translation_20261016.md): Sorcerer Self/Land/Wildland, Preserver Self and Defiler Land/Wildland, with bodily sacrifice and real Land destruction. Generic Gentle remains available to other settings. The six methods and three normal Gather support grants use an independent editable availability prog, open for a fresh v1 installation. Existing player skills/resources are preserved. Land requires an explicit regional or local life-owner/profile binding. Stock installation creates private terrain/profile presets but never rebinds existing rooms or native terrains or invents live vegetation. Its zero-output marker is accounting only. See the source translation record and regional guide for body, terrain, life-unit and clock adaptations, and the dated qualification receipts for their executed scopes. To inspect and use a capability's gathering methods:
 
 ```text
 <school verb> gather <capability> methods
@@ -64,6 +64,8 @@ Elemental reserves regenerate only through their configured native rules: the st
 <school verb> gather <capability> <method> <amount>
 <school verb> gather cancel
 ```
+
+The regional Land follow-up adds Area/Zone shared life and the `wildland` local forage fallback, taking the package to six methods. See [Regional Land gathering](Regional_Land_Gathering.md) for the nine terrain families, regional-first activation, recovery, upgrade and rollback. Earlier dated qualification statements below retain their executed local-source scope.
 
 Only methods actually configured on a capability held by the character are available. Preview does not pay or begin gathering. Raw attribute capacity and proficiency do not imply free energy or free casting.
 

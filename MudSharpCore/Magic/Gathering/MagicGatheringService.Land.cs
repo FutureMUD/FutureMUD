@@ -19,11 +19,13 @@ namespace MudSharp.Magic.Gathering;
 public sealed partial class MagicGatheringService
 {
 	private sealed record LandSourceState(string Selector, double Stock, NativeOrganicSourceSnapshot? Organic);
+	private static long LandLockRoom(long roomId, string key) => key.StartsWith("region:", StringComparison.Ordinal) ? 0 : roomId;
 	private static string[] LandCommitKeys(MagicGatheringQuote quote) =>
 		LandParticipantKeys(quote).Append("ecology").ToArray();
 
 	private static string[] LandParticipantKeys(MagicGatheringQuote quote) =>
 		quote.LandSources.Select(x => x.Selector)
+			.Concat(quote.RegionalLifeDebit is { } regional ? new[] { regional.Source.Owner.ParticipantKey } : Array.Empty<string>())
 			.Concat(quote.LandSources.Where(x => x.Lifecycle?.FieldId is not null)
 				.Select(x => $"field:{x.Lifecycle!.FieldId}"))
 			.Append(quote.CropHealthCost > 0.0 ? "crop" : "")
@@ -57,6 +59,8 @@ public sealed partial class MagicGatheringService
 		EnvironmentalMagicOperationResult? EcologicalResult)
 	{
 		public IReadOnlyList<LandHealthChange> HealthChanges { get; init; } = [];
+		public RegionalGatheringDebit? RegionalSource { get; init; }
+		public bool RegionalDebited { get; init; }
 	}
 
 	private sealed record LandHealthChange(string Selector, NativeOrganicLifecycleIdentity Lifecycle,
@@ -107,6 +111,11 @@ public sealed partial class MagicGatheringService
 			values[$"healthLoss:{change.Selector}"] = change.AppliedLoss;
 			values[$"discardedPrepaid:{change.Selector}"] = (double)change.DiscardedPrepaidFraction;
 		}
+		if (detail.RegionalSource is { } regional)
+		{
+			values[$"funding:{regional.Source.Owner.ParticipantKey}"] = regional.Units;
+			if (detail.RegionalDebited) values[$"paid:{regional.Source.Owner.ParticipantKey}"] = regional.Units;
+		}
 		return values;
 	}
 
@@ -147,7 +156,7 @@ public sealed partial class MagicGatheringService
 
 		var childRequest = new EnvironmentalMagicOperationRequest(Guid.NewGuid(), live.Actor.Id,
 			$"Land gathering {live.Method.Key}", quote.LandDamage, quote.LandPressure);
-		LandReceiptDetail detail = new(1, "Prepared", quote.LandSources, [], childRequest, null);
+		LandReceiptDetail detail = new(1, "Prepared", quote.LandSources, [], childRequest, null) { RegionalSource = quote.RegionalLifeDebit };
 		MagicGatheringReceipt receipt = NewReceipt(live, quote) with
 		{
 			EcologicalChildId = childRequest.OperationId,
@@ -167,9 +176,18 @@ public sealed partial class MagicGatheringService
 				.Select(x => new EnvironmentalLandAmbientDebit(
 					_gameworld.MagicResources.Get(long.Parse(x.Selector[8..], CultureInfo.InvariantCulture))!,
 					x.TotalUnits)).ToArray();
-			bool groupSuccess = environmental.TryApplyLandDebitGroup(live.Room, ambientDebits, nativePlans,
-				out IReadOnlyList<long> paidAmbient, out IReadOnlyList<NativeOrganicDebitPlan> paidNative,
-				out string? groupError);
+			IReadOnlyList<long> paidAmbient = [];
+			IReadOnlyList<NativeOrganicDebitPlan> paidNative = [];
+			string? groupError = null;
+			bool groupSuccess;
+			if (quote.RegionalLifeDebit is { } regional)
+			{
+				groupSuccess = environmental.RegionalGathering?.TryApply(live.Room, regional) == true;
+				if (!groupSuccess) groupError = "The captured regional life pool changed before payment.";
+				detail = detail with { RegionalDebited = groupSuccess };
+			}
+			else groupSuccess = environmental.TryApplyLandDebitGroup(live.Room, ambientDebits, nativePlans,
+				out paidAmbient, out paidNative, out groupError);
 			foreach (long resourceId in paidAmbient)
 			{
 				appliedSources.Add(quote.LandSources.Single(x => x.Selector == $"ambient:{resourceId}"));
@@ -187,13 +205,15 @@ public sealed partial class MagicGatheringService
 			}
 			detail = detail with { Stage = groupSuccess ? "SourcesDebited" : "SourcesUncertain",
 				AppliedSources = appliedSources.ToArray() };
-			receipt = receipt with { SourceDebited = appliedSources.Count > 0,
+			receipt = receipt with { SourceDebited = appliedSources.Count > 0 || detail.RegionalDebited,
 				LandDetailJson = JsonSerializer.Serialize(detail), UpdatedUtc = UtcNow };
 			if (!groupSuccess)
 			{
-				return LandSourceRefusal(live, receipt, appliedSources.Count > 0,
+				return LandSourceRefusal(live, receipt, receipt.SourceDebited,
 					groupError ?? "The complete Land source group refused.");
 			}
+			// A shared owner's stock and receipt must commit together before a different room can spend it.
+			if (detail.RegionalDebited) PersistLandSourceCheckpoint(live, receipt);
 			if (!TryRecord(receipt))
 			{
 				return LandUnrecordedSourceProgress(live, receipt,
@@ -338,6 +358,8 @@ public sealed partial class MagicGatheringService
 			using (var transaction = FMDB.Context.Database.BeginTransaction())
 			{
 				room?.PrepareForSaveAttempt();
+				if (live.Quote.RegionalLifeDebit is { } regional && receipt.SourceDebited)
+					_gameworld.EnvironmentalMagic?.RegionalGathering?.StageSave(regional.Source.Owner);
 				field?.Save();
 				live.Room.Save();
 				MagicGatheringReceiptStore.WriteCurrent(receipt);
@@ -347,6 +369,8 @@ public sealed partial class MagicGatheringService
 		}
 		catch
 		{
+			if (live.Quote.RegionalLifeDebit is { } regional && receipt.SourceDebited)
+				_gameworld.EnvironmentalMagic?.RegionalGathering?.RecoverSaveFailure(regional.Source.Owner);
 			room?.RecoverFromSaveFailure();
 			field?.Changed = true;
 			live.Room.Changed = true;
@@ -424,12 +448,18 @@ public sealed partial class MagicGatheringService
 	private MagicGatheringResult QuoteLand(ICharacter actor, ICharacter owner, IMagicGatheringCapability capability,
 		MagicGatheringMethodDefinition method, double amount, IRoom room, IMagicResource destination, double duration,
 		double stamina, double damage, double pain, double stun, DirectHealthCostPlan? healthPlan,
-		IReadOnlyList<MagicLandSourceAllocation>? captured = null)
+		IReadOnlyList<MagicLandSourceAllocation>? captured = null, RegionalGatheringDebit? capturedRegional = null)
 	{
 		IEnvironmentalMagicService? environmental = _gameworld.EnvironmentalMagic;
 		if (environmental is null || method.LandSources.Count is < 1 or > 16)
 		{
 			return Refused("Land gathering requires one to sixteen configured local source entries and environmental accounting.");
+		}
+		if (method.RegionalLifeUnitsPerAction > 0 && (captured is null || capturedRegional is not null))
+		{
+			var regional = QuoteRegionalLand(actor, owner, capability, method, amount, room, destination, duration,
+				stamina, damage, pain, stun, healthPlan, capturedRegional);
+			if (regional is not null) return regional;
 		}
 		EnvironmentalOrganicProfileSnapshot profileView = environmental.InspectOrganicProfile(room);
 		if (!profileView.ProfileId.HasValue || !profileView.HasOrganicConfiguration ||

@@ -12,14 +12,14 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
-	private static void PrepareS5ProgressionFixture(TestDatabase database, string path)
+	private static void PrepareS5ProgressionFixture(TestDatabase database, string path, bool regional = false)
 	{
 		using var db = NewIndependentContext(database.ConnectionString);
 		var settings = ArmageddonInstallation.Read(db)!;
 		var stock = new ArmageddonStockProgression(settings.Mode);
 		var claims = db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && !x.Retired && x.LogicalId > 0)
 			.ToDictionary(x => x.StableKey, x => x.LogicalId!.Value);
-		var spec = stock.Capabilities.Single(x => x.Key == "arm.capability.earth");
+		var spec = stock.Capabilities.Single(x => x.Key == (regional ? "arm.capability.sorcerer" : "arm.capability.earth"));
 		var traits = stock.Bindings.Select(x => x.TraitKey).Distinct().ToDictionary(x => x, x => claims[x]);
 		var spells = spec.SpellKeys.ToDictionary(x => x, x => claims[x]);
 		var reserve = claims[spec.ResourceKey];
@@ -97,6 +97,12 @@ internal static partial class GNHProgram
 		var capacityRaw = db.Traits.Single(x => x.BodyId == body.Id && x.TraitDefinitionId == settings.CapacityAttribute).Value;
 		var capacity = Math.Max(2 * capacityRaw, Math.Min(12 * capacityRaw, 100 + 3 * (capacityRaw - 13)));
 		Require(capacity >= 50, "Prepared native attribute capacity cannot fund the first stock practice.");
+		if (regional)
+		{
+			PrepareReleaseRegionalFixture(db, input, actor, claims, capacity);
+			File.WriteAllText(path, input.ToJsonString());
+			return;
+		}
 		var root = stock.Bindings.Single(x => x.CapabilityKey == spec.Key && x.ContentKey == "arm.spell.earthen_ward");
 		var child = stock.Bindings.Single(x => x.CapabilityKey == spec.Key && x.ContentKey == "arm.spell.stone_skin");
 		var schema = input["sql_schema"]!.AsArray();

@@ -23,6 +23,10 @@ public partial class SkillLevelBasedMagicCapability
 		{
 			switch (setting)
 			{
+				case "regional":
+					updated = method with { RegionalLifeUnitsPerAction = command.SafeRemainingArgument.EqualTo("off")
+						? 0 : PositiveNumber(command, "regional life units per action") };
+					break;
 				case "source":
 					updated = EditLandSource(method, command, false);
 					break;
@@ -57,7 +61,7 @@ public partial class SkillLevelBasedMagicCapability
 					updated = EditLandMessage(method, command);
 					break;
 				default:
-					throw new InvalidOperationException("Use gather land <method> source|collateral|damage|pressure|crophealth|woodlandhealth|message ...");
+					throw new InvalidOperationException("Use gather land <method> regional <units|off>, or source|collateral|damage|pressure|crophealth|woodlandhealth|message ...");
 			}
 		}
 		catch (Exception ex)

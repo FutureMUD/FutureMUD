@@ -81,6 +81,7 @@ public sealed record EnvironmentalMagicOperationResult(Guid OperationId, bool Su
 /// </summary>
 public interface IEnvironmentalMagicService : IDisposable
 {
+	IRegionalGatheringService? RegionalGathering => null;
 	DateTimeOffset UtcNow { get; }
 	EnvironmentalMagicStateSnapshot InspectState(IRoom room);
 	LandRejuvenationPolicy InspectRepairPolicy(IRoom room);

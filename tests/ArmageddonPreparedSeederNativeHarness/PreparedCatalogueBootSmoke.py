@@ -1445,17 +1445,26 @@ def release_stock_smoke(session, phase):
     def mapped(statement):
         return re.sub(r"'(?:''|[^'])*'|[A-Za-z_][A-Za-z_0-9]*",
                       lambda m: m[0] if m[0].startswith("'") else identifiers.get(m[0], m[0]), statement)
-    for table, rows in data['release_originals'].items():
-        for row in rows:
-            actual = sql(f"SELECT HEX(Definition) FROM {table} WHERE Id={int(row['id'])}", (0,))
-            require(actual == [[row['definition']]], 'Original Release stock definition changed: '+table)
-    require(len(sql('SELECT Id FROM MagicCapabilities')) == 10, 'Release smoke created a private capability copy.')
-    module_path = REPO/'tests/ArmageddonPreparedSeederNativeHarness/PreparedS5ProgressionSmoke.py'
+    module_path = REPO/'tests/ArmageddonPreparedSeederNativeHarness'/('PreparedReleaseRegionalSmoke.py' if os.environ.get('FUTUREMUD_RELEASE_REGIONAL_SMOKE') == '1' else 'PreparedS5ProgressionSmoke.py')
     helper_pin = {'path': str(module_path), 'sha256': sha(module_path)}
     require(receipt.setdefault('release_progression_helper', helper_pin) == helper_pin, 'Release progression helper changed.')
     spec = importlib.util.spec_from_file_location('release_stock_progression', module_path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    matches_definition = getattr(module, 'release_definition_matches', lambda table, expected, actual, phase: actual == expected)
+    for table, rows in data['release_originals'].items():
+        for row in rows:
+            actual = sql(f"SELECT HEX(Definition) FROM {table} WHERE Id={int(row['id'])}", (0,))
+            matches = len(actual) == 1 and matches_definition(table, row['definition'], actual[0][0], phase)
+            if not matches:
+                receipt['release_definition_mismatch'] = {'phase': phase, 'table': table, 'id': row['id'],
+                                                          'expected': row['definition'], 'actual': actual}
+            elif actual != [[row['definition']]]:
+                receipt.setdefault('release_definition_normalizations', []).append(
+                    {'phase': phase, 'table': table, 'id': row['id'],
+                     'kind': 'Exact implicit UnixEpoch/zero environmental timeline defaults exported'})
+            require(matches, f"Original Release stock definition changed: {table} id={row['id']}")
+    require(len(sql('SELECT Id FROM MagicCapabilities')) == 10, 'Release smoke created a private capability copy.')
     module.run(globals(), session, phase, data, mapped)
     receipt['release_configuration'] = 'Release installer and server; Debug fixture owner only'
     assertions.append(phase+': original Release stock policy and definitions retained; no private capability copy')

@@ -1,5 +1,7 @@
 # Environmental Magic Builder Guide
 
+For shared ecological life on physical Areas/Zones, use the separate [Regional Land gathering guide](Regional_Land_Gathering.md). Regional profiles share one regenerating stock owner and are distinct from room environmental generators and forage-profile inheritance. Their builder surface is `magic environment regional`.
+
 An `environmental` regenerator is a reusable profile for resources held by physical cells. It uses the existing magic-resource balances, one environmental maximum for each configured resource, and persistent cell damage. It applies only after an explicit cell binding or terrain default is configured. No stock setting content is installed.
 
 The world coordinator advances useful production and optional natural scar repair. See [Environmental Magic Runtime](Environmental_Magic_Runtime.md) for scheduling, persistence and integration contracts, and the [acceptance mapping](Environmental_Magic_Acceptance.md) for regression coverage and execution boundaries. [Capability-configured gathering](Magic_Gathering.md) uses the exact managed mana-debit surface for Gentle and configured local managed/native sources for destructive Land. [Native organic yields](Native_Organic_Yields_and_Ecological_Penalties.md) define the profile authorisation, native owner debits and scar-sensitive positive production Land depends on. A profile alone grants no gathering method; the capability builder must configure and grant one explicitly.

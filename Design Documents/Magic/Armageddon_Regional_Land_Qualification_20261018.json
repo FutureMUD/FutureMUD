@@ -1,0 +1,717 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-18",
+  "scope": "Optional shared Area/Zone Land gathering; bounded ordinary-use Armageddon v1 contribution, not every FutureMUD product.",
+  "base": "15ab4b3584133cb07e195082bda0771c1f70eb4b",
+  "branch": "codex/armageddon-regional-land-gathering-20261018",
+  "draft_pr": "https://github.com/FutureMUD/FutureMUD/pull/805",
+  "executable_validation_head": "311b108360d21894260df1086d4accfa2bc29dae",
+  "prior_packaging": {
+    "pr": "https://github.com/FutureMUD/FutureMUD/pull/803",
+    "merge": "15ab4b3584133cb07e195082bda0771c1f70eb4b",
+    "reviewed_head": "f1db44d432cba553cf950e36a830e2020470e771",
+    "observed_hosted_checks": "Four reported Windows/Linux checks SUCCESS; dated PR803 execution receipts retained unchanged.",
+    "merged_master_default_ci": {
+      "status": "PASS",
+      "head": "15ab4b3584133cb07e195082bda0771c1f70eb4b",
+      "run": "https://github.com/FutureMUD/FutureMUD/actions/runs/39099627791"
+    }
+  },
+  "activation_policy": {
+    "package": "Available in Debug and Release; optional full installation still defaults No.",
+    "fresh_classes": "User explicitly approved offering Defiler immediately with the other Classes when Classes are installed.",
+    "existing_worlds": "No implicit activation, terrain edits, region/room bindings, player enrolment or reserve refill; owner edits and unapproved carrier restrictions preserved.",
+    "regional_use": "Builder explicitly binds an Area/Zone profile and appropriate terrain contributions; configured local sources remain fallback.",
+    "remaining_policy_choices": []
+  },
+  "implementation": {
+    "selection": "Configured Area before Zone; overlap priority descending then stable ID ascending; one owner contribution per physical room.",
+    "payment": "One complete regional life payment first, then configured local payment on shortage; never split a partial shared/local cost.",
+    "recovery": "0.1 life per online real hour per owner; stock local fallback recovery zero; no offline catch-up.",
+    "conservation": "First actual binding full once; membership/capacity growth, rebind and restart do not refill; capacity reduction clamps.",
+    "persistence": "Pool and receipt checkpoint together before ecology/body/credit; captured revisions and shared-source quarantine span rooms.",
+    "performance": "Indexed physical ownership, cached capacity and one regional hourly callback; no comparative performance benchmark.",
+    "presets": "Nine terrain families plus mixed; unknown terrain contributions zero in mixed; private native terrain/local forage/environmental presets preserve existing world settings.",
+    "formula_approval": "User approved the formulas; no additional balance tuning."
+  },
+  "whole_fast_gate": {
+    "head": "a58c8b66097bdf3417618b44fd30b8a98f03d407",
+    "summary": "validation-regional/fast/20261018T083850Z-56e41976dc2d/summary.json",
+    "status": "FAIL_RETAINED_TWO_STALE_TEST_ASSERTIONS_SUBSEQUENTLY_FIXED",
+    "passed": 11212,
+    "failed": 2,
+    "skipped": 3,
+    "executed": 11214,
+    "listed": 11217,
+    "execution_complete": true,
+    "counts_complete": true,
+    "source_stable": true,
+    "source_sha256": "fc9440b4f0fa3b1bae70de5c254b39b16e744fb1548c5d526173d40eb1601faf",
+    "failures": [
+      "RoomTerminologyTests expected the old latest migration; corrected to compare source and EF discovery while retaining historical/regional membership.",
+      "MagicGatheringOperationModelTests assumed only one participant index; corrected to assert each named index's exact properties."
+    ],
+    "skips": "Three Unix-only launcher-permission DataRows on Windows.",
+    "corrected_focused_rerun": {
+      "head": "ac91f10d346cf76ff491d19421be9b75e7229dbb",
+      "passed": 4,
+      "failed": 0,
+      "skipped": 0,
+      "evidence": "validation-regional/batch7/database.log"
+    },
+    "whole_gate_repeated": false
+  },
+  "managed_release": {
+    "core": {
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "filter": "FullyQualifiedName~RegionalLand_|FullyQualifiedName~LandGathering_ProfileProtectionSeesActorAndCanonicalOwnerButRawInspectionDoesNotInvokeIt"
+    },
+    "evidence": [
+      {
+        "sha256": "DC64ACBE5E36E328E1F86A7104F7F2048FD137DB5643F1A7F4CD9D5FAE81DAE5",
+        "path": "validation-regional\\batch8\\core-release.log"
+      },
+      {
+        "sha256": "6B470F039D6AC782FCA4BD5D6DF6EC2BED7C7602BE510C61748AD050F7266657",
+        "path": "validation-regional\\batch8\\harness-debug.log"
+      },
+      {
+        "sha256": "B5F75FA8CFBDE9B1FF12B964F229E7EF4C88D4087379504A372EAECF361B5ACB",
+        "path": "validation-regional\\batch8\\harness-release.log"
+      },
+      {
+        "sha256": "8AA123E6C6583C1A56F4A4BD7CEEDFC9AA28212F7577BC47AA5246DADCF8A4BF",
+        "path": "validation-regional\\batch8\\seeder-release.log"
+      },
+      {
+        "sha256": "958EA30F5ADC2AF5010F5D077B7BBBF449A09DD991525D6707AC05A22829964C",
+        "path": "validation-regional\\batch8\\core-release\\luker_PERCIVAL_2026-10-18_20_09_09_net10.0.trx"
+      },
+      {
+        "sha256": "84AD5D6FDDC50FA4356EA68B6D2E0F6096FEB6913774055E7EB005FCBA981A06",
+        "path": "validation-regional\\batch8\\seeder-release\\luker_PERCIVAL_2026-10-18_20_06_54_net10.0.trx"
+      }
+    ],
+    "status": "PASS",
+    "head": "35950ce3bce6e7e90e8cfc514b3c7dde256be8e5",
+    "seeder": {
+      "passed": 6,
+      "failed": 0,
+      "skipped": 0,
+      "filter": "FullyQualifiedName~RegionalLand_PresetsCoverTerrainFamiliesAndRerunPreservesOwnersAndBuilderEdits|FullyQualifiedName~CompleteInstall_MaterialisesStockAndPreservesInstallationAvailabilityAndRerun"
+    },
+    "harness_builds": {
+      "Debug": "PASS: 0 errors, 229 warnings",
+      "Release": "PASS: 0 errors, 229 warnings"
+    }
+  },
+  "snapshot": {
+    "status": "PASS",
+    "latest_migration": "20261018081240_RegionalLandGathering",
+    "product_version": "3.7.0",
+    "scope": "Real snapshot refresh and fresh isolated import, empty regional tables/no activation, exact migrations and model parity, complete owned cleanup.",
+    "receipt": "native-regional/snapshot-operator-receipt.json",
+    "receipt_sha256": "420A0F1C4FEFDCC05B5AD31C3AB5848BEE2F1979A8C95A8C82AAAD4D0ABD049A",
+    "snapshot_sql_sha256": "E7E7001DEFC3BC94115490E6B39B50466BC117837738FAFBBE02865BC9A50548",
+    "snapshot_manifest_sha256": "18B5EB289EF79EF481FF4B3612DDD51CAD4AA8414C8DAA19F7F1BE04AF2DA7F3"
+  },
+  "clean_base": {
+    "status": "PASS",
+    "scope": "Fresh compatible classes-on foundation, 29 prefix steps, clean Armageddon boundary, repeated-prefix refusal/unchanged content, immutable artifacts and complete owned cleanup.",
+    "descriptor": "FutureMUD/.artifacts/pre-armageddon-base-fixtures/20261018T084622Z_d21352b3a68e46ce8aabea6af80b918b/base-world.json",
+    "descriptor_sha256": "F0EBF854B1741989E7236FC5E2081C6175850F1B27627C25A349A28F2273749A",
+    "sql_sha256": "AF6CD2E96FA57825E746B69A6C2ACF1874386A3AB79AD28E6B5AF7AC7B2989B6"
+  },
+  "native_regional_release": {
+    "status": "PASS",
+    "source_revision": "311b108360d21894260df1086d4accfa2bc29dae",
+    "qualification_limits": "Representative original-stock Release install and ordinary Sorcerer enrolment, shared Area life payments, native configured-room forage fallback and cold conservation. Debug fixture owner only; no rest-funding/practice repeat, full UI, hour/ash wait or exceptional fault injection.",
+    "scenario_scope": "Original Release Sorcerer and wildland; ordinary copied Player body, explicit permanent merit, no magic knowledge/skill/reserve injection. A has an explicit legacy profile without matching forage; B uses approved fertile local profile and explicit native forage-profile binding, preserving the zone's forage policy. Area activated through native builder command; first/cold only, no exceptional fault injection or hour/ash wait.",
+    "release_regional_smoke_only": true,
+    "native_exit": 0,
+    "assertion_count": 14,
+    "assertions": [
+      "Matching parent-ready receipt before owned SQL or MUD startup",
+      "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+      "first: native MUD ready",
+      "first: native Admin avatar login and LOOK",
+      "Regional Land: original Release Sorcerer normal enrolment; shared Area6->0 across six paid actions; no-matching-source refusal; physical exit and approved native forage3->2 fallback; original health/stun/stamina formulas and reserve0->105",
+      "first: original Release stock policy and definitions retained; no private capability copy",
+      "first: native flush and independent persisted LastLoginTime",
+      "first: graceful shutdown, persisted avatar/cell and logout",
+      "cold: native MUD ready",
+      "cold: native Admin avatar login and LOOK",
+      "Regional Land: pre-login cold pool, terminal receipts, reserve, native forage, scars, skills and participant custody conserved exactly",
+      "cold: original Release stock policy and definitions retained; no private capability copy",
+      "cold: native flush and independent persisted LastLoginTime",
+      "cold: graceful shutdown, persisted avatar/cell and logout"
+    ],
+    "regional_first_status": "PASS",
+    "regional_cold_status": "PASS",
+    "physical_move_wait_seconds": 19.903,
+    "actions": [
+      {
+        "amount": 50,
+        "room": 2,
+        "status": "Completed",
+        "kind": "Land",
+        "damage": 7.0,
+        "stun": 8.0,
+        "stamina": 14.0,
+        "independent_pain": 0.0,
+        "paid_accounting_callback_flags": [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ],
+        "regional_units": 1,
+        "regional_debited": true,
+        "local_sources_applied": [],
+        "native_maxima_remaining_gather_ecology_before": [
+          175.0,
+          200.0,
+          350.0,
+          175.0,
+          200.0,
+          150.0,
+          10.0,
+          0.0
+        ]
+      },
+      {
+        "amount": 1,
+        "room": 2,
+        "status": "Completed",
+        "kind": "Land",
+        "damage": 0.21,
+        "stun": 0.24,
+        "stamina": 0.42,
+        "independent_pain": 0.0,
+        "paid_accounting_callback_flags": [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ],
+        "regional_units": 1,
+        "regional_debited": true,
+        "local_sources_applied": [],
+        "native_maxima_remaining_gather_ecology_before": [
+          175.0,
+          200.0,
+          350.0,
+          168.0,
+          192.0,
+          136.0,
+          10.0,
+          -1.0
+        ]
+      },
+      {
+        "amount": 1,
+        "room": 2,
+        "status": "Completed",
+        "kind": "Land",
+        "damage": 0.21,
+        "stun": 0.24,
+        "stamina": 0.42,
+        "independent_pain": 0.0,
+        "paid_accounting_callback_flags": [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ],
+        "regional_units": 1,
+        "regional_debited": true,
+        "local_sources_applied": [],
+        "native_maxima_remaining_gather_ecology_before": [
+          175.0,
+          200.0,
+          350.0,
+          167.79,
+          191.76,
+          160.58,
+          10.0,
+          -1.0
+        ]
+      },
+      {
+        "amount": 1,
+        "room": 2,
+        "status": "Completed",
+        "kind": "Land",
+        "damage": 0.21,
+        "stun": 0.24,
+        "stamina": 0.42,
+        "independent_pain": 0.0,
+        "paid_accounting_callback_flags": [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ],
+        "regional_units": 1,
+        "regional_debited": true,
+        "local_sources_applied": [],
+        "native_maxima_remaining_gather_ecology_before": [
+          175.0,
+          200.0,
+          350.0,
+          167.58,
+          191.52,
+          160.16,
+          10.0,
+          -1.0
+        ]
+      },
+      {
+        "amount": 1,
+        "room": 2,
+        "status": "Completed",
+        "kind": "Land",
+        "damage": 0.21,
+        "stun": 0.24,
+        "stamina": 0.42,
+        "independent_pain": 0.0,
+        "paid_accounting_callback_flags": [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ],
+        "regional_units": 1,
+        "regional_debited": true,
+        "local_sources_applied": [],
+        "native_maxima_remaining_gather_ecology_before": [
+          175.0,
+          200.0,
+          350.0,
+          167.37,
+          191.28,
+          184.74,
+          11.0,
+          -1.0
+        ]
+      },
+      {
+        "amount": 1,
+        "room": 2,
+        "status": "Completed",
+        "kind": "Land",
+        "damage": 0.21,
+        "stun": 0.24,
+        "stamina": 0.42,
+        "independent_pain": 0.0,
+        "paid_accounting_callback_flags": [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ],
+        "regional_units": 1,
+        "regional_debited": true,
+        "local_sources_applied": [],
+        "native_maxima_remaining_gather_ecology_before": [
+          175.0,
+          200.0,
+          350.0,
+          167.16,
+          191.04,
+          184.32,
+          12.0,
+          -1.0
+        ]
+      },
+      {
+        "amount": 50,
+        "room": 3,
+        "status": "Completed",
+        "kind": "Land",
+        "damage": 6.9,
+        "stun": 7.885714285714286,
+        "stamina": 13.8,
+        "independent_pain": 0.0,
+        "paid_accounting_callback_flags": [
+          "1",
+          "1",
+          "1",
+          "1",
+          "1"
+        ],
+        "regional_units": 0,
+        "regional_debited": false,
+        "local_sources_applied": [
+          {
+            "Selector": "forage:armageddon-life",
+            "Lifecycle": {
+              "CellId": 3,
+              "FieldId": null,
+              "Generation": 0,
+              "DefinitionId": 0,
+              "ForageProfileId": 156,
+              "ForageProfileRevision": 0,
+              "ForageDefinitionRevision": 0
+            },
+            "FundingUnits": 1,
+            "CollateralUnits": 0,
+            "NativeStock": 3,
+            "OpeningPrepaidFraction": 0,
+            "WholeNativeDebit": 0,
+            "ClosingPrepaidFraction": 0,
+            "TotalUnits": 1
+          }
+        ],
+        "native_maxima_remaining_gather_ecology_before": [
+          175.0,
+          200.0,
+          350.0,
+          166.95,
+          200.0,
+          258.9,
+          12.0,
+          -1.0
+        ]
+      }
+    ],
+    "saved_state_verified_equal_on_cold": {
+      "pool": [
+        [
+          "10",
+          "0",
+          "8",
+          "0",
+          "6",
+          "1",
+          "0"
+        ]
+      ],
+      "reserve": [
+        [
+          "105"
+        ]
+      ],
+      "forage": [
+        [
+          "3",
+          "2"
+        ]
+      ],
+      "ecology": [
+        [
+          "2",
+          "6",
+          "0"
+        ],
+        [
+          "3",
+          "1",
+          "0"
+        ]
+      ]
+    },
+    "saved_operation_count": 7,
+    "saved_participant_count": 7,
+    "cold_definition_normalizations": [
+      {
+        "phase": "cold",
+        "table": "MagicGenerators",
+        "id": 8,
+        "kind": "Exact implicit UnixEpoch/zero environmental timeline defaults exported"
+      },
+      {
+        "phase": "cold",
+        "table": "MagicGenerators",
+        "id": 11,
+        "kind": "Exact implicit UnixEpoch/zero environmental timeline defaults exported"
+      }
+    ],
+    "base_descriptor": "FutureMUD\\.artifacts\\pre-armageddon-base-fixtures\\20261018T084622Z_d21352b3a68e46ce8aabea6af80b918b\\base-world.json",
+    "base_descriptor_sha256": "F0EBF854B1741989E7236FC5E2081C6175850F1B27627C25A349A28F2273749A",
+    "base_sql_sha256": "AF6CD2E96FA57825E746B69A6C2ACF1874386A3AB79AD28E6B5AF7AC7B2989B6",
+    "base_source_sha256": "90A540CD295B6CE1B7485A3E3B987A04C0B5005AEF593A8541ECBA543284601F",
+    "source_sha256": "E6383E15D8718789DAB47EF8A98186FA6F55DCCAD2B6699AE0E81F285F4EC52B",
+    "source_stable": true,
+    "release_installer_assembly_manifests_stable": true,
+    "release_server_assemblies": [
+      {
+        "path": "FutureMUD\\MudSharpCore\\bin\\Release\\net10.0\\MudSharp.dll",
+        "sha256": "C6402D84A5D501E74D10D9C6121E92D98D9836CBAAE8F16EF81420407AE9D8A7"
+      },
+      {
+        "path": "FutureMUD\\MudSharpCore\\bin\\Release\\net10.0\\FutureMUDLibrary.dll",
+        "sha256": "A6275EF2BECD3BAF94557A7BF7028F897C0930FC2FB33723F24DC52384597FC1"
+      },
+      {
+        "path": "FutureMUD\\MudSharpCore\\bin\\Release\\net10.0\\MudsharpDatabaseLibrary.dll",
+        "sha256": "7A3378DC2A2927E0829FC6909D8388A84A32942819D0B7F4FE86EAE00376BB74"
+      },
+      {
+        "path": "FutureMUD\\MudSharpCore\\bin\\Release\\net10.0\\ExpressionEngine.dll",
+        "sha256": "5A642862A9B601E8295A72452ECF83ACBD5B013CF69FE0A22193434B57B3F49D"
+      }
+    ],
+    "cleanup": {
+      "mud_phases": [
+        {
+          "phase": "first",
+          "pid": 54092,
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        },
+        {
+          "phase": "cold",
+          "pid": 57452,
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        }
+      ],
+      "owned_mud_processes_stopped": true,
+      "owned_database_deleted": true,
+      "mysql_normal_shutdown": true,
+      "owned_temp_directory_absent": true,
+      "owned_native_processes_remaining": 0
+    },
+    "artifacts": [
+      {
+        "path": "native-regional\\release-final\\20261018T093950Z_3b50d76454804015afea542a902bfc43\\summary.json",
+        "sha256": "0FAD69A995B7C6A08E09BF7902A86558AE7E1CEC63C3A68736F3594FF1A7BBAC"
+      },
+      {
+        "path": "native-regional\\release-final\\20261018T093950Z_3b50d76454804015afea542a902bfc43\\base-world-run.json",
+        "sha256": "84E03D62772AD5728069AA6753D1B722A015511FD156DDFCE6B2C539D1EA16FE"
+      },
+      {
+        "path": "native-regional\\release-final\\20261018T093950Z_3b50d76454804015afea542a902bfc43\\source-start.json",
+        "sha256": "E6383E15D8718789DAB47EF8A98186FA6F55DCCAD2B6699AE0E81F285F4EC52B"
+      },
+      {
+        "path": "native-regional\\release-final\\20261018T093950Z_3b50d76454804015afea542a902bfc43\\source-end.json",
+        "sha256": "E6383E15D8718789DAB47EF8A98186FA6F55DCCAD2B6699AE0E81F285F4EC52B"
+      },
+      {
+        "path": "native-regional\\release-final\\20261018T093950Z_3b50d76454804015afea542a902bfc43\\assemblies.json",
+        "sha256": "B3800C4A8DB6C12F782E661D1D9B970E202F1B8EB94D6048451272841C8D6854"
+      },
+      {
+        "path": "native-regional\\release-final\\20261018T093950Z_3b50d76454804015afea542a902bfc43\\assemblies-release-start.json",
+        "sha256": "E72FD29A8A1EDFABB28E7827784B36FB496A32E120FE5515AC7BA601072B3AFB"
+      },
+      {
+        "path": "native-regional\\release-final\\20261018T093950Z_3b50d76454804015afea542a902bfc43\\assemblies-release-end.json",
+        "sha256": "E72FD29A8A1EDFABB28E7827784B36FB496A32E120FE5515AC7BA601072B3AFB"
+      },
+      {
+        "path": "native-regional\\release-final\\20261018T093950Z_3b50d76454804015afea542a902bfc43\\mysql.err",
+        "sha256": "795F52D2500EBC9C41262E9648116A918F52DB726C6FF3FB244B851EBD90715A"
+      },
+      {
+        "path": "native-regional\\release-final.log",
+        "sha256": "AEFDDFFA820848DF0AFB62206D71D2D1A610D29518DD0EC0EA5190DE7A4F8F1F"
+      },
+      {
+        "path": "prepared-catalogue-boot-native-release-684c574e882c4df18d8c4fe43f91cc14\\boot-latest.json",
+        "sha256": "20D06F58AE4FFD109CEF38FCD45FB8D0B6394317A1C8477E59C793DEB2571760"
+      },
+      {
+        "path": "prepared-catalogue-boot-native-release-684c574e882c4df18d8c4fe43f91cc14\\runtime-cold-c20185c8609546e0881d9ca21c7ba283\\process-output.txt",
+        "sha256": "484750D43EB35B74C325070B9D6B8FAA7954644A3677F38B3787DD163048AA28"
+      },
+      {
+        "path": "prepared-catalogue-boot-native-release-684c574e882c4df18d8c4fe43f91cc14\\runtime-cold-c20185c8609546e0881d9ca21c7ba283\\telnet-transcript.txt",
+        "sha256": "851A066E87A1023D6BD8B2D46A6A7DC98C83D3B132A5E7BB91B1E18C0F85BC59"
+      },
+      {
+        "path": "prepared-catalogue-boot-native-release-684c574e882c4df18d8c4fe43f91cc14\\runtime-first-bc75635f83a34ab7ae36fb61a2cace69\\process-output.txt",
+        "sha256": "F1C8F891D3BFD44F179A99F4D17F2A4F88D8B53100492E6C59652523D15097DD"
+      },
+      {
+        "path": "prepared-catalogue-boot-native-release-684c574e882c4df18d8c4fe43f91cc14\\runtime-first-bc75635f83a34ab7ae36fb61a2cace69\\regional-player-transcript.txt",
+        "sha256": "EB2AC21B7E4EF72B47F8F4AF648F26C70FB458A3814F917690A881D1C898EE42"
+      },
+      {
+        "path": "prepared-catalogue-boot-native-release-684c574e882c4df18d8c4fe43f91cc14\\runtime-first-bc75635f83a34ab7ae36fb61a2cace69\\telnet-transcript.txt",
+        "sha256": "71AF393B8AFDD1A46088C6E245C71B5E22F5C62B16150D1BF2FF656FA29DFC05"
+      }
+    ],
+    "prior_failures_preserved": [
+      {
+        "path": "native-regional\\release-operator-receipt.json",
+        "sha256": "BD2BF8ACDE12EA06F46C23DB1F66400F9DBD424B13A767152075AE2A64BD022C"
+      },
+      {
+        "path": "native-regional\\release-retry-operator-receipt.json",
+        "sha256": "573FF572D615B78EF7CB38383B77F187122C338CB4281953BB54C10CB16469A1"
+      }
+    ],
+    "fault_injection_performed": false,
+    "saved_skills_verified_equal_on_cold": [
+      [
+        "134",
+        "200"
+      ],
+      [
+        "299",
+        "10"
+      ],
+      [
+        "302",
+        "10"
+      ],
+      [
+        "303",
+        "12"
+      ]
+    ],
+    "operator_receipt": "native-regional/release-final-operator-receipt.json",
+    "operator_receipt_sha256": "0888662EA970D9EACD585611FBD8D26346689D70B0171802D2E85579E230C31C",
+    "release_server_assemblies_unchanged_across_python_corrections": true
+  },
+  "overlapping_results_added": false,
+  "historical_evidence_relabelled": false,
+  "known_limits": [
+    "Prior rest funding, paid spell practice, Class UI, normal body balance and normal lifetime/custody evidence retain their dated scopes; the new regional native lane does not repeat them.",
+    "No new exhaustive Class/grade/mode matrix, hour/ash wait, full UI or comparative performance benchmark.",
+    "ARM-V1-FOLLOWUP-001 Borrow injected secondary DELETE remains FAIL; recovery NOT_RUN; deferred nonblocking by user priority, no repair claimed.",
+    "Wider exceptional-failure campaigns and further balance tuning remain deferred unless ordinary use exposes a concrete blocker.",
+    "Regional native checks quoted health/stun/stamina costs, paid/callback flags, life, reserve and scars; no separate callback-register or wound-total certificate is inferred."
+  ],
+  "existing_game_activated": false,
+  "merged": false,
+  "deployed_or_release_published": false,
+  "recommendation": "LOCAL_ORDINARY_REGIONAL_SCOPES_PASS_HOLD_FOR_EXACT_FINAL_PR_HEAD_CI",
+  "evidence_root": "Local task workspace, outside the repository; exact paths and hashes are supporting receipts, not newly executed historical tests.",
+  "adjacent_findings": [
+    {
+      "key": "SCHEDULED_CLIMATE_RESTORE",
+      "log": "pr803-climate-failure.log",
+      "run": "https://github.com/FutureMUD/FutureMUD/actions/runs/39109779214",
+      "base": "15ab4b3584133cb07e195082bda0771c1f70eb4b",
+      "evidence": "dotnet restore MudSharp.sln on Ubuntu fails NETSDK1100 for MudSharp Watcher.csproj targeting Windows; MSB4181 follows. Climate tests did not execute. The separate merged-master default unit workflow passed.",
+      "log_sha256": "55DCD980785BCF1F10B7D2AFB1FBEE2FA2AA8B6DE0F2527911624481C484DC7C",
+      "impact": "Scheduled climate coverage unavailable for that run; no climate gameplay result inferred. No workflow fix or climate campaign in this task.",
+      "location": ".github/workflows/climate-tests.yml:24",
+      "status": "FAILED_BEFORE_TEST_EXECUTION_DEFERRED_OUTSIDE_REGIONAL_SCOPE"
+    }
+  ],
+  "additional_managed_evidence": [
+    {
+      "sha256": "61B828154CBF906BBB8C9E7EB2D72104F75451F9B04C3F8DC050DFCF160FB841",
+      "path": "validation-regional\\fast\\20261018T083850Z-56e41976dc2d\\summary.json"
+    },
+    {
+      "sha256": "E9B4C6D92989DC5626EAB98A115B3870DC62D171A692C31832D68B7991E6860B",
+      "path": "validation-regional\\fast\\20261018T083850Z-56e41976dc2d\\failures.json"
+    },
+    {
+      "sha256": "D39E0A99E073408467A091B18823651ABF13088891A27EDABE32196CC25A6F64",
+      "path": "validation-regional\\batch7\\database.log"
+    },
+    {
+      "sha256": "E87FB3CECD7EE51A5CE53B70CC10C362C5FD996C9E33371D9C36EBE467225E84",
+      "path": "validation-regional\\batch6\\library.log"
+    },
+    {
+      "sha256": "3B21AADAEAC71EB6F0718967215C531B0AE728ED03E76CD27B1C9F18822F8EDC",
+      "path": "validation-regional\\batch4\\core.log"
+    },
+    {
+      "sha256": "5D7AB3B5DA26D6753D33005EDEE0650746277135B25EC12BA6DD879A01CF5CE0",
+      "path": "validation-regional\\batch1\\database.log"
+    },
+    {
+      "sha256": "2E940B4F95C6F4EEBCC2025BCDAEBEDCEA23ADE65B1E229FF9FFB57BC8B0DACF",
+      "path": "validation-regional\\batch2\\seeder.log"
+    },
+    {
+      "sha256": "C924DA1693AD60EB6A78717DDD333946A8A61A056C2CE2868AE514384F01C866",
+      "path": "validation-regional\\ef-parity.log"
+    }
+  ],
+  "focused_debug_iteration_results": {
+    "model": {
+      "skipped": 0,
+      "passed": 2,
+      "failed": 0
+    },
+    "installer_upgrade": {
+      "skipped": 0,
+      "passed": 6,
+      "failed": 0
+    },
+    "library": {
+      "skipped": 0,
+      "passed": 13,
+      "failed": 0
+    },
+    "note": "Separate overlapping iteration checks, not added to broad-gate or final-head totals.",
+    "runtime_gathering": {
+      "skipped": 0,
+      "passed": 87,
+      "failed": 0
+    }
+  },
+  "native_initial_attempt": {
+    "cleanup": "Owned DB deleted, normal MySQL shutdown, Temp absent, zero owned processes; first game server forced on assertion, no cold boot.",
+    "receipt": "native-regional/release-operator-receipt.json",
+    "not_run": [
+      "B configured local forage fallback",
+      "cold restart"
+    ],
+    "failure": "Driver checked the destination immediately after native movement began; transcript confirms still strolling, initial room LOOK and quit refusal while moving.",
+    "head": "35950ce3bce6e7e90e8cfc514b3c7dde256be8e5",
+    "status": "FAIL_RETAINED",
+    "release_assemblies_stable": true,
+    "passed_before_failure": "Original Release install, ordinary enrolment, six shared payments with exact prices/accounting, pool6->0, reserve0->55 and unsupported local source refusal.",
+    "source_stable": true,
+    "native_exit": 1,
+    "receipt_sha256": "BD2BF8ACDE12EA06F46C23DB1F66400F9DBD424B13A767152075AE2A64BD022C"
+  },
+  "native_retry_correction": "Only Python driver changed at4c542ecab: poll exact flushed Characters.Location up to30seconds, observe native final movement delay (capped5seconds) for6seconds, assert perceived destination. No timers shortened, player teleport, price/state expectation relaxation, C# changes or rebuild. Existing Release assembly hashes remain the validation boundary.",
+  "native_timing_retry": {
+    "native_exit": 1,
+    "first_phase": "PASS: seven paid actions, physical arrival, shared6->0, Bforage3->2, reserve105, scarsA6/B1 and graceful first shutdown",
+    "receipt_sha256": "573FF572D615B78EF7CB38383B77F187122C338CB4281953BB54C10CB16469A1",
+    "head": "4c542ecab0f15ad470a356e44c72fc9a2836954f",
+    "receipt": "native-regional/release-retry-operator-receipt.json",
+    "cleanup": "Owned database deleted, MySQL normal shutdown09:35:23Z, Temp absent, native processes0; cold game forced after assertion.",
+    "cold": "Server ready/Admin login passed; raw MagicGenerators guard failed BEFORE regional cold state comparison, which remains NOT_RUN.",
+    "status": "FAIL_RETAINED"
+  },
+  "native_definition_guard_correction": {
+    "scope": "Python-only; first phase raw strict, cold permits only exact two-field default insertion for environmental MagicGenerators, every other byte strict. No C# changes, rebuild, policy mutation, baseline replacement or arbitrary timeline allowance. Mismatches now capture phase/table/ID and expected/actual XML.",
+    "initial_tooling_attempt": "Embedded Python unittest module lookup failed before cases executed; explicit current-directory sys.path invocation passed all6.",
+    "head": "311b108360d21894260df1086d4accfa2bc29dae",
+    "regressions": {
+      "log": "validation-regional/definition-guard-tests.log",
+      "failed": 0,
+      "sha256": "715A0A6CE5B84F21DCAA5A02BE86D38477A62D5A494C2012413368D89BF00B17",
+      "passed": 6
+    },
+    "confirmed_path": "Normal ecological CommitCore exports environmental generator XML with implicit default DecayReferenceUtc UnixEpoch and DecayIntegral0; seeder omits those fields. Load alone does not change definitions; paid ecology persistence writes the exact default insertion.",
+    "review": "Independent read-only6.1 review clear"
+  },
+  "hosted_ci": {
+    "note": "Final documentation/head CI must be checked via PR805; duplicate push coverage success is not a second test execution.",
+    "final_documentation_head_has_no_result_in_this_frozen_execution": true,
+    "final_head_required": true,
+    "last_observed_status": "IN_PROGRESS",
+    "last_observed_head": "35950ce3bce6e7e90e8cfc514b3c7dde256be8e5",
+    "last_observed_runs": [
+      "https://github.com/FutureMUD/FutureMUD/actions/runs/39113791503",
+      "https://github.com/FutureMUD/FutureMUD/actions/runs/39113787145"
+    ]
+  },
+  "historical_pins_verified_unchanged": true
+}

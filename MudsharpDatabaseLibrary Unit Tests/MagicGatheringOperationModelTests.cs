@@ -116,6 +116,8 @@ public class MagicGatheringOperationModelTests
 			participant.FindPrimaryKey()!.Properties.Select(x => x.Name).ToArray());
 		Assert.AreEqual(150, participant.FindProperty("SourceKey")!.GetMaxLength());
 		CollectionAssert.AreEqual(new[] { "RoomId", "SourceKey" },
-			participant.GetIndexes().Single().Properties.Select(x => x.Name).ToArray());
+			participant.GetIndexes().Single(x => x.GetDatabaseName() == "IX_MagicGatheringParticipants_Room_Source").Properties.Select(x => x.Name).ToArray());
+		CollectionAssert.AreEqual(new[] { "SourceKey" },
+			participant.GetIndexes().Single(x => x.GetDatabaseName() == "IX_MagicGatheringParticipants_SharedSource").Properties.Select(x => x.Name).ToArray());
 	}
 }

@@ -1,5 +1,7 @@
 # Armageddon v1 Release packaging, 18 October 2026
 
+> Later 18 October observation: PR803 merged at `15ab4b3584133cb07e195082bda0771c1f70eb4b` with reviewed-head checks passed; Luke explicitly approved immediate Defiler admission alongside the other fresh Classes. The pending decision/CI labels below describe this original receipt. See [current readiness](Armageddon_V1_Readiness_20261018.md) and the separate [regional follow-up](Armageddon_Regional_Land_Qualification_20261018.md). Original execution outcomes and the adjacent JSON receipt are retained unchanged.
+
 Base: `0b40f0ed58e8fd53b0e1c618a75e6eabed29116d` (merged PR #801). Branch: `codex/armageddon-v1-release-packaging-20261018`. This is a new remaining-work task. Master and existing games are unchanged.
 
 Draft PR: [#803](https://github.com/FutureMUD/FutureMUD/pull/803). Implementation commit: `f41b8aa228e0461700c900ea8b7e0ff68e2dcfb6`; the subsequent native run includes only the documented outer-timeout repair to its harness. The [portable receipt](Armageddon_V1_Release_Packaging_20261018.json) pins the exact tested inputs and results independently of this documentation update.

@@ -141,7 +141,8 @@ public sealed partial class Futuremud : IFuturemud, IDisposable, IRuntimePerform
         ArenaCommandService = new ArenaCommandService(this);
         SaveManager = new SaveManager();
         HeartbeatManager = new HeartbeatManager(this);
-		EnvironmentalMagic = new MudSharp.Magic.Environment.EnvironmentalMagicCoordinator(this);
+		EnvironmentalMagic = new MudSharp.Magic.Environment.EnvironmentalMagicCoordinator(this,
+			regionalGathering: new MudSharp.Magic.Environment.RegionalGatheringCoordinator(this));
 		MagicGathering = new MudSharp.Magic.Gathering.MagicGatheringService(this);
 		MagicCasting = new MudSharp.Magic.Casting.MagicCastingService(this);
         ProximityEventService = new ProximityEventService();

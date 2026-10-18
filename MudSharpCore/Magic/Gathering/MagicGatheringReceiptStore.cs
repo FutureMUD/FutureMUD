@@ -153,12 +153,13 @@ public sealed class MagicGatheringReceiptStore : IMagicGatheringReceiptStore
 
 	public bool HasUnresolvedForParticipant(long cellId, string sourceKey)
 	{
+		var shared = sourceKey.StartsWith("region:", StringComparison.Ordinal);
 		using (new FMDB())
 		{
 			return (from participant in FMDB.Context.MagicGatheringParticipants.AsNoTracking()
 				join operation in FMDB.Context.MagicGatheringOperations.AsNoTracking()
 					on participant.OperationId equals operation.Id
-				where participant.RoomId == cellId && participant.SourceKey == sourceKey &&
+				where (shared || participant.RoomId == cellId) && participant.SourceKey == sourceKey &&
 					UnresolvedStatuses.Contains(operation.Status)
 				select participant.OperationId).Any();
 		}

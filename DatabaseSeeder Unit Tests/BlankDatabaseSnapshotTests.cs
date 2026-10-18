@@ -51,6 +51,21 @@ public class BlankDatabaseSnapshotTests
 
 	private const string LatestMigrationId = "20260829082253_AddOutfitTemplateItemSkin";
 
+	[TestMethod]
+	public void CommittedBlankSnapshot_HasUnboundRegionalLifeAndSharedParticipantIndex()
+	{
+		var snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory()));
+		var pool = ReadTableDeclaration(snapshot, "regionalgatheringpools");
+		StringAssert.Contains(pool, "PRIMARY KEY (`OwnerKind`,`OwnerId`)");
+		StringAssert.Contains(pool, "REFERENCES `regionalgatheringprofiles` (`Id`) ON DELETE RESTRICT");
+		Assert.IsFalse(pool.Contains("REFERENCES `areas`", StringComparison.Ordinal));
+		Assert.IsFalse(pool.Contains("REFERENCES `zones`", StringComparison.Ordinal));
+		foreach (var field in new[] { "Revision", "Stock", "Capacity", "Initialised", "Inherit" }) StringAssert.Contains(pool, $"`{field}`");
+		StringAssert.Contains(ReadTableDeclaration(snapshot, "regionalgatheringprofiles"), "`Definition` longtext");
+		StringAssert.Contains(ReadTableDeclaration(snapshot, "magicgatheringparticipants"), "KEY `IX_MagicGatheringParticipants_SharedSource` (`SourceKey`)");
+		StringAssert.Contains(snapshot, "('20261018081240_RegionalLandGathering',");
+	}
+
     [TestMethod]
     public void CommittedBlankSnapshotManifest_TracksLatestMigration()
     {

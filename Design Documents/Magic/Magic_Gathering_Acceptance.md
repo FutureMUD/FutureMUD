@@ -4,6 +4,8 @@ This map covers the 14 functional (`G-T`) and 12 environmental integration (`G-I
 
 ## Test boundaries
 
+The [regional Land follow-up](Regional_Land_Gathering.md) adds independent coverage: `RegionalGatheringTests` exercises indexed ownership, overlap precedence, no-refill persistence and once-per-owner fractional recovery; `MagicGatheringServiceTests.Regional.cs` exercises regional payment, local fallback, captured-route cancellation, no-room-profile use and shared quarantine. The profile-protection test also runs regional-first. `RegionalGatheringModelTests` checks additive migration/model contracts, and the seeder's regional test checks terrain families, ownership and builder-edit preservation. `PreparedReleaseRegionalSmoke.py` is the separately selected first/cold native scenario; its presence is not an execution claim. Dated local-only receipts remain scoped to their actual runs.
+
 | Label | Primary source and boundary |
 | --- | --- |
 | `Gathering` | [MagicGatheringServiceTests](../../MudSharpCore%20Unit%20Tests/MagicGatheringServiceTests.cs): real environmental coordinator, cells, resources, monotonic clock, source debit and command trees; world facade, receipt store and selected persistence boundaries are controlled test substitutes. |

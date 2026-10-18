@@ -15582,6 +15582,9 @@ namespace MudSharp.Migrations
                     b.HasKey("OperationId", "SourceKey")
                         .HasName("PRIMARY");
 
+                    b.HasIndex("SourceKey")
+                        .HasDatabaseName("IX_MagicGatheringParticipants_SharedSource");
+
                     b.HasIndex("RoomId", "SourceKey")
                         .HasDatabaseName("IX_MagicGatheringParticipants_Room_Source");
 
@@ -20214,6 +20217,76 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_RegionalClimates_Seasons_Seasons_idx");
 
                     b.ToTable("RegionalClimates_Seasons", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RegionalGatheringPool", b =>
+                {
+                    b.Property<string>("OwnerKind")
+                        .HasMaxLength(10)
+                        .HasColumnType("varchar(10)");
+
+                    b.Property<long>("OwnerId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<double>("Capacity")
+                        .HasColumnType("double");
+
+                    b.Property<bool>("Inherit")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("Initialised")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
+
+                    b.Property<long?>("ProfileId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.Property<double>("Stock")
+                        .HasColumnType("double");
+
+                    b.HasKey("OwnerKind", "OwnerId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("ProfileId");
+
+                    b.ToTable("RegionalGatheringPools", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RegionalGatheringProfile", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint(20)");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Definition")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Definition"), "utf8mb4");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    MySqlPropertyBuilderExtensions.HasCharSet(b.Property<string>("Name"), "utf8mb4");
+
+                    b.Property<long>("Revision")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id")
+                        .HasName("PRIMARY");
+
+                    b.ToTable("RegionalGatheringProfiles", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Restaurant", b =>
@@ -35297,6 +35370,14 @@ namespace MudSharp.Migrations
                     b.Navigation("RegionalClimate");
 
                     b.Navigation("Season");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RegionalGatheringPool", b =>
+                {
+                    b.HasOne("MudSharp.Models.RegionalGatheringProfile", null)
+                        .WithMany()
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("MudSharp.Models.Restaurant", b =>

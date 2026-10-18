@@ -4,8 +4,8 @@
   "scope": "Armageddon contribution to FutureMUD v1.0; this does not certify every engine product or publish a release.",
   "authority": "Direct user instruction: prioritize readiness for v1.0 and stop treating obscure injected database edge cases as necessary release blockers.",
   "supersedes": "Earlier S6 requirements for an exhaustive provider-fault/full-matrix campaign and subjective final balance approval as prerequisites for this v1.0 slice. Actual recorded outcomes are unchanged.",
-  "implementation_branch": "codex/armageddon-v1-release-packaging-20261018",
-  "pr": "https://github.com/FutureMUD/FutureMUD/pull/803",
+  "implementation_branch": "codex/armageddon-regional-land-gathering-20261018",
+  "pr": "https://github.com/FutureMUD/FutureMUD/pull/805",
   "s6_essential_status": "NORMAL_GAMEPLAY_INSTALLATION_AND_PERSISTENCE_SCOPES_QUALIFIED_REVIEWED_HEAD_CI_PASSED",
   "release_blocker_rule": "Block on reproduced ordinary-use failure of supported installation/upgrade, core player workflows, permissions, persistence/custody, or required build/CI checks. Expand testing only for a concrete gap or reproduced normal-use failure.",
   "essential_gates": [
@@ -57,11 +57,11 @@
     },
     {
       "key": "required-build-and-ci",
-      "status": "PR801_REVIEWED_AND_MERGED_MASTER_PASS_NEW_PACKAGING_HEAD_SEPARATE",
+      "status": "PR801_AND_PR803_REVIEWED_HEAD_PASS_REGIONAL_HEAD_SEPARATE",
       "evidence": [
         "Armageddon_S6_Readiness_Qualification_20261017.json"
       ],
-      "scope": "PR801 exact reviewed head edac5e5d3e2d26a80fc3833359e3973b9b95ad2a passed four hosted jobs. Merged-master run39080875832 at0b40f0ed58e8fd53b0e1c618a75e6eabed29116d passed actual Linux and Windows default test steps. Packaging local checks pass within their receipt scopes; final draft head CI remains required."
+      "scope": "PR801 reviewed and merged-master checks passed within their dated receipts. PR803 reviewed head f1db44d432cba553cf950e36a830e2020470e771 passed four reported hosted checks and merged at15ab4b3584133cb07e195082bda0771c1f70eb4b. Merged-master default Unit Tests run39099627791 passed. PR805 regional local/native results and final-head hosted CI are recorded separately; the adjacent scheduled climate restore failure is documented there without a climate result."
     }
   ],
   "normal_borrow_evidence": {
@@ -104,8 +104,8 @@
     }
   ],
   "next_actions": [
-    "Resolve the single fresh Defiler Class admission decision with Luke; do not infer an answer.",
-    "Require the exact final packaging PR head normal hosted CI before merge or release use.",
+    "Require exact final regional PR head hosted CI before merge or release use; retain draft while pending.",
+    "Use explicit builder Area/Zone and terrain/local-source configuration for regional gathering; no implicit existing-world activation.",
     "Retain deferred failures and dated qualification scopes without another matrix or fault campaign."
   ],
   "release_enabled": true,
@@ -132,7 +132,7 @@
       "sha256": "868771CC010B916CAC2B8F0522DA5C09BAB78DC69DEAFF8CA96CFA7FCAA47DEF"
     }
   ],
-  "verification_boundary": "New task changes optional Release packaging and fresh-install defaults; historical evidence files/pins and actual failures are unchanged. See separate packaging receipt for new execution and remaining CI.",
+  "verification_boundary": "PR803 packaging is merged with reviewed-head CI passed. PR805 adds optional regional gathering with separate local/native/hosted qualification. Historical receipts retain actual outcomes; no existing-world activation, merge, deployment or release publication.",
   "previous_implementation_branch": "codex/armageddon-s6-continuation-20261016",
   "previous_pr_merged_at": "0b40f0ed58e8fd53b0e1c618a75e6eabed29116d",
   "packaging_evidence": "Armageddon_V1_Release_Packaging_20261018.md",
@@ -142,6 +142,16 @@
   "previous_code_and_native_evidence_head": "b201212a074a0d031ee614869168481853f90c7d",
   "packaging_implementation_commit": "f41b8aa228e0461700c900ea8b7e0ff68e2dcfb6",
   "packaging_portable_receipt": "Armageddon_V1_Release_Packaging_20261018.json",
-  "packaging_recommendation": "PENDING_DEFILER_CLASS_ADMISSION_DECISION_AND_FINAL_HEAD_CI",
-  "release_enabled_scope": "Optional package menu availability in Release/Debug only; no existing-world activation or release publication."
+  "packaging_recommendation": "PR803_MERGED_QUALIFIED_WITH_DATED_SCOPE_REGIONAL_FOLLOWUP_SEPARATE",
+  "release_enabled_scope": "Optional package menu availability in Release/Debug only; no existing-world activation or release publication.",
+  "packaging_followup_observation": {
+    "pr803_merge": "15ab4b3584133cb07e195082bda0771c1f70eb4b",
+    "pr803_reviewed_head": "f1db44d432cba553cf950e36a830e2020470e771",
+    "pr803_reported_hosted_checks": "Four Windows/Linux checks SUCCESS; merged-master default Unit Tests run39099627791 SUCCESS",
+    "defiler_decision": "Direct user answer: Offer Defiler immediately with the other Classes",
+    "decision_scope": "Fresh classes-on installs; usable Land remains builder-owned; existing-world policy and owner edits preserved",
+    "remaining_policy_choices": [],
+    "historical_packaging_json_and_outcomes_unchanged": true
+  },
+  "regional_followup_evidence": "Armageddon_Regional_Land_Qualification_20261018.json"
 }

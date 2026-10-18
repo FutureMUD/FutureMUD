@@ -45,8 +45,8 @@ public partial class ArmageddonStockSpellInstallerTests
 			var methods = root.Element("Gathering")?.Elements("Method").ToArray() ?? [];
 			CollectionAssert.AreEqual(spec.Key switch
 			{
-				"arm.capability.sorcerer" => new[] { "Self", "Land" },
-				"arm.capability.preserver" => ["Self"], "arm.capability.defiler" => ["Land"], _ => Array.Empty<string>()
+				"arm.capability.sorcerer" => new[] { "Self", "Land", "Land" },
+				"arm.capability.preserver" => ["Self"], "arm.capability.defiler" => ["Land", "Land"], _ => Array.Empty<string>()
 			}, methods.Select(x => (string)x.Attribute("kind")!).ToArray(), spec.Key);
 			foreach (var method in methods)
 			{
@@ -77,7 +77,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		var ordinaryRerun = ArmageddonProgressionInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db));
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ordinaryRerun.Status, string.Join("\n", ordinaryRerun.Messages));
 		db.ChangeTracker.Clear();
-		Assert.AreEqual(4, db.MagicCapabilities.AsEnumerable().Sum(x => XElement.Parse(x.Definition).Element("Gathering")?.Elements("Method").Count() ?? 0));
+		Assert.AreEqual(6, db.MagicCapabilities.AsEnumerable().Sum(x => XElement.Parse(x.Definition).Element("Gathering")?.Elements("Method").Count() ?? 0));
 		var before = db.SeederManagedRecords.ToDictionary(x => x.StableKey, x => (x.LogicalId, x.RevisionNumber, x.SeedBaseline, x.AppliedAt));
 		new ArmageddonMagicSeeder().SeedData(db, answers);
 		db.ChangeTracker.Clear();

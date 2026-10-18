@@ -4,6 +4,8 @@ Environmental magic is an opt-in physical-cell resource producer. Its reusable d
 
 ## Ownership and persistence
 
+Optional [regional ecological gathering](Regional_Land_Gathering.md) has a separate, indexed Area/Zone life owner in `RegionalGatheringProfiles` and `RegionalGatheringPools`. This stock is ecological life, not a magic-resource balance or ambient producer. The environmental service exposes it for Land's regional-first payment and retains room-local scars and profile protection. Its single online hourly callback, physical ownership and durable shared-source checkpoint are documented separately; existing ambient/local-only contracts below are unchanged.
+
 The Room terminology change preserves the version-1 rejuvenation checkpoint wire field `CellId` and native-organic lifecycle JSON field `CellId`. Their CLR members are `RoomId`; existing saved treatment budgets, revisions, pending work and receipt provenance retain their original location identity.
 
 `Cell.EnvironmentBindingMode` resolves an explicit profile, explicit disabled state, or the current physical overlay's terrain default. An observer's draft overlay and room layer do not create separate pools. Assignments survive restart. Missing profiles, resources, incompatible holders, invalid definitions, and calculation failures remain diagnosable; they do not select a replacement.

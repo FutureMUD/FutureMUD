@@ -27,6 +27,7 @@ public partial class MagicModule
 	#3magic environment repair <here|room id> <amount> <operation guid> <reason>#0 - repair an actual amount of scar damage
 	#3magic environment recheck [here|<room id>]#0 - request a bounded policy recheck
 	#3magic environment diagnostics#0 - inspect coordinator work, queues and ages
+	#3magic environment regional help#0 - configure shared zone/area life profiles and inspect regional pools
 
 Damage and repair require a non-empty GUID operation identity and an audit reason. Repeating that identity reuses its recorded result; it does not apply the operation again. Repair grants no resource and preserves the last destructive-use timestamp. Inspection never advances production.";
 
@@ -54,6 +55,9 @@ Damage and repair require a non-empty GUID operation identity and an audit reaso
 
 		switch (action)
 		{
+			case "regional":
+				EnvironmentRegional(actor, command, service.RegionalGathering);
+				return;
 			case "":
 			case "show":
 				EnvironmentShow(actor, command, service);

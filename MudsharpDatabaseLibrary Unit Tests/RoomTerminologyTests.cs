@@ -166,7 +166,8 @@ public class RoomTerminologyTests
 			.OrderBy(x=>x,StringComparer.Ordinal).Last();
 		Assert.IsTrue(context.GetService<IMigrationsAssembly>().Migrations.ContainsKey("20261007043900_RoomTerminology"));
 		Assert.IsTrue(context.GetService<IMigrationsAssembly>().Migrations.ContainsKey("20261015103829_PersistRoomHazardPulseCursor"));
-		Assert.AreEqual("20261016052024_AddShopHaggling",assemblyLatest);
+		Assert.IsTrue(context.GetService<IMigrationsAssembly>().Migrations.ContainsKey("20261016052024_AddShopHaggling"));
+		Assert.IsTrue(context.GetService<IMigrationsAssembly>().Migrations.ContainsKey("20261018081240_RegionalLandGathering"));
 		Assert.AreEqual(assemblyLatest,sourceLatest);
 	}
 

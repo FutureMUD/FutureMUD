@@ -65,6 +65,8 @@ public sealed record MagicGatheringMethodDefinition(
 	int StructuralVersion = 1)
 {
 	public IReadOnlyList<MagicLandSourceDefinition> LandSources { get; init; } = [];
+	/// <summary>When positive, first try one complete shared-regional life payment, then the configured local sources.</summary>
+	public double RegionalLifeUnitsPerAction { get; init; }
 	public double LandDamagePerDestinationUnit { get; init; }
 	public double? LandPressurePerDestinationUnit { get; init; }
 	public long LandDamageProgId { get; init; }
@@ -111,6 +113,7 @@ public sealed record MagicGatheringQuote(
 	bool HealthCostUsesExistingWound = false)
 {
 	public IReadOnlyList<MagicLandSourceAllocation> LandSources { get; init; } = [];
+	public RegionalGatheringDebit? RegionalLifeDebit { get; init; }
 	public IReadOnlyList<MagicLandEntryPrice> LandEntryPrices { get; init; } = [];
 	public double LandDamage { get; init; }
 	public double LandPressure { get; init; }

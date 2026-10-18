@@ -1,6 +1,8 @@
 # Capability-configured Self, Gentle and Land gathering
 
-Gathering is an optional, capability-owned, timed magic action. A capability with no `Gathering` XML section has no gathering methods; no class, school, race, resource generator, spell or passive effect implicitly grants one. The three explicit routes are `Self`, `Gentle` and destructive `Land`. Land converts only configured local ambient or profile-authorised native sources into personal credit, with a positive ecological scar. It adds no restoration, spell practice or spell-backed-power route.
+Gathering is an optional, capability-owned, timed magic action. A capability with no `Gathering` XML section has no gathering methods; no class, school, race, resource generator, spell or passive effect implicitly grants one. The three explicit routes are `Self`, `Gentle` and destructive `Land`. Land converts explicitly configured shared regional life or local ambient/profile-authorised native sources into personal credit, with a positive ecological scar. It adds no restoration, spell practice or spell-backed-power route.
+
+Land's optional `regionalUnits` attribute (default0) pays a complete shared Area/Zone life cost first, then its configured local source route on shortage. The [regional contract and builder guide](Regional_Land_Gathering.md) defines ownership precedence, cached capacities, once-per-owner online recovery, source capture, payment checkpoints, quarantine, persistence and migration. Existing methods lacking the attribute remain local-only.
 
 The separate [acceptance map](Magic_Gathering_Acceptance.md) identifies the automated coverage and its boundaries. See [Environmental Magic Runtime](Environmental_Magic_Runtime.md) for the environmental source contract.
 

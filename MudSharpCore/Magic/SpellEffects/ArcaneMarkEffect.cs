@@ -13,7 +13,7 @@ namespace MudSharp.Magic.SpellEffects;
 
 /// <summary>Freezes a directly carried item's marking room; this is not a Rune's live location.</summary>
 public sealed class ArcaneMarkEffect : IMagicSpellEffectTemplate, IMagicSpellEffectPreparedSelection,
-	IMagicSpellEffectAdmission
+	IMagicSpellEffectAdmission, IMagicInterdictionTagProvider
 {
 	private readonly Dictionary<IPerceivable, Selection> _selections = new(ReferenceEqualityComparer.Instance);
 	private sealed record Selection(ICharacter Caster, IGameItem Item, IRoom SavedRoom, int Grade,
@@ -44,6 +44,8 @@ public sealed class ArcaneMarkEffect : IMagicSpellEffectTemplate, IMagicSpellEff
 	public IMagicSpell Spell { get; }
 	public IFuturemud Gameworld => Spell.Gameworld;
 	public string Value { get; private set; }
+	public IEnumerable<MagicInterdictionTag> MagicInterdictionTags =>
+		[new(ArmageddonSimpleStockContent.ArcaneMarkTag, Value)];
 	public bool IsInstantaneous => false;
 	public bool RequiresTarget => true;
 	public XElement SaveToXml() => new("Effect", new XAttribute("type", "arcanemark"), new XElement("Value", new XCData(Value)));

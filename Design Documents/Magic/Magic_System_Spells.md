@@ -167,6 +167,8 @@ Current interdiction sources are:
 
 School wards match by school, optionally include child schools, and can be further gated by a custom prog. Tag wards match configured `magictag` key/value metadata exposed by spell effects that implement the contextual interdiction tag provider.
 
+The Arcane Mark template exposes its Arcane Mark tag and configured value before application, so matching tag wards can interdict creation of the mark itself.
+
 Current behavior is:
 
 - `fail` wards block the target-side spell application

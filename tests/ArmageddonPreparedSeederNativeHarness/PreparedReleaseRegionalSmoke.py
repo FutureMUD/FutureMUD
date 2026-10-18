@@ -5,6 +5,22 @@ import re
 import time
 
 
+def release_definition_matches(table, expected, actual, phase):
+    if actual == expected:
+        return True
+    # A normal ecology checkpoint exports these previously implicit defaults.
+    # Accept only this exact insertion on cold boot, preserving every other byte.
+    if (phase != 'cold' or table != 'MagicGenerators'
+            or not expected.startswith('<Definition version="1">')
+            or '<Organic ' not in expected or expected.count('  <Outputs>') != 1
+            or '<DecayReferenceUtc' in expected or '<DecayIntegral' in expected):
+        return False
+    newline = '\r\n' if '\r\n' in expected else '\n'
+    defaults = ('  <DecayReferenceUtc>1970-01-01T00:00:00.0000000+00:00</DecayReferenceUtc>'
+                + newline + '  <DecayIntegral>0</DecayIntegral>' + newline)
+    return actual == expected.replace('  <Outputs>', defaults + '  <Outputs>', 1)
+
+
 def run(host, admin, phase, data, mapped):
     sql, require, receipt, assertions = (host[k] for k in ('sql', 'require', 'receipt', 'assertions'))
     cfg = data['regional_land']

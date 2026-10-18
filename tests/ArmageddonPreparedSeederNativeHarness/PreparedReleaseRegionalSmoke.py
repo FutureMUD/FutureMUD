@@ -58,8 +58,22 @@ def run(host, admin, phase, data, mapped):
         for index, amount in enumerate((50, 1, 1, 1, 1, 1, 50)):
             room = b if index == 6 else a
             if index == 6:
-                moved = player.send('north', read_seconds=2)
-                require('Regional local fallback' in moved+player.send('look', read_seconds=.4), 'Player did not cross the physical room exit.')
+                movement_start = time.monotonic()
+                moved = player.send('north', read_seconds=.4)
+                end = movement_start + 30
+                while time.monotonic() < end:
+                    flush()
+                    if sql(mapped(f'SELECT Location FROM Characters WHERE Id={actor}')) == [[str(b)]]:
+                        break
+                    moved += player.read_for(.5)
+                require(sql(mapped(f'SELECT Location FROM Characters WHERE Id={actor}')) == [[str(b)]],
+                        'Player did not cross the physical room exit within30seconds: '+host['redact'](moved))
+                # Native Movement.FinalStep clears movement after a final delay capped at five seconds.
+                # Observe that normal delay rather than shortening movement or teleporting the Player.
+                moved += player.read_for(6)
+                require('Regional local fallback' in player.send('look', read_seconds=.4),
+                        'Player persisted in the destination but did not perceive the fallback room.')
+                report['physical_move_wait_seconds'] = round(time.monotonic()-movement_start, 3)
                 admin.send(f'goto {b}', read_seconds=.3)
             maxima_text = admin.send(f"prog execute {int(cfg['probe'])} participant", read_seconds=.3)
             match = re.search(r'GATHERVALUES ([0-9.|-]+) ENDGATHER', maxima_text)

@@ -51,7 +51,7 @@ Each attempt takes five seconds. You must know the Peek skill, even when the tar
 			return;
 		}
 
-		actor.AddEffect(new PeekInspectionAction(actor, _ =>
+		actor.AddEffect(new PeekInspectionAction(actor, target, _ =>
 		{
 			// Inventory, visibility, reach and skill bindings are revalidated at completion.
 			var result = PeekInspection.Inspect(actor, target, container);

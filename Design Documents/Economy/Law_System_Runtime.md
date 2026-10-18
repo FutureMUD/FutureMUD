@@ -15,6 +15,8 @@ This document records the current runtime behavior of the legal authority, sente
 
 Physical capability and reach checks do not record crimes. Item-specific `CanTake` restrictions and existing action-specific crime handling remain authoritative. Currency collection filters actual source piles consistently for feasibility and execution. Quantity and weight collection validate the original source, including pickup reservations, before transfer; actorful `Empty` preflights all contents before mutation. A split or batch cannot bypass a closed or lawfully restricted source.
 
+Weighted `drop` requires a positive finite amount and checks lawful-action protection against the original held item before splitting a commodity pile. A refused drop therefore leaves the original pile intact.
+
 Splits preserve `ItemOnDisplayInShop` for existing shoplifting hooks. Shop split and merge notifications preserve the stock index without recording newly acquired or lost goods. Stock loss values the portion removed and preserves the count of a residual commodity pile; purchases reconcile the actual number of indexed piles removed. Covert transfers retain their intentional consent bypass and crime handling; ordinary manipulation still requires the inventory owner's permission. This audit does not introduce new crime categories. See [the full ledger](../Items/Physical_Manipulation_Audit.md).
 
 ## Automatic Crime Application
@@ -143,6 +145,8 @@ If the patrol reaches the configured execution-attempt limit without killing the
 Trials are represented by the `OnTrial` effect for the relevant legal authority. NPC judges drive ordinary `OnTrial` effects through the automated plea, argument, verdict, and sentencing phases. PC-held trials use the same effect as a court-session marker, but set the manual-trial flag so NPC judge AI will not advance or finalise the case.
 
 Automated trial effects persist their current phase, manual-trial flag, remaining per-charge queue, pleas, argument outcomes, and punishment results. If the game reboots mid-trial, the resumed `trial` view continues revealing only the charges, pleas, verdicts, and sentences that had actually been reached before the reboot.
+
+The automated trial progress table stays hidden until the Charges phase. Manual trials retain their charge table immediately for the PC judge's roleplayed proceeding.
 
 Automated trials use separate judge and prosecutor roles. The judge AI can read charges, collect pleas, move phases, announce verdicts, and sentence, but it does not argue the prosecution case. A prosecutor patrol member in the court claims the prosecution role and presents prosecution arguments; if no valid prosecutor patrol member is present, the trial waits rather than having the judge fill both roles.
 

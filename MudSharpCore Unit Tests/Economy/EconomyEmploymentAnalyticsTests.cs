@@ -22,6 +22,19 @@ namespace MudSharp_Unit_Tests.Economy;
 public class EconomyEmploymentAnalyticsTests
 {
 	[TestMethod]
+	public void EmploymentMarket_LegacyRoleText_RemovesTerminalControlsWithoutChangingPlainName()
+	{
+		var listing = Listing(1, []);
+		listing.SetupGet(x => x.Name).Returns("Ordinary Job");
+		Assert.AreEqual("Ordinary Job", EconomyAnalyticsService.BuildEmploymentMarket([], [listing.Object], [], null, _ => null).Openings.Single().Role);
+		listing.SetupGet(x => x.Name).Returns("Job\u001b[2J\u009b2J\u001b]52;c;test\u0007\u0003send\u0004\r\nEnd");
+		var role = EconomyAnalyticsService.BuildEmploymentMarket([], [listing.Object], [], null, _ => null).Openings.Single().Role;
+		Assert.IsFalse(role.Any(char.IsControl));
+		StringAssert.StartsWith(role, "Job");
+		StringAssert.EndsWith(role, "End");
+	}
+
+	[TestMethod]
 	public void CollectedProjectIncome_CompletedProjectAndRefund_RecordsOnlyLabourWithoutInventingZone()
 	{
 		var analytics = new Mock<IEconomyAnalyticsService>();

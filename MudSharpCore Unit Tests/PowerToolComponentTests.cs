@@ -11,6 +11,8 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using DbEditableItem = MudSharp.Models.EditableItem;
 using DbGameItemComponent = MudSharp.Models.GameItemComponent;
 using DbGameItemComponentProto = MudSharp.Models.GameItemComponentProto;
@@ -71,6 +73,97 @@ public class PowerToolComponentTests
 		Assert.AreEqual(4.0, component.WattHoursRemaining, 1.0e-9);
 		Assert.IsFalse(component.CanDrawdownSpike(18.0, TimeSpan.FromMinutes(14)));
 		Assert.IsFalse(component.CanDrawdownSpike(19.0, TimeSpan.FromSeconds(1)));
+	}
+
+	[DataTestMethod]
+	[DataRow(typeof(PowerSupplyGameItemComponent), "_connectedPowerSource")]
+	[DataRow(typeof(PowerSocketGameItemComponent), "_connectedPowerSource")]
+	[DataRow(typeof(ElectricGridFeederGameItemComponent), "_connectedPowerSource")]
+	[DataRow(typeof(TelecommunicationsGridFeederGameItemComponent), "_connectedPowerSource")]
+	public void PowerProxy_PreservesDurationAndUpstreamRefusal(Type componentType, string sourceField)
+	{
+		var constructor = componentType.GetConstructors().Single(x => x.GetParameters().Length == 3 &&
+			x.GetParameters()[0].ParameterType.Name.EndsWith("Proto", StringComparison.Ordinal));
+		var proxy = (IProducePower)constructor.Invoke([null!, Mock.Of<IGameItem>(), true]);
+		var source = new Mock<IProducePower>();
+		var duration = TimeSpan.FromMinutes(2);
+		componentType.GetField(sourceField, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(proxy, source.Object);
+		source.Setup(x => x.CanDrawdownSpike(10.0, duration)).Returns(true);
+		source.Setup(x => x.DrawdownSpike(10.0, duration)).Returns(true);
+		Assert.IsTrue(proxy.CanDrawdownSpike(10.0, duration));
+		Assert.IsTrue(proxy.DrawdownSpike(10.0, duration));
+		source.Setup(x => x.CanDrawdownSpike(10.0, duration)).Returns(false);
+		source.Setup(x => x.DrawdownSpike(10.0, duration)).Returns(false);
+		Assert.IsFalse(proxy.CanDrawdownSpike(10.0, duration));
+		Assert.IsFalse(proxy.DrawdownSpike(10.0, duration));
+		Assert.IsFalse(proxy.CanDrawdownSpike(10.0, TimeSpan.Zero));
+		Assert.IsFalse(proxy.DrawdownSpike(double.NaN, duration));
+		source.Verify(x => x.CanDrawdownSpike(It.IsAny<double>()), Times.Never);
+		source.Verify(x => x.DrawdownSpike(It.IsAny<double>()), Times.Never);
+	}
+
+	[DataTestMethod]
+	[DataRow("socket")]
+	[DataRow("implant")]
+	[DataRow("answering machine")]
+	public void PowerSupplyThroughProxy_UsesFullDurationForFiniteBank(string kind)
+	{
+		var gameworld = new Mock<IFuturemud>();
+		var parent = new Mock<IGameItem>();
+		parent.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		var model = CreatePrototype(); model.Type = "PowerBank";
+		model.Definition = "<Definition><Connectors/><CapacityInWattHours>1</CapacityInWattHours><MaximumInputInWatts>18</MaximumInputInWatts><MaximumOutputInWatts>18</MaximumOutputInWatts><ChargingEfficiency>0.9</ChargingEfficiency><InputConnectors/><OutputConnectors/></Definition>";
+		var proto = (PowerBankGameItemComponentProto)new GameItemComponentManager().GetProto(model, gameworld.Object)!;
+		var bank = (PowerBankGameItemComponent)proto.CreateNew(parent.Object, temporary: true);
+		IProducePower proxy;
+		if (kind == "implant")
+		{
+			var plant = new ImplantPowerPlantGameItemComponent(proto: null!, parent: parent.Object, temporary: true);
+			typeof(ImplantPowerPlantGameItemComponent).GetField("_parentProducePower", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(plant, bank);
+			var implantSupply = new ImplantPowerSupplyGameItemComponent(proto: null!, parent: parent.Object, temporary: true);
+			typeof(ImplantPowerSupplyGameItemComponent).GetField("_powerPlant", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(implantSupply, plant);
+			proxy = implantSupply;
+		}
+		else if (kind == "answering machine")
+		{
+			var machineModel = CreatePrototype(); machineModel.Type = "AnsweringMachine"; machineModel.Definition = "<Definition/>";
+			var machineProto = (AnsweringMachineGameItemComponentProto)new GameItemComponentManager().GetProto(machineModel, gameworld.Object)!;
+			var machine = (AnsweringMachineGameItemComponent)machineProto.CreateNew(parent.Object, temporary: true);
+			typeof(AnsweringMachineGameItemComponent).GetField("_connectedPowerSource", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(machine, bank);
+			Assert.IsFalse(((IProducePower)machine).CanDrawdownSpike(10, TimeSpan.FromMinutes(2)));
+			typeof(AnsweringMachineGameItemComponent).GetField("_powered", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(machine, true);
+			proxy = machine;
+		}
+		else
+		{
+			proxy = new PowerSocketGameItemComponent(proto: null!, parent: parent.Object, temporary: true);
+			typeof(PowerSocketGameItemComponent).GetField("_connectedPowerSource", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(proxy, bank);
+		}
+		IProducePower supply = new PowerSupplyGameItemComponent(proto: null!, parent: parent.Object, temporary: true);
+		typeof(PowerSupplyGameItemComponent).GetField("_connectedPowerSource", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(supply, proxy);
+		Assert.IsTrue(supply.CanDrawdownSpike(10, TimeSpan.FromMinutes(2)));
+		Assert.IsTrue(supply.DrawdownSpike(10, TimeSpan.FromMinutes(2)));
+		Assert.AreEqual(2.0 / 3.0, bank.WattHoursRemaining, 1e-9);
+		Assert.IsFalse(supply.CanDrawdownSpike(10, TimeSpan.FromMinutes(5)));
+		Assert.IsFalse(supply.DrawdownSpike(10, TimeSpan.FromMinutes(5)));
+		Assert.AreEqual(2.0 / 3.0, bank.WattHoursRemaining, 1e-9);
+	}
+
+	[TestMethod]
+	public void ImplantRouter_PreservesDurationWhenSelectingFinitePlant()
+	{
+		var router = new ImplantPowerRouterGameItemComponent(proto: null!, parent: Mock.Of<IGameItem>(), temporary: true);
+		var first = new Mock<IImplantPowerPlant>(); var second = new Mock<IImplantPowerPlant>();
+		var plants = (List<IImplantPowerPlant>)typeof(ImplantPowerRouterGameItemComponent)
+			.GetField("_connectedPowerPlants", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(router)!;
+		plants.AddRange([first.Object, second.Object]);
+		var duration = TimeSpan.FromMinutes(2);
+		second.Setup(x => x.CanDrawdownSpike(10, duration)).Returns(true);
+		second.Setup(x => x.DrawdownSpike(10, duration)).Returns(true);
+		Assert.IsTrue(((IImplantPowerPlant)router).CanDrawdownSpike(10, duration));
+		Assert.IsTrue(((IImplantPowerPlant)router).DrawdownSpike(10, duration));
+		first.Verify(x => x.DrawdownSpike(It.IsAny<double>(), It.IsAny<TimeSpan>()), Times.Never);
+		second.Verify(x => x.DrawdownSpike(10, duration), Times.Once);
 	}
 
 	private static Mock<IGameItem> CreateParent(IFuturemud gameworld, IProducePower power, ITag tag)

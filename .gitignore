@@ -39,3 +39,13 @@ MudSharp/bin/*
 /.artifacts/arm02-tools/
 /.artifacts/weather/
 /.artifacts
+
+# Local diagnostics and temporary converter exports
+/build-diag.log
+/build-thermal.log
+/mudsharpcore-diag.log
+/dbseed-test.log
+/dbseeder-build-diag.log
+/mudcoretests.binlog
+/npc-export-temp.json
+/clan-export-temp-2.json

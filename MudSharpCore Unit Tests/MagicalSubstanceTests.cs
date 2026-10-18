@@ -476,6 +476,36 @@ public class MagicalSubstanceTests
 		Assert.AreEqual(0, f.Stamina);
 	}
 
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void DamageDose_ScalesIndependentChannelsAndPreservesLegacyDefaults(bool independent)
+	{
+		var channels = independent ? "<PainExpression>20</PainExpression><StunExpression>30</StunExpression>" : "";
+		var f = new Fixture($"<Effect type='damage'><DamageType>0</DamageType><DamageExpression>10</DamageExpression>{channels}</Effect>");
+		f.Actor.SetupGet(x => x.Wounds).Returns(Array.Empty<IWound>());
+		IDamage? delivered = null;
+		f.Actor.Setup(x => x.SufferDamage(It.IsAny<IDamage>())).Callback<IDamage>(x => delivered = x).Returns(Array.Empty<IWound>());
+		Assert.IsFalse(f.Substance.Object.ReadinessErrors.Any());
+		SubstanceSpellResolver.Apply(f.Spell.SpellEffects.Single(), f.Spell,
+			new SubstanceResolutionContext(f.Actor.Object, f.Substance.Object, 0.01),
+			new MagicSpellParent(f.Actor.Object, f.Spell, null!), 0.01);
+		Assert.IsNotNull(delivered);
+		Assert.AreEqual(0.1, delivered!.DamageAmount, 1e-9);
+		Assert.AreEqual(independent ? 0.2 : 0.1, delivered.PainAmount, 1e-9);
+		Assert.AreEqual(independent ? 0.3 : 0.1, delivered.StunAmount, 1e-9);
+		Assert.AreEqual("10", f.Spell.SpellEffects.Single().SaveToXml().Element("DamageExpression")!.Value);
+	}
+
+	[DataTestMethod]
+	[DataRow("PainExpression")]
+	[DataRow("StunExpression")]
+	public void DamageReadiness_RejectsCasterDependentIndependentChannels(string field)
+	{
+		var f = new Fixture($"<Effect type='damage'><DamageType>0</DamageType><DamageExpression>10</DamageExpression><{field}>unknownoption</{field}></Effect>");
+		Assert.IsTrue(f.Substance.Object.ReadinessErrors.Any(x => x.Contains("not caster traits or options")));
+	}
+
 	[TestMethod]
 	public void ItemTransformation_IsRejectedBeforeExposure()
 	{

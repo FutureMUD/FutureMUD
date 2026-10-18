@@ -644,6 +644,23 @@ public partial class MagicEngineV4Tests
 	}
 
 	[TestMethod]
+	public void ArcaneMark_ExposesMatchingTagAndValueToNativeWard()
+	{
+		var spell = CreateSpellMock();
+		var effect = SpellEffectFactory.LoadEffect(new XElement("Effect", new XAttribute("type", "arcanemark"),
+			new XElement("Value", "warded mark")), spell.Object);
+		var tags = ((IMagicInterdictionTagProvider)effect).MagicInterdictionTags.ToArray();
+		var actor = Mock.Of<ICharacter>();
+		var parent = new Mock<IMagicSpellEffectParent>(); parent.SetupGet(x => x.Spell).Returns(spell.Object);
+		var ward = new SpellPersonalTagWardEffect(actor, parent.Object, ArmageddonSimpleStockContent.ArcaneMarkTag,
+			"warded mark", true, MagicInterdictionMode.Fail, MagicInterdictionCoverage.Both, null);
+		Assert.IsTrue(ward.ShouldInterdict(new MagicInterdictionContext(actor, actor, spell.Object.School, tags, [])));
+		Assert.IsFalse(ward.ShouldInterdict(new MagicInterdictionContext(actor, actor, spell.Object.School,
+			[new(ArmageddonSimpleStockContent.ArcaneMarkTag, "different mark")], [])));
+		CollectionAssert.AreEqual(tags, ((IMagicInterdictionTagProvider)effect.Clone()).MagicInterdictionTags.ToArray());
+	}
+
+	[TestMethod]
 	public void SubjectiveDescriptionEffect_RoundTripsPriorityAndIllusionKey()
 	{
 		var spell = CreateSpellMock();

@@ -212,6 +212,14 @@ public class ImplantPowerPlantGameItemComponent : GameItemComponent, IImplantPow
         return _parentProducePower.DrawdownSpike(wattage);
     }
 
+	public bool CanDrawdownSpike(double wattage, TimeSpan duration) =>
+		double.IsFinite(wattage) && wattage >= 0.0 && duration > TimeSpan.Zero &&
+		(_parentProducePower?.CanDrawdownSpike(wattage, duration) ?? false);
+
+	public bool DrawdownSpike(double wattage, TimeSpan duration) =>
+		double.IsFinite(wattage) && wattage >= 0.0 && duration > TimeSpan.Zero &&
+		(_parentProducePower?.DrawdownSpike(wattage, duration) ?? false);
+
     #endregion
 
     #region IImplantReportStatus

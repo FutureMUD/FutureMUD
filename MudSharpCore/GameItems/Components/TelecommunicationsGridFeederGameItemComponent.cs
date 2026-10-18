@@ -438,6 +438,14 @@ public class TelecommunicationsGridFeederGameItemComponent : GameItemComponent, 
         return _connectedPowerSource?.DrawdownSpike(wattage) ?? false;
     }
 
+	public bool CanDrawdownSpike(double wattage, TimeSpan duration) =>
+		double.IsFinite(wattage) && wattage >= 0.0 && duration > TimeSpan.Zero &&
+		(_connectedPowerSource?.CanDrawdownSpike(wattage, duration) ?? false);
+
+	public bool DrawdownSpike(double wattage, TimeSpan duration) =>
+		double.IsFinite(wattage) && wattage >= 0.0 && duration > TimeSpan.Zero &&
+		(_connectedPowerSource?.DrawdownSpike(wattage, duration) ?? false);
+
     public double PowerConsumptionInWatts => _connectedPowerSource?.MaximumPowerInWatts ?? 0.0;
 
     public void OnPowerCutIn()

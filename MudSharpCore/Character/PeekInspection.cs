@@ -40,6 +40,7 @@ internal static class PeekInspection
 
 	internal static bool CanInspectTarget(ICharacter actor, ICharacter target) =>
 		actor != target && actor.State.IsAble() && actor.Combat is null && actor.Movement is null && actor.Location is not null &&
+		target.State.IsNotInStatis() && actor.Location.Characters.Contains(target) &&
 		actor.Location == target.Location && actor.RoomLayer == target.RoomLayer && actor.ColocatedWith(target) &&
 		actor.CanSee(target, SightFlags) && actor.IlluminationSightDifficulty() != Difficulty.Impossible &&
 		actor.CanInteractPlanar(target, PlanarInteractionKind.Inventory);

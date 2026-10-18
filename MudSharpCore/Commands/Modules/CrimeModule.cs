@@ -2939,6 +2939,7 @@ The syntax is as follows:
 
     private static void AppendTrialProgressTable(StringBuilder sb, ICharacter actor, OnTrial trial)
     {
+		if (!trial.ManualTrial && trial.Phase < TrialPhase.Charges) return;
         List<string> headers = ["#", "Charge"];
         bool showPlea = trial.ManualTrial || trial.Phase >= TrialPhase.Plea;
         bool showArguments = trial.ManualTrial || trial.Phase >= TrialPhase.Case;

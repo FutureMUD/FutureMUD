@@ -446,6 +446,23 @@ public partial class BackstabAttackTests
 	}
 
 	[TestMethod]
+	public void ClinchAttack_ConsumesUnseenOpeningBeforeAttackCheck()
+	{
+		var f = new Fixture();
+		var check = f.ConfigureResolution(Outcome.MajorPass);
+		f.Capture();
+		var consumedBeforeCheck = false;
+		check.Setup(x => x.Check(f.Actor.Object, It.IsAny<Difficulty>(), f.WeaponType.Object.AttackTrait,
+			f.Target.Object, It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()))
+			.Callback(() => consumedBeforeCheck = !UnseenCombatOpening.HasOpening(f.Actor.Object, f.Target.Object))
+			.Returns(CheckOutcome.SimpleOutcome(CheckType.MeleeWeaponCheck, Outcome.MajorPass));
+		new ClinchAttackMove(f.Actor.Object, f.Target.Object, f.Attack, f.Weapon.Object)
+			.ResolveMove(new HelplessDefenseMove { Assailant = f.Target.Object });
+		Assert.IsTrue(consumedBeforeCheck);
+		Assert.IsFalse(UnseenCombatOpening.HasOpening(f.Actor.Object, f.Target.Object));
+	}
+
+	[TestMethod]
 	public void FirstAttempt_MissedMagicAttackConsumesUnseenOpening()
 	{
 		var f = new Fixture();

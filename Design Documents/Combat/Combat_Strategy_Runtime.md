@@ -293,6 +293,8 @@ Inside a RouteCell, successful pushback also displaces the target's coordinate a
 
 Forced movement attacks are authored as `ForcedMovement`, `ForcedMovementUnarmed`, or `ForcedMovementClinch` and store their configuration in `WeaponAttack.AdditionalInfo`. Builders choose the supported destination type (`Exit`, `Layer`, or both), supported verb (`Shove`, `Pull`, or both), required range (`Melee`, `Clinch`, or `Grapple`), and resist difficulty. Manual commands and strategies select only attacks that match the current verb, destination type, and range.
 
+During friendly combat, the target must participate in the same combat. Command admission, attack selection and resolution range validation enforce that membership so a bystander cannot be pulled into the bout by a forced-movement attack.
+
 Shove moves only the victim. It breaks melee, clinch, and grapple contact and then lets fall logic resolve unsafe air or tree placements. Pull moves both attacker and victim. It preserves melee range, clinch, and existing grapple effects where the underlying movement remains valid, which is what allows crocodile-style dragging and dropper-style carrying to maintain control.
 
 Forced exit movement still enforces hard movement rules: the target-side exit must exist in the target's current location and layer, fall exits are rejected, zero-gravity movement must be possible, size limits apply, fly/climb-only exits require matching capabilities, and `CanCross` must approve the transition. Victim safe-movement warnings are ignored so hostile forced movement can pass through destinations a voluntary mover would sensibly avoid; hard impossibility is not ignored.

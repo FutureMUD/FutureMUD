@@ -31,11 +31,25 @@ public static class SubstanceSpellResolver
 	private static bool IsMultiplier(string field) => field.EndsWith("Multiplier", StringComparison.Ordinal) || field.EndsWith("Mult", StringComparison.Ordinal);
 	private static double ScaleMultiplier(double value, double scale) => Math.Max(0, 1 + (value - 1) * scale);
 	private static string Type(IMagicSpellEffectTemplate effect) => effect.SaveToXml().Attribute("type")!.Value;
-	public static IEnumerable<ITraitExpression> Expressions(IMagicSpellEffectTemplate effect) => effect switch
+	public static IEnumerable<ITraitExpression> Expressions(IMagicSpellEffectTemplate effect) =>
+		ExpressionFields(effect).Select(x => x.Expression);
+
+	private static IEnumerable<(string Field, ITraitExpression Expression)> ExpressionFields(IMagicSpellEffectTemplate effect)
 	{
-		HealEffect x => [x.HealingAmount], MendEffect x => [x.HealingAmount], DamageEffect x => [x.DamageExpression],
-		StaminaDeltaSpellEffect x => [x.AmountExpression], MagicResourceDeltaEffect x => [x.DeltaExpression], SpellArmourEffect x => [x.ArmourConfiguration.MaximumDamageAbsorbed], _ => []
-	};
+		switch (effect)
+		{
+			case HealEffect x: yield return ("HealingAmount", x.HealingAmount); break;
+			case MendEffect x: yield return ("HealingAmount", x.HealingAmount); break;
+			case DamageEffect x:
+				yield return ("DamageExpression", x.DamageExpression);
+				if (x.PainExpression is not null) yield return ("PainExpression", x.PainExpression);
+				if (x.StunExpression is not null) yield return ("StunExpression", x.StunExpression);
+				break;
+			case StaminaDeltaSpellEffect x: yield return ("Formula", x.AmountExpression); break;
+			case MagicResourceDeltaEffect x: yield return ("Formula", x.DeltaExpression); break;
+			case SpellArmourEffect x: yield return ("MaximumDamageAbsorbed", x.ArmourConfiguration.MaximumDamageAbsorbed); break;
+		}
+	}
 	public static bool Scalable(IMagicSpellEffectTemplate effect) => effect is HealEffect or MendEffect or DamageEffect or
 		StaminaDeltaSpellEffect or MagicResourceDeltaEffect or NeedDeltaEffect or TraitBoostEffect or GlowEffect or HealingRateSpellEffect or ItemDamageEffect or SpellArmourEffect || Scalars.ContainsKey(Type(effect));
 	public static bool Supported(IMagicSpellEffectTemplate effect) => effect is not RejuvenateLandEffect && (Scalable(effect) || Binary.Contains(Type(effect)));
@@ -98,7 +112,7 @@ public static class SubstanceSpellResolver
 		if (Scalable(effect))
 		{
 			var xml = effect.SaveToXml();
-			foreach (var expression in Expressions(effect))
+			foreach (var (field, expression) in ExpressionFields(effect))
 			{
 				var value = expression.EvaluateWith(null!, values: [("power", (int)context.Substance.Power), ("outcome", (int)context.Outcome), ("degrees", 1), ("success", 1)]);
 				if (!double.IsFinite(value * magnitude))
@@ -106,11 +120,6 @@ public static class SubstanceSpellResolver
 					context.Substance.Gameworld.SystemMessage($"Magical substance #{context.Substance.Id}: spell #{spell.Id} returned a non-finite scaled amount; payload skipped.", true);
 					return null;
 				}
-				var field = effect switch
-				{
-					HealEffect or MendEffect => "HealingAmount", DamageEffect => "DamageExpression",
-					SpellArmourEffect => "MaximumDamageAbsorbed", _ => "Formula"
-				};
 				xml.SetElementValue(field, (value * magnitude).ToString("R", CultureInfo.InvariantCulture));
 			}
 			if (Scalars.TryGetValue(Type(effect), out var fields))

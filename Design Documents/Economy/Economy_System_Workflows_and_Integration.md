@@ -14,6 +14,9 @@ Where guidance is based directly on current command and runtime behavior, it is 
 The current economy implementation is rich and only partially seed-driven. In practice, builders combine stock seed packages with admin commands, editable-item workflows, and ordinary world-building content such as cells, items, progs, and clans.
 
 ### Primary command surfaces
+
+Employment analytics remove terminal control characters from legacy player-authored job names before reporting them. Plain names and persisted listings retain their existing meaning.
+
 | Surface | Current responsibility |
 | --- | --- |
 | `EconomyModule` | currencies, coins, banks, shops, auctions, jobs, markets, market influences, market categories, market populations, shoppers, player-facing buy and sell operations |

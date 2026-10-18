@@ -89,6 +89,7 @@ public static class CombatForcedMovementUtilities
 		ForcedMovementVerbs verb,
 		ForcedMovementTypes type)
 	{
+		if (actor.Combat is { Friendly: true } combat && target.Combat != combat) return [];
 		if (actor.CombatTarget != target)
 		{
 			actor.CombatTarget = target;
@@ -144,6 +145,7 @@ public static class CombatForcedMovementUtilities
 
 	public static bool IsInRange(ICharacter actor, ICharacter target, ForcedMovementRange range)
 	{
+		if (actor.Combat is { Friendly: true } combat && target.Combat != combat) return false;
 		switch (range)
 		{
 			case ForcedMovementRange.Melee:

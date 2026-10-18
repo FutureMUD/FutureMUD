@@ -20,6 +20,8 @@ public interface IMagicCastingStateStore
 	bool HasAnyAcquisition(long characterId, IReadOnlyCollection<long> spellIds);
 	CastingSkillOpportunity? Opportunity(long characterId, long traitId);
 	CastingEnrolment? Enrolment(long characterId, Guid capabilityIdentity);
+	IReadOnlyList<CastingEnrolment> EnrolmentsFor(long characterId, IReadOnlyCollection<Guid> capabilityIdentities) =>
+		capabilityIdentities.Distinct().Select(id => Enrolment(characterId, id)).OfType<CastingEnrolment>().ToArray();
 	IReadOnlyList<CastingOperation> Unresolved(long? characterId = null);
 	CastingOperation? Operation(Guid id);
 	void Write(CastingOperation? operation = null, AcquiredSpell? acquired = null,
@@ -90,6 +92,16 @@ public sealed class MagicCastingStateStore : IMagicCastingStateStore
 			var row = FMDB.Context.CharacterCastingEnrolments.AsNoTracking().SingleOrDefault(x => x.CharacterId == characterId && x.CapabilityIdentity == capabilityIdentity);
 			return row is null ? null : new(row.CharacterId, row.CapabilityIdentity, row.MagicCapabilityId, Utc(row.EnrolledUtc), row.CompletedStartingGrantVersion);
 		}
+	}
+	public IReadOnlyList<CastingEnrolment> EnrolmentsFor(long characterId, IReadOnlyCollection<Guid> capabilityIdentities)
+	{
+		if (capabilityIdentities.Count == 0) return [];
+		var identities = capabilityIdentities.Distinct().ToArray();
+		using (new FMDB())
+			return FMDB.Context.CharacterCastingEnrolments.AsNoTracking()
+				.Where(x => x.CharacterId == characterId && identities.Contains(x.CapabilityIdentity))
+				.AsEnumerable().Select(x => new CastingEnrolment(x.CharacterId, x.CapabilityIdentity,
+					x.MagicCapabilityId, Utc(x.EnrolledUtc), x.CompletedStartingGrantVersion)).ToArray();
 	}
 	public IReadOnlyList<CastingOperation> Unresolved(long? characterId = null)
 	{

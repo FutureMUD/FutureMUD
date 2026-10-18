@@ -24,6 +24,27 @@ namespace MudSharp_Unit_Tests;
 public class ReadAttunementTests
 {
 	[TestMethod]
+	public void LearnedAffiliations_BatchesConfiguredCapabilitiesAndReadsCurrentHistoryEachTime()
+	{
+		var f = new MagicCastingFixture();
+		for (var i = 1; i <= 14; i++)
+		{
+			var capability = new Mock<IMagicCastingCapability>();
+			capability.SetupGet(x => x.CastingPolicy).Returns(f.Earth.CastingPolicy! with { Identity = new Guid(i, 0, 0, new byte[8]) });
+			f.Capabilities.Add(capability.Object);
+		}
+		var store = new Mock<IMagicCastingStateStore>(MockBehavior.Strict);
+		IReadOnlyList<CastingEnrolment> records = [new(100, f.Earth.CastingPolicy!.Identity, f.Earth.Id, f.Now, 1)];
+		store.Setup(x => x.EnrolmentsFor(100, It.Is<IReadOnlyCollection<Guid>>(ids => ids.Count == 16))).Returns(() => records);
+		var service = new MagicCastingService(f.World.Object, store.Object);
+		Assert.AreEqual(f.Earth.Id, service.LearnedAffiliations(f.Actor.Object).Single().CapabilityId);
+		records = [];
+		Assert.AreEqual(0, service.LearnedAffiliations(f.Actor.Object).Count);
+		store.Verify(x => x.EnrolmentsFor(100, It.IsAny<IReadOnlyCollection<Guid>>()), Times.Exactly(2));
+		store.Verify(x => x.Enrolment(It.IsAny<long>(), It.IsAny<Guid>()), Times.Never);
+	}
+
+	[TestMethod]
 	public void LearnedAffiliations_RequiresExactCompletedEnrolmentAndDoesNotInferSharedKnowledge()
 	{
 		var f = new MagicCastingFixture(); f.Acquire();

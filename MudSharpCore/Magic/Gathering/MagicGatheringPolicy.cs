@@ -61,6 +61,8 @@ public static class MagicGatheringPolicy
 		}
 
 		IMagicResource? destination = gameworld.MagicResources.Get(method.DestinationResourceId);
+		if (!FiniteNonNegative(method.RegionalLifeUnitsPerAction) || method.Kind != MagicGatheringMethodKind.Land && method.RegionalLifeUnitsPerAction != 0)
+			errors.Add($"{label}: only Land supports finite, non-negative regional life units.");
 		if (destination is null || !destination.ResourceType.HasFlag(MagicResourceType.PlayerResource))
 		{
 			errors.Add($"{label}: destination must be an existing character-capable magic resource.");
@@ -80,6 +82,10 @@ public static class MagicGatheringPolicy
 		}
 		else if (method.Kind == MagicGatheringMethodKind.Land)
 		{
+			if (method.RegionalLifeUnitsPerAction > 0 && (method.LandSources.Any(x => x.IsCollateral) ||
+				method.CropHealthCostPerDestinationUnit > 0 || method.WoodlandHealthCostPerDestinationUnit > 0 ||
+				method.CropHealthCostProgId != 0 || method.WoodlandHealthCostProgId != 0))
+				errors.Add($"{label}: a regional-first route cannot bypass mandatory local collateral or vegetation-health prices; use a separate local method.");
 			if (method.SourceResourceId.HasValue)
 			{
 				errors.Add($"{label}: Land uses its ordered source entries, not a Gentle source resource.");

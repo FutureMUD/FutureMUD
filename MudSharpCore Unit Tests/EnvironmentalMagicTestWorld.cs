@@ -67,7 +67,8 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 
 	public EnvironmentalMagicTestWorld(int count = 1, int outputs = 1, double activePercent = 100.0,
 		string policy = "constant", EnvironmentalMagicOptions? options = null, bool missingBalances = false,
-		bool start = true, EnvironmentalMagicTestClock? clock = null, EnvironmentalMagicTestOperationStore? operations = null)
+		bool start = true, EnvironmentalMagicTestClock? clock = null, EnvironmentalMagicTestOperationStore? operations = null,
+		IRegionalGatheringService? regionalGathering = null)
 	{
 		Clock = clock ?? new EnvironmentalMagicTestClock();
 		Operations = operations ?? new EnvironmentalMagicTestOperationStore();
@@ -141,7 +142,7 @@ internal sealed class EnvironmentalMagicTestWorld : IDisposable
 		Coordinator = new EnvironmentalMagicCoordinator(World.Object, Clock, options ?? new EnvironmentalMagicOptions
 		{
 			SoftBudgetMilliseconds = 1000.0
-		}, Operations);
+		}, Operations, regionalGathering);
 		World.SetupGet(world => world.EnvironmentalMagic).Returns(Coordinator);
 		for (var i = 0; i < count; i++)
 		{

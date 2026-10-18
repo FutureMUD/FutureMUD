@@ -17,7 +17,7 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 	public string Name => "Armageddon Magic (partial, prepared world)";
 	public string Tagline => "Optional Armageddon v1 magic: Classic or Simple progression";
 	public string FullDescription => "Installs 152 canonical spells, 210 blueprints, ten capability/merit pairs, " +
-		"eight reserves, complete admission/support graphs and four source Self/Land gathering methods. " +
+		"eight reserves, complete admission/support graphs and six source Self/Land gathering methods. " +
 		"A fresh opt-in installation enables complete casting, conditional Class roles, gathering permissions and approved focus/device use and crafts. " +
 		"Existing installations retain their activation defaults and builder edits. No existing player is enrolled or refilled. " +
 		"Classic/Simple and the earlier Chargen class direction are fixed; Land requires builder-owned life/profile/terrain bindings. " +
@@ -73,8 +73,10 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 			if (gatheringFoundations.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(string.Join("\n", gatheringFoundations.Messages));
 			var gatheringPolicies = ArmageddonStockGatheringInstaller.Install(factory);
 			if (gatheringPolicies.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(string.Join("\n", gatheringPolicies.Messages));
+			var regionalLand = ArmageddonRegionalLandInstaller.Install(factory);
+			if (regionalLand.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(string.Join("\n", regionalLand.Messages));
 			var completeProgression = ArmageddonProgressionInstaller.Install(factory, completeStock: true, completeGathering: true);
-			var completeProgressionReport = string.Join("\n", completeProgression.Messages);
+			var completeProgressionReport = string.Join("\n", regionalLand.Messages.Concat(completeProgression.Messages));
 			if (completeProgression.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(completeProgressionReport);
 			return $"Armageddon fixed settings ready: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Settings and shared answers are durable.\n{progressionReport}\n{catalogueReport}\n{spellReport}\n{focusDeviceReport}\n{completeProgressionReport}\nComplete stock admission/support and source gathering defaults are installed. Activation defaults: {(settings.StockAvailabilityByDefault ? "v1 fresh-install enabled" : "existing-install retained")}; preserved builder overrides are reported above. Land bindings and existing-player enrolment remain explicit.";
 		}

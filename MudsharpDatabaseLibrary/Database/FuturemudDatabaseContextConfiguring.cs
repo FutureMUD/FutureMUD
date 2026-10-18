@@ -29,6 +29,7 @@ namespace MudSharp.Database
 			ConfigureCharacterArchives(modelBuilder);
 			ConfigureEnvironmentalMagic(modelBuilder);
 			ConfigureMagicGathering(modelBuilder);
+			ConfigureRegionalGathering(modelBuilder);
             OnModelCreatingPartial(modelBuilder);
 			ConfigureRoomSpatialOwnership(modelBuilder);
         }

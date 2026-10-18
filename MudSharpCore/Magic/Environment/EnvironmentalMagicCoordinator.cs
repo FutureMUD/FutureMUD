@@ -83,7 +83,8 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	private string? _slowProg;
 
 	public EnvironmentalMagicCoordinator(IFuturemud world, TimeProvider? clock = null,
-		EnvironmentalMagicOptions? options = null, IEnvironmentalMagicOperationStore? operations = null)
+		EnvironmentalMagicOptions? options = null, IEnvironmentalMagicOperationStore? operations = null,
+		IRegionalGatheringService? regionalGathering = null)
 	{
 		_world = world;
 		_clock = clock ?? TimeProvider.System;
@@ -91,7 +92,9 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		Options = options ?? new EnvironmentalMagicOptions();
 		Options.Validate();
 		_operations = operations ?? new DatabaseEnvironmentalMagicOperationStore();
+		RegionalGathering = regionalGathering;
 	}
+	public IRegionalGatheringService? RegionalGathering { get; }
 
 	public EnvironmentalMagicOptions Options { get; private set; }
 	public DateTimeOffset UtcNow => _clock.GetUtcNow();
@@ -100,6 +103,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	public void Initialise()
 	{
 		if (_started || _disposed) return;
+		RegionalGathering?.Initialise();
 		foreach (var field in _world.AgricultureFields)
 		{
 			_fields[field.Room.Id] = field;
@@ -138,6 +142,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 
 	public void Register(IRoom room)
 	{
+		RegionalGathering?.RoomChanged(room);
 		if (_disposed || room is not Room concrete || room.Id <= 0 || !ReferenceEquals(room.Gameworld, _world)) return;
 		if (_rooms.TryGetValue(room.Id, out var previous) && !ReferenceEquals(previous.Value, concrete))
 			Unregister(previous.Value);
@@ -170,6 +175,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 
 	public void Unregister(IRoom room)
 	{
+		RegionalGathering?.Unregister(room);
 		if (!_rooms.TryGetValue(room.Id, out var indexed) || !ReferenceEquals(indexed.Value, room)) return;
 		if (_treatments.TryGetValue(room.Id, out var treatment))
 		{
@@ -212,6 +218,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 		if (_registered.TryGetValue(room.Id, out var old)) Settle(old, Now);
 		SettlePressure(concrete, null);
 		concrete.SetEnvironmentBinding(mode, profileId);
+		RegionalGathering?.RoomChanged(room);
 		if (_treatments.TryGetValue(room.Id, out var treatment) && EffectiveProfileId(concrete) != treatment.Progress.ProfileId)
 			CancelTreatment(room, treatment.Progress.Id, "The effective environmental profile changed.");
 		Register(concrete);
@@ -220,6 +227,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 
 	public void RoomTerrainChanged(IRoom room)
 	{
+		RegionalGathering?.RoomChanged(room);
 		if (_disposed) return;
 		if (room is Room concrete && _treatments.TryGetValue(room.Id, out var treatment) && EffectiveProfileId(concrete) != treatment.Progress.ProfileId)
 			CancelTreatment(room, treatment.Progress.Id, "The effective environmental profile changed.");
@@ -387,6 +395,7 @@ public sealed partial class EnvironmentalMagicCoordinator : IEnvironmentalMagicS
 	{
 		if (_disposed) return;
 		if (_started) _world.HeartbeatManager.SecondHeartbeat -= Pump;
+		RegionalGathering?.Dispose();
 		_disposed = true;
 		_treatments.Clear();
 		_treatmentDue.Clear();

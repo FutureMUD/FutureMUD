@@ -32,6 +32,8 @@ OR (LOWER(TABLE_NAME)='magicspelllifecycles' AND COLUMN_NAME IN ('RoomHazardLast
 OR (LOWER(TABLE_NAME)='magicgatheringoperations' AND COLUMN_NAME='BodilyCostApplied'))").Single();
 		Require(mergedColumns == 4, "Merged snapshot lost Haggle or Armageddon lifecycle/gathering columns.");
 		Require(db.Database.GetAppliedMigrations().SequenceEqual(db.Database.GetMigrations()), "Merged snapshot migration history differs from the current assembly.");
+		Require(!db.RegionalGatheringProfiles.Any() && !db.RegionalGatheringPools.Any(), "Fresh snapshot must have the regional schema without world activation or fabricated stock.");
+		Console.WriteLine("Regional-snapshot=passed real-refresh fresh-import empty-profile-and-pool-tables no-world-activation");
 		Console.WriteLine("ARMS6-snapshot-integration=passed model-parity:no-pending merged-columns:4 exact-migration-history stable-track-foreign-key");
 		Console.WriteLine($"ARMS3-snapshot=passed real-refresh fresh-import migration:{manifest.LatestMigrationId} version:{manifest.ProductVersion} no-harness-marker-in-dump");
 		return 0;

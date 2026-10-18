@@ -18,6 +18,10 @@ internal sealed partial class ArmageddonCatalogueOwnership
 	private static readonly IReadOnlyDictionary<Type, string[]> OwnedFields = MedicalOwnedFields(CreatureOwnedFields(AnatomyOwnedFields(new Dictionary<Type, string[]>
 	{
 		[typeof(Tag)] = ["Name", "ParentId", "ShouldSeeProgId"],
+		[typeof(RegionalGatheringProfile)] = ["Name", "Definition"],
+		[typeof(MagicGenerator)] = ["Name", "Type", "Definition"],
+		[typeof(ForagableProfile)] = ["Name"],
+		[typeof(Terrain)] = ["Name", "MovementRate", "DefaultTerrain", "TerrainBehaviourMode", "HideDifficulty", "SpotDifficulty", "StaminaCost", "ForagableProfileId", "InfectionMultiplier", "InfectionType", "InfectionVirulence", "AtmosphereId", "AtmosphereType", "TerrainEditorColour", "TerrainANSIColour", "WeatherControllerId", "DefaultRoomOutdoorsType", "TerrainEditorText", "CanHaveTracks", "TrackIntensityMultiplierVisual", "TrackIntensityMultiplierOlfactory", "TagInformation", "GravityModel", "DefaultAgricultureFieldProfileId", "EnvironmentalMagicProfileId"],
 		[typeof(ArmourType)] = ["Name", "MinimumPenetrationDegree", "BaseDifficultyDegrees", "StackedDifficultyDegrees", "Definition"],
 		[typeof(Plane)] = ["Name", "Alias", "Description", "RoomDescriptionAddendum", "RoomNameFormat", "RemoteObservationTag", "DisplayOrder", "IsDefault"],
 		[typeof(Liquid)] = ["Name", "Description", "LongDescription", "TasteText", "VagueTasteText", "SmellText", "VagueSmellText", "TasteIntensity", "SmellIntensity", "AlcoholLitresPerLitre", "WaterLitresPerLitre", "FoodSatiatedHoursPerLitre", "DrinkSatiatedHoursPerLitre", "Viscosity", "Density", "Organic", "ThermalConductivity", "ElectricalConductivity", "SpecificHeatCapacity", "IgnitionPoint", "FreezingPoint", "BoilingPoint", "DraughtProgId", "SolventId", "CountAsId", "CountAsQuality", "DisplayColour", "DampDescription", "WetDescription", "DrenchedDescription", "DampShortDescription", "WetShortDescription", "DrenchedShortDescription", "SolventVolumeRatio", "DriedResidueId", "DrugId", "DrugGramsPerUnitVolume", "InjectionConsequence", "ResidueVolumePercentage", "RelativeEnthalpy", "GasFormId", "LeaveResidueInRooms", "SurfaceReactionInfo", "StaleAfterSeconds", "SpoilAfterSeconds", "StaleLiquidId", "SpoiledLiquidId"],
@@ -245,6 +249,7 @@ internal sealed partial class ArmageddonCatalogueOwnership
 		LoadAnatomyChildren(row);
 		LoadCreatureChildren(row);
 		LoadMedicalChildren(row);
+		LoadLandChildren(row);
 	}
 
 	private Dictionary<string, string> Fields(object row)
@@ -272,6 +277,7 @@ internal sealed partial class ArmageddonCatalogueOwnership
 		AnatomyFields(row, fields);
 		CreatureFields(row, fields);
 		MedicalFields(row, fields);
+		LandFields(row, fields);
 		return fields;
 	}
 
@@ -280,6 +286,7 @@ internal sealed partial class ArmageddonCatalogueOwnership
 		ApplyAnatomyChildren(row, current, merged);
 		ApplyCreatureChildren(row, current, merged);
 		ApplyMedicalChildren(row, current, merged);
+		ApplyLandChildren(row, current, merged);
 		// Reconcile each native collection as an aggregate; builder edits are retained by the shared reconciler.
 		if (row is CombatMessage message && current["WeaponAttacks"] != merged["WeaponAttacks"])
 		{

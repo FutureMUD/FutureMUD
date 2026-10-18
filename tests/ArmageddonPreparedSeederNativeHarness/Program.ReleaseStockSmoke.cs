@@ -12,6 +12,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 internal static partial class GNHProgram
 {
 	private static bool ReleaseStockSmoke => Environment.GetEnvironmentVariable("FUTUREMUD_RELEASE_STOCK_SMOKE") == "1";
+	private static bool ReleaseRegionalSmoke => Environment.GetEnvironmentVariable("FUTUREMUD_RELEASE_REGIONAL_SMOKE") == "1";
 
 	// The Debug owner validates/restores the immutable base; only this Release child installs magic.
 	private static void RunReleaseStockChild(TestDatabase database)
@@ -118,7 +119,7 @@ internal static partial class GNHProgram
 				["MagicCapabilities"] = db.MagicCapabilities.AsEnumerable().Select(x => new { id = x.Id, definition = x.Definition }).ToArray(),
 				["MagicSpells"] = db.MagicSpells.AsEnumerable().Select(x => new { id = x.Id, definition = x.Definition }).ToArray()
 			} }));
-		PrepareS5ProgressionFixture(database, path);
+		PrepareS5ProgressionFixture(database, path, regional: ReleaseRegionalSmoke);
 		Environment.SetEnvironmentVariable("FUTUREMUD_RELEASE_STOCK_INPUT", path);
 		RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native-release");
 		Console.WriteLine("ARMV1-release-stock=PASS original-stock Release-install/enrolment/native-funding/paid-practice/cold; Debug-owner-only");

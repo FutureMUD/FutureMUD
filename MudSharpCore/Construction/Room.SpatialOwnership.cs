@@ -52,6 +52,7 @@ public partial class Room
 			foreach (var actor in _characters) parent.SetNativeCharacterMembership(actor, true);
 		}
 		RefreshWeatherSubscriptions();
+		Gameworld.EnvironmentalMagic?.RegionalGathering?.RoomChanged(this);
 		Changed = true;
 	}
 
@@ -61,11 +62,16 @@ public partial class Room
 		if (_areas.Contains(area)) return;
 		_areas.Add(area);
 		AreaAdded(area);
+		Gameworld.EnvironmentalMagic?.RegionalGathering?.RoomChanged(this);
 	}
 
 	public void RemoveArea(IArea area)
 	{
 		using var exposureChange = EnvironmentalExposureService.ChangingDefinitions(Gameworld);
-		if (_areas.Remove(area)) AreaRemoved(area);
+		if (_areas.Remove(area))
+		{
+			AreaRemoved(area);
+			Gameworld.EnvironmentalMagic?.RegionalGathering?.RoomChanged(this);
+		}
 	}
 }

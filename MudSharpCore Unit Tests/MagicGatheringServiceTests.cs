@@ -36,7 +36,7 @@ using RuntimeProg = MudSharp.FutureProg.FutureProg;
 namespace MudSharp_Unit_Tests;
 
 [TestClass]
-public class MagicGatheringServiceTests
+public partial class MagicGatheringServiceTests
 {
 	[TestMethod]
 	public void Methods_MaximumConfiguredMethods_DoesNotExecutePolicyOrInspectEnvironment()
@@ -906,11 +906,19 @@ public class MagicGatheringServiceTests
 			$"Local 30,000-cell gathering operations took {elapsed.Elapsed.TotalMilliseconds:N0} ms.");
 	}
 
-	[TestMethod]
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
 	[TestCategory("L-T35")]
-	public void LandGathering_ProfileProtectionSeesActorAndCanonicalOwnerButRawInspectionDoesNotInvokeIt()
+	public void LandGathering_ProfileProtectionSeesActorAndCanonicalOwnerButRawInspectionDoesNotInvokeIt(bool regionalFirst)
 	{
-		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land);
+		using var regional = regionalFirst ? new RegionalTestService() : null;
+		using GatheringFixture fixture = new(MagicGatheringMethodKind.Land, regionalGathering: regional);
+		if (regional is not null)
+		{
+			regional.Attach(fixture.Room);
+			fixture.UpdateMethod(x => x with { RegionalLifeUnitsPerAction = 1 });
+		}
 		fixture.SetLandSources(new MagicLandSourceDefinition(Guid.NewGuid(), "forage:herbs", 1.0));
 		Mock<ICharacterInstance> owner = new();
 		owner.SetupGet(x => x.Id).Returns(99L);
@@ -1986,14 +1994,14 @@ public class MagicGatheringServiceTests
 			double damage = 0.0, double pain = 0.0, double stun = 0.0, WoundSeverity maximumSeverity = WoundSeverity.None,
 			int rooms = 1, bool startCoordinator = true, string schoolVerb = "arcane", bool configureMethods = true,
 			long onGatheredProgId = 0, bool twoForage = false, double activePercent = 100.0,
-			int landOutputs = 1)
+			int landOutputs = 1, IRegionalGatheringService? regionalGathering = null)
 		{
 			_ownsWorld = true;
 			World = new EnvironmentalMagicTestWorld(rooms, kind == MagicGatheringMethodKind.Land ? landOutputs : 2,
 				activePercent: activePercent,
 				policy: kind == MagicGatheringMethodKind.Land
 				? twoForage ? "native-yield-two" : "native-yield" : "constant", start: startCoordinator,
-				clock: new EnvironmentalMagicTestClock());
+				clock: new EnvironmentalMagicTestClock(), regionalGathering: regionalGathering);
 			if (kind == MagicGatheringMethodKind.Land)
 			{
 				World.Edit("organic source add forage herbs");
@@ -2294,7 +2302,7 @@ public class MagicGatheringServiceTests
 			x.RoomId == cellId && x.SourceResourceId == sourceResourceId &&
 			(x.Status is "Committing" or "Invoking" or "NeedsReview"));
 		public bool HasUnresolvedForParticipant(long cellId, string sourceKey) => _operations.Values.Any(x =>
-			x.RoomId == cellId && x.ParticipantKeys.Contains(sourceKey) &&
+			(sourceKey.StartsWith("region:", StringComparison.Ordinal) || x.RoomId == cellId) && x.ParticipantKeys.Contains(sourceKey) &&
 			(x.Status is "Committing" or "Invoking" or "NeedsReview"));
 	}
 }

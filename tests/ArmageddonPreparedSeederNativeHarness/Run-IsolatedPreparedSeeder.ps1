@@ -21,6 +21,7 @@ param([string]$EvidenceRoot,
 	[switch]$S6IntegrationSmokeOnly,
 	[switch]$S6ReplayCapture,
 	[switch]$ReleaseStockSmokeOnly,
+	[switch]$ReleaseRegionalSmokeOnly,
 	[switch]$S6ReadinessSmokeOnly,
 	[ValidateSet('','ui-funding','progression-faults','borrow-retirement')][string]$S6MeasurementScope = '',
 	[string]$ReadinessCommands,
@@ -51,6 +52,7 @@ $runExit = 1
 $previousSnapshotConnection = $env:FUTUREMUD_SNAPSHOT_CONNECTION_STRING
 $ownedEnvironmentNames = @('FUTUREMUD_BASE_WORLD_FIXTURE', 'FUTUREMUD_BASE_WORLD_FIXTURE_SHA256', 'FUTUREMUD_BASE_PACKAGE_MODE', 'FUTUREMUD_BASE_LATER_STEPS', 'FUTUREMUD_BASE_WORLD_RECEIPT', 'FUTUREMUD_BASE_FRESH_INSTALL_CHECK', 'FUTUREMUD_GATHERING_TEST_CONNECTION', 'FUTUREMUD_OWNED_MYSQL_UUID', 'FUTUREMUD_OWNED_MYSQL_PORT', 'FUTUREMUD_OWNED_MYSQL_DATADIR', 'FUTUREMUD_CAPACITY_ACCEPTANCE_OUTPUT', 'FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE', 'FUTUREMUD_S4_GATE_SMOKE_ONLY', 'FUTUREMUD_S4_GATE_FIXTURE', 'FUTUREMUD_S4_GATE_FIXTURE_SHA256', 'FUTUREMUD_CATALOGUE_BOOT_SCOPE', 'FUTUREMUD_PREPARED_REPLAY_BOOT_SCRIPT', 'FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT')
 $ownedPreviousEnvironment = @{}
+if ($ReleaseRegionalSmokeOnly -and -not $ReleaseStockSmokeOnly) { throw 'Regional Release acceptance requires the separate Release stock lane.' }
 foreach ($ownedName in $ownedEnvironmentNames) { $ownedPreviousEnvironment[$ownedName] = [Environment]::GetEnvironmentVariable($ownedName) }
 if ($S6IntegrationSmokeOnly -and ($S5ProgressionSmokeOnly -or $S5DoseSmokeOnly -or $FocusDeviceSmokeOnly -or $FamilySmokeOnly -or $RemainingSmokeOnly -or $GateSmokeOnly -or $ExchangeSmokeOnly -or $QualificationScope -ne 's4-stock' -or $Mode -ne 'base-fixture-package')) { throw 'S6 integration requires its own isolated pinned-base current-package lane.' }
 if ($S6ReadinessSmokeOnly -and (-not $S6IntegrationSmokeOnly -or $EarlierClasses -ne 'On' -or -not [IO.Path]::IsPathFullyQualified($ReadinessCommands) -or -not (Test-Path -LiteralPath $ReadinessCommands))) { throw 'S6 readiness requires the classes-on S6 integration lane and an explicit existing UI answers file.' }
@@ -74,6 +76,7 @@ if ($S6ReplayCapture -and ($Mode -ne 'base-fixture-capture' -or $EarlierClasses 
 if ($ReleaseStockSmokeOnly -and ($Mode -ne 'base-fixture-package' -or $PackageMode -ne 'Simple' -or $EarlierClasses -ne 'On' -or $QualificationScope -ne 'catalogue' -or $LaterSteps.Count -ne 0 -or $S6IntegrationSmokeOnly -or $S6ReadinessSmokeOnly -or $S6MeasurementScope -or $S5ProgressionSmokeOnly -or $S5DoseSmokeOnly -or $FocusDeviceSmokeOnly -or $FamilySmokeOnly -or $RemainingSmokeOnly -or $GateSmokeOnly -or $ExchangeSmokeOnly)) { throw 'Release stock acceptance requires its separate Simple/classes-on clean-base lane.' }
 foreach ($entry in @{
 	FUTUREMUD_RELEASE_STOCK_SMOKE = $(if ($ReleaseStockSmokeOnly) { '1' } else { $null })
+	FUTUREMUD_RELEASE_REGIONAL_SMOKE = $(if ($ReleaseRegionalSmokeOnly) { '1' } else { $null })
 	FUTUREMUD_S6_INTEGRATION_SMOKE_ONLY = $(if ($S6IntegrationSmokeOnly) { '1' } else { $null })
 	FUTUREMUD_S6_READINESS_SMOKE_ONLY = $(if ($S6ReadinessSmokeOnly) { '1' } else { $null })
 	FUTUREMUD_S6_N24_REUSED = $null
@@ -360,7 +363,8 @@ try {
 	}
 	if ($ReleaseStockSmokeOnly -and $runExit -eq 0) {
 		$releaseBoot = Get-Content -LiteralPath (Join-Path $env:FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT 'boot-latest.json') -Raw | ConvertFrom-Json
-		if ($releaseBoot.status -ne 'PASS' -or $releaseBoot.s5_progression.status -ne 'PASS' -or $releaseBoot.s5_progression.cold_status -ne 'PASS' -or -not $releaseBoot.owned_mud_processes_stopped) { throw 'Release stock first/cold progression evidence is incomplete.' }
+		$releaseScenario = if ($ReleaseRegionalSmokeOnly) { $releaseBoot.regional_land } else { $releaseBoot.s5_progression }
+		if ($releaseBoot.status -ne 'PASS' -or $releaseScenario.status -ne 'PASS' -or $releaseScenario.cold_status -ne 'PASS' -or -not $releaseBoot.owned_mud_processes_stopped) { throw 'Release stock first/cold evidence is incomplete.' }
 		Write-Output "releaseStockQualification=verified original-stock Release-installer-and-server Debug-fixture-owner-only"
 	}
 	$stockFirstLoaded = 0

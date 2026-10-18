@@ -56,7 +56,7 @@ armearth cast "Earthen Ward" grade 1 on self via <Earth capability>
 
 Practice is target-free. When authored, it pays the full quote and completes its timed work without manifesting the spell. It can advance raw proficiency through normal skill opportunities; knowledge, raw proficiency and controlled grade remain separate. Normal acquisition opens only eligible branches. Practice does not grant grade seven automatically. An empty reserve refuses before payment or work creation.
 
-Elemental reserves regenerate only through their configured native rules: the stock base is 2 per minute, with the authored resting multiplier. Sorcerer-family gathering is installed under the [source-fidelity decision](Armageddon_Gathering_Source_Translation_20261016.md): Sorcerer Self/Land, Preserver Self and Defiler Land, with bodily sacrifice and real Land destruction. Generic Gentle remains available to other settings. The earlier magical ambient-pool proposal is superseded. The four methods and three normal Gather support grants use an independent editable availability prog, open for a fresh v1 installation. Existing player skills/resources are preserved. Land requires an explicit real life-owner/profile binding; stock installation does not assign rooms, terrains or vegetation. Its zero-output marker is accounting only. See the source translation record for body, terrain, life-unit and clock adaptations and the qualification receipt for executed scope. To inspect and use a capability's gathering methods:
+Elemental reserves regenerate only through their configured native rules: the stock base is 2 per minute, with the authored resting multiplier. Sorcerer-family gathering follows the [source-fidelity decision](Armageddon_Gathering_Source_Translation_20261016.md): Sorcerer Self/Land/Wildland, Preserver Self and Defiler Land/Wildland, with bodily sacrifice and real Land destruction. Generic Gentle remains available to other settings. The six methods and three normal Gather support grants use an independent editable availability prog, open for a fresh v1 installation. Existing player skills/resources are preserved. Land requires an explicit regional or local life-owner/profile binding. Stock installation creates private terrain/profile presets but never rebinds existing rooms or native terrains or invents live vegetation. Its zero-output marker is accounting only. See the source translation record and regional guide for body, terrain, life-unit and clock adaptations, and the dated qualification receipts for their executed scopes. To inspect and use a capability's gathering methods:
 
 ```text
 <school verb> gather <capability> methods
@@ -64,6 +64,8 @@ Elemental reserves regenerate only through their configured native rules: the st
 <school verb> gather <capability> <method> <amount>
 <school verb> gather cancel
 ```
+
+The regional Land follow-up adds Area/Zone shared life and the `wildland` local forage fallback, taking the package to six methods. See [Regional Land gathering](Regional_Land_Gathering.md) for the nine terrain families, regional-first activation, recovery, upgrade and rollback. Earlier dated qualification statements below retain their executed local-source scope.
 
 Only methods actually configured on a capability held by the character are available. Preview does not pay or begin gathering. Raw attribute capacity and proficiency do not imply free energy or free casting.
 

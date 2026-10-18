@@ -1450,7 +1450,7 @@ def release_stock_smoke(session, phase):
             actual = sql(f"SELECT HEX(Definition) FROM {table} WHERE Id={int(row['id'])}", (0,))
             require(actual == [[row['definition']]], 'Original Release stock definition changed: '+table)
     require(len(sql('SELECT Id FROM MagicCapabilities')) == 10, 'Release smoke created a private capability copy.')
-    module_path = REPO/'tests/ArmageddonPreparedSeederNativeHarness/PreparedS5ProgressionSmoke.py'
+    module_path = REPO/'tests/ArmageddonPreparedSeederNativeHarness'/('PreparedReleaseRegionalSmoke.py' if os.environ.get('FUTUREMUD_RELEASE_REGIONAL_SMOKE') == '1' else 'PreparedS5ProgressionSmoke.py')
     helper_pin = {'path': str(module_path), 'sha256': sha(module_path)}
     require(receipt.setdefault('release_progression_helper', helper_pin) == helper_pin, 'Release progression helper changed.')
     spec = importlib.util.spec_from_file_location('release_stock_progression', module_path)

@@ -17,7 +17,7 @@ internal static partial class GNHProgram
 	{
 		var stock = db.MagicCapabilities.Single(x => x.Id == claims["arm.capability.sorcerer"]);
 		var definition = XElement.Parse(stock.Definition);
-		Require((bool?)definition.Element("Casting")!.Attribute("enabled") == false && definition.Element("Gathering")!.Elements("Method").Count() == 2,
+		Require((bool?)definition.Element("Casting")!.Attribute("enabled") == false && definition.Element("Gathering")!.Elements("Method").Count() == 3,
 			"Gathering native fixture requires the persisted complete closed Sorcerer policy.");
 		Db.FutureProg CopyProg(long id, string name)
 		{
@@ -33,7 +33,7 @@ internal static partial class GNHProgram
 		var yes = CopyProg(stockGate.Id, "S6QualificationGatheringAvailable"); yes.FunctionText = "return true"; db.SaveChanges();
 		foreach (var method in definition.Element("Gathering")!.Elements("Method"))
 		{
-			var kind = (string)method.Attribute("kind")!;
+			var kind = (string)method.Attribute("alias")!;
 			var permission = CopyProg((long)method.Attribute("permission")!, "S6QualificationGather" + kind + "Permission");
 			Require(permission.FunctionText.Contains("@" + stockGate.FunctionName + "("), "Qualification must preserve source permission checks.");
 			permission.FunctionText = permission.FunctionText.Replace("@" + stockGate.FunctionName + "(", "@" + yes.FunctionName + "(", StringComparison.Ordinal);

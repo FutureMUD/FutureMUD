@@ -213,7 +213,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			if (live.Quote.Kind == MagicGatheringMethodKind.Land)
 			{
 				string[] keys = LandCommitKeys(live.Quote);
-				if (keys.Any(key => _committingLandKeys.Contains((live.Room.Id, key)) ||
+				if (keys.Any(key => _committingLandKeys.Contains((LandLockRoom(live.Room.Id, key), key)) ||
 				    key.StartsWith("ambient:", StringComparison.Ordinal) &&
 				    long.TryParse(key[8..], out long source) && _committingSources.Contains((live.Room.Id, source))))
 				{
@@ -221,7 +221,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 					_committingOwners.Remove(live.Owner.Id);
 					return Refused("Another gathering operation is committing against this Land participant.");
 				}
-				foreach (string key in keys) _committingLandKeys.Add((live.Room.Id, key));
+				foreach (string key in keys) _committingLandKeys.Add((LandLockRoom(live.Room.Id, key), key));
 			}
 		}
 
@@ -247,7 +247,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 				{
 					foreach (string key in LandCommitKeys(live.Quote))
 					{
-						_committingLandKeys.Remove((live.Room.Id, key));
+						_committingLandKeys.Remove((LandLockRoom(live.Room.Id, key), key));
 					}
 				}
 			}
@@ -580,7 +580,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 			if (method.Kind == MagicGatheringMethodKind.Land)
 			{
 				return QuoteLand(actor, owner, capability, method, amount, room, destination, duration,
-					stamina, damage, pain, stun, healthPlan, capturedLand?.LandSources);
+					stamina, damage, pain, stun, healthPlan, capturedLand?.LandSources, capturedLand?.RegionalLifeDebit);
 			}
 
 			return new MagicGatheringResult(true, QuoteMessage(method, amount, sourceDebit, stamina, damage, pain, stun, duration), null,
@@ -1059,6 +1059,7 @@ public sealed partial class MagicGatheringService : IMagicGatheringService
 		expected.HealthCostUsesExistingWound == actual.HealthCostUsesExistingWound &&
 		(expected.Kind != MagicGatheringMethodKind.Land ||
 			EquivalentLandAllocations(expected.LandSources, actual.LandSources) &&
+			expected.RegionalLifeDebit == actual.RegionalLifeDebit &&
 			expected.LandEntryPrices.SequenceEqual(actual.LandEntryPrices) &&
 			Same(expected.LandDamage, actual.LandDamage) && Same(expected.LandPressure, actual.LandPressure) &&
 			Same(expected.CropHealthCost, actual.CropHealthCost) &&

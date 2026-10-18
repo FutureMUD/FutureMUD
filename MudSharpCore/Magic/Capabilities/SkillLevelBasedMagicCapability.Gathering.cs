@@ -81,6 +81,7 @@ public partial class SkillLevelBasedMagicCapability
 					XElement land = method.Element("Land") ?? throw new FormatException("Land method is missing its Land subtree.");
 					definition = definition with
 					{
+						RegionalLifeUnitsPerAction = Number(land, "regionalUnits", 0.0),
 						LandSources = land.Elements("Source").Select(x => new MagicLandSourceDefinition(
 							Guid.Parse(Required(x, "key")), Required(x, "selector"), Number(x, "ratio"),
 							(bool?)x.Attribute("collateral") ?? false, (bool?)x.Attribute("allowAbsent") ?? false,
@@ -220,6 +221,7 @@ public partial class SkillLevelBasedMagicCapability
 		method.Kind == MagicGatheringMethodKind.Land ? SaveLandMethod(method) : null);
 
 	private static XElement SaveLandMethod(MagicGatheringMethodDefinition method) => new("Land",
+		new XAttribute("regionalUnits", NumberText(method.RegionalLifeUnitsPerAction)),
 		new XAttribute("damage", NumberText(method.LandDamagePerDestinationUnit)),
 		method.LandPressurePerDestinationUnit is { } pressure ? new XAttribute("pressure", NumberText(pressure)) : null,
 		new XAttribute("damageProg", method.LandDamageProgId),
@@ -562,7 +564,7 @@ public partial class SkillLevelBasedMagicCapability
 		IMagicResource? destination = Gameworld.MagicResources.Get(method.DestinationResourceId);
 		IMagicResource? source = method.SourceResourceId is { } id ? Gameworld.MagicResources.Get(id) : null;
 		string land = method.Kind == MagicGatheringMethodKind.Land
-			? "\nLand sources (ordered; source units per destination unit):\n" +
+			? $"\nShared regional life first: {method.RegionalLifeUnitsPerAction.ToString("N4", actor)} units per action (0 disables); configured local sources are the fallback.\nLand sources (ordered; source units per destination unit):\n" +
 			  string.Join("\n", method.LandSources.Select((entry, index) =>
 				  $"  {index + 1}. {(entry.IsCollateral ? "mandatory collateral" : "funding")} {entry.Selector}: {entry.UnitsPerDestinationUnit.ToString("N4", actor)}" +
 				  $"{(entry.AllowAbsent ? " (absent permitted)" : "")}" +
@@ -597,6 +599,7 @@ public partial class SkillLevelBasedMagicCapability
 	#3gather set <method> permission|durationprog|staminaprog|damageprog|painprog|stunprog|onsuccess <prog|none>#0 - policy hooks
 	#3gather set <method> alias|name <text>#0 - presentation-only changes that keep the stable method identity
 	#3gather land <method> source add ambient <resource> <units-per-mana>#0 - ordered ambient funding
+	#3gather land <method> regional <units-per-action|off>#0 - pay shared regional life first, then configured local fallback
 	#3gather land <method> source add forage <key> <units-per-mana>#0 - ordered native forage funding
 	#3gather land <method> source add crop|woodland|pasture <units-per-mana>#0 - ordered field funding
 	#3gather land <method> collateral add <selector> <units-per-mana>#0 - mandatory source cost without extra credit
@@ -605,5 +608,5 @@ public partial class SkillLevelBasedMagicCapability
 	#3gather land <method> damageprog|pressureprog|crophealthprog|woodlandhealthprog <prog|none>#0
 	#3gather land <method> message actorstart|observerstart|actorcomplete|observercomplete|actorcancel|observercancel <emote>#0
 
-Gentle and Land ratios are source units consumed per destination unit credited. Land requires an opted-in local environmental profile, positive scar and full source funding. Structural settings invalidate live precommit work; aliases and names do not.";
+Gentle and Land ratios are source units consumed per destination unit credited. Land requires positive scar and full source funding. Regional life uses an opted-in Area or Zone profile; local fallback requires an opted-in room environmental profile. Structural settings invalidate live precommit work; aliases and names do not.";
 }

@@ -40,7 +40,7 @@ public sealed partial class EconomyAnalyticsService
 			x.Role.DescribeEnum(), x.Id, false, !x.NpcApplicationsOnly,
 			Math.Max(0, x.MaxPositions - x.OccupiedPositions))).ToList();
 		jobs.AddRange(legacyListings.Where(x => x.IsReadyToBePosted && !x.IsArchived)
-			.Select(x => new EconomyJobOpening(x.Employer.Name, x.Name, x.Id, true, true,
+			.Select(x => new EconomyJobOpening(x.Employer.Name, new string((x.Name ?? string.Empty).Where(c => !char.IsControl(c)).ToArray()), x.Id, true, true,
 				x.MaximumNumberOfSimultaneousEmployees <= 0 ? null :
 					Math.Max(0, x.MaximumNumberOfSimultaneousEmployees - x.ActiveJobs.Count(y => !y.IsJobComplete))))
 			.Where(x => x.VacantPositions is null or > 0));

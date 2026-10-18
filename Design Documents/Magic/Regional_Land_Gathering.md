@@ -69,6 +69,10 @@ Shared recovery is **0.1 life per online real hour per owner**. One action spend
 
 Sorcerer has `self`, `land` and `wildland`; Preserver has `self`; Defiler has `land` and `wildland`. Both Land-kind methods try the shared pool first. `land` retains the existing crop/woodland/pasture fallback. `wildland` uses the new exact native forage key `armageddon-life`, authorised by the corresponding private local environmental profile and forage profile. Each fallback starts with its terrain-family life capacity under normal native room-yield initialisation; its seeded hourly recovery is **zero**. Thus shared recovery is not multiplied by the number of rooms. Builders may deliberately author another local recovery policy.
 
+Native forage-profile precedence is explicit room, then Zone, then terrain. If a Zone already supplies a forage profile, explicitly select the approved forage profile on each intended fallback room; do not overwrite the Zone's existing profile to make terrain inheritance win. Native local forage keeps its existing lifecycle/scheduling; the new once-per-owner callback governs regional life. No comparative performance benchmark is claimed.
+
+For fresh installs with Classes enabled, Luke explicitly chose to offer Defiler immediately alongside the other Classes. Its usable Land remains a builder-owned world configuration. This resolves the earlier PR803 admission-policy question without changing the shipped default.
+
 ## Upgrade and rollback
 
 Back up the game before applying the normal schema upgrade/package rerun. The migration adds empty tables and a shared-source participant index; it performs no world activation or stock backfill. Three-way seeder reconciliation preserves builder changes, retained identities and unrelated forage keys/outcomes. A rerun does not delete or reset pool rows. Review reported conflicts before activation. Existing custom methods lacking `regionalUnits` stay local-only.

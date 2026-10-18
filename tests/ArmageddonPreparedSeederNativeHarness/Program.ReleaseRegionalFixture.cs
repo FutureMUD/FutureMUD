@@ -31,6 +31,8 @@ internal static partial class GNHProgram
 		}
 		var a = MakeRoom("Guest Lounge regional source", 500);
 		var b = MakeRoom("Regional local fallback", 501);
+		// Native forage precedence is explicit room, then zone, then terrain. Preserve the zone's profile.
+		b.ForagableProfileId = db.Terrains.Single(x => x.Id == terrainId).ForagableProfileId;
 		a.EnvironmentalMagicBindingMode = 1;
 		a.EnvironmentalMagicProfileId = claims[ArmageddonProgressionInstaller.LandProfileKey];
 		var area = new Db.Areas { Name = "Release shared life acceptance" };
@@ -68,6 +70,6 @@ internal static partial class GNHProgram
 			capability = claims["arm.capability.sorcerer"], resource = claims["arm.resource.sorcerer"], trait = claims[ArmageddonProgressionInstaller.GatheringTraitKey],
 			area = area.Id, a = a.Id, b = b.Id, profile = claims[ArmageddonRegionalLandInstaller.MixedProfileKey], probe = probe.Id,
 			invoked = db.MagicSchools.Single(x => x.Id == db.MagicCapabilities.Single(c => c.Id == claims["arm.capability.sorcerer"]).MagicSchoolId).SchoolVerb,
-			limits = "Original Release Sorcerer and wildland; ordinary copied Player body, explicit permanent merit, no magic knowledge/skill/reserve injection. A has an explicit legacy profile without matching forage; B uses approved fertile local profile. Area activated through native builder command; first/cold only, no exceptional fault injection or hour/ash wait." });
+			limits = "Original Release Sorcerer and wildland; ordinary copied Player body, explicit permanent merit, no magic knowledge/skill/reserve injection. A has an explicit legacy profile without matching forage; B uses approved fertile local profile and explicit native forage-profile binding, preserving the zone's forage policy. Area activated through native builder command; first/cold only, no exceptional fault injection or hour/ash wait." });
 	}
 }

@@ -122,7 +122,9 @@ internal static partial class GNHProgram
 		PrepareS5ProgressionFixture(database, path, regional: ReleaseRegionalSmoke);
 		Environment.SetEnvironmentVariable("FUTUREMUD_RELEASE_STOCK_INPUT", path);
 		RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native-release");
-		Console.WriteLine("ARMV1-release-stock=PASS original-stock Release-install/enrolment/native-funding/paid-practice/cold; Debug-owner-only");
+		Console.WriteLine(ReleaseRegionalSmoke
+			? "ARMV1-regional-land=PASS original-stock Release-install/enrolment/shared-life/local-fallback/cold; Debug-owner-only"
+			: "ARMV1-release-stock=PASS original-stock Release-install/enrolment/native-funding/paid-practice/cold; Debug-owner-only");
 		return 0;
 #endif
 	}

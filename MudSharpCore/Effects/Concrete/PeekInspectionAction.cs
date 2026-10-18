@@ -10,14 +10,23 @@ namespace MudSharp.Effects.Concrete;
 /// <summary>A transient covert action: no public suffix, saved action or separate cooldown.</summary>
 public sealed class PeekInspectionAction : BlockingDelayedAction, IRemoveOnMovementEffect, IRemoveOnCombatStart
 {
-	public PeekInspectionAction(ICharacter owner, Action<IPerceivable> complete)
+	private readonly ICharacter _target;
+
+	public PeekInspectionAction(ICharacter owner, ICharacter target, Action<IPerceivable> complete)
 		: base(owner, complete, "covertly inspecting belongings", new[] { "general", "movement", "combat" }, "")
 	{
+		_target = target;
 	}
 
-	public override void InitialEffect() => CharacterOwner.OnQuit += OwnerQuit;
+	public override void InitialEffect()
+	{
+		CharacterOwner.OnQuit += OwnerQuit;
+		_target.OnQuit += TargetGone;
+		_target.OnDeleted += TargetGone;
+	}
 
 	private void OwnerQuit(IPerceivable owner) => owner.RemoveEffect(this, true);
+	private void TargetGone(IPerceivable target) => Owner.RemoveEffect(this, true);
 
 	public override void ExpireEffect()
 	{
@@ -36,6 +45,8 @@ public sealed class PeekInspectionAction : BlockingDelayedAction, IRemoveOnMovem
 	public override void RemovalEffect()
 	{
 		CharacterOwner.OnQuit -= OwnerQuit;
+		_target.OnQuit -= TargetGone;
+		_target.OnDeleted -= TargetGone;
 		base.RemovalEffect();
 	}
 

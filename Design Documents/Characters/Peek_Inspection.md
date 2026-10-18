@@ -32,4 +32,6 @@ Existing worlds receive disabled, zero-formula checks on startup, with a safe no
 
 ## Verification scope
 
+The target must remain an active room member and outside stasis. Target quit/deletion cancels the pending inspection and releases its event subscriptions, even when the retained character object still reports the original location. Completion checks reject detached targets before skill checks or inventory reads.
+
 Managed regressions cover independent detection/disclosure, partial results, exposed and covered items, botches/interruption, alert recipients, helpless targets, closed/hidden/inaccessible containers, immediate contents, layers/planes/darkness, callback invalidation, no transfers, native single-opportunity learning and the five-second action lifecycle. Seeder tests cover stable reruns, preserved player values, safe placeholders, conflicting customization and source memberships. Native database/Telnet qualification requires a scheduled isolated world; managed checks alone do not establish that result.

@@ -80,6 +80,7 @@ public class PeekInspectionTests
 		public Action<IPerceivableHaveTraits>? OnSpot;
 		public List<IGameItem> Worn = [], Held = [], Exposed = [];
 		public List<IEffect> Effects = [];
+		public List<ICharacter> RoomCharacters = [];
 		public List<TimeSpan> ActionDelays = [];
 		public Fixture()
 		{
@@ -104,6 +105,7 @@ public class PeekInspectionTests
 			Actor.Setup(x => x.CanSee(It.IsAny<IPerceivable>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
 			foreach (var ch in new[] { Actor, Target, Witness })
 			{
+				ch.Setup(x => x.Equals(It.IsAny<ICharacter>())).Returns<ICharacter>(other => ReferenceEquals(other, ch.Object));
 				ch.SetupGet(x => x.State).Returns(CharacterState.Awake);
 				ch.SetupGet(x => x.Location).Returns(Room.Object);
 				ch.SetupGet(x => x.Gameworld).Returns(World.Object);
@@ -120,7 +122,9 @@ public class PeekInspectionTests
 			Body.SetupGet(x => x.HeldItems).Returns(() => Held);
 			Body.SetupGet(x => x.WieldedItems).Returns(Array.Empty<IGameItem>());
 			Body.SetupGet(x => x.ExternalItemsForOtherActors).Returns(() => Exposed);
-			Room.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns([Actor.Object, Target.Object, Witness.Object]);
+			RoomCharacters.AddRange([Actor.Object, Target.Object, Witness.Object]);
+			Room.SetupGet(x => x.Characters).Returns(() => RoomCharacters);
+			Room.Setup(x => x.LayerCharacters(RoomLayer.GroundLevel)).Returns(() => RoomCharacters);
 			World.Setup(x => x.GetCheck(CheckType.PeekCheck)).Returns(Attempt.Object);
 			World.Setup(x => x.GetCheck(CheckType.PeekRevealCheck)).Returns(Reveal.Object);
 			World.Setup(x => x.GetCheck(CheckType.SpotStealthCheck)).Returns(Spot.Object);
@@ -430,6 +434,38 @@ public class PeekInspectionTests
 			Assert.AreEqual(0, f.Attempts); Assert.AreEqual(0, f.Effects.Count);
 			Assert.AreEqual(0, Fixture.Alerts(f.Target) + Fixture.Alerts(f.Witness));
 		}
+	}
+
+	[TestMethod]
+	public void Command_TargetQuitsOrIsDeleted_CancelsWithoutStaleDisclosure()
+	{
+		foreach (var deleted in new[] { false, true })
+		{
+			var f = new Fixture(); f.Item(); f.Command();
+			var action = f.Effects.OfType<PeekInspectionAction>().Single();
+			if (deleted) f.Target.Raise(x => x.OnDeleted += null, f.Target.Object);
+			else f.Target.Raise(x => x.OnQuit += null, f.Target.Object);
+			action.ExpireEffect();
+			Assert.AreEqual(0, f.Effects.Count);
+			Assert.AreEqual(0, f.Attempts);
+			Assert.AreEqual(0, f.Reveals);
+			f.Body.VerifyGet(x => x.WornItems, Times.Never);
+			f.Target.VerifyRemove(x => x.OnQuit -= It.IsAny<PerceivableEvent>(), Times.Once);
+		}
+	}
+
+	[TestMethod]
+	public void Inspect_DetachedOrStasisTargetWithRetainedLocation_IsRejectedBeforeChecks()
+	{
+		var f = new Fixture(); f.Item();
+		f.RoomCharacters.Remove(f.Target.Object);
+		Assert.IsTrue(f.Inspect().Interrupted);
+		f.RoomCharacters.Add(f.Target.Object);
+		f.Target.SetupGet(x => x.State).Returns(CharacterState.Stasis);
+		Assert.IsTrue(f.Inspect().Interrupted);
+		Assert.AreEqual(0, f.Attempts);
+		Assert.AreEqual(0, f.Reveals);
+		f.Body.VerifyGet(x => x.WornItems, Times.Never);
 	}
 
 	[TestMethod]

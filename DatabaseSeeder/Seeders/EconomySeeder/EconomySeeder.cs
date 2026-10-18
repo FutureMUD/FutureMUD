@@ -1561,7 +1561,7 @@ Please make your choice: ",
     public string Name => "Economy";
     public string Tagline => "Installs a stock economic zone shell, market categories, influences, populations and shoppers";
     public string FullDescription =>
-        @"This package installs a builder-friendly economy template for one historical era at a time. It creates a stock economic zone shell, a market, market categories tied to the UsefulSeeder market tags, a library of reusable market influence templates, era-specific market populations, and matching virtual shoppers.
+        @"This package installs a builder-friendly economy template for one historical era at a time. It creates a stock economic zone shell, a market, market categories tied to the Core market tags, a library of reusable market influence templates, era-specific market populations, and matching virtual shoppers.
 
 It is intended to be additive across eras and safe to rerun to restore or refresh missing stock-owned economy records.";
 
@@ -1580,7 +1580,7 @@ It is intended to be additive across eras and safe to rerun to restore or refres
         if (missingRequiredTags.Any())
         {
             throw new InvalidOperationException(
-                $"UsefulSeeder market tags are incomplete. EconomySeeder requires these tags beneath the {MarketRootTagName.ColourName()} root: {missingRequiredTags.ListToString()}.");
+                $"Core market tags are incomplete. EconomySeeder requires these tags beneath the {MarketRootTagName.ColourName()} root: {missingRequiredTags.ListToString()}.");
         }
 
         Dictionary<long, MarketCategory> categoriesByTagId = EnsureMarketCategories(context, marketTags);

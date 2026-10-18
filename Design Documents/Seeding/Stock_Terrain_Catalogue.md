@@ -59,6 +59,21 @@ Terrain tags are hierarchical. The seeder persists only the most specific explic
 
 Natural additions receive stock forage profiles when their ecology is represented by existing forage yields. Artificial, vacuum, toxic-atmosphere, barren extraterrestrial, and most supernatural terrain intentionally remain without a stock forage profile.
 
+## Sewer and Ruins native adaptations
+
+These presets follow raw `codedump.c` SHA-256 `e44778f6a5fb9fd02db5c3ff78d4c468b93ae6c854a058d5af769dc0a95cd59f`, as recorded in the 18 October terrain findings: movement table lines 20996–21024, sector enum 25968–25995, stamina calculation 112816–112925, and armour branch 112868–112884. The source's movement additions 8 (Sewer), 4 (Ruins) and 4 (Cavern) are operands in Armageddon's formula, not literal FutureMUD `MovementRate` values. Using the existing Cavern 3/20 baseline keeps Ruins at movement 3/stamina 20 and Sewer at movement 3/stamina 40. This preserves a 2:1 stamina burden without importing incompatible arithmetic or adding runtime mechanics.
+
+| Preset | Behaviour | Default enclosure | Atmosphere | Forage |
+| --- | --- | --- | --- | --- |
+| Sewer | `cave` | Indoors without light | Stale Breathable Atmosphere | Empty stock profile; no automatic products |
+| Ruins | `outdoors` | Outdoors | Breathable Atmosphere | Finite rocks budget 95, recovery 0.02; separate loose granite stone commodity |
+
+Both use normal hiding difficulty and automatic spot floor; Ruins does not confer universal cover. Sewer's sludge substrate is descriptive in the generated template. It does not create a liquid layer, poisonous air, or enhanced infection. Those properties need explicit authored rooms. Sewer's regional Land life multiplier 2 and gather cost 1 remain separate from Ruins/Cavern's life 2 and cost 0.5.
+
+Ruins' source stone-forage advantage uses the existing check system: its loose-stone entry has Easy difficulty, one stage easier than Normal, with a minimum MinorPass and maximum MajorPass. Quantity stays one at weight 100 base units, drawn from the finite rocks pool; this is an ordinal chance adaptation, not a numeric +20 modifier, guaranteed yield, or increased stock. Existing custom terrain values/profile assignments remain preserved on rerun.
+
+The source's increased armour contribution to Ruins movement cost cannot be represented by current terrain fields. It is deferred for a separate runtime decision; total stamina 20 does not claim to implement an armour-only penalty. No silt terrain or mechanic is included.
+
 ## Verification
 
 `CoreDataSeederTerrainTests` protects the catalogue contract by checking:

@@ -483,7 +483,6 @@ public class EraItemDependencyCompletionTests
 	public void MusketPaperCartridgeUpsert_UsesMatchingBarrelBoreAndIgnoresIncompleteMusketDefinitions()
 	{
 		using FuturemudDatabaseContext context = BuildCombatContext();
-		context.Tags.Add(new Tag { Id = 6, Name = "Paper Cartridges" });
 		context.GameItemComponentProtos.Add(new GameItemComponentProto
 		{
 			Id = 50,
@@ -739,13 +738,8 @@ public class EraItemDependencyCompletionTests
 			StunExpression = "1",
 			PainExpression = "1"
 		});
-		context.Tags.AddRange(
-			new Tag { Id = 1, Name = "Cranequin" },
-			new Tag { Id = 2, Name = "Goat's Foot" },
-			new Tag { Id = 3, Name = "Lever" },
-			new Tag { Id = 4, Name = "Spanning Hook" },
-			new Tag { Id = 5, Name = "Windlass" });
 		context.SaveChanges();
+		new CoreDataSeeder().SeedTagsForTesting(context);
 		return context;
 	}
 

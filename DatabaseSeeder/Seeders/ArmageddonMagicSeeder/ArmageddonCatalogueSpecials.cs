@@ -41,7 +41,7 @@ public static class ArmageddonCatalogueSpecials
 			var litres = db.UnitsOfMeasure.Single(x => x.Id == settings.NativeBindings[ArmageddonNativeBinding.Litre]).BaseMultiplier;
 			var bodyId = db.Races.Single(x => x.Id == settings.NativeBindings[ArmageddonNativeBinding.HumanRace]).BaseBodyId;
 			var headShapeId = ArmageddonCatalogueLinks.Bind(db, "arm.binding.light.head_shape", nameof(BodypartShape), () =>
-				db.BodypartShapes.Where(x => x.Name == "head").Select(x => x.Id).Single());
+				ResolveHeadShape(db));
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.PreflightComplete);
 			var wearKey = "arm.item.hovering_light.wear_profile";
 			var wear = owned.Put(wearKey, new WearProfile { Name = "Armageddon Hovering Light attachment", Type = "Shape", BodyPrototypeId = bodyId,
@@ -108,6 +108,30 @@ public static class ArmageddonCatalogueSpecials
 				ArmageddonInstallStatus.Failed, messages.AsReadOnly(), ids);
 		}
 	}
+
+    // Human has a native Head Back attachment; the generic Head shape comes from optional Animal.
+    // Existing aliases remain authoritative, including builder-renamed targets.
+    internal static long ResolveHeadShape(FuturemudDatabaseContext db)
+    {
+        var retained = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package &&
+            x.StableKey == "arm.binding.light.head_shape");
+        if (retained is not null)
+        {
+            if (!ArmageddonCatalogueLinks.Valid(db, retained) || retained.EntityType != ArmageddonCatalogueLinks.AliasType)
+                throw new InvalidOperationException("Hovering Light has an invalid retained head-shape binding; review it before installation.");
+            var alias = System.Text.Json.JsonSerializer.Deserialize<ArmageddonCatalogueAlias>(retained.SeedBaseline!)!;
+            if (alias.NativeType != nameof(BodypartShape)) throw new InvalidOperationException("Hovering Light head-shape binding has the wrong native type.");
+            return alias.NativeId;
+        }
+        var shapes = db.BodypartShapes.AsNoTracking().ToArray();
+        foreach (var name in new[] { "Head", "Head Back" })
+        {
+            var matches = shapes.Where(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase)).ToArray();
+            if (matches.Length > 1) throw new InvalidOperationException($"Hovering Light head-shape binding is ambiguous: {name}.");
+            if (matches.Length == 1) return matches[0].Id;
+        }
+        throw new InvalidOperationException("Hovering Light requires the native Human Head Back or generic Head shape.");
+    }
 
 	private static GameItemComponentProto Component(ArmageddonCatalogueOwnership owned, string key, string name, string type,
 		XElement definition, IReadOnlyList<string> dependencies) => owned.Put(key, new GameItemComponentProto { Id = owned.Id<GameItemComponentProto>(key),

@@ -516,6 +516,7 @@ public partial class CoreDataSeeder : IDatabaseSeeder
         };
         context.Materials.Add(unknownMaterial);
 
+        var initialTagDiagnostics = CoreTagCatalogue.Ensure(context).Messages;
         SeedMaterials(context);
 
         // Insert Stack Decorators
@@ -1412,8 +1413,9 @@ public partial class CoreDataSeeder : IDatabaseSeeder
         });
         context.SaveChanges();
 
+        var tagReport = ReconcileTagBindings(context, initialTagDiagnostics);
         context.Database.CommitTransaction();
-        return "Package successfully applied.";
+        return "Package successfully applied." + tagReport;
     }
 
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context)
@@ -1465,9 +1467,23 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 		       context.SeederChoices.Any(x => x.Seeder == Name);
 	}
 
+    private static string ReconcileTagBindings(FuturemudDatabaseContext context, IEnumerable<string>? initialDiagnostics = null)
+    {
+        var catalogue = CoreTagCatalogue.Ensure(context);
+        var messages = (initialDiagnostics ?? []).Concat(catalogue.Messages).Distinct().ToList();
+        catalogue.BindSettings(context, messages);
+        return messages.Count == 0 ? string.Empty : "\nCore tag diagnostics:\n" + string.Join("\n", messages);
+    }
+
+    internal void SeedTagsForTesting(FuturemudDatabaseContext context)
+    {
+        ReconcileTagBindings(context);
+    }
+
 	private string ReconcileFoundationCatalogues(FuturemudDatabaseContext context)
 	{
 		using var transaction = context.Database.BeginTransaction();
+        var initialTagDiagnostics = CoreTagCatalogue.Ensure(context).Messages;
 		SeedMaterials(context);
 		SeedTerrainFoundations(context);
 		SeedUnitsOfMeasure(context);
@@ -1475,8 +1491,9 @@ public partial class CoreDataSeeder : IDatabaseSeeder
 		SeedDefaultPlanes(context);
 		SeedDefaultHearingProfiles(context);
 		context.SaveChanges();
+        var tagReport = ReconcileTagBindings(context, initialTagDiagnostics);
 		transaction.Commit();
-		return "Reconciled the repeatable Core foundation catalogues. Bootstrap accounts, world records and settings were not changed.";
+		return "Reconciled the repeatable Core foundation catalogues and guarded tag/material bindings. Bootstrap accounts and world records were preserved." + tagReport;
 	}
 
     public int SortOrder => 0;

@@ -85,7 +85,7 @@ public class ItemSeederHellenicClothingCraftingTests
 	[TestMethod]
 	public void UsefulTags_DefineTextileCommodityHierarchyAndMissingTools()
 	{
-		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
 
 		foreach (var expected in new[]
 		{
@@ -147,8 +147,8 @@ public class ItemSeederHellenicClothingCraftingTests
 			AssertContains(materialSource, expected);
 		}
 
-		AssertContains(materialSource, "AddTag(\"Textile Dye\", \"Materials\")");
-		AssertContains(materialSource, "AddTag(\"Textile Mordant\", \"Materials\")");
+		AssertContains(ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv"), "AddTag(context, \"Textile Dye\", \"Materials\")");
+		AssertContains(ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv"), "AddTag(context, \"Textile Mordant\", \"Materials\")");
 	}
 
 	[TestMethod]

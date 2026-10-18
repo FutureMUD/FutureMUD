@@ -37,20 +37,22 @@ public class SeederDependencyRegistryTests
 
 		Assert.IsTrue(positions[typeof(UsefulSeeder)] < positions[typeof(CombatSeeder)]);
 		Assert.IsTrue(positions[typeof(UsefulSeeder)] < positions[typeof(ItemSeeder)]);
-		Assert.IsTrue(positions[typeof(UsefulSeeder)] < positions[typeof(EconomySeeder)]);
+		Assert.IsTrue(positions[typeof(CoreDataSeeder)] < positions[typeof(EconomySeeder)]);
+		CollectionAssert.DoesNotContain(SeederMetadataRegistry.GetMetadata(new EconomySeeder()).RequiredSeederTypes.ToList(), typeof(UsefulSeeder));
 		Assert.IsTrue(positions[typeof(AnimalSeeder)] < positions[typeof(MythicalAnimalSeeder)]);
 		Assert.IsTrue(positions[typeof(MythicalAnimalSeeder)] < positions[typeof(SupernaturalSeeder)]);
 	}
 
 	[TestMethod]
-	public void CombatMetadata_ReportsItsSharedSkillAndUsefulTagRequirements()
+	public void CombatMetadata_ReportsItsSharedSkillAndCoreTagRequirements()
 	{
 		SeederMetadata metadata = SeederMetadataRegistry.GetMetadata(new CombatSeeder());
 		string descriptions = string.Join(" ", metadata.Prerequisites.Select(x => x.Description));
 
 		StringAssert.Contains(descriptions, "Shared skill infrastructure");
 		StringAssert.Contains(descriptions, "crossbow spanning-tool tags");
-		CollectionAssert.Contains(metadata.RequiredSeederTypes.ToList(), typeof(UsefulSeeder));
+		CollectionAssert.DoesNotContain(metadata.RequiredSeederTypes.ToList(), typeof(UsefulSeeder));
+		CollectionAssert.Contains(metadata.RequiredSeederTypes.ToList(), typeof(CoreDataSeeder));
 	}
 
 	[TestMethod]

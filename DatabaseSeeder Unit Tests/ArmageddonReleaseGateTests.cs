@@ -71,7 +71,7 @@ public class ArmageddonReleaseGateTests
 		using var db = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase("armageddon_gate_debug_" + Guid.NewGuid().ToString("N")).Options);
 		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, seeder.ShouldSeedData(db));
-		Assert.AreEqual(SeederAssessmentStatus.ReadyToInstall, seeder.AssessSeedData(db).Status);
+		Assert.AreEqual(SeederAssessmentStatus.Blocked, seeder.AssessSeedData(db).Status);
 		StringAssert.Contains(seeder.SeedData(null!, new Dictionary<string, string> { [ArmageddonMagicSeeder.InstallQuestion] = "no" }), "declined");
 	}
 

@@ -140,7 +140,7 @@ public class MedievalJewelleryDependencyTests
 		using FuturemudDatabaseContext context = BuildContext();
 		UsefulSeeder seeder = new();
 
-		seeder.SeedTagsForTesting(context);
+		new CoreDataSeeder().SeedTagsForTesting(context);
 
 		Dictionary<long, Tag> tagsById = context.Tags.ToDictionary(x => x.Id);
 		HashSet<string> paths = context.Tags

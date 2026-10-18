@@ -146,7 +146,7 @@ public class UsefulSeederAutobuilderTests
 			["covers"] = "no",
 			["items"] = "no",
 			["modernitems"] = "no",
-			["tags"] = "no",
+
 			["autobuilder"] = "yes",
 			["hints"] = "no",
 			["dreams"] = "no"
@@ -176,6 +176,30 @@ public class UsefulSeederAutobuilderTests
 			.Select(x => x.Element("Name")?.Value ?? string.Empty)
 			.Where(x => !string.IsNullOrWhiteSpace(x)) ?? Enumerable.Empty<string>();
 	}
+
+    [TestMethod]
+    public void GeneratedTemplates_BindCanonicalCoreIdsAndPreserveUnownedOrEditedLegacyTemplates()
+    {
+        using var context = BuildContext();
+        SeedTerrainFoundations(context);
+        var seeder = new UsefulSeeder();
+        seeder.SeedTerrainAutobuilderForTesting(context);
+        var room = context.AutobuilderRoomTemplates.Single(x => x.Name == UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single());
+        var xml = XElement.Parse(room.Definition);
+        var binding = xml.Element("FrameworkTagBindings")!.Elements("Binding").Single(x => (string?)x.Attribute("selector") == "Mineral Resource");
+        var definition = CoreTagCatalogue.Declarations.Single(x => x.Family == "useful_autobuilder" && x.Name == "Mineral Resource");
+        Assert.AreEqual(CoreTagCatalogue.Require(context, definition.Path).Id.ToString(), binding.Attribute("id")!.Value);
+        Assert.IsFalse(xml.Element("FrameworkTagBindings")!.Elements("Binding").Any(x => (string?)x.Attribute("selector") == "Physical Primary"));
+        var edited = "<Template><BuilderEdit>retained</BuilderEdit></Template>";
+        room.Definition = edited;
+        context.SaveChanges();
+        seeder.SeedTerrainAutobuilderForTesting(context);
+        Assert.AreEqual(edited, room.Definition);
+        context.SeederManagedRecords.RemoveRange(context.SeederManagedRecords.Where(x => x.Seeder == nameof(UsefulSeeder) && x.Module == "Autobuilder"));
+        context.SaveChanges();
+        seeder.SeedTerrainAutobuilderForTesting(context);
+        Assert.AreEqual(edited, room.Definition);
+    }
 
 	[TestMethod]
 	public void ClassifyAutobuilderPackagePresence_NonePartialAndFull_ReturnExpectedStates()
@@ -260,11 +284,11 @@ public class UsefulSeederAutobuilderTests
 				$"Expected a single autobuilder area template named {name}.");
 		}
 
-		foreach (string name in UsefulSeeder.StockAutobuilderTagNamesForTesting)
-		{
-			Assert.AreEqual(1, context.Tags.Count(x => x.Name == name),
-				$"Expected the wilderness autobuilder tag {name} to be seeded exactly once.");
-		}
+        foreach (var declaration in CoreTagCatalogue.Declarations.Where(x => x.Family == "useful_autobuilder").DistinctBy(x => x.Path))
+        {
+            Assert.IsTrue(context.Tags.Any(x => x.Id == CoreTagCatalogue.Require(context, declaration.Path).Id),
+                $"Expected canonical Core autobuilder path {declaration.Path}.");
+        }
 
 		foreach (string legacyName in LegacyAutobuilderTemplateNames)
 		{
@@ -357,66 +381,60 @@ public class UsefulSeederAutobuilderTests
 			"Void terrain should not be part of the seeded autobuilder package.");
 	}
 
-	[TestMethod]
-	public void SeedTerrainAutobuilderForTesting_RerunRepairsTemplatesTagsAndPreservesLegacyTemplates()
-	{
-		using FuturemudDatabaseContext context = BuildContext();
-		SeedAccount(context);
-		SeedTerrainFoundations(context);
-		UsefulSeeder seeder = new();
-		string roomTemplateName = UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single();
-		string areaTemplateName = UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting.Single();
+    [TestMethod]
+    public void AutobuilderRerun_DoesNotRepairMissingCoreTagOrRebindMissingOwnedTemplate()
+    {
+        using var context = BuildContext();
+        SeedAccount(context);
+        SeedTerrainFoundations(context);
+        var seeder = new UsefulSeeder();
+        seeder.SeedTerrainAutobuilderForTesting(context);
+        var room = context.AutobuilderRoomTemplates.Single(x => x.Name == UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single());
+        room.Definition = "<Template><Descriptions /></Template>";
+        var area = context.AutobuilderAreaTemplates.Single(x => x.Name == UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting.Single());
+        context.AutobuilderAreaTemplates.Remove(area);
+        var tag = context.Tags.Single(x => x.Name == UsefulSeeder.StockAutobuilderTagNamesForTesting.Last());
+        context.Tags.Remove(tag);
+        context.SaveChanges();
+        var error = Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedTerrainAutobuilderForTesting(context));
+        StringAssert.Contains(error.Message, "missing");
+        Assert.IsFalse(context.Tags.Any(x => x.Id == tag.Id));
+        Assert.AreEqual("<Template><Descriptions /></Template>", room.Definition);
+        Assert.IsFalse(context.AutobuilderAreaTemplates.Any(x => x.Id == area.Id || x.Name == UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting.Single()));
+        context.Tags.Add(tag); context.SaveChanges();
+        error = Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedTerrainAutobuilderForTesting(context));
+        StringAssert.Contains(error.Message, "Missing owned autobuilder template");
+        Assert.IsFalse(context.AutobuilderAreaTemplates.Any(x => x.Id == area.Id || x.Name == UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting.Single()));
+    }
 
-		context.AutobuilderRoomTemplates.AddRange(
-			LegacyAutobuilderTemplateNames.Select((name, index) => new AutobuilderRoomTemplate
-			{
-				Id = 200000 + index,
-				Name = name,
-				TemplateType = name == "Seeded Terrain Baseline" ? "room by terrain" : "room random description",
-				Definition = "<Template />"
-			}));
-		context.SaveChanges();
-
-		seeder.SeedTerrainAutobuilderForTesting(context);
-
-		context.AutobuilderRoomTemplates.Single(x => x.Name == roomTemplateName).Definition =
-			"<Template><Descriptions /></Template>";
-		context.AutobuilderAreaTemplates.Remove(
-			context.AutobuilderAreaTemplates.Single(x => x.Name == areaTemplateName));
-		context.Tags.Remove(context.Tags.Single(x => x.Name == UsefulSeeder.StockAutobuilderTagNamesForTesting.Last()));
-		context.SaveChanges();
-
-		seeder.SeedTerrainAutobuilderForTesting(context);
-
-		foreach (string name in UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting)
-		{
-			Assert.AreEqual(1, context.AutobuilderRoomTemplates.Count(x => x.Name == name),
-				$"Expected rerun to preserve exactly one autobuilder template named {name}.");
-		}
-
-		foreach (string name in UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting)
-		{
-			Assert.AreEqual(1, context.AutobuilderAreaTemplates.Count(x => x.Name == name),
-				$"Expected rerun to preserve exactly one autobuilder area template named {name}.");
-		}
-
-		foreach (string name in UsefulSeeder.StockAutobuilderTagNamesForTesting)
-		{
-			Assert.AreEqual(1, context.Tags.Count(x => x.Name == name),
-				$"Expected rerun to restore missing autobuilder tag {name} without duplication.");
-		}
-
-		foreach (string legacyName in LegacyAutobuilderTemplateNames)
-		{
-			Assert.AreEqual(1, context.AutobuilderRoomTemplates.Count(x => x.Name == legacyName),
-				$"Legacy template {legacyName} should remain untouched by wilderness autobuilder reruns.");
-		}
-
-		XElement repairedRoom = GetTemplateDefinition(context, roomTemplateName);
-		XElement repairedArea = GetAreaTemplateDefinition(context, areaTemplateName);
-		Assert.IsTrue(repairedRoom.Element("Descriptions")!.Elements("Description").Any());
-		Assert.IsTrue(repairedRoom.Element("Terrains")!.Elements("Terrain").All(x => x.Element("NumberOfRandomElements") != null));
-		Assert.IsTrue(repairedArea.Element("Groups")!.Elements("Group").Any(),
-			"Rerun should rebuild the wilderness area template definition if it was deleted.");
-	}
+    [TestMethod]
+    public void AutobuilderRerun_RetainsRenamedRoomAndAreaIdsAndRejectsRetiredOwnership()
+    {
+        using var context = BuildContext();
+        SeedAccount(context);
+        SeedTerrainFoundations(context);
+        var seeder = new UsefulSeeder();
+        seeder.SeedTerrainAutobuilderForTesting(context);
+        var room = context.AutobuilderRoomTemplates.Single(x => x.Name == UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single());
+        var area = context.AutobuilderAreaTemplates.Single(x => x.Name == UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting.Single());
+        var ids = (room.Id, area.Id);
+        room.Name = "Builder room"; area.Name = "Builder area";
+        context.SaveChanges();
+        seeder.SeedTerrainAutobuilderForTesting(context);
+        Assert.AreEqual(1, context.AutobuilderRoomTemplates.Count(x => x.Id == ids.Item1 || x.Name == UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single()));
+        Assert.AreEqual(1, context.AutobuilderAreaTemplates.Count(x => x.Id == ids.Item2 || x.Name == UsefulSeeder.StockAutobuilderAreaTemplateNamesForTesting.Single()));
+        Assert.AreEqual(ids, (room.Id, area.Id));
+        Assert.AreEqual("Builder room", room.Name);
+        Assert.AreEqual("Builder area", area.Name);
+        foreach (var type in new[] { nameof(AutobuilderRoomTemplate), nameof(AutobuilderAreaTemplate) })
+        {
+            var record = context.SeederManagedRecords.Single(x => x.EntityType == type);
+            record.Retired = true; context.SaveChanges();
+            StringAssert.Contains(Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedTerrainAutobuilderForTesting(context)).Message, "Invalid autobuilder ownership");
+            record.Retired = false; context.SaveChanges();
+        }
+        context.AutobuilderRoomTemplates.Remove(room); context.SaveChanges();
+        StringAssert.Contains(Assert.ThrowsException<InvalidOperationException>(() => seeder.SeedTerrainAutobuilderForTesting(context)).Message, "Missing owned autobuilder template");
+        Assert.IsFalse(context.AutobuilderRoomTemplates.Any(x => x.Id == room.Id || x.Name == UsefulSeeder.StockAutobuilderRoomTemplateNamesForTesting.Single()));
+    }
 }

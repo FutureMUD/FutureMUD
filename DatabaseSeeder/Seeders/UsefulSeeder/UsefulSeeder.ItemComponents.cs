@@ -90,6 +90,17 @@ public partial class UsefulSeeder
 
         if (existing is not null)
         {
+            if (type is "RepairKit" or "IncenseBurner" or "OfferingReceiver" || name == "Container_CartridgeBandolier")
+            {
+                static string TagReferences(string xml) => string.Join("|", XElement.Parse(xml).Descendants()
+                    .Where(x => x.Name.LocalName is "Tag" or "FuelTag" or "AllowedTag" or "AllowedLiquidTag")
+                    .Select(x => x.ToString(SaveOptions.DisableFormatting)));
+                if (TagReferences(existing.Definition) != TagReferences(definition))
+                {
+                    _tagConsumerDiagnostics.Add($"Preserved {name} #{existing.Id} tag references; proposed Core bindings differ. Review legacy aliases or builder edits before reconciliation.");
+                    return existing;
+                }
+            }
             existing.Type = type;
             existing.Description = description;
             existing.Definition = definition;
@@ -215,7 +226,6 @@ public partial class UsefulSeeder
     {
         _context = context;
         PrepareItemProtoCache(context);
-        _tags = context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
         DateTime now = DateTime.UtcNow;
         Account dbaccount = context.Accounts.First();
         long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;
@@ -276,10 +286,7 @@ public partial class UsefulSeeder
 	{
 		_context = context;
 		PrepareItemProtoCache(context);
-		if (context.Tags.All(x => x.Name != "Paper Cartridges"))
-		{
-			SeedTagsForTesting(context);
-		}
+		CoreTagCatalogue.RequireUniqueStockName(context, "Paper Cartridges");
 		DateTime now = DateTime.UtcNow;
 		Account dbaccount = context.Accounts.First();
 		long nextId = context.GameItemComponentProtos.Any() ? context.GameItemComponentProtos.Max(x => x.Id) + 1 : 1;

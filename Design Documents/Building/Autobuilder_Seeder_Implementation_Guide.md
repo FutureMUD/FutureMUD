@@ -5,7 +5,7 @@
 The autobuilder seeding strategy now has a clear split:
 
 - `CoreDataSeeder` owns structural starter templates.
-- `UsefulSeeder` owns the wilderness grouped starter package: a terrain-aware random-description room template, a random-features area template, and supporting terrain feature tags.
+- `UsefulSeeder` owns the wilderness grouped starter package: a terrain-aware random-description room template, a random-features area template, and consumes Core terrain feature tags.
 
 This guide covers the Useful side only.
 
@@ -23,7 +23,7 @@ The Useful autobuilder architecture lives in:
 
 - stock package names
 - package classification
-- wilderness tag upsert
+- read-only Core tag identity resolution
 - repeatable ensure/update logic
 - reusable XML helper builders for future autobuilder seeding
 
@@ -31,7 +31,7 @@ The Useful autobuilder architecture lives in:
 
 - the wilderness grouped room-template definition
 - the wilderness random-features area-template definition
-- the supporting terrain feature taxonomy
+- selector definitions projected from the embedded Core tag manifest
 - the domain/feature lookup tables that drive the seeded XML
 
 ## Seeding Flow
@@ -43,10 +43,10 @@ The installed flow is:
 3. `SeedTerrainAutobuilder(...)` delegates to `SeedTerrainAutobuilderCore(...)`.
 4. `SeedTerrainAutobuilderCore(...)`:
    - excludes the placeholder `Void` terrain
-   - ensures the wilderness terrain feature tags exist under the `Terrain` root
+   - requires canonical Core wilderness tag identities
    - generates the stock wilderness room template definition
    - generates the stock wilderness area template definition
-   - upserts all stock-owned templates by name
+   - refreshes untouched owned templates by retained ID
 
 This keeps the package rerunnable and safe for partial installs.
 
@@ -59,7 +59,7 @@ Current stock templates:
 - Room: `Seeded Terrain Wilderness Grouped Description`
 - Area: `Seeded Terrain Wilderness Grouped Features`
 
-Current stock supporting tags:
+Core-owned supporting tags:
 
 - terrain feature categories under `Terrain -> Feature -> Descriptive Element`
 - wilderness sensory/resource/helper tags used by the grouped package
@@ -104,12 +104,12 @@ Useful autobuilder seeding must stay idempotent.
 Required behaviours:
 
 - rerunning must not duplicate templates
-- rerunning must repair missing templates
-- rerunning must refresh malformed or stale definitions for stock room and area templates
-- rerunning must add any missing wilderness feature tags back into the hierarchy
+- a retained claim whose row is missing must block explicit reconciliation
+- rerunning refreshes only unchanged owned room and area definitions; edited/renamed/unowned rows are preserved and reported
+- missing Core tags require Core reconciliation, never tag creation in Useful
 - rerunning must leave legacy `Seeded Terrain Baseline` / `Seeded Terrain Random Description` rows alone if they already exist in a live database
 
-That is why the code uses `SeederRepeatabilityHelper.EnsureNamedEntity(...)` and rewrites the stock definition each run.
+Useful records template baselines in `SeederManagedRecords`; invalid, retired or conflicting claims block before rebinding. See [Core tag foundations](../Seeding/Core_Tag_Foundations.md).
 
 ## Adding Or Replacing Stock Autobuilder Content
 
@@ -117,7 +117,7 @@ Use this checklist:
 
 1. Add the template name to `StockAutobuilderRoomTemplateNames`.
 2. Add any stock area template name to `StockAutobuilderAreaTemplateNames`.
-3. Add or update the wilderness tag definitions if new framework tags are required.
+3. Add new full-path identities to the embedded Core tag manifest if required, then project selectors without changing their text semantics.
 4. Prefer building the XML through the helper functions rather than embedding raw XML text.
 5. Derive terrain applicability from seeded terrain/domain mappings, not from fragile hard-coded IDs.
 6. Add a repeatability test covering install and rerun behaviour.
@@ -158,7 +158,7 @@ The unit-test coverage for autobuilder seeding should always include:
 - none / partial / full package classification
 - installer question visibility
 - successful seed through the public seeder entry point
-- rerun repair without duplication
+- retained-ID reruns, edited/unowned preservation and missing/retired claim refusal
 
 When adding new stock templates, update the stock-name assertions and verify the generated XML structure that matters for runtime.
 
@@ -176,3 +176,7 @@ For the wilderness grouped package, that XML-shape coverage should include:
 - Keep UsefulSeeder focused on starter content that works immediately after install.
 - For grouped prose, prefer explicit layer-marker tags over inferring category from a feature name that may be reused in multiple roles.
 - Push game-specific or highly opinionated prose into cloned templates or downstream game seeders instead of broadening the stock Useful package too far.
+
+## Explicit framework selector bindings
+
+Generated room templates serialize `<FrameworkTagBindings><Binding selector="Mineral Resource" id="..." /></FrameworkTagBindings>`. Selector text still matches descriptions, feature groups, roads and adjacency. Its ID independently selects the intended Core taxonomy branch when leaf names repeat. Unbound text markers such as Physical Primary/Secondary remain text. Runtime save/clone retains mappings, missing mapped IDs fail load, and legacy selectors require unique names before any room tags are applied. Typed feature-mask bindings continue to use their supplied IDs.

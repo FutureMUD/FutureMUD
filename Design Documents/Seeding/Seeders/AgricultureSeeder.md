@@ -15,7 +15,7 @@ Metadata prerequisite descriptions:
 
 - The Core seeder must have created at least one account.
 - Core utility progs must include AlwaysTrue.
-- UsefulSeeder agriculture tags must already exist.
+- Core agriculture tags must already exist.
 - A Farming trait must already exist.
 
 These are checks, not an installation guarantee. The [dependency map](Dependency_Map.md) distinguishes hard ordering edges from soft ordering hints.

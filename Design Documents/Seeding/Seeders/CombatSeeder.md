@@ -19,7 +19,7 @@ Metadata prerequisite descriptions:
 - Attributes must already be seeded for combat formulas.
 - Shared skill infrastructure (Skill Check, General Skill, Veterancy Skill, Skill Improver, AlwaysTrue and AlwaysFalse) must already exist.
 - The Human seeder must have installed the Human race.
-- UsefulSeeder crossbow spanning-tool tags must already exist.
+- Core crossbow spanning-tool tags must already exist.
 
 These are checks, not an installation guarantee. The [dependency map](Dependency_Map.md) distinguishes hard ordering edges from soft ordering hints.
 

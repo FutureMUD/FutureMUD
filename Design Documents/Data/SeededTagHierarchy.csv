@@ -55,6 +55,44 @@ Trunk	Consumables	Consumables / Trunk
 Tusk	Consumables	Consumables / Tusk
 Wire	Consumables	Consumables / Wire
 Culture		Culture
+Early Modern	Culture	Culture / Early Modern
+Shared	Early Modern	Culture / Early Modern / Shared
+Andean Colonial Indigenous	Shared	Culture / Early Modern / Shared / Andean Colonial Indigenous
+Caribbean Atlantic Plantation	Shared	Culture / Early Modern / Shared / Caribbean Atlantic Plantation
+Dutch Republic Low Countries	Shared	Culture / Early Modern / Shared / Dutch Republic Low Countries
+Edo Japan	Shared	Culture / Early Modern / Shared / Edo Japan
+English British Stuart Georgian	Shared	Culture / Early Modern / Shared / English British Stuart Georgian
+English French Dutch Colonial North America	Shared	Culture / Early Modern / Shared / English French Dutch Colonial North America
+Ethiopian Red Sea	Shared	Culture / Early Modern / Shared / Ethiopian Red Sea
+French Baroque Court Urban	Shared	Culture / Early Modern / Shared / French Baroque Court Urban
+German HRE Austrian	Shared	Culture / Early Modern / Shared / German HRE Austrian
+Global Maritime Chartered Company Trade	Shared	Culture / Early Modern / Shared / Global Maritime Chartered Company Trade
+Iberian Portuguese Spanish Empires	Shared	Culture / Early Modern / Shared / Iberian Portuguese Spanish Empires
+Indigenous North American Regional Families	Shared	Culture / Early Modern / Shared / Indigenous North American Regional Families
+Inner Asian Steppe Frontier	Shared	Culture / Early Modern / Shared / Inner Asian Steppe Frontier
+Italian States	Shared	Culture / Early Modern / Shared / Italian States
+Joseon Korea	Shared	Culture / Early Modern / Shared / Joseon Korea
+Kongo Angola West Central Africa	Shared	Culture / Early Modern / Shared / Kongo Angola West Central Africa
+Late Ming Survival Transition	Shared	Culture / Early Modern / Shared / Late Ming Survival Transition
+Maghrebi North African	Shared	Culture / Early Modern / Shared / Maghrebi North African
+Mainland South-east Asian Courts	Shared	Culture / Early Modern / Shared / Mainland South-east Asian Courts
+Maratha Rajput Deccan	Shared	Culture / Early Modern / Shared / Maratha Rajput Deccan
+Maritime South-east Asian Trade Worlds	Shared	Culture / Early Modern / Shared / Maritime South-east Asian Trade Worlds
+Mesoamerican Colonial Indigenous	Shared	Culture / Early Modern / Shared / Mesoamerican Colonial Indigenous
+Mughal Indo-Persian	Shared	Culture / Early Modern / Shared / Mughal Indo-Persian
+Ottoman	Shared	Culture / Early Modern / Shared / Ottoman
+Polish Lithuanian Hungarian Frontier	Shared	Culture / Early Modern / Shared / Polish Lithuanian Hungarian Frontier
+Portuguese Brazil Atlantic Plantation	Shared	Culture / Early Modern / Shared / Portuguese Brazil Atlantic Plantation
+Qing China	Shared	Culture / Early Modern / Shared / Qing China
+Russian Petrine Post-Petrine	Shared	Culture / Early Modern / Shared / Russian Petrine Post-Petrine
+Ryukyu Maritime East Asia	Shared	Culture / Early Modern / Shared / Ryukyu Maritime East Asia
+Safavid Post-Safavid Persianate	Shared	Culture / Early Modern / Shared / Safavid Post-Safavid Persianate
+Sahelian Hausa Islamic West Africa	Shared	Culture / Early Modern / Shared / Sahelian Hausa Islamic West Africa
+Scandinavian Baltic	Shared	Culture / Early Modern / Shared / Scandinavian Baltic
+South Indian Coastal Trade	Shared	Culture / Early Modern / Shared / South Indian Coastal Trade
+Spanish Colonial Americas	Shared	Culture / Early Modern / Shared / Spanish Colonial Americas
+Swahili Coast Indian Ocean Africa	Shared	Culture / Early Modern / Shared / Swahili Coast Indian Ocean Africa
+West African Court Atlantic Trade	Shared	Culture / Early Modern / Shared / West African Court Atlantic Trade
 Renaissance	Culture	Culture / Renaissance
 Shared	Renaissance	Culture / Renaissance / Shared
 African Court Atlantic	Shared	Culture / Renaissance / Shared / African Court Atlantic
@@ -82,44 +120,6 @@ South Asian	Shared	Culture / Renaissance / Shared / South Asian
 South-east Asian Mainland	Shared	Culture / Renaissance / Shared / South-east Asian Mainland
 Steppe and Caravan	Shared	Culture / Renaissance / Shared / Steppe and Caravan
 Western European Renaissance	Shared	Culture / Renaissance / Shared / Western European Renaissance
-Early Modern	Culture	Culture / Early Modern
-Shared	Early Modern	Culture / Early Modern / Shared
-Andean Colonial Indigenous	Shared	Culture / Early Modern / Shared / Andean Colonial Indigenous
-Caribbean Atlantic Plantation	Shared	Culture / Early Modern / Shared / Caribbean Atlantic Plantation
-Dutch Republic Low Countries	Shared	Culture / Early Modern / Shared / Dutch Republic Low Countries
-Edo Japan	Shared	Culture / Early Modern / Shared / Edo Japan
-English British Stuart Georgian	Shared	Culture / Early Modern / Shared / English British Stuart Georgian
-English French Dutch Colonial North America	Shared	Culture / Early Modern / Shared / English French Dutch Colonial North America
-Ethiopian Red Sea	Shared	Culture / Early Modern / Shared / Ethiopian Red Sea
-French Baroque Court Urban	Shared	Culture / Early Modern / Shared / French Baroque Court Urban
-German HRE Austrian	Shared	Culture / Early Modern / Shared / German HRE Austrian
-Global Maritime Chartered Company Trade	Shared	Culture / Early Modern / Shared / Global Maritime Chartered Company Trade
-Indigenous North American Regional Families	Shared	Culture / Early Modern / Shared / Indigenous North American Regional Families
-Inner Asian Steppe Frontier	Shared	Culture / Early Modern / Shared / Inner Asian Steppe Frontier
-Italian States	Shared	Culture / Early Modern / Shared / Italian States
-Iberian Portuguese Spanish Empires	Shared	Culture / Early Modern / Shared / Iberian Portuguese Spanish Empires
-Joseon Korea	Shared	Culture / Early Modern / Shared / Joseon Korea
-Kongo Angola West Central Africa	Shared	Culture / Early Modern / Shared / Kongo Angola West Central Africa
-Late Ming Survival Transition	Shared	Culture / Early Modern / Shared / Late Ming Survival Transition
-Mainland South-east Asian Courts	Shared	Culture / Early Modern / Shared / Mainland South-east Asian Courts
-Maghrebi North African	Shared	Culture / Early Modern / Shared / Maghrebi North African
-Maratha Rajput Deccan	Shared	Culture / Early Modern / Shared / Maratha Rajput Deccan
-Maritime South-east Asian Trade Worlds	Shared	Culture / Early Modern / Shared / Maritime South-east Asian Trade Worlds
-Mesoamerican Colonial Indigenous	Shared	Culture / Early Modern / Shared / Mesoamerican Colonial Indigenous
-Mughal Indo-Persian	Shared	Culture / Early Modern / Shared / Mughal Indo-Persian
-Ottoman	Shared	Culture / Early Modern / Shared / Ottoman
-Polish Lithuanian Hungarian Frontier	Shared	Culture / Early Modern / Shared / Polish Lithuanian Hungarian Frontier
-Portuguese Brazil Atlantic Plantation	Shared	Culture / Early Modern / Shared / Portuguese Brazil Atlantic Plantation
-Qing China	Shared	Culture / Early Modern / Shared / Qing China
-Russian Petrine Post-Petrine	Shared	Culture / Early Modern / Shared / Russian Petrine Post-Petrine
-Ryukyu Maritime East Asia	Shared	Culture / Early Modern / Shared / Ryukyu Maritime East Asia
-Safavid Post-Safavid Persianate	Shared	Culture / Early Modern / Shared / Safavid Post-Safavid Persianate
-Sahelian Hausa Islamic West Africa	Shared	Culture / Early Modern / Shared / Sahelian Hausa Islamic West Africa
-Scandinavian Baltic	Shared	Culture / Early Modern / Shared / Scandinavian Baltic
-South Indian Coastal Trade	Shared	Culture / Early Modern / Shared / South Indian Coastal Trade
-Spanish Colonial Americas	Shared	Culture / Early Modern / Shared / Spanish Colonial Americas
-Swahili Coast Indian Ocean Africa	Shared	Culture / Early Modern / Shared / Swahili Coast Indian Ocean Africa
-West African Court Atlantic Trade	Shared	Culture / Early Modern / Shared / West African Court Atlantic Trade
 Era		Era
 Antiquity Era	Era	Era / Antiquity Era
 Bronze Age Era	Era	Era / Bronze Age Era
@@ -256,6 +256,7 @@ Household Furniture	Household Items	Functions / Household Items / Household Furn
 Household Heating	Household Items	Functions / Household Items / Household Heating
 Household Lighting	Household Items	Functions / Household Items / Household Lighting
 Household Religious Items	Household Items	Functions / Household Items / Household Religious Items
+Incense Fuel	Household Religious Items	Functions / Household Items / Household Religious Items / Incense Fuel
 Household Wares	Household Items	Functions / Household Items / Household Wares
 Joining	Functions	Functions / Joining
 Adhesion	Joining	Functions / Joining / Adhesion
@@ -309,6 +310,11 @@ Flux	Welding	Functions / Joining / Welding / Flux
 Solderer	Welding	Functions / Joining / Welding / Solderer
 Soldering Wire	Welding	Functions / Joining / Welding / Soldering Wire
 Material Functions	Functions	Functions / Material Functions
+Agriculture	Material Functions	Functions / Material Functions / Agriculture
+Apiary Product	Agriculture	Functions / Material Functions / Agriculture / Apiary Product
+Pastoral Product	Agriculture	Functions / Material Functions / Agriculture / Pastoral Product
+Seeded Yield	Agriculture	Functions / Material Functions / Agriculture / Seeded Yield
+Seeds	Agriculture	Functions / Material Functions / Agriculture / Seeds
 Antiquity Equipment Stock	Material Functions	Functions / Material Functions / Antiquity Equipment Stock
 Armour Lamella Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Lamella Stock
 Armour Plate Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Armour Plate Stock
@@ -326,14 +332,36 @@ Tool Blank Stock	Antiquity Equipment Stock	Functions / Material Functions / Anti
 Weapon Blade Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Blade Stock
 Weapon Head Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Head Stock
 Weapon Shaft Stock	Antiquity Equipment Stock	Functions / Material Functions / Antiquity Equipment Stock / Weapon Shaft Stock
+Artillery Fuse	Material Functions	Functions / Material Functions / Artillery Fuse
+Artillery Wadding	Material Functions	Functions / Material Functions / Artillery Wadding
+Bead Stock	Material Functions	Functions / Material Functions / Bead Stock
 Commoditisable	Material Functions	Functions / Material Functions / Commoditisable
 Debris	Material Functions	Functions / Material Functions / Debris
 Fire	Material Functions	Functions / Material Functions / Fire
 Firewood	Material Functions	Functions / Material Functions / Firewood
 Hot Fire	Material Functions	Functions / Material Functions / Hot Fire
 Household Craft Stock	Material Functions	Functions / Material Functions / Household Craft Stock
+Basketry Splint	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Basketry Splint
+Bisque Vessel Blank	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Bisque Vessel Blank
+Carved Wood Stock	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Carved Wood Stock
+Cast Vessel Blank	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Cast Vessel Blank
+Coopered Staves	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Coopered Staves
+Furniture Panel Stock	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Furniture Panel Stock
 Furniture Timber Stock	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Furniture Timber Stock
+Glass Batch	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Glass Batch
+Glass Vessel Blank	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Glass Vessel Blank
+Hoop Stock	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Hoop Stock
+Inlay Stock	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Inlay Stock
+Lacquer Finish	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Lacquer Finish
+Lamp Wick	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Lamp Wick
+Paint Pigment	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Paint Pigment
+Lake Pigment	Paint Pigment	Functions / Material Functions / Household Craft Stock / Paint Pigment / Lake Pigment
+Pottery Clay Body	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Pottery Clay Body
 Prepared Leather Panel	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Prepared Leather Panel
+Prepared Pitch	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Prepared Pitch
+Reed Matting	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Reed Matting
+Stone Vessel Blank	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Stone Vessel Blank
+Wet Vessel Blank	Household Craft Stock	Functions / Material Functions / Household Craft Stock / Wet Vessel Blank
 Ignition Source	Material Functions	Functions / Material Functions / Ignition Source
 Jewellery Craft Stock	Material Functions	Functions / Material Functions / Jewellery Craft Stock
 Jewellery Bead Stock	Jewellery Craft Stock	Functions / Material Functions / Jewellery Craft Stock / Jewellery Bead Stock
@@ -351,6 +379,7 @@ Leather Thong	Leather Commodity	Functions / Material Functions / Leather Commodi
 Prepared Hide	Leather Commodity	Functions / Material Functions / Leather Commodity / Prepared Hide
 Sealed Leather Panel	Leather Commodity	Functions / Material Functions / Leather Commodity / Sealed Leather Panel
 Tanned Leather	Leather Commodity	Functions / Material Functions / Leather Commodity / Tanned Leather
+Match Cord	Material Functions	Functions / Material Functions / Match Cord
 Medical Craft Stock	Material Functions	Functions / Material Functions / Medical Craft Stock
 Decoction Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Decoction Stock
 Dressing Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Dressing Stock
@@ -363,32 +392,194 @@ Splint Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft 
 Surgical Tool Blank	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Surgical Tool Blank
 Suture Stock	Medical Craft Stock	Functions / Material Functions / Medical Craft Stock / Suture Stock
 Meltable	Material Functions	Functions / Material Functions / Meltable
-Artillery Fuse	Material Functions	Functions / Material Functions / Artillery Fuse
-Artillery Wadding	Material Functions	Functions / Material Functions / Artillery Wadding
-Match Cord	Material Functions	Functions / Material Functions / Match Cord
 Musket Wadding	Material Functions	Functions / Material Functions / Musket Wadding
 Ore Deposit	Material Functions	Functions / Material Functions / Ore Deposit
 Padding	Material Functions	Functions / Material Functions / Padding
 Primary Production	Material Functions	Functions / Material Functions / Primary Production
+Primary Production Aggregate	Primary Production	Functions / Material Functions / Primary Production / Primary Production Aggregate
+Primary Production Alkali	Primary Production	Functions / Material Functions / Primary Production / Primary Production Alkali
+Primary Production Binder	Primary Production	Functions / Material Functions / Primary Production / Primary Production Binder
 Primary Production Clay	Primary Production	Functions / Material Functions / Primary Production / Primary Production Clay
 Primary Production Commodity	Primary Production	Functions / Material Functions / Primary Production / Primary Production Commodity
+Aggregate Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Aggregate Commodity
+Alkali Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Alkali Commodity
+Barilla Ash Commodity	Alkali Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Alkali Commodity / Barilla Ash Commodity
+Kelp Ash Commodity	Alkali Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Alkali Commodity / Kelp Ash Commodity
+Lye Commodity	Alkali Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Alkali Commodity / Lye Commodity
+Potash Commodity	Alkali Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Alkali Commodity / Potash Commodity
+Soda Ash Commodity	Alkali Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Alkali Commodity / Soda Ash Commodity
+Alum Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Alum Commodity
+Binder Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Binder Commodity
+Coral Lime Commodity	Binder Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Binder Commodity / Coral Lime Commodity
+Mortar Commodity	Binder Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Binder Commodity / Mortar Commodity
+Plaster Commodity	Binder Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Binder Commodity / Plaster Commodity
+Quicklime Commodity	Binder Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Binder Commodity / Quicklime Commodity
+Shell Lime Commodity	Binder Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Binder Commodity / Shell Lime Commodity
+Slaked Lime Commodity	Binder Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Binder Commodity / Slaked Lime Commodity
+Bloom Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Bloom Commodity
+Iron Bloom Commodity	Bloom Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Bloom Commodity / Iron Bloom Commodity
+Steel Bloom Commodity	Bloom Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Bloom Commodity / Steel Bloom Commodity
+Brine Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Brine Commodity
+Broken Ore Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Broken Ore Commodity
 Charcoal Fuel Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Charcoal Fuel Commodity
-Gunpowder Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Gunpowder Commodity
+Coal Fuel Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Coal Fuel Commodity
+Coke Fuel Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Coke Fuel Commodity
+Copperas Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Copperas Commodity
+Crucible Clay Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Crucible Clay Commodity
 Dressed Stone Block Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Dressed Stone Block Commodity
+Evaporite Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Evaporite Commodity
+Rock Salt Commodity	Evaporite Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Evaporite Commodity / Rock Salt Commodity
+Salt Commodity	Evaporite Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Evaporite Commodity / Salt Commodity
+Fireclay Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Fireclay Commodity
 Fired Brick Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Fired Brick Commodity
+Gem Rough Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Gem Rough Commodity
+Greenstone Rough Commodity	Gem Rough Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Gem Rough Commodity / Greenstone Rough Commodity
+Lapis Rough Commodity	Gem Rough Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Gem Rough Commodity / Lapis Rough Commodity
+Obsidian Rough Commodity	Gem Rough Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Gem Rough Commodity / Obsidian Rough Commodity
+Turquoise Rough Commodity	Gem Rough Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Gem Rough Commodity / Turquoise Rough Commodity
+Glass Batch Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Glass Batch Commodity
+Glass Blank Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Glass Blank Commodity
+Green Brick Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Green Brick Commodity
+Gunpowder Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Gunpowder Commodity
+Kaolin Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Kaolin Commodity
+Lye Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Lye Commodity
 Metal Bar Stock Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Metal Bar Stock Commodity
 Metal Billet Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Metal Billet Commodity
+Metal Ingot Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Metal Ingot Commodity
+Mine Spoil Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Mine Spoil Commodity
+Mortar Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Mortar Commodity
+Ore Tailings Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Ore Tailings Commodity
+Peat Fuel Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Peat Fuel Commodity
+Pigment Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Pigment Commodity
+Pitch Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Pitch Commodity
+Placer Concentrate Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Placer Concentrate Commodity
+Potash Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Potash Commodity
+Pozzolana Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Pozzolana Commodity
 Prepared Clay Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Prepared Clay Commodity
+Quicklime Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Quicklime Commodity
+Raw Ore Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Raw Ore Commodity
+High Grade Ore Commodity	Raw Ore Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Raw Ore Commodity / High Grade Ore Commodity
+Magnetite Sand Commodity	High Grade Ore Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Raw Ore Commodity / High Grade Ore Commodity / Magnetite Sand Commodity
+Native Copper Ore Commodity	High Grade Ore Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Raw Ore Commodity / High Grade Ore Commodity / Native Copper Ore Commodity
+Low Grade Ore Commodity	Raw Ore Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Raw Ore Commodity / Low Grade Ore Commodity
+Bog Iron Ore Commodity	Low Grade Ore Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Raw Ore Commodity / Low Grade Ore Commodity / Bog Iron Ore Commodity
+Medium Grade Ore Commodity	Raw Ore Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Raw Ore Commodity / Medium Grade Ore Commodity
+Copper Carbonate Ore Commodity	Medium Grade Ore Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Raw Ore Commodity / Medium Grade Ore Commodity / Copper Carbonate Ore Commodity
+Copper Sulphide Ore Commodity	Medium Grade Ore Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Raw Ore Commodity / Medium Grade Ore Commodity / Copper Sulphide Ore Commodity
+Roasted Ore Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Roasted Ore Commodity
+Roof Tile Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Roof Tile Commodity
+Rough Stone Block Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Rough Stone Block Commodity
+Salt Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Salt Commodity
+Saltpeter Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Saltpeter Commodity
+Sample Ore Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Sample Ore Commodity
+Slag Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Slag Commodity
+Slaked Lime Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Slaked Lime Commodity
+Sorted Ore Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Sorted Ore Commodity
+Stone Rubble Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Stone Rubble Commodity
+Tar Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Tar Commodity
+Washed Ore Commodity	Primary Production Commodity	Functions / Material Functions / Primary Production / Primary Production Commodity / Washed Ore Commodity
+Primary Production Flux	Primary Production	Functions / Material Functions / Primary Production / Primary Production Flux
+Primary Production Fuel	Primary Production	Functions / Material Functions / Primary Production / Primary Production Fuel
+Primary Production Glass Stock	Primary Production	Functions / Material Functions / Primary Production / Primary Production Glass Stock
+Primary Production Metal Stock	Primary Production	Functions / Material Functions / Primary Production / Primary Production Metal Stock
+Primary Production Ore	Primary Production	Functions / Material Functions / Primary Production / Primary Production Ore
+Primary Production Pigment	Primary Production	Functions / Material Functions / Primary Production / Primary Production Pigment
+Primary Production Refractory	Primary Production	Functions / Material Functions / Primary Production / Primary Production Refractory
+Primary Production Resource	Primary Production	Functions / Material Functions / Primary Production / Primary Production Resource
+Alkali Resource	Primary Production Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Alkali Resource
+Natron Resource	Alkali Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Alkali Resource / Natron Resource
+Clay Resource	Primary Production Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Clay Resource
+Clay Pit Resource	Clay Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Clay Resource / Clay Pit Resource
+Kaolin Resource	Clay Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Clay Resource / Kaolin Resource
+Fuel Resource	Primary Production Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Fuel Resource
+Bitumen Seep Resource	Fuel Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Fuel Resource / Bitumen Seep Resource
+Coal Seam Resource	Fuel Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Fuel Resource / Coal Seam Resource
+Peat Bog Resource	Fuel Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Fuel Resource / Peat Bog Resource
+Hidden Resource Marker	Primary Production Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Hidden Resource Marker
+Lime Resource	Primary Production Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Lime Resource
+Coral Lime Resource	Lime Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Lime Resource / Coral Lime Resource
+Shell Lime Resource	Lime Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Lime Resource / Shell Lime Resource
+Mineral Resource	Primary Production Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource
+Cassiterite Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Cassiterite Resource
+Copper Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Copper Resource
+Azurite Resource	Copper Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Copper Resource / Azurite Resource
+Chalcopyrite Resource	Copper Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Copper Resource / Chalcopyrite Resource
+Native Copper Resource	Copper Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Copper Resource / Native Copper Resource
+Evaporite Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Evaporite Resource
+Alum Resource	Evaporite Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Evaporite Resource / Alum Resource
+Rock Salt Resource	Evaporite Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Evaporite Resource / Rock Salt Resource
+Salt Pan Resource	Evaporite Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Evaporite Resource / Salt Pan Resource
+Saltpeter Resource	Evaporite Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Evaporite Resource / Saltpeter Resource
+Vitriol Copperas Resource	Evaporite Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Evaporite Resource / Vitriol Copperas Resource
+Galena Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Galena Resource
+Gemstone Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Gemstone Resource
+Jade Greenstone Resource	Gemstone Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Gemstone Resource / Jade Greenstone Resource
+Lapis Resource	Gemstone Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Gemstone Resource / Lapis Resource
+Obsidian Resource	Gemstone Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Gemstone Resource / Obsidian Resource
+Turquoise Resource	Gemstone Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Gemstone Resource / Turquoise Resource
+Gold Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Gold Resource
+Placer Gold Resource	Gold Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Gold Resource / Placer Gold Resource
+Gold-Bearing Gravel Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Gold-Bearing Gravel Resource
+Hematite Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Hematite Resource
+Iron Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Iron Resource
+Bog Iron Resource	Iron Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Iron Resource / Bog Iron Resource
+Magnetite Sands Resource	Iron Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Iron Resource / Magnetite Sands Resource
+Limonite Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Limonite Resource
+Magnetite Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Magnetite Resource
+Malachite Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Malachite Resource
+Native Copper Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Native Copper Resource
+Pozzolan Resource	Mineral Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Pozzolan Resource
+Volcanic Ash Pozzolana Resource	Pozzolan Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Mineral Resource / Pozzolan Resource / Volcanic Ash Pozzolana Resource
+Pigment Resource	Primary Production Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Pigment Resource
+Ochre Resource	Pigment Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Pigment Resource / Ochre Resource
+Salt Resource	Primary Production Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Salt Resource
+Brine Spring Resource	Salt Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Salt Resource / Brine Spring Resource
+Rock Salt Resource	Salt Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Salt Resource / Rock Salt Resource
+Stone Resource	Primary Production Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Stone Resource
+Granite Resource	Stone Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Stone Resource / Granite Resource
+Limestone Resource	Stone Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Stone Resource / Limestone Resource
+Marble Resource	Stone Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Stone Resource / Marble Resource
+Sandstone Resource	Stone Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Stone Resource / Sandstone Resource
+Silica Sand Resource	Stone Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Stone Resource / Silica Sand Resource
+Slate Resource	Stone Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Stone Resource / Slate Resource
+Sulfur Resource	Primary Production Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Sulfur Resource
+Sulfur Deposit Resource	Sulfur Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Sulfur Resource / Sulfur Deposit Resource
+Visible Resource Deposit	Primary Production Resource	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit
+Alum Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Alum Deposit
+Azurite Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Azurite Deposit
+Bog Iron Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Bog Iron Deposit
+Chalcopyrite Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Chalcopyrite Deposit
+Coral Lime Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Coral Lime Deposit
+Jade Greenstone Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Jade Greenstone Deposit
+Kaolin Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Kaolin Deposit
+Lapis Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Lapis Deposit
+Magnetite Sands Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Magnetite Sands Deposit
+Native Copper Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Native Copper Deposit
+Obsidian Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Obsidian Deposit
+Placer Gold Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Placer Gold Deposit
+Rock Salt Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Rock Salt Deposit
+Salt Pan Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Salt Pan Deposit
+Saltpeter Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Saltpeter Deposit
+Shell Lime Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Shell Lime Deposit
+Turquoise Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Turquoise Deposit
+Vitriol Copperas Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Vitriol Copperas Deposit
+Volcanic Ash Pozzolana Deposit	Visible Resource Deposit	Functions / Material Functions / Primary Production / Primary Production Resource / Visible Resource Deposit / Volcanic Ash Pozzolana Deposit
+Primary Production Salt	Primary Production	Functions / Material Functions / Primary Production / Primary Production Salt
 Primary Production Stone	Primary Production	Functions / Material Functions / Primary Production / Primary Production Stone
+Primary Production Tar And Pitch	Primary Production	Functions / Material Functions / Primary Production / Primary Production Tar And Pitch
+Primary Production Waste	Primary Production	Functions / Material Functions / Primary Production / Primary Production Waste
 Salvagable Fabric	Material Functions	Functions / Material Functions / Salvagable Fabric
 String	Material Functions	Functions / Material Functions / String
 Tanning Agent	Material Functions	Functions / Material Functions / Tanning Agent
 Textile Commodity	Material Functions	Functions / Material Functions / Textile Commodity
 Garment Cloth	Textile Commodity	Functions / Material Functions / Textile Commodity / Garment Cloth
+Dyed Cloth	Garment Cloth	Functions / Material Functions / Textile Commodity / Garment Cloth / Dyed Cloth
+Fulled Cloth	Garment Cloth	Functions / Material Functions / Textile Commodity / Garment Cloth / Fulled Cloth
 Woven Cloth	Garment Cloth	Functions / Material Functions / Textile Commodity / Garment Cloth / Woven Cloth
 Prepared Textile Fibre	Textile Commodity	Functions / Material Functions / Textile Commodity / Prepared Textile Fibre
 Raw Textile Fibre	Textile Commodity	Functions / Material Functions / Textile Commodity / Raw Textile Fibre
 Spun Yarn	Textile Commodity	Functions / Material Functions / Textile Commodity / Spun Yarn
+Textile Dye Stock	Textile Commodity	Functions / Material Functions / Textile Commodity / Textile Dye Stock
 Writing Craft Stock	Material Functions	Functions / Material Functions / Writing Craft Stock
 Bookbinding Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Bookbinding Stock
 Ink Stock	Writing Craft Stock	Functions / Material Functions / Writing Craft Stock / Ink Stock
@@ -402,14 +593,24 @@ Medical Treatment	Functions	Functions / Medical Treatment
 Antidote	Medical Treatment	Functions / Medical Treatment / Antidote
 Antiseptic Dressing	Medical Treatment	Functions / Medical Treatment / Antiseptic Dressing
 Bandage	Medical Treatment	Functions / Medical Treatment / Bandage
+Bloodletting	Medical Treatment	Functions / Medical Treatment / Bloodletting
+Chemical Remedy	Medical Treatment	Functions / Medical Treatment / Chemical Remedy
+Cupping	Medical Treatment	Functions / Medical Treatment / Cupping
+Dental Treatment	Medical Treatment	Functions / Medical Treatment / Dental Treatment
+Diagnostic Prop	Medical Treatment	Functions / Medical Treatment / Diagnostic Prop
 Fumigation	Medical Treatment	Functions / Medical Treatment / Fumigation
 Herbal Remedy	Medical Treatment	Functions / Medical Treatment / Herbal Remedy
+Inoculation Prop	Medical Treatment	Functions / Medical Treatment / Inoculation Prop
 Mobility Aid	Medical Treatment	Functions / Medical Treatment / Mobility Aid
+Obstetric Aid	Medical Treatment	Functions / Medical Treatment / Obstetric Aid
 Prosthetic	Medical Treatment	Functions / Medical Treatment / Prosthetic
+Public Health	Medical Treatment	Functions / Medical Treatment / Public Health
+Quarantine	Medical Treatment	Functions / Medical Treatment / Quarantine
 Splint	Medical Treatment	Functions / Medical Treatment / Splint
 Styptic	Medical Treatment	Functions / Medical Treatment / Styptic
 Suture Kit	Medical Treatment	Functions / Medical Treatment / Suture Kit
 Tend Kit	Medical Treatment	Functions / Medical Treatment / Tend Kit
+Veterinary Treatment	Medical Treatment	Functions / Medical Treatment / Veterinary Treatment
 Wound Cleaning	Medical Treatment	Functions / Medical Treatment / Wound Cleaning
 Military Equipment	Functions	Functions / Military Equipment
 Crossbow Spanning Tools	Military Equipment	Functions / Military Equipment / Crossbow Spanning Tools
@@ -429,11 +630,17 @@ Military Weapons	Military Equipment	Functions / Military Equipment / Military We
 Musical Instruments	Functions	Functions / Musical Instruments
 Reflective	Functions	Functions / Reflective
 Repairing	Functions	Functions / Repairing
+Clockwork	Repairing	Functions / Repairing / Clockwork
 Composite Bow	Repairing	Functions / Repairing / Composite Bow
 Cordage	Repairing	Functions / Repairing / Cordage
+Firearm	Repairing	Functions / Repairing / Firearm
 Glass	Repairing	Functions / Repairing / Glass
 Lacquerware	Repairing	Functions / Repairing / Lacquerware
+Medical Instrument	Repairing	Functions / Repairing / Medical Instrument
+Optical Instrument	Repairing	Functions / Repairing / Optical Instrument
 Paper and Parchment	Repairing	Functions / Repairing / Paper and Parchment
+Printing Equipment	Repairing	Functions / Repairing / Printing Equipment
+Scientific Instrument	Repairing	Functions / Repairing / Scientific Instrument
 Separation	Functions	Functions / Separation
 Cutting	Separation	Functions / Separation / Cutting
 Filleting	Cutting	Functions / Separation / Cutting / Filleting
@@ -452,17 +659,6 @@ Scissors	Shearing	Functions / Separation / Shearing / Scissors
 Shears	Shearing	Functions / Separation / Shearing / Shears
 Sharpening	Functions	Functions / Sharpening
 Shiny	Functions	Functions / Shiny
-Trap Components	Functions	Functions / Trap Components
-Bear Trap Mechanism	Trap Components	Functions / Trap Components / Bear Trap Mechanism
-Explosive Trap Payload	Trap Components	Functions / Trap Components / Explosive Trap Payload
-Gas Trap Payload	Trap Components	Functions / Trap Components / Gas Trap Payload
-Liquid Trap Payload	Trap Components	Functions / Trap Components / Liquid Trap Payload
-Needle Trap Mechanism	Trap Components	Functions / Trap Components / Needle Trap Mechanism
-Openable Trap Trigger	Trap Components	Functions / Trap Components / Openable Trap Trigger
-Pressure Trap Mechanism	Trap Components	Functions / Trap Components / Pressure Trap Mechanism
-Signal Trap Trigger	Trap Components	Functions / Trap Components / Signal Trap Trigger
-Signal Trap Payload	Trap Components	Functions / Trap Components / Signal Trap Payload
-Tripwire Trigger	Trap Components	Functions / Trap Components / Tripwire Trigger
 Tools	Functions	Functions / Tools
 Access Equipment	Tools	Functions / Tools / Access Equipment
 Ladder	Access Equipment	Functions / Tools / Access Equipment / Ladder
@@ -494,6 +690,7 @@ Winnowing Basket	Agricultural Tools	Functions / Tools / Agricultural Tools / Win
 Winnowing Fork	Agricultural Tools	Functions / Tools / Agricultural Tools / Winnowing Fork
 Winnowing Tray	Agricultural Tools	Functions / Tools / Agricultural Tools / Winnowing Tray
 Yoke	Agricultural Tools	Functions / Tools / Agricultural Tools / Yoke
+Alkali Tool	Tools	Functions / Tools / Alkali Tool
 Apothecary Tools	Tools	Functions / Tools / Apothecary Tools
 Apothecary Mortar	Apothecary Tools	Functions / Tools / Apothecary Tools / Apothecary Mortar
 Apothecary Pestle	Apothecary Tools	Functions / Tools / Apothecary Tools / Apothecary Pestle
@@ -584,6 +781,9 @@ Pen Wiper	Calligraphy Tools	Functions / Tools / Calligraphy Tools / Pen Wiper
 Qalam Cutter	Calligraphy Tools	Functions / Tools / Calligraphy Tools / Qalam Cutter
 Quill Curing Sand	Calligraphy Tools	Functions / Tools / Calligraphy Tools / Quill Curing Sand
 Ruling Board	Calligraphy Tools	Functions / Tools / Calligraphy Tools / Ruling Board
+Candlemaking Tools	Tools	Functions / Tools / Candlemaking Tools
+Candle Mould	Candlemaking Tools	Functions / Tools / Candlemaking Tools / Candle Mould
+Lamp Mould	Candlemaking Tools	Functions / Tools / Candlemaking Tools / Lamp Mould
 Charcoal Burning Tool	Tools	Functions / Tools / Charcoal Burning Tool
 Cleaning	Tools	Functions / Tools / Cleaning
 Broom	Cleaning	Functions / Tools / Cleaning / Broom
@@ -769,10 +969,6 @@ Engraver's Burin	Engraving Tools	Functions / Tools / Engraving Tools / Engraver'
 Etcher's Needle	Engraving Tools	Functions / Tools / Engraving Tools / Etcher's Needle
 Etching Ground Dauber	Engraving Tools	Functions / Tools / Engraving Tools / Etching Ground Dauber
 Plate Warming Brazier	Engraving Tools	Functions / Tools / Engraving Tools / Plate Warming Brazier
-Firearm Tools	Tools	Functions / Tools / Firearm Tools
-Musket Cleaning Rod	Firearm Tools	Functions / Tools / Firearm Tools / Musket Cleaning Rod
-Musket Ramrod	Firearm Tools	Functions / Tools / Firearm Tools / Musket Ramrod
-Musket Unjamming Tool	Firearm Tools	Functions / Tools / Firearm Tools / Musket Unjamming Tool
 Fastening Tools	Tools	Functions / Tools / Fastening Tools
 Rivet Gun	Fastening Tools	Functions / Tools / Fastening Tools / Rivet Gun
 Riveter	Fastening Tools	Functions / Tools / Fastening Tools / Riveter
@@ -784,6 +980,10 @@ Wrench	Fastening Tools	Functions / Tools / Fastening Tools / Wrench
 Torque Wrench	Wrench	Functions / Tools / Fastening Tools / Wrench / Torque Wrench
 Finishing Tools	Tools	Functions / Tools / Finishing Tools
 Trowel	Finishing Tools	Functions / Tools / Finishing Tools / Trowel
+Firearm Tools	Tools	Functions / Tools / Firearm Tools
+Musket Cleaning Rod	Firearm Tools	Functions / Tools / Firearm Tools / Musket Cleaning Rod
+Musket Ramrod	Firearm Tools	Functions / Tools / Firearm Tools / Musket Ramrod
+Musket Unjamming Tool	Firearm Tools	Functions / Tools / Firearm Tools / Musket Unjamming Tool
 Fishing Tools	Tools	Functions / Tools / Fishing Tools
 Casting Net	Fishing Tools	Functions / Tools / Fishing Tools / Casting Net
 Drag Net	Fishing Tools	Functions / Tools / Fishing Tools / Drag Net
@@ -908,9 +1108,9 @@ Locksmithing Tools	Tools	Functions / Tools / Locksmithing Tools
 Impressioning File	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Impressioning File
 Key Gauge	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Key Gauge
 Lockpick	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Lockpick
-Locksmithing Jig	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Locksmithing Jig
 Locksmith's File	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Locksmith's File
 Locksmith's Tweezers	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Locksmith's Tweezers
+Locksmithing Jig	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Locksmithing Jig
 Safe Dial Manipulator	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Safe Dial Manipulator
 Torsion Wrench	Locksmithing Tools	Functions / Tools / Locksmithing Tools / Torsion Wrench
 Masonry Tool	Tools	Functions / Tools / Masonry Tool
@@ -934,6 +1134,9 @@ Tendon Hammer	Medical Tools	Functions / Tools / Medical Tools / Tendon Hammer
 Metalworking Tools	Tools	Functions / Tools / Metalworking Tools
 Anvil	Metalworking Tools	Functions / Tools / Metalworking Tools / Anvil
 Bellows	Metalworking Tools	Functions / Tools / Metalworking Tools / Bellows
+Bronze Burnisher	Metalworking Tools	Functions / Tools / Metalworking Tools / Bronze Burnisher
+Casting Mould	Metalworking Tools	Functions / Tools / Metalworking Tools / Casting Mould
+Vessel Casting Mould	Casting Mould	Functions / Tools / Metalworking Tools / Casting Mould / Vessel Casting Mould
 Clockmaking Tools	Metalworking Tools	Functions / Tools / Metalworking Tools / Clockmaking Tools
 Clockmaker's Broach	Clockmaking Tools	Functions / Tools / Metalworking Tools / Clockmaking Tools / Clockmaker's Broach
 Clockmaker's Turns	Clockmaking Tools	Functions / Tools / Metalworking Tools / Clockmaking Tools / Clockmaker's Turns
@@ -953,6 +1156,7 @@ Hand Mill	Milling Tools	Functions / Tools / Milling Tools / Hand Mill
 Millstone	Milling Tools	Functions / Tools / Milling Tools / Millstone
 Rotary Quern	Milling Tools	Functions / Tools / Milling Tools / Rotary Quern
 Saddle Quern	Milling Tools	Functions / Tools / Milling Tools / Saddle Quern
+Mining Tool	Tools	Functions / Tools / Mining Tool
 Movable Type Printing Tools	Tools	Functions / Tools / Movable Type Printing Tools
 Composing Stick	Movable Type Printing Tools	Functions / Tools / Movable Type Printing Tools / Composing Stick
 Frisket Frame	Movable Type Printing Tools	Functions / Tools / Movable Type Printing Tools / Frisket Frame
@@ -993,6 +1197,8 @@ Parchment Scraping Knife	Parchmentmaking Tools	Functions / Tools / Parchmentmaki
 Parchment Stretching Frame	Parchmentmaking Tools	Functions / Tools / Parchmentmaking Tools / Parchment Stretching Frame
 Parchment Whitening Chalk	Parchmentmaking Tools	Functions / Tools / Parchmentmaking Tools / Parchment Whitening Chalk
 Pounce Bag	Parchmentmaking Tools	Functions / Tools / Parchmentmaking Tools / Pounce Bag
+Peat Cutting Tool	Tools	Functions / Tools / Peat Cutting Tool
+Pigment Processing Tool	Tools	Functions / Tools / Pigment Processing Tool
 Pottery Tools	Tools	Functions / Tools / Pottery Tools
 Clay Knife	Pottery Tools	Functions / Tools / Pottery Tools / Clay Knife
 Clay Stamp	Pottery Tools	Functions / Tools / Pottery Tools / Clay Stamp
@@ -1010,7 +1216,18 @@ Slab Roller	Pottery Tools	Functions / Tools / Pottery Tools / Slab Roller
 Slip Trailer	Pottery Tools	Functions / Tools / Pottery Tools / Slip Trailer
 Wire Cutter	Pottery Tools	Functions / Tools / Pottery Tools / Wire Cutter
 Primary Production Tools	Tools	Functions / Tools / Primary Production Tools
+Ash Hopper	Primary Production Tools	Functions / Tools / Primary Production Tools / Ash Hopper
+Bloomery Furnace	Primary Production Tools	Functions / Tools / Primary Production Tools / Bloomery Furnace
+Evaporating Pan	Primary Production Tools	Functions / Tools / Primary Production Tools / Evaporating Pan
+Leaching Tub	Primary Production Tools	Functions / Tools / Primary Production Tools / Leaching Tub
 Lime Kiln	Primary Production Tools	Functions / Tools / Primary Production Tools / Lime Kiln
+Ore Washing Trough	Primary Production Tools	Functions / Tools / Primary Production Tools / Ore Washing Trough
+Quarry Wedges	Primary Production Tools	Functions / Tools / Primary Production Tools / Quarry Wedges
+Solar Salt Pan	Primary Production Tools	Functions / Tools / Primary Production Tools / Solar Salt Pan
+Tatara Furnace	Primary Production Tools	Functions / Tools / Primary Production Tools / Tatara Furnace
+Prospecting Tool	Tools	Functions / Tools / Prospecting Tool
+Quarrying Tool	Tools	Functions / Tools / Quarrying Tool
+Saltworking Tool	Tools	Functions / Tools / Saltworking Tool
 Scientific Tools	Tools	Functions / Tools / Scientific Tools
 Laboratory Equipment	Scientific Tools	Functions / Tools / Scientific Tools / Laboratory Equipment
 Beaker Clamp	Laboratory Equipment	Functions / Tools / Scientific Tools / Laboratory Equipment / Beaker Clamp
@@ -1182,6 +1399,7 @@ Tap Rod	Smelting Tools	Functions / Tools / Smelting Tools / Tap Rod
 Stoneworking Tools	Tools	Functions / Tools / Stoneworking Tools
 Bush Hammer	Stoneworking Tools	Functions / Tools / Stoneworking Tools / Bush Hammer
 Plug and Feathers	Stoneworking Tools	Functions / Tools / Stoneworking Tools / Plug and Feathers
+Polishing Stone	Stoneworking Tools	Functions / Tools / Stoneworking Tools / Polishing Stone
 Stone Chisel	Stoneworking Tools	Functions / Tools / Stoneworking Tools / Stone Chisel
 Stone Mallet	Stoneworking Tools	Functions / Tools / Stoneworking Tools / Stone Mallet
 Striking Tools	Tools	Functions / Tools / Striking Tools
@@ -1210,6 +1428,7 @@ Canoe Suture Needle	Surgical Suture Needle	Functions / Tools / Surgical Tools / 
 Ski Suture Needle	Surgical Suture Needle	Functions / Tools / Surgical Tools / Surgical Suture Needle / Ski Suture Needle
 Towel Clamp	Surgical Tools	Functions / Tools / Surgical Tools / Towel Clamp
 Trocar	Surgical Tools	Functions / Tools / Surgical Tools / Trocar
+Surveying Tool	Tools	Functions / Tools / Surveying Tool
 Tanning Tools	Tools	Functions / Tools / Tanning Tools
 Brain Tanning Bucket	Tanning Tools	Functions / Tools / Tanning Tools / Brain Tanning Bucket
 Hide Scraper	Tanning Tools	Functions / Tools / Tanning Tools / Hide Scraper
@@ -1217,6 +1436,7 @@ Leather Dehairing Knife	Tanning Tools	Functions / Tools / Tanning Tools / Leathe
 Tanning Beam	Tanning Tools	Functions / Tools / Tanning Tools / Tanning Beam
 Tanning Paddle	Tanning Tools	Functions / Tools / Tanning Tools / Tanning Paddle
 Tanning Rack	Tanning Tools	Functions / Tools / Tanning Tools / Tanning Rack
+Tar Burning Tool	Tools	Functions / Tools / Tar Burning Tool
 Tattooing Tools	Tools	Functions / Tools / Tattooing Tools
 Tattooing Needle	Tattooing Tools	Functions / Tools / Tattooing Tools / Tattooing Needle
 Textilecraft Tools	Tools	Functions / Tools / Textilecraft Tools
@@ -1243,6 +1463,12 @@ Madder Grinding Quern	Dyeing Tools	Functions / Tools / Textilecraft Tools / Dyei
 Mordant Cauldron	Dyeing Tools	Functions / Tools / Textilecraft Tools / Dyeing Tools / Mordant Cauldron
 Skein Rack	Dyeing Tools	Functions / Tools / Textilecraft Tools / Dyeing Tools / Skein Rack
 Fabric Pin	Textilecraft Tools	Functions / Tools / Textilecraft Tools / Fabric Pin
+Flax Processing Tools	Textilecraft Tools	Functions / Tools / Textilecraft Tools / Flax Processing Tools
+Fibre Comb	Flax Processing Tools	Functions / Tools / Textilecraft Tools / Flax Processing Tools / Fibre Comb
+Flax Beater	Flax Processing Tools	Functions / Tools / Textilecraft Tools / Flax Processing Tools / Flax Beater
+Flax Break	Flax Processing Tools	Functions / Tools / Textilecraft Tools / Flax Processing Tools / Flax Break
+Hackle	Flax Processing Tools	Functions / Tools / Textilecraft Tools / Flax Processing Tools / Hackle
+Retting Trough	Flax Processing Tools	Functions / Tools / Textilecraft Tools / Flax Processing Tools / Retting Trough
 Fulling Tools	Textilecraft Tools	Functions / Tools / Textilecraft Tools / Fulling Tools
 Cloth Tenter Frame	Fulling Tools	Functions / Tools / Textilecraft Tools / Fulling Tools / Cloth Tenter Frame
 Fuller's Mallet	Fulling Tools	Functions / Tools / Textilecraft Tools / Fulling Tools / Fuller's Mallet
@@ -1287,8 +1513,8 @@ Lease Rod	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools /
 Loom Weight	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools / Loom Weight
 Shuttle	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools / Shuttle
 Tablet Weaving Cards	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools / Tablet Weaving Cards
-Warping Board	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools / Warping Board
 Warp-Weighted Loom	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools / Warp-Weighted Loom
+Warping Board	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools / Warping Board
 Weaver's Comb	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools / Weaver's Comb
 Weaver's Sword	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools / Weaver's Sword
 Weaving Reed	Weaving Tools	Functions / Tools / Textilecraft Tools / Weaving Tools / Weaving Reed
@@ -1369,6 +1595,17 @@ Wood Auger	Woodcrafting Tools	Functions / Tools / Woodcrafting Tools / Wood Auge
 Wood Chisel	Woodcrafting Tools	Functions / Tools / Woodcrafting Tools / Wood Chisel
 Wood Clamp	Woodcrafting Tools	Functions / Tools / Woodcrafting Tools / Wood Clamp
 Wood File	Woodcrafting Tools	Functions / Tools / Woodcrafting Tools / Wood File
+Trap Components	Functions	Functions / Trap Components
+Bear Trap Mechanism	Trap Components	Functions / Trap Components / Bear Trap Mechanism
+Explosive Trap Payload	Trap Components	Functions / Trap Components / Explosive Trap Payload
+Gas Trap Payload	Trap Components	Functions / Trap Components / Gas Trap Payload
+Liquid Trap Payload	Trap Components	Functions / Trap Components / Liquid Trap Payload
+Needle Trap Mechanism	Trap Components	Functions / Trap Components / Needle Trap Mechanism
+Openable Trap Trigger	Trap Components	Functions / Trap Components / Openable Trap Trigger
+Pressure Trap Mechanism	Trap Components	Functions / Trap Components / Pressure Trap Mechanism
+Signal Trap Payload	Trap Components	Functions / Trap Components / Signal Trap Payload
+Signal Trap Trigger	Trap Components	Functions / Trap Components / Signal Trap Trigger
+Tripwire Trigger	Trap Components	Functions / Trap Components / Tripwire Trigger
 Worn Items	Functions	Functions / Worn Items
 Belts	Worn Items	Functions / Worn Items / Belts
 Bodywear	Worn Items	Functions / Worn Items / Bodywear
@@ -1540,13 +1777,16 @@ Coffee	Luxury Drinks	Market / Luxury Drinks / Coffee
 Tea	Luxury Drinks	Market / Luxury Drinks / Tea
 Medicine	Market	Market / Medicine
 Apothecary Goods	Medicine	Market / Medicine / Apothecary Goods
+Chemical Medicine	Medicine	Market / Medicine / Chemical Medicine
 Herbal Medicine	Medicine	Market / Medicine / Herbal Medicine
 High-Quality Medicine	Medicine	Market / Medicine / High-Quality Medicine
 Prosthetics and Mobility	Medicine	Market / Medicine / Prosthetics and Mobility
+Public Health	Medicine	Market / Medicine / Public Health
 Simple Medicine	Medicine	Market / Medicine / Simple Medicine
 Standard Medicine	Medicine	Market / Medicine / Standard Medicine
 Surgical Supplies	Medicine	Market / Medicine / Surgical Supplies
 Treatment Supplies	Medicine	Market / Medicine / Treatment Supplies
+Veterinary Medicine	Medicine	Market / Medicine / Veterinary Medicine
 Military Goods	Market	Market / Military Goods
 Ammunition	Military Goods	Market / Military Goods / Ammunition
 Arrows	Ammunition	Market / Military Goods / Ammunition / Arrows
@@ -1618,6 +1858,7 @@ Ritual Supplies	Religious Goods	Market / Religious Goods / Ritual Supplies
 Temple Offerings	Religious Goods	Market / Religious Goods / Temple Offerings
 Repair Supplies	Market	Market / Repair Supplies
 General Repair Supplies	Repair Supplies	Market / Repair Supplies / General Repair Supplies
+Precision Repair Supplies	Repair Supplies	Market / Repair Supplies / Precision Repair Supplies
 Specialist Repair Supplies	Repair Supplies	Market / Repair Supplies / Specialist Repair Supplies
 Weapon and Armour Repair Supplies	Repair Supplies	Market / Repair Supplies / Weapon and Armour Repair Supplies
 Transportation	Market	Market / Transportation
@@ -1665,6 +1906,8 @@ Manure Commodity	Pastoral Product	Materials / Animal Product / Pastoral Product 
 Manure Product	Pastoral Product	Materials / Animal Product / Pastoral Product / Manure Product
 Raw Milk	Pastoral Product	Materials / Animal Product / Pastoral Product / Raw Milk
 Raw Wool	Pastoral Product	Materials / Animal Product / Pastoral Product / Raw Wool
+Shell	Animal Product	Materials / Animal Product / Shell
+Tortoiseshell	Animal Product	Materials / Animal Product / Tortoiseshell
 Elastomer	Materials	Materials / Elastomer
 Elemental Materials	Materials	Materials / Elemental Materials
 Food Products	Materials	Materials / Food Products
@@ -1766,17 +2009,21 @@ Water	Liquids	Materials / Liquids / Water
 Water Soluble	Liquids	Materials / Liquids / Water Soluble
 Manufactured Materials	Materials	Materials / Manufactured Materials
 Ceramic	Manufactured Materials	Materials / Manufactured Materials / Ceramic
+Faience	Ceramic	Materials / Manufactured Materials / Ceramic / Faience
 Fabric	Manufactured Materials	Materials / Manufactured Materials / Fabric
 Animal Fiber Fabric	Fabric	Materials / Manufactured Materials / Fabric / Animal Fiber Fabric
 Blended Fiber Fabric	Fabric	Materials / Manufactured Materials / Fabric / Blended Fiber Fabric
 Natural Fiber Fabric	Fabric	Materials / Manufactured Materials / Fabric / Natural Fiber Fabric
 Synthetic Fiber Fabric	Fabric	Materials / Manufactured Materials / Fabric / Synthetic Fiber Fabric
 Glass	Manufactured Materials	Materials / Manufactured Materials / Glass
+Enamel	Glass	Materials / Manufactured Materials / Glass / Enamel
 Manufactured Metal	Manufactured Materials	Materials / Manufactured Materials / Manufactured Metal
 Bronze Age	Manufactured Metal	Materials / Manufactured Materials / Manufactured Metal / Bronze Age
 Cast Metal	Manufactured Metal	Materials / Manufactured Materials / Manufactured Metal / Cast Metal
 Forged Metal	Manufactured Metal	Materials / Manufactured Materials / Manufactured Metal / Forged Metal
+Gilded Metal	Manufactured Metal	Materials / Manufactured Materials / Manufactured Metal / Gilded Metal
 Industrial Age	Manufactured Metal	Materials / Manufactured Materials / Manufactured Metal / Industrial Age
+Inlay Material	Manufactured Metal	Materials / Manufactured Materials / Manufactured Metal / Inlay Material
 Iron Age	Manufactured Metal	Materials / Manufactured Materials / Manufactured Metal / Iron Age
 Medieval Age	Manufactured Metal	Materials / Manufactured Materials / Manufactured Metal / Medieval Age
 Modern Age	Manufactured Metal	Materials / Manufactured Materials / Manufactured Metal / Modern Age
@@ -1786,6 +2033,7 @@ Paper Product	Manufactured Materials	Materials / Manufactured Materials / Paper 
 Plastic	Manufactured Materials	Materials / Manufactured Materials / Plastic
 Natural Materials	Materials	Materials / Natural Materials
 Agricultural Crop	Natural Materials	Materials / Natural Materials / Agricultural Crop
+Agriculture Seedable	Agricultural Crop	Materials / Natural Materials / Agricultural Crop / Agriculture Seedable
 Fiber Crop	Agricultural Crop	Materials / Natural Materials / Agricultural Crop / Fiber Crop
 Food Crop	Agricultural Crop	Materials / Natural Materials / Agricultural Crop / Food Crop
 Oil Crop	Agricultural Crop	Materials / Natural Materials / Agricultural Crop / Oil Crop
@@ -1871,6 +2119,10 @@ Tungsten Ore	Metal Ore	Materials / Natural Materials / Stone / Metal Ore / Tungs
 Vanadium Ore	Metal Ore	Materials / Natural Materials / Stone / Metal Ore / Vanadium Ore
 Zinc Ore	Metal Ore	Materials / Natural Materials / Stone / Metal Ore / Zinc Ore
 Vegetation	Natural Materials	Materials / Natural Materials / Vegetation
+Flower	Vegetation	Materials / Natural Materials / Vegetation / Flower
+Dried Flower	Flower	Materials / Natural Materials / Vegetation / Flower / Dried Flower
+Leaf	Vegetation	Materials / Natural Materials / Vegetation / Leaf
+Rush	Vegetation	Materials / Natural Materials / Vegetation / Rush
 Wood	Natural Materials	Materials / Natural Materials / Wood
 Hardwood	Wood	Materials / Natural Materials / Wood / Hardwood
 Manufactured Wood	Wood	Materials / Natural Materials / Wood / Manufactured Wood
@@ -2246,6 +2498,9 @@ Natural	Urban	Terrain / Human Influenced / Urban / Natural
 Private	Urban	Terrain / Human Influenced / Urban / Private
 Public	Urban	Terrain / Human Influenced / Urban / Public
 Residential	Urban	Terrain / Human Influenced / Urban / Residential
+Vehicle	Human Influenced	Terrain / Human Influenced / Vehicle
+Ship	Vehicle	Terrain / Human Influenced / Vehicle / Ship
+Spaceship	Vehicle	Terrain / Human Influenced / Vehicle / Spaceship
 Resource	Terrain	Terrain / Resource
 Aquatic Resource	Resource	Terrain / Resource / Aquatic Resource
 Coral Growth	Aquatic Resource	Terrain / Resource / Aquatic Resource / Coral Growth
@@ -2268,34 +2523,23 @@ Salt Deposit	Mineral Resource	Terrain / Resource / Mineral Resource / Salt Depos
 Sand Deposit	Mineral Resource	Terrain / Resource / Mineral Resource / Sand Deposit
 Stone Deposit	Mineral Resource	Terrain / Resource / Mineral Resource / Stone Deposit
 Sulphur Deposit	Mineral Resource	Terrain / Resource / Mineral Resource / Sulphur Deposit
+Supernatural	Terrain	Terrain / Supernatural
+Astral	Supernatural	Terrain / Supernatural / Astral
+Celestial	Supernatural	Terrain / Supernatural / Celestial
+Dream	Supernatural	Terrain / Supernatural / Dream
+Fae	Supernatural	Terrain / Supernatural / Fae
+Infernal	Supernatural	Terrain / Supernatural / Infernal
+Shadow	Supernatural	Terrain / Supernatural / Shadow
 Vacuum	Terrain	Terrain / Vacuum
 Volcanic	Terrain	Terrain / Volcanic
 Wetland	Terrain	Terrain / Wetland
 Wild	Terrain	Terrain / Wild
 Aquatic	Wild	Terrain / Wild / Aquatic
 Extraterrestrial	Wild	Terrain / Wild / Extraterrestrial
+Artificial	Extraterrestrial	Terrain / Wild / Extraterrestrial / Artificial
 Lunar	Extraterrestrial	Terrain / Wild / Extraterrestrial / Lunar
+Planetary	Extraterrestrial	Terrain / Wild / Extraterrestrial / Planetary
 Space	Extraterrestrial	Terrain / Wild / Extraterrestrial / Space
 Littoral	Wild	Terrain / Wild / Littoral
 Riparian	Wild	Terrain / Wild / Riparian
 Terrestrial	Wild	Terrain / Wild / Terrestrial
-Chemical Remedy	Medical Treatment	Functions / Medical Treatment / Chemical Remedy
-Bloodletting	Medical Treatment	Functions / Medical Treatment / Bloodletting
-Cupping	Medical Treatment	Functions / Medical Treatment / Cupping
-Dental Treatment	Medical Treatment	Functions / Medical Treatment / Dental Treatment
-Diagnostic Prop	Medical Treatment	Functions / Medical Treatment / Diagnostic Prop
-Inoculation Prop	Medical Treatment	Functions / Medical Treatment / Inoculation Prop
-Obstetric Aid	Medical Treatment	Functions / Medical Treatment / Obstetric Aid
-Public Health	Medical Treatment	Functions / Medical Treatment / Public Health
-Quarantine	Medical Treatment	Functions / Medical Treatment / Quarantine
-Veterinary Treatment	Medical Treatment	Functions / Medical Treatment / Veterinary Treatment
-Clockwork	Repairing	Functions / Repairing / Clockwork
-Firearm	Repairing	Functions / Repairing / Firearm
-Medical Instrument	Repairing	Functions / Repairing / Medical Instrument
-Optical Instrument	Repairing	Functions / Repairing / Optical Instrument
-Printing Equipment	Repairing	Functions / Repairing / Printing Equipment
-Scientific Instrument	Repairing	Functions / Repairing / Scientific Instrument
-Chemical Medicine	Medicine	Market / Medicine / Chemical Medicine
-Public Health	Medicine	Market / Medicine / Public Health
-Veterinary Medicine	Medicine	Market / Medicine / Veterinary Medicine
-Precision Repair Supplies	Repair Supplies	Market / Repair Supplies / Precision Repair Supplies

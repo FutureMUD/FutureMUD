@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param([string]$EvidenceRoot,
-	[ValidateSet('prepared', 'replay', 'settings', 'stock-progressions', 'stock-supplies', 'stock-anatomy', 'stock-catalogue', 'stock-catalogue-boot', 'catalogue-fixture-boot', 'base-fixture-capture', 'base-fixture-restore', 'base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore', 'focus-fixture-restore', 's3-runtime', 'snapshot-refresh', 'stock-progression-fixtures', 'installed', 'installed-sql', 'sense', 'sense-control')]
+	[ValidateSet('core-foundations', 'prepared', 'replay', 'settings', 'stock-progressions', 'stock-supplies', 'stock-anatomy', 'stock-catalogue', 'stock-catalogue-boot', 'catalogue-fixture-boot', 'base-fixture-capture', 'base-fixture-restore', 'base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore', 'focus-fixture-restore', 's3-runtime', 'snapshot-refresh', 'stock-progression-fixtures', 'installed', 'installed-sql', 'sense', 'sense-control')]
 	[string]$Mode = 'prepared',
 	[string]$BaseFixture,
 	[string]$BaseFixtureSha256,
@@ -196,13 +196,19 @@ New-Item -ItemType Directory -Path $evidenceDirectory -Force | Out-Null
 
 function Write-SourceEvidence {
 	param([string]$Name)
-	$sourcePaths = @(& git -c core.quotepath=false -C $workspaceRoot ls-files --cached --others --exclude-standard)
+	$sourcePaths = @(& git -c core.quotepath=false -C $workspaceRoot ls-files --cached --others --exclude-standard --deduplicate)
 	if ($LASTEXITCODE -ne 0) { throw 'Source inventory failed.' }
+    $deletedPaths = @(& git -c core.quotepath=false -C $workspaceRoot ls-files --deleted)
+    if ($LASTEXITCODE -ne 0) { throw 'Deleted source inventory failed.' }
+
 	$sourcePaths = @($sourcePaths | Where-Object { $Mode -ne 'snapshot-refresh' -or $_ -notin @('DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.sql', 'DatabaseSeeder/Assets/Database/BlankDatabaseSnapshot.manifest.json') })
-	$records = @($sourcePaths | Where-Object { $_ -match '\.(cs|csproj|props|targets|sln|json|ps1|md|sql|sql\.gz)$' -or $_ -like 'tests/ArmageddonPreparedSeederNativeHarness/*.py' -or
+	$records = @($sourcePaths | Where-Object { $_ -match '\.(cs|csproj|props|targets|sln|json|tsv|ps1|md|sql|sql\.gz)$' -or $_ -like 'tests/ArmageddonPreparedSeederNativeHarness/*.py' -or
 		$_ -in @('tests/ArmageddonPreparedSeederNativeHarness/PreparedReplayBootSmoke.py', 'tests/ArmageddonPreparedSeederNativeHarness/PreparedInstalledMagicSmoke.py', 'tests/ArmageddonPreparedSeederNativeHarness/PreparedCatalogueBootSmoke.py') } | Sort-Object -Unique | ForEach-Object {
 		$sourcePath = Join-Path $workspaceRoot $_
-		if (-not (Test-Path -LiteralPath $sourcePath)) { throw "Source missing: $_" }
+		if (-not (Test-Path -LiteralPath $sourcePath)) {
+            if ($_ -notin $deletedPaths) { throw "Source missing: $_" }
+            @{ path = $_; deleted = $true }; return
+        }
 		@{ path = $_; sha256 = (Get-FileHash -LiteralPath $sourcePath -Algorithm SHA256).Hash }
 	})
 	$manifest = $records | ConvertTo-Json -Depth 4 -Compress

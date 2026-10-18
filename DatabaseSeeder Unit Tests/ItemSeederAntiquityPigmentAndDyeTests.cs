@@ -61,7 +61,7 @@ public class ItemSeederAntiquityPigmentAndDyeTests
 	[TestMethod]
 	public void UsefulTags_DefinePigmentAndDyeCommodityTags()
 	{
-		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
 
 		AssertContains(tagSource, "AddTag(context, \"Textile Dye Stock\", \"Textile Commodity\")");
 		AssertContains(tagSource, "AddTag(context, \"Lake Pigment\", \"Paint Pigment\")");

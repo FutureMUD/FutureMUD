@@ -171,6 +171,44 @@ public class CoreDataSeederTerrainTests
     }
 
     [TestMethod]
+    public void SewerAndRuins_UseSourceProportionsAndRestrictedNativeForageWithoutImplicitHazards()
+    {
+        using var context = BuildContext();
+        SeedTerrainFoundations(context);
+        var sewer = context.Terrains.Single(x => x.Name == "Sewer");
+        var ruins = context.Terrains.Single(x => x.Name == "Ruins");
+        var cavern = context.Terrains.Single(x => x.Name == "Cavern");
+        Assert.AreEqual("cave", sewer.TerrainBehaviourMode);
+        Assert.AreEqual("outdoors", ruins.TerrainBehaviourMode);
+        Assert.AreEqual(2 * cavern.StaminaCost, sewer.StaminaCost);
+        Assert.AreEqual(cavern.StaminaCost, ruins.StaminaCost);
+        Assert.AreEqual(cavern.MovementRate, sewer.MovementRate);
+        Assert.AreEqual(cavern.MovementRate, ruins.MovementRate);
+        Assert.AreEqual((int)MudSharp.Construction.RoomOutdoorsType.IndoorsNoLight, sewer.DefaultRoomOutdoorsType);
+        foreach (var terrain in new[] { sewer, ruins })
+        {
+            Assert.IsTrue(terrain.CanHaveTracks);
+            Assert.AreEqual("Gas", terrain.AtmosphereType);
+            Assert.AreEqual(1.0, terrain.InfectionMultiplier);
+            Assert.AreEqual((int)MudSharp.Health.InfectionType.Simple, terrain.InfectionType);
+        }
+        Assert.AreEqual(0, context.ForagableProfilesMaximumYields.Count(x => x.ForagableProfileId == sewer.ForagableProfileId));
+        var stock = context.ForagableProfilesMaximumYields.Single(x => x.ForagableProfileId == ruins.ForagableProfileId);
+        Assert.AreEqual("rocks", stock.ForageType);
+        Assert.AreEqual(95.0, stock.Yield);
+        var forage = context.Foragables.Single(x => x.Name == "Ruins Loose Stone");
+        Assert.AreEqual((int)MudSharp.RPG.Checks.Difficulty.Easy, forage.ForageDifficulty);
+        Assert.AreEqual((int)MudSharp.RPG.Checks.Outcome.MinorPass, forage.MinimumOutcome);
+        Assert.IsTrue(context.Materials.Any(x => x.Id == forage.CommodityMaterialId && x.Name == "granite"));
+        var ids = (sewer.Id, ruins.Id, forage.Id);
+        sewer.StaminaCost = 17;
+        CoreDataSeeder.SeedTerrainFoundationsForTesting(context);
+        Assert.AreEqual(ids, (sewer.Id, ruins.Id, context.Foragables.Single(x => x.Name == "Ruins Loose Stone").Id));
+        Assert.AreEqual(17.0, sewer.StaminaCost, "Existing terrain edits must remain builder-owned.");
+        Assert.AreEqual(1, context.ForagableProfilesForagables.Count(x => x.ForagableProfileId == ruins.ForagableProfileId));
+    }
+
+    [TestMethod]
     public void SeedTerrainFoundationsForTesting_SeedsTerrainTagsAndCatalogue()
     {
         using FuturemudDatabaseContext context = BuildContext();
@@ -549,10 +587,10 @@ public class CoreDataSeederTerrainTests
 
             Assert.AreEqual($"{terrainName} Stock Forage", profile.Name);
             Assert.AreEqual((int)RevisionStatus.Current, editableItem.RevisionStatus);
-            Assert.AreEqual(0, context.ForagableProfilesForagables.Count(x =>
+            Assert.AreEqual(terrainName == "Ruins" ? 1 : 0, context.ForagableProfilesForagables.Count(x =>
                 x.ForagableProfileId == profile.Id &&
                 x.ForagableProfileRevisionNumber == profile.RevisionNumber));
-            Assert.IsTrue(maximums.Any(), $"Expected terrain {terrainName} to have stock forage yields.");
+            Assert.AreEqual(terrainName != "Sewer", maximums.Any(), $"Unexpected stock forage availability for {terrainName}.");
             Assert.AreEqual(maximums.Count, hourly.Count);
             Assert.IsTrue(maximums.All(x => x.Yield > 0.0));
             Assert.IsTrue(hourly.All(x => x.Yield > 0.0));

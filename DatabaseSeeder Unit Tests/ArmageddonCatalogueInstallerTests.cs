@@ -98,6 +98,28 @@ public class ArmageddonCatalogueInstallerTests
 		StringAssert.Contains(disease.SeedBaseline!, nameof(InfectionType));
 	}
 
+    [TestMethod]
+    public void SpecialStock_HumanOnlyHeadBackFallbackRetainsIdAfterRenameAndOptionalAnimalHead()
+    {
+        using var db = Fixture();
+        db.BodypartShapes.RemoveRange(db.BodypartShapes.Where(x => x.Name == "head"));
+        var head = new BodypartShape { Name = "Head Back" };
+        db.BodypartShapes.Add(head); db.SaveChanges();
+        var factory = ArmageddonInstallationSettingsTests.Factory(db);
+        Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonCatalogueSupplies.Install(factory).Status);
+        var result = ArmageddonCatalogueSpecials.Install(factory);
+        Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, string.Join("; ", result.Messages));
+        db.ChangeTracker.Clear();
+        Assert.AreEqual(head.Id, ArmageddonCatalogueSpecials.ResolveHeadShape(db));
+        db.BodypartShapes.Single(x => x.Id == head.Id).Name = "Builder retained attachment";
+        db.BodypartShapes.Add(new BodypartShape { Name = "Head" }); db.SaveChanges();
+        Assert.AreEqual(head.Id, ArmageddonCatalogueSpecials.ResolveHeadShape(db));
+        Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonCatalogueSpecials.Install(factory).Status);
+        db.ChangeTracker.Clear();
+        var wearId = db.SeederManagedRecords.Single(x => x.StableKey == "arm.item.hovering_light.wear_profile").LogicalId;
+        Assert.AreEqual(head.Id, (long)XElement.Parse(db.WearProfiles.Single(x => x.Id == wearId).WearlocProfiles).Element("Shape")!.Attribute("ShapeId")!);
+    }
+
 	internal static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false, bool enableStockForNewInstall = false)
 	{
 		var db = ArmageddonCatalogueCreatureTests.Fixture(mode, classes, enableStockForNewInstall);

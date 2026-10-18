@@ -137,7 +137,7 @@ public class ItemSeederAntiquityWritingCraftingTests
 	public void AntiquityWritingCrafts_AddUpstreamCommodityAndTagSurface()
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityWriting.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
 		var tagHierarchy = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 
 		foreach (var expected in ExpectedWritingStockTags())

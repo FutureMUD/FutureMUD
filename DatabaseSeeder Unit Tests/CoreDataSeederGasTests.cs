@@ -129,8 +129,11 @@ public class CoreDataSeederGasTests
 
 		CoreDataSeeder.EnsureStockGases(context);
 
-		Assert.AreEqual(2, context.Tags.Count(x => x.Name == "Apiary Product"));
-		Assert.AreEqual(1, context.Tags.Count(x => x.Name == "Gases" && x.ParentId == null));
+		Assert.AreEqual(4, context.Tags.Count(x => x.Name == "Apiary Product"));
+		Assert.AreEqual(firstParent.Id, context.Tags.Single(x => x.Id == 3).ParentId);
+		Assert.AreEqual(secondParent.Id, context.Tags.Single(x => x.Id == 4).ParentId);
+		Assert.AreEqual(firstParent.Id, context.Tags.Single(x => x.Id == 5).ParentId);
+		Assert.AreEqual(1, context.Tags.Count(x => x.Name == "Gases" && x.Parent!.Name == "Materials"));
 		Assert.AreEqual(1, context.Tags.Count(x => x.Name == "Breathable Atmospheres" && x.Parent!.Name == "Gases"));
 	}
 }

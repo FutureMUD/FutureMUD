@@ -20,7 +20,7 @@ REPO = Path(os.environ['FUTUREMUD_PREPARED_REPLAY_REPOSITORY']).resolve()
 OUTPUT = Path(os.environ['FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT']).resolve()
 CONNECTION = os.environ['FUTUREMUD_PREPARED_REPLAY_BOOT_CONNECTION']
 PASSWORD = os.environ['FUTUREMUD_PREPARED_REPLAY_LOGIN_PASSWORD']
-assert REPO == ROOT / 'FutureMUD-charged'
+assert REPO.parent == ROOT and (REPO / 'MudSharpCore/MudSharpCore.csproj').is_file()
 assert OUTPUT.parent == ROOT and OUTPUT.name.startswith('prepared-replay-boot-native')
 assert not OUTPUT.exists(), 'Refusing to reuse a boot evidence directory.'
 OUTPUT.mkdir()
@@ -234,10 +234,11 @@ try:
     receipt['initial_avatar'] = character_state()
     discord_socket.bind(('127.0.0.1',0)) # Reserved but not listening: bridge fails locally, sends nowhere.
     discord_port = discord_socket.getsockname()[1]
-    configuration = sql("UPDATE StaticConfigurations SET Definition='<EmailServer><Version>2</Version><Enabled>false</Enabled></EmailServer>' WHERE SettingName='EmailServer'; SELECT ROW_COUNT(); "
-        "UPDATE StaticConfigurations SET Definition='false' WHERE SettingName='UseDiscordBot'; SELECT ROW_COUNT(); "
-        "UPDATE StaticConfigurations SET Definition='127.0.0.1' WHERE SettingName='DiscordBotIpAddress'; SELECT ROW_COUNT(); "
-        f"UPDATE StaticConfigurations SET Definition='{discord_port}' WHERE SettingName='DiscordBotPort'; SELECT ROW_COUNT(); "
+    # Fresh reduced bases may not have optional service rows yet. Only this verified owned DB is changed.
+    configuration = sql("INSERT INTO StaticConfigurations (SettingName,Definition) VALUES "
+        "('EmailServer','<EmailServer><Version>2</Version><Enabled>false</Enabled></EmailServer>'),"
+        "('UseDiscordBot','false'),('DiscordBotIpAddress','127.0.0.1'),"
+        f"('DiscordBotPort','{discord_port}') ON DUPLICATE KEY UPDATE Definition=VALUES(Definition); "
         "SELECT SettingName,Definition FROM StaticConfigurations WHERE SettingName IN ('EmailServer','UseDiscordBot','DiscordBotIpAddress','DiscordBotPort') ORDER BY SettingName")
     settings = {row[0]:row[1] for row in configuration if len(row)==2}
     require(settings.get('EmailServer') == '<EmailServer><Version>2</Version><Enabled>false</Enabled></EmailServer>' and

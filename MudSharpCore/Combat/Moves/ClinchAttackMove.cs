@@ -78,6 +78,7 @@ public class ClinchAttackMove : WeaponAttackMove
             defenderMove = new HelplessDefenseMove { Assailant = CharacterTarget };
         }
 
+		UnseenCombatOpening.Consume(Assailant, defenderMove.Assailant as ICharacter);
         WorsenCombatPosition(defenderMove.Assailant, Assailant);
         CheckOutcome attackRoll = CombatCheck.For(Gameworld, Check)
                                   .Check(Assailant, CheckDifficulty, Weapon.WeaponType.AttackTrait,

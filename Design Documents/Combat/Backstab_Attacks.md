@@ -14,6 +14,8 @@ The seeded predator opening uses a backstab before the existing `AmbushAttack` w
 
 ## Seeded attack profiles
 
+Clinch attacks spend the same unseen opening before their attack roll, including unsuccessful attempts; entering a clinch does not preserve a second first-attack opportunity.
+
 The following are the initial authored profiles. `N` means Normal. Reel and advantage/disadvantage values apply per failure degree of the victim's Normal `StaggeringBlowDefense` check; penetration and worn-armour bypass modify the hit independently of that resistance check. Unlisted optional effects are zero. Damage, pain, stun, stamina cost, base delay and weight retain the meanings used by the ordinary attack system; these values have not been established as live balance results.
 
 | Attack | Type and recipients | Damage / pain / stun | Stamina / delay / weight | Secondary effect |

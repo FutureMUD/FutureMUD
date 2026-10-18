@@ -71,7 +71,7 @@ public partial class ArmageddonStockSupportInstallerTests
 			case "default": db.VariableDefaults.Single(x => x.Property == "armageddon_ecology").DefaultValue = "<var>101</var>"; break;
 			case "policy_signature": db.FutureProgs.Single(x => x.Id == first.Identities["arm.prog.gather.self.permission"]).AcceptsAnyParameters = true; break;
 			case "policy_body": db.FutureProgs.Single(x => x.Id == first.Identities["arm.prog.gather.self.damage"]).FunctionText = "not a program"; break;
-			case "gate": db.FutureProgs.Single(x => x.Id == db.SeederManagedRecords.Single(y => y.StableKey == ArmageddonStockSupportInstaller.GatheringAvailabilityKey).LogicalId).FunctionText = "return true"; break;
+			case "gate": db.FutureProgs.Single(x => x.Id == db.SeederManagedRecords.Single(y => y.StableKey == ArmageddonStockSupportInstaller.GatheringAvailabilityKey).LogicalId).ReturnTypeDefinition = ProgVariableTypes.Text.ToStorageString(); break;
 		}
 		db.SaveChanges(); db.ChangeTracker.Clear();
 		var before = db.SeederManagedRecords.ToDictionary(x => x.StableKey, x => (x.LogicalId, x.AppliedAt, x.SeedBaseline));
@@ -92,6 +92,8 @@ public partial class ArmageddonStockSupportInstallerTests
 		db.ChangeTracker.Clear();
 		db.VariableDefaults.Single(x => x.Property == "armageddon_ecology").DefaultValue = "<var>17</var>";
 		db.FutureProgs.Single(x => x.Id == first.Identities["arm.prog.gather.self.damage"]).FunctionText = "return 3";
+		var gateId = db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonStockSupportInstaller.GatheringAvailabilityKey).LogicalId;
+		db.FutureProgs.Single(x => x.Id == gateId).FunctionText = "return true";
 		db.VariableValues.Add(new VariableValue { ReferenceTypeDefinition = ProgVariableTypes.Character.ToStorageString(), ReferenceId = 123,
 			ReferenceProperty = "armageddon_ecology", ValueTypeDefinition = ProgVariableTypes.Number.ToStorageString(), ValueDefinition = "<var>-37</var>" });
 		db.SaveChanges(); db.ChangeTracker.Clear();
@@ -100,6 +102,7 @@ public partial class ArmageddonStockSupportInstallerTests
 		db.ChangeTracker.Clear();
 		Assert.AreEqual("<var>17</var>", db.VariableDefaults.Single(x => x.Property == "armageddon_ecology").DefaultValue);
 		Assert.AreEqual("return 3", db.FutureProgs.Single(x => x.Id == first.Identities["arm.prog.gather.self.damage"]).FunctionText);
+		Assert.AreEqual("return true", db.FutureProgs.Single(x => x.Id == gateId).FunctionText);
 		Assert.AreEqual("<var>-37</var>", db.VariableValues.Single().ValueDefinition);
 	}
 

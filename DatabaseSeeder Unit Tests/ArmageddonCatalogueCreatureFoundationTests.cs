@@ -117,9 +117,9 @@ public class ArmageddonCatalogueCreatureFoundationTests
 		Assert.AreEqual(ArmageddonInstallStatus.Blocked, result.Status); Assert.AreEqual(1, db.Races.Count()); Assert.AreEqual(0, db.Merits.Count());
 	}
 
-	internal static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)
+	internal static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false, bool enableStockForNewInstall = false)
 	{
-		var db = ArmageddonCatalogueAnatomyTests.Fixture(mode, classes);
+		var db = ArmageddonCatalogueAnatomyTests.Fixture(mode, classes, enableStockForNewInstall);
 		var race = db.Races.Single(x => x.Id == 1); race.NeedsToBreathe = true; race.BreathingModel = "simple"; race.HungerRate = 0.8; race.ThirstRate = 1.2;
 		race.BloodModelId = 1;
 		db.BloodModels.Add(new() { Id = 1, Name = "source blood" }); db.Bloodtypes.Add(new() { Id = 1, Name = "source type" });

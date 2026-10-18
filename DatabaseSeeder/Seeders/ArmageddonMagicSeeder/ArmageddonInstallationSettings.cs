@@ -25,7 +25,12 @@ public sealed record ArmageddonInstallationSettings(
 	[property: JsonRequired] ArmageddonProgressionMode Mode,
 	[property: JsonRequired] bool ClassesEnabled,
 	[property: JsonRequired] long CapacityAttribute,
-	[property: JsonRequired] IReadOnlyDictionary<ArmageddonNativeBinding, long> NativeBindings);
+	[property: JsonRequired] IReadOnlyDictionary<ArmageddonNativeBinding, long> NativeBindings)
+{
+	// Absent in pre-v1 installations. Omitting false preserves their exact answer mirrors.
+	[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
+	public bool StockAvailabilityByDefault { get; init; }
+}
 
 /// <summary>One immutable direction for one MUD. No entity or player-state writes.</summary>
 public static partial class ArmageddonInstallation
@@ -122,7 +127,7 @@ public static partial class ArmageddonInstallation
 	public static ArmageddonInstallationSettings Prepare(Func<FuturemudDatabaseContext> contextFactory,
 		ArmageddonProgressionMode? requestedMode = null, long? capacityAttribute = null,
 		IReadOnlyDictionary<ArmageddonNativeBinding, long>? nativeOverrides = null,
-		Action<ArmageddonInstallCheckpoint>? checkpoint = null)
+		Action<ArmageddonInstallCheckpoint>? checkpoint = null, bool enableStockForNewInstall = false)
 	{
 		using var db = contextFactory();
 		if (db.ChangeTracker.HasChanges() || db.Database.CurrentTransaction is not null)
@@ -131,7 +136,10 @@ public static partial class ArmageddonInstallation
 		var prior = Read(db);
 		var classes = ClassesEnabled(db);
 		var settings = prior ?? new ArmageddonInstallationSettings(1, requestedMode ?? ArmageddonProgressionMode.Classic, classes,
-			capacityAttribute ?? ResolveCapacityAttribute(db), ResolveNativeBindings(db, nativeOverrides));
+			capacityAttribute ?? ResolveCapacityAttribute(db), ResolveNativeBindings(db, nativeOverrides))
+		{
+			StockAvailabilityByDefault = enableStockForNewInstall && !db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package)
+		};
 		if (!Enum.IsDefined(settings.Mode) || settings.ClassesEnabled != classes ||
 			(requestedMode is { } mode && mode != settings.Mode) || (capacityAttribute is { } attribute && attribute != settings.CapacityAttribute) ||
 			(nativeOverrides is not null && nativeOverrides.Any(x => !settings.NativeBindings.TryGetValue(x.Key, out var id) || id != x.Value)))

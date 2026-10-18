@@ -113,7 +113,7 @@ public static partial class ArmageddonProgressionInstaller
 			foreach (var cap in stock.Capabilities)
 			{
 				var casting = stock.Casting(cap, traits, resourceIds[cap.ResourceKey], spells, source.Id);
-				casting.SetAttributeValue("enabled", false);
+				casting.SetAttributeValue("enabled", hydrate && settings.StockAvailabilityByDefault);
 				var definition = new XElement("Definition", new XElement("ConcentrationTrait", (long)casting.Attribute("trait")!),
 					new XElement("ConcentrationCapabilityExpression", "1"), new XElement("ConcentrationDifficultyExpression", "5"),
 					new XElement("Regenerators", hydrate && generators.TryGetValue(cap.ResourceKey, out var generatorId)
@@ -129,13 +129,13 @@ public static partial class ArmageddonProgressionInstaller
 				var merit = Put(cap.MeritKey, new Merit { Name = "Armageddon " + cap.Name + " caster", Type = "Magic Capability", MeritScope = 2, MeritType = 0,
 					Definition = new XElement("Definition", new XElement("ChargenAvailableProg", Native(ArmageddonNativeBinding.AlwaysFalseProg)),
 						new XElement("ApplicabilityProg", Native(ArmageddonNativeBinding.AlwaysTrueProg)),
-						new XElement("ChargenBlurb", "Armageddon " + cap.Name + " magic; explicit enrolment after the complete stock policy is activated."),
+						new XElement("ChargenBlurb", "Armageddon " + cap.Name + " magic; Class selection or explicit staff enrolment controls starting grants."),
 						new XElement("DescriptionText", "@ have|has the capacity to channel " + cap.Name.ToLowerInvariant() + " magic."),
 						new XElement("Capabilities", new XElement("Capability", capability.Id))).ToString() });
 				if (!settings.ClassesEnabled) continue;
 				var role = Put(cap.RoleKey, new ChargenRole { Name = RoleName(cap), Type = (int)ChargenRoleType.Class,
-					PosterId = Native(ArmageddonNativeBinding.BuilderAccount), ChargenBlurb = "Armageddon " + cap.Name + " magic (" + settings.Mode + "). Stock activation awaits the complete spell catalogue.",
-					AvailabilityProgId = Native(ArmageddonNativeBinding.AlwaysFalseProg), MaximumNumberAlive = 0, MaximumNumberTotal = 0 });
+					PosterId = Native(ArmageddonNativeBinding.BuilderAccount), ChargenBlurb = "Armageddon " + cap.Name + " magic (" + settings.Mode + "). Selected-Class enrolment supplies the authored starting grants.",
+					AvailabilityProgId = Native(hydrate && settings.StockAvailabilityByDefault ? ArmageddonNativeBinding.AlwaysTrueProg : ArmageddonNativeBinding.AlwaysFalseProg), MaximumNumberAlive = 0, MaximumNumberTotal = 0 });
 				// Selected-Class enrolment owns magic openings. Native role adjustments would also
 				// add culture starting values and then boost those same skills during construction.
 				RoleLinks(db, role, records[cap.RoleKey], merit.Id, messages);
@@ -148,7 +148,7 @@ public static partial class ArmageddonProgressionInstaller
 			transaction?.Commit();
 			committed = true;
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.AfterCommit);
-			messages.Add($"Progression foundations committed: {settings.Mode}, {traits.Count} native skills, ten capability/merit pairs, {(settings.ClassesEnabled ? 10 : 0)} Class roles, eight reserves and seven native regenerators. {stock.Bindings.Count(x => !x.Support)} spell admission plans {(hydrate ? "materialised with real canonical identities and native support grants" : "retained in the embedded approved graph")}. Casting and Class availability remain disabled. {(hydrateGathering ? "Four source Self/Land methods and three Gather support grants are installed behind independent false availability." : "Source gathering remains a separate resumable policy stage.")} No player state changed.");
+			messages.Add($"Progression foundations committed: {settings.Mode}, {traits.Count} native skills, ten capability/merit pairs, {(settings.ClassesEnabled ? 10 : 0)} Class roles, eight reserves and seven native regenerators. {stock.Bindings.Count(x => !x.Support)} spell admission plans {(hydrate ? "materialised with real canonical identities and native support grants" : "retained in the embedded approved graph")}. Casting and Class defaults: {(hydrate && settings.StockAvailabilityByDefault ? "enabled" : "closed")}; builder overrides are preserved. {(hydrateGathering ? "Four source Self/Land methods and three Gather support grants are installed with an independent editable permission." : "Source gathering remains a separate resumable policy stage.")} No player state changed.");
 			return new(ArmageddonInstallStatus.Completed, messages.AsReadOnly(), ids);
 		}
 		catch (Exception error)

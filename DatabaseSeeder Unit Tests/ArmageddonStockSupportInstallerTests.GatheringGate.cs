@@ -40,8 +40,23 @@ public partial class ArmageddonStockSupportInstallerTests
 		Assert.AreEqual(snapshot, db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonStockSupportInstaller.GatheringAvailabilityKey).SeedBaseline);
 	}
 
+	[TestMethod]
+	public void GatheringGate_BuilderActivationIsPreservedOnRerun()
+	{
+		using var db = Fixture();
+		var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		var first = ArmageddonStockSupportInstaller.Install(factory);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status);
+		var id = first.Identities[ArmageddonStockSupportInstaller.GatheringAvailabilityKey];
+		db.FutureProgs.Single(x => x.Id == id).FunctionText = "return true";
+		db.SaveChanges();
+		var rerun = ArmageddonStockSupportInstaller.Install(factory);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
+		db.ChangeTracker.Clear();
+		Assert.AreEqual("return true", db.FutureProgs.Single(x => x.Id == id).FunctionText);
+	}
+
 	[DataTestMethod]
-	[DataRow("enabled")]
 	[DataRow("static")]
 	[DataRow("return_type")]
 	[DataRow("any_parameters")]

@@ -110,7 +110,9 @@ internal static partial class GNHProgram
 		var output = Path.GetFullPath(suppliedOutput);
 		Require(Path.GetDirectoryName(output) == laneRoot && Path.GetFileName(output).StartsWith(outputPrefix, StringComparison.Ordinal),
 			"Boot output must have its own lane-local evidence namespace.");
-		var password = assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
+		var password = ReleaseStockSmoke
+			? Environment.GetEnvironmentVariable("FUTUREMUD_RELEASE_FIXTURE_PASSWORD") ?? throw new InvalidOperationException("Missing private fixture credential.")
+			: assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
 			.GetField("DebugPassword", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!.GetRawConstantValue() as string
 			?? throw new InvalidOperationException("Missing disposable replay account password.");
 		using (var connection = database.OpenOwnedConnection()) { }
@@ -138,7 +140,7 @@ internal static partial class GNHProgram
 			// closes the process scheduling race; every subsequently spawned MUD is in our job.
 			using (var readyReceipt = new FileStream(ready, FileMode.CreateNew, FileAccess.Write, FileShare.None))
 				readyReceipt.Write(Encoding.UTF8.GetBytes(token + ":" + child.Id));
-			var deadlineMilliseconds = S6UiFunding ? 3_300_000 : S6ProgressionFaults ? 2_640_000 : S6BorrowFault ? 1_740_000 : S6Readiness ? 2_700_000 :
+			var deadlineMilliseconds = ReleaseStockSmoke ? 1_200_000 : S6UiFunding ? 3_300_000 : S6ProgressionFaults ? 2_640_000 : S6BorrowFault ? 1_740_000 : S6Readiness ? 2_700_000 :
 				Environment.GetEnvironmentVariable("FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY") == "1" ? 1_200_000 : 900_000;
 			if (!child.WaitForExit(deadlineMilliseconds)) throw new TimeoutException("Owned boot child exceeded its explicit scenario deadline.");
 		}

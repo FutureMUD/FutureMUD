@@ -210,7 +210,9 @@ public class ArmageddonInstallationSettingsTests
 		db.MagicSchools.Add(new MagicSchool { Id = 9, Name = "Builder renamed" });
 		db.SeederManagedRecords.Add(new SeederManagedRecord { Seeder = ArmageddonMagicInstaller.Package, Module = ArmageddonMagicInstaller.Module,
 			EntityType = nameof(MagicSchool), StableKey = "arm.school.arcane", LogicalId = 9, AppliedFingerprint = "builder baseline" }); db.SaveChanges();
-		ArmageddonInstallation.Prepare(Factory(db));
+		var settings = ArmageddonInstallation.Prepare(Factory(db), enableStockForNewInstall: true);
+		Assert.IsFalse(settings.StockAvailabilityByDefault, "Legacy package claims must not be activated as a fresh v1 install.");
+		Assert.IsFalse(ArmageddonInstallation.Read(db)!.StockAvailabilityByDefault);
 		Assert.AreEqual("builder baseline", db.SeederManagedRecords.Single(x => x.LogicalId == 9).AppliedFingerprint);
 		Assert.AreEqual("Builder renamed", db.MagicSchools.Single().Name);
 		db.MagicSchools.RemoveRange(db.MagicSchools); db.SaveChanges();
@@ -239,7 +241,6 @@ public class ArmageddonInstallationSettingsTests
 	[TestMethod]
 	public void IncompatibleAutomaticPrimitive_OffersCompatibleExplicitBinding()
 	{
-#if DEBUG
 		using var db = Fixture();
 		db.Materials.Single(x => x.Id == 1).BehaviourType = (int)MaterialBehaviourType.Stone;
 		db.Materials.Add(new Material { Id = 3, Name = "oak", BehaviourType = (int)MaterialBehaviourType.Wood, Density = 800 }); db.SaveChanges();
@@ -248,7 +249,6 @@ public class ArmageddonInstallationSettingsTests
 		Assert.IsTrue(question.Validator("{\"Wood\":3}", db).Success);
 		var settings = ArmageddonInstallation.Prepare(Factory(db), nativeOverrides: ArmageddonInstallation.ParseOverrides("{\"Wood\":3}"));
 		Assert.AreEqual(3L, settings.NativeBindings[ArmageddonNativeBinding.Wood]);
-#endif
 	}
 
 	[TestMethod]
@@ -270,12 +270,10 @@ public class ArmageddonInstallationSettingsTests
 	[TestMethod]
 	public void NativeQuestionValidator_RejectsWrongTypedExplicitBinding()
 	{
-#if DEBUG
 		using var db = Fixture();
 		var question = new ArmageddonMagicSeeder().Questions.Single(x => x.Id == ArmageddonMagicSeeder.NativeBindingsQuestion);
 		Assert.IsFalse(question.Validator("{\"Wood\":2}", db).Success);
 		Assert.IsTrue(question.Validator("{}", db).Success);
-#endif
 	}
 
 	[TestMethod]
@@ -290,7 +288,6 @@ public class ArmageddonInstallationSettingsTests
 	[TestMethod]
 	public void SharedExecutor_CatalogueFailureRetainsDurableSettingsAndProgressionWithoutGenericAnswers()
 	{
-#if DEBUG
 		using var db = Fixture();
 		var seeder = new ArmageddonMagicSeeder();
 		var result = SeederExecutionService.Execute(db, seeder, seeder.Questions, new Dictionary<string, string>
@@ -300,6 +297,5 @@ public class ArmageddonInstallationSettingsTests
 		Assert.AreEqual(10, db.MagicCapabilities.Count()); Assert.AreEqual(10, db.ChargenRoles.Count());
 		StringAssert.Contains(result.Exception!.Message, "supplies");
 		Assert.IsFalse(db.SeederManagedRecords.Any(x => x.Module == "stock-catalogue"));
-#endif
 	}
 }

@@ -14,17 +14,18 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonStockSpellInstallerTests
 {
 	[DataTestMethod]
-	[DataRow(ArmageddonProgressionMode.Classic, false)]
-	[DataRow(ArmageddonProgressionMode.Classic, true)]
-	[DataRow(ArmageddonProgressionMode.Simple, false)]
-	[DataRow(ArmageddonProgressionMode.Simple, true)]
-	public void CompleteInstall_MaterialisesAllInactiveAdmissionsAndSupports_PreservesRerun(ArmageddonProgressionMode mode, bool classes)
+	[DataRow(ArmageddonProgressionMode.Classic, false, false)]
+	[DataRow(ArmageddonProgressionMode.Classic, true, false)]
+	[DataRow(ArmageddonProgressionMode.Simple, false, false)]
+	[DataRow(ArmageddonProgressionMode.Simple, true, false)]
+	[DataRow(ArmageddonProgressionMode.Simple, true, true)]
+	public void CompleteInstall_MaterialisesStockAndPreservesInstallationAvailabilityAndRerun(ArmageddonProgressionMode mode, bool classes, bool enabled)
 	{
 		// Exercise the complete real installer chain in every progression/class mode.
-		using var db = FreshFixture(mode, classes);
+		using var db = FreshFixture(mode, classes, enabled);
 		var answers = new Dictionary<string, string> { [ArmageddonMagicSeeder.FullInstallQuestion] = "yes", [ArmageddonMagicSeeder.ModeQuestion] = mode.ToString() };
 		var report = new ArmageddonMagicSeeder().SeedData(db, answers);
-		StringAssert.Contains(report, "availability disabled");
+		StringAssert.Contains(report, enabled ? "v1 fresh-install enabled" : "existing-install retained");
 		db.ChangeTracker.Clear();
 		var claims = db.SeederManagedRecords.ToDictionary(x => x.StableKey);
 		var stock = new ArmageddonStockProgression(mode);
@@ -33,7 +34,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		{
 			var cap = db.MagicCapabilities.Single(x => x.Id == claims[spec.Key].LogicalId);
 			var root = XElement.Parse(cap.Definition); var casting = root.Element("Casting")!;
-			Assert.IsFalse((bool)casting.Attribute("enabled")!, spec.Key);
+			Assert.AreEqual(enabled, (bool)casting.Attribute("enabled")!, spec.Key);
 			var actualSpells = casting.Elements("Admission").Select(x => (long)x.Attribute("spell")!).ToArray();
 			CollectionAssert.AreEquivalent(spec.SpellKeys.Select(x => claims[x].LogicalId!.Value).ToArray(), actualSpells, spec.Key);
 			Assert.AreEqual(6, casting.Elements("Admission").Count(x => (bool)x.Attribute("starting")!) + (spec.Key.Contains("sorcerer") || spec.Key.Contains("preserver") || spec.Key.Contains("defiler") ? 2 : 0), spec.Key);
@@ -64,7 +65,12 @@ public partial class ArmageddonStockSpellInstallerTests
 		Assert.AreEqual(419, admissions);
 		Assert.AreEqual(mode == ArmageddonProgressionMode.Classic ? 13 : 23, supports);
 		Assert.AreEqual(classes ? 10 : 0, db.ChargenRoles.Count());
-		Assert.IsTrue(db.ChargenRoles.All(x => x.AvailabilityProgId == ArmageddonInstallation.Read(db)!.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg]));
+		Assert.IsTrue(db.ChargenRoles.All(x => x.AvailabilityProgId == ArmageddonInstallation.Read(db)!.NativeBindings[enabled ? ArmageddonNativeBinding.AlwaysTrueProg : ArmageddonNativeBinding.AlwaysFalseProg]));
+		foreach (var key in new[] { ArmageddonStockSupportInstaller.GatheringAvailabilityKey,
+			ArmageddonStockFocusDeviceInstaller.UseGateKey, ArmageddonStockFocusDeviceInstaller.CraftGateKey })
+			Assert.AreEqual(enabled ? "return true" : "return false", db.FutureProgs.Single(x => x.Id == claims[key].LogicalId).FunctionText, key);
+		// Skills and direct merit picking remain closed; admission owns magic openings.
+		Assert.IsTrue(db.TraitDefinitions.Where(x => x.OwnerScope == 1).All(x => x.AvailabilityProgId == ArmageddonInstallation.Read(db)!.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg]));
 		Assert.AreEqual(0, db.CharacterAcquiredSpells.Count()); Assert.AreEqual(0, db.CharacterCastingEnrolments.Count());
 		Assert.AreEqual(0, db.CharactersMagicResources.Count());
 		Assert.AreEqual(0, db.VariableValues.Count());
@@ -77,6 +83,26 @@ public partial class ArmageddonStockSpellInstallerTests
 		db.ChangeTracker.Clear();
 		foreach (var claim in db.SeederManagedRecords)
 			Assert.AreEqual(before[claim.StableKey], (claim.LogicalId, claim.RevisionNumber, claim.SeedBaseline, claim.AppliedAt), claim.StableKey);
+		if (enabled)
+		{
+			var capability = db.MagicCapabilities.First();
+			var closed = XElement.Parse(capability.Definition);
+			closed.Element("Casting")!.SetAttributeValue("enabled", false);
+			capability.Definition = closed.ToString();
+			var role = db.ChargenRoles.First();
+			role.AvailabilityProgId = ArmageddonInstallation.Read(db)!.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg];
+			foreach (var key in new[] { ArmageddonStockSupportInstaller.GatheringAvailabilityKey,
+				ArmageddonStockFocusDeviceInstaller.UseGateKey, ArmageddonStockFocusDeviceInstaller.CraftGateKey })
+				db.FutureProgs.Single(x => x.Id == claims[key].LogicalId).FunctionText = "return false";
+			db.SaveChanges();
+			new ArmageddonMagicSeeder().SeedData(db, answers);
+			db.ChangeTracker.Clear();
+			Assert.AreEqual(closed.ToString(), db.MagicCapabilities.Single(x => x.Id == capability.Id).Definition);
+			Assert.AreEqual(role.AvailabilityProgId, db.ChargenRoles.Single(x => x.Id == role.Id).AvailabilityProgId);
+			foreach (var key in new[] { ArmageddonStockSupportInstaller.GatheringAvailabilityKey,
+				ArmageddonStockFocusDeviceInstaller.UseGateKey, ArmageddonStockFocusDeviceInstaller.CraftGateKey })
+				Assert.AreEqual("return false", db.FutureProgs.Single(x => x.Id == claims[key].LogicalId).FunctionText, key);
+		}
 		var blueprints = new ArmageddonStockCatalogue().Blueprints;
 		var missing = blueprints.Where(x => !claims.ContainsKey(x.Key)).Select(x => x.Key).ToArray();
 		Assert.AreEqual(0, missing.Length, string.Join(", ", missing));

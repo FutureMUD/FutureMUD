@@ -51,6 +51,7 @@ internal static partial class GNHProgram
 			"--catalogue-fixture-boot-run" => RunCatalogueFixtureBoot(),
 			"--base-fixture-capture-run" => CaptureBaseWorldFixture(),
 			"--base-fixture-restore-run" => RestoreBaseWorldFixture(installPackage: false),
+			"--release-stock-install-smoke-run" => ReleaseStockInstallSmoke(args[1]),
 			"--base-fixture-package-run" => RestoreBaseWorldFixture(installPackage: true),
 			"--gate-fixture-restore-run" => RestoreNilazGateFixture(),
 			"--exchange-fixture-restore-run" => RestoreExchangeStockFixture(),

@@ -43,7 +43,7 @@ def run(host, admin, phase, data, mapped):
         return player.send(f'armearth practice "Earthen Ward" grade 1 via {cap}', read_seconds=.4)
 
     for gate in ('use_gate', 'craft_gate'):
-        require(sql(f'SELECT HEX(FunctionText) FROM FutureProgs WHERE Id={int(cfg[gate])}', (0,)) == [['return false']], 'Stock use/craft availability changed.')
+        require(sql(f'SELECT HEX(FunctionText) FROM FutureProgs WHERE Id={int(cfg[gate])}', (0,)) == [['return true' if host.get('RELEASE_STOCK') else 'return false']], 'Stock use/craft availability changed.')
 
     if phase == 'cold':
         report = receipt['s5_progression']

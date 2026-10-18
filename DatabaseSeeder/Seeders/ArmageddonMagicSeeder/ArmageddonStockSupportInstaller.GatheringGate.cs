@@ -18,9 +18,9 @@ public static partial class ArmageddonStockSupportInstaller
 		("methodKey", ProgVariableTypes.Text), ("amount", ProgVariableTypes.Number),
 		("room", ProgVariableTypes.Location));
 
-	// Gathering has its own admission check; a disabled Casting policy does not deny it.
-	// Reject an edited gate before any supplemental rows can be written, preserving the edit.
-	internal static void ValidateClosedGatheringGate(FuturemudDatabaseContext db)
+	// Gathering has its own admission check; Casting policy alone does not deny it.
+	// Reject an incompatible signature before writes; preserve builder policy bodies through ownership reconciliation.
+	internal static void ValidateGatheringGate(FuturemudDatabaseContext db)
 	{
 		var desired = GatheringAvailabilityProg();
 		var claim = db.SeederManagedRecords.AsNoTracking().SingleOrDefault(x =>
@@ -38,8 +38,8 @@ public static partial class ArmageddonStockSupportInstaller
 			.Select(x => (x.ParameterIndex, x.ParameterName, x.ParameterTypeDefinition));
 		var actual = gate.FutureProgsParameters.OrderBy(x => x.ParameterIndex)
 			.Select(x => (x.ParameterIndex, x.ParameterName, x.ParameterTypeDefinition));
-		if (gate.FunctionText.Trim() != "return false" || gate.ReturnTypeDefinition != desired.ReturnTypeDefinition ||
+		if (gate.ReturnTypeDefinition != desired.ReturnTypeDefinition ||
 			gate.AcceptsAnyParameters || gate.StaticType != desired.StaticType || !actual.SequenceEqual(expected))
-			throw new InvalidOperationException($"{GatheringAvailabilityKey}: stock gathering availability must remain disabled with its exact six-parameter signature; preserve and resolve the edited gate explicitly.");
+			throw new InvalidOperationException($"{GatheringAvailabilityKey}: stock gathering availability requires its exact six-parameter signature; preserve and resolve the edited gate explicitly.");
 	}
 }

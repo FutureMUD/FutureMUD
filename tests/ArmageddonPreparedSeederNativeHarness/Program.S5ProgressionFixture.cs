@@ -36,17 +36,29 @@ internal static partial class GNHProgram
 		var regen = XElement.Parse(generator.Definition);
 		Require((double?)regen.Element("AmountPerMinute") == 2 && (double?)regen.Element("RestMultiplier") == 2 &&
 			(bool?)regen.Element("ConsciousOnly") == true, "Locked native Earth regeneration changed.");
-		var capability = new Db.MagicCapability { Name = "S5 full stock Earth qualification", CapabilityModel = "skilllevel", PowerLevel = 1,
-			MagicSchoolId = db.MagicCapabilities.Single(x => x.Id == claims[spec.Key]).MagicSchoolId,
-			Definition = new XElement("Definition", new XElement("ConcentrationTrait", (long)casting.Attribute("trait")!),
-				new XElement("ConcentrationCapabilityExpression", "1"), new XElement("ConcentrationDifficultyExpression", "5"),
-				new XElement("Regenerators", new XElement("Regenerator", generator.Id)), casting).ToString() };
-		db.MagicCapabilities.Add(capability); db.SaveChanges();
-		var merit = new Db.Merit { Name = "S5 full stock Earth qualification caster", Type = "Magic Capability", MeritScope = 2, MeritType = 0,
-			Definition = new XElement("Definition", new XElement("ChargenAvailableProg", settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg]),
-				new XElement("ApplicabilityProg", settings.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg]), new XElement("ChargenBlurb", "Isolated S5 qualification"),
-				new XElement("DescriptionText", "@ have|has Earth magic."), new XElement("Capabilities", new XElement("Capability", capability.Id))).ToString() };
-		db.Merits.Add(merit); db.SaveChanges();
+		Db.MagicCapability capability;
+		Db.Merit merit;
+		if (ReleaseStockSmoke)
+		{
+			capability = db.MagicCapabilities.Single(x => x.Id == claims[spec.Key]);
+			merit = db.Merits.Single(x => x.Id == claims[spec.MeritKey]);
+			Require((bool?)XElement.Parse(capability.Definition).Element("Casting")?.Attribute("enabled") == true,
+				"Release smoke requires the original enabled stock policy.");
+		}
+		else
+		{
+			capability = new Db.MagicCapability { Name = "S5 full stock Earth qualification", CapabilityModel = "skilllevel", PowerLevel = 1,
+				MagicSchoolId = db.MagicCapabilities.Single(x => x.Id == claims[spec.Key]).MagicSchoolId,
+				Definition = new XElement("Definition", new XElement("ConcentrationTrait", (long)casting.Attribute("trait")!),
+					new XElement("ConcentrationCapabilityExpression", "1"), new XElement("ConcentrationDifficultyExpression", "5"),
+					new XElement("Regenerators", new XElement("Regenerator", generator.Id)), casting).ToString() };
+			db.MagicCapabilities.Add(capability); db.SaveChanges();
+			merit = new Db.Merit { Name = "S5 full stock Earth qualification caster", Type = "Magic Capability", MeritScope = 2, MeritType = 0,
+				Definition = new XElement("Definition", new XElement("ChargenAvailableProg", settings.NativeBindings[ArmageddonNativeBinding.AlwaysFalseProg]),
+					new XElement("ApplicabilityProg", settings.NativeBindings[ArmageddonNativeBinding.AlwaysTrueProg]), new XElement("ChargenBlurb", "Isolated S5 qualification"),
+					new XElement("DescriptionText", "@ have|has Earth magic."), new XElement("Capabilities", new XElement("Capability", capability.Id))).ToString() };
+			db.Merits.Add(merit); db.SaveChanges();
+		}
 		var input = JsonNode.Parse(File.ReadAllText(path))!.AsObject();
 		var template = db.Characters.AsNoTracking().Single(x => x.Id == input["character"]!.GetValue<long>());
 		var templateBody = db.Bodies.AsNoTracking().Single(x => x.Id == template.BodyId);
@@ -107,7 +119,7 @@ internal static partial class GNHProgram
 			resource_name = db.MagicResources.Single(x => x.Id == reserve).Name, improver = improver.Definition, generator = generator.Definition,
 			use_gate = claims[ArmageddonStockFocusDeviceInstaller.UseGateKey], craft_gate = claims[ArmageddonStockFocusDeviceInstaller.CraftGateKey],
 			capacity_attribute = settings.CapacityAttribute, capacity_raw = capacityRaw, capacity, invoked = "armearth", rest_funding_timeout_seconds = 900,
-			limits = "Actual full stock Earth graph on a separate enabled qualification capability; original package gates stay false. New Player account/body; no initial mana, knowledge, skill or grade injection. Native stochastic gain may be zero; full branching uses separate deterministic shared-contract coverage." });
+			limits = ReleaseStockSmoke ? "Release original installed Earth policy; copied mundane body and Player account, explicit permanent merit, zero magic knowledge/skills/reserve; actual native enrolment, funding, practice and cold persistence. No full chargen UI certificate." : "Actual full stock Earth graph on a separate enabled qualification capability; original package gates stay false. New Player account/body; no initial mana, knowledge, skill or grade injection. Native stochastic gain may be zero; full branching uses separate deterministic shared-contract coverage." });
 		if (S6Integration) PrepareS6GatheringFixture(db, input, actor, claims);
 		if (S6UiFunding) PrepareS6UiFundingFixture(db, input, claims);
 		if (S6ProgressionFaults) PrepareS6ProgressionFaultFixture(db, input, actor, claims);

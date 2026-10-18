@@ -292,7 +292,12 @@ internal static partial class GNHProgram
 		Require(BaseSchemaHash(database) == fixture.Receipt.SchemaSha256 && BaseContentHash(database) == fixture.Receipt.BaseContentSha256,
 			"Restored actual schema or base content differs from captured fixture.");
 		var executed = new List<string>();
-		if (installPackage)
+		if (installPackage && ReleaseStockSmoke)
+		{
+			RunReleaseStockChild(database);
+			executed.Add("Release:DatabaseSeeder.Seeders.ArmageddonMagicSeeder");
+		}
+		else if (installPackage)
 		{
 			var existingPlayers = TraditionPlayers(database);
 			int existingNpcs;

@@ -35,7 +35,7 @@ public static partial class ArmageddonStockGatheringInstaller
 				throw new InvalidOperationException("Use a fresh dedicated context without pending writes or a transaction.");
 			messages.AddRange(ArmageddonInstallation.ValidateFoundations(db, settings));
 			if (messages.Count > 0) return new(ArmageddonInstallStatus.Blocked, messages, ids);
-			ArmageddonStockSupportInstaller.ValidateClosedGatheringGate(db);
+			ArmageddonStockSupportInstaller.ValidateGatheringGate(db);
 			ArmageddonGatheringRegisters.Preflight(db);
 			var skill = Require<TraitDefinition>(db, ArmageddonProgressionInstaller.GatheringTraitKey, ArmageddonProgressionInstaller.Module);
 			if (skill.Type != 0 || skill.OwnerScope != 1) throw new InvalidOperationException("The owned Gather foundation must be a character skill.");
@@ -100,7 +100,7 @@ public static partial class ArmageddonStockGatheringInstaller
 				}
 			db.SaveChanges();
 			committing = true; transaction?.Commit(); committed = true;
-			messages.Add("Source gathering policies committed with exact typed native links: bodily Self/Land prices, explicit terrain classes, one native life-unit/scar per Land action, source alignment timing and separate additive ash expiry. No room/terrain bindings or instance register values changed. Independent availability remains false.");
+			messages.Add("Source gathering policies committed with exact typed native links: bodily Self/Land prices, explicit terrain classes, one native life-unit/scar per Land action, source alignment timing and separate additive ash expiry. No room/terrain bindings or instance register values changed. Independent gathering permission retains the installation defaults and builder edits.");
 			return new(ArmageddonInstallStatus.Completed, messages, ids);
 		}
 		catch (Exception error)

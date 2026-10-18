@@ -4,6 +4,8 @@ Armageddon v1 is an optional Release and Debug installer package: ten capability
 
 ## Availability policy
 
+Draft review note: the current branch opens all ten fresh Class roles, but the final choice for Defiler admission is pending Luke's answer. Defiler can fund only from configured Land; no Land bindings are installed automatically. The narrow proposed alternative is to leave only its Class admission closed until a builder configures Land and explicitly enables it. Do not interpret this draft as final enablement approval. The [packaging receipt](Armageddon_V1_Release_Packaging_20261018.md) records the completed independent verification and remaining decision.
+
 | Surface | Fresh explicit full install | Existing installation / builder ownership |
 | --- | --- | --- |
 | Release package menu | Available; installation defaults to **No on every visit** | Downloading/upgrading binaries performs no installation or activation |

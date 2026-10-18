@@ -39,7 +39,8 @@ internal static partial class GNHProgram
 		{
 			job.Attach(child);
 			File.WriteAllText(ready, token + ":" + child.Id);
-			Require(child.WaitForExit(1_260_000), "Release stock child exceeded its 21-minute budget.");
+			// Installation precedes the independently bounded 20-minute boot scenario.
+			Require(child.WaitForExit(1_920_000), "Release stock child exceeded its 32-minute install/boot budget.");
 		}
 		finally
 		{

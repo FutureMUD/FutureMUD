@@ -55,7 +55,7 @@ public class ItemSeederEgyptianClothingCraftingTests
 	public void EgyptianBeadedGarments_UseCommodityBeadStockAndPeriodNeedle()
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
 
 		AssertContains(tagSource, "AddTag(context, \"Bead Stock\", \"Material Functions\")");

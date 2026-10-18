@@ -26,7 +26,7 @@ public static class ArmageddonRegionalLandInstaller
 		new("fertile", "field grassland or thornland", 3, "fertile", "Grasslands"),
 		new("cavern", "cavern road or ruins", 2, "cavern", "Cavern"),
 		new("hills", "hills or mountains", 2, "hills", "Hills"),
-		new("sewer", "sewer", 2, "barren", "Cavern"),
+		new("sewer", "sewer", 2, "barren", "Sewer"),
 		new("barren", "desert salt silt or shallows", 1, "barren", "Sandy Desert"),
 		new("urban", "inside or city", 0, "urban", "Residence"),
 		new("forbidden", "forbidden land", 0, "forbidden", "Grasslands")

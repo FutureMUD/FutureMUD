@@ -165,8 +165,8 @@ public class UsefulSeederModernPackageTests
         SeedAccount(context);
         SeedModernStaticConfiguration(context);
 
-        Tag fuelTag = new() { Id = 1, Name = "Fuel" };
-        context.Tags.Add(fuelTag);
+        new CoreDataSeeder().SeedTagsForTesting(context);
+        Tag fuelTag = CoreTagCatalogue.Require(context, "Materials / Liquids / Fuel");
 
         Liquid gasoline = new()
         {
@@ -449,7 +449,7 @@ public class UsefulSeederModernPackageTests
 
         GameItemComponentProto fireplace = context.GameItemComponentProtos.Single(x => x.Name == "SolidFuelHeaterCooler_Fireplace");
         XElement fireplaceDefinition = XElement.Parse(fireplace.Definition);
-        Assert.AreEqual("1", fireplaceDefinition.Element("FuelTag")?.Value);
+        Assert.AreEqual(CoreTagCatalogue.Require(context, "Materials / Liquids / Fuel").Id.ToString(), fireplaceDefinition.Element("FuelTag")?.Value);
 
         GameItemComponentProto heartLungSupport = context.GameItemComponentProtos.Single(x => x.Name == "ExternalOrgan_HeartLungSupport_Human");
         XElement heartLungDefinition = XElement.Parse(heartLungSupport.Definition);

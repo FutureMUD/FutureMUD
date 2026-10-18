@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
 	<OutputType>Exe</OutputType>
@@ -72,4 +72,7 @@
 	</EmbeddedResource>
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Include="Assets/Manifests/CoreTags.tsv" LogicalName="DatabaseSeeder.CoreTags.tsv" />
+  </ItemGroup>
 </Project>

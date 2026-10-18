@@ -862,6 +862,10 @@ public partial class CoreDataSeeder
 		Add(["Park", "Garden"], urbanNatural, medicinalField, urbanScavenge);
 		Add(["Lawn", "Showground"], lawnLike, medicinalField, urbanScavenge);
 		Add(["Garbage Dump", "Midden Heap"], garbage);
+        // Sewer product lists were not recovered. No automatic edible/scavenging yields.
+        Add(["Sewer"], Array.Empty<StockForageYield>());
+        // Limited native rock stock; affinity is expressed by the forage check, not larger yields.
+        Add(["Ruins"], [Yield("rocks", 95.0, 0.02)]);
 		Add(["Village Street", "Rural Street", "Animal Trail", "Trail", "Dirt Road"], ruralRoadEdge);
 		Add(["Compacted Dirt Road", "Gravel Road", "Cobblestone Road"], gravelRoadEdge);
 
@@ -933,31 +937,9 @@ public partial class CoreDataSeeder
 
     private static void SeedTerrainFoundationsCore(FuturemudDatabaseContext context)
     {
-        DictionaryWithDefault<string, Tag> tags = context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-        foreach ((string? name, string? parent) in StockTerrainTagDefinitions)
-        {
-            AddTerrainTag(context, tags, name, parent);
-        }
-
-        context.SaveChanges();
+        var tags = new DictionaryWithDefault<string, Tag>(StringComparer.OrdinalIgnoreCase);
+        foreach (var pair in CoreTagCatalogue.Ensure(context).Family("existing_core_terrain")) tags[pair.Key] = pair.Value;
         SeedStockTerrainCatalogue(context, tags);
-    }
-
-    private static void AddTerrainTag(FuturemudDatabaseContext context, DictionaryWithDefault<string, Tag> tags,
-        string name, string parent)
-    {
-        if (tags.Any(x => x.Key.Equals(name, StringComparison.InvariantCultureIgnoreCase)))
-        {
-            return;
-        }
-
-        Tag tag = new()
-        {
-            Name = name,
-            Parent = string.IsNullOrEmpty(parent) ? null : tags[parent]
-        };
-        tags[name] = tag;
-        context.Tags.Add(tag);
     }
 
 	private static void SeedStockTerrainForageProfiles(FuturemudDatabaseContext context)
@@ -1124,6 +1106,38 @@ public partial class CoreDataSeeder
 
 		return profile;
 	}
+
+    private static void SeedRuinsStoneForage(FuturemudDatabaseContext context)
+    {
+        const string name = "Ruins Loose Stone";
+        var profile = context.ForagableProfiles.FirstOrDefault(x => x.Name == "Ruins Stock Forage");
+        var material = context.Materials.FirstOrDefault(x => x.Name == "granite");
+        if (profile is null || material is null) return;
+        var forage = context.Foragables.FirstOrDefault(x => x.Name == name);
+        if (forage is null)
+        {
+            var account = context.Accounts.OrderBy(x => x.Id).Select(x => x.Id).FirstOrDefault();
+            forage = new Foragable
+            {
+                Id = context.Foragables.Select(x => x.Id).AsEnumerable().DefaultIfEmpty(0L).Max() + 1,
+                RevisionNumber = 0, Name = name, ForagableTypes = "rocks",
+                // One native difficulty stage easier than Normal models source stone-chance affinity.
+                // It is an authored approximation of +20, with success still required.
+                ForageDifficulty = (int)Difficulty.Easy, RelativeChance = 100,
+                MinimumOutcome = (int)Outcome.MinorPass, MaximumOutcome = (int)Outcome.MajorPass,
+                QuantityDiceExpression = "1", CommodityMaterialId = material.Id,
+                CommodityWeightExpression = "100", ItemProtoId = 0,
+                EditableItem = new EditableItem { RevisionNumber = 0, RevisionStatus = (int)RevisionStatus.Current,
+                    BuilderAccountId = account, BuilderDate = DateTime.UtcNow, BuilderComment = "Core ruins chance adaptation" }
+            };
+            context.Foragables.Add(forage);
+            context.SaveChanges();
+        }
+        if (!context.ForagableProfilesForagables.Any(x => x.ForagableProfileId == profile.Id && x.ForagableProfileRevisionNumber == profile.RevisionNumber && x.ForagableId == forage.Id))
+            context.ForagableProfilesForagables.Add(new ForagableProfilesForagables { ForagableProfile = profile,
+                ForagableProfileRevisionNumber = profile.RevisionNumber, ForagableId = forage.Id });
+        context.SaveChanges();
+    }
 
 	private static void BackfillStockTerrainAtmospheres(FuturemudDatabaseContext context,
 		IReadOnlyDictionary<string, StockTerrainAtmosphere> stockTerrainAtmospheres)
@@ -1864,16 +1878,28 @@ public partial class CoreDataSeeder
 
 		#endregion
 
+        // Raw movement_loss Sewer:Cavern = 8:4 and Ruins:Cavern = 4:4.
+        // Native Cavern stamina is 20. Rates stay 3; source additions are not speed factors.
+        AddTerrain("Sewer", "cave", 3.0, 40.0, Difficulty.Normal, Difficulty.Automatic,
+            "Stale Breathable Atmosphere", RoomOutdoorsType.IndoorsNoLight, Color.DarkOliveGreen,
+            tags: ["Terrestrial"]);
+        AddTerrain("Ruins", "outdoors", 3.0, 20.0, Difficulty.Normal, Difficulty.Automatic,
+            "Breathable Atmosphere", RoomOutdoorsType.Outdoors, Color.SlateGray,
+            tags: ["Terrestrial"]);
+
+
 		if (terrainsAlreadyInstalled)
 		{
 			BackfillStockTerrainAtmospheres(context, stockTerrainAtmospheres);
 			SeedStockTerrainForageProfiles(context);
+            SeedRuinsStoneForage(context);
 			BackfillStockTerrainGravity(context);
 			errors?.Add("Terrains were already installed. Missing stock terrains were added, while existing builder-customised terrain settings were preserved; stock atmospheres, forage profiles, and gravity models were repaired or backfilled where safe.");
 			return;
 		}
 
 		SeedStockTerrainForageProfiles(context);
+            SeedRuinsStoneForage(context);
 
         #region Autobuilders
 

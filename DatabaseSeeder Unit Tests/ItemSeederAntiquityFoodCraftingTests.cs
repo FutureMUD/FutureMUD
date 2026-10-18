@@ -78,8 +78,8 @@ public class ItemSeederAntiquityFoodCraftingTests
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.AntiquityApiary.cs");
 		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityApiary.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
-		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
+		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs") + ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv").Replace("AddTag(context, ", "AddTag(");
 
 		AssertContains(reworkSource, "SeedAntiquityApiaryItems();");
 		AssertContains(craftRootSource, "SeedAntiquityApiaryCrafts();");
@@ -129,8 +129,8 @@ public class ItemSeederAntiquityFoodCraftingTests
 		var craftRootSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.cs");
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityAgriculture.cs");
 		var agricultureSource = ReadSource("DatabaseSeeder", "Seeders", "AgricultureSeeder", "AgricultureSeeder.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
-		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
+		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs") + ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv").Replace("AddTag(context, ", "AddTag(");
 
 		AssertContains(craftRootSource, "SeedAntiquityAgriculturalProcessingCrafts();");
 		AssertContains(craftSource, "select antiquity seed stock");
@@ -225,7 +225,7 @@ public class ItemSeederAntiquityFoodCraftingTests
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityFood.cs");
 		var butcherySource = ReadSource("DatabaseSeeder", "Seeders", "AnimalButcherySeeder", "AnimalButcherySeeder.cs");
-		var coreMaterialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs");
+		var coreMaterialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs") + ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv").Replace("AddTag(context, ", "AddTag(");
 		var hierarchySource = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 
 		foreach (var expected in new[]
@@ -487,7 +487,7 @@ public class ItemSeederAntiquityFoodCraftingTests
 	{
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.AntiquityFood.cs");
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.AntiquityFood.cs");
-		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs");
+		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs") + ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv").Replace("AddTag(context, ", "AddTag(");
 
 		var beverageStockBody = ExtractMethodBody(craftSource, "CultureBeverageStockInput");
 		AssertContains(beverageStockBody, "culture.BeverageLiquid.Contains(\"kumis\", StringComparison.OrdinalIgnoreCase)");

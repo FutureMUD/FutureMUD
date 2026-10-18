@@ -119,7 +119,7 @@ public class CoreDataSeederMaterialTests
 		legacyWaterSoluble.Name = "Water Soluable";
 		context.SaveChanges();
 
-		new UsefulSeeder().SeedTagsForTesting(context);
+		new CoreDataSeeder().SeedTagsForTesting(context);
 		SeedMaterials(context);
 		SeedMaterials(context);
 
@@ -142,12 +142,8 @@ public class CoreDataSeederMaterialTests
 		Assert.IsTrue(context.MaterialsTags.Any(x =>
 			x.MaterialId == honey.Id &&
 			x.TagId == materialApiaryProduct.Id));
-		Assert.AreEqual(1, context.Tags.Count(x =>
-			x.Name == "Water Soluble" &&
-			x.ParentId == liquids.Id));
-		Assert.IsFalse(context.Tags.Any(x =>
-			x.Name == "Water Soluable" &&
-			x.ParentId == liquids.Id));
+        Assert.AreEqual(legacyWaterSoluble.Id, CoreTagCatalogue.Require(context, "Materials / Liquids / Water Soluble").Id);
+        Assert.AreEqual("Water Soluable", legacyWaterSoluble.Name, "Builder renames remain intact after stable identity binding.");
 		Assert.IsFalse(context.MaterialsTags
 			.GroupBy(x => new { x.MaterialId, x.TagId })
 			.Any(x => x.Count() > 1));

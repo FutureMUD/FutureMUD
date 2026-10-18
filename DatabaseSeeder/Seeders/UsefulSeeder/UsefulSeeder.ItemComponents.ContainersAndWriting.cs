@@ -43,7 +43,7 @@ public partial class UsefulSeeder
         string externalArterialConnector = context.StaticConfigurations
             .FirstOrDefault(x => x.SettingName == "DefaultExternalOrganArterialConnector")
             ?.Definition ?? "2-LargeArterialCatheter";
-        Tag? fuelTag = context.Tags.FirstOrDefault(x => x.Name == "Fuel");
+        Tag? fuelTag = CoreTagCatalogue.Require(context, "Materials / Liquids / Fuel");
 
         GameItemComponentProto CreateModernComponent(string type, string name, string description, XElement definition)
         {

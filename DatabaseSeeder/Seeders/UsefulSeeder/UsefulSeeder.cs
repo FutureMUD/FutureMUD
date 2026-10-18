@@ -176,24 +176,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
         "SolidFuelHeaterCooler_WoodStove"
     ];
 
-    private static readonly string[] StockTagPackageMarkers =
-    [
-		"Aluminothermic Welding Portion",
-		"Gunpowder Commodity",
-		"Musket Cleaning Rod",
-		"Musket Ramrod",
-		"Musket Unjamming Tool",
-		"Musket Wadding",
-		"Match Cord",
-		"Artillery Sponge",
-		"Artillery Wadding",
-		"Artillery Rammer",
-		"Artillery Vent Tool",
-		"Artillery Linstock",
-		"Artillery Fuse"
-    ];
-
-    private static readonly string[] StockRangedCoverPackageMarkers =
+private static readonly string[] StockRangedCoverPackageMarkers =
     [
         "Corridor Doorway",
         "Large Crater",
@@ -375,25 +358,6 @@ public partial class UsefulSeeder : IDatabaseSeeder
                 {
                     if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
                 }),
-            ("tags",
-                """
-                #BStock Tag Hierarchy#0
-
-                #6This package installs a shared hierarchy for:#0
-                  #3-#0 historical eras, cultures and institutions
-                  #3-#0 material functions, commodities, food and drink, consumables and market categories
-                  #3-#0 craft, tool, repair, medical, military, animal, household and writing classifications
-                  #3-#0 agriculture, textiles, primary-production resources, deposits and commodity grades
-
-                #1Skip this only if you are replacing the stock item, craft and project taxonomy.#0
-
-                Install this package? Please answer #3yes#f or #3no#f:
-                """,
-                (context, questions) => ClassifyTagPackagePresence(context) != ShouldSeedResult.MayAlreadyBeInstalled,
-                (answer, context) =>
-                {
-                    if (answer.EqualToAny("yes", "y", "no", "n")) { return (true, string.Empty); } return (false, "Invalid answer");
-                }),
             ("autobuilder",
                 """
                 #BWilderness Terrain Autobuilder#0
@@ -472,13 +436,8 @@ public partial class UsefulSeeder : IDatabaseSeeder
         _context = context;
         context.Database.BeginTransaction();
         List<string> errors = new();
+        _tagConsumerDiagnostics.Clear();
         PrepareItemProtoCache(context);
-        _tags = context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-
-        if (questionAnswers["tags"].EqualToAny("yes", "y"))
-        {
-            SeedTags(context, errors);
-        }
 
         if (questionAnswers["ai"].EqualToAny("yes", "y"))
         {
@@ -519,6 +478,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
         }
 
         context.Database.CommitTransaction();
+        errors.AddRange(_tagConsumerDiagnostics);
 
         if (errors.Count == 0)
         {
@@ -540,8 +500,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
         [
             ClassifyAiPackagePresence(context),
             ClassifyItemPackagePresence(context),
-            ClassifyModernPackagePresence(context),
-            ClassifyTagPackagePresence(context)
+            ClassifyModernPackagePresence(context)
         ];
 
         if (context.Terrains.Count() > 1)
@@ -555,7 +514,7 @@ public partial class UsefulSeeder : IDatabaseSeeder
 
     public int SortOrder => 200;
     public string Name => "Kickstart";
-    public string Tagline => "A collection of useful stock items, AI, tags, covers and helpers";
+    public string Tagline => "A collection of useful stock items, AI, covers and helpers";
 
     public string FullDescription =>
         @"#BKickstart Package#0
@@ -563,10 +522,11 @@ public partial class UsefulSeeder : IDatabaseSeeder
 #6Choose from stock starter content for:#0
   #3-#0 reusable item component prototypes for general and modern settings
   #3-#0 AI behaviour examples, terrain-aware ranged covers and wilderness autobuilder templates
-  #3-#0 a shared tag hierarchy for stock items, crafts and projects
   #3-#0 new-player hints and universal or era-specific dream templates
 
 These options are not required by the engine. Install the packages that suit your game, and skip a package only when you intend to supply a substantially different replacement.";
+
+    private readonly List<string> _tagConsumerDiagnostics = [];
 
     private FuturemudDatabaseContext _context = null!;
 
@@ -597,7 +557,7 @@ These options are not required by the engine. Install the packages that suit you
             .Select(name => context.GameItemComponentProtos.Any(x => x.Name == name))
             .ToList();
 
-        Tag? fuelTag = context.Tags.FirstOrDefault(x => x.Name == "Fuel");
+        Tag? fuelTag = context.Tags.Any(x => x.Name == "Fuel") ? CoreTagCatalogue.Require(context, "Materials / Liquids / Fuel") : null;
         if (fuelTag is not null && context.LiquidsTags.Any(x => x.TagId == fuelTag.Id))
         {
             presenceChecks.Add(context.GameItemComponentProtos.Any(x => x.Type == "FuelHeaterCooler"));
@@ -606,14 +566,6 @@ These options are not required by the engine. Install the packages that suit you
 
         return SeederRepeatabilityHelper.ClassifyByPresence(presenceChecks);
     }
-
-    internal static ShouldSeedResult ClassifyTagPackagePresence(FuturemudDatabaseContext context)
-    {
-		return SeederRepeatabilityHelper.ClassifyByPresence(
-			StockTagPackageMarkers.Select(marker => context.Tags.Any(x => x.Name == marker)));
-    }
-
-	internal static IReadOnlyCollection<string> StockTagPackageMarkersForTesting => StockTagPackageMarkers;
 
     internal static ShouldSeedResult ClassifyRangedCoverPackagePresence(FuturemudDatabaseContext context)
     {

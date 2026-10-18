@@ -222,7 +222,7 @@ public class ItemSeederRemainingAntiquityClothingCraftingTests
 	{
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
 		var materialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs");
-		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
 		var componentCatalogue = ReadSource("Design Documents", "Data", "Seeded_Item_Components.json");
 
 		foreach (var material in new[] { "wool", "linen", "felt", "cotton" })

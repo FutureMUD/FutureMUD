@@ -138,7 +138,7 @@ public class ItemSeederAntiquityHouseholdCraftingTests
 	[TestMethod]
 	public void AntiquityHouseholdCrafts_AddToolAndCommodityTagsAndPeriodTools()
 	{
-		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
 		var toolSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.AntiquityHouseholdTools.cs");
 		var reworkRoot = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.cs");
 

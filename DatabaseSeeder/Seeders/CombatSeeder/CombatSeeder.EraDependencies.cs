@@ -444,14 +444,7 @@ public partial class CombatSeeder
 			return ranged;
 		}
 
-		long RequireTagId(string name)
-		{
-			return context.Tags
-					   .AsEnumerable()
-					   .SingleOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))?.Id ??
-				   throw new InvalidOperationException(
-					   $"Cannot seed combat profile: the required tag '{name}' is missing. Run the Useful Items package first.");
-		}
+        long RequireTagId(string name) => CoreTagCatalogue.RequireUniqueStockName(context, name).Id;
 
 		void EnsureSpannedCrossbow(string name, string componentName, string toolTagName,
 			Action<RangedWeaponTypes> configure)
@@ -899,7 +892,7 @@ public partial class CombatSeeder
 			new XElement("Definition", new XElement("Fixed", false), new XElement("TraverseArc", 360), new XElement("ElevationArc", 60)).ToString());
 		EnsureComponent("ArtilleryChamber", "ArtilleryChamber_Peterero", "A reusable removable chamber for a peterero", new XElement("Definition", new XElement("ArtilleryProfile", "light")).ToString());
 		var sheathDonor = context.GameItemComponentProtos.FirstOrDefault(x => x.Type == "Sheath" && x.EditableItem.RevisionStatus == 4) ??
-			throw new InvalidOperationException("Cannot seed Holster_PairedSaddle because no Sheath donor component exists.");
+			throw new InvalidOperationException("Cannot seed Holster_PairedSaddle because no approved Sheath donor component exists. Install the optional Useful wearables package before choosing Early Modern firearms.");
 		var pairedHolster = CloneDefinition(sheathDonor);
 		SetElement(pairedHolster, "Capacity", 2);
 		EnsureComponent("Sheath", "Holster_PairedSaddle", "A two-slot paired saddle holster", pairedHolster.ToString());

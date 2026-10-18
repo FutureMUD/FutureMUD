@@ -151,13 +151,7 @@ public partial class UsefulSeeder
 				new XElement("OnSignalProg", 0));
 		}
 
-		long TagId(string name)
-		{
-			return context.Tags
-				       .AsEnumerable()
-				       .Single(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-				       .Id;
-		}
+        long TagId(string name) => CoreTagCatalogue.RequireUniqueStockName(context, name).Id;
 
 		Upsert("Container", "Container_PreIndustrial_CompartmentBox",
 			"A small closable compartmented box represented as one logical inventory.",

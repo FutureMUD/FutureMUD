@@ -27,12 +27,34 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context) =>
 		context.SeederManagedRecords.AsNoTracking().Any(x => x.Seeder == ArmageddonMagicInstaller.Package)
 			? ShouldSeedResult.ExtraPackagesAvailable : ShouldSeedResult.ReadyToInstall;
-	public SeederAssessment AssessSeedData(FuturemudDatabaseContext context) => new(
-		ShouldSeedData(context) == ShouldSeedResult.ReadyToInstall ? SeederAssessmentStatus.ReadyToInstall : SeederAssessmentStatus.UpdateAvailable,
-		"Optional v1 package. Fresh opt-in installs usable stock defaults; existing installations retain activation policy and builder edits. Native foundations must validate.",
-		Array.Empty<string>(), Array.Empty<string>(),
-		["Default No on every visit. Fixed settings and shared answers commit atomically before catalogue work.",
-		 "Classic/Simple and the earlier class direction cannot change on rerun. Ambiguous native primitives require explicit typed bindings."]);
+	public SeederAssessment AssessSeedData(FuturemudDatabaseContext context)
+    {
+        var missing = new List<string>();
+        try
+        {
+            var installed = ArmageddonInstallation.Read(context);
+            var classes = ArmageddonInstallation.ClassesEnabled(context);
+            var candidate = installed ?? new ArmageddonInstallationSettings(1, ArmageddonProgressionMode.Classic,
+                classes, ArmageddonInstallation.ResolveCapacityAttribute(context), ArmageddonInstallation.ResolveNativeBindings(context));
+            missing.AddRange(ArmageddonInstallation.ValidateFoundations(context, candidate, checkCapacity: false));
+        }
+        catch (InvalidOperationException error) { missing.Add(error.Message); }
+        foreach (var name in new[] { "Cranequin", "Goat's Foot", "Lever", "Spanning Hook", "Windlass" })
+        {
+            try { CoreTagCatalogue.RequireUniqueStockName(context, name); }
+            catch (InvalidOperationException error) { missing.Add(error.Message); }
+        }
+        if (!context.WeaponTypes.Any()) missing.Add("Combat weapon foundations must be installed before the full Armageddon package.");
+        try { ArmageddonCatalogueSpecials.ResolveHeadShape(context); }
+        catch (InvalidOperationException error) { missing.Add(error.Message); }
+        return new SeederAssessment(missing.Count > 0 ? SeederAssessmentStatus.Blocked :
+                ShouldSeedData(context) == ShouldSeedResult.ReadyToInstall ? SeederAssessmentStatus.ReadyToInstall : SeederAssessmentStatus.UpdateAvailable,
+            missing.Count > 0 ? "Full Armageddon foundations are incomplete. Core, Time, attributes/skills, Human, Combat and Chargen supply the baseline." :
+                "Optional v1 package foundations are ready; native bindings and capacity are validated again at opt-in installation.",
+            missing, Array.Empty<string>(),
+            ["Default No on every visit. Fixed settings and shared answers commit atomically before catalogue work.",
+             "Optional Useful items, generic Item and Health packages are not baseline prerequisites."]);
+    }
 
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)

@@ -1,4 +1,4 @@
-﻿using MudSharp.Database;
+using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
 
@@ -7,6 +7,11 @@ namespace MudSharp.Construction.Autobuilder.Rooms;
 public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
 {
     protected bool ApplyAutobuilderTagsAsFrameworkTags { get; set; }
+
+    // Selector text still drives description/group matching; IDs supply independent framework identity.
+    protected Dictionary<string, long> FrameworkTagBindings { get; set; } = new(StringComparer.OrdinalIgnoreCase);
+    protected XElement SaveFrameworkTagBindings() => new("FrameworkTagBindings",
+        FrameworkTagBindings.Select(x => new XElement("Binding", new XAttribute("selector", x.Key), new XAttribute("id", x.Value))));
 
     protected AutobuilderRoomBase(IFuturemud gameworld, string name)
     {
@@ -26,6 +31,12 @@ public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
     {
         ApplyAutobuilderTagsAsFrameworkTags =
             bool.Parse(root.Element("ApplyAutobuilderTagsAsFrameworkTags")?.Value ?? "false");
+        FrameworkTagBindings = root.Element("FrameworkTagBindings")?.Elements("Binding")
+            .ToDictionary(x => x.Attribute("selector")!.Value, x => long.Parse(x.Attribute("id")!.Value), StringComparer.OrdinalIgnoreCase)
+            ?? new(StringComparer.OrdinalIgnoreCase);
+        foreach (var binding in FrameworkTagBindings)
+            if (Gameworld.Tags.Get(binding.Value) is null)
+                throw new ApplicationException($"Autobuilder {Name}: selector {binding.Key} refers to missing framework tag #{binding.Value}.");
     }
 
     protected abstract XElement SaveToXml();
@@ -52,14 +63,26 @@ public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
             return;
         }
 
+        var resolved = new List<ITag>();
         foreach (string tag in tags)
         {
-            ITag fwTag = Gameworld.Tags.FirstOrDefault(x => x.Name.EqualTo(tag));
+            ITag fwTag;
+            if (FrameworkTagBindings.TryGetValue(tag, out var id))
+                fwTag = Gameworld.Tags.Get(id);
+            else
+            {
+                if (FrameworkTagBindings.Count > 0) continue; // Unbound text labels have no framework identity.
+                var matches = Gameworld.Tags.Where(x => x.Name.EqualTo(tag)).Take(2).ToArray();
+                if (matches.Length > 1)
+                    throw new ApplicationException($"Autobuilder {Name}: ambiguous legacy selector '{tag}'; bind an explicit framework tag ID.");
+                fwTag = matches.SingleOrDefault();
+            }
             if (fwTag != null)
             {
-                room.AddTag(fwTag);
+                resolved.Add(fwTag);
             }
         }
+        foreach (var tag in resolved.DistinctBy(x => x.Id)) room.AddTag(tag);
     }
 
     #region Overrides of Item
@@ -128,7 +151,7 @@ public abstract class AutobuilderRoomBase : SaveableItem, IAutobuilderRoom
         ApplyAutobuilderTagsAsFrameworkTags = !ApplyAutobuilderTagsAsFrameworkTags;
         Changed = true;
         actor.OutputHandler.Send(
-            $"This room builder template will {(ApplyAutobuilderTagsAsFrameworkTags ? "now" : "no longer")} apply framework tags to created rooms. Feature Rectangle masks use their tag IDs directly; legacy and generated named features are matched by name.");
+            $"This room builder template will {(ApplyAutobuilderTagsAsFrameworkTags ? "now" : "no longer")} apply framework tags to created rooms. Feature Rectangle masks use their tag IDs directly; generated named features use explicit bindings when supplied; legacy names must be unambiguous.");
         return true;
     }
 

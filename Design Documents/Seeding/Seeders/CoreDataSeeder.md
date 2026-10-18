@@ -35,9 +35,9 @@ Metadata declares `Idempotent / RepairExisting`.
 
 Reruns reconcile only the stock foundation catalogues and do not recreate bootstrap-world data.
 
-Materials, fluids, gases, terrain foundations, units, colours, planes and hearing profiles are repaired or completed by stable stock identities.
+Complete tag taxonomy, guarded firearm tag/material ID bindings, materials, fluids, gases, terrain foundations, units, colours, planes and hearing profiles are repaired or completed by stable stock identities.
 
-Core bootstrap accounts, world records, progs and settings remain one-shot; only the documented foundation catalogues are repeatable.
+Core bootstrap accounts, world records, progs and bootstrap settings remain one-shot; only the documented foundation catalogues are repeatable.
 
 Those are metadata declarations. The source trace above identifies actual lookup/field/transaction behavior; matching names alone do not prove field ownership or preservation. [The shared executor](README.md#shared-execution-contract) handles exceptions and answer persistence but supplies no cross-seeder transaction.
 
@@ -46,3 +46,5 @@ Those are metadata declarations. The source trace above identifies actual lookup
 This guide was checked by static source reading; its addition recipe was not executed. No build, database or runtime result is claimed. For a future content change, add focused source/loader/serialization or selected-path first-install/rerun regression checks as appropriate, following the [verification map](../../../.codex/references/verification-and-docs.md). A source invariant is not proof of installed gameplay behavior.
 
 See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md), [coverage and reviewed evidence](Coverage_and_Evidence.md), and the relevant linked test/source references above.
+
+Tags are authored in [CoreTags.tsv](../../../DatabaseSeeder/Assets/Manifests/CoreTags.tsv), not in material helpers or Useful. Read [Core tag foundations](../Core_Tag_Foundations.md) before adding identities or changing parent paths. The manifest governs adoption and retained IDs independently of live names.

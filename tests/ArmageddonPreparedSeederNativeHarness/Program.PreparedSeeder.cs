@@ -40,6 +40,7 @@ internal static partial class GNHProgram
 		return args.FirstOrDefault() switch
 		{
 			"--prepared-run" => PreparedSeederNative(),
+            "--core-foundations-run" => CoreFoundationQualification(),
 			"--prepared-reader" => PreparedSeederReader(args[1]),
 			"--replay-run" => PreparedSeederReplayNative(),
 			"--settings-run" => PreparedSeederReplayNative(settings: true),

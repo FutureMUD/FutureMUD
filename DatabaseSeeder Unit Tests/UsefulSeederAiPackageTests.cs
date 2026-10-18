@@ -93,7 +93,7 @@ public class UsefulSeederAiPackageTests
             ["covers"] = "no",
             ["items"] = "no",
             ["modernitems"] = "no",
-            ["tags"] = "no",
+
             ["autobuilder"] = "no",
             ["hints"] = "no",
             ["dreams"] = "no"

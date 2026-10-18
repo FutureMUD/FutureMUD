@@ -61,6 +61,7 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase, IAutobuilderRoomPresen
         ForagableProfile = rhs.ForagableProfile;
         ShowCommandByline = rhs.ShowCommandByline;
         ApplyAutobuilderTagsAsFrameworkTags = rhs.ApplyAutobuilderTagsAsFrameworkTags;
+        FrameworkTagBindings = new(rhs.FrameworkTagBindings, StringComparer.OrdinalIgnoreCase);
 
         using (new FMDB())
         {
@@ -108,6 +109,7 @@ public class AutobuilderRoomSimple : AutobuilderRoomBase, IAutobuilderRoomPresen
             new XElement("CellLightMultiplier", AmbientLightFactor),
             new XElement("ForagableProfile", ForagableProfile?.Id ?? 0),
             new XElement("ApplyAutobuilderTagsAsFrameworkTags", ApplyAutobuilderTagsAsFrameworkTags),
+            SaveFrameworkTagBindings(),
             new XElement("ShowCommandByline", new XCData(ShowCommandByline))
         );
     }

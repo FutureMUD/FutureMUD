@@ -10,6 +10,12 @@ namespace DatabaseSeeder;
 
 public static class SeederMetadataRegistry
 {
+    private static bool HasCoreTag(FuturemudDatabaseContext context, string name)
+    {
+        try { CoreTagCatalogue.RequireUniqueStockName(context, name); return true; }
+        catch (InvalidOperationException) { return false; }
+    }
+
     public static SeederMetadata GetMetadata(IDatabaseSeeder seeder)
     {
         return seeder.GetType().Name switch
@@ -19,14 +25,15 @@ public static class SeederMetadataRegistry
 				RerunSummary: "Default No. Opt-in validates foundations and preserves the fixed game-wide mode, class direction and native IDs. Settings commit atomically with their answer mirrors before catalogue modules.",
 				UpdateSummary: "Complete v1 stock reconciles in resumable batches. Fresh installations enable approved stock defaults; existing activation defaults and builder edits are retained. No player refresh or mode conversion.",
 				OwnershipSummary: "One owned installation metadata record plus typed historical module claims. Builder content and player state are preserved; unresolved ownership blocks preflight.",
-				DependencySeederTypes: [typeof(CoreDataSeeder), typeof(AttributeSeeder), typeof(SkillPackageSeeder), typeof(UsefulSeeder), typeof(TimeSeeder), typeof(HealthSeeder), typeof(HumanSeeder), typeof(CombatSeeder), typeof(ChargenSeeder), typeof(ItemSeeder)]),
+				DependencySeederTypes: [typeof(CoreDataSeeder), typeof(AttributeSeeder), typeof(SkillPackageSeeder), typeof(TimeSeeder), typeof(HumanSeeder), typeof(CombatSeeder), typeof(ChargenSeeder)],
+                OrderAfterSeederTypes: [typeof(HealthSeeder), typeof(ItemSeeder)]),
 			nameof(EnvironmentalExposureSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
 				[Requirement("Core materials and fluids must be installed.", context => context.Materials.Any() && context.Liquids.Any())],
 				RerunSummary: "Reconciles exposure-owned fields, reactions, preparations and demonstrations; preserves builder changes and reports conflicts.",
 				OwnershipSummary: "Optional natural and fantasy exposure content; never enables an existing world or creates live hazardous rooms.",
 				DependencySeederTypes: [typeof(CoreDataSeeder)],
 				OrderAfterSeederTypes: [typeof(HumanSeeder), typeof(AnimalSeeder), typeof(AnimalButcherySeeder), typeof(CultureSeeder),
-					typeof(ItemSeeder), typeof(RobotSeeder), typeof(SupernaturalSeeder), typeof(UsefulSeeder), typeof(HealthSeeder), typeof(PsionicsSeeder), typeof(ArmageddonMagicSeeder)]),
+					typeof(ItemSeeder), typeof(RobotSeeder), typeof(SupernaturalSeeder), typeof(HealthSeeder), typeof(PsionicsSeeder), typeof(ArmageddonMagicSeeder)]),
 			nameof(PsionicsSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
 				[Requirement("A skill scaffold must already exist.", context => context.TraitDefinitions.Any(x => x.Type == 0)),
 				 Requirement("The organic Human race must already exist.", context => context.Races.Any(x => x.Name == "Human"))],
@@ -38,8 +45,8 @@ public static class SeederMetadataRegistry
                 SeederUpdateCapability.RepairExisting,
                 Array.Empty<SeederPrerequisite>(),
                 RerunSummary: "Reruns reconcile only the stock foundation catalogues and do not recreate bootstrap-world data.",
-                UpdateSummary: "Materials, fluids, gases, terrain foundations, units, colours, planes and hearing profiles are repaired or completed by stable stock identities.",
-                OwnershipSummary: "Core bootstrap accounts, world records, progs and settings remain one-shot; only the documented foundation catalogues are repeatable."
+                UpdateSummary: "The complete tag taxonomy and guarded tag/material ID bindings, materials, fluids, gases, terrain foundations, units, colours, planes and hearing profiles are repaired or completed by stable stock identities.",
+                OwnershipSummary: "Core bootstrap accounts, world records, progs and bootstrap settings remain one-shot; only the documented foundation catalogues are repeatable."
             ),
             nameof(TimeSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -111,14 +118,14 @@ public static class SeederMetadataRegistry
                     Requirement("The Currency seeder must have installed at least one currency.", context => context.Currencies.Any()),
                     Requirement("The Time seeder must have installed at least one clock and calendar.", context => context.Clocks.Any() && context.Calendars.Any()),
                     Requirement("At least one physical zone must exist.", context => context.Zones.Any()),
-                    Requirement("UsefulSeeder market tags must already exist.", context =>
+                    Requirement("Core market tags must already exist.", context =>
                         context.Tags.Any(x => x.Name == "Market") &&
                         context.Tags.Any(x => x.Parent != null && x.Parent.Name == "Market"))
                 ],
                 RerunSummary: "Reruns install missing stock economy packages for other eras and can restore missing stock-owned market categories, influence templates, populations, shoppers, and helper progs.",
                 UpdateSummary: "Rerunning the same era refreshes the seeded template market, populations, shopper definitions, and stress helper progs without creating duplicates.",
                 OwnershipSummary: "Stock economy content is tracked by stable era-specific names plus a shared EconomySeeder prefix for helper records.",
-                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(CurrencySeeder), typeof(TimeSeeder), typeof(UsefulSeeder)]
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(CurrencySeeder), typeof(TimeSeeder)]
             ),
             nameof(ClanSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Additive,
@@ -156,12 +163,14 @@ public static class SeederMetadataRegistry
                         context.FutureProgs.Any(x => x.FunctionName == "AlwaysTrue") &&
                         context.FutureProgs.Any(x => x.FunctionName == "AlwaysFalse")),
                     Requirement("The Human seeder must have installed the Human race.", context => context.Races.Any(x => x.Name == "Human")),
-                    Requirement("UsefulSeeder crossbow spanning-tool tags must already exist.", context =>
+                    Requirement("Core crossbow spanning-tool tags must already exist.", context =>
                         new[] { "Cranequin", "Goat's Foot", "Lever", "Spanning Hook", "Windlass" }
-                            .All(tag => context.Tags.Any(x => x.Name == tag)))
+                            .All(tag => HasCoreTag(context, tag)))
                 ],
                 RerunSummary: "Reruns reconcile installed combat modules by their stable stock identities without removing builder content.",
-                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(AttributeSeeder), typeof(HumanSeeder), typeof(UsefulSeeder)]
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(AttributeSeeder), typeof(HumanSeeder)],
+                // Optional early firearms clone an approved Sheath. This hint is not a tag prerequisite.
+                OrderAfterSeederTypes: [typeof(UsefulSeeder)]
             ),
             nameof(ChargenSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -225,8 +234,8 @@ public static class SeederMetadataRegistry
                         context.CharacteristicProfiles.Any(x => x.Name == "All Facial Hair Styles"))
                 ],
                 RerunSummary: "This package can be rerun to install missing stock kickstart content without duplicating its tracked packages.",
-                UpdateSummary: "Reruns also refresh the stock wilderness autobuilder room template, area template, and supporting terrain-feature tags by stable names.",
-                OwnershipSummary: "Kickstart now owns stock items, AI, helper tags, the wilderness autobuilder room+area starter package, ranged covers, hints, and dream content; core terrain foundations are seeded separately.",
+                UpdateSummary: "Reruns also refresh the stock wilderness autobuilder room template, area template while consuming Core tag identities.",
+                OwnershipSummary: "Kickstart now owns stock items, AI, the wilderness autobuilder room+area starter package, ranged covers, hints, and dream content; core terrain foundations are seeded separately.",
                 DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder)]
             ),
             nameof(AgricultureSeeder) => new SeederMetadata(
@@ -235,7 +244,7 @@ public static class SeederMetadataRegistry
                 [
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
                     Requirement("Core utility progs must include AlwaysTrue.", context => context.FutureProgs.Any(x => x.FunctionName == "AlwaysTrue")),
-                    Requirement("UsefulSeeder agriculture tags must already exist.", context =>
+                    Requirement("Core agriculture tags must already exist.", context =>
                         new[]
                         {
                             "Seeds", "Seeded Yield", "Agriculture Seedable", "Bee Hive", "Hive Stand",
@@ -248,7 +257,8 @@ public static class SeederMetadataRegistry
                 RerunSummary: "Reruns reuse stock agriculture definitions, operation rows, and their project templates by stable names.",
                 UpdateSummary: "Reruns refresh stock field profiles, crops, herds, woodlands, operations, and project-backed labour templates without duplicating rows.",
                 OwnershipSummary: "Stock agriculture content is tracked by stable profile, crop, herd, woodland, operation, and project names.",
-                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(UsefulSeeder)]
+                DependencySeederTypes: [typeof(CoreDataSeeder)],
+                OrderAfterSeederTypes: [typeof(SkillPackageSeeder), typeof(SkillSeeder)]
             ),
             nameof(PrimaryProductionSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -272,14 +282,14 @@ public static class SeederMetadataRegistry
                 RerunSummary: "Reruns reuse stock primary-production local project templates by deterministic names.",
                 UpdateSummary: "Reruns refresh stock project definitions, labour, material requirements, and resource/commodity actions without duplicating templates.",
                 OwnershipSummary: "Stock primary-production project content is tracked by the Stock Primary Production project-name prefix.",
-                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(UsefulSeeder), typeof(ItemSeeder)]
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(ItemSeeder)]
             ),
             nameof(CookingSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
                 SeederUpdateCapability.InstallMissing,
                 [
                     Requirement("The Core seeder must have created at least one account.", context => context.Accounts.Any()),
-                    Requirement("Useful item components must already include Holdable and Stack_Number.", context =>
+                    Requirement("Core item components must already include Holdable and Stack_Number.", context =>
                         context.GameItemComponentProtos.Any(x => x.Name == "Holdable") &&
                         context.GameItemComponentProtos.Any(x => x.Name == "Stack_Number")),
                     Requirement("Core food materials must already exist.", context =>
@@ -289,7 +299,8 @@ public static class SeederMetadataRegistry
                 RerunSummary: "Reruns install missing prepared-food stock records without mutating the legacy Food component.",
                 UpdateSummary: "This package owns direct prepared-food examples, stackable serving examples, and stock CookedFoodProduct recipe examples by stable names.",
                 OwnershipSummary: "Stock prepared-food content is tracked by CookingSeeder component names, item short descriptions, tags, and recipe names.",
-                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(UsefulSeeder)]
+                DependencySeederTypes: [typeof(CoreDataSeeder)],
+                OrderAfterSeederTypes: [typeof(SkillPackageSeeder), typeof(SkillSeeder)]
             ),
             nameof(AIStorytellerSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -313,7 +324,7 @@ public static class SeederMetadataRegistry
                 ],
                 RerunSummary: "Reruns reuse stock medical knowledges, procedures, phases, and drugs by stable names.",
                 UpdateSummary: "Forward-only upgrades add or refresh higher-tech stock content without removing lower-tech content.",
-                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder), typeof(UsefulSeeder)]
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(HumanSeeder)]
             ),
             nameof(AnimalSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -342,7 +353,7 @@ public static class SeederMetadataRegistry
                 RerunSummary: "Reruns repair the stock-owned Wildlife and Managed Animal controller catalogue, group templates, habitat tags, shelter anchors and supporting progs without changing legacy Animal examples.",
                 UpdateSummary: "Finished wildlife rows are canonical stock definitions; clone them before intentional customisation.",
                 OwnershipSummary: "Only Wildlife- and Managed Animal-prefixed rows plus named wildlife support records are reconciled. Builder-created terrain tags and legacy examples are preserved.",
-                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(AttributeSeeder), typeof(UsefulSeeder), typeof(AnimalSeeder)]
+                DependencySeederTypes: [typeof(CoreDataSeeder), typeof(AttributeSeeder), typeof(AnimalSeeder)]
             ),
             nameof(MythicalAnimalSeeder) => new SeederMetadata(
                 SeederRepeatabilityMode.Idempotent,
@@ -440,7 +451,7 @@ public static class SeederMetadataRegistry
                             .All(attack => context.WeaponAttacks.Any(x => x.Name == attack)))
                 ],
                 RerunSummary: "Reruns install missing stock robot races, bodies, and procedures without duplicating existing entries.",
-                DependencySeederTypes: [typeof(HumanSeeder), typeof(AnimalSeeder), typeof(CombatSeeder), typeof(UsefulSeeder)]
+                DependencySeederTypes: [typeof(HumanSeeder), typeof(AnimalSeeder), typeof(CombatSeeder)]
             ),
             nameof(ItemSeeder) => new SeederMetadata(
 				SeederRepeatabilityMode.Idempotent,

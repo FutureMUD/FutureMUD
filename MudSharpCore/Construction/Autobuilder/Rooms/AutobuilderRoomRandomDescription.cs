@@ -28,6 +28,7 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
         AddToAllRoomDescriptions = rhs.AddToAllRoomDescriptions;
         ShowCommandByline = rhs.ShowCommandByline;
         ApplyAutobuilderTagsAsFrameworkTags = rhs.ApplyAutobuilderTagsAsFrameworkTags;
+        FrameworkTagBindings = new(rhs.FrameworkTagBindings, StringComparer.OrdinalIgnoreCase);
         foreach (KeyValuePair<ITerrain, (AutobuilderRoomInfo, Expression)> info in rhs.TerrainInfos)
         {
             TerrainInfos.Add(info.Key, (info.Value.Item1, new Expression(info.Value.Item2.OriginalExpression)));
@@ -126,6 +127,7 @@ public class AutobuilderRoomRandomDescription : AutobuilderRoomBase
     {
 		XElement result = new("Template",
 			new XElement("ApplyAutobuilderTagsAsFrameworkTags", ApplyAutobuilderTagsAsFrameworkTags),
+            SaveFrameworkTagBindings(),
 			new XElement("ShowCommandByline", new XCData(ShowCommandByline)),
 			new XElement("AddToAllRoomDescriptions", new XCData(AddToAllRoomDescriptions)),
 			new XElement("Default", DefaultInfo.SaveToXml(),

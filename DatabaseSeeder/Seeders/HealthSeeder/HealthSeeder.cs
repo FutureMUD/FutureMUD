@@ -305,7 +305,7 @@ Please answer #3primitive#F, #3pre-modern#0, #3medieval#0, #3renaissance#0, #3ea
                                                  !context.Gases.Any(x => x.Name == "Hartshorn Vapour") =>
                                 (false, "The #3earlymodern#0 health package requires #3Benzoin Fumigation Smoke#0 and #3Hartshorn Vapour#0 from the core gas seed."),
                             "medieval" or "renaissance" or "earlymodern" when TagPathExists(context, FumigationStockTagPath) => (true, string.Empty),
-                            "medieval" or "renaissance" or "earlymodern" => (false, "This historical health package requires the #3Functions / Material Functions / Medical Craft Stock / Fumigation Stock#0 tag. Run the useful tag seed first."),
+                            "medieval" or "renaissance" or "earlymodern" => (false, "This historical health package requires the #3Functions / Material Functions / Medical Craft Stock / Fumigation Stock#0 tag. Rerun Core foundation catalogues first."),
                             _ => (false, "Please answer #3primitive#F, #3pre-modern#0, #3medieval#0, #3renaissance#0, #3earlymodern#0, or #3modern#F.")
                         };
                     })

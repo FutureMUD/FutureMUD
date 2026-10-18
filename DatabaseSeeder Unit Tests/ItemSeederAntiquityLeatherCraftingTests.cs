@@ -216,7 +216,7 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	{
 		var craftSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Crafting.Antiquity.cs");
 		var butcherySource = ReadSource("DatabaseSeeder", "Seeders", "AnimalButcherySeeder", "AnimalButcherySeeder.cs");
-		var coreMaterialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs");
+		var coreMaterialSource = ReadSource("DatabaseSeeder", "Seeders", "CoreDataSeeder", "CoreDataSeeder.Materials.cs") + ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv").Replace("AddTag(context, ", "AddTag(");
 		var hierarchySource = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 
 		AssertContains(butcherySource, "private const string RawHideTag = \"Raw Hide\";");
@@ -248,7 +248,7 @@ public class ItemSeederAntiquityLeatherCraftingTests
 	[TestMethod]
 	public void LeatherCrafts_HaveSupportingTagsAndPeriodTools()
 	{
-		var tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
+		var tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
 		var hierarchySource = ReadSource("Design Documents", "Data", "SeededTagHierarchy.csv");
 		var itemSource = ReadSource("DatabaseSeeder", "Seeders", "ItemSeeder", "ItemSeeder.Antiquity.cs");
 

@@ -70,6 +70,20 @@ public partial class CombatSeeder : IDatabaseSeeder
                 (context, answers) => !HasEarlyFirearms(context),
                 (answer, context) =>
                 {
+                    if (answer.EqualToAny("yes", "y") && !context.GameItemComponentProtos.Any(x => x.Type == "Sheath" && x.EditableItem.RevisionStatus == 4))
+                        return (false, "Early firearms require an approved Sheath donor. Install optional Useful wearables first, or choose no for a preindustrial baseline.");
+                    if (answer.EqualToAny("yes", "y"))
+                    {
+                        foreach (var name in new[] { "MusketRamrodTag", "MusketCleaningRamrodTag", "MusketUnjammingToolTag", "MusketMatchCordTag", "MusketIgnitionSourceTag", "WadItemTagId" })
+                        {
+                            var value = context.StaticConfigurations.Find(name)?.Definition;
+                            if (!long.TryParse(value, out var id) || !context.Tags.Any(x => x.Id == id))
+                                return (false, $"Early firearms require a valid {name} tag ID. Rerun Core foundations and review any preserved custom binding.");
+                        }
+                        var powder = context.StaticConfigurations.Find("GunpowderMaterialId")?.Definition;
+                        if (!long.TryParse(powder, out var powderId) || !context.Materials.Any(x => x.Id == powderId))
+                            return (false, "Early firearms require a valid GunpowderMaterialId. Rerun Core foundations and review any preserved custom binding.");
+                    }
                     return (answer.EqualToAny("yes", "y", "no", "n"), "You must answer yes or no.");
                 }),
             ("installguns",

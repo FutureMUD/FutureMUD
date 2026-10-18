@@ -38,7 +38,7 @@ public class PrimaryProductionSeederTests
 	[TestMethod]
 	public void PrimaryProductionSeeder_DefinesResourceTagsDepositsProjectsAndGatedExtraction()
 	{
-		string tagSource = ReadSource("DatabaseSeeder", "Seeders", "UsefulSeeder", "UsefulSeeder.Tags.cs");
+		string tagSource = ReadSource("DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv");
 		var itemSpecs = ItemSeeder.PrimaryProductionItemSpecsForTesting.ToArray();
 		var projectSpecs = PrimaryProductionSeeder.PrimaryProductionProjectSpecsForTesting.ToArray();
 

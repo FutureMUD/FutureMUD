@@ -73,6 +73,7 @@ internal static partial class GNHProgram
 				.Where(x => Path.GetFileName(x) != "DebugSeederReplay.cs" && Path.GetFileName(x) != "Program.cs"))
 			.Append(Path.Combine(root, "DatabaseSeeder", "DatabaseSeeder.csproj"))
 			.Append(Path.Combine(root, "DatabaseSeeder", "Assets", "Manifests", "Monster_AI_Recommendations.json"))
+            .Append(Path.Combine(root, "DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv"))
 			.Concat(BaseCompilerPins.Select(x => Path.Combine(root, x.Path)))
 			.Append(Path.Combine(root, "Design Documents", "Seeding", "Seeded_Item_Manifest.json"))
 			.Where(x => !Regex.IsMatch(Path.GetRelativePath(root, x).Replace('\\', '/'), @"(^|/)(bin|obj)/|^FutureMUDLibrary/Magic/Stock/"))

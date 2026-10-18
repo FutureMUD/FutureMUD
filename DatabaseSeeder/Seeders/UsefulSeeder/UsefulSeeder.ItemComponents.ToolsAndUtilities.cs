@@ -336,7 +336,7 @@ public partial class UsefulSeeder
                         ),
                         new XElement("Tags",
                             from tag in requiredTags
-                            select new XElement("Tag", _tags[tag].Id)
+                            select new XElement("Tag", CoreTagCatalogue.RequireUniqueStockName(context, tag).Id)
                         )
                     ).ToString());
         }
@@ -1857,47 +1857,7 @@ public partial class UsefulSeeder
             return UpsertComponent(context, ref currentId, dbaccount, now, type, name, description, definition.ToString());
         }
 
-        Tag EnsureTagPath(string path)
-        {
-            var parts = path.Split('/', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries);
-            Tag? parent = null;
-            foreach (var part in parts)
-            {
-                long? parentId = parent?.Id;
-                _tags.TryGetValue(part, out var cachedTag);
-                var tag = context.Tags.Local
-                                 .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase) &&
-                                                      x.ParentId == parentId) ??
-                          context.Tags
-                                 .AsEnumerable()
-                                 .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase) &&
-                                                      x.ParentId == parentId) ??
-                          cachedTag ??
-                          context.Tags.Local
-                                 .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase)) ??
-                          context.Tags
-                                 .AsEnumerable()
-                                 .FirstOrDefault(x => x.Name.Equals(part, StringComparison.OrdinalIgnoreCase));
-                if (tag is null)
-                {
-                    var existing = context.Tags.Any() ? context.Tags.Max(x => x.Id) : 0L;
-                    var local = context.Tags.Local.Any() ? context.Tags.Local.Max(x => x.Id) : 0L;
-                    tag = new Tag
-                    {
-                        Id = Math.Max(existing, local) + 1L,
-                        Name = part,
-                        Parent = parent,
-                        ParentId = parent?.Id
-                    };
-                    context.Tags.Add(tag);
-                }
-
-                _tags[tag.Name] = tag;
-                parent = tag;
-            }
-
-            return parent!;
-        }
+        Tag EnsureTagPath(string path) => CoreTagCatalogue.Require(context, path);
 
         XElement IncenseBurnerDefinition(Tag fuelTag, double maximumFuelWeight, double secondsPerUnitWeight,
             int scentRange, string sourceScent, string distantScent, Difficulty scentDifficulty)

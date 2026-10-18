@@ -2,7 +2,7 @@
 
 ## Start here to add content
 
-Edit [EconomySeeder.cs](../../../DatabaseSeeder/Seeders/EconomySeeder/EconomySeeder.cs): **EnsureMarketCategories and FamilyElasticityMap for category rules; the Useful market-tag catalogue owns tag-derived category names**. Keep source identity and dependent references together. The worked entry below is the smallest existing path to follow before adding a new definition.
+Edit [EconomySeeder.cs](../../../DatabaseSeeder/Seeders/EconomySeeder/EconomySeeder.cs): **EnsureMarketCategories and FamilyElasticityMap for category rules; the Core market-tag manifest owns tag-derived category names**. Keep source identity and dependent references together. The worked entry below is the smallest existing path to follow before adding a new definition.
 
 ## Purpose, operator choices and prerequisites
 
@@ -17,17 +17,17 @@ Metadata prerequisite descriptions:
 - The Currency seeder must have installed at least one currency.
 - The Time seeder must have installed at least one clock and calendar.
 - At least one physical zone must exist.
-- UsefulSeeder market tags must already exist.
+- Core market tags must already exist.
 
 These are checks, not an installation guarantee. The [dependency map](Dependency_Map.md) distinguishes hard ordering edges from soft ordering hints.
 
 ## Inputs, representative trace and practical authoring guide
 
-Named entry: each descendant market tag is treated as a named category in EnsureMarketCategories. The existing Useful tag path `Market > Nourishment > Staple Food` yields the leaf `MarketCategory` named `Staple Food`. EnsureNamedEntity(context.MarketCategories, tag.Name, ...) upserts; fields set description with Economy Category prefix, family elasticity, type 0, XML Tags referencing tag.Id and empty Components for the initial leaf/category pass; a later pass turns selected family categories into Type 1 combinations with component weights, so these are not all final category fields. It saves. Add a market category through the market tag hierarchy and, when needed, update FamilyElasticityMap or StockCombinationCategoryWeights; it is not a direct static MarketCategory list. SeedData also ensures economic zone/market/populations and influence templates using era/currency/zone answers. Explicit transaction and name-based reconciliation. Follow the three linked Economy design documents below.
+Named entry: each descendant market tag is treated as a named category in EnsureMarketCategories. The existing Core tag path `Market > Nourishment > Staple Food` yields the leaf `MarketCategory` named `Staple Food`. EnsureNamedEntity(context.MarketCategories, tag.Name, ...) upserts; fields set description with Economy Category prefix, family elasticity, type 0, XML Tags referencing tag.Id and empty Components for the initial leaf/category pass; a later pass turns selected family categories into Type 1 combinations with component weights, so these are not all final category fields. It saves. Add a market category through the market tag hierarchy and, when needed, update FamilyElasticityMap or StockCombinationCategoryWeights; it is not a direct static MarketCategory list. SeedData also ensures economic zone/market/populations and influence templates using era/currency/zone answers. Explicit transaction and name-based reconciliation. Follow the three linked Economy design documents below.
 
 All named fields and calls above are authored source. The addition steps are static instructions; this documentation task did not add content or execute them. Preserve existing identities, supply all constructor/helper arguments from the adjacent entry, and trace every referenced body, material, trait, tag, component, prog or model to its owning prerequisite. A new unsupported runtime type requires its implementation and registration as well as a source row.
 
-**Worked addition.** For a worked category `Example Preserved Food`, add the intended child under the Useful market-tag hierarchy, then decide whether existing family elasticity/category combination rules are sufficient or require a reviewed mapping. On the selected era route inspect the resolved descendant tag, MarketCategory tag XML and later market/population references. Do not append a standalone MarketCategory initializer: this path derives category identity from tags. These instructions were source-checked but not executed.
+**Worked addition.** For a worked category `Example Preserved Food`, add the intended child under the Core market-tag hierarchy, then decide whether existing family elasticity/category combination rules are sufficient or require a reviewed mapping. On the selected era route inspect the resolved descendant tag, MarketCategory tag XML and later market/population references. Do not append a standalone MarketCategory initializer: this path derives category identity from tags. These instructions were source-checked but not executed.
 
 ## Declared rerun and ownership contract
 

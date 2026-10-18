@@ -521,21 +521,6 @@ public class EconomySeederTests
         return answers;
     }
 
-    private static Dictionary<string, string> BuildUsefulSeederTagAnswers()
-    {
-        return new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
-        {
-            ["tags"] = "yes",
-            ["ai"] = "no",
-            ["items"] = "no",
-            ["modernitems"] = "no",
-            ["covers"] = "no",
-            ["autobuilder"] = "no",
-            ["hints"] = "no",
-            ["dreams"] = "no"
-        };
-    }
-
     private static decimal GetBudgetForShopper(FuturemudDatabaseContext context, string shopperName)
     {
         Shopper shopper = context.Shoppers.Single(x => x.Name == shopperName);
@@ -764,12 +749,12 @@ public class EconomySeederTests
     }
 
     [TestMethod]
-    public void SeedData_WithUsefulSeederMarketTags_CoversCurrentMarketTaxonomy()
+    public void SeedData_WithCoreMarketTags_CoversCurrentMarketTaxonomy()
     {
         using FuturemudDatabaseContext context = BuildContext();
         SeedEconomyPrerequisites(context, false);
 
-        Assert.AreEqual("The operation completed successfully.", new UsefulSeeder().SeedData(context, BuildUsefulSeederTagAnswers()));
+        new CoreDataSeeder().SeedTagsForTesting(context);
         Assert.AreEqual("The operation completed successfully.", new EconomySeeder().SeedData(context, BuildAnswers()));
 
         Dictionary<long, MarketCategory> categoriesById = context.MarketCategories

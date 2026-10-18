@@ -29,6 +29,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase, IAutobuilderRoomPre
         DefaultInfo = rhs.DefaultInfo;
         ShowCommandByline = rhs.ShowCommandByline;
         ApplyAutobuilderTagsAsFrameworkTags = rhs.ApplyAutobuilderTagsAsFrameworkTags;
+        FrameworkTagBindings = new(rhs.FrameworkTagBindings, StringComparer.OrdinalIgnoreCase);
         foreach (KeyValuePair<ITerrain, AutobuilderRoomInfo> info in rhs.TerrainInfos)
         {
             TerrainInfos.Add(info.Key, info.Value);
@@ -104,6 +105,7 @@ public class AutobuilderRoomByTerrain : AutobuilderRoomBase, IAutobuilderRoomPre
     {
         return new XElement("Template",
             new XElement("ApplyAutobuilderTagsAsFrameworkTags", ApplyAutobuilderTagsAsFrameworkTags),
+            SaveFrameworkTagBindings(),
             new XElement("ShowCommandByline", new XCData(ShowCommandByline)),
             new XElement("Default", DefaultInfo.SaveToXml()),
             new XElement("Terrains",

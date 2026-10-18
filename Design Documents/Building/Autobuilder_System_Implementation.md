@@ -228,3 +228,7 @@ before payment and rechecked after callbacks and inside private topology creatio
 rooms and exits are born through the protected lifecycle transaction. Invalid or changed
 presentation refuses; legacy definitions without the template retain their existing behavior.
 These prepared adapter checks do not themselves certify live-world occupancy or cold cleanup.
+
+## Stock selector identity
+
+Room templates may include `FrameworkTagBindings`, with each `Binding` carrying selector text and a framework tag ID. Text continues to drive description/group/road matching; the binding chooses the intended taxonomy branch independently of duplicate leaf names. Save and clone preserve this map. In mapped templates, unbound text labels are not applied as framework tags. Missing mapped IDs fail at load; unmapped legacy templates require unique names and pre-resolve the entire requested tag set before mutating room tags. Typed feature-mask IDs keep their existing precedence. See [Core tag foundations](../Seeding/Core_Tag_Foundations.md).

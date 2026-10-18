@@ -453,6 +453,11 @@ internal static class DebugSeederReplayProfiles
 				("complexity", "complex"),
 				("gerund", "no"),
 				("modern", "yes")),
+			Step<EconomySeeder>(
+				("era", economyEra),
+				("currency", "1"),
+				("zone", "1"),
+				("shopper-scale", "standard")),
 			Step<ClanSeeder>(),
 			Step<HumanSeeder>(
 				("balance", "combat-rebalance"),
@@ -484,22 +489,22 @@ internal static class DebugSeederReplayProfiles
 				("skillmode", "boosts"),
 				("merits", "merit"),
 				("customdescs", "no")),
+			Step<ArenaSeeder>(
+				("arena-name", $"{gameName} Arena"),
+				("arena-zone", "1")),
 			Step<UsefulSeeder>(
 				("ai", "yes"),
 				("covers", "yes"),
 				("items", "yes"),
 				("modernitems", "no"),
-				("tags", "yes"),
 				("autobuilder", "yes"),
 				("hints", "yes"),
 				("dreams", "yes"),
 				("dream-eras", "old")),
 			Step<TrapSeeder>(),
-			Step<EconomySeeder>(
-				("era", economyEra),
-				("currency", "1"),
-				("zone", "1"),
-				("shopper-scale", "standard")),
+			Step<AgricultureSeeder>(),
+			Step<HealthSeeder>(("techlevel", healthTechLevel)),
+			Step<CookingSeeder>(),
 			Step<CombatSeeder>(
 				("installmuskets", "yes"),
 				("installguns", "no"),
@@ -514,12 +519,6 @@ internal static class DebugSeederReplayProfiles
 				("seedsignedlanguages", "no"),
 				("seedheritage", "yes")),
 			Step<StockMeritsSeeder>(),
-			Step<AgricultureSeeder>(),
-			Step<HealthSeeder>(("techlevel", healthTechLevel)),
-			Step<CookingSeeder>(),
-			Step<ArenaSeeder>(
-				("arena-name", $"{gameName} Arena"),
-				("arena-zone", "1")),
 			Step<AnimalSeeder>(
 				("model", "full"),
 				("random", "static"),

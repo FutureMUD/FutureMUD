@@ -1,4 +1,4 @@
-﻿#nullable enable
+#nullable enable
 
 using DatabaseSeeder;
 using DatabaseSeeder.Seeders;
@@ -195,7 +195,7 @@ public class UsefulSeederItemPackageTests
 			["covers"] = covers,
 			["items"] = "no",
 			["modernitems"] = "no",
-			["tags"] = "no",
+
 			["autobuilder"] = "no",
 			["hints"] = "no",
 			["dreams"] = "no"
@@ -407,18 +407,7 @@ public class UsefulSeederItemPackageTests
 
 	private static void SeedRepairKitPrerequisites(FuturemudDatabaseContext context)
 	{
-		context.Tags.AddRange(
-			CreateTag(1, "Armour"),
-			CreateTag(2, "Weapons"),
-			CreateTag(3, "Tools"),
-			CreateTag(4, "Cordage"),
-			CreateTag(5, "Composite Bow"),
-			CreateTag(6, "Clockwork"),
-			CreateTag(7, "Firearm"),
-			CreateTag(8, "Medical Instrument"),
-			CreateTag(9, "Optical Instrument"),
-			CreateTag(10, "Printing Equipment"),
-			CreateTag(11, "Scientific Instrument"));
+		new CoreDataSeeder().SeedTagsForTesting(context);
 
 		context.TraitDefinitions.AddRange(
 			CreateSkill(101, "Tailoring"),
@@ -474,6 +463,44 @@ public class UsefulSeederItemPackageTests
 		Assert.AreEqual(closable, bool.Parse((string)definition.Attribute("Closable")!));
 		Assert.AreEqual(transparent, bool.Parse((string)definition.Attribute("Transparent")!));
 	}
+
+    [TestMethod]
+    public void RepairKitRerun_PreservesCustomTagReferencesInsteadOfRebindingByLeaf()
+    {
+        using var context = BuildContext();
+        SeedGeneralPrerequisites(context);
+        SeedRepairKitPrerequisites(context);
+        var seeder = new UsefulSeeder();
+        seeder.SeedRepairKitsForTesting(context);
+        var kit = context.GameItemComponentProtos.Single(x => x.Name == "Repair_Cordage");
+        var custom = new Tag { Name = "Custom cordage repair" };
+        context.Tags.Add(custom); context.SaveChanges();
+        var xml = XElement.Parse(kit.Definition);
+        xml.Element("Tags")!.Element("Tag")!.Value = custom.Id.ToString();
+        kit.Definition = xml.ToString(); context.SaveChanges();
+        seeder.SeedRepairKitsForTesting(context);
+        Assert.AreEqual(xml.ToString(), kit.Definition);
+    }
+
+    [TestMethod]
+    public void IncenseRerun_PreservesForeignPathFuelReference()
+    {
+        using var context = BuildContext();
+        SeedGeneralPrerequisites(context);
+        SeedMarketCategories(context);
+        new CoreDataSeeder().SeedTagsForTesting(context);
+        var seeder = new UsefulSeeder();
+        seeder.SeedAntiquityComponentGapCoverageForTesting(context);
+        var burner = context.GameItemComponentProtos.Single(x => x.Name == "IncenseBurner_Antiquity_BronzeCenser");
+        var custom = new Tag { Name = "Incense Fuel", Parent = new Tag { Name = "Builder ritual supplies" } };
+        context.Tags.Add(custom); context.SaveChanges();
+        var xml = XElement.Parse(burner.Definition);
+        xml.Element("FuelTag")!.Value = custom.Id.ToString();
+        burner.Definition = xml.ToString(); context.SaveChanges();
+        seeder.SeedAntiquityComponentGapCoverageForTesting(context);
+        Assert.AreEqual(xml.ToString(), burner.Definition);
+        Assert.AreEqual("Builder ritual supplies", custom.Parent.Name);
+    }
 
 	[TestMethod]
 	public void ClassifyItemPackagePresence_NonePartialAndFull_ReturnExpectedStates()
@@ -623,7 +650,9 @@ public class UsefulSeederItemPackageTests
 		context.SaveChanges();
 		UsefulSeeder seeder = new();
 
+		new CoreDataSeeder().SeedTagsForTesting(context);
 		seeder.SeedEraDependencyComponentsForTesting(context);
+		new CoreDataSeeder().SeedTagsForTesting(context);
 		seeder.SeedEraDependencyComponentsForTesting(context);
 
 		string[] dryContainers =
@@ -823,31 +852,16 @@ public class UsefulSeederItemPackageTests
 		}
 	}
 
-	[TestMethod]
-	public void ClassifyTagPackagePresence_FunctionsTagWithoutUsefulMarker_ReturnsReadyToInstall()
-	{
-		using FuturemudDatabaseContext context = BuildContext();
-		SeedGeneralPrerequisites(context);
-		context.Tags.Add(CreateTag(10, "Functions"));
-		context.SaveChanges();
-
-		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, UsefulSeeder.ClassifyTagPackagePresence(context));
-
-		context.Tags.Add(CreateTag(11, "Aluminothermic Welding Portion"));
-		context.SaveChanges();
-
-		Assert.AreEqual(ShouldSeedResult.ExtraPackagesAvailable, UsefulSeeder.ClassifyTagPackagePresence(context));
-
-		var nextId = 12L;
-		foreach (var marker in UsefulSeeder.StockTagPackageMarkersForTesting
-			         .Where(x => !x.Equals("Aluminothermic Welding Portion", StringComparison.OrdinalIgnoreCase)))
-		{
-			context.Tags.Add(CreateTag(nextId++, marker));
-		}
-		context.SaveChanges();
-
-		Assert.AreEqual(ShouldSeedResult.MayAlreadyBeInstalled, UsefulSeeder.ClassifyTagPackagePresence(context));
-	}
+    [TestMethod]
+    public void CoreTags_DoNotCountAsInstalledUsefulPackages()
+    {
+        using var context = BuildContext();
+        SeedGeneralPrerequisites(context);
+        new CoreDataSeeder().SeedTagsForTesting(context);
+        Assert.AreEqual(ShouldSeedResult.ReadyToInstall, UsefulSeeder.ClassifyItemPackagePresence(context));
+        Assert.AreEqual(ShouldSeedResult.ReadyToInstall, UsefulSeeder.ClassifyAutobuilderPackagePresence(context));
+        Assert.IsFalse(new UsefulSeeder().SeederQuestions.Any(x => x.Id == "tags"));
+    }
 
 	[TestMethod]
 	public void ClassifyRangedCoverPackagePresence_ItemPackageCoverOverlapOnly_ReturnsReadyToInstall()
@@ -1079,7 +1093,9 @@ public class UsefulSeederItemPackageTests
 		SeedMarketCategories(context);
 		UsefulSeeder seeder = new();
 
+		new CoreDataSeeder().SeedTagsForTesting(context);
 		seeder.SeedAntiquityComponentGapCoverageForTesting(context);
+		new CoreDataSeeder().SeedTagsForTesting(context);
 		seeder.SeedAntiquityComponentGapCoverageForTesting(context);
 
 		string[] expectedNames =
@@ -1354,6 +1370,7 @@ public class UsefulSeederItemPackageTests
 		context.SaveChanges();
 		SeedMarketCategories(context);
 		UsefulSeeder usefulSeeder = new();
+		new CoreDataSeeder().SeedTagsForTesting(context);
 		usefulSeeder.SeedAntiquityComponentGapCoverageForTesting(context);
 		usefulSeeder.SeedEraDependencyComponentsForTesting(context);
 		usefulSeeder.SeedGeneralCoverageForTesting(context);

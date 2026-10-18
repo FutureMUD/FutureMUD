@@ -39,9 +39,7 @@ public partial class UsefulSeeder
 			.. StockAutobuilderRoomTemplateNames
 				.Select(name => context.AutobuilderRoomTemplates.Any(x => x.Name == name)),
 			.. StockAutobuilderAreaTemplateNames
-				.Select(name => context.AutobuilderAreaTemplates.Any(x => x.Name == name)),
-			.. WildernessGroupedTerrainAutobuilderTagDefinitions
-				.Select(definition => context.Tags.Any(x => x.Name == definition.Name))
+				.Select(name => context.AutobuilderAreaTemplates.Any(x => x.Name == name))
 		];
 
 		return SeederRepeatabilityHelper.ClassifyByPresence(packageChecks);
@@ -66,54 +64,33 @@ public partial class UsefulSeeder
 			return;
 		}
 
-		EnsureWildernessTerrainAutobuilderTags(context);
+        var resolvedTags = CoreTagCatalogue.ResolveFamily(context, "useful_autobuilder");
+        var tagBindings = new XElement("FrameworkTagBindings",
+            CoreTagCatalogue.Declarations.Where(x => x.Family == "useful_autobuilder")
+                .DistinctBy(x => x.Path).Select(x => new XElement("Binding",
+                    new XAttribute("selector", x.Name), new XAttribute("id", resolvedTags[x.Path].Id))));
 
 		foreach (AutobuilderRoomTemplateSeedDefinition roomTemplate in
 		         BuildWildernessGroupedTerrainAutobuilderRoomTemplates(terrains))
 		{
-			EnsureAutobuilderRoomTemplate(context, roomTemplate);
+            roomTemplate.Definition.Add(new XElement(tagBindings));
+			EnsureAutobuilderRoomTemplate(context, roomTemplate, errors);
 		}
 
 		foreach (AutobuilderAreaTemplateSeedDefinition areaTemplate in
 		         BuildWildernessGroupedTerrainAutobuilderAreaTemplates(terrains))
 		{
-			EnsureAutobuilderAreaTemplate(context, areaTemplate);
+			EnsureAutobuilderAreaTemplate(context, areaTemplate, errors);
 		}
 
 		context.SaveChanges();
 	}
 
-	private static void EnsureWildernessTerrainAutobuilderTags(FuturemudDatabaseContext context)
-	{
-		DictionaryWithDefault<string, Tag> tags =
-			context.Tags.ToDictionaryWithDefault(x => x.Name, x => x, StringComparer.OrdinalIgnoreCase);
-
-		foreach ((string name, string parent) in WildernessGroupedTerrainAutobuilderTagDefinitions)
-		{
-			EnsureAutobuilderTag(context, tags, name, parent);
-		}
-	}
-
-	private static void EnsureAutobuilderTag(FuturemudDatabaseContext context,
-		DictionaryWithDefault<string, Tag> tags, string name, string parent)
-	{
-		if (tags.Any(x => x.Key.Equals(name, StringComparison.InvariantCultureIgnoreCase)))
-		{
-			return;
-		}
-
-		Tag tag = new()
-		{
-			Name = name,
-			Parent = string.IsNullOrEmpty(parent) ? null : tags[parent]
-		};
-		tags[name] = tag;
-		context.Tags.Add(tag);
-	}
-
 	private static string BuildSeededTerrainBaseDescription(Terrain terrain, IReadOnlyCollection<string> tags)
 	{
 		List<string> fragments = new();
+        if (terrain.Name.Equals("Sewer", StringComparison.OrdinalIgnoreCase)) fragments.Add("sludge underfoot in the unlit passage");
+        if (terrain.Name.Equals("Ruins", StringComparison.OrdinalIgnoreCase)) fragments.Add("dusty ground and scattered stone amid the ruined site");
 		if (tags.Contains("Urban"))
 		{
 			fragments.Add("worked, human-made surroundings");
@@ -174,43 +151,87 @@ public partial class UsefulSeeder
 		elements.Add(CreateRandomDescriptionElement(text, roomNameText, weight, terrainList, tags));
 	}
 
-	private static void EnsureAutobuilderRoomTemplate(FuturemudDatabaseContext context,
-		AutobuilderRoomTemplateSeedDefinition definition)
-	{
-		AutobuilderRoomTemplate template = SeederRepeatabilityHelper.EnsureNamedEntity(
-			context.AutobuilderRoomTemplates,
-			definition.Name,
-			x => x.Name,
-			() =>
-			{
-				AutobuilderRoomTemplate created = new();
-				context.AutobuilderRoomTemplates.Add(created);
-				return created;
-			});
+    private static SeederManagedRecord? TemplateRecord(FuturemudDatabaseContext context, string entityType, string name)
+    {
+        var key = "useful.autobuilder." + entityType + "." + name;
+        var records = context.SeederManagedRecords.Where(x => x.Seeder == nameof(UsefulSeeder) && x.StableKey == key).ToList();
+        if (records.Count > 1 || records.Any(x => x.Module != "Autobuilder" || x.EntityType != entityType ||
+                x.Retired || x.LogicalId is null || x.RevisionNumber is not null))
+            throw new InvalidOperationException($"Invalid autobuilder ownership for {key}; review provenance before rerunning.");
+        var record = records.SingleOrDefault();
+        if (record is not null && context.SeederManagedRecords.Any(x => x.Seeder == nameof(UsefulSeeder) &&
+                x.EntityType == entityType && x.LogicalId == record.LogicalId && x.StableKey != key))
+            throw new InvalidOperationException($"Shared autobuilder identity for {key}; review provenance before rerunning.");
+        return record;
+    }
 
-		template.Name = definition.Name;
-		template.TemplateType = definition.TemplateType;
-		template.Definition = definition.Definition.ToString();
-	}
+    private static bool MayReconcileTemplate(SeederManagedRecord? record, string name,
+        long? id, string currentName, string current, ICollection<string> errors)
+    {
+        if (record is not null && id is null)
+            throw new InvalidOperationException($"Missing owned autobuilder template {name} (#{record.LogicalId}); explicit reconciliation is required.");
+        if (id is not null && (record is null || currentName != name || record.SeedBaseline != current))
+        {
+            errors.Add($"Preserved unowned, renamed or builder-edited autobuilder template {name} (#{id}). Legacy named selectors may be ambiguous; review before adopting explicit Core bindings.");
+            return false;
+        }
+        return true;
+    }
 
-	private static void EnsureAutobuilderAreaTemplate(FuturemudDatabaseContext context,
-		AutobuilderAreaTemplateSeedDefinition definition)
-	{
-		AutobuilderAreaTemplate template = SeederRepeatabilityHelper.EnsureNamedEntity(
-			context.AutobuilderAreaTemplates,
-			definition.Name,
-			x => x.Name,
-			() =>
-			{
-				AutobuilderAreaTemplate created = new();
-				context.AutobuilderAreaTemplates.Add(created);
-				return created;
-			});
+    private static void RecordTemplate(FuturemudDatabaseContext context, string entityType, string name, long id, string definition)
+    {
+        var key = "useful.autobuilder." + entityType + "." + name;
+        var record = context.SeederManagedRecords.SingleOrDefault(x => x.Seeder == nameof(UsefulSeeder) && x.Module == "Autobuilder" && x.StableKey == key);
+        if (record is null)
+        {
+            record = new SeederManagedRecord { Seeder = nameof(UsefulSeeder), Module = "Autobuilder", EntityType = entityType, StableKey = key, LogicalId = id };
+            context.SeederManagedRecords.Add(record);
+        }
+        record.SeedBaseline = definition;
+        record.ManifestVersion = "2026-10-18";
+        record.AppliedAt = DateTime.UtcNow;
+        context.SaveChanges();
+    }
 
-		template.Name = definition.Name;
-		template.TemplateType = definition.TemplateType;
-		template.Definition = definition.Definition.ToString();
-	}
+    private static void EnsureAutobuilderRoomTemplate(FuturemudDatabaseContext context,
+        AutobuilderRoomTemplateSeedDefinition definition, ICollection<string> errors)
+    {
+        var record = TemplateRecord(context, nameof(AutobuilderRoomTemplate), definition.Name);
+        var template = record is null
+            ? context.AutobuilderRoomTemplates.SingleOrDefault(x => x.Name == definition.Name)
+            : context.AutobuilderRoomTemplates.SingleOrDefault(x => x.Id == record.LogicalId);
+        if (!MayReconcileTemplate(record, definition.Name, template?.Id, template?.Name ?? "",
+            template?.Definition ?? "", errors)) return;
+        if (template is null)
+        {
+            template = new AutobuilderRoomTemplate { Name = definition.Name };
+            context.AutobuilderRoomTemplates.Add(template);
+        }
+        template.TemplateType = definition.TemplateType;
+        template.Definition = definition.Definition.ToString();
+        context.SaveChanges();
+        RecordTemplate(context, nameof(AutobuilderRoomTemplate), template.Name, template.Id, template.Definition);
+    }
+
+    private static void EnsureAutobuilderAreaTemplate(FuturemudDatabaseContext context,
+        AutobuilderAreaTemplateSeedDefinition definition, ICollection<string> errors)
+    {
+        var record = TemplateRecord(context, nameof(AutobuilderAreaTemplate), definition.Name);
+        var template = record is null
+            ? context.AutobuilderAreaTemplates.SingleOrDefault(x => x.Name == definition.Name)
+            : context.AutobuilderAreaTemplates.SingleOrDefault(x => x.Id == record.LogicalId);
+        if (!MayReconcileTemplate(record, definition.Name, template?.Id, template?.Name ?? "",
+            template?.Definition ?? "", errors)) return;
+        if (template is null)
+        {
+            template = new AutobuilderAreaTemplate { Name = definition.Name };
+            context.AutobuilderAreaTemplates.Add(template);
+        }
+        template.TemplateType = definition.TemplateType;
+        template.Definition = definition.Definition.ToString();
+        context.SaveChanges();
+        RecordTemplate(context, nameof(AutobuilderAreaTemplate), template.Name, template.Id, template.Definition);
+    }
 
 	private static XElement CreateRoomInfoElement(Terrain terrain, string roomName, string roomDescription,
 		RoomOutdoorsType? outdoorsType = null, double? ambientLightFactor = null, long? foragableProfileId = null)

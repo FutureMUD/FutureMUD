@@ -875,6 +875,12 @@ The syntax is:
             return;
         }
 
+		if (actor.Combat.Friendly && target.Combat != actor.Combat)
+		{
+			actor.Send("You can only force another participant to move during friendly combat.");
+			return;
+		}
+
         string mode = ss.PopSpeech().ToLowerInvariant();
         switch (mode)
         {

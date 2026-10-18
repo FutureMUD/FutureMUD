@@ -1217,7 +1217,7 @@ On worlds enabling hostile guard challenges, #3get sword !!#0 or #3get gem chest
         {
             double amount = actor.Gameworld.UnitManager.GetBaseUnits(weightMatch.Groups["weight"].Value,
                 Framework.Units.UnitType.Mass, out bool success);
-            if (!success)
+            if (!success || !double.IsFinite(amount) || amount <= 0.0)
             {
                 actor.OutputHandler.Send("That is not a valid weight of commodity to drop.");
                 return;
@@ -1255,12 +1255,12 @@ On worlds enabling hostile guard challenges, #3get sword !!#0 or #3get gem chest
                 return;
             }
 
-            IGameItem item = targetItem.DropByWeight(actor.Location, amount);
-            if (CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.Littering, null, item))
+            if (CrimeExtensions.HandleCrimesAndLawfulActing(actor, CrimeTypes.Littering, null, targetItem))
             {
                 return;
             }
 
+            IGameItem item = targetItem.DropByWeight(actor.Location, amount);
             actor.Body.Drop(item, 0, match.Groups["new"].Length > 0, emote);
         }
         else if (match.Success)

@@ -98,6 +98,8 @@ Ordinary drugs retain their original dose and metabolism behavior. Magical numer
 
 Compatibility is explicit in `SubstanceSpellResolver`, rather than invoking every spell template with a missing caster. Unknown types fail readiness. Each template must also accept the chosen character/item trigger.
 
+Damage payloads validate and dose-scale each independently authored damage, pain and stun expression. Omitted pain/stun expressions continue to inherit the scaled damage amount. All three channels use the same source-independent formula restrictions.
+
 Supported numeric families include healing/mending, damage, stamina and magic-resource changes, needs, trait bonuses, glow, weight, healing/stamina/need rates, rage/pacifism intensity, item damage/enchantment and spell-armour capacity. Multipliers scale around 1, not 0. Maintained updates change the existing child, preserving identity and state such as absorbed armour damage.
 
 Supported indivisible families include invisibility and senses, flight/water breathing, sleep/paralysis/silence, fear/curse, planar states and shifts, transformation forms (character targets only), magic tags, item creation/destruction, and compatible removal templates. A removal template retains its existing meaning: for example, removing a matching magical poison payload is not a new universal cure for all physiological drugs.

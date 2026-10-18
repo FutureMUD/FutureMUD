@@ -4,14 +4,14 @@ Armageddon v1 is an optional Release and Debug installer package: ten capability
 
 ## Availability policy
 
-Draft review note: the current branch opens all ten fresh Class roles, but the final choice for Defiler admission is pending Luke's answer. Defiler can fund only from configured Land; no Land bindings are installed automatically. The narrow proposed alternative is to leave only its Class admission closed until a builder configures Land and explicitly enables it. Do not interpret this draft as final enablement approval. The [packaging receipt](Armageddon_V1_Release_Packaging_20261018.md) records the completed independent verification and remaining decision.
+Luke explicitly approved offering Defiler immediately alongside the other Classes on fresh classes-on installs. Defiler funds from builder-configured Land; no region or room is bound automatically. PR803 is merged and its reviewed-head checks passed. The [packaging receipt](Armageddon_V1_Release_Packaging_20261018.md) retains its dated execution scope; the [regional qualification](Armageddon_Regional_Land_Qualification_20261018.md) records the new follow-up and its own final-head CI boundary.
 
 | Surface | Fresh explicit full install | Existing installation / builder ownership |
 | --- | --- | --- |
 | Release package menu | Available; installation defaults to **No on every visit** | Downloading/upgrading binaries performs no installation or activation |
 | Complete casting and Classes | Enabled only after complete canonical admissions exist; ten Class roles only if earlier Chargen chose classes | Prior activation defaults retained; edited capability XML and Class availability preserved |
 | Magic skills and permanent merits | Skills excluded from generic chargen/teaching; Class selection or explicit staff merit plus enrolment owns starting grants | Existing characters, acquired spells, grades, skill opportunities and reserves untouched |
-| Source gathering | Independent permission open; Sorcerer Self/Land, Preserver Self, Defiler Land | Edited permission bodies preserved; builder supplies eligible real Land/profile/terrain/life bindings |
+| Source gathering | Independent permission open; Sorcerer Self/Land/Wildland, Preserver Self, Defiler Land/Wildland | Edited permission bodies preserved; builder supplies eligible real Land/profile/terrain/life bindings |
 | Focus/device use and crafts | Editable permission open; native entitlement, knowledge, skill, materials, time and payment checks still apply | Edited policy bodies preserved; incompatible signatures/ownership refuse explicitly |
 | Carrier scope and creature foundations | Mend Flesh charged and Restorative Mud topical only; conjured race/culture/ethnicity chargen stays closed | Other candidate carriers and optional variants stay unchanged |
 
@@ -32,7 +32,7 @@ Inspect the installation report and resolve any typed preflight refusal before c
 
 ## Attach a character
 
-For a fresh v1 install, the complete policies and matching Class route are ready. Start with an Earth Elementalist to use native passive rest funding without Land setup. Before offering Land-dependent Classes such as Defiler, configure and preview an eligible living-land binding. Installation creates no vegetation or room bindings.
+For a fresh v1 install, the complete policies and matching Class route are ready. Start with an Earth Elementalist to use native passive rest funding without Land setup. Defiler is offered immediately by the approved fresh Class policy; builders should configure and preview usable Land before players need its Land-only funding. Installation creates no vegetation or region/room bindings.
 
 With classes enabled, the matching selected Class supplies its permanent capability merit during ordinary character construction. Character approval flushes the durable character, then invokes selected-Class casting enrolment. The fresh complete stock policies explicitly opt in to that hook. Enrolment owns the authored starting spell knowledge and skill/support openings, once, at controlled grade 1. Package Class roles have no duplicate magic trait adjustments: those would enter the mandatory skill picker, receive a culture starting value, then add the role amount before enrolment. Supported reconciliation removes untouched legacy stock trait links, preserves and reports a builder-edited link array as a whole, and never changes existing characters. A retry uses the same durable enrolment instead of creating a second character or repeating starting grants.
 

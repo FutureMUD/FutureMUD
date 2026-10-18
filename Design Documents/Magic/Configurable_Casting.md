@@ -537,6 +537,9 @@ this hook automatically. A failed authored enrolment can be retried directly.
 capability enrolments. Completion follows durable starting acquisitions; incomplete or
 misbound records are excluded. Shared canonical spell knowledge cannot infer another
 teaching route. Learning history remains when permanent permission becomes inactive.
+The native store fetches all relevant enrolments for that canonical owner in one query
+per description read. It does not cache the result across reads, so enrolment changes
+remain immediately visible.
 The active flag checks the supplied physical body's currently attached capability and
 enabled valid policy, without demanding current energy or casting posture. A temporary
 attachment can reactivate an already learned route; it cannot create learning history.

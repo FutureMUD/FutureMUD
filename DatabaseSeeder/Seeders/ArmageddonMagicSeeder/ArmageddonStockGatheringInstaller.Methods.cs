@@ -17,7 +17,7 @@ public static partial class ArmageddonStockGatheringInstaller
 
 	internal static Bindings Resolve(FuturemudDatabaseContext db)
 	{
-		ArmageddonStockSupportInstaller.ValidateClosedGatheringGate(db);
+		ArmageddonStockSupportInstaller.ValidateGatheringGate(db);
 		ArmageddonGatheringRegisters.Preflight(db);
 		foreach (var definition in ArmageddonGatheringRegisters.Definitions)
 			if (!db.VariableDefinitions.Any(x => x.OwnerTypeDefinition == definition.OwnerTypeDefinition && x.Property == definition.Property))

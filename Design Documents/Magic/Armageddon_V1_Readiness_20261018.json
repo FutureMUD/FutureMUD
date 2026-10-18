@@ -4,10 +4,9 @@
   "scope": "Armageddon contribution to FutureMUD v1.0; this does not certify every engine product or publish a release.",
   "authority": "Direct user instruction: prioritize readiness for v1.0 and stop treating obscure injected database edge cases as necessary release blockers.",
   "supersedes": "Earlier S6 requirements for an exhaustive provider-fault/full-matrix campaign and subjective final balance approval as prerequisites for this v1.0 slice. Actual recorded outcomes are unchanged.",
-  "implementation_branch": "codex/armageddon-s6-continuation-20261016",
-  "code_and_native_evidence_head": "b201212a074a0d031ee614869168481853f90c7d",
-  "pr": "https://github.com/FutureMUD/FutureMUD/pull/801",
-  "s6_essential_status": "NORMAL_GAMEPLAY_INSTALLATION_AND_PERSISTENCE_SCOPES_QUALIFIED_CI_PENDING",
+  "implementation_branch": "codex/armageddon-v1-release-packaging-20261018",
+  "pr": "https://github.com/FutureMUD/FutureMUD/pull/803",
+  "s6_essential_status": "NORMAL_GAMEPLAY_INSTALLATION_AND_PERSISTENCE_SCOPES_QUALIFIED_REVIEWED_HEAD_CI_PASSED",
   "release_blocker_rule": "Block on reproduced ordinary-use failure of supported installation/upgrade, core player workflows, permissions, persistence/custody, or required build/CI checks. Expand testing only for a concrete gap or reproduced normal-use failure.",
   "essential_gates": [
     {
@@ -58,11 +57,11 @@
     },
     {
       "key": "required-build-and-ci",
-      "status": "PENDING_CURRENT_HEAD_CI",
+      "status": "PR801_REVIEWED_AND_MERGED_MASTER_PASS_NEW_PACKAGING_HEAD_SEPARATE",
       "evidence": [
         "Armageddon_S6_Readiness_Qualification_20261017.json"
       ],
-      "scope": "Retain passed owning builds/tests and current native harness checks; require final-head normal hosted jobs. No skips/assertion weakening introduced."
+      "scope": "PR801 exact reviewed head edac5e5d3e2d26a80fc3833359e3973b9b95ad2a passed four hosted jobs. Merged-master run39080875832 at0b40f0ed58e8fd53b0e1c618a75e6eabed29116d passed actual Linux and Windows default test steps. Packaging local checks pass within their receipt scopes; final draft head CI remains required."
     }
   ],
   "normal_borrow_evidence": {
@@ -105,11 +104,12 @@
     }
   ],
   "next_actions": [
-    "Complete final-head ordinary hosted CI and fix any actual required-check regression.",
-    "Use the installer/player guide and this bounded checklist for release handoff; retain known issues and dated evidence."
+    "Resolve the single fresh Defiler Class admission decision with Luke; do not infer an answer.",
+    "Require the exact final packaging PR head normal hosted CI before merge or release use.",
+    "Retain deferred failures and dated qualification scopes without another matrix or fault campaign."
   ],
-  "release_enabled": false,
-  "stock_and_class_availability_enabled": false,
+  "release_enabled": true,
+  "stock_and_class_availability_enabled": true,
   "release_activation_or_publication_authorized": false,
   "merge_authorized": false,
   "deploy_authorized": false,
@@ -132,5 +132,16 @@
       "sha256": "868771CC010B916CAC2B8F0522DA5C09BAB78DC69DEAFF8CA96CFA7FCAA47DEF"
     }
   ],
-  "verification_boundary": "Policy/documentation revision only. No runtime, seeder content, database, tests, numerical balance, feature availability or CI configuration changed."
+  "verification_boundary": "New task changes optional Release packaging and fresh-install defaults; historical evidence files/pins and actual failures are unchanged. See separate packaging receipt for new execution and remaining CI.",
+  "previous_implementation_branch": "codex/armageddon-s6-continuation-20261016",
+  "previous_pr_merged_at": "0b40f0ed58e8fd53b0e1c618a75e6eabed29116d",
+  "packaging_evidence": "Armageddon_V1_Release_Packaging_20261018.md",
+  "package_availability_change_authorized": true,
+  "existing_game_activation_authorized": false,
+  "stock_and_class_availability_scope": "NEW_EXPLICIT_FULL_INSTALLS_ONLY_BUILDER_OVERRIDES_PRESERVED",
+  "previous_code_and_native_evidence_head": "b201212a074a0d031ee614869168481853f90c7d",
+  "packaging_implementation_commit": "f41b8aa228e0461700c900ea8b7e0ff68e2dcfb6",
+  "packaging_portable_receipt": "Armageddon_V1_Release_Packaging_20261018.json",
+  "packaging_recommendation": "PENDING_DEFILER_CLASS_ADMISSION_DECISION_AND_FINAL_HEAD_CI",
+  "release_enabled_scope": "Optional package menu availability in Release/Debug only; no existing-world activation or release publication."
 }

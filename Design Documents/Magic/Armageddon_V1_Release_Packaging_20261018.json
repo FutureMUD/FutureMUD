@@ -1,0 +1,381 @@
+{
+  "schema_version": 1,
+  "date": "2026-10-18",
+  "base": "0b40f0ed58e8fd53b0e1c618a75e6eabed29116d",
+  "branch": "codex/armageddon-v1-release-packaging-20261018",
+  "draft_pr": "https://github.com/FutureMUD/FutureMUD/pull/803",
+  "implementation_commit": "f41b8aa228e0461700c900ea8b7e0ff68e2dcfb6",
+  "tested_inputs": "Implementation commit plus only the outer native harness timeout repair pinned below; later receipt/docs edits were not part of the frozen native execution.",
+  "recommendation": "PENDING_DEFILER_CLASS_ADMISSION_DECISION_AND_FINAL_HEAD_CI",
+  "activation_decision": {
+    "status": "PENDING_LUKE",
+    "current_draft": "All ten Class roles open on new full classes-on installs",
+    "question": "Leave only fresh Defiler Class admission closed until the builder configures Land and explicitly enables it?",
+    "reason": "Defiler is Land-only and world-specific Land bindings are intentionally not installed.",
+    "policy_changed_while_pending": false,
+    "existing_worlds_and_builder_edits": "Preserved"
+  },
+  "managed": [
+    {
+      "lane": "release",
+      "path": "validation\\release\\luker_PERCIVAL_2026-10-18_11_09_59_net10.0.trx",
+      "sha256": "63F39CC7CBE1D00FDCA54B9C132B2C53B6020CA9AB777B200B48DB22F429E553",
+      "individual_results": {},
+      "note": "Testhost connection aborted; zero executed."
+    },
+    {
+      "lane": "release-retry",
+      "path": "validation\\release-retry\\luker_PERCIVAL_2026-10-18_11_11_22_net10.0.trx",
+      "sha256": "B57F0E6BD7180D73A363FB3378F803D357103F11568CC384D96735C371AF5F52",
+      "individual_results": {
+        "Passed": 272,
+        "Failed": 1
+      },
+      "note": "272 passed; one obsolete false-gate assertion failed; preserved."
+    },
+    {
+      "lane": "release-affected",
+      "path": "validation\\release-affected\\luker_PERCIVAL_2026-10-18_11_26_51_net10.0.trx",
+      "sha256": "7BF460B36E2571E9291116D3E9C665DEC88BE99B8C46C35BCF8BC8E75327F92C",
+      "individual_results": {
+        "Passed": 7
+      },
+      "note": "Corrected typed gate refusal and builder activation preservation; seven passed."
+    },
+    {
+      "lane": "debug",
+      "path": "validation\\debug\\luker_PERCIVAL_2026-10-18_11_27_46_net10.0.trx",
+      "sha256": "6B056A574845077F134D3B0DDED536E2F1D30C1C83A12F436AEA51F83008DCAD",
+      "individual_results": {
+        "Passed": 1979,
+        "NotExecuted": 3
+      },
+      "note": "Final test sources:1979 passed,3 Unix-only skips; no failures."
+    }
+  ],
+  "overlapping_results_added": false,
+  "builds": "Seeder/test and native harness Debug/Release builds passed with existing warnings. No full Core/solution rerun.",
+  "native": {
+    "status": "PASS",
+    "scope": "Release original installed Earth policy; copied mundane body and Player account, explicit permanent merit, zero magic knowledge/skills/reserve; actual native enrolment, funding, practice and cold persistence. No full chargen UI certificate.",
+    "native_exit": 0,
+    "assertion_count": 17,
+    "assertions": [
+      "Matching parent-ready receipt before owned SQL or MUD startup",
+      "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+      "first: native MUD ready",
+      "first: native Admin avatar login and LOOK",
+      "S5 progression: normal full-stock enrolment grants only starting roots at grade one and native raw opening; empty reserve refuses paid practice",
+      "S5 funding: actual zero-to-first-50-energy reserve from native real-minute regeneration at rest; no direct credit or gather fallback",
+      "S5 progression: ordinary Player performs full-cost target-free thirty-second canonical practice; native zero-or-half-point gain, grade separation and persisted opportunity gate",
+      "first: original Release stock policy and definitions retained; no private capability copy",
+      "first: native flush and independent persisted LastLoginTime",
+      "first: graceful shutdown, persisted avatar/cell and logout",
+      "cold: native MUD ready",
+      "cold: native Admin avatar login and LOOK",
+      "S5 progression: pre-login cold SQL retains exact acquisitions, raw skills, opportunities, paid operation and resource balances",
+      "S5 progression: ordinary Player cold login preserves progress and paid terminal operation without replay/refund; only native passive increment allowed",
+      "cold: original Release stock policy and definitions retained; no private capability copy",
+      "cold: native flush and independent persisted LastLoginTime",
+      "cold: graceful shutdown, persisted avatar/cell and logout"
+    ],
+    "base_descriptor": "FutureMUD\\.artifacts\\pre-armageddon-base-fixtures\\20261018T002500Z_8c975cea11944e9eb3cce3926b6edaa2\\base-world.json",
+    "base_descriptor_sha256": "D3D1B2376BBE9A50331ADD37BDBADC075E287DB0FB35E86D96ED4A1F42FB10FE",
+    "base_sql_sha256": "955D3824FD8F4DE8A767FDB0483B9E008CD8A7E44CC391CC3D70553D4650F8E3",
+    "source_manifest_sha256": "D029369DB301F4E9CCBB2F264170F8FEE5B8A4772CB2898243AF4741B4176E0C",
+    "source_stable": true,
+    "release_assembly_manifests_stable": true,
+    "release_server_assemblies": [
+      {
+        "path": "FutureMUD\\MudSharpCore\\bin\\Release\\net10.0\\MudSharp.dll",
+        "sha256": "8B48E1727BC94D555B2F4696F89177D50226901BFC42EC8FE1AB7102A4B0A9FE"
+      },
+      {
+        "path": "FutureMUD\\MudSharpCore\\bin\\Release\\net10.0\\FutureMUDLibrary.dll",
+        "sha256": "36F6C524156EF1D90FC25F899C7789F5EC4B8B4D12834220A90281E3A503AEFD"
+      },
+      {
+        "path": "FutureMUD\\MudSharpCore\\bin\\Release\\net10.0\\MudsharpDatabaseLibrary.dll",
+        "sha256": "6226B098EFD03793953BA7F423455DB58E4B89EF1756ECEA1A3F9AA18F806062"
+      },
+      {
+        "path": "FutureMUD\\MudSharpCore\\bin\\Release\\net10.0\\ExpressionEngine.dll",
+        "sha256": "08851963D4C0D616E524B50A0C5A812119CE10751E9FB14FF0DCE0BB9C101FA8"
+      }
+    ],
+    "player": {
+      "actor": 2,
+      "body": 2,
+      "original_earth_capability": 1,
+      "original_earth_merit": 89,
+      "resource": 2,
+      "authority_by_phase": {
+        "first": [
+          [
+            "0",
+            "2"
+          ]
+        ],
+        "cold": [
+          [
+            "0",
+            "2"
+          ]
+        ]
+      },
+      "roots": [
+        [
+          "20",
+          "1"
+        ],
+        [
+          "43",
+          "1"
+        ],
+        [
+          "69",
+          "1"
+        ],
+        [
+          "80",
+          "1"
+        ],
+        [
+          "91",
+          "1"
+        ],
+        [
+          "143",
+          "1"
+        ]
+      ],
+      "opening": 10.0,
+      "funding_elapsed_seconds": 747.95,
+      "funded_balance": 52.0,
+      "reserve_before_practice": 52.0,
+      "paid": 50,
+      "reserve_after_payment": 2.0,
+      "practice_duration_seconds": 30,
+      "opportunity_seconds": 60,
+      "practice_operation_id": "ffeb7fe8-9815-4bd2-b65b-4937d2ee979c",
+      "practice_stage": "Completed",
+      "raw_before": 10.0,
+      "raw_after": 10.0,
+      "saved_balance": 2.0,
+      "cold_balance": 2.0,
+      "cold_status": "PASS"
+    },
+    "cleanup": {
+      "mud_phases": [
+        {
+          "phase": "first",
+          "pid": 21076,
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        },
+        {
+          "phase": "cold",
+          "pid": 45080,
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        }
+      ],
+      "owned_database_deleted": true,
+      "mysql_shutdown_complete": true,
+      "owned_temp_directory_absent": true,
+      "owned_native_processes_remaining": 0
+    },
+    "artifacts": [
+      {
+        "path": "native-v1\\release-budget-retry\\20261018T004141Z_bca9d6bc2beb4e16bfb995c98810beb0\\summary.json",
+        "sha256": "4436659B0E67CF9372E4785D693DB5DCFFE9A161A9D68652A124CFDFBC6CEAC9"
+      },
+      {
+        "path": "native-v1\\release-budget-retry\\20261018T004141Z_bca9d6bc2beb4e16bfb995c98810beb0\\base-world-run.json",
+        "sha256": "91A816A791E694E3DEBD6B1A0F077FF82851BD8C3E74020FC4CE8A31772CC39F"
+      },
+      {
+        "path": "native-v1\\release-budget-retry\\20261018T004141Z_bca9d6bc2beb4e16bfb995c98810beb0\\source-start.json",
+        "sha256": "D029369DB301F4E9CCBB2F264170F8FEE5B8A4772CB2898243AF4741B4176E0C"
+      },
+      {
+        "path": "native-v1\\release-budget-retry\\20261018T004141Z_bca9d6bc2beb4e16bfb995c98810beb0\\source-end.json",
+        "sha256": "D029369DB301F4E9CCBB2F264170F8FEE5B8A4772CB2898243AF4741B4176E0C"
+      },
+      {
+        "path": "native-v1\\release-budget-retry\\20261018T004141Z_bca9d6bc2beb4e16bfb995c98810beb0\\assemblies-release-start.json",
+        "sha256": "DA94CBFAD0EF28D7A44A80FBF6467903539545041B81FED654AB5C6518C9E245"
+      },
+      {
+        "path": "native-v1\\release-budget-retry\\20261018T004141Z_bca9d6bc2beb4e16bfb995c98810beb0\\assemblies-release-end.json",
+        "sha256": "DA94CBFAD0EF28D7A44A80FBF6467903539545041B81FED654AB5C6518C9E245"
+      },
+      {
+        "path": "native-v1\\release-budget-retry\\20261018T004141Z_bca9d6bc2beb4e16bfb995c98810beb0\\assemblies.json",
+        "sha256": "B9095079B42966A2B544C9C99F229D2E95DE92673B8EB596C78282670EA2BB0B"
+      },
+      {
+        "path": "native-v1\\release-budget-retry\\20261018T004141Z_bca9d6bc2beb4e16bfb995c98810beb0\\mysql.err",
+        "sha256": "0B54D05BE283982962831725EBA45DC32854F75B248726046E1E206477E81629"
+      },
+      {
+        "path": "native-v1\\release-budget-retry.log",
+        "sha256": "48CE282F1291CD58ADF214E21F731C73D6217C76B728D51193AA53DAD8385A9E"
+      },
+      {
+        "path": "prepared-catalogue-boot-native-release-18f022eb7bcb460895f6cb439dafeace\\boot-latest.json",
+        "sha256": "6F6203A2022599FD3337BCADA3095A919198FE02913C30F6E3A337C8A7BE1C06"
+      },
+      {
+        "path": "prepared-release-stock-input_5872fd2c047546f5bb6fa5896700c2b9.json",
+        "sha256": "88BC57B3806FAD08C9DA022BDB07FB542BCF3F7AD8E40D00B7F34233E1ABA9B6"
+      },
+      {
+        "path": "prepared-catalogue-boot-native-release-18f022eb7bcb460895f6cb439dafeace\\runtime-cold-179c68368f834e4a94a69a4970a62c53\\s5-player-transcript.txt",
+        "sha256": "5CE68E5CEECD3266B343F8FDB1538C2EC5E158400863CE03C278EB67DF3FA53A"
+      },
+      {
+        "path": "prepared-catalogue-boot-native-release-18f022eb7bcb460895f6cb439dafeace\\runtime-cold-179c68368f834e4a94a69a4970a62c53\\telnet-transcript.txt",
+        "sha256": "AB9457B992EF74C89FEE417A0758456F0FFB9F6716770D8D774C3FBA0847E984"
+      },
+      {
+        "path": "prepared-catalogue-boot-native-release-18f022eb7bcb460895f6cb439dafeace\\runtime-first-98551fb9f5704f19afa68fdb0e5d1890\\s5-player-transcript.txt",
+        "sha256": "D14FA6DA0EC2B2B501B2BC686A75FCFC72EDF2EAA412381E19677208ED2263FB"
+      },
+      {
+        "path": "prepared-catalogue-boot-native-release-18f022eb7bcb460895f6cb439dafeace\\runtime-first-98551fb9f5704f19afa68fdb0e5d1890\\telnet-transcript.txt",
+        "sha256": "B8925A2C5E4B9B57B850602E40955F9EF88CCE8ACCEEAAAF5358ADFC34DA437E"
+      }
+    ],
+    "prior_attempts_preserved": [
+      "native-v1/capture.log",
+      "native-v1/release-operator-receipt.json"
+    ],
+    "fault_injection_performed": false
+  },
+  "native_operator_receipt": {
+    "path": "native-v1/release-budget-operator-receipt.json",
+    "sha256": "4B3552356780BF3B4094437578494DB5CBDF71FB26DCEFE3A117600DC7D9A6EF"
+  },
+  "release_installer_and_harness_assemblies": [
+    {
+      "path": "tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Release\\net10.0\\GatheringNativePersistenceHarness.dll",
+      "sha256": "61D3016038431CAA171AD6D23B45B5F3FC0A392F10A2288FA9A3B1A5DC34DF90"
+    },
+    {
+      "path": "tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Release\\net10.0\\GatheringNativePersistenceHarness.deps.json",
+      "sha256": "033EACC982F83AB10D33058BF31FA1D31DCDC9CBA2422F045CE5291484906F97"
+    },
+    {
+      "path": "tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Release\\net10.0\\GatheringNativePersistenceHarness.runtimeconfig.json",
+      "sha256": "ABC33BE2CC60BD28EBDE8C25AD5C6F0872CCAD01512702C8C157F9E130624F13"
+    },
+    {
+      "path": "tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Release\\net10.0\\MudSharp.dll",
+      "sha256": "8B48E1727BC94D555B2F4696F89177D50226901BFC42EC8FE1AB7102A4B0A9FE"
+    },
+    {
+      "path": "tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Release\\net10.0\\FutureMUDLibrary.dll",
+      "sha256": "36F6C524156EF1D90FC25F899C7789F5EC4B8B4D12834220A90281E3A503AEFD"
+    },
+    {
+      "path": "tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Release\\net10.0\\MudsharpDatabaseLibrary.dll",
+      "sha256": "6226B098EFD03793953BA7F423455DB58E4B89EF1756ECEA1A3F9AA18F806062"
+    },
+    {
+      "path": "tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Release\\net10.0\\ExpressionEngine.dll",
+      "sha256": "08851963D4C0D616E524B50A0C5A812119CE10751E9FB14FF0DCE0BB9C101FA8"
+    },
+    {
+      "path": "tests\\ArmageddonPreparedSeederNativeHarness\\bin\\Release\\net10.0\\DatabaseSeeder.dll",
+      "sha256": "BD3A4405AEEE1866FA8209B2F86BEC9CD68AF38F8F0336EBB2B7583FE68F0551"
+    }
+  ],
+  "budget_repair": {
+    "scope": "Outer Release child timeout only; 21 to 32 minutes",
+    "file": "tests/ArmageddonPreparedSeederNativeHarness/Program.ReleaseStockSmoke.cs",
+    "sha256": "672416F9BF0EF9C423273DB635049FDDC2C5EFC9F4DF3B569249B2E89738B8B7",
+    "funding_limit_seconds": 900,
+    "python_limit_seconds": 1140,
+    "boot_handoff_seconds": 1200,
+    "gameplay_changes": false
+  },
+  "fixture": {
+    "descriptor_sha256": "D3D1B2376BBE9A50331ADD37BDBADC075E287DB0FB35E86D96ED4A1F42FB10FE",
+    "dump_sha256": "955D3824FD8F4DE8A767FDB0483B9E008CD8A7E44CC391CC3D70553D4650F8E3",
+    "capture": "PASS; clean pre-Armageddon prefix and unchanged repeat refusal",
+    "historical_fixtures": "Unmodified; incompatible current-source pins were not widened"
+  },
+  "earlier_release_attempt": {
+    "status": "INCONCLUSIVE",
+    "reason": "Coordinator instructed operator stop because measured installation/setup consumed 8m34 of outer21min child allowance, leaving insufficient time for fixed900s funding plus boot/practice/cold. No gameplay/fault failure inferred.",
+    "native_exit": 1,
+    "source_stable": true,
+    "source_sha256": "B136A7B0EFB808C4B4E91B3987349EAC006DAEB1EBD75D1945281F0860930049",
+    "base_descriptor_sha256": "D3D1B2376BBE9A50331ADD37BDBADC075E287DB0FB35E86D96ED4A1F42FB10FE",
+    "release_shared_executor_full_install": "PASS",
+    "original_gate_audit_and_player_input_preparation": "PASS",
+    "first_server_ready": "NOT_PROVEN",
+    "ordinary_enrolment": "NOT_RUN",
+    "rest_funding": "NOT_RUN",
+    "paid_practice": "NOT_RUN",
+    "cold_restart": "NOT_RUN",
+    "boot_receipt_exists": false,
+    "cleanup": {
+      "owned_native_processes_remaining": 0,
+      "database_deleted": true,
+      "mysql_shutdown_complete": true,
+      "owned_temp_directory_absent": true
+    },
+    "release_log_sha256": "897A0544E2CDAC050A545D6DF767256586D06F70E1C6FDBD26EA2E01D92BA0CA",
+    "summary_sha256": "4E86A0B909CC6D66E714BE8D536FCC8AD7E3994E2CEB05E4E0E4D187CF93880B",
+    "first_sandbox_capture_failure_preserved": true,
+    "retry_performed": false,
+    "fault_injection_performed": false
+  },
+  "ci": {
+    "observed_utc": "2026-10-18T01:00:00Z",
+    "merged_master_run": 39080875832,
+    "merged_master_head": "0b40f0ed58e8fd53b0e1c618a75e6eabed29116d",
+    "merged_master_status": "completed",
+    "merged_master_conclusion": "success",
+    "merged_master_actual_linux_and_windows_test_steps": "success",
+    "draft_run": 39082845567,
+    "draft_head": "f41b8aa228e0461700c900ea8b7e0ff68e2dcfb6",
+    "draft_status": "in_progress",
+    "push_coverage_guard_success_is_not_unit_test_execution": true
+  },
+  "local_artifact_root": "Execution workspace parent of the checkout; raw artifacts are retained locally and are not committed. Relative paths and SHA256 pins identify them.",
+  "not_run": [
+    "New full Class/grade/mode native matrix",
+    "New full chargen UI or normal-body balance measurement in this packaging lane",
+    "Borrow fault injection or recovery",
+    "Full Core/solution test rerun"
+  ],
+  "known_limits": [
+    "Copied mundane body retains raw25 capacity136; ordinary Player permissions are verified. Historical actual UI/normal-body evidence remains separate.",
+    "Native raw10 to10 is an allowed stochastic no-gain result, not forced progression.",
+    "ARM-V1-FOLLOWUP-001 injected Borrow DELETE outcome remains FAIL; recovery NOT_RUN; nonblocking under user v1 priority.",
+    "Wider exceptional campaigns and further balance tuning remain deferred unless ordinary use exposes a blocker."
+  ],
+  "authorization": {
+    "draft_pr": true,
+    "existing_game_activation": false,
+    "merge": false,
+    "deploy": false,
+    "release_publication": false,
+    "master_changed": false
+  },
+  "frozen_historical_pins": [
+    {
+      "path": "Armageddon_S6_Targeted_Measurements_20261018.json",
+      "sha256": "513182436876530726B31711803D94A331BF3DDDFFD5D51911CFE7FAA46FD345"
+    },
+    {
+      "path": "Armageddon_S6_Readiness_Qualification_20261017.json",
+      "sha256": "3A3A57EE4DED0198D3706F0A4D76F825159F354E6A135DDEFC8F7E6937E7C6BC"
+    }
+  ]
+}

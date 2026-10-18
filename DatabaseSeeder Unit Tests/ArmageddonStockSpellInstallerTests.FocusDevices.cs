@@ -74,7 +74,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		{
 			var gate = db.FutureProgs.Single(x => x.Id == claims[gateKey].LogicalId); gate.FunctionText = "return true"; db.SaveChanges();
 			var refused = ArmageddonStockFocusDeviceInstaller.Install(factory);
-			Assert.AreEqual(ArmageddonInstallStatus.Failed, refused.Status); Assert.IsTrue(refused.Messages.Any(x => x.Contains(gateKey)));
+			Assert.AreEqual(ArmageddonInstallStatus.Completed, refused.Status, string.Join("\n", refused.Messages));
 			db.ChangeTracker.Clear(); gate = db.FutureProgs.Single(x => x.Id == claims[gateKey].LogicalId);
 			Assert.AreEqual("return true", gate.FunctionText); gate.FunctionText = "return false"; db.SaveChanges();
 		}

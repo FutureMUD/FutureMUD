@@ -193,7 +193,7 @@ public class ArmageddonCatalogueAnatomyTests
 		Assert.IsFalse(db.SeederManagedRecords.Any(x => x.EntityType == nameof(BodyProto)));
 	}
 
-	internal static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)
+	internal static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false, bool enableStockForNewInstall = false)
 	{
 		var db = ArmageddonInstallationSettingsTests.Fixture(classes);
 		db.BodyProtos.Single(x => x.Id == 1).Name = "Humanoid";
@@ -225,7 +225,7 @@ public class ArmageddonCatalogueAnatomyTests
 			new MoveSpeed { Id = 2, BodyProtoId = 1, Alias = "run", PositionId = PositionStanding.Instance.Id, FirstPersonVerb = "oldrun", Multiplier = 0.5, StaminaMultiplier = 2 },
 			new MoveSpeed { Id = 3, BodyProtoId = 2, Alias = "run", PositionId = PositionStanding.Instance.Id, FirstPersonVerb = "run", Multiplier = 0.25, StaminaMultiplier = 2 });
 		db.SaveChanges();
-		ArmageddonInstallation.Prepare(ArmageddonInstallationSettingsTests.Factory(db), mode);
+		ArmageddonInstallation.Prepare(ArmageddonInstallationSettingsTests.Factory(db), mode, enableStockForNewInstall: enableStockForNewInstall);
 		return db;
 	}
 }

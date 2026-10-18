@@ -98,9 +98,9 @@ public class ArmageddonCatalogueInstallerTests
 		StringAssert.Contains(disease.SeedBaseline!, nameof(InfectionType));
 	}
 
-	internal static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)
+	internal static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false, bool enableStockForNewInstall = false)
 	{
-		var db = ArmageddonCatalogueCreatureTests.Fixture(mode, classes);
+		var db = ArmageddonCatalogueCreatureTests.Fixture(mode, classes, enableStockForNewInstall);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonProgressionInstaller.Install(ArmageddonInstallationSettingsTests.Factory(db)).Status);
 		db.Materials.AddRange(new Material { Id = 3, Name = "clay", BehaviourType = (int)MaterialBehaviourType.Soil, Density = 1.21 },
 			new Material { Id = 4, Name = "food", BehaviourType = (int)MaterialBehaviourType.Food, Density = 1000 });

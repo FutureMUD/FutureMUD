@@ -119,9 +119,9 @@ public class ArmageddonCatalogueCreatureTests
 		Assert.AreEqual("Builder creature", db.NpcTemplates.Single(x => x.Id == 900).Name);
 	}
 
-	internal static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false)
+	internal static FuturemudDatabaseContext Fixture(ArmageddonProgressionMode mode = ArmageddonProgressionMode.Simple, bool classes = false, bool enableStockForNewInstall = false)
 	{
-		var db = ArmageddonCatalogueCreatureFoundationTests.Fixture(mode, classes);
+		var db = ArmageddonCatalogueCreatureFoundationTests.Fixture(mode, classes, enableStockForNewInstall);
 		Assert.AreEqual(ArmageddonInstallStatus.Completed,
 			ArmageddonCatalogueCreatureFoundations.Install(ArmageddonInstallationSettingsTests.Factory(db)).Status);
 		db.ChangeTracker.Clear();

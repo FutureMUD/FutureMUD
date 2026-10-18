@@ -19,6 +19,8 @@ import xml.etree.ElementTree as ET
 
 REPO = Path(os.environ['FUTUREMUD_PREPARED_REPLAY_REPOSITORY']).resolve()
 ROOT = REPO.parent
+RELEASE_STOCK = os.environ.get('FUTUREMUD_RELEASE_STOCK_SMOKE') == '1'
+SERVER_DIRECTORY = REPO/'MudSharpCore/bin'/('Release' if RELEASE_STOCK else 'Debug')/'net10.0'
 OUTPUT = Path(os.environ['FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT']).resolve()
 CONNECTION = os.environ['FUTUREMUD_PREPARED_REPLAY_BOOT_CONNECTION']
 PASSWORD = os.environ['FUTUREMUD_PREPARED_REPLAY_LOGIN_PASSWORD']
@@ -1428,10 +1430,41 @@ def native_first_boot_scenario(session):
         require(len(guardian_location) == 1 and guardian_location[0][0] == str(moved_to), 'Winged creature did not fly across the live room exit.')
         assertions.append('Native winged creature entered Flying posture and crossed the same approved room exit')
 
+def release_stock_smoke(session, phase):
+    prepared = Path(os.environ['FUTUREMUD_RELEASE_STOCK_INPUT']).resolve()
+    require(prepared.parent == ROOT and prepared.name.startswith('prepared-release-stock-input_'), 'Unowned Release input.')
+    pin = {'path': str(prepared), 'sha256': sha(prepared)}
+    require(receipt.setdefault('release_input', pin) == pin, 'Release fixture input changed across boots.')
+    data = json.loads(prepared.read_text(encoding='utf-8'))
+    identifiers = {}
+    for table in data['sql_schema']:
+        for alias, name in [(table['alias'], table['table'])] + [(x['alias'], x['column']) for x in table['columns']]:
+            require(re.fullmatch(r'[A-Za-z_][A-Za-z_0-9]*', name), 'Unsafe EF SQL identifier.')
+            require(alias not in identifiers or identifiers[alias] == '`'+name+'`', 'Ambiguous EF SQL alias.')
+            identifiers[alias] = '`'+name+'`'
+    def mapped(statement):
+        return re.sub(r"'(?:''|[^'])*'|[A-Za-z_][A-Za-z_0-9]*",
+                      lambda m: m[0] if m[0].startswith("'") else identifiers.get(m[0], m[0]), statement)
+    for table, rows in data['release_originals'].items():
+        for row in rows:
+            actual = sql(f"SELECT HEX(Definition) FROM {table} WHERE Id={int(row['id'])}", (0,))
+            require(actual == [[row['definition']]], 'Original Release stock definition changed: '+table)
+    require(len(sql('SELECT Id FROM MagicCapabilities')) == 10, 'Release smoke created a private capability copy.')
+    module_path = REPO/'tests/ArmageddonPreparedSeederNativeHarness/PreparedS5ProgressionSmoke.py'
+    helper_pin = {'path': str(module_path), 'sha256': sha(module_path)}
+    require(receipt.setdefault('release_progression_helper', helper_pin) == helper_pin, 'Release progression helper changed.')
+    spec = importlib.util.spec_from_file_location('release_stock_progression', module_path)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.run(globals(), session, phase, data, mapped)
+    receipt['release_configuration'] = 'Release installer and server; Debug fixture owner only'
+    assertions.append(phase+': original Release stock policy and definitions retained; no private capability copy')
+
+
 def boot(phase):
     # Leave one minute for owned teardown before the readiness parent's 45-minute limit.
     budget = {'ui-funding':3240, 'progression-faults':2580, 'borrow-retirement':1680}[os.environ['FUTUREMUD_S6_MEASUREMENT_SCOPE']] if os.environ.get('FUTUREMUD_S6_MEASUREMENT_SCOPE') else 2640 if os.environ.get('FUTUREMUD_S6_READINESS_SMOKE_ONLY') == '1' else (
-        1140 if os.environ.get('FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY') == '1' else 780)
+        1140 if RELEASE_STOCK or os.environ.get('FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY') == '1' else 780)
     require(time.monotonic()-started < budget, 'Global boot smoke budget exhausted.')
     sql('SELECT 1')
     runtime = OUTPUT / ('runtime-' + phase + '-' + uuid.uuid4().hex)
@@ -1447,7 +1480,7 @@ def boot(phase):
         env.pop(key,None)
     previous_mode = helper.windows_error_mode()
     try:
-        process = subprocess.Popen(['dotnet',str(REPO/'MudSharpCore/bin/Debug/net10.0/MudSharp.dll'),'MySql.Data.MySqlClient',CONNECTION],
+        process = subprocess.Popen(['dotnet',str(SERVER_DIRECTORY/'MudSharp.dll'),'MySql.Data.MySqlClient',CONNECTION],
                                    cwd=runtime,env=env,stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,encoding='utf-8',errors='replace',
                                    creationflags=subprocess.CREATE_NO_WINDOW)
     finally: helper.restore_windows_error_mode(previous_mode)
@@ -1481,7 +1514,7 @@ def boot(phase):
             looked = session.send('look',read_seconds=3)
             require('Guest Lounge' in looked or phase == 'cold' and (os.environ.get('FUTUREMUD_S4_EXCHANGE_SMOKE_ONLY') == '1' or os.environ.get('FUTUREMUD_S4_REMAINING_SMOKE_ONLY') == '1' or os.environ.get('FUTUREMUD_S4_FAMILY_SMOKE_ONLY') == '1'), 'Native login/LOOK did not reach seeded Guest Lounge.')
             assertions.append(phase+': native Admin avatar login and LOOK')
-            if phase == 'first' and BOOT_SCOPE == 'catalogue':
+            if phase == 'first' and BOOT_SCOPE == 'catalogue' and not RELEASE_STOCK:
                 if any(os.environ.get(key) == '1' for key in ('FUTUREMUD_S4_REMAINING_SMOKE_ONLY', 'FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY', 'FUTUREMUD_S4_FAMILY_SMOKE_ONLY', 'FUTUREMUD_S5_PROGRESSION_SMOKE_ONLY', 'FUTUREMUD_S6_INTEGRATION_SMOKE_ONLY')):
                     pass  # Its mapped permanent destination was prepared before boot.
                 elif os.environ.get('FUTUREMUD_S4_GATE_SMOKE_ONLY') == '1':
@@ -1499,6 +1532,8 @@ def boot(phase):
                 persisted_bottle = sql(f"SELECT HEX(Definition) FROM GameItemComponents WHERE GameItemId={receipt['bottle_component_instance'][0]} AND GameItemComponentProtoId={bottle_component_id} ORDER BY Id LIMIT 1", (0,))
                 require(len(persisted_bottle) == 1 and liquid_volume(persisted_bottle[0][0]) == receipt['bottle_component_instance'][3], 'Cold restart did not retain reduced numeric liquid volume.')
                 assertions.append('Cold restart retained reduced native bottle liquid contents')
+            if RELEASE_STOCK:
+                release_stock_smoke(session, phase)
             if os.environ.get('FUTUREMUD_S4_ATTUNEMENT_BUILDER_SMOKE') == '1':
                 attunement_builder_smoke(session, phase)
             if os.environ.get('FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE') == '1':
@@ -1578,7 +1613,7 @@ try:
     receipt['script_sha256'] = sha(__file__)
     receipt['campaign_helper'] = {'path': str(campaign_path), 'sha256': sha(campaign_path)}
     receipt['helper_source'] = {'path':str(spec.origin),'sha256':sha(spec.origin)}
-    receipt['assemblies'] = [{'path':str(REPO/'MudSharpCore/bin/Debug/net10.0'/name),'sha256':sha(REPO/'MudSharpCore/bin/Debug/net10.0'/name)}
+    receipt['assemblies'] = [{'path':str(SERVER_DIRECTORY/name),'sha256':sha(SERVER_DIRECTORY/name)}
                             for name in ('MudSharp.dll','FutureMUDLibrary.dll','MudsharpDatabaseLibrary.dll','ExpressionEngine.dll')]
     boot('first')
     if os.environ.get('FUTUREMUD_S4_FAMILY_CASES') == 'pocket':

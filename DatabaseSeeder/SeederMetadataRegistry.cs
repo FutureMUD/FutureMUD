@@ -14,14 +14,10 @@ public static class SeederMetadataRegistry
     {
         return seeder.GetType().Name switch
         {
-			nameof(ArmageddonMagicSeeder) when !seeder.Enabled => new SeederMetadata(SeederRepeatabilityMode.OneShot, SeederUpdateCapability.None,
-				Array.Empty<SeederPrerequisite>(), RerunSummary: ArmageddonMagicSeeder.ReleaseDisabledMessage,
-				UpdateSummary: ArmageddonMagicSeeder.ReleaseDisabledMessage,
-				OwnershipSummary: "Disabled entrypoint preserves existing authored world data; it neither installs nor reconciles package records."),
 			nameof(ArmageddonMagicSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
 				Array.Empty<SeederPrerequisite>(),
 				RerunSummary: "Default No. Opt-in validates foundations and preserves the fixed game-wide mode, class direction and native IDs. Settings commit atomically with their answer mirrors before catalogue modules.",
-				UpdateSummary: "Fixed settings, S2 progression and S3 native catalogue reconcile in resumable batches. S4 spell hydration, S5 calibration and final readiness remain gated; no player refresh or mode conversion is implied.",
+				UpdateSummary: "Complete v1 stock reconciles in resumable batches. Fresh installations enable approved stock defaults; existing activation defaults and builder edits are retained. No player refresh or mode conversion.",
 				OwnershipSummary: "One owned installation metadata record plus typed historical module claims. Builder content and player state are preserved; unresolved ownership blocks preflight.",
 				DependencySeederTypes: [typeof(CoreDataSeeder), typeof(AttributeSeeder), typeof(SkillPackageSeeder), typeof(UsefulSeeder), typeof(TimeSeeder), typeof(HealthSeeder), typeof(HumanSeeder), typeof(CombatSeeder), typeof(ChargenSeeder), typeof(ItemSeeder)]),
 			nameof(EnvironmentalExposureSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,

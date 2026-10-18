@@ -36,9 +36,9 @@ public sealed partial class ArmageddonMagicSeeder
 			new JsonStringEnumConverter<Difficulty>(allowIntegerValues: false) }
 	};
 	private static bool IsYes(string answer) => answer.Trim().Equals("yes", StringComparison.OrdinalIgnoreCase);
-	public IEnumerable<SeederQuestion> Questions => !Enabled ? Array.Empty<SeederQuestion>() :
+	public IEnumerable<SeederQuestion> Questions =>
 	[
-		new(FullInstallQuestion, "Install/reconcile Armageddon fixed settings, progression and native stock catalogue? yes/no (default no). Stock remains unavailable; gathering integration and whole-programme readiness remain pending.",
+		new(FullInstallQuestion, "Install/reconcile Armageddon fixed settings, progression and native stock catalogue? yes/no (default no). Fresh installations enable approved stock casting/Class/gathering/device permissions. Existing activation defaults and builder edits are retained; no existing player enrolment or refill.",
 			(_, _) => true, (answer, _) => answer.Trim().Equals("no", StringComparison.OrdinalIgnoreCase) || IsYes(answer) ? (true, "") : (false, "Answer yes or no."), DefaultAnswerResolver: (_, _) => "no", PersistAnswer: false),
 		new(ModeQuestion, "Choose the fixed game-wide progression mode: Classic or Simple.",
 			(db, answers) => FullConsent(answers) && ArmageddonInstallation.Read(db) is null,

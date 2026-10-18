@@ -16,7 +16,7 @@ using MudSharp.RPG.Checks;
 
 namespace DatabaseSeeder.Seeders;
 
-/// <summary>S4 content only. Native production and practice acceptance do not enable availability.</summary>
+/// <summary>Approved stock foci and Mend Flesh devices with installation-scoped, builder-editable permissions.</summary>
 public static class ArmageddonStockFocusDeviceInstaller
 {
 	public const string UseGateKey = "arm.stock.focus-device.use-gate";
@@ -53,8 +53,8 @@ public static class ArmageddonStockFocusDeviceInstaller
 				var gate = db.FutureProgs.Include(x => x.FutureProgsParameters).Single(x => x.Id == id);
 				var signature = gate.FutureProgsParameters.OrderBy(x => x.ParameterIndex).Select(x => x.ParameterTypeDefinition).ToArray();
 				var expected = parameters == 2 ? new[] { ((long)ProgVariableTypes.Character).ToString(), ((long)ProgVariableTypes.Item).ToString() } : new[] { ((long)ProgVariableTypes.Character).ToString() };
-				if (gate.FunctionText.Trim() != "return false" || gate.ReturnType != (long)ProgVariableTypes.Boolean || gate.AcceptsAnyParameters || !signature.SequenceEqual(expected))
-					throw new InvalidOperationException($"{key}: stock availability must remain disabled with its exact native signature; preserve and resolve the edited gate explicitly.");
+				if (gate.ReturnType != (long)ProgVariableTypes.Boolean || gate.AcceptsAnyParameters || !signature.SequenceEqual(expected))
+					throw new InvalidOperationException($"{key}: stock availability requires its exact native signature; preserve and resolve the edited gate explicitly.");
 			}
 			var blueprints = new ArmageddonStockCatalogue().Blueprints.Where(x => x.DeferredToS4).ToArray();
 			if (blueprints.Length != 12 || blueprints.Count(x => x.Kind == ArmageddonBlueprintKind.Focus) != 10)
@@ -81,8 +81,8 @@ public static class ArmageddonStockFocusDeviceInstaller
 			FutureProg Gate(string key, bool item)
 			{
 				var gate = new FutureProg { FunctionName = item ? "ArmageddonStockFocusDeviceUse" : "ArmageddonStockFocusDeviceCraft",
-					FunctionText = "return false", ReturnType = (long)ProgVariableTypes.Boolean, Category = "Armageddon",
-					Subcategory = "S4 availability", FunctionComment = "Disabled pending applicable stock acceptance. Content installation grants no availability.", Public = false };
+					FunctionText = settings.StockAvailabilityByDefault ? "return true" : "return false", ReturnType = (long)ProgVariableTypes.Boolean, Category = "Armageddon",
+					Subcategory = "Stock availability", FunctionComment = "Approved stock permission; native capability, knowledge, payment and crafting checks still apply.", Public = false };
 				gate.FutureProgsParameters.Add(new() { ParameterIndex = 0, ParameterName = "ch", ParameterTypeDefinition = ((long)ProgVariableTypes.Character).ToString() });
 				if (item) gate.FutureProgsParameters.Add(new() { ParameterIndex = 1, ParameterName = "item", ParameterTypeDefinition = ((long)ProgVariableTypes.Item).ToString() });
 				return owned.Put(key, gate, []);
@@ -152,7 +152,7 @@ public static class ArmageddonStockFocusDeviceInstaller
 			transaction?.Commit();
 			committed = true;
 			checkpoint?.Invoke(ArmageddonInstallCheckpoint.AfterCommit);
-			messages.Add("S4 installed ten tradition foci, empty capacity-five wand, empty capacity-ten staff and twelve native recipes. Use/crafting gates and package admissions remain disabled; S5 acceptance is separate.");
+			messages.Add("S4 installed ten tradition foci, empty capacity-five wand, empty capacity-ten staff and twelve native recipes. Use/crafting defaults follow the fixed installation policy; builder edits are preserved. Only Mend Flesh is approved for stock charges.");
 			return new(ArmageddonInstallStatus.Completed, messages.AsReadOnly(), ids);
 		}
 		catch (Exception error)

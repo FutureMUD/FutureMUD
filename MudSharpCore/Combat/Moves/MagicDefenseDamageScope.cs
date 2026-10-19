@@ -35,7 +35,7 @@ internal sealed class MagicDefenseDamageScope : IDisposable
 	{
 		if (_absorbed && !_passed) return new CombatMoveResult { MoveWasSuccessful = false,
 			AttackerOutcome = result.AttackerOutcome, DefenderOutcome = result.DefenderOutcome,
-			RecoveryDifficulty = result.RecoveryDifficulty, WoundsCaused = result.WoundsCaused, SelfWoundsCaused = result.SelfWoundsCaused };
+			RecoveryDifficulty = result.RecoveryDifficulty, DefenderResponseWasUsed = result.DefenderResponseWasUsed, WoundsCaused = result.WoundsCaused, SelfWoundsCaused = result.SelfWoundsCaused };
 		return result;
 	}
 	public void Dispose() => Current.Value = _previous;

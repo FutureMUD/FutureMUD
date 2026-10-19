@@ -110,10 +110,13 @@ public sealed partial class MagicDefensePower : SustainedMagicPower, IMagicDefen
 		    EligibilityProg?.ExecuteBool(defender, attack.Assailant) == false) return false;
 		if (attack is IMagicPowerAttackMove powerAttack && !powerAttack.AttackPower.ValidDefenseTypes.Contains(DefenseType.Magic)) return false;
 		var threat = MagicDefenseMove.Classify(attack);
+		var physicalImpact = attack is AuxiliaryMove { IsPhysicalImpact: true };
+		if (physicalImpact) threat &= ~MagicDefenseThreat.Control;
 		if (threat == MagicDefenseThreat.None || (Threats & threat) != threat) return false;
 		if (DefenseMode == MagicDefenseMode.Absorption && (threat.HasFlag(MagicDefenseThreat.Control) ||
 		    attack is IMagicPowerAttackMove magic && !magic.AttackPower.DealsDamage)) return false;
 		if (DamageTypes.Count == 0) return true;
+		if (physicalImpact) return DamageTypes.Contains(DamageType.Crushing);
 		if (attack is IWeaponAttackMove weapon && weapon.Attack is not null) return DamageTypes.Contains(weapon.Attack.Profile.DamageType);
 		if (attack is IRangedWeaponAttackMove ranged)
 		{

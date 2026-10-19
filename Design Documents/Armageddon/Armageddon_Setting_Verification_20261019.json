@@ -258,5 +258,15 @@
       }
     ],
     "limits": "Final batch must include latest secondary-effect guard and opt-out assertion; no native/gameplay certificate. Bash/Kick pending."
+  },
+  "physical_impact_focus": {
+    "scope": "Bash/Kick physical impact and queued command authority regression",
+    "passed": 314,
+    "failed": 0,
+    "skipped": 0,
+    "source_stable": true,
+    "receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\summary.json",
+    "sha256": "ebbebc0548f28cfff1cf18c563a11f5d4c3ededa65a23d14ed3246a2faeb594f",
+    "limits": "Native combined install/gameplay pending; authored damage tuning is not recovered source damage."
   }
 }

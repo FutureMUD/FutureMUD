@@ -72,3 +72,10 @@ Seeder focus24passed (20261019T141802Z-1c7f456d4497), mount/runtime focus13passe
 The three new Armageddon opening-attack profiles now bind per-action Backstab/Sap proficiency and distinct command selection. Generic manual Bash/Kick remain gated pending the coupled impact resolver. Explicit new-world feature opt-ins occur only after checks/traits bind: Pilot, Direction Sense, hostile Guarding and Haggling. Early reruns preserve builder opt-outs.
 
 Final Backstab and coordinated-attack regression127passed,0failed/skipped,stable (20261019T143549Z-bd2c9a013281). Earlier opening binding/package focus13passed (20261019T143247Z-8a964cfccae7); final full batch will include the added opt-out assertion and secondary-effect guard. Review corrected natural hostile-admission and post-defence callback boundaries. Initial missing skill-interface import build failure and invalid two-project/parallel wrapper selections are retained; the repository wrapper serialized actual work and no blocked run is counted as executed. Native/gameplay qualification remains outstanding.
+
+
+## Coupled physical impact checkpoint
+
+Fresh Armageddon Bash/Kick now use explicit canonical skills and a reusable physical impact profile, with source stance/counter/guard/shield semantics and separately identified authored native damage tuning. Generic stock Bash remains gated. Exact participant/body/room/authority fences protect callbacks and wound mutation; stamina stays with the captured attacking body. Native magic barriers preserve transformed remainder damage. Builder profile edits and legacy auxiliary behaviour remain supported.
+
+Final impact and queued-authority batch:314passed,0failed/skipped, stable source,20261019T150500Z-f27a5f5162a5. Seeder source-action binding focus previously14passed (20261019T144732Z-84af82e3c660). Earlier fixture/build failures are retained and corrected; these are implementation evidence, with combined native gameplay still pending. See [physical impact contract](Armageddon_Physical_Impact_Contract_20261019.md).

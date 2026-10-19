@@ -72,6 +72,7 @@ public sealed class MagicDefenseMove : CombatMoveBase, IDefenseMove
 
 	public static MagicDefenseThreat Classify(ICombatMove attack) => attack switch
 	{
+		AuxiliaryMove { IsPhysicalImpact: true } => MagicDefenseThreat.Natural | MagicDefenseThreat.Control,
 		StartClinchMove or BreakClinchMove or InitiateGrappleMove or ExtendGrappleMove or AuxiliaryMove or ForcedMovementMove or TakedownMove or WrenchingAttack or StrangleAttack => MagicDefenseThreat.Control,
 		MagicPowerAttackMove magic => MagicDefenseThreat.Magic | (magic is IRangedAttackMove ? MagicDefenseThreat.Ranged : MagicDefenseThreat.None),
 		RangedWeaponAttackBase => MagicDefenseThreat.Weapon | MagicDefenseThreat.Ranged,

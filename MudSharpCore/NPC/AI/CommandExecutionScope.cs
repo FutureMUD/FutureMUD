@@ -44,6 +44,9 @@ internal sealed class CommandExecutionScope : IDisposable
 		return new CommandExecutionScope(bound?.Authority, bound?.Executor ?? move.Assailant, move, bound is null);
 	}
 	internal static IDisposable EnterIndependent() => new CommandExecutionScope(null, null, null, true);
+	/// <summary>An autonomous reaction retains its own physical participant fence, without inheriting an order.</summary>
+	internal static IDisposable EnterIndependentPhysicalOperation(ICharacter actor, Func<bool> physicalGuard) =>
+		new CommandExecutionScope(null, actor, null, true) { _physicalGuard = physicalGuard };
 	// A spell-owned secondary keeps the originating principal's authority. The receipt
 	// separately validates the exact displaced body and its temporary membership gap.
 	internal static IDisposable EnterSoloDisplacement(ICharacter actor, Func<bool> guard)

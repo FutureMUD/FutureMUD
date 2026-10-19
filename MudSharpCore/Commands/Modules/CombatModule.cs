@@ -248,7 +248,7 @@ The syntax is:
         }
 
         IManualCombatCommand manualCommand = candidates.Single();
-        if (actor.Combat is null)
+        if (actor.Combat is null && manualCommand.AuxiliaryAction is not IPhysicalImpactAuxiliaryAction { PhysicalImpact.InitiateCombat: true })
         {
             actor.OutputHandler.Send("This command is only usable when you are in combat.");
             return;

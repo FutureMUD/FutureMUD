@@ -18,6 +18,36 @@ namespace MudSharp_Unit_Tests;
 public class ArmageddonMundaneBindingTests
 {
 	[TestMethod]
+	public void SourceImpacts_BindSeparateCanonicalActionsAndManualCommands()
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		var root = new Race { Name = "Organic Humanoid" }; db.Races.Add(root);
+		foreach (var verb in new[] { "bash", "kick" }) db.ManualCombatCommands.Add(new ManualCombatCommand { Name = verb, PrimaryVerb = verb });
+		var original = new CombatAction { Name = "Bash", UsabilityProgId = 2 }; db.CombatActions.Add(original); db.SaveChanges();
+		var skills = ArmageddonSkillPackage.Resolve(db);
+		ArmageddonSourceImpacts.InstallFresh(db, skills);
+		Assert.AreEqual(2, db.RacesCombatActions.Count(x => x.RaceId == root.Id));
+		foreach (var verb in new[] { "bash", "kick" })
+		{
+			var command = db.ManualCombatCommands.Single(x => x.PrimaryVerb == verb);
+			var action = db.CombatActions.Single(x => x.Id == command.CombatActionId);
+			Assert.AreEqual(skills["arm.skill." + verb].Id, action.TraitDefinitionId);
+			Assert.IsTrue(command.PlayerUsable && command.NpcUsable);
+			Assert.IsNull(command.WeaponAttackId);
+			Assert.AreEqual(1, action.MaximumTargets);
+			var profile = XElement.Parse(action.AdditionalInfo).Element("PhysicalImpact")!;
+			Assert.AreEqual(verb == "bash", (bool)profile.Attribute("seatonmiss")!);
+			Assert.AreEqual(verb == "bash", (bool)profile.Attribute("seatonhit")!);
+			Assert.AreEqual(verb == "kick", (bool)profile.Attribute("shieldblock")!);
+			Assert.IsTrue((bool)profile.Attribute("initiatecombat")!);
+			Assert.AreEqual(skills["arm.skill.guarding"].Id, (long)profile.Attribute("guardtrait")!);
+		}
+		Assert.AreEqual(2L, original.UsabilityProgId);
+		Assert.AreEqual(6, db.SeederManagedRecords.Count(x => x.StableKey.StartsWith("arm.action.") || x.StableKey.StartsWith("arm.command.")));
+	}
+
+	[TestMethod]
 	public void OpeningProfiles_BindSpecificSkillsAndCommandsWithoutChangingDamage()
 	{
 		using var db = ArmageddonSettingPackageTests.Fixture();

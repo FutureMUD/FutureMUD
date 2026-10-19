@@ -201,6 +201,7 @@ public static partial class ArmageddonInstallation
 				nameof(ArmourType) => record.RevisionNumber is null && db.ArmourTypes.Any(x => x.Id == record.LogicalId),
 				nameof(WeaponAttack) => db.WeaponAttacks.Any(x => x.Id == record.LogicalId),
 				nameof(CombatAction) => db.CombatActions.Any(x => x.Id == record.LogicalId),
+				nameof(ManualCombatCommand) => db.ManualCombatCommands.Any(x => x.Id == record.LogicalId),
 				nameof(CombatMessage) => db.CombatMessages.Any(x => x.Id == record.LogicalId),
 				nameof(BodyProto) => db.BodyProtos.Any(x => x.Id == record.LogicalId),
 				nameof(Race) => db.Races.Any(x => x.Id == record.LogicalId),

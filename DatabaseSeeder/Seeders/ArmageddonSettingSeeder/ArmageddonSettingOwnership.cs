@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
+using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
 using MudSharp.Models;
 
@@ -12,6 +13,36 @@ namespace DatabaseSeeder.Seeders;
 /// <summary>Field baselines shared by early and late Setting phases, independent of public installer names.</summary>
 internal static class ArmageddonSettingOwnership
 {
+	internal static T Apply<T>(FuturemudDatabaseContext db, string module, string key, T desired,
+		ICollection<string> messages) where T : class
+	{
+		var metadata = db.Model.FindEntityType(typeof(T)) ?? throw new InvalidOperationException($"Unmapped owned type {typeof(T).Name}.");
+		var fields = metadata.GetProperties().Where(x => !x.IsPrimaryKey()).Select(x => x.Name).ToArray();
+		var record = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == key);
+		if (record is null)
+		{
+			var nameField = metadata.FindProperty("Name") ?? metadata.FindProperty("FunctionName");
+			if (nameField is not null)
+			{
+				var name = (string?)db.Entry(desired).Property(nameField.Name).CurrentValue;
+				if (db.Set<T>().AsEnumerable().Any(x => string.Equals((string?)db.Entry(x).Property(nameField.Name).CurrentValue, name, StringComparison.OrdinalIgnoreCase) &&
+					(desired is not Accent accent || x is Accent other && other.LanguageId == accent.LanguageId)))
+					throw new InvalidOperationException($"Unowned {typeof(T).Name} name collision: {name}.");
+			}
+			db.Add(desired); db.SaveChanges();
+			RecordNew(db, module, key, desired, fields);
+			return desired;
+		}
+		if (record.Module != module || record.EntityType != typeof(T).Name || record.Retired || record.LogicalId is not { } id ||
+			db.SeederManagedRecords.Any(x => x.Id != record.Id && x.EntityType == record.EntityType && x.LogicalId == id))
+			throw new InvalidOperationException($"Invalid or competing owned identity: {key}.");
+		var actual = db.Find<T>(id) ?? throw new InvalidOperationException($"Missing owned entity: {key}.");
+		var values = fields.ToDictionary(x => x, x => JsonSerializer.Serialize(db.Entry(desired).Property(x).CurrentValue, db.Entry(desired).Property(x).Metadata.ClrType));
+		Reconcile(db, record, actual, values, messages);
+		db.SaveChanges();
+		return actual;
+	}
+
 	internal static SeederManagedRecord RecordNew(FuturemudDatabaseContext db, string module, string key,
 		object entity, params string[] fields)
 	{

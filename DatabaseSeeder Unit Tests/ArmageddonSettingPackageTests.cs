@@ -20,13 +20,13 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonSettingPackageTests
 {
-	private static readonly IReadOnlyDictionary<string, string> Answers = new Dictionary<string, string>
+	internal static readonly IReadOnlyDictionary<string, string> Answers = new Dictionary<string, string>
 	{
 		["complexity"] = "armageddon", ["skillcapmodel"] = "class", ["skillgainmodel"] = "armageddon",
 		["branching"] = "no", ["gerund"] = "no", ["modern"] = "no"
 	};
 
-	private static FuturemudDatabaseContext Fixture()
+	internal static FuturemudDatabaseContext Fixture()
 	{
 		var db = new FuturemudDatabaseContext(new DbContextOptionsBuilder<FuturemudDatabaseContext>()
 			.UseInMemoryDatabase(Guid.NewGuid().ToString(), x => x.EnableNullChecks(false)).Options);

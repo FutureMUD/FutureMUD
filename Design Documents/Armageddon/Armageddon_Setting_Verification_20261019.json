@@ -187,5 +187,26 @@
       "passed": 54,
       "failed": 0
     }
+  },
+  "nonphysical_heritage_focus": {
+    "failures_retained": [
+      "20261019T140412Z-c2dd3223a293",
+      "20261019T140511Z-8bc6e0d33cf4"
+    ],
+    "receipts": [
+      {
+        "sha256": "ecc355b4d2a136a6179a9c73949b11805185718434d8383f09e23bb593a7742f",
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T140744Z-f2ef30982f5e\\summary.json"
+      },
+      {
+        "sha256": "299c4305b061a8ba1a3c84a7ff49d65c626efabba323730c46583a20b3d6897b",
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T140957Z-d8f5ba0636c1\\summary.json"
+      }
+    ],
+    "scope": "Inactive owned heritage graph, compiled progs, static20-combination grants, typed links, collisions and rerun preservation",
+    "source_stable": true,
+    "limits": "No new native/gameplay certificate, no physical/appearance qualification, no activated profile; scripts and random-name corpus not installed.",
+    "final_focus_passed": 4,
+    "package_focus_passed": 10
   }
 }

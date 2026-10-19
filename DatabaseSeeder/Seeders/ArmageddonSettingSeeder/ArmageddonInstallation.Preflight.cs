@@ -159,10 +159,15 @@ public static partial class ArmageddonInstallation
 	private static IReadOnlyList<string> ValidateLegacyOwnership(FuturemudDatabaseContext db)
 	{
 		var errors = new List<string>();
-		var modules = new[] { ArmageddonSkillPackage.Module, "setting-combat", ArmageddonMundaneMerits.Module, ArmageddonMundaneProgression.Module, ArmageddonMagicInstaller.Module, ArmageddonTraditionInstaller.Module, ArmageddonPierceInstaller.Module, ArmageddonProvisionInstaller.Module, ArmageddonWaterSeeInstaller.Module, ArmageddonEmotionalInstaller.Module, ArmageddonProgressionInstaller.Module, ArmageddonCatalogueOwnership.Module, ArmageddonStockSpellInstaller.Module };
+		var modules = new[] { ArmageddonSkillPackage.Module, "setting-combat", ArmageddonMundaneMerits.Module, ArmageddonMundaneProgression.Module, ArmageddonHeritage.Module, ArmageddonMagicInstaller.Module, ArmageddonTraditionInstaller.Module, ArmageddonPierceInstaller.Module, ArmageddonProvisionInstaller.Module, ArmageddonWaterSeeInstaller.Module, ArmageddonEmotionalInstaller.Module, ArmageddonProgressionInstaller.Module, ArmageddonCatalogueOwnership.Module, ArmageddonStockSpellInstaller.Module };
 		var records = db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey != SettingsKey).ToArray();
 		foreach (var record in records)
 		{
+			if (record.Module == ArmageddonSettingLinks.Module)
+			{
+				if (!ArmageddonSettingLinks.Valid(db, record)) errors.Add($"Existing Armageddon {record.StableKey} has invalid typed setting reference ownership.");
+				continue;
+			}
 			if (record.Module == ArmageddonGatheringRegisters.Module)
 			{
 				if (!ArmageddonGatheringRegisters.Valid(db, record)) errors.Add($"Existing Armageddon {record.StableKey} has invalid typed gathering register ownership.");
@@ -200,6 +205,9 @@ public static partial class ArmageddonInstallation
 				nameof(Race) => db.Races.Any(x => x.Id == record.LogicalId),
 				nameof(Culture) => db.Cultures.Any(x => x.Id == record.LogicalId),
 				nameof(Ethnicity) => db.Ethnicities.Any(x => x.Id == record.LogicalId),
+				nameof(Language) => db.Languages.Any(x => x.Id == record.LogicalId),
+				nameof(Accent) => db.Accents.Any(x => x.Id == record.LogicalId),
+				nameof(NameCulture) => db.NameCultures.Any(x => x.Id == record.LogicalId),
 				nameof(NpcTemplate) => record.RevisionNumber is not null && db.NpcTemplates.Any(x => x.Id == record.LogicalId && x.RevisionNumber == record.RevisionNumber),
 				nameof(ArtificialIntelligence) => db.ArtificialIntelligences.Any(x => x.Id == record.LogicalId),
 				nameof(WearProfile) => db.WearProfiles.Any(x => x.Id == record.LogicalId),

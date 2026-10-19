@@ -135,10 +135,11 @@ public static partial class ArmageddonInstallation
 		using var transaction = db.Database.IsRelational() ? db.Database.BeginTransaction(IsolationLevel.Serializable) : null;
 		var prior = Read(db);
 		var classes = ClassesEnabled(db);
+        RequireSettingRoleDirection(db);
 		var settings = prior ?? new ArmageddonInstallationSettings(1, requestedMode ?? ArmageddonProgressionMode.Classic, classes,
 			capacityAttribute ?? ResolveCapacityAttribute(db), ResolveNativeBindings(db, nativeOverrides))
 		{
-			StockAvailabilityByDefault = enableStockForNewInstall && !db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package)
+			StockAvailabilityByDefault = enableStockForNewInstall && !db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.Module != ArmageddonSkillPackage.Module && x.Module != "setting-combat")
 		};
 		if (!Enum.IsDefined(settings.Mode) || settings.ClassesEnabled != classes ||
 			(requestedMode is { } mode && mode != settings.Mode) || (capacityAttribute is { } attribute && attribute != settings.CapacityAttribute) ||

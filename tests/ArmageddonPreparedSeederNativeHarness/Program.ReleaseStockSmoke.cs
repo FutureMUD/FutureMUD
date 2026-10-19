@@ -22,7 +22,7 @@ internal static partial class GNHProgram
 			"Release stock smoke requires its separate Simple/classes-on lane.");
 		var path = Path.Combine(CatalogueRepository, "tests", "ArmageddonPreparedSeederNativeHarness", "bin", "Release", "net10.0", "GatheringNativePersistenceHarness.dll");
 		Require(File.Exists(path), "Build the Release harness before the native acceptance lane.");
-		var credential = typeof(ArmageddonMagicSeeder).Assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
+		var credential = typeof(ArmageddonSettingSeeder).Assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
 			.GetField("DebugPassword", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)!.GetRawConstantValue() as string;
 		Require(!string.IsNullOrWhiteSpace(credential), "Missing disposable fixture credential.");
 		var start = new ProcessStartInfo("dotnet") { UseShellExecute = false, CreateNoWindow = true,
@@ -85,11 +85,11 @@ internal static partial class GNHProgram
 			capacity = before.TraitDefinitions.Single(x => x.Name == "Willpower" && x.Type == 1 && x.OwnerScope == 0 && x.DerivedType == 0).Id;
 		}
 		players = TraditionPlayers(database);
-		ExecuteBaseTargetStep(database, new ArmageddonMagicSeeder(), new Dictionary<string, string>
+		ExecuteBaseTargetStep(database, new ArmageddonSettingSeeder(), new Dictionary<string, string>
 		{
-			[ArmageddonMagicSeeder.FullInstallQuestion] = "yes", [ArmageddonMagicSeeder.ModeQuestion] = "Simple",
-			[ArmageddonMagicSeeder.InstallQuestion] = "no", [ArmageddonMagicSeeder.CapacityQuestion] = capacity.ToString(),
-			[ArmageddonMagicSeeder.NativeBindingsQuestion] = "{}", [ArmageddonMagicSeeder.BindingsQuestion] = "none"
+			[ArmageddonSettingSeeder.FullInstallQuestion] = "yes", [ArmageddonSettingSeeder.ModeQuestion] = "Simple",
+			[ArmageddonSettingSeeder.InstallQuestion] = "no", [ArmageddonSettingSeeder.CapacityQuestion] = capacity.ToString(),
+			[ArmageddonSettingSeeder.NativeBindingsQuestion] = "{}", [ArmageddonSettingSeeder.BindingsQuestion] = "none"
 		});
 		Require(players == TraditionPlayers(database), "Release installation changed existing player state.");
 		using var db = NewIndependentContext(database.ConnectionString);
@@ -121,7 +121,7 @@ internal static partial class GNHProgram
 			} }));
 		PrepareS5ProgressionFixture(database, path, regional: ReleaseRegionalSmoke);
 		Environment.SetEnvironmentVariable("FUTUREMUD_RELEASE_STOCK_INPUT", path);
-		RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native-release");
+		RunPreparedReplayBoot(database, typeof(ArmageddonSettingSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native-release");
 		Console.WriteLine(ReleaseRegionalSmoke
 			? "ARMV1-regional-land=PASS original-stock Release-install/enrolment/shared-life/local-fallback/cold; Debug-owner-only"
 			: "ARMV1-release-stock=PASS original-stock Release-install/enrolment/native-funding/paid-practice/cold; Debug-owner-only");

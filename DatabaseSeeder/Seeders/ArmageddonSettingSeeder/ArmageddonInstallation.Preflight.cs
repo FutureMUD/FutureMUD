@@ -40,6 +40,21 @@ public static partial class ArmageddonInstallation
 		return enabled;
 	}
 
+    public static void RequireSettingRoleDirection(FuturemudDatabaseContext db)
+    {
+        if (!ArmageddonSkillPackage.IsInstalled(db)) return; // Retained legacy magic/prepared API.
+        _ = ArmageddonSkillPackage.Resolve(db);
+        if (!ClassesEnabled(db)) throw new InvalidOperationException("The combined Armageddon Setting requires Chargen Classes enabled.");
+        var answer = SeederAnswerMemory.GetLatestSeederAnswer(db, new ChargenSeeder().Name, "subclass");
+        if (answer is null || !new[] { "yes", "y" }.Contains(answer.Trim(), StringComparer.OrdinalIgnoreCase))
+            throw new InvalidOperationException("The combined Armageddon Setting requires the earlier Chargen subclass answer yes.");
+        var storyboard = db.ChargenScreenStoryboards.Single(x => x.ChargenStage == (int)ChargenStage.SelectRole);
+        var subclasses = XElement.Parse(storyboard.StageDefinition).Element("RoleTypes")?.Elements("RoleType")
+            .Where(x => (string?)x.Attribute("Type") == "Subclass").ToArray();
+        if (subclasses is null || subclasses.Length != 1 || !bool.TryParse((string?)subclasses[0].Attribute("CanSelectNone"), out var optional) || optional)
+            throw new InvalidOperationException("The native RolePicker must require a Subclass for the Armageddon Setting.");
+    }
+
 	public static long ResolveCapacityAttribute(FuturemudDatabaseContext db)
 	{
 		var candidates = db.TraitDefinitions.AsNoTracking().Where(x => x.Type == 1 && x.DerivedType == 0 && x.OwnerScope == 0 && (x.TraitGroup == "Mental" || x.TraitGroup == "Spiritual")).ToArray();
@@ -144,7 +159,7 @@ public static partial class ArmageddonInstallation
 	private static IReadOnlyList<string> ValidateLegacyOwnership(FuturemudDatabaseContext db)
 	{
 		var errors = new List<string>();
-		var modules = new[] { ArmageddonMagicInstaller.Module, ArmageddonTraditionInstaller.Module, ArmageddonPierceInstaller.Module, ArmageddonProvisionInstaller.Module, ArmageddonWaterSeeInstaller.Module, ArmageddonEmotionalInstaller.Module, ArmageddonProgressionInstaller.Module, ArmageddonCatalogueOwnership.Module, ArmageddonStockSpellInstaller.Module };
+		var modules = new[] { ArmageddonSkillPackage.Module, "setting-combat", ArmageddonMundaneMerits.Module, ArmageddonMagicInstaller.Module, ArmageddonTraditionInstaller.Module, ArmageddonPierceInstaller.Module, ArmageddonProvisionInstaller.Module, ArmageddonWaterSeeInstaller.Module, ArmageddonEmotionalInstaller.Module, ArmageddonProgressionInstaller.Module, ArmageddonCatalogueOwnership.Module, ArmageddonStockSpellInstaller.Module };
 		var records = db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey != SettingsKey).ToArray();
 		foreach (var record in records)
 		{

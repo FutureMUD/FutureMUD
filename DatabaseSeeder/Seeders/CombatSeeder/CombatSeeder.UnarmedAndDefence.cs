@@ -1124,7 +1124,7 @@ public partial class CombatSeeder
         context.ArmourTypes.Add(shieldArmour);
         context.SaveChanges();
 
-        TraitDefinition skill = context.TraitDefinitions.First(x => x.Name == "Blocking" || x.Name == "Block");
+        TraitDefinition skill = ArmageddonSkillPackage.IsInstalled(context) ? ArmageddonSkillPackage.Resolve(context)["arm.skill.shield_use"] : context.TraitDefinitions.First(x => x.Name == "Blocking" || x.Name == "Block");
 
         ShieldType shield = new()
         {

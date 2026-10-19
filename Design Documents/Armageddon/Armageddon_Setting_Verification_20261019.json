@@ -1,0 +1,157 @@
+{
+  "recorded_utc": "2026-10-19T13:21:51.217627+00:00",
+  "base": "97c02768d254c5e345a62349e05b94fe345efeec",
+  "branch": "codex/armageddon-setting-20261019",
+  "scope": "Staged foundation and magic-phase qualification; required mundane progression, heritage and gameplay completion remain outstanding.",
+  "approved_bundle_sha256": "7f0c44decb894487f19bff038ebef4c977cebe6d6eff05efe8ad23260159a9e7",
+  "seeder_suite": {
+    "status": "PASS",
+    "counts": {
+      "executed": 2009,
+      "passed": 2009,
+      "failed": 0,
+      "skipped": 3,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 2012
+    },
+    "source_stable": true,
+    "source_fingerprint": "10fee663c170f8c74da35cdf73e63b821b17100ab2fb3b3d36a5d3ae4403aefe",
+    "receipt": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T130629Z-2ff2cc01b5f6\\summary.json",
+      "sha256": "ae2faca468efa9ebd9878f52b055983701f69591308d535d928f884811f6d4ff"
+    },
+    "skips": "Three Unix filesystem permission rows require a Unix host."
+  },
+  "runtime_focus": {
+    "status": "PASS",
+    "counts": {
+      "executed": 40,
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 40
+    },
+    "source_stable": true,
+    "receipt": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T125659Z-607cdb3e956f\\summary.json",
+      "sha256": "413d4122a9008e3609ffa24514a94c7ad47db96a4e05653eb9b113f092520576"
+    },
+    "scope": "VehiclePilot, DirectionSenseMovement, LiverClearanceMerit, ChangingNeedsModelBase"
+  },
+  "attack_parry_regression": {
+    "status": "PASS",
+    "counts": {
+      "executed": 46,
+      "passed": 46,
+      "failed": 0,
+      "skipped": 0,
+      "inconclusive": 0,
+      "other": 0,
+      "total": 46
+    },
+    "receipt": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T130212Z-f778fb1f6523\\summary.json",
+      "sha256": "f3cd39da88ae74615e40252c9fb05699bcbfad5a0f7674081d244f0c4f12d3ed"
+    }
+  },
+  "builds": {
+    "seeder_debug": "PASS",
+    "seeder_release": "PASS",
+    "harness_debug": "PASS",
+    "logs": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\fm_test_runner"
+  },
+  "native": {
+    "status": "PASS",
+    "exit": 0,
+    "source_stable": true,
+    "source_fingerprint": "0052958C619C27B53BA4460B2129B1FBADE2E449281D596220A0041EEB72ED32",
+    "classes": "On",
+    "magic_mode": "Simple",
+    "summary": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\native-setting-foundations-restored\\20261019T130555Z_c878f2dc4cb44989b9918dfcc6874e50\\summary.json",
+      "sha256": "148f8c00b99138a894a7438a2fdb6590e170e38ae4d690366c6185f4465ce846"
+    },
+    "base_world_run": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\native-setting-foundations-restored\\20261019T130555Z_c878f2dc4cb44989b9918dfcc6874e50\\base-world-run.json",
+      "sha256": "e7662eb865af4dc9b2099f70ba5d406bb642569d61352781a510d3aebb56f8a6"
+    },
+    "assertions": {
+      "Status": "PASS",
+      "Scope": "Early Armageddon packages and classes-on magic stage; mundane/heritage not qualified",
+      "Descriptor": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\setting-foundations-fixtures\\20261019T125847Z_2fb3564ec9f04c538b0d4d4780d3fb88\\core-foundations.json",
+      "DescriptorSha256": "E26C6B5992C664F52BFA38488CB2F19143B8B80A59C7A3CB949D7B7F014C61A8",
+      "SqlSha256": "64113F06E363B582ECE510A3C112984F51D28977DB7250A53D28A6DA790F7206",
+      "SourceSha256": "C62FBE7A23C71B967C05BCE8EFBCB9E890E6A28F415FB7D52B3C77F75DED4C1B",
+      "FreshSeeders": [
+        "CoreDataSeeder",
+        "TimeSeeder",
+        "AttributeSeeder"
+      ],
+      "RestoredSeeders": [
+        "SkillPackageSeeder",
+        "HumanSeeder",
+        "CombatSeeder",
+        "ChargenSeeder"
+      ],
+      "FullReplayExecuted": false,
+      "DumpRoundTripVerified": true,
+      "TagIdentitiesPreserved": true,
+      "CustomBindingPreserved": true,
+      "ZeroUsefulComponents": true,
+      "MagicPhaseResumeVerified": true,
+      "MagicPhaseRerunVerified": true,
+      "PlayerValuePreserved": true,
+      "OriginalSealedFilesUnchanged": true,
+      "OwnedDatabasesDisposed": true
+    }
+  },
+  "boot": {
+    "status": "PASS",
+    "assertions": [
+      "Matching parent-ready receipt before owned SQL or MUD startup",
+      "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+      "first: native MUD ready",
+      "first: native Admin avatar login and LOOK",
+      "first: native flush and independent persisted LastLoginTime",
+      "first: graceful shutdown, persisted avatar/cell and logout",
+      "cold: native MUD ready",
+      "cold: native Admin avatar login and LOOK",
+      "cold: native flush and independent persisted LastLoginTime",
+      "cold: graceful shutdown, persisted avatar/cell and logout"
+    ],
+    "processes": [
+      {
+        "phase": "first",
+        "stopped": true,
+        "graceful": true,
+        "exit": 0
+      },
+      {
+        "phase": "cold",
+        "stopped": true,
+        "graceful": true,
+        "exit": 0
+      }
+    ],
+    "owned_processes_stopped": true,
+    "receipt": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\prepared-replay-boot-native_foundations_b2ae2c170bfe4cf580d2288902d388a7\\boot-latest.json",
+      "sha256": "4ca2ceaa485724fe4f8003f8daa146b6be0da5400db1fb10b01dfc656990748a"
+    }
+  },
+  "qualification_limits": [
+    "Mundane role/grant/branch/overlap composition not installed",
+    "Heritage graph not installed; no new profiles enabled",
+    "Source Bash/Kick and distinct Backstab/Sap pending; generic substitutes gated",
+    "Live Pilot/vehicle representative gameplay pending (required v1)",
+    "No complete playable Setting or existing-world conversion certificate"
+  ],
+  "superseded_failures": [
+    "Initial managed suite:9 failures; corrected; final suite2009/0/3",
+    "Initial native magic weapon batch rejected character-scoped attack skills; corrected typed validators; restored same sealed baseline successfully"
+  ],
+  "publication": "Local commits only; no push, merge, deployment or existing-world activation."
+}

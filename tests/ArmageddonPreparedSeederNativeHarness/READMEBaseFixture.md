@@ -1,6 +1,6 @@
 # Reusable pre-Armageddon seeded base
 
-This harness can capture one reusable seeded world **before invoking ArmageddonMagicSeeder**. The full Debug replay inventory remains strict: `RunPrefixBefore` validates every enabled step and question, then executes only the nonempty prefix. Ordinary `Run` still refuses truncated profiles and previously seeded databases. The maintained `medieval-standard` prefix ends with SupernaturalSeeder; its exact step types and answer inventory are stored in the descriptor. It has the profile's Chargen class choice (`no`).
+This harness can capture one reusable seeded world **before invoking ArmageddonSettingSeeder**. The full Debug replay inventory remains strict: `RunPrefixBefore` validates every enabled step and question, then executes only the nonempty prefix. Ordinary `Run` still refuses truncated profiles and previously seeded databases. The maintained `medieval-standard` prefix ends with SupernaturalSeeder; its exact step types and answer inventory are stored in the descriptor. It has the profile's Chargen class choice (`no`).
 
 Build the dedicated harness from the current source, then use its existing owned-instance wrapper:
 

@@ -23,8 +23,8 @@ public partial class ArmageddonStockSpellInstallerTests
 	{
 		// Exercise the complete real installer chain in every progression/class mode.
 		using var db = FreshFixture(mode, classes, enabled);
-		var answers = new Dictionary<string, string> { [ArmageddonMagicSeeder.FullInstallQuestion] = "yes", [ArmageddonMagicSeeder.ModeQuestion] = mode.ToString() };
-		var report = new ArmageddonMagicSeeder().SeedData(db, answers);
+		var answers = new Dictionary<string, string> { [ArmageddonSettingSeeder.FullInstallQuestion] = "yes", [ArmageddonSettingSeeder.ModeQuestion] = mode.ToString() };
+		var report = new ArmageddonSettingSeeder().SeedData(db, answers);
 		StringAssert.Contains(report, enabled ? "v1 fresh-install enabled" : "existing-install retained");
 		db.ChangeTracker.Clear();
 		var claims = db.SeederManagedRecords.ToDictionary(x => x.StableKey);
@@ -79,7 +79,7 @@ public partial class ArmageddonStockSpellInstallerTests
 		db.ChangeTracker.Clear();
 		Assert.AreEqual(6, db.MagicCapabilities.AsEnumerable().Sum(x => XElement.Parse(x.Definition).Element("Gathering")?.Elements("Method").Count() ?? 0));
 		var before = db.SeederManagedRecords.ToDictionary(x => x.StableKey, x => (x.LogicalId, x.RevisionNumber, x.SeedBaseline, x.AppliedAt));
-		new ArmageddonMagicSeeder().SeedData(db, answers);
+		new ArmageddonSettingSeeder().SeedData(db, answers);
 		db.ChangeTracker.Clear();
 		foreach (var claim in db.SeederManagedRecords)
 			Assert.AreEqual(before[claim.StableKey], (claim.LogicalId, claim.RevisionNumber, claim.SeedBaseline, claim.AppliedAt), claim.StableKey);
@@ -95,7 +95,7 @@ public partial class ArmageddonStockSpellInstallerTests
 				ArmageddonStockFocusDeviceInstaller.UseGateKey, ArmageddonStockFocusDeviceInstaller.CraftGateKey })
 				db.FutureProgs.Single(x => x.Id == claims[key].LogicalId).FunctionText = "return false";
 			db.SaveChanges();
-			new ArmageddonMagicSeeder().SeedData(db, answers);
+			new ArmageddonSettingSeeder().SeedData(db, answers);
 			db.ChangeTracker.Clear();
 			Assert.AreEqual(closed.ToString(), db.MagicCapabilities.Single(x => x.Id == capability.Id).Definition);
 			Assert.AreEqual(role.AvailabilityProgId, db.ChargenRoles.Single(x => x.Id == role.Id).AvailabilityProgId);

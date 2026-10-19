@@ -47,3 +47,7 @@ The distinct Peek skill is included in both simple and complex packages. Its att
 This guide was checked by static source reading; its addition recipe was not executed. No build, database or runtime result is claimed. For a future content change, add focused source/loader/serialization or selected-path first-install/rerun regression checks as appropriate, following the [verification map](../../../.codex/references/verification-and-docs.md). A source invariant is not proof of installed gameplay behavior.
 
 See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md), [coverage and reviewed evidence](Coverage_and_Evidence.md), and the relevant linked test/source references above.
+
+## Staged Armageddon new-world choice
+
+See [Armageddon Setting](ArmageddonSettingSeeder.md) for the explicit early choice, immutable canonical trait IDs, bootstrap dependencies, builder-preserving rerun boundary and pending role/heritage stages. This choice does not convert an existing stock world.

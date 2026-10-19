@@ -2,7 +2,7 @@
 
 These internal maintainer guides describe the pinned published master revision `39eb9d32d2012f56ac3ef33c441b5dac7c3535e3` (verified with `git ls-remote origin refs/heads/master` on 2026-10-06). They are a source map and authoring reference, not a public feature announcement or database execution receipt. Later source deltas have not been reconciled.
 
-There are **34 concrete seeders** in the DatabaseSeeder executable: 32 enabled in Release, one disabled (`PrimaryProductionSeeder`), and one Debug-only (`ArmageddonMagicSeeder`). The abstract `SkillSeederBase` is supporting infrastructure for the two concrete skill alternatives. Disabled catalogue definitions and non-selectable item eras are included. Reflection discovery includes internal concrete classes; a source folder does not register or activate content.
+There are **34 concrete seeders** in the DatabaseSeeder executable: 33 enabled in Release and one disabled (`PrimaryProductionSeeder`). The abstract `SkillSeederBase` is supporting infrastructure for the two concrete skill alternatives. Disabled catalogue definitions and non-selectable item eras are included. Reflection discovery includes internal concrete classes; a source folder does not register or activate content.
 
 ## Inventory
 
@@ -13,7 +13,7 @@ There are **34 concrete seeders** in the DatabaseSeeder executable: 32 enabled i
 | [AnimalButcherySeeder](AnimalButcherySeeder.md) | Enabled | Idempotent / RepairExisting |
 | [AnimalSeeder](AnimalSeeder.md) | Enabled | Idempotent / FullReconcile |
 | [ArenaSeeder](ArenaSeeder.md) | Enabled | Idempotent / RepairExisting |
-| [ArmageddonMagicSeeder](ArmageddonMagicSeeder.md) | Debug only; disabled in Release | Idempotent / RepairExisting |
+| [ArmageddonSettingSeeder](ArmageddonSettingSeeder.md) | Enabled in Debug and Release; staged Setting | Idempotent / RepairExisting |
 | [AttributeSeeder](AttributeSeeder.md) | Enabled | Idempotent / FullReconcile |
 | [CelestialSeeder](CelestialSeeder.md) | Enabled | Additive / InstallMissing |
 | [ChargenSeeder](ChargenSeeder.md) | Enabled | Idempotent / RepairExisting |

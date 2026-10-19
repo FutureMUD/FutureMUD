@@ -16,7 +16,7 @@ internal static partial class GNHProgram
 		string SchemaSha256, string ContentSha256, string SourceSha256, IReadOnlyList<BaseStep> Steps);
 
 	// A separate reduced scenario. The production Debug replay remains exhaustive and untruncated.
-	private static int CoreFoundationQualification()
+	private static int CoreFoundationQualification(bool setting = false)
 	{
         var skillPackageType = typeof(CoreDataSeeder).Assembly.GetType("DatabaseSeeder.Seeders.SkillPackageSeeder", true)!;
 		var types = new[] { typeof(CoreDataSeeder), typeof(TimeSeeder), typeof(AttributeSeeder), skillPackageType,
@@ -28,13 +28,17 @@ internal static partial class GNHProgram
 			var step = broad.Single(x => (Type)x.GetType().GetProperty("SeederType")!.GetValue(x)! == type);
 			var answers = ((IEnumerable)step.GetType().GetProperty("Answers")!.GetValue(step)!).Cast<object>()
 				.ToDictionary(x => (string)x.GetType().GetProperty("Id")!.GetValue(x)!, x => (string)x.GetType().GetProperty("Answer")!.GetValue(x)!);
-			if (type == skillPackageType) { answers["skillgainmodel"] = "armageddon"; answers["modern"] = "no"; }
-			if (type == typeof(CombatSeeder)) { answers["installmuskets"] = "no"; answers["installguns"] = "no"; }
+			if (type == skillPackageType) { answers["skillgainmodel"] = "armageddon"; answers["modern"] = "no";
+                if (setting) { answers["complexity"] = "armageddon"; answers["skillcapmodel"] = "class"; answers["branching"] = "no"; answers["gerund"] = "no"; } }
+			if (type == typeof(CombatSeeder)) { answers["installmuskets"] = "no"; answers["installguns"] = "no";
+                if (setting) { answers["skilloption"] = "armageddon"; answers["parryoption"] = "yes"; } }
+            if (setting && type == typeof(ChargenSeeder)) { answers["class"] = "yes"; answers["subclass"] = "yes"; }
 			return new BaseStep(type.FullName!, answers.Select(x => new BaseAnswer(x.Key, x.Value)).ToArray());
 		}).ToArray();
-		var sources = BaseSources(steps);
+		var capturedSteps = setting ? steps.Take(3).ToArray() : steps;
+        var sources = BaseSources(steps);
 		var sourceHash = BaseValueHash(sources);
-		var folder = Path.Combine(CatalogueRepository, ".artifacts", "core-foundations-fixtures", DateTime.UtcNow.ToString("yyyyMMddTHHmmssZ") + "_" + Guid.NewGuid().ToString("N"));
+		var folder = Path.Combine(CatalogueRepository, ".artifacts", setting ? "setting-foundations-fixtures" : "core-foundations-fixtures", DateTime.UtcNow.ToString("yyyyMMddTHHmmssZ") + "_" + Guid.NewGuid().ToString("N"));
 		Directory.CreateDirectory(folder);
 		string descriptor;
 		string descriptorHash;
@@ -48,7 +52,7 @@ internal static partial class GNHProgram
 		{
 			ConfigureNativeDatabase(fresh.ConnectionString);
 			using (var db = NewPreparedReplayContext(fresh.ConnectionString)) db.Database.Migrate();
-			foreach (var step in steps)
+			foreach (var step in capturedSteps)
 			{
 				var type = types.Single(x => x.FullName == step.SeederType);
 				ExecuteBaseTargetStep(fresh, (IDatabaseSeeder)Activator.CreateInstance(type)!, step.Answers.ToDictionary(x => x.Id, x => x.Answer));
@@ -62,25 +66,25 @@ internal static partial class GNHProgram
 			}
 			var sql = new MySqlDatabaseBackupService().CreateBackup(fresh.ConnectionString, folder);
 			RequireBaseDumpTargets(File.ReadAllText(sql), fresh.Name);
-			receipt = new("FutureMUD-Core-foundations-v1", fresh.Name, Path.GetFileName(sql), BaseHash(sql), BaseSchemaHash(fresh), BaseContentHash(fresh), sourceHash, steps);
+			receipt = new((setting ? "FutureMUD-Setting-foundations-v1" : "FutureMUD-Core-foundations-v1"), fresh.Name, Path.GetFileName(sql), BaseHash(sql), BaseSchemaHash(fresh), BaseContentHash(fresh), sourceHash, capturedSteps);
 			descriptor = Path.Combine(folder, "core-foundations.json");
 			File.WriteAllText(descriptor, JsonSerializer.Serialize(receipt, BaseJsonOptions));
 			File.SetAttributes(sql, File.GetAttributes(sql) | FileAttributes.ReadOnly);
 			File.SetAttributes(descriptor, File.GetAttributes(descriptor) | FileAttributes.ReadOnly);
 			descriptorHash = BaseHash(descriptor);
-			Console.WriteLine("CORE-foundation-fresh=PASS seven-seeders no-Useful sealed-fixture=" + descriptor);
+			Console.WriteLine((setting ? "SETTING-pre-skill-base=PASS three-seeders no-Useful sealed-fixture=" : "CORE-foundation-fresh=PASS seven-seeders no-Useful sealed-fixture=") + descriptor);
 		}
         }
         else
         {
             descriptor = Path.GetFullPath(supplied);
-            RequireBasePath(descriptor, Path.Combine(CatalogueRepository, ".artifacts", "core-foundations-fixtures"));
+            RequireBasePath(descriptor, Path.Combine(CatalogueRepository, ".artifacts", setting ? "setting-foundations-fixtures" : "core-foundations-fixtures"));
             Require(Path.GetFileName(descriptor) == "core-foundations.json" && suppliedHash is not null &&
                 System.Text.RegularExpressions.Regex.IsMatch(suppliedHash, "^[A-F0-9]{64}$") && BaseHash(descriptor) == suppliedHash,
                 "Foundation descriptor differs from its explicit digest or filename.");
             descriptorHash = suppliedHash;
             receipt = JsonSerializer.Deserialize<CoreFoundationFixture>(File.ReadAllText(descriptor)) ?? throw new InvalidOperationException("Malformed foundation fixture.");
-            Require(receipt.Kind == "FutureMUD-Core-foundations-v1" && receipt.SourceSha256 == sourceHash && BaseValueHash(receipt.Steps) == BaseValueHash(steps) &&
+            Require(receipt.Kind == (setting ? "FutureMUD-Setting-foundations-v1" : "FutureMUD-Core-foundations-v1") && receipt.SourceSha256 == sourceHash && BaseValueHash(receipt.Steps) == BaseValueHash(capturedSteps) &&
                 TestDatabase.HasOwnedPrefix(receipt.Database) && Path.GetFileName(receipt.SqlFile) == receipt.SqlFile && receipt.SqlFile.EndsWith(".sql", StringComparison.OrdinalIgnoreCase),
                 "Foundation fixture kind, source, answer inventory or sibling SQL identity differs; explicit new capture required.");
             folder = Path.GetDirectoryName(descriptor)!;
@@ -89,8 +93,8 @@ internal static partial class GNHProgram
 
 
 		var sqlPath = Path.Combine(folder, receipt.SqlFile);
-		RequireBasePath(descriptor, Path.Combine(CatalogueRepository, ".artifacts", "core-foundations-fixtures"));
-		RequireBasePath(sqlPath, Path.Combine(CatalogueRepository, ".artifacts", "core-foundations-fixtures"));
+		RequireBasePath(descriptor, Path.Combine(CatalogueRepository, ".artifacts", setting ? "setting-foundations-fixtures" : "core-foundations-fixtures"));
+		RequireBasePath(sqlPath, Path.Combine(CatalogueRepository, ".artifacts", setting ? "setting-foundations-fixtures" : "core-foundations-fixtures"));
 		Require(BaseHash(descriptor) == descriptorHash && BaseHash(sqlPath) == receipt.SqlSha256 && sourceHash == BaseValueHash(BaseSources(steps)), "Sealed foundation fixture or sources changed.");
         Require(File.GetAttributes(descriptor).HasFlag(FileAttributes.ReadOnly) && File.GetAttributes(sqlPath).HasFlag(FileAttributes.ReadOnly), "Foundation descriptor/SQL are not sealed read-only.");
         RequireBaseDumpTargets(File.ReadAllText(sqlPath), receipt.Database);
@@ -101,6 +105,59 @@ internal static partial class GNHProgram
 			Require(BaseSchemaHash(restored) == receipt.SchemaSha256 && BaseContentHash(restored) == receipt.ContentSha256, "Clean restore differs from sealed foundation schema/content.");
 			Dictionary<string, long?> ids;
 			long custom;
+            if (setting)
+            {
+                foreach (var step in steps.Skip(3))
+                {
+                    var type = types.Single(x => x.FullName == step.SeederType);
+                    ExecuteBaseTargetStep(restored, (IDatabaseSeeder)Activator.CreateInstance(type)!, step.Answers.ToDictionary(x => x.Id, x => x.Answer));
+                    if (type == skillPackageType)
+                    {
+                        using var customSkills = NewPreparedReplayContext(restored.ConnectionString);
+                        var ownedSkills = ArmageddonSkillPackage.Resolve(customSkills);
+                        ownedSkills["arm.skill.shield_use"].Name = "Builder Shield Defence";
+                        ownedSkills["arm.skill.blind_fighting"].Name = "Builder Unseen Fighting";
+                        ownedSkills["arm.skill.peek"].Expression.Expression = "87";
+                        customSkills.SaveChanges();
+                    }
+                }
+            }
+            if (setting)
+            {
+                Dictionary<string, long> skillIds;
+                using (var beforeRerun = NewPreparedReplayContext(restored.ConnectionString))
+                {
+                    skillIds = ArmageddonSkillPackage.Resolve(beforeRerun).ToDictionary(x => x.Key, x => x.Value.Id);
+                    beforeRerun.CharacterTraits.Add(new MudSharp.Models.CharacterTrait
+                    {
+                        CharacterId = beforeRerun.Characters.Single().Id, TraitDefinitionId = skillIds["arm.skill.peek"], Value = 57, AdditionalValue = 3
+                    });
+                    beforeRerun.SaveChanges();
+                }
+                foreach (var type in new[] { skillPackageType, typeof(CombatSeeder) })
+                {
+                    var step = steps.Single(x => x.SeederType == type.FullName);
+                    ExecuteBaseTargetStep(restored, (IDatabaseSeeder)Activator.CreateInstance(type)!, step.Answers.ToDictionary(x => x.Id, x => x.Answer));
+                }
+                using var afterRerun = NewPreparedReplayContext(restored.ConnectionString);
+                var afterSkills = ArmageddonSkillPackage.Resolve(afterRerun);
+                Require(afterRerun.CharacterTraits.Any(x => x.TraitDefinitionId == afterSkills["arm.skill.peek"].Id && x.Value == 57 && x.AdditionalValue == 3), "Early rerun changed saved player values.");
+                Require(skillIds.All(x => afterSkills[x.Key].Id == x.Value) && afterSkills["arm.skill.shield_use"].Name == "Builder Shield Defence" &&
+                    afterSkills["arm.skill.blind_fighting"].Name == "Builder Unseen Fighting" && afterSkills["arm.skill.peek"].Expression.Expression == "87",
+                    "Early package rerun changed IDs or builder overrides.");
+                Require(!afterRerun.TraitDefinitions.Any(x => x.Name == "Blind Fighting"), "Combat invented an unowned replacement after a builder rename.");
+                foreach (var binding in ArmageddonSkillPackage.StaticTraitBindings)
+                    Require(afterRerun.StaticConfigurations.Find(binding.Key)?.Definition == afterSkills[binding.Value].Id.ToString(), "Unresolved static trait binding: " + binding.Key);
+                var never = afterRerun.FutureProgs.Single(x => x.FunctionName == "AlwaysFalse").Id;
+                Require(afterRerun.ManualCombatCommands.Where(x => x.PrimaryVerb == "bash" || x.PrimaryVerb == "kick")
+                    .All(x => !x.PlayerUsable && !x.NpcUsable && x.UsabilityProgId == never), "Pending source manual actions were exposed as generic stock content.");
+                foreach (var name in new[] { "Two Handed Sword", "Training Two Handed Sword", "Two Handed Axe", "Training Two Handed Axe" })
+                {
+                    var weapon = afterRerun.WeaponTypes.Single(x => x.Name == name);
+                    Require(weapon.AttackTraitId == afterSkills["arm.skill.two_handed"].Id && weapon.ParryTraitId == afterSkills["arm.skill.parry"].Id,
+                        "Approved Two Handed/Parry assignment differs: " + name);
+                }
+            }
 			using (var db = NewPreparedReplayContext(restored.ConnectionString))
 			{
 				AuditCoreFoundations(db);
@@ -120,17 +177,30 @@ internal static partial class GNHProgram
 				var afterIds = db.SeederManagedRecords.Where(x => x.Seeder == nameof(CoreDataSeeder) && x.Module == "TagCatalogue").ToDictionary(x => x.StableKey, x => x.LogicalId);
                 Require(ids.Count == afterIds.Count && ids.All(x => afterIds.GetValueOrDefault(x.Key) == x.Value), "Core rerun changed tag IDs.");
 				RequireNoUseful(db);
-				var assessment = new ArmageddonMagicSeeder().AssessSeedData(db);
+				var assessment = new ArmageddonSettingSeeder().AssessSeedData(db);
 				Require(assessment.Status != SeederAssessmentStatus.Blocked, "Reduced Armageddon preflight blocked: " + string.Join("; ", assessment.MissingPrerequisites));
 			}
 			long capacity;
 			using (var db = NewPreparedReplayContext(restored.ConnectionString)) capacity = db.TraitDefinitions.Single(x => x.Name == "Willpower" && x.Type == 1 && x.OwnerScope == 0 && x.DerivedType == 0).Id;
-			ExecuteBaseTargetStep(restored, new ArmageddonMagicSeeder(), new Dictionary<string, string>
+			var settingAnswers = new Dictionary<string, string>
 			{
-				[ArmageddonMagicSeeder.InstallQuestion] = "no", [ArmageddonMagicSeeder.FullInstallQuestion] = "yes",
-				[ArmageddonMagicSeeder.ModeQuestion] = "Simple", [ArmageddonMagicSeeder.CapacityQuestion] = capacity.ToString(),
-				[ArmageddonMagicSeeder.NativeBindingsQuestion] = "{}", [ArmageddonMagicSeeder.BindingsQuestion] = "none"
-			});
+				[ArmageddonSettingSeeder.InstallQuestion] = "no", [ArmageddonSettingSeeder.FullInstallQuestion] = "yes",
+				[ArmageddonSettingSeeder.ModeQuestion] = "Simple", [ArmageddonSettingSeeder.CapacityQuestion] = capacity.ToString(),
+				[ArmageddonSettingSeeder.NativeBindingsQuestion] = "{}", [ArmageddonSettingSeeder.BindingsQuestion] = "none"
+			};
+            Dictionary<string, long?> committed = new();
+            if (setting)
+            {
+                Func<FuturemudDatabaseContext> factory = () => NewIndependentContext(restored.ConnectionString);
+                ArmageddonInstallation.Prepare(factory, ArmageddonProgressionMode.Simple, capacity, enableStockForNewInstall: true);
+                using (var db = factory()) ArmageddonMundaneMerits.Install(db, new List<string>());
+                var partial = ArmageddonProgressionInstaller.Install(factory);
+                Require(partial.Status == ArmageddonInstallStatus.Completed, "Could not prepare the committed phase-resume checkpoint.");
+                using var snapshot = factory();
+                committed = snapshot.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package).ToDictionary(x => x.StableKey, x => x.LogicalId);
+                Console.WriteLine("SETTING-resume-checkpoint=committed settings merits progression; catalogue-unstarted");
+            }
+			ExecuteBaseTargetStep(restored, new ArmageddonSettingSeeder(), settingAnswers);
 			using (var db = NewPreparedReplayContext(restored.ConnectionString))
 			{
 				RequireNoUseful(db);
@@ -139,14 +209,38 @@ internal static partial class GNHProgram
                 Require(ownedSpells.Length == 152 && ownedSpells.Distinct().Count() == 152 && ownedSpells.All(x => x is { } id && spellIds.Contains(id)), "Exact 152 canonical owned spells were not installed.");
 				var sewer = db.Terrains.Single(x => x.Id == db.SeederManagedRecords.Single(x => x.StableKey == ArmageddonRegionalLandInstaller.TerrainKey("sewer")).LogicalId);
 				Require(sewer.StaminaCost == 40 && sewer.TerrainBehaviourMode == "cave", "Regional Sewer did not consume Core Sewer physical preset.");
+                if (setting)
+                {
+                    var after = db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package).ToDictionary(x => x.StableKey, x => x.LogicalId);
+                    Require(committed.All(x => after.TryGetValue(x.Key, out var id) && id == x.Value), "Phase resume changed committed identities.");
+                    committed = after;
+                    var meritId = after[ArmageddonMundaneMerits.MercenaryKey];
+                    var merit = db.Merits.Single(x => x.Id == meritId);
+                    var definition = System.Xml.Linq.XElement.Parse(merit.Definition);
+                    definition.SetAttributeValue("multiplier", "1.5");
+                    merit.Definition = definition.ToString(); db.SaveChanges();
+                }
 			}
+            if (setting)
+            {
+                ExecuteBaseTargetStep(restored, new ArmageddonSettingSeeder(), settingAnswers);
+                using var db = NewPreparedReplayContext(restored.ConnectionString);
+                var after = db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package).ToDictionary(x => x.StableKey, x => x.LogicalId);
+                Require(after.Count == committed.Count && committed.All(x => after.TryGetValue(x.Key, out var id) && id == x.Value), "Magic-phase rerun changed owned identities.");
+                var merit = db.Merits.Single(x => x.Id == after[ArmageddonMundaneMerits.MercenaryKey]);
+                Require((string?)System.Xml.Linq.XElement.Parse(merit.Definition).Attribute("multiplier") == "1.5", "Rerun overwrote builder merit customisation.");
+                var peekId = after["arm.skill.peek"];
+                Require(db.CharacterTraits.Any(x => x.TraitDefinitionId == peekId && x.Value == 57 && x.AdditionalValue == 3), "Magic-phase resume/rerun changed saved player values.");
+                Console.WriteLine("SETTING-resume-rerun=PASS committed-identities builder-merit saved-player-values");
+            }
 			RunCoreFoundationBoot(restored);
 			Console.WriteLine("CORE-foundation-restored=PASS exact-roundtrip rerun-identities custom-binding full-Armageddon no-Useful");
 		}
 		Require(BaseHash(descriptor) == descriptorHash && BaseHash(sqlPath) == receipt.SqlSha256 && sourceHash == BaseValueHash(BaseSources(steps)), "Foundation fixtures/sources changed during qualification.");
-		WriteBaseRunReceipt(new { Status = "PASS", Scope = "Core tags, Sewer/Ruins, reduced Combat/Armageddon baseline", Descriptor = descriptor,
-			DescriptorSha256 = descriptorHash, receipt.SqlSha256, SourceSha256 = sourceHash, FreshSeeders = types.Select(x => x.Name), FullReplayExecuted = false,
+		WriteBaseRunReceipt(new { Status = "PASS", Scope = setting ? "Early Armageddon packages and classes-on magic stage; mundane/heritage not qualified" : "Core tags, Sewer/Ruins, reduced Combat/Armageddon baseline", Descriptor = descriptor,
+			DescriptorSha256 = descriptorHash, receipt.SqlSha256, SourceSha256 = sourceHash, FreshSeeders = (setting ? types.Take(3) : types).Select(x => x.Name), RestoredSeeders = (setting ? types.Skip(3) : Array.Empty<Type>()).Select(x => x.Name), FullReplayExecuted = false,
 			DumpRoundTripVerified = true, TagIdentitiesPreserved = true, CustomBindingPreserved = true, ZeroUsefulComponents = true,
+			MagicPhaseResumeVerified = setting, MagicPhaseRerunVerified = setting, PlayerValuePreserved = setting,
 			OriginalSealedFilesUnchanged = true, OwnedDatabasesDisposed = true });
 		return 0;
 	}
@@ -188,7 +282,7 @@ internal static partial class GNHProgram
         {
             Environment.SetEnvironmentVariable("FUTUREMUD_PREPARED_REPLAY_BOOT_SCRIPT", copy);
             Environment.SetEnvironmentVariable("FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT", output);
-            RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly);
+            RunPreparedReplayBoot(database, typeof(ArmageddonSettingSeeder).Assembly);
             Console.WriteLine("CORE-foundation-boot-receipt=" + Path.Combine(output, "boot-latest.json"));
         }
         finally

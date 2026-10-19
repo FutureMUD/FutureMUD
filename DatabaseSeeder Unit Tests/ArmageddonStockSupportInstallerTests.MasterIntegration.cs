@@ -13,9 +13,11 @@ namespace MudSharp_Unit_Tests;
 public partial class ArmageddonStockSupportInstallerTests
 {
 	[DataTestMethod]
-	[DataRow(TraitOwnerScope.Body)]
-	[DataRow(TraitOwnerScope.Character)]
-	public void MasterIntegration_SeparateNativeParrySupportsLegacyAndCurrentOwnership(TraitOwnerScope scope)
+	[DataRow(TraitOwnerScope.Body, TraitOwnerScope.Body)]
+	[DataRow(TraitOwnerScope.Character, TraitOwnerScope.Body)]
+	[DataRow(TraitOwnerScope.Body, TraitOwnerScope.Character)]
+	[DataRow(TraitOwnerScope.Character, TraitOwnerScope.Character)]
+	public void MasterIntegration_SeparateNativeParrySupportsLegacyAndCurrentOwnership(TraitOwnerScope scope, TraitOwnerScope attackScope)
 	{
 		long parryId = 0;
 		using var db = FixtureWithCombat(ArmageddonProgressionMode.Simple, false, context =>
@@ -33,7 +35,10 @@ public partial class ArmageddonStockSupportInstallerTests
 			parry.OwnerScope = (int)scope; // Retain compatibility with existing body-owned foundations too.
 			parryId = parry.Id;
 			foreach (var weapon in context.WeaponTypes)
+			{
 				weapon.ParryTraitId = parryId;
+				context.TraitDefinitions.Single(x => x.Id == weapon.AttackTraitId).OwnerScope = (int)attackScope;
+			}
 			context.SaveChanges();
 			context.ChangeTracker.Clear();
 		});
@@ -45,20 +50,26 @@ public partial class ArmageddonStockSupportInstallerTests
 		Assert.AreEqual(65, db.SeederManagedRecords.Count(x => x.StableKey.EndsWith(".weapon")));
 		Assert.IsTrue(db.WeaponTypes.All(x => x.ParryTraitId == parryId));
 		Assert.AreEqual((int)scope, db.TraitDefinitions.Single(x => x.Id == parryId).OwnerScope);
+		Assert.IsTrue(db.WeaponTypes.All(x => db.TraitDefinitions.Any(t => t.Id == x.AttackTraitId && t.OwnerScope == (int)attackScope)));
 		Assert.AreEqual(ArmageddonInstallStatus.Completed, ArmageddonStockSupportInstaller.Install(factory).Status);
 		Assert.AreEqual(0, db.Characters.Count());
 		Assert.AreEqual(0, db.GameItems.Count());
 	}
 
-	[TestMethod]
-	public void MasterIntegration_UnknownParryOwnershipStillRefusesWeapons()
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void MasterIntegration_UnknownCombatSkillOwnershipStillRefusesWeapons(bool invalidAttack)
 	{
 		using var db = ArmageddonCatalogueWeaponTests.Fixture(ArmageddonProgressionMode.Simple, false);
 		var parry = new TraitDefinition { Name = "Invalid foundation", Type = 0, OwnerScope = 99 };
 		db.TraitDefinitions.Add(parry);
 		db.SaveChanges();
 		foreach (var weapon in db.WeaponTypes)
-			weapon.ParryTraitId = parry.Id;
+		{
+			if (invalidAttack) weapon.AttackTraitId = parry.Id;
+			else weapon.ParryTraitId = parry.Id;
+		}
 		db.SaveChanges();
 		var result = ArmageddonCatalogueWeapons.Install(ArmageddonInstallationSettingsTests.Factory(db));
 		Assert.AreNotEqual(ArmageddonInstallStatus.Completed, result.Status);

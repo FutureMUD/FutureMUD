@@ -35,7 +35,7 @@ The compact diagram highlights common routes. The table is the complete declared
 | [AnimalButcherySeeder](AnimalButcherySeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [UsefulSeeder](UsefulSeeder.md), [AnimalSeeder](AnimalSeeder.md) | None |
 | [AnimalSeeder](AnimalSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [HumanSeeder](HumanSeeder.md), [CultureSeeder](CultureSeeder.md) | None |
 | [ArenaSeeder](ArenaSeeder.md) | [EconomySeeder](EconomySeeder.md) | None |
-| [ArmageddonMagicSeeder](ArmageddonMagicSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [AttributeSeeder](AttributeSeeder.md), [SkillPackageSeeder](SkillPackageSeeder.md), [TimeSeeder](TimeSeeder.md), [HumanSeeder](HumanSeeder.md), [CombatSeeder](CombatSeeder.md), [ChargenSeeder](ChargenSeeder.md) | [HealthSeeder](HealthSeeder.md), [ItemSeeder](ItemSeeder.md) |
+| [ArmageddonSettingSeeder](ArmageddonSettingSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [AttributeSeeder](AttributeSeeder.md), [SkillPackageSeeder](SkillPackageSeeder.md), [TimeSeeder](TimeSeeder.md), [HumanSeeder](HumanSeeder.md), [CombatSeeder](CombatSeeder.md), [ChargenSeeder](ChargenSeeder.md) | [HealthSeeder](HealthSeeder.md), [ItemSeeder](ItemSeeder.md) |
 | [AttributeSeeder](AttributeSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md) | None |
 | [CelestialSeeder](CelestialSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md) | None |
 | [ChargenSeeder](ChargenSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [HumanSeeder](HumanSeeder.md) | None |
@@ -46,7 +46,7 @@ The compact diagram highlights common routes. The table is the complete declared
 | [CultureSeeder](CultureSeeder.md) | [HumanSeeder](HumanSeeder.md), [ChargenSeeder](ChargenSeeder.md) | None |
 | [CurrencySeeder](CurrencySeeder.md) | [CoreDataSeeder](CoreDataSeeder.md) | None |
 | [EconomySeeder](EconomySeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [CurrencySeeder](CurrencySeeder.md), [TimeSeeder](TimeSeeder.md) | None |
-| [EnvironmentalExposureSeeder](EnvironmentalExposureSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md) | [HumanSeeder](HumanSeeder.md), [AnimalSeeder](AnimalSeeder.md), [AnimalButcherySeeder](AnimalButcherySeeder.md), [CultureSeeder](CultureSeeder.md), [ItemSeeder](ItemSeeder.md), [RobotSeeder](RobotSeeder.md), [SupernaturalSeeder](SupernaturalSeeder.md), [HealthSeeder](HealthSeeder.md), [PsionicsSeeder](PsionicsSeeder.md), [ArmageddonMagicSeeder](ArmageddonMagicSeeder.md) |
+| [EnvironmentalExposureSeeder](EnvironmentalExposureSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md) | [HumanSeeder](HumanSeeder.md), [AnimalSeeder](AnimalSeeder.md), [AnimalButcherySeeder](AnimalButcherySeeder.md), [CultureSeeder](CultureSeeder.md), [ItemSeeder](ItemSeeder.md), [RobotSeeder](RobotSeeder.md), [SupernaturalSeeder](SupernaturalSeeder.md), [HealthSeeder](HealthSeeder.md), [PsionicsSeeder](PsionicsSeeder.md), [ArmageddonSettingSeeder](ArmageddonSettingSeeder.md) |
 | [HealthSeeder](HealthSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [HumanSeeder](HumanSeeder.md) | None |
 | [HumanSeeder](HumanSeeder.md) | [CoreDataSeeder](CoreDataSeeder.md), [TimeSeeder](TimeSeeder.md) | None |
 | [ItemSeeder](ItemSeeder.md) | [UsefulSeeder](UsefulSeeder.md), [AnimalSeeder](AnimalSeeder.md) | None |
@@ -76,6 +76,6 @@ Each guide lists the exact metadata prerequisite descriptions and points to lega
 - Creature packages require concrete body, race, health, characteristic and combat identities; their source preflight lists are more detailed than the graph.
 - Culture historical toolkit validates native bindings/era immutability before owned writes; legacy packs retain separate paths.
 - EnvironmentalExposureSeeder deliberately follows many available domain seeders so it can audit installed materials/fluids; it does not turn exposure on or create hazardous rooms.
-- ArmageddonMagicSeeder supports fresh opt-in installation; installs separate prepared-world modules with independent commits. PrimaryProductionSeeder remains disabled even though definitions and ordering metadata exist.
+- ArmageddonSettingSeeder supports fresh opt-in installation; installs separate prepared-world modules with independent commits. PrimaryProductionSeeder remains disabled even though definitions and ordering metadata exist.
 
 See [shared execution contract](README.md#shared-execution-contract), [coverage](Coverage_and_Evidence.md), and [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md).

@@ -139,9 +139,9 @@ internal static partial class GNHProgram
 	private static string S6MaintenanceRerun(TestDatabase database)
 	{
 		using var db = NewIndependentContext(database.ConnectionString);
-		return new ArmageddonMagicSeeder().SeedData(db, new Dictionary<string, string>
+		return new ArmageddonSettingSeeder().SeedData(db, new Dictionary<string, string>
 		{
-			[ArmageddonMagicSeeder.InstallQuestion] = "no", [ArmageddonMagicSeeder.FullInstallQuestion] = "yes"
+			[ArmageddonSettingSeeder.InstallQuestion] = "no", [ArmageddonSettingSeeder.FullInstallQuestion] = "yes"
 		});
 	}
 

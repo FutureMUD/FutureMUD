@@ -74,7 +74,7 @@ internal static partial class GNHProgram
 		}
 		Console.WriteLine("ARMS3-restored-catalogue=verified exact dump/source hashes all-198-blueprints fresh ownership marker; not a new seeder replay");
 		if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_SMOKE") == "1") PreparedStockAttunementAcceptance(database);
-		RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
+		RunPreparedReplayBoot(database, typeof(ArmageddonSettingSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
 		return 0;
 	}
 

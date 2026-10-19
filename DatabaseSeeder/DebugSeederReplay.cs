@@ -543,10 +543,10 @@ internal static class DebugSeederReplayProfiles
 				("model", "full"),
 				("random", "static"),
 				("messagestyle", "sparse")),
-			Step<ArmageddonMagicSeeder>((ArmageddonMagicSeeder.InstallQuestion, "no"),
-				(ArmageddonMagicSeeder.FullInstallQuestion, "no"), (ArmageddonMagicSeeder.ModeQuestion, "Classic"),
-				(ArmageddonMagicSeeder.CapacityQuestion, "0"), (ArmageddonMagicSeeder.NativeBindingsQuestion, "{}"),
-				(ArmageddonMagicSeeder.BindingsQuestion, "none")),
+			Step<ArmageddonSettingSeeder>((ArmageddonSettingSeeder.InstallQuestion, "no"),
+				(ArmageddonSettingSeeder.FullInstallQuestion, "no"), (ArmageddonSettingSeeder.ModeQuestion, "Classic"),
+				(ArmageddonSettingSeeder.CapacityQuestion, "0"), (ArmageddonSettingSeeder.NativeBindingsQuestion, "{}"),
+				(ArmageddonSettingSeeder.BindingsQuestion, "none")),
 			Step<PsionicsSeeder>(("install-psionics", "yes")),
 			Step<EnvironmentalExposureSeeder>(("natural", "yes"), ("fantasy", "yes"))
 		]);

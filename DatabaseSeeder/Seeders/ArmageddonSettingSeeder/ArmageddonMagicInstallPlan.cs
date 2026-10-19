@@ -23,6 +23,7 @@ public enum ArmageddonInstallCheckpoint { PreflightComplete, ContentCreated, Bef
 
 public static partial class ArmageddonMagicInstaller
 {
+	// Durable ownership predates the public Setting name. Early and late phases share it.
 	public const string Package = "ArmageddonMagicSeeder";
 	public const string Module = "reviewed-five-utilities-and-blank-devices";
 	public const string ManifestVersion = "partial-1";

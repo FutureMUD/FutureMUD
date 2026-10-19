@@ -244,8 +244,8 @@ public class ArmageddonInstallationSettingsTests
 		using var db = Fixture();
 		db.Materials.Single(x => x.Id == 1).BehaviourType = (int)MaterialBehaviourType.Stone;
 		db.Materials.Add(new Material { Id = 3, Name = "oak", BehaviourType = (int)MaterialBehaviourType.Wood, Density = 800 }); db.SaveChanges();
-		var question = new ArmageddonMagicSeeder().Questions.Single(x => x.Id == ArmageddonMagicSeeder.NativeBindingsQuestion);
-		Assert.IsTrue(question.Filter(db, new Dictionary<string, string> { [ArmageddonMagicSeeder.FullInstallQuestion] = "yes" }));
+		var question = new ArmageddonSettingSeeder().Questions.Single(x => x.Id == ArmageddonSettingSeeder.NativeBindingsQuestion);
+		Assert.IsTrue(question.Filter(db, new Dictionary<string, string> { [ArmageddonSettingSeeder.FullInstallQuestion] = "yes" }));
 		Assert.IsTrue(question.Validator("{\"Wood\":3}", db).Success);
 		var settings = ArmageddonInstallation.Prepare(Factory(db), nativeOverrides: ArmageddonInstallation.ParseOverrides("{\"Wood\":3}"));
 		Assert.AreEqual(3L, settings.NativeBindings[ArmageddonNativeBinding.Wood]);
@@ -271,7 +271,7 @@ public class ArmageddonInstallationSettingsTests
 	public void NativeQuestionValidator_RejectsWrongTypedExplicitBinding()
 	{
 		using var db = Fixture();
-		var question = new ArmageddonMagicSeeder().Questions.Single(x => x.Id == ArmageddonMagicSeeder.NativeBindingsQuestion);
+		var question = new ArmageddonSettingSeeder().Questions.Single(x => x.Id == ArmageddonSettingSeeder.NativeBindingsQuestion);
 		Assert.IsFalse(question.Validator("{\"Wood\":2}", db).Success);
 		Assert.IsTrue(question.Validator("{}", db).Success);
 	}
@@ -289,9 +289,9 @@ public class ArmageddonInstallationSettingsTests
 	public void SharedExecutor_CatalogueFailureRetainsDurableSettingsAndProgressionWithoutGenericAnswers()
 	{
 		using var db = Fixture();
-		var seeder = new ArmageddonMagicSeeder();
+		var seeder = new ArmageddonSettingSeeder();
 		var result = SeederExecutionService.Execute(db, seeder, seeder.Questions, new Dictionary<string, string>
-		{ [ArmageddonMagicSeeder.FullInstallQuestion] = "yes", [ArmageddonMagicSeeder.ModeQuestion] = "Simple" }, new Version(1, 0));
+		{ [ArmageddonSettingSeeder.FullInstallQuestion] = "yes", [ArmageddonSettingSeeder.ModeQuestion] = "Simple" }, new Version(1, 0));
 		Assert.IsFalse(result.Success, "The deliberately minimal S1/S2 fixture lacks S3 catalogue prerequisites.");
 		Assert.AreEqual(4, db.SeederChoices.Count()); Assert.IsTrue(db.SeederManagedRecords.Count() > 1);
 		Assert.AreEqual(10, db.MagicCapabilities.Count()); Assert.AreEqual(10, db.ChargenRoles.Count());

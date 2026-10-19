@@ -206,6 +206,22 @@ public partial class CombatSeeder
         TraitDefinition skill;
         switch (skilloption)
         {
+            case "armageddon":
+                var owned = ArmageddonSkillPackage.Resolve(context);
+                var assignments = new Dictionary<string, string>
+                {
+                    ["Mace"] = "bludgeoning_weapons", ["Club"] = "bludgeoning_weapons", ["Improvised"] = "bludgeoning_weapons",
+                    ["Warhammer"] = "bludgeoning_weapons", ["Short Sword"] = "slashing_weapons", ["Long Sword"] = "slashing_weapons",
+                    ["Dagger"] = "piercing_weapons", ["Knife"] = "knife_weapons", ["Axe"] = "chopping_weapons",
+                    ["Rapier"] = "piercing_weapons", ["Two Handed Sword"] = "two_handed", ["Spear"] = "piercing_weapons",
+                    ["Halberd"] = "polearm_weapons", ["Mattock"] = "chopping_weapons"
+                };
+                foreach (var assignment in assignments)
+                {
+                    skills[assignment.Key] = owned["arm.skill." + assignment.Value];
+                    parrySkills[assignment.Key] = owned["arm.skill.parry"];
+                }
+                break;
             case "soi":
                 skill = CreateSkill("Light-Blunt");
                 skills["Mace"] = skill;

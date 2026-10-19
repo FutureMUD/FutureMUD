@@ -80,6 +80,9 @@ public partial class CombatSeeder
     private IReadOnlyDictionary<string, TraitDefinition> SeedUniversalSkills(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> questionAnswers)
     {
+        if (questionAnswers.TryGetValue("skilloption", out var skillOption) &&
+            skillOption.Equals("armageddon", StringComparison.OrdinalIgnoreCase))
+            return ArmageddonSkillPackage.EngineBindings(context);
         Dictionary<string, TraitDefinition> skills = new(StringComparer.OrdinalIgnoreCase);
         foreach (TraitDefinition? skill in context.TraitDefinitions.Where(x => x.Type == 0))
         {

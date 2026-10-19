@@ -127,6 +127,8 @@ Again, the choices you make here can be fixed later so don't stress it too great
     public override string SeedData(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> questionAnswers)
     {
+        if (ArmageddonSkillPackage.IsInstalled(context))
+            throw new InvalidOperationException("Armageddon skill identities are installed. A different skill package requires a separately reviewed conversion.");
         context.Database.BeginTransaction();
         SeedChecks(context, questionAnswers);
         SeedSkills(context, questionAnswers);

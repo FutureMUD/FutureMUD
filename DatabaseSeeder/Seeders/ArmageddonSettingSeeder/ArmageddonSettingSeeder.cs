@@ -9,23 +9,24 @@ using MudSharp.Database;
 namespace DatabaseSeeder.Seeders;
 
 /// <summary>Opt-in v1 package settings and retained prepared-world APIs.</summary>
-public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
+public sealed partial class ArmageddonSettingSeeder : IDatabaseSeeder
 {
 	public bool Enabled => true;
 	public int SortOrder => 305;
-	// Retained as the answer-memory identity for installed worlds.
-	public string Name => "Armageddon Magic (partial, prepared world)";
-	public string Tagline => "Optional Armageddon v1 magic: Classic or Simple progression";
-	public string FullDescription => "Installs 152 canonical spells, 210 blueprints, ten capability/merit pairs, " +
+	// Public installer identity; durable content ownership remains independent.
+	public string Name => "Armageddon Setting";
+	public string Tagline => "Staged Armageddon setting: magic, mundane progression and heritage";
+	public string FullDescription => "Staged Setting installer: the magic phase installs 152 canonical spells, 210 blueprints, ten capability/merit pairs, " +
 		"eight reserves, complete admission/support graphs and six source Self/Land gathering methods. " +
 		"A fresh opt-in installation enables complete casting, conditional Class roles, gathering permissions and approved focus/device use and crafts. " +
 		"Existing installations retain their activation defaults and builder edits. No existing player is enrolled or refilled. " +
 		"Classic/Simple and the earlier Chargen class direction are fixed; Land requires builder-owned life/profile/terrain bindings. " +
-		"Historical prepared-world APIs remain available. See Design Documents/Magic/Armageddon_Installer_Integration_Guide.md.";
+		"Mundane roles/progression, heritage and remaining action bindings are pending stages; this is not a complete playable Setting. Historical prepared-world APIs remain available. See Design Documents/Magic/Armageddon_Installer_Integration_Guide.md.";
 	public bool SafeToRunMoreThanOnce => true;
 	public SeederMetadata Metadata => SeederMetadataRegistry.GetMetadata(this);
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context) =>
-		context.SeederManagedRecords.AsNoTracking().Any(x => x.Seeder == ArmageddonMagicInstaller.Package)
+		context.SeederManagedRecords.AsNoTracking().Any(x => x.Seeder == ArmageddonMagicInstaller.Package &&
+			x.Module != ArmageddonSkillPackage.Module && x.Module != "setting-combat")
 			? ShouldSeedResult.ExtraPackagesAvailable : ShouldSeedResult.ReadyToInstall;
 	public SeederAssessment AssessSeedData(FuturemudDatabaseContext context)
     {
@@ -34,6 +35,7 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
         {
             var installed = ArmageddonInstallation.Read(context);
             var classes = ArmageddonInstallation.ClassesEnabled(context);
+            ArmageddonInstallation.RequireSettingRoleDirection(context);
             var candidate = installed ?? new ArmageddonInstallationSettings(1, ArmageddonProgressionMode.Classic,
                 classes, ArmageddonInstallation.ResolveCapacityAttribute(context), ArmageddonInstallation.ResolveNativeBindings(context));
             missing.AddRange(ArmageddonInstallation.ValidateFoundations(context, candidate, checkCapacity: false));
@@ -79,7 +81,16 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 			}
 			var overrides = questionAnswers.TryGetValue(NativeBindingsQuestion, out var nativeJson) ? ArmageddonInstallation.ParseOverrides(nativeJson) : null;
 			var settings = ArmageddonInstallation.Prepare(factory, mode, capacity, overrides, enableStockForNewInstall: true);
-			var progression = ArmageddonProgressionInstaller.Install(factory);
+			using (var module = factory())
+            {
+                if (ArmageddonSkillPackage.IsInstalled(module))
+                {
+                    var meritMessages = new List<string>();
+                    ArmageddonMundaneMerits.Install(module, meritMessages);
+                    foreach (var message in meritMessages) Console.WriteLine(message);
+                }
+            }
+            var progression = ArmageddonProgressionInstaller.Install(factory);
 			var progressionReport = string.Join("\n", progression.Messages);
 			if (progression.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(progressionReport);
 			var catalogue = ArmageddonCatalogueInstaller.Install(factory);
@@ -100,7 +111,7 @@ public sealed partial class ArmageddonMagicSeeder : IDatabaseSeeder
 			var completeProgression = ArmageddonProgressionInstaller.Install(factory, completeStock: true, completeGathering: true);
 			var completeProgressionReport = string.Join("\n", regionalLand.Messages.Concat(completeProgression.Messages));
 			if (completeProgression.Status != ArmageddonInstallStatus.Completed) throw new InvalidOperationException(completeProgressionReport);
-			return $"Armageddon fixed settings ready: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Settings and shared answers are durable.\n{progressionReport}\n{catalogueReport}\n{spellReport}\n{focusDeviceReport}\n{completeProgressionReport}\nComplete stock admission/support and source gathering defaults are installed. Activation defaults: {(settings.StockAvailabilityByDefault ? "v1 fresh-install enabled" : "existing-install retained")}; preserved builder overrides are reported above. Land bindings and existing-player enrolment remain explicit.";
+			return $"Armageddon magic phase complete; mundane progression/heritage and remaining action bindings are pending. Armageddon fixed settings ready: {settings.Mode}, classes {(settings.ClassesEnabled ? "enabled" : "disabled")}. Settings and shared answers are durable.\n{progressionReport}\n{catalogueReport}\n{spellReport}\n{focusDeviceReport}\n{completeProgressionReport}\nComplete stock admission/support and source gathering defaults are installed. Activation defaults: {(settings.StockAvailabilityByDefault ? "v1 fresh-install enabled" : "existing-install retained")}; preserved builder overrides are reported above. Land bindings and existing-player enrolment remain explicit.";
 		}
 		if (!questionAnswers.TryGetValue(InstallQuestion, out var answer) || !IsYes(answer))
 			return "Armageddon package declined. No package content or player state changed. Generic answer-memory housekeeping may still run.";

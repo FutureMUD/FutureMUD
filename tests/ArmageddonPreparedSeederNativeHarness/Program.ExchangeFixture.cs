@@ -138,7 +138,7 @@ internal static partial class GNHProgram
 		database.RestoreCatalogueFixture(sql, fixture.Database); ConfigureNativeDatabase(database.ConnectionString);
 		using (var db = NewIndependentContext(database.ConnectionString)) Require(!db.Database.GetPendingMigrations().Any() && !db.Database.HasPendingModelChanges(), "Exchange restored schema differs.");
 		PrepareExchangeFixture(database, installedStock: true);
-		RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
+		RunPreparedReplayBoot(database, typeof(ArmageddonSettingSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
 		Require(BaseHash(sql) == fixture.SqlSha256, "Canonical Exchange SQL changed during qualification.");
 		WriteBaseRunReceipt(new { Status = "RESTORED_EXCHANGE_STOCK", Manifest = manifest, ManifestSha256 = BaseHash(manifest), fixture.SqlSha256,
 			Database = database.Name, Ownership = "fresh-owned-marker-resealed", PackageRerun = false });

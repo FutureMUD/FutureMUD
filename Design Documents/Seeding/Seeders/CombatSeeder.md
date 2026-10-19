@@ -56,3 +56,7 @@ Related source tests and design references:
 - [CombatStrategySeederCompatibilityTests.cs](../../../DatabaseSeeder%20Unit%20Tests/CombatStrategySeederCompatibilityTests.cs)
 
 See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md) and [coverage and reviewed evidence](Coverage_and_Evidence.md).
+
+## Staged Armageddon new-world choice
+
+See [Armageddon Setting](ArmageddonSettingSeeder.md) for the explicit early choice, immutable canonical trait IDs, bootstrap dependencies, builder-preserving rerun boundary and pending role/heritage stages. This choice does not convert an existing stock world.

@@ -20,7 +20,7 @@ public static class SeederMetadataRegistry
     {
         return seeder.GetType().Name switch
         {
-			nameof(ArmageddonMagicSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
+			nameof(ArmageddonSettingSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
 				Array.Empty<SeederPrerequisite>(),
 				RerunSummary: "Default No. Opt-in validates foundations and preserves the fixed game-wide mode, class direction and native IDs. Settings commit atomically with their answer mirrors before catalogue modules.",
 				UpdateSummary: "Complete v1 stock reconciles in resumable batches. Fresh installations enable approved stock defaults; existing activation defaults and builder edits are retained. No player refresh or mode conversion.",
@@ -33,7 +33,7 @@ public static class SeederMetadataRegistry
 				OwnershipSummary: "Optional natural and fantasy exposure content; never enables an existing world or creates live hazardous rooms.",
 				DependencySeederTypes: [typeof(CoreDataSeeder)],
 				OrderAfterSeederTypes: [typeof(HumanSeeder), typeof(AnimalSeeder), typeof(AnimalButcherySeeder), typeof(CultureSeeder),
-					typeof(ItemSeeder), typeof(RobotSeeder), typeof(SupernaturalSeeder), typeof(HealthSeeder), typeof(PsionicsSeeder), typeof(ArmageddonMagicSeeder)]),
+					typeof(ItemSeeder), typeof(RobotSeeder), typeof(SupernaturalSeeder), typeof(HealthSeeder), typeof(PsionicsSeeder), typeof(ArmageddonSettingSeeder)]),
 			nameof(PsionicsSeeder) => new SeederMetadata(SeederRepeatabilityMode.Idempotent, SeederUpdateCapability.RepairExisting,
 				[Requirement("A skill scaffold must already exist.", context => context.TraitDefinitions.Any(x => x.Type == 0)),
 				 Requirement("The organic Human race must already exist.", context => context.Races.Any(x => x.Name == "Human"))],

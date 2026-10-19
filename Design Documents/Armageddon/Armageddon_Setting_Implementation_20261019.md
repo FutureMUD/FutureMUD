@@ -1,0 +1,48 @@
+# Armageddon Setting implementation ledger - 19 October 2026
+
+Base: master `97c02768d254c5e345a62349e05b94fe345efeec` (PR805-809 verified merged). Isolated branch `codex/armageddon-setting-20261019`. Approved bundle SHA-256 `7f0c44decb894487f19bff038ebef4c977cebe6d6eff05efe8ad23260159a9e7`; 19-item register. This records a staged foundation implementation and qualification. Required content/runtime work remains below. No publication, deployment, existing-world activation or conversion occurred.
+
+| Register | Implemented in this branch | Installed / gameplay-qualified evidence |
+| --- | --- | --- |
+| E01 | Existing Core tag/terrain foundations reused | Current native reduced path passed, including Core rerun and custom tag binding |
+| E02 | Historical reduced magic proof retained | Superseded for this stage by current-schema classes-on early+magic proof; neither is full Setting acceptance |
+| E03 | Armageddon SkillPackage choice:109 canonical source traits+3 writing traits, aliases/capability treatment,30 explicit ungranted engine scaffolds; Admin Speech retained |142 traits installed; ten static ID bindings verified; IDs, builder names/cap and saved player values retained on rerun |
+| E04 | Armageddon Combat choice: explicit canonical families, four approved Two Handed assignments, independent Parry, five retained magic donors; new-world discriminator | Native install/rerun passed. Both catalogue validators now accept native Body/Character attack/parry scopes and reject unknown scope |
+| E05 | Public type/tree/menu/metadata/replay/questions/harness/docs renamed to Setting; durable legacy namespace retained | Debug/Release and strict replay tests pass; public Setting magic phase installs152 distinct owned spells on classes-on reduced path |
+| E06 | Early choice checks, typed skill/weapon graph validation, required Class/Subclass direction | Current reduced path passes; exact whole-Setting composed preflight remains required |
+| E07 | Canonical identity manifest, native check vocabulary, Peek/Direction Sense/Guarding binding; ten static IDs, explicit Drawing/Tattoo/Auxiliary and technology scaffolds | No accidental auxiliary first-skill fallback. Complete291-case/236-type,55-key and71-dynamic-obligation closure still required |
+| E08 | Approved7 guild/226 memberships,24 subclasses/93 entries,172 overlaps and7 writing grants frozen | Role/grant/branch/cap/overlap runtime composition remains required. Mundane source caps stay0 pending that phase; language caps200 |
+| E09 | Shared namespace, owned trait/cap/weapon baselines, transactional first early installs, read-only preserving reruns | Native phase resume and public magic-phase rerun preserve IDs, Block/Blind Fighting renames, Peek cap87, merit override1.5 and player Peek57/additional3. Complete future role-claim interruption/acquisition coverage remains required |
+| E10 | Bard language-only Skill Learning definition: branching50, improvement chance5; approved canonical merit key | Definition installed/reconciled and loaded on native boot; Bard role grant and representative learning remain required |
+| E11 | Reusable Liver Clearance merit; effective clearance x2 after injury; alcohol and all active drugs, including beneficial drugs | Runtime healthy/injured/zero-function and actual drug-metabolism tests pass. Definition installed; Mercenary role grant/live sample remain required. No direct poison protection |
+| E12 | Existing Guarding/Direction Sense/Peek reused. Recovered original Pilot handler; implemented configurable manual room-exit proficiency with safe deviation, separate orientation and one failed-use learning opportunity | Pilot/direction runtime tests pass. Required v1 live vehicle sample remains. Source-faithful Bash/Kick and distinct Backstab/Sap remain required; generic manual/auxiliary/backstab substitutes are gated on first Armageddon install |
+| E13 | Approved heritage/native-language tables frozen; no corpus invented | Five-language/accent/culture/ethnicity/race/naming graph and native200/secondary100/60 grant composition remain required |
+| E14 | [Seven-profile physical proposal](Armageddon_Physical_Proposal_20261019.md): recovered evidence separated from authored defaults | Owner review and activation qualification pending; no new profiles enabled |
+| E15 | Current-schema reduced classes-on/subclasses-on lane; sealed3-step baseline restored before early packages; complete magic-stage composition | PASS:SQL roundtrip,152 owned spells, no Useful dependency, phase resume/rerun, first/cold login/LOOK/save/graceful shutdown. Full combined Setting gameplay remains required |
+| E16 | Recipes and active psychic powers kept outside this slice | Deferred as approved; vehicle driving/Pilot is required v1 work |
+| E17 | Writing traits retained; no new scripts/random-name corpus or deferred role allocations | Free-entry personal names retained; writing grants/script-context validation remain in content composition |
+| E18 | Merged silt/immersion/land mechanics reused | Burial/concealed creatures/current/tide/map work remains outside scope |
+| E19 | Stock-world conversion refused before early replacement writes | Existing-world conversion requires its separate inventory/preview/migration plan |
+
+## Verification
+
+[Machine-readable evidence and receipt hashes](Armageddon_Setting_Verification_20261019.json) retain exact local artifact paths.
+
+- Final full DatabaseSeeder suite: **2009 passed,0 failed,3 skipped**; three Unix launcher-permission rows require a Unix host. Run `20261019T130629Z-2ff2cc01b5f6`; source stable.
+- Final runtime focus: **40 passed,0 failed/skipped** (Pilot, Direction Sense, liver and needs); run `20261019T125659Z-607cdb3e956f`; source stable.
+- Attack/parry scope regression: **46 passed,0 failed/skipped**, including all four Body/Character combinations and invalid-scope rejection; run `20261019T130212Z-f778fb1f6523`.
+- DatabaseSeeder Debug/Release and native harness Debug builds passed. `git diff --check` passed.
+- Native run `20261019T130555Z_c878f2dc4cb44989b9918dfcc6874e50`: **PASS**, source stable. Fresh owned MySQL restored the sealed baseline; every owned MUD/MySQL process/database was stopped/disposed. Separate first/cold boot receipt confirms actual telnet login/LOOK/save/shutdown.
+- Sealed fixture: `.artifacts/setting-foundations-fixtures/20261019T125847Z_2fb3564ec9f04c538b0d4d4780d3fb88/core-foundations.json`; SHA-256 `E26C6B5992C664F52BFA38488CB2F19143B8B80A59C7A3CB949D7B7F014C61A8`. SQL digest `64113F06E363B582ECE510A3C112984F51D28977DB7250A53D28A6DA790F7206`. Descriptor/SQL remain unchanged and read-only.
+- Failures were retained: initial full suite9 failures (missing optional helper answer and two source merit-key coverage entries) corrected; final suite passes. Initial native weapon batch rejected character-owned attack skills; both validators corrected and the same sealed baseline restored successfully. Early fixture/API/compile corrections and sandbox VSTest connection failure are preserved in `.artifacts/fm_test_runner` and earlier test receipts; no blocked test is represented as a pass.
+
+## Required continuation
+
+Keep approved numeric/roster/language policies fixed. These are engineering tasks, not new owner decisions:
+
+1. Compose7 Class/24 Subclass roles, roots/standalone grants, Classic mundane trees in both magic modes, writing and merit grants, main-priority caps and durable one-time delayed overlap claims. Native role trait adjustments are additive; use a single complete-role composition and max-merge heritage claims. Every `GiveIfDoesntHave` role row becomes mandatory in `SkillGroupResolver`, so do not prematurely grant shared children. Numeric cap expression selectors are `{name class=<id>}` and `{name role=<id>}`; there is no `subclass` selector. Cover ordinary improvement, lessons/other legitimate acquisition and canonical character ownership, without inferring new claims on login/rerun.
+2. Build the approved gated heritage graph. Native culture availability progs enforce race compatibility; ethnicity selection matches exact ParentRace IDs. Preserve Human/Admin bootstrap, one native language at200 and explicit secondaries100/60, max-merging independent claims. Keep free-entry names. All incomplete new profiles remain unavailable until the physical proposal is accepted and qualified.
+3. Close the binding inventories and implement source-specific manual Bash/Kick and distinct Backstab/Sap. [Pilot source/adaptation contract](Armageddon_Pilot_Contract_20261019.md) is implemented at the room-exit command boundary; required representative live manual driving/control failure and vehicle Direction Sense still need qualification. No ordinary-Pilot deferral is authorised.
+4. Run the final full combined Setting install/gameplay/resume/cold-restart lane after those modules exist. Reuse sealed backups with exact pins; never edit sealed evidence or silently bypass source/answer compatibility. This current native certificate covers early packages and magic, not the missing content.
+
+The physical matrix is the remaining owner acceptance gate before profile activation. It does not block the other implementation work. Publication remains unrequested; local reviewable commits only.

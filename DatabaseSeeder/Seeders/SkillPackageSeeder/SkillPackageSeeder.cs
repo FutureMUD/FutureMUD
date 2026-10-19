@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace DatabaseSeeder.Seeders;
 
-internal class SkillPackageSeeder : SkillSeederBase
+internal partial class SkillPackageSeeder : SkillSeederBase
 {
     private static readonly string[] SharedSkillSeederMarkers =
     [
@@ -99,13 +99,14 @@ This follows a similar pattern across other areas as well - skills are either lu
 
 If you instead choose the #6RPI#0 method, you will get the same skills as the complex method, but with some additional skills that are based on the original RPI-engine skill system, such as Ritual, Backstab, Barter and the like.
 
-Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
+Choose #6simple#0, #6complex#0, #6rpi#0 or #6armageddon#0 (approved setting package; new worlds only): ", (context, answers) => true,
                 (text, context) =>
                 {
                     switch (text.ToLowerInvariant())
                     {
                         case "simple":
                         case "complex":
+                        case "armageddon":
                         case "rpi":
                             return (true, string.Empty);
                     }
@@ -543,6 +544,8 @@ Please choose either #6simple#0 or #6complex#0: ", (context, answers) => true,
     public override string SeedData(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> questionAnswers)
     {
+        if (questionAnswers["complexity"].EqualTo("armageddon")) return SeedArmageddon(context, questionAnswers);
+        if (ArmageddonSkillPackage.IsInstalled(context)) throw new InvalidOperationException("This world uses the Armageddon skill package; changing package requires a separate migration.");
         IReadOnlyDictionary<string, CheckTemplate> templates = SeedCheckTemplates(context, questionAnswers["branching"].EqualToAny("yes", "y"));
         (TraitDecorator? general, TraitDecorator? crafting, TraitDecorator? languageDecorator, TraitDecorator? veterancy, TraitDecorator? professional, Improver? languageImprover, Improver? generalImprover) =
             SeedSkillImprovers(context, questionAnswers["skillgainmodel"].ToLowerInvariant());

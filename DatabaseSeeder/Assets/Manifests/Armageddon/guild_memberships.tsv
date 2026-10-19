@@ -1,0 +1,227 @@
+guild	source_line	source_name	canonical_key	opening	cap	futuremud_effective_cap	effective_cap_basis	printed_go_on	depth	parent_source_line	parent_name	parent_canonical_key	inferred_parent_threshold	evidence
+Psionicist	826	contact	arm.skill.contact	60	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	828	allspeak	arm.skill.allspeak	10	90	90	recovered printed cap	80	1	826	contact	arm.skill.contact	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	830	babble	arm.skill.babble	10	90	90	recovered printed cap	80	2	828	allspeak	arm.skill.allspeak	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	832	barrier	arm.skill.barrier	20	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	834	expel	arm.skill.expel	5	80	80	recovered printed cap	70	1	832	barrier	arm.skill.barrier	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	836	dome	arm.skill.dome	10	90	90	recovered printed cap	80	1	832	barrier	arm.skill.barrier	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	838	locate	arm.skill.locate	20	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	840	trace	arm.skill.trace	20	90	90	recovered printed cap	80	1	838	locate	arm.skill.locate	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	842	hear	arm.skill.hear	10	90	90	recovered printed cap	80	2	840	trace	arm.skill.trace	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	844	clairaudience	arm.skill.clairaudience	10	90	90	recovered printed cap	80	2	840	trace	arm.skill.trace	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	846	sense presence	arm.skill.sense_presence	10	90	90	recovered printed cap	80	1	838	locate	arm.skill.locate	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	848	probe	arm.skill.probe	10	90	90	recovered printed cap	80	2	846	sense presence	arm.skill.sense_presence	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	850	thoughtsense	arm.skill.thoughtsense	10	90	90	recovered printed cap	80	2	846	sense presence	arm.skill.sense_presence	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	852	empathy	arm.skill.empathy	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	854	disorient	arm.skill.disorient	10	90	90	recovered printed cap	80	1	852	empathy	arm.skill.empathy	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	856	mindwipe	arm.skill.mindwipe	10	90	90	recovered printed cap	80	2	854	disorient	arm.skill.disorient	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	858	mindblast	arm.skill.mindblast	10	90	90	recovered printed cap	80	3	856	mindwipe	arm.skill.mindwipe	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	860	project	arm.skill.project	10	90	90	recovered printed cap	80	1	852	empathy	arm.skill.empathy	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	862	rejuvenate	arm.skill.rejuvenate	10	90	90	recovered printed cap	80	1	852	empathy	arm.skill.empathy	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	864	conceal	arm.skill.conceal	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	866	masquerade	arm.skill.masquerade	10	90	90	recovered printed cap	80	1	864	conceal	arm.skill.conceal	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	868	illusion	arm.skill.illusion	10	90	90	recovered printed cap	80	2	866	masquerade	arm.skill.masquerade	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	870	suggest	arm.skill.suggest	10	90	90	recovered printed cap	80	1	864	conceal	arm.skill.conceal	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	872	compel	arm.skill.compel	10	90	90	recovered printed cap	80	2	870	suggest	arm.skill.suggest	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	874	control	arm.skill.control	10	90	90	recovered printed cap	80	3	872	compel	arm.skill.compel	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	876	vanish	arm.skill.vanish	10	90	90	recovered printed cap	80	1	864	conceal	arm.skill.conceal	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	878	shadowwalk	arm.skill.shadowwalk	10	90	90	recovered printed cap	80	2	876	vanish	arm.skill.vanish	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	880	dual wield	arm.skill.dual_wield	5	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	882	piercing weapons	arm.skill.piercing_weapons	5	40	40	recovered printed cap	30	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	884	shield use	arm.skill.shield_use	5	20	20	recovered printed cap	10	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	886	forage	arm.skill.forage	10	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	888	cooking	arm.skill.cooking	5	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	890	analyze	arm.skill.analyze	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Psionicist	892	two handed	arm.skill.two_handed	5	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1090	contact	arm.skill.contact	20	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1092	barrier	arm.skill.barrier	5	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1094	expel	arm.skill.expel	5	80	80	recovered printed cap	70	1	1092	barrier	arm.skill.barrier	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1096	peek	arm.skill.peek	15	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1098	scan	arm.skill.scan	5	80	80	recovered printed cap	70	1	1096	peek	arm.skill.peek	85	printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1100	sneak	arm.skill.sneak	10	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1102	hide	arm.skill.hide	10	80	80	recovered printed cap	70	1	1100	sneak	arm.skill.sneak	85	printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1104	listen	arm.skill.listen	5	70	70	recovered printed cap	60	1	1100	sneak	arm.skill.sneak	85	printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1106	sap	arm.skill.sap	10	50	50	recovered printed cap	40	1	1100	sneak	arm.skill.sneak	85	printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1108	steal	arm.skill.steal	20	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1110	sleight of hand	arm.skill.sleight_of_hand	10	90	90	recovered printed cap	80	1	1108	steal	arm.skill.steal	85	printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1112	haggle	arm.skill.haggle	10	85	85	recovered printed cap	75	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1114	climb	arm.skill.climb	10	60	60	recovered printed cap	50	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1116	dual wield	arm.skill.dual_wield	10	40	40	recovered printed cap	30	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1118	parry	arm.skill.parry	5	45	45	recovered printed cap	35	1	1116	dual wield	arm.skill.dual_wield	30	printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1120	piercing weapons	arm.skill.piercing_weapons	5	40	40	recovered printed cap	30	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1122	slashing weapons	arm.skill.slashing_weapons	5	30	30	recovered printed cap	20	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1124	shield use	arm.skill.shield_use	10	25	25	recovered printed cap	15	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1126	forage	arm.skill.forage	5	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1128	flee	arm.skill.flee	10	30	30	recovered printed cap	20	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1130	cooking	arm.skill.cooking	5	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1132	analyze	arm.skill.analyze	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Pick-pocket	1134	two handed	arm.skill.two_handed	10	40	40	recovered printed cap	30	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1140	contact	arm.skill.contact	20	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1142	barrier	arm.skill.barrier	5	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1144	expel	arm.skill.expel	5	80	80	recovered printed cap	70	1	1142	barrier	arm.skill.barrier	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1146	peek	arm.skill.peek	5	60	60	recovered printed cap	50	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1148	sneak	arm.skill.sneak	10	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1150	hide	arm.skill.hide	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1152	search	arm.skill.search	10	40	40	recovered printed cap	30	1	1150	hide	arm.skill.hide	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1154	steal	arm.skill.steal	10	60	60	recovered printed cap	50	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1156	poisoning	arm.skill.poisoning	10	40	40	recovered printed cap	30	1	1154	steal	arm.skill.steal	50	printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1158	brew	arm.skill.brew	10	40	40	recovered printed cap	30	1	1154	steal	arm.skill.steal	50	printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1160	sleight of hand	arm.skill.sleight_of_hand	10	80	80	recovered printed cap	70	1	1154	steal	arm.skill.steal	50	printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1162	pick	arm.skill.pick	30	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1164	trap	arm.skill.trap	10	50	50	recovered printed cap	40	1	1162	pick	arm.skill.pick	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1166	pick making	arm.skill.pick_making	20	80	80	recovered printed cap	70	1	1162	pick	arm.skill.pick	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1168	listen	arm.skill.listen	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1170	haggle	arm.skill.haggle	15	40	40	recovered printed cap	30	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1172	value	arm.skill.value	10	60	60	recovered printed cap	50	1	1170	haggle	arm.skill.haggle	30	printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1174	climb	arm.skill.climb	15	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1176	dual wield	arm.skill.dual_wield	5	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1178	backstab	arm.skill.backstab	5	40	40	recovered printed cap	30	1	1176	dual wield	arm.skill.dual_wield	40	printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1180	throw	arm.skill.throw	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1182	piercing weapons	arm.skill.piercing_weapons	5	40	40	recovered printed cap	30	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1184	slashing weapons	arm.skill.slashing_weapons	5	30	30	recovered printed cap	20	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1186	shield use	arm.skill.shield_use	5	30	30	recovered printed cap	20	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1188	forage	arm.skill.forage	5	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1190	cooking	arm.skill.cooking	20	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1192	analyze	arm.skill.analyze	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Burglar	1194	two handed	arm.skill.two_handed	5	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1200	contact	arm.skill.contact	20	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1202	barrier	arm.skill.barrier	5	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1204	expel	arm.skill.expel	5	80	80	recovered printed cap	70	1	1202	barrier	arm.skill.barrier	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1206	kick	arm.skill.kick	15	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1208	bash	arm.skill.bash	15	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1210	rescue	arm.skill.rescue	15	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1212	bandage	arm.skill.bandage	10	50	50	recovered printed cap	40	1	1210	rescue	arm.skill.rescue	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1214	disarm	arm.skill.disarm	5	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1216	parry	arm.skill.parry	5	65	65	recovered printed cap	55	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1218	archery	arm.skill.archery	10	65	65	recovered printed cap	55	1	1216	parry	arm.skill.parry	55	printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1220	fletchery	arm.skill.fletchery	5	60	60	recovered printed cap	50	2	1218	archery	arm.skill.archery	55	printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1222	throw	arm.skill.throw	15	70	70	recovered printed cap	60	1	1216	parry	arm.skill.parry	55	printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1224	blind fighting	arm.skill.blind_fighting	5	70	70	recovered printed cap	60	1	1216	parry	arm.skill.parry	55	printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1226	dual wield	arm.skill.dual_wield	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1228	subdue	arm.skill.subdue	10	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1230	guarding	arm.skill.guarding	60	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1232	piercing weapons	arm.skill.piercing_weapons	10	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1234	trident weapons	arm.skill.trident_weapons	10	80	80	recovered printed cap	70	1	1232	piercing weapons	arm.skill.piercing_weapons	60	printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1236	slashing weapons	arm.skill.slashing_weapons	10	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1238	knife weapons	arm.skill.knife_weapons	10	80	80	recovered printed cap	70	1	1236	slashing weapons	arm.skill.slashing_weapons	60	printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1240	razor weapons	arm.skill.razor_weapons	10	80	80	recovered printed cap	70	1	1236	slashing weapons	arm.skill.slashing_weapons	60	printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1242	chopping weapons	arm.skill.chopping_weapons	10	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1244	polearm weapons	arm.skill.polearm_weapons	10	80	80	recovered printed cap	70	1	1242	chopping weapons	arm.skill.chopping_weapons	60	printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1246	bludgeoning weapons	arm.skill.bludgeoning_weapons	10	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1248	pike weapons	arm.skill.pike_weapons	10	80	80	recovered printed cap	70	1	1246	bludgeoning weapons	arm.skill.bludgeoning_weapons	60	printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1250	shield use	arm.skill.shield_use	15	45	45	recovered printed cap	35	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1252	skinning	arm.skill.skinning	15	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1254	forage	arm.skill.forage	10	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1256	flee	arm.skill.flee	5	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1258	cooking	arm.skill.cooking	5	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1260	analyze	arm.skill.analyze	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Warrior	1262	two handed	arm.skill.two_handed	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1268	contact	arm.skill.contact	20	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1270	barrier	arm.skill.barrier	5	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1272	expel	arm.skill.expel	5	80	80	recovered printed cap	70	1	1270	barrier	arm.skill.barrier	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1274	sneak	arm.skill.sneak	5	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1276	listen	arm.skill.listen	5	80	80	recovered printed cap	70	1	1274	sneak	arm.skill.sneak	85	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1278	climb	arm.skill.climb	15	50	50	recovered printed cap	40	1	1274	sneak	arm.skill.sneak	85	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1280	hide	arm.skill.hide	5	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1282	hunt	arm.skill.hunt	5	50	50	recovered printed cap	40	1	1280	hide	arm.skill.hide	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1284	scan	arm.skill.scan	5	80	80	recovered printed cap	70	2	1282	hunt	arm.skill.hunt	40	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1286	blind fighting	arm.skill.blind_fighting	5	80	80	recovered printed cap	70	3	1284	scan	arm.skill.scan	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1288	backstab	arm.skill.backstab	5	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1290	sap	arm.skill.sap	5	80	80	recovered printed cap	70	1	1288	backstab	arm.skill.backstab	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1292	dual wield	arm.skill.dual_wield	15	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1294	parry	arm.skill.parry	10	40	40	recovered printed cap	30	1	1292	dual wield	arm.skill.dual_wield	60	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1296	throw	arm.skill.throw	5	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1298	poisoning	arm.skill.poisoning	5	85	85	recovered printed cap	75	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1300	brew	arm.skill.brew	10	90	90	recovered printed cap	80	1	1298	poisoning	arm.skill.poisoning	75	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1302	trap	arm.skill.trap	5	90	90	recovered printed cap	80	2	1300	brew	arm.skill.brew	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1304	piercing weapons	arm.skill.piercing_weapons	10	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1306	knife making	arm.skill.knife_making	10	50	50	recovered printed cap	40	1	1304	piercing weapons	arm.skill.piercing_weapons	60	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1308	bludgeoning weapons	arm.skill.bludgeoning_weapons	10	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1310	shield use	arm.skill.shield_use	5	25	25	recovered printed cap	15	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1312	forage	arm.skill.forage	10	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1314	cooking	arm.skill.cooking	5	60	60	recovered printed cap	50	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1316	sleight of hand	arm.skill.sleight_of_hand	10	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1318	pick	arm.skill.pick	15	60	60	recovered printed cap	50	1	1316	sleight of hand	arm.skill.sleight_of_hand	60	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1320	pick making	arm.skill.pick_making	10	40	40	recovered printed cap	30	2	1318	pick	arm.skill.pick	50	printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1322	analyze	arm.skill.analyze	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Assassin	1324	two handed	arm.skill.two_handed	15	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1330	contact	arm.skill.contact	20	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1332	barrier	arm.skill.barrier	5	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1334	expel	arm.skill.expel	5	80	80	recovered printed cap	70	1	1332	barrier	arm.skill.barrier	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1336	archery	arm.skill.archery	20	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1338	throw	arm.skill.throw	20	80	80	recovered printed cap	70	1	1336	archery	arm.skill.archery	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1340	fletchery	arm.skill.fletchery	15	60	60	recovered printed cap	50	1	1336	archery	arm.skill.archery	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1342	rescue	arm.skill.rescue	15	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1344	guarding	arm.skill.guarding	15	75	75	recovered printed cap	65	1	1342	rescue	arm.skill.rescue	85	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1346	listen	arm.skill.listen	5	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1348	sneak	arm.skill.sneak	10	80	80	recovered printed cap	70	1	1346	listen	arm.skill.listen	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1350	hunt	arm.skill.hunt	15	85	85	recovered printed cap	75	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1352	climb	arm.skill.climb	15	90	90	recovered printed cap	80	1	1350	hunt	arm.skill.hunt	75	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1354	poisoning	arm.skill.poisoning	5	75	75	recovered printed cap	65	1	1350	hunt	arm.skill.hunt	75	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1356	brew	arm.skill.brew	15	90	90	recovered printed cap	80	1	1350	hunt	arm.skill.hunt	75	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1358	bandage	arm.skill.bandage	10	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1360	bandagemaking	arm.skill.bandage_making	10	60	60	recovered printed cap	50	1	1358	bandage	arm.skill.bandage	85	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1362	dual wield	arm.skill.dual_wield	15	85	85	recovered printed cap	75	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1364	parry	arm.skill.parry	10	50	50	recovered printed cap	40	1	1362	dual wield	arm.skill.dual_wield	75	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1366	scan	arm.skill.scan	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1368	hide	arm.skill.hide	10	80	80	recovered printed cap	70	1	1366	scan	arm.skill.scan	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1370	blind fighting	arm.skill.blind_fighting	10	70	70	recovered printed cap	60	1	1366	scan	arm.skill.scan	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1372	ride	arm.skill.ride	40	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1374	charge	arm.skill.charge	15	80	80	recovered printed cap	70	1	1372	ride	arm.skill.ride	85	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1376	piercing weapons	arm.skill.piercing_weapons	10	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1378	slashing weapons	arm.skill.slashing_weapons	10	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1380	chopping weapons	arm.skill.chopping_weapons	10	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1382	bludgeoning weapons	arm.skill.bludgeoning_weapons	10	70	70	recovered printed cap	60	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1384	shield use	arm.skill.shield_use	10	20	20	recovered printed cap	10	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1386	skinning	arm.skill.skinning	30	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1388	tanning	arm.skill.tanning	10	50	50	recovered printed cap	40	1	1386	skinning	arm.skill.skinning	85	printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1390	forage	arm.skill.forage	10	75	75	recovered printed cap	65	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1392	flee	arm.skill.flee	5	40	40	recovered printed cap	30	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1394	cooking	arm.skill.cooking	5	60	60	recovered printed cap	50	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1396	analyze	arm.skill.analyze	5	40	40	recovered printed cap	30	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1398	two handed	arm.skill.two_handed	15	85	85	recovered printed cap	75	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Ranger	1400	direction sense	arm.skill.direction_sense	60	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1406	contact	arm.skill.contact	20	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1408	barrier	arm.skill.barrier	5	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1410	expel	arm.skill.expel	5	80	80	recovered printed cap	70	1	1408	barrier	arm.skill.barrier	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1412	cavilish	arm.skill.cavilish	100	100	200	Luke-approved language cap 200; recovered Cavilish opening/cap remain 100/100	90	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1414	listen	arm.skill.listen	5	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1416	haggle	arm.skill.haggle	30	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1418	bandage	arm.skill.bandage	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1420	bandagemaking	arm.skill.bandage_making	10	80	80	recovered printed cap	70	1	1418	bandage	arm.skill.bandage	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1422	dual wield	arm.skill.dual_wield	5	30	30	recovered printed cap	20	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1424	scan	arm.skill.scan	10	80	80	recovered printed cap	70	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1426	value	arm.skill.value	20	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1428	ride	arm.skill.ride	15	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1430	pilot	arm.skill.pilot	40	95	95	recovered printed cap	85	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1432	shield use	arm.skill.shield_use	5	15	15	recovered printed cap	5	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1434	skinning	arm.skill.skinning	20	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1436	tanning	arm.skill.tanning	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1438	dyeing	arm.skill.dyeing	40	90	90	recovered printed cap	80	1	1436	tanning	arm.skill.tanning	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1440	feather working	arm.skill.feather_working	10	90	90	recovered printed cap	80	2	1438	dyeing	arm.skill.dyeing	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1442	floristry	arm.skill.floristry	30	50	50	recovered printed cap	40	2	1438	dyeing	arm.skill.dyeing	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1444	leather working	arm.skill.leather_working	10	90	90	recovered printed cap	80	1	1436	tanning	arm.skill.tanning	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1446	tentmaking	arm.skill.tentmaking	10	90	90	recovered printed cap	80	2	1444	leather working	arm.skill.leather_working	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1448	armor repair	arm.skill.armor_repair	10	90	90	recovered printed cap	80	2	1444	leather working	arm.skill.leather_working	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1450	armor making	arm.skill.armor_making	10	90	90	recovered printed cap	80	3	1448	armor repair	arm.skill.armor_repair	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1452	rope making	arm.skill.ropemaking	30	80	80	recovered printed cap	70	1	1436	tanning	arm.skill.tanning	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1454	clothworking	arm.skill.cloth_working	20	80	80	recovered printed cap	70	1	1436	tanning	arm.skill.tanning	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1456	forage	arm.skill.forage	20	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1458	basketweaving	arm.skill.basketweaving	10	80	80	recovered printed cap	70	1	1456	forage	arm.skill.forage	40	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1460	stonecrafting	arm.skill.stonecrafting	20	90	90	recovered printed cap	80	1	1456	forage	arm.skill.forage	40	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1462	jewelrymaking	arm.skill.jewelrymaking	20	90	90	recovered printed cap	80	2	1460	stonecrafting	arm.skill.stonecrafting	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1464	toolmaking	arm.skill.toolmaking	15	90	90	recovered printed cap	80	1	1456	forage	arm.skill.forage	40	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1466	instrument making	arm.skill.instrument_making	10	90	90	recovered printed cap	80	2	1464	toolmaking	arm.skill.toolmaking	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1468	fletchery	arm.skill.fletchery	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1470	bow making	arm.skill.bow_making	10	90	90	recovered printed cap	80	1	1468	fletchery	arm.skill.fletchery	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1472	knife making	arm.skill.knife_making	10	90	90	recovered printed cap	80	1	1468	fletchery	arm.skill.fletchery	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1474	swordmaking	arm.skill.swordmaking	10	90	90	recovered printed cap	80	2	1472	knife making	arm.skill.knife_making	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1476	spearmaking	arm.skill.spearmaking	10	90	90	recovered printed cap	80	2	1472	knife making	arm.skill.knife_making	80	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1478	lumberjacking	arm.skill.lumberjacking	10	50	50	recovered printed cap	40	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1480	woodworking	arm.skill.woodworking	10	80	80	recovered printed cap	70	1	1478	lumberjacking	arm.skill.lumberjacking	40	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1482	wagonmaking	arm.skill.wagonmaking	10	90	90	recovered printed cap	80	2	1480	woodworking	arm.skill.woodworking	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1484	club making	arm.skill.club_making	10	80	80	recovered printed cap	70	2	1480	woodworking	arm.skill.woodworking	70	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1486	axe making	arm.skill.axe_making	10	80	80	recovered printed cap	70	1	1478	lumberjacking	arm.skill.lumberjacking	40	printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1488	cooking	arm.skill.cooking	5	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1490	analyze	arm.skill.analyze	10	90	90	recovered printed cap	80	0					printed opening/cap/go-on; parent and threshold inferred from indentation
+Merchant	1492	two handed	arm.skill.two_handed	5	30	30	recovered printed cap	20	0					printed opening/cap/go-on; parent and threshold inferred from indentation

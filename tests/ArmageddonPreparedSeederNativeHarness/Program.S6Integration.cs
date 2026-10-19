@@ -62,7 +62,7 @@ internal static partial class GNHProgram
 			}
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		using (var db = NewPreparedReplayContext(database.ConnectionString)) db.Database.Migrate();
-		var assembly = typeof(ArmageddonMagicSeeder).Assembly;
+		var assembly = typeof(ArmageddonSettingSeeder).Assembly;
 		var seeders = assembly.GetType("DatabaseSeeder.SeederCatalogue", true)!.GetMethod("GetEnabledSeeders", ReplayFlags)!.Invoke(null, null)!;
 		var run = assembly.GetType("DatabaseSeeder.SeederReplayRunner", true)!.GetMethod("Run", ReplayFlags)!;
 		Func<MudSharp.Database.FuturemudDatabaseContext> factory = () => NewPreparedReplayContext(database.ConnectionString);
@@ -70,7 +70,7 @@ internal static partial class GNHProgram
 		void Progress(string message)
 		{
 			Console.WriteLine("ARMS6-replay-progress=" + message);
-			if (message != "Running " + new ArmageddonMagicSeeder().Name + "...") return;
+			if (message != "Running " + new ArmageddonSettingSeeder().Name + "...") return;
 			Require(manifest is null, "Armageddon replay boundary executed twice.");
 			using var db = factory(); RequireCleanBase(db);
 			Require(ArmageddonInstallation.ClassesEnabled(db), "Authentic classes-on prefix did not persist matching RolePicker and answer.");
@@ -79,7 +79,7 @@ internal static partial class GNHProgram
 			var sql = new MySqlDatabaseBackupService().CreateBackup(database.ConnectionString, folder);
 			RequireBaseDumpTargets(File.ReadAllText(sql), database.Name);
 			var descriptor = new BaseWorldFixture(BaseFixtureKind, database.Name, Path.GetFileName(sql), BaseHash(sql), BaseProfileId,
-				typeof(ArmageddonMagicSeeder).FullName!, steps, db.Database.GetAppliedMigrations().ToArray(), BaseSchemaHash(database),
+				typeof(ArmageddonSettingSeeder).FullName!, steps, db.Database.GetAppliedMigrations().ToArray(), BaseSchemaHash(database),
 				BaseValueHash(sources), sources,
 				BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.sql")),
 				BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.manifest.json")),

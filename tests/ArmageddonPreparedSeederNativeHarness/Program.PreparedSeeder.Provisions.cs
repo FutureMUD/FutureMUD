@@ -26,7 +26,7 @@ internal static partial class GNHProgram
 	{
 		Require(ArmageddonPreparedWorldInstaller.NewProvisionsQualified, "Optional provision gate not enabled.");
 		var selected = bindings with { Provisions = PreparedProvisionSelections(database, bindings, retained) };
-		var json = ArmageddonMagicSeeder.SerializeBindings(selected); var initialPolicy = PreparedCapabilityMeritPolicy(database);
+		var json = ArmageddonSettingSeeder.SerializeBindings(selected); var initialPolicy = PreparedCapabilityMeritPolicy(database);
 		var emptyProvisions = PreparedProvisionPolicy(database);
 		foreach (var boundary in new[] { ArmageddonInstallCheckpoint.ContentCreated, ArmageddonInstallCheckpoint.BeforeCommit })
 		{

@@ -1,0 +1,19 @@
+# Armageddon Setting Seeder
+
+The public installer type and menu identity are `ArmageddonSettingSeeder` / **Armageddon Setting**. It is enabled in Debug and Release. Its durable ownership namespace intentionally remains `ArmageddonMagicSeeder`; changing the public name must never orphan existing content or player references. Historical magic receipts retain their original names.
+
+This is a staged implementation. The magic phase and early package choices exist. Mundane role grants/branch progression, heritage installation and remaining source-specific actions are pending; neither the renamed menu nor installed traits certify a complete playable Setting. See [the execution ledger](../../Armageddon/Armageddon_Setting_Implementation_20261019.md).
+
+Use Core -> Time/Attributes -> Skill Package (`complexity=armageddon`, `skillcapmodel=class`, `skillgainmodel=armageddon`, `branching=no`, `modern=no`) -> Human -> Combat (`skilloption=armageddon`, separate Parry, no firearms) -> Chargen (Class/Subclass enabled) -> Setting. Generic Culture, Useful, Health, Animal and Item are not baseline dependencies. Human/Admin/Admin Speech remain shared bootstrap foundations.
+
+The early skills are a new-world alternative. They reject pre-existing player skills rather than converting a world. Canonical traits and cap expressions have stable owned IDs and field baselines; ungranted hidden engine scaffolds supply explicit native consumers. Before role grants are implemented, source mundane caps remain zero; language caps are 200. No existing player is enrolled or recomputed. Reruns resolve typed ownership and retain builder names, expressions and player values.
+
+Ten first-install static trait IDs bind appraisal, haggling, skinning, writing, Drawing/Tattoo, auxiliary defaults and Pilot. Reruns retain builder configuration. Pilot manual room-exit proficiency is enabled only by the new-world Armageddon choice; its [source/adaptation contract](../../Armageddon/Armageddon_Pilot_Contract_20261019.md) separates recovered behavior from native safety/entitlement changes.
+
+Combat uses the canonical traits, including the exact four approved Two Handed type assignments and independent Parry. Its first install is transactional. Subsequent Armageddon runs validate retained weapon references without running the generic combat refresh over builder changes. The first install gates generic manual Bash/Kick, generic Bash auxiliary and stock Backstab/Sapping profiles until the distinct source abilities are implemented. This is preservation, not a promise that every future stock revision reconciles yet.
+
+Setting questions are `install-armageddon-setting` (default No), fixed `armageddon-progression-mode`, capacity/native bindings when needed, plus the retained hidden prepared-world API `install-armageddon-setting-prepared` / `armageddon-setting-prepared-bindings`. The durable fixed settings/shared mirrors remain unchanged. Reflection metadata, replay profiles, tests and native harnesses use the new public type. The normal strict replay inventories still decline Setting by default.
+
+The owned mundane merit definition phase supplies Bard's existing language-only Skill Learning configuration (branching 50, improvement chance 5) and Mercenary's Liver Clearance multiplier 2. Role assignment is a later phase. Clearance multiplies effective liver function after injury for alcohol and every active drug, including beneficial drugs; no needs-rate merit is stacked and no poison damage resistance is granted.
+
+Magic continues to compose its existing independently committed, resumable modules. See [the magic integration guide](../../Magic/Armageddon_Installer_Integration_Guide.md) for their detailed contracts. Existing-world conversion, new scripts and random-name corpora remain outside this slice. Personal names stay free-entry.

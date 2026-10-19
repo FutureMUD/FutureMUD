@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param([string]$EvidenceRoot,
-	[ValidateSet('core-foundations', 'prepared', 'replay', 'settings', 'stock-progressions', 'stock-supplies', 'stock-anatomy', 'stock-catalogue', 'stock-catalogue-boot', 'catalogue-fixture-boot', 'base-fixture-capture', 'base-fixture-restore', 'base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore', 'focus-fixture-restore', 's3-runtime', 'snapshot-refresh', 'stock-progression-fixtures', 'installed', 'installed-sql', 'sense', 'sense-control')]
+	[ValidateSet('setting-foundations', 'core-foundations', 'prepared', 'replay', 'settings', 'stock-progressions', 'stock-supplies', 'stock-anatomy', 'stock-catalogue', 'stock-catalogue-boot', 'catalogue-fixture-boot', 'base-fixture-capture', 'base-fixture-restore', 'base-fixture-package', 'gate-fixture-restore', 'exchange-fixture-restore', 'focus-fixture-restore', 's3-runtime', 'snapshot-refresh', 'stock-progression-fixtures', 'installed', 'installed-sql', 'sense', 'sense-control')]
 	[string]$Mode = 'prepared',
 	[string]$BaseFixture,
 	[string]$BaseFixtureSha256,

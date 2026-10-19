@@ -9,10 +9,10 @@ internal static partial class GNHProgram
 	private static string PreparedMenu(TestDatabase database, bool install, string? bindings)
 	{
 		var flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-		var program = typeof(ArmageddonMagicSeeder).Assembly.GetType("DatabaseSeeder.Program", true)!;
+		var program = typeof(ArmageddonSettingSeeder).Assembly.GetType("DatabaseSeeder.Program", true)!;
 		var connection = program.GetProperty("ConnectionString", flags)!; var previous = connection.GetValue(null);
 		var previousIn = Console.In; var previousOut = Console.Out;
-		using var input = new StringReader(new ArmageddonMagicSeeder().Name + "\nyes\n" + (install ? "yes\n" + bindings + "\n" : "\n") + "\nquit\n");
+		using var input = new StringReader(new ArmageddonSettingSeeder().Name + "\nyes\n" + (install ? "yes\n" + bindings + "\n" : "\n") + "\nquit\n");
 		using var output = new StringWriter();
 		try
 		{

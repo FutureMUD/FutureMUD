@@ -21,14 +21,14 @@ public sealed record ArmageddonPreparedWorldBindings(ArmageddonMagicInstallPlan 
 	public ArmageddonEmotionalBindings? Emotions { get; init; }
 }
 
-public sealed partial class ArmageddonMagicSeeder
+public sealed partial class ArmageddonSettingSeeder
 {
-	public const string InstallQuestion = "install-armageddon-partial";
-	public const string BindingsQuestion = "armageddon-prepared-bindings";
-	public const string FullInstallQuestion = "install-armageddon";
+	public const string InstallQuestion = "install-armageddon-setting-prepared";
+	public const string BindingsQuestion = "armageddon-setting-prepared-bindings";
+	public const string FullInstallQuestion = "install-armageddon-setting";
 	public const string ModeQuestion = "armageddon-progression-mode";
-	public const string CapacityQuestion = "armageddon-capacity-attribute";
-	public const string NativeBindingsQuestion = "armageddon-native-bindings";
+	public const string CapacityQuestion = "armageddon-setting-capacity-attribute";
+	public const string NativeBindingsQuestion = "armageddon-setting-native-bindings";
 	private static readonly JsonSerializerOptions JsonOptions = new()
 	{
 		UnmappedMemberHandling = JsonUnmappedMemberHandling.Disallow,

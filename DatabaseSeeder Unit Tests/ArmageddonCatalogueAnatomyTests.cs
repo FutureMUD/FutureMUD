@@ -80,6 +80,39 @@ public class ArmageddonCatalogueAnatomyTests
 		CollectionAssert.AreEquivalent(speeds, db.MoveSpeeds.Where(x => x.BodyProtoId == first.Identities["arm.race.air_guardian.body"]).Select(x => x.Id).ToArray());
 	}
 
+	[DataTestMethod]
+	[DataRow(ArmageddonProgressionMode.Classic, false)]
+	[DataRow(ArmageddonProgressionMode.Classic, true)]
+	[DataRow(ArmageddonProgressionMode.Simple, false)]
+	[DataRow(ArmageddonProgressionMode.Simple, true)]
+	public void Anatomy_NativeBootAddsSourceFloat_RetainsOwnedIdentityAndBuilderFields(ArmageddonProgressionMode mode, bool customised)
+	{
+		using var db = Fixture(mode); var factory = ArmageddonInstallationSettingsTests.Factory(db);
+		var first = ArmageddonCatalogueAnatomy.Install(factory);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, first.Status);
+		db.ChangeTracker.Clear();
+		var before = db.SeederManagedRecords.ToDictionary(x => x.StableKey, x => x.LogicalId);
+		var floating = db.MoveSpeeds.Where(x => first.Identities.Values.Contains(x.BodyProtoId) && x.PositionId == PositionFloatingInZeroGravity.Instance.Id).ToArray();
+		Assert.AreEqual(7, floating.Length);
+		if (customised) foreach (var speed in floating) { speed.Alias = "builder float"; speed.Multiplier = 7; }
+		// This is the exact compatibility row BodyPrototype creates when it loads a
+		// shared source whose first install did not yet have zero-gravity movement.
+		var standing = db.MoveSpeeds.First(x => x.BodyProtoId == 1 && x.PositionId == PositionStanding.Instance.Id);
+		db.MoveSpeeds.Add(new() { Id = db.MoveSpeeds.Max(x => x.Id) + 1, BodyProtoId = 1,
+			Alias = "float", PositionId = PositionFloatingInZeroGravity.Instance.Id,
+			FirstPersonVerb = "float", ThirdPersonVerb = "floats", PresentParticiple = "floating",
+			Multiplier = standing.Multiplier, StaminaMultiplier = standing.StaminaMultiplier });
+		db.SaveChanges(); db.ChangeTracker.Clear();
+		var rerun = ArmageddonCatalogueAnatomy.Install(factory);
+		Assert.AreEqual(ArmageddonInstallStatus.Completed, rerun.Status, string.Join("\n", rerun.Messages));
+		db.ChangeTracker.Clear();
+		Assert.AreEqual(before.Count, db.SeederManagedRecords.Count());
+		foreach (var record in db.SeederManagedRecords) Assert.AreEqual(before[record.StableKey], record.LogicalId);
+		var after = db.MoveSpeeds.Where(x => first.Identities.Values.Contains(x.BodyProtoId) && x.PositionId == PositionFloatingInZeroGravity.Instance.Id).ToArray();
+		CollectionAssert.AreEquivalent(floating.Select(x => x.Id).ToArray(), after.Select(x => x.Id).ToArray());
+		if (customised) Assert.IsTrue(after.All(x => x.Alias == "builder float" && x.Multiplier == 7));
+	}
+
 	[TestMethod]
 	public void Anatomy_InheritedFlightSpeedIsOwnedOnceAndOnlyForWingedFamilies()
 	{

@@ -159,7 +159,12 @@ public static class ArmageddonCatalogueAnatomy
 		foreach (var position in source.Positions.Where(x => winged || x != PositionFlying.Instance.Id)
 			.Concat(winged ? [(int)PositionFlying.Instance.Id] : Array.Empty<int>()).Distinct())
 			body.BodyProtosPositions.Add(new() { BodyProtoId = body.Id, Position = position });
-		foreach (var speed in source.Speeds.Where(x => winged || x.PositionId != PositionFlying.Instance.Id))
+		// Native boot may subsequently add a zero-gravity speed to the shared source.
+		// An already-owned compatibility speed keeps its original identity and field
+		// baselines; never adopt that later source row or collide with builder edits.
+		var retainedFloat = owned.Has<MoveSpeed>(key + ".speed.float");
+		foreach (var speed in source.Speeds.Where(x => (winged || x.PositionId != PositionFlying.Instance.Id) &&
+			(!retainedFloat || x.PositionId != PositionFloatingInZeroGravity.Instance.Id)))
 		{
 			var speedKey = $"{key}.speed.{speed.Id}";
 			var clone = owned.Copy(speed); clone.Id = owned.Id<MoveSpeed>(speedKey); clone.BodyProtoId = body.Id;
@@ -170,7 +175,7 @@ public static class ArmageddonCatalogueAnatomy
 			Alias = "fly", PositionId = PositionFlying.Instance.Id, FirstPersonVerb = "fly", ThirdPersonVerb = "flies", PresentParticiple = "flying", Multiplier = 1, StaminaMultiplier = 1 }, [key]);
 		// BodyPrototype's native loader would otherwise add this compatibility speed on boot.
 		// Author and own it here so cold catalogue loading performs no content repair writes.
-		if (!source.Speeds.Any(x => x.PositionId == PositionFloatingInZeroGravity.Instance.Id))
+		if (retainedFloat || !source.Speeds.Any(x => x.PositionId == PositionFloatingInZeroGravity.Instance.Id))
 		{
 			var standingSpeed = source.Speeds.First(x => x.PositionId == PositionStanding.Instance.Id);
 			owned.Stage(key + ".speed.float", new MoveSpeed { Id = owned.Id<MoveSpeed>(key + ".speed.float"), BodyProtoId = body.Id,

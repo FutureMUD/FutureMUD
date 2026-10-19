@@ -77,6 +77,9 @@ internal sealed partial class ArmageddonCatalogueOwnership
 		return _db.Find(type, revisioned ? [record.LogicalId!.Value, record.RevisionNumber!.Value] : [record.LogicalId!.Value]);
 	}
 
+	internal bool Has<T>(string key) where T : class =>
+		_records.TryGetValue(key, out var record) && record.EntityType == typeof(T).Name;
+
 	internal long Id<T>(string key) where T : class
 	{
 		if (_records.TryGetValue(key, out var record))

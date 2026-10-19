@@ -18,7 +18,7 @@ public partial class StealthModule
 	#3peek <character>#0 - inspect carried and worn equipment, including a chance to identify covered equipment
 	#3peek <character> <container>#0 - inspect eligible contents of one visible, open container
 
-Each attempt takes five seconds. You must know the Peek skill, even when the target is helpless. Inspection and being noticed are separate: you may see little while unnoticed, or learn something while being noticed. Only people who notice receive an alert. Peek never opens containers, takes items or automatically reports a crime. Closed containers, invisible items and inaccessible belongings remain protected.", AutoHelp.HelpArg)]
+Each attempt resolves immediately. You must wait five seconds before peeking again. You must know the Peek skill, even when the target is helpless. Inspection and being noticed are separate: you may see little while unnoticed, or learn something while being noticed. Only people who notice receive an alert. Peek never opens containers, takes items or automatically reports a crime. Closed containers, invisible items and inaccessible belongings remain protected.", AutoHelp.HelpArg)]
 	protected static void Peek(ICharacter actor, string command)
 	{
 		if (!PeekInspection.CanUse(actor))
@@ -51,20 +51,18 @@ Each attempt takes five seconds. You must know the Peek skill, even when the tar
 			return;
 		}
 
-		actor.AddEffect(new PeekInspectionAction(actor, target, _ =>
+		// Install the command-specific delay before checks or learning callbacks can re-enter.
+		actor.AddEffect(new CommandDelay(actor, "Peek", "You must wait a short time before peeking again."),
+			TimeSpan.FromSeconds(5));
+		var result = PeekInspection.Inspect(actor, target, container);
+		if (result.Interrupted)
 		{
-			// Inventory, visibility, reach and skill bindings are revalidated at completion.
-			var result = PeekInspection.Inspect(actor, target, container);
-			if (result.Interrupted)
-			{
-				actor.OutputHandler.Send("You cannot finish your covert inspection.");
-				return;
-			}
+			actor.OutputHandler.Send("You cannot finish your covert inspection.");
+			return;
+		}
 
-			actor.OutputHandler.Send(result.Items.Count == 0
-				? "You cannot make out any belongings from that attempt."
-				: $"You make out the following belongings:\n{string.Join("\n", result.Items.Select(x => $"\t{x.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSpotting)}"))}");
-		}), TimeSpan.FromSeconds(5));
-		actor.OutputHandler.Send("You begin covertly inspecting their belongings.");
+		actor.OutputHandler.Send(result.Items.Count == 0
+			? "You cannot make out any belongings from that attempt."
+			: $"You make out the following belongings:\n{string.Join("\n", result.Items.Select(x => $"\t{x.HowSeen(actor, flags: PerceiveIgnoreFlags.IgnoreSpotting)}"))}");
 	}
 }

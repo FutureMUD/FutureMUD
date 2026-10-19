@@ -12,6 +12,8 @@ namespace MudSharp.Vehicles;
 
 public interface IVehiclePrototype : IEditableRevisableItem
 {
+	/// <summary>Whether occupants outside hosted interior rooms physically contact damaging exit barriers.</summary>
+	bool ExposesOccupantsToExitBarriers => false;
 	VehicleScale Scale { get; }
 	long? ExteriorItemPrototypeId { get; }
 	IGameItemProto ExteriorItemPrototype { get; }

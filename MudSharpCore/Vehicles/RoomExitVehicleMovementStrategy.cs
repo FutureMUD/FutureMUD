@@ -68,6 +68,13 @@ public class RoomExitVehicleMovementStrategy : IVehicleMovementStrategy
 			return false;
 		}
 
+		if (VehicleExitBarrierTraversal.Contact(readiness.MovePlan!, exit, readiness.ExternalPullers ?? [], null,
+			    out var barrierReason))
+		{
+			actor?.OutputHandler.Send(barrierReason);
+			return false;
+		}
+
 		EchoDeparture(vehicle, actor, exit, towTrain);
 		BeginMove(vehicle, exit, towTrain, transition);
 		CompleteMove(vehicle, exit, transition, readiness);

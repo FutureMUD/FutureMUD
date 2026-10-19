@@ -13,6 +13,17 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class VehicleRoutePersistenceModelTests
 {
+	[TestMethod]
+	public void VehiclePrototype_BarrierExposureHasShelteredUpgradeDefault()
+	{
+		using var context = CreateContext();
+		var property = context.GetService<IDesignTimeModel>().Model.FindEntityType(typeof(VehicleProto))!
+			.FindProperty(nameof(VehicleProto.ExposesOccupantsToExitBarriers))!;
+		Assert.IsFalse(property.IsNullable);
+		Assert.AreEqual("bit(1)", property.GetColumnType());
+		Assert.AreEqual(false, property.GetDefaultValue());
+	}
+
 	private static FuturemudDatabaseContext CreateContext()
 	{
 		var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>()

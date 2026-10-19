@@ -9,6 +9,7 @@ using MudSharp.Commands;
 using MudSharp.Commands.Modules;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
@@ -18,6 +19,7 @@ using MudSharp.GameItems.Components;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
+using MudSharp.Planes;
 using MudSharp.Vehicles;
 using System;
 using System.Collections.Generic;
@@ -259,7 +261,7 @@ public class VehicleMovementCommandTests
 	}
 
 	[TestMethod]
-	public void VehicleMovement_InitialAction_BeginsTransitAndSchedulesDelayedMove()
+	public void VehicleMovement_InitialAction_BeginsTransitThenBarrierStopsAtDelayedCommit()
 	{
 		var scheduler = new Mock<IScheduler>();
 		var gameworld = new Mock<IFuturemud>();
@@ -328,6 +330,28 @@ public class VehicleMovementCommandTests
 		vehicle.SetupGet(x => x.Installations).Returns([]);
 		vehicle.SetupGet(x => x.TowLinks).Returns([]);
 
+		var contacts = 0;
+		var barrier = new Mock<IExitBarrierItemTraversalEffect>();
+		barrier.SetupGet(x => x.IsActive).Returns(true);
+		barrier.Setup(x => x.OccupiesLayerAndPlane(exterior.Object)).Returns(true);
+		barrier.Setup(x => x.Contact(exterior.Object, exit.Object, It.IsAny<Func<bool>>()))
+			.Callback<IGameItem, IRoomExit, Func<bool>>((_, _, continuation) =>
+			{
+				Assert.IsTrue(continuation());
+				contacts++;
+			});
+		exitModel.SetupGet(x => x.Effects).Returns([barrier.Object]);
+		exitModel.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		exitModel.Setup(x => x.RoomExitFor(origin.Object)).Returns(exit.Object);
+		var opposite = new Mock<IRoomExit>();
+		opposite.SetupGet(x => x.Exit).Returns(exitModel.Object);
+		opposite.SetupGet(x => x.Origin).Returns(destination.Object);
+		opposite.SetupGet(x => x.Destination).Returns(origin.Object);
+		exit.SetupGet(x => x.Opposite).Returns(opposite.Object);
+		vehicle.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		exterior.SetupGet(x => x.Gameworld).Returns(gameworld.Object);
+		exterior.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1L));
+
 		var movement = new VehicleMovement(vehicle.Object, actor.Object, exit.Object);
 
 		movement.InitialAction();
@@ -338,6 +362,13 @@ public class VehicleMovementCommandTests
 		output.Verify(x => x.Send(It.Is<string>(text => text.Contains("begin riding") &&
 		                                                text.Contains("QA test bicycle")), true, false), Times.Once);
 		Assert.AreSame(movement, actor.Object.Movement);
+		Assert.AreEqual(0, contacts);
+		movement.IntermediateStep();
+		movement.IntermediateStep();
+		Assert.IsTrue(movement.Cancelled);
+		Assert.AreEqual(1, contacts);
+		vehicle.Verify(x => x.MoveToRoom(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<IRoomExit>(), It.IsAny<IMovement>()), Times.Never);
+		vehicle.Verify(x => x.RecoverInterruptedMovement(), Times.Once);
 	}
 
 	[TestMethod]

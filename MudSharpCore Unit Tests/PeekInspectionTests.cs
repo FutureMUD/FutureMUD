@@ -9,6 +9,7 @@ using Moq;
 using MudSharp.Body;
 using MudSharp.Body.Traits;
 using MudSharp.Character;
+using MudSharp.Commands;
 using MudSharp.Commands.Modules;
 using MudSharp.Construction;
 using MudSharp.Effects;
@@ -359,7 +360,6 @@ public class PeekInspectionTests
 		noticed.Actor.Setup(x => x.TargetActor("target", PerceiveIgnoreFlags.None)).Returns(noticed.Target.Object);
 		typeof(StealthModule).GetMethod("Peek", BindingFlags.Static | BindingFlags.NonPublic)!
 			.Invoke(null, [noticed.Actor.Object, "peek target"]);
-		noticed.Effects.OfType<PeekInspectionAction>().Single().ExpireEffect();
 		Assert.AreEqual(1, Fixture.Alerts(noticed.Target)); Assert.AreEqual(1, Fixture.Alerts(noticed.Witness));
 		Assert.IsFalse(concealed.Invocations.Any(x => x.Method.Name == "HowSeen"));
 	}
@@ -396,62 +396,58 @@ public class PeekInspectionTests
 	}
 
 	[TestMethod]
-	public void Command_DelaysEachAttemptFiveSecondsWithoutPublicDisclosureOrAdditionalCooldown()
+	public void Command_ResolvesImmediatelyAndDelaysOnlyPeekForFiveSeconds()
 	{
 		var f = new Fixture(); f.Item(); f.Command();
 		Assert.AreEqual(TimeSpan.FromSeconds(5), f.ActionDelays.Single());
-		Assert.AreEqual(0, f.Attempts); Assert.AreEqual(0, f.Reveals);
-		Assert.AreEqual(0, Fixture.Alerts(f.Target) + Fixture.Alerts(f.Witness));
-		f.Body.VerifyGet(x => x.WornItems, Times.Never);
-		var action = f.Effects.OfType<PeekInspectionAction>().Single();
-		Assert.IsTrue(action.IsBlockingEffect("general"));
+		Assert.AreEqual(1, f.Attempts); Assert.AreEqual(1, f.Reveals);
+		var delay = f.Effects.OfType<CommandDelay>().Single();
+		Assert.IsTrue(delay.IsDelayed("Peek"));
+		Assert.IsTrue(delay.IsDelayed("peek"));
+		Assert.IsFalse(delay.IsDelayed("look"));
+		Assert.IsFalse(delay.IsBlockingEffect("general"));
+		Assert.IsFalse(delay.IsBlockingEffect("movement"));
+		Assert.IsFalse(delay.IsBlockingEffect("combat"));
+		Assert.IsFalse(delay.SavingEffect);
 		Assert.AreEqual("general", typeof(StealthModule).GetMethod("Peek", BindingFlags.Static | BindingFlags.NonPublic)!
 			.GetCustomAttribute<DelayBlock>()!.DelayType);
-		Assert.IsTrue(action.IsBlockingEffect("movement"));
-		Assert.IsTrue(action.IsBlockingEffect("combat"));
-		Assert.IsFalse(action.SuffixApplies()); Assert.IsFalse(action.SavingEffect);
-		action.ExpireEffect();
-		Assert.AreEqual(1, f.Attempts); Assert.AreEqual(1, f.Reveals); Assert.AreEqual(0, f.Effects.Count);
+		Assert.IsTrue(Mock.Get(f.Actor.Object.OutputHandler).Invocations.Any(x =>
+			x.Method.Name == "Send" && x.Arguments.OfType<string>().Any(y => y.Contains("following belongings"))));
+		// Expiry only releases the delay; it does not retain or inspect the target.
+		f.Target.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>());
+		delay.ExpireEffect();
+		Assert.AreEqual(1, f.Attempts); Assert.AreEqual(1, f.Reveals);
+		Assert.AreEqual(0, f.Effects.Count);
+		f.Target.VerifyAdd(x => x.OnQuit += It.IsAny<PerceivableEvent>(), Times.Never);
+		f.Target.VerifyAdd(x => x.OnDeleted += It.IsAny<PerceivableEvent>(), Times.Never);
+	}
+
+	[TestMethod]
+	public void CommandManager_RepeatedPeekIsBlockedUntilCooldownExpires()
+	{
+		var f = new Fixture(); f.Item();
+		f.Actor.Setup(x => x.EffectsOfType<ICommandDelay>(It.IsAny<Predicate<ICommandDelay>>()))
+			.Returns(() => f.Effects.OfType<ICommandDelay>());
+		var manager = new CharacterCommandManager();
+		var command = new Command<ICharacter>((_, text) => f.Command(text), name: "Peek");
+		Assert.IsTrue(manager.Execute(f.Actor.Object, command, "peek target"));
+		Assert.IsFalse(manager.Execute(f.Actor.Object, command, "peek target"));
+		Assert.AreEqual(1, f.Attempts);
+		f.Effects.OfType<CommandDelay>().Single().ExpireEffect();
+		Assert.IsTrue(manager.Execute(f.Actor.Object, command, "peek target"));
+		Assert.AreEqual(2, f.Attempts);
+	}
+
+	[TestMethod]
+	public void Command_FailedAttemptStillReceivesPeekCooldownBeforeChecks()
+	{
+		var f = new Fixture { AttemptOutcome = Outcome.MajorFail };
+		f.OnAttempt = () => Assert.IsTrue(f.Effects.OfType<CommandDelay>().Single().IsDelayed("Peek"));
 		f.Command();
-		Assert.AreEqual(TimeSpan.FromSeconds(5), f.ActionDelays[1]); Assert.AreEqual(1, f.Attempts);
-		f.Effects.OfType<PeekInspectionAction>().Single().ExpireEffect();
-		Assert.AreEqual(2, f.Attempts); Assert.AreEqual(0, f.Effects.Count);
-	}
-
-	[TestMethod]
-	public void Command_CancelledOrQuitAttempt_CannotResolveFromStaleExpiry()
-	{
-		foreach (var quit in new[] { false, true })
-		{
-			var f = new Fixture(); f.Command();
-			var action = f.Effects.OfType<PeekInspectionAction>().Single();
-			Assert.IsTrue(action is IRemoveOnCombatStart);
-			Assert.IsTrue(((IRemoveOnMovementEffect)action).ShouldRemove());
-			Assert.IsTrue(action.ShouldRemove(CharacterState.Unconscious));
-			if (quit) f.Actor.Raise(x => x.OnQuit += null, f.Actor.Object);
-			else f.Actor.Object.RemoveEffect(action, true);
-			action.ExpireEffect();
-			Assert.AreEqual(0, f.Attempts); Assert.AreEqual(0, f.Effects.Count);
-			Assert.AreEqual(0, Fixture.Alerts(f.Target) + Fixture.Alerts(f.Witness));
-		}
-	}
-
-	[TestMethod]
-	public void Command_TargetQuitsOrIsDeleted_CancelsWithoutStaleDisclosure()
-	{
-		foreach (var deleted in new[] { false, true })
-		{
-			var f = new Fixture(); f.Item(); f.Command();
-			var action = f.Effects.OfType<PeekInspectionAction>().Single();
-			if (deleted) f.Target.Raise(x => x.OnDeleted += null, f.Target.Object);
-			else f.Target.Raise(x => x.OnQuit += null, f.Target.Object);
-			action.ExpireEffect();
-			Assert.AreEqual(0, f.Effects.Count);
-			Assert.AreEqual(0, f.Attempts);
-			Assert.AreEqual(0, f.Reveals);
-			f.Body.VerifyGet(x => x.WornItems, Times.Never);
-			f.Target.VerifyRemove(x => x.OnQuit -= It.IsAny<PerceivableEvent>(), Times.Once);
-		}
+		Assert.AreEqual(1, f.Attempts); Assert.AreEqual(0, f.Reveals);
+		Assert.AreEqual(TimeSpan.FromSeconds(5), f.ActionDelays.Single());
+		f.Effects.OfType<CommandDelay>().Single().ExpireEffect();
+		Assert.AreEqual(1, f.Attempts);
 	}
 
 	[TestMethod]
@@ -469,18 +465,17 @@ public class PeekInspectionTests
 	}
 
 	[TestMethod]
-	public void Command_DelayRevalidatesSkillTargetAndContainerBeforeAnyRollOrDisclosure()
+	public void Command_InvalidAdmissionDoesNotRollDiscloseOrScheduleCooldown()
 	{
 		foreach (var reason in new[] { "moved", "closed", "skill", "state", "combat" })
 		{
 			var f = new Fixture(); var (bag, contents, openable) = f.Container(true);
-			f.Command("peek target #1");
 			if (reason == "moved") f.Target.SetupGet(x => x.Location).Returns(Mock.Of<IRoom>());
 			if (reason == "skill") f.Actor.Setup(x => x.HasTrait(f.Skill.Object)).Returns(false);
 			if (reason == "state") f.Actor.SetupGet(x => x.State).Returns(CharacterState.Unconscious);
 			if (reason == "closed") openable.SetupGet(x => x.IsOpen).Returns(false);
 			if (reason == "combat") f.Actor.SetupGet(x => x.Combat).Returns(Mock.Of<MudSharp.Combat.ICombat>());
-			f.Effects.OfType<PeekInspectionAction>().Single().ExpireEffect();
+			f.Command("peek target #1");
 			Assert.AreEqual(0, f.Attempts); Assert.AreEqual(0, f.Reveals); Assert.AreEqual(0, f.Effects.Count);
 			contents.VerifyGet(x => x.Contents, Times.Never);
 		}

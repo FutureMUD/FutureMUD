@@ -43,6 +43,8 @@ using MudSharp.Framework.Scheduling;
 using MudSharp.PerceptionEngine;
 using ConcreteBody = MudSharp.Body.Implementations.Body;
 
+using MudSharp.Vehicles;
+
 namespace MudSharp_Unit_Tests;
 
 [TestClass, DoNotParallelize]
@@ -273,6 +275,84 @@ public class BarrierTraversalTests
 			StringAssert.Contains(content.Description, "authored native damage choice");
 		}
 	}
+	[TestMethod]
+	public void DraggedItem_OwnershipPermissionChangesWhilePending_StopsBeforeCrossing()
+	{
+		var f = new Fixture(); var item = new Mock<IGameItem>(); var mark = new Mock<IItemTakeInterdictionEffect>();
+		var allowed = true;
+		mark.Setup(x => x.AllowsTake(f.Victim.Object)).Returns(() => allowed);
+		item.Setup(x => x.EffectsOfType<IItemTakeInterdictionEffect>(It.IsAny<Predicate<IItemTakeInterdictionEffect>>()))
+			.Returns([mark.Object]);
+		var drag = new Dragging(f.Victim.Object, null!, item.Object);
+		var movement = f.Move(); movement.DragEffects.Add(drag);
+		allowed = false;
+		movement.IntermediateStep();
+		Assert.IsTrue(movement.Cancelled);
+		f.Victim.Verify(x => x.ExecuteMove(It.IsAny<IMovement>()), Times.Never);
+		f.Origin.Verify(x => x.Extract(item.Object), Times.Never);
+		f.Destination.Verify(x => x.Insert(item.Object, It.IsAny<bool>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void DraggedItem_MoveCallbackRevokesPermission_ReleasesDragBeforeExtraction()
+	{
+		var f = new Fixture(); var item = new Mock<IGameItem>(); var mark = new Mock<IItemTakeInterdictionEffect>();
+		var allowed = true;
+		mark.Setup(x => x.AllowsTake(f.Victim.Object)).Returns(() => allowed);
+		item.Setup(x => x.EffectsOfType<IItemTakeInterdictionEffect>(It.IsAny<Predicate<IItemTakeInterdictionEffect>>()))
+			.Returns([mark.Object]);
+		var drag = new Dragging(f.Victim.Object, null!, item.Object);
+		var movement = f.Move(); movement.DragEffects.Add(drag); movement.Draggers.Add(f.Victim.Object);
+		movement.Targets.Add(item.Object);
+		f.Victim.Setup(x => x.ExecuteMove(movement)).Callback(() =>
+		{
+			allowed = false;
+			f.Victim.SetupGet(x => x.Location).Returns(f.Destination.Object);
+		});
+		f.Victim.Setup(x => x.RemoveEffect(drag, true)).Callback(drag.RemovalEffect);
+		movement.IntermediateStep();
+		Assert.IsTrue(movement.Cancelled);
+		Assert.IsNull(f.Victim.Object.Movement);
+		Assert.AreSame(f.Destination.Object, f.Victim.Object.Location);
+		f.Victim.Verify(x => x.RemoveEffect(drag, true), Times.Once);
+		item.Verify(x => x.RemoveAllEffects(It.IsAny<Predicate<IEffect>>(), It.IsAny<bool>()), Times.Once);
+		f.Origin.Verify(x => x.Extract(item.Object), Times.Never);
+		f.Destination.Verify(x => x.Insert(item.Object, It.IsAny<bool>()), Times.Never);
+	}
+
+	[DataTestMethod]
+	[DataRow(true, 6.0)] [DataRow(false, 0.0)]
+	public void VehicleExposure_NativeOccupantInjuryFollowsPrototypePolicy(bool exposed, double expectedDamage)
+	{
+		var f = new Fixture();
+		Assert.AreEqual(MagicCastingStatus.Succeeded, f.F.Service.Cast(f.Intent(2)).Status);
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(501);
+		item.SetupGet(x => x.Gameworld).Returns(f.F.World.Object);
+		item.SetupGet(x => x.Location).Returns(f.Origin.Object);
+		item.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1));
+		item.SetupGet(x => x.Effects).Returns([]);
+		item.Setup(x => x.SufferDamage(It.IsAny<IDamage>())).Returns(Array.Empty<IWound>());
+		var prototype = new Mock<IVehiclePrototype>();
+		prototype.SetupGet(x => x.ExposesOccupantsToExitBarriers).Returns(exposed);
+		var vehicle = new Mock<IVehicle>();
+		vehicle.SetupGet(x => x.Id).Returns(501);
+		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
+		vehicle.SetupGet(x => x.Gameworld).Returns(f.F.World.Object);
+		vehicle.SetupGet(x => x.Location).Returns(f.Origin.Object);
+		vehicle.SetupGet(x => x.ExteriorItem).Returns(item.Object);
+		vehicle.SetupGet(x => x.Occupants).Returns([f.Victim.Object]);
+		var plan = new VehicleHitchGraphMovePlan(vehicle.Object,
+			[new VehicleHitchGraphTrainMember(vehicle.Object, 0, null)], [], [], 0);
+		var movement = f.Move();
+		Assert.IsTrue(VehicleExitBarrierTraversal.Contact(plan, f.Direction.Object, [], movement, out _));
+		Assert.AreEqual(expectedDamage, f.Body.Wounds.Sum(x => x.CurrentDamage));
+		Assert.AreSame(f.Origin.Object, f.Victim.Object.Location);
+		Assert.IsTrue(VehicleExitBarrierTraversal.Contact(plan, f.Direction.Object, [], movement, out _));
+		Assert.AreEqual(expectedDamage, f.Body.Wounds.Sum(x => x.CurrentDamage));
+		f.Victim.Verify(x => x.ExecuteMove(It.IsAny<IMovement>()), Times.Never);
+	}
+
 	private sealed class Clock : TimeProvider
 	{ public DateTimeOffset Now = new(2026, 10, 13, 0, 0, 0, TimeSpan.Zero); public override DateTimeOffset GetUtcNow() => Now; }
 	private sealed class Fixture

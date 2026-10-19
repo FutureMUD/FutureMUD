@@ -25,6 +25,7 @@ public class VehicleProto
 	public string Name { get; set; }
 	public string Description { get; set; }
 	public int VehicleScale { get; set; }
+	public bool ExposesOccupantsToExitBarriers { get; set; }
 	public long? ExteriorItemProtoId { get; set; }
 	public int? ExteriorItemProtoRevision { get; set; }
 

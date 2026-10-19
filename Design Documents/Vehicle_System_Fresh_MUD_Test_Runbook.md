@@ -29,6 +29,16 @@ Pick one valid solid material from your game, for example with whatever local ma
 
 After each `item edit new`, `comp edit new`, or `vehicleproto new`, the command output gives the new prototype id. Record those ids as you go.
 
+For damaging exit-barrier verification, explicitly select the passenger policy while editing each participating vehicle prototype:
+
+```text
+vehicleproto set barrierexposure sheltered
+vehicleproto set barrierexposure exposed
+vehicleproto show
+```
+
+The default is sheltered, including upgraded prototypes. Exposure applies only to occupants physically at the exterior; hosted RoomScale interior occupants remain sheltered. With a valid admitted crossing into a matching damaging barrier, the hull, recursively towed hulls and external pullers contact it and stop at the origin. Enabled exposed passengers also contact it using their own layer and plane. Readiness/status queries and attempts denied by ordinary movement rules must not injure anyone. A repeated scheduled crossing step must not apply contact twice.
+
 ## Component Checklist
 
 Confirm these seeded components exist:

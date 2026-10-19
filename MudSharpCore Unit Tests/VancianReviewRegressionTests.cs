@@ -61,6 +61,7 @@ public class VancianReviewRegressionTests
 		model.Definition = definition.ToString();
 		var spell = new MagicSpell(model, f.World.Object); f.Spells.RemoveAll(x => x.Id == 2); f.Spells.Add(spell);
 		f.Actor.Setup(x => x.CanUseResource(resource.Object, It.IsAny<double>())).Returns(true);
+		f.Actor.Setup(x => x.UseResource(resource.Object, It.IsAny<double>())).Returns(true);
 		f.Actor.SetupGet(x => x.InnerLineFormatLength).Returns(100); f.Actor.SetupGet(x => x.LineFormatLength).Returns(120);
 		return (spell, resource.Object);
 	}
@@ -127,11 +128,13 @@ public class VancianReviewRegressionTests
 		Assert.AreEqual(ledgerEntries, f.Store.Log.Count);
 	}
 
-	[TestMethod]
-	public void SpellBackedPower_LegitimateLegacyRouteStillUsesItsNormalCheckAndCosts()
+	[DataTestMethod]
+	[DataRow(true)] [DataRow(false)]
+	public void SpellBackedPower_LegacyRouteChecksPaymentBeforeApplyingEffects(bool paymentAccepted)
 	{
 		var items = new VancianItemTests.ItemFixture("<Effect type='staminadelta'><Formula>1</Formula></Effect>"); var f = items.F;
 		var (spell, resource) = PricedSpell(items, "5");
+		f.Actor.Setup(x => x.UseResource(resource, 5)).Returns(paymentAccepted);
 		var legacy = new Mock<IMagicCapability>(); legacy.SetupGet(x => x.School).Returns(f.School.Object);
 		f.Actor.SetupGet(x => x.Capabilities).Returns([legacy.Object, f.Capability.Object]);
 		var known = f.Prog("candidates", _ => true); known.Setup(x => x.Execute<bool?>(It.IsAny<object[]>())).Returns(true); spell.SpellKnownProg = known.Object;
@@ -139,7 +142,8 @@ public class VancianReviewRegressionTests
 		check.Setup(x => x.CheckAgainstAllDifficulties(f.Actor.Object, It.IsAny<Difficulty>(), f.Trait.Object, f.Actor.Object, It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()))
 			.Returns(Enum.GetValues<Difficulty>().ToDictionary(x => x, _ => CheckOutcome.SimpleOutcome(CheckType.CastSpellCheck, Outcome.Pass)));
 		Adapter(f).UseCommand(f.Actor.Object, "invoke", new StringStack("standard"));
-		f.Actor.Verify(x => x.UseResource(resource, 5), Times.Once); f.Actor.Verify(x => x.GainStamina(1), Times.Once);
+		f.Actor.Verify(x => x.UseResource(resource, 5), Times.Once);
+		f.Actor.Verify(x => x.GainStamina(1), paymentAccepted ? Times.Once() : Times.Never());
 		Assert.AreEqual(0, f.Store.Log.Count); Assert.AreEqual(0, f.State.Slots.Count);
 	}
 

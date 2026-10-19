@@ -25305,6 +25305,11 @@ namespace MudSharp.Migrations
                     b.Property<long>("EditableItemId")
                         .HasColumnType("bigint(20)");
 
+                    b.Property<ulong>("ExposesOccupantsToExitBarriers")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit(1)")
+                        .HasDefaultValue(0ul);
+
                     b.Property<long?>("ExteriorItemProtoId")
                         .HasColumnType("bigint(20)");
 

@@ -10,12 +10,29 @@ public partial class Character
 {
 	private int _castingCapacityReconciliationDepth;
 	private int _castingCapacityRestorationDepth;
+	private Dictionary<IMagicResource, double>? _castingInvocationBudgets;
 	internal bool CastingCapacityRestorationActive => _castingCapacityRestorationDepth > 0;
 	private bool CastingCapacityMutationActive => _castingCapacityReconciliationDepth > 0 && !CastingCapacityRestorationActive;
 	internal IDisposable DeferCastingCapacityReconciliation(bool reconcileOnDispose = true) =>
 		new CapacityRestorationScope(MagicCastingService.Owner(this) as Character ?? this, reconcileOnDispose, true);
 	internal IDisposable DeferCastingCapacityReconciliationForMutation() =>
 		new CapacityRestorationScope(MagicCastingService.Owner(this) as Character ?? this, true, false);
+
+	private double InvocationResourceAvailability(IMagicResource resource, double balance, double cap)
+	{
+		var capped = Math.Min(balance, cap);
+		return _castingInvocationBudgets is not null && _castingInvocationBudgets.TryGetValue(resource, out var budget)
+			? Math.Min(capped, budget) : capped;
+	}
+
+	private void DebitInvocationResourceBudget(IMagicResource resource, double balance, double cap, double amount)
+	{
+		if (amount == 0) return;
+		// Credits stay in the raw spell ledger; additional invocations share this budget until outer completion.
+		_castingInvocationBudgets ??= new();
+		var budget = _castingInvocationBudgets.GetValueOrDefault(resource, Math.Min(balance, cap));
+		_castingInvocationBudgets[resource] = budget - amount;
+	}
 
 	private sealed class CapacityRestorationScope : IDisposable
 	{
@@ -36,7 +53,11 @@ public partial class Character
 			_actor = null;
 			if (actor is null) return;
 			if (_preventResourceUse) actor._castingCapacityRestorationDepth--;
-			if (--actor._castingCapacityReconciliationDepth == 0 && _reconcileOnDispose) actor.ReconcileCastingResourceCapacities();
+			if (--actor._castingCapacityReconciliationDepth == 0)
+			{
+				actor._castingInvocationBudgets = null;
+				if (_reconcileOnDispose) actor.ReconcileCastingResourceCapacities();
+			}
 		}
 	}
 

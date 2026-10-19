@@ -106,7 +106,7 @@ public class BlankDatabaseSnapshotTests
 		var deltas = marker >= 0 ? snapshot[marker..] : snapshot;
 		foreach (var table in new[]
 		         {
-			         "__EFMigrationsHistory", "Vehicles", "VehicleOccupantSlotProtos",
+			         "__EFMigrationsHistory", "Vehicles", "VehicleProtos", "VehicleOccupantSlotProtos",
 			         "VehicleMovementProfileProtos", "VehiclePropulsionProfileProtos",
 			         "CharacterCombatSettings", "TraitDefinitions", "RangedCovers", "LootTables",
 			         "EditableItems", "OutfitTemplateItems", "MagicSpells", "CharacterMagicCapabilityStates", "VancianMagicOperations",

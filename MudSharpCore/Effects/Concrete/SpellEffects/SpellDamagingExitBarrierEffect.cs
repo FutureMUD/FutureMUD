@@ -13,7 +13,7 @@ using MudSharp.GameItems;
 namespace MudSharp.Effects.Concrete.SpellEffects;
 
 /// <summary>Parent owns dispel/removal; the persisted deadline cannot reset on cold loading.</summary>
-public sealed class SpellDamagingExitBarrierEffect : SpellExitBarrierEffect, IExitBarrierTraversalEffect
+public sealed class SpellDamagingExitBarrierEffect : SpellExitBarrierEffect, IExitBarrierItemTraversalEffect
 {
 	public new static void InitialiseEffectType() => RegisterFactory("SpellDamagingExitBarrier", (xml, owner) => new SpellDamagingExitBarrierEffect(xml, owner));
 	public SpellDamagingExitBarrierEffect(IExit owner, IMagicSpellEffectParent parent, DamageType type, double amount,
@@ -46,11 +46,45 @@ public sealed class SpellDamagingExitBarrierEffect : SpellExitBarrierEffect, IEx
 		Owner.Effects.Any(x => ReferenceEquals(x, this)) && Owner.Effects.Any(x => ReferenceEquals(x, ParentEffect)) &&
 		ParentEffect.SpellEffects.Any(x => ReferenceEquals(x, this));
 	public bool OccupiesLayerAndPlane(ICharacter actor)
+		=> OccupiesLayerAndPlane((IPerceivable)actor, actor.RoomLayer);
+	public bool OccupiesLayerAndPlane(IGameItem item)
+		=> OccupiesLayerAndPlane(item, item.RoomLayer);
+	private bool OccupiesLayerAndPlane(IPerceivable target, RoomLayer layer)
 	{
-		if (!IsActive || actor.RoomLayer != Layer || !ReferenceEquals(actor.Gameworld, Gameworld)) return false;
-		var presence = actor.GetPlanarPresence();
+		if (!IsActive || layer != Layer || !ReferenceEquals(target.Gameworld, Gameworld)) return false;
+		var presence = target.GetPlanarPresence();
 		return !presence.CanCrossMagicalBarriers && !presence.SuspendsPhysicalContact &&
 			presence.InteractionPlaneIds(PlanarInteractionKind.MovementBarrier).Intersect(Planes).Any();
+	}
+	public void Contact(IGameItem item, IRoomExit exit, Func<bool> continuation)
+	{
+		if (!IsActive || !ReferenceEquals(exit.Exit, Owner) || !continuation()) return;
+		var parent = ParentEffect;
+		var caster = parent.Caster;
+		var casterBody = caster?.Body;
+		var casterIdentity = caster?.Identity;
+		var casterInstance = caster?.InstanceId;
+		using var sourceFence = new SourceFence(caster);
+		var origin = exit.Origin;
+		var destination = exit.Destination;
+		var world = item.Gameworld;
+		bool Current() => !sourceFence.Invalid && IsActive && ReferenceEquals(ParentEffect, parent) &&
+			!item.Destroyed && !item.Deleted && ReferenceEquals(item.Gameworld, world) &&
+			ReferenceEquals(item.Location, origin) && item.RoomLayer == Layer &&
+			ReferenceEquals(exit.Exit, Owner) && ReferenceEquals(exit.Origin, origin) && ReferenceEquals(exit.Destination, destination) &&
+			(caster is null || ReferenceEquals(caster.Gameworld, world) && ReferenceEquals(caster.Body, casterBody) &&
+				ReferenceEquals(casterBody?.Actor, caster) && ReferenceEquals(caster.Identity, casterIdentity) && caster.InstanceId == casterInstance);
+		bool Continue() => Current() && continuation() && Current();
+		if (!Continue()) return;
+		item.SufferDamage(new Damage
+		{
+			ActorOrigin = caster!, DamageType = DamageType, DamageAmount = DamageAmount,
+			PainAmount = DamageAmount, MutationGuard = new ItemContactGuard(item, caster, Continue)
+		}).ToArray();
+		if (!Continue()) return;
+		origin.Handle(Layer, new EmoteOutput(new Emote($"The {DamageType.DescribeEnum().ToLowerInvariant()} barrier flares against @, blocking &0's passage.", item, item)));
+		if (!Continue()) return;
+		destination.Handle(Layer, "The magical barrier flares as a vehicle attempts passage from the other side.");
 	}
 	public void Contact(ICharacter actor, IRoomExit exit, Func<bool> continuation)
 	{
@@ -106,6 +140,15 @@ public sealed class SpellDamagingExitBarrierEffect : SpellExitBarrierEffect, IEx
 				!ReferenceEquals(damage.ActorOrigin, caster) || !continuation())
 				throw new InvalidOperationException("The captured barrier contact changed before native injury.");
 			if (!RecipientIsCurrent()) throw new InvalidOperationException("The captured contact item changed during continuation.");
+		}
+	}
+	private sealed class ItemContactGuard(IGameItem item, ICharacter? caster, Func<bool> continuation) : IDamageMutationGuard
+	{
+		public void Validate(IHaveWounds recipient, IDamage damage)
+		{
+			if (!ReferenceEquals(recipient, item) || !ReferenceEquals(damage.MutationGuard, this) ||
+				!ReferenceEquals(damage.ActorOrigin, caster) || !continuation())
+				throw new InvalidOperationException("The vehicle barrier contact changed before native injury.");
 		}
 	}
 	protected override string SpecificEffectType => "SpellDamagingExitBarrier";

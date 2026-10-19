@@ -29,6 +29,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 	private readonly List<IVehicleDamageZonePrototype> _damageZones = new();
 	private string _description;
 	private VehicleScale _scale;
+	private bool _exposesOccupantsToExitBarriers;
 	private long? _exteriorItemPrototypeId;
 	private int? _exteriorItemPrototypeRevision;
 
@@ -39,6 +40,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		_name = dbitem.Name;
 		_description = dbitem.Description;
 		_scale = (VehicleScale)dbitem.VehicleScale;
+		_exposesOccupantsToExitBarriers = dbitem.ExposesOccupantsToExitBarriers;
 		_exteriorItemPrototypeId = dbitem.ExteriorItemProtoId;
 		_exteriorItemPrototypeRevision = dbitem.ExteriorItemProtoRevision;
 
@@ -125,6 +127,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 
 	public override string FrameworkItemType => "VehiclePrototype";
 	public VehicleScale Scale => _scale;
+	public bool ExposesOccupantsToExitBarriers => _exposesOccupantsToExitBarriers;
 	public long? ExteriorItemPrototypeId => _exteriorItemPrototypeId;
 	public IGameItemProto ExteriorItemPrototype => _exteriorItemPrototypeId is null
 		? null
@@ -556,6 +559,7 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 		sb.AppendLine($"Vehicle Prototype #{Id.ToString("N0", actor)}r{RevisionNumber.ToString("N0", actor)} - {Name.ColourName()}".GetLineWithTitle(actor, Telnet.Cyan, Telnet.BoldWhite));
 		sb.AppendLine($"Status: {Status.DescribeColour()}");
 		sb.AppendLine($"Scale: {Scale.DescribeEnum().ColourValue()}");
+		sb.AppendLine($"Exit Barrier Exposure: {(_exposesOccupantsToExitBarriers ? "Exposed".Colour(Telnet.Yellow) : "Sheltered".Colour(Telnet.Green))} (hosted interior occupants remain sheltered)");
 		sb.AppendLine($"Exterior Item: {(ExteriorItemPrototype is null ? "None".ColourError() : $"{ExteriorItemPrototype.ShortDescription.ColourObject()} (#{ExteriorItemPrototype.Id.ToString("N0", actor)}r{ExteriorItemPrototype.RevisionNumber.ToString("N0", actor)})")}");
 		sb.AppendLine();
 		sb.AppendLine("Description:");
@@ -666,6 +670,8 @@ public class VehiclePrototype : EditableItem, IVehiclePrototype
 				return BuildingCommandDescription(actor, command);
 			case "scale":
 				return BuildingCommandScale(actor, command);
+			case "barrierexposure":
+				return BuildingCommandBarrierExposure(actor, command);
 			case "exterior":
 			case "item":
 				return BuildingCommandExterior(actor, command);
@@ -712,6 +718,7 @@ All options below are used as #3vehicleproto set <option> ...#0 while editing a 
 	#3name <name>#0 - sets the prototype name
 	#3desc <description>#0 - sets the builder-facing prototype description
 	#3scale <itemscale|roomcontainer|roomscale>#0 - selects the occupancy/interior model; see #3vehicleproto help#0 for the scale meanings
+	#3barrierexposure <sheltered|exposed>#0 - sets contact with damaging exit barriers for non-hosted occupants; defaults to sheltered and never exposes hosted interior rooms
 	#3exterior <item proto>#0 - links the visible exterior shell and automatically adds the required vehicle-exterior component to that item prototype
 
 #5Compartments, Occupants And Control#0
@@ -810,6 +817,21 @@ Damage zones receive exterior damage and can disable systems at authored thresho
 	#3damage remove <id>#0 - removes a damage zone
 
 Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0 for live damage/link repairs, and #3vehicle audit#0 to diagnose a vehicle family.";
+
+	private bool BuildingCommandBarrierExposure(ICharacter actor, StringStack command)
+	{
+		var exposure = command.PopSpeech().ToLowerInvariant();
+		if (!command.IsFinished || !exposure.EqualToAny("sheltered", "exposed"))
+		{
+			actor.OutputHandler.Send("Specify sheltered or exposed for occupant contact with damaging exit barriers.");
+			return false;
+		}
+
+		_exposesOccupantsToExitBarriers = exposure == "exposed";
+		Changed = true;
+		actor.OutputHandler.Send($"Non-hosted occupants are now {(_exposesOccupantsToExitBarriers ? "exposed to" : "sheltered from").ColourValue()} damaging exit barrier contact. Hosted interior occupants remain sheltered.");
+		return true;
+	}
 
 	private bool BuildingCommandName(ICharacter actor, StringStack command)
 	{
@@ -3631,12 +3653,9 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 					RevisionNumber = newRevisionNumber,
 					RevisionStatus = (int)RevisionStatus.UnderDesign
 				},
-				Name = Name,
-				Description = _description,
-				VehicleScale = (int)_scale,
-				ExteriorItemProtoId = _exteriorItemPrototypeId,
-				ExteriorItemProtoRevision = _exteriorItemPrototypeRevision
+				Name = Name
 			};
+			SaveDefinition(dbnew);
 			FMDB.Context.EditableItems.Add(dbnew.EditableItem);
 			FMDB.Context.VehicleProtos.Add(dbnew);
 			FMDB.Context.SaveChanges();
@@ -3949,15 +3968,22 @@ Use #3hitch#0/#3unhitch#0 to create or remove live tow links, #3vehicle repair#0
 		{
 			var dbitem = FMDB.Context.VehicleProtos.Include(x => x.EditableItem).First(x => x.Id == Id && x.RevisionNumber == RevisionNumber);
 			Save(dbitem.EditableItem);
-			dbitem.Name = Name;
-			dbitem.Description = _description;
-			dbitem.VehicleScale = (int)_scale;
-			dbitem.ExteriorItemProtoId = _exteriorItemPrototypeId;
-			dbitem.ExteriorItemProtoRevision = _exteriorItemPrototypeRevision;
+			SaveDefinition(dbitem);
 			FMDB.Context.SaveChanges();
 		}
 
 		Changed = false;
+	}
+
+	/// <summary>Copies the revisioned definition for both persistence and new-revision cloning.</summary>
+	internal void SaveDefinition(DB.VehicleProto dbitem)
+	{
+		dbitem.Name = Name;
+		dbitem.Description = _description;
+		dbitem.VehicleScale = (int)_scale;
+		dbitem.ExposesOccupantsToExitBarriers = _exposesOccupantsToExitBarriers;
+		dbitem.ExteriorItemProtoId = _exteriorItemPrototypeId;
+		dbitem.ExteriorItemProtoRevision = _exteriorItemPrototypeRevision;
 	}
 }
 

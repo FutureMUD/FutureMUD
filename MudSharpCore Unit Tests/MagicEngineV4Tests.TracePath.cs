@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using MudSharp.Accounts;
 using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
@@ -104,6 +105,35 @@ public partial class MagicEngineV4Tests
 		f.Pair.F.Actor.Setup(x => x.CanSee(It.IsAny<IRoom>(), f.Edges[0], It.IsAny<PerceiveIgnoreFlags>()))
 			.Returns<IRoom, IRoomExit, PerceiveIgnoreFlags>((room, edge, flags) => room.IsExitVisible(f.Pair.F.Actor.Object, edge, PerceptionTypes.AllVisual, flags));
 		Assert.IsFalse(SpellPermittedPath.Admitted(f.Pair.F.Actor.Object, f.Edges[0]));
+	}
+
+	[DataTestMethod]
+	[DataRow(true, false)] [DataRow(false, true)]
+	public void RecognisedCharacter_ProtectedPlayerRequiresImmortalMode(bool immortal, bool invisible)
+	{
+		var f = new TraceFixture(1); var caster = f.Pair.F.Actor; var target = f.Pair.Target;
+		target.SetupGet(x => x.IsPlayerCharacter).Returns(true);
+		Assert.IsTrue(CastingTriggerRecognisedCharacter.IsRecognised(caster.Object, target.Object));
+		target.Setup(x => x.AffectedBy<MudSharp.Effects.Interfaces.IAdminSightEffect>()).Returns(immortal);
+		target.Setup(x => x.AffectedBy<MudSharp.Effects.Interfaces.IAdminInvisEffect>()).Returns(invisible);
+		// Visibility and ordinary staff authority cannot override this target policy.
+		caster.Setup(x => x.IsAdministrator(PermissionLevel.JuniorAdmin)).Returns(true);
+		Assert.IsFalse(CastingTriggerRecognisedCharacter.IsRecognised(caster.Object, target.Object));
+		Assert.IsNull(CastingTriggerRecognisedCharacter.Resolve(caster.Object, "traveller"));
+		caster.Setup(x => x.AffectedBy<MudSharp.Effects.Interfaces.IAdminSightEffect>()).Returns(true);
+		Assert.IsTrue(CastingTriggerRecognisedCharacter.IsRecognised(caster.Object, target.Object));
+		caster.Setup(x => x.CanSee(target.Object, PerceiveIgnoreFlags.None)).Returns(false);
+		Assert.IsFalse(CastingTriggerRecognisedCharacter.IsRecognised(caster.Object, target.Object));
+	}
+
+	[TestMethod]
+	public void RecognisedCharacter_ProtectedNpcRetainsOrdinaryRecognitionRules()
+	{
+		var f = new TraceFixture(1);
+		f.Pair.Target.SetupGet(x => x.IsPlayerCharacter).Returns(false);
+		f.Pair.Target.Setup(x => x.AffectedBy<MudSharp.Effects.Interfaces.IAdminSightEffect>()).Returns(true);
+		f.Pair.Target.Setup(x => x.AffectedBy<MudSharp.Effects.Interfaces.IAdminInvisEffect>()).Returns(true);
+		Assert.IsTrue(CastingTriggerRecognisedCharacter.IsRecognised(f.Pair.F.Actor.Object, f.Pair.Target.Object));
 	}
 
 	[TestMethod]

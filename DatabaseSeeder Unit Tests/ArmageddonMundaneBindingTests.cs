@@ -18,6 +18,58 @@ namespace MudSharp_Unit_Tests;
 public class ArmageddonMundaneBindingTests
 {
 	[TestMethod]
+	public void MissingWeaponFamilies_CreateIndependentSkillConsumersAndRevisionedComponents()
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		db.Accounts.Add(new Account { Id = 1, Name = "Installer" });
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		var skills = ArmageddonSkillPackage.Resolve(db);
+		foreach (var name in new[] { "Longsword", "Short Spear" })
+		{
+			var donor = new WeaponType { Name = name, AttackTraitId = skills["arm.skill.two_handed"].Id, ParryTraitId = skills["arm.skill.parry"].Id, Reach = 3 };
+			db.WeaponTypes.Add(donor); db.SaveChanges();
+			var attack = new WeaponAttack { Name = name + " thrust", WeaponTypeId = donor.Id, MoveType = (int)MudSharp.Combat.BuiltInCombatMoveType.UseWeaponAttack, DamageExpressionId = 81, PainExpressionId = 82, StunExpressionId = 83 };
+			db.WeaponAttacks.Add(attack); db.SaveChanges();
+			db.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks { CombatMessageId = 77, WeaponAttackId = attack.Id });
+		}
+		db.SaveChanges();
+		ArmageddonWeaponFamilies.InstallFresh(db, skills);
+		foreach (var family in new[] { (Name: "Razor Weapon", Key: "razor_weapons"), (Name: "Trident", Key: "trident_weapons") })
+		{
+			var weapon = db.WeaponTypes.Single(x => x.Name == family.Name);
+			Assert.AreEqual(skills["arm.skill." + family.Key].Id, weapon.AttackTraitId);
+			Assert.AreEqual(skills["arm.skill.parry"].Id, weapon.ParryTraitId);
+			var attack = db.WeaponAttacks.Single(x => x.WeaponTypeId == weapon.Id);
+			Assert.AreEqual(81L, attack.DamageExpressionId);
+			Assert.IsTrue(db.CombatMessagesWeaponAttacks.Any(x => x.WeaponAttackId == attack.Id && x.CombatMessageId == 77));
+			var component = db.GameItemComponentProtos.Single(x => x.Name == "Melee_" + family.Name);
+			Assert.AreEqual(weapon.Id, (long)XElement.Parse(component.Definition).Element("WeaponType")!);
+			Assert.AreEqual(4, component.EditableItem.RevisionStatus);
+			Assert.AreEqual(0, db.SeederManagedRecords.Single(x => x.LogicalId == component.Id && x.EntityType == nameof(GameItemComponentProto)).RevisionNumber);
+		}
+		Assert.IsTrue(db.WeaponTypes.Where(x => x.Name == "Longsword" || x.Name == "Short Spear").All(x => x.AttackTraitId == skills["arm.skill.two_handed"].Id));
+		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonWeaponFamilies.InstallFresh(db, skills));
+	}
+
+	[TestMethod]
+	public void ArmourRepair_BindsNativeKitWithoutUsefulOrItemPackage()
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		db.Accounts.Add(new Account { Id = 1, Name = "Installer" });
+		db.Tags.Add(new Tag { Name = "Military Armour" });
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		var skills = ArmageddonSkillPackage.Resolve(db);
+		ArmageddonRepairBinding.InstallFresh(db, skills);
+		var component = db.GameItemComponentProtos.Single(x => x.Type == "RepairKit");
+		var xml = XElement.Parse(component.Definition);
+		Assert.AreEqual(skills["arm.skill.armor_repair"].Id, (long)xml.Element("CheckTrait")!);
+		Assert.AreEqual(db.Tags.Single().Id, (long)xml.Element("Tags")!.Element("Tag")!);
+		Assert.IsTrue((int)xml.Element("RepairPoints")! > 0);
+		Assert.AreEqual(0, db.SeederManagedRecords.Single(x => x.StableKey == "arm.repair.armour.component").RevisionNumber);
+		Assert.IsFalse(db.SeederChoices.Any(x => x.Seeder == nameof(UsefulSeeder) || x.Seeder == nameof(ItemSeeder)));
+	}
+
+	[TestMethod]
 	public void SourceImpacts_BindSeparateCanonicalActionsAndManualCommands()
 	{
 		using var db = ArmageddonSettingPackageTests.Fixture();

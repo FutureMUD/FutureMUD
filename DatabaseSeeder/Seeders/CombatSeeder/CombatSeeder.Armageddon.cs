@@ -45,6 +45,8 @@ public partial class CombatSeeder
 		ArmageddonMundaneBindings.BindDisarm(db, owned);
 		ArmageddonMundaneBindings.BindOpeningAttacks(db, owned);
 		ArmageddonSourceImpacts.InstallFresh(db, owned);
+		ArmageddonWeaponFamilies.InstallFresh(db, owned);
+		ArmageddonRepairBinding.InstallFresh(db, owned);
 		// Apply exact authored type assignments once, before recording ownership. Parry remains independent.
 		foreach (var assignment in ArmageddonAttackAssignments)
 		{

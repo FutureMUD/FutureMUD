@@ -79,3 +79,10 @@ Final Backstab and coordinated-attack regression127passed,0failed/skipped,stable
 Fresh Armageddon Bash/Kick now use explicit canonical skills and a reusable physical impact profile, with source stance/counter/guard/shield semantics and separately identified authored native damage tuning. Generic stock Bash remains gated. Exact participant/body/room/authority fences protect callbacks and wound mutation; stamina stays with the captured attacking body. Native magic barriers preserve transformed remainder damage. Builder profile edits and legacy auxiliary behaviour remain supported.
 
 Final impact and queued-authority batch:314passed,0failed/skipped, stable source,20261019T150500Z-f27a5f5162a5. Seeder source-action binding focus previously14passed (20261019T144732Z-84af82e3c660). Earlier fixture/build failures are retained and corrected; these are implementation evidence, with combined native gameplay still pending. See [physical impact contract](Armageddon_Physical_Impact_Contract_20261019.md).
+
+
+## Native weapon and repair consumer checkpoint
+
+Razor Weapons and Trident Weapons now have separate native weapon types, attack rows/message joins and revisioned melee components. Sword/spear geometry is an authored adaptation; canonical family skills and independent Parry are explicit, with donor/four Two Handed assignments retained. Armor Repair has a native RepairKit component restricted by the shared Core Military Armour tag; supplies500/Grievous maximum are authored native starter tuning. No Item/Useful dependency or repair recipe is added.
+
+Weapon/package focus15passed (20261019T150959Z-8b48b9cda4c2); final weapon/repair binding focus9passed (20261019T151320Z-c2ea035af319),0failed/skipped, stable source. Native installed/gameplay qualification follows in the combined lane.

@@ -43,6 +43,7 @@ public partial class CombatSeeder
 		var owned = ArmageddonSkillPackage.Resolve(db);
 		GatePendingArmageddonActions(db);
 		ArmageddonMundaneBindings.BindDisarm(db, owned);
+		ArmageddonMundaneBindings.BindOpeningAttacks(db, owned);
 		// Apply exact authored type assignments once, before recording ownership. Parry remains independent.
 		foreach (var assignment in ArmageddonAttackAssignments)
 		{
@@ -73,8 +74,6 @@ public partial class CombatSeeder
 			command.UsabilityProgId = never;
 		}
 		foreach (var action in db.CombatActions.Where(x => x.Name == "Bash")) action.UsabilityProgId = never;
-		foreach (var attack in db.WeaponAttacks.Where(x => x.Name == "Knife Backstab" || x.Name == "Dagger Backstab" || x.Name == "Blackjack Sapping Blow"))
-			attack.FutureProgId = never;
 	}
 
 	private static void ValidateArmageddonCombatIdentities(FuturemudDatabaseContext db)

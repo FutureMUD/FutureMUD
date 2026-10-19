@@ -1,12 +1,16 @@
 #nullable enable
 
 using MudSharp.Health;
+using MudSharp.Body.Traits;
+using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat.Moves;
 
 public sealed class BackstabAttackMove(ICharacter owner, IMeleeWeapon weapon, IWeaponAttack attack, ICharacter target)
-	: MeleeWeaponAttack(owner, weapon, attack, target)
+	: MeleeWeaponAttack(owner, weapon, attack, target, physicalGuard: () =>
+		BackstabCombat.HasProficiency(owner, attack))
 {
+	protected override ITraitDefinition AttackCheckTrait => ((IBackstabAttack)Attack).ProficiencyTrait ?? base.AttackCheckTrait;
 	public override BuiltInCombatMoveType MoveType => BuiltInCombatMoveType.BackstabAttack;
 	public override string Description => "Backstabbing with a weapon";
 	public override bool UsesStaminaWithResult(CombatMoveResult result) =>
@@ -31,8 +35,10 @@ public sealed class BackstabAttackMove(ICharacter owner, IMeleeWeapon weapon, IW
 }
 
 public sealed class BackstabAttackUnarmedMove(ICharacter owner, INaturalAttack attack, ICharacter target)
-	: NaturalAttackMove(owner, attack, target)
+	: NaturalAttackMove(owner, attack, target, () => BackstabCombat.HasProficiency(owner, attack.Attack))
 {
+	protected override ITraitDefinition AttackCheckTrait => ((IBackstabAttack)Attack).ProficiencyTrait;
+	public override CheckType Check => ((IBackstabAttack)Attack).ProficiencyTraitId.HasValue ? CheckType.CombatMoveCheck : base.Check;
 	public override BuiltInCombatMoveType MoveType => BuiltInCombatMoveType.BackstabAttackUnarmed;
 	public override string Description => "Backstabbing with a natural weapon";
 	public override bool UsesStaminaWithResult(CombatMoveResult result) =>

@@ -151,12 +151,18 @@ public class ArmageddonSettingPackageTests
 		Assert.ThrowsException<InvalidOperationException>(() => new SkillSeeder().SeedData(db, new Dictionary<string, string>()));
 		foreach (var binding in ArmageddonSkillPackage.StaticTraitBindings)
 			Assert.AreEqual(owned[binding.Value].Id.ToString(), db.StaticConfigurations.Find(binding.Key)!.Definition);
+		foreach (var key in new[] { "VehiclePilotEnabled", "DirectionSenseEnabled", "ArmageddonHostileGuardAttemptsEnabled", "HagglingEnabled" })
+		{
+			Assert.AreEqual("true", db.StaticConfigurations.Find(key)!.Definition, key);
+			db.StaticConfigurations.Find(key)!.Definition = "false";
+		}
 		var ids = owned.ToDictionary(x => x.Key, x => x.Value.Id);
 		db.CharacterTraits.Add(new CharacterTrait { CharacterId = 9000, TraitDefinitionId = owned["arm.skill.peek"].Id, Value = 57, AdditionalValue = 3 });
 		owned["arm.skill.peek"].Name = "Builder covert inspection";
 		owned["arm.skill.peek"].Expression.Expression = "87";
 		db.SaveChanges();
 		seeder.SeedData(db, Answers);
+		foreach (var key in new[] { "VehiclePilotEnabled", "DirectionSenseEnabled", "ArmageddonHostileGuardAttemptsEnabled", "HagglingEnabled" }) Assert.AreEqual("false", db.StaticConfigurations.Find(key)!.Definition, key);
 		var after = ArmageddonSkillPackage.Resolve(db);
 		Assert.IsTrue(ids.All(x => after[x.Key].Id == x.Value));
 		Assert.AreEqual("Builder covert inspection", after["arm.skill.peek"].Name);
@@ -181,8 +187,8 @@ public class ArmageddonSettingPackageTests
 		db.SaveChanges();
 		Assert.IsTrue(db.ManualCombatCommands.All(x => !x.PlayerUsable && !x.NpcUsable && x.UsabilityProgId == 2));
 		Assert.AreEqual(2L, db.CombatActions.Single().UsabilityProgId);
-		Assert.AreEqual(2L, db.WeaponAttacks.Single(x => x.Name == "Knife Backstab").FutureProgId);
-		Assert.AreEqual(2L, db.WeaponAttacks.Single(x => x.Name == "Blackjack Sapping Blow").FutureProgId);
+		Assert.AreEqual(1L, db.WeaponAttacks.Single(x => x.Name == "Knife Backstab").FutureProgId);
+		Assert.AreEqual(1L, db.WeaponAttacks.Single(x => x.Name == "Blackjack Sapping Blow").FutureProgId);
 		Assert.AreEqual(1L, db.WeaponAttacks.Single(x => x.Name == "Knife Stab").FutureProgId);
 	}
 

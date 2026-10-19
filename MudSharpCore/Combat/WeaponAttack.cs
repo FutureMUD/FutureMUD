@@ -128,7 +128,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
 		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return false;
         var permitted = types.Contains(MoveType) &&
 		       (!BackstabCombat.IsBackstab(MoveType) || attacker is ICharacter backstabber &&
-		        target is ICharacter victim && BackstabCombat.IsEligible(backstabber, victim)) &&
+		        target is ICharacter victim && BackstabCombat.IsEligible(backstabber, victim) && BackstabCombat.HasProficiency(backstabber, this)) &&
                HandednessMatches(attacker, weapon, handedness) &&
                Intentions.HasFlag((attacker as ICharacter)?.CombatSettings.RequiredIntentions ??
                                   CombatMoveIntentions.None) &&
@@ -599,7 +599,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
         Profile.BaseAngleOfIncidence = value.DegreesToRadians();
         Changed = true;
         actor.OutputHandler.Send(
-            $"This attack's base angle of incidence is now {$"{value.ToString("N3", actor)}°".Colour(Telnet.Green)}.");
+            $"This attack's base angle of incidence is now {$"{value.ToString("N3", actor)}Â°".Colour(Telnet.Green)}.");
         return true;
     }
 
@@ -918,7 +918,7 @@ public class WeaponAttack : CombatAction, IWeaponAttack
         sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
             $"Difficulty: {Profile.BaseAttackerDifficulty.Describe().Colour(Telnet.Green)}",
             $"Base Stamina: {StaminaCost.ToString("N3", actor).Colour(Telnet.Green)}",
-            $"Angle: {$"{Profile.BaseAngleOfIncidence.RadiansToDegrees().ToString("N2", actor)}°".Colour(Telnet.Green)}"
+            $"Angle: {$"{Profile.BaseAngleOfIncidence.RadiansToDegrees().ToString("N2", actor)}Â°".Colour(Telnet.Green)}"
         );
         sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
             $"Dodge: {Profile.BaseDodgeDifficulty.Describe().Colour(Telnet.Green)}",

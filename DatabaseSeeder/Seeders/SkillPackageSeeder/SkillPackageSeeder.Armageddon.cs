@@ -69,6 +69,7 @@ internal partial class SkillPackageSeeder
 		if (!direction.Success) throw new InvalidOperationException(direction.Message);
 		if (!GuardingCheckSeederHelper.BindExistingSkill(db, owned["arm.skill.guarding"].Id, out var message))
 			throw new InvalidOperationException(message);
+		ArmageddonSkillPackage.EnableBoundNewWorldFeatures(db);
 		NPCSkillPackageSeederHelper.EnsureUniversalPackage(db, bindings);
 		db.SaveChanges();
 		transaction?.Commit();

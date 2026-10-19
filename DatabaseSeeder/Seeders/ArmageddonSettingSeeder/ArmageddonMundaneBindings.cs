@@ -65,6 +65,23 @@ public static class ArmageddonMundaneBindings
 		db.SaveChanges();
 	}
 
+	internal static void BindOpeningAttacks(FuturemudDatabaseContext db, IReadOnlyDictionary<string, TraitDefinition> skills)
+	{
+		var always = db.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue").Id;
+		foreach (var name in new[] { "Knife Backstab", "Dagger Backstab", "Blackjack Sapping Blow" })
+		{
+			var attack = db.WeaponAttacks.Single(x => x.Name == name);
+			var sap = name == "Blackjack Sapping Blow";
+			var xml = XElement.Parse(attack.AdditionalInfo);
+			xml.SetElementValue("Proficiency", skills[sap ? "arm.skill.sap" : "arm.skill.backstab"].Id);
+			xml.SetElementValue("Command", sap ? "sap" : "backstab");
+			attack.AdditionalInfo = xml.ToString();
+			attack.FutureProgId = always;
+			ArmageddonSettingOwnership.RecordNew(db, Module, "arm.attack." + name.ToLowerInvariant().Replace(' ', '_'), attack,
+				nameof(WeaponAttack.FutureProgId), nameof(WeaponAttack.AdditionalInfo));
+		}
+	}
+
 	internal static void BindDisarm(FuturemudDatabaseContext db, IReadOnlyDictionary<string, TraitDefinition> skills)
 	{
 		foreach (var name in new[] { "Pommel Beat", "Wrist Check", "Beat the Weapon" })

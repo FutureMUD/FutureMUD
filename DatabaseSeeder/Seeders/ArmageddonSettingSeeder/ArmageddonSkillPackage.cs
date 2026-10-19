@@ -65,10 +65,20 @@ public static class ArmageddonSkillPackage
 			}
 			setting.Definition = skills[binding.Value].Id.ToString(System.Globalization.CultureInfo.InvariantCulture);
 		}
-		var enabled = db.StaticConfigurations.Find("VehiclePilotEnabled");
-		if (enabled is null) db.StaticConfigurations.Add(new StaticConfiguration { SettingName = "VehiclePilotEnabled", Definition = "true" });
-		else if (enabled.Definition.Equals("false", StringComparison.OrdinalIgnoreCase)) enabled.Definition = "true";
+
 	}
+	internal static void EnableBoundNewWorldFeatures(FuturemudDatabaseContext db)
+	{
+		// Called once, after all required checks/traits resolve and inside the fresh-world transaction.
+		// Subsequent early-package runs are read-only and preserve builder opt-outs.
+		foreach (var key in new[] { "VehiclePilotEnabled", "DirectionSenseEnabled", "ArmageddonHostileGuardAttemptsEnabled", "HagglingEnabled" })
+		{
+			var setting = db.StaticConfigurations.Find(key);
+			if (setting is null) db.StaticConfigurations.Add(new StaticConfiguration { SettingName = key, Definition = "true" });
+			else setting.Definition = "true";
+		}
+	}
+
 	public static string CanonicalKey(string key) => Data.Value.Aliases.GetValueOrDefault(key) ?? key;
 	public static bool IsInstalled(FuturemudDatabaseContext db) => db.SeederManagedRecords.Any(x =>
 		x.Seeder == ArmageddonMagicInstaller.Package && x.Module == Module);

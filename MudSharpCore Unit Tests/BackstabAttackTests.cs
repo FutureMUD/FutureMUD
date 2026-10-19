@@ -13,6 +13,7 @@ using MudSharp.Body;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Body.Traits;
+using MudSharp.Body.Traits.Subtypes;
 using MudSharp.Character;
 using MudSharp.Character.Heritage;
 using MudSharp.Combat;
@@ -22,6 +23,7 @@ using MudSharp.Commands.Modules;
 using MudSharp.Construction;
 using MudSharp.Effects;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
@@ -193,6 +195,98 @@ public partial class BackstabAttackTests
 			World.SetupGet(x => x.CombatMessageManager).Returns(messages.Object);
 			return check;
 		}
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void SpecificProficiency_RequiresKnowledgeAndUsesSkillOnlyForItsOwnAttack(bool natural)
+	{
+		var f = new Fixture(natural);
+		var trait = Mock.Of<ISkillDefinition>(x => x.Id == 901 && x.Name == "Sap");
+		f.World.SetupGet(x => x.Traits).Returns(new All<ITraitDefinition> { trait });
+		f.Attack.LoadConfiguration(XElement.Parse("<Backstab><Proficiency>901</Proficiency><Command>sap</Command><Reel>0.75</Reel></Backstab>"));
+		Assert.IsNull(BackstabCombat.FindAttack(f.Actor.Object, f.Target.Object, out _, "sap"));
+		f.Actor.Setup(x => x.HasTrait(trait)).Returns(true);
+		f.Actor.Setup(x => x.TraitValue(trait, It.IsAny<TraitBonusContext>())).Returns(50);
+		Assert.IsNull(BackstabCombat.FindAttack(f.Actor.Object, f.Target.Object, out _));
+		var choice = BackstabCombat.FindAttack(f.Actor.Object, f.Target.Object, out _, "sap");
+		Assert.IsNotNull(choice);
+		var check = f.ConfigureResolution(Outcome.MajorPass);
+		choice.CreateMove(f.Actor.Object, f.Target.Object).ResolveMove(new HelplessDefenseMove { Assailant = f.Target.Object });
+		var attackRoll = check.Invocations.Single(x => x.Method.Name == "CheckAgainstAllDifficulties");
+		Assert.AreSame(trait, attackRoll.Arguments[2]);
+		Assert.IsNull(f.WeaponType.Object.AttackTrait);
+		Assert.AreEqual("sap", f.Attack.SaveConfiguration().Element("Command")!.Value);
+		f.Actor.Setup(x => x.HasTrait(trait)).Returns(false);
+		Assert.IsFalse(BackstabCombat.Validate(f.Actor.Object, f.Target.Object, choice, out _));
+	}
+
+	private sealed class ProficiencyRemovalEffect(ICharacter owner, Action callback) : Effect(owner), IAdmittedHostileAttackEffect
+	{
+		protected override string SpecificEffectType => "Test Proficiency Removal";
+		public override string Describe(IPerceiver voyeur) => "Test callback";
+		public void OnAdmittedHostileAttack(AdmittedHostileAttack attack) => callback();
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void HostileCallbackRemovingProficiency_StopsBeforeOpeningConsumptionAndCheck(bool natural)
+	{
+		var f = new Fixture(natural);
+		var trait = Mock.Of<ISkillDefinition>(x => x.Id == 901 && x.Name == "Backstab");
+		f.World.SetupGet(x => x.Traits).Returns(new All<ITraitDefinition> { trait });
+		f.Attack.LoadConfiguration(XElement.Parse("<Backstab><Proficiency>901</Proficiency></Backstab>"));
+		var known = true;
+		f.Actor.Setup(x => x.HasTrait(trait)).Returns(() => known);
+		f.Actor.Setup(x => x.TraitValue(trait, It.IsAny<TraitBonusContext>())).Returns(50);
+		var probe = new ProficiencyRemovalEffect(f.Target.Object, () => known = false);
+		f.Target.Setup(x => x.CombinedEffectsOfType<IAdmittedHostileAttackEffect>()).Returns([probe]);
+		f.Target.Setup(x => x.EffectsOfType<IAdmittedHostileAttackEffect>(It.IsAny<Predicate<IAdmittedHostileAttackEffect>>())).Returns([probe]);
+		var check = f.ConfigureResolution(Outcome.MajorPass);
+		f.Capture();
+		var move = BackstabCombat.FindAttack(f.Actor.Object, f.Target.Object, out _)!.CreateMove(f.Actor.Object, f.Target.Object);
+		Assert.AreSame(CombatMoveResult.Irrelevant, move.ResolveMove(new HelplessDefenseMove { Assailant = f.Target.Object }));
+		Assert.IsTrue(UnseenCombatOpening.HasOpening(f.Actor.Object, f.Target.Object));
+		Assert.IsFalse(check.Invocations.Any(x => x.Method.Name == "CheckAgainstAllDifficulties"));
+		f.Target.Verify(x => x.PassiveSufferDamage(It.IsAny<IDamage>()), Times.Never);
+	}
+
+	[DataTestMethod]
+	[DataRow(false)]
+	[DataRow(true)]
+	public void DefenseCallbackRemovingProficiency_StopsDamageButRetainsAttemptCost(bool natural)
+	{
+		var f = new Fixture(natural);
+		var trait = Mock.Of<ISkillDefinition>(x => x.Id == 901 && x.Name == "Backstab");
+		f.World.SetupGet(x => x.Traits).Returns(new All<ITraitDefinition> { trait });
+		f.Attack.LoadConfiguration(XElement.Parse("<Backstab><Proficiency>901</Proficiency></Backstab>"));
+		var known = true;
+		f.Actor.Setup(x => x.HasTrait(trait)).Returns(() => known);
+		f.Actor.Setup(x => x.TraitValue(trait, It.IsAny<TraitBonusContext>())).Returns(50);
+		var check = f.ConfigureResolution(Outcome.MajorPass);
+		check.Setup(x => x.CheckAgainstAllDifficulties(f.Target.Object, It.IsAny<Difficulty>(), It.IsAny<ITraitDefinition>(),
+			It.IsAny<IPerceivable>(), It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string, object)[]>()))
+			.Callback(() => known = false).Returns(() => Enum.GetValues<Difficulty>().ToDictionary(x => x,
+				x => CheckOutcome.SimpleOutcome(CheckType.DodgeCheck, Outcome.MajorFail)));
+		var move = BackstabCombat.FindAttack(f.Actor.Object, f.Target.Object, out _)!.CreateMove(f.Actor.Object, f.Target.Object);
+		var result = move.ResolveMove(new DodgeMove { Assailant = f.Target.Object });
+		Assert.AreNotSame(CombatMoveResult.Irrelevant, result);
+		Assert.IsFalse(result.MoveWasSuccessful);
+		Assert.IsTrue(move.UsesStaminaWithResult(result));
+		f.Target.Verify(x => x.PassiveSufferDamage(It.IsAny<IDamage>()), Times.Never);
+		Assert.IsFalse(check.Invocations.Any(x => x.Method.Name == "Check"));
+	}
+
+	[TestMethod]
+	public void MissingConfiguredProficiency_CannotFallBackToWeaponSkill()
+	{
+		var f = new Fixture();
+		f.World.SetupGet(x => x.Traits).Returns(new All<ITraitDefinition>());
+		f.Attack.LoadConfiguration(XElement.Parse("<Backstab><Proficiency>999</Proficiency></Backstab>"));
+		Assert.IsFalse(BackstabCombat.HasProficiency(f.Actor.Object, f.Attack));
+		Assert.IsNull(BackstabCombat.FindAttack(f.Actor.Object, f.Target.Object, out _));
 	}
 
 	[TestMethod]

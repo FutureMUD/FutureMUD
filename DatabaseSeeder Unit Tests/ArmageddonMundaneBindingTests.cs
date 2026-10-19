@@ -18,6 +18,28 @@ namespace MudSharp_Unit_Tests;
 public class ArmageddonMundaneBindingTests
 {
 	[TestMethod]
+	public void OpeningProfiles_BindSpecificSkillsAndCommandsWithoutChangingDamage()
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		foreach (var name in new[] { "Knife Backstab", "Dagger Backstab", "Blackjack Sapping Blow" })
+			db.WeaponAttacks.Add(new WeaponAttack { Name = name, FutureProgId = 2, AdditionalInfo = "<Backstab><Reel>0.75</Reel></Backstab>", DamageExpressionId = 42 });
+		db.SaveChanges();
+		var skills = ArmageddonSkillPackage.Resolve(db);
+		ArmageddonMundaneBindings.BindOpeningAttacks(db, skills); db.SaveChanges();
+		foreach (var row in db.WeaponAttacks)
+		{
+			var sap = row.Name == "Blackjack Sapping Blow";
+			var xml = XElement.Parse(row.AdditionalInfo);
+			Assert.AreEqual(skills[sap ? "arm.skill.sap" : "arm.skill.backstab"].Id, (long)xml.Element("Proficiency")!);
+			Assert.AreEqual(sap ? "sap" : "backstab", xml.Element("Command")!.Value);
+			Assert.AreEqual("0.75", xml.Element("Reel")!.Value);
+			Assert.AreEqual(42L, row.DamageExpressionId);
+			Assert.AreEqual(1L, row.FutureProgId);
+		}
+	}
+
+	[TestMethod]
 	public void EarlyChecks_UseGrantedSkillsAndSeparateRidingControlFromFlee()
 	{
 		using var db = ArmageddonSettingPackageTests.Fixture();

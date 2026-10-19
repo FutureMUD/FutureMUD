@@ -1,4 +1,5 @@
 using MudSharp.Body;
+using MudSharp.Body.Traits;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Effects.Concrete;
@@ -12,16 +13,26 @@ namespace MudSharp.Combat.Moves;
 
 public class NaturalAttackMove : WeaponAttackMove
 {
-    public NaturalAttackMove(ICharacter owner, INaturalAttack attack, ICharacter target) : base(attack.Attack)
+    private readonly Func<bool> _physicalGuard;
+    private bool _attackWasAttempted;
+    private Outcome _attemptOutcome = Outcome.NotTested;
+    private CombatMoveResult InterruptedAttack() => _physicalGuard is not null && _attackWasAttempted
+        ? new CombatMoveResult { AttackerOutcome = _attemptOutcome, RecoveryDifficulty = RecoveryDifficultyFailure }
+        : CombatMoveResult.Irrelevant;
+
+    public NaturalAttackMove(ICharacter owner, INaturalAttack attack, ICharacter target, Func<bool> physicalGuard = null) : base(attack.Attack)
     {
         if (target is not null)
         {
             PrimaryTarget = target;
         }
 
+        _physicalGuard = physicalGuard;
         Assailant = owner;
         NaturalAttack = attack;
     }
+
+    protected virtual bool CanContinueAttack() => CanContinueCommand() && (_physicalGuard?.Invoke() ?? true);
 
     #region Overrides of CombatMoveBase
 
@@ -62,16 +73,17 @@ public class NaturalAttackMove : WeaponAttackMove
     public override Difficulty RecoveryDifficultyFailure => Attack.RecoveryDifficultyFailure;
     public override Difficulty RecoveryDifficultySuccess => Attack.RecoveryDifficultySuccess;
     public override Difficulty CheckDifficulty => Attack.Profile.BaseAttackerDifficulty;
+    protected virtual ITraitDefinition AttackCheckTrait => null;
     public override CheckType Check => CheckType.NaturalWeaponAttack;
     public override int Reach => 0; // TODO - natural reach
 
     public override CombatMoveResult ResolveMove(ICombatMove defenderMove)
     {
 		using var commandExecution = MudSharp.NPC.AI.CommandExecutionScope.EnterMove(this);
-		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		if (!CanContinueAttack()) return InterruptedAttack();
 		using var hostileAttempt = HostileAttackAdmission.BeginAttempt(Assailant, PrimaryCharacterTarget);
 		defenderMove = MagicDefenseMove.Revalidate(defenderMove, this);
-		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		if (!CanContinueAttack()) return InterruptedAttack();
 		using var scope = new MagicDefenseDamageScope(this, defenderMove);
 		return scope.Finish(ResolveAttackWithDefense(defenderMove));
     }
@@ -92,14 +104,18 @@ public class NaturalAttackMove : WeaponAttackMove
         }
 
         WorsenCombatPosition(defenderMove.Assailant, Assailant);
-        if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+        if (!CanContinueAttack()) return InterruptedAttack();
 		if (!HostileAttackAdmission.TryNotify(Assailant, defenderMove.Assailant as ICharacter,
-			CanContinueCommand)) return CombatMoveResult.Irrelevant;
+			CanContinueAttack)) return CombatMoveResult.Irrelevant;
+		if (!CanContinueAttack()) return InterruptedAttack();
 		UnseenCombatOpening.Consume(Assailant, defenderMove.Assailant as ICharacter);
+        _attackWasAttempted = true;
+        if (_physicalGuard is not null) MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
         Dictionary<Difficulty, CheckOutcome> attackRoll = CombatCheck.For(Gameworld, Check)
-                                  .CheckAgainstAllDifficulties(Assailant, CheckDifficulty, null, defenderMove.Assailant,
+                                  .CheckAgainstAllDifficulties(Assailant, CheckDifficulty, AttackCheckTrait, defenderMove.Assailant,
                                       Assailant.OffensiveAdvantage);
-        if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+        _attemptOutcome = attackRoll[CheckDifficulty].Outcome;
+        if (!CanContinueAttack()) return InterruptedAttack();
         Assailant.OffensiveAdvantage = 0;
         if (defenderMove.Assailant is not IHaveWounds defenderHaveWounds)
         {
@@ -115,13 +131,13 @@ public class NaturalAttackMove : WeaponAttackMove
                           MoveType, attackRoll[CheckDifficulty], Bodypart),
                       Bodypart.FullDescription(), TargetBodypart.FullDescription())
                   .Replace("@hand", Bodypart.Alignment.LeftRightOnly().Describe().ToLowerInvariant());
-		if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+		if (!CanContinueAttack()) return InterruptedAttack();
 
 
         if (defenderMove is MagicDefenseMove magicalDefense)
         {
 			if (magicalDefense.TryDefend(this, attackRoll[CheckDifficulty], out var magicResult)) return magicResult;
-			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+			if (!CanContinueAttack()) return InterruptedAttack();
 			defenderMove = new HelplessDefenseMove { Assailant = magicalDefense.Assailant };
         }
 
@@ -135,7 +151,7 @@ public class NaturalAttackMove : WeaponAttackMove
         if (ward != null)
         {
             wardResult = ResolveWard(ward);
-			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+			if (!CanContinueAttack()) return InterruptedAttack();
             if (wardResult.WardSucceeded)
             {
                 Assailant.OutputHandler.Handle(
@@ -151,15 +167,15 @@ public class NaturalAttackMove : WeaponAttackMove
 			var warder = defenderMove.Assailant;
             WardBeaten newEffect = new(warder, warder.Combat);
             warder.AddEffect(newEffect);
-			try { if (!CanContinueCommand()) return CombatMoveResult.Irrelevant; defenderMove = warder.ResponseToMove(this, Assailant) ?? new HelplessDefenseMove { Assailant = warder }; }
+			try { if (!CanContinueAttack()) return InterruptedAttack(); defenderMove = warder.ResponseToMove(this, Assailant) ?? new HelplessDefenseMove { Assailant = warder }; }
 			finally { warder.RemoveEffect(newEffect); }
-			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+			if (!CanContinueAttack()) return InterruptedAttack();
         }
 
         if (defenderMove is MagicDefenseMove fallbackMagic)
         {
 			if (fallbackMagic.TryDefend(this, attackRoll[CheckDifficulty], out var fallbackResult)) return fallbackResult;
-			if (!CanContinueCommand()) return CombatMoveResult.Irrelevant;
+			if (!CanContinueAttack()) return InterruptedAttack();
 			return ResolveHelplessDefenseMove(new HelplessDefenseMove { Assailant = fallbackMagic.Assailant }, attackRoll, defenderHaveWounds, attackEmote);
         }
 
@@ -196,6 +212,7 @@ public class NaturalAttackMove : WeaponAttackMove
                                       defenderMove.Assailant.GetDefensiveAdvantagePenaltyFromTargeting() + targetBonus +
                                                   block.Assailant.DefensiveAdvantage -
                                                   GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
+        if (!CanContinueAttack()) return InterruptedAttack();
         block.Assailant.DefensiveAdvantage = 0;
         int bsuccess = blockCheck[defenderDifficulty].SuccessDegrees();
         if (bsuccess > 0)
@@ -239,8 +256,11 @@ public class NaturalAttackMove : WeaponAttackMove
                         wardResult?.WardWeapon?.Parent), style: OutputStyle.CombatMessage,
                     flags: OutputFlags.InnerWrap));
             selfWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
+            if (!CanContinueAttack()) return InterruptedAttack();
             wounds.AddRange(defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(finalDamage)));
+            if (!CanContinueAttack()) return InterruptedAttack();
             selfWounds.AddRange(Assailant.CommandSufferDamage(selfDamage));
+            if (!CanContinueAttack()) return InterruptedAttack();
             wounds.AddRange(block.Shield.Parent.CommandSufferDamage(finalDamage));
             wounds.ProcessPassiveWounds();
             selfWounds.ProcessPassiveWounds();
@@ -289,7 +309,9 @@ public class NaturalAttackMove : WeaponAttackMove
                 NaturalAttack, result.Degree);
             IDamage finalDamage = damages.Item1;
             IDamage selfDamage = damages.Item2;
+            if (!CanContinueAttack()) return InterruptedAttack();
             wounds.AddRange(block.Shield.Parent.CommandSufferDamage(finalDamage));
+            if (!CanContinueAttack()) return InterruptedAttack();
             selfWounds.AddRange(Assailant.CommandSufferDamage(selfDamage));
             wounds.ProcessPassiveWounds();
             selfWounds.ProcessPassiveWounds();
@@ -336,6 +358,7 @@ public class NaturalAttackMove : WeaponAttackMove
                                       defenderMove.Assailant.GetDefensiveAdvantagePenaltyFromTargeting() + targetBonus +
                                                   parry.Assailant.DefensiveAdvantage -
                                                   GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
+        if (!CanContinueAttack()) return InterruptedAttack();
         parry.Assailant.DefensiveAdvantage = 0;
         double parryDelay = Gameworld.GetStaticDouble("ParryDelaySeconds") *
                            (1.0 - parryCheck[defenderDifficulty].CheckDegrees() / 6.0);
@@ -399,8 +422,11 @@ public class NaturalAttackMove : WeaponAttackMove
                         Assailant, Assailant, defenderMove.Assailant, null, parry.Weapon.Parent),
                     style: OutputStyle.CombatMessage,
                     flags: OutputFlags.InnerWrap));
+            if (!CanContinueAttack()) return InterruptedAttack();
             wounds.AddRange(defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(finalDamage)));
+            if (!CanContinueAttack()) return InterruptedAttack();
             selfWounds.AddRange(Assailant.CommandSufferDamage(selfDamage));
+            if (!CanContinueAttack()) return InterruptedAttack();
             wounds.AddRange(parry.Weapon.Parent.CommandSufferDamage(finalDamage));
             wounds.ProcessPassiveWounds();
             selfWounds.ProcessPassiveWounds();
@@ -449,7 +475,9 @@ public class NaturalAttackMove : WeaponAttackMove
                 NaturalAttack, result.Degree);
             IDamage finalDamage = damages.Item1;
             IDamage selfDamage = damages.Item2;
+            if (!CanContinueAttack()) return InterruptedAttack();
             wounds.AddRange(parry.Weapon.Parent.CommandSufferDamage(finalDamage));
+            if (!CanContinueAttack()) return InterruptedAttack();
             selfWounds.AddRange(Assailant.CommandSufferDamage(selfDamage));
             wounds.ProcessPassiveWounds();
             selfWounds.ProcessPassiveWounds();
@@ -509,6 +537,7 @@ public class NaturalAttackMove : WeaponAttackMove
                                       targetBonus - defenderMove.Assailant.GetDefensiveAdvantagePenaltyFromTargeting() +
                                                   dodge.Assailant.DefensiveAdvantage -
                                                   GetPositionPenalty(Assailant.GetFacingFor(defenderMove.Assailant)));
+        if (!CanContinueAttack()) return InterruptedAttack();
         dodge.Assailant.DefensiveAdvantage = 0;
         double dodgeDelay = Gameworld.GetStaticDouble("DodgeDelaySeconds") *
                            (1.0 - dodgeCheck[defenderDifficulty].CheckDegrees() / 6.0);
@@ -593,7 +622,9 @@ public class NaturalAttackMove : WeaponAttackMove
                 defenderMove.Assailant.OutputHandler.Handle(new EmoteOutput(new Emote("@ slip|slips and fall|falls to the ground while dodging!", defenderMove.Assailant)));
             }
             selfWounds.AddRange(ProcessWardFreeAttack(Assailant, defenderMove.Assailant, wardResult));
+            if (!CanContinueAttack()) return InterruptedAttack();
             wounds.AddRange(defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(finalDamage)));
+            if (!CanContinueAttack()) return InterruptedAttack();
             selfWounds.AddRange(Assailant.CommandSufferDamage(selfDamage));
             wounds.ProcessPassiveWounds();
             selfWounds.ProcessPassiveWounds();
@@ -672,7 +703,9 @@ public class NaturalAttackMove : WeaponAttackMove
                     Assailant,
                     Assailant, defenderMove.Assailant), style: OutputStyle.CombatMessage,
                 flags: OutputFlags.InnerWrap));
+        if (!CanContinueAttack()) return InterruptedAttack();
         List<IWound> wounds = defenderHaveWounds.CommandSufferDamage(PrepareTargetDamage(finalDamage)).ToList();
+        if (!CanContinueAttack()) return InterruptedAttack();
         IEnumerable<IWound> selfWounds = Assailant.CommandSufferDamage(selfDamage);
         wounds.ProcessPassiveWounds();
         selfWounds.ProcessPassiveWounds();

@@ -237,5 +237,26 @@
       }
     ],
     "limits": "No new native/gameplay certificate; full291/55/71 coverage audit and source actions still required."
+  },
+  "opening_attack_focus": {
+    "scope": "Specific Backstab/Sap skill checks/commands, admission and defence callback fences, clone/default compatibility and coordinated-attack regression",
+    "passed": [
+      13,
+      127
+    ],
+    "failed": 0,
+    "skipped": 0,
+    "source_stable": true,
+    "receipts": [
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143247Z-8a964cfccae7\\summary.json",
+        "sha256": "2629084253eff1467a92129771a81d2accbe0d5362dd0fe0163dade4ae639259"
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\summary.json",
+        "sha256": "266e224135d22e5565012c3b92a863ae4d2d9b588da95a00c118fb507c5438b0"
+      }
+    ],
+    "limits": "Final batch must include latest secondary-effect guard and opt-out assertion; no native/gameplay certificate. Bash/Kick pending."
   }
 }

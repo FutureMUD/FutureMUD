@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Combat;
@@ -39,24 +39,33 @@ You need an authored backstab attack and either an unused unseen opening or rear
 
 An unseen opening lasts until your first attack attempt against that target, even if it misses.
 Backstabs can be defended normally. Their damage and optional reeling and armour benefits are builder-configured.", AutoHelp.HelpArg)]
-	protected static void Backstab(ICharacter actor, string command)
+	protected static void Backstab(ICharacter actor, string command) => ExecuteOpeningAttack(actor, command, "backstab");
+
+	[PlayerCommand("Sap", "sap")]
+	[RequiredCharacterState(CharacterState.Able)]
+	[NoMovementCommand]
+	[DelayBlock("general", "You must first stop {0} before you can sap.")]
+	[HelpInfo("sap", @"Use #3sap [<target>]#0 to attempt an authored sapping blow from behind or an unused unseen opening. You need the attack's configured proficiency and a suitable wielded weapon. Its damage, stun and optional delay are builder-configured.", AutoHelp.HelpArg)]
+	protected static void Sap(ICharacter actor, string command) => ExecuteOpeningAttack(actor, command, "sap");
+
+	private static void ExecuteOpeningAttack(ICharacter actor, string command, string verb)
 	{
 		var arguments = new StringStack(command.RemoveFirstWord());
 		var target = arguments.IsFinished ? actor.CombatTarget as ICharacter :
 			actor.TargetActor(arguments.PopSpeech(), PerceiveIgnoreFlags.IgnoreSelf);
 		if (target is null || target == actor)
 		{
-			actor.OutputHandler.Send("Specify someone you can see to backstab, or select a combat target first.");
+			actor.OutputHandler.Send($"Specify someone you can see to {verb}, or select a combat target first.");
 			return;
 		}
 		if (!arguments.IsFinished)
 		{
-			actor.OutputHandler.Send("Use backstab [<target>].");
+			actor.OutputHandler.Send($"Use {verb} [<target>].");
 			return;
 		}
 		if (actor.CombatSettings is null || !actor.CanSee(target) || !actor.ColocatedWith(target))
 		{
-			actor.OutputHandler.Send("You must be able to see and reach your target and have combat settings to backstab.");
+			actor.OutputHandler.Send($"You must be able to see and reach your target and have combat settings to {verb}.");
 			return;
 		}
 		if (actor.CombatTarget != target && !actor.CanEngage(target))
@@ -64,7 +73,7 @@ Backstabs can be defended normally. Their damage and optional reeling and armour
 			actor.OutputHandler.Send(actor.WhyCannotEngage(target));
 			return;
 		}
-		var choice = BackstabCombat.FindAttack(actor, target, out var error);
+		var choice = BackstabCombat.FindAttack(actor, target, out var error, verb);
 		if (choice is null)
 		{
 			actor.OutputHandler.Send(error);
@@ -79,7 +88,7 @@ Backstabs can be defended normally. Their damage and optional reeling and armour
 		}
 		if (actor.TakeOrQueueCombatAction(SelectedCombatAction.GetEffectBackstab(actor, target, choice)) &&
 		    actor.Gameworld.GetStaticBool("EchoQueuedActions"))
-			actor.OutputHandler.Send($"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}Backstab {target.HowSeen(actor)}.");
+			actor.OutputHandler.Send($"{"[Queued Action]: ".ColourBold(Telnet.Yellow)}{verb.Proper()} {target.HowSeen(actor)}.");
 	}
 
     public override int CommandsDisplayOrder => 8;

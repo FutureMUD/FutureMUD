@@ -2,6 +2,7 @@
 
 using MudSharp.Character;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 
 namespace MudSharp.Magic.SpellTriggers;
@@ -30,6 +31,8 @@ public sealed class CastingTriggerRecognisedCharacter : CastingTriggerBase
 		x.TargetType == CharacterInstanceIdentityComparer.CharacterRecognitionTargetType && x.HasVerifiedIdentity &&
 		!x.WasIdentityConcealed && ReferenceEquals(x.Owner, caster) && x.TargetId == CharacterInstanceIdentityComparer.IdentityId(target)).ToArray();
 	public static bool IsRecognised(ICharacter caster, ICharacter target) => !CharacterInstanceIdentityComparer.SameIdentity(caster, target) &&
+		(caster.AffectedBy<IAdminSightEffect>() || !target.IsPlayerCharacter ||
+		 (!target.AffectedBy<IAdminSightEffect>() && !target.AffectedBy<IAdminInvisEffect>())) &&
 		ReferenceEquals(caster.Gameworld, target.Gameworld) && target.IsPrimaryInstance && target.InstanceId > 0 &&
 		target.Gameworld.Actors.Any(x => ReferenceEquals(x, target)) && target.Body is { Id: > 0 } body && ReferenceEquals(body.Actor, target) &&
 		target.Identity?.Instances.Any(x => ReferenceEquals(x, target)) == true && IdentityDubs(caster, target).Length == 1 &&

@@ -70,7 +70,11 @@ follower AI or authorize movement/combat command queues.
 
 Open Threshold creates one native paired transient exit for `120*grade` seconds.
 Its typed selector accepts `mark <carried owned Arcane Mark keywords>` or
-`traveller <verified identity dub>`. It accepts no raw room IDs. Both permanent
+`traveller <verified identity dub>`. It accepts no raw room IDs. Recognised-character
+targeting refuses player characters with Immortal (`IAdminSightEffect`) or WIZINVIS
+(`IAdminInvisEffect`) effects unless the caster is in Immortal mode. Staff rank alone
+does not bypass this rule. The shared recognition gate also applies to Trace Path
+and Remote Traveller, including their ordinary live rechecks. Both permanent
 same-plane endpoints, current overlays, selected native layer, configured restricted
 and lethal tags and live wards are checked. A marked route durably debits one exact
 saved mark use before publishing its portal; uncertain commit enters NeedsReview

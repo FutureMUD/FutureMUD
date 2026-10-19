@@ -8,6 +8,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Events;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
@@ -18,6 +19,7 @@ using MudSharp.GameItems.Interfaces;
 using MudSharp.GameItems.Prototypes;
 using MudSharp.Movement;
 using MudSharp.PerceptionEngine;
+using MudSharp.Planes;
 using MudSharp.Vehicles;
 using System;
 using System.Collections.Generic;
@@ -611,6 +613,92 @@ public class RouteVehicleMovementStrategyTests
 			puller.Verify(x => x.HandleEvent(eventType, It.IsAny<object[]>()), Times.Once);
 			exterior.Verify(x => x.HandleEvent(eventType, It.IsAny<object[]>()), Times.Once);
 		}
+	}
+
+	[TestMethod]
+	public void ManualCompiledExit_BarrierContactsPullerAndTrainBeforeAnyMemberMoves()
+	{
+		var harness = CreateExternallyPulledExitHarness();
+		var contacts = InstallExitContactBarrier(harness.MovePlan, harness.Exit.Object, [harness.Puller.Object]);
+		var started = harness.Strategy.TryBeginManualRoute(harness.Root.Object, harness.Driver.Object,
+			harness.Route.Object, _ => Assert.Fail("Blocked exit must not complete."), out var reason);
+		Assert.IsFalse(started);
+		Assert.AreEqual(VehicleExitBarrierTraversal.BarrierReason, reason);
+		CollectionAssert.AreEquivalent(new[] { "character:501", "item:601", "item:602" }, contacts);
+		harness.Puller.Verify(x => x.ExecuteMove(It.IsAny<IMovement>()), Times.Never);
+		harness.Root.Verify(x => x.BeginMoveToRoom(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<IRoomExit>()), Times.Never);
+		harness.Trailer.Verify(x => x.BeginMoveToRoom(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<IRoomExit>()), Times.Never);
+		harness.Graph.Verify(x => x.CompleteVehicleTrainMove(It.IsAny<VehicleHitchGraphMovePlan>(), It.IsAny<IRoom>(),
+			It.IsAny<RoomLayer>(), It.IsAny<IRoomExit>(), It.IsAny<IMovement>(), It.IsAny<IVehicle>()), Times.Never);
+	}
+
+	[TestMethod]
+	public void AutomaticCompiledExit_BarrierContactsTrainWithoutDriverOrResourceConsumption()
+	{
+		var harness = CreateAutomaticExitHarness(null);
+		var contacts = InstallExitContactBarrier(harness.MovePlan, harness.Exit.Object, []);
+		var started = harness.Strategy.TryBeginLeg(harness.Journey.Object, harness.Leg.Object,
+			_ => Assert.Fail("Blocked exit must not complete."), out var reason);
+		Assert.IsFalse(started);
+		Assert.AreEqual(VehicleExitBarrierTraversal.BarrierReason, reason);
+		CollectionAssert.AreEquivalent(new[] { "item:701", "item:702" }, contacts);
+		harness.Readiness.Verify(x => x.ConsumeMovementResources(It.IsAny<VehicleResourceReadinessPlan>()), Times.Never);
+		harness.Root.Verify(x => x.BeginMoveToRoom(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<IRoomExit>()), Times.Never);
+		harness.Trailer.Verify(x => x.BeginMoveToRoom(It.IsAny<IRoom>(), It.IsAny<RoomLayer>(), It.IsAny<IRoomExit>()), Times.Never);
+		harness.Graph.Verify(x => x.CompleteVehicleTrainMove(It.IsAny<VehicleHitchGraphMovePlan>(), It.IsAny<IRoom>(),
+			It.IsAny<RoomLayer>(), It.IsAny<IRoomExit>(), It.IsAny<IMovement>(), It.IsAny<IVehicle>()), Times.Never);
+	}
+
+	private static List<string> InstallExitContactBarrier(VehicleHitchGraphMovePlan plan, IRoomExit exit,
+		IReadOnlyList<ICharacter> characters)
+	{
+		var contacts = new List<string>();
+		var world = plan.RootVehicle.Gameworld;
+		var boundary = Mock.Get(exit.Exit);
+		Mock.Get(exit.Origin).SetupGet(x => x.Gameworld).Returns(world);
+		Mock.Get(exit.Destination).SetupGet(x => x.Gameworld).Returns(world);
+		boundary.SetupGet(x => x.Gameworld).Returns(world);
+		boundary.Setup(x => x.RoomExitFor(exit.Origin)).Returns(exit);
+		var opposite = new Mock<IRoomExit>();
+		opposite.SetupGet(x => x.Exit).Returns(exit.Exit);
+		opposite.SetupGet(x => x.Origin).Returns(exit.Destination);
+		opposite.SetupGet(x => x.Destination).Returns(exit.Origin);
+		Mock.Get(exit).SetupGet(x => x.Opposite).Returns(opposite.Object);
+		var barrier = new Mock<IExitBarrierItemTraversalEffect>();
+		barrier.SetupGet(x => x.IsActive).Returns(true);
+		barrier.Setup(x => x.OccupiesLayerAndPlane(It.IsAny<IGameItem>())).Returns(true);
+		barrier.Setup(x => x.OccupiesLayerAndPlane(It.IsAny<ICharacter>())).Returns(true);
+		barrier.Setup(x => x.Contact(It.IsAny<IGameItem>(), exit, It.IsAny<Func<bool>>()))
+			.Callback<IGameItem, IRoomExit, Func<bool>>((item, _, continuation) =>
+			{
+				Assert.IsTrue(continuation());
+				Assert.AreSame(exit.Origin, item.Location);
+				contacts.Add($"item:{item.Id}");
+			});
+		barrier.Setup(x => x.Contact(It.IsAny<ICharacter>(), exit, It.IsAny<Func<bool>>()))
+			.Callback<ICharacter, IRoomExit, Func<bool>>((character, _, continuation) =>
+			{
+				Assert.IsTrue(continuation());
+				Assert.AreSame(exit.Origin, character.Location);
+				contacts.Add($"character:{character.Id}");
+			});
+		boundary.SetupGet(x => x.Effects).Returns([barrier.Object]);
+		foreach (var vehicle in plan.Vehicles)
+		{
+			var exterior = Mock.Get(vehicle.ExteriorItem);
+			exterior.SetupGet(x => x.Gameworld).Returns(world);
+			exterior.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1L));
+		}
+		foreach (var character in characters)
+		{
+			var actor = Mock.Get(character);
+			var body = Mock.Get(character.Body);
+			body.SetupGet(x => x.Actor).Returns(character);
+			body.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1L));
+			actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
+			actor.Setup(x => x.CanCross(exit)).Returns((true, null!));
+		}
+		return contacts;
 	}
 
 	[TestMethod]

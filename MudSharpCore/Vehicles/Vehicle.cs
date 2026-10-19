@@ -1552,6 +1552,10 @@ public class Vehicle : SaveableItem, IVehicle
 			return Enumerable.Empty<IWound>();
 		}
 
+		// Exterior wound overrides enter here before the ordinary item-health checkpoint.
+		if (!MudSharp.NPC.AI.CommandExecutionScope.TryContinue()) return Enumerable.Empty<IWound>();
+		damage.MutationGuard?.Validate(ExteriorItem, damage);
+		MudSharp.NPC.AI.CommandExecutionScope.MarkCommitted();
 		var wound = new SimpleWound(Gameworld, ExteriorItem, damage.DamageAmount, damage.DamageType, null,
 			damage.LodgableItem, damage.ToolOrigin, damage.ActorOrigin, Id, zone.Id);
 		((VehicleDamageZone)zone).AddWound(wound);

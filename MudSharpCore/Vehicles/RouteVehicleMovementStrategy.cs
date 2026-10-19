@@ -531,6 +531,12 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 				return false;
 			}
 
+			if (VehicleExitBarrierTraversal.Contact(readiness.MovePlan!, exit, movedCohort?.Characters ?? [], null,
+				    out reason))
+			{
+				return false;
+			}
+
 			_roomExitStrategy.EchoDeparture(vehicle, actor, exit, towTrain);
 			_roomExitStrategy.BeginMove(vehicle, exit, towTrain, transition);
 			VehicleRouteExitMovement? movement = null;
@@ -562,6 +568,12 @@ public sealed class RouteVehicleMovementStrategy : IVehicleRouteLegExecutor
 			movedPlan = readiness.MovePlan;
 
 			if (!_roomExitStrategy.TryCommitPropulsion(readiness, out _, out reason))
+			{
+				return false;
+			}
+
+			if (VehicleExitBarrierTraversal.Contact(readiness.MovePlan!, exit, readiness.ExternalPullers ?? [], null,
+				    out reason))
 			{
 				return false;
 			}

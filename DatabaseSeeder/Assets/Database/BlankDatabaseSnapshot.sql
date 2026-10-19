@@ -16341,3 +16341,38 @@ CREATE TABLE IF NOT EXISTS `propertysalesorders` (
 
 -- Dump completed on 2026-10-18 19:36:41
 -- Total time: 0:0:0:1:668 (d:h:m:s:ms)
+
+
+-- EF-generated idempotent delta: 20261018081240_RegionalLandGathering -> 20261019030150_VehicleExitBarrierExposure
+-- Offline generated/reviewed update; MySQL refresh/import not performed in this task.
+START TRANSACTION;
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261019030150_VehicleExitBarrierExposure') THEN
+
+    ALTER TABLE `vehicleprotos` ADD `ExposesOccupantsToExitBarriers` bit(1) NOT NULL DEFAULT 0;
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+DROP PROCEDURE IF EXISTS MigrationsScript;
+DELIMITER //
+CREATE PROCEDURE MigrationsScript()
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM `__efmigrationshistory` WHERE `MigrationId` = '20261019030150_VehicleExitBarrierExposure') THEN
+
+    INSERT INTO `__efmigrationshistory` (`MigrationId`, `ProductVersion`)
+    VALUES ('20261019030150_VehicleExitBarrierExposure', '9.0.11');
+
+    END IF;
+END //
+DELIMITER ;
+CALL MigrationsScript();
+DROP PROCEDURE MigrationsScript;
+
+COMMIT;

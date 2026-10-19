@@ -53,6 +53,7 @@ public partial class FuturemudDatabaseContext
 			      .HasCharSet("utf8")
 			      .UseCollation("utf8_general_ci");
 			entity.Property(e => e.VehicleScale).HasColumnType("int(11)");
+			entity.Property(e => e.ExposesOccupantsToExitBarriers).HasColumnType("bit(1)").HasDefaultValue(false);
 			entity.Property(e => e.ExteriorItemProtoId).HasColumnType("bigint(20)");
 			entity.Property(e => e.ExteriorItemProtoRevision).HasColumnType("int(11)");
 

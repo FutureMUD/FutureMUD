@@ -446,6 +446,15 @@ public class VehicleMovement : IMovement
 			return;
 		}
 
+		var admittedPlan = _readiness.MovePlan!;
+		if (VehicleExitBarrierTraversal.Contact(admittedPlan, Exit, _motiveCohort?.Characters ?? [], this,
+			    out reason, continuation: () => ReferenceEquals(_readiness.MovePlan, admittedPlan)))
+		{
+			SendFailure(reason);
+			StopMovement();
+			return;
+		}
+
 		if (_motiveCohort is not null)
 		{
 			VehicleMotiveCohortService.MoveAcrossExit(_motiveCohort, _readiness.MovePlan!, Exit, this);

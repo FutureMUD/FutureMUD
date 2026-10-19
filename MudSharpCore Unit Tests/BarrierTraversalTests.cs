@@ -43,6 +43,8 @@ using MudSharp.Framework.Scheduling;
 using MudSharp.PerceptionEngine;
 using ConcreteBody = MudSharp.Body.Implementations.Body;
 
+using MudSharp.Vehicles;
+
 namespace MudSharp_Unit_Tests;
 
 [TestClass, DoNotParallelize]
@@ -316,6 +318,39 @@ public class BarrierTraversalTests
 		item.Verify(x => x.RemoveAllEffects(It.IsAny<Predicate<IEffect>>(), It.IsAny<bool>()), Times.Once);
 		f.Origin.Verify(x => x.Extract(item.Object), Times.Never);
 		f.Destination.Verify(x => x.Insert(item.Object, It.IsAny<bool>()), Times.Never);
+	}
+
+	[DataTestMethod]
+	[DataRow(true, 6.0)] [DataRow(false, 0.0)]
+	public void VehicleExposure_NativeOccupantInjuryFollowsPrototypePolicy(bool exposed, double expectedDamage)
+	{
+		var f = new Fixture();
+		Assert.AreEqual(MagicCastingStatus.Succeeded, f.F.Service.Cast(f.Intent(2)).Status);
+		var item = new Mock<IGameItem>();
+		item.SetupGet(x => x.Id).Returns(501);
+		item.SetupGet(x => x.Gameworld).Returns(f.F.World.Object);
+		item.SetupGet(x => x.Location).Returns(f.Origin.Object);
+		item.SetupGet(x => x.BasePlanarPresence).Returns(PlanarPresenceDefinition.DefaultMaterial(1));
+		item.SetupGet(x => x.Effects).Returns([]);
+		item.Setup(x => x.SufferDamage(It.IsAny<IDamage>())).Returns(Array.Empty<IWound>());
+		var prototype = new Mock<IVehiclePrototype>();
+		prototype.SetupGet(x => x.ExposesOccupantsToExitBarriers).Returns(exposed);
+		var vehicle = new Mock<IVehicle>();
+		vehicle.SetupGet(x => x.Id).Returns(501);
+		vehicle.SetupGet(x => x.Prototype).Returns(prototype.Object);
+		vehicle.SetupGet(x => x.Gameworld).Returns(f.F.World.Object);
+		vehicle.SetupGet(x => x.Location).Returns(f.Origin.Object);
+		vehicle.SetupGet(x => x.ExteriorItem).Returns(item.Object);
+		vehicle.SetupGet(x => x.Occupants).Returns([f.Victim.Object]);
+		var plan = new VehicleHitchGraphMovePlan(vehicle.Object,
+			[new VehicleHitchGraphTrainMember(vehicle.Object, 0, null)], [], [], 0);
+		var movement = f.Move();
+		Assert.IsTrue(VehicleExitBarrierTraversal.Contact(plan, f.Direction.Object, [], movement, out _));
+		Assert.AreEqual(expectedDamage, f.Body.Wounds.Sum(x => x.CurrentDamage));
+		Assert.AreSame(f.Origin.Object, f.Victim.Object.Location);
+		Assert.IsTrue(VehicleExitBarrierTraversal.Contact(plan, f.Direction.Object, [], movement, out _));
+		Assert.AreEqual(expectedDamage, f.Body.Wounds.Sum(x => x.CurrentDamage));
+		f.Victim.Verify(x => x.ExecuteMove(It.IsAny<IMovement>()), Times.Never);
 	}
 
 	private sealed class Clock : TimeProvider

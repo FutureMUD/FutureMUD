@@ -16,16 +16,21 @@ namespace MudSharp.Movement;
 /// <summary>Only Movement's admitted action calls Contact. CanCross remains a pure query.</summary>
 internal static class ExitBarrierTraversal
 {
-	private sealed record Query(ICharacter Actor, IRoomExit Exit, IMovement Movement, IExitBarrierTraversalEffect[] Effects);
+	private sealed record Query(ICharacter Actor, IRoomExit Exit, IMovement? Movement, IExitBarrierTraversalEffect[] Effects);
 	private static readonly AsyncLocal<Query?> CurrentQuery = new();
 	internal static (bool Success, IEmoteOutput FailureOutput) CanCrossForMovement(ICharacter actor, IRoomExit exit, IMovement movement)
+		=> CanCrossForContact(actor, exit, movement);
+
+	/// <summary>Retains ordinary portal, door and guard admission while deferring exact damaging barriers to contact.</summary>
+	internal static (bool Success, IEmoteOutput FailureOutput) CanCrossForContact(ICharacter actor, IRoomExit exit,
+		IMovement? movement = null)
 	{
 		if (exit?.Exit is not { } boundary) return actor.CanCross(exit!);
 		var barriers = boundary.Effects.OfType<IExitBarrierTraversalEffect>()
 			.Where(x => x.IsActive && x.OccupiesLayerAndPlane(actor)).ToArray();
 		if (barriers.Length == 0) return actor.CanCross(exit);
 		var prior = CurrentQuery.Value;
-		CurrentQuery.Value = new(actor, exit, movement, barriers);
+		CurrentQuery.Value = new(actor, exit, movement ?? actor.Movement, barriers);
 		try { return actor.CanCross(exit); }
 		finally { CurrentQuery.Value = prior; }
 	}
@@ -41,18 +46,25 @@ internal static class ExitBarrierTraversal
 
 	/// <returns>True if this actor's movement must stop, including invalidated attempts.</returns>
 	internal static bool Contact(ICharacter actor, IRoomExit exit, IMovement movement)
+		=> Contact(actor, exit, movement, null);
+
+	/// <summary>Character contact owned by an admitted vehicle crossing, including synchronous crossings.</summary>
+	internal static bool ContactForVehicle(ICharacter actor, IRoomExit exit, Func<bool> continuation)
+		=> Contact(actor, exit, null, continuation);
+
+	private static bool Contact(ICharacter actor, IRoomExit exit, IMovement? movement, Func<bool>? continuation)
 	{
 		if (exit?.Exit is not { } boundary) return false;
 		var barriers = boundary.Effects.OfType<IExitBarrierTraversalEffect>().Where(x => x.IsActive).ToArray();
 		if (barriers.Length == 0) return false;
-		using var frame = new Attempt(actor, exit, movement);
+		using var frame = new Attempt(actor, exit, movement, continuation);
 		if (!frame.IsCurrent) return true;
 		barriers = barriers.Where(x => x.OccupiesLayerAndPlane(actor)).ToArray();
 		if (!frame.IsCurrent) return true;
 		if (barriers.Length == 0 || actor.AffectedBy<IImmwalkEffect>() || actor.RidingMount?.AffectedBy<IImmwalkEffect>() == true)
 			return false;
 		var prior = CurrentQuery.Value;
-		CurrentQuery.Value = new(actor, exit, movement, barriers);
+		CurrentQuery.Value = new(actor, exit, movement ?? actor.Movement, barriers);
 		try
 		{
 			// Skip only these exact active barriers while asking the existing door/guard rules.
@@ -85,7 +97,9 @@ internal static class ExitBarrierTraversal
 		private readonly IRoom _origin;
 		private readonly IRoom _destination;
 		private readonly IFuturemud _world;
-		private readonly IMovement _movement;
+		private readonly IMovement? _movement;
+		private readonly IMovement? _actorMovement;
+		private readonly Func<bool>? _admittedVehicleCrossing;
 		private readonly RoomLayer _layer;
 		private readonly long _instance;
 		private readonly CharacterState _state;
@@ -100,8 +114,10 @@ internal static class ExitBarrierTraversal
 		private readonly ICharacter[] _occupants;
 		private readonly IEffect[][] _occupantEffects;
 		private bool _invalid;
-		internal Attempt(ICharacter actor, IRoomExit exit, IMovement movement)
+		internal Attempt(ICharacter actor, IRoomExit exit, IMovement? movement, Func<bool>? admittedVehicleCrossing)
 		{
+			_admittedVehicleCrossing = admittedVehicleCrossing;
+			_actorMovement = actor.Movement;
 			_actor = actor; _body = actor.Body; _exit = exit; _boundary = exit.Exit; _origin = exit.Origin;
 			_destination = exit.Destination; _world = actor.Gameworld; _movement = movement; _layer = actor.RoomLayer;
 			_instance = actor.InstanceId; _identity = actor.Identity; _state = actor.State;
@@ -127,8 +143,10 @@ internal static class ExitBarrierTraversal
 			_body.BasePlanarPresence.SaveToXml().ToString(SaveOptions.DisableFormatting) == _basePlane &&
 			ReferenceEquals(_boundary.Gameworld, _world) && ReferenceEquals(_actor.Location, _origin) && _actor.RoomLayer == _layer &&
 			_actor.InstanceId == _instance && ReferenceEquals(_actor.Identity, _identity) && _actor.State == _state && !_actor.State.IsDead() &&
-			ReferenceEquals(_actor.Movement, _movement) && !_movement.Cancelled && _movement.Phase == MovementPhase.OriginalRoom &&
-			_movement.CharacterMovers.Any(x => ReferenceEquals(x, _actor)) && ReferenceEquals(_movement.Exit, _exit) &&
+			(_admittedVehicleCrossing is not null ? ReferenceEquals(_actor.Movement, _actorMovement) && _admittedVehicleCrossing() :
+				_movement is not null && ReferenceEquals(_actor.Movement, _movement) && !_movement.Cancelled &&
+				_movement.Phase == MovementPhase.OriginalRoom && _movement.CharacterMovers.Any(x => ReferenceEquals(x, _actor)) &&
+				ReferenceEquals(_movement.Exit, _exit)) &&
 			ReferenceEquals(_exit.Exit, _boundary) && ReferenceEquals(_exit.Origin, _origin) && ReferenceEquals(_exit.Destination, _destination) &&
 			ReferenceEquals(_boundary.RoomExitFor(_origin), _exit) && ReferenceEquals(_exit.Opposite?.Exit, _boundary) &&
 			ReferenceEquals(_exit.Opposite?.Origin, _destination) && ReferenceEquals(_exit.Opposite?.Destination, _origin) &&

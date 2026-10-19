@@ -1060,6 +1060,15 @@ public class Movement : IMovement
 			Cancel();
 			return;
 		}
+		// Every admitted dragged train contacts at origin, before pullers or goods relocate.
+		var vehicleContactStopped = false;
+		foreach (var movePlan in System.Linq.Enumerable.DistinctBy(_vehicleDragMovePlans.Values, x => x.RootVehicle.Id).ToArray())
+		{
+			vehicleContactStopped |= VehicleExitBarrierTraversal.Contact(movePlan, Exit, CharacterMovers, this,
+				out _, _barrierContacts);
+		}
+		if (vehicleContactStopped) { Cancel(); return; }
+
 		// An admitted movement action can contact a damaging barrier once. Queries never do.
 		var contactStopped = false;
 		foreach (var mover in CharacterMovers.ToArray())

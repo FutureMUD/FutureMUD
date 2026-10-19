@@ -2,6 +2,16 @@
 
 Audit date: 2026-09-27. Baseline: `666efc94a2065fb94ef75a1ffe6dd42359940c6c`. This records the working-tree changes made for the physical command, runtime manipulation, room-access and lawful-transfer audit.
 
+## Custodian drag and haul protection (19 October 2026)
+
+Active item take interdictions, including Custodian Glyph ownership, also govern
+starting a drag, joining as a helper, and hauling into or out of containers. Haul
+rechecks before transfer; delayed exit movement rechecks every drag participant
+before contact and again before the first crossing. Permission changes while an
+action is pending cannot carry protected goods across an exit. Authorized heavy
+hauling still uses drag capacity and helpers rather than requiring the item to be
+liftable. Character dragging and its consent rules retain their existing behavior.
+
 ## Behaviour and coverage
 
 Ordinary manual actions now require at least one present, functioning grab/manipulator location. They use `CanUseBodypart`, including limb damage, pain, severing, grappling, restraints, missing bones, spinal damage and nonfunctional prosthetics. This does not require an empty hand unless the particular operation already requires one. Tentacles and other configured manipulators qualify.

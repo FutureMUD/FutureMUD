@@ -7,6 +7,9 @@ namespace MudSharp.Effects.Concrete;
 
 public class Dragging : Effect, IDragging, INoQuitEffect
 {
+	internal static bool AllowsItemMovement(ICharacter actor, IGameItem item) =>
+		item.EffectsOfType<IItemTakeInterdictionEffect>().All(x => x.AllowsTake(actor));
+
     public class DragHelper : Effect, ILDescSuffixEffect, IDragParticipant
     {
         public override bool IsBlockingEffect(string blockingType)

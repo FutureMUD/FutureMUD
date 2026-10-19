@@ -1039,7 +1039,11 @@ seconds round to the nearest microsecond; values below one microsecond refuse.
 
 Capacity is positive finite native mass per grade; all stored goods retain their
 ordinary weight. Bearer access uses ordinary reach/custody; Creator additionally
-requires the canonical creator identity. Storage is bounded at 256 distinct
+requires the canonical creator identity. Only the canonical creator or staff may
+`junk` a Creator-access pocket; possessing it alone does not authorize destruction.
+The command checks this both before confirmation and when confirmation executes.
+Bearer-access pockets retain ordinary Junk permissions. This does not change the
+existing deletion/retirement adapter. Storage is bounded at 256 distinct
 native item identities. Direct and hidden pocket nesting, physical target
 projections, cycles, invalid quantities/weights and morphing goods refuse before
 adoption. Native container transfer and ancestor checks enforce these rules

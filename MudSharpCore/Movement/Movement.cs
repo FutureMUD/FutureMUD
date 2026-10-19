@@ -20,6 +20,23 @@ namespace MudSharp.Movement;
 
 public class Movement : IMovement
 {
+	private bool CheckDraggedItemPermissions(bool releaseDragsOnFailure = false)
+	{
+		foreach (var drag in DragEffects.ToArray())
+		{
+			if (drag.Target is not IGameItem item) continue;
+			foreach (var actor in drag.CharacterDraggers)
+			{
+				if (Dragging.AllowsItemMovement(actor, item)) continue;
+				actor.Send("You are not permitted to move that item.");
+				if (releaseDragsOnFailure)
+					foreach (var pendingDrag in DragEffects.ToArray()) pendingDrag.Owner.RemoveEffect(pendingDrag, true);
+				return false;
+			}
+		}
+		return true;
+	}
+
     private readonly IVehicleHitchGraphService _vehicleHitchGraphService = new VehicleHitchGraphService();
     private readonly IVehicleOperationalReadinessService _vehicleOperationalReadinessService = new VehicleOperationalReadinessService();
     private readonly Dictionary<long, VehicleHitchGraphMovePlan> _vehicleDragMovePlans = new();
@@ -955,6 +972,7 @@ public class Movement : IMovement
             }
         }
 
+		if (!CheckDraggedItemPermissions()) { Cancel(); return; }
         List<ICharacter> movers = CharacterMovers.ToList();
         foreach (Dragging effect in DragEffects)
         {
@@ -1061,14 +1079,18 @@ public class Movement : IMovement
 			Cancel();
 			return;
 		}
+		if (!CheckDraggedItemPermissions()) { Cancel(); return; }
 		_guardChallenge?.Dispose();
         foreach (ICharacter mover in CharacterMovers)
         {
             mover.ExecuteMove(this);
         }
 
-        foreach (IPerceivable target in Targets)
+		// ExecuteMove dispatches callbacks before dragged goods are transferred.
+		if (!CheckDraggedItemPermissions(releaseDragsOnFailure: true)) { Cancel(); return; }
+        foreach (IPerceivable target in Targets.ToArray())
         {
+			if (!CheckDraggedItemPermissions(releaseDragsOnFailure: true)) { Cancel(); return; }
             if (target is IGameItem targetItem)
             {
                 var draggedVehicle = targetItem.GetItemType<IVehicleExterior>()?.Vehicle;

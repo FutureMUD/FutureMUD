@@ -785,6 +785,13 @@ The syntax is #3seal <target> with <stamp> [using <medium>]#0.", AutoHelp.HelpAr
 			: $"{instrumentItem.HowSeen(actor, true)} is now deliberately biased by {actor.Gameworld.UnitManager.DescribeExact(bias, instrument.UnitType, actor).ColourValue()}.");
 	}
 
+	private static bool CheckItemMovementPermission(ICharacter actor, IGameItem item)
+	{
+		if (Dragging.AllowsItemMovement(actor, item)) return true;
+		actor.Send("You are not permitted to move that item.");
+		return false;
+	}
+
 	[PlayerCommand("Haul", "haul")]
     [RequiredCharacterState(CharacterState.Able)]
     [DelayBlock("general", "drag", "You must first stop {0} before you can do that.")]
@@ -890,6 +897,7 @@ You can also use this command to remove similarly large items from containers. I
             return;
         }
 
+		if (!CheckItemMovementPermission(actor, targetItem)) return;
         DragTarget dragging = targetItem.EffectsOfType<DragTarget>().FirstOrDefault();
         if (dragging?.TheDrag.CharacterDraggers.Contains(actor) == true)
         {
@@ -913,6 +921,7 @@ You can also use this command to remove similarly large items from containers. I
             new Emote(
                 $"@{((dragging?.Drag.Draggers.Count() ?? 0) > 1 ? " and &0's helpers" : "")} {((dragging?.Drag.Draggers.Count() ?? 0) > 1 ? "haul" : "haul|hauls")} $1 into $2.",
                 actor, actor, targetItem, targetContainer), flags: OutputFlags.InnerWrap));
+		if (!CheckItemMovementPermission(actor, targetItem)) return;
         container.Put(actor, targetItem);
         targetItem.Get(null);
     }
@@ -979,6 +988,7 @@ You can also use this command to remove similarly large items from containers. I
             return;
         }
 
+		if (!CheckItemMovementPermission(actor, targetItem)) return;
         if (!targetAsContainer.CanTake(actor, targetItem, 0))
         {
             actor.Send(actor.Body.WhyCannotGet(targetItem, targetContainer, 0));
@@ -987,6 +997,7 @@ You can also use this command to remove similarly large items from containers. I
 
         actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ haul|hauls $1 out of $2.", actor, actor, targetItem,
             targetContainer)));
+		if (!CheckItemMovementPermission(actor, targetItem)) return;
         targetAsContainer.Take(targetItem);
         targetItem.RoomLayer = actor.RoomLayer;
         targetItem.InsertAtSource(actor, true);
@@ -1230,6 +1241,7 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
                 }
             }
 
+			if (drag.Target is IGameItem helpedItem && !CheckItemMovementPermission(actor, helpedItem)) return;
             drag.AddHelper(actor, aid);
             actor.OutputHandler.Handle(new EmoteOutput(new Emote("@ begin|begins to help $1 to drag $2$?3| by $3||$",
                 actor, actor, help, drag.Target, aid?.Parent)));
@@ -1313,6 +1325,7 @@ Note - you can use the #3stop#0 command to stop dragging someone", AutoHelp.Help
 
         if (target is IGameItem targetItem)
         {
+			if (!CheckItemMovementPermission(actor, targetItem)) return;
             if (!targetItem.IsItemType<IHoldable>())
             {
                 actor.Send($"{target.HowSeen(actor, true)} is not the kind of thing that can be moved about.");
@@ -5336,7 +5349,7 @@ The syntax is as follows:
     [DelayBlock("general", "You must first stop {0} before you can do that.")]
     [CommandPermission(PermissionLevel.NPC)]
     [RequiredCharacterState(CharacterState.Able)]
-    [HelpInfo("junk", @"The #3junk#0 command permanently destroys a held item, where game permissions allow it. You must type the full command word. Containers with contents require confirmation through #3accept#0.
+    [HelpInfo("junk", @"The #3junk#0 command permanently destroys a held item, where game permissions allow it. You must type the full command word. Containers with contents require confirmation through #3accept#0. Only a Creator-access folded pocket's creator or staff may junk it.
 
 The syntax is:
 
@@ -5385,6 +5398,19 @@ The syntax is:
             return;
         }
 
+		bool CanJunkPocket()
+		{
+			if (!item.IsItemType<ISpellPocket>() ||
+			    item.GetItemType<ISpellPocket>()?.Anchor?.Configuration.Access == MudSharp.Magic.SpellPocketAccess.Bearer ||
+			    character.IsAdministrator()) return true;
+			if (item.SpellCreationOrigin is { CreatorId: > 0 } origin &&
+			    origin.CreatorId == CharacterInstanceIdentityComparer.IdentityId(character)) return true;
+			character.Send("Only the creator or staff may junk that folded pocket.");
+			return false;
+		}
+
+		if (!CanJunkPocket()) return;
+
         // TODO - no junk component
 
         void JunkAction()
@@ -5395,6 +5421,7 @@ The syntax is:
                 return;
             }
 
+			if (!CanJunkPocket()) return;
             character.OutputHandler.Handle(new EmoteOutput(new Emote("@ junk|junks $0.", character, item),
                 flags: OutputFlags.SuppressObscured));
 			if (item.IsItemType<ISpellPocket>())

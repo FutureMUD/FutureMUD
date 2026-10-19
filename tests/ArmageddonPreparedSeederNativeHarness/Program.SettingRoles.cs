@@ -117,10 +117,12 @@ internal static partial class GNHProgram
 			using (var config=NewIndependentContext(database.ConnectionString)) { config.StaticConfigurations.Find("DirectionSenseObscurationProg")!.Definition="0"; config.SaveChanges(); }
 			QualifySettingNativeActions(world,(roleKey,label)=> {
 				var app=NewSettingQualificationApplication(world,accountId,cultureId,"Action"+label);
+				app.StartingLocation=new StartingLocation { Name="Disposable lit action arena", Blurb="Qualification only", Location=world.Rooms.Get(pilotFixture.Origin), Role=app.StartingLocation.Role };
 				app.SelectedRoles.Add(world.Roles.Get(ids[roleKey]));
 				FinaliseAndSaveSettingApplication(app,SettingQualificationFreeProg(world));
 				var actor=PersistSettingQualificationCharacter(world,app);
 				var targetApp=NewSettingQualificationApplication(world,accountId,cultureId,"Target"+label);
+				targetApp.StartingLocation=new StartingLocation { Name="Disposable lit action arena", Blurb="Qualification only", Location=world.Rooms.Get(pilotFixture.Origin), Role=targetApp.StartingLocation.Role };
 				FinaliseAndSaveSettingApplication(targetApp,SettingQualificationFreeProg(world));
 				return (actor,PersistSettingQualificationCharacter(world,targetApp));
 			},ids);
@@ -147,12 +149,12 @@ internal static partial class GNHProgram
 		long origin,destination,material;
 		using (var db=NewIndependentContext(database.ConnectionString))
 		{
-			var source=db.Rooms.Include(x=>x.Zones).First(x=>x.CurrentOverlayId!=null && x.Zones.Any());
+			var source=db.Rooms.First(x=>x.CurrentOverlayId!=null && x.ZoneId>0);
 			var overlay=db.RoomOverlays.Single(x=>x.Id==source.CurrentOverlayId);
 			long Room(string name)
 			{
 				var room=(Db.Room)db.Entry(source).CurrentValues.Clone().ToObject(); room.Id=0; room.CurrentOverlayId=null;
-				foreach(var zone in source.Zones) room.Zones.Add(zone);
+				room.UniqueName=null; room.X=db.Rooms.Where(x=>x.ZoneId==source.ZoneId).Max(x=>x.X)+1;
 				db.Rooms.Add(room); db.SaveChanges();
 				var copy=(Db.RoomOverlay)db.Entry(overlay).CurrentValues.Clone().ToObject(); copy.Id=0;copy.RoomId=room.Id;copy.RoomName=name;copy.RoomDescription="An isolated native qualification ground.";copy.AddedLight=1000;
 				db.RoomOverlays.Add(copy);db.SaveChanges();room.CurrentOverlayId=copy.Id;db.SaveChanges();return room.Id;
@@ -219,7 +221,7 @@ internal static partial class GNHProgram
 		Require(character.Id > 0 && character.Body.Id > 0, "Native character/body insert did not finish.");
 		world.Add(character, false);
 		character.Register(null);
-		if (!character.Location.Characters.Contains(character)) character.Location.Enter(character);
+		character.Location.Login(character);
 		return character;
 	}
 
@@ -232,7 +234,7 @@ internal static partial class GNHProgram
 		var baseline = character.Body.BaseLiverAlcoholRemovalKilogramsPerHour;
 		Require(merit.ClearanceMultiplier == 2 && organ > 0 && baseline > 0 &&
 			Math.Abs(character.Body.LiverAlcoholRemovalKilogramsPerHour / (organ * baseline) - 2) < 1e-9,
-			"Real healthy liver must apply stock clearance multiplier2 after organ function.");
+			$"Real healthy liver must apply stock clearance multiplier2 after organ function: merit={merit.ClearanceMultiplier}, organ={organ}, baseline={baseline}, effective={character.Body.LiverAlcoholRemovalKilogramsPerHour}.");
 	}
 
 	private static IEnumerable<long> CheckSettingHeritageApplications(IFuturemud world, long accountId, long cultureId,
@@ -287,6 +289,11 @@ internal static partial class GNHProgram
 		foreach (var driver in input.Drivers) AssertArmageddonNativePilotReload(world,world.TryGetCharacter(driver.Driver,true),driver);
 		var merchant = world.TryGetCharacter(input.Merchant, true);
 		var burglar = world.TryGetCharacter(input.Burglar, true);
+		world.Add(merchant,false); world.Add(burglar,false);
+		merchant.Register(null); burglar.Register(null);
+		// Match CharacterLoginMenu: Room.Login clears durable stasis and then
+		// invokes Character/Body login. Direct LoginCharacter leaves cold bodies dormant.
+		merchant.Location.Login(merchant); burglar.Location.Login(burglar);
 		CheckSettingMerchant(merchant, world.Traits.Get(input.Pilot));
 		var child = (ISkillDefinition)world.Traits.Get(input.Child);
 		var claims = burglar.EffectsOfType<RoleSkillBonusClaims>().Single();

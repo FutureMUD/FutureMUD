@@ -18,6 +18,7 @@
 // positive functional qualification with authored tactical advantage; native RNG/check,
 // body damage and ordinary combat cost remain real. No scheduler pumping between cases.
 using System.Globalization;
+using System.Text;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Body;
@@ -29,16 +30,28 @@ using MudSharp.Character;
 using MudSharp.Combat;
 using MudSharp.Combat.Moves;
 using MudSharp.Effects.Concrete;
+using MudSharp.Effects;
+using MudSharp.Effects.Interfaces;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Health;
+using MudSharp.PerceptionEngine.Handlers;
 using MudSharp.RPG.Checks;
 using Db = MudSharp.Models;
 namespace FutureMUD.GatheringNativePersistenceHarness;
 internal static partial class GNHProgram
 {
+    private sealed class SettingActionObservation(ICharacter owner) : Effect(owner), ICombatTacticEffect
+    {
+        protected override string SpecificEffectType => "SettingQualificationObservation";
+        public override string Describe(IPerceiver voyeur) => "Disposable native action observation.";
+        public bool TrySelectMove(ICharacter actor, out ICombatMove? move) { move=null; return false; }
+        public void MoveResolved(ICombatMove move, CombatMoveResult result) => Console.WriteLine(
+            "SETTING-native-result="+move.Description+" hit="+result.MoveWasSuccessful+" attack="+result.AttackerOutcome+
+            " defence="+result.DefenderOutcome+" wounds="+string.Join(";",result.WoundsCaused.Select(x=>x.Bodypart.Name+":"+x.CurrentDamage+"/"+x.CurrentStun+"/"+x.CurrentPain)));
+    }
     private static void SeedSettingActionFixtures(TestDatabase database)
     {
         using var db = NewIndependentContext(database.ConnectionString);
@@ -94,6 +107,8 @@ internal static partial class GNHProgram
             if (!actor.Location.Characters.Contains(actor)) actor.Location.Enter(actor);
             if (!target.Location.Characters.Contains(target)) target.Location.Enter(target);
             Require(actor.ColocatedWith(target) && actor.CanSee(target), "Native action room must colocate and illuminate the fresh characters.");
+            Require(actor.VisionPercentage >= 1.0 && actor.IlluminationSightDifficulty(target.Location) < Difficulty.Hard,
+                "Native positive action fixture must have unimpaired sight: vision="+actor.VisionPercentage+", illumination="+actor.IlluminationSightDifficulty(target.Location));
             actor.SetPosition(PositionStanding.Instance,PositionModifier.None,null,null);
             target.SetPosition(PositionStanding.Instance,PositionModifier.None,null,null);
             Require(actor.Engage(target,false), "Fresh native actor could not engage the fresh target.");
@@ -113,18 +128,35 @@ internal static partial class GNHProgram
             var skill=world.Traits.Get(ids["arm.skill."+verb]);
             Require(actor.HasTrait(skill) && !target.HasTrait(skill), "Warrior root was not granted or fresh target has a counter skill.");
             actor.SetTraitValue(skill,80);
-            ((Body)actor.Body).CurrentStamina=actor.MaximumStamina;
-            actor.OffensiveAdvantage=1000; // disposable tactical advantage, native RNG/check/wounds remain real
             var command=world.ManualCombatCommands.Single(x=>x.PrimaryVerb == verb);
-            var resolved=ManualCombatCommandResolver.TryResolve(actor,command,target);
-            Require(resolved.Success, "Native "+verb+" selection refused: "+resolved.Error);
-            var before=actor.CurrentStamina; var wounds=target.Body.Wounds.Sum(x=>x.CurrentDamage);
-            actor.Combat.CombatAction(actor,resolved.Move);
-            Require(actor.CurrentStamina < before, "Native "+verb+" did not spend its combat cost.");
-            Require(target.Body.Wounds.Sum(x=>x.CurrentDamage)>wounds, "Native "+verb+" did not cause a body wound.");
-            Require(verb != "bash" || target.PositionState == PositionSitting.Instance, "Successful Bash did not seat native victim.");
-            Require(verb != "kick" || target.PositionState == PositionStanding.Instance, "Ordinary Kick unexpectedly seated its victim.");
-            Console.WriteLine("SETTING-native-action="+verb+" PASS canonical-check real-combat-action native-wounds stamina posture");
+            var nativeCheck=world.GetCheck(CheckType.AuxiliaryMoveCheck);
+            Console.WriteLine("SETTING-native-precheck="+verb+" raw="+actor.TraitRawValue(skill)+" effective="+actor.TraitValue(skill)+" template="+nativeCheck.CheckTemplateName+" formula="+nativeCheck.TargetNumberExpression.OriginalFormulaText+" target="+nativeCheck.TargetNumber(actor,Difficulty.Normal,skill,target,1000));
+            var wounds=target.Body.Wounds.Sum(x=>x.CurrentDamage);
+            var output = new StringBuilder(); actor.Register(new PlayerOutputHandler(output,actor));
+            var observation=new SettingActionObservation(actor); actor.AddEffect(observation);
+            // Native random bodypart selection can strike bony flesh that absorbs this
+            // small impact completely (or leaves pain only). Keep armour and RNG real;
+            // a bounded series must still demonstrate actual positive injury.
+            var attempts=0;
+            do
+            {
+                actor.SetPosition(PositionStanding.Instance,PositionModifier.None,null,null);
+                target.SetPosition(PositionStanding.Instance,PositionModifier.None,null,null);
+                ((Body)actor.Body).CurrentStamina=actor.MaximumStamina;
+                actor.OffensiveAdvantage=1000; // disposable tactical advantage, native RNG/check/wounds remain real
+                var resolved=ManualCombatCommandResolver.TryResolve(actor,command,target);
+                Require(resolved.Success, "Native "+verb+" selection refused: "+resolved.Error);
+                var before=actor.CurrentStamina;
+                actor.Combat.CombatAction(actor,resolved.Move);
+                Require(actor.CurrentStamina < before, "Native "+verb+" did not spend its combat cost.");
+                Require(verb != "bash" || target.PositionState == PositionSitting.Instance, "Successful Bash did not seat native victim.");
+                Require(verb != "kick" || target.PositionState == PositionStanding.Instance, "Ordinary Kick unexpectedly seated its victim.");
+                attempts++;
+            } while (attempts<12 && target.Body.Wounds.Sum(x=>x.CurrentDamage)<=wounds);
+            actor.RemoveEffect(observation);
+            Console.WriteLine("SETTING-native-body="+verb+" health="+target.Body.HealthStrategy.Name+" racial-armour="+target.Race.NaturalArmourType?.Name+" wounds="+string.Join(";",target.Body.Wounds.Select(x=>x.Bodypart.Name+":"+x.CurrentDamage+"/"+x.CurrentStun+"/"+x.CurrentPain)));
+            Require(target.Body.Wounds.Sum(x=>x.CurrentDamage)>wounds, "Native "+verb+" did not cause a body wound. Output: "+output);
+            Console.WriteLine("SETTING-native-action="+verb+" PASS canonical-check real-combat-action native-wounds stamina posture attempts="+attempts);
             EndCase(actor,target);
         }
         foreach (var sample in new[] { (Type:"Knife",Verb:"backstab"), (Type:"Blackjack",Verb:"sap") })

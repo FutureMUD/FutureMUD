@@ -17,6 +17,10 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 
 internal static partial class GNHProgram
 {
+	private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<FuturemudDatabaseContext, Dictionary<string,TraitDefinition>> SettingAuditSkillCache = new();
+	private static IReadOnlyDictionary<string,TraitDefinition> SettingAuditSkills(FuturemudDatabaseContext db) =>
+		SettingAuditSkillCache.GetValue(db, context => DatabaseSeeder.Seeders.ArmageddonSkillPackage.Resolve(context).ToDictionary(x=>x.Key,x=>x.Value));
+
 	private static void RunSettingBindingAudit(TestDatabase database, string phase)
 	{
 		IReadOnlyList<InventoryRow> Read(string file, string expected, Func<IReadOnlyDictionary<string,string>,string> key)
@@ -35,9 +39,9 @@ internal static partial class GNHProgram
 			Read("MUNDANE_CHECK_BINDINGS_20261018.tsv","0C2ED56A750F82A6480D3F1CFE79F964D33F561ED7FA6082BEB22A2542132540",x=>x["seeder_path"]+":"+x["line"]+":"+x["check_type"]),
 			Read("MUNDANE_STATIC_DEPENDENCIES_20261018.tsv","E754DB141EC7645D3C85C1F3667DEB3E509423DCE8296CCA8DE6C4CA70F2A478",x=>x["config_key"]),
 			Read("MUNDANE_DYNAMIC_BINDING_OBLIGATIONS_20261018.tsv","5D27CAF8D2442785810A31C017D6A014B39E47D073CA27DD49B8E64069345615",x=>x["canonical_key"]+"|"+x["route"]),ReviewedStaticProofs(),ReviewedDynamicProofs());
-		var current=AuditCurrentStaticExtras(db);
+
 		var output=Path.GetDirectoryName(Environment.GetEnvironmentVariable("FUTUREMUD_BASE_WORLD_RECEIPT"))!;
-		File.WriteAllText(Path.Combine(output,"setting-bindings-"+phase+".json"),JsonSerializer.Serialize(new {Historical=evidence,Current=current},BaseJsonOptions));
+		File.WriteAllText(Path.Combine(output,"setting-bindings-"+phase+".json"),JsonSerializer.Serialize(new {Historical=evidence},BaseJsonOptions));
 		Console.WriteLine("SETTING-bindings="+phase+" PASS 291cases/236types 55statics 71dynamic current-Pilot/MountControl explicit-optional-absences");
 	}
 
@@ -73,9 +77,10 @@ internal static partial class GNHProgram
 		var checkEvidence = new List<object>();
 		foreach (var type in types)
 		{
-			if (TryAuditAbsentTrapCheck(db, type))
+			if (TryAuditInactiveTrapCheck(db, type))
 			{
-				checkEvidence.Add(new { Type = type.ToString(), Disposition = "disabled-no-consumer", Evidence = "Optional TrapSeeder not installed; no templates or seven adapter check rows" });
+				checkEvidence.Add(new { Type = type.ToString(), Disposition = "disabled-no-consumer", NativeBootstrapFallbackPresent=checks.ContainsKey((int)type), CanonicalBindingQualified=false,
+					Evidence = "Optional TrapSeeder not installed; no templates; any native generic50 backfills are unbound and excluded from qualification" });
 				continue;
 			}
 			// Deliberately no world.GetCheck: a missing row must never pass via Default Fallback Check.
@@ -144,7 +149,7 @@ internal static partial class GNHProgram
 	private static BindingProof FixedTraitStatic(string config, string canonical, string decision) =>
 		new("bound", decision, db =>
 		{
-			var owned = DatabaseSeeder.Seeders.ArmageddonSkillPackage.Resolve(db);
+			var owned = SettingAuditSkills(db);
 			var row = db.StaticConfigurations.AsNoTracking().Single(x => x.SettingName == config);
 			Require(long.TryParse(row.Definition, NumberStyles.None, CultureInfo.InvariantCulture, out var id) && id == owned[canonical].Id,
 				"Wrong canonical static binding: " + config);
@@ -154,7 +159,7 @@ internal static partial class GNHProgram
 	private static BindingProof WeaponFamily(string canonical, string typeName, string decision) =>
 		new("bound", decision, db =>
 		{
-			var skills = DatabaseSeeder.Seeders.ArmageddonSkillPackage.Resolve(db);
+			var skills = SettingAuditSkills(db);
 			var type = db.WeaponTypes.AsNoTracking().Single(x => x.Name == typeName);
 			Require(type.AttackTraitId == skills[canonical].Id && type.ParryTraitId == skills["arm.skill.parry"].Id,
 				"Wrong weapon family/independent Parry: " + typeName);

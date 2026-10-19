@@ -204,7 +204,7 @@ internal static partial class GNHProgram
                 Console.WriteLine("SETTING-resume-checkpoint=committed settings merits progression; catalogue-unstarted");
             }
 			ExecuteBaseTargetStep(restored, new ArmageddonSettingSeeder(), settingAnswers);
-            if (setting) { RunSettingBindingAudit(restored,"installed"); QualifySettingNativeRolesAndHeritage(restored); }
+            if (setting) { CaptureSettingDebugCheckpoint(restored); RunSettingBindingAudit(restored,"installed"); QualifySettingNativeRolesAndHeritage(restored); }
 			using (var db = NewPreparedReplayContext(restored.ConnectionString))
 			{
 				RequireNoUseful(db);
@@ -306,7 +306,7 @@ internal static partial class GNHProgram
 		return descriptorHash == "E26C6B5992C664F52BFA38488CB2F19143B8B80A59C7A3CB949D7B7F014C61A8" &&
 			receipt.Kind == "FutureMUD-Setting-foundations-v1" && receipt.Steps.Count == 3 &&
 			receipt.SourceSha256 == "C62FBE7A23C71B967C05BCE8EFBCB9E890E6A28F415FB7D52B3C77F75DED4C1B" &&
-			currentSourceHash == "0EA61DCF7537437B2013BBCEF13B66EEC1034E5584A0B9D3CCDD95D266F54A70" &&
+			currentSourceHash == "3675260E6320C4A5ECC330501D4E9F92165C8BA5FDF85AC2CB2C1090CF96FA34" &&
 			receipt.SqlSha256 == "64113F06E363B582ECE510A3C112984F51D28977DB7250A53D28A6DA790F7206" &&
 			receipt.SchemaSha256 == "36CF37216ABAC521E308DC44FA83DDDA246414F171A7D1B27A7C634BE93A17B3" &&
 			receipt.ContentSha256 == "8D8553E9D1353969FCFA7EE082F789FB98B9D777771905AAAB416DC8ACFF8C45";

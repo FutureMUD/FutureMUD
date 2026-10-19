@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Xml.Linq;
 using Microsoft.EntityFrameworkCore;
 using MudSharp.Database;
+using MudSharp.Framework;
 using MudSharp.RPG.Checks;
 using DatabaseSeeder.Seeders;
 using RuntimeExpression = MudSharp.Body.Traits.TraitExpression;
@@ -171,7 +172,7 @@ internal static partial class GNHProgram
 			Require(long.TryParse(text, out var id) && id > 0 && db.TraitExpressions.Any(x => x.Id == id), "Dangling expression static: " + key);
 			var expression = db.TraitExpressions.AsNoTracking().Single(x => x.Id == id);
 			AuditFormulaReferences(db, expression.Expression);
-			foreach (var parameter in db.TraitExpressionParameters.AsNoTracking().Where(x => x.TraitExpressionId == id))
+			foreach (var parameter in db.TraitExpressionParameters.AsNoTracking().Where(x => x.TraitExpressionId == id).ToArray())
 				Require(db.TraitDefinitions.Any(x => x.Id == parameter.TraitDefinitionId), "Dangling expression parameter: " + key);
 			return new[] { $"{key}={id}; formula={expression.Expression}" };
 		});
@@ -199,7 +200,7 @@ internal static partial class GNHProgram
 	private static BindingProof ScaffoldStatic(string key, string canonical, string? disabledGate, string evidence) =>
 		new("engine-scaffold-ungranted", evidence, db =>
 		{
-			var skill = ArmageddonSkillPackage.Resolve(db)[canonical];
+			var skill = SettingAuditSkills(db)[canonical];
 			Require(ArmageddonSkillPackage.Skills.Single(x => x.Key == canonical).Scaffold, "Expected explicit scaffold: " + canonical);
 			var text = db.StaticConfigurations.AsNoTracking().Single(x => x.SettingName == key).Definition;
 			Require(disabledGate is null ? text == skill.Id.ToString(CultureInfo.InvariantCulture) : text == skill.Name,
@@ -217,7 +218,7 @@ internal static partial class GNHProgram
 	private static BindingProof RangedFamily(string canonical, MudSharp.Combat.RangedWeaponType family, string evidence) =>
 		new("bound", evidence, db =>
 		{
-			var id = ArmageddonSkillPackage.Resolve(db)[canonical].Id;
+			var id = SettingAuditSkills(db)[canonical].Id;
 			var types = db.RangedWeaponTypes.AsNoTracking().Where(x => x.RangedWeaponType == (int)family).ToArray();
 			Require(types.Length > 0 && types.All(x => x.FireTraitId == id && x.OperateTraitId == id), "Wrong ranged family: " + canonical);
 			var componentType = family == MudSharp.Combat.RangedWeaponType.Bow ? "Bow" : "ThrownWeapon";
@@ -234,7 +235,7 @@ internal static partial class GNHProgram
 	private static BindingProof AbsentSourceRecipes(string canonical, bool approvedDeferred, string evidence) =>
 		new(approvedDeferred ? "approved-content-deferred" : "disabled-no-consumer", evidence, db =>
 		{
-			var id = ArmageddonSkillPackage.Resolve(db)[canonical].Id;
+			var id = SettingAuditSkills(db)[canonical].Id;
 			Require(!db.Crafts.Any(x => x.CheckTraitId == id), "A supposedly absent source recipe requires a concrete enabled binding audit: " + canonical);
 			return new[] { $"Owned source trait={id}; Crafts[CheckTraitId={id}]=0; recipe gameplay not qualified" };
 		});
@@ -242,7 +243,7 @@ internal static partial class GNHProgram
 	private static BindingProof AbsentSourcePower(string canonical, string evidence) =>
 		new("approved-content-deferred", evidence + "; powers last; source trait/tree retained", db =>
 		{
-			var id = ArmageddonSkillPackage.Resolve(db)[canonical].Id;
+			var id = SettingAuditSkills(db)[canonical].Id;
 			// This reduced baseline installs spells, not PsionicsSeeder powers. Fail if that assumption changes;
 			// do not silently accept adjacent named magic or a shared Psionic Discipline as source parity.
 			Require(!db.MagicPowers.Any(), "Power catalogue is no longer absent; add reviewed per-power trait/gate assertions: " + canonical);
@@ -254,25 +255,41 @@ internal static partial class GNHProgram
 		CheckType.SetTrapCheck, CheckType.SpotTrapCheck, CheckType.SearchForTrapCheck, CheckType.AvoidTrapCheck,
 		CheckType.DisarmTrapCheck, CheckType.DispelTrapCheck, CheckType.EscapeTrapCheck
 	];
-	private static bool TryAuditAbsentTrapCheck(FuturemudDatabaseContext db, CheckType type)
+	private static bool TryAuditInactiveTrapCheck(FuturemudDatabaseContext db, CheckType type)
 	{
 		if (!OptionalTrapChecks.Contains(type)) return false;
-		Require(!db.TrapTemplates.Any() && !db.Checks.Any(x => OptionalTrapChecks.Select(y => (int)y).Contains(x.Type)),
-			"Optional Trap adapter is no longer absent; audit all seven explicit canonical bindings.");
+		Require(!db.TrapTemplates.Any(), "Optional Trap consumers appeared; audit their explicit canonical bindings.");
+		var types=OptionalTrapChecks.Select(x=>(int)x).ToArray();
+		var checks=db.Checks.AsNoTracking().Where(x=>types.Contains(x.Type)).ToArray();
+		Require(checks.Length is 0 or 7, "Optional Trap check inventory is incomplete.");
+		// Futuremud.LoadChecks persists generic50 backfills for missing enum values.
+		// Verify that precise bootstrap shape, report it UNBOUND, and never count it
+		// as canonical Trap qualification or adopt its identity into the adapter.
+		foreach (var check in checks)
+		{
+			var expression=db.TraitExpressions.AsNoTracking().Single(x=>x.Id==check.TraitExpressionId);
+			var template=db.CheckTemplates.AsNoTracking().Single(x=>x.Id==check.CheckTemplateId);
+			Require(expression.Expression=="50" && expression.Name==$"{((CheckType)check.Type).DescribeEnum(true)} Check" &&
+				!db.TraitExpressionParameters.Any(x=>x.TraitExpressionId==expression.Id) &&
+				template.Name is "SkillCheck" or "Skill Check" && template.CheckMethod=="Standard" &&
+				check.MaximumDifficultyForImprovement==(int)Difficulty.Impossible &&
+				!db.SeederManagedRecords.Any(x=>x.EntityType==nameof(MudSharp.Models.Check) && x.LogicalId==check.Type),
+				"Optional Trap row is not the unowned native bootstrap fallback; add explicit adapter qualification.");
+		}
 		return true;
 	}
 	private static BindingProof AbsentOptionalTraps(string evidence) =>
 		new("disabled-no-consumer", evidence + "; TrapSeeder is explicitly optional, not baseline", db =>
 		{
-			var id = ArmageddonSkillPackage.Resolve(db)["arm.skill.trap"].Id;
-			Require(TryAuditAbsentTrapCheck(db, CheckType.SetTrapCheck), "Absent trap qualification failed.");
-			return new[] { $"Owned Trap trait={id}; TrapTemplates=0; all seven owned adapter Checks absent; no fallback qualification" };
+			var id = SettingAuditSkills(db)["arm.skill.trap"].Id;
+			Require(TryAuditInactiveTrapCheck(db, CheckType.SetTrapCheck), "Inactive trap qualification failed.");
+			return new[] { $"Owned Trap trait={id}; TrapTemplates=0; adapter uninstalled; any native generic50 backfills remain explicitly unbound and excluded from qualification" };
 		});
 
 	private static BindingProof BoundArmorRepair(string evidence) =>
 		new("bound", evidence + "; ArmageddonRepairBinding native component adaptation", db =>
 		{
-			var id = ArmageddonSkillPackage.Resolve(db)["arm.skill.armor_repair"].Id;
+			var id = SettingAuditSkills(db)["arm.skill.armor_repair"].Id;
 			var check = db.Checks.AsNoTracking().Single(x => x.Type == (int)CheckType.RepairItemCheck);
 			Require(db.TraitExpressions.AsNoTracking().Single(x => x.Id == check.TraitExpressionId).Expression == "variable",
 				"RepairItemCheck stopped being a supplied-trait consumer.");
@@ -302,12 +319,12 @@ internal static partial class GNHProgram
 		var flags = new[] { "VehiclePilotEnabled", "DirectionSenseEnabled", "ArmageddonHostileGuardAttemptsEnabled",
 			"HagglingEnabled", "BlindFightingEnabled", "DualWieldDoubleAttacksEnabled" }.Select(key =>
 			ExactStatic(key, "true", "fresh Armageddon world opt-in after references bind").Inspect(db)).ToArray();
-		var ride = ArmageddonSkillPackage.Resolve(db)["arm.skill.ride"].Id;
+		var ride = SettingAuditSkills(db)["arm.skill.ride"].Id;
 		var mount = db.Checks.AsNoTracking().Single(x => x.Type == (int)CheckType.MountControlCheck);
 		var mountExpression = db.TraitExpressions.AsNoTracking().Single(x => x.Id == mount.TraitExpressionId);
 		Require(mountExpression.Expression == $"ride:{ride}", "Dedicated MountControlCheck is missing its canonical Ride formula.");
 		AuditFormulaReferences(db, mountExpression.Expression);
-		var owned=ArmageddonSkillPackage.Resolve(db);
+		var owned=SettingAuditSkills(db);
 		var engine=(IReadOnlyDictionary<string,MudSharp.Models.TraitDefinition>)typeof(ArmageddonSkillPackage).GetMethod("EngineBindings",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Static)!.Invoke(null,new object[]{db})!;
 		var semanticChecks=new List<object>();
 		foreach(var type in Enum.GetValues<CheckType>())
@@ -334,7 +351,7 @@ internal static partial class GNHProgram
 			var verb=name=="Blackjack Sapping Blow" ? "sap" : "backstab";
 			Require((long?)xml.Element("Proficiency")==owned["arm.skill."+verb].Id && (string?)xml.Element("Command")==verb,"Wrong native opening binding: "+name);
 		}
-		foreach(var action in db.CombatActions.AsNoTracking())
+		foreach(var action in db.CombatActions.AsNoTracking().ToArray())
 		{
 			Require(db.TraitDefinitions.Any(x=>x.Id==action.TraitDefinitionId),"Auxiliary fallback would conceal missing primary trait: "+action.Name);
 			foreach(var effect in XElement.Parse(action.AdditionalInfo).Elements("Effect"))

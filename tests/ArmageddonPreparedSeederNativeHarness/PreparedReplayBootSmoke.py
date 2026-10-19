@@ -83,14 +83,14 @@ def setting_character_state():
     join = " JOIN Characters c ON c.Id=t.CharacterId JOIN Accounts a ON a.Id=c.AccountId WHERE a.Name LIKE 'SettingQual%' "
     characters = sql("SELECT c.Id,c.BodyId,c.Name FROM Characters c JOIN Accounts a ON a.Id=c.AccountId WHERE a.Name LIKE 'SettingQual%' ORDER BY c.Id")
     traits = sql("SELECT t.CharacterId,t.TraitDefinitionId,t.Value,t.AdditionalValue FROM CharacterTraits t"+join+"ORDER BY t.CharacterId,t.TraitDefinitionId")
-    roles = sql("SELECT t.CharacterId,t.ChargenRoleId FROM CharactersChargenRoles t"+join+"ORDER BY t.CharacterId,t.ChargenRoleId")
+    roles = sql("SELECT t.CharacterId,t.ChargenRoleId FROM Characters_ChargenRoles t"+join+"ORDER BY t.CharacterId,t.ChargenRoleId")
     merits = sql("SELECT t.CharacterId,t.MeritId FROM PerceiverMerits t"+join+"ORDER BY t.CharacterId,t.MeritId")
     import xml.etree.ElementTree as ET
     effects = sql("SELECT c.Id,REPLACE(REPLACE(c.EffectData,CHAR(10),''),CHAR(13),'') FROM Characters c JOIN Accounts a ON a.Id=c.AccountId WHERE a.Name LIKE 'SettingQual%' ORDER BY c.Id")
     claims = []
     for row in effects:
         root = ET.fromstring(row[1])
-        markers = [node for node in root.iter() if node.attrib.get('type') == 'RoleSkillBonusClaims' or node.attrib.get('Type') == 'RoleSkillBonusClaims']
+        markers = [node for node in root.iter('Type') if node.text == 'RoleSkillBonusClaims']
         claims.append([row[0],len(markers),sorted((node.attrib['trait'],node.attrib['floor']) for node in root.iter('Claim'))])
     return {'characters':characters,'traits':traits,'roles':roles,'merits':merits,'claims':claims}
 

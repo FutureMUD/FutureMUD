@@ -18,6 +18,8 @@ public static class DefaultStaticSettings
         new Dictionary<string, string>
         {
 			{ "BlindFightingEnabled", "false" },
+			{ "VehiclePilotEnabled", "false" },
+			{ "VehiclePilotTraitId", "0" },
 			{ "BlindFightingMinimumSightDifficulty", "6" },
 			{ "BlindFightingSightHardDifficulty", "4" },
 			{ "BlindFightingSightVeryHardDifficulty", "5" },

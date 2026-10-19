@@ -65,7 +65,10 @@ public partial class Body
     public double TotalBloodVolumeLitres { get; set; }
 
     public double LiverAlcoholRemovalKilogramsPerHour => OrganFunction<LiverProto>() *
-                                                         BaseLiverAlcoholRemovalKilogramsPerHour;
+                                                         BaseLiverAlcoholRemovalKilogramsPerHour *
+                                                         Actor.Merits.OfType<ILiverClearanceMerit>()
+                                                             .Where(x => x.Applies(Actor))
+                                                             .Aggregate(1.0, (value, merit) => value * merit.ClearanceMultiplier);
 
     public double BaseLiverAlcoholRemovalKilogramsPerHour { get; set; }
     public double WaterLossLitresPerHour { get; set; }

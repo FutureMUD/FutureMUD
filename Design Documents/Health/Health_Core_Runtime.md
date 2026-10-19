@@ -256,11 +256,14 @@ There is no separate flaw subsystem in the current repository. Health-related di
 | `BoneHealthMerit` | Changes fracture resilience or bone-health behavior |
 | `DrugEffectResistanceMerit` | Reduces intensity of whole drug-effect families |
 | `SpecificDrugResistanceMerit` | Reduces intensity of individual drugs |
+| `LiverClearanceMerit` | Multiplies effective liver clearance after organ-function/injury scaling, for alcohol and all active drugs, including beneficial drugs |
 | `NeedRateChangingMerit` | Changes hunger, thirst, alcohol, or similar need rates |
 | `OrganHitChanceReductionMerit` | Makes organ hits less likely |
 | `SurgeryFinalisationMerit` | Modifies invasive procedure closure or recovery support |
 | `WillToLiveMerit` | Modifies survivability-relevant thresholds such as hypoxia and vital recovery behavior |
 | `FixedBloodTypeMerit` | Locks or constrains blood typing |
+
+`Body.LiverAlcoholRemovalKilogramsPerHour` applies active `ILiverClearanceMerit` factors after organ-function scaling. Active needs and active-drug metabolism consume the same effective clearance; do not also attach an alcohol needs-rate multiplier for the same benefit. A failed liver still clears nothing. This changes clearance rate, not drug effect resistance, latent absorption or direct poison damage.
 
 ### Design implication
 These merits are not cosmetic. They plug directly into infection resistance, drug intensity adjustment, need decay, wound routing, and survival thresholds. In practice they are part of the health model, not merely part of character flavor.

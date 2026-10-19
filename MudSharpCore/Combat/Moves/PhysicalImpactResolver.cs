@@ -434,8 +434,14 @@ internal static class PhysicalImpactResolver
 	{
 		public void Validate(IHaveWounds recipient, IDamage damage)
 		{
-			if (!valid() || body is not null && (!ReferenceEquals(damage.TargetBody, body) ||
-				!body.Bodyparts.Contains(damage.Bodypart))) throw new ImpactInterrupted();
+			if (!valid()) throw new ImpactInterrupted();
+			// Native injury processing propagates this packet to bones and organs before
+			// creating its surface wound. Only current parts of this exact body qualify.
+			if (body is not null && (!ReferenceEquals(damage.TargetBody, body) ||
+				!body.Bodyparts.Any(x => ReferenceEquals(x, damage.Bodypart)) &&
+				!body.Bones.Any(x => ReferenceEquals(x, damage.Bodypart)) &&
+				!body.Organs.Any(x => ReferenceEquals(x, damage.Bodypart)))) throw new ImpactInterrupted();
+			if (!valid()) throw new ImpactInterrupted();
 			if (expectedItem is not null && !ReferenceEquals(recipient, expectedItem)) throw new ImpactInterrupted();
 			if (recipient is IBody actual && body is not null && !ReferenceEquals(actual, body)) throw new ImpactInterrupted();
 		}

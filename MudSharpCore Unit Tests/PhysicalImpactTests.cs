@@ -223,6 +223,49 @@ public partial class PhysicalImpactTests
 	[DataTestMethod]
 	[DataRow(true)]
 	[DataRow(false)]
+	public void ImpactInjuryFence_AllowsCapturedBodyInternalInjuriesButRejectsForeignParts(bool bone)
+	{
+		using var f = new Fixture(true);
+		IBodypart part;
+		if (bone)
+		{
+			var internalPart = Mock.Of<IBone>();
+			f.TargetBody.SetupGet(x => x.Bones).Returns([internalPart]);
+			part = internalPart;
+		}
+		else
+		{
+			var internalPart = Mock.Of<IOrganProto>();
+			f.TargetBody.SetupGet(x => x.Organs).Returns([internalPart]);
+			part = internalPart;
+		}
+		var validated = false;
+		void Rejected(Action validate)
+		{
+			try { validate(); }
+			catch (InvalidOperationException) { return; }
+			Assert.Fail("A foreign injury recipient or part passed the captured-body fence.");
+		}
+		f.TargetBody.Setup(x => x.PassiveSufferDamage(It.IsAny<IDamage>())).Callback<IDamage>(damage =>
+		{
+			// BodyBiology forwards the same packet to an internal bone/organ before
+			// creating the surface wound. Preserve its fence at that native seam.
+			damage.MutationGuard!.Validate(f.TargetBody.Object, new Damage(damage) { Bodypart = part });
+			Rejected(() => damage.MutationGuard.Validate(
+				f.TargetBody.Object, new Damage(damage) { Bodypart = Mock.Of<IBodypart>() }));
+			Rejected(() => damage.MutationGuard.Validate(
+				f.Body.Object, new Damage(damage) { Bodypart = part }));
+			Rejected(() => damage.MutationGuard.Validate(
+				f.TargetBody.Object, new Damage(damage) { Bodypart = part, TargetBody = f.Body.Object }));
+			validated = true;
+		}).Returns([]);
+		Assert.IsTrue(f.Move().ResolveMove(null!).MoveWasSuccessful);
+		Assert.IsTrue(validated);
+	}
+
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
 	public void OrdinaryMiss_OnlyBashSeatsAttackerWithoutDamage(bool bash)
 	{
 		using var f = new Fixture(bash, Outcome.Fail);

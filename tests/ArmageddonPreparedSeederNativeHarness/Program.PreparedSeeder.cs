@@ -36,12 +36,14 @@ internal static partial class GNHProgram
 			Require(args.Length == 3, "Base fixture validation requires an explicit descriptor path and SHA-256.");
 			return ValidateBaseWorldFixture(args[1], args[2]);
 		}
+		if (args.FirstOrDefault() == "--setting-source-pin") return CoreFoundationQualification(setting: true, sourcePinOnly: true);
 		OwnedConnections.Install();
 		return args.FirstOrDefault() switch
 		{
 			"--prepared-run" => PreparedSeederNative(),
             "--core-foundations-run" => CoreFoundationQualification(),
             "--setting-foundations-run" => CoreFoundationQualification(setting: true),
+            "--setting-role-reader" => ReadSettingRoleQualification(args[1]),
 			"--prepared-reader" => PreparedSeederReader(args[1]),
 			"--replay-run" => PreparedSeederReplayNative(),
 			"--settings-run" => PreparedSeederReplayNative(settings: true),

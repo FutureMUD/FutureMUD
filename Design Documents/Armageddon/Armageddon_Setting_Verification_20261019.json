@@ -268,5 +268,15 @@
     "receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\summary.json",
     "sha256": "ebbebc0548f28cfff1cf18c563a11f5d4c3ededa65a23d14ed3246a2faeb594f",
     "limits": "Native combined install/gameplay pending; authored damage tuning is not recovered source damage."
+  },
+  "final_implemented_seeder_batch": {
+    "passed": 2023,
+    "failed": 0,
+    "skipped": 3,
+    "skip_scope": "Unix launcher permissions require a Unix host",
+    "source_stable": true,
+    "receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\summary.json",
+    "sha256": "77ac56688c62132d53f8cb56ab0dfded7d6d315cd60d4f0f07bce7e50803ab70",
+    "limits": "Combined native gameplay qualification pending."
   }
 }

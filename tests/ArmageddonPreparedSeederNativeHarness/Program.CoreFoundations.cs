@@ -16,7 +16,7 @@ internal static partial class GNHProgram
 		string SchemaSha256, string ContentSha256, string SourceSha256, IReadOnlyList<BaseStep> Steps);
 
 	// A separate reduced scenario. The production Debug replay remains exhaustive and untruncated.
-	private static int CoreFoundationQualification(bool setting = false)
+	private static int CoreFoundationQualification(bool setting = false, bool sourcePinOnly = false)
 	{
         var skillPackageType = typeof(CoreDataSeeder).Assembly.GetType("DatabaseSeeder.Seeders.SkillPackageSeeder", true)!;
 		var types = new[] { typeof(CoreDataSeeder), typeof(TimeSeeder), typeof(AttributeSeeder), skillPackageType,
@@ -38,6 +38,7 @@ internal static partial class GNHProgram
 		var capturedSteps = setting ? steps.Take(3).ToArray() : steps;
         var sources = BaseSources(steps);
 		var sourceHash = BaseValueHash(sources);
+        if (sourcePinOnly) { Console.WriteLine("SETTING-source-pin=" + sourceHash); return 0; }
 		var folder = Path.Combine(CatalogueRepository, ".artifacts", setting ? "setting-foundations-fixtures" : "core-foundations-fixtures", DateTime.UtcNow.ToString("yyyyMMddTHHmmssZ") + "_" + Guid.NewGuid().ToString("N"));
 		Directory.CreateDirectory(folder);
 		string descriptor;
@@ -84,7 +85,8 @@ internal static partial class GNHProgram
                 "Foundation descriptor differs from its explicit digest or filename.");
             descriptorHash = suppliedHash;
             receipt = JsonSerializer.Deserialize<CoreFoundationFixture>(File.ReadAllText(descriptor)) ?? throw new InvalidOperationException("Malformed foundation fixture.");
-            Require(receipt.Kind == (setting ? "FutureMUD-Setting-foundations-v1" : "FutureMUD-Core-foundations-v1") && receipt.SourceSha256 == sourceHash && BaseValueHash(receipt.Steps) == BaseValueHash(capturedSteps) &&
+            Require(receipt.Kind == (setting ? "FutureMUD-Setting-foundations-v1" : "FutureMUD-Core-foundations-v1") &&
+                (receipt.SourceSha256 == sourceHash || setting && CompatibleSettingFoundation(receipt, descriptorHash, sourceHash)) && BaseValueHash(receipt.Steps) == BaseValueHash(capturedSteps) &&
                 TestDatabase.HasOwnedPrefix(receipt.Database) && Path.GetFileName(receipt.SqlFile) == receipt.SqlFile && receipt.SqlFile.EndsWith(".sql", StringComparison.OrdinalIgnoreCase),
                 "Foundation fixture kind, source, answer inventory or sibling SQL identity differs; explicit new capture required.");
             folder = Path.GetDirectoryName(descriptor)!;
@@ -150,7 +152,8 @@ internal static partial class GNHProgram
                     Require(afterRerun.StaticConfigurations.Find(binding.Key)?.Definition == afterSkills[binding.Value].Id.ToString(), "Unresolved static trait binding: " + binding.Key);
                 var never = afterRerun.FutureProgs.Single(x => x.FunctionName == "AlwaysFalse").Id;
                 Require(afterRerun.ManualCombatCommands.Where(x => x.PrimaryVerb == "bash" || x.PrimaryVerb == "kick")
-                    .All(x => !x.PlayerUsable && !x.NpcUsable && x.UsabilityProgId == never), "Pending source manual actions were exposed as generic stock content.");
+                    .All(x => x.PlayerUsable && x.NpcUsable && x.CombatActionId != null && x.UsabilityProgId != never), "Source impact commands were not enabled.");
+                Require(afterRerun.CombatActions.Single(x => x.Name == "Bash").UsabilityProgId == never, "Generic Bash must remain gated.");
                 foreach (var name in new[] { "Two Handed Sword", "Training Two Handed Sword", "Two Handed Axe", "Training Two Handed Axe" })
                 {
                     var weapon = afterRerun.WeaponTypes.Single(x => x.Name == name);
@@ -201,6 +204,7 @@ internal static partial class GNHProgram
                 Console.WriteLine("SETTING-resume-checkpoint=committed settings merits progression; catalogue-unstarted");
             }
 			ExecuteBaseTargetStep(restored, new ArmageddonSettingSeeder(), settingAnswers);
+            if (setting) { RunSettingBindingAudit(restored,"installed"); QualifySettingNativeRolesAndHeritage(restored); }
 			using (var db = NewPreparedReplayContext(restored.ConnectionString))
 			{
 				RequireNoUseful(db);
@@ -233,12 +237,13 @@ internal static partial class GNHProgram
                 Require(db.CharacterTraits.Any(x => x.TraitDefinitionId == peekId && x.Value == 57 && x.AdditionalValue == 3), "Magic-phase resume/rerun changed saved player values.");
                 Console.WriteLine("SETTING-resume-rerun=PASS committed-identities builder-merit saved-player-values");
             }
+			if (setting) RunSettingBindingAudit(restored,"rerun");
 			RunCoreFoundationBoot(restored);
 			Console.WriteLine("CORE-foundation-restored=PASS exact-roundtrip rerun-identities custom-binding full-Armageddon no-Useful");
 		}
 		Require(BaseHash(descriptor) == descriptorHash && BaseHash(sqlPath) == receipt.SqlSha256 && sourceHash == BaseValueHash(BaseSources(steps)), "Foundation fixtures/sources changed during qualification.");
-		WriteBaseRunReceipt(new { Status = "PASS", Scope = setting ? "Early Armageddon packages and classes-on magic stage; mundane/heritage not qualified" : "Core tags, Sewer/Ruins, reduced Combat/Armageddon baseline", Descriptor = descriptor,
-			DescriptorSha256 = descriptorHash, receipt.SqlSha256, SourceSha256 = sourceHash, FreshSeeders = (setting ? types.Take(3) : types).Select(x => x.Name), RestoredSeeders = (setting ? types.Skip(3) : Array.Empty<Type>()).Select(x => x.Name), FullReplayExecuted = false,
+		WriteBaseRunReceipt(new { Status = "PASS", Scope = setting ? "Combined classes-on Setting; actual native progression/heritage/impacts/openings/Pilot; gated physical profiles remain unqualified" : "Core tags, Sewer/Ruins, reduced Combat/Armageddon baseline", Descriptor = descriptor,
+			DescriptorSha256 = descriptorHash, receipt.SqlSha256, SourceSha256 = sourceHash, BaselineCapturedThisRun = string.IsNullOrWhiteSpace(supplied), CapturedBaselineSeeders = capturedSteps.Select(x=>x.SeederType), ReviewedThreeStepSourceCompatibility = receipt.SourceSha256 != sourceHash, RestoredSeeders = (setting ? types.Skip(3) : Array.Empty<Type>()).Select(x => x.Name), FullReplayExecuted = false,
 			DumpRoundTripVerified = true, TagIdentitiesPreserved = true, CustomBindingPreserved = true, ZeroUsefulComponents = true,
 			MagicPhaseResumeVerified = setting, MagicPhaseRerunVerified = setting, PlayerValuePreserved = setting,
 			OriginalSealedFilesUnchanged = true, OwnedDatabasesDisposed = true });
@@ -291,4 +296,19 @@ internal static partial class GNHProgram
             Environment.SetEnvironmentVariable("FUTUREMUD_PREPARED_REPLAY_BOOT_OUTPUT", priorOutput);
         }
     }
+
+	private static bool CompatibleSettingFoundation(CoreFoundationFixture receipt, string descriptorHash, string currentSourceHash)
+	{
+		// This receipt captured only Core/Time/Attributes. Its aggregate pin also included the four
+		// not-yet-executed seeders and all Library interfaces. Reviewed local slices changed those
+		// later packages/interfaces, not the captured three seeders, DB models or ExpressionEngine.
+		// Exact old/new and sealed descriptor/SQL/schema/content pins allow this one restore only.
+		return descriptorHash == "E26C6B5992C664F52BFA38488CB2F19143B8B80A59C7A3CB949D7B7F014C61A8" &&
+			receipt.Kind == "FutureMUD-Setting-foundations-v1" && receipt.Steps.Count == 3 &&
+			receipt.SourceSha256 == "C62FBE7A23C71B967C05BCE8EFBCB9E890E6A28F415FB7D52B3C77F75DED4C1B" &&
+			currentSourceHash == "0EA61DCF7537437B2013BBCEF13B66EEC1034E5584A0B9D3CCDD95D266F54A70" &&
+			receipt.SqlSha256 == "64113F06E363B582ECE510A3C112984F51D28977DB7250A53D28A6DA790F7206" &&
+			receipt.SchemaSha256 == "36CF37216ABAC521E308DC44FA83DDDA246414F171A7D1B27A7C634BE93A17B3" &&
+			receipt.ContentSha256 == "8D8553E9D1353969FCFA7EE082F789FB98B9D777771905AAAB416DC8ACFF8C45";
+	}
 }

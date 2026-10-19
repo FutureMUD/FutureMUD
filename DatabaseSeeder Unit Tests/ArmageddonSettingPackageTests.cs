@@ -156,6 +156,7 @@ public class ArmageddonSettingPackageTests
 			Assert.AreEqual("true", db.StaticConfigurations.Find(key)!.Definition, key);
 			db.StaticConfigurations.Find(key)!.Definition = "false";
 		}
+		foreach (var key in new[] { "ElectricalCommandEnabled", "ProgrammingCommandEnabled" }) { Assert.AreEqual("false", db.StaticConfigurations.Find(key)!.Definition, key); db.StaticConfigurations.Find(key)!.Definition = "true"; }
 		var ids = owned.ToDictionary(x => x.Key, x => x.Value.Id);
 		db.CharacterTraits.Add(new CharacterTrait { CharacterId = 9000, TraitDefinitionId = owned["arm.skill.peek"].Id, Value = 57, AdditionalValue = 3 });
 		owned["arm.skill.peek"].Name = "Builder covert inspection";
@@ -163,6 +164,7 @@ public class ArmageddonSettingPackageTests
 		db.SaveChanges();
 		seeder.SeedData(db, Answers);
 		foreach (var key in new[] { "VehiclePilotEnabled", "DirectionSenseEnabled", "ArmageddonHostileGuardAttemptsEnabled", "HagglingEnabled" }) Assert.AreEqual("false", db.StaticConfigurations.Find(key)!.Definition, key);
+		foreach (var key in new[] { "ElectricalCommandEnabled", "ProgrammingCommandEnabled" }) Assert.AreEqual("true", db.StaticConfigurations.Find(key)!.Definition, key);
 		var after = ArmageddonSkillPackage.Resolve(db);
 		Assert.IsTrue(ids.All(x => after[x.Key].Id == x.Value));
 		Assert.AreEqual("Builder covert inspection", after["arm.skill.peek"].Name);

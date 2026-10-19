@@ -77,6 +77,12 @@ public static class ArmageddonSkillPackage
 			if (setting is null) db.StaticConfigurations.Add(new StaticConfiguration { SettingName = key, Definition = "true" });
 			else setting.Definition = "true";
 		}
+		foreach (var key in new[] { "ElectricalCommandEnabled", "ProgrammingCommandEnabled" })
+		{
+			var setting = db.StaticConfigurations.Find(key);
+			if (setting is null) db.StaticConfigurations.Add(new StaticConfiguration { SettingName = key, Definition = "false" });
+			else setting.Definition = "false";
+		}
 	}
 
 	public static string CanonicalKey(string key) => Data.Value.Aliases.GetValueOrDefault(key) ?? key;

@@ -1,4 +1,5 @@
-﻿using MudSharp.Movement;
+﻿using MudSharp.Construction;
+using MudSharp.Movement;
 using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Heritage;
@@ -375,7 +376,8 @@ public partial class Character
 
         if (rider.PositionState == PositionRiding.Instance)
         {
-            rider.SetPosition(rider.Location?.IsSwimmingLayer(rider.RoomLayer) == true
+            rider.SetPosition(rider.Location?.IsSwimmingLayer(rider.RoomLayer) == true ||
+                    TerrainImmersionHelper.RequiresSwimming(rider, posture: PositionStanding.Instance)
                     ? PositionSwimming.Instance
                     : PositionStanding.Instance,
                 PositionModifier.None, null, null);

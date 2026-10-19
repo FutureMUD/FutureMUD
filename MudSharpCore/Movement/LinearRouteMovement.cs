@@ -1,5 +1,6 @@
 #nullable enable
 
+using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -187,6 +188,10 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 		}
 
 		var speed = speedMetresPerSecond ?? ResolveCharacterSpeed(rootMover, route);
+        if (TerrainImmersionHelper.ProfileFor(rootMover.Location, rootMover.RoomLayer)?.RestrictRunning == true)
+        {
+            speed = Math.Min(speed, ResolveCharacterSpeed(rootMover, route));
+        }
 		LinearRouteMovementSegment segment;
 		try
 		{
@@ -245,6 +250,15 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 			_finished = true;
 			return;
 		}
+
+        foreach (var character in _staminaMovers)
+        {
+            if (TerrainImmersionHelper.ProfileFor(character.Location, character.RoomLayer) is null) continue;
+            if (TerrainImmersionHelper.RequiresSwimming(character) && character.PositionState != PositionSwimming.Instance)
+                character.SetPosition(PositionSwimming.Instance, PositionModifier.None, null, null);
+            var speed = EffectiveGroundSpeed(character);
+            if (speed is not null) character.CurrentSpeeds[speed.Position] = speed;
+        }
 
 		_persistence.Start(
 			_rootMover,
@@ -610,10 +624,11 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 					  character.Gameworld.GetStaticDouble("DefaultTerrainStaminaCost");
 				var encumbrance = 1.0 + character.EncumbrancePercentage *
 					character.Gameworld.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage");
-				var speedCost = character.CurrentSpeed?.StaminaMultiplier ?? 1.0;
+				var speedCost = EffectiveGroundSpeed(character)?.StaminaMultiplier ?? 1.0;
 				return new RouteMotionResourceCharge(
 					character,
-					Math.Max(0.0, roomEquivalents * terrainCost * encumbrance * speedCost),
+					Math.Max(0.0, roomEquivalents * terrainCost * encumbrance * speedCost *
+                        (TerrainImmersionHelper.IsWading(character) ? TerrainImmersionHelper.WadingStaminaMultiplier : 1.0)),
 					"stamina");
 			})
 			.ToArray();
@@ -658,12 +673,22 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 			: route.NegativeDirectionName;
 	}
 
+    private static IMoveSpeed? EffectiveGroundSpeed(ICharacter character)
+    {
+        if (TerrainImmersionHelper.ProfileFor(character.Location, character.RoomLayer) is null) return character.CurrentSpeed;
+        var posture = TerrainImmersionHelper.RequiresSwimming(character)
+            ? PositionSwimming.Instance : character.PositionState;
+        character.CurrentSpeeds.TryGetValue(posture, out var selected);
+        return MudSharp.Character.Character.ImmersionMovementSpeed(character, selected, posture);
+    }
+
 	private static double ResolveCharacterSpeed(ICharacter character, IRouteRoomDefinition route)
 	{
 		// A normal walking gait is approximately 1.4m/s. Existing movement-speed multipliers
 		// represent relative duration, so smaller values produce faster longitudinal travel.
-		var gaitMultiplier = Math.Max(0.05, character.CurrentSpeed?.Multiplier ?? 1.0);
+		var gaitMultiplier = Math.Max(0.05, EffectiveGroundSpeed(character)?.Multiplier ?? 1.0);
 		var speed = 1.4 / gaitMultiplier;
+        if (TerrainImmersionHelper.IsWading(character)) speed /= TerrainImmersionHelper.WadingTimeMultiplier;
 		return Math.Clamp(speed, 0.05, Math.Max(0.05, route.MetresPerRoomEquivalent));
 	}
 

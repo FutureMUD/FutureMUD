@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using MudSharp.Accounts;
 using MudSharp.Body;
+using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
+using MudSharp.Planes;
 using MudSharp.Celestial;
 using MudSharp.Character.Name;
 using MudSharp.CharacterCreation.Resources;
@@ -296,7 +298,6 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 
     public bool IsSwimmingLayer(RoomLayer referenceLayer = RoomLayer.GroundLevel)
     {
-        // TODO - wading pools
         // TODO - room flooding effects
         return !referenceLayer.IsHigherThan(RoomLayer.GroundLevel) &&
                Terrain(null).TerrainLayers.Any(x => x.IsUnderwater());
@@ -327,7 +328,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 		if (!StillPresent()) return;
 		_gameItems = _gameItems.OrderBy(x => !x.HighPriority).ToList();
 		if (!StillPresent()) return;
-		var swimming = IsSwimmingLayer(point.Layer);
+		var swimming = IsSwimmingLayer(point.Layer) || ShallowItemFloats(item, point.Layer);
 		if (!StillPresent()) return;
 		if (swimming) item.PositionState = PositionFloatingInWater.Instance;
 		else if (ZeroGravityMovementHelper.IsZeroGravity(this, point.Layer) && StillPresent()) ZeroGravityMovementHelper.EnsureFloating(item);
@@ -436,7 +437,7 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
 		}
         _gameItems = _gameItems.OrderBy(x => !x.HighPriority).ToList();
         if (!StillAtIntendedPoint(null, clearedBody)) return;
-        var swimming = IsSwimmingLayer(newLayer);
+        var swimming = IsSwimmingLayer(newLayer) || ShallowItemFloats(thing, newLayer);
         if (!StillAtIntendedPoint(null, clearedBody)) return;
         if (swimming)
         {
@@ -1732,7 +1733,8 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
             _treeFallActive = true;
         }
 
-        if (Terrain(null).TerrainLayers.Any(x => x.IsUnderwater()))
+        if (Terrain(null).TerrainLayers.Any(x => x.IsUnderwater()) ||
+            Terrain(null).Immersion?.Medium == TerrainMedium.Liquid)
         {
             Gameworld.HeartbeatManager.FuzzyThirtySecondHeartbeat += SinkUnderwaterTick;
             _sinkUnderwaterActive = true;
@@ -1816,8 +1818,40 @@ public partial class Room : Location, IDisposable, IRoom, IRecoverableSaveFailur
         }
     }
 
+    private bool ShallowItemFloats(IGameItem item, RoomLayer layer) =>
+        TerrainImmersionHelper.ProfileFor(this, layer)?.Medium == TerrainMedium.Liquid &&
+        item.PositionState != PositionFlying.Instance && !item.SuspendsPhysicalContact() &&
+        Terrain(null).WaterFluid is ILiquid liquid &&
+        (item.GetItemType<IVehicleExterior>()?.Vehicle.KeepsExteriorAfloat() == true || item.Buoyancy(liquid.Density) > 0);
+
+    private void RefreshShallowImmersion()
+    {
+        var liquid = Terrain(null).WaterFluid as ILiquid;
+        if (liquid is null) return;
+        foreach (var item in GameItems.Where(x => x.RoomLayer == RoomLayer.GroundLevel).ToArray())
+        {
+            if (item.Deleted || item.Location != this || item.ContainedIn is not null || item.InInventoryOf is not null) continue;
+            if (TerrainImmersionHelper.ItemContactFor(item).Extent == ImmersionExtent.None) continue;
+            if (item.GetItemType<IHoldable>()?.IsHoldable == true || item.GetItemType<IVehicleExterior>() is not null)
+            {
+                var position = ShallowItemFloats(item, item.RoomLayer)
+                    ? (IPositionState)PositionFloatingInWater.Instance : PositionUndefined.Instance;
+                if (item.PositionState != position) item.PositionState = position;
+            }
+            if (TerrainImmersionHelper.ItemContactFor(item).Extent != ImmersionExtent.None)
+                EnvironmentalExposureService.For(Gameworld).RefreshImmersion(item, liquid);
+        }
+        foreach (var character in Characters.Where(x => x.RoomLayer == RoomLayer.GroundLevel).ToArray())
+            EnvironmentalExposureService.For(Gameworld).RefreshImmersion(character.Body);
+    }
+
     private void SinkUnderwaterTick()
     {
+        if (Terrain(null).Immersion?.Medium == TerrainMedium.Liquid)
+        {
+            RefreshShallowImmersion();
+            return;
+        }
         CollectionDictionary<RoomLayer, IGameItem> items = GameItems.Select(x => (x.RoomLayer, x)).ToCollectionDictionary();
         CollectionDictionary<RoomLayer, ICharacter> characters = Characters.Select(x => (x.RoomLayer, x)).ToCollectionDictionary();
         RoomLayer lowestLayer = Terrain(null).TerrainLayers.FirstMin(x => x.LayerHeight());

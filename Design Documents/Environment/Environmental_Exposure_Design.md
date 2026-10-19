@@ -41,6 +41,10 @@ Saving and display reads do not advance wetness, weather or exposure. The clock 
 
 Registry loading does not create the exposure service or evaluate partially loaded targets. Boot-time advances only reset the clock; the complete world registers its initial active set before the heartbeat starts. Loading saved contamination therefore starts a new interval without an offline injury backlog.
 
+## Supported shallow liquid contact
+
+The opt-in `veryshallowwater` terrain model uses categorical immersion size and existing positional sizes/bodypart orientations to select contact. It is not a swimming-layer alias. Wetting, exposed garments, held items, corpse anatomy and respiratory sites consume that same placement-aware result. Posture changes settle prior exposure and invalidate stale respiratory samples. The separate `silt` model shares geometric coverage but supplies no liquid reactions or breathing-fluid substitution. See [very shallow water and silt](../World/Very_Shallow_Water_and_Silt.md) for defaults and limitations. Existing water terrain retains its original immersion selection.
+
 ## Rates and finite depletion
 
 A version-two rule has a stable GUID, route flags, category, channel, priority, material/tag selectors, optional temperature bounds, damage type, damage/pain/stun rates and optional scripts. A higher-priority rule wins within a channel. Equally specific equal-priority overlaps are quarantined with a diagnostic; explicit exclusions perform neither injury nor consumption. Different authored channels may coexist.

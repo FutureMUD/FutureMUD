@@ -22,6 +22,10 @@ The complete supported callback acceptance is still open; see [the working closu
 
 Created leaf-item removal also admits exact native passive detection effects on the holder, with their matching native spell parent and no applicability programs. Unsupported effects and custody dependencies retain their removal guards. Consumption records the used remainder before retirement; a held exhausted item cannot credit needs again after save/reload or removal retry. See [the lifecycle contract](../Magic/Spell_Owned_Lifecycle.md).
 
+## Shallow media placement
+
+Opt-in very shallow water and silt distinguish loose bottom items from floating, held, contained and genuinely platform-supported goods. Fully covered loose items are visually occluded only when the medium is opaque; this is independent from ordinary Hide and reach. Existing item buoyancy, container protection and corpse anatomy remain authoritative. Dropping never becomes deliberate burial merely because an item is obscured. See [very shallow water and silt](../World/Very_Shallow_Water_and_Silt.md).
+
 ## Physical manipulation and reach
 
 FoldedPocket is a spell-bound native container. Its frozen instance binding

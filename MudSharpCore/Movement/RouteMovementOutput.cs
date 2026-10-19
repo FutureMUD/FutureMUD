@@ -1,6 +1,7 @@
 #nullable enable
 
 using MudSharp.Character;
+using MudSharp.Construction;
 using MudSharp.Framework;
 using MudSharp.PerceptionEngine;
 using MudSharp.PerceptionEngine.Outputs;
@@ -16,12 +17,16 @@ public static class RouteMovementOutput
 {
 	public static void CharacterBegin(ICharacter mover, string directionName)
 	{
-		EchoCharacter(mover, $"@ begin|begins travelling {directionName.ColourName()}.");
+		EchoCharacter(mover, TerrainImmersionHelper.IsWading(mover)
+			? $"@ begin|begins wading {directionName.ColourName()}."
+			: $"@ begin|begins travelling {directionName.ColourName()}.");
 	}
 
 	public static void CharacterProgress(ICharacter mover, string directionName)
 	{
-		EchoCharacter(mover, $"@ continue|continues travelling {directionName.ColourName()}.");
+		EchoCharacter(mover, TerrainImmersionHelper.IsWading(mover)
+			? $"@ continue|continues wading {directionName.ColourName()}."
+			: $"@ continue|continues travelling {directionName.ColourName()}.");
 	}
 
 	public static void CharacterFinished(ICharacter mover, string echo)

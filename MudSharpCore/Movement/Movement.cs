@@ -638,7 +638,7 @@ public class Movement : IMovement
 
         if (seenMovers.Count > 0)
         {
-            foreach (IGrouping<(bool Riding, IMoveSpeed Speed, bool Sneaking), ICharacter> group in seenMovers.GroupBy(x => (Riding: x.RidingMount is not null, Speed: x.RidingMount?.CurrentSpeed ?? x.CurrentSpeed, Sneaking: (x.RidingMount ?? x).AffectedBy<ISneakMoveEffect>(y => !y.Subtle))))
+            foreach (IGrouping<(bool Riding, IMoveSpeed Speed, bool Sneaking, bool Wading), ICharacter> group in seenMovers.GroupBy(x => (Riding: x.RidingMount is not null, Speed: x.RidingMount?.CurrentSpeed ?? x.CurrentSpeed, Sneaking: (x.RidingMount ?? x).AffectedBy<ISneakMoveEffect>(y => !y.Subtle), Wading: MudSharp.Construction.TerrainImmersionHelper.IsWading(x.RidingMount ?? x))))
             {
                 // Show riders individually
                 if (group.Key.Riding)
@@ -646,15 +646,17 @@ public class Movement : IMovement
                     foreach (IGrouping<ICharacter, ICharacter> item in group.GroupBy(x => x.RidingMount))
                     {
                         var speed = item.Key.CurrentSpeed ?? group.Key.Speed;
-                        var verb = speed is null ? item.Key == voyeur ? "move" : "moves" : item.Key == voyeur ? speed.FirstPersonVerb : speed.ThirdPersonVerb;
+                        var verb = group.Key.Wading ? item.Key == voyeur ? "wade" : "wades" : speed is null ? item.Key == voyeur ? "move" : "moves" : item.Key == voyeur ? speed.FirstPersonVerb : speed.ThirdPersonVerb;
                         sb.AppendLine($"{item.Key.HowSeen(voyeur)}{(item.Key.AffectedBy<ISneakMoveEffect>(y => !y.Subtle) ? " sneakily" : "")} {verb} {suffix}, ridden by {group.OrderBy(y => y == voyeur).Select(x => x.HowSeen(voyeur)).ListToString()}".Proper());
                     }
                 }
                 else
                 {
-                    var verb = group.Key.Speed is null
-                        ? group.Count() == 1 && !group.First().IsSelf(voyeur) ? "moves" : "move"
-                        : group.Count() == 1 && !group.First().IsSelf(voyeur) ? group.Key.Speed.ThirdPersonVerb : group.Key.Speed.FirstPersonVerb;
+                    var verb = group.Key.Wading
+                        ? group.Count() == 1 && !group.First().IsSelf(voyeur) ? "wades" : "wade"
+                        : group.Key.Speed is null
+                            ? group.Count() == 1 && !group.First().IsSelf(voyeur) ? "moves" : "move"
+                            : group.Count() == 1 && !group.First().IsSelf(voyeur) ? group.Key.Speed.ThirdPersonVerb : group.Key.Speed.FirstPersonVerb;
                     sb.AppendLine($"{group.Select(x => x.HowSeen(voyeur)).ListToString()} {verb} {(group.Key.Sneaking ? "sneakily " : "")}{suffix}.".Proper());
                 }
             }

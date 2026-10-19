@@ -38,7 +38,7 @@ public partial class Room
 		var route = SurfaceLiquidTransferService.SelectRoute(
 			mixture.IsEmpty,
 			() => Gameworld.GetStaticBool("PuddlesEnabled"),
-			IsSwimmingLayer(layer));
+			IsSwimmingLayer(layer) || TerrainImmersionHelper.ProfileFor(this, layer)?.Medium == TerrainMedium.Liquid);
 		switch (route)
 		{
 			case SurfaceLiquidRoute.Ignore:
@@ -141,7 +141,8 @@ public partial class Room
 		}
 
 		_lastWeatherExposureByLayer[layer] = now;
-		if (Gameworld.GetStaticBool("PuddlesEnabled"))
+		if (Gameworld.GetStaticBool("PuddlesEnabled") &&
+		    TerrainImmersionHelper.ProfileFor(this, layer)?.Medium != TerrainMedium.Liquid)
 		{
 			// Precipitation is uniform RouteRoom environment state rather than a point spill.
 			var state = GetOrCreateSurfaceState(layer, null);
@@ -193,7 +194,8 @@ public partial class Room
 
 	private void ConsolidateLegacyPuddles(RoomLayer layer)
 	{
-		if (!Gameworld.GetStaticBool("PuddlesEnabled") || IsSwimmingLayer(layer))
+		if (!Gameworld.GetStaticBool("PuddlesEnabled") || IsSwimmingLayer(layer) ||
+		    TerrainImmersionHelper.ProfileFor(this, layer)?.Medium == TerrainMedium.Liquid)
 		{
 			return;
 		}

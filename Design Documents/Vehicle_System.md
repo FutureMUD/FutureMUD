@@ -1012,3 +1012,7 @@ Scope:
 - Player interaction routes through the exterior item unless an admin command explicitly targets a vehicle id.
 - Occupants are vehicle occupancy records, not component XML.
 - Future systems may reuse item/container/component infrastructure, but the vehicle owns the compartment, station, movement, access, and projection decisions.
+
+## Supported shallow media
+
+SurfaceWater environments also accept the opt-in `veryshallowwater` liquid ground surface, independently of whether a particular passenger needs to swim. The appended Silt environment restricts travel to silt ground surfaces at both endpoints and does not activate water exposure. Actual intact occupancy and exterior placement supply support; independent disembarkation reassesses the exposed actor. No draft/displacement simulation or conversion of existing vehicle prototypes is performed. See [very shallow water and silt](World/Very_Shallow_Water_and_Silt.md) for the categorical contact model and builder settings.

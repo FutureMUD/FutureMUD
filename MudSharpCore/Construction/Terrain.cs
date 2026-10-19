@@ -1,4 +1,5 @@
 ﻿using MudSharp.Climate;
+using MudSharp.GameItems;
 using MudSharp.Combat;
 using MudSharp.Database;
 using MudSharp.Form.Material;
@@ -23,6 +24,7 @@ public partial class Terrain : SaveableItem, ITerrain
     private long _foragableProfileId;
     private long _defaultAgricultureFieldProfileId;
     public string TerrainBehaviourString { get; private set; }
+	public TerrainImmersionProfile? Immersion { get; private set; }
 
     public Terrain(Models.Terrain terrain, IFuturemud gameworld)
     {
@@ -73,10 +75,19 @@ public partial class Terrain : SaveableItem, ITerrain
         }
 
         _overrideWeatherControllerId = terrain.WeatherControllerId;
+        Immersion = null;
+		WaterFluid = null;
         TerrainBehaviourString = terrain.TerrainBehaviourMode;
         StringStack ss = new(terrain.TerrainBehaviourMode);
         switch (ss.PopSpeech().ToLowerInvariant())
         {
+            case "veryshallowwater":
+            case "silt":
+                var medium = ss.Last.EqualTo("silt") ? TerrainMedium.Silt : TerrainMedium.Liquid;
+                if (!TryReadImmersion(ss, medium, out var immersion, out var immersionLiquid, out var error))
+                    throw new FormatException($"Invalid terrain {Id} immersion model: {error}");
+                SetAsImmersiveTerrain(immersion!, immersionLiquid);
+                break;
             case "outdoors":
                 SetAsOutdoorsTerrain();
                 break;
@@ -338,6 +349,60 @@ public partial class Terrain : SaveableItem, ITerrain
         _terrainLayers.Add(RoomLayer.InTrees);
         TerrainBehaviourString = "cavetrees";
     }
+
+	private bool TryReadImmersion(StringStack command, TerrainMedium medium,
+		out TerrainImmersionProfile? profile, out ILiquid? liquid, out string error)
+	{
+		profile = null;
+		liquid = null;
+		error = string.Empty;
+		if (medium == TerrainMedium.Liquid)
+		{
+			var liquidText = command.PopSpeech();
+			liquid = Gameworld.Liquids.GetByIdOrName(liquidText);
+			if (liquid is null)
+			{
+				error = "Specify a valid liquid ID or quoted name, followed by an immersion size.";
+				return false;
+			}
+		}
+		var sizeText = command.PopSpeech();
+		if (!sizeText.TryParseEnum<SizeCategory>(out var size) || !Enum.IsDefined(size))
+		{
+			error = "Specify an immersion size: " + Enum.GetValues<SizeCategory>().Select(x => x.DescribeEnum()).ListToString() + ".";
+			return false;
+		}
+		var opaque = medium == TerrainMedium.Silt;
+		var noRun = false;
+		while (!command.IsFinished)
+		{
+			switch (command.PopForSwitch())
+			{
+				case "opaque": opaque = true; break;
+				case "clear": opaque = false; break;
+				case "norun": noRun = true; break;
+				case "run": noRun = false; break;
+				default:
+					error = "The optional immersion settings are clear, opaque, run and norun.";
+					return false;
+			}
+		}
+		profile = new(medium, size, opaque, noRun);
+		return true;
+	}
+
+	private void SetAsImmersiveTerrain(TerrainImmersionProfile profile, ILiquid? liquid)
+	{
+		SetAsOutdoorsTerrain();
+		Immersion = profile;
+		WaterFluid = liquid;
+		TerrainBehaviourString = profile.Medium == TerrainMedium.Liquid
+			? $"veryshallowwater {liquid!.Id} {profile.ImmersionSize}"
+			: $"silt {profile.ImmersionSize}";
+		if (profile.ObscuresItems != (profile.Medium == TerrainMedium.Silt))
+			TerrainBehaviourString += profile.ObscuresItems ? " opaque" : " clear";
+		if (profile.RestrictRunning) TerrainBehaviourString += " norun";
+	}
 
     private void SetAsShallowWaterTerrain(StringStack ss)
     {
@@ -1063,6 +1128,20 @@ public partial class Terrain : SaveableItem, ITerrain
     private bool BuildingCommandModel(ICharacter actor, StringStack command)
     {
         string model = command.PopForSwitch();
+        if (model is "veryshallowwater" or "silt")
+        {
+            if (!TryReadImmersion(command, model == "silt" ? TerrainMedium.Silt : TerrainMedium.Liquid,
+                    out var profile, out var fluid, out var error))
+            {
+                actor.OutputHandler.Send(error);
+                return false;
+            }
+            SetAsImmersiveTerrain(profile!, fluid);
+            Changed = true;
+            actor.OutputHandler.Send($"The terrain model is now {TerrainBehaviourString.ColourValue()}.");
+            return true;
+        }
+
         ILiquid liquid = null;
         switch (model)
         {
@@ -1114,6 +1193,8 @@ public partial class Terrain : SaveableItem, ITerrain
 	#3indoors#0 - Ground Level only
 	#3cave#0 - Ground Level + 1 air level
 	#3cliff#0 - Air Levels only - i.e. rockface
+	#3silt <size> [clear|opaque] [norun]#0 - non-liquid particulate ground
+	#3veryshallowwater <liquid> <size> [clear|opaque] [norun]#0 - supported liquid ground
 	#3rooftops#0 - Ground level + rooftops + 2 air levels
 	#3rooftopsonly#0 - Rooftops + 2 air levels, with no ground level
 	#3trees#0 - Ground level + trees + 2 air levels
@@ -1135,6 +1216,8 @@ The following additional models require you to specify a liquid to go with them:
                 return false;
         }
 
+        Immersion = null;
+        WaterFluid = null;
         _terrainLayers.Clear();
         switch (model)
         {

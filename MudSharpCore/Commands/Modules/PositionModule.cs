@@ -1449,7 +1449,7 @@ The syntax is:
     [RequiredCharacterState(CharacterState.Able)]
     [NoMovementCommand]
     [NoMeleeCombatCommand]
-    [HelpInfo("swim", @"The #3swim#0 command changes your character into a swimming position when they are in an appropriate body of water.
+    [HelpInfo("swim", @"The #3swim#0 command changes your character into a swimming position when they are in an appropriate body of water. Supported very shallow water also permits swimming when its immersion size covers your prone size.
 
 The syntax is:
 
@@ -1462,9 +1462,12 @@ The syntax is:
             return;
         }
 
-        if (!actor.Location.IsSwimmingLayer(actor.RoomLayer))
+        var shallowLiquid = MudSharp.Construction.TerrainImmersionHelper.ProfileFor(actor.Location, actor.RoomLayer);
+        if (!actor.Location.IsSwimmingLayer(actor.RoomLayer) &&
+            !(shallowLiquid?.Medium == MudSharp.Construction.TerrainMedium.Liquid &&
+              shallowLiquid.ImmersionSize >= actor.SizeProne))
         {
-            actor.OutputHandler.Send("You are not currently in a body of water, and so there is no need to swim.");
+            actor.OutputHandler.Send("You are not currently in water deep enough for you to swim.");
             return;
         }
 

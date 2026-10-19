@@ -105,6 +105,10 @@ The distinction between the two rooftop models is important:
 - Use `rooftops` when the room represents the street or ground below and the roofs above it.
 - Use `rooftopsonly` when the room represents only a roofscape or elevated deck. A character or item entering without a valid matching layer is placed on the roof because it is the lowest supported layer.
 
+### Supported shallow media
+
+`veryshallowwater <liquid> <size> [clear|opaque] [norun]` and `silt <size> [clear|opaque] [norun]` retain GroundLevel and both air layers. Their categorical medium covers a supporting bed: standing actors can wade while smaller actors swim in the same room. These behaviours do not reinterpret the existing water models below. See [very shallow water and silt](Very_Shallow_Water_and_Silt.md) for builder syntax, posture-dependent contact, item visibility and compatibility.
+
 ### Water models
 
 In water terrain, `GroundLevel` represents the water surface, not a submerged floor.

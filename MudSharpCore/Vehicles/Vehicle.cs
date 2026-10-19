@@ -1014,6 +1014,15 @@ public class Vehicle : SaveableItem, IVehicle
 
 	private void NormaliseDisembarkedOccupant(ICharacter occupant)
 	{
+		if (occupant?.Location is not null && TerrainImmersionHelper.ProfileFor(occupant.Location, occupant.RoomLayer) is not null)
+		{
+			if (occupant.PositionState == PositionFlying.Instance) return;
+			var posture = CharacterState.Able.HasFlag(occupant.State) ? (IPositionState)PositionStanding.Instance : PositionSprawled.Instance;
+			if (posture == PositionStanding.Instance && TerrainImmersionHelper.RequiresSwimming(occupant, posture: posture))
+				posture = PositionSwimming.Instance;
+			occupant.SetPosition(posture, PositionModifier.None, null, null);
+			return;
+		}
 		if (!this.IsSurfaceWaterVehicle() || occupant?.Location?.IsSwimmingLayer(occupant.RoomLayer) != true)
 		{
 			return;

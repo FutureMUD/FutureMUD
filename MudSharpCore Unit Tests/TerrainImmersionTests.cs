@@ -11,6 +11,7 @@ using MudSharp.Character;
 using MudSharp.Construction;
 using MudSharp.Construction.Boundary;
 using MudSharp.Form.Material;
+using MudSharp.Form.Shape;
 using MudSharp.Framework;
 using MudSharp.Framework.Save;
 using MudSharp.GameItems;
@@ -229,6 +230,58 @@ public class TerrainImmersionTests
 		Assert.IsFalse(vehicle.Object.CanTraverseEnvironment(f.Room.Object, RoomLayer.GroundLevel, out _));
 		profile.SetupGet(x => x.MovementEnvironment).Returns(VehicleMovementEnvironment.Silt);
 		Assert.IsTrue(vehicle.Object.CanTraverseEnvironment(f.Room.Object, RoomLayer.GroundLevel, out _));
+	}
+
+	[DataTestMethod]
+	[DataRow("silt Small norun", "outdoors", "wading", "stroll")]
+	[DataRow("veryshallowwater 42 Small opaque norun", "outdoors", "wading", "stroll")]
+	[DataRow("outdoors", "silt Small norun", "strolling", "wade")]
+	[DataRow("outdoors", "outdoors", "running", "run")]
+	public void MovementNarration_UsesWadingAndEffectivePaceAcrossMovementPhases(string originModel,
+		string destinationModel, string participle, string arrivalVerb)
+	{
+		var f = new Fixture(originModel);
+		var fast = new Mock<MudSharp.Movement.IMoveSpeed>();
+		var slow = new Mock<MudSharp.Movement.IMoveSpeed>();
+		fast.SetupGet(x => x.Position).Returns(PositionStanding.Instance);
+		slow.SetupGet(x => x.Position).Returns(PositionStanding.Instance);
+		fast.SetupGet(x => x.Multiplier).Returns(0.5);
+		slow.SetupGet(x => x.Multiplier).Returns(2.0);
+		fast.SetupGet(x => x.PresentParticiple).Returns("running");
+		slow.SetupGet(x => x.PresentParticiple).Returns("strolling");
+		fast.SetupGet(x => x.FirstPersonVerb).Returns("run");
+		slow.SetupGet(x => x.FirstPersonVerb).Returns("stroll");
+		fast.SetupGet(x => x.ThirdPersonVerb).Returns("runs");
+		slow.SetupGet(x => x.ThirdPersonVerb).Returns("strolls");
+		f.Actor.SetupGet(x => x.CurrentSpeed).Returns(fast.Object);
+		f.Actor.SetupGet(x => x.Speeds).Returns([fast.Object, slow.Object]);
+		f.Actor.Setup(x => x.CanSee(It.IsAny<IPerceivable>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
+		f.Actor.Setup(x => x.IsSelf(It.IsAny<IPerceivable>())).Returns<IPerceivable>(x => ReferenceEquals(x, f.Actor.Object));
+		f.Actor.Setup(x => x.HowSeen(It.IsAny<IPerceiver>(), It.IsAny<bool>(), It.IsAny<DescriptionType>(),
+			It.IsAny<bool>(), It.IsAny<PerceiveIgnoreFlags>())).Returns<IPerceiver, bool, DescriptionType, bool, PerceiveIgnoreFlags>(
+			(voyeur, _, _, _, _) => ReferenceEquals(voyeur, f.Actor.Object) ? "you" : "the walker");
+		var destination = new Mock<IRoom>();
+		destination.Setup(x => x.Terrain(It.IsAny<IPerceiver>())).Returns(f.Load(destinationModel));
+		var exit = new Mock<IRoomExit>();
+		exit.SetupGet(x => x.Origin).Returns(f.Room.Object);
+		exit.SetupGet(x => x.Destination).Returns(destination.Object);
+		exit.SetupGet(x => x.OutboundMovementSuffix).Returns("towards the north");
+		exit.SetupGet(x => x.InboundMovementSuffix).Returns("from the south");
+		var movement = new MudSharp.Movement.Movement(f.Actor.Object, null!, [], [], [f.Actor.Object], [], [], [], exit.Object);
+
+		StringAssert.Contains(movement.DescribeBeginMove(f.Actor.Object), $"You begin {participle} towards the north.");
+		StringAssert.Contains(movement.Describe(f.Actor.Object).StripANSIColour(), $"You are {participle} towards the north.");
+		var observer = new Mock<IPerceiver>();
+		observer.Setup(x => x.CanSee(It.IsAny<IPerceivable>(), It.IsAny<PerceiveIgnoreFlags>())).Returns(true);
+		StringAssert.Contains(movement.DescribeBeginMove(observer.Object), $"The walker begins {participle} towards the north.");
+
+		// Arrival descriptions run after ExecuteMove has changed the actor's room.
+		f.Actor.SetupGet(x => x.Location).Returns(destination.Object);
+		f.Body.SetupGet(x => x.Location).Returns(destination.Object);
+		typeof(MudSharp.Movement.Movement).GetProperty(nameof(movement.Phase))!
+			.SetValue(movement, MudSharp.Movement.MovementPhase.NewRoom);
+		StringAssert.Contains(movement.DescribeEnterMove(f.Actor.Object), $"You {arrivalVerb} from the south.");
+		Assert.AreSame(fast.Object, f.Actor.Object.CurrentSpeed, "Narrative preview must not mutate the selected gait.");
 	}
 
 	private static Mock<IExternalBodypart> Part(Orientation orientation, BodypartTypeEnum type)

@@ -183,6 +183,14 @@ public partial class CombatSeeder
         void AddCheck(CheckType type, TraitExpression expression, long templateId,
             Difficulty maximumImprovementDifficulty)
         {
+			if (questionAnswers.TryGetValue("skilloption", out var option) && option.Equals("armageddon", StringComparison.OrdinalIgnoreCase) &&
+				ArmageddonMundaneBindings.Formula(type, skills) is { } sourceFormula)
+			{
+				var messages = new List<string>();
+				ArmageddonMundaneBindings.EnsureCheck(context, type, sourceFormula, templateId, maximumImprovementDifficulty, messages);
+				foreach (var message in messages) Console.WriteLine(message);
+				return;
+			}
             string teName = $"{type.DescribeEnum(true)} Formula";
             TraitExpression? existingExpression = context.TraitExpressions.FirstOrDefault(x => x.Name == teName);
             if (existingExpression is not null)
@@ -443,6 +451,9 @@ public partial class CombatSeeder
 							Expression =
 								$"(0.7 * riding:{(skills.GetValueOrDefault("Riding") ?? skills.GetValueOrDefault("Ride") ?? skills["Athletics"]).Id}) + (0.3 * balance:{(skills.GetValueOrDefault("Balancing") ?? skills.GetValueOrDefault("Balance") ?? skills.GetValueOrDefault("Dodging") ?? skills["Dodge"]).Id})"
 						}, template.Id, Difficulty.Impossible);
+					continue;
+				case CheckType.MountControlCheck:
+					AddCheck(check, new TraitExpression { Expression = $"ride:{(skills.GetValueOrDefault("Riding") ?? skills.GetValueOrDefault("Ride") ?? skills["Athletics"]).Id}" }, template.Id, Difficulty.Impossible);
 					continue;
                 case CheckType.StruggleFreeFromDrag:
                     AddCheck(check,

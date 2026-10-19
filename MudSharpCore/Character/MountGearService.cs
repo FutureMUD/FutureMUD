@@ -67,7 +67,9 @@ public static class MountGearService
 
 		var profile = ProfileFor(mount, rider);
 		var difficulty = mount.ControlMountDifficulty(rider);
-		var check = rider.Gameworld?.GetCheck(CheckType.FleeMovementMountedCheck);
+		var check = rider.Gameworld?.GetCheck(CheckType.MountControlCheck);
+		// Existing worlds retain their prior check until the explicit riding check is seeded.
+		if (check?.Type != CheckType.MountControlCheck) check = rider.Gameworld?.GetCheck(CheckType.FleeMovementMountedCheck);
 		if (check is null || difficulty == Difficulty.Automatic && profile.ControlBonus >= 0.0)
 		{
 			return true;
@@ -93,7 +95,8 @@ public static class MountGearService
 	{
 		var profile = ProfileFor(mount, rider);
 		var difficulty = mount.ResistBuckDifficulty(rider);
-		var check = rider.Gameworld?.GetCheck(CheckType.FleeMovementMountedCheck);
+		var check = rider.Gameworld?.GetCheck(CheckType.AvoidMountFallCheck);
+		if (check?.Type != CheckType.AvoidMountFallCheck) check = rider.Gameworld?.GetCheck(CheckType.FleeMovementMountedCheck);
 		if (check is null || difficulty == Difficulty.Automatic && profile.StabilityBonus >= 0.0)
 		{
 			rider.OutputHandler.Send($"You keep your seat on {mount.HowSeen(rider)}.");

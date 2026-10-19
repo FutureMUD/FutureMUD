@@ -26,6 +26,7 @@ internal static class ArmageddonSettingLinks
 			"Ethnicity.SettingLinks" => db.Ethnicities.Any(x => x.Id == id),
 			"FutureProg.SettingLinks" => db.FutureProgs.Any(x => x.Id == id),
 			"ChargenScreenStoryboard.SettingLinks" => db.ChargenScreenStoryboards.Any(x => x.Id == id),
+			"Check.SettingLinks" => db.Checks.Any(x => x.Type == id),
 			_ => false
 		};
 	}

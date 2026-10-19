@@ -139,7 +139,7 @@ public static partial class ArmageddonInstallation
 		var settings = prior ?? new ArmageddonInstallationSettings(1, requestedMode ?? ArmageddonProgressionMode.Classic, classes,
 			capacityAttribute ?? ResolveCapacityAttribute(db), ResolveNativeBindings(db, nativeOverrides))
 		{
-			StockAvailabilityByDefault = enableStockForNewInstall && !db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.Module != ArmageddonSkillPackage.Module && x.Module != "setting-combat")
+			StockAvailabilityByDefault = enableStockForNewInstall && !db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package && x.Module != ArmageddonSkillPackage.Module && x.Module != "setting-combat" && x.Module != ArmageddonMundaneBindings.Module && x.Module != ArmageddonSettingLinks.Module)
 		};
 		if (!Enum.IsDefined(settings.Mode) || settings.ClassesEnabled != classes ||
 			(requestedMode is { } mode && mode != settings.Mode) || (capacityAttribute is { } attribute && attribute != settings.CapacityAttribute) ||

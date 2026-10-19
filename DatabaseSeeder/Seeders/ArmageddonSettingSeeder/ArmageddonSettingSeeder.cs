@@ -26,7 +26,7 @@ public sealed partial class ArmageddonSettingSeeder : IDatabaseSeeder
 	public SeederMetadata Metadata => SeederMetadataRegistry.GetMetadata(this);
 	public ShouldSeedResult ShouldSeedData(FuturemudDatabaseContext context) =>
 		context.SeederManagedRecords.AsNoTracking().Any(x => x.Seeder == ArmageddonMagicInstaller.Package &&
-			x.Module != ArmageddonSkillPackage.Module && x.Module != "setting-combat")
+			x.Module != ArmageddonSkillPackage.Module && x.Module != "setting-combat" && x.Module != ArmageddonMundaneBindings.Module && x.Module != ArmageddonSettingLinks.Module)
 			? ShouldSeedResult.ExtraPackagesAvailable : ShouldSeedResult.ReadyToInstall;
 	public SeederAssessment AssessSeedData(FuturemudDatabaseContext context)
     {

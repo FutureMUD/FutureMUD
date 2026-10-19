@@ -3,9 +3,12 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using MudSharp.Body;
+using MudSharp.Body.Traits;
 using MudSharp.Character;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Interfaces;
+using MudSharp.RPG.Checks;
+using MudSharp.Framework;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,6 +17,52 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MountGearProfileTests
 {
+	[DataTestMethod]
+	[DataRow(CheckType.MountControlCheck)]
+	[DataRow(CheckType.AvoidMountFallCheck)]
+	public void RidingControl_UsesItsDedicatedCheckInsteadOfFlee(CheckType type)
+	{
+		var world = new Mock<IFuturemud>();
+		var mount = CreateCharacterWithGear([]);
+		var rider = CreateCharacterWithGear([]);
+		rider.DefaultValue = DefaultValue.Mock;
+		rider.SetupGet(x => x.Gameworld).Returns(world.Object);
+		mount.Setup(x => x.IsPrimaryRider(rider.Object)).Returns(true);
+		mount.Setup(x => x.PermitControl(rider.Object)).Returns(true);
+		mount.Setup(x => x.ControlMountDifficulty(rider.Object)).Returns(Difficulty.Normal);
+		mount.Setup(x => x.ResistBuckDifficulty(rider.Object)).Returns(Difficulty.Normal);
+		var check = new Mock<ICheck>();
+		check.SetupGet(x => x.Type).Returns(type);
+		check.Setup(x => x.Check(It.IsAny<IPerceivableHaveTraits>(), It.IsAny<Difficulty>(), It.IsAny<IPerceivable>(),
+			It.IsAny<IUseTrait>(), It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string Parameter, object value)[]>()))
+			.Returns(CheckOutcome.SimpleOutcome(type, Outcome.Pass));
+		world.Setup(x => x.GetCheck(type)).Returns(check.Object);
+		if (type == CheckType.MountControlCheck) Assert.IsTrue(MountGearService.CanControlMount(mount.Object, rider.Object));
+		else Assert.IsFalse(MountGearService.BuckRider(mount.Object, rider.Object));
+		check.Verify(x => x.Check(It.IsAny<IPerceivableHaveTraits>(), It.IsAny<Difficulty>(), It.IsAny<IPerceivable>(),
+			It.IsAny<IUseTrait>(), It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string Parameter, object value)[]>()), Times.Once);
+		world.Verify(x => x.GetCheck(CheckType.FleeMovementMountedCheck), Times.Never);
+	}
+
+	[TestMethod]
+	public void RidingControl_MissingNewCheckRetainsExistingWorldFallback()
+	{
+		var world = new Mock<IFuturemud>();
+		var mount = CreateCharacterWithGear([]); var rider = CreateCharacterWithGear([]);
+		rider.SetupGet(x => x.Gameworld).Returns(world.Object);
+		mount.Setup(x => x.IsPrimaryRider(rider.Object)).Returns(true);
+		mount.Setup(x => x.PermitControl(rider.Object)).Returns(true);
+		mount.Setup(x => x.ControlMountDifficulty(rider.Object)).Returns(Difficulty.Normal);
+		// No new check is installed. The old world's configured fallback still handles control.
+		var legacy = new Mock<ICheck>();
+		legacy.Setup(x => x.Check(It.IsAny<IPerceivableHaveTraits>(), It.IsAny<Difficulty>(), It.IsAny<IPerceivable>(),
+			It.IsAny<IUseTrait>(), It.IsAny<double>(), It.IsAny<TraitUseType>(), It.IsAny<(string Parameter, object value)[]>()))
+			.Returns(CheckOutcome.SimpleOutcome(CheckType.FleeMovementMountedCheck, Outcome.Pass));
+		world.Setup(x => x.GetCheck(CheckType.FleeMovementMountedCheck)).Returns(legacy.Object);
+		Assert.IsTrue(MountGearService.CanControlMount(mount.Object, rider.Object));
+		world.Verify(x => x.GetCheck(CheckType.FleeMovementMountedCheck), Times.Once);
+	}
+
 	[TestMethod]
 	public void ProfileFor_BarebackMount_AppliesDefaultControlAndStabilityPenalties()
 	{

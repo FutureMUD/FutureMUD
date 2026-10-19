@@ -609,6 +609,14 @@ Choose #6simple#0, #6complex#0, #6rpi#0 or #6armageddon#0 (approved setting pack
         void AddCheck(CheckType type, TraitExpression expression, long templateId,
             Difficulty maximumImprovementDifficulty)
         {
+			if (questionAnswers.TryGetValue("complexity", out var complexity) && complexity.Equals("armageddon", StringComparison.OrdinalIgnoreCase) &&
+				ArmageddonMundaneBindings.Formula(type, skills) is { } sourceFormula)
+			{
+				var messages = new List<string>();
+				ArmageddonMundaneBindings.EnsureCheck(context, type, sourceFormula, templateId, maximumImprovementDifficulty, messages);
+				foreach (var message in messages) Console.WriteLine(message);
+				return;
+			}
             string expressionName = type == CheckType.None ? "Default Fallback Check" : $"{type.DescribeEnum(true)} Formula";
             EnsureCheck(
                 context,
@@ -1355,6 +1363,9 @@ Choose #6simple#0, #6complex#0, #6rpi#0 or #6armageddon#0 (approved setting pack
 					AddCheck(check,
 						new TraitExpression { Expression = $"(0.7*ride:{ridingTrait.Id})+(0.3*balance:{balancingTrait.Id})" },
 						templates["Skill Check"].Id, Difficulty.Impossible);
+					continue;
+				case CheckType.MountControlCheck:
+					AddCheck(check, new TraitExpression { Expression = $"ride:{ridingTrait.Id}" }, templates["Skill Check"].Id, Difficulty.Impossible);
 					continue;
 				// TrapSeeder owns the optional trap skill and its check formulas.
 				case CheckType.SetTrapCheck:

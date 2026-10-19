@@ -159,7 +159,7 @@ public static partial class ArmageddonInstallation
 	private static IReadOnlyList<string> ValidateLegacyOwnership(FuturemudDatabaseContext db)
 	{
 		var errors = new List<string>();
-		var modules = new[] { ArmageddonSkillPackage.Module, "setting-combat", ArmageddonMundaneMerits.Module, ArmageddonMundaneProgression.Module, ArmageddonHeritage.Module, ArmageddonMagicInstaller.Module, ArmageddonTraditionInstaller.Module, ArmageddonPierceInstaller.Module, ArmageddonProvisionInstaller.Module, ArmageddonWaterSeeInstaller.Module, ArmageddonEmotionalInstaller.Module, ArmageddonProgressionInstaller.Module, ArmageddonCatalogueOwnership.Module, ArmageddonStockSpellInstaller.Module };
+		var modules = new[] { ArmageddonSkillPackage.Module, "setting-combat", ArmageddonMundaneMerits.Module, ArmageddonMundaneProgression.Module, ArmageddonHeritage.Module, ArmageddonMundaneBindings.Module, ArmageddonMagicInstaller.Module, ArmageddonTraditionInstaller.Module, ArmageddonPierceInstaller.Module, ArmageddonProvisionInstaller.Module, ArmageddonWaterSeeInstaller.Module, ArmageddonEmotionalInstaller.Module, ArmageddonProgressionInstaller.Module, ArmageddonCatalogueOwnership.Module, ArmageddonStockSpellInstaller.Module };
 		var records = db.SeederManagedRecords.AsNoTracking().Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey != SettingsKey).ToArray();
 		foreach (var record in records)
 		{
@@ -200,6 +200,7 @@ public static partial class ArmageddonInstallation
 				nameof(WeaponType) => db.WeaponTypes.Any(x => x.Id == record.LogicalId),
 				nameof(ArmourType) => record.RevisionNumber is null && db.ArmourTypes.Any(x => x.Id == record.LogicalId),
 				nameof(WeaponAttack) => db.WeaponAttacks.Any(x => x.Id == record.LogicalId),
+				nameof(CombatAction) => db.CombatActions.Any(x => x.Id == record.LogicalId),
 				nameof(CombatMessage) => db.CombatMessages.Any(x => x.Id == record.LogicalId),
 				nameof(BodyProto) => db.BodyProtos.Any(x => x.Id == record.LogicalId),
 				nameof(Race) => db.Races.Any(x => x.Id == record.LogicalId),

@@ -42,6 +42,7 @@ public partial class CombatSeeder
 	{
 		var owned = ArmageddonSkillPackage.Resolve(db);
 		GatePendingArmageddonActions(db);
+		ArmageddonMundaneBindings.BindDisarm(db, owned);
 		// Apply exact authored type assignments once, before recording ownership. Parry remains independent.
 		foreach (var assignment in ArmageddonAttackAssignments)
 		{

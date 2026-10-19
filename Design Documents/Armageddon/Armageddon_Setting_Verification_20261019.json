@@ -208,5 +208,34 @@
     "limits": "No new native/gameplay certificate, no physical/appearance qualification, no activated profile; scripts and random-name corpus not installed.",
     "final_focus_passed": 4,
     "package_focus_passed": 10
+  },
+  "mundane_binding_focus": {
+    "scope": "Canonical checks, dedicated mount control and fall check, scoped Disarm bindings, optional Trap adapter and preservation",
+    "passed": [
+      24,
+      13,
+      6
+    ],
+    "failed": 0,
+    "skipped": 0,
+    "source_stable": true,
+    "failures_retained": [
+      "20261019T141935Z-177ffc9ed94a"
+    ],
+    "receipts": [
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T141802Z-1c7f456d4497\\summary.json",
+        "sha256": "442b004f8aa3f729a3c645b118156fb7cef4e8b2a0c8f0f8c215c70e44b2a25a"
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T142025Z-99cfec731d52\\summary.json",
+        "sha256": "1f2469670141223e560fef97e672d480e96457bfde662a3f66369f59b9033424"
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T142649Z-bd3595bf1034\\summary.json",
+        "sha256": "a991ab041c0f4af6a22eb6c5d57dea33f8b33f46d81ccb1b2199a368b669b83d"
+      }
+    ],
+    "limits": "No new native/gameplay certificate; full291/55/71 coverage audit and source actions still required."
   }
 }

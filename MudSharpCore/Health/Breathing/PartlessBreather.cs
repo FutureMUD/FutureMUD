@@ -1,3 +1,4 @@
+using MudSharp.Construction;
 using MudSharp.Body;
 using MudSharp.Form.Material;
 
@@ -53,11 +54,7 @@ public class PartlessBreather : IBreathingStrategy
 
     public IFluid BreathingFluid(IBody body)
     {
-        IFluid underwaterFluid = body.Location.IsUnderwaterLayer(body.RoomLayer)
-            ? body.Location?.Terrain(body.Actor).WaterFluid
-            : null;
-
-        return underwaterFluid ?? body.Location?.Atmosphere;
+        return TerrainImmersionHelper.RespiratoryFluid(body, null);
     }
 
     #endregion

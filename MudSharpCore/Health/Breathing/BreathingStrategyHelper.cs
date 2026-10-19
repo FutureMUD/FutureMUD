@@ -2,6 +2,7 @@
 
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
+using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.GameItems.Interfaces;
 using MudSharp.Form.Material;
@@ -22,9 +23,10 @@ internal static class BreathingStrategyHelper
 	}
 
 	public static bool HasWorkingSupply(IBody body) => body.Bodyparts.OfType<MouthProto>()
-		.SelectMany(body.WornItemsFor).Select(x => x.GetItemType<IProvideGasForBreathing>()).OfType<IProvideGasForBreathing>()
-		.Any(x => x.Gas is not null && (body.Location?.IsUnderwaterLayer(body.RoomLayer) != true || x.WaterTight) &&
-			x.CanConsumeGas(body.Race.BreathingRate(body, x.Gas!)));
+		.Any(mouth => body.WornItemsFor(mouth).Select(x => x.GetItemType<IProvideGasForBreathing>())
+			.OfType<IProvideGasForBreathing>().Any(x => x.Gas is not null &&
+				(!TerrainImmersionHelper.IsPartImmersed(body, mouth) || x.WaterTight) &&
+				x.CanConsumeGas(body.Race.BreathingRate(body, x.Gas!))));
 
 	public static void UnbreathableSample(IBody body, IFluid? fluid)
 	{

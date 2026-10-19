@@ -1,3 +1,4 @@
+using MudSharp.Construction;
 using MudSharp.Body;
 using MudSharp.Body.PartProtos;
 using MudSharp.Effects.Concrete;
@@ -92,10 +93,6 @@ public class BlowholeBreather : IBreathingStrategy
 
     public IFluid BreathingFluid(IBody body)
     {
-        IFluid underwaterFluid = body.Location.IsUnderwaterLayer(body.RoomLayer)
-            ? body.Location?.Terrain(body.Actor).WaterFluid
-            : null;
-
-        return underwaterFluid ?? body.Location?.Atmosphere;
+        return TerrainImmersionHelper.RespiratoryFluid(body, body.Bodyparts.OfType<BlowholeProto>().FirstOrDefault());
     }
 }

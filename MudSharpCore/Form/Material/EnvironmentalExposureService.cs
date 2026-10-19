@@ -86,11 +86,15 @@ public sealed class EnvironmentalExposureService
 		Settle(target);
 		var previousLocation = target.Location;
 		var previousLayer = target.RoomLayer;
+		var previousPosture = target.PositionState;
+		var previousTarget = target.PositionTarget;
+		var previousModifier = target.PositionModifier;
 		if (target is IRoom room) return new ChangeScope(() => RefreshRoom(room));
 		return new ChangeScope(() =>
 		{
 			Track(target);
-			if (Subject(target) is IBody breathingBody && (target.Location != previousLocation || target.RoomLayer != previousLayer))
+			if (Subject(target) is IBody breathingBody && (target.Location != previousLocation || target.RoomLayer != previousLayer ||
+				target.PositionState != previousPosture || target.PositionTarget != previousTarget || target.PositionModifier != previousModifier))
 				NoInhalation(breathingBody);
 			if (target is IGameItem item && item.InInventoryOf is { } body) Track(body);
 		});
@@ -206,7 +210,10 @@ public sealed class EnvironmentalExposureService
 		var location = target is IGameItem gi ? gi.LocationLevelPerceivable?.Location : target.Location;
 		if (location is null) return false;
 		if (location.Atmosphere?.EnvironmentalReactions.Any() == true || location.EffectsOfType<TrapGasCloudEffect>().Any()) return true;
-		if (location.IsSwimmingLayer(target.RoomLayer) && location.Terrain(null).WaterFluid is ILiquid liquid && liquid.EnvironmentalReactions.Any()) return true;
+		var terrainLiquid = target is IBody bodyTarget ? TerrainImmersionHelper.LiquidFor(bodyTarget) :
+			target is IGameItem itemTarget ? TerrainImmersionHelper.LiquidFor(itemTarget) : null;
+		if (terrainLiquid?.EnvironmentalReactions.Any() == true &&
+			(location.IsSwimmingLayer(target.RoomLayer) || TerrainImmersionHelper.ProfileFor(location, target.RoomLayer) is { Medium: TerrainMedium.Liquid })) return true;
 		if (location is IRoomLiquidSurface room && room.SurfaceLiquidStates.Any(x => x.State.ContaminatingLiquid.Instances.Any(i => i.Liquid.EnvironmentalReactions.Any()))) return true;
 		var temperature = location.CurrentTemperature(null);
 		var anatomy = target as IBody ?? (target as IGameItem)?.GetItemType<ICorpse>()?.OriginalBody;
@@ -292,15 +299,33 @@ public sealed class EnvironmentalExposureService
 		(target.Gameworld.DefaultPlane is null || target.CurrentPlane() == target.Gameworld.DefaultPlane);
 	public static IExternalBodypart[] ImmersedParts(IBody body)
 	{
+		if (TerrainImmersionHelper.LiquidFor(body) is null || !Physical(body.Actor)) return Array.Empty<IExternalBodypart>();
+		if (TerrainImmersionHelper.ProfileFor(body.Location, body.RoomLayer) is not null)
+			return TerrainImmersionHelper.ImmersedParts(body);
 		if (body.Location is null || !body.Location.IsSwimmingLayer(body.RoomLayer) || body.PositionState == PositionFlying.Instance ||
-			body.Actor.IsProtectedFromSurfaceWater(out _) || !Physical(body.Actor)) return Array.Empty<IExternalBodypart>();
+			body.Actor.IsProtectedFromSurfaceWater(out _)) return Array.Empty<IExternalBodypart>();
 		return body.Bodyparts.OfType<IExternalBodypart>().Where(x => body.Location.IsUnderwaterLayer(body.RoomLayer) ||
 			x.Orientation is not (Orientation.High or Orientation.Highest) && x.BodypartType is not (BodypartTypeEnum.Mouth or BodypartTypeEnum.Blowhole)).ToArray();
 	}
 
+	private static IExternalBodypart[] ImmersedCorpseParts(IBody body, IGameItem item) =>
+		TerrainImmersionHelper.ProfileFor(item.Location, item.RoomLayer) is not null
+			? TerrainImmersionHelper.ImmersedParts(body, item)
+			: body.Bodyparts.OfType<IExternalBodypart>().ToArray();
+
+	private static ILiquid? ItemImmersionLiquid(IGameItem item)
+	{
+		if (item.ContainedIn is not null || item.InInventoryOf is not null || !Physical(item)) return null;
+		var liquid = TerrainImmersionHelper.LiquidFor(item);
+		if (liquid is null) return null;
+		return TerrainImmersionHelper.ProfileFor(item.Location, item.RoomLayer) is not null
+			? TerrainImmersionHelper.ItemContactFor(item).Extent != ImmersionExtent.None ? liquid : null
+			: item.Location?.IsSwimmingLayer(item.RoomLayer) == true ? liquid : null;
+	}
+
 	public void RefreshImmersion(IBody body, bool fillOnly = false)
 	{
-		if (body.Location?.Terrain(null).WaterFluid is not ILiquid liquid) return;
+		if (TerrainImmersionHelper.LiquidFor(body) is not { } liquid) return;
 		var parts = ImmersedParts(body);
 		if (!fillOnly) body.ResolveSurfaceLiquidDrying();
 		var coating = body.LiquidAbsorbtionAmounts.Coating;
@@ -322,13 +347,14 @@ public sealed class EnvironmentalExposureService
 	}
 	public void RefreshImmersion(IGameItem item, ILiquid liquid, bool fillOnly = false)
 	{
+		if (TerrainImmersionHelper.ProfileFor(item.Location, item.RoomLayer) is { Medium: TerrainMedium.Silt }) return;
 		if (item.GetItemType<ICorpse>()?.OriginalBody is { } body)
 		{
 			if (!fillOnly) body.ResolveSurfaceLiquidDrying();
 			var coating = body.LiquidAbsorbtionAmounts.Coating;
 			var areas = ExposureTransport.BodyAreas(body);
 			using var bodyRefresh = new ExposureDeliveryScope(coating, true);
-			foreach (var part in body.Bodyparts.OfType<IExternalBodypart>())
+			foreach (var part in ImmersedCorpseParts(body, item))
 			{
 				var area = areas.GetValueOrDefault(part);
 				var layers = body.WornItemsFor(part).Distinct().ToArray();
@@ -352,7 +378,7 @@ public sealed class EnvironmentalExposureService
 	{
 		if (!Physical(body.Actor)) return;
 		var immersed = ImmersedParts(body);
-		var pool = immersed.Length > 0 ? body.Location.Terrain(null).WaterFluid as ILiquid : null;
+		var pool = immersed.Length > 0 ? TerrainImmersionHelper.LiquidFor(body) : null;
 		var temperature = body.Location?.CurrentTemperature(null) ?? 20;
 		var immersedHeld = immersed.SelectMany(body.HeldOrWieldedItemsFor).Distinct().ToArray();
 		if (pool is not null)
@@ -410,8 +436,9 @@ public sealed class EnvironmentalExposureService
 		if (!Physical(item)) return;
 		var location = item.LocationLevelPerceivable?.Location;
 		var temperature = location?.CurrentTemperature(null) ?? 20;
-		var immersed = location?.IsSwimmingLayer(item.RoomLayer) == true && item.ContainedIn is null && item.InInventoryOf is null;
-		var pool = immersed ? location!.Terrain(null).WaterFluid as ILiquid : null;
+		var pool = ItemImmersionLiquid(item);
+		var corpseParts = pool is not null && item.GetItemType<ICorpse>()?.OriginalBody is { } originalBody
+			? ImmersedCorpseParts(originalBody, item) : Array.Empty<IExternalBodypart>();
 		if (item.GetItemType<ICorpse>()?.OriginalBody is { } corpseBody && corpseBody.SurfaceLiquidState is ILocalisedSurfaceLiquidState corpseState)
 		{
 			corpseState.ReconcileParts();
@@ -420,7 +447,7 @@ public sealed class EnvironmentalExposureService
 				var part = corpseBody.Bodyparts.OfType<IExternalBodypart>().FirstOrDefault(x => x.Id == id);
 				if (part is null || state.IsEmpty) continue;
 				Retained(state, new(item, part, corpseBody.GetMaterial(part), ExposureTransport.BodyArea(corpseBody, part),
-					corpseBody.LiquidAbsorbtionAmountsForBodyparts(new[] { part }).Coating), seconds, temperature, pool);
+					corpseBody.LiquidAbsorbtionAmountsForBodyparts(new[] { part }).Coating), seconds, temperature, corpseParts.Contains(part) ? pool : null);
 			}
 			DryAt(corpseState, corpseBody, now);
 			MudSharp.Magic.MagicalExposure.RetainedLiquidsChanged(corpseBody);
@@ -442,9 +469,18 @@ public sealed class EnvironmentalExposureService
 		{
 			if (pool is not null)
 			{
-				Resolver.Liquid(new LiquidMixture(pool, 1, _world), true, ExposureTransport.ItemPatches(item, ExposureRoute.LiquidContact), ExposureSourceKind.Immersion,
+				var contactPatches = ExposureTransport.ItemPatches(item, ExposureRoute.LiquidContact)
+					.Where(x => item.GetItemType<ICorpse>() is null || x.Part is IExternalBodypart part && corpseParts.Contains(part)).ToArray();
+				Resolver.Liquid(new LiquidMixture(pool, 1, _world), true, contactPatches, ExposureSourceKind.Immersion,
 					$"pool:{location.Id}:{item.RoomLayer}", seconds, temperature);
 				RefreshImmersion(item, pool, true);
+				if (item.GetItemType<ICorpse>() is not null)
+				{
+					var outside = ExposureTransport.ItemPatches(item, ExposureRoute.GasContact)
+						.Where(x => x.Part is IExternalBodypart part && !corpseParts.Contains(part)).ToArray();
+					Atmosphere(location, item.RoomLayer, outside, seconds, temperature);
+					Heat(outside, location, seconds, temperature);
+				}
 			}
 			else
 			{

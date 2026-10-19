@@ -156,7 +156,7 @@ public class SkillDefinition : TraitDefinition, ISkillDefinition
 
     public bool CanLearn(ICharacter character)
     {
-        return LearnableProg?.ExecuteBool(character, this) ?? true;
+        return RoleSkillProgressionService.CanAcquire(character, this) && (LearnableProg?.ExecuteBool(character, this) ?? true);
     }
 
     public Difficulty TeachDifficulty { get; set; }

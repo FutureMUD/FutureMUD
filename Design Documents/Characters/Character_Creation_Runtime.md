@@ -9,6 +9,8 @@ It lives primarily in `MudSharpCore/CharacterCreation` and is assembled around a
 
 Generic skill-selection groups add a shared mandatory/group/open phase to all four skill screens. See [Chargen Skill Selection Groups](./Chargen_Skill_Selection_Groups.md) for claims, eligibility, allocation, resume, pricing and generated-template contracts.
 
+Optional [role skill progression](./Role_Skill_Progression.md) projects complete-role roots and standalone grants into that same mandatory phase, recomputes opening floors before approval, and snapshots one-time deferred overlap claims only when creating a new character.
+
 ### `Chargen`
 - `Chargen` is the mutable application state.
 - It stores the current stage, completed stages, selected race/culture/ethnicity, notes, roles, traits, merits, skill boosts, disfigurements, descriptions, and starting location.

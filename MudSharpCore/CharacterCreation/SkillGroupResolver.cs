@@ -37,7 +37,8 @@ public sealed class SkillGroupResolver
 		try
 		{
 			var independent = (_independent ?? Claims.Independent).Concat(_chargen.SelectedRoles.SelectMany(x => x.TraitAdjustments)
-				.Where(x => x.Value.giveIfMissing && x.Key is ISkillDefinition).Select(x => x.Key.Id)).ToHashSet();
+				.Where(x => x.Value.giveIfMissing && x.Key is ISkillDefinition).Select(x => x.Key.Id))
+				.Concat(RoleSkillProgressionService.InitialSkills(_chargen).Select(x => x.Id)).ToHashSet();
 			var context = Chargen.CreateSkillEvaluationContext(_chargen, independent);
 			var free = (_freeSkills?.ExecuteCollection<ITraitDefinition>(context) ?? []).ToList();
 			if (free.Any(x => x is not ISkillDefinition)) throw new InvalidOperationException("Mandatory skills contain an invalid trait.");
@@ -157,7 +158,7 @@ public sealed class SkillGroupResolver
 	public static IEnumerable<ITraitDefinition> MandatorySkills(IChargen chargen, IFutureProg? prog) =>
 		chargen.SkillClaims?.Initialised == true
 			? chargen.SkillClaims.Mandatory.Select(x => chargen.Gameworld.Traits.Get(x)).OfType<ITraitDefinition>()
-			: prog?.ExecuteCollection<ITraitDefinition>(chargen) ?? [];
+			: (prog?.ExecuteCollection<ITraitDefinition>(chargen) ?? []).Concat(RoleSkillProgressionService.InitialSkills(chargen)).Distinct();
 
 	public static IEnumerable<ITraitDefinition> UnavailableOrdinarySkills(IChargen chargen) =>
 		chargen.SkillClaims?.Initialised == true

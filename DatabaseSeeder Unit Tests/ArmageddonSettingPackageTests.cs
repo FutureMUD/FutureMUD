@@ -40,6 +40,49 @@ public class ArmageddonSettingPackageTests
 	}
 
 	[TestMethod]
+	public void MundaneProgression_InstallsCompleteRolesAndPreservesCustomisationsOnResume()
+	{
+		using var db = Fixture();
+		db.Accounts.Add(new Account { Id = 1, Name = "Installer" });
+		db.SaveChanges();
+		new SkillPackageSeeder().SeedData(db, Answers);
+		var messages = new List<string>();
+		ArmageddonMundaneProgression.Install(db, messages);
+		Assert.AreEqual(7, db.ChargenRoles.Count(x => x.Type == 0));
+		Assert.AreEqual(24, db.ChargenRoles.Count(x => x.Type == 1));
+		Assert.AreEqual(0, db.ChargenRolesTraits.Count(), "Native additive adjustments must not duplicate the composed grants.");
+		Assert.AreEqual(33, db.ChargenRolesMerits.Count());
+		var owned = ArmageddonSkillPackage.Resolve(db);
+		var merchant = db.ChargenRoles.Single(x => x.Name == "Merchant");
+		var linguist = db.ChargenRoles.Single(x => x.Name == "Linguist");
+		var data = XElement.Parse(db.Merits.Single(x => x.Type == "Role Skill Progression").Definition);
+		var rules = new RoleSkillProgression(data.Element("Rules")!.Elements("Rule").Select(x => new RoleSkillRule((long)x.Attribute("role")!, (long)x.Attribute("trait")!,
+			(bool)x.Attribute("primary")!, (double)x.Attribute("opening")!, (double)x.Attribute("cap")!, (long?)x.Attribute("parent"), (double)x.Attribute("threshold")!, (double)x.Attribute("bonus")!)));
+		Assert.AreEqual(317, rules.Rules.Count);
+		var composition = rules.Compose([merchant.Id, linguist.Id]);
+		Assert.AreEqual(50.0, composition[owned["arm.skill.literacy"].Id].ComposedOpening);
+		Assert.AreEqual(75.0, composition[owned["arm.skill.literacy"].Id].Cap);
+		Assert.AreEqual(35.0, composition[owned["arm.skill.handwriting"].Id].ComposedOpening);
+		Assert.AreEqual(100.0, composition[owned["arm.skill.cavilish"].Id].ComposedOpening);
+		Assert.AreEqual(200.0, composition[owned["arm.skill.cavilish"].Id].Cap);
+		var ids = db.ChargenRoles.ToDictionary(x => x.Id, x => x.Name);
+		merchant.Name = "Builder merchant";
+		owned["arm.skill.peek"].Expression.Expression = "87";
+		db.ChargenRolesMerits.Remove(db.ChargenRolesMerits.Single(x => x.ChargenRoleId == linguist.Id));
+		db.CharacterTraits.Add(new CharacterTrait { CharacterId = 9000, TraitDefinitionId = owned["arm.skill.peek"].Id, Value = 57, AdditionalValue = 3 });
+		db.SaveChanges();
+		ArmageddonMundaneProgression.Install(db, messages);
+		Assert.AreEqual(31, db.ChargenRoles.Count());
+		Assert.IsTrue(db.ChargenRoles.All(x => ids.Keys.Contains(x.Id)));
+		Assert.AreEqual("Builder merchant", merchant.Name);
+		Assert.AreEqual("87", owned["arm.skill.peek"].Expression.Expression);
+		Assert.AreEqual(32, db.ChargenRolesMerits.Count(), "Builder-removed links stay removed.");
+		Assert.AreEqual(57.0, db.CharacterTraits.Single().Value);
+		Assert.AreEqual(3.0, db.CharacterTraits.Single().AdditionalValue);
+		Assert.IsTrue(messages.Any(x => x.Contains("builder edit")));
+	}
+
+	[TestMethod]
 	public void Manifest_PreservesSourceDistinctionsAndApprovedAliases()
 	{
 		Assert.AreEqual(112, ArmageddonSkillPackage.Skills.Count(x => !x.Scaffold));

@@ -1120,7 +1120,8 @@ public partial class Chargen : FrameworkItem, IChargen
 			{
 				var startingValue = Convert.ToDouble(SelectedCulture.SkillStartingValueProg.Execute(this, skill,
 					SelectedSkillBoosts.GetValueOrDefault(skill, 0)));
-				AddTrait(skill, Math.Max(independentValues.GetValueOrDefault(skill.Id), startingValue));
+				AddTrait(skill, MudSharp.Body.Traits.RoleSkillProgressionService.StartingValue(this, skill,
+					Math.Max(independentValues.GetValueOrDefault(skill.Id), startingValue)));
 			}
 		}
 		finally

@@ -21,7 +21,7 @@ public partial class Chargen
 	private bool RevalidateSkillGroups()
 	{
 		if (_skillEvaluationContext || State == ChargenState.Approved) return true;
-		if (!SkillClaims.Initialised && !(Gameworld.ChargenSkillSelectionGroups?.Any(x => x.Enabled && !x.Retired) ?? false)) return true;
+		if (!SkillClaims.Initialised && !RoleSkillProgressionService.Applies(this) && !(Gameworld.ChargenSkillSelectionGroups?.Any(x => x.Enabled && !x.Retired) ?? false)) return true;
 		var storyboard = Gameworld.ChargenStoryboard.StageScreenMap[ChargenStage.SelectSkills];
 		var prog = FreeSkillsProgForStoryboard(storyboard);
 		var complete = new SkillGroupResolver(this, prog).Complete;

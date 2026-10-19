@@ -223,6 +223,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         }
 
         CharacterTemplateMerits.ExpandCombos(comboMerits, MeritScope.Character, _merits);
+		RoleSkillProgressionService.InitialiseNewCharacter(this);
 
         EnsureNativeCreationHasNoAdditionalForms();
         EnsureProvisionedFormsFromMerits();

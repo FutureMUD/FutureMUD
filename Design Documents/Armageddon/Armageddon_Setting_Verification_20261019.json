@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-10-19T13:21:51.217627+00:00",
+  "recorded_utc": "2026-10-20T00:21:51.217627+11:00",
   "base": "97c02768d254c5e345a62349e05b94fe345efeec",
   "branch": "codex/armageddon-setting-20261019",
   "scope": "Staged foundation and magic-phase qualification; required mundane progression, heritage and gameplay completion remain outstanding.",
@@ -153,5 +153,39 @@
     "Initial managed suite:9 failures; corrected; final suite2009/0/3",
     "Initial native magic weapon batch rejected character-scoped attack skills; corrected typed validators; restored same sealed baseline successfully"
   ],
-  "publication": "Local commits only; no push, merge, deployment or existing-world activation."
+  "publication": "Local commits only; no push, merge, deployment or existing-world activation.",
+  "mundane_progression_focus": {
+    "receipts": [
+      {
+        "sha256": "f466668b1b6d93f6c88b0104741f888f7cd94f5b23dabaa816af5cdb3dedf7e7",
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T134149Z-ee255a261ffe\\summary.json"
+      },
+      {
+        "sha256": "6f73e5979d143ee4ab44a92b3fce2dee6debfadd97be46a7848d1549496210c6",
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T134157Z-67109e1a6be6\\summary.json"
+      },
+      {
+        "sha256": "91bf6a59e2a9f5e5fb077c22dc3296f013d1c8ce663d8fbd1b6a99cf8d742344",
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T134229Z-30c09f71d8fb\\summary.json"
+      },
+      {
+        "sha256": "7b2bfa128af770bf747dde5724a31c71a740cc100d1ca51a47bcfa608adf4f76",
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T134709Z-b43cc7e68b97\\summary.json"
+      }
+    ],
+    "initial_batch_passed": 72,
+    "final_adapter_passed": 3,
+    "limits": "No new native combined certificate; full suites/build gates batched after remaining content.",
+    "scope": "New role/progression implementation and fixtures; native install/gameplay pending",
+    "review_fix_rerun": {
+      "source_stable": true,
+      "skipped": 0,
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T135150Z-28834218f65e\\summary.json",
+        "sha256": "cfd6a0233d164b3f6e02e98e041e65ca53f73807968bc608ebe1fa4dc5d8fe7d"
+      },
+      "passed": 54,
+      "failed": 0
+    }
+  }
 }

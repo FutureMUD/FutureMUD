@@ -426,6 +426,21 @@ valid current capacity and actual funds, then defer their upper-cap clamp to com
 A +7 resource child between opposing +5/-5 modifiers therefore credits balance 90 to 97
 in either order. Genuine final decreases still remove excess; invalid capacities still
 refuse accounting. Other resources keep their existing immediate maximum.
+Additional spell invocations, including nested casts, check and pay their costs against
+the lesser of actual funds and the current maximum. A successful payment subtracts from
+the stored balance without prematurely clipping an enclosing spell's provisional excess;
+the enclosing batch still reconciles once at completion. This payment boundary does not
+change the same spell's ordinary resource children or opposing-modifier arithmetic.
+Additional invocations share one reserve budget per canonical owner and outer mutation
+batch, established from capped actual funds at its first successful nonzero payment.
+Each additional payment reduces that budget. Later same-spell credits do not replenish
+it before the outer batch finishes; they still participate in the spell's raw arithmetic.
+Every payment remains bounded by the current capacity and actual funds, so a capacity
+change cannot bypass the shared budget. Queries do not consume or establish a budget.
+Native power admission and debit use the same configured-reserve budget; configured
+casting quotes also respect the remaining budget without consuming it. This is not transactional native-power payment: some powers still apply effects
+before their legacy debit and do not propagate a declined debit; that separate ordering
+contract is unchanged.
 An interrupted operation reconciles the effects actually remaining; it does not roll back
 effects or restore energy. Incomplete reconstruction retains its stricter accounting refusal.
 

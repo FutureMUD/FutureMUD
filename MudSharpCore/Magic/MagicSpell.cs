@@ -1538,7 +1538,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 				var cost = context is null
 					? expression.EvaluateWith(magician, CastingTrait, TraitBonusContext.SpellCost, values)
 					: context.Evaluate($"cost/{resource.Id}", expression, magician, CastingTrait, TraitBonusContext.SpellCost, values);
-				if ((context is not null && (!double.IsFinite(cost) || cost < 0)) || !magician.CanUseResource(resource, cost)) return false;
+				if ((context is not null && (!double.IsFinite(cost) || cost < 0)) || !InvocationResourcePayment.CanAfford(magician, resource, cost)) return false;
 			}
 			return true;
 		}
@@ -1625,7 +1625,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 				magician.OutputHandler.Send("That spell has an invalid resource cost; nothing was spent.");
 				return;
 			}
-            if (!magician.CanUseResource(resource, cost))
+            if (!InvocationResourcePayment.CanAfford(magician, resource, cost))
             {
                 magician.OutputHandler.Send(
                     $"You do not have enough {resource.Name.Pluralise().ColourValue()} to cast that spell.");
@@ -1663,7 +1663,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 		foreach (var resourceId in _castingCosts.Keys.Select(x => x.Id))
 			if (Gameworld.MagicCasting?.QuarantineReason(magician, reserveId: resourceId) is { } resourceQuarantine)
 			{ magician.OutputHandler.Send(resourceQuarantine.ColourError()); return; }
-		if (invocation?.Configured is { } preflight && preflight.Payments.Any(x => !x.Holder.CanUseResource(x.Resource, x.Amount)))
+		if (invocation?.Configured is { } preflight && preflight.Payments.Any(x => !InvocationResourcePayment.CanAfford(x.Holder, x.Resource, x.Amount)))
 		{ magician.OutputHandler.Send("The current balance cannot fund this invocation."); return; }
 
         if (target is null && SpellEffects.Any(x => x.RequiresTarget))
@@ -1691,6 +1691,7 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			magician.OutputHandler.Send(error.Message.ColourError()); return;
 		}
 
+		var paymentDeclined = false;
 		void Pay()
 		{
 			ConfirmPendingLifetimeAdmissions();
@@ -1698,10 +1699,15 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			if (invocation?.Configured is { } configured)
 			{
 				foreach (var payment in configured.Payments)
-					if (!payment.Holder.UseResource(payment.Resource, payment.Amount)) throw new InvalidOperationException("A revalidated casting payment was declined.");
+					if (!InvocationResourcePayment.TryPay(payment.Holder, payment.Resource, payment.Amount)) throw new InvalidOperationException("A revalidated casting payment was declined.");
 				configured.BeforeMaterials?.Invoke();
 			}
-			foreach ((IMagicResource resource, double cost) in realCosts) magician.UseResource(resource, cost);
+			foreach ((IMagicResource resource, double cost) in realCosts)
+				if (!InvocationResourcePayment.TryPay(magician, resource, cost))
+				{
+					paymentDeclined = true;
+					return;
+				}
 			plan.ExecuteWholePlan();
 			if (invocation?.Configured is not null) plan.FinalisePlan();
 		}
@@ -1712,6 +1718,11 @@ public partial class MagicSpell : SaveableItem, IMagicSpell, IControlledMagicSpe
 			invocation.Status = MagicInvocationStatus.Failed;
 		}
 		else { _pendingLifetimeAdmissions = lifetimeAdmissions; Pay(); }
+		if (paymentDeclined)
+		{
+			magician.OutputHandler.Send("The current balance cannot fund this invocation.");
+			return;
+		}
 		var powerInvocation = SpellPowerInvocation.For(magician, this);
 		powerInvocation?.Complete(MagicInvocationStatus.Failed);
 		PsychometricRecorder.Record(magician, ImpressionKind.Magic, "the casting of a spell", target, School.Id, directItemOnly: powerInvocation is not null);

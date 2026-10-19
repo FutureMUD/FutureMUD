@@ -2,6 +2,7 @@ using MudSharp.Database;
 using MudSharp.Effects.Concrete;
 using MudSharp.Framework.Save;
 using MudSharp.Models;
+using MudSharp.Magic.Casting;
 using MudSharp.Planes;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Law;
@@ -420,7 +421,9 @@ public abstract partial class MagicPowerBase : SaveableItem, IMagicPower
         List<(IMagicResource Resource, double Cost)> costs = InvocationCosts[verb];
         foreach ((IMagicResource resource, double cost) in costs)
         {
-            if (actor.MagicResourceAmounts.FirstOrDefault(x => x.Key == resource).Value < cost)
+            if (MagicCastingService.IsConfiguredReserve(Gameworld, resource.Id)
+                ? !InvocationResourcePayment.CanAfford(actor, resource, cost)
+                : actor.MagicResourceAmounts.FirstOrDefault(x => x.Key == resource).Value < cost)
             {
                 return (false, resource);
             }
@@ -433,7 +436,7 @@ public abstract partial class MagicPowerBase : SaveableItem, IMagicPower
     {
         foreach ((IMagicResource resource, double cost) in InvocationCosts[verb])
         {
-            actor.UseResource(resource, cost);
+            InvocationResourcePayment.TryPay(actor, resource, cost);
         }
         CrimeExtensions.CheckPossibleCrimeAllAuthorities(actor,
                 IsPsionic ? CrimeTypes.UnlawfulUseOfPsionics : CrimeTypes.UnlawfulUseOfMagic,

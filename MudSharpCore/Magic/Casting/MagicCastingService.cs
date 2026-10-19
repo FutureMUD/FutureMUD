@@ -193,7 +193,7 @@ public sealed partial class MagicCastingService : IMagicCastingService
 				throw new InvalidOperationException($"The {cost.Resource.Name} capacity is invalid: {capError}");
 			var balance = cost.Holder.MagicResourceAmounts.GetValueOrDefault(cost.Resource);
 			if (!double.IsFinite(cost.Amount) || !double.IsFinite(balance) || Math.Min(balance, cap) < cost.Amount ||
-				!cost.Holder.CanUseResource(cost.Resource, cost.Amount)) throw new InvalidOperationException($"Insufficient {cost.Resource.Name} for the combined cost.");
+				!InvocationResourcePayment.CanAfford(cost.Holder, cost.Resource, cost.Amount)) throw new InvalidOperationException($"Insufficient {cost.Resource.Name} for the combined cost.");
 			if (QuarantineReason(actor, reserveId: cost.Resource.Id) is { } q) throw new InvalidOperationException(q);
 		}
 		var plan = (intent.Mode == MagicCastingMode.Practice ? spell.PracticeInventoryPlanTemplate! : copy.InventoryPlanTemplate).CreatePlan(actor);

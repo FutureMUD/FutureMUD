@@ -175,7 +175,10 @@ public partial class Character : IMagicUser
 		{
 			if (!double.IsFinite(amount) || amount < 0 || !double.IsFinite(_magicResourceAmounts[resource]) ||
 				!MagicResourceCapacity.TryGetCap(resource, this, out var cap, out _)) return false;
-			var available = CastingCapacityMutationActive ? _magicResourceAmounts[resource] : Math.Min(_magicResourceAmounts[resource], cap);
+			var balance = _magicResourceAmounts[resource];
+			var available = CastingCapacityMutationActive
+				? InvocationResourcePayment.RequiresCappedAvailability ? InvocationResourceAvailability(resource, balance, cap) : balance
+				: Math.Min(balance, cap);
 			return available >= amount;
 		}
         return _magicResourceAmounts[resource] >= amount;
@@ -190,9 +193,15 @@ public partial class Character : IMagicUser
 		{
 			if (!double.IsFinite(amount) || amount < 0 || !double.IsFinite(_magicResourceAmounts[resource]) ||
 				!MagicResourceCapacity.TryGetCap(resource, this, out var cap, out _)) return false;
-			var available = CastingCapacityMutationActive ? _magicResourceAmounts[resource] : Math.Min(_magicResourceAmounts[resource], cap);
+			var balance = _magicResourceAmounts[resource];
+			var available = CastingCapacityMutationActive
+				? InvocationResourcePayment.RequiresCappedAvailability ? InvocationResourceAvailability(resource, balance, cap) : balance
+				: Math.Min(balance, cap);
 			if (available < amount) return false;
-			_magicResourceAmounts[resource] = available - amount; ResourcesChanged = true;
+			if (CastingCapacityMutationActive && InvocationResourcePayment.RequiresCappedAvailability)
+				DebitInvocationResourceBudget(resource, balance, cap, amount);
+			// A capped nested payment must not discard its caller's deferred excess before reconciliation.
+			_magicResourceAmounts[resource] = (CastingCapacityMutationActive ? balance : available) - amount; ResourcesChanged = true;
 			return true;
 		}
         if (_magicResourceAmounts[resource] >= amount)

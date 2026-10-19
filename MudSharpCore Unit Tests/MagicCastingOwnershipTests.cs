@@ -11,6 +11,7 @@ using MudSharp.Framework;
 using MudSharp.Framework.Scheduling;
 using MudSharp.Magic;
 using MudSharp.Magic.Generators;
+using MudSharp.Magic.Powers;
 using MudSharp.RPG.Checks;
 using MudSharp.RPG.Merits;
 using MudSharp.RPG.Merits.Interfaces;
@@ -522,6 +523,190 @@ public class MagicCastingOwnershipTests
 			Assert.AreEqual(17.0, actor.MagicResourceAmounts[f.Resources[1]]);
 		}
 		Assert.AreEqual(17.0, actor.MagicResourceAmounts[f.Resources[1]]);
+	}
+
+	[DataTestMethod]
+	[DataRow(150, false, 200.0)]
+	[DataRow(70, true, 130.0)]
+	public void NativeReserve_NestedSpellPayment_UsesCapAndPreservesOuterProvisionalBalance(int cost, bool accepted,
+		double expectedProvisional)
+	{
+		var (f, actor) = CompoundCapacityFixture();
+		var resource = f.Resources[1]; actor.AddResource(resource, 90);
+		f.ActiveCapabilities.Add(Mock.Of<IMagicCapability>(x => x.School == f.School));
+		f.Actor.Setup(x => x.CanUseResource(resource, It.IsAny<double>()))
+			.Returns<IMagicResource, double>((r, amount) => actor.CanUseResource(r, amount));
+		f.Actor.Setup(x => x.UseResource(resource, It.IsAny<double>()))
+			.Returns<IMagicResource, double>((r, amount) => actor.UseResource(r, amount));
+		var nested = f.NewSpell(11, "Additional invocation", "");
+		Set(nested, "<EffectDurationExpression>k__BackingField", new TraitExpression("600", f.World.Object));
+		var costs = (Dictionary<IMagicResource, ITraitExpression>)typeof(MagicSpell)
+			.GetField("_castingCosts", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(nested)!;
+		costs.Clear(); costs.Add(resource, new TraitExpression(cost.ToString(), f.World.Object));
+		var applications = 0;
+		var nestedEffect = new Mock<IMagicSpellEffectTemplate>();
+		nestedEffect.Setup(x => x.IsCompatibleWithTrigger(It.IsAny<IMagicTrigger>())).Returns(true);
+		nestedEffect.Setup(x => x.GetOrApplyEffect(It.IsAny<ICharacter>(), actor, It.IsAny<OpposedOutcomeDegree>(),
+			It.IsAny<SpellPower>(), It.IsAny<IMagicSpellEffectParent>(), It.IsAny<SpellAdditionalParameter[]>()))
+			.Callback(() => applications++).Returns((IMagicSpellEffect)null!);
+		((List<IMagicSpellEffectTemplate>)nested.SpellEffects).Add(nestedEffect.Object);
+		var outer = f.NewSpell(12, "Outer resource mutation", "");
+		Set(outer, "<EffectDurationExpression>k__BackingField", new TraitExpression("600", f.World.Object));
+		var outerEffect = new Mock<IMagicSpellEffectTemplate>();
+		outerEffect.Setup(x => x.GetOrApplyEffect(It.IsAny<ICharacter>(), actor, It.IsAny<OpposedOutcomeDegree>(),
+			It.IsAny<SpellPower>(), It.IsAny<IMagicSpellEffectParent>(), It.IsAny<SpellAdditionalParameter[]>()))
+			.Callback(() =>
+			{
+				actor.AddResource(resource, 110);
+				Assert.AreEqual(200.0, actor.MagicResourceAmounts[resource]);
+				Assert.AreEqual(accepted, nested.CharacterCanCast(f.Actor.Object, actor, SpellPower.Standard));
+				nested.CastSpell(f.Actor.Object, actor, SpellPower.Standard);
+				Assert.AreEqual(expectedProvisional, actor.MagicResourceAmounts[resource]);
+				if (accepted)
+				{
+					Assert.IsFalse(nested.CharacterCanCast(f.Actor.Object, actor, SpellPower.Standard));
+					nested.CastSpell(f.Actor.Object, actor, SpellPower.Standard);
+					Assert.AreEqual(1, applications, "A second 70-cost invocation cannot reuse the outer excess.");
+					Assert.AreEqual(130.0, actor.MagicResourceAmounts[resource]);
+					costs[resource] = new TraitExpression("30", f.World.Object);
+					Assert.IsTrue(nested.CharacterCanCast(f.Actor.Object, actor, SpellPower.Standard));
+					nested.CastSpell(f.Actor.Object, actor, SpellPower.Standard);
+					Assert.AreEqual(100.0, actor.MagicResourceAmounts[resource]);
+				}
+			}).Returns((IMagicSpellEffect)null!);
+		((List<IMagicSpellEffectTemplate>)outer.SpellEffects).Add(outerEffect.Object);
+		outer.ResolveTriggeredSpell(actor, actor, SpellPower.Standard);
+		Assert.AreEqual(accepted ? 2 : 0, applications);
+		Assert.AreEqual(100.0, actor.MagicResourceAmounts[resource]);
+		if (!accepted)
+		{
+			nested.CastSpell(f.Actor.Object, actor, SpellPower.Standard);
+			Assert.AreEqual(0, applications, "A following invocation cannot spend the former provisional excess either.");
+			Assert.AreEqual(100.0, actor.MagicResourceAmounts[resource]);
+		}
+	}
+
+	[TestMethod]
+	public void NativeReserve_AdditionalPaymentRefusal_PreservesSameSpellResourceArithmetic()
+	{
+		var (f, actor) = CompoundCapacityFixture(); var resource = f.Resources[1];
+		var secondary = Holder.Create(f.World.Object, 101); secondary.Canonical = actor;
+		actor.AddResource(resource, 90);
+		using (actor.DeferCastingCapacityReconciliationForMutation())
+		{
+			actor.AddResource(resource, 110);
+			Assert.IsFalse(InvocationResourcePayment.CanAfford(secondary, resource, 150));
+			Assert.IsFalse(InvocationResourcePayment.TryPay(secondary, resource, 150));
+			Assert.AreEqual(200.0, actor.MagicResourceAmounts[resource]);
+			Assert.IsTrue(actor.CanUseResource(resource, 150));
+			Assert.IsTrue(actor.UseResource(resource, 150), "The same spell's ordinary debit still uses actual funds.");
+		}
+		Assert.AreEqual(50.0, actor.MagicResourceAmounts[resource]);
+	}
+
+	[TestMethod]
+	public void NativeReserve_AdditionalInvocationBudget_PreservesSameSpellArithmeticAndTracksLiveCapacity()
+	{
+		var (f, actor) = CompoundCapacityFixture(); var resource = f.Resources[1];
+		var cap = 100.0;
+		Mock.Get(resource).Setup(x => x.ResourceCap(actor)).Returns(() => cap);
+		actor.AddResource(resource, 90);
+		using (actor.DeferCastingCapacityReconciliationForMutation())
+		{
+			actor.AddResource(resource, 110);
+			Assert.IsTrue(InvocationResourcePayment.TryPay(actor, resource, 70));
+			Assert.IsTrue(actor.UseResource(resource, 40));
+			actor.AddResource(resource, 5);
+			Assert.AreEqual(95.0, actor.MagicResourceAmounts[resource], "Same-spell arithmetic remains raw and deferred.");
+			Assert.IsFalse(InvocationResourcePayment.CanAfford(actor, resource, 31), "Later credits wait for batch completion.");
+			cap = 20;
+			Assert.IsFalse(InvocationResourcePayment.CanAfford(actor, resource, 30));
+			cap = 200;
+			Assert.IsFalse(InvocationResourcePayment.CanAfford(actor, resource, 31), "A capacity rise cannot reset the spent budget.");
+			Assert.IsTrue(InvocationResourcePayment.CanAfford(actor, resource, 30));
+		}
+		Assert.AreEqual(95.0, actor.MagicResourceAmounts[resource]);
+		Assert.IsTrue(InvocationResourcePayment.CanAfford(actor, resource, 95), "Completion releases the remaining reconciled funds.");
+	}
+
+	[TestMethod]
+	public void NativeReserve_CanonicalAliasesAndInnerBatchShareSuccessfulPaymentBudget()
+	{
+		var (f, actor) = CompoundCapacityFixture(); var resource = f.Resources[1];
+		var secondary = Holder.Create(f.World.Object, 101); secondary.Canonical = actor;
+		var other = Holder.Create(f.World.Object, 102); other.Canonical = actor;
+		actor.AddResource(resource, 90);
+		using (actor.DeferCastingCapacityReconciliationForMutation())
+		{
+			actor.AddResource(resource, 110);
+			using (secondary.DeferCastingCapacityReconciliationForMutation())
+				Assert.IsTrue(InvocationResourcePayment.TryPay(secondary, resource, 70));
+			Assert.IsFalse(InvocationResourcePayment.TryPay(actor, resource, 31));
+			Assert.IsTrue(InvocationResourcePayment.TryPay(other, resource, 30));
+			actor.AddResource(resource, 100);
+			Assert.IsFalse(InvocationResourcePayment.CanAfford(secondary, resource, 1));
+			Assert.AreEqual(200.0, actor.MagicResourceAmounts[resource]);
+		}
+		Assert.AreEqual(100.0, actor.MagicResourceAmounts[resource]);
+		Assert.IsTrue(InvocationResourcePayment.TryPay(other, resource, 100));
+		Assert.AreEqual(0.0, actor.MagicResourceAmounts[resource]);
+	}
+
+	[TestMethod]
+	public void NativeReserve_ConfiguredQuoteRespectsSharedBudgetWithoutReplenishingIt()
+	{
+		var (f, actor) = CompoundCapacityFixture(); var resource = f.Resources[1]; f.Acquire();
+		f.Actor.Setup(x => x.CanUseResource(resource, It.IsAny<double>()))
+			.Returns<IMagicResource, double>((r, amount) => actor.CanUseResource(r, amount));
+		actor.AddResource(resource, 90);
+		var writes = f.Store.Writes;
+		using (actor.DeferCastingCapacityReconciliationForMutation())
+		{
+			actor.AddResource(resource, 110);
+			Assert.IsTrue(f.Service.Quote(f.Intent(1, false)).Allowed);
+			Assert.IsTrue(InvocationResourcePayment.TryPay(actor, resource, 100));
+			Assert.IsTrue(actor.CanUseResource(resource, 5), "The original spell still has its raw funds.");
+			Assert.IsFalse(f.Service.Quote(f.Intent(1, false)).Allowed);
+			actor.AddResource(resource, 100);
+			Assert.IsFalse(f.Service.Quote(f.Intent(1, false)).Allowed);
+			Assert.AreEqual(200.0, actor.MagicResourceAmounts[resource]);
+			Assert.AreEqual(writes, f.Store.Writes);
+		}
+		Assert.AreEqual(100.0, actor.MagicResourceAmounts[resource]);
+		Assert.IsTrue(f.Service.Quote(f.Intent(1, false)).Allowed);
+	}
+
+	[TestMethod]
+	public void NativeReserve_AdditionalPowerAdmission_RejectsProvisionalExcess()
+	{
+		var (f, actor) = CompoundCapacityFixture(); var resource = f.Resources[1];
+		var power = (MagicPowerBase)MagicPowerFactory.LoadPower(new MudSharp.Models.MagicPower
+		{
+			Id = 13, Name = "Reserve admission", MagicSchoolId = 1, PowerModel = "spellbacked",
+			Definition = "<Definition><Verb>invoke</Verb><Spell>1</Spell><CanInvokePowerProg>0</CanInvokePowerProg><WhyCantInvokePowerProg>0</WhyCantInvokePowerProg><InvocationCosts /></Definition>"
+		}, f.World.Object);
+		power.InvocationCosts.Add("invoke", (resource, 150));
+		actor.AddResource(resource, 90);
+		using (actor.DeferCastingCapacityReconciliationForMutation())
+		{
+			actor.AddResource(resource, 110);
+			Assert.IsFalse(power.CanAffordToInvokePower(actor, "invoke").Truth);
+			Assert.AreEqual(200.0, actor.MagicResourceAmounts[resource], "Admission must not clip the outer batch.");
+			power.InvocationCosts["invoke"].Clear(); power.InvocationCosts.Add("invoke", (resource, 70));
+			Assert.IsTrue(power.CanAffordToInvokePower(actor, "invoke").Truth);
+			power.ConsumePowerCosts(actor, "invoke");
+			Assert.AreEqual(130.0, actor.MagicResourceAmounts[resource]);
+			Assert.IsFalse(power.CanAffordToInvokePower(actor, "invoke").Truth,
+				"Native power payment must consume the same budget as additional spells.");
+			actor.AddResource(resource, 70);
+			Assert.IsFalse(power.CanAffordToInvokePower(actor, "invoke").Truth,
+				"Restoration by the original spell waits until it finishes.");
+			power.InvocationCosts["invoke"].Clear(); power.InvocationCosts.Add("invoke", (resource, 30));
+			Assert.IsTrue(power.CanAffordToInvokePower(actor, "invoke").Truth);
+		}
+		Assert.AreEqual(100.0, actor.MagicResourceAmounts[resource]);
+		power.InvocationCosts["invoke"].Clear(); power.InvocationCosts.Add("invoke", (resource, 100));
+		Assert.IsTrue(power.CanAffordToInvokePower(actor, "invoke").Truth);
 	}
 
 	private static (MagicCastingFixture Fixture, Holder Actor) CompoundCapacityFixture()

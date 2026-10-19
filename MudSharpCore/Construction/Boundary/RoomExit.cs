@@ -1,4 +1,5 @@
-﻿using MudSharp.Body.Position.PositionStates;
+﻿using MudSharp.Character;
+using MudSharp.Body.Position.PositionStates;
 using MudSharp.FutureProg.Variables;
 using MudSharp.RPG.Checks;
 
@@ -238,6 +239,27 @@ public class RoomExit : IRoomExit
 
         if (destinationTerrain.TerrainLayers.Contains(perceiver.RoomLayer))
         {
+            // Categorical ground liquids keep a supporting bed at GroundLevel. Swimming
+            // admission is therefore subject-specific rather than a room-wide layer flag.
+            if (perceiver.RoomLayer == RoomLayer.GroundLevel && perceiver is ICharacter character &&
+                (originTerrain.Immersion is not null || destinationTerrain.Immersion is not null))
+            {
+                if (perceiver.PositionState == PositionFlying.Instance)
+                {
+                    return (RoomMovementTransition.FlyOnly, perceiver.RoomLayer);
+                }
+
+                var destinationSwimming = Destination.IsSwimmingLayer(perceiver.RoomLayer) ||
+                    TerrainImmersionHelper.RequiresSwimming(character, Destination, perceiver.RoomLayer,
+                        character.PositionState == PositionSwimming.Instance ? PositionStanding.Instance :
+                            character.PositionState.TransitionOnMovement ?? character.PositionState);
+                var sourceSwimming = perceiver.Location.IsSwimmingLayer(perceiver.RoomLayer) ||
+                    originTerrain.Immersion?.Medium == TerrainMedium.Liquid &&
+                    perceiver.PositionState == PositionSwimming.Instance;
+                if (destinationSwimming) return (RoomMovementTransition.SwimOnly, perceiver.RoomLayer);
+                if (sourceSwimming) return (RoomMovementTransition.SwimToLand, perceiver.RoomLayer);
+            }
+
             if (perceiver.Location.IsSwimmingLayer(perceiver.RoomLayer))
             {
                 if (Destination.Location.IsSwimmingLayer(perceiver.RoomLayer))

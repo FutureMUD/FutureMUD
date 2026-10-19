@@ -734,9 +734,27 @@ public partial class Character
         return true;
     }
 
+    /// <summary>Resolve an opt-in slowest native ground pace without relying on gait names.</summary>
+    public static IMoveSpeed ImmersionMovementSpeed(ICharacter character, IMoveSpeed selected,
+        IPositionState posture, IRoom destination = null, RoomLayer? destinationLayer = null)
+    {
+        if (selected is null || posture.In(PositionSwimming.Instance, PositionFlying.Instance,
+                PositionClimbing.Instance, PositionFloatingInZeroGravity.Instance, PositionRiding.Instance) ||
+            !(TerrainImmersionHelper.ProfileFor(character.Location, character.RoomLayer)?.RestrictRunning == true ||
+              destination is not null && TerrainImmersionHelper.ProfileFor(destination,
+                  destinationLayer ?? character.RoomLayer)?.RestrictRunning == true))
+        {
+            return selected;
+        }
+
+        return character.Speeds.Where(x => x.Position == posture)
+            .OrderByDescending(x => x.Multiplier).ThenBy(x => x.Id).FirstOrDefault() ?? selected;
+    }
+
     protected double StaminaForMovement(IPositionState movingPosition, IMoveSpeed speed, double staminaMultiplier,
         bool ignoreTerrainStamina)
     {
+        speed = ImmersionMovementSpeed(this, speed, movingPosition);
         if (movingPosition == PositionFloatingInZeroGravity.Instance)
         {
             return
@@ -758,7 +776,9 @@ public partial class Character
             (1 + EncumbrancePercentage * Gameworld.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage")) *
             (ignoreTerrainStamina ? 1.0 : Location.Terrain(this)?.StaminaCost ?? 0) *
             staminaMultiplier *
-            speed?.StaminaMultiplier ?? 1.0;
+            (TerrainImmersionHelper.IsWading(this, movingPosition)
+                ? TerrainImmersionHelper.WadingStaminaMultiplier : 1.0) *
+            (speed?.StaminaMultiplier ?? 1.0);
     }
 
 
@@ -767,7 +787,9 @@ public partial class Character
     {
         if (exit is null)
         {
-            return null;
+            return TerrainImmersionHelper.RequiresSwimming(this,
+                posture: PositionState.TransitionOnMovement ?? PositionState)
+                ? PositionSwimming.Instance : null;
         }
 
         if (exit.IsClimbExit)
@@ -838,6 +860,7 @@ public partial class Character
             };
         }
 
+        movingPositionOverride ??= GetRequiredMovementPosition(vehicleInteriorExit);
         bool dragging = CombinedEffectsOfType<Dragging>().Any();
         double staminaMultiplier = 1.0;
         bool ignoreTerrainStamina = false;
@@ -889,7 +912,9 @@ public partial class Character
             };
         }
 
-        double staminaCost = StaminaForMovement(movingPosition, CurrentSpeeds[movingPosition], staminaMultiplier,
+        double staminaCost = StaminaForMovement(movingPosition,
+            ImmersionMovementSpeed(this, CurrentSpeeds[movingPosition], movingPosition,
+                vehicleInteriorExit?.Destination), staminaMultiplier,
             ignoreTerrainStamina);
         if (RidingMount is null && !EffectHandler.AffectedBy<IImmwalkEffect>() &&
         Race.RaceUsesStamina &&
@@ -1353,6 +1378,8 @@ public partial class Character
             return -1;
         }
 
+        speed = ImmersionMovementSpeed(this, speed, requiredPosition ?? PositionState,
+            exit?.Destination, exit?.MovementTransition(this).TargetLayer);
         double sightMultiplier = 1.0;
         switch (IlluminationSightDifficulty())
         {
@@ -1426,6 +1453,10 @@ public partial class Character
         }
 
         double result = baseSpeed * multiplier;
+        if (TerrainImmersionHelper.IsWading(this, requiredPosition ?? PositionState))
+        {
+            result *= TerrainImmersionHelper.WadingTimeMultiplier;
+        }
         result *= CombinedEffectsOfType<IMovementDelayEffect>()
             .Aggregate(1.0, (current, effect) => current * effect.DelayMultiplier(speed));
         return result;
@@ -1773,7 +1804,15 @@ public partial class Character
 		{ OutputHandler.Send(projectionError.ColourError()); movement.CancelForMoverOnly(this); return; }
         if (RidingMount is null && !EffectHandler.AffectedBy<IImmwalkEffect>())
         {
-            SpendStamina(StaminaForMovement(PositionState, speedOverride ?? CurrentSpeed, movement.StaminaMultiplier, PositionState.IgnoreTerrainStaminaCostsForMovement));
+            var movingPosition = (TerrainImmersionHelper.ProfileFor(Location, RoomLayer) is not null ||
+                                  TerrainImmersionHelper.ProfileFor(movement?.Exit?.Destination, RoomLayer) is not null)
+                ? GetRequiredMovementPosition(movement?.Exit) ?? PositionState : PositionState;
+            CurrentSpeeds.TryGetValue(movingPosition, out var selectedSpeed);
+            var effectiveSpeed = ImmersionMovementSpeed(this, speedOverride ?? selectedSpeed,
+                movingPosition, movement?.Exit?.Destination);
+            if (effectiveSpeed is not null) CurrentSpeeds[movingPosition] = effectiveSpeed;
+            SpendStamina(StaminaForMovement(movingPosition, effectiveSpeed, movement.StaminaMultiplier,
+                movingPosition.IgnoreTerrainStaminaCostsForMovement));
         }
 
         movement?.Exit?.Origin?.Leave(this);
@@ -2132,7 +2171,7 @@ public partial class Character
                 return;
             }
 
-            mount.RiderMovePosition(Location.IsSwimmingLayer(RoomLayer) ? PositionSwimming.Instance : PositionStanding.Instance,
+            mount.RiderMovePosition(Location.IsSwimmingLayer(RoomLayer) || TerrainImmersionHelper.RequiresSwimming(mount, posture: PositionStanding.Instance) ? PositionSwimming.Instance : PositionStanding.Instance,
                     PositionModifier.None, null, this, actionEmote, null);
             return;
         }
@@ -2144,7 +2183,7 @@ public partial class Character
             return;
         }
 
-        if (Location.IsSwimmingLayer(RoomLayer))
+        if (Location.IsSwimmingLayer(RoomLayer) || TerrainImmersionHelper.RequiresSwimming(this, posture: PositionStanding.Instance))
         {
             MovePosition(PositionSwimming.Instance, PositionModifier.None, null, actionEmote, null);
             return;
@@ -2544,9 +2583,54 @@ public partial class Character
         return (false, TimeSpan.FromSeconds(5));
     }
 
+    private void DoShallowSurfaceSwimHeartbeat(ITerrain terrain)
+    {
+        if (PositionState != PositionSwimming.Instance ||
+            CombinedEffectsOfType<IImmwalkEffect>().Any() || RidingMount is not null ||
+            TerrainImmersionHelper.IsSupportedByVehicle(this, out _))
+        {
+            return;
+        }
+
+        if (!CharacterState.Able.HasFlag(State))
+        {
+            SetPosition(PositionSprawled.Instance, PositionModifier.None, null, null);
+            return;
+        }
+
+        var inventoryBuoyancy = Body.AllItems.Sum(x => x.Buoyancy(terrain.WaterFluid.Density));
+        var difficulty = Difficulty.ExtremelyEasy.StageDown((int)(inventoryBuoyancy /
+            Gameworld.GetStaticDouble("FloatBuoyancyPerDifficulty")));
+        var outcome = Gameworld.GetCheck(CheckType.SwimStayAfloatCheck).Check(this, difficulty);
+        var staminaCost = Gameworld.GetStaticDouble("SwimStayAfloatStamina") * (outcome.Outcome switch
+        {
+            Outcome.MajorFail => 4.0,
+            Outcome.Fail => 2.5,
+            Outcome.MinorFail => 1.75,
+            Outcome.Pass => 0.8,
+            Outcome.MajorPass => 0.6,
+            _ => 1.0
+        });
+        var canRemainAfloat = !outcome.IsAbjectFailure && CanSpendStamina(staminaCost);
+        SpendStamina(staminaCost);
+        if (canRemainAfloat) return;
+
+        OutputHandler.Handle(new EmoteOutput(new Emote(
+            "@ sink|sinks onto the bottom, unable to remain afloat.", this, this)));
+        // GroundLevel is also the bed: loss of flotation changes placement/posture,
+        // never the room layer, so contact and breathing now resolve at the bottom.
+        SetPosition(PositionSprawled.Instance, PositionModifier.None, null, null);
+    }
+
     public void DoSwimHeartbeat()
     {
         ITerrain terrain = Location.Terrain(this);
+        if (TerrainImmersionHelper.ProfileFor(Location, RoomLayer) is { Medium: TerrainMedium.Liquid })
+        {
+            DoShallowSurfaceSwimHeartbeat(terrain);
+            return;
+        }
+
         if (!Location.IsSwimmingLayer(RoomLayer))
         {
             return;
@@ -3191,7 +3275,7 @@ public partial class Character
         OutputHandler.Handle(
             new MixedEmoteOutput(new Emote(Gameworld.GetStaticString("ClimbDownEmoteTargetLocation"), this, this),
                 flags: OutputFlags.SuppressSource | OutputFlags.SuppressObscured).Append(actionEmote));
-        if (Location.IsSwimmingLayer(RoomLayer))
+        if (Location.IsSwimmingLayer(RoomLayer) || TerrainImmersionHelper.RequiresSwimming(this, posture: PositionStanding.Instance))
         {
             SetPosition(PositionSwimming.Instance, PositionModifier.None, null, null);
         }

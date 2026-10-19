@@ -19,8 +19,19 @@ internal static class ArmageddonSourceImpacts
 	{
 		var always = db.FutureProgs.Single(x => x.FunctionName == "AlwaysTrue").Id;
 		var humanoid = db.Races.Single(x => x.Name == "Organic Humanoid");
-		var strength = db.TraitDefinitions.Single(x => x.Name == "Strength" && x.Type == 1).Id;
-		var agility = db.TraitDefinitions.Single(x => x.Name == "Agility" && x.Type == 1).Id;
+		long Attribute(params string[] names)
+		{
+			foreach (var name in names)
+			{
+				var attribute = db.TraitDefinitions.SingleOrDefault(x => x.Name == name && (x.Type == 1 || x.Type == 3));
+				if (attribute is not null) return attribute.Id;
+			}
+			throw new InvalidOperationException("Armageddon impacts require an explicit native attribute binding: " + string.Join(" / ", names));
+		}
+		var strength = Attribute("Strength", "Physique", "Body", "Upper Body Strength");
+		// LabMUD and DND merge physical agility into Dexterity. This is an explicit native
+		// adaptation; never adopt an arbitrary attribute or a first-skill fallback.
+		var agility = Attribute("Agility", "Dexterity", "Coordination", "Speed");
 		foreach (var verb in new[] { "bash", "kick" })
 		{
 			var bash = verb == "bash";

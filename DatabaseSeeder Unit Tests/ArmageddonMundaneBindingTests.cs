@@ -69,10 +69,13 @@ public class ArmageddonMundaneBindingTests
 		Assert.IsFalse(db.SeederChoices.Any(x => x.Seeder == nameof(UsefulSeeder) || x.Seeder == nameof(ItemSeeder)));
 	}
 
-	[TestMethod]
-	public void SourceImpacts_BindSeparateCanonicalActionsAndManualCommands()
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void SourceImpacts_BindSeparateCanonicalActionsAndManualCommands(bool hasAgility)
 	{
 		using var db = ArmageddonSettingPackageTests.Fixture();
+		if (!hasAgility) { db.TraitDefinitions.Remove(db.TraitDefinitions.Single(x => x.Name == "Agility")); db.SaveChanges(); }
 		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
 		var root = new Race { Name = "Organic Humanoid" }; db.Races.Add(root);
 		foreach (var verb in new[] { "bash", "kick" }) db.ManualCombatCommands.Add(new ManualCombatCommand { Name = verb, PrimaryVerb = verb });
@@ -94,6 +97,7 @@ public class ArmageddonMundaneBindingTests
 			Assert.AreEqual(verb == "kick", (bool)profile.Attribute("shieldblock")!);
 			Assert.IsTrue((bool)profile.Attribute("initiatecombat")!);
 			Assert.AreEqual(skills["arm.skill.guarding"].Id, (long)profile.Attribute("guardtrait")!);
+			Assert.AreEqual(db.TraitDefinitions.Single(x => x.Name == (hasAgility ? "Agility" : "Dexterity")).Id, (long)profile.Attribute("agilitytrait")!);
 		}
 		Assert.AreEqual(2L, original.UsabilityProgId);
 		Assert.AreEqual(6, db.SeederManagedRecords.Count(x => x.StableKey.StartsWith("arm.action.") || x.StableKey.StartsWith("arm.command.")));

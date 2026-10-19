@@ -142,6 +142,11 @@ public partial class Body
             return true;
         }
 
+		if (thing is IGameItem terrainItem && TerrainImmersionHelper.IsObscuredByTerrain(terrainItem))
+		{
+			return false;
+		}
+
         if (thing is IBody body)
         {
             thing = body.Actor;

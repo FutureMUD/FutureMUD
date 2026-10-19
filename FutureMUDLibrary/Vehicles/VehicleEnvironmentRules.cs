@@ -13,7 +13,19 @@ public static class VehicleEnvironmentRules
 	{
 		return location is not null &&
 		       layer == RoomLayer.GroundLevel &&
-		       location.IsSwimmingLayer(RoomLayer.GroundLevel);
+		       (location.IsSwimmingLayer(RoomLayer.GroundLevel) ||
+		        location.CurrentOverlay?.Terrain?.Immersion?.Medium == TerrainMedium.Liquid);
+	}
+
+	public static bool IsSiltSurface(this IRoom? location, RoomLayer layer)
+	{
+		return location is not null && layer == RoomLayer.GroundLevel &&
+		       location.CurrentOverlay?.Terrain?.Immersion?.Medium == TerrainMedium.Silt;
+	}
+
+	public static bool IsSiltVehicle(this IVehicle? vehicle)
+	{
+		return vehicle?.MovementProfile?.MovementEnvironment == VehicleMovementEnvironment.Silt;
 	}
 
 	public static bool IsSurfaceWaterVehicle(this IVehicle? vehicle)
@@ -52,6 +64,24 @@ public static class VehicleEnvironmentRules
 	public static bool CanTraverseEnvironment(this IVehicle? vehicle, IRoom? destination, RoomLayer destinationLayer,
 		out string reason)
 	{
+		if (vehicle.IsSiltVehicle())
+		{
+			if (!vehicle!.Location.IsSiltSurface(vehicle.RoomLayer))
+			{
+				reason = $"{vehicle.Name} is not at the surface of a silt location.";
+				return false;
+			}
+
+			if (!destination.IsSiltSurface(destinationLayer))
+			{
+				reason = $"{vehicle.Name} can only move to another silt-surface location.";
+				return false;
+			}
+
+			reason = string.Empty;
+			return true;
+		}
+
 		if (!vehicle.IsSurfaceWaterVehicle())
 		{
 			reason = string.Empty;

@@ -1125,6 +1125,7 @@ public partial class MagicEngineV4Tests
 		var gameworld = new Mock<IFuturemud>();
 		gameworld.SetupGet(x => x.FutureProgs).Returns(CreateCollectionMock(progList).Object);
 		gameworld.SetupGet(x => x.MagicSchools).Returns(CreateCollectionMock(CreateSchool().Object).Object);
+		gameworld.SetupGet(x => x.MagicCapabilities).Returns(new All<IMagicCapability>());
 		gameworld.SetupGet(x => x.Traits).Returns(CreateCollectionMock(CreateTrait().Object).Object);
 		gameworld.SetupGet(x => x.Actors).Returns(CreateCollectionMock<ICharacter>().Object);
 		gameworld.SetupGet(x => x.Characters).Returns(CreateCollectionMock<ICharacter>().Object);

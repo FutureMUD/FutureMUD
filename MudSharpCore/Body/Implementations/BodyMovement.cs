@@ -346,9 +346,13 @@ public partial class Body
             LongtermExertion = CurrentExertion;
         }
 
-        if (Location.IsSwimmingLayer(RoomLayer) &&
+        if ((Location.IsSwimmingLayer(RoomLayer) ||
+             MudSharp.Construction.TerrainImmersionHelper.ProfileFor(Location, RoomLayer)?.Medium == MudSharp.Construction.TerrainMedium.Liquid &&
+             positionState == PositionSwimming.Instance) &&
             positionState != PositionFlying.Instance &&
-            !Actor.IsSupportedBySurfaceWaterVehicle(out _))
+            !(MudSharp.Construction.TerrainImmersionHelper.ProfileFor(Location, RoomLayer) is not null
+                ? MudSharp.Construction.TerrainImmersionHelper.IsSupportedByVehicle(Actor, out _)
+                : Actor.IsSupportedBySurfaceWaterVehicle(out _)))
         {
             Actor.DoSwimHeartbeat();
         }

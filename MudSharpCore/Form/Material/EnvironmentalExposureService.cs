@@ -299,9 +299,9 @@ public sealed class EnvironmentalExposureService
 		(target.Gameworld.DefaultPlane is null || target.CurrentPlane() == target.Gameworld.DefaultPlane);
 	public static IExternalBodypart[] ImmersedParts(IBody body)
 	{
-		if (TerrainImmersionHelper.LiquidFor(body) is null || !Physical(body.Actor)) return Array.Empty<IExternalBodypart>();
+		if (!Physical(body.Actor)) return Array.Empty<IExternalBodypart>();
 		if (TerrainImmersionHelper.ProfileFor(body.Location, body.RoomLayer) is not null)
-			return TerrainImmersionHelper.ImmersedParts(body);
+			return TerrainImmersionHelper.LiquidFor(body) is null ? Array.Empty<IExternalBodypart>() : TerrainImmersionHelper.ImmersedParts(body);
 		if (body.Location is null || !body.Location.IsSwimmingLayer(body.RoomLayer) || body.PositionState == PositionFlying.Instance ||
 			body.Actor.IsProtectedFromSurfaceWater(out _)) return Array.Empty<IExternalBodypart>();
 		return body.Bodyparts.OfType<IExternalBodypart>().Where(x => body.Location.IsUnderwaterLayer(body.RoomLayer) ||

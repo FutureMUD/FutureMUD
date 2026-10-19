@@ -129,7 +129,7 @@ public class LungBreather : IBreathingStrategy
         }
 
         IFluid underwaterFluid = TerrainImmersionHelper.IsPartImmersed(body, mouth)
-            ? TerrainImmersionHelper.LiquidFor(body)
+            ? TerrainImmersionHelper.RespiratoryFluid(body, mouth)
             : null;
 
         IProvideGasForBreathing gasSource = GetBreathingGasSource(body, mouth, underwaterFluid);
@@ -144,7 +144,7 @@ public class LungBreather : IBreathingStrategy
     private static IProvideGasForBreathing GetBreathingGasSource(IBody body, MouthProto mouth, IFluid underwaterFluid = null)
     {
         underwaterFluid ??= TerrainImmersionHelper.IsPartImmersed(body, mouth)
-            ? TerrainImmersionHelper.LiquidFor(body)
+            ? TerrainImmersionHelper.RespiratoryFluid(body, mouth)
             : null;
 
         return body.WornItemsFor(mouth)

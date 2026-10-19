@@ -2627,7 +2627,7 @@ public partial class Character
         ITerrain terrain = Location.Terrain(this);
         if (TerrainImmersionHelper.ProfileFor(Location, RoomLayer) is { Medium: TerrainMedium.Liquid })
         {
-            DoShallowSurfaceSwimHeartbeat(terrain);
+            DoShallowSurfaceSwimHeartbeat(Location.Terrain(null));
             return;
         }
 

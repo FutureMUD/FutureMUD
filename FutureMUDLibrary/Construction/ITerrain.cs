@@ -1,3 +1,5 @@
+#nullable enable annotations
+
 ﻿using MudSharp.Character;
 using MudSharp.Climate;
 using MudSharp.Combat;

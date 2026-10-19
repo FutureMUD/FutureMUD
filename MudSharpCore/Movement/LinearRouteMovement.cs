@@ -1,5 +1,6 @@
 #nullable enable
 
+using MudSharp.Body.Position;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character;
 using MudSharp.Construction;
@@ -252,6 +253,9 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 
         foreach (var character in _staminaMovers)
         {
+            if (TerrainImmersionHelper.ProfileFor(character.Location, character.RoomLayer) is null) continue;
+            if (TerrainImmersionHelper.RequiresSwimming(character) && character.PositionState != PositionSwimming.Instance)
+                character.SetPosition(PositionSwimming.Instance, PositionModifier.None, null, null);
             var speed = EffectiveGroundSpeed(character);
             if (speed is not null) character.CurrentSpeeds[speed.Position] = speed;
         }
@@ -671,6 +675,7 @@ public sealed class LinearRouteMovement : ILinearRouteMovement
 
     private static IMoveSpeed? EffectiveGroundSpeed(ICharacter character)
     {
+        if (TerrainImmersionHelper.ProfileFor(character.Location, character.RoomLayer) is null) return character.CurrentSpeed;
         var posture = TerrainImmersionHelper.RequiresSwimming(character)
             ? PositionSwimming.Instance : character.PositionState;
         character.CurrentSpeeds.TryGetValue(posture, out var selected);

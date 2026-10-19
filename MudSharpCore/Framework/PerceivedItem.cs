@@ -542,11 +542,9 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         get => _positionState;
         set
         {
-            if (value != _positionState)
-            {
-                PositionChanged = true;
-            }
-
+            if (value == _positionState) return;
+            using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.Changing(this);
+            PositionChanged = true;
             _positionState = value;
         }
     }
@@ -566,11 +564,9 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
         get => _positionModifier;
         set
         {
-            if (value != _positionModifier)
-            {
-                PositionChanged = true;
-            }
-
+            if (value == _positionModifier) return;
+            using var exposureChange = MudSharp.Form.Material.EnvironmentalExposureService.Changing(this);
+            PositionChanged = true;
             _positionModifier = value;
         }
     }
@@ -737,6 +733,7 @@ public abstract class PerceivedItem : LateKeywordedInitialisingItem, IPerceivabl
 			return;
 		}
 
+		using var exposureChange = IsLoadingPosition ? null : MudSharp.Form.Material.EnvironmentalExposureService.Changing(this);
 		using var proximityChange = IsLoadingPosition
 			? null
 			: Gameworld?.ProximityEventService?.BeginChange(ProximityChangeCause.Positioning);

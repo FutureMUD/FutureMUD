@@ -14,13 +14,13 @@ public static class VehicleEnvironmentRules
 		return location is not null &&
 		       layer == RoomLayer.GroundLevel &&
 		       (location.IsSwimmingLayer(RoomLayer.GroundLevel) ||
-		        location.CurrentOverlay?.Terrain?.Immersion?.Medium == TerrainMedium.Liquid);
+		        location.Terrain(null)?.Immersion?.Medium == TerrainMedium.Liquid);
 	}
 
 	public static bool IsSiltSurface(this IRoom? location, RoomLayer layer)
 	{
 		return location is not null && layer == RoomLayer.GroundLevel &&
-		       location.CurrentOverlay?.Terrain?.Immersion?.Medium == TerrainMedium.Silt;
+		       location.Terrain(null)?.Immersion?.Medium == TerrainMedium.Silt;
 	}
 
 	public static bool IsSiltVehicle(this IVehicle? vehicle)

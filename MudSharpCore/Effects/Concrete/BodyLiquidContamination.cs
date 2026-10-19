@@ -322,7 +322,8 @@ public class BodyLiquidContamination : Effect, ILiquidContaminationEffect, IDesc
             double difference = mixture.TotalVolume - maxAbsorbed;
             ContaminatingLiquid.SetLiquidVolume(maxAbsorbed);
             IRoom location = BodyOwner.Location;
-            if (location != null && !location.IsSwimmingLayer(BodyOwner.RoomLayer))
+            if (location != null && !location.IsSwimmingLayer(BodyOwner.RoomLayer) &&
+                MudSharp.Construction.TerrainImmersionHelper.ProfileFor(location, BodyOwner.RoomLayer)?.Medium != MudSharp.Construction.TerrainMedium.Liquid)
             {
                 if (RuntimeClock.UtcNow - _lastDripEcho > TimeSpan.FromSeconds(120) && ShouldDripsEcho)
                 {

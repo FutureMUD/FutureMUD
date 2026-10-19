@@ -11,6 +11,7 @@ using MudSharp.Character.Heritage;
 using MudSharp.Form.Material;
 using MudSharp.Framework;
 using MudSharp.GameItems;
+using MudSharp.Planes;
 using MudSharp.Vehicles;
 
 namespace MudSharp.Construction;
@@ -32,6 +33,7 @@ public static class TerrainImmersionHelper
 	{
 		vehicle = character.Gameworld?.Vehicles?.FirstOrDefault(x =>
 			x.IsOccupant(character) && !x.Destroyed && x.ExteriorItem is { Deleted: false, Destroyed: false } &&
+			x.ExteriorItem.Location == x.Location && x.ExteriorItem.RoomLayer == x.RoomLayer &&
 			x.Location == character.Location && x.RoomLayer == character.RoomLayer &&
 			x.CanTraverseEnvironment(x.Location, x.RoomLayer, out _));
 		return vehicle is not null;
@@ -39,7 +41,7 @@ public static class TerrainImmersionHelper
 
 	private static bool AboveMedium(IBody body, IPositionState posture, IRoom room, RoomLayer layer) =>
 		posture == PositionFlying.Instance || body.Actor.SuspendsPhysicalContact() ||
-		body.Actor.RidingMount is not null ||
+		body.Actor.RidingMount is { } mount && mount.Location == room && mount.RoomLayer == layer ||
 		body.Location == room && body.RoomLayer == layer && IsSupportedByVehicle(body.Actor, out var vehicle) &&
 		vehicle?.MovementProfile?.ExposesOccupantsToWater != true;
 
@@ -51,8 +53,9 @@ public static class TerrainImmersionHelper
 		var profile = ProfileFor(room, actualLayer);
 		posture ??= body.PositionState;
 		if (profile is null || room is null || AboveMedium(body, posture, room, actualLayer)) return ImmersionContact.None;
-		if (!atBottom && profile.Medium == TerrainMedium.Liquid && posture == PositionSwimming.Instance &&
-		    !body.Actor.State.IsUnconscious())
+		if (!atBottom && profile.Medium == TerrainMedium.Liquid &&
+		    (posture == PositionSwimming.Instance && !body.Actor.State.IsUnconscious() ||
+		     IsSupportedByVehicle(body.Actor, out var exposedVehicle) && exposedVehicle?.MovementProfile?.ExposesOccupantsToWater == true))
 			return new(ImmersionExtent.Partial, Orientation.Centre, 1);
 		return profile.ContactFor(SizeForPosture(body, posture));
 	}
@@ -74,6 +77,7 @@ public static class TerrainImmersionHelper
 	public static bool IsWading(ICharacter character, IPositionState? posture = null,
 		IRoom? room = null, RoomLayer? layer = null)
 	{
+		if (ProfileFor(room ?? character.Location, layer ?? character.RoomLayer) is null) return false;
 		posture ??= character.PositionState;
 		if (posture == PositionSwimming.Instance || posture == PositionFlying.Instance) return false;
 		var contact = ContactFor(character.Body, posture, room, layer);
@@ -102,11 +106,11 @@ public static class TerrainImmersionHelper
 
 	public static ILiquid? LiquidFor(IBody body) =>
 		ProfileFor(body.Location, body.RoomLayer) is { Medium: TerrainMedium.Silt } ? null :
-		body.Location?.Terrain(null).WaterFluid as ILiquid;
+		body.Location?.Terrain(null)?.WaterFluid as ILiquid;
 
 	public static ILiquid? LiquidFor(IGameItem item) =>
 		ProfileFor(item.Location, item.RoomLayer) is { Medium: TerrainMedium.Silt } ? null :
-		item.Location?.Terrain(null).WaterFluid as ILiquid;
+		item.Location?.Terrain(null)?.WaterFluid as ILiquid;
 
 	public static IExternalBodypart[] ImmersedParts(IBody body, IPerceivable? anchor = null)
 	{
@@ -115,11 +119,19 @@ public static class TerrainImmersionHelper
 		var profile = ProfileFor(room, layer);
 		if (profile is null) return Array.Empty<IExternalBodypart>();
 		var posture = anchor is IGameItem ? PositionProne.Instance : body.PositionState;
-		var contact = anchor is IGameItem
-			? profile.ContactFor(SizeForPosture(body, posture))
-			: ContactFor(body);
+		if (anchor is IGameItem anchoredItem && ItemContactFor(anchoredItem).Extent == ImmersionExtent.None)
+			return Array.Empty<IExternalBodypart>();
+		var floatingRemains = anchor is IGameItem remains && profile.Medium == TerrainMedium.Liquid &&
+			LiquidFor(remains) is { } liquid && remains.Buoyancy(liquid.Density) > 0;
+		var contact = floatingRemains ? new ImmersionContact(ImmersionExtent.Partial, Orientation.Centre, 1) :
+			anchor is IGameItem ? profile.ContactFor(SizeForPosture(body, posture)) : ContactFor(body);
+		if (floatingRemains) posture = PositionStanding.Instance; // Coarse surface contact, not full bed coverage.
+		var atSurface = anchor is null && profile.Medium == TerrainMedium.Liquid &&
+			(posture == PositionSwimming.Instance && !body.Actor.State.IsUnconscious() ||
+			 IsSupportedByVehicle(body.Actor, out var vehicle) && vehicle?.MovementProfile?.ExposesOccupantsToWater == true);
 		return body.Bodyparts.OfType<IExternalBodypart>()
-			.Where(part => contact.Covers(EffectiveOrientation(body, part, posture))).ToArray();
+			.Where(part => !(atSurface && part.BodypartType is BodypartTypeEnum.Mouth or BodypartTypeEnum.Blowhole) &&
+				contact.Covers(EffectiveOrientation(body, part, posture))).ToArray();
 	}
 
 	public static bool IsPartImmersed(IBody body, IBodypart? part)
@@ -129,14 +141,21 @@ public static class TerrainImmersionHelper
 		if (profile.Medium != TerrainMedium.Liquid) return false;
 		if (part is null) return ContactFor(body).Extent == ImmersionExtent.Full;
 		var immersed = ImmersedParts(body);
+		if (part is IExternalBodypart external) return immersed.Contains(external);
 		var visited = new HashSet<IBodypart>();
 		for (var current = part; current is not null && visited.Add(current); current = current.UpstreamConnection)
 			if (immersed.Contains(current)) return true;
-		return part is not IExternalBodypart && ContactFor(body).Extent == ImmersionExtent.Full;
+		return part is not IExternalBodypart && (body.Bodyparts.OfType<IExternalBodypart>()
+			.Any(x => x.Organs?.Any(organ => ReferenceEquals(organ, part)) == true && immersed.Contains(x)) ||
+			ContactFor(body).Extent == ImmersionExtent.Full);
 	}
 
 	public static IFluid? RespiratoryFluid(IBody body, IBodypart? part = null) =>
-		IsPartImmersed(body, part) ? LiquidFor(body) ?? body.Location?.Atmosphere : body.Location?.Atmosphere;
+		IsPartImmersed(body, part)
+			? (ProfileFor(body.Location, body.RoomLayer) is null
+				? body.Location?.Terrain(body.Actor)?.WaterFluid
+				: LiquidFor(body)) ?? body.Location?.Atmosphere
+			: body.Location?.Atmosphere;
 
 	private static Orientation EffectiveOrientation(IBody body, IBodypart part, IPositionState posture)
 	{

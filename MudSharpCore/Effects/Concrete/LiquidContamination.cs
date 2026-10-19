@@ -101,7 +101,8 @@ public class LiquidContamination : Effect, ILiquidContaminationEffect, IDescript
             ContaminatingLiquid.SetLiquidVolume(maxAbsorbed);
             IRoom location = ownerItem.TrueLocations.FirstOrDefault();
             if (location != null && ownerItem.ContainedIn == null &&
-                !ownerItem.Location.IsSwimmingLayer(ownerItem.RoomLayer))
+                !ownerItem.Location.IsSwimmingLayer(ownerItem.RoomLayer) &&
+                MudSharp.Construction.TerrainImmersionHelper.ProfileFor(ownerItem.Location, ownerItem.RoomLayer)?.Medium != MudSharp.Construction.TerrainMedium.Liquid)
             {
                 if (RuntimeClock.UtcNow - _lastDripEcho > TimeSpan.FromSeconds(120) && ShouldDripsEcho)
                 {

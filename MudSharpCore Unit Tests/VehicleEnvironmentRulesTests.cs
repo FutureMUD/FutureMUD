@@ -183,7 +183,7 @@ public class VehicleEnvironmentRulesTests
 			.GetField("BuildingHelp", BindingFlags.Static | BindingFlags.NonPublic)!
 			.GetRawConstantValue()!;
 
-		StringAssert.Contains(help, "movement environment <id> <unrestricted|surfacewater>");
+		StringAssert.Contains(help, "movement environment <id> <unrestricted|surfacewater|silt>");
 		StringAssert.Contains(help, "movement waterexposure <id> <protected|exposed>");
 		StringAssert.Contains(help, "movement propulsion add <movement id>");
 		StringAssert.Contains(help, "movement enginepower <id> <watts>");

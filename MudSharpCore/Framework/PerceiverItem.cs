@@ -479,6 +479,18 @@ public abstract partial class PerceiverItem : PerceivedItem, IPerceiver
         switch (RoomLayer)
         {
             case RoomLayer.GroundLevel:
+                // The shallow band has a bed, rather than a deeper swimming stratum.
+                if (Location.Terrain(null).Immersion?.Medium == TerrainMedium.Liquid)
+                {
+                    DoFallDamage(cumulativeFallDistance);
+                    if (ch is not null)
+                        SetPosition(TerrainImmersionHelper.RequiresSwimming(ch, posture: PositionStanding.Instance)
+                            ? PositionSwimming.Instance : PositionSprawled.Instance, PositionModifier.None, null, null);
+                    else if (item is not null)
+                        SetPosition(TerrainImmersionHelper.ItemContactFor(item).SizeGap == int.MaxValue
+                            ? PositionFloatingInWater.Instance : PositionUndefined.Instance, PositionModifier.None, null, null);
+                    return true;
+                }
                 // Figure out if this is water or not
                 if (Location.Terrain(this).TerrainLayers.Any(x => x.IsUnderwater()))
                 {

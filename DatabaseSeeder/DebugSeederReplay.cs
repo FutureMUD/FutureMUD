@@ -447,6 +447,7 @@ internal static class DebugSeederReplayProfiles
 			Step<CurrencySeeder>(("currency", "pounds")),
 			Step<AIStorytellerSeeder>(("install", "yes")),
 			Step<SkillPackageSeeder>(
+				("skillpreset", "Complex-NonGerund-Modern"),
 				("branching", "yes"),
 				("skillcapmodel", "rpi"),
 				("skillgainmodel", "labmud"),

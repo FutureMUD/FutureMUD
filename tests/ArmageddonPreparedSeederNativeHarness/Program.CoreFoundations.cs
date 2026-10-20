@@ -29,7 +29,8 @@ internal static partial class GNHProgram
 			var answers = ((IEnumerable)step.GetType().GetProperty("Answers")!.GetValue(step)!).Cast<object>()
 				.ToDictionary(x => (string)x.GetType().GetProperty("Id")!.GetValue(x)!, x => (string)x.GetType().GetProperty("Answer")!.GetValue(x)!);
 			if (type == skillPackageType) { answers["skillgainmodel"] = "armageddon"; answers["modern"] = "no";
-                if (setting) { answers["complexity"] = "armageddon"; answers["skillcapmodel"] = "class"; answers["branching"] = "no"; answers["gerund"] = "no"; } }
+                answers["skillpreset"] = "Complex-NonGerund";
+                if (setting) { answers["skillpreset"] = "Armageddon"; answers["complexity"] = "armageddon"; answers["skillcapmodel"] = "class"; answers["branching"] = "no"; answers["gerund"] = "no"; } }
 			if (type == typeof(CombatSeeder)) { answers["installmuskets"] = "no"; answers["installguns"] = "no";
                 if (setting) { answers["skilloption"] = "armageddon"; answers["parryoption"] = "yes"; } }
             if (setting && type == typeof(ChargenSeeder)) { answers["class"] = "yes"; answers["subclass"] = "yes"; }

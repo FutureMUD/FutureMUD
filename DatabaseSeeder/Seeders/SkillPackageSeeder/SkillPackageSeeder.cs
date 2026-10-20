@@ -9,7 +9,7 @@ using System.Text.RegularExpressions;
 
 namespace DatabaseSeeder.Seeders;
 
-internal partial class SkillPackageSeeder : SkillSeederBase
+internal partial class SkillPackageSeeder : SkillSeederBase, ISeederAnswerNormalizer
 {
     private static readonly string[] SharedSkillSeederMarkers =
     [
@@ -23,10 +23,10 @@ internal partial class SkillPackageSeeder : SkillSeederBase
 
     #region Implementation of IDatabaseSeeder
 
-    public override
+    private
         IEnumerable<(string Id, string Question,
             Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool> Filter,
-            Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> SeederQuestions =>
+            Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)> LegacyQuestions =>
         new List<(string Id, string Question, Func<FuturemudDatabaseContext, IReadOnlyDictionary<string, string>, bool>
             Filter, Func<string, FuturemudDatabaseContext, (bool Success, string error)> Validator)>
         {
@@ -544,6 +544,9 @@ Choose #6simple#0, #6complex#0, #6rpi#0 or #6armageddon#0 (approved setting pack
     public override string SeedData(FuturemudDatabaseContext context,
         IReadOnlyDictionary<string, string> questionAnswers)
     {
+        questionAnswers = NormalizeAnswers(questionAnswers);
+        var presetValidation = ValidatePresetSelection(questionAnswers["skillpreset"], context);
+        if (!presetValidation.Success) throw new InvalidOperationException(presetValidation.error);
         if (questionAnswers["complexity"].EqualTo("armageddon")) return SeedArmageddon(context, questionAnswers);
         if (ArmageddonSkillPackage.IsInstalled(context)) throw new InvalidOperationException("This world uses the Armageddon skill package; changing package requires a separate migration.");
         IReadOnlyDictionary<string, CheckTemplate> templates = SeedCheckTemplates(context, questionAnswers["branching"].EqualToAny("yes", "y"));

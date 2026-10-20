@@ -4,6 +4,10 @@ Isolated branch `codex/armageddon-setting-20261019`, based on current master `97
 
 Engineering implementation and native combined acceptance: **PASS**. Physical/appearance activation remains gated for owner review. Personal names remain free-entry.
 
+20 October follow-up evidence is separate from the original acceptance below. Named SkillPackage presets now cover all13 valid package/naming/modern combinations, retaining the six legacy answer IDs, complete-history inference and explicit rerun/resume validation. Full DatabaseSeeder run `20261020T120610Z-758ae8332326`: **2048 passed,0 failed,3 Unix-only skips**, stable source fingerprint `a7cda8a4d1848ffbadcd14443ff800ca61b63128053846852d10a6ae67e42212`. Debug and Release installer builds pass. A new cold-context test exposed and repaired duplicate check-template difficulty insertion; existing difficulty rows are now reconciled by their persisted composite keys. Native preset/replay qualification remains pending; the original combined acceptance does not certify this changed question contract. The failed initial sandbox testhost connection and two corrected focused-test failures remain recorded in `.artifacts/test-runs`.
+
+The approved naming transfer has been recovered read-only from its supplied Page after the text packet was truncated:15 logical cultures,8 pools,321 distinct personal forms,401 racial occurrences,62 supplementary components and78 exact element descriptions. Implementation is pending; the original file checksum remains upstream-verified only. Breathing commit `4ce29a8f5a0f7687247c28db6947ee2febac8a81` and common sweat correction `b8da57998240cf4c306ff009ff636aeaffb67e03` have arrived for separate local integration and affected checks. No new physical profile has been enabled.
+
 | Register | Implemented | Installed / gameplay evidence and limits |
 | --- | --- | --- |
 | E01 | Reuse merged Core tags and regional terrain | Current native install/rerun retains shared tags and deliberate custom binding; Useful is unnecessary |

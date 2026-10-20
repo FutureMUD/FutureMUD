@@ -1,0 +1,2100 @@
+{
+  "schema_version": 1,
+  "title": "Armageddon approved name culture integration",
+  "status": "approved_for_implementation",
+  "updated_at": "2026-10-20",
+  "page_url": "https://chatgpt.com/space/page_8c0b135aaf4c8191844f463d670a1dea",
+  "source": {
+    "id": "owner_file_20261020",
+    "filename": "dark_sun_names_expanded(1).json",
+    "library_file_id": "libfile_14743ad7f57c81918aa223712a2e5cce",
+    "sha256": "5a8ce2cf4bc84bc6482db977cd86c58dc5a89b8e36ab7cd3256fb01e548fecc9",
+    "classification": "user_approved_Dark_Sun_inspired_adaptation",
+    "approval_date": "2026-10-20",
+    "source_book_identity": "Not identified in the attachment; source_pages are retained as owner-supplied page references, not independently verified citations.",
+    "approval_scope": "Merge every supplied racial tradition and name into the Armageddon package, including standalone traditions without a playable race; implement element descriptions and reasonable design choices.",
+    "race_source_pages": {
+      "Human": [
+        6
+      ],
+      "Aarakocra": [
+        7,
+        8
+      ],
+      "Dwarf": [
+        9
+      ],
+      "Elf": [
+        11
+      ],
+      "Half-elf": [
+        13
+      ],
+      "Half-giant": [
+        14
+      ],
+      "Halfling": [
+        16
+      ],
+      "Mul": [
+        17,
+        18
+      ],
+      "Pterran": [
+        19
+      ],
+      "Thri-kreen": [
+        21
+      ]
+    }
+  },
+  "transfer_recovery": {
+    "reason": "The task's compact JSON transfer was truncated inside Labyrinth. Complete display forms and all 78 descriptions were recovered read-only from the explicitly supplied approved Page; compact defaults, component semantics and source provenance come from the complete portions of that transfer.",
+    "page_id": "page_8c0b135aaf4c8191844f463d670a1dea",
+    "page_sequence": 2,
+    "page_updated_at": "2026-10-20T11:53:37.278700Z",
+    "original_file_sha256_status": "Provided by upstream approved audit; raw Library file was unavailable to this task and its bytes were not independently rehashed.",
+    "element_source_blocks": [
+      {
+        "culture": "Allanaki common upbringing",
+        "label": "Personal name",
+        "block_id": "7e27ae1e-ab36-4ed5-a880-4a61c9037fe9",
+        "hash": "c97857ed06c28197f75feafc61976c5c619547b8a65787521e7e14abf68fa325"
+      },
+      {
+        "culture": "Allanaki common upbringing",
+        "label": "Family name",
+        "block_id": "2e15c1ad-69a3-4691-b12e-57a03725f162",
+        "hash": "3f2e484a3cd60dbbbf86483757d87a80a67f772bc9c8239ad0a189b3e16740a4"
+      },
+      {
+        "culture": "Allanaki common upbringing",
+        "label": "Alias or byname",
+        "block_id": "db5d018c-5972-4ddd-bd43-c167638b516e",
+        "hash": "f15d3e90d1edb35ea90c2d4ff891dc5d5838049d27d6be30d35a9050ec30b253"
+      },
+      {
+        "culture": "Allanaki common upbringing",
+        "label": "Role or title",
+        "block_id": "58ebc361-3ee5-429c-9be4-f3408782bec5",
+        "hash": "78bb3da569514ec43a20421cd8130e44cee76d43ff38f9cb0d571ef937b15195"
+      },
+      {
+        "culture": "Allanaki common upbringing",
+        "label": "House or community affiliation",
+        "block_id": "7252b4cd-a80d-4b16-9975-e007acdd4f72",
+        "hash": "131bf19f7c3c1860c5198b3d1d42a7e71ebaec5554db0f8e0face52bd9002d77"
+      },
+      {
+        "culture": "Labyrinth upbringing",
+        "label": "Personal name",
+        "block_id": "dfb58017-83e9-4428-a815-9004d1baf757",
+        "hash": "bd4e76f0143a05a012c126dee3c36d962f6b702b34be4b2e36dfa9f1bb1e8ff9"
+      },
+      {
+        "culture": "Labyrinth upbringing",
+        "label": "Family name",
+        "block_id": "36be7598-f0b1-47d5-a627-69e231b689fd",
+        "hash": "3f2e484a3cd60dbbbf86483757d87a80a67f772bc9c8239ad0a189b3e16740a4"
+      },
+      {
+        "culture": "Labyrinth upbringing",
+        "label": "Alias or byname",
+        "block_id": "cb0e060b-532c-4b1a-803a-9d91c4db94f8",
+        "hash": "ee8f19951f9fdaeebd07f1e5055ce8c4c15747465d441911437a422ac408062e"
+      },
+      {
+        "culture": "Labyrinth upbringing",
+        "label": "Role or title",
+        "block_id": "4bb96cba-b2cc-42dc-88b8-57e90eb929b9",
+        "hash": "3e6d954bf3459b7c0cbe41470d07233caf8b127442a2a0fb3a49151b9524829a"
+      },
+      {
+        "culture": "Labyrinth upbringing",
+        "label": "House or community affiliation",
+        "block_id": "19463489-47c4-437e-ac2e-d5a62b6425f5",
+        "hash": "58591007feccdd544f67743dcaeb41bc715948fd741823ffcb00842fd56f9f45"
+      },
+      {
+        "culture": "Tuluki common upbringing",
+        "label": "Personal name",
+        "block_id": "eb7b9783-c968-48bb-b705-d35277ed33ee",
+        "hash": "c53be306cd5b510fe8f8db950b6baffb834163bc19f117abbb89378ebcaed3e3"
+      },
+      {
+        "culture": "Tuluki common upbringing",
+        "label": "Family name",
+        "block_id": "7cbe40cb-94dd-4fd9-99fa-000bdad93b35",
+        "hash": "3f2e484a3cd60dbbbf86483757d87a80a67f772bc9c8239ad0a189b3e16740a4"
+      },
+      {
+        "culture": "Tuluki common upbringing",
+        "label": "Alias or byname",
+        "block_id": "8b18f7da-699d-4856-84ab-aac22df275d8",
+        "hash": "06e47b027d67dd18292129ee8432196b78a51a92f6da66dcb7511c3ae4957d05"
+      },
+      {
+        "culture": "Tuluki common upbringing",
+        "label": "Role or title",
+        "block_id": "0f32702f-1bb4-462e-ad8a-c82b67c4e5e4",
+        "hash": "d34259742c28a06350421f09c0bf689c43d68b758d5821c2740c736ce8903cf8"
+      },
+      {
+        "culture": "Tuluki common upbringing",
+        "label": "House or community affiliation",
+        "block_id": "d5322388-bb3e-417c-9058-461ea0dc4041",
+        "hash": "b597b4c6f8793260377c32a798244ba361f6ad33d4e3c614262fea3d7459b00e"
+      },
+      {
+        "culture": "Nomadic upbringing",
+        "label": "Personal name",
+        "block_id": "4f425fed-6bc3-44df-aae6-345a96d2334d",
+        "hash": "41f9b273814c670bd7c5f954adcd856bac206f744fbf18fbf5afafa638c6b42d"
+      },
+      {
+        "culture": "Nomadic upbringing",
+        "label": "Family name",
+        "block_id": "d8741d09-5f34-452b-9207-fe5ccc4dbae5",
+        "hash": "8d94aaf3141eedcbb316b4568f8b8a25be835820fa2178afa7ee4cee596a48ae"
+      },
+      {
+        "culture": "Nomadic upbringing",
+        "label": "Alias or byname",
+        "block_id": "8f2c4602-9e90-469a-9ed9-1234fc205d3d",
+        "hash": "5cf78d5d571be84a09acadf932841376114ca55c90af47a541ee2b2e4c9866c5"
+      },
+      {
+        "culture": "Nomadic upbringing",
+        "label": "Role or title",
+        "block_id": "b4d8b198-ad14-43fb-9d03-76c7403fdb15",
+        "hash": "794859f7cc1804b20073288f12200a3d876bf8f75b84e051d9ecdd645535089c"
+      },
+      {
+        "culture": "Nomadic upbringing",
+        "label": "House or community affiliation",
+        "block_id": "2f317547-6e22-4ae3-a7c2-5989c601759d",
+        "hash": "70d28b667553b3c39cc5a9d49b3d12bc75a36c0709d0dbcec49072a357852ad5"
+      },
+      {
+        "culture": "Desert Elven upbringing",
+        "label": "Personal name",
+        "block_id": "273b117e-8eb8-4ce5-b5d8-802603231de9",
+        "hash": "3d1412b5ed14752b433a08a0cfa81f7b1de29ff8a20e8fc04722196e7b814a3d"
+      },
+      {
+        "culture": "Desert Elven upbringing",
+        "label": "Family name",
+        "block_id": "75669931-36b5-43f2-bb6a-301337e22c5f",
+        "hash": "1a9327a155f87a9fb089fd798fd3ce756007752acf7cf11288c75d73f3ffae5a"
+      },
+      {
+        "culture": "Desert Elven upbringing",
+        "label": "Alias or byname",
+        "block_id": "a408629d-a690-47df-9cef-4500a93ff92e",
+        "hash": "d80328045b244cadcb13f986d5ad4dd7745c4264cb58ffcef21d5c14f6091e08"
+      },
+      {
+        "culture": "Desert Elven upbringing",
+        "label": "Role or title",
+        "block_id": "c3cd78ef-8d65-40fb-a334-87da66f04703",
+        "hash": "4ec1dabb234aee323686478fddcae14e52aea6dff23d6279106295f6d28bcd0a"
+      },
+      {
+        "culture": "Desert Elven upbringing",
+        "label": "Tribal name",
+        "block_id": "9fcabf31-ac3f-4620-a27a-fb40ac435c11",
+        "hash": "234aaa1e606b9afcfeb24ec6626ad51e02d251a523bf218728aa17db42add65c"
+      },
+      {
+        "culture": "Desert Elven upbringing",
+        "label": "Clan name",
+        "block_id": "99f40c82-5b6f-4bbf-91a2-38c960be4272",
+        "hash": "a792a0e8f256e1f90920550cd532f4de7292d5a7bdef3579372e8a1304424d80"
+      },
+      {
+        "culture": "Human naming tradition",
+        "label": "Personal name",
+        "block_id": "d9f5d3df-89d1-42d4-903b-fd0bf2161080",
+        "hash": "ae5206b80de67de1d09a174203fe33d0e093abc5e40bf0ac428c7bb08e89260f"
+      },
+      {
+        "culture": "Human naming tradition",
+        "label": "Family name",
+        "block_id": "12f37f5d-2a3a-42e7-8f09-bb6fa0f8ba8b",
+        "hash": "3f2e484a3cd60dbbbf86483757d87a80a67f772bc9c8239ad0a189b3e16740a4"
+      },
+      {
+        "culture": "Human naming tradition",
+        "label": "Alias or byname",
+        "block_id": "97cff726-d050-4edb-bdaf-4c892db86d66",
+        "hash": "23255d325fe8475b1a24612f073e66321ff248ff92ac123cbdff92f8dbc7e46d"
+      },
+      {
+        "culture": "Human naming tradition",
+        "label": "Role or title",
+        "block_id": "ae3fcd77-d277-4fb2-a0b3-5b60b14eb04a",
+        "hash": "fdfc5a34016e3a3953ccdde406bc93f2d51220521879f0bb0b1e061210824aad"
+      },
+      {
+        "culture": "Human naming tradition",
+        "label": "House or community affiliation",
+        "block_id": "a9157bcb-92c8-445c-be62-a409945f4f50",
+        "hash": "a7c0455ac7467563c3318e0ebe78db1a219d329c72c24897870e7ffbaf10a6a2"
+      },
+      {
+        "culture": "Aarakocra naming tradition",
+        "label": "Personal name",
+        "block_id": "1d85d90d-e03d-4172-b800-430507aee323",
+        "hash": "9233f4432f8db8d946e26151366d92109ffa900ecdab007056b5b2bdd6901b6d"
+      },
+      {
+        "culture": "Aarakocra naming tradition",
+        "label": "Family name",
+        "block_id": "f3147274-1d41-43a1-820e-25c81069c95f",
+        "hash": "d4098372238a047902e1e79a283023858decac88e45d4cd932aa7e710604108d"
+      },
+      {
+        "culture": "Aarakocra naming tradition",
+        "label": "Alias or byname",
+        "block_id": "d5ebf69e-cdc8-4be0-b5b3-b8927933f2f2",
+        "hash": "29fbcb2e8178f901a34e93928ca8f1903129477a0d3e61d7e8768c6a1524e630"
+      },
+      {
+        "culture": "Aarakocra naming tradition",
+        "label": "Role or title",
+        "block_id": "920abba1-864a-4ebd-bf91-9e428265bd29",
+        "hash": "c0930239302472de08f3bbf466c61532c734c707a7f7c97281652f8b363d9219"
+      },
+      {
+        "culture": "Aarakocra naming tradition",
+        "label": "Tribal name",
+        "block_id": "3e047e45-cc8b-45fc-9818-741ad8adb369",
+        "hash": "ed259931ada30d0166acd2022509919f131ef19c83743c2c43965abde75c6f2f"
+      },
+      {
+        "culture": "Dwarf naming tradition",
+        "label": "Personal name",
+        "block_id": "e796ff8f-1458-45c5-9ee7-88c8d9d22ab1",
+        "hash": "1f9d434f4dc60b465c3e9ca7e3b393e627363a79c1541944d0ab7e08a6e72007"
+      },
+      {
+        "culture": "Dwarf naming tradition",
+        "label": "Family name",
+        "block_id": "912539ea-a70c-4b67-bdf2-9d4df5033d0c",
+        "hash": "4f98d274d70f32340fa37dbe0782e1d8cc711a7b86eac5f2e7be66131c339a58"
+      },
+      {
+        "culture": "Dwarf naming tradition",
+        "label": "Alias or byname",
+        "block_id": "f61a4ffe-ac04-49bc-a235-7c118421c182",
+        "hash": "d21a85743b83d2ed0eaeb774d4949ec6d5a0a1d030d108a5855674f002fc262b"
+      },
+      {
+        "culture": "Dwarf naming tradition",
+        "label": "Role or title",
+        "block_id": "8f8dae7d-012e-4ce0-b625-0176ab3d2987",
+        "hash": "4e09558d59092ba310e364599b2ed7e0c4796eb91da1af98bd5acb80fe86e454"
+      },
+      {
+        "culture": "Dwarf naming tradition",
+        "label": "House or community affiliation",
+        "block_id": "3ad361aa-10b6-4e01-9658-1dba2e196392",
+        "hash": "3ef0201d9e200615f96606e6f4dc33bb83c3d9a3b97c9ebae3cf8e78a6902e41"
+      },
+      {
+        "culture": "Elf naming tradition",
+        "label": "Personal name",
+        "block_id": "6b1da1f9-205d-43a4-8d60-7ce4152659a7",
+        "hash": "ab614ba45022b7179dfd51e8943c0cf0bbf80de56cd9538e22d5308c2b613141"
+      },
+      {
+        "culture": "Elf naming tradition",
+        "label": "Family name",
+        "block_id": "8065c37e-072c-4832-bc7e-54b7ed93fd40",
+        "hash": "fe851be7452006809bbe88cb7a97b7876841da1d1691318fc947a61dae194818"
+      },
+      {
+        "culture": "Elf naming tradition",
+        "label": "Alias or byname",
+        "block_id": "61c9a64f-af4f-41bc-8eb0-7963e6a3ed73",
+        "hash": "604d4e71ea346ccc8a3c3e7bb223a84be6a43721543ca6864c3b4fd51e98e858"
+      },
+      {
+        "culture": "Elf naming tradition",
+        "label": "Role or title",
+        "block_id": "116eed5b-2614-4cb0-82d1-d3c3854e30fd",
+        "hash": "7f26e9e63ad1637fada64553f0c4a22bf3f02804e666aaf6cc47880ef34eb51f"
+      },
+      {
+        "culture": "Elf naming tradition",
+        "label": "Tribal name",
+        "block_id": "f8816358-6dee-4ca3-9be8-90940974919d",
+        "hash": "234aaa1e606b9afcfeb24ec6626ad51e02d251a523bf218728aa17db42add65c"
+      },
+      {
+        "culture": "Elf naming tradition",
+        "label": "Clan name",
+        "block_id": "39f1474c-c308-4fbb-b9b5-49a9430b9fa7",
+        "hash": "a792a0e8f256e1f90920550cd532f4de7292d5a7bdef3579372e8a1304424d80"
+      },
+      {
+        "culture": "Half-elf naming tradition",
+        "label": "Personal name",
+        "block_id": "4a757266-455b-4212-9e8c-f324825159d9",
+        "hash": "342b6133ba6b1a8329e5c0f971e320df7c64bea60930654b26cb021c38205718"
+      },
+      {
+        "culture": "Half-elf naming tradition",
+        "label": "Family name",
+        "block_id": "49592d3b-cd97-4b9e-a372-8b7605a0cab9",
+        "hash": "f2110405205f81ffddba073d90ec127e8ade2cde931e1d227fe5bcd8a87dcda6"
+      },
+      {
+        "culture": "Half-elf naming tradition",
+        "label": "Alias or byname",
+        "block_id": "7173910c-0812-4647-a796-3f1633fa76dc",
+        "hash": "d03af78ee5c910fe0631a0fc07ee921b3eb8882981de44ac57c81c49e79ffc60"
+      },
+      {
+        "culture": "Half-elf naming tradition",
+        "label": "Role or title",
+        "block_id": "6082ff44-9f59-46e8-a26e-a1483f5a66d8",
+        "hash": "10c7baa1a87d75e29a928d98d327dd5509541acce14bc27b2751c21960ea309f"
+      },
+      {
+        "culture": "Half-elf naming tradition",
+        "label": "House or community affiliation",
+        "block_id": "34ec062b-fb71-4d7a-9fb2-1612b30575e2",
+        "hash": "bbf86e1f9c88abd7cc7c91a7705ec849058cbce7543a7bd55a1f382dc7548dd7"
+      },
+      {
+        "culture": "Half-giant naming tradition",
+        "label": "Personal name",
+        "block_id": "ea79e36f-2ebe-4f73-b89f-6d9066dc1c4b",
+        "hash": "be8a1f6733a8c5c659fca54e4c743ff8e81687e3eb190e6bda79ccaec4802463"
+      },
+      {
+        "culture": "Half-giant naming tradition",
+        "label": "Family name",
+        "block_id": "087064c2-4d26-493a-b890-cf9c0e6a94d7",
+        "hash": "cace186666965a54a04cf63c4321103c4e9255b5bd1377fd5b54de928271c0ad"
+      },
+      {
+        "culture": "Half-giant naming tradition",
+        "label": "Alias or byname",
+        "block_id": "94d2f87d-3c1d-4979-8a08-b94c67a840a9",
+        "hash": "48c4c8605d301f75fb5648edd24f644da59a4e2af8689331dafee2c626f12113"
+      },
+      {
+        "culture": "Half-giant naming tradition",
+        "label": "Role or title",
+        "block_id": "2812f7e4-1b35-496b-95ab-8920e090c69e",
+        "hash": "23a57545fe704559c11eb3b360215cf0d4c909a8b171eb95de55531665ff549c"
+      },
+      {
+        "culture": "Half-giant naming tradition",
+        "label": "House or community affiliation",
+        "block_id": "1a54137f-57a6-4df4-a128-a1c4de48347d",
+        "hash": "533e85b7d3156af42a1c4222df9bb384c7d29c81492880b607b705ee160b3c35"
+      },
+      {
+        "culture": "Halfling naming tradition",
+        "label": "Personal name",
+        "block_id": "ec9bbf63-f710-47a7-80d8-a706f015260c",
+        "hash": "94d2d07bf1a4c2581f1a272432355216c2835ed72161a7bc3901677c1905b87f"
+      },
+      {
+        "culture": "Halfling naming tradition",
+        "label": "Family name",
+        "block_id": "30adfb5e-5910-4e3c-aad2-3ac7898307ec",
+        "hash": "a0828d4195f4edb544ac14c393439b8f51275f2f4c01f7b371a4fdfc374cb8b6"
+      },
+      {
+        "culture": "Halfling naming tradition",
+        "label": "Alias or byname",
+        "block_id": "74effaa5-03cb-42b3-a626-2d9f6b153f3b",
+        "hash": "94a5dbf778e096da2b73ebb5b6c03be7de6fff27d57dcc22aac5f3eb962588e0"
+      },
+      {
+        "culture": "Halfling naming tradition",
+        "label": "Role or title",
+        "block_id": "fb86fd25-3d4e-401b-8fc1-af6cb6663813",
+        "hash": "edf6d333beb5c766d434baaddf2695f11313f2a76e40c99bc330c68317ef9394"
+      },
+      {
+        "culture": "Halfling naming tradition",
+        "label": "House or community affiliation",
+        "block_id": "db1ba69f-9af3-462e-b1cb-033727e8e2ba",
+        "hash": "9a3367e297022d9add84c33c41241ec7d776c50cbf47ab756dfba8cf0a5a326b"
+      },
+      {
+        "culture": "Mul naming tradition",
+        "label": "Personal name",
+        "block_id": "8b6c9600-ea1f-4198-8517-9aef7c44b606",
+        "hash": "ec82e163ca7629a2f659851479cca419ec1115ad1a42417c4a18e09ad8ec9e08"
+      },
+      {
+        "culture": "Mul naming tradition",
+        "label": "Family name",
+        "block_id": "8ef028d7-6923-4d4d-94c5-f0c0364be7a2",
+        "hash": "2b10fe4be41a20a5a86c084ee1bdaf089234d57099a91c7f317a92cc10ea8c91"
+      },
+      {
+        "culture": "Mul naming tradition",
+        "label": "Alias or byname",
+        "block_id": "6dbc5e06-97cc-45ad-b613-fba165042040",
+        "hash": "3506781073665d779d0ee2f42c91845e6aaa8162f3b8f92e9e8b999e251ed3c9"
+      },
+      {
+        "culture": "Mul naming tradition",
+        "label": "Role or title",
+        "block_id": "d2b206ea-9974-4dff-b1d1-8565c9fd74b3",
+        "hash": "c8f8c1172435c5d31b646a15bb2e40153ee9c9f95511069b07de9a62c501c252"
+      },
+      {
+        "culture": "Mul naming tradition",
+        "label": "House or community affiliation",
+        "block_id": "75c3b4d5-e60f-492c-ad8e-d38d73637d06",
+        "hash": "d9636ed2ddc9088421c173400ad4661417c13536abe447c0b0c95a40eea1f934"
+      },
+      {
+        "culture": "Pterran naming tradition",
+        "label": "Personal name",
+        "block_id": "29e5f175-9cc7-475f-9364-a51ee91ec349",
+        "hash": "a0ab437af9e04bb4d046ae5496528fc7cc33b0f61c29abda0a75a08c1bee2b84"
+      },
+      {
+        "culture": "Pterran naming tradition",
+        "label": "Family name",
+        "block_id": "7856833a-042c-4231-9ed9-0442ff139a34",
+        "hash": "4e9129617062880c27393858de70fe6d7db1322e6062bde0ab9d594ea783c5e9"
+      },
+      {
+        "culture": "Pterran naming tradition",
+        "label": "Alias or byname",
+        "block_id": "4264bf57-765f-44f3-9079-abc5fad75d61",
+        "hash": "e2b04be61a264ad76af900b3c61f632f6e97bb8723b4ee8d0edc126dc1ec2ffa"
+      },
+      {
+        "culture": "Pterran naming tradition",
+        "label": "Role or title",
+        "block_id": "38715aa2-10b5-4c8f-b1b3-0e66e6a55681",
+        "hash": "b4f66275a5234c240b44880f5724a9b9046736193d303f0e506cb977dc720e7c"
+      },
+      {
+        "culture": "Pterran naming tradition",
+        "label": "Path name",
+        "block_id": "ef4af104-81f4-4864-9cc5-4f63a39ddbdc",
+        "hash": "8eae7a23af529e53365252168ec7f316a7a709ac196a347db7cae33ba3ce17da"
+      },
+      {
+        "culture": "Pterran naming tradition",
+        "label": "Tribe or village",
+        "block_id": "ede4a4b0-9db0-4658-be4e-47954fcec8cd",
+        "hash": "cacc61d8735f796668d4572c2f926c5462ba7a1e9b88d83eed177949a7e38740"
+      },
+      {
+        "culture": "Thri-kreen naming tradition",
+        "label": "Personal name",
+        "block_id": "7fbe462c-f164-48c3-9b09-67c4611812b0",
+        "hash": "350c6e8e68818acbb071ea491f242b389e12ede25493540fa7d5460e7413cfd5"
+      },
+      {
+        "culture": "Thri-kreen naming tradition",
+        "label": "Family name",
+        "block_id": "7226052d-11e5-4024-bf9e-4ae7706b1628",
+        "hash": "0bb40e3ef8ac61740fe50984d334f2f08e95f37863be12a0004fa882f5d128fa"
+      },
+      {
+        "culture": "Thri-kreen naming tradition",
+        "label": "Alias or byname",
+        "block_id": "0e397de3-6fe2-42e4-ae09-db34720e4b50",
+        "hash": "3b7537eac24300f238a9439e0bc78ec4f4e57ebc2f757600867f9b648b4c7474"
+      },
+      {
+        "culture": "Thri-kreen naming tradition",
+        "label": "Role or title",
+        "block_id": "c1835281-3639-4916-93b8-4e0fc012ea64",
+        "hash": "f2c75fa5f56f895a1a7463d09a7109abaa847466bc92baa60a0ebdb245b1013c"
+      },
+      {
+        "culture": "Thri-kreen naming tradition",
+        "label": "House or community affiliation",
+        "block_id": "02e9de1a-873e-46ea-ba48-f903f0560342",
+        "hash": "805954ee1503f649f1cf4227710e7903f196828d20bfcb8936e35c652affa290"
+      }
+    ]
+  },
+  "counts": {
+    "culture_profiles": 15,
+    "upbringing_profiles": 5,
+    "racial_traditions": 10,
+    "independent_personal_pools": 8,
+    "source_personal_name_occurrences": 401,
+    "unique_personal_display_forms": 321,
+    "source_association_duplicates_eliminated_by_pool_inheritance": 80,
+    "within_bucket_exact_duplicates_removed": 0,
+    "human_family_names": 3,
+    "aarakocra_tribes": 5,
+    "elf_tribes": 9,
+    "elf_clans": 29,
+    "pterran_path_names": 14,
+    "pterran_communities": 2,
+    "nonpersonal_component_entries": 62
+  },
+  "merge_policy": {
+    "spelling": "Preserve exact Unicode, case, apostrophes, hyphens and spaces from display. No transliteration or autocorrection.",
+    "deduplication": "Exact duplicate display within the same semantic pool and source gender is stored once. Do not conflate near matches, cross-element identities or names from different cultures. Inherited Human pools use references instead of duplicate weights.",
+    "near_match_review_only": [],
+    "within_bucket_duplicate_log": [],
+    "canonical_status": "Approved package adaptations, not a claim of historical Armageddon canon. Pattern descriptions are observations and design guidance, not hard validators.",
+    "no_forced_surname": true,
+    "no_implicit_affiliations": true,
+    "no_new_playable_races": true,
+    "no_new_languages": true,
+    "additional_customs": "No compulsory focus-name ceremony, rite-of-passage renaming, social exclusion, slavery, or occupational renaming is adopted. The Elf verified-member tribal display and Pterran earned path prefix are the narrowly adopted supplied component rules."
+  },
+  "personal_pools": {
+    "human": {
+      "male": [
+        "Agis",
+        "Tithian",
+        "Vordon",
+        "Pavek",
+        "Trenbull",
+        "Amos",
+        "Wyan",
+        "Borys",
+        "Sacha",
+        "Irikos",
+        "Adrykos",
+        "Belkan",
+        "Havrek",
+        "Koryn",
+        "Kelmos",
+        "Orvash",
+        "Tavren",
+        "Veskar",
+        "Yarun",
+        "Zameth"
+      ],
+      "female": [
+        "Akassia",
+        "Zanthiros",
+        "Essen",
+        "Neeva",
+        "Sadira",
+        "Adevra",
+        "Belira",
+        "Cassene",
+        "Dazhen",
+        "Eshara",
+        "Issavi",
+        "Kethris",
+        "Lathene",
+        "Mareva",
+        "Nirashi",
+        "Ossira",
+        "Taveth",
+        "Vezani",
+        "Yedra",
+        "Zerith"
+      ],
+      "gender_unspecified": [],
+      "source_race_label": "Human",
+      "source_pages": [
+        6
+      ],
+      "creative_addition_indices": {
+        "male": [
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "female": [
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "gender_unspecified": []
+      }
+    },
+    "aarakocra": {
+      "male": [
+        "Akthag",
+        "Awnunaak",
+        "Cawthra",
+        "Driikaak",
+        "Gazziija",
+        "Kraah",
+        "Krekkekelar",
+        "Nakaaka",
+        "Thraka",
+        "Kriithak",
+        "Awraak",
+        "Chaakrik",
+        "Graakelar",
+        "Kizzaraak",
+        "Thriinaka",
+        "Arrekath",
+        "Dzaaki",
+        "Rakkithra",
+        "Kaajira",
+        "Kawrek"
+      ],
+      "female": [
+        "Arraako",
+        "Kariko",
+        "Kekko",
+        "Lisako",
+        "Troho",
+        "Athiiko",
+        "Chirako",
+        "Darraho",
+        "Ekkaliko",
+        "Gaziiko",
+        "Akkiiro",
+        "Kaathiro",
+        "Kirrako",
+        "Nethako",
+        "Orriko",
+        "Raaziko",
+        "Takkiro",
+        "Thiraho",
+        "Zarreko",
+        "Wiikaro"
+      ],
+      "gender_unspecified": [],
+      "source_race_label": "Aarakocra",
+      "source_pages": [
+        7,
+        8
+      ],
+      "creative_addition_indices": {
+        "male": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "female": [
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "gender_unspecified": []
+      }
+    },
+    "dwarf": {
+      "male": [
+        "Baranus",
+        "Biirgaz",
+        "Bontar",
+        "Brul",
+        "Caelum",
+        "Caro",
+        "Daled",
+        "Drog",
+        "Fyra",
+        "Ghedran",
+        "Gralth",
+        "Gram",
+        "Jo’orsh",
+        "Jurgan",
+        "Lyanius",
+        "Murd",
+        "Nati",
+        "Portek",
+        "Rkard",
+        "Sa'ram"
+      ],
+      "female": [
+        "Ardin",
+        "Erda",
+        "Ghava",
+        "Greshin",
+        "Gudak",
+        "Lazra",
+        "N’kadir",
+        "Palashi",
+        "Vashara",
+        "Beldra",
+        "Dulgin",
+        "Gharza",
+        "Irdak",
+        "Khaldi",
+        "Mazhun",
+        "N’grashi",
+        "Ruzha",
+        "Thazka",
+        "Ulga",
+        "Vordesh"
+      ],
+      "gender_unspecified": [],
+      "source_race_label": "Dwarf",
+      "source_pages": [
+        9
+      ],
+      "creative_addition_indices": {
+        "male": [],
+        "female": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "gender_unspecified": []
+      }
+    },
+    "elf": {
+      "male": [
+        "Botuu",
+        "Coraanu",
+        "Dukkoti",
+        "Haaku",
+        "Lobuu",
+        "Mutami",
+        "Nuuko",
+        "Traako",
+        "Banuutu",
+        "Darukuu",
+        "Komaanu",
+        "Tirabuu",
+        "Ruunaku",
+        "Hoduu",
+        "Lamoti",
+        "Kuttani",
+        "Taarumi",
+        "Bakuuro",
+        "Luunato",
+        "Makkuho"
+      ],
+      "female": [
+        "Alaa",
+        "Ekee",
+        "Guuta",
+        "Hukaa",
+        "Ittee",
+        "Nuuta",
+        "Utaa",
+        "Annee",
+        "Bukee",
+        "Daata",
+        "Hilee",
+        "Kuuha",
+        "Lataa",
+        "Muuna",
+        "Rikaa",
+        "Talla",
+        "Umee",
+        "Oluuta",
+        "Akuura",
+        "Ekulaa"
+      ],
+      "gender_unspecified": [],
+      "source_race_label": "Elf",
+      "source_pages": [
+        11
+      ],
+      "creative_addition_indices": {
+        "male": [
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "female": [
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "gender_unspecified": []
+      }
+    },
+    "halfling": {
+      "male": [
+        "Basha",
+        "Cerk",
+        "Derlan",
+        "Drassu",
+        "Entrok",
+        "Kakzim",
+        "Lokee",
+        "Nok",
+        "Pauk",
+        "Plool",
+        "Sala",
+        "Tanuka",
+        "Ukos",
+        "Zol",
+        "Brelk",
+        "Duzan",
+        "Korruk",
+        "Plaz",
+        "Tukzan",
+        "Uldo"
+      ],
+      "female": [
+        "Alansa",
+        "Anezka",
+        "Dokala",
+        "Grelzen",
+        "Horga",
+        "Jikx",
+        "Joura",
+        "Nasaha",
+        "Vensa",
+        "Azraka",
+        "Brezul",
+        "Dazika",
+        "Guksha",
+        "Izrek",
+        "Jaska",
+        "Kelsa",
+        "Loruka",
+        "Nuzha",
+        "Vokri",
+        "Zahla"
+      ],
+      "gender_unspecified": [],
+      "source_race_label": "Halfling",
+      "source_pages": [
+        16
+      ],
+      "creative_addition_indices": {
+        "male": [
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "female": [
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "gender_unspecified": []
+      }
+    },
+    "mul": {
+      "male": [
+        "Rikus",
+        "Brenak",
+        "Dakros",
+        "Enrik",
+        "Galmus",
+        "Hatlun",
+        "Jevan",
+        "Keltan",
+        "Lazuk",
+        "Merek",
+        "Naros",
+        "Oltak",
+        "Padris",
+        "Qamuk",
+        "Rastal",
+        "Sotlak",
+        "Telkus",
+        "Ulram",
+        "Vekros",
+        "Zarik"
+      ],
+      "female": [
+        "Akria",
+        "Belka",
+        "Darethi",
+        "Elsha",
+        "Gadrin",
+        "Havessa",
+        "Iltara",
+        "Jashek",
+        "Karva",
+        "Leshan",
+        "Mavira",
+        "Naltis",
+        "Odrala",
+        "Pethri",
+        "Rethka",
+        "Sazari",
+        "Taleka",
+        "Udris",
+        "Vashli",
+        "Zaleth"
+      ],
+      "gender_unspecified": [
+        "Atlalak"
+      ],
+      "source_race_label": "Mul",
+      "source_pages": [
+        17,
+        18
+      ],
+      "creative_addition_indices": {
+        "male": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "female": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "gender_unspecified": []
+      }
+    },
+    "pterran": {
+      "male": [
+        "Airson",
+        "Darksun",
+        "Earthsong",
+        "Suntail",
+        "Goldeye",
+        "Onesight",
+        "Terrorclaw",
+        "Ambercrest",
+        "Stormclaw",
+        "Flinttooth",
+        "Redscale",
+        "Farwatcher",
+        "Duststrider",
+        "Dawncaller",
+        "Windtalon",
+        "Stonegaze",
+        "Sunseeker",
+        "Cloudshadow",
+        "Rainvoice",
+        "Duneheart"
+      ],
+      "female": [
+        "Cloudrider",
+        "Greenscale",
+        "Lifehearth",
+        "Rainkeeper",
+        "Spiritally",
+        "Watertender",
+        "Dawnweaver",
+        "Seedkeeper",
+        "Earthlistener",
+        "Mistwalker",
+        "Rainbloom",
+        "Roothealer",
+        "Sunhaven",
+        "Cloudsinger",
+        "Springwatcher",
+        "Thornshield",
+        "Dewgatherer",
+        "Brightscale",
+        "Windally",
+        "Mooncaller"
+      ],
+      "gender_unspecified": [],
+      "source_race_label": "Pterran",
+      "source_pages": [
+        19
+      ],
+      "creative_addition_indices": {
+        "male": [
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "female": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19
+        ],
+        "gender_unspecified": []
+      }
+    },
+    "thri_kreen": {
+      "male": [],
+      "female": [],
+      "gender_unspecified": [
+        "Kachka",
+        "Ka’Cha",
+        "Ka’Ka’Kyl",
+        "Klik‐Chaka’da",
+        "Sa’Relka",
+        "T’Chai",
+        "Chikta",
+        "Krelkach",
+        "Takkai",
+        "Chakrik",
+        "Sakhel",
+        "Krikcha",
+        "Tilchka",
+        "Rekatch",
+        "Ka’Trik",
+        "Cha’Kesh",
+        "T’Klik",
+        "Sa’Chikta",
+        "Kra’Tek",
+        "Chi’Ral",
+        "Ke’Katch",
+        "Ta’Chyl",
+        "K’Rel",
+        "Ska’Chai",
+        "Tik’Kala",
+        "Kyl’Recha",
+        "Cha’Tikk",
+        "Ra’Krech",
+        "Tcha’Kel",
+        "Kik’Ta’Ral",
+        "Sa’Kri’Cha",
+        "Ta’Ka’Chik",
+        "Kra’Chi’Rel",
+        "Ke’Sa’Kyl",
+        "Chik‐Ta’ka",
+        "Krel‐Chai’ka",
+        "Tik‐Reka’sa",
+        "S’Kech",
+        "Cha’Ril",
+        "K’Takka"
+      ],
+      "source_race_label": "Thri-kreen",
+      "source_pages": [
+        21
+      ],
+      "creative_addition_indices": {
+        "male": [],
+        "female": [],
+        "gender_unspecified": [
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39
+        ]
+      }
+    }
+  },
+  "component_collections": {
+    "human_family_names": {
+      "kind": "family_name",
+      "values": [
+        "Asticles",
+        "Al’Raam’ke",
+        "Rees"
+      ],
+      "selection": "explicit_background_only",
+      "approval": "approved",
+      "provenance": "owner_supplied_source_or_revised_example",
+      "generic_random_enabled": false
+    },
+    "aarakocra_tribes": {
+      "kind": "tribal_affiliation",
+      "values": [
+        "Cloud Gliders",
+        "Sky Divers",
+        "Peak Masters",
+        "Far Eyes",
+        "Brothers of the Sun"
+      ],
+      "selection": "verified_affiliation_only",
+      "approval": "approved",
+      "provenance": "owner_supplied_source_or_revised_example",
+      "generic_random_enabled": false
+    },
+    "elf_clans_by_tribe": {
+      "kind": "dependent_clan_affiliation",
+      "values": {
+        "Clearwater Tribe": [
+          "Fireshaper",
+          "Graffyon",
+          "Graystar",
+          "Lightning",
+          "Onyx",
+          "Sandrunner",
+          "Seafoam",
+          "Silverleaf",
+          "Songweaver",
+          "Steeljaw",
+          "Wavedivers",
+          "Windriders"
+        ],
+        "Night Runner Tribe": [
+          "Dark Moons",
+          "Full Moons",
+          "Half Moons",
+          "Lone Moons",
+          "New Moons",
+          "Quarter Moons"
+        ],
+        "Shadow Tribe": [],
+        "Silt Stalker Tribe": [
+          "Fire Bow",
+          "Fire Dagger",
+          "Fire Sword"
+        ],
+        "Silver Hand Tribe": [],
+        "Sky Singer Tribe": [
+          "Dawnchaser",
+          "Dayjumper",
+          "Twilightcatcher"
+        ],
+        "Swiftwing Tribe": [],
+        "Water Hunter Tribe": [
+          "Raindancer",
+          "Poolrunner",
+          "Lakesinger"
+        ],
+        "Wind Dancer Tribe": [
+          "Airhunter",
+          "Breezechaser"
+        ]
+      },
+      "selection": "verified_affiliation_and_exact_parent_tribe_only",
+      "approval": "approved",
+      "provenance": "owner_supplied_source_or_revised_example",
+      "generic_random_enabled": false,
+      "empty_array_means": "no clan supplied; not proof no clan exists"
+    },
+    "pterran_path_names": {
+      "kind": "earned_path_name",
+      "values": [
+        "Aandu",
+        "Caril",
+        "Dsar",
+        "Everin",
+        "Illik",
+        "Myril",
+        "Odten",
+        "Qwes",
+        "Pex",
+        "Ptellac",
+        "Ristu",
+        "Ssrui",
+        "Tilla",
+        "Xandu"
+      ],
+      "selection": "explicit_confirmed_completed_apprenticeship_only",
+      "approval": "approved",
+      "provenance": "owner_supplied_source_or_revised_example",
+      "generic_random_enabled": false,
+      "position": "before personal_name"
+    },
+    "pterran_communities": {
+      "kind": "tribal_or_village_affiliation",
+      "values": [
+        "Pterran Vale",
+        "Lost Scale"
+      ],
+      "selection": "verified_affiliation_only",
+      "approval": "approved",
+      "provenance": "owner_supplied_source_or_revised_example",
+      "generic_random_enabled": false
+    },
+    "elf_tribes": {
+      "kind": "tribal_affiliation",
+      "values": [
+        "Clearwater Tribe",
+        "Night Runner Tribe",
+        "Shadow Tribe",
+        "Silt Stalker Tribe",
+        "Silver Hand Tribe",
+        "Sky Singer Tribe",
+        "Swiftwing Tribe",
+        "Water Hunter Tribe",
+        "Wind Dancer Tribe"
+      ],
+      "selection": "verified_affiliation_only",
+      "approval": "approved",
+      "provenance": "owner_supplied_source_or_revised_example",
+      "generic_random_enabled": false
+    }
+  },
+  "culture_element_defaults": {
+    "gender_applicability": "all",
+    "source_status": "approved implementation design; source observations and adaptations described explicitly",
+    "min_count": 0,
+    "max_count": 1,
+    "default_random_enabled": false
+  },
+  "random_profile_defaults": {
+    "required_elements": [
+      "personal_name"
+    ],
+    "optional_elements_enabled_by_default": [],
+    "gender_selection_policy": "male: male + shared; female: female + shared; all other or unspecified genders: union of all entries. If a gendered subset is empty, use shared, then union. Source labels are preferences only and free entry is not constrained.",
+    "weight_policy": "uniform weight 1 per exact eligible display form; inherited pools referenced, not concatenated",
+    "display_template": "{personal_name}",
+    "full_display_policy": "Only explicit eligible optional components may be added. A confirmed Pterran path prefixes; an explicitly selected background-supported family name follows; an Elf tribal surname follows only when its display flag and confirmed membership are set. Do not implicitly join every component."
+  },
+  "cultures": [
+    {
+      "id": "allanaki_common",
+      "name": "Allanaki common upbringing",
+      "kind": "upbringing",
+      "personal_pool_id": "human",
+      "source_race_label": null,
+      "pool_inheritance": null,
+      "random_profile_id": "allanaki_common_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. The approved Human pool combines short forms and longer vowel-rich forms, varied endings, and occasional harder consonant groups. The source labels 20 male and 20 female names; these are suggestion preferences, not compulsory gender endings. Preserve exact spelling, including any internal punctuation. Free entry remains available to every gender. Allanaki common upbringing retains the one-name baseline. No separate Allanaki phonetic grammar is asserted.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "human"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "Optional, never required. Use a single background-supported family name after the personal name. Asticles, Al’Raam’ke and Rees are approved supplied family forms; preserve both curly apostrophes in Al’Raam’ke. Do not add “of”, a title, or a randomly selected House name. Availability is independent of gender; the list does not grant any family membership.",
+          "collection_id": "human_family_names"
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Allanaki common upbringing; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Allanaki common upbringing, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "affiliation",
+          "label": "House or community affiliation",
+          "description": "Optional eligible House or community identity, not a random surname. House employment does not imply family membership. Use an existing approved background or entity reference for any gender; no affiliation is inferred from Sirihish or Cavilish.",
+          "storage": "background_or_eligible_entity_reference"
+        }
+      ]
+    },
+    {
+      "id": "labyrinth",
+      "name": "Labyrinth upbringing",
+      "kind": "upbringing",
+      "personal_pool_id": "human",
+      "source_race_label": null,
+      "pool_inheritance": null,
+      "random_profile_id": "labyrinth_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. The approved Human pool combines short forms and longer vowel-rich forms, varied endings, and occasional harder consonant groups. The source labels 20 male and 20 female names; these are suggestion preferences, not compulsory gender endings. Preserve exact spelling, including any internal punctuation. Free entry remains available to every gender. Labyrinth upbringing shares the Human pool without imposing an invented street dialect, surname, or criminal identity.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "human"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "Optional, never required. Use a single background-supported family name after the personal name. Asticles, Al’Raam’ke and Rees are approved supplied family forms; preserve both curly apostrophes in Al’Raam’ke. Do not add “of”, a title, or a randomly selected House name. Availability is independent of gender; the list does not grant any family membership.",
+          "collection_id": "human_family_names"
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Labyrinth upbringing; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Labyrinth upbringing, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "affiliation",
+          "label": "House or community affiliation",
+          "description": "Optional background-supported community or family affiliation for any gender. A Labyrinth upbringing does not by itself establish a gang, occupation, House identity, or criminality.",
+          "storage": "background_or_eligible_entity_reference"
+        }
+      ]
+    },
+    {
+      "id": "tuluki_common",
+      "name": "Tuluki common upbringing",
+      "kind": "upbringing",
+      "personal_pool_id": "human",
+      "source_race_label": null,
+      "pool_inheritance": null,
+      "random_profile_id": "tuluki_common_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. The approved Human pool combines short forms and longer vowel-rich forms, varied endings, and occasional harder consonant groups. The source labels 20 male and 20 female names; these are suggestion preferences, not compulsory gender endings. Preserve exact spelling, including any internal punctuation. Free entry remains available to every gender. Tuluki common upbringing shares the Human pool. There is no new northern suffix or mandatory gender ending.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "human"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "Optional, never required. Use a single background-supported family name after the personal name. Asticles, Al’Raam’ke and Rees are approved supplied family forms; preserve both curly apostrophes in Al’Raam’ke. Do not add “of”, a title, or a randomly selected House name. Availability is independent of gender; the list does not grant any family membership.",
+          "collection_id": "human_family_names"
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Tuluki common upbringing; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Tuluki common upbringing, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "affiliation",
+          "label": "House or community affiliation",
+          "description": "Optional approved family, House, or community identity for any gender. Keep its role-based forms of address outside the personal name; upbringing or language alone does not grant membership.",
+          "storage": "background_or_eligible_entity_reference"
+        }
+      ]
+    },
+    {
+      "id": "nomadic",
+      "name": "Nomadic upbringing",
+      "kind": "upbringing",
+      "personal_pool_id": "human",
+      "source_race_label": null,
+      "pool_inheritance": null,
+      "random_profile_id": "nomadic_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. The approved Human pool combines short forms and longer vowel-rich forms, varied endings, and occasional harder consonant groups. The source labels 20 male and 20 female names; these are suggestion preferences, not compulsory gender endings. Preserve exact spelling, including any internal punctuation. Free entry remains available to every gender. Nomadic uses the Human pool as a neutral implementation fallback, not a universal naming grammar for all tribes. A verified community-specific pool can replace it.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "human"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "Optional background-supported family name for any gender, never a universal tribal surname. No Nomadic-specific surname corpus was supplied, so ordinary generation leaves this blank; choosing the Human fallback for personal names does not establish a Human family affiliation."
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Nomadic upbringing; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Nomadic upbringing, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "affiliation",
+          "label": "House or community affiliation",
+          "description": "Optional specific tribe or community reference for any gender. Preserve its exact collective name; do not synthesize a generic nomadic surname. Al Seik and Jul Tavan remain reference-only and are not imported into the generator.",
+          "storage": "background_or_eligible_entity_reference"
+        }
+      ]
+    },
+    {
+      "id": "desert_elven",
+      "name": "Desert Elven upbringing",
+      "kind": "upbringing",
+      "personal_pool_id": "elf",
+      "source_race_label": null,
+      "pool_inheritance": null,
+      "random_profile_id": "desert_elven_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. Mostly open syllables, frequent doubled vowels and occasional doubled consonants; male-labelled examples tend toward -u, -i and -o, and female-labelled examples toward -a, -aa and -ee. These tendencies describe the approved pool, not hard gender rules. Preserve the supplied form and add no invented translation. Desert Elven uses the approved Elf pool as an explicit Dark Sun-inspired adaptation, not recovered Armageddon phonetics.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "elf"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "No separate hereditary family-name pool was supplied. A family name remains optional free entry when supported by the background, for every gender; do not generate one or duplicate the selected tribe as a second surname."
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Desert Elven upbringing; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Desert Elven upbringing, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "tribe",
+          "label": "Tribal name",
+          "description": "Optional verified tribal affiliation for every gender. The supplied tribe names are descriptive collective forms, retained with the exact “Tribe” suffix where present. As an explicit adaptation of the attachment, a confirmed member may display that selected tribe after the personal name as a surname; it is never required for all elves or assigned by random personal-name generation. A selected name does not itself create membership. Do not strip “Tribe”, add “of”, or infer an Armageddon tribe equivalence.",
+          "storage": "background_or_eligible_entity_reference",
+          "collection_id": "elf_tribes",
+          "display_policy": "append only if membership_confirmed and use_tribal_surname; otherwise omit"
+        },
+        {
+          "id": "clan",
+          "label": "Clan name",
+          "description": "Optional verified clan within the selected tribe, available to every gender. Use only a clan in that exact tribe’s supplied list, retaining compounds and spaces. An empty list means no clan was listed, not that no clans can exist. Do not mix a clan from another tribe, choose a clan without its parent tribe, or append one as a second surname automatically.",
+          "storage": "background_or_eligible_entity_reference",
+          "collection_id": "elf_clans_by_tribe",
+          "depends_on": "tribe",
+          "display_policy": "background only; no default name concatenation"
+        }
+      ]
+    },
+    {
+      "id": "human",
+      "name": "Human naming tradition",
+      "kind": "racial_tradition",
+      "personal_pool_id": "human",
+      "source_race_label": "Human",
+      "pool_inheritance": null,
+      "random_profile_id": "human_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. The approved Human pool combines short forms and longer vowel-rich forms, varied endings, and occasional harder consonant groups. The source labels 20 male and 20 female names; these are suggestion preferences, not compulsory gender endings. Preserve exact spelling, including any internal punctuation. Free entry remains available to every gender.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "human"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "Optional, never required. Use a single background-supported family name after the personal name. Asticles, Al’Raam’ke and Rees are approved supplied family forms; preserve both curly apostrophes in Al’Raam’ke. Do not add “of”, a title, or a randomly selected House name. Availability is independent of gender; the list does not grant any family membership.",
+          "collection_id": "human_family_names"
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Human; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Human, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "affiliation",
+          "label": "House or community affiliation",
+          "description": "Optional established community, family or House association for Human, recorded separately and available to every gender. No group corpus is supplied for this tradition. Do not derive membership from the personal name, race, gender or known language, and do not randomly invent a group.",
+          "storage": "background_or_eligible_entity_reference"
+        }
+      ]
+    },
+    {
+      "id": "aarakocra",
+      "name": "Aarakocra naming tradition",
+      "kind": "racial_tradition",
+      "personal_pool_id": "aarakocra",
+      "source_race_label": "Aarakocra",
+      "pool_inheritance": null,
+      "random_profile_id": "aarakocra_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. The supplied pattern favours k, r, th, ch and z/j sounds, repeated aa or ii, and short calls through longer rolling forms. All supplied female-labelled forms end in -o; male-labelled forms have varied endings. Generated additions avoid m, b, p, f and v as described in the attachment. These are style and generation guidance, not a hard validator or a gender prohibition; free entry is available to every gender.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "aarakocra"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "No hereditary surname list was supplied. An independently supported family name is optional free text for every gender, never a default generated suffix. Keep a tribe identity in its own field rather than treating the tribe as an automatic surname."
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Aarakocra; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Aarakocra, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "tribe",
+          "label": "Tribal name",
+          "description": "Optional verified tribe for every gender. The five supplied English collective forms evoke flight, height, sight and the sun; retain each complete form including spaces. Treat them as group identities, not personal names or hereditary surnames, and do not choose one merely because the personal name is Aarakocra-styled.",
+          "storage": "background_or_eligible_entity_reference",
+          "collection_id": "aarakocra_tribes"
+        }
+      ]
+    },
+    {
+      "id": "dwarf",
+      "name": "Dwarf naming tradition",
+      "kind": "racial_tradition",
+      "personal_pool_id": "dwarf",
+      "source_race_label": "Dwarf",
+      "pool_inheritance": null,
+      "random_profile_id": "dwarf_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. Compact forms often contain gh, gr, d, k or r, with substantial consonant groups, varied endings and occasional internal apostrophes. Preserve Jo’orsh, N’kadir, N’grashi and Sa'ram exactly, including their different apostrophe characters. The supplied 20 male and 20 female labels guide suggestions only; names remain freely selectable by every gender. No focus-completion ceremony is imposed.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "dwarf"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "No Dwarf surname corpus was supplied. A background-supported family name is optional for any gender, with no random default. Do not turn a focus, clan, craft or achievement into a compulsory surname."
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Dwarf; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Dwarf, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "affiliation",
+          "label": "House or community affiliation",
+          "description": "Optional established community, family or House association for Dwarf, recorded separately and available to every gender. No group corpus is supplied for this tradition. Do not derive membership from the personal name, race, gender or known language, and do not randomly invent a group.",
+          "storage": "background_or_eligible_entity_reference"
+        }
+      ]
+    },
+    {
+      "id": "elf",
+      "name": "Elf naming tradition",
+      "kind": "racial_tradition",
+      "personal_pool_id": "elf",
+      "source_race_label": "Elf",
+      "pool_inheritance": null,
+      "random_profile_id": "elf_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. Use mostly open syllables with frequent doubled vowels and occasional doubled consonants. The 20 male-labelled forms tend toward -u, -i and -o; the 20 female-labelled forms tend toward -a, -aa and -ee. Preserve exact forms, and do not invent translations or require a gender ending. The pool is available to every gender and is an explicit imported naming tradition, not a recovered Allundean grammar.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "elf"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "No independent hereditary surname corpus was supplied. Any background-supported family name is optional free entry for every gender. The separate tribe component may act as a surname only under the explicitly adapted tribal-member display rule; never generate an additional unrelated family name."
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Elf; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Elf, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "tribe",
+          "label": "Tribal name",
+          "description": "Optional verified tribal affiliation for every gender. The supplied tribe names are descriptive collective forms, retained with the exact “Tribe” suffix where present. As an explicit adaptation of the attachment, a confirmed member may display that selected tribe after the personal name as a surname; it is never required for all elves or assigned by random personal-name generation. A selected name does not itself create membership. Do not strip “Tribe”, add “of”, or infer an Armageddon tribe equivalence.",
+          "storage": "background_or_eligible_entity_reference",
+          "collection_id": "elf_tribes",
+          "display_policy": "append only if membership_confirmed and use_tribal_surname; otherwise omit"
+        },
+        {
+          "id": "clan",
+          "label": "Clan name",
+          "description": "Optional verified clan within the selected tribe, available to every gender. Use only a clan in that exact tribe’s supplied list, retaining compounds and spaces. An empty list means no clan was listed, not that no clans can exist. Do not mix a clan from another tribe, choose a clan without its parent tribe, or append one as a second surname automatically.",
+          "storage": "background_or_eligible_entity_reference",
+          "collection_id": "elf_clans_by_tribe",
+          "depends_on": "tribe",
+          "display_policy": "background only; no default name concatenation"
+        }
+      ]
+    },
+    {
+      "id": "half_elf",
+      "name": "Half-elf naming tradition",
+      "kind": "racial_tradition",
+      "personal_pool_id": "human",
+      "source_race_label": "Half-elf",
+      "pool_inheritance": "Human",
+      "random_profile_id": "half_elf_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. Reuse the complete Human pool, preserving its 20 male and 20 female source labels without duplicating entry weights. The attachment offers no independent Half-elf phonetic grammar. Human-like short and longer varied forms are a default, not a compulsory racial identity or a prohibition on a background-supported name from another tradition. Free entry is available to every gender.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "human"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "No Half-elf surname list was supplied. Leave the surname blank by default; a background-supported family name is optional for every gender. Do not automatically inherit the Human surname list, assign an Elf tribe, or implement the source’s social exclusion as a blanket Armageddon rule."
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Half-elf; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Half-elf, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "affiliation",
+          "label": "House or community affiliation",
+          "description": "Optional established community, family or House association for Half-elf, recorded separately and available to every gender. No group corpus is supplied for this tradition. Do not derive membership from the personal name, race, gender or known language, and do not randomly invent a group.",
+          "storage": "background_or_eligible_entity_reference"
+        }
+      ]
+    },
+    {
+      "id": "half_giant",
+      "name": "Half-giant naming tradition",
+      "kind": "racial_tradition",
+      "personal_pool_id": "human",
+      "source_race_label": "Half-giant",
+      "pool_inheritance": "Human",
+      "random_profile_id": "half_giant_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. Reuse the complete Human pool as the attachment’s human-influenced default, with 20 male and 20 female source labels and no doubled weights. Actual upbringing may justify another tradition. Do not force monosyllables, joke names, imitation, enslavement or a gender ending. Free entry remains available to every gender.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "human"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "No Half-giant surname list was supplied. A background-supported family name is optional for every gender but is never generated by default. Sharing Human personal names does not automatically inherit a Human family name or imply ownership or status."
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Half-giant; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Half-giant, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "affiliation",
+          "label": "House or community affiliation",
+          "description": "Optional established community, family or House association for Half-giant, recorded separately and available to every gender. No group corpus is supplied for this tradition. Do not derive membership from the personal name, race, gender or known language, and do not randomly invent a group.",
+          "storage": "background_or_eligible_entity_reference"
+        }
+      ]
+    },
+    {
+      "id": "halfling",
+      "name": "Halfling naming tradition",
+      "kind": "racial_tradition",
+      "personal_pool_id": "halfling",
+      "source_race_label": "Halfling",
+      "pool_inheritance": null,
+      "random_profile_id": "halfling_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one given name, following the supplied single-name tendency. Forms range from short and abrupt to two or three syllables, often with hard consonants or clusters; female-labelled examples mix -a endings with consonant and -i endings. The 20 male and 20 female labels are suggestion preferences, not restrictions for any gender.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "halfling"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "No surnames were supplied and the described tradition tends to a single given name. Keep the default name mononymous. An exceptional background-supported family name may be entered optionally for any gender; do not manufacture a surname pool."
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Halfling; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Halfling, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "affiliation",
+          "label": "House or community affiliation",
+          "description": "Optional established community, family or House association for Halfling, recorded separately and available to every gender. No group corpus is supplied for this tradition. Do not derive membership from the personal name, race, gender or known language, and do not randomly invent a group.",
+          "storage": "background_or_eligible_entity_reference"
+        }
+      ]
+    },
+    {
+      "id": "mul",
+      "name": "Mul naming tradition",
+      "kind": "racial_tradition",
+      "personal_pool_id": "mul",
+      "source_race_label": "Mul",
+      "pool_inheritance": null,
+      "random_profile_id": "mul_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. The approved pool has 20 male-labelled forms, 20 female-labelled forms and shared Atlalak. Rikus is the supplied male example; most other entries use a provisional Human-like base with harder consonant sequences and occasional tl. The generated male/female assignments are creative choices, not established Mul rules. Include Atlalak in every gender’s suggestions and preserve free entry; no slavery, arena career or renaming is implied.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "mul"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "No Mul family-name list was supplied. Keep any family name optional and background-supported for every gender. Do not auto-assign an owner’s name, arena affiliation or occupation as a surname."
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen, previous or arena byname, preserved as an independent alternative name. It may reflect the individual’s actual history but is never required and never establishes slavery or an arena career. No alias pool or gender rules were supplied; the field is open to every gender and does not automatically reveal a birth name.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Mul, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "affiliation",
+          "label": "House or community affiliation",
+          "description": "Optional established community, family or House association for Mul, recorded separately and available to every gender. No group corpus is supplied for this tradition. Do not derive membership from the personal name, race, gender or known language, and do not randomly invent a group.",
+          "storage": "background_or_eligible_entity_reference"
+        }
+      ]
+    },
+    {
+      "id": "pterran",
+      "name": "Pterran naming tradition",
+      "kind": "racial_tradition",
+      "personal_pool_id": "pterran",
+      "source_race_label": "Pterran",
+      "pool_inheritance": null,
+      "random_profile_id": "pterran_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name. The supplied forms are English compounds drawing on weather, terrain, colour, reptilian features, perception and relationships with nature, such as Airson or Cloudrider. Preserve compounds as single displayed names. Male/female source lists show tendencies, not firm thematic or grammatical gender boundaries; every gender may choose freely.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "pterran"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "No Pterran hereditary surname list was supplied. Leave this blank by default; an independently supported family name is optional free text for every gender. Do not put the path name here, because an earned path name precedes the personal name, or convert a village into a surname."
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Pterran; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Pterran, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "path_name",
+          "label": "Path name",
+          "description": "Optional earned name, available only when completion of the relevant apprenticeship is explicitly confirmed; otherwise leave it blank. The supplied forms are short, single-word names with varied consonants and occasional doubled letters; retain their exact spelling. Under the approved source-derived convention the path name precedes the personal name, separated by one space. All 14 forms are unclassified by gender and usable for every gender. A path name does not itself grant training, a class, or a role.",
+          "collection_id": "pterran_path_names",
+          "position": "prefix",
+          "eligibility": "completed_apprenticeship_confirmed",
+          "display_policy": "prefix only when explicit path_name is present and eligibility confirmed"
+        },
+        {
+          "id": "community",
+          "label": "Tribe or village",
+          "description": "Optional verified affiliation for every gender. Preserve Pterran Vale or Lost Scale as complete two-word collective/place names, not personal names. The file does not resolve whether each is a tribe, a village or both; retain that broad category rather than inventing an entity type or settlement. Do not append it to the personal name automatically.",
+          "storage": "background_or_eligible_entity_reference",
+          "collection_id": "pterran_communities"
+        }
+      ]
+    },
+    {
+      "id": "thri_kreen",
+      "name": "Thri-kreen naming tradition",
+      "kind": "racial_tradition",
+      "personal_pool_id": "thri_kreen",
+      "source_race_label": "Thri-kreen",
+      "pool_inheritance": null,
+      "random_profile_id": "thri_kreen_personal",
+      "elements": [
+        {
+          "id": "personal_name",
+          "label": "Personal name",
+          "description": "Required one personal name from a single shared pool of 40 gender-unspecified forms. Click-like patterns use k, ch, t, r, l and s, including compact names, apostrophe-separated segments and occasional hyphenated compounds. Preserve curly apostrophes and the U+2010 hyphen in forms such as Klik‐Chaka’da. No male/female distinction is supported; all 40 names are available for every gender, without inventing gendered variants.",
+          "min_count": 1,
+          "default_random_enabled": true,
+          "pool_id": "thri_kreen"
+        },
+        {
+          "id": "family_name",
+          "label": "Family name",
+          "description": "No Thri-kreen surname corpus was supplied. Ordinary generation uses a single personal name. An exceptional background-supported family name is optional free text for any gender; do not infer a clutch, clan or social group from punctuation in the personal name."
+        },
+        {
+          "id": "alias",
+          "label": "Alias or byname",
+          "description": "Optional chosen or acquired alternative name for Thri-kreen; use free text, preserve its spelling, and do not infer a birth name from it. No alias corpus or gendered alias grammar was supplied. It is available to every gender and never required.",
+          "max_count": null
+        },
+        {
+          "id": "role_title",
+          "label": "Role or title",
+          "description": "Optional form of address for Thri-kreen, stored separately from the personal name. Supply it only from an established role; neither the name pool nor gender grants rank. No random titles are provided.",
+          "storage": "external_display_metadata"
+        },
+        {
+          "id": "affiliation",
+          "label": "House or community affiliation",
+          "description": "Optional established community, family or House association for Thri-kreen, recorded separately and available to every gender. No group corpus is supplied for this tradition. Do not derive membership from the personal name, race, gender or known language, and do not randomly invent a group.",
+          "storage": "background_or_eligible_entity_reference"
+        }
+      ]
+    }
+  ],
+  "reference_only": {
+    "historical_character_examples": [
+      "Green Kadius",
+      "Sev Salarr",
+      "Amun Kurac"
+    ],
+    "historical_house_identifiers": [
+      "Kurac",
+      "Kadius",
+      "Salarr",
+      "Borsail"
+    ],
+    "historical_human_tribes": [
+      "Al Seik",
+      "Jul Tavan"
+    ],
+    "historical_elven_tribes": [
+      "Blackwing",
+      "Seven Spears"
+    ],
+    "reserved_armageddon_rulers": [
+      "Tektolnes",
+      "Muk Utep"
+    ],
+    "other_dark_sun_reference_only": [
+      "Huee"
+    ],
+    "policy": "None of these strings is imported into personal-name random pools. House and tribal identifiers remain documentary references, not seeded memberships or generic surnames.",
+    "previously_reference_only_now_explicitly_approved": [
+      "Baranus",
+      "Lazra",
+      "Botuu",
+      "Alaa",
+      "Atlalak",
+      "Sadira"
+    ],
+    "approval_precedence": "Every personal-name entry in the new owner-supplied file is approved, including source examples and conspicuous fictional-name collisions. The earlier strictly-original recommendation is superseded for this imported pool. Keep provenance and any editorial collision warnings, but do not silently remove or blacklist approved imports; this does not import their fictional biographies or affiliations."
+  },
+  "personal_entry_defaults": {
+    "approval": "approved",
+    "random_enabled": true,
+    "weight": 1,
+    "gender_is_hint_not_restriction": true,
+    "provenance_rule": "Indices are zero-based positions in the corresponding gender array. Listed indices are owner-supplied creative additions; all remaining entries are owner-supplied source or revised examples. All entries are approved with weight 1."
+  },
+  "culture_defaults": {
+    "standalone_available": true,
+    "playable_race_creation": false,
+    "racial_tradition_summary": "Approved owner-supplied naming tradition; available independently of any playable race."
+  },
+  "transfer_expansion_rule": "Apply personal_entry_defaults to every pool entry, culture_defaults to each culture, culture_element_defaults to each element, and random_profile_defaults under each random_profile_id; explicit values override defaults. Descriptions remain verbatim."
+}

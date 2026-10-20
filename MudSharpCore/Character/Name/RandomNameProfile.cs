@@ -187,6 +187,10 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
 
     public bool IsCompatibleGender(Gender gender)
     {
+		if (Culture.ExactRandomProfileGender)
+		{
+			return Gender == gender;
+		}
         if (Gender == Gender.NonBinary)
         {
             return true;
@@ -380,7 +384,8 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
                     return false;
                 }
 
-                string name = command.PopSpeech().TitleCase();
+				string name = command.PopSpeech();
+				if (!Culture.PreserveNameCase) name = name.TitleCase();
                 int weight = 100;
                 if (!command.IsFinished)
                 {
@@ -392,7 +397,7 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
                     }
                 }
 
-                if (_randomNamesDictionary[element.Usage].Any(x => x.Value.EqualTo(name)))
+				if (_randomNamesDictionary[element.Usage].Any(x => MatchesName(x.Value, name)))
                 {
                     actor.OutputHandler.Send("There is already a random name element for that name.");
                     return false;
@@ -414,7 +419,7 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
                 }
 
                 name = command.SafeRemainingArgument;
-                int count = _randomNamesDictionary[element.Usage].RemoveAll(x => x.Value.EqualTo(name));
+				int count = _randomNamesDictionary[element.Usage].RemoveAll(x => MatchesName(x.Value, name));
                 if (count == 0)
                 {
                     actor.OutputHandler.Send(
@@ -434,7 +439,8 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
                     return false;
                 }
 
-                name = command.PopSpeech().TitleCase();
+				name = command.PopSpeech();
+				if (!Culture.PreserveNameCase) name = name.TitleCase();
                 if (command.IsFinished)
                 {
                     actor.OutputHandler.Send("What new weight do you want to give it?");
@@ -447,7 +453,8 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
                     return false;
                 }
 
-                count = _randomNamesDictionary[element.Usage].RemoveAll(x => x.Value.EqualTo(name));
+				var stored = _randomNamesDictionary[element.Usage].FirstOrDefault(x => MatchesName(x.Value, name));
+				count = _randomNamesDictionary[element.Usage].RemoveAll(x => MatchesName(x.Value, name));
                 if (count == 0)
                 {
                     actor.OutputHandler.Send(
@@ -455,7 +462,7 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
                     return false;
                 }
 
-                _randomNamesDictionary[element.Usage].Add((name, value));
+				_randomNamesDictionary[element.Usage].Add((stored.Value, value));
                 Changed = true;
                 actor.OutputHandler.Send(
                     $"The {element.Name.ColourName()} with a value of {name.ColourName()} will now be weighted at {value.ToString("N0", actor).ColourValue()} in the {Name.ColourName()} random name profile.");
@@ -467,7 +474,11 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
         return false;
     }
 
-    private bool BuildingCommandName(ICharacter actor, StringStack command)
+	private bool MatchesName(string left, string right) => Culture.PreserveNameCase
+		? string.Equals(left, right, StringComparison.Ordinal)
+		: left.EqualTo(right);
+
+	private bool BuildingCommandName(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
         {

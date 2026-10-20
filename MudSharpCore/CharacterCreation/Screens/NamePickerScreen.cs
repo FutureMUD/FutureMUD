@@ -1,6 +1,6 @@
 ﻿using MudSharp.Character.Name;
 using System.Reflection;
-using System.Text.RegularExpressions;
+using MudSharp.FutureProg;
 
 namespace MudSharp.CharacterCreation.Screens;
 
@@ -19,22 +19,36 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
         {
             AllowUnicodeNames = bool.Parse(element.Value);
         }
+		NameCultureOptionsProg = Gameworld.FutureProgs.Get(long.TryParse(definition.Element("NameCultureOptionsProg")?.Value, out var id) ? id : 0);
     }
 
     protected override string StoryboardName => "NamePicker";
 
     public bool AllowUnicodeNames { get; private set; }
+	public IFutureProg NameCultureOptionsProg { get; private set; }
 
     public override ChargenStage Stage => ChargenStage.SelectName;
 
     public override string HelpText => $@"{BaseHelpText}
-	#3allowunicode#0 - toggles allowing unicode characters in names";
+	#3allowunicode#0 - toggles allowing unicode characters in names
+	#3stylesprog <prog|none>#0 - optional name-culture collection prog taking a chargen";
 
     /// <inheritdoc />
     public override bool BuildingCommand(ICharacter actor, StringStack command)
     {
         switch (command.PopForSwitch())
         {
+			case "stylesprog":
+				if (command.SafeRemainingArgument.EqualTo("none"))
+				{
+					NameCultureOptionsProg = null; Changed = true;
+					actor.OutputHandler.Send("Optional naming styles are disabled."); return true;
+				}
+				var prog = new ProgLookupFromBuilderInput(Gameworld, actor, command.SafeRemainingArgument,
+					ProgVariableTypes.NameCulture | ProgVariableTypes.Collection, new List<ProgVariableTypes> { ProgVariableTypes.Chargen }).LookupProg();
+				if (prog is null) return false;
+				NameCultureOptionsProg = prog; Changed = true;
+				actor.OutputHandler.Send($"Optional naming styles now use {prog.MXPClickableFunctionName()}."); return true;
             case "unicode":
             case "allowunicode":
                 return BuildingCommandAllowUnicodeNames(actor);
@@ -58,7 +72,8 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
     protected override string SaveDefinition()
     {
         return new XElement("Definition",
-            new XElement("AllowUnicodeNames", AllowUnicodeNames)
+			new XElement("AllowUnicodeNames", AllowUnicodeNames),
+			new XElement("NameCultureOptionsProg", NameCultureOptionsProg?.Id ?? 0)
         ).ToString();
     }
 
@@ -90,12 +105,12 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
                 .Wrap(voyeur.InnerLineFormatLength).ColourCommand());
         sb.AppendLine();
         sb.AppendLine($"Allow Unicode Names: {AllowUnicodeNames.ToColouredString()}");
+		sb.AppendLine($"Naming Styles Prog: {NameCultureOptionsProg?.MXPClickableFunctionName() ?? "None"}");
         return sb.ToString();
     }
 
     internal class NamePickerScreen : ChargenScreen
     {
-        private static readonly Regex _nameRegex = new(@"['-]\s*['-]");
         protected IEnumerator<NameCultureElement> Enumerator;
         protected INameCulture NameCulture;
 
@@ -111,11 +126,18 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
             NameCulture =
                 chargen.SelectedEthnicity?.NameCultureForGender(Chargen.SelectedGender) ??
                 chargen.SelectedCulture.NameCultureForGender(Chargen.SelectedGender);
-            Enumerator = NameCulture.NameCultureElements.GetEnumerator();
+			if (chargen.SelectedName?.Culture is { } saved && AvailableCultures().Contains(saved)) NameCulture = saved;
+			Enumerator = NameCulture.NameCultureElements.GetEnumerator();
             Enumerator.MoveNext();
         }
 
         public override ChargenStage AssociatedStage => ChargenStage.SelectName;
+
+		private INameCulture[] AvailableCultures() => new[]
+		{
+			Chargen.SelectedEthnicity?.NameCultureForGender(Chargen.SelectedGender) ?? Chargen.SelectedCulture.NameCultureForGender(Chargen.SelectedGender)
+		}.Concat(Storyboard.NameCultureOptionsProg?.ExecuteCollection<INameCulture>(Chargen) ?? [])
+			.Where(x => x is not null).DistinctBy(x => x.Id).ToArray();
 
         public override string Display()
         {
@@ -126,6 +148,13 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
 
             StringBuilder sb = new();
             sb.AppendLine((Enumerator.Current.Name + " Selection").Colour(Telnet.Cyan));
+			var cultures = AvailableCultures();
+			if (cultures.Length > 1)
+			{
+				sb.AppendLine($"Naming style: {NameCulture.Name.ColourName()}. Optional: {"/style <number>".ColourCommand()} changes the style and restarts name entry.");
+				sb.AppendLine(cultures.Select((x, i) => $"{i + 1}. {x.Name}").ListToString());
+				sb.AppendLine();
+			}
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(
@@ -177,6 +206,15 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
             {
                 return HandleCommandChargenAdvice(command);
             }
+			if (command.StartsWith("/style ", StringComparison.OrdinalIgnoreCase))
+			{
+				var cultures = AvailableCultures();
+				if (!int.TryParse(command[7..].Trim(), out var choice) || choice < 1 || choice > cultures.Length)
+					return "Select a naming style number from the displayed list.";
+				NameCulture = cultures[choice - 1]; SelectedNameElements.Clear();
+				Enumerator.Dispose(); Enumerator = NameCulture.NameCultureElements.GetEnumerator(); Enumerator.MoveNext();
+				return Display();
+			}
 
             NameCultureElement nce = Enumerator.Current!;
 
@@ -200,7 +238,7 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
                 return "Your names must not contain any duplicates.";
             }
 
-            if (names.Any(x => x.Any(y => !char.IsLetter(y) && y != ' ' && y != '\'' && y != '-')))
+			if (names.Any(x => NameEntryValidation.HasInvalidCharacters(x, NameCulture.AllowTypographicPunctuation)))
             {
                 return "Your names may only contain letters, spaces, apostrophes and hyphens.";
             }
@@ -210,7 +248,7 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
                 return "Your name must include at least one letter.";
             }
 
-            if (names.Any(x => _nameRegex.IsMatch(x)))
+			if (names.Any(x => NameEntryValidation.HasConsecutivePunctuation(x, NameCulture.AllowTypographicPunctuation)))
             {
                 return "Your names may not contain consecutive apostrophes or hyphens.";
             }
@@ -226,9 +264,15 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
                 return Display();
             }
 
-            State = ChargenScreenState.Complete;
+			if (!AvailableCultures().Contains(NameCulture))
+			{
+				SelectedNameElements.Clear(); NameCulture = AvailableCultures().First();
+				Enumerator.Dispose(); Enumerator = NameCulture.NameCultureElements.GetEnumerator(); Enumerator.MoveNext();
+				return "That naming style is no longer available.\n" + Display();
+			}
+			State = ChargenScreenState.Complete;
             Chargen.SelectedName =
-                new PersonalName(Chargen.SelectedEthnicity?.NameCultureForGender(Chargen.SelectedGender) ?? Chargen.SelectedCulture.NameCultureForGender(Chargen.SelectedGender),
+				new PersonalName(NameCulture,
                     SelectedNameElements, true);
             return "Your full name is " +
                    Chargen.SelectedName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green) +

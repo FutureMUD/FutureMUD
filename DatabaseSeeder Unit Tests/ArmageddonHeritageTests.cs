@@ -19,7 +19,7 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class ArmageddonHeritageTests
 {
-	private static FuturemudDatabaseContext Fixture()
+	internal static FuturemudDatabaseContext Fixture()
 	{
 		var db = ArmageddonSettingPackageTests.Fixture();
 		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
@@ -47,6 +47,8 @@ public class ArmageddonHeritageTests
 		db.FutureProgsParameters.Add(new FutureProgsParameter { FutureProgId = original.Id, ParameterIndex = 0, ParameterName = "ch", ParameterType = (long)ProgVariableTypes.Toon });
 		db.ChargenScreenStoryboards.Add(new ChargenScreenStoryboard { Id = 100, ChargenStage = (int)ChargenStage.SelectSkills, ChargenType = "SkillPicker",
 			StageDefinition = "<Screen><FreeSkillsProg>CustomFreeSkills</FreeSkillsProg><Blurb>Preserve this builder text</Blurb></Screen>" });
+		db.ChargenScreenStoryboards.Add(new ChargenScreenStoryboard { Id = 101, ChargenStage = (int)ChargenStage.SelectName, ChargenType = "NamePicker",
+			StageDefinition = "<Screen><AllowUnicodeNames>false</AllowUnicodeNames><BuilderNote>Retain</BuilderNote></Screen>" });
 		db.SaveChanges(); return db;
 	}
 
@@ -84,10 +86,10 @@ public class ArmageddonHeritageTests
 		Assert.AreEqual(5, db.Cultures.Count(x => x.Name.StartsWith("Armageddon ")));
 		Assert.AreEqual(6, db.Languages.Count());
 		Assert.AreEqual(15, db.Accents.Count(x => x.Language.Name != "Admin Speech"));
-		Assert.AreEqual(0, db.RandomNameProfiles.Count());
+		Assert.AreEqual(75, db.RandomNameProfiles.Count());
 		Assert.AreEqual(0, db.Scripts.Count());
 		Assert.AreEqual(originalBody, original.FunctionText);
-		var storyboard = db.ChargenScreenStoryboards.Single();
+		var storyboard = db.ChargenScreenStoryboards.Single(x => x.ChargenStage == (int)ChargenStage.SelectSkills);
 		var definition = XElement.Parse(storyboard.StageDefinition);
 		Assert.AreEqual("Preserve this builder text", definition.Element("Blurb")!.Value);
 		var wrapper = db.FutureProgs.Single(x => x.Id == long.Parse(definition.Element("FreeSkillsProg")!.Value));
@@ -100,7 +102,7 @@ public class ArmageddonHeritageTests
 		var dwarfEthnicity = db.Ethnicities.Single(x => x.Name == "Armageddon Dwarf");
 		Assert.AreEqual(dwarf.Id, dwarfEthnicity.ParentRaceId);
 		Assert.AreEqual(db.Languages.Single(x => x.Name == "Mirukkim").Id, dwarfEthnicity.NativeLanguageId);
-		Assert.AreEqual(5, db.EthnicitiesNameCultures.Count(x => x.EthnicityId == dwarfEthnicity.Id));
+		Assert.AreEqual(0, db.EthnicitiesNameCultures.Count(x => x.EthnicityId == dwarfEthnicity.Id));
 		Assert.AreEqual(1, db.EthnicitiesCharacteristics.Count(x => x.EthnicityId == dwarfEthnicity.Id));
 		var ids = db.SeederManagedRecords.ToDictionary(x => x.StableKey, x => x.LogicalId);
 		dwarf.Name = "Builder Dwarf"; dwarf.SweatRateInLitresPerMinute = 0.01;

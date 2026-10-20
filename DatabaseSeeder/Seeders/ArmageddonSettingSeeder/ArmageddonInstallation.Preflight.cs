@@ -210,6 +210,7 @@ public static partial class ArmageddonInstallation
 				nameof(Language) => db.Languages.Any(x => x.Id == record.LogicalId),
 				nameof(Accent) => db.Accents.Any(x => x.Id == record.LogicalId),
 				nameof(NameCulture) => db.NameCultures.Any(x => x.Id == record.LogicalId),
+				nameof(RandomNameProfile) => db.RandomNameProfiles.Any(x => x.Id == record.LogicalId),
 				nameof(NpcTemplate) => record.RevisionNumber is not null && db.NpcTemplates.Any(x => x.Id == record.LogicalId && x.RevisionNumber == record.RevisionNumber),
 				nameof(ArtificialIntelligence) => db.ArtificialIntelligences.Any(x => x.Id == record.LogicalId),
 				nameof(WearProfile) => db.WearProfiles.Any(x => x.Id == record.LogicalId),

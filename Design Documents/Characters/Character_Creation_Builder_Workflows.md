@@ -30,6 +30,8 @@ The normal workflow is:
 
 Use `chargen types` and `chargen typehelp <type>` before swapping a stage to a different screen implementation.
 
+For NamePicker, `chargen set stylesprog <prog|none>` controls optional naming styles. The prog returns a name-culture collection and accepts chargen-compatible parameters (including Toon or any-parameter progs). Existing ethnicity/upbringing fallback remains available. `chargen set allowunicode` remains a separate control. Name-culture builder options `preservecase`, `exactgender` and `typographic` toggle their opt-in XML policies; absent options retain legacy behavior. See [naming runtime](Character_Creation_Runtime.md#structured-naming-and-encoding).
+
 ## Changing Screen Type
 Some stages support alternative storyboard types.
 

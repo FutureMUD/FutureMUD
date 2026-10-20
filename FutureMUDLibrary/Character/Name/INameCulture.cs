@@ -24,6 +24,8 @@ namespace MudSharp.Character.Name
         IEnumerable<NameCultureElement> NameCultureElements { get; }
         IEnumerable<IRandomNameProfile> RandomNameProfiles { get; }
 		bool PreserveNameCase => false;
+		bool ExactRandomProfileGender => false;
+		bool AllowTypographicPunctuation => false;
         Tuple<string, List<NameUsage>> NamePattern(NameStyle style);
         IPersonalName GetPersonalName(string pattern, bool nonSaving = false);
     }

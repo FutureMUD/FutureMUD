@@ -95,6 +95,9 @@ public class NameCulture : SaveableItem, INameCulture
     public IEnumerable<NameCultureElement> NameCultureElements => _nameCultureElements;
     public IEnumerable<IRandomNameProfile> RandomNameProfiles => _randomNameProfiles;
 	public bool PreserveNameCase { get; private set; }
+	public bool ExactRandomProfileGender { get; private set; }
+	public bool AllowTypographicPunctuation { get; private set; }
+	private XElement _curatedNamingDefinition;
 
     public IProgVariable GetProperty(string property)
     {
@@ -143,6 +146,9 @@ public class NameCulture : SaveableItem, INameCulture
     protected void LoadFromXml(XElement root)
     {
 		PreserveNameCase = bool.TryParse(root.Element("PreserveNameCase")?.Value, out var preserveCase) && preserveCase;
+		ExactRandomProfileGender = bool.TryParse(root.Element("ExactRandomProfileGender")?.Value, out var exactGender) && exactGender;
+		AllowTypographicPunctuation = bool.TryParse(root.Element("AllowTypographicPunctuation")?.Value, out var typographic) && typographic;
+		_curatedNamingDefinition = root.Element("CuratedNamingDefinition") is { } curated ? new XElement(curated) : null;
         XElement element = root.Element("Patterns");
         if (element != null)
         {
@@ -218,6 +224,9 @@ public class NameCulture : SaveableItem, INameCulture
     {
         return new XElement("NameCulture",
 			PreserveNameCase ? new XElement("PreserveNameCase", true) : null,
+			ExactRandomProfileGender ? new XElement("ExactRandomProfileGender", true) : null,
+			AllowTypographicPunctuation ? new XElement("AllowTypographicPunctuation", true) : null,
+			_curatedNamingDefinition is null ? null : new XElement(_curatedNamingDefinition),
             new XElement("Patterns",
                 from pattern in _styles
                 select new XElement("Pattern", new XAttribute("Style", (int)pattern.Key),
@@ -240,6 +249,9 @@ public class NameCulture : SaveableItem, INameCulture
     private const string NameCultureBuildingHelp = @"You can use the following options with this subcommand:
 
 	#3name <name>#0 - renames the naming culture	
+	#3preservecase#0 - toggles preserving entered and generated name spelling
+	#3exactgender#0 - toggles exact random-profile gender matching
+	#3typographic#0 - toggles curly apostrophe and Unicode hyphen entry
 	#3regex <regex>#0 - sets the regex for the naming culture
 	#3pattern <which> <pattern>#0 - sets the naming pattern for a particular context
 	#3element add <type>#0 - adds a new naming element of the specified type
@@ -264,6 +276,21 @@ For example, #3?Nickname[ a.k.a ""$Nickname""][]#0";
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+			case "preservecase":
+				PreserveNameCase = !PreserveNameCase;
+				Changed = true;
+				actor.OutputHandler.Send($"Preserve exact name case: {PreserveNameCase.ToColouredString()}.");
+				return true;
+			case "exactgender":
+				ExactRandomProfileGender = !ExactRandomProfileGender;
+				Changed = true;
+				actor.OutputHandler.Send($"Exact random-profile gender matching: {ExactRandomProfileGender.ToColouredString()}.");
+				return true;
+			case "typographic":
+				AllowTypographicPunctuation = !AllowTypographicPunctuation;
+				Changed = true;
+				actor.OutputHandler.Send($"Allow typographic name punctuation: {AllowTypographicPunctuation.ToColouredString()}.");
+				return true;
             case "name":
                 return BuildingCommandName(actor, command);
             case "element":

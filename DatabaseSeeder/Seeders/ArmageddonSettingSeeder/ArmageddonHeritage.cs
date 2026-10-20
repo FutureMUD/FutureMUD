@@ -20,7 +20,7 @@ public sealed record ArmageddonHeritageProfile(string Key, string Name, string? 
 public sealed record ArmageddonUpbringing(string Key, string Name, string Language, string Accent, bool Urban);
 
 /// <summary>Approved nonphysical graph. New races remain explicitly unavailable physical scaffolds.</summary>
-public static class ArmageddonHeritage
+public static partial class ArmageddonHeritage
 {
 	public const string Module = "setting-heritage";
 	public static IReadOnlyList<ArmageddonHeritageProfile> Profiles { get; } = Array.AsReadOnly(new ArmageddonHeritageProfile[]
@@ -77,6 +77,7 @@ public static class ArmageddonHeritage
 		Preflight<Ethnicity>(db, Profiles.Select(x => ("arm.ethnicity." + x.Key + ".default", "Armageddon " + x.Name)));
 		Preflight<Culture>(db, Cultures.Select(x => ("arm.culture." + x.Key, "Armageddon " + x.Name)));
 		Preflight<NameCulture>(db, [("arm.naming.personal", "Armageddon Personal Name")]);
+		PreflightNaming(db);
 		// Accent names are scoped to languages, unlike the other native named entities.
 		foreach (var language in languages)
 		{
@@ -107,7 +108,7 @@ public static class ArmageddonHeritage
 	private static FutureProg Prog(FuturemudDatabaseContext db, string key, string name, string body, ProgVariableTypes result,
 		ICollection<string> messages, params (ProgVariableTypes Type, string Name)[] parameters)
 	{
-		var prog = Apply(db, key, new FutureProg { FunctionName = name, FunctionText = body, ReturnType = (long)result,
+		var prog = Apply(db, key, new FutureProg { FunctionName = name, FunctionText = body, ReturnTypeDefinition = result.ToStorageString(),
 			Category = "Armageddon", Subcategory = "Heritage", FunctionComment = "Owned Armageddon heritage binding; physical profiles remain unavailable pending acceptance.",
 			Public = false, AcceptsAnyParameters = false, StaticType = 0 }, messages);
 		var current = db.FutureProgsParameters.Where(x => x.FutureProgId == prog.Id).OrderBy(x => x.ParameterIndex).ToArray();
@@ -251,7 +252,7 @@ public static class ArmageddonHeritage
 			var actual = Apply(db, "arm.culture." + slug, new Culture { Name = "Armageddon " + culture.Name, Description = culture.Name + " upbringing. Background only; no city room, spawn, faction or criminal status is imported.",
 				NativeLanguageId = languages[culture.Language].Id, AvailabilityProgId = available.Id, PrimaryCalendarId = adminCulture.PrimaryCalendarId, SkillStartingValueProgId = start.Id,
 				PersonWordMale = "Man", PersonWordFemale = "Woman", PersonWordNeuter = "Person", PersonWordIndeterminate = "Person", TolerableTemperatureCeilingEffect = 0, TolerableTemperatureFloorEffect = 0 }, messages);
-			actualCultures[slug] = actual; NamingLinks(db, "arm.culture." + slug, actual, null, naming.Id, messages);
+			actualCultures[slug] = actual;
 		}
 		foreach (var profile in Profiles)
 		{
@@ -260,19 +261,20 @@ public static class ArmageddonHeritage
 				NativeLanguageId = profile.AncestralLanguage is { } native ? languages[native].Id : null, PopulationBloodModelId = blood,
 				EthnicGroup = profile.Name, EthnicSubgroup = "Default", ChargenBlurb = "Minimum engine identity for the approved profile; broad Human characteristic scaffolds remain unqualified for racial appearance.",
 				TolerableTemperatureCeilingEffect = 0, TolerableTemperatureFloorEffect = 0 }, messages);
-			EthnicityLinks(db, key, ethnicity, adminEthnicity, naming.Id, messages);
+			EthnicityLinks(db, key, ethnicity, adminEthnicity, null, messages);
 		}
+		InstallNaming(db, actualCultures, races, messages);
 		InstallAccents(db, languages, actualCultures, messages);
 		WireFreeSkills(db, storyboard, oldFree, actualCultures, races, skills, messages);
 		db.SaveChanges();
 		using (var compiler = new OfflineProgCompilation(db.FutureProgs.Include(x => x.FutureProgsParameters).ToArray()))
 			foreach (var record in db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.Module == Module && x.EntityType == nameof(FutureProg)).ToArray()) compiler.Compile(record.LogicalId!.Value);
 		transaction?.Commit();
-		messages.Add("Nonphysical heritage graph installed: five languages/cultures, seven exact-profile ethnicities, one free-entry name structure and native200/source secondary grants. All eight new Race rows default unavailable pending physical acceptance; deliberate builder overrides are retained and reported. Bootstrap Human/Admin and existing characters were preserved. No scripts, random names or city spawns installed.");
+		messages.Add("Nonphysical heritage graph installed: five languages/cultures, seven exact-profile ethnicities, approved personal-name suggestions with free entry and native200/source secondary grants. All eight new Race rows default unavailable pending physical acceptance; deliberate builder overrides are retained and reported. Bootstrap Human/Admin and existing characters were preserved. No scripts or city spawns installed.");
 	}
 
 	private sealed record CharacteristicLink(long Definition, long Profile);
-	private static void EthnicityLinks(FuturemudDatabaseContext db, string key, Ethnicity ethnicity, Ethnicity source, long nameId, ICollection<string> messages)
+	private static void EthnicityLinks(FuturemudDatabaseContext db, string key, Ethnicity ethnicity, Ethnicity source, long? nameId, ICollection<string> messages)
 	{
 		// One typed reference inventory per ethnicity contains both naming and characteristics.
 		var names = db.EthnicitiesNameCultures.Where(x => x.EthnicityId == ethnicity.Id).AsEnumerable().Select(x => new NameLink(x.Gender, x.NameCultureId)).OrderBy(x => x.Gender).ToArray();
@@ -281,7 +283,7 @@ public static class ArmageddonHeritage
 		if (desired.Length == 0) throw new InvalidOperationException("Human characteristic profiles are missing.");
 		var merged = ArmageddonSettingLinks.Reconcile(db, key + ".links", nameof(Ethnicity), ethnicity.Id,
 			new Dictionary<string, string> { ["Naming"] = Json(names), ["Characteristics"] = Json(current) },
-			new Dictionary<string, string> { ["Naming"] = Json(Enumerable.Range(0, 5).Select(x => new NameLink((short)x, nameId)).ToArray()), ["Characteristics"] = Json(desired) }, messages);
+			new Dictionary<string, string> { ["Naming"] = Json(nameId is { } namingId ? Enumerable.Range(0, 5).Select(x => new NameLink((short)x, namingId)).ToArray() : Array.Empty<NameLink>()), ["Characteristics"] = Json(desired) }, messages);
 		var nextNames = JsonSerializer.Deserialize<NameLink[]>(merged["Naming"])!;
 		var oldNames = db.EthnicitiesNameCultures.Where(x => x.EthnicityId == ethnicity.Id).ToArray();
 		db.EthnicitiesNameCultures.RemoveRange(oldNames.Where(x => !nextNames.Contains(new NameLink(x.Gender, x.NameCultureId))));

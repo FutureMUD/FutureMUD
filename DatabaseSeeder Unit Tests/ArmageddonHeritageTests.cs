@@ -121,6 +121,61 @@ public class ArmageddonHeritageTests
 	}
 
 	[TestMethod]
+	public void InactiveLifecycleScaffolds_PersistInitialAgesAndPreserveBuilderChangesAcrossReruns()
+	{
+		using var db = Fixture();
+		var human = db.Races.Single(x => x.Name == "Human");
+		human.ChildAge = 3;
+		human.YouthAge = 10;
+		human.YoungAdultAge = 16;
+		human.AdultAge = 25;
+		human.ElderAge = 50;
+		human.VenerableAge = 75;
+		db.SaveChanges();
+		var messages = new List<string>();
+		ArmageddonHeritage.Install(db, messages);
+		var ids = db.Races.Where(x => x.Name.StartsWith("Armageddon ")).Select(x => x.Id).ToArray();
+		var dwarfId = db.Races.Single(x => x.Name == "Armageddon Dwarf").Id;
+		var baseline = new[] { 3, 10, 16, 25, 50, 75 };
+		static int[] Ages(Race race) =>
+			[race.ChildAge, race.YouthAge, race.YoungAdultAge, race.AdultAge, race.ElderAge, race.VenerableAge];
+
+		// Reload persisted rows rather than checking the installer's tracked objects.
+		db.ChangeTracker.Clear();
+		Assert.AreEqual(8, ids.Length);
+		foreach (var race in db.Races.Where(x => ids.Contains(x.Id)))
+		{
+			CollectionAssert.AreEqual(baseline, Ages(race));
+			Assert.AreEqual(2L, race.AvailabilityProgId);
+		}
+
+		// These are deliberately authored test overrides, not proposed Armageddon ages.
+		var dwarf = db.Races.Single(x => x.Id == dwarfId);
+		dwarf.ChildAge = 5;
+		dwarf.YouthAge = 12;
+		dwarf.YoungAdultAge = 21;
+		dwarf.AdultAge = 31;
+		dwarf.ElderAge = 62;
+		dwarf.VenerableAge = 82;
+		db.Races.Single(x => x.Name == "Human").YoungAdultAge = 18;
+		db.SaveChanges();
+		for (var attempt = 0; attempt < 2; attempt++)
+		{
+			db.ChangeTracker.Clear();
+			ArmageddonHeritage.Install(db, messages);
+			db.ChangeTracker.Clear();
+			foreach (var race in db.Races.Where(x => ids.Contains(x.Id)))
+			{
+				CollectionAssert.AreEqual(race.Id == dwarfId ? new[] { 5, 12, 21, 31, 62, 82 } : baseline,
+					Ages(race), $"Lifecycle override/baseline changed for {race.Name} on rerun {attempt}.");
+				Assert.AreEqual(2L, race.AvailabilityProgId);
+			}
+			Assert.AreEqual(18, db.Races.Single(x => x.Name == "Human").YoungAdultAge);
+		}
+		Assert.IsTrue(messages.Any(x => x.Contains("builder edit")));
+	}
+
+	[TestMethod]
 	public void MissingScaffoldModel_BlocksBeforeHeritageWrites()
 	{
 		using var db = Fixture();

@@ -42,6 +42,8 @@ Source creation separately accepts integer ages `floor(0.20 * race.max_age)` thr
 
 The bootstrap Human lifecycle thresholds 3/10/16/25/50/75 are existing native defaults. The previous proposal to scale them across races is withdrawn: it was authored and does not implement the approved recovered categories. Native lifecycle translation must distinguish these six display categories from native childhood/death mechanics; no new death limit, infant policy or activation is approved by the age decision. This documentation update does not alter runtime lifecycle fields.
 
+The [native lifecycle mapping decision](Armageddon_Age_Lifecycle_Mapping_20261020.md) records the exact remaining semantic gate: native juvenile stages and four adult stages cannot represent the six recovered descriptions directly, stock chargen progs derive playable limits from lifecycle fields, and native lookup currently gives a shared boundary to the earlier category. It proposes a coarse mechanical mapping while preserving all descriptive bands separately, without silently equating Young with adulthood or choosing new juvenile/playable limits. No native translation is installed pending that decision.
+
 ## Attribute and size proposals still requiring review
 
 The `arm` attribute set supplies Strength/Endurance/Agility/Wisdom. The draft native compression below remains authored: four raw attributes, `3d6+1`, raw cap20 and total budget48; effective ceilings are raw20 plus bonus. The numerical stat roster in the recovered reference collection is unauthenticated and internally inconsistent. It does not validate these offsets. Desert Elf stamina parity also cannot be claimed from its Endurance adjustment alone.

@@ -28,6 +28,21 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class MagicalSubstanceTests
 {
+	[TestMethod]
+	public void RespiratoryGasCarrier_UsesElapsedBaseVolumeForMagicalDose()
+	{
+		var f = new Fixture();
+		var gas = Mock.Of<IGas>(x => x.Id == 91);
+		var race = new Mock<MudSharp.Character.Heritage.IRace>();
+		race.Setup(x => x.BreathingRate(f.Body.Object, gas)).Returns(14);
+		f.Body.SetupGet(x => x.Race).Returns(race.Object);
+		f.Body.SetupGet(x => x.BreathingStrategy).Returns(new MudSharp.Health.Breathing.PartlessBreather());
+		f.World.Setup(x => x.UnitManager.BaseFluidToLitres).Returns(0.5);
+		f.Substance.SetupGet(x => x.Bindings).Returns(new[] { new SubstanceBinding(SubstanceCarrier.Gas, 91, 1) });
+		MudSharp.Health.Breathing.BreathingStrategyHelper.ExposeToMagic(f.Body.Object, gas, TimeSpan.FromSeconds(15));
+		Assert.AreEqual(70, f.Stamina, 1e-8, "14 L/min for 15 seconds is 7 base units, delivering seven reference doses.");
+	}
+
 	private sealed class Fixture
 	{
 		public Mock<IFuturemud> World = new() { DefaultValue = DefaultValue.Mock };

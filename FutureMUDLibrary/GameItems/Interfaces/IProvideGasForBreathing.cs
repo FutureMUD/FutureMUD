@@ -12,16 +12,16 @@ namespace MudSharp.GameItems.Interfaces
         IGas Gas { get; }
 
         /// <summary>
-        /// Tests whether a certain weight of gas is able to be consumed from the gas source
+        /// Tests whether a volume of gas is able to be consumed from the gas source
         /// </summary>
-        /// <param name="volume">The volume (at sea level) of the gas to consume</param>
+        /// <param name="volume">The volume at one atmosphere, in the world's base fluid units</param>
         /// <returns>True if the gas can be consumed</returns>
         bool CanConsumeGas(double volume);
 
         /// <summary>
         /// Consumes gas from the breathing device
         /// </summary>
-        /// <param name="volume">The volume (at sea level) of the gas to consume</param>
+        /// <param name="volume">The volume at one atmosphere, in the world's base fluid units</param>
         /// <returns>True if the requested breath was supplied, including one that exactly empties the source.</returns>
         bool ConsumeGas(double volume);
 

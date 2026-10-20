@@ -129,6 +129,7 @@ namespace MudSharp.Character.Heritage
 
         bool NeedsToBreathe { get; }
 
+        /// <summary>Returns litres per real minute, including the fluid's racial breathing multiplier.</summary>
         double BreathingRate(IBody character, IFluid fluid);
         TimeSpan HoldBreathLength(IBody character);
         IBreathingStrategy BreathingStrategy { get; }

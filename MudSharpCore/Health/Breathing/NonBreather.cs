@@ -1,4 +1,4 @@
-﻿using MudSharp.Body;
+using MudSharp.Body;
 using MudSharp.Form.Material;
 
 namespace MudSharp.Health.Breathing;
@@ -19,8 +19,15 @@ public class NonBreather : IBreathingStrategy
         return false;
     }
 
-    public void Breathe(IBody body)
+    public void Breathe(IBody body) => Breathe(body, TimeSpan.FromSeconds(10));
+
+    public void Breathe(IBody body, TimeSpan elapsed)
     {
+        if (elapsed <= TimeSpan.Zero)
+        {
+            return;
+        }
+
         // Do nothing
     }
 

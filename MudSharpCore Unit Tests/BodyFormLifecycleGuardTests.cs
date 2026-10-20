@@ -73,6 +73,7 @@ public class BodyFormLifecycleGuardTests
 
 		Assert.AreEqual(TimeSpan.Zero, body.HeldBreathTime);
 		strategy.Verify(x => x.Breathe(body), Times.Never);
+		strategy.Verify(x => x.Breathe(body, It.IsAny<TimeSpan>()), Times.Never);
 	}
 
 	[TestMethod]

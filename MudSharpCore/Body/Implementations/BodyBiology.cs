@@ -9,6 +9,7 @@ using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Form.Material;
+using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Health;
@@ -1960,6 +1961,24 @@ public partial class Body
 
     private IBreathingStrategy _breathingStrategy;
     private TimeSpan _heldBreathTime;
+    private long? _lastBreathingTimestamp;
+    private TimeSpan _pendingBreathingElapsed;
+
+    private void AccumulateBreathingElapsed()
+    {
+        var clock = RuntimeClock.TimeProvider;
+        var now = clock.GetTimestamp();
+        if (_lastBreathingTimestamp is { } last)
+        {
+            var elapsed = clock.GetElapsedTime(last, now);
+            if (elapsed > TimeSpan.Zero)
+            {
+                _pendingBreathingElapsed += elapsed;
+            }
+        }
+
+        _lastBreathingTimestamp = now;
+    }
 
     public bool NeedsToBreathe => !Actor.IsAdministrator() && !this.SuspendsPhysicalContact() && _breathingStrategy.NeedsToBreathe;
     public bool IsBreathing => _breathingStrategy.IsBreathing(this);
@@ -1972,6 +1991,10 @@ public partial class Body
         {
             return;
         }
+
+        AccumulateBreathingElapsed();
+        var elapsed = _pendingBreathingElapsed;
+        _pendingBreathingElapsed = TimeSpan.Zero;
 
         // NeedsToBreathe includes the administrator and incorporeality exemptions used by the
         // prompt and health systems. Breathing strategies must not bypass that effective
@@ -1986,7 +2009,12 @@ public partial class Body
             return;
         }
 
-        _breathingStrategy.Breathe(this);
+        if (elapsed <= TimeSpan.Zero)
+        {
+            return;
+        }
+
+        _breathingStrategy.Breathe(this, elapsed);
         if (!CanBreathe)
         {
             StartHealthTick();

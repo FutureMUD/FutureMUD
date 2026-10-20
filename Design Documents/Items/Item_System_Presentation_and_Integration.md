@@ -216,6 +216,8 @@ This means item features often have consequences for:
 - breathing
 - body-state modelling
 
+Breathing apparatus receives elapsed volumes at one atmosphere in world base fluid units. The lung consumer converts the race's configured litres-per-minute rate before calling `IProvideGasForBreathing`; rebreathers and filters must not multiply by time or convert units a second time. See [breathing rates and finite supplies](../Health/Health_Adjacencies_and_Items.md#breathing-rate-elapsed-time-and-finite-supplies) for startup timing, depletion policy and the intentional runtime duration correction.
+
 The ordinary static item health strategy is demand-gated: it evaluates damage synchronously and reconciles persisted wounds during item login, but does not subscribe the item to a recurring heartbeat. Components that override item wound behaviour, and body-backed items such as corpses, retain their own periodic health semantics.
 
 Generated remains are a special integration point:

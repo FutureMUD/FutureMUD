@@ -40,7 +40,26 @@ Breathing matters because it directly participates in:
 - `IStopBreathing` effects that can forcibly prevent breathing
 - gas support from any `IProvideGasForBreathing` source, not only rebreathers
 
-The breathing heartbeat first respects the body's effective `NeedsToBreathe` property. An immortal administrator whose body suspends physical contact therefore does not invoke its breathing strategy, receive held-breath text, accumulate held-breath time, or begin hypoxia ticks. While breathing is exempt, any stale held-breath timer is cleared so removing the exemption resumes ordinary breathing cleanly. Lung, gill, blowhole, non-breather, and partless-breather behavior is otherwise unchanged.
+The breathing heartbeat first respects the body's effective `NeedsToBreathe` property. An immortal administrator whose body suspends physical contact therefore does not invoke its breathing strategy, receive held-breath text, accumulate held-breath time, or begin hypoxia ticks. While breathing is exempt, any stale held-breath timer is cleared so removing the exemption resumes ordinary breathing cleanly.
+
+### Breathing rate, elapsed time, and finite supplies
+`BreathingVolumeExpression` is configured in **litres per real minute**, as advertised by race building. `Race.BreathingRate(body, fluid)` returns that expression multiplied by the race's breathing multiplier for the fluid. It remains a rate; consumers convert it to a volume:
+
+```text
+base volume = BreathingRate(body, fluid) * elapsed.TotalMinutes / UnitManager.BaseFluidToLitres
+```
+
+Gas supply volumes and filter capacities use world base fluid units at one atmosphere. For example, an expression of `7`, a fluid multiplier of `1`, and one litre per base unit require `7/6` litres over ten seconds and `7` litres over one minute. If a base unit is one millilitre (`BaseFluidToLitres = 0.001`), the same ten seconds require `1166.666...` base units. The fluid multiplier is applied once, inside `BreathingRate`.
+
+`Body.DoBreathing` measures elapsed active time with the ambient runtime clock's monotonic timestamps. Stamina startup still invokes its immediate callback, but a new breathing subscription has zero elapsed time and incurs no withdrawal or held-breath advance. A global heartbeat arriving two seconds after startup charges two seconds. Repeated callbacks without time passing charge nothing. Delayed callbacks process the actual interval, rather than assuming ten seconds. Stopping stamina ticking retains any unprocessed active fraction in memory; restarting settles that fraction once and excludes time while stopped. Pending time is not persisted across server shutdown or body reload. Exertion, equipment and fluid are sampled when the callback runs; this correction does not add continuous equipment-history accounting.
+
+Lung, gill, blowhole and partless strategies advance or recover held-breath time by the supplied elapsed duration. Non-breathers do nothing. The one-argument strategy `Breathe(body)` entry point remains available for an explicit ten-second simulation step; production body callbacks use `Breathe(body, elapsed)`.
+
+Only the lung strategy currently withdraws wearable gas supplies. Rebreathers forward the already-converted volume to their connected gas tank; breathing filters subtract that volume divided by their configured filter capacity from cartridge condition. A withdrawal that exactly empties a tank, or exhausts a cartridge, is judged using the gas delivered before depletion changes the device's gas. Insufficient tanks retain the existing whole-interval policy: preflight fails, no partial withdrawal occurs, and held-breath time increases for the interval. An empty tank no longer supplies gas; an exhausted filter passes the ambient gas. Gill, blowhole and partless strategies retain their existing ambient-fluid selection and do not gain equipment support.
+
+Magical gas-carrier exposure and liquid respiratory sample volumes also convert the rate to an elapsed base volume. Environmental injury timing retains its separate existing sampling and ten-second cap.
+
+This is an intentional runtime correction with **no race-expression, seeder-data, item-capacity, migration, or existing-world database update**. With default units and multiplier `1`, finite tanks and filters now last six times as long under regular ten-second callbacks: `7` previously drained `42 L/min`, whereas it now drains `7 L/min`. Startup no longer adds an extra ten-second charge. Worlds whose expressions were manually tuned around the old overconsumption should review those custom settings separately. Sweat rates are outside this correction.
 
 ## Needs
 ### Core model

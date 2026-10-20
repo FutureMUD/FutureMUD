@@ -64,8 +64,15 @@ public class LungBreather : IBreathingStrategy
         return !(anasthesia >= 5.0 * body.RespirationBreathingDriveMultiplier());
     }
 
-    public void Breathe(IBody body)
+    public void Breathe(IBody body) => Breathe(body, TimeSpan.FromSeconds(10));
+
+    public void Breathe(IBody body, TimeSpan elapsed)
     {
+        if (elapsed <= TimeSpan.Zero)
+        {
+            return;
+        }
+
 		// Resolve and withdraw a real supply before testing oxygen compatibility. An unbreathable
 		// supplied gas can still enter a functioning airway; a failed withdrawal cannot.
 		var suppliedMouth = body.Bodyparts.OfType<MouthProto>().FirstOrDefault();
@@ -74,28 +81,32 @@ public class LungBreather : IBreathingStrategy
 			(CanBreathe(body) || body.HeldBreathTime <= TimeSpan.Zero))
 		{
 			var suppliedGas = suppliedSource.Gas;
-			if (suppliedSource.CanConsumeGas(body.Race.BreathingRate(body, suppliedGas)) &&
-				suppliedSource.ConsumeGas(body.Race.BreathingRate(body, suppliedGas)))
+			var volume = BreathingStrategyHelper.BreathingVolume(body, suppliedGas, elapsed);
+			var canBreathe = CanBreathe(body);
+			if (suppliedSource.CanConsumeGas(volume) && suppliedSource.ConsumeGas(volume))
 			{
-				BreathingStrategyHelper.ExposeToMagic(body, suppliedGas, true);
-				body.HeldBreathTime = CanBreathe(body) ? TimeSpan.FromSeconds(Math.Max(0, body.HeldBreathTime.TotalSeconds - 10)) : body.HeldBreathTime + TimeSpan.FromSeconds(10);
+				BreathingStrategyHelper.ExposeToMagic(body, suppliedGas, elapsed, true);
+				// Judge the delivered gas before depletion changes the device's Gas property.
+				body.HeldBreathTime = canBreathe
+					? TimeSpan.FromSeconds(Math.Max(0, body.HeldBreathTime.TotalSeconds - elapsed.TotalSeconds))
+					: body.HeldBreathTime + elapsed;
 			}
 			else
 			{
 				EnvironmentalExposureService.For(body.Gameworld).NoInhalation(body);
-				body.HeldBreathTime += TimeSpan.FromSeconds(10);
+				body.HeldBreathTime += elapsed;
 			}
 			return;
 		}
         if (!CanBreathe(body))
         {
-			BreathingStrategyHelper.UnbreathableSample(body, BreathingFluid(body));
+			BreathingStrategyHelper.UnbreathableSample(body, BreathingFluid(body), elapsed);
             if (body.HeldBreathTime <= TimeSpan.Zero)
             {
                 body.OutputHandler.Send("You can't breathe, and have begun to hold your breath.");
             }
 
-            body.HeldBreathTime += TimeSpan.FromSeconds(10);
+            body.HeldBreathTime += elapsed;
             return;
         }
 
@@ -113,10 +124,10 @@ public class LungBreather : IBreathingStrategy
             return;
         }
 
-        BreathingStrategyHelper.ExposeToMagic(body, BreathingFluid(body));
+        BreathingStrategyHelper.ExposeToMagic(body, BreathingFluid(body), elapsed);
         if (body.HeldBreathTime > TimeSpan.Zero)
         {
-            body.HeldBreathTime -= TimeSpan.FromSeconds(10);
+            body.HeldBreathTime -= elapsed;
         }
     }
 

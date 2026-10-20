@@ -6,6 +6,7 @@ using MudSharp.Effects.Concrete;
 using MudSharp.Form.Material;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
+using MudSharp.Framework.Scheduling;
 using MudSharp.Movement;
 using MudSharp.RPG.Merits.Interfaces;
 using MudSharp.Vehicles;
@@ -255,6 +256,7 @@ public partial class Body
 
         if (!_tenSecondStaminaActive)
         {
+            _lastBreathingTimestamp = RuntimeClock.TimeProvider.GetTimestamp();
             Gameworld.HeartbeatManager.TenSecondHeartbeat += StaminaTenSecondHeartbeat;
             _tenSecondStaminaActive = true;
             StaminaTenSecondHeartbeat();
@@ -272,6 +274,9 @@ public partial class Body
     {
         if (_tenSecondStaminaActive)
         {
+            // Keep the unprocessed active fraction, but never charge for time while stopped.
+            AccumulateBreathingElapsed();
+            _lastBreathingTimestamp = null;
             Gameworld.HeartbeatManager.TenSecondHeartbeat -= StaminaTenSecondHeartbeat;
             _tenSecondStaminaActive = false;
         }

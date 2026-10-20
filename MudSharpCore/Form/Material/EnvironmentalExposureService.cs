@@ -612,7 +612,7 @@ public sealed class EnvironmentalExposureService
 			body.BreathingStrategy.Name == "partless" ? ExposureTransport.BodyArea(body, (IExternalBodypart)p) : 1.0 / parts.Length, 1,
 			fluid is ILiquid ? sample.Strength : 1)).ToArray();
 		if (fluid is ILiquid liquid)
-			Resolver.Liquid(new LiquidMixture(liquid, Math.Max(body.Race.BreathingRate(body, fluid), 1e-9), _world), true, patches, ExposureSourceKind.Breath, sample.SourceIdentity, seconds, sample.Location.CurrentTemperature(null), ExposureRoute.Inhalation);
+			Resolver.Liquid(new LiquidMixture(liquid, Math.Max(MudSharp.Health.Breathing.BreathingStrategyHelper.BreathingVolume(body, fluid, TimeSpan.FromSeconds(seconds)), 1e-9), _world), true, patches, ExposureSourceKind.Breath, sample.SourceIdentity, seconds, sample.Location.CurrentTemperature(null), ExposureRoute.Inhalation);
 		else Resolver.Gas(fluid, patches, ExposureRoute.Inhalation, ExposureSourceKind.Breath, sample.SourceIdentity, sample.Strength, seconds, sample.Location.CurrentTemperature(null));
 		if (!sample.Supplied)
 			foreach (var (cloud, strength) in Clouds(body.Location, body.RoomLayer))

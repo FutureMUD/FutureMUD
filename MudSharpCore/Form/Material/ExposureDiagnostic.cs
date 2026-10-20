@@ -38,7 +38,7 @@ public static class ExposureDiagnostic
 				if (!body.NeedsToBreathe) sb.AppendLine("Effective breathing is exempt: no automatic respiratory sample is delivered.");
 				if (!body.BreathingStrategy.NeedsToBreathe) return sb.AppendLine("Non-breather: no respiratory exposure.").ToString();
 				if (!BreathingStrategyHelper.HasAirflow(body)) return sb.AppendLine("No airflow: breath is stopped or the respiratory route is not functioning.").ToString();
-				if (BreathingStrategyHelper.HasWorkingSupply(body)) sb.AppendLine("Working supplied air: the actual breathing sample comes from the apparatus; this surrounding-fluid prediction is not delivered through that supply.");
+				if (BreathingStrategyHelper.HasWorkingSupply(body, TimeSpan.FromSeconds(seconds))) sb.AppendLine("Working supplied air: the actual breathing sample comes from the apparatus; this surrounding-fluid prediction is not delivered through that supply.");
 				var parts = EnvironmentalExposureService.RespiratoryParts(body);
 				patches = parts.Select(p => new ExposurePatch(body, p, body.GetMaterial(p), 1.0 / Math.Max(1, parts.Length), 1)).ToArray();
 			}

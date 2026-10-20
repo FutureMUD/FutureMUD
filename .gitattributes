@@ -74,3 +74,7 @@
 #*.PDF   diff=astextplain
 #*.rtf   diff=astextplain
 #*.RTF   diff=astextplain
+
+# Keep this owner-applied patch compatible with its LF source on Windows.
+# Unified-diff context prefixes intentionally precede tabs and otherwise blank lines.
+"Design Documents/Seeding/Armageddon_Sweat_Rates.patch" text eol=lf whitespace=-blank-at-eol,-space-before-tab

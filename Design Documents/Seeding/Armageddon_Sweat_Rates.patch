@@ -1,0 +1,35 @@
+diff --git a/DatabaseSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonHeritage.cs b/DatabaseSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonHeritage.cs
+--- a/DatabaseSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonHeritage.cs
++++ b/DatabaseSeeder/Seeders/ArmageddonSettingSeeder/ArmageddonHeritage.cs
+@@ -125,6 +125,15 @@
+ 		}
+ 		db.SaveChanges(); return prog;
+ 	}
++
++	// Authored sweat-only defaults; all physical profiles remain unavailable.
++	internal static double SweatRateForProfile(string profile) => profile switch
++	{
++		"human" or "city_elf" or "desert_elf" or "dwarf" or "half_elf" => 0.02,
++		"half_giant" => 0.10,
++		"mul" => 0.03,
++		_ => throw new ArgumentOutOfRangeException(nameof(profile), profile, "Unknown heritage profile.")
++	};
+ 
+ 	private static Race Scaffold(FuturemudDatabaseContext db, string key, Race human)
+ 	{
+@@ -205,6 +214,7 @@
+ 		var parent = Scaffold(db, "arm.race.elf", human);
+ 		parent.Name = "Armageddon Elf"; parent.ParentRaceId = organic.Id; parent.AvailabilityProgId = no;
+ 		parent.Description = "Common biological Elf parent; unavailable. Physical values are inactive Human scaffolding pending review.";
++		parent.SweatRateInLitresPerMinute = SweatRateForProfile("city_elf");
+ 		parent = Apply(db, "arm.race.elf", parent, messages);
+ 		var races = new Dictionary<string, Race>();
+ 		foreach (var profile in Profiles)
+@@ -214,6 +224,7 @@
+ 			race.Name = "Armageddon " + profile.Name; race.ParentRaceId = profile.Key is "city_elf" or "desert_elf" ? parent.Id : organic.Id;
+ 			race.AvailabilityProgId = no;
+ 			race.Description = $"{profile.Name} mechanical profile. Unavailable pending physical acceptance; current numerical physiology, ages and size are inactive shared-Human scaffolding. No racial immunity or power is implied.";
++			race.SweatRateInLitresPerMinute = SweatRateForProfile(profile.Key);
+ 			races[profile.Key] = Apply(db, key, race, messages);
+ 		}
+ 		var naming = Apply(db, "arm.naming.personal", new NameCulture { Name = "Armageddon Personal Name", Definition = new XElement("NameCulture",

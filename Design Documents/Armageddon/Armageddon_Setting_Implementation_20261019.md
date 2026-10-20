@@ -36,6 +36,8 @@ Native failed fixture run `20261020T125615Z_ca83e7da2eb341049a8334eb288566ba` re
 
 ## Acceptance and automated checks
 
+Final20 October batch at committed code `8e823b55a`: full DatabaseSeeder run `20261020T130941Z-24ff80709a8d` **2068 passed,0 failed,3 Unix-only skips**, source stable `103719290af60585ea4b67ae3e2fa35ef4fc550c8c338d933d0560ec3b4c4a36`; Debug build214 warnings/0 errors. Current-source Release installer build **PASS**,211 warnings/0 errors (`.artifacts/setting-followups-release-final-20261020.log`). No further executable changes followed. All157 local links across19 follow-up documents resolve. The only remaining implementation gate is the documented native age-policy translation and broader physical/appearance activation review; no profile was enabled, no existing world changed and nothing was published. The historical19 October receipts below keep their original exact source and gameplay scope.
+
 Exact receipt paths and SHA-256 values are in [the machine-readable evidence](Armageddon_Setting_Verification_20261019.json).
 
 - Full DatabaseSeeder batch `20261019T151535Z-701d25cc88ec`: **2023 passed, 0 failed, 3 skipped**. The skips are Unix launcher-permission cases requiring a Unix host. Subsequent focused compatibility/package/binding checks passed10 and17 respectively; final anatomy/native-boot rerun focus passed17 (`20261019T163814Z-8193539c42e5`).

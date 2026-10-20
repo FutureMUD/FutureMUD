@@ -1640,7 +1640,7 @@
       "skipped": 0,
       "failed": 0
     },
-    "final_batch_status": "Pending final full seeder suite and current-source Release build",
+    "final_batch_status": "PASS: complete integrated source full DatabaseSeeder suite and Release installer build",
     "full_preset_suite": {
       "run": "20261020T120610Z-758ae8332326",
       "passed": 2048,
@@ -1684,6 +1684,27 @@
     "preset_commit": "c49a584a2",
     "armageddon_sweat_commit": "c691c7b4e",
     "breathing_commit": "5f3712bcf",
-    "existing_world_mutation": false
+    "existing_world_mutation": false,
+    "final_seeder_suite": {
+      "summary_path": ".artifacts/test-runs/20261020T130941Z-24ff80709a8d/summary.json",
+      "skipped": 3,
+      "summary_sha256": "AB67FDC657E8535DD926FA4143A300B3523AF500FC18146FC304F3C52E341534",
+      "failed": 0,
+      "source_stable": true,
+      "skip_scope": "Unix-only launcher owner-permission rows0/1/2 require Unix host",
+      "status": "PASS",
+      "source_sha256": "103719290af60585ea4b67ae3e2fa35ef4fc550c8c338d933d0560ec3b4c4a36",
+      "run": "20261020T130941Z-24ff80709a8d",
+      "passed": 2068,
+      "head": "8e823b55ad69077d132e51f3aaf01a70221d51a3"
+    },
+    "final_release_build": {
+      "log": ".artifacts/setting-followups-release-final-20261020.log",
+      "log_sha256": "4E46F3C06F4388D485A4BE216801688E87F3824A0A465D3883D82BE05757833C",
+      "status": "PASS",
+      "warnings": 211,
+      "head": "8e823b55ad69077d132e51f3aaf01a70221d51a3",
+      "errors": 0
+    }
   }
 }

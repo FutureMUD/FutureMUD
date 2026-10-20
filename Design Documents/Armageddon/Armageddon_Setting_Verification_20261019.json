@@ -1776,7 +1776,25 @@
       "20261020T141413Z_df33b6e42d904ab5b0ff53202554612b": "reader mock omitted prog registry; native UI/save-resume passed before cold failure; cleanup confirmed"
     },
     "full_seeder_final": {
-      "status": "PENDING final integrated run"
+      "status": "PASS",
+      "run": "20261020T142526Z-cb03597fa8c2",
+      "head": "adf06642504b21031d408de41a9fd6e032e1d3f3",
+      "summary_path": ".artifacts/test-runs/20261020T142526Z-cb03597fa8c2/summary.json",
+      "summary_sha256": "9DD962528A3E0AC73DCF5F802BF467747A07EC6E8B7DFCF1B98E57953DFFB898",
+      "failures_sha256": "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945",
+      "source_sha256": "42d7169b43f3b8ae30400062805f3a22def0f76498861192130de22b3ced7b12",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "passed": 2068,
+      "failed": 0,
+      "skipped": 3,
+      "total": 2071,
+      "skip_scope": "Unix launcher permission test variants0/1/2 require a Unix host",
+      "duration_seconds": 889.4442742,
+      "helper_exit_code": 0,
+      "issues": [],
+      "failures": []
     },
     "limits": [
       "No automatic affiliation, rank or achievement verification/grants",

@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Xml.Linq;
 using DatabaseSeeder.Seeders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -111,12 +112,82 @@ public class ArmageddonHeritageTests
 		ArmageddonHeritage.Install(db, messages);
 		Assert.AreEqual("Builder Dwarf", dwarf.Name);
 		Assert.AreEqual(0.01, dwarf.SweatRateInLitresPerMinute);
-		Assert.AreEqual(0.8, db.Races.Single(x => x.Name == "Armageddon Mul").SweatRateInLitresPerMinute);
+		Assert.AreEqual(0.03, db.Races.Single(x => x.Name == "Armageddon Mul").SweatRateInLitresPerMinute);
 		Assert.AreEqual("Builder person", culture.PersonWordMale);
 		Assert.AreEqual(4, db.CulturesNameCultures.Count(x => x.CultureId == culture.Id));
 		Assert.AreEqual(originalBody, original.FunctionText);
 		Assert.AreEqual(ids.Count, db.SeederManagedRecords.Count());
 		Assert.IsTrue(db.SeederManagedRecords.All(x => ids[x.StableKey] == x.LogicalId));
+		Assert.IsTrue(messages.Any(x => x.Contains("builder edit")));
+	}
+
+	[TestMethod]
+	public void SweatDefaults_PersistApprovedRosterAndPreserveCustomZeroLiquidAndAvailability()
+	{
+		using var db = Fixture();
+		var messages = new List<string>();
+		var human = db.Races.Single(x => x.Name == "Human");
+		db.Liquids.AddRange(new Liquid { Id = 901, Name = "Test sweat" }, new Liquid { Id = 902, Name = "Custom sweat" });
+		human.SweatLiquidId = 901;
+		db.SaveChanges();
+		var adminCultureCount = db.Cultures.Count(x => x.Name == "Admin");
+		var characterCount = db.Characters.Count();
+		ArmageddonHeritage.Install(db, messages);
+		var expected = new Dictionary<string, double>
+		{
+			["Human"] = 0.02, ["Elf"] = 0.02, ["City Elf"] = 0.02, ["Desert Elf"] = 0.02,
+			["Dwarf"] = 0.02, ["Half-Elf"] = 0.02, ["Half-Giant"] = 0.10, ["Mul"] = 0.03
+		};
+		db.ChangeTracker.Clear();
+		foreach (var (name, rate) in expected)
+		{
+			var race = db.Races.Single(x => x.Name == "Armageddon " + name);
+			Assert.AreEqual(rate, race.SweatRateInLitresPerMinute);
+			Assert.AreEqual(901L, race.SweatLiquidId);
+			Assert.AreEqual(2L, race.AvailabilityProgId);
+		}
+		foreach (var (key, rate) in ArmageddonHeritage.Profiles.Select(x => (x.Key, expected[x.Name])))
+		{
+			Assert.AreEqual(rate, ArmageddonHeritage.SweatRateForProfile(key));
+			var hourly = key switch
+			{
+				"half_giant" => new[] { 2.40, 4.20, 5.40 },
+				"mul" => new[] { 0.72, 1.26, 1.62 },
+				_ => new[] { 0.48, 0.84, 1.08 }
+			};
+			foreach (var (factor, index) in new[] { 24.0, 42.0, 54.0 }.Select((x, i) => (x, i)))
+				Assert.AreEqual(hourly[index], ArmageddonHeritage.SweatRateForProfile(key) * factor, 1e-12);
+		}
+		Assert.ThrowsException<ArgumentOutOfRangeException>(() => ArmageddonHeritage.SweatRateForProfile("unknown"));
+		// Reproduce the former recorded stock, then upgrade only through the normal installer.
+		var giant = db.Races.Single(x => x.Name == "Armageddon Half-Giant");
+		var record = db.SeederManagedRecords.Single(x => x.StableKey == "arm.race.half_giant");
+		var oldBaseline = JsonSerializer.Deserialize<Dictionary<string, string>>(record.SeedBaseline!)!;
+		oldBaseline[nameof(Race.SweatRateInLitresPerMinute)] = "0.8";
+		record.SeedBaseline = JsonSerializer.Serialize(oldBaseline);
+		giant.SweatRateInLitresPerMinute = 0.8;
+		db.SaveChanges(); db.ChangeTracker.Clear();
+		ArmageddonHeritage.Install(db, messages); db.ChangeTracker.Clear();
+		Assert.AreEqual(0.10, db.Races.Single(x => x.Name == "Armageddon Half-Giant").SweatRateInLitresPerMinute);
+		var dwarf = db.Races.Single(x => x.Name == "Armageddon Dwarf");
+		dwarf.SweatRateInLitresPerMinute = 0.007; dwarf.SweatLiquidId = 902; dwarf.AvailabilityProgId = 1;
+		var mul = db.Races.Single(x => x.Name == "Armageddon Mul");
+		mul.SweatRateInLitresPerMinute = 0.0; mul.SweatLiquidId = null;
+		db.SaveChanges();
+		for (var attempt = 0; attempt < 2; attempt++)
+		{
+			db.ChangeTracker.Clear();
+			ArmageddonHeritage.Install(db, messages);
+			db.ChangeTracker.Clear();
+			dwarf = db.Races.Single(x => x.Name == "Armageddon Dwarf");
+			mul = db.Races.Single(x => x.Name == "Armageddon Mul");
+			Assert.AreEqual(0.007, dwarf.SweatRateInLitresPerMinute);
+			Assert.AreEqual(902L, dwarf.SweatLiquidId); Assert.AreEqual(1L, dwarf.AvailabilityProgId);
+			Assert.AreEqual(0.0, mul.SweatRateInLitresPerMinute); Assert.IsNull(mul.SweatLiquidId);
+			Assert.AreEqual(0.8, db.Races.Single(x => x.Name == "Human").SweatRateInLitresPerMinute);
+			Assert.AreEqual(adminCultureCount, db.Cultures.Count(x => x.Name == "Admin"));
+			Assert.AreEqual(characterCount, db.Characters.Count());
+		}
 		Assert.IsTrue(messages.Any(x => x.Contains("builder edit")));
 	}
 

@@ -1707,6 +1707,17 @@
       "errors": 0
     }
   },
+  "oct21_owner_decisions": {
+    "adult_lifecycle_mapping": "APPROVED by Luke: recovered Adult to native YoungAdult; Mature and Middle-aged to Adult; Old to Elder; Ancient to Venerable; retain separate exact descriptive bands",
+    "implementation": "PENDING; no lifecycle fields or chargen policies changed; native category-boundary repair remains outstanding",
+    "remaining_inputs": [
+      "Baby/Child/Youth subdivisions",
+      "Independent numeric chargen age policy",
+      "Physical balance and appearance choices"
+    ],
+    "race_activation": "HELD",
+    "publication": "HELD"
+  },
   "oct20_executable_naming": {
     "implemented": {
       "cultures": 15,

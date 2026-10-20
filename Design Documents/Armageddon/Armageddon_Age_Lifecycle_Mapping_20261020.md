@@ -1,6 +1,6 @@
 # Armageddon age categories: native mapping decision
 
-20 October 2026. The recovered category ranges and Elf creation height are approved. **Native lifecycle translation is pending a semantic decision; no age fields or chargen policies have been changed.** All eight new Race rows remain unavailable. This is a requirements gate, not a denied operation.
+20 October 2026. The recovered category ranges and Elf creation height are approved. **21 October owner update: Luke approved the recommended adult lifecycle mapping and separate recovered descriptive bands. Implementation remains pending; no age fields or chargen policies have been changed.** All eight new Race rows remain unavailable. This is a requirements gate, not a denied operation.
 
 ## Verified source contract
 
@@ -18,11 +18,11 @@ These categories have mechanics: group AI assigns Baby/Child/Youth to juvenile r
 
 Stock `MinimumAgeChargen` returns `@ch.Race.YoungAdultAge`, while `MaximumAgeChargen` returns `@ch.Race.VenerableAge * 1.1` (`DatabaseSeeder/Seeders/ChargenSeeder/ChargenSeeder.cs:426-439`). Consequently changing lifecycle thresholds also changes stock playable-age policy unless deliberately separated. Approval of age descriptions does not approve those derived chargen limits. There is no maximum-lifespan Race field in this mapping; Venerable is open-ended.
 
-## Recommended translation, not yet applied
+## Approved adult translation, not yet applied
 
-Preserve the six recovered descriptions independently of the mechanical lifecycle. Use coarse native adult stages as follows, subject to the owner accepting that Mature and Middle-aged share a mechanical stage:
+Preserve the six recovered descriptions independently of the mechanical lifecycle. Luke approved the following coarse native adult stages on21 October, including Mature and Middle-aged sharing a mechanical stage:
 
-| Recovered description | Proposed native mechanical stage |
+| Recovered description | Approved native mechanical stage |
 | --- | --- |
 | Young | Retain distinct Baby/Child/Youth; their subdivision is not recovered |
 | Adult | YoungAdult |
@@ -31,7 +31,7 @@ Preserve the six recovered descriptions independently of the mechanical lifecycl
 | Old | Elder |
 | Ancient | Venerable, open-ended |
 
-This would give the following **proposed lower bounds**, before resolving the native boundary issue below. They are not installed values or playable-age limits.
+This gives the following **approved adult lifecycle lower bounds**, before resolving the native boundary issue below. They are not installed values or playable-age limits.
 
 | Profile | YoungAdult | Adult | Elder | Venerable |
 | --- | ---: | ---: | ---: | ---: |
@@ -42,7 +42,7 @@ This would give the following **proposed lower bounds**, before resolving the na
 | Half-Giant | 36 | 54 | 110 | 146 |
 | Mul | 15 | 23 | 46 | 61 |
 
-The owner decision is whether to accept this coarse mechanical translation with separate exact descriptions, and what authority supplies the Baby/Child/Youth subdivisions. Existing Human3/10 thresholds remain explicitly inactive scaffolding, not approved racial infancy/childhood policy. No scaling, new earliest playable age or maximum lifespan is proposed. Keep configured chargen policy separate from approved descriptive bands; do not silently derive new minimum/maximum playable ages from this table.
+The coarse mechanical translation with separate exact descriptions is approved. Baby/Child/Youth subdivisions and independent numeric chargen bounds remain undecided; the approval does not supply those values. Existing Human3/10 thresholds remain explicitly inactive scaffolding, not approved racial infancy/childhood policy. No scaling, new earliest playable age or maximum lifespan is proposed. Keep configured chargen policy separate from approved descriptive bands; do not silently derive new minimum/maximum playable ages from this table.
 
 ## Native boundary defect to address before applying thresholds
 
@@ -54,4 +54,4 @@ Recommend a narrow lifecycle-specific correction so persisted fields consistentl
 
 The focused heritage regression covers all six current inactive lifecycle fields across persistence reload and two reruns, deliberate builder age edits, later shared-Human changes not becoming new scaffold defaults, and all eight new Race rows remaining unavailable. It **passed** in full seeder run `20261020T120610Z-758ae8332326` (2048 passed,0 failed,3 platform-specific skips; stable source), including the full heritage class. Its first execution, `20261020T114959Z-6a4b088ff25c`, built successfully but was **INCONCLUSIVE** because sandbox VSTest could not connect to testhost within90 seconds; that attempt remains recorded and is not counted as a pass. This regression does not certify an approved native translation, MySQL cold boot or new gameplay. Independent source verification checked the supplied file checksum and all approved integer category boundaries through calendar year1000.
 
-Parallel current-master tasks supplied separate breathing and sweat corrections, now integrated locally, including explicit approved Armageddon sweat defaults. Naming input was recovered read-only from the owner's approved Page after the text transfer was truncated; its implementation and provenance are recorded in [the naming note](Armageddon_Naming_Integration_20261020.md). Neither follow-up changes the unresolved age mapping decision. Publication remains last.
+Parallel current-master tasks supplied separate breathing and sweat corrections, now integrated locally, including explicit approved Armageddon sweat defaults. Naming input was recovered read-only from the owner's approved Page after the text transfer was truncated; its implementation and provenance are recorded in [the naming note](Armageddon_Naming_Integration_20261020.md). Neither follow-up supplies juvenile thresholds or chargen age policy. The adult mapping was subsequently approved on21 October; its implementation and boundary repair remain outstanding. Publication remains last.

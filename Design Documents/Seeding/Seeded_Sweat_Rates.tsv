@@ -1,0 +1,253 @@
+Seeder	Race	BaseLPerMinute	HeavyLPerHour	VeryHeavyLPerHour	ExtremelyHeavyLPerHour
+Animal	Adder	0	0	0	0
+Animal	Albatross	0	0	0	0
+Animal	Alligator	0	0	0	0
+Animal	Alpaca	0.003	0.072	0.126	0.162
+Animal	Anaconda	0	0	0	0
+Animal	Anchovy	0	0	0	0
+Animal	Ant	0	0	0	0
+Animal	Anteater	0	0	0	0
+Animal	Armadillo	0	0	0	0
+Animal	Badger	0	0	0	0
+Animal	Baleen Whale	0	0	0	0
+Animal	Basilisk Lizard	0	0	0	0
+Animal	Bear	0	0	0	0
+Animal	Bearded Dragon	0	0	0	0
+Animal	Beaver	0	0	0	0
+Animal	Bee	0	0	0	0
+Animal	Beetle	0	0	0	0
+Animal	Bison	0.015	0.36	0.63	0.81
+Animal	Blue-Tongued Skink	0	0	0	0
+Animal	Boa	0	0	0	0
+Animal	Boar	0	0	0	0
+Animal	Buffalo	0.005	0.12	0.21	0.27
+Animal	Butterfly	0	0	0	0
+Animal	Caiman	0	0	0	0
+Animal	Camel	0.025	0.6	1.05	1.35
+Animal	Capybara	0.001	0.024	0.042	0.054
+Animal	Carp	0	0	0	0
+Animal	Cassowary	0	0	0	0
+Animal	Cat	0	0	0	0
+Animal	Centipede	0	0	0	0
+Animal	Chameleon	0	0	0	0
+Animal	Cheetah	0	0	0	0
+Animal	Chicken	0	0	0	0
+Animal	Cobra	0	0	0	0
+Animal	Cockatoo	0	0	0	0
+Animal	Cockroach	0	0	0	0
+Animal	Cod	0	0	0	0
+Animal	Condor	0	0	0	0
+Animal	Coral Snake	0	0	0	0
+Animal	Cow	0.02	0.48	0.84	1.08
+Animal	Coyote	0	0	0	0
+Animal	Crab	0	0	0	0
+Animal	Crane	0	0	0	0
+Animal	Crayfish	0	0	0	0
+Animal	Crocodile	0	0	0	0
+Animal	Crow	0	0	0	0
+Animal	Deer	0.005	0.12	0.21	0.27
+Animal	Dingo	0	0	0	0
+Animal	Dog	0	0	0	0
+Animal	Dolphin	0	0	0	0
+Animal	Donkey	0.08	1.92	3.36	4.32
+Animal	Dragonfly	0	0	0	0
+Animal	Duck	0	0	0	0
+Animal	Eagle	0	0	0	0
+Animal	Elephant	0	0	0	0
+Animal	Elk	0.01	0.24	0.42	0.54
+Animal	Emu	0	0	0	0
+Animal	Falcon	0	0	0	0
+Animal	Ferret	0	0	0	0
+Animal	Finch	0	0	0	0
+Animal	Flamingo	0	0	0	0
+Animal	Fox	0	0	0	0
+Animal	Frilled Lizard	0	0	0	0
+Animal	Frog	0	0	0	0
+Animal	Gecko	0	0	0	0
+Animal	Giant Crab	0	0	0	0
+Animal	Giant Panda	0	0	0	0
+Animal	Giant Squid	0	0	0	0
+Animal	Gila Monster	0	0	0	0
+Animal	Giraffe	0.015	0.36	0.63	0.81
+Animal	Goat	0.003	0.072	0.126	0.162
+Animal	Goose	0	0	0	0
+Animal	Grasshopper	0	0	0	0
+Animal	Grouse	0	0	0	0
+Animal	Guinea Pig	0	0	0	0
+Animal	Haddock	0	0	0	0
+Animal	Hamster	0	0	0	0
+Animal	Hare	0	0	0	0
+Animal	Hawk	0	0	0	0
+Animal	Heron	0	0	0	0
+Animal	Herring	0	0	0	0
+Animal	Hippopotamus	0	0	0	0
+Animal	Hoatzin	0	0	0	0
+Animal	Hornet	0	0	0	0
+Animal	Horse	0.2	4.8	8.4	10.8
+Animal	Hummingbird	0	0	0	0
+Animal	Hyena	0	0	0	0
+Animal	Ibis	0	0	0	0
+Animal	Iguana	0	0	0	0
+Animal	Jackal	0	0	0	0
+Animal	Jaguar	0	0	0	0
+Animal	Jellyfish	0	0	0	0
+Animal	Kangaroo	0.005	0.12	0.21	0.27
+Animal	Kingfisher	0	0	0	0
+Animal	Kiwi	0	0	0	0
+Animal	Koala	0	0	0	0
+Animal	Koi	0	0	0	0
+Animal	Komodo Dragon	0	0	0	0
+Animal	Kookaburra	0	0	0	0
+Animal	Leopard	0	0	0	0
+Animal	Lion	0	0	0	0
+Animal	Lizard	0	0	0	0
+Animal	Llama	0.005	0.12	0.21	0.27
+Animal	Lobster	0	0	0	0
+Animal	Lyrebird	0	0	0	0
+Animal	Macaque	0.001	0.024	0.042	0.054
+Animal	Macaw	0	0	0	0
+Animal	Mackerel	0	0	0	0
+Animal	Mamba	0	0	0	0
+Animal	Mammoth	0	0	0	0
+Animal	Mandarin Duck	0	0	0	0
+Animal	Mantis	0	0	0	0
+Animal	Mink	0	0	0	0
+Animal	Moa	0	0	0	0
+Animal	Moccasin	0	0	0	0
+Animal	Monitor Lizard	0	0	0	0
+Animal	Moose	0.01	0.24	0.42	0.54
+Animal	Moth	0	0	0	0
+Animal	Mouse	0	0	0	0
+Animal	Mule	0.14	3.36	5.88	7.56
+Animal	Octopus	0	0	0	0
+Animal	Oliphant	0	0	0	0
+Animal	Orca	0	0	0	0
+Animal	Ostrich	0	0	0	0
+Animal	Otter	0	0	0	0
+Animal	Owl	0	0	0	0
+Animal	Ox	0.02	0.48	0.84	1.08
+Animal	Panther	0	0	0	0
+Animal	Parrot	0	0	0	0
+Animal	Peacock	0	0	0	0
+Animal	Pelican	0	0	0	0
+Animal	Penguin	0	0	0	0
+Animal	Perch	0	0	0	0
+Animal	Pheasant	0	0	0	0
+Animal	Pig	0	0	0	0
+Animal	Pigeon	0	0	0	0
+Animal	Pilchard	0	0	0	0
+Animal	Platypus	0	0	0	0
+Animal	Polecat	0	0	0	0
+Animal	Pollock	0	0	0	0
+Animal	Porpoise	0	0	0	0
+Animal	Prawn	0	0	0	0
+Animal	Python	0	0	0	0
+Animal	Quail	0	0	0	0
+Animal	Rabbit	0	0	0	0
+Animal	Rat	0	0	0	0
+Animal	Rattlesnake	0	0	0	0
+Animal	Raven	0	0	0	0
+Animal	Red Panda	0	0	0	0
+Animal	Red-Crowned Crane	0	0	0	0
+Animal	Reindeer	0.005	0.12	0.21	0.27
+Animal	Rhea	0	0	0	0
+Animal	Rhinocerous	0.01	0.24	0.42	0.54
+Animal	Robin	0	0	0	0
+Animal	Sabretooth Tiger	0	0	0	0
+Animal	Salmon	0	0	0	0
+Animal	Sardine	0	0	0	0
+Animal	Scorpion	0	0	0	0
+Animal	Sea Lion	0	0	0	0
+Animal	Seagull	0	0	0	0
+Animal	Seal	0	0	0	0
+Animal	Shark	0	0	0	0
+Animal	Sheep	0.003	0.072	0.126	0.162
+Animal	Shrew	0	0	0	0
+Animal	Shrimp	0	0	0	0
+Animal	Skink	0	0	0	0
+Animal	Sloth	0	0	0	0
+Animal	Small Crab	0	0	0	0
+Animal	Sparrow	0	0	0	0
+Animal	Spider	0	0	0	0
+Animal	Squid	0	0	0	0
+Animal	Stoat	0	0	0	0
+Animal	Stork	0	0	0	0
+Animal	Swallow	0	0	0	0
+Animal	Swan	0	0	0	0
+Animal	Tapir	0.005	0.12	0.21	0.27
+Animal	Tarantula	0	0	0	0
+Animal	Tasmanian Devil	0	0	0	0
+Animal	Tegu	0	0	0	0
+Animal	Thorny Devil	0	0	0	0
+Animal	Tiger	0	0	0	0
+Animal	Toad	0	0	0	0
+Animal	Toothed Whale	0	0	0	0
+Animal	Tortoise	0	0	0	0
+Animal	Toucan	0	0	0	0
+Animal	Tree Python	0	0	0	0
+Animal	Tuna	0	0	0	0
+Animal	Turkey	0	0	0	0
+Animal	Turtle	0	0	0	0
+Animal	Viper	0	0	0	0
+Animal	Vulture	0	0	0	0
+Animal	Wallaby	0.002	0.048	0.084	0.108
+Animal	Walrus	0	0	0	0
+Animal	Warthog	0	0	0	0
+Animal	Wasp	0	0	0	0
+Animal	Weasel	0	0	0	0
+Animal	Wolf	0	0	0	0
+Animal	Wolverine	0	0	0	0
+Animal	Wombat	0	0	0	0
+Animal	Woodpecker	0	0	0	0
+Animal	Wren	0	0	0	0
+Human	Human	0.02	0.48	0.84	1.08
+Human	Humanoid	0.02	0.48	0.84	1.08
+Human	Organic Humanoid	0.02	0.48	0.84	1.08
+MiddleEarth	Dwarf	0.015	0.36	0.63	0.81
+MiddleEarth	Elf	0.01	0.24	0.42	0.54
+MiddleEarth	Hobbit	0.01	0.24	0.42	0.54
+MiddleEarth	Orc	0.02	0.48	0.84	1.08
+MiddleEarth	Troll	0.06	1.44	2.52	3.24
+Mythical	Ankheg	0	0	0	0
+Mythical	Avian Person	0	0	0	0
+Mythical	Basilisk	0	0	0	0
+Mythical	Bunyip	0	0	0	0
+Mythical	Centaur	0.2	4.8	8.4	10.8
+Mythical	Cockatrice	0	0	0	0
+Mythical	Colossal Worm	0	0	0	0
+Mythical	Dire-Bear	0	0	0	0
+Mythical	Dire-Wolf	0	0	0	0
+Mythical	Dragon	0	0	0	0
+Mythical	Dryad	0	0	0	0
+Mythical	Eastern Dragon	0	0	0	0
+Mythical	Ent	0	0	0	0
+Mythical	Fell Beast	0	0	0	0
+Mythical	Garuda	0	0	0	0
+Mythical	Giant Ant	0	0	0	0
+Mythical	Giant Beetle	0	0	0	0
+Mythical	Giant Centipede	0	0	0	0
+Mythical	Giant Eagle	0	0	0	0
+Mythical	Giant Mantis	0	0	0	0
+Mythical	Giant Scorpion	0	0	0	0
+Mythical	Giant Spider	0	0	0	0
+Mythical	Giant Worm	0	0	0	0
+Mythical	Griffin	0	0	0	0
+Mythical	Hippocamp	0	0	0	0
+Mythical	Hippogriff	0.1	2.4	4.2	5.4
+Mythical	Huorn	0	0	0	0
+Mythical	Manticore	0	0	0	0
+Mythical	Mermaid	0	0	0	0
+Mythical	Minotaur	0.02	0.48	0.84	1.08
+Mythical	Myconid	0	0	0	0
+Mythical	Naga	0.01	0.24	0.42	0.54
+Mythical	Owlkin	0	0	0	0
+Mythical	Pegacorn	0.2	4.8	8.4	10.8
+Mythical	Pegasus	0.2	4.8	8.4	10.8
+Mythical	Phoenix	0	0	0	0
+Mythical	Plantfolk	0	0	0	0
+Mythical	Qilin	0.02	0.48	0.84	1.08
+Mythical	Selkie	0.02	0.48	0.84	1.08
+Mythical	Unicorn	0.2	4.8	8.4	10.8
+Mythical	Warg	0	0	0	0
+Mythical	Wyvern	0	0	0	0
+Mythical	Yacumama	0	0	0	0

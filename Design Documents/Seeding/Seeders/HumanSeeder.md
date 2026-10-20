@@ -44,3 +44,7 @@ The Armageddon owned-world qualification fixture has a separate, deliberately na
 This guide was checked by static source reading; its addition recipe was not executed. No build, database or runtime result is claimed. For a future content change, add focused source/loader/serialization or selected-path first-install/rerun regression checks as appropriate, following the [verification map](../../../.codex/references/verification-and-docs.md). A source invariant is not proof of installed gameplay behavior.
 
 See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md), [coverage and reviewed evidence](Coverage_and_Evidence.md), and the relevant linked test/source references above.
+
+## Whole-body sweat defaults
+
+New-race sweat data and its inheritance, exertion output, source justification and preservation boundary are documented in [Seeded Sweat Rates](../Seeded_Sweat_Rates.md). These changes do not repair existing-world sweat values or authorise a live seeder rerun.

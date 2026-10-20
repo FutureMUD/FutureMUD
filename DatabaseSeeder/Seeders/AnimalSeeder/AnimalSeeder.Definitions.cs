@@ -158,7 +158,8 @@ public partial class AnimalSeeder
 		IReadOnlyList<SeederTattooTemplateDefinition>? TattooTemplates = null,
 		double MaximumFoodSatiatedHours = RacialSatiationDefaults.MaximumFoodSatiatedHours,
 		double MaximumDrinkSatiatedHours = RacialSatiationDefaults.MaximumDrinkSatiatedHours,
-		bool UsesActiveNoThirstNeeds = false
+		bool UsesActiveNoThirstNeeds = false,
+		double SweatRateInLitresPerMinute = 0.0
     );
 
     internal static IReadOnlyDictionary<string, AnimalAgeProfileTemplate> AgeProfilesForTesting => AgeProfiles;

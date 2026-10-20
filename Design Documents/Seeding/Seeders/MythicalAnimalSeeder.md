@@ -54,3 +54,7 @@ Related source tests and design references:
 - [Mythical_Supernatural_Combat_Balance_Pass.md](../../../Design%20Documents/Combat/Mythical_Supernatural_Combat_Balance_Pass.md)
 
 See [repeatability strategy](../DatabaseSeeder_Repeatability_Strategy.md) and [coverage and reviewed evidence](Coverage_and_Evidence.md).
+
+## Whole-body sweat defaults
+
+New-race sweat data and its inheritance, exertion output, source justification and preservation boundary are documented in [Seeded Sweat Rates](../Seeded_Sweat_Rates.md). These changes do not repair existing-world sweat values or authorise a live seeder rerun.

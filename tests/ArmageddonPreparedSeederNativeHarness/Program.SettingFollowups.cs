@@ -46,7 +46,7 @@ internal static partial class GNHProgram
 				using var curated = JsonDocument.Parse(XElement.Parse(definition).Element("CuratedNamingDefinition")!.Value);
 				descriptions += curated.RootElement.GetProperty("culture").GetProperty("elements").GetArrayLength();
 			}
-			Require(descriptions == 78, "All exact curated descriptions survived MySQL storage.");
+			Require(descriptions == 78 && db.NameCultures.Where(x => namingIds.Contains(x.Id)).AsEnumerable().Sum(x => XElement.Parse(x.Definition).Element("Elements")!.Elements().Count()) == 78, "All exact curated and executable descriptions survived MySQL storage.");
 			using var manifest = JsonDocument.Parse(typeof(ArmageddonSettingSeeder).Assembly.GetManifestResourceStream("DatabaseSeeder.Armageddon.naming.json")!);
 			foreach (var source in manifest.RootElement.GetProperty("cultures").EnumerateArray())
 			{
@@ -55,6 +55,11 @@ internal static partial class GNHProgram
 				using var curated = JsonDocument.Parse(xml.Element("CuratedNamingDefinition")!.Value);
 				Require(JsonSerializer.Serialize(source) == JsonSerializer.Serialize(curated.RootElement.GetProperty("culture")), "Native curated description/constraint content differs from the approved manifest.");
 				Require(xml.Element("ExactRandomProfileGender")?.Value == "true" && xml.Element("PreserveNameCase")?.Value == "true", "Native exact gender/case opt-in missing.");
+				foreach (var component in source.GetProperty("elements").EnumerateArray())
+				{
+					var native = xml.Element("Elements")!.Elements().Single(x => x.Attribute("Name")!.Value == component.GetProperty("label").GetString());
+					Require(new MudSharp.Character.Name.NameCultureElement(native).ChargenBlurb == component.GetProperty("description").GetString(), "Executable native description differs from approved source.");
+				}
 				var pool = manifest.RootElement.GetProperty("personal_pools").GetProperty(source.GetProperty("personal_pool_id").GetString()!);
 				string[] Values(string bucket) => pool.GetProperty(bucket).EnumerateArray().Select(x => x.GetString()!).ToArray();
 				var nativeProfiles = db.RandomNameProfiles.Where(x => x.NameCultureId == nativeId).ToArray();
@@ -82,7 +87,7 @@ internal static partial class GNHProgram
 			db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == profileId && x.Name == "Ka’Cha").Weighting = 9;
 			db.RandomNameProfilesElements.Remove(db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == profileId && x.Name == "Ka’Ka’Kyl"));
 			db.RandomNameProfilesElements.Add(new Db.RandomNameProfilesElements { RandomNameProfileId = profileId, NameUsage = 0, Name = "Builder’Name", Weighting = 3 });
-			db.RandomNameProfilesDiceExpressions.Single(x => x.RandomNameProfileId == profileId).DiceExpression = "0";
+			db.RandomNameProfilesDiceExpressions.Single(x => x.RandomNameProfileId == profileId && x.NameUsage == 0).DiceExpression = "0";
 			var dwarf = db.Races.Single(x => x.Id == owned["arm.race.dwarf"]); var mul = db.Races.Single(x => x.Id == owned["arm.race.mul"]);
 			dwarf.SweatRateInLitresPerMinute = 0.007; dwarf.SweatLiquidId = null;
 			dwarf.ChildAge = 5; dwarf.YouthAge = 12; dwarf.YoungAdultAge = 21; dwarf.AdultAge = 31; dwarf.ElderAge = 62; dwarf.VenerableAge = 82;
@@ -93,6 +98,7 @@ internal static partial class GNHProgram
 			receipt = new(database.Name, skillStep, BaseValueHash(owned.OrderBy(x => x.Key, StringComparer.Ordinal).ToArray()), character, profileId, dwarf.Id, mul.Id,
 				history, FollowupHistoryHash(db, history), difficultiesHash);
 		}
+		QualifyExecutableNaming(database);
 		RunItemReaderProcess(receipt, "--setting-followups-reader");
 		RunItemReaderProcess(receipt, "--setting-followups-reader");
 		var before = BaseContentHash(database);
@@ -128,6 +134,7 @@ internal static partial class GNHProgram
 		ExecuteBaseTargetStep(database, FollowupSkillSeeder(), input.Skill.Answers.ToDictionary(x => x.Id, x => x.Answer), expectedActive: 1);
 		using var db = NewPreparedReplayContext(database.ConnectionString);
 		ArmageddonHeritage.Install(db, new List<string>()); db.ChangeTracker.Clear();
+		CheckExecutableNamingRows(database, db);
 		RequireSavedPreset(db, "Armageddon");
 		Require(input.History.All(id => db.SeederChoices.Any(x => x.Id == id)) && FollowupHistoryHash(db, input.History) == input.HistoryHash, "Preset resume changed original answer history.");
 		Require(FollowupDifficultyHash(db) == input.DifficultiesHash, "Armageddon preserving rerun changed shared check difficulties.");
@@ -139,7 +146,7 @@ internal static partial class GNHProgram
 			db.RandomNameProfilesElements.Single(x => x.RandomNameProfileId == input.Profile && x.Name == "Ka’Cha").Weighting == 9 &&
 			!db.RandomNameProfilesElements.Any(x => x.RandomNameProfileId == input.Profile && x.Name == "Ka’Ka’Kyl") &&
 			db.RandomNameProfilesElements.Any(x => x.RandomNameProfileId == input.Profile && x.Name == "Builder’Name" && x.Weighting == 3) &&
-			db.RandomNameProfilesDiceExpressions.Single(x => x.RandomNameProfileId == input.Profile).DiceExpression == "0", "Cold rerun changed builder name weights/entries/dice.");
+			db.RandomNameProfilesDiceExpressions.Single(x => x.RandomNameProfileId == input.Profile && x.NameUsage == 0).DiceExpression == "0", "Cold rerun changed builder name weights/entries/dice.");
 		var dwarf = db.Races.Single(x => x.Id == input.Dwarf);
 		Require(dwarf.SweatRateInLitresPerMinute == 0.007 && dwarf.SweatLiquidId == null && db.Races.Single(x => x.Id == input.Mul).SweatRateInLitresPerMinute == 0.0, "Cold rerun lost custom/zero sweat data.");
 		Require(new[] { dwarf.ChildAge, dwarf.YouthAge, dwarf.YoungAdultAge, dwarf.AdultAge, dwarf.ElderAge, dwarf.VenerableAge }.SequenceEqual(new[] { 5, 12, 21, 31, 62, 82 }), "Cold rerun changed authored test age overrides.");

@@ -1,4 +1,4 @@
-﻿using MudSharp.CharacterCreation;
+using MudSharp.CharacterCreation;
 using MudSharp.Database;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
@@ -45,9 +45,10 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
         _useForChargenSuggestionsProg = Gameworld.AlwaysFalseProg;
         foreach (NameCultureElement usage in culture.NameCultureElements)
         {
-            _nameUsageDiceExpressionsDictionary[usage.Usage] = usage.MinimumCount > 0
-                ? $"1d{usage.MaximumCount}"
-                : $"1d{usage.MaximumCount + 1}-1";
+            _nameUsageDiceExpressionsDictionary[usage.Usage] = culture.UseStructuredEntry
+				? usage.MinimumCount.ToString(System.Globalization.CultureInfo.InvariantCulture)
+				: usage.MaximumCount < 0 ? usage.MinimumCount.ToString(System.Globalization.CultureInfo.InvariantCulture) : usage.MinimumCount > 0
+					? $"1d{usage.MaximumCount}" : $"1d{usage.MaximumCount + 1}-1";
         }
 
         using (new FMDB())
@@ -204,7 +205,24 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
         return Gender == gender;
     }
 
-    public bool IsReady => _nameUsageDiceExpressionsDictionary.All(x =>
+	private bool StructuredCountsAreReady()
+	{
+		if (!Culture.UseStructuredEntry) return true;
+		var elements = Culture.NameCultureElements.ToDictionary(x => x.Usage);
+		if (_nameUsageDiceExpressionsDictionary.Keys.Any(x => !elements.ContainsKey(x))) return false;
+		foreach (var element in elements.Values)
+		{
+			var count = 0;
+			if (_nameUsageDiceExpressionsDictionary.TryGetValue(element.Usage, out var expression) && !int.TryParse(expression, out count)) return false;
+			if (!element.AcceptsCount(count)) return false;
+			if (count > 0 && (element.ConfirmationPrompt is not null || element.ParentUsage is not null)) return false;
+			if (element.MinimumCount > 0 && (!_randomNamesDictionary.ContainsKey(element.Usage) ||
+				_randomNamesDictionary[element.Usage].Select(x => x.Value).Distinct(StringComparer.OrdinalIgnoreCase).Count() < element.MinimumCount)) return false;
+		}
+		return true;
+	}
+
+	public bool IsReady => StructuredCountsAreReady() && _nameUsageDiceExpressionsDictionary.All(x =>
 		int.TryParse(x.Value, out var count) && count <= 0 ||
 		_randomNamesDictionary.ContainsKey(x.Key) && _randomNamesDictionary[x.Key].Any());
 
@@ -225,6 +243,8 @@ public class RandomNameProfile : SaveableItem, IEditableItem, IRandomNameProfile
 
     public IPersonalName GetRandomPersonalName(bool nonSaving = false)
     {
+		if (Culture.UseStructuredEntry && !IsReady)
+			throw new InvalidOperationException("This random profile cannot produce a valid name. Use fixed whole-number counts within the cultural bounds, provide required pools, and keep declared membership/earned components at zero.");
         List<string> allResults = new();
         Dictionary<NameUsage, List<string>> resultsDictionary = new();
         foreach (KeyValuePair<NameUsage, string> element in _nameUsageDiceExpressionsDictionary)

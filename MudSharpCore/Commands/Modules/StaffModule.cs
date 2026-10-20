@@ -1891,6 +1891,11 @@ The syntax is:
             return;
         }
 
+		if (!profile.IsReady)
+		{
+			actor.OutputHandler.Send("That random name profile is not ready. Check its required name counts and available pools.");
+			return;
+		}
         StringBuilder sb = new();
         sb.AppendLine(
             $"You generate 5 random names from the {culture.Name.Proper()} culture with the {profile.Name.Proper()} profile.");

@@ -1329,7 +1329,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
         SelectedName = (SelectedEthnicity.NameCultureForGender(SelectedGender) ?? SelectedCulture.NameCultureForGender(SelectedGender))
                        .RandomNameProfiles
-                       .Where(x => x.IsCompatibleGender(SelectedGender))
+                       .Where(x => x.IsReady).Where(x => x.IsCompatibleGender(SelectedGender))
                        .GetRandomElement()
                        ?.GetRandomPersonalName(true);
         _name = SelectedName?.GetName(NameStyle.FullName) ?? "Unnamed NPC";

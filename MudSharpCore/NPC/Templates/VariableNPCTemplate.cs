@@ -373,7 +373,7 @@ public class VariableNPCTemplate : NPCTemplateBase
                _genderChances.All(
                    x =>
                        _heightWeightModels.Any(y => y.Key == x.Value) &&
-                        _nameProfiles.Any(y => y.Key == x.Value)) &&
+                        _nameProfiles.Any(y => y.Key == x.Value && y.Value.IsReady)) &&
                _race != null &&
                _culture != null &&
                Gameworld.Ethnicities.Any(x => _race.SameRace(x.ParentRace)) &&
@@ -413,12 +413,12 @@ public class VariableNPCTemplate : NPCTemplateBase
                     $"You are missing height/weight models for the following genders: {genders.Select(x => x.DescribeEnum()).ListToString()}");
             }
 
-            genders = _genderChances.Where(x => _nameProfiles.All(y => y.Key != x.Value))
+            genders = _genderChances.Where(x => _nameProfiles.All(y => y.Key != x.Value || !y.Value.IsReady))
                                     .Select(x => x.Value).ToList();
             if (genders.Any())
             {
                 errors.Add(
-                    $"You are missing name profiles for the following genders: {genders.Select(x => x.DescribeEnum()).ListToString()}");
+                    $"You are missing ready name profiles for the following genders: {genders.Select(x => x.DescribeEnum()).ListToString()}");
             }
         }
 

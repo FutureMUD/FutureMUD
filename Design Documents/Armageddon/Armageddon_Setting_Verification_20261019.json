@@ -1706,5 +1706,91 @@
       "head": "8e823b55ad69077d132e51f3aaf01a70221d51a3",
       "errors": 0
     }
+  },
+  "oct20_executable_naming": {
+    "implemented": {
+      "cultures": 15,
+      "native_elements": 78,
+      "supplementary_elements": 63,
+      "exact_descriptions": 78,
+      "supplementary_forms": 62,
+      "random_profiles": 75,
+      "random_policy": "personal1; all optional components0",
+      "usages_appended": {
+        "Title": 15,
+        "Affiliation": 16,
+        "ClanName": 17,
+        "EarnedName": 18
+      },
+      "existing_usage_values": "0-14 unchanged",
+      "automatic_gameplay_grants": false
+    },
+    "installed_and_native_ui_qualified": {
+      "status": "PASS",
+      "run": "20261020T141805Z_dc2d2e18c50a4d25a3afea329c3bd0e8",
+      "summary_path": ".artifacts/naming-completion-native/20261020T141805Z_dc2d2e18c50a4d25a3afea329c3bd0e8/summary.json",
+      "summary_sha256": "5032413E5955F300B652CCD63C457527AEB18CE3F23686BC8990B0506C7578F3",
+      "installer_receipt_path": ".artifacts/naming-completion-native/20261020T141805Z_dc2d2e18c50a4d25a3afea329c3bd0e8/base-world-run.json",
+      "installer_receipt_sha256": "315CE5164AF631F4B8276871EF48E1C8B001DD0DE35F3884E7158425A60953B0",
+      "source_sha256": "12BC0846D6DECD1ACBFDD8640E534480EF556F7F5EE1805C3560308DD0158C41",
+      "source_stable": true,
+      "foundation_closure_sha256": "9B7A1BD56AC27596120AF87246A370207B4C68303379974BC753DF56E96E7BA6",
+      "classes_subclasses_on": true,
+      "actual_chargen_save_hydration": true,
+      "pending_confirmation_and_display_resume": true,
+      "native_applications": 2,
+      "cold_process_preserving_reruns": 2,
+      "checks": [
+        "all78 exact executable descriptions",
+        "optional entry and separate metadata",
+        "independent quoted aliases",
+        "exact parent-clan validation",
+        "tribal naming declaration and independent surname display choice",
+        "earned path confirmation and prefix",
+        "builder profile weights/additions/deletions/zero dice",
+        "inactive age/sweat overrides and all8 race gates"
+      ],
+      "cleanup": "owned database and MySQL instance gracefully removed"
+    },
+    "focused_seeder": {
+      "run": "20261020T140728Z-69c66dbf9f90",
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true
+    },
+    "focused_runtime": {
+      "run": "20261020T140815Z-1386cc3123e2",
+      "passed": 36,
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true
+    },
+    "retained_incomplete_unit_runs": {
+      "20261020T134523Z-667be3038b66": "90-second VSTest handshake; zero records; inconclusive",
+      "20261020T135135Z-4ca02649f25e": "180-second VSTest handshake; zero records; inconclusive",
+      "20261020T135948Z-1c48b20f8457": "full seeder run interrupted by transport disconnect; no final receipt; no remaining test processes at14:06:33UTC"
+    },
+    "retained_native_failures": {
+      "20261020T140922Z_f4cb0d2fac13400a913d26d6dce0063d": "fixture assumed menu option2; repaired stable-ID selection; cleanup confirmed",
+      "20261020T141413Z_df33b6e42d904ab5b0ff53202554612b": "reader mock omitted prog registry; native UI/save-resume passed before cold failure; cleanup confirmed"
+    },
+    "full_seeder_final": {
+      "status": "PENDING final integrated run"
+    },
+    "limits": [
+      "No automatic affiliation, rank or achievement verification/grants",
+      "Hidden metadata is not inferred from ambiguous display text; structured text syntax is provided",
+      "No new current-source whole-server/gameplay certificate; prior19October receipt retains its original scope",
+      "Age/lifecycle and physical activation decisions remain held; no races enabled; no existing-world conversion; no publication"
+    ],
+    "release_build": {
+      "status": "PASS",
+      "warnings": 208,
+      "errors": 0,
+      "log": ".artifacts/naming-completion-release-build.log",
+      "log_sha256": "4C3476D6B537888DDDFDEEBF57CB8D9F8752DF9D633E3E9A89B6BAA88C195E04",
+      "includes": "DatabaseSeeder, MudSharpCore and shared references"
+    }
   }
 }

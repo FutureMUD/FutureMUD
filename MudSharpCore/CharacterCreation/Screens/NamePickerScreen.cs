@@ -1,4 +1,4 @@
-﻿using MudSharp.Character.Name;
+using MudSharp.Character.Name;
 using System.Reflection;
 using MudSharp.FutureProg;
 
@@ -118,6 +118,48 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
             new();
 
         protected NamePickerScreenStoryboard Storyboard;
+		private readonly HashSet<NameUsage> _confirmed = [];
+		private readonly Dictionary<NameUsage, bool> _display = [];
+		private List<string> _pending = [];
+		private bool _pendingConfirmed;
+		private string _phase = "entry";
+
+		private void SaveProgress()
+		{
+			if (!NameCulture.UseStructuredEntry || !SelectedNameElements.ContainsKey(NameUsage.BirthName)) return;
+			Chargen.SelectedName = new PersonalName(NameCulture, SelectedNameElements, true, _confirmed, _display)
+			{
+				EntryProgress = new XElement("EntryProgress", new XAttribute("Usage", (int)Enumerator.Current.Usage),
+					new XAttribute("Phase", _phase), new XAttribute("Confirmed", _pendingConfirmed),
+					_pending.Select(x => new XElement("Pending", x)))
+			};
+		}
+
+		private string AcceptPending(bool? display = null)
+		{
+			var element = Enumerator.Current;
+			SelectedNameElements[element.Usage] = _pending;
+			if (_pendingConfirmed) _confirmed.Add(element.Usage);
+			if (display is { } shown) _display[element.Usage] = shown;
+			_pending = []; _pendingConfirmed = false; _phase = "entry";
+			if (Enumerator.MoveNext()) { SaveProgress(); return Display(); }
+			if (!AvailableCultures().Contains(NameCulture))
+			{
+				ResetEntry(AvailableCultures().First());
+				return "That naming style is no longer available.\n" + Display();
+			}
+			Chargen.SelectedName = new PersonalName(NameCulture, SelectedNameElements, true, _confirmed, _display);
+			State = ChargenScreenState.Complete;
+			return "Your full name is " + Chargen.SelectedName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green) + ".";
+		}
+
+		private void ResetEntry(INameCulture culture)
+		{
+			NameCulture = culture; SelectedNameElements.Clear(); _confirmed.Clear(); _display.Clear();
+			_pending = []; _pendingConfirmed = false; _phase = "entry"; Chargen.SelectedName = null;
+			Enumerator.Dispose(); Enumerator = NameCulture.NameCultureElements.GetEnumerator(); Enumerator.MoveNext();
+		}
+
 
         internal NamePickerScreen(IChargen chargen, NamePickerScreenStoryboard storyboard)
             : base(chargen, storyboard)
@@ -129,6 +171,25 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
 			if (chargen.SelectedName?.Culture is { } saved && AvailableCultures().Contains(saved)) NameCulture = saved;
 			Enumerator = NameCulture.NameCultureElements.GetEnumerator();
             Enumerator.MoveNext();
+			if (chargen.SelectedName is { } oldName && oldName.Culture.Id != NameCulture.Id) chargen.SelectedName = null;
+			if (NameCulture.UseStructuredEntry && chargen.SelectedName?.Culture.Id == NameCulture.Id && chargen.SelectedName.EntryProgress is { } progress)
+			{
+				var savedName = chargen.SelectedName.SaveToXml();
+				var target = (NameUsage)(int)progress.Attribute("Usage");
+				if (NameCulture.NameCultureElements.Any(x => x.Usage == target))
+				{
+					foreach (var group in savedName.Elements("Element").GroupBy(x => Enum.Parse<NameUsage>(x.Attribute("usage").Value)))
+					{
+						SelectedNameElements[group.Key] = group.Select(x => x.Value).ToList();
+						if (group.Any(x => (bool?)x.Attribute("confirmed") == true)) _confirmed.Add(group.Key);
+						if (group.First().Attribute("display") is { } display) _display[group.Key] = (bool)display;
+					}
+					while (Enumerator.Current.Usage != target) Enumerator.MoveNext();
+					_pending = progress.Elements("Pending").Select(x => x.Value).ToList();
+					_pendingConfirmed = (bool?)progress.Attribute("Confirmed") == true;
+					_phase = progress.Attribute("Phase")?.Value ?? "entry";
+				}
+			}
         }
 
         public override ChargenStage AssociatedStage => ChargenStage.SelectName;
@@ -188,6 +249,21 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
                 sb.AppendLine();
             }
 
+			var current = Enumerator.Current;
+			var supplied = current.ParentUsage is { } parent && SelectedNameElements.TryGetValue(parent, out var parents) && parents.Count == 1 &&
+				current.ParentValues.TryGetValue(parents[0], out var children) ? children : current.SuggestedValues;
+			if (supplied.Count > 0) sb.AppendLine("Supplied forms (not membership grants): " + supplied.ListToString());
+			if (_phase != "entry")
+			{
+				sb.AppendLine(string.Join(", ", _pending));
+				sb.AppendLine((_phase == "confirm" ? current.ConfirmationPrompt : current.DisplayChoicePrompt) + " Answer yes or no.");
+				return sb.ToString();
+			}
+			if (current.MaximumCount < 0)
+			{
+				sb.AppendLine($"Enter any number of {current.Name.Pluralise()}, or leave blank. Quote each multiword value separately.");
+				return sb.ToString();
+			}
             sb.Append("Please select ");
             sb.Append(Enumerator.Current.MinimumCount == Enumerator.Current.MaximumCount
                 ? $"exactly {Enumerator.Current.MinimumCount} "
@@ -211,13 +287,24 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
 				var cultures = AvailableCultures();
 				if (!int.TryParse(command[7..].Trim(), out var choice) || choice < 1 || choice > cultures.Length)
 					return "Select a naming style number from the displayed list.";
-				NameCulture = cultures[choice - 1]; SelectedNameElements.Clear();
-				Enumerator.Dispose(); Enumerator = NameCulture.NameCultureElements.GetEnumerator(); Enumerator.MoveNext();
+				ResetEntry(cultures[choice - 1]);
 				return Display();
 			}
 
             NameCultureElement nce = Enumerator.Current!;
 
+			if (_phase != "entry")
+			{
+				if (!command.EqualTo("yes") && !command.EqualTo("no")) return "Answer yes or no.\n" + Display();
+				if (_phase == "confirm")
+				{
+					if (command.EqualTo("no")) { _pending = []; _phase = "entry"; SaveProgress(); return Display(); }
+					_pendingConfirmed = true;
+					if (nce.DisplayChoicePrompt is null) return AcceptPending();
+					_phase = "display"; SaveProgress(); return Display();
+				}
+				return AcceptPending(command.EqualTo("yes"));
+			}
             StringStack ss = new(command.Normalize(NormalizationForm.FormC));
             if (ss.IsFinished && nce.MinimumCount > 0)
             {
@@ -227,7 +314,7 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
 			List<string> names = ss.IsFinished ? [] : nce.MaximumCount == 1 ?
 				[NameCulture.PreserveNameCase ? ss.SafeRemainingArgument : ss.SafeRemainingArgument.ToTitleCaseAP()] :
 				ss.PopSpeechAll().Select(x => NameCulture.PreserveNameCase ? x : x.ToLowerInvariant()).ToList();
-            if (names.Count > nce.MaximumCount || names.Count < nce.MinimumCount)
+            if (!nce.AcceptsCount(names.Count))
             {
                 return
                     $"You must select {(nce.MinimumCount == nce.MaximumCount ? $"exactly {nce.MinimumCount}" : $"between {Enumerator.Current.MinimumCount} and {Enumerator.Current.MaximumCount}")} {(nce.MaximumCount > 1 ? nce.Name.Pluralise() : nce.Name)}.";
@@ -258,25 +345,20 @@ public class NamePickerScreenStoryboard : ChargenScreenStoryboard
                 return "Your names may not contain Unicode characters.";
             }
 
-            SelectedNameElements.Add(nce.Usage, names);
-            if (Enumerator.MoveNext())
-            {
-                return Display();
-            }
-
-			if (!AvailableCultures().Contains(NameCulture))
+			if (nce.ValidateValues(names, SelectedNameElements) is { } error) return error;
+			var proposed = new Dictionary<NameUsage, List<string>>(SelectedNameElements) { [nce.Usage] = names };
+			foreach (var rule in NameCulture.NameCultureElements.Where(x => proposed.ContainsKey(x.Usage)))
+				if (rule.ValidateValues(proposed[rule.Usage], proposed) is { } ruleError) return ruleError;
+			_pending = names;
+			if (names.Count > 0 && nce.ConfirmationPrompt is not null)
 			{
-				SelectedNameElements.Clear(); NameCulture = AvailableCultures().First();
-				Enumerator.Dispose(); Enumerator = NameCulture.NameCultureElements.GetEnumerator(); Enumerator.MoveNext();
-				return "That naming style is no longer available.\n" + Display();
+				_phase = "confirm"; SaveProgress(); return Display();
 			}
-			State = ChargenScreenState.Complete;
-            Chargen.SelectedName =
-				new PersonalName(NameCulture,
-                    SelectedNameElements, true);
-            return "Your full name is " +
-                   Chargen.SelectedName.GetName(NameStyle.FullWithNickname).Colour(Telnet.Green) +
-                   ".\n";
+			if (names.Count > 0 && nce.DisplayChoicePrompt is not null)
+			{
+				_phase = "display"; SaveProgress(); return Display();
+			}
+			return AcceptPending();
         }
     }
 }

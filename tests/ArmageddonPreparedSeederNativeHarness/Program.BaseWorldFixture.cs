@@ -444,7 +444,7 @@ internal static partial class GNHProgram
 			RequireBasePath(folder, BaseFixtureRoot, directory: true); Directory.Delete(folder, recursive: true);
 		}
 	}
-	private static void ExecuteBaseTargetStep(TestDatabase database, IDatabaseSeeder seeder, IReadOnlyDictionary<string, string> supplied)
+	private static void ExecuteBaseTargetStep(TestDatabase database, IDatabaseSeeder seeder, IReadOnlyDictionary<string, string> supplied, int? expectedActive = null)
 	{
 		using var db = NewPreparedReplayContext(database.ConnectionString);
 		Require(seeder.Enabled && seeder.AssessSeedData(db).Status != SeederAssessmentStatus.Blocked, "Targeted step is blocked: " + seeder.Name);
@@ -456,6 +456,7 @@ internal static partial class GNHProgram
 			Require(supplied.TryGetValue(question.Id, out var answer), "Missing active targeted answer: " + question.Id);
 			var valid = question.Validator(answer!, db); Require(valid.Success, "Invalid targeted answer: " + question.Id + ": " + valid.error); answers[question.Id] = answer!;
 		}
+		Require(expectedActive is null || answers.Count == expectedActive, "Targeted active question count differs from expected preset flow.");
 		var execution = typeof(ArmageddonSettingSeeder).Assembly.GetType("DatabaseSeeder.SeederExecutionService", true)!
 			.GetMethod("Execute", ReplayFlags)!.Invoke(null, [db, seeder, questions, answers, new Version(1, 0)])!;
 		Require((bool)execution.GetType().GetProperty("Success")!.GetValue(execution)!, "Targeted step failed: " + execution);

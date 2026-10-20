@@ -16,7 +16,7 @@ internal static partial class GNHProgram
 		string SchemaSha256, string ContentSha256, string SourceSha256, IReadOnlyList<BaseStep> Steps);
 
 	// A separate reduced scenario. The production Debug replay remains exhaustive and untruncated.
-	private static int CoreFoundationQualification(bool setting = false, bool sourcePinOnly = false)
+	private static int CoreFoundationQualification(bool setting = false, bool sourcePinOnly = false, bool followupsOnly = false)
 	{
         var skillPackageType = typeof(CoreDataSeeder).Assembly.GetType("DatabaseSeeder.Seeders.SkillPackageSeeder", true)!;
 		var types = new[] { typeof(CoreDataSeeder), typeof(TimeSeeder), typeof(AttributeSeeder), skillPackageType,
@@ -47,6 +47,7 @@ internal static partial class GNHProgram
 		CoreFoundationFixture receipt;
         var supplied = Environment.GetEnvironmentVariable("FUTUREMUD_BASE_WORLD_FIXTURE");
         var suppliedHash = Environment.GetEnvironmentVariable("FUTUREMUD_BASE_WORLD_FIXTURE_SHA256");
+		Require(!followupsOnly || setting && !string.IsNullOrWhiteSpace(supplied), "Follow-up qualification requires the explicit sealed three-step baseline.");
         if (string.IsNullOrWhiteSpace(supplied))
         {
             Require(string.IsNullOrWhiteSpace(suppliedHash), "A foundation fixture digest requires its explicit descriptor path.");
@@ -106,6 +107,19 @@ internal static partial class GNHProgram
 			restored.RestoreCatalogueFixture(sqlPath, receipt.Database);
 			ConfigureNativeDatabase(restored.ConnectionString);
 			Require(BaseSchemaHash(restored) == receipt.SchemaSha256 && BaseContentHash(restored) == receipt.ContentSha256, "Clean restore differs from sealed foundation schema/content.");
+			if (followupsOnly)
+			{
+				QualifySettingFollowups(restored, steps);
+				Require(BaseHash(descriptor) == descriptorHash && BaseHash(sqlPath) == receipt.SqlSha256 && sourceHash == BaseValueHash(BaseSources(steps)), "Follow-up qualification changed sealed baseline or source closure.");
+				WriteBaseRunReceipt(new { Status = "PASS", Scope = "Focused native installer follow-ups only; no server/gameplay certificate", Descriptor = descriptor,
+					DescriptorSha256 = descriptorHash, receipt.SqlSha256, SourceSha256 = sourceHash, BaselineCapturedThisRun = false,
+					OrdinaryProfilePrefixAndSecondAttemptRefusal = true, ArmPresetActiveQuestions = 1, NormalizedSavedAnswers = 7,
+					NamingCultures = 15, NativeGenderProfiles = 75, DistinctPersonalForms = 321, ElementDescriptions = 78,
+					ColdProcessReaders = 2, BuilderPlayerAgeAndSweatOverridesPreserved = true, IncompleteProfilesRemainUnavailable = true,
+					OriginalSealedFilesUnchanged = true });
+				Console.WriteLine("SETTING-followups=PASS installer-only native-MySQL cold-process-reruns no-server-or-gameplay-certificate");
+				return 0;
+			}
 			Dictionary<string, long?> ids;
 			long custom;
             if (setting)
@@ -307,7 +321,7 @@ internal static partial class GNHProgram
 		return descriptorHash == "E26C6B5992C664F52BFA38488CB2F19143B8B80A59C7A3CB949D7B7F014C61A8" &&
 			receipt.Kind == "FutureMUD-Setting-foundations-v1" && receipt.Steps.Count == 3 &&
 			receipt.SourceSha256 == "C62FBE7A23C71B967C05BCE8EFBCB9E890E6A28F415FB7D52B3C77F75DED4C1B" &&
-			currentSourceHash == "3675260E6320C4A5ECC330501D4E9F92165C8BA5FDF85AC2CB2C1090CF96FA34" &&
+			currentSourceHash == "FD1DA286B9993D9475C0BDBC1341B24CBB122F6099A2554FBBA907E5FEF5919B" &&
 			receipt.SqlSha256 == "64113F06E363B582ECE510A3C112984F51D28977DB7250A53D28A6DA790F7206" &&
 			receipt.SchemaSha256 == "36CF37216ABAC521E308DC44FA83DDDA246414F171A7D1B27A7C634BE93A17B3" &&
 			receipt.ContentSha256 == "8D8553E9D1353969FCFA7EE082F789FB98B9D777771905AAAB416DC8ACFF8C45";

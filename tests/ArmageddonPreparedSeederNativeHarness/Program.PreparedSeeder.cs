@@ -41,6 +41,8 @@ internal static partial class GNHProgram
 		return args.FirstOrDefault() switch
 		{
 			"--prepared-run" => PreparedSeederNative(),
+			"--setting-followups-run" => CoreFoundationQualification(setting: true, followupsOnly: true),
+			"--setting-followups-reader" => ReadSettingFollowups(args[1]),
             "--core-foundations-run" => CoreFoundationQualification(),
             "--setting-foundations-run" => CoreFoundationQualification(setting: true),
             "--setting-debug-runtime-run" => RestoreSettingDebugCheckpoint(),

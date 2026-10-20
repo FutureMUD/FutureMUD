@@ -1,5 +1,5 @@
 {
-  "recorded_utc": "2026-10-19T17:04:12.508715+00:00",
+  "recorded_utc": "2026-10-20T04:04:12.508715+11:00",
   "base": "97c02768d254c5e345a62349e05b94fe345efeec",
   "branch": "codex/armageddon-setting-20261019",
   "approved_bundle_sha256": "7f0c44decb894487f19bff038ebef4c977cebe6d6eff05efe8ad23260159a9e7",
@@ -325,7 +325,7 @@
         "1",
         "Admin",
         "1",
-        "2026-10-19T17:02:58.000000",
+        "2026-10-19T17:02:58",
         "NULL"
       ],
       "first_after_shutdown": [
@@ -333,24 +333,24 @@
         "1",
         "Admin",
         "1",
-        "2026-10-19T17:02:58.000000",
-        "2026-10-19T17:03:07.000000"
+        "2026-10-19T17:02:58",
+        "2026-10-19T17:03:07"
       ],
       "cold_after_flush": [
         "1",
         "1",
         "Admin",
         "1",
-        "2026-10-19T17:03:33.000000",
-        "2026-10-19T17:03:07.000000"
+        "2026-10-19T17:03:33",
+        "2026-10-19T17:03:07"
       ],
       "cold_after_shutdown": [
         "1",
         "1",
         "Admin",
         "1",
-        "2026-10-19T17:03:33.000000",
-        "2026-10-19T17:03:43.000000"
+        "2026-10-19T17:03:33",
+        "2026-10-19T17:03:43"
       ],
       "setting_player_values_roles_merits_claims_preserved": true,
       "elapsed_seconds": 72.359
@@ -367,8 +367,8 @@
         "run_id": "20261019T161442Z-bba28d03deda",
         "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
         "head": "b95c5b593850fe22cdc63fbfa9d82ad3512b86ee",
-        "started_utc": "2026-10-19T16:14:42.5868346+00:00",
-        "ended_utc": "2026-10-19T16:15:07.7424599+00:00",
+        "started_utc": "2026-10-20T03:14:42.5868346+11:00",
+        "ended_utc": "2026-10-20T03:15:07.7424599+11:00",
         "duration_seconds": 25.1556485,
         "source_start": "f615112527963eeff0185f766480bd01cdc3d80a26d2ab89d0a1115fcf22e935",
         "source_end": "f615112527963eeff0185f766480bd01cdc3d80a26d2ab89d0a1115fcf22e935",
@@ -413,8 +413,8 @@
                 "-p:NuGetAudit=false",
                 "-p:NoWarn=NU1902%3BNU1510"
               ],
-              "started_utc": "2026-10-19T16:14:43.0766580+00:00",
-              "ended_utc": "2026-10-19T16:14:59.1323359+00:00",
+              "started_utc": "2026-10-20T03:14:43.076658+11:00",
+              "ended_utc": "2026-10-20T03:14:59.1323359+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
@@ -440,8 +440,8 @@
                 "--filter",
                 "FullyQualifiedName~PhysicalImpactTests|FullyQualifiedName~CommandExecution"
               ],
-              "started_utc": "2026-10-19T16:14:59.1347960+00:00",
-              "ended_utc": "2026-10-19T16:15:07.4332938+00:00",
+              "started_utc": "2026-10-20T03:14:59.134796+11:00",
+              "ended_utc": "2026-10-20T03:15:07.4332938+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
@@ -504,8 +504,8 @@
         "run_id": "20261019T163814Z-8193539c42e5",
         "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
         "head": "b95c5b593850fe22cdc63fbfa9d82ad3512b86ee",
-        "started_utc": "2026-10-19T16:38:14.6515858+00:00",
-        "ended_utc": "2026-10-19T16:38:35.5515121+00:00",
+        "started_utc": "2026-10-20T03:38:14.6515858+11:00",
+        "ended_utc": "2026-10-20T03:38:35.5515121+11:00",
         "duration_seconds": 20.8999474,
         "source_start": "9fe8b9f94288fb879ec8e2545a60ea7c61b7a41229c1e56357391f736d2621d0",
         "source_end": "9fe8b9f94288fb879ec8e2545a60ea7c61b7a41229c1e56357391f736d2621d0",
@@ -550,8 +550,8 @@
                 "-p:NuGetAudit=false",
                 "-p:NoWarn=NU1902%3BNU1510"
               ],
-              "started_utc": "2026-10-19T16:38:15.1122054+00:00",
-              "ended_utc": "2026-10-19T16:38:21.1298251+00:00",
+              "started_utc": "2026-10-20T03:38:15.1122054+11:00",
+              "ended_utc": "2026-10-20T03:38:21.1298251+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stdout.log",
@@ -577,8 +577,8 @@
                 "--filter",
                 "FullyQualifiedName~ArmageddonCatalogueAnatomyTests"
               ],
-              "started_utc": "2026-10-19T16:38:21.1323822+00:00",
-              "ended_utc": "2026-10-19T16:38:35.2791227+00:00",
+              "started_utc": "2026-10-20T03:38:21.1323822+11:00",
+              "ended_utc": "2026-10-20T03:38:35.2791227+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stdout.log",
@@ -641,8 +641,8 @@
         "run_id": "20261019T154756Z-8a8ca25805f0",
         "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
         "head": "b95c5b593850fe22cdc63fbfa9d82ad3512b86ee",
-        "started_utc": "2026-10-19T15:47:56.3801462+00:00",
-        "ended_utc": "2026-10-19T15:48:22.1639945+00:00",
+        "started_utc": "2026-10-20T02:47:56.3801462+11:00",
+        "ended_utc": "2026-10-20T02:48:22.1639945+11:00",
         "duration_seconds": 25.7838689,
         "source_start": "571b6be6329c3766cb64db5dcfa45f26cb1fda69ad9225f2fd2d2f4395285867",
         "source_end": "571b6be6329c3766cb64db5dcfa45f26cb1fda69ad9225f2fd2d2f4395285867",
@@ -687,8 +687,8 @@
                 "-p:NuGetAudit=false",
                 "-p:NoWarn=NU1902%3BNU1510"
               ],
-              "started_utc": "2026-10-19T15:47:56.8247383+00:00",
-              "ended_utc": "2026-10-19T15:48:02.9874859+00:00",
+              "started_utc": "2026-10-20T02:47:56.8247383+11:00",
+              "ended_utc": "2026-10-20T02:48:02.9874859+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stdout.log",
@@ -714,8 +714,8 @@
                 "--filter",
                 "FullyQualifiedName~ArmageddonSettingPackageTests|FullyQualifiedName~ArmageddonMundaneBindingTests"
               ],
-              "started_utc": "2026-10-19T15:48:02.9898468+00:00",
-              "ended_utc": "2026-10-19T15:48:21.8975624+00:00",
+              "started_utc": "2026-10-20T02:48:02.9898468+11:00",
+              "ended_utc": "2026-10-20T02:48:21.8975624+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stdout.log",
@@ -778,8 +778,8 @@
         "run_id": "20261019T153714Z-788cecba0e2e",
         "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
         "head": "19ef0ef7e3d8019d1166ef162f5e308c89a2f981",
-        "started_utc": "2026-10-19T15:37:14.0403792+00:00",
-        "ended_utc": "2026-10-19T15:38:42.5526153+00:00",
+        "started_utc": "2026-10-20T02:37:14.0403792+11:00",
+        "ended_utc": "2026-10-20T02:38:42.5526153+11:00",
         "duration_seconds": 88.5122564,
         "source_start": "052d4b463118e41db73d1f118f5abb8d840e1a47dbffdfc3e05351e70e94c7bb",
         "source_end": "052d4b463118e41db73d1f118f5abb8d840e1a47dbffdfc3e05351e70e94c7bb",
@@ -824,8 +824,8 @@
                 "-p:NuGetAudit=false",
                 "-p:NoWarn=NU1902%3BNU1510"
               ],
-              "started_utc": "2026-10-19T15:37:14.4667872+00:00",
-              "ended_utc": "2026-10-19T15:38:22.3315297+00:00",
+              "started_utc": "2026-10-20T02:37:14.4667872+11:00",
+              "ended_utc": "2026-10-20T02:38:22.3315297+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stdout.log",
@@ -851,8 +851,8 @@
                 "--filter",
                 "FullyQualifiedName~ArmageddonMundaneBindingTests"
               ],
-              "started_utc": "2026-10-19T15:38:22.3343763+00:00",
-              "ended_utc": "2026-10-19T15:38:42.2947343+00:00",
+              "started_utc": "2026-10-20T02:38:22.3343763+11:00",
+              "ended_utc": "2026-10-20T02:38:42.2947343+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stdout.log",
@@ -915,8 +915,8 @@
         "run_id": "20261019T151535Z-701d25cc88ec",
         "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
         "head": "1af9468803d398f0637252dae6645acea3727893",
-        "started_utc": "2026-10-19T15:15:35.0165086+00:00",
-        "ended_utc": "2026-10-19T15:30:04.2968194+00:00",
+        "started_utc": "2026-10-20T02:15:35.0165086+11:00",
+        "ended_utc": "2026-10-20T02:30:04.2968194+11:00",
         "duration_seconds": 869.2803492,
         "source_start": "90eeabeeaa0fcce2c838d5dbcb5451c2d0e169c3862b86be272d787ef45300ce",
         "source_end": "90eeabeeaa0fcce2c838d5dbcb5451c2d0e169c3862b86be272d787ef45300ce",
@@ -961,8 +961,8 @@
                 "-p:NuGetAudit=false",
                 "-p:NoWarn=NU1902%3BNU1510"
               ],
-              "started_utc": "2026-10-19T15:15:35.4468040+00:00",
-              "ended_utc": "2026-10-19T15:16:24.7094828+00:00",
+              "started_utc": "2026-10-20T02:15:35.446804+11:00",
+              "ended_utc": "2026-10-20T02:16:24.7094828+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stdout.log",
@@ -986,8 +986,8 @@
                 "--results-directory",
                 "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1"
               ],
-              "started_utc": "2026-10-19T15:16:24.7122187+00:00",
-              "ended_utc": "2026-10-19T15:30:04.0009172+00:00",
+              "started_utc": "2026-10-20T02:16:24.7122187+11:00",
+              "ended_utc": "2026-10-20T02:30:04.0009172+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stdout.log",
@@ -1050,8 +1050,8 @@
         "run_id": "20261019T150500Z-f27a5f5162a5",
         "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
         "head": "e47de6d3dd2edc2aeb49d319fe6793aa30925d78",
-        "started_utc": "2026-10-19T15:05:00.0767672+00:00",
-        "ended_utc": "2026-10-19T15:05:25.9100185+00:00",
+        "started_utc": "2026-10-20T02:05:00.0767672+11:00",
+        "ended_utc": "2026-10-20T02:05:25.9100185+11:00",
         "duration_seconds": 25.8332851,
         "source_start": "01d42a935fe0b20122ae41b6be1ba182476a0373b462bdd0199241d06c98c99a",
         "source_end": "01d42a935fe0b20122ae41b6be1ba182476a0373b462bdd0199241d06c98c99a",
@@ -1096,8 +1096,8 @@
                 "-p:NuGetAudit=false",
                 "-p:NoWarn=NU1902%3BNU1510"
               ],
-              "started_utc": "2026-10-19T15:05:00.5464363+00:00",
-              "ended_utc": "2026-10-19T15:05:15.9176374+00:00",
+              "started_utc": "2026-10-20T02:05:00.5464363+11:00",
+              "ended_utc": "2026-10-20T02:05:15.9176374+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
@@ -1123,8 +1123,8 @@
                 "--filter",
                 "FullyQualifiedName~PhysicalImpactTests|FullyQualifiedName~QueuedCommandAuthorityTests"
               ],
-              "started_utc": "2026-10-19T15:05:15.9201298+00:00",
-              "ended_utc": "2026-10-19T15:05:25.6101541+00:00",
+              "started_utc": "2026-10-20T02:05:15.9201298+11:00",
+              "ended_utc": "2026-10-20T02:05:25.6101541+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
@@ -1187,8 +1187,8 @@
         "run_id": "20261019T143549Z-bd2c9a013281",
         "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
         "head": "f3a18b4e78df2488b08fb730f77314d35763d87f",
-        "started_utc": "2026-10-19T14:35:49.5907651+00:00",
-        "ended_utc": "2026-10-19T14:36:16.5672240+00:00",
+        "started_utc": "2026-10-20T01:35:49.5907651+11:00",
+        "ended_utc": "2026-10-20T01:36:16.567224+11:00",
         "duration_seconds": 26.9764801,
         "source_start": "8e4c3e77db66f5aa6fabc1cfba01f6d0dcba6e43f5d101c1cf1801fb5d3f8095",
         "source_end": "8e4c3e77db66f5aa6fabc1cfba01f6d0dcba6e43f5d101c1cf1801fb5d3f8095",
@@ -1233,8 +1233,8 @@
                 "-p:NuGetAudit=false",
                 "-p:NoWarn=NU1902%3BNU1510"
               ],
-              "started_utc": "2026-10-19T14:35:50.0603510+00:00",
-              "ended_utc": "2026-10-19T14:36:06.8646041+00:00",
+              "started_utc": "2026-10-20T01:35:50.060351+11:00",
+              "ended_utc": "2026-10-20T01:36:06.8646041+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
@@ -1260,8 +1260,8 @@
                 "--filter",
                 "FullyQualifiedName~Backstab|FullyQualifiedName~DualWieldDoubleAttack"
               ],
-              "started_utc": "2026-10-19T14:36:06.8669636+00:00",
-              "ended_utc": "2026-10-19T14:36:16.2604015+00:00",
+              "started_utc": "2026-10-20T01:36:06.8669636+11:00",
+              "ended_utc": "2026-10-20T01:36:16.2604015+11:00",
               "exit_code": 0,
               "termination_reason": null,
               "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
@@ -1626,5 +1626,64 @@
       "sha256": "77ac56688c62132d53f8cb56ab0dfded7d6d315cd60d4f0f07bce7e50803ab70",
       "limits": "Combined native gameplay qualification pending."
     }
+  },
+  "followups_20261020": {
+    "naming_runtime_tests": {
+      "run": "20261020T125019Z-770d2263b4b6",
+      "passed": 5,
+      "skipped": 0,
+      "failed": 0
+    },
+    "combined_sweat_preset_tests": {
+      "run": "20261020T123128Z-cb1b4592166c",
+      "passed": 45,
+      "skipped": 0,
+      "failed": 0
+    },
+    "final_batch_status": "Pending final full seeder suite and current-source Release build",
+    "full_preset_suite": {
+      "run": "20261020T120610Z-758ae8332326",
+      "passed": 2048,
+      "skipped": 3,
+      "failed": 0
+    },
+    "common_sweat_commit": "026076c12",
+    "native": {
+      "summary_path": ".artifacts/setting-followups-native/20261020T130517Z_2cf49ac3b9514d6fa35879ba2fe5ce60/summary.json",
+      "scope": "Focused native MySQL installer/replay/refusal and two cold preserving readers; no server/gameplay certificate",
+      "native_exit": 0,
+      "installer_receipt_path": ".artifacts/setting-followups-native/20261020T130517Z_2cf49ac3b9514d6fa35879ba2fe5ce60/base-world-run.json",
+      "summary_sha256": "A8BBD042DF6FB6F78D03C732A0832CAC30ED0CB3DE3BFE2B600C756DFC3840D0",
+      "run": "20261020T130517Z_2cf49ac3b9514d6fa35879ba2fe5ce60",
+      "status": "PASS",
+      "source_sha256": "6A3D759F7045503C8A7884518B675DFBF99258F3280406A3CDEC937E6D0101DE",
+      "foundation_closure_sha256": "FD1DA286B9993D9475C0BDBC1341B24CBB122F6099A2554FBBA907E5FEF5919B",
+      "source_stable": true,
+      "installer_receipt_sha256": "3FA13484D661A2350E8D510A996EE783D62B814DE7EB51864AA36EF50C1F7C27",
+      "incomplete_races_unavailable": 8,
+      "owned_mysql_cleanup": "graceful shutdown and exact owned TEMP directory deletion confirmed"
+    },
+    "naming_heritage_tests": {
+      "run": "20261020T124932Z-d6f09d624712",
+      "passed": 12,
+      "skipped": 0,
+      "failed": 0
+    },
+    "retained_failed_native": "20261020T125615Z_ca83e7da2eb341049a8334eb288566ba: wrong fixture expectation for Arm infrastructure refresh; repaired ordinary refresh and Arm preservation checks",
+    "publication": "none",
+    "age_status": "Pending semantic decision documented in Armageddon_Age_Lifecycle_Mapping_20261020.md; inactive age preservation qualified, no invented lifecycle translation",
+    "naming_commit": "13b653c89",
+    "retained_interruption": ".artifacts/setting-followups-native/20261020T130134Z_6c8dbf0af519434195a963cf9e39b9eb/interruption-recovery.json",
+    "combined_runtime": {
+      "run": "20261020T124357Z-2ed7cb3f1e7e",
+      "passed": 157,
+      "failure_scope": "New naming UI null mock advice collections; corrected five-test run recorded separately",
+      "failed": 2,
+      "breathing_liver_lifecycle_failures": 0
+    },
+    "preset_commit": "c49a584a2",
+    "armageddon_sweat_commit": "c691c7b4e",
+    "breathing_commit": "5f3712bcf",
+    "existing_world_mutation": false
   }
 }

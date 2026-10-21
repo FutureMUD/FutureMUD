@@ -180,6 +180,7 @@ public static partial class ArmageddonHeritage
 	public static void Install(FuturemudDatabaseContext db, ICollection<string> messages)
 	{
 		var skills = ArmageddonSkillPackage.Resolve(db);
+		var attributes = RawAttributes(db);
 		var human = db.Races.Single(x => x.Name == "Human");
 		var organic = db.Races.Single(x => x.Id == human.ParentRaceId && x.Name == "Organic Humanoid");
 		var adminCulture = db.Cultures.Single(x => x.Name == "Admin");
@@ -216,7 +217,9 @@ public static partial class ArmageddonHeritage
 		parent.Name = "Armageddon Elf"; parent.ParentRaceId = organic.Id; parent.AvailabilityProgId = no;
 		parent.Description = "Common biological Elf parent; unavailable. Physical values are inactive Human scaffolding pending review.";
 		parent.SweatRateInLitresPerMinute = SweatRateForProfile("city_elf");
+		AttributeDefaults(parent, attributes.Length);
 		parent = Apply(db, "arm.race.elf", parent, messages);
+		AttributeLinks(db, "arm.race.elf", "city_elf", parent, human, attributes, messages);
 		var races = new Dictionary<string, Race>();
 		foreach (var profile in Profiles)
 		{
@@ -226,7 +229,9 @@ public static partial class ArmageddonHeritage
 			race.AvailabilityProgId = no;
 			race.Description = $"{profile.Name} mechanical profile. Unavailable pending physical acceptance; current numerical physiology, ages and size are inactive shared-Human scaffolding. No racial immunity or power is implied.";
 			race.SweatRateInLitresPerMinute = SweatRateForProfile(profile.Key);
+			AttributeDefaults(race, attributes.Length);
 			races[profile.Key] = Apply(db, key, race, messages);
+			AttributeLinks(db, key, profile.Key, races[profile.Key], human, attributes, messages);
 		}
 		var naming = Apply(db, "arm.naming.personal", new NameCulture { Name = "Armageddon Personal Name", Definition = new XElement("NameCulture",
 			new XElement("Counts", new XElement("Count", new XAttribute("Usage", 0), new XAttribute("Min", 1), new XAttribute("Max", 1))),

@@ -23,6 +23,7 @@ internal static class ArmageddonSettingLinks
 		return record.EntityType switch
 		{
 			"Culture.SettingLinks" => db.Cultures.Any(x => x.Id == id),
+			"Race.SettingLinks" => db.Races.Any(x => x.Id == id),
 			"Ethnicity.SettingLinks" => db.Ethnicities.Any(x => x.Id == id),
 			"FutureProg.SettingLinks" => db.FutureProgs.Any(x => x.Id == id),
 			"ChargenScreenStoryboard.SettingLinks" => db.ChargenScreenStoryboards.Any(x => x.Id == id),

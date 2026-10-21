@@ -1710,13 +1710,40 @@
   "oct21_owner_decisions": {
     "adult_lifecycle_mapping": "APPROVED by Luke: recovered Adult to native YoungAdult; Mature and Middle-aged to Adult; Old to Elder; Ancient to Venerable; retain separate exact descriptive bands",
     "implementation": "PENDING; no lifecycle fields or chargen policies changed; native category-boundary repair remains outstanding",
+    "height_weight": "LOCKED; no tests of established physical ranges requested or run",
+    "attributes": "LOCKED; approved STR/END/AGI/WIS matrix with best-effort existing-selection adaptation; arm is preferred, not required",
+    "appearance": "APPROVED conservative source-supported approach from prior chat item5; implementation pending",
+    "ordinary_creation_minima": "APPROVED prior chat item5: Human20; both Elves24; Dwarf44; Half-Elf22; Half-Giant36; Mul15; younger exceptions require explicit policy",
+    "posture_policy": "Selected owner's permitted two-category option after stock inspection: standing one category above equal sitting/prone; no shared-stock change; implementation pending",
     "remaining_inputs": [
       "Baby/Child/Youth subdivisions",
-      "Independent numeric chargen age policy",
-      "Physical balance and appearance choices"
+      "Independent numeric upper chargen age bounds",
+      "Physiology candidate in physical note/chat"
     ],
     "race_activation": "HELD",
     "publication": "HELD"
+  },
+  "oct21_attribute_adaptation": {
+    "implemented": "Approved race bonuses using existing raw body attributes; stable semantic-ID bindings, count-times12 budget, cap20 and dice3d6+1, typed three-way link ownership with first-adoption builder preservation",
+    "scope": "Seeder/EF-fixture qualification only; all races remain unavailable, no MySQL/native server/gameplay or new complete-suite certificate",
+    "focused_final": {
+      "status": "PASS",
+      "run": "20261021T000929Z-56b7f874676f",
+      "summary_path": ".artifacts/test-runs/20261021T000929Z-56b7f874676f/summary.json",
+      "summary_sha256": "9AB0359B803ECD34E1C511717EEEAECB551F815139F074A13E9E82A3AFA7AE42",
+      "source_sha256": "615462c51046b5b442ed70bfbf5cb2e6d311e8e24065dd029b939b9aa91953fb",
+      "source_stable": true,
+      "counts_complete": true,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0
+    },
+    "earlier_incremental_passes": [
+      "20261021T000447Z-c561b18989ae:8/0/0 before reviewed first-adoption repair",
+      "20261021T000743Z-bf191195d529:9/0/0 including repair; final run adds explicit four-attribute Arm install"
+    ],
+    "no_physical_range_tests": true,
+    "database_or_publication_changes": false
   },
   "oct20_executable_naming": {
     "implemented": {

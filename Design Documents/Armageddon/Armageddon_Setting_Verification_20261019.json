@@ -1714,14 +1714,32 @@
     "attributes": "LOCKED; approved STR/END/AGI/WIS matrix with best-effort existing-selection adaptation; arm is preferred, not required",
     "appearance": "APPROVED conservative source-supported approach from prior chat item5; implementation pending",
     "ordinary_creation_minima": "APPROVED prior chat item5: Human20; both Elves24; Dwarf44; Half-Elf22; Half-Giant36; Mul15; younger exceptions require explicit policy",
-    "posture_policy": "Selected owner's permitted two-category option after stock inspection: standing one category above equal sitting/prone; no shared-stock change; implementation pending",
+    "posture_policy": "APPROVED two-category option: standing one category above equal sitting/prone; no shared-stock change; implementation pending",
+    "non_needs_physiology": "APPROVED subsequent21October: shared anatomy/health and multipliers1, capacity stamina additions60/20/20 with ordinary recovery, baseline breathing and approved sweat, ordinary carry/tracking and0-40C temperature; no added armour/resistance/immunity",
     "remaining_inputs": [
       "Baby/Child/Youth subdivisions",
       "Independent numeric upper chargen age bounds",
-      "Physiology candidate in physical note/chat"
+      "Revised hunger/thirst and racial-merit design; faster Giant consumption desired and merit exploration requested"
     ],
     "race_activation": "HELD",
     "publication": "HELD"
+  },
+  "oct21_racial_merit_exploration": {
+    "status": "READ_ONLY source assessment complete; proposals recorded; no runtime implementation or tests",
+    "giant_candidate": "Reuse executable Needs Rate Change: hunger3/thirst3/alcohol1, underlying Race rates1; pair with3x capacity. Equal baseline satiation-clock duration does not establish equal physiological dehydration duration.",
+    "desert_elf_candidate": "Generic contextual environmental-needs merit with opt-in separate environmental thirst-loss component; preserve base/time terms, positive drinks and explicit sweat. Existing constant applicability merits support approximations only.",
+    "grant_candidate": "New generic intrinsic race-to-body merit links, inherited and deduplicated by ID, separate from explicit PerceiverMerits and copied form templates; no hidden roles or chargen purchases",
+    "other_candidates": "New generic Stamina Capacity merit for approved60/20/20 additions; leave raw stats/morphology/ordinary physiology and v1 storage in native Race fields",
+    "source_findings": [
+      "No native race/ethnicity merit relation or automatic racial grant exists",
+      "Maximum stamina lacks a merit hook",
+      "Registered generic movement-stamina merit has no runtime interface consumer",
+      "Temperature merit interface/consumer exists but no concrete type was found",
+      "Character.Merits includes Body.Merits; temperature/bodypart consumers concatenate body again",
+      "WaterLossLitresPerHour has no production assignment found in tracked C#; audit before physical-water qualification"
+    ],
+    "implementation_or_gameplay_claim": false,
+    "database_or_publication_changes": false
   },
   "oct21_attribute_adaptation": {
     "implemented": "Approved race bonuses using existing raw body attributes; stable semantic-ID bindings, count-times12 budget, cap20 and dice3d6+1, typed three-way link ownership with first-adoption builder preservation",

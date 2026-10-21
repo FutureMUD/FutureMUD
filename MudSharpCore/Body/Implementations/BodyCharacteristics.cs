@@ -280,11 +280,12 @@ public partial class Body
     }
 
     private readonly List<IMerit> _merits = new();
-    public IEnumerable<IMerit> Merits => _merits;
+    public IEnumerable<IMerit> ExplicitMerits => _merits;
+    public IEnumerable<IMerit> Merits => _merits.Concat(Race?.IntrinsicMerits ?? Enumerable.Empty<IMerit>()).DistinctBy(x => x.Id);
 
     public bool AddMerit(IMerit merit)
     {
-        if (_merits.Contains(merit))
+        if (Merits.Any(x => x.Id == merit.Id))
         {
             return false;
         }

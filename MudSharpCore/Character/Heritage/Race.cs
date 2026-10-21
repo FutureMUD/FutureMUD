@@ -366,6 +366,7 @@ public partial class Race : SaveableItem, IRace
     public Race(MudSharp.Models.Race race, IFuturemud gameworld)
     {
         Gameworld = gameworld;
+		_intrinsicMeritIds.AddRange(race.RacesMerits.Select(x => x.MeritId));
         _id = race.Id;
         _name = race.Name;
         Description = race.Description;
@@ -630,6 +631,7 @@ public partial class Race : SaveableItem, IRace
     public Race(Race rhs, string newName)
     {
         Gameworld = rhs.Gameworld;
+		_intrinsicMeritIds.AddRange(rhs._intrinsicMeritIds);
 		_defaultSkillPackages.AddRange(rhs._defaultSkillPackages);
         _name = newName;
         BaseBody = rhs.BaseBody;
@@ -841,6 +843,7 @@ public partial class Race : SaveableItem, IRace
 			{
 				dbitem.NpcSkillPackages.Add(FMDB.Context.NpcSkillPackages.Find(package.Id)!);
 			}
+			AddIntrinsicMeritLinks(dbitem);
             foreach (IBodypart part in _bodypartAdditions)
             {
                 dbitem.RacesAdditionalBodyparts.Add(new RacesAdditionalBodyparts
@@ -1198,6 +1201,7 @@ public partial class Race : SaveableItem, IRace
     public override void Save()
     {
         Models.Race dbitem = FMDB.Context.Races.Find(Id);
+		SaveIntrinsicMeritLinks(dbitem);
 		FMDB.Context.Entry(dbitem).Collection(x => x.NpcSkillPackages).Load();
 		dbitem.NpcSkillPackages.Clear();
 		foreach (var package in _defaultSkillPackages)

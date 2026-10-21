@@ -65,6 +65,14 @@ public partial class Body
 
     public double TotalBloodVolumeLitres { get; set; }
 
+	internal void ClampLoadedBloodVolumeToCapacity()
+	{
+		var clamped = Math.Clamp(_currentBloodVolumeLitres, 0.0, Math.Max(0.0, TotalBloodVolumeLitres));
+		if (clamped == _currentBloodVolumeLitres) return;
+		_currentBloodVolumeLitres = clamped;
+		Changed = true;
+	}
+
     public double LiverAlcoholRemovalKilogramsPerHour => OrganFunction<LiverProto>() *
                                                          BaseLiverAlcoholRemovalKilogramsPerHour *
                                                          Actor.Merits.OfType<ILiverClearanceMerit>()
@@ -2106,8 +2114,10 @@ public partial class Body
                 Outerwear.SelectNotNull(x => x.GetItemType<IInsulating>()).Sum(x => x.ReflectingDegrees);
         }
 
-        List<ITemperatureRangeChangingMerit> merits = Actor.Merits.OfType<ITemperatureRangeChangingMerit>().Where(x => x.Applies(Actor))
-                          .Concat(Merits.OfType<ITemperatureRangeChangingMerit>().Where(x => x.Applies(Actor)))
+        List<ITemperatureRangeChangingMerit> merits = Actor.Merits.OfType<ITemperatureRangeChangingMerit>()
+                          .Concat(Merits.OfType<ITemperatureRangeChangingMerit>())
+                          .DistinctBy(x => x.Id)
+                          .Where(x => x.Applies(Actor))
                           .ToList();
 
         return (

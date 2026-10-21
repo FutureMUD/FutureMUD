@@ -751,25 +751,71 @@ public partial class Character
             .OrderByDescending(x => x.Multiplier).ThenBy(x => x.Id).FirstOrDefault() ?? selected;
     }
 
+	private sealed record PostureOnlyMovementSpeed(IPositionState Position) : IMoveSpeed
+	{
+		public string Name => "";
+		public long Id => 0;
+		public string FrameworkItemType => "MoveSpeed";
+		public double Multiplier => 1.0;
+		public string FirstPersonVerb => "";
+		public string ThirdPersonVerb => "";
+		public string PresentParticiple => "";
+		public double StaminaMultiplier => 1.0;
+	}
+
+	/// <summary>One effective merit contribution per identity, using the posture actually being charged.</summary>
+	internal static double MovementStaminaMeritMultiplier(ICharacter actor, IPositionState posture, IMoveSpeed? speed = null)
+	{
+		var effectiveSpeed = speed is not null && speed.Position == posture
+			? speed : new PostureOnlyMovementSpeed(posture);
+		var multiplier = 1.0;
+		foreach (var merit in actor.Merits
+			.Where(x => x is IMovementStaminaMerit ||
+				posture == PositionSwimming.Instance && x is SwimmingStaminaMerit ||
+				posture == PositionFlying.Instance && x is FlyingStaminaMerit)
+			.DistinctBy(x => x.Id)
+			.Where(x => x.Applies(actor)))
+		{
+			var adjustment = merit switch
+			{
+				IMovementStaminaMerit movement => movement.StaminaMultiplier(effectiveSpeed),
+				SwimmingStaminaMerit swimming => swimming.Multiplier,
+				FlyingStaminaMerit flying => flying.Multiplier,
+				_ => 1.0
+			};
+			// Old builder definitions can predate validation; never turn movement into a stamina grant.
+			if (!double.IsFinite(adjustment) || adjustment < 0.0) continue;
+			var combined = multiplier * adjustment;
+			if (double.IsFinite(combined)) multiplier = combined;
+		}
+		return multiplier;
+	}
+
+	private double MovementStaminaMultiplierFor(IPositionState posture, IMoveSpeed? speed = null)
+	{
+		return MovementStaminaMeritMultiplier(this, posture, speed ?? CurrentSpeeds?.GetValueOrDefault(posture));
+	}
+
     protected double StaminaForMovement(IPositionState movingPosition, IMoveSpeed speed, double staminaMultiplier,
         bool ignoreTerrainStamina)
     {
         speed = ImmersionMovementSpeed(this, speed, movingPosition);
+		var meritMultiplier = MovementStaminaMultiplierFor(movingPosition, speed);
         if (movingPosition == PositionFloatingInZeroGravity.Instance)
         {
             return
                 (1 + EncumbrancePercentage * Gameworld.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage")) *
                 staminaMultiplier *
-                (speed?.StaminaMultiplier ?? 1.0);
+                (speed?.StaminaMultiplier ?? 1.0) * meritMultiplier;
         }
 
         if (movingPosition == PositionFlying.Instance)
         {
             return
-                FlyStaminaMultiplier() *
+                (FlyStaminaMultiplier() *
                 staminaMultiplier *
                 speed?.StaminaMultiplier ?? 1.0 *
-                (1 + EncumbrancePercentage * Gameworld.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage"));
+                (1 + EncumbrancePercentage * Gameworld.GetStaticDouble("StaminaMultiplierPerEncumbrancePercentage"))) * meritMultiplier;
         }
 
         return
@@ -778,7 +824,7 @@ public partial class Character
             staminaMultiplier *
             (TerrainImmersionHelper.IsWading(this, movingPosition)
                 ? TerrainImmersionHelper.WadingStaminaMultiplier : 1.0) *
-            (speed?.StaminaMultiplier ?? 1.0);
+            (speed?.StaminaMultiplier ?? 1.0) * meritMultiplier;
     }
 
 
@@ -2258,7 +2304,7 @@ public partial class Character
     {
         return
             FlyStaminaMultiplier() *
-            Merits.OfType<FlyingStaminaMerit>().Aggregate(1.0, (prev, merit) => prev * merit.Multiplier) *
+            MovementStaminaMultiplierFor(PositionFlying.Instance) *
             Gameworld.GetStaticDouble("FlyStaminaCost") *
             (
                 EffectsOfType<Dragging>().Any()
@@ -2270,7 +2316,7 @@ public partial class Character
     public double FlyStaminaCostPerTick()
     {
         return FlyStaminaMultiplier() *
-               Merits.OfType<FlyingStaminaMerit>().Aggregate(1.0, (prev, merit) => prev * merit.Multiplier) *
+               MovementStaminaMultiplierFor(PositionFlying.Instance) *
                Gameworld.GetStaticDouble("FlyStaminaCostPerTick") *
                (
                    EffectsOfType<Dragging>().Any()
@@ -2534,7 +2580,7 @@ public partial class Character
 
     public (bool Truth, TimeSpan Delay) DoSurfaceCheck()
     {
-        double staminaCost = Gameworld.GetStaticDouble("SwimSurfaceStamina");
+        double staminaCost = Gameworld.GetStaticDouble("SwimSurfaceStamina") * MovementStaminaMultiplierFor(PositionSwimming.Instance);
         ICheck check = Gameworld.GetCheck(CheckType.SwimmingCheck);
         ITerrain terrain = Location.Terrain(this);
         double inventoryBuoyancy = Body.AllItems.Sum(x => x.Buoyancy(terrain.WaterFluid.Density));
@@ -2602,7 +2648,7 @@ public partial class Character
         var difficulty = Difficulty.ExtremelyEasy.StageDown((int)(inventoryBuoyancy /
             Gameworld.GetStaticDouble("FloatBuoyancyPerDifficulty")));
         var outcome = Gameworld.GetCheck(CheckType.SwimStayAfloatCheck).Check(this, difficulty);
-        var staminaCost = Gameworld.GetStaticDouble("SwimStayAfloatStamina") * (outcome.Outcome switch
+        var staminaCost = Gameworld.GetStaticDouble("SwimStayAfloatStamina") * MovementStaminaMultiplierFor(PositionSwimming.Instance) * (outcome.Outcome switch
         {
             Outcome.MajorFail => 4.0,
             Outcome.Fail => 2.5,
@@ -2681,7 +2727,7 @@ public partial class Character
             return;
         }
 
-        double staminaCost = Gameworld.GetStaticDouble("SwimStayAfloatStamina");
+        double staminaCost = Gameworld.GetStaticDouble("SwimStayAfloatStamina") * MovementStaminaMultiplierFor(PositionSwimming.Instance);
         ICheck check = Gameworld.GetCheck(CheckType.SwimStayAfloatCheck);
         double inventoryBuoyancy = Body.AllItems.Sum(x => x.Buoyancy(terrain.WaterFluid.Density));
         Difficulty difficulty =
@@ -2760,7 +2806,7 @@ public partial class Character
     public double SwimStaminaCost()
     {
         return Gameworld.GetStaticDouble("SwimStaminaCost") *
-               Merits.OfType<SwimmingStaminaMerit>().Aggregate(1.0, (prev, merit) => prev * merit.Multiplier) *
+               MovementStaminaMultiplierFor(PositionSwimming.Instance) *
                (EffectsOfType<Dragging>().Any()
                    ? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
                    : 1.0);
@@ -3004,7 +3050,7 @@ public partial class Character
             return true;
         }
 
-        double staminaCost = Gameworld.GetStaticDouble("ClimbingTickStaminaUsage") * (EffectsOfType<Dragging>().Any()
+        double staminaCost = Gameworld.GetStaticDouble("ClimbingTickStaminaUsage") * MovementStaminaMultiplierFor(PositionClimbing.Instance) * (EffectsOfType<Dragging>().Any()
             ? 1.0 + ((IHaveWeight)EffectsOfType<Dragging>().First().Target).Weight / Weight
             : 1.0);
         if (!CanSpendStamina(staminaCost))

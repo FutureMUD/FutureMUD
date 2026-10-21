@@ -190,6 +190,13 @@ public class RoomReferenceCorrectionTests
 	}
 
 	[TestMethod]
+	public void DeferredRoleClaims_PreserveTraitIdentitiesWithoutRoomRewriting()
+	{
+		const string xml = "<Effects><Effect><Type>RoleSkillBonusClaims</Type><Effect><Claim trait='9000' floor='42'/></Effect></Effect></Effects>";
+		Assert.AreSame(xml, RoomReferenceXml.Rewrite(xml, false, Map(), "Characters #1.EffectData"));
+	}
+
+	[TestMethod]
 	public void ReadAttunementChildren_DeclareNoRoomLinksAndPreserveCasterIdentityBytes()
 	{
 		const string child = "<Effect><Type>SpellReadAttunement</Type><Effect><CasterId>9000</CasterId><CasterInstanceId>9001</CasterInstanceId></Effect></Effect>";

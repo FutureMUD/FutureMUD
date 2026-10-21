@@ -4615,6 +4615,7 @@ For information on the syntax to use in emotes (such as those included in bracke
                                       .Include(x => x.RacesAdditionalCharacteristics)
                                       .Include(x => x.RacesWeaponAttacks)
                                       .Include(x => x.RacesAttributes)
+									  .Include(x => x.RacesMerits)
                                       .Include(x => x.RacesBreathableGases)
                                       .Include(x => x.RacesBreathableLiquids)
                                       .Include(x => x.RacesEdibleMaterials)

@@ -131,7 +131,7 @@ public partial class Character
 			SelectedKnowledges = Knowledges.ToList(),
 			SelectedCharacteristics = body.CharacteristicDefinitions
 			                             .Select(x => (x, body.GetCharacteristic(x, this))).ToList(),
-			SelectedMerits = Merits.OfType<ICharacterMerit>().ToList(),
+			SelectedMerits = _merits.Concat(body.ExplicitMerits).OfType<ICharacterMerit>().DistinctBy(x => x.Id).ToList(),
 			SelectedRoles = Roles.ToList(),
 			SelectedWeight = body.Weight,
 			SelectedHeight = body.Height,

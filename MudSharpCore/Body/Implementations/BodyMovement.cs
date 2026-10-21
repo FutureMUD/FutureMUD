@@ -43,10 +43,31 @@ public partial class Body
     }
 
     private double _maximumStamina;
+    private bool _resolvingStaminaCapacity;
+    private bool _staminaCapacityInitialised;
     public double MaximumStamina
     {
-        get => _maximumStamina + MudSharp.Magic.EquippedItemBonuses.BonusFor(Actor, MudSharp.Magic.EquippedItemBonusKind.Stamina);
-        set => _maximumStamina = value;
+        get
+        {
+			if (_resolvingStaminaCapacity || Actor is null) return _maximumStamina;
+			_resolvingStaminaCapacity = true;
+			try
+			{
+				double EvaluateCapacity() => MudSharp.RPG.Merits.PhysiologyMeritEffects.StaminaCapacity(_maximumStamina, Actor, this) +
+					MudSharp.Magic.EquippedItemBonuses.BonusFor(Actor, MudSharp.Magic.EquippedItemBonusKind.Stamina);
+				var capacity = Actor is MudSharp.Character.Character runtime
+					? runtime.EvaluateMeritsForBody(this, EvaluateCapacity) : EvaluateCapacity();
+				capacity = double.IsFinite(capacity) ? Math.Max(0, capacity) : Math.Max(0, _maximumStamina);
+				if (_staminaCapacityInitialised && _currentStamina > capacity)
+				{
+					_currentStamina = capacity;
+					StaminaChanged = true;
+				}
+				return capacity;
+			}
+			finally { _resolvingStaminaCapacity = false; }
+        }
+        set { _maximumStamina = value; _staminaCapacityInitialised = true; }
     }
 
     private double _staminaSpentInCurrentPeriod;
@@ -55,7 +76,7 @@ public partial class Body
 
     public double CurrentStamina
     {
-        get => _currentStamina;
+        get { if (_staminaCapacityInitialised) _ = MaximumStamina; return _currentStamina; }
         set
         {
             double old = _currentStamina;
@@ -241,7 +262,7 @@ public partial class Body
 
     public void InitialiseStamina()
     {
-        MaximumStamina = Character.Character.MaximumStaminaFor(Actor);
+        MaximumStamina = Character.Character.BaseMaximumStaminaFor(Actor);
         _currentStamina = Math.Min(CurrentStamina, MaximumStamina);
         _currentExertion = ExertionLevel.Rest;
         _longtermExertion = ExertionLevel.Rest;

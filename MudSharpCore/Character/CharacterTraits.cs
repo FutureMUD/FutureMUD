@@ -123,7 +123,8 @@ public partial class Character
     }
 
     private readonly List<IMerit> _merits = new();
-    public IEnumerable<IMerit> Merits => _merits.Concat(Body?.Merits ?? Enumerable.Empty<IMerit>());
+    public IEnumerable<IMerit> ExplicitMerits => _merits;
+    public IEnumerable<IMerit> Merits => _merits.Concat(Body?.Merits ?? Enumerable.Empty<IMerit>()).DistinctBy(x => x.Id);
 
     public bool AddMerit(IMerit merit)
     {

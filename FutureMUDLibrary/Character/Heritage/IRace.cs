@@ -34,6 +34,9 @@ namespace MudSharp.Character.Heritage
     {
         string Description { get; }
 
+        IEnumerable<MudSharp.RPG.Merits.ICharacterMerit> DirectIntrinsicMerits => Array.Empty<MudSharp.RPG.Merits.ICharacterMerit>();
+        IEnumerable<MudSharp.RPG.Merits.ICharacterMerit> IntrinsicMerits => DirectIntrinsicMerits;
+
         /// <summary>
         ///     Additional Bodyparts to be connected to the IBody when this IRace is used
         /// </summary>

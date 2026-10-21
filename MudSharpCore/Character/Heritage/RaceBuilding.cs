@@ -30,6 +30,7 @@ public partial class Race
 	#3parent <race>#0 - sets a parent race for this race
 	#3parent none#0 - clears a parent race from this race
 	#3skillpackage <package>#0 - toggles a default NPC skill package for this race
+	#3merit <merit>#0 - toggles an intrinsic body merit granted by this race
 	#3body <template>#0 - changes the body template of the race
 	#3parthealth <%>#0 - sets a multiplier for bodypart HPs
 	#3partsize <##>#0 - sets a number of steps bigger/smaller for bodyparts
@@ -129,6 +130,8 @@ public partial class Race
                 return BuildingCommandName(actor, command);
             case "parent":
                 return BuildingCommandParent(actor, command);
+			case "merit":
+				return BuildingCommandIntrinsicMerit(actor, command);
 			case "skillpackage":
 			case "skillpack":
 			case "npcskillpackage":
@@ -2794,6 +2797,8 @@ public partial class Race
         );
 		sb.AppendLine($"Direct NPC Skill Packages: {_defaultSkillPackages.Select(x => x.Name.ColourName()).ListToString()}");
 		sb.AppendLine($"All NPC Skill Packages: {DefaultSkillPackages.Select(x => x.Name.ColourName()).ListToString()}");
+		sb.AppendLine($"Direct Intrinsic Merits: {DirectIntrinsicMerits.Select(x => x.Name.ColourName()).ListToString()}");
+		sb.AppendLine($"All Intrinsic Merits: {IntrinsicMerits.Select(x => x.Name.ColourName()).ListToString()}");
 
         sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
             $"Bodypart Size Mod: {BodypartSizeModifier.ToString("N0", actor).ColourValue()}",

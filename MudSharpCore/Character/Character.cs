@@ -104,6 +104,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         {
             Body.CurrentBloodVolumeLitres = Body.TotalBloodVolumeLitres;
         }
+        (Body as MudSharp.Body.Implementations.Body)?.ClampLoadedBloodVolumeToCapacity();
 
         Body.BaseLiverAlcoholRemovalKilogramsPerHour = LiverFunction(this);
         (Body as MudSharp.Body.Implementations.Body)?.SanitizeIncompatibleHealthState(true);
@@ -1968,8 +1969,10 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public static double MaximumStaminaFor(ICharacter character)
     {
-        return (double)(decimal)MaximumStaminaProg.Execute(character);
+        return MudSharp.RPG.Merits.PhysiologyMeritEffects.StaminaCapacity(BaseMaximumStaminaFor(character), character);
     }
+
+	internal static double BaseMaximumStaminaFor(ICharacter character) => (double)(decimal)MaximumStaminaProg.Execute(character);
 
     public static double WoundPenaltyToMoveSpeedPenalty { get; set; }
 

@@ -183,6 +183,7 @@ public class BreathingRateTests
 		world.SetupGet(x => x.HeartbeatManager).Returns(heartbeat);
 		var room = new Mock<IRoom>();
 		var body = TestObjectFactory.CreateUninitialized<ConcreteBody>();
+		SetField(body, "_merits", new List<MudSharp.RPG.Merits.IMerit>());
 		var actor = new Mock<ICharacter>();
 		actor.SetupGet(x => x.CurrentBody).Returns(body);
 		actor.SetupGet(x => x.State).Returns(CharacterState.Awake);
@@ -252,6 +253,7 @@ public class BreathingRateTests
 		public double InitialVolume => 10000;
 		public SupplyFixture(double litresPerBaseUnit = 1, double multiplier = 1)
 		{
+			SetField(Race, "_intrinsicMeritIds", new List<long>());
 			World.Setup(x => x.UnitManager.BaseFluidToLitres).Returns(litresPerBaseUnit);
 			World.SetupGet(x => x.MagicalSubstances).Returns(new All<MudSharp.Magic.IMagicalSubstance>());
 			Gas.Setup(x => x.CountsAs(Gas.Object)).Returns(true);

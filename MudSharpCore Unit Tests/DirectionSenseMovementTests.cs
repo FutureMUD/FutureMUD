@@ -368,6 +368,7 @@ public class DirectionSenseMovementTests
 		public static TestCharacter Create(IFuturemud world, IBody body, IRoom room, IOutputHandler output)
 		{
 			var actor = TestObjectFactory.CreateUninitialized<TestCharacter>();
+			typeof(MudSharp.Character.Character).GetField("_merits", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(actor, new List<MudSharp.RPG.Merits.IMerit>());
 			typeof(LateKeywordedInitialisingItem).GetField("<Gameworld>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(actor, world);
 			typeof(PerceivedItem).GetField("<EffectHandler>k__BackingField", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(actor, Mock.Of<IEffectHandler>());
 			typeof(MudSharp.Character.Character).GetField("_riders", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(actor, new List<ICharacter>());

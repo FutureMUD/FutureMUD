@@ -30,6 +30,7 @@ namespace MudSharp.Database
 			ConfigureEnvironmentalMagic(modelBuilder);
 			ConfigureMagicGathering(modelBuilder);
 			ConfigureRegionalGathering(modelBuilder);
+			ConfigureRacialMerits(modelBuilder);
             OnModelCreatingPartial(modelBuilder);
 			ConfigureRoomSpatialOwnership(modelBuilder);
         }

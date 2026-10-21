@@ -23,13 +23,10 @@ internal static partial class GNHProgram
 		Require(app.Id > 0, "Native naming application was not saved.");
 	}
 
-	private static void QualifyExecutableNaming(TestDatabase database)
+	private static void QualifyExecutableNaming(TestDatabase database, IFuturemud world)
 	{
-		var clock = new HarnessClock();
-		using var time = RuntimeClock.Push(clock);
-		using var world = LoadProductionRestartWorld(clock);
+		// The producer owns one loaded world (including chargen); cold readers are separate processes.
 		using var session = new FMDB();
-		((IFuturemudLoader)world).LoadChargen();
 		var account = FMDB.Context.Accounts.OrderBy(x => x.Id).First();
 		var cultureId = FMDB.Context.SeederManagedRecords.Single(x => x.StableKey == "arm.culture.desert_elven").LogicalId!.Value;
 		var app = NewSettingQualificationApplication(world, account.Id, cultureId, "QualificationNaming");

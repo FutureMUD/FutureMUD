@@ -26,6 +26,10 @@ internal static partial class GNHProgram
 			"Fresh snapshot import did not match the current migration assembly.");
 		Require(imported.ForeignKeys("tracks").Contains("CharacterInstanceId->characterinstances.Id", StringComparer.OrdinalIgnoreCase),
 			"Imported track identity foreign key is missing.");
+		var racialKeys = imported.ForeignKeys("races_merits");
+		Require(racialKeys.Contains("RaceId->races.Id", StringComparer.OrdinalIgnoreCase) &&
+			racialKeys.Contains("MeritId->merits.Id", StringComparer.OrdinalIgnoreCase),
+			"Imported intrinsic race/merit foreign keys are missing.");
 		var mergedColumns = db.Database.SqlQueryRaw<int>(@"SELECT COUNT(*) AS Value FROM information_schema.COLUMNS
 WHERE TABLE_SCHEMA=DATABASE() AND ((LOWER(TABLE_NAME)='shops' AND COLUMN_NAME='HagglingConfiguration')
 OR (LOWER(TABLE_NAME)='magicspelllifecycles' AND COLUMN_NAME IN ('RoomHazardLastPulseUtc','RoomHazardNextPulseUtc'))

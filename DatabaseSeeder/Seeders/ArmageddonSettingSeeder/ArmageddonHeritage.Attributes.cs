@@ -70,7 +70,7 @@ public static partial class ArmageddonHeritage
 	}
 
 	private static void AttributeLinks(FuturemudDatabaseContext db, string key, string profile, Race race,
-		Race human, TraitDefinition[] attributes, ICollection<string> messages)
+		Race human, TraitDefinition[] attributes, ICollection<string> messages, IEnumerable<long>? intrinsicMerits = null)
 	{
 		var bindingKey = key + ".attributes";
 		var previous = db.SeederManagedRecords.SingleOrDefault(x => x.Seeder == ArmageddonMagicInstaller.Package && x.StableKey == bindingKey);
@@ -104,9 +104,20 @@ public static partial class ArmageddonHeritage
 		var rows = db.RacesAttributes.Where(x => x.RaceId == race.Id).ToArray();
 		var current = rows.Select(x => new AttributeLink(x.AttributeId, x.IsHealthAttribute, x.AttributeBonus, x.DiceExpression))
 			.OrderBy(x => x.AttributeId).ToArray();
-		var merged = ArmageddonSettingLinks.Reconcile(db, bindingKey, nameof(Race), race.Id,
-			new Dictionary<string, string> { ["Bindings"] = storedBindings, ["Attributes"] = Json(current) },
-			new Dictionary<string, string> { ["Bindings"] = storedBindings, ["Attributes"] = Json(desired) }, messages);
+		var currentMerits = db.RacesMerits.Where(x => x.RaceId == race.Id).Select(x => x.MeritId).OrderBy(x => x).ToArray();
+		var desiredMerits = (intrinsicMerits ?? Enumerable.Empty<long>()).Distinct().Order().ToArray();
+		var hadMeritBaseline = previous?.SeedBaseline is { } oldBaseline && JsonSerializer.Deserialize<Dictionary<string, string>>(oldBaseline)!.ContainsKey("IntrinsicMerits");
+		var actualFields = new Dictionary<string, string> { ["Bindings"] = storedBindings, ["Attributes"] = Json(current) };
+		if (hadMeritBaseline || currentMerits.Length > 0) actualFields["IntrinsicMerits"] = Json(currentMerits);
+		var merged = ArmageddonSettingLinks.Reconcile(db, bindingKey, nameof(Race), race.Id, actualFields,
+			new Dictionary<string, string> { ["Bindings"] = storedBindings, ["Attributes"] = Json(desired), ["IntrinsicMerits"] = Json(desiredMerits) }, messages);
+		var nextMerits = !hadMeritBaseline && currentMerits.Length > 0
+			? currentMerits.Concat(desiredMerits).Distinct().Order().ToArray()
+			: JsonSerializer.Deserialize<long[]>(merged["IntrinsicMerits"])!;
+		var meritRows = db.RacesMerits.Where(x => x.RaceId == race.Id).ToArray();
+		db.RacesMerits.RemoveRange(meritRows.Where(x => !nextMerits.Contains(x.MeritId)));
+		foreach (var meritId in nextMerits.Where(x => !currentMerits.Contains(x)))
+			db.RacesMerits.Add(new RacesMerits { RaceId = race.Id, MeritId = meritId });
 		var next = JsonSerializer.Deserialize<AttributeLink[]>(merged["Attributes"])!;
 		if (previous is null && current.Length > 0)
 		{

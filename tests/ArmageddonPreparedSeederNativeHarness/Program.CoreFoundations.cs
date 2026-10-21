@@ -107,6 +107,18 @@ internal static partial class GNHProgram
 			restored.RestoreCatalogueFixture(sqlPath, receipt.Database);
 			ConfigureNativeDatabase(restored.ConnectionString);
 			Require(BaseSchemaHash(restored) == receipt.SchemaSha256 && BaseContentHash(restored) == receipt.ContentSha256, "Clean restore differs from sealed foundation schema/content.");
+			// Verify the sealed historical schema/content FIRST. Only this newly owned restored
+			// copy may receive the narrowly reviewed intrinsic-racial-merit schema extension.
+			if (setting)
+			{
+				using var upgrade = NewPreparedReplayContext(restored.ConnectionString);
+				var pending = upgrade.Database.GetPendingMigrations().ToArray();
+				Require(pending.Length == 0 || pending.SequenceEqual(new[] { "20261021005427_IntrinsicRacialMerits" }),
+					"Restored foundation has an unreviewed pending migration inventory.");
+				if (pending.Length > 0) upgrade.Database.Migrate();
+				Require(!upgrade.Database.GetPendingMigrations().Any() && !upgrade.Database.HasPendingModelChanges(),
+					"Owned restored foundation upgrade left schema/model drift.");
+			}
 			if (followupsOnly)
 			{
 				QualifySettingFollowups(restored, steps);
@@ -316,14 +328,20 @@ internal static partial class GNHProgram
 	{
 		// This receipt captured only Core/Time/Attributes. Its aggregate pin also included the four
 		// not-yet-executed seeders and all Library interfaces. Reviewed local slices changed those
-		// later packages/interfaces, not the captured three seeders, DB models or ExpressionEngine.
+		// later packages/interfaces, not the captured three seeders or ExpressionEngine. The newer
+		// physiology pin additionally admits the reviewed additive race-merit model/migration and
+		// the room-free RoleSkillBonusClaims serializer inventory entry (absent from this baseline);
+		// restoration checks the original schema/content before upgrading the owned copy above.
 		// Exact old/new and sealed descriptor/SQL/schema/content pins allow this one restore only.
 		return descriptorHash == "E26C6B5992C664F52BFA38488CB2F19143B8B80A59C7A3CB949D7B7F014C61A8" &&
 			receipt.Kind == "FutureMUD-Setting-foundations-v1" && receipt.Steps.Count == 3 &&
 			receipt.SourceSha256 == "C62FBE7A23C71B967C05BCE8EFBCB9E890E6A28F415FB7D52B3C77F75DED4C1B" &&
-			currentSourceHash == "9B7A1BD56AC27596120AF87246A370207B4C68303379974BC753DF56E96E7BA6" &&
+			(currentSourceHash == "9B7A1BD56AC27596120AF87246A370207B4C68303379974BC753DF56E96E7BA6" ||
+			 currentSourceHash == ReviewedPhysiologyFoundationSourceHash) &&
 			receipt.SqlSha256 == "64113F06E363B582ECE510A3C112984F51D28977DB7250A53D28A6DA790F7206" &&
 			receipt.SchemaSha256 == "36CF37216ABAC521E308DC44FA83DDDA246414F171A7D1B27A7C634BE93A17B3" &&
 			receipt.ContentSha256 == "8D8553E9D1353969FCFA7EE082F789FB98B9D777771905AAAB416DC8ACFF8C45";
 	}
+	// Exact current file inventory measured by the read-only --setting-source-pin lane.
+	private const string ReviewedPhysiologyFoundationSourceHash = "7AECCB81F5E804E4C196E6C47DD12B44A9BEC502FDD9AB17BD298715DC21A2D2";
 }

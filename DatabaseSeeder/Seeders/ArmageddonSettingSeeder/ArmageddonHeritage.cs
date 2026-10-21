@@ -71,6 +71,7 @@ public static partial class ArmageddonHeritage
 
 	private static void PreflightNames(FuturemudDatabaseContext db, long storyboardId)
 	{
+		PreflightPhysiology(db);
 		var languages = ArmageddonSkillPackage.Skills.Where(x => x.Language).Select(x => (Slug: x.Key["arm.skill.".Length..], x.Name)).ToArray();
 		Preflight<Language>(db, languages.Select(x => ("arm.language." + x.Slug, x.Name)));
 		Preflight<Race>(db, Profiles.Select(x => ("arm.race." + x.Key, "Armageddon " + x.Name)).Append(("arm.race.elf", "Armageddon Elf")));
@@ -206,6 +207,7 @@ public static partial class ArmageddonHeritage
 			freeParameters[0].ParameterType != (long)ProgVariableTypes.Toon && freeParameters[0].ParameterType != (long)ProgVariableTypes.Chargen)
 			throw new InvalidOperationException("Existing FreeSkillsProg is incompatible; its body and pointer were preserved.");
 		using var transaction = db.Database.IsRelational() && db.Database.CurrentTransaction is null ? db.Database.BeginTransaction() : null;
+		var physiologyMerits = InstallPhysiologyMerits(db, messages);
 		var languages = new Dictionary<string, Language>();
 		foreach (var entry in ArmageddonSkillPackage.Skills.Where(x => x.Language))
 		{
@@ -227,11 +229,18 @@ public static partial class ArmageddonHeritage
 			var race = Scaffold(db, key, human);
 			race.Name = "Armageddon " + profile.Name; race.ParentRaceId = profile.Key is "city_elf" or "desert_elf" ? parent.Id : organic.Id;
 			race.AvailabilityProgId = no;
-			race.Description = $"{profile.Name} mechanical profile. Unavailable pending physical acceptance; current numerical physiology, ages and size are inactive shared-Human scaffolding. No racial immunity or power is implied.";
+			race.Description = $"{profile.Name} mechanical profile. Approved attribute and racial-merit physiology are installed; remaining ages, dimensions and appearance require the separate activation work. This profile remains unavailable. No racial immunity or power is implied.";
 			race.SweatRateInLitresPerMinute = SweatRateForProfile(profile.Key);
+			race.HungerRate = 1;
+			race.ThirstRate = 1;
+			if (profile.Key == "half_giant")
+			{
+				race.MaximumFoodSatiatedHours = 48;
+				race.MaximumDrinkSatiatedHours = 24;
+			}
 			AttributeDefaults(race, attributes.Length);
 			races[profile.Key] = Apply(db, key, race, messages);
-			AttributeLinks(db, key, profile.Key, races[profile.Key], human, attributes, messages);
+			AttributeLinks(db, key, profile.Key, races[profile.Key], human, attributes, messages, IntrinsicMeritsFor(profile.Key, physiologyMerits));
 		}
 		var naming = Apply(db, "arm.naming.personal", new NameCulture { Name = "Armageddon Personal Name", Definition = new XElement("NameCulture",
 			new XElement("Counts", new XElement("Count", new XAttribute("Usage", 0), new XAttribute("Min", 1), new XAttribute("Max", 1))),

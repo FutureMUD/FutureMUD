@@ -13,6 +13,17 @@ namespace MudSharp_Unit_Tests;
 public class BlankDatabaseSnapshotTests
 {
 	[TestMethod]
+	public void CommittedBlankSnapshot_PreservesIntrinsicRacialMeritAssociations()
+	{
+		var snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory()));
+		var table = ReadTableDeclaration(snapshot, "races_merits");
+		StringAssert.Contains(table, "PRIMARY KEY (`RaceId`,`MeritId`)");
+		StringAssert.Contains(table, "FOREIGN KEY (`RaceId`) REFERENCES `races` (`Id`) ON DELETE CASCADE");
+		StringAssert.Contains(table, "FOREIGN KEY (`MeritId`) REFERENCES `merits` (`Id`) ON DELETE CASCADE");
+		StringAssert.Contains(snapshot, "('20261021005427_IntrinsicRacialMerits',");
+	}
+
+	[TestMethod]
 	public void CommittedBlankSnapshot_HasDirectRoomOwnershipAndImmutableSpatialProvenance()
 	{
 		var snapshot = File.ReadAllText(BlankDatabaseSnapshotManifest.GetSnapshotPath(GetDatabaseSeederProjectDirectory()));

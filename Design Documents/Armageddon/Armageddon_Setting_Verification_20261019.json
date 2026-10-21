@@ -1866,5 +1866,149 @@
       "log_sha256": "4C3476D6B537888DDDFDEEBF57CB8D9F8752DF9D633E3E9A89B6BAA88C195E04",
       "includes": "DatabaseSeeder, MudSharpCore and shared references"
     }
+  },
+  "racial_merits_20261021": {
+    "status": "Implemented, installed and focused native-consumer-qualified; physical activation separate",
+    "approved_by": "Luke: implement the racial merits, found fixes and proposed merit types",
+    "base_head": "d8d1f44256ce89c06fdadb6743811d501ea3062d",
+    "types": [
+      "Stamina Capacity",
+      "Environmental Needs"
+    ],
+    "persistence": "Races_Merits direct/inherited body grants, explicit assignment separation, additive migration 20261021005427_IntrinsicRacialMerits",
+    "stock": {
+      "owned_merits": 5,
+      "numeric_context_progs": 2,
+      "giant": "food48/drink24, hunger3/thirst3/alcohol1, underlying race rates1",
+      "stamina": "Desert Elf+60, Half-Giant+20, Mul+20; normal recovery",
+      "environmental": "Ordinary and Desert Elf contextual thirst; no parent double grant",
+      "stock_water_prog": 0
+    },
+    "fixes": [
+      "Deduplicate effective body/character consumers by merit ID",
+      "Do not copy intrinsic grants into form templates or explicit saved assignments",
+      "Wire generic movement stamina merit and applicability across charged movement modes",
+      "Keep malformed/negative environmental prog references neutral across unrelated save/reload until explicit repair",
+      "Restore saved partial blood before hydration normalisation; clamp after capacity becomes available including zero",
+      "Classify deferred RoleSkillBonusClaims as audited room-free XML"
+    ],
+    "fast": {
+      "status": "PASS",
+      "run": "20261021T020701Z-997a34ea374d",
+      "receipt": {
+        "path": ".artifacts/test-runs/20261021T020701Z-997a34ea374d/summary.json",
+        "sha256": "009F937D813A4D61E35D4D156936DC0B624F1D21A811BEAA362058F2B4EEDABC"
+      },
+      "source_start": "a1ba2d84c0b3447dd63d6027fc079a1ffdccb687c6e42bc070adc3c105e07f68",
+      "source_end": "a1ba2d84c0b3447dd63d6027fc079a1ffdccb687c6e42bc070adc3c105e07f68",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "counts": {
+        "executed": 11544,
+        "passed": 11544,
+        "failed": 0,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 11547
+      },
+      "duration_seconds": 926.2270125,
+      "helper_exit": 0,
+      "skip_scope": "Three Unix launcher permission variants require a Unix host",
+      "failures": {
+        "path": ".artifacts/test-runs/20261021T020701Z-997a34ea374d/failures.json",
+        "sha256": "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
+      }
+    },
+    "focused_neutral_reload": {
+      "run": "20261021T020435Z-4632c5983028",
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true
+    },
+    "prior_corrective_core_database": {
+      "run": "20261021T014803Z-cb2ebf0eaac2",
+      "passed": 8430,
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true
+    },
+    "native": {
+      "status": "PASS",
+      "run": "20261021T020659Z_60b07c1a5afd442aa095f73dbcddde96",
+      "log": {
+        "path": ".artifacts/racial-merits-native-blood-reload-background.log",
+        "sha256": "11FAC43DCE27A000DC51BADAC600FF64D6095A2770EE3F9870AF005A92A422AF"
+      },
+      "source_sha256": "9EFD9A178BC674BD2C65BD51C0DD1F87BB19DF4D6825A16911CB2044D9A7E6EC",
+      "source_stable": true,
+      "foundation_closure_sha256": "7AECCB81F5E804E4C196E6C47DD12B44A9BEC502FDD9AB17BD298715DC21A2D2",
+      "sealed_files_unchanged": true,
+      "schema_extension_on_verified_owned_restore_only": true,
+      "classes_subclasses_on": true,
+      "actual_loaded_racial_merits_and_needs_stamina_consumers": true,
+      "sql_saved_counters_and_positive_hydration_and_partial_blood": true,
+      "cold_process_readers": 2,
+      "builder_links_definitions_and_terrain_ids_preserved": true,
+      "explicit_grant_leakage": false,
+      "naming_executable_elements": 78,
+      "naming_native_chargen_save_resume": true,
+      "race_rows_unavailable": 8,
+      "cleanup": "Owned database and private MySQL/TEMP instance gracefully removed",
+      "scope_limit": "Installer/persistence plus focused production consumer qualification; no new whole-server/gameplay certificate"
+    },
+    "schema_parity": {
+      "status": "PASS",
+      "model_unchanged_since": "20261021005427_IntrinsicRacialMerits",
+      "log": {
+        "path": ".artifacts/racial-merit-schema-parity-final.log",
+        "sha256": "C924DA1693AD60EB6A78717DDD333946A8A61A056C2CE2868AE514384F01C866"
+      }
+    },
+    "blank_snapshot": {
+      "status": "PASS",
+      "run": "20261021T012028Z_3c54607bd4904348a515d5bcd45d1762",
+      "native_fresh_import": true,
+      "latest_migration_and_both_racial_foreign_keys_verified": true,
+      "log": {
+        "path": ".artifacts/racial-merits-snapshot-run.log",
+        "sha256": "4131B2CB733D6ADCDCBEB7FD0A027AF81089E3B68C611ECC3332AF7EF60A2E8E"
+      },
+      "cleanup_confirmed": true
+    },
+    "release_build": {
+      "status": "PASS",
+      "products": [
+        "DatabaseSeeder",
+        "MudSharpCore",
+        "Shared references"
+      ],
+      "warnings": 207,
+      "errors": 0,
+      "log": {
+        "path": ".artifacts/racial-merits-release-build-blood-reload.log",
+        "sha256": "79C16527F7F43FF7FC23255BB52628D343B618ADC72CED4130BFC8E7609DAF2E"
+      }
+    },
+    "retained_nonpassing_unit_runs": {
+      "20261021T012701Z-420670822dc9": "17pass8fail: generated environment prog null syntax corrected to native isnull",
+      "20261021T013041Z-abe9d012198e": "Incomplete foreground receipt, 28 confirmed failures: 23 uninitialised legacy fixtures, 3 zero-ID naming fixtures, 1 colliding mock merit identity, 1 room-free serializer inventory omission; repaired without weakened assertions; exact processes confirmed absent",
+      "20261021T015604Z-41052eb60696": "Coordinator stopped verified task-owned helper tree for necessary invalid-reference and blood/hydration repairs; nine completed projects9466pass0fail, Seeder incomplete, no final source-stability claim; no surviving run processes confirmed"
+    },
+    "retained_nonpassing_native_runs": {
+      "20261021T012612Z_0571c9e73ae54d3d86a80da99eff98c6": "Cancelled exact owned harness after generated-prog compilation prerequisite failed; cleanup confirmed",
+      "20261021T013105Z_fdf42a1bbf0b40c2ab72a7cffa0daadf": "Duplicate process-global hook registration from multiple loaded worlds in one process; fixed producer world sharing and independent cold readers; cleanup confirmed",
+      "20261021T014816Z_51b1c348be92425faa0465f3a41ae93d": "Fixture race inventory counted ownership helper rows; repaired typed distinct race inventory; cleanup confirmed",
+      "20261021T015443Z_64b75869f7fb45f284923b01fa65faa5": "Real production hydration reload zeroed by premature blood clamp; preserved SQL value and assertion, corrected load order and added partial-blood cold assertions; cleanup confirmed"
+    },
+    "remaining_limits": [
+      "Native clock has no Highsun band; no invented noon interval",
+      "No source condition-point/litre conversion or production basal-water assignment: stock water prog stays0; configured generic litre-loss channel works",
+      "Remaining physical/lifecycle/appearance wiring and activation separate; all8 race rows unavailable",
+      "No height/weight range tests added or run",
+      "No existing-world conversion or database changes, publication, push, merge or deployment"
+    ]
   }
 }

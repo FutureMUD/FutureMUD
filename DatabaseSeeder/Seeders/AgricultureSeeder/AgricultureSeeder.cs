@@ -12,7 +12,7 @@ using MudSharp.Work.Agriculture;
 
 namespace DatabaseSeeder.Seeders;
 
-public sealed class AgricultureSeeder : IDatabaseSeeder
+public sealed partial class AgricultureSeeder : IDatabaseSeeder
 {
 	private const string StockPrefix = "Stock Agriculture";
 	private const string SeedTagName = "Seeds";
@@ -780,7 +780,7 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 		    !context.Tags.Any(x => x.Name == RawTextileFibreTagName) ||
 		    !context.Tags.Any(x => x.Name == EggProductTagName) ||
 		    !context.Tags.Any(x => x.Name == ManureCommodityTagName) ||
-		    !context.TraitDefinitions.Any(x => x.Name == FarmingTraitName))
+		    !HasFarmingFoundation(context))
 		{
 			return ShouldSeedResult.PrerequisitesNotMet;
 		}
@@ -829,6 +829,7 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 
 	public string SeedData(FuturemudDatabaseContext context, IReadOnlyDictionary<string, string> questionAnswers)
 	{
+		EnsureFarmingTrait(context);
 		foreach (var profile in Profiles)
 		{
 			EnsureProfile(context, profile);
@@ -1046,7 +1047,7 @@ public sealed class AgricultureSeeder : IDatabaseSeeder
 			new XElement("MinimumTraitValue", 0.0),
 			new XElement("TraitCheckDifficulty", 0)).ToString();
 
-		var farmingTrait = context.TraitDefinitions.First(x => x.Name == FarmingTraitName);
+		var farmingTrait = ResolveFarmingTrait(context) ?? throw new InvalidOperationException("Missing Farming skill foundation.");
 		var supervision = context.ProjectLabourRequirements.FirstOrDefault(x => x.ProjectPhaseId == phase.Id && x.Name == "Agricultural Supervision");
 		if (supervision == null)
 		{

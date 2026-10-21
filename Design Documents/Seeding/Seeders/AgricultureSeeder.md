@@ -16,7 +16,9 @@ Metadata prerequisite descriptions:
 - The Core seeder must have created at least one account.
 - Core utility progs must include AlwaysTrue.
 - Core agriculture tags must already exist.
-- A Farming trait must already exist.
+- A Farming trait or the Armageddon SkillPackage for an ungranted optional Farming scaffold must already exist.
+
+Only when Agriculture is selected with Armageddon and Farming is absent, the package creates a hidden support skill with AlwaysFalse creation, learning and teaching policies. Its cap and trait use separate `setting-optional-agriculture` ownership, outside the frozen 112 canonical/30 scaffold inventory. It grants no proficiency or role membership and represents authored optional-package support, not a recovered Armageddon skill. Native supervision resolves the stable owned ID after builder renaming; repeat installation preserves existing skill/cap edits. Ordinary Farming prerequisites and content remain supported.
 
 These are checks, not an installation guarantee. The [dependency map](Dependency_Map.md) distinguishes hard ordering edges from soft ordering hints.
 

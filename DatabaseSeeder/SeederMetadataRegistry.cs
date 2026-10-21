@@ -251,8 +251,8 @@ public static class SeederMetadataRegistry
                             "Raw Honeycomb", "Pressed Honey", "Rendered Beeswax", "Raw Milk",
                             "Raw Textile Fibre", "Egg Product", "Manure Commodity"
                         }.All(tag => context.Tags.Any(x => x.Name == tag))),
-                    Requirement("A Farming trait must already exist.", context =>
-                        context.TraitDefinitions.Any(x => x.Name == "Farming"))
+                    Requirement("A Farming trait or the Armageddon SkillPackage for an ungranted optional Farming scaffold must already exist.",
+                        AgricultureSeeder.HasFarmingFoundation)
                 ],
                 RerunSummary: "Reruns reuse stock agriculture definitions, operation rows, and their project templates by stable names.",
                 UpdateSummary: "Reruns refresh stock field profiles, crops, herds, woodlands, operations, and project-backed labour templates without duplicating rows.",
@@ -490,8 +490,8 @@ public static class SeederMetadataRegistry
                         context.Materials.Any(x => x.Name == "meat") &&
                         context.Materials.Any(x => x.Name == "bone") &&
                         context.Materials.Any(x => x.Name == "animal skin")),
-                    Requirement("A dedicated Butchery skill (or the simple package's Survival skill) and at least one stock animal race must already exist.", context =>
-                        HasTrait(context, "Butchery", "Butchering", "Survival", "Surviving") &&
+                    Requirement("A dedicated Butchery skill, simple-package Survival, or owned Armageddon Skinning and at least one stock animal race must already exist.", context =>
+                        AnimalButcherySeeder.ResolveButcheryTrait(context) is not null &&
                         context.Races.Any())
                 ],
                 RerunSummary: "Reruns reuse stock animal butchery item, product and profile names, then attach missing eligible stock races.",

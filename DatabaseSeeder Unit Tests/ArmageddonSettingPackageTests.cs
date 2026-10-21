@@ -40,6 +40,50 @@ public class ArmageddonSettingPackageTests
 	}
 
 	[TestMethod]
+	public void Agriculture_OptionalScaffoldRejectsRetiredCapOwnership()
+	{
+		using var db = Fixture();
+		new SkillPackageSeeder().SeedData(db, Answers);
+		AgricultureSeeder.EnsureFarmingTrait(db);
+		var cap = db.SeederManagedRecords.Single(x => x.Module == AgricultureSeeder.FarmingModule && x.EntityType == nameof(MudSharp.Models.TraitExpression));
+		cap.Retired = true;
+		db.SaveChanges();
+		Assert.ThrowsException<InvalidOperationException>(() => AgricultureSeeder.EnsureFarmingTrait(db));
+	}
+
+	[TestMethod]
+	public void Agriculture_OptionalScaffoldIsUngrantableAndSurvivesBuilderRename()
+	{
+		using var db = Fixture();
+		new SkillPackageSeeder().SeedData(db, Answers);
+		Assert.IsTrue(AgricultureSeeder.HasFarmingFoundation(db));
+		var farming = AgricultureSeeder.EnsureFarmingTrait(db);
+		Assert.IsTrue(farming.Hidden);
+		Assert.AreEqual(2L, farming.AvailabilityProgId);
+		Assert.AreEqual(2L, farming.LearnableProgId);
+		Assert.AreEqual(2L, farming.TeachableProgId);
+		Assert.AreEqual(142, ArmageddonSkillPackage.Resolve(db).Values.Select(x => x.Id).Distinct().Count());
+		farming.Name = "Builder horticulture";
+		db.TraitExpressions.Single(x => x.Id == farming.ExpressionId).Expression = "73";
+		db.SaveChanges();
+		Assert.AreEqual(farming.Id, AgricultureSeeder.EnsureFarmingTrait(db).Id);
+		Assert.AreEqual("73", db.TraitExpressions.Single(x => x.Id == farming.ExpressionId).Expression);
+		Assert.IsFalse(db.CharacterTraits.Any());
+		Assert.IsFalse(db.ChargenRolesTraits.Any());
+	}
+
+	[TestMethod]
+	public void AnimalButchery_UsesOwnedSkinningAfterBuilderRename()
+	{
+		using var db = Fixture();
+		new SkillPackageSeeder().SeedData(db, Answers);
+		var skinning = ArmageddonSkillPackage.Resolve(db)["arm.skill.skinning"];
+		skinning.Name = "Builder field dressing";
+		db.SaveChanges();
+		Assert.AreEqual(skinning.Id, AnimalButcherySeeder.ResolveButcheryTrait(db)!.Id);
+	}
+
+	[TestMethod]
 	public void MundaneProgression_InstallsCompleteRolesAndPreservesCustomisationsOnResume()
 	{
 		using var db = Fixture();

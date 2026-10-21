@@ -49,6 +49,9 @@ internal static partial class GNHProgram
             "--setting-role-reader" => ReadSettingRoleQualification(args[1]),
 			"--prepared-reader" => PreparedSeederReader(args[1]),
 			"--replay-run" => PreparedSeederReplayNative(),
+#if DEBUG
+			"--setting-full-replay-run" => FullSettingReplayNative(),
+#endif
 			"--settings-run" => PreparedSeederReplayNative(settings: true),
 			"--stock-progressions-run" => PreparedSeederReplayNative(progression: true),
 			"--stock-supplies-run" => PreparedSeederReplayNative(supplies: true),

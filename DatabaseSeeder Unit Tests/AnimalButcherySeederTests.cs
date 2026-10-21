@@ -587,6 +587,15 @@ public class AnimalButcherySeederTests
 	}
 
 	[TestMethod]
+	public void ResolveButcheryTrait_DoesNotGuessUnownedSkinningIdentity()
+	{
+		using var context = BuildContext();
+		SeedFullCatalogueContext(context);
+		RenameButcheryTrait(context, "Skinning");
+		Assert.IsNull(AnimalButcherySeeder.ResolveButcheryTrait(context));
+	}
+
+	[TestMethod]
 	public void SeedData_FullCatalogue_AllowsDuplicateUnrelatedItemDescriptions()
 	{
 		using var context = BuildContext();

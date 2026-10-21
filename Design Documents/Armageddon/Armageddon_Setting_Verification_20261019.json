@@ -1,9 +1,9 @@
 {
-  "recorded_utc": "2026-10-21T03:52:54.5270016Z",
+  "recorded_utc": "2026-10-21T05:25:12.7583357Z",
   "base": "97c02768d254c5e345a62349e05b94fe345efeec",
   "branch": "codex/armageddon-setting-20261019",
   "approved_bundle_sha256": "7f0c44decb894487f19bff038ebef4c977cebe6d6eff05efe8ad23260159a9e7",
-  "scope": "Approved unified Setting and final physical/lifecycle/appearance wiring implemented; current-schema classes-on combined native gameplay, preserving rerun/resume, seven bodies/two cold readers and first/cold server acceptance PASS; admission/publication held",
+  "scope": "Approved unified Setting and physical/lifecycle/appearance implemented; full31-package Simple/classes-on optional compatibility replay (Item omitted), exact sealed restore, native loaded samples and first/cold server smoke PASS. Prior minimal-chain gameplay proof retained separately; admission/publication held.",
   "register": [
     {
       "id": "E01",
@@ -2368,5 +2368,136 @@
       "Three Unix launcher permission variants skipped; no existing-world conversion, database mutation, push, merge, deploy or publication"
     ]
   },
-  "latest_evidence_key": "physical_lifecycle_20261021"
+  "full_optional_packages_20261021": {
+    "tested_parent": "0e4dfaea7c01879950ae805dbd0c70137b613340",
+    "scope": "Simple/classes/subclasses-on complete enabled-package replay except Item and mutually exclusive SkillSeeder; exact sealed restore, production registry samples, first/cold executable Admin boots. Prior minimal-chain gameplay evidence retained separately; no exhaustive optional gameplay or generic-content Armageddon-fidelity claim.",
+    "implementation": [
+      "Optional Agriculture installs a separately owned hidden/ungranted Farming support trait and cap; frozen112 canonical+30 scaffold inventory and role/player grants remain unchanged.",
+      "Animal Butchery binds the validated owned arm.skill.skinning identity per the approved Butchery/Skinning consumer map, retaining generic aliases and builder renames."
+    ],
+    "focused": {
+      "run": "20261021T043552Z-5b5a5b947c03",
+      "skipped": 0,
+      "passed": 34,
+      "failed": 0
+    },
+    "full_seeder_suite": {
+      "run": "20261021T050925Z-d42dd8ab2b1f",
+      "execution_complete": true,
+      "counts": {
+        "executed": 2092,
+        "passed": 2092,
+        "failed": 0,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 2095
+      },
+      "source_stable": true,
+      "status": "PASS",
+      "summary": ".artifacts/test-runs/20261021T050925Z-d42dd8ab2b1f/summary.json",
+      "counts_complete": true,
+      "source_sha256": "76cba93d14ca9c698027786796823e87ebadad792b169efefc501ad394c27782"
+    },
+    "builds": {
+      "release_installer": ".artifacts/full-setting-focus-fourth-exit.json",
+      "debug_native_harness": ".artifacts/full-setting-build-exit.json",
+      "passed": true
+    },
+    "native": {
+      "content_sha256": "B4424469AD386A0BE86A8019889D737C87FE74C3731863805DCC89579D0E9B7C",
+      "failed": null,
+      "boot_receipt": "../prepared-replay-boot-native_foundations_8618ce8bce7c4520a36204ce60dca2a1/boot-latest.json",
+      "refused_retry_without_mutation": true,
+      "unstarted": [],
+      "exact_sealed_restore": true,
+      "checkpoint": ".artifacts/full-setting-replay-fixtures/20261021T050606Z_c994a44d54fe48bc9990d212c609e52d/full-replay.json",
+      "production_closure_sha256": "7662AE5C81D0D8E5DEFB732F13F5C3CD41BBCE75352C6C15A9CC3607A96AFC92",
+      "boot_assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "log": ".artifacts/full-setting-native-third.log",
+      "source_stable": true,
+      "descriptor_sha256": "FE80F5BBD71DDE44C3B4AB292EBAE016ED126936F241A9360EB769D981AFA976",
+      "source_sha256": "4974DE2D18D56D4E185C20B8E110F82E9D762DCF85D9D0C77006031C7DECB2F7",
+      "cleanup": "Both owned databases, MUD process trees and isolated MySQL/TEMP instance cleaned up.",
+      "schema_sha256": "FCCC645FF5532C8C473D24D950C0FDC001FA1D9A5C450803860520FDC2B930A4",
+      "boot_status": "PASS",
+      "sql_sha256": "0487EBDFEFBA79F17964DE7D1D319DB2F0C41D2B50BF179B7A4AD7BD5884A579",
+      "status": "PASS",
+      "samples": {
+        "Races": 323,
+        "Weapons": 120,
+        "Health": 9,
+        "Surgery": 61,
+        "Butchery": 38,
+        "Horse": {
+          "Id": 51,
+          "Body": 4,
+          "Health": 7,
+          "Attacks": 23,
+          "Butchery": 11,
+          "ButcheryTrait": 92
+        },
+        "LongswordTrait": 93,
+        "RazorTrait": 80
+      },
+      "summary": ".artifacts/full-setting-native/20261021T045531Z_15308bc3d4a14e9692f6b92316e3549a/summary.json",
+      "completed": [
+        "Core",
+        "Time Seeder",
+        "Celestial Seeder",
+        "Attributes",
+        "Currency",
+        "AI Storyteller Starter Pack",
+        "Skill Package",
+        "Economy",
+        "Clans",
+        "Human Seeder",
+        "Weather Seeder",
+        "Law Seeder",
+        "Character Creation",
+        "Arena",
+        "Kickstart",
+        "Trap System Starter Pack",
+        "Agriculture",
+        "Health Seeder",
+        "Prepared Food and Cooking",
+        "Combat",
+        "Culture Seeder",
+        "Merits and Flaws",
+        "Animal Seeder",
+        "Armageddon Setting",
+        "Mythical Animal Seeder",
+        "Production Wildlife AI Catalogue",
+        "Robot Seeder",
+        "Animal Butchery",
+        "Supernatural Seeder",
+        "Psionics",
+        "Environmental Exposure"
+      ]
+    },
+    "guards": {
+      "receipt": ".artifacts/full-setting-guard-checks.json",
+      "parser": "PASS",
+      "pre_resource_refusals": 3,
+      "seal_after_boot": ".artifacts/full-setting-seal-after-boot.json"
+    },
+    "retained_failures": [
+      "First native attempt:16 completed; Agriculture blocked on missing Farming. Refusal/source stability/cleanup passed; no runtime certificate.",
+      "Second native attempt:31 installed and refusal passed; combined runtime assertion wrongly expected Longsword Two Handed. Source maps Longsword to Slashing; corrected/split the harness assertions without changing production combat. No boot certificate from that failed attempt.",
+      "Focused third attempt did not compile because a new test used ambiguous TraitExpression; fully qualified the model name. Final focused/full gates supersede it; its failure is retained."
+    ],
+    "remaining": "Seven playable-profile admission defaults remain held; common Elf parent stays nonplayable. Publication remains held. No existing world, merge, push, deployment or conversion."
+  },
+  "latest_evidence_key": "full_optional_packages_20261021"
 }

@@ -1549,8 +1549,13 @@ It creates reusable butchery outputs, raw carcass cuts, hides, glands, trophies 
 		return profile is not null && profile.Name.StartsWith(StockPrefix, StringComparison.OrdinalIgnoreCase);
 	}
 
-	private static TraitDefinition? ResolveButcheryTrait(FuturemudDatabaseContext context)
+	internal static TraitDefinition? ResolveButcheryTrait(FuturemudDatabaseContext context)
 	{
+		// The approved Armageddon consumer map binds both butchery and skinning to this
+		// owned identity. Resolve ownership rather than guessing from a mutable name.
+		if (ArmageddonSkillPackage.IsInstalled(context))
+			return ArmageddonSkillPackage.Resolve(context)["arm.skill.skinning"];
+
 		return context.TraitDefinitions
 		              .AsEnumerable()
 		              .FirstOrDefault(x => ButcheryTraitAliases.Any(alias => NormaliseName(x.Name) == NormaliseName(alias)));

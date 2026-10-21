@@ -138,7 +138,7 @@ private void SeedKnowledges()
                     TrackingAbilityOlfactory = 0.0
                 };
                 _context.Races.Add(race);
-                _context.SaveChanges();
+                SeededSweatRates.SaveNewRace(_context, race);
                 summary.RacesAdded++;
             }
             else

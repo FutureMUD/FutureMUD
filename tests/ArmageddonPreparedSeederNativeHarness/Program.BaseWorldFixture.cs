@@ -37,7 +37,7 @@ internal static partial class GNHProgram
 	private static string BaseValueHash<T>(T value) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(value))));
 	private static object BaseProfile()
 	{
-		var assembly = typeof(ArmageddonMagicSeeder).Assembly;
+		var assembly = typeof(ArmageddonSettingSeeder).Assembly;
 		var profiles = (IEnumerable)assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!
 			.GetProperty("All", ReplayFlags)!.GetValue(null)!;
 		var profile = profiles.Cast<object>().Single(x => (string)x.GetType().GetProperty("Id")!.GetValue(x)! == BaseProfileId);
@@ -51,7 +51,7 @@ internal static partial class GNHProgram
 	private static IReadOnlyList<BaseStep> BaseSteps(object profile)
 	{
 		var steps = ((IEnumerable)profile.GetType().GetProperty("Steps")!.GetValue(profile)!).Cast<object>().ToList();
-		var boundary = steps.FindIndex(x => (Type)x.GetType().GetProperty("SeederType")!.GetValue(x)! == typeof(ArmageddonMagicSeeder));
+		var boundary = steps.FindIndex(x => (Type)x.GetType().GetProperty("SeederType")!.GetValue(x)! == typeof(ArmageddonSettingSeeder));
 		Require(boundary > 0, "Armageddon must be a declared noninitial replay boundary.");
 		return steps.Take(boundary).Select(step => new BaseStep(
 			((Type)step.GetType().GetProperty("SeederType")!.GetValue(step)!).FullName!,
@@ -74,6 +74,9 @@ internal static partial class GNHProgram
 			.Append(Path.Combine(root, "DatabaseSeeder", "DatabaseSeeder.csproj"))
 			.Append(Path.Combine(root, "DatabaseSeeder", "Assets", "Manifests", "Monster_AI_Recommendations.json"))
             .Append(Path.Combine(root, "DatabaseSeeder", "Assets", "Manifests", "CoreTags.tsv"))
+            .Append(Path.Combine(root, "DatabaseSeeder", "Seeders", "ArmageddonSettingSeeder", "ArmageddonSkillPackage.cs"))
+            .Append(Path.Combine(root, "DatabaseSeeder", "Seeders", "ArmageddonSettingSeeder", "ArmageddonSettingOwnership.cs"))
+            .Concat(Directory.EnumerateFiles(Path.Combine(root, "DatabaseSeeder", "Assets", "Manifests", "Armageddon"), "*"))
 			.Concat(BaseCompilerPins.Select(x => Path.Combine(root, x.Path)))
 			.Append(Path.Combine(root, "Design Documents", "Seeding", "Seeded_Item_Manifest.json"))
 			.Where(x => !Regex.IsMatch(Path.GetRelativePath(root, x).Replace('\\', '/'), @"(^|/)(bin|obj)/|^FutureMUDLibrary/Magic/Stock/"))
@@ -100,7 +103,7 @@ internal static partial class GNHProgram
 	{
 		Require(db.Accounts.Any() && db.SeederChoices.Any(), "Fixture has no seeded base world.");
 		Require(!db.SeederManagedRecords.Any(x => x.Seeder == ArmageddonMagicInstaller.Package || x.StableKey.StartsWith("arm.")) &&
-			!db.SeederChoices.Any(x => x.Seeder == new ArmageddonMagicSeeder().Name || x.Seeder == ArmageddonMagicInstaller.Package ||
+			!db.SeederChoices.Any(x => x.Seeder == new ArmageddonSettingSeeder().Name || x.Seeder == ArmageddonMagicInstaller.Package ||
 				x.Choice == ArmageddonInstallation.ModeAnswerKey || x.Choice == ArmageddonInstallation.ClassesAnswerKey || x.Choice == ArmageddonInstallation.BindingsAnswerKey),
 			"Base contains Armageddon package claims, settings, or recorded package answers.");
 		Require(ArmageddonInstallation.Read(db) is null, "Base contains Armageddon installation settings.");
@@ -186,7 +189,7 @@ internal static partial class GNHProgram
 		Require(Path.GetFileName(manifest) == "base-world.json" && Regex.IsMatch(expectedManifestHash, "^[A-F0-9]{64}$") &&
 			BaseHash(manifest) == expectedManifestHash, "Fixture descriptor digest or filename differs from its explicit pin.");
 		var receipt = JsonSerializer.Deserialize<BaseWorldFixture>(File.ReadAllText(manifest)) ?? throw new InvalidOperationException("Malformed base descriptor.");
-		Require(receipt.Kind == BaseFixtureKind && receipt.Profile == BaseProfileId && receipt.StopBefore == typeof(ArmageddonMagicSeeder).FullName &&
+		Require(receipt.Kind == BaseFixtureKind && receipt.Profile == BaseProfileId && receipt.StopBefore == typeof(ArmageddonSettingSeeder).FullName &&
 			receipt.OwnershipMarker == OwnershipTable && receipt.BaseContentHashAlgorithm == BaseContentAlgorithm && Regex.IsMatch(receipt.Database, "^futuremud_land_[a-zA-Z0-9_]+$") && TestDatabase.HasOwnedPrefix(receipt.Database),
 			"Wrong fixture kind, replay boundary or database ownership marker.");
 		Require(!string.IsNullOrWhiteSpace(receipt.SqlFile) && Path.GetFileName(receipt.SqlFile) == receipt.SqlFile &&
@@ -238,15 +241,15 @@ internal static partial class GNHProgram
 		}
 		using var database = TestDatabase.CreateFresh("futuremud_land_"); ConfigureNativeDatabase(database.ConnectionString);
 		using (var db = NewPreparedReplayContext(database.ConnectionString)) db.Database.Migrate();
-		var assembly = typeof(ArmageddonMagicSeeder).Assembly;
+		var assembly = typeof(ArmageddonSettingSeeder).Assembly;
 		var seeders = assembly.GetType("DatabaseSeeder.SeederCatalogue", true)!.GetMethod("GetEnabledSeeders", ReplayFlags)!.Invoke(null, null)!;
 		var run = assembly.GetType("DatabaseSeeder.SeederReplayRunner", true)!.GetMethod("RunPrefixBefore", ReplayFlags)!;
 		Func<FuturemudDatabaseContext> factory = () => NewPreparedReplayContext(database.ConnectionString);
-		var result = run.Invoke(null, [profile, seeders, typeof(ArmageddonMagicSeeder), factory, new Version(1, 0), (Action<string>)(x => Console.WriteLine("ARMBASE-progress=" + x))])!;
+		var result = run.Invoke(null, [profile, seeders, typeof(ArmageddonSettingSeeder), factory, new Version(1, 0), (Action<string>)(x => Console.WriteLine("ARMBASE-progress=" + x))])!;
 		Require((bool)result.GetType().GetProperty("Success", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(result)!,
 			"Base prefix failed: " + result);
 		var seededContent = BaseContentHash(database);
-		var repeated = run.Invoke(null, [profile, seeders, typeof(ArmageddonMagicSeeder), factory, new Version(1, 0),
+		var repeated = run.Invoke(null, [profile, seeders, typeof(ArmageddonSettingSeeder), factory, new Version(1, 0),
 			(Action<string>)(x => Console.WriteLine("ARMBASE-refusal-progress=" + x))])!;
 		Require(!(bool)repeated.GetType().GetProperty("Success", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(repeated)! &&
 			!((IEnumerable)repeated.GetType().GetProperty("CompletedSeeders")!.GetValue(repeated)!).Cast<object>().Any(),
@@ -261,7 +264,7 @@ internal static partial class GNHProgram
 		RequireBaseDumpTargets(File.ReadAllText(sql), database.Name);
 		Require(BaseValueHash(sources) == BaseValueHash(BaseSources(steps)), "Base sources changed during capture.");
 		var receipt = new BaseWorldFixture(BaseFixtureKind, database.Name, Path.GetFileName(sql), BaseHash(sql), BaseProfileId,
-			typeof(ArmageddonMagicSeeder).FullName!, steps, migrations, BaseSchemaHash(database), BaseValueHash(sources), sources,
+			typeof(ArmageddonSettingSeeder).FullName!, steps, migrations, BaseSchemaHash(database), BaseValueHash(sources), sources,
 			BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.sql")),
 			BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.manifest.json")), OwnershipTable,
 			BaseContentHash(database), BaseContentAlgorithm);
@@ -296,7 +299,7 @@ internal static partial class GNHProgram
 		if (installPackage && ReleaseStockSmoke)
 		{
 			RunReleaseStockChild(database);
-			executed.Add("Release:DatabaseSeeder.Seeders.ArmageddonMagicSeeder");
+			executed.Add("Release:DatabaseSeeder.Seeders.ArmageddonSettingSeeder");
 		}
 		else if (installPackage)
 		{
@@ -305,11 +308,11 @@ internal static partial class GNHProgram
 			using (var db = NewPreparedReplayContext(database.ConnectionString)) existingNpcs = db.Npcs.Count();
 			long capacity;
 			using (var db = NewPreparedReplayContext(database.ConnectionString)) capacity = db.TraitDefinitions.Single(x => x.Name == "Willpower" && x.Type == 1 && x.OwnerScope == 0 && x.DerivedType == 0).Id;
-			ExecuteBaseTargetStep(database, new ArmageddonMagicSeeder(), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+			ExecuteBaseTargetStep(database, new ArmageddonSettingSeeder(), new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
 			{
-				[ArmageddonMagicSeeder.InstallQuestion] = "no", [ArmageddonMagicSeeder.FullInstallQuestion] = "yes", [ArmageddonMagicSeeder.ModeQuestion] = mode,
-				[ArmageddonMagicSeeder.CapacityQuestion] = capacity.ToString(System.Globalization.CultureInfo.InvariantCulture), [ArmageddonMagicSeeder.NativeBindingsQuestion] = "{}", [ArmageddonMagicSeeder.BindingsQuestion] = "none"
-			}); executed.Add(typeof(ArmageddonMagicSeeder).FullName!);
+				[ArmageddonSettingSeeder.InstallQuestion] = "no", [ArmageddonSettingSeeder.FullInstallQuestion] = "yes", [ArmageddonSettingSeeder.ModeQuestion] = mode,
+				[ArmageddonSettingSeeder.CapacityQuestion] = capacity.ToString(System.Globalization.CultureInfo.InvariantCulture), [ArmageddonSettingSeeder.NativeBindingsQuestion] = "{}", [ArmageddonSettingSeeder.BindingsQuestion] = "none"
+			}); executed.Add(typeof(ArmageddonSettingSeeder).FullName!);
 			if (S6Integration) AuditS6Installation(database, existingPlayers, existingNpcs);
 			if (S6Readiness && Environment.GetEnvironmentVariable("FUTUREMUD_S6_N24_REUSED") != "1") QualifyS6Maintenance(database, fixture.Sql, fixture.Receipt.Database);
 			foreach (var type in new[] { typeof(PsionicsSeeder), typeof(EnvironmentalExposureSeeder) }.Where(x => requested.Contains(x.Name)))
@@ -331,7 +334,7 @@ internal static partial class GNHProgram
 				else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_FOCUS_DEVICE_SMOKE_ONLY") == "1") PrepareFocusDeviceFixture(database);
 				else if (Environment.GetEnvironmentVariable("FUTUREMUD_S4_REMAINING_SMOKE_ONLY") == "1") PrepareRemainingStockFixture(database);
 			}
-			RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
+			RunPreparedReplayBoot(database, typeof(ArmageddonSettingSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
 		}
 		Require(BaseHash(fixture.Sql) == fixture.Receipt.SqlSha256 &&
 			BaseHash(Environment.GetEnvironmentVariable("FUTUREMUD_BASE_WORLD_FIXTURE")!) == fixture.ManifestHash &&
@@ -352,7 +355,7 @@ internal static partial class GNHProgram
 		IReadOnlyList<BaseStep> steps = [new("DatabaseSeeder.Seeders.CoreDataSeeder", [new("answer", "exact")])];
 		IReadOnlyList<BaseSource> sources = [new("DatabaseSeeder/base.cs", new string('A', 64))];
 		var original = new BaseWorldFixture(BaseFixtureKind, database, "fixture.sql", BaseHash(sql), BaseProfileId,
-			typeof(ArmageddonMagicSeeder).FullName!, steps, ["migration"], new string('B', 64), BaseValueHash(sources), sources,
+			typeof(ArmageddonSettingSeeder).FullName!, steps, ["migration"], new string('B', 64), BaseValueHash(sources), sources,
 			BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.sql")),
 			BaseHash(Path.Combine(CatalogueRepository, "DatabaseSeeder", "Assets", "Database", "BlankDatabaseSnapshot.manifest.json")), OwnershipTable, new string('C', 64), BaseContentAlgorithm);
 		var checks = 0;
@@ -441,7 +444,7 @@ internal static partial class GNHProgram
 			RequireBasePath(folder, BaseFixtureRoot, directory: true); Directory.Delete(folder, recursive: true);
 		}
 	}
-	private static void ExecuteBaseTargetStep(TestDatabase database, IDatabaseSeeder seeder, IReadOnlyDictionary<string, string> supplied)
+	private static void ExecuteBaseTargetStep(TestDatabase database, IDatabaseSeeder seeder, IReadOnlyDictionary<string, string> supplied, int? expectedActive = null)
 	{
 		using var db = NewPreparedReplayContext(database.ConnectionString);
 		Require(seeder.Enabled && seeder.AssessSeedData(db).Status != SeederAssessmentStatus.Blocked, "Targeted step is blocked: " + seeder.Name);
@@ -453,7 +456,8 @@ internal static partial class GNHProgram
 			Require(supplied.TryGetValue(question.Id, out var answer), "Missing active targeted answer: " + question.Id);
 			var valid = question.Validator(answer!, db); Require(valid.Success, "Invalid targeted answer: " + question.Id + ": " + valid.error); answers[question.Id] = answer!;
 		}
-		var execution = typeof(ArmageddonMagicSeeder).Assembly.GetType("DatabaseSeeder.SeederExecutionService", true)!
+		Require(expectedActive is null || answers.Count == expectedActive, "Targeted active question count differs from expected preset flow.");
+		var execution = typeof(ArmageddonSettingSeeder).Assembly.GetType("DatabaseSeeder.SeederExecutionService", true)!
 			.GetMethod("Execute", ReplayFlags)!.Invoke(null, [db, seeder, questions, answers, new Version(1, 0)])!;
 		Require((bool)execution.GetType().GetProperty("Success")!.GetValue(execution)!, "Targeted step failed: " + execution);
 		Console.WriteLine("ARMBASE-targeted-step=" + seeder.GetType().FullName);

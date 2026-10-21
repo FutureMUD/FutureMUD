@@ -127,6 +127,7 @@ public class PathPlanningMovementTests
 		public static PlanningCharacter Create(IFuturemud world, IBody body, IRoom location)
 		{
 			var actor = TestObjectFactory.CreateUninitialized<PlanningCharacter>();
+			typeof(MudSharp.Character.Character).GetField("_merits", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(actor, new List<MudSharp.RPG.Merits.IMerit>());
 			typeof(LateKeywordedInitialisingItem).GetField("<Gameworld>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(actor, world);
 			typeof(PerceivedItem).GetField("<EffectHandler>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(actor, Mock.Of<IEffectHandler>());
 			actor.Body = body; actor.TestPosition = PositionStanding.Instance; actor.At(location);

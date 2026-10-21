@@ -376,8 +376,9 @@ public partial class AnimalSeeder
             RaceUsesStamina = true,
             NaturalArmourType = null,
             NaturalArmourQuality = (int)ResolveAnimalNaturalArmourQuality(raceTemplate),
-            SweatLiquid = sweat,
-            SweatRateInLitresPerMinute = 0.8,
+            // Keep legacy catalogue fluid assets, but disable whole-body loss for non-sweaters.
+            SweatLiquid = raceTemplate?.SweatRateInLitresPerMinute > 0.0 ? sweat : null,
+            SweatRateInLitresPerMinute = raceTemplate?.SweatRateInLitresPerMinute ?? 0.0,
             BloodLiquid = bloodLiquid,
             BloodModel = bloodModel,
             BreathingVolumeExpression = "7",
@@ -406,7 +407,7 @@ public partial class AnimalSeeder
         }
 
         CreateEthnicitiesForRace(race);
-        _context.SaveChanges();
+        SeededSweatRates.SaveNewRace(_context, race);
         CreateDescriptionsForRace(race);
         CreateRaceAttacks(race);
 

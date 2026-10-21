@@ -233,12 +233,12 @@ using (var db = factory())
 		bindings = bindings with { Provisions = new(true, school.Id, source.Id, no.Id,
 			Owned(ArmageddonReviewedProvisionContent.SustainMealKey + ".skill"), Owned(ArmageddonReviewedProvisionContent.DrawWineKey + ".skill"),
 			[new(32, 0, foods.Select(x => new ArmageddonFoodPrototype(x.Id, 0)).ToArray())], wine, [new(32, 0, wine)]) };
-		File.WriteAllText(bindingsPath, ArmageddonMagicSeeder.SerializeBindings(bindings));
+		File.WriteAllText(bindingsPath, ArmageddonSettingSeeder.SerializeBindings(bindings));
 	}
 	else
 	{
 		Require(args[2] is "rerun" or "failure-cases", "Unknown mode.");
-		bindings = ArmageddonMagicSeeder.ParseBindings(File.ReadAllText(bindingsPath));
+		bindings = ArmageddonSettingSeeder.ParseBindings(File.ReadAllText(bindingsPath));
 	}
 }
 Identity();

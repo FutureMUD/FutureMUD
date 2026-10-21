@@ -261,7 +261,7 @@ def stock_definition_loading(session, phase, data, mapped):
     s = int(data['spell'])
     stock_spells = data.get('stock_spells', [])
     require(stock_spells and len({entry['key'] for entry in stock_spells}) == len(stock_spells), 'Missing or duplicate canonical definition inputs.')
-    claimed = sql("SELECT StableKey,LogicalId FROM SeederManagedRecords WHERE Seeder='ArmageddonMagicSeeder' AND Module='stock-spells' AND EntityType='MagicSpell' AND Retired=0 ORDER BY StableKey")
+    claimed = sql("SELECT StableKey,LogicalId FROM SeederManagedRecords WHERE Seeder='ArmageddonSettingSeeder' AND Module='stock-spells' AND EntityType='MagicSpell' AND Retired=0 ORDER BY StableKey")
     require([(row[0], int(row[1])) for row in claimed] == sorted((entry['key'], int(entry['id'])) for entry in stock_spells),
             'Prepared stock list does not cover every installed managed definition exactly once.')
     require(any(entry['key'] == 'arm.spell.read_attunement' and int(entry['id']) == s for entry in stock_spells), 'Original Read identity is missing.')

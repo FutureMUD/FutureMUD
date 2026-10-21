@@ -164,6 +164,7 @@ public class KindleItemEnchantmentTests
 	{
 		var f=new MagicCastingFixture(); var spell=Load(f); var item=Item(f);
 		var body=TestObjectFactory.CreateUninitialized<MudSharp.Body.Implementations.Body>(); body.Actor=f.Actor.Object;
+		typeof(MudSharp.Body.Implementations.Body).GetField("_merits", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(body, new List<MudSharp.RPG.Merits.IMerit>());
 		typeof(MudSharp.Body.Implementations.Body).GetProperty(nameof(body.Gameworld))!.SetValue(body,f.World.Object);
 		typeof(PerceivedItem).GetProperty(nameof(body.EffectHandler))!.SetValue(body,new EffectHandler(body));
 		typeof(MudSharp.Body.Implementations.Body).GetField("_externalItems",BindingFlags.Instance|BindingFlags.NonPublic)!.SetValue(body,new List<IGameItem>{item});

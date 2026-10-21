@@ -23,7 +23,7 @@ internal static partial class GNHProgram
 		}
 		// Execute the actual internal Debug API and complete stock profile. Reflection keeps this
 		// dedicated harness out of the production API and avoids editing shared friend/dispatch files.
-		var assembly = typeof(ArmageddonMagicSeeder).Assembly;
+		var assembly = typeof(ArmageddonSettingSeeder).Assembly;
 		var flags = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
 		var profiles = (IEnumerable)assembly.GetType("DatabaseSeeder.DebugSeederReplayProfiles", true)!.GetProperty("All", flags)!.GetValue(null)!;
 		var profile = profiles.Cast<object>().Single(x => (string)x.GetType().GetProperty("Id")!.GetValue(x)! == "medieval-standard");

@@ -1,4 +1,4 @@
-﻿
+
 namespace MudSharp.Character.Name;
 
 public static class PersonalNameExtensions
@@ -49,6 +49,14 @@ public static class PersonalNameExtensions
             case NameUsage.Toponym:
                 return
                     "A toponym is a type of name that refers to the place where a person originates from. Different cultures have different rules about how to form the toponym.";
+			case NameUsage.Title:
+				return "A declared form of address. Entering it does not confer a role, rank or title.";
+			case NameUsage.Affiliation:
+				return "A declared association, kept separate from the personal name. Entry does not grant membership.";
+			case NameUsage.ClanName:
+				return "An optional clan within a separately recorded family group or tribe.";
+			case NameUsage.EarnedName:
+				return "A name associated with an explicitly declared achievement, distinct from a name received on adulthood.";
             case NameUsage.OwnerName:
                 return
                     "An owner name is a name that represents your owner. It may be their actual name or surname, or it might be some related word. Either way, it marks you as owned by someone else.";

@@ -139,6 +139,7 @@ RecentlyUpdatedPlan
 RecentSpeechContextEffect
 Replanted Bodyparts
 ResidueContamination
+RoleSkillBonusClaims
 SecondWindExhausted
 ServingCustodialSentence
 ShopStallNoGetEffect

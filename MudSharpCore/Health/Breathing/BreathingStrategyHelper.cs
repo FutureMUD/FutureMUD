@@ -14,23 +14,26 @@ internal static class BreathingStrategyHelper
 	public static bool IsStoppedByEffect(IBody body) =>
 		body.CombinedEffectsOfType<IStopBreathing>().Any(x => x.Applies());
 
-	public static void ExposeToMagic(IBody body, IFluid? fluid, bool supplied = false)
+	public static double BreathingVolume(IBody body, IFluid fluid, TimeSpan elapsed) =>
+		body.Race.BreathingRate(body, fluid) * elapsed.TotalMinutes / body.Gameworld.UnitManager.BaseFluidToLitres;
+
+	public static void ExposeToMagic(IBody body, IFluid? fluid, TimeSpan elapsed, bool supplied = false)
 	{
 		if (fluid is null || !HasAirflow(body)) { EnvironmentalExposureService.For(body.Gameworld).NoInhalation(body); return; }
 		EnvironmentalExposureService.For(body.Gameworld).Inhaled(body, fluid, supplied);
 		if (fluid is IGas gas) MudSharp.Magic.MagicalExposure.Carrier(body, MudSharp.Magic.SubstanceCarrier.Gas,
-			gas.Id, body.Race.BreathingRate(body, gas), DrugVector.Inhaled);
+			gas.Id, BreathingVolume(body, gas, elapsed), DrugVector.Inhaled);
 	}
 
-	public static bool HasWorkingSupply(IBody body) => body.Bodyparts.OfType<MouthProto>()
+	public static bool HasWorkingSupply(IBody body, TimeSpan elapsed) => body.Bodyparts.OfType<MouthProto>()
 		.Any(mouth => body.WornItemsFor(mouth).Select(x => x.GetItemType<IProvideGasForBreathing>())
 			.OfType<IProvideGasForBreathing>().Any(x => x.Gas is not null &&
 				(!TerrainImmersionHelper.IsPartImmersed(body, mouth) || x.WaterTight) &&
-				x.CanConsumeGas(body.Race.BreathingRate(body, x.Gas!))));
+				x.CanConsumeGas(BreathingVolume(body, x.Gas!, elapsed))));
 
-	public static void UnbreathableSample(IBody body, IFluid? fluid)
+	public static void UnbreathableSample(IBody body, IFluid? fluid, TimeSpan elapsed)
 	{
-		if (fluid is null || body.HeldBreathTime > TimeSpan.Zero || !HasAirflow(body) || HasWorkingSupply(body))
+		if (fluid is null || body.HeldBreathTime > TimeSpan.Zero || !HasAirflow(body) || HasWorkingSupply(body, elapsed))
 		{ EnvironmentalExposureService.For(body.Gameworld).NoInhalation(body); return; }
 		EnvironmentalExposureService.For(body.Gameworld).Inhaled(body, fluid);
 	}

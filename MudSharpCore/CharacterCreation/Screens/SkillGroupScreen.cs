@@ -21,7 +21,7 @@ public sealed class SkillGroupScreen : IChargenScreen
 	}
 
 	public static IChargenScreen Wrap(IChargen chargen, IFutureProg? freeSkills, Func<IChargenScreen> openFactory) =>
-		chargen.SkillClaims?.Initialised == true || (chargen.Gameworld.ChargenSkillSelectionGroups?.Any(x => x.Enabled && !x.Retired) ?? false)
+		chargen.SkillClaims?.Initialised == true || RoleSkillProgressionService.Applies(chargen) || (chargen.Gameworld.ChargenSkillSelectionGroups?.Any(x => x.Enabled && !x.Retired) ?? false)
 			? new SkillGroupScreen(chargen, freeSkills, openFactory) : openFactory();
 
 	private bool GroupPhase => !_resolver.Complete || (_reviewGroups && _resolver.Groups.Count > 0);

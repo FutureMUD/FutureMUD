@@ -96,7 +96,31 @@ internal static class VehicleMovementCommand
 			return VehicleMovementCommandResult.Failed;
 		}
 
-		var misdirected = false;
+		var pilotMisdirected = false;
+		if (actor.Gameworld.GetStaticBool(VehiclePilot.EnabledSetting))
+		{
+			if (!VehicleMovement.CanStartManualMove(vehicle, actor, exit, out reason))
+			{
+				actor.OutputHandler.Send(reason);
+				actor.QueuedMoveCommands.Clear();
+				return VehicleMovementCommandResult.Failed;
+			}
+			var controlled = VehiclePilot.Resolve(actor, exit,
+				vehicle.Location.ExitsFor(vehicle.ExteriorItem ?? (IPerceiver)actor),
+				candidate => vehicle.CanMove(actor, candidate, out _) &&
+					VehicleMovement.CanStartManualMove(vehicle, actor, candidate, out _, requireSafe: true),
+				movementPerceiver: vehicle.Prototype.Scale == VehicleScale.RoomScale ? vehicle.ExteriorItem : actor);
+			if (controlled is null)
+			{
+				actor.OutputHandler.Send(VehiclePilot.NoProgressMessage);
+				actor.QueuedMoveCommands.Clear();
+				return VehicleMovementCommandResult.Failed;
+			}
+			pilotMisdirected = !ReferenceEquals(controlled, exit);
+			exit = controlled;
+		}
+
+		var misdirected = pilotMisdirected;
 		if (exit is not INonCardinalRoomExit &&
 		    Constants.CardinalDirectionStringToDirection.TryGetValue(direction, out var manualDirection) &&
 		    DirectionSenseMovement.IsCompassDirection(manualDirection) &&
@@ -121,7 +145,7 @@ internal static class VehicleMovementCommand
 				return VehicleMovementCommandResult.Failed;
 			}
 
-			misdirected = !ReferenceEquals(selected, exit);
+			misdirected |= !ReferenceEquals(selected, exit);
 			exit = selected;
 		}
 

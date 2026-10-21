@@ -69,6 +69,7 @@ public sealed class TrapSeeder : IDatabaseSeeder
 
 	private static TraitDefinition EnsureTrapsSkill(FuturemudDatabaseContext context)
 	{
+		if (ArmageddonSkillPackage.IsInstalled(context)) return ArmageddonSkillPackage.Resolve(context)["arm.skill.trap"];
 		var existing = context.TraitDefinitions.FirstOrDefault(x => x.Name == "Traps");
 		if (existing is not null)
 		{
@@ -133,6 +134,13 @@ public sealed class TrapSeeder : IDatabaseSeeder
 			         CheckType.EscapeTrapCheck
 		         })
 		{
+			if (ArmageddonSkillPackage.IsInstalled(context))
+			{
+				var messages = new List<string>();
+				ArmageddonMundaneBindings.EnsureCheck(context, checkType, $"traps:{traps.Id}", template.Id, Difficulty.Impossible, messages, rejectUnowned: true);
+				foreach (var message in messages) Console.WriteLine(message);
+				continue;
+			}
 			var expressionName = $"{checkType.DescribeEnum(true)} Formula";
 			var expression = context.TraitExpressions.FirstOrDefault(x => x.Name == expressionName);
 			if (expression is null)

@@ -78,6 +78,22 @@ def sql(statement):
     require(lines[1] == marker, 'Owned database marker changed.')
     return [line.split('\t') for line in lines[2:]]
 
+def setting_character_state():
+    # Only disposable native Setting qualification accounts; never credentials or unrelated players.
+    join = " JOIN Characters c ON c.Id=t.CharacterId JOIN Accounts a ON a.Id=c.AccountId WHERE a.Name LIKE 'SettingQual%' "
+    characters = sql("SELECT c.Id,c.BodyId,c.Name FROM Characters c JOIN Accounts a ON a.Id=c.AccountId WHERE a.Name LIKE 'SettingQual%' ORDER BY c.Id")
+    traits = sql("SELECT t.CharacterId,t.TraitDefinitionId,t.Value,t.AdditionalValue FROM CharacterTraits t"+join+"ORDER BY t.CharacterId,t.TraitDefinitionId")
+    roles = sql("SELECT t.CharacterId,t.ChargenRoleId FROM Characters_ChargenRoles t"+join+"ORDER BY t.CharacterId,t.ChargenRoleId")
+    merits = sql("SELECT t.CharacterId,t.MeritId FROM PerceiverMerits t"+join+"ORDER BY t.CharacterId,t.MeritId")
+    import xml.etree.ElementTree as ET
+    effects = sql("SELECT c.Id,REPLACE(REPLACE(c.EffectData,CHAR(10),''),CHAR(13),'') FROM Characters c JOIN Accounts a ON a.Id=c.AccountId WHERE a.Name LIKE 'SettingQual%' ORDER BY c.Id")
+    claims = []
+    for row in effects:
+        root = ET.fromstring(row[1])
+        markers = [node for node in root.iter('Type') if node.text == 'RoleSkillBonusClaims']
+        claims.append([row[0],len(markers),sorted((node.attrib['trait'],node.attrib['floor']) for node in root.iter('Claim'))])
+    return {'characters':characters,'traits':traits,'roles':roles,'merits':merits,'claims':claims}
+
 class IoCounters(ctypes.Structure):
     _fields_ = [(name, ctypes.c_ulonglong) for name in ('ReadOperationCount','WriteOperationCount','OtherOperationCount','ReadTransferCount','WriteTransferCount','OtherTransferCount')]
 class BasicLimits(ctypes.Structure):
@@ -182,8 +198,12 @@ def boot(phase):
             session.send('l',read_seconds=1)
             session.send('Admin',read_seconds=1)
             session.send(PASSWORD,secret=True,read_seconds=1)
-            session.send('c',read_seconds=1)
-            session.send('1',read_seconds=3)
+            choices = session.send('c',read_seconds=1)
+            avatar_name = receipt['initial_avatar'][2]
+            matches = re.findall(r'^\s*(\d+):\s*' + re.escape(avatar_name) + r'\s+\(Active\)\s*$', choices, re.MULTILINE)
+            require(len(matches) == 1, 'Expected exactly one active menu entry for the pinned Admin avatar.')
+            receipt[phase+'_avatar_menu_option'] = int(matches[0])
+            session.send(matches[0],read_seconds=3)
             looked = session.send('look',read_seconds=3)
             require('Guest Lounge' in looked, 'Native login/LOOK did not reach seeded Guest Lounge.')
             assertions.append(phase+': native Admin avatar login and LOOK')
@@ -232,6 +252,9 @@ try:
     sql('SELECT 1')
     receipt['ownership_marker_sha256'] = hashlib.sha256(marker.encode()).hexdigest().upper()
     receipt['initial_avatar'] = character_state()
+    qualification_state = setting_character_state()
+    receipt['setting_qualification_characters'] = qualification_state['characters']
+    receipt['setting_qualification_sha256'] = hashlib.sha256(json.dumps(qualification_state,sort_keys=True).encode()).hexdigest().upper()
     discord_socket.bind(('127.0.0.1',0)) # Reserved but not listening: bridge fails locally, sends nowhere.
     discord_port = discord_socket.getsockname()[1]
     # Fresh reduced bases may not have optional service rows yet. Only this verified owned DB is changed.
@@ -251,7 +274,10 @@ try:
     receipt['assemblies'] = [{'path':str(REPO/'MudSharpCore/bin/Debug/net10.0'/name),'sha256':sha(REPO/'MudSharpCore/bin/Debug/net10.0'/name)}
                             for name in ('MudSharp.dll','FutureMUDLibrary.dll','MudsharpDatabaseLibrary.dll','ExpressionEngine.dll')]
     boot('first')
+    require(setting_character_state() == qualification_state, 'First boot changed qualified player traits/roles/merits/deferred claims.')
     boot('cold')
+    require(setting_character_state() == qualification_state, 'Cold boot changed qualified player traits/roles/merits/deferred claims.')
+    receipt['setting_player_values_roles_merits_claims_preserved'] = bool(qualification_state['characters'])
     require(receipt['first_after_shutdown'][:4] == receipt['cold_after_shutdown'][:4], 'Cold restart did not retain seeded avatar identity/cell.')
     require(receipt['cold_after_flush'][4] > receipt['first_after_flush'][4], 'Cold login did not advance persisted login time.')
     require(all(sha(row['path']) == row['sha256'] for row in receipt['assemblies']), 'Boot assembly source changed during qualification.')

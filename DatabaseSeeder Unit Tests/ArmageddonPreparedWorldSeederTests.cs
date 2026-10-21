@@ -73,14 +73,14 @@ public partial class ArmageddonPreparedWorldSeederTests
 	private static void Completed(ArmageddonPreparedWorldInstallResult result) => Assert.AreEqual(ArmageddonInstallStatus.Completed, result.Status, result.Describe());
 	private static Dictionary<string, string> Answers(ArmageddonPreparedWorldBindings bindings) => new()
 	{
-		[ArmageddonMagicSeeder.InstallQuestion] = "yes", [ArmageddonMagicSeeder.BindingsQuestion] = ArmageddonMagicSeeder.SerializeBindings(bindings)
+		[ArmageddonSettingSeeder.InstallQuestion] = "yes", [ArmageddonSettingSeeder.BindingsQuestion] = ArmageddonSettingSeeder.SerializeBindings(bindings)
 	};
 
 	[TestMethod] public void OptInAlwaysDefaultsNoDespiteHistoricalYesAndDeclineDoesNotQuery()
 	{
 		var (db, _) = Fixture(); using (db)
 		{
-			var seeder = new ArmageddonMagicSeeder();
+			var seeder = new ArmageddonSettingSeeder();
 			var question = seeder.Questions.First();
 			db.SeederChoices.Add(new() { Seeder = seeder.Name, Choice = question.Id, Answer = "yes", DateTime = DateTime.UtcNow, Version = "old" }); db.SaveChanges();
 			Assert.AreEqual("no", SeederAnswerMemory.GetRememberedAnswer(db, seeder, question, new Dictionary<string, string>()));
@@ -93,11 +93,11 @@ public partial class ArmageddonPreparedWorldSeederTests
 	{
 		var (db, bindings) = Fixture(); using (db)
 		{
-			var json = ArmageddonMagicSeeder.SerializeBindings(bindings); Assert.IsTrue(ArmageddonMagicSeeder.ValidateBindings(json, db).Success);
+			var json = ArmageddonSettingSeeder.SerializeBindings(bindings); Assert.IsTrue(ArmageddonSettingSeeder.ValidateBindings(json, db).Success);
 			foreach (var invalid in new[] { "null", "{}", json.Insert(1, "\"Unexpected\":1,"), json.Insert(1, "\"ReserveResource\":1,"),
-				json.Replace("\"Self\"", "0"), ArmageddonMagicSeeder.SerializeBindings(bindings with { CapacityAttribute = 1 }),
-				ArmageddonMagicSeeder.SerializeBindings(bindings with { CapacityBasis = "guessed" }), ArmageddonMagicSeeder.SerializeBindings(bindings with { ReserveResource = 0 }) })
-				Assert.IsFalse(ArmageddonMagicSeeder.ValidateBindings(invalid, db).Success, invalid);
+				json.Replace("\"Self\"", "0"), ArmageddonSettingSeeder.SerializeBindings(bindings with { CapacityAttribute = 1 }),
+				ArmageddonSettingSeeder.SerializeBindings(bindings with { CapacityBasis = "guessed" }), ArmageddonSettingSeeder.SerializeBindings(bindings with { ReserveResource = 0 }) })
+				Assert.IsFalse(ArmageddonSettingSeeder.ValidateBindings(invalid, db).Success, invalid);
 			Assert.AreEqual(0, db.SeederManagedRecords.Count());
 		}
 	}
@@ -112,21 +112,21 @@ public partial class ArmageddonPreparedWorldSeederTests
 			};
 			Completed(ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings with { AllowedMethods = full }));
 			full["defiler"] = [MagicGatheringMethodKind.Gentle];
-			Assert.IsFalse(ArmageddonMagicSeeder.ValidateBindings(ArmageddonMagicSeeder.SerializeBindings(bindings with { AllowedMethods = full }), db).Success);
+			Assert.IsFalse(ArmageddonSettingSeeder.ValidateBindings(ArmageddonSettingSeeder.SerializeBindings(bindings with { AllowedMethods = full }), db).Success);
 		}
 	}
 	[TestMethod] public void SharedExecutorInstallsFourClosedAdmissionsWithStableRerunsAndNoPlayerMutation()
 	{
 		var (db, bindings) = Fixture(); using (db)
 		{
-			var seeder = new ArmageddonMagicSeeder();
+			var seeder = new ArmageddonSettingSeeder();
 			var execution = SeederExecutionService.Execute(db, seeder, seeder.Questions, Answers(bindings), new Version(1, 0));
 			Assert.IsTrue(execution.Success, execution.Exception?.ToString()); StringAssert.Contains(execution.Message!, "4/82 stored");
 			var ids = db.SeederManagedRecords.AsNoTracking().ToDictionary(x => x.StableKey, x => x.LogicalId);
 			Assert.AreEqual(196, ids.Count); Assert.AreEqual(6, db.MagicSpells.Count());
 			Assert.IsFalse(db.SeederManagedRecords.Any(x => x.Module == ArmageddonProvisionInstaller.Module));
-			Assert.IsFalse(db.SeederChoices.Any(x => x.Choice == ArmageddonMagicSeeder.InstallQuestion));
-			Assert.AreEqual(1, db.SeederChoices.Count(x => x.Choice == ArmageddonMagicSeeder.BindingsQuestion));
+			Assert.IsFalse(db.SeederChoices.Any(x => x.Choice == ArmageddonSettingSeeder.InstallQuestion));
+			Assert.AreEqual(1, db.SeederChoices.Count(x => x.Choice == ArmageddonSettingSeeder.BindingsQuestion));
 			for (var i = 0; i < 2; i++)
 			{
 				var result = ArmageddonPreparedWorldInstaller.Install(Factory(db), bindings); Completed(result);
@@ -157,7 +157,7 @@ public partial class ArmageddonPreparedWorldSeederTests
 			var original = (DbContextOptions<FuturemudDatabaseContext>)db.GetService<IDbContextOptions>();
 			var options = new DbContextOptionsBuilder<FuturemudDatabaseContext>(original).UseLazyLoadingProxies();
 			using var interactive = new FuturemudDatabaseContext(options.Options);
-			var seeder = new ArmageddonMagicSeeder();
+			var seeder = new ArmageddonSettingSeeder();
 			var answers = Answers(bindings);
 			for (var i = 0; i < 2; i++)
 			{
@@ -214,21 +214,21 @@ public partial class ArmageddonPreparedWorldSeederTests
 		foreach (var profile in DebugSeederReplayProfiles.All)
 		{
 			var validation = SeederReplayRunner.Validate(profile, SeederCatalogue.GetEnabledSeeders()); Assert.IsTrue(validation.IsValid, string.Join("\n", validation.Errors));
-			var step = profile.Steps.Single(x => x.SeederType == typeof(ArmageddonMagicSeeder)); Assert.AreEqual(6, step.Answers.Count);
-			var seeder = new ArmageddonMagicSeeder(); var prior = new Dictionary<string, string>();
+			var step = profile.Steps.Single(x => x.SeederType == typeof(ArmageddonSettingSeeder)); Assert.AreEqual(6, step.Answers.Count);
+			var seeder = new ArmageddonSettingSeeder(); var prior = new Dictionary<string, string>();
 			foreach (var question in seeder.Questions)
 			{
 				var answer = step.Answers.Single(x => x.Id == question.Id).Answer;
 				if (!SeederQuestionWorkflow.IsActive(question, db, prior)) continue;
 				Assert.IsTrue(SeederQuestionWorkflow.Validate(question, answer, db).Success); prior.Add(question.Id, answer);
 			}
-			Assert.AreEqual("no", prior[ArmageddonMagicSeeder.FullInstallQuestion]);
+			Assert.AreEqual("no", prior[ArmageddonSettingSeeder.FullInstallQuestion]);
 			Assert.AreEqual(1, prior.Count);
-			Assert.AreEqual("no", step.Answers.Single(x => x.Id == ArmageddonMagicSeeder.InstallQuestion).Answer);
-			Assert.AreEqual("none", step.Answers.Single(x => x.Id == ArmageddonMagicSeeder.BindingsQuestion).Answer);
-			Assert.AreEqual("Classic", step.Answers.Single(x => x.Id == ArmageddonMagicSeeder.ModeQuestion).Answer);
-			Assert.AreEqual("0", step.Answers.Single(x => x.Id == ArmageddonMagicSeeder.CapacityQuestion).Answer);
-			Assert.AreEqual("{}", step.Answers.Single(x => x.Id == ArmageddonMagicSeeder.NativeBindingsQuestion).Answer);
+			Assert.AreEqual("no", step.Answers.Single(x => x.Id == ArmageddonSettingSeeder.InstallQuestion).Answer);
+			Assert.AreEqual("none", step.Answers.Single(x => x.Id == ArmageddonSettingSeeder.BindingsQuestion).Answer);
+			Assert.AreEqual("Classic", step.Answers.Single(x => x.Id == ArmageddonSettingSeeder.ModeQuestion).Answer);
+			Assert.AreEqual("0", step.Answers.Single(x => x.Id == ArmageddonSettingSeeder.CapacityQuestion).Answer);
+			Assert.AreEqual("{}", step.Answers.Single(x => x.Id == ArmageddonSettingSeeder.NativeBindingsQuestion).Answer);
 		}
 #endif
 	}

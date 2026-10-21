@@ -36,13 +36,22 @@ internal static partial class GNHProgram
 			Require(args.Length == 3, "Base fixture validation requires an explicit descriptor path and SHA-256.");
 			return ValidateBaseWorldFixture(args[1], args[2]);
 		}
+		if (args.FirstOrDefault() == "--setting-source-pin") return CoreFoundationQualification(setting: true, sourcePinOnly: true);
 		OwnedConnections.Install();
 		return args.FirstOrDefault() switch
 		{
 			"--prepared-run" => PreparedSeederNative(),
+			"--setting-followups-run" => CoreFoundationQualification(setting: true, followupsOnly: true),
+			"--setting-followups-reader" => ReadSettingFollowups(args[1]),
             "--core-foundations-run" => CoreFoundationQualification(),
+            "--setting-foundations-run" => CoreFoundationQualification(setting: true),
+            "--setting-debug-runtime-run" => RestoreSettingDebugCheckpoint(),
+            "--setting-role-reader" => ReadSettingRoleQualification(args[1]),
 			"--prepared-reader" => PreparedSeederReader(args[1]),
 			"--replay-run" => PreparedSeederReplayNative(),
+#if DEBUG
+			"--setting-full-replay-run" => FullSettingReplayNative(),
+#endif
 			"--settings-run" => PreparedSeederReplayNative(settings: true),
 			"--stock-progressions-run" => PreparedSeederReplayNative(progression: true),
 			"--stock-supplies-run" => PreparedSeederReplayNative(supplies: true),
@@ -129,15 +138,15 @@ internal static partial class GNHProgram
 			bindings = new(utility, utility.Resource, decorator.Id, yes.Id, fixture.CapabilityId, new Dictionary<string, long> { ["arm.support.gather"] = gather.Id },
 				attribute.Id, expression.Id, "raw", ArmageddonTraditionInstaller.Variants.ToDictionary(x => x, _ => (IReadOnlyList<MagicGatheringMethodKind>)new[] { MagicGatheringMethodKind.Self }));
 		}
-		var players = TraditionPlayers(database); var seeder = new ArmageddonMagicSeeder();
+		var players = TraditionPlayers(database); var seeder = new ArmageddonSettingSeeder();
 		var beforeMenu = PreparedDatabaseChecksum(database);
 		var declineMenu = PreparedMenu(database, false, null);
 		Require(declineMenu.Contains("Suggested default: no") && declineMenu.Contains("declined") && beforeMenu == PreparedDatabaseChecksum(database), "Actual menu default decline changed content.");
 		using (var db = NewIndependentContext(database.ConnectionString))
 		{
 			Require(seeder.Questions.First().DefaultAnswerResolver!(db, new Dictionary<string, string>()) == "no", "Native default opt-in changed.");
-			Require(seeder.SeedData(db, new Dictionary<string, string> { [ArmageddonMagicSeeder.InstallQuestion] = "no" }).Contains("declined") && PreparedIdentities(database).Count == 0, "Native decline wrote content.");
-			Require(ArmageddonMagicSeeder.ValidateBindings(ArmageddonMagicSeeder.SerializeBindings(bindings), db).Success, "Native prepared bindings rejected.");
+			Require(seeder.SeedData(db, new Dictionary<string, string> { [ArmageddonSettingSeeder.InstallQuestion] = "no" }).Contains("declined") && PreparedIdentities(database).Count == 0, "Native decline wrote content.");
+			Require(ArmageddonSettingSeeder.ValidateBindings(ArmageddonSettingSeeder.SerializeBindings(bindings), db).Success, "Native prepared bindings rejected.");
 		}
 		foreach (var boundary in new[] { ArmageddonInstallCheckpoint.ContentCreated, ArmageddonInstallCheckpoint.BeforeCommit })
 		{
@@ -157,7 +166,7 @@ internal static partial class GNHProgram
 		Console.WriteLine("ARMPREP-boundaries=passed utility-real-rollback lost-ack-stop no-cross-module-rollback-claim");
 		var stopped = RunPrepared(database, bindings, (module, point) => { if (module == ArmageddonTraditionInstaller.Module && point == ArmageddonInstallCheckpoint.BeforeCommit) throw new IOException("Native later module interruption"); });
 		Require(stopped.Status == ArmageddonInstallStatus.Failed && stopped.Modules.Count == 2 && stopped.Modules[0].Status == ArmageddonInstallStatus.Completed && PreparedIdentities(database).Count == 21, "Later rollback discarded committed utilities or left traditions.");
-		var json = ArmageddonMagicSeeder.SerializeBindings(bindings);
+		var json = ArmageddonSettingSeeder.SerializeBindings(bindings);
 		QualifyFreshPreparedBootstrap(database, bindings, json);
 		var positiveMenu = PreparedMenu(database, true, json);
 		Require(positiveMenu.Contains("4/82") && positiveMenu.Contains("unattainable") && positiveMenu.Contains("Completed"), "Actual opt-in menu misreported closure or failed.");
@@ -260,7 +269,7 @@ internal static partial class GNHProgram
 			Require(input.Identities.OrderBy(x => x.Key).SequenceEqual(PreparedIdentities(database).OrderBy(x => x.Key)), "Fresh readonly reader changed identities.");
 			Console.WriteLine("ARMPREP-composition-reader=passed fresh-process exact-policy-baselines identities readonly-before-resume"); return 0;
 		}
-		var result = RunPrepared(database, ArmageddonMagicSeeder.ParseBindings(input.Bindings)); RequirePrepared(result);
+		var result = RunPrepared(database, ArmageddonSettingSeeder.ParseBindings(input.Bindings)); RequirePrepared(result);
 		VerifyPreparedReaderPolicy(database, input);
 		Require(input.Identities.OrderBy(x => x.Key).SequenceEqual(PreparedIdentities(database).OrderBy(x => x.Key)) && players == TraditionPlayers(database), "Fresh-process prepared rerun changed identities/players.");
 		Console.WriteLine("ARMPREP-reader=passed fresh-process same-owned-identities no-player-mutation"); return 0;

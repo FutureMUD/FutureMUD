@@ -1,4 +1,4 @@
-﻿using MudSharp.CharacterCreation;
+using MudSharp.CharacterCreation;
 using MudSharp.Database;
 using MudSharp.Framework.Save;
 using MudSharp.FutureProg.Variables;
@@ -95,6 +95,10 @@ public class NameCulture : SaveableItem, INameCulture
     public IEnumerable<NameCultureElement> NameCultureElements => _nameCultureElements;
     public IEnumerable<IRandomNameProfile> RandomNameProfiles => _randomNameProfiles;
 	public bool PreserveNameCase { get; private set; }
+	public bool UseStructuredEntry { get; private set; }
+	public bool ExactRandomProfileGender { get; private set; }
+	public bool AllowTypographicPunctuation { get; private set; }
+	private XElement _curatedNamingDefinition;
 
     public IProgVariable GetProperty(string property)
     {
@@ -142,7 +146,11 @@ public class NameCulture : SaveableItem, INameCulture
 
     protected void LoadFromXml(XElement root)
     {
+		UseStructuredEntry = bool.TryParse(root.Element("UseStructuredEntry")?.Value, out var structured) && structured;
 		PreserveNameCase = bool.TryParse(root.Element("PreserveNameCase")?.Value, out var preserveCase) && preserveCase;
+		ExactRandomProfileGender = bool.TryParse(root.Element("ExactRandomProfileGender")?.Value, out var exactGender) && exactGender;
+		AllowTypographicPunctuation = bool.TryParse(root.Element("AllowTypographicPunctuation")?.Value, out var typographic) && typographic;
+		_curatedNamingDefinition = root.Element("CuratedNamingDefinition") is { } curated ? new XElement(curated) : null;
         XElement element = root.Element("Patterns");
         if (element != null)
         {
@@ -183,6 +191,8 @@ public class NameCulture : SaveableItem, INameCulture
                 return null;
             }
 
+			if (UseStructuredEntry && pattern.StartsWith("/elements ", StringComparison.OrdinalIgnoreCase))
+				return ParseStructuredName(pattern[10..].Normalize(System.Text.NormalizationForm.FormC), nonSaving);
             Match match = _nameEntryRegex.Match(pattern.Normalize(System.Text.NormalizationForm.FormC));
             if (!match.Success)
             {
@@ -206,6 +216,7 @@ public class NameCulture : SaveableItem, INameCulture
                 }
             }
 
+			if (UseStructuredEntry && NameSelectionValidation.Validate(this, elements) is not null) return null;
             return new PersonalName(this, elements, nonSaving);
         }
         catch
@@ -214,10 +225,38 @@ public class NameCulture : SaveableItem, INameCulture
         }
     }
 
+	private IPersonalName ParseStructuredName(string input, bool nonSaving)
+	{
+		var stack = new StringStack(input);
+		var selections = new Dictionary<NameUsage, List<string>>();
+		var confirmed = new HashSet<NameUsage>();
+		var display = new Dictionary<NameUsage, bool>();
+		while (!stack.IsFinished)
+		{
+			var key = stack.PopSpeech();
+			if (key.EqualTo("confirm") || key.EqualTo("display"))
+			{
+				if (stack.IsFinished || !stack.PopSpeech().TryParseEnum<NameUsage>(out var option)) return null;
+				if (key.EqualTo("confirm")) confirmed.Add(option); else display[option] = true;
+				continue;
+			}
+			if (!key.TryParseEnum<NameUsage>(out var usage) || stack.IsFinished) return null;
+			var value = stack.PopSpeech();
+			if (!selections.TryGetValue(usage, out var values)) selections[usage] = values = [];
+			values.Add(value);
+		}
+		if (NameSelectionValidation.Validate(this, selections, confirmed, display) is not null) return null;
+		return new PersonalName(this, selections, nonSaving, confirmed, display);
+	}
+
     public XElement SaveToXml()
     {
         return new XElement("NameCulture",
+			UseStructuredEntry ? new XElement("UseStructuredEntry", true) : null,
 			PreserveNameCase ? new XElement("PreserveNameCase", true) : null,
+			ExactRandomProfileGender ? new XElement("ExactRandomProfileGender", true) : null,
+			AllowTypographicPunctuation ? new XElement("AllowTypographicPunctuation", true) : null,
+			_curatedNamingDefinition is null ? null : new XElement(_curatedNamingDefinition),
             new XElement("Patterns",
                 from pattern in _styles
                 select new XElement("Pattern", new XAttribute("Style", (int)pattern.Key),
@@ -240,13 +279,16 @@ public class NameCulture : SaveableItem, INameCulture
     private const string NameCultureBuildingHelp = @"You can use the following options with this subcommand:
 
 	#3name <name>#0 - renames the naming culture	
+	#3preservecase#0 - toggles preserving entered and generated name spelling
+	#3exactgender#0 - toggles exact random-profile gender matching
+	#3typographic#0 - toggles curly apostrophe and Unicode hyphen entry
 	#3regex <regex>#0 - sets the regex for the naming culture
 	#3pattern <which> <pattern>#0 - sets the naming pattern for a particular context
 	#3element add <type>#0 - adds a new naming element of the specified type
 	#3element remove <type>#0 - removes a naming element of the specified type
 	#3element <type> name <name>#0 - renames an element
 	#3element <type> min <min>#0 - sets the minimum number of picks for an element
-	#3element <type> max <max>#0 - sets the maximum number of picks for an element
+	#3element <type> max <max|unlimited>#0 - sets the maximum number of picks for an element
 	#3element <type> blurb#0 - drops into an editor for the chargen blurb
 
 #6Note 1 - Regex Rules#0
@@ -264,6 +306,21 @@ For example, #3?Nickname[ a.k.a ""$Nickname""][]#0";
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+			case "preservecase":
+				PreserveNameCase = !PreserveNameCase;
+				Changed = true;
+				actor.OutputHandler.Send($"Preserve exact name case: {PreserveNameCase.ToColouredString()}.");
+				return true;
+			case "exactgender":
+				ExactRandomProfileGender = !ExactRandomProfileGender;
+				Changed = true;
+				actor.OutputHandler.Send($"Exact random-profile gender matching: {ExactRandomProfileGender.ToColouredString()}.");
+				return true;
+			case "typographic":
+				AllowTypographicPunctuation = !AllowTypographicPunctuation;
+				Changed = true;
+				actor.OutputHandler.Send($"Allow typographic name punctuation: {AllowTypographicPunctuation.ToColouredString()}.");
+				return true;
             case "name":
                 return BuildingCommandName(actor, command);
             case "element":
@@ -508,13 +565,15 @@ For example, #3?Nickname[ a.k.a ""$Nickname""][]#0";
                     return false;
                 }
 
-                if (!int.TryParse(command.SafeRemainingArgument, out int max) || max < 1)
+				var unlimited = command.SafeRemainingArgument.EqualTo("unlimited");
+				var max = -1;
+                if (!unlimited && (!int.TryParse(command.SafeRemainingArgument, out max) || max < 1))
                 {
-                    actor.OutputHandler.Send("You must specify a valid number one or greater.");
+                    actor.OutputHandler.Send("Specify a number one or greater, or unlimited.");
                     return false;
                 }
 
-                if (max < element.MinimumCount)
+                if (max >= 0 && max < element.MinimumCount)
                 {
                     actor.OutputHandler.Send("You cannot have a maximum that is smaller than your minimum.");
                     return false;
@@ -523,7 +582,7 @@ For example, #3?Nickname[ a.k.a ""$Nickname""][]#0";
                 _nameCultureElements[_nameCultureElements.IndexOf(element)] = element with { MaximumCount = max };
                 Changed = true;
                 actor.OutputHandler.Send(
-                    $"The {element.Name.ColourName()} name element now has a maximum of {max.ToString("N0", actor).ColourValue()} choices.");
+                    $"The {element.Name.ColourName()} name element now has a maximum of {(max < 0 ? "unlimited" : max.ToString("N0", actor)).ColourValue()} choices.");
                 return true;
             case "blurb":
                 actor.OutputHandler.Send("Please enter the blurb for character creation for this name element.");

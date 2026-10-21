@@ -35,6 +35,31 @@ namespace MudSharp_Unit_Tests;
 [TestClass]
 public class EnvironmentalExposureIntegrationTests
 {
+	[TestMethod]
+	public void RespiratoryLiquidSample_ConvertsRateToElapsedBaseVolume()
+	{
+		var f = new WorldFixture();
+		f.World.Setup(x => x.UnitManager.BaseFluidToLitres).Returns(0.5);
+		var part = Mock.Of<IExternalBodypart>(x => x.Id == 1 && x.RelativeHitChance == 1);
+		var body = f.Body("partless", part);
+		var liquid = new Mock<ILiquid>();
+		liquid.SetupGet(x => x.EnvironmentalReactions).Returns(new[] { f.Rule });
+		Mock.Get(body.Object.Race).Setup(x => x.BreathingRate(body.Object, liquid.Object)).Returns(14);
+		var prog = new Mock<IFutureProg>();
+		prog.SetupGet(x => x.Id).Returns(91);
+		prog.SetupGet(x => x.ReturnType).Returns(ProgVariableTypes.Number);
+		prog.Setup(x => x.MatchesParameters(It.IsAny<IEnumerable<ProgVariableTypes>>())).Returns(true);
+		object[]? context = null;
+		prog.Setup(x => x.Execute<double?>(It.IsAny<object[]>())).Callback<object[]>(args => context = args).Returns(1);
+		var progs = new All<IFutureProg>(); progs.Add(prog.Object);
+		f.World.SetupGet(x => x.FutureProgs).Returns(progs);
+		f.Rule.IntensityProg = prog.Object;
+		f.Service.ResolveRespiratorySample(new(body.Object, liquid.Object, "sample", f.Room.Object, RoomLayer.GroundLevel, 1, 6, true, false, true));
+		Assert.IsNotNull(context, "The respiratory liquid must reach the native exposure resolver.");
+		Assert.AreEqual(2.8, Convert.ToDouble(context![11]), 1e-8, "14 L/min for six seconds is 2.8 base units.");
+		Assert.AreEqual(6, Convert.ToDouble(context[10]), 1e-8);
+	}
+
 	private sealed class WorldFixture
 	{
 		public readonly Mock<IFuturemud> World = new() { DefaultValue = DefaultValue.Mock };

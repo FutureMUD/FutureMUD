@@ -1,0 +1,2503 @@
+{
+  "recorded_utc": "2026-10-21T05:25:12.7583357Z",
+  "base": "97c02768d254c5e345a62349e05b94fe345efeec",
+  "branch": "codex/armageddon-setting-20261019",
+  "approved_bundle_sha256": "7f0c44decb894487f19bff038ebef4c977cebe6d6eff05efe8ad23260159a9e7",
+  "scope": "Approved unified Setting and physical/lifecycle/appearance implemented; full31-package Simple/classes-on optional compatibility replay (Item omitted), exact sealed restore, native loaded samples and first/cold server smoke PASS. Prior minimal-chain gameplay proof retained separately; admission/publication held.",
+  "register": [
+    {
+      "id": "E01",
+      "implemented": "Reuse merged Core tags and regional terrain",
+      "installed_and_gameplay": "Current native install/rerun retains shared tags and deliberate custom binding; Useful is unnecessary"
+    },
+    {
+      "id": "E02",
+      "implemented": "Retain historical Simple/classes-off magic proof",
+      "installed_and_gameplay": "Superseded for this branch by the complete classes/subclasses-on lane below"
+    },
+    {
+      "id": "E03",
+      "implemented": "Early Armageddon SkillPackage: 112 canonical/writing traits and 30 ungranted scaffolds",
+      "installed_and_gameplay": "142 traits installed; typed IDs, builder names/caps and saved player values survive rerun"
+    },
+    {
+      "id": "E04",
+      "implemented": "Early Combat: canonical families, four approved Two Handed assignments, independent Parry and retained magic donors",
+      "installed_and_gameplay": "Native install/rerun and typed graph checks pass; separate Razor/Trident consumers added"
+    },
+    {
+      "id": "E05",
+      "implemented": "Unified public Setting type/menu/questions/metadata/replay/harness/docs",
+      "installed_and_gameplay": "Whole Setting installs through the public seeder; durable `ArmageddonMagicSeeder` ownership namespace deliberately retained"
+    },
+    {
+      "id": "E06",
+      "implemented": "Composed early choices and typed skill/weapon/anatomy/language/role/link preflight",
+      "installed_and_gameplay": "Current-schema composition passes with Class/Subclass enabled; no generic Culture/Useful/Health/Animal/Item baseline dependency"
+    },
+    {
+      "id": "E07",
+      "implemented": "Full frozen check/static/expression/dynamic inventory and owned reference bindings",
+      "installed_and_gameplay": "291 historical cases/236 types: 230 explicit installed rows including new MountControl; seven optional Trap absences before boot become unbound native backfills, excluded from qualification; all 55 static and 71 dynamic dispositions audited"
+    },
+    {
+      "id": "E08",
+      "implemented": "Seven guilds, 24 subclasses, 317 effective memberships, writing grants, main-priority caps/branches and durable max-merged overlap claims",
+      "installed_and_gameplay": "Static/focused tests plus native Merchant+Mercenary and Burglar+Bard; deferred child opening40 applies once, earned43 survives two cold readers"
+    },
+    {
+      "id": "E09",
+      "implemented": "Shared ownership, immutable initial baselines, transactional early installs, resumable modules and preserving reruns",
+      "installed_and_gameplay": "Native IDs, Block/Blind Fighting renames, Peek cap87/player57+3, merit override1.5, role/player values and claim markers preserved"
+    },
+    {
+      "id": "E10",
+      "implemented": "Bard language-only learning merit: branching50/improvement chance5 and subclass link",
+      "installed_and_gameplay": "Definition and real Bard grant load natively; no stochastic learning-rate/balance claim"
+    },
+    {
+      "id": "E11",
+      "implemented": "Mercenary effective liver clearance×2 after injury, for alcohol and every active drug",
+      "installed_and_gameplay": "Healthy native character and cold reload verify multiplier2; focused runtime tests cover injured/zero-function and drug metabolism; no poison protection"
+    },
+    {
+      "id": "E12",
+      "implemented": "Source-specific Bash/Kick, distinct Backstab/Sap, ordinary Pilot; existing Guarding/Direction Sense/Peek bindings",
+      "installed_and_gameplay": "Actual combat actions produce native injury/stun, cost and posture; actual item/room-scale `drive` completes, missing Pilot refuses, obscured missing Direction Sense independently refuses; cold vehicle/controller/occupancy preserved"
+    },
+    {
+      "id": "E13",
+      "implemented": "Seven exact-profile ethnicities, common Elf parent, five cultures/languages, both city backgrounds, 15 source/scaffold accents, free-entry naming and native200/secondary100/60 grants",
+      "installed_and_gameplay": "Installed typed graph; 20 static combinations and eight actual persisted Chargen contexts; compiled grants/hydration verified, availability gates unchanged"
+    },
+    {
+      "id": "E14",
+      "implemented": "Approved physical/lifecycle/appearance wiring, semantic attribute adaptation and intrinsic racial physiology",
+      "installed_and_gameplay": "Seven native bodies, age picker limits, descriptions/styling, needs/blood/stamina and two cold readers PASS; all8 admission gates held; dimension range testing waived"
+    },
+    {
+      "id": "E15",
+      "implemented": "Current-schema combined acceptance from a sealed clean three-step baseline",
+      "installed_and_gameplay": "Current20261021T033830Z_5bb606167d7548899e66d4c579cecb08 PASS: classes-on install, gameplay, resume/rerun, two cold readers, exact Admin first/cold login/LOOK/flush/graceful shutdown; original19October evidence retained"
+    },
+    {
+      "id": "E16",
+      "implemented": "Native armour-repair component, Razor/Trident consumers; recipes and active psychic powers deferred",
+      "installed_and_gameplay": "13 dynamic consumers bound; 56 approved content deferrals and two explicitly disabled no-consumer obligations; driving/Pilot is completed v1 work"
+    },
+    {
+      "id": "E17",
+      "implemented": "Approved writing grants and inactive profiles",
+      "installed_and_gameplay": "Approved personal-only suggestion catalogue and all78 executable naming elements; no new writing scripts or unapproved Drawing/Tattoo/Streetwise allocations; fresh technology defaults and later builder choices preserved"
+    },
+    {
+      "id": "E18",
+      "implemented": "Reuse merged silt/immersion/narration/land mechanics",
+      "installed_and_gameplay": "No broader burial/concealed-creature/current/tide/map work or Ruins armour penalty added"
+    },
+    {
+      "id": "E19",
+      "implemented": "Refuse stock-world conversion before replacement writes",
+      "installed_and_gameplay": "Conversion remains a separate world-specific inventory/preview/migration project"
+    }
+  ],
+  "native_combined": {
+    "status": "PASS",
+    "summary": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\native-setting-combined\\20261019T165616Z_286d019a1c2d4df3ba4f5c0ce67be672\\summary.json",
+      "sha256": "763263468d48feb1474358ce10c3a1d2a70cc5dfabcd234dbf9042092517174c"
+    },
+    "assertions": {
+      "Status": "PASS",
+      "Scope": "Combined classes-on Setting; actual native progression/heritage/impacts/openings/Pilot; gated physical profiles remain unqualified",
+      "Descriptor": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\setting-foundations-fixtures\\20261019T125847Z_2fb3564ec9f04c538b0d4d4780d3fb88\\core-foundations.json",
+      "DescriptorSha256": "E26C6B5992C664F52BFA38488CB2F19143B8B80A59C7A3CB949D7B7F014C61A8",
+      "SqlSha256": "64113F06E363B582ECE510A3C112984F51D28977DB7250A53D28A6DA790F7206",
+      "SourceSha256": "3675260E6320C4A5ECC330501D4E9F92165C8BA5FDF85AC2CB2C1090CF96FA34",
+      "BaselineCapturedThisRun": false,
+      "CapturedBaselineSeeders": [
+        "DatabaseSeeder.Seeders.CoreDataSeeder",
+        "DatabaseSeeder.Seeders.TimeSeeder",
+        "DatabaseSeeder.Seeders.AttributeSeeder"
+      ],
+      "ReviewedThreeStepSourceCompatibility": true,
+      "RestoredSeeders": [
+        "SkillPackageSeeder",
+        "HumanSeeder",
+        "CombatSeeder",
+        "ChargenSeeder"
+      ],
+      "FullReplayExecuted": false,
+      "DumpRoundTripVerified": true,
+      "TagIdentitiesPreserved": true,
+      "CustomBindingPreserved": true,
+      "ZeroUsefulComponents": true,
+      "MagicPhaseResumeVerified": true,
+      "MagicPhaseRerunVerified": true,
+      "PlayerValuePreserved": true,
+      "OriginalSealedFilesUnchanged": true,
+      "OwnedDatabasesDisposed": true
+    },
+    "base_world_run": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\native-setting-combined\\20261019T165616Z_286d019a1c2d4df3ba4f5c0ce67be672\\base-world-run.json",
+      "sha256": "01f8488542e50d69df8db0212f9543b24a4a1e5c3f88c6148e7957689b0a09e8"
+    },
+    "source_start": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\native-setting-combined\\20261019T165616Z_286d019a1c2d4df3ba4f5c0ce67be672\\source-start.json",
+      "sha256": "3347b3644e58a783a4204abe9463696ec939d18d2b61de2d8f787a93deb59fa7"
+    },
+    "source_end": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\native-setting-combined\\20261019T165616Z_286d019a1c2d4df3ba4f5c0ce67be672\\source-end.json",
+      "sha256": "3347b3644e58a783a4204abe9463696ec939d18d2b61de2d8f787a93deb59fa7"
+    },
+    "assemblies": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\native-setting-combined\\20261019T165616Z_286d019a1c2d4df3ba4f5c0ce67be672\\assemblies.json",
+      "sha256": "7955c87d2f46fa3dccfcde578fd0b05185eebe71aaae5af93529c22c172c0ddd"
+    },
+    "binding_audits": [
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\native-setting-combined\\20261019T165616Z_286d019a1c2d4df3ba4f5c0ce67be672\\setting-bindings-installed.json",
+        "sha256": "78ae4ee89a607bbb938351f75743f8b22e73aaaf608d5f952d32114afc8406f4"
+      },
+      {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\native-setting-combined\\20261019T165616Z_286d019a1c2d4df3ba4f5c0ce67be672\\setting-bindings-rerun.json",
+        "sha256": "c07ca05c8f414b429280e56110ca93bb91d45e1b72fde7c14cc59d6357a271fb"
+      }
+    ],
+    "transcript": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\setting-combined-native-final-4.log",
+      "sha256": "d9e6b99c1ab1de36425de4e2e73ea25b1b02abf6cc177bec50de48fca10a0448"
+    },
+    "source_stable": true,
+    "owned_cleanup_confirmed": true
+  },
+  "server_first_cold_boot": {
+    "receipt": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\prepared-replay-boot-native_foundations_d9b13b99e92b43ada2980bbcb582a23d\\boot-latest.json",
+      "sha256": "90b7d33bacd2d7d2fbf053f40e660726cb76a8c7276f36fa04075e8e25863118"
+    },
+    "assertions": {
+      "status": "PASS",
+      "database": "futuremud_land_20261019165625_f6a7ca85b1",
+      "mysql_endpoint": "127.0.0.1:59876",
+      "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
+      "runtime_paths": [
+        "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\prepared-replay-boot-native_foundations_d9b13b99e92b43ada2980bbcb582a23d\\runtime-first-2a7ba14c66834011995a3e47535a793e",
+        "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\prepared-replay-boot-native_foundations_d9b13b99e92b43ada2980bbcb582a23d\\runtime-cold-dc7add3c04ec409e9c3cdf37d021d82c"
+      ],
+      "processes": [
+        {
+          "phase": "first",
+          "pid": 51224,
+          "endpoint": "127.0.0.1:59271",
+          "runtime": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\prepared-replay-boot-native_foundations_d9b13b99e92b43ada2980bbcb582a23d\\runtime-first-2a7ba14c66834011995a3e47535a793e",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        },
+        {
+          "phase": "cold",
+          "pid": 9812,
+          "endpoint": "127.0.0.1:59319",
+          "runtime": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\prepared-replay-boot-native_foundations_d9b13b99e92b43ada2980bbcb582a23d\\runtime-cold-dc7add3c04ec409e9c3cdf37d021d82c",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        }
+      ],
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "owned_mud_processes_stopped": true,
+      "external_email_disabled": true,
+      "discord_loopback_only": true,
+      "limitations": [
+        "Boot/login/LOOK/flush/shutdown/cold login only; no Armageddon whole-repertoire certificate."
+      ],
+      "parent_job_attachment_confirmed": true,
+      "ownership_marker_sha256": "17D63E54859DA0E8523903A6498BE2CDBC47913CEF09B9AE24947DCE26637071",
+      "initial_avatar": [
+        "1",
+        "1",
+        "Admin",
+        "1",
+        "NULL",
+        "NULL"
+      ],
+      "setting_qualification_characters": [
+        [
+          "2",
+          "2",
+          "QualificationMerchant"
+        ],
+        [
+          "3",
+          "3",
+          "QualificationBurglar"
+        ],
+        [
+          "4",
+          "4",
+          "QualificationItemDriver"
+        ],
+        [
+          "5",
+          "5",
+          "QualificationRoomDriver"
+        ],
+        [
+          "6",
+          "6",
+          "Actionbash"
+        ],
+        [
+          "7",
+          "7",
+          "Targetbash"
+        ],
+        [
+          "8",
+          "8",
+          "Actionkick"
+        ],
+        [
+          "9",
+          "9",
+          "Targetkick"
+        ],
+        [
+          "10",
+          "10",
+          "Actionbackstab"
+        ],
+        [
+          "11",
+          "11",
+          "Targetbackstab"
+        ],
+        [
+          "12",
+          "12",
+          "Actionsap"
+        ],
+        [
+          "13",
+          "13",
+          "Targetsap"
+        ]
+      ],
+      "setting_qualification_sha256": "087974EC4C31720BC96FC46EE51895E494CA4671E6F2BED99C834961DE58EDB9",
+      "discord_reserved_endpoint": "127.0.0.1:59268",
+      "script_sha256": "14200C85AE6F2DB92E27E283614902605F3CAFAE6EE317B0537D15A9AC520BD5",
+      "helper_source": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.agents\\skills\\futuremud-mud-tester\\scripts\\mud_session.py",
+        "sha256": "D9FA6CF803BC10FEAF057A2675D89DABA9FC6987989F86277F53E298DA3A1A3D"
+      },
+      "assemblies": [
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\MudSharp.dll",
+          "sha256": "37263B494ACD53CBD9C132C511F59CB9E1FFC51A5EA25846309459EDFECBEBC8"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\FutureMUDLibrary.dll",
+          "sha256": "96D3F71B744903317A75C99DED2E3EB3D2C516BADF3BE22BC3C1AF6F422C90AF"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\MudsharpDatabaseLibrary.dll",
+          "sha256": "8EE0205177BFE2F5ABD051A4C3B5558E1F0EABCA50733685E1BED2222F1C0614"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\MudSharpCore\\bin\\Debug\\net10.0\\ExpressionEngine.dll",
+          "sha256": "5AF29F4C8B28144BDDDF6D822475FB90A422C2A62AFFCC9F0DC22F37BAD71C45"
+        }
+      ],
+      "first_after_flush": [
+        "1",
+        "1",
+        "Admin",
+        "1",
+        "2026-10-19T17:02:58",
+        "NULL"
+      ],
+      "first_after_shutdown": [
+        "1",
+        "1",
+        "Admin",
+        "1",
+        "2026-10-19T17:02:58",
+        "2026-10-19T17:03:07"
+      ],
+      "cold_after_flush": [
+        "1",
+        "1",
+        "Admin",
+        "1",
+        "2026-10-19T17:03:33",
+        "2026-10-19T17:03:07"
+      ],
+      "cold_after_shutdown": [
+        "1",
+        "1",
+        "Admin",
+        "1",
+        "2026-10-19T17:03:33",
+        "2026-10-19T17:03:43"
+      ],
+      "setting_player_values_roles_merits_claims_preserved": true,
+      "elapsed_seconds": 72.359
+    }
+  },
+  "automated_checks": {
+    "final_internal_injury_and_authority": {
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\summary.json",
+        "sha256": "b9610037a77f3e7d1060cad9cfe6abe3c12ef22f2024ab1d5d820d9b91b01465"
+      },
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261019T161442Z-bba28d03deda",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
+        "head": "b95c5b593850fe22cdc63fbfa9d82ad3512b86ee",
+        "started_utc": "2026-10-20T03:14:42.5868346+11:00",
+        "ended_utc": "2026-10-20T03:15:07.7424599+11:00",
+        "duration_seconds": 25.1556485,
+        "source_start": "f615112527963eeff0185f766480bd01cdc3d80a26d2ab89d0a1115fcf22e935",
+        "source_end": "f615112527963eeff0185f766480bd01cdc3d80a26d2ab89d0a1115fcf22e935",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "fast",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~PhysicalImpactTests|FullyQualifiedName~CommandExecution",
+        "fail_on_skipped": false,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 61,
+          "passed": 61,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 61
+        },
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-20T03:14:43.076658+11:00",
+              "ended_utc": "2026-10-20T03:14:59.1323359+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1",
+                "--filter",
+                "FullyQualifiedName~PhysicalImpactTests|FullyQualifiedName~CommandExecution"
+              ],
+              "started_utc": "2026-10-20T03:14:59.134796+11:00",
+              "ended_utc": "2026-10-20T03:15:07.4332938+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+            "counts": {
+              "executed": 61,
+              "passed": 61,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 61
+            },
+            "native_counters": {
+              "total": "61",
+              "executed": "61",
+              "passed": "61",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T161442Z-bba28d03deda\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\bootstrap-03fc923056614f08bf1578eec8aeea73\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    },
+    "final_anatomy_native_boot_rerun": {
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\summary.json",
+        "sha256": "2f97043465cd1d931ef94c19ab210a433c163e20fdcb73f86a75a065f4a561be"
+      },
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261019T163814Z-8193539c42e5",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
+        "head": "b95c5b593850fe22cdc63fbfa9d82ad3512b86ee",
+        "started_utc": "2026-10-20T03:38:14.6515858+11:00",
+        "ended_utc": "2026-10-20T03:38:35.5515121+11:00",
+        "duration_seconds": 20.8999474,
+        "source_start": "9fe8b9f94288fb879ec8e2545a60ea7c61b7a41229c1e56357391f736d2621d0",
+        "source_end": "9fe8b9f94288fb879ec8e2545a60ea7c61b7a41229c1e56357391f736d2621d0",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "fast",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~ArmageddonCatalogueAnatomyTests",
+        "fail_on_skipped": false,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 17,
+          "passed": 17,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 17
+        },
+        "projects": [
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-20T03:38:15.1122054+11:00",
+              "ended_utc": "2026-10-20T03:38:21.1298251+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1",
+                "--filter",
+                "FullyQualifiedName~ArmageddonCatalogueAnatomyTests"
+              ],
+              "started_utc": "2026-10-20T03:38:21.1323822+11:00",
+              "ended_utc": "2026-10-20T03:38:35.2791227+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\DatabaseSeeder Unit Tests\\bin\\Debug\\net10.0\\DatabaseSeeder Unit Tests.dll",
+            "counts": {
+              "executed": 17,
+              "passed": 17,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 17
+            },
+            "native_counters": {
+              "total": "17",
+              "executed": "17",
+              "passed": "17",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T163814Z-8193539c42e5\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\bootstrap-d7430f8de4404b7c95e8bd1cd5250db3\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    },
+    "fresh_flags_and_package_bindings": {
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\summary.json",
+        "sha256": "95ecad6cc10098c5dc27dd604a8675e299336f42847d8157b92c1650b337a297"
+      },
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261019T154756Z-8a8ca25805f0",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
+        "head": "b95c5b593850fe22cdc63fbfa9d82ad3512b86ee",
+        "started_utc": "2026-10-20T02:47:56.3801462+11:00",
+        "ended_utc": "2026-10-20T02:48:22.1639945+11:00",
+        "duration_seconds": 25.7838689,
+        "source_start": "571b6be6329c3766cb64db5dcfa45f26cb1fda69ad9225f2fd2d2f4395285867",
+        "source_end": "571b6be6329c3766cb64db5dcfa45f26cb1fda69ad9225f2fd2d2f4395285867",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "fast",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~ArmageddonSettingPackageTests|FullyQualifiedName~ArmageddonMundaneBindingTests",
+        "fail_on_skipped": false,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 17,
+          "passed": 17,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 17
+        },
+        "projects": [
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-20T02:47:56.8247383+11:00",
+              "ended_utc": "2026-10-20T02:48:02.9874859+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1",
+                "--filter",
+                "FullyQualifiedName~ArmageddonSettingPackageTests|FullyQualifiedName~ArmageddonMundaneBindingTests"
+              ],
+              "started_utc": "2026-10-20T02:48:02.9898468+11:00",
+              "ended_utc": "2026-10-20T02:48:21.8975624+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\DatabaseSeeder Unit Tests\\bin\\Debug\\net10.0\\DatabaseSeeder Unit Tests.dll",
+            "counts": {
+              "executed": 17,
+              "passed": 17,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 17
+            },
+            "native_counters": {
+              "total": "17",
+              "executed": "17",
+              "passed": "17",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T154756Z-8a8ca25805f0\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\bootstrap-511d9e6558de4e2d9ece976872e3b316\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    },
+    "bootstrap_attribute_compatibility": {
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\summary.json",
+        "sha256": "a664ae703050eeca5f06e976b68b3ea95f9aab3f3edb7909bf521e35303ebbf0"
+      },
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261019T153714Z-788cecba0e2e",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
+        "head": "19ef0ef7e3d8019d1166ef162f5e308c89a2f981",
+        "started_utc": "2026-10-20T02:37:14.0403792+11:00",
+        "ended_utc": "2026-10-20T02:38:42.5526153+11:00",
+        "duration_seconds": 88.5122564,
+        "source_start": "052d4b463118e41db73d1f118f5abb8d840e1a47dbffdfc3e05351e70e94c7bb",
+        "source_end": "052d4b463118e41db73d1f118f5abb8d840e1a47dbffdfc3e05351e70e94c7bb",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "fast",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~ArmageddonMundaneBindingTests",
+        "fail_on_skipped": false,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 10,
+          "passed": 10,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 10
+        },
+        "projects": [
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-20T02:37:14.4667872+11:00",
+              "ended_utc": "2026-10-20T02:38:22.3315297+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1",
+                "--filter",
+                "FullyQualifiedName~ArmageddonMundaneBindingTests"
+              ],
+              "started_utc": "2026-10-20T02:38:22.3343763+11:00",
+              "ended_utc": "2026-10-20T02:38:42.2947343+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\DatabaseSeeder Unit Tests\\bin\\Debug\\net10.0\\DatabaseSeeder Unit Tests.dll",
+            "counts": {
+              "executed": 10,
+              "passed": 10,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 10
+            },
+            "native_counters": {
+              "total": "10",
+              "executed": "10",
+              "passed": "10",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T153714Z-788cecba0e2e\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\bootstrap-1b03deeacdec48ee8dca1c95a1b4ba84\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    },
+    "full_seeder_batch": {
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\summary.json",
+        "sha256": "77ac56688c62132d53f8cb56ab0dfded7d6d315cd60d4f0f07bce7e50803ab70"
+      },
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261019T151535Z-701d25cc88ec",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
+        "head": "1af9468803d398f0637252dae6645acea3727893",
+        "started_utc": "2026-10-20T02:15:35.0165086+11:00",
+        "ended_utc": "2026-10-20T02:30:04.2968194+11:00",
+        "duration_seconds": 869.2803492,
+        "source_start": "90eeabeeaa0fcce2c838d5dbcb5451c2d0e169c3862b86be272d787ef45300ce",
+        "source_end": "90eeabeeaa0fcce2c838d5dbcb5451c2d0e169c3862b86be272d787ef45300ce",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "fast",
+        "configuration": "Debug",
+        "filter": null,
+        "fail_on_skipped": false,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 2023,
+          "passed": 2023,
+          "failed": 0,
+          "skipped": 3,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 2026
+        },
+        "projects": [
+          "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-20T02:15:35.446804+11:00",
+              "ended_utc": "2026-10-20T02:16:24.7094828+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "DatabaseSeeder Unit Tests/DatabaseSeeder Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1"
+              ],
+              "started_utc": "2026-10-20T02:16:24.7122187+11:00",
+              "ended_utc": "2026-10-20T02:30:04.0009172+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\invocations\\DatabaseSeeder_Unit_Tests-e14dcedb\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\DatabaseSeeder Unit Tests\\bin\\Debug\\net10.0\\DatabaseSeeder Unit Tests.dll",
+            "counts": {
+              "executed": 2023,
+              "passed": 2023,
+              "failed": 0,
+              "skipped": 3,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 2026
+            },
+            "native_counters": {
+              "total": "2026",
+              "executed": "2023",
+              "passed": "2023",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\bootstrap-ad1fba0098be4c1ea285b3823deac0d6\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    },
+    "impact_and_queued_authority": {
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\summary.json",
+        "sha256": "ebbebc0548f28cfff1cf18c563a11f5d4c3ededa65a23d14ed3246a2faeb594f"
+      },
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261019T150500Z-f27a5f5162a5",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
+        "head": "e47de6d3dd2edc2aeb49d319fe6793aa30925d78",
+        "started_utc": "2026-10-20T02:05:00.0767672+11:00",
+        "ended_utc": "2026-10-20T02:05:25.9100185+11:00",
+        "duration_seconds": 25.8332851,
+        "source_start": "01d42a935fe0b20122ae41b6be1ba182476a0373b462bdd0199241d06c98c99a",
+        "source_end": "01d42a935fe0b20122ae41b6be1ba182476a0373b462bdd0199241d06c98c99a",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "fast",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~PhysicalImpactTests|FullyQualifiedName~QueuedCommandAuthorityTests",
+        "fail_on_skipped": false,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 314,
+          "passed": 314,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 314
+        },
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-20T02:05:00.5464363+11:00",
+              "ended_utc": "2026-10-20T02:05:15.9176374+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1",
+                "--filter",
+                "FullyQualifiedName~PhysicalImpactTests|FullyQualifiedName~QueuedCommandAuthorityTests"
+              ],
+              "started_utc": "2026-10-20T02:05:15.9201298+11:00",
+              "ended_utc": "2026-10-20T02:05:25.6101541+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+            "counts": {
+              "executed": 314,
+              "passed": 314,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 314
+            },
+            "native_counters": {
+              "total": "314",
+              "executed": "314",
+              "passed": "314",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\bootstrap-e7646e5e78514fbdbbbb4345db5ae84d\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    },
+    "openers_and_coordinated_attacks": {
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\summary.json",
+        "sha256": "266e224135d22e5565012c3b92a863ae4d2d9b588da95a00c118fb507c5438b0"
+      },
+      "summary": {
+        "schema_version": 1,
+        "run_id": "20261019T143549Z-bd2c9a013281",
+        "repository": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD",
+        "head": "f3a18b4e78df2488b08fb730f77314d35763d87f",
+        "started_utc": "2026-10-20T01:35:49.5907651+11:00",
+        "ended_utc": "2026-10-20T01:36:16.567224+11:00",
+        "duration_seconds": 26.9764801,
+        "source_start": "8e4c3e77db66f5aa6fabc1cfba01f6d0dcba6e43f5d101c1cf1801fb5d3f8095",
+        "source_end": "8e4c3e77db66f5aa6fabc1cfba01f6d0dcba6e43f5d101c1cf1801fb5d3f8095",
+        "source_stable": true,
+        "sdk": "10.0.401",
+        "runner": "VSTest/TRX (Microsoft.NET.Test.Sdk 17.9.0)",
+        "suite": "fast",
+        "configuration": "Debug",
+        "filter": "FullyQualifiedName~Backstab|FullyQualifiedName~DualWieldDoubleAttack",
+        "fail_on_skipped": false,
+        "execution_complete": true,
+        "counts_complete": true,
+        "status": "PASS",
+        "counts": {
+          "executed": 127,
+          "passed": 127,
+          "failed": 0,
+          "skipped": 0,
+          "inconclusive": 0,
+          "other": 0,
+          "total": 127
+        },
+        "projects": [
+          "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj"
+        ],
+        "invocations": [
+          {
+            "project": "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+            "framework": "net10.0",
+            "attempt": 1,
+            "status": "PASS",
+            "reason": null,
+            "build": {
+              "name": "build",
+              "arguments": [
+                "build",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "-m:1",
+                "-p:RestoreBuildInParallel=false",
+                "-p:NuGetAudit=false",
+                "-p:NoWarn=NU1902%3BNU1510"
+              ],
+              "started_utc": "2026-10-20T01:35:50.060351+11:00",
+              "ended_utc": "2026-10-20T01:36:06.8646041+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\build\\build.stderr.log"
+            },
+            "test": {
+              "name": "test",
+              "arguments": [
+                "test",
+                "MudSharpCore Unit Tests/MudSharpCore Unit Tests.csproj",
+                "-c",
+                "Debug",
+                "--no-build",
+                "--no-restore",
+                "-m:1",
+                "-f",
+                "net10.0",
+                "-p:NoWarn=NU1902%3BNU1510",
+                "--logger",
+                "trx;LogFileName=results.trx",
+                "--results-directory",
+                "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1",
+                "--filter",
+                "FullyQualifiedName~Backstab|FullyQualifiedName~DualWieldDoubleAttack"
+              ],
+              "started_utc": "2026-10-20T01:36:06.8669636+11:00",
+              "ended_utc": "2026-10-20T01:36:16.2604015+11:00",
+              "exit_code": 0,
+              "termination_reason": null,
+              "stdout": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stdout.log",
+              "stderr": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\test.stderr.log"
+            },
+            "report": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\invocations\\MudSharpCore_Unit_Tests-8fa3ea0d\\net10-41544e89\\1\\results.trx",
+            "binary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\MudSharpCore Unit Tests\\bin\\Debug\\net10.0\\MudSharpCore Unit Tests.dll",
+            "counts": {
+              "executed": 127,
+              "passed": 127,
+              "failed": 0,
+              "skipped": 0,
+              "inconclusive": 0,
+              "other": 0,
+              "total": 127
+            },
+            "native_counters": {
+              "total": "127",
+              "executed": "127",
+              "passed": "127",
+              "failed": "0",
+              "error": "0",
+              "timeout": "0",
+              "aborted": "0",
+              "inconclusive": "0",
+              "passedButRunAborted": "0",
+              "notRunnable": "0",
+              "notExecuted": "0",
+              "disconnected": "0",
+              "warning": "0",
+              "completed": "0",
+              "inProgress": "0",
+              "pending": "0"
+            }
+          }
+        ],
+        "issues": [],
+        "artifacts": {
+          "run": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\run.json",
+          "summary": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\summary.json",
+          "failures": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\failures.json",
+          "results": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\test-results.json",
+          "bootstrap": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\bootstrap-99044200061e4474824040f7232b1c3e\\bootstrap.log"
+        },
+        "build_switches": [
+          "-m:1",
+          "-p:RestoreBuildInParallel=false",
+          "-p:NuGetAudit=false",
+          "-p:NoWarn=NU1902%3BNU1510"
+        ]
+      }
+    }
+  },
+  "builds": {
+    "setting-qualified-core-release.log": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\setting-qualified-core-release.log",
+      "sha256": "e94d9df5194fe5eae66fa6a32beed753b838e16b85e484fd8abf2b7b00f7d49e"
+    },
+    "setting-float-seeder-release.log": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\setting-float-seeder-release.log",
+      "sha256": "9624b8e481c630c76e448ba7855f31b0276f316b7d395251b402f26aec4d1ca3"
+    },
+    "setting-bootstrap-audit-build-2.log": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\setting-bootstrap-audit-build-2.log",
+      "sha256": "3884a903d1ddbca6b3ae53948a3e1cc2df69d5d22bbcbabd67ec57d79582cbe9"
+    }
+  },
+  "focused_native_checkpoint": {
+    "summary": {
+      "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\native-setting-debug\\20261019T162859Z_75d7c6ebff464786a048cb6597d0b881\\summary.json",
+      "sha256": "fc77bf9c0c87005f19552604ae2dd31e7c41d4194be67f3072ac23c89d505d5d"
+    },
+    "scope": "Runtime debug qualification before final anatomy rerun correction; no baseline-install/server-boot certificate."
+  },
+  "limits": [
+    "All eight Race rows stay unavailable: seven profiles plus nonplayable common Elf parent; admission/publication held",
+    "Approved profile dimensions not range-tested; fixed representative native body dimensions only; NPC normal-distribution tails are not hard PC bounds",
+    "Shared All profiles dynamically include the five new shapes; no ancestry-exclusive appearance policy claimed",
+    "Native Highsun absent and source condition-point/litre conversion unspecified; stock environmental water prog remains0",
+    "Three Unix launcher permission variants skipped; no existing-world conversion, database mutation, push, merge, deploy or publication",
+    "Approved personal-only random generation and all78 executable naming elements; no new writing scripts, psychic powers, broad silt burial, Ruins armour-only penalty or world conversion",
+    "Authored positive tactical advantage/lit arena/up to12 native impact attempts; no mock checks or damage/armour bypass; driving is not weather/animal/fuel balance qualification",
+    "Native Chargen finalisation/save and Character insertion do not claim ordinary UI approval; no outbound approval notifications"
+  ],
+  "historical_evidence": {
+    "recorded_utc": "2026-10-20T00:21:51.217627+11:00",
+    "base": "97c02768d254c5e345a62349e05b94fe345efeec",
+    "branch": "codex/armageddon-setting-20261019",
+    "scope": "Staged foundation and magic-phase qualification; required mundane progression, heritage and gameplay completion remain outstanding.",
+    "approved_bundle_sha256": "7f0c44decb894487f19bff038ebef4c977cebe6d6eff05efe8ad23260159a9e7",
+    "seeder_suite": {
+      "status": "PASS",
+      "counts": {
+        "executed": 2009,
+        "passed": 2009,
+        "failed": 0,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 2012
+      },
+      "source_stable": true,
+      "source_fingerprint": "10fee663c170f8c74da35cdf73e63b821b17100ab2fb3b3d36a5d3ae4403aefe",
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T130629Z-2ff2cc01b5f6\\summary.json",
+        "sha256": "ae2faca468efa9ebd9878f52b055983701f69591308d535d928f884811f6d4ff"
+      },
+      "skips": "Three Unix filesystem permission rows require a Unix host."
+    },
+    "runtime_focus": {
+      "status": "PASS",
+      "counts": {
+        "executed": 40,
+        "passed": 40,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 40
+      },
+      "source_stable": true,
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T125659Z-607cdb3e956f\\summary.json",
+        "sha256": "413d4122a9008e3609ffa24514a94c7ad47db96a4e05653eb9b113f092520576"
+      },
+      "scope": "VehiclePilot, DirectionSenseMovement, LiverClearanceMerit, ChangingNeedsModelBase"
+    },
+    "attack_parry_regression": {
+      "status": "PASS",
+      "counts": {
+        "executed": 46,
+        "passed": 46,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 46
+      },
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T130212Z-f778fb1f6523\\summary.json",
+        "sha256": "f3cd39da88ae74615e40252c9fb05699bcbfad5a0f7674081d244f0c4f12d3ed"
+      }
+    },
+    "builds": {
+      "seeder_debug": "PASS",
+      "seeder_release": "PASS",
+      "harness_debug": "PASS",
+      "logs": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\fm_test_runner"
+    },
+    "native": {
+      "status": "PASS",
+      "exit": 0,
+      "source_stable": true,
+      "source_fingerprint": "0052958C619C27B53BA4460B2129B1FBADE2E449281D596220A0041EEB72ED32",
+      "classes": "On",
+      "magic_mode": "Simple",
+      "summary": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\native-setting-foundations-restored\\20261019T130555Z_c878f2dc4cb44989b9918dfcc6874e50\\summary.json",
+        "sha256": "148f8c00b99138a894a7438a2fdb6590e170e38ae4d690366c6185f4465ce846"
+      },
+      "base_world_run": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\native-setting-foundations-restored\\20261019T130555Z_c878f2dc4cb44989b9918dfcc6874e50\\base-world-run.json",
+        "sha256": "e7662eb865af4dc9b2099f70ba5d406bb642569d61352781a510d3aebb56f8a6"
+      },
+      "assertions": {
+        "Status": "PASS",
+        "Scope": "Early Armageddon packages and classes-on magic stage; mundane/heritage not qualified",
+        "Descriptor": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\setting-foundations-fixtures\\20261019T125847Z_2fb3564ec9f04c538b0d4d4780d3fb88\\core-foundations.json",
+        "DescriptorSha256": "E26C6B5992C664F52BFA38488CB2F19143B8B80A59C7A3CB949D7B7F014C61A8",
+        "SqlSha256": "64113F06E363B582ECE510A3C112984F51D28977DB7250A53D28A6DA790F7206",
+        "SourceSha256": "C62FBE7A23C71B967C05BCE8EFBCB9E890E6A28F415FB7D52B3C77F75DED4C1B",
+        "FreshSeeders": [
+          "CoreDataSeeder",
+          "TimeSeeder",
+          "AttributeSeeder"
+        ],
+        "RestoredSeeders": [
+          "SkillPackageSeeder",
+          "HumanSeeder",
+          "CombatSeeder",
+          "ChargenSeeder"
+        ],
+        "FullReplayExecuted": false,
+        "DumpRoundTripVerified": true,
+        "TagIdentitiesPreserved": true,
+        "CustomBindingPreserved": true,
+        "ZeroUsefulComponents": true,
+        "MagicPhaseResumeVerified": true,
+        "MagicPhaseRerunVerified": true,
+        "PlayerValuePreserved": true,
+        "OriginalSealedFilesUnchanged": true,
+        "OwnedDatabasesDisposed": true
+      }
+    },
+    "boot": {
+      "status": "PASS",
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "processes": [
+        {
+          "phase": "first",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        },
+        {
+          "phase": "cold",
+          "stopped": true,
+          "graceful": true,
+          "exit": 0
+        }
+      ],
+      "owned_processes_stopped": true,
+      "receipt": {
+        "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\prepared-replay-boot-native_foundations_b2ae2c170bfe4cf580d2288902d388a7\\boot-latest.json",
+        "sha256": "4ca2ceaa485724fe4f8003f8daa146b6be0da5400db1fb10b01dfc656990748a"
+      }
+    },
+    "qualification_limits": [
+      "Mundane role/grant/branch/overlap composition not installed",
+      "Heritage graph not installed; no new profiles enabled",
+      "Source Bash/Kick and distinct Backstab/Sap pending; generic substitutes gated",
+      "Live Pilot/vehicle representative gameplay pending (required v1)",
+      "No complete playable Setting or existing-world conversion certificate"
+    ],
+    "superseded_failures": [
+      "Initial managed suite:9 failures; corrected; final suite2009/0/3",
+      "Initial native magic weapon batch rejected character-scoped attack skills; corrected typed validators; restored same sealed baseline successfully"
+    ],
+    "publication": "Local commits only; no push, merge, deployment or existing-world activation.",
+    "mundane_progression_focus": {
+      "receipts": [
+        {
+          "sha256": "f466668b1b6d93f6c88b0104741f888f7cd94f5b23dabaa816af5cdb3dedf7e7",
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T134149Z-ee255a261ffe\\summary.json"
+        },
+        {
+          "sha256": "6f73e5979d143ee4ab44a92b3fce2dee6debfadd97be46a7848d1549496210c6",
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T134157Z-67109e1a6be6\\summary.json"
+        },
+        {
+          "sha256": "91bf6a59e2a9f5e5fb077c22dc3296f013d1c8ce663d8fbd1b6a99cf8d742344",
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T134229Z-30c09f71d8fb\\summary.json"
+        },
+        {
+          "sha256": "7b2bfa128af770bf747dde5724a31c71a740cc100d1ca51a47bcfa608adf4f76",
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T134709Z-b43cc7e68b97\\summary.json"
+        }
+      ],
+      "initial_batch_passed": 72,
+      "final_adapter_passed": 3,
+      "limits": "No new native combined certificate; full suites/build gates batched after remaining content.",
+      "scope": "New role/progression implementation and fixtures; native install/gameplay pending",
+      "review_fix_rerun": {
+        "source_stable": true,
+        "skipped": 0,
+        "receipt": {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T135150Z-28834218f65e\\summary.json",
+          "sha256": "cfd6a0233d164b3f6e02e98e041e65ca53f73807968bc608ebe1fa4dc5d8fe7d"
+        },
+        "passed": 54,
+        "failed": 0
+      }
+    },
+    "nonphysical_heritage_focus": {
+      "failures_retained": [
+        "20261019T140412Z-c2dd3223a293",
+        "20261019T140511Z-8bc6e0d33cf4"
+      ],
+      "receipts": [
+        {
+          "sha256": "ecc355b4d2a136a6179a9c73949b11805185718434d8383f09e23bb593a7742f",
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T140744Z-f2ef30982f5e\\summary.json"
+        },
+        {
+          "sha256": "299c4305b061a8ba1a3c84a7ff49d65c626efabba323730c46583a20b3d6897b",
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T140957Z-d8f5ba0636c1\\summary.json"
+        }
+      ],
+      "scope": "Inactive owned heritage graph, compiled progs, static20-combination grants, typed links, collisions and rerun preservation",
+      "source_stable": true,
+      "limits": "No new native/gameplay certificate, no physical/appearance qualification, no activated profile; scripts and random-name corpus not installed.",
+      "final_focus_passed": 4,
+      "package_focus_passed": 10
+    },
+    "mundane_binding_focus": {
+      "scope": "Canonical checks, dedicated mount control and fall check, scoped Disarm bindings, optional Trap adapter and preservation",
+      "passed": [
+        24,
+        13,
+        6
+      ],
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true,
+      "failures_retained": [
+        "20261019T141935Z-177ffc9ed94a"
+      ],
+      "receipts": [
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T141802Z-1c7f456d4497\\summary.json",
+          "sha256": "442b004f8aa3f729a3c645b118156fb7cef4e8b2a0c8f0f8c215c70e44b2a25a"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T142025Z-99cfec731d52\\summary.json",
+          "sha256": "1f2469670141223e560fef97e672d480e96457bfde662a3f66369f59b9033424"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T142649Z-bd3595bf1034\\summary.json",
+          "sha256": "a991ab041c0f4af6a22eb6c5d57dea33f8b33f46d81ccb1b2199a368b669b83d"
+        }
+      ],
+      "limits": "No new native/gameplay certificate; full291/55/71 coverage audit and source actions still required."
+    },
+    "opening_attack_focus": {
+      "scope": "Specific Backstab/Sap skill checks/commands, admission and defence callback fences, clone/default compatibility and coordinated-attack regression",
+      "passed": [
+        13,
+        127
+      ],
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true,
+      "receipts": [
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143247Z-8a964cfccae7\\summary.json",
+          "sha256": "2629084253eff1467a92129771a81d2accbe0d5362dd0fe0163dade4ae639259"
+        },
+        {
+          "path": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T143549Z-bd2c9a013281\\summary.json",
+          "sha256": "266e224135d22e5565012c3b92a863ae4d2d9b588da95a00c118fb507c5438b0"
+        }
+      ],
+      "limits": "Final batch must include latest secondary-effect guard and opt-out assertion; no native/gameplay certificate. Bash/Kick pending."
+    },
+    "physical_impact_focus": {
+      "scope": "Bash/Kick physical impact and queued command authority regression",
+      "passed": 314,
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true,
+      "receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T150500Z-f27a5f5162a5\\summary.json",
+      "sha256": "ebbebc0548f28cfff1cf18c563a11f5d4c3ededa65a23d14ed3246a2faeb594f",
+      "limits": "Native combined install/gameplay pending; authored damage tuning is not recovered source damage."
+    },
+    "final_implemented_seeder_batch": {
+      "passed": 2023,
+      "failed": 0,
+      "skipped": 3,
+      "skip_scope": "Unix launcher permissions require a Unix host",
+      "source_stable": true,
+      "receipt": "C:\\Users\\luker\\Documents\\Codex\\2026-10-19\\task-3\\FutureMUD\\.artifacts\\test-runs\\20261019T151535Z-701d25cc88ec\\summary.json",
+      "sha256": "77ac56688c62132d53f8cb56ab0dfded7d6d315cd60d4f0f07bce7e50803ab70",
+      "limits": "Combined native gameplay qualification pending."
+    }
+  },
+  "followups_20261020": {
+    "naming_runtime_tests": {
+      "run": "20261020T125019Z-770d2263b4b6",
+      "passed": 5,
+      "skipped": 0,
+      "failed": 0
+    },
+    "combined_sweat_preset_tests": {
+      "run": "20261020T123128Z-cb1b4592166c",
+      "passed": 45,
+      "skipped": 0,
+      "failed": 0
+    },
+    "final_batch_status": "PASS: complete integrated source full DatabaseSeeder suite and Release installer build",
+    "full_preset_suite": {
+      "run": "20261020T120610Z-758ae8332326",
+      "passed": 2048,
+      "skipped": 3,
+      "failed": 0
+    },
+    "common_sweat_commit": "026076c12",
+    "native": {
+      "summary_path": ".artifacts/setting-followups-native/20261020T130517Z_2cf49ac3b9514d6fa35879ba2fe5ce60/summary.json",
+      "scope": "Focused native MySQL installer/replay/refusal and two cold preserving readers; no server/gameplay certificate",
+      "native_exit": 0,
+      "installer_receipt_path": ".artifacts/setting-followups-native/20261020T130517Z_2cf49ac3b9514d6fa35879ba2fe5ce60/base-world-run.json",
+      "summary_sha256": "A8BBD042DF6FB6F78D03C732A0832CAC30ED0CB3DE3BFE2B600C756DFC3840D0",
+      "run": "20261020T130517Z_2cf49ac3b9514d6fa35879ba2fe5ce60",
+      "status": "PASS",
+      "source_sha256": "6A3D759F7045503C8A7884518B675DFBF99258F3280406A3CDEC937E6D0101DE",
+      "foundation_closure_sha256": "FD1DA286B9993D9475C0BDBC1341B24CBB122F6099A2554FBBA907E5FEF5919B",
+      "source_stable": true,
+      "installer_receipt_sha256": "3FA13484D661A2350E8D510A996EE783D62B814DE7EB51864AA36EF50C1F7C27",
+      "incomplete_races_unavailable": 8,
+      "owned_mysql_cleanup": "graceful shutdown and exact owned TEMP directory deletion confirmed"
+    },
+    "naming_heritage_tests": {
+      "run": "20261020T124932Z-d6f09d624712",
+      "passed": 12,
+      "skipped": 0,
+      "failed": 0
+    },
+    "retained_failed_native": "20261020T125615Z_ca83e7da2eb341049a8334eb288566ba: wrong fixture expectation for Arm infrastructure refresh; repaired ordinary refresh and Arm preservation checks",
+    "publication": "none",
+    "age_status": "Pending semantic decision documented in Armageddon_Age_Lifecycle_Mapping_20261020.md; inactive age preservation qualified, no invented lifecycle translation",
+    "naming_commit": "13b653c89",
+    "retained_interruption": ".artifacts/setting-followups-native/20261020T130134Z_6c8dbf0af519434195a963cf9e39b9eb/interruption-recovery.json",
+    "combined_runtime": {
+      "run": "20261020T124357Z-2ed7cb3f1e7e",
+      "passed": 157,
+      "failure_scope": "New naming UI null mock advice collections; corrected five-test run recorded separately",
+      "failed": 2,
+      "breathing_liver_lifecycle_failures": 0
+    },
+    "preset_commit": "c49a584a2",
+    "armageddon_sweat_commit": "c691c7b4e",
+    "breathing_commit": "5f3712bcf",
+    "existing_world_mutation": false,
+    "final_seeder_suite": {
+      "summary_path": ".artifacts/test-runs/20261020T130941Z-24ff80709a8d/summary.json",
+      "skipped": 3,
+      "summary_sha256": "AB67FDC657E8535DD926FA4143A300B3523AF500FC18146FC304F3C52E341534",
+      "failed": 0,
+      "source_stable": true,
+      "skip_scope": "Unix-only launcher owner-permission rows0/1/2 require Unix host",
+      "status": "PASS",
+      "source_sha256": "103719290af60585ea4b67ae3e2fa35ef4fc550c8c338d933d0560ec3b4c4a36",
+      "run": "20261020T130941Z-24ff80709a8d",
+      "passed": 2068,
+      "head": "8e823b55ad69077d132e51f3aaf01a70221d51a3"
+    },
+    "final_release_build": {
+      "log": ".artifacts/setting-followups-release-final-20261020.log",
+      "log_sha256": "4E46F3C06F4388D485A4BE216801688E87F3824A0A465D3883D82BE05757833C",
+      "status": "PASS",
+      "warnings": 211,
+      "head": "8e823b55ad69077d132e51f3aaf01a70221d51a3",
+      "errors": 0
+    }
+  },
+  "oct21_owner_decisions": {
+    "adult_lifecycle_mapping": "APPROVED by Luke: recovered Adult to native YoungAdult; Mature and Middle-aged to Adult; Old to Elder; Ancient to Venerable; retain separate exact descriptive bands",
+    "implementation": "PENDING; no lifecycle fields or chargen policies changed; native category-boundary repair remains outstanding",
+    "height_weight": "LOCKED; no tests of established physical ranges requested or run",
+    "attributes": "LOCKED; approved STR/END/AGI/WIS matrix with best-effort existing-selection adaptation; arm is preferred, not required",
+    "appearance": "APPROVED conservative source-supported approach from prior chat item5; implementation pending",
+    "ordinary_creation_minima": "APPROVED prior chat item5: Human20; both Elves24; Dwarf44; Half-Elf22; Half-Giant36; Mul15; younger exceptions require explicit policy",
+    "posture_policy": "APPROVED two-category option: standing one category above equal sitting/prone; no shared-stock change; implementation pending",
+    "non_needs_physiology": "APPROVED subsequent21October: shared anatomy/health and multipliers1, capacity stamina additions60/20/20 with ordinary recovery, baseline breathing and approved sweat, ordinary carry/tracking and0-40C temperature; no added armour/resistance/immunity",
+    "remaining_inputs": [
+      "Baby/Child/Youth subdivisions",
+      "Independent numeric upper chargen age bounds",
+      "Revised hunger/thirst and racial-merit design; faster Giant consumption desired and merit exploration requested"
+    ],
+    "race_activation": "HELD",
+    "publication": "HELD"
+  },
+  "oct21_racial_merit_exploration": {
+    "status": "READ_ONLY source assessment complete; proposals recorded; no runtime implementation or tests",
+    "giant_candidate": "Reuse executable Needs Rate Change: hunger3/thirst3/alcohol1, underlying Race rates1; pair with3x capacity. Equal baseline satiation-clock duration does not establish equal physiological dehydration duration.",
+    "desert_elf_candidate": "Generic contextual environmental-needs merit with opt-in separate environmental thirst-loss component; preserve base/time terms, positive drinks and explicit sweat. Existing constant applicability merits support approximations only.",
+    "grant_candidate": "New generic intrinsic race-to-body merit links, inherited and deduplicated by ID, separate from explicit PerceiverMerits and copied form templates; no hidden roles or chargen purchases",
+    "other_candidates": "New generic Stamina Capacity merit for approved60/20/20 additions; leave raw stats/morphology/ordinary physiology and v1 storage in native Race fields",
+    "source_findings": [
+      "No native race/ethnicity merit relation or automatic racial grant exists",
+      "Maximum stamina lacks a merit hook",
+      "Registered generic movement-stamina merit has no runtime interface consumer",
+      "Temperature merit interface/consumer exists but no concrete type was found",
+      "Character.Merits includes Body.Merits; temperature/bodypart consumers concatenate body again",
+      "WaterLossLitresPerHour has no production assignment found in tracked C#; audit before physical-water qualification"
+    ],
+    "implementation_or_gameplay_claim": false,
+    "database_or_publication_changes": false
+  },
+  "oct21_attribute_adaptation": {
+    "implemented": "Approved race bonuses using existing raw body attributes; stable semantic-ID bindings, count-times12 budget, cap20 and dice3d6+1, typed three-way link ownership with first-adoption builder preservation",
+    "scope": "Seeder/EF-fixture qualification only; all races remain unavailable, no MySQL/native server/gameplay or new complete-suite certificate",
+    "focused_final": {
+      "status": "PASS",
+      "run": "20261021T000929Z-56b7f874676f",
+      "summary_path": ".artifacts/test-runs/20261021T000929Z-56b7f874676f/summary.json",
+      "summary_sha256": "9AB0359B803ECD34E1C511717EEEAECB551F815139F074A13E9E82A3AFA7AE42",
+      "source_sha256": "615462c51046b5b442ed70bfbf5cb2e6d311e8e24065dd029b939b9aa91953fb",
+      "source_stable": true,
+      "counts_complete": true,
+      "passed": 10,
+      "failed": 0,
+      "skipped": 0
+    },
+    "earlier_incremental_passes": [
+      "20261021T000447Z-c561b18989ae:8/0/0 before reviewed first-adoption repair",
+      "20261021T000743Z-bf191195d529:9/0/0 including repair; final run adds explicit four-attribute Arm install"
+    ],
+    "no_physical_range_tests": true,
+    "database_or_publication_changes": false
+  },
+  "oct20_executable_naming": {
+    "implemented": {
+      "cultures": 15,
+      "native_elements": 78,
+      "supplementary_elements": 63,
+      "exact_descriptions": 78,
+      "supplementary_forms": 62,
+      "random_profiles": 75,
+      "random_policy": "personal1; all optional components0",
+      "usages_appended": {
+        "Title": 15,
+        "Affiliation": 16,
+        "ClanName": 17,
+        "EarnedName": 18
+      },
+      "existing_usage_values": "0-14 unchanged",
+      "automatic_gameplay_grants": false
+    },
+    "installed_and_native_ui_qualified": {
+      "status": "PASS",
+      "run": "20261020T141805Z_dc2d2e18c50a4d25a3afea329c3bd0e8",
+      "summary_path": ".artifacts/naming-completion-native/20261020T141805Z_dc2d2e18c50a4d25a3afea329c3bd0e8/summary.json",
+      "summary_sha256": "5032413E5955F300B652CCD63C457527AEB18CE3F23686BC8990B0506C7578F3",
+      "installer_receipt_path": ".artifacts/naming-completion-native/20261020T141805Z_dc2d2e18c50a4d25a3afea329c3bd0e8/base-world-run.json",
+      "installer_receipt_sha256": "315CE5164AF631F4B8276871EF48E1C8B001DD0DE35F3884E7158425A60953B0",
+      "source_sha256": "12BC0846D6DECD1ACBFDD8640E534480EF556F7F5EE1805C3560308DD0158C41",
+      "source_stable": true,
+      "foundation_closure_sha256": "9B7A1BD56AC27596120AF87246A370207B4C68303379974BC753DF56E96E7BA6",
+      "classes_subclasses_on": true,
+      "actual_chargen_save_hydration": true,
+      "pending_confirmation_and_display_resume": true,
+      "native_applications": 2,
+      "cold_process_preserving_reruns": 2,
+      "checks": [
+        "all78 exact executable descriptions",
+        "optional entry and separate metadata",
+        "independent quoted aliases",
+        "exact parent-clan validation",
+        "tribal naming declaration and independent surname display choice",
+        "earned path confirmation and prefix",
+        "builder profile weights/additions/deletions/zero dice",
+        "inactive age/sweat overrides and all8 race gates"
+      ],
+      "cleanup": "owned database and MySQL instance gracefully removed"
+    },
+    "focused_seeder": {
+      "run": "20261020T140728Z-69c66dbf9f90",
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true
+    },
+    "focused_runtime": {
+      "run": "20261020T140815Z-1386cc3123e2",
+      "passed": 36,
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true
+    },
+    "retained_incomplete_unit_runs": {
+      "20261020T134523Z-667be3038b66": "90-second VSTest handshake; zero records; inconclusive",
+      "20261020T135135Z-4ca02649f25e": "180-second VSTest handshake; zero records; inconclusive",
+      "20261020T135948Z-1c48b20f8457": "full seeder run interrupted by transport disconnect; no final receipt; no remaining test processes at14:06:33UTC"
+    },
+    "retained_native_failures": {
+      "20261020T140922Z_f4cb0d2fac13400a913d26d6dce0063d": "fixture assumed menu option2; repaired stable-ID selection; cleanup confirmed",
+      "20261020T141413Z_df33b6e42d904ab5b0ff53202554612b": "reader mock omitted prog registry; native UI/save-resume passed before cold failure; cleanup confirmed"
+    },
+    "full_seeder_final": {
+      "status": "PASS",
+      "run": "20261020T142526Z-cb03597fa8c2",
+      "head": "adf06642504b21031d408de41a9fd6e032e1d3f3",
+      "summary_path": ".artifacts/test-runs/20261020T142526Z-cb03597fa8c2/summary.json",
+      "summary_sha256": "9DD962528A3E0AC73DCF5F802BF467747A07EC6E8B7DFCF1B98E57953DFFB898",
+      "failures_sha256": "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945",
+      "source_sha256": "42d7169b43f3b8ae30400062805f3a22def0f76498861192130de22b3ced7b12",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "passed": 2068,
+      "failed": 0,
+      "skipped": 3,
+      "total": 2071,
+      "skip_scope": "Unix launcher permission test variants0/1/2 require a Unix host",
+      "duration_seconds": 889.4442742,
+      "helper_exit_code": 0,
+      "issues": [],
+      "failures": []
+    },
+    "limits": [
+      "No automatic affiliation, rank or achievement verification/grants",
+      "Hidden metadata is not inferred from ambiguous display text; structured text syntax is provided",
+      "No new current-source whole-server/gameplay certificate; prior19October receipt retains its original scope",
+      "Age/lifecycle and physical activation decisions remain held; no races enabled; no existing-world conversion; no publication"
+    ],
+    "release_build": {
+      "status": "PASS",
+      "warnings": 208,
+      "errors": 0,
+      "log": ".artifacts/naming-completion-release-build.log",
+      "log_sha256": "4C3476D6B537888DDDFDEEBF57CB8D9F8752DF9D633E3E9A89B6BAA88C195E04",
+      "includes": "DatabaseSeeder, MudSharpCore and shared references"
+    }
+  },
+  "racial_merits_20261021": {
+    "status": "Implemented, installed and focused native-consumer-qualified; physical activation separate",
+    "approved_by": "Luke: implement the racial merits, found fixes and proposed merit types",
+    "base_head": "d8d1f44256ce89c06fdadb6743811d501ea3062d",
+    "types": [
+      "Stamina Capacity",
+      "Environmental Needs"
+    ],
+    "persistence": "Races_Merits direct/inherited body grants, explicit assignment separation, additive migration 20261021005427_IntrinsicRacialMerits",
+    "stock": {
+      "owned_merits": 5,
+      "numeric_context_progs": 2,
+      "giant": "food48/drink24, hunger3/thirst3/alcohol1, underlying race rates1",
+      "stamina": "Desert Elf+60, Half-Giant+20, Mul+20; normal recovery",
+      "environmental": "Ordinary and Desert Elf contextual thirst; no parent double grant",
+      "stock_water_prog": 0
+    },
+    "fixes": [
+      "Deduplicate effective body/character consumers by merit ID",
+      "Do not copy intrinsic grants into form templates or explicit saved assignments",
+      "Wire generic movement stamina merit and applicability across charged movement modes",
+      "Keep malformed/negative environmental prog references neutral across unrelated save/reload until explicit repair",
+      "Restore saved partial blood before hydration normalisation; clamp after capacity becomes available including zero",
+      "Classify deferred RoleSkillBonusClaims as audited room-free XML"
+    ],
+    "fast": {
+      "status": "PASS",
+      "run": "20261021T020701Z-997a34ea374d",
+      "receipt": {
+        "path": ".artifacts/test-runs/20261021T020701Z-997a34ea374d/summary.json",
+        "sha256": "009F937D813A4D61E35D4D156936DC0B624F1D21A811BEAA362058F2B4EEDABC"
+      },
+      "source_start": "a1ba2d84c0b3447dd63d6027fc079a1ffdccb687c6e42bc070adc3c105e07f68",
+      "source_end": "a1ba2d84c0b3447dd63d6027fc079a1ffdccb687c6e42bc070adc3c105e07f68",
+      "source_stable": true,
+      "execution_complete": true,
+      "counts_complete": true,
+      "counts": {
+        "executed": 11544,
+        "passed": 11544,
+        "failed": 0,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 11547
+      },
+      "duration_seconds": 926.2270125,
+      "helper_exit": 0,
+      "skip_scope": "Three Unix launcher permission variants require a Unix host",
+      "failures": {
+        "path": ".artifacts/test-runs/20261021T020701Z-997a34ea374d/failures.json",
+        "sha256": "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
+      }
+    },
+    "focused_neutral_reload": {
+      "run": "20261021T020435Z-4632c5983028",
+      "passed": 12,
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true
+    },
+    "prior_corrective_core_database": {
+      "run": "20261021T014803Z-cb2ebf0eaac2",
+      "passed": 8430,
+      "failed": 0,
+      "skipped": 0,
+      "source_stable": true
+    },
+    "native": {
+      "status": "PASS",
+      "run": "20261021T020659Z_60b07c1a5afd442aa095f73dbcddde96",
+      "log": {
+        "path": ".artifacts/racial-merits-native-blood-reload-background.log",
+        "sha256": "11FAC43DCE27A000DC51BADAC600FF64D6095A2770EE3F9870AF005A92A422AF"
+      },
+      "source_sha256": "9EFD9A178BC674BD2C65BD51C0DD1F87BB19DF4D6825A16911CB2044D9A7E6EC",
+      "source_stable": true,
+      "foundation_closure_sha256": "7AECCB81F5E804E4C196E6C47DD12B44A9BEC502FDD9AB17BD298715DC21A2D2",
+      "sealed_files_unchanged": true,
+      "schema_extension_on_verified_owned_restore_only": true,
+      "classes_subclasses_on": true,
+      "actual_loaded_racial_merits_and_needs_stamina_consumers": true,
+      "sql_saved_counters_and_positive_hydration_and_partial_blood": true,
+      "cold_process_readers": 2,
+      "builder_links_definitions_and_terrain_ids_preserved": true,
+      "explicit_grant_leakage": false,
+      "naming_executable_elements": 78,
+      "naming_native_chargen_save_resume": true,
+      "race_rows_unavailable": 8,
+      "cleanup": "Owned database and private MySQL/TEMP instance gracefully removed",
+      "scope_limit": "Installer/persistence plus focused production consumer qualification; no new whole-server/gameplay certificate"
+    },
+    "schema_parity": {
+      "status": "PASS",
+      "model_unchanged_since": "20261021005427_IntrinsicRacialMerits",
+      "log": {
+        "path": ".artifacts/racial-merit-schema-parity-final.log",
+        "sha256": "C924DA1693AD60EB6A78717DDD333946A8A61A056C2CE2868AE514384F01C866"
+      }
+    },
+    "blank_snapshot": {
+      "status": "PASS",
+      "run": "20261021T012028Z_3c54607bd4904348a515d5bcd45d1762",
+      "native_fresh_import": true,
+      "latest_migration_and_both_racial_foreign_keys_verified": true,
+      "log": {
+        "path": ".artifacts/racial-merits-snapshot-run.log",
+        "sha256": "4131B2CB733D6ADCDCBEB7FD0A027AF81089E3B68C611ECC3332AF7EF60A2E8E"
+      },
+      "cleanup_confirmed": true
+    },
+    "release_build": {
+      "status": "PASS",
+      "products": [
+        "DatabaseSeeder",
+        "MudSharpCore",
+        "Shared references"
+      ],
+      "warnings": 207,
+      "errors": 0,
+      "log": {
+        "path": ".artifacts/racial-merits-release-build-blood-reload.log",
+        "sha256": "79C16527F7F43FF7FC23255BB52628D343B618ADC72CED4130BFC8E7609DAF2E"
+      }
+    },
+    "retained_nonpassing_unit_runs": {
+      "20261021T012701Z-420670822dc9": "17pass8fail: generated environment prog null syntax corrected to native isnull",
+      "20261021T013041Z-abe9d012198e": "Incomplete foreground receipt, 28 confirmed failures: 23 uninitialised legacy fixtures, 3 zero-ID naming fixtures, 1 colliding mock merit identity, 1 room-free serializer inventory omission; repaired without weakened assertions; exact processes confirmed absent",
+      "20261021T015604Z-41052eb60696": "Coordinator stopped verified task-owned helper tree for necessary invalid-reference and blood/hydration repairs; nine completed projects9466pass0fail, Seeder incomplete, no final source-stability claim; no surviving run processes confirmed"
+    },
+    "retained_nonpassing_native_runs": {
+      "20261021T012612Z_0571c9e73ae54d3d86a80da99eff98c6": "Cancelled exact owned harness after generated-prog compilation prerequisite failed; cleanup confirmed",
+      "20261021T013105Z_fdf42a1bbf0b40c2ab72a7cffa0daadf": "Duplicate process-global hook registration from multiple loaded worlds in one process; fixed producer world sharing and independent cold readers; cleanup confirmed",
+      "20261021T014816Z_51b1c348be92425faa0465f3a41ae93d": "Fixture race inventory counted ownership helper rows; repaired typed distinct race inventory; cleanup confirmed",
+      "20261021T015443Z_64b75869f7fb45f284923b01fa65faa5": "Real production hydration reload zeroed by premature blood clamp; preserved SQL value and assertion, corrected load order and added partial-blood cold assertions; cleanup confirmed"
+    },
+    "remaining_limits": [
+      "Native clock has no Highsun band; no invented noon interval",
+      "No source condition-point/litre conversion or production basal-water assignment: stock water prog stays0; configured generic litre-loss channel works",
+      "Remaining physical/lifecycle/appearance wiring and activation separate; all8 race rows unavailable",
+      "No height/weight range tests added or run",
+      "No existing-world conversion or database changes, publication, push, merge or deployment"
+    ]
+  },
+  "physical_lifecycle_20261021": {
+    "status": "Implemented, installed and current-schema native/gameplay/cold-server-qualified; race admission and publication held",
+    "approved_by": "Luke: Approved, you may commence implementation (final juvenile and independent creation-age policy; previous physical/posture/stat/appearance/physiology approvals retained)",
+    "base_head": "c826e4895e5ab50fa33432830e7d425fbdf633dc",
+    "provenance": "Recovered approved dimensions and adult display bands; juvenile subdivisions, ordinary creation bounds, neutral distributions and conservative shape prose are authored approved defaults, not lifespans or balance measurements",
+    "policy_columns": [
+      "profile",
+      "child",
+      "youth",
+      "young_adult",
+      "adult",
+      "middle_aged_display",
+      "elder",
+      "venerable",
+      "creation_min",
+      "creation_max"
+    ],
+    "policy_rows": [
+      [
+        "human",
+        3,
+        10,
+        20,
+        30,
+        41,
+        61,
+        81,
+        20,
+        80
+      ],
+      [
+        "city_elf",
+        3,
+        12,
+        24,
+        35,
+        48,
+        71,
+        94,
+        24,
+        93
+      ],
+      [
+        "desert_elf",
+        3,
+        12,
+        24,
+        35,
+        48,
+        71,
+        94,
+        24,
+        93
+      ],
+      [
+        "dwarf",
+        3,
+        22,
+        44,
+        66,
+        91,
+        135,
+        179,
+        44,
+        178
+      ],
+      [
+        "half_elf",
+        3,
+        11,
+        22,
+        33,
+        45,
+        66,
+        88,
+        22,
+        87
+      ],
+      [
+        "half_giant",
+        3,
+        18,
+        36,
+        54,
+        74,
+        110,
+        146,
+        36,
+        145
+      ],
+      [
+        "mul",
+        3,
+        8,
+        15,
+        23,
+        31,
+        46,
+        61,
+        15,
+        60
+      ]
+    ],
+    "installed_definitions": {
+      "physical_models": 7,
+      "age_description_progs": 7,
+      "appearance_values": 5,
+      "appearance_profiles": 7,
+      "creation_bound_wrappers": 6
+    },
+    "engine": [
+      "Nullable text(number age) Race.AgeDescriptionProgId with SetNull FK, load/save/clone/builder support and mechanical fallback",
+      "Inclusive lifecycle starts; generic RankedRange unchanged; NPC category maxima stop before the next start",
+      "Standard characteristic profiles opt into persisted ongoing styling restrictions; legacy rules unchanged"
+    ],
+    "preservation": [
+      "Typed owned model/value/profile/prog identities",
+      "Separate original creation-policy delegates and storyboard fields",
+      "Older nullable-column adoption preserves custom pointers and later explicit removal",
+      "Builder ages, bounds exceptions, models, display bodies, characteristic links and profile edits survive reruns",
+      "Shared Human/Admin row references retained; All profiles remain dynamic, with expanded shape pools/distributions rather than ancestry exclusivity"
+    ],
+    "fast": {
+      "source_end": "4e5334fd7e2871fe2d7ded0bf85059a6ec44383c5eb533823658a6588f623691",
+      "counts_complete": true,
+      "counts": {
+        "executed": 11567,
+        "passed": 11567,
+        "failed": 0,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 11570
+      },
+      "source_start": "4e5334fd7e2871fe2d7ded0bf85059a6ec44383c5eb533823658a6588f623691",
+      "duration_seconds": 990.282515,
+      "receipt": {
+        "sha256": "EDF6DCBA7DBBA99E4AF7E27F37875CA19D885FA8FA4781B9306814E772BAA42D",
+        "path": ".artifacts/test-runs/20261021T030810Z-766461ea7b3c/summary.json"
+      },
+      "execution_complete": true,
+      "source_stable": true,
+      "status": "PASS",
+      "run": "20261021T030810Z-766461ea7b3c"
+    },
+    "focused_core": {
+      "source_end": "7b11841d7b4d0a2fbd3f38eb949590ffe06ce3d13f9cc0835eee2d497cd2bc1f",
+      "counts_complete": true,
+      "counts": {
+        "executed": 40,
+        "passed": 40,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 40
+      },
+      "source_start": "7b11841d7b4d0a2fbd3f38eb949590ffe06ce3d13f9cc0835eee2d497cd2bc1f",
+      "duration_seconds": 26.8884042,
+      "receipt": {
+        "sha256": "AC2B45FDB1AD68639F8ECAA71B332B686939D7077A29DB917ADDDC08FD04FB65",
+        "path": ".artifacts/test-runs/20261021T030410Z-05c9ef0a899a/summary.json"
+      },
+      "execution_complete": true,
+      "source_stable": true,
+      "status": "PASS",
+      "run": "20261021T030410Z-05c9ef0a899a"
+    },
+    "focused_seeder": {
+      "source_end": "0d4bcaee18bcae399bb4b0b7ea97c9854c4221ca815f13d19eb579b6ce668174",
+      "counts_complete": true,
+      "counts": {
+        "executed": 38,
+        "passed": 38,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 38
+      },
+      "source_start": "0d4bcaee18bcae399bb4b0b7ea97c9854c4221ca815f13d19eb579b6ce668174",
+      "duration_seconds": 56.914232,
+      "receipt": {
+        "sha256": "A85DEFCAB6B7A1438A058D5B6CEF1524A3B6FB6009847C7BD2F9C088B9D77984",
+        "path": ".artifacts/test-runs/20261021T030439Z-5bab051c5dfe/summary.json"
+      },
+      "execution_complete": true,
+      "source_stable": true,
+      "status": "PASS",
+      "run": "20261021T030439Z-5bab051c5dfe"
+    },
+    "native_followups": {
+      "source_end": "C7086632D982FA5374E77FEF0AFFD268F84F9B7022E1375D59088ABB44DA708B",
+      "source_start": "C7086632D982FA5374E77FEF0AFFD268F84F9B7022E1375D59088ABB44DA708B",
+      "helper": {
+        "sha256": "48C5B157CD46673DFF5466A0DE67C9E2F6A766B65979705FAEE3E79A8A8BDA3D",
+        "path": ".artifacts/physical-policy-followups-first-exit.json"
+      },
+      "source_stable": true,
+      "log": {
+        "sha256": "62C4AAEF756E53CD4092D421AF4069C4A093A0C9AFDA5986528D4959F8504EB1",
+        "path": ".artifacts/physical-policy-followups-first.log"
+      },
+      "receipt": {
+        "sha256": "21E220EBD164868BEA1027F66E392B19FCE7DC432C5EDA2C030A7C5767D02B7E",
+        "path": ".artifacts/physical-policy-followups/20261021T030452Z_bea97522f9f448fa98a2b0af3b264de1/summary.json"
+      },
+      "cleanup": "Owned databases and private MySQL/TEMP instance gracefully removed",
+      "native_exit": 0,
+      "run": "20261021T030452Z_bea97522f9f448fa98a2b0af3b264de1"
+    },
+    "native_combined": {
+      "source_end": "90D3A27FE9E4843959EB14CC544A09EC0C020345BA6D0740855D24EB1F915528",
+      "source_start": "90D3A27FE9E4843959EB14CC544A09EC0C020345BA6D0740855D24EB1F915528",
+      "helper": {
+        "sha256": "D2E429E888C51C1B3857255F291B760846CADA9677DBCBD2F359079161849479",
+        "path": ".artifacts/physical-policy-combined-third-exit.json"
+      },
+      "source_stable": true,
+      "log": {
+        "sha256": "F19E3326EC659329EB08867B001DE50C969AB39DE3E3A66CFE74BE6E254B4D9D",
+        "path": ".artifacts/physical-policy-combined-third.log"
+      },
+      "receipt": {
+        "sha256": "E142023E8530C47645076FC9FD0BD7010A84CFB8B9CBE40D3DBE6218A48E78A7",
+        "path": ".artifacts/physical-policy-combined/20261021T033830Z_5bb606167d7548899e66d4c579cecb08/summary.json"
+      },
+      "cleanup": "Owned databases and private MySQL/TEMP instance gracefully removed",
+      "native_exit": 0,
+      "run": "20261021T033830Z_5bb606167d7548899e66d4c579cecb08"
+    },
+    "native_claims": {
+      "seven_real_profile_bodies": true,
+      "naming_executable_elements": 78,
+      "native_age_picker_bounds": true,
+      "race_rows_unavailable": 8,
+      "phase_resume_rerun_and_builder_player_preservation": true,
+      "representative_combat_and_pilot": true,
+      "birthdays_attributes_appearance_needs_blood_stamina_and_chargen_resume": true,
+      "descriptions_and_hairless_styling": true,
+      "classes_subclasses_on": true,
+      "independent_cold_readers": 2
+    },
+    "server_boot": {
+      "first_avatar_menu_option": 8,
+      "receipt": {
+        "sha256": "B20956CE3C28E641CDBFEA92C8EB2B4025295AD7AD2DA30027F90B5C0BF00FD5",
+        "path": "../prepared-replay-boot-native_foundations_0dfd5ff73c12407d8613ff29fc7930ec/boot-latest.json"
+      },
+      "status": "PASS",
+      "owned_mud_processes_stopped": true,
+      "cold_avatar_menu_option": 8,
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ]
+    },
+    "foundation_closure_sha256": "2F859BB74250BDD29C11FE236C9E49E0E7FA86BFA302000C328E43E74F0B247E",
+    "sealed_files": "Original descriptor E26C6B5992C664F52BFA38488CB2F19143B8B80A59C7A3CB949D7B7F014C61A8 and SQL64113F06E363B582ECE510A3C112984F51D28977DB7250A53D28A6DA790F7206 unchanged; original schema/content verified before the two additive migrations on the owned restore",
+    "schema": {
+      "official_generation": {
+        "sha256": "3B37E330A054A7D31A4068F3D0D6964B1AD48330E40C1F21AEB243AC3F6BEC3B",
+        "path": ".artifacts/physical-age-schema-generation.log"
+      },
+      "snapshot_helper": {
+        "sha256": "95DD77F0823E1191E9964547C7F266B8E39CA1A1BB394B2FA3DBFE53E66B26F3",
+        "path": ".artifacts/physical-policy-snapshot-first-exit.json"
+      },
+      "cleanup_confirmed": true,
+      "migration": "20261021023928_ConfigurableRaceAgeDescriptions",
+      "parity": {
+        "sha256": "C924DA1693AD60EB6A78717DDD333946A8A61A056C2CE2868AE514384F01C866",
+        "path": ".artifacts/physical-age-schema-parity.log"
+      },
+      "blank_snapshot_native_refresh_import": {
+        "sha256": "E1AC613C16933F995A8599642FC6D260AC9C850805E7C729668691B5EB865D02",
+        "path": ".artifacts/physical-policy-snapshot-first.log"
+      },
+      "snapshot_source_stable": true,
+      "foreign_key_verified": true
+    },
+    "release": {
+      "warnings": 208,
+      "status": "PASS",
+      "log": {
+        "sha256": "EBBE96690D4886C0996F43D779C63D6466D57C2D39F09485BB41C242F0B1C576",
+        "path": ".artifacts/physical-policy-release-build.log"
+      },
+      "helper": {
+        "sha256": "B93899B2D575D46F739476D8371C7E6D7233E46FF5E2A5AED6C8A68CE97543D9",
+        "path": ".artifacts/physical-policy-release-exit.json"
+      },
+      "errors": 0
+    },
+    "post_fast_changes": {
+      "menu_checks": {
+        "sha256": "BEC1015EE16DB7C539466CBA396AC6320A47D414AB16FD34BF24B07361D16FE0",
+        "path": ".artifacts/physical-policy-boot-menu-check.txt"
+      },
+      "inventory_diff": {
+        "sha256": "E8BE276D493E42161DC5B33BBDD3DD24D65C575FE3D8BA34D320986A22E090F8",
+        "path": ".artifacts/physical-policy-post-fast-fixture-diff.json"
+      },
+      "scope": "Four native-harness-only files: exact heritage keys/shared helper/comment and exact active Admin selection; no production changes. Final combined acceptance covers these repairs. Later changes are documentation only."
+    },
+    "retained_nonpassing": {
+      "combined_second": {
+        "cleanup_confirmed": true,
+        "run": "20261021T032630Z_1f8e01529d224ce2923f65e147f04c7c",
+        "log": {
+          "sha256": "7472503DFC5A42B030AF9D19B882C44507C0BD587052A3EF2A8E967CDCA57B45",
+          "path": ".artifacts/physical-policy-combined-second.log"
+        },
+        "boot": {
+          "sha256": "84348012BA19D8679BB9F4DE6DA6E179F054643DDB83AAD504FA3FC45B8C87F1",
+          "path": "../prepared-replay-boot-native_foundations_00eeee0e203a4f5081f6e08300a69bff/boot-latest.json"
+        },
+        "cause": "Hardcoded menu1 entered physical Human, not Admin8: readiness/LOOK passed but nominal Admin identity assertion was a false positive and Founder-only flush correctly refused. Exact active-avatar selection fixed; no command-permission changes"
+      },
+      "combined_first": {
+        "cleanup_confirmed": true,
+        "run": "20261021T030814Z_7137b4b319524284a57027f931b5953e",
+        "log": {
+          "sha256": "3B675B0F5EEA791DC477D2BCE7CB139854287E4D82B61FC5C764E227011F1D23",
+          "path": ".artifacts/physical-policy-combined-first.log"
+        },
+        "cause": "Fixture prefix inventory included magic creature races; repaired exact eight heritage keys, retaining eight distinct IDs and AlwaysFalse assertions"
+      },
+      "debug_build": "physical-policy-debug-build.log: ambiguous ToHashSet corrected to explicit HashSet",
+      "focused_compile": "20261021T024712Z-fbde0221050f: CultureInfo ambiguity corrected with explicit alias; zero executed cases, source stable"
+    },
+    "superseded_top_level_limits": [
+      "All eight new Race rows unavailable; owner physical/appearance acceptance required before activation.",
+      "No random-name corpus/scripts, active psychic powers, broader silt burial, Ruins armour-only penalty or world conversion.",
+      "Authored positive tactical advantage, lit arena and up to12 native impact attempts; no mocks or damage/armour bypass.",
+      "Driving: actual commands/native factory/control/schedulers, authored obstruction prog; no weather/animal/fuel/balance qualification.",
+      "Native Chargen finalisation/save and Character insertion; no ordinary UI approval claim or outbound approval notifications.",
+      "Full seeder batch precedes focused compatibility/feature-gate/anatomy fixes; each subsequent change has its focused passing receipt.",
+      "Three Unix-only permission tests skipped; no publication/deployment/existing-world activation."
+    ],
+    "remaining_limits": [
+      "All eight Race rows stay unavailable: seven profiles plus nonplayable common Elf parent; admission/publication held",
+      "Approved profile dimensions not range-tested; fixed representative native body dimensions only; NPC normal-distribution tails are not hard PC bounds",
+      "Shared All profiles dynamically include the five new shapes; no ancestry-exclusive appearance policy claimed",
+      "Native Highsun absent and source condition-point/litre conversion unspecified; stock environmental water prog remains0",
+      "Three Unix launcher permission variants skipped; no existing-world conversion, database mutation, push, merge, deploy or publication"
+    ]
+  },
+  "full_optional_packages_20261021": {
+    "tested_parent": "0e4dfaea7c01879950ae805dbd0c70137b613340",
+    "scope": "Simple/classes/subclasses-on complete enabled-package replay except Item and mutually exclusive SkillSeeder; exact sealed restore, production registry samples, first/cold executable Admin boots. Prior minimal-chain gameplay evidence retained separately; no exhaustive optional gameplay or generic-content Armageddon-fidelity claim.",
+    "implementation": [
+      "Optional Agriculture installs a separately owned hidden/ungranted Farming support trait and cap; frozen112 canonical+30 scaffold inventory and role/player grants remain unchanged.",
+      "Animal Butchery binds the validated owned arm.skill.skinning identity per the approved Butchery/Skinning consumer map, retaining generic aliases and builder renames."
+    ],
+    "focused": {
+      "run": "20261021T043552Z-5b5a5b947c03",
+      "skipped": 0,
+      "passed": 34,
+      "failed": 0
+    },
+    "full_seeder_suite": {
+      "run": "20261021T050925Z-d42dd8ab2b1f",
+      "execution_complete": true,
+      "counts": {
+        "executed": 2092,
+        "passed": 2092,
+        "failed": 0,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 2095
+      },
+      "source_stable": true,
+      "status": "PASS",
+      "summary": ".artifacts/test-runs/20261021T050925Z-d42dd8ab2b1f/summary.json",
+      "counts_complete": true,
+      "source_sha256": "76cba93d14ca9c698027786796823e87ebadad792b169efefc501ad394c27782"
+    },
+    "builds": {
+      "release_installer": ".artifacts/full-setting-focus-fourth-exit.json",
+      "debug_native_harness": ".artifacts/full-setting-build-exit.json",
+      "passed": true
+    },
+    "native": {
+      "content_sha256": "B4424469AD386A0BE86A8019889D737C87FE74C3731863805DCC89579D0E9B7C",
+      "failed": null,
+      "boot_receipt": "../prepared-replay-boot-native_foundations_8618ce8bce7c4520a36204ce60dca2a1/boot-latest.json",
+      "refused_retry_without_mutation": true,
+      "unstarted": [],
+      "exact_sealed_restore": true,
+      "checkpoint": ".artifacts/full-setting-replay-fixtures/20261021T050606Z_c994a44d54fe48bc9990d212c609e52d/full-replay.json",
+      "production_closure_sha256": "7662AE5C81D0D8E5DEFB732F13F5C3CD41BBCE75352C6C15A9CC3607A96AFC92",
+      "boot_assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ],
+      "log": ".artifacts/full-setting-native-third.log",
+      "source_stable": true,
+      "descriptor_sha256": "FE80F5BBD71DDE44C3B4AB292EBAE016ED126936F241A9360EB769D981AFA976",
+      "source_sha256": "4974DE2D18D56D4E185C20B8E110F82E9D762DCF85D9D0C77006031C7DECB2F7",
+      "cleanup": "Both owned databases, MUD process trees and isolated MySQL/TEMP instance cleaned up.",
+      "schema_sha256": "FCCC645FF5532C8C473D24D950C0FDC001FA1D9A5C450803860520FDC2B930A4",
+      "boot_status": "PASS",
+      "sql_sha256": "0487EBDFEFBA79F17964DE7D1D319DB2F0C41D2B50BF179B7A4AD7BD5884A579",
+      "status": "PASS",
+      "samples": {
+        "Races": 323,
+        "Weapons": 120,
+        "Health": 9,
+        "Surgery": 61,
+        "Butchery": 38,
+        "Horse": {
+          "Id": 51,
+          "Body": 4,
+          "Health": 7,
+          "Attacks": 23,
+          "Butchery": 11,
+          "ButcheryTrait": 92
+        },
+        "LongswordTrait": 93,
+        "RazorTrait": 80
+      },
+      "summary": ".artifacts/full-setting-native/20261021T045531Z_15308bc3d4a14e9692f6b92316e3549a/summary.json",
+      "completed": [
+        "Core",
+        "Time Seeder",
+        "Celestial Seeder",
+        "Attributes",
+        "Currency",
+        "AI Storyteller Starter Pack",
+        "Skill Package",
+        "Economy",
+        "Clans",
+        "Human Seeder",
+        "Weather Seeder",
+        "Law Seeder",
+        "Character Creation",
+        "Arena",
+        "Kickstart",
+        "Trap System Starter Pack",
+        "Agriculture",
+        "Health Seeder",
+        "Prepared Food and Cooking",
+        "Combat",
+        "Culture Seeder",
+        "Merits and Flaws",
+        "Animal Seeder",
+        "Armageddon Setting",
+        "Mythical Animal Seeder",
+        "Production Wildlife AI Catalogue",
+        "Robot Seeder",
+        "Animal Butchery",
+        "Supernatural Seeder",
+        "Psionics",
+        "Environmental Exposure"
+      ]
+    },
+    "guards": {
+      "receipt": ".artifacts/full-setting-guard-checks.json",
+      "parser": "PASS",
+      "pre_resource_refusals": 3,
+      "seal_after_boot": ".artifacts/full-setting-seal-after-boot.json"
+    },
+    "retained_failures": [
+      "First native attempt:16 completed; Agriculture blocked on missing Farming. Refusal/source stability/cleanup passed; no runtime certificate.",
+      "Second native attempt:31 installed and refusal passed; combined runtime assertion wrongly expected Longsword Two Handed. Source maps Longsword to Slashing; corrected/split the harness assertions without changing production combat. No boot certificate from that failed attempt.",
+      "Focused third attempt did not compile because a new test used ambiguous TraitExpression; fully qualified the model name. Final focused/full gates supersede it; its failure is retained."
+    ],
+    "remaining": "Seven playable-profile admission defaults remain held; common Elf parent stays nonplayable. Publication remains held. No existing world, merge, push, deployment or conversion."
+  },
+  "latest_evidence_key": "full_optional_packages_20261021"
+}

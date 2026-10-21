@@ -125,14 +125,15 @@ There are many different ways that you could set up combat skills. A few options
 
 #BWeapons#f: In this option each weapon has its own skill, e.g. Swords, Axes, Spears, Daggers
 #BBroad#f: In this option you have broad categories across multiple weapons such as Edged, Bludgeoning, Piercing, Two-Handed
+#BArmageddon#f: Use the early Armageddon package, canonical weapon traits and independent Parry (new worlds only).
 #BSOI#f: This option sets up skills like old SOI had, with 9 combinations of light, medium, heavy and edged, bludgeon and piercing (e.g. medium-edge etc)
 
 Which option do you want to choose for weapon skills? ",
                 (context, answers) => !HasCombatFoundation(context),
                 (answer, context) =>
                 {
-                    return (answer.EqualToAny("weapons", "broad", "soi"),
-                        "You must answer 'weapons', 'broad' or 'soi'.");
+                    return (answer.EqualToAny("weapons", "broad", "soi", "armageddon"),
+                        "You must answer weapons, broad, soi or armageddon.");
                 }),
             ("messagestyle", @"#DCombat Messages#F
 
@@ -179,6 +180,14 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         effectiveAnswers = CombatSeederMessageStyleHelper.MergeQuestionAnswersWithRecordedChoice(context, effectiveAnswers);
 		effectiveAnswers = MergeRecordedCombatAnswers(context, effectiveAnswers);
 
+        var armageddon = effectiveAnswers["skilloption"].Equals("armageddon", StringComparison.OrdinalIgnoreCase);
+        if (armageddon) ValidateArmageddonCombat(context, effectiveAnswers);
+        else if (ArmageddonSkillPackage.IsInstalled(context)) throw new InvalidOperationException("Armageddon skills require the Armageddon combat package.");
+        if (armageddon && HasCombatFoundation(context))
+        {
+            ValidateArmageddonCombatIdentities(context);
+            return "Armageddon combat identities and builder customisations retained. No combat data or player values changed.";
+        }
         context.Database.BeginTransaction();
         if (HasCombatFoundation(context))
         {
@@ -213,6 +222,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
 		var coordinationSkill = skills.GetValueOrDefault("Dual-Wielding") ?? skills["Dual-Wield"];
 		var coordination = DualWieldCoordinationSeederHelper.InstallFresh(context, coordinationSkill);
 
+        if (armageddon) CompleteArmageddonCombat(context);
         context.Database.CommitTransaction();
 
         return $"The operation completed successfully. {coordination.Message}";
@@ -478,7 +488,7 @@ You can choose #3Compact#f, #3Sentences#f or #3Sparse#f",
         }
 
         ArmourType shieldArmour = context.ArmourTypes.First(x => x.Name == "Shield Armour");
-        TraitDefinition blockSkill = context.TraitDefinitions.First(x => x.Name == "Blocking" || x.Name == "Block");
+        TraitDefinition blockSkill = ArmageddonSkillPackage.IsInstalled(context) ? ArmageddonSkillPackage.Resolve(context)["arm.skill.shield_use"] : context.TraitDefinitions.First(x => x.Name == "Blocking" || x.Name == "Block");
         foreach ((string name, double blockBonus, double staminaPerBlock) in new (string, double, double)[]
                  {
                      ("Hide", -1.0, 6.0),

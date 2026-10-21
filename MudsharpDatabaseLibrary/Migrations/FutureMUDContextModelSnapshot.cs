@@ -18976,6 +18976,9 @@ namespace MudSharp.Migrations
                     b.Property<int>("AdultAge")
                         .HasColumnType("int(11)");
 
+                    b.Property<long?>("AgeDescriptionProgId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<string>("AllowedGenders")
                         .IsRequired()
                         .HasColumnType("varchar(255)")
@@ -19302,6 +19305,8 @@ namespace MudSharp.Migrations
                         .HasColumnType("int(11)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AgeDescriptionProgId");
 
                     b.HasIndex("AvailabilityProgId")
                         .HasDatabaseName("FK_Races_AvailabilityProg");
@@ -19731,6 +19736,23 @@ namespace MudSharp.Migrations
                         .HasDatabaseName("FK_Races_EdibleMaterials_Materials_idx");
 
                     b.ToTable("Races_EdibleMaterials", (string)null);
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RacesMerits", b =>
+                {
+                    b.Property<long>("RaceId")
+                        .HasColumnType("bigint(20)");
+
+                    b.Property<long>("MeritId")
+                        .HasColumnType("bigint(20)");
+
+                    b.HasKey("RaceId", "MeritId")
+                        .HasName("PRIMARY");
+
+                    b.HasIndex("MeritId")
+                        .HasDatabaseName("FK_Races_Merits_Merits");
+
+                    b.ToTable("Races_Merits", (string)null);
                 });
 
             modelBuilder.Entity("MudSharp.Models.RacesRemoveBreathableGases", b =>
@@ -34754,6 +34776,12 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Race", b =>
                 {
+                    b.HasOne("MudSharp.Models.FutureProg", "AgeDescriptionProg")
+                        .WithMany()
+                        .HasForeignKey("AgeDescriptionProgId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Races_AgeDescriptionProg");
+
                     b.HasOne("MudSharp.Models.FutureProg", "AvailabilityProg")
                         .WithMany("RacesAvailabilityProg")
                         .HasForeignKey("AvailabilityProgId")
@@ -34843,6 +34871,8 @@ namespace MudSharp.Migrations
                         .HasForeignKey("SweatLiquidId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Races_Liqiuds_Sweat");
+
+                    b.Navigation("AgeDescriptionProg");
 
                     b.Navigation("AvailabilityProg");
 
@@ -35141,6 +35171,27 @@ namespace MudSharp.Migrations
                         .HasConstraintName("FK_Races_EdibleMaterials_Races");
 
                     b.Navigation("Material");
+
+                    b.Navigation("Race");
+                });
+
+            modelBuilder.Entity("MudSharp.Models.RacesMerits", b =>
+                {
+                    b.HasOne("MudSharp.Models.Merit", "Merit")
+                        .WithMany("RacesMerits")
+                        .HasForeignKey("MeritId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Races_Merits_Merits");
+
+                    b.HasOne("MudSharp.Models.Race", "Race")
+                        .WithMany("RacesMerits")
+                        .HasForeignKey("RaceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("FK_Races_Merits_Races");
+
+                    b.Navigation("Merit");
 
                     b.Navigation("Race");
                 });
@@ -39717,6 +39768,8 @@ namespace MudSharp.Migrations
                     b.Navigation("MeritsChargenResources");
 
                     b.Navigation("PerceiverMerits");
+
+                    b.Navigation("RacesMerits");
                 });
 
             modelBuilder.Entity("MudSharp.Models.NPCSpawner", b =>
@@ -39868,6 +39921,8 @@ namespace MudSharp.Migrations
                     b.Navigation("RacesCombatActions");
 
                     b.Navigation("RacesEdibleMaterials");
+
+                    b.Navigation("RacesMerits");
 
                     b.Navigation("RacesRemoveBreathableGases");
 

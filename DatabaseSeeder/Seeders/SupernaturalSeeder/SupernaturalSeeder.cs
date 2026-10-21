@@ -549,13 +549,13 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		race.TrackingAbilityVisual = _humanRace.TrackingAbilityVisual;
 		race.TrackingAbilityOlfactory = template.Family == SupernaturalFamily.Spirit ? 0.0 : _humanRace.TrackingAbilityOlfactory;
 
-		ApplyNeedsProfile(race, template);
+		ApplyNeedsProfile(race, template, created);
 
 		if (created)
 		{
 			_context.Races.Add(race);
-			_context.SaveChanges();
-			ApplyNeedsProfile(race, template);
+			SeededSweatRates.SaveNewRace(_context, race);
+			ApplyNeedsProfile(race, template, created);
 			summary.RacesAdded++;
 		}
 		else
@@ -572,7 +572,7 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		_context.SaveChanges();
 	}
 
-	private void ApplyNeedsProfile(Race race, SupernaturalRaceTemplate template)
+	private void ApplyNeedsProfile(Race race, SupernaturalRaceTemplate template, bool created)
 	{
 		if (template.NeedsProfile == SupernaturalNeedsProfile.NonLiving)
 		{
@@ -582,8 +582,11 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 			race.HoldBreathLengthExpression = "999999";
 			race.HungerRate = 0.0;
 			race.ThirstRate = 0.0;
-			race.SweatLiquid = null;
-			race.SweatRateInLitresPerMinute = 0.0;
+			if (created)
+			{
+				race.SweatLiquid = null;
+				race.SweatRateInLitresPerMinute = 0.0;
+			}
 			_context.RacesBreathableGases.RemoveRange(_context.RacesBreathableGases.Where(x => x.RaceId == race.Id).ToList());
 			_context.RacesBreathableLiquids.RemoveRange(_context.RacesBreathableLiquids.Where(x => x.RaceId == race.Id).ToList());
 			return;
@@ -595,8 +598,12 @@ public partial class SupernaturalSeeder : IDatabaseSeeder
 		race.HoldBreathLengthExpression = $"90+(5*con:{_healthTrait.Id})";
 		race.HungerRate = _humanRace.HungerRate;
 		race.ThirstRate = _humanRace.ThirstRate;
-		race.SweatLiquid = _sweat;
-		race.SweatRateInLitresPerMinute = _sweat is null ? 0.0 : 0.5;
+		// Existing sweat values and liquid references may be builder customisations.
+		if (created)
+		{
+			race.SweatLiquid = _sweat;
+			race.SweatRateInLitresPerMinute = _sweat is null ? 0.0 : SeededSweatRates.Human;
+		}
 
 		if (race.Id != 0 &&
 		    !_context.RacesBreathableGases.Any(x => x.RaceId == race.Id && x.GasId == _breathableAir.Id))

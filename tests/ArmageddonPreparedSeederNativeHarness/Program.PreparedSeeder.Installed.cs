@@ -25,7 +25,7 @@ internal static partial class GNHProgram
 		var preparationReceipt = Path.Combine(laneRoot, "prepared-installed-sense-preparation_" + Guid.NewGuid().ToString("N") + ".json");
 		File.WriteAllText(preparationReceipt, JsonSerializer.Serialize(preparation, new JsonSerializerOptions { WriteIndented = true }));
 		Console.WriteLine($"ARMPREP-installed-dependencies=passed no-player-mutation separate-receipt:{preparationReceipt}");
-		var transcript = PreparedMenu(database, true, ArmageddonMagicSeeder.SerializeBindings(bindings));
+		var transcript = PreparedMenu(database, true, ArmageddonSettingSeeder.SerializeBindings(bindings));
 		Require(transcript.Contains("Completed") && transcript.Contains("4/82"), "Actual installed menu did not complete the four-admission package.");
 		Require(players == TraditionPlayers(database), "Menu installation changed a player before explicit attachment/enrolment.");
 		var ids = PreparedIdentities(database);

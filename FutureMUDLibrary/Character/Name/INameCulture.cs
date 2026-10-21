@@ -1,4 +1,4 @@
-﻿using MudSharp.CharacterCreation;
+using MudSharp.CharacterCreation;
 using MudSharp.Framework;
 using MudSharp.Framework.Revision;
 using MudSharp.Framework.Save;
@@ -24,6 +24,9 @@ namespace MudSharp.Character.Name
         IEnumerable<NameCultureElement> NameCultureElements { get; }
         IEnumerable<IRandomNameProfile> RandomNameProfiles { get; }
 		bool PreserveNameCase => false;
+		bool UseStructuredEntry => false;
+		bool ExactRandomProfileGender => false;
+		bool AllowTypographicPunctuation => false;
         Tuple<string, List<NameUsage>> NamePattern(NameStyle style);
         IPersonalName GetPersonalName(string pattern, bool nonSaving = false);
     }

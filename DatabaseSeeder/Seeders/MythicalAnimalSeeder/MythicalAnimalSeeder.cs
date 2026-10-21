@@ -1257,8 +1257,8 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
             EatCorpseEmoteText = string.Empty,
             RaceUsesStamina = true,
 			NaturalArmourQuality = (int)template.CombatBalance.NaturalArmourQuality,
-            SweatLiquid = usesHumanoidDefaults ? _sweat : null,
-            SweatRateInLitresPerMinute = usesHumanoidDefaults && _sweat is not null ? 0.5 : 0.0,
+            SweatLiquid = SeededSweatRates.Mythical(template.Name) > 0.0 ? _sweat : null,
+            SweatRateInLitresPerMinute = _sweat is not null ? SeededSweatRates.Mythical(template.Name) : 0.0,
             BloodLiquid = _blood,
             BloodModel = usesHumanoidDefaults ? _humanRace.BloodModel : null,
             BreathingModel = "simple",
@@ -1276,7 +1276,7 @@ public partial class MythicalAnimalSeeder : IDatabaseSeeder
 		};
 
         _context.Races.Add(race);
-        _context.SaveChanges();
+        SeededSweatRates.SaveNewRace(_context, race);
 
         foreach (TraitDefinition? attribute in _context.TraitDefinitions
                      .Where(x => x.Type == (int)TraitType.Attribute || x.Type == (int)TraitType.DerivedAttribute))

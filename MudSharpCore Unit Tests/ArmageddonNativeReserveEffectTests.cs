@@ -296,6 +296,7 @@ public class ArmageddonNativeReserveEffectTests
 		var f = new MagicCastingFixture(); var saves = new Mock<ISaveManager>(); f.World.SetupGet(x => x.SaveManager).Returns(saves.Object);
 		f.Actor.SetupProperty(x => x.Changed, false);
 		var body = TestObjectFactory.CreateUninitialized<NativeBody>(); body.Actor = f.Actor.Object;
+		Raw(body, "_merits", new List<MudSharp.RPG.Merits.IMerit>());
 		typeof(NativeBody).GetProperty(nameof(body.Gameworld))!.SetValue(body, f.World.Object);
 		Raw(body, "_id", 200L); body.MaximumStamina = maximum; body.CurrentStamina = current; body.StaminaChanged = false; body.Changed = false;
 		Raw(body, "_staminaSpentInCurrentPeriod", 0.0); f.Actor.SetupGet(x => x.Body).Returns(body);
@@ -310,6 +311,7 @@ public class ArmageddonNativeReserveEffectTests
 	private static NativeCharacter NativeReserveCharacter(MagicCastingFixture f, out DoubleCounter<IMagicResource> balances)
 	{
 		var character = TestObjectFactory.CreateUninitialized<NativeCharacter>();
+		Raw(character, "_merits", new List<MudSharp.RPG.Merits.IMerit>());
 		Raw(character, "_id", 800L); typeof(NativeCharacter).GetProperty(nameof(character.Gameworld))!.SetValue(character, f.World.Object);
 		var body = new Mock<IBody>(); body.SetupGet(x => x.Id).Returns(801); body.SetupGet(x => x.Actor).Returns(character);
 		typeof(NativeCharacter).GetProperty(nameof(character.Body))!.SetValue(character, body.Object);

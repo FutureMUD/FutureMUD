@@ -104,6 +104,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         {
             Body.CurrentBloodVolumeLitres = Body.TotalBloodVolumeLitres;
         }
+        (Body as MudSharp.Body.Implementations.Body)?.ClampLoadedBloodVolumeToCapacity();
 
         Body.BaseLiverAlcoholRemovalKilogramsPerHour = LiverFunction(this);
         (Body as MudSharp.Body.Implementations.Body)?.SanitizeIncompatibleHealthState(true);
@@ -223,6 +224,7 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
         }
 
         CharacterTemplateMerits.ExpandCombos(comboMerits, MeritScope.Character, _merits);
+		RoleSkillProgressionService.InitialiseNewCharacter(this);
 
         EnsureNativeCreationHasNoAdditionalForms();
         EnsureProvisionedFormsFromMerits();
@@ -1967,8 +1969,10 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
 
     public static double MaximumStaminaFor(ICharacter character)
     {
-        return (double)(decimal)MaximumStaminaProg.Execute(character);
+        return MudSharp.RPG.Merits.PhysiologyMeritEffects.StaminaCapacity(BaseMaximumStaminaFor(character), character);
     }
+
+	internal static double BaseMaximumStaminaFor(ICharacter character) => (double)(decimal)MaximumStaminaProg.Execute(character);
 
     public static double WoundPenaltyToMoveSpeedPenalty { get; set; }
 
@@ -3617,6 +3621,11 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
     {
         IEnumerable<IGrowableCharacteristicValue> selectables = Gameworld.CharacteristicValues.OfType<IGrowableCharacteristicValue>().Where(x =>
             x.Definition == definition && (x.ChargenApplicabilityProg?.ExecuteBool(this) ?? true));
+		if (Ethnicity?.CharacteristicChoices is { } choices && choices.TryGetValue(definition, out var profile) && profile.RestrictsStyleChanges)
+		{
+			var allowed = new HashSet<long>(profile.Values.Select(x => x.Id));
+			selectables = selectables.Where(x => allowed.Contains(x.Id));
+		}
         if (!(Body.GetCharacteristic(definition, null) is IGrowableCharacteristicValue current))
         {
             return Enumerable.Empty<IGrowableCharacteristicValue>();

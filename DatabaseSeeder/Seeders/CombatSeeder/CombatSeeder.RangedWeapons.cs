@@ -1375,7 +1375,7 @@ public partial class CombatSeeder
             Name = "Bow Skill Cap",
             Expression = $"min(99,5.5*{dex.Alias}:{dex.Id})"
         };
-        TraitDefinition bows = new()
+        TraitDefinition bows = questionAnswers["skilloption"].Equals("armageddon", StringComparison.OrdinalIgnoreCase) ? skills["Bows"] : new()
         {
             Name = "Bows",
             Type = (int)TraitType.Skill,
@@ -1393,7 +1393,7 @@ public partial class CombatSeeder
             ChargenBlurb = string.Empty,
             BranchMultiplier = 1.0
         };
-        context.TraitDefinitions.Add(bows);
+        if (bows.Id == 0) context.TraitDefinitions.Add(bows);
         context.SaveChanges();
 
         RangedWeaponTypes ranged = new()
@@ -1505,7 +1505,7 @@ public partial class CombatSeeder
             Name = "Crossbows Skill Cap",
             Expression = $"min(99,5.5*{dex.Alias}:{dex.Id})"
         };
-        TraitDefinition crossbows = new()
+        TraitDefinition crossbows = questionAnswers["skilloption"].Equals("armageddon", StringComparison.OrdinalIgnoreCase) ? skills["Crossbows"] : new()
         {
             Name = "Crossbows",
             Type = (int)TraitType.Skill,
@@ -1523,7 +1523,7 @@ public partial class CombatSeeder
             ChargenBlurb = string.Empty,
             BranchMultiplier = 1.0
         };
-        context.TraitDefinitions.Add(crossbows);
+        if (crossbows.Id == 0) context.TraitDefinitions.Add(crossbows);
         context.SaveChanges();
 
         ranged = new RangedWeaponTypes

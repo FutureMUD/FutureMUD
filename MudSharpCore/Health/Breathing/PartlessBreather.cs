@@ -31,24 +31,31 @@ public class PartlessBreather : IBreathingStrategy
         return true;
     }
 
-    public void Breathe(IBody body)
+    public void Breathe(IBody body) => Breathe(body, TimeSpan.FromSeconds(10));
+
+    public void Breathe(IBody body, TimeSpan elapsed)
     {
+        if (elapsed <= TimeSpan.Zero)
+        {
+            return;
+        }
+
         if (!CanBreathe(body))
         {
-			BreathingStrategyHelper.UnbreathableSample(body, BreathingFluid(body));
+			BreathingStrategyHelper.UnbreathableSample(body, BreathingFluid(body), elapsed);
             if (body.HeldBreathTime <= TimeSpan.Zero)
             {
                 body.OutputHandler.Send("You can't breathe, and have begun to hold your breath.");
             }
 
-            body.HeldBreathTime += TimeSpan.FromSeconds(10);
+            body.HeldBreathTime += elapsed;
             return;
         }
 
-        BreathingStrategyHelper.ExposeToMagic(body, BreathingFluid(body));
+        BreathingStrategyHelper.ExposeToMagic(body, BreathingFluid(body), elapsed);
         if (body.HeldBreathTime > TimeSpan.Zero)
         {
-            body.HeldBreathTime -= TimeSpan.FromSeconds(10);
+            body.HeldBreathTime -= elapsed;
         }
     }
 

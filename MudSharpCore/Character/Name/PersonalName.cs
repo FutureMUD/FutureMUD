@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using System.Text.RegularExpressions;
 using MudSharp.FutureProg.Variables;
 
@@ -15,11 +15,13 @@ public class PersonalName : FrameworkItem, IPersonalName
             Convert.ToInt64(
                 root.Attribute("culture")?.Value ??
                 throw new ApplicationException("Invalid NameCulture in PersonalName")));
+        EntryProgress = root.Element("EntryProgress") is { } progress ? new XElement(progress) : null;
         foreach (XElement element in root.Elements("Element"))
         {
             NameElements.Add(
                 new NameElement((NameUsage)Enum.Parse(typeof(NameUsage), element.Attribute("usage").Value),
-                    element.Value));
+                    element.Value, bool.TryParse(element.Attribute("confirmed")?.Value, out var confirmed) && confirmed,
+					bool.TryParse(element.Attribute("display")?.Value, out var display) ? display : null));
         }
     }
 
@@ -27,23 +29,29 @@ public class PersonalName : FrameworkItem, IPersonalName
     {
         Gameworld = culture.Gameworld;
         Culture = culture;
+        EntryProgress = root.Element("EntryProgress") is { } progress ? new XElement(progress) : null;
         foreach (XElement element in root.Elements("Element"))
         {
             NameElements.Add(
                 new NameElement((NameUsage)Enum.Parse(typeof(NameUsage), element.Attribute("usage").Value),
-                    element.Value));
+                    element.Value, bool.TryParse(element.Attribute("confirmed")?.Value, out var confirmed) && confirmed,
+					bool.TryParse(element.Attribute("display")?.Value, out var display) ? display : null));
         }
     }
 
-    public PersonalName(INameCulture culture, Dictionary<NameUsage, List<string>> elements, bool nonSaving = false)
+    public PersonalName(INameCulture culture, Dictionary<NameUsage, List<string>> elements, bool nonSaving = false,
+		IReadOnlySet<NameUsage> confirmed = null, IReadOnlyDictionary<NameUsage, bool> display = null)
     {
         Gameworld = culture.Gameworld;
         Culture = culture;
+		if (culture.UseStructuredEntry && NameSelectionValidation.Validate(culture, elements, confirmed, display) is { } error)
+			throw new ArgumentException(error, nameof(elements));
         foreach (KeyValuePair<NameUsage, List<string>> usage in elements)
         {
             foreach (string element in usage.Value)
             {
-                NameElements.Add(new NameElement(usage.Key, element));
+                NameElements.Add(new NameElement(usage.Key, element, confirmed?.Contains(usage.Key) == true,
+					display?.TryGetValue(usage.Key, out var shown) == true ? shown : null));
             }
         }
     }
@@ -51,6 +59,7 @@ public class PersonalName : FrameworkItem, IPersonalName
     public override string FrameworkItemType => "PersonalName";
     public override string Name => GetName(NameStyle.FullName);
     public INameCulture Culture { get; protected set; }
+	public XElement EntryProgress { get; set; }
 
     protected IEnumerable<NameElement> ElementsByUsage(NameUsage usage)
     {
@@ -63,6 +72,13 @@ public class PersonalName : FrameworkItem, IPersonalName
 
         return elements;
     }
+
+	private bool IsDisplayed(NameElement element)
+	{
+		var definition = Culture.NameCultureElements.FirstOrDefault(x => x.Usage == element.Usage);
+		return (definition?.ConfirmationPrompt is null || element.Confirmed) &&
+			(element.Display ?? definition?.DefaultDisplay ?? true);
+	}
 
     private static Regex OptionalElementRegex = new(@"\?(?<which>\w+)\[(?<true>[^\]]*)\](?:\[(?<false>[^\]]*)\])*");
 
@@ -89,7 +105,7 @@ public class PersonalName : FrameworkItem, IPersonalName
                 }
             }
 
-            if (NameElements.Any(x => x.Usage == usage && !string.IsNullOrWhiteSpace(x.Text)))
+            if (NameElements.Any(x => x.Usage == usage && IsDisplayed(x) && !string.IsNullOrWhiteSpace(x.Text)))
             {
                 return match.Groups["true"].Value;
             }
@@ -99,8 +115,9 @@ public class PersonalName : FrameworkItem, IPersonalName
         return string.Format(pattern,
             usages.Select(
                 x =>
-                    NameElements.Where(y => y.Usage == x)
+                    NameElements.Where(y => y.Usage == x && IsDisplayed(y))
                                 .Select(y => Culture.PreserveNameCase ? y.Text : y.Text.Proper())
+								.Select(text => Culture.UseStructuredEntry && style == NameStyle.FullWithNickname && x == NameUsage.Nickname ? $"\"{text}\"" : text)
                                 .ListToString(separator: " ", conjunction: "")).ToArray<object>()
         ).Replace("\"\"", "").NormaliseSpacing().Trim();
     }
@@ -108,8 +125,11 @@ public class PersonalName : FrameworkItem, IPersonalName
     public XElement SaveToXml()
     {
         return new XElement("Name", new XAttribute("culture", Culture.Id),
+			EntryProgress is null ? null : new XElement(EntryProgress),
             from item in NameElements
-            select new XElement("Element", new XAttribute("usage", item.Usage), new XCData(item.Text)));
+            select new XElement("Element", new XAttribute("usage", item.Usage),
+				item.Confirmed ? new XAttribute("confirmed", true) : null,
+				item.Display is { } display ? new XAttribute("display", display) : null, new XCData(item.Text)));
     }
 
     private string GetElements(NameUsage usage)
@@ -134,8 +154,9 @@ public class PersonalName : FrameworkItem, IPersonalName
         foreach (NameUsage usage in Enum.GetValues<NameUsage>())
         {
             if (!NameElements.Where(x => x.Usage == usage).Select(x => x.Text)
-                .SequenceEqual(other.NameElements.Where(x => x.Usage == usage).Select(x => x.Text),
-                    StringComparer.InvariantCultureIgnoreCase))
+				.SequenceEqual(other.NameElements.Where(x => x.Usage == usage).Select(x => x.Text), StringComparer.InvariantCultureIgnoreCase) ||
+				!NameElements.Where(x => x.Usage == usage).Select(x => (x.Confirmed, x.Display))
+				.SequenceEqual(other.NameElements.Where(x => x.Usage == usage).Select(x => (x.Confirmed, x.Display))))
             {
                 return false;
             }
@@ -151,9 +172,11 @@ public class PersonalName : FrameworkItem, IPersonalName
         foreach (NameUsage usage in Enum.GetValues<NameUsage>())
         {
             hash.Add(usage);
-            foreach (string element in NameElements.Where(x => x.Usage == usage).Select(x => x.Text))
+            foreach (var element in NameElements.Where(x => x.Usage == usage))
             {
-                hash.Add(element, StringComparer.InvariantCultureIgnoreCase);
+                hash.Add(element.Text, StringComparer.InvariantCultureIgnoreCase);
+				hash.Add(element.Confirmed);
+				hash.Add(element.Display);
             }
         }
 
@@ -186,6 +209,10 @@ public class PersonalName : FrameworkItem, IPersonalName
             "regnalname" => new TextVariable(GetElements(NameUsage.RegnalName)),
             "sacredname" => new TextVariable(GetElements(NameUsage.SacredName)),
             "toponym" => new TextVariable(GetElements(NameUsage.Toponym)),
+            "title" => new TextVariable(GetElements(NameUsage.Title)),
+            "affiliation" => new TextVariable(GetElements(NameUsage.Affiliation)),
+            "clanname" => new TextVariable(GetElements(NameUsage.ClanName)),
+            "earnedname" => new TextVariable(GetElements(NameUsage.EarnedName)),
             "ownername" => new TextVariable(GetElements(NameUsage.OwnerName)),
             _ => throw new NotSupportedException()
         };
@@ -227,6 +254,10 @@ public class PersonalName : FrameworkItem, IPersonalName
                 ["regnalname"] = ProgVariableTypes.Text,
                 ["sacredname"] = ProgVariableTypes.Text,
                 ["toponym"] = ProgVariableTypes.Text,
+                ["title"] = ProgVariableTypes.Text,
+                ["affiliation"] = ProgVariableTypes.Text,
+                ["clanname"] = ProgVariableTypes.Text,
+                ["earnedname"] = ProgVariableTypes.Text,
                 ["ownername"] = ProgVariableTypes.Text
             },
             new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase)
@@ -259,6 +290,10 @@ public class PersonalName : FrameworkItem, IPersonalName
                 ["regnalname"] = "The regnal-name element or elements",
                 ["sacredname"] = "The sacred-name element or elements",
                 ["toponym"] = "The toponym element or elements",
+                ["title"] = "The declared title component; grants no status or membership",
+                ["affiliation"] = "The declared affiliation component; grants no status or membership",
+                ["clanname"] = "The declared clanname component; grants no status or membership",
+                ["earnedname"] = "The declared earnedname component; grants no status or membership",
                 ["ownername"] = "The owner-name element or elements"
             });
     }

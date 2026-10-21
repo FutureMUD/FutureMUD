@@ -74,6 +74,7 @@ public class CharacteristicProfile : FrameworkItem, ICharacteristicProfile
 
     protected virtual void LoadFromXml(XElement root)
     {
+		RestrictsStyleChanges = (bool?)root.Attribute("RestrictStyles") ?? false;
         foreach (XElement value in root.Elements("Value"))
         {
             ICharacteristicValue item = long.TryParse(value.Value, out long val)
@@ -118,6 +119,7 @@ public class CharacteristicProfile : FrameworkItem, ICharacteristicProfile
 
     public string Description { get; protected set; }
     public virtual string Type => "Standard";
+	public bool RestrictsStyleChanges { get; private set; }
 
     public bool ContainsCharacteristic(ICharacteristicValue value)
     {
@@ -163,6 +165,7 @@ public class CharacteristicProfile : FrameworkItem, ICharacteristicProfile
 
 	#3name <name>#0 - changes the name of this profile
 	#3desc <description>#0 - changes the description of this profile
+	#3restrictstyles#0 - toggles ongoing styling limits for a standard profile
 	#3value <which>#0 - toggles a value being a part of this profile";
 
     public virtual void BuildingCommand(ICharacter actor, StringStack command)
@@ -179,6 +182,16 @@ public class CharacteristicProfile : FrameworkItem, ICharacteristicProfile
             case "value":
                 BuildingCommandValue(actor, command);
                 return;
+			case "restrictstyles":
+				if (!Type.EqualTo("standard"))
+				{
+					actor.OutputHandler.Send("Ongoing styling restrictions require a standard profile.");
+					return;
+				}
+				RestrictsStyleChanges = !RestrictsStyleChanges;
+				Changed = true;
+				actor.OutputHandler.Send($"Ongoing styling is now {(RestrictsStyleChanges ? "restricted to this profile's values" : "unrestricted by this profile")}.");
+				return;
             default:
                 actor.OutputHandler.Send(HelpText.SubstituteANSIColour());
                 return;
@@ -263,6 +276,7 @@ public class CharacteristicProfile : FrameworkItem, ICharacteristicProfile
         sb.AppendLine($"Definition: {TargetDefinition.Name.ColourValue()}");
         sb.AppendLine($"Type: {Type.TitleCase().ColourValue()}");
         sb.AppendLine($"Description: {Description.ColourCommand()}");
+		sb.AppendLine($"Restricts Styling: {RestrictsStyleChanges.ToColouredString()}");
         sb.AppendLine();
         sb.AppendLine("Values:");
         foreach (ICharacteristicValue value in Values)
@@ -298,6 +312,7 @@ public class CharacteristicProfile : FrameworkItem, ICharacteristicProfile
     {
         return new XElement("Definition", new object[]
             {
+				RestrictsStyleChanges ? new XAttribute("RestrictStyles", true) : null,
                 from value in _values
                 select new XElement("Value", value.Id)
             })

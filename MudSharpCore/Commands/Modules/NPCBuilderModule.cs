@@ -1,4 +1,4 @@
-﻿using MudSharp.Accounts;
+using MudSharp.Accounts;
 using MudSharp.Body.Position.PositionStates;
 using MudSharp.Character.Name;
 using MudSharp.Commands.Helpers;
@@ -205,7 +205,7 @@ namespace MudSharp.Commands.Modules
             var nameCulture = simple.SelectedEthnicity?.NameCultureForGender(simple.SelectedGender) ??
                               simple.SelectedCulture?.NameCultureForGender(simple.SelectedGender);
             var profiles = nameCulture?.RandomNameProfiles
-                .Where(x => x.IsCompatibleGender(simple.SelectedGender))
+                .Where(x => x.IsReady).Where(x => x.IsCompatibleGender(simple.SelectedGender))
                 .ToList();
             if (profiles is null || profiles.Count == 0)
             {

@@ -140,12 +140,12 @@ public partial class ArmageddonPreparedWorldSeederTests
 	{
 		var (db, bindings) = Fixture(); using (db)
 		{
-			var old = JsonNode.Parse(ArmageddonMagicSeeder.SerializeBindings(bindings))!.AsObject(); old.Remove("WaterSee");
-			Assert.IsTrue(ArmageddonMagicSeeder.ValidateBindings(old.ToJsonString(), db).Success);
+			var old = JsonNode.Parse(ArmageddonSettingSeeder.SerializeBindings(bindings))!.AsObject(); old.Remove("WaterSee");
+			Assert.IsTrue(ArmageddonSettingSeeder.ValidateBindings(old.ToJsonString(), db).Success);
 			bindings = WaterSeeSelections(db, bindings);
-			var selected = JsonNode.Parse(ArmageddonMagicSeeder.SerializeBindings(bindings))!.AsObject();
+			var selected = JsonNode.Parse(ArmageddonSettingSeeder.SerializeBindings(bindings))!.AsObject();
 			selected["WaterSee"]!["GuessedTerrain"] = 101;
-			Assert.IsFalse(ArmageddonMagicSeeder.ValidateBindings(selected.ToJsonString(), db).Success);
+			Assert.IsFalse(ArmageddonSettingSeeder.ValidateBindings(selected.ToJsonString(), db).Success);
 			Assert.AreEqual(0, db.SeederManagedRecords.Count());
 		}
 	}

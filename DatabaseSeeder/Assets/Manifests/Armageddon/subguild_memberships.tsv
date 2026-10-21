@@ -1,0 +1,94 @@
+subguild	source_line	ordinal	source_name	canonical_key	opening	cap	parent	threshold	evidence
+Acrobat	3	1	Kick	arm.skill.kick					roster only; numeric progression unknown
+Acrobat	3	2	Climb	arm.skill.climb					roster only; numeric progression unknown
+Acrobat	3	3	Flee	arm.skill.flee					roster only; numeric progression unknown
+Forester	4	1	Hunt	arm.skill.hunt					roster only; numeric progression unknown
+Forester	4	2	Lumberjack	arm.skill.lumberjacking					roster only; numeric progression unknown
+Forester	4	3	Woodworking	arm.skill.woodworking					roster only; numeric progression unknown
+Forester	4	4	Direction Sense	arm.skill.direction_sense					roster only; numeric progression unknown
+Linguist	5	1	Allundean	arm.skill.allundean					roster only; numeric progression unknown
+Linguist	5	2	Mirukkim	arm.skill.mirukkim					roster only; numeric progression unknown
+Linguist	5	3	Sirihish	arm.skill.sirihish					roster only; numeric progression unknown
+Stonecrafter	6	1	Stone Working	arm.skill.stone_working					roster only; numeric progression unknown
+Stonecrafter	6	2	Value	arm.skill.value					roster only; numeric progression unknown
+Archer	7	1	Archery	arm.skill.archery					roster only; numeric progression unknown
+Archer	7	2	Fletchery	arm.skill.fletchery					roster only; numeric progression unknown
+Archer	7	3	Bowmaking	arm.skill.bow_making					roster only; numeric progression unknown
+General Crafter	8	1	Ropemaking	arm.skill.ropemaking					roster only; numeric progression unknown
+General Crafter	8	2	BasketWeaving	arm.skill.basketweaving					roster only; numeric progression unknown
+General Crafter	8	3	Dyeing	arm.skill.dyeing					roster only; numeric progression unknown
+General Crafter	8	4	Value	arm.skill.value					roster only; numeric progression unknown
+General Crafter	8	5	Tanning	arm.skill.tanning					roster only; numeric progression unknown
+Mercenary	9	1	Knife-Making	arm.skill.knife_making					roster only; numeric progression unknown
+Mercenary	9	2	Armor Repair	arm.skill.armor_repair					roster only; numeric progression unknown
+Mercenary	9	3	Direction Sense	arm.skill.direction_sense					roster only; numeric progression unknown
+Mercenary	9	4	Ride	arm.skill.ride					roster only; numeric progression unknown
+Mercenary	9	5	Alcohol+	arm.merit.alcohol_poison_resistance					roster only; numeric progression unknown
+Subguild Tailor	10	1	Cloth Working	arm.skill.cloth_working					roster only; numeric progression unknown
+Subguild Tailor	10	2	Dyeing	arm.skill.dyeing					roster only; numeric progression unknown
+Subguild Tailor	10	3	Haggle	arm.skill.haggle					roster only; numeric progression unknown
+Armormaker	11	1	Tanning	arm.skill.tanning					roster only; numeric progression unknown
+Armormaker	11	2	Armor Making	arm.skill.armor_making					roster only; numeric progression unknown
+Armormaker	11	3	Leatherworking	arm.skill.leather_working					roster only; numeric progression unknown
+Armormaker	11	4	Armor Repair	arm.skill.armor_repair					roster only; numeric progression unknown
+Subguild Guard	12	1	Guard	arm.skill.guard					roster only; numeric progression unknown
+Subguild Guard	12	2	Rescue	arm.skill.rescue					roster only; numeric progression unknown
+Subguild Guard	12	3	Shield-use	arm.skill.shield_use					roster only; numeric progression unknown
+Subguild Guard	12	4	Subdue	arm.skill.subdue					roster only; numeric progression unknown
+Nomad	13	1	Bendune	arm.skill.bendune					roster only; numeric progression unknown
+Nomad	13	2	Haggle	arm.skill.haggle					roster only; numeric progression unknown
+Nomad	13	3	Knife Making	arm.skill.knife_making					roster only; numeric progression unknown
+Nomad	13	4	Spear Making	arm.skill.spearmaking					roster only; numeric progression unknown
+Nomad	13	5	Ride	arm.skill.ride					roster only; numeric progression unknown
+Nomad	13	6	Direction Sense	arm.skill.direction_sense					roster only; numeric progression unknown
+Thief	14	1	Steal	arm.skill.steal					roster only; numeric progression unknown
+Thief	14	2	Sleight of hand	arm.skill.sleight_of_hand					roster only; numeric progression unknown
+Thief	14	3	Sneak	arm.skill.sneak					roster only; numeric progression unknown
+Thief	14	4	Flee	arm.skill.flee					roster only; numeric progression unknown
+Bard	15	1	Sleight of Hand	arm.skill.sleight_of_hand					roster only; numeric progression unknown
+Bard	15	2	Instrument Making	arm.skill.instrument_making					roster only; numeric progression unknown
+Bard	15	3	+Languages	arm.merit.heard_language_branching					roster only; numeric progression unknown
+House Servant	16	1	Cook	arm.skill.cooking					roster only; numeric progression unknown
+House Servant	16	2	Listen	arm.skill.listen					roster only; numeric progression unknown
+House Servant	16	3	Pilot	arm.skill.pilot					roster only; numeric progression unknown
+House Servant	16	4	Floristry	arm.skill.floristry					roster only; numeric progression unknown
+Physician	17	1	Brew	arm.skill.brew					roster only; numeric progression unknown
+Physician	17	2	Bandaging	arm.skill.bandage					roster only; numeric progression unknown
+Physician	17	3	Bandage Making	arm.skill.bandage_making					roster only; numeric progression unknown
+Thug	18	1	Kick	arm.skill.kick					roster only; numeric progression unknown
+Thug	18	2	Subdue	arm.skill.subdue					roster only; numeric progression unknown
+Thug	18	3	Sap	arm.skill.sap					roster only; numeric progression unknown
+Thug	18	4	Flee	arm.skill.flee					roster only; numeric progression unknown
+Caravan Guide	19	1	Mount	arm.skill.mount					roster only; numeric progression unknown
+Caravan Guide	19	2	Pilot	arm.skill.pilot					roster only; numeric progression unknown
+Caravan Guide	19	3	Value	arm.skill.value					roster only; numeric progression unknown
+Caravan Guide	19	4	Bendune	arm.skill.bendune					roster only; numeric progression unknown
+Caravan Guide	19	5	Direction Sense	arm.skill.direction_sense					roster only; numeric progression unknown
+Hunter	20	1	Hunt	arm.skill.hunt					roster only; numeric progression unknown
+Hunter	20	2	Sneak	arm.skill.sneak					roster only; numeric progression unknown
+Hunter	20	3	Archery	arm.skill.archery					roster only; numeric progression unknown
+Hunter	20	4	Skinning	arm.skill.skinning					roster only; numeric progression unknown
+Hunter	20	5	Direction Sense	arm.skill.direction_sense					roster only; numeric progression unknown
+Subguild Rebel	21	1	Spear Making	arm.skill.spearmaking					roster only; numeric progression unknown
+Subguild Rebel	21	2	Knife Making	arm.skill.knife_making					roster only; numeric progression unknown
+Subguild Rebel	21	3	Direction Sense	arm.skill.direction_sense					roster only; numeric progression unknown
+Subguild Rebel	21	4	Sneak	arm.skill.sneak					roster only; numeric progression unknown
+Subguild Rebel	21	5	Armor Repair	arm.skill.armor_repair					roster only; numeric progression unknown
+Tinker	22	1	Haggle	arm.skill.haggle					roster only; numeric progression unknown
+Tinker	22	2	Value	arm.skill.value					roster only; numeric progression unknown
+Tinker	22	3	Tool Making	arm.skill.toolmaking					roster only; numeric progression unknown
+Con Artist	23	1	Sleight of Hand	arm.skill.sleight_of_hand					roster only; numeric progression unknown
+Con Artist	23	2	Value	arm.skill.value					roster only; numeric progression unknown
+Con Artist	23	3	Haggle	arm.skill.haggle					roster only; numeric progression unknown
+Jeweler	24	1	Jewerly Making	arm.skill.jewelrymaking					roster only; numeric progression unknown
+Jeweler	24	2	FeatherWorking	arm.skill.feather_working					roster only; numeric progression unknown
+Jeweler	24	3	Value	arm.skill.value					roster only; numeric progression unknown
+Scavenger	25	1	Forage	arm.skill.forage					roster only; numeric progression unknown
+Scavenger	25	2	Climb	arm.skill.climb					roster only; numeric progression unknown
+Scavenger	25	3	Value	arm.skill.value					roster only; numeric progression unknown
+Scavenger	25	4	Search	arm.skill.search					roster only; numeric progression unknown
+Scavenger	25	5	Direction Sense	arm.skill.direction_sense					roster only; numeric progression unknown
+Weaponcrafter	26	1	Sword Making	arm.skill.swordmaking					roster only; numeric progression unknown
+Weaponcrafter	26	2	Spear Making	arm.skill.spearmaking					roster only; numeric progression unknown
+Weaponcrafter	26	3	Knife Making	arm.skill.knife_making					roster only; numeric progression unknown
+Weaponcrafter	26	4	Value	arm.skill.value					roster only; numeric progression unknown

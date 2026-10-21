@@ -3,6 +3,8 @@ using MudSharp.Commands.Trees;
 using MudSharp.Models;
 using MudSharp.Movement;
 using MudSharp.RPG.Merits.Interfaces;
+using System.Globalization;
+using CultureInfo = System.Globalization.CultureInfo;
 
 namespace MudSharp.RPG.Merits.CharacterMerits;
 
@@ -11,7 +13,9 @@ public class MovementStaminaMerit : CharacterMeritBase, IMovementStaminaMerit
     protected MovementStaminaMerit(Merit merit, IFuturemud gameworld) : base(merit, gameworld)
     {
         XElement definition = XElement.Parse(merit.Definition);
-        Multiplier = double.Parse(definition.Attribute("multiplier")?.Value ?? "0.0");
+		Multiplier = double.TryParse(definition.Attribute("multiplier")?.Value ?? "1.0",
+			NumberStyles.Float, CultureInfo.InvariantCulture, out var multiplier) &&
+			double.IsFinite(multiplier) && multiplier >= 0.0 ? multiplier : 1.0;
         MoveTypes = (MovementType)int.Parse(definition.Attribute("movetypes")?.Value ?? ((int)MovementType.All).ToString("F0"));
     }
 
@@ -47,6 +51,8 @@ public class MovementStaminaMerit : CharacterMeritBase, IMovementStaminaMerit
                 return MoveTypes.HasFlag(MovementType.Swimming) ? Multiplier : 1.0;
             case PositionFlying:
                 return MoveTypes.HasFlag(MovementType.Flying) ? Multiplier : 1.0;
+			case PositionFloatingInZeroGravity:
+				return MoveTypes.HasFlag(MovementType.Floating) ? Multiplier : 1.0;
             case PositionProne:
                 return MoveTypes.HasFlag(MovementType.Crawling) ? Multiplier : 1.0;
             case PositionProstrate:
@@ -133,6 +139,12 @@ public class MovementStaminaMerit : CharacterMeritBase, IMovementStaminaMerit
             return false;
         }
 
+		if (!double.IsFinite(value) || value < 0.0)
+		{
+			actor.OutputHandler.Send("The stamina multiplier must be a finite, non-negative percentage.");
+			return false;
+		}
+
         Multiplier = value;
         Changed = true;
         actor.OutputHandler.Send($"This merit will now multiply stamina usage by {value.ToString("P2", actor).ColourValue()} when it applies.");
@@ -142,7 +154,7 @@ public class MovementStaminaMerit : CharacterMeritBase, IMovementStaminaMerit
     /// <inheritdoc />
     protected override string SubtypeHelp => $@"{base.SubtypeHelp}
 	#3multiplier <%>#0 - sets the percentage multiplier for stamina usage
-	#3movetype <none|upright|crawling|prostrate|flying|swimming|climbing|all>#0 - toggles the bonus applying to a type of movement";
+	#3movetype <none|upright|crawling|prostrate|flying|swimming|climbing|floating|all>#0 - toggles the bonus applying to a type of movement";
 
     /// <inheritdoc />
     protected override void SubtypeShow(ICharacter actor, StringBuilder sb)

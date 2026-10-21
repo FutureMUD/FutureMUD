@@ -26,7 +26,11 @@ internal static class BackstabCombat
 		(actor.GetFacingFor(target) == Facing.Rear || UnseenCombatOpening.HasOpening(actor, target) ||
 		 allowInitiation && UnseenCombatOpening.IsNewEncounter(actor, target) && !target.CanSee(actor));
 
-	internal static BackstabChoice? FindAttack(ICharacter actor, ICharacter target, out string error)
+	internal static bool HasProficiency(ICharacter actor, IWeaponAttack attack) =>
+		attack is IBackstabAttack configuration && (!configuration.ProficiencyTraitId.HasValue ||
+		 configuration.ProficiencyTrait is { } trait && actor.HasTrait(trait) && actor.TraitValue(trait) > 0.0);
+
+	internal static BackstabChoice? FindAttack(ICharacter actor, ICharacter target, out string error, string commandVerb = "backstab")
 	{
 		error = "You have no usable backstab attack against that target.";
 		if (!IsEligible(actor, target))
@@ -41,7 +45,7 @@ internal static class BackstabCombat
 			var candidates = sources.SelectMany(x => x.Weapon.WeaponType
 				.UsableAttacks(actor, x.Weapon.Parent, target, x.Weapon.HandednessForWeapon(actor), false,
 					BuiltInCombatMoveType.BackstabAttack)
-				.Where(a => a is IBackstabAttack && a.Weighting > 0.0)
+				.Where(a => a is IBackstabAttack b && b.CommandVerb.EqualTo(commandVerb) && HasProficiency(actor, a) && a.Weighting > 0.0)
 				.Select(a => new BackstabChoice(a, x.Weapon, null))).ToList();
 			if (!CommandExecutionScope.TryContinue(actor)) return null;
 			var affordable = candidates.Where(x => actor.CanSpendStamina(MeleeWeaponAttack.MoveStaminaCost(actor, x.Attack))).ToList();
@@ -50,7 +54,7 @@ internal static class BackstabCombat
 		}
 
 		var natural = actor.Race.UsableNaturalWeaponAttacks(actor, target, false, BuiltInCombatMoveType.BackstabAttackUnarmed)
-			.Where(x => x.Attack is IBackstabAttack && x.Attack.Weighting > 0.0).ToList();
+			.Where(x => x.Attack is IBackstabAttack b && b.CommandVerb.EqualTo(commandVerb) && HasProficiency(actor, x.Attack) && x.Attack.Weighting > 0.0).ToList();
 		if (!CommandExecutionScope.TryContinue(actor)) return null;
 		var usable = natural.Where(x => actor.CanSpendStamina(NaturalAttackMove.MoveStaminaCost(actor, x.Attack))).ToList();
 		if (usable.Count > 0)
@@ -65,7 +69,7 @@ internal static class BackstabCombat
 	internal static bool Validate(ICharacter actor, ICharacter target, BackstabChoice choice, out string error)
 	{
 		error = "You can no longer backstab that target.";
-		if (!CommandExecutionScope.TryContinue(actor) || !CharacterState.Able.HasFlag(actor.State) || actor.Combat is null || actor.Combat != target.Combat ||
+		if (!CommandExecutionScope.TryContinue(actor) || !HasProficiency(actor, choice.Attack) || !CharacterState.Able.HasFlag(actor.State) || actor.Combat is null || actor.Combat != target.Combat ||
 		    !actor.Combat.Combatants.Contains(target) || !actor.ColocatedWith(target) || !actor.MeleeRange ||
 		    !actor.CanSee(target) || !IsEligible(actor, target, false)) return false;
 		if (choice.Weapon is { } weapon)
@@ -83,7 +87,7 @@ internal static class BackstabCombat
 			error = "You are too exhausted to backstab.";
 			return false;
 		}
-		return CommandExecutionScope.TryContinue(actor) && actor.Combat is not null && actor.Combat == target.Combat &&
+		return CommandExecutionScope.TryContinue(actor) && HasProficiency(actor, choice.Attack) && actor.Combat is not null && actor.Combat == target.Combat &&
 		       actor.ColocatedWith(target) && actor.CanSee(target) && actor.MeleeRange && IsEligible(actor, target, false);
 	}
 
@@ -96,7 +100,7 @@ internal static class BackstabCombat
 
 	internal static void ApplyEffects(ICharacter actor, ICharacter target, IBackstabAttack attack, CombatMoveResult result)
 	{
-		if (!CommandExecutionScope.TryContinue(actor) || !result.MoveWasSuccessful || target.State.IsDead() ||
+		if (!CommandExecutionScope.TryContinue(actor) || attack is not IWeaponAttack weaponAttack || !HasProficiency(actor, weaponAttack) || !result.MoveWasSuccessful || target.State.IsDead() ||
 		    !result.WoundsCaused.Any(x => (ReferenceEquals(x.Parent, target) || ReferenceEquals(x.Parent, target.Body)) &&
 		                                 (x.CurrentDamage > 0.0 || x.CurrentPain > 0.0 || x.CurrentStun > 0.0)) ||
 		    attack.ReelSecondsPerDegree <= 0.0 && attack.AttackerOffensiveAdvantagePerDegree <= 0.0 &&

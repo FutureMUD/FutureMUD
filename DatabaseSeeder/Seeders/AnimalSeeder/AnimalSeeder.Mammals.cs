@@ -67,7 +67,8 @@ public partial class AnimalSeeder
                     _ => null
                 },
                 usages,
-                combatStrategyKey
+                combatStrategyKey,
+				SweatRateInLitresPerMinute: SeededSweatRates.Animal(name)
             );
         }
 

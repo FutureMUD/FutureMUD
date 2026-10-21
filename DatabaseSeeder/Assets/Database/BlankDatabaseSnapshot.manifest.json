@@ -1,5 +1,5 @@
 {
   "ProductVersion": "3.7.0",
-  "LatestMigrationId": "20261019030150_VehicleExitBarrierExposure",
-  "GeneratedUtc": "2026-10-19T03:05:31.788877Z"
+  "LatestMigrationId": "20261021023928_ConfigurableRaceAgeDescriptions",
+  "GeneratedUtc": "2026-10-21T03:01:37.6442028Z"
 }

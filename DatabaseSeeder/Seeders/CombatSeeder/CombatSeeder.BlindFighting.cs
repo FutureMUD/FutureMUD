@@ -23,7 +23,7 @@ public partial class CombatSeeder
 			return false;
 		}
 
-		var skill = context.TraitDefinitions
+		var skill = ArmageddonSkillPackage.IsInstalled(context) ? ArmageddonSkillPackage.Resolve(context)["arm.skill.blind_fighting"] : context.TraitDefinitions
 			.Where(x => x.Type == (int)TraitType.Skill)
 			.AsEnumerable()
 			.FirstOrDefault(x => x.Name.Equals(BlindFightingSkillName, StringComparison.OrdinalIgnoreCase));

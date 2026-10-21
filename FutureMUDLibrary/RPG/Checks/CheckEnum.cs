@@ -242,7 +242,8 @@ namespace MudSharp.RPG.Checks
 		PeekRevealCheck = 237,
 		GuardingExitChallengeCheck = 240,
 		GuardingItemChallengeCheck = 241,
-		BlindFightingCheck = 242
+		BlindFightingCheck = 242,
+		MountControlCheck = 243
     }
 
     public enum FailIfTraitMissingType
@@ -408,6 +409,7 @@ namespace MudSharp.RPG.Checks
 				case CheckType.AquaticVehicleChargeCheck:
 				case CheckType.OpposeMountedChargeCheck:
 				case CheckType.AvoidMountFallCheck:
+				case CheckType.MountControlCheck:
                     return true;
             }
             return false;

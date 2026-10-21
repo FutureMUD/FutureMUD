@@ -1,0 +1,13 @@
+profile_context	language	role	source_opening	proposed_opening	approved_cap	source_evidence	merge_rule	status
+Human urban	Sirihish	native	100	200	200	codedump.c:79222-79229;199436-199445	one selected native;culture cannot add to role values	approved native200 and explicit source secondaries; approved cap200 unchanged
+Human nomadic	Bendune	native	100	200	200	codedump.c:199452-199454;199631	upbringing overrides generic human primary;no invented Sirihish secondary	approved native200 and explicit source secondaries; approved cap200 unchanged
+City Elf urban	Allundean	native	100	200	200	codedump.c:79199-79201;79227-79229	ancestral native	approved native200 and explicit source secondaries; approved cap200 unchanged
+City Elf urban	Sirihish	secondary	100	100	200	codedump.c:79201	urban culture does not silently raise secondary to200	approved native200 and explicit source secondaries; approved cap200 unchanged
+Desert Elf	Allundean	native	100	200	200	codedump.c:79203-79205;79227-79229	one selected native	approved native200 and explicit source secondaries; approved cap200 unchanged
+Dwarf urban	Mirukkim	native	100	200	200	codedump.c:79206-79208;79227-79229	ancestral native	approved native200 and explicit source secondaries; approved cap200 unchanged
+Dwarf urban	Sirihish	secondary	100	100	200	codedump.c:79208	urban culture does not silently raise secondary to200	approved native200 and explicit source secondaries; approved cap200 unchanged
+Half-Elf urban	Sirihish	native	100	200	200	codedump.c:79191-79194;79227-79229	one selected native	approved native200 and explicit source secondaries; approved cap200 unchanged
+Half-Elf urban	Allundean	secondary	60	60	200	codedump.c:79193	source explicit secondary;independent claims max not sum	approved native200 and explicit source secondaries; approved cap200 unchanged
+Half-Giant urban	Sirihish	native	100	200	200	codedump.c:79222-79229	one selected native	approved native200 and explicit source secondaries; approved cap200 unchanged
+Mul urban	Sirihish	native	100	200	200	codedump.c:79195-79198;79227-79229	one selected native	approved native200 and explicit source secondaries; approved cap200 unchanged
+Mul urban	Mirukkim	secondary	100	100	200	codedump.c:79197	source explicit secondary;independent claims max not sum	approved native200 and explicit source secondaries; approved cap200 unchanged

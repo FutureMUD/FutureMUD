@@ -186,6 +186,7 @@ public class MagicCastingOwnershipTests
 	{
 		var f = new MagicCastingFixture(); var actor = Holder.Create(f.World.Object, 100); actor.Available.Add(f.Earth);
 		var merit = new Mock<ITraitBonusMerit>(); merit.SetupGet(x => x.MeritScope).Returns(MeritScope.Character);
+		merit.SetupGet(x => x.Id).Returns(2);
 		Mock.Get(f.Resources[1]).Setup(x => x.ResourceCap(actor)).Returns(() => actor.Merits.Contains(merit.Object) ? 50 : 100);
 		actor.ReconcileCastingResources(); actor.AddResource(f.Resources[1], 100);
 		Assert.IsTrue(actor.AddMerit(merit.Object)); Assert.AreEqual(50.0, actor.MagicResourceAmounts[f.Resources[1]]);
@@ -736,6 +737,7 @@ public class MagicCastingOwnershipTests
 			Set(actor, "<Body>k__BackingField", new Mock<IBody> { DefaultValue = DefaultValue.Mock }.Object);
 			Set(actor, "<EffectHandler>k__BackingField", new EffectHandler(actor));
 			var merit = new Mock<IMagicCapabilityMerit>(); merit.Setup(x => x.Applies(actor)).Returns(true);
+			merit.SetupGet(x => x.Id).Returns(1);
 			merit.SetupGet(x => x.Capabilities).Returns(() => actor.Available);
 			Set(actor, "_merits", new List<IMerit> { merit.Object });
 			Set(actor, "_secondaryInstances", new List<ICharacterInstance>());

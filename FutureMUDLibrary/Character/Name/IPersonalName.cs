@@ -1,4 +1,5 @@
-﻿using MudSharp.Framework;
+using MudSharp.Framework;
+using System.Xml.Linq;
 
 using MudSharp.FutureProg;
 
@@ -81,11 +82,21 @@ namespace MudSharp.Character.Name
         /// An owner name is a name given to you by your owner or master
         /// </summary>
         OwnerName = 14,
+
+		/// <summary>A form of address, without conferring a role or rank.</summary>
+		Title = 15,
+		/// <summary>A declared association, without conferring membership.</summary>
+		Affiliation = 16,
+		/// <summary>A clan within a separately recorded family group or tribe.</summary>
+		ClanName = 17,
+		/// <summary>A name earned by a declared achievement, distinct from adulthood.</summary>
+		EarnedName = 18,
     }
 
     public interface IPersonalName : IFrameworkItem, IHaveFuturemud, IXmlSavable, IProgVariable
     {
         INameCulture Culture { get; }
+		XElement EntryProgress => null;
         string GetName(NameStyle style);
     }
 }

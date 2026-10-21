@@ -16,7 +16,9 @@ Metadata prerequisite descriptions:
 - The Core seeder must have created at least one account.
 - Useful item component prerequisites must already include simple held, destroyable and stackable props.
 - Core animal product, cutting, meat, bone and skin foundations must already exist.
-- A dedicated Butchery skill (or the simple package's Survival skill) and at least one stock animal race must already exist.
+- A dedicated Butchery skill, the simple package's Survival skill, or owned Armageddon Skinning and at least one stock animal race must already exist.
+
+When the Armageddon SkillPackage is installed, resolve its stable `arm.skill.skinning` identity for the stock breakdown checks. This follows the approved Butchery/Skinning consumer mapping and survives builder renaming; it grants no proficiency. Other packages retain the existing Butchery/Butchering/Survival/Surviving aliases.
 
 These are checks, not an installation guarantee. The [dependency map](Dependency_Map.md) distinguishes hard ordering edges from soft ordering hints.
 

@@ -123,7 +123,8 @@ public partial class Character
     }
 
     private readonly List<IMerit> _merits = new();
-    public IEnumerable<IMerit> Merits => _merits.Concat(Body?.Merits ?? Enumerable.Empty<IMerit>());
+    public IEnumerable<IMerit> ExplicitMerits => _merits;
+    public IEnumerable<IMerit> Merits => _merits.Concat(Body?.Merits ?? Enumerable.Empty<IMerit>()).DistinctBy(x => x.Id);
 
     public bool AddMerit(IMerit merit)
     {
@@ -244,7 +245,10 @@ public partial class Character
             return false;
         }
 
-        _characterTraits.Add(trait.NewTrait(this, value));
+		var bonusClaims = EffectsOfType<MudSharp.Effects.Concrete.RoleSkillBonusClaims>().SingleOrDefault();
+		var opening = bonusClaims?.Opening(trait.Id, value) ?? value;
+        _characterTraits.Add(trait.NewTrait(this, opening));
+		bonusClaims?.Consume(trait.Id);
         Changed = true;
 		foreach (ILanguage language in Gameworld.Languages.Where(x => x.LinkedTrait == trait))
 		{

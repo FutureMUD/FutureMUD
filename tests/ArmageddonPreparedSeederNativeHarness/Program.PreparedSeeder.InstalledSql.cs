@@ -21,7 +21,7 @@ internal static partial class GNHProgram
         try
         {
             Environment.SetEnvironmentVariable("FUTUREMUD_PREPARED_INSTALLED_INPUT", input);
-            RunPreparedReplayBoot(database, typeof(DatabaseSeeder.Seeders.ArmageddonMagicSeeder).Assembly,
+            RunPreparedReplayBoot(database, typeof(DatabaseSeeder.Seeders.ArmageddonSettingSeeder).Assembly,
                 "PreparedInstalledMagicSmoke.py", "prepared-installed-sense-native", schemaOnly: true);
             Console.WriteLine("ARMPREP-installed-sql-schema=passed fresh-migrations exact-EF-mapping all-query-plans no-player-writes no-MUD");
             return 0;

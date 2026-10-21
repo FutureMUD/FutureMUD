@@ -170,6 +170,7 @@ public abstract class CharacterMeritBase : MeritBase, ICharacterMerit
 
     /// <inheritdoc />
     protected override string SubtypeHelp => @"
+	#3scope body|character#0 - sets whether the merit belongs to a body or character
 	#3parent <other>#0 - sets a combination merit at this merit's parent
 	#3parent none#0 - clears a merit parent
 	#3applies <prog>#0 - sets a prog that controls when this merit applies
@@ -186,6 +187,8 @@ public abstract class CharacterMeritBase : MeritBase, ICharacterMerit
     {
         switch (command.PopForSwitch())
         {
+			case "scope":
+				return BuildingCommandScope(actor, command);
             case "parent":
                 return BuildingCommandParent(actor, command);
             case "appliesprog":
@@ -203,6 +206,26 @@ public abstract class CharacterMeritBase : MeritBase, ICharacterMerit
         }
         return base.BuildingCommand(actor, command.GetUndo());
     }
+
+	private bool BuildingCommandScope(ICharacter actor, StringStack command)
+	{
+		var text = command.SafeRemainingArgument;
+		if (!text.EqualToAny("body", "character"))
+		{
+			actor.OutputHandler.Send("Choose body or character scope.");
+			return false;
+		}
+		var scope = text.EqualTo("body") ? MeritScope.Body : MeritScope.Character;
+		if (scope == MeritScope.Character && Gameworld.Races.Any(x => x.DirectIntrinsicMerits.Any(y => y.Id == Id)))
+		{
+			actor.OutputHandler.Send("Remove this merit's intrinsic race links before changing it to character scope.");
+			return false;
+		}
+		MeritScope = scope;
+		Changed = true;
+		actor.OutputHandler.Send($"This merit now has {scope.DescribeEnum().ColourValue()} scope. Existing explicit assignments are retained.");
+		return true;
+	}
 
     private bool BuildingCommandCost(ICharacter actor, StringStack command)
     {

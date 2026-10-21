@@ -33,6 +33,10 @@ namespace MudSharp.Character.Heritage
     public interface IRace : IEditableItem, IProgVariable, IHaveContextualSizeCategory, IHavePositionalSizes
     {
         string Description { get; }
+		string DescribeAge(int ageInYears) => AgeCategory(ageInYears).DescribeEnum(true).ToLowerInvariant();
+
+        IEnumerable<MudSharp.RPG.Merits.ICharacterMerit> DirectIntrinsicMerits => Array.Empty<MudSharp.RPG.Merits.ICharacterMerit>();
+        IEnumerable<MudSharp.RPG.Merits.ICharacterMerit> IntrinsicMerits => DirectIntrinsicMerits;
 
         /// <summary>
         ///     Additional Bodyparts to be connected to the IBody when this IRace is used
@@ -129,6 +133,7 @@ namespace MudSharp.Character.Heritage
 
         bool NeedsToBreathe { get; }
 
+        /// <summary>Returns litres per real minute, including the fluid's racial breathing multiplier.</summary>
         double BreathingRate(IBody character, IFluid fluid);
         TimeSpan HoldBreathLength(IBody character);
         IBreathingStrategy BreathingStrategy { get; }

@@ -9,6 +9,8 @@ It lives primarily in `MudSharpCore/CharacterCreation` and is assembled around a
 
 Generic skill-selection groups add a shared mandatory/group/open phase to all four skill screens. See [Chargen Skill Selection Groups](./Chargen_Skill_Selection_Groups.md) for claims, eligibility, allocation, resume, pricing and generated-template contracts.
 
+Optional [role skill progression](./Role_Skill_Progression.md) projects complete-role roots and standalone grants into that same mandatory phase, recomputes opening floors before approval, and snapshots one-time deferred overlap claims only when creating a new character.
+
 ### `Chargen`
 - `Chargen` is the mutable application state.
 - It stores the current stage, completed stages, selected race/culture/ethnicity, notes, roles, traits, merits, skill boosts, disfigurements, descriptions, and starting location.
@@ -216,9 +218,11 @@ Important commands include:
 
 ## Structured Naming and Encoding
 
-NamePicker resolves the selected ethnicity's name culture for the selected gender first, then the selected culture's fallback. It does not add a naming-convention or adopted-name question. An element with a maximum count of one may contain a multiword name. An optional element accepts an empty answer and contributes no extra spaces to the rendered name.
+NamePicker resolves the selected ethnicity's name culture for the selected gender first, then the selected culture's fallback. Optional `NameCultureOptionsProg` XML references a prog returning a name-culture collection for a chargen. When more than one style is available, `/style <number>` restarts name entry with that style; ordinary entry proceeds without an extra mandatory question. This changes only the personal name, not race, ethnicity or upbringing. Completion rechecks eligibility and uses the chosen name culture; its existing personal-name XML culture ID survives save/resume. With no configured prog, existing selection behavior remains. An element with a maximum count of one may contain a multiword name. An optional element accepts an empty answer and contributes no extra spaces to the rendered name.
 
 Name-culture XML may opt into `<PreserveNameCase>true</PreserveNameCase>`. This preserves reviewed element casing in NamePicker and PersonalName rendering; existing definitions retain their previous casing behavior when the element is absent. All existing name styles and personal-name XML remain supported. Random-name dice set to zero require no pool and emit no placeholder element.
+
+`ExactRandomProfileGender` defaults false, retaining the legacy Indeterminate/NonBinary wildcard profiles. Opting in requires a profile's stored gender to match exactly, allowing distinct male/female/shared-union pools without wildcard leakage in chargen or NPC generation. `AllowTypographicPunctuation` defaults false; opting in admits U+2019 apostrophe and U+2010 hyphen alongside existing punctuation, still rejecting consecutive mixed punctuation. The separate storyboard Unicode setting applies. Case-preserving random-profile builder operations match exact display forms and retain the stored spelling while changing weight. Optional opaque `CuratedNamingDefinition` XML is retained through native load/save/clone; it does not create executable name usages or random pools.
 
 NamePicker only requests suggestions from random-name profiles that contain entries for the element currently being selected. Optional elements with a zero dice expression and no corresponding pool therefore remain selectable without displaying examples or interrupting character creation.
 

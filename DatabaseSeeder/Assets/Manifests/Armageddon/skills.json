@@ -1,0 +1,1081 @@
+{
+  "format": 1,
+  "version": "setting-20261019-1",
+  "owner": "ArmageddonMagicSeeder",
+  "aliases": {
+    "arm.skill.guard": "arm.skill.guarding",
+    "arm.skill.mount": "arm.skill.ride"
+  },
+  "capabilities": [
+    "arm.skill.analyze"
+  ],
+  "skills": [
+    {
+      "key": "arm.skill.allspeak",
+      "name": "Allspeak",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.allundean",
+      "name": "Allundean",
+      "group": "Language",
+      "language": true,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.archery",
+      "name": "Archery",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.armor_making",
+      "name": "Armor Making",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.armor_repair",
+      "name": "Armor Repair",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.axe_making",
+      "name": "Axe Making",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.babble",
+      "name": "Babble",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.backstab",
+      "name": "Backstab",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.bandage",
+      "name": "Bandage",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.bandage_making",
+      "name": "Bandage Making",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.barrier",
+      "name": "Barrier",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.bash",
+      "name": "Bash",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.basketweaving",
+      "name": "Basketweaving",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.bendune",
+      "name": "Bendune",
+      "group": "Language",
+      "language": true,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.blind_fighting",
+      "name": "Blind Fighting",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.bludgeoning_weapons",
+      "name": "Bludgeoning Weapons",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.bow_making",
+      "name": "Bow Making",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.brew",
+      "name": "Brew",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.cavilish",
+      "name": "Cavilish",
+      "group": "Language",
+      "language": true,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.charge",
+      "name": "Charge",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.chopping_weapons",
+      "name": "Chopping Weapons",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.clairaudience",
+      "name": "Clairaudience",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.climb",
+      "name": "Climb",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.cloth_working",
+      "name": "Cloth Working",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.club_making",
+      "name": "Club Making",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.compel",
+      "name": "Compel",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.conceal",
+      "name": "Conceal",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.contact",
+      "name": "Contact",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.control",
+      "name": "Control",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.cooking",
+      "name": "Cooking",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.direction_sense",
+      "name": "Direction Sense",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.disarm",
+      "name": "Disarm",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.disorient",
+      "name": "Disorient",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.dome",
+      "name": "Dome",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.dual_wield",
+      "name": "Dual-Wield",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.dyeing",
+      "name": "Dyeing",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.empathy",
+      "name": "Empathy",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.expel",
+      "name": "Expel",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.feather_working",
+      "name": "Feather Working",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.flee",
+      "name": "Flee",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.fletchery",
+      "name": "Fletchery",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.floristry",
+      "name": "Floristry",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.forage",
+      "name": "Forage",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.guarding",
+      "name": "Guarding",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.haggle",
+      "name": "Haggle",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.hear",
+      "name": "Hear",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.hide",
+      "name": "Hide",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.hunt",
+      "name": "Hunt",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.illusion",
+      "name": "Illusion",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.instrument_making",
+      "name": "Instrument Making",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.jewelrymaking",
+      "name": "Jewelrymaking",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.kick",
+      "name": "Kick",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.knife_making",
+      "name": "Knife Making",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.knife_weapons",
+      "name": "Knife Weapons",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.leather_working",
+      "name": "Leather Working",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.listen",
+      "name": "Listen",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.locate",
+      "name": "Locate",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.lumberjacking",
+      "name": "Lumberjacking",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.masquerade",
+      "name": "Masquerade",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.mindblast",
+      "name": "Mindblast",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.mindwipe",
+      "name": "Mindwipe",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.mirukkim",
+      "name": "Mirukkim",
+      "group": "Language",
+      "language": true,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.parry",
+      "name": "Parry",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.peek",
+      "name": "Peek",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.pick",
+      "name": "Pick",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.pick_making",
+      "name": "Pick Making",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.piercing_weapons",
+      "name": "Piercing Weapons",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.pike_weapons",
+      "name": "Pike Weapons",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.pilot",
+      "name": "Drive",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.poisoning",
+      "name": "Poisoning",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.polearm_weapons",
+      "name": "Polearm Weapons",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.probe",
+      "name": "Probe",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.project",
+      "name": "Project",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.razor_weapons",
+      "name": "Razor Weapons",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.rejuvenate",
+      "name": "Rejuvenate",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.rescue",
+      "name": "Rescue",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.ride",
+      "name": "Ride",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.ropemaking",
+      "name": "Ropemaking",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.sap",
+      "name": "Sap",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.scan",
+      "name": "Scan",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.search",
+      "name": "Search",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.sense_presence",
+      "name": "Sense Presence",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.shadowwalk",
+      "name": "Shadowwalk",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.shield_use",
+      "name": "Block",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.sirihish",
+      "name": "Sirihish",
+      "group": "Language",
+      "language": true,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.skinning",
+      "name": "Skinning",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.slashing_weapons",
+      "name": "Slashing Weapons",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.sleight_of_hand",
+      "name": "Sleight Of Hand",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.sneak",
+      "name": "Sneak",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.spearmaking",
+      "name": "Spearmaking",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.steal",
+      "name": "Steal",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.stone_working",
+      "name": "Stone Working",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.stonecrafting",
+      "name": "Stonecrafting",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.subdue",
+      "name": "Subdue",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.suggest",
+      "name": "Suggest",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.swordmaking",
+      "name": "Swordmaking",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.tanning",
+      "name": "Tanning",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.tentmaking",
+      "name": "Tentmaking",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.thoughtsense",
+      "name": "Thoughtsense",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.throw",
+      "name": "Throwing",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.toolmaking",
+      "name": "Toolmaking",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.trace",
+      "name": "Trace",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.trap",
+      "name": "Trap",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.trident_weapons",
+      "name": "Trident Weapons",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.two_handed",
+      "name": "Two Handed",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.value",
+      "name": "Value",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.vanish",
+      "name": "Vanish",
+      "group": "Psychic",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.wagonmaking",
+      "name": "Wagonmaking",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.woodworking",
+      "name": "Woodworking",
+      "group": "Armageddon",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.literacy",
+      "name": "Literacy",
+      "group": "Writing",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.handwriting",
+      "name": "Handwriting",
+      "group": "Writing",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.skill.forgery",
+      "name": "Forgery",
+      "group": "Writing",
+      "language": false,
+      "scaffold": false
+    },
+    {
+      "key": "arm.scaffold.surgery",
+      "name": "Surgery",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.patient_care",
+      "name": "Patient Care",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.diagnosis",
+      "name": "Diagnosis",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.swimming",
+      "name": "Swimming",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.run",
+      "name": "Run",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.fly",
+      "name": "Fly",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.fall",
+      "name": "Fall",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.crutch_use",
+      "name": "Crutch Use",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.armour_use",
+      "name": "Armour Use",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.track",
+      "name": "Track",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.row",
+      "name": "Row",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.balance",
+      "name": "Balance",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.seafaring",
+      "name": "Seafaring",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.veterancy",
+      "name": "Veterancy",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.meteorology",
+      "name": "Meteorology",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.groom",
+      "name": "Groom",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.tattoo",
+      "name": "Tattoo",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.brawling",
+      "name": "Brawling",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.dodge",
+      "name": "Dodge",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.ward",
+      "name": "Ward",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.gunnery",
+      "name": "Gunnery",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.crossbows",
+      "name": "Crossbows",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.sling",
+      "name": "Sling",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.blowgun",
+      "name": "Blowgun",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.enduring",
+      "name": "Enduring",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.drawing",
+      "name": "Drawing",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.auxiliary",
+      "name": "Auxiliary Combat",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.electronics",
+      "name": "Electronics",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.electrician",
+      "name": "Electrician",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    },
+    {
+      "key": "arm.scaffold.programming",
+      "name": "Programming",
+      "group": "Engine Scaffold",
+      "language": false,
+      "scaffold": true
+    }
+  ],
+  "bindings": {
+    "Climb": "arm.skill.climb",
+    "Listen": "arm.skill.listen",
+    "Scan": "arm.skill.scan",
+    "Search": "arm.skill.search",
+    "Hide": "arm.skill.hide",
+    "Sneak": "arm.skill.sneak",
+    "Palm": "arm.skill.sleight_of_hand",
+    "Picklock": "arm.skill.pick",
+    "Steal": "arm.skill.steal",
+    "Forage": "arm.skill.forage",
+    "Skin": "arm.skill.skinning",
+    "Ride": "arm.skill.ride",
+    "Drive": "arm.skill.pilot",
+    "Subdue": "arm.skill.subdue",
+    "Block": "arm.skill.shield_use",
+    "Throwing": "arm.skill.throw",
+    "Parry": "arm.skill.parry",
+    "Dual-Wield": "arm.skill.dual_wield",
+    "Backstab": "arm.skill.backstab",
+    "Disarm": "arm.skill.disarm",
+    "Poisoning": "arm.skill.poisoning",
+    "Barter": "arm.skill.haggle",
+    "Hunt": "arm.skill.hunt",
+    "Flee": "arm.skill.flee",
+    "Rescue": "arm.skill.rescue",
+    "Charge": "arm.skill.charge",
+    "Armourer": "arm.skill.armor_making",
+    "Bowyer": "arm.skill.bow_making",
+    "Fletcher": "arm.skill.fletchery",
+    "Dyeing": "arm.skill.dyeing",
+    "Cooking": "arm.skill.cooking",
+    "Woodcraft": "arm.skill.woodworking",
+    "Basketmaker": "arm.skill.basketweaving",
+    "Ropemaker": "arm.skill.ropemaking",
+    "Lumberjack": "arm.skill.lumberjacking",
+    "Stonecraft": "arm.skill.stone_working",
+    "Textilecraft": "arm.skill.cloth_working",
+    "Leathermaker": "arm.skill.leather_working",
+    "Wheelwright": "arm.skill.wagonmaking",
+    "First Aid": "arm.skill.bandage",
+    "Peek": "arm.skill.peek",
+    "Literacy": "arm.skill.literacy",
+    "Handwriting": "arm.skill.handwriting",
+    "Forgery": "arm.skill.forgery",
+    "Blind Fighting": "arm.skill.blind_fighting",
+    "Surgery": "arm.scaffold.surgery",
+    "Patient Care": "arm.scaffold.patient_care",
+    "Diagnosis": "arm.scaffold.diagnosis",
+    "Swimming": "arm.scaffold.swimming",
+    "Run": "arm.scaffold.run",
+    "Fly": "arm.scaffold.fly",
+    "Fall": "arm.scaffold.fall",
+    "Crutch Use": "arm.scaffold.crutch_use",
+    "Armour Use": "arm.scaffold.armour_use",
+    "Track": "arm.skill.hunt",
+    "Row": "arm.scaffold.row",
+    "Balance": "arm.scaffold.balance",
+    "Seafaring": "arm.scaffold.seafaring",
+    "Veterancy": "arm.scaffold.veterancy",
+    "Meteorology": "arm.scaffold.meteorology",
+    "Groom": "arm.scaffold.groom",
+    "Tattoo": "arm.scaffold.tattoo",
+    "Brawling": "arm.scaffold.brawling",
+    "Dodge": "arm.scaffold.dodge",
+    "Ward": "arm.scaffold.ward",
+    "Gunnery": "arm.scaffold.gunnery",
+    "Crossbows": "arm.scaffold.crossbows",
+    "Sling": "arm.scaffold.sling",
+    "Blowgun": "arm.scaffold.blowgun",
+    "Bows": "arm.skill.archery",
+    "Enduring": "arm.scaffold.enduring"
+  }
+}

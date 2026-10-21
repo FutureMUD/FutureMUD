@@ -914,7 +914,7 @@ public partial class Body
 
     public double HitpointsForBodypart(IBodypart part)
     {
-        double merits = Merits.Concat(Actor.Merits).Where(x => x.Applies(Actor)).OfType<IBodypartHealthMerit>()
+        double merits = Merits.Concat(Actor.Merits).DistinctBy(x => x.Id).Where(x => x.Applies(Actor)).OfType<IBodypartHealthMerit>()
                            .Where(x => x.AppliesToBodypart(part)).Select(x => x.MultiplierForBodypart(part))
                            .DefaultIfEmpty(1).Sum();
         if (merits == 0.0)

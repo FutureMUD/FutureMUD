@@ -115,7 +115,7 @@ public class CultureToolkitNamingTests
 		var world = World();
 		var culture = new NameCulture(new MudSharp.Models.NameCulture
 		{
-			Name = "Local", Definition = CultureToolkitNameCatalogue.Definition("Choose a name.", [birth])
+			Id = 1, Name = "Local", Definition = CultureToolkitNameCatalogue.Definition("Choose a name.", [birth])
 		}, world.Object);
 		var ethnicity = new Mock<MudSharp.Character.Heritage.IEthnicity>();
 		ethnicity.Setup(x => x.NameCultureForGender(Gender.Male)).Returns(culture);
@@ -148,7 +148,7 @@ public class CultureToolkitNamingTests
 		var world = World();
 		var culture = new NameCulture(new MudSharp.Models.NameCulture
 		{
-			Name = "Local", Definition = CultureToolkitNameCatalogue.Definition("Choose a name.", ["Jonas"])
+			Id = 1, Name = "Local", Definition = CultureToolkitNameCatalogue.Definition("Choose a name.", ["Jonas"])
 		}, world.Object);
 		var profile = new Mock<IRandomNameProfile>();
 		profile.SetupGet(x => x.Id).Returns(1);

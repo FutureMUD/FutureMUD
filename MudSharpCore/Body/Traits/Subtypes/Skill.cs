@@ -36,6 +36,7 @@ public class Skill : Trait, ISkill
         using var learning = CheckLearningScope.EnterIfNeeded(user);
         if (!CheckLearningScope.CanContinue(user)) return false;
         Gameworld.LogManager.CustomLogEntry(LogEntryType.SkillUse, user, Definition, result, difficulty, usetype, bonuses);
+		RoleSkillProgressionService.EvaluateBranches(user);
 		var castingCap = _owner is ICharacter character ? Gameworld.MagicCasting?.RawSkillImprovementCap(character, Definition.Id) : null;
 		if (castingCap.HasValue && _value >= castingCap.Value)
 		{

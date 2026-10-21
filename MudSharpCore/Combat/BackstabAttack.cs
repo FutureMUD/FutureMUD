@@ -1,12 +1,17 @@
 #nullable enable
 
 using System.Globalization;
+using MudSharp.Body.Traits;
+using MudSharp.Body.Traits.Subtypes;
 using MudSharp.RPG.Checks;
 
 namespace MudSharp.Combat;
 
 public sealed class BackstabAttack : WeaponAttack, IBackstabAttack
 {
+	public long? ProficiencyTraitId { get; private set; }
+	public ITraitDefinition? ProficiencyTrait => ProficiencyTraitId is { } id ? Gameworld.Traits.Get(id) : null;
+	public string CommandVerb { get; private set; } = "backstab";
 	public Difficulty SecondaryDifficulty { get; private set; } = Difficulty.Normal;
 	public double ReelSecondsPerDegree { get; private set; }
 	public double AttackerOffensiveAdvantagePerDegree { get; private set; }
@@ -28,6 +33,8 @@ public sealed class BackstabAttack : WeaponAttack, IBackstabAttack
 
 	internal void LoadConfiguration(XElement? root)
 	{
+		ProficiencyTraitId = long.TryParse(root?.Element("Proficiency")?.Value, out var traitId) && traitId > 0 ? traitId : null;
+		CommandVerb = root?.Element("Command")?.Value.Equals("sap", StringComparison.OrdinalIgnoreCase) == true ? "sap" : "backstab";
 		SecondaryDifficulty = Enum.TryParse<Difficulty>(root?.Element("Resist")?.Value, out var difficulty) &&
 		                      Enum.IsDefined(difficulty) ? difficulty : Difficulty.Normal;
 		ReelSecondsPerDegree = ReadAmount(root, "Reel", TimeSpan.MaxValue.TotalSeconds / 3.0);
@@ -44,6 +51,7 @@ public sealed class BackstabAttack : WeaponAttack, IBackstabAttack
 		double.IsFinite(value) && value >= 0.0 && value <= maximum ? value : 0.0;
 
 	internal XElement SaveConfiguration() => new("Backstab",
+		new XElement("Proficiency", ProficiencyTraitId), new XElement("Command", CommandVerb),
 		new XElement("Resist", SecondaryDifficulty), new XElement("Reel", ReelSecondsPerDegree),
 		new XElement("AttackerOffence", AttackerOffensiveAdvantagePerDegree),
 		new XElement("AttackerDefence", AttackerDefensiveAdvantagePerDegree),
@@ -60,12 +68,14 @@ public sealed class BackstabAttack : WeaponAttack, IBackstabAttack
 	protected override void SaveAttackSpecificData(Models.WeaponAttack attack) => AddAttackSpecificCloneData(attack);
 	public override string SpecialListText => $"Backstab, resist {SecondaryDifficulty.Describe()}, single target";
 	protected override string ShowBuilderInternal(ICharacter actor) =>
-		$"{SpecialListText}\nReel: {ReelSecondsPerDegree.ToString("N2", actor).ColourValue()}s per failure degree\n" +
+		$"{SpecialListText}\nCommand: {CommandVerb.ColourValue()}, proficiency: {(ProficiencyTrait?.Name ?? (ProficiencyTraitId.HasValue ? "MISSING" : "weapon default")).ColourValue()}\nReel: {ReelSecondsPerDegree.ToString("N2", actor).ColourValue()}s per failure degree\n" +
 		$"Attacker advantage per degree: offence {AttackerOffensiveAdvantagePerDegree.ToString("N2", actor).ColourValue()}, defence {AttackerDefensiveAdvantagePerDegree.ToString("N2", actor).ColourValue()}\n" +
 		$"Target disadvantage per degree: offence {TargetOffensiveDisadvantagePerDegree.ToString("N2", actor).ColourValue()}, defence {TargetDefensiveDisadvantagePerDegree.ToString("N2", actor).ColourValue()}\n" +
 		$"Penetration bonus: {PenetrationBonus.ToString("N2", actor).ColourValue()}, worn armour bypass: {ArmourBypassChance.ToString("P2", actor).ColourValue()}";
 	protected override void DescribeForAttacksCommandInternal(StringBuilder sb, ICharacter actor) => sb.Append(ShowBuilderInternal(actor));
 	public override string HelpText => $@"{base.HelpText}
+	#3proficiency <skill|none>#0 - specific attack skill; none uses the ordinary weapon default
+	#3command <backstab|sap>#0 - command selecting this attack
 	#3resist <difficulty>#0 - resistance to all backstab secondary effects
 	#3reel <seconds>#0 - combat action delay per resistance failure degree
 	#3attackeradvantage <offence> <defence>#0 - attacker gains per failure degree
@@ -79,6 +89,20 @@ public sealed class BackstabAttack : WeaponAttack, IBackstabAttack
 		var option = command.PopForSwitch();
 		switch (option)
 		{
+			case "proficiency":
+				if (command.SafeRemainingArgument.EqualTo("none")) ProficiencyTraitId = null;
+				else
+				{
+					var trait = Gameworld.Traits.GetByIdOrName(command.SafeRemainingArgument);
+					if (trait is not ISkillDefinition) return Error(actor, "Specify a valid skill or none.");
+					ProficiencyTraitId = trait.Id;
+				}
+				break;
+			case "command":
+				var verb = command.SafeRemainingArgument.ToLowerInvariant();
+				if (verb is not ("backstab" or "sap")) return Error(actor, "Specify backstab or sap.");
+				CommandVerb = verb;
+				break;
 			case "resist":
 				if (!CheckExtensions.GetDifficulty(command.SafeRemainingArgument, out var difficulty) || !Enum.IsDefined(difficulty))
 					return Error(actor, "Specify a valid resistance difficulty.");

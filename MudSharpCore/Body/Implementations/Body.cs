@@ -845,8 +845,9 @@ public partial class Body : PerceiverItem, IBody
         }
 
         CurrentStamina = body.CurrentStamina;
-        CurrentBloodVolumeLitres = body.CurrentBloodVolume;
-        // TotalBloodVolume depends on Character, so Character is responsible for setting it
+        // Capacity depends on the loaded Character and is still zero here. Preserve the saved
+        // volume until Character supplies that capacity; the runtime setter would discard it.
+        _currentBloodVolumeLitres = Math.Max(0.0, body.CurrentBloodVolume);
         LoadEffects(XElement.Parse(body.EffectData.IfNullOrWhiteSpace("<Effects/>")));
         LoadSurfaceLiquidState(body.SurfaceLiquidData);
         _noSave = false;

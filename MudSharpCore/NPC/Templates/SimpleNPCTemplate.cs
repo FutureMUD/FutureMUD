@@ -1284,19 +1284,19 @@ public class SimpleNPCTemplate : NPCTemplateBase
         {
             case AgeCategory.Youth:
                 randomAge = RandomUtilities.Random(SelectedRace.MinimumAgeForCategory(AgeCategory.Youth),
-                    SelectedRace.MinimumAgeForCategory(AgeCategory.YoungAdult));
+                    SelectedRace.MinimumAgeForCategory(AgeCategory.YoungAdult) - 1);
                 break;
             case AgeCategory.YoungAdult:
                 randomAge = RandomUtilities.Random(SelectedRace.MinimumAgeForCategory(AgeCategory.YoungAdult),
-                    SelectedRace.MinimumAgeForCategory(AgeCategory.Adult));
+                    SelectedRace.MinimumAgeForCategory(AgeCategory.Adult) - 1);
                 break;
             case AgeCategory.Adult:
                 randomAge = RandomUtilities.Random(SelectedRace.MinimumAgeForCategory(AgeCategory.Adult),
-                    SelectedRace.MinimumAgeForCategory(AgeCategory.Elder));
+                    SelectedRace.MinimumAgeForCategory(AgeCategory.Elder) - 1);
                 break;
             case AgeCategory.Elder:
                 randomAge = RandomUtilities.Random(SelectedRace.MinimumAgeForCategory(AgeCategory.Elder),
-                    SelectedRace.MinimumAgeForCategory(AgeCategory.Venerable));
+                    SelectedRace.MinimumAgeForCategory(AgeCategory.Venerable) - 1);
                 break;
             case AgeCategory.Venerable:
                 randomAge = RandomUtilities.Random(SelectedRace.MinimumAgeForCategory(AgeCategory.Venerable),
@@ -1329,7 +1329,7 @@ public class SimpleNPCTemplate : NPCTemplateBase
 
         SelectedName = (SelectedEthnicity.NameCultureForGender(SelectedGender) ?? SelectedCulture.NameCultureForGender(SelectedGender))
                        .RandomNameProfiles
-                       .Where(x => x.IsCompatibleGender(SelectedGender))
+                       .Where(x => x.IsReady).Where(x => x.IsCompatibleGender(SelectedGender))
                        .GetRandomElement()
                        ?.GetRandomPersonalName(true);
         _name = SelectedName?.GetName(NameStyle.FullName) ?? "Unnamed NPC";

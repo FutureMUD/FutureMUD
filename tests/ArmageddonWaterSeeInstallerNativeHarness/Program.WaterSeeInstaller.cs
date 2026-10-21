@@ -211,7 +211,7 @@ internal static partial class GNHProgram
 		MagicSpellParent Parent(MagicSpell spell) => actor.EffectsOfType<MagicSpellParent>().Single(x => x.Spell.Id == spell.Id);
 		Require(Parent(water).LifetimeState!.Grade == 7 && Parent(see).LifetimeState!.Grade == 7, "Installed strongest lifetime grade lost.");
 		FlushCasting(native);
-		RunWaterSeeReader(new(database.Name, fixture, DatabaseSeeder.Seeders.ArmageddonMagicSeeder.SerializeBindings(bindings),
+		RunWaterSeeReader(new(database.Name, fixture, DatabaseSeeder.Seeders.ArmageddonSettingSeeder.SerializeBindings(bindings),
 			identities, PreparedCapabilityMeritPolicy(database), PlayerSnapshot(database), RuntimeClock.UtcNow, component.Id, 6,
 			Parent(water).Identity, Parent(see).Identity, scheduler.ScheduledExpiry(Parent(water))!.Value,
 			scheduler.ScheduledExpiry(Parent(see))!.Value, actor.MagicResourceAmounts[native.Resource]));

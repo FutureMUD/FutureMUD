@@ -9,6 +9,7 @@ using MudSharp.Construction;
 using MudSharp.Effects.Concrete;
 using MudSharp.Events;
 using MudSharp.Form.Material;
+using MudSharp.Framework.Scheduling;
 using MudSharp.GameItems;
 using MudSharp.GameItems.Inventory;
 using MudSharp.Health;
@@ -64,8 +65,19 @@ public partial class Body
 
     public double TotalBloodVolumeLitres { get; set; }
 
+	internal void ClampLoadedBloodVolumeToCapacity()
+	{
+		var clamped = Math.Clamp(_currentBloodVolumeLitres, 0.0, Math.Max(0.0, TotalBloodVolumeLitres));
+		if (clamped == _currentBloodVolumeLitres) return;
+		_currentBloodVolumeLitres = clamped;
+		Changed = true;
+	}
+
     public double LiverAlcoholRemovalKilogramsPerHour => OrganFunction<LiverProto>() *
-                                                         BaseLiverAlcoholRemovalKilogramsPerHour;
+                                                         BaseLiverAlcoholRemovalKilogramsPerHour *
+                                                         Actor.Merits.OfType<ILiverClearanceMerit>()
+                                                             .Where(x => x.Applies(Actor))
+                                                             .Aggregate(1.0, (value, merit) => value * merit.ClearanceMultiplier);
 
     public double BaseLiverAlcoholRemovalKilogramsPerHour { get; set; }
     public double WaterLossLitresPerHour { get; set; }
@@ -1957,6 +1969,24 @@ public partial class Body
 
     private IBreathingStrategy _breathingStrategy;
     private TimeSpan _heldBreathTime;
+    private long? _lastBreathingTimestamp;
+    private TimeSpan _pendingBreathingElapsed;
+
+    private void AccumulateBreathingElapsed()
+    {
+        var clock = RuntimeClock.TimeProvider;
+        var now = clock.GetTimestamp();
+        if (_lastBreathingTimestamp is { } last)
+        {
+            var elapsed = clock.GetElapsedTime(last, now);
+            if (elapsed > TimeSpan.Zero)
+            {
+                _pendingBreathingElapsed += elapsed;
+            }
+        }
+
+        _lastBreathingTimestamp = now;
+    }
 
     public bool NeedsToBreathe => !Actor.IsAdministrator() && !this.SuspendsPhysicalContact() && _breathingStrategy.NeedsToBreathe;
     public bool IsBreathing => _breathingStrategy.IsBreathing(this);
@@ -1969,6 +1999,10 @@ public partial class Body
         {
             return;
         }
+
+        AccumulateBreathingElapsed();
+        var elapsed = _pendingBreathingElapsed;
+        _pendingBreathingElapsed = TimeSpan.Zero;
 
         // NeedsToBreathe includes the administrator and incorporeality exemptions used by the
         // prompt and health systems. Breathing strategies must not bypass that effective
@@ -1983,7 +2017,12 @@ public partial class Body
             return;
         }
 
-        _breathingStrategy.Breathe(this);
+        if (elapsed <= TimeSpan.Zero)
+        {
+            return;
+        }
+
+        _breathingStrategy.Breathe(this, elapsed);
         if (!CanBreathe)
         {
             StartHealthTick();
@@ -2075,8 +2114,10 @@ public partial class Body
                 Outerwear.SelectNotNull(x => x.GetItemType<IInsulating>()).Sum(x => x.ReflectingDegrees);
         }
 
-        List<ITemperatureRangeChangingMerit> merits = Actor.Merits.OfType<ITemperatureRangeChangingMerit>().Where(x => x.Applies(Actor))
-                          .Concat(Merits.OfType<ITemperatureRangeChangingMerit>().Where(x => x.Applies(Actor)))
+        List<ITemperatureRangeChangingMerit> merits = Actor.Merits.OfType<ITemperatureRangeChangingMerit>()
+                          .Concat(Merits.OfType<ITemperatureRangeChangingMerit>())
+                          .DistinctBy(x => x.Id)
+                          .Where(x => x.Applies(Actor))
                           .ToList();
 
         return (

@@ -17,8 +17,8 @@ internal static partial class GNHProgram
 		{
 			Require(ArmageddonInstallation.ResolveCapacityAttribute(db) == 0, "The LabMUD replay must require an explicit capacity attribute selection.");
 			capacityAttribute = db.TraitDefinitions.Single(x => x.Name == "Willpower" && x.Type == 1 && x.DerivedType == 0 && x.OwnerScope == 0 && x.TraitGroup == "Mental").Id;
-			var question = new ArmageddonMagicSeeder().Questions.Single(x => x.Id == ArmageddonMagicSeeder.CapacityQuestion);
-			Require(question.Filter(db, new Dictionary<string, string> { [ArmageddonMagicSeeder.FullInstallQuestion] = "yes" }) &&
+			var question = new ArmageddonSettingSeeder().Questions.Single(x => x.Id == ArmageddonSettingSeeder.CapacityQuestion);
+			Require(question.Filter(db, new Dictionary<string, string> { [ArmageddonSettingSeeder.FullInstallQuestion] = "yes" }) &&
 				question.Validator(capacityAttribute.ToString(System.Globalization.CultureInfo.InvariantCulture), db).Success,
 				"The ordinary S1 capacity question did not accept the explicit native selection.");
 		}

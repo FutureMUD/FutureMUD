@@ -45,7 +45,12 @@ public class ActiveNeedsModel : ChangingNeedsModelBase
 
     public override void NeedsHeartbeat()
     {
-        List<INeedRateChangingMerit> ownerMerits = Owner.Merits.OfType<INeedRateChangingMerit>().Where(x => x.Applies(Owner)).ToList();
+        var applicableMerits = Owner.Merits.Where(x => x is INeedRateChangingMerit or IEnvironmentalNeedsMerit)
+            .DistinctBy(x => x.Id).Where(x => x.Applies(Owner)).ToArray();
+        List<INeedRateChangingMerit> ownerMerits = applicableMerits.OfType<INeedRateChangingMerit>().ToList();
+        var rates = EnvironmentalNeedsRates.Calculate(Owner.Race.HungerRate, Owner.Race.ThirstRate,
+            Owner.Body.WaterLossLitresPerHour,
+            applicableMerits.OfType<IEnvironmentalNeedsMerit>().Select(x => x.GetNeedsAdjustment(Owner)));
         List<INeedRateEffect> effects = Owner.CombinedEffectsOfType<INeedRateEffect>().Where(x => x.AppliesToPassive).ToList();
         double hungerMult = effects.Aggregate(1.0, (x, y) => x * y.HungerMultiplier);
         double thirstMult = effects.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier);
@@ -55,18 +60,18 @@ public class ActiveNeedsModel : ChangingNeedsModelBase
 
         if (TracksThirst)
         {
-            DrinkSatiatedHours -= hoursPassed * Owner.Race.ThirstRate *
+            DrinkSatiatedHours -= hoursPassed * rates.Thirst *
                                   ownerMerits.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier) * thirstMult;
-            WaterLitres -= hoursPassed * Owner.Body.WaterLossLitresPerHour *
+            WaterLitres -= hoursPassed * rates.Water *
                            ownerMerits.Aggregate(1.0, (x, y) => x * y.ThirstMultiplier) * thirstMult;
         }
 
-        FoodSatiatedHours -= hoursPassed * Owner.Race.HungerRate *
+        FoodSatiatedHours -= hoursPassed * rates.Hunger *
                              ownerMerits.Aggregate(1.0, (x, y) => x * y.HungerMultiplier) * hungerMult;
         AlcoholLitres -= hoursPassed * Owner.Body.LiverAlcoholRemovalKilogramsPerHour *
                          ownerMerits.Aggregate(1.0, (x, y) => x * y.DrunkennessMultiplier) * drunkMult;
 
-        double satiationUse = hoursPassed * Owner.Race.HungerRate *
+        double satiationUse = hoursPassed * rates.Hunger *
                            ownerMerits.Aggregate(1.0, (x, y) => x * y.HungerMultiplier) * hungerMult;
         SpendSatiationReserve(satiationUse, false);
 

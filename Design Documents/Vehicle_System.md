@@ -1020,3 +1020,10 @@ Scope:
 ## Supported shallow media
 
 SurfaceWater environments also accept the opt-in `veryshallowwater` liquid ground surface, independently of whether a particular passenger needs to swim. The appended Silt environment restricts travel to silt ground surfaces at both endpoints and does not activate water exposure. Actual intact occupancy and exterior placement supply support; independent disembarkation reassesses the exposed actor. No draft/displacement simulation or conversion of existing vehicle prototypes is performed. See [very shallow water and silt](World/Very_Shallow_Water_and_Silt.md) for the categorical contact model and builder settings.
+
+
+## Optional manual driving proficiency
+
+`VehiclePilotEnabled` defaults false for existing worlds. When enabled, `VehiclePilotTraitId` must identify a trained skill. The Armageddon new-world skill package binds Pilot and enables this manual room-exit policy. Controller, exit and complete tow/propulsion readiness are checked before rolling. One initial 1d60 proficiency roll follows; a failed use can improve once through the ordinary skill improver. Recovery never improves. Recovery success makes no progress; a second failure can select the intended or an adjacent safe visible heading. Hidden, falling, unusable and ambiguous exits produce no progress. The selected exit is revalidated before movement; occupants and tow vehicles never reroll.
+
+Direction Sense is a separate navigation sequence. Queued ordinary moves use the same manual entry point. Longitudinal RouteRoom driving and compiled routes retain their existing operation and do not use this room-exit policy. Missing Pilot is refused without automatically teaching it; this preserves deliberate role entitlements. See [source evidence and adaptation boundaries](Armageddon/Armageddon_Pilot_Contract_20261019.md).

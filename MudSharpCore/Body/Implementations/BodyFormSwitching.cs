@@ -584,7 +584,7 @@ public partial class Body
 			SanitizeIncompatibleHealthState(true);
 		}
 
-		MaximumStamina = MudSharp.Character.Character.MaximumStaminaFor(Actor);
+		MaximumStamina = MudSharp.Character.Character.BaseMaximumStaminaFor(Actor);
 		_currentStamina = Math.Min(source.CurrentStamina, MaximumStamina);
 		CurrentExertion = source.CurrentExertion;
 		LongtermExertion = source.LongtermExertion;
@@ -1001,7 +1001,7 @@ public partial class Body
 			BaseLiverAlcoholRemovalKilogramsPerHour = MudSharp.Character.Character.LiverFunction(Actor);
 			_currentBloodVolumeLitres = TotalBloodVolumeLitres;
 			HeldBreathTime = TimeSpan.Zero;
-			MaximumStamina = MudSharp.Character.Character.MaximumStaminaFor(Actor);
+			MaximumStamina = MudSharp.Character.Character.BaseMaximumStaminaFor(Actor);
 			_currentStamina = MaximumStamina;
 			CurrentExertion = ExertionLevel.Rest;
 			LongtermExertion = ExertionLevel.Rest;

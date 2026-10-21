@@ -126,7 +126,7 @@ internal static partial class GNHProgram
 		}
 		Environment.SetEnvironmentVariable("FUTUREMUD_S4_ATTUNEMENT_STOCK_INPUT", input);
 		Console.WriteLine("ARMS4-Nilaz-restored=" + manifest + " owned-fresh-database=" + database.Name);
-		RunPreparedReplayBoot(database, typeof(ArmageddonMagicSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
+		RunPreparedReplayBoot(database, typeof(ArmageddonSettingSeeder).Assembly, "PreparedCatalogueBootSmoke.py", "prepared-catalogue-boot-native");
 		WriteBaseRunReceipt(new { Status = "RESTORED_NILAZ_GATE", Manifest = manifest, ManifestSha256 = BaseHash(manifest),
 			fixture.SqlSha256, fixture.InputSha256, Database = database.Name, Ownership = "fresh-owned-marker-resealed",
 			PackageRerun = false, BaseManifestSha256 = fixture.BaseManifestSha256 });

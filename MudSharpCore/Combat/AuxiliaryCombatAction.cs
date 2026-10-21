@@ -1,4 +1,5 @@
-﻿using Humanizer;
+using Humanizer;
+using MudSharp.Combat.Moves;
 using MailKit;
 using MudSharp.Body;
 using MudSharp.Body.Position;
@@ -15,8 +16,10 @@ using System.Reflection;
 
 namespace MudSharp.Combat;
 
-internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
+internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction, IPhysicalImpactAuxiliaryAction
 {
+    public IPhysicalImpactProfile? PhysicalImpact { get; private set; }
+
     static AuxiliaryCombatAction()
     {
         Type iType = typeof(IAuxiliaryEffect);
@@ -52,7 +55,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
             dbitem.TraitDefinitionId = rhs.CheckTrait.Id;
             dbitem.RequiredPositionStateIds =
                 rhs._requiredPositionStates.Select(x => x.Id.ToString("F0")).ListToCommaSeparatedValues(" ");
-            SaveMoveSpecificData(dbitem);
+            rhs.SaveMoveSpecificData(dbitem);
             FMDB.Context.CombatActions.Add(dbitem);
             FMDB.Context.SaveChanges();
             LoadFromDatabase(dbitem);
@@ -115,6 +118,14 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
                      Gameworld.Traits.Get(Gameworld.GetStaticLong("DefaultAuxiliaryMoveTraitId")) ??
                      Gameworld.Traits.First(x => x is ISkillDefinition);
         XElement root = XElement.Parse(dbitem.AdditionalInfo);
+        PhysicalImpact = root.Element("PhysicalImpact") is { } profile ? PhysicalImpactProfile.Load(profile, Gameworld) : null;
+        if (PhysicalImpact is not null)
+        {
+            CheckTrait = Gameworld.Traits.Get(dbitem.TraitDefinitionId) ?? throw new InvalidOperationException("Physical impact skill is missing.");
+            if (CheckTrait is not ISkillDefinition || CheckTrait.OwnerScope != TraitOwnerScope.Character)
+                throw new InvalidOperationException("Physical impact primary trait must be an explicit character skill.");
+            MaximumTargets = 1;
+        }
         foreach (XElement effect in root.Elements("Effect"))
         {
             _auxiliaryEffects.Add(LoadEffect(effect, Gameworld, this));
@@ -201,6 +212,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
     protected void SaveMoveSpecificData(Models.CombatAction dbitem)
     {
         XElement root = new("Root");
+        if (PhysicalImpact is not null) root.Add(PhysicalImpact.Save());
         foreach (IAuxiliaryEffect effect in _auxiliaryEffects)
         {
             root.Add(effect.Save());
@@ -216,6 +228,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
         var permitted = Intentions.HasFlag(attacker.CombatSettings.RequiredIntentions) &&
                (Intentions & attacker.CombatSettings.ForbiddenIntentions) == 0 &&
                (ignorePosition || RequiredPositionStates.Contains(attacker.PositionState)) &&
+               (PhysicalImpact is null || target is ICharacter impactTarget && PhysicalImpactResolver.CanAttempt(attacker, impactTarget, this, PhysicalImpact)) &&
                (UsabilityProg?.ExecuteBool(attacker, null, target) ?? true);
 		return MudSharp.NPC.AI.CommandExecutionScope.TryContinue() && permitted;
     }
@@ -224,6 +237,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
     {
         StringBuilder sb = new();
         sb.AppendLine($"Combat Action {Id.ToString("N0", actor)} - {Name}");
+        sb.AppendLine($"Physical Impact: {(PhysicalImpact is null ? "None" : PhysicalImpact.Save().ToString()).ColourValue()}");
         sb.AppendLine($"Move Type: {MoveType.Describe().Colour(Telnet.Green)}");
         sb.AppendLine($"Position States: {RequiredPositionStates.Select(x => x.DescribeLocationMovementParticiple.TitleCase().ColourValue()).ListToCommaSeparatedValues(", ")}");
         sb.AppendLineColumns((uint)actor.LineFormatLength, 3,
@@ -270,6 +284,12 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
     {
         switch (command.PopSpeech().ToLowerInvariant())
         {
+            case "targets": case "targetcount": case "maxtargets": case "multitargets": case "opponents":
+                if (PhysicalImpact is null) return base.BuildingCommand(actor, command.GetUndo());
+                if (command.SafeRemainingArgument != "1") { actor.OutputHandler.Send("Physical impacts can only strike one target."); return false; }
+                MaximumTargets = 1; Changed = true; return true;
+            case "impact":
+                return BuildingCommandImpact(actor, command);
             case "trait":
             case "skill":
             case "check":
@@ -309,6 +329,44 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
         }
     }
 
+    private bool BuildingCommandImpact(ICharacter actor, StringStack command)
+    {
+        if (command.PeekSpeech().EqualTo("none"))
+        {
+            PhysicalImpact = null;
+            Changed = true;
+            actor.OutputHandler.Send("This auxiliary no longer uses coupled physical impact resolution.");
+            return true;
+        }
+        if (PhysicalImpact is null)
+        {
+            actor.OutputHandler.Send("This action has no physical impact profile. Clone a configured action to retain its explicit trait bindings.");
+            return false;
+        }
+        var field = command.PopSpeech();
+        var xml = PhysicalImpact.Save();
+        var attribute = xml.Attributes().FirstOrDefault(x => x.Name.LocalName.EqualTo(field));
+        var element = xml.Elements().FirstOrDefault(x => x.Name.LocalName.EqualTo(field));
+        if (attribute is null && element is null || command.IsFinished)
+        {
+            actor.OutputHandler.Send("Use impact <field> <value>, or impact none. Fields: " +
+                xml.Attributes().Select(x => x.Name.LocalName).Concat(xml.Elements().Select(x => x.Name.LocalName)).ListToString());
+            return false;
+        }
+        if (attribute is not null) attribute.Value = command.SafeRemainingArgument;
+        else element!.Value = command.SafeRemainingArgument;
+        try { PhysicalImpact = PhysicalImpactProfile.Load(xml, Gameworld); }
+        catch (Exception ex) when (ex is FormatException or OverflowException or ArgumentException)
+        {
+            actor.OutputHandler.Send("Invalid physical impact setting: " + ex.Message);
+            return false;
+        }
+        MaximumTargets = 1;
+        Changed = true;
+        actor.OutputHandler.Send("Updated the physical impact profile.");
+        return true;
+    }
+
     private bool BuildingCommandCheckTrait(ICharacter actor, StringStack command)
     {
         if (command.IsFinished)
@@ -324,6 +382,11 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
             return false;
         }
 
+        if (PhysicalImpact is not null && (trait is not ISkillDefinition || trait.OwnerScope != TraitOwnerScope.Character))
+        {
+            actor.OutputHandler.Send("A physical impact requires an explicit character skill.");
+            return false;
+        }
         CheckTrait = trait;
         Changed = true;
         actor.OutputHandler.Send($"This move will now check against the attacker's {CheckTrait.Name.ColourValue()} trait.");
@@ -514,6 +577,7 @@ internal class AuxiliaryCombatAction : CombatAction, IAuxiliaryCombatAction
 	#3weight <number>#0 - the relative weighting of the engine selecting this attack
 	#3targets <number>#0 - the maximum number of opponents affected (1-100)
 	#3trait <which>#0 - sets the trait which this move checks against
+	#3impact <field> <value>#0 - edits a configured physical impact profile; impact none removes it
 	#3difficulty <difficulty>#0 - the difficulty of the attack roll
 	#3exertion <exertion>#0 - the minimum exertion level to set (if not already higher) when the attack is used
 	#3recover <difficulty pass> <difficulty fail>#0 - the difficulty of a check made after pass/fail that slightly alters the delay of the attack

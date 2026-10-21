@@ -1,0 +1,224 @@
+#nullable enable
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Xml.Linq;
+using DatabaseSeeder;
+using DatabaseSeeder.Seeders;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using MudSharp.Models;
+using MudSharp.RPG.Checks;
+
+namespace MudSharp_Unit_Tests;
+
+[TestClass]
+public class ArmageddonMundaneBindingTests
+{
+	[TestMethod]
+	public void MissingWeaponFamilies_CreateIndependentSkillConsumersAndRevisionedComponents()
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		db.Accounts.Add(new Account { Id = 1, Name = "Installer" });
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		var skills = ArmageddonSkillPackage.Resolve(db);
+		foreach (var name in new[] { "Longsword", "Short Spear" })
+		{
+			var donor = new WeaponType { Name = name, AttackTraitId = skills["arm.skill.two_handed"].Id, ParryTraitId = skills["arm.skill.parry"].Id, Reach = 3 };
+			db.WeaponTypes.Add(donor); db.SaveChanges();
+			var attack = new WeaponAttack { Name = name + " thrust", WeaponTypeId = donor.Id, MoveType = (int)MudSharp.Combat.BuiltInCombatMoveType.UseWeaponAttack, DamageExpressionId = 81, PainExpressionId = 82, StunExpressionId = 83 };
+			db.WeaponAttacks.Add(attack); db.SaveChanges();
+			db.CombatMessagesWeaponAttacks.Add(new CombatMessagesWeaponAttacks { CombatMessageId = 77, WeaponAttackId = attack.Id });
+		}
+		db.SaveChanges();
+		ArmageddonWeaponFamilies.InstallFresh(db, skills);
+		foreach (var family in new[] { (Name: "Razor Weapon", Key: "razor_weapons"), (Name: "Trident", Key: "trident_weapons") })
+		{
+			var weapon = db.WeaponTypes.Single(x => x.Name == family.Name);
+			Assert.AreEqual(skills["arm.skill." + family.Key].Id, weapon.AttackTraitId);
+			Assert.AreEqual(skills["arm.skill.parry"].Id, weapon.ParryTraitId);
+			var attack = db.WeaponAttacks.Single(x => x.WeaponTypeId == weapon.Id);
+			Assert.AreEqual(81L, attack.DamageExpressionId);
+			Assert.IsTrue(db.CombatMessagesWeaponAttacks.Any(x => x.WeaponAttackId == attack.Id && x.CombatMessageId == 77));
+			var component = db.GameItemComponentProtos.Single(x => x.Name == "Melee_" + family.Name);
+			Assert.AreEqual(weapon.Id, (long)XElement.Parse(component.Definition).Element("WeaponType")!);
+			Assert.AreEqual(4, component.EditableItem.RevisionStatus);
+			Assert.AreEqual(0, db.SeederManagedRecords.Single(x => x.LogicalId == component.Id && x.EntityType == nameof(GameItemComponentProto)).RevisionNumber);
+		}
+		Assert.IsTrue(db.WeaponTypes.Where(x => x.Name == "Longsword" || x.Name == "Short Spear").All(x => x.AttackTraitId == skills["arm.skill.two_handed"].Id));
+		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonWeaponFamilies.InstallFresh(db, skills));
+	}
+
+	[TestMethod]
+	public void ArmourRepair_BindsNativeKitWithoutUsefulOrItemPackage()
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		db.Accounts.Add(new Account { Id = 1, Name = "Installer" });
+		db.Tags.Add(new Tag { Name = "Military Armour" });
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		var skills = ArmageddonSkillPackage.Resolve(db);
+		ArmageddonRepairBinding.InstallFresh(db, skills);
+		var component = db.GameItemComponentProtos.Single(x => x.Type == "RepairKit");
+		var xml = XElement.Parse(component.Definition);
+		Assert.AreEqual(skills["arm.skill.armor_repair"].Id, (long)xml.Element("CheckTrait")!);
+		Assert.AreEqual(db.Tags.Single().Id, (long)xml.Element("Tags")!.Element("Tag")!);
+		Assert.IsTrue((int)xml.Element("RepairPoints")! > 0);
+		Assert.AreEqual(0, db.SeederManagedRecords.Single(x => x.StableKey == "arm.repair.armour.component").RevisionNumber);
+		Assert.IsFalse(db.SeederChoices.Any(x => x.Seeder == nameof(UsefulSeeder) || x.Seeder == nameof(ItemSeeder)));
+	}
+
+	[DataTestMethod]
+	[DataRow(true)]
+	[DataRow(false)]
+	public void SourceImpacts_BindSeparateCanonicalActionsAndManualCommands(bool hasAgility)
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		if (!hasAgility) { db.TraitDefinitions.Remove(db.TraitDefinitions.Single(x => x.Name == "Agility")); db.SaveChanges(); }
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		var root = new Race { Name = "Organic Humanoid" }; db.Races.Add(root);
+		foreach (var verb in new[] { "bash", "kick" }) db.ManualCombatCommands.Add(new ManualCombatCommand { Name = verb, PrimaryVerb = verb });
+		var original = new CombatAction { Name = "Bash", UsabilityProgId = 2 }; db.CombatActions.Add(original); db.SaveChanges();
+		var skills = ArmageddonSkillPackage.Resolve(db);
+		ArmageddonSourceImpacts.InstallFresh(db, skills);
+		Assert.AreEqual(2, db.RacesCombatActions.Count(x => x.RaceId == root.Id));
+		foreach (var verb in new[] { "bash", "kick" })
+		{
+			var command = db.ManualCombatCommands.Single(x => x.PrimaryVerb == verb);
+			var action = db.CombatActions.Single(x => x.Id == command.CombatActionId);
+			Assert.AreEqual(skills["arm.skill." + verb].Id, action.TraitDefinitionId);
+			Assert.IsTrue(command.PlayerUsable && command.NpcUsable);
+			Assert.IsNull(command.WeaponAttackId);
+			Assert.AreEqual(1, action.MaximumTargets);
+			var profile = XElement.Parse(action.AdditionalInfo).Element("PhysicalImpact")!;
+			Assert.AreEqual(verb == "bash", (bool)profile.Attribute("seatonmiss")!);
+			Assert.AreEqual(verb == "bash", (bool)profile.Attribute("seatonhit")!);
+			Assert.AreEqual(verb == "kick", (bool)profile.Attribute("shieldblock")!);
+			Assert.IsTrue((bool)profile.Attribute("initiatecombat")!);
+			Assert.AreEqual(skills["arm.skill.guarding"].Id, (long)profile.Attribute("guardtrait")!);
+			Assert.AreEqual(db.TraitDefinitions.Single(x => x.Name == (hasAgility ? "Agility" : "Dexterity")).Id, (long)profile.Attribute("agilitytrait")!);
+		}
+		Assert.AreEqual(2L, original.UsabilityProgId);
+		Assert.AreEqual(6, db.SeederManagedRecords.Count(x => x.StableKey.StartsWith("arm.action.") || x.StableKey.StartsWith("arm.command.")));
+	}
+
+	[TestMethod]
+	public void OpeningProfiles_BindSpecificSkillsAndCommandsWithoutChangingDamage()
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		foreach (var name in new[] { "Knife Backstab", "Dagger Backstab", "Blackjack Sapping Blow" })
+			db.WeaponAttacks.Add(new WeaponAttack { Name = name, FutureProgId = 2, AdditionalInfo = "<Backstab><Reel>0.75</Reel></Backstab>", DamageExpressionId = 42 });
+		db.SaveChanges();
+		var skills = ArmageddonSkillPackage.Resolve(db);
+		ArmageddonMundaneBindings.BindOpeningAttacks(db, skills); db.SaveChanges();
+		foreach (var row in db.WeaponAttacks)
+		{
+			var sap = row.Name == "Blackjack Sapping Blow";
+			var xml = XElement.Parse(row.AdditionalInfo);
+			Assert.AreEqual(skills[sap ? "arm.skill.sap" : "arm.skill.backstab"].Id, (long)xml.Element("Proficiency")!);
+			Assert.AreEqual(sap ? "sap" : "backstab", xml.Element("Command")!.Value);
+			Assert.AreEqual("0.75", xml.Element("Reel")!.Value);
+			Assert.AreEqual(42L, row.DamageExpressionId);
+			Assert.AreEqual(1L, row.FutureProgId);
+		}
+	}
+
+	[TestMethod]
+	public void EarlyChecks_UseGrantedSkillsAndSeparateRidingControlFromFlee()
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		var skills = ArmageddonSkillPackage.Resolve(db);
+		string Formula(CheckType type) => db.Checks.Include(x => x.TraitExpression).Single(x => x.Type == (int)type).TraitExpression.Expression;
+		foreach (var type in new[] { CheckType.SearchForTracksCheck, CheckType.SearchForTracksByScentScheck }) Assert.AreEqual($"hunt:{skills["arm.skill.hunt"].Id}", Formula(type));
+		foreach (var type in new[] { CheckType.FleeMeleeCheck, CheckType.OpposeFleeMeleeCheck, CheckType.FleeMovementMountedCheck, CheckType.FleeMovementUnmountedCheck })
+			Assert.AreEqual($"flee:{skills["arm.skill.flee"].Id}", Formula(type));
+		foreach (var type in new[] { CheckType.RescueCheck, CheckType.OpposeRescueCheck }) Assert.AreEqual($"rescue:{skills["arm.skill.rescue"].Id}", Formula(type));
+		Assert.AreEqual($"ride:{skills["arm.skill.ride"].Id}", Formula(CheckType.MountControlCheck));
+		Assert.AreEqual($"ride:{skills["arm.skill.ride"].Id}", Formula(CheckType.AvoidMountFallCheck));
+		StringAssert.Contains(Formula(CheckType.MountedChargeCheck), $"charge:{skills["arm.skill.charge"].Id}");
+		StringAssert.Contains(Formula(CheckType.VehicleChargeCheck), $"drive:{skills["arm.skill.pilot"].Id}");
+		StringAssert.Contains(Formula(CheckType.PursuitMovementUnmountedCheck), $"veterancy:{skills["arm.scaffold.veterancy"].Id}");
+		Assert.AreEqual(ShouldSeedResult.ReadyToInstall, new ArmageddonSettingSeeder().ShouldSeedData(db));
+	}
+
+	[TestMethod]
+	public void CheckHandoff_ChangesTemplateWithoutReplacingBuilderFormulaOrPointer()
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		var check = db.Checks.Include(x => x.TraitExpression).Single(x => x.Type == (int)CheckType.FleeMeleeCheck);
+		var id = check.TraitExpressionId;
+		check.TraitExpression.Expression = "73";
+		var template = new CheckTemplate { Name = "Custom handoff template" }; db.CheckTemplates.Add(template); db.SaveChanges();
+		var messages = new List<string>();
+		ArmageddonMundaneBindings.EnsureCheck(db, CheckType.FleeMeleeCheck, "0", template.Id, Difficulty.Impossible, messages);
+		Assert.AreEqual(id, check.TraitExpressionId);
+		Assert.AreEqual("73", check.TraitExpression.Expression);
+		Assert.AreEqual(template.Id, check.CheckTemplateId);
+		var custom = new TraitExpression { Name = "Builder alternate", Expression = "42" }; db.TraitExpressions.Add(custom); db.SaveChanges();
+		check.TraitExpressionId = custom.Id; db.SaveChanges();
+		ArmageddonMundaneBindings.EnsureCheck(db, CheckType.FleeMeleeCheck, "0", template.Id, Difficulty.Impossible, messages);
+		Assert.AreEqual(custom.Id, check.TraitExpressionId);
+		Assert.IsTrue(messages.Any(x => x.Contains("builder edit")));
+	}
+
+	[TestMethod]
+	public void DisarmBinding_ChangesOnlyItsAttackerAndDisarmDefenseDependencies()
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		var skills = ArmageddonSkillPackage.Resolve(db);
+		var scaffold = skills["arm.scaffold.auxiliary"].Id;
+		foreach (var name in new[] { "Pommel Beat", "Wrist Check", "Beat the Weapon" }) db.CombatActions.Add(new CombatAction
+		{
+			Name = name, TraitDefinitionId = scaffold,
+			AdditionalInfo = $"<Effects><Effect type='disarm' defensetrait='{scaffold}'/><Effect type='targetdelay' defensetrait='{scaffold}'/></Effects>"
+		});
+		db.SaveChanges();
+		ArmageddonMundaneBindings.BindDisarm(db, skills); db.SaveChanges();
+		foreach (var action in db.CombatActions)
+		{
+			Assert.AreEqual(skills["arm.skill.disarm"].Id, action.TraitDefinitionId);
+			var xml = XElement.Parse(action.AdditionalInfo);
+			Assert.AreEqual(skills["arm.skill.parry"].Id, (long)xml.Elements().Single(x => (string?)x.Attribute("type") == "disarm").Attribute("defensetrait")!);
+			Assert.AreEqual(scaffold, (long)xml.Elements().Single(x => (string?)x.Attribute("type") == "targetdelay").Attribute("defensetrait")!);
+		}
+	}
+
+	[TestMethod]
+	public void OptionalTrapCheck_RejectsUnownedCheckBeforeCreatingOwnershipOrChangingIt()
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		var expression = new TraitExpression { Name = "Builder trap formula", Expression = "73" };
+		db.TraitExpressions.Add(expression); db.SaveChanges();
+		var check = new Check { Type = (int)CheckType.SetTrapCheck, TraitExpressionId = expression.Id,
+			CheckTemplateId = db.CheckTemplates.First().Id, MaximumDifficultyForImprovement = (int)Difficulty.Normal };
+		db.Checks.Add(check); db.SaveChanges();
+		var count = db.TraitExpressions.Count();
+		Assert.ThrowsException<InvalidOperationException>(() => ArmageddonMundaneBindings.EnsureCheck(db,
+			CheckType.SetTrapCheck, "0", check.CheckTemplateId, Difficulty.Impossible, new List<string>(), rejectUnowned: true));
+		Assert.AreEqual(expression.Id, check.TraitExpressionId);
+		Assert.AreEqual("73", expression.Expression);
+		Assert.AreEqual((int)Difficulty.Normal, check.MaximumDifficultyForImprovement);
+		Assert.AreEqual(count, db.TraitExpressions.Count());
+		Assert.IsFalse(db.SeederManagedRecords.Any(x => x.StableKey == "arm.check.settrapcheck.binding"));
+	}
+
+	[TestMethod]
+	public void OptionalTrapChecks_ReuseCanonicalCharacterSkillWithoutCreatingStockTraps()
+	{
+		using var db = ArmageddonSettingPackageTests.Fixture();
+		new SkillPackageSeeder().SeedData(db, ArmageddonSettingPackageTests.Answers);
+		var skillCount = db.TraitDefinitions.Count();
+		var trap = (TraitDefinition)typeof(TrapSeeder).GetMethod("EnsureTrapsSkill", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [db])!;
+		Assert.AreEqual(ArmageddonSkillPackage.Resolve(db)["arm.skill.trap"].Id, trap.Id);
+		typeof(TrapSeeder).GetMethod("EnsureChecks", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [db, trap]);
+		Assert.AreEqual(skillCount, db.TraitDefinitions.Count());
+		Assert.IsFalse(db.TraitDefinitions.Any(x => x.Name == "Traps"));
+		Assert.AreEqual($"traps:{trap.Id}", db.Checks.Include(x => x.TraitExpression).Single(x => x.Type == (int)CheckType.SetTrapCheck).TraitExpression.Expression);
+	}
+}

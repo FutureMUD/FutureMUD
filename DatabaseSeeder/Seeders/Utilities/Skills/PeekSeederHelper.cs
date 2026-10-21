@@ -53,7 +53,7 @@ public static class PeekSeederHelper
 				return new(false, false, $"Existing {template.Name} policy was preserved. No configuration changed.");
 		}
 
-		using var transaction = db.Database.IsRelational() ? db.Database.BeginTransaction() : null;
+		using var transaction = db.Database.IsRelational() && db.Database.CurrentTransaction is null ? db.Database.BeginTransaction() : null;
 		var changed = false;
 		var createdParameters = new List<(TraitExpressionParameters Parameter, bool Improve)>();
 		foreach (var type in Types)

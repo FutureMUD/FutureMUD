@@ -136,7 +136,7 @@ public sealed class TrapGasCloudEffect : Effect
 
 		foreach (ICharacter character in room.LayerCharacters(Layer).Where(x => x.NeedsToBreathe && x.CanBreathe))
 		{
-			if (MudSharp.Health.Breathing.BreathingStrategyHelper.HasWorkingSupply(character.Body) ||
+			if (MudSharp.Health.Breathing.BreathingStrategyHelper.HasWorkingSupply(character.Body, TimeSpan.FromSeconds(5)) ||
 				EnvironmentalExposureService.For(Gameworld).LastBreathWasSupplied(character.Body) ||
 				EnvironmentalExposureService.For(Gameworld).LastBreathWasSuppressed(character.Body)) continue;
 			if (CanDose(Gas, DosePerTick)) character.Body.Dose(drug!, DrugVector.Inhaled, DosePerTick, this);

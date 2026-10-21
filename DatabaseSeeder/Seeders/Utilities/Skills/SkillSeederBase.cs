@@ -135,18 +135,24 @@ public abstract class SkillSeederBase : IDatabaseSeeder
             template.CanBranchIfTraitMissing = canBranchIfTraitMissing;
             template.Definition = definition;
 
-            foreach (CheckTemplateDifficulty? existing in template.CheckTemplateDifficulties.ToList())
+            // A cold context has no loaded navigation rows. Reconcile by the persisted composite key,
+            // rather than inserting duplicates or deleting/readding an existing tracked key.
+            var desiredModifiers = modifiers.ToDictionary(x => (int)x.Difficulty, x => x.Modifier);
+            var existingModifiers = context.CheckTemplateDifficulties
+                .Where(x => x.CheckTemplateId == template.Id)
+                .ToDictionary(x => x.Difficulty);
+            foreach (var existing in existingModifiers.Values)
             {
-                context.CheckTemplateDifficulties.Remove(existing);
+                if (desiredModifiers.TryGetValue(existing.Difficulty, out var modifier)) existing.Modifier = modifier;
+                else context.CheckTemplateDifficulties.Remove(existing);
             }
-
-            foreach ((Difficulty difficulty, int modifier) in modifiers)
+            foreach (var modifier in desiredModifiers.Where(x => !existingModifiers.ContainsKey(x.Key)))
             {
                 template.CheckTemplateDifficulties.Add(new CheckTemplateDifficulty
                 {
                     CheckTemplate = template,
-                    Difficulty = (int)difficulty,
-                    Modifier = modifier
+                    Difficulty = modifier.Key,
+                    Modifier = modifier.Value
                 });
             }
 

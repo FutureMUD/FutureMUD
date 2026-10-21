@@ -46,7 +46,8 @@ public abstract partial class CombatBase : ICombatSequenceResolver
 	{
 		if (executed && perceiver is ICharacter actor && actor.Race.RaceUsesStamina && move.UsesStaminaWithResult(result))
 		{
-			if (attackerBody is not null) attackerBody.SpendStamina(move.StaminaCost);
+			var costBody = attackerBody ?? (move as AuxiliaryMove)?.ImpactStaminaBody;
+			if (costBody is not null) costBody.SpendStamina(move.StaminaCost);
 			else actor.SpendStamina(move.StaminaCost);
 		}
 		if (response?.Assailant is ICharacter defender && defender.Race.RaceUsesStamina && response.UsesStaminaWithResult(result))

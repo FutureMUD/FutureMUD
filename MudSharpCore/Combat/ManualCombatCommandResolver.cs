@@ -24,11 +24,6 @@ public static class ManualCombatCommandResolver
 		ICharacter target,
 		bool returnTooExhaustedMove = false)
 	{
-		if (actor.Combat is null)
-		{
-			return ManualCombatMoveResolution.Failed("This command is only usable when you are in combat.");
-		}
-
 		if (target is null)
 		{
 			return ManualCombatMoveResolution.Failed("You must specify a target for that command.");
@@ -37,6 +32,14 @@ public static class ManualCombatCommandResolver
 		if (actor == target)
 		{
 			return ManualCombatMoveResolution.Failed("You cannot target yourself with that combat command.");
+		}
+
+		if (actor.Combat is null || !actor.Combat.Combatants.Contains(target))
+		{
+			if (command.ActionKind != ManualCombatActionKind.AuxiliaryAction ||
+				command.AuxiliaryAction is not IPhysicalImpactAuxiliaryAction { PhysicalImpact: { InitiateCombat: true } impact } ||
+				!TryInitiateImpact(actor, target, command, impact))
+				return ManualCombatMoveResolution.Failed("You cannot initiate that combat action against this target.");
 		}
 
 		if (!actor.Combat.Combatants.Contains(target))
@@ -66,6 +69,24 @@ public static class ManualCombatCommandResolver
 		}
 
 		return result;
+	}
+
+	private static bool TryInitiateImpact(ICharacter actor, ICharacter target, IManualCombatCommand command, IPhysicalImpactProfile profile)
+	{
+		var action = command.AuxiliaryAction;
+		var body = actor.Body; var targetBody = target.Body;
+		var instance = actor.InstanceId; var targetInstance = target.InstanceId;
+		var room = actor.Location; var layer = actor.RoomLayer; var targetLayer = target.RoomLayer;
+		var state = actor.State; var targetState = target.State;
+		bool Pinned() => ReferenceEquals(actor.Body, body) && ReferenceEquals(target.Body, targetBody) &&
+			actor.InstanceId == instance && target.InstanceId == targetInstance && actor.State == state && target.State == targetState &&
+			ReferenceEquals(actor.Location, room) && ReferenceEquals(target.Location, room) && actor.RoomLayer == layer && target.RoomLayer == targetLayer &&
+			CommandExecutionScope.TryContinue(actor);
+		if (!Pinned() || !command.IsUsableBy(actor, target) || !Pinned() ||
+			!PhysicalImpactResolver.CanInitiate(actor, target, action, profile) || !Pinned()) return false;
+		if (!actor.Race.UsableAuxiliaryMoves(actor, target, false).Any(x => ReferenceEquals(x, action)) || !Pinned()) return false;
+		if (!actor.CanEngage(target) || !Pinned() || !PhysicalImpactResolver.CanInitiate(actor, target, action, profile) || !Pinned()) return false;
+		return actor.Engage(target, false) && Pinned();
 	}
 
 	public static double AiWeightMultiplier(ICharacter combatant, IWeaponAttack attack)
@@ -131,6 +152,11 @@ public static class ManualCombatCommandResolver
 		{
 			return ManualCombatMoveResolution.Failed("You can no longer see and reach that target at melee range.");
 		}
+
+		if (available is IPhysicalImpactAuxiliaryAction { PhysicalImpact: { } impact } &&
+			!PhysicalImpactResolver.CanQueue(actor, target, available, impact))
+			return ManualCombatMoveResolution.Failed("You cannot attempt that physical impact in your current condition.");
+		if (!CommandExecutionScope.TryContinue(actor)) return ManualCombatMoveResolution.Failed("Your authority to execute that order is no longer valid.");
 
 		if (!actor.CanSpendStamina(AuxiliaryMove.MoveStaminaCost(actor, available)))
 		{

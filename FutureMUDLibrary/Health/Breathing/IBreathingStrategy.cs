@@ -14,7 +14,10 @@ namespace MudSharp.Health.Breathing
         bool NeedsToBreathe { get; }
         bool IsBreathing(IBody body);
         bool CanBreathe(IBody body);
+        /// <summary>Processes one explicit ten-second respiration step.</summary>
         void Breathe(IBody body);
+        /// <summary>Processes respiration for an elapsed interval of real, active time.</summary>
+        void Breathe(IBody body, TimeSpan elapsed);
         IFluid BreathingFluid(IBody body);
     }
 }

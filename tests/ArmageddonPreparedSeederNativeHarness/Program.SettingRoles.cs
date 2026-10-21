@@ -43,7 +43,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 internal static partial class GNHProgram
 {
 	private sealed record SettingRoleReader(string Database, DateTime Now, long Merchant, long Burglar,
-		long Pilot, long Child, long[] Applications, ArmPilotReceipt[] Drivers, string Phase);
+		long Pilot, long Child, long[] Applications, ArmPilotReceipt[] Drivers, string Phase, SettingPhysicalReceipt[]? Physical = null);
 
 	private static void QualifySettingNativeRolesAndHeritage(TestDatabase database)
 	{
@@ -81,6 +81,7 @@ internal static partial class GNHProgram
 		using (var session = new FMDB())
 		{
 			((IFuturemudLoader)world).LoadChargen();
+			var physical = QualifySettingPhysical(database, world);
 			LoadArmageddonPilotCatalogue(world);
 			var ids = SettingQualificationIds(database);
 			var merchantApp = NewSettingQualificationApplication(world, accountId, cultureId, "QualificationMerchant");
@@ -136,7 +137,7 @@ internal static partial class GNHProgram
 					.Any(x => (long?)x.Attribute("trait") == child.Id && (double?)x.Attribute("floor") == 40),
 				"Native save did not persist the pending bonus without acquiring the child.");
 			receipt = new(database.Name, RuntimeClock.UtcNow, merchant.Id, burglar.Id, ids["arm.skill.pilot"], child.Id,
-				applications.Append(merchantApp.Id).Append(burglarApp.Id).ToArray(), drivers.ToArray(), "acquire");
+				applications.Append(merchantApp.Id).Append(burglarApp.Id).ToArray(), drivers.ToArray(), "acquire", physical);
 		}
 		// No producer world remains alive while either cold reader writes durable state.
 		RunItemReaderProcess(receipt, "--setting-role-reader");
@@ -172,13 +173,15 @@ internal static partial class GNHProgram
 			.ToDictionary(x => x.StableKey, x => x.LogicalId!.Value);
 	}
 
-	private static Chargen NewSettingQualificationApplication(IFuturemud world, long accountId, long cultureId, string name)
+	private static Chargen NewSettingQualificationApplication(IFuturemud world, long accountId, long cultureId, string name, IRace? selectedRace = null)
 	{
 		Db.Account account;
 		using (new FMDB()) account = FMDB.Context.Accounts.Single(x => x.Id == accountId);
 		var app = new Chargen((IChargenMenu)null!, world, world.TryAccount(account)); // normal public constructor; no UI dispatch
-		app.SelectedRace = world.Races.Single(x => x.Name == "Human");
-		app.SelectedEthnicity = world.Ethnicities.Single(x => x.Name == "Admin" && x.ParentRace == app.SelectedRace);
+		app.SelectedRace = selectedRace ?? world.Races.Single(x => x.Name == "Human");
+		app.SelectedEthnicity = selectedRace is null
+			? world.Ethnicities.Single(x => x.Name == "Admin" && x.ParentRace == app.SelectedRace)
+			: world.Ethnicities.Single(x => x.ParentRace == selectedRace);
 		app.SelectedCulture = world.Cultures.Get(cultureId);
 		app.SelectedGender = Gender.Male; app.Handedness = Alignment.Right;
 		(app.SelectedHeight, app.SelectedWeight) = app.SelectedRace.DefaultHeightWeightModel(app.SelectedGender).GetRandomHeightWeight();
@@ -284,6 +287,7 @@ internal static partial class GNHProgram
 		using var world = LoadProductionRestartWorld(clock);
 		using var session = new FMDB();
 		((IFuturemudLoader)world).LoadChargen();
+		if (input.Physical is { } physical) CheckSettingPhysicalCold(database, world, physical);
 		LoadArmageddonPilotCatalogue(world);
 		LoadArmageddonPilotInstances(world);
 		foreach (var driver in input.Drivers) AssertArmageddonNativePilotReload(world,world.TryGetCharacter(driver.Driver,true),driver);

@@ -1,9 +1,9 @@
 {
-  "recorded_utc": "2026-10-20T04:04:12.508715+11:00",
+  "recorded_utc": "2026-10-21T03:52:54.5270016Z",
   "base": "97c02768d254c5e345a62349e05b94fe345efeec",
   "branch": "codex/armageddon-setting-20261019",
   "approved_bundle_sha256": "7f0c44decb894487f19bff038ebef4c977cebe6d6eff05efe8ad23260159a9e7",
-  "scope": "Implemented approved early packages and unified Setting; current-schema classes/subclasses-on clean-baseline native acceptance PASS. Physical activation remains gated.",
+  "scope": "Approved unified Setting and final physical/lifecycle/appearance wiring implemented; current-schema classes-on combined native gameplay, preserving rerun/resume, seven bodies/two cold readers and first/cold server acceptance PASS; admission/publication held",
   "register": [
     {
       "id": "E01",
@@ -72,13 +72,13 @@
     },
     {
       "id": "E14",
-      "implemented": "Compact physical evidence/proposal and unit audit",
-      "installed_and_gameplay": "[Owner review matrix](Armageddon_Physical_Proposal_20261019.md); all eight new Race rows remain unavailable and retain complete Human scaffolding"
+      "implemented": "Approved physical/lifecycle/appearance wiring, semantic attribute adaptation and intrinsic racial physiology",
+      "installed_and_gameplay": "Seven native bodies, age picker limits, descriptions/styling, needs/blood/stamina and two cold readers PASS; all8 admission gates held; dimension range testing waived"
     },
     {
       "id": "E15",
       "implemented": "Current-schema combined acceptance from a sealed clean three-step baseline",
-      "installed_and_gameplay": "20261019T165616Z_286d019a1c2d4df3ba4f5c0ce67be672; representative native gameplay, phase resume/rerun, two progression cold readers, first/cold Admin login/LOOK/save/graceful shutdown and qualification-character SQL preservation"
+      "installed_and_gameplay": "Current20261021T033830Z_5bb606167d7548899e66d4c579cecb08 PASS: classes-on install, gameplay, resume/rerun, two cold readers, exact Admin first/cold login/LOOK/flush/graceful shutdown; original19October evidence retained"
     },
     {
       "id": "E16",
@@ -87,8 +87,8 @@
     },
     {
       "id": "E17",
-      "implemented": "Approved writing grants and safe inactive scaffolds",
-      "installed_and_gameplay": "No new scripts, random-name corpus or unapproved Drawing/Tattoo/Streetwise allocations; technology commands off on fresh install, later builder settings preserved"
+      "implemented": "Approved writing grants and inactive profiles",
+      "installed_and_gameplay": "Approved personal-only suggestion catalogue and all78 executable naming elements; no new writing scripts or unapproved Drawing/Tattoo/Streetwise allocations; fresh technology defaults and later builder choices preserved"
     },
     {
       "id": "E18",
@@ -1337,13 +1337,14 @@
     "scope": "Runtime debug qualification before final anatomy rerun correction; no baseline-install/server-boot certificate."
   },
   "limits": [
-    "All eight new Race rows unavailable; owner physical/appearance acceptance required before activation.",
-    "No random-name corpus/scripts, active psychic powers, broader silt burial, Ruins armour-only penalty or world conversion.",
-    "Authored positive tactical advantage, lit arena and up to12 native impact attempts; no mocks or damage/armour bypass.",
-    "Driving: actual commands/native factory/control/schedulers, authored obstruction prog; no weather/animal/fuel/balance qualification.",
-    "Native Chargen finalisation/save and Character insertion; no ordinary UI approval claim or outbound approval notifications.",
-    "Full seeder batch precedes focused compatibility/feature-gate/anatomy fixes; each subsequent change has its focused passing receipt.",
-    "Three Unix-only permission tests skipped; no publication/deployment/existing-world activation."
+    "All eight Race rows stay unavailable: seven profiles plus nonplayable common Elf parent; admission/publication held",
+    "Approved profile dimensions not range-tested; fixed representative native body dimensions only; NPC normal-distribution tails are not hard PC bounds",
+    "Shared All profiles dynamically include the five new shapes; no ancestry-exclusive appearance policy claimed",
+    "Native Highsun absent and source condition-point/litre conversion unspecified; stock environmental water prog remains0",
+    "Three Unix launcher permission variants skipped; no existing-world conversion, database mutation, push, merge, deploy or publication",
+    "Approved personal-only random generation and all78 executable naming elements; no new writing scripts, psychic powers, broad silt burial, Ruins armour-only penalty or world conversion",
+    "Authored positive tactical advantage/lit arena/up to12 native impact attempts; no mock checks or damage/armour bypass; driving is not weather/animal/fuel balance qualification",
+    "Native Chargen finalisation/save and Character insertion do not claim ordinary UI approval; no outbound approval notifications"
   ],
   "historical_evidence": {
     "recorded_utc": "2026-10-20T00:21:51.217627+11:00",
@@ -2010,5 +2011,362 @@
       "No height/weight range tests added or run",
       "No existing-world conversion or database changes, publication, push, merge or deployment"
     ]
-  }
+  },
+  "physical_lifecycle_20261021": {
+    "status": "Implemented, installed and current-schema native/gameplay/cold-server-qualified; race admission and publication held",
+    "approved_by": "Luke: Approved, you may commence implementation (final juvenile and independent creation-age policy; previous physical/posture/stat/appearance/physiology approvals retained)",
+    "base_head": "c826e4895e5ab50fa33432830e7d425fbdf633dc",
+    "provenance": "Recovered approved dimensions and adult display bands; juvenile subdivisions, ordinary creation bounds, neutral distributions and conservative shape prose are authored approved defaults, not lifespans or balance measurements",
+    "policy_columns": [
+      "profile",
+      "child",
+      "youth",
+      "young_adult",
+      "adult",
+      "middle_aged_display",
+      "elder",
+      "venerable",
+      "creation_min",
+      "creation_max"
+    ],
+    "policy_rows": [
+      [
+        "human",
+        3,
+        10,
+        20,
+        30,
+        41,
+        61,
+        81,
+        20,
+        80
+      ],
+      [
+        "city_elf",
+        3,
+        12,
+        24,
+        35,
+        48,
+        71,
+        94,
+        24,
+        93
+      ],
+      [
+        "desert_elf",
+        3,
+        12,
+        24,
+        35,
+        48,
+        71,
+        94,
+        24,
+        93
+      ],
+      [
+        "dwarf",
+        3,
+        22,
+        44,
+        66,
+        91,
+        135,
+        179,
+        44,
+        178
+      ],
+      [
+        "half_elf",
+        3,
+        11,
+        22,
+        33,
+        45,
+        66,
+        88,
+        22,
+        87
+      ],
+      [
+        "half_giant",
+        3,
+        18,
+        36,
+        54,
+        74,
+        110,
+        146,
+        36,
+        145
+      ],
+      [
+        "mul",
+        3,
+        8,
+        15,
+        23,
+        31,
+        46,
+        61,
+        15,
+        60
+      ]
+    ],
+    "installed_definitions": {
+      "physical_models": 7,
+      "age_description_progs": 7,
+      "appearance_values": 5,
+      "appearance_profiles": 7,
+      "creation_bound_wrappers": 6
+    },
+    "engine": [
+      "Nullable text(number age) Race.AgeDescriptionProgId with SetNull FK, load/save/clone/builder support and mechanical fallback",
+      "Inclusive lifecycle starts; generic RankedRange unchanged; NPC category maxima stop before the next start",
+      "Standard characteristic profiles opt into persisted ongoing styling restrictions; legacy rules unchanged"
+    ],
+    "preservation": [
+      "Typed owned model/value/profile/prog identities",
+      "Separate original creation-policy delegates and storyboard fields",
+      "Older nullable-column adoption preserves custom pointers and later explicit removal",
+      "Builder ages, bounds exceptions, models, display bodies, characteristic links and profile edits survive reruns",
+      "Shared Human/Admin row references retained; All profiles remain dynamic, with expanded shape pools/distributions rather than ancestry exclusivity"
+    ],
+    "fast": {
+      "source_end": "4e5334fd7e2871fe2d7ded0bf85059a6ec44383c5eb533823658a6588f623691",
+      "counts_complete": true,
+      "counts": {
+        "executed": 11567,
+        "passed": 11567,
+        "failed": 0,
+        "skipped": 3,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 11570
+      },
+      "source_start": "4e5334fd7e2871fe2d7ded0bf85059a6ec44383c5eb533823658a6588f623691",
+      "duration_seconds": 990.282515,
+      "receipt": {
+        "sha256": "EDF6DCBA7DBBA99E4AF7E27F37875CA19D885FA8FA4781B9306814E772BAA42D",
+        "path": ".artifacts/test-runs/20261021T030810Z-766461ea7b3c/summary.json"
+      },
+      "execution_complete": true,
+      "source_stable": true,
+      "status": "PASS",
+      "run": "20261021T030810Z-766461ea7b3c"
+    },
+    "focused_core": {
+      "source_end": "7b11841d7b4d0a2fbd3f38eb949590ffe06ce3d13f9cc0835eee2d497cd2bc1f",
+      "counts_complete": true,
+      "counts": {
+        "executed": 40,
+        "passed": 40,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 40
+      },
+      "source_start": "7b11841d7b4d0a2fbd3f38eb949590ffe06ce3d13f9cc0835eee2d497cd2bc1f",
+      "duration_seconds": 26.8884042,
+      "receipt": {
+        "sha256": "AC2B45FDB1AD68639F8ECAA71B332B686939D7077A29DB917ADDDC08FD04FB65",
+        "path": ".artifacts/test-runs/20261021T030410Z-05c9ef0a899a/summary.json"
+      },
+      "execution_complete": true,
+      "source_stable": true,
+      "status": "PASS",
+      "run": "20261021T030410Z-05c9ef0a899a"
+    },
+    "focused_seeder": {
+      "source_end": "0d4bcaee18bcae399bb4b0b7ea97c9854c4221ca815f13d19eb579b6ce668174",
+      "counts_complete": true,
+      "counts": {
+        "executed": 38,
+        "passed": 38,
+        "failed": 0,
+        "skipped": 0,
+        "inconclusive": 0,
+        "other": 0,
+        "total": 38
+      },
+      "source_start": "0d4bcaee18bcae399bb4b0b7ea97c9854c4221ca815f13d19eb579b6ce668174",
+      "duration_seconds": 56.914232,
+      "receipt": {
+        "sha256": "A85DEFCAB6B7A1438A058D5B6CEF1524A3B6FB6009847C7BD2F9C088B9D77984",
+        "path": ".artifacts/test-runs/20261021T030439Z-5bab051c5dfe/summary.json"
+      },
+      "execution_complete": true,
+      "source_stable": true,
+      "status": "PASS",
+      "run": "20261021T030439Z-5bab051c5dfe"
+    },
+    "native_followups": {
+      "source_end": "C7086632D982FA5374E77FEF0AFFD268F84F9B7022E1375D59088ABB44DA708B",
+      "source_start": "C7086632D982FA5374E77FEF0AFFD268F84F9B7022E1375D59088ABB44DA708B",
+      "helper": {
+        "sha256": "48C5B157CD46673DFF5466A0DE67C9E2F6A766B65979705FAEE3E79A8A8BDA3D",
+        "path": ".artifacts/physical-policy-followups-first-exit.json"
+      },
+      "source_stable": true,
+      "log": {
+        "sha256": "62C4AAEF756E53CD4092D421AF4069C4A093A0C9AFDA5986528D4959F8504EB1",
+        "path": ".artifacts/physical-policy-followups-first.log"
+      },
+      "receipt": {
+        "sha256": "21E220EBD164868BEA1027F66E392B19FCE7DC432C5EDA2C030A7C5767D02B7E",
+        "path": ".artifacts/physical-policy-followups/20261021T030452Z_bea97522f9f448fa98a2b0af3b264de1/summary.json"
+      },
+      "cleanup": "Owned databases and private MySQL/TEMP instance gracefully removed",
+      "native_exit": 0,
+      "run": "20261021T030452Z_bea97522f9f448fa98a2b0af3b264de1"
+    },
+    "native_combined": {
+      "source_end": "90D3A27FE9E4843959EB14CC544A09EC0C020345BA6D0740855D24EB1F915528",
+      "source_start": "90D3A27FE9E4843959EB14CC544A09EC0C020345BA6D0740855D24EB1F915528",
+      "helper": {
+        "sha256": "D2E429E888C51C1B3857255F291B760846CADA9677DBCBD2F359079161849479",
+        "path": ".artifacts/physical-policy-combined-third-exit.json"
+      },
+      "source_stable": true,
+      "log": {
+        "sha256": "F19E3326EC659329EB08867B001DE50C969AB39DE3E3A66CFE74BE6E254B4D9D",
+        "path": ".artifacts/physical-policy-combined-third.log"
+      },
+      "receipt": {
+        "sha256": "E142023E8530C47645076FC9FD0BD7010A84CFB8B9CBE40D3DBE6218A48E78A7",
+        "path": ".artifacts/physical-policy-combined/20261021T033830Z_5bb606167d7548899e66d4c579cecb08/summary.json"
+      },
+      "cleanup": "Owned databases and private MySQL/TEMP instance gracefully removed",
+      "native_exit": 0,
+      "run": "20261021T033830Z_5bb606167d7548899e66d4c579cecb08"
+    },
+    "native_claims": {
+      "seven_real_profile_bodies": true,
+      "naming_executable_elements": 78,
+      "native_age_picker_bounds": true,
+      "race_rows_unavailable": 8,
+      "phase_resume_rerun_and_builder_player_preservation": true,
+      "representative_combat_and_pilot": true,
+      "birthdays_attributes_appearance_needs_blood_stamina_and_chargen_resume": true,
+      "descriptions_and_hairless_styling": true,
+      "classes_subclasses_on": true,
+      "independent_cold_readers": 2
+    },
+    "server_boot": {
+      "first_avatar_menu_option": 8,
+      "receipt": {
+        "sha256": "B20956CE3C28E641CDBFEA92C8EB2B4025295AD7AD2DA30027F90B5C0BF00FD5",
+        "path": "../prepared-replay-boot-native_foundations_0dfd5ff73c12407d8613ff29fc7930ec/boot-latest.json"
+      },
+      "status": "PASS",
+      "owned_mud_processes_stopped": true,
+      "cold_avatar_menu_option": 8,
+      "assertions": [
+        "Matching parent-ready receipt before owned SQL or MUD startup",
+        "Owned database only: disabled email and reserved non-listening loopback Discord bridge",
+        "first: native MUD ready",
+        "first: native Admin avatar login and LOOK",
+        "first: native flush and independent persisted LastLoginTime",
+        "first: graceful shutdown, persisted avatar/cell and logout",
+        "cold: native MUD ready",
+        "cold: native Admin avatar login and LOOK",
+        "cold: native flush and independent persisted LastLoginTime",
+        "cold: graceful shutdown, persisted avatar/cell and logout"
+      ]
+    },
+    "foundation_closure_sha256": "2F859BB74250BDD29C11FE236C9E49E0E7FA86BFA302000C328E43E74F0B247E",
+    "sealed_files": "Original descriptor E26C6B5992C664F52BFA38488CB2F19143B8B80A59C7A3CB949D7B7F014C61A8 and SQL64113F06E363B582ECE510A3C112984F51D28977DB7250A53D28A6DA790F7206 unchanged; original schema/content verified before the two additive migrations on the owned restore",
+    "schema": {
+      "official_generation": {
+        "sha256": "3B37E330A054A7D31A4068F3D0D6964B1AD48330E40C1F21AEB243AC3F6BEC3B",
+        "path": ".artifacts/physical-age-schema-generation.log"
+      },
+      "snapshot_helper": {
+        "sha256": "95DD77F0823E1191E9964547C7F266B8E39CA1A1BB394B2FA3DBFE53E66B26F3",
+        "path": ".artifacts/physical-policy-snapshot-first-exit.json"
+      },
+      "cleanup_confirmed": true,
+      "migration": "20261021023928_ConfigurableRaceAgeDescriptions",
+      "parity": {
+        "sha256": "C924DA1693AD60EB6A78717DDD333946A8A61A056C2CE2868AE514384F01C866",
+        "path": ".artifacts/physical-age-schema-parity.log"
+      },
+      "blank_snapshot_native_refresh_import": {
+        "sha256": "E1AC613C16933F995A8599642FC6D260AC9C850805E7C729668691B5EB865D02",
+        "path": ".artifacts/physical-policy-snapshot-first.log"
+      },
+      "snapshot_source_stable": true,
+      "foreign_key_verified": true
+    },
+    "release": {
+      "warnings": 208,
+      "status": "PASS",
+      "log": {
+        "sha256": "EBBE96690D4886C0996F43D779C63D6466D57C2D39F09485BB41C242F0B1C576",
+        "path": ".artifacts/physical-policy-release-build.log"
+      },
+      "helper": {
+        "sha256": "B93899B2D575D46F739476D8371C7E6D7233E46FF5E2A5AED6C8A68CE97543D9",
+        "path": ".artifacts/physical-policy-release-exit.json"
+      },
+      "errors": 0
+    },
+    "post_fast_changes": {
+      "menu_checks": {
+        "sha256": "BEC1015EE16DB7C539466CBA396AC6320A47D414AB16FD34BF24B07361D16FE0",
+        "path": ".artifacts/physical-policy-boot-menu-check.txt"
+      },
+      "inventory_diff": {
+        "sha256": "E8BE276D493E42161DC5B33BBDD3DD24D65C575FE3D8BA34D320986A22E090F8",
+        "path": ".artifacts/physical-policy-post-fast-fixture-diff.json"
+      },
+      "scope": "Four native-harness-only files: exact heritage keys/shared helper/comment and exact active Admin selection; no production changes. Final combined acceptance covers these repairs. Later changes are documentation only."
+    },
+    "retained_nonpassing": {
+      "combined_second": {
+        "cleanup_confirmed": true,
+        "run": "20261021T032630Z_1f8e01529d224ce2923f65e147f04c7c",
+        "log": {
+          "sha256": "7472503DFC5A42B030AF9D19B882C44507C0BD587052A3EF2A8E967CDCA57B45",
+          "path": ".artifacts/physical-policy-combined-second.log"
+        },
+        "boot": {
+          "sha256": "84348012BA19D8679BB9F4DE6DA6E179F054643DDB83AAD504FA3FC45B8C87F1",
+          "path": "../prepared-replay-boot-native_foundations_00eeee0e203a4f5081f6e08300a69bff/boot-latest.json"
+        },
+        "cause": "Hardcoded menu1 entered physical Human, not Admin8: readiness/LOOK passed but nominal Admin identity assertion was a false positive and Founder-only flush correctly refused. Exact active-avatar selection fixed; no command-permission changes"
+      },
+      "combined_first": {
+        "cleanup_confirmed": true,
+        "run": "20261021T030814Z_7137b4b319524284a57027f931b5953e",
+        "log": {
+          "sha256": "3B675B0F5EEA791DC477D2BCE7CB139854287E4D82B61FC5C764E227011F1D23",
+          "path": ".artifacts/physical-policy-combined-first.log"
+        },
+        "cause": "Fixture prefix inventory included magic creature races; repaired exact eight heritage keys, retaining eight distinct IDs and AlwaysFalse assertions"
+      },
+      "debug_build": "physical-policy-debug-build.log: ambiguous ToHashSet corrected to explicit HashSet",
+      "focused_compile": "20261021T024712Z-fbde0221050f: CultureInfo ambiguity corrected with explicit alias; zero executed cases, source stable"
+    },
+    "superseded_top_level_limits": [
+      "All eight new Race rows unavailable; owner physical/appearance acceptance required before activation.",
+      "No random-name corpus/scripts, active psychic powers, broader silt burial, Ruins armour-only penalty or world conversion.",
+      "Authored positive tactical advantage, lit arena and up to12 native impact attempts; no mocks or damage/armour bypass.",
+      "Driving: actual commands/native factory/control/schedulers, authored obstruction prog; no weather/animal/fuel/balance qualification.",
+      "Native Chargen finalisation/save and Character insertion; no ordinary UI approval claim or outbound approval notifications.",
+      "Full seeder batch precedes focused compatibility/feature-gate/anatomy fixes; each subsequent change has its focused passing receipt.",
+      "Three Unix-only permission tests skipped; no publication/deployment/existing-world activation."
+    ],
+    "remaining_limits": [
+      "All eight Race rows stay unavailable: seven profiles plus nonplayable common Elf parent; admission/publication held",
+      "Approved profile dimensions not range-tested; fixed representative native body dimensions only; NPC normal-distribution tails are not hard PC bounds",
+      "Shared All profiles dynamically include the five new shapes; no ancestry-exclusive appearance policy claimed",
+      "Native Highsun absent and source condition-point/litre conversion unspecified; stock environmental water prog remains0",
+      "Three Unix launcher permission variants skipped; no existing-world conversion, database mutation, push, merge, deploy or publication"
+    ]
+  },
+  "latest_evidence_key": "physical_lifecycle_20261021"
 }

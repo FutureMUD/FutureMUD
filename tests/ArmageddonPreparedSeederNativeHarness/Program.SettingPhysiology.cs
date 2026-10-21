@@ -20,7 +20,7 @@ namespace FutureMUD.GatheringNativePersistenceHarness;
 internal static partial class GNHProgram
 {
 	private sealed record SettingPhysiologyReceipt(long Character, long Body, long SevereRoom, long ShelterRoom,
-		double Food, double Drink, double Water, double Blood, double Stamina, string PreservedHash);
+		double Food, double Drink, double Water, double Blood, double Stamina, string PreservedHash, SettingPhysicalReceipt[]? Physical = null);
 
 	private static SettingPhysiologyReceipt QualifySettingPhysiology(TestDatabase database)
 	{
@@ -52,13 +52,15 @@ internal static partial class GNHProgram
 		using (new FMDB())
 		{
 			((IFuturemudLoader)world).LoadChargen();
+			var physical = QualifySettingPhysical(database, world);
 			var account = FMDB.Context.Accounts.OrderBy(x => x.Id).First().Id;
 			var culture = FMDB.Context.Cultures.Single(x => x.Name == "Admin").Id;
 			var app = NewSettingQualificationApplication(world, account, culture, "QualificationPhysiology");
 			FinaliseAndSaveSettingApplication(app, SettingQualificationFreeProg(world));
 			var actor = PersistSettingQualificationCharacter(world, app);
 			ExerciseSettingPhysiology(database, world, actor, severe, shelter, 20);
-			// Persist only an ordinary Human fixture, never a Character made from a gated profile.
+			// This additional ordinary Human isolates transient physiology changes. The seven
+			// explicit physical fixtures above remain private and do not alter admission.
 			actor.Body.CurrentBloodVolumeLitres = actor.Body.TotalBloodVolumeLitres * 0.75;
 			var needs = new ActiveNeedsModel(actor);
 			needs.FulfilNeeds(new NeedFulfiller());
@@ -79,7 +81,7 @@ internal static partial class GNHProgram
 			Require(!saved.PerceiverMerits.Any(x => x.BodyId == body.Id || x.CharacterId == actor.Id),
 				"Transient intrinsic grants leaked into explicit saved merits.");
 			receipt = new(actor.Id, body.Id, severe, shelter, row.FoodSatiatedHours, row.DrinkSatiatedHours,
-				row.WaterLitres, body.CurrentBloodVolume, body.CurrentStamina, string.Empty);
+				row.WaterLitres, body.CurrentBloodVolume, body.CurrentStamina, string.Empty, physical);
 			QualifyExecutableNaming(database, world);
 		}
 
@@ -119,6 +121,8 @@ internal static partial class GNHProgram
 		using var time = RuntimeClock.Push(clock);
 		using var world = LoadProductionRestartWorld(clock);
 		using var session = new FMDB();
+		((IFuturemudLoader)world).LoadChargen();
+		if (receipt.Physical is { } physical) CheckSettingPhysicalCold(database, world, physical);
 		var actor = world.TryGetCharacter(receipt.Character, true);
 		Near(actor.NeedsModel.FoodSatiatedHours, receipt.Food, "Native reloaded food");
 		Near(actor.NeedsModel.DrinkSatiatedHours, receipt.Drink, "Native reloaded drink");

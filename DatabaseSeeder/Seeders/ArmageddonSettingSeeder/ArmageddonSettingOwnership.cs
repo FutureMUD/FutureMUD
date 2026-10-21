@@ -73,6 +73,12 @@ internal static class ArmageddonSettingOwnership
 			?? throw new InvalidOperationException($"{record.StableKey}: missing field baseline.");
 		var current = previous.Keys.Union(desired.Keys).ToDictionary(x => x,
 			x => JsonSerializer.Serialize(entry.Property(x).CurrentValue, entry.Property(x).Metadata.ClrType));
+		// This newly added nullable column did not exist in older heritage baselines. An unset
+		// value is the migration default; a non-null builder choice must still be preserved.
+		if (entity is Race && record.Module == ArmageddonHeritage.Module &&
+			!previous.ContainsKey(nameof(Race.AgeDescriptionProgId)) && desired.ContainsKey(nameof(Race.AgeDescriptionProgId)) &&
+			entry.Property(nameof(Race.AgeDescriptionProgId)).CurrentValue is null)
+			current.Remove(nameof(Race.AgeDescriptionProgId));
 		var merged = SeederManagedRecordReconciler.Reconcile(record, current, desired, false, messages);
 		foreach (var field in merged)
 			entry.Property(field.Key).CurrentValue = JsonSerializer.Deserialize(field.Value, entry.Property(field.Key).Metadata.ClrType);

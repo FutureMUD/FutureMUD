@@ -49,6 +49,33 @@ public class ArmageddonHeritageTests
 			StageDefinition = "<Screen><FreeSkillsProg>CustomFreeSkills</FreeSkillsProg><Blurb>Preserve this builder text</Blurb></Screen>" });
 		db.ChargenScreenStoryboards.Add(new ChargenScreenStoryboard { Id = 101, ChargenStage = (int)ChargenStage.SelectName, ChargenType = "NamePicker",
 			StageDefinition = "<Screen><AllowUnicodeNames>false</AllowUnicodeNames><BuilderNote>Retain</BuilderNote></Screen>" });
+		foreach (var (stage, fields, id) in new[]
+		{
+			(ChargenStage.SelectBirthday, new[] { "MinimumAgeProg", "MaximumAgeProg" }, 102),
+			(ChargenStage.SelectHeight, new[] { "MinimumHeightProg", "MaximumHeightProg" }, 103),
+			(ChargenStage.SelectWeight, new[] { "MinimumWeightProg", "MaximumWeightProg" }, 104)
+		})
+		{
+			foreach (var field in fields)
+			{
+				var prog = new FutureProg { FunctionName = "Custom" + field, FunctionText = "return 42", ReturnType = (long)ProgVariableTypes.Number };
+				db.FutureProgs.Add(prog); db.SaveChanges();
+				db.FutureProgsParameters.Add(new FutureProgsParameter { FutureProgId = prog.Id, ParameterIndex = 0, ParameterName = "ch", ParameterType = (long)ProgVariableTypes.Toon });
+			}
+			db.ChargenScreenStoryboards.Add(new ChargenScreenStoryboard { Id = id, ChargenStage = (int)stage,
+				ChargenType = stage == ChargenStage.SelectBirthday ? "BirthdayPicker" : stage == ChargenStage.SelectHeight ? "HeightPicker" : "WeightPicker",
+				StageDefinition = new XElement("Screen", new XElement("Blurb", "Preserve physical builder text"),
+					new XElement("AgeSelectionBlurb", "Choose an age"), new XElement("DateSelectionBlurb", "Choose a date"),
+					fields.Select(x => new XElement(x, "Custom" + x))).ToString() });
+		}
+		foreach (var (id, name, value) in new[] { (110, "Ears", "ordinary"), (111, "Frame", "ordinary"),
+			(112, "Hair Style", "bald"), (113, "Facial Hair Style", "clean shave") })
+		{
+			db.CharacteristicDefinitions.Add(new CharacteristicDefinition { Id = id, Name = name });
+			db.CharacteristicValues.Add(new CharacteristicValue { Id = id, DefinitionId = id, Name = value });
+			db.CharacteristicProfiles.Add(new CharacteristicProfile { Id = id, Name = "Shared " + name, TargetDefinitionId = id, Type = "Standard", Definition = $"<Definition><Value>{id}</Value></Definition>" });
+			db.EthnicitiesCharacteristics.Add(new EthnicitiesCharacteristics { EthnicityId = 100, CharacteristicDefinitionId = id, CharacteristicProfileId = id });
+		}
 		db.SaveChanges(); return db;
 	}
 
@@ -95,15 +122,15 @@ public class ArmageddonHeritageTests
 		var wrapper = db.FutureProgs.Single(x => x.Id == long.Parse(definition.Element("FreeSkillsProg")!.Value));
 		StringAssert.Contains(wrapper.FunctionText, "@CustomFreeSkills(@ch)");
 		var dwarf = db.Races.Single(x => x.Name == "Armageddon Dwarf");
-		Assert.AreEqual(100L, dwarf.DefaultHeightWeightModelMaleId, "Copy mapped public fields as well as CLR properties.");
-		Assert.AreEqual(103L, dwarf.DefaultHeightWeightModelNonBinaryId);
+		Assert.AreEqual(db.SeederManagedRecords.Single(x => x.StableKey == "arm.physical.dwarf.model").LogicalId, dwarf.DefaultHeightWeightModelMaleId);
+		Assert.AreEqual(dwarf.DefaultHeightWeightModelMaleId, dwarf.DefaultHeightWeightModelNonBinaryId);
 		var elfParent = db.Races.Single(x => x.Name == "Armageddon Elf");
 		Assert.AreEqual(elfParent.Id, db.Races.Single(x => x.Name == "Armageddon City Elf").ParentRaceId);
 		var dwarfEthnicity = db.Ethnicities.Single(x => x.Name == "Armageddon Dwarf");
 		Assert.AreEqual(dwarf.Id, dwarfEthnicity.ParentRaceId);
 		Assert.AreEqual(db.Languages.Single(x => x.Name == "Mirukkim").Id, dwarfEthnicity.NativeLanguageId);
 		Assert.AreEqual(0, db.EthnicitiesNameCultures.Count(x => x.EthnicityId == dwarfEthnicity.Id));
-		Assert.AreEqual(1, db.EthnicitiesCharacteristics.Count(x => x.EthnicityId == dwarfEthnicity.Id));
+		Assert.AreEqual(5, db.EthnicitiesCharacteristics.Count(x => x.EthnicityId == dwarfEthnicity.Id));
 		var ids = db.SeederManagedRecords.ToDictionary(x => x.StableKey, x => x.LogicalId);
 		dwarf.Name = "Builder Dwarf"; dwarf.SweatRateInLitresPerMinute = 0.01;
 		db.Races.Single(x => x.Name == "Human").SweatRateInLitresPerMinute = 99; // Bootstrap changes must not become new stock defaults.
@@ -194,7 +221,7 @@ public class ArmageddonHeritageTests
 	}
 
 	[TestMethod]
-	public void InactiveLifecycleScaffolds_PersistInitialAgesAndPreserveBuilderChangesAcrossReruns()
+	public void ApprovedLifecycles_PersistAndPreserveBuilderChangesAcrossReruns()
 	{
 		using var db = Fixture();
 		var human = db.Races.Single(x => x.Name == "Human");
@@ -209,7 +236,8 @@ public class ArmageddonHeritageTests
 		ArmageddonHeritage.Install(db, messages);
 		var ids = db.Races.Where(x => x.Name.StartsWith("Armageddon ")).Select(x => x.Id).ToArray();
 		var dwarfId = db.Races.Single(x => x.Name == "Armageddon Dwarf").Id;
-		var baseline = new[] { 3, 10, 16, 25, 50, 75 };
+		var baseline = db.Races.Where(x => ids.Contains(x.Id)).ToDictionary(x => x.Id,
+			x => new[] { x.ChildAge, x.YouthAge, x.YoungAdultAge, x.AdultAge, x.ElderAge, x.VenerableAge });
 		static int[] Ages(Race race) =>
 			[race.ChildAge, race.YouthAge, race.YoungAdultAge, race.AdultAge, race.ElderAge, race.VenerableAge];
 
@@ -218,7 +246,7 @@ public class ArmageddonHeritageTests
 		Assert.AreEqual(8, ids.Length);
 		foreach (var race in db.Races.Where(x => ids.Contains(x.Id)))
 		{
-			CollectionAssert.AreEqual(baseline, Ages(race));
+			CollectionAssert.AreEqual(baseline[race.Id], Ages(race));
 			Assert.AreEqual(2L, race.AvailabilityProgId);
 		}
 
@@ -239,7 +267,7 @@ public class ArmageddonHeritageTests
 			db.ChangeTracker.Clear();
 			foreach (var race in db.Races.Where(x => ids.Contains(x.Id)))
 			{
-				CollectionAssert.AreEqual(race.Id == dwarfId ? new[] { 5, 12, 21, 31, 62, 82 } : baseline,
+				CollectionAssert.AreEqual(race.Id == dwarfId ? new[] { 5, 12, 21, 31, 62, 82 } : baseline[race.Id],
 					Ages(race), $"Lifecycle override/baseline changed for {race.Name} on rerun {attempt}.");
 				Assert.AreEqual(2L, race.AvailabilityProgId);
 			}

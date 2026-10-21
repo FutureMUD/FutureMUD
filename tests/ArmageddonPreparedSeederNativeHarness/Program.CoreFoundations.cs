@@ -108,12 +108,12 @@ internal static partial class GNHProgram
 			ConfigureNativeDatabase(restored.ConnectionString);
 			Require(BaseSchemaHash(restored) == receipt.SchemaSha256 && BaseContentHash(restored) == receipt.ContentSha256, "Clean restore differs from sealed foundation schema/content.");
 			// Verify the sealed historical schema/content FIRST. Only this newly owned restored
-			// copy may receive the narrowly reviewed intrinsic-racial-merit schema extension.
+			// copy may receive the reviewed intrinsic-merit and nullable age-description extensions.
 			if (setting)
 			{
 				using var upgrade = NewPreparedReplayContext(restored.ConnectionString);
 				var pending = upgrade.Database.GetPendingMigrations().ToArray();
-				Require(pending.Length == 0 || pending.SequenceEqual(new[] { "20261021005427_IntrinsicRacialMerits" }),
+				Require(pending.Length == 0 || pending.SequenceEqual(new[] { "20261021005427_IntrinsicRacialMerits", "20261021023928_ConfigurableRaceAgeDescriptions" }),
 					"Restored foundation has an unreviewed pending migration inventory.");
 				if (pending.Length > 0) upgrade.Database.Migrate();
 				Require(!upgrade.Database.GetPendingMigrations().Any() && !upgrade.Database.HasPendingModelChanges(),
@@ -269,7 +269,7 @@ internal static partial class GNHProgram
 			Console.WriteLine("CORE-foundation-restored=PASS exact-roundtrip rerun-identities custom-binding full-Armageddon no-Useful");
 		}
 		Require(BaseHash(descriptor) == descriptorHash && BaseHash(sqlPath) == receipt.SqlSha256 && sourceHash == BaseValueHash(BaseSources(steps)), "Foundation fixtures/sources changed during qualification.");
-		WriteBaseRunReceipt(new { Status = "PASS", Scope = setting ? "Combined classes-on Setting; actual native progression/heritage/impacts/openings/Pilot; gated physical profiles remain unqualified" : "Core tags, Sewer/Ruins, reduced Combat/Armageddon baseline", Descriptor = descriptor,
+		WriteBaseRunReceipt(new { Status = "PASS", Scope = setting ? "Combined classes-on Setting; actual native progression/heritage/impacts/openings/Pilot and seven physical profile bodies; race admission held" : "Core tags, Sewer/Ruins, reduced Combat/Armageddon baseline", Descriptor = descriptor,
 			DescriptorSha256 = descriptorHash, receipt.SqlSha256, SourceSha256 = sourceHash, BaselineCapturedThisRun = string.IsNullOrWhiteSpace(supplied), CapturedBaselineSeeders = capturedSteps.Select(x=>x.SeederType), ReviewedThreeStepSourceCompatibility = receipt.SourceSha256 != sourceHash, RestoredSeeders = (setting ? types.Skip(3) : Array.Empty<Type>()).Select(x => x.Name), FullReplayExecuted = false,
 			DumpRoundTripVerified = true, TagIdentitiesPreserved = true, CustomBindingPreserved = true, ZeroUsefulComponents = true,
 			MagicPhaseResumeVerified = setting, MagicPhaseRerunVerified = setting, PlayerValuePreserved = setting,
@@ -337,11 +337,14 @@ internal static partial class GNHProgram
 			receipt.Kind == "FutureMUD-Setting-foundations-v1" && receipt.Steps.Count == 3 &&
 			receipt.SourceSha256 == "C62FBE7A23C71B967C05BCE8EFBCB9E890E6A28F415FB7D52B3C77F75DED4C1B" &&
 			(currentSourceHash == "9B7A1BD56AC27596120AF87246A370207B4C68303379974BC753DF56E96E7BA6" ||
-			 currentSourceHash == ReviewedPhysiologyFoundationSourceHash) &&
+			 currentSourceHash == ReviewedPhysiologyFoundationSourceHash || currentSourceHash == ReviewedPhysicalFoundationSourceHash) &&
 			receipt.SqlSha256 == "64113F06E363B582ECE510A3C112984F51D28977DB7250A53D28A6DA790F7206" &&
 			receipt.SchemaSha256 == "36CF37216ABAC521E308DC44FA83DDDA246414F171A7D1B27A7C634BE93A17B3" &&
 			receipt.ContentSha256 == "8D8553E9D1353969FCFA7EE082F789FB98B9D777771905AAAB416DC8ACFF8C45";
 	}
 	// Exact current file inventory measured by the read-only --setting-source-pin lane.
 	private const string ReviewedPhysiologyFoundationSourceHash = "7AECCB81F5E804E4C196E6C47DD12B44A9BEC502FDD9AB17BD298715DC21A2D2";
+	// Physical slice: nullable lifecycle description mapping/migration, refreshed snapshot and
+	// opt-in shared age/style interfaces. The historical seed/schema/content pins remain exact.
+	private const string ReviewedPhysicalFoundationSourceHash = "2F859BB74250BDD29C11FE236C9E49E0E7FA86BFA302000C328E43E74F0B247E";
 }

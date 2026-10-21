@@ -19,7 +19,7 @@ namespace DatabaseSeeder.Seeders;
 public sealed record ArmageddonHeritageProfile(string Key, string Name, string? AncestralLanguage, string? SecondaryLanguage, int SecondaryValue);
 public sealed record ArmageddonUpbringing(string Key, string Name, string Language, string Accent, bool Urban);
 
-/// <summary>Approved nonphysical graph. New races remain explicitly unavailable physical scaffolds.</summary>
+/// <summary>Approved heritage and physical defaults. New race admission remains explicitly held.</summary>
 public static partial class ArmageddonHeritage
 {
 	public const string Module = "setting-heritage";
@@ -72,6 +72,8 @@ public static partial class ArmageddonHeritage
 	private static void PreflightNames(FuturemudDatabaseContext db, long storyboardId)
 	{
 		PreflightPhysiology(db);
+		PreflightPhysical(db);
+		PreflightAppearance(db);
 		var languages = ArmageddonSkillPackage.Skills.Where(x => x.Language).Select(x => (Slug: x.Key["arm.skill.".Length..], x.Name)).ToArray();
 		Preflight<Language>(db, languages.Select(x => ("arm.language." + x.Slug, x.Name)));
 		Preflight<Race>(db, Profiles.Select(x => ("arm.race." + x.Key, "Armageddon " + x.Name)).Append(("arm.race.elf", "Armageddon Elf")));
@@ -217,8 +219,9 @@ public static partial class ArmageddonHeritage
 		}
 		var parent = Scaffold(db, "arm.race.elf", human);
 		parent.Name = "Armageddon Elf"; parent.ParentRaceId = organic.Id; parent.AvailabilityProgId = no;
-		parent.Description = "Common biological Elf parent; unavailable. Physical values are inactive Human scaffolding pending review.";
+		parent.Description = "Common biological Elf parent with the approved Elf physical/lifecycle defaults. This parent remains unavailable and is not an eighth playable profile.";
 		parent.SweatRateInLitresPerMinute = SweatRateForProfile("city_elf");
+		PhysicalDefaults(db, parent, "city_elf", messages);
 		AttributeDefaults(parent, attributes.Length);
 		parent = Apply(db, "arm.race.elf", parent, messages);
 		AttributeLinks(db, "arm.race.elf", "city_elf", parent, human, attributes, messages);
@@ -229,8 +232,9 @@ public static partial class ArmageddonHeritage
 			var race = Scaffold(db, key, human);
 			race.Name = "Armageddon " + profile.Name; race.ParentRaceId = profile.Key is "city_elf" or "desert_elf" ? parent.Id : organic.Id;
 			race.AvailabilityProgId = no;
-			race.Description = $"{profile.Name} mechanical profile. Approved attribute and racial-merit physiology are installed; remaining ages, dimensions and appearance require the separate activation work. This profile remains unavailable. No racial immunity or power is implied.";
+			race.Description = $"{profile.Name} mechanical profile. Approved attributes, physical/lifecycle data, conservative appearance and racial-merit physiology are installed. This profile remains unavailable pending activation acceptance. No racial immunity or power is implied.";
 			race.SweatRateInLitresPerMinute = SweatRateForProfile(profile.Key);
+			PhysicalDefaults(db, race, profile.Key, messages);
 			race.HungerRate = 1;
 			race.ThirstRate = 1;
 			if (profile.Key == "half_giant")
@@ -273,27 +277,32 @@ public static partial class ArmageddonHeritage
 			var key = "arm.ethnicity." + profile.Key + ".default";
 			var ethnicity = Apply(db, key, new Ethnicity { Name = "Armageddon " + profile.Name, ParentRaceId = races[profile.Key].Id, AvailabilityProgId = yes,
 				NativeLanguageId = profile.AncestralLanguage is { } native ? languages[native].Id : null, PopulationBloodModelId = blood,
-				EthnicGroup = profile.Name, EthnicSubgroup = "Default", ChargenBlurb = "Minimum engine identity for the approved profile; broad Human characteristic scaffolds remain unqualified for racial appearance.",
+				EthnicGroup = profile.Name, EthnicSubgroup = "Default", ChargenBlurb = "Approved profile with conservative racial appearance and shared neutral colour palettes. Physical admission remains separately gated.",
 				TolerableTemperatureCeilingEffect = 0, TolerableTemperatureFloorEffect = 0 }, messages);
-			EthnicityLinks(db, key, ethnicity, adminEthnicity, null, messages);
+			EthnicityLinks(db, key, ethnicity, adminEthnicity, null, messages, AppearanceProfiles(db, profile.Key, messages));
 		}
 		InstallNaming(db, actualCultures, races, messages);
+		WirePhysicalScreens(db, races, messages);
 		InstallAccents(db, languages, actualCultures, messages);
 		WireFreeSkills(db, storyboard, oldFree, actualCultures, races, skills, messages);
 		db.SaveChanges();
 		using (var compiler = new OfflineProgCompilation(db.FutureProgs.Include(x => x.FutureProgsParameters).ToArray()))
 			foreach (var record in db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package && x.Module == Module && x.EntityType == nameof(FutureProg)).ToArray()) compiler.Compile(record.LogicalId!.Value);
 		transaction?.Commit();
-		messages.Add("Nonphysical heritage graph installed: five languages/cultures, seven exact-profile ethnicities, approved personal-name suggestions with free entry and native200/source secondary grants. All eight new Race rows default unavailable pending physical acceptance; deliberate builder overrides are retained and reported. Bootstrap Human/Admin and existing characters were preserved. No scripts or city spawns installed.");
+		messages.Add("Heritage and approved physical defaults installed: five languages/cultures, seven exact-profile ethnicities, lifecycle descriptions, creation bounds and appearance profiles, approved personal-name suggestions with free entry and native200/source secondary grants. All eight new Race rows default unavailable until explicit admission approval; deliberate builder overrides are retained and reported. Bootstrap Human/Admin and existing characters were preserved. No scripts or city spawns installed.");
 	}
 
 	private sealed record CharacteristicLink(long Definition, long Profile);
-	private static void EthnicityLinks(FuturemudDatabaseContext db, string key, Ethnicity ethnicity, Ethnicity source, long? nameId, ICollection<string> messages)
+	private static void EthnicityLinks(FuturemudDatabaseContext db, string key, Ethnicity ethnicity, Ethnicity source, long? nameId, ICollection<string> messages,
+		IReadOnlyDictionary<long, long>? appearance = null)
 	{
 		// One typed reference inventory per ethnicity contains both naming and characteristics.
 		var names = db.EthnicitiesNameCultures.Where(x => x.EthnicityId == ethnicity.Id).AsEnumerable().Select(x => new NameLink(x.Gender, x.NameCultureId)).OrderBy(x => x.Gender).ToArray();
 		var current = db.EthnicitiesCharacteristics.Where(x => x.EthnicityId == ethnicity.Id).AsEnumerable().Select(x => new CharacteristicLink(x.CharacteristicDefinitionId, x.CharacteristicProfileId)).OrderBy(x => x.Definition).ToArray();
-		var desired = db.EthnicitiesCharacteristics.Where(x => x.EthnicityId == source.Id).AsEnumerable().Select(x => new CharacteristicLink(x.CharacteristicDefinitionId, x.CharacteristicProfileId)).OrderBy(x => x.Definition).ToArray();
+		var desired = db.EthnicitiesCharacteristics.Where(x => x.EthnicityId == source.Id).AsEnumerable()
+			.Select(x => new CharacteristicLink(x.CharacteristicDefinitionId,
+				appearance is not null && appearance.TryGetValue(x.CharacteristicDefinitionId, out var choice) ? choice : x.CharacteristicProfileId))
+			.OrderBy(x => x.Definition).ToArray();
 		if (desired.Length == 0) throw new InvalidOperationException("Human characteristic profiles are missing.");
 		var merged = ArmageddonSettingLinks.Reconcile(db, key + ".links", nameof(Ethnicity), ethnicity.Id,
 			new Dictionary<string, string> { ["Naming"] = Json(names), ["Characteristics"] = Json(current) },

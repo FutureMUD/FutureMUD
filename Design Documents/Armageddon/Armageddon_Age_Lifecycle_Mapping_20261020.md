@@ -1,6 +1,6 @@
 # Armageddon age categories: native mapping decision
 
-20 October 2026. The recovered category ranges and Elf creation height are approved. **21 October owner update: Luke approved the recommended adult lifecycle mapping and separate recovered descriptive bands. Implementation remains pending; no age fields or chargen policies have been changed.** All eight new Race rows remain unavailable. This is a requirements gate, not a denied operation.
+20 October 2026, updated 21 October. **Luke approved the complete lifecycle and independent creation-age policy; implementation and current-schema native qualification are complete.** All eight new Race rows remain unavailable; admission and publication are separate held actions. Earlier pending-decision statements below are historical. See the final policy and the [implementation evidence](Armageddon_Setting_Implementation_20261019.md).
 
 ## Verified source contract
 
@@ -57,3 +57,9 @@ The focused heritage regression covers all six current inactive lifecycle fields
 Parallel current-master tasks supplied separate breathing and sweat corrections, now integrated locally, including explicit approved Armageddon sweat defaults. Naming input was recovered read-only from the owner's approved Page after the text transfer was truncated; its implementation and provenance are recorded in [the naming note](Armageddon_Naming_Integration_20261020.md). Neither follow-up supplies juvenile thresholds or chargen age policy. The adult mapping was subsequently approved on21 October; its implementation and boundary repair remain outstanding. Publication remains last.
 
 21 October subsequent approval of chat item5: ordinary creation minima at the mapped adult starts are approved (Human20, both Elves24, Dwarf44, Half-Elf22, Half-Giant36, Mul15), with explicit policy for younger exceptions. Upper creation bounds and juvenile subdivision values remain unspecified. The physical/appearance approach in that item is approved; it supplies no missing numerical values.
+
+## Final policy approved, 21 October
+
+Luke approved the complete proposed v1 policy and instructed implementation. Child starts at 3 for every profile. Youth starts at Human10, both Elves12, Dwarf22, Half-Elf11, Half-Giant18 and Mul8. The already approved adult lifecycle starts remain unchanged. Independent ordinary creation bounds are Human20–80, both Elves24–93, Dwarf44–178, Half-Elf22–87, Half-Giant36–145 and Mul15–60, inclusive. These juvenile subdivisions and creation restrictions are authored policy, not recovered canon, lifespans or death limits. Younger/Ancient exceptions require explicit builder policy through the configured creation progs.
+
+Implementation and qualification are complete. Persisted lifecycle fields mean inclusive starts; generic RankedRange semantics remain unchanged. Optional text(number age) race progs provide the six recovered descriptive bands dynamically through &age, independently of mechanical stages. Legacy races default to their mechanical labels. Owned creation wrappers preserve the original delegate for other races and retain deliberate builder edits. Native age-screen limits, seven saved bodies, two cold readers, preserving reruns and first/cold server boots pass; exact receipts are in the implementation ledger. All eight Race admission gates remain unavailable; activation and publication are held.

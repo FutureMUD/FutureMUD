@@ -1,5 +1,7 @@
 # Armageddon physical profiles: revised evidence and review gate
 
+**Current 21 October status:** the complete proposed physical/lifecycle/appearance policy is approved, implemented and qualified. The historical proposal and corrections below preserve their provenance; the final instruction and [evidence ledger](Armageddon_Setting_Implementation_20261019.md) supersede pending-decision text. Race admission and publication remain held.
+
 **Revised 20 October 2026. No profile activation is authorised.** Luke selected the character-creation Elf height and recovered age bands, without invented lifespan limits. Publication remains last. The first proposal contained inherited unit anomalies and missed recoverable PC weight/height/age evidence. This revision supersedes its common 16–74 creation ages, broad BMI envelopes, and Giant consumption/breathing multipliers. The seven-profile roster, cultures and language grants remain settled.
 
 ## Recovered PC constraints
@@ -143,3 +145,10 @@ Luke subsequently instructed implementation of the racial merits, the found fixe
 The environmental progs preserve recovered severe/moderate penalties, separate sector/indoors credits, below-standing credit and total loss clamps using native conditions. Mapped Core terrain expansions are authored. Native Morning/Afternoon receives+1; no native Highsun band exists, so an invented noon interval is not installed. Stock water-loss prog remains zero because source condition points provide no litre conversion and the existing basal-water property has no tracked production assignment. Generic numeric water-loss support is executable for explicitly configured worlds; this does not establish source-exact hydration or whole-body dehydration balance. Sweat, drinking and physical water withdrawals remain separate.
 
 The implementation ledger records verification separately. Height/weight ranges were not tested, no incomplete race was enabled, and full remaining physical/lifecycle wiring and activation are separate work. All changes remain local; no existing-world database or publication action is included.
+
+
+## Final implementation instruction, 21 October
+
+Luke approved the remaining juvenile and independent creation-age policy recorded in the lifecycle note and authorised implementation. All prior physical, posture, attribute, appearance and physiology decisions remain settled. Physical/lifecycle/appearance wiring is implemented and qualified; earlier pending-decision statements above are historical. The two-category posture table supersedes the original three-category proposal. Admission and publication remain held. The approved profile height/weight ranges were not range-tested; native body fixtures use fixed representative model means.
+
+Seven neutral authored physical models, seven age describers, six preserving creation-bound wrappers, five conservative authored shape values and seven appearance profiles are installed. Native bodies retain their identity, birthday, attributes, appearance, needs, partial blood and stamina through two cold readers. Human blood-volume extrapolation for Giants remains an adaptation rather than a biological balance claim. Shared profile records remain intact; their dynamic All profiles include newly defined shape values by normal engine semantics, so the available pools/random distributions are not claimed unchanged or ancestry-exclusive. The narrowed Elf/frame and hairless profiles supply their explicit defaults, with ordinary styling unable to regrow hair in the hairless profiles.

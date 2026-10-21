@@ -151,12 +151,7 @@ internal static partial class GNHProgram
 		var dwarf = db.Races.Single(x => x.Id == input.Dwarf);
 		Require(dwarf.SweatRateInLitresPerMinute == 0.007 && dwarf.SweatLiquidId == null && db.Races.Single(x => x.Id == input.Mul).SweatRateInLitresPerMinute == 0.0, "Cold rerun lost custom/zero sweat data.");
 		Require(new[] { dwarf.ChildAge, dwarf.YouthAge, dwarf.YoungAdultAge, dwarf.AdultAge, dwarf.ElderAge, dwarf.VenerableAge }.SequenceEqual(new[] { 5, 12, 21, 31, 62, 82 }), "Cold rerun changed authored test age overrides.");
-		var raceIds = db.SeederManagedRecords.Where(x => x.Seeder == ArmageddonMagicInstaller.Package &&
-			x.EntityType == nameof(Db.Race) && x.StableKey.StartsWith("arm.race."))
-			.Select(x => x.LogicalId!.Value).Distinct().ToArray();
-		var never = db.FutureProgs.Single(x => x.FunctionName == "AlwaysFalse").Id;
-		Require(raceIds.Length == 8, $"Follow-up qualification expected eight distinct physical race records, found {raceIds.Length}.");
-		Require(db.Races.Where(x => raceIds.Contains(x.Id)).All(x => x.AvailabilityProgId == never), "Follow-up qualification enabled an incomplete physical profile.");
+		RequirePhysicalAdmissionHeld(database);
 		Require(input.Physiology is not null, "Cold reader lacks the physiology qualification receipt.");
 		CheckSettingPhysiologyCold(database, input.Physiology!);
 		Console.WriteLine("SETTING-followups-cold-reader=PASS persistence-and-preserving-installer-only"); return 0;

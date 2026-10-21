@@ -18976,6 +18976,9 @@ namespace MudSharp.Migrations
                     b.Property<int>("AdultAge")
                         .HasColumnType("int(11)");
 
+                    b.Property<long?>("AgeDescriptionProgId")
+                        .HasColumnType("bigint(20)");
+
                     b.Property<string>("AllowedGenders")
                         .IsRequired()
                         .HasColumnType("varchar(255)")
@@ -19302,6 +19305,8 @@ namespace MudSharp.Migrations
                         .HasColumnType("int(11)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AgeDescriptionProgId");
 
                     b.HasIndex("AvailabilityProgId")
                         .HasDatabaseName("FK_Races_AvailabilityProg");
@@ -34771,6 +34776,12 @@ namespace MudSharp.Migrations
 
             modelBuilder.Entity("MudSharp.Models.Race", b =>
                 {
+                    b.HasOne("MudSharp.Models.FutureProg", "AgeDescriptionProg")
+                        .WithMany()
+                        .HasForeignKey("AgeDescriptionProgId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Races_AgeDescriptionProg");
+
                     b.HasOne("MudSharp.Models.FutureProg", "AvailabilityProg")
                         .WithMany("RacesAvailabilityProg")
                         .HasForeignKey("AvailabilityProgId")
@@ -34860,6 +34871,8 @@ namespace MudSharp.Migrations
                         .HasForeignKey("SweatLiquidId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("FK_Races_Liqiuds_Sweat");
+
+                    b.Navigation("AgeDescriptionProg");
 
                     b.Navigation("AvailabilityProg");
 

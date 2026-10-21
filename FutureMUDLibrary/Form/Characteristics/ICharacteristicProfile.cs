@@ -13,6 +13,7 @@ namespace MudSharp.Form.Characteristics
         ICharacteristicDefinition TargetDefinition { get; }
         string Description { get; }
         string Type { get; }
+		bool RestrictsStyleChanges => false;
         bool ContainsCharacteristic(ICharacteristicValue value);
         void ExpireCharacteristic(ICharacteristicValue value);
         ICharacteristicValue GetCharacteristic(string value);

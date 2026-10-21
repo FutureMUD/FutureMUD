@@ -58,6 +58,7 @@ public partial class Race
 	#6Physical Properties#0
 
 	#3age <category> <minimum>#0 - sets the minimum age for a specified age category
+	#3age description <prog|none>#0 - sets a text(number age) description independently of lifecycle stages
 	#3variable all <characteristic>#0 - adds or sets a specified characteristic for all genders
 	#3variable male <characteristic>#0 - adds or sets a specified characteristic for males only
 	#3variable female <characteristic>#0 - adds or sets a specified characteristic for females only
@@ -1915,7 +1916,9 @@ public partial class Race
 
     private bool BuildingCommandAge(ICharacter actor, StringStack command)
     {
-        if (!command.PopSpeech().TryParseEnum(out AgeCategory category))
+		var option = command.PopSpeech();
+		if (option.EqualTo("description")) return BuildingCommandAgeDescription(actor, command);
+        if (!option.TryParseEnum(out AgeCategory category))
         {
             actor.OutputHandler.Send(
                 $"The valid age categories are {Enum.GetValues<AgeCategory>().Select(x => x.DescribeEnum().ColourValue()).ListToString()}.");
@@ -2891,19 +2894,20 @@ public partial class Race
 
         sb.AppendLine();
         sb.AppendLine("Ages".GetLineWithTitleInner(actor, Telnet.Blue, Telnet.BoldWhite));
+        sb.AppendLine($"Age Description Prog: {(_ageDescriptionProgId?.ToString("N0", actor) ?? "Mechanical category")}");
         sb.AppendLine();
         sb.AppendLine(
-            $"Baby: {0.ToString("N0", actor).ColourValue()} to {MinimumAgeForCategory(Heritage.AgeCategory.Child).ToString("N0", actor).ColourValue()}");
+            $"Baby: {0.ToString("N0", actor).ColourValue()} to {(MinimumAgeForCategory(Heritage.AgeCategory.Child) - 1).ToString("N0", actor).ColourValue()}");
         sb.AppendLine(
-            $"Child: {MinimumAgeForCategory(Heritage.AgeCategory.Child).ToString("N0", actor).ColourValue()} to {MinimumAgeForCategory(Heritage.AgeCategory.Youth).ToString("N0", actor).ColourValue()}");
+            $"Child: {MinimumAgeForCategory(Heritage.AgeCategory.Child).ToString("N0", actor).ColourValue()} to {(MinimumAgeForCategory(Heritage.AgeCategory.Youth) - 1).ToString("N0", actor).ColourValue()}");
         sb.AppendLine(
-            $"Youth: {MinimumAgeForCategory(Heritage.AgeCategory.Youth).ToString("N0", actor).ColourValue()} to {MinimumAgeForCategory(Heritage.AgeCategory.YoungAdult).ToString("N0", actor).ColourValue()}");
+            $"Youth: {MinimumAgeForCategory(Heritage.AgeCategory.Youth).ToString("N0", actor).ColourValue()} to {(MinimumAgeForCategory(Heritage.AgeCategory.YoungAdult) - 1).ToString("N0", actor).ColourValue()}");
         sb.AppendLine(
-            $"Young Adult: {MinimumAgeForCategory(Heritage.AgeCategory.YoungAdult).ToString("N0", actor).ColourValue()} to {MinimumAgeForCategory(Heritage.AgeCategory.Adult).ToString("N0", actor).ColourValue()}");
+            $"Young Adult: {MinimumAgeForCategory(Heritage.AgeCategory.YoungAdult).ToString("N0", actor).ColourValue()} to {(MinimumAgeForCategory(Heritage.AgeCategory.Adult) - 1).ToString("N0", actor).ColourValue()}");
         sb.AppendLine(
-            $"Adult: {MinimumAgeForCategory(Heritage.AgeCategory.Adult).ToString("N0", actor).ColourValue()} to {MinimumAgeForCategory(Heritage.AgeCategory.Elder).ToString("N0", actor).ColourValue()}");
+            $"Adult: {MinimumAgeForCategory(Heritage.AgeCategory.Adult).ToString("N0", actor).ColourValue()} to {(MinimumAgeForCategory(Heritage.AgeCategory.Elder) - 1).ToString("N0", actor).ColourValue()}");
         sb.AppendLine(
-            $"Elder: {MinimumAgeForCategory(Heritage.AgeCategory.Elder).ToString("N0", actor).ColourValue()} to {MinimumAgeForCategory(Heritage.AgeCategory.Venerable).ToString("N0", actor).ColourValue()}");
+            $"Elder: {MinimumAgeForCategory(Heritage.AgeCategory.Elder).ToString("N0", actor).ColourValue()} to {(MinimumAgeForCategory(Heritage.AgeCategory.Venerable) - 1).ToString("N0", actor).ColourValue()}");
         sb.AppendLine(
             $"Venerable: {$"{MinimumAgeForCategory(Heritage.AgeCategory.Venerable).ToString("N0", actor)}+".ColourValue()}");
 

@@ -33,6 +33,7 @@ namespace MudSharp.Character.Heritage
     public interface IRace : IEditableItem, IProgVariable, IHaveContextualSizeCategory, IHavePositionalSizes
     {
         string Description { get; }
+		string DescribeAge(int ageInYears) => AgeCategory(ageInYears).DescribeEnum(true).ToLowerInvariant();
 
         IEnumerable<MudSharp.RPG.Merits.ICharacterMerit> DirectIntrinsicMerits => Array.Empty<MudSharp.RPG.Merits.ICharacterMerit>();
         IEnumerable<MudSharp.RPG.Merits.ICharacterMerit> IntrinsicMerits => DirectIntrinsicMerits;

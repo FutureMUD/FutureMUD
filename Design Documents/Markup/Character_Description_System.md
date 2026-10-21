@@ -383,3 +383,10 @@ $ears[%ears[&his ears are $earsfancy][1:&he only has one ear, which is $earsfanc
 - Use `%var[...]` whenever the characteristic is tied to a bodypart count that might vary.
 - Prefer `&?a_an[...]` when plurality can vary after expansion.
 - When documenting or editing a specific seeded family, keep the generic rules here separate from the seeder-specific examples in the human-seeder extension document.
+
+
+## Race age descriptions and restricted styling profiles
+
+The &age substitution asks the race for its current age description. A nullable AgeDescriptionProgId may select a text(number calendar age) prog, configured with race set age description <prog|none>. Missing/incompatible progs and empty results fall back to the mechanical lifecycle label. Lifecycle categories and FutureProg agecategory remain mechanical; separate descriptive bands do not alter juvenile AI or body-form ageing. Saved race thresholds are inclusive starts; adjacent categories do not share a whole-year endpoint.
+
+Standard characteristic profiles may opt into RestrictStyles=true in their definition XML, or use the restrictstyles builder toggle. Ordinary styling and staged regrowth then remain within the selected body's ethnicity profile for that definition. Existing applicability, growth and cooldown checks still apply, as does deliberate administrator force behaviour. Unconfigured/legacy profiles retain their global styling choices. The opt-in survives profile save/reload and cloning. Armageddon uses it for hairless Dwarf/Mul scalp and facial-hair profiles; shared Human profiles are unchanged.

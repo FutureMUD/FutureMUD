@@ -313,7 +313,7 @@ namespace MudSharp.Form.Characteristics
                     case "personword":
                         return culture?.PersonWord(gender.Enum).ToLowerInvariant() ?? "unknown";
                     case "age":
-                        return race?.AgeCategory(age).DescribeEnum(true).ToLowerInvariant() ?? "adult";
+                        return race?.DescribeAge(age).ToLowerInvariant() ?? "adult";
                     case "height":
                         return gameworld.UnitManager.Describe(height, UnitType.Length,
                             gameworld.UnitManager.Units.First().System);
@@ -520,7 +520,7 @@ m.Groups[4].Value.Replace("@", obscurer.DescribeCharacteristic(type.Item1, voyeu
                         return culture?.Culture.PersonWord(gender.Enum).ToLowerInvariant() ?? "unknown";
                     case "age":
                         race = owner as IHaveRace;
-                        return race?.AgeCategory.DescribeEnum(true).ToLowerInvariant() ?? "adult";
+                        return race?.Race.DescribeAge(race.AgeInYears).ToLowerInvariant() ?? "adult";
                     case "tattoos":
                         character = owner as ICharacter ?? (owner as IBody)?.Actor;
                         if (character != null)

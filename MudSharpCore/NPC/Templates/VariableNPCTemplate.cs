@@ -1396,7 +1396,7 @@ public class VariableNPCTemplate : NPCTemplateBase
         int minAge = _race.MinimumAgeForCategory(minAgeCat);
         int maxAge = maxAgeCat == AgeCategory.Venerable
             ? (int)(_race.MinimumAgeForCategory(maxAgeCat) * 1.2)
-            : _race.MinimumAgeForCategory(maxAgeCat + 1);
+            : _race.MinimumAgeForCategory(maxAgeCat + 1) - 1;
 
         if (minAge > maxAge)
         {

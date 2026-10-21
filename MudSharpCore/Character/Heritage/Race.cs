@@ -340,6 +340,7 @@ public partial class Race : SaveableItem, IRace
                 AdultAge = MinimumAgeForCategory(Heritage.AgeCategory.Adult),
                 ElderAge = MinimumAgeForCategory(Heritage.AgeCategory.Elder),
                 VenerableAge = MinimumAgeForCategory(Heritage.AgeCategory.Venerable),
+                AgeDescriptionProgId = _ageDescriptionProgId,
                 DefaultHeightWeightModelMaleId = _defaultHeightWeightModels.ValueOrDefault(Gender.Male, null)?.Id,
                 DefaultHeightWeightModelFemaleId = _defaultHeightWeightModels.ValueOrDefault(Gender.Female, null)?.Id,
                 DefaultHeightWeightModelNeuterId = _defaultHeightWeightModels.ValueOrDefault(Gender.Neuter, null)?.Id,
@@ -366,6 +367,7 @@ public partial class Race : SaveableItem, IRace
     public Race(MudSharp.Models.Race race, IFuturemud gameworld)
     {
         Gameworld = gameworld;
+		_ageDescriptionProgId = race.AgeDescriptionProgId;
 		_intrinsicMeritIds.AddRange(race.RacesMerits.Select(x => x.MeritId));
         _id = race.Id;
         _name = race.Name;
@@ -631,6 +633,7 @@ public partial class Race : SaveableItem, IRace
     public Race(Race rhs, string newName)
     {
         Gameworld = rhs.Gameworld;
+		_ageDescriptionProgId = rhs._ageDescriptionProgId;
 		_intrinsicMeritIds.AddRange(rhs._intrinsicMeritIds);
 		_defaultSkillPackages.AddRange(rhs._defaultSkillPackages);
         _name = newName;
@@ -832,6 +835,7 @@ public partial class Race : SaveableItem, IRace
                 AdultAge = MinimumAgeForCategory(Heritage.AgeCategory.Adult),
                 ElderAge = MinimumAgeForCategory(Heritage.AgeCategory.Elder),
                 VenerableAge = MinimumAgeForCategory(Heritage.AgeCategory.Venerable),
+                AgeDescriptionProgId = _ageDescriptionProgId,
                 DefaultHeightWeightModelMaleId = _defaultHeightWeightModels.ValueOrDefault(Gender.Male, null)?.Id,
                 DefaultHeightWeightModelFemaleId = _defaultHeightWeightModels.ValueOrDefault(Gender.Female, null)?.Id,
                 DefaultHeightWeightModelNeuterId = _defaultHeightWeightModels.ValueOrDefault(Gender.Neuter, null)?.Id,
@@ -1274,6 +1278,7 @@ public partial class Race : SaveableItem, IRace
         dbitem.AdultAge = MinimumAgeForCategory(Heritage.AgeCategory.Adult);
         dbitem.ElderAge = MinimumAgeForCategory(Heritage.AgeCategory.Elder);
         dbitem.VenerableAge = MinimumAgeForCategory(Heritage.AgeCategory.Venerable);
+		dbitem.AgeDescriptionProgId = _ageDescriptionProgId;
         dbitem.DefaultHeightWeightModelMaleId = _defaultHeightWeightModels.ValueOrDefault(Gender.Male, null)?.Id;
         dbitem.DefaultHeightWeightModelFemaleId = _defaultHeightWeightModels.ValueOrDefault(Gender.Female, null)?.Id;
         dbitem.DefaultHeightWeightModelNeuterId = _defaultHeightWeightModels.ValueOrDefault(Gender.Neuter, null)?.Id;
@@ -2060,7 +2065,7 @@ public partial class Race : SaveableItem, IRace
 
     public AgeCategory AgeCategory(int ageInYears)
     {
-        return Ages.Find(ageInYears);
+        return Ages.Ranges.Last(x => x.LowerBound <= ageInYears).Value;
     }
 
     public AgeCategory AgeCategory(ICharacter character)

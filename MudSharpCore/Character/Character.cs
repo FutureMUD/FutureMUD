@@ -3621,6 +3621,11 @@ public partial class Character : PerceiverItem, ICharacter, ICharacterIdentity, 
     {
         IEnumerable<IGrowableCharacteristicValue> selectables = Gameworld.CharacteristicValues.OfType<IGrowableCharacteristicValue>().Where(x =>
             x.Definition == definition && (x.ChargenApplicabilityProg?.ExecuteBool(this) ?? true));
+		if (Ethnicity?.CharacteristicChoices is { } choices && choices.TryGetValue(definition, out var profile) && profile.RestrictsStyleChanges)
+		{
+			var allowed = new HashSet<long>(profile.Values.Select(x => x.Id));
+			selectables = selectables.Where(x => allowed.Contains(x.Id));
+		}
         if (!(Body.GetCharacteristic(definition, null) is IGrowableCharacteristicValue current))
         {
             return Enumerable.Empty<IGrowableCharacteristicValue>();

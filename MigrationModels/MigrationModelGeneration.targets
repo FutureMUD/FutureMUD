@@ -1,0 +1,21 @@
+<Project>
+	<PropertyGroup>
+		<MigrationRepositoryRoot>$([System.IO.Path]::GetFullPath('$(MSBuildThisFileDirectory)..'))</MigrationRepositoryRoot>
+		<MigrationCompilerProject>$(MigrationRepositoryRoot)/BuildTools/MigrationModelCompiler/MigrationModelCompiler.csproj</MigrationCompilerProject>
+		<MigrationCompilerDll>$(MigrationRepositoryRoot)/BuildTools/MigrationModelCompiler/bin/$(Configuration)/net10.0/MigrationModelCompiler.dll</MigrationCompilerDll>
+	</PropertyGroup>
+	<ItemGroup>
+		<ProjectReference Include="$(MigrationCompilerProject)" ReferenceOutputAssembly="false" Private="false" PrivateAssets="all"
+			GlobalPropertiesToRemove="RuntimeIdentifier;SelfContained;PublishSelfContained;PublishSingleFile;IncludeNativeLibrariesForSelfExtract;PublishTrimmed;DebugType" />
+	</ItemGroup>
+	<Target Name="GenerateMigrationModels" BeforeTargets="CoreCompile" DependsOnTargets="ResolveProjectReferences">
+		<PropertyGroup>
+			<MigrationGeneratedDirectory>$([System.IO.Path]::GetFullPath('$(IntermediateOutputPath)migration-models'))</MigrationGeneratedDirectory>
+		</PropertyGroup>
+		<Exec Command="dotnet &quot;$(MigrationCompilerDll)&quot; generate &quot;$(MigrationRepositoryRoot)&quot; &quot;$(MigrationModelRole)&quot; &quot;$(MigrationGeneratedDirectory)&quot;" />
+		<ItemGroup>
+			<Compile Include="$(MigrationGeneratedDirectory)/*.g.cs" />
+			<FileWrites Include="$(MigrationGeneratedDirectory)/*.g.cs" />
+		</ItemGroup>
+	</Target>
+</Project>

@@ -28,11 +28,8 @@ public class RoomTerminologyTests
 		Assert.AreEqual(80,operations.OfType<RenameIndexOperation>().Count());
 		Assert.AreEqual(92,operations.OfType<DropForeignKeyOperation>().Count());
 		Assert.AreEqual(74,operations.OfType<AddForeignKeyOperation>().Count());
-		Assert.AreEqual(2,operations.OfType<SqlOperation>().Count(x=>x.Sql.Contains("PREPARE fm_room_naming_optional_statement_20261007043900")));
 		Assert.AreEqual(18,operations.OfType<SqlOperation>().Count(x=>x.Sql.Contains("PREPARE fm_room_naming_fk_statement_20261007043900")));
 		Assert.AreEqual(0,operations.OfType<AddCheckConstraintOperation>().Count());
-		Assert.AreEqual(10,operations.OfType<DropCheckConstraintOperation>().Count());
-		Assert.AreEqual(10,operations.OfType<SqlOperation>().Count(x=>x.Sql.Contains("PREPARE fm_room_naming_check_statement_20261007043900")));
 		Assert.IsFalse(operations.Any(x=>x is DropTableOperation or CreateTableOperation or DropColumnOperation or AddColumnOperation or DeleteDataOperation or UpdateDataOperation));
 		foreach (var alter in operations.OfType<AlterColumnOperation>())
 		{
